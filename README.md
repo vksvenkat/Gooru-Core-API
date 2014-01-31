@@ -23,7 +23,7 @@ Gooru Core API project consists of APIs that required for Gooru Web this project
   </tr>
 </table>
 
-## Build Process
+## Build
 * Update your tomcat location in "webapp.container.home" property in root pom.xml
 For example, `<webapp.container.home>${env.CATALINA_HOME}</webapp.container.home>`
 * Navigate to the development project folder.
