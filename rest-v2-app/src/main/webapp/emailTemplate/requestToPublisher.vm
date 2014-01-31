@@ -1,0 +1,51 @@
+
+<html>
+<body>
+<div>
+<p>Hello Academic Operations Team,</p>
+<p>${user.getFirstName()} ${user.getLastName()} requested to be a publisher on Gooru. Here are details about the user.</p>
+  
+    <div>
+      <p><b>Educational Background:${user.getUserRole().getDescription()}</b></p>
+      <p>Network:${profile.getSchool()} </p>
+      <p>Grade:${profile.getGrade()} </p>
+      <p>Subject(s) :${profile.getSubject()} </p>
+      <p>Collection Title :${collection.getLesson()}</p>
+      <p>Collection Url :<a href="${request.getScheme()}://${request.getServerName()}/gooru/index.g#!/collection/${collection.getGooruOid()}/play" target='_blank'>${request.getScheme()}://${request.getServerName()}/gooru/index.g#!/collection/${collection.getGooruOid()}/play</a></p>
+      <p>Message : ${message} </p>
+    </div>
+
+    <div>
+      <p><b>Network Information:</b></p>
+      <p>Email : ${emailId}</p>
+      <p>Website: ${profile.getWebsite()}</p>
+      <p>Twitter: ${profile.getTwitter()}</p>
+    </div>
+    
+     <div>
+	      <p><b>Collection publish check list:</b></p>
+	      <p>1) ${collectionCopyText}</p>
+	      <p>2) Minimum 1 segment,  5 resources : ${minimumRequirementSatisfy}</p>
+	      <p>3) Call out Private Resources</p>
+	      <div>
+	        #foreach( $privateResource in $privateResourceList )
+	            <p> $foreach.count) <a href="${request.getScheme()}://${request.getServerName()}/gooru/index.g#!/r/$privateResource.resource.gooruOid" target='_blank'>${request.getScheme()}://${request.getServerName()}/gooru/index.g#!/r/$privateResource.resource.gooruOid</a>
+			#end
+	      </div>
+    </div>
+    
+    <div>
+      <p><a href="${request.getScheme()}://${request.getServerName()}/gooru/collection/${collection.getGooruOid()}/publish/request/accept.g">STOP! Clicking this link will APPROVE this request. </a> The user will need to logout and login for the changes to come in effect.</p>
+
+      <p>Thanks,</p>
+
+      <p><a href="${request.getScheme()}://${request.getServerName()}/gooru/collection/${collection.getGooruOid()}/publish/request/deny.g">STOP! Clicking this link will Deny this request.  </a> The user will need to logout and login for the changes to come in effect.</p>
+    </div>
+
+    <div>
+    <p>Thanks,</p>
+    <p>Your friendly mailing robot!</p>
+    </div>
+  </div>
+</body>
+</html>

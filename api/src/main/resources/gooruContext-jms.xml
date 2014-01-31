@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+   gooruContext-jms.xml
+   gooru-api
+   Created by Gooru on 2014
+   Copyright (c) 2014 Gooru. All rights reserved.
+   http://www.goorulearning.org/
+   Permission is hereby granted, free of charge, to any person obtaining
+   a copy of this software and associated documentation files (the
+   "Software"), to deal in the Software without restriction, including
+   without limitation the rights to use, copy, modify, merge, publish,
+   distribute, sublicense, and/or sell copies of the Software, and to
+   permit persons to whom the Software is furnished to do so, subject to
+   the following conditions:
+   The above copyright notice and this permission notice shall be
+   included in all copies or substantial portions of the Software.
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+   EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+   NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+   LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+   OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+-->
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:jms="http://www.springframework.org/schema/jms"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core-5.7.0.xsd
+http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd
+http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms-3.1.xsd">
+
+	<!-- enables annotation based configuration -->
+	<context:annotation-config />
+	<!-- scans for annotated classes in the com.company package -->
+	
+	<!--
+		allows for ${} replacement in the spring xml configuration from the
+		system.properties file on the classpath <context:property-placeholder
+		location="classpath:system.properties"/>
+	-->
+	
+	
+	<bean id="contentS3Service" class="org.jets3t.service.impl.rest.httpclient.RestS3Service">
+		<constructor-arg ref="contentAwsCredentials" />
+	</bean>
+	
+	<bean id="contentAwsCredentials" class="org.jets3t.service.security.AWSCredentials">
+		<constructor-arg value="${s3.accessKey}" />
+		<constructor-arg value="${s3.secureKey}" />
+	</bean>	
+
+	<bean id="s3Service" class="org.jets3t.service.impl.rest.httpclient.RestS3Service">
+		<constructor-arg ref="awsCredentials" />
+	</bean>
+	
+	<bean id="awsCredentials" class="org.jets3t.service.security.AWSCredentials">
+		<constructor-arg value="${s3.secureKey}" />
+		<constructor-arg value="${s3.accessKey}" />
+	</bean>
+	
+	<bean id="s3Manager" class="org.ednovo.gooru.domain.service.resource.impl.S3Manager" />
+	
+	<!-- For Assesment s3 import  -->
+	
+	<bean id="gooruContentS3Service" class="org.jets3t.service.impl.rest.httpclient.RestS3Service">
+		<constructor-arg ref="gooruContentAwsCredentials" />
+	</bean>
+	
+	<bean id="gooruContentAwsCredentials" class="org.jets3t.service.security.AWSCredentials">
+		<constructor-arg value="${gooruContent.AccessKey}" />
+		<constructor-arg value="${gooruContent.SecretAccessKey}" />
+	</bean>
+
+</beans>

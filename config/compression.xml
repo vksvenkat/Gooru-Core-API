@@ -1,0 +1,3 @@
+<Connector port="8080" protocol="HTTP/1.1" connectionTimeout="20000" redirectPort="8443" compression="on" compressionMinSize="2048" noCompressionUserAgents="gozilla, traviata" compressableMimeType="text/html,text/xml,text/javascript,text/css,text/js,text/template,image/jpeg,image/jpg,image/gif,image/png"/>
+
+<Connector port="8009" protocol="AJP/1.3" redirectPort="8443" compression="on" compressionMinSize="2048" noCompressionUserAgents="gozilla, traviata" compressableMimeType="text/html,text/xml,text/javascript,text/css,text/js,text/template,image/jpeg,image/jpg,image/gif,image/png"/>

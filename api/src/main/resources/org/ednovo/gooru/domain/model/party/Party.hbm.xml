@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+   Party.hbm.xml
+   gooru-api
+   Created by Gooru on 2014
+   Copyright (c) 2014 Gooru. All rights reserved.
+   http://www.goorulearning.org/
+   Permission is hereby granted, free of charge, to any person obtaining
+   a copy of this software and associated documentation files (the
+   "Software"), to deal in the Software without restriction, including
+   without limitation the rights to use, copy, modify, merge, publish,
+   distribute, sublicense, and/or sell copies of the Software, and to
+   permit persons to whom the Software is furnished to do so, subject to
+   the following conditions:
+   The above copyright notice and this permission notice shall be
+   included in all copies or substantial portions of the Software.
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+   EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+   NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+   LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+   OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+-->
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN" 
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+	<class name="org.ednovo.gooru.core.api.model.Party" table="party">
+		<id name="partyUid" column="party_uid" unsaved-value="null">
+			<generator class="org.ednovo.gooru.core.application.util.UUIDGenerator" />
+		</id>
+		<property name="partyName" column="party_name" not-null="true" />
+		<property name="partyType" column="party_type" not-null="true" />
+		<property name="createdOn" column="created_on" not-null="true" />
+		<property name="lastModifiedOn" column="last_modified_on" not-null="false" />
+		<property name="lastModifiedUserUid" column="last_modified_by_uid"
+			not-null="false" />
+		<property name="userUid" column="created_by_uid" not-null="false" />
+
+		<joined-subclass name="org.ednovo.gooru.core.api.model.UserGroup"
+			table="user_group" lazy="true">
+			<key column="user_group_uid" />
+			<property name="activeFlag" column="active_flag" not-null="true" />
+			<property name="userGroupType" column="user_group_type"
+				not-null="true" />
+			<property name="groupCode" column="user_group_code"
+				not-null="true" />
+			<property name="groupName" column="name" not-null="true" />
+
+			<many-to-one name="organization"
+				class="org.ednovo.gooru.core.api.model.Organization" column="organization_uid"
+				not-null="false" lazy="proxy" cascade="none" />
+		</joined-subclass>
+
+		<joined-subclass name="org.ednovo.gooru.core.api.model.Network"
+			table="network" lazy="true">
+			<key column="network_uid" />
+			<property name="approvedFlag" column="approved_flag"
+				not-null="true" />
+			<many-to-one name="organization"
+				class="org.ednovo.gooru.core.api.model.Organization" column="organization_uid"
+				not-null="false" lazy="proxy" cascade="none" />
+		</joined-subclass>
+
+		<joined-subclass name="org.ednovo.gooru.core.api.model.Organization"
+			table="organization" lazy="true">
+			<key column="organization_uid" />
+
+			<property name="organizationCode" column="organization_code"
+				not-null="true" />
+
+			<many-to-one name="s3StorageArea"
+				class="org.ednovo.gooru.core.api.model.StorageArea" column="s3_storage_area_id"
+				not-null="false" lazy="false"  cascade="none" />
+
+			<many-to-one name="nfsStorageArea"
+				class="org.ednovo.gooru.core.api.model.StorageArea" column="nfs_storage_area_id"
+				not-null="false" lazy="false"  cascade="none" />
+
+			<many-to-one name="parentOrganization"
+				class="org.ednovo.gooru.core.api.model.Organization" column="parent_organization_uid"
+				not-null="false" lazy="proxy" cascade="none" />
+
+		</joined-subclass>
+
+		<joined-subclass name="org.ednovo.gooru.core.api.model.User"
+			table="user" lazy="false">
+			<key column="gooru_uid" />
+
+			<property name="userId" column="user_id" unique="true"
+				not-null="true" generated="insert">
+			</property>
+
+			<property name="firstName" column="firstname" length="20"
+				type="string" not-null="false">
+			</property>
+			<property name="lastName" column="lastname" length="20"
+				not-null="false">
+			</property>
+
+			<property name="username" column="username" length="20"
+				not-null="false">
+			</property>
+
+			<property name="registerToken" column="register_token"
+				length="40" not-null="false">
+			</property>
+
+			<property name="confirmStatus" column="confirm_status"
+				length="1" not-null="true">
+			</property>
+			<property name="isDeleted" column="is_deleted" length="1"
+				not-null="false">
+			</property>
+			<property name="addedBySystem" column="added_by_system"
+				length="1" not-null="false">
+			</property>
+
+			<property name="importCode" column="import_code" not-null="false">
+			</property>
+
+			<property name="accountTypeId" column="account_type_id"
+				not-null="false" />
+
+			<many-to-one name="parentUser"
+				class="org.ednovo.gooru.core.api.model.User" column="parent_uid"
+				not-null="false" />
+
+			<many-to-one name="organization"
+				class="org.ednovo.gooru.core.api.model.Organization" column="organization_uid"
+				not-null="false" lazy="false" fetch="join" cascade="none" />
+
+			<many-to-one name="primaryOrganization"
+				class="org.ednovo.gooru.core.api.model.Organization" column="primary_organization_uid"
+				not-null="false" lazy="false" fetch="join" cascade="none" />
+
+			<set name="identities" inverse="true" cascade="persist,delete"
+				lazy="true">
+				<key column="user_uid" />
+				<one-to-many class="org.ednovo.gooru.core.api.model.Identity" />
+			</set>
+			<set name="userRoleSet" inverse="true" cascade="delete" lazy="true">
+				<key column="user_uid" />
+				<one-to-many class="org.ednovo.gooru.core.api.model.UserRoleAssoc" />
+			</set>
+			<set name="customFields" inverse="true" table="party_custom_field">
+				<key>
+					<column name="party_uid" not-null="true" />
+				</key>
+				<one-to-many class="org.ednovo.gooru.core.api.model.PartyCustomField" />
+				<filter name="customFieldFilter" condition="optional_key in (:customFieldFilterParam)" />
+			</set>
+			
+			<many-to-one name="userGroup"
+				class="org.ednovo.gooru.core.api.model.UserGroup" column="user_group_uid"
+				not-null="false" lazy="false" fetch="join" cascade="none" />
+			<property name="viewFlag" column="view_flag" length="40"
+				not-null="false">
+			</property>
+			
+			<property
+		        name="referenceUid"
+		        column="reference_uid"
+		        length="36"	        
+		        not-null="false">	        
+		    </property>
+
+		</joined-subclass>
+	</class>
+	<filter-def name="customFieldFilter">
+         <filter-param name="customFieldFilterParam" type="java.lang.String"  />
+    </filter-def>
+
+</hibernate-mapping>
+

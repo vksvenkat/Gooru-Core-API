@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  gooruContext-service.xml
+  rest-v2-app
+   Created by Gooru on 2014
+   Copyright (c) 2014 Gooru. All rights reserved.
+   http://www.goorulearning.org/
+   Permission is hereby granted, free of charge, to any person      obtaining
+   a copy of this software and associated documentation files (the
+   "Software"), to deal in the Software without restriction, including
+   without limitation the rights to use, copy, modify, merge, publish,
+   distribute, sublicense, and/or sell copies of the Software, and to
+   permit persons to whom the Software is furnished to do so,  subject to
+   the following conditions:
+   The above copyright notice and this permission notice shall be
+   included in all copies or substantial portions of the Software.
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY  KIND,
+   EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE    WARRANTIES OF
+   MERCHANTABILITY, FITNESS FOR A PARTICULAR  PURPOSE     AND
+   NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR  COPYRIGHT HOLDERS BE
+   LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+   OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+-->
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+            http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.1.xsd          
+             http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+             http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+            http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.1.xsd">
+	
+	<bean id="classplanConstants" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+	    <property name="properties">
+	        <props>
+	           <prop key="gooru.api.path">${gooru.api.path}</prop>    		
+	        </props>
+	    </property> 
+	</bean>
+	
+	<context:component-scan base-package="org.ednovo.kafka.producer" />
+        
+    <bean id="cacheManager" class="net.sf.ehcache.CacheManager" />    
+	
+ 	<bean id="restAPIEndPoint" class="java.lang.String">
+		<constructor-arg>
+			<value>${gooru.services.endpoint}</value>
+		</constructor-arg>
+	</bean>	
+	<bean id="kafkaService" class="org.ednovo.kafka.producer.KafkaEventHandler">
+        <constructor-arg index="0" value="${insights.kafa.ip}" />
+        <constructor-arg index="1" value="${insights.kafa.port}" />
+        <constructor-arg index="2"  value="${insights.kafa.topic}" />
+    </bean>
+</beans>

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+   CustomField.hbm.xml
+   gooru-api
+   Created by Gooru on 2014
+   Copyright (c) 2014 Gooru. All rights reserved.
+   http://www.goorulearning.org/
+   Permission is hereby granted, free of charge, to any person obtaining
+   a copy of this software and associated documentation files (the
+   "Software"), to deal in the Software without restriction, including
+   without limitation the rights to use, copy, modify, merge, publish,
+   distribute, sublicense, and/or sell copies of the Software, and to
+   permit persons to whom the Software is furnished to do so, subject to
+   the following conditions:
+   The above copyright notice and this permission notice shall be
+   included in all copies or substantial portions of the Software.
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+   EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+   NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+   LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+   OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+-->
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN" 
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+    <hibernate-mapping>
+    <class name="org.ednovo.gooru.core.api.model.CustomField" table="custom_fields">
+   		 <id name="customFieldId" column="custom_field_id" >
+	     	<generator class="org.ednovo.gooru.core.application.util.UUIDGenerator" />
+		</id>
+		
+		<many-to-one 
+		    name="organization" 
+		    class="org.ednovo.gooru.core.api.model.Organization" 
+		    column="organization_uid" 
+		    not-null="false" 
+		    lazy="proxy"
+		    cascade="none"/>
+		
+		<property name="fieldName" column="name" not-null="true" />
+		
+		<property name="fieldDisplayName" column="display_name" not-null="true" />
+		
+		<property name="type" column="type" not-null="true" />
+		
+		<property name="length" column="length" not-null="true" />
+		
+		<property name="dataColumnName" column="data_column_name" not-null="true" />
+		
+		<property name="addTosearch" column="add_to_search" not-null="true"/>
+		
+		<property name="isRequired" column="is_required" not-null="true"/>
+		
+		<property name="groupName" column="group_code" not-null="true"/>
+		
+		<property name="searchAliasName" column="search_alias_name" not-null="false"/>
+		
+		<property name="addToSearchIndex" column="add_to_search_index" not-null="false"/>
+		
+		<property name="showInResponse" column="show_in_response" not-null="false"/>
+		
+		<property name="addToFilters" column="add_to_filters" not-null="false"/>
+		
+		
+		
+    </class>
+    </hibernate-mapping>

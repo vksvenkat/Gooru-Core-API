@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  security.xml
+  rest-v2-app
+   Created by Gooru on 2014
+   Copyright (c) 2014 Gooru. All rights reserved.
+   http://www.goorulearning.org/
+   Permission is hereby granted, free of charge, to any person      obtaining
+   a copy of this software and associated documentation files (the
+   "Software"), to deal in the Software without restriction, including
+   without limitation the rights to use, copy, modify, merge, publish,
+   distribute, sublicense, and/or sell copies of the Software, and to
+   permit persons to whom the Software is furnished to do so,  subject to
+   the following conditions:
+   The above copyright notice and this permission notice shall be
+   included in all copies or substantial portions of the Software.
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY  KIND,
+   EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE    WARRANTIES OF
+   MERCHANTABILITY, FITNESS FOR A PARTICULAR  PURPOSE     AND
+   NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR  COPYRIGHT HOLDERS BE
+   LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+   OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+-->
+<beans xmlns:security="http://www.springframework.org/schema/security"
+    xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+                        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.1.xsd">
+
+<!-- 	<security:global-method-security pre-post-annotations="enabled"/>
+ -->	
+	<!--<security:global-method-security>
+		<security:protect-pointcut expression="execution(* com.google.gooru.classplan.service.ClassPlanManager.delete*(..))" access="ROLE_TEACHER,ROLE_CONTENT_ADMIN"/>
+		<security:protect-pointcut expression="execution(* com.google.gooru.classplan.service.ClassPlanManager.save*(..))" access="ROLE_TEACHER,ROLE_CONTENT_ADMIN"/>
+		<security:protect-pointcut expression="execution(* com.google.gooru.classplan.service.ClassPlanManager.update*(..))" access="ROLE_TEACHER,ROLE_CONTENT_ADMIN"/>
+		<security:protect-pointcut expression="execution(* com.google.gooru.classplan.service.ClassPlanManager.copy*(..))" access="ROLE_TEACHER,ROLE_CONTENT_ADMIN"/>
+        </security:global-method-security>-->
+    
+	<bean id="springSecurityFilterChain" class="org.springframework.security.web.FilterChainProxy">
+		<security:filter-chain-map path-type="ant">
+			<security:filter-chain pattern="/scripts/**" filters="none" />
+			<security:filter-chain pattern="/images/**"	filters="none" />
+			<security:filter-chain pattern="/styles/**"	filters="none" />
+			<security:filter-chain pattern="/static/**"	filters="none" />
+			<security:filter-chain pattern="/templates/**" filters="none" />
+			<security:filter-chain pattern="/**" filters="gooruFilter" />			
+		</security:filter-chain-map>
+	</bean>
+	
+	<bean id="gooruFilter"  class="org.ednovo.gooru.web.filter.AuthorizationFilter">
+	</bean>
+	
+	<bean id="requestSupport"  class="org.ednovo.gooru.core.api.model.RequestSupport" scope="request"/>
+
+	<!-- <security:authentication-manager alias="authenticationManager">
+		<security:authentication-provider ref="preauthAuthProvider" />
+	</security:authentication-manager>
+
+	<bean id="preauthAuthProvider" class="org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider">				
+		<property name="preAuthenticatedUserDetailsService">
+			<bean id="userDetailsServiceWrapper" class="org.springframework.security.core.userdetails.UserDetailsByNameServiceWrapper">
+				<property name="userDetailsService" ref="userDetailsService" />
+			</bean>
+		</property>				
+	</bean>	  -->
+</beans>

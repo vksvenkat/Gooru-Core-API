@@ -1,0 +1,35 @@
+<html>
+<body>
+	<div
+		style="font-family: arial;width: 900px;color:#666;height:550px">
+		<div style="height: 470px; margin-left: 30px;">
+			<div
+				style="color: #666; width: 100%; font-size: 30px; float: left; margin-top: 20px;">
+				It's your <font color=#4e9746>birth</font><font color=#1076bb>day</font><font color=black>!</font>
+                        </div>
+                <div style="width: 648px;">
+			             <img style="margin-top: 10px" src="${serverpath}/gooru/images/birthday-mail.png"></img>	
+				</div>
+                         
+			 	<div style="margin-top: 20px;font-size: 12px;text-align: justify;width: 650px;">
+				    <p style="margin-top: 25px;">
+				     The Gooru team wishes you a happy birthday filled with family, friends and lots of birthday cake. To celebrate your special day, we thought about singing you the birthday song, but we decided to spare you that (there's a reason we work at Gooru and not as singers). Instead, we've created <a style="color: #0000ff;" href="http://www.goorulearning.org/gooru/index.g#!/collection/4fa394e1-16b3-4f05-b0b7-bd7afb512e86/play" target="_blank">this fun little collection</a> on the history of birthday celebrations to get you feeling festive. 
+				     </p>   
+				</div>
+	                            <div style="font-size: 12px">We hope you have a fantastic birthday!</div>
+                                     <div style="font-size: 12px">The Gooru Team</div>
+					<div>
+						<a style="color: #0000ff;font-size: 12px" href="http://www.facebook.com/gooru"
+							target="_blank">Facebook</a> | <a style="color: #0000ff;font-size: 12px"
+							href="http://www.twitter.com/gooru" target="_blank">Twitter</a>
+					</div>
+				</div>
+
+			
+		</div>
+		
+	</div>
+
+</body>
+</html>
+ 

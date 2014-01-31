@@ -1,0 +1,69 @@
+<VirtualHost *:80>
+	ServerAdmin webmaster@localhost
+
+	DocumentRoot /var/www
+	<Directory />
+		Options FollowSymLinks
+		AllowOverride None
+	</Directory>
+	<Directory /var/www/>
+		Options Indexes FollowSymLinks MultiViews
+		AllowOverride None
+		Order allow,deny
+		allow from all
+	</Directory>
+
+	ScriptAlias /cgi-bin/ /usr/lib/cgi-bin/
+	<Directory "/usr/lib/cgi-bin">
+		AllowOverride None
+		Options +ExecCGI -MultiViews +SymLinksIfOwnerMatch
+		Order allow,deny
+		Allow from all
+	</Directory>
+
+	ErrorLog ${APACHE_LOG_DIR}/error.log
+
+	# Possible values include: debug, info, notice, warn, error, crit,
+	# alert, emerg.
+	LogLevel warn
+
+	CustomLog ${APACHE_LOG_DIR}/access.log combined
+
+    Alias /doc/ "/usr/share/doc/"
+    <Directory "/usr/share/doc/">
+        Options Indexes MultiViews FollowSymLinks
+        AllowOverride None
+        Order deny,allow
+        Deny from all
+        Allow from 127.0.0.0/255.0.0.0 ::1/128
+    </Directory>
+# enable expirations
+ExpiresActive On
+# expire GIF images after a month in the client's cache
+ExpiresByType image/gif A2592000
+ExpiresByType image/png A2592000
+ExpiresByType text/css  A2592000
+
+Options +FollowSymlinks
+RewriteEngine on
+RewriteRule (.*)(-g[0-9a-zA-Z]+)(\.template)(.*) $1$3$4
+RewriteRule (.*)(-g[0-9a-zA-Z]+)(\.png)(.*) $1$3$4
+RewriteRule (.*)(-g[0-9a-zA-Z]+)(\.jpg)(.*) $1$3$4
+
+    # Proxy requests to /gooru and /gooruapi to tomcat using AJP
+    ProxyRequests Off
+    ProxyPreserveHost On
+    ProxyPass /gooru/images !
+    ProxyPass /gooru/templates !
+    ProxyPass /gooru ajp://localhost:8009/gooru min=0 smax=20 max=25 ttl=120 timeout=120
+    ProxyPass /gooruapi ajp://localhost:8009/gooruapi min=0 smax=20 max=25 ttl=120 timeout=120
+    ProxyPass /crawler ajp://localhost:8009/crawler min=0 smax=20 max=25 ttl=120 timeout=120
+    ProxyPass /migrationapi ajp://localhost:8009/migrationapi min=0 smax=20 max=25 ttl=120 timeout=120
+    ProxyPass /auth-sso ajp://localhost:8009/auth-sso min=0 smax=20 max=25 ttl=120 timeout=120
+    ProxyPass /messaging-app ajp://localhost:8009/messaging-app min=0 smax=20 max=25 ttl=120 timeout=120
+
+    ProxyPass /gooru-migration ajp://localhost:8009/gooru-migration min=0 smax=20 max=25 ttl=120 timeout=120
+    ProxyPass /gooru-auth ajp://localhost:8009/gooru-auth min=0 smax=20 max=25 ttl=120 timeout=120
+    ProxyPass /gooru-search ajp://localhost:8009/gooru-search min=0 smax=20 max=25 ttl=120 timeout=120
+    ProxyPass /gooru-messaging ajp://localhost:8009/gooru-messaging min=0 smax=20 max=25 ttl=120 timeout=120
+</VirtualHost>

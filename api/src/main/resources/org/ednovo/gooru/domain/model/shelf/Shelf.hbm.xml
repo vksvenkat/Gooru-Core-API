@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+   Shelf.hbm.xml
+   gooru-api
+   Created by Gooru on 2014
+   Copyright (c) 2014 Gooru. All rights reserved.
+   http://www.goorulearning.org/
+   Permission is hereby granted, free of charge, to any person obtaining
+   a copy of this software and associated documentation files (the
+   "Software"), to deal in the Software without restriction, including
+   without limitation the rights to use, copy, modify, merge, publish,
+   distribute, sublicense, and/or sell copies of the Software, and to
+   permit persons to whom the Software is furnished to do so, subject to
+   the following conditions:
+   The above copyright notice and this permission notice shall be
+   included in all copies or substantial portions of the Software.
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+   EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+   NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+   LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+   OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+-->
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN" 
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+    <hibernate-mapping>
+    <class name="org.ednovo.gooru.core.api.model.Shelf" table="shelf">
+   		 <id name="shelfId" column="shelf_id" >
+			<generator class="org.ednovo.gooru.core.application.util.UUIDGenerator" />
+		</id>
+		
+		<property name="shelfParentId" column="shelf_parent_id" not-null="false" />
+		
+		<property name="shelfType" column="shelf_type" not-null="true" />
+		
+		<property name="name" column="name" not-null="true" />
+		
+		<property name="defaultFlag" column="default_flag" not-null="true" />
+		
+		<property name="shelfCategory" column="shelf_category" not-null="true" />
+
+		<property name="activeFlag" column="active_flag" not-null="true" />
+		
+		<property name="depth" column="depth" not-null="true" /> 
+					
+		<property name="userId" column="user_id" not-null="false" />
+		 	
+		<property name="viewFlag" column="view_flag" not-null="false" />
+		
+		<many-to-one name="organization"
+			class="org.ednovo.gooru.core.api.model.Organization" column="organization_uid"
+			not-null="false" lazy="proxy" cascade="none" />
+			    
+		<set name="folders" inverse="true" cascade="none" lazy="true">
+        	<key column="shelf_parent_id"/>
+        	<one-to-many class="org.ednovo.gooru.core.api.model.Shelf"/>
+   		</set>
+   		
+		<set name="shelfItems" inverse="true" cascade="none" lazy="true" order-by="shelf_item_id asc" >
+        	<key column="shelf_id"/>
+        	<one-to-many class="org.ednovo.gooru.core.api.model.ShelfItem"/>
+   		</set>
+	</class>
+    </hibernate-mapping>

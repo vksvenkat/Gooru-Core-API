@@ -1,0 +1,244 @@
+/////////////////////////////////////////////////////////////
+// SerializerUtil.java
+// gooru-api
+// Created by Gooru on 2014
+// Copyright (c) 2014 Gooru. All rights reserved.
+// http://www.goorulearning.org/
+// Permission is hereby granted, free of charge, to any person obtaining
+// a copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to
+// permit persons to whom the Software is furnished to do so, subject to
+// the following conditions:
+// The above copyright notice and this permission notice shall be
+// included in all copies or substantial portions of the Software.
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+// OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+/////////////////////////////////////////////////////////////
+package org.ednovo.gooru.application.util;
+
+import java.util.List;
+import java.util.Set;
+
+import org.apache.commons.lang.ArrayUtils;
+import org.ednovo.gooru.core.api.model.ContentPermission;
+import org.ednovo.gooru.core.api.model.ContentPermissionTransformer;
+import org.ednovo.gooru.core.api.model.Identity;
+import org.ednovo.gooru.core.api.model.Organization;
+import org.ednovo.gooru.core.api.model.OrganizationTransformer;
+import org.ednovo.gooru.core.api.model.Resource;
+import org.ednovo.gooru.core.api.model.User;
+import org.ednovo.gooru.core.api.model.UserGroup;
+import org.ednovo.gooru.core.api.model.UserGroupTransformer;
+import org.ednovo.gooru.core.api.model.UserTransformer;
+import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.goorucore.application.serializer.ExcludeNullTransformer;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.validation.Errors;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.io.xml.DomDriver;
+
+import flexjson.JSONSerializer;
+
+
+public class SerializerUtil  implements ParameterProperties{
+
+	private static final Logger logger = LoggerFactory.getLogger(SerializerUtil.class);
+
+	private static final String[] EXCLUDES = { "*.class", "*.userRole", "*.organization", "*.primaryOrganization", "organization", "*.codeType.organization.*" };
+
+	private static XStream xStream = new XStream(new DomDriver());
+
+	public static ModelAndView toModelAndView(Object object) {
+		ModelAndView jsonmodel = new ModelAndView(REST_MODEL);
+		jsonmodel.addObject(MODEL, object);
+		return jsonmodel;
+	}
+
+	public static ModelAndView toJsonModelAndView(Object model, boolean deepSerialize) {
+		return toModelAndView(serializeToJson(model, deepSerialize));
+	}
+
+	public static ModelAndView toModelAndView(Object obj, String type) {
+		return toModelAndView(serialize(obj, type));
+	}
+
+	public static ModelAndView toModelAndViewWithInFilter(Object obj, String type, String... includes) {
+		return toModelAndView(serialize(obj, type, null, includes));
+	}
+
+	public static ModelAndView toModelAndViewWithIoFilter(Object obj, String type, String[] excludes, String... includes) {
+		return toModelAndView(serialize(obj, type, excludes, includes));
+	}
+
+	public static ModelAndView toModelAndViewWithIoFilter(Object obj, String type, String[] excludes, boolean excludeNullObject, String... includes) {
+		return toModelAndView(serialize(obj, type, excludes, false, excludeNullObject, includes));
+	}
+
+	// need to improve logic
+	public static ModelAndView toModelAndViewWithErrorObject(Object obj, String type, String entityName, Errors errors, String[] excludes, String... includes) {
+		return toModelAndView(serialize(obj, type, excludes, includes));
+	}
+
+	/**
+	 * @param model
+	 * @param excludes
+	 * @param includes
+	 * @return
+	 */
+	public static String serializeToJsonWithExcludes(Object model, String[] excludes, String... includes) {
+		return serialize(model, FORMAT_JSON, excludes, includes);
+	}
+
+	public static String serialize(Object model, String type) {
+		return serialize(model, type, null);
+	}
+
+	public static String serializeToJson(Object model, String... includes) {
+		return serialize(model, FORMAT_JSON, null, includes);
+	}
+
+	public static JSONObject serializeToJsonObjectWithExcludes(Object model, String[] excludes, String... includes) throws Exception {
+		return new JSONObject(serialize(model, FORMAT_JSON, excludes, includes));
+	}
+
+	public static JSONObject serializeToJsonObject(Object model, String... includes) throws Exception {
+		return new JSONObject(serialize(model, FORMAT_JSON, null, includes));
+	}
+
+	public static String serializeToJsonWithExcludes(Object model, String[] excludes, boolean deepSerialize, String... includes) {
+		return serialize(model, FORMAT_JSON, excludes, deepSerialize, includes);
+	}
+
+	public static String serializeToJson(Object model, boolean deepSerialize, String... includes) {
+		return serialize(model, FORMAT_JSON, null, deepSerialize, includes);
+	}
+
+	public static JSONObject serializeToJsonObjectWithExcludes(Object model, String[] excludes, boolean deepSerialize, String... includes) throws Exception {
+		return new JSONObject(serialize(model, FORMAT_JSON, excludes, deepSerialize, includes));
+	}
+
+	public static JSONObject serializeToJsonObject(Object model, boolean deepSerialize, String... includes) throws Exception {
+		return new JSONObject(serialize(model, FORMAT_JSON, null, deepSerialize, includes));
+	}
+
+	public static String serialize(Object model, String type, String[] excludes, boolean deepSerialize, String... includes) {
+		return serialize(model, type, excludes, deepSerialize, true, false, includes);
+	}
+
+	public static String serialize(Object model, String type, String[] excludes, boolean deepSerialize, boolean excludeNullObject, String... includes) {
+		return serialize(model, type, excludes, deepSerialize, true, excludeNullObject, includes);
+	}
+
+	public static String serialize(Object model, String type, String[] excludes, String... includes) {
+		return serialize(model, type, excludes, false, includes);
+	}
+	
+	
+
+	/**
+	 * @param model
+	 * @param type
+	 * @param excludes
+	 * @param includes
+	 * @return
+	 */
+	public static String serialize(Object model, String type, String[] excludes, boolean deepSerialize, boolean useBaseExcludes, boolean excludeNullObject, String... includes) {
+		if (model == null) {
+			return "";
+		}
+		String serializedData = null;
+		JSONSerializer serializer = new JSONSerializer();
+
+		if (type == null || type.equals(JSON)) {
+
+			if (includes != null) {
+				includes = (String[]) ArrayUtils.add(includes, "*.contentPermissions");
+				serializer.include(includes);
+			} else {
+				serializer.include("*.contentPermissions");
+			}
+
+			if (useBaseExcludes) {
+				if (excludes != null) {
+					excludes = (String[]) ArrayUtils.addAll(excludes, EXCLUDES);
+				} else {
+					excludes = EXCLUDES;
+				}
+			}
+			if (excludes != null) {
+				serializer.exclude(excludes);
+			}
+
+			if (model instanceof User) {
+				deepSerialize = true;
+			}
+			if (model != null) {
+				serializer = appendTransformers(serializer, excludeNullObject);
+			}
+
+			try {
+
+				serializedData = deepSerialize ? serializer.deepSerialize(model) : serializer.serialize(model);
+
+			} catch (Exception ex) {
+				if (model instanceof Resource) {
+					logger.error("Serialization failed for resource : " + ((Resource) model).getContentId());
+				} else if (model instanceof List) {
+					List list = (List<?>) model;
+					if (list != null && list.size() > 0 && list.get(0) instanceof Resource) {
+						logger.error("Serialization failed for list resources of size : " + list.size() + " resource : " + ((Resource) list.get(0)).getContentId());
+					}
+				}
+				throw new RuntimeException(ex);
+			}
+
+		} else {
+			serializedData = new XStream().toXML(model);
+		}
+		return serializedData;
+	}
+
+	@SuppressWarnings("unchecked")
+	public static User cloneUserForSerialization(User user, boolean includeSets) {
+		User clonedUser = new User();
+		clonedUser.setUserId(user.getUserId());
+		clonedUser.setGooruUId(user.getGooruUId());
+		clonedUser.setFirstName(user.getFirstName());
+		clonedUser.setLastName(user.getLastName());
+		clonedUser.setUsername(user.getUsername());
+		clonedUser.setRegisterToken(user.getRegisterToken());
+		clonedUser.setConfirmStatus(user.getConfirmStatus());
+		clonedUser.setEmailId(user.getEmailId());
+		clonedUser.setViewFlag(user.getViewFlag());
+		if ((includeSets) && (user.getIdentities() != null)) {
+			clonedUser.setIdentities((Set<Identity>) xStream.fromXML(xStream.toXML(user.getIdentities())));
+		}
+
+		return clonedUser;
+	}
+
+	public static JSONSerializer appendTransformers(JSONSerializer serializer, boolean excludeNullObject) {
+		serializer.transform(new UserTransformer(false), User.class).transform(new OrganizationTransformer(), Organization.class).transform(new UserGroupTransformer(), UserGroup.class).transform(new ContentPermissionTransformer(), ContentPermission.class);
+		if (excludeNullObject) {
+			serializer.transform(new ExcludeNullTransformer(), void.class);
+		}
+		return serializer;
+
+	}
+
+	public static User cloneUserForSerialization(User user) {
+		return cloneUserForSerialization(user, true);
+	}
+
+}

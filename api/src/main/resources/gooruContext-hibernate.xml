@@ -1,0 +1,420 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+   gooruContext-hibernate.xml
+   gooru-api
+   Created by Gooru on 2014
+   Copyright (c) 2014 Gooru. All rights reserved.
+   http://www.goorulearning.org/
+   Permission is hereby granted, free of charge, to any person obtaining
+   a copy of this software and associated documentation files (the
+   "Software"), to deal in the Software without restriction, including
+   without limitation the rights to use, copy, modify, merge, publish,
+   distribute, sublicense, and/or sell copies of the Software, and to
+   permit persons to whom the Software is furnished to do so, subject to
+   the following conditions:
+   The above copyright notice and this permission notice shall be
+   included in all copies or substantial portions of the Software.
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+   EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+   NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+   LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+   OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+-->
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:cache="http://www.springframework.org/schema/cache"
+	xmlns:jee="http://www.springframework.org/schema/jee"
+	xsi:schemaLocation="
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+			http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.1.xsd
+			http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache-3.1.xsd 
+			http://www.springframework.org/schema/jee
+            http://www.springframework.org/schema/jee/spring-jee-3.1.xsd">
+
+	<!-- ========================= RESOURCE DEFINITIONS ========================= -->
+
+	<context:component-scan
+		base-package="org.ednovo.gooru.infrastructure.persistence.hibernate">
+		<context:include-filter type="annotation"
+			expression="org.springframework.stereotype.Repository" />
+	</context:component-scan>
+
+	<!-- Ehcache library setup -->
+
+	<bean id="ehcache"
+		class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean"
+		p:shared="true" />
+
+	<bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager"
+		p:cacheManager-ref="ehcache" />
+
+	<cache:annotation-driven />
+
+	<bean id="revisionHistoryAbstractSessionFactory" abstract="true"
+		class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+
+		<property name="mappingResources">
+			<list>
+				<!-- Revision Domain -->
+				<value>org/ednovo/gooru/domain/model/revision_history/RevisionHistory.hbm.xml
+				</value>
+			</list>
+		</property>
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">org.hibernate.dialect.MySQLInnoDBDialect</prop>
+				<prop key="hibernate.query.substitutions">true 'Y', false 'N'</prop>
+				<prop key="show_sql">true</prop>
+				<prop key="hibernate.jdbc.batch_size">50</prop>
+				<prop key="hibernate.cache.use_second_level_cache">true</prop>
+				<prop key="hibernate.cache.provider_class">org.hibernate.cache.EhCacheProvider</prop>
+				<prop key="hibernate.cache.region.factory_class">org.hibernate.cache.ehcache.EhCacheRegionFactory
+				</prop>
+				<prop key="hibernate.connection.useUnicode">true</prop>
+				<prop key="hibernate.connection.characterEncoding">UTF-8</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="revisionHistorySessionFactory" parent="revisionHistoryAbstractSessionFactory">
+		<property name="dataSource" ref="jndiDataSource" />
+	</bean>
+
+	<!-- Transaction manager for a RevisionHistory SessionFactory -->
+	<bean id="revisionHistoryTransactionManager"
+		class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+		<property name="sessionFactory" ref="revisionHistorySessionFactory" />
+	</bean>
+
+	<bean id="baseRepository"
+		class="org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+
+	<bean id="abstractSessionFactory" abstract="true"
+		class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+
+		<property name="mappingResources">
+			<list>
+
+				<!-- Party Domain -->
+				<value>org/ednovo/gooru/domain/model/party/Party.hbm.xml</value>
+				<value>org/ednovo/gooru/domain/model/party/PartyPermission.hbm.xml
+				</value>
+				<value>org/ednovo/gooru/domain/model/party/ContentPermission.hbm.xml
+				</value>
+				<value>org/ednovo/gooru/domain/model/party/UserGroupAssociation.hbm.xml
+				</value>
+
+				<!-- Core Domain -->
+				<value>org/ednovo/gooru/domain/model/core/License.hbm.xml</value>
+				<value>org/ednovo/gooru/domain/model/core/Language.hbm.xml</value>
+				<value>org/ednovo/gooru/domain/model/core/City.hbm.xml</value>
+				<value>org/ednovo/gooru/domain/model/core/Country.hbm.xml</value>
+				<value>org/ednovo/gooru/domain/model/core/Gender.hbm.xml</value>
+				<value>org/ednovo/gooru/domain/model/core/Province.hbm.xml</value>
+
+				<!-- <value>org/ednovo/gooru/domain/model/taxonomy/GetTaxonomyProcedure.hbm.xml</value> -->
+				<!-- User Domain -->
+				<value>org/ednovo/gooru/domain/model/user/UserToken.hbm.xml</value>
+				<value>org/ednovo/gooru/domain/model/user/UserRole.hbm.xml</value>
+				<value>org/ednovo/gooru/domain/model/user/Idp.hbm.xml</value>
+				<value>org/ednovo/gooru/domain/model/user/Identity.hbm.xml</value>
+				<value>org/ednovo/gooru/domain/model/user/Profile.hbm.xml</value>
+				<value>org/ednovo/gooru/domain/model/user/UserRoleAssoc.hbm.xml
+				</value>
+				<value>org/ednovo/gooru/domain/model/user/Credential.hbm.xml</value>
+				<value>org/ednovo/gooru/domain/model/user/UserRelationship.hbm.xml
+				</value>
+				<value>org/ednovo/gooru/domain/model/user/UserContentAssoc.hbm.xml
+				</value>
+				<value>org/ednovo/gooru/domain/model/user/InviteUser.hbm.xml
+				</value>
+				<value>org/ednovo/gooru/domain/model/user/Role.hbm.xml</value>
+				<value>org/ednovo/gooru/domain/model/user/RoleEntityOperation.hbm.xml
+				</value>
+				<value>org/ednovo/gooru/domain/model/user/EntityOperation.hbm.xml
+				</value>
+				<value>org/ednovo/gooru/domain/model/user/UserClassification.hbm.xml
+				</value>
+
+
+				<!-- Content Domain -->
+				<value>org/ednovo/gooru/domain/model/content/Content.hbm.xml</value>
+				<value>org/ednovo/gooru/domain/model/content/ContentType.hbm.xml
+				</value>
+				<value>org/ednovo/gooru/domain/model/content/ContentAssociation.hbm.xml
+				</value>
+				<value>org/ednovo/gooru/domain/model/content/ContentClassification.hbm.xml
+				</value>
+
+				<!-- Resource Domain -->
+				<value>org/ednovo/gooru/domain/model/resource/ResourceType.hbm.xml
+				</value>
+				<value>org/ednovo/gooru/domain/model/resource/Segment.hbm.xml
+				</value>
+				<value>org/ednovo/gooru/domain/model/resource/ResourceInstance.hbm.xml
+				</value>
+				<value>org/ednovo/gooru/domain/model/resource/ResourceSource.hbm.xml
+				</value>
+				<value>org/ednovo/gooru/domain/model/resource/ResourceInfo.hbm.xml
+				</value>
+				<value>org/ednovo/gooru/domain/model/resource/ResourceUrlStatus.hbm.xml
+				</value>
+				<value>org/ednovo/gooru/domain/model/resource/ResourceMetaData.hbm.xml
+				</value>
+
+
+				<value>org/ednovo/gooru/domain/model/annotation/AnnotationType.hbm.xml
+				</value>
+
+				<!-- Activity Domain -->
+				<value>org/ednovo/gooru/domain/model/activity/ActivityType.hbm.xml
+				</value>
+				<value>org/ednovo/gooru/domain/model/activity/Activity.hbm.xml
+				</value>
+				<value>org/ednovo/gooru/domain/model/activity/ActivityStream.hbm.xml
+				</value>
+
+				<!-- Taxonomy Domain -->
+				<value>org/ednovo/gooru/domain/model/taxonomy/CodeType.hbm.xml
+				</value>
+				<value>org/ednovo/gooru/domain/model/taxonomy/Code.hbm.xml</value>
+				<value>org/ednovo/gooru/domain/model/taxonomy/CodeOrganizationAssoc.hbm.xml</value>
+				<value>org/ednovo/gooru/domain/model/taxonomy/CodeUserAssoc.hbm.xml</value>
+
+				<value>org/ednovo/gooru/domain/model/annotation/TagType.hbm.xml
+				</value>
+
+				<!-- Assessment Domain -->
+				<value>org/ednovo/gooru/domain/model/assessment/Asset.hbm.xml
+				</value>
+				<value>org/ednovo/gooru/domain/model/assessment/AssessmentQuestionAssetAssoc.hbm.xml
+				</value>
+				<value>org/ednovo/gooru/domain/model/assessment/AssessmentAnswer.hbm.xml
+				</value>
+				<value>org/ednovo/gooru/domain/model/assessment/AssessmentHint.hbm.xml
+				</value>
+				<value>org/ednovo/gooru/domain/model/assessment/AssessmentAttempt.hbm.xml
+				</value>
+				<value>org/ednovo/gooru/domain/model/assessment/AssessmentAttemptItem.hbm.xml
+				</value>
+				<value>org/ednovo/gooru/domain/model/assessment/AssessmentAttemptTry.hbm.xml
+				</value>
+				<value>org/ednovo/gooru/domain/model/assessment/AssessmentSegment.hbm.xml
+				</value>
+				<value>org/ednovo/gooru/domain/model/assessment/AssessmentSegmentQuestionAssoc.hbm.xml
+				</value>
+				<value>org/ednovo/gooru/domain/model/assessment/QuestionSetQuestionAssoc.hbm.xml
+				</value>
+				<value>org/ednovo/gooru/domain/model/Job.hbm.xml</value>
+				<value>org/ednovo/gooru/domain/model/JobType.hbm.xml</value>
+
+				<!-- Api Tracker Domain -->
+				<value>org/ednovo/gooru/domain/model/apitracker/ApiKey.hbm.xml
+				</value>
+				<value>org/ednovo/gooru/domain/model/apitracker/ApiActivity.hbm.xml
+				</value>
+
+				<!-- Activity Log Domain -->
+				<value>org/ednovo/gooru/domain/model/activity/ActivityLog.hbm.xml
+				</value>
+				<value>org/ednovo/gooru/domain/model/activity/ActivitySummary.hbm.xml
+				</value>
+
+				<!-- Consumer Domain -->
+				<value>org/ednovo/gooru/domain/model/consumer/ConsumerAccount.hbm.xml
+				</value>
+
+				<!-- Crawler Domain -->
+				<value>org/ednovo/gooru/domain/model/crawler/CsvCrawler.hbm.xml
+				</value>
+				<value>org/ednovo/gooru/domain/model/crawler/CsvCrawlerJob.hbm.xml
+				</value>
+
+				<!-- featured set -->
+				<value>org/ednovo/gooru/domain/model/featuredset/FeaturedSet.hbm.xml
+				</value>
+				<value>org/ednovo/gooru/domain/model/featuredset/FeaturedSetItems.hbm.xml
+				</value>
+
+				<!-- Storage -->
+				<value>org/ednovo/gooru/domain/model/storage/StorageAccount.hbm.xml
+				</value>
+				<value>org/ednovo/gooru/domain/model/storage/StorageArea.hbm.xml
+				</value>
+
+				<!-- Search -->
+				<value>org/ednovo/gooru/domain/model/search/SearchQuery.hbm.xml
+				</value>
+				<value>org/ednovo/gooru/domain/model/search/SearchResult.hbm.xml
+				</value>
+				<value>org/ednovo/gooru/domain/model/search/SearchResultActivity.hbm.xml
+				</value>
+
+				<!-- Custom Field -->
+				<value>org/ednovo/gooru/domain/model/customField/CustomField.hbm.xml
+				</value>
+
+				<!-- Shelf -->
+				<value>org/ednovo/gooru/domain/model/shelf/Shelf.hbm.xml</value>
+				<value>org/ednovo/gooru/domain/model/shelf/ShelfItem.hbm.xml</value>
+
+				<!-- Tagging System -->
+				<value>org/ednovo/gooru/domain/model/tag/UserTagAssoc.hbm.xml
+				</value>
+				<value>org/ednovo/gooru/domain/model/tag/ContentTagAssoc.hbm.xml
+				</value>
+				<value>org/ednovo/gooru/domain/model/tag/TagSynonyms.hbm.xml</value>
+
+				<!-- Custom Table -->
+				<value>org/ednovo/gooru/domain/model/customTable/CustomTable.hbm.xml
+				</value>
+				<value>org/ednovo/gooru/domain/model/customTable/CustomTableValue.hbm.xml
+				</value>
+
+				<!-- Feedback -->
+				<value>org/ednovo/gooru/domain/model/feedback/Feedback.hbm.xml
+				</value>
+
+				<!-- Comment -->
+				<value>/org/ednovo/gooru/domain/model/comment/Comment.hbm.xml
+				</value>
+
+				<!-- Session -->
+				<value>org/ednovo/gooru/domain/model/session/Session.hbm.xml</value>
+				<value>org/ednovo/gooru/domain/model/session/SessionItem.hbm.xml
+				</value>
+				<value>org/ednovo/gooru/domain/model/session/SessionItemAttemptTry.hbm.xml
+				</value>
+
+				<!-- Task -->
+				<value>org/ednovo/gooru/domain/model/task/TaskResourceAssoc.hbm.xml
+				</value>
+				<value>org/ednovo/gooru/domain/model/task/CollectionTaskAssoc.hbm.xml
+				</value>
+				<value>org/ednovo/gooru/domain/model/task/TaskAssoc.hbm.xml</value>
+				<value>org/ednovo/gooru/domain/model/task/TaskUserAssoc.hbm.xml
+				</value>
+				<value>org/ednovo/gooru/domain/model/task/TaskHistory.hbm.xml
+				</value>
+				<value>org/ednovo/gooru/domain/model/task/TaskHistoryItem.hbm.xml
+				</value>
+
+				<!-- Track Activity -->
+				<value>org/ednovo/gooru/domain/model/trackActivity/TrackActivity.hbm.xml
+				</value>
+
+				<!-- Session Activity -->
+				<value>org/ednovo/gooru/domain/model/sessionActivity/SessionAcitivity.hbm.xml
+				</value>
+				<value>org/ednovo/gooru/domain/model/sessionActivity/SessionActivityItem.hbm.xml
+				</value>
+
+				<!-- Response FieldSet -->
+				<value>org/ednovo/gooru/domain/model/responseFieldSet/ResponseFieldSet.hbm.xml
+				</value>
+
+				<!-- Collection -->
+				<value>org/ednovo/gooru/domain/model/collection/CollectionItem.hbm.xml
+				</value>
+
+				<!--CustomSetting -->
+				<value>org/ednovo/gooru/domain/model/customsetting/CustomSetting.hbm.xml
+				</value>
+				<!-- PartyCustomField -->
+				<value>org/ednovo/gooru/domain/model/party/PartyCustomFiled.hbm.xml
+				</value>
+
+				<value>org/ednovo/gooru/domain/model/content/StatusType.hbm.xml
+				</value>
+
+				<!-- Template -->
+				<value>org/ednovo/gooru/domain/model/template/Template.hbm.xml
+				</value>
+
+				<!-- Event -->
+				<value>org/ednovo/gooru/domain/model/event/Event.hbm.xml</value>
+				<value>org/ednovo/gooru/domain/model/event/EventMapping.hbm.xml
+				</value>
+				
+				<!--  Organization Setting -->
+				<value>org/ednovo/gooru/domain/model/organizationSetting/OrganizationSetting.hbm.xml</value>
+				
+				<!-- Oauth -->
+				<value>org/ednovo/gooru/domain/model/oauth/OAuthClient.hbm.xml</value>
+				
+				<value>org/ednovo/gooru/domain/model/user/OrganizationDomainAssoc.hbm.xml</value>
+				
+				
+			</list>
+		</property>
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">org.hibernate.dialect.MySQLInnoDBDialect</prop>
+				<prop key="hibernate.query.substitutions">true 'Y', false 'N'</prop>
+				<prop key="show_sql">true</prop>
+				<prop key="hibernate.jdbc.batch_size">50</prop>
+				<prop key="hibernate.cache.use_second_level_cache">true</prop>
+				<prop key="hibernate.cache.provider_class">org.hibernate.cache.EhCacheProvider</prop>
+				<prop key="hibernate.cache.region.factory_class">org.hibernate.cache.ehcache.EhCacheRegionFactory
+				</prop>
+				<prop key="hibernate.connection.useUnicode">true</prop>
+				<prop key="hibernate.connection.release_mode">after_transaction</prop>
+				<prop key="hibernate.connection.characterEncoding">UTF-8</prop>
+			</props>
+		</property>
+
+
+	</bean>
+
+	<bean id="hibernateDeleteLogger"
+		class="org.ednovo.gooru.infrastructure.persistence.hibernate.HibernateLogger" />
+
+	<bean id="splitResourceController" class="org.ednovo.gooru.application.util.ResourceProcessor" />
+
+	<bean id="sessionFactory" parent="abstractSessionFactory">
+		<!-- <bean id="sessionFactory" parent="abstractSessionFactory" depends-on="flyway"> -->
+		<property name="dataSource" ref="jndiDataSource" />
+	</bean>
+
+	<!-- Transaction manager for a single Hibernate SessionFactory (alternative 
+		to JTA) -->
+	<bean id="transactionManager"
+		class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+
+
+	<!-- ========================= BUSINESS OBJECT DEFINITIONS ========================= -->
+	<jee:jndi-lookup id="jndiDataSource" jndi-name="java:comp/env/jdbc/gooruapi" />
+	<!-- configure JdbcTemplate with the same datasource -->
+	<bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+		<constructor-arg>
+			<ref bean="jndiDataSource" />
+		</constructor-arg>
+	</bean>
+
+	<bean id="databaseUtil" class="org.ednovo.gooru.application.util.DatabaseUtil">
+		<property name="classplanRepository" ref="classplanRepository" />
+	</bean>
+
+	<bean id="procedureExecutor"
+		class="org.ednovo.gooru.infrastructure.persistence.hibernate.taxonomy.TaxonomyStoredProcedure">
+		<property name="dataSource" ref="jndiDataSource" />
+	</bean>
+
+	<!-- Activates various annotations to be detected in bean classes: Spring's 
+		@Required and @Autowired, as well as JSR 250's @Resource. -->
+	<context:annotation-config />
+
+	<!-- Exporter that exposes the Hibernate statistics service via JMX. Autodetects 
+		the service MBean, using its bean name as JMX object name. -->
+	<context:mbean-export />
+
+</beans>

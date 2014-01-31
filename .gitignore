@@ -1,0 +1,7 @@
+*/target
+*-gen-*
+*.log
+api/bin/*
+*.classpath*
+gooru-core/bin/*
+gooru-core/.settings

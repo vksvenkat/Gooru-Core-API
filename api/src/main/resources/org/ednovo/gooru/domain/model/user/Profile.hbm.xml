@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+   Profile.hbm.xml
+   gooru-api
+   Created by Gooru on 2014
+   Copyright (c) 2014 Gooru. All rights reserved.
+   http://www.goorulearning.org/
+   Permission is hereby granted, free of charge, to any person obtaining
+   a copy of this software and associated documentation files (the
+   "Software"), to deal in the Software without restriction, including
+   without limitation the rights to use, copy, modify, merge, publish,
+   distribute, sublicense, and/or sell copies of the Software, and to
+   permit persons to whom the Software is furnished to do so, subject to
+   the following conditions:
+   The above copyright notice and this permission notice shall be
+   included in all copies or substantial portions of the Software.
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+   EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+   NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+   LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+   OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+-->
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN" 
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class name="org.ednovo.gooru.core.api.model.Profile" table="profile">
+        
+	    <id name="profileId" column="user_uid" unsaved-value="null">
+	     	<generator class="foreign">
+            	<param name="property">user</param>
+        	</generator>			
+		</id>
+		
+		<property name="grade" column="grade" length="20" not-null="false"/> 
+		<property name="subject" column="subject" length="50" not-null="false"/>
+		<property name="birthDate" column="birth_date" length="2" not-null="false"/> 
+		<property name="birthMonth" column="birth_month" length="3" not-null="false"/> 
+		<property name="birthYear" column="birth_year" length="4" not-null="false"/> 
+		<property name="aboutMe" column="about_me" length="500" not-null="false"/> 
+		<property name="teachingExperience" column="teaching_experience" length="20" not-null="false"/> 
+		<property name="teachingIn" column="teaching_in" length="50" not-null="false"/> 
+		<property name="teachingMethodology" column="teaching_methodology" length="500" not-null="false"/>
+		<property name="highestDegree" column="highest_degree" length="45" not-null="false"/> 
+		<property name="postGraduation" column="post_graduation" length="45" not-null="false"/> 
+		<property name="graduation" column="graduation" length="45" not-null="false"/> 
+		<property name="highSchool" column="high_school" length="45" not-null="false"/>
+		<property name="userType" column="user_type" length="45" not-null="false"/>
+		<property name="website" column="website" length="256" not-null="false"/>
+		<property name="facebook" column="facebook" length="256" not-null="false"/>
+		<property name="twitter" column="twitter" length="256" not-null="false"/>
+		<property name="pictureBlob" column="picture" not-null="false" />
+		<property name="pictureFormat" column="picture_format" not-null="false" />
+		<property name="thumbnailBlob" column="thumbnail" not-null="false" />
+		<property name="school" column="school" length="45" not-null="false"/>
+		<property name="isPublisherRequestPending" column="publisher_request_pending"  not-null="false"/>
+		<property name="dateOfBirth" column="date_of_birth" not-null="false"/>
+		<property name="childDateOfBirth" column="child_date_of_birth" not-null="false"/>
+		<property name="notes" column="notes" not-null="false"/>
+		
+		 <many-to-one 
+		    name="gender" 
+		    class="org.ednovo.gooru.core.api.model.Gender" 		    
+		    column="gender" 
+		    not-null="false" 	
+		    lazy="false" fetch="join" cascade="none"/>
+		 
+		 <many-to-one 
+		    name="country" 
+		    class="org.ednovo.gooru.core.api.model.Country" 		    
+		    column="country_id" 
+		    not-null="false"	
+		    lazy="false" fetch="join" cascade="none"/>
+		  
+		  <many-to-one 
+		    name="province" 
+		    class="org.ednovo.gooru.core.api.model.Province" 		    
+		    column="state_province_id" 
+		    not-null="false" 	
+		    lazy="false" fetch="join" cascade="none"/>
+		    
+		  <many-to-one 
+		    name="city" 
+		    class="org.ednovo.gooru.core.api.model.City" 		    
+		    column="city_id" 
+		    not-null="false" 	
+		    lazy="false" fetch="join" cascade="none"/>
+		 
+		 <many-to-one 
+		    name="firstLanguage" 
+		    class="org.ednovo.gooru.core.api.model.Language" 		    
+		    column="first_language" 
+		    not-null="false" 	
+		    lazy="false" fetch="join" cascade="none"/>
+		    
+		  <many-to-one 
+		    name="secondLanguage" 
+		    class="org.ednovo.gooru.core.api.model.Language" 		    
+		    column="second_language" 
+		    not-null="false" 	
+		    lazy="false" fetch="join" cascade="none"/>
+		    
+		  <many-to-one 
+		    name="thirdLanguage" 
+		    class="org.ednovo.gooru.core.api.model.Language" 		    
+		    column="third_language" 
+		    not-null="false" 	
+		    lazy="false" fetch="join" cascade="none"/> 
+		 
+		 
+		 
+		<one-to-one name="user" class="org.ednovo.gooru.core.api.model.User" constrained="true"/>    
+	     	   		
+   </class>    
+</hibernate-mapping>

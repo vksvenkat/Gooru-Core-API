@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+   CsvCrawler.hbm.xml
+   gooru-api
+   Created by Gooru on 2014
+   Copyright (c) 2014 Gooru. All rights reserved.
+   http://www.goorulearning.org/
+   Permission is hereby granted, free of charge, to any person obtaining
+   a copy of this software and associated documentation files (the
+   "Software"), to deal in the Software without restriction, including
+   without limitation the rights to use, copy, modify, merge, publish,
+   distribute, sublicense, and/or sell copies of the Software, and to
+   permit persons to whom the Software is furnished to do so, subject to
+   the following conditions:
+   The above copyright notice and this permission notice shall be
+   included in all copies or substantial portions of the Software.
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+   EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+   NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+   LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+   OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+-->
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN" 
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class name="org.ednovo.gooru.core.api.model.CsvCrawler" table="csv_crawler">
+    	<id name="csvCrawlerId" column="csv_crawler_id"  unsaved-value="null">
+			<generator class="org.ednovo.gooru.core.application.util.UUIDGenerator" />
+		</id>
+    	<property
+	        name="url"
+	        column="url"
+	        not-null="true">	        
+	    </property>
+	    <property
+	        name="title"
+	        column="title"
+	        not-null="false">	        
+	    </property>
+	    <property
+	        name="type"
+	        column="type"
+	        not-null="false">	        
+	    </property>
+	    <property
+	        name="subject"
+	        column="subject"
+	        not-null="false">	        
+	    </property>
+	    <property
+	        name="grade"
+	        column="grade"
+	        not-null="false">	        
+	    </property>
+	    <property
+	        name="attribution"
+	        column="attribution"
+	        not-null="false">	        
+	    </property>
+	    <property
+	        name="tags"
+	        column="tags"
+	        not-null="false">	        
+	    </property>
+	    <property
+	        name="description"
+	        column="description"
+	        not-null="false">	        
+	    </property>
+	    <property
+	        name="thumbnail"
+	        column="thumbnail"
+	        not-null="false">	        
+	    </property>
+	    <property
+	        name="sourceFile"
+	        column="source_file"
+	        not-null="false">	        
+	    </property>
+	    <property
+	        name="csvFileCode"
+	        column="csv_file_code"
+	        not-null="false">	        
+	    </property>
+	    <property
+	        name="content"
+	        column="content"
+	        not-null="false">	        
+	    </property>
+	    <property
+	        name="importMode"
+	        column="import_mode"
+	        not-null="false">	        
+	    </property>
+	    <property
+	        name="lastModified"
+	        column="last_modified"
+	        not-null="false">
+	    </property>
+	    <property
+	        name="uploadStatus"
+	        column="upload_status"
+	        not-null="false">
+	    </property>
+   </class>    
+</hibernate-mapping>

@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+   gooruContext-service.xml
+   gooru-api
+   Created by Gooru on 2014
+   Copyright (c) 2014 Gooru. All rights reserved.
+   http://www.goorulearning.org/
+   Permission is hereby granted, free of charge, to any person obtaining
+   a copy of this software and associated documentation files (the
+   "Software"), to deal in the Software without restriction, including
+   without limitation the rights to use, copy, modify, merge, publish,
+   distribute, sublicense, and/or sell copies of the Software, and to
+   permit persons to whom the Software is furnished to do so, subject to
+   the following conditions:
+   The above copyright notice and this permission notice shall be
+   included in all copies or substantial portions of the Software.
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+   EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+   NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+   LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+   OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+-->
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:task="http://www.springframework.org/schema/task"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jee="http://www.springframework.org/schema/jee"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+                         http://www.springframework.org/schema/beans/spring-beans.xsd 
+                         http://www.springframework.org/schema/task
+                         http://www.springframework.org/schema/task/spring-task-3.1.xsd
+                         http://www.springframework.org/schema/context
+                         http://www.springframework.org/schema/context/spring-context.xsd
+                         http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-3.1.xsd">
+
+	<task:annotation-driven executor="taskexecutor" />
+	<task:executor id="taskexecutor" pool-size="7-42"
+		queue-capacity="11" />
+	<context:component-scan base-package="org.ednovo.gooru.domain.service">
+		<context:include-filter type="annotation"
+			expression="org.springframework.stereotype.Service" />
+	</context:component-scan>
+	<context:component-scan base-package="org.ednovo.gooru.infrastructure.jira" />
+
+	<bean id="tika" class="org.apache.tika.Tika"></bean>
+	<bean id="resourceParser" class="org.ednovo.gooru.domain.service.resource.ResourceParser">
+		<property name="tika" ref="tika"></property>
+	</bean>
+
+	<bean id="googleAppService"
+		class="org.ednovo.gooru.infrastructure.google.GoogleCalendarService">
+	</bean>
+
+	<bean
+		class="org.ednovo.gooru.application.spring.StaticInitializerBeanFactoryPostProcessor">
+		<property name="classes">
+			<map>
+				<entry key="org.ednovo.gooru.core.api.model.Idp">
+					<map>
+						<entry key="DEFAULT_IDP" value="${gooru.domain}" />
+					</map>
+				</entry>
+			</map>
+		</property>
+	</bean>
+
+	<context:component-scan base-package="org.ednovo.gooru.domain.cassandra" />
+
+	<context:component-scan base-package="org.ednovo.gooru.infrastructure.messenger" />
+
+	<context:component-scan base-package="org.ednovo.gooru.domain.service.assessment" />
+
+	<context:component-scan base-package="org.ednovo.gooru.domain.service.partner" />
+
+	<context:component-scan base-package="org.ednovo.gooru.domain.service.contentgroup" />
+
+	<context:component-scan base-package="org.ednovo.kafka.producer" />
+
+	<context:component-scan base-package="org.ednovo.gooru.domain.service.apitracker" />
+
+	<context:component-scan base-package="org.ednovo.gooru.infrastructure.mail" />
+
+
+
+
+	<context:component-scan base-package="org.ednovo.gooru.security" />
+
+
+	<bean id="searchAPIEndPoint" class="java.lang.String">
+		<constructor-arg>
+			<value>${gooru.search.endpoint}</value>
+		</constructor-arg>
+	</bean>
+
+
+	<bean id="restAPIEndPoint" class="java.lang.String">
+		<constructor-arg>
+			<value>${gooru.services.endpoint}</value>
+		</constructor-arg>
+	</bean>
+
+
+	<bean id="configSettingProfileName" class="java.lang.String">
+		<constructor-arg>
+			<value>${config-setting.profile}</value>
+		</constructor-arg>
+	</bean>
+
+
+
+	<bean id="databaseUtil" class="org.ednovo.gooru.application.util.DatabaseUtil">
+		<property name="classplanRepository" ref="classplanRepository" />
+	</bean>
+
+
+
+	<context:component-scan base-package="org.ednovo.gooru.domain.service.resource.impl" />
+
+	<bean id="classplanConstants"
+		class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+		<property name="properties">
+			<props>
+				<prop key="resource.temp">${resource.temp}</prop>
+				<prop key="gooru.static.endpoint">${gooru.static.endpoint}</prop>
+				<prop key="gooruSEOWebdriverEndPoint">${gooru.seo.webdriver.endpoint}</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="s3Constants"
+		class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+		<property name="properties">
+			<props>
+				<prop key="s3.gooruBucket">${s3.gooruBucket}</prop>
+				<prop key="s3.profileBucket">${s3.profileBucket}</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="serverConstants"
+		class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+		<property name="properties">
+			<props>
+				<prop key="serverPath">${gooru.home}</prop>
+			</props>
+		</property>
+	</bean>
+	<bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
+		<property name="messageConverters">
+			<list>
+				<bean
+					class="org.springframework.http.converter.StringHttpMessageConverter" />
+				<bean
+					class="org.springframework.http.converter.xml.SourceHttpMessageConverter" />
+				<bean class="org.springframework.http.converter.FormHttpMessageConverter" />
+			</list>
+		</property>
+	</bean>
+
+
+	<context:component-scan base-package="org.ednovo.gooru.application.util" />
+
+
+
+	<bean id="velocityEngine"
+		class="org.springframework.ui.velocity.VelocityEngineFactoryBean">
+		<property name="velocityProperties">
+			<props>
+				<prop key="resource.loader">file</prop>
+				<prop key="file.resource.loader.class">
+					org.apache.velocity.runtime.resource.loader.FileResourceLoader
+				</prop>
+				<prop key="file.resource.loader.path">${email.templates.path}</prop>
+				<prop key="file.resource.loader.cache">false</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="redisConnectionFactory"
+		class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory">
+		<property name="port" value="6379" />
+		<property name="hostName" value="${redis.server.host}" />
+	</bean>
+
+	<bean id="redisStringTemplate" class="org.springframework.data.redis.core.RedisTemplate">
+		<property name="connectionFactory" ref="redisConnectionFactory" />
+	</bean>
+
+	<bean id="jedisPool" class="redis.clients.jedis.JedisPool">
+		<constructor-arg type="java.lang.String" value="${redis.server.host}" />
+		<constructor-arg type="int" value="6379" />
+	</bean>
+
+	<!-- <bean id="redisService" class="org.ednovo.gooru.domain.service.redis.RedisServiceImpl" 
+		/> -->
+	<context:component-scan base-package="org.ednovo.gooru.security" />
+	<context:component-scan
+		base-package="org.ednovo.gooru.domain.service.revision_history" />
+	<context:component-scan base-package="org.ednovo.gooru.domain.service.redis" />
+
+
+	<bean
+		class="org.springframework.core.LocalVariableTableParameterNameDiscoverer" />
+	<bean id="propertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>file:${configSettings}</value>
+			</list>
+		</property>
+		<property name="ignoreUnresolvablePlaceholders" value="true"/>
+	</bean>
+</beans>
