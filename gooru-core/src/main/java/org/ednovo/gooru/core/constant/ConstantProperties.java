@@ -21,7 +21,7 @@ public interface ConstantProperties {
 			"*.resourceType.name", "*.sharing", "*.title", "*.views", "*.thumbnails", "*.url", "*.user", "*.creator", "*.license", "*.license.code", "*.license.icon", "*.license.name", "*.license.definition", "*.dimensions", "*.defaultImage", "*.resourceSource", "*.attribution", "*.sourceName",
 			"*.questionInfo", "*.TYPE", "*.type", "*.name", "*.questionText", "*.answers.*", "*.assets", "*.assets.asset", "*.assets.asset.name", "*assets.asset.description", "*assets.asset.hasUniqueName", "*.hints.*", "*.description", "*.explanation", "*.taxonomySet", "*.codeId", "*.depth",
 			"*.lastModified", "*.gooruUId", "*.lastUpdatedUserUid", "*.category", "*.label", "*.code", "*.userRating", "*.hasFrameBreaker", "*.copiedResourceId", "*.assignmentContentId", "*.trackActivity", "*.trackActivity.startTime", "*.trackActivity.endTime", "*.goals", "*.grade", "*.mediaType",
-			"*.text", "*.isOer", "*.meta.*","*.resourceFormat.value","*.resourceFormat.keyValue","*.instructional.value","*.instructional.keyValue" };
+			"*.text", "*.isOer", "*.meta.*","*.resourceFormat.value","*.resourceFormat.displayName","*.instructional.value","*.instructional.displayName" };
 
 	static final String ASSIGNMENT_INCLUDE_FIELDS[] = { "*.narrationLink", "collection.notes", "*.keyPoints", "*.language", "*.goals", "*.grade", "*.estimatedTime", "*.collectionType", "*.creator", "*.assetURI", "*.license", "*.license.code", "*.license.icon", "*.license.name",
 			"*.license.definition", "*.dimensions", "*.defaultImage", "*.createdOn", "*.user", "*.usernameDisplay", "*.profileImageUrl", "*.lastName", "*.firstName", "*.username", "*.description", "*.folder", "*.gooruOid", "*.sharing", "*.title", "*.views", "*.thumbnails", "*.url",
@@ -58,7 +58,7 @@ public interface ConstantProperties {
 
 	static final String COLLECTION_INCLUDE_FIELDS[] = { "*.narrationLink", "collection.notes", "*.keyPoints", "*.language", "*.goals", "*.grade", "*.estimatedTime", "*.collectionType", "*.creator", "*.assetURI", "*.license", "*.license.code", "*.license.icon", "*.license.name",
 			"*.license.definition", "*.dimensions", "*.defaultImage", "*.createdOn", "*.user", "*.usernameDisplay", "*.profileImageUrl", "*.lastName", "*.firstName", "*.username", "*.description", "*.folder", "*.gooruOid", "*.sharing", "*.title", "*.views", "*.thumbnails", "*.url",
-			"*.lastModified", "*.gooruUId", "*.mailNotification","*.vocabulary", "*.collaborators", "*.network", "*.buildType", "*.buildType.value","*.instructional.value","*.instructional.displayName","*.instructional.keyValue", "*.emailId" ,"*.lastModifiedUser","*.modifiedDate","*.gooruid","*.username"};
+			"*.lastModified", "*.gooruUId", "*.mailNotification","*.vocabulary", "*.collaborators", "*.network", "*.buildType", "*.buildType.value","*.instructional.value","*.instructional.displayName", "*.emailId" ,"*.lastModifiedUser","*.modifiedDate","*.gooruid","*.username"};
 
 	static final String LIBRARY_COLLECTION_INCLUDE_FIELDS[] = { "*.narrationLink", "collection.notes", "*.keyPoints", "*.language", "*.goals", "*.grade", "*.estimatedTime", "*.collectionType", "*.assetURI", "*.license", "*.license.code", "*.license.icon", "*.license.name", "*.license.definition",
 			"*.dimensions", "*.defaultImage", "*.createdOn", "*.description", "*.folder", "*.gooruOid", "*.sharing", "*.title", "*.views", "*.thumbnails", "*.url", "*.vocabulary", "*.collaborators", "*.network", "*.buildType", "*.buildType.value" };
@@ -398,9 +398,7 @@ public interface ConstantProperties {
 	
 	public static final String NFS = "NFS";
 	
-	
-	
-	
+	public static final String DISPLAY_NAME = "displayName";
 	
 	
 }

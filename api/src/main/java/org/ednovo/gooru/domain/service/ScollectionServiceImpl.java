@@ -692,13 +692,13 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				collection.getUser().setEmailId(identity.getExternalId());
 			}
 			User lastUserModified =this.getUserService().findByGooruId(collection.getLastUpdatedUserUid());
+			Map<String,Object> lastUserModifiedMap =new HashMap<String, Object>();
+			lastUserModifiedMap.put("modifiedDate",collection.getLastModified());
 			if(lastUserModified != null) {
-				Map<String,Object> lastUserModifiedMap =new HashMap<String, Object>();
 				lastUserModifiedMap.put("username",lastUserModified.getUsername());
 				lastUserModifiedMap.put("gooruid",lastUserModified.getGooruUId());
-				lastUserModifiedMap.put("modifiedDate",collection.getLastModified());
-				collection.setLastModifiedUser(lastUserModifiedMap);
 			}
+			collection.setLastModifiedUser(lastUserModifiedMap);
 			if (merge != null) {
 				Map<String, Object> permissions = new HashMap<String, Object>();
 				if (merge.contains(PERMISSIONS)) {

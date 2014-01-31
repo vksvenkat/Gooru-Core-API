@@ -94,13 +94,13 @@ public interface CollectionRepository extends BaseRepository {
 
 	Long getMyClasspageCount(String gooruUid);
 	
-	List<Object[]> getMyFolder(String gooruUid, Integer limit, Integer offset);
+	List<Object[]> getMyFolder(String gooruUid, Integer limit, Integer offset, String sharing);
 	
-	Long getMyShelfCount(String gooruUid);
+	Long getMyShelfCount(String gooruUid, String sharing);
 	
-	List<Object[]> getCollectionItem(String gooruOid, Integer limit, Integer offset, boolean SkipPagination);
+	List<Object[]> getCollectionItem(String gooruOid, Integer limit, Integer offset, boolean SkipPagination, String sharing);
 	
-	Long getCollectionItemCount(String gooruOid);
+	Long getCollectionItemCount(String gooruOid, String sharing);
 	
 	CollectionItem findCollectionByResource(String gooruOid, String gooruUid);
 	

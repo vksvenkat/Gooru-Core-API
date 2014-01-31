@@ -37,7 +37,7 @@ public class CollaboratorRepositoryHibernate extends BaseRepositoryHibernate imp
 
 	@Override
 	public UserContentAssoc findCollaboratorById(String gooruOid, String gooruUid) {
-		String hql= "from UserContentAssoc uc where uc.content.gooruOid=:gooruOid and uc.user.partyUid=:gooruUid";
+		String hql= "from UserContentAssoc uc where uc.content.gooruOid=:gooruOid and uc.user.partyUid=:gooruUid order by uc.associationDate desc";
 		Query query = getSession().createQuery(hql);
 		query.setParameter("gooruOid", gooruOid);
 		query.setParameter("gooruUid", gooruUid);
@@ -46,7 +46,7 @@ public class CollaboratorRepositoryHibernate extends BaseRepositoryHibernate imp
 
 	@Override
 	public InviteUser findInviteUserById(String mailId, String gooruOid) {
-		String hql= "from InviteUser iu where iu.email=:mailId and iu.gooruOid=:gooruOid and iu.status.value=:pending";
+		String hql= "from InviteUser iu where iu.email=:mailId and iu.gooruOid=:gooruOid and iu.status.value=:pending order by iu.createdDate desc";
 		Query query = getSession().createQuery(hql);
 		query.setParameter("gooruOid", gooruOid);
 		query.setParameter("mailId", mailId);
@@ -72,7 +72,7 @@ public class CollaboratorRepositoryHibernate extends BaseRepositoryHibernate imp
 
 	@Override
 	public List<InviteUser> getInviteUsersById(String gooruOid) {
-		String hql= "from InviteUser iu where  iu.gooruOid=:gooruOid and iu.status.value=:pending";
+		String hql= "from InviteUser iu where  iu.gooruOid=:gooruOid and iu.status.value=:pending order by createdDate desc";
 		Query query = getSession().createQuery(hql);
 		query.setParameter("pending", "pending");
 		query.setParameter("gooruOid", gooruOid);
@@ -96,7 +96,7 @@ public class CollaboratorRepositoryHibernate extends BaseRepositoryHibernate imp
 
 	@Override
 	public List<InviteUser> getInviteUserByMail(String mailId) {
-		String hql= "from InviteUser iu where  iu.email=:mailId and iu.status.value=:pending";
+		String hql= "from InviteUser iu where  iu.email=:mailId and iu.status.value=:pending order by createdDate desc";
 		Query query = getSession().createQuery(hql);
 		query.setParameter("mailId", mailId);
 		query.setParameter("pending", "pending");

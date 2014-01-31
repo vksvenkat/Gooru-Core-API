@@ -1697,6 +1697,8 @@ public interface ParameterProperties {
 	String SCOLLECTION_COPY = "scollection-copy";
 
 	String COLLABORATOR = "collaborator";
+	
+	String COLABORATOR = "Collaborator";
 
 	String ADD_COLLABORATORS = "add-collaborators";
 
@@ -2592,4 +2594,13 @@ public interface ParameterProperties {
 	
 	String ITEM_COUNT = "itemCount";
 	
+	String PENDING = "pending";
+	
+	String CONTENT_OBJ = "contentObject";
+	
+	String INVITE_USER_STATUS = "invite_user_status";
+	
+	String ASSOC_DATE = "associatedDate";
+	
+	String PROFILE_IMG_URL = "profileImageUrl";
 }

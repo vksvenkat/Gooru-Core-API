@@ -38,6 +38,8 @@ import org.ednovo.gooru.core.api.model.InviteUser;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserContentAssoc;
 import org.ednovo.gooru.core.constant.ConfigConstants;
+import org.ednovo.gooru.core.constant.ConstantProperties;
+import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.ednovo.gooru.domain.service.v2.ContentService;
@@ -50,7 +52,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 
 @Service
-public class CollaboratorServiceImpl extends BaseServiceImpl implements CollaboratorService {
+public class CollaboratorServiceImpl extends BaseServiceImpl implements CollaboratorService, ParameterProperties, ConstantProperties {
 
 	@Autowired
 	private UserRepository userRepository;
@@ -69,13 +71,13 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 
 	@Autowired
 	private SettingService settingService;
-	
+
 	@Autowired
 	private ContentService contentService;
-	
+
 	@Autowired
 	private MailAsyncExecutor mailAsyncExecutor;
-	
+
 	@Override
 	public List<Map<String, Object>> addCollaborator(List<String> email, String gooruOid, User apiCaller) throws Exception {
 		Content content = null;
@@ -93,40 +95,40 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 				Identity identity = this.getUserRepository().findByEmailIdOrUserName(mailId, true, false);
 				if (identity != null) {
 					UserContentAssoc userContentAssocs = this.getCollaboratorRepository().findCollaboratorById(gooruOid, identity.getUser().getGooruUId());
-					if ( userContentAssocs == null) {
+					if (userContentAssocs == null) {
 						UserContentAssoc userContentAssoc = new UserContentAssoc();
 						userContentAssoc.setContent(content);
 						userContentAssoc.setUser(identity.getUser());
-						userContentAssoc.setAssociatedType("collaborator");
-						userContentAssoc.setRelationship("Collaborator");
+						userContentAssoc.setAssociatedType(COLLABORATOR);
+						userContentAssoc.setRelationship(COLABORATOR);
 						userContentAssoc.setAssociatedBy(apiCaller);
 						userContentAssoc.setLastActiveDate(new Date());
 						userContentAssoc.setAssociationDate(new Date());
 						this.userRepository.save(userContentAssoc);
-						this.getCollectionService().createCollectionItem(content.getGooruOid(), null, new CollectionItem(), identity.getUser(), "collaborator", false);
-						collaborator.add(setActiveCollaborator(userContentAssoc, "active"));
+						this.getCollectionService().createCollectionItem(content.getGooruOid(), null, new CollectionItem(), identity.getUser(), COLLABORATOR, false);
+						collaborator.add(setActiveCollaborator(userContentAssoc, ACTIVE));
 						this.getContentService().createContentPermission(content, identity.getUser());
 					} else {
-						collaborator.add(setActiveCollaborator(userContentAssocs, "active"));
+						collaborator.add(setActiveCollaborator(userContentAssocs, ACTIVE));
 					}
 
 				} else {
-					InviteUser inviteUsers  = this.getCollaboratorRepository().findInviteUserById(mailId, gooruOid);
-					if ( inviteUsers == null) {
+					InviteUser inviteUsers = this.getCollaboratorRepository().findInviteUserById(mailId, gooruOid);
+					if (inviteUsers == null) {
 						InviteUser inviteUser = new InviteUser();
 						inviteUser.setEmail(mailId);
 						inviteUser.setGooruOid(gooruOid);
 						inviteUser.setCreatedDate(new Date());
-						inviteUser.setInvitationType("collaborator");
-						inviteUser.setStatus(this.getCustomTableRepository().getCustomTableValue("invite_user_status", "pending"));
+						inviteUser.setInvitationType(COLLABORATOR);
+						inviteUser.setStatus(this.getCustomTableRepository().getCustomTableValue(INVITE_USER_STATUS, PENDING));
 						this.getUserRepository().save(inviteUser);
-						collaborator.add(setInviteCollaborator(inviteUser, "pending"));	
+						collaborator.add(setInviteCollaborator(inviteUser, PENDING));
 					} else {
-						collaborator.add(setInviteCollaborator(inviteUsers, "pending"));
+						collaborator.add(setInviteCollaborator(inviteUsers, PENDING));
 					}
-					Map<String,Object> collaboratorData = new HashMap<String, Object>();
-					collaboratorData.put("contentObject",content);
-					collaboratorData.put("emailId",mailId);
+					Map<String, Object> collaboratorData = new HashMap<String, Object>();
+					collaboratorData.put(CONTENT_OBJ, content);
+					collaboratorData.put(EMAIL_ID, mailId);
 					this.getMailAsyncExecutor().sendMailToInviteCollaborator(collaboratorData);
 				}
 			}
@@ -137,26 +139,26 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 
 	private Map<String, Object> setInviteCollaborator(InviteUser inviteUser, String status) {
 		Map<String, Object> listMap = new HashMap<String, Object>();
-		listMap.put("emailId", inviteUser.getEmail());
-		listMap.put("gooruOid", inviteUser.getGooruOid());
-		listMap.put("associatedDate", inviteUser.getCreatedDate());
+		listMap.put(EMAIL_ID, inviteUser.getEmail());
+		listMap.put(GOORU_OID, inviteUser.getGooruOid());
+		listMap.put(ASSOC_DATE, inviteUser.getCreatedDate());
 		if (status != null) {
-			listMap.put("status", status);
+			listMap.put(STATUS, status);
 		}
 		return listMap;
 	}
 
 	private Map<String, Object> setActiveCollaborator(UserContentAssoc userContentAssoc, String status) {
 		Map<String, Object> activeMap = new HashMap<String, Object>();
-		activeMap.put("emailId", userContentAssoc.getUser().getIdentities() != null ? userContentAssoc.getUser().getIdentities().iterator().next().getExternalId() : null);
-		activeMap.put("gooruUid", userContentAssoc.getUser().getGooruUId());
-		activeMap.put("username", userContentAssoc.getUser().getUsername());
-		activeMap.put("gooruOid", userContentAssoc.getContent().getGooruOid());
-		activeMap.put("associatedDate", userContentAssoc.getAssociationDate());
-		activeMap.put("profileImageUrl", settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, 0, TaxonomyUtil.GOORU_ORG_UID) + "/" + settingService.getConfigSetting(ConfigConstants.PROFILE_BUCKET, 0, TaxonomyUtil.GOORU_ORG_UID).toString() + "/" + userContentAssoc.getUser().getGooruUId()
-				+ ".png");
+		activeMap.put(EMAIL_ID, userContentAssoc.getUser().getIdentities() != null ? userContentAssoc.getUser().getIdentities().iterator().next().getExternalId() : null);
+		activeMap.put(_GOORU_UID, userContentAssoc.getUser().getGooruUId());
+		activeMap.put(USER_NAME, userContentAssoc.getUser().getUsername());
+		activeMap.put(GOORU_OID, userContentAssoc.getContent().getGooruOid());
+		activeMap.put(ASSOC_DATE, userContentAssoc.getAssociationDate());
+		activeMap.put(PROFILE_IMG_URL, settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, 0, TaxonomyUtil.GOORU_ORG_UID) + "/" + settingService.getConfigSetting(ConfigConstants.PROFILE_BUCKET, 0, TaxonomyUtil.GOORU_ORG_UID).toString() + "/" + userContentAssoc.getUser().getGooruUId()
+				+ DOT_PNG);
 		if (status != null) {
-			activeMap.put("status", status);
+			activeMap.put(STATUS, status);
 		}
 		return activeMap;
 	}
@@ -204,9 +206,9 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 	public List<Map<String, Object>> getCollaborators(String gooruOid, String filterBy) {
 		List<Map<String, Object>> collaborator = new ArrayList<Map<String, Object>>();
 
-		if (filterBy != null && filterBy.equalsIgnoreCase("active")) {
+		if (filterBy != null && filterBy.equalsIgnoreCase(ACTIVE)) {
 			collaborator.addAll(getActiveCollaborator(gooruOid));
-		} else if (filterBy != null && filterBy.equalsIgnoreCase("pending")) {
+		} else if (filterBy != null && filterBy.equalsIgnoreCase(PENDING)) {
 			collaborator.addAll(getPendingCollaborator(gooruOid));
 		} else {
 			collaborator.addAll(getActiveCollaborator(gooruOid));
@@ -218,13 +220,13 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 	@Override
 	public Map<String, List<Map<String, Object>>> getCollaboratorsByGroup(String gooruOid, String filterBy) {
 		Map<String, List<Map<String, Object>>> collaboratorList = new HashMap<String, List<Map<String, Object>>>();
-		if (filterBy != null && filterBy.equalsIgnoreCase("active")) {
-			collaboratorList.put("active", getActiveCollaborator(gooruOid));
-		} else if (filterBy != null && filterBy.equalsIgnoreCase("pending")) {
-			collaboratorList.put("pending", getPendingCollaborator(gooruOid));
+		if (filterBy != null && filterBy.equalsIgnoreCase(ACTIVE)) {
+			collaboratorList.put(ACTIVE, getActiveCollaborator(gooruOid));
+		} else if (filterBy != null && filterBy.equalsIgnoreCase(PENDING)) {
+			collaboratorList.put(PENDING, getPendingCollaborator(gooruOid));
 		} else {
-			collaboratorList.put("active", getActiveCollaborator(gooruOid));
-			collaboratorList.put("pending", getPendingCollaborator(gooruOid));
+			collaboratorList.put(ACTIVE, getActiveCollaborator(gooruOid));
+			collaboratorList.put(PENDING, getPendingCollaborator(gooruOid));
 		}
 		return collaboratorList;
 	}
@@ -235,7 +237,7 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 		List<UserContentAssoc> userContentAssocs = this.getCollaboratorRepository().getCollaboratorsById(gooruOid);
 		if (userContentAssocs != null) {
 			for (UserContentAssoc userContentAssoc : userContentAssocs) {
-				activeList.add(this.setActiveCollaborator(userContentAssoc, "active"));
+				activeList.add(this.setActiveCollaborator(userContentAssoc, ACTIVE));
 			}
 		}
 		return activeList;
@@ -247,25 +249,25 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 		List<Map<String, Object>> pendingList = new ArrayList<Map<String, Object>>();
 		if (inviteUsers != null) {
 			for (InviteUser inviteUser : inviteUsers) {
-				pendingList.add(this.setInviteCollaborator(inviteUser, "pending"));
+				pendingList.add(this.setInviteCollaborator(inviteUser, PENDING));
 			}
 		}
 		return pendingList;
 	}
-	
+
 	@Override
 	public void updateCollaboratorStatus(String mailId) throws Exception {
 		List<InviteUser> inviteUsers = this.getCollaboratorRepository().getInviteUserByMail(mailId);
-		for(InviteUser inviteUser : inviteUsers) {
-			inviteUser.setStatus(this.getCustomTableRepository().getCustomTableValue("invite_user_status", "active"));
+		for (InviteUser inviteUser : inviteUsers) {
+			inviteUser.setStatus(this.getCustomTableRepository().getCustomTableValue(INVITE_USER_STATUS, ACTIVE));
 			inviteUser.setJoinedDate(new Date());
 			this.getCollaboratorRepository().save(inviteUser);
 			Identity identity = this.getUserRepository().findByEmailIdOrUserName(mailId, true, false);
 			List<String> mail = new ArrayList<String>();
 			mail.add(mailId);
-			this.addCollaborator(mail,inviteUser.getGooruOid(), identity.getUser()) ;
+			this.addCollaborator(mail, inviteUser.getGooruOid(), identity.getUser());
 		}
-		
+
 	}
 
 	public UserRepository getUserRepository() {
@@ -291,7 +293,7 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 	public CollaboratorRepository getCollaboratorRepository() {
 		return collaboratorRepository;
 	}
-	
+
 	public ContentService getContentService() {
 		return contentService;
 	}
