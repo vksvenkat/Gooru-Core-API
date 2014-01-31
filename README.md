@@ -24,14 +24,14 @@ Gooru Core API project consists of APIs that required for Gooru Web this project
 </table>
 
 ## Build Process
-* Update your tomcat location in "webapp.container.home" properity in root pom.xml
-For example, <webapp.container.home>${env.CATALINA_HOME}</webapp.container.home>
+* Update your tomcat location in "webapp.container.home" property in root pom.xml
+For example, `<webapp.container.home>${env.CATALINA_HOME}</webapp.container.home>`
 * Navigate to the development project folder.
 For example, cd Home\Projects\Gooru-Core-API 
 * From the linux terminal Clean install the build.
-Command: mvn clean install -P api -Dmaven.test.skip=true
+Command: `mvn clean install -P api -Dmaven.test.skip=true`
 * Project deployed on <webapp.container.home>/webapps/ location
 
 
 ## License
-Gooru Snapshoter is released under the MIT License. 
+Gooru Core API is released under the MIT License. 
