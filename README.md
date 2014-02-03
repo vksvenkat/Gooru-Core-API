@@ -11,7 +11,7 @@ Gooru Core API project consists of APIs that required for Gooru Web this project
   </tr>
   <tr>
     <th style="text-align:left;">Operating System</th>
-    <td>Windows 7 and above or Ubuntu</td>
+    <td>Ubuntu</td>
   </tr>
    <tr>
     <th style="text-align:left;">Application container</th>
@@ -30,7 +30,7 @@ For example, `<webapp.container.home>${env.CATALINA_HOME}</webapp.container.home
 For example, cd Home\Projects\Gooru-Core-API 
 * From the linux terminal Clean install the build.
 Command: `mvn clean install -P api -Dmaven.test.skip=true`
-* Project deployed on <webapp.container.home>/webapps/ location
+* Project deployed on `<webapp.container.home>/webapps/` location
 
 
 ## License
