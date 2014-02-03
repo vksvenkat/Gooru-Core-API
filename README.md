@@ -23,7 +23,7 @@ Gooru Core API project consists of APIs that required for Gooru Web this project
   </tr>
 </table>
 
-## Build Process
+## Build
 * Update your tomcat location in "webapp.container.home" property in root pom.xml
 For example, `<webapp.container.home>${env.CATALINA_HOME}</webapp.container.home>`
 * Navigate to the development project folder.
@@ -33,5 +33,9 @@ Command: `mvn clean install -P api -Dmaven.test.skip=true`
 * Project deployed on `<webapp.container.home>/webapps/` location
 
 
+## Learn more 
+Learn more about our open source software on our developer’s page where you can find links to documentation and resources at: http://developers.goorulearning.org/
+
+
 ## License
-Gooru Core API is released under the MIT License. 
+Gooru Core API is released under the [MIT License](http://opensource.org/licenses/MIT) .
