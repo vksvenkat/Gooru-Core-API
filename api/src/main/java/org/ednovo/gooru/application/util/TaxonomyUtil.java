@@ -60,10 +60,10 @@ public class TaxonomyUtil {
 	public static final String CODE_PARENTS_EXCLUDES[] = { "*.associatedCodes", "*.description", "*.taxonomySet", "*.class", "*.displayOrder", "*.parentId" };
 	public static final String CODE_THUMBNAILS_EXCLUDES[] = { "*.associatedCodes", "*.description", "*.taxonomySet", "*.class", "*.displayOrder", "*.parentId", "code", "codeType", "rootNodeId", "s3UploadFlag", "parent", "depth" };
 
-	public static String GOORU_ORG_UID = "4261739e-ccae-11e1-adfb-5404a609bd14";
+	public static String GOORU_ORG_UID = SettingService.instance.getConfigSetting("organization.gooru.uid");
 	
 	public static final void updateClassplanLibrary(String taxonomyPath, Integer rootCodeId) throws Exception {
-
+		
 		Document taxonomyXML = null;
 		SAXReader reader = new SAXReader();
 		try {
@@ -92,6 +92,7 @@ public class TaxonomyUtil {
 		} catch (DocumentException e) {
 			throw new RuntimeException(e);
 		}
+		
 
 		String taxonomyStep2XML = XMLTransformer.getInstance().transform(taxonomyXML, "VIEW_CLASSPLAN_LIBRARY_XSL_PATH_STEP_1", taxonomyPath, null);
 
@@ -183,5 +184,7 @@ public class TaxonomyUtil {
 		String codeId = SettingService.getInstance().getOrganizationSetting(ConfigConstants.TAXONOMY_ROOT, organizationUid);
 		return codeId != null ? Integer.valueOf(codeId) : null;
 	}
-
+	
+	
 }
+

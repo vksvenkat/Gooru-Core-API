@@ -32,10 +32,6 @@ import java.util.Set;
 
 import org.ednovo.gooru.core.api.model.Resource;
 
-/**
- * @author SearchTeam
- * 
- */
 public interface ContentIndexDao {
 	
 	Resource findResourceByContentGooruId(String gooruOid);

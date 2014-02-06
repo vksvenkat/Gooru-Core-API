@@ -180,11 +180,6 @@ public class CustomFieldRepositoryHibernate extends BaseRepositoryHibernate impl
 
 	private String getOrganizationPartyUid(String resourceGooruOid) {
 		try {
-			// Resource resource =
-			// (Resource)getSession().createQuery("SELECT r FROM Resource r LEFT JOIN  r.contentPermissions cps WHERE r.gooruOid = '"+resourceGooruOid+"' And "+generateAuthQueryWithData("r.")).list().get(0);
-			// TODO Decide if the auth conditions commented in the line above
-			// are really needed here since we only do a lookup here.
-
 			Resource resource = (Resource) getSession().createQuery("SELECT r FROM Resource r WHERE r.gooruOid = '" + resourceGooruOid + "'").list().get(0);
 			return resource.getOrganization().getPartyUid();
 		} catch (Exception ex) {

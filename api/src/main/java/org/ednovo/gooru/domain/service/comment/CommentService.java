@@ -44,4 +44,6 @@ public interface CommentService extends BaseService {
 	SearchResults<Comment> getCommentsCount(String gooruOid, String gooruUid, Integer limit, Integer offset,String fetchType);
 
 	void deleteComment(String commentUid, User user,Boolean softdelete);
+	
+	Boolean isContentOwner(String commentUid, User user);
 }

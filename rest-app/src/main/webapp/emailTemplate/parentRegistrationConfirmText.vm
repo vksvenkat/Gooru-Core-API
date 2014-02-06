@@ -1,0 +1,13 @@
+Hello there! 
+ Please complete your Gooru account registration by clicking on the link:
+ 
+ 	#if( ! $gooruClassicUrl )
+		${serverpath}/gooru/index.g#!/user/registration/${userId}/session/${sessionId}/${encodedDateOfBirth}/type/${userAccountType}
+	#else
+    	${gooruClassicUrl}&gooruuid=${userId}&sessionid=${sessionId}&dob=${encodedDateOfBirth}&type=${userAccountType}&callback=confirmUser
+	#end
+	
+ Let us know if you have any questions!
+ Thanks!
+ The Gooru Team
+ http://www.facebook.com/gooru | http://www.twitter.com/gooru

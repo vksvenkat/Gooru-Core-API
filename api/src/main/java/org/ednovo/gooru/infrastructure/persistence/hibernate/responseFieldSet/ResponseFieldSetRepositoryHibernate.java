@@ -76,8 +76,7 @@ public class ResponseFieldSetRepositoryHibernate extends BaseRepositoryHibernate
 		String hql = "FROM ResponseFieldSet responseFieldSet WHERE  " + generateOrgAuthQueryWithData("responseFieldSet.");
 		Query query = getSession().createQuery(hql);
 		List<ResponseFieldSet> responseFields = (List<ResponseFieldSet>)query.list();
-		//return (List<ResponseField>) (responseFields.size() > 0 ? responseFields.get(0) : null);
-		return responseFields.size() == 0 ? null : responseFields;
+				return responseFields.size() == 0 ? null : responseFields;
 	}
 
 	

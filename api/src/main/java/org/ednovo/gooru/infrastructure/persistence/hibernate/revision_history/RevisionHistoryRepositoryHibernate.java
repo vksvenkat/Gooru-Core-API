@@ -35,11 +35,6 @@ import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.stereotype.Repository;
-
-/**
- * @author Search Team
- * 
- */
 @Repository
 public class RevisionHistoryRepositoryHibernate implements RevisionHistoryRepository {
 

@@ -53,7 +53,7 @@ public class ServiceCallRepositoryHibernate extends BaseRepositoryHibernate impl
 
 	@Override
 	public Map<String, Integer[]> getClassplansIOwenSummary(String userId) {
-		// userId = 6;
+		
 
 		List<Map<String, Object>> lessonToCountsDBList = jdbcTemplate.queryForList("select view.lesson,view.count as view_count,IFNULL(copy.count,0) as copy_count,IFNULL(subscribe.count,0) as subscribe_count " + "from( " + "select lesson,count(*) as count "
 				+ "from content c,learnguide l,service_call s " + "where c.user_uid=? " + "and c.content_id= l.content_id " + "and s.predicate='learning_guide.get_classplan' " + "and s.action = concat('/gooruapi/rest/classplan/',c.gooru_oid,'.json') " + "group by lesson "
@@ -110,8 +110,7 @@ public class ServiceCallRepositoryHibernate extends BaseRepositoryHibernate impl
 
 	@Override
 	public Map<String, Integer> getUserClassView(String userId) {
-		// userId = 6;
-		List<Map<String, Object>> labelAndCountDBList = jdbcTemplate.queryForList("select pp.label,count(c.label) count " + "from content_classification cc, code c,code p,code pp,content cn,service_call s  " + "where c.parent_id=p.code_id " + "and p.parent_id=pp.code_id "
+			List<Map<String, Object>> labelAndCountDBList = jdbcTemplate.queryForList("select pp.label,count(c.label) count " + "from content_classification cc, code c,code p,code pp,content cn,service_call s  " + "where c.parent_id=p.code_id " + "and p.parent_id=pp.code_id "
 				+ "and c.code_id=cc.code_id and cc.content_id=cn.content_id " + "and s.predicate='learning_guide.get_classplan' " + "and s.user_uid=? and s.action = CONCAT('/gooruapi/rest/classplan/',cn.gooru_oid,'.json')" + "group by pp.label;", new Object[] { userId });
 
 		Map<String, Integer> labelAndCount = new HashMap<String, Integer>();
@@ -202,8 +201,7 @@ public class ServiceCallRepositoryHibernate extends BaseRepositoryHibernate impl
 		WriteParameters(request, serviceCallDbId);
 	}
 
-	// private Map<String,Pattern> predicateToContentExtractorRegex = new
-	// HashMap<String, Pattern>();
+	
 
 	private String getPredicate(HttpServletRequest request) {
 		Object res = request.getAttribute("predicate");
@@ -270,25 +268,6 @@ public class ServiceCallRepositoryHibernate extends BaseRepositoryHibernate impl
 		return res;
 	}
 
-	// private String createResponseString(ModelAndView modelAndView){
-	// String responseText="";
-	// if (modelAndView != null)
-	// {
-	// ModelMap map = modelAndView.getModelMap();
-	// if (map != null)
-	// {
-	// for (String s:map.keySet()) {
-	// Object val = map.get(s);
-	// if (val instanceof JSONObject)
-	// responseText += "<"+s+","+((JSONObject)val).toString()+">";
-	//
-	// }
-	// }
-	// }
-	// if (responseText.equals(""))
-	// responseText = "NA";
-	// return responseText;
-	// }
 
 	public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
 		this.jdbcTemplate = jdbcTemplate;

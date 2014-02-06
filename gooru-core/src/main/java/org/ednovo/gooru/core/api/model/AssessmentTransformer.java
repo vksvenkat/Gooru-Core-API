@@ -21,7 +21,7 @@ public class AssessmentTransformer extends ObjectTransformer {
 			@Override
 			public void transform(Object object) {
 				Assessment assess = (Assessment) object;
-			//	String currentUserOrgUid = UserGroupSupport.getUserOrganizationUid();
+		
 				if (assess != null) {
 
 					if (deepSerialize) {

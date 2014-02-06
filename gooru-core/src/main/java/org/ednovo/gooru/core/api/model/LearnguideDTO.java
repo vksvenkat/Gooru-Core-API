@@ -2,10 +2,7 @@ package org.ednovo.gooru.core.api.model;
 
 /**
  * DTO object for transferring data to the view layer.
- * 
- * @author Rajnish
- * 
- */
+  */
 public class LearnguideDTO {
 
 	private Long contentId;

@@ -517,12 +517,7 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 			if (filters.containsKey("attribution")) {
 				criteria.add(Restrictions.like("attribution", "%" + filters.get("attribution").trim() + "%"));
 			}
-			/*
-			 * if (filters.containsKey("sourceName")) {
-			 * criteria.add(Restrictions
-			 * .like("sourceName","%"+filters.get("sourceName").trim()+ "%")); }
-			 */
-
+			
 			if (filters.containsKey("domainName")) {
 				criteria.add(Restrictions.like("domainName", "%" + filters.get("domainName").trim() + "%"));
 			}
@@ -580,15 +575,7 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 		return infos.size() > 0 ? infos.get(0) : null;
 	}
 
-	/*
-	 * @Override public List<ResourceMetaData> getResourceMetadata(String
-	 * resourceUid, String metaKey) { String hql =
-	 * "SELECT resourceMeta FROM ResourceMetaData resourceMeta  LEFT JOIN resourceMeta.resource.contentPermissions cps WHERE resourceMeta.resource.gooruOid =:resourceUid AND "
-	 * +generateAuthQuery("resourceMeta.resource."); Session session =
-	 * getSessionFactory().getCurrentSession(); Query query =
-	 * session.createQuery(hql); query.setParameter("resourceUid", resourceUid);
-	 * addAuthParameters(query); return (List<ResourceMetaData>) query.list(); }
-	 */
+	
 	@Override
 	public void deleteResourceBulk(String contentIds) {
 		// FIXME
@@ -833,38 +820,7 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 	public List getResourceFlatten(List<Long> contentIds) {
 
 		String contentIdsJoined = StringUtils.join(contentIds, ",");
-		/*
-		 * String sql=
-		 * "SELECT r.media_type,r.title as resource_title,r.description as resource_description,info.text,info.tags,info.num_of_pages,c.content_id as id,r.url as resource_url,c.gooru_oid,r.from_crawler,r.is_featured,r.distinguish,r.site_name,source.resource_source_id"
-		 * +
-		 * ", source.source_name, source.domain_name, source.attribution, source.active_status, source.type as resource_source_type, source.frame_breaker,r.broken_status,r.thumbnail,r.has_frame_breaker,rt.name as resource_type_name,r.category,r.record_source,c.sharing,user.gooru_uid as userID,t.document_id,t.document_key,r.views_total,rus.*"
-		 * + ",aq.*" + ",r.batch_id"+
-		 * ",user.user_id as ownerUserId,user.gooru_uid as ownerGooruOId,creator.user_id as creatorUserId"
-		 * + ", creator.organization_uid as creatorOrganizationUid" +
-		 * ",user.organization_uid as userOrganizationUid,c.last_modified as lastModified,c.created_on as addDate,r.title,license.*, GROUP_CONCAT(ri.resource_instance_id) AS resource_instance_id, GROUP_CONCAT(ri.title SEPARATOR \" , \") as resource_instance_title, GROUP_CONCAT(ri.description SEPARATOR \" , \") as resource_instance_description, GROUP_CONCAT(ri.narrative SEPARATOR \" , \") as resource_instance_narrative, GROUP_CONCAT(s.title SEPARATOR \" , \") AS segments_title,GROUP_CONCAT(s.description SEPARATOR \" , \") AS segments_description,GROUP_CONCAT(s.concept SEPARATOR \" , \") AS segments_concept, CONCAT_WS(\",\",GROUP_CONCAT(DISTINCT l.goals SEPARATOR \" , \") ,GROUP_CONCAT(DISTINCT l.vocabulary SEPARATOR \" , \"),GROUP_CONCAT(DISTINCT l.notes SEPARATOR \" , \"),GROUP_CONCAT(DISTINCT l.narration SEPARATOR \" , \")) as classplanContent, GROUP_CONCAT(DISTINCT l.lesson SEPARATOR \" , \") as lesson,GROUP_CONCAT(DISTINCT l.content_id) as usedInCollectionIds, GROUP_CONCAT(DISTINCT(CASE WHEN learnguideResource.distinguish =1 then learnguideResource.content_id end)) as usedInDistCollectionCount, o.organization_uid as organization_party_uid,op.party_name,o.organization_code,r.grade as taxonomyGrade "
-		 * + " FROM content c " +
-		 * " INNER JOIN resource r ON c.content_id=r.content_id " +
-		 * " LEFT JOIN resource_instance ri ON ri.resource_id = r.content_id " +
-		 * " LEFT JOIN segment s ON s.segment_id=ri.segment_id " +
-		 * " LEFT JOIN learnguide l ON l.content_id=s.resource_id " +
-		 * " LEFT JOIN resource_info info ON info.resource_id=r.content_id " +
-		 * " LEFT JOIN resource_source source ON source.resource_source_id=r.resource_source_id "
-		 * + " LEFT JOIN resource_type rt ON r.type_name=rt.name " +
-		 * " LEFT JOIN textbook t ON t.content_id= r.content_id " +
-		 * " LEFT JOIN resource_url_status rus  ON rus.resource_id=r.content_id "
-		 * + " LEFT JOIN resource_feeds rf ON rf.resource_id = r.content_id " +
-		 * " LEFT JOIN assessment_question aq ON aq.question_id=r.content_id " +
-		 * " LEFT JOIN organization o ON o.organization_uid=c.organization_uid "
-		 * + " LEFT JOIN party op ON o.organization_uid=op.party_uid " +
-		 * " LEFT JOIN user user on user.gooru_uid=c.user_uid " +
-		 * " LEFT JOIN user creator on creator.gooru_uid=c.creator_uid " +
-		 * " LEFT JOIN license license on r.license_name=license.name " +
-		 * " LEFT JOIN resource learnguideResource on learnguideResource.content_id=l.content_id "
-		 * + " WHERE c.content_id="+contentId+" and rt.name NOT IN ("+
-		 * EXCLUDE_FOR_RESOURCES_STRING
-		 * +",'assessment-question') group by c.content_id";
-		 */
-		String sql = "SELECT vrm.*, vrcd.*, vrsd.scollection_gooru_oids, vrcf.* from v_resource_meta vrm left join v_resource_coll_data vrcd on vrcd.content_id = vrm.id left join v_resource_scoll_data vrsd on vrsd.resource_id = vrm.id left outer join v_resource_cust_fields vrcf on vrcf.custom_fields_content_id = vrm.id where vrm.id in ("
+				String sql = "SELECT vrm.*, vrcd.*, vrsd.scollection_gooru_oids, vrcf.* from v_resource_meta vrm left join v_resource_coll_data vrcd on vrcd.content_id = vrm.id left join v_resource_scoll_data vrsd on vrsd.resource_id = vrm.id left outer join v_resource_cust_fields vrcf on vrcf.custom_fields_content_id = vrm.id where vrm.id in ("
 				+ contentIdsJoined + ")";
 		Session session = getSessionFactory().getCurrentSession();
 		SQLQuery query = session.createSQLQuery(sql);
@@ -981,10 +937,6 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 	@Override
 	public Textbook findTextbookByContentGooruIdWithNewSession(String gooruOid) {
 		String hql = "SELECT textbook FROM Textbook textbook JOIN textbook.securityGroups sg WHERE textbook.gooruOid = '" + gooruOid + "' AND textbook.organization.partyUid IN ( " + getUserOrganizationUidsAsString() + ")";
-		/*
-		 * if(!isAdminUser()) { hql +=
-		 * AND_SG_SECURITY_GROUP_UID+getSecurityGroupIdsAsString()+" )" ; }
-		 */
 		List<Textbook> result = getSession().createQuery(hql).list();
 		return (result.size() > 0) ? result.get(0) : null;
 	}

@@ -233,27 +233,7 @@ public class AssessmentRepositoryHibernate extends BaseRepositoryHibernate imple
 		this.delete(segmentQuestionAssoc);
 	}
 
-	/*
-	 * @Override public Integer getDistinctAttemptQuestionCount(Map<String,
-	 * String> filter) { String sql =
-	 * "SELECT COUNT(DISTINCT attempt.student_id) FROM assessment_attempt_item attemptItem "
-	 * +
-	 * " INNER JOIN assessment_attempt attempt ON attemptItem.attempt_id = attempt.attempt_id  "
-	 * +
-	 * " INNER JOIN assessment_attempt fromAttempt ON attempt.attempt_id = fromAttempt.attempt_id "
-	 * + " INNER JOIN content content ON content.gooru_oid = '" +
-	 * filter.get(AssessmentRepository.QUESTION_GOORU_ID) + "'" +
-	 * " INNER JOIN assessment_answer answer ON ( attemptItem.answer_id = answer.answer_id "
-	 * ; if (filter.containsKey(AssessmentRepository.IS_CORRECT)) { sql +=
-	 * " AND answer.is_correct = " +
-	 * filter.get(AssessmentRepository.IS_CORRECT); } sql +=
-	 * " ) WHERE attempt.mode = 1 AND attemptItem.question_id = content.content_id"
-	 * ;
-	 * 
-	 * Session session = getSession(); List<BigInteger> results =
-	 * session.createSQLQuery(sql).list(); return (results != null) ?
-	 * (results.get(0)).intValue() : 0; }
-	 */
+	
 	@Override
 	public List<QuestionSet> listQuestionSets(Map<String, String> filters) {
 		return getAll(QuestionSet.class);
@@ -311,15 +291,7 @@ public class AssessmentRepositoryHibernate extends BaseRepositoryHibernate imple
 		return resultMap;
 	}
 
-	/*
-	 * @Override public Integer getAttemptQuestionsInfo(Integer attemptId,
-	 * Integer isCorrect) { // FIXME String hql =
-	 * "FROM AssessmentAttempt attempt WHERE attempt.mode = 1 AND attempt.attemptId = "
-	 * + attemptId + " AND "; if (isCorrect != null) { hql +=
-	 * "( attempt.attemptItems.answer != NULL AND attempt.attemptItems.answer.isCorrect = "
-	 * + isCorrect + ")"; } else { hql += "attempt.attemptItems.answer IS NULL";
-	 * } List result = find(hql); return (result != null) ? result.size() : 0; }
-	 */
+	
 	@Override
 	public Integer getAssessmentNotAttemptedQuestions(Integer attemptId, String gooruOAssessmentId) {
 		String hql = "SELECT question FROM AssessmentQuestion question ,Assessment assessment , AssessmentAttempt attempt  WHERE question IN assessment.segments.segmentQuestions.question AND  question NOT IN attempt.attemptItems.question AND assessment.gooruOid = '" + gooruOAssessmentId
@@ -328,29 +300,7 @@ public class AssessmentRepositoryHibernate extends BaseRepositoryHibernate imple
 		return (result != null) ? result.size() : 0;
 	}
 
-	/*
-	 * @Override public List<Object[]> getAssessmentAttemptByConcepts(Integer
-	 * attemptId, String gooruOAssessmentId, Integer studentId) { Session
-	 * session = this.getSession(); String sql =
-	 * "SELECT COUNT(1) as maxScore, SUM(answer.is_correct) as studentScore,question.concept as concept FROM assessment_attempt attempt"
-	 * +
-	 * " INNER JOIN assessment_attempt_item item ON item.attempt_id = attempt.attempt_id AND attempt.attempt_id = '"
-	 * + attemptId +
-	 * "' INNER JOIN assessment_question question ON question.question_id = item.question_id"
-	 * +
-	 * " LEFT JOIN assessment_answer answer ON item.answer_id = answer.answer_id"
-	 * + " INNER JOIN content content ON content.gooru_oid = '" +
-	 * gooruOAssessmentId +
-	 * "' INNER JOIN assessment assessment ON ( assessment.assessment_id = content.content_id AND assessment.assessment_id = attempt.assessment_id ) "
-	 * + " GROUP BY question.concept";
-	 * 
-	 * Query query = session.createSQLQuery(sql).addScalar("maxScore",
-	 * StandardBasicTypes.INTEGER).addScalar("studentScore",
-	 * StandardBasicTypes.INTEGER).addScalar("concept",
-	 * StandardBasicTypes.STRING); List<Object[]> result = query.list();
-	 * releaseSession(session); return result; }
-	 */
-	@Override
+		@Override
 	public void deleteQuestionAssets(int assetId) {
 		String sql = "DELETE aqa FROM assessment_question_asset_assoc ";
 		jdbcTemplate.execute(sql);
@@ -418,7 +368,7 @@ public class AssessmentRepositoryHibernate extends BaseRepositoryHibernate imple
 
 	@Override
 	public List<Object[]> getAssessmentAttemptQuestionSummary(Integer attemptId) {
-		// FIXME
+	
 		Session session = this.getSession();
 		String sql = "SELECT question.question_text as questionText , question.type as questionType, question.concept as concept, attemptItem.attempt_status as status, question.question_id as questionId, question.explanation as explanation, resource.folder as folder, storageArea.area_path as assetURI "
 				+ " , content.gooru_oid as gooruOid ,  attemptItem.attempt_item_id as attemptItemId, attemptItem.correct_try_id as correctTrySequence  FROM assessment_attempt_item attemptItem "
@@ -446,12 +396,7 @@ public class AssessmentRepositoryHibernate extends BaseRepositoryHibernate imple
 		return getRecord(hql);
 	}
 
-	/*
-	 * @Override public boolean isAnswerUsed(Integer answerId) { // FIXME String
-	 * hql =
-	 * "SELECT attempt FROM AssessmentAttempt attempt INNER JOIN attempt.attemptItems attemptItem WHERE attemptItem.answer.answerId = "
-	 * + answerId; return find(hql).size() > 0; }
-	 */
+	
 	@Override
 	public AssessmentQuestionAssetAssoc findQuestionAsset(String questionGooruOid, Integer assetId) {
 		String hql = "SELECT questionAsset FROM AssessmentQuestionAssetAssoc questionAsset  WHERE questionAsset.question.gooruOid = '" + questionGooruOid + "' AND questionAsset.asset.assetId = " + assetId + " AND " + generateAuthQueryWithDataNew("questionAsset.question.");

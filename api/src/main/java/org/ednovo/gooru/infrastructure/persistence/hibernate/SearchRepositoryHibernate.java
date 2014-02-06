@@ -57,25 +57,7 @@ public class SearchRepositoryHibernate extends BaseRepositoryHibernate implement
 		try{
 			jdbcTemplate.update("insert into search_query (user_query, user_id, search_type, query_time_msec, user_uid) values(?,?,?,?,?)",
 					new Object[]{userQuery,user.getUserId(),searchType, searchTime, user.getPartyUid()});
-			// save search results
-/*			if(resources != null) {
-				jdbcTemplate.batchUpdate("insert into search_result (query_id, rank,content_id) value (?,?,?)",
-					new BatchPreparedStatementSetter() {
-						@Override
-						public void setValues(PreparedStatement ps, int i) throws SQLException {
-							Resource resource = resources.get(i);
-							ps.setInt(1, query_id);
-							ps.setInt(2, i);
-							ps.setLong(3, resource.getContentId() );
-						}
-						
-						@Override
-						public int getBatchSize() {
-							return resources.size();
-						}
-				});
-			}
-*/			
+		
 		}catch (Exception e) {
 			logger.error("Cant save the search resuls " + userQuery ,e);
 		}

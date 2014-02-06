@@ -124,14 +124,7 @@ public class User extends Party implements IndexableEntry, OrganizationWrapper, 
 		this.emailId = emailId;
 	}
 
-/*	public Set<Content> getContentSet() {
-		return contentSet;
-	}
 
-	public void setContentSet(Set<Content> contentSet) {
-		this.contentSet = contentSet;
-	}
-*/
 	public Integer getUserId() {
 		return userId;
 	}
@@ -139,7 +132,6 @@ public class User extends Party implements IndexableEntry, OrganizationWrapper, 
 	public void setUserId(Integer userId) {
 		this.userId = userId;
 	}
-
 	@JSON(include = false)
 	public Set<Identity> getIdentities() {
 		return identities;

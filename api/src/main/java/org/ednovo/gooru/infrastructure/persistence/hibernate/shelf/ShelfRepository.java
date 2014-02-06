@@ -30,7 +30,7 @@ import org.ednovo.gooru.core.api.model.Shelf;
 import org.ednovo.gooru.core.api.model.ShelfItem;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepository;
-//import org.ednovo.gooru.domain.model.user.User;
+
 
 public interface ShelfRepository extends BaseRepository {
 

@@ -76,15 +76,16 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	}
 
 	@Override
-	public ActionResponseDTO<CollectionItem> moveCollectionToFolder(String sourceId, String taregetId, User user) throws Exception {
+	public ActionResponseDTO<CollectionItem> moveCollectionToFolder(String sourceItemId, String sourceId, String taregetId, User user) throws Exception {
 		ActionResponseDTO<CollectionItem> responseDTO = null;
-		Collection source = collectionRepository.getCollectionByGooruOid(sourceId, user.getGooruUId());
-		Collection target = collectionRepository.getCollectionByGooruOid(taregetId, user.getGooruUId());
+		Collection source = collectionRepository.getCollectionByGooruOid(sourceId, null);
+		Collection target = collectionRepository.getCollectionByGooruOid(taregetId, null);
 		if (source == null || target == null) {
 			throw new NotFoundException(generateErrorMessage("GL0056", "Collection"));
 		}
 		CollectionItem collectionItem = new CollectionItem();
 		collectionItem.setCollection(source);
+		deleteCollectionItem(sourceItemId);
 		responseDTO = this.createCollectionItem(sourceId, taregetId, collectionItem, user, CollectionType.FOLDER.getCollectionType(), false);
 		return responseDTO;
 	}

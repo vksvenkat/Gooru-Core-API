@@ -165,7 +165,7 @@ public class CommentServiceImpl extends BaseServiceImpl implements CommentServic
 
 	@Override
 	public void deleteComment(String commentUid, User user, Boolean softdelete) {
-		Comment comment = getUserService().isContentAdmin(user) ? this.getCommentRepository().getComment(commentUid) : this.getCommentRepository().findCommentByUser(commentUid, user.getGooruUId());
+		Comment comment = getUserService().isContentAdmin(user) || isContentOwner(commentUid, user) ? this.getCommentRepository().getComment(commentUid) : this.getCommentRepository().findCommentByUser(commentUid, user.getGooruUId());
 		rejectIfNull(comment, COMMENT, GL0057, generateErrorMessage(GL0057, COMMENT));
 		if (softdelete) {
 			comment.setIsDeleted(true);
@@ -173,6 +173,21 @@ public class CommentServiceImpl extends BaseServiceImpl implements CommentServic
 		} else {
 			this.getCommentRepository().remove(comment);
 		}
+	}
+	
+	@Override
+	public Boolean isContentOwner(String commentUid, User user) {
+		Boolean isContentOwner = false;
+		Comment comment = this.getCommentRepository().getComment(commentUid);
+		if (comment != null) {
+			Collection collection = this.getCollectionRepository().getCollectionByGooruOid(comment.getGooruOid(), null);
+			if(collection != null && collection.getUser()!= null){
+				if(collection.getUser().equals(user)){
+					isContentOwner = true;
+				}
+			}
+		}
+		return isContentOwner;
 	}
 
 	private Errors validateComment(Comment comment) {
@@ -214,4 +229,5 @@ public class CommentServiceImpl extends BaseServiceImpl implements CommentServic
 	public PartyRepository getPartyRepository() {
 		return partyRepository;
 	}
+
 }

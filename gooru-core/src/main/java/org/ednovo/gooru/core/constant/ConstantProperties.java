@@ -368,7 +368,7 @@ public interface ConstantProperties {
 
 	public static final String PROFANITY_INCLUDES[] = { "*.found", "*.foundBy", "*.text", "*.count", "*.expletive" };
 
-	public static final String WEBPURIFY_API_KEY = "07efa9710a009bce7e2dbf01aa2cb12d";
+	public static final String WEBPURIFY_API_KEY = "2b9dbbde0e50edf204a6e742cfdd79bc";
 	
 	public static final String WEBPURIFY_CONFIG_KEY = "webpurify.com.api.key";
 	

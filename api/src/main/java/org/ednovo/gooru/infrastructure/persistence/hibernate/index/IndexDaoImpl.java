@@ -28,10 +28,7 @@ package org.ednovo.gooru.infrastructure.persistence.hibernate.index;
 
 import org.hibernate.SessionFactory;
 
-/**
- * @author SearchTeam
- * 
- */
+
 public class IndexDaoImpl {
 
 	@javax.annotation.Resource(name = "sessionFactory")

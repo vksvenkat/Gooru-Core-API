@@ -31,7 +31,7 @@ import org.hibernate.Criteria;
 import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-//import org.ednovo.gooru.domain.model.OrganizationModel;
+
 
 /**
  * This class serves as the Base class for all other Daos - namely to hold

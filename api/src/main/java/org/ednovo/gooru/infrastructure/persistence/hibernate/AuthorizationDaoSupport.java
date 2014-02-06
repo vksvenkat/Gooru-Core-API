@@ -21,9 +21,7 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 /////////////////////////////////////////////////////////////
-/**
- * 
- */
+
 package org.ednovo.gooru.infrastructure.persistence.hibernate;
 
 import java.io.Serializable;
@@ -43,10 +41,7 @@ import org.hibernate.criterion.Disjunction;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.sql.JoinType;
 
-/**
- * @author rajam
- * 
- */
+
 public abstract class AuthorizationDaoSupport extends HibernateDaoSupport {
 
 	protected static final String PERMITTED_PARTY_UIDS = "permittedPartyUids";
@@ -63,7 +58,7 @@ public abstract class AuthorizationDaoSupport extends HibernateDaoSupport {
 
 	protected final void addAuthParameters(Query query) {
 		if (!isContentAdminAccess()) {
-			// query.setParameterList(PERMITTED_PARTY_UIDS, getPartyPermits());
+			
 			query.setParameter(CURRENT_USER_UID, getCurrentUserUid());
 		}
 		addOrgAuthParameters(query);
@@ -90,20 +85,7 @@ public abstract class AuthorizationDaoSupport extends HibernateDaoSupport {
 		}
 	}
 
-	/*
-	 * protected final String generateAuthSqlQuery() { return
-	 * generateAuthSqlQuery(""); }
-	 * 
-	 * protected final String generateAuthSqlQuery(String alias) {
-	 * if(isContentAdminAccess()){ return new
-	 * StringBuilder(alias).append("organization_uid IN ( : organizationUids )"
-	 * ).toString(); } else { return new
-	 * StringBuilder(" ( cps.party_uid IN ( :permittedPartyUids ) OR "
-	 * ).append(alias
-	 * ).append("sharing in ('public','anyonewithlink') OR ").append
-	 * (alias).append("user_uid = :currentUserUid ) AND ").append(alias).append(
-	 * "organization_uid IN ( : organizationUids )").toString(); } }
-	 */
+	
 	protected final String generateOrgAuthQueryWithData() {
 		return generateOrgAuthQueryWithData("");
 	}
@@ -152,23 +134,7 @@ public abstract class AuthorizationDaoSupport extends HibernateDaoSupport {
 		return criteria.add(Restrictions.in(alias + ORGANIZATION_PARTY_UID, getUserOrganizationUids()));
 	}
 
-	/*
-	 * protected final String generateAuthQueryWithData() { return
-	 * generateAuthQueryWithData(""); }
-	 * 
-	 * protected final String generateAuthQueryWithData(String alias) {
-	 * if(isContentAdminAccess()){ return new
-	 * StringBuilder(alias).append("organization.partyUid IN ("
-	 * ).append(getUserOrganizationUidsAsString()).append(") ").toString(); }
-	 * else { return new
-	 * StringBuilder(" ( cps.party.partyUid IN ( "+getPartyPermitsAsString
-	 * ()+" ) OR "
-	 * ).append(alias).append("sharing in ('public','anyonewithlink') OR "
-	 * ).append
-	 * (alias).append("user.partyUid = '"+getCurrentUserUid()+"' ").append
-	 * (" ) AND ").append(alias).append("organization.partyUid IN (").append(
-	 * getUserOrganizationUidsAsString()).append(") ").toString(); } }
-	 */
+//	
 	protected final String generateAuthQueryWithDataNew(String alias) {
 		if (isContentAdminAccess()) {
 			return new StringBuilder(alias).append("organization.partyUid IN (").append(getUserOrganizationUidsAsString()).append(") ").toString();

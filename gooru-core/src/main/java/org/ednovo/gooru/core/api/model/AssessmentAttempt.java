@@ -6,7 +6,7 @@ import java.util.Set;
 
 import org.ednovo.gooru.core.api.model.User;
 
-//import org.ednovo.gooru.domain.model.user.User;
+
 
 public class AssessmentAttempt implements Serializable {
 

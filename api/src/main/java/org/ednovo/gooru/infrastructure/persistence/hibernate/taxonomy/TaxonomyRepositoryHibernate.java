@@ -495,8 +495,7 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 	@Override
 	@Cacheable("gooruCache")
 	public String findRootLevelTaxonomy(Code code) {
-		// Integer level = code.getCodeType().getTypeId();
-		// int index = level-1;
+		
 		int index = code.getDepth().intValue();
 
 		List<String> alias = new ArrayList<String>();
@@ -659,8 +658,7 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 		for (String[] code : codes) {
 			try {
 				this.getJdbcTemplate().update("update code set display_order= " + code[1] + " where code_id = " + code[0] + "and " + generateOrgAuthSqlQueryWithData());
-				// System.out.println(code[0]);
-			} catch (Exception e) {
+						} catch (Exception e) {
 			}
 
 		}
@@ -671,7 +669,6 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 		Integer activeFlag = 1;
 		Session session = getSession();
 		List<Code> cc = session.createQuery("from Code c where c.label = ? and c.activeFlag = ?  " + generateOrgAuthQueryWithData("c.")).setString(0, label).setInteger(1, activeFlag).list();
-
 		return cc.size() == 0 ? null : cc.get(0);
 	}
 
@@ -691,8 +688,7 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 		Integer activeFlag = 1;
 		Session session = getSession();
 		List<Code> codeList = session.createQuery("from Code c where c.rootNodeId = ? and c.activeFlag = ? and " + generateOrgAuthQueryWithData("c.")).setInteger(0, codeId).setInteger(1, activeFlag).list();
-
-		return codeList;
+       return codeList;
 	}
 
 	@Override

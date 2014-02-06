@@ -86,7 +86,7 @@ public interface CollectionRepository extends BaseRepository {
 
 	List<CollectionItem> getMyCollectionItems(Map<String, String> filters, User user);
 
-	List<CollectionItem> getCollectionItems(String collectionId, Integer offset, Integer limit, boolean skipPagination);
+	List<CollectionItem> getCollectionItems(String collectionId, Integer offset, Integer limit, boolean skipPagination, String orderBy);
 
 	Resource findResourceCopiedFrom(String gooruOid, String gooruUid);
 
@@ -105,5 +105,7 @@ public interface CollectionRepository extends BaseRepository {
 	CollectionItem findCollectionByResource(String gooruOid, String gooruUid);
 	
 	Long getClasspageCollectionCount(String classpageGooruOid);
-
+	
+	List<CollectionItem> getCollectionItemByAssociation(String resourceGooruOid, String gooruUid);
+	
 }

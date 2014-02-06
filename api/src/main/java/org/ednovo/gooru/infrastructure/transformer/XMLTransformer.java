@@ -87,8 +87,7 @@ public class XMLTransformer {
 
 				transformer.setParameter(key, value);
 			}
-			// }
-			// while(iterator.hasNext());
+			
 		}
 
 		if (logger.isDebugEnabled()){
@@ -96,7 +95,6 @@ public class XMLTransformer {
 					+ strMode);
 		}
 
-		//System.out.println("Source: " + source.asXML());
 		DocumentSource docSource = new DocumentSource(source);
 		ByteArrayOutputStream obj = new ByteArrayOutputStream();
 		StreamResult result = new StreamResult(obj);
@@ -251,24 +249,6 @@ public class XMLTransformer {
 		this.transformerMap = transformerMap;
 	}
 
-	// private String dumpToString(Document doc) throws IOException {
-	// try {
-	//
-	// // String encoding = doc.getXMLEncoding();
-	// doc.setXMLEncoding("UTF-8");
-	// Writer osw = new StringWriter();
-	// XMLWriter writer = new XMLWriter(osw);
-	// writer.setEscapeText(false);
-	// writer.write(doc);
-	// writer.close();
-	// return osw.toString();
-	//
-	// } catch (IOException e) {
-	//
-	// logger.error("failed to write XML to string", e);
-	// throw e;
-	// }
-	// }
 	
 	static Object makeInstance(String className) throws ClassNotFoundException, InstantiationException, IllegalAccessException
     {

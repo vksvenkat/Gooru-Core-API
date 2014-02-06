@@ -307,37 +307,12 @@ public class RequestUtil implements ParameterProperties {
 		}
 	}
 
-	/*
-	 * ServletFileUpload upload = new ServletFileUpload();
-	 * 
-	 * // Parse the request FileItemIterator iter =
-	 * upload.getItemIterator(request); while (iter.hasNext()) { FileItemStream
-	 * item = iter.next(); String name = item.getFieldName(); InputStream stream
-	 * = item.openStream(); if (item.isFormField()) {
-	 * System.out.println("Form field " + name + " with value " +
-	 * Streams.asString(stream) + " detected."); } else {
-	 * System.out.println("File field " + name + " with file name " +
-	 * item.getName() + " detected."); // Process the input stream ... } }
-	 */
-
-	/* To replace Asset URI with secured AsssetURL */
+	
 
 	public static String replaceWithSecuredUrl(HttpServletRequest request, String assetUri) {
 
 		String requestScheme = request.getScheme();
-		System.out.println("requestScheme" + requestScheme);
-		// String requestScheme = "https://gooru.goorulearning.com/repository/";
-		/*
-		 * if(requestScheme.startsWith("http://")){
-		 * assetUri.replaceAll("http://", "https://");
-		 * 
-		 * }
-		 */
-		/*
-		 * assetUri = requestScheme.contains("http://") ?
-		 * assetUri.replace("http://", "") : assetUri;
-		 */
-
+		
 		if (requestScheme.contains("http://")) {
 			assetUri.replace("http://", "https://");
 

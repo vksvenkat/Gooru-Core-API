@@ -1,0 +1,7 @@
+<decorators defaultdir="/decorators">
+    <excludes>
+        <pattern>/40*.jsp</pattern>        
+        <pattern>/rest/*</pattern>       
+    </excludes> 
+
+</decorators>

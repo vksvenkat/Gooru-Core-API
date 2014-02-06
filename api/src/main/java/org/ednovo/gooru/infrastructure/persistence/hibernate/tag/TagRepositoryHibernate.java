@@ -156,7 +156,6 @@ public class TagRepositoryHibernate extends BaseRepositoryHibernate implements T
 		Session session = getSession();
 		Query query = session.createQuery(RETIREVE_SYNONYMS_BY_NAME);
 		query.setParameter("targetTagName", targetTagName);
-//		addOrgAuthParameters(query);
 		List<TagSynonyms> tagSynonyms = query.list();
 		return (tagSynonyms.size() > 0) ? tagSynonyms.get(0) : null;
 	}
@@ -166,7 +165,6 @@ public class TagRepositoryHibernate extends BaseRepositoryHibernate implements T
 		Session session = getSession();
 		Query query = session.createQuery(RETIREVE_SYNONYMS_BY_ID);
 		query.setParameter("tagSynonymsId", tagSynonymsId);
-//		addOrgAuthParameters(query);
 		List<TagSynonyms> tagSynonyms = query.list();
 		return (tagSynonyms.size() > 0) ? tagSynonyms.get(0) : null;
 	}
@@ -176,7 +174,6 @@ public class TagRepositoryHibernate extends BaseRepositoryHibernate implements T
 		Session session = getSession();
 		Query query = session.createQuery(RETIREVE_SYNONYMS_BY_TAG);
 		query.setParameter("tagContentGooruOid", tagContentGooruOid);
-//		addOrgAuthParameters(query);
 		return  query.list();
 	}
 
@@ -186,7 +183,6 @@ public class TagRepositoryHibernate extends BaseRepositoryHibernate implements T
 		Query query = session.createQuery(RETIREVE_SYNONYMS_BY_TAG_AND_SYNONYM);
 		query.setParameter("tagContentGooruOid", tagContentGooruOid);
 		query.setParameter("tagSynonymsId", tagSynonymsId);
-//		addOrgAuthParameters(query);
 		List<TagSynonyms> tagSynonyms = query.list();
 		return (tagSynonyms.size() > 0) ? tagSynonyms.get(0) : null;
 	}

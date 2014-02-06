@@ -37,10 +37,6 @@ import org.hibernate.SQLQuery;
 import org.hibernate.type.StandardBasicTypes;
 import org.springframework.stereotype.Repository;
 
-/**
- * @author SearchTeam
- * 
- */
 @Repository
 @SuppressWarnings("unchecked")
 public class ContentIdexDaoImpl extends IndexDaoImpl implements ContentIndexDao {
@@ -51,7 +47,7 @@ public class ContentIdexDaoImpl extends IndexDaoImpl implements ContentIndexDao 
 
 	private final String GET_COLLECTION_TAXONOMY_CODE_ID = "SELECT cc.code_id FROM content_classification cc WHERE cc.content_id = :contentId";
 
-	private static final String GET_COLLECTION_ITEMS = "SELECT c.gooru_oid,r.type_name,r.title,c.sharing,ci.*,r.description,info.text,r.grade,r.category,r.url,rs.attribution,rs.source_name,rs.domain_name FROM content c INNER JOIN resource r ON r.content_id = c.content_id INNER JOIN collection_item ci ON ci.resource_content_id = c.content_id LEFT JOIN resource_info info ON info.resource_info_id=r.resource_info_id LEFT JOIN resource_source rs ON rs.resource_source_id = r.resource_source_id where ci.collection_content_id=:contentId";
+	private static final String GET_COLLECTION_ITEMS = "SELECT c.gooru_oid,r.type_name,r.title,c.sharing,ci.*,r.description,info.text,r.grade,r.category,r.url,rs.attribution,rs.domain_name FROM content c INNER JOIN resource r ON r.content_id = c.content_id INNER JOIN collection_item ci ON ci.resource_content_id = c.content_id LEFT JOIN resource_info info ON info.resource_info_id=r.resource_info_id LEFT JOIN resource_source rs ON rs.resource_source_id = r.resource_source_id where ci.collection_content_id=:contentId";
 
 	private static final String GET_SEGMENTS_BY_QUIZ_ID = "SELECT name FROM assessment_segment WHERE assessment_id=:contentId";
 

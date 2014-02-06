@@ -544,7 +544,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 
 	@Override
-	public ActionResponseDTO<CollectionItem> updateCollectionItem(CollectionItem newcollectionItem, String collectionItemId) throws Exception {
+	public ActionResponseDTO<CollectionItem> updateCollectionItem(CollectionItem newcollectionItem, String collectionItemId, User user) throws Exception {
 		CollectionItem collectionItem = this.getCollectionItemById(collectionItemId);
 		Errors errors = validateUpdateCollectionItem(newcollectionItem);
 		if (!errors.hasErrors()) {
@@ -563,6 +563,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			if (newcollectionItem.getStop() != null) {
 				collectionItem.setStop(newcollectionItem.getStop());
 			}
+			collectionItem.getCollection().setLastUpdatedUserUid(user.getPartyUid());
 			this.getCollectionRepository().save(collectionItem);
 			this.getCollectionRepository().save(collectionItem.getCollection());
 			try {
@@ -693,10 +694,9 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			}
 			User lastUserModified =this.getUserService().findByGooruId(collection.getLastUpdatedUserUid());
 			Map<String,Object> lastUserModifiedMap =new HashMap<String, Object>();
-			lastUserModifiedMap.put("modifiedDate",collection.getLastModified());
 			if(lastUserModified != null) {
-				lastUserModifiedMap.put("username",lastUserModified.getUsername());
-				lastUserModifiedMap.put("gooruid",lastUserModified.getGooruUId());
+				lastUserModifiedMap.put(USER_NAME,lastUserModified.getUsername());
+				lastUserModifiedMap.put(GOORU_UID,lastUserModified.getGooruUId());
 			}
 			collection.setLastModifiedUser(lastUserModifiedMap);
 			if (merge != null) {
@@ -1645,8 +1645,8 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 
 	@Override
-	public List<CollectionItem> getCollectionItems(String collectionId, Integer offset, Integer limit, boolean skipPagination) {
-		return this.getCollectionRepository().getCollectionItems(collectionId, offset, limit, skipPagination);
+	public List<CollectionItem> getCollectionItems(String collectionId, Integer offset, Integer limit, boolean skipPagination, String orderBy) {
+		return this.getCollectionRepository().getCollectionItems(collectionId, offset, limit, skipPagination, orderBy );
 	}
 	
 	@Override

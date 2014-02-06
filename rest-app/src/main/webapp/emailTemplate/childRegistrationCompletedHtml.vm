@@ -1,0 +1,54 @@
+<html>
+<body>
+	<div style="font-family: arial;width: 717px;color:#666;height:550px">
+		<div style="height: 470px; margin-left: 30px;">
+			<div style="color: #666; width: 100%; font-size: 14px; float: left; margin-top: 30px;">Hello there!<div style="margin-top: 20px;">We’re excited to welcome you and your student to the Gooru community! Now you both can get started discovering the best free K-12 education resources on the Web.
+				</div>
+
+				<div style="margin-top: 20px;">
+				    As a parent you will be getting updates about your student’s Gooru account. 
+				</div><div style="margin-top: 20px;">
+				    Information your student has provided:
+				</div><div style="margin-top: 20px;"><b>Username: </b>${gooruUserName}<br>
+					<b>Password: </b>${gooruUserPassword}<br>
+					<b>Birthday: </b>${encodedDateOfBirth}<br>
+					
+						<b>Grade(s) and Course(s) interested in:</b>
+					#if( $userGrade )
+						 Grade ${userGrade} ,
+					#end  
+					#if( $userCourse )
+						 ${userCourse}
+					#end   
+					</div>
+				
+				<div style="margin-top: 20px;">
+				    Your student’s first and last name will not be visible publicly anywhere on the Gooru website, only your student’s alias (their username) can be seen. Any content (collections) they make will be tied to their username. 
+				</div>
+				
+
+				<div style="margin-top: 20px;">
+				    We will only use your student’s birthdate to know when they turn 13. On their 13th birthday, they will be allowed to have an independent account.  Until then, you can change their password by clicking<span style="color: #1076bb;">
+					#if( ! $gooruClassicUrl )
+					<a style="color: #1076bb;text-decoration: none;" href="${serverpath}/gooru/index.g#!/change-password/${resetToken}" target="_blank"> here</a>
+					#else
+						<a style="color: #1076bb;text-decoration: none;" href="${gooruClassicUrl}/#discover&amp;resetToken=${resetToken}&amp;callback=changePassword" target="_blank"> here</a>
+					#end  
+				    </span>, or by logging into their account, going into settings, and clicking the "reset password" link in the "security" tab. You can also disable their account at anytime by contacting us at <a style="color: #1076bb;text-decoration:underline;" href="mailto:support@goorulearning.org">support@goorulearning.org.</a></div>
+				<div style="margin-top: 15px;">
+				     If you have any questions or issues, please contact us at <a style="color: #1076bb;text-decoration:underline;" href="mailto:support@goorulearning.org">support@goorulearning.org.</a>.</div>
+				<div style="margin-top: 15px;">
+					<div>Thanks!</div>
+					<div>The Gooru Team</div>
+					<div>
+						<a style="color: #1076bb;" href="http://www.facebook.com/gooru" target="_blank">Facebook</a> | <a style="color: #1076bb;" href="http://www.twitter.com/gooru" target="_blank">Twitter</a>
+					</div>
+				</div>
+
+			</div>
+		</div>
+		
+	</div>
+
+	</body>
+</html>

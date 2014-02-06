@@ -40,12 +40,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class UserGroupRepositoryHibernate extends BaseRepositoryHibernate implements UserGroupRepository {
 
-/*	@Autowired
-	public UserGroupRepositoryHibernate(SessionFactory sessionFactory) {
-		//super();
-		setSessionFactory(sessionFactory);
-	}
-*/
+
 	@Override
 	@Cacheable("gooruCache")
 	public UserGroup getDefaultGroupByOrganization(String organizationUid) {

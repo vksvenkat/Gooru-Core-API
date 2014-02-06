@@ -43,7 +43,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 @Service
 public class SettingService {
 	
-	private static SettingService instance;
+	public static SettingService instance;
 
 	private static final Map<String, String> configSettingValues = new HashMap<String, String>();
 	
@@ -111,6 +111,11 @@ public class SettingService {
 		}
 		
 		return orgSettingMap;
+	}
+	
+	public String getConfigSetting(String organizationName)
+	{
+	return	configSettingRepository.getConfigSetting(organizationName);
 	}
 	
 	public synchronized void resetConfigSettings() {

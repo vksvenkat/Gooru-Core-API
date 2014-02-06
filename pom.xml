@@ -199,6 +199,7 @@
 					</properties>
 					<modules>
 					<module>api</module>
+					<module>rest-app</module>
 					<module>cassandra-core</module>
                                         <module>rest-v2-app</module>
 					<module>gooru-core</module> 

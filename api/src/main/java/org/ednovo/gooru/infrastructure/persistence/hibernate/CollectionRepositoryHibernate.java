@@ -217,7 +217,17 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		addOrgAuthParameters(query);
 		return query.list();
 	}
-
+	
+	@Override
+	public List<CollectionItem> getCollectionItemByAssociation(String resourceGooruOid, String gooruUid) {
+		Session session = getSession();
+		Query query = session.createQuery("FROM CollectionItem collectionItem WHERE  collectionItem.resource.gooruOid=:resourceGooruOid  and collectionItem.associatedUser.partyUid=:gooruUid and " + generateOrgAuthQuery("collectionItem.collection."));
+		query.setParameter("resourceGooruOid", resourceGooruOid);
+		query.setParameter("gooruUid", gooruUid);
+		addOrgAuthParameters(query);
+		return query.list();
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -454,7 +464,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 
 	@Override
 	public List<Classpage> getMyClasspage(Integer offset, Integer limit, User user, boolean skipPagination, String orderBy) {
-		String hql = "select collectionItems.resource  FROM Collection collection inner join collection.collectionItems collectionItems WHERE   collection.user.partyUid = '" + user.getGooruUId() + "' and collection.collectionType = '" + CollectionType.USER_CLASSPAGE
+		String hql = "select collectionItems.resource  FROM Collection collection inner join collection.collectionItems collectionItems WHERE   collection.user.partyUid = '" + user.getGooruUId() + "' and collection.collectionType = '" + CollectionType.USER_CLASSPAGE.getCollectionType()
 				+ "'  order by collectionItems.resource.createdOn desc";
 		Session session = getSession();
 		Query query = session.createQuery(hql);
@@ -574,12 +584,14 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 	}
 
 	@Override
-	public List<CollectionItem> getCollectionItems(String collectionId, Integer offset, Integer limit, boolean skipPagination) {
+	public List<CollectionItem> getCollectionItems(String collectionId, Integer offset, Integer limit, boolean skipPagination, String orderBy) {
 		Session session = getSession();
 		String hql = "select collectionItems  FROM Collection collection inner join collection.collectionItems collectionItems where collection.gooruOid=:gooruOid and " + generateOrgAuthQuery("collection.");
+		hql += "order by collectionItems.plannedEndDate " + orderBy;
 		Query query = session.createQuery(hql);
 		query.setParameter("gooruOid", collectionId);
 		addOrgAuthParameters(query);
+
 		if (!skipPagination) {
 			query.setFirstResult((offset != null ? offset : OFFSET));
 			query.setMaxResults((limit != null ? limit : LIMIT));
@@ -678,7 +690,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 
 	@Override
 	public Long getMyClasspageCount(String gooruUid) {
-		String hql = "select count(collectionItems.resource)  FROM Collection collection inner join collection.collectionItems collectionItems WHERE   collection.user.partyUid = '" + gooruUid + "' and collection.collectionType = '" + CollectionType.USER_CLASSPAGE
+		String hql = "select count(collectionItems.resource)  FROM Collection collection inner join collection.collectionItems collectionItems WHERE   collection.user.partyUid = '" + gooruUid + "' and collection.collectionType = '" + CollectionType.USER_CLASSPAGE.getCollectionType()
 				+ "'  order by collectionItems.resource.createdOn desc";
 		Session session = getSession();
 		Query query = session.createQuery(hql);

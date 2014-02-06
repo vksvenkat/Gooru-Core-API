@@ -42,12 +42,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
-//import org.ednovo.gooru.domain.model.user.User;
 
-/**
- * @author Deepankar
- * 
- */
+
 
 @Repository
 public class SubscriptionRepositoryHibernate extends BaseRepositoryHibernate implements SubscriptionRepository {

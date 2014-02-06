@@ -1,0 +1,22 @@
+<html>
+	<body>
+		<div style="font-family: arial;width: 717px;color:#666;height:550px">
+			<div style="height: 470px; margin-left: 30px;">
+				<div style="color: #666; width: 100%; font-size: 14px; float: left; margin-top: 30px;">
+					<p style="float:left;margin:5px 0px;"> Welcome to Gooru! </p>
+					<p style="float:left;margin:5px 0px;">Your child account is now ready for use: <b>${UserNmae}</b> </p>
+					<p style="float:left;margin:5px 0px;"> Keep this email for your records, as it contains important information about managing your child’s .account.</p>
+					<p style="float:left;margin:5px 0px;"> The current password is ${Password} If you would like to change the account password, click <a style="color: #1076bb;" href="${serverpath}/gooru/user/registration/confirm.g?token=${registerToken}" target="_blank">here</a> to change the password. Your child will not be able to change the password without your confirmation.</p>
+					<p style="float:left;margin:5px 0px;"> You can  disable or delete the account at any point by emailing </p>
+					<p style="float:left;margin:1px 0px; 5px 0px;color: #1076bb;>support@goorulearning.org.</p>
+					<p style="float:left;margin:5px 0px;">As always, let us know if you have any questions!</p>
+					<div style="margin-top: 15px;float:left">
+						<div>Thanks!</div>
+						<div>The Gooru Team</div>
+						<div> <a style="color: #1076bb;" href="http://www.facebook.com/gooru"	target="_blank">Facebook</a> | <a style="color: #1076bb;" href="http://www.twitter.com/gooru" target="_blank">Twitter</a></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

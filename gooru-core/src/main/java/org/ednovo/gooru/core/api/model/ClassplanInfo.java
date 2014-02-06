@@ -46,12 +46,7 @@ public class ClassplanInfo {
 		this.assessment = infoDoc.selectSingleNode("//assessment") == null ? "" : infoDoc.selectSingleNode("//assessment").getText();		
 		this.studentQuestions = infoDoc.selectSingleNode("//studentquestions") == null ? "" : infoDoc.selectSingleNode("//studentquestions").getText();		
 	}
-	/*public String getUnit() {
-		return unit;
-	}
-	public void setUnit(String unit) {
-		this.unit = unit;
-	}*/
+	
 	public String getHomework() {
 		return homework;
 	}
@@ -64,18 +59,7 @@ public class ClassplanInfo {
 	public void setAssessment(String assessment) {
 		this.assessment = assessment;
 	}
-	/*public String getGrade() {
-		return grade;
-	}
-	public void setGrade(String grade) {
-		this.grade = grade;
-	}
-	public String getSubject() {
-		return subject;
-	}
-	public void setSubject(String subject) {
-		this.subject = subject;
-	}*/
+	
 	public String getNotes() {
 		return notes;
 	}
@@ -152,22 +136,10 @@ public class ClassplanInfo {
 	public String getXML(boolean escape){
 		
 		Element info = DocumentHelper.createElement("info");
-
-		/*Element elmGrade = info.addElement("grade");
-		elmGrade.addText(grade);*/
-
+		
 		Element elmLesson = info.addElement("lesson");
 		elmLesson.addText(lesson);
 
-		/*Element elmSubject = info.addElement("subject");
-		elmSubject.addText(subject);*/
-
-		/*Element elmTopic = info.addElement("topic");
-		elmTopic.addText(topic);
-		
-		Element elmUnit = info.addElement("unit");
-		elmUnit.addText(unit);*/
-		
 		Element duration = info.addElement("duration");
 		duration.addText("0");
 
@@ -205,23 +177,7 @@ public class ClassplanInfo {
 		studentQuesText= DocumentHelper.createCDATA(studentQuestions.trim());
 		studentques.add(studentQuesText);
 
-		/*Element elmReading = info.addElement("suggestedreading");
-		CDATA suggestedReadingText = null;
-		suggestedReadingText= DocumentHelper.createCDATA(suggestedStudy);
-		elmReading.add(suggestedReadingText);
-		
-		
-		Element elmHomework = info.addElement("homework");
-		CDATA homeworkText = null;
-		homeworkText= DocumentHelper.createCDATA(homework);
-		
-		elmHomework.add(homeworkText);
-		
-		Element elmAssessment = info.addElement("assessment");
-		CDATA assessmentText = null;
-		assessmentText= DocumentHelper.createCDATA(assessment);
-		elmAssessment.add(assessmentText);*/
-
+	
 		return info.asXML();	
 	}
 }

@@ -34,7 +34,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class ContentClassficationRepositoryHibernate extends BaseRepositoryHibernate implements ContentClassificationRepository {
 
-	// private static final String DELETE_CONTENT = "delete from Content where gooru_oid = '%s'";
+	
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 

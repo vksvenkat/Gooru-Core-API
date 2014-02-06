@@ -31,10 +31,7 @@ import java.util.Map;
 
 import org.ednovo.gooru.core.api.model.OrganizationSetting;
 
-/**
- * @author rajam
- * 
- */
+
 public interface OrganizationSettingRepository extends BaseRepository {
 
 	String ORG_UID_PARAM = "organizationUid";

@@ -89,8 +89,6 @@ public interface AssessmentRepository extends BaseRepository {
 
 	void deleteQuestionAssets(int assetId);
 
-	// Integer getDistinctAttemptQuestionCount(Map<String, String> filter);
-
 	boolean isQuestionUsedInSegmentQuestion(String gooruOQuestionId);
 
 	boolean isQuestionUsedInAttemptItem(String gooruOQuestionSetId);
@@ -99,12 +97,7 @@ public interface AssessmentRepository extends BaseRepository {
 
 	Map<String, Object> getAssessmentAttemptsInfo(Integer attemptId, String gooruOAssessmentId, Integer studentId);
 
-	// Integer getAttemptQuestionsInfo(Integer attemptId, Integer isCorrect);
-
 	Integer getAssessmentNotAttemptedQuestions(Integer attemptId, String gooruOAssessmentId);
-
-	// List<Object[]> getAssessmentAttemptByConcepts(Integer attemptId, String
-	// gooruOAssessmentId, Integer studentId);
 
 	List<Object[]> getAssessmentAttemptQuestionSummary(Integer attemptId);
 

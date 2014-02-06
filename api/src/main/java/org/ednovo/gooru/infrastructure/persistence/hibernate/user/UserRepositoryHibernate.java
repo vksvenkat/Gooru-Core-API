@@ -351,8 +351,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 			if (isCollaboratorCheck) {
 				sql += " and user.primary_organization_uid IN (" + getUserOrganizationUidsAsString() + ") OR user.organization_uid ='" + getCurrentUserPrimaryOrganization().getPartyUid() + "'";
 			}
-			// System.out.println("#### Collaborator Query #### " + sql);
-			availability = getSession().createSQLQuery(sql).addScalar(TOTAL_COUNT, StandardBasicTypes.BOOLEAN).setParameter("userName", keyword).list();
+				availability = getSession().createSQLQuery(sql).addScalar(TOTAL_COUNT, StandardBasicTypes.BOOLEAN).setParameter("userName", keyword).list();
 		} else if (type == CheckUser.BYEMAILID) {
 			availability = getSession().createSQLQuery(GET_EMAILID_AVAILABILITY).addScalar(TOTAL_COUNT, StandardBasicTypes.BOOLEAN).setParameter("emailId", keyword).list();
 		}
@@ -372,39 +371,27 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 
 	@Override
 	public List<UserRole> findRolesByNames(String roles) {
-		//String hql = " FROM UserRole ur WHERE ur.name IN (:roleNames) and " + generateOrgAuthQuery("ur.");
+		
 		String hql = " FROM UserRole ur WHERE ur.name IN (:roleNames) ";
 		Query query = getSession().createQuery(hql);
 		query.setParameterList("roleNames", roles.split(","));
-		//addOrgAuthParameters(query);
 		List<UserRole> userRoles = query.list();
 		return userRoles.size() > 0 ? userRoles : null;
 	}
 
 	public UserRole findUserRoleByName(String name, String organizationUids) {
-		//String hql = "FROM UserRole ur WHERE ur.name =:name and " + generateOrgAuthQuery("ur.");
 		String hql = "FROM UserRole ur WHERE ur.name =:name ";
 		Query query = getSession().createQuery(hql);
 		query.setParameter("name", name);
-
-/*		if (organizationUids == null) {
-			addOrgAuthParameters(query);
-		} else {
-			query.setParameterList("organizationUids", organizationUids.split(","));
-		}
-*/
-		List<UserRole> userRole = query.list();
+	   List<UserRole> userRole = query.list();
 		return (userRole.size() > 0) ? userRole.get(0) : null;
 	}
 
 	@Override
 	public UserRole findUserRoleByRoleId(Short roleId) {
-	//	String hql = "FROM UserRole ur WHERE ur.roleId =:roleId and " + generateOrgAuthQuery("ur.");
 		String hql = "FROM UserRole ur WHERE ur.roleId =:roleId ";
-
 		Query query = getSession().createQuery(hql);
 		query.setParameter("roleId", roleId);
-		//addOrgAuthParameters(query);
 		List<UserRole> userRole = query.list();
 		return (userRole.size() > 0) ? userRole.get(0) : null;
 	}
@@ -501,7 +488,6 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 		}
 
 		Query query = getSession().createQuery(hql);
-		// System.out.println("*** identity query** " + hql);
 		query.setParameter("userName", userName);
 		query.setParameter(EXTERNAL_ID, userName);
 		if (!isLoginRequest) {

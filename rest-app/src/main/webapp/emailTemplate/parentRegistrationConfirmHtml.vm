@@ -1,0 +1,64 @@
+
+<html>
+<body>
+	<div
+		style="font-family: arial;width: 717px;color:#666;height:550px">
+		<div style="height: 470px; margin-left: 30px;">
+			<div
+				style="color: #666; width: 100%; font-size: 14px; float: left; margin-top: 30px;">
+				Hello there!
+				<div style="margin-top: 20px;">
+				      Someone needs your help creating an account on Gooru, and chose you as their parent/guardian!
+				</div>
+				<div style="margin-top: 20px;">
+
+					<div>
+					#if(!($parentExistingFlag))
+						You'll need to create your account first to create your child account.
+					#end
+						Please complete the Gooru account registration by clicking on the link:
+					</div>
+					<div>
+					#if( ! $gooruClassicUrl )
+						<a style="color: #1076bb;" href="${serverpath}/gooru/index.g#!/user/registration/${userId}/session/${sessionId}/${encodedDateOfBirth}/type/${userAccountType}" target="_blank">Complete Registration</a>
+					#else 
+						<a style="color: #1076bb;" href="${gooruClassicUrl}&gooruuid=${userId}&sessionid=${sessionId}&dob=${encodedDateOfBirth}&type=${userAccountType}&callback=confirmUser" target="_blank">Complete Registration</a>
+					#end	
+					</div>
+				</div>
+				<div style="margin-top: 15px;">
+					<div>If the above link does not work, copy and paste the URL
+						below into your browser bar:</div>
+					<div>
+					#if( ! $gooruClassicUrl )
+						<a style="color: #1076bb;" href="${serverpath}/gooru/index.g#!/user/registration/${userId}/session/${sessionId}/${encodedDateOfBirth}/type/${userAccountType}" target="_blank">${serverpath}/gooru/index.g#!/user/registration/${userId}/session/${sessionId}/${encodedDateOfBirth}/type/${userAccountType}</a>
+					#else
+					   <a style="color: #1076bb;" href="${gooruClassicUrl}&gooruuid=${userId}&sessionid=${sessionId}&dob=${encodedDateOfBirth}&type=${userAccountType}&callback=confirmUser" target="_blank">${gooruClassicUrl}&gooruuid=${userId}&sessionid=${sessionId}&dob=${encodedDateOfBirth}&type=${userAccountType}&callback=confirmUser</a>
+					#end
+					</div>
+				</div>
+
+				<div style="margin-top: 20px;">
+				     Gooru is a safe community. As the parent or guardian, please take time to read our <a style="color: #1076bb;text-decoration:underline;" href="${serverpath}/gooru/index.g#!/privacyandpolicy" target="_blank">privacy policy</a>. After registering, 
+				     you will have the ability to change the account information and password, disable the account, delete the account, and change the privacy settings by emailing us at 
+				     <a  href="mailto:support@goorulearning.org" target="_blank" style="color: #1076bb;text-decoration:underline;">support@goorulearning.org.</a>
+				  </div>
+				<div style="margin-top: 15px;">
+				      Let us know if you have any questions!</div>
+				<div style="margin-top: 15px;">
+					<div>Thanks!</div>
+					<div>The Gooru Team</div>
+					<div>
+						<a style="color: #1076bb;" href="http://www.facebook.com/gooru"
+							target="_blank">Facebook</a> | <a style="color: #1076bb;"
+							href="http://www.twitter.com/gooru" target="_blank">Twitter</a>
+					</div>
+				</div>
+
+			</div>
+		</div>
+		
+	</div>
+
+</body>
+</html>

@@ -101,13 +101,7 @@ public class StringUtil implements ParameterProperties{
 		return str;
 	}
 	
-	/*public static String filterText(String value)
-	{		
-		String str =  value.replace("'", "''");
-		return str;
 		
-	}*/
-	
 	public static String stripSpecialCharacters(String str) {
 		
 		try {

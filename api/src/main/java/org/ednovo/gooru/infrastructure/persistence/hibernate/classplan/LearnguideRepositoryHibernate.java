@@ -73,15 +73,7 @@ public class LearnguideRepositoryHibernate extends BaseRepositoryHibernate imple
 	private static final String LIST_CLASSPLAN = "Select l.gooruOid,l.lesson from Learnguide l  where l.resourceType.name = ? AND "+ generateAuthQuery("l.") +"order by l.lesson";
 
 	private static final String PAGE_START = "startAt";
-	/*
-	 * Generate the list of classplans owned by the user using the user id.
-	 * 
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.ednovo.gooru.domain.model.classplan.ClassplanRepository#findByUser
-	 * (org.ednovo.gooru.domain.model.user.User)
-	 */
+	
 
 	public List<Object> findByUser(User user, ResourceType.Type type) {
 		String hql = LIST_LEARNGUIDE_BY_USER_ID;
@@ -380,14 +372,6 @@ public class LearnguideRepositoryHibernate extends BaseRepositoryHibernate imple
 		return getSession().createQuery(hql).setMaxResults(30).list();
 	}
 
-/*	@Override
-	public Integer getUserCollectionCount(String userGooruId) {
-
-		String hql = "SELECT collection FROM Learnguide collection  WHERE  " + generateOrgAuthQueryWithData("collection.");
-
-		return (Integer) getSession().createQuery(hql).uniqueResult();
-	}
-*/
 	@Override
 	public List<ResourceInstance> listCollectionResourceInstances(Map<String, String> filters) {
 
@@ -463,12 +447,7 @@ public class LearnguideRepositoryHibernate extends BaseRepositoryHibernate imple
 					break;
 				}
 			}
-			/*
-			 * 
-			 * S1 == s1r1 s1r2 s1r3 S2 == s2r1 s2r2 s2r3
-			 * 
-			 * S1 == s1r1 s1r3 S2 == s2r1 s1r2 s2r2 s2r3
-			 */
+			
 			if (sourceSegment.equals(targetSegment) && sourceSegment.getResourceInstances().size() > 1) {
 				for (ResourceInstance segmentResourceAssoc : sourceSegment.getResourceInstances()) {
 					if (newResourceInstancePos.equals(segmentResourceAssoc.getResourceInstanceId())) {
@@ -608,23 +587,7 @@ public class LearnguideRepositoryHibernate extends BaseRepositoryHibernate imple
 		return session.createQuery(hql).setFirstResult(pageSize * (pageNum - 1)).setMaxResults(pageSize).list();
 	}
 
-/*	@Override
-	public boolean hasUserAlreadyOwnedCollection(String userGooruId, String contentGooruOid) {
-		String hql = "SELECT collection FROM Learnguide collection join collection.user creator WHERE  creator.partyUid = '" + userGooruId + "' AND collection.gooruOid = '" + contentGooruOid + "'";
-		List<String> result = (List<String>) find(hql);
-		return (result.size() > 0) ? true : false;
-	}
 
-	@Override
-	public List<Learnguide> findAllCollectionsByGooruOIds(String collectionIds) {
-		String hql = "SELECT learnguide FROM Learnguide learnguide  LEFT  JOIN learnguide.contentPermissions cps WHERE learnguide.gooruOid IN(:gooruOIds) AND "+generateAuthQuery("learnguide.");
-		Session session = getSession();
-		Query query = session.createQuery(hql);
-		query.setParameterList("gooruOIds", collectionIds.split(","));
-		addAuthParameters(query);
-		return query.list();
-	}
-*/
 	@Override
 	public List<Learnguide> listAllCollectionsWithoutGroups(Map<String, String> filters) {
 		Integer pageNum = Integer.parseInt(filters.get(PAGE_NO));
@@ -645,22 +608,7 @@ public class LearnguideRepositoryHibernate extends BaseRepositoryHibernate imple
 
 	}
 
-/*	@Override
-	public List<String> findAllPublicCollectionGooruOIds(Map<String, String> filters) {
-		String hql = "SELECT l.gooruOid from Learnguide l  LEFT JOIN l.contentPermissions cps where l.sharing='public' AND "+generateAuthQueryWithDataNew("l.");
-		Session session=getSession();
-		int pageNum = 1;
-		int pageSize = 100;
-		if(filters.containsKey(PAGE_NO)){
-			pageNum=Integer.parseInt(filters.get(PAGE_NO));
-		}
-		if(filters.containsKey(PAGE_SIZE)){
-			pageSize=Integer.parseInt(filters.get(PAGE_SIZE));
-		}
-		List<String>  gooruOIds= session.createQuery(hql).setFirstResult(pageSize * (pageNum - 1)).setMaxResults(pageSize).list();
-		return (gooruOIds.size() > 0)? gooruOIds:null;
-	}
-*/
+
 	@Override
 	public List<Learnguide> getUserCollectionInfo(String gooruUId,	Map<String, String> filters) {
 		Integer pageNum = Integer.parseInt(filters.get(PAGE_NO));

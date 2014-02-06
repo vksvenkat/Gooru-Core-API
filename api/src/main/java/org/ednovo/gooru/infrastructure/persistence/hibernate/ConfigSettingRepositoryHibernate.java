@@ -104,4 +104,16 @@ public class ConfigSettingRepositoryHibernate extends BaseRepositoryHibernate im
 		getSession().createSQLQuery(sql);
 	}
 
+	@Override
+	public String getConfigSetting(String organizationName) {
+		String sql= "SELECT * FROM config_setting WHERE name='"+organizationName+"'"; 
+		Query query =getSession().createSQLQuery(sql).addScalar("value",StandardBasicTypes.STRING);
+		List<String> results = query.list();
+		String value = null;
+		if (results != null && results.size() > 0) {
+			value = results.get(0);
+		}
+		return value;
+	}
+
 }

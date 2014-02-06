@@ -59,9 +59,7 @@ public class ShelfRepositoryHibernate extends BaseRepositoryHibernate implements
 
 	private String RETIREVE_SHELF_SUBSCRIBE_USER_LIST = "Select shelfItems From ShelfItem shelfItems join shelfItems.resource resource   where resource.gooruOid=:gooruOid and shelfItems.addedType=:addedType  and  " + generateOrgAuthQuery("shelfItems.shelf.");
 
-	// private String DELETE_SHELF_SUBSCRIBE_USER_LIST =
-	// "delete shelfItems From ShelfItem shelfItems   where shelfItems.resource.gooruOid=:gooruOid  and shelfItems.shelf.userId=:gooruUid  and  shelfItems.shelf.organization.partyUid IN (:organizationUids)";
-
+	
 	private String RETIREVE_SHELF_SUBSCRIBE_USER = "From ShelfItem shelfItems   where shelfItems.resource.gooruOid=:gooruOid  and shelfItems.shelf.userId=:gooruUid  and  " + generateOrgAuthQuery("shelfItems.shelf.");
 
 	@Override
@@ -241,7 +239,6 @@ public class ShelfRepositoryHibernate extends BaseRepositoryHibernate implements
 		Query query = session.createQuery(RETIREVE_DEFAULT_SHELF_BY_USER);
 		query.setParameter("userId", gooruUId);
 		query.setParameter("defaultFlag", true);
-		// addOrgAuthParameters(query);
 		List<Shelf> shelfs = query.list();
 		return (shelfs.size() > 0) ? shelfs.get(0) : null;
 	}

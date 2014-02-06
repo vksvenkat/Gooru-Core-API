@@ -195,7 +195,7 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	public ModelAndView updateClasspageItem(@PathVariable(value = ID) String collectionItemId, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
 		JSONObject json = requestData(data);
-		ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().updateCollectionItem(this.buildCollectionItemFromInputParameters(getValue(COLLECTION_ITEM, json), user), collectionItemId);
+		ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().updateCollectionItem(this.buildCollectionItemFromInputParameters(getValue(COLLECTION_ITEM, json), user), collectionItemId, user);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		} else {
@@ -231,11 +231,11 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ITEM_READ })
 	@RequestMapping(value = "/{cid}/item", method = RequestMethod.GET)
-	public ModelAndView getClasspageItems(@PathVariable(value = COLLECTIONID) String classpageId, @RequestParam(value = DATA_OBJECT, required = false) String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public ModelAndView getClasspageItems(@PathVariable(value = COLLECTIONID) String classpageId, @RequestParam(value = DATA_OBJECT, required = false) String data, @RequestParam(value = ORDER_BY, defaultValue = DESC ,required = false) String orderBy, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		JSONObject json = requestData(data);
 		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, CLASSPAGE_COLLECTION_ITEM_INCLUDE_FIELDS);
 		includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_ITEM_INCLUDE_FILEDS);
-		List<CollectionItem> collectionItems = this.getCollectionService().getCollectionItems(classpageId, json != null ? Integer.parseInt(getValue(OFFSET_FIELD, json)) : 0, json != null ? Integer.parseInt(getValue(LIMIT_FIELD, json)) : 20, json != null ? Boolean.parseBoolean(getValue(SKIP_PAGINATION, json)) : false);
+		List<CollectionItem> collectionItems = this.getCollectionService().getCollectionItems(classpageId, json != null ? Integer.parseInt(getValue(OFFSET_FIELD, json)) : 0, json != null ? Integer.parseInt(getValue(LIMIT_FIELD, json)) : 20, json != null ? Boolean.parseBoolean(getValue(SKIP_PAGINATION, json)) : false, orderBy);
 		String responseJson = null;
 			SearchResults<CollectionItem> result = new SearchResults<CollectionItem>();
 			result.setSearchResults(collectionItems);

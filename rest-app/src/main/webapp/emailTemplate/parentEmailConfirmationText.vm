@@ -1,0 +1,10 @@
+Welcome to Gooru!
+Your child account is now ready for use: ${UserNmae}
+Keep this email for your records, as it contains important information about managing your child’s .account.
+The current password is ${Password} If you would like to change the account password, click ${serverpath}/gooru/user/registration/confirm.g?token=${registerToken} here to change the password. Your child will not be able to change the password without your confirmation.
+You can  disable or delete the account at any point by emailing 
+support@goorulearning.org.
+As always, let us know if you have any questions!			
+Thanks!
+The Gooru Team
+http://www.facebook.com/gooru | http://www.twitter.com/gooru

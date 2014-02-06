@@ -147,6 +147,9 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 					newClasspage.setCollectionItems(collectionItems);
 				}
 				this.getCollectionRepository().save(newClasspage);
+				CollectionItem collectionItem = new CollectionItem();
+				collectionItem.setItemType(ShelfType.AddedType.ADDED.getAddedType());
+				this.createClasspageItem(newClasspage.getGooruOid(), null, collectionItem, newClasspage.getUser(), CollectionType.USER_CLASSPAGE.getCollectionType());
 			}
 			return new ActionResponseDTO<Classpage>(newClasspage, errors);
 	}

@@ -123,15 +123,6 @@ public class UserTokenRepositoryHibernate extends BaseRepositoryHibernate implem
 	{
 		this.jdbcTemplate = jdbcTemplate;
 	}
-/*	public static void main (String args[]) {
-		
-		String[] SPRING_CONFIG_FILES = new String[]{"F:\\GOOGLE\\gooru\\trunk\\api\\src\\main\\resources\\gooruContext-hibernate.xml","F:\\GOOGLE\\gooru\\trunk\\api\\src\\main\\resources\\gooruContext-resources.xml"};
-	
-		org.springframework.context.support.FileSystemXmlApplicationContext ctx = new  org.springframework.context.support.FileSystemXmlApplicationContext(SPRING_CONFIG_FILES);
-		UserTokenRepositoryHibernate objUser = (UserTokenRepositoryHibernate)ctx.getBean("userTokenRepository");
-		
-		objUser.findByScope("0218af6f-03c1-4010-aaa8-6805fc1f2759", "session");
-		}*/
 
 
 }

@@ -37,9 +37,6 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepository;
 
 public interface LearnguideRepository extends BaseRepository {
 
-	/*
-	 * Classplan level methods
-	 */
 
 	List<Object> findByUser(User user, ResourceType.Type type);
 
@@ -47,12 +44,6 @@ public interface LearnguideRepository extends BaseRepository {
 
 	List<Learnguide> findRecentlyModifiedLearnguides();
 
-	/**
-	 * Returns list of learnguides giiven the resource id
-	 * 
-	 * @param gooruResourceContentId
-	 * @return
-	 */
 	List<Learnguide> findByResource(String gooruResourceContentId, String sharing);
 
 	Learnguide findByContent(String gooruContentId);
@@ -68,10 +59,6 @@ public interface LearnguideRepository extends BaseRepository {
 	List<ResourceInstance> listCollectionResourceInstances(Map<String, String> filters);
 
 	List<Learnguide> listPublishedCollections(String userGooruId);
-
-	/*
-	 * Resource level methods
-	 */
 
 	List<ResourceInstance> listCollectionResourceInstance(Map<String, String> filters);
 

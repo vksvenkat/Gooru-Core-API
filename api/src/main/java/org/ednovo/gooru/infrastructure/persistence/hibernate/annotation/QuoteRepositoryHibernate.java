@@ -46,10 +46,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-/**
- * @author nitasha
- * 
- */
+
 @Repository
 public class QuoteRepositoryHibernate extends BaseRepositoryHibernate implements QuoteRepository {
 
@@ -132,14 +129,7 @@ public class QuoteRepositoryHibernate extends BaseRepositoryHibernate implements
 			}
 			String annotationTypes[] = { AnnotationType.Type.NOTE.getType(), AnnotationType.Type.QUOTE.getType() };
 			quoteList = criteria.add(Expression.eq(USER, user)).add(Expression.in("annotationType.name", annotationTypes)).setMaxResults(count).addOrder(Order.desc("createdOn")).list();
-		} /*
-		 * else if (mode.equals("quote")){
-		 * 
-		 * quoteList = criteria .add(Expression.eq("user", user))
-		 * .add(Expression
-		 * .eq("annotationType.name",AnnotationType.Type.QUOTE.getType()))
-		 * .setMaxResults(count) .addOrder(Order.desc("createdOn")) .list(); }
-		 */
+		} 
 
 		return quoteList;
 	}

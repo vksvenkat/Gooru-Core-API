@@ -173,6 +173,8 @@ public interface ParameterProperties {
 	String URL = "url";
 
 	String SOURCE_ID = "sourceId";
+	
+	String SOURCE_ITEM_ID = "sourceItemId";
 
 	String TARGET_ID = "targetId";
 

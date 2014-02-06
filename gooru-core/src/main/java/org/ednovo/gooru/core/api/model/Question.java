@@ -1,6 +1,5 @@
 package org.ednovo.gooru.core.api.model;
 
-//import org.ednovo.gooru.application.util.ResourceInstanceFormatter;
 import org.ednovo.gooru.core.api.model.Resource;
 
 public class Question extends Resource {
@@ -135,7 +134,4 @@ public class Question extends Resource {
 		return mins + secs;
 	}
 
-//	public String getQuestionSetXml() {
-//		return ResourceInstanceFormatter.getInstance().getQuestionSet(this);
-//	}
 }

@@ -82,7 +82,7 @@ public class CollaboratorRestV2Controller extends BaseController implements Para
 		return toJsonModelAndView(groupByStatus ? this.getCollaboratorService().getCollaboratorsByGroup(gooruOid, filterBy) : this.getCollaboratorService().getCollaborators(gooruOid, filterBy), true);
 	}
 
-	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_DELETE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/content/{id}" }, method = RequestMethod.DELETE)
 	public void deleteCollaborator(@PathVariable(ID) String gooruOid, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
