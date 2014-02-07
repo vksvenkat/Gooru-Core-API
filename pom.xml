@@ -192,6 +192,19 @@
 				<!-- ================= Production Settings Profile ================= -->
 				<!-- Use "-P prod" when you want to use the settings in this profile -->
 				<!-- =============================================================== -->
+
+                                <profile>
+                                        <id>api-jar</id>
+                                        <properties>
+                                                <env>api</env>
+                                        </properties>
+                                        <modules>
+                                        <module>api</module>
+                                        <module>gooru-core</module>
+					<module>cassandra-core</module>
+                                        </modules>
+                                </profile>
+
 				<profile>
 					<id>api</id>
 					<properties>
