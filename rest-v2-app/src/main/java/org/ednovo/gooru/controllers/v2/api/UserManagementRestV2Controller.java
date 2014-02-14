@@ -93,13 +93,9 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.POST }, value = "")
 	public ModelAndView createUser(HttpServletRequest request, @RequestBody String data, @RequestParam(value = SESSIONTOKEN, required = false) String sessionToken, @RequestParam(value = "sharedSecretKey", required = false) String sharedSecretKey, @RequestParam(value = "orgAdmin", required = false, defaultValue="false") Boolean orgAdmin, @RequestParam(value = "adminOrganizationUid", required = false) String adminOrganizationUid, HttpServletResponse response) throws Exception {
-		Boolean inviteUser = false;
 		JSONObject json = requestData(data);
 		User creator = this.buildUserFromInputParameters((getValue(USER, json)));
 		String sessionId = request.getSession().getId();
-		if (getValue("inviteUser", json) != null && getValue("inviteUser", json).equalsIgnoreCase("true")) {
-			inviteUser = true;
-		}
 
 		String dateOfBirth = getValue(DATEOFBIRTH, json);
 		User apiCaller = (User) request.getAttribute(Constants.USER);
@@ -114,7 +110,7 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 
 		User user = this.getUserManagementService().createUserWithValidation(creator, getValue(PASSWORD, json), null, getValue(CONFIRM_STATUS, json) != null ? Integer.parseInt(getValue(CONFIRM_STATUS, json)) : null, getValue(USEGENERATEDPASSWORD, json) != null ? Boolean.parseBoolean(getValue(USEGENERATEDPASSWORD, json)) : false,
 				getValue(SENDCONFIRMATIONMAIL, json) != null ? Boolean.parseBoolean(getValue(SENDCONFIRMATIONMAIL, json)) : true, apiCaller, getValue(ACCOUNTTYPE, json), dateOfBirth, getValue(USERPARENTID, json), sessionId, getValue(GENDER, json), getValue(CHILDDOB, json),
-				getValue(GOORU_BASE_URL, json), getValue(TOKEN, json) != null ? Boolean.parseBoolean(getValue(TOKEN, json)) : false, request, getValue("role", json), getValue(MAIL_CONFIRMATION_URL, json) != null ? getValue(MAIL_CONFIRMATION_URL, json) : null ,inviteUser);
+				getValue(GOORU_BASE_URL, json), getValue(TOKEN, json) != null ? Boolean.parseBoolean(getValue(TOKEN, json)) : false, request, getValue("role", json), getValue(MAIL_CONFIRMATION_URL, json) != null ? getValue(MAIL_CONFIRMATION_URL, json) : null );
 		if (user != null) {
 			if(orgAdmin && adminOrganizationUid != null){
 				this.getUserManagementService().updateOrgAdminCustomField(adminOrganizationUid, user);

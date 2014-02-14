@@ -85,7 +85,7 @@ public class CollaboratorRestV2Controller extends BaseController implements Para
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_DELETE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/content/{id}" }, method = RequestMethod.DELETE)
-	public void deleteCollaborator(@PathVariable(ID) String gooruOid, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public void deleteCollaborator(@PathVariable(ID) String gooruOid, @RequestParam String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		this.getCollaboratorService().deleteCollaborator(gooruOid, JsonDeserializer.deserialize(data, new TypeReference<List<String>>() {
 		}));
 	}

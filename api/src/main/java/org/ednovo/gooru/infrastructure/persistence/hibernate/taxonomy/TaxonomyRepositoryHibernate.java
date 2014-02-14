@@ -837,12 +837,22 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 	}
 
 	@Override
-	public List<Code> findCodeByParentCodeId(String code, String creatorUid, Integer limit, Integer offset, Boolean skipPagination, String fetchType, String organizationCode) {
-		String hql = "Select code From Code code inner join code.codeOrganizationAssoc  codeOrganizationAssoc  where  code.activeFlag=1 and  code.rootNodeId=20000 ";
-		if (code.equalsIgnoreCase("featured")) {
-			hql += " and codeOrganizationAssoc.isFeatured >= 1 ";
-		} else {
-			hql += " and code.parentId =:parentCodeId  ";
+	public List<Code> findCodeByParentCodeId(String code, String creatorUid, Integer limit, Integer offset, Boolean skipPagination, String fetchType, String organizationCode, String rootNodeId, String depth) {
+		String hql = "Select code From Code code inner join code.codeOrganizationAssoc  codeOrganizationAssoc  where  code.activeFlag=1  ";
+
+		if (rootNodeId != null) {
+			hql += " and  code.rootNodeId=:rootNodeId";
+		}
+		if (code != null) {
+			if (code.equalsIgnoreCase("featured")) {
+				hql += " and codeOrganizationAssoc.isFeatured >= 1 ";
+			} else {
+				hql += " and code.parentId =:parentCodeId  ";
+			}
+		}
+
+		if (depth != null) {
+			hql += " and  code.depth=:depth";
 		}
 
 		if (fetchType != null && fetchType.equalsIgnoreCase("library")) {
@@ -855,18 +865,24 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 			hql += " and code.creator.partyUid =:creatorUid";
 		}
 
-		if (!code.equalsIgnoreCase("featured")) {
-			hql += " order by codeOrganizationAssoc.sequence";
-		} else {
+		if (code!= null && code.equalsIgnoreCase("featured")) {
 			hql += " order by codeOrganizationAssoc.isFeatured";
+		} else {
+			hql += " order by codeOrganizationAssoc.sequence";
 		}
 
 		Query query = getSession().createQuery(hql);
 		query.setParameter("organizationCode", organizationCode);
-		if (!code.equalsIgnoreCase("featured")) {
+		if (code != null && !code.equalsIgnoreCase("featured")) {
 			query.setParameter("parentCodeId", Integer.parseInt(code));
 		}
-
+		if (rootNodeId != null) {
+			query.setParameter("rootNodeId", Integer.parseInt(rootNodeId));
+		}
+		
+		if (depth != null) {
+			query.setParameter("depth", Short.parseShort(depth));
+		}
 		if (creatorUid != null) {
 			query.setParameter("creatorUid", creatorUid);
 		}

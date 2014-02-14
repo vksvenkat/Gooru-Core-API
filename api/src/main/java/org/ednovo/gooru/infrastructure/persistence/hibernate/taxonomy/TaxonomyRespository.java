@@ -112,7 +112,7 @@ public interface TaxonomyRespository extends BaseRepository{
 	
 	Code findTaxonomyCodeById(Integer codeId);
 	
-	List<Code> findCodeByParentCodeId(String code, String creatorUid, Integer limit, Integer offset,Boolean skipPagination, String fetchType, String organizationCode);
+	List<Code> findCodeByParentCodeId(String code, String creatorUid, Integer limit, Integer offset,Boolean skipPagination, String fetchType, String organizationCode, String rootNode, String depth);
 	
 	List<User> getFeaturedUser(String organizationCode);
 	

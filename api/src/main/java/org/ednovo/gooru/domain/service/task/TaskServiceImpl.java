@@ -516,6 +516,12 @@ public class TaskServiceImpl extends BaseServiceImpl implements TaskService, Par
 		return errors;
 	}
 
+	@Override
+	public List<Map<Object, Object>> getCollectionClasspageAssoc(String collectionId) {
+		return this.getTaskRepository().getCollectionClasspageAssoc(collectionId, null);
+
+	}
+
 	public TaskRepository getTaskRepository() {
 		return taskRepository;
 	}
@@ -542,9 +548,5 @@ public class TaskServiceImpl extends BaseServiceImpl implements TaskService, Par
 		return this.getTaskRepository().getCollectionTaskCount(collectionGooruOid);
 	}
 
-	@Override
-	public List<Map<Object, Object>> getCollectionClasspageAssoc(String collectionId) {
-		return this.getTaskRepository().getCollectionClasspageAssoc(collectionId);
-	}
 
 }

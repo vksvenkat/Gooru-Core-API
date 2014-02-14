@@ -269,6 +269,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 				newUser.setEmailId(identity.getExternalId());
 			}
 			newUser.setUserRoleSet(newUser.getUserRoleSet());
+			newUser.setProfileImageUrl(settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, 0, TaxonomyUtil.GOORU_ORG_UID) + '/' + settingService.getConfigSetting(ConfigConstants.PROFILE_BUCKET, 0, TaxonomyUtil.GOORU_ORG_UID).toString() +  newUser.getGooruUId() + DOT_PNG);
 			userToken.setUser(newUser);
 			request.getSession().setAttribute(Constants.USER, newUser);
 			request.getSession().setAttribute(Constants.SESSION_TOKEN, userToken.getToken());
@@ -316,7 +317,8 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 						errors = this.validateLoginAsUser(userToken, user);
 						if (!errors.hasErrors()) {
 							if (!userService.isContentAdmin(user)) {
-								userToken = this.createSessionToken(user, apiKey, request);
+								ApiKey userApiKey = apiTrackerService.findApiKeyByOrganization(user.getOrganization().getPartyUid());
+								userToken = this.createSessionToken(user, userApiKey.getKey(), request);
 							} else {
 								throw new RuntimeException(generateErrorMessage(GL0042, _USER));
 							}

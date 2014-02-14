@@ -2605,4 +2605,6 @@ public interface ParameterProperties {
 	String ASSOC_DATE = "associatedDate";
 	
 	String PROFILE_IMG_URL = "profileImageUrl";
+	
+	String STANDARD = "standard";
 }

@@ -49,10 +49,14 @@ public interface FeaturedService {
 	
 	List<Map<Object, Object>> getLibraryContributor(String libraryName);
 	
-	List<Map<String, Object>> getLibraryTopic(String topicId, Integer limit, Integer offset, String type, String libraryName);
+	List<Map<String, Object>> getLibraryTopic(String topicId, Integer limit, Integer offset, String type, String libraryName, String rootNode);
 	
-	List<Map<String, Object>> getLibraryUnit(String unitId, String type, Integer offset, Integer limit, String libraryName);
+	List<Map<String, Object>> getLibraryUnit(String unitId, String type, Integer offset, Integer limit, String libraryName, String rootNode);
 	
 	List<Map<String, Object>> getLibraryCollection(Integer id, String type,Integer offset, Integer limit, boolean skipPagination, String libraryName);
+	
+	List<Map<String, Object>> getPopularLibrary(String courseId,  Integer offset, Integer limit,  String libraryName);
+	
+	List<Map<String, Object>> getLibraryCourse(String code,String ChildCode, String libraryName, String rootNode);
 	
 }

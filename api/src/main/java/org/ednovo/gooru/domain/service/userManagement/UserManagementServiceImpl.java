@@ -55,6 +55,7 @@ import org.ednovo.gooru.core.api.model.CustomTableValue;
 import org.ednovo.gooru.core.api.model.GooruAuthenticationToken;
 import org.ednovo.gooru.core.api.model.Identity;
 import org.ednovo.gooru.core.api.model.Idp;
+import org.ednovo.gooru.core.api.model.InviteUser;
 import org.ednovo.gooru.core.api.model.Organization;
 import org.ednovo.gooru.core.api.model.PartyCategoryType;
 import org.ednovo.gooru.core.api.model.PartyCustomField;
@@ -69,7 +70,6 @@ import org.ednovo.gooru.core.api.model.UserRole;
 import org.ednovo.gooru.core.api.model.UserRole.UserRoleType;
 import org.ednovo.gooru.core.api.model.UserRoleAssoc;
 import org.ednovo.gooru.core.api.model.UserToken;
-import org.ednovo.gooru.core.application.util.BaseUtil;
 import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.core.constant.ConstantProperties;
@@ -91,6 +91,7 @@ import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.IdpRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserTokenRepository;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.collaborator.CollaboratorRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.taxonomy.TaxonomyRespository;
@@ -154,6 +155,13 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	
 	@Autowired
 	private CollaboratorService collaboratorService;
+	
+	@Autowired
+	private CollaboratorRepository collaboratorRepository;
+
+	public CollaboratorRepository getCollaboratorRepository() {
+		return collaboratorRepository;
+	}
 
 	public ContentRepository getContentRepository() {
 		return contentRepository;
@@ -397,7 +405,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 
 	@Override
 	public User createUserWithValidation(User newUser, String password, String school, Integer confirmStatus, Boolean useGeneratedPassword, Boolean sendConfirmationMail, User apiCaller, String accountType, String dateOfBirth, String userParentId, String sessionId, String gender, String childDOB,
-			String gooruBaseUrl, Boolean token, HttpServletRequest request, String role, String mailConfirmationUrl,Boolean inviteUser) throws Exception {
+			String gooruBaseUrl, Boolean token, HttpServletRequest request, String role, String mailConfirmationUrl) throws Exception {
 		User user = new User();
 		this.validateAddUser(newUser, apiCaller, childDOB, accountType, dateOfBirth, password);
 		Boolean isAdminCreateUser = false;
@@ -413,7 +421,10 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 				confirmStatus = 1;
 			}
 		}
-
+		List<InviteUser> inviteuser = this.getCollaboratorRepository().getInviteUserByMail(newUser.getEmailId());
+		if(inviteuser.size() > 0) {
+			confirmStatus = 1;
+		}
 		user = createUser(newUser, password, school, confirmStatus, addedBySystem, null, accountType, dateOfBirth, userParentId, gender, childDOB, null, request, role, mailConfirmationUrl);
 		ApiKey apiKey = apiTrackerService.findApiKeyByOrganization(user.getOrganization().getPartyUid());
 		UserToken userToken = this.createSessionToken(user, sessionId, apiKey);
@@ -423,8 +434,8 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 				user.setToken(identity.getCredential().getToken());
 			}
 		}
-
-		if (user != null && sendConfirmationMail) {
+		
+		if (user != null && sendConfirmationMail && inviteuser.size() < 0) {
 			if (isAdminCreateUser) {
 				this.getMailHandler().sendMailToConfirm(user.getGooruUId(), password, accountType, userToken.getToken(), null, gooruBaseUrl, mailConfirmationUrl, null, null);
 			} else {
@@ -433,8 +444,9 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 				}
 			}
 		}
-		
-		this.getCollaboratorService().updateCollaboratorStatus(newUser.getEmailId());
+		if(inviteuser.size() > 0) {
+			this.getCollaboratorService().updateCollaboratorStatus(newUser.getEmailId());
+		}
 		
 		return user;
 	}
@@ -802,13 +814,9 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			if (password != null) {
 				if (accountType.equalsIgnoreCase(UserAccountType.userAccount.CHILD.getType())) {
 					credential.setPassword(password);
-				} else if (confirmedUser) {
-					password = BaseUtil.base48Encode(7);
-					credential.setPassword(encryptPassword(password));
 				} else {
 					credential.setPassword(encryptPassword(password));
 				}
-
 			}
 		}
 		/*

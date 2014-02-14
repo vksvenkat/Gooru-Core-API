@@ -27,9 +27,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import javax.persistence.EntityExistsException;
-
-import org.apache.cassandra.cli.CliParser.newColumnFamily_return;
 import org.ednovo.gooru.core.api.model.Profanity;
 import org.ednovo.gooru.core.application.util.UrlGenerator;
 import org.ednovo.gooru.core.application.util.UrlToken;
@@ -42,12 +39,8 @@ import org.restlet.resource.ClientResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DuplicateKeyException;
-import org.springframework.security.acls.model.AlreadyExistsException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
-
-import scala.xml.parsing.FatalError;
 
 @Service
 public class ProfanityCheckServiceImpl implements ProfanityCheckService, ConstantProperties {

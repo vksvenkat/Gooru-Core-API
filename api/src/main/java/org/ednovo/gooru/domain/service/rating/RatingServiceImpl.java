@@ -64,7 +64,12 @@ public class RatingServiceImpl extends BaseServiceImpl implements RatingService,
 	@Override
 	public Rating findByContent(String gooruContentId) {
 		Resource resource = resourceRepository.findResourceByContentGooruId(gooruContentId);
-		rejectIfNull(resource, GL0056, 404, RESOURCE);
+		Feedback feedback = new Feedback();
+		return createRating(feedback, resource);
+	}
+	
+	@Override
+	public Rating findByContentObj(Resource resource) {
 		Feedback feedback = new Feedback();
 		return createRating(feedback, resource);
 	}

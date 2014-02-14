@@ -53,7 +53,7 @@ public interface ScollectionService extends BaseService {
 
 	CollectionItem getCollectionItem(String collectionItemId, String includeAdditionalInfo, User user);
 
-	Collection copyCollection(String collectionId, Collection newCollection, boolean addToShelf, User user) throws Exception;
+	Collection copyCollection(String collectionId, Collection newCollection, boolean addToShelf, String parentId, User user) throws Exception;
 
 	ActionResponseDTO<CollectionItem> createResourceWithCollectionItem(String collectionId, Resource newResource, User user) throws Exception;
 
@@ -81,7 +81,7 @@ public interface ScollectionService extends BaseService {
 
 	Collection getCollection(String collectionId, boolean includeMetaInfo, boolean includeCollaborator, boolean isContentFlag, User user, String merge);
 		
-	Collection copyCollection(String collectionId, String title, boolean addToShelf, User user, String taxonomyCode, String grade) throws Exception;
+	Collection copyCollection(String collectionId, String title, boolean addToShelf, User user, String taxonomyCode, String grade, String parentId) throws Exception;
 
 	Collection getCollectionByGooruOid(String gooruOid, String gooruUid);
 

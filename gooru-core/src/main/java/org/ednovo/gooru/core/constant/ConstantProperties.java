@@ -53,6 +53,8 @@ public interface ConstantProperties {
 	static final String CLASSPAGE_ITEM_TAGS[] = { "*.tagSet", "*.label", "*.type", "*.resourceType" };
 
 	static final String CLASSPAGE_TAXONOMY[] = { "*.taxonomySet", "*.taxonomySetMapping.*" };
+	
+	static final String CLASSPAGE_ITEM_INCLUDE[] = {"*.collection.gooruOid","*.collection.title","*.collection.thumbnails", "*.collection.goals" };
 
 	static final String CLASSPAGE_CREATE_ITEM_INCLUDE_FILEDS[] = { "*.collectionItemId", "*.itemSequence", "*.itemType", "*.narration", "*.narrationType", "*.lastModified", "*.start", "*.stop", "*.standards", "*.license", "*.standards.code", "*.standards.description" };
 
@@ -347,7 +349,7 @@ public interface ConstantProperties {
 	static final String ORGANIZATION_SETTING_INCLUDE[] = { "key", "value" };
 
 	static final String LIBRARY_CODE_INCLUDES[] = { "*.unit", "*.lesson", "*.count", "*.topic", "*.data", "*.course", "*.collection", "*.featured", "*.science", "*.math", "*.social-sciences", "*.language-arts", "*.code", "*.codeId", "*.code", "*.label", "*.parentId", "*.thumbnails",
-			"*.thumbnails.url", "*.thumbnails.dimensions", "*.thumbnails.isDefaultImage", "*.gooruOid", "*.title", "*.creator", "*.firstName", "*.lastName", "*.username", "*.gooruUId", "*.metaInfo", "*.gender", "*.isOwner", "*.user" };
+			"*.thumbnails.url", "*.thumbnails.dimensions", "*.thumbnails.isDefaultImage", "*.gooruOid", "*.title", "*.creator", "*.firstName", "*.lastName", "*.username", "*.gooruUId", "*.metaInfo", "*.gender", "*.isOwner", "*.user", "*.standard" };
 
 	static final String LIBRARY_CONTRIBUTOR_INCLUDES[] = { "*.courses", "*.codeId", "*.code", "*.codeId", "*.code", "*.label", "*.parentId", "*.creator", "*.firstName", "*.lastName", "*.username", "*.gooruUId", "*.gooruUId", "*.isFeatured", "*.gender" };
 

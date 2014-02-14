@@ -584,7 +584,7 @@ public class TaxonomyServiceImpl implements TaxonomyService,ParameterProperties 
 	
 	@Override
 	public Map<String, List<Code>> findCodeByParentCodeId(String parentCode, boolean groupByCode, String creatorUid, String fetchType, String organizationCode) {
-		List<Code> codes = this.getTaxonomyRepository().findCodeByParentCodeId(parentCode, creatorUid, null, null, true, fetchType, organizationCode);
+		List<Code> codes = this.getTaxonomyRepository().findCodeByParentCodeId(parentCode, creatorUid, null, null, true, fetchType, organizationCode, null, null);
 		Map<String, List<Code>> codeBygroup = new HashMap<String, List<Code>>();
 		if (groupByCode && codes.size() > 0) {
 			List<Code> elementList = new ArrayList<Code>();

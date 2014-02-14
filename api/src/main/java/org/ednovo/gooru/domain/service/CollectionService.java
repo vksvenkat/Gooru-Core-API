@@ -43,7 +43,7 @@ public interface CollectionService extends ScollectionService {
 
 	ActionResponseDTO<CollectionItem> createQuestionWithCollectionItem(String collectionId, String data, User user, String questionImgSrc) throws Exception;
 
-	ActionResponseDTO<CollectionItem> moveCollectionToFolder(String sourceItemId, String sourceId, String taregetId, User user) throws Exception;
+	ActionResponseDTO<CollectionItem> moveCollectionToFolder(String sourceId, String taregetId, User user) throws Exception;
 
 	ActionResponseDTO<CollectionItem> createQuestionWithCollectionItem(String collectionId, AssessmentQuestion assessmentQuestion, User user, String questionImgSrc) throws Exception;
 

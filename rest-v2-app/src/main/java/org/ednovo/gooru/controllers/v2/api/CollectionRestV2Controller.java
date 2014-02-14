@@ -279,7 +279,7 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 			includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_ITEM_INCLUDE_FILEDS);
 		}
 		User user = (User) request.getAttribute(Constants.USER);
-		Collection collection = getCollectionService().copyCollection(collectionId, this.buildCopyCollectionFromInputParameters(getValue(COLLECTION, json), user), json != null && getValue(ADD_TO_SHELF, json) != null ? Boolean.parseBoolean(getValue(ADD_TO_SHELF, json)) : false, user);
+		Collection collection = getCollectionService().copyCollection(collectionId, this.buildCopyCollectionFromInputParameters(getValue(COLLECTION, json), user), json != null && getValue(ADD_TO_SHELF, json) != null ? Boolean.parseBoolean(getValue(ADD_TO_SHELF, json)) : false, json != null && getValue(PARENT_ID, json) != null ? getValue(PARENT_ID, json) : null, user);
 		
 		SessionContextSupport.putLogParameter(EVENT_NAME, "scollection-copy");
 		SessionContextSupport.putLogParameter(COLLECTION_ID, collectionId);
@@ -316,7 +316,7 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 		User user = (User) request.getAttribute(Constants.USER);
 		JSONObject json = requestData(data);
 
-		ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().moveCollectionToFolder(getValue(SOURCE_ITEM_ID, json), getValue(SOURCE_ID, json), getValue(TARGET_ID, json), user);
+		ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().moveCollectionToFolder(getValue(SOURCE_ID, json), getValue(TARGET_ID, json), user);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		} else {

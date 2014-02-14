@@ -27,7 +27,6 @@ import java.util.List;
 
 import javax.annotation.PostConstruct;
 
-import org.ednovo.gooru.cassandra.core.service.EntityCassandraService;
 import org.ednovo.gooru.core.api.model.GooruAuthenticationToken;
 import org.ednovo.gooru.core.api.model.UserGroupSupport;
 import org.ednovo.gooru.domain.cassandra.service.ResourceCassandraService;
@@ -105,24 +104,7 @@ public class IndexProcessor extends BaseComponent {
 			final GooruAuthenticationToken authentication, final boolean isUpdateUserContent) {
 
 		final String[] ids = uuids.split(",");
-		EntityCassandraService<String, ?> service;
-		try {
-			if (type.equals("taxonomy")) {
-				service = taxonomyCassandraService;
-			} else if (type.equals("user")) {
-				service = userCassandraService;
-			} else {
-				service = resourceCassandraService;
-			}
-			if (!action.equalsIgnoreCase("delete")) {
-				service.save(ids);
-			} else {
-				service.delete(ids);
-			}
-		} catch (Exception e) {
-			logger.info("cassandra index"+e.getMessage());
-		}
-		
+		try{
 		final Thread indexThread = new Thread(new Runnable() {
 
 			@Override
@@ -135,17 +117,13 @@ public class IndexProcessor extends BaseComponent {
 							Representation representation) throws Exception {
 						
 
-						String url = getSearchApiPath() + "index/" + type + "?sessionToken=" + sessionToken + "&indexableIds=" + uuids;
+						String url = getSearchApiPath() + "index/es-aca/" + type + "/" + action + "?sessionToken=" + sessionToken + "&ids=" + uuids;
 						try {
-							if (action.equalsIgnoreCase("delete")) {
-								clientResource = new ClientResource(url);
-								clientResource.delete();
-							} else {
-								clientResource = new ClientResource(url);
-								representation = clientResource.put(new Form().getWebRepresentation());
-							}
+							clientResource = new ClientResource(url);
+							representation = clientResource.post(new Form().getWebRepresentation());
 						} catch (Exception exception) {
 							getLogger().error("Error in Indexing: ", exception);
+							throw exception;
 						} finally {
 							releaseClientResources(clientResource, representation);
 						}
@@ -190,6 +168,9 @@ public class IndexProcessor extends BaseComponent {
 		});
 		indexThread.setDaemon(true);
 		indexThread.start();
+		}catch(Exception e){
+			logger.info("Index Error : "+e.getMessage());
+		}
 	}
 
 }

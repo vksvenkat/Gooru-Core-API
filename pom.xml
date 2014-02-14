@@ -52,6 +52,18 @@
 							<!-- <wtpversion>1.5</wtpversion> -->
 						</configuration>
 					</plugin>
+		<!--			<plugin>
+						<groupId>com.googlecode.flyway</groupId>
+						<artifactId>flyway-maven-plugin</artifactId>
+						<version>2.2.1</version>
+						<configuration>
+							<user>root</user>
+							<password>password</password>
+							<url><![CDATA[jdbc:mysql://localhost/gooru_local?useUnicode=true&amp;characterEncoding=utf-8]]></url>
+							<driver>com.mysql.jdbc.Driver</driver>
+							<locations><list>web-app/target/classes/db/migration</list></locations>
+						</configuration>
+					</plugin> -->
 					<plugin>
 						<artifactId>maven-idea-plugin</artifactId>
 						<version>2.1</version>
@@ -70,6 +82,15 @@
 				<name>Releases</name>
 				<url>http://devl3.goorulearning.org/artifactory/repo</url>
 				</repository>
+		<!--		<repository>
+				  <id>spy</id>
+				  <name>Spy Repository</name>
+				  <layout>default</layout>
+				  <url>http://files.couchbase.com/maven2/</url>
+				  <snapshots>
+				    <enabled>false</enabled>
+				  </snapshots>
+				</repository>-->
 			</repositories>
 			<pluginRepositories/>
 			<dependencies>
@@ -192,19 +213,6 @@
 				<!-- ================= Production Settings Profile ================= -->
 				<!-- Use "-P prod" when you want to use the settings in this profile -->
 				<!-- =============================================================== -->
-
-                                <profile>
-                                        <id>api-jar</id>
-                                        <properties>
-                                                <env>api</env>
-                                        </properties>
-                                        <modules>
-                                        <module>api</module>
-                                        <module>gooru-core</module>
-					<module>cassandra-core</module>
-                                        </modules>
-                                </profile>
-
 				<profile>
 					<id>api</id>
 					<properties>
@@ -218,6 +226,51 @@
 					<module>mail</module>
 					</modules> 
 				</profile>
+				<profile>
+					<id>app</id>
+					<properties>
+						<env>app</env>
+					</properties>
+					<modules>
+						<module>web-app</module>
+						<module>api</module>
+						<module>auth-sso</module>
+                                                 <module>cassandra-core</module>
+                                                 <module>search-core</module>
+						<module>gooru-core</module>
+					</modules>
+				</profile>
+
+				<profile>
+					<id>gm</id>
+					<properties>
+						<env>gm</env>
+					</properties>
+					<modules>
+						<module>api</module>
+						<module>auth-sso</module>
+						<module>gooru-core</module>
+					</modules>
+				</profile>
+
+				<profile>
+					<id>local</id>
+				<properties>
+					<env>local</env>
+				</properties>
+				<modules>
+                                  <module>rest-v2-app</module>
+				   <module>api</module>
+                                   <module>jobs-core</module> 
+				   <module>cassandra-core</module>
+				   <module>search-core</module>
+	                           <module>conversion-app</module> 
+				   <module>mail</module>
+				  <module>gooru-core</module>
+                                 <module>web-app</module>
+                                 <module>auth-sso</module>
+       				</modules>
+			</profile>
 </profiles>
 	<properties>
 		<env>local</env>
@@ -260,7 +313,7 @@
 		<jdbc.username>root</jdbc.username>
 		<jdbc.password>admin</jdbc.password>
 		<my.build.directory>target</my.build.directory>
-		<maven.build.timestamp.format>yyMMddHH</maven.build.timestamp.format>
+    	<maven.build.timestamp.format>yyMMddHH</maven.build.timestamp.format>
 		<buildNumber>${maven.build.timestamp}</buildNumber>
  		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>

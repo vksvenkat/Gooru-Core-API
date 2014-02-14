@@ -149,10 +149,15 @@ public class FeaturedRepositoryHibernate extends BaseRepositoryHibernate impleme
 	}
 	
 	@Override
-	public List<Object[]> getLibraryCollection(String codeId, String featuredSetId, Integer limit, Integer offset,Boolean skipPagination) {
-		String sql = "select gooru_oid, r.title   from featured_set_items fi inner join resource r on r.content_id = fi.content_id inner join content cc on cc.content_id = r.content_id where fi.code_id =:codeId and fi.featured_set_id=:featuredSetId";
+	public List<Object[]> getLibraryCollection(String codeId, String featuredSetId, Integer limit, Integer offset, Boolean skipPagination) {
+		String sql = "select gooru_oid, r.title   from featured_set_items fi inner join resource r on r.content_id = fi.content_id inner join content cc on cc.content_id = r.content_id where  fi.featured_set_id=:featuredSetId ";
+		if (codeId != null) {
+			sql += " and fi.code_id =:codeId ";
+		}
 		Query query = getSession().createSQLQuery(sql);
-		query.setParameter("codeId", codeId);
+		if (codeId != null) {
+			query.setParameter("codeId", codeId);
+		}
 		query.setParameter("featuredSetId", featuredSetId);
 		if (!skipPagination) {
 			query.setFirstResult(offset);

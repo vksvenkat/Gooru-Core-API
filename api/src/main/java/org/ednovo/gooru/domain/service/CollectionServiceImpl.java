@@ -76,7 +76,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	}
 
 	@Override
-	public ActionResponseDTO<CollectionItem> moveCollectionToFolder(String sourceItemId, String sourceId, String taregetId, User user) throws Exception {
+	public ActionResponseDTO<CollectionItem> moveCollectionToFolder(String sourceId, String taregetId, User user) throws Exception {
 		ActionResponseDTO<CollectionItem> responseDTO = null;
 		Collection source = collectionRepository.getCollectionByGooruOid(sourceId, null);
 		Collection target = collectionRepository.getCollectionByGooruOid(taregetId, null);
@@ -85,7 +85,10 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		}
 		CollectionItem collectionItem = new CollectionItem();
 		collectionItem.setCollection(source);
-		deleteCollectionItem(sourceItemId);
+		CollectionItem sourceCollectionItem = this.getCollectionRepository().findCollectionItemByGooruOid(sourceId, user.getPartyUid());
+		if(sourceCollectionItem != null){
+			deleteCollectionItem(sourceCollectionItem.getCollectionItemId());
+		}
 		responseDTO = this.createCollectionItem(sourceId, taregetId, collectionItem, user, CollectionType.FOLDER.getCollectionType(), false);
 		return responseDTO;
 	}
@@ -131,6 +134,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				collection.put(COLLECTION_ITEMS, getFolderItem(String.valueOf(object[1]), sharing));
 				collection.put(ITEM_COUNT, this.getCollectionRepository().getCollectionItemCount(String.valueOf(object[1]), sharing));
 				collection.put(SHARING, object[5]);
+				collection.put(COLLECTION_ITEM_ID, object[6]);
 				folderList.add(collection);
 			}
 		}
@@ -153,6 +157,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 					item.put(RESOURCEFORMAT, resourceFormat);
 				}
 				item.put(SHARING, object[7]);
+				item.put(COLLECTION_ITEM_ID, object[8]);
 				items.add(item);
 			}
 			
@@ -179,6 +184,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				item.put(COLLECTION_ITEMS, getFolderItem(String.valueOf(object[1]), sharing));
 				item.put(ITEM_COUNT, this.getCollectionRepository().getCollectionItemCount(String.valueOf(object[1]), sharing));
 				item.put(SHARING, object[7]);
+				item.put(COLLECTION_ITEM_ID, object[8]);
 				items.add(item);
 			}
 		}

@@ -47,7 +47,7 @@
 		</property>
 		<property name="isDeleted" column="is_deleted" length="1"
 				not-null="false"/>
-		<property name="createdOn" column="created_on" not-null="true">
+		<property name="createdOn" column="created_on" not-null="false">
 		</property>
 		<property name="lastModified" column="last_modified"
 			not-null="true">

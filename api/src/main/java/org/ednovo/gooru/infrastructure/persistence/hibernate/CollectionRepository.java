@@ -108,4 +108,8 @@ public interface CollectionRepository extends BaseRepository {
 	
 	List<CollectionItem> getCollectionItemByAssociation(String resourceGooruOid, String gooruUid);
 	
+	CollectionItem findCollectionItemByGooruOid(String gooruOid, String gooruUid);
+	
+	List<Object[]> getParentCollections(String collectionGooruOid, String gooruUid);
+	
 }

@@ -45,7 +45,7 @@ public interface TaskRepository extends BaseRepository {
 
 	CollectionTaskAssoc getCollectionTaskAssoc(String collectionId, String collectionTaskAssocId);
 	
-	List<Map<Object, Object>> getCollectionClasspageAssoc(String collectionId);
+	List<Map<Object, Object>> getCollectionClasspageAssoc(String collectionId, String gooruUid);
 	
 	void deleteCollectionAssocInAssignment(String collectionId);
 	
@@ -74,6 +74,7 @@ public interface TaskRepository extends BaseRepository {
 	List<CollectionTaskAssoc> getCollectionTaskAssoc(Integer offset, Integer limit, Boolean skipPagination,String taskGooruOid , String classpageId);
 
 	List<String> getTaskResourceAssocs(String taskGooruOid);
+	
 	
 	
 }

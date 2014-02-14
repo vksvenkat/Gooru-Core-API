@@ -155,8 +155,7 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 		activeMap.put(USER_NAME, userContentAssoc.getUser().getUsername());
 		activeMap.put(GOORU_OID, userContentAssoc.getContent().getGooruOid());
 		activeMap.put(ASSOC_DATE, userContentAssoc.getAssociationDate());
-		activeMap.put(PROFILE_IMG_URL, settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, 0, TaxonomyUtil.GOORU_ORG_UID) + "/" + settingService.getConfigSetting(ConfigConstants.PROFILE_BUCKET, 0, TaxonomyUtil.GOORU_ORG_UID).toString() + "/" + userContentAssoc.getUser().getGooruUId()
-				+ DOT_PNG);
+		activeMap.put("profileImageUrl", userContentAssoc.getUser().getProfileImageUrl());
 		if (status != null) {
 			activeMap.put(STATUS, status);
 		}

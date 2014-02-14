@@ -28,6 +28,7 @@ package org.ednovo.gooru.controllers.v2.api;
 
 import java.sql.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
@@ -57,6 +58,7 @@ import org.ednovo.gooru.domain.service.classpage.ClasspageService;
 import org.ednovo.gooru.domain.service.search.SearchResults;
 import org.ednovo.gooru.domain.service.task.TaskService;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepository;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.task.TaskRepository;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -85,6 +87,9 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	
 	@Autowired
 	private CollectionRepository collectionRepository;
+	
+	@Autowired
+	private TaskRepository taskRepository;
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ADD })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -185,7 +190,9 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 			SessionContextSupport.putLogParameter(COLLECTION_ID, responseDTO.getModel().getCollection().getGooruOid());
 		}
 		String includes[] = (String[]) ArrayUtils.addAll(CLASSPAGE_COLLECTION_ITEM_INCLUDE_FIELDS, CLASSPAGE_INCLUDE_FIELDS); 
-		includes = (String[]) ArrayUtils.addAll(COLLECTION_ITEM_INCLUDE_FILEDS, ERROR_INCLUDE);
+		includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_ITEM_INCLUDE_FILEDS);
+		includes = (String[]) ArrayUtils.addAll(includes, CLASSPAGE_ITEM_INCLUDE);
+		includes = (String[]) ArrayUtils.addAll(includes, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
 	
@@ -213,14 +220,22 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	public ModelAndView getClasspageItem(@PathVariable(value = ID) String collectionItemId, HttpServletRequest request, HttpServletResponse response) {
 		User user = (User) request.getAttribute(Constants.USER);
 		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, COLLECTION_ITEM_INCLUDE_FILEDS);
-		includes = (String[]) ArrayUtils.addAll(includes, CLASSPAGE_COLLECTION_ITEM_INCLUDE_FIELDS);
+		includes = (String[]) ArrayUtils.addAll(includes, CLASSPAGE_ITEM_INCLUDE);
+	
 		return toModelAndViewWithIoFilter(getCollectionService().getCollectionItem(collectionItemId, false, user), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ITEM_READ })
 	@RequestMapping(value = "/collection/{id}", method = RequestMethod.GET)
-	public ModelAndView getCollectionClasspageAssoc(@PathVariable(value = ID) String collectionId, HttpServletRequest request, HttpServletResponse response) {
-		return toJsonModelAndView(this.getTaskService().getCollectionClasspageAssoc(collectionId), true);
+	public ModelAndView getCollectionClasspageAssoc(@PathVariable(value = ID) String collectionId, @RequestParam(value = GOORU_UID, required = false) String gooruUid, HttpServletRequest request, HttpServletResponse response) {
+		return toJsonModelAndView(this.getTaskRepository().getCollectionClasspageAssoc(collectionId, gooruUid), true);
+	}
+	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ITEM_READ })
+	@RequestMapping(value = "/collection/{id}/count", method = RequestMethod.GET)
+	public ModelAndView getCollectionClasspageAssocCount(@PathVariable(value = ID) String collectionId, @RequestParam(value = GOORU_UID, required = false) String gooruUid, HttpServletRequest request, HttpServletResponse response) {
+		List<Map<Object, Object>> count = this.getTaskRepository().getCollectionClasspageAssoc(collectionId, gooruUid);
+		return toJsonModelAndView(count != null ? count.size() : 0, true);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ITEM_DELETE })
@@ -231,11 +246,11 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ITEM_READ })
 	@RequestMapping(value = "/{cid}/item", method = RequestMethod.GET)
-	public ModelAndView getClasspageItems(@PathVariable(value = COLLECTIONID) String classpageId, @RequestParam(value = DATA_OBJECT, required = false) String data, @RequestParam(value = ORDER_BY, defaultValue = DESC ,required = false) String orderBy, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		JSONObject json = requestData(data);
+	public ModelAndView getClasspageItems(@PathVariable(value = COLLECTIONID) String classpageId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,
+			@RequestParam(value = SKIP_PAGINATION, required = false, defaultValue = FALSE) Boolean skipPagination, @RequestParam(value = ORDER_BY, defaultValue = DESC ,required = false) String orderBy, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, CLASSPAGE_COLLECTION_ITEM_INCLUDE_FIELDS);
 		includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_ITEM_INCLUDE_FILEDS);
-		List<CollectionItem> collectionItems = this.getCollectionService().getCollectionItems(classpageId, json != null ? Integer.parseInt(getValue(OFFSET_FIELD, json)) : 0, json != null ? Integer.parseInt(getValue(LIMIT_FIELD, json)) : 20, json != null ? Boolean.parseBoolean(getValue(SKIP_PAGINATION, json)) : false, orderBy);
+		List<CollectionItem> collectionItems = this.getCollectionService().getCollectionItems(classpageId, offset , limit , skipPagination , orderBy);
 		String responseJson = null;
 			SearchResults<CollectionItem> result = new SearchResults<CollectionItem>();
 			result.setSearchResults(collectionItems);
@@ -344,8 +359,8 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 		return collectionRepository;
 	}
 
-	public void setCollectionRepository(CollectionRepository collectionRepository) {
-		this.collectionRepository = collectionRepository;
+	public TaskRepository getTaskRepository() {
+		return taskRepository;
 	}
 
 }

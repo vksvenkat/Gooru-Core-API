@@ -82,7 +82,7 @@ public class TaskRepositoryHibernate extends BaseRepositoryHibernate implements 
 	}
 
 	@Override
-	public List<CollectionTaskAssoc> getCollectionTaskAssoc(Integer offset, Integer limit, Boolean skipPagination, String taskGooruOid ,String classpageId) {
+	public List<CollectionTaskAssoc> getCollectionTaskAssoc(Integer offset, Integer limit, Boolean skipPagination, String taskGooruOid, String classpageId) {
 		Session session = getSession();
 		String hql = " FROM CollectionTaskAssoc collectionTaskAssoc where " + generateOrgAuthQuery("collectionTaskAssoc.task.");
 		if (taskGooruOid != null) {
@@ -113,13 +113,14 @@ public class TaskRepositoryHibernate extends BaseRepositoryHibernate implements 
 	
 	@Override
 	public List<Map<Object, Object>> getCollectionClasspageAssoc(
-			String collectionId) {
+			String collectionId, String gooruUid) {
 		Session session = getSession();
-		String sql = "";
-			sql = "select r.title as title,cct.gooru_oid as classpageId from collection_task_assoc ct inner join task_resource_assoc tr on tr.task_content_id = ct.task_content_id inner join content c on c.content_id = tr.resource_content_id inner join resource r on  r.content_id = ct.collection_content_id inner join content cct on cct.content_id = ct.collection_content_id  where c.gooru_oid =:collectionId";
+		String sql = "select car.title as title, cor.gooru_oid as classpageId from classpage cc inner join resource car on car.content_id = cc.classpage_content_id inner join content cor on cor.content_id = car.content_id   inner join collection_item ci on cc.classpage_content_id = ci.collection_content_id inner join content c on c.content_id = ci.collection_content_id inner join resource r on  r.content_id = ci.resource_content_id inner join content cr on cr.content_id = r.content_id where cr.gooru_oid='"+collectionId+"'";
+		if (gooruUid != null) { 
+			sql += "and ci.associated_by_uid='"+gooruUid+"'";
+		}
 		Query query = session.createSQLQuery(sql).
-		addScalar("title", StandardBasicTypes.STRING).addScalar("classpageId", StandardBasicTypes.STRING)
-		.setParameter("collectionId", collectionId);
+		addScalar("title", StandardBasicTypes.STRING).addScalar("classpageId", StandardBasicTypes.STRING);
 		return getClasspageData(query.list());
 	}
 	

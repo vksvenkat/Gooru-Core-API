@@ -53,7 +53,7 @@ public class BlackListWordCassandraServiceImpl implements BlackListWordCassandra
 
 	@Override
 	public boolean validate(String query) {
-		if (BLACK_LISTED_WORDS == null) {
+		if (BLACK_LISTED_WORDS == null || BLACK_LISTED_WORDS.size() <= 0) {
 			reset();
 		}
 		if (query != null && !query.equals(WILD_CARD)) {
@@ -73,7 +73,7 @@ public class BlackListWordCassandraServiceImpl implements BlackListWordCassandra
 	@Override
 	public synchronized void reset() {
 		BLACK_LISTED_WORDS = new ArrayList<String>();
-		ColumnList<String> blackListWords = getDao().read(BLACK_LISTED_WORDS_KEY);
+		ColumnList<String> blackListWords = getDao().read(BLACK_LISTED_WORDS_KEY); 
 		if (blackListWords != null) {
 			BLACK_LISTED_WORDS.addAll(blackListWords.getColumnNames());
 		}

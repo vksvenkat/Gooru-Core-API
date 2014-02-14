@@ -33,39 +33,58 @@ import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.Organization;
 import org.ednovo.gooru.core.api.model.OrganizationWrapper;
+import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserCredential;
 import org.ednovo.gooru.core.api.model.UserGroupSupport;
 import org.ednovo.gooru.core.constant.Constants;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.type.StandardBasicTypes;
 
 public abstract class HibernateDaoSupport extends UserGroupSupport {
 
-
-	
+	private static final String COLLECTION_TYPE =  "folder";
 	public void saveOrUpdate(Object model) {
 		if (model instanceof Annotation) {
 			if (((Annotation) model).getResource() != null) {
 				((Content) model).setOrganization(((Annotation) model).getResource().getOrganization());
 			}
-			
+
 		} else if (model instanceof OrganizationWrapper && ((OrganizationWrapper) model).getOrganization() == null) {
 			((OrganizationWrapper) model).setOrganization(getCurrentUserPrimaryOrganization());
 		}
-	    
-		if (model instanceof Content ) {
+
+		if (model instanceof Content) {
 			((Content) model).setLastModified(new Date(System.currentTimeMillis()));
 		}
-	   if (model instanceof CollectionItem ) {
-            ((CollectionItem) model).getCollection().setLastModified(new Date(System.currentTimeMillis()));
-        }
-	   if (model instanceof User ) {
+	
+		if (model instanceof CollectionItem) {
+			// handling the folder sharing logic based child instance
+			((CollectionItem) model).getCollection().setLastModified(new Date(System.currentTimeMillis()));
+			org.ednovo.gooru.core.api.model.Collection collection = ((CollectionItem) model).getCollection();
+            if ( collection != null && collection.getCollectionType() != null && collection.getCollectionType().equals(COLLECTION_TYPE)) { 
+            	if (getPublicCollectionCount(collection.getGooruOid()) != null && getPublicCollectionCount(collection.getGooruOid()) > 0) { 
+            		collection.setSharing(Sharing.PUBLIC.getSharing());
+            	} else { 
+            		collection.setSharing(Sharing.PRIVATE.getSharing());
+            	}
+            }
+		}
+		if (model instanceof User) {
 			((User) model).setLastModifiedOn(new Date(System.currentTimeMillis()));
 		}
-	   
+
 		getSession().saveOrUpdate(model);
 
+	}
+
+	public Long getPublicCollectionCount(String gooruOid) {
+		String sql = "select count(1) as count  from collection_item  ci inner join resource r  on r.content_id = ci.resource_content_id inner join content c on c.content_id = ci.resource_content_id inner join content cc on cc.content_id = ci.collection_content_id  where cc.gooru_oid =:gooruOid and c.sharing in  ('private', 'anyonewithlink') and (r.type_name = 'folder' or r.type_name = 'scollection')";
+		Query query = getSession().createSQLQuery(sql).addScalar("count", StandardBasicTypes.LONG);
+		query.setParameter("gooruOid", gooruOid);
+		return (Long) query.list().get(0);
 	}
 
 	public void delete(Object object) {
@@ -108,7 +127,7 @@ public abstract class HibernateDaoSupport extends UserGroupSupport {
 
 	public <T> T get(String hql) {
 		List<T> datas = getSession().createQuery(hql).list();
-		return datas.size() > 0 ? datas.get(0) :null; 
+		return datas.size() > 0 ? datas.get(0) : null;
 	}
 
 	public void releaseSession(Session session) {
@@ -116,13 +135,13 @@ public abstract class HibernateDaoSupport extends UserGroupSupport {
 	}
 
 	public Session getSession() {
-		
+
 		Session currentSession = null;
 		try {
 			currentSession = getSessionFactory().getCurrentSession();
 		} catch (Exception e) {
 			currentSession = getSessionFactory().openSession();
-		} 
+		}
 		currentSession.enableFilter("customFieldFilter").setParameterList("customFieldFilterParam", Constants.themeUsercustomFieldsKey);
 		return currentSession;
 	}
@@ -148,8 +167,7 @@ public abstract class HibernateDaoSupport extends UserGroupSupport {
 
 		return null;
 	}
-	
-	public abstract SessionFactory getSessionFactory();
 
+	public abstract SessionFactory getSessionFactory();
 
 }

@@ -6,9 +6,9 @@ import org.ednovo.gooru.core.application.util.BaseUtil;
 import org.springframework.util.StringUtils;
 
 public abstract class UserGroupSupport extends SessionContextSupport {
-	
+
 	private static String DEFAULT_ORGANIZATION = "4261739e-ccae-11e1-adfb-5404a609bd14";
-	
+
 	public static String getPartyPermitsAsString() {
 		UserCredential credential = getUserCredential();
 		if (credential != null && credential.getPartyPermitsAsString() != null) {
@@ -41,7 +41,7 @@ public abstract class UserGroupSupport extends SessionContextSupport {
 		}
 		return new String[] { getUserOrganizationUid() };
 	}
-	
+
 	public static String getUserOrganizationUidsAsString() {
 		UserCredential credential = getUserCredential();
 		if (credential != null && credential.getOrgPermitsAsString() != null) {
@@ -57,7 +57,7 @@ public abstract class UserGroupSupport extends SessionContextSupport {
 		}
 		return null;
 	}
-	
+
 	public static String getUserOrganizationUid() {
 
 		UserCredential credential = getUserCredential();
@@ -77,50 +77,60 @@ public abstract class UserGroupSupport extends SessionContextSupport {
 		}
 		return new String[] {};
 	}
-	public static String getUserOrganizationNfsInternalPath(){
+
+	public static String getUserOrganizationNfsInternalPath() {
 		UserCredential credential = getUserCredential();
 		if (credential != null) {
 			return credential.getOrganizationNfsInternalPath();
 		}
 		throw new RuntimeException("User internal path can not be null");
 	}
-	public static String getUserOrganizationNfsRealPath(){
+
+	public static String getUserOrganizationNfsRealPath() {
 		UserCredential credential = getUserCredential();
 		if (credential != null) {
 			return BaseUtil.changeHttpsProtocol(credential.getOrganizationNfsRealPath());
 		}
 		throw new RuntimeException("User real path can not be null");
 	}
-	
-	public static String getUserOrganizationCdnDirectPath(){
+
+	public static String getUserOrganizationCdnDirectPath() {
 		UserCredential credential = getUserCredential();
 		if (credential != null) {
 			return credential.getOrganizationCdnDirectPath();
 		}
 		return null;
 	}
-	
-	public static String getTaxonomyPreference(){
+
+	public static String getTaxonomyPreference() {
 		UserCredential credential = getUserCredential();
 		if (credential != null) {
 			return credential.getTaxonomyPreference();
 		}
 		return null;
 	}
-	
-	public static Map<String, Map<String, String>> getMeta(){
+
+	public static Map<String, Map<String, String>> getMeta() {
 		UserCredential credential = getUserCredential();
 		if (credential != null) {
 			return credential.getMeta();
 		}
 		return null;
 	}
-	
-	public static Boolean isContentAdminAccess(){
+
+	public static Boolean isContentAdminAccess() {
 		UserCredential credential = getUserCredential();
 		if (credential != null) {
 			return credential.getIsAdminAccessContent();
 		}
 		return false;
+	}
+
+	public static String getProfileAssetURI() {
+		UserCredential credential = getUserCredential();
+		if (credential != null) {
+			return credential.getProfileAssetURI();
+		}
+		return null;
 	}
 }

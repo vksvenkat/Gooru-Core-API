@@ -24,6 +24,7 @@
 package org.ednovo.gooru.domain.service.rating;
 
 import org.ednovo.gooru.core.api.model.Rating;
+import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.domain.service.BaseService;
 
@@ -31,6 +32,8 @@ import org.ednovo.gooru.domain.service.BaseService;
 public interface RatingService extends BaseService {
 
 	Rating findByContent(String gooruContentId);
+	
+	Rating findByContentObj(Resource resource);
 
 	int getContentRatingForUser(String userId, String gooruOid);
 

@@ -82,16 +82,16 @@ public class LibraryRestV2Controller extends BaseController implements ConstantP
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAXONOMY_READ })
 	@RequestMapping(value = "/{type}/{topicId}", method = RequestMethod.GET)
 	public ModelAndView getLibraryTopic(@PathVariable(value = TYPE) String type, @PathVariable(value = TOPIC_ID) String topicId, @RequestParam(value = CLEAR_CACHE, required = false, defaultValue = FALSE) boolean clearCache,
-			@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "5") Integer limit, @RequestParam(value = LIBRARY_NAME, required = false, defaultValue = LIBRARY) String libraryName,
+			@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "5") Integer limit, @RequestParam(value = LIBRARY_NAME, required = false, defaultValue = LIBRARY) String libraryName, @RequestParam(value = ROOT_NODE_ID, required = false, defaultValue = "20000") String rootNode,
 			HttpServletRequest request, HttpServletResponse response) {
 		List<Map<String, Object>> library = null;
-		final String cacheKey = "v2-library-data-" + type + "-" + topicId + limit + offset + "-" + libraryName;
+		final String cacheKey = "v2-library-data-" + type + "-" + topicId + limit + offset + "-" + libraryName + "-" + rootNode;
 		String data = null;
 		if (!clearCache) {
 			data = getRedisService().getValue(cacheKey);
 		}
 		if (data == null) {
-			library = this.getFeaturedService().getLibraryTopic(topicId, limit, offset, type, libraryName);
+			library = this.getFeaturedService().getLibraryTopic(topicId, limit, offset, type, libraryName, rootNode);
 			String includes[] = (String[]) ArrayUtils.addAll(LIBRARY_RESOURCE_INCLUDE_FIELDS, LIBRARY_COLLECTION_INCLUDE_FIELDS);
 			includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_ITEM_INCLUDE_FILEDS);
 			includes = (String[]) ArrayUtils.addAll(includes, LIBRARY_CODE_INCLUDES);
@@ -104,16 +104,16 @@ public class LibraryRestV2Controller extends BaseController implements ConstantP
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAXONOMY_READ })
 	@RequestMapping(value = "/{type}/unit/{id}", method = RequestMethod.GET)
 	public ModelAndView getLibraryUnit(@PathVariable(value = TYPE) String type, @PathVariable(value = ID) String id, @RequestParam(value = CLEAR_CACHE, required = false, defaultValue = FALSE) boolean clearCache,
-			@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, @RequestParam(value = LIBRARY_NAME, required = false, defaultValue = LIBRARY) String libraryName,
+			@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, @RequestParam(value = LIBRARY_NAME, required = false, defaultValue = LIBRARY) String libraryName,@RequestParam(value = ROOT_NODE_ID, required = false, defaultValue = "20000") String rootNode,
 			HttpServletRequest request, HttpServletResponse response) {
 		List<Map<String, Object>> library = null;
-		final String cacheKey = "v2-library-data-" + type + "-" + id + limit + offset + "-" + libraryName;
+		final String cacheKey = "v2-library-data-" + type + "-" + id + limit + offset + "-" + libraryName + "-" + rootNode;
 		String data = null;
 		if (!clearCache) {
 			data = getRedisService().getValue(cacheKey);
 		}
 		if (data == null) {
-			library = this.getFeaturedService().getLibraryUnit(id, type, offset, limit, libraryName);
+			library = this.getFeaturedService().getLibraryUnit(id, type, offset, limit, libraryName, rootNode);
 			String includes[] = (String[]) ArrayUtils.addAll(LIBRARY_RESOURCE_INCLUDE_FIELDS, LIBRARY_COLLECTION_INCLUDE_FIELDS);
 			includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_ITEM_INCLUDE_FILEDS);
 			includes = (String[]) ArrayUtils.addAll(includes, LIBRARY_CODE_INCLUDES);
@@ -157,7 +157,29 @@ public class LibraryRestV2Controller extends BaseController implements ConstantP
 
 		return toModelAndView(data);
 	}
-
+	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAXONOMY_READ })
+	@RequestMapping(value = "/{id}/collection/popular", method = RequestMethod.GET)
+	public ModelAndView getLibraryPopularCollection( @PathVariable(value = ID) String id, @RequestParam(value = CLEAR_CACHE, required = false, defaultValue = FALSE) boolean clearCache,
+			@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, @RequestParam(value = LIBRARY_NAME, required = false, defaultValue = LIBRARY) String libraryName,
+			HttpServletRequest request, HttpServletResponse response) {
+		List<Map<String, Object>> library = null;
+		final String cacheKey = "v2-library-popular-data-" + id + limit + offset + "-" + libraryName;
+		String data = null;
+		if (!clearCache) {
+			data = getRedisService().getValue(cacheKey);
+		}
+		if (data == null) {
+			library = this.getFeaturedService().getPopularLibrary(id,  offset, limit ,libraryName);
+			String includes[] = (String[]) ArrayUtils.addAll(LIBRARY_RESOURCE_INCLUDE_FIELDS, LIBRARY_COLLECTION_INCLUDE_FIELDS);
+			includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_ITEM_INCLUDE_FILEDS);
+		//	includes = (String[]) ArrayUtils.addAll(includes, LIBRARY_CODE_INCLUDES);
+			data = serialize(library, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, false, true, includes);
+			getRedisService().putValue(cacheKey, data);
+		}
+		return toModelAndView(data);
+	}
+	
 	public TaxonomyService getTaxonomyService() {
 		return taxonomyService;
 	}

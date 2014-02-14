@@ -59,6 +59,8 @@ public class UserCredential implements Serializable {
 	private String sharedSecretKey;
 	
 	private String storedSecretKey;
+	
+	private String profileAssetURI;
 
 	public String getOrganizationUid() {
 		return organizationUid;
@@ -250,5 +252,13 @@ public class UserCredential implements Serializable {
 
 	public String getStoredSecretKey() {
 		return storedSecretKey;
+	}
+
+	public void setProfileAssetURI(String profileAssetURI) {
+		this.profileAssetURI = profileAssetURI;
+	}
+
+	public String getProfileAssetURI() {
+		return profileAssetURI;
 	}
 }

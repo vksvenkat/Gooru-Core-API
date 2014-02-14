@@ -116,7 +116,6 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 	@Override
 	public void deleteFeedback(String feedbackId, String gooruUid) {
 		List<Feedback> feedback = this.getFeedbackRepository().getFeedbacks(feedbackId, gooruUid);
-		rejectIfNull(feedback, GL0056, _FEEDBACK);
 		if (feedback != null) {
 			SessionContextSupport.putLogParameter(FEEDBACK_GOORU_OID, feedback.get(0).getAssocGooruOid());
 			SessionContextSupport.putLogParameter(FEEDBACK_GOORU_UID, feedback.get(0).getAssocUserUid());

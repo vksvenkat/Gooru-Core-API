@@ -57,7 +57,7 @@ public interface UserManagementService extends BaseService {
 	void validateUserOrganization(String organizationCode, String superAdminToken) throws Exception;
 
 	User createUserWithValidation(User user, String password, String school, Integer confirmStatus, Boolean useGeneratedPassword, Boolean sendConfirmationMail, User apiCaller, String accountType, String dateOfBirth, String userParentId, String sessionId, String gender, String childDOB,
-			String gooruClassicUrl, Boolean token, HttpServletRequest resRequest, String role, String mailConfirmationUrl, Boolean inviteUser) throws Exception;
+			String gooruClassicUrl, Boolean token, HttpServletRequest resRequest, String role, String mailConfirmationUrl) throws Exception;
 
 	Boolean isContentAdmin(User user);
 
