@@ -214,6 +214,17 @@
 				<!-- Use "-P prod" when you want to use the settings in this profile -->
 				<!-- =============================================================== -->
 				<profile>
+					<id>api-jar</id>
+					<properties>
+						<env>api</env>
+					</properties>
+					<modules>
+					  <module>api</module>
+					  <module>gooru-core</module>
+					  <module>cassandra-core</module>
+					</modules>
+				</profile>				
+				<profile>
 					<id>api</id>
 					<properties>
 						<env>api</env>
@@ -226,51 +237,6 @@
 					<module>mail</module>
 					</modules> 
 				</profile>
-				<profile>
-					<id>app</id>
-					<properties>
-						<env>app</env>
-					</properties>
-					<modules>
-						<module>web-app</module>
-						<module>api</module>
-						<module>auth-sso</module>
-                                                 <module>cassandra-core</module>
-                                                 <module>search-core</module>
-						<module>gooru-core</module>
-					</modules>
-				</profile>
-
-				<profile>
-					<id>gm</id>
-					<properties>
-						<env>gm</env>
-					</properties>
-					<modules>
-						<module>api</module>
-						<module>auth-sso</module>
-						<module>gooru-core</module>
-					</modules>
-				</profile>
-
-				<profile>
-					<id>local</id>
-				<properties>
-					<env>local</env>
-				</properties>
-				<modules>
-                                  <module>rest-v2-app</module>
-				   <module>api</module>
-                                   <module>jobs-core</module> 
-				   <module>cassandra-core</module>
-				   <module>search-core</module>
-	                           <module>conversion-app</module> 
-				   <module>mail</module>
-				  <module>gooru-core</module>
-                                 <module>web-app</module>
-                                 <module>auth-sso</module>
-       				</modules>
-			</profile>
 </profiles>
 	<properties>
 		<env>local</env>
