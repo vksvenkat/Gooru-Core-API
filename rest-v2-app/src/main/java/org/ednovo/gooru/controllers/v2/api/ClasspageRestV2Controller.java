@@ -189,10 +189,8 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 			SessionContextSupport.putLogParameter(GOORU_UID, user.getPartyUid());
 			SessionContextSupport.putLogParameter(COLLECTION_ID, responseDTO.getModel().getCollection().getGooruOid());
 		}
-		String includes[] = (String[]) ArrayUtils.addAll(CLASSPAGE_COLLECTION_ITEM_INCLUDE_FIELDS, CLASSPAGE_INCLUDE_FIELDS); 
+		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, CLASSPAGE_COLLECTION_ITEM_INCLUDE_FIELDS);
 		includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_ITEM_INCLUDE_FILEDS);
-		includes = (String[]) ArrayUtils.addAll(includes, CLASSPAGE_ITEM_INCLUDE);
-		includes = (String[]) ArrayUtils.addAll(includes, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
 	
