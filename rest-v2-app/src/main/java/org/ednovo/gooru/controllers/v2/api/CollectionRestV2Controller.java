@@ -408,6 +408,12 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 
 		return jsonmodel.addObject(MODEL, this.getCollectionService().resourceCopiedFrom(gooruOid, user.getGooruUId()));
 	}
+	
+	@RequestMapping(value = { "/{id}/parents" }, method = RequestMethod.GET)
+	public ModelAndView getCollectionParent(HttpServletRequest request, @PathVariable(value = ID) String gooruOid, HttpServletResponse resHttpServletResponse) throws Exception {
+		User user = (User) request.getAttribute(Constants.USER);
+		return toJsonModelAndView(this.getCollectionService().getParentCollection(gooruOid, user.getPartyUid()), true);
+	}
 
 	private Collection buildCollectionFromInputParameters(String data, User user) {
 		Collection collection = JsonDeserializer.deserialize(data, Collection.class);

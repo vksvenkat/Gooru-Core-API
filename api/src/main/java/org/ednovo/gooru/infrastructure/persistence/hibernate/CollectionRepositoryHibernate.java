@@ -755,10 +755,11 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 	}
 
 	@Override
-	public List<Object[]> getParentCollections(String collectionGooruOid, String gooruUid) {
-		String hql = "select collectionItem.collection.gooruOid as parentId ,collectionItem.collection.title as title from CollectionItem collectionItem where collectionItem.resource.gooruOid=:collectionGooruOid and collectionItem.collection.user.partyUid=:gooruUid ";
+	public String getParentCollection(String collectionGooruOid, String gooruUid) {
+		String hql = "select cc.gooru_oid  as gooruOid  from collection_item ci inner join resource r on r.content_id = ci.resource_content_id inner join content cr on cr.content_id = r.content_id inner join content cc on cc.content_id = ci.collection_content_id inner join collection co on  co.content_id = ci.collection_content_id  where cr.gooru_oid=:gooruOid and cc.user_uid =:gooruUid and co.collection_type = 'folder'";
 		Query query = getSession().createQuery(hql);
 		query.setParameter("gooruOid", collectionGooruOid);
-		return query.list();
+		query.setParameter("gooruUid", gooruUid);
+		return query.list() != null ? (String)query.list().get(0) : null;
 	}
 }

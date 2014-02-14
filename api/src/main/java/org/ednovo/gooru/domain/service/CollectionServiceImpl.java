@@ -190,6 +190,24 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		}
 		return items;
 	}
+	
+	@Override
+	public List<String> getParentCollection(String collectionGooruOid, String gooruUid) {
+		List<String> parentIds = new ArrayList<String>();
+		getCollection(collectionGooruOid, gooruUid, parentIds);
+		return parentIds;
+	}
+	
+	private List<String>  getCollection(String collectionGooruOid, String gooruUid, List<String> parentIds) {
+		String gooruOid = this.getCollectionRepository().getParentCollection(collectionGooruOid, gooruUid);
+		if (gooruOid != null) { 
+			parentIds.add(gooruOid);
+			getCollection(gooruOid, gooruUid, parentIds);
+		}
+		return parentIds; 
+		
+	}
+	
 	@Override
 	public Boolean resourceCopiedFrom(String gooruOid, String gooruUid) {
 		Resource resource = collectionRepository.findResourceCopiedFrom(gooruOid, gooruUid);
