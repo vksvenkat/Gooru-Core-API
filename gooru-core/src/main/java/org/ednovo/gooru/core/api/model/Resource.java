@@ -196,9 +196,6 @@ public class Resource extends Content implements Serializable {
 	}
 
 	public String getUrl() {
-		if (url != null && url.contains("http://") && getResourceSource() != null && getResourceSource().getHasHttpsSupport() != null && getResourceSource().getHasHttpsSupport() == 1) {
-			url = BaseUtil.changeHttpsProtocol(url);
-		}
 		return url;
 	}
 
