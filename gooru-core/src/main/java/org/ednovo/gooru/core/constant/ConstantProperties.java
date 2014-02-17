@@ -367,6 +367,8 @@ public interface ConstantProperties {
 	static final String CUSTOM_VALUE_INCLUDE_FIELDS[] = { "displayName" };
 
 	public static final String OAUTH_CLIENT_INCLUDES[] = { "*.oauthClientUId", "*.clientId", "*.clientName", "*.description", "*.clientSecret", "*.scopes", "*.grantTypes", "*.authorities", "*.redirectUris", "*.accessTokenValiditySeconds", "*.refreshTokenValiditySeconds" };
+	
+	public static final String CONSUMER_SECRET_INCLUDES[] = { "*.consumerKey", "*.consumerSecret", "*.organization"};
 
 	public static final String PROFANITY_INCLUDES[] = { "*.found", "*.foundBy", "*.text", "*.count", "*.expletive" };
 
