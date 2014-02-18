@@ -35,6 +35,7 @@ import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.CollectionType;
 import org.ednovo.gooru.core.api.model.Resource;
+import org.ednovo.gooru.core.api.model.ShelfType;
 import org.ednovo.gooru.core.api.model.StorageArea;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.exception.NotFoundException;
@@ -81,8 +82,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	public ActionResponseDTO<CollectionItem> moveCollectionToFolder(String sourceId, String taregetId, User user) throws Exception {
 		ActionResponseDTO<CollectionItem> responseDTO = null;
 		Collection source = collectionRepository.getCollectionByGooruOid(sourceId, null);
-		Collection target = collectionRepository.getCollectionByGooruOid(taregetId, null);
-		if (source == null || target == null) {
+		if (source == null) {
 			throw new NotFoundException(generateErrorMessage("GL0056", "Collection"));
 		}
 		CollectionItem collectionItem = new CollectionItem();
@@ -91,7 +91,14 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		if(sourceCollectionItem != null){
 			deleteCollectionItem(sourceCollectionItem.getCollectionItemId());
 		}
-		responseDTO = this.createCollectionItem(sourceId, taregetId, collectionItem, user, CollectionType.FOLDER.getCollectionType(), false);
+		if(taregetId != null){
+			responseDTO = this.createCollectionItem(sourceId, taregetId, collectionItem, user, CollectionType.FOLDER.getCollectionType(), false);
+		} else {
+			CollectionItem newCollectionItem = new CollectionItem();
+			newCollectionItem.setItemType(ShelfType.AddedType.ADDED.getAddedType());
+			responseDTO = this.createCollectionItem(sourceId, null, newCollectionItem, user, CollectionType.SHElf.getCollectionType(), false);
+		}
+		
 		return responseDTO;
 	}
 
