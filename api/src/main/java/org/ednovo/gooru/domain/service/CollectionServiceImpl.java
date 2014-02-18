@@ -43,6 +43,8 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.storage.StorageRepo
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.google.common.collect.Lists;
+
 @Service
 public class CollectionServiceImpl extends ScollectionServiceImpl implements CollectionService {
 
@@ -195,7 +197,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	public List<String> getParentCollection(String collectionGooruOid, String gooruUid) {
 		List<String> parentIds = new ArrayList<String>();
 		getCollection(collectionGooruOid, gooruUid, parentIds);
-		return parentIds;
+		return parentIds.size() > 0 ? Lists.reverse(parentIds) : parentIds;
 	}
 	
 	private List<String>  getCollection(String collectionGooruOid, String gooruUid, List<String> parentIds) {
@@ -204,7 +206,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 			parentIds.add(gooruOid);
 			getCollection(gooruOid, gooruUid, parentIds);
 		}
-		return parentIds; 
+		return parentIds;
 		
 	}
 	
