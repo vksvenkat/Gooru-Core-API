@@ -543,9 +543,14 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 		Map<String, Object> map = new HashMap<String, Object>();
 		String fromEmailAddress[] = fromAddress.split("@");
 		String fromName = fromEmailAddress[0];
-		String recipients = toAddress;
+		String recipients = "";
 		map.put("content", message);
 		map.put("htmlContent", message);
+		String  delimiters = "[,;]+";
+	       String[] to = toAddress.split(delimiters);
+	       for(int i= 0 ; i < to.length ; i++) {
+	           recipients += recipients.length() == 0 ? to[i] : "," + to[i];
+	       }
 		map.put("recipient", recipients);
 		map.put("from", fromAddress);
 		if (cfm != null && cfm.equalsIgnoreCase("yes")) {
