@@ -645,7 +645,7 @@ public class AssessmentServiceImpl implements AssessmentService,ParameterPropert
 				question.setResourceType(resourceType);
 				question.setTypeName(question.getTypeName());
 				question.setCategory(QUESTION);
-				question.setInstructional(this.getCustomTableRepository().getCustomTableValue(RESOURCE_INSTRUCTIONAL_USE,QUESTION));
+				question.setResourceFormat(this.getCustomTableRepository().getCustomTableValue(RESOURCE_CATEGORY_FORMAT,QUESTION));
 			} else {
 				AssessmentQuestion existingQuestion = getQuestion(gooruOQuestionId);
 				if (question.getQuestionText() != null) {
