@@ -736,7 +736,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 
 	@Override
 	public Integer getUserBirthdayCount() {
-		Query query = getSession().createSQLQuery("select count(1) as count from profile where date_of_birth is not null and month(date_of_birth) = month(now()) and day(date_of_birth) = day(now()) and i.external_id like '%@%'").addScalar("count", StandardBasicTypes.INTEGER);
+		Query query = getSession().createSQLQuery("select count(1) as count from identity i inner join profile p on (i.user_uid=p.user_uid) where p.date_of_birth is not null and month(p.date_of_birth) = month(now()) and day(p.date_of_birth) = day(now())  and i.external_id like '%@%'").addScalar("count", StandardBasicTypes.INTEGER);
 		return (Integer) query.list().get(0);
 	}
 
