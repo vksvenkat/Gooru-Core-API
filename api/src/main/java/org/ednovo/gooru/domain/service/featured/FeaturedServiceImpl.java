@@ -28,6 +28,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.stream.events.Comment;
+
 import org.ednovo.gooru.core.api.model.Assessment;
 import org.ednovo.gooru.core.api.model.AssessmentQuestion;
 import org.ednovo.gooru.core.api.model.Code;
@@ -45,11 +47,14 @@ import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.domain.service.CollectionService;
+import org.ednovo.gooru.domain.service.comment.CommentService;
+import org.ednovo.gooru.domain.service.search.SearchResults;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.featured.FeaturedRepository;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.question.CommentRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.taxonomy.TaxonomyRespository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -77,6 +82,9 @@ public class FeaturedServiceImpl implements FeaturedService, ParameterProperties
 
 	@Autowired
 	private UserRepository userRepository;
+	
+	@Autowired
+	private CommentRepository commentRepository;
 
 	@Override
 	public List<FeaturedSet> getFeaturedList(int limit, boolean random, String featuredSetName, String themeCode) throws Exception {
@@ -362,6 +370,14 @@ public class FeaturedServiceImpl implements FeaturedService, ParameterProperties
 		return userMapList;
 	}
 
+	public CommentRepository getCommentRepository() {
+		return commentRepository;
+	}
+
+	public void setCommentRepository(CommentRepository commentRepository) {
+		this.commentRepository = commentRepository;
+	}
+
 	private void setCollectionMetaInfo(List<Collection> collections) {
 		for (Collection collection : collections) {
 			CollectionMetaInfo collectionMetaInfo = new CollectionMetaInfo();
@@ -577,6 +593,36 @@ public class FeaturedServiceImpl implements FeaturedService, ParameterProperties
 		}
 		return collectionList;
 	}
+	
+	@Override
+	public List<Map<String, Object>> getAllLibraryCollections(Integer limit, Integer offset, boolean skipPagination, String themeCode, String themeType) {
+		List<Map<String, Object>> collectionList = new ArrayList<Map<String, Object>>();
+		List<Object[]> result = this.getFeaturedRepository().getFeaturedCollectionsList(limit, offset, skipPagination, themeCode, themeType);
+		if (result != null && result.size() > 0) {
+			Map<String, Object> totalHitCount = new HashMap<String, Object>();
+			totalHitCount.put("totalHitCount", result.size());
+			for (Object[] object : result) {
+				Map<String, Object> collection = new HashMap<String, Object>();
+				User lastUpdatedUser = this.getUserRepository().findUserByPartyUid(String.valueOf(object[5]));
+				Collection featuredCollection = this.getCollectionService().getCollectionByGooruOid(String.valueOf(object[0]), null);
+				Long comment = this.getCommentRepository().getCommentCount(String.valueOf(object[0]), null, "notdeleted");
+				Long collectionItem = this.getCollectionRepository().getCollectionItemCount(String.valueOf(object[0]), "private,public,anyonewithlink");
+				collection.put("searchResults", featuredCollection);
+				collection.put("subjectCode", object[13]);
+				collection.put("themeCode", object[12]);
+				if(lastUpdatedUser != null){
+					collection.put(LAST_MODIFIED_BY, lastUpdatedUser.getUsername());
+				}
+				collection.put(COMMENTS_COUNT, comment);
+				collection.put(COLLECTION_ITEM_COUNT, collectionItem);
+				//collection.put("totalHitCount", result.size());
+				collectionList.add(collection);
+			}
+			collectionList.add(totalHitCount);
+		}
+		return collectionList;
+	}
+
 	
 	@Override
 	public List<Map<String, Object>> getPopularLibrary(String courseId,  Integer offset, Integer limit,  String libraryName) {

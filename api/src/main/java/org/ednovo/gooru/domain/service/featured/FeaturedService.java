@@ -55,6 +55,8 @@ public interface FeaturedService {
 	
 	List<Map<String, Object>> getLibraryCollection(Integer id, String type,Integer offset, Integer limit, boolean skipPagination, String libraryName);
 	
+	List<Map<String, Object>> getAllLibraryCollections(Integer limit, Integer offset, boolean skipPagination, String themeCode, String themeType);
+	
 	List<Map<String, Object>> getPopularLibrary(String courseId,  Integer offset, Integer limit,  String libraryName);
 	
 	List<Map<String, Object>> getLibraryCourse(String code,String ChildCode, String libraryName, String rootNode);
