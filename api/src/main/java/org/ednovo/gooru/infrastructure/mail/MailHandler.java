@@ -23,6 +23,8 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.infrastructure.mail;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -108,8 +110,6 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 
 	private static final String FROM = "Gooru Accounts";
 
-	private static final String PASSWORD_RESET_SUBJECT = "Gooru Reset Password Instructions";
-
 	private static final String PASSWORD_CONFIRM_SUBJECT = "Gooru Password Change Confirmation";
 
 	private static final String REGISTRATION = "Your Gooru account is confirmed!";
@@ -124,11 +124,9 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 
 	private static final String S3_CSV_RESOURCE_IMPORT = "Gooru S3 Resource Importer Status";
 	
-	private static final String GOORU_BUTTON_CSS =  "background: none repeat scroll 0 0 #0F76BB;border: 0 none;color: white;font-size: 12px;height: 32px;width: 105px;-webkit-border-radius: 3px 3px 3px 3px;-moz-border-radius: 3px 3px 3px 3px;border-radius: 3px 3px 3px 3px;-ms-border-radius: 3px 3px 3px 3px;-kthml-border-radius: 3px 3px 3px 3px;cursor: pointer;position: relative;line-height: 30px;text-align:center;";
+	private static final String GOORU_BUTTON_CSS =  "background: none repeat scroll 0 0 #0F76BB;border: 0 none;color: white;font-size: 12px;height: 32px;width: 105px;-webkit-border-radius: 3px 3px 3px 3px;-moz-border-radius: 3px 3px 3px 3px;border-radius: 3px 3px 3px 3px;-ms-border-radius: 3px 3px 3px 3px;-kthml-border-radius: 3px 3px 3px 3px;cursor: pointer;position: relative;line-height: 32px;text-align:center;";
 	
 	private static final String GOORU_COLLECTION_LINK_CSS = "color: #ffffff;text-decoration: none;";
-	
-	private static final String GOORU_BUTTON_TYPE = "button";
 	
 	private static final String GO_TO_COLLECTION_TEXT = "font-size: 13px; position: relative; top: 7px; left: 5px; font-family: arial;";
 
@@ -158,7 +156,11 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 				userEmailId = parentIdentity.getExternalId();
 			}
 		} else {
-			eventMapping = this.getEventService().getTemplatesByEventName(CustomProperties.EventMapping.CHANGE_GOORU_ACCOUNT_PASSWORD.getEvent());
+			if (mailConfirmationUrl != null) {
+				eventMapping = this.getEventService().getTemplatesByEventName(CustomProperties.EventMapping.CHANGE_GOORU_PARTNER_ACCOUNT_PASSWORD.getEvent());
+			} else {
+				eventMapping = this.getEventService().getTemplatesByEventName(CustomProperties.EventMapping.CHANGE_GOORU_ACCOUNT_PASSWORD.getEvent());
+			}
 		}
 		map = eventMapData(eventMapping);
 
@@ -292,9 +294,9 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 			model.put("passwordResetLink", passwordResetLink);
 			userAccountType = accountType;
 		} else {
-			EventMapping eventMapping = this.getEventService().getTemplatesByEventName(CustomProperties.EventMapping.NON_PARANT_REGISTRATION_CONFIRMATION.getEvent());
-			model = eventMapData(eventMapping);
 			if (mailConfirmationUrl == null) {
+				EventMapping eventMapping = this.getEventService().getTemplatesByEventName(CustomProperties.EventMapping.NON_PARANT_REGISTRATION_CONFIRMATION.getEvent());
+				model = eventMapData(eventMapping);
 				if (gooruClassicUrl == null) {
 					completeRegistration = "<a style=\"color: #1076bb;\" href=\"" + serverpath + "/gooru/index.g#!/user/registration/" + identity.getUser().getGooruUId() + "/session/" + tokenId + "/" + encodedDateOfBirth + "/type/" + userAccountType
 							+ "\" target=\"_blank\">Click Here to Complete Registration.</a>";
@@ -303,6 +305,8 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 							+ "&callback=confirmUser\" target=\"_blank\">Click Here to Complete Registration.</a>";
 				}
 			} else {
+				EventMapping eventMapping = this.getEventService().getTemplatesByEventName(CustomProperties.EventMapping.PARTNER_PORTAL_USER_REGISTRATION_CONFIRMATION.getEvent());
+				model = eventMapData(eventMapping);
 				completeRegistration = "<a style=\"color: #1076bb;\" href=\"" + mailConfirmationUrl + "?gooruuid=" + identity.getUser().getGooruUId() + "&sessionid=" + tokenId + "&dob=" + encodedDateOfBirth + "&type=" + userAccountType
 						+ "&callback=confirmUser\" target=\"_blank\">Click Here to Complete Registration.</a>";
 			}
@@ -751,6 +755,7 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 
 	public void sendUserBirthDayMail(Map<String, Object> map) {
 		Integer birthdayMailCount = this.getUserRepositoryHibernate().getUserBirthdayCount();
+		String currentDate = (new SimpleDateFormat("yyyy-MM-dd")).format(new Date()).toString();
 		if (birthdayMailCount != null) {
 			Integer maxBatchSize = Integer.parseInt(getConfigSetting(ConfigConstants.GOORU_USER_BIRTHDAY_MAIL_BATCH_SIZE, TaxonomyUtil.GOORU_ORG_UID));
 
@@ -760,9 +765,18 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 				List<Object[]> results = this.getUserRepositoryHibernate().listUserByBirthDay(index, maxBatchSize);
 				count += results.size();
 				String emailIds = "";
-				for (int resultIndex = 0; resultIndex < results.size(); resultIndex++) {
-					emailIds += emailIds.length() > 0 ? ", " : "";
-					emailIds += results.get(resultIndex);
+				String userIds = "";
+				for (Object[] result : results) {
+					if (!this.getPartyRepository().isUserBirthDayMailSentToday(result[1].toString(), currentDate)) {
+						emailIds += emailIds.length() > 0 ? ", " : "";
+						emailIds += result[0];
+						userIds += userIds.length() > 0 ? ", " : "";
+						userIds += "'"+result[1]+"'";
+					}
+				}
+				
+				if (userIds != null && userIds.length() != 0) {
+					this.getPartyRepository().updatePartyCustomFieldsBirthDayMailKey(userIds);
 				}
 
 				if (emailIds.length() > 0) {

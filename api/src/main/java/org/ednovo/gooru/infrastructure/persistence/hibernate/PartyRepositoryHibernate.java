@@ -100,6 +100,21 @@ public class PartyRepositoryHibernate extends BaseRepositoryHibernate implements
 		String sql = "Update  party_custom_field partycustomfield  set partycustomfield.optional_value = date(now())  WHERE partycustomfield.party_uid in ( " + userIds + ") AND partycustomfield.optional_key='last_user_inactive_mail_send_date'";
 		Query q = session.createSQLQuery(sql);
 		q.executeUpdate();
-
+	}
+	
+	@Override
+	public void updatePartyCustomFieldsBirthDayMailKey(String userIds) {
+		Session session = getSession();
+		String sql = "Update  party_custom_field partycustomfield  set partycustomfield.optional_value = date(now())  WHERE partycustomfield.party_uid in ( " + userIds + ") AND partycustomfield.optional_key='last_user_birthday_mail_send_date'";
+		Query q = session.createSQLQuery(sql);
+		q.executeUpdate();
+	}
+	
+	@Override
+	public boolean isUserBirthDayMailSentToday(String userId, String date){
+		Session session = getSession();
+		String sql = "select count(1) as count from party_custom_field where party_uid = '"+userId+"' and optional_value = '"+date+"' and optional_key = 'last_user_birthday_mail_send_date'";
+		Query query = session.createSQLQuery(sql).addScalar("count", StandardBasicTypes.INTEGER);
+		return ((Integer) query.list().get(0)) == 1 ? true : false;
 	}
 }

@@ -92,7 +92,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindException;
@@ -1546,10 +1545,8 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 					resource.setGooruOid(UUID.randomUUID().toString());
 					resource.setUser(user);
 					resource.setTitle(title);
-					if (this.getCustomTableRepository().getCustomTableValue(RESOURCE_CATEGORY_TYPE, newResource.getCategory()) != null) {
+					if (newResource.getCategory() != null) {
 						resource.setCategory(newResource.getCategory().toLowerCase());
-					} else {
-						throw new BadCredentialsException("invalid categories, supported categories are Video, Interactive, Website,Slide, Handout, Textbook, Lesson and Exam ");
 					}
 					if (newResource.getInstructional() != null) {
 						CustomTableValue resourceCategory = this.getCustomTableRepository().getCustomTableValue(RESOURCE_INSTRUCTIONAL_USE, newResource.getInstructional().getValue());

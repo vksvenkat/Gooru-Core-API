@@ -46,4 +46,8 @@ public interface PartyRepository extends BaseRepository {
 	Integer getCountInActiveMailSendToday();
 	
 	void updatePartyCustomFieldsInActiveMailKey(String userIds);
+	
+	void updatePartyCustomFieldsBirthDayMailKey(String userIds);
+	
+	boolean isUserBirthDayMailSentToday(String userId, String date);
 }
