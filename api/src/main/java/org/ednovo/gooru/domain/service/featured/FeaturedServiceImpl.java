@@ -603,8 +603,9 @@ public class FeaturedServiceImpl implements FeaturedService, ParameterProperties
 			totalHitCount.put("totalHitCount", result.size());
 			for (Object[] object : result) {
 				Map<String, Object> collection = new HashMap<String, Object>();
+				User user = this.getUserRepository().findUserByPartyUid(String.valueOf(object[3]));
 				User lastUpdatedUser = this.getUserRepository().findUserByPartyUid(String.valueOf(object[5]));
-				Collection featuredCollection = this.getCollectionService().getCollectionByGooruOid(String.valueOf(object[0]), null);
+				Collection featuredCollection = this.getCollectionService().getCollection(String.valueOf(object[0]), true, true, false, user, "commentCount");
 				Long comment = this.getCommentRepository().getCommentCount(String.valueOf(object[0]), null, "notdeleted");
 				Long collectionItem = this.getCollectionRepository().getCollectionItemCount(String.valueOf(object[0]), "private,public,anyonewithlink");
 				collection.put("searchResults", featuredCollection);
