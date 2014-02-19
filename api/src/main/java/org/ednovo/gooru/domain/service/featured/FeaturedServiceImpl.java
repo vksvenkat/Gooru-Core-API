@@ -588,6 +588,7 @@ public class FeaturedServiceImpl implements FeaturedService, ParameterProperties
 				Map<String, Object> collection = new HashMap<String, Object>();
 				collection.put(GOORU_OID, object[0]);
 				collection.put(TITLE, object[1]);
+				
 				collectionList.add(collection);
 			}
 		}
@@ -616,7 +617,6 @@ public class FeaturedServiceImpl implements FeaturedService, ParameterProperties
 				}
 				collection.put(COMMENTS_COUNT, comment);
 				collection.put(COLLECTION_ITEM_COUNT, collectionItem);
-				//collection.put("totalHitCount", result.size());
 				collectionList.add(collection);
 			}
 			collectionList.add(totalHitCount);
@@ -647,6 +647,38 @@ public class FeaturedServiceImpl implements FeaturedService, ParameterProperties
 		return collectionUnitMap;
 	}
 
+	@Override
+	public List<Map<String, Object>> getCommunityLibraryResource(String type, Integer offset, Integer limit, boolean skipPagination,String libraryName) {
+		
+		List<Map<String, Object>> collectionList = new ArrayList<Map<String, Object>>();
+		List<Object[]> result = this.getFeaturedRepository().getCommunityLibraryResource(type, offset, limit, skipPagination,libraryName);
+		if (result != null && result.size() > 0) {
+			for (Object[] object : result) {
+				Map<String, Object> collection = new HashMap<String, Object>();			
+				collection.put("collectionId", object[0]);
+				collection.put("resourceId", object[1]);
+				collection.put("title", object[2]);
+				collection.put("thumbnail", object[3]);
+				collection.put("imageUrl", object[4]);
+				collection.put("url",object[5]);
+				collection.put("grade", object[6]);
+				collection.put("description", object[7]);
+				collection.put("category",object[8]);
+				collection.put("sharing", object[9]);
+				collection.put("hasFrameBreaker", object[10]);
+				collection.put("recordSource", object[11]);
+				collection.put("license", object[12]);
+				collection.put("narration", object[13]);
+				collection.put("start", object[14]);
+				collection.put("stop", object[15]);
+				collection.put("collectionItemId", object[16]);
+				collection.put("type", object[17]);
+				collectionList.add(collection);
+			}
+		}
+		return collectionList;
+	}
+	
 	public FeaturedRepository getFeaturedRepository() {
 		return featuredRepository;
 	}
@@ -678,5 +710,7 @@ public class FeaturedServiceImpl implements FeaturedService, ParameterProperties
 	public CustomTableRepository getCustomTableRepository() {
 		return customTableRepository;
 	}
+
+	
 
 }

@@ -56,4 +56,5 @@ public interface FeaturedRepository extends BaseRepository {
 	
 	Integer getFeaturedSetId(String type);
 	
+	List<Object[]> getCommunityLibraryResource(String type, Integer offset, Integer limit, boolean skipPagination,String libraryName);
 }
