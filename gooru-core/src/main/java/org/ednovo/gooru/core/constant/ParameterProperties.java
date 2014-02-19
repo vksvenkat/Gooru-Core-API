@@ -869,6 +869,8 @@ public interface ParameterProperties {
 	String RANDOM = "random";
 
 	String THEME_CODE = "themeCode";
+	
+	String THEME_TYPE = "themeType";
 
 	String JSON = "json";
 
@@ -1700,6 +1702,8 @@ public interface ParameterProperties {
 
 	String COLLABORATOR = "collaborator";
 	
+	String COLLABORATOR_COUNT = "collaboratorCount";
+	
 	String COLABORATOR = "Collaborator";
 
 	String ADD_COLLABORATORS = "add-collaborators";
@@ -1825,6 +1829,8 @@ public interface ParameterProperties {
 	String APPROVED_FLAG = "approvedFlag";
 
 	String NETWORK_CREATE = "network.create";
+	
+	String NETWORK = "network";
 
 	String _ACCOUNT_UID = "accountUid";
 
@@ -2373,6 +2379,10 @@ public interface ParameterProperties {
 	String COLLECTION_TITLE = "collectionTitle";
 
 	String COMMENTS = "comments";
+	
+	String COMMENTS_COUNT = "commentsCount";
+	
+	String COLLECTION_ITEM_COUNT = "collectionItemCount";
 
 	String SUBSCRIBED_STATUS = "subscribedStatus";
 

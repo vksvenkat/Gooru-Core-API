@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////
-// OAuthService.java
+// GooruOAuthConsumerSecret.java
 // gooru-api
 // Created by Gooru on 2014
 // Copyright (c) 2014 Gooru. All rights reserved.
@@ -21,33 +21,51 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 /////////////////////////////////////////////////////////////
-package org.ednovo.gooru.domain.service.oauth;
 
-import java.util.List;
+package org.ednovo.gooru.domain.model.oauth;
 
-import org.ednovo.gooru.core.api.model.ActionResponseDTO;
-import org.ednovo.gooru.core.api.model.User;
-import org.ednovo.gooru.domain.model.oauth.GooruOAuthConsumerSecret;
-import org.ednovo.gooru.domain.model.oauth.OAuthClient;
+import java.io.Serializable;
+
+import org.ednovo.gooru.core.api.model.Organization;
 
 
-public interface OAuthService {
-
-	public User getUserByOAuthAccessToken(String accessToken) throws Exception;
+public class GooruOAuthConsumerSecret implements Serializable {
 	
-	public ActionResponseDTO<OAuthClient> createNewOAuthClient(OAuthClient oAuthClient) throws Exception;
-	
-	public ActionResponseDTO<OAuthClient> updateOAuthClient(OAuthClient oAuthClient);
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
-	public List<OAuthClient> listOAuthClient(String gooruUId, int pageNo, int pageSize) throws Exception;
+	private String consumerKey;
+	
+	private String consumerSecret;
+	
+	private Organization organization;
+	
 
-	public void deleteOAuthClient(String clientUId, User apiCaller) throws Exception;
+	public String getConsumerKey() {
+		return consumerKey;
+	}
 
-	public ActionResponseDTO<OAuthClient> getOAuthClient(String clientUId) throws Exception;
+	public void setConsumerKey(String consumerKey) {
+		this.consumerKey = consumerKey;
+	}
+
+	public String getConsumerSecret() {
+		return consumerSecret;
+	}
+
+	public void setConsumerSecret(String consumerSecret) {
+		this.consumerSecret = consumerSecret;
+	}
+
+	public Organization getOrganization() {
+		return organization;
+	}
+
+	public void setOrganization(Organization organization) {
+		this.organization = organization;
+	}
 	
-	ActionResponseDTO<GooruOAuthConsumerSecret> addConsumerSecret(GooruOAuthConsumerSecret consumerSecret, User apiCaller) throws Exception;
-	
-	void deleteConsumerSecret(String secretId) throws Exception;
-	
-	ActionResponseDTO<GooruOAuthConsumerSecret> getConsumerSecret(String secretId) throws Exception;
+
 }

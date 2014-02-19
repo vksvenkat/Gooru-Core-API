@@ -226,6 +226,9 @@ public class ResourceCio implements IsEntityCassandraIndexable {
 	@Column
 	private String instructional;
 	
+	@Column
+	private String protocolSupported;
+	
 	
 	
 	public String getSegmentConcepts() {
@@ -779,6 +782,14 @@ public class ResourceCio implements IsEntityCassandraIndexable {
 
 	public void setInstructional(String instructional) {
 		this.instructional = instructional;
+	}
+
+	public String getProtocolSupported() {
+		return protocolSupported;
+	}
+
+	public void setProtocolSupported(String protocolSupported) {
+		this.protocolSupported = protocolSupported;
 	}
 
 }

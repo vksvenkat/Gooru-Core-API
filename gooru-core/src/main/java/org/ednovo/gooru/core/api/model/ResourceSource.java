@@ -43,6 +43,7 @@ public class ResourceSource implements Serializable {
 	
 	private Integer hasHttpsSupport;
 	
+	private Integer protocolSupported;
 	
 	public String getAttribution() {
 		return attribution;
@@ -120,6 +121,12 @@ public class ResourceSource implements Serializable {
 	}
 	public Integer getHasHttpsSupport() {
 		return hasHttpsSupport;
+	}
+	public Integer getProtocolSupported() {
+		return protocolSupported;
+	}
+	public void setProtocolSupported(Integer protocolSupported) {
+		this.protocolSupported = protocolSupported;
 	}
 
 }

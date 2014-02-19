@@ -64,6 +64,32 @@ public class FeaturedRepositoryHibernate extends BaseRepositoryHibernate impleme
 	}
 	
 	@Override
+	public List<Object[]> getFeaturedCollectionsList(Integer limit, Integer offset, Boolean skipPagination, String themeCode, String themeType) {
+		String sql = "select ct.gooru_oid, ct.created_on, ct.last_modified, ct.user_uid, ct.sharing, ct.last_updated_user_uid, cn.grade, cn.network, r.title, r.views_total, r.description, r.thumbnail, fs.theme_code, fs.subject_code_id from content ct inner join collection cn on (ct.content_id = cn.content_id) inner join resource r on (cn.content_id = r.content_id) inner join featured_set_items fsi on (r.content_id = fsi.content_id) inner join featured_set fs on (fsi.featured_set_id = fs.featured_set_id)";
+		
+		if(themeCode != null && themeType != null) {
+			sql += " where fs.subject_code_id =:themeType and fs.theme_code =:themeCode";
+		} else if (themeType != null)  {
+			sql += " where fs.subject_code_id =:themeType";
+		} else if (themeCode != null)  {
+			sql += " where fs.theme_code =:themeCode";
+		}
+		Query query = getSession().createSQLQuery(sql);
+		if (themeType != null) {
+			query.setParameter("themeType", themeType);
+		}
+		if (themeCode != null)  {
+			query.setParameter("themeCode", themeCode);
+		}
+		if (!skipPagination) {
+			query.setFirstResult(offset);
+			query.setMaxResults(limit);
+		}
+		return query.list();
+	}
+	
+	
+	@Override
 	public List<FeaturedSet> getFeaturedTheme(int limit) {
 		String hql = "SELECT themeCode FROM FeaturedSet featuredSet WHERE " + generateOrgAuthQueryWithData("featuredSet.");
 		return getSession().createQuery(hql).setMaxResults(limit).list();
@@ -172,6 +198,5 @@ public class FeaturedRepositoryHibernate extends BaseRepositoryHibernate impleme
 		Query query = getSession().createSQLQuery(sql).addScalar("featuredSetId", StandardBasicTypes.INTEGER);
 		return query.list().size() > 0 ? (Integer)query.list().get(0) : null;
 	}
-	
 
 }
