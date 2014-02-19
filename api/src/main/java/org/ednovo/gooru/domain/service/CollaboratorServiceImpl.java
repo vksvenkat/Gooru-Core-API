@@ -126,11 +126,11 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 					} else {
 						collaborator.add(setInviteCollaborator(inviteUsers, PENDING));
 					}
-					Map<String, Object> collaboratorData = new HashMap<String, Object>();
-					collaboratorData.put(CONTENT_OBJ, content);
-					collaboratorData.put(EMAIL_ID, mailId);
-					this.getMailAsyncExecutor().sendMailToInviteCollaborator(collaboratorData);
 				}
+				Map<String, Object> collaboratorData = new HashMap<String, Object>();
+				collaboratorData.put(CONTENT_OBJ, content);
+				collaboratorData.put(EMAIL_ID, mailId);
+				this.getMailAsyncExecutor().sendMailToInviteCollaborator(collaboratorData);
 			}
 		}
 

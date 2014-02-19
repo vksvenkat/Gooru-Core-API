@@ -33,6 +33,8 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepository;
 public interface FeaturedRepository extends BaseRepository {
 
 	List<FeaturedSet> getFeaturedList(Integer codeId, int limit, String featuredSetName, String themeCode, String themeType);
+	
+	List<Object[]> getFeaturedCollectionsList(Integer limit, Integer offset, Boolean skipPagination, String themeCode, String themeType);
 
 	List<Integer> getFeaturedThemeIds();
 
