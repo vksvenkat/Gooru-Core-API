@@ -34,7 +34,9 @@ public interface FeaturedRepository extends BaseRepository {
 
 	List<FeaturedSet> getFeaturedList(Integer codeId, int limit, String featuredSetName, String themeCode, String themeType);
 	
-	List<Object[]> getFeaturedCollectionsList(Integer limit, Integer offset, Boolean skipPagination, String themeCode, String themeType);
+	List<Object[]> getLibraryCollectionsList(Integer limit, Integer offset, Boolean skipPagination, String themeCode, String themeType);
+	
+	Long getLibraryCollectionCount();
 
 	List<Integer> getFeaturedThemeIds();
 

@@ -2581,6 +2581,8 @@ public interface ParameterProperties {
 	String SOURCE = "source";
 
 	String LAST_MODIFIED_BY = "lastModifiedBy";
+	
+	String SUBJECT_CODE = "subjectCode";
 
 	String IS_FEATURED = "isFeatured";
 
