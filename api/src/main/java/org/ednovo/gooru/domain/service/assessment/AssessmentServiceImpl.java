@@ -110,7 +110,7 @@ import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.json.JettisonMappedXmlDriver;
 
 @Service
-public class AssessmentServiceImpl implements AssessmentService,ParameterProperties {
+public class AssessmentServiceImpl implements AssessmentService, ParameterProperties {
 
 	@Autowired
 	private AssessmentRepository assessmentRepository;
@@ -472,7 +472,7 @@ public class AssessmentServiceImpl implements AssessmentService,ParameterPropert
 		Assessment assessment = getAssessment(gooruOAssessmentId);
 		if (assessment != null) {
 			this.createRevisionHistoryEntry(assessment.getGooruOid(), ASSESSMENT_DELETE);
-			indexProcessor.index(assessment.getGooruOid(), IndexProcessor.DELETE, QUIZ );
+			indexProcessor.index(assessment.getGooruOid(), IndexProcessor.DELETE, QUIZ);
 			assessmentRepository.remove(Assessment.class, assessment.getContentId());
 			// redisService.deleteEntry(gooruOAssessmentId);
 			this.getSessionActivityService().updateSessionActivityByContent(assessment.getGooruOid(), SessionActivityType.Status.ARCHIVE.getStatus());
@@ -645,7 +645,7 @@ public class AssessmentServiceImpl implements AssessmentService,ParameterPropert
 				question.setResourceType(resourceType);
 				question.setTypeName(question.getTypeName());
 				question.setCategory(QUESTION);
-				question.setInstructional(this.getCustomTableRepository().getCustomTableValue(RESOURCE_INSTRUCTIONAL_USE,QUESTION));
+				question.setInstructional(this.getCustomTableRepository().getCustomTableValue(RESOURCE_INSTRUCTIONAL_USE, QUESTION));
 			} else {
 				AssessmentQuestion existingQuestion = getQuestion(gooruOQuestionId);
 				if (question.getQuestionText() != null) {
@@ -1061,23 +1061,17 @@ public class AssessmentServiceImpl implements AssessmentService,ParameterPropert
 				metaData.getLessons().add(taxonomy[length - 5]);
 			}
 		}
-		List<Code> codeList = new ArrayList<Code>();
-		codeList.addAll(taxonomySet);
 
-		codeList = this.taxonomyRepository.findTaxonomyMappings(codeList, false);
-		String label = null;
-		if (codeList != null) {
-			label = this.taxonomyRepository.findRootLevelTaxonomy(codeList.get(0));
-		}
-
-		if (codeList != null) {
-			for (Code code : codeList) {
-				if (!metaData.getCurriculumCodes().contains(code.getCode())) {
-					metaData.getCurriculumCodes().add(code.getCode());
-					if (code.getDescription() != null && !code.getDescription().equals("")) {
-						metaData.getCurriculumDescs().add(code.getDescription());
-					} else {
-						metaData.getCurriculumCodes().add(BLANK + code.getCode());
+		if (taxonomySet != null) {
+			for (Code code : taxonomySet) {
+				if (code.getRootNodeId() != null && !code.getRootNodeId().equals(20000)) {
+					if (!metaData.getCurriculumCodes().contains(code.getCode())) {
+						metaData.getCurriculumCodes().add(code.getCode());
+						if (code.getDescription() != null && !code.getDescription().equals("")) {
+							metaData.getCurriculumDescs().add(code.getDescription());
+						} else {
+							metaData.getCurriculumCodes().add(BLANK + code.getCode());
+						}
 					}
 				}
 			}
@@ -1089,7 +1083,6 @@ public class AssessmentServiceImpl implements AssessmentService,ParameterPropert
 			metaData.setTaxonomyLevels(findTaxonomyLevels);
 		}
 		metaData.setTaxonomyMapByCode(taxonomyMapByCode);
-		metaData.setTitle(label);
 		metaData.setCollaboratorsString(model.collaboratorsInAString());
 		metaData.setCollaborators(users);
 

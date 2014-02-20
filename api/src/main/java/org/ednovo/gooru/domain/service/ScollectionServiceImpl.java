@@ -172,9 +172,9 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 	@Autowired
 	private AsyncExecutor asyncExecutor;
-	
+
 	@Autowired
-    private CommentRepository commentRepository;
+	private CommentRepository commentRepository;
 
 	@Autowired
 	private CollaboratorRepository collaboratorRepository;
@@ -710,8 +710,8 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				if (merge.contains(REACTION_AGGREGATE)) {
 					permissions.put(REACTION_AGGREGATE, this.getFeedbackService().getContentFeedbackAggregate(collectionId, REACTION));
 				}
-				if(merge.contains("commentCount")) {
-                    permissions.put("commentCount",this.getCommentRepository().getCommentCount(collection.getGooruOid(), null, "notdeleted"));
+				if (merge.contains("commentCount")) {
+					permissions.put("commentCount", this.getCommentRepository().getCommentCount(collection.getGooruOid(), null, "notdeleted"));
 				}
 				long collaboratorCount = this.getCollaboratorRepository().getCollaboratorsCountById(collectionId);
 				permissions.put("collaboratorCount", collaboratorCount);
@@ -868,11 +868,8 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		List<StandardFo> standards = null;
 		if (taxonomySet != null) {
 			standards = new ArrayList<StandardFo>();
-			List<Code> codeList = new ArrayList<Code>();
-			codeList.addAll(taxonomySet);
-			codeList = this.getTaxonomyRepository().findTaxonomyMappings(codeList, false);
-			if (codeList != null) {
-				for (Code code : codeList) {
+			for (Code code : taxonomySet) {
+				if (code.getRootNodeId() != null && !code.getRootNodeId().equals(20000)) {
 					StandardFo standard = new StandardFo();
 					if (code.getdisplayCode() != null && !code.getdisplayCode().equals("")) {
 						standard.setCode(code.getdisplayCode().replace(".--", " "));
@@ -1789,9 +1786,9 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	public MailAsyncExecutor getMailAsyncExecutor() {
 		return mailAsyncExecutor;
 	}
-	
+
 	public CommentRepository getCommentRepository() {
-        return commentRepository;
+		return commentRepository;
 	}
 
 	public void setCollaboratorRepository(CollaboratorRepository collaboratorRepository) {

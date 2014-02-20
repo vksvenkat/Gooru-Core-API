@@ -51,7 +51,6 @@ import org.ednovo.gooru.core.api.model.ResourceType;
 import org.ednovo.gooru.core.api.model.Segment;
 import org.ednovo.gooru.core.api.model.ShelfItem;
 import org.ednovo.gooru.core.api.model.StandardFo;
-import org.ednovo.gooru.core.api.model.TaxonomyDTO;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserGroupSupport;
 import org.ednovo.gooru.core.constant.Constants;
@@ -469,47 +468,39 @@ public class CollectionUtil implements ParameterProperties {
 				lesson.add(taxonomy[length - 6]);
 			}
 		}
-		List<Code> codeList = new ArrayList<Code>();
-		codeList.addAll(taxonomySet);
 
-		codeList = this.getTaxonomyRepository().findTaxonomyMappings(codeList, false);
-		String label = null;
-		if (codeList != null) {
-			label = this.getTaxonomyRepository().findRootLevelTaxonomy(codeList.get(0));
-		}
-
-		TaxonomyDTO taxDto = new TaxonomyDTO();
-		taxDto.setTitle(label);
-
-		if (codeList != null) {
-			for (Code code : codeList) {
-				String codeOrDisplayCode = "";
-				if (code.getdisplayCode() != null && !code.getdisplayCode().equals("")) {
-					codeOrDisplayCode = code.getdisplayCode().replace(".--", " ");
-				} else if (code.getCode() != null && !code.getCode().equals("")) {
-					codeOrDisplayCode = code.getCode().replace(".--", " ");
-				}
-				if (!curriculumCode.contains(codeOrDisplayCode)) {
-					// string replace has been added to fix the ".--" issue code
-					// in USCCM (US Common Core Math - Curriculum)
-					curriculumCode.add(codeOrDisplayCode);
-					if (code.getLabel() != null && !code.getLabel().equals("")) {
-						curriculumDesc.add(code.getLabel());
-					} else {
-						curriculumDesc.add(BLANK  + codeOrDisplayCode);
+		if (taxonomySet != null) {
+			for (Code code : taxonomySet) {
+				if (code.getRootNodeId() != null && !code.getRootNodeId().equals(20000)) {
+					String codeOrDisplayCode = "";
+					if (code.getdisplayCode() != null && !code.getdisplayCode().equals("")) {
+						codeOrDisplayCode = code.getdisplayCode().replace(".--", " ");
+					} else if (code.getCode() != null && !code.getCode().equals("")) {
+						codeOrDisplayCode = code.getCode().replace(".--", " ");
 					}
-					Code rootNode = this.getTaxonomyRepository().findCodeByCodeId(code.getRootNodeId());
-					if (rootNode == null) {
-						logger.error("FIXME: Taxonomy root was found null for code id" + code.getRootNodeId());
-						continue;
+					if (!curriculumCode.contains(codeOrDisplayCode)) {
+						// string replace has been added to fix the ".--" issue
+						// code
+						// in USCCM (US Common Core Math - Curriculum)
+						curriculumCode.add(codeOrDisplayCode);
+						if (code.getLabel() != null && !code.getLabel().equals("")) {
+							curriculumDesc.add(code.getLabel());
+						} else {
+							curriculumDesc.add(BLANK + codeOrDisplayCode);
+						}
+						Code rootNode = this.getTaxonomyRepository().findCodeByCodeId(code.getRootNodeId());
+						if (rootNode == null) {
+							logger.error("FIXME: Taxonomy root was found null for code id" + code.getRootNodeId());
+							continue;
+						}
+						String curriculumLabel = this.getTaxonomyRepository().findRootLevelTaxonomy(rootNode);
+						curriculumName.add(curriculumLabel);
 					}
-					String curriculumLabel = this.getTaxonomyRepository().findRootLevelTaxonomy(rootNode);
-					curriculumName.add(curriculumLabel);
 				}
 			}
 		}
 		JSONObject curriculumTaxonomy = new JSONObject();
-		curriculumTaxonomy.put(CURRICULUM_CODE , curriculumCode).put(CURRICULUM_DESC, curriculumDesc).put(CURRICULUM_NAME, curriculumName);
+		curriculumTaxonomy.put(CURRICULUM_CODE, curriculumCode).put(CURRICULUM_DESC, curriculumDesc).put(CURRICULUM_NAME, curriculumName);
 		collectionTaxonomy.put(SUBJECT, subject);
 		collectionTaxonomy.put(COURSE, course);
 		collectionTaxonomy.put(TOPIC, topic);
@@ -565,21 +556,20 @@ public class CollectionUtil implements ParameterProperties {
 
 	public Set<StandardFo> getContentStandards(Set<Code> taxonomySet, String contentGooruOid) {
 		Set<StandardFo> standards = new HashSet<StandardFo>();
-		List<Code> codeList = new ArrayList<Code>();
-		codeList.addAll(taxonomySet);
-		codeList = this.getTaxonomyRepository().findTaxonomyMappings(codeList, false);
-		if (codeList != null) {
-			for (Code code : codeList) {
-				StandardFo standardFo = new StandardFo();
-				if (code.getLabel() != null && !code.getLabel().equals("")) {
-					standardFo.setDescription(code.getLabel());
+		if (taxonomySet != null) {
+			for (Code code : taxonomySet) {
+				if (code.getRootNodeId() != null && !code.getRootNodeId().equals(20000)) {
+					StandardFo standardFo = new StandardFo();
+					if (code.getLabel() != null && !code.getLabel().equals("")) {
+						standardFo.setDescription(code.getLabel());
+					}
+					if (code.getdisplayCode() != null && !code.getdisplayCode().equals("")) {
+						standardFo.setCode(code.getdisplayCode().replace(".--", " "));
+					} else if (code.getCode() != null && !code.getCode().equals("")) {
+						standardFo.setCode(code.getCode().replace(".--", " "));
+					}
+					standards.add(standardFo);
 				}
-				if (code.getdisplayCode() != null && !code.getdisplayCode().equals("")) {
-					standardFo.setCode(code.getdisplayCode().replace(".--", " "));
-				} else if (code.getCode() != null && !code.getCode().equals("")) {
-					standardFo.setCode(code.getCode().replace(".--", " "));
-				}
-				standards.add(standardFo);
 			}
 		}
 		return standards;
