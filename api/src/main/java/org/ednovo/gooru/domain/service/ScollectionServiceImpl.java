@@ -488,6 +488,10 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			collectionItem.setCollection(collection);
 
 			resourceService.saveOrUpdateGrade(collection, resource);
+			
+			if(collectionItem.getCollection() != null) {
+				collectionItem.getCollection().setLastUpdatedUserUid(user.getPartyUid() );
+			}
 
 			if (!isCreateQuestion && resource != null && resource.getResourceType().getName().equalsIgnoreCase(ResourceType.Type.ASSESSMENT_QUESTION.getType())) {
 				AssessmentQuestion assessmentQuestion = assessmentService.copyAssessmentQuestion(user, resource.getGooruOid());
@@ -605,13 +609,15 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 
 	@Override
-	public void deleteCollectionItem(String collectionItemId) {
+	public void deleteCollectionItem(String collectionItemId, User user) {
 		CollectionItem collectionItem = this.getCollectionRepository().getCollectionItemById(collectionItemId);
 		if (collectionItem != null) {
 			Collection collection = collectionItem.getCollection();
 			SessionContextSupport.putLogParameter(COLLECTION_ID, collectionItem.getCollection().getGooruOid());
 			SessionContextSupport.putLogParameter(RESOURCE_ID, collectionItem.getResource().getGooruOid());
 			this.getCollectionRepository().remove(CollectionItem.class, collectionItem.getCollectionItemId());
+			
+			collectionItem.getCollection().setLastUpdatedUserUid(user.getPartyUid());
 
 			reOrderCollectionItems(collection, collectionItemId);
 			try {
@@ -1245,7 +1251,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 
 	@Override
-	public ActionResponseDTO<Collection> updateCollection(Collection newCollection, String updateCollectionId, String ownerUId, String creatorUId, boolean hasUnrestrictedContentAccess, String relatedContentId) throws Exception {
+	public ActionResponseDTO<Collection> updateCollection(Collection newCollection, String updateCollectionId, String ownerUId, String creatorUId, boolean hasUnrestrictedContentAccess, String relatedContentId, User updateUser) throws Exception {
 		String gooruUid = null;
 		if (newCollection.getUser() != null) {
 			if (userService.isContentAdmin(newCollection.getUser())) {
@@ -1298,9 +1304,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			if (newCollection.getTitle() != null) {
 				collection.setTitle(newCollection.getTitle());
 			}
-			if (newCollection.getMailNotification() != null) {
-				collection.setMailNotification(newCollection.getMailNotification());
-			}
 
 			if (newCollection.getMailNotification() != null) {
 				collection.setMailNotification(newCollection.getMailNotification());
@@ -1338,6 +1341,8 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				collection.setSharing(newCollection.getSharing());
 				updateResourceSharing(newCollection.getSharing(), collection);
 			}
+			
+			collection.setLastUpdatedUserUid(updateUser.getPartyUid());
 
 			if (hasUnrestrictedContentAccess) {
 				if (creatorUId != null) {
@@ -1351,9 +1356,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				if (newCollection.getNetwork() != null) {
 					collection.setNetwork(newCollection.getNetwork());
 				}
-			}
-			if (newCollection.getLastUpdatedUserUid() != null) {
-				collection.setLastUpdatedUserUid(newCollection.getLastUpdatedUserUid());
 			}
 
 			this.getCollectionRepository().save(collection);

@@ -49,7 +49,7 @@ public interface ScollectionService extends BaseService {
 
 	ActionResponseDTO<Collection> createCollection(Collection newCollection, boolean addToShelf, String resourceId, String parentId, User user) throws Exception;
 
-	ActionResponseDTO<Collection> updateCollection(Collection newCollection, String updateCollectionId, String ownerUId, String creatorUId, boolean hasUnrestrictedContentAccess, String relatedContentId) throws Exception;
+	ActionResponseDTO<Collection> updateCollection(Collection newCollection, String updateCollectionId, String ownerUId, String creatorUId, boolean hasUnrestrictedContentAccess, String relatedContentId, User user) throws Exception;
 
 	CollectionItem getCollectionItem(String collectionItemId, String includeAdditionalInfo, User user);
 
@@ -75,7 +75,7 @@ public interface ScollectionService extends BaseService {
 
 	CollectionItem getCollectionItem(String collectionItemId, boolean includeAdditionalInfo, User user);
 
-	void deleteCollectionItem(String collectionItemId);
+	void deleteCollectionItem(String collectionItemId, User user);
 
 	ActionResponseDTO<CollectionItem> reorderCollectionItem(String collectionItemId, int newSequence) throws Exception;
 

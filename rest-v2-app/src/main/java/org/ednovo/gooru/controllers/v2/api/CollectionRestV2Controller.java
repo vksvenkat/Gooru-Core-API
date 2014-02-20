@@ -110,7 +110,7 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 		User user = (User) request.getAttribute(Constants.USER);
 		JSONObject json = requestData(data);
 		ActionResponseDTO<Collection> responseDTO = getCollectionService().updateCollection(this.buildCollectionFromInputParameters(getValue(COLLECTION, json), user), collectionId, getValue(OWNER_UID, json), getValue(CREATOR_UID, json), hasUnrestrictedContentAccess(),
-				getValue(RELATED_CONTENT_ID, json));
+				getValue(RELATED_CONTENT_ID, json), user);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		} else {
@@ -244,10 +244,10 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/item/{id}" }, method = RequestMethod.DELETE)
 	public void deleteCollectionItem(@PathVariable(value = ID) String collectionItemId, HttpServletRequest request, HttpServletResponse response) {
-		
+		User user = (User) request.getAttribute(Constants.USER);
 		SessionContextSupport.putLogParameter(EVENT_NAME, "scollection-item-delete");
 		SessionContextSupport.putLogParameter(COLLECTION_ITEM_ID, collectionItemId);
-		getCollectionService().deleteCollectionItem(collectionItemId);
+		getCollectionService().deleteCollectionItem(collectionItemId, user);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ITEM_UPDATE })
