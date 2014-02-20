@@ -587,7 +587,13 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 	public List<CollectionItem> getCollectionItems(String collectionId, Integer offset, Integer limit, boolean skipPagination, String orderBy) {
 		Session session = getSession();
 		String hql = "select collectionItems  FROM Collection collection inner join collection.collectionItems collectionItems where collection.gooruOid=:gooruOid and " + generateOrgAuthQuery("collection.");
-		hql += "order by collectionItems.plannedEndDate " + orderBy;
+		
+		if(!orderBy.equals(PLANNED_END_DATE)){
+			hql+= "order by collectionItems.associationDate desc ";
+		}
+		else{
+		hql += "order by collectionItems.plannedEndDate desc ";
+		}
 		Query query = session.createQuery(hql);
 		query.setParameter("gooruOid", collectionId);
 		addOrgAuthParameters(query);

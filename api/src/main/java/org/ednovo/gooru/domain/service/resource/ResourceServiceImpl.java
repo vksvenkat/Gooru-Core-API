@@ -138,7 +138,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
@@ -2670,10 +2669,8 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				CustomTableValue resourceType = this.getCustomTableRepository().getCustomTableValue(RESOURCE_INSTRUCTIONAL_USE, newResource.getInstructional().getValue());
 				newResource.setResourceFormat(resourceType);
 			}
-			if (this.getCustomTableRepository().getCustomTableValue(RESOURCE_CATEGORY_TYPE, newResource.getCategory()) != null) {
+			if (newResource.getCategory() != null) {
 				newResource.setCategory(newResource.getCategory().toLowerCase());
-			} else {
-				throw new BadCredentialsException("invalid categories, supported categories are Video, Interactive, Website,Slide, Handout, Textbook, Lesson and Exam ");
 			}
 			// add to db and index.
 			Resource resource = handleNewResource(newResource, null, null);
@@ -2730,11 +2727,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				newResource.setResourceFormat(customTableValue);
 			}
 			if (newResource.getCategory() != null) {
-				if (this.getCustomTableRepository().getCustomTableValue(RESOURCE_CATEGORY_TYPE, newResource.getCategory()) != null) {
-					resource.setCategory(newResource.getCategory().toLowerCase());
-				} else {
-					throw new BadCredentialsException("invalid categories, supported categories are Video, Interactive, Website,Slide, Handout, Textbook, Lesson and Exam ");
-				}
+				resource.setCategory(newResource.getCategory().toLowerCase());
 			}
 			if (!StringUtils.isEmpty(newResource.getMediaType())) {
 				resource.setMediaType(newResource.getMediaType());

@@ -358,7 +358,7 @@ public interface ConstantProperties {
 			"*.TYPE", "*.type", "*.name", "*.questionText", "*.assets", "*.assets.asset", "*.assets.asset.name", "*assets.asset.description", "*assets.asset.hasUniqueName", "*.description", "*.explanation", "*.lastModified", "*.gooruUId", "*.lastUpdatedUserUid", "*.category", "*.label", "*.code",
 			"*.userRating", "*.hasFrameBreaker", "*.copiedResourceId", "*.assignmentContentId", "*.trackActivity", "*.trackActivity.startTime", "*.trackActivity.endTime", "*.goals", "*.grade", "*.mediaType", "*.text", "*.isOer" };
 	
-	static final String[] LIBRARY_FEATURED_COLLECTIONS_INCLUDE_FIELDS = {"*.totalHitCount", "*.searchResults","*.comment","*.collaborators", "*.network", "*.description",  "*.grade", "*.gooruOid", "*.createdOn", "*.lastModified", "*.sharing", "*.title", "*.views", "*.thumbnails","*.subjectCode","*.themeCode"};
+	static final String[] LIBRARY_FEATURED_COLLECTIONS_INCLUDE_FIELDS = {"*.totalHitCount", "*.searchResults","*.comment","*.collaborators", "*.network", "*.description",  "*.grade", "*.gooruOid", "*.createdOn", "*.lastModified", "*.sharing", "*.title", "*.views", "*.thumbnails","*.subjectCode","*.themeCode", "*.metaInfo", "*.taxonomySetMapping","*.standard","*.collaborators","*.meta"};
 	
 	static final String[] LIBRARY_FEATURED_COLLECTIONS_USER_INCLUDE_FIELDS = {"*.totalHitCount", "*.searchResults", "*.lastModifiedUser", "*.lastUpdatedUserUid", "*.commentsCount", "*.collectionItemCount", "*.lastModifiedBy","*.modifiedDate","*.user.gooruUId","*.user.username", "*.user.lastName", "*.user.firstName"};
 

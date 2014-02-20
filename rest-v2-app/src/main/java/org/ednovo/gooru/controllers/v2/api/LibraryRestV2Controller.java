@@ -198,6 +198,20 @@ public class LibraryRestV2Controller extends BaseController implements ConstantP
 		return toModelAndView(data);
 	}
 	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAXONOMY_READ })
+	@RequestMapping(value = "/resource", method = RequestMethod.GET)
+	public ModelAndView getCommunityLibraryResource(HttpServletRequest request, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset,@RequestParam(value = TYPE,required = false) String type,
+			@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, @RequestParam(value = SKIP_PAGINATION, required = false, defaultValue = FALSE) Boolean skipPagination,@RequestParam(value = LIBRARY_NAME, required = false, defaultValue = LIBRARY) String libraryName,
+			@RequestParam(value = CLEAR_CACHE, required = false, defaultValue = FALSE) boolean clearCache, HttpServletResponse response) {
+		String data = null;
+		if(data == null){
+			data = serialize(this.getFeaturedService().getCommunityLibraryResource(type, offset, limit, skipPagination,libraryName), RESPONSE_FORMAT_JSON);
+		}
+		
+		return toModelAndView(data);
+	}
+	
+	
 	public TaxonomyService getTaxonomyService() {
 		return taxonomyService;
 	}

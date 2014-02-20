@@ -736,14 +736,14 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 
 	@Override
 	public Integer getUserBirthdayCount() {
-		Query query = getSession().createSQLQuery("select count(1) as count from profile where date_of_birth is not null and month(date_of_birth) = month(now()) and day(date_of_birth) = day(now())").addScalar("count", StandardBasicTypes.INTEGER);
+		Query query = getSession().createSQLQuery("select count(1) as count from identity i inner join profile p on (i.user_uid=p.user_uid) where p.date_of_birth is not null and month(p.date_of_birth) = month(now()) and day(p.date_of_birth) = day(now())  and i.external_id like '%@%'").addScalar("count", StandardBasicTypes.INTEGER);
 		return (Integer) query.list().get(0);
 	}
 
 	@Override
 	public List<Object[]> listUserByBirthDay(Integer offset, Integer limit) {
-		String sql = "select i.external_id as email_id from identity i inner join profile p on (i.user_uid=p.user_uid) where p.date_of_birth is not null and month(p.date_of_birth) = month(now()) and day(p.date_of_birth) = day(now())  and i.external_id like '%@%'";
-		Query query = getSession().createSQLQuery(sql).addScalar("email_id", StandardBasicTypes.STRING);
+		String sql = "select  i.external_id as email_id , i.user_uid as user_id from identity i inner join profile p on (i.user_uid=p.user_uid) where p.date_of_birth is not null and month(p.date_of_birth) = month(now()) and day(p.date_of_birth) = day(now())  and i.external_id like '%@%'";
+		Query query = getSession().createSQLQuery(sql).addScalar("email_id", StandardBasicTypes.STRING).addScalar("user_id", StandardBasicTypes.STRING);
 		query.setFirstResult(offset);
 		query.setMaxResults(limit);
 		return query.list();
