@@ -26,8 +26,10 @@ package org.ednovo.gooru.domain.service.featured;
 import java.util.List;
 import java.util.Map;
 
+import org.ednovo.gooru.core.api.model.Comment;
 import org.ednovo.gooru.core.api.model.FeaturedSet;
 import org.ednovo.gooru.core.api.model.FeaturedSetItems;
+import org.ednovo.gooru.domain.service.search.SearchResults;
 
 public interface FeaturedService {
 
@@ -56,6 +58,8 @@ public interface FeaturedService {
 	List<Map<String, Object>> getLibraryCollection(Integer id, String type,Integer offset, Integer limit, boolean skipPagination, String libraryName);
 	
 	List<Map<String, Object>> getAllLibraryCollections(Integer limit, Integer offset, boolean skipPagination, String themeCode, String themeType);
+	
+	SearchResults<Map<String, Object>> getLibraryCollections(Integer limit, Integer offset, boolean skipPagination, String themeCode, String themeType);
 	
 	List<Map<String, Object>> getPopularLibrary(String courseId,  Integer offset, Integer limit,  String libraryName);
 

@@ -64,7 +64,7 @@ public class FeaturedRepositoryHibernate extends BaseRepositoryHibernate impleme
 	}
 	
 	@Override
-	public List<Object[]> getFeaturedCollectionsList(Integer limit, Integer offset, Boolean skipPagination, String themeCode, String themeType) {
+	public List<Object[]> getLibraryCollectionsList(Integer limit, Integer offset, Boolean skipPagination, String themeCode, String themeType) {
 		String sql = "select ct.gooru_oid, ct.created_on, ct.last_modified, ct.user_uid, ct.sharing, ct.last_updated_user_uid, cn.grade, cn.network, r.title, r.views_total, r.description, r.thumbnail, fs.theme_code, fs.subject_code_id from content ct inner join collection cn on (ct.content_id = cn.content_id) inner join resource r on (cn.content_id = r.content_id) inner join featured_set_items fsi on (r.content_id = fsi.content_id) inner join featured_set fs on (fsi.featured_set_id = fs.featured_set_id)";
 		
 		if(themeCode != null && themeType != null) {
@@ -86,6 +86,13 @@ public class FeaturedRepositoryHibernate extends BaseRepositoryHibernate impleme
 			query.setMaxResults(limit);
 		}
 		return query.list();
+	}
+	
+	@Override
+	public Long getLibraryCollectionCount() {
+		String sql = "select count(1) as count from content ct inner join collection cn on (ct.content_id = cn.content_id) inner join resource r on (cn.content_id = r.content_id) inner join featured_set_items fsi on (r.content_id = fsi.content_id) inner join featured_set fs on (fsi.featured_set_id = fs.featured_set_id)";
+		Query query = getSession().createSQLQuery(sql).addScalar("count", StandardBasicTypes.LONG);
+		return (Long)query.list().get(0);
 	}
 	
 	

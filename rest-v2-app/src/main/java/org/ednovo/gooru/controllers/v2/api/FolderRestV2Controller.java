@@ -108,7 +108,7 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 		User user = (User) request.getAttribute(Constants.USER);
 		JSONObject json = requestData(data);
 		ActionResponseDTO<Collection> responseDTO = getCollectionService().updateCollection(this.buildCollectionFromInputParameters(data, user), collectionId, getValue(OWNER_UID, json), getValue(CREATOR_UID, json), hasUnrestrictedContentAccess(),
-				getValue(RELATED_CONTENT_ID, json));
+				getValue(RELATED_CONTENT_ID, json), user);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		} else {
@@ -187,10 +187,11 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ITEM_DELETE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/item/{id}" }, method = RequestMethod.DELETE)
-	public void deleteCollectionItem(@PathVariable(value = ID) String collectionItemId, HttpServletRequest request, HttpServletResponse response) {		
+	public void deleteCollectionItem(@PathVariable(value = ID) String collectionItemId, HttpServletRequest request, HttpServletResponse response) {
+		User user = (User) request.getAttribute(Constants.USER);
 		SessionContextSupport.putLogParameter(EVENT_NAME, "scollection-item-delete");
 		SessionContextSupport.putLogParameter(COLLECTION_ITEM_ID, collectionItemId);
-		getCollectionService().deleteCollectionItem(collectionItemId);
+		getCollectionService().deleteCollectionItem(collectionItemId, user);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ITEM_UPDATE })

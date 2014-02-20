@@ -596,12 +596,19 @@ public class FeaturedServiceImpl implements FeaturedService, ParameterProperties
 	}
 	
 	@Override
+	public SearchResults<Map<String, Object>> getLibraryCollections(Integer limit, Integer offset, boolean skipPagination, String themeCode, String themeType) {
+		List<Map<String, Object>> libraryCollection = getAllLibraryCollections(limit, offset, skipPagination, themeCode, themeType);
+		SearchResults<Map<String, Object>> result = new SearchResults<Map<String, Object>>();
+		result.setSearchResults(libraryCollection);
+		result.setTotalHitCount(this.getFeaturedRepository().getLibraryCollectionCount());
+		return result;
+	}
+	
+	@Override
 	public List<Map<String, Object>> getAllLibraryCollections(Integer limit, Integer offset, boolean skipPagination, String themeCode, String themeType) {
 		List<Map<String, Object>> collectionList = new ArrayList<Map<String, Object>>();
-		List<Object[]> result = this.getFeaturedRepository().getFeaturedCollectionsList(limit, offset, skipPagination, themeCode, themeType);
+		List<Object[]> result = this.getFeaturedRepository().getLibraryCollectionsList(limit, offset, skipPagination, themeCode, themeType);
 		if (result != null && result.size() > 0) {
-			Map<String, Object> totalHitCount = new HashMap<String, Object>();
-			totalHitCount.put("totalHitCount", result.size());
 			for (Object[] object : result) {
 				Map<String, Object> collection = new HashMap<String, Object>();
 				User user = this.getUserRepository().findUserByPartyUid(String.valueOf(object[3]));
@@ -609,9 +616,9 @@ public class FeaturedServiceImpl implements FeaturedService, ParameterProperties
 				Collection featuredCollection = this.getCollectionService().getCollection(String.valueOf(object[0]), true, true, false, user, "commentCount");
 				Long comment = this.getCommentRepository().getCommentCount(String.valueOf(object[0]), null, "notdeleted");
 				Long collectionItem = this.getCollectionRepository().getCollectionItemCount(String.valueOf(object[0]), "private,public,anyonewithlink");
-				collection.put("searchResults", featuredCollection);
-				collection.put("subjectCode", object[13]);
-				collection.put("themeCode", object[12]);
+				collection.put("libraryCollection", featuredCollection);
+				collection.put(SUBJECT_CODE, object[13]);
+				collection.put(THEME_CODE, object[12]);
 				if(lastUpdatedUser != null){
 					collection.put(LAST_MODIFIED_BY, lastUpdatedUser.getUsername());
 				}
@@ -619,7 +626,6 @@ public class FeaturedServiceImpl implements FeaturedService, ParameterProperties
 				collection.put(COLLECTION_ITEM_COUNT, collectionItem);
 				collectionList.add(collection);
 			}
-			collectionList.add(totalHitCount);
 		}
 		return collectionList;
 	}
@@ -710,7 +716,5 @@ public class FeaturedServiceImpl implements FeaturedService, ParameterProperties
 	public CustomTableRepository getCustomTableRepository() {
 		return customTableRepository;
 	}
-
-	
 
 }

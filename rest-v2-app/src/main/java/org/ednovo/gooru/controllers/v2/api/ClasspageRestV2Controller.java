@@ -261,9 +261,10 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/item/{id}", method = RequestMethod.DELETE)
 	public void deleteClasspageItem(@PathVariable(value = ID) String collectionItemId, HttpServletRequest request, HttpServletResponse response) {
+		User user = (User) request.getAttribute(Constants.USER);
 		SessionContextSupport.putLogParameter(EVENT_NAME, "classpage-delete-classpage-item");
 		SessionContextSupport.putLogParameter(CLASSPAGE_ITEM_ID, collectionItemId);
-		getCollectionService().deleteCollectionItem(collectionItemId);
+		getCollectionService().deleteCollectionItem(collectionItemId, user);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ })

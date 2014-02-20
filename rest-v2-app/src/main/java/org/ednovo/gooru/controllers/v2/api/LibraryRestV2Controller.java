@@ -36,6 +36,7 @@ import org.ednovo.gooru.core.constant.GooruOperationConstants;
 import org.ednovo.gooru.core.security.AuthorizeOperations;
 import org.ednovo.gooru.domain.service.featured.FeaturedService;
 import org.ednovo.gooru.domain.service.redis.RedisService;
+import org.ednovo.gooru.domain.service.search.SearchResults;
 import org.ednovo.gooru.domain.service.taxonomy.TaxonomyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -145,14 +146,13 @@ public class LibraryRestV2Controller extends BaseController implements ConstantP
 	public ModelAndView getLibraryCollections(HttpServletRequest request, @RequestParam(value = CLEAR_CACHE, required = false, defaultValue = FALSE) boolean clearCache, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, @RequestParam(value = SKIP_PAGINATION, required = false, defaultValue = FALSE) Boolean skipPagination, @RequestParam(value = THEME_CODE, required = false) String themeCode, @RequestParam(value = THEME_TYPE, required = false) String themeType, HttpServletResponse response) {
 		final String cacheKey = "v2-library-realted-collections-data-featured";
 		String data = null;
-		List<Map<String, Object>> library = null;
 		if (!clearCache) {
 			data = getRedisService().getValue(cacheKey);
 		}
 		if (data == null) {
-			library = this.getFeaturedService().getAllLibraryCollections(limit,offset,skipPagination,themeCode,themeType);
+			SearchResults<Map<String, Object>> results = this.getFeaturedService().getLibraryCollections(limit, offset, skipPagination, themeCode, themeType);
 			String includes[] = (String[]) ArrayUtils.addAll(LIBRARY_FEATURED_COLLECTIONS_INCLUDE_FIELDS, LIBRARY_FEATURED_COLLECTIONS_USER_INCLUDE_FIELDS);
-			data = serialize(library, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, false, true, includes);
+			data = serialize(results, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, false, true, includes);
 			getRedisService().putValue(cacheKey, data);
 		}
 		return toModelAndView(data);
