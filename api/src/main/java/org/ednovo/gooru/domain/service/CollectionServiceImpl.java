@@ -31,6 +31,7 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.AssessmentQuestion;
+import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.CollectionType;
@@ -39,8 +40,10 @@ import org.ednovo.gooru.core.api.model.ShelfType;
 import org.ednovo.gooru.core.api.model.StorageArea;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.exception.NotFoundException;
+import org.ednovo.gooru.domain.service.search.SearchResults;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.storage.StorageRepository;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.taxonomy.TaxonomyRespository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -51,6 +54,10 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 
 	@Autowired
 	private CollectionRepository collectionRepository;
+	
+	@Autowired
+	private TaxonomyRespository taxonomyRespository;
+
 
 	@Autowired
 	private StorageRepository storageRepository;
@@ -218,6 +225,24 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	}
 	
 	@Override
+	public SearchResults<Code> getCollectionStandards(Integer codeId, String query,Integer limit, Integer offset,Boolean skipPagination) {
+		
+		SearchResults<Code> result = new SearchResults<Code>();
+		List<Object[]> list =this.getTaxonomyRespository().getCollectionStandards(codeId, query, limit, offset, skipPagination);
+		List<Code> codeList = new ArrayList<Code>();
+		for(Object[]  object : list) {
+			Code code = new Code();
+			code.setCode((String)object[0]);
+			code.setCodeId((Integer)object[1]);
+			code.setLabel(((String)object[2]));
+			code.setCodeUid((String) object[3]);
+			codeList.add(code);
+		}
+		result.setSearchResults(codeList);
+		return result;
+	}
+	
+	@Override
 	public Boolean resourceCopiedFrom(String gooruOid, String gooruUid) {
 		Resource resource = collectionRepository.findResourceCopiedFrom(gooruOid, gooruUid);
 		return resource != null ? true : false;
@@ -226,6 +251,9 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	public StorageRepository getStorageRepository() {
 		return storageRepository;
 	}
-
+	
+	public TaxonomyRespository getTaxonomyRespository() {
+		return taxonomyRespository;
+	}
 
 }
