@@ -430,8 +430,9 @@ public class CollectionUtil implements ParameterProperties {
 		return socialDataJSON;
 	}
 
-	public JSONObject getContentTaxonomyData(Set<Code> taxonomySet, String contentGooruOid) throws JSONException {
+	public JSONObject getContentTaxonomyData(Set<Code> taxonomySet, String contentGooruOid)  {
 		JSONObject collectionTaxonomy = new JSONObject();
+		try {
 		Iterator<Code> iter = taxonomySet.iterator();
 		Set<String> subject = new HashSet<String>();
 		Set<String> course = new HashSet<String>();
@@ -507,6 +508,9 @@ public class CollectionUtil implements ParameterProperties {
 		collectionTaxonomy.put(UNIT, unit);
 		collectionTaxonomy.put(LESSON, lesson);
 		collectionTaxonomy.put(CURRICULUM, curriculumTaxonomy);
+		} catch (Exception e) { 
+			logger.error("failed to fetch ");
+		}
 		return collectionTaxonomy;
 	}
 
