@@ -245,9 +245,11 @@ public class FeaturedServiceImpl implements FeaturedService, ParameterProperties
 									if ((collectionLessonMap != null && collectionLessonMap.size() > 0) || (conceptMap != null && conceptMap.size() > 0)) {
 										collectionLessonMap.add(getCode(lesson, collectionLessonMap, COLLECTION, null, getOrganizationCode(libraryName), conceptMap));
 									}
-									allLessons = this.getTaxonomyRespository().findCodeByParentCodeId(String.valueOf(topic.getCodeId()), null, 0, 3, true, LIBRARY, getOrganizationCode(libraryName), rootNode, null);
 								}
+									allLessons = this.getTaxonomyRespository().findCodeByParentCodeId(String.valueOf(topic.getCodeId()), null, 0, 3, true, LIBRARY, getOrganizationCode(libraryName), rootNode, null);
+								
 							}
+							
 							topicMap.add(getCode(topic, (collectionTopicMap != null && collectionTopicMap.size() > 0) ? collectionTopicMap : lessonMap, (collectionTopicMap != null && collectionTopicMap.size() > 0) ? COLLECTION : LESSON, collectionTopicCount != null ? collectionTopicCount
 									: (allLessons != null ? allLessons.size() : 0), getOrganizationCode(libraryName), null));
 
@@ -612,8 +614,8 @@ public class FeaturedServiceImpl implements FeaturedService, ParameterProperties
 							collectionLessonMap.add(getCode(lesson, collectionLessonMap, COLLECTION, null, getOrganizationCode(libraryName), conceptMap));
 						}
 
-					}
 					allLessons = this.getTaxonomyRespository().findCodeByParentCodeId(String.valueOf(topic.getCodeId()), null, 0, 3, true, LIBRARY, getOrganizationCode(libraryName), rootNode, null);
+					}
 				}
 				topicMap.add(getCode(topic, (collectionTopicMap != null && collectionTopicMap.size() > 0) ? collectionTopicMap : lessonMap, (collectionTopicMap != null && collectionTopicMap.size() > 0) ? COLLECTION : LESSON, collectionTopicCount != null ? collectionTopicCount
 						: (allLessons != null ? allLessons.size() : 0), getOrganizationCode(libraryName), null));
