@@ -22,7 +22,7 @@ public interface ParameterProperties {
 
 	public static final String COLLECTION_THUMBNAIL_SIZES = "160x120,75x56,120x90,80x60,50x40,310x258,800x600";
 
-	public static final String QUIZ_THUMBNAIL_SIZES = "160x120,75x56,120x90,d80x60,50x40,800x600";
+	public static final String QUIZ_THUMBNAIL_SIZES = "160x120,75x56,120x90,80x60,50x40,800x600";
 
 	public static final String RESOURCE_THUMBNAIL_SIZES = "80x60,160x120";
 

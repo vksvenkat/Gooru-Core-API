@@ -120,4 +120,6 @@ public interface TaxonomyRespository extends BaseRepository{
 	
 	List<Code> getCodeByDepth(String organizationCode, Short depth, String creatorUid);
 	
+	List<Object[]> getCollectionStandards(Integer codeId,String  query,Integer limit, Integer offset,Boolean skipPagination);
+	
 }

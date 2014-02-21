@@ -372,9 +372,10 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 	@Override
 	public List<UserRole> findRolesByNames(String roles) {
 		
-		String hql = " FROM UserRole ur WHERE ur.name IN (:roleNames) ";
+		String hql = " FROM UserRole ur WHERE ur.name IN (:roleNames) and  " + generateOrgAuthQuery("userRole.");
 		Query query = getSession().createQuery(hql);
 		query.setParameterList("roleNames", roles.split(","));
+		addOrgAuthParameters(query);
 		List<UserRole> userRoles = query.list();
 		return userRoles.size() > 0 ? userRoles : null;
 	}
@@ -457,7 +458,10 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 
 	@Override
 	public List<UserRole> findAllRoles() {
-		return getSession().createCriteria(UserRole.class).list();
+		String hql = "select userRole from UserRole userRole where "+ generateOrgAuthQuery("userRole.");
+		Query query = getSession().createQuery(hql);
+		addOrgAuthParameters(query);
+		return query.list();
 	}
 
 	@Override
