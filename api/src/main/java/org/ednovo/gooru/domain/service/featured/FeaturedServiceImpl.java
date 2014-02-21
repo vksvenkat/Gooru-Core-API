@@ -341,17 +341,21 @@ public class FeaturedServiceImpl implements FeaturedService, ParameterProperties
 					collectionMap.add(collection);
 				}
 				List<Code> concepts = this.getTaxonomyRespository().findCodeByParentCodeId(String.valueOf(lesson.getCodeId()), null, 3, 0, true, LIBRARY, getOrganizationCode(libraryName), rootNode, null);
-				List<Map<String, Object>> collectionConceptMap = new ArrayList<Map<String, Object>>();
+				List<Map<String, Object>> conceptMap = new ArrayList<Map<String, Object>>();
 				for (Code concept : concepts) {
 					List<Object[]> collectionConceptList = this.getFeaturedRepository().getLibraryCollection(String.valueOf(concept.getCodeId()), featuredId, null, null, true);
+					List<Map<String, Object>> collectionConceptMap = new ArrayList<Map<String, Object>>();
 					for (Object[] collectionObject : collectionConceptList) {
 						Map<String, Object> collection = new HashMap<String, Object>();
 						collection.put(GOORU_OID, collectionObject[0]);
 						collection.put(TITLE, collectionObject[1]);
 						collectionConceptMap.add(collection);
 					}
+					if (collectionMap != null && collectionMap.size() > 0) {
+						conceptMap.add(getCode(concept, collectionMap, COLLECTION, null, getOrganizationCode(libraryName), null));
+					}
 				}
-				if ((collectionMap != null && collectionMap.size() > 0)|| collectionConceptMap != null && collectionConceptMap.size() > 0) {
+				if ((collectionMap != null && collectionMap.size() > 0)|| conceptMap != null && conceptMap.size() > 0) {
 					lessonMap.add(getCode(lesson, collectionMap, COLLECTION, null, getOrganizationCode(libraryName), null));
 				}
 			}
@@ -611,7 +615,7 @@ public class FeaturedServiceImpl implements FeaturedService, ParameterProperties
 						}
 						
 						if ((collectionLessonMap != null && collectionLessonMap.size() > 0) || conceptMap !=null && conceptMap.size() > 0) {
-							collectionLessonMap.add(getCode(lesson, collectionLessonMap, COLLECTION, null, getOrganizationCode(libraryName), conceptMap));
+							lessonMap.add(getCode(lesson, collectionLessonMap, COLLECTION, null, getOrganizationCode(libraryName), conceptMap));
 						}
 
 					allLessons = this.getTaxonomyRespository().findCodeByParentCodeId(String.valueOf(topic.getCodeId()), null, 0, 3, true, LIBRARY, getOrganizationCode(libraryName), rootNode, null);
