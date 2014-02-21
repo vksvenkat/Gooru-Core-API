@@ -2619,4 +2619,5 @@ public interface ParameterProperties {
 	String PROFILE_IMG_URL = "profileImageUrl";
 	
 	String STANDARD = "standard";
+	
 }
