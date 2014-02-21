@@ -714,8 +714,13 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 	}
 
 	@Override
-	public List<Object[]> getCollectionItem(String gooruOid, Integer limit, Integer offset, boolean skipPagination, String sharing) {
-		String sql = "select r.title, c.gooru_oid, r.type_name, r.folder, r.thumbnail, ct.value, ct.display_name, c.sharing, ci.collection_item_id from collection_item ci inner join resource r on r.content_id = ci.resource_content_id  left join custom_table_value ct on ct.custom_table_value_id = r.resource_format_id inner join content c on c.content_id = r.content_id inner join content rc on rc.content_id = ci.collection_content_id where  c.sharing in ('" + sharing.replace(",", "','")+ "') and rc.gooru_oid=:gooruOid  order by rc.created_on desc";
+	public List<Object[]> getCollectionItem(String gooruOid, Integer limit, Integer offset, boolean skipPagination, String sharing, String orderBy) {
+		String sql = "select r.title, c.gooru_oid, r.type_name, r.folder, r.thumbnail, ct.value, ct.display_name, c.sharing, ci.collection_item_id from collection_item ci inner join resource r on r.content_id = ci.resource_content_id  left join custom_table_value ct on ct.custom_table_value_id = r.resource_format_id inner join content c on c.content_id = r.content_id inner join content rc on rc.content_id = ci.collection_content_id where  c.sharing in ('" + sharing.replace(",", "','")+ "') and rc.gooru_oid=:gooruOid  ";
+		if(orderBy != null && orderBy.equalsIgnoreCase("folder")) {
+			sql += " order by ci.item_sequence desc";
+		} else {
+			sql += " order by rc.created_on desc";
+		}
 		Query query = getSession().createSQLQuery(sql);
 		query.setParameter("gooruOid", gooruOid);
 		if (!skipPagination) {
