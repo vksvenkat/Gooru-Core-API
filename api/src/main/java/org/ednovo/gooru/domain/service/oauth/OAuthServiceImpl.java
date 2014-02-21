@@ -198,8 +198,8 @@ public class OAuthServiceImpl extends ServerValidationUtils implements OAuthServ
 	}
 
 	@Override
-	public ActionResponseDTO<GooruOAuthConsumerSecret> getConsumerSecret(String consumerKey) throws Exception {
-		GooruOAuthConsumerSecret gooruOAuthConsumerSecret = (GooruOAuthConsumerSecret) oAuthRepository.get(GooruOAuthConsumerSecret.class, consumerKey);
+	public ActionResponseDTO<GooruOAuthConsumerSecret> findGooruOAuthConsumerSecretByConsumerKey(String consumerKey) {
+		GooruOAuthConsumerSecret gooruOAuthConsumerSecret = oAuthRepository.findGooruOAuthConsumerSecretByConsumerKey(consumerKey);
 		final Errors errors = new BindException(GooruOAuthConsumerSecret.class, "OAuthConsumerSecret");
 		rejectIfNull(gooruOAuthConsumerSecret, GL0056, "OAuthConsumerSecret");
 		return new ActionResponseDTO<GooruOAuthConsumerSecret>(gooruOAuthConsumerSecret, errors);
