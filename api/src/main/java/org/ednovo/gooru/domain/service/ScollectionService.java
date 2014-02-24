@@ -61,7 +61,7 @@ public interface ScollectionService extends BaseService {
 
 	List<CollectionItem> getCollectionItems(String collectionId, Integer offset, Integer limit, boolean skipPagination, String orderBy);
 
-	ActionResponseDTO<Collection> updateCollection(Collection newCollection, String updateCollectionId, String taxonomyCode, String ownerUId, String creatorUId, boolean hasUnrestrictedContentAccess, String relatedContentId, boolean updateTaxonomyByCode) throws Exception;
+	ActionResponseDTO<Collection> updateCollection(Collection newCollection, String updateCollectionId, String taxonomyCode, String ownerUId, String creatorUId, boolean hasUnrestrictedContentAccess, String relatedContentId, boolean updateTaxonomyByCode, User apiCallerUser) throws Exception;
 
 	void deleteCollection(String collectionId);
 
@@ -97,9 +97,9 @@ public interface ScollectionService extends BaseService {
 
 	List<Collection> getMyCollection(String offset, String limit, String type, String filter, User user);
 
-	Collection updateCollectionMetadata(String collectionId, String creatorUId, String ownerUId, boolean hasUnrestrictedContentAccess, MultiValueMap<String, String> data);
+	Collection updateCollectionMetadata(String collectionId, String creatorUId, String ownerUId, boolean hasUnrestrictedContentAccess, MultiValueMap<String, String> data, User user);
 
-	CollectionItem updateCollectionItemMetadata(String collectionItemId, MultiValueMap<String, String> data);
+	CollectionItem updateCollectionItemMetadata(String collectionItemId, MultiValueMap<String, String> data, User apiCaller);
 
 	CollectionItem copyCollectionItem(String collectionItemId, String collectionId) throws Exception;
 
@@ -122,4 +122,6 @@ public interface ScollectionService extends BaseService {
 	void copyResourceMeta(Collection collection);
 	
 	Map<String, Object>  getCollection(String gooruOid, Map<String, Object> collection);
+	
+	void updateFolderSharing(Collection collection);
 }

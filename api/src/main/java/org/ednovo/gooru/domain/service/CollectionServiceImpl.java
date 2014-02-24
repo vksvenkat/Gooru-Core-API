@@ -36,6 +36,7 @@ import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.CollectionType;
 import org.ednovo.gooru.core.api.model.Resource;
+import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.ShelfType;
 import org.ednovo.gooru.core.api.model.StorageArea;
 import org.ednovo.gooru.core.api.model.User;
@@ -242,6 +243,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		return result;
 	}
 	
+	
 	@Override
 	public Boolean resourceCopiedFrom(String gooruOid, String gooruUid) {
 		Resource resource = collectionRepository.findResourceCopiedFrom(gooruOid, gooruUid);
@@ -255,5 +257,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	public TaxonomyRespository getTaxonomyRespository() {
 		return taxonomyRespository;
 	}
+
+	
 
 }
