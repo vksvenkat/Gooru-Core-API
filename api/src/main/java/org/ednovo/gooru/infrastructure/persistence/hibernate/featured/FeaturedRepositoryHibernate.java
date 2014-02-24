@@ -206,13 +206,26 @@ public class FeaturedRepositoryHibernate extends BaseRepositoryHibernate impleme
 		return query.list().size() > 0 ? (Integer)query.list().get(0) : null;
 	}
 
+	@Override
+	public Long getLibraryResourceCount(String type, String libraryName) {
+		String sql = "select count(*) as count from featured_set f inner join  featured_set_items fsi on fsi.featured_set_id = f.featured_set_id inner join content c on c.content_id = fsi.content_id inner join collection cc on c.content_id = cc.content_id inner join collection_item ci on ci.collection_content_id = cc.content_id inner join resource r on r.content_id = ci.resource_content_id inner join content con on con.content_id = r.content_id where f.theme_code =:themeCode ";
+		if (type!= null)  {
+			sql += " and f.subject_code_id =:type";
+		}
+		Query query = getSession().createSQLQuery(sql).addScalar("count", StandardBasicTypes.LONG);
+		if (type != null) {
+			query.setParameter("type", type);
+		}
+		query.setParameter("themeCode", libraryName);
+		return (Long)query.list().get(0);
+	}
 	
 	@Override
 	public List<Object[]> getCommunityLibraryResource(String type, Integer offset, Integer limit, boolean skipPagination, String libraryName){	
 		String sql = "select c.gooru_oid as collection_id, con.gooru_oid as resource_id," +
-				"r.title, r.thumbnail, r.image_url, r.url, r.grade, r.description, r.category, " +
-				"c.sharing, r.has_frame_breaker,r.record_source, r.license_name," +
-				"ci.narration,ci.start,ci.stop,ci.collection_item_id as collection_item_id," +
+				"r.title,r.folder,r.thumbnail, r.url, r.grade, r.description, r.category, " +
+				"c.sharing, r.has_frame_breaker, r.record_source, r.license_name," +
+				"ci.narration, ci.start, ci.stop, ci.collection_item_id as collection_item_id," +
 				"f.subject_code_id as subject_code_id " +
 				"from featured_set f " +
 				"inner join  featured_set_items fsi on fsi.featured_set_id = f.featured_set_id " +
