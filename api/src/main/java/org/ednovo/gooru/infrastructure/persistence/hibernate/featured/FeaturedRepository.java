@@ -36,7 +36,7 @@ public interface FeaturedRepository extends BaseRepository {
 	
 	List<Object[]> getLibraryCollectionsList(Integer limit, Integer offset, Boolean skipPagination, String themeCode, String themeType);
 	
-	Long getLibraryCollectionCount();
+	Long getLibraryCollectionCount(String themeCode, String themeType);
 
 	List<Integer> getFeaturedThemeIds();
 

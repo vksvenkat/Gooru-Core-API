@@ -670,7 +670,7 @@ public class FeaturedServiceImpl implements FeaturedService, ParameterProperties
 		List<Map<String, Object>> libraryCollection = getAllLibraryCollections(limit, offset, skipPagination, themeCode, themeType);
 		SearchResults<Map<String, Object>> result = new SearchResults<Map<String, Object>>();
 		result.setSearchResults(libraryCollection);
-		result.setTotalHitCount(this.getFeaturedRepository().getLibraryCollectionCount());
+		result.setTotalHitCount(this.getFeaturedRepository().getLibraryCollectionCount(themeCode, themeType));
 		return result;
 	}
 
