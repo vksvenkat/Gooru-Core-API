@@ -81,7 +81,7 @@ public abstract class HibernateDaoSupport extends UserGroupSupport {
 	}
 
 	public Long getPublicCollectionCount(String gooruOid) {
-		String sql = "select count(1) as count  from collection_item  ci inner join resource r  on r.content_id = ci.resource_content_id inner join content c on c.content_id = ci.resource_content_id inner join content cc on cc.content_id = ci.collection_content_id  where cc.gooru_oid =:gooruOid and c.sharing in  ('private', 'anyonewithlink') and (r.type_name = 'folder' or r.type_name = 'scollection')";
+		String sql = "select count(1) as count  from collection_item  ci inner join resource r  on r.content_id = ci.resource_content_id inner join content c on c.content_id = ci.resource_content_id inner join content cc on cc.content_id = ci.collection_content_id  where cc.gooru_oid =:gooruOid and c.sharing in  ('public') and (r.type_name = 'folder' or r.type_name = 'scollection')";
 		Query query = getSession().createSQLQuery(sql).addScalar("count", StandardBasicTypes.LONG);
 		query.setParameter("gooruOid", gooruOid);
 		return (Long) query.list().get(0);
