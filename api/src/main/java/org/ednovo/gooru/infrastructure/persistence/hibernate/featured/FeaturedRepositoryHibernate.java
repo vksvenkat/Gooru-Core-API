@@ -89,9 +89,22 @@ public class FeaturedRepositoryHibernate extends BaseRepositoryHibernate impleme
 	}
 	
 	@Override
-	public Long getLibraryCollectionCount() {
+	public Long getLibraryCollectionCount(String themeCode, String themeType) {
 		String sql = "select count(1) as count from content ct inner join collection cn on (ct.content_id = cn.content_id) inner join resource r on (cn.content_id = r.content_id) inner join featured_set_items fsi on (r.content_id = fsi.content_id) inner join featured_set fs on (fsi.featured_set_id = fs.featured_set_id)";
+		if(themeCode != null && themeType != null) {
+			sql += " where fs.subject_code_id =:themeType and fs.theme_code =:themeCode";
+		} else if (themeType != null)  {
+			sql += " where fs.subject_code_id =:themeType";
+		} else if (themeCode != null)  {
+			sql += " where fs.theme_code =:themeCode";
+		}
 		Query query = getSession().createSQLQuery(sql).addScalar("count", StandardBasicTypes.LONG);
+		if (themeType != null) {
+			query.setParameter("themeType", themeType);
+		}
+		if (themeCode != null)  {
+			query.setParameter("themeCode", themeCode);
+		}
 		return (Long)query.list().get(0);
 	}
 	
