@@ -221,7 +221,7 @@ public class FeaturedRepositoryHibernate extends BaseRepositoryHibernate impleme
 
 	@Override
 	public Long getLibraryResourceCount(String type, String libraryName) {
-		String sql = "select count(*) as count from featured_set f inner join  featured_set_items fsi on fsi.featured_set_id = f.featured_set_id inner join content c on c.content_id = fsi.content_id inner join collection cc on c.content_id = cc.content_id inner join collection_item ci on ci.collection_content_id = cc.content_id inner join resource r on r.content_id = ci.resource_content_id inner join content con on con.content_id = r.content_id where f.theme_code =:themeCode ";
+		String sql = "select count(*) as count from featured_set f inner join  featured_set_items fsi on fsi.featured_set_id = f.featured_set_id inner join content c on c.content_id = fsi.content_id inner join collection cc on c.content_id = cc.content_id inner join collection_item ci on ci.collection_content_id = cc.content_id inner join resource r on r.content_id = ci.resource_content_id inner join content con on con.content_id = r.content_id inner join resource_source rs on r.resource_source_id = rs.resource_source_id where f.theme_code =:themeCode ";
 		if (type!= null)  {
 			sql += " and f.subject_code_id =:type";
 		}
@@ -236,17 +236,20 @@ public class FeaturedRepositoryHibernate extends BaseRepositoryHibernate impleme
 	@Override
 	public List<Object[]> getCommunityLibraryResource(String type, Integer offset, Integer limit, boolean skipPagination, String libraryName){	
 		String sql = "select c.gooru_oid as collection_id, con.gooru_oid as resource_id," +
-				"r.title,r.folder,r.thumbnail, r.url, r.grade, r.description, r.category, " +
-				"c.sharing, r.has_frame_breaker, r.record_source, r.license_name," +
-				"ci.narration, ci.start, ci.stop, ci.collection_item_id as collection_item_id," +
-				"f.subject_code_id as subject_code_id " +
-				"from featured_set f " +
-				"inner join  featured_set_items fsi on fsi.featured_set_id = f.featured_set_id " +
-				"inner join content c on c.content_id = fsi.content_id " +
-				"inner join collection cc on c.content_id = cc.content_id " +
-				"inner join collection_item ci on ci.collection_content_id = cc.content_id " +
-				"inner join resource r on r.content_id = ci.resource_content_id " +
-				"inner join content con on con.content_id = r.content_id where f.theme_code =:themeCode";
+				     "r.title,r.folder,r.thumbnail, r.url, r.grade, r.description, r.category," +
+				     "c.sharing, r.has_frame_breaker, r.record_source, r.license_name," +
+				     "ci.narration, ci.start, ci.stop, ci.collection_item_id as collection_item_id," +
+				     "r.resource_source_id, rs.source_name, rs.domain_name, rs.attribution," +
+				     "f.subject_code_id as subject_code_id " +
+				     "from featured_set f " +
+				     "inner join  featured_set_items fsi on fsi.featured_set_id = f.featured_set_id " +
+				     "inner join content c on c.content_id = fsi.content_id " +
+				     "inner join collection cc on c.content_id = cc.content_id " +
+				     "inner join collection_item ci on ci.collection_content_id = cc.content_id " +
+				     "inner join resource r on r.content_id = ci.resource_content_id " +
+				     "inner join content con on con.content_id = r.content_id " +
+				     "inner join resource_source rs on r.resource_source_id = rs.resource_source_id " +
+				     "where f.theme_code =:themeCode";
 		
 		if (type!= null)  {
 			sql += " and f.subject_code_id =:type";
