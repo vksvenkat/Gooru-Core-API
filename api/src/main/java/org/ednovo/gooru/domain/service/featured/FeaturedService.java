@@ -66,4 +66,6 @@ public interface FeaturedService {
 	List<Map<String, Object>> getLibraryCourse(String code,String ChildCode, String libraryName, String rootNode);
 	
 	List<Map<String,Object>> getCommunityLibraryResource(String type, Integer offset, Integer limit, boolean skipPagination,String libraryName);
+
+	SearchResults<Map<String, Object>> getLibraryResource(String type, Integer offset, Integer limit, boolean skipPagination, String libraryName);
 }

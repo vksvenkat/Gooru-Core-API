@@ -89,9 +89,22 @@ public class FeaturedRepositoryHibernate extends BaseRepositoryHibernate impleme
 	}
 	
 	@Override
-	public Long getLibraryCollectionCount() {
+	public Long getLibraryCollectionCount(String themeCode, String themeType) {
 		String sql = "select count(1) as count from content ct inner join collection cn on (ct.content_id = cn.content_id) inner join resource r on (cn.content_id = r.content_id) inner join featured_set_items fsi on (r.content_id = fsi.content_id) inner join featured_set fs on (fsi.featured_set_id = fs.featured_set_id)";
+		if(themeCode != null && themeType != null) {
+			sql += " where fs.subject_code_id =:themeType and fs.theme_code =:themeCode";
+		} else if (themeType != null)  {
+			sql += " where fs.subject_code_id =:themeType";
+		} else if (themeCode != null)  {
+			sql += " where fs.theme_code =:themeCode";
+		}
 		Query query = getSession().createSQLQuery(sql).addScalar("count", StandardBasicTypes.LONG);
+		if (themeType != null) {
+			query.setParameter("themeType", themeType);
+		}
+		if (themeCode != null)  {
+			query.setParameter("themeCode", themeCode);
+		}
 		return (Long)query.list().get(0);
 	}
 	
@@ -206,13 +219,42 @@ public class FeaturedRepositoryHibernate extends BaseRepositoryHibernate impleme
 		return query.list().size() > 0 ? (Integer)query.list().get(0) : null;
 	}
 
+	@Override
+	public Long getLibraryResourceCount(String type, String libraryName) {
+		String sql = "select count(*) as count from featured_set f inner join  featured_set_items fsi on fsi.featured_set_id = f.featured_set_id inner join content c on c.content_id = fsi.content_id inner join collection cc on c.content_id = cc.content_id inner join collection_item ci on ci.collection_content_id = cc.content_id inner join resource r on r.content_id = ci.resource_content_id inner join content con on con.content_id = r.content_id inner join resource_source rs on r.resource_source_id = rs.resource_source_id where f.theme_code =:themeCode ";
+		if (type!= null)  {
+			sql += " and f.subject_code_id =:type";
+		}
+		Query query = getSession().createSQLQuery(sql).addScalar("count", StandardBasicTypes.LONG);
+		if (type != null) {
+			query.setParameter("type", type);
+		}
+		query.setParameter("themeCode", libraryName);
+		return (Long)query.list().get(0);
+	}
 	
 	@Override
 	public List<Object[]> getCommunityLibraryResource(String type, Integer offset, Integer limit, boolean skipPagination, String libraryName){	
+//		String sql = "select c.gooru_oid as collection_id, con.gooru_oid as resource_id," +
+//				"r.title,r.folder,r.thumbnail, r.url, r.grade, r.description, r.category, " +
+//				"c.sharing, r.has_frame_breaker, r.record_source, r.license_name," +
+//				"ci.narration, ci.start, ci.stop, ci.collection_item_id as collection_item_id," +
+//				"r.resource_source_id, rs.source_name, rs.domain_name, rs.attribution," +
+//				"f.subject_code_id as subject_code_id " +
+//				"from featured_set f " +
+//				"inner join  featured_set_items fsi on fsi.featured_set_id = f.featured_set_id " +
+//				"inner join content c on c.content_id = fsi.content_id " +
+//				"inner join collection cc on c.content_id = cc.content_id " +
+//				"inner join collection_item ci on ci.collection_content_id = cc.content_id " +
+//				"inner join resource r on r.content_id = ci.resource_content_id " +
+//				"inner join content con on con.content_id = r.content_id " +
+//				"inner join resource_source rs on r.resource_source_id = rs.resource_source_id" +
+//				"where f.theme_code =:themeCode";
 		String sql = "select c.gooru_oid as collection_id, con.gooru_oid as resource_id," +
-				"r.title, r.thumbnail, r.image_url, r.url, r.grade, r.description, r.category, " +
-				"c.sharing, r.has_frame_breaker,r.record_source, r.license_name," +
-				"ci.narration,ci.start,ci.stop,ci.collection_item_id as collection_item_id," +
+				"r.title,r.folder,r.thumbnail, r.url, r.grade, r.description, r.category," +
+				"c.sharing, r.has_frame_breaker, r.record_source, r.license_name," +
+				"ci.narration, ci.start, ci.stop, ci.collection_item_id as collection_item_id," +
+				"r.resource_source_id, rs.source_name, rs.domain_name, rs.attribution," +
 				"f.subject_code_id as subject_code_id " +
 				"from featured_set f " +
 				"inner join  featured_set_items fsi on fsi.featured_set_id = f.featured_set_id " +
@@ -220,7 +262,9 @@ public class FeaturedRepositoryHibernate extends BaseRepositoryHibernate impleme
 				"inner join collection cc on c.content_id = cc.content_id " +
 				"inner join collection_item ci on ci.collection_content_id = cc.content_id " +
 				"inner join resource r on r.content_id = ci.resource_content_id " +
-				"inner join content con on con.content_id = r.content_id where f.theme_code =:themeCode";
+				"inner join content con on con.content_id = r.content_id " +
+				"inner join resource_source rs on r.resource_source_id = rs.resource_source_id " +
+				"where f.theme_code =:themeCode";
 		
 		if (type!= null)  {
 			sql += " and f.subject_code_id =:type";

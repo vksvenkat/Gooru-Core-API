@@ -39,6 +39,8 @@ import org.ednovo.gooru.core.api.model.FeaturedSetItems;
 import org.ednovo.gooru.core.api.model.Learnguide;
 import org.ednovo.gooru.core.api.model.Profile;
 import org.ednovo.gooru.core.api.model.Resource;
+import org.ednovo.gooru.core.api.model.StorageAccount;
+import org.ednovo.gooru.core.api.model.StorageArea;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.application.util.CollectionMetaInfo;
 import org.ednovo.gooru.core.constant.ConstantProperties;
@@ -52,6 +54,7 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentRepo
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.featured.FeaturedRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.question.CommentRepository;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.storage.StorageRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.taxonomy.TaxonomyRespository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -82,6 +85,9 @@ public class FeaturedServiceImpl implements FeaturedService, ParameterProperties
 
 	@Autowired
 	private CommentRepository commentRepository;
+	
+	@Autowired
+	private StorageRepository storageRepository;
 
 	@Override
 	public List<FeaturedSet> getFeaturedList(int limit, boolean random, String featuredSetName, String themeCode) throws Exception {
@@ -664,7 +670,7 @@ public class FeaturedServiceImpl implements FeaturedService, ParameterProperties
 		List<Map<String, Object>> libraryCollection = getAllLibraryCollections(limit, offset, skipPagination, themeCode, themeType);
 		SearchResults<Map<String, Object>> result = new SearchResults<Map<String, Object>>();
 		result.setSearchResults(libraryCollection);
-		result.setTotalHitCount(this.getFeaturedRepository().getLibraryCollectionCount());
+		result.setTotalHitCount(this.getFeaturedRepository().getLibraryCollectionCount(themeCode, themeType));
 		return result;
 	}
 
@@ -715,11 +721,20 @@ public class FeaturedServiceImpl implements FeaturedService, ParameterProperties
 		}
 		return collectionUnitMap;
 	}
+	
+	@Override
+	public SearchResults<Map<String, Object>> getLibraryResource(String type, Integer offset, Integer limit, boolean skipPagination,String libraryName) {
+		List<Map<String, Object>> libraryResource = getCommunityLibraryResource(type, offset, limit, skipPagination,libraryName);
+		SearchResults<Map<String, Object>> result = new SearchResults<Map<String, Object>>();
+		result.setSearchResults(libraryResource);
+		result.setTotalHitCount(this.getFeaturedRepository().getLibraryResourceCount(type,libraryName));
+		return result;
+	}
 
 	@Override
 	public List<Map<String, Object>> getCommunityLibraryResource(String type, Integer offset, Integer limit, boolean skipPagination, String libraryName) {
-
 		List<Map<String, Object>> collectionList = new ArrayList<Map<String, Object>>();
+		StorageArea storageArea = this.getStorageRepository().getStorageAreaByTypeName(StorageAccount.Type.NFS.getType());
 		List<Object[]> result = this.getFeaturedRepository().getCommunityLibraryResource(type, offset, limit, skipPagination, libraryName);
 		if (result != null && result.size() > 0) {
 			for (Object[] object : result) {
@@ -727,21 +742,30 @@ public class FeaturedServiceImpl implements FeaturedService, ParameterProperties
 				collection.put("collectionId", object[0]);
 				collection.put("resourceId", object[1]);
 				collection.put("title", object[2]);
-				collection.put("thumbnail", object[3]);
-				collection.put("imageUrl", object[4]);
-				collection.put("url", object[5]);
+
+				if (object[4] != null) {
+					Map<String, Object> thumbnails = new HashMap<String, Object>();
+					thumbnails.put(URL, storageArea.getCdnDirectPath() + String.valueOf(object[3]) + String.valueOf(object[4]));
+					collection.put("thumbnails", thumbnails);
+				}
+				collection.put("resourceUrl", object[5]);
 				collection.put("grade", object[6]);
 				collection.put("description", object[7]);
 				collection.put("category", object[8]);
 				collection.put("sharing", object[9]);
 				collection.put("hasFrameBreaker", object[10]);
 				collection.put("recordSource", object[11]);
-				collection.put("license", object[12]);
+				collection.put("license", object[12]);	
 				collection.put("narration", object[13]);
 				collection.put("start", object[14]);
 				collection.put("stop", object[15]);
 				collection.put("collectionItemId", object[16]);
 				collection.put("type", object[17]);
+				collection.put("resourceSourceId", object[18]);
+				collection.put("sourceName", object[19]);
+				collection.put("domainName", object[20]);
+				collection.put("attribution", object[21]);
+				collection.put("Count", result.size());
 				collectionList.add(collection);
 			}
 		}
@@ -778,6 +802,10 @@ public class FeaturedServiceImpl implements FeaturedService, ParameterProperties
 
 	public CustomTableRepository getCustomTableRepository() {
 		return customTableRepository;
+	}
+	
+	public StorageRepository getStorageRepository() {
+		return storageRepository;
 	}
 
 }
