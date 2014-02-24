@@ -755,12 +755,16 @@ public class FeaturedServiceImpl implements FeaturedService, ParameterProperties
 				collection.put("sharing", object[9]);
 				collection.put("hasFrameBreaker", object[10]);
 				collection.put("recordSource", object[11]);
-				collection.put("license", object[12]);
+				collection.put("license", object[12]);	
 				collection.put("narration", object[13]);
 				collection.put("start", object[14]);
 				collection.put("stop", object[15]);
 				collection.put("collectionItemId", object[16]);
 				collection.put("type", object[17]);
+				collection.put("resourceSourceId", object[18]);
+				collection.put("sourceName", object[19]);
+				collection.put("domainName", object[20]);
+				collection.put("attribution", object[21]);
 				collection.put("Count", result.size());
 				collectionList.add(collection);
 			}

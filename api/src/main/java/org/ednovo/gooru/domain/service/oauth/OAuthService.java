@@ -49,5 +49,6 @@ public interface OAuthService {
 	
 	void deleteConsumerSecret(String secretId) throws Exception;
 	
-	ActionResponseDTO<GooruOAuthConsumerSecret> getConsumerSecret(String secretId) throws Exception;
+	ActionResponseDTO<GooruOAuthConsumerSecret> findGooruOAuthConsumerSecretByConsumerKey(String consumerKey);
+
 }

@@ -17,10 +17,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 public class HeartBeatV2Controller extends BaseController{
 
 	@RequestMapping(value = { "/{code}" }, method = RequestMethod.GET)
-	public void getHeartBeat(@PathVariable(value = "code") long code, HttpServletRequest request, HttpServletResponse response) throws Exception{
+	public void getHeartBeat(@PathVariable(value = "code") String eventId, HttpServletRequest request, HttpServletResponse response) throws Exception{
 		
 		response.setStatus(HttpServletResponse.SC_OK);
-		SessionContextSupport.putLogParameter("code", code);
+		SessionContextSupport.putLogParameter("eventName", "heart-beat");
+		SessionContextSupport.putLogParameter("eventId", eventId);
 		SessionContextSupport.putLogParameter("IP Address", request.getRemoteAddr());
 		SessionContextSupport.putLogParameter("Host Address", InetAddress.getLocalHost().getHostAddress());
 		SessionContextSupport.putLogParameter("Host Name",InetAddress.getLocalHost().getHostName());

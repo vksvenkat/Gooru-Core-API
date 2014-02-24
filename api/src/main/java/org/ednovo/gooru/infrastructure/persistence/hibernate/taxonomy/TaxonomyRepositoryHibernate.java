@@ -923,8 +923,11 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 
 	@Override
 	public List<Object[]> getCollectionStandards(Integer codeId, String text, Integer limit, Integer offset, Boolean skipPagination) {
-		String sql = "select c.code, c.code_id, c.label,c.code_uid from taxonomy_association ta inner join code c on ta.target_code_id = c.code_id  where ta.source_code_id =" + codeId + " and c.code like '" + text + "%'";
+		String sql = "select c.code, c.code_id, c.label,c.code_uid from taxonomy_association ta inner join code c on ta.target_code_id = c.code_id  where  c.code like '" + text + "%'";
 		Query query = getSession().createSQLQuery(sql);
+		if(codeId != null ) {
+			sql += " and ta.source_code_id =" +codeId;  
+		}
 		if (!skipPagination) {
 			query.setFirstResult(offset);
 			query.setMaxResults(limit);
