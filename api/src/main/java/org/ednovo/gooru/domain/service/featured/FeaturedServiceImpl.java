@@ -54,6 +54,7 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentRepo
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.featured.FeaturedRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.question.CommentRepository;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.resource.ResourceRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.storage.StorageRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.taxonomy.TaxonomyRespository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,6 +68,9 @@ public class FeaturedServiceImpl implements FeaturedService, ParameterProperties
 
 	@Autowired
 	private TaxonomyRespository taxonomyRespository;
+	
+	@Autowired
+	private ResourceRepository resourceRepository;
 
 	@Autowired
 	private ContentRepository contentRepository;
@@ -747,12 +751,12 @@ public class FeaturedServiceImpl implements FeaturedService, ParameterProperties
 				Map<String, Object> collection = new HashMap<String, Object>();
 				collection.put("collectionId", object[0]);
 				collection.put("resourceId", object[1]);
+				Resource resource = resourceRepository.findResourceByContentGooruId((String)object[1]);
+				collection.put("standards", this.getCollectionService().getStandards(resource.getTaxonomySet()));
+				collection.put("course", this.getCollectionService().getCourse(resource.getTaxonomySet()));
 				collection.put("title", object[2]);
-
 				if (object[4] != null) {
-					Map<String, Object> thumbnails = new HashMap<String, Object>();
-					thumbnails.put(URL, storageArea.getCdnDirectPath() + String.valueOf(object[3]) + String.valueOf(object[4]));
-					collection.put("thumbnails", thumbnails);
+					collection.put("thumbnails", storageArea.getAreaPath() + String.valueOf(object[3]) + String.valueOf(object[4]));
 				}
 				collection.put("resourceUrl", object[5]);
 				collection.put("grade", object[6]);
@@ -761,7 +765,7 @@ public class FeaturedServiceImpl implements FeaturedService, ParameterProperties
 				collection.put("sharing", object[9]);
 				collection.put("hasFrameBreaker", object[10]);
 				collection.put("recordSource", object[11]);
-				collection.put("license", object[12]);	
+				collection.put("license", object[12]);
 				collection.put("narration", object[13]);
 				collection.put("start", object[14]);
 				collection.put("stop", object[15]);
@@ -812,6 +816,14 @@ public class FeaturedServiceImpl implements FeaturedService, ParameterProperties
 	
 	public StorageRepository getStorageRepository() {
 		return storageRepository;
+	}
+	
+	public ResourceRepository getResourceRepository() {
+		return resourceRepository;
+	}
+
+	public void setResourceRepository(ResourceRepository resourceRepository) {
+		this.resourceRepository = resourceRepository;
 	}
 
 }
