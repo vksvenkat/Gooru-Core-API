@@ -158,6 +158,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	}
 
 	public List<Map<String, Object>> getFolderItem(String gooruOid, String sharing) {
+		StorageArea storageArea = this.getStorageRepository().getStorageAreaByTypeName(NFS);
 		List<Map<String, Object>> items = new ArrayList<Map<String, Object>>();
 		List<Object[]> result = this.getCollectionRepository().getCollectionItem(gooruOid, 4, 0, false, sharing, null);
 		if (result != null && result.size() > 0) {
@@ -166,6 +167,11 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				item.put(TITLE, object[0]);
 				item.put(GOORU_OID, object[1]);
 				item.put(TYPE, object[2]);
+				if (object[4] != null) {
+					Map<String, Object> thumbnails = new HashMap<String, Object>();
+					thumbnails.put(URL, storageArea.getCdnDirectPath() + String.valueOf(object[3]) + String.valueOf(object[4]));
+					item.put(THUMBNAILS, thumbnails);
+				}
 				if (object[5] != null) {
 					Map<String, Object> resourceFormat = new HashMap<String, Object>();
 					resourceFormat.put(VALUE, object[5]);

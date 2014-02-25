@@ -272,6 +272,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 
 				// Identity identity =
 				// this.getUserRepository().findUserByGooruId(gooruUid);
+				
 				if (identity != null) {
 					if (user.getAccountTypeId() != null && user.getAccountTypeId().equals(UserAccountType.ACCOUNT_CHILD)) {
 						user.setEmailId(user.getParentUser().getIdentities().iterator().next().getExternalId());
@@ -279,6 +280,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 						user.setEmailId(identity.getExternalId());
 					}
 				}
+				
 				if (newProfile.getUser() != null) {
 					if (identity != null && newProfile.getUser().getEmailId() != null && !newProfile.getUser().getEmailId().isEmpty()) {
 						boolean emailAvailability = this.getUserRepository().checkUserAvailability(newProfile.getUser().getEmailId(), CheckUser.BYEMAILID, false);
@@ -354,6 +356,23 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			}
 			profile.setUser(user);
 			this.getUserRepository().save(profile);
+			
+			if(profile.getUser().getConfirmStatus() == 1){
+				Map<String, String> dataMap = new HashMap<String, String>();
+				dataMap.put(GOORU_UID, profile.getUser().getPartyUid());
+				dataMap.put(EVENT_TYPE, CustomProperties.EventMapping.WELCOME_MAIL.getEvent());
+				if (profile.getUser().getAccountTypeId() != null && profile.getUser().getAccountTypeId().equals(UserAccountType.ACCOUNT_CHILD)) { 
+					if(profile.getUser().getParentUser().getIdentities() != null){
+						dataMap.put("recipient", profile.getUser().getParentUser().getIdentities().iterator().next().getExternalId());
+					}
+				} else {
+					if(profile.getUser().getIdentities() != null){
+						dataMap.put("recipient", profile.getUser().getIdentities().iterator().next().getExternalId());
+					}
+				}
+				this.getMailHandler().handleMailEvent(dataMap);
+			}
+			
 			CustomTableValue type = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.USER_CLASSIFICATION_TYPE.getTable(), CustomProperties.UserClassificationType.COURSE.getUserClassificationType());
 			profile.setCourses(this.getUserRepository().getUserClassifications(gooruUid, type.getCustomTableValueId(), null));
 		}

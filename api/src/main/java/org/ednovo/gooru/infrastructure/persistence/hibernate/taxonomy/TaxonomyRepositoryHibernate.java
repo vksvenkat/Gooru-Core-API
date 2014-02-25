@@ -928,6 +928,7 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 		if(codeId != null ) {
 			sql += " and ta.source_code_id =" +codeId;  
 		}
+		sql += " group by c.code_id";
 		if (!skipPagination) {
 			query.setFirstResult(offset);
 			query.setMaxResults(limit);
