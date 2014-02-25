@@ -36,7 +36,6 @@ import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.CollectionType;
 import org.ednovo.gooru.core.api.model.Resource;
-import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.ShelfType;
 import org.ednovo.gooru.core.api.model.StorageArea;
 import org.ednovo.gooru.core.api.model.User;
