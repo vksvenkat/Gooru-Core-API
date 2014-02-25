@@ -444,8 +444,11 @@ public class CollectionUtil implements ParameterProperties {
 		List<String> curriculumName = new ArrayList<String>();
 		while (iter.hasNext()) {
 			Code code = iter.next();
-
-			this.getProcedureExecutor().setCode(code);
+			try {
+				this.getProcedureExecutor().setCode(code);
+			} catch (Exception e) {
+				logger.debug(e.getMessage());
+			}
 
 			Map codeMap = this.getProcedureExecutor().execute();
 
@@ -661,4 +664,6 @@ public class CollectionUtil implements ParameterProperties {
 	public RedisService getRedisService() {
 		return redisService;
 	}
+	
+	
 }

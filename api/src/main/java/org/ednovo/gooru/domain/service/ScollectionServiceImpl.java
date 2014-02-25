@@ -965,7 +965,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		
 		if (isNotEmptyString(sharing)) {
 			collection.setSharing(sharing);
-			this.getCollectionRepository().save(sharing);
+			this.getCollectionRepository().save(collection);
 			this.getCollectionRepository().flush();
 			String folderGooruOid = this.getCollectionRepository().getParentCollection(collection.getGooruOid(), apiCallerUser.getPartyUid());
 			Collection collectionFolder = this.getCollectionByGooruOid(folderGooruOid, null);

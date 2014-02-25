@@ -372,7 +372,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 	@Override
 	public List<UserRole> findRolesByNames(String roles) {
 		
-		String hql = " FROM UserRole ur WHERE ur.name IN (:roleNames) and  " + generateOrgAuthQuery("userRole.");
+		String hql = " FROM UserRole ur WHERE ur.name IN (:roleNames) and  " + generateOrgAuthQuery("ur.");
 		Query query = getSession().createQuery(hql);
 		query.setParameterList("roleNames", roles.split(","));
 		addOrgAuthParameters(query);
