@@ -1675,7 +1675,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	
 	@Override
 	public void updateFolderSharing(Collection collection) {
-		if (collection != null && collection.getCollectionType() != null && collection.getCollectionType().equals(COLLECTION_TYPE)) {
+		if (collection != null && collection.getCollectionType() != null && collection.getCollectionType().equalsIgnoreCase(FOLDER)) {
 			if (this.getCollectionRepository().getPublicCollectionCount(collection.getGooruOid()) != null && this.getCollectionRepository().getPublicCollectionCount(collection.getGooruOid()) > 0) {
 				collection.setSharing(Sharing.PUBLIC.getSharing());
 			} else {
