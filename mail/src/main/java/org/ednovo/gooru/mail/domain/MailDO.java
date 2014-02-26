@@ -2,6 +2,8 @@ package org.ednovo.gooru.mail.domain;
 
 import java.util.List;
 
+import javax.mail.Address;
+
 public class MailDO {
 
 	private String htmlContent;
@@ -19,6 +21,7 @@ public class MailDO {
 	private String username;
 	private String password;
 	private List<Attachment> attachFiles;
+	private Address[] address; 
 	
 
 	public void setHtmlContent(String htmlContent) {
@@ -48,7 +51,7 @@ public class MailDO {
 		return subject;
 	}
 
-	public void setRecipientt(String recipient) {
+	public void setRecipient(String recipient) {
 		this.recipient = recipient;
 
 	}
@@ -147,6 +150,14 @@ public class MailDO {
 
 	public List<Attachment> getAttachFiles() {
 		return attachFiles;
+	}
+
+	public Address[] getAddress() {
+		return address;
+	}
+
+	public void setAddress(Address[] address) {
+		this.address = address;
 	}
 
 
