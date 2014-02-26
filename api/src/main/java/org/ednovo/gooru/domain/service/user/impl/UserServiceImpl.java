@@ -868,7 +868,9 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 				partyCustomField.setOptionalKey("true");
 				this.getPartyService().createPartyCustomField(profile.getUser().getPartyUid(), newPartyCustomField, profile.getUser());
 			}
-			profile.getUser().setConfirmStatus(1);
+			if(profile.getUser().getConfirmStatus() != null && profile.getUser().getConfirmStatus() == 0){
+				profile.getUser().setConfirmStatus(1);
+			}
 			this.getUserRepository().save(profile);
 		
 		if (user != null && identity.getAccountCreatedType() != null && identity.getAccountCreatedType().equalsIgnoreCase(UserAccountType.accountCreatedType.SSO.getType()) && user.getViewFlag() == 0) {
