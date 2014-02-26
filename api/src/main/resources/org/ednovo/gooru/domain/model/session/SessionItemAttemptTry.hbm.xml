@@ -26,22 +26,21 @@
     "-//Hibernate/Hibernate Mapping DTD 3.0//EN" 
     "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping>
-	<class name="org.ednovo.gooru.core.api.model.SessionItemAttemptTry"
-		table="session_item_attempt_try">
-		<composite-id>
-			<key-many-to-one column="session_item_id" name="sessionItem"
-				class="org.ednovo.gooru.core.api.model.SessionItem" lazy="proxy" />
-			<key-many-to-one column="answer_id" name="AssessmentAnswer"
-				class="org.ednovo.gooru.core.api.model.AssessmentAnswer" lazy="proxy" />
-		</composite-id>
-		
-		<property name="answerText" column="answer_text" not-null="false" />
-		
-		<property name="trySequence" column="try_sequence" not-null="true" />
-		
-		<property name="attemptItemTryStatus" column="attempt_item_try_status" not-null="false"></property>
+    <class name="org.ednovo.gooru.core.api.model.SessionItemAttemptTry"
+        table="session_item_attempt_try">
+        <composite-id>
+            <key-many-to-one column="session_item_id" name="sessionItem"
+                class="org.ednovo.gooru.core.api.model.SessionItem" lazy="proxy" />
+        </composite-id>
+        <many-to-one column="answer_id" name="AssessmentAnswer"
+                class="org.ednovo.gooru.core.api.model.AssessmentAnswer" lazy="proxy"  not-null="false"/>
+        <property name="answerText" column="answer_text" not-null="false" />
+        
+        <property name="trySequence" column="try_sequence" not-null="true" />
+        
+        <property name="attemptItemTryStatus" column="attempt_item_try_status" not-null="false"></property>
 
-		<property name="answeredAtTime" column="answered_at_time" not-null="false"></property>
+        <property name="answeredAtTime" column="answered_at_time" not-null="false"></property>
 
-	</class>
+    </class>
 </hibernate-mapping>
