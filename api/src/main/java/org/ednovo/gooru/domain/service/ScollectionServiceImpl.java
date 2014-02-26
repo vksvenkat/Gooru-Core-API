@@ -1429,7 +1429,11 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			destCollection.setResourceType(sourceCollection.getResourceType());
 			destCollection.setLastModified(new Date(System.currentTimeMillis()));
 			destCollection.setCreatedOn(new Date(System.currentTimeMillis()));
-			destCollection.setSharing(addToShelf ? Sharing.ANYONEWITHLINK.getSharing() : sourceCollection.getSharing());
+			if (newCollection != null && newCollection.getSharing() != null) { 
+				destCollection.setSharing(newCollection.getSharing());
+			} else {
+			   destCollection.setSharing(addToShelf ? Sharing.ANYONEWITHLINK.getSharing() : sourceCollection.getSharing());
+		    }
 			destCollection.setUser(user);
 			destCollection.setOrganization(sourceCollection.getOrganization());
 			destCollection.setCreator(sourceCollection.getCreator());
