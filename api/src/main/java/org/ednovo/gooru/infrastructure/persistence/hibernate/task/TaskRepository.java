@@ -75,6 +75,8 @@ public interface TaskRepository extends BaseRepository {
 
 	List<String> getTaskResourceAssocs(String taskGooruOid);
 	
+	Long getCollectionClasspageAssocCount(String collectionId);
+	
 	
 	
 }

@@ -101,6 +101,16 @@ public class TaskRepositoryHibernate extends BaseRepositoryHibernate implements 
 	}
 
 	@Override
+	public Long getCollectionClasspageAssocCount(String collectionId) {
+		Session session = getSession();
+		String sql = "select count(*) as count from classpage cc inner join resource car on car.content_id = cc.classpage_content_id inner join content cor on cor.content_id = car.content_id   inner join collection_item ci on cc.classpage_content_id = ci.collection_content_id inner join content c on c.content_id = ci.collection_content_id inner join resource r on  r.content_id = ci.resource_content_id inner join content cr on cr.content_id = r.content_id where cr.gooru_oid = '"
+				+ collectionId + "' and ci.associated_by_uid != cr.user_uid";
+		
+		Query query = session.createSQLQuery(sql).addScalar("count", StandardBasicTypes.LONG);
+		return (Long) query.list().get(0);
+	}
+
+	@Override
 	public CollectionTaskAssoc getCollectionTaskAssoc(String collectionId, String collectionTaskAssocId) {
 		Session session = getSession();
 		String hql = " FROM CollectionTaskAssoc collectionTaskAssoc WHERE  collectionTaskAssoc.collection.gooruOid=:collectionId and collectionTaskAssoc.collectionTaskAssocUid=:collectionTaskAssocUid and ";
@@ -110,20 +120,19 @@ public class TaskRepositoryHibernate extends BaseRepositoryHibernate implements 
 		addOrgAuthParameters(query);
 		return (CollectionTaskAssoc) ((query.list().size() > 0) ? query.list().get(0) : null);
 	}
-	
+
 	@Override
-	public List<Map<Object, Object>> getCollectionClasspageAssoc(
-			String collectionId, String gooruUid) {
+	public List<Map<Object, Object>> getCollectionClasspageAssoc(String collectionId, String gooruUid) {
 		Session session = getSession();
-		String sql = "select car.title as title, cor.gooru_oid as classpageId from classpage cc inner join resource car on car.content_id = cc.classpage_content_id inner join content cor on cor.content_id = car.content_id   inner join collection_item ci on cc.classpage_content_id = ci.collection_content_id inner join content c on c.content_id = ci.collection_content_id inner join resource r on  r.content_id = ci.resource_content_id inner join content cr on cr.content_id = r.content_id where cr.gooru_oid='"+collectionId+"'";
-		if (gooruUid != null) { 
-			sql += "and ci.associated_by_uid='"+gooruUid+"'";
+		String sql = "select car.title as title, cor.gooru_oid as classpageId from classpage cc inner join resource car on car.content_id = cc.classpage_content_id inner join content cor on cor.content_id = car.content_id   inner join collection_item ci on cc.classpage_content_id = ci.collection_content_id inner join content c on c.content_id = ci.collection_content_id inner join resource r on  r.content_id = ci.resource_content_id inner join content cr on cr.content_id = r.content_id where cr.gooru_oid='"
+				+ collectionId + "'";
+		if (gooruUid != null) {
+			sql += "and ci.associated_by_uid='" + gooruUid + "'";
 		}
-		Query query = session.createSQLQuery(sql).
-		addScalar("title", StandardBasicTypes.STRING).addScalar("classpageId", StandardBasicTypes.STRING);
+		Query query = session.createSQLQuery(sql).addScalar("title", StandardBasicTypes.STRING).addScalar("classpageId", StandardBasicTypes.STRING);
 		return getClasspageData(query.list());
 	}
-	
+
 	@Override
 	public void deleteCollectionAssocInAssignment(String collectionId) {
 		Session session = getSession();
@@ -131,16 +140,16 @@ public class TaskRepositoryHibernate extends BaseRepositoryHibernate implements 
 		Query query = session.createSQLQuery(sql).setParameter("collectionId", collectionId);
 		query.executeUpdate();
 	}
-	
+
 	private List<Map<Object, Object>> getClasspageData(List<Object[]> results) {
-		List<Map<Object, Object>> listClasspageTitle = new ArrayList<Map<Object,Object>>();
-		for (Object[] object : results) {			
+		List<Map<Object, Object>> listClasspageTitle = new ArrayList<Map<Object, Object>>();
+		for (Object[] object : results) {
 			Map<Object, Object> average = new HashMap<Object, Object>();
-			average.put("classpageId",  object[1]);
+			average.put("classpageId", object[1]);
 			average.put("title", object[0]);
 			listClasspageTitle.add(average);
 		}
-		return listClasspageTitle; 
+		return listClasspageTitle;
 	}
 
 	@Override
@@ -216,9 +225,9 @@ public class TaskRepositoryHibernate extends BaseRepositoryHibernate implements 
 		if (gooruOid != null) {
 			hql += "tra.task.gooruOid =:gooruOid and ";
 		}
-		
+
 		Query query = session.createQuery(hql + generateOrgAuthQuery("tra.task."));
-		if(resourceId != null){
+		if (resourceId != null) {
 			query.setParameterList("resourceId", resourceId.split(","));
 		}
 		if (gooruOid != null) {
@@ -229,13 +238,13 @@ public class TaskRepositoryHibernate extends BaseRepositoryHibernate implements 
 	}
 
 	@Override
-	public List<Resource> getTaskResourceAssociatedByTaskId(String gooruOid, Integer offset, Integer limit, String skipPagination, String orderBy,String sharing) {
+	public List<Resource> getTaskResourceAssociatedByTaskId(String gooruOid, Integer offset, Integer limit, String skipPagination, String orderBy, String sharing) {
 		Session session = getSession();
 		String hql = "select distinct(taskResourceAssocs.resource)  FROM Task task inner join task.taskResourceAssocs taskResourceAssocs where task.gooruOid=:gooruOid and " + generateOrgAuthQuery("task.");
-		if (sharing != null ) {
+		if (sharing != null) {
 			hql += " and taskResourceAssocs.resource.sharing in (:sharing)";
 		}
-		
+
 		if (orderBy != null && orderBy.equalsIgnoreCase(DATE)) {
 			hql += " order by taskResourceAssocs.resource.createdOn desc";
 		}
@@ -244,7 +253,7 @@ public class TaskRepositoryHibernate extends BaseRepositoryHibernate implements 
 		}
 		Query query = session.createQuery(hql);
 		query.setParameter("gooruOid", gooruOid);
-		if(sharing != null) {
+		if (sharing != null) {
 			query.setParameterList("sharing", sharing.split(","));
 		}
 		addOrgAuthParameters(query);
@@ -284,9 +293,9 @@ public class TaskRepositoryHibernate extends BaseRepositoryHibernate implements 
 		if (sharing != null) {
 			hql += " and taskResourceAssoc.resource.sharing in (:sharing)";
 		}
-		
+
 		Query query = session.createQuery(hql);
-		if(sharing != null) {
+		if (sharing != null) {
 			query.setParameterList("sharing", sharing.split(","));
 		}
 		addOrgAuthParameters(query);
@@ -294,7 +303,7 @@ public class TaskRepositoryHibernate extends BaseRepositoryHibernate implements 
 	}
 
 	@Override
-	public Long getTaskCollectionCount(String taskGooruOid , String classpageId) {
+	public Long getTaskCollectionCount(String taskGooruOid, String classpageId) {
 		Session session = getSession();
 		String hql = "select count(*)  FROM CollectionTaskAssoc collectionTaskAssoc WHERE " + generateOrgAuthQuery("collectionTaskAssoc.task.");
 		if (taskGooruOid != null) {
@@ -319,7 +328,5 @@ public class TaskRepositoryHibernate extends BaseRepositoryHibernate implements 
 		addOrgAuthParameters(query);
 		return (Long) query.list().get(0);
 	}
-
-	
 
 }
