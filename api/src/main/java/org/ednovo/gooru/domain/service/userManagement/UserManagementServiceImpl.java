@@ -357,20 +357,29 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			profile.setUser(user);
 			this.getUserRepository().save(profile);
 			
-			if(profile.getUser().getConfirmStatus() != null && profile.getUser().getConfirmStatus() == 0){
-				Map<String, String> dataMap = new HashMap<String, String>();
-				dataMap.put(GOORU_UID, profile.getUser().getPartyUid());
-				dataMap.put(EVENT_TYPE, CustomProperties.EventMapping.WELCOME_MAIL.getEvent());
-				if (profile.getUser().getAccountTypeId() != null && profile.getUser().getAccountTypeId().equals(UserAccountType.ACCOUNT_CHILD)) { 
-					if(profile.getUser().getParentUser().getIdentities() != null){
-						dataMap.put("recipient", profile.getUser().getParentUser().getIdentities().iterator().next().getExternalId());
+			PartyCustomField partyCustomField = this.getPartyService().getPartyCustomeField(profile.getUser().getPartyUid(), "is_user_confirmed", profile.getUser());
+			
+			if(partyCustomField != null && !partyCustomField.getOptionalValue().equalsIgnoreCase("true")) {
+				if(profile.getUser().getConfirmStatus() != null && profile.getUser().getConfirmStatus() == 0){
+					Map<String, String> dataMap = new HashMap<String, String>();
+					dataMap.put(GOORU_UID, profile.getUser().getPartyUid());
+					dataMap.put(EVENT_TYPE, CustomProperties.EventMapping.WELCOME_MAIL.getEvent());
+					if (profile.getUser().getAccountTypeId() != null && profile.getUser().getAccountTypeId().equals(UserAccountType.ACCOUNT_CHILD)) { 
+						if(profile.getUser().getParentUser().getIdentities() != null){
+							dataMap.put("recipient", profile.getUser().getParentUser().getIdentities().iterator().next().getExternalId());
+						}
+					} else {
+						if(profile.getUser().getIdentities() != null){
+							dataMap.put("recipient", profile.getUser().getIdentities().iterator().next().getExternalId());
+						}
 					}
-				} else {
-					if(profile.getUser().getIdentities() != null){
-						dataMap.put("recipient", profile.getUser().getIdentities().iterator().next().getExternalId());
-					}
+					this.getMailHandler().handleMailEvent(dataMap);
 				}
-				this.getMailHandler().handleMailEvent(dataMap);
+				PartyCustomField newPartyCustomField = new PartyCustomField();
+				partyCustomField.setCategory("user_confirm_status");
+				partyCustomField.setOptionalValue("is_user_confirmed");
+				partyCustomField.setOptionalKey("true");
+				this.getPartyService().createPartyCustomField(profile.getUser().getPartyUid(), newPartyCustomField, profile.getUser());
 			}
 			
 			CustomTableValue type = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.USER_CLASSIFICATION_TYPE.getTable(), CustomProperties.UserClassificationType.COURSE.getUserClassificationType());
