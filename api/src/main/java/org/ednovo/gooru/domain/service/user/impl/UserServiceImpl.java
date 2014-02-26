@@ -860,13 +860,8 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 						}
 					}
 					this.getMailHandler().handleMailEvent(dataMap);
-				
-					PartyCustomField newPartyCustomField = new PartyCustomField();
-					if(partyCustomField.getOptionalKey() != null){
-						newPartyCustomField.setOptionalKey(partyCustomField.getOptionalKey());
-					}
-					newPartyCustomField.setOptionalValue("true");
-					this.getPartyService().updatePartyCustomField(partyCustomField.getPartyUid(), newPartyCustomField, profile.getUser());
+					partyCustomField.setOptionalValue("true");
+				    this.getUserRepository().save(partyCustomField);
 			}
 		
 		if (user != null && identity.getAccountCreatedType() != null && identity.getAccountCreatedType().equalsIgnoreCase(UserAccountType.accountCreatedType.SSO.getType()) && user.getViewFlag() == 0) {
