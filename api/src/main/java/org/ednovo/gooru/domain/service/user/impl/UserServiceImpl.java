@@ -844,12 +844,9 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 
 		this.getUserRepository().save(profile);
 		
-		PartyCustomField partyCustomField = this.getPartyService().getPartyCustomeField(profile.getUser().getPartyUid(), "is_user_confirmed", profile.getUser());
-		
-		if (sendWelcomeMail && !isContentAdmin(user)) {
+		PartyCustomField partyCustomField = this.getPartyService().getPartyCustomeField(profile.getUser().getPartyUid(), "user_confirm_status", profile.getUser());
 		
 			if(partyCustomField != null && !partyCustomField.getOptionalValue().equalsIgnoreCase("true")) {
-				if(profile.getUser().getConfirmStatus() != null && profile.getUser().getConfirmStatus() == 0){
 					Map<String, String> dataMap = new HashMap<String, String>();
 					dataMap.put(GOORU_UID, profile.getUser().getPartyUid());
 					dataMap.put(EVENT_TYPE, CustomProperties.EventMapping.WELCOME_MAIL.getEvent());
@@ -863,15 +860,14 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 						}
 					}
 					this.getMailHandler().handleMailEvent(dataMap);
-				}
-				PartyCustomField newPartyCustomField = new PartyCustomField();
-				partyCustomField.setCategory("user_confirm_status");
-				partyCustomField.setOptionalValue("is_user_confirmed");
-				partyCustomField.setOptionalKey("true");
-				this.getPartyService().createPartyCustomField(profile.getUser().getPartyUid(), newPartyCustomField, profile.getUser());
+				
+					PartyCustomField newPartyCustomField = new PartyCustomField();
+					if(partyCustomField.getOptionalKey() != null){
+						newPartyCustomField.setOptionalKey(partyCustomField.getOptionalKey());
+					}
+					newPartyCustomField.setOptionalValue("true");
+					this.getPartyService().updatePartyCustomField(partyCustomField.getPartyUid(), newPartyCustomField, profile.getUser());
 			}
-		
-		}
 		
 		if (user != null && identity.getAccountCreatedType() != null && identity.getAccountCreatedType().equalsIgnoreCase(UserAccountType.accountCreatedType.SSO.getType()) && user.getViewFlag() == 0) {
 			password = BaseUtil.base48Encode(7);
