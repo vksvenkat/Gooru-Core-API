@@ -699,7 +699,6 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 		boolean sendWelcomeMail = false;
 		if ((user != null) && (user.getConfirmStatus() == 0)) {
 			sendWelcomeMail = true;
-			user.setConfirmStatus(1);
 		}
 
 		if (isNotEmptyString(firstName)) {
@@ -846,7 +845,6 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 		
 		PartyCustomField partyCustomField = this.getPartyService().getPartyCustomeField(profile.getUser().getPartyUid(), "is_user_confirmed", profile.getUser());
 		
-		if (sendWelcomeMail && !isContentAdmin(user)) {
 		
 			if(partyCustomField != null && !partyCustomField.getOptionalValue().equalsIgnoreCase("true")) {
 				if(profile.getUser().getConfirmStatus() != null && profile.getUser().getConfirmStatus() == 0){
@@ -870,8 +868,8 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 				partyCustomField.setOptionalKey("true");
 				this.getPartyService().createPartyCustomField(profile.getUser().getPartyUid(), newPartyCustomField, profile.getUser());
 			}
-		
-		}
+			profile.getUser().setConfirmStatus(1);
+			this.getUserRepository().save(profile);
 		
 		if (user != null && identity.getAccountCreatedType() != null && identity.getAccountCreatedType().equalsIgnoreCase(UserAccountType.accountCreatedType.SSO.getType()) && user.getViewFlag() == 0) {
 			password = BaseUtil.base48Encode(7);
