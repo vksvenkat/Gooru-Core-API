@@ -36,4 +36,8 @@ public interface ApplicationService {
 	ActionResponseDTO<ApiKey> saveApplication(ApiKey apikey, User user) throws Exception;
 	
 	ActionResponseDTO<ApiKey> updateApplication(ApiKey apiKey, User user) throws Exception;
+	
+	ActionResponseDTO<ApiKey> createJira(ApiKey apiKey, String username,String password,String appName,String appKey) throws Exception;
+	
+	
 }
