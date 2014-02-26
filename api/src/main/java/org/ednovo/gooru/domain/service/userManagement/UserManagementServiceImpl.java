@@ -360,7 +360,6 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			PartyCustomField partyCustomField = this.getPartyService().getPartyCustomeField(profile.getUser().getPartyUid(), "user_confirm_status", profile.getUser());
 			
 			if(partyCustomField != null && !partyCustomField.getOptionalValue().equalsIgnoreCase("true")) {
-				if(profile.getUser().getConfirmStatus() != null){
 					Map<String, String> dataMap = new HashMap<String, String>();
 					dataMap.put(GOORU_UID, profile.getUser().getPartyUid());
 					dataMap.put(EVENT_TYPE, CustomProperties.EventMapping.WELCOME_MAIL.getEvent());
@@ -374,14 +373,9 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 						}
 					}
 					this.getMailHandler().handleMailEvent(dataMap);
-				}
-				
-				PartyCustomField newPartyCustomField = new PartyCustomField();
-				if(partyCustomField.getOptionalKey() != null){
-					newPartyCustomField.setOptionalKey(partyCustomField.getOptionalKey());
-				}
-				newPartyCustomField.setOptionalValue("true");
-				this.getPartyService().updatePartyCustomField(partyCustomField.getPartyUid(), newPartyCustomField, profile.getUser());
+					this.getMailHandler().handleMailEvent(dataMap);
+					partyCustomField.setOptionalValue("true");
+				    this.getUserRepository().save(partyCustomField);
 			}
 			
 			CustomTableValue type = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.USER_CLASSIFICATION_TYPE.getTable(), CustomProperties.UserClassificationType.COURSE.getUserClassificationType());
