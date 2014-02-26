@@ -59,6 +59,8 @@ public abstract class HibernateDaoSupport extends UserGroupSupport {
 		if (model instanceof CollectionItem) {
 			((CollectionItem) model).getCollection().setLastModified(new Date(System.currentTimeMillis()));           
 		}
+		
+		
 		if (model instanceof User) {
 			((User) model).setLastModifiedOn(new Date(System.currentTimeMillis()));
 		}
