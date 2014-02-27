@@ -197,6 +197,11 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 			}
 		}
 		
+		if (sessionItemAttemptTry.getAttemptItemTryStatus() != null) { 
+			sessionItemAttemptTry.setAttemptItemTryStatus(sessionItemAttemptTry.getAttemptItemTryStatus());	
+		} else { 
+			sessionItemAttemptTry.setAttemptItemTryStatus(AttemptTryStatus.SKIP.getTryStatus());
+		}
 		sessionItemAttemptTry.setSessionItem(sessionItem);
 		sessionItemAttemptTry.setAnsweredAtTime(new Date(System.currentTimeMillis()));
 		sessionItemAttemptTry.setTrySequence(trySequence);
