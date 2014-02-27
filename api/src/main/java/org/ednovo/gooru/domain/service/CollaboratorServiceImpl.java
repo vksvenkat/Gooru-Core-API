@@ -39,7 +39,7 @@ import org.ednovo.gooru.core.api.model.UserContentAssoc;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.NotFoundException;
-import org.ednovo.gooru.domain.service.setting.SettingService;
+import org.ednovo.gooru.domain.service.userManagement.UserManagementService;
 import org.ednovo.gooru.domain.service.v2.ContentService;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepository;
@@ -71,7 +71,7 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 	private CollaboratorRepository collaboratorRepository;
 
 	@Autowired
-	private SettingService settingService;
+	private UserManagementService userManagementService;
 
 	@Autowired
 	private ContentService contentService;
@@ -163,7 +163,7 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 		activeMap.put(USER_NAME, userContentAssoc.getUser().getUsername());
 		activeMap.put(GOORU_OID, userContentAssoc.getContent().getGooruOid());
 		activeMap.put(ASSOC_DATE, userContentAssoc.getAssociationDate());
-		activeMap.put("profileImageUrl", userContentAssoc.getUser().getProfileImageUrl());
+		activeMap.put(PROFILE_IMG_URL , this.getUserManagementService().buildUserProfileImageUrl(userContentAssoc.getUser()));
 		if (status != null) {
 			activeMap.put(STATUS, status);
 		}
@@ -316,6 +316,10 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 
 	public MailAsyncExecutor getMailAsyncExecutor() {
 		return mailAsyncExecutor;
+	}
+
+	public UserManagementService getUserManagementService() {
+		return userManagementService;
 	}
 
 }
