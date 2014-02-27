@@ -703,13 +703,13 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 		EventMapping eventMapping = this.getEventService().getTemplatesByEventName(data.get("eventType"));
 		if (eventMapping != null) {
 			Map<String, Object> map = eventMapData(eventMapping);
-			/*if (eventMapping.getEvent().getDisplayName().equalsIgnoreCase(CustomProperties.EventMapping.WELCOME_MAIL.getEvent())) {
+			if (eventMapping.getEvent().getDisplayName().equalsIgnoreCase(CustomProperties.EventMapping.WELCOME_MAIL.getEvent())) {
 				map.put("recipient", data.get("recipient"));
 				sendMail(data.get("gooruUid"), map);
 				
 			} else if (eventMapping.getEvent().getDisplayName().equalsIgnoreCase(CustomProperties.EventMapping.FIRST_COLLECTION.getEvent())) {
 				sendUserFirstCollectionCreate(data.get("gooruUid"), data.get("accountTypeId"), map);
-			} else*/ 
+			} else 
 			if (eventMapping.getEvent().getDisplayName().equalsIgnoreCase(CustomProperties.EventMapping.SSO_CONFIRMATION_MAIL.getEvent())) {
 				map.put("password", data.get("password"));
 				sendMail(data.get("gooruUid"), map);

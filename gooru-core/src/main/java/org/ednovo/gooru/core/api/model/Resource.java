@@ -5,6 +5,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.ednovo.gooru.core.application.util.BaseUtil;
 
@@ -181,6 +183,7 @@ public class Resource extends Content implements Serializable {
 	public static final String QUIZ_THUMBNAIL_SIZES = "160x120,75x56,120x90,d80x60,50x40,800x600";
 
 	public static final String RESOURCE_THUMBNAIL_SIZES = "80x60,160x120";
+	
 
 	public Resource() {
 		recordSource = RecordSource.DEFAULT.getRecordSource();
@@ -569,10 +572,14 @@ public class Resource extends Content implements Serializable {
 
 			if(getResourceType() != null) {
 				if (!getResourceType().getName().equalsIgnoreCase("assessment-question")) {
-					if (getThumbnail() != null && getThumbnail().contains("gooru-default")) {
-						this.url = getAssetURI() + getThumbnail();
+					if(getResourceType().getName().equalsIgnoreCase(ResourceType.Type.VIDEO.getType())) {
+						this.url = this.getYoutubeVideoId(Resource.this.getUrl()) == null ? null : "img.youtube.com/vi/"+ this.getYoutubeVideoId(Resource.this.getUrl()) + "/1.jpg";
 					} else {
-						this.url = getAssetURI() + getFolder() + getThumbnail();
+						if (getThumbnail() != null && getThumbnail().contains("gooru-default")) {
+							this.url = getAssetURI() + getThumbnail();
+						} else {
+							this.url = getAssetURI() + getFolder() + getThumbnail();
+						}
 					}
 				}
 			}
@@ -622,7 +629,19 @@ public class Resource extends Content implements Serializable {
 		public void setDefaultImage(boolean isDefaultImage) {
 			this.isDefaultImage = isDefaultImage;
 		}
-
+		
+		private  String getYoutubeVideoId(String url) {
+			String pattern = "youtu(?:\\.be|be\\.com)/(?:.*v(?:/|=)|(?:.*/)?)([a-zA-Z0-9-_]{11}+)";
+			String videoId = null;
+			Pattern compiledPattern = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE);
+			Matcher matcher = compiledPattern.matcher(url);
+			if (matcher != null) {
+				while (matcher.find()) {
+					videoId = matcher.group(1);
+				}
+			}
+			return videoId;
+		}
 	}
 
 	public Thumbnail getThumbnails() {
@@ -861,5 +880,5 @@ public class Resource extends Content implements Serializable {
 	public CustomTableValue getResourceFormat() {
 		return resourceFormat;
 	}
-
+	
 }

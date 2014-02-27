@@ -396,8 +396,8 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 		List<CollectionItem> collectionItems = getCollectionService().setCollectionItemMetaInfo(getCollectionService().getMyCollectionItems(partyUid, filters, user));
 		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, COLLECTION_INCLUDE_FIELDS);
 		includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_META_INFO);
-		includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_CREATE_ITEM_INCLUDE_FILEDS);
 		includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_WORKSPACE);
+		includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_CREATE_ITEM_INCLUDE_FILEDS);
 		return toModelAndView(serialize(collectionItems, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes));
 	}
 
@@ -416,7 +416,7 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 	}
 	
 	@RequestMapping(value = { "/standards" }, method = RequestMethod.GET)
-	public ModelAndView getCollectionStandards(HttpServletRequest request, @RequestParam(value = ID) Integer codeId,@RequestParam(value="query",required =false) String query, HttpServletResponse resHttpServletResponse
+	public ModelAndView getCollectionStandards(HttpServletRequest request, @RequestParam(value = ID,required = false) Integer codeId,@RequestParam(value="query",required =false) String query, HttpServletResponse resHttpServletResponse
 			,@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,@RequestParam(value = SKIP_PAGINATION, required = false, defaultValue = FALSE) boolean skipPagination) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
 		return toModelAndViewWithIoFilter(this.getCollectionService().getCollectionStandards(codeId,query,limit,offset,skipPagination), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, COLLECTION_STANDARDS_INCLUDES);

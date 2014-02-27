@@ -13,6 +13,8 @@ public class SessionItemAttemptTry implements Serializable {
 	private static final long serialVersionUID = -9125991535274843683L;
 
 	
+	private String sessionItemAttemptTryId;
+	
 	private SessionItem sessionItem;
 	
 	private AssessmentAnswer assessmentAnswer;
@@ -71,6 +73,14 @@ public class SessionItemAttemptTry implements Serializable {
 
 	public Integer getTrySequence() {
 		return trySequence;
+	}
+
+	public void setSessionItemAttemptTryId(String sessionItemAttemptTryId) {
+		this.sessionItemAttemptTryId = sessionItemAttemptTryId;
+	}
+
+	public String getSessionItemAttemptTryId() {
+		return sessionItemAttemptTryId;
 	}
 
 }

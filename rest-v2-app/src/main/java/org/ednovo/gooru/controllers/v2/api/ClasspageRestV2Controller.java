@@ -38,6 +38,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.ednovo.gooru.controllers.BaseController;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Classpage;
+import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.CollectionTaskAssoc;
 import org.ednovo.gooru.core.api.model.CollectionType;
@@ -232,8 +233,7 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ITEM_READ })
 	@RequestMapping(value = "/collection/{id}/count", method = RequestMethod.GET)
 	public ModelAndView getCollectionClasspageAssocCount(@PathVariable(value = ID) String collectionId, @RequestParam(value = GOORU_UID, required = false) String gooruUid, HttpServletRequest request, HttpServletResponse response) {
-		List<Map<Object, Object>> count = this.getTaskRepository().getCollectionClasspageAssoc(collectionId, gooruUid);
-		return toJsonModelAndView(count != null ? count.size() : 0, true);
+		return toJsonModelAndView(this.getTaskRepository().getCollectionClasspageAssocCount(collectionId), true);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ITEM_DELETE })

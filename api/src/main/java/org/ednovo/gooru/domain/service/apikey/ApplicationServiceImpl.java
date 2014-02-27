@@ -41,13 +41,18 @@ import org.ednovo.gooru.domain.service.PartyService;
 import org.ednovo.gooru.domain.service.party.OrganizationService;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.apikey.ApplicationRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
+import org.restlet.Response;
+import org.restlet.data.ChallengeResponse;
+import org.restlet.data.ChallengeScheme;
+import org.restlet.data.Form;
+import org.restlet.resource.ClientResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
 
 @Service
-public class ApplicationServiceImpl extends BaseServiceImpl implements ApplicationService,ParameterProperties {
+public class ApplicationServiceImpl extends BaseServiceImpl implements ApplicationService,ParameterProperties,ConstantProperties {
 
 	@Autowired
 	private ApplicationRepository apiKeyRepository;
@@ -128,6 +133,53 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 			apiKeyRepository.save(existingApiKey);
 		}
 		return new ActionResponseDTO<ApiKey>(existingApiKey, error);
+	}
+	
+	@Override
+	public ActionResponseDTO<ApiKey> createJira(ApiKey apiKey, String username,String password,String appName,String appKey)  {
+		   
+		   Errors error = validateApiKey(apiKey);
+		   ApiKey existingApiKey = apiKeyRepository.getApplicationByAppKey(apiKey.getKey());
+		   try{
+			   String auth = new String(org.apache.commons.codec.binary.Base64.encodeBase64((username+":"+password).getBytes()));
+			   Form form = new Form();
+			   form.add("issuetype", ISSUE);
+			   form.add("pid", PID);
+			   form.add("summary", "Request to create Appkey for "+ appName +" in the Production");
+			   form.add("description", "Request to create Appkey for development Application Name : "+ appName + " and development Application Key : "+ appKey + " in the Production");
+			   form.add("components", COMPONENTS);
+			   form.add("assignee", "-1");
+			   form.add("reporter", JIRA_REPORTER);
+	
+			    ClientResource httpClient = new ClientResource("http://collab.ednovo.org/jira/secure/QuickCreateIssue.jspa?decorator=none");
+			    Form headers = (Form)httpClient.getRequestAttributes().get("org.restlet.http.headers");
+			    
+			    if (headers == null) {
+			        headers = new Form();
+			        httpClient.getRequestAttributes().put("org.restlet.http.headers", headers);
+			    }
+			    headers.set("X-Atlassian-Token", "no-check");
+			    ChallengeResponse challengeResponse = new ChallengeResponse(ChallengeScheme.HTTP_BASIC, username, password);
+			    httpClient.setChallengeResponse(challengeResponse);
+			    httpClient.post(form);
+			    Response resp = httpClient.getResponse();
+			    String text = resp.getEntity().getText();
+			    String status = resp.getStatus().toString();
+			    if (status.contains("200")){
+			    	 CustomTableValue type = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.APPLICATION_STATUS.getTable(), CustomProperties.ApplicationStatus.SUBMITTED_FOR_REVIEW.getApplicationStatus());
+			 		 apiKey.setStatus(type.getValue());
+			 		 apiKey.setKey(appKey);
+			 		 apiKeyRepository.save(existingApiKey);
+		 		}else{				   
+		 			 throw new RuntimeException(text);
+			 			   
+		 		}	
+		   }catch(Exception e){
+			   
+			   throw new RuntimeException(e);   
+		   }
+		   
+		return new ActionResponseDTO<ApiKey>(existingApiKey, error);	
 	}
 	public CustomTableRepository getCustomTableRepository() {
 		return customTableRepository;

@@ -30,23 +30,24 @@ import java.util.List;
 import java.util.Map;
 
 import org.ednovo.gooru.application.util.MailAsyncExecutor;
-import org.ednovo.gooru.application.util.TaxonomyUtil;
 import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.Identity;
 import org.ednovo.gooru.core.api.model.InviteUser;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserContentAssoc;
-import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.NotFoundException;
-import org.ednovo.gooru.domain.service.setting.SettingService;
+import org.ednovo.gooru.domain.service.userManagement.UserManagementService;
 import org.ednovo.gooru.domain.service.v2.ContentService;
+import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.collaborator.CollaboratorRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
@@ -70,13 +71,15 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 	private CollaboratorRepository collaboratorRepository;
 
 	@Autowired
-	private SettingService settingService;
+	private UserManagementService userManagementService;
 
 	@Autowired
 	private ContentService contentService;
 
 	@Autowired
 	private MailAsyncExecutor mailAsyncExecutor;
+	
+	Logger logger = LoggerFactory.getLogger(ScollectionServiceImpl.class);
 
 	@Override
 	public List<Map<String, Object>> addCollaborator(List<String> email, String gooruOid, User apiCaller) throws Exception {
@@ -132,6 +135,11 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 				collaboratorData.put(EMAIL_ID, mailId);
 				this.getMailAsyncExecutor().sendMailToInviteCollaborator(collaboratorData);
 			}
+			try {
+				indexProcessor.index(content.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
+			} catch (Exception e) {
+				logger.debug(e.getMessage());
+			}
 		}
 
 		return collaborator;
@@ -155,7 +163,7 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 		activeMap.put(USER_NAME, userContentAssoc.getUser().getUsername());
 		activeMap.put(GOORU_OID, userContentAssoc.getContent().getGooruOid());
 		activeMap.put(ASSOC_DATE, userContentAssoc.getAssociationDate());
-		activeMap.put("profileImageUrl", userContentAssoc.getUser().getProfileImageUrl());
+		activeMap.put(PROFILE_IMG_URL , this.getUserManagementService().buildUserProfileImageUrl(userContentAssoc.getUser()));
 		if (status != null) {
 			activeMap.put(STATUS, status);
 		}
@@ -200,6 +208,11 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 						this.getCollaboratorRepository().remove(inviteUser);
 					}
 				}
+			}
+			try {
+				indexProcessor.index(content.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
+			} catch (Exception e) {
+				logger.debug(e.getMessage());
 			}
 		}
 
@@ -303,6 +316,10 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 
 	public MailAsyncExecutor getMailAsyncExecutor() {
 		return mailAsyncExecutor;
+	}
+
+	public UserManagementService getUserManagementService() {
+		return userManagementService;
 	}
 
 }

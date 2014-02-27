@@ -1,5 +1,7 @@
 package org.ednovo.gooru.mail.controller;
 
+import javax.mail.Address;
+import javax.mail.internet.InternetAddress;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -25,10 +27,12 @@ public class MailRestController extends MailSerializer {
 		MailDO mail = buildMailFromInputParameters(data);
 		if (mail != null) {
 			String[] to = mail.getRecipient().split(",");
+			Address[] address = new Address[to.length];
 			for (int i = 0; i < to.length; i++) {
-				mail.setRecipientt(to[i]);
-				mailHandler.sendMail(mail, (System.currentTimeMillis() + 1000 * 60 * 5));
+				address[i] = new InternetAddress(to[i]);
 			}
+			mail.setAddress(address);
+			mailHandler.sendMail(mail, (System.currentTimeMillis() + 1000 * 60 * 5));
 		} else {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		}

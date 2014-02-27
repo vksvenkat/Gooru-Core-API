@@ -78,8 +78,7 @@ public class SMTPMailSerivceHandler implements MailHandler {
 			message.setFrom(new InternetAddress(mail.getFrom(), mail.getFromName()));
 			message.setSubject(mail.getSubject());
 			
-			InternetAddress to = new InternetAddress(mail.getRecipient());
-			message.setRecipient(Message.RecipientType.TO, to);
+			message.setRecipients(Message.RecipientType.TO, mail.getAddress());
 			
 			if (mail.getCc() != null) {
 				message.setRecipients(Message.RecipientType.CC, mail.getCc());

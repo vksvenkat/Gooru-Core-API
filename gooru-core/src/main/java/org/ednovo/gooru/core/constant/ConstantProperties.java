@@ -63,7 +63,7 @@ public interface ConstantProperties {
 			"*.lastModified", "*.gooruUId", "*.mailNotification","*.vocabulary", "*.collaborators", "*.network", "*.buildType", "*.buildType.value","*.instructional.value","*.instructional.displayName", "*.emailId" ,"*.lastModifiedUser","*.modifiedDate","*.gooruid","*.username"};
 
 	static final String LIBRARY_COLLECTION_INCLUDE_FIELDS[] = { "*.narrationLink", "collection.notes", "*.keyPoints", "*.language", "*.goals", "*.grade", "*.estimatedTime", "*.collectionType", "*.assetURI", "*.license", "*.license.code", "*.license.icon", "*.license.name", "*.license.definition",
-			"*.dimensions", "*.defaultImage", "*.createdOn", "*.description", "*.folder", "*.gooruOid", "*.sharing", "*.title", "*.views", "*.thumbnails", "*.url", "*.vocabulary", "*.collaborators", "*.network", "*.buildType", "*.buildType.value" };
+			"*.dimensions", "*.defaultImage", "*.createdOn", "*.description", "*.folder", "*.gooruOid", "*.sharing", "*.title", "*.views", "*.thumbnails", "*.url", "*.vocabulary", "*.collaborators", "*.network", "*.buildType", "*.buildType.value", "*.resourceFormat", "*.resourceFormat.value","*.resourceFormat.displayName" };
 
 	static final String COLLABORATORI_INCLUDE[] = { "*.emailId", "*.firstName", "*.gooruUId", "*.lastName", "*.partyUid", "*.userId", "*.username", "*.username" };
 
@@ -349,7 +349,7 @@ public interface ConstantProperties {
 	static final String ORGANIZATION_SETTING_INCLUDE[] = { "key", "value" };
 
 	static final String LIBRARY_CODE_INCLUDES[] = { "*.unit", "*.lesson", "*.count", "*.topic", "*.data", "*.course", "*.collection", "*.featured", "*.science", "*.math", "*.social-sciences", "*.language-arts", "*.code", "*.codeId", "*.code", "*.label", "*.parentId", "*.thumbnails",
-			"*.thumbnails.url", "*.thumbnails.dimensions", "*.thumbnails.isDefaultImage", "*.gooruOid", "*.title", "*.creator", "*.firstName", "*.lastName", "*.username", "*.gooruUId", "*.metaInfo", "*.gender", "*.isOwner", "*.user", "*.standard" };
+			"*.thumbnails.url", "*.thumbnails.dimensions", "*.thumbnails.isDefaultImage", "*.gooruOid", "*.title", "*.creator", "*.firstName", "*.lastName", "*.username", "*.gooruUId", "*.metaInfo", "*.gender", "*.isOwner", "*.user", "*.standard", "*.concept" };
 
 	static final String LIBRARY_CONTRIBUTOR_INCLUDES[] = { "*.courses", "*.codeId", "*.code", "*.codeId", "*.code", "*.label", "*.parentId", "*.creator", "*.firstName", "*.lastName", "*.username", "*.gooruUId", "*.gooruUId", "*.isFeatured", "*.gender" };
 
@@ -358,10 +358,14 @@ public interface ConstantProperties {
 			"*.TYPE", "*.type", "*.name", "*.questionText", "*.assets", "*.assets.asset", "*.assets.asset.name", "*assets.asset.description", "*assets.asset.hasUniqueName", "*.description", "*.explanation", "*.lastModified", "*.gooruUId", "*.lastUpdatedUserUid", "*.category", "*.label", "*.code",
 			"*.userRating", "*.hasFrameBreaker", "*.copiedResourceId", "*.assignmentContentId", "*.trackActivity", "*.trackActivity.startTime", "*.trackActivity.endTime", "*.goals", "*.grade", "*.mediaType", "*.text", "*.isOer" };
 	
-	static final String[] LIBRARY_FEATURED_COLLECTIONS_INCLUDE_FIELDS = {"*.totalHitCount", "*.searchResults","*.libraryCollection","*.comment","*.collaborators", "*.network", "*.description",  "*.grade", "*.gooruOid", "*.createdOn", "*.lastModified", "*.sharing", "*.title", "*.views", "*.thumbnails","*.subjectCode","*.themeCode", "*.metaInfo", "*.taxonomySetMapping","*.standard","*.collaborators","*.meta","*.meta.collaboratorCount","*.meta.isCollaborator","*.meta.commentCount","*.metaInfo.standards","*.thumbnails.defaultImage","*.thumbnails.dimensions","*.thumbnails.url"};
+	static final String[] LIBRARY_FEATURED_COLLECTIONS_INCLUDE_FIELDS = {"*.totalHitCount", "*.searchResults","*.libraryCollection","*.comment","*.collaborators", "*.network", "*.description",  "*.grade", "*.gooruOid", "*.createdOn", "*.lastModified", "*.sharing", "*.title", "*.views", "*.thumbnails","*.subjectCode","*.themeCode", "*.metaInfo", "*.standard","*.collaborators","*.meta","*.meta.collaboratorCount","*.meta.isCollaborator","*.meta.commentCount","*.metaInfo.standards","*.thumbnails.defaultImage","*.thumbnails.dimensions","*.thumbnails.url","*.taxonomySet","*.taxonomySet.code","*.taxonomySet.codeId","*.taxonomySet.label","*.standards", "*.standards.code", "*.standards.description","*.taxonomySetMapping.*"};
+	
+	static final String[] LIBRARY_TAXONOMY_COLLECTIONS_INCLUDE_FIELDS = {"*.totalHitCount", "*.searchResults","*.libraryCollection"};
 	
 	static final String[] LIBRARY_FEATURED_COLLECTIONS_USER_INCLUDE_FIELDS = {"*.totalHitCount", "*.searchResults", "*.libraryCollection", "*.lastModifiedUser", "*.lastUpdatedUserUid", "*.commentsCount", "*.collectionItemCount", "*.lastModifiedBy","*.modifiedDate","*.user.gooruUId","*.user.username", "*.user.lastName", "*.user.firstName","*.creator","*.creator.gooruUId","*.creator.username", "*.creator.lastName", "*.creator.firstName"};
 	
+	static final String [] LIB_RESOURCE_FIELDS = {"*.totalHitCount","*.searchResults","*.libraryResource","*.collectionId","*.resourceId","*.title","*.thumbnails","*.resourceUrl","*.grade","*.description","*.category","*.sharing","*.hasFrameBreaker","*.recordSource","*.license","*.resourceSourceId","*.sourceName","*.domainName","*.attribution","*.narration","*.start","*.stop","*.collectionItemId","*.type","*.standards","*.course"};
+
 	static final String[] COLLECTION_STANDARDS_INCLUDES = {"searchResults","*.code","*.label","*.codeUid","*.codeId"};
 
 	static final String SUPER_ADMIN_TOKEN = "super.admin.token";

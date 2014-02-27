@@ -843,12 +843,27 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 		profile.setUser(user);
 
 		this.getUserRepository().save(profile);
-		if (sendWelcomeMail && !isContentAdmin(user)) {
-			Map<String, String> dataMap = new HashMap<String, String>();
-			dataMap.put(EVENT_TYPE, CustomProperties.EventMapping.WELCOME_MAIL.getEvent());
-			dataMap.put(GOORU_UID , user.getGooruUId());
-			this.getMailHandler().handleMailEvent(dataMap);
-		}
+		
+		PartyCustomField partyCustomField = this.getPartyService().getPartyCustomeField(profile.getUser().getPartyUid(), "user_confirm_status", profile.getUser());
+		
+			if(partyCustomField != null && !partyCustomField.getOptionalValue().equalsIgnoreCase("true")) {
+					Map<String, String> dataMap = new HashMap<String, String>();
+					dataMap.put(GOORU_UID, profile.getUser().getPartyUid());
+					dataMap.put(EVENT_TYPE, CustomProperties.EventMapping.WELCOME_MAIL.getEvent());
+					if (profile.getUser().getAccountTypeId() != null && profile.getUser().getAccountTypeId().equals(UserAccountType.ACCOUNT_CHILD)) { 
+						if(profile.getUser().getParentUser().getIdentities() != null){
+							dataMap.put("recipient", profile.getUser().getParentUser().getIdentities().iterator().next().getExternalId());
+						}
+					} else {
+						if(profile.getUser().getIdentities() != null){
+							dataMap.put("recipient", profile.getUser().getIdentities().iterator().next().getExternalId());
+						}
+					}
+					this.getMailHandler().handleMailEvent(dataMap);
+					partyCustomField.setOptionalValue("true");
+				    this.getUserRepository().save(partyCustomField);
+			}
+		
 		if (user != null && identity.getAccountCreatedType() != null && identity.getAccountCreatedType().equalsIgnoreCase(UserAccountType.accountCreatedType.SSO.getType()) && user.getViewFlag() == 0) {
 			password = BaseUtil.base48Encode(7);
 			creds.setPassword(encryptPassword(password));
@@ -858,12 +873,6 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 			dataMap.put(GOORU_UID, user.getGooruUId());
 			dataMap.put(PASSWORD, password);
 			this.getMailHandler().handleMailEvent(dataMap);
-			dataMap.put(EVENT_TYPE, CustomProperties.EventMapping.WELCOME_MAIL.getEvent());
-			this.getMailHandler().handleMailEvent(dataMap);
-		}
-		if (user != null && identity.getAccountCreatedType() != null && identity.getAccountCreatedType().equalsIgnoreCase(UserAccountType.accountCreatedType.GOOGLE_APP.getType()) && user.getViewFlag() == 0) {
-			Map<String, String> dataMap = new HashMap<String, String>();
-			dataMap.put(GOORU_UID, user.getGooruUId());
 			dataMap.put(EVENT_TYPE, CustomProperties.EventMapping.WELCOME_MAIL.getEvent());
 			this.getMailHandler().handleMailEvent(dataMap);
 		}
