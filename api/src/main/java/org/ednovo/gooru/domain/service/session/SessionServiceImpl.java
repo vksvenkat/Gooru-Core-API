@@ -167,22 +167,8 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 			question = this.assessmentService.getQuestion(sessionItem.getResource().getGooruOid());
 		}
 		Integer trySequence = this.getSessionRepository().getSessionItemAttemptTry(sessionItemId).size() + 1;
-		if (question != null && question.getTypeName().equals(AssessmentQuestion.TYPE.FILL_IN_BLANKS.getName()) || question.getTypeName().equals(AssessmentQuestion.TYPE.SHORT_ANSWER.getName())) {
+		if (question != null && question.getTypeName().equalsIgnoreCase(AssessmentQuestion.TYPE.FILL_IN_BLANKS.getName()) || question.getTypeName().equalsIgnoreCase(AssessmentQuestion.TYPE.OPEN_ENDED.getName()) || question.getTypeName().equals(AssessmentQuestion.TYPE.SHORT_ANSWER.getName())) {
 			rejectIfNull(sessionItemAttemptTry.getAnswerText(), GL0006, ANSWER_TEXT);
-			String answerText = "";
-			for (AssessmentAnswer assessmentAnswer : question.getAnswers()) {
-				answerText += answerText != null && answerText.length() >= 1 ? "," : "";
-				// answerText +=
-				// StringEscapeUtils.unescapeHtml(assessmentAnswer.getAnswerText());
-				answerText += assessmentAnswer.getAnswerText();
-			}
-			if (sessionItemAttemptTry.getAnswerText() != null && sessionItemAttemptTry.getAnswerText().equalsIgnoreCase(answerText)) {
-				sessionItemAttemptTry.setAnswerText(answerText);
-				sessionItem.setCorrectTrySequence(trySequence);
-				sessionItemAttemptTry.setAttemptItemTryStatus(AttemptTryStatus.CORRECT.getTryStatus());
-			} else {
-				sessionItemAttemptTry.setAttemptItemTryStatus(AttemptTryStatus.WRONG.getTryStatus());
-			}
 		} else if (question != null && question.getTypeName().equals(AssessmentQuestion.TYPE.MATCH_THE_FOLLOWING.getName())) {
 			rejectIfNull(sessionItemAttemptTry.getAnswerText(), GL0006, ANSWER_TEXT);
 			String[] answerTexts = sessionItemAttemptTry.getAnswerText().split(",");
@@ -210,12 +196,7 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 				sessionItemAttemptTry.setAttemptItemTryStatus(AttemptTryStatus.WRONG.getTryStatus());
 			}
 		}
-		if (trySequence == 1 && sessionItemAttemptTry.getAttemptItemTryStatus().equalsIgnoreCase(AttemptTryStatus.CORRECT.getTryStatus()) && !question.getTypeName().equals(AssessmentQuestion.TYPE.MATCH_THE_FOLLOWING.getName())) {
-			Session session = sessionItem.getsession();
-			session.setScore(sessionItem.getsession().getScore() + 1);
-			this.getSessionRepository().save(session);
-			sessionItem.setAttemptItemStatus(sessionItemAttemptTry.getAttemptItemTryStatus());
-		}
+		
 		sessionItemAttemptTry.setSessionItem(sessionItem);
 		sessionItemAttemptTry.setAnsweredAtTime(new Date(System.currentTimeMillis()));
 		sessionItemAttemptTry.setTrySequence(trySequence);
