@@ -25,7 +25,6 @@ package org.ednovo.gooru.infrastructure.persistence.hibernate.auth;
 
 import java.util.List;
 
-import org.ednovo.gooru.domain.model.oauth.GooruOAuthConsumerSecret;
 import org.ednovo.gooru.domain.model.oauth.OAuthClient;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepository;
 
@@ -39,5 +38,6 @@ public interface OAuthRepository extends BaseRepository {
 	
 	public List<OAuthClient> listOAuthClient(String gooruUId, int pageNo, int pageSize);
 	
-	GooruOAuthConsumerSecret findGooruOAuthConsumerSecretByConsumerKey(String consumerKey);
+	public OAuthClient findOAuthClientByclientSecret(String clientSecret);
+	
 }

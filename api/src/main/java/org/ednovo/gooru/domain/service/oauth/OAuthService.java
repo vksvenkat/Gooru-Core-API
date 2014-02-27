@@ -27,7 +27,6 @@ import java.util.List;
 
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.User;
-import org.ednovo.gooru.domain.model.oauth.GooruOAuthConsumerSecret;
 import org.ednovo.gooru.domain.model.oauth.OAuthClient;
 
 
@@ -45,10 +44,6 @@ public interface OAuthService {
 
 	public ActionResponseDTO<OAuthClient> getOAuthClient(String clientUId) throws Exception;
 	
-	ActionResponseDTO<GooruOAuthConsumerSecret> addConsumerSecret(GooruOAuthConsumerSecret consumerSecret, User apiCaller) throws Exception;
-	
-	void deleteConsumerSecret(String secretId) throws Exception;
-	
-	ActionResponseDTO<GooruOAuthConsumerSecret> findGooruOAuthConsumerSecretByConsumerKey(String consumerKey);
+	public OAuthClient getOAuthClientByClientSecret(String clientSecret) throws Exception;
 
 }

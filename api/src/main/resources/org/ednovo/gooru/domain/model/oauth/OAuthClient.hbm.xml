@@ -54,6 +54,10 @@
 		
 		<many-to-one name="user" 
 		class="org.ednovo.gooru.core.api.model.User" column="user_uid" 
+		not-null="false" lazy="proxy" cascade="none" />
+		
+		<many-to-one name="organization"
+		class="org.ednovo.gooru.core.api.model.Organization" column="organization_uid"
 		not-null="true" lazy="proxy" cascade="none" />
 		
 	</class>

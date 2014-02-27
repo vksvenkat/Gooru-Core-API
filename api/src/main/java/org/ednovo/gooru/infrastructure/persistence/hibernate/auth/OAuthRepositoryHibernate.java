@@ -25,7 +25,6 @@ package org.ednovo.gooru.infrastructure.persistence.hibernate.auth;
 
 import java.util.List;
 
-import org.ednovo.gooru.domain.model.oauth.GooruOAuthConsumerSecret;
 import org.ednovo.gooru.domain.model.oauth.OAuthClient;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate;
 import org.hibernate.Query;
@@ -79,11 +78,11 @@ public class OAuthRepositoryHibernate extends BaseRepositoryHibernate implements
 	}
 	
 	@Override
-	public GooruOAuthConsumerSecret findGooruOAuthConsumerSecretByConsumerKey(String consumerKey) {
-		String hql = " FROM GooruOAuthConsumerSecret gooruOAuthConsumerSecret WHERE gooruOAuthConsumerSecret.consumerKey=:consumerKey";
+	public OAuthClient findOAuthClientByclientSecret(String clientSecret) {
+		String hql = " FROM OAuthClient oauthClient WHERE oauthClient.clientSecret=:clientSecret";
 		Query query = getSession().createQuery(hql);
-		query.setParameter("consumerKey", consumerKey);
-		List<GooruOAuthConsumerSecret> results = (List<GooruOAuthConsumerSecret>) query.list();
+		query.setParameter("clientSecret", clientSecret);
+		List<OAuthClient> results = (List<OAuthClient>) query.list();
 		if(results.size() > 0){
 			return results.get(0);
 		}

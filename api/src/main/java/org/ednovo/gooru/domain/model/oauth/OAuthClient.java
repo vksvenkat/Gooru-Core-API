@@ -27,6 +27,7 @@ import java.io.Serializable;
 
 import javax.persistence.Entity;
 
+import org.ednovo.gooru.core.api.model.Organization;
 import org.ednovo.gooru.core.api.model.User;
 
 @Entity(name="oauthClient")
@@ -62,6 +63,8 @@ public class OAuthClient implements Serializable {
 	private Integer refreshTokenValiditySeconds;
 	
 	private User user;
+	
+	private Organization organization;
 	
 	public void setClientName(String clientName) {
 		this.clientName = clientName;
@@ -167,5 +170,13 @@ public class OAuthClient implements Serializable {
 		return user;
 	}
 
+	public Organization getOrganization() {
+		return organization;
+	}
+
+	public void setOrganization(Organization organization) {
+		this.organization = organization;
+	}
+	
 
 }

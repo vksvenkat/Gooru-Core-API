@@ -27,14 +27,15 @@ import java.util.List;
 import java.util.UUID;
 
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
+import org.ednovo.gooru.core.api.model.Organization;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.application.util.ServerValidationUtils;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.domain.model.oauth.AuthorizationGrantType;
-import org.ednovo.gooru.domain.model.oauth.GooruOAuthConsumerSecret;
 import org.ednovo.gooru.domain.model.oauth.OAuthClient;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.auth.OAuthRepository;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.party.OrganizationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindException;
@@ -48,6 +49,9 @@ public class OAuthServiceImpl extends ServerValidationUtils implements OAuthServ
 	
 	@Autowired
 	private OAuthRepository oAuthRepository;
+	
+	@Autowired
+	private OrganizationRepository organizationRepository;
 	
 	@Override
 	public User getUserByOAuthAccessToken(String accessToken) throws Exception {
@@ -104,7 +108,16 @@ public class OAuthServiceImpl extends ServerValidationUtils implements OAuthServ
 			oAuthClientNew.setClientName(oAuthClient.getClientName());
 			oAuthClientNew.setClientSecret(UUID.randomUUID().toString());
 			oAuthClientNew.setDescription(oAuthClient.getDescription());
-			oAuthClientNew.setUser(userRepository.findByGooruId(oAuthClient.getUserUid()));
+			
+			if(oAuthClient.getUserUid() != null) {
+				User user = userRepository.findByGooruId(oAuthClient.getUserUid());
+				oAuthClientNew.setUser(user);
+				oAuthClientNew.setOrganization(user.getOrganization());
+			} else {
+				Organization organization = organizationRepository.getOrganizationByUid(oAuthClient.getOrganization().getPartyUid());
+				oAuthClientNew.setOrganization(organization);
+			}
+			
 			oAuthRepository.save(oAuthClientNew);
 		}
 		return new ActionResponseDTO<OAuthClient>(oAuthClientNew, errors);
@@ -144,6 +157,12 @@ public class OAuthServiceImpl extends ServerValidationUtils implements OAuthServ
 	}
 
 	@Override
+	public OAuthClient getOAuthClientByClientSecret(String clientSecret) throws Exception {
+		return oAuthRepository.findOAuthClientByclientSecret(clientSecret);
+	}
+	
+	
+	@Override
 	public ActionResponseDTO<OAuthClient> getOAuthClient(String clientUId) throws Exception {
 		OAuthClient oAuthClient = (OAuthClient) oAuthRepository.get(OAuthClient.class, clientUId);
 		final Errors errors = new BindException(OAuthClient.class, "oAuthClient");
@@ -164,45 +183,6 @@ public class OAuthServiceImpl extends ServerValidationUtils implements OAuthServ
 		rejectIfNull(errors, oAuthClient, "userUid", GL0056, generateErrorMessage(GL0056, "userUid"));
 		rejectIfNull(errors, oAuthClient, "clientName", GL0056, generateErrorMessage(GL0056, "clientName"));
 		return errors;
-	}
-	
-	private Errors validateGooruOAuthConsumerSecret(GooruOAuthConsumerSecret gooruOAuthConsumerSecret) throws Exception {
-		final Errors errors = new BindException(gooruOAuthConsumerSecret, "oAuthClient");
-		rejectIfNull(errors, gooruOAuthConsumerSecret, "consumerKey", GL0056, generateErrorMessage(GL0056, "consumerKey"));
-		rejectIfNull(errors, gooruOAuthConsumerSecret, "consumerSecret", GL0056, generateErrorMessage(GL0056, "consumerSecret"));
-		return errors;
-	}
-	
-	@Override
-	public ActionResponseDTO<GooruOAuthConsumerSecret> addConsumerSecret(GooruOAuthConsumerSecret consumerSecret, User apiCaller) throws Exception {
-		Errors errors = validateGooruOAuthConsumerSecret(consumerSecret);
-		GooruOAuthConsumerSecret newConsumerSecret = new GooruOAuthConsumerSecret();
-		if(!errors.hasErrors()) {
-			newConsumerSecret.setConsumerKey(getRandomString(10));
-			newConsumerSecret.setOrganization(apiCaller.getOrganization());
-			newConsumerSecret.setConsumerSecret(consumerSecret.getConsumerSecret());
-			oAuthRepository.save(newConsumerSecret);
-		}
-		return new ActionResponseDTO<GooruOAuthConsumerSecret>(newConsumerSecret, errors);
-	}
-
-	@Override
-	public void deleteConsumerSecret(String consumerKey)
-			throws Exception {
-		GooruOAuthConsumerSecret consumerSecret = (GooruOAuthConsumerSecret) oAuthRepository.get(GooruOAuthConsumerSecret.class, consumerKey);
-		if(consumerSecret != null){
-			oAuthRepository.remove(consumerSecret);
-			oAuthRepository.flush();
-		}
-		
-	}
-
-	@Override
-	public ActionResponseDTO<GooruOAuthConsumerSecret> findGooruOAuthConsumerSecretByConsumerKey(String consumerKey) {
-		GooruOAuthConsumerSecret gooruOAuthConsumerSecret = oAuthRepository.findGooruOAuthConsumerSecretByConsumerKey(consumerKey);
-		final Errors errors = new BindException(GooruOAuthConsumerSecret.class, "OAuthConsumerSecret");
-		rejectIfNull(gooruOAuthConsumerSecret, GL0056, "OAuthConsumerSecret");
-		return new ActionResponseDTO<GooruOAuthConsumerSecret>(gooruOAuthConsumerSecret, errors);
 	}
 
 }
