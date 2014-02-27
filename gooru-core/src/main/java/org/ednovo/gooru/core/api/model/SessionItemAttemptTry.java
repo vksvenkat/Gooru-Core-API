@@ -13,7 +13,7 @@ public class SessionItemAttemptTry implements Serializable {
 	private static final long serialVersionUID = -9125991535274843683L;
 
 	
-	private Integer sessionItemAttemptTryId;
+	private String sessionItemAttemptTryId;
 	
 	private SessionItem sessionItem;
 	
@@ -75,11 +75,11 @@ public class SessionItemAttemptTry implements Serializable {
 		return trySequence;
 	}
 
-	public void setSessionItemAttemptTryId(Integer sessionItemAttemptTryId) {
+	public void setSessionItemAttemptTryId(String sessionItemAttemptTryId) {
 		this.sessionItemAttemptTryId = sessionItemAttemptTryId;
 	}
 
-	public Integer getSessionItemAttemptTryId() {
+	public String getSessionItemAttemptTryId() {
 		return sessionItemAttemptTryId;
 	}
 

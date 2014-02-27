@@ -23,7 +23,7 @@
 		table="session_item_attempt_try">
 		<id name="sessionItemAttemptTryId" column="session_item_attempt_try_id"
 			unsaved-value="null">
-			<generator class="native" />
+			<generator class="org.ednovo.gooru.core.application.util.UUIDGenerator" />
 		</id>
 		<many-to-one column="session_item_id" name="sessionItem"
                 class="org.ednovo.gooru.core.api.model.SessionItem" lazy="proxy" />
