@@ -41,6 +41,7 @@ import org.ednovo.gooru.application.util.MailAsyncExecutor;
 import org.ednovo.gooru.application.util.ResourceImageUtil;
 import org.ednovo.gooru.application.util.TaxonomyUtil;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
+import org.ednovo.gooru.core.api.model.AssessmentAnswer;
 import org.ednovo.gooru.core.api.model.AssessmentQuestion;
 import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.api.model.Collection;
@@ -1443,7 +1444,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			SessionContextSupport.putLogParameter(TARGET_COLLECTION_ID, destCollection.getGooruOid());
 			this.getCollectionRepository().save(destCollection);
 			if (newCollection.getTaxonomySet() != null) {
-				resourceService.saveOrUpdateResourceTaxonomy(destCollection, newCollection.getTaxonomySet());
+				resourceService.saveOrUpdateResourceTaxonomy(destCollection, new HashSet<Code>(newCollection.getTaxonomySet()));
 			} else {
 				Set<Code> codes = new HashSet<Code>();
 				for (Code code : sourceCollection.getTaxonomySet()) {
