@@ -747,13 +747,23 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 	}
 	
 	@Override
-	public CollectionItem findCollectionByResource(String gooruOid, String gooruUid) {
-		String hql = "FROM CollectionItem collectionItems where collectionItems.resource.gooruOid=:gooruOid and collectionItems.collection.user.partyUid=:gooruUid and collectionItems.itemType=:type";
+	public List<CollectionItem> findCollectionByResource(String gooruOid, String gooruUid, String type) {
+		String hql = "FROM CollectionItem collectionItems where collectionItems.resource.gooruOid=:gooruOid ";
+		if (gooruUid != null) { 
+			hql += " and collectionItems.collection.user.partyUid=:gooruUid ";
+		}
+		if (type != null) { 
+			hql += " and collectionItems.itemType=:type";
+		}
 		Query query = getSession().createQuery(hql);
 		query.setParameter("gooruOid", gooruOid);
-		query.setParameter("gooruUid", gooruUid);
-		query.setParameter("type", "collaborator");
-		return (CollectionItem)(query.list().size() > 0 ? query.list().get(0) : null);
+		if (gooruUid != null) {
+		  query.setParameter("gooruUid", gooruUid);
+		}
+		if (type != null) {
+		  query.setParameter("type", type);
+		}
+		return query.list();
 	}
 
 	@Override
