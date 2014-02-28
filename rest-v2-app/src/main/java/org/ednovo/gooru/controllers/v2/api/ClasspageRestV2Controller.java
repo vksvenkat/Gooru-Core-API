@@ -248,11 +248,11 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 			@RequestParam(value = SKIP_PAGINATION, required = false, defaultValue = FALSE) Boolean skipPagination, @RequestParam(value = ORDER_BY, defaultValue = PLANNED_END_DATE ,required = false) String orderBy, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, CLASSPAGE_COLLECTION_ITEM_INCLUDE_FIELDS);
 		includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_ITEM_INCLUDE_FILEDS);
-		List<CollectionItem> collectionItems = this.getCollectionService().getCollectionItems(classpageId, offset , limit , skipPagination , orderBy);
+		List<CollectionItem> collectionItems = this.getCollectionService().getCollectionItems(classpageId, offset , limit , skipPagination , orderBy, "classpage");
 		String responseJson = null;
 			SearchResults<CollectionItem> result = new SearchResults<CollectionItem>();
 			result.setSearchResults(collectionItems);
-			result.setTotalHitCount(this.getCollectionRepository().getClasspageCollectionCount(classpageId));
+			result.setTotalHitCount(this.getCollectionRepository().getClasspageCollectionCount(classpageId,"classpage"));
 			responseJson = serialize(result, RESPONSE_FORMAT_JSON, EXCLUDE_ALL,includes);
 		return toModelAndView(responseJson);
 	}
