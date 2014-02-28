@@ -65,7 +65,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	@Override
 	public ActionResponseDTO<CollectionItem> createQuestionWithCollectionItem(String collectionId, String data, User user, String mediaFileName) throws Exception {
 		ActionResponseDTO<CollectionItem> response = null;
-		Collection collection = collectionRepository.getCollectionByGooruOid(collectionId, user.getGooruUId());
+		Collection collection = collectionRepository.getCollectionByGooruOid(collectionId, null);
 		if (collection == null) {
 			throw new NotFoundException(generateErrorMessage(GL0056, _COLLECTION));
 		}
@@ -113,7 +113,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	public ActionResponseDTO<CollectionItem> createQuestionWithCollectionItem(String collectionId, AssessmentQuestion assessmentQuestion, User user, String mediaFileName) throws Exception {
 
 		ActionResponseDTO<CollectionItem> response = null;
-		Collection collection = collectionRepository.getCollectionByGooruOid(collectionId, user.getGooruUId());
+		Collection collection = collectionRepository.getCollectionByGooruOid(collectionId, null);
 		if (collection == null) {
 			throw new NotFoundException(generateErrorMessage("GL0056", "Collection"));
 		}
