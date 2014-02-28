@@ -195,7 +195,9 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 					CollectionItem collectionItem = this.getCollectionRepository().findCollectionByResource(gooruOid, identity.getUser().getGooruUId());
 					if (userContentAssoc != null) {
 						this.getCollaboratorRepository().remove(userContentAssoc);
-						this.getCollectionRepository().remove(collectionItem);
+						if (collectionItem != null) {
+						  this.getCollectionRepository().remove(collectionItem);
+						}
 						this.getContentService().deleteContentPermission(content, identity.getUser());
 						List<CollectionItem> associations = this.getCollectionRepository().getCollectionItemByAssociation(gooruOid, identity.getUser().getGooruUId());
 						for (CollectionItem association : associations) {
