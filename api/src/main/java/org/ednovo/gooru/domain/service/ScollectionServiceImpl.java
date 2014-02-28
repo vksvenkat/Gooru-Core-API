@@ -456,6 +456,10 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				logger.debug(e.getMessage());
 			}
 			this.getCollectionRepository().remove(Collection.class, collection.getContentId());
+			List<CollectionItem> collectionItems = this.getCollectionRepository().getCollectionItemByAssociation(collectionId, null);
+			if(collectionItems.size() > 0) {
+				this.getCollectionRepository().removeAll(collectionItems);
+			}
 		} else {
 			throw new NotFoundException(generateErrorMessage(GL0056, _COLLECTION));
 		}

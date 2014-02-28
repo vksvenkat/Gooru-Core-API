@@ -226,9 +226,15 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 	@Override
 	public List<CollectionItem> getCollectionItemByAssociation(String resourceGooruOid, String gooruUid) {
 		Session session = getSession();
-		Query query = session.createQuery("FROM CollectionItem collectionItem WHERE  collectionItem.resource.gooruOid=:resourceGooruOid  and collectionItem.associatedUser.partyUid=:gooruUid and " + generateOrgAuthQuery("collectionItem.collection."));
+		String sql = "FROM CollectionItem collectionItem WHERE  collectionItem.resource.gooruOid=:resourceGooruOid  and  " + generateOrgAuthQuery("collectionItem.collection.");
+		if (gooruUid != null) {
+			sql += " and collectionItem.associatedUser.partyUid=:gooruUid";
+		}
+		Query query = session.createQuery(sql);
 		query.setParameter("resourceGooruOid", resourceGooruOid);
-		query.setParameter("gooruUid", gooruUid);
+		if (gooruUid != null) {
+			query.setParameter("gooruUid", gooruUid);
+		}
 		addOrgAuthParameters(query);
 		return query.list();
 	}
