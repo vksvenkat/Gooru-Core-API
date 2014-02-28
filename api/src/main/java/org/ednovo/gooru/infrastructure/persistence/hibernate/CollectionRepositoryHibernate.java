@@ -119,6 +119,11 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 	public List<CollectionItem> getCollectionItems(String collectionId, Map<String, String> filters) {
 		Session session = getSession();
 		String hql = "select collectionItems  FROM Collection collection inner join collection.collectionItems collectionItems where collection.gooruOid=:gooruOid and " + generateOrgAuthQuery("collection.");
+		
+		if (filters.containsKey(TYPE) && filters.get(TYPE).equalsIgnoreCase(CLASSPAGE)) {
+			hql +=	" and collectionItems.resource.sharing in ('public','anyonewithlink') " ;
+		}
+		
 		if (filters.containsKey(ORDER_BY) && filters.get(ORDER_BY).equalsIgnoreCase(DATE)) {
 			hql += " order by collectionItems.resource.createdOn desc";
 		}
@@ -584,16 +589,20 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 	}
 
 	@Override
-	public List<CollectionItem> getCollectionItems(String collectionId, Integer offset, Integer limit, boolean skipPagination, String orderBy) {
+	public List<CollectionItem> getCollectionItems(String collectionId, Integer offset, Integer limit, boolean skipPagination, String orderBy, String type) {
 		Session session = getSession();
 		String hql = "select collectionItems  FROM Collection collection inner join collection.collectionItems collectionItems where collection.gooruOid=:gooruOid and " + generateOrgAuthQuery("collection.");
 		
-		if(!orderBy.equals(PLANNED_END_DATE)){
-			hql+= "order by collectionItems.associationDate desc ";
+		if(type != null && type.equalsIgnoreCase("classpage")) {
+			hql +=	" and collectionItems.resource.sharing in('public','anyonewithlink') " ;
 		}
-		else{
-		hql += "order by collectionItems.plannedEndDate desc ";
+		
+		if (!orderBy.equals(PLANNED_END_DATE)) {
+			hql += "order by collectionItems.associationDate desc ";
+		} else {
+			hql += "order by collectionItems.plannedEndDate desc ";
 		}
+		
 		Query query = session.createQuery(hql);
 		query.setParameter("gooruOid", collectionId);
 		addOrgAuthParameters(query);
@@ -649,12 +658,15 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 	}
 	
 	@Override
-	public Long getClasspageCollectionCount(String classpageGooruOid) {
+	public Long getClasspageCollectionCount(String classpageGooruOid, String type) {
 		
 		Session session = getSession();
 		String hql = "select count(*)  FROM CollectionItem collectionItem where " + generateOrgAuthQuery("collectionItem.collection.");
 		if (classpageGooruOid != null) {
 			hql += " and collectionItem.collection.gooruOid=:classpageGooruOid ";
+		}
+		if(type != null && type.equalsIgnoreCase("classpage")) {
+			hql +=	" and collectionItem.resource.sharing in('public','anyonewithlink') " ;
 		}
 		Query query = session.createQuery(hql);
 		if (classpageGooruOid != null) {

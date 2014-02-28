@@ -1662,8 +1662,8 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 
 	@Override
-	public List<CollectionItem> getCollectionItems(String collectionId, Integer offset, Integer limit, boolean skipPagination, String orderBy) {
-		return this.getCollectionRepository().getCollectionItems(collectionId, offset, limit, skipPagination, orderBy);
+	public List<CollectionItem> getCollectionItems(String collectionId, Integer offset, Integer limit, boolean skipPagination, String orderBy, String type) {
+		return this.getCollectionRepository().getCollectionItems(collectionId, offset, limit, skipPagination, orderBy,"classpage");
 	}
 
 	@Override
