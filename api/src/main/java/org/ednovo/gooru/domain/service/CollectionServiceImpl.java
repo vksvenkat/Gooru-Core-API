@@ -95,15 +95,15 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		CollectionItem collectionItem = new CollectionItem();
 		collectionItem.setCollection(source);
 		CollectionItem sourceCollectionItem = this.getCollectionRepository().findCollectionItemByGooruOid(sourceId, user.getPartyUid());
+		String itemType = sourceCollectionItem.getItemType();
+		collectionItem.setItemType(itemType);
 		if(sourceCollectionItem != null){
 			deleteCollectionItem(sourceCollectionItem.getCollectionItemId(), user);
 		}
 		if(taregetId != null){
 			responseDTO = this.createCollectionItem(sourceId, taregetId, collectionItem, user, CollectionType.FOLDER.getCollectionType(), false);
 		} else {
-			CollectionItem newCollectionItem = new CollectionItem();
-			newCollectionItem.setItemType(ShelfType.AddedType.ADDED.getAddedType());
-			responseDTO = this.createCollectionItem(sourceId, null, newCollectionItem, user, CollectionType.SHElf.getCollectionType(), false);
+			responseDTO = this.createCollectionItem(sourceId, null, collectionItem, user, CollectionType.SHElf.getCollectionType(), false);
 		}
 		
 		return responseDTO;
