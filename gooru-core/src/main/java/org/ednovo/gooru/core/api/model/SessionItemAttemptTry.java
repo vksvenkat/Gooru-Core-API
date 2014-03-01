@@ -84,13 +84,5 @@ public class SessionItemAttemptTry implements Serializable {
 		return sessionItemAttemptTryId;
 	}
 	
-	public static void main(String a[]) { 
-		SessionItemAttemptTry  eventData = new SessionItemAttemptTry();
-        Method[] methods = eventData.getClass().getMethods();
-        for (Method method : methods) { 
-                System.out.println(method.getName());
-                
-        }
-}
 
 }
