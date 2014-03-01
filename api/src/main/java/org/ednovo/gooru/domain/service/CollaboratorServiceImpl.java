@@ -70,6 +70,8 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 	@Autowired
 	private CollaboratorRepository collaboratorRepository;
 
+	@Autowired
+	private UserManagementService userManagementService;
 
 	@Autowired
 	private ContentService contentService;
