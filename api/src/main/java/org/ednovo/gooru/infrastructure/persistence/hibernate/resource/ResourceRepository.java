@@ -148,4 +148,6 @@ public interface ResourceRepository extends BaseRepository {
 	Textbook findTextbookByContentGooruIdWithNewSession(String gooruOid);
 	
 	License getLicenseByLicenseName(String licenseName);
+	
+	Resource findResourceByContent(String gooruContentId);
 }

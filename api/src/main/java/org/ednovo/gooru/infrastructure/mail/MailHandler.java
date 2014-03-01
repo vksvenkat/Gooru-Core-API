@@ -877,7 +877,7 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 			Map<String, Object> map = new HashMap<String, Object>();
 			map = eventMapData(eventMapping);
 			map.put("serverpath",serverpath);
-			org.ednovo.gooru.core.api.model.Resource resource = this.getResourceRepository().findResourceByContentGooruId(content.getGooruOid());
+			org.ednovo.gooru.core.api.model.Resource resource = this.getResourceRepository().findResourceByContent(content.getGooruOid());
 			if(resource != null) {
 				map.put("collection-title", resource.getTitle());
 			}

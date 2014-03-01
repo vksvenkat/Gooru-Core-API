@@ -964,5 +964,11 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 		Query query = getSession().createQuery(hql).setParameter("licenseName", licenseName);
 		return  (License)(query.list().size() > 0 ? query.list().get(0) : null);
 	}
+	
+	@Override
+	public Resource findResourceByContent(String gooruOid) {
+		List<Resource> resources = find("SELECT r FROM Resource r  where r.gooruOid ='" + gooruOid + "'");
+		return resources.size() == 0 ? null : resources.get(0);
+	}
 
 }
