@@ -269,9 +269,6 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 				if (newProfile.getNotes() != null) {
 					profile.setNotes(newProfile.getNotes());
 				}
-
-				// Identity identity =
-				// this.getUserRepository().findUserByGooruId(gooruUid);
 				
 				if (identity != null) {
 					if (user.getAccountTypeId() != null && user.getAccountTypeId().equals(UserAccountType.ACCOUNT_CHILD)) {
@@ -359,7 +356,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			
 			PartyCustomField partyCustomField = this.getPartyService().getPartyCustomeField(profile.getUser().getPartyUid(), "user_confirm_status", profile.getUser());
 			
-			if(partyCustomField != null && !partyCustomField.getOptionalValue().equalsIgnoreCase("true")) {
+			if(partyCustomField != null && !partyCustomField.getOptionalValue().equalsIgnoreCase("true") && newProfile.getUser() != null && newProfile.getUser().getConfirmStatus() != null && newProfile.getUser().getConfirmStatus() == 1) {
 					Map<String, String> dataMap = new HashMap<String, String>();
 					dataMap.put(GOORU_UID, profile.getUser().getPartyUid());
 					dataMap.put(EVENT_TYPE, CustomProperties.EventMapping.WELCOME_MAIL.getEvent());
