@@ -859,9 +859,9 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 							dataMap.put("recipient", profile.getUser().getIdentities().iterator().next().getExternalId());
 						}
 					}
-					this.getMailHandler().handleMailEvent(dataMap);
 					partyCustomField.setOptionalValue("true");
-				    this.getUserRepository().save(partyCustomField);
+					this.getUserRepository().save(partyCustomField);
+					this.getMailHandler().handleMailEvent(dataMap);
 			}
 		
 		if (user != null && identity.getAccountCreatedType() != null && identity.getAccountCreatedType().equalsIgnoreCase(UserAccountType.accountCreatedType.SSO.getType()) && user.getViewFlag() == 0) {
@@ -872,8 +872,6 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 			dataMap.put(EVENT_TYPE, CustomProperties.EventMapping.SSO_CONFIRMATION_MAIL.getEvent());
 			dataMap.put(GOORU_UID, user.getGooruUId());
 			dataMap.put(PASSWORD, password);
-			this.getMailHandler().handleMailEvent(dataMap);
-			dataMap.put(EVENT_TYPE, CustomProperties.EventMapping.WELCOME_MAIL.getEvent());
 			this.getMailHandler().handleMailEvent(dataMap);
 		}
 

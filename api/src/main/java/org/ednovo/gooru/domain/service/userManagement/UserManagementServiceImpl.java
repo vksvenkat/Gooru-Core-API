@@ -372,10 +372,9 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 							dataMap.put("recipient", profile.getUser().getIdentities().iterator().next().getExternalId());
 						}
 					}
-					this.getMailHandler().handleMailEvent(dataMap);
-					this.getMailHandler().handleMailEvent(dataMap);
 					partyCustomField.setOptionalValue("true");
 				    this.getUserRepository().save(partyCustomField);
+					this.getMailHandler().handleMailEvent(dataMap);
 			}
 			
 			CustomTableValue type = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.USER_CLASSIFICATION_TYPE.getTable(), CustomProperties.UserClassificationType.COURSE.getUserClassificationType());
@@ -534,13 +533,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 					CustomTableValue gradeType = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.USER_CLASSIFICATION_TYPE.getTable(), CustomProperties.UserClassificationType.GRADE.getUserClassificationType());
 					String userGrade = this.getUserRepository().getUserGrade(user.getGooruUId(), gradeType.getCustomTableValueId(), null);
 					this.getMailHandler().sendMailToConfirm(user.getGooruUId(), password, accountType, userToken.getToken(), dateOfBirth, gooruBaseUrl, null, userGrade, getUserCourse(user.getGooruUId()));
-				} /*else {
-					Map<String, String> dataMap = new HashMap<String, String>();
-					dataMap.put(GOORU_UID, user.getGooruUId());
-					dataMap.put(EVENT_TYPE, CustomProperties.EventMapping.WELCOME_MAIL.getEvent());
-					dataMap.put("recipient", identity.getExternalId());
-					this.getMailHandler().handleMailEvent(dataMap);
-				}*/
+				} 
 			} else {
 				this.getMailHandler().sendMailToConfirm(user.getGooruUId(), null, accountType, userToken.getToken(), dateOfBirth, gooruBaseUrl, null, null, null);
 			}
