@@ -124,6 +124,14 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 			hql +=	" and collectionItems.resource.sharing in ('public','anyonewithlink') " ;
 		}
 		
+		if (filters != null && filters.get(SHARING) != null) {
+			String sharing = filters.get(SHARING);
+			if (filters.get(SHARING).contains(",")) {
+				sharing = sharing.replace(",", "','");
+			}
+			hql += " and collectionItems.resource.sharing in ('" + sharing + "') ";
+		}
+		
 		if (filters.containsKey(ORDER_BY) && filters.get(ORDER_BY).equalsIgnoreCase(DATE)) {
 			hql += " order by collectionItems.resource.createdOn desc";
 		}
