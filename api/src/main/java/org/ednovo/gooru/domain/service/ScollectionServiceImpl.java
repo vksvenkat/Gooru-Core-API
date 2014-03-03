@@ -1666,6 +1666,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				collection.setSharing(Sharing.PRIVATE.getSharing());
 			}
 			this.getCollectionRepository().save(collection);
+			this.getCollectionRepository().flush();
 		}
 
 	}
