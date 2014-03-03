@@ -28,7 +28,6 @@ package org.ednovo.gooru.controllers.v2.api;
 
 import java.sql.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
@@ -38,7 +37,6 @@ import org.apache.commons.lang.ArrayUtils;
 import org.ednovo.gooru.controllers.BaseController;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Classpage;
-import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.CollectionTaskAssoc;
 import org.ednovo.gooru.core.api.model.CollectionType;
@@ -323,15 +321,6 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 		return classpage;
 	}
 
-	private CollectionTaskAssoc buildCollectionTaskItemFromInputParameters(String data, String assignmentId, Classpage classpage) {
-		CollectionTaskAssoc collectionTaskAssoc = data != null ? JsonDeserializer.deserialize(data, CollectionTaskAssoc.class) : new CollectionTaskAssoc();
-		Task task = new Task();
-		task.setGooruOid(assignmentId);
-		collectionTaskAssoc.setTask(task);
-		collectionTaskAssoc.setCollection(classpage);
-		return collectionTaskAssoc;
-	}
-	
 	private CollectionItem buildCollectionItemFromInputParameters(String data, User user) {
 		CollectionItem collectionItem = JsonDeserializer.deserialize(data, CollectionItem.class);
 		return collectionItem;

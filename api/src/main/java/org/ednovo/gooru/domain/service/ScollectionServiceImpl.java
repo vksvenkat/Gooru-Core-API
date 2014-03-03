@@ -41,7 +41,6 @@ import org.ednovo.gooru.application.util.MailAsyncExecutor;
 import org.ednovo.gooru.application.util.ResourceImageUtil;
 import org.ednovo.gooru.application.util.TaxonomyUtil;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
-import org.ednovo.gooru.core.api.model.AssessmentAnswer;
 import org.ednovo.gooru.core.api.model.AssessmentQuestion;
 import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.api.model.Collection;
@@ -98,6 +97,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
 
+import com.google.common.collect.Lists;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.json.JettisonMappedXmlDriver;
 
@@ -117,7 +117,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 	@Autowired
 	protected LearnguideRepository learnguideRepository;
-
+	
 	@Autowired
 	protected RatingService ratingService;
 
@@ -408,8 +408,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				this.getCollectionRepository().save(newCollection.getSharing());
 				this.getCollectionRepository().flush();
 				String folderGooruOid = this.getCollectionRepository().getParentCollection(collection.getGooruOid(), apiCallerUser.getPartyUid());
-				Collection collectionFolder = this.getCollectionByGooruOid(folderGooruOid, null);
-				updateFolderSharing(collectionFolder);
+				updateFolderSharing(folderGooruOid);
 				updateResourceSharing(newCollection.getSharing(), collection);
 			}
 
@@ -520,7 +519,11 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				logger.error(e.getMessage());
 			}
 		}
-		updateFolderSharing(collection);
+		
+		List<String> parenFolders =this.getParentCollection(resourceGooruOid, collection.getUser().getPartyUid());
+		for (String parentFolder : parenFolders) {
+			updateFolderSharing(parentFolder);
+		}
 		return new ActionResponseDTO<CollectionItem>(collectionItem, errors);
 	}
 
@@ -973,8 +976,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			this.getCollectionRepository().save(collection);
 			this.getCollectionRepository().flush();
 			String folderGooruOid = this.getCollectionRepository().getParentCollection(collection.getGooruOid(), apiCallerUser.getPartyUid());
-			Collection collectionFolder = this.getCollectionByGooruOid(folderGooruOid, null);
-			updateFolderSharing(collectionFolder);
+			updateFolderSharing(folderGooruOid);
 			updateResourceSharing(sharing, collection);
 		}
 
@@ -1683,7 +1685,25 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 	
 	@Override
-	public void updateFolderSharing(Collection collection) {
+	public List<String> getParentCollection(String collectionGooruOid, String gooruUid) {
+		List<String> parentIds = new ArrayList<String>();
+		getCollection(collectionGooruOid, gooruUid, parentIds);
+		return parentIds.size() > 0 ? Lists.reverse(parentIds) : parentIds;
+	}
+	
+	private List<String>  getCollection(String collectionGooruOid, String gooruUid, List<String> parentIds) {
+		String gooruOid = this.getCollectionRepository().getParentCollection(collectionGooruOid, gooruUid);
+		if (gooruOid != null) { 
+			parentIds.add(gooruOid);
+			getCollection(gooruOid, gooruUid, parentIds);
+		}
+		return parentIds;
+		
+	}
+	
+	@Override
+	public void updateFolderSharing(String gooruOid) {
+		Collection collection = this.getCollectionByGooruOid(gooruOid, null);
 		if (collection != null && collection.getCollectionType() != null && collection.getCollectionType().equalsIgnoreCase(FOLDER)) {
 			if (this.getCollectionRepository().getPublicCollectionCount(collection.getGooruOid()) != null && this.getCollectionRepository().getPublicCollectionCount(collection.getGooruOid()) > 0) {
 				collection.setSharing(Sharing.PUBLIC.getSharing());
