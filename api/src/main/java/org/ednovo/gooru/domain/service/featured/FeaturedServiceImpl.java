@@ -25,6 +25,7 @@ package org.ednovo.gooru.domain.service.featured;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -48,6 +49,7 @@ import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.domain.service.CollectionService;
 import org.ednovo.gooru.domain.service.search.SearchResults;
+import org.ednovo.gooru.domain.service.taxonomy.TaxonomyService;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentRepository;
@@ -77,6 +79,9 @@ public class FeaturedServiceImpl implements FeaturedService, ParameterProperties
 
 	@Autowired
 	private CollectionService collectionService;
+	
+	@Autowired
+	private TaxonomyService taxonomyService;
 
 	@Autowired
 	private CollectionRepository collectionRepository;
@@ -683,6 +688,28 @@ public class FeaturedServiceImpl implements FeaturedService, ParameterProperties
 		result.setTotalHitCount(this.getFeaturedRepository().getLibraryCollectionCount(themeCode, themeType));
 		return result;
 	}
+	
+	public Map<String, Object> getTaxonomyMapCode(Code code){
+			Map<String, Object> codeMap = new HashMap<String, Object>();
+			codeMap.put("activeFlag", code.getActiveFlag());
+			codeMap.put("code", code.getCode());
+			codeMap.put("assetURI", code.getAssetURI());
+			codeMap.put("codeId", code.getAssetURI());
+			codeMap.put("codeType", code.getCodeType());
+			codeMap.put("codeUid", code.getCodeId());
+			codeMap.put("depth", code.getDepth());
+			codeMap.put("description", code.getDescription());
+			codeMap.put("displayCode", code.getdisplayCode());
+			codeMap.put("displayOrder", code.getDisplayOrder());	
+			codeMap.put("entryId", code.getEntryId());	
+			codeMap.put("grade", code.getGrade());	
+			codeMap.put("indexId", code.getIndexId());
+			codeMap.put("indexType", code.getIndexType());
+			codeMap.put("indexType", code.getIndexType());
+			codeMap.put("label", code.getLabel());
+		return codeMap;
+		
+	}
 
 	@Override
 	public List<Map<String, Object>> getAllLibraryCollections(Integer limit, Integer offset, boolean skipPagination, String themeCode, String themeType) {
@@ -696,6 +723,18 @@ public class FeaturedServiceImpl implements FeaturedService, ParameterProperties
 				Collection featuredCollection = this.getCollectionService().getCollection(String.valueOf(object[0]), true, true, false, user, "commentCount");
 				Long comment = this.getCommentRepository().getCommentCount(String.valueOf(object[0]), null, "notdeleted");
 				Long collectionItem = this.getCollectionRepository().getCollectionItemCount(String.valueOf(object[0]), "private,public,anyonewithlink");
+				Iterator<Code> iter = featuredCollection.getTaxonomySet().iterator();
+				Map<Integer, List<Map<String, Object>>> codeParentsMap = new HashMap<Integer, List<Map<String, Object>>>();
+				while (iter.hasNext()) {
+					Code code = iter.next();
+					List<Code> codeList = taxonomyService.findParentTaxonomy(code.getCodeId(), true);
+					List<Map<String, Object>> taxonomyMap = new ArrayList<Map<String,Object>>();
+					for(Code listCode : codeList){
+						taxonomyMap.add(getTaxonomyMapCode(listCode));
+					}
+					codeParentsMap.put(code.getCodeId(), taxonomyMap);
+				}
+				collection.put("taxonomyMappingSet", codeParentsMap);
 				collection.put("libraryCollection", featuredCollection);
 				collection.put(SUBJECT_CODE, object[13]);
 				collection.put(THEME_CODE, object[12]);
