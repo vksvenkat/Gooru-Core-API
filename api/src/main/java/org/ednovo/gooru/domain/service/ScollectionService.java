@@ -123,5 +123,7 @@ public interface ScollectionService extends BaseService {
 	
 	Map<String, Object>  getCollection(String gooruOid, Map<String, Object> collection);
 	
-	void updateFolderSharing(Collection collection);
+	void updateFolderSharing(String collection);
+	
+	List<String> getParentCollection(String collectionGooruOid, String gooruUid);
 }

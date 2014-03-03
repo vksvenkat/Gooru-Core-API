@@ -36,7 +36,6 @@ import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.CollectionType;
 import org.ednovo.gooru.core.api.model.Resource;
-import org.ednovo.gooru.core.api.model.ShelfType;
 import org.ednovo.gooru.core.api.model.StorageArea;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.exception.NotFoundException;
@@ -213,22 +212,6 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		return items;
 	}
 	
-	@Override
-	public List<String> getParentCollection(String collectionGooruOid, String gooruUid) {
-		List<String> parentIds = new ArrayList<String>();
-		getCollection(collectionGooruOid, gooruUid, parentIds);
-		return parentIds.size() > 0 ? Lists.reverse(parentIds) : parentIds;
-	}
-	
-	private List<String>  getCollection(String collectionGooruOid, String gooruUid, List<String> parentIds) {
-		String gooruOid = this.getCollectionRepository().getParentCollection(collectionGooruOid, gooruUid);
-		if (gooruOid != null) { 
-			parentIds.add(gooruOid);
-			getCollection(gooruOid, gooruUid, parentIds);
-		}
-		return parentIds;
-		
-	}
 	
 	@Override
 	public SearchResults<Code> getCollectionStandards(Integer codeId, String query,Integer limit, Integer offset,Boolean skipPagination) {
