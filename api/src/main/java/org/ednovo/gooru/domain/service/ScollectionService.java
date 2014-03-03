@@ -123,5 +123,5 @@ public interface ScollectionService extends BaseService {
 	
 	void updateFolderSharing(String collection);
 	
-	List<String> getParentCollection(String collectionGooruOid, String gooruUid);
+	List<String> getParentCollection(String collectionGooruOid, String gooruUid, boolean reverse);
 }
