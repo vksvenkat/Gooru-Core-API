@@ -501,6 +501,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			int sequence = collectionItem.getCollection().getCollectionItems() != null ? collectionItem.getCollection().getCollectionItems().size() + 1 : 1;
 			collectionItem.setItemSequence(sequence);
 			this.getCollectionRepository().save(collectionItem);
+			this.getCollectionRepository().flush();
 		
 			try {
 				indexProcessor.index(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE);
