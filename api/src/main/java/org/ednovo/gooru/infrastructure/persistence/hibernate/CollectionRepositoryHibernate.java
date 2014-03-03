@@ -181,7 +181,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 	@Override
 	public Classpage getClasspageByCode(String classpageCode) {
 		Session session = getSession();
-		String hql = " FROM Classpage classpage WHERE  classpage.classpageCode=:classpageCode  and ";
+		String hql = " FROM Classpage classpage WHERE  (classpage.classpageCode=:classpageCode or classpage.gooruOid=:classpageCode) and ";
 		Query query = session.createQuery(hql + generateOrgAuthQuery("classpage."));
 		query.setParameter("classpageCode", classpageCode);
 		addOrgAuthParameters(query);

@@ -10,7 +10,7 @@ public class InviteUser implements Serializable {
 	 */
 	private static final long serialVersionUID = 4627013229669491613L;
 
-	private Integer inviteUserId;
+	private String inviteUid;
 	private String email;
 	private String gooruOid;
 	private String invitationType;
@@ -66,12 +66,13 @@ public class InviteUser implements Serializable {
 		return gooruOid;
 	}
 
-	public void setInviteUserId(Integer inviteUserId) {
-		this.inviteUserId = inviteUserId;
+	public void setInviteUid(String inviteUid) {
+		this.inviteUid = inviteUid;
 	}
 
-	public Integer getInviteUserId() {
-		return inviteUserId;
+	public String getInviteUid() {
+		return inviteUid;
 	}
+
 
 }
