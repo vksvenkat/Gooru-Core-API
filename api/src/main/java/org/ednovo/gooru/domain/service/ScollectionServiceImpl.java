@@ -510,7 +510,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			}
 		}
 		
-		List<String> parenFolders =this.getParentCollection(resourceGooruOid, collection.getUser().getPartyUid(),false);
+		List<String> parenFolders =this.getParentCollection(resource.getGooruOid(), collection.getUser().getPartyUid(),false);
 		for (String parentFolder : parenFolders) {
 			updateFolderSharing(parentFolder);
 		}
@@ -1643,6 +1643,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	public List<String> getParentCollection(String collectionGooruOid, String gooruUid, boolean reverse) {
 		List<String> parentIds = new ArrayList<String>();
 		getCollection(collectionGooruOid, gooruUid, parentIds);
+		
 		if (reverse) {
 			return parentIds.size() > 0 ? Lists.reverse(parentIds) : parentIds;
 		} else {
@@ -1662,6 +1663,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	
 	@Override
 	public void updateFolderSharing(String gooruOid) {
+		System.out.println(gooruOid);
 		Collection collection = this.getCollectionByGooruOid(gooruOid, null);
 		if (collection != null && collection.getCollectionType() != null && collection.getCollectionType().equalsIgnoreCase(FOLDER)) {
 			if (this.getCollectionRepository().getPublicCollectionCount(collection.getGooruOid()) != null && this.getCollectionRepository().getPublicCollectionCount(collection.getGooruOid()) > 0) {
