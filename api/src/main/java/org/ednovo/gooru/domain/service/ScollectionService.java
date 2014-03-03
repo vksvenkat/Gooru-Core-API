@@ -118,8 +118,6 @@ public interface ScollectionService extends BaseService {
 	List<StandardFo> getStandards(Set<Code> taxonomySet);
 
 	void updateResourceSharing(String sharing, Collection collection);
-
-	void copyResourceMeta(Collection collection);
 	
 	Map<String, Object>  getCollection(String gooruOid, Map<String, Object> collection);
 	

@@ -128,10 +128,6 @@ public class CollectionUtil implements ParameterProperties {
 	@Autowired
 	private CollectionService collectionService;
 
-	public void copyResourceMeta(Collection collection) {
-		collectionService.copyResourceMeta(collection);
-	}
-
 	private final static Logger logger = LoggerFactory.getLogger(CollectionUtil.class);
 
 	public void enrichCollectionWithTaxonomyMap(SearchResultContainer collectionResultContainer) {

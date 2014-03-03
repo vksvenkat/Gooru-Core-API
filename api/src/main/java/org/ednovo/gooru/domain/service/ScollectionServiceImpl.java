@@ -252,7 +252,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				collection.setResourceFormat(this.getCustomTableRepository().getCustomTableValue(RESOURCE_CATEGORY_FORMAT, SCOLLECTION));
 			}
 			this.getCollectionRepository().save(collection);
-
+			
 			if (resourceId != null && !resourceId.isEmpty()) {
 				CollectionItem collectionItem = new CollectionItem();
 				collectionItem.setItemType(ShelfType.AddedType.ADDED.getAddedType());
@@ -356,10 +356,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				addCollectionTaxonomy(collection, taxonomyCode, updateTaxonomyByCode);
 				this.getCollectionRepository().save(collection);
 				collection.setTaxonomySetMapping(TaxonomyUtil.getTaxonomyMapByCode(collection.getTaxonomySet(), taxonomyService));
-				for (CollectionItem collectionItem : collection.getCollectionItems()) {
-					Resource resource = collectionItem.getResource();
-					resourceService.saveOrUpdateResourceTaxonomy(resource, collection.getTaxonomySet());
-				}
 			}
 
 			if (newCollection.getVocabulary() != null) {
@@ -397,10 +393,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			}
 			if (newCollection.getGrade() != null) {
 				resourceService.saveOrUpdateGrade(newCollection, collection);
-				for (CollectionItem collectionItem : collection.getCollectionItems()) {
-					Resource resource = collectionItem.getResource();
-					resourceService.saveOrUpdateGrade(collection, resource);
-				}
 			}
 
 			if (newCollection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing())) {
@@ -488,9 +480,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		Errors errors = validateCollectionItem(collection, resource, collectionItem);
 		if (!errors.hasErrors()) {
 			collectionItem.setCollection(collection);
-
-			resourceService.saveOrUpdateGrade(collection, resource);
-
+			
 			if (collectionItem.getCollection() != null) {
 				collectionItem.getCollection().setLastUpdatedUserUid(user.getPartyUid());
 			}
@@ -511,7 +501,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			int sequence = collectionItem.getCollection().getCollectionItems() != null ? collectionItem.getCollection().getCollectionItems().size() + 1 : 1;
 			collectionItem.setItemSequence(sequence);
 			this.getCollectionRepository().save(collectionItem);
-			this.getResourceService().saveOrUpdateResourceTaxonomy(collectionItem.getResource(), collectionItem.getCollection().getTaxonomySet());
+		
 			try {
 				indexProcessor.index(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE);
 				indexProcessor.index(collection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
@@ -949,10 +939,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				addCollectionTaxonomy(collection, taxonomyCode, taxonomyByCode);
 			}
 			this.getCollectionRepository().save(collection);
-			for (CollectionItem collectionItem : collection.getCollectionItems()) {
-				Resource resource = collectionItem.getResource();
-				resourceService.saveOrUpdateResourceTaxonomy(resource, collection.getTaxonomySet());
-			}
+			
 		}
 		if (isNotEmptyString(buildType)) {
 			if (buildType.equalsIgnoreCase(WEB) || buildType.equalsIgnoreCase(IPAD)) {
@@ -985,10 +972,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		}
 		if (data.containsKey(GRADE)) {
 			saveOrUpdateCollectionGrade(grade, collection, false);
-			for (CollectionItem collectionItem : collection.getCollectionItems()) {
-				Resource resource = collectionItem.getResource();
-				resourceService.saveOrUpdateGrade(collection, resource);
-			}
 		}
 		if (isNotEmptyString(narrationLink)) {
 			collection.setNarrationLink(narrationLink);
@@ -1301,10 +1284,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			if (newCollection.getTaxonomySet() != null) {
 				resourceService.saveOrUpdateResourceTaxonomy(collection, newCollection.getTaxonomySet());
 				collection.setTaxonomySetMapping(TaxonomyUtil.getTaxonomyMapByCode(collection.getTaxonomySet(), taxonomyService));
-				for (CollectionItem collectionItem : collection.getCollectionItems()) {
-					Resource resource = collectionItem.getResource();
-					resourceService.saveOrUpdateResourceTaxonomy(resource, newCollection.getTaxonomySet());
-				}
 			}
 
 			if (newCollection.getVocabulary() != null) {
@@ -1348,10 +1327,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			}
 			if (newCollection.getGrade() != null) {
 				resourceService.saveOrUpdateGrade(newCollection, collection);
-				for (CollectionItem collectionItem : collection.getCollectionItems()) {
-					Resource resource = collectionItem.getResource();
-					resourceService.saveOrUpdateGrade(collection, resource);
-				}
 			}
 
 			if (newCollection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing())) {
@@ -1506,7 +1481,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				data.put(_GOORU_UID, destCollection.getUser().getGooruUId());
 				this.getMailAsyncExecutor().handleMailEvent(data);
 			}
-			getAsyncExecutor().copyResourceMeta(destCollection);
 		}
 		Collection parentCollection = collectionRepository.getCollectionByGooruOid(parentId, user.getPartyUid());
 		if (parentCollection != null) {
@@ -1514,25 +1488,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		}
 		this.getCollectionRepository().save(destCollection);
 		return destCollection;
-	}
-
-	@Override
-	public void copyResourceMeta(Collection collection) {
-		Iterator<CollectionItem> sourceItemIterator = collection.getCollectionItems().iterator();
-		while (sourceItemIterator.hasNext()) {
-			CollectionItem item = sourceItemIterator.next();
-			try {
-				this.getResourceService().saveOrUpdateGrade(collection, item.getResource());
-				this.getResourceService().saveOrUpdateResourceTaxonomy(item.getResource(), collection.getTaxonomySet());
-			} catch (Exception e) {
-				logger.error("Failed to copy " + e);
-			}
-		}
-		try {
-			indexProcessor.index(collection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
-		} catch (Exception e) {
-			logger.error(e.getMessage());
-		}
 	}
 
 	@Override

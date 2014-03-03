@@ -85,16 +85,6 @@ public class AsyncExecutor {
 		transactionTemplate = new TransactionTemplate(transactionManager);
 	}
 
-	public void copyResourceMeta(final Collection collection) {
-		transactionTemplate.execute(new TransactionCallback<Void>() {
-			@Override
-			public Void doInTransaction(TransactionStatus status) {
-				getCollectionUtil().copyResourceMeta(collection);
-				return null;
-			}
-		});
-	}
-
 	public void createVersion(final Collection collection, final String type, final String gooruUid) {
 
 		transactionTemplate.execute(new TransactionCallback<Void>() {
