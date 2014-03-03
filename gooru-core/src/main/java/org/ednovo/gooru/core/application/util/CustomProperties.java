@@ -177,7 +177,7 @@ public class CustomProperties implements Serializable {
 	}
 	
 	public static enum ApplicationStatus {
-		DEVELOPMENT("development"),SUBMITTED_FOR_REVIEW("submitted for review"),PRODUCTION("production");
+		DEVELOPMENT("in development"),SUBMITTED_FOR_REVIEW("submitted for review"),PRODUCTION("production");
 		private String applicationStatus;
 
 		ApplicationStatus(String applicationStatus) {
