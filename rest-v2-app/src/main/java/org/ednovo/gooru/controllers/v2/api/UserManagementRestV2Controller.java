@@ -199,7 +199,7 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 		request.setAttribute(Constants.EVENT_PREDICATE, "reset.credential");
 		User apicaller = (User) request.getAttribute(Constants.USER);
 		JSONObject json = requestData(data);
-		Identity identity = this.getUserManagementService().resetCredential(getValue(TOKEN, json), getValue(GOORU_UID, json), getValue(PASSWORD, json), apicaller, getValue(MAIL_CONFIRMATION_URL, json) != null ? getValue(MAIL_CONFIRMATION_URL, json) : null);
+		Identity identity = this.getUserManagementService().resetCredential(getValue(TOKEN, json), getValue(GOORU_UID, json), getValue(PASSWORD, json), apicaller, getValue(MAIL_CONFIRMATION_URL, json) != null ? getValue(MAIL_CONFIRMATION_URL, json) : null,  getValue(IS_PARTNER_PORTAL, json) != null ? Boolean.parseBoolean(getValue(IS_PARTNER_PORTAL, json)) : false);
 		String[] includes = (String[]) ArrayUtils.addAll(USER_INCLUDES, RESET_PASSWORD_INCLUDES);
 		if (identity != null) {
 			indexProcessor.index(identity.getUser().getPartyUid(), IndexProcessor.INDEX, USER);
