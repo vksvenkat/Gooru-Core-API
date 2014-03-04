@@ -95,10 +95,10 @@ public class ResourceImageUtil extends UserGroupSupport implements ParameterProp
 
 	@Autowired
 	private IndexProcessor indexProcessor;
-	
+
 	@Autowired
 	private AsyncExecutor asyncExecutor;
-	
+
 	private Map<String, String> propertyMap;
 
 	private static final Logger logger = LoggerFactory.getLogger(ResourceImageUtil.class);
@@ -327,23 +327,23 @@ public class ResourceImageUtil extends UserGroupSupport implements ParameterProp
 				}
 			}
 			if (fetchThumbnail) {
-				// FIX ME Comment since it's taking more time to generate snapshot
-			/*	if (images != null && images.size() < SUGGEST_IMAGE_MIN_SIZE && url != null) {
-					try {
-
-						String fileName = UUID.randomUUID().toString() + ".png";
-						FileMeta fileMeta = getMediaService().handleFileUpload(fileName, "http://snapshoter.goorulearning.org/gooru-screenshot/rest/snapshot/generate/500/500?sourceUrl=" + url, null, true, 700, 500);
-						if (fileMeta != null) {
-							images.add(fileMeta.getUrl());
-						}
-					} catch (FileNotFoundException e) {
-						e.printStackTrace();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				} */
-				metaData.put(IMAGES, images); 
-			} 
+				// FIX ME Comment since it's taking more time to generate
+				// snapshot
+				/*
+				 * if (images != null && images.size() < SUGGEST_IMAGE_MIN_SIZE
+				 * && url != null) { try {
+				 * 
+				 * String fileName = UUID.randomUUID().toString() + ".png";
+				 * FileMeta fileMeta =
+				 * getMediaService().handleFileUpload(fileName,
+				 * "http://snapshoter.goorulearning.org/gooru-screenshot/rest/snapshot/generate/500/500?sourceUrl="
+				 * + url, null, true, 700, 500); if (fileMeta != null) {
+				 * images.add(fileMeta.getUrl()); } } catch
+				 * (FileNotFoundException e) { e.printStackTrace(); } catch
+				 * (IOException e) { e.printStackTrace(); } }
+				 */
+				metaData.put(IMAGES, images);
+			}
 		} else {
 			title = resourceFeeds.getTitle();
 			description = resourceFeeds.getDescription();
@@ -377,7 +377,7 @@ public class ResourceImageUtil extends UserGroupSupport implements ParameterProp
 		param.put(API_END_POINT, settingService.getConfigSetting(ConfigConstants.GOORU_API_ENDPOINT, 0, TaxonomyUtil.GOORU_ORG_UID));
 		Code code = this.taxonomyRespository.findCodeByCodeUId(codeId);
 		s3ResourceApiHandler.resetS3UploadFlag(code);
-	    this.getAsyncExecutor().executeRestAPI(param, settingService.getConfigSetting(ConfigConstants.GOORU_CONVERSION_RESTPOINT, 0, TaxonomyUtil.GOORU_ORG_UID) + "/conversion/image", Method.POST.getName());
+		this.getAsyncExecutor().executeRestAPI(param, settingService.getConfigSetting(ConfigConstants.GOORU_CONVERSION_RESTPOINT, 0, TaxonomyUtil.GOORU_ORG_UID) + "/conversion/image", Method.POST.getName());
 	}
 
 	public static ResourceMetadataCo getYoutubeResourceFeeds(String url, ResourceMetadataCo resourceFeeds) {
@@ -432,7 +432,6 @@ public class ResourceImageUtil extends UserGroupSupport implements ParameterProp
 					}
 				}
 				resourceFeeds.setUrlStatus(status);
-				System.out.println("resourceFeeds"+resourceFeeds);
 				return resourceFeeds;
 			} catch (Exception ex) {
 				logger.error("getYoutubeResourceFeeds: " + ex);
@@ -451,15 +450,16 @@ public class ResourceImageUtil extends UserGroupSupport implements ParameterProp
 
 			File file = new File(UserGroupSupport.getUserOrganizationNfsInternalPath() + Constants.UPLOADED_MEDIA_FOLDER + "/" + newResource.getAttach().getMediaFilename());
 			String fileExtension = org.apache.commons.lang.StringUtils.substringAfterLast(newResource.getAttach().getFilename(), ".");
-			if (fileExtension.equalsIgnoreCase(PDF) ){
-			PDDocument doc = PDDocument.load(file);
-			ResourceInfo resourceInfo = new ResourceInfo();
-			resourceInfo.setResource(resource);
-			resourceInfo.setNumOfPages(doc.getNumberOfPages());
-			resourceInfo.setLastUpdated(resource.getLastModified());
-			this.resourceRepository.save(resourceInfo);
-			resource.setResourceInfo(resourceInfo);
+			if (fileExtension.equalsIgnoreCase(PDF)) {
+				PDDocument doc = PDDocument.load(file);
+				ResourceInfo resourceInfo = new ResourceInfo();
+				resourceInfo.setResource(resource);
+				resourceInfo.setNumOfPages(doc.getNumberOfPages());
+				resourceInfo.setLastUpdated(resource.getLastModified());
+				this.resourceRepository.save(resourceInfo);
+				resource.setResourceInfo(resourceInfo);
 			}
+
 			file.renameTo(new File(UserGroupSupport.getUserOrganizationNfsInternalPath() + resource.getFolder() + "/" + newResource.getAttach().getFilename()));
 			if (newResource.getThumbnail() == null) {
 				this.downloadAndSendMsgToGenerateThumbnails(resource, null);
@@ -485,7 +485,7 @@ public class ResourceImageUtil extends UserGroupSupport implements ParameterProp
 	public Map<String, String> getPropertyMap() {
 		return propertyMap;
 	}
-	
+
 	public AsyncExecutor getAsyncExecutor() {
 		return asyncExecutor;
 	}

@@ -1580,7 +1580,11 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 					this.getResourceService().saveOrUpdate(resource);
 					this.getResourceService().mapSourceToResource(resource);
 					if (newResource.getThumbnail() != null && newResource.getThumbnail().length() > 0) {
-						this.getResourceImageUtil().downloadAndSendMsgToGenerateThumbnails(resource, newResource.getThumbnail());
+						try {
+						 this.getResourceImageUtil().downloadAndSendMsgToGenerateThumbnails(resource, newResource.getThumbnail());
+						} catch (Exception  e) { 
+							logger.debug(e.getMessage());
+						}
 					}
 
 					if (resource != null && resource.getContentId() != null) {
