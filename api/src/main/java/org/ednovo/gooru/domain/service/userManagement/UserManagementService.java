@@ -77,7 +77,7 @@ public interface UserManagementService extends BaseService {
 
 	User resetPasswordRequest(String emailId, String gooruClassicUrl, User apicaller,String mailConfirmationUrl) throws Exception;
 
-	Identity resetCredential(String token, String gooruUid, String password, User apicaller, String mailConfirmationUrl) throws Exception;
+	Identity resetCredential(String token, String gooruUid, String password, User apicaller, String mailConfirmationUrl,Boolean isPartnerPortal) throws Exception;
 
 	String getUserEmailFromIdentity(Set<Identity> identity);
 

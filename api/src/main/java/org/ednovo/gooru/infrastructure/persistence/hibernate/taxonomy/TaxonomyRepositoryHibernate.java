@@ -936,4 +936,43 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 		return query.list();
 	}
 
+	@Override
+	public List<Code> findParentTaxonomyCodeLevels(Integer codeId, List<Code> codeList) {
+		Code code = getTaxonomyCodeById(codeId);
+		if (code != null) {
+			Code parentCode = new Code();
+			parentCode.setActiveFlag(code.getActiveFlag());
+			parentCode.setAssetURI(code.getAssetURI());
+			parentCode.setCode(code.getCode());
+			parentCode.setCodeId(code.getCodeId());
+			parentCode.setCodeImage(code.getCodeImage());
+			parentCode.setCodeUid(code.getCodeUid());
+			parentCode.setDepth(code.getDepth());
+			parentCode.setDescription(code.getDescription());
+			parentCode.setdisplayCode(code.getdisplayCode());
+			parentCode.setDisplayOrder(code.getDisplayOrder());
+			parentCode.setGrade(code.getGrade());
+			parentCode.setLabel(code.getLabel());
+			parentCode.setLibraryFlag(code.getLibraryFlag());
+			parentCode.setParentId(code.getParentId());
+			parentCode.setRootNodeId(code.getRootNodeId());
+			parentCode.setS3UploadFlag(code.getS3UploadFlag());
+			parentCode.setTaxonomyImageUrl(code.getTaxonomyImageUrl());
+			codeList.add(parentCode);
+		}
+
+		if (code != null && code.getDepth() != 1) {
+			codeList = findParentTaxonomyCodeLevels(code.getParentId(), codeList);
+		}
+
+		return codeList;
+	}
+	
+	private Code getTaxonomyCodeById(Integer codeId) {
+		String hql = "From Code code where code.codeId =:codeId  and " + generateOrgAuthQueryWithData("code.");
+		Query query = getSession().createQuery(hql);
+		query.setParameter("codeId", codeId);
+		return (Code) query.list().get(0);
+	}
+	
 }

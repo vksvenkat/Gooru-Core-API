@@ -412,7 +412,7 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 	@RequestMapping(value = { "/{id}/parents" }, method = RequestMethod.GET)
 	public ModelAndView getCollectionParent(HttpServletRequest request, @PathVariable(value = ID) String gooruOid, HttpServletResponse resHttpServletResponse) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
-		return toJsonModelAndView(this.getCollectionService().getParentCollection(gooruOid, user.getPartyUid()), true);
+		return toJsonModelAndView(this.getCollectionService().getParentCollection(gooruOid, user.getPartyUid(),true), true);
 	}
 	
 	@RequestMapping(value = { "/standards" }, method = RequestMethod.GET)

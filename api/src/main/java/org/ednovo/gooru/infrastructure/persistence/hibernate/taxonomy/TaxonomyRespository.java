@@ -122,4 +122,6 @@ public interface TaxonomyRespository extends BaseRepository{
 	
 	List<Object[]> getCollectionStandards(Integer codeId,String  query,Integer limit, Integer offset,Boolean skipPagination);
 	
+	List<Code> findParentTaxonomyCodeLevels(Integer codeId, List<Code> codeList);
+	
 }

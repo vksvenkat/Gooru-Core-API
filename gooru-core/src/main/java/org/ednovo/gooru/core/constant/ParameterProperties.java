@@ -2620,4 +2620,6 @@ public interface ParameterProperties {
 	
 	String STANDARD = "standard";
 	
+	String IS_PARTNER_PORTAL = "isPartnerPortal";
+	
 }

@@ -1094,7 +1094,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	}
 
 	@Override
-	public Identity resetCredential(String token, String gooruUid, String password, User apiCaller, String mailConfirmationUrl) throws Exception {
+	public Identity resetCredential(String token, String gooruUid, String password, User apiCaller, String mailConfirmationUrl,Boolean isPartnerPortal) throws Exception {
 		Identity identity = null;
 		if (token != null) {
 			if (this.getUserService().hasResetTokenValid(token)) {
@@ -1132,7 +1132,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		credential.setToken(newGenereatedToken);
 		identity.setCredential(credential);
 		this.getUserRepository().save(identity);
-		if (!flag) {
+		if (!flag && !isPartnerPortal) {
 			if (identity.getUser().getAccountTypeId() != null && identity.getUser().getAccountTypeId().equals(UserAccountType.ACCOUNT_PARENT) || identity.getUser().getAccountTypeId().equals(UserAccountType.ACCOUNT_NON_PARENT)) {
 				this.getMailHandler().sendMailToConfirmPasswordChanged(identity.getUser().getGooruUId(), password, true, resetPasswordConfirmRestendpoint, mailConfirmationUrl);
 			}
