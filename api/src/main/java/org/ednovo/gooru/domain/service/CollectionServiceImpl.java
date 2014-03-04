@@ -46,8 +46,6 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.taxonomy.TaxonomyRe
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.google.common.collect.Lists;
-
 @Service
 public class CollectionServiceImpl extends ScollectionServiceImpl implements CollectionService {
 
@@ -188,14 +186,20 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 
 	@Override
 	public List<Map<String, Object>> getFolderItems(String gooruOid, Integer limit, Integer offset, String sharing) {
+		StorageArea storageArea = this.getStorageRepository().getStorageAreaByTypeName(NFS);
 		List<Map<String, Object>> items = new ArrayList<Map<String, Object>>();
-		List<Object[]> result = this.getCollectionRepository().getCollectionItem(gooruOid, limit, offset, false, sharing, null);
+		List<Object[]> result = this.getCollectionRepository().getCollectionItem(gooruOid, limit, offset, false, sharing, "folder");
 		if (result != null && result.size() > 0) {
 			for (Object[] object : result) {
 				Map<String, Object> item = new HashMap<String, Object>();
 				item.put(TITLE, object[0]);
 				item.put(GOORU_OID, object[1]);
 				item.put(TYPE, object[2]);
+				if (object[4] != null) {
+					Map<String, Object> thumbnails = new HashMap<String, Object>();
+					thumbnails.put(URL, storageArea.getCdnDirectPath() + String.valueOf(object[3]) + String.valueOf(object[4]));
+					item.put(THUMBNAILS, thumbnails);
+				}
 				if (object[5] != null) {
 					Map<String, Object> resourceFormat = new HashMap<String, Object>();
 					resourceFormat.put(VALUE, object[5]);
