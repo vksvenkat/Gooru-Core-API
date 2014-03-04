@@ -972,7 +972,7 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 		String hql = "From Code code where code.codeId =:codeId  and " + generateOrgAuthQueryWithData("code.");
 		Query query = getSession().createQuery(hql);
 		query.setParameter("codeId", codeId);
-		return (Code) query.list().get(0);
+		return  query.list().size() > 0 ? (Code) query.list().get(0) : null;
 	}
 	
 }
