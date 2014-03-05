@@ -158,7 +158,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	public List<Map<String, Object>> getFolderItem(String gooruOid, String sharing, String type, String collectionType) {
 		StorageArea storageArea = this.getStorageRepository().getStorageAreaByTypeName(NFS);
 		List<Map<String, Object>> items = new ArrayList<Map<String, Object>>();
-		List<Object[]> result = this.getCollectionRepository().getCollectionItem(gooruOid, 4, 0, false, sharing, type.equalsIgnoreCase(SCOLLECTION) ? FOLDER : null, collectionType);
+		List<Object[]> result = this.getCollectionRepository().getCollectionItem(gooruOid, 4, 0, false, sharing, type.equalsIgnoreCase(SCOLLECTION) ? SEQUENCE : null, collectionType);
 		if (result != null && result.size() > 0) {
 			for (Object[] object : result) {
 				Map<String, Object> item = new HashMap<String, Object>();
@@ -189,7 +189,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	public List<Map<String, Object>> getFolderItems(String gooruOid, Integer limit, Integer offset, String sharing, String collectionType) {
 		StorageArea storageArea = this.getStorageRepository().getStorageAreaByTypeName(NFS);
 		List<Map<String, Object>> items = new ArrayList<Map<String, Object>>();
-		List<Object[]> result = this.getCollectionRepository().getCollectionItem(gooruOid, limit, offset, false, sharing, "folder", collectionType);
+		List<Object[]> result = this.getCollectionRepository().getCollectionItem(gooruOid, limit, offset, false, sharing, null, collectionType);
 		if (result != null && result.size() > 0) {
 			for (Object[] object : result) {
 				Map<String, Object> item = new HashMap<String, Object>();
