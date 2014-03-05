@@ -177,10 +177,10 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 	}
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ITEM_LIST })
 	@RequestMapping(value = { "/{id}/item" }, method = RequestMethod.GET)
-	public ModelAndView getFolderItems(@PathVariable(value = ID) String collectionId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "20") Integer limit, @RequestParam(value = SHARING, required = false, defaultValue="private,public,anyonewithlink") String sharing, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public ModelAndView getFolderItems(@PathVariable(value = ID) String collectionId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "20") Integer limit, @RequestParam(value = SHARING, required = false, defaultValue="private,public,anyonewithlink") String sharing, @RequestParam(value = "collectionType" , required = false) String collectionType,HttpServletRequest request, HttpServletResponse response) throws Exception {
 		Map<String, Object> content = new HashMap<String, Object>();
-		content.put(SEARCH_RESULT, this.getCollectionService().getFolderItems(collectionId, limit, offset,sharing));
-		content.put(COUNT, this.getCollectionRepository().getCollectionItemCount(collectionId,sharing));
+		content.put(SEARCH_RESULT, this.getCollectionService().getFolderItems(collectionId, limit, offset,sharing,collectionType));
+		content.put(COUNT, this.getCollectionRepository().getCollectionItemCount(collectionId,sharing, collectionType));
 		return toJsonModelAndView(content, true);
 	}
 
@@ -233,11 +233,11 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
 	@RequestMapping(value = { "/my/workspace" }, method = RequestMethod.GET)
-	public ModelAndView getMyWorkspace(HttpServletRequest request, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "20") Integer limit,  @RequestParam(value = SHARING, required = false, defaultValue="private,public,anyonewithlink") String sharing, HttpServletResponse resHttpServletResponse) {
+	public ModelAndView getMyWorkspace(HttpServletRequest request, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "20") Integer limit,  @RequestParam(value = SHARING, required = false, defaultValue="private,public,anyonewithlink") String sharing,@RequestParam(value = "collectionType" , required = false) String collectionType, HttpServletResponse resHttpServletResponse) {
 		User user = (User) request.getAttribute(Constants.USER);
 		Map<String, Object> content = new HashMap<String, Object>();
-		content.put(SEARCH_RESULT, this.getCollectionService().getMyShelf(user.getPartyUid(), limit, offset,sharing));
-		content.put(COUNT, this.getCollectionRepository().getMyShelfCount(user.getPartyUid(),sharing));
+		content.put(SEARCH_RESULT, this.getCollectionService().getMyShelf(user.getPartyUid(), limit, offset,sharing, collectionType));
+		content.put(COUNT, this.getCollectionRepository().getMyShelfCount(user.getPartyUid(),sharing, collectionType));
 		return toJsonModelAndView(content, true);
 	}
 
