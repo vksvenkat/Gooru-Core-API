@@ -53,7 +53,7 @@ public interface CollectionService extends ScollectionService {
 	
 	List<Map<String, Object>> getMyShelf(String gooruUid, Integer limit, Integer offset, String sharing);
 	
-	List<Map<String, Object>> getFolderItem(String gooruOid, String sharing);
+	List<Map<String, Object>> getFolderItem(String gooruOid, String sharing, String type);
 	
 	List<Map<String, Object>> getFolderItems(String gooruOid, Integer limit, Integer offset, String sharing);
 	
