@@ -157,7 +157,7 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 	@RequestMapping(method = RequestMethod.GET, value = "/{id}")
 	public ModelAndView getUser(@PathVariable(value = ID) String userId, @RequestParam(value = USER_META_ACTIVE_FLAG, required = false) Integer activeFlag, HttpServletRequest request, HttpServletResponse response) throws Exception {
 
-		return toModelAndView(serialize(getUserManagementService().getUserProfile(userId, activeFlag), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, USER_PROFILE_INCUDES));
+		return toModelAndViewWithIoFilter(getUserManagementService().getUserProfile(userId, activeFlag), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, USER_PROFILE_INCUDES);
 	}
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_CONFIRM_MAIL })

@@ -214,6 +214,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		}
 		profile.getUser().setProfileImageUrl(profileImageUrl);
 		profile.setExternalId(externalId);
+		profile.getUser().setEmailId(externalId);
 		CustomTableValue type = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.USER_CLASSIFICATION_TYPE.getTable(), CustomProperties.UserClassificationType.COURSE.getUserClassificationType());
 		CustomTableValue gradeType = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.USER_CLASSIFICATION_TYPE.getTable(), CustomProperties.UserClassificationType.GRADE.getUserClassificationType());
 		profile.setCourses(this.getUserRepository().getUserClassifications(gooruUid, type.getCustomTableValueId(), activeFlag));
