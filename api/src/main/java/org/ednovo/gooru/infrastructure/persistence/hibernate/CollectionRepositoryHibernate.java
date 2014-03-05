@@ -776,7 +776,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		String sql = "select count(1) as count from  resource r inner join collection c on c.content_id = r.content_id inner join content cc on cc.content_id =  c.content_id inner join collection_item ci on ci.collection_content_id = c.content_id inner join resource re on re.content_id = ci.resource_content_id inner join content cr on  cr.content_id = re.content_id inner join organization o  on  o.organization_uid = cr.organization_uid  where c.collection_type = 'shelf' and cr.sharing in ('" + sharing.replace(",", "','")+ "') and cc.user_uid=:gooruUid";
 
 		if (collectionType != null) {
-			sql += " and r.type_name =:collectionType ";
+			sql += " and re.type_name =:collectionType ";
 		}
 		Query query = getSession().createSQLQuery(sql).addScalar("count", StandardBasicTypes.LONG);
 		query.setParameter("gooruUid", gooruUid);
