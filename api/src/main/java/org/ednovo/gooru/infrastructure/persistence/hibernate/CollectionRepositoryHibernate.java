@@ -733,7 +733,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		String sql = "select re.title, cr.gooru_oid, re.type_name, re.folder, re.thumbnail, cr.sharing, ci.collection_item_id  from  resource r inner join collection c on c.content_id = r.content_id inner join content cc on cc.content_id =  c.content_id inner join collection_item ci on ci.collection_content_id = c.content_id inner join resource re on re.content_id = ci.resource_content_id inner join content cr on  cr.content_id = re.content_id inner join organization o  on  o.organization_uid = cr.organization_uid  where c.collection_type = 'shelf' and  cr.sharing in ('" + sharing.replace(",", "','")+ "') and cc.user_uid=:gooruUid ";
 		
 		if (collectionType!= null)  {
-			sql += " and cr.type_name=:collectionType ";
+			sql += " and re.type_name=:collectionType ";
 		}
 		sql += " order by cr.created_on desc ";
 		Query query = getSession().createSQLQuery(sql);
@@ -751,7 +751,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		String sql = "select r.title, c.gooru_oid, r.type_name, r.folder, r.thumbnail, ct.value, ct.display_name, c.sharing, ci.collection_item_id from collection_item ci inner join resource r on r.content_id = ci.resource_content_id  left join custom_table_value ct on ct.custom_table_value_id = r.resource_format_id inner join content c on c.content_id = r.content_id inner join content rc on rc.content_id = ci.collection_content_id where  c.sharing in ('"
 				+ sharing.replace(",", "','") + "') and rc.gooru_oid=:gooruOid  ";
 		if (collectionType != null) {
-			sql += " and c.type_name =:collectionType ";
+			sql += " and r.type_name =:collectionType ";
 		}
 		if (orderBy != null && orderBy.equalsIgnoreCase("sequence")) {
 			sql += " order by ci.item_sequence asc";
@@ -776,7 +776,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		String sql = "select count(1) as count from  resource r inner join collection c on c.content_id = r.content_id inner join content cc on cc.content_id =  c.content_id inner join collection_item ci on ci.collection_content_id = c.content_id inner join resource re on re.content_id = ci.resource_content_id inner join content cr on  cr.content_id = re.content_id inner join organization o  on  o.organization_uid = cr.organization_uid  where c.collection_type = 'shelf' and cr.sharing in ('" + sharing.replace(",", "','")+ "') and cc.user_uid=:gooruUid";
 
 		if (collectionType != null) {
-			sql += " and cc.type_name =:collectionType ";
+			sql += " and r.type_name =:collectionType ";
 		}
 		Query query = getSession().createSQLQuery(sql).addScalar("count", StandardBasicTypes.LONG);
 		query.setParameter("gooruUid", gooruUid);
@@ -790,7 +790,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 	public Long getCollectionItemCount(String gooruOid, String sharing, String collectionType) {	
 		String sql = "select count(1) as count from collection_item ci inner join resource r on r.content_id = ci.resource_content_id  left join custom_table_value ct on ct.custom_table_value_id = r.resource_format_id inner join content c on c.content_id = r.content_id inner join content rc on rc.content_id = ci.collection_content_id where rc.gooru_oid=:gooruOid and c.sharing in ('" + sharing.replace(",", "','")+ "')";
 		if (collectionType != null) {
-			sql += " and c.type_name =:collectionType ";
+			sql += " and r.type_name =:collectionType ";
 		}
 		Query query = getSession().createSQLQuery(sql).addScalar("count", StandardBasicTypes.LONG);
 		query.setParameter("gooruOid", gooruOid);
