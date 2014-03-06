@@ -40,5 +40,17 @@ public interface ColumnFamilyConstant {
 	String USER_PREFERENCE = "user_preference";
 	
 	String USER_PROFICIENCY = "user_taxonomy_proficiency";
+	
+	String USER_SUBJECT_PROFICIENCY = "agg_event_resource_user_subject";
+	
+	String USER_COURSE_PROFICIENCY = "agg_event_resource_user_course";
+
+	String USER_UNIT_PROFICIENCY = "agg_event_resource_user_unit";
+
+	String USER_TOPIC_PROFICIENCY = "agg_event_resource_user_topic";
+
+	String USER_LESSON_PROFICIENCY = "agg_event_resource_user_lesson";
+	
+	String USER_CONCEPT_PROFICIENCY = "agg_event_resource_user_concept";
 
 }

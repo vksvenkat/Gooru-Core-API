@@ -177,6 +177,8 @@ public class Resource extends Content implements Serializable {
 	private CustomTableValue resourceFormat;
 	
 	private CustomTableValue instructional;
+
+	private Map<String,Object> ratings;
 	
 	public static final String COLLECTION_THUMBNAIL_SIZES = "160x120,75x56,120x90,80x60,50x40,310x258,800x600";
 
@@ -185,6 +187,7 @@ public class Resource extends Content implements Serializable {
 	public static final String RESOURCE_THUMBNAIL_SIZES = "80x60,160x120";
 	
 
+	
 	public Resource() {
 		recordSource = RecordSource.DEFAULT.getRecordSource();
 		thumbnails = new Resource.Thumbnail();
@@ -880,5 +883,13 @@ public class Resource extends Content implements Serializable {
 	public CustomTableValue getResourceFormat() {
 		return resourceFormat;
 	}
-	
+
+	public Map<String,Object> getRatings() {
+		return ratings;
+	}
+
+	public void setRatings(Map<String,Object> ratings) {
+		this.ratings = ratings;
+	}
+
 }

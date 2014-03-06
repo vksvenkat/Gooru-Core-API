@@ -681,8 +681,8 @@ public class FeaturedServiceImpl implements FeaturedService, ParameterProperties
 	}
 
 	@Override
-	public SearchResults<Map<String, Object>> getLibraryCollections(Integer limit, Integer offset, boolean skipPagination, String themeCode, String themeType) {
-		List<Map<String, Object>> libraryCollection = getAllLibraryCollections(limit, offset, skipPagination, themeCode, themeType);
+	public SearchResults<Map<String, Object>> getLibraryCollections(Integer limit, Integer offset, boolean skipPagination, String themeCode, String themeType, String subjectId, String courseId, String unitId, String lessonId, String topicId) {
+		List<Map<String, Object>> libraryCollection = getAllLibraryCollections(limit, offset, skipPagination, themeCode, themeType, subjectId, courseId, unitId, lessonId, topicId);
 		SearchResults<Map<String, Object>> result = new SearchResults<Map<String, Object>>();
 		result.setSearchResults(libraryCollection);
 		result.setTotalHitCount(this.getFeaturedRepository().getLibraryCollectionCount(themeCode, themeType));
@@ -694,9 +694,8 @@ public class FeaturedServiceImpl implements FeaturedService, ParameterProperties
 			codeMap.put("activeFlag", code.getActiveFlag());
 			codeMap.put("code", code.getCode());
 			codeMap.put("assetURI", code.getAssetURI());
-			codeMap.put("codeId", code.getAssetURI());
-			codeMap.put("codeType", code.getCodeType());
-			codeMap.put("codeUid", code.getCodeId());
+			codeMap.put("codeId", code.getCodeId());
+			codeMap.put("codeUid", code.getCodeUid());
 			codeMap.put("depth", code.getDepth());
 			codeMap.put("description", code.getDescription());
 			codeMap.put("displayCode", code.getdisplayCode());
@@ -705,16 +704,15 @@ public class FeaturedServiceImpl implements FeaturedService, ParameterProperties
 			codeMap.put("grade", code.getGrade());	
 			codeMap.put("indexId", code.getIndexId());
 			codeMap.put("indexType", code.getIndexType());
-			codeMap.put("indexType", code.getIndexType());
 			codeMap.put("label", code.getLabel());
 		return codeMap;
-		
 	}
 
 	@Override
-	public List<Map<String, Object>> getAllLibraryCollections(Integer limit, Integer offset, boolean skipPagination, String themeCode, String themeType) {
+	public List<Map<String, Object>> getAllLibraryCollections(Integer limit, Integer offset, boolean skipPagination, String themeCode, String themeType , String subjectId, String courseId, String unitId, String lessonId, String topicId) {
 		List<Map<String, Object>> collectionList = new ArrayList<Map<String, Object>>();
-		List<Object[]> result = this.getFeaturedRepository().getLibraryCollectionsList(limit, offset, skipPagination, themeCode, themeType);
+		//List<Object[]> result = this.getFeaturedRepository().getLibraryCollectionsList(limit, offset, skipPagination, themeCode, themeType);
+		List<Object[]> result = this.getFeaturedRepository().getLibraryCollectionsListByFilter(limit, offset, skipPagination, themeCode, themeType, subjectId, courseId, unitId, lessonId, topicId);
 		if (result != null && result.size() > 0) {
 			for (Object[] object : result) {
 				Map<String, Object> collection = new HashMap<String, Object>();
@@ -722,7 +720,7 @@ public class FeaturedServiceImpl implements FeaturedService, ParameterProperties
 				User lastUpdatedUser = this.getUserRepository().findUserByPartyUid(String.valueOf(object[5]));
 				Collection featuredCollection = this.getCollectionService().getCollection(String.valueOf(object[0]), true, true, false, user, "commentCount");
 				Long comment = this.getCommentRepository().getCommentCount(String.valueOf(object[0]), null, "notdeleted");
-				Long collectionItem = this.getCollectionRepository().getCollectionItemCount(String.valueOf(object[0]), "private,public,anyonewithlink");
+				Long collectionItem = this.getCollectionRepository().getCollectionItemCount(String.valueOf(object[0]), "private,public,anyonewithlink", null);
 				Iterator<Code> iter = featuredCollection.getTaxonomySet().iterator();
 				Map<Integer, List<Map<String, Object>>> codeParentsMap = new HashMap<Integer, List<Map<String, Object>>>();
 				while (iter.hasNext()) {
@@ -733,11 +731,12 @@ public class FeaturedServiceImpl implements FeaturedService, ParameterProperties
 						taxonomyMap.add(getTaxonomyMapCode(listCode));
 					}
 					codeParentsMap.put(code.getCodeId(), taxonomyMap);
+					
 				}
 				collection.put("taxonomyMappingSet", codeParentsMap);
 				collection.put("libraryCollection", featuredCollection);
-				collection.put(SUBJECT_CODE, object[13]);
-				collection.put(THEME_CODE, object[12]);
+				collection.put(SUBJECT_CODE, object[6]);
+				collection.put(THEME_CODE, object[7]);
 				if (lastUpdatedUser != null) {
 					collection.put(LAST_MODIFIED_BY, lastUpdatedUser.getUsername());
 				}
