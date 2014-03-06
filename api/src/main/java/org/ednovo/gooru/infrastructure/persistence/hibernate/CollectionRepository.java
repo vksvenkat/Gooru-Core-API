@@ -25,6 +25,7 @@ package org.ednovo.gooru.infrastructure.persistence.hibernate;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.ednovo.gooru.core.api.model.Assignment;
 import org.ednovo.gooru.core.api.model.Classpage;
@@ -113,5 +114,7 @@ public interface CollectionRepository extends BaseRepository {
 	String getParentCollection(String collectionGooruOid, String gooruUid);
 	
 	Long getPublicCollectionCount(String gooruOid);
+	
+	List<Collection> getCollectionListByIds(Set<String> collectionIds);
 	
 }
