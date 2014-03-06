@@ -54,6 +54,18 @@ public class PreferredSearchCassandraFactory extends InsightsCassandraFactory {
 		register(new RawCassandraDaoImpl(this, ColumnFamilyConstant.USER_PREFERENCE));
 		register(new CassandraColumnFamily(ColumnFamilyConstant.USER_PROFICIENCY));
 		register(new RawCassandraDaoImpl(this, ColumnFamilyConstant.USER_PROFICIENCY));
+		register(new CassandraColumnFamily(ColumnFamilyConstant.USER_SUBJECT_PROFICIENCY));
+		register(new RawCassandraDaoImpl(this, ColumnFamilyConstant.USER_SUBJECT_PROFICIENCY));
+		register(new CassandraColumnFamily(ColumnFamilyConstant.USER_COURSE_PROFICIENCY));
+		register(new RawCassandraDaoImpl(this, ColumnFamilyConstant.USER_COURSE_PROFICIENCY));
+		register(new CassandraColumnFamily(ColumnFamilyConstant.USER_UNIT_PROFICIENCY));
+		register(new RawCassandraDaoImpl(this, ColumnFamilyConstant.USER_UNIT_PROFICIENCY));
+		register(new CassandraColumnFamily(ColumnFamilyConstant.USER_TOPIC_PROFICIENCY));
+		register(new RawCassandraDaoImpl(this, ColumnFamilyConstant.USER_TOPIC_PROFICIENCY));
+		register(new CassandraColumnFamily(ColumnFamilyConstant.USER_LESSON_PROFICIENCY));
+		register(new RawCassandraDaoImpl(this, ColumnFamilyConstant.USER_LESSON_PROFICIENCY));
+		register(new CassandraColumnFamily(ColumnFamilyConstant.USER_CONCEPT_PROFICIENCY));
+		register(new RawCassandraDaoImpl(this, ColumnFamilyConstant.USER_CONCEPT_PROFICIENCY));
 	}
 
 	@Override

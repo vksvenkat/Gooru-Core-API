@@ -720,7 +720,7 @@ public class FeaturedServiceImpl implements FeaturedService, ParameterProperties
 				User lastUpdatedUser = this.getUserRepository().findUserByPartyUid(String.valueOf(object[5]));
 				Collection featuredCollection = this.getCollectionService().getCollection(String.valueOf(object[0]), true, true, false, user, "commentCount");
 				Long comment = this.getCommentRepository().getCommentCount(String.valueOf(object[0]), null, "notdeleted");
-				Long collectionItem = this.getCollectionRepository().getCollectionItemCount(String.valueOf(object[0]), "private,public,anyonewithlink");
+				Long collectionItem = this.getCollectionRepository().getCollectionItemCount(String.valueOf(object[0]), "private,public,anyonewithlink", null);
 				Iterator<Code> iter = featuredCollection.getTaxonomySet().iterator();
 				Map<Integer, List<Map<String, Object>>> codeParentsMap = new HashMap<Integer, List<Map<String, Object>>>();
 				while (iter.hasNext()) {

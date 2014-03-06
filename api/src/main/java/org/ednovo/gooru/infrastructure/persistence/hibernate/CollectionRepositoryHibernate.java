@@ -25,6 +25,7 @@ package org.ednovo.gooru.infrastructure.persistence.hibernate;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.ednovo.gooru.core.api.model.Assignment;
 import org.ednovo.gooru.core.api.model.Classpage;
@@ -135,7 +136,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		if (filters.containsKey(ORDER_BY) && filters.get(ORDER_BY).equalsIgnoreCase(TITLE)) {
 			hql += " order by collectionItems.resource.title";
 		} else {
-			hql += " order by collectionItems.resource.createdOn desc";
+			hql += " order by collectionItems.associationDate desc";
 		}
 		Query query = session.createQuery(hql);
 		query.setParameter("gooruOid", collectionId);
@@ -584,7 +585,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 			if (orderBy.length() == 0 || (!orderBy.equalsIgnoreCase("asc") && !orderBy.equalsIgnoreCase("desc"))) {
 				orderBy = "desc";
 			}
-			hql += " order by collectionItems.resource.createdOn " + orderBy;
+			hql += " order by collectionItems.associationDate " + orderBy;
 		}
 
 		Session session = getSession();
@@ -729,25 +730,41 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 	}
 
 	@Override
-	public List<Object[]> getMyFolder(String gooruUid, Integer limit, Integer offset, String sharing) {
-		String sql = "select re.title, cr.gooru_oid, re.type_name, re.folder, re.thumbnail, cr.sharing, ci.collection_item_id  from  resource r inner join collection c on c.content_id = r.content_id inner join content cc on cc.content_id =  c.content_id inner join collection_item ci on ci.collection_content_id = c.content_id inner join resource re on re.content_id = ci.resource_content_id inner join content cr on  cr.content_id = re.content_id inner join organization o  on  o.organization_uid = cr.organization_uid  where c.collection_type = 'shelf' and  cr.sharing in ('" + sharing.replace(",", "','")+ "') and cc.user_uid=:gooruUid  order by cr.created_on desc ";		
+	public List<Object[]> getMyFolder(String gooruUid, Integer limit, Integer offset, String sharing, String collectionType) {
+		String sql = "select re.title, cr.gooru_oid, re.type_name, re.folder, re.thumbnail, cr.sharing, ci.collection_item_id  from  resource r inner join collection c on c.content_id = r.content_id inner join content cc on cc.content_id =  c.content_id inner join collection_item ci on ci.collection_content_id = c.content_id inner join resource re on re.content_id = ci.resource_content_id inner join content cr on  cr.content_id = re.content_id inner join organization o  on  o.organization_uid = cr.organization_uid  where c.collection_type = 'shelf' and  cr.sharing in ('" + sharing.replace(",", "','")+ "') and cc.user_uid=:gooruUid ";
+		
+		if (collectionType!= null)  {
+			sql += " and re.type_name=:collectionType ";
+		}
+		sql += " order by ci.association_date desc ";
 		Query query = getSession().createSQLQuery(sql);
 		query.setParameter("gooruUid", gooruUid);
+		if (collectionType != null) {
+			query.setParameter("collectionType", collectionType);
+		}
 		query.setFirstResult(offset);
 		query.setMaxResults(limit);
 		return query.list();
 	}
 
 	@Override
-	public List<Object[]> getCollectionItem(String gooruOid, Integer limit, Integer offset, boolean skipPagination, String sharing, String orderBy) {
-		String sql = "select r.title, c.gooru_oid, r.type_name, r.folder, r.thumbnail, ct.value, ct.display_name, c.sharing, ci.collection_item_id from collection_item ci inner join resource r on r.content_id = ci.resource_content_id  left join custom_table_value ct on ct.custom_table_value_id = r.resource_format_id inner join content c on c.content_id = r.content_id inner join content rc on rc.content_id = ci.collection_content_id where  c.sharing in ('" + sharing.replace(",", "','")+ "') and rc.gooru_oid=:gooruOid  ";
-		if(orderBy != null && orderBy.equalsIgnoreCase("folder")) {
+	public List<Object[]> getCollectionItem(String gooruOid, Integer limit, Integer offset, boolean skipPagination, String sharing, String orderBy, String collectionType) {
+		String sql = "select r.title, c.gooru_oid, r.type_name, r.folder, r.thumbnail, ct.value, ct.display_name, c.sharing, ci.collection_item_id from collection_item ci inner join resource r on r.content_id = ci.resource_content_id  left join custom_table_value ct on ct.custom_table_value_id = r.resource_format_id inner join content c on c.content_id = r.content_id inner join content rc on rc.content_id = ci.collection_content_id where  c.sharing in ('"
+				+ sharing.replace(",", "','") + "') and rc.gooru_oid=:gooruOid  ";
+		if (collectionType != null) {
+			sql += " and r.type_name =:collectionType ";
+		}
+		if (orderBy != null && orderBy.equalsIgnoreCase("sequence")) {
 			sql += " order by ci.item_sequence asc";
 		} else {
-			sql += " order by rc.created_on desc";
+			sql += " order by ci.association_date desc";
 		}
+
 		Query query = getSession().createSQLQuery(sql);
 		query.setParameter("gooruOid", gooruOid);
+		if (collectionType != null) {
+			query.setParameter("collectionType", collectionType);
+		}
 		if (!skipPagination) {
 			query.setFirstResult(offset);
 			query.setMaxResults(limit);
@@ -756,18 +773,31 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 	}
 
 	@Override
-	public Long getMyShelfCount(String gooruUid, String sharing) {
+	public Long getMyShelfCount(String gooruUid, String sharing, String collectionType) {
 		String sql = "select count(1) as count from  resource r inner join collection c on c.content_id = r.content_id inner join content cc on cc.content_id =  c.content_id inner join collection_item ci on ci.collection_content_id = c.content_id inner join resource re on re.content_id = ci.resource_content_id inner join content cr on  cr.content_id = re.content_id inner join organization o  on  o.organization_uid = cr.organization_uid  where c.collection_type = 'shelf' and cr.sharing in ('" + sharing.replace(",", "','")+ "') and cc.user_uid=:gooruUid";
+
+		if (collectionType != null) {
+			sql += " and re.type_name =:collectionType ";
+		}
 		Query query = getSession().createSQLQuery(sql).addScalar("count", StandardBasicTypes.LONG);
 		query.setParameter("gooruUid", gooruUid);
+		if (collectionType != null) {
+			query.setParameter("collectionType", collectionType);
+		}
 		return (Long)query.list().get(0);
 	}
 
 	@Override
-	public Long getCollectionItemCount(String gooruOid, String sharing) {	
+	public Long getCollectionItemCount(String gooruOid, String sharing, String collectionType) {	
 		String sql = "select count(1) as count from collection_item ci inner join resource r on r.content_id = ci.resource_content_id  left join custom_table_value ct on ct.custom_table_value_id = r.resource_format_id inner join content c on c.content_id = r.content_id inner join content rc on rc.content_id = ci.collection_content_id where rc.gooru_oid=:gooruOid and c.sharing in ('" + sharing.replace(",", "','")+ "')";
+		if (collectionType != null) {
+			sql += " and r.type_name =:collectionType ";
+		}
 		Query query = getSession().createSQLQuery(sql).addScalar("count", StandardBasicTypes.LONG);
 		query.setParameter("gooruOid", gooruOid);
+		if (collectionType != null) {
+			query.setParameter("collectionType", collectionType);
+		}
 		return (Long)query.list().get(0);
 	}
 	
@@ -812,5 +842,13 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		Query query = getSession().createSQLQuery(sql).addScalar("count", StandardBasicTypes.LONG);
 		query.setParameter("gooruOid", gooruOid);
 		return (Long) query.list().get(0);
+	}
+
+	@Override
+	public List<Collection> getCollectionListByIds(Set<String> collectionIds) {
+		String hql = " FROM Collection c  WHERE c.gooruOid IN ( :collectionIds )";
+		Query query = getSession().createQuery(hql);
+		query.setParameterList("collectionIds", collectionIds);
+		return (List<Collection>) query.list();
 	}
 }

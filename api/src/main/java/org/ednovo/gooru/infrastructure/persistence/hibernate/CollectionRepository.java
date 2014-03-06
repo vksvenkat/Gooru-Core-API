@@ -25,6 +25,7 @@ package org.ednovo.gooru.infrastructure.persistence.hibernate;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.ednovo.gooru.core.api.model.Assignment;
 import org.ednovo.gooru.core.api.model.Classpage;
@@ -94,13 +95,13 @@ public interface CollectionRepository extends BaseRepository {
 
 	Long getMyClasspageCount(String gooruUid);
 	
-	List<Object[]> getMyFolder(String gooruUid, Integer limit, Integer offset, String sharing);
+	List<Object[]> getMyFolder(String gooruUid, Integer limit, Integer offset, String sharing, String collectionType);
 	
-	Long getMyShelfCount(String gooruUid, String sharing);
+	Long getMyShelfCount(String gooruUid, String sharing, String collectionType);
 	
-	List<Object[]> getCollectionItem(String gooruOid, Integer limit, Integer offset, boolean SkipPagination, String sharing,String orderBy);
+	List<Object[]> getCollectionItem(String gooruOid, Integer limit, Integer offset, boolean SkipPagination, String sharing, String orderBy, String collectionType);
 	
-	Long getCollectionItemCount(String gooruOid, String sharing);
+	Long getCollectionItemCount(String gooruOid, String sharing, String collectionType );
 	
 	List<CollectionItem> findCollectionByResource(String gooruOid, String gooruUid, String type);
 	
@@ -113,5 +114,7 @@ public interface CollectionRepository extends BaseRepository {
 	String getParentCollection(String collectionGooruOid, String gooruUid);
 	
 	Long getPublicCollectionCount(String gooruOid);
+	
+	List<Collection> getCollectionListByIds(Set<String> collectionIds);
 	
 }
