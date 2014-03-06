@@ -135,7 +135,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		if (filters.containsKey(ORDER_BY) && filters.get(ORDER_BY).equalsIgnoreCase(TITLE)) {
 			hql += " order by collectionItems.resource.title";
 		} else {
-			hql += " order by collectionItems.resource.createdOn desc";
+			hql += " order by collectionItems.associationDate desc";
 		}
 		Query query = session.createQuery(hql);
 		query.setParameter("gooruOid", collectionId);
