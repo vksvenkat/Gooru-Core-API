@@ -235,7 +235,7 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ITEM_DELETE })
-	@RequestMapping(value = "/assignment/collection/{id}", method = RequestMethod.DELETE)
+	@RequestMapping(value = "/collection/{id}", method = RequestMethod.DELETE)
 	public void deleteCollectionAssocInAssignment(@PathVariable(value = ID) String collectionId, HttpServletRequest request, HttpServletResponse response) {
 		this.getTaskService().deleteCollectionAssocInAssignment(collectionId);
 	}

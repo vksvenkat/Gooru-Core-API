@@ -136,7 +136,7 @@ public class TaskRepositoryHibernate extends BaseRepositoryHibernate implements 
 	@Override
 	public void deleteCollectionAssocInAssignment(String collectionId) {
 		Session session = getSession();
-		String sql = "delete tr.* from collection_task_assoc ct inner join task_resource_assoc tr on tr.task_content_id = ct.task_content_id inner join content c on c.content_id = tr.resource_content_id inner join resource r on  r.content_id = ct.collection_content_id inner join content cct on cct.content_id = ct.collection_content_id  where c.gooru_oid =:collectionId";
+		String sql = "delete ci.* from collection_item ci inner join collection c on c.content_id = ci.collection_content_id inner join content cc on cc.content_id = c.content_id where cc.gooru_oid =:collectionId and c.collection_type = 'classpage'";
 		Query query = session.createSQLQuery(sql).setParameter("collectionId", collectionId);
 		query.executeUpdate();
 	}
