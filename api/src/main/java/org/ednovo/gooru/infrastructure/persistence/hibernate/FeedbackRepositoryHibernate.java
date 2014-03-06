@@ -214,6 +214,7 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 		}
 		rating.put("scores", value);
 		rating.put("average", Math.round(sum/results.size()));
+		rating.put("count",sum);
 		return rating; 
 	}
 	

@@ -229,7 +229,8 @@ public class ResourceCio implements IsEntityCassandraIndexable {
 	@Column
 	private String protocolSupported;
 	
-	
+	@Column
+	private Map<String,Object> ratings;
 	
 	public String getSegmentConcepts() {
 		return segmentConcepts;
@@ -790,6 +791,14 @@ public class ResourceCio implements IsEntityCassandraIndexable {
 
 	public void setProtocolSupported(String protocolSupported) {
 		this.protocolSupported = protocolSupported;
+	}
+
+	public Map<String, Object> getRatings() {
+		return ratings;
+	}
+
+	public void setRatings(Map<String, Object> ratings) {
+		this.ratings = ratings;
 	}
 
 }
