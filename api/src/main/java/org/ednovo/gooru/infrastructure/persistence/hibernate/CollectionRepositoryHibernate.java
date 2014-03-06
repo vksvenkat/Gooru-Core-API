@@ -584,7 +584,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 			if (orderBy.length() == 0 || (!orderBy.equalsIgnoreCase("asc") && !orderBy.equalsIgnoreCase("desc"))) {
 				orderBy = "desc";
 			}
-			hql += " order by collectionItems.resource.createdOn " + orderBy;
+			hql += " order by collectionItems.associationDate " + orderBy;
 		}
 
 		Session session = getSession();
@@ -735,7 +735,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		if (collectionType!= null)  {
 			sql += " and re.type_name=:collectionType ";
 		}
-		sql += " order by cr.created_on desc ";
+		sql += " order by ci.association_date desc ";
 		Query query = getSession().createSQLQuery(sql);
 		query.setParameter("gooruUid", gooruUid);
 		if (collectionType != null) {
@@ -756,7 +756,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		if (orderBy != null && orderBy.equalsIgnoreCase("sequence")) {
 			sql += " order by ci.item_sequence asc";
 		} else {
-			sql += " order by c.created_on desc";
+			sql += " order by ci.association_date desc";
 		}
 
 		Query query = getSession().createSQLQuery(sql);
