@@ -1472,6 +1472,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				collectionItem.setResource(destCollection);
 				int sequence = myCollection.getCollectionItems() != null ? myCollection.getCollectionItems().size() + 1 : 1;
 				collectionItem.setItemSequence(sequence);
+				collectionItem.setAssociationDate(new Date(System.currentTimeMillis()));
 				this.getCollectionRepository().save(collectionItem);
 			}
 			if (destCollection.getCollectionType().equalsIgnoreCase(CollectionType.COLLECTION.getCollectionType())) {
