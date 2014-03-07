@@ -26,7 +26,11 @@ package org.ednovo.gooru.application.util;
 import java.util.List;
 import java.util.Set;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.lang.ArrayUtils;
+import org.ednovo.gooru.core.api.model.Collection;
+import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.ContentPermission;
 import org.ednovo.gooru.core.api.model.ContentPermissionTransformer;
 import org.ednovo.gooru.core.api.model.Identity;
@@ -37,16 +41,19 @@ import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserGroup;
 import org.ednovo.gooru.core.api.model.UserGroupTransformer;
 import org.ednovo.gooru.core.api.model.UserTransformer;
+import org.ednovo.gooru.core.application.util.BaseUtil;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.goorucore.application.serializer.ExcludeNullTransformer;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.validation.Errors;
+import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.DomDriver;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import flexjson.JSONSerializer;
 
@@ -188,7 +195,7 @@ public class SerializerUtil  implements ParameterProperties{
 			}
 
 			try {
-
+				model = protocolSwitch(model);
 				serializedData = deepSerialize ? serializer.deepSerialize(model) : serializer.serialize(model);
 
 			} catch (Exception ex) {
@@ -207,6 +214,41 @@ public class SerializerUtil  implements ParameterProperties{
 			serializedData = new XStream().toXML(model);
 		}
 		return serializedData;
+	}
+	
+	private static Object protocolSwitch(Object model) { 
+		HttpServletRequest request = null;
+		if (RequestContextHolder.getRequestAttributes() != null) {
+			request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+		}
+		String requestProtocol = request.getAttribute("requestProtocol") != null ? (String) request.getAttribute("requestProtocol") : null;
+		String protocolAutoSwitch = request.getAttribute("protocolAutoSwitch") != null ? (String) request.getAttribute("protocolAutoSwitch") : "true";
+		if (protocolAutoSwitch != null && protocolAutoSwitch.equalsIgnoreCase("true")) {
+			if (model instanceof Resource) {
+				BaseUtil.changeHttpsProtocolByHeader(((Resource) model), requestProtocol, BaseUtil.isSecure(request), request.getMethod());
+			} else if (model instanceof CollectionItem) {
+				BaseUtil.changeHttpsProtocolByHeader(((CollectionItem) model).getResource(), requestProtocol, BaseUtil.isSecure(request), request.getMethod());
+			} else if (model instanceof List) {
+				List list = (List<?>) model;
+				if (list != null && list.size() > 0 && list.get(0) instanceof Resource) {
+					for (int resourceIndex = 0; resourceIndex < list.size(); resourceIndex++) {
+						BaseUtil.changeHttpsProtocolByHeader(((Resource) list.get(resourceIndex)), requestProtocol, BaseUtil.isSecure(request), request.getMethod());
+					}
+				} else if (list != null && list.size() > 0 && list.get(0) instanceof CollectionItem) {
+					for (int resourceIndex = 0; resourceIndex < list.size(); resourceIndex++) {
+						BaseUtil.changeHttpsProtocolByHeader(((CollectionItem) list.get(resourceIndex)).getResource(), requestProtocol, BaseUtil.isSecure(request), request.getMethod());
+					}
+				}
+			} else if (model instanceof Collection) { 
+				if (((Collection) model) != null  && ((Collection) model).getCollectionItems() != null) { 
+					for (CollectionItem collectionItem : ((Collection) model).getCollectionItems()) { 
+						BaseUtil.changeHttpsProtocolByHeader(collectionItem.getResource(), requestProtocol, BaseUtil.isSecure(request), request.getMethod());
+					}
+				}
+			}
+			
+		}
+		return model;
 	}
 
 	@SuppressWarnings("unchecked")

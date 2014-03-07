@@ -8,6 +8,8 @@ import java.util.Random;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.io.FileUtils;
+import org.ednovo.gooru.core.api.model.Resource;
+import org.restlet.data.Method;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -77,5 +79,53 @@ public class BaseUtil {
 			}
 		}
 		return key;
+	}
+	
+	public static String changeHttpsProtocolByHeader(String url) {
+		HttpServletRequest request = null;
+		if (RequestContextHolder.getRequestAttributes() != null) {
+			request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+		}
+		if (url != null && isSecure(request)) {
+			url = url.replaceFirst("http://", "https://");
+		}
+		return url;
+	}
+	
+	public static void changeHttpsProtocolByHeader(Resource resource, String requestProtocol, boolean isSecure, String method) {
+		if (resource != null && resource.getUrl() != null   && method != null && method.equalsIgnoreCase(Method.GET.getName())) {
+			// condition check whether it's coming from search or not			
+			if (requestProtocol != null && requestProtocol.trim().length() > 0 && isSecure) {
+				resource.setUrl(resource.getUrl().replaceFirst("http://", "https://"));
+			} else  {
+				if (isSecure && resource.getResourceSource() != null && resource.getResourceSource().getProtocolSupported() != null && resource.getResourceSource().getProtocolSupported() >= 2) {
+					resource.setUrl(resource.getUrl().replaceFirst("http://", "https://"));
+				} 
+			}
+		}
+
+	}
+	
+	public static boolean isSecure(HttpServletRequest request) {
+		boolean isSecure = false;
+		if (request != null) {
+			String requestProtocol = request.getAttribute("requestProtocol") != null ?  (String) request.getAttribute("requestProtocol") : null;
+			if (requestProtocol != null && requestProtocol.trim().length() > 0) {
+				if (requestProtocol.equalsIgnoreCase("https")) {
+					isSecure = true;
+				} else {
+					isSecure = false;
+				}
+			} else {
+				isSecure = request.isSecure();
+				if (!isSecure) {
+					requestProtocol = request.getHeader("X-FORWARDED-PROTO");
+					if (requestProtocol != null && requestProtocol.equalsIgnoreCase("https")) {
+						isSecure = true;
+					}
+				}
+			}
+		}
+		return isSecure;
 	}
 }
