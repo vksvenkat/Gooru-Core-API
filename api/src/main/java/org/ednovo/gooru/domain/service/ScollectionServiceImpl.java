@@ -1605,7 +1605,10 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				if (newResource.getAttach() != null) {
 					this.getResourceImageUtil().moveAttachment(newResource, resource);
 				}
-				response = this.createCollectionItem(resource.getGooruOid(), collectionId, new CollectionItem(), user, CollectionType.COLLECTION.getCollectionType(), false);
+				collection.setLastUpdatedUserUid(user.getPartyUid());
+				this.getResourceRepository().save(collection);
+				
+				response = createCollectionItem(resource,collection,user);
 
 			} else {
 				throw new NotFoundException("collection does not exist in the system, required collection to map the resource");
@@ -1613,6 +1616,26 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 		}
 		return response;
+	}
+	
+	public ActionResponseDTO<CollectionItem> createCollectionItem(Resource resource, Collection collection, User user) throws Exception {
+		CollectionItem collectionItem = new CollectionItem();
+		collectionItem.setCollection(collection);
+		collectionItem.setResource(resource);
+		collectionItem.setItemType(ShelfType.AddedType.ADDED.getAddedType());
+	    collectionItem.setAssociatedUser(user);
+	    collectionItem.setAssociationDate(new Date(System.currentTimeMillis()));
+		int sequence = collectionItem.getCollection().getCollectionItems() != null ? collectionItem.getCollection().getCollectionItems().size() + 1 : 1;
+		collectionItem.setItemSequence(sequence);
+		Errors errors = validateCollectionItem(collection, resource, collectionItem);
+		this.getResourceRepository().save(collectionItem);
+		SessionContextSupport.putLogParameter(EVENT_NAME, SCOLLECTION_ITEM_ADD);
+		SessionContextSupport.putLogParameter(COLLECTION_ITEM_ID, collectionItem.getCollectionItemId());
+		SessionContextSupport.putLogParameter(GOORU_OID, resource.getGooruOid());
+		SessionContextSupport.putLogParameter(COLLECTION_ID, collection.getGooruOid());
+		SessionContextSupport.putLogParameter(RESOURCE_ID, resource.getGooruOid());
+		SessionContextSupport.putLogParameter(COLLECTION_TYPE, collectionItem.getCollection().getCollectionType());
+		return new ActionResponseDTO<CollectionItem>(collectionItem, errors);
 	}
 
 	@Override
