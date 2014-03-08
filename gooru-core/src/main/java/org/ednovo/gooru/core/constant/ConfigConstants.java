@@ -171,5 +171,9 @@ public interface ConfigConstants {
     String REST_API_END_POINT_V2 = "login.auth.endpoint";
       
     String LOGIN =  "login.auth";
+    
+    String INSIGHTS_LOGAPI_ENDPOINT = "insights.logapi.endpoint";
+    
+    String INSIGHTS_ACTIVITYSTREAM_URL = "insights.activitystream.url";
 
 }
