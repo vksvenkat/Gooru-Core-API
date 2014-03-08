@@ -150,7 +150,7 @@ public class ResourceImageUtil extends UserGroupSupport implements ParameterProp
 
 		resourceRepository.save(resource);
         try {
-	    	this.getAsyncExecutor().uploadResourceFolder(resource);
+	    	//this.getAsyncExecutor().uploadResourceFolder(resource);
         } catch (Exception e) {
         	logger.debug("failed to upload in s3 bucket {}", e);
         }
@@ -242,7 +242,11 @@ public class ResourceImageUtil extends UserGroupSupport implements ParameterProp
 			if (resource.getResourceType().getName().equalsIgnoreCase(SCOLLECTION)) {
 				indexType = SCOLLECTION;
 			}
-			indexProcessor.index(resource.getGooruOid(), IndexProcessor.INDEX, indexType);
+			try {
+			 indexProcessor.index(resource.getGooruOid(), IndexProcessor.INDEX, indexType);
+			} catch(Exception e) { 
+				logger.debug("failed to index {}", e);
+			}
 		}
 		sendMsgToGenerateThumbnails(resource);
 	}
