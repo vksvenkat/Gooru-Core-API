@@ -140,7 +140,6 @@ public class ResourceImageUtil extends UserGroupSupport implements ParameterProp
 		if (resource.getThumbnail() == null
 				&& (resourceTypeName.equals(ResourceType.Type.EXAM.getType()) || resourceTypeName.equals(ResourceType.Type.PRESENTATION.getType()) || resourceTypeName.equals(ResourceType.Type.HANDOUTS.getType()) || resourceTypeName.equals(ResourceType.Type.TEXTBOOK.getType()))) {
 			resource.setThumbnail("slides/slides1.jpg");
-			resourceRepository.save(resource);
 		}
 
 		String thumbnail = GooruImageUtil.getFileName(GooruImageUtil.downloadWebResourceToFile(webSrc, repoPath, resource.getGooruOid()));
@@ -150,8 +149,11 @@ public class ResourceImageUtil extends UserGroupSupport implements ParameterProp
 		}
 
 		resourceRepository.save(resource);
-
-		this.getAsyncExecutor().uploadResourceFolder(resource);
+        try {
+	    	this.getAsyncExecutor().uploadResourceFolder(resource);
+        } catch (Exception e) {
+        	logger.debug("failed to upload in s3 bucket {}", e);
+        }
 
 	}
 
