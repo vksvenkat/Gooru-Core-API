@@ -295,7 +295,9 @@ public class ResourceImageUtil extends UserGroupSupport implements ParameterProp
 		if (resourceFeeds.getUrlStatus() == 404) {
 			Document doc = null;
 			try {
-				doc = Jsoup.connect(url).timeout(6000).get();
+				if (url != null && (url.contains("http://") || url.contains("https://"))) {
+				  doc = Jsoup.connect(url).timeout(6000).get();
+				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -327,21 +329,6 @@ public class ResourceImageUtil extends UserGroupSupport implements ParameterProp
 				}
 			}
 			if (fetchThumbnail) {
-				// FIX ME Comment since it's taking more time to generate
-				// snapshot
-				/*
-				 * if (images != null && images.size() < SUGGEST_IMAGE_MIN_SIZE
-				 * && url != null) { try {
-				 * 
-				 * String fileName = UUID.randomUUID().toString() + ".png";
-				 * FileMeta fileMeta =
-				 * getMediaService().handleFileUpload(fileName,
-				 * "http://snapshoter.goorulearning.org/gooru-screenshot/rest/snapshot/generate/500/500?sourceUrl="
-				 * + url, null, true, 700, 500); if (fileMeta != null) {
-				 * images.add(fileMeta.getUrl()); } } catch
-				 * (FileNotFoundException e) { e.printStackTrace(); } catch
-				 * (IOException e) { e.printStackTrace(); } }
-				 */
 				metaData.put(IMAGES, images);
 			}
 		} else {
