@@ -352,6 +352,9 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 				Random randomNumber = new Random();
 				newUser.setUsername(newUser.getUsername() + randomNumber.nextInt(1000));
 			}
+			if (newUser.getEmailId() != null) {
+			  newUser.setUsername(newUser.getEmailId());
+			}
 		}
 
 		if (userIdentity == null) {
