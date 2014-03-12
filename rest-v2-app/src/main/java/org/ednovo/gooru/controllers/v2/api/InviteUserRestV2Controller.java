@@ -33,8 +33,6 @@ import org.ednovo.gooru.controllers.BaseController;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.Constants;
-import org.ednovo.gooru.core.constant.GooruOperationConstants;
-import org.ednovo.gooru.core.security.AuthorizeOperations;
 import org.ednovo.gooru.domain.service.InviteService;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,7 +55,7 @@ public class InviteUserRestV2Controller extends BaseController implements Consta
 	private InviteService inviteService;
 	
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	@RequestMapping(value = { "/{code}/class" }, method = RequestMethod.POST)
+	@RequestMapping(value = { "/class/{id}" }, method = RequestMethod.POST)
 	public ModelAndView inviteUserForClass(@PathVariable(ID) String gooruOid, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
 		return toJsonModelAndView(this.getInviteService().inviteUserForClass(JsonDeserializer.deserialize(data, new TypeReference<List<String>>() {
@@ -67,5 +65,6 @@ public class InviteUserRestV2Controller extends BaseController implements Consta
 	public InviteService getInviteService() {
 		return inviteService;
 	}
+	
 	
 }
