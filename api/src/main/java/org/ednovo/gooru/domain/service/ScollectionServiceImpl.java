@@ -68,6 +68,7 @@ import org.ednovo.gooru.core.api.model.ShelfType;
 import org.ednovo.gooru.core.api.model.StandardFo;
 import org.ednovo.gooru.core.api.model.Textbook;
 import org.ednovo.gooru.core.api.model.User;
+import org.ednovo.gooru.core.api.model.UserGroupSupport;
 import org.ednovo.gooru.core.application.util.CollectionMetaInfo;
 import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.constant.ConstantProperties;
@@ -882,7 +883,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		if (taxonomySet != null) {
 			standards = new ArrayList<StandardFo>();
 			for (Code code : taxonomySet) {
-				if (code.getRootNodeId() != null && !code.getRootNodeId().equals(20000)) {
+				if (code.getRootNodeId() != null && !code.getRootNodeId().toString().contains(UserGroupSupport.getTaxonomyPreference())) {
 					StandardFo standard = new StandardFo();
 					if (code.getdisplayCode() != null && !code.getdisplayCode().equals("")) {
 						standard.setCode(code.getdisplayCode().replace(".--", " "));

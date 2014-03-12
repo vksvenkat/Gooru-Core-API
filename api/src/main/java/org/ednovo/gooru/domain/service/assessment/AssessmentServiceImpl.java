@@ -81,6 +81,7 @@ import org.ednovo.gooru.core.api.model.ResourceType;
 import org.ednovo.gooru.core.api.model.SessionActivityType;
 import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.User;
+import org.ednovo.gooru.core.api.model.UserGroupSupport;
 import org.ednovo.gooru.core.api.model.Versionable;
 import org.ednovo.gooru.core.application.util.ErrorMessage;
 import org.ednovo.gooru.core.application.util.RequestUtil;
@@ -1070,7 +1071,7 @@ public class AssessmentServiceImpl implements AssessmentService, ParameterProper
 
 		if (taxonomySet != null) {
 			for (Code code : taxonomySet) {
-				if (code.getRootNodeId() != null && !code.getRootNodeId().equals(20000)) {
+				if (code.getRootNodeId() != null && !code.getRootNodeId().toString().contains(UserGroupSupport.getTaxonomyPreference())) {
 					if (!metaData.getCurriculumCodes().contains(code.getCode())) {
 						metaData.getCurriculumCodes().add(code.getCode());
 						if (code.getDescription() != null && !code.getDescription().equals("")) {
