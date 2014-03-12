@@ -1,32 +1,26 @@
-/*
-*MailHandler.java
-* gooru-api
-* Created by Gooru on 2014
-* Copyright (c) 2014 Gooru. All rights reserved.
-* http://www.goorulearning.org/
-*      
-* Permission is hereby granted, free of charge, to any 
-* person obtaining a copy of this software and associated 
-* documentation. Any one can use this software without any 
-* restriction and can use without any limitation rights 
-* like copy,modify,merge,publish,distribute,sub-license or 
-* sell copies of the software.
-* The seller can sell based on the following conditions:
-* 
-* The above copyright notice and this permission notice shall be   
-* included in all copies or substantial portions of the Software. 
-*
-*  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY    
-*  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE  
-*  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR   
-*  PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS 
-*  OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR 
-*  OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT 
-*  OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION 
-*  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN 
-*  THE SOFTWARE.
-*/
-
+/////////////////////////////////////////////////////////////
+// MailHandler.java
+// gooru-api
+// Created by Gooru on 2014
+// Copyright (c) 2014 Gooru. All rights reserved.
+// http://www.goorulearning.org/
+// Permission is hereby granted, free of charge, to any person obtaining
+// a copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to
+// permit persons to whom the Software is furnished to do so, subject to
+// the following conditions:
+// The above copyright notice and this permission notice shall be
+// included in all copies or substantial portions of the Software.
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+// OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+/////////////////////////////////////////////////////////////
 package org.ednovo.gooru.infrastructure.mail;
 
 import java.text.SimpleDateFormat;
@@ -177,8 +171,7 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 			if (gooruClassicUrl != null) {
 				resetPasswordLink = "<a style=\"color: #1076bb;text-decoration: none;\" href=\"" + gooruClassicUrl + "&resetToken=" + resetToken + "&callback=changePassword\" target=\"_blank\">Click here to reset your password.</a>";
 				resetPasswordURL = "<a style=\"color: #1076bb;text-decoration: none;\" href=\"" + gooruClassicUrl + "&resetToken=" + resetToken + "&callback=changePassword\" target=\"_blank\">" + gooruClassicUrl + "&resetToken=" + resetToken + "&callback=changePassword</a>";
-			} 
-			else {
+			} else {
 				resetPasswordLink = "<a style=\"color: #1076bb;text-decoration: none;\" href=\" " + serverpath + "/gooru/index.g#!/change-password/" + resetToken + "\">Click here to reset your password.</a>";
 				resetPasswordURL = "<a style=\"color: #1076bb;text-decoration: none;\" href=\" " + serverpath + "/gooru/index.g#!/change-password/" + resetToken + "\">" + serverpath + "/gooru/index.g#!/change-password/" + resetToken + "</a>";
 			}
@@ -218,8 +211,7 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 			if (gooruClassicUrl != null) {
 				resetPasswordLink = "<a style=\"color: #1076bb;text-decoration: none;\" href=\"" + gooruClassicUrl + "&resetToken=" + resetToken + "&callback=changePassword\" target=\"_blank\">Click here to reset your password.</a>";
 				resetPasswordURL = "<a style=\"color: #1076bb;text-decoration: none;\" href=\"" + gooruClassicUrl + "&resetToken=" + resetToken + "&callback=changePassword\" target=\"_blank\">" + gooruClassicUrl + "&resetToken=" + resetToken + "&callback=changePassword</a>";
-			} 
-			else {
+			} else {
 				resetPasswordLink = "<a style=\"color: #1076bb;text-decoration: none;\" href=\" " + serverpath + "/gooru/index.g#!/change-password/" + resetToken + "\">Click here to reset your password.</a>";
 				resetPasswordURL = "<a style=\"color: #1076bb;text-decoration: none;\" href=\" " + serverpath + "/gooru/index.g#!/change-password/" + resetToken + "\">" + serverpath + "/gooru/index.g#!/change-password/" + resetToken + "</a>";
 			}
@@ -279,8 +271,7 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 				completeRegistration = "<a style=\"color: #1076bb;\" href=\"" + gooruClassicUrl + "/#discover&gooruuid=" + identity.getUser().getGooruUId() + "&sessionid=" + tokenId + "&dob=" + encodedDateOfBirth + "&type=" + userAccountType
 						+ "&callback=confirmUser\" target=\"_blank\">Complete Registration</a>";
 				registrationURL = gooruClassicUrl + "/#discover&gooruuid=" + identity.getUser().getGooruUId() + "&sessionid=" + tokenId + "&dob=" + encodedDateOfBirth + "&type=" + userAccountType + "&callback=confirmUser";
-			} 
-			else {
+			} else {
 				completeRegistration = "<a style=\"color: #1076bb;\" href=\"" + serverpath + "/gooru/index.g#!/user/registration/" + identity.getUser().getGooruUId() + "/session/" + tokenId + "/" + encodedDateOfBirth + "/type/" + userAccountType + "\" target=\"_blank\">Complete Registration</a>";
 				registrationURL = serverpath + "/gooru/index.g#!/user/registration/" + identity.getUser().getGooruUId() + "/session/" + tokenId + "/" + encodedDateOfBirth + "/type/" + userAccountType;
 			}
@@ -297,8 +288,7 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 			if (gooruClassicUrl != null && serverpath != null) {
 				gooruClassicUrl = BaseUtil.changeHttpsProtocol(gooruClassicUrl);
 				passwordResetLink = "<a style=\"color: #1076bb;text-decoration: none;\" href=\"" + gooruClassicUrl + "/#discover&amp;resetToken=" + resetToken + "&amp;callback=changePassword\" target=\"_blank\"> here</a>";
-			}
-			else {
+			} else {
 				passwordResetLink = "<a style=\"color: #1076bb;text-decoration: none;\" href=\"  " + serverpath + "/gooru/index.g#!/change-password/" + resetToken + "\" target=\"_blank\"> here</a>";
 			}
 			model.put("passwordResetLink", passwordResetLink);
@@ -311,7 +301,6 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 					completeRegistration = "<a style=\"color: #1076bb;\" href=\"" + serverpath + "/gooru/index.g#!/user/registration/" + identity.getUser().getGooruUId() + "/session/" + tokenId + "/" + encodedDateOfBirth + "/type/" + userAccountType
 							+ "\" target=\"_blank\">Click Here to Complete Registration.</a>";
 				} else {
-
 					completeRegistration = "<a style=\"color: #1076bb;\" href=\"" + gooruClassicUrl + "/#discover&gooruuid=" + identity.getUser().getGooruUId() + "&sessionid=" + tokenId + "&dob=" + encodedDateOfBirth + "&type=" + userAccountType
 							+ "&callback=confirmUser\" target=\"_blank\">Click Here to Complete Registration.</a>";
 				}
