@@ -36,6 +36,7 @@ import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -46,6 +47,7 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.cassandra.cli.CliParser.newColumnFamily_return;
 import org.ednovo.gooru.application.util.TaxonomyUtil;
 import org.ednovo.gooru.core.api.model.ActivityStream;
 import org.ednovo.gooru.core.api.model.ActivityType;
@@ -1421,7 +1423,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 		String[] userPartiesAsArray = StringUtils.toStringArray(userParties);
 		String[] userOrgsAsArray = StringUtils.toStringArray(userOrgs);
 		String[] userSubOrgsArray = StringUtils.toStringArray(userSuborgs);
-		Map<String, Map<String, String>> meta = new HashMap<String, Map<String, String>>();
+		Map<String, Map<String, Object>> meta = new HashMap<String, Map<String, Object>>();
 		userCredential.setPartyPermits(userPartiesAsArray);
 		userCredential.setOrgPermits(userOrgsAsArray);
 		userCredential.setPartyPermitsAsString("'" + org.apache.commons.lang.StringUtils.join(userPartiesAsArray, "','") + "'");
@@ -1447,8 +1449,19 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 		PartyCustomField partyCustomFieldTax = partyService.getPartyCustomeField(user.getPartyUid(), USER_TAXONOMY_ROOT_CODE, null);
 		if (partyCustomFieldTax != null) {
 			userCredential.setTaxonomyPreference(partyCustomFieldTax.getOptionalValue());
-			Map<String, String> metaData = new HashMap<String, String>();
-			metaData.put(USER_TAX_PREFERENCE, this.getTaxonomyRespository().getFindTaxonomyCodeList(partyCustomFieldTax.getOptionalValue()));
+			Map<String, Object> metaData = new HashMap<String, Object>();
+			String taxonomyCode = this.getTaxonomyRespository().getFindTaxonomyCodeList(partyCustomFieldTax.getOptionalValue());
+			
+			if(taxonomyCode != null ){
+				List<String> taxonomyCodeList = Arrays.asList(taxonomyCode.split(","));
+				metaData.put(CODE, taxonomyCodeList);
+			}
+			
+			if(partyCustomFieldTax.getOptionalValue() != null){
+				List<String> taxonomyCodeIdList = Arrays.asList(partyCustomFieldTax.getOptionalValue().split(","));
+				metaData.put(CODE_ID, taxonomyCodeIdList);
+			}
+			
 			meta.put(USER_TAX_PREFERENCE, metaData);
 /*			PartyCustomField partyCustomFieldOrgAdmin = partyService.getPartyCustomeField(user.getPartyUid(), "organizationAdmin", null);
 			if (partyCustomFieldOrgAdmin != null) {

@@ -1425,7 +1425,7 @@ public interface ParameterProperties {
 
 	String USER_TAXONOMY_ROOT_CODE = "user_taxonomy_root_code";
 
-	String USER_TAX_PREFERENCE = "userTaxPreference";
+	String USER_TAX_PREFERENCE = "taxonomyPreference";
 
 	String AVAILABILITY = "availability";
 

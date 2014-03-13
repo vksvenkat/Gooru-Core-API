@@ -1071,7 +1071,7 @@ public class AssessmentServiceImpl implements AssessmentService, ParameterProper
 
 		if (taxonomySet != null) {
 			for (Code code : taxonomySet) {
-				if (code.getRootNodeId() != null && !code.getRootNodeId().toString().contains(UserGroupSupport.getTaxonomyPreference())) {
+				if (code.getRootNodeId() != null && code.getRootNodeId().toString().contains(UserGroupSupport.getTaxonomyPreference())) {
 					if (!metaData.getCurriculumCodes().contains(code.getCode())) {
 						metaData.getCurriculumCodes().add(code.getCode());
 						if (code.getDescription() != null && !code.getDescription().equals("")) {
