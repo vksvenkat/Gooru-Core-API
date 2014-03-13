@@ -175,6 +175,8 @@ public interface UserRepository extends BaseRepository {
 	Integer getChildUserBirthdayCount();
 	
 	List<Object[]> listChildUserByBirthDay();
+	
+	UserGroupAssociation getUserGroupMemebrByGroupUid(String groupUid, String gooruUid);
 		
 	}
 

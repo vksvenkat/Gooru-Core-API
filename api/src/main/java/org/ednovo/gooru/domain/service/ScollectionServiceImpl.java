@@ -470,9 +470,12 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		if (type != null && type.equalsIgnoreCase(CollectionType.SHElf.getCollectionType())) {
 			collection = createMyShelfCollection(collectionGooruOid, collection, user);
 			collectionItem.setItemType(ShelfType.AddedType.SUBSCRIBED.getAddedType());
-		} else if (type != null && type.equalsIgnoreCase("collaborator")) {
+		} else if (type != null && type.equalsIgnoreCase(COLLABORATOR)) {
 			collection = createMyShelfCollection(collectionGooruOid, collection, user);
-			collectionItem.setItemType("collaborator");
+			collectionItem.setItemType(COLLABORATOR);
+		} else if (type != null && type.equalsIgnoreCase(CLASS)) {
+			collection = createMyShelfCollection(collectionGooruOid, collection, user);
+			collectionItem.setItemType(CLASS);
 		} else {
 			collection = this.getCollectionByGooruOid(collectionGooruOid, null);
 			collectionItem.setItemType(ShelfType.AddedType.ADDED.getAddedType());
@@ -1222,7 +1225,8 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		Map<String, String> itemType = new HashMap<String, String>();
 		itemType.put(ADDED, COLLECTION_ITEM_TYPE);
 		itemType.put(SUBSCRIBED, COLLECTION_ITEM_TYPE);
-		itemType.put("collaborator", COLLECTION_ITEM_TYPE);
+		itemType.put(COLLABORATOR, COLLECTION_ITEM_TYPE);
+		itemType.put("class", COLLECTION_ITEM_TYPE);
 		final Errors errors = new BindException(collectionItem, COLLECTION_ITEM);
 		if (collectionItem != null) {
 			rejectIfNull(errors, collection, COLLECTION, GL0056, generateErrorMessage(GL0056, COLLECTION));
@@ -1844,5 +1848,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	public CollaboratorRepository getCollaboratorRepository() {
 		return collaboratorRepository;
 	}
+
+	
 
 }

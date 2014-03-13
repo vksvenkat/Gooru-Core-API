@@ -38,13 +38,11 @@ import org.ednovo.gooru.controllers.BaseController;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Classpage;
 import org.ednovo.gooru.core.api.model.CollectionItem;
-import org.ednovo.gooru.core.api.model.CollectionTaskAssoc;
 import org.ednovo.gooru.core.api.model.CollectionType;
 import org.ednovo.gooru.core.api.model.ContentType;
 import org.ednovo.gooru.core.api.model.ResourceType;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.Sharing;
-import org.ednovo.gooru.core.api.model.Task;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.application.util.BaseUtil;
 import org.ednovo.gooru.core.constant.ConstantProperties;
@@ -71,8 +69,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+
 @Controller
-@RequestMapping(value = { "/v2/classpage" })
+@RequestMapping(value = { "/v2/classpage" ,"/v2/class" })
 public class ClasspageRestV2Controller extends BaseController implements ConstantProperties, ParameterProperties {
 
 	@Autowired
@@ -95,8 +95,13 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	@RequestMapping(value = "", method = RequestMethod.POST)
 	public ModelAndView createClasspage(@RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
+		ActionResponseDTO<Classpage> responseDTO = null;
 		JSONObject json = requestData(data);
-		ActionResponseDTO<Classpage> responseDTO = getClasspageService().createClasspage(this.buildClasspageFromInputParameters(getValue(CLASSPAGE, json), user),this.buildCollectionItemFromInputParameters(getValue(COLLECTION_ITEM, json), user), getValue(COLLECTION_ID, json), user);
+		if(getValue(CLASSPAGE, json) != null) {
+			responseDTO = getClasspageService().createClasspage(this.buildClasspageFromInputParameters(getValue(CLASSPAGE, json), user),getValue(COLLECTION_ITEM, json) != null ? this.buildCollectionItemFromInputParameters(getValue(COLLECTION_ITEM, json)) : null, getValue(COLLECTION_ID, json), user);
+		} else {
+			responseDTO = getClasspageService().createClasspage(this.buildClasspageFromInputParameters(data, user),getValue(COLLECTION_ID, json));
+		}
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		} else {
@@ -118,8 +123,8 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	public ModelAndView updateClasspage(@PathVariable(value = ID) String classpageId, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
 		JSONObject json = requestData(data);
-		Classpage newClasspage = this.buildClasspageUpdateFromInputParameters(getValue(CLASSPAGE, json));
-		ActionResponseDTO<Classpage> responseDTO = getClasspageService().updateClasspage(newClasspage, classpageId, hasUnrestrictedContentAccess());
+		
+		ActionResponseDTO<Classpage> responseDTO = getClasspageService().updateClasspage(this.buildClasspageForUpdateParameters(getValue(CLASSPAGE, json) != null ? getValue(CLASSPAGE, json) : data), classpageId, hasUnrestrictedContentAccess());
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		} else {
@@ -177,7 +182,7 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	public ModelAndView createClasspageItem(@PathVariable(value = ID) String classpageId, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
 		JSONObject json = requestData(data);
-		ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().createCollectionItem(getValue(COLLECTION_ID, json), classpageId, this.buildCollectionItemFromInputParameters(getValue(COLLECTION_ITEM, json), user), user, CollectionType.COLLECTION.getCollectionType(), false);
+		ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().createCollectionItem(getValue(COLLECTION_ID, json), classpageId, this.buildCollectionItemFromInputParameters(getValue(COLLECTION_ITEM, json)), user, CollectionType.COLLECTION.getCollectionType(), false);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		} else {
@@ -199,7 +204,7 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	public ModelAndView updateClasspageItem(@PathVariable(value = ID) String collectionItemId, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
 		JSONObject json = requestData(data);
-		ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().updateCollectionItem(this.buildCollectionItemFromInputParameters(getValue(COLLECTION_ITEM, json), user), collectionItemId, user);
+		ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().updateCollectionItem(this.buildCollectionItemFromInputParameters(getValue(COLLECTION_ITEM, json)), collectionItemId, user);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		} else {
@@ -264,7 +269,27 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 		SessionContextSupport.putLogParameter(CLASSPAGE_ITEM_ID, collectionItemId);
 		getCollectionService().deleteCollectionItem(collectionItemId, user);
 	}
+	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ADD })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(value = "/{code}/member/join", method = RequestMethod.POST)
+	public ModelAndView classpageUserJoin(@PathVariable(value = CODE) String code,@RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		User apiCaller = (User) request.getAttribute(Constants.USER);
 
+		return toJsonModelAndView(this.getClasspageService().classpageUserJoin(code,JsonDeserializer.deserialize(data, new TypeReference<List<String>>() {
+		}),apiCaller), true);
+	}
+	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_DELETE })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(value = "/{code}/member/remove", method = RequestMethod.DELETE)
+	public void classpageUserRemove(@PathVariable(value = CODE) String code,@RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		User apiCaller = (User) request.getAttribute(Constants.USER);
+
+		this.getClasspageService().classpageUserRemove(code,JsonDeserializer.deserialize(data, new TypeReference<List<String>>() {
+		}),apiCaller);
+	}
+	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ })
 	@RequestMapping(value = "/my", method = RequestMethod.GET)
 	public ModelAndView getMyClasspage(HttpServletRequest request, @RequestParam(value = DATA_OBJECT, required = false) String data, HttpServletResponse resHttpServletResponse) throws Exception {
@@ -303,8 +328,9 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 		classpage.setResourceType(getCollectionService().getResourceType(ResourceType.Type.CLASSPAGE.getType()));
 		classpage.setLastModified(new Date(System.currentTimeMillis()));
 		classpage.setCreatedOn(new Date(System.currentTimeMillis()));
-		classpage.setSharing(Sharing.ANYONEWITHLINK.getSharing());
+		classpage.setSharing(Sharing.PRIVATE.getSharing());
 		classpage.setUser(user);
+		classpage.setCollectionType(ResourceType.Type.CLASSPAGE.getType());
 		classpage.setOrganization(user.getPrimaryOrganization());
 		classpage.setCreator(user);
 		classpage.setDistinguish(Short.valueOf("0"));
@@ -320,15 +346,14 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 		}
 		return classpage;
 	}
-
-	private CollectionItem buildCollectionItemFromInputParameters(String data, User user) {
-		CollectionItem collectionItem = JsonDeserializer.deserialize(data, CollectionItem.class);
-		return collectionItem;
+	
+	private Classpage buildClasspageForUpdateParameters(String data) {
+		return JsonDeserializer.deserialize(data, Classpage.class);
 	}
 
-	private Classpage buildClasspageUpdateFromInputParameters(String data) {
-
-		return JsonDeserializer.deserialize(data, Classpage.class);
+	private CollectionItem buildCollectionItemFromInputParameters(String data) {
+		
+		return  JsonDeserializer.deserialize(data, CollectionItem.class);
 	}
 
 	public ClasspageService getClasspageService() {
