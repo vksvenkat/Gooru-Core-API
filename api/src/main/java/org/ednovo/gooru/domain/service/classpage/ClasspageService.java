@@ -28,19 +28,19 @@ import java.util.Map;
 
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Classpage;
-import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.User;
-import org.ednovo.gooru.core.api.model.UserGroup;
 import org.ednovo.gooru.domain.service.search.SearchResults;
 
 public interface ClasspageService {
 
 	ActionResponseDTO<Classpage> createClasspage(Classpage classpage, boolean addToUserClasspage, String assignmentId) throws Exception;
 
-	ActionResponseDTO<Classpage> createClasspage(Classpage classpage, String taskId) throws Exception;
+	//ActionResponseDTO<Classpage> createClasspage(Classpage classpage, String taskId) throws Exception;
 	
 	ActionResponseDTO<Classpage> createClasspage(Classpage newClasspage, CollectionItem collectionItem, String gooruOid, User user) throws Exception;
+	
+	ActionResponseDTO<Classpage> createClasspage(Classpage classpage, String collectionId) throws Exception ;
 
 	ActionResponseDTO<CollectionItem> createClasspageItem(String assignmentGooruOid, String collectionGooruOid, CollectionItem collectionItem, User user, String type) throws Exception;
 
@@ -61,5 +61,9 @@ public interface ClasspageService {
 	List<Classpage> getMyClasspage(Integer offset, Integer limit, User user, boolean skipPagination, String orderBy);
 
 	Long getMyClasspageCount(String gooruUid);
+	
+	List<Map<String, Object>> classpageUserJoin(String code,List<String> gooruUid,User apiCaller) throws Exception;
+	
+	void classpageUserRemove(String code,List<String> gooruUid,User apiCaller) throws Exception;
 
 }

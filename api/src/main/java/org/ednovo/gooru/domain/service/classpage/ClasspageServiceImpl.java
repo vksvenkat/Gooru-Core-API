@@ -22,6 +22,7 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.domain.service.classpage;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -34,26 +35,29 @@ import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Classpage;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
-import org.ednovo.gooru.core.api.model.CollectionTaskAssoc;
 import org.ednovo.gooru.core.api.model.CollectionType;
 import org.ednovo.gooru.core.api.model.ContentType;
+import org.ednovo.gooru.core.api.model.Identity;
+import org.ednovo.gooru.core.api.model.InviteUser;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.ResourceType;
 import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.ShelfType;
-import org.ednovo.gooru.core.api.model.Task;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserGroup;
 import org.ednovo.gooru.core.api.model.UserGroupAssociation;
 import org.ednovo.gooru.core.application.util.BaseUtil;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.core.exception.UnauthorizedException;
+import org.ednovo.gooru.domain.service.CollectionService;
 import org.ednovo.gooru.domain.service.ScollectionServiceImpl;
 import org.ednovo.gooru.domain.service.group.UserGroupService;
 import org.ednovo.gooru.domain.service.search.SearchResults;
 import org.ednovo.gooru.domain.service.task.TaskService;
 import org.ednovo.gooru.domain.service.user.UserService;
+import org.ednovo.gooru.domain.service.userManagement.UserManagementService;
 import org.ednovo.gooru.domain.service.v2.ContentService;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.InviteRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.party.UserGroupRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,6 +86,15 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	
 	@Autowired
 	private UserGroupService userGroupService;
+	
+	@Autowired
+	private UserManagementService  userManagementService;
+	
+	@Autowired
+	private CollectionService collectionService;
+	
+	@Autowired
+	private InviteRepository inviteRepository;
 
 
 	@Override
@@ -107,28 +120,6 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		return new ActionResponseDTO<Classpage>(classpage, errors);
 	}
 
-	@Override
-	public ActionResponseDTO<Classpage> createClasspage(Classpage classpage, String taskUid) throws Exception {
-		Errors errors = validateClasspage(classpage);
-		if (!errors.hasErrors()) {
-			this.getCollectionRepository().save(classpage);
-			if (taskUid != null) {
-				CollectionTaskAssoc collectionTaskAssoc = new CollectionTaskAssoc();
-				Task task = new Task();
-				task.setGooruOid(taskUid);
-				collectionTaskAssoc.setTask(task);
-				collectionTaskAssoc.setCollection(classpage);
-				collectionTaskAssoc = this.getTaskService().createCollectionTaskAssoc(collectionTaskAssoc, classpage.getUser()).getModel();
-				Set<CollectionTaskAssoc> collectionTaskItems = new TreeSet<CollectionTaskAssoc>();
-				collectionTaskItems.add(collectionTaskAssoc);
-				classpage.setCollectionTaskItems(collectionTaskItems);
-			}
-			CollectionItem collectionItem = new CollectionItem();
-			collectionItem.setItemType(ShelfType.AddedType.ADDED.getAddedType());
-			this.createClasspageItem(classpage.getGooruOid(), null, collectionItem, classpage.getUser(), CollectionType.USER_CLASSPAGE.getCollectionType());
-		}
-		return new ActionResponseDTO<Classpage>(classpage, errors);
-	}
 	
 	@Override
 	public ActionResponseDTO<Classpage> createClasspage(Classpage newClasspage, CollectionItem newCollectionItem,
@@ -136,7 +127,8 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			Errors errors = validateClasspage(newClasspage);
 			if (!errors.hasErrors()) {
 				this.getCollectionRepository().save(newClasspage);
-				if (gooruOid != null && !gooruOid.isEmpty()) {
+				this.getUserGroupService().createGroup(newClasspage.getTitle(), newClasspage.getClasspageCode(), "System", user, null);
+				if (gooruOid != null && !gooruOid.isEmpty() && newCollectionItem != null) {
 					CollectionItem collectionItem = new CollectionItem();
 					collectionItem.setItemType(ShelfType.AddedType.ADDED.getAddedType());
 					collectionItem.setPlannedEndDate(newCollectionItem.getPlannedEndDate());
@@ -145,8 +137,8 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 					Set<CollectionItem> collectionItems = new TreeSet<CollectionItem>();
 					collectionItems.add(collectionItem);
 					newClasspage.setCollectionItems(collectionItems);
+					this.getCollectionRepository().save(newClasspage);
 				}
-				this.getCollectionRepository().save(newClasspage);
 				CollectionItem collectionItem = new CollectionItem();
 				collectionItem.setItemType(ShelfType.AddedType.ADDED.getAddedType());
 				this.createClasspageItem(newClasspage.getGooruOid(), null, collectionItem, newClasspage.getUser(), CollectionType.USER_CLASSPAGE.getCollectionType());
@@ -164,6 +156,9 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 
 			if (newClasspage.getTitle() != null) {
 				classpage.setTitle(newClasspage.getTitle());
+				UserGroup userGroup = this.getUserGroupService().findUserGroupByGroupCode(classpage.getClasspageCode());
+				userGroup.setGroupName(newClasspage.getTitle());
+				this.getUserRepository().save(userGroup);
 			}
 			if (newClasspage.getDescription() != null) {
 				classpage.setDescription(newClasspage.getDescription());
@@ -239,8 +234,9 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 
 	@Override
 	public void deleteClasspage(String classpageId) {
-		Classpage classpage = this.getClasspage(classpageId, null,null);
+		Classpage classpage = this.getClasspage(classpageId, null, null);
 		if (classpage != null) {
+			this.getUserRepository().remove(this.getUserGroupService().findUserGroupByGroupCode(classpage.getClasspageCode()));
 			this.getCollectionRepository().remove(Classpage.class, classpage.getContentId());
 		} else {
 			throw new NotFoundException(generateErrorMessage(GL0056, CLASSPAGE));
@@ -366,21 +362,87 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	public Long getMyClasspageCount(String gooruUid) {
 		return this.getCollectionRepository().getMyClasspageCount(gooruUid);
 	}
+	
+	@Override
+	public ActionResponseDTO<Classpage> createClasspage(Classpage classpage, String collectionId)  throws Exception {
+		
+		return this.createClasspage(classpage, classpage.getCollectionItem() , collectionId, classpage.getUser());
+	}
+	
+	@Override
+	public List<Map<String, Object>> classpageUserJoin(String code, List<String> mailIds, User apiCaller) throws Exception {
+		List<Map<String, Object>> classpageMember = new ArrayList<Map<String, Object>>();
+		UserGroup userGroup = this.getUserGroupService().findUserGroupByGroupCode(code);
+		Classpage classpage = this.getCollectionRepository().getClasspageByCode(code);
+		if (userGroup != null && classpage != null) {
+			for (String mailId : mailIds) {
+				Identity identity = this.getUserRepository().findByEmailIdOrUserName(mailId, true, false);
+				if (identity != null) {
+					InviteUser inviteUser = this.getInviteRepository().findInviteUserById(mailId, classpage.getGooruOid());
+					if(inviteUser != null) {
+						inviteUser.setStatus(this.getCustomTableRepository().getCustomTableValue(INVITE_USER_STATUS, ACTIVE));
+						inviteUser.setJoinedDate(new Date(System.currentTimeMillis()));
+						this.getInviteRepository().save(inviteUser);
+					}
+					if (this.getUserRepository().getUserGroupMemebrByGroupUid(userGroup.getPartyUid(), identity.getUser().getPartyUid()) == null) {
+						UserGroupAssociation groupAssociation = new UserGroupAssociation();
+						groupAssociation.setIsGroupOwner(0);
+						groupAssociation.setUser(identity.getUser());
+						groupAssociation.setUserGroup(userGroup);
+						this.getUserRepository().save(groupAssociation);
+						this.getCollectionService().createCollectionItem(classpage.getGooruOid(), null, new CollectionItem(), identity.getUser(), "class", false);
+						classpageMember.add(setMemberResponse(identity));
+					}
+				}
+			}
+		}
+		return classpageMember;
+	}
+	
+	@Override
+	public void classpageUserRemove(String code, List<String> mailIds, User apiCaller) throws Exception {
+		UserGroup userGroup = this.getUserGroupService().findUserGroupByGroupCode(code);
+		Classpage classpage = this.getCollectionRepository().getClasspageByCode(code);
+		if (userGroup != null && classpage != null) {
+			for (String mailId : mailIds) {
+				Identity identity = this.getUserRepository().findByEmailIdOrUserName(mailId, true, false);
+				if (identity != null) {
+					UserGroupAssociation userGroupAssociation = this.getUserRepository().getUserGroupMemebrByGroupUid(userGroup.getPartyUid(), identity.getUser().getPartyUid());
+					if (userGroupAssociation != null) {
+						InviteUser inviteUser = this.getInviteRepository().findInviteUserById(mailId, classpage.getGooruOid());
+						if(inviteUser != null) {
+							this.getInviteRepository().remove(inviteUser);
+						}
+						this.getUserGroupRepository().remove(userGroupAssociation);
+						this.getCollectionRepository().removeAll(this.getCollectionRepository().findCollectionByResource(classpage.getGooruOid(), identity.getUser().getGooruUId(), "class"));
+
+					}
+				}
+			}
+		}
+	}
+	
+	private Map<String, Object> setMemberResponse(Identity identity) {
+		Map<String, Object> member = new HashMap<String, Object>();
+		member.put(EMAIL_ID, identity.getExternalId());
+		member.put(_GOORU_UID, identity.getUser().getPartyUid());
+		member.put(USER_NAME, identity.getUser().getFirstName());
+		member.put(PROFILE_IMG_URL, this.getUserManagementService().buildUserProfileImageUrl(identity.getUser()));
+		return member;
+	}
+
 
 	private Errors validateClasspage(Classpage classpage) throws Exception {
-		Map<String, String> colletionType = new HashMap<String, String>();
-		colletionType.put(CLASSPAGE, COLLECTION_TYPE);
 		final Errors errors = new BindException(classpage,CLASSPAGE);
 		if (classpage != null) {
 			rejectIfNullOrEmpty(errors, classpage.getTitle(), TITLE, GL0006, generateErrorMessage(GL0006, TITLE));
-			rejectIfInvalidType(errors, classpage.getCollectionType(), COLLECTION_TYPE, GL0007, generateErrorMessage(GL0007, COLLECTION_TYPE), colletionType);
 		}
 		return errors;
 	}
 
 	private Errors validateUpdateClasspage(Collection collection, Collection newCollection) throws Exception {
 		final Errors errors = new BindException(collection, COLLECTION);
-		rejectIfNull(errors, collection, COLLECTION, GL0006, generateErrorMessage(GL0006, COLLECTION));
+		rejectIfNull(errors, collection, "collection.all", GL0006, generateErrorMessage(GL0006, COLLECTION));
 		return errors;
 	}
 
@@ -416,5 +478,27 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	public UserGroupService getUserGroupService() {
 		return userGroupService;
 	}
+
+
+	public UserManagementService getUserManagementService() {
+		return userManagementService;
+	}
+
+
+	public void setCollectionService(CollectionService collectionService) {
+		this.collectionService = collectionService;
+	}
+
+
+	public CollectionService getCollectionService() {
+		return collectionService;
+	}
+
+
+	public InviteRepository getInviteRepository() {
+		return inviteRepository;
+	}
+
+
 
 }

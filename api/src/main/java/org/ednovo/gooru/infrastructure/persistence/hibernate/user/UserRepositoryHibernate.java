@@ -599,6 +599,15 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 		query.executeUpdate();
 		return "Deleted Successfully";
 	}
+	
+	@Override
+	public UserGroupAssociation getUserGroupMemebrByGroupUid(String groupUid, String gooruUid) {
+		String hql = " FROM UserGroupAssociation userGroupAssociation WHERE userGroupAssociation.userGroup.partyUid = :groupUid and userGroupAssociation.user.partyUid =:gooruUid";
+		Query query = getSession().createQuery(hql);
+		query.setParameter("groupUid", groupUid);
+		query.setParameter("gooruUid", gooruUid);
+		return query.list().size() > 0 ? (UserGroupAssociation) query.list().get(0) : null;
+	}
 
 	@Override
 	public boolean getUserGroupOwnerByGooruUid(String gooruUid, String groupUid) {
