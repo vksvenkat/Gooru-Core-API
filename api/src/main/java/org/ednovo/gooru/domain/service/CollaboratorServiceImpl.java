@@ -43,6 +43,7 @@ import org.ednovo.gooru.domain.service.userManagement.UserManagementService;
 import org.ednovo.gooru.domain.service.v2.ContentService;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepository;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.InviteRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.collaborator.CollaboratorRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
@@ -79,7 +80,10 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 	@Autowired
 	private MailAsyncExecutor mailAsyncExecutor;
 	
-	Logger logger = LoggerFactory.getLogger(ScollectionServiceImpl.class);
+	@Autowired
+	private InviteRepository inviteRepository;
+	
+	private Logger logger = LoggerFactory.getLogger(CollaboratorServiceImpl.class);
 
 	@Override
 	public List<Map<String, Object>> addCollaborator(List<String> email, String gooruOid, User apiCaller) throws Exception {
@@ -116,7 +120,7 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 					}
 
 				} else {
-					InviteUser inviteUsers = this.getCollaboratorRepository().findInviteUserById(mailId, gooruOid);
+					InviteUser inviteUsers = this.getInviteRepository().findInviteUserById(mailId, gooruOid);
 					if (inviteUsers == null) {
 						InviteUser inviteUser = new InviteUser();
 						inviteUser.setEmail(mailId);
@@ -205,7 +209,7 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 						}
 					}
 				} else {
-					InviteUser inviteUser = this.getCollaboratorRepository().findInviteUserById(mailId, gooruOid);
+					InviteUser inviteUser = this.getInviteRepository().findInviteUserById(mailId, gooruOid);
 					if (inviteUser != null) {
 						this.getCollaboratorRepository().remove(inviteUser);
 					}
@@ -263,7 +267,7 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 
 	@Override
 	public List<Map<String, Object>> getPendingCollaborator(String gooruOid) {
-		List<InviteUser> inviteUsers = this.getCollaboratorRepository().getInviteUsersById(gooruOid);
+		List<InviteUser> inviteUsers = this.getInviteRepository().getInviteUsersById(gooruOid);
 		List<Map<String, Object>> pendingList = new ArrayList<Map<String, Object>>();
 		if (inviteUsers != null) {
 			for (InviteUser inviteUser : inviteUsers) {
@@ -275,7 +279,7 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 
 	@Override
 	public void updateCollaboratorStatus(String mailId) throws Exception {
-		List<InviteUser> inviteUsers = this.getCollaboratorRepository().getInviteUserByMail(mailId);
+		List<InviteUser> inviteUsers = this.getInviteRepository().getInviteUserByMail(mailId, COLLABORATOR);
 		for (InviteUser inviteUser : inviteUsers) {
 			inviteUser.setStatus(this.getCustomTableRepository().getCustomTableValue(INVITE_USER_STATUS, ACTIVE));
 			inviteUser.setJoinedDate(new Date());
@@ -300,10 +304,6 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 		return customTableRepository;
 	}
 
-	public void setCollectionService(CollectionService collectionService) {
-		this.collectionService = collectionService;
-	}
-
 	public CollectionService getCollectionService() {
 		return collectionService;
 	}
@@ -322,6 +322,10 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 
 	public UserManagementService getUserManagementService() {
 		return userManagementService;
+	}
+
+	public InviteRepository getInviteRepository() {
+		return inviteRepository;
 	}
 
 }

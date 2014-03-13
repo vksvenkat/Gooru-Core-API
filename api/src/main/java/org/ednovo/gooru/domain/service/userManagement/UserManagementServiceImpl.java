@@ -89,6 +89,7 @@ import org.ednovo.gooru.domain.service.user.impl.UserServiceImpl;
 import org.ednovo.gooru.infrastructure.mail.MailHandler;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.IdpRepository;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.InviteRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserTokenRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.collaborator.CollaboratorRepository;
@@ -159,14 +160,9 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	@Autowired
 	private CollaboratorRepository collaboratorRepository;
 
-	public CollaboratorRepository getCollaboratorRepository() {
-		return collaboratorRepository;
-	}
-
-	public ContentRepository getContentRepository() {
-		return contentRepository;
-	}
-
+	@Autowired
+	private InviteRepository inviteRepository;
+	
 	private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
 	@Override
@@ -442,7 +438,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 				confirmStatus = 1;
 			}
 		}
-		List<InviteUser> inviteuser = this.getCollaboratorRepository().getInviteUserByMail(newUser.getEmailId());
+		List<InviteUser> inviteuser = this.getInviteRepository().getInviteUserByMail(newUser.getEmailId(), COLLABORATOR);
 		if(inviteuser.size() > 0) {
 			confirmStatus = 1;
 		}
@@ -1371,6 +1367,16 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	public CollaboratorService getCollaboratorService() {
 		return collaboratorService;
 	}
+	public CollaboratorRepository getCollaboratorRepository() {
+		return collaboratorRepository;
+	}
 
+	public ContentRepository getContentRepository() {
+		return contentRepository;
+	}
+
+	public InviteRepository getInviteRepository() {
+		return inviteRepository;
+	}
 
 }

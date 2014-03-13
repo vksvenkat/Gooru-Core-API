@@ -32,5 +32,6 @@ import org.ednovo.gooru.core.api.model.User;
 
 public interface InviteService extends BaseService {
 	
-	List<Map<String, String>>  inviteUserForClass(List<String> email, String classCode, User apiCaller);
+	List<Map<String, String>>  inviteUserForClass(List<String> emails, String classCode, User apiCaller);
+	
 }
