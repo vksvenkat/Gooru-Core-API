@@ -293,6 +293,7 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 			Feedback userFeeback = this.getFeedbackRepository().getUserFeedback(feedbackType.getKeyValue(), feedback.getAssocUserUid(), feedback.getCreator().getGooruUId());
 			if (userFeeback != null) {
 				userFeeback.setScore(feedback.getScore());
+				userFeeback.setFreeText(feedback.getFreeText());
 				this.getFeedbackRepository().save(userFeeback);
 				return userFeeback;
 			}
@@ -301,6 +302,7 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 			Feedback contentFeedback = this.getFeedbackRepository().getContentFeedback(feedbackType.getKeyValue(), feedback.getAssocGooruOid(), feedback.getCreator().getGooruUId());
 			if (contentFeedback != null) {
 				contentFeedback.setScore(feedback.getScore());
+				contentFeedback.setFreeText(feedback.getFreeText());
 				this.getFeedbackRepository().save(contentFeedback);
 				return contentFeedback;
 			}
