@@ -470,12 +470,12 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		if (type != null && type.equalsIgnoreCase(CollectionType.SHElf.getCollectionType())) {
 			collection = createMyShelfCollection(collectionGooruOid, collection, user);
 			collectionItem.setItemType(ShelfType.AddedType.SUBSCRIBED.getAddedType());
-		} else if (type != null && type.equalsIgnoreCase("collaborator")) {
+		} else if (type != null && type.equalsIgnoreCase(COLLABORATOR)) {
 			collection = createMyShelfCollection(collectionGooruOid, collection, user);
-			collectionItem.setItemType("collaborator");
-		} else if (type != null && type.equalsIgnoreCase("class")) {
+			collectionItem.setItemType(COLLABORATOR);
+		} else if (type != null && type.equalsIgnoreCase(CLASS)) {
 			collection = createMyShelfCollection(collectionGooruOid, collection, user);
-			collectionItem.setItemType("class");
+			collectionItem.setItemType(CLASS);
 		} else {
 			collection = this.getCollectionByGooruOid(collectionGooruOid, null);
 			collectionItem.setItemType(ShelfType.AddedType.ADDED.getAddedType());

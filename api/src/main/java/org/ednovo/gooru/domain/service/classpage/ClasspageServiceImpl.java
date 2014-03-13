@@ -390,7 +390,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 						groupAssociation.setUser(identity.getUser());
 						groupAssociation.setUserGroup(userGroup);
 						this.getUserRepository().save(groupAssociation);
-						this.getCollectionService().createCollectionItem(classpage.getGooruOid(), null, new CollectionItem(), identity.getUser(), "class", false);
+						this.getCollectionService().createCollectionItem(classpage.getGooruOid(), null, new CollectionItem(), identity.getUser(), CLASS, false);
 						classpageMember.add(setMemberResponse(identity));
 					}
 				}
@@ -414,7 +414,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 							this.getInviteRepository().remove(inviteUser);
 						}
 						this.getUserGroupRepository().remove(userGroupAssociation);
-						this.getCollectionRepository().removeAll(this.getCollectionRepository().findCollectionByResource(classpage.getGooruOid(), identity.getUser().getGooruUId(), "class"));
+						this.getCollectionRepository().removeAll(this.getCollectionRepository().findCollectionByResource(classpage.getGooruOid(), identity.getUser().getGooruUId(), CLASS));
 
 					}
 				}
