@@ -42,7 +42,6 @@ import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserRole;
 import org.ednovo.gooru.core.api.model.UserRoleAssoc;
 
-
 import flexjson.JSON;
 
 public class UserTransModel extends OrganizationModel implements IndexableEntry {
@@ -74,7 +73,7 @@ public class UserTransModel extends OrganizationModel implements IndexableEntry 
 	private String accountCreatedType;
 	private Boolean isDeleted;
 	private Set<PartyCustomField> customFields;
-	private Map<String, Map<String, String>> meta;
+	private Map<String, Map<String, Object>> meta;
 	private String organizationName;
 
 	@Override
@@ -332,11 +331,11 @@ public class UserTransModel extends OrganizationModel implements IndexableEntry 
 		return customFields;
 	}
 
-	public void setMeta(Map<String, Map<String, String>> meta) {
-		this.meta = meta;
+	public void setMeta(Map<String, Map<String, Object>> map) {
+		this.meta = map;
 	}
 
-	public Map<String, Map<String, String>> getMeta() {
+	public Map<String, Map<String, Object>> getMeta() {
 		return meta;
 	}
 

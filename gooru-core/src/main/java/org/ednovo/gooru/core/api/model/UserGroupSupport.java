@@ -139,7 +139,7 @@ public abstract class UserGroupSupport extends SessionContextSupport {
 		return null;
 	}
 
-	public static Map<String, Map<String, String>> getMeta() {
+	public static Map<String, Map<String, Object>> getMeta() {
 		UserCredential credential = getUserCredential();
 		if (credential != null) {
 			return credential.getMeta();
