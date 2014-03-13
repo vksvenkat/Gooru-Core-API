@@ -71,7 +71,7 @@ public class GooruInterceptor extends HandlerInterceptorAdapter {
 		SessionContextSupport.putLogParameter("startTime", startTime);
 		SessionContextSupport.putLogParameter("context", request.getPathInfo());
 		SessionContextSupport.putLogParameter("userAgent", request.getHeader("User-Agent"));
-		//SessionContextSupport.putLogParameter("apiKey", configProperties.getLogSettings().get("log.api.key"));
+		SessionContextSupport.putLogParameter("apiKey", configProperties.getLogSettings().get("log.api.key"));
 		SessionContextSupport.putLogParameter("requestMethod", request.getMethod());
 		
 		String eventUUID = UUID.randomUUID().toString();		

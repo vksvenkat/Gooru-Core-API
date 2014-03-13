@@ -99,6 +99,7 @@ public class InviteServiceImpl extends BaseServiceImpl implements InviteService,
 		inviteUser.setStatus(this.getCustomTableRepository().getCustomTableValue(INVITE_USER_STATUS, PENDING));
 		return inviteUser; 	
 	}
+	
 	public CollectionRepository getCollectionRepository() {
 		return collectionRepository;
 	}

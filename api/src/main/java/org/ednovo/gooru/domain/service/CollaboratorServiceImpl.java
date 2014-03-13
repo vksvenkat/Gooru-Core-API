@@ -83,7 +83,7 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 	@Autowired
 	private InviteRepository inviteRepository;
 	
-	Logger logger = LoggerFactory.getLogger(ScollectionServiceImpl.class);
+	private Logger logger = LoggerFactory.getLogger(CollaboratorServiceImpl.class);
 
 	@Override
 	public List<Map<String, Object>> addCollaborator(List<String> email, String gooruOid, User apiCaller) throws Exception {
