@@ -1,3 +1,4 @@
+
 /*******************************************************************************
  * UserTransModel.java
  *  gooru-core
@@ -346,6 +347,5 @@ public class UserTransModel extends OrganizationModel implements IndexableEntry 
 	public String getOrganizationName() {
 		return organizationName;
 	}
-
 
 }

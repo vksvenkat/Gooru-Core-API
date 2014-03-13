@@ -1,32 +1,26 @@
-/*
-*UserManagementServiceImpl.java
-* gooru-api
-* Created by Gooru on 2014
-* Copyright (c) 2014 Gooru. All rights reserved.
-* http://www.goorulearning.org/
-*      
-* Permission is hereby granted, free of charge, to any 
-* person obtaining a copy of this software and associated 
-* documentation. Any one can use this software without any 
-* restriction and can use without any limitation rights 
-* like copy,modify,merge,publish,distribute,sub-license or 
-* sell copies of the software.
-* The seller can sell based on the following conditions:
-* 
-* The above copyright notice and this permission notice shall be   
-* included in all copies or substantial portions of the Software. 
-*
-*  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY    
-*  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE  
-*  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR   
-*  PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS 
-*  OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR 
-*  OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT 
-*  OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION 
-*  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN 
-*  THE SOFTWARE.
-*/
-
+/////////////////////////////////////////////////////////////
+// UserManagementServiceImpl.java
+// gooru-api
+// Created by Gooru on 2014
+// Copyright (c) 2014 Gooru. All rights reserved.
+// http://www.goorulearning.org/
+// Permission is hereby granted, free of charge, to any person obtaining
+// a copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to
+// permit persons to whom the Software is furnished to do so, subject to
+// the following conditions:
+// The above copyright notice and this permission notice shall be
+// included in all copies or substantial portions of the Software.
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+// OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+/////////////////////////////////////////////////////////////
 package org.ednovo.gooru.domain.service.userManagement;
 
 import java.io.FileNotFoundException;
@@ -95,6 +89,7 @@ import org.ednovo.gooru.domain.service.user.impl.UserServiceImpl;
 import org.ednovo.gooru.infrastructure.mail.MailHandler;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.IdpRepository;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.InviteRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserTokenRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.collaborator.CollaboratorRepository;
@@ -165,14 +160,9 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	@Autowired
 	private CollaboratorRepository collaboratorRepository;
 
-	public CollaboratorRepository getCollaboratorRepository() {
-		return collaboratorRepository;
-	}
-
-	public ContentRepository getContentRepository() {
-		return contentRepository;
-	}
-
+	@Autowired
+	private InviteRepository inviteRepository;
+	
 	private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
 	@Override
@@ -448,7 +438,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 				confirmStatus = 1;
 			}
 		}
-		List<InviteUser> inviteuser = this.getCollaboratorRepository().getInviteUserByMail(newUser.getEmailId());
+		List<InviteUser> inviteuser = this.getInviteRepository().getInviteUserByMail(newUser.getEmailId(), COLLABORATOR);
 		if(inviteuser.size() > 0) {
 			confirmStatus = 1;
 		}
@@ -1377,6 +1367,16 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	public CollaboratorService getCollaboratorService() {
 		return collaboratorService;
 	}
+	public CollaboratorRepository getCollaboratorRepository() {
+		return collaboratorRepository;
+	}
 
+	public ContentRepository getContentRepository() {
+		return contentRepository;
+	}
+
+	public InviteRepository getInviteRepository() {
+		return inviteRepository;
+	}
 
 }

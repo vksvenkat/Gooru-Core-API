@@ -1,32 +1,26 @@
-/*
-*SerializerUtil.java
-* gooru-api
-* Created by Gooru on 2014
-* Copyright (c) 2014 Gooru. All rights reserved.
-* http://www.goorulearning.org/
-*      
-* Permission is hereby granted, free of charge, to any 
-* person obtaining a copy of this software and associated 
-* documentation. Any one can use this software without any 
-* restriction and can use without any limitation rights 
-* like copy,modify,merge,publish,distribute,sub-license or 
-* sell copies of the software.
-* The seller can sell based on the following conditions:
-* 
-* The above copyright notice and this permission notice shall be   
-* included in all copies or substantial portions of the Software. 
-*
-*  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY    
-*  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE  
-*  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR   
-*  PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS 
-*  OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR 
-*  OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT 
-*  OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION 
-*  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN 
-*  THE SOFTWARE.
-*/
-
+/////////////////////////////////////////////////////////////
+// SerializerUtil.java
+// gooru-api
+// Created by Gooru on 2014
+// Copyright (c) 2014 Gooru. All rights reserved.
+// http://www.goorulearning.org/
+// Permission is hereby granted, free of charge, to any person obtaining
+// a copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to
+// permit persons to whom the Software is furnished to do so, subject to
+// the following conditions:
+// The above copyright notice and this permission notice shall be
+// included in all copies or substantial portions of the Software.
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+// OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+/////////////////////////////////////////////////////////////
 package org.ednovo.gooru.application.util;
 
 import java.util.List;
@@ -227,32 +221,34 @@ public class SerializerUtil  implements ParameterProperties{
 		if (RequestContextHolder.getRequestAttributes() != null) {
 			request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
 		}
-		String requestProtocol = request.getAttribute("requestProtocol") != null ? (String) request.getAttribute("requestProtocol") : null;
-		String protocolAutoSwitch = request.getAttribute("protocolAutoSwitch") != null ? (String) request.getAttribute("protocolAutoSwitch") : "true";
-		if (protocolAutoSwitch != null && protocolAutoSwitch.equalsIgnoreCase("true")) {
-			if (model instanceof Resource) {
-				BaseUtil.changeHttpsProtocolByHeader(((Resource) model), requestProtocol, BaseUtil.isSecure(request), request.getMethod());
-			} else if (model instanceof CollectionItem) {
-				BaseUtil.changeHttpsProtocolByHeader(((CollectionItem) model).getResource(), requestProtocol, BaseUtil.isSecure(request), request.getMethod());
-			} else if (model instanceof List) {
-				List list = (List<?>) model;
-				if (list != null && list.size() > 0 && list.get(0) instanceof Resource) {
-					for (int resourceIndex = 0; resourceIndex < list.size(); resourceIndex++) {
-						BaseUtil.changeHttpsProtocolByHeader(((Resource) list.get(resourceIndex)), requestProtocol, BaseUtil.isSecure(request), request.getMethod());
+		if(request != null){
+			String requestProtocol = request.getAttribute("requestProtocol") != null ? (String) request.getAttribute("requestProtocol") : null;
+			String protocolAutoSwitch = request.getAttribute("protocolAutoSwitch") != null ? (String) request.getAttribute("protocolAutoSwitch") : "true";
+			if (protocolAutoSwitch != null && protocolAutoSwitch.equalsIgnoreCase("true")) {
+				if (model instanceof Resource) {
+					BaseUtil.changeHttpsProtocolByHeader(((Resource) model), requestProtocol, BaseUtil.isSecure(request), request.getMethod());
+				} else if (model instanceof CollectionItem) {
+					BaseUtil.changeHttpsProtocolByHeader(((CollectionItem) model).getResource(), requestProtocol, BaseUtil.isSecure(request), request.getMethod());
+				} else if (model instanceof List) {
+					List list = (List<?>) model;
+					if (list != null && list.size() > 0 && list.get(0) instanceof Resource) {
+						for (int resourceIndex = 0; resourceIndex < list.size(); resourceIndex++) {
+							BaseUtil.changeHttpsProtocolByHeader(((Resource) list.get(resourceIndex)), requestProtocol, BaseUtil.isSecure(request), request.getMethod());
+						}
+					} else if (list != null && list.size() > 0 && list.get(0) instanceof CollectionItem) {
+						for (int resourceIndex = 0; resourceIndex < list.size(); resourceIndex++) {
+							BaseUtil.changeHttpsProtocolByHeader(((CollectionItem) list.get(resourceIndex)).getResource(), requestProtocol, BaseUtil.isSecure(request), request.getMethod());
+						}
 					}
-				} else if (list != null && list.size() > 0 && list.get(0) instanceof CollectionItem) {
-					for (int resourceIndex = 0; resourceIndex < list.size(); resourceIndex++) {
-						BaseUtil.changeHttpsProtocolByHeader(((CollectionItem) list.get(resourceIndex)).getResource(), requestProtocol, BaseUtil.isSecure(request), request.getMethod());
+				} else if (model instanceof Collection) { 
+					if (((Collection) model) != null  && ((Collection) model).getCollectionItems() != null) { 
+						for (CollectionItem collectionItem : ((Collection) model).getCollectionItems()) { 
+							BaseUtil.changeHttpsProtocolByHeader(collectionItem.getResource(), requestProtocol, BaseUtil.isSecure(request), request.getMethod());
+						}
 					}
 				}
-			} else if (model instanceof Collection) { 
-				if (((Collection) model) != null  && ((Collection) model).getCollectionItems() != null) { 
-					for (CollectionItem collectionItem : ((Collection) model).getCollectionItems()) { 
-						BaseUtil.changeHttpsProtocolByHeader(collectionItem.getResource(), requestProtocol, BaseUtil.isSecure(request), request.getMethod());
-					}
-				}
+				
 			}
-			
 		}
 		return model;
 	}
