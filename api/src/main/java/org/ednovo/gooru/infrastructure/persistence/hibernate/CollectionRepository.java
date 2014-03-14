@@ -115,6 +115,6 @@ public interface CollectionRepository extends BaseRepository {
 	
 	Long getPublicCollectionCount(String gooruOid);
 	
-	List<Collection> getCollectionListByIds(Set<String> collectionIds);
+	List<Collection> getCollectionListByIds(List<String> collectionIds);
 	
 }
