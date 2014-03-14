@@ -442,36 +442,35 @@ public class CollectionUtil implements ParameterProperties {
 			Code code = iter.next();
 			try {
 				this.getProcedureExecutor().setCode(code);
+				Map codeMap = this.getProcedureExecutor().execute();
+
+				String codeLabel = (String) codeMap.get(CODE_LABEL);
+				String[] taxonomy = codeLabel.split("\\$\\@");
+
+				int length = taxonomy.length;
+				if (length > 1) {
+					subject.add(taxonomy[length - 2]);
+				}
+				if (length > 2) {
+					course.add(taxonomy[length - 3]);
+				}
+				if (length > 3) {
+					unit.add(taxonomy[length - 4]);
+				}
+				if (length > 4) {
+					topic.add(taxonomy[length - 5]);
+				}
+				if (length > 5) {
+					lesson.add(taxonomy[length - 6]);
+				}
 			} catch (Exception e) {
 				logger.debug(e.getMessage());
-			}
-
-			Map codeMap = this.getProcedureExecutor().execute();
-
-			String codeLabel = (String) codeMap.get(CODE_LABEL);
-			String[] taxonomy = codeLabel.split("\\$\\@");
-
-			int length = taxonomy.length;
-			if (length > 1) {
-				subject.add(taxonomy[length - 2]);
-			}
-			if (length > 2) {
-				course.add(taxonomy[length - 3]);
-			}
-			if (length > 3) {
-				unit.add(taxonomy[length - 4]);
-			}
-			if (length > 4) {
-				topic.add(taxonomy[length - 5]);
-			}
-			if (length > 5) {
-				lesson.add(taxonomy[length - 6]);
 			}
 		}
 
 		if (taxonomySet != null) {
 			for (Code code : taxonomySet) {
-				if (code.getRootNodeId() != null && !code.getRootNodeId().equals(20000)) {
+				if (code.getRootNodeId() != null && !code.getRootNodeId().toString().contains(UserGroupSupport.getTaxonomyPreference())) {
 					String codeOrDisplayCode = "";
 					if (code.getdisplayCode() != null && !code.getdisplayCode().equals("")) {
 						codeOrDisplayCode = code.getdisplayCode().replace(".--", " ");
@@ -561,7 +560,7 @@ public class CollectionUtil implements ParameterProperties {
 		Set<StandardFo> standards = new HashSet<StandardFo>();
 		if (taxonomySet != null) {
 			for (Code code : taxonomySet) {
-				if (code.getRootNodeId() != null && !code.getRootNodeId().equals(20000)) {
+				if (code.getRootNodeId() != null && !code.getRootNodeId().toString().contains(UserGroupSupport.getTaxonomyPreference())) {
 					StandardFo standardFo = new StandardFo();
 					if (code.getLabel() != null && !code.getLabel().equals("")) {
 						standardFo.setDescription(code.getLabel());

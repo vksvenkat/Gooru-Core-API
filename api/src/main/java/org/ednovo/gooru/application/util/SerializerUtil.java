@@ -221,32 +221,34 @@ public class SerializerUtil  implements ParameterProperties{
 		if (RequestContextHolder.getRequestAttributes() != null) {
 			request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
 		}
-		String requestProtocol = request.getAttribute("requestProtocol") != null ? (String) request.getAttribute("requestProtocol") : null;
-		String protocolAutoSwitch = request.getAttribute("protocolAutoSwitch") != null ? (String) request.getAttribute("protocolAutoSwitch") : "true";
-		if (protocolAutoSwitch != null && protocolAutoSwitch.equalsIgnoreCase("true")) {
-			if (model instanceof Resource) {
-				BaseUtil.changeHttpsProtocolByHeader(((Resource) model), requestProtocol, BaseUtil.isSecure(request), request.getMethod());
-			} else if (model instanceof CollectionItem) {
-				BaseUtil.changeHttpsProtocolByHeader(((CollectionItem) model).getResource(), requestProtocol, BaseUtil.isSecure(request), request.getMethod());
-			} else if (model instanceof List) {
-				List list = (List<?>) model;
-				if (list != null && list.size() > 0 && list.get(0) instanceof Resource) {
-					for (int resourceIndex = 0; resourceIndex < list.size(); resourceIndex++) {
-						BaseUtil.changeHttpsProtocolByHeader(((Resource) list.get(resourceIndex)), requestProtocol, BaseUtil.isSecure(request), request.getMethod());
+		if(request != null){
+			String requestProtocol = request.getAttribute("requestProtocol") != null ? (String) request.getAttribute("requestProtocol") : null;
+			String protocolAutoSwitch = request.getAttribute("protocolAutoSwitch") != null ? (String) request.getAttribute("protocolAutoSwitch") : "true";
+			if (protocolAutoSwitch != null && protocolAutoSwitch.equalsIgnoreCase("true")) {
+				if (model instanceof Resource) {
+					BaseUtil.changeHttpsProtocolByHeader(((Resource) model), requestProtocol, BaseUtil.isSecure(request), request.getMethod());
+				} else if (model instanceof CollectionItem) {
+					BaseUtil.changeHttpsProtocolByHeader(((CollectionItem) model).getResource(), requestProtocol, BaseUtil.isSecure(request), request.getMethod());
+				} else if (model instanceof List) {
+					List list = (List<?>) model;
+					if (list != null && list.size() > 0 && list.get(0) instanceof Resource) {
+						for (int resourceIndex = 0; resourceIndex < list.size(); resourceIndex++) {
+							BaseUtil.changeHttpsProtocolByHeader(((Resource) list.get(resourceIndex)), requestProtocol, BaseUtil.isSecure(request), request.getMethod());
+						}
+					} else if (list != null && list.size() > 0 && list.get(0) instanceof CollectionItem) {
+						for (int resourceIndex = 0; resourceIndex < list.size(); resourceIndex++) {
+							BaseUtil.changeHttpsProtocolByHeader(((CollectionItem) list.get(resourceIndex)).getResource(), requestProtocol, BaseUtil.isSecure(request), request.getMethod());
+						}
 					}
-				} else if (list != null && list.size() > 0 && list.get(0) instanceof CollectionItem) {
-					for (int resourceIndex = 0; resourceIndex < list.size(); resourceIndex++) {
-						BaseUtil.changeHttpsProtocolByHeader(((CollectionItem) list.get(resourceIndex)).getResource(), requestProtocol, BaseUtil.isSecure(request), request.getMethod());
+				} else if (model instanceof Collection) { 
+					if (((Collection) model) != null  && ((Collection) model).getCollectionItems() != null) { 
+						for (CollectionItem collectionItem : ((Collection) model).getCollectionItems()) { 
+							BaseUtil.changeHttpsProtocolByHeader(collectionItem.getResource(), requestProtocol, BaseUtil.isSecure(request), request.getMethod());
+						}
 					}
 				}
-			} else if (model instanceof Collection) { 
-				if (((Collection) model) != null  && ((Collection) model).getCollectionItems() != null) { 
-					for (CollectionItem collectionItem : ((Collection) model).getCollectionItems()) { 
-						BaseUtil.changeHttpsProtocolByHeader(collectionItem.getResource(), requestProtocol, BaseUtil.isSecure(request), request.getMethod());
-					}
-				}
+				
 			}
-			
 		}
 		return model;
 	}

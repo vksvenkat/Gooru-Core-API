@@ -415,5 +415,6 @@ public interface ConstantProperties {
 	
 	public static final String DISPLAY_NAME = "displayName";
 	
+	public static final String CLASS = "class";
 	
 }

@@ -2989,7 +2989,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	
 	private Errors validateUpdateResource(Resource newResource, Resource resource) throws Exception {
 		final Errors errors = new BindException(newResource, RESOURCE);
-		rejectIfNull(errors, resource, RESOURCE, GL0056, generateErrorMessage(GL0056, RESOURCE));
+		rejectIfNull(errors, resource, "resource.all", GL0056, generateErrorMessage(GL0056, RESOURCE));
 		return errors;
 	}
 

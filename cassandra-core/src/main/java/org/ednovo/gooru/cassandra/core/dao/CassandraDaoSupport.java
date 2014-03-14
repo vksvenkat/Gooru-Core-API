@@ -13,16 +13,18 @@ import java.util.Map.Entry;
 
 import javax.annotation.PostConstruct;
 
+import org.ednovo.gooru.cassandra.core.exception.CassandraException;
 import org.ednovo.gooru.cassandra.core.factory.CassandraFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 
 import com.google.common.base.Function;
 import com.netflix.astyanax.ColumnListMutation;
 import com.netflix.astyanax.Keyspace;
 import com.netflix.astyanax.MutationBatch;
-import com.netflix.astyanax.connectionpool.OperationResult;
 import com.netflix.astyanax.connectionpool.exceptions.ConnectionException;
+import com.netflix.astyanax.connectionpool.exceptions.NotFoundException;
 import com.netflix.astyanax.model.Column;
 import com.netflix.astyanax.model.ColumnList;
 import com.netflix.astyanax.model.Row;
@@ -60,8 +62,10 @@ public class CassandraDaoSupport<F extends CassandraColumnFamily> {
 		if (fields != null && fields.size() > 0) {
 			try {
 				return getFactory().getKeyspace().prepareQuery(getCF().getColumnFamily()).getKey(rowKey).withColumnSlice(fields).execute().getResult();
+			} catch (NotFoundException e) {
+				throw new CassandraException(HttpStatus.NOT_FOUND, "Not Found Exception") ;
 			} catch (ConnectionException e) {
-				e.printStackTrace();
+				throw new CassandraException(HttpStatus.BAD_GATEWAY, "Unable to connect to cassandra cluster") ;
 			}
 		}
 		return null;
@@ -71,8 +75,10 @@ public class CassandraDaoSupport<F extends CassandraColumnFamily> {
 		if (fields != null && fields.size() > 0) {
 			try {
 				return getFactory().getKeyspace().prepareQuery(getCF().getColumnFamily()).getKeySlice(keys).withColumnSlice(fields).execute().getResult();
+			} catch (NotFoundException e) {
+				throw new CassandraException(HttpStatus.NOT_FOUND, "Not Found Exception") ;
 			} catch (ConnectionException e) {
-				e.printStackTrace();
+				throw new CassandraException(HttpStatus.BAD_GATEWAY, "Unable to connect to cassandra cluster") ;
 			}
 		}
 		return null;
@@ -307,13 +313,16 @@ public class CassandraDaoSupport<F extends CassandraColumnFamily> {
 
 		if (field != null && value != null) {
 			try {
-				 return getFactory().getKeyspace()
+				Rows<String, String> rows = getFactory().getKeyspace()
 				.prepareQuery(getCF().getColumnFamily()).searchWithIndex()
 				.addExpression()
 				.whereColumn(field).equals().value(value)
 				.execute().getResult();
+				return rows;
+			} catch (NotFoundException e) {
+				throw new CassandraException(HttpStatus.NOT_FOUND, "Not Found Exception") ;
 			} catch (ConnectionException e) {
-				e.printStackTrace();
+				throw new CassandraException(HttpStatus.BAD_GATEWAY, "Unable to connect to cassandra cluster") ;
 			}
 		}
 		return null;
@@ -323,8 +332,10 @@ public class CassandraDaoSupport<F extends CassandraColumnFamily> {
 		try {
 			ColumnList<String> record = getFactory().getKeyspace().prepareQuery(getCF().getColumnFamily()).getKey(rowKey).execute().getResult();
 			return record;
+		} catch (NotFoundException e) {
+			throw new CassandraException(HttpStatus.NOT_FOUND, "Not Found Exception") ;
 		} catch (ConnectionException e) {
-			throw new RuntimeException(e);
+			throw new CassandraException(HttpStatus.BAD_GATEWAY, "Unable to connect to cassandra cluster") ;
 		}
 	}
 	

@@ -25,7 +25,6 @@ package org.ednovo.gooru.infrastructure.persistence.hibernate.collaborator;
 
 import java.util.List;
 
-import org.ednovo.gooru.core.api.model.InviteUser;
 import org.ednovo.gooru.core.api.model.UserContentAssoc;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate;
 import org.hibernate.Query;
@@ -44,15 +43,7 @@ public class CollaboratorRepositoryHibernate extends BaseRepositoryHibernate imp
 		return (UserContentAssoc) ((query.list().size() > 0) ?query.list().get(0) : null);
 	}
 
-	@Override
-	public InviteUser findInviteUserById(String mailId, String gooruOid) {
-		String hql= "from InviteUser iu where iu.email=:mailId and iu.gooruOid=:gooruOid and iu.status.value=:pending order by iu.createdDate desc";
-		Query query = getSession().createQuery(hql);
-		query.setParameter("gooruOid", gooruOid);
-		query.setParameter("mailId", mailId);
-		query.setParameter("pending", "pending");
-		return (InviteUser) ((query.list().size() > 0) ?query.list().get(0) : null);
-	}
+	
 
 	@Override
 	public List<String> collaboratorSuggest(String text, String gooruUid) {
@@ -69,15 +60,6 @@ public class CollaboratorRepositoryHibernate extends BaseRepositoryHibernate imp
 		query.setParameter("gooruOid", gooruOid);
 		return query.list().size() > 0 ?query.list() : null;
 	}
-
-	@Override
-	public List<InviteUser> getInviteUsersById(String gooruOid) {
-		String hql= "from InviteUser iu where  iu.gooruOid=:gooruOid and iu.status.value=:pending order by createdDate desc";
-		Query query = getSession().createQuery(hql);
-		query.setParameter("pending", "pending");
-		query.setParameter("gooruOid", gooruOid);
-		return query.list();
-	}
 	
 	public Long getCollaboratorsCountById(String gooruOid) {
 		String hql= "select count(*) from UserContentAssoc uc where uc.content.gooruOid=:gooruOid ";
@@ -85,22 +67,4 @@ public class CollaboratorRepositoryHibernate extends BaseRepositoryHibernate imp
 		query.setParameter("gooruOid", gooruOid);
 		return (Long)query.list().get(0);
 	}
-
-	public Long getInviteUsersCountById(String gooruOid) {
-		String hql= "select count(*) from InviteUser iu where  iu.gooruOid=:gooruOid and iu.status.value=:pending";
-		Query query = getSession().createQuery(hql);
-		query.setParameter("gooruOid", gooruOid);
-		query.setParameter("pending", "pending");
-		return (Long)query.list().get(0);
-	}
-
-	@Override
-	public List<InviteUser> getInviteUserByMail(String mailId) {
-		String hql= "from InviteUser iu where  iu.email=:mailId and iu.status.value=:pending order by createdDate desc";
-		Query query = getSession().createQuery(hql);
-		query.setParameter("mailId", mailId);
-		query.setParameter("pending", "pending");
-		return query.list();
-	}
-
 }
