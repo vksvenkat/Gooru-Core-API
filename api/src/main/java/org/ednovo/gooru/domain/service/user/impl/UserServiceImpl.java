@@ -93,6 +93,7 @@ import org.ednovo.gooru.domain.service.redis.RedisService;
 import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.ednovo.gooru.domain.service.shelf.ShelfService;
 import org.ednovo.gooru.domain.service.user.UserService;
+import org.ednovo.gooru.domain.service.userManagement.UserManagementService;
 import org.ednovo.gooru.infrastructure.mail.MailHandler;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepository;
@@ -182,6 +183,9 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 
 	@Autowired
 	private TaxonomyRespository taxonomyRespository;
+	
+	@Autowired
+	private UserManagementService userManagementService;
 
 	private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
@@ -1443,26 +1447,6 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 		PartyCustomField partyCustomFieldTax = partyService.getPartyCustomeField(user.getPartyUid(), USER_TAXONOMY_ROOT_CODE, null);
 		if (partyCustomFieldTax != null) {
 			userCredential.setTaxonomyPreference(partyCustomFieldTax.getOptionalValue());
-			Map<String, Object> metaData = new HashMap<String, Object>();
-			String taxonomyCode = this.getTaxonomyRespository().getFindTaxonomyCodeList(partyCustomFieldTax.getOptionalValue());
-			
-			if(taxonomyCode != null ){
-				List<String> taxonomyCodeList = Arrays.asList(taxonomyCode.split(","));
-				metaData.put(CODE, taxonomyCodeList);
-			}
-			
-			if(partyCustomFieldTax.getOptionalValue() != null){
-				List<String> taxonomyCodeIdList = Arrays.asList(partyCustomFieldTax.getOptionalValue().split(","));
-				metaData.put(CODE_ID, taxonomyCodeIdList);
-			}
-			
-			meta.put(USER_TAX_PREFERENCE, metaData);
-/*			PartyCustomField partyCustomFieldOrgAdmin = partyService.getPartyCustomeField(user.getPartyUid(), "organizationAdmin", null);
-			if (partyCustomFieldOrgAdmin != null) {
-				metaData.put(partyCustomFieldOrgAdmin.getOptionalKey(), partyCustomFieldOrgAdmin.getOptionalValue());
-				meta.put("organizationAdmin", metaData);
-			}
-*/			userCredential.setMeta(meta);
 		}
 		return userCredential;
 
