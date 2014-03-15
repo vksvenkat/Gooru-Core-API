@@ -263,13 +263,18 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 
 	@Override
 	public Classpage getClasspage(String collectionId, User user,String merge)  {
-
 		Classpage classpage = this.getCollectionRepository().getClasspageByGooruOid(collectionId, null);
 		if (classpage != null && merge != null) {
+			Boolean isMember = false;
+			UserGroup userGroup = this.getUserGroupService().findUserGroupByGroupCode(classpage.getClasspageCode()); 
+			if(userGroup != null) {
+				isMember = this.getUserRepository().getUserGroupMemebrByGroupUid(userGroup.getPartyUid(), user.getPartyUid()) != null ? true : false;
+			}
 			Map<String, Object> permissions = new HashMap<String, Object>();
 			if(merge.contains(PERMISSIONS)) {
 				permissions.put(PERMISSIONS, this.getContentService().getContentPermission(collectionId, user));
 			}
+			permissions.put(ISMEMBER, isMember);
 			classpage.setMeta(permissions);
 		}
 		return classpage;
