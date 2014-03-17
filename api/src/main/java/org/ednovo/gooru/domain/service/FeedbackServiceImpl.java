@@ -152,7 +152,7 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 		rejectIfNull(this.getContentRepository().findContentByGooruId(assocGooruOid), GL0056, _CONTENT);
 		SearchResults<Feedback>  result = new SearchResults<Feedback>();
 		result.setSearchResults(this.getFeedbackRepository().getContentFeedbacks(type, assocGooruOid, creatorUid, category, limit, offset, skipPagination));
-		result.setSearchCount(this.getFeedbackRepository().getContentFeedbacksCount(type, assocGooruOid, creatorUid, category));
+		result.setTotalHitCount(this.getFeedbackRepository().getContentFeedbacksCount(type, assocGooruOid, creatorUid, category));
 		return result;
 	}
 
