@@ -1026,9 +1026,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			}
 		}
 		if (user != null && !user.getGooruUId().equalsIgnoreCase(ANONYMOUS)) {
-			if(user.getMeta() == null && user.getMeta().size() <= 0){
 				user.setMeta(userMeta(user));
-			}
 		}
 		if (user != null && !user.getGooruUId().equalsIgnoreCase(ANONYMOUS)) {
 			if (user.getAccountTypeId() != null && user.getAccountTypeId().equals(UserAccountType.ACCOUNT_CHILD)) {
