@@ -989,6 +989,8 @@ public interface ParameterProperties {
 	String MY_SHELF = "My Shelf";
 
 	String PERMISSIONS = "permissions";
+	
+	String ISMEMBER = "isMember";
 
 	String REACTION_AGGREGATE = "reactionAggregate";
 

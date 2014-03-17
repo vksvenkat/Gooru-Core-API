@@ -440,9 +440,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			}
 		}
 		List<InviteUser> inviteuser = this.getInviteRepository().getInviteUserByMail(newUser.getEmailId(), COLLABORATOR);
-		if(inviteuser.size() > 0) {
-			confirmStatus = 1;
-		}
+		
 		user = createUser(newUser, password, school, confirmStatus, addedBySystem, null, accountType, dateOfBirth, userParentId, gender, childDOB, null, request, role, mailConfirmationUrl);
 		ApiKey apiKey = apiTrackerService.findApiKeyByOrganization(user.getOrganization().getPartyUid());
 		UserToken userToken = this.createSessionToken(user, sessionId, apiKey);
@@ -461,9 +459,6 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 					this.getMailHandler().sendMailToConfirm(user.getGooruUId(), null, accountType, userToken.getToken(), dateOfBirth, gooruBaseUrl, mailConfirmationUrl, null, null);
 				}
 			}
-		}
-		if(inviteuser.size() > 0) {
-			this.getCollaboratorService().updateCollaboratorStatus(newUser.getEmailId());
 		}
 		
 		return user;
@@ -693,6 +688,10 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	@Override
 	public User createUser(User newUser, String password, String school, Integer confirmStatus, Integer addedBySystem, String userImportCode, String accountType, String dateOfBirth, String userParentId, String remoteEntityId, String gender, String childDOB, String source, String emailSSO,
 			HttpServletRequest request, String role, String mailConfirmationUrl) throws Exception {
+		List<InviteUser> inviteuser = this.getInviteRepository().getInviteUserByMail(newUser.getEmailId(), COLLABORATOR);
+		if(inviteuser.size() > 0) {
+			confirmStatus = 1;
+		}
 		boolean confirmedUser = false;
 		if (confirmStatus != null && confirmStatus == 1) {
 			confirmedUser = true;
@@ -924,7 +923,9 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			stream.setUser(user);
 			activityStreams.add(stream);
 		}
-
+		if(inviteuser.size() > 0) {
+			this.getCollaboratorService().updateCollaboratorStatus(newUser.getEmailId());
+		}
 		this.getUserRepository().saveAll(activityStreams);
 
 		this.getShelfService().setDefaultShelvesForNewUser(user);

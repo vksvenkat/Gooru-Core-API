@@ -263,13 +263,18 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 
 	@Override
 	public Classpage getClasspage(String collectionId, User user,String merge)  {
-
 		Classpage classpage = this.getCollectionRepository().getClasspageByGooruOid(collectionId, null);
 		if (classpage != null && merge != null) {
+			Boolean isMember = false;
+			UserGroup userGroup = this.getUserGroupService().findUserGroupByGroupCode(classpage.getClasspageCode()); 
+			if(userGroup != null) {
+				isMember = this.getUserRepository().getUserGroupMemebrByGroupUid(userGroup.getPartyUid(), user.getPartyUid()) != null ? true : false;
+			}
 			Map<String, Object> permissions = new HashMap<String, Object>();
 			if(merge.contains(PERMISSIONS)) {
 				permissions.put(PERMISSIONS, this.getContentService().getContentPermission(collectionId, user));
 			}
+			permissions.put(ISMEMBER, isMember);
 			classpage.setMeta(permissions);
 		}
 		return classpage;
@@ -391,7 +396,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 						groupAssociation.setUserGroup(userGroup);
 						this.getUserRepository().save(groupAssociation);
 						this.getCollectionService().createCollectionItem(classpage.getGooruOid(), null, new CollectionItem(), identity.getUser(), CLASS, false);
-						classpageMember.add(setMemberResponse(identity));
+						classpageMember.add(setMemberResponse(groupAssociation,ACTIVE));
 					}
 				}
 			}
@@ -422,12 +427,81 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		}
 	}
 	
-	private Map<String, Object> setMemberResponse(Identity identity) {
+	@Override
+	public List<Map<String, Object>> getClassMemberList(String code, String filterBy) {
+		List<Map<String, Object>> classpageMember = new ArrayList<Map<String, Object>>();
+		if (filterBy != null && filterBy.equalsIgnoreCase(ACTIVE)) {
+			classpageMember.addAll(getActiveMemberList(code));
+		} else if (filterBy != null && filterBy.equalsIgnoreCase(PENDING)) {
+			classpageMember.addAll(getPendingMemberList(code));
+		} else {
+			classpageMember.addAll(getActiveMemberList(code));
+			classpageMember.addAll(getPendingMemberList(code));
+		}
+		return classpageMember;
+	}
+	
+	@Override
+	public Map<String, List<Map<String, Object>>> getClassMemberListByGroup(String code, String filterBy) {
+		Map<String, List<Map<String, Object>>> collaboratorList = new HashMap<String, List<Map<String, Object>>>();
+		if (filterBy != null && filterBy.equalsIgnoreCase(ACTIVE)) {
+			collaboratorList.put(ACTIVE, getActiveMemberList(code));
+		} else if (filterBy != null && filterBy.equalsIgnoreCase(PENDING)) {
+			collaboratorList.put(PENDING, getPendingMemberList(code));
+		} else {
+			collaboratorList.put(ACTIVE, getActiveMemberList(code));
+			collaboratorList.put(PENDING, getPendingMemberList(code));
+		}
+		return collaboratorList;
+	}
+	
+	private List<Map<String, Object>> getActiveMemberList(String code) {
+		List<Map<String, Object>> activeList = new ArrayList<Map<String, Object>>();
+		Classpage classpage = this.getCollectionRepository().getClasspageByCode(code);
+		if (classpage == null) {
+			throw new NotFoundException("Class not found!!!");
+		}
+		UserGroup userGroup = this.getUserGroupService().findUserGroupByGroupCode(code);
+		List<UserGroupAssociation> userGroupAssociations = this.getUserGroupRepository().getUserGroupAssociationByGroup(userGroup.getPartyUid());
+		for (UserGroupAssociation userGroupAssociation : userGroupAssociations) {
+			activeList.add(this.setMemberResponse(userGroupAssociation, ACTIVE));
+		}
+		return activeList;
+	}
+	
+	private List<Map<String, Object>> getPendingMemberList(String code) {
+		Classpage classpage = this.getCollectionRepository().getClasspageByCode(code);
+		if (classpage == null) {
+			throw new NotFoundException("Class not found!!!");
+		}
+		List<InviteUser> inviteUsers = this.getInviteRepository().getInviteUsersById(code);
+		List<Map<String, Object>> pendingList = new ArrayList<Map<String, Object>>();
+		if (inviteUsers != null) {
+			for (InviteUser inviteUser : inviteUsers) {
+				pendingList.add(this.setInviteMember(inviteUser, PENDING));
+			}
+		}
+		return pendingList;
+	}	
+	
+	private Map<String, Object> setInviteMember(InviteUser inviteUser, String status) {
+		Map<String, Object> listMap = new HashMap<String, Object>();
+		listMap.put(EMAIL_ID, inviteUser.getEmail());
+		listMap.put(GOORU_OID, inviteUser.getGooruOid());
+		listMap.put(ASSOC_DATE, inviteUser.getCreatedDate());
+		if (status != null) {
+			listMap.put(STATUS, status);
+		}
+		return listMap;
+	}
+
+	private Map<String, Object> setMemberResponse(UserGroupAssociation userGroupAssociation, String status) {
 		Map<String, Object> member = new HashMap<String, Object>();
-		member.put(EMAIL_ID, identity.getExternalId());
-		member.put(_GOORU_UID, identity.getUser().getPartyUid());
-		member.put(USER_NAME, identity.getUser().getFirstName());
-		member.put(PROFILE_IMG_URL, this.getUserManagementService().buildUserProfileImageUrl(identity.getUser()));
+		member.put(EMAIL_ID, userGroupAssociation.getUser().getIdentities() != null ?userGroupAssociation.getUser().getIdentities().iterator().next().getExternalId() : null);
+		member.put(_GOORU_UID, userGroupAssociation.getUser().getPartyUid());
+		member.put(USER_NAME, userGroupAssociation.getUser().getFirstName());
+		member.put(PROFILE_IMG_URL, this.getUserManagementService().buildUserProfileImageUrl(userGroupAssociation.getUser()));
+		member.put(STATUS, status);
 		return member;
 	}
 
@@ -498,6 +572,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	public InviteRepository getInviteRepository() {
 		return inviteRepository;
 	}
+
 
 
 
