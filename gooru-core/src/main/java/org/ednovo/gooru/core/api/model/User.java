@@ -1,5 +1,6 @@
 package org.ednovo.gooru.core.api.model;
 
+import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.Column;
@@ -75,7 +76,17 @@ public class User extends Party implements IndexableEntry, OrganizationWrapper, 
 	
 	private Set<PartyCustomField> customFields;
 	
+	private Map<String, Map<String, Object>> meta;
 	
+	
+	public Map<String, Map<String, Object>> getMeta() {
+		return meta;
+	}
+
+	public void setMeta(Map<String, Map<String, Object>> meta) {
+		this.meta = meta;
+	}
+
 	@Override
 	public Organization getOrganization() {
 		return organization;

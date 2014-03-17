@@ -189,7 +189,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 	
 	@Autowired
 	private CollaboratorService collaboratorService;
-
+	
 	private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
 	@Override
@@ -1433,7 +1433,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 		String[] userPartiesAsArray = StringUtils.toStringArray(userParties);
 		String[] userOrgsAsArray = StringUtils.toStringArray(userOrgs);
 		String[] userSubOrgsArray = StringUtils.toStringArray(userSuborgs);
-		Map<String, Map<String, String>> meta = new HashMap<String, Map<String, String>>();
+		Map<String, Map<String, Object>> meta = new HashMap<String, Map<String, Object>>();
 		userCredential.setPartyPermits(userPartiesAsArray);
 		userCredential.setOrgPermits(userOrgsAsArray);
 		userCredential.setPartyPermitsAsString("'" + org.apache.commons.lang.StringUtils.join(userPartiesAsArray, "','") + "'");
@@ -1459,15 +1459,6 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 		PartyCustomField partyCustomFieldTax = partyService.getPartyCustomeField(user.getPartyUid(), USER_TAXONOMY_ROOT_CODE, null);
 		if (partyCustomFieldTax != null) {
 			userCredential.setTaxonomyPreference(partyCustomFieldTax.getOptionalValue());
-			Map<String, String> metaData = new HashMap<String, String>();
-			metaData.put(USER_TAX_PREFERENCE, this.getTaxonomyRespository().getFindTaxonomyCodeList(partyCustomFieldTax.getOptionalValue()));
-			meta.put(USER_TAX_PREFERENCE, metaData);
-/*			PartyCustomField partyCustomFieldOrgAdmin = partyService.getPartyCustomeField(user.getPartyUid(), "organizationAdmin", null);
-			if (partyCustomFieldOrgAdmin != null) {
-				metaData.put(partyCustomFieldOrgAdmin.getOptionalKey(), partyCustomFieldOrgAdmin.getOptionalValue());
-				meta.put("organizationAdmin", metaData);
-			}
-*/			userCredential.setMeta(meta);
 		}
 		return userCredential;
 

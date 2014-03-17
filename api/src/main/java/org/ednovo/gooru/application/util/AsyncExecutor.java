@@ -50,7 +50,7 @@ import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
 @Component
-@Async
+
 @Transactional(propagation = Propagation.NEVER)
 public class AsyncExecutor {
 
