@@ -30,6 +30,7 @@ import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -40,6 +41,7 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.cassandra.cli.CliParser.newColumnFamily_return;
 import org.ednovo.gooru.application.util.TaxonomyUtil;
 import org.ednovo.gooru.core.api.model.ActivityStream;
 import org.ednovo.gooru.core.api.model.ActivityType;
@@ -91,6 +93,7 @@ import org.ednovo.gooru.domain.service.redis.RedisService;
 import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.ednovo.gooru.domain.service.shelf.ShelfService;
 import org.ednovo.gooru.domain.service.user.UserService;
+import org.ednovo.gooru.domain.service.userManagement.UserManagementService;
 import org.ednovo.gooru.infrastructure.mail.MailHandler;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepository;
@@ -180,6 +183,9 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 
 	@Autowired
 	private TaxonomyRespository taxonomyRespository;
+	
+	@Autowired
+	private UserManagementService userManagementService;
 
 	private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
@@ -1415,7 +1421,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 		String[] userPartiesAsArray = StringUtils.toStringArray(userParties);
 		String[] userOrgsAsArray = StringUtils.toStringArray(userOrgs);
 		String[] userSubOrgsArray = StringUtils.toStringArray(userSuborgs);
-		Map<String, Map<String, String>> meta = new HashMap<String, Map<String, String>>();
+		Map<String, Map<String, Object>> meta = new HashMap<String, Map<String, Object>>();
 		userCredential.setPartyPermits(userPartiesAsArray);
 		userCredential.setOrgPermits(userOrgsAsArray);
 		userCredential.setPartyPermitsAsString("'" + org.apache.commons.lang.StringUtils.join(userPartiesAsArray, "','") + "'");
@@ -1441,15 +1447,6 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 		PartyCustomField partyCustomFieldTax = partyService.getPartyCustomeField(user.getPartyUid(), USER_TAXONOMY_ROOT_CODE, null);
 		if (partyCustomFieldTax != null) {
 			userCredential.setTaxonomyPreference(partyCustomFieldTax.getOptionalValue());
-			Map<String, String> metaData = new HashMap<String, String>();
-			metaData.put(USER_TAX_PREFERENCE, this.getTaxonomyRespository().getFindTaxonomyCodeList(partyCustomFieldTax.getOptionalValue()));
-			meta.put(USER_TAX_PREFERENCE, metaData);
-/*			PartyCustomField partyCustomFieldOrgAdmin = partyService.getPartyCustomeField(user.getPartyUid(), "organizationAdmin", null);
-			if (partyCustomFieldOrgAdmin != null) {
-				metaData.put(partyCustomFieldOrgAdmin.getOptionalKey(), partyCustomFieldOrgAdmin.getOptionalValue());
-				meta.put("organizationAdmin", metaData);
-			}
-*/			userCredential.setMeta(meta);
 		}
 		return userCredential;
 

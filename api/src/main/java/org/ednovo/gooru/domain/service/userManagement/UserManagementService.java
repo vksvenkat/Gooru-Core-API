@@ -24,6 +24,7 @@
 package org.ednovo.gooru.domain.service.userManagement;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -39,6 +40,8 @@ import org.ednovo.gooru.domain.service.BaseService;
 public interface UserManagementService extends BaseService {
 
 	Set<String> checkContentAccess(User authenticationUser, String contentgooruId);
+	
+	Map<String, Map<String, Object>> userMeta(User user);
 
 	User findByGooruId(String gooruId);
 
