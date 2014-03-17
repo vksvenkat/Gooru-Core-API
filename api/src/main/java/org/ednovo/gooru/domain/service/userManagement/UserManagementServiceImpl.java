@@ -1022,7 +1022,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			}
 		}
 		if (user != null && !user.getGooruUId().equalsIgnoreCase(ANONYMOUS)) {
-			if(user.getMeta() != null && user.getMeta().size() > 0){
+			if(user.getMeta() == null && user.getMeta().size() <= 0){
 				user.setMeta(userMeta(user));
 			}
 		}
@@ -1040,6 +1040,8 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 
 		return user;
 	}
+	
+	
 
 	@Override
 	public User createUser(User user, String password, String school, Integer confirmStatus, Integer addedBySystem, String userImportCode, String accountType, String dateOfBirth, String userParentId, String gender, String childDOB, String source, HttpServletRequest request, String role,
@@ -1342,7 +1344,11 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		Map<String, Map<String, Object>> meta = new HashMap<String, Map<String, Object>>();
 		PartyCustomField partyCustomField = partyService.getPartyCustomeField(user.getPartyUid(), USER_TAXONOMY_ROOT_CODE, null);
 		Map<String, Object> metaData = new HashMap<String, Object>();
-		String taxonomyCode = this.getTaxonomyRespository().getFindTaxonomyCodeList(partyCustomField.getOptionalValue());
+		String taxonomyCode = null;
+		if(partyCustomField != null && partyCustomField.getOptionalValue() != null){
+			taxonomyCode = this.getTaxonomyRespository().getFindTaxonomyCodeList(partyCustomField.getOptionalValue());
+		}
+		
 		
 		if(taxonomyCode != null ){
 			List<String> taxonomyCodeList = Arrays.asList(taxonomyCode.split(","));
