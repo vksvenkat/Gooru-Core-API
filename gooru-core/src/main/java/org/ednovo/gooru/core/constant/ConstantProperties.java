@@ -282,7 +282,7 @@ public interface ConstantProperties {
 
 	static final String CURRENT_SESSION_TOKEN = "currentSessionToken";
 
-	static final String[] USER_PROFILE_INCUDES = { "user", "user.emailId", "*.userType", "*.graduation", "*.city", "*.teachingIn", "*.twitter", "*.highestDegree", "*.profileId", "grade", "*.gender", "*.name", "*.genderId", "*.website", "*.thumbnailBlobStatus", "*.school", "*.subscribers",
+	static final String[] USER_PROFILE_INCUDES = { "user", "user.emailId", "*.user.meta", "*.userType", "*.graduation", "*.city", "*.teachingIn", "*.twitter", "*.highestDegree", "*.profileId", "grade", "*.gender", "*.name", "*.genderId", "*.website", "*.thumbnailBlobStatus", "*.school", "*.subscribers",
 			"*.subscribers", "*.lastName", "*.parentUser", "*.username", "*.accountCreatedType", "*.gooruUId", "*.partyUid", "*.profileImageUrl", "*.createdOn", "*.usernameDisplay", "*.loginType", "*.confirmStatus", "*.viewFlag", "*.userRoleSetString", "*.firstName", "*.accountTypeId",
 			"*.isPublisherRequestPending", "*.dateOfBirth", "*.isFollowing", "*.aboutMe", "courses", "courses.code.codeId", "courses.code.label", "*.notes", "*.emailId" };
 
