@@ -16,7 +16,7 @@ public class Profanity {
 
 	private List<String> expletive;
 
-	private Boolean isFound;
+	private boolean isFound;
 
 	private String foundBy;
 

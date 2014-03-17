@@ -43,5 +43,7 @@ public interface UserGroupRepository extends BaseRepository {
 	List<PartyPermission> getUserOrganizations(List<String> organizationIds);
 	
 	UserGroupAssociation getUserGroupAssociation(String gooruUid, String groupUid);
+	
+	List<UserGroupAssociation> getUserGroupAssociationByGroup(String groupUid);
 
 }
