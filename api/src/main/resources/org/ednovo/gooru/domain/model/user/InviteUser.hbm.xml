@@ -36,7 +36,7 @@
 		<many-to-one name="status" class="org.ednovo.gooru.core.api.model.CustomTableValue" 
 		column="status_id" not-null="true" lazy="proxy" cascade="none" />
 		
-		<property name="email" column="email"
+		<property name="emailId" column="email"
 			not-null="true"/>
 			
 		<property name="gooruOid" column="gooru_oid" 

@@ -78,7 +78,7 @@ public class InviteServiceImpl extends BaseServiceImpl implements InviteService,
 				inviteUsers.add(createInviteUserObj(email,classPage.getGooruOid(), CLASS));
 			}
 			Map<String, String> inviteMap = new HashMap<String, String>();
-			inviteMap.put(EMAIL, email);
+			inviteMap.put(EMAIL_ID, email);
 			inviteMap.put(GOORU_OID, classPage.getGooruOid());
 			inviteMap.put(STATUS, PENDING);
 			invites.add(inviteMap);
@@ -92,7 +92,7 @@ public class InviteServiceImpl extends BaseServiceImpl implements InviteService,
 
 	private InviteUser createInviteUserObj(String email, String gooruOid, String invitationType) {
 		InviteUser  inviteUser = new InviteUser();
-		inviteUser.setEmail(email);
+		inviteUser.setEmailId(email);
 		inviteUser.setCreatedDate(new Date());
 		inviteUser.setGooruOid(gooruOid);
 		inviteUser.setInvitationType(invitationType);

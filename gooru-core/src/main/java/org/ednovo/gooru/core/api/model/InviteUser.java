@@ -11,20 +11,13 @@ public class InviteUser implements Serializable {
 	private static final long serialVersionUID = 4627013229669491613L;
 
 	private String inviteUid;
-	private String email;
+	private String emailId;
 	private String gooruOid;
 	private String invitationType;
 	private Date createdDate;
 	private Date joinedDate;
 	private CustomTableValue status;
 
-	public void setEmail(String email) {
-		this.email = email;
-	}
-
-	public String getEmail() {
-		return email;
-	}
 
 	public void setInvitationType(String invitationType) {
 		this.invitationType = invitationType;
@@ -72,6 +65,14 @@ public class InviteUser implements Serializable {
 
 	public String getInviteUid() {
 		return inviteUid;
+	}
+
+	public void setEmailId(String emailId) {
+		this.emailId = emailId;
+	}
+
+	public String getEmailId() {
+		return emailId;
 	}
 
 

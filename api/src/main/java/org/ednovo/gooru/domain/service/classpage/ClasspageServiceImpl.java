@@ -474,7 +474,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		if (classpage == null) {
 			throw new NotFoundException("Class not found!!!");
 		}
-		List<InviteUser> inviteUsers = this.getInviteRepository().getInviteUsersById(code);
+		List<InviteUser> inviteUsers = this.getInviteRepository().getInviteUsersById(classpage.getGooruOid());
 		List<Map<String, Object>> pendingList = new ArrayList<Map<String, Object>>();
 		if (inviteUsers != null) {
 			for (InviteUser inviteUser : inviteUsers) {
@@ -486,7 +486,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	
 	private Map<String, Object> setInviteMember(InviteUser inviteUser, String status) {
 		Map<String, Object> listMap = new HashMap<String, Object>();
-		listMap.put(EMAIL_ID, inviteUser.getEmail());
+		listMap.put(EMAIL_ID, inviteUser.getEmailId());
 		listMap.put(GOORU_OID, inviteUser.getGooruOid());
 		listMap.put(ASSOC_DATE, inviteUser.getCreatedDate());
 		if (status != null) {
@@ -499,7 +499,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		Map<String, Object> member = new HashMap<String, Object>();
 		member.put(EMAIL_ID, userGroupAssociation.getUser().getIdentities() != null ?userGroupAssociation.getUser().getIdentities().iterator().next().getExternalId() : null);
 		member.put(_GOORU_UID, userGroupAssociation.getUser().getPartyUid());
-		member.put(USER_NAME, userGroupAssociation.getUser().getFirstName());
+		member.put(USER_NAME, userGroupAssociation.getUser().getUsername());
 		member.put(PROFILE_IMG_URL, this.getUserManagementService().buildUserProfileImageUrl(userGroupAssociation.getUser()));
 		member.put(STATUS, status);
 		return member;

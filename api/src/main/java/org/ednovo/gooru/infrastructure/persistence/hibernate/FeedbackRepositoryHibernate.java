@@ -23,6 +23,7 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.infrastructure.persistence.hibernate;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -239,7 +240,7 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 			sum += ((Integer) object[0]);
 		}
 		rating.put("scores", value);
-		rating.put("average", Math.round(sum/results.size()));
+		rating.put("average", Double.parseDouble(new DecimalFormat("##.#").format(sum/results.size())));
 		rating.put("count",sum);
 		return rating; 
 	}
@@ -441,5 +442,6 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 	public StorageRepository getStorageRepository() {
 		return storageRepository;
 	}
+	
 
 }
