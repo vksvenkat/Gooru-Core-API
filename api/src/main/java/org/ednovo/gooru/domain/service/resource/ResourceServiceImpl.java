@@ -1791,11 +1791,11 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				return;
 			}
 		}
-		UserRole contentAdmin = new UserRole();
+/*		UserRole contentAdmin = new UserRole();
 		contentAdmin.setRoleId(Short.valueOf(UserRole.ROLE_CONTENT_ADMIN));
 
 		User systemUser = userRepository.findByRole(contentAdmin).get(0);
-		resource.setUser(systemUser);
+		resource.setUser(systemUser);*/
 
 		this.getBaseRepository().removeAll(resource.getContentPermissions());
 		resource.setContentPermissions(null);
