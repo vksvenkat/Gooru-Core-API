@@ -17,6 +17,7 @@ public class InviteUser implements Serializable {
 	private Date createdDate;
 	private Date joinedDate;
 	private CustomTableValue status;
+	private User associatedUser;
 
 	public void setEmail(String email) {
 		this.email = email;
@@ -72,6 +73,14 @@ public class InviteUser implements Serializable {
 
 	public String getInviteUid() {
 		return inviteUid;
+	}
+
+	public void setAssociatedUser(User associatedUser) {
+		this.associatedUser = associatedUser;
+	}
+
+	public User getAssociatedUser() {
+		return associatedUser;
 	}
 
 
