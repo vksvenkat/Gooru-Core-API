@@ -240,7 +240,7 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 			sum += ((Integer) object[0]);
 		}
 		rating.put("scores", value);
-		rating.put("average", Double.parseDouble(new DecimalFormat("##.#").format(sum/results.size())));
+		rating.put("average", results.size() > 0 ? Double.parseDouble(new DecimalFormat("##.#").format(sum/results.size())) : sum);
 		rating.put("count",sum);
 		return rating; 
 	}
