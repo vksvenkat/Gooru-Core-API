@@ -50,6 +50,7 @@ import org.ednovo.gooru.core.application.util.BaseUtil;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.core.exception.UnauthorizedException;
 import org.ednovo.gooru.domain.service.CollectionService;
+import org.ednovo.gooru.domain.service.InviteService;
 import org.ednovo.gooru.domain.service.ScollectionServiceImpl;
 import org.ednovo.gooru.domain.service.group.UserGroupService;
 import org.ednovo.gooru.domain.service.search.SearchResults;
@@ -95,6 +96,10 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	
 	@Autowired
 	private InviteRepository inviteRepository;
+	
+	@Autowired
+	private InviteService inviteService;
+
 
 
 	@Override
@@ -139,9 +144,6 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 					newClasspage.setCollectionItems(collectionItems);
 					this.getCollectionRepository().save(newClasspage);
 				}
-				CollectionItem collectionItem = new CollectionItem();
-				collectionItem.setItemType(ShelfType.AddedType.ADDED.getAddedType());
-				this.createClasspageItem(newClasspage.getGooruOid(), null, collectionItem, newClasspage.getUser(), CollectionType.USER_CLASSPAGE.getCollectionType());
 			}
 			return new ActionResponseDTO<Classpage>(newClasspage, errors);
 	}
@@ -209,29 +211,17 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		}
 		return new ActionResponseDTO<Classpage>(classpage, errors);
 	}
-
+	
 	@Override
 	public Classpage getClasspage(String classpageCode, User user) throws Exception {
 		Classpage classpage = this.getCollectionRepository().getClasspageByCode(classpageCode);
-		if(classpage != null && classpage.getClasspageCode() != null){
-			UserGroup userGroup = this.getUserGroupService().findUserGroupByGroupCode(classpageCode);
-			if(userGroup != null){
-				UserGroupAssociation userGroupAssociation = this.getUserGroupRepository().getUserGroupAssociation(user.getPartyUid(), userGroup.getPartyUid());
-				if(userGroupAssociation == null){
-					UserGroupAssociation groupAssociation = new UserGroupAssociation();
-					groupAssociation.setIsGroupOwner(1);
-					groupAssociation.setUser(user);
-					groupAssociation.setUserGroup(userGroup);
-					this.getUserRepository().save(groupAssociation);
-					this.getUserRepository().flush();
-				}
-			} else {
-				this.getUserGroupService().createGroup(classpageCode, classpageCode, "System", user, null);
-			}
+		if (classpage == null) {
+			throw new NotFoundException("Class not found");
 		}
-		return classpage;
+		return getClasspage(classpage.getGooruOid(), user, PERMISSIONS);
 	}
-
+	
+	
 	@Override
 	public void deleteClasspage(String classpageId) {
 		Classpage classpage = this.getClasspage(classpageId, null, null);
@@ -262,16 +252,26 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 
 	@Override
-	public Classpage getClasspage(String collectionId, User user,String merge)  {
+	public Classpage getClasspage(String collectionId, User user, String merge) {
 		Classpage classpage = this.getCollectionRepository().getClasspageByGooruOid(collectionId, null);
 		if (classpage != null && merge != null) {
-			Boolean isMember = false;
-			UserGroup userGroup = this.getUserGroupService().findUserGroupByGroupCode(classpage.getClasspageCode()); 
-			if(userGroup != null) {
-				isMember = this.getUserRepository().getUserGroupMemebrByGroupUid(userGroup.getPartyUid(), user.getPartyUid()) != null ? true : false;
-			}
 			Map<String, Object> permissions = new HashMap<String, Object>();
-			if(merge.contains(PERMISSIONS)) {
+			Boolean isMember = false;
+			InviteUser inviteUser = null;
+			String mailId = null;
+			UserGroup userGroup = this.getUserGroupService().findUserGroupByGroupCode(classpage.getClasspageCode());
+			if (userGroup != null) {
+				isMember = this.getUserRepository().getUserGroupMemebrByGroupUid(userGroup.getPartyUid(), user.getPartyUid()) != null ? true : false;
+				if (user.getIdentities() != null) {
+					mailId = user.getIdentities().iterator().next().getExternalId();
+				}
+				inviteUser = this.getInviteRepository().findInviteUserById(mailId, collectionId);
+				if (!isMember && inviteUser == null && classpage.getSharing().equalsIgnoreCase(PRIVATE)) {
+					this.getInviteRepository().save(this.getInviteService().createInviteUserObj(mailId, collectionId, CLASS, user));
+					this.getInviteRepository().flush();
+				}
+			}
+			if (merge.contains(PERMISSIONS)) {
 				permissions.put(PERMISSIONS, this.getContentService().getContentPermission(collectionId, user));
 			}
 			permissions.put(ISMEMBER, isMember);
@@ -395,7 +395,6 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 						groupAssociation.setUser(identity.getUser());
 						groupAssociation.setUserGroup(userGroup);
 						this.getUserRepository().save(groupAssociation);
-						this.getCollectionService().createCollectionItem(classpage.getGooruOid(), null, new CollectionItem(), identity.getUser(), CLASS, false);
 						classpageMember.add(setMemberResponse(groupAssociation,ACTIVE));
 					}
 				}
@@ -419,8 +418,6 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 							this.getInviteRepository().remove(inviteUser);
 						}
 						this.getUserGroupRepository().remove(userGroupAssociation);
-						this.getCollectionRepository().removeAll(this.getCollectionRepository().findCollectionByResource(classpage.getGooruOid(), identity.getUser().getGooruUId(), CLASS));
-
 					}
 				}
 			}
@@ -464,7 +461,9 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		UserGroup userGroup = this.getUserGroupService().findUserGroupByGroupCode(code);
 		List<UserGroupAssociation> userGroupAssociations = this.getUserGroupRepository().getUserGroupAssociationByGroup(userGroup.getPartyUid());
 		for (UserGroupAssociation userGroupAssociation : userGroupAssociations) {
-			activeList.add(this.setMemberResponse(userGroupAssociation, ACTIVE));
+			if (userGroupAssociation.getIsGroupOwner() != 1) {
+				activeList.add(this.setMemberResponse(userGroupAssociation, ACTIVE));
+			}
 		}
 		return activeList;
 	}
@@ -574,6 +573,9 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 
 
+	public InviteService getInviteService() {
+		return inviteService;
+	}
 
 
 }

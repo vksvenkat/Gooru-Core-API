@@ -90,7 +90,8 @@ public class InviteServiceImpl extends BaseServiceImpl implements InviteService,
 
 	}
 
-	private InviteUser createInviteUserObj(String email, String gooruOid, String invitationType, User user) {
+	@Override
+	public InviteUser createInviteUserObj(String email, String gooruOid, String invitationType, User user) {
 		InviteUser  inviteUser = new InviteUser();
 		inviteUser.setEmailId(email);
 		inviteUser.setCreatedDate(new Date());
