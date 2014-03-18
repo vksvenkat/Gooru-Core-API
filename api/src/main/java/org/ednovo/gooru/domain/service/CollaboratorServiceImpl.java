@@ -128,6 +128,7 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 						inviteUser.setCreatedDate(new Date());
 						inviteUser.setInvitationType(COLLABORATOR);
 						inviteUser.setStatus(this.getCustomTableRepository().getCustomTableValue(INVITE_USER_STATUS, PENDING));
+						inviteUser.setAssociatedUser(apiCaller);
 						this.getUserRepository().save(inviteUser);
 						collaborator.add(setInviteCollaborator(inviteUser, PENDING));
 					} else {

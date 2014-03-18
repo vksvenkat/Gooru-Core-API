@@ -50,6 +50,10 @@
 			
 		<property name="joinedDate" column="joined_date"
 			not-null="false"/>
+			
+	    <many-to-one name="associatedUser" column="associated_by_uid"
+            class="org.ednovo.gooru.core.api.model.User"
+            not-null="false" cascade="none" />
 		
 	</class>
 </hibernate-mapping>
