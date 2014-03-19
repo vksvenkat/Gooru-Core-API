@@ -257,24 +257,32 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		if (classpage != null && merge != null) {
 			Map<String, Object> permissions = new HashMap<String, Object>();
 			Boolean isMember = false;
+			String status = NOTINVITED;
 			InviteUser inviteUser = null;
 			String mailId = null;
 			UserGroup userGroup = this.getUserGroupService().findUserGroupByGroupCode(classpage.getClasspageCode());
 			if (userGroup != null) {
 				isMember = this.getUserRepository().getUserGroupMemebrByGroupUid(userGroup.getPartyUid(), user.getPartyUid()) != null ? true : false;
+				if(isMember) {
+					status = ACTIVE;
+				}
 				if (user.getIdentities() != null) {
 					mailId = user.getIdentities().iterator().next().getExternalId();
 				}
 				inviteUser = this.getInviteRepository().findInviteUserById(mailId, collectionId);
-				if (!isMember && inviteUser == null && classpage.getSharing().equalsIgnoreCase(PRIVATE)) {
+				if(inviteUser != null) {
+					status = PENDING;
+				}
+				if (!isMember && inviteUser == null && classpage.getSharing().equalsIgnoreCase(PUBLIC)) {
 					this.getInviteRepository().save(this.getInviteService().createInviteUserObj(mailId, collectionId, CLASS, user));
 					this.getInviteRepository().flush();
-				}
+					status = PENDING;
+				} 
 			}
 			if (merge.contains(PERMISSIONS)) {
 				permissions.put(PERMISSIONS, this.getContentService().getContentPermission(collectionId, user));
 			}
-			permissions.put(ISMEMBER, isMember);
+			permissions.put(STATUS, status);
 			classpage.setMeta(permissions);
 		}
 		return classpage;

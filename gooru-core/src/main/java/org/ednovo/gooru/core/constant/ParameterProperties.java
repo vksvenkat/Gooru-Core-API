@@ -439,6 +439,8 @@ public interface ParameterProperties {
 	String COMMENT_UID = "commentUid";
 
 	String ACTIVE = "active";
+	
+	String NOTINVITED = "not-invited";
 
 	String SHARING = "sharing";
 
