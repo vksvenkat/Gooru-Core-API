@@ -417,4 +417,6 @@ public interface ConstantProperties {
 	
 	public static final String CLASS = "class";
 	
+	public static final String IS_PARTNER = "is_partner";
+	
 }

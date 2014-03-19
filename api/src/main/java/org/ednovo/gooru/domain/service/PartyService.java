@@ -24,6 +24,7 @@
 package org.ednovo.gooru.domain.service;
 
 import java.util.List;
+import java.util.Map;
 
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.PartyCustomField;
@@ -49,5 +50,7 @@ public interface PartyService extends BaseService {
 	void createTaxonomyCustomAttributes(String partyId, User user);
 	
 	Profile getUserDateOfBirth(String partyId, User user);
+	
+	List<Map<Object, Object>> getPartyDetails(String optionalKey, String optionalValue);
 
 }
