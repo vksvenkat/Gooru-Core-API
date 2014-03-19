@@ -257,24 +257,32 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		if (classpage != null && merge != null) {
 			Map<String, Object> permissions = new HashMap<String, Object>();
 			Boolean isMember = false;
+			String status = NOTINVITED;
 			InviteUser inviteUser = null;
 			String mailId = null;
 			UserGroup userGroup = this.getUserGroupService().findUserGroupByGroupCode(classpage.getClasspageCode());
-			if (userGroup != null) {
+			if (userGroup != null && !user.getGooruUId().equalsIgnoreCase(ANONYMOUS)) {
 				isMember = this.getUserRepository().getUserGroupMemebrByGroupUid(userGroup.getPartyUid(), user.getPartyUid()) != null ? true : false;
-				if (user.getIdentities() != null) {
+				if (isMember) {
+					status = ACTIVE;
+				}
+				if (user.getIdentities().size() > 0) {
 					mailId = user.getIdentities().iterator().next().getExternalId();
 				}
 				inviteUser = this.getInviteRepository().findInviteUserById(mailId, collectionId);
-				if (!isMember && inviteUser == null && classpage.getSharing().equalsIgnoreCase(PRIVATE)) {
-					this.getInviteRepository().save(this.getInviteService().createInviteUserObj(mailId, collectionId, CLASS, user));
+				if (!isMember && inviteUser == null && classpage.getSharing().equalsIgnoreCase(PUBLIC)) {
+					inviteUser = this.getInviteService().createInviteUserObj(mailId, collectionId, CLASS, user);
+					this.getInviteRepository().save(inviteUser);
 					this.getInviteRepository().flush();
+				}
+				if (inviteUser != null) {
+					status = PENDING;
 				}
 			}
 			if (merge.contains(PERMISSIONS)) {
 				permissions.put(PERMISSIONS, this.getContentService().getContentPermission(collectionId, user));
 			}
-			permissions.put(ISMEMBER, isMember);
+			permissions.put(STATUS, status);
 			classpage.setMeta(permissions);
 		}
 		return classpage;
