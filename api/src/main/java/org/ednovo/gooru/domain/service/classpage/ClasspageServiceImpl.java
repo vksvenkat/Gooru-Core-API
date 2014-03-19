@@ -421,11 +421,11 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 				if (identity != null) {
 					UserGroupAssociation userGroupAssociation = this.getUserRepository().getUserGroupMemebrByGroupUid(userGroup.getPartyUid(), identity.getUser().getPartyUid());
 					if (userGroupAssociation != null) {
-						InviteUser inviteUser = this.getInviteRepository().findInviteUserById(mailId, classpage.getGooruOid());
-						if(inviteUser != null) {
-							this.getInviteRepository().remove(inviteUser);
-						}
 						this.getUserGroupRepository().remove(userGroupAssociation);
+					}
+					InviteUser inviteUser = this.getInviteRepository().findInviteUserById(mailId, classpage.getGooruOid());
+					if (inviteUser != null) {
+						this.getInviteRepository().remove(inviteUser);
 					}
 				}
 			}

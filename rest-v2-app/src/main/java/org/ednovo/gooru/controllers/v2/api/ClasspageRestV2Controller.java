@@ -283,7 +283,7 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_DELETE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/{code}/member/remove", method = RequestMethod.DELETE)
-	public void classpageUserRemove(@PathVariable(value = CODE) String code,@RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public void classpageUserRemove(@PathVariable(value = CODE) String code,@RequestParam String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User apiCaller = (User) request.getAttribute(Constants.USER);
 
 		this.getClasspageService().classpageUserRemove(code,JsonDeserializer.deserialize(data, new TypeReference<List<String>>() {
