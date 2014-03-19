@@ -63,8 +63,10 @@ public class CassandraDaoSupport<F extends CassandraColumnFamily> {
 			try {
 				return getFactory().getKeyspace().prepareQuery(getCF().getColumnFamily()).getKey(rowKey).withColumnSlice(fields).execute().getResult();
 			} catch (NotFoundException e) {
+				e.printStackTrace();
 				throw new CassandraException(HttpStatus.NOT_FOUND, "Not Found Exception") ;
 			} catch (ConnectionException e) {
+				e.printStackTrace();
 				throw new CassandraException(HttpStatus.BAD_GATEWAY, "Unable to connect to cassandra cluster") ;
 			}
 		}
@@ -320,8 +322,10 @@ public class CassandraDaoSupport<F extends CassandraColumnFamily> {
 				.execute().getResult();
 				return rows;
 			} catch (NotFoundException e) {
+				e.printStackTrace();
 				throw new CassandraException(HttpStatus.NOT_FOUND, "Not Found Exception") ;
 			} catch (ConnectionException e) {
+				e.printStackTrace();
 				throw new CassandraException(HttpStatus.BAD_GATEWAY, "Unable to connect to cassandra cluster") ;
 			}
 		}
@@ -333,8 +337,10 @@ public class CassandraDaoSupport<F extends CassandraColumnFamily> {
 			ColumnList<String> record = getFactory().getKeyspace().prepareQuery(getCF().getColumnFamily()).getKey(rowKey).execute().getResult();
 			return record;
 		} catch (NotFoundException e) {
+			e.printStackTrace();
 			throw new CassandraException(HttpStatus.NOT_FOUND, "Not Found Exception") ;
 		} catch (ConnectionException e) {
+			e.printStackTrace();
 			throw new CassandraException(HttpStatus.BAD_GATEWAY, "Unable to connect to cassandra cluster") ;
 		}
 	}

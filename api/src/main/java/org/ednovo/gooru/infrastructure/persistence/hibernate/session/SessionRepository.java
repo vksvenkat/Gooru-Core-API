@@ -24,6 +24,7 @@
 package org.ednovo.gooru.infrastructure.persistence.hibernate.session;
 
 import java.util.List;
+import java.util.Map;
 
 import org.ednovo.gooru.core.api.model.Session;
 import org.ednovo.gooru.core.api.model.SessionItem;
@@ -39,5 +40,7 @@ public interface SessionRepository extends BaseRepository {
 	SessionItem findSessionItemById(String sessionItemId);
 
 	List<SessionItemAttemptTry> getSessionItemAttemptTry(String sessionItemId);
+
+	Map<String, Object> getQuizSummary(String sessionId, Integer trySequence, String questionType, Long quizContentId);
 
 }
