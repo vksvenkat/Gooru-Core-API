@@ -123,11 +123,12 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 					InviteUser inviteUsers = this.getInviteRepository().findInviteUserById(mailId, gooruOid);
 					if (inviteUsers == null) {
 						InviteUser inviteUser = new InviteUser();
-						inviteUser.setEmail(mailId);
+						inviteUser.setEmailId(mailId);
 						inviteUser.setGooruOid(gooruOid);
 						inviteUser.setCreatedDate(new Date());
 						inviteUser.setInvitationType(COLLABORATOR);
 						inviteUser.setStatus(this.getCustomTableRepository().getCustomTableValue(INVITE_USER_STATUS, PENDING));
+						inviteUser.setAssociatedUser(apiCaller);
 						this.getUserRepository().save(inviteUser);
 						collaborator.add(setInviteCollaborator(inviteUser, PENDING));
 					} else {
@@ -151,7 +152,7 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 
 	private Map<String, Object> setInviteCollaborator(InviteUser inviteUser, String status) {
 		Map<String, Object> listMap = new HashMap<String, Object>();
-		listMap.put(EMAIL_ID, inviteUser.getEmail());
+		listMap.put(EMAIL_ID, inviteUser.getEmailId());
 		listMap.put(GOORU_OID, inviteUser.getGooruOid());
 		listMap.put(ASSOC_DATE, inviteUser.getCreatedDate());
 		if (status != null) {

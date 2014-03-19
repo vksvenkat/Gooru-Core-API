@@ -880,7 +880,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		if (taxonomySet != null) {
 			standards = new ArrayList<StandardFo>();
 			for (Code code : taxonomySet) {
-				if (code.getRootNodeId() != null && !code.getRootNodeId().toString().contains(UserGroupSupport.getTaxonomyPreference())) {
+				if (code.getRootNodeId() != null && code.getRootNodeId().toString().contains(UserGroupSupport.getTaxonomyPreference())) {
 					StandardFo standard = new StandardFo();
 					if (code.getdisplayCode() != null && !code.getdisplayCode().equals("")) {
 						standard.setCode(code.getdisplayCode().replace(".--", " "));

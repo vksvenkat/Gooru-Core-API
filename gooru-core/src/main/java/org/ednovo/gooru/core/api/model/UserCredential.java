@@ -54,7 +54,7 @@ public class UserCredential implements Serializable {
 	
 	private Map<String, String> error;
 	
-	private Map<String, Map<String, String>> meta;
+	private Map<String, Map<String, Object>> meta;
 	
 	private String sharedSecretKey;
 	
@@ -230,11 +230,11 @@ public class UserCredential implements Serializable {
 		return error;
 	}
 
-	public void setMeta(Map<String, Map<String, String>> meta) {
+	public void setMeta(Map<String, Map<String, Object>> meta) {
 		this.meta = meta;
 	}
 
-	public Map<String, Map<String, String>> getMeta() {
+	public Map<String, Map<String, Object>> getMeta() {
 		return meta;
 	}
 

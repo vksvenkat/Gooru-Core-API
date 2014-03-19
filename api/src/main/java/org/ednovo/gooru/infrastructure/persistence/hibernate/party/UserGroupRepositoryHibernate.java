@@ -31,8 +31,6 @@ import org.ednovo.gooru.core.api.model.UserGroupAssociation;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
 
@@ -91,8 +89,18 @@ public class UserGroupRepositoryHibernate extends BaseRepositoryHibernate implem
 		query.setParameter("gooruUid", gooruUid);
 		query.setParameter("groupUid", groupUid);
 		addOrgAuthParameters(query);
-		return (UserGroupAssociation) ((query.list().size() > 0) ? query.list().get(0)
-				: null);
+		return (UserGroupAssociation) ((query.list().size() > 0) ? query.list().get(0) : null);
+	}
+	
+	@Override
+	public List<UserGroupAssociation> getUserGroupAssociationByGroup(String groupUid) {
+		Session session = getSession();
+		String hql = " FROM UserGroupAssociation userGroupAssociation WHERE  userGroupAssociation.userGroup.partyUid = :groupUid  and ";
+		Query query = session.createQuery(hql
+				+ generateOrgAuthQuery("userGroupAssociation.user."));
+		query.setParameter("groupUid", groupUid);
+		addOrgAuthParameters(query);
+		return query.list();
 	}
 	
 }

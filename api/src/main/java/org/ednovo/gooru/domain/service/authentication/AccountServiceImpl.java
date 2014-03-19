@@ -34,6 +34,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.fop.viewer.UserMessage;
 import org.ednovo.gooru.application.util.TaxonomyUtil;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.ActivityStream;
@@ -218,6 +219,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			userToken.setApiKey(apiKey);
 			userToken.setRestEndPoint(apiEndPoint);
 			userToken.setFirstLogin(userRepository.checkUserFirstLogin(user.getPartyUid()));
+			userToken.getUser().setMeta(userManagementService.userMeta(user));
 			
 			Profile profile = getPartyService().getUserDateOfBirth(user.getPartyUid(), user);
 			if(profile.getUserType() != null){

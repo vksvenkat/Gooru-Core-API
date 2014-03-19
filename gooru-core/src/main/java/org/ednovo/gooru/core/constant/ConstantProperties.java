@@ -272,7 +272,7 @@ public interface ConstantProperties {
 			"*.totalHitCount", "*.searchResults", "*.isDeleted", "*.lastModifiedOn" };
 
 	static final String USER_INCLUDES[] = { "*.lastName", "*.gooruUId", "*.profileImageUrl", "*.loginType", "*.userRoleSetString", "*.username", "*.viewFlag", "*.createdOn", "*.restEndPoint", "*.confirmStatus", "*.emailId", "*.token", "*.partyUid", "*.firstName", "*.usernameDisplay", "*.user",
-			"*.accountCreatedType", "*.dateOfBirth", "*.meta.*", "*.customFields.*", "*.accountTypeId", "*.organizationName", "*.userRole" };
+			"*.accountCreatedType", "*.dateOfBirth", "*.meta.*", "*.taxonomyPreference.*", "*.taxonomyPreference.code.*", "*.meta.taxonomyPreference.code.*", "*.metaData.*", "*.meta.taxonomyPreference.metaData.code.*", "*.meta.taxonomyPreference.metaData.*",  "*.meta.taxonomyPreference.*", "*.customFields.*", "*.accountTypeId", "*.organizationName", "*.userRole" };
 
 	static final String RESET_PASSWORD_REQUEST_INCLUDES[] = { "*.username", "*.accountTypeId", "*.firstName", "*.gooruUId", "*.emailId" };
 
@@ -282,7 +282,7 @@ public interface ConstantProperties {
 
 	static final String CURRENT_SESSION_TOKEN = "currentSessionToken";
 
-	static final String[] USER_PROFILE_INCUDES = { "user", "user.emailId", "*.userType", "*.graduation", "*.city", "*.teachingIn", "*.twitter", "*.highestDegree", "*.profileId", "grade", "*.gender", "*.name", "*.genderId", "*.website", "*.thumbnailBlobStatus", "*.school", "*.subscribers",
+	static final String[] USER_PROFILE_INCUDES = { "user", "user.emailId", "*.user.meta.*", "*.meta.*", "*.userType", "*.graduation", "*.city", "*.teachingIn", "*.twitter", "*.highestDegree", "*.profileId", "grade", "*.gender", "*.name", "*.genderId", "*.website", "*.thumbnailBlobStatus", "*.school", "*.subscribers",
 			"*.subscribers", "*.lastName", "*.parentUser", "*.username", "*.accountCreatedType", "*.gooruUId", "*.partyUid", "*.profileImageUrl", "*.createdOn", "*.usernameDisplay", "*.loginType", "*.confirmStatus", "*.viewFlag", "*.userRoleSetString", "*.firstName", "*.accountTypeId",
 			"*.isPublisherRequestPending", "*.dateOfBirth", "*.isFollowing", "*.aboutMe", "courses", "courses.code.codeId", "courses.code.label", "*.notes", "*.emailId" };
 
@@ -290,7 +290,7 @@ public interface ConstantProperties {
 
 	static final String[] OPTIONS_INCLUDE = { "*.isRandomize", "*.isRandomizeChoice", "*.showCorrectAnswer", "*.showHints", "*.showScore" };
 
-	static final String FEEDBACK_INCLUDE_FIELDS[] = { "gooruOid", "target.value", "type.value", "category.value", "freeText", "score", "assocGooruOid", "assocUserUid", "creator.gooruUId", "creator.username", "creator.firstName", "creator.lastName", "referenceKey" };
+	static final String FEEDBACK_INCLUDE_FIELDS[] = {"*.searchResults","*.feedback","*.totalHitCount", "*.gooruOid", "*.target.value", "*.type.value", "*.category.value", "*.freeText", "*.score", "*.assocGooruOid", "*.assocUserUid", "*.creator.gooruUId", "*.creator.username", "*.creator.firstName", "*.creator.lastName", "*.referenceKey" };
 
 	static final String[] CONTENT_INCLUDES = { "gooruOid", "sharing", "createdOn", "lastModified", "lastUpdatedUserUid", "statusType", "statusType.value", "isDeleted", "", "", "", "", "", "" };
 

@@ -23,6 +23,7 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.infrastructure.persistence.hibernate;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -122,7 +123,33 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 		}
 		return query.list();
 	}
-
+	@Override
+	public Long getContentFeedbacksCount(String type, String assocGooruOid, String creatorUid, String category) {
+		String hql = "select count(*)  FROM  Feedback feedback WHERE " +  generateOrgAuthQuery("feedback.") + " and feedback.assocGooruOid=:assocGooruOid ";
+		if (category != null)  {
+			hql += " and feedback.category.keyValue=:category";
+		}
+		if (type != null) { 
+			hql += " and feedback.type.keyValue=:type";
+		}
+		if (creatorUid != null) { 
+			hql += " and feedback.creator.partyUid =:creatorUid";
+		}
+		Query query = getSession().createQuery(hql);
+		query.setParameter("assocGooruOid", assocGooruOid);
+		if (type != null) { 			
+			query.setParameter("type", type);
+		}
+		if (creatorUid != null) { 
+			query.setParameter("creatorUid", creatorUid);
+		}
+		if (category != null) { 
+			query.setParameter("category", category);
+		}
+		addOrgAuthParameters(query);
+		return (Long) query.list().get(0);
+	}
+	
 	@Override
 	public List<Feedback> getUserFeedbacks(String type, String assocUserUid, String creatorUid, String category, Integer limit, Integer offset) {
 		Session session = getSession();
@@ -213,7 +240,7 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 			sum += ((Integer) object[0]);
 		}
 		rating.put("scores", value);
-		rating.put("average", Math.round(sum/results.size()));
+		rating.put("average", results.size() > 0 ? Double.parseDouble(new DecimalFormat("##.#").format(sum/results.size())) : sum);
 		rating.put("count",sum);
 		return rating; 
 	}
@@ -415,5 +442,6 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 	public StorageRepository getStorageRepository() {
 		return storageRepository;
 	}
+	
 
 }

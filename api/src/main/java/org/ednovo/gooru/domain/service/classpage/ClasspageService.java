@@ -63,5 +63,9 @@ public interface ClasspageService {
 	List<Map<String, Object>> classpageUserJoin(String code,List<String> gooruUid,User apiCaller) throws Exception;
 	
 	void classpageUserRemove(String code,List<String> gooruUid,User apiCaller) throws Exception;
+	
+	List<Map<String, Object>> getClassMemberList(String gooruOid, String filterBy);
+	
+	Map<String, List<Map<String, Object>>> getClassMemberListByGroup(String gooruOid, String filterBy);
 
 }

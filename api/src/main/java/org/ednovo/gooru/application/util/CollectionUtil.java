@@ -470,7 +470,7 @@ public class CollectionUtil implements ParameterProperties {
 
 		if (taxonomySet != null) {
 			for (Code code : taxonomySet) {
-				if (code.getRootNodeId() != null && !code.getRootNodeId().toString().contains(UserGroupSupport.getTaxonomyPreference())) {
+				if (code.getRootNodeId() != null && code.getRootNodeId().toString().contains(UserGroupSupport.getTaxonomyPreference())) {
 					String codeOrDisplayCode = "";
 					if (code.getdisplayCode() != null && !code.getdisplayCode().equals("")) {
 						codeOrDisplayCode = code.getdisplayCode().replace(".--", " ");
@@ -560,7 +560,7 @@ public class CollectionUtil implements ParameterProperties {
 		Set<StandardFo> standards = new HashSet<StandardFo>();
 		if (taxonomySet != null) {
 			for (Code code : taxonomySet) {
-				if (code.getRootNodeId() != null && !code.getRootNodeId().toString().contains(UserGroupSupport.getTaxonomyPreference())) {
+				if (code.getRootNodeId() != null && code.getRootNodeId().toString().contains(UserGroupSupport.getTaxonomyPreference())) {
 					StandardFo standardFo = new StandardFo();
 					if (code.getLabel() != null && !code.getLabel().equals("")) {
 						standardFo.setDescription(code.getLabel());

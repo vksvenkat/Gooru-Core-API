@@ -114,7 +114,7 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 		includes= (String[]) ArrayUtils.addAll(includes,CLASSPAGE_COLLECTION_ITEM_INCLUDE_FIELDS);
 		includes = (String[]) ArrayUtils.addAll(includes, ERROR_INCLUDE);
 
-		return toModelAndView(serialize(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes));
+		return toModelAndViewWithIoFilter(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_UPDATE })
@@ -133,7 +133,7 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 			SessionContextSupport.putLogParameter(GOORU_UID, user.getPartyUid());
 		}
 		String[] includes = (String[]) ArrayUtils.addAll(CLASSPAGE_INCLUDE_FIELDS, ERROR_INCLUDE);
-		return toModelAndView(serialize(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes));
+		return toModelAndViewWithIoFilter(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ })
@@ -142,7 +142,7 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, CLASSPAGE_INCLUDE_FIELDS);
 		includes = (String[]) ArrayUtils.addAll(includes, CLASSPAGE_ITEM_TAGS);
 		User user = (User) request.getAttribute(Constants.USER);
-		return toModelAndViewWithIoFilter(getClasspageService().getClasspage(classpageId, user, merge), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, includes);
+		return toModelAndViewWithIoFilter(getClasspageService().getClasspage(classpageId, user, merge), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true ,includes);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ })
@@ -163,7 +163,7 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 		User user = (User) request.getAttribute(Constants.USER);
 		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, CLASSPAGE_INCLUDE_FIELDS);
 		includes = (String[]) ArrayUtils.addAll(includes, CLASSPAGE_ITEM_TAGS);
-		return toModelAndViewWithIoFilter(getClasspageService().getClasspage(classpageCode,user), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, includes);
+		return toModelAndViewWithIoFilter(getClasspageService().getClasspage(classpageCode,user), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true,includes);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_DELETE })
@@ -290,6 +290,14 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 		}),apiCaller);
 	}
 	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ})
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(value = { "/{id}/member" }, method = RequestMethod.GET)
+	public ModelAndView getClassMemberList(@PathVariable(ID) String code, @RequestParam(value = "groupByStatus", defaultValue = "false", required = false) Boolean groupByStatus, @RequestParam(value = "filterBy", required = false) String filterBy, HttpServletRequest request,
+			HttpServletResponse response) throws Exception {
+		return toJsonModelAndView(groupByStatus ? this.getClasspageService().getClassMemberListByGroup(code, filterBy) : this.getClasspageService().getClassMemberList(code, filterBy), true);
+	}
+	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ })
 	@RequestMapping(value = "/my", method = RequestMethod.GET)
 	public ModelAndView getMyClasspage(HttpServletRequest request, @RequestParam(value = DATA_OBJECT, required = false) String data, HttpServletResponse resHttpServletResponse) throws Exception {
@@ -306,18 +314,16 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 		includes = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, CLASSPAGE_INCLUDE_FIELDS);
 		includes = (String[]) ArrayUtils.addAll(includes, CLASSPAGE_META_INFO);
 		includes = (String[]) ArrayUtils.addAll(includes, CLASSPAGE_ITEM_INCLUDE_FIELDS);
-		String responseJson = null;
 		if (!skipPagination) {
 			SearchResults<Classpage> result = new SearchResults<Classpage>();
 			result.setSearchResults(classpage);
 			result.setTotalHitCount(this.getClasspageService().getMyClasspageCount(user.getGooruUId()));
-			responseJson = serialize(result, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, includes);
+			return toModelAndViewWithIoFilter(result, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 		} else {
-			responseJson = serialize(
+			return toModelAndViewWithIoFilter(
 					getClasspageService().getMyClasspage(Integer.parseInt(json != null && getValue(OFFSET_FIELD, json) != null ? getValue(OFFSET_FIELD, json) : OFFSET.toString()), Integer.parseInt(json != null && getValue(LIMIT_FIELD, json) != null ? getValue(LIMIT_FIELD, json) : LIMIT.toString()),
-							user, true, json != null && getValue(ORDER_BY, json) != null ? getValue(ORDER_BY, json) : "desc"), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, includes);
+							user, true, json != null && getValue(ORDER_BY, json) != null ? getValue(ORDER_BY, json) : "desc"), RESPONSE_FORMAT_JSON, EXCLUDE_ALL,true ,includes);
 		}
-		return toModelAndView(responseJson);
 	}
 
 	private Classpage buildClasspageFromInputParameters(String data, User user) {

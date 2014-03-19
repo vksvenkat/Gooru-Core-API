@@ -25,7 +25,6 @@ package org.ednovo.gooru.infrastructure.persistence.hibernate;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.ednovo.gooru.core.api.model.Assignment;
 import org.ednovo.gooru.core.api.model.Classpage;

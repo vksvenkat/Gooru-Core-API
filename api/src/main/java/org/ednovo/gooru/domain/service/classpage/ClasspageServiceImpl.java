@@ -50,6 +50,7 @@ import org.ednovo.gooru.core.application.util.BaseUtil;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.core.exception.UnauthorizedException;
 import org.ednovo.gooru.domain.service.CollectionService;
+import org.ednovo.gooru.domain.service.InviteService;
 import org.ednovo.gooru.domain.service.ScollectionServiceImpl;
 import org.ednovo.gooru.domain.service.group.UserGroupService;
 import org.ednovo.gooru.domain.service.search.SearchResults;
@@ -95,6 +96,10 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	
 	@Autowired
 	private InviteRepository inviteRepository;
+	
+	@Autowired
+	private InviteService inviteService;
+
 
 
 	@Override
@@ -139,9 +144,6 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 					newClasspage.setCollectionItems(collectionItems);
 					this.getCollectionRepository().save(newClasspage);
 				}
-				CollectionItem collectionItem = new CollectionItem();
-				collectionItem.setItemType(ShelfType.AddedType.ADDED.getAddedType());
-				this.createClasspageItem(newClasspage.getGooruOid(), null, collectionItem, newClasspage.getUser(), CollectionType.USER_CLASSPAGE.getCollectionType());
 			}
 			return new ActionResponseDTO<Classpage>(newClasspage, errors);
 	}
@@ -209,29 +211,17 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		}
 		return new ActionResponseDTO<Classpage>(classpage, errors);
 	}
-
+	
 	@Override
 	public Classpage getClasspage(String classpageCode, User user) throws Exception {
 		Classpage classpage = this.getCollectionRepository().getClasspageByCode(classpageCode);
-		if(classpage != null && classpage.getClasspageCode() != null){
-			UserGroup userGroup = this.getUserGroupService().findUserGroupByGroupCode(classpageCode);
-			if(userGroup != null){
-				UserGroupAssociation userGroupAssociation = this.getUserGroupRepository().getUserGroupAssociation(user.getPartyUid(), userGroup.getPartyUid());
-				if(userGroupAssociation == null){
-					UserGroupAssociation groupAssociation = new UserGroupAssociation();
-					groupAssociation.setIsGroupOwner(1);
-					groupAssociation.setUser(user);
-					groupAssociation.setUserGroup(userGroup);
-					this.getUserRepository().save(groupAssociation);
-					this.getUserRepository().flush();
-				}
-			} else {
-				this.getUserGroupService().createGroup(classpageCode, classpageCode, "System", user, null);
-			}
+		if (classpage == null) {
+			throw new NotFoundException("Class not found");
 		}
-		return classpage;
+		return getClasspage(classpage.getGooruOid(), user, PERMISSIONS);
 	}
-
+	
+	
 	@Override
 	public void deleteClasspage(String classpageId) {
 		Classpage classpage = this.getClasspage(classpageId, null, null);
@@ -262,14 +252,29 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 
 	@Override
-	public Classpage getClasspage(String collectionId, User user,String merge)  {
-
+	public Classpage getClasspage(String collectionId, User user, String merge) {
 		Classpage classpage = this.getCollectionRepository().getClasspageByGooruOid(collectionId, null);
 		if (classpage != null && merge != null) {
 			Map<String, Object> permissions = new HashMap<String, Object>();
-			if(merge.contains(PERMISSIONS)) {
+			Boolean isMember = false;
+			InviteUser inviteUser = null;
+			String mailId = null;
+			UserGroup userGroup = this.getUserGroupService().findUserGroupByGroupCode(classpage.getClasspageCode());
+			if (userGroup != null) {
+				isMember = this.getUserRepository().getUserGroupMemebrByGroupUid(userGroup.getPartyUid(), user.getPartyUid()) != null ? true : false;
+				if (user.getIdentities() != null) {
+					mailId = user.getIdentities().iterator().next().getExternalId();
+				}
+				inviteUser = this.getInviteRepository().findInviteUserById(mailId, collectionId);
+				if (!isMember && inviteUser == null && classpage.getSharing().equalsIgnoreCase(PRIVATE)) {
+					this.getInviteRepository().save(this.getInviteService().createInviteUserObj(mailId, collectionId, CLASS, user));
+					this.getInviteRepository().flush();
+				}
+			}
+			if (merge.contains(PERMISSIONS)) {
 				permissions.put(PERMISSIONS, this.getContentService().getContentPermission(collectionId, user));
 			}
+			permissions.put(ISMEMBER, isMember);
 			classpage.setMeta(permissions);
 		}
 		return classpage;
@@ -390,8 +395,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 						groupAssociation.setUser(identity.getUser());
 						groupAssociation.setUserGroup(userGroup);
 						this.getUserRepository().save(groupAssociation);
-						this.getCollectionService().createCollectionItem(classpage.getGooruOid(), null, new CollectionItem(), identity.getUser(), CLASS, false);
-						classpageMember.add(setMemberResponse(identity));
+						classpageMember.add(setMemberResponse(groupAssociation,ACTIVE));
 					}
 				}
 			}
@@ -414,20 +418,89 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 							this.getInviteRepository().remove(inviteUser);
 						}
 						this.getUserGroupRepository().remove(userGroupAssociation);
-						this.getCollectionRepository().removeAll(this.getCollectionRepository().findCollectionByResource(classpage.getGooruOid(), identity.getUser().getGooruUId(), CLASS));
-
 					}
 				}
 			}
 		}
 	}
 	
-	private Map<String, Object> setMemberResponse(Identity identity) {
+	@Override
+	public List<Map<String, Object>> getClassMemberList(String code, String filterBy) {
+		List<Map<String, Object>> classpageMember = new ArrayList<Map<String, Object>>();
+		if (filterBy != null && filterBy.equalsIgnoreCase(ACTIVE)) {
+			classpageMember.addAll(getActiveMemberList(code));
+		} else if (filterBy != null && filterBy.equalsIgnoreCase(PENDING)) {
+			classpageMember.addAll(getPendingMemberList(code));
+		} else {
+			classpageMember.addAll(getActiveMemberList(code));
+			classpageMember.addAll(getPendingMemberList(code));
+		}
+		return classpageMember;
+	}
+	
+	@Override
+	public Map<String, List<Map<String, Object>>> getClassMemberListByGroup(String code, String filterBy) {
+		Map<String, List<Map<String, Object>>> collaboratorList = new HashMap<String, List<Map<String, Object>>>();
+		if (filterBy != null && filterBy.equalsIgnoreCase(ACTIVE)) {
+			collaboratorList.put(ACTIVE, getActiveMemberList(code));
+		} else if (filterBy != null && filterBy.equalsIgnoreCase(PENDING)) {
+			collaboratorList.put(PENDING, getPendingMemberList(code));
+		} else {
+			collaboratorList.put(ACTIVE, getActiveMemberList(code));
+			collaboratorList.put(PENDING, getPendingMemberList(code));
+		}
+		return collaboratorList;
+	}
+	
+	private List<Map<String, Object>> getActiveMemberList(String code) {
+		List<Map<String, Object>> activeList = new ArrayList<Map<String, Object>>();
+		Classpage classpage = this.getCollectionRepository().getClasspageByCode(code);
+		if (classpage == null) {
+			throw new NotFoundException("Class not found!!!");
+		}
+		UserGroup userGroup = this.getUserGroupService().findUserGroupByGroupCode(code);
+		List<UserGroupAssociation> userGroupAssociations = this.getUserGroupRepository().getUserGroupAssociationByGroup(userGroup.getPartyUid());
+		for (UserGroupAssociation userGroupAssociation : userGroupAssociations) {
+			if (userGroupAssociation.getIsGroupOwner() != 1) {
+				activeList.add(this.setMemberResponse(userGroupAssociation, ACTIVE));
+			}
+		}
+		return activeList;
+	}
+	
+	private List<Map<String, Object>> getPendingMemberList(String code) {
+		Classpage classpage = this.getCollectionRepository().getClasspageByCode(code);
+		if (classpage == null) {
+			throw new NotFoundException("Class not found!!!");
+		}
+		List<InviteUser> inviteUsers = this.getInviteRepository().getInviteUsersById(classpage.getGooruOid());
+		List<Map<String, Object>> pendingList = new ArrayList<Map<String, Object>>();
+		if (inviteUsers != null) {
+			for (InviteUser inviteUser : inviteUsers) {
+				pendingList.add(this.setInviteMember(inviteUser, PENDING));
+			}
+		}
+		return pendingList;
+	}	
+	
+	private Map<String, Object> setInviteMember(InviteUser inviteUser, String status) {
+		Map<String, Object> listMap = new HashMap<String, Object>();
+		listMap.put(EMAIL_ID, inviteUser.getEmailId());
+		listMap.put(GOORU_OID, inviteUser.getGooruOid());
+		listMap.put(ASSOC_DATE, inviteUser.getCreatedDate());
+		if (status != null) {
+			listMap.put(STATUS, status);
+		}
+		return listMap;
+	}
+
+	private Map<String, Object> setMemberResponse(UserGroupAssociation userGroupAssociation, String status) {
 		Map<String, Object> member = new HashMap<String, Object>();
-		member.put(EMAIL_ID, identity.getExternalId());
-		member.put(_GOORU_UID, identity.getUser().getPartyUid());
-		member.put(USER_NAME, identity.getUser().getFirstName());
-		member.put(PROFILE_IMG_URL, this.getUserManagementService().buildUserProfileImageUrl(identity.getUser()));
+		member.put(EMAIL_ID, userGroupAssociation.getUser().getIdentities() != null ?userGroupAssociation.getUser().getIdentities().iterator().next().getExternalId() : null);
+		member.put(_GOORU_UID, userGroupAssociation.getUser().getPartyUid());
+		member.put(USER_NAME, userGroupAssociation.getUser().getUsername());
+		member.put(PROFILE_IMG_URL, this.getUserManagementService().buildUserProfileImageUrl(userGroupAssociation.getUser()));
+		member.put(STATUS, status);
 		return member;
 	}
 
@@ -499,6 +572,10 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		return inviteRepository;
 	}
 
+
+	public InviteService getInviteService() {
+		return inviteService;
+	}
 
 
 }

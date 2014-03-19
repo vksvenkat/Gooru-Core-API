@@ -50,13 +50,14 @@ import org.ednovo.gooru.core.api.model.AssessmentSegmentQuestionAssoc;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.Credential;
-import org.ednovo.gooru.core.api.model.OrganizationDomainAssoc;
 import org.ednovo.gooru.core.api.model.EntityOperation;
 import org.ednovo.gooru.core.api.model.GooruAuthenticationToken;
 import org.ednovo.gooru.core.api.model.Identity;
 import org.ednovo.gooru.core.api.model.Idp;
+import org.ednovo.gooru.core.api.model.InviteUser;
 import org.ednovo.gooru.core.api.model.Learnguide;
 import org.ednovo.gooru.core.api.model.Organization;
+import org.ednovo.gooru.core.api.model.OrganizationDomainAssoc;
 import org.ednovo.gooru.core.api.model.PartyCustomField;
 import org.ednovo.gooru.core.api.model.PartyPermission;
 import org.ednovo.gooru.core.api.model.PermissionType;
@@ -84,6 +85,7 @@ import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.GooruOperationConstants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.UserNotConfirmedException;
+import org.ednovo.gooru.domain.service.CollaboratorService;
 import org.ednovo.gooru.domain.service.PartyService;
 import org.ednovo.gooru.domain.service.apitracker.ApiTrackerService;
 import org.ednovo.gooru.domain.service.party.OrganizationService;
@@ -95,6 +97,7 @@ import org.ednovo.gooru.infrastructure.mail.MailHandler;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.IdpRepository;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.InviteRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserTokenRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.activity.ActivityRepository;
@@ -177,15 +180,25 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 
 	@Autowired
 	private ResourceRepository resourceRepository;
-
+	
 	@Autowired
-	private TaxonomyRespository taxonomyRespository;
+	private InviteRepository inviteRepository;
 
+	@Autowired 
+	private TaxonomyRespository taxonomyRespository;
+	
+	@Autowired
+	private CollaboratorService collaboratorService;
+	
 	private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
 	@Override
 	public User createUser(String firstName, String lastName, String email, String password, String school, String username, Integer confirmStatus, String organizationCode, Integer addedBySystem, String userImportCode, String accountType, String dateOfBirth, String userParentId,
 			String remoteEntityId, String gender, String childDOB, String source, String emailSSO, String referenceUid, String role) throws Exception {
+		List<InviteUser> inviteuser = this.getInviteRepository().getInviteUserByMail(email, COLLABORATOR);
+		if(inviteuser.size() > 0) {
+			confirmStatus = 1;
+		}
 		boolean confirmedUser = false;
 		if (confirmStatus != null && confirmStatus == 1) {
 			confirmedUser = true;
@@ -444,6 +457,10 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 			stream.setUser(user);
 			activityStreams.add(stream);
 		}
+		
+		if(inviteuser.size() > 0) {
+			this.getCollaboratorService().updateCollaboratorStatus(email);
+		}
 
 		this.getUserRepository().saveAll(activityStreams);
 
@@ -527,7 +544,8 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 				confirmStatus = 1;
 			}
 		}
-
+		List<InviteUser> inviteuser = this.getInviteRepository().getInviteUserByMail(email, COLLABORATOR);
+		
 		User user = createUser(firstName, lastName, email, password, school, username, confirmStatus, organizationCode, addedBySystem, null, accountType, dateOfBirth, userParentId, gender, childDOB, null, referenceUid, role);
 		ApiKey apiKey = apiTrackerService.findApiKeyByOrganization(user.getOrganization().getPartyUid());
 		UserToken userToken = this.createSessionToken(user, sessionId, apiKey);
@@ -537,7 +555,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 			userRepository.save(user);
 		}
 
-		if (user != null && sendConfirmationMail) {
+		if (user != null && sendConfirmationMail && inviteuser.size() <= 0) {
 			if (isAdminCreateUser) {
 				this.getMailHandler().sendMailToConfirm(user.getGooruUId(), password, accountType, userToken.getToken(), null, gooruClassicUrl,null,null,null);
 			} else {
@@ -1415,7 +1433,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 		String[] userPartiesAsArray = StringUtils.toStringArray(userParties);
 		String[] userOrgsAsArray = StringUtils.toStringArray(userOrgs);
 		String[] userSubOrgsArray = StringUtils.toStringArray(userSuborgs);
-		Map<String, Map<String, String>> meta = new HashMap<String, Map<String, String>>();
+		Map<String, Map<String, Object>> meta = new HashMap<String, Map<String, Object>>();
 		userCredential.setPartyPermits(userPartiesAsArray);
 		userCredential.setOrgPermits(userOrgsAsArray);
 		userCredential.setPartyPermitsAsString("'" + org.apache.commons.lang.StringUtils.join(userPartiesAsArray, "','") + "'");
@@ -1441,15 +1459,6 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 		PartyCustomField partyCustomFieldTax = partyService.getPartyCustomeField(user.getPartyUid(), USER_TAXONOMY_ROOT_CODE, null);
 		if (partyCustomFieldTax != null) {
 			userCredential.setTaxonomyPreference(partyCustomFieldTax.getOptionalValue());
-			Map<String, String> metaData = new HashMap<String, String>();
-			metaData.put(USER_TAX_PREFERENCE, this.getTaxonomyRespository().getFindTaxonomyCodeList(partyCustomFieldTax.getOptionalValue()));
-			meta.put(USER_TAX_PREFERENCE, metaData);
-/*			PartyCustomField partyCustomFieldOrgAdmin = partyService.getPartyCustomeField(user.getPartyUid(), "organizationAdmin", null);
-			if (partyCustomFieldOrgAdmin != null) {
-				metaData.put(partyCustomFieldOrgAdmin.getOptionalKey(), partyCustomFieldOrgAdmin.getOptionalValue());
-				meta.put("organizationAdmin", metaData);
-			}
-*/			userCredential.setMeta(meta);
 		}
 		return userCredential;
 
@@ -2135,6 +2144,18 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 
 	public MailHandler getMailHandler() {
 		return mailHandler;
+	}
+
+	public void setInviteRepository(InviteRepository inviteRepository) {
+		this.inviteRepository = inviteRepository;
+	}
+
+	public InviteRepository getInviteRepository() {
+		return inviteRepository;
+	}
+
+	public CollaboratorService getCollaboratorService() {
+		return collaboratorService;
 	}
 
 }
