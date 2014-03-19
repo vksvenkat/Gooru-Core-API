@@ -90,22 +90,22 @@ public class SessionRepositoryHibernate extends BaseRepositoryHibernate implemen
 	public Map<String, Object> getQuizSummary(String sessionId, Integer trySequence, String questionType, Long quizContentId) {
 		Session session = getSession();
 		String sql = "select count(aq.question_id) as attemptedQuestionCount, " +
-						"sum(case attempt_item_try_status when "+"'correct'"+" then 1 else 0 end ) as correctAnswerCount, " +
-						"sum(case attempt_item_try_status when "+"'wrong'"+" then 1 else 0 end ) as wrongAnswerCount " +
+						"sum(case sit.attempt_item_try_status when 'correct' then 1 else 0 end ) as correctAnswerCount, " +
+						"sum(case sit.attempt_item_try_status when 'wrong' then 1 else 0 end ) as wrongAnswerCount " +
 						"from session s " +
 						"inner join session_item si on (si.session_id = s.session_id) " +
 						"inner join session_item_attempt_try sit on (sit.session_item_id = si.session_item_id) " +
 						"inner join assessment_question aq on (aq.question_id = si.resource_id) " +
 						"where si.session_id = :sessionId and try_sequence = :trySequence and s.status = 'archive'  " +
 						"and aq.type in (:questionType)";
-		if (quizContentId != null) {
+		if (quizContentId != null && quizContentId != 0) {
 		    sql += " and s.collection_id = :quizId";
 		}
 		Query query = session.createSQLQuery(sql).addScalar("attemptedQuestionCount", StandardBasicTypes.INTEGER)
-		.addScalar("wrongAnswerCount", StandardBasicTypes.INTEGER).addScalar("correctAnswerCount", StandardBasicTypes.INTEGER)
+		.addScalar("correctAnswerCount", StandardBasicTypes.INTEGER).addScalar("wrongAnswerCount", StandardBasicTypes.INTEGER)
 		.setParameter("sessionId", sessionId).setParameter("trySequence", trySequence)
 		.setParameter("questionType", questionType);
-		if (quizContentId != null) {
+		if (quizContentId != null && quizContentId != 0) {
 			query.setParameter("quizId", quizContentId);
 		}		
 		return getQuizSummary((Object[]) query.list().get(0));
