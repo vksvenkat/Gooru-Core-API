@@ -136,8 +136,7 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 
 		final String serverpath = this.getServerConstants().getProperty("serverPath");
 		final Identity identity = this.getUserRepositoryHibernate().findUserByGooruId(gooruUid);
-		String resetPasswordLink = null;
-		String resetPasswordURL = null;
+		String confirmationUrl = null;
 		String organizationUid = identity.getUser().getOrganization().getPartyUid();
 		String userEmailId = identity.getExternalId();
 		String resetToken = identity.getCredential().getToken();
@@ -163,21 +162,15 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 			}
 		}
 		map = eventMapData(eventMapping);
-
-		if (mailConfirmationUrl != null) {
-			resetPasswordLink = "<a style=\"color: #1076bb;text-decoration: none;\" href=\"" + mailConfirmationUrl + "?resetToken=" + resetToken + "&callback=changePassword\" target=\"_blank\">Click here to reset your password.</a>";
-			resetPasswordURL = "<a style=\"color: #1076bb;text-decoration: none;\" href=\"" + mailConfirmationUrl + "?resetToken=" + resetToken + "&callback=changePassword\" target=\"_blank\">" + mailConfirmationUrl + "?resetToken=" + resetToken + "&callback=changePassword</a>";
-		} else {
-			if (gooruClassicUrl != null) {
-				resetPasswordLink = "<a style=\"color: #1076bb;text-decoration: none;\" href=\"" + gooruClassicUrl + "&resetToken=" + resetToken + "&callback=changePassword\" target=\"_blank\">Click here to reset your password.</a>";
-				resetPasswordURL = "<a style=\"color: #1076bb;text-decoration: none;\" href=\"" + gooruClassicUrl + "&resetToken=" + resetToken + "&callback=changePassword\" target=\"_blank\">" + gooruClassicUrl + "&resetToken=" + resetToken + "&callback=changePassword</a>";
-			} else {
-				resetPasswordLink = "<a style=\"color: #1076bb;text-decoration: none;\" href=\" " + serverpath + "/gooru/index.g#!/change-password/" + resetToken + "\">Click here to reset your password.</a>";
-				resetPasswordURL = "<a style=\"color: #1076bb;text-decoration: none;\" href=\" " + serverpath + "/gooru/index.g#!/change-password/" + resetToken + "\">" + serverpath + "/gooru/index.g#!/change-password/" + resetToken + "</a>";
-			}
+		
+		if(mailConfirmationUrl!= null){
+			confirmationUrl = mailConfirmationUrl + "/#discover" +"?";
 		}
-		map.put("resetPasswordLink", resetPasswordLink);
-		map.put("resetPasswordURL", resetPasswordURL);
+		else{
+			confirmationUrl = gooruClassicUrl + "/#discover" +"&";
+		}
+		map.put("confirmationUrl", confirmationUrl);
+		map.put("resetToken", resetToken);
 		map.put("serverpath", serverpath);
 		map.put("firstName", identity.getFirstName());
 		map.put("gooruUserName", identity.getUser().getUsername());
@@ -197,34 +190,25 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 		final Identity identity = this.getUserRepositoryHibernate().findUserByGooruId(gooruUid);
 		String organizationUid = identity.getUser().getOrganization().getPartyUid();
 		String userEmailId = identity.getExternalId();
-		String resetPasswordLink = null;
-		String resetPasswordURL = null;
+		String confirmationUrl = null;
 		String resetToken = identity.getCredential().getToken();
 		Map<String, Object> map = new HashMap<String, Object>();
 		EventMapping eventMapping = this.getEventService().getTemplatesByEventName(CustomProperties.EventMapping.PASSWORD_CHANGED_CONFIRMATION_NOTIFICATION.getEvent());
 		map = eventMapData(eventMapping);
-
-		if (mailConfirmationUrl != null) {
-			resetPasswordLink = "<a style=\"color: #1076bb;text-decoration: none;\" href=\"" + mailConfirmationUrl + "?resetToken=" + resetToken + "&callback=changePassword\" target=\"_blank\">Click here to reset your password.</a>";
-			resetPasswordURL = "<a style=\"color: #1076bb;text-decoration: none;\" href=\"" + mailConfirmationUrl + "?resetToken=" + resetToken + "&callback=changePassword\" target=\"_blank\">" + mailConfirmationUrl + "?resetToken=" + resetToken + "&callback=changePassword</a>";
-		} else {
-			if (gooruClassicUrl != null) {
-				resetPasswordLink = "<a style=\"color: #1076bb;text-decoration: none;\" href=\"" + gooruClassicUrl + "&resetToken=" + resetToken + "&callback=changePassword\" target=\"_blank\">Click here to reset your password.</a>";
-				resetPasswordURL = "<a style=\"color: #1076bb;text-decoration: none;\" href=\"" + gooruClassicUrl + "&resetToken=" + resetToken + "&callback=changePassword\" target=\"_blank\">" + gooruClassicUrl + "&resetToken=" + resetToken + "&callback=changePassword</a>";
-			} else {
-				resetPasswordLink = "<a style=\"color: #1076bb;text-decoration: none;\" href=\" " + serverpath + "/gooru/index.g#!/change-password/" + resetToken + "\">Click here to reset your password.</a>";
-				resetPasswordURL = "<a style=\"color: #1076bb;text-decoration: none;\" href=\" " + serverpath + "/gooru/index.g#!/change-password/" + resetToken + "\">" + serverpath + "/gooru/index.g#!/change-password/" + resetToken + "</a>";
-			}
+		
+		if(mailConfirmationUrl!= null){
+			confirmationUrl = mailConfirmationUrl +"?";
 		}
-
+		else{
+			confirmationUrl = gooruClassicUrl + "&";
+		}
+		map.put("confirmationUrl", confirmationUrl);
+		map.put("resetToken", resetToken);
 		map.put("serverpath", serverpath);
 		map.put("firstName", identity.getFirstName());
 		map.put("gooruUserName", identity.getUser().getUsername());
 		map.put("gooruUserPassword", password);
-		map.put("resetPasswordLink", resetPasswordLink);
-		map.put("resetPasswordURL", resetPasswordURL);
 		map.put("gooruUserName", identity.getUser().getUsername());
-
 		map.put("htmlContent", generateMessage((String) map.get("htmlContent"), map));
 		map.put("content", generateMessage((String) map.get("textContent"), map));
 		map.put("recipient", userEmailId);
@@ -243,12 +227,11 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 		String userEmailId = identity.getExternalId();
 		String parentExistingFlag = null;
 		String userAccountType = "NonParent";
-		String completeRegistration = null;
-		String passwordResetLink = null;
-		String registrationURL = null;
 		String resetToken = null;
+		String gooruuid = null;
 		Map<String, Object> model = new HashMap<String, Object>();
 		mailConfirmationUrl = mailConfirmationUrl != null ? BaseUtil.changeHttpsProtocol(mailConfirmationUrl) : null;
+		gooruuid = identity.getUser().getGooruUId();
 
 		if (encodedDateOfBirth == null) {
 			encodedDateOfBirth = "MTIzNDU2Nzg5"; // encoded data for '123456789'
@@ -267,14 +250,6 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 			if (identity.getUser().getConfirmStatus() != null && identity.getUser().getConfirmStatus() == 1) {
 				parentExistingFlag = "You'll need to create your account first to create your child account.";
 			}
-			if (gooruClassicUrl != null && serverpath != null) {
-				completeRegistration = "<a style=\"color: #1076bb;\" href=\"" + gooruClassicUrl + "/#discover&gooruuid=" + identity.getUser().getGooruUId() + "&sessionid=" + tokenId + "&dob=" + encodedDateOfBirth + "&type=" + userAccountType
-						+ "&callback=confirmUser\" target=\"_blank\">Complete Registration</a>";
-				registrationURL = gooruClassicUrl + "/#discover&gooruuid=" + identity.getUser().getGooruUId() + "&sessionid=" + tokenId + "&dob=" + encodedDateOfBirth + "&type=" + userAccountType + "&callback=confirmUser";
-			} else {
-				completeRegistration = "<a style=\"color: #1076bb;\" href=\"" + serverpath + "/gooru/index.g#!/user/registration/" + identity.getUser().getGooruUId() + "/session/" + tokenId + "/" + encodedDateOfBirth + "/type/" + userAccountType + "\" target=\"_blank\">Complete Registration</a>";
-				registrationURL = serverpath + "/gooru/index.g#!/user/registration/" + identity.getUser().getGooruUId() + "/session/" + tokenId + "/" + encodedDateOfBirth + "/type/" + userAccountType;
-			}
 			userAccountType = accountType;
 		} else if (accountType != null && accountType.equalsIgnoreCase(UserAccountType.userAccount.CHILD.getType())) {
 			EventMapping eventMapping = this.getEventService().getTemplatesByEventName(CustomProperties.EventMapping.CHILD_REGISTRATION_CONFIRMATION.getEvent());
@@ -287,28 +262,15 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 			}
 			if (gooruClassicUrl != null && serverpath != null) {
 				gooruClassicUrl = BaseUtil.changeHttpsProtocol(gooruClassicUrl);
-				passwordResetLink = "<a style=\"color: #1076bb;text-decoration: none;\" href=\"" + gooruClassicUrl + "/#discover&amp;resetToken=" + resetToken + "&amp;callback=changePassword\" target=\"_blank\"> here</a>";
-			} else {
-				passwordResetLink = "<a style=\"color: #1076bb;text-decoration: none;\" href=\"  " + serverpath + "/gooru/index.g#!/change-password/" + resetToken + "\" target=\"_blank\"> here</a>";
-			}
-			model.put("passwordResetLink", passwordResetLink);
+			} 
 			userAccountType = accountType;
 		} else {
 			if (mailConfirmationUrl == null) {
 				EventMapping eventMapping = this.getEventService().getTemplatesByEventName(CustomProperties.EventMapping.NON_PARANT_REGISTRATION_CONFIRMATION.getEvent());
 				model = eventMapData(eventMapping);
-				if (gooruClassicUrl == null) {
-					completeRegistration = "<a style=\"color: #1076bb;\" href=\"" + serverpath + "/gooru/index.g#!/user/registration/" + identity.getUser().getGooruUId() + "/session/" + tokenId + "/" + encodedDateOfBirth + "/type/" + userAccountType
-							+ "\" target=\"_blank\">Click Here to Complete Registration.</a>";
-				} else {
-					completeRegistration = "<a style=\"color: #1076bb;\" href=\"" + gooruClassicUrl + "/#discover&gooruuid=" + identity.getUser().getGooruUId() + "&sessionid=" + tokenId + "&dob=" + encodedDateOfBirth + "&type=" + userAccountType
-							+ "&callback=confirmUser\" target=\"_blank\">Click Here to Complete Registration.</a>";
-				}
 			} else {
 				EventMapping eventMapping = this.getEventService().getTemplatesByEventName(CustomProperties.EventMapping.PARTNER_PORTAL_USER_REGISTRATION_CONFIRMATION.getEvent());
 				model = eventMapData(eventMapping);
-				completeRegistration = "<a style=\"color: #1076bb;\" href=\"" + mailConfirmationUrl + "?gooruuid=" + identity.getUser().getGooruUId() + "&sessionid=" + tokenId + "&dob=" + encodedDateOfBirth + "&type=" + userAccountType
-						+ "&callback=confirmUser\" target=\"_blank\">Click Here to Complete Registration.</a>";
 			}
 		}
 		
@@ -329,8 +291,12 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 		}
 		
 		model.put("serverpath", serverpath);
-		model.put("registrationURL", registrationURL);
-		model.put("completeRegistration", completeRegistration);
+		model.put("resetToken", resetToken);
+		model.put("gooruuid", gooruuid);
+		model.put("mailConfirmationUrl", mailConfirmationUrl);
+		model.put("gooruClassicUrl", gooruClassicUrl);
+		model.put("encodedDateOfBirth", encodedDateOfBirth);
+		model.put("tokenId", tokenId);
 		model.put("firstName", identity.getFirstName());
 		model.put("userId", identity.getUser().getGooruUId());
 		model.put("registerToken", identity.getUser().getRegisterToken());
