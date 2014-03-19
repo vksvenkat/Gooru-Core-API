@@ -232,12 +232,15 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
-	@RequestMapping(value = { "/my/workspace" }, method = RequestMethod.GET)
-	public ModelAndView getMyWorkspace(HttpServletRequest request, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "20") Integer limit,  @RequestParam(value = SHARING, required = false, defaultValue="private,public,anyonewithlink") String sharing,@RequestParam(value = "collectionType" , required = false) String collectionType, HttpServletResponse resHttpServletResponse) {
-		User user = (User) request.getAttribute(Constants.USER);
+	@RequestMapping(value = { "/{id}/workspace" }, method = RequestMethod.GET)
+	public ModelAndView getMyWorkspace(@PathVariable(value = ID) String gooruUid, HttpServletRequest request, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "20") Integer limit,  @RequestParam(value = SHARING, required = false, defaultValue="private,public,anyonewithlink") String sharing,@RequestParam(value = "collectionType" , required = false) String collectionType, HttpServletResponse resHttpServletResponse) {
+		if (gooruUid.equalsIgnoreCase(MY)) {
+			User user = (User) request.getAttribute(Constants.USER);
+			gooruUid = user.getPartyUid();
+		}
 		Map<String, Object> content = new HashMap<String, Object>();
-		content.put(SEARCH_RESULT, this.getCollectionService().getMyShelf(user.getPartyUid(), limit, offset,sharing, collectionType));
-		content.put(COUNT, this.getCollectionRepository().getMyShelfCount(user.getPartyUid(),sharing, collectionType));
+		content.put(SEARCH_RESULT, this.getCollectionService().getMyShelf(gooruUid, limit, offset,sharing, collectionType));
+		content.put(COUNT, this.getCollectionRepository().getMyShelfCount(gooruUid,sharing, collectionType));
 		return toJsonModelAndView(content, true);
 	}
 
