@@ -539,6 +539,11 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		}
 		return errors;
 	}
+	
+	@Override
+	public List<String> classMemberSuggest(String queryText, String gooruUid) {
+		return this.getUserGroupRepository().classMemberSuggest(queryText, gooruUid);
+	}
 
 	public TaskService getTaskService() {
 		return taskService;
@@ -584,6 +589,4 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	public InviteService getInviteService() {
 		return inviteService;
 	}
-
-
 }

@@ -31,6 +31,7 @@ import org.ednovo.gooru.core.api.model.UserGroupAssociation;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.type.StandardBasicTypes;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
 
@@ -100,6 +101,14 @@ public class UserGroupRepositoryHibernate extends BaseRepositoryHibernate implem
 				+ generateOrgAuthQuery("userGroupAssociation.user."));
 		query.setParameter("groupUid", groupUid);
 		addOrgAuthParameters(query);
+		return query.list();
+	}
+
+	@Override
+	public List<String> classMemberSuggest(String queryText, String gooruUid) {
+		String hql= "select external_id  as mailId from classpage c inner join user_group u on u.user_group_code = c.classpage_code inner join content cc on cc.content_id = classpage_content_id  inner join  user_group_association ug on ug.user_group_uid = u.user_group_uid inner join identity i on i.user_uid = ug.gooru_uid  where cc.user_uid=:gooruUid  and external_id like '" + queryText + "'";
+		Query query = getSession().createSQLQuery(hql).addScalar("mailId",StandardBasicTypes.STRING);
+		query.setParameter("gooruUid", gooruUid);
 		return query.list();
 	}
 	

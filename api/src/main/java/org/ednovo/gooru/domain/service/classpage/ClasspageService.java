@@ -67,5 +67,7 @@ public interface ClasspageService {
 	List<Map<String, Object>> getClassMemberList(String gooruOid, String filterBy);
 	
 	Map<String, List<Map<String, Object>>> getClassMemberListByGroup(String gooruOid, String filterBy);
+	
+	List<String> classMemberSuggest(String queryText, String gooruUid);
 
 }
