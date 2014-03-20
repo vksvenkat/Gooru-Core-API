@@ -117,7 +117,7 @@ public class UserGroupRepositoryHibernate extends BaseRepositoryHibernate implem
 	
 	@Override
 	public List<Map<String, String>> getMyStudy(String gooruUid, String mailId) {
-		String sql= "select * from  ((select cc.gooru_oid , u.name , 'active' as status from classpage c inner join user_group u on u.user_group_code = c.classpage_code inner join content cc on cc.content_id = classpage_content_id  inner join  user_group_association ug on ug.user_group_uid = u.user_group_uid  where  ug.gooru_uid= '"+gooruUid+"') union (select iu.gooru_oid , r.title, 'pending' as status from invite_user iu inner join content c on c.gooru_oid = iu.gooru_oid inner join resource r on r.content_id =c.content_id where iu.email = '"+mailId+"')) as member ";
+		String sql= "select * from  ((select cc.gooru_oid , u.name , 'active' as status from classpage c inner join user_group u on u.user_group_code = c.classpage_code inner join content cc on cc.content_id = classpage_content_id  inner join  user_group_association ug on ug.user_group_uid = u.user_group_uid  where  ug.gooru_uid= '"+gooruUid+"' and ug.is_group_owner != 1 ) union (select iu.gooru_oid , r.title, 'pending' as status from invite_user iu inner join content c on c.gooru_oid = iu.gooru_oid inner join resource r on r.content_id =c.content_id where iu.email = '"+mailId+"')) as member ";
 		Query query = getSession().createSQLQuery(sql);
 		return getMyStudy(query.list());
 	}
