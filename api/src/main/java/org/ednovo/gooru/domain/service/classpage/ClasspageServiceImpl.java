@@ -128,10 +128,11 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	
 	@Override
 	public ActionResponseDTO<Classpage> createClasspage(Classpage newClasspage, CollectionItem newCollectionItem,
-			String gooruOid, User user) throws Exception {
+			String gooruOid, User user, boolean addToMy) throws Exception {
 			Errors errors = validateClasspage(newClasspage);
 			if (!errors.hasErrors()) {
 				this.getCollectionRepository().save(newClasspage);
+				
 				this.getUserGroupService().createGroup(newClasspage.getTitle(), newClasspage.getClasspageCode(), "System", user, null);
 				if (gooruOid != null && !gooruOid.isEmpty() && newCollectionItem != null) {
 					CollectionItem collectionItem = new CollectionItem();
@@ -143,6 +144,11 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 					collectionItems.add(collectionItem);
 					newClasspage.setCollectionItems(collectionItems);
 					this.getCollectionRepository().save(newClasspage);
+				}
+				if (addToMy) {
+					CollectionItem collectionItem = new CollectionItem();
+					collectionItem.setItemType(ShelfType.AddedType.ADDED.getAddedType());
+					this.createClasspageItem(newClasspage.getGooruOid(), null, collectionItem, newClasspage.getUser(), CollectionType.USER_CLASSPAGE.getCollectionType());
 				}
 			}
 			return new ActionResponseDTO<Classpage>(newClasspage, errors);
@@ -377,9 +383,9 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 	
 	@Override
-	public ActionResponseDTO<Classpage> createClasspage(Classpage classpage, String collectionId)  throws Exception {
+	public ActionResponseDTO<Classpage> createClasspage(Classpage classpage, String collectionId, boolean addToMy)  throws Exception {
 		
-		return this.createClasspage(classpage, classpage.getCollectionItem() , collectionId, classpage.getUser());
+		return this.createClasspage(classpage, classpage.getCollectionItem() , collectionId, classpage.getUser(), addToMy);
 	}
 	
 	@Override
