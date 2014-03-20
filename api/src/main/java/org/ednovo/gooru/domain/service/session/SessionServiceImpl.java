@@ -87,9 +87,6 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 	@Override
 	public ActionResponseDTO<Session> updateSession(String sessionId, Session newSession) {
 		Session session = this.getSessionRepository().findSessionById(sessionId);
-		if (session.getStatus().equalsIgnoreCase(SessionStatus.ARCHIVE.getSessionStatus())) {
-			throw new RuntimeException("Session Already Closed");
-		}
 		Errors errors = this.validateUpdateSession(session, newSession);
 		if (!errors.hasErrors()) {
 			if ((newSession.getStatus() != null) && (newSession.getStatus().equalsIgnoreCase(SessionStatus.ARCHIVE.getSessionStatus()))) {
@@ -113,9 +110,6 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 	@Override
 	public ActionResponseDTO<SessionItem> createSessionItem(SessionItem sessionItem, String sessionId) {
 		Session session = this.getSessionRepository().findSessionById(sessionId);
-		if (session.getStatus().equalsIgnoreCase(SessionStatus.ARCHIVE.getSessionStatus())) {
-			throw new RuntimeException("Session Already Closed.");
-		}
 		Resource resource = this.getResourceRepository().findResourceByContentGooruId(sessionItem.getResource().getGooruOid());
 		Errors errors = this.validateSessionItem(session, sessionItem, resource);
 		if (!errors.hasErrors()) {
