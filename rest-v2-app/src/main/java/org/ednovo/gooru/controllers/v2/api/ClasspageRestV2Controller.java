@@ -325,6 +325,14 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 							user, true, json != null && getValue(ORDER_BY, json) != null ? getValue(ORDER_BY, json) : "desc"), RESPONSE_FORMAT_JSON, EXCLUDE_ALL,true ,includes);
 		}
 	}
+	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(value = { "/member/suggest" }, method = RequestMethod.GET)
+	public ModelAndView classMemberSuggest(@RequestParam(value = "query") String queryText, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		User user = (User) request.getAttribute(Constants.USER);
+		return toModelAndView(this.getClasspageService().classMemberSuggest(queryText, user.getPartyUid()), RESPONSE_FORMAT_JSON);
+	}
 
 	private Classpage buildClasspageFromInputParameters(String data, User user) {
 		Classpage classpage = JsonDeserializer.deserialize(data, Classpage.class);
