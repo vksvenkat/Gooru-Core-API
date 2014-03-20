@@ -36,9 +36,9 @@ public interface ClasspageService {
 
 	ActionResponseDTO<Classpage> createClasspage(Classpage classpage, boolean addToUserClasspage, String assignmentId) throws Exception;
 
-	ActionResponseDTO<Classpage> createClasspage(Classpage newClasspage, CollectionItem collectionItem, String gooruOid, User user) throws Exception;
+	ActionResponseDTO<Classpage> createClasspage(Classpage newClasspage, CollectionItem collectionItem, String gooruOid, User user, boolean addToMy) throws Exception;
 	
-	ActionResponseDTO<Classpage> createClasspage(Classpage classpage, String collectionId) throws Exception ;
+	ActionResponseDTO<Classpage> createClasspage(Classpage classpage, String collectionId, boolean addToMy) throws Exception ;
 
 	ActionResponseDTO<CollectionItem> createClasspageItem(String assignmentGooruOid, String collectionGooruOid, CollectionItem collectionItem, User user, String type) throws Exception;
 

@@ -93,14 +93,14 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ADD })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "", method = RequestMethod.POST)
-	public ModelAndView createClasspage(@RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public ModelAndView createClasspage(@RequestBody String data,@RequestParam (value= "addToShelf" , defaultValue= "true", required=false) boolean addToMy ,HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
 		ActionResponseDTO<Classpage> responseDTO = null;
 		JSONObject json = requestData(data);
 		if(getValue(CLASSPAGE, json) != null) {
-			responseDTO = getClasspageService().createClasspage(this.buildClasspageFromInputParameters(getValue(CLASSPAGE, json), user),getValue(COLLECTION_ITEM, json) != null ? this.buildCollectionItemFromInputParameters(getValue(COLLECTION_ITEM, json)) : null, getValue(COLLECTION_ID, json), user);
+			responseDTO = getClasspageService().createClasspage(this.buildClasspageFromInputParameters(getValue(CLASSPAGE, json), user),getValue(COLLECTION_ITEM, json) != null ? this.buildCollectionItemFromInputParameters(getValue(COLLECTION_ITEM, json)) : null, getValue(COLLECTION_ID, json), user,addToMy);
 		} else {
-			responseDTO = getClasspageService().createClasspage(this.buildClasspageFromInputParameters(data, user),getValue(COLLECTION_ID, json));
+			responseDTO = getClasspageService().createClasspage(this.buildClasspageFromInputParameters(data, user),getValue(COLLECTION_ID, json),addToMy);
 		}
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
