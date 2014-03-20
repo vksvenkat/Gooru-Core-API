@@ -150,4 +150,6 @@ public interface ResourceRepository extends BaseRepository {
 	License getLicenseByLicenseName(String licenseName);
 	
 	Resource findResourceByContent(String gooruContentId);
+	
+	Resource findLtiResourceByContentGooruId(String gooruContentId);
 }

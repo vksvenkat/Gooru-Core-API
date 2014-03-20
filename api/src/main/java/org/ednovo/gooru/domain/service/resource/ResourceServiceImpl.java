@@ -3070,6 +3070,11 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		return customTableRepository;
 	}
 
+	@Override
+	public Resource findLtiResourceByContentGooruId(String gooruContentId) {
+		return resourceRepository.findLtiResourceByContentGooruId(gooruContentId);
+	}
+
 	
 
 }

@@ -39,6 +39,7 @@ import org.ednovo.gooru.application.util.ResourceImageUtil;
 import org.ednovo.gooru.core.api.model.ContentType;
 import org.ednovo.gooru.core.api.model.CsvCrawler;
 import org.ednovo.gooru.core.api.model.License;
+import org.ednovo.gooru.core.api.model.LtiContentAssoc;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.ResourceInfo;
 import org.ednovo.gooru.core.api.model.ResourceInstance;
@@ -969,6 +970,12 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 	public Resource findResourceByContent(String gooruOid) {
 		List<Resource> resources = find("SELECT r FROM Resource r  where r.gooruOid ='" + gooruOid + "'");
 		return resources.size() == 0 ? null : resources.get(0);
+	}
+
+	@Override
+	public Resource findLtiResourceByContentGooruId(String gooruContentId) {
+		List<LtiContentAssoc> ltiContentAssoc = find("SELECT lti FROM LtiContentAssoc lti  where lti.contextId ='" + gooruContentId + "'");
+		return ltiContentAssoc.size() == 0 ? null : ltiContentAssoc.get(0).getResource();
 	}
 
 }
