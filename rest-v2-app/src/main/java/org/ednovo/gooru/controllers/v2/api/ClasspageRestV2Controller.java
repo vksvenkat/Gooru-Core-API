@@ -298,6 +298,14 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 		return toJsonModelAndView(groupByStatus ? this.getClasspageService().getClassMemberListByGroup(code, filterBy) : this.getClasspageService().getClassMemberList(code, filterBy), true);
 	}
 	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ})
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(value = { "/my/study" }, method = RequestMethod.GET)
+	public ModelAndView getMyStudy( HttpServletRequest request, HttpServletResponse response) throws Exception {
+		User apiCaller = (User) request.getAttribute(Constants.USER);
+		return toJsonModelAndView(this.getClasspageService().getMyStudy(apiCaller), true);
+	}
+	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ })
 	@RequestMapping(value = "/my", method = RequestMethod.GET)
 	public ModelAndView getMyClasspage(HttpServletRequest request, @RequestParam(value = DATA_OBJECT, required = false) String data, HttpServletResponse resHttpServletResponse) throws Exception {

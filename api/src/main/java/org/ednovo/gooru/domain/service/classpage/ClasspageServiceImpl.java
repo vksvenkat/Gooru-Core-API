@@ -550,6 +550,14 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	public List<String> classMemberSuggest(String queryText, String gooruUid) {
 		return this.getUserGroupRepository().classMemberSuggest(queryText, gooruUid);
 	}
+	
+	@Override
+	public List<Map<String, String>> getMyStudy(User user) {
+		if(user.getPartyUid().equalsIgnoreCase(ANONYMOUS)) {
+			throw new NotFoundException("User not Found");
+		}
+		return this.getUserGroupRepository().getMyStudy(user.getPartyUid(), user.getIdentities() != null ? user.getIdentities().iterator().next().getExternalId() : null);
+	}
 
 	public TaskService getTaskService() {
 		return taskService;
@@ -595,4 +603,5 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	public InviteService getInviteService() {
 		return inviteService;
 	}
+
 }
