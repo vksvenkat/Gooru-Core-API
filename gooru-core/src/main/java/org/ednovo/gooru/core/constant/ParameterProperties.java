@@ -2654,5 +2654,5 @@ public interface ParameterProperties {
 	
 	String TEXTCONTENT = "textContent";
 	
-	String noun = "noun";
+	String NOUN = "noun";
 }
