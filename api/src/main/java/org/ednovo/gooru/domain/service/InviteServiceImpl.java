@@ -37,10 +37,12 @@ import java.util.Map;
 
 import org.ednovo.gooru.core.api.model.Classpage;
 import org.ednovo.gooru.core.api.model.InviteUser;
+import org.ednovo.gooru.core.api.model.Profile;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.NotFoundException;
+import org.ednovo.gooru.infrastructure.mail.MailHandler;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.InviteRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
@@ -62,6 +64,9 @@ public class InviteServiceImpl extends BaseServiceImpl implements InviteService,
 	
 	@Autowired
 	private CustomTableRepository customTableRepository;
+	
+	@Autowired
+	private MailHandler mailHandler;
 
 	@Override
 	public List<Map<String, String>> inviteUserForClass(List<String> emails, String classCode, User apiCaller) {
@@ -82,6 +87,19 @@ public class InviteServiceImpl extends BaseServiceImpl implements InviteService,
 			inviteMap.put(GOORU_OID, classPage.getGooruOid());
 			inviteMap.put(STATUS, PENDING);
 			invites.add(inviteMap);
+			Profile profile= this.getUserRepository().getProfile(classPage.getUser(), false);
+			String gender = "";
+			String noun = "";
+			if(profile.getGender() != null) {
+				if(profile.getGender().getName().equalsIgnoreCase(FEMALE)) {
+					gender = MS;
+					noun = HER;
+				} else if(profile.getGender().getName().equalsIgnoreCase(MALE)) {
+					gender = MR;
+					noun = HIS;
+				}
+			}
+			this.getMailHandler().sendMailToInviteUser(inviteMap,classPage.getUser(),classPage.getTitle(), gender,noun);
 		}
 		if (inviteUsers != null) { 
 			this.getInviteRepository().saveAll(inviteUsers);
@@ -120,5 +138,13 @@ public class InviteServiceImpl extends BaseServiceImpl implements InviteService,
 
 	public CustomTableRepository getCustomTableRepository() {
 		return customTableRepository;
+	}
+
+	public void setMailHandler(MailHandler mailHandler) {
+		this.mailHandler = mailHandler;
+	}
+
+	public MailHandler getMailHandler() {
+		return mailHandler;
 	}
 }
