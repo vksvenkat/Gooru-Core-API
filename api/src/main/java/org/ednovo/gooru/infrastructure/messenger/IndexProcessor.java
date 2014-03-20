@@ -23,16 +23,17 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.infrastructure.messenger;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
 import org.ednovo.gooru.core.api.model.GooruAuthenticationToken;
 import org.ednovo.gooru.core.api.model.UserGroupSupport;
-import org.ednovo.gooru.domain.cassandra.service.ResourceCassandraService;
-import org.ednovo.gooru.domain.cassandra.service.TaxonomyCassandraService;
-import org.ednovo.gooru.domain.cassandra.service.UserCassandraService;
 import org.ednovo.gooru.domain.service.content.ContentService;
+import org.ednovo.gooru.kafka.producer.KafkaProducer;
+import org.json.JSONObject;
 import org.restlet.data.Form;
 import org.restlet.representation.Representation;
 import org.restlet.resource.ClientResource;
@@ -48,21 +49,15 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 @Component
 public class IndexProcessor extends BaseComponent {
-
-	@Autowired
-	private ResourceCassandraService resourceCassandraService;
-
-	@Autowired
-	private TaxonomyCassandraService taxonomyCassandraService;
-
-	@Autowired
-	private UserCassandraService userCassandraService;
 	
 	@Autowired
 	private ContentService contentService;
 	
 	@Autowired
 	private HibernateTransactionManager transactionManager;
+	
+	@Autowired
+	private KafkaProducer kafkaProducer;
 	
 	private TransactionTemplate transactionTemplate;
 	
@@ -102,6 +97,20 @@ public class IndexProcessor extends BaseComponent {
 			final String type,
 			final String sessionToken,
 			final GooruAuthenticationToken authentication, final boolean isUpdateUserContent) {
+		
+		/*try{
+			Map<String,String> indexDataMap = new HashMap();
+			indexDataMap.put("action", action);
+			indexDataMap.put("sessionToken", sessionToken);
+			indexDataMap.put("indexableIds", uuids.toString());
+			indexDataMap.put("type", type);
+			indexDataMap.put("isUpdateUserContent", isUpdateUserContent+"");
+			String indexMessage = new JSONObject(indexDataMap).toString();
+			kafkaProducer.send(indexMessage);
+		} catch (Exception e){
+			logger.info("index error using kafka :" + e);
+		}*/
+		
 
 		final String[] ids = uuids.split(",");
 		try{
@@ -135,7 +144,7 @@ public class IndexProcessor extends BaseComponent {
 								protected void doInTransactionWithoutResult(TransactionStatus status) {
 									for(String userUid : ids) {
 										SecurityContextHolder.getContext().setAuthentication(authentication);
-										List<Object[]> userids = contentService.getIdsByUserUId(userUid, null);
+										List<Object[]> userids = contentService.getIdsByUserUId(userUid, null, null, null);
 										StringBuilder resourceGooruOIds = new StringBuilder();
 										StringBuilder scollectionGooruOIds = new StringBuilder();
 										for (Object[] value : userids) {

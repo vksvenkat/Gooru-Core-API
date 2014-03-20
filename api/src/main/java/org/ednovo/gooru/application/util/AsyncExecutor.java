@@ -121,7 +121,7 @@ public class AsyncExecutor {
 			public Void doInTransaction(TransactionStatus status) {
 				try {
 					logger.debug("index collection ");
-					List<Object[]> ids = contentService.getIdsByUserUId(partyUid, "scollection");
+					List<Object[]> ids = contentService.getIdsByUserUId(partyUid, "scollection", null, null);
 					StringBuilder gooruOIds = new StringBuilder();
 					for (Object[] contentId : ids) {
 						if (gooruOIds.length() > 0) {

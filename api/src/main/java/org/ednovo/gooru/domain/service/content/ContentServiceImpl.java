@@ -526,8 +526,8 @@ public class ContentServiceImpl implements ContentService,ParameterProperties {
 	}
 
 	@Override
-	public List getIdsByUserUId(String userUId, String typeName) {
-		return contentRepository.getIdsByUserUId(userUId, typeName);
+	public List getIdsByUserUId(String userUId, String typeName, Integer pageNo, Integer pageSize) {
+		return contentRepository.getIdsByUserUId(userUId, typeName, pageNo, pageSize);
 	}
 
 }

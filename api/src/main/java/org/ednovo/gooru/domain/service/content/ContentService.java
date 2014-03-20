@@ -61,6 +61,6 @@ public interface ContentService {
 
 	void deleteNote(String noteId);
 
-	List getIdsByUserUId(String userUId, String typeName);
+	List getIdsByUserUId(String userUId, String typeName, Integer pageNo, Integer pageSize);
 
 }
