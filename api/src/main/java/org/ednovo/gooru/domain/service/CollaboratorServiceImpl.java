@@ -120,7 +120,7 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 					}
 
 				} else {
-					InviteUser inviteUsers = this.getInviteRepository().findInviteUserById(mailId, gooruOid);
+					InviteUser inviteUsers = this.getInviteRepository().findInviteUserById(mailId, gooruOid,PENDING);
 					if (inviteUsers == null) {
 						InviteUser inviteUser = new InviteUser();
 						inviteUser.setEmailId(mailId);
@@ -210,7 +210,7 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 						}
 					}
 				} else {
-					InviteUser inviteUser = this.getInviteRepository().findInviteUserById(mailId, gooruOid);
+					InviteUser inviteUser = this.getInviteRepository().findInviteUserById(mailId, gooruOid,PENDING);
 					if (inviteUser != null) {
 						this.getCollaboratorRepository().remove(inviteUser);
 					}

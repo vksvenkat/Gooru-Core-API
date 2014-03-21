@@ -366,6 +366,8 @@ public interface ConstantProperties {
 	static final String[] LIBRARY_FEATURED_COLLECTIONS_USER_INCLUDE_FIELDS = {"*.totalHitCount", "*.searchResults", "*.libraryCollection", "*.lastModifiedUser", "*.lastUpdatedUserUid", "*.commentsCount", "*.collectionItemCount", "*.lastModifiedBy","*.modifiedDate","*.user.gooruUId","*.user.username", "*.user.lastName", "*.user.firstName","*.creator","*.creator.gooruUId","*.creator.username", "*.creator.lastName", "*.creator.firstName"};
 	
 	static final String [] LIB_RESOURCE_FIELDS = {"*.totalHitCount","*.searchResults","*.libraryResource","*.collectionId","*.resourceId","*.title","*.thumbnails","*.resourceUrl","*.grade","*.description","*.category","*.sharing","*.hasFrameBreaker","*.recordSource","*.license","*.resourceSourceId","*.sourceName","*.domainName","*.attribution","*.narration","*.start","*.stop","*.collectionItemId","*.type","*.standards","*.course"};
+	
+	static final String [] STUDY_RESOURCE_FIELDS = {"*.totalHitCount","*.searchResults","*.classCode","*.status","*.title","*.gooruOid"};
 
 	static final String[] COLLECTION_STANDARDS_INCLUDES = {"searchResults","*.code","*.label","*.codeUid","*.codeId"};
 

@@ -38,12 +38,18 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class InviteRepositoryHibernate extends BaseRepositoryHibernate implements InviteRepository {
 	@Override
-	public InviteUser findInviteUserById(String mailId, String gooruOid) {
-		String hql = "from InviteUser iu where iu.emailId=:mailId and iu.gooruOid=:gooruOid and iu.status.value=:pending order by iu.createdDate desc";
+	public InviteUser findInviteUserById(String mailId, String gooruOid, String status) {
+		String hql = "from InviteUser iu where iu.emailId=:mailId and iu.gooruOid=:gooruOid  ";
+		if(status != null) {
+			hql += " and iu.status.value=:pending";
+		}
+		hql += " order by iu.createdDate desc";
 		Query query = getSession().createQuery(hql);
 		query.setParameter("gooruOid", gooruOid);
 		query.setParameter("mailId", mailId);
-		query.setParameter("pending", "pending");
+		if(status != null) {
+			query.setParameter("pending", status);
+		} 
 		return (InviteUser) ((query.list().size() > 0) ? query.list().get(0) : null);
 	}
 
