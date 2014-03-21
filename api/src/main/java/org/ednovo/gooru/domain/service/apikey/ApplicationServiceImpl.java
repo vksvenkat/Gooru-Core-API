@@ -81,8 +81,9 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 				 //If organization is passed from superadmin use it else set loggedin users organization details
                 if(organizationUid != null){
                    organization = organizationService.getOrganizationById(organizationUid);
+                }else{
+                      organization = organizationService.getOrganizationById(partyCustomField.getOptionalValue());
                 }
-                organization = organizationService.getOrganizationById(partyCustomField.getOptionalValue());				
 				
                 if(organization == null){
 					throw new RuntimeException("Organization not found !");
