@@ -2640,7 +2640,7 @@ public interface ParameterProperties {
 	
 	String IS_PARTNER_PORTAL = "isPartnerPortal";
 	
-	String SERVERPATH = "serverpath";
+	String SERVERPATH = "serverPath";
 	
 	String TEACHERNAME = "teachername";
 	
