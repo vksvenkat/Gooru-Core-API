@@ -33,7 +33,7 @@ public interface ApplicationService {
 
 	List<ApiKey> findApplicationByOrganization(String organizationUid);
 	
-	ActionResponseDTO<ApiKey> saveApplication(ApiKey apikey, User user) throws Exception;
+	ActionResponseDTO<ApiKey> saveApplication(ApiKey apikey, User user, String organizationUid) throws Exception;
 	
 	ActionResponseDTO<ApiKey> updateApplication(ApiKey apiKey, User user) throws Exception;
 	
