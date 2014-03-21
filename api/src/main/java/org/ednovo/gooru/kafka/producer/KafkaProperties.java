@@ -40,6 +40,8 @@ public class KafkaProperties {
 	 public static final String AUTOCOMMIT_INTERVAL_MS_VALUE = "1000";
 	 public static final String FETCH_SIZE = "fetch.size";
 	 public static final String FETCH_SIZE_VALUE = "1048576";
+	 public static final String AUTO_OFFSET_RESET = "auto.offset.reset";
+	 public static final String AUTO_OFFSET_RESET_VALUE = "smallest";
 	 public static final String KAFKA_PREFIX = "kafka.";
 	  
 	  

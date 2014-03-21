@@ -99,14 +99,20 @@ public class IndexProcessor extends BaseComponent {
 			final GooruAuthenticationToken authentication, final boolean isUpdateUserContent) {
 		
 		/*try{
-			Map<String,String> indexDataMap = new HashMap();
-			indexDataMap.put("action", action);
-			indexDataMap.put("sessionToken", sessionToken);
-			indexDataMap.put("indexableIds", uuids.toString());
-			indexDataMap.put("type", type);
-			indexDataMap.put("isUpdateUserContent", isUpdateUserContent+"");
-			String indexMessage = new JSONObject(indexDataMap).toString();
-			kafkaProducer.send(indexMessage);
+			new Thread(new Runnable() {
+				
+				@Override
+				public void run() {
+					Map<String,String> indexDataMap = new HashMap();
+					indexDataMap.put("action", action);
+					indexDataMap.put("sessionToken", sessionToken);
+					indexDataMap.put("indexableIds", uuids);
+					indexDataMap.put("type", type);
+					indexDataMap.put("isUpdateUserContent", isUpdateUserContent+"");
+					String indexMessage = new JSONObject(indexDataMap).toString();
+					kafkaProducer.send(indexMessage);
+				}
+			}).start();
 		} catch (Exception e){
 			logger.info("index error using kafka :" + e);
 		}*/
