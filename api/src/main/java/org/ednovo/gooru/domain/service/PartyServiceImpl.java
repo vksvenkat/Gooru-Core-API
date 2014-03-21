@@ -136,13 +136,8 @@ public class PartyServiceImpl extends BaseServiceImpl implements PartyService, P
 	}
 
 	private Errors validateUpdatePartyCustomField(PartyCustomField partyCustomField, PartyCustomField newPartyCustomField) {
-		Map<String, String> partyCategory = getCategory();
 		final Errors errors = new BindException(partyCustomField, "partyCustomField");
-		rejectIfNull(errors, newPartyCustomField, "partyCustomField", "GL0056", generateErrorMessage("GL0056", "partyCustomField"));
-		// rejectIfNull(errors, newPartyCustomField.getOptionalKey(),
-		// "optionalKey", "GL0006", generateErrorMessage("GL0006",
-		// "optionalKey"));
-		rejectIfInvalidType(errors, newPartyCustomField.getCategory(), CATEGORY, "GL0007", generateErrorMessage("GL0007", CATEGORY), partyCategory);
+		rejectIfNull(errors, newPartyCustomField, "partyCustomField", "GL0056", generateErrorMessage("GL0056", "partyCustomField"));	
 		return errors;
 	}
 
