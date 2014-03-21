@@ -85,16 +85,13 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
                 if(organizationUid != null){
                         organization = null;
                         organization = organizationService.getOrganizationById(organizationUid);
-                        apikey.setOrganization(organization);
                 }
-                else{
-                        apikey.setOrganization(organization);
-                }
+
 
 				apikey.setActiveFlag(1);
 				apikey.setSecretKey(UUID.randomUUID().toString());
 				apikey.setKey(UUID.randomUUID().toString());
-				//apikey.setOrganization(organization);
+				apikey.setOrganization(organization);
 				apikey.setLimit(-1);
 				apikey.setDescription(apikey.getDescription());
 				CustomTableValue type = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.APPLICATION_STATUS.getTable(), CustomProperties.ApplicationStatus.DEVELOPMENT.getApplicationStatus());
