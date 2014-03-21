@@ -275,7 +275,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 				if (user.getIdentities().size() > 0) {
 					mailId = user.getIdentities().iterator().next().getExternalId();
 				}
-				inviteUser = this.getInviteRepository().findInviteUserById(mailId, collectionId,null);
+				inviteUser = this.getInviteRepository().findInviteUserById(mailId, collectionId,PENDING);
 				if (!isMember && inviteUser == null && classpage.getSharing().equalsIgnoreCase(PUBLIC)) {
 					inviteUser = this.getInviteService().createInviteUserObj(mailId, collectionId, CLASS, user);
 					this.getInviteRepository().save(inviteUser);
