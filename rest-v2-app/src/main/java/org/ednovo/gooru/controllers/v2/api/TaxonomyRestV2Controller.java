@@ -105,7 +105,6 @@ public class TaxonomyRestV2Controller extends BaseController implements Constant
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAXONOMY_READ })
 	@RequestMapping(method = RequestMethod.GET, value = "/curriculum")
 	public ModelAndView getCurriculum(HttpServletRequest request, HttpServletResponse response, @RequestParam(value = CLEAR_CACHE, required = false) boolean clearCache, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "4") Integer maxLessonLimit) throws Exception {
-		request.setAttribute(PREDICATE, "curriculum.code.content");
 		final String cacheKey = "curriculum-code-json";
 		String curriculumCodeList = null;
 		if (!clearCache) {
