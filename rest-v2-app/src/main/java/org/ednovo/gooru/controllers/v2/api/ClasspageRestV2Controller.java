@@ -221,9 +221,7 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	@RequestMapping(value = "item/{id}", method = RequestMethod.GET)
 	public ModelAndView getClasspageItem(@PathVariable(value = ID) String collectionItemId, HttpServletRequest request, HttpServletResponse response) {
 		User user = (User) request.getAttribute(Constants.USER);
-		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, COLLECTION_ITEM_INCLUDE_FILEDS);
-		includes = (String[]) ArrayUtils.addAll(includes, CLASSPAGE_ITEM_INCLUDE);
-	
+		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, CLASSPAGE_CREATE_ITEM_INCLUDE_FILEDS);	
 		return toModelAndViewWithIoFilter(getCollectionService().getCollectionItem(collectionItemId, false, user), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
 
