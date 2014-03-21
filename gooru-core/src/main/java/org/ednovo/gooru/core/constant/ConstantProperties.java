@@ -229,8 +229,12 @@ public interface ConstantProperties {
 	static final String SESSION_ITEM_ATTEMPT_INCLUDES[] = { "*.score", "*.sessionItem", "*.sessionItemId", "*.attemptItemTryStatus", "*.answeredAtTime" };
 
 	static final String COURSE_INCLUDES[] = { "*.parentsList" };
+	
+	static final String[] CURRICULUM_INCLUDES = {"*.code", "*.codeId", "*.label", "*.depth"};
 
 	static final String COURSE_EXCLUDES[] = { "*.code", "*.codeImage", "*.codeType", "*.codeUid", "*.depth", "*.s3UploadFlag", "*.description", "*.associatedCodes", "*.displayOrder", "*.entryId", "*.parent", "*.s3UploadFlag", "*.taxonomyImageUrl", "*.taxonomySet", "*.rootNodeId" };
+	
+	static final String CURRICULUM_EXCLUDES[] = {"*.assetURI", "*.depth", "*.indexId", "*.indexType", "*.parentId", "*.parentsList", "*.codeOrganizationAssoc", "*.libraryFlag", "*.creator", "*.thumbnails", "*.displayCode", "*.activeFlag", "*.grade", "*.codeUid", "*.codeImage", "*.codeType", "*.codeUid", "*.s3UploadFlag", "*.description", "*.associatedCodes", "*.displayOrder", "*.entryId", "*.parent", "*.s3UploadFlag", "*.taxonomyImageUrl", "*.taxonomySet", "*.rootNodeId" };
 
 	static final String PARTY_CUSTOM_INCLUDES[] = { "*.partyCustomField", "*.category", "*.optionalKey", "*.optionalValue" };
 

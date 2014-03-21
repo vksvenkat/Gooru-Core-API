@@ -77,6 +77,8 @@ public interface TaxonomyRespository extends BaseRepository{
 	Code findByParent(String label, Integer parentId);
 	
 	List<Code> findChildTaxonomyCodeByDepth(Integer codeId, Integer depth);
+	
+	List<Code> getCurriculumCodeByDepth(Integer depth);
 
 	List<Code> findAll();
 

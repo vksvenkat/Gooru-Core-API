@@ -310,6 +310,11 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 	public List<Code> findChildTaxonomyCodeByDepth(Integer codeId, Integer depth) {
 		return getSession().createQuery("from Code c where c.parentId =" + codeId + " and c.depth =" + depth + "and c.activeFlag =1 and " + generateOrgAuthQueryWithData("c.")).list();
 	}
+	
+	@Override
+	public List<Code> getCurriculumCodeByDepth(Integer depth) {
+		return getSession().createQuery("from Code c where c.depth =" + depth + " and " + generateOrgAuthQueryWithData("c.")).list();
+	}
 
 	@Override
 	public Code findFirstChildTaxonomyCodeByDepth(Integer codeId, Integer depth) {
@@ -974,5 +979,5 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 		query.setParameter("codeId", codeId);
 		return  query.list().size() > 0 ? (Code) query.list().get(0) : null;
 	}
-	
+
 }

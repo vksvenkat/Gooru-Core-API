@@ -545,6 +545,18 @@ public class TaxonomyServiceImpl implements TaxonomyService,ParameterProperties 
 		} 
 		return taxonomyCodeList;
 	}
+	
+	@Override
+	public List<Code> getCurriculum() {
+
+		List<Code> curriculumCodeList = taxonomyRepository.getCurriculumCodeByDepth(0);
+		
+		/*for(Code code : curriculumCodeList){
+			
+		}*/
+		
+		return curriculumCodeList;
+	}
 
 	@Override
 	public FilterSubjectFo getFilterSubject(Integer codeId, Integer maxLessonLimit) {

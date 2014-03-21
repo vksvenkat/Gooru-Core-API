@@ -134,6 +134,8 @@ public interface TaxonomyService {
 	Code saveUploadTaxonomyImage(Code code);
 
 	List<Code> findParentTaxonomy(Integer codeId, boolean reverse);
+	
+	List<Code> getCurriculum();
 
 	List<CodeFo> getCourseBySubject(Integer codeId, Integer maxLessonLimit) throws JSONException;
 
