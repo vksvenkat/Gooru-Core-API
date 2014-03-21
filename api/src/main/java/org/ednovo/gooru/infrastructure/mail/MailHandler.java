@@ -867,7 +867,7 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 		final String serverpath = this.getServerConstants().getProperty(SERVERPATH);
 			EventMapping eventMapping = this.getEventService().getTemplatesByEventName(CustomProperties.EventMapping.SEND_MAIL_TO_INVITE_USER_CLASS.getEvent());
 			Map<String, Object> map = eventMapData(eventMapping);
-			map.put(SERVERPATH,serverpath);
+			map.put("serverpath",serverpath);
 			map.put(TITLE, title);
 			map.put(TEACHERNAME ,user.getUsername());
 			map.put(MEMBERMAILID, inviteData.get(EMAIL_ID));
