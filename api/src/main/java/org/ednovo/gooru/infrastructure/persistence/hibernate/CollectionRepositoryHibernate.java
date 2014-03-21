@@ -25,7 +25,6 @@ package org.ednovo.gooru.infrastructure.persistence.hibernate;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.ednovo.gooru.core.api.model.Assignment;
 import org.ednovo.gooru.core.api.model.Classpage;
@@ -845,7 +844,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 	}
 
 	@Override
-	public List<Collection> getCollectionListByIds(Set<String> collectionIds) {
+	public List<Collection> getCollectionListByIds(List<String> collectionIds) {
 		String hql = " FROM Collection c  WHERE c.gooruOid IN ( :collectionIds )";
 		Query query = getSession().createQuery(hql);
 		query.setParameterList("collectionIds", collectionIds);

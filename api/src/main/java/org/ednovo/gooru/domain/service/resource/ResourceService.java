@@ -208,5 +208,7 @@ public interface ResourceService extends BaseService {
 	Resource resourcePlay(String gooruContentId, User apiCaller, boolean more) throws Exception;
 	
 	void updateViewsBulk(List<UpdateViewsDTO> updateViewsDTOs, User apiCaller);
+	
+	Resource findLtiResourceByContentGooruId(String gooruContentId);
 
 }

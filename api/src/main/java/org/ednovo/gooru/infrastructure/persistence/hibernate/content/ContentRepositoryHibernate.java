@@ -177,17 +177,6 @@ public class ContentRepositoryHibernate extends BaseRepositoryHibernate implemen
 	}
 
 	@Override
-	public List getIdsByUserUId(String userUId, String typeName) {
-		Session session = getSession();
-		String sql = "SELECT c.content_id,c.gooru_oid, r.type_name FROM content c INNER JOIN resource r ON (r.content_id=c.content_id) WHERE c.user_uid = '" + userUId + "'";
-		if (typeName != null) {
-			sql += " and r.type_name in ('" + typeName + "')";
-		}
-		SQLQuery query = session.createSQLQuery(sql);
-		return query.list();
-	}
-
-	@Override
 	public List<Content> getContentByUserUId(String userUId) {
 		Session session = getSession();
 		String hql = "FROM Content content WHERE content.user.partyUid = '" + userUId + "'";
@@ -237,6 +226,21 @@ public class ContentRepositoryHibernate extends BaseRepositoryHibernate implemen
 		Query query = session.createQuery(hql);
 		query.setParameter("contentId", contentId);
 		query.setParameter("partyUid", partyUid);
+		return query.list();
+	}
+
+	@Override
+	public List getIdsByUserUId(String userUId, String typeName,
+			Integer pageNo, Integer pageSize) {
+		Session session = getSession();
+		String sql = "SELECT c.content_id,c.gooru_oid, r.type_name FROM content c INNER JOIN resource r ON (r.content_id=c.content_id) WHERE c.user_uid = '"+ userUId +"'";
+		if(typeName != null){
+			sql += " and r.type_name in ('"+ typeName + "')";
+		}
+		if(pageNo != null && pageSize != null){
+			sql += " limit " + pageNo +" , " + pageSize ;
+		}
+		SQLQuery query = session.createSQLQuery(sql);
 		return query.list();
 	}
 

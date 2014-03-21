@@ -217,6 +217,11 @@ public class PartyServiceImpl extends BaseServiceImpl implements PartyService, P
 		}
 		return null;
 	}
+	
+	@Override
+	public List<Map<Object, Object>> getPartyDetails(String optionalKey, String optionalValue) {
+		return this.getPartyRepository().getPartyDetails(optionalKey, optionalValue);
+	}
 
 	public PartyRepository getPartyRepository() {
 		return partyRepository;

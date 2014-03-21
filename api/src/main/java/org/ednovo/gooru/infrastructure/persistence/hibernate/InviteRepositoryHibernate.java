@@ -39,7 +39,7 @@ import org.springframework.stereotype.Repository;
 public class InviteRepositoryHibernate extends BaseRepositoryHibernate implements InviteRepository {
 	@Override
 	public InviteUser findInviteUserById(String mailId, String gooruOid) {
-		String hql = "from InviteUser iu where iu.email=:mailId and iu.gooruOid=:gooruOid and iu.status.value=:pending order by iu.createdDate desc";
+		String hql = "from InviteUser iu where iu.emailId=:mailId and iu.gooruOid=:gooruOid and iu.status.value=:pending order by iu.createdDate desc";
 		Query query = getSession().createQuery(hql);
 		query.setParameter("gooruOid", gooruOid);
 		query.setParameter("mailId", mailId);
@@ -58,7 +58,7 @@ public class InviteRepositoryHibernate extends BaseRepositoryHibernate implement
 
 	@Override
 	public List<InviteUser> getInviteUserByMail(String mailId, String inviteType) {
-		String hql = "from InviteUser iu where  iu.email=:mailId and iu.status.value=:pending and iu.invitationType=:inviteType order by createdDate desc";
+		String hql = "from InviteUser iu where  iu.emailId=:mailId and iu.status.value=:pending and iu.invitationType=:inviteType order by createdDate desc";
 		Query query = getSession().createQuery(hql);
 		query.setParameter("mailId", mailId);
 		query.setParameter("pending", "pending");

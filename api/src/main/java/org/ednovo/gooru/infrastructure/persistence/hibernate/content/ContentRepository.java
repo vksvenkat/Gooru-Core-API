@@ -59,7 +59,7 @@ public interface ContentRepository extends BaseRepository {
 
 	StatusType getStatusType(String name);
 
-	List getIdsByUserUId(String userUId, String typeName);
+	List getIdsByUserUId(String userUId, String typeName, Integer pageNo, Integer pageSize);
 
 	ContentTagAssoc getContentTagById(String gooruOid, String tagGooruOid);
 

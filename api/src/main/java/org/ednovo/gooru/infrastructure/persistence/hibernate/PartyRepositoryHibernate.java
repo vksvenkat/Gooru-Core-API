@@ -23,7 +23,10 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.infrastructure.persistence.hibernate;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.ednovo.gooru.core.api.model.Party;
 import org.ednovo.gooru.core.api.model.PartyCustomField;
@@ -116,5 +119,25 @@ public class PartyRepositoryHibernate extends BaseRepositoryHibernate implements
 		String sql = "select count(1) as count from party_custom_field where party_uid = '"+userId+"' and optional_value = '"+date+"' and optional_key = 'last_user_birthday_mail_send_date'";
 		Query query = session.createSQLQuery(sql).addScalar("count", StandardBasicTypes.INTEGER);
 		return ((Integer) query.list().get(0)) == 1 ? true : false;
+	}
+
+	@Override
+	public List<Map<Object, Object>> getPartyDetails(String optionalKey, String optionalValue) {
+		Session session = getSession();
+		String sql = "select party_uid as gooruUId, username  from party_custom_field inner join user  on  party_uid = gooru_uid where optional_key = '" + optionalKey +"' and optional_value = '" + optionalValue + "'";
+		Query query = session.createSQLQuery(sql).addScalar(GOORU_UID, StandardBasicTypes.STRING).
+		addScalar(USER_NAME, StandardBasicTypes.STRING);
+		return getPartyDetails(query.list());
+	}
+	
+	private List<Map<Object, Object>> getPartyDetails(List<Object[]> results) {
+		List<Map<Object, Object>> partyDetails = new ArrayList<Map<Object,Object>>();
+		for (Object[] object : results) {			
+			Map<Object, Object> party = new HashMap<Object, Object>();
+			party.put(GOORU_UID,  object[0]);
+			party.put(USER_NAME, object[1]);
+			partyDetails.add(party);
+		}
+		return partyDetails; 
 	}
 }

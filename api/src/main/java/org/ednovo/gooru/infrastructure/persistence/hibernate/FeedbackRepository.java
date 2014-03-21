@@ -42,6 +42,8 @@ public interface FeedbackRepository extends BaseRepository {
 	Feedback getUserFeedback(String type, String assocUserUid, String gooruUid);
 
 	List<Feedback> getContentFeedbacks(String type, String assocGooruOid, String creatorUid, String category, Integer limit, Integer offset,Boolean skipPagination);
+	
+	Long getContentFeedbacksCount(String type, String assocGooruOid, String creatorUid, String category);
 
 	List<Feedback> getUserFeedbacks(String type, String assocUserUid, String creatorUid, String category, Integer limit, Integer offset);
 

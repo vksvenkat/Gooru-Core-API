@@ -38,6 +38,7 @@ import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.BadRequestException;
 import org.ednovo.gooru.core.exception.NotAllowedException;
+import org.ednovo.gooru.domain.service.search.SearchResults;
 import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.ednovo.gooru.domain.service.userManagement.UserManagementService;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.FeedbackRepository;
@@ -139,7 +140,7 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 	}
 
 	@Override
-	public List<Feedback> getContentFeedbacks(String feedbackCategory, String feedbackType, String assocGooruOid, String creatorUid, Integer limit, Integer offset, Boolean skipPagination) {
+	public SearchResults<Feedback> getContentFeedbacks(String feedbackCategory, String feedbackType, String assocGooruOid, String creatorUid, Integer limit, Integer offset, Boolean skipPagination) {
 		String type = null;
 		String category = null;
 		if (feedbackType != null) {
@@ -148,7 +149,10 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 			category = CustomProperties.Table.FEEDBACK_CATEGORY.getTable() + "_" + feedbackCategory;
 		}
 		rejectIfNull(this.getContentRepository().findContentByGooruId(assocGooruOid), GL0056, _CONTENT);
-		return this.getFeedbackRepository().getContentFeedbacks(type, assocGooruOid, creatorUid, category, limit, offset, skipPagination);
+		SearchResults<Feedback>  result = new SearchResults<Feedback>();
+		result.setSearchResults(this.getFeedbackRepository().getContentFeedbacks(type, assocGooruOid, creatorUid, category, limit, offset, skipPagination));
+		result.setTotalHitCount(this.getFeedbackRepository().getContentFeedbacksCount(type, assocGooruOid, creatorUid, category));
+		return result;
 	}
 
 	@Override
@@ -293,6 +297,9 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 			Feedback userFeeback = this.getFeedbackRepository().getUserFeedback(feedbackType.getKeyValue(), feedback.getAssocUserUid(), feedback.getCreator().getGooruUId());
 			if (userFeeback != null) {
 				userFeeback.setScore(feedback.getScore());
+				if (feedback.getFreeText() != null) {
+					userFeeback.setFreeText(feedback.getFreeText());
+				}
 				this.getFeedbackRepository().save(userFeeback);
 				return userFeeback;
 			}
@@ -301,6 +308,9 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 			Feedback contentFeedback = this.getFeedbackRepository().getContentFeedback(feedbackType.getKeyValue(), feedback.getAssocGooruOid(), feedback.getCreator().getGooruUId());
 			if (contentFeedback != null) {
 				contentFeedback.setScore(feedback.getScore());
+				if (feedback.getFreeText() != null) {
+				  contentFeedback.setFreeText(feedback.getFreeText());
+				}
 				this.getFeedbackRepository().save(contentFeedback);
 				return contentFeedback;
 			}

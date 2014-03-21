@@ -24,6 +24,7 @@
 package org.ednovo.gooru.infrastructure.persistence.hibernate.party;
 
 import java.util.List;
+import java.util.Map;
 
 import org.ednovo.gooru.core.api.model.Party;
 import org.ednovo.gooru.core.api.model.PartyCustomField;
@@ -50,4 +51,7 @@ public interface PartyRepository extends BaseRepository {
 	void updatePartyCustomFieldsBirthDayMailKey(String userIds);
 	
 	boolean isUserBirthDayMailSentToday(String userId, String date);
+	
+	List<Map<Object, Object>> getPartyDetails(String optionalKey, String optionalValue);
+	
 }

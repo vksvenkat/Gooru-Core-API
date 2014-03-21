@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-   InviteUser.hbm.xml
+   LtiContentAssoc.hbm.xml
    gooru-api
    Created by Gooru on 2014
    Copyright (c) 2014 Gooru. All rights reserved.
@@ -25,35 +25,21 @@
 <!DOCTYPE hibernate-mapping PUBLIC
     "-//Hibernate/Hibernate Mapping DTD 3.0//EN" 
     "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-    
+
 <hibernate-mapping>
-	<class name="org.ednovo.gooru.core.api.model.InviteUser"
-		table="invite_user">
-		<id name="inviteUid" column="invite_uid" unsaved-value="null">
-			<generator class="org.ednovo.gooru.core.application.util.UUIDGenerator" />
-		</id>
+	<class name="org.ednovo.gooru.core.api.model.LtiContentAssoc"
+		table="lti_content_assoc">
+		<composite-id>
+			<key-many-to-one name="resource"
+				class="org.ednovo.gooru.core.api.model.Resource" column="content_id" />
+		  <key-property name="contextId" column="context_id" />
+		</composite-id>
 		
-		<many-to-one name="status" class="org.ednovo.gooru.core.api.model.CustomTableValue" 
-		column="status_id" not-null="true" lazy="proxy" cascade="none" />
-		
-		<property name="emailId" column="email"
+		<many-to-one name="user"
+			class="org.ednovo.gooru.core.api.model.User" column="user_uid"
+			lazy="proxy" cascade="none" not-null="true" />
+			
+		<property name="associationDate" column="association_date"
 			not-null="true"/>
-			
-		<property name="gooruOid" column="gooru_oid" 
-			not-null="false"/>
-			
-		<property name="invitationType" column="invitation_type"
-			not-null="true"/>
-		
-		<property name="createdDate" column="created_date"
-			not-null="true"/>
-			
-		<property name="joinedDate" column="joined_date"
-			not-null="false"/>
-			
-	    <many-to-one name="associatedUser" column="associated_by_uid"
-            class="org.ednovo.gooru.core.api.model.User"
-            not-null="false" cascade="none" />
-		
 	</class>
 </hibernate-mapping>

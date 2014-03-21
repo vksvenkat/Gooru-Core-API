@@ -29,6 +29,7 @@ import java.util.Map;
 import org.ednovo.gooru.core.api.model.CustomTableValue;
 import org.ednovo.gooru.core.api.model.Feedback;
 import org.ednovo.gooru.core.api.model.User;
+import org.ednovo.gooru.domain.service.search.SearchResults;
 
 public interface FeedbackService extends BaseService {
 	Feedback createFeedback(Feedback feedback, User user);
@@ -47,7 +48,7 @@ public interface FeedbackService extends BaseService {
 
 	Feedback getUserFeedback(String typeId, String assocUserUid, String gooruUid);
 
-	List<Feedback> getContentFeedbacks(String feedbackCategory, String feedbackType, String assocGooruOid, String creatorUid, Integer limit, Integer offset,Boolean skipPagination);
+	SearchResults<Feedback> getContentFeedbacks(String feedbackCategory, String feedbackType, String assocGooruOid, String creatorUid, Integer limit, Integer offset,Boolean skipPagination);
 
 	List<Feedback> getUserFeedbacks(String feedbackCategory, String feedbackType, String assocUserUid, String creatorUid, Integer limit, Integer offset);
 

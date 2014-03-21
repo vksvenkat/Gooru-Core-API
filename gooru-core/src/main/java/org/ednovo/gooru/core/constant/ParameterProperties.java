@@ -439,6 +439,8 @@ public interface ParameterProperties {
 	String COMMENT_UID = "commentUid";
 
 	String ACTIVE = "active";
+	
+	String NOTINVITED = "not-invited";
 
 	String SHARING = "sharing";
 
@@ -989,6 +991,8 @@ public interface ParameterProperties {
 	String MY_SHELF = "My Shelf";
 
 	String PERMISSIONS = "permissions";
+	
+	String ISMEMBER = "isMember";
 
 	String REACTION_AGGREGATE = "reactionAggregate";
 
@@ -2610,6 +2614,18 @@ public interface ParameterProperties {
 	
 	String PENDING = "pending";
 	
+	String FEMALE = "female";
+	
+	String MALE = "male";
+	
+	String MR = "Mr.";
+	
+	String MS = "Ms.";
+	
+	String HIS = "his";
+	
+	String HER = "her";
+	
 	String CONTENT_OBJ = "contentObject";
 	
 	String INVITE_USER_STATUS = "invite_user_status";
@@ -2622,4 +2638,21 @@ public interface ParameterProperties {
 	
 	String IS_PARTNER_PORTAL = "isPartnerPortal";
 	
+	String SERVERPATH = "serverpath";
+	
+	String TEACHERNAME = "teachername";
+	
+	String MEMBERMAILID = "memberMailId";
+	
+	String RECIPIENT = "recipient";
+	
+	String HTMLCONTENT = "htmlContent";
+	
+	String BCC = "bcc";
+	
+	String FROMNAME = "fromName";
+	
+	String TEXTCONTENT = "textContent";
+	
+	String NOUN = "noun";
 }

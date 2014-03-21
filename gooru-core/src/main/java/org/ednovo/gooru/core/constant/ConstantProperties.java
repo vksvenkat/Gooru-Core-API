@@ -294,7 +294,7 @@ public interface ConstantProperties {
 
 	static final String[] OPTIONS_INCLUDE = { "*.isRandomize", "*.isRandomizeChoice", "*.showCorrectAnswer", "*.showHints", "*.showScore" };
 
-	static final String FEEDBACK_INCLUDE_FIELDS[] = { "gooruOid", "target.value", "type.value", "category.value", "freeText", "score", "assocGooruOid", "assocUserUid", "creator.gooruUId", "creator.username", "creator.firstName", "creator.lastName", "referenceKey" };
+	static final String FEEDBACK_INCLUDE_FIELDS[] = {"*.searchResults","*.feedback","*.totalHitCount", "*.gooruOid", "*.target.value", "*.type.value", "*.category.value", "*.freeText", "*.score", "*.assocGooruOid", "*.assocUserUid", "*.creator.gooruUId", "*.creator.username", "*.creator.firstName", "*.creator.lastName", "*.referenceKey" };
 
 	static final String[] CONTENT_INCLUDES = { "gooruOid", "sharing", "createdOn", "lastModified", "lastUpdatedUserUid", "statusType", "statusType.value", "isDeleted", "", "", "", "", "", "" };
 
@@ -420,5 +420,7 @@ public interface ConstantProperties {
 	public static final String DISPLAY_NAME = "displayName";
 	
 	public static final String CLASS = "class";
+	
+	public static final String IS_PARTNER = "is_partner";
 	
 }
