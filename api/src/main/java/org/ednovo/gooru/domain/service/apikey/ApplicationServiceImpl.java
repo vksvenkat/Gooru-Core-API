@@ -77,16 +77,15 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 		if (!error.hasErrors()) {
 			PartyCustomField partyCustomField = partyService.getPartyCustomeField(user.getPartyUid(), ConstantProperties.ORG_ADMIN_KEY, user);
 			if(partyCustomField != null && partyCustomField.getOptionalValue() != null){
-				Organization organization = organizationService.getOrganizationById(partyCustomField.getOptionalValue());
-				if(organization == null){
-					throw new RuntimeException("Organization not found !");
-				}
+				Organization organization = organizationService.getOrganizationById(partyCustomField.getOptionalValue());				
 				 //If organization is passed from superadmin use it else set loggedin users organization details
                 if(organizationUid != null){
                         organization = null;
                         organization = organizationService.getOrganizationById(organizationUid);
                 }
-
+                if(organization == null){
+					throw new RuntimeException("Organization not found !");
+				}
 
 				apikey.setActiveFlag(1);
 				apikey.setSecretKey(UUID.randomUUID().toString());
