@@ -70,5 +70,5 @@ public interface ClasspageService {
 	
 	List<String> classMemberSuggest(String queryText, String gooruUid);
 	
-	List<Map<String, String>> getMyStudy(User apiCaller);
+	SearchResults<Map<String, String>> getMyStudy(User apiCaller);
 }

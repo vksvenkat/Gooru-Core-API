@@ -34,7 +34,7 @@ import java.util.List;
 import org.ednovo.gooru.core.api.model.InviteUser;
 
 public interface InviteRepository extends BaseRepository {
-	InviteUser findInviteUserById(String gooruOid, String gooruUid);
+	InviteUser findInviteUserById(String gooruOid, String gooruUid, String status);
 
 	Long getInviteUsersCountById(String gooruOid);
 
