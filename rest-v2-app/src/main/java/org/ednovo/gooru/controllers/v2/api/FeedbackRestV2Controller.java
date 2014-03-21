@@ -105,7 +105,7 @@ public class FeedbackRestV2Controller extends BaseController implements Paramete
 	@RequestMapping(method = RequestMethod.PUT, value = "/{id}")
 	public ModelAndView updateFeedback(@RequestBody String data, @PathVariable(value = ID) String feedbackId, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
-		List<Feedback> feedbacks = getFeedbackService().updateFeedback(feedbackId, this.buildFeedbackFromInputParameters(data, request));
+		List<Feedback> feedbacks = getFeedbackService().updateFeedback(feedbackId, this.buildFeedbackFromInputParameters(data, request), user);
 		Feedback feedback = feedbacks.get(0);
 		// To capture activity log
 		SessionContextSupport.putLogParameter(EVENT_NAME, "update-" + feedback.getCategory().getValue());
@@ -163,7 +163,7 @@ public class FeedbackRestV2Controller extends BaseController implements Paramete
 			Feedback feedback = this.buildFeedbackFromInputParameters(data, request);
 			SessionContextSupport.putLogParameter(CONTEXT, feedback.getContext());
 		}
-		this.getFeedbackService().deleteFeedback(feedbackId, user.getPartyUid());
+		this.getFeedbackService().deleteFeedback(feedbackId, user);
 		SessionContextSupport.putLogParameter(EVENT_NAME, "delete-" + getFeedbackCategory(request));
 		SessionContextSupport.putLogParameter(FEEDBACK_ID, feedbackId);
 		response.setStatus(HttpServletResponse.SC_NO_CONTENT);

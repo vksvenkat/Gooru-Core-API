@@ -189,7 +189,7 @@ public class EventServiceImpl extends BaseServiceImpl implements EventService, P
 			if (fields.get(EVENT_TYPE).equals(FEEDBACK)) {
 				Feedback newFeedback = new Feedback();
 				newFeedback.setReferenceKey(issueKey);
-				this.getFeedbackService().updateFeedback(fields.get(IDS), newFeedback);
+				this.getFeedbackService().updateFeedback(fields.get(IDS), newFeedback,null);			
 			}
 		}
 	}

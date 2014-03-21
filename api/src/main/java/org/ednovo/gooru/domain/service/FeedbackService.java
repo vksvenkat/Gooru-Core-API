@@ -36,13 +36,13 @@ public interface FeedbackService extends BaseService {
 	
 	List<Feedback> createFeedbacks(Feedback feedback, User user);
 
-	List<Feedback> updateFeedback(String feedbackId, Feedback newFeedback);
+	List<Feedback> updateFeedback(String feedbackId, Feedback newFeedback, User user);
 
 	Feedback getFeedback(String feedbackId);
 	
 	List<CustomTableValue> getCustomValues(String category, String type);
 
-	void deleteFeedback(String feedbackId, String gooruUid);
+	void deleteFeedback(String feedbackId, User user) throws Exception;
 
 	Feedback getContentFeedback(String type, String assocGooruOid, String gooruUid);
 

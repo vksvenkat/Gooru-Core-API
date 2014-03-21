@@ -38,6 +38,8 @@ import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.BadRequestException;
 import org.ednovo.gooru.core.exception.NotAllowedException;
+import org.ednovo.gooru.core.exception.NotFoundException;
+import org.ednovo.gooru.core.exception.UnauthorizedException;
 import org.ednovo.gooru.domain.service.search.SearchResults;
 import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.ednovo.gooru.domain.service.userManagement.UserManagementService;
@@ -76,38 +78,47 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 	}
 
 	@Override
-	public List<Feedback> updateFeedback(String feedbackId, Feedback newFeedback) {
+	public List<Feedback> updateFeedback(String feedbackId, Feedback newFeedback, User user) {
 		List<Feedback> feedbacks = this.getFeedbackRepository().getFeedbacks(feedbackId, null);
 		List<Feedback> feedbackList = new ArrayList<Feedback>();
-		for (Feedback feedback : feedbacks) {
-			if (newFeedback.getReferenceKey() != null) {
-				feedback.setReferenceKey(newFeedback.getReferenceKey());
-			}
-			if (newFeedback.getFreeText() != null) {
-				feedback.setFreeText(newFeedback.getFreeText());
-			}
+		if (feedbacks != null && user!= null) {
+			for (Feedback feedback : feedbacks) {
+				if (this.getUserManagementService().isContentAdmin(user) || feedback.getCreator().getPartyUid().equals(user.getPartyUid())) {
+					if (newFeedback.getReferenceKey() != null) {
+						feedback.setReferenceKey(newFeedback.getReferenceKey());
+					}
+					if (newFeedback.getFreeText() != null) {
+						feedback.setFreeText(newFeedback.getFreeText());
+					}
 
-			if (newFeedback.getNotes() != null) {
-				feedback.setNotes(newFeedback.getNotes());
-			}
-			if (newFeedback.getScore() != null) {
-				if (feedback.getCategory().getValue().equalsIgnoreCase(CustomProperties.FeedbackCategory.RATING.getFeedbackCategory()) && feedback.getType().getValue().equalsIgnoreCase(CustomProperties.FeedbackRatingType.STAR.getFeedbackRatingType())) {
-					if (newFeedback.getScore() > MAX_RATING_POINT) {
-						throw new BadRequestException(generateErrorMessage(GL0044, RATING_POINTS, MAX_RATING_POINT.toString()));
+					if (newFeedback.getNotes() != null) {
+						feedback.setNotes(newFeedback.getNotes());
 					}
-					if (newFeedback.getScore() < MIN_RATING_POINT) {
-						throw new BadRequestException(generateErrorMessage(GL0044, RATING_POINTS, MIN_RATING_POINT.toString()));
+					if (newFeedback.getScore() != null) {
+						if (feedback.getCategory().getValue().equalsIgnoreCase(CustomProperties.FeedbackCategory.RATING.getFeedbackCategory()) && feedback.getType().getValue().equalsIgnoreCase(CustomProperties.FeedbackRatingType.STAR.getFeedbackRatingType())) {
+							if (newFeedback.getScore() > MAX_RATING_POINT) {
+								throw new BadRequestException(generateErrorMessage(GL0044, RATING_POINTS, MAX_RATING_POINT.toString()));
+							}
+							if (newFeedback.getScore() < MIN_RATING_POINT) {
+								throw new BadRequestException(generateErrorMessage(GL0044, RATING_POINTS, MIN_RATING_POINT.toString()));
+							}
+							feedback.setScore(newFeedback.getScore());
+						}
+						if (feedback.getCategory().getValue().equalsIgnoreCase(CustomProperties.FeedbackCategory.RATING.getFeedbackCategory()) && feedback.getType().getValue().equalsIgnoreCase(CustomProperties.FeedbackRatingType.THUMB.getFeedbackRatingType())) {
+							if (newFeedback.getScore() != THUMB_UP && newFeedback.getScore() != THUMB_DOWN && newFeedback.getScore() != THUMB_NETURAL) {
+								throw new BadRequestException(generateErrorMessage(GL0007, THUMB_SCORE));
+							}
+							feedback.setScore(newFeedback.getScore());
+						}
 					}
-					feedback.setScore(newFeedback.getScore());
+					feedbackList.add(feedback);
+				} else {
+					throw new UnauthorizedException(generateErrorMessage(GL0058, USER, UPDATE));
+
 				}
-				if (feedback.getCategory().getValue().equalsIgnoreCase(CustomProperties.FeedbackCategory.RATING.getFeedbackCategory()) && feedback.getType().getValue().equalsIgnoreCase(CustomProperties.FeedbackRatingType.THUMB.getFeedbackRatingType())) {
-					if (newFeedback.getScore() != THUMB_UP && newFeedback.getScore() != THUMB_DOWN && newFeedback.getScore() != THUMB_NETURAL) {
-						throw new BadRequestException(generateErrorMessage(GL0007, THUMB_SCORE));
-					}
-					feedback.setScore(newFeedback.getScore());
-				}
 			}
-			feedbackList.add(feedback);
+		} else {
+			throw new NotFoundException(generateErrorMessage(GL0056, FEEDBACK));
 		}
 
 		this.getFeedbackRepository().saveAll(feedbackList);
@@ -115,12 +126,19 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 	}
 
 	@Override
-	public void deleteFeedback(String feedbackId, String gooruUid) {
-		List<Feedback> feedback = this.getFeedbackRepository().getFeedbacks(feedbackId, gooruUid);
+	public void deleteFeedback(String feedbackId, User user) throws Exception {
+		Feedback feedback = this.getFeedbackRepository().getFeedback(feedbackId);
 		if (feedback != null) {
-			SessionContextSupport.putLogParameter(FEEDBACK_GOORU_OID, feedback.get(0).getAssocGooruOid());
-			SessionContextSupport.putLogParameter(FEEDBACK_GOORU_UID, feedback.get(0).getAssocUserUid());
-			this.getFeedbackRepository().removeAll(feedback);
+			if (this.getUserManagementService().isContentAdmin(user) || feedback.getCreator().getPartyUid().equals(user.getPartyUid())) {
+
+				SessionContextSupport.putLogParameter(FEEDBACK_GOORU_OID, feedback.getAssocGooruOid());
+				SessionContextSupport.putLogParameter(FEEDBACK_GOORU_UID, feedback.getAssocUserUid());
+				this.getFeedbackRepository().remove(feedback);
+			} else {
+				throw new UnauthorizedException(generateErrorMessage(GL0057, USER));
+			}
+		} else {
+			throw new NotFoundException(generateErrorMessage(GL0056, FEEDBACK));
 		}
 	}
 

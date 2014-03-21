@@ -361,6 +361,8 @@ public interface ParameterProperties {
 	String GL0043 = "GL0043";
 
 	String GL0057 = "GL0057";
+	
+	String GL0058 = "GL0058";
 
 	String GL0041 = "GL0041";
 
