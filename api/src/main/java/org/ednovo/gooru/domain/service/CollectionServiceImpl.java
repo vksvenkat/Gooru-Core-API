@@ -148,6 +148,9 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				collection.put(ITEM_COUNT, this.getCollectionRepository().getCollectionItemCount(String.valueOf(object[1]), sharing,collectionType));
 				collection.put(SHARING, object[5]);
 				collection.put(COLLECTION_ITEM_ID, object[6]);
+				if (object[7] != null) { 
+					collection.put(GOALS, object[7]);
+				}
 				folderList.add(collection);
 			}
 		}
@@ -181,6 +184,9 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				if (fetchChildItem) {
 					item.put(COLLECTION_ITEMS, getFolderItem(String.valueOf(object[1]), sharing, String.valueOf(object[2]),collectionType, itemLimit, fetchChildItem));
 				} 
+				if (object[9] != null) { 
+					item.put(GOALS, object[9]);
+				}
 				items.add(item);
 			}
 			
@@ -214,6 +220,9 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				item.put(ITEM_COUNT, this.getCollectionRepository().getCollectionItemCount(String.valueOf(object[1]), sharing, collectionType));
 				item.put(SHARING, object[7]);
 				item.put(COLLECTION_ITEM_ID, object[8]);
+				if (object[9] != null) { 
+					item.put(GOALS, object[9]);
+				}
 				items.add(item);
 			}
 		}
