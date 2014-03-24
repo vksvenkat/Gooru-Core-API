@@ -552,12 +552,12 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 	
 	@Override
-	public SearchResults<Map<String, String>> getMyStudy(User user) {
+	public SearchResults<Map<String, String>> getMyStudy(User user, String orderBy) {
 		if(user.getPartyUid().equalsIgnoreCase(ANONYMOUS)) {
 			throw new NotFoundException("User not Found");
 		}
 		SearchResults<Map<String, String>> searchResult = new SearchResults<Map<String,String>>();
-		searchResult.setSearchResults(this.getUserGroupRepository().getMyStudy(user.getPartyUid(), user.getIdentities() != null ? user.getIdentities().iterator().next().getExternalId() : null));
+		searchResult.setSearchResults(this.getUserGroupRepository().getMyStudy(user.getPartyUid(), user.getIdentities() != null ? user.getIdentities().iterator().next().getExternalId() : null,orderBy));
 		searchResult.setTotalHitCount(this.getUserGroupRepository().getMyStudyCount(user.getPartyUid(), user.getIdentities() != null ? user.getIdentities().iterator().next().getExternalId() : null));
 		return searchResult;
 	}
