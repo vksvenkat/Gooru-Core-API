@@ -183,6 +183,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				item.put(COLLECTION_ITEM_ID, object[8]);
 				if (fetchChildItem) {
 					item.put(COLLECTION_ITEMS, getFolderItem(String.valueOf(object[1]), sharing, String.valueOf(object[2]),collectionType, itemLimit, fetchChildItem));
+					item.put(ITEM_COUNT, this.getCollectionRepository().getCollectionItemCount(String.valueOf(object[1]), sharing,collectionType));
 				} 
 				if (object[9] != null) { 
 					item.put(GOALS, object[9]);
