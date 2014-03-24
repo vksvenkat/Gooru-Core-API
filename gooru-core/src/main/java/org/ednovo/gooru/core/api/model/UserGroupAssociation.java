@@ -1,9 +1,7 @@
 package org.ednovo.gooru.core.api.model;
 
 import java.io.Serializable;
-
-import org.ednovo.gooru.core.api.model.User;
-import org.ednovo.gooru.core.api.model.UserGroup;
+import java.util.Date;
 
 public class UserGroupAssociation implements Serializable{
 	
@@ -22,6 +20,8 @@ public class UserGroupAssociation implements Serializable{
 	private UserGroup userGroup;
 
 	private Integer isGroupOwner;
+	
+	private Date associationDate;
 
 	public UserGroupAssociation() {
 		user = new User();
@@ -50,6 +50,14 @@ public class UserGroupAssociation implements Serializable{
 
 	public void setIsGroupOwner(Integer isGroupOwner) {
 		this.isGroupOwner = isGroupOwner;
+	}
+
+	public void setAssociationDate(Date associationDate) {
+		this.associationDate = associationDate;
+	}
+
+	public Date getAssociationDate() {
+		return associationDate;
 	}
 
 	

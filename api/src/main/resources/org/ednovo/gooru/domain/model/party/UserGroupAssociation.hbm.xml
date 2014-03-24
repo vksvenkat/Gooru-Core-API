@@ -36,5 +36,9 @@
 	     	 name="isGroupOwner"
 	     	 column="is_group_owner"
 	     	 not-null="false" />
+	    <property
+	     	 name="associationDate"
+	     	 column="association_date"
+	     	 not-null="false" />
    </class>    
 </hibernate-mapping>
