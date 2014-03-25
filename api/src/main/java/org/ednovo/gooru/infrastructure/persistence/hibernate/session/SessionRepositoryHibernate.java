@@ -118,6 +118,25 @@ public class SessionRepositoryHibernate extends BaseRepositoryHibernate implemen
 		return summary; 
 	}
 	
-	
+        public String getQuestionStatus(String sessionId, Integer trySequence, String questionType, Long quizContentId, String questionId){
+                Session session = getSession();
+                String sql = "select attempt_item_try_status from session s " +
+                                "inner join session_item si on si.session_id = s.session_id " +
+                                "inner join session_item_attempt_try sit on sit.session_item_id = si.session_item_id " +
+                                "inner join assessment_question aq on (aq.question_id = si.resource_id) " +
+                                "inner join content c on c.content_id = aq.question_id " +
+                                "where s.status = 'archive' and si.session_id = :sessionId " +
+                                "and c.gooru_oid = :questionId and try_sequence = :trySequence " +
+                                                "and aq.type in (:questionType)";
+                if (quizContentId != null && quizContentId != 0) {
+                    sql += " and s.collection_id = :quizContentId";
+                }
+                Query query = session.createSQLQuery(sql).setParameter("sessionId", sessionId).setParameter("trySequence", trySequence)
+                .setParameter("questionType", questionType).setParameter("questionId", questionId);
+                if (quizContentId != null && quizContentId != 0) {
+                        query.setParameter("quizContentId", quizContentId);
+                }
+                return query.list().size() > 0 ? (String)query.list().get(0) : null;
+        }	
 
 }
