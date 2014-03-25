@@ -63,7 +63,7 @@ public class CollaboratorRestV2Controller extends BaseController implements Para
 	public ModelAndView addCollaborator(@PathVariable(ID) String gooruOid, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
 		return toJsonModelAndView(this.getCollaboratorService().addCollaborator(JsonDeserializer.deserialize(data, new TypeReference<List<String>>() {
-		}), gooruOid, user), true);
+		}), gooruOid, user, true), true);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
