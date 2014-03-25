@@ -292,33 +292,28 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ})
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}/member" }, method = RequestMethod.GET)
-	public ModelAndView getClassMemberList(@PathVariable(ID) String code, @RequestParam(value = "groupByStatus", defaultValue = "false", required = false) Boolean groupByStatus, @RequestParam(value = "filterBy", required = false) String filterBy, HttpServletRequest request,
+	public ModelAndView getClassMemberList(@PathVariable(ID) String code,@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,
+			@RequestParam(value = SKIP_PAGINATION, required = false, defaultValue = FALSE) Boolean skipPagination ,@RequestParam(value = "groupByStatus", defaultValue = "false", required = false) Boolean groupByStatus, @RequestParam(value = "filterBy", required = false) String filterBy, HttpServletRequest request,
 			HttpServletResponse response) throws Exception {
-		return toJsonModelAndView(groupByStatus ? this.getClasspageService().getClassMemberListByGroup(code, filterBy) : this.getClasspageService().getClassMemberList(code, filterBy), true);
+
+		return toModelAndView(serialize(this.getClasspageService().getMemberList(code, offset, limit, skipPagination), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, false, true, CLASS_MEMBER_FIELDS));
 	}
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ})
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/my/study" }, method = RequestMethod.GET)
-	public ModelAndView getMyStudy( HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public ModelAndView getMyStudy( HttpServletRequest request, HttpServletResponse response, @RequestParam(value= ORDER_BY, defaultValue="desc",required= false) String orderBy) throws Exception {
 		User apiCaller = (User) request.getAttribute(Constants.USER);
 		
-		return toModelAndView(serialize(this.getClasspageService().getMyStudy(apiCaller), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, false, true, STUDY_RESOURCE_FIELDS));
+		return toModelAndView(serialize(this.getClasspageService().getMyStudy(apiCaller,orderBy), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, false, true, STUDY_RESOURCE_FIELDS));
 	}
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ })
 	@RequestMapping(value = "/my", method = RequestMethod.GET)
-	public ModelAndView getMyClasspage(HttpServletRequest request, @RequestParam(value = DATA_OBJECT, required = false) String data, HttpServletResponse resHttpServletResponse) throws Exception {
+	public ModelAndView getMyClasspage(HttpServletRequest request, @RequestParam(value = SKIP_PAGINATION, required = false) Boolean skipPagination, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, @RequestParam(value = ORDER_BY, required = false, defaultValue = DESC) String orderBy, HttpServletResponse resHttpServletResponse) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
-		JSONObject json = null;
 		String[] includes = null;
-		if (data != null && !data.isEmpty()) {
-			json = requestData(data);
-			includes = getValue(FIELDS, json) != null ? getFields(getValue(FIELDS, json)) : null;
-		}
-		Boolean skipPagination = Boolean.parseBoolean((json != null && getValue(SKIP_PAGINATION, json) != null ? getValue(SKIP_PAGINATION, json) : FALSE));
-		List<Classpage> classpage = getClasspageService().getMyClasspage(Integer.parseInt(json != null && getValue(OFFSET_FIELD, json) != null ? getValue(OFFSET_FIELD, json) : OFFSET.toString()),
-				Integer.parseInt(json != null && getValue(LIMIT_FIELD, json) != null ? getValue(LIMIT_FIELD, json) : LIMIT.toString()), user, skipPagination, json != null && getValue(ORDER_BY, json) != null ? getValue(ORDER_BY, json) : "desc");
+		List<Classpage> classpage = getClasspageService().getMyClasspage(offset,limit, user, skipPagination, orderBy);
 		includes = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, CLASSPAGE_INCLUDE_FIELDS);
 		includes = (String[]) ArrayUtils.addAll(includes, CLASSPAGE_META_INFO);
 		includes = (String[]) ArrayUtils.addAll(includes, CLASSPAGE_ITEM_INCLUDE_FIELDS);
@@ -328,9 +323,7 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 			result.setTotalHitCount(this.getClasspageService().getMyClasspageCount(user.getGooruUId()));
 			return toModelAndViewWithIoFilter(result, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 		} else {
-			return toModelAndViewWithIoFilter(
-					getClasspageService().getMyClasspage(Integer.parseInt(json != null && getValue(OFFSET_FIELD, json) != null ? getValue(OFFSET_FIELD, json) : OFFSET.toString()), Integer.parseInt(json != null && getValue(LIMIT_FIELD, json) != null ? getValue(LIMIT_FIELD, json) : LIMIT.toString()),
-							user, true, json != null && getValue(ORDER_BY, json) != null ? getValue(ORDER_BY, json) : "desc"), RESPONSE_FORMAT_JSON, EXCLUDE_ALL,true ,includes);
+			return toModelAndViewWithIoFilter(getClasspageService().getMyClasspage(offset, limit, user, true, orderBy), RESPONSE_FORMAT_JSON, EXCLUDE_ALL,true ,includes);
 		}
 	}
 	

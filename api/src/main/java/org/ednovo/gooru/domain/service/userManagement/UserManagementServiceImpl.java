@@ -1344,7 +1344,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		PartyCustomField partyCustomField = partyService.getPartyCustomeField(user.getPartyUid(), USER_TAXONOMY_ROOT_CODE, null);
 		Map<String, Object> metaData = new HashMap<String, Object>();
 		String taxonomyCode = null;
-		if(partyCustomField != null && partyCustomField.getOptionalValue() != null){
+		if(partyCustomField != null && partyCustomField.getOptionalValue() != null && partyCustomField.getOptionalValue().length() > 0){
 			taxonomyCode = this.getTaxonomyRespository().getFindTaxonomyCodeList(partyCustomField.getOptionalValue());
 		}
 		
@@ -1354,7 +1354,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			metaData.put(CODE, taxonomyCodeList);
 		}
 		
-		if(partyCustomField.getOptionalValue() != null){
+		if(partyCustomField.getOptionalValue() != null && partyCustomField.getOptionalValue().length() > 0){
 			List<String> taxonomyCodeIdList = Arrays.asList(partyCustomField.getOptionalValue().split(","));
 			metaData.put(CODE_ID, taxonomyCodeIdList);
 		}

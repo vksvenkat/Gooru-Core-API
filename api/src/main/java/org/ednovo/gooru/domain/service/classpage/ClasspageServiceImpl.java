@@ -407,6 +407,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 						UserGroupAssociation groupAssociation = new UserGroupAssociation();
 						groupAssociation.setIsGroupOwner(0);
 						groupAssociation.setUser(identity.getUser());
+						groupAssociation.setAssociationDate(new Date(System.currentTimeMillis()));
 						groupAssociation.setUserGroup(userGroup);
 						this.getUserRepository().save(groupAssociation);
 						classpageMember.add(setMemberResponse(groupAssociation,ACTIVE));
@@ -497,6 +498,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		return pendingList;
 	}	
 	
+	
 	private Map<String, Object> setInviteMember(InviteUser inviteUser, String status) {
 		Map<String, Object> listMap = new HashMap<String, Object>();
 		listMap.put(EMAIL_ID, inviteUser.getEmailId());
@@ -517,7 +519,34 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		member.put(STATUS, status);
 		return member;
 	}
-
+	
+	@Override
+	public SearchResults<Map<String, Object>> getMemberList(String code,Integer offset, Integer limit, Boolean skipPagination) {
+		Classpage classpage = this.getCollectionRepository().getClasspageByCode(code);
+		if(classpage == null) {
+			throw new NotFoundException("classpage not found");
+		} 
+		List<Object[]> results = this.getUserGroupRepository().getUserMemberList(code, classpage.getGooruOid(), offset, limit, skipPagination);
+		SearchResults<Map<String, Object>> searchResult = new SearchResults<Map<String,Object>>();
+		List<Map<String, Object>> listMap = new ArrayList<Map<String,Object>>();
+		for (Object[] object : results) {
+			Map<String, Object> result = new HashMap<String, Object>();
+			result.put(EMAIL_ID, object[0]);
+			result.put(USER_NAME, object[1]);
+			result.put(_GOORU_UID, object[2]);
+			result.put(ASSOC_DATE, object[3]);
+			result.put(STATUS, object[4]);
+			if(String.valueOf(object[4]).equalsIgnoreCase(ACTIVE)) {
+				User user = this.getUserRepository().findByGooruId((String)object[2]);
+				result.put(PROFILE_IMG_URL, this.userManagementService.buildUserProfileImageUrl(user));
+			}
+			listMap.add(result);
+		}
+		searchResult.setSearchResults(listMap);
+		searchResult.setTotalHitCount(this.getUserGroupRepository().getUserMemberCount(code, classpage.getGooruOid()));
+		return searchResult;
+	}
+	
 
 	private Errors validateClasspage(Classpage classpage) throws Exception {
 		final Errors errors = new BindException(classpage,CLASSPAGE);
@@ -552,12 +581,12 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 	
 	@Override
-	public SearchResults<Map<String, String>> getMyStudy(User user) {
+	public SearchResults<Map<String, String>> getMyStudy(User user, String orderBy) {
 		if(user.getPartyUid().equalsIgnoreCase(ANONYMOUS)) {
 			throw new NotFoundException("User not Found");
 		}
 		SearchResults<Map<String, String>> searchResult = new SearchResults<Map<String,String>>();
-		searchResult.setSearchResults(this.getUserGroupRepository().getMyStudy(user.getPartyUid(), user.getIdentities() != null ? user.getIdentities().iterator().next().getExternalId() : null));
+		searchResult.setSearchResults(this.getUserGroupRepository().getMyStudy(user.getPartyUid(), user.getIdentities() != null ? user.getIdentities().iterator().next().getExternalId() : null,orderBy));
 		searchResult.setTotalHitCount(this.getUserGroupRepository().getMyStudyCount(user.getPartyUid(), user.getIdentities() != null ? user.getIdentities().iterator().next().getExternalId() : null));
 		return searchResult;
 	}
