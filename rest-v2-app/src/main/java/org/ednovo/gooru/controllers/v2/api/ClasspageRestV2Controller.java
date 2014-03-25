@@ -310,11 +310,11 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ })
 	@RequestMapping(value = "/my", method = RequestMethod.GET)
-	public ModelAndView getMyClasspage(HttpServletRequest request, @RequestParam(value = SKIP_PAGINATION, required = false) Boolean skipPagination, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, @RequestParam(value = ORDER_BY, required = false, defaultValue = DESC) String orderBy, HttpServletResponse resHttpServletResponse) throws Exception {
+	public ModelAndView getMyClasspage(HttpServletRequest request, @RequestParam(value = SKIP_PAGINATION, required = false, defaultValue= "false") boolean skipPagination, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, @RequestParam(value = ORDER_BY, required = false, defaultValue = DESC) String orderBy, HttpServletResponse resHttpServletResponse) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
-		String[] includes = null;
-		List<Classpage> classpage = getClasspageService().getMyClasspage(offset,limit, user, skipPagination, orderBy);
-		includes = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, CLASSPAGE_INCLUDE_FIELDS);
+		 
+		List<Classpage> classpage = this.getClasspageService().getMyClasspage(offset,limit, user, skipPagination, orderBy);
+		String[] includes = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, CLASSPAGE_INCLUDE_FIELDS);
 		includes = (String[]) ArrayUtils.addAll(includes, CLASSPAGE_META_INFO);
 		includes = (String[]) ArrayUtils.addAll(includes, CLASSPAGE_ITEM_INCLUDE_FIELDS);
 		if (!skipPagination) {
