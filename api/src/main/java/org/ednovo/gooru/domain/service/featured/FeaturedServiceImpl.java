@@ -299,11 +299,9 @@ public class FeaturedServiceImpl implements FeaturedService, ParameterProperties
 							List<Code> subjects = this.getTaxonomyRespository().findCodeByParentCodeId(String.valueOf(curriculum.getCodeId()), null, null, null, true, LIBRARY, getOrganizationCode(libraryName), String.valueOf(curriculum.getCodeId()), "1");
 							for (Code subject : subjects) {
 								courseMap.addAll(this.getLibraryCourse(String.valueOf(subject.getCodeId()), String.valueOf(object[1]), libraryName, String.valueOf(curriculum.getRootNodeId())));
-								curriculumMap.add(getCode(curriculum, courseMap, "course", null, getOrganizationCode(libraryName), null));
 							}
+							curriculumMap.add(getCode(curriculum, courseMap, "course", null, getOrganizationCode(libraryName), null));
 
-							List<Map<String, Object>> courseMap1 = new ArrayList<Map<String, Object>>();
-							curriculumMap.add(getCode(curriculum, courseMap1, "course", null, getOrganizationCode(libraryName), null));
 					}
 					lib.put(DATA_OBJECT, curriculumMap);
 				} else {
