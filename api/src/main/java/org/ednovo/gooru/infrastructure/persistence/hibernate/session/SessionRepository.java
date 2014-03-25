@@ -43,4 +43,7 @@ public interface SessionRepository extends BaseRepository {
 
 	Map<String, Object> getQuizSummary(String sessionId, Integer trySequence, String questionType, Long quizContentId);
 
+        String getQuestionStatus(String sessionId, Integer trySequence, String questionType, Long quizContentId, String questionId);
+
+
 }

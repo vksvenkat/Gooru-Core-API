@@ -483,7 +483,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 	@Override
 	public List<Classpage> getMyClasspage(Integer offset, Integer limit, User user, boolean skipPagination, String orderBy) {
 		String hql = "select collectionItems.resource  FROM Collection collection inner join collection.collectionItems collectionItems WHERE   collection.user.partyUid = '" + user.getGooruUId() + "' and collection.collectionType = '" + CollectionType.USER_CLASSPAGE.getCollectionType()
-				+ "'  order by collectionItems.resource.createdOn desc";
+				+ "'  order by collectionItems.resource.createdOn " + orderBy;
 		Session session = getSession();
 		Query query = session.createQuery(hql);
 		if (!skipPagination) {
