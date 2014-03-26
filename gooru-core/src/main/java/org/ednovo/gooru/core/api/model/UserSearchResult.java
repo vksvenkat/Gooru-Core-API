@@ -1,5 +1,7 @@
 package org.ednovo.gooru.core.api.model;
 
+import java.util.Map;
+
 import org.ednovo.gooru.core.api.model.User;
 
 public class UserSearchResult {
@@ -25,6 +27,7 @@ public class UserSearchResult {
 	private String aboutMe;
 	private String notes;
 	private String profileVisibility;
+	private Map<String, Map<String, Object>> meta;
 	
 	public String getConfirmStatus() {
 		return confirmStatus;
@@ -151,6 +154,12 @@ public class UserSearchResult {
 	}
 	public void setNotes(String notes) {
 		this.notes = notes;
+	}
+	public Map<String, Map<String, Object>> getMeta() {
+		return meta;
+	}
+	public void setMeta(Map<String, Map<String, Object>> meta) {
+		this.meta = meta;
 	}
 	
 }

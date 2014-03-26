@@ -31,6 +31,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
 
+import org.ednovo.gooru.application.util.TaxonomyUtil;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Classpage;
 import org.ednovo.gooru.core.api.model.Collection;
@@ -47,6 +48,7 @@ import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserGroup;
 import org.ednovo.gooru.core.api.model.UserGroupAssociation;
 import org.ednovo.gooru.core.application.util.BaseUtil;
+import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.core.exception.UnauthorizedException;
 import org.ednovo.gooru.domain.service.CollectionService;
@@ -54,6 +56,7 @@ import org.ednovo.gooru.domain.service.InviteService;
 import org.ednovo.gooru.domain.service.ScollectionServiceImpl;
 import org.ednovo.gooru.domain.service.group.UserGroupService;
 import org.ednovo.gooru.domain.service.search.SearchResults;
+import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.ednovo.gooru.domain.service.task.TaskService;
 import org.ednovo.gooru.domain.service.user.UserService;
 import org.ednovo.gooru.domain.service.userManagement.UserManagementService;
@@ -99,6 +102,9 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	
 	@Autowired
 	private InviteService inviteService;
+	
+	@Autowired
+	private SettingService settingService;
 
 
 
@@ -414,6 +420,8 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 					}
 				}
 			}
+		} else {
+			throw new NotFoundException("class not found");
 		}
 		return classpageMember;
 	}
@@ -521,12 +529,12 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 	
 	@Override
-	public SearchResults<Map<String, Object>> getMemberList(String code,Integer offset, Integer limit, Boolean skipPagination) {
+	public SearchResults<Map<String, Object>> getMemberList(String code,Integer offset, Integer limit, Boolean skipPagination, String filterBy) {
 		Classpage classpage = this.getCollectionRepository().getClasspageByCode(code);
 		if(classpage == null) {
 			throw new NotFoundException("classpage not found");
 		} 
-		List<Object[]> results = this.getUserGroupRepository().getUserMemberList(code, classpage.getGooruOid(), offset, limit, skipPagination);
+		List<Object[]> results = this.getUserGroupRepository().getUserMemberList(code, classpage.getGooruOid(), offset, limit, skipPagination,filterBy);
 		SearchResults<Map<String, Object>> searchResult = new SearchResults<Map<String,Object>>();
 		List<Map<String, Object>> listMap = new ArrayList<Map<String,Object>>();
 		for (Object[] object : results) {
@@ -536,14 +544,13 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			result.put(_GOORU_UID, object[2]);
 			result.put(ASSOC_DATE, object[3]);
 			result.put(STATUS, object[4]);
-			if(String.valueOf(object[4]).equalsIgnoreCase(ACTIVE)) {
-				User user = this.getUserRepository().findByGooruId((String)object[2]);
-				result.put(PROFILE_IMG_URL, this.userManagementService.buildUserProfileImageUrl(user));
+			if(object[2] != null) {
+				result.put(PROFILE_IMG_URL, settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, TaxonomyUtil.GOORU_ORG_UID) + "/" + settingService.getConfigSetting(ConfigConstants.PROFILE_BUCKET, TaxonomyUtil.GOORU_ORG_UID) +  String.valueOf(object[2]) + ".png");
 			}
 			listMap.add(result);
 		}
 		searchResult.setSearchResults(listMap);
-		searchResult.setTotalHitCount(this.getUserGroupRepository().getUserMemberCount(code, classpage.getGooruOid()));
+		searchResult.setTotalHitCount(this.getUserGroupRepository().getUserMemberCount(code, classpage.getGooruOid(),filterBy));
 		return searchResult;
 	}
 	

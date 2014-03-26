@@ -295,20 +295,13 @@ public class FeaturedServiceImpl implements FeaturedService, ParameterProperties
 					this.lessonLimit = 10;
 					List<Code> curriculums = this.getTaxonomyRespository().findCodeByParentCodeId(null, null, null, null, true, LIBRARY, getOrganizationCode(libraryName), null, "0");
 					List<Map<String, Object>> curriculumMap = new ArrayList<Map<String, Object>>();
-					int curriculumCount = 0;
 					for (Code curriculum : curriculums) {
-						if (curriculumCount == 0) {
 							List<Code> subjects = this.getTaxonomyRespository().findCodeByParentCodeId(String.valueOf(curriculum.getCodeId()), null, null, null, true, LIBRARY, getOrganizationCode(libraryName), String.valueOf(curriculum.getCodeId()), "1");
 							for (Code subject : subjects) {
-								courseMap = this.getLibraryCourse(String.valueOf(subject.getCodeId()), String.valueOf(object[1]), libraryName, String.valueOf(curriculum.getRootNodeId()));
-								curriculumMap.add(getCode(curriculum, courseMap, "course", null, getOrganizationCode(libraryName), null));
+								courseMap.addAll(this.getLibraryCourse(String.valueOf(subject.getCodeId()), String.valueOf(object[1]), libraryName, String.valueOf(curriculum.getRootNodeId())));
 							}
+							curriculumMap.add(getCode(curriculum, courseMap, "course", null, getOrganizationCode(libraryName), null));
 
-						} else {
-							List<Map<String, Object>> courseMap1 = new ArrayList<Map<String, Object>>();
-							curriculumMap.add(getCode(curriculum, courseMap1, "course", null, getOrganizationCode(libraryName), null));
-						}
-						curriculumCount++;
 					}
 					lib.put(DATA_OBJECT, curriculumMap);
 				} else {

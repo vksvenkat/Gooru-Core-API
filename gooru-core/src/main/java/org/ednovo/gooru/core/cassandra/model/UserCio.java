@@ -101,6 +101,9 @@ public class UserCio implements IsEntityCassandraIndexable {
 	@Column
 	private Date lastModifiedOn;
 	
+	@Column
+	private String metaJson;
+	
 	public Integer getUserId() {
 		return userId;
 	}
@@ -317,6 +320,14 @@ public class UserCio implements IsEntityCassandraIndexable {
 
 	public void setLastModifiedOn(Date lastModifiedOn) {
 		this.lastModifiedOn = lastModifiedOn;
+	}
+
+	public String getMetaJson() {
+		return metaJson;
+	}
+
+	public void setMetaJson(String metaJson) {
+		this.metaJson = metaJson;
 	}
 
 }

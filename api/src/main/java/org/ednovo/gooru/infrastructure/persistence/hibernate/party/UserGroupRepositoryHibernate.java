@@ -32,7 +32,6 @@ import java.util.Map;
 import org.ednovo.gooru.core.api.model.PartyPermission;
 import org.ednovo.gooru.core.api.model.UserGroup;
 import org.ednovo.gooru.core.api.model.UserGroupAssociation;
-import org.ednovo.gooru.domain.service.userManagement.UserManagementService;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -151,8 +150,12 @@ public class UserGroupRepositoryHibernate extends BaseRepositoryHibernate implem
 	}
 	
 	@Override
-	public List<Object[]> getUserMemberList(String code, String gooruOid, Integer offset, Integer limit, Boolean skipPagination) {
-		String sql= "select * from  ((select external_id, ui.username, ui.gooru_uid, null as createdDate ,'active' as status   from classpage c inner join user_group u on u.user_group_code = c.classpage_code inner join content cc on cc.content_id = classpage_content_id  inner join  user_group_association ug on ug.user_group_uid = u.user_group_uid inner join identity i on i.user_uid = ug.gooru_uid inner join user ui on ui.gooru_uid = i.user_uid   where  c.classpage_code = '"+code+"' and ug.is_group_owner != 1) union (select email, null as uname ,null as gooruUid, created_date, 'pending' as status from invite_user iu inner join custom_table_value ctv on ctv.custom_table_value_id = iu.status_id   where gooru_oid = '"+gooruOid+"' and ctv.value= 'pending')) as member ";
+	public List<Object[]> getUserMemberList(String code, String gooruOid, Integer offset, Integer limit, Boolean skipPagination, String filterBy) {
+		String sql= "select * from  ((select external_id, ui.username, ui.gooru_uid, null as createdDate ,'active' as status   from classpage c inner join user_group u on u.user_group_code = c.classpage_code inner join content cc on cc.content_id = classpage_content_id  inner join  user_group_association ug on ug.user_group_uid = u.user_group_uid inner join identity i on i.user_uid = ug.gooru_uid inner join user ui on ui.gooru_uid = i.user_uid   where  c.classpage_code = '"+code+"' and ug.is_group_owner != 1) union (select email,  username ,gooru_uid, created_date, 'pending' as status from invite_user iu inner join custom_table_value ctv on ctv.custom_table_value_id = iu.status_id left join identity i on iu.email = i.external_id left join user user on user.gooru_uid = i.user_uid   where gooru_oid = '"+gooruOid+"' and ctv.value= 'pending')) as member";
+		
+		if(filterBy != null) {
+			sql += " where status='"+ filterBy +"'";
+		}
 		
 		Query query = getSession().createSQLQuery(sql);
 		if (!skipPagination) {
@@ -163,8 +166,12 @@ public class UserGroupRepositoryHibernate extends BaseRepositoryHibernate implem
 	}
 	
 	@Override
-	public Long getUserMemberCount(String code, String gooruOid) {
-		String sql= "select count(1) from  ((select external_id, ui.username, ui.gooru_uid, null as createdDate ,'active' as status   from classpage c inner join user_group u on u.user_group_code = c.classpage_code inner join content cc on cc.content_id = classpage_content_id  inner join  user_group_association ug on ug.user_group_uid = u.user_group_uid inner join identity i on i.user_uid = ug.gooru_uid inner join user ui on ui.gooru_uid = i.user_uid   where  c.classpage_code = '"+code+"' and ug.is_group_owner != 1) union (select email, null as uname ,null as gooruUid, created_date, 'pending' as status from invite_user iu inner join custom_table_value ctv on ctv.custom_table_value_id = iu.status_id   where gooru_oid = '"+gooruOid+"' and ctv.value= 'pending')) as member ";
+	public Long getUserMemberCount(String code, String gooruOid, String filterBy) {
+		String sql= "select count(1) from  ((select external_id, ui.username, ui.gooru_uid, null as createdDate ,'active' as status   from classpage c inner join user_group u on u.user_group_code = c.classpage_code inner join content cc on cc.content_id = classpage_content_id  inner join  user_group_association ug on ug.user_group_uid = u.user_group_uid inner join identity i on i.user_uid = ug.gooru_uid inner join user ui on ui.gooru_uid = i.user_uid   where  c.classpage_code = '"+code+"' and ug.is_group_owner != 1) union (select email,  username ,gooru_uid, created_date, 'pending' as status from invite_user iu inner join custom_table_value ctv on ctv.custom_table_value_id = iu.status_id left join identity i on iu.email = i.external_id left join user user on user.gooru_uid = i.user_uid   where gooru_oid = '"+gooruOid+"' and ctv.value= 'pending')) as member ";
+		
+		if(filterBy != null) {
+			sql += " where status='"+ filterBy +"'";
+		}
 		Query query = getSession().createSQLQuery(sql);
 		return ((BigInteger)query.list().get(0)).longValue();
 	}
