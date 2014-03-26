@@ -414,6 +414,8 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 					}
 				}
 			}
+		} else {
+			throw new NotFoundException("class not found");
 		}
 		return classpageMember;
 	}
@@ -521,12 +523,12 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 	
 	@Override
-	public SearchResults<Map<String, Object>> getMemberList(String code,Integer offset, Integer limit, Boolean skipPagination) {
+	public SearchResults<Map<String, Object>> getMemberList(String code,Integer offset, Integer limit, Boolean skipPagination, String filterBy) {
 		Classpage classpage = this.getCollectionRepository().getClasspageByCode(code);
 		if(classpage == null) {
 			throw new NotFoundException("classpage not found");
 		} 
-		List<Object[]> results = this.getUserGroupRepository().getUserMemberList(code, classpage.getGooruOid(), offset, limit, skipPagination);
+		List<Object[]> results = this.getUserGroupRepository().getUserMemberList(code, classpage.getGooruOid(), offset, limit, skipPagination,filterBy);
 		SearchResults<Map<String, Object>> searchResult = new SearchResults<Map<String,Object>>();
 		List<Map<String, Object>> listMap = new ArrayList<Map<String,Object>>();
 		for (Object[] object : results) {
@@ -536,14 +538,14 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			result.put(_GOORU_UID, object[2]);
 			result.put(ASSOC_DATE, object[3]);
 			result.put(STATUS, object[4]);
-			if(String.valueOf(object[4]).equalsIgnoreCase(ACTIVE)) {
+			if(object[2] != null) {
 				User user = this.getUserRepository().findByGooruId((String)object[2]);
 				result.put(PROFILE_IMG_URL, this.userManagementService.buildUserProfileImageUrl(user));
 			}
 			listMap.add(result);
 		}
 		searchResult.setSearchResults(listMap);
-		searchResult.setTotalHitCount(this.getUserGroupRepository().getUserMemberCount(code, classpage.getGooruOid()));
+		searchResult.setTotalHitCount(this.getUserGroupRepository().getUserMemberCount(code, classpage.getGooruOid(),filterBy));
 		return searchResult;
 	}
 	

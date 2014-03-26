@@ -296,7 +296,7 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 			@RequestParam(value = SKIP_PAGINATION, required = false, defaultValue = FALSE) Boolean skipPagination ,@RequestParam(value = "groupByStatus", defaultValue = "false", required = false) Boolean groupByStatus, @RequestParam(value = "filterBy", required = false) String filterBy, HttpServletRequest request,
 			HttpServletResponse response) throws Exception {
 
-		return toModelAndView(serialize(this.getClasspageService().getMemberList(code, offset, limit, skipPagination), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, false, true, CLASS_MEMBER_FIELDS));
+		return toModelAndView(serialize(this.getClasspageService().getMemberList(code, offset, limit, skipPagination,filterBy), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, false, true, CLASS_MEMBER_FIELDS));
 	}
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ})
