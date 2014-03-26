@@ -31,6 +31,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
 
+import org.ednovo.gooru.application.util.TaxonomyUtil;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Classpage;
 import org.ednovo.gooru.core.api.model.Collection;
@@ -47,6 +48,7 @@ import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserGroup;
 import org.ednovo.gooru.core.api.model.UserGroupAssociation;
 import org.ednovo.gooru.core.application.util.BaseUtil;
+import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.core.exception.UnauthorizedException;
 import org.ednovo.gooru.domain.service.CollectionService;
@@ -54,6 +56,7 @@ import org.ednovo.gooru.domain.service.InviteService;
 import org.ednovo.gooru.domain.service.ScollectionServiceImpl;
 import org.ednovo.gooru.domain.service.group.UserGroupService;
 import org.ednovo.gooru.domain.service.search.SearchResults;
+import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.ednovo.gooru.domain.service.task.TaskService;
 import org.ednovo.gooru.domain.service.user.UserService;
 import org.ednovo.gooru.domain.service.userManagement.UserManagementService;
@@ -99,6 +102,9 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	
 	@Autowired
 	private InviteService inviteService;
+	
+	@Autowired
+	private SettingService settingService;
 
 
 
@@ -539,8 +545,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			result.put(ASSOC_DATE, object[3]);
 			result.put(STATUS, object[4]);
 			if(object[2] != null) {
-				User user = this.getUserRepository().findByGooruId((String)object[2]);
-				result.put(PROFILE_IMG_URL, this.userManagementService.buildUserProfileImageUrl(user));
+				result.put(PROFILE_IMG_URL, settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, TaxonomyUtil.GOORU_ORG_UID) + "/" + settingService.getConfigSetting(ConfigConstants.PROFILE_BUCKET, TaxonomyUtil.GOORU_ORG_UID) +  String.valueOf(object[2]) + ".png");
 			}
 			listMap.add(result);
 		}
