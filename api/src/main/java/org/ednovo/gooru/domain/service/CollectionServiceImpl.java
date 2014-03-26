@@ -239,7 +239,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		List<Object[]> list =this.getTaxonomyRespository().getCollectionStandards(codeId, query, limit, offset, skipPagination);
 		List<Code> codeList = new ArrayList<Code>();
 		for(Object[]  object : list) {
-			if (object[4] != null && ((String) object[4]).contains(UserGroupSupport.getTaxonomyPreference())) {
+			if (object[4] != null && String.valueOf(object[4]).contains(UserGroupSupport.getTaxonomyPreference())) {
 			  Code code = new Code();
 			  code.setCode((String)object[0]);
 			  code.setCodeId((Integer)object[1]);
