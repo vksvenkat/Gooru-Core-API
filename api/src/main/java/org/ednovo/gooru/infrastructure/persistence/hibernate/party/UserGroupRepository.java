@@ -53,8 +53,8 @@ public interface UserGroupRepository extends BaseRepository {
 	
 	Long getMyStudyCount(String gooruUid, String mailId);
 	
-	List<Object[]> getUserMemberList(String code, String gooruOid, Integer offset, Integer limit, Boolean skipPagination);
+	List<Object[]> getUserMemberList(String code, String gooruOid, Integer offset, Integer limit, Boolean skipPagination,String filterBy);
 	
-	Long getUserMemberCount(String code, String gooruOid);
+	Long getUserMemberCount(String code, String gooruOid,String filterBy);
 
 }
