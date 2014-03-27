@@ -56,7 +56,7 @@ public class CustomValueRestV2Controller  extends BaseController implements Para
 	}
 
 	
-	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ROLE_ADD })
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CASSANDRA_FIELDS_UPDATE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.POST, value = "/update/cassandra")
 	public void setSearchSettings(HttpServletRequest request,  HttpServletResponse response) throws Exception {
@@ -64,7 +64,6 @@ public class CustomValueRestV2Controller  extends BaseController implements Para
 	}
 	
 	private CustomValueService getCustomValueService() {
-		// TODO Auto-generated method stub
 		return customValueService;
 	}
 
