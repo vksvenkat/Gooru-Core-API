@@ -91,7 +91,7 @@ public class CustomValueServiceImpl extends BaseServiceImpl implements CustomVal
 			}
 			if(values.toString().trim().length() > 0){
 				String fieldValue = searchSettingCassandraService.read(entry.getValue(), profileName);
-				if(!fieldValue.equalsIgnoreCase(values.toString())){
+				if(fieldValue != null && !fieldValue.equalsIgnoreCase(values.toString())){
 					searchSettingCassandraService.save(entry.getValue(), profileName, values.toString());
 					searchSettingCassandraService.save("setting.version", profileName, getSettingVersion());
 				}
