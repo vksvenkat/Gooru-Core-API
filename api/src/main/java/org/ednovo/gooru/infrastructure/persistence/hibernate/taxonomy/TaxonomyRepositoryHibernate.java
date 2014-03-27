@@ -928,7 +928,7 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 
 	@Override
 	public List<Object[]> getCollectionStandards(Integer codeId, String text, Integer limit, Integer offset, Boolean skipPagination) {
-		String sql = "select c.display_code, c.code_id, c.label,c.code_uid, c.root_node_id from taxonomy_association ta inner join code c on ta.target_code_id = c.code_id  where  c.common_core_dot_notation like '" + text + "%'";
+		String sql = "select c.common_core_dot_notation, c.code_id, c.label,c.code_uid, c.root_node_id from taxonomy_association ta inner join code c on ta.target_code_id = c.code_id  where  c.common_core_dot_notation like '" + text + "%'";
 		if (codeId != null) {
 			sql += " and ta.source_code_id =" + codeId;
 		}
