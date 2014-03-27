@@ -115,8 +115,8 @@ public interface ScollectionService extends BaseService {
 
 	Set<String> getCourse(Set<Code> taxonomySet);
 
-	List<StandardFo> getStandards(Set<Code> taxonomySet);
-
+	List<StandardFo> getStandards(Set<Code> taxonomySet, boolean ignoreUserTaxonomyPreference);
+	
 	void updateResourceSharing(String sharing, Collection collection);
 	
 	Map<String, Object>  getCollection(String gooruOid, Map<String, Object> collection);
