@@ -472,8 +472,8 @@ public class CollectionUtil implements ParameterProperties {
 			for (Code code : taxonomySet) {
 				if (code.getRootNodeId() != null && code.getRootNodeId().toString().contains(UserGroupSupport.getTaxonomyPreference())) {
 					String codeOrDisplayCode = "";
-					if (code.getdisplayCode() != null && !code.getdisplayCode().equals("")) {
-						codeOrDisplayCode = code.getdisplayCode().replace(".--", " ");
+					if (code.getCommonCoreDotNotation() != null && !code.getCommonCoreDotNotation().equals("")) {
+						codeOrDisplayCode = code.getCommonCoreDotNotation().replace(".--", " ");
 					} else if (code.getCode() != null && !code.getCode().equals("")) {
 						codeOrDisplayCode = code.getCode().replace(".--", " ");
 					}
@@ -565,8 +565,8 @@ public class CollectionUtil implements ParameterProperties {
 					if (code.getLabel() != null && !code.getLabel().equals("")) {
 						standardFo.setDescription(code.getLabel());
 					}
-					if (code.getdisplayCode() != null && !code.getdisplayCode().equals("")) {
-						standardFo.setCode(code.getdisplayCode().replace(".--", " "));
+					if (code.getCommonCoreDotNotation() != null && !code.getCommonCoreDotNotation().equals("")) {
+						standardFo.setCode(code.getCommonCoreDotNotation().replace(".--", " "));
 					} else if (code.getCode() != null && !code.getCode().equals("")) {
 						standardFo.setCode(code.getCode().replace(".--", " "));
 					}
