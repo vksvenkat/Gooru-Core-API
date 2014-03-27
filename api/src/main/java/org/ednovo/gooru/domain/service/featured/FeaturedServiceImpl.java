@@ -434,7 +434,7 @@ public class FeaturedServiceImpl implements FeaturedService, ParameterProperties
 		for (Collection collection : collections) {
 			CollectionMetaInfo collectionMetaInfo = new CollectionMetaInfo();
 			collectionMetaInfo.setCourse(this.getCollectionService().getCourse(collection.getTaxonomySet()));
-			collectionMetaInfo.setStandards(this.getCollectionService().getStandards(collection.getTaxonomySet()));
+			collectionMetaInfo.setStandards(this.getCollectionService().getStandards(collection.getTaxonomySet(), true));
 			collection.setMetaInfo(collectionMetaInfo);
 		}
 
@@ -784,7 +784,7 @@ public class FeaturedServiceImpl implements FeaturedService, ParameterProperties
 				collection.put("collectionId", object[0]);
 				collection.put("resourceId", object[1]);
 				Resource resource = resourceRepository.findResourceByContentGooruId((String)object[1]);
-				collection.put("standards", this.getCollectionService().getStandards(resource.getTaxonomySet()));
+				collection.put("standards", this.getCollectionService().getStandards(resource.getTaxonomySet(), true));
 				collection.put("course", this.getCollectionService().getCourse(resource.getTaxonomySet()));
 				collection.put("title", object[2]);
 				if (object[4] != null) {
