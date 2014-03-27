@@ -89,5 +89,8 @@
 		<property name="activeFlag" column="active_flag" not-null="false">
 		</property>
 		<property name="libraryFlag" column="library_flag" not-null="false" />
+		<property name="commonCoreDotNotation" column="common_core_dot_notation" 
+            not-null="false">
+        </property>
 	</class>
 </hibernate-mapping>
