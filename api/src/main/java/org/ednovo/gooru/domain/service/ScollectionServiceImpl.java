@@ -1439,7 +1439,9 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			} else {
 				Set<Code> codes = new HashSet<Code>();
 				for (Code code : sourceCollection.getTaxonomySet()) {
-					codes.add(code);
+					if (code.getRootNodeId() != null && code.getRootNodeId().toString().equalsIgnoreCase(Code.GOORU_TAXONOMY_CODE_ID)) {
+					  codes.add(code);
+					}
 				}
 				destCollection.setTaxonomySet(codes);
 			}
