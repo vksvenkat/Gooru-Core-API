@@ -8,7 +8,7 @@
 			<name>Gooru</name>
 			<url>http://www.goorulearning.org</url>
 			<prerequisites>
-				<maven>2.5</maven>
+				<maven>3</maven>
 			</prerequisites>
 			<licenses>
 				<license>
@@ -232,6 +232,7 @@
 					<modules>
 					<module>api</module>
 					<module>cassandra-core</module>
+					<module>mail</module>
                                         <module>rest-v2-app</module>
 					<module>gooru-core</module> 
 					</modules> 
