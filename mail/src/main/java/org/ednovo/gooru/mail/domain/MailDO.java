@@ -22,7 +22,25 @@ public class MailDO {
 	private String password;
 	private List<Attachment> attachFiles;
 	private Address[] address; 
-	
+	private Address singleRecipient;
+
+	public Address getSingleRecipient() {
+		return singleRecipient;
+	}
+
+	public void setSingleRecipient(Address singleRecipient) {
+		this.singleRecipient = singleRecipient;
+	}
+
+	private boolean sendRecipient;
+
+	public boolean isSendRecipient() {
+		return sendRecipient;
+	}
+
+	public void setSendRecipient(boolean sendRecipient) {
+		this.sendRecipient = sendRecipient;
+	}
 
 	public void setHtmlContent(String htmlContent) {
 		this.htmlContent = htmlContent;
@@ -159,6 +177,5 @@ public class MailDO {
 	public void setAddress(Address[] address) {
 		this.address = address;
 	}
-
 
 }
