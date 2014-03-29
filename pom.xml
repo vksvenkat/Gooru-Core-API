@@ -8,7 +8,7 @@
 			<name>Gooru</name>
 			<url>http://www.goorulearning.org</url>
 			<prerequisites>
-				<maven>2.5</maven>
+				<maven>3.0.4</maven>
 			</prerequisites>
 			<licenses>
 				<license>
