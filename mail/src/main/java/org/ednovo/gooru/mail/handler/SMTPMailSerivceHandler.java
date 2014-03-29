@@ -9,6 +9,7 @@ import java.security.Security;
 import java.util.Properties;
 
 import javax.activation.DataHandler;
+import javax.mail.Address;
 import javax.mail.BodyPart;
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -29,6 +30,28 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class SMTPMailSerivceHandler implements MailHandler {
+	
+	public void sendSingleRecipient(MailDO mail) throws MessagingException, UnsupportedEncodingException {
+		String[] to = mail.getRecipient().split(",");
+		for (int i = 0; i < to.length; i++) {
+			Address singleRecipient =  new InternetAddress(to[i]);
+			Address[] address = new Address [] {singleRecipient};
+			mail.setAddress(address);
+			sendMail(mail, (System.currentTimeMillis() + 1000 * 60 * 5));
+		}
+	}
+	
+	@Override
+	public void sendRecipient(MailDO mail) throws MessagingException,
+			UnsupportedEncodingException {
+			String[] to = mail.getRecipient().split(",");
+			Address[] address = new Address[to.length];
+			for (int i = 0; i < to.length; i++) {
+				address[i] = new InternetAddress(to[i]);
+			}
+			mail.setAddress(address);
+			sendMail(mail, (System.currentTimeMillis() + 1000 * 60 * 5));
+	}
 
 	public Object sendMail(final MailDO mail, Long expires) throws MessagingException, UnsupportedEncodingException {
 		Long start = System.currentTimeMillis();
@@ -94,7 +117,5 @@ public class SMTPMailSerivceHandler implements MailHandler {
 			throw new RuntimeException("error:tims was expired.");
 		}
 	}
-	
-	
-	
+
 }
