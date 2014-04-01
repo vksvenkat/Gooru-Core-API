@@ -290,13 +290,14 @@ public class FeaturedServiceImpl implements FeaturedService, ParameterProperties
 			Map<String, Object> lib = new HashMap<String, Object>();
 			lib.put(CODE, object[0] == null ? FEATURED : object[0]);
 			if (object[2].equals(type) || (object[0] != null && String.valueOf(object[0]).equalsIgnoreCase(type))) {
+				List<Map<String, Object>> courseMap = null;
 				if (object[2].equals(STANDARD)) {
 					this.lessonLimit = 10;
 					List<Code> curriculums = this.getTaxonomyRespository().findCodeByParentCodeId(null, null, null, null, true, LIBRARY, getOrganizationCode(libraryName), null, "0");
 					List<Map<String, Object>> curriculumMap = new ArrayList<Map<String, Object>>();
 					for (Code curriculum : curriculums) {
 							List<Code> subjects = this.getTaxonomyRespository().findCodeByParentCodeId(String.valueOf(curriculum.getCodeId()), null, null, null, true, LIBRARY, getOrganizationCode(libraryName), String.valueOf(curriculum.getCodeId()), "1");
-							List<Map<String, Object>> courseMap = new ArrayList<Map<String, Object>>();
+							courseMap = new ArrayList<Map<String, Object>>();
 							for (Code subject : subjects) {
 								courseMap.addAll(this.getLibraryCourse(String.valueOf(subject.getCodeId()), String.valueOf(object[1]), libraryName, String.valueOf(curriculum.getRootNodeId())));
 							}
