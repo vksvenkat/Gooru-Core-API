@@ -134,6 +134,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		StorageArea storageArea = this.getStorageRepository().getStorageAreaByTypeName(NFS);
 		List<Object[]> result = this.getCollectionRepository().getMyFolder(gooruUid, limit, offset, sharing, collectionType);
 		List<Map<String, Object>> folderList = new ArrayList<Map<String, Object>>();
+		int count = 0;
 		if (result != null && result.size() > 0) {
 			for (Object[] object : result) {
 				Map<String, Object> collection = new HashMap<String, Object>();
@@ -145,13 +146,20 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 					thumbnails.put(URL, storageArea.getCdnDirectPath() + String.valueOf(object[3]) + String.valueOf(object[4]));
 					collection.put(THUMBNAILS, thumbnails);
 				}
-				collection.put(COLLECTION_ITEMS, getFolderItem(String.valueOf(object[1]), sharing, String.valueOf(object[2]),collectionType, itemLimit, fetchChildItem));
+				if (fetchChildItem) {
+					if (count == 0) {
+				      collection.put(COLLECTION_ITEMS, getFolderItem(String.valueOf(object[1]), sharing, String.valueOf(object[2]),collectionType, itemLimit, fetchChildItem));
+					}
+				} else { 
+					collection.put(COLLECTION_ITEMS, getFolderItem(String.valueOf(object[1]), sharing, String.valueOf(object[2]),collectionType, itemLimit, fetchChildItem));
+				}
 				collection.put(ITEM_COUNT, this.getCollectionRepository().getCollectionItemCount(String.valueOf(object[1]), sharing,collectionType));
 				collection.put(SHARING, object[5]);
 				collection.put(COLLECTION_ITEM_ID, object[6]);
 				if (object[7] != null) { 
 					collection.put(GOALS, object[7]);
 				}
+				count++;
 				folderList.add(collection);
 			}
 		}
