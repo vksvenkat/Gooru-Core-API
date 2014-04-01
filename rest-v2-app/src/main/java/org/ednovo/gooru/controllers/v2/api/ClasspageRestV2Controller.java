@@ -308,10 +308,10 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ})
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/my/study" }, method = RequestMethod.GET)
-	public ModelAndView getMyStudy( HttpServletRequest request, HttpServletResponse response, @RequestParam(value= ORDER_BY, defaultValue="desc",required= false) String orderBy) throws Exception {
+	public ModelAndView getMyStudy( HttpServletRequest request, HttpServletResponse response,  @RequestParam(value = SKIP_PAGINATION, required = false, defaultValue= "false") boolean skipPagination, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,@RequestParam(value= ORDER_BY, defaultValue="desc",required= false) String orderBy) throws Exception {
 		User apiCaller = (User) request.getAttribute(Constants.USER);
 		
-		return toModelAndView(serialize(this.getClasspageService().getMyStudy(apiCaller,orderBy), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, false, true, STUDY_RESOURCE_FIELDS));
+		return toModelAndView(serialize(this.getClasspageService().getMyStudy(apiCaller,orderBy, offset,  limit, skipPagination), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, false, true, STUDY_RESOURCE_FIELDS));
 	}
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ })

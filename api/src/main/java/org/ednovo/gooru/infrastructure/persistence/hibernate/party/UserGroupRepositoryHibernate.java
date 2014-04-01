@@ -117,7 +117,7 @@ public class UserGroupRepositoryHibernate extends BaseRepositoryHibernate implem
 	}
 	
 	@Override
-	public List<Map<String, String>> getMyStudy(String gooruUid, String mailId, String orderBy) {
+	public List<Map<String, String>> getMyStudy(String gooruUid, String mailId, String orderBy,Integer offset, Integer limit, Boolean skipPagination) {
 		String sql= "select * from  ((select cc.gooru_oid , u.name , c.classpage_code ,'active' as status, ug.association_date from classpage c inner join user_group u on u.user_group_code = c.classpage_code inner join content cc on cc.content_id = classpage_content_id  inner join  user_group_association ug on ug.user_group_uid = u.user_group_uid  where  ug.gooru_uid= '"+gooruUid+"' and ug.is_group_owner != 1 ) union (select iu.gooru_oid , r.title,clas.classpage_code ,'pending' as status, iu.created_date from invite_user iu inner join content c on c.gooru_oid = iu.gooru_oid inner join resource r on r.content_id =c.content_id inner join classpage clas on clas.classpage_content_id = r.content_id inner join custom_table_value ct on ct.custom_table_value_id = iu.status_id where iu.email = '"+mailId+"' and ct.value = 'pending')) as member ";
 		sql += "order by association_date "; 
 		if(orderBy.equalsIgnoreCase("desc") || orderBy.equalsIgnoreCase("asc")) {
@@ -126,6 +126,10 @@ public class UserGroupRepositoryHibernate extends BaseRepositoryHibernate implem
 			sql += "desc";
 		}
 		Query query = getSession().createSQLQuery(sql);
+		if (!skipPagination) {
+			query.setFirstResult(offset);
+			query.setMaxResults(limit);
+		}
 		return getMyStudy(query.list());
 	}
 
