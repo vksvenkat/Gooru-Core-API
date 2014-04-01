@@ -33,7 +33,7 @@
 				<artifactId>maven-war-plugin</artifactId>
 				<version>2.0.2</version>
 				<configuration>
-					<webappDirectory>${webapp.container.home}/webapps/gooru-mail</webappDirectory>
+			<!--		<webappDirectory>${webapp.container.home}/webapps/gooru-mail</webappDirectory>  -->
 					<!-- This is the context name we would like to use -->
 					<warName>gooru-mail</warName>
 					<dependentWarExcludes>
