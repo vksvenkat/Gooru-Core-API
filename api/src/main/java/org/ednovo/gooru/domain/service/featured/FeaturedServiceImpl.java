@@ -286,7 +286,6 @@ public class FeaturedServiceImpl implements FeaturedService, ParameterProperties
 		this.lessonLimit = 3;
 		List<Object[]> results = this.getFeaturedRepository().getLibrary(null, true, libraryName);
 		Map<Object, Object> subjectMap = new HashMap<Object, Object>();
-		List<Map<String, Object>> courseMap = new ArrayList<Map<String, Object>>();
 		for (Object[] object : results) {
 			Map<String, Object> lib = new HashMap<String, Object>();
 			lib.put(CODE, object[0] == null ? FEATURED : object[0]);
@@ -297,6 +296,7 @@ public class FeaturedServiceImpl implements FeaturedService, ParameterProperties
 					List<Map<String, Object>> curriculumMap = new ArrayList<Map<String, Object>>();
 					for (Code curriculum : curriculums) {
 							List<Code> subjects = this.getTaxonomyRespository().findCodeByParentCodeId(String.valueOf(curriculum.getCodeId()), null, null, null, true, LIBRARY, getOrganizationCode(libraryName), String.valueOf(curriculum.getCodeId()), "1");
+							List<Map<String, Object>> courseMap = new ArrayList<Map<String, Object>>();
 							for (Code subject : subjects) {
 								courseMap.addAll(this.getLibraryCourse(String.valueOf(subject.getCodeId()), String.valueOf(object[1]), libraryName, String.valueOf(curriculum.getRootNodeId())));
 							}
