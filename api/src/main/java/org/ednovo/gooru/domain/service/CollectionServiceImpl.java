@@ -176,8 +176,8 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		List<Object[]> result = this.getCollectionRepository().getCollectionItem(gooruOid, type.equalsIgnoreCase(SCOLLECTION) ? 4 : itemLimit, 0, false, sharing, type.equalsIgnoreCase(SCOLLECTION) ? SEQUENCE : null, collectionType);
 		if (result != null && result.size() > 0) {
 			if (fetchChildItem) {
-				if (type.equalsIgnoreCase(SCOLLECTION)) { 
-					collectionItemcount++;
+				if (type.equalsIgnoreCase(FOLDER)) { 
+					collectionItemcount=0;
 				}
 			}
 			for (Object[] object : result) {
@@ -198,13 +198,14 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				}
 				item.put(SHARING, object[7]);
 				item.put(COLLECTION_ITEM_ID, object[8]);
-				if (fetchChildItem && (type.equalsIgnoreCase(SCOLLECTION) || type.equalsIgnoreCase(FOLDER) )) {
-					if (type.equalsIgnoreCase(SCOLLECTION)) {
-				      if (collectionItemcount == 1) {
+				if (fetchChildItem && (String.valueOf(object[2]).equalsIgnoreCase(SCOLLECTION) || String.valueOf(object[2]).equalsIgnoreCase(FOLDER) )) {
+					if (String.valueOf(object[2]).equalsIgnoreCase(SCOLLECTION)) {
+				      if (collectionItemcount == 0) {
 					    item.put(COLLECTION_ITEMS, getFolderItem(String.valueOf(object[1]), sharing, String.valueOf(object[2]),collectionType, type.equalsIgnoreCase(SCOLLECTION) ? 4 : itemLimit, fetchChildItem));
 					    item.put(ITEM_COUNT, this.getCollectionRepository().getCollectionItemCount(String.valueOf(object[1]), sharing,collectionType));
+					    collectionItemcount++;
 					  } 
-					} else { 
+					} else if ((String.valueOf(object[2]).equalsIgnoreCase(SCOLLECTION) || String.valueOf(object[2]).equalsIgnoreCase(FOLDER) )) { 
 					   item.put(COLLECTION_ITEMS, getFolderItem(String.valueOf(object[1]), sharing, String.valueOf(object[2]),collectionType, type.equalsIgnoreCase(SCOLLECTION) ? 4 : itemLimit, fetchChildItem));
 					   item.put(ITEM_COUNT, this.getCollectionRepository().getCollectionItemCount(String.valueOf(object[1]), sharing,collectionType));
 					}
