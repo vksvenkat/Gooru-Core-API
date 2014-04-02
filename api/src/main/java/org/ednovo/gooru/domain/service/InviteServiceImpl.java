@@ -75,10 +75,9 @@ public class InviteServiceImpl extends BaseServiceImpl implements InviteService,
 			throw new NotFoundException(generateErrorMessage(GL0006, CLASS));
 		}
 		List<Map<String, String>> invites = new ArrayList<Map<String, String>>();
-		List<InviteUser> inviteUsers = null;
+		List<InviteUser> inviteUsers = new ArrayList<InviteUser>();
 		for (String email : emails) {
 			InviteUser inviteUser = this.getInviteRepository().findInviteUserById(email, classPage.getGooruOid(),null);
-			inviteUsers = new ArrayList<InviteUser>();
 			if (inviteUser  == null) {
 				inviteUsers.add(createInviteUserObj(email,classPage.getGooruOid(), CLASS, apiCaller));
 			}
