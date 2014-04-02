@@ -198,7 +198,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				}
 				item.put(SHARING, object[7]);
 				item.put(COLLECTION_ITEM_ID, object[8]);
-				if (fetchChildItem) {
+				if (fetchChildItem && (type.equalsIgnoreCase(SCOLLECTION) || type.equalsIgnoreCase(FOLDER) )) {
 					if (type.equalsIgnoreCase(SCOLLECTION)) {
 				      if (collectionItemcount == 1) {
 					    item.put(COLLECTION_ITEMS, getFolderItem(String.valueOf(object[1]), sharing, String.valueOf(object[2]),collectionType, type.equalsIgnoreCase(SCOLLECTION) ? 4 : itemLimit, fetchChildItem));
