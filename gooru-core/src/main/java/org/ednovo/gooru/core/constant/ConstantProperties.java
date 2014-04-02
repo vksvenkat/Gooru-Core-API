@@ -283,6 +283,8 @@ public interface ConstantProperties {
 	static final String RESET_PASSWORD_INCLUDES[] = { "*.active", "*.externalId", "*.lastLogin", "*.registeredOn", "*.ssoEmailId" };
 
 	static final String[] USER_EXCLUDES = { "*.user.entryId" };
+	
+	static final String[] AVAILABILITY_INCLUDES = {"*.confirmStatus","*.gooruUId","*.userName","*.collaboratorCheck","*.externalId","*.availability"};
 
 	static final String CURRENT_SESSION_TOKEN = "currentSessionToken";
 

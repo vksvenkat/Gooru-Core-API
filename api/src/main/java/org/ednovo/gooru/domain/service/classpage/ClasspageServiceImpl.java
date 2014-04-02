@@ -438,10 +438,10 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 					if (userGroupAssociation != null) {
 						this.getUserGroupRepository().remove(userGroupAssociation);
 					}
-					InviteUser inviteUser = this.getInviteRepository().findInviteUserById(mailId, classpage.getGooruOid(),null);
-					if (inviteUser != null) {
-						this.getInviteRepository().remove(inviteUser);
-					}
+				}
+				InviteUser inviteUser = this.getInviteRepository().findInviteUserById(mailId, classpage.getGooruOid(),null);
+				if (inviteUser != null) {
+					this.getInviteRepository().remove(inviteUser);
 				}
 			}
 		}
@@ -588,7 +588,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 	
 	@Override
-	public SearchResults<Map<String, String>> getMyStudy(User user, String orderBy,Integer offset, Integer limit, Boolean skipPagination) {
+	public SearchResults<Map<String, String>> getMyStudy(User user, String orderBy,Integer offset, Integer limit, boolean skipPagination) {
 		if(user.getPartyUid().equalsIgnoreCase(ANONYMOUS)) {
 			throw new NotFoundException("User not Found");
 		}

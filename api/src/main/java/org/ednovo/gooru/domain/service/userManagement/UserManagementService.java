@@ -90,8 +90,6 @@ public interface UserManagementService extends BaseService {
 
 	void deleteUserImageProfile(String userId) throws Exception;
 
-	Boolean checkUserAvailability(String keyword, String type, User user);
-	
 	User resendConfirmationMail(String gooruUid,User apicaller,String sessionId,String gooruBaseUrl,String type) throws Exception;
 	
 	void updateOrgAdminCustomField(String organizationUid, User user) throws Exception;
