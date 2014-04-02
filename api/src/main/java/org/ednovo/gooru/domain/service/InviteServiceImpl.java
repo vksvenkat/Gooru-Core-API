@@ -85,6 +85,7 @@ public class InviteServiceImpl extends BaseServiceImpl implements InviteService,
 			inviteMap.put(EMAIL_ID, email);
 			inviteMap.put(GOORU_OID, classPage.getGooruOid());
 			inviteMap.put(STATUS, PENDING);
+			String inviteFrom = apiCaller.getIdentities() != null ? apiCaller.getIdentities().iterator().next().getExternalId() : null ;
 			invites.add(inviteMap);
 			Profile profile= this.getUserRepository().getProfile(classPage.getUser(), false);
 			String gender = "";
@@ -98,7 +99,7 @@ public class InviteServiceImpl extends BaseServiceImpl implements InviteService,
 					noun = HIS;
 				}
 			}
-			this.getMailHandler().sendMailToInviteUser(inviteMap,classPage.getUser(),classPage.getTitle(), gender,noun);
+			this.getMailHandler().sendMailToInviteUser(inviteMap,classPage.getUser(),classPage.getTitle(), gender,noun,inviteFrom);
 		}
 		if (inviteUsers != null) { 
 			this.getInviteRepository().saveAll(inviteUsers);
