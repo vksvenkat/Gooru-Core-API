@@ -360,9 +360,9 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 	}
 
 	@Override
-	public Map<String, Object> getFlags(Integer limit, Integer offset, Boolean skipPagination, String category, String type, String status, String reportedFlagType) {
+	public Map<String, Object> getFlags(Integer limit, Integer offset, Boolean skipPagination, String category, String type, String status, String reportedFlagType, String startDate, String endDate,String id, String title, String description, String flagDescription, String notes, String reporterUserName, String reporterUserId) {
 
-		return this.getFeedbackRepository().getContentFlags(limit, offset, skipPagination, getTableNameByFeedbackCategory(CustomProperties.FeedbackCategory.REPORT.getFeedbackCategory(), CustomProperties.Target.CONTENT.getTarget()), type, status, reportedFlagType);
+		return this.getFeedbackRepository().getContentFlags(limit, offset, skipPagination, getTableNameByFeedbackCategory(CustomProperties.FeedbackCategory.REPORT.getFeedbackCategory(), CustomProperties.Target.CONTENT.getTarget()), type, status, reportedFlagType, startDate, endDate, id, title, description, flagDescription,notes, reporterUserName, reporterUserId);
 	}
 
 	@Override
