@@ -99,7 +99,7 @@ public class InviteServiceImpl extends BaseServiceImpl implements InviteService,
 					noun = HIS;
 				}
 			}
-			this.getMailHandler().sendMailToInviteUser(inviteMap,classPage.getUser(),classPage.getTitle(), gender,noun,inviteFrom);
+			this.getMailHandler().sendMailToInviteUser(inviteMap,classPage.getUser(),classPage.getTitle(), gender,noun,inviteFrom,apiCaller.getUsername());
 		}
 		if (inviteUsers != null) { 
 			this.getInviteRepository().saveAll(inviteUsers);
