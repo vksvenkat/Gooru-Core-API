@@ -1447,7 +1447,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			SessionContextSupport.putLogParameter(SOURCE_COLLECTION_ID, sourceCollection.getGooruOid());
 			SessionContextSupport.putLogParameter(TARGET_COLLECTION_ID, destCollection.getGooruOid());
 			this.getCollectionRepository().save(destCollection);
-			if (newCollection.getTaxonomySet() != null) {
+			 if (newCollection.getTaxonomySet() != null && newCollection.getTaxonomySet().size() > 0) {
 				resourceService.saveOrUpdateResourceTaxonomy(destCollection, new HashSet<Code>(newCollection.getTaxonomySet()));
 			} else {
 				Set<Code> codes = new HashSet<Code>();
