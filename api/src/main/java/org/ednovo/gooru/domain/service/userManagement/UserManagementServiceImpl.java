@@ -1348,7 +1348,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			metaData.put(CODE, taxonomyCodeList);
 		}
 		
-		if(partyCustomField.getOptionalValue() != null && partyCustomField.getOptionalValue().length() > 0){
+		if(partyCustomField != null & partyCustomField.getOptionalValue() != null && partyCustomField.getOptionalValue().length() > 0){
 			List<String> taxonomyCodeIdList = Arrays.asList(partyCustomField.getOptionalValue().split(","));
 			metaData.put(CODE_ID, taxonomyCodeIdList);
 		}
