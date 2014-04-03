@@ -183,7 +183,7 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 		request.setAttribute(Constants.EVENT_PREDICATE, "user.check.usernameOremailid.availability");
 		User user = (User) request.getAttribute(Constants.USER);
 
-		return toModelAndViewWithIoFilter(this.getUserService().getUserAvailability(keyword, type, isCollaboratorCheck, collectionId, user),RESPONSE_FORMAT_JSON,EXCLUDE_ALL,true,AVAILABILITY_INCLUDES);
+		return toModelAndViewWithIoFilter(this.getUserService().getUserAvailability(keyword, type.equals(USER_NAME) ? CheckUser.BYUSERNAME.getCheckUser() : type.equals(EMAIL_ID) ? CheckUser.BYEMAILID.getCheckUser() : null, isCollaboratorCheck, collectionId, user),RESPONSE_FORMAT_JSON,EXCLUDE_ALL,true,AVAILABILITY_INCLUDES);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_UPDATE_PASSWORD })
