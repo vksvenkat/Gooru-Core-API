@@ -901,8 +901,8 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		StandardFo standard = new StandardFo();
 		if (code.getCommonCoreDotNotation() != null && !code.getCommonCoreDotNotation().equals("")) {
 			standard.setCode(code.getCommonCoreDotNotation().replace(".--", " "));
-		} else {
-			standard.setCode(code.getCode().replace(".--", " "));
+		} else if (code.getdisplayCode() != null && !code.getdisplayCode().equals("")) {
+			standard.setCode(code.getdisplayCode().replace(".--", " "));
 		}
 		if (code.getLabel() != null && !code.getLabel().equals("")) {
 			standard.setDescription(code.getLabel());

@@ -125,8 +125,6 @@ public class CollectionUtil implements ParameterProperties {
 	@Autowired
 	private OperationAuthorizer operationAuthorizer;
 
-	@Autowired
-	private CollectionService collectionService;
 
 	private final static Logger logger = LoggerFactory.getLogger(CollectionUtil.class);
 
@@ -474,8 +472,8 @@ public class CollectionUtil implements ParameterProperties {
 					String codeOrDisplayCode = "";
 					if (code.getCommonCoreDotNotation() != null && !code.getCommonCoreDotNotation().equals("")) {
 						codeOrDisplayCode = code.getCommonCoreDotNotation().replace(".--", " ");
-					} else if (code.getCode() != null && !code.getCode().equals("")) {
-						codeOrDisplayCode = code.getCode().replace(".--", " ");
+					} else if (code.getdisplayCode() != null && !code.getdisplayCode().equals("")) {
+						codeOrDisplayCode = code.getdisplayCode().replace(".--", " ");
 					}
 					if (!curriculumCode.contains(codeOrDisplayCode)) {
 						// string replace has been added to fix the ".--" issue
@@ -567,8 +565,8 @@ public class CollectionUtil implements ParameterProperties {
 					}
 					if (code.getCommonCoreDotNotation() != null && !code.getCommonCoreDotNotation().equals("")) {
 						standardFo.setCode(code.getCommonCoreDotNotation().replace(".--", " "));
-					} else if (code.getCode() != null && !code.getCode().equals("")) {
-						standardFo.setCode(code.getCode().replace(".--", " "));
+					} else if (code.getdisplayCode() != null && !code.getdisplayCode().equals("")) {
+						standardFo.setCode(code.getdisplayCode().replace(".--", " "));
 					}
 					standards.add(standardFo);
 				}

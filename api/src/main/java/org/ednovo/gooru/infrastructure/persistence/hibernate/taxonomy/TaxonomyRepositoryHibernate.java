@@ -980,4 +980,12 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 		return  query.list().size() > 0 ? (Code) query.list().get(0) : null;
 	}
 
+	@Cacheable("gooruCache")
+	@Override
+	public String findTaxonomyCodeLabels(String codeIds) {
+		String sql = "select group_concat(label) as labels from code where depth = 0 and organization_uid  IN (" + getUserOrganizationUidsAsString() + ") and code_id  in (" + codeIds + ")";
+		Query query = getSession().createSQLQuery(sql).addScalar("labels", StandardBasicTypes.STRING);
+		return query.list() != null ?(String) query.list().get(0) : null;
+	}
+
 }
