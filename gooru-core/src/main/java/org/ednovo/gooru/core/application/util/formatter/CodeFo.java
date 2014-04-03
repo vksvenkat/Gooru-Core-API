@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.ednovo.gooru.core.api.model.Code.Thumbnail;
 import org.ednovo.gooru.core.api.model.OrganizationModel;
 
 public class CodeFo  extends OrganizationModel implements Serializable {
@@ -21,6 +20,7 @@ public class CodeFo  extends OrganizationModel implements Serializable {
 	private String codeImage;
 	private int s3UploadFlag;
 	public static final String TAXONOMY_CODE_IMAGE_SIZES = "80x60,160x120";
+	private String commonCoreDotNotation;
 	
 	public CodeFo() {
 		setThumbnails(new Thumbnail());
@@ -101,6 +101,13 @@ public class CodeFo  extends OrganizationModel implements Serializable {
 	}
 	public int getS3UploadFlag() {
 		return s3UploadFlag;
+	}
+
+	public void setCommonCoreDotNotation(String commonCoreDotNotation) {
+		this.commonCoreDotNotation = commonCoreDotNotation;
+	}
+	public String getCommonCoreDotNotation() {
+		return commonCoreDotNotation;
 	}
 
 	public class Thumbnail implements Serializable {

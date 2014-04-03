@@ -32,5 +32,6 @@ public interface CustomValueService extends BaseService {
 
 	List<CustomTableValue> getCustomValues(String type);
 
+	public void updateSearchSettings();
 
 }

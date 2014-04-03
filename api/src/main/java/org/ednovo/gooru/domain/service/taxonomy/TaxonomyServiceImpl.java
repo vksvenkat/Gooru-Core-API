@@ -537,7 +537,7 @@ public class TaxonomyServiceImpl implements TaxonomyService,ParameterProperties 
 				Code unitCode =  taxonomyRepository.findFirstChildTaxonomyCodeByDepth(courseCode.getCodeId(), 3);
 				courseCodeObj.setFirstUnitId(unitCode != null ? unitCode.getCodeId() : null);
 				courseCodeObj.setNode(courseLessonList);
-				
+				courseCodeObj.setCommonCoreDotNotation(courseCode.getCommonCoreDotNotation());
 				subjectCourseList.add(courseCodeObj);
 			}
 			subjectCodeObj.setNode(subjectCourseList);

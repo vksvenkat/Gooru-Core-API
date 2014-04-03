@@ -483,7 +483,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 	@Override
 	public List<Classpage> getMyClasspage(Integer offset, Integer limit, User user, boolean skipPagination, String orderBy) {
 		String hql = "select collectionItems.resource  FROM Collection collection inner join collection.collectionItems collectionItems WHERE   collection.user.partyUid = '" + user.getGooruUId() + "' and collection.collectionType = '" + CollectionType.USER_CLASSPAGE.getCollectionType()
-				+ "'  order by collectionItems.resource.createdOn desc";
+				+ "'  order by collectionItems.resource.createdOn " + orderBy;
 		Session session = getSession();
 		Query query = session.createQuery(hql);
 		if (!skipPagination) {
@@ -730,7 +730,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 
 	@Override
 	public List<Object[]> getMyFolder(String gooruUid, Integer limit, Integer offset, String sharing, String collectionType) {
-		String sql = "select re.title, cr.gooru_oid, re.type_name, re.folder, re.thumbnail, cr.sharing, ci.collection_item_id  from  resource r inner join collection c on c.content_id = r.content_id inner join content cc on cc.content_id =  c.content_id inner join collection_item ci on ci.collection_content_id = c.content_id inner join resource re on re.content_id = ci.resource_content_id inner join content cr on  cr.content_id = re.content_id inner join organization o  on  o.organization_uid = cr.organization_uid  where c.collection_type = 'shelf' and  cr.sharing in ('" + sharing.replace(",", "','")+ "') and cc.user_uid=:gooruUid ";
+		String sql = "select re.title, cr.gooru_oid, re.type_name, re.folder, re.thumbnail, cr.sharing, ci.collection_item_id, co.goals from  resource r inner join collection c on c.content_id = r.content_id inner join content cc on cc.content_id =  c.content_id inner join collection_item ci on ci.collection_content_id = c.content_id inner join resource re on re.content_id = ci.resource_content_id inner join content cr on  cr.content_id = re.content_id inner join organization o  on  o.organization_uid = cr.organization_uid  left join collection co on co.content_id = re.content_id  where c.collection_type = 'shelf' and  cr.sharing in ('" + sharing.replace(",", "','")+ "') and cc.user_uid=:gooruUid ";
 		
 		if (collectionType!= null)  {
 			sql += " and re.type_name=:collectionType ";
@@ -748,7 +748,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 
 	@Override
 	public List<Object[]> getCollectionItem(String gooruOid, Integer limit, Integer offset, boolean skipPagination, String sharing, String orderBy, String collectionType) {
-		String sql = "select r.title, c.gooru_oid, r.type_name, r.folder, r.thumbnail, ct.value, ct.display_name, c.sharing, ci.collection_item_id from collection_item ci inner join resource r on r.content_id = ci.resource_content_id  left join custom_table_value ct on ct.custom_table_value_id = r.resource_format_id inner join content c on c.content_id = r.content_id inner join content rc on rc.content_id = ci.collection_content_id where  c.sharing in ('"
+		String sql = "select r.title, c.gooru_oid, r.type_name, r.folder, r.thumbnail, ct.value, ct.display_name, c.sharing, ci.collection_item_id, co.goals from collection_item ci inner join resource r on r.content_id = ci.resource_content_id  left join custom_table_value ct on ct.custom_table_value_id = r.resource_format_id inner join content c on c.content_id = r.content_id inner join content rc on rc.content_id = ci.collection_content_id left join collection co on co.content_id = r.content_id where  c.sharing in ('"
 				+ sharing.replace(",", "','") + "') and rc.gooru_oid=:gooruOid  ";
 		if (collectionType != null) {
 			sql += " and r.type_name =:collectionType ";
@@ -836,8 +836,9 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		return query.list().size() > 0 ? (String)query.list().get(0) : null;
 	}
 	
-	public Long getPublicCollectionCount(String gooruOid) {
-		String sql = "select count(1) as count  from collection_item  ci inner join resource r  on r.content_id = ci.resource_content_id inner join content c on c.content_id = ci.resource_content_id inner join content cc on cc.content_id = ci.collection_content_id  where cc.gooru_oid =:gooruOid and c.sharing in  ('public') and (r.type_name = 'folder' or r.type_name = 'scollection')";
+	@Override
+	public Long getPublicCollectionCount(String gooruOid,String sharing) {
+		String sql = "select count(1) as count  from collection_item  ci inner join resource r  on r.content_id = ci.resource_content_id inner join content c on c.content_id = ci.resource_content_id inner join content cc on cc.content_id = ci.collection_content_id  where cc.gooru_oid =:gooruOid and c.sharing in  ('"+sharing+"') and (r.type_name = 'folder' or r.type_name = 'scollection')";
 		Query query = getSession().createSQLQuery(sql).addScalar("count", StandardBasicTypes.LONG);
 		query.setParameter("gooruOid", gooruOid);
 		return (Long) query.list().get(0);

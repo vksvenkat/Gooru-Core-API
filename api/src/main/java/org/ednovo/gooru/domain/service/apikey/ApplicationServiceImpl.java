@@ -72,15 +72,23 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 	}
 
 	@Override
-	public ActionResponseDTO<ApiKey> saveApplication(ApiKey apikey, User user) throws Exception{
+	public ActionResponseDTO<ApiKey> saveApplication(ApiKey apikey, User user ,String organizationUid) throws Exception{
 		Errors error = validateApiKey(apikey);
 		if (!error.hasErrors()) {
 			PartyCustomField partyCustomField = partyService.getPartyCustomeField(user.getPartyUid(), ConstantProperties.ORG_ADMIN_KEY, user);
 			if(partyCustomField != null && partyCustomField.getOptionalValue() != null){
-				Organization organization = organizationService.getOrganizationById(partyCustomField.getOptionalValue());
-				if(organization == null){
+				Organization organization = null;
+				 //If organization is passed from superadmin use it else set loggedin users organization details
+                if(organizationUid != null){
+                   organization = organizationService.getOrganizationById(organizationUid);
+                }else{
+                      organization = organizationService.getOrganizationById(partyCustomField.getOptionalValue());
+                }
+				
+                if(organization == null){
 					throw new RuntimeException("Organization not found !");
 				}
+
 				apikey.setActiveFlag(1);
 				apikey.setSecretKey(UUID.randomUUID().toString());
 				apikey.setKey(UUID.randomUUID().toString());

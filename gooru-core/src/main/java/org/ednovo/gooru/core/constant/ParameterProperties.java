@@ -2640,7 +2640,7 @@ public interface ParameterProperties {
 	
 	String IS_PARTNER_PORTAL = "isPartnerPortal";
 	
-	String SERVERPATH = "serverpath";
+	String SERVERPATH = "serverPath";
 	
 	String TEACHERNAME = "teachername";
 	
@@ -2657,4 +2657,8 @@ public interface ParameterProperties {
 	String TEXTCONTENT = "textContent";
 	
 	String NOUN = "noun";
+	
+	String ITEM_LIMIT_FIELD = "itemLimit";
+	
+	String FETCH_CHILDS = "fetchChilds";
 }

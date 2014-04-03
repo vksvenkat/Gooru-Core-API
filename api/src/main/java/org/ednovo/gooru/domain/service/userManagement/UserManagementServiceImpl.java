@@ -1049,12 +1049,6 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	}
 
 	@Override
-	public Boolean checkUserAvailability(String keyword, String type, User user) {
-
-		return this.getUserRepository().checkUserAvailability(keyword, type.equals(USER_NAME) ? CheckUser.BYUSERNAME : type.equals(EMAIL_ID) ? CheckUser.BYEMAILID : null, false);
-	}
-
-	@Override
 	public User resetPasswordRequest(String emailId, String gooruBaseUrl, User apicaller, String mailConfirmationUrl) throws Exception {
 		Identity identity = new Identity();
 		if (apicaller != null && !apicaller.getGooruUId().equalsIgnoreCase(Constants.ANONYMOUS)) {
@@ -1344,7 +1338,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		PartyCustomField partyCustomField = partyService.getPartyCustomeField(user.getPartyUid(), USER_TAXONOMY_ROOT_CODE, null);
 		Map<String, Object> metaData = new HashMap<String, Object>();
 		String taxonomyCode = null;
-		if(partyCustomField != null && partyCustomField.getOptionalValue() != null){
+		if(partyCustomField != null && partyCustomField.getOptionalValue() != null && partyCustomField.getOptionalValue().length() > 0){
 			taxonomyCode = this.getTaxonomyRespository().getFindTaxonomyCodeList(partyCustomField.getOptionalValue());
 		}
 		
@@ -1354,7 +1348,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			metaData.put(CODE, taxonomyCodeList);
 		}
 		
-		if(partyCustomField.getOptionalValue() != null){
+		if(partyCustomField.getOptionalValue() != null && partyCustomField.getOptionalValue().length() > 0){
 			List<String> taxonomyCodeIdList = Arrays.asList(partyCustomField.getOptionalValue().split(","));
 			metaData.put(CODE_ID, taxonomyCodeIdList);
 		}

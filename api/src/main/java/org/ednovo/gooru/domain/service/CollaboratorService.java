@@ -32,7 +32,7 @@ import org.ednovo.gooru.core.api.model.User;
 
 public interface CollaboratorService extends BaseService {
 	
-	List<Map<String, Object>> addCollaborator(List<String> email, String gooruOid, User apiCaller) throws Exception;
+	List<Map<String, Object>> addCollaborator(List<String> email, String gooruOid, User apiCaller, boolean sendInvite) throws Exception;
 	
 	void deleteCollaborator(String gooruOid, List<String> email);
 	

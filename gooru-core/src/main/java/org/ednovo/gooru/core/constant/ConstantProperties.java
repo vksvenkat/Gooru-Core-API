@@ -56,7 +56,7 @@ public interface ConstantProperties {
 	
 	static final String CLASSPAGE_ITEM_INCLUDE[] = {"*.collection.gooruOid","*.collection.title","*.collection.thumbnails", "*.collection.goals" };
 
-	static final String CLASSPAGE_CREATE_ITEM_INCLUDE_FILEDS[] = { "*.collectionItemId", "*.itemSequence", "*.itemType", "*.narration", "*.narrationType", "*.lastModified", "*.start", "*.stop", "*.standards", "*.license", "*.standards.code", "*.standards.description" };
+	static final String CLASSPAGE_CREATE_ITEM_INCLUDE_FILEDS[] = { "*.collectionItemId", "*.itemSequence", "*.itemType", "*.narration", "*.narrationType", "*.lastModified", "*.start", "*.stop", "*.standards", "*.license", "*.standards.code", "*.standards.description", "*.plannedEndDate" };
 
 	static final String COLLECTION_INCLUDE_FIELDS[] = { "*.narrationLink", "collection.notes", "*.keyPoints", "*.language", "*.goals", "*.grade", "*.estimatedTime", "*.collectionType", "*.creator", "*.assetURI", "*.license", "*.license.code", "*.license.icon", "*.license.name",
 			"*.license.definition", "*.dimensions", "*.defaultImage", "*.createdOn", "*.user", "*.usernameDisplay", "*.profileImageUrl", "*.lastName", "*.firstName", "*.username", "*.description", "*.folder", "*.gooruOid", "*.sharing", "*.title", "*.views", "*.thumbnails", "*.url",
@@ -283,6 +283,8 @@ public interface ConstantProperties {
 	static final String RESET_PASSWORD_INCLUDES[] = { "*.active", "*.externalId", "*.lastLogin", "*.registeredOn", "*.ssoEmailId" };
 
 	static final String[] USER_EXCLUDES = { "*.user.entryId" };
+	
+	static final String[] AVAILABILITY_INCLUDES = {"*.confirmStatus","*.gooruUId","*.userName","*.collaboratorCheck","*.externalId","*.availability"};
 
 	static final String CURRENT_SESSION_TOKEN = "currentSessionToken";
 
@@ -370,6 +372,10 @@ public interface ConstantProperties {
 	static final String[] LIBRARY_FEATURED_COLLECTIONS_USER_INCLUDE_FIELDS = {"*.totalHitCount", "*.searchResults", "*.libraryCollection", "*.lastModifiedUser", "*.lastUpdatedUserUid", "*.commentsCount", "*.collectionItemCount", "*.lastModifiedBy","*.modifiedDate","*.user.gooruUId","*.user.username", "*.user.lastName", "*.user.firstName","*.creator","*.creator.gooruUId","*.creator.username", "*.creator.lastName", "*.creator.firstName"};
 	
 	static final String [] LIB_RESOURCE_FIELDS = {"*.totalHitCount","*.searchResults","*.libraryResource","*.collectionId","*.resourceId","*.title","*.thumbnails","*.resourceUrl","*.grade","*.description","*.category","*.sharing","*.hasFrameBreaker","*.recordSource","*.license","*.resourceSourceId","*.sourceName","*.domainName","*.attribution","*.narration","*.start","*.stop","*.collectionItemId","*.type","*.standards","*.course"};
+	
+	static final String [] STUDY_RESOURCE_FIELDS = {"*.totalHitCount","*.searchResults","*.classCode","*.status","*.title","*.gooruOid"};
+	
+	static final String [] CLASS_MEMBER_FIELDS = {"*.totalHitCount","*.searchResults","*.emailId","*.username","*.gooruUid","*.associatedDate","*.status","*.profileImageUrl"};
 
 	static final String[] COLLECTION_STANDARDS_INCLUDES = {"searchResults","*.code","*.label","*.codeUid","*.codeId"};
 

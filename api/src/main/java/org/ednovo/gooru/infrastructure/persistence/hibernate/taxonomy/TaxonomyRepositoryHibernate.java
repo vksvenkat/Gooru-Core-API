@@ -928,7 +928,7 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 
 	@Override
 	public List<Object[]> getCollectionStandards(Integer codeId, String text, Integer limit, Integer offset, Boolean skipPagination) {
-		String sql = "select c.display_code, c.code_id, c.label,c.code_uid from taxonomy_association ta inner join code c on ta.target_code_id = c.code_id  where  c.display_code like '" + text + "%'";
+		String sql = "select c.common_core_dot_notation, c.code_id, c.label,c.code_uid, c.root_node_id from taxonomy_association ta inner join code c on ta.target_code_id = c.code_id  where  c.common_core_dot_notation like '" + text + "%'";
 		if (codeId != null) {
 			sql += " and ta.source_code_id =" + codeId;
 		}
@@ -978,6 +978,14 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 		Query query = getSession().createQuery(hql);
 		query.setParameter("codeId", codeId);
 		return  query.list().size() > 0 ? (Code) query.list().get(0) : null;
+	}
+
+	@Cacheable("gooruCache")
+	@Override
+	public String findTaxonomyCodeLabels(String codeIds) {
+		String sql = "select group_concat(label) as labels from code where depth = 0 and organization_uid  IN (" + getUserOrganizationUidsAsString() + ") and code_id  in (" + codeIds + ")";
+		Query query = getSession().createSQLQuery(sql).addScalar("labels", StandardBasicTypes.STRING);
+		return query.list() != null ?(String) query.list().get(0) : null;
 	}
 
 }

@@ -47,6 +47,7 @@ public class Code extends OrganizationModel implements Comparable<Code> , Indexa
 	private User creator;
 	private Integer libraryFlag;
 	private Set<Code> codeOrganizationAssoc;
+	private String commonCoreDotNotation;
 	
     
 	public Code() {
@@ -310,6 +311,16 @@ public class Code extends OrganizationModel implements Comparable<Code> , Indexa
 
 	public Set<Code> getCodeOrganizationAssoc() {
 		return codeOrganizationAssoc;
+	}
+
+
+
+	public void setCommonCoreDotNotation(String commonCoreDotNotation) {
+		this.commonCoreDotNotation = commonCoreDotNotation;
+	}
+
+	public String getCommonCoreDotNotation() {
+		return commonCoreDotNotation;
 	}
 
 

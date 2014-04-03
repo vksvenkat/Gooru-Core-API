@@ -31,6 +31,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
 
+import org.ednovo.gooru.application.util.TaxonomyUtil;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Classpage;
 import org.ednovo.gooru.core.api.model.Collection;
@@ -47,6 +48,7 @@ import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserGroup;
 import org.ednovo.gooru.core.api.model.UserGroupAssociation;
 import org.ednovo.gooru.core.application.util.BaseUtil;
+import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.core.exception.UnauthorizedException;
 import org.ednovo.gooru.domain.service.CollectionService;
@@ -54,6 +56,7 @@ import org.ednovo.gooru.domain.service.InviteService;
 import org.ednovo.gooru.domain.service.ScollectionServiceImpl;
 import org.ednovo.gooru.domain.service.group.UserGroupService;
 import org.ednovo.gooru.domain.service.search.SearchResults;
+import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.ednovo.gooru.domain.service.task.TaskService;
 import org.ednovo.gooru.domain.service.user.UserService;
 import org.ednovo.gooru.domain.service.userManagement.UserManagementService;
@@ -99,6 +102,9 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	
 	@Autowired
 	private InviteService inviteService;
+	
+	@Autowired
+	private SettingService settingService;
 
 
 
@@ -275,7 +281,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 				if (user.getIdentities().size() > 0) {
 					mailId = user.getIdentities().iterator().next().getExternalId();
 				}
-				inviteUser = this.getInviteRepository().findInviteUserById(mailId, collectionId);
+				inviteUser = this.getInviteRepository().findInviteUserById(mailId, collectionId,PENDING);
 				if (!isMember && inviteUser == null && classpage.getSharing().equalsIgnoreCase(PUBLIC)) {
 					inviteUser = this.getInviteService().createInviteUserObj(mailId, collectionId, CLASS, user);
 					this.getInviteRepository().save(inviteUser);
@@ -397,7 +403,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			for (String mailId : mailIds) {
 				Identity identity = this.getUserRepository().findByEmailIdOrUserName(mailId, true, false);
 				if (identity != null) {
-					InviteUser inviteUser = this.getInviteRepository().findInviteUserById(mailId, classpage.getGooruOid());
+					InviteUser inviteUser = this.getInviteRepository().findInviteUserById(mailId, classpage.getGooruOid(), null);
 					if(inviteUser != null) {
 						inviteUser.setStatus(this.getCustomTableRepository().getCustomTableValue(INVITE_USER_STATUS, ACTIVE));
 						inviteUser.setJoinedDate(new Date(System.currentTimeMillis()));
@@ -407,12 +413,15 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 						UserGroupAssociation groupAssociation = new UserGroupAssociation();
 						groupAssociation.setIsGroupOwner(0);
 						groupAssociation.setUser(identity.getUser());
+						groupAssociation.setAssociationDate(new Date(System.currentTimeMillis()));
 						groupAssociation.setUserGroup(userGroup);
 						this.getUserRepository().save(groupAssociation);
 						classpageMember.add(setMemberResponse(groupAssociation,ACTIVE));
 					}
 				}
 			}
+		} else {
+			throw new NotFoundException("class not found");
 		}
 		return classpageMember;
 	}
@@ -429,10 +438,10 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 					if (userGroupAssociation != null) {
 						this.getUserGroupRepository().remove(userGroupAssociation);
 					}
-					InviteUser inviteUser = this.getInviteRepository().findInviteUserById(mailId, classpage.getGooruOid());
-					if (inviteUser != null) {
-						this.getInviteRepository().remove(inviteUser);
-					}
+				}
+				InviteUser inviteUser = this.getInviteRepository().findInviteUserById(mailId, classpage.getGooruOid(),null);
+				if (inviteUser != null) {
+					this.getInviteRepository().remove(inviteUser);
 				}
 			}
 		}
@@ -497,6 +506,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		return pendingList;
 	}	
 	
+	
 	private Map<String, Object> setInviteMember(InviteUser inviteUser, String status) {
 		Map<String, Object> listMap = new HashMap<String, Object>();
 		listMap.put(EMAIL_ID, inviteUser.getEmailId());
@@ -517,7 +527,33 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		member.put(STATUS, status);
 		return member;
 	}
-
+	
+	@Override
+	public SearchResults<Map<String, Object>> getMemberList(String code,Integer offset, Integer limit, Boolean skipPagination, String filterBy) {
+		Classpage classpage = this.getCollectionRepository().getClasspageByCode(code);
+		if(classpage == null) {
+			throw new NotFoundException("classpage not found");
+		} 
+		List<Object[]> results = this.getUserGroupRepository().getUserMemberList(code, classpage.getGooruOid(), offset, limit, skipPagination,filterBy);
+		SearchResults<Map<String, Object>> searchResult = new SearchResults<Map<String,Object>>();
+		List<Map<String, Object>> listMap = new ArrayList<Map<String,Object>>();
+		for (Object[] object : results) {
+			Map<String, Object> result = new HashMap<String, Object>();
+			result.put(EMAIL_ID, object[0]);
+			result.put(USER_NAME, object[1]);
+			result.put(_GOORU_UID, object[2]);
+			result.put(ASSOC_DATE, object[3]);
+			result.put(STATUS, object[4]);
+			if(object[2] != null) {
+				result.put(PROFILE_IMG_URL, settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, TaxonomyUtil.GOORU_ORG_UID) + "/" + settingService.getConfigSetting(ConfigConstants.PROFILE_BUCKET, TaxonomyUtil.GOORU_ORG_UID) +  String.valueOf(object[2]) + ".png");
+			}
+			listMap.add(result);
+		}
+		searchResult.setSearchResults(listMap);
+		searchResult.setTotalHitCount(this.getUserGroupRepository().getUserMemberCount(code, classpage.getGooruOid(),filterBy));
+		return searchResult;
+	}
+	
 
 	private Errors validateClasspage(Classpage classpage) throws Exception {
 		final Errors errors = new BindException(classpage,CLASSPAGE);
@@ -552,11 +588,14 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 	
 	@Override
-	public List<Map<String, String>> getMyStudy(User user) {
+	public SearchResults<Map<String, String>> getMyStudy(User user, String orderBy,Integer offset, Integer limit, boolean skipPagination) {
 		if(user.getPartyUid().equalsIgnoreCase(ANONYMOUS)) {
 			throw new NotFoundException("User not Found");
 		}
-		return this.getUserGroupRepository().getMyStudy(user.getPartyUid(), user.getIdentities() != null ? user.getIdentities().iterator().next().getExternalId() : null);
+		SearchResults<Map<String, String>> searchResult = new SearchResults<Map<String,String>>();
+		searchResult.setSearchResults(this.getUserGroupRepository().getMyStudy(user.getPartyUid(), user.getIdentities() != null ? user.getIdentities().iterator().next().getExternalId() : null,orderBy, offset, limit, skipPagination));
+		searchResult.setTotalHitCount(this.getUserGroupRepository().getMyStudyCount(user.getPartyUid(), user.getIdentities() != null ? user.getIdentities().iterator().next().getExternalId() : null));
+		return searchResult;
 	}
 
 	public TaskService getTaskService() {

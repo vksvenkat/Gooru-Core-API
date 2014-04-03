@@ -419,7 +419,7 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 	public ModelAndView getCollectionStandards(HttpServletRequest request, @RequestParam(value = ID,required = false) Integer codeId,@RequestParam(value="query",required =false) String query, HttpServletResponse resHttpServletResponse
 			,@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,@RequestParam(value = SKIP_PAGINATION, required = false, defaultValue = FALSE) boolean skipPagination) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
-		return toModelAndViewWithIoFilter(this.getCollectionService().getCollectionStandards(codeId,query,limit,offset,skipPagination), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, COLLECTION_STANDARDS_INCLUDES);
+		return toModelAndViewWithIoFilter(this.getCollectionService().getCollectionStandards(codeId,query,limit,offset,skipPagination, user), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, COLLECTION_STANDARDS_INCLUDES);
 	}
 
 	private Collection buildCollectionFromInputParameters(String data, User user) {

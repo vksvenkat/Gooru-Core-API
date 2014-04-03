@@ -51,12 +51,12 @@ public interface CollectionService extends ScollectionService {
 
 	Boolean resourceCopiedFrom(String gooruOid, String gooruUid);
 	
-	List<Map<String, Object>> getMyShelf(String gooruUid, Integer limit, Integer offset, String sharing, String collectionType);
+	List<Map<String, Object>> getMyShelf(String gooruUid, Integer limit, Integer offset, String sharing, String collectionType, Integer itemLimit, boolean fetchChildItem);
 	
-	List<Map<String, Object>> getFolderItem(String gooruOid, String sharing, String type,String collectionType);
+	List<Map<String, Object>> getFolderItem(String gooruOid, String sharing, String type,String collectionType, Integer itemLimit, boolean fetchChildItem);
 	
-	List<Map<String, Object>> getFolderItems(String gooruOid, Integer limit, Integer offset, String sharing, String collectionType, String orderBy);
+	List<Map<String, Object>> getFolderItems(String gooruOid, Integer limit, Integer offset, String sharing, String collectionType, String orderBy, Integer itemLimit, boolean fetchChildItem);
 	
-	SearchResults<Code> getCollectionStandards(Integer codeId,String query, Integer limit, Integer offset,Boolean skipPagination);
+	SearchResults<Code> getCollectionStandards(Integer codeId,String query, Integer limit, Integer offset,Boolean skipPagination, User user);
 	
 }

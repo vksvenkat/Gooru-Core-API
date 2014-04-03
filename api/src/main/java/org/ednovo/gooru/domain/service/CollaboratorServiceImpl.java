@@ -86,7 +86,7 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 	private Logger logger = LoggerFactory.getLogger(CollaboratorServiceImpl.class);
 
 	@Override
-	public List<Map<String, Object>> addCollaborator(List<String> email, String gooruOid, User apiCaller) throws Exception {
+	public List<Map<String, Object>> addCollaborator(List<String> email, String gooruOid, User apiCaller,boolean sendInvite) throws Exception {
 		Content content = null;
 		if (gooruOid != null) {
 			content = getContentRepository().findContentByGooruId(gooruOid, true);
@@ -120,7 +120,7 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 					}
 
 				} else {
-					InviteUser inviteUsers = this.getInviteRepository().findInviteUserById(mailId, gooruOid);
+					InviteUser inviteUsers = this.getInviteRepository().findInviteUserById(mailId, gooruOid,PENDING);
 					if (inviteUsers == null) {
 						InviteUser inviteUser = new InviteUser();
 						inviteUser.setEmailId(mailId);
@@ -138,7 +138,9 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 				Map<String, Object> collaboratorData = new HashMap<String, Object>();
 				collaboratorData.put(CONTENT_OBJ, content);
 				collaboratorData.put(EMAIL_ID, mailId);
-				this.getMailAsyncExecutor().sendMailToInviteCollaborator(collaboratorData);
+				if (sendInvite) {
+					this.getMailAsyncExecutor().sendMailToInviteCollaborator(collaboratorData);
+				}
 			}
 			try {
 				indexProcessor.index(content.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
@@ -210,7 +212,7 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 						}
 					}
 				} else {
-					InviteUser inviteUser = this.getInviteRepository().findInviteUserById(mailId, gooruOid);
+					InviteUser inviteUser = this.getInviteRepository().findInviteUserById(mailId, gooruOid,PENDING);
 					if (inviteUser != null) {
 						this.getCollaboratorRepository().remove(inviteUser);
 					}
@@ -288,7 +290,7 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 			Identity identity = this.getUserRepository().findByEmailIdOrUserName(mailId, true, false);
 			List<String> mail = new ArrayList<String>();
 			mail.add(mailId);
-			this.addCollaborator(mail, inviteUser.getGooruOid(), identity.getUser());
+			this.addCollaborator(mail, inviteUser.getGooruOid(), identity.getUser(),false);
 		}
 
 	}

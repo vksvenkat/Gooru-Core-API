@@ -23,11 +23,18 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.domain.service;
 
+import java.math.BigInteger;
+import java.security.SecureRandom;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.ednovo.gooru.core.api.model.CustomTableValue;
+import org.ednovo.gooru.core.api.model.UserGroupSupport;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.domain.cassandra.service.SearchSettingCassandraService;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.ConfigSettingRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -37,13 +44,66 @@ public class CustomValueServiceImpl extends BaseServiceImpl implements CustomVal
 
 	@Autowired
 	private CustomTableRepository customTableRepository;
+
+	@Autowired
+	private ConfigSettingRepository configSettingRepository;
+	
+	@Autowired
+	private SearchSettingCassandraService searchSettingCassandraService;
+	
+	private static String profileName = "default";
+	
+	private static SecureRandom random = null;
+	
+	private static final Map<String, String> cassandraField = new HashMap<String, String>();
+	
+	static{
+		cassandraField.put("search_filter_splitby_tilta", "filter-splitBy@approx");
+		cassandraField.put("search_filter_lowercase", "filter-case@lowercase");
+	}
+	
+	public CustomValueServiceImpl(){
+		random = new SecureRandom();
+	}
+
 	@Override
 	public List<CustomTableValue> getCustomValues(String type) {
 		
 	   return  this.getCustomTableRepository().getCustomTableValues(type);
 	}
 
+	@Override
+	public void updateSearchSettings() {
+		
+		profileName = configSettingRepository.getConfigSetting("search.profile", UserGroupSupport.getUserOrganizationUid());
+		if (profileName == null) {
+			profileName = "default";
+		}
+
+		for (Map.Entry<String, String> entry : cassandraField.entrySet()) {
+			List<CustomTableValue> customTableValues = this.getCustomTableRepository().getCustomTableValues(entry.getKey());
+			StringBuilder values = new StringBuilder();
+			for(CustomTableValue customTableValue : customTableValues){
+				if(values.length() > 0){
+					values.append(",");
+				}
+				values.append(customTableValue.getValue().trim());
+			}
+			if(values.toString().trim().length() > 0){
+				String fieldValue = searchSettingCassandraService.read(entry.getValue(), profileName);
+				if(fieldValue != null && !fieldValue.equalsIgnoreCase(values.toString())){
+					searchSettingCassandraService.save(entry.getValue(), profileName, values.toString());
+					searchSettingCassandraService.save("setting.version", profileName, getSettingVersion());
+				}
+			}
+		}
+	}
+
 	public CustomTableRepository getCustomTableRepository() {
 		return customTableRepository;
+	}
+
+	public static String getSettingVersion() {
+	    return new BigInteger(130, random).toString(32);
 	}
 }
