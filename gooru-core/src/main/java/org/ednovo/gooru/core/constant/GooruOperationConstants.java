@@ -118,6 +118,8 @@ public class GooruOperationConstants {
 	
 	public static final String ENTITY_OAUTH = "Oauth";
 	
+	public static final String ENTITY_CASSANDRA_FIELDS = "CassandraFields";
+	
 	// Actions
 
 	public static final String ACTION_READ = "Read";
@@ -785,16 +787,18 @@ public class GooruOperationConstants {
 	
 	// Oauth
 	
-		public static final String OPERATION_OAUTH_ADD = ENTITY_OAUTH + ENTITY_ACTION_SEPARATOR + ACTION_ADD;
-		
-		public static final String OPERATION_OAUTH_LIST = ENTITY_OAUTH + ENTITY_ACTION_SEPARATOR + ACTION_LIST;
-		
-		public static final String OPERATION_OAUTH_READ = ENTITY_OAUTH + ENTITY_ACTION_SEPARATOR + ACTION_READ;
-		
-		public static final String OPERATION_OAUTH_UPDATE = ENTITY_OAUTH + ENTITY_ACTION_SEPARATOR + ACTION_UPDATE;
+	public static final String OPERATION_OAUTH_ADD = ENTITY_OAUTH + ENTITY_ACTION_SEPARATOR + ACTION_ADD;
+	
+	public static final String OPERATION_OAUTH_LIST = ENTITY_OAUTH + ENTITY_ACTION_SEPARATOR + ACTION_LIST;
+	
+	public static final String OPERATION_OAUTH_READ = ENTITY_OAUTH + ENTITY_ACTION_SEPARATOR + ACTION_READ;
+	
+	public static final String OPERATION_OAUTH_UPDATE = ENTITY_OAUTH + ENTITY_ACTION_SEPARATOR + ACTION_UPDATE;
 
 	
+	//Update Cassandra Fields
 	
+	public static final String OPERATION_CASSANDRA_FIELDS_UPDATE = ENTITY_CASSANDRA_FIELDS + ENTITY_ACTION_SEPARATOR + ACTION_UPDATE;
 	
 	
 }

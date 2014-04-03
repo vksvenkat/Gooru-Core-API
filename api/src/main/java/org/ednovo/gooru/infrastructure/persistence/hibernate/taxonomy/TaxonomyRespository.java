@@ -126,4 +126,6 @@ public interface TaxonomyRespository extends BaseRepository{
 	
 	List<Code> findParentTaxonomyCodeLevels(Integer codeId, List<Code> codeList);
 	
+	String findTaxonomyCodeLabels(String codeIds);
+	
 }

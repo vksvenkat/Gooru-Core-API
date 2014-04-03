@@ -286,17 +286,18 @@ public class FeaturedServiceImpl implements FeaturedService, ParameterProperties
 		this.lessonLimit = 3;
 		List<Object[]> results = this.getFeaturedRepository().getLibrary(null, true, libraryName);
 		Map<Object, Object> subjectMap = new HashMap<Object, Object>();
-		List<Map<String, Object>> courseMap = new ArrayList<Map<String, Object>>();
 		for (Object[] object : results) {
 			Map<String, Object> lib = new HashMap<String, Object>();
 			lib.put(CODE, object[0] == null ? FEATURED : object[0]);
 			if (object[2].equals(type) || (object[0] != null && String.valueOf(object[0]).equalsIgnoreCase(type))) {
+				List<Map<String, Object>> courseMap = null;
 				if (object[2].equals(STANDARD)) {
 					this.lessonLimit = 10;
 					List<Code> curriculums = this.getTaxonomyRespository().findCodeByParentCodeId(null, null, null, null, true, LIBRARY, getOrganizationCode(libraryName), null, "0");
 					List<Map<String, Object>> curriculumMap = new ArrayList<Map<String, Object>>();
 					for (Code curriculum : curriculums) {
 							List<Code> subjects = this.getTaxonomyRespository().findCodeByParentCodeId(String.valueOf(curriculum.getCodeId()), null, null, null, true, LIBRARY, getOrganizationCode(libraryName), String.valueOf(curriculum.getCodeId()), "1");
+							courseMap = new ArrayList<Map<String, Object>>();
 							for (Code subject : subjects) {
 								courseMap.addAll(this.getLibraryCourse(String.valueOf(subject.getCodeId()), String.valueOf(object[1]), libraryName, String.valueOf(curriculum.getRootNodeId())));
 							}
@@ -377,7 +378,7 @@ public class FeaturedServiceImpl implements FeaturedService, ParameterProperties
 
 	private Map<String, Object> getCode(Code code, List<Map<String, Object>> childern, String type, Integer count, String organizationCode, List<Map<String, Object>> concept) {
 		Map<String, Object> codeMap = new HashMap<String, Object>();
-		codeMap.put(CODE, code.getdisplayCode());
+		codeMap.put(CODE, code.getCommonCoreDotNotation() == null ? code.getCode() : code.getCommonCoreDotNotation());
 		codeMap.put(CODE_ID, code.getCodeId());
 		codeMap.put(CODE_TYPE, code.getCodeType());
 		codeMap.put(LABEL, code.getLabel());
@@ -434,7 +435,7 @@ public class FeaturedServiceImpl implements FeaturedService, ParameterProperties
 		for (Collection collection : collections) {
 			CollectionMetaInfo collectionMetaInfo = new CollectionMetaInfo();
 			collectionMetaInfo.setCourse(this.getCollectionService().getCourse(collection.getTaxonomySet()));
-			collectionMetaInfo.setStandards(this.getCollectionService().getStandards(collection.getTaxonomySet()));
+			collectionMetaInfo.setStandards(this.getCollectionService().getStandards(collection.getTaxonomySet(), true));
 			collection.setMetaInfo(collectionMetaInfo);
 		}
 
@@ -698,6 +699,7 @@ public class FeaturedServiceImpl implements FeaturedService, ParameterProperties
 			codeMap.put("indexId", code.getIndexId());
 			codeMap.put("indexType", code.getIndexType());
 			codeMap.put("label", code.getLabel());
+			codeMap.put("commonCoreDotNotation", code.getCommonCoreDotNotation());
 		return codeMap;
 	}
 
@@ -783,7 +785,7 @@ public class FeaturedServiceImpl implements FeaturedService, ParameterProperties
 				collection.put("collectionId", object[0]);
 				collection.put("resourceId", object[1]);
 				Resource resource = resourceRepository.findResourceByContentGooruId((String)object[1]);
-				collection.put("standards", this.getCollectionService().getStandards(resource.getTaxonomySet()));
+				collection.put("standards", this.getCollectionService().getStandards(resource.getTaxonomySet(), true));
 				collection.put("course", this.getCollectionService().getCourse(resource.getTaxonomySet()));
 				collection.put("title", object[2]);
 				if (object[4] != null) {

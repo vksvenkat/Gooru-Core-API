@@ -66,11 +66,11 @@ public interface ClasspageService {
 	
 	List<Map<String, Object>> getClassMemberList(String gooruOid, String filterBy);
 	
-	SearchResults<Map<String, Object>> getMemberList(String code,Integer offset, Integer limit, Boolean skipPagination);
+	SearchResults<Map<String, Object>> getMemberList(String code,Integer offset, Integer limit, Boolean skipPagination,String filterBy);
 	
 	Map<String, List<Map<String, Object>>> getClassMemberListByGroup(String gooruOid, String filterBy);
 	
 	List<String> classMemberSuggest(String queryText, String gooruUid);
 	
-	SearchResults<Map<String, String>> getMyStudy(User apiCaller, String orderBy);
+	SearchResults<Map<String, String>> getMyStudy(User apiCaller, String orderBy,Integer offset, Integer limit, boolean skipPagination);
 }

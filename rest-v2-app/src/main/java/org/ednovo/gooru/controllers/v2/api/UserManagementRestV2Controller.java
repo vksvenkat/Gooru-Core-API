@@ -26,6 +26,7 @@ package org.ednovo.gooru.controllers.v2.api;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -36,6 +37,7 @@ import org.ednovo.gooru.core.api.model.Profile;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserTagAssoc;
+import org.ednovo.gooru.core.api.model.UserAvailability.CheckUser;
 import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.application.util.ServerValidationUtils;
 import org.ednovo.gooru.core.constant.ConstantProperties;
@@ -47,6 +49,7 @@ import org.ednovo.gooru.domain.service.FeedbackService;
 import org.ednovo.gooru.domain.service.PostService;
 import org.ednovo.gooru.domain.service.classplan.LearnguideService;
 import org.ednovo.gooru.domain.service.tag.TagService;
+import org.ednovo.gooru.domain.service.user.UserService;
 import org.ednovo.gooru.domain.service.userManagement.UserManagementService;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
@@ -88,6 +91,10 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 
 	@Autowired
 	private IndexProcessor indexProcessor;
+	
+	@Autowired
+	@Resource(name = "userService")
+	private UserService userService;
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_ADD })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -172,12 +179,11 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CHECK_IF_USER_EXISTS })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.GET }, value = "/{type}/availability")
-	public ModelAndView getUserAvailability(HttpServletRequest request, @RequestParam(value = KEYWORD) String keyword, @PathVariable(TYPE) String type, HttpServletResponse response) throws Exception {
+	public ModelAndView getUserAvailability(HttpServletRequest request, @RequestParam(value = KEYWORD) String keyword, @RequestParam(value = COLLECTION_ID, required = false) String collectionId,@RequestParam(value = IS_COLLABORATOR_CHK, defaultValue = FALSE, required = false) boolean isCollaboratorCheck ,@PathVariable(TYPE) String type, HttpServletResponse response) throws Exception {
 		request.setAttribute(Constants.EVENT_PREDICATE, "user.check.usernameOremailid.availability");
-		ModelAndView jsonmodel = new ModelAndView(REST_MODEL);
 		User user = (User) request.getAttribute(Constants.USER);
 
-		return jsonmodel.addObject(MODEL, this.getUserManagementService().checkUserAvailability(keyword, type, user));
+		return toModelAndViewWithIoFilter(this.getUserService().getUserAvailability(keyword, type.equals(USER_NAME) ? CheckUser.BYUSERNAME.getCheckUser() : type.equals(EMAIL_ID) ? CheckUser.BYEMAILID.getCheckUser() : null, isCollaboratorCheck, collectionId, user),RESPONSE_FORMAT_JSON,EXCLUDE_ALL,true,AVAILABILITY_INCLUDES);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_UPDATE_PASSWORD })
@@ -391,6 +397,10 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 	private User buildUserFromInputParameters(String data) {
 
 		return JsonDeserializer.deserialize(data, User.class);
+	}
+
+	public UserService getUserService() {
+		return userService;
 	}
 
 }

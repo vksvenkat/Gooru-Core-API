@@ -75,10 +75,9 @@ public class InviteServiceImpl extends BaseServiceImpl implements InviteService,
 			throw new NotFoundException(generateErrorMessage(GL0006, CLASS));
 		}
 		List<Map<String, String>> invites = new ArrayList<Map<String, String>>();
-		List<InviteUser> inviteUsers = null;
+		List<InviteUser> inviteUsers = new ArrayList<InviteUser>();
 		for (String email : emails) {
 			InviteUser inviteUser = this.getInviteRepository().findInviteUserById(email, classPage.getGooruOid(),null);
-			inviteUsers = new ArrayList<InviteUser>();
 			if (inviteUser  == null) {
 				inviteUsers.add(createInviteUserObj(email,classPage.getGooruOid(), CLASS, apiCaller));
 			}
@@ -86,6 +85,7 @@ public class InviteServiceImpl extends BaseServiceImpl implements InviteService,
 			inviteMap.put(EMAIL_ID, email);
 			inviteMap.put(GOORU_OID, classPage.getGooruOid());
 			inviteMap.put(STATUS, PENDING);
+			String inviteFrom = apiCaller.getIdentities() != null ? apiCaller.getIdentities().iterator().next().getExternalId() : null ;
 			invites.add(inviteMap);
 			Profile profile= this.getUserRepository().getProfile(classPage.getUser(), false);
 			String gender = "";
@@ -99,7 +99,7 @@ public class InviteServiceImpl extends BaseServiceImpl implements InviteService,
 					noun = HIS;
 				}
 			}
-			this.getMailHandler().sendMailToInviteUser(inviteMap,classPage.getUser(),classPage.getTitle(), gender,noun);
+			this.getMailHandler().sendMailToInviteUser(inviteMap,classPage.getUser(),classPage.getTitle(), gender,noun,inviteFrom,apiCaller.getUsername());
 		}
 		if (inviteUsers != null) { 
 			this.getInviteRepository().saveAll(inviteUsers);

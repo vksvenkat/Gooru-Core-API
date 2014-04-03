@@ -1659,7 +1659,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 
 		boolean availability = false;
 		Integer confirmStatus = 0;
-		String gooruUId = "null";
+		String gooruUId = null;
 		String externalId = null;
 		String userName = null;
 		User user = null;

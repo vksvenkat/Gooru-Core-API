@@ -1049,12 +1049,6 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	}
 
 	@Override
-	public Boolean checkUserAvailability(String keyword, String type, User user) {
-
-		return this.getUserRepository().checkUserAvailability(keyword, type.equals(USER_NAME) ? CheckUser.BYUSERNAME : type.equals(EMAIL_ID) ? CheckUser.BYEMAILID : null, false);
-	}
-
-	@Override
 	public User resetPasswordRequest(String emailId, String gooruBaseUrl, User apicaller, String mailConfirmationUrl) throws Exception {
 		Identity identity = new Identity();
 		if (apicaller != null && !apicaller.getGooruUId().equalsIgnoreCase(Constants.ANONYMOUS)) {
@@ -1354,7 +1348,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			metaData.put(CODE, taxonomyCodeList);
 		}
 		
-		if(partyCustomField.getOptionalValue() != null && partyCustomField.getOptionalValue().length() > 0){
+		if(partyCustomField != null & partyCustomField.getOptionalValue() != null && partyCustomField.getOptionalValue().length() > 0){
 			List<String> taxonomyCodeIdList = Arrays.asList(partyCustomField.getOptionalValue().split(","));
 			metaData.put(CODE_ID, taxonomyCodeIdList);
 		}
