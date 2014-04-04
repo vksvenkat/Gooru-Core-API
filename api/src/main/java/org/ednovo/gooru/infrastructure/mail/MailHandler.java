@@ -896,7 +896,7 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 		}
 	}
 	
-	public void sendMailToInviteUser(Map<String,String> inviteData, User user, String title, String gender, String noun) {
+	public void sendMailToInviteUser(String email, String gooruOid, User user, String title, String gender, String noun,String inviteFrom, String inviteUser) {
 		
 		final String serverpath = this.getServerConstants().getProperty(SERVERPATH);
 			EventMapping eventMapping = this.getEventService().getTemplatesByEventName(CustomProperties.EventMapping.SEND_MAIL_TO_INVITE_USER_CLASS.getEvent());
@@ -904,17 +904,17 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 			map.put("serverpath",serverpath);
 			map.put(TITLE, title);
 			map.put(TEACHERNAME ,user.getUsername());
-			map.put(MEMBERMAILID, inviteData.get(EMAIL_ID));
-			map.put(GOORU_OID, inviteData.get(GOORU_OID));
+			map.put(MEMBERMAILID, email);
+			map.put(GOORU_OID, gooruOid);
 			map.put(GENDER, gender);
 			map.put(NOUN, noun);
-			map.put(RECIPIENT, inviteData.get(EMAIL_ID));
+			map.put(RECIPIENT, email);
 			map.put(HTMLCONTENT, generateMessage((String) map.get(HTMLCONTENT), map));
 			map.put(SUBJECT, "You’re invited to join "+ gender + user.getUsername()+"’s" + " class \""+title+"\"");
 			map.put(CONTENT, generateMessage((String) map.get(TEXTCONTENT), map));
-			map.put(FROM, getConfigSetting(ConfigConstants.MAIL_FROM, TaxonomyUtil.GOORU_ORG_UID));
+			map.put("from", inviteFrom);
 			map.put(BCC, getConfigSetting(ConfigConstants.MAIL_BCC_SUPPORT, TaxonomyUtil.GOORU_ORG_UID));
-			map.put(FROMNAME, FROM);
+			map.put(FROMNAME, inviteUser);
 			sendMailViaRestApi(map);
 	}
 
