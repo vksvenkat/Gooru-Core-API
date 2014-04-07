@@ -69,6 +69,6 @@ public interface FeedbackRepository extends BaseRepository {
 	
 	List<CustomTableValue> getCustomValues(String type);
 	
-	Map<String, Object> getContentFlags(Integer limit,Integer offset,Boolean skipPagination,String category,String type,String status,String getContentFlags);
+	Map<String, Object> getContentFlags(Integer limit,Integer offset,Boolean skipPagination,String category,String type,String status,String getContentFlags, String startDate, String endDate,String id, String title, String description, String flagDescription, String notes, String reporterUserName, String reporterUserId);
 
 }
