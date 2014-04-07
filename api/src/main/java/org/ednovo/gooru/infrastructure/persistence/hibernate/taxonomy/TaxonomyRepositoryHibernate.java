@@ -928,11 +928,10 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 
 	@Override
 	public List<Object[]> getCollectionStandards(Integer codeId, String text, Integer limit, Integer offset, Boolean skipPagination) {
-		String sql = "select c.common_core_dot_notation, c.code_id, c.label,c.code_uid, c.root_node_id from taxonomy_association ta inner join code c on ta.target_code_id = c.code_id  where  c.common_core_dot_notation like '" + text + "%'";
+		String sql = "select distinct ifnull(c.common_core_dot_notation, c.display_code) as code_notation, c.code_id, c.label,c.code_uid, c.root_node_id from taxonomy_association ta inner join code c on ta.target_code_id = c.code_id  where ifnull(c.common_core_dot_notation, c.display_code) like '" + text + "%' and depth != 0";
 		if (codeId != null) {
 			sql += " and ta.source_code_id =" + codeId;
 		}
-		sql += " group by c.code_id";
 		Query query = getSession().createSQLQuery(sql);
 		if (!skipPagination) {
 			query.setFirstResult(offset);

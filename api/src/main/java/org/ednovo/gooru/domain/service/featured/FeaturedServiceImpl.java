@@ -378,7 +378,7 @@ public class FeaturedServiceImpl implements FeaturedService, ParameterProperties
 
 	private Map<String, Object> getCode(Code code, List<Map<String, Object>> childern, String type, Integer count, String organizationCode, List<Map<String, Object>> concept) {
 		Map<String, Object> codeMap = new HashMap<String, Object>();
-		codeMap.put(CODE, code.getCommonCoreDotNotation() == null ? code.getCode() : code.getCommonCoreDotNotation());
+		codeMap.put(CODE, code.getCommonCoreDotNotation() == null ? code.getdisplayCode() : code.getCommonCoreDotNotation());
 		codeMap.put(CODE_ID, code.getCodeId());
 		codeMap.put(CODE_TYPE, code.getCodeType());
 		codeMap.put(LABEL, code.getLabel());

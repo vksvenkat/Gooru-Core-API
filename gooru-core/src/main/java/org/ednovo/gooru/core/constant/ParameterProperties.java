@@ -2661,4 +2661,6 @@ public interface ParameterProperties {
 	String ITEM_LIMIT_FIELD = "itemLimit";
 	
 	String FETCH_CHILDS = "fetchChilds";
+	
+	String RESOURCESOURCE = "resourceSource";
 }
