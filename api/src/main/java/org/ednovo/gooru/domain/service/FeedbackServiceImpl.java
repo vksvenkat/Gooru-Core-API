@@ -358,11 +358,11 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 		rejectIfNull(this.getUserRepository().findByGooruId(assocUserUid), GL0056, _USER);
 		return this.getFeedbackRepository().getUserFeedbackRating(assocUserUid, feedbackType);
 	}
-
+	
 	@Override
-	public Map<String, Object> getFlags(Integer limit, Integer offset, Boolean skipPagination, String category, String type, String status, String reportedFlagType, String startDate, String endDate,String id, String title, String description, String flagDescription, String notes, String reporterUserName, String reporterUserId) {
+	public Map<String, Object> getFlags(Integer limit, Integer offset, Boolean skipPagination, String category, String type, String status, String reportedFlagType, String startDate, String endDate, String searchQuery, String description, String reportQuery) {
 
-		return this.getFeedbackRepository().getContentFlags(limit, offset, skipPagination, getTableNameByFeedbackCategory(CustomProperties.FeedbackCategory.REPORT.getFeedbackCategory(), CustomProperties.Target.CONTENT.getTarget()), type, status, reportedFlagType, startDate, endDate, id, title, description, flagDescription,notes, reporterUserName, reporterUserId);
+		return this.getFeedbackRepository().getContentFlags(limit, offset, skipPagination, getTableNameByFeedbackCategory(CustomProperties.FeedbackCategory.REPORT.getFeedbackCategory(), CustomProperties.Target.CONTENT.getTarget()), type, status, reportedFlagType, startDate, endDate, searchQuery, description, reportQuery);
 	}
 
 	@Override

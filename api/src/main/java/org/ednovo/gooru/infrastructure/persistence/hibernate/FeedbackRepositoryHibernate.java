@@ -244,10 +244,10 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 		rating.put("count",sum);
 		return rating; 
 	}
+
 	
 	@Override
-	public Map<String, Object> getContentFlags(Integer limit, Integer offset, Boolean skipPagination, String feedbackCategory, String type, String status, String reportedFlagType, String startDate, String endDate, String id, String title, String description, String flagDescription, String notes,
-			String reporterUserName, String reporterUserId) {
+	public Map<String, Object> getContentFlags(Integer limit, Integer offset, Boolean skipPagination, String feedbackCategory, String type, String status, String reportedFlagType, String startDate, String endDate, String searchQuery, String description, String reportQuery) {
 		Session session = getSession();
 		String sql = "";
 		String statusType = "";
@@ -283,12 +283,8 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 			sql += " and f.created_date = '" + endDate + "'";
 		}
 
-		if (id != null) {
-			sql += " and gooru_oid = '" + id + "'";
-		}
-
-		if (title != null) {
-			sql += " and title = '" + title + "'";
+		if (searchQuery != null) {
+			sql += " and gooru_oid = '" + searchQuery + "' or title = '" + searchQuery + "' or f.feedback_text = '" + searchQuery + "' or f.notes = '" + searchQuery + "'";
 		}
 
 		if (description != null && type.equalsIgnoreCase("collection")) {
@@ -297,20 +293,8 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 			sql += " and r.description = '" + description + "'";
 		}
 
-		if (flagDescription != null) {
-			sql += " and f.feedback_text = '" + flagDescription + "'";
-		}
-
-		if (notes != null) {
-			sql += " and f.notes = '" + notes + "'";
-		}
-
-		if (reporterUserId != null) {
-			sql += " and f.creator_uid = '" + reporterUserId + "'";
-		}
-
-		if (reporterUserName != null) {
-			sql += " and u.username = '" + reporterUserName + "'";
+		if (reportQuery != null) {
+			sql += " and f.creator_uid = '" + reportQuery + "'or u.username = '" + reportQuery + "'";
 		}
 
 		sql += " group by f.creator_uid, f.assoc_gooru_oid";
