@@ -143,19 +143,18 @@ public class FeedbackRestV2Controller extends BaseController implements Paramete
 		String includes[] = (String[]) ArrayUtils.addAll(FEEDBACK_INCLUDE_FIELDS, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(this.getFeedbackService().getFeedbacks(getFeedbackCategory(request), targetType, type, creatorUid, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
-
+	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_FEEDBACK_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = { "/resource", "/collection" })
 	public ModelAndView getContentFlags(HttpServletRequest request, @RequestParam(value = STATUS, required = false) String status, @RequestParam(value = "reportedFlagType", required = false) String reportedFlagType, @RequestParam(value = "startDate", required = false) String startDate,
-			@RequestParam(value = "endDate", required = false) String endDate, @RequestParam(value = "id", required = false) String id, @RequestParam(value = "title", required = false) String title, @RequestParam(value = "description", required = false) String description,
-			@RequestParam(value = "flagDescription", required = false) String flagDescription, @RequestParam(value = "notes", required = false) String notes, @RequestParam(value = "reporterUserName", required = false) String reporterUserName,
-			@RequestParam(value = "reporterUserId", required = false) String reporterUserId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,
+			@RequestParam(value = "endDate", required = false) String endDate, @RequestParam(value = "searchQuery", required = false) String searchQuery, @RequestParam(value = "description", required = false) String description,
+			@RequestParam(value = "reportQuery", required = false) String reportQuery, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,
 			@RequestParam(value = SKIP_PAGINATION, required = false, defaultValue = FALSE) Boolean skipPagination, HttpServletResponse response) throws Exception {
 
-		return toJsonModelAndView(this.getFeedbackService().getFlags(limit, offset, skipPagination, getFeedbackCategory(request), getSummaryCategory(request), status, reportedFlagType, startDate, endDate, id, title, description, flagDescription, notes, reporterUserName, reporterUserId), true);
+		return toJsonModelAndView(this.getFeedbackService().getFlags(limit, offset, skipPagination, getFeedbackCategory(request), getSummaryCategory(request), status, reportedFlagType, startDate, endDate, searchQuery, description, reportQuery), true);
 	}
-
+	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_FEEDBACK_DELETE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.DELETE, value = "/{id}")
