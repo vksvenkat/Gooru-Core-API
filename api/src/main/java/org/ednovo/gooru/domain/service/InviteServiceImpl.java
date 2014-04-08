@@ -87,19 +87,8 @@ public class InviteServiceImpl extends BaseServiceImpl implements InviteService,
 			}
 			
 			String inviteFrom = apiCaller.getIdentities() != null ? apiCaller.getIdentities().iterator().next().getExternalId() : null ;
-			Profile profile= this.getUserRepository().getProfile(classPage.getUser(), false);
-			String gender = "";
-			String noun = "";
-			if(profile.getGender() != null) {
-				if(profile.getGender().getName().equalsIgnoreCase(FEMALE)) {
-					gender = MS;
-					noun = HER;
-				} else if(profile.getGender().getName().equalsIgnoreCase(MALE)) {
-					gender = MR;
-					noun = HIS;
-				}
-			}
-			this.getMailHandler().sendMailToInviteUser(email,classPage.getGooruOid(),classPage.getUser(),classPage.getTitle(), gender,noun,inviteFrom,apiCaller.getUsername());
+		
+			this.getMailHandler().sendMailToInviteUser(email,classPage.getGooruOid(),classPage.getUser(),classPage.getTitle() ,inviteFrom,apiCaller.getUsername());
 		}
 		return invites;
 

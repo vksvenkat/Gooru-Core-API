@@ -26,7 +26,6 @@ package org.ednovo.gooru.infrastructure.persistence.hibernate.customTable;
 import java.util.List;
 
 import org.ednovo.gooru.core.api.model.CustomTableValue;
-import org.ednovo.gooru.core.api.model.Post;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -38,6 +37,7 @@ public class CustomTableRepositopryHibernate extends BaseRepositoryHibernate imp
 	
 	private final String RETIREVE_BY_NAME_VALUE = "From CustomTableValue ctv  where  ctv.value=:value  and  ctv.customTable.name=:name  and "+generateOrgAuthQuery("ctv.customTable.");
 	private final String RETIREVE_BY_NAME = "From CustomTableValue ctv  where ctv.customTable.name=:name  and "+generateOrgAuthQuery("ctv.customTable.");
+
 	@Override
 	@Cacheable("gooruCache")
 	public CustomTableValue getCustomTableValue(String name, String value) {
@@ -58,6 +58,14 @@ public class CustomTableRepositopryHibernate extends BaseRepositoryHibernate imp
 		List<CustomTableValue> customValues = query.list();
 		return    query.list(); 
 
+	}
+	@Override
+	public List<CustomTableValue> getFilterValueFromCustomTable(String name) {
+		Session session = getSession();
+		Query query = session.createQuery("From CustomTableValue ctv  where ctv.customTable.name=:name");
+		query.setParameter("name", name);
+		List<CustomTableValue> customValues = query.list();
+		return    query.list(); 
 	}
 	
 
