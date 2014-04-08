@@ -181,10 +181,10 @@ public class DoAuthorization  {
 		if (authentication.getUserToken().getUser() != null && (auth == null || hasRoleChanged(auth, authentication.getUserToken().getUser()))) {
 			doAuthentication(request, response, authentication.getUserToken().getUser(), sessionToken, skipCache, authentication, key);
 		}
-		SessionContextSupport.putLogParameter("userId", authentication.getUserToken().getUser().getUserId());
+		/*SessionContextSupport.putLogParameter("userId", authentication.getUserToken().getUser().getUserId());
 		SessionContextSupport.putLogParameter("gooruUId", authentication.getUserToken().getUser().getPartyUid());
 		SessionContextSupport.putLogParameter("sessionToken", sessionToken);
-		SessionContextSupport.putLogParameter("organizationUid", authentication.getUserToken().getUser().getOrganization().getPartyUid());
+		SessionContextSupport.putLogParameter("organizationUid", authentication.getUserToken().getUser().getOrganization().getPartyUid());*/
 		
 		if(oAuthToken != null){
 			SessionContextSupport.putLogParameter("oauthAccessToken", oAuthToken);

@@ -106,8 +106,6 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		} else {
 			response.setStatus(HttpServletResponse.SC_CREATED);
-			SessionContextSupport.putLogParameter(EVENT_NAME, "classpage-create");
-			SessionContextSupport.putLogParameter(GOORU_UID, user.getPartyUid());
 		}
 		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, CLASSPAGE_INCLUDE_FIELDS); 
 		includes= (String[]) ArrayUtils.addAll(includes,COLLECTION_ITEM_INCLUDE_FILEDS);
