@@ -244,9 +244,10 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 		rating.put("count",sum);
 		return rating; 
 	}
+
 	
 	@Override
-	public Map<String, Object> getContentFlags(Integer limit, Integer offset, Boolean skipPagination,String feedbackCategory,String type,String status,String reportedFlagType) {
+	public Map<String, Object> getContentFlags(Integer limit, Integer offset, Boolean skipPagination, String feedbackCategory, String type, String status, String reportedFlagType, String startDate, String endDate, String searchQuery, String description, String reportQuery) {
 		Session session = getSession();
 		String sql = "";
 		String statusType = "";
@@ -257,31 +258,62 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 			}
 			statusType = " and  cs.value in ('" + status + "') ";
 		}
-		if(reportedFlagType != null) {
+		if (reportedFlagType != null) {
 			if (reportedFlagType.contains(",")) {
 				reportedFlagType = reportedFlagType.replace(",", "','");
 			}
 			flagType = " and  ft.value in ('" + reportedFlagType + "') ";
 		}
+
 		if (type.equalsIgnoreCase("collection")) {
-			sql = "select  title,concat(r.folder,r.thumbnail) as thumbnail,r.has_frame_breaker as hasFrameBreaker, cl.goals as description,  gooru_oid as gooruOid, cl.collection_type as category , CONVERT_TZ(c.created_on,@@session.time_zone,'US/Pacific') as createdOn, cs.value as value, group_concat(ft.value) as reportedFlag, c.user_uid  as userUid, fp.value as product,group_concat(f.feedback_uid) as reportId, f.creator_uid as reportCreator,CONVERT_TZ(f.created_date,@@session.time_zone,'US/Pacific') as reportCreatedOn, f.feedback_text as reportDescription, f.notes as notes, url as url, f.context_path as browserUrl, 'temp' as scount,c.sharing as sharing,group_concat(u.username) as reporterName, ru.username as resourceCreatorName from content c  inner join feedback f inner join custom_table_value cs on f.assoc_gooru_oid = c.gooru_oid and cs.custom_table_value_id = c.status_type inner join custom_table_value fp on f.product_id = fp.custom_table_value_id inner join custom_table_value ft on ft.custom_table_value_id = f.feedback_type_id inner join collection cl  on cl.content_id = c.content_id inner join resource r on c.content_id = r.content_id   inner join custom_table_value ss on f.feedback_category_id = ss.custom_table_value_id inner join custom_table ctab on ctab.custom_table_id = ft.custom_table_id inner join user u  on u.gooru_uid = f.creator_uid inner join user ru on ru.gooru_uid = c.user_uid where ctab.name = '"+feedbackCategory+"' and  cs.value is not null  and cl.collection_type in ('collection')"+flagType+statusType+"group by f.creator_uid,f.assoc_gooru_oid";
+			sql = "select  title,concat(r.folder,r.thumbnail) as thumbnail,r.has_frame_breaker as hasFrameBreaker, cl.goals as description,  gooru_oid as gooruOid, cl.collection_type as category , CONVERT_TZ(c.created_on,@@session.time_zone,'US/Pacific') as createdOn, cs.value as value, group_concat(ft.value) as reportedFlag, c.user_uid  as userUid, fp.value as product,group_concat(f.feedback_uid) as reportId, f.creator_uid as reportCreator,CONVERT_TZ(f.created_date,@@session.time_zone,'US/Pacific') as reportCreatedOn, f.feedback_text as reportDescription, f.notes as notes, url as url, f.context_path as browserUrl, 'temp' as scount,c.sharing as sharing,group_concat(u.username) as reporterName, ru.username as resourceCreatorName from content c  inner join feedback f inner join custom_table_value cs on f.assoc_gooru_oid = c.gooru_oid and cs.custom_table_value_id = c.status_type inner join custom_table_value fp on f.product_id = fp.custom_table_value_id inner join custom_table_value ft on ft.custom_table_value_id = f.feedback_type_id inner join collection cl  on cl.content_id = c.content_id inner join resource r on c.content_id = r.content_id   inner join custom_table_value ss on f.feedback_category_id = ss.custom_table_value_id inner join custom_table ctab on ctab.custom_table_id = ft.custom_table_id inner join user u  on u.gooru_uid = f.creator_uid inner join user ru on ru.gooru_uid = c.user_uid where ctab.name = '"
+					+ feedbackCategory + "' and  cs.value is not null  and cl.collection_type in ('collection')" + flagType + statusType + "";
+
 		} else {
 
-			sql = "select title ,concat(r.folder,r.thumbnail) as thumbnail,r.has_frame_breaker as hasFrameBreaker ,r.description,  gooru_oid as gooruOid, r.category as category , CONVERT_TZ(c.created_on,@@session.time_zone,'US/Pacific') as createdOn, cs.value as value, group_concat(ft.value) as reportedFlag, c.user_uid  as userUid, fp.value as product, group_concat(f.feedback_uid) as reportId, f.creator_uid as reportCreator,CONVERT_TZ(f.created_date,@@session.time_zone,'US/Pacific') as reportCreatedOn, f.feedback_text as reportDescription,f.notes as notes, url as url, f.context_path as browserUrl,(select concat(count(distinct(ci.collection_content_id)) , '~' ,group_concat(distinct(rc.title))) from collection_item ci inner join resource ri on ci.resource_content_id = ri.content_id inner join resource as rc on (rc.content_id = ci.collection_content_id)   where ri.content_id = r.content_id) as scount, c.sharing as sharing,group_concat(u.username) as reporterName, ru.username as resourceCreatorName from content c  inner join feedback f inner join custom_table_value cs on f.assoc_gooru_oid = c.gooru_oid and cs.custom_table_value_id = c.status_type inner join custom_table_value fp on f.product_id = fp.custom_table_value_id inner join custom_table_value ft on ft.custom_table_value_id = f.feedback_type_id inner join resource r  on r.content_id = c.content_id inner join custom_table_value ss on f.feedback_category_id = ss.custom_table_value_id  inner join custom_table ctab on ctab.custom_table_id = ft.custom_table_id inner join user u  on u.gooru_uid = f.creator_uid inner join user ru on ru.gooru_uid = c.user_uid where ctab.name = '"+feedbackCategory+"' and  cs.value is not null  and r.type_name in ('resource/url','ppt/pptx', 'video/youtube', 'animation/swf', 'animation/kmz','textbook/scribd', 'assessment-question') "+ statusType +""+ flagType+"  group by f.creator_uid,f.assoc_gooru_oid";
+			sql = "select title ,concat(r.folder,r.thumbnail) as thumbnail,r.has_frame_breaker as hasFrameBreaker ,r.description,  gooru_oid as gooruOid, r.category as category , CONVERT_TZ(c.created_on,@@session.time_zone,'US/Pacific') as createdOn, cs.value as value, group_concat(ft.value) as reportedFlag, c.user_uid  as userUid, fp.value as product, group_concat(f.feedback_uid) as reportId, f.creator_uid as reportCreator,CONVERT_TZ(f.created_date,@@session.time_zone,'US/Pacific') as reportCreatedOn, f.feedback_text as reportDescription,f.notes as notes, url as url, f.context_path as browserUrl,(select concat(count(distinct(ci.collection_content_id)) , '~' ,group_concat(distinct(rc.title))) from collection_item ci inner join resource ri on ci.resource_content_id = ri.content_id inner join resource as rc on (rc.content_id = ci.collection_content_id)   where ri.content_id = r.content_id) as scount, c.sharing as sharing,group_concat(u.username) as reporterName, ru.username as resourceCreatorName from content c  inner join feedback f inner join custom_table_value cs on f.assoc_gooru_oid = c.gooru_oid and cs.custom_table_value_id = c.status_type inner join custom_table_value fp on f.product_id = fp.custom_table_value_id inner join custom_table_value ft on ft.custom_table_value_id = f.feedback_type_id inner join resource r  on r.content_id = c.content_id inner join custom_table_value ss on f.feedback_category_id = ss.custom_table_value_id  inner join custom_table ctab on ctab.custom_table_id = ft.custom_table_id inner join user u  on u.gooru_uid = f.creator_uid inner join user ru on ru.gooru_uid = c.user_uid where ctab.name = '"
+					+ feedbackCategory + "' and  cs.value is not null  and r.type_name in ('resource/url','ppt/pptx', 'video/youtube', 'animation/swf', 'animation/kmz','textbook/scribd', 'assessment-question') " + statusType + "" + flagType + "  ";
 		}
+
+		if (startDate != null && endDate != null) {
+			sql += "and f.created_date BETWEEN '" + startDate + "' and '" + endDate + "'";
+		} else if (startDate != null) {
+			sql += " and f.created_date = '" + startDate + "'";
+		} else if (endDate != null) {
+			sql += " and f.created_date = '" + endDate + "'";
+		}
+
+		if (searchQuery != null) {
+			sql += " and gooru_oid = '" + searchQuery + "' or title = '" + searchQuery + "' or f.feedback_text = '" + searchQuery + "' or f.notes = '" + searchQuery + "'";
+		}
+
+		if (description != null && type.equalsIgnoreCase("collection")) {
+			sql += " and cl.goals = '" + description + "'";
+		} else if (description != null && type.equalsIgnoreCase("resource")) {
+			sql += " and r.description = '" + description + "'";
+		}
+
+		if (reportQuery != null) {
+			sql += " and f.creator_uid = '" + reportQuery + "' or u.username = '" + reportQuery + "'";
+		}
+
+		sql += " group by f.creator_uid, f.assoc_gooru_oid";
 		Query query = session.createSQLQuery(sql).addScalar("title", StandardBasicTypes.STRING).addScalar("description", StandardBasicTypes.STRING).addScalar("gooruOid", StandardBasicTypes.STRING).addScalar("category", StandardBasicTypes.STRING).addScalar("createdOn", StandardBasicTypes.STRING)
-				.addScalar("value", StandardBasicTypes.STRING).addScalar("reportedFlag", StandardBasicTypes.STRING).addScalar("userUid", StandardBasicTypes.STRING).addScalar("product", StandardBasicTypes.STRING).addScalar("reportId",StandardBasicTypes.STRING).addScalar("reportCreator", StandardBasicTypes.STRING).addScalar("reportCreatedOn", StandardBasicTypes.STRING)
-				.addScalar("reportDescription", StandardBasicTypes.STRING).addScalar("url", StandardBasicTypes.STRING).addScalar("browserUrl",StandardBasicTypes.STRING ).addScalar("scount",StandardBasicTypes.STRING ).addScalar("sharing",StandardBasicTypes.STRING ).addScalar("notes",StandardBasicTypes.STRING).addScalar("reporterName",StandardBasicTypes.STRING).addScalar("resourceCreatorName",StandardBasicTypes.STRING).addScalar("thumbnail",StandardBasicTypes.STRING).addScalar("hasFrameBreaker", StandardBasicTypes.BOOLEAN);
+				.addScalar("value", StandardBasicTypes.STRING).addScalar("reportedFlag", StandardBasicTypes.STRING).addScalar("userUid", StandardBasicTypes.STRING).addScalar("product", StandardBasicTypes.STRING).addScalar("reportId", StandardBasicTypes.STRING)
+				.addScalar("reportCreator", StandardBasicTypes.STRING).addScalar("reportCreatedOn", StandardBasicTypes.STRING).addScalar("reportDescription", StandardBasicTypes.STRING).addScalar("url", StandardBasicTypes.STRING).addScalar("browserUrl", StandardBasicTypes.STRING)
+				.addScalar("scount", StandardBasicTypes.STRING).addScalar("sharing", StandardBasicTypes.STRING).addScalar("notes", StandardBasicTypes.STRING).addScalar("reporterName", StandardBasicTypes.STRING).addScalar("resourceCreatorName", StandardBasicTypes.STRING)
+				.addScalar("thumbnail", StandardBasicTypes.STRING).addScalar("hasFrameBreaker", StandardBasicTypes.BOOLEAN);
+
 		if (!skipPagination) {
 			query.setFirstResult(offset);
 			query.setMaxResults(limit);
 		}
-		return getFlags(query.list(),sql,type);
+		return getFlags(query.list(), sql, type);
 	}
 	
-	private Map<String, Object> getFlags(List<Object[]> results, String sql,String type) {
-		List<Map<String, Object>> listFlag = new ArrayList<Map<String,Object>>();	
-		StorageArea storageArea = this.getStorageRepository().getStorageAreaByTypeName(StorageAccount.Type.NFS.getType());	
+	private Map<String, Object> getFlags(List<Object[]> results, String sql, String type) {
+		List<Map<String, Object>> listFlag = new ArrayList<Map<String, Object>>();
+		StorageArea storageArea = this.getStorageRepository().getStorageAreaByTypeName(StorageAccount.Type.NFS.getType());
 		for (Object[] object : results) {
 			Map<String, Object> flag = new HashMap<String, Object>();
 			flag.put("title", object[0]);
@@ -303,8 +335,8 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 			flag.put("notes", object[17]);
 			flag.put("reporterName", object[18]);
 			flag.put("resourceCreatorName", object[19]);
-			flag.put("thumbnail",object[20]);
-			flag.put("hasFrameBreaker",object[21]);
+			flag.put("thumbnail", object[20]);
+			flag.put("hasFrameBreaker", object[21]);
 			if (type == "resource") {
 				String temp = (String) object[15];
 				if (temp != null) {
@@ -316,17 +348,16 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 					flag.put("scollectionTitle", null);
 				}
 			}
-			if(flag.get("thumbnail")!=null){
-				flag.put("thumbnail",storageArea.getAreaPath().concat(flag.get("thumbnail").toString()));
+			if (flag.get("thumbnail") != null) {
+				flag.put("thumbnail", storageArea.getAreaPath().concat(flag.get("thumbnail").toString()));
 			}
-			 
-			
+
 			listFlag.add(flag);
 		}
-	
+
 		Session session = getSession();
-		sql = "select count(1) as totalCount from ("+sql+") as flag";
-		Query query = session.createSQLQuery(sql).addScalar("totalCount",StandardBasicTypes.INTEGER);
+		sql = "select count(1) as totalCount from (" + sql + ") as flag";
+		Query query = session.createSQLQuery(sql).addScalar("totalCount", StandardBasicTypes.INTEGER);
 		Map<String, Object> result = new HashMap<String, Object>();
 		result.put("searchResult", listFlag);
 		result.put("totalCount", (Integer) query.list().get(0));
