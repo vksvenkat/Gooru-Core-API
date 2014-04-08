@@ -294,7 +294,7 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 		}
 
 		if (reportQuery != null) {
-			sql += " and f.creator_uid = '" + reportQuery + "'or u.username = '" + reportQuery + "'";
+			sql += " and f.creator_uid = '" + reportQuery + "' or u.username = '" + reportQuery + "'";
 		}
 
 		sql += " group by f.creator_uid, f.assoc_gooru_oid";
