@@ -44,6 +44,7 @@ import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.domain.service.setting.SettingService;
+import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.party.PartyRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.taxonomy.TaxonomyRespository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,6 +81,7 @@ public class PartyServiceImpl extends BaseServiceImpl implements PartyService, P
 		if (!error.hasErrors()) {
 			partyCustomField.setPartyUid(partyId);
 			getPartyRepository().save(partyCustomField);
+			indexProcessor.index(partyId, IndexProcessor.INDEX, USER, false);
 		}
 		return new ActionResponseDTO<PartyCustomField>(partyCustomField, error);
 	}
@@ -128,6 +130,7 @@ public class PartyServiceImpl extends BaseServiceImpl implements PartyService, P
 				}
 			}
 			this.getPartyRepository().save(partyCustomField);
+			indexProcessor.index(partyId, IndexProcessor.INDEX, USER, false);
 			if (newPartyCustomField.getOptionalKey() != null && newPartyCustomField.getOptionalKey().equalsIgnoreCase("show_profile_page")) {
 				this.getAsyncExecutor().indexProcessor(partyId, UserGroupSupport.getSessionToken(), (GooruAuthenticationToken)SecurityContextHolder.getContext().getAuthentication());
 			}

@@ -75,34 +75,20 @@ public class InviteServiceImpl extends BaseServiceImpl implements InviteService,
 			throw new NotFoundException(generateErrorMessage(GL0006, CLASS));
 		}
 		List<Map<String, String>> invites = new ArrayList<Map<String, String>>();
-		List<InviteUser> inviteUsers = new ArrayList<InviteUser>();
 		for (String email : emails) {
 			InviteUser inviteUser = this.getInviteRepository().findInviteUserById(email, classPage.getGooruOid(),null);
 			if (inviteUser  == null) {
-				inviteUsers.add(createInviteUserObj(email,classPage.getGooruOid(), CLASS, apiCaller));
+				this.getInviteRepository().save(createInviteUserObj(email,classPage.getGooruOid(), CLASS, apiCaller));
+				Map<String, String> inviteMap = new HashMap<String, String>();
+				inviteMap.put(EMAIL_ID, email);
+				inviteMap.put(GOORU_OID, classPage.getGooruOid());
+				inviteMap.put(STATUS, PENDING);
+				invites.add(inviteMap);
 			}
-			Map<String, String> inviteMap = new HashMap<String, String>();
-			inviteMap.put(EMAIL_ID, email);
-			inviteMap.put(GOORU_OID, classPage.getGooruOid());
-			inviteMap.put(STATUS, PENDING);
+			
 			String inviteFrom = apiCaller.getIdentities() != null ? apiCaller.getIdentities().iterator().next().getExternalId() : null ;
-			invites.add(inviteMap);
-			Profile profile= this.getUserRepository().getProfile(classPage.getUser(), false);
-			String gender = "";
-			String noun = "";
-			if(profile.getGender() != null) {
-				if(profile.getGender().getName().equalsIgnoreCase(FEMALE)) {
-					gender = MS;
-					noun = HER;
-				} else if(profile.getGender().getName().equalsIgnoreCase(MALE)) {
-					gender = MR;
-					noun = HIS;
-				}
-			}
-			this.getMailHandler().sendMailToInviteUser(inviteMap,classPage.getUser(),classPage.getTitle(), gender,noun,inviteFrom,apiCaller.getUsername());
-		}
-		if (inviteUsers != null) { 
-			this.getInviteRepository().saveAll(inviteUsers);
+		
+			this.getMailHandler().sendMailToInviteUser(email,classPage.getGooruOid(),classPage.getUser(),classPage.getTitle() ,inviteFrom,apiCaller.getUsername());
 		}
 		return invites;
 

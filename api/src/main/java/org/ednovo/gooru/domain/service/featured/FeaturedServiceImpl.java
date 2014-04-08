@@ -253,30 +253,30 @@ public class FeaturedServiceImpl implements FeaturedService, ParameterProperties
 											collectionMap.add(collection);
 										}
 										if (collectionMap != null && collectionMap.size() > 0) {
-											conceptMap.add(getCode(concept, collectionMap, COLLECTION, null, getOrganizationCode(libraryName), null));
+											conceptMap.add(getCode(concept, collectionMap, COLLECTION, null, getOrganizationCode(libraryName), null, null, null));
 										}
 
 									}
 									
 									if ((collectionLessonMap != null && collectionLessonMap.size() > 0) || (conceptMap != null && conceptMap.size() > 0)) {
-										lessonMap.add(getCode(lesson, collectionLessonMap, COLLECTION, null, getOrganizationCode(libraryName), conceptMap));
+										lessonMap.add(getCode(lesson, collectionLessonMap, COLLECTION, null, getOrganizationCode(libraryName), conceptMap,null,null));
 									}
 								}
 									allLessons = this.getTaxonomyRespository().findCodeByParentCodeId(String.valueOf(topic.getCodeId()), null, 0, 3, true, LIBRARY, getOrganizationCode(libraryName), rootNode, null);
 								
 							}
 							
-							topicMap.add(getCode(topic, (collectionTopicMap != null && collectionTopicMap.size() > 0) ? collectionTopicMap : lessonMap, (collectionTopicMap != null && collectionTopicMap.size() > 0) ? COLLECTION : LESSON, collectionTopicCount != null ? collectionTopicCount
-									: (allLessons != null ? allLessons.size() : 0), getOrganizationCode(libraryName), null));
+							topicMap.add(getCode(topic, lessonMap, LESSON, collectionTopicCount != null ? collectionTopicCount
+									: (allLessons != null ? allLessons.size() : 0), getOrganizationCode(libraryName), null, collectionTopicMap, COLLECTION));
 
 						}
 					}
 				}
-				unitMap.add(getCode(unit, (collectionUnitCount != null && collectionUnitCount > 0) ? collectionUnitMap : topicMap, (collectionUnitCount != null && collectionUnitCount > 0) ? COLLECTION : TOPIC, collectionUnitCount, getOrganizationCode(libraryName), null));
+				unitMap.add(getCode(unit, topicMap, TOPIC, collectionUnitCount, getOrganizationCode(libraryName), null, collectionUnitMap, COLLECTION));
 				unitCount++;
 
 			}
-			courseMap.add(getCode(course, unitMap, UNIT, null, getOrganizationCode(libraryName), null));
+			courseMap.add(getCode(course, unitMap, UNIT, null, getOrganizationCode(libraryName), null,null,null));
 		}
 		return courseMap;
 	}
@@ -301,7 +301,7 @@ public class FeaturedServiceImpl implements FeaturedService, ParameterProperties
 							for (Code subject : subjects) {
 								courseMap.addAll(this.getLibraryCourse(String.valueOf(subject.getCodeId()), String.valueOf(object[1]), libraryName, String.valueOf(curriculum.getRootNodeId())));
 							}
-							curriculumMap.add(getCode(curriculum, courseMap, "course", null, getOrganizationCode(libraryName), null));
+							curriculumMap.add(getCode(curriculum, courseMap, "course", null, getOrganizationCode(libraryName), null, null, null));
 
 					}
 					lib.put(DATA_OBJECT, curriculumMap);
@@ -364,11 +364,11 @@ public class FeaturedServiceImpl implements FeaturedService, ParameterProperties
 						collectionConceptMap.add(collection);
 					}
 					if (collectionMap != null && collectionMap.size() > 0) {
-						conceptMap.add(getCode(concept, collectionMap, COLLECTION, null, getOrganizationCode(libraryName), null));
+						conceptMap.add(getCode(concept, collectionMap, COLLECTION, null, getOrganizationCode(libraryName), null,null,null));
 					}
 				}
 				if ((collectionMap != null && collectionMap.size() > 0)|| conceptMap != null && conceptMap.size() > 0) {
-					lessonMap.add(getCode(lesson, collectionMap, COLLECTION, null, getOrganizationCode(libraryName), null));
+					lessonMap.add(getCode(lesson, collectionMap, COLLECTION, null, getOrganizationCode(libraryName), null, null, null));
 				}
 			}
 			return lessonMap;
@@ -376,9 +376,9 @@ public class FeaturedServiceImpl implements FeaturedService, ParameterProperties
 
 	}
 
-	private Map<String, Object> getCode(Code code, List<Map<String, Object>> childern, String type, Integer count, String organizationCode, List<Map<String, Object>> concept) {
+	private Map<String, Object> getCode(Code code, List<Map<String, Object>> childern, String type, Integer count, String organizationCode, List<Map<String, Object>> concept, List<Map<String, Object>> collectionChildern, String collectionType) {
 		Map<String, Object> codeMap = new HashMap<String, Object>();
-		codeMap.put(CODE, code.getCommonCoreDotNotation() == null ? code.getCode() : code.getCommonCoreDotNotation());
+		codeMap.put(CODE, code.getCommonCoreDotNotation() == null ? code.getdisplayCode() : code.getCommonCoreDotNotation());
 		codeMap.put(CODE_ID, code.getCodeId());
 		codeMap.put(CODE_TYPE, code.getCodeType());
 		codeMap.put(LABEL, code.getLabel());
@@ -396,6 +396,7 @@ public class FeaturedServiceImpl implements FeaturedService, ParameterProperties
 			codeMap.put(COUNT, count);
 		}
 		codeMap.put(type, childern);
+		codeMap.put(collectionType, collectionChildern);
 		return codeMap;
 
 	}
@@ -624,20 +625,20 @@ public class FeaturedServiceImpl implements FeaturedService, ParameterProperties
 								collectionMap.add(collection);
 							}
 							if (collectionMap != null && collectionMap.size() > 0) {
-								conceptMap.add(getCode(concept, collectionMap, COLLECTION, null, getOrganizationCode(libraryName), null));
+								conceptMap.add(getCode(concept, collectionMap, COLLECTION, null, getOrganizationCode(libraryName), null, null, null));
 							}
 
 						}
 						
 						if ((collectionLessonMap != null && collectionLessonMap.size() > 0) || conceptMap !=null && conceptMap.size() > 0) {
-							lessonMap.add(getCode(lesson, collectionLessonMap, COLLECTION, null, getOrganizationCode(libraryName), conceptMap));
+							lessonMap.add(getCode(lesson, collectionLessonMap, COLLECTION, null, getOrganizationCode(libraryName), conceptMap, null, null));
 						}
 
 					allLessons = this.getTaxonomyRespository().findCodeByParentCodeId(String.valueOf(topic.getCodeId()), null, 0, 3, true, LIBRARY, getOrganizationCode(libraryName), rootNode, null);
 					}
 				}
-				topicMap.add(getCode(topic, (collectionTopicMap != null && collectionTopicMap.size() > 0) ? collectionTopicMap : lessonMap, (collectionTopicMap != null && collectionTopicMap.size() > 0) ? COLLECTION : LESSON, collectionTopicCount != null ? collectionTopicCount
-						: (allLessons != null ? allLessons.size() : 0), getOrganizationCode(libraryName), null));
+				topicMap.add(getCode(topic, lessonMap, LESSON, collectionTopicCount != null ? collectionTopicCount
+						: (allLessons != null ? allLessons.size() : 0), getOrganizationCode(libraryName), null, collectionTopicMap, COLLECTION));
 
 			}
 		}
