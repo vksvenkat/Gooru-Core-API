@@ -23,20 +23,16 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.application.util;
 
-import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
 import org.ednovo.gooru.core.api.model.Collection;
-import org.ednovo.gooru.core.api.model.GooruAuthenticationToken;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.application.util.RequestUtil;
-import org.ednovo.gooru.domain.service.content.ContentService;
 import org.ednovo.gooru.domain.service.resource.ResourceManager;
 import org.ednovo.gooru.domain.service.revision_history.RevisionHistoryService;
 import org.ednovo.gooru.domain.service.storage.S3ResourceApiHandler;
-import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +46,7 @@ import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
 @Component
-
+@Async
 @Transactional(propagation = Propagation.NEVER)
 public class AsyncExecutor {
 
@@ -64,12 +60,6 @@ public class AsyncExecutor {
 
 	@Autowired
 	private HibernateTransactionManager transactionManager;
-
-	@Autowired
-	private ContentService contentService;
-
-	@Autowired
-	private IndexProcessor indexProcessor;
 
 	@Autowired
 	@javax.annotation.Resource(name = "resourceManager")
@@ -115,30 +105,6 @@ public class AsyncExecutor {
 		});
 	}
 
-	public void indexProcessor(final String partyUid, final String sessionToken, final GooruAuthenticationToken authentication) {
-		transactionTemplate.execute(new TransactionCallback<Void>() {
-			@Override
-			public Void doInTransaction(TransactionStatus status) {
-				try {
-					logger.debug("index collection ");
-					List<Object[]> ids = contentService.getIdsByUserUId(partyUid, "scollection", null, null);
-					StringBuilder gooruOIds = new StringBuilder();
-					for (Object[] contentId : ids) {
-						if (gooruOIds.length() > 0) {
-							gooruOIds.append(",");
-						}
-						gooruOIds.append(contentId[1]);
-					}
-					if (gooruOIds.length() > 0) {
-						indexProcessor.index(gooruOIds.toString(), IndexProcessor.INDEX, "scollection", sessionToken, authentication, false);
-					}
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-				return null;
-			}
-		});
-	}
 
 	public void executeRestAPI(final Map<String, Object> param, final String requestUrl, final String requestType) {
 		transactionTemplate.execute(new TransactionCallback<Void>() {
