@@ -1967,18 +1967,18 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 	@Override
 	public void validatePassword(String password, String userName) {
 		if (password.length() < 5) {
-			throw new RuntimeException("Password should be atleast 5 characters");
+			throw new BadCredentialsException("Password should be atleast 5 characters");
 		}
 
 		else if (password.length() > 14) {
-			throw new RuntimeException("Password should be within 14 characters");
+			throw new BadCredentialsException("Password should be within 14 characters");
 		}
 
 		else if (checkPasswordWithAlphaNumeric(password)) {
-			throw new RuntimeException("Password should contain atleast one letter and one digit");
+			throw new BadCredentialsException("Password should contain atleast one letter and one digit");
 		}
 		if ((isNotEmptyString(userName)) && (userName.equalsIgnoreCase(password))) {
-			throw new RuntimeException("Password should not be same with the Username");
+			throw new BadCredentialsException("Password should not be same with the Username");
 		}
 
 	}
