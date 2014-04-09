@@ -520,8 +520,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			this.getCollectionRepository().flush();
 			
 			try {
-				indexProcessor.index(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE);
-				indexProcessor.index(collection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
+				indexProcessor.index(collectionItem.getCollection().getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
 			} catch (Exception e) {
 				logger.error(e.getMessage());
 			}
@@ -1512,22 +1511,13 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				collectionItem.setAssociationDate(new Date(System.currentTimeMillis()));
 				this.getCollectionRepository().save(collectionItem);
 			}
-			if (destCollection.getCollectionType().equalsIgnoreCase(CollectionType.COLLECTION.getCollectionType())) {
-				Map<String, String> data = new HashMap<String, String>();
-				data.put(EVENT_TYPE, CustomProperties.EventMapping.FIRST_COLLECTION.getEvent());
-				data.put(_GOORU_UID, destCollection.getUser().getGooruUId());
-				this.getMailAsyncExecutor().handleMailEvent(data);
-			}
-			if (destCollection.getCollectionType().equalsIgnoreCase(CollectionType.COLLECTION.getCollectionType())) {
-				Map<String, String> data = new HashMap<String, String>();
-				data.put(EVENT_TYPE, CustomProperties.EventMapping.FIRST_COLLECTION.getEvent());
-				data.put(_GOORU_UID, destCollection.getUser().getGooruUId());
-				this.getMailAsyncExecutor().handleMailEvent(data);
-			}
+			
 		}
-		Collection parentCollection = collectionRepository.getCollectionByGooruOid(parentId, user.getPartyUid());
-		if (parentCollection != null) {
-			destCollection.setCollectionItem(this.createCollectionItem(destCollection.getGooruOid(), parentCollection.getGooruOid(), new CollectionItem(), destCollection.getUser(), CollectionType.FOLDER.getCollectionType(), false).getModel());
+		if (parentId != null) {
+			Collection parentCollection = collectionRepository.getCollectionByGooruOid(parentId, user.getPartyUid());
+			if (parentCollection != null) {
+				destCollection.setCollectionItem(this.createCollectionItem(destCollection.getGooruOid(), parentCollection.getGooruOid(), new CollectionItem(), destCollection.getUser(), CollectionType.FOLDER.getCollectionType(), false).getModel());
+			}
 		}
 		this.getCollectionRepository().save(destCollection);
 		return destCollection;

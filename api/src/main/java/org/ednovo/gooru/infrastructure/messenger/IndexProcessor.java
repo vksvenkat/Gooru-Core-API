@@ -23,17 +23,13 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.infrastructure.messenger;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
 import org.ednovo.gooru.core.api.model.GooruAuthenticationToken;
 import org.ednovo.gooru.core.api.model.UserGroupSupport;
 import org.ednovo.gooru.domain.service.content.ContentService;
-import org.ednovo.gooru.kafka.producer.KafkaProducer;
-import org.json.JSONObject;
 import org.restlet.data.Form;
 import org.restlet.representation.Representation;
 import org.restlet.resource.ClientResource;
@@ -55,9 +51,6 @@ public class IndexProcessor extends BaseComponent {
 	
 	@Autowired
 	private HibernateTransactionManager transactionManager;
-	
-	@Autowired
-	private KafkaProducer kafkaProducer;
 	
 	private TransactionTemplate transactionTemplate;
 	
