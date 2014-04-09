@@ -34,7 +34,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.ednovo.gooru.application.util.ConfigProperties;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.User;
+import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.kafka.producer.KafkaEventHandler;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,14 +71,21 @@ public class GooruInterceptor extends HandlerInterceptorAdapter {
 		Long startTime = System.currentTimeMillis();
 		request.setAttribute("startTime", startTime);
 		SessionContextSupport.putLogParameter("startTime", startTime);
-		SessionContextSupport.putLogParameter("context", request.getPathInfo());
+		/*SessionContextSupport.putLogParameter("context", request.getPathInfo());
 		SessionContextSupport.putLogParameter("userAgent", request.getHeader("User-Agent"));
 		SessionContextSupport.putLogParameter("apiKey", configProperties.getLogSettings().get("log.api.key"));
-		SessionContextSupport.putLogParameter("requestMethod", request.getMethod());
-		
-		String eventUUID = UUID.randomUUID().toString();		
+		SessionContextSupport.putLogParameter("requestMethod", request.getMethod());*/
+		String eventUUID = UUID.randomUUID().toString();	
 		response.setHeader("X-REQUEST-UUID", eventUUID);
 		SessionContextSupport.putLogParameter("eventId", eventUUID);
+		
+		JSONObject payLoadObject = new JSONObject();
+		payLoadObject.put("requestMethod", request.getMethod());
+		SessionContextSupport.putLogParameter("payLoadObject", payLoadObject);
+		
+		JSONObject context = new JSONObject();
+		context.put("url", request.getRequestURI());
+		SessionContextSupport.putLogParameter("context", context);
 		
 		request.getHeader("VIA");
 		String ipAddress = request.getHeader("X-FORWARDED-FOR");
@@ -85,23 +94,49 @@ public class GooruInterceptor extends HandlerInterceptorAdapter {
 			ipAddress = request.getRemoteAddr();
 		}
 		
-		SessionContextSupport.putLogParameter("userIp", ipAddress);		
+		//SessionContextSupport.putLogParameter("userIp", ipAddress);		
 		
+		JSONObject user = new JSONObject();
+		User party = (User) request.getAttribute(Constants.USER);
+		if(party != null)
+		{
+			user.put("gooruUId",  party.getPartyUid());
+		}
+		user.put("userAgent",  request.getHeader("User-Agent"));
+		user.put("userIp",  ipAddress);
+		SessionContextSupport.putLogParameter("user", user.toString());
+		
+		JSONObject session = new JSONObject();
+		session.put("apiKey", configProperties.getLogSettings().get("log.api.key"));
+		session.put("sessionToken", request.getAttribute(Constants.SESSION_TOKEN));
+		if(party != null)
+		{
+			session.put("organizationUId",  party.getOrganizationUid());
+		}
+		SessionContextSupport.putLogParameter("session", session.toString());
+		SessionContextSupport.putLogParameter("version", "0.1");
 		return true;
 	}
 
 	@Override
 	public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
-		SessionContextSupport.putLogParameter("endTime", System.currentTimeMillis());	
+	//	SessionContextSupport.putLogParameter("endTime", System.currentTimeMillis());	
+		Long endTime = System.currentTimeMillis();
+		Long startTime = request.getDateHeader("startTime");
+		Long totalTimeSpentInMs = endTime - startTime ;
+		JSONObject metrics = new JSONObject();
+		metrics.put("totalTimeSpentInMs", totalTimeSpentInMs);
+		SessionContextSupport.putLogParameter("metrics", metrics.toString());	
 		User user = (User) request.getAttribute("USER");
 		if(user != null)
 		{
-			SessionContextSupport.putLogParameter("userUid", request.getAttribute(user.getPartyUid()));
+			//SessionContextSupport.putLogParameter("userUid", request.getAttribute(user.getPartyUid()));
 		}
 		Map<String, Object> log = SessionContextSupport.getLog();
 		String logString = SERIALIZER.deepSerialize(log);
 		if (logString != null) {
 			try {
+				logger.info(logString);
 				kafkaService.sendEventLog(logString);
 			} catch(Exception e) {
 				logger.error("Error while pushing event log data to kafka : " + e.getMessage() );
