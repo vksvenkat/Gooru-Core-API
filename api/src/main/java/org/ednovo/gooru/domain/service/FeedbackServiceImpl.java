@@ -23,6 +23,8 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.domain.service;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -361,8 +363,16 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 	
 	@Override
 	public Map<String, Object> getFlags(Integer limit, Integer offset, Boolean skipPagination, String category, String type, String status, String reportedFlagType, String startDate, String endDate, String searchQuery, String description, String reportQuery) {
-
-		return this.getFeedbackRepository().getContentFlags(limit, offset, skipPagination, getTableNameByFeedbackCategory(CustomProperties.FeedbackCategory.REPORT.getFeedbackCategory(), CustomProperties.Target.CONTENT.getTarget()), type, status, reportedFlagType, startDate, endDate, searchQuery, description, reportQuery);
+		SimpleDateFormat startdate = new SimpleDateFormat("yyyy-mm-dd");
+		SimpleDateFormat enddate = new SimpleDateFormat("yyyy-mm-dd");
+		try {
+			startdate.parse(startDate);
+			enddate.parse(endDate);
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return this.getFeedbackRepository().getContentFlags(limit, offset, skipPagination, getTableNameByFeedbackCategory(CustomProperties.FeedbackCategory.REPORT.getFeedbackCategory(), CustomProperties.Target.CONTENT.getTarget()), type, status, reportedFlagType, startdate, enddate, searchQuery, description, reportQuery);
 	}
 
 	@Override
