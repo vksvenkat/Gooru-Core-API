@@ -44,6 +44,8 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.OrganizationSetting
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserTokenRepository;
 import org.ednovo.goorucore.application.serializer.ExcludeNullTransformer;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -185,6 +187,17 @@ public class DoAuthorization  {
 		SessionContextSupport.putLogParameter("gooruUId", authentication.getUserToken().getUser().getPartyUid());
 		SessionContextSupport.putLogParameter("sessionToken", sessionToken);
 		SessionContextSupport.putLogParameter("organizationUid", authentication.getUserToken().getUser().getOrganization().getPartyUid());*/
+		
+		JSONObject session = new JSONObject();
+			try {
+				session.put("sessionToken", sessionToken);
+				session.put("organizationUId",  authentication.getUserToken().getUser().getOrganization().getPartyUid());
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			SessionContextSupport.putLogParameter("session", session.toString());
+		
 		
 		if(oAuthToken != null){
 			SessionContextSupport.putLogParameter("oauthAccessToken", oAuthToken);
