@@ -1814,8 +1814,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		payLoadObject.put("description", collection.getDescription());
 		SessionContextSupport.putLogParameter("payLoadObject", payLoadObject.toString());
 		JSONObject session = new JSONObject(SessionContextSupport.getLog().get("session").toString());
-		session.put("organizationUId",  user.getOrganizationUid());
-		session.put("sessionToken", user.getToken());
+		session.put("organizationUId",  user.getOrganization().getPartyUid());
 		SessionContextSupport.putLogParameter("session", session.toString());
 	}
 	
@@ -1834,8 +1833,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		payLoadObject.put("description", collectionItem.getResource().getDescription());
 		SessionContextSupport.putLogParameter("payLoadObject", payLoadObject.toString());
 		JSONObject session = new JSONObject(SessionContextSupport.getLog().get("session").toString());
-		session.put("organizationUId",  user.getOrganizationUid());
-		session.put("sessionToken", user.getToken());
+		session.put("organizationUId",  user.getOrganization().getPartyUid());
 		SessionContextSupport.putLogParameter("session", session.toString());
 	}
 	
@@ -1855,8 +1853,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		payLoadObject.put("description", collectionItem.getResource().getDescription());
 		SessionContextSupport.putLogParameter("payLoadObject", payLoadObject.toString());
 		JSONObject session = new JSONObject(SessionContextSupport.getLog().get("session").toString());
-		session.put("organizationUId",  user.getOrganizationUid());
-		session.put("sessionToken", user.getToken());
+		session.put("organizationUId",  user.getOrganization().getPartyUid());
 		SessionContextSupport.putLogParameter("session", session.toString());
 	}
 

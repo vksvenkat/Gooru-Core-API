@@ -666,8 +666,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		payLoadObject.put("contentId", userGroup.getPartyUid());
 		SessionContextSupport.putLogParameter("payLoadObject", payLoadObject.toString());
 		JSONObject session = new JSONObject(SessionContextSupport.getLog().get("session").toString());
-		session.put("organizationUId",  user.getOrganizationUid());
-		session.put("sessionToken", user.getToken());
+		session.put("organizationUId",  user.getOrganization().getPartyUid());
 		SessionContextSupport.putLogParameter("session", session.toString());
 	}
 
@@ -682,8 +681,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			payLoadObject.put("contentId", userGroup.getPartyUid());
 			SessionContextSupport.putLogParameter("payLoadObject", payLoadObject.toString());
 			JSONObject session = new JSONObject(SessionContextSupport.getLog().get("session").toString());
-			session.put("organizationUId",  user.getOrganizationUid());
-			session.put("sessionToken", user.getToken());
+			session.put("organizationUId",  user.getOrganization().getPartyUid());
 			SessionContextSupport.putLogParameter("session", session.toString());
 		}
 
