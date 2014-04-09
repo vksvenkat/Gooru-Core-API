@@ -109,7 +109,9 @@ public class GooruInterceptor extends HandlerInterceptorAdapter {
 		JSONObject session = new JSONObject(SessionContextSupport.getLog().get("session").toString());
 		session.put("apiKey", configProperties.getLogSettings().get("log.api.key"));
 		SessionContextSupport.putLogParameter("session", session.toString());
-		SessionContextSupport.putLogParameter("version", "0.1");
+		JSONObject version = new JSONObject();
+		version.put("logApi", "0.1");
+		SessionContextSupport.putLogParameter("version", version);
 		return true;
 	}
 

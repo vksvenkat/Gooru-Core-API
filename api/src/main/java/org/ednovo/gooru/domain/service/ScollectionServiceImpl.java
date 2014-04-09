@@ -635,8 +635,8 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		}
 		if (collectionItem != null) {
 			Collection collection = collectionItem.getCollection();
-			SessionContextSupport.putLogParameter(COLLECTION_ID, collectionItem.getCollection().getGooruOid());
-			SessionContextSupport.putLogParameter(RESOURCE_ID, collectionItem.getResource().getGooruOid());
+			//SessionContextSupport.putLogParameter(COLLECTION_ID, collectionItem.getCollection().getGooruOid());
+			//SessionContextSupport.putLogParameter(RESOURCE_ID, collectionItem.getResource().getGooruOid());
 			this.getCollectionRepository().remove(CollectionItem.class, collectionItem.getCollectionItemId());
 
 			collectionItem.getCollection().setLastUpdatedUserUid(user.getPartyUid());
@@ -1831,6 +1831,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		SessionContextSupport.putLogParameter(EVENT_NAME, "collection.delete");
 		JSONObject context = new JSONObject(SessionContextSupport.getLog().get("context").toString());
 		context.put("parentGooruId", collectionItem.getCollection().getGooruOid());
+		context.put("contentGooruId", collectionItem.getResource().getGooruOid());
 		SessionContextSupport.putLogParameter("context", context.toString());
 		
 		JSONObject payLoadObject = new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString());
