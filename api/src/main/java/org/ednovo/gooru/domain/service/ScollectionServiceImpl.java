@@ -42,6 +42,7 @@ import org.ednovo.gooru.application.util.ResourceImageUtil;
 import org.ednovo.gooru.application.util.TaxonomyUtil;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.AssessmentQuestion;
+import org.ednovo.gooru.core.api.model.Classpage;
 import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
@@ -62,10 +63,12 @@ import org.ednovo.gooru.core.api.model.ShelfType;
 import org.ednovo.gooru.core.api.model.StandardFo;
 import org.ednovo.gooru.core.api.model.Textbook;
 import org.ednovo.gooru.core.api.model.User;
+import org.ednovo.gooru.core.api.model.UserGroup;
 import org.ednovo.gooru.core.api.model.UserGroupSupport;
 import org.ednovo.gooru.core.application.util.CollectionMetaInfo;
 import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.constant.ConstantProperties;
+import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.domain.cassandra.service.ResourceCassandraService;
@@ -89,6 +92,9 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.question.CommentRep
 import org.ednovo.gooru.infrastructure.persistence.hibernate.resource.ResourceRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.taxonomy.TaxonomyRespository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.taxonomy.TaxonomyStoredProcedure;
+import org.ednovo.goorucore.application.serializer.JsonDeserializer;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -101,6 +107,8 @@ import org.springframework.validation.Errors;
 import com.google.common.collect.Lists;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.json.JettisonMappedXmlDriver;
+
+import flexjson.JSONDeserializer;
 
 public class ScollectionServiceImpl extends BaseServiceImpl implements ScollectionService, ParameterProperties, ConstantProperties {
 
@@ -288,6 +296,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 			}
 			getAsyncExecutor().createVersion(collection, SCOLLECTION_CREATE, user.getPartyUid());
+			getEventLogs(collection, user);
 		}
 		return new ActionResponseDTO<Collection>(collection, errors);
 	}
@@ -506,9 +515,10 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 			int sequence = collectionItem.getCollection().getCollectionItems() != null ? collectionItem.getCollection().getCollectionItems().size() + 1 : 1;
 			collectionItem.setItemSequence(sequence);
+			getEventLogs(collectionItem,false,user);
 			this.getCollectionRepository().save(collectionItem);
 			this.getCollectionRepository().flush();
-
+			
 			try {
 				indexProcessor.index(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE);
 				indexProcessor.index(collection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
@@ -521,6 +531,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		for (String parentFolder : parenFolders) {
 			updateFolderSharing(parentFolder);
 		}
+		getEventLogs(collectionItem,false,user);
 		return new ActionResponseDTO<CollectionItem>(collectionItem, errors);
 	}
 
@@ -617,6 +628,12 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	@Override
 	public void deleteCollectionItem(String collectionItemId, User user) {
 		CollectionItem collectionItem = this.getCollectionRepository().getCollectionItemById(collectionItemId);
+		try {
+			getEventLogs(collectionItem, user);
+		} catch (JSONException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		if (collectionItem != null) {
 			Collection collection = collectionItem.getCollection();
 			SessionContextSupport.putLogParameter(COLLECTION_ID, collectionItem.getCollection().getGooruOid());
@@ -1447,7 +1464,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			SessionContextSupport.putLogParameter(SOURCE_COLLECTION_ID, sourceCollection.getGooruOid());
 			SessionContextSupport.putLogParameter(TARGET_COLLECTION_ID, destCollection.getGooruOid());
 			this.getCollectionRepository().save(destCollection);
-			 if (newCollection.getTaxonomySet() != null && newCollection.getTaxonomySet().size() > 0) {
+			if (newCollection.getTaxonomySet() != null && newCollection.getTaxonomySet().size() > 0) {
 				resourceService.saveOrUpdateResourceTaxonomy(destCollection, new HashSet<Code>(newCollection.getTaxonomySet()));
 			} else {
 				Set<Code> codes = new HashSet<Code>();
@@ -1780,6 +1797,64 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			}
 		}
 		return domainName;
+	}
+	
+	public void getEventLogs(Collection collection, User user) throws JSONException {
+			
+		SessionContextSupport.putLogParameter(EVENT_NAME, "collection.create");
+		System.out.println(SessionContextSupport.getLog().toString());
+		JSONObject context = new JSONObject(SessionContextSupport.getLog().get("context").toString());
+		context.put("contentGooruOId", collection.getGooruOid());
+		
+		SessionContextSupport.putLogParameter("context", context.toString());
+		
+		JSONObject payLoadObject = new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString());
+		payLoadObject.put("contentId", collection.getContentId());
+		payLoadObject.put("title", collection.getTitle());
+		payLoadObject.put("description", collection.getDescription());
+		SessionContextSupport.putLogParameter("payLoadObject", payLoadObject.toString());
+		JSONObject session = new JSONObject(SessionContextSupport.getLog().get("session").toString());
+		session.put("organizationUId",  user.getOrganization().getPartyUid());
+		SessionContextSupport.putLogParameter("session", session.toString());
+	}
+	
+	public void getEventLogs(CollectionItem collectionItem, boolean isCollectionItem, User user) throws JSONException {
+		SessionContextSupport.putLogParameter(EVENT_NAME, "collection.create");
+		JSONObject context = new JSONObject(SessionContextSupport.getLog().get("context").toString());
+		context.put("parentGooruId", collectionItem.getCollection().getGooruOid());
+		SessionContextSupport.putLogParameter("context", context.toString());
+		
+		JSONObject payLoadObject = new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString());
+		payLoadObject.put("mode", "assign");
+		payLoadObject.put("itemSequence", collectionItem.getItemSequence());
+		payLoadObject.put("collectionItemId", collectionItem.getCollectionItemId());
+		payLoadObject.put("parentContentId", collectionItem.getCollection().getContentId());
+		payLoadObject.put("title", collectionItem.getResource().getTitle());
+		payLoadObject.put("description", collectionItem.getResource().getDescription());
+		SessionContextSupport.putLogParameter("payLoadObject", payLoadObject.toString());
+		JSONObject session = new JSONObject(SessionContextSupport.getLog().get("session").toString());
+		session.put("organizationUId",  user.getOrganization().getPartyUid());
+		SessionContextSupport.putLogParameter("session", session.toString());
+	}
+	
+	public void getEventLogs(CollectionItem collectionItem, User user) throws JSONException {
+		SessionContextSupport.putLogParameter(EVENT_NAME, "collection.delete");
+		JSONObject context = new JSONObject(SessionContextSupport.getLog().get("context").toString());
+		context.put("parentGooruId", collectionItem.getCollection().getGooruOid());
+		SessionContextSupport.putLogParameter("context", context.toString());
+		
+		JSONObject payLoadObject = new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString());
+		payLoadObject.put("contentId", collectionItem.getResource().getContentId());
+		payLoadObject.put("mode", "delete");
+		payLoadObject.put("itemSequence", collectionItem.getItemSequence());
+		payLoadObject.put("collectionItemId", collectionItem.getCollectionItemId());
+		payLoadObject.put("parentContentId", collectionItem.getCollection().getContentId());
+		payLoadObject.put("title", collectionItem.getResource().getTitle());
+		payLoadObject.put("description", collectionItem.getResource().getDescription());
+		SessionContextSupport.putLogParameter("payLoadObject", payLoadObject.toString());
+		JSONObject session = new JSONObject(SessionContextSupport.getLog().get("session").toString());
+		session.put("organizationUId",  user.getOrganization().getPartyUid());
+		SessionContextSupport.putLogParameter("session", session.toString());
 	}
 
 	public ResourceCassandraService getResourceCassandraService() {

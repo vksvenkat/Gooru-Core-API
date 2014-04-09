@@ -93,9 +93,6 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		} else {
 			response.setStatus(HttpServletResponse.SC_CREATED);
-			SessionContextSupport.putLogParameter(EVENT_NAME, "scollection-create");
-			SessionContextSupport.putLogParameter(GOORU_OID, responseDTO.getModel().getGooruOid());
-			SessionContextSupport.putLogParameter(GOORU_UID, user.getPartyUid());
 		}
 		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, COLLECTION_INCLUDE_FIELDS);
 		includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_ITEM_INCLUDE_FILEDS);
