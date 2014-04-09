@@ -278,11 +278,11 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 		
 		if (startdate != null && enddate != null) {
 			 
-			sql += "and CONVERT_TZ(c.created_on,@@session.time_zone,'US/Pacific') as created_on BETWEEN '" + startdate + "' and '" + enddate + "'";
+			sql += "and DATE_FORMAT(c.created_on,'%Y-%m-%d') BETWEEN '" + startdate + "' and '" + enddate + "'";
 		} else if (startdate != null) {
-			sql += " and CONVERT_TZ(c.created_on,@@session.time_zone,'US/Pacific') as created_on = '" + startdate + "'";
+			sql += " and DATE_FORMAT(c.created_on,'%Y-%m-%d') = '" + startdate + "'";
 		} else if (enddate != null) {
-			sql += " and CONVERT_TZ(c.created_on,@@session.time_zone,'US/Pacific') as created_on = '" + enddate + "'";
+			sql += " and DATE_FORMAT(c.created_on,'%Y-%m-%d') = '" + enddate + "'";
 		}
 
 		if (searchQuery != null) {
