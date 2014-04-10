@@ -41,11 +41,14 @@ import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.NotFoundException;
+import org.ednovo.gooru.domain.service.user.impl.UserServiceImpl;
 import org.ednovo.gooru.infrastructure.mail.MailHandler;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.InviteRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -66,6 +69,8 @@ public class InviteServiceImpl extends BaseServiceImpl implements InviteService,
 	
 	@Autowired
 	private MailHandler mailHandler;
+	
+	private static final Logger logger = LoggerFactory.getLogger(InviteServiceImpl.class);
 
 	@Override
 	public List<Map<String, String>> inviteUserForClass(List<String> emails, String classCode, User apiCaller) {
@@ -86,8 +91,11 @@ public class InviteServiceImpl extends BaseServiceImpl implements InviteService,
 			}
 			
 			String inviteFrom = apiCaller.getIdentities() != null ? apiCaller.getIdentities().iterator().next().getExternalId() : null ;
-		
-			this.getMailHandler().sendMailToInviteUser(email,classPage.getGooruOid(),classPage.getUser(),classPage.getTitle() ,inviteFrom,apiCaller.getUsername());
+			try {
+				this.getMailHandler().sendMailToInviteUser(email,classPage.getGooruOid(),classPage.getUser(),classPage.getTitle() ,inviteFrom,apiCaller.getUsername());
+			} catch (Exception e) {
+				logger.error("Error"+ e.getMessage());
+			}
 		}
 		return invites;
 
