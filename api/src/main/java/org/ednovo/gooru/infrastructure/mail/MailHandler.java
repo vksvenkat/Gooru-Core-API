@@ -268,9 +268,9 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 				parentExistingFlag = "You'll need to create your account first to create your child account.";
 			}
 			if (gooruClassicUrl != null && serverpath != null) {
-				completeRegistration = "<a style=\"color: #1076bb;\" href=\"" + gooruClassicUrl + "/#discover&gooruuid=" + identity.getUser().getGooruUId() + "&sessionid=" + tokenId + "&dob=" + encodedDateOfBirth + "&type=" + userAccountType
+				completeRegistration = "<a style=\"color: #1076bb;\" href=\"" + gooruClassicUrl + "&gooruuid=" + identity.getUser().getGooruUId() + "&sessionid=" + tokenId + "&dob=" + encodedDateOfBirth + "&type=" + userAccountType
 						+ "&callback=confirmUser\" target=\"_blank\">Complete Registration</a>";
-				registrationURL = gooruClassicUrl + "/#discover&gooruuid=" + identity.getUser().getGooruUId() + "&sessionid=" + tokenId + "&dob=" + encodedDateOfBirth + "&type=" + userAccountType + "&callback=confirmUser";
+				registrationURL = gooruClassicUrl + "&gooruuid=" + identity.getUser().getGooruUId() + "&sessionid=" + tokenId + "&dob=" + encodedDateOfBirth + "&type=" + userAccountType + "&callback=confirmUser";
 			} else {
 				completeRegistration = "<a style=\"color: #1076bb;\" href=\"" + serverpath + "/gooru/index.g#!/user/registration/" + identity.getUser().getGooruUId() + "/session/" + tokenId + "/" + encodedDateOfBirth + "/type/" + userAccountType + "\" target=\"_blank\">Complete Registration</a>";
 				registrationURL = serverpath + "/gooru/index.g#!/user/registration/" + identity.getUser().getGooruUId() + "/session/" + tokenId + "/" + encodedDateOfBirth + "/type/" + userAccountType;
@@ -287,7 +287,7 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 			}
 			if (gooruClassicUrl != null && serverpath != null) {
 				gooruClassicUrl = BaseUtil.changeHttpsProtocol(gooruClassicUrl);
-				passwordResetLink = "<a style=\"color: #1076bb;text-decoration: none;\" href=\"" + gooruClassicUrl + "/#discover&amp;resetToken=" + resetToken + "&amp;callback=changePassword\" target=\"_blank\"> here</a>";
+				passwordResetLink = "<a style=\"color: #1076bb;text-decoration: none;\" href=\"" + gooruClassicUrl + "&amp;resetToken=" + resetToken + "&amp;callback=changePassword\" target=\"_blank\"> here</a>";
 			} else {
 				passwordResetLink = "<a style=\"color: #1076bb;text-decoration: none;\" href=\"  " + serverpath + "/gooru/index.g#!/change-password/" + resetToken + "\" target=\"_blank\"> here</a>";
 			}
@@ -301,7 +301,7 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 					completeRegistration = "<a style=\"color: #1076bb;\" href=\"" + serverpath + "/gooru/index.g#!/user/registration/" + identity.getUser().getGooruUId() + "/session/" + tokenId + "/" + encodedDateOfBirth + "/type/" + userAccountType
 							+ "\" target=\"_blank\">Click Here to Complete Registration.</a>";
 				} else {
-					completeRegistration = "<a style=\"color: #1076bb;\" href=\"" + gooruClassicUrl + "/#discover&gooruuid=" + identity.getUser().getGooruUId() + "&sessionid=" + tokenId + "&dob=" + encodedDateOfBirth + "&type=" + userAccountType
+					completeRegistration = "<a style=\"color: #1076bb;\" href=\"" + gooruClassicUrl + "&gooruuid=" + identity.getUser().getGooruUId() + "&sessionid=" + tokenId + "&dob=" + encodedDateOfBirth + "&type=" + userAccountType
 							+ "&callback=confirmUser\" target=\"_blank\">Click Here to Complete Registration.</a>";
 				}
 			} else {
