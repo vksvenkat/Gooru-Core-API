@@ -430,8 +430,8 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 					classpage.setLastModified(new Date(System.currentTimeMillis()));
 					this.getCollectionRepository().save(classpage);
 				}
+				getEventLogs(classpage, apiCaller, userGroup, inviteUser);
 			}
-			getEventLogs(classpage, apiCaller, userGroup, inviteUser);
 		} else {
 			throw new NotFoundException("class not found");
 		}
@@ -665,7 +665,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		SessionContextSupport.putLogParameter("context", context.toString());
 		
 		JSONObject payLoadObject = new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString());
-		payLoadObject.put("groupUId", userGroup.getGroupCode());
+		payLoadObject.put("groupUId", userGroup.getPartyUid());
 		payLoadObject.put("contentId", classapge.getContentId());
 		payLoadObject.put("classCode", classapge.getClasspageCode());
 		SessionContextSupport.putLogParameter("payLoadObject", payLoadObject.toString());
@@ -681,8 +681,10 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			SessionContextSupport.putLogParameter("context", context.toString());
 			
 			JSONObject payLoadObject = new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString());
-			payLoadObject.put("InvitedUserGooruUId", inviteUser.getInviteUid());
-			payLoadObject.put("contentId", userGroup.getPartyUid());
+			if(inviteUser != null && inviteUser.getInviteUid() != null){
+				payLoadObject.put("InvitedUserGooruUId", inviteUser.getInviteUid());
+			}
+			payLoadObject.put("contentId", classapge.getContentId() );
 			SessionContextSupport.putLogParameter("payLoadObject", payLoadObject.toString());
 			JSONObject session = new JSONObject(SessionContextSupport.getLog().get("session").toString());
 			session.put("organizationUId",  user.getOrganization().getPartyUid());
