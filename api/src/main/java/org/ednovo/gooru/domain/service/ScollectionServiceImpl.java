@@ -498,6 +498,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 			if (collectionItem.getCollection() != null) {
 				collectionItem.getCollection().setLastUpdatedUserUid(user.getPartyUid());
+				collectionItem.getCollection().setLastModified(new Date(System.currentTimeMillis()));
 			}
 
 			if (!isCreateQuestion && resource != null && resource.getResourceType().getName().equalsIgnoreCase(ResourceType.Type.ASSESSMENT_QUESTION.getType())) {
