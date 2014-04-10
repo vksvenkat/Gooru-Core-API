@@ -506,12 +506,12 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			} else {
 				collectionItem.setResource(resource);
 			}
-			SessionContextSupport.putLogParameter(EVENT_NAME, SCOLLECTION_ITEM_ADD);
+			/*SessionContextSupport.putLogParameter(EVENT_NAME, SCOLLECTION_ITEM_ADD);
 			SessionContextSupport.putLogParameter(COLLECTION_ITEM_ID, collectionItem.getCollectionItemId());
 			SessionContextSupport.putLogParameter(GOORU_OID, resourceGooruOid);
 			SessionContextSupport.putLogParameter(COLLECTION_ID, collectionGooruOid);
 			SessionContextSupport.putLogParameter(RESOURCE_ID, resourceGooruOid);
-			SessionContextSupport.putLogParameter(COLLECTION_TYPE, collectionItem.getCollection().getCollectionType());
+			SessionContextSupport.putLogParameter(COLLECTION_TYPE, collectionItem.getCollection().getCollectionType());*/
 
 			int sequence = collectionItem.getCollection().getCollectionItems() != null ? collectionItem.getCollection().getCollectionItems().size() + 1 : 1;
 			collectionItem.setItemSequence(sequence);
