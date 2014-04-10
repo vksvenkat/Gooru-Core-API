@@ -24,7 +24,8 @@ public class UserRole extends OrganizationModel implements Serializable{
 	public static final Short ROLE_ANONYMOUS = 4;
 	public static final Short ROLE_AUTHENTICATED = 5;
 	public static final Short ROLE_PUBLISHER = 6;
-	
+	public static final Short SUPER_ADMIN=7;
+
 	public static enum UserRoleType{
 		TEACHER("Teacher"),
 		STUDENT("Student"),
@@ -32,8 +33,8 @@ public class UserRole extends OrganizationModel implements Serializable{
 		ANONYMOUS("ANONYMOUS"),
 		AUTHENTICATED_USER("User"),
 		OTHER("other"),
-		PUBLISHER("Publisher");
-		
+		PUBLISHER("Publisher"),
+		SUPER_ADMIN("superadmin");
 		private String type;
 		UserRoleType(String type){
 			this.type=type;
