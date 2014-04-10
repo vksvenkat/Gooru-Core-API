@@ -26,6 +26,7 @@ package org.ednovo.gooru.infrastructure.persistence.hibernate;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -248,7 +249,7 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 
 	
 	@Override
-	public Map<String, Object> getContentFlags(Integer limit, Integer offset, Boolean skipPagination, String feedbackCategory, String type, String status, String reportedFlagType, SimpleDateFormat startdate, SimpleDateFormat enddate, String searchQuery, String description, String reportQuery) {
+	public Map<String, Object> getContentFlags(Integer limit, Integer offset, Boolean skipPagination, String feedbackCategory, String type, String status, String reportedFlagType, String startDate, String endDate, String searchQuery, String description, String reportQuery) {
 		Session session = getSession();
 		String sql = "";
 		String statusType = "";
@@ -269,20 +270,19 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 		if (type.equalsIgnoreCase("collection")) {
 			sql = "select  title,concat(r.folder,r.thumbnail) as thumbnail,r.has_frame_breaker as hasFrameBreaker, cl.goals as description,  gooru_oid as gooruOid, cl.collection_type as category , CONVERT_TZ(c.created_on,@@session.time_zone,'US/Pacific') as createdOn, cs.value as value, group_concat(ft.value) as reportedFlag, c.user_uid  as userUid, fp.value as product,group_concat(f.feedback_uid) as reportId, f.creator_uid as reportCreator,CONVERT_TZ(f.created_date,@@session.time_zone,'US/Pacific') as reportCreatedOn, f.feedback_text as reportDescription, f.notes as notes, url as url, f.context_path as browserUrl, 'temp' as scount,c.sharing as sharing,group_concat(u.username) as reporterName, ru.username as resourceCreatorName from content c  inner join feedback f inner join custom_table_value cs on f.assoc_gooru_oid = c.gooru_oid and cs.custom_table_value_id = c.status_type inner join custom_table_value fp on f.product_id = fp.custom_table_value_id inner join custom_table_value ft on ft.custom_table_value_id = f.feedback_type_id inner join collection cl  on cl.content_id = c.content_id inner join resource r on c.content_id = r.content_id   inner join custom_table_value ss on f.feedback_category_id = ss.custom_table_value_id inner join custom_table ctab on ctab.custom_table_id = ft.custom_table_id inner join user u  on u.gooru_uid = f.creator_uid inner join user ru on ru.gooru_uid = c.user_uid where ctab.name = '"
 					+ feedbackCategory + "' and  cs.value is not null  and cl.collection_type in ('collection')" + flagType + statusType + "";
-
 		} else {
 
 			sql = "select title ,concat(r.folder,r.thumbnail) as thumbnail,r.has_frame_breaker as hasFrameBreaker ,r.description,  gooru_oid as gooruOid, r.category as category , CONVERT_TZ(c.created_on,@@session.time_zone,'US/Pacific') as createdOn, cs.value as value, group_concat(ft.value) as reportedFlag, c.user_uid  as userUid, fp.value as product, group_concat(f.feedback_uid) as reportId, f.creator_uid as reportCreator,CONVERT_TZ(f.created_date,@@session.time_zone,'US/Pacific') as reportCreatedOn, f.feedback_text as reportDescription,f.notes as notes, url as url, f.context_path as browserUrl,(select concat(count(distinct(ci.collection_content_id)) , '~' ,group_concat(distinct(rc.title))) from collection_item ci inner join resource ri on ci.resource_content_id = ri.content_id inner join resource as rc on (rc.content_id = ci.collection_content_id)   where ri.content_id = r.content_id) as scount, c.sharing as sharing,group_concat(u.username) as reporterName, ru.username as resourceCreatorName from content c  inner join feedback f inner join custom_table_value cs on f.assoc_gooru_oid = c.gooru_oid and cs.custom_table_value_id = c.status_type inner join custom_table_value fp on f.product_id = fp.custom_table_value_id inner join custom_table_value ft on ft.custom_table_value_id = f.feedback_type_id inner join resource r  on r.content_id = c.content_id inner join custom_table_value ss on f.feedback_category_id = ss.custom_table_value_id  inner join custom_table ctab on ctab.custom_table_id = ft.custom_table_id inner join user u  on u.gooru_uid = f.creator_uid inner join user ru on ru.gooru_uid = c.user_uid where ctab.name = '"
 					+ feedbackCategory + "' and  cs.value is not null  and r.type_name in ('resource/url','ppt/pptx', 'video/youtube', 'animation/swf', 'animation/kmz','textbook/scribd', 'assessment-question') " + statusType + "" + flagType + "  ";
 		}
-		
-		if (startdate != null && enddate != null) {
-			 
-			sql += "and DATE_FORMAT(c.created_on,'%Y-%m-%d') BETWEEN '" + startdate + "' and '" + enddate + "'";
-		} else if (startdate != null) {
-			sql += " and DATE_FORMAT(c.created_on,'%Y-%m-%d') = '" + startdate + "'";
-		} else if (enddate != null) {
-			sql += " and DATE_FORMAT(c.created_on,'%Y-%m-%d') = '" + enddate + "'";
+
+		if (startDate != null && endDate != null) {
+
+			sql += "and DATE(c.created_on) BETWEEN '" + startDate + "' and '" + endDate + "'";
+		} else if (startDate != null) {
+			sql += " and DATE(c.created_on) = '" + startDate + "'";
+		} else if (endDate != null) {
+			sql += " and DATE(c.created_on) = '" + endDate + "'";
 		}
 
 		if (searchQuery != null) {
