@@ -95,25 +95,7 @@ public class CommentServiceImpl extends BaseServiceImpl implements CommentServic
 			comment.setOrganization(user.getPrimaryOrganization());
 			this.getCommentRepository().save(comment);
 
-			Map<String, String> commentData = new HashMap<String, String>();
-			if (comment.getComment() != null) {
-
-				commentData.put("commentText", comment.getComment());
-			}
-			if (user.getUsername() != null) {
-				commentData.put("userName", user.getUsername());
-			}
-			if (comment.getGooruOid() != null) {
-				commentData.put("collectionId", comment.getGooruOid());
-			}
-			Collection collection = this.getCollectionRepository().getCollectionByGooruOid(comment.getGooruOid(), null);
-			PartyCustomField partyCustomField = this.getPartyRepository().getPartyCustomField(collection.getUser().getGooruUId(), "collection_comment_email_notification");
-			if(!collection.getUser().getPartyUid().equalsIgnoreCase(user.getPartyUid())){
-				if (partyCustomField != null && partyCustomField.getOptionalValue().equals("true") && collection.getMailNotification()) {
-					this.getMailAsyncExecuter().sendEmailNotificationforComment(commentData);
-				}
-			}
-			
+			commentMailNotification(comment, user);
 		}
 		return new ActionResponseDTO<Comment>(comment, error);
 	}
@@ -136,6 +118,7 @@ public class CommentServiceImpl extends BaseServiceImpl implements CommentServic
 			rejectIfNull(customTableValue, GL0007, COMMENT__STATUS);
 			comment.setStatus(customTableValue);
 			this.getCommentRepository().save(comment);
+			//commentMailNotification(comment, user);
 		}
 		return comment;
 	}
@@ -188,6 +171,27 @@ public class CommentServiceImpl extends BaseServiceImpl implements CommentServic
 			}
 		}
 		return isContentOwner;
+	}
+	
+	public void commentMailNotification(Comment comment, User user){
+		Map<String, String> commentData = new HashMap<String, String>();
+		if (comment.getComment() != null) {
+
+			commentData.put("commentText", comment.getComment());
+		}
+		if (user.getUsername() != null) {
+			commentData.put("userName", user.getUsername());
+		}
+		if (comment.getGooruOid() != null) {
+			commentData.put("collectionId", comment.getGooruOid());
+		}
+		Collection collection = this.getCollectionRepository().getCollectionByGooruOid(comment.getGooruOid(), null);
+		PartyCustomField partyCustomField = this.getPartyRepository().getPartyCustomField(collection.getUser().getGooruUId(), "collection_comment_email_notification");
+		if(!collection.getUser().getPartyUid().equalsIgnoreCase(user.getPartyUid())){
+			if (partyCustomField != null && partyCustomField.getOptionalValue().equals("true") && collection.getMailNotification()) {
+				this.getMailAsyncExecuter().sendEmailNotificationforComment(commentData);
+			}
+		}
 	}
 
 	private Errors validateComment(Comment comment) {

@@ -71,10 +71,6 @@ public class GooruInterceptor extends HandlerInterceptorAdapter {
 		Long startTime = System.currentTimeMillis();
 		request.setAttribute("startTime", startTime);
 		SessionContextSupport.putLogParameter("startTime", startTime);
-		/*SessionContextSupport.putLogParameter("context", request.getPathInfo());
-		SessionContextSupport.putLogParameter("userAgent", request.getHeader("User-Agent"));
-		SessionContextSupport.putLogParameter("apiKey", configProperties.getLogSettings().get("log.api.key"));
-		SessionContextSupport.putLogParameter("requestMethod", request.getMethod());*/
 		String eventUUID = UUID.randomUUID().toString();	
 		response.setHeader("X-REQUEST-UUID", eventUUID);
 		SessionContextSupport.putLogParameter("eventId", eventUUID);
@@ -93,8 +89,6 @@ public class GooruInterceptor extends HandlerInterceptorAdapter {
 		{
 			ipAddress = request.getRemoteAddr();
 		}
-		
-		//SessionContextSupport.putLogParameter("userIp", ipAddress);		
 		
 		JSONObject user = new JSONObject();
 		User party = (User) request.getAttribute(Constants.USER);
@@ -117,18 +111,12 @@ public class GooruInterceptor extends HandlerInterceptorAdapter {
 
 	@Override
 	public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
-	//	SessionContextSupport.putLogParameter("endTime", System.currentTimeMillis());	
 		Long endTime = System.currentTimeMillis();
 		Long startTime = request.getDateHeader("startTime");
 		Long totalTimeSpentInMs = endTime - startTime ;
 		JSONObject metrics = new JSONObject();
 		metrics.put("totalTimeSpentInMs", totalTimeSpentInMs);
 		SessionContextSupport.putLogParameter("metrics", metrics.toString());	
-		User user = (User) request.getAttribute("USER");
-		if(user != null)
-		{
-			//SessionContextSupport.putLogParameter("userUid", request.getAttribute(user.getPartyUid()));
-		}
 		Map<String, Object> log = SessionContextSupport.getLog();
 		String logString = SERIALIZER.deepSerialize(log);
 		if (logString != null) {
