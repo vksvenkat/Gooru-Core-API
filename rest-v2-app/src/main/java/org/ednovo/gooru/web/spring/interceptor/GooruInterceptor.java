@@ -123,7 +123,6 @@ public class GooruInterceptor extends HandlerInterceptorAdapter {
 		String logString = SERIALIZER.deepSerialize(log);
 		if (logString != null) {
 			try {
-				logger.info(logString);
 				kafkaService.sendEventLog(logString);
 			} catch(Exception e) {
 				logger.error("Error while pushing event log data to kafka : " + e.getMessage() );
