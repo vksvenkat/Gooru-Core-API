@@ -509,9 +509,9 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 			int sequence = collectionItem.getCollection().getCollectionItems() != null ? collectionItem.getCollection().getCollectionItems().size() + 1 : 1;
 			collectionItem.setItemSequence(sequence);
-			getEventLogs(collectionItem,false,user);
 			this.getCollectionRepository().save(collectionItem);
 			this.getCollectionRepository().flush();
+			getEventLogs(collectionItem,false,user);
 			
 			try {
 				indexProcessor.index(collectionItem.getCollection().getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
@@ -524,7 +524,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		for (String parentFolder : parenFolders) {
 			updateFolderSharing(parentFolder);
 		}
-		getEventLogs(collectionItem,false,user);
 		return new ActionResponseDTO<CollectionItem>(collectionItem, errors);
 	}
 
@@ -621,12 +620,12 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	@Override
 	public void deleteCollectionItem(String collectionItemId, User user) {
 		CollectionItem collectionItem = this.getCollectionRepository().getCollectionItemById(collectionItemId);
-		try {
-			getEventLogs(collectionItem, user);
-		} catch (JSONException e1) {
-			e1.printStackTrace();
-		}
 		if (collectionItem != null) {
+			try {
+				getEventLogs(collectionItem, user);
+			} catch (JSONException e1) {
+				e1.printStackTrace();
+			}
 			Collection collection = collectionItem.getCollection();
 			this.getCollectionRepository().remove(CollectionItem.class, collectionItem.getCollectionItemId());
 
@@ -1802,7 +1801,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	public void getEventLogs(CollectionItem collectionItem, boolean isCollectionItem, User user) throws JSONException {
 		SessionContextSupport.putLogParameter(EVENT_NAME, "collection.create");
 		JSONObject context = new JSONObject(SessionContextSupport.getLog().get("context").toString());
-		context.put("parentGooruId", collectionItem.getCollection().getGooruOid());
+		context.put("parentGooruId", collectionItem.getCollection() != null ? collectionItem.getCollection().getGooruOid() : null);
 		SessionContextSupport.putLogParameter("context", context.toString());
 		
 		JSONObject payLoadObject = new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString());
