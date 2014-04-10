@@ -451,6 +451,8 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 				}
 				InviteUser inviteUser = this.getInviteRepository().findInviteUserById(mailId, classpage.getGooruOid(),null);
 				if (inviteUser != null) {
+					classpage.setLastModified(new Date(System.currentTimeMillis()));
+					this.getCollectionRepository().save(classpage);
 					this.getInviteRepository().remove(inviteUser);
 				}
 			}
