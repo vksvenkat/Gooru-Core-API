@@ -407,7 +407,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 			if (newCollection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing())) {
 				collection.setSharing(newCollection.getSharing());
-				this.getCollectionRepository().save(newCollection.getSharing());
+				this.getCollectionRepository().save(collection);
 				this.getCollectionRepository().flush();
 				List<String> parenFolders = this.getParentCollection(collection.getGooruOid(), apiCallerUser.getPartyUid(), false);
 				for (String folderGooruOid : parenFolders) {
