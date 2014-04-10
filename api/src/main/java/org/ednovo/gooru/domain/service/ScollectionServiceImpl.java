@@ -506,12 +506,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			} else {
 				collectionItem.setResource(resource);
 			}
-			/*SessionContextSupport.putLogParameter(EVENT_NAME, SCOLLECTION_ITEM_ADD);
-			SessionContextSupport.putLogParameter(COLLECTION_ITEM_ID, collectionItem.getCollectionItemId());
-			SessionContextSupport.putLogParameter(GOORU_OID, resourceGooruOid);
-			SessionContextSupport.putLogParameter(COLLECTION_ID, collectionGooruOid);
-			SessionContextSupport.putLogParameter(RESOURCE_ID, resourceGooruOid);
-			SessionContextSupport.putLogParameter(COLLECTION_TYPE, collectionItem.getCollection().getCollectionType());*/
 
 			int sequence = collectionItem.getCollection().getCollectionItems() != null ? collectionItem.getCollection().getCollectionItems().size() + 1 : 1;
 			collectionItem.setItemSequence(sequence);
@@ -630,13 +624,10 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		try {
 			getEventLogs(collectionItem, user);
 		} catch (JSONException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 		if (collectionItem != null) {
 			Collection collection = collectionItem.getCollection();
-			//SessionContextSupport.putLogParameter(COLLECTION_ID, collectionItem.getCollection().getGooruOid());
-			//SessionContextSupport.putLogParameter(RESOURCE_ID, collectionItem.getResource().getGooruOid());
 			this.getCollectionRepository().remove(CollectionItem.class, collectionItem.getCollectionItemId());
 
 			collectionItem.getCollection().setLastUpdatedUserUid(user.getPartyUid());
