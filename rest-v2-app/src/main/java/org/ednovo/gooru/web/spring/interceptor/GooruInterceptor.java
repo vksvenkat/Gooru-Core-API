@@ -77,11 +77,11 @@ public class GooruInterceptor extends HandlerInterceptorAdapter {
 		
 		JSONObject payLoadObject = new JSONObject();
 		payLoadObject.put("requestMethod", request.getMethod());
-		SessionContextSupport.putLogParameter("payLoadObject", payLoadObject);
+		SessionContextSupport.putLogParameter("payLoadObject", payLoadObject.toString());
 		
 		JSONObject context = new JSONObject();
 		context.put("url", request.getRequestURI());
-		SessionContextSupport.putLogParameter("context", context);
+		SessionContextSupport.putLogParameter("context", context.toString());
 		
 		request.getHeader("VIA");
 		String ipAddress = request.getHeader("X-FORWARDED-FOR");
@@ -105,9 +105,11 @@ public class GooruInterceptor extends HandlerInterceptorAdapter {
 		SessionContextSupport.putLogParameter("session", session.toString());
 		JSONObject version = new JSONObject();
 		version.put("logApi", "0.1");
-		SessionContextSupport.putLogParameter("version", version);
+		SessionContextSupport.putLogParameter("version", version.toString());
 		return true;
 	}
+	
+	
 
 	@Override
 	public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
@@ -121,7 +123,6 @@ public class GooruInterceptor extends HandlerInterceptorAdapter {
 		String logString = SERIALIZER.deepSerialize(log);
 		if (logString != null) {
 			try {
-				logger.info(logString);
 				kafkaService.sendEventLog(logString);
 			} catch(Exception e) {
 				logger.error("Error while pushing event log data to kafka : " + e.getMessage() );
