@@ -286,6 +286,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 		if (userToken != null) {
 			userToken.setScope(EXPIRED);
 			this.getUserTokenRepository().save(userToken);
+			this.redisService.deleteKey(SESSION_TOKEN_KEY + sessionToken);
 		}
 	}
 
