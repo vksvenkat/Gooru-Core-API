@@ -76,7 +76,7 @@ public class ShareRestV2Controller extends BaseController implements ConstantPro
 			attachment = JsonDeserializer.deserialize(getValue(ATTACHMENT, json), new TypeReference<List<Map<String, String>>>() {
 			});
 		}
-		mailHandler.shareMailForContent(json != null ? getValue(TO_ADDRESS, json) : null, json != null ? getValue(FROM_DISPLAY_NAME, json) : null, user.getPartyUid() != null ? user.getPartyUid() : null, json != null ? getValue(SUBJECT, json) : null, json != null ? getValue(MESSAGE, json) : null,
+		mailHandler.shareMailForContent(json != null ? getValue(TO_ADDRESS, json) : null, json != null ? getValue(FROM_ADDRESS, json) : null, user.getPartyUid() != null ? user.getPartyUid() : null, json != null ? getValue(SUBJECT, json) : null, json != null ? getValue(MESSAGE, json) : null,
 				json != null ? getValue(CFM, json) : NO, attachment, json != null ? getValue(FROM_DISPLAY_NAME, json) : user.getUsername());
 
 	}
