@@ -419,6 +419,8 @@ public interface ParameterProperties {
 	String TO_ADDRESS = "to";
 
 	String FROM_ADDRESS = "from";
+	
+	String FROM_DISPLAY_NAME = "fromDisplayName";
 
 	String MESSAGE = "message";
 

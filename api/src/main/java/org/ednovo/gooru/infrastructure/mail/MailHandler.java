@@ -543,10 +543,8 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 
 	}
 
-	public void shareMailForContent(String toAddress, String fromAddress, String gooruUId, String subject, String message, String cfm, List<Map<String, String>> attachments) throws Exception {
+	public void shareMailForContent(String toAddress, String fromAddress, String gooruUId, String subject, String message, String cfm, List<Map<String, String>> attachments, String fromDisplayName) throws Exception {
 		Map<String, Object> map = new HashMap<String, Object>();
-		String fromEmailAddress[] = fromAddress.split("@");
-		String fromName = fromEmailAddress[0];
 		String recipients = "";
 		map.put("content", message);
 		map.put("htmlContent", message);
@@ -556,7 +554,8 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 	           recipients += recipients.length() == 0 ? to[i] : "," + to[i];
 	       }
 		map.put("recipient", recipients);
-		map.put("from", fromAddress);
+		map.put("from", getConfigSetting(ConfigConstants.MAIL_FROM, TaxonomyUtil.GOORU_ORG_UID));
+		map.put("bcc", getConfigSetting(ConfigConstants.MAIL_BCC_SUPPORT, TaxonomyUtil.GOORU_ORG_UID));
 		if (cfm != null && cfm.equalsIgnoreCase("yes")) {
 			map.put("cc", fromAddress);
 		}
@@ -567,7 +566,7 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 			map.put("attachFiles", attachments);
 
 		}
-		map.put("fromName", fromName);
+		map.put("fromName", fromDisplayName);
 		map.put("subject", subject);
 
 		logger.warn("Sending sharing content via Email " + toAddress);
