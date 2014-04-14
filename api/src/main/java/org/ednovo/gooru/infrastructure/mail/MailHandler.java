@@ -268,9 +268,9 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 				parentExistingFlag = "You'll need to create your account first to create your child account.";
 			}
 			if (gooruClassicUrl != null && serverpath != null) {
-				completeRegistration = "<a style=\"color: #1076bb;\" href=\"" + gooruClassicUrl + "/#discover&gooruuid=" + identity.getUser().getGooruUId() + "&sessionid=" + tokenId + "&dob=" + encodedDateOfBirth + "&type=" + userAccountType
+				completeRegistration = "<a style=\"color: #1076bb;\" href=\"" + gooruClassicUrl + "&gooruuid=" + identity.getUser().getGooruUId() + "&sessionid=" + tokenId + "&dob=" + encodedDateOfBirth + "&type=" + userAccountType
 						+ "&callback=confirmUser\" target=\"_blank\">Complete Registration</a>";
-				registrationURL = gooruClassicUrl + "/#discover&gooruuid=" + identity.getUser().getGooruUId() + "&sessionid=" + tokenId + "&dob=" + encodedDateOfBirth + "&type=" + userAccountType + "&callback=confirmUser";
+				registrationURL = gooruClassicUrl + "&gooruuid=" + identity.getUser().getGooruUId() + "&sessionid=" + tokenId + "&dob=" + encodedDateOfBirth + "&type=" + userAccountType + "&callback=confirmUser";
 			} else {
 				completeRegistration = "<a style=\"color: #1076bb;\" href=\"" + serverpath + "/gooru/index.g#!/user/registration/" + identity.getUser().getGooruUId() + "/session/" + tokenId + "/" + encodedDateOfBirth + "/type/" + userAccountType + "\" target=\"_blank\">Complete Registration</a>";
 				registrationURL = serverpath + "/gooru/index.g#!/user/registration/" + identity.getUser().getGooruUId() + "/session/" + tokenId + "/" + encodedDateOfBirth + "/type/" + userAccountType;
@@ -287,7 +287,7 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 			}
 			if (gooruClassicUrl != null && serverpath != null) {
 				gooruClassicUrl = BaseUtil.changeHttpsProtocol(gooruClassicUrl);
-				passwordResetLink = "<a style=\"color: #1076bb;text-decoration: none;\" href=\"" + gooruClassicUrl + "/#discover&amp;resetToken=" + resetToken + "&amp;callback=changePassword\" target=\"_blank\"> here</a>";
+				passwordResetLink = "<a style=\"color: #1076bb;text-decoration: none;\" href=\"" + gooruClassicUrl + "&amp;resetToken=" + resetToken + "&amp;callback=changePassword\" target=\"_blank\"> here</a>";
 			} else {
 				passwordResetLink = "<a style=\"color: #1076bb;text-decoration: none;\" href=\"  " + serverpath + "/gooru/index.g#!/change-password/" + resetToken + "\" target=\"_blank\"> here</a>";
 			}
@@ -301,7 +301,7 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 					completeRegistration = "<a style=\"color: #1076bb;\" href=\"" + serverpath + "/gooru/index.g#!/user/registration/" + identity.getUser().getGooruUId() + "/session/" + tokenId + "/" + encodedDateOfBirth + "/type/" + userAccountType
 							+ "\" target=\"_blank\">Click Here to Complete Registration.</a>";
 				} else {
-					completeRegistration = "<a style=\"color: #1076bb;\" href=\"" + gooruClassicUrl + "/#discover&gooruuid=" + identity.getUser().getGooruUId() + "&sessionid=" + tokenId + "&dob=" + encodedDateOfBirth + "&type=" + userAccountType
+					completeRegistration = "<a style=\"color: #1076bb;\" href=\"" + gooruClassicUrl + "&gooruuid=" + identity.getUser().getGooruUId() + "&sessionid=" + tokenId + "&dob=" + encodedDateOfBirth + "&type=" + userAccountType
 							+ "&callback=confirmUser\" target=\"_blank\">Click Here to Complete Registration.</a>";
 				}
 			} else {
@@ -543,10 +543,8 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 
 	}
 
-	public void shareMailForContent(String toAddress, String fromAddress, String gooruUId, String subject, String message, String cfm, List<Map<String, String>> attachments) throws Exception {
+	public void shareMailForContent(String toAddress, String fromAddress, String gooruUId, String subject, String message, String cfm, List<Map<String, String>> attachments, String fromDisplayName) throws Exception {
 		Map<String, Object> map = new HashMap<String, Object>();
-		String fromEmailAddress[] = fromAddress.split("@");
-		String fromName = fromEmailAddress[0];
 		String recipients = "";
 		map.put("content", message);
 		map.put("htmlContent", message);
@@ -556,7 +554,8 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 	           recipients += recipients.length() == 0 ? to[i] : "," + to[i];
 	       }
 		map.put("recipient", recipients);
-		map.put("from", fromAddress);
+		map.put("from", getConfigSetting(ConfigConstants.MAIL_FROM, TaxonomyUtil.GOORU_ORG_UID));
+		map.put("bcc", getConfigSetting(ConfigConstants.MAIL_BCC_SUPPORT, TaxonomyUtil.GOORU_ORG_UID));
 		if (cfm != null && cfm.equalsIgnoreCase("yes")) {
 			map.put("cc", fromAddress);
 		}
@@ -567,7 +566,7 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 			map.put("attachFiles", attachments);
 
 		}
-		map.put("fromName", fromName);
+		map.put("fromName", fromDisplayName);
 		map.put("subject", subject);
 
 		logger.warn("Sending sharing content via Email " + toAddress);
@@ -783,6 +782,7 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 					map.put("htmlContent", generateMessage((String) map.get("htmlContent"), map));
 					map.put("content", generateMessage((String) map.get("textContent"), map));
 					map.put("recipient", emailIds);
+					map.put("sendRecipient", true);
 					map.put("from", getConfigSetting(ConfigConstants.MAIL_FROM, TaxonomyUtil.GOORU_ORG_UID));
 					map.put("bcc", getConfigSetting(ConfigConstants.MAIL_BCC_SUPPORT, TaxonomyUtil.GOORU_ORG_UID));
 					map.put("fromName", FROM);
@@ -814,6 +814,7 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 					map.put("htmlContent", generateMessage((String) map.get("htmlContent"), map));
 					map.put("content", generateMessage((String) map.get("textContent"), map));
 					map.put("recipient", map.get("parentEmailId"));
+					map.put("sendRecipient", true);
 					map.put("from", getConfigSetting(ConfigConstants.MAIL_FROM, TaxonomyUtil.GOORU_ORG_UID));
 					map.put("bcc", getConfigSetting(ConfigConstants.MAIL_BCC_SUPPORT, TaxonomyUtil.GOORU_ORG_UID));
 					map.put("fromName", FROM);
@@ -896,7 +897,7 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 		}
 	}
 	
-	public void sendMailToInviteUser(String email, String gooruOid, User user, String title, String gender, String noun,String inviteFrom, String inviteUser) {
+	public void sendMailToInviteUser(String email, String gooruOid, User user, String title, String inviteUser) {
 		
 		final String serverpath = this.getServerConstants().getProperty(SERVERPATH);
 			EventMapping eventMapping = this.getEventService().getTemplatesByEventName(CustomProperties.EventMapping.SEND_MAIL_TO_INVITE_USER_CLASS.getEvent());
@@ -906,13 +907,11 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 			map.put(TEACHERNAME ,user.getUsername());
 			map.put(MEMBERMAILID, email);
 			map.put(GOORU_OID, gooruOid);
-			map.put(GENDER, gender);
-			map.put(NOUN, noun);
 			map.put(RECIPIENT, email);
 			map.put(HTMLCONTENT, generateMessage((String) map.get(HTMLCONTENT), map));
-			map.put(SUBJECT, "You’re invited to join "+ gender + user.getUsername()+"’s" + " class \""+title+"\"");
+			map.put(SUBJECT, "You’re invited to the Gooru Class \""+title+"\"");
 			map.put(CONTENT, generateMessage((String) map.get(TEXTCONTENT), map));
-			map.put("from", inviteFrom);
+			map.put("from", getConfigSetting(ConfigConstants.MAIL_FROM, TaxonomyUtil.GOORU_ORG_UID));
 			map.put(BCC, getConfigSetting(ConfigConstants.MAIL_BCC_SUPPORT, TaxonomyUtil.GOORU_ORG_UID));
 			map.put(FROMNAME, inviteUser);
 			sendMailViaRestApi(map);

@@ -31,6 +31,7 @@ import org.ednovo.gooru.core.api.model.Classpage;
 import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.domain.service.search.SearchResults;
+import org.json.JSONException;
 
 public interface ClasspageService {
 
@@ -73,4 +74,5 @@ public interface ClasspageService {
 	List<String> classMemberSuggest(String queryText, String gooruUid);
 	
 	SearchResults<Map<String, String>> getMyStudy(User apiCaller, String orderBy,Integer offset, Integer limit, boolean skipPagination);
+	
 }

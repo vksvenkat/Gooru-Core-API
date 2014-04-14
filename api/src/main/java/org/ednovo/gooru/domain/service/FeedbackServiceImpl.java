@@ -23,7 +23,10 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.domain.service;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +36,7 @@ import org.ednovo.gooru.core.api.model.CustomTableValue;
 import org.ednovo.gooru.core.api.model.Feedback;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.User;
+import org.ednovo.gooru.core.application.util.BaseUtil;
 import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
@@ -358,11 +362,11 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 		rejectIfNull(this.getUserRepository().findByGooruId(assocUserUid), GL0056, _USER);
 		return this.getFeedbackRepository().getUserFeedbackRating(assocUserUid, feedbackType);
 	}
-
+	
 	@Override
-	public Map<String, Object> getFlags(Integer limit, Integer offset, Boolean skipPagination, String category, String type, String status, String reportedFlagType) {
-
-		return this.getFeedbackRepository().getContentFlags(limit, offset, skipPagination, getTableNameByFeedbackCategory(CustomProperties.FeedbackCategory.REPORT.getFeedbackCategory(), CustomProperties.Target.CONTENT.getTarget()), type, status, reportedFlagType);
+	public Map<String, Object> getFlags(Integer limit, Integer offset, Boolean skipPagination, String category, String type, String status, String reportedFlagType, String startDate, String endDate, String searchQuery, String description, String reportQuery) throws Exception {
+		return this.getFeedbackRepository().getContentFlags(limit, offset, skipPagination, getTableNameByFeedbackCategory(CustomProperties.FeedbackCategory.REPORT.getFeedbackCategory(), CustomProperties.Target.CONTENT.getTarget()), type, status, reportedFlagType,
+				BaseUtil.dateFormat(startDate, "/", "-"), BaseUtil.dateFormat(endDate, "/", "-"), searchQuery, description, reportQuery);
 	}
 
 	@Override

@@ -79,6 +79,8 @@ public interface ParameterProperties {
 	public static final String IS_BLACKLISTED = "isBlacklisted";
 
 	public static final String _RESOURCE_SOURCE_ID = "resourceSourceId";
+	
+	public static final String SESSION_TOKEN_KEY = "authenticate_";
 
 	String ADD_TO_USER_CLASSPAGE = "addToUserClasspage";
 
@@ -417,6 +419,8 @@ public interface ParameterProperties {
 	String TO_ADDRESS = "to";
 
 	String FROM_ADDRESS = "from";
+	
+	String FROM_DISPLAY_NAME = "fromDisplayName";
 
 	String MESSAGE = "message";
 

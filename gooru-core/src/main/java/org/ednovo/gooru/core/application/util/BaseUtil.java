@@ -3,6 +3,7 @@ package org.ednovo.gooru.core.application.util;
 import java.io.File;
 import java.math.BigInteger;
 import java.security.MessageDigest;
+import java.util.Arrays;
 import java.util.Random;
 
 import javax.servlet.http.HttpServletRequest;
@@ -127,5 +128,13 @@ public class BaseUtil {
 			}
 		}
 		return isSecure;
+	}
+	
+	public static String dateFormat(String date, String delimiter, String replaceDelimiter) { 
+		if (date != null) { 
+			Object[] o = Arrays.asList(date.split(delimiter)).toArray();
+            return (o[2] + replaceDelimiter + o[1] + replaceDelimiter + o[0]);
+		} 
+		return null;
 	}
 }

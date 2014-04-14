@@ -37,7 +37,6 @@ import java.util.Map;
 
 import org.ednovo.gooru.core.api.model.Classpage;
 import org.ednovo.gooru.core.api.model.InviteUser;
-import org.ednovo.gooru.core.api.model.Profile;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
@@ -47,6 +46,8 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepositor
 import org.ednovo.gooru.infrastructure.persistence.hibernate.InviteRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -67,6 +68,8 @@ public class InviteServiceImpl extends BaseServiceImpl implements InviteService,
 	
 	@Autowired
 	private MailHandler mailHandler;
+	
+	private static final Logger logger = LoggerFactory.getLogger(InviteServiceImpl.class);
 
 	@Override
 	public List<Map<String, String>> inviteUserForClass(List<String> emails, String classCode, User apiCaller) {
@@ -86,20 +89,11 @@ public class InviteServiceImpl extends BaseServiceImpl implements InviteService,
 				invites.add(inviteMap);
 			}
 			
-			String inviteFrom = apiCaller.getIdentities() != null ? apiCaller.getIdentities().iterator().next().getExternalId() : null ;
-			Profile profile= this.getUserRepository().getProfile(classPage.getUser(), false);
-			String gender = "";
-			String noun = "";
-			if(profile.getGender() != null) {
-				if(profile.getGender().getName().equalsIgnoreCase(FEMALE)) {
-					gender = MS;
-					noun = HER;
-				} else if(profile.getGender().getName().equalsIgnoreCase(MALE)) {
-					gender = MR;
-					noun = HIS;
-				}
+			try {
+				this.getMailHandler().sendMailToInviteUser(email,classPage.getGooruOid(),classPage.getUser(),classPage.getTitle() ,apiCaller.getUsername());
+			} catch (Exception e) {
+				logger.error("Error"+ e.getMessage());
 			}
-			this.getMailHandler().sendMailToInviteUser(email,classPage.getGooruOid(),classPage.getUser(),classPage.getTitle(), gender,noun,inviteFrom,apiCaller.getUsername());
 		}
 		return invites;
 

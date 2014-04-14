@@ -27,7 +27,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-import org.ednovo.gooru.application.util.TaxonomyUtil;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Organization;
 import org.ednovo.gooru.core.api.model.OrganizationSetting;

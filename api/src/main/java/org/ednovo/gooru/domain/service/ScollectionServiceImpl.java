@@ -42,6 +42,7 @@ import org.ednovo.gooru.application.util.ResourceImageUtil;
 import org.ednovo.gooru.application.util.TaxonomyUtil;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.AssessmentQuestion;
+import org.ednovo.gooru.core.api.model.Classpage;
 import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
@@ -62,10 +63,12 @@ import org.ednovo.gooru.core.api.model.ShelfType;
 import org.ednovo.gooru.core.api.model.StandardFo;
 import org.ednovo.gooru.core.api.model.Textbook;
 import org.ednovo.gooru.core.api.model.User;
+import org.ednovo.gooru.core.api.model.UserGroup;
 import org.ednovo.gooru.core.api.model.UserGroupSupport;
 import org.ednovo.gooru.core.application.util.CollectionMetaInfo;
 import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.constant.ConstantProperties;
+import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.domain.cassandra.service.ResourceCassandraService;
@@ -89,6 +92,9 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.question.CommentRep
 import org.ednovo.gooru.infrastructure.persistence.hibernate.resource.ResourceRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.taxonomy.TaxonomyRespository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.taxonomy.TaxonomyStoredProcedure;
+import org.ednovo.goorucore.application.serializer.JsonDeserializer;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -101,6 +107,8 @@ import org.springframework.validation.Errors;
 import com.google.common.collect.Lists;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.json.JettisonMappedXmlDriver;
+
+import flexjson.JSONDeserializer;
 
 public class ScollectionServiceImpl extends BaseServiceImpl implements ScollectionService, ParameterProperties, ConstantProperties {
 
@@ -288,6 +296,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 			}
 			getAsyncExecutor().createVersion(collection, SCOLLECTION_CREATE, user.getPartyUid());
+			getEventLogs(collection, user);
 		}
 		return new ActionResponseDTO<Collection>(collection, errors);
 	}
@@ -398,7 +407,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 			if (newCollection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing())) {
 				collection.setSharing(newCollection.getSharing());
-				this.getCollectionRepository().save(newCollection.getSharing());
+				this.getCollectionRepository().save(collection);
 				this.getCollectionRepository().flush();
 				List<String> parenFolders = this.getParentCollection(collection.getGooruOid(), apiCallerUser.getPartyUid(), false);
 				for (String folderGooruOid : parenFolders) {
@@ -497,21 +506,15 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			} else {
 				collectionItem.setResource(resource);
 			}
-			SessionContextSupport.putLogParameter(EVENT_NAME, SCOLLECTION_ITEM_ADD);
-			SessionContextSupport.putLogParameter(COLLECTION_ITEM_ID, collectionItem.getCollectionItemId());
-			SessionContextSupport.putLogParameter(GOORU_OID, resourceGooruOid);
-			SessionContextSupport.putLogParameter(COLLECTION_ID, collectionGooruOid);
-			SessionContextSupport.putLogParameter(RESOURCE_ID, resourceGooruOid);
-			SessionContextSupport.putLogParameter(COLLECTION_TYPE, collectionItem.getCollection().getCollectionType());
 
 			int sequence = collectionItem.getCollection().getCollectionItems() != null ? collectionItem.getCollection().getCollectionItems().size() + 1 : 1;
 			collectionItem.setItemSequence(sequence);
 			this.getCollectionRepository().save(collectionItem);
 			this.getCollectionRepository().flush();
+			getEventLogs(collectionItem, false, user);
 
 			try {
-				indexProcessor.index(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE);
-				indexProcessor.index(collection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
+				indexProcessor.index(collectionItem.getCollection().getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
 			} catch (Exception e) {
 				logger.error(e.getMessage());
 			}
@@ -618,9 +621,12 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	public void deleteCollectionItem(String collectionItemId, User user) {
 		CollectionItem collectionItem = this.getCollectionRepository().getCollectionItemById(collectionItemId);
 		if (collectionItem != null) {
+			try {
+				getEventLogs(collectionItem, user);
+			} catch (JSONException e1) {
+				e1.printStackTrace();
+			}
 			Collection collection = collectionItem.getCollection();
-			SessionContextSupport.putLogParameter(COLLECTION_ID, collectionItem.getCollection().getGooruOid());
-			SessionContextSupport.putLogParameter(RESOURCE_ID, collectionItem.getResource().getGooruOid());
 			this.getCollectionRepository().remove(CollectionItem.class, collectionItem.getCollectionItemId());
 
 			collectionItem.getCollection().setLastUpdatedUserUid(user.getPartyUid());
@@ -1447,7 +1453,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			SessionContextSupport.putLogParameter(SOURCE_COLLECTION_ID, sourceCollection.getGooruOid());
 			SessionContextSupport.putLogParameter(TARGET_COLLECTION_ID, destCollection.getGooruOid());
 			this.getCollectionRepository().save(destCollection);
-			 if (newCollection.getTaxonomySet() != null && newCollection.getTaxonomySet().size() > 0) {
+			if (newCollection.getTaxonomySet() != null && newCollection.getTaxonomySet().size() > 0) {
 				resourceService.saveOrUpdateResourceTaxonomy(destCollection, new HashSet<Code>(newCollection.getTaxonomySet()));
 			} else {
 				Set<Code> codes = new HashSet<Code>();
@@ -1495,22 +1501,13 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				collectionItem.setAssociationDate(new Date(System.currentTimeMillis()));
 				this.getCollectionRepository().save(collectionItem);
 			}
-			if (destCollection.getCollectionType().equalsIgnoreCase(CollectionType.COLLECTION.getCollectionType())) {
-				Map<String, String> data = new HashMap<String, String>();
-				data.put(EVENT_TYPE, CustomProperties.EventMapping.FIRST_COLLECTION.getEvent());
-				data.put(_GOORU_UID, destCollection.getUser().getGooruUId());
-				this.getMailAsyncExecutor().handleMailEvent(data);
-			}
-			if (destCollection.getCollectionType().equalsIgnoreCase(CollectionType.COLLECTION.getCollectionType())) {
-				Map<String, String> data = new HashMap<String, String>();
-				data.put(EVENT_TYPE, CustomProperties.EventMapping.FIRST_COLLECTION.getEvent());
-				data.put(_GOORU_UID, destCollection.getUser().getGooruUId());
-				this.getMailAsyncExecutor().handleMailEvent(data);
-			}
+
 		}
-		Collection parentCollection = collectionRepository.getCollectionByGooruOid(parentId, user.getPartyUid());
-		if (parentCollection != null) {
-			destCollection.setCollectionItem(this.createCollectionItem(destCollection.getGooruOid(), parentCollection.getGooruOid(), new CollectionItem(), destCollection.getUser(), CollectionType.FOLDER.getCollectionType(), false).getModel());
+		if (parentId != null) {
+			Collection parentCollection = collectionRepository.getCollectionByGooruOid(parentId, user.getPartyUid());
+			if (parentCollection != null) {
+				destCollection.setCollectionItem(this.createCollectionItem(destCollection.getGooruOid(), parentCollection.getGooruOid(), new CollectionItem(), destCollection.getUser(), CollectionType.FOLDER.getCollectionType(), false).getModel());
+			}
 		}
 		this.getCollectionRepository().save(destCollection);
 		return destCollection;
@@ -1780,6 +1777,64 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			}
 		}
 		return domainName;
+	}
+
+	public void getEventLogs(Collection collection, User user) throws JSONException {
+
+		SessionContextSupport.putLogParameter(EVENT_NAME, "collection.create");
+		JSONObject context = SessionContextSupport.getLog().get("context") != null ? new JSONObject(SessionContextSupport.getLog().get("context").toString()) :  new JSONObject();
+		context.put("contentGooruOId", collection.getGooruOid());
+
+		SessionContextSupport.putLogParameter("context", context.toString());
+
+		JSONObject payLoadObject = SessionContextSupport.getLog().get("payLoadObject") != null ? new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString()) :  new JSONObject();
+		payLoadObject.put("contentId", collection.getContentId());
+		payLoadObject.put("title", collection.getTitle());
+		payLoadObject.put("description", collection.getDescription());
+		SessionContextSupport.putLogParameter("payLoadObject", payLoadObject.toString());
+		JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session").toString()) :  new JSONObject();
+		session.put("organizationUId", user.getOrganization().getPartyUid());
+		SessionContextSupport.putLogParameter("session", session.toString());
+	}
+
+	public void getEventLogs(CollectionItem collectionItem, boolean isCollectionItem, User user) throws JSONException {
+		SessionContextSupport.putLogParameter(EVENT_NAME, "collection.create");
+		JSONObject context = SessionContextSupport.getLog().get("context") != null ? new JSONObject(SessionContextSupport.getLog().get("context").toString()) :  new JSONObject();
+		context.put("parentGooruId", collectionItem.getCollection() != null ? collectionItem.getCollection().getGooruOid() : null);
+		SessionContextSupport.putLogParameter("context", context.toString());
+
+		JSONObject payLoadObject = SessionContextSupport.getLog().get("payLoadObject") != null ? new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString()) :  new JSONObject();
+		payLoadObject.put("mode", "assign");
+		payLoadObject.put("itemSequence", collectionItem.getItemSequence());
+		payLoadObject.put("collectionItemId", collectionItem.getCollectionItemId());
+		payLoadObject.put("parentContentId", collectionItem.getCollection().getContentId());
+		payLoadObject.put("title", collectionItem.getResource().getTitle());
+		payLoadObject.put("description", collectionItem.getResource().getDescription());
+		SessionContextSupport.putLogParameter("payLoadObject", payLoadObject.toString());
+		JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session").toString()) :  new JSONObject();
+		session.put("organizationUId", user.getOrganization().getPartyUid());
+		SessionContextSupport.putLogParameter("session", session.toString());
+	}
+
+	public void getEventLogs(CollectionItem collectionItem, User user) throws JSONException {
+		SessionContextSupport.putLogParameter(EVENT_NAME, "collection.delete");
+		JSONObject context = SessionContextSupport.getLog().get("context") != null ? new JSONObject(SessionContextSupport.getLog().get("context").toString()) :  new JSONObject();
+		context.put("parentGooruId", collectionItem.getCollection().getGooruOid());
+		context.put("contentGooruId", collectionItem.getResource().getGooruOid());
+		SessionContextSupport.putLogParameter("context", context.toString());
+
+		JSONObject payLoadObject = SessionContextSupport.getLog().get("payLoadObject") != null ? new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString()) :  new JSONObject();
+		payLoadObject.put("contentId", collectionItem.getResource().getContentId());
+		payLoadObject.put("mode", "delete");
+		payLoadObject.put("itemSequence", collectionItem.getItemSequence());
+		payLoadObject.put("collectionItemId", collectionItem.getCollectionItemId());
+		payLoadObject.put("parentContentId", collectionItem.getCollection().getContentId());
+		payLoadObject.put("title", collectionItem.getResource().getTitle());
+		payLoadObject.put("description", collectionItem.getResource().getDescription());
+		SessionContextSupport.putLogParameter("payLoadObject", payLoadObject.toString());
+		JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session").toString()) :  new JSONObject();
+		session.put("organizationUId", user.getOrganization().getPartyUid());
+		SessionContextSupport.putLogParameter("session", session.toString());
 	}
 
 	public ResourceCassandraService getResourceCassandraService() {
