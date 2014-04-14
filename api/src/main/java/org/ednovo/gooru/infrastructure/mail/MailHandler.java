@@ -897,7 +897,7 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 		}
 	}
 	
-	public void sendMailToInviteUser(String email, String gooruOid, User user, String title, String inviteFrom, String inviteUser) {
+	public void sendMailToInviteUser(String email, String gooruOid, User user, String title, String inviteUser) {
 		
 		final String serverpath = this.getServerConstants().getProperty(SERVERPATH);
 			EventMapping eventMapping = this.getEventService().getTemplatesByEventName(CustomProperties.EventMapping.SEND_MAIL_TO_INVITE_USER_CLASS.getEvent());
