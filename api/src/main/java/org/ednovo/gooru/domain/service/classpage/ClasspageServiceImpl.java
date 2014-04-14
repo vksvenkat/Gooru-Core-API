@@ -660,33 +660,33 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		
 		SessionContextSupport.putLogParameter(EVENT_NAME, "classpage.create");
 		
-		JSONObject context = SessionContextSupport.getLog().get("context") != null ? new JSONObject(SessionContextSupport.getLog().get("context")) :  new JSONObject();
+		JSONObject context = SessionContextSupport.getLog().get("context") != null ? new JSONObject(SessionContextSupport.getLog().get("context").toString()) :  new JSONObject();
 		context.put("contentGooruOId", classapge.getGooruOid());
 		SessionContextSupport.putLogParameter("context", context.toString());
 		
-		JSONObject payLoadObject = SessionContextSupport.getLog().get("payLoadObject") != null ? new JSONObject(SessionContextSupport.getLog().get("payLoadObject")) :  new JSONObject();
+		JSONObject payLoadObject = SessionContextSupport.getLog().get("payLoadObject") != null ? new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString()) :  new JSONObject();
 		payLoadObject.put("groupUId", userGroup.getPartyUid());
 		payLoadObject.put("contentId", classapge.getContentId());
 		payLoadObject.put("classCode", classapge.getClasspageCode());
 		SessionContextSupport.putLogParameter("payLoadObject", payLoadObject.toString());
-		JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session")) :  new JSONObject();
+		JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session").toString()) :  new JSONObject();
 		session.put("organizationUId",  user.getOrganization().getPartyUid());
 		SessionContextSupport.putLogParameter("session", session.toString());
 	}
 
 	public void getEventLogs(Classpage classapge, User user, UserGroup userGroup, InviteUser inviteUser) throws JSONException {
 			
-			JSONObject context = SessionContextSupport.getLog().get("context") != null ? new JSONObject(SessionContextSupport.getLog().get("context")) :  new JSONObject();
+			JSONObject context = SessionContextSupport.getLog().get("context") != null ? new JSONObject(SessionContextSupport.getLog().get("context").toString()) :  new JSONObject();
 			context.put("contentGooruOId", classapge.getGooruOid());
 			SessionContextSupport.putLogParameter("context", context.toString());
 			
-			JSONObject payLoadObject = SessionContextSupport.getLog().get("payLoadObject") != null ? new JSONObject(SessionContextSupport.getLog().get("payLoadObject")) :  new JSONObject();
+			JSONObject payLoadObject = SessionContextSupport.getLog().get("payLoadObject") != null ? new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString()) :  new JSONObject();
 			if(inviteUser != null && inviteUser.getInviteUid() != null){
 				payLoadObject.put("InvitedUserGooruUId", inviteUser.getInviteUid());
 			}
 			payLoadObject.put("contentId", classapge.getContentId() );
 			SessionContextSupport.putLogParameter("payLoadObject", payLoadObject.toString());
-			JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session")) :  new JSONObject();
+			JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session").toString()) :  new JSONObject();
 			session.put("organizationUId",  user.getOrganization().getPartyUid());
 			SessionContextSupport.putLogParameter("session", session.toString());
 		}
