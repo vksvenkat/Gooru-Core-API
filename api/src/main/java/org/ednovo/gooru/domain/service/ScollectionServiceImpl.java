@@ -1783,28 +1783,28 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	public void getEventLogs(Collection collection, User user) throws JSONException {
 
 		SessionContextSupport.putLogParameter(EVENT_NAME, "collection.create");
-		JSONObject context = SessionContextSupport.getLog().get("context") != null ? new JSONObject(SessionContextSupport.getLog().get("context")) :  new JSONObject();
+		JSONObject context = SessionContextSupport.getLog().get("context") != null ? new JSONObject(SessionContextSupport.getLog().get("context").toString()) :  new JSONObject();
 		context.put("contentGooruOId", collection.getGooruOid());
 
 		SessionContextSupport.putLogParameter("context", context.toString());
 
-		JSONObject payLoadObject = SessionContextSupport.getLog().get("payLoadObject") != null ? new JSONObject(SessionContextSupport.getLog().get("payLoadObject")) :  new JSONObject();
+		JSONObject payLoadObject = SessionContextSupport.getLog().get("payLoadObject") != null ? new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString()) :  new JSONObject();
 		payLoadObject.put("contentId", collection.getContentId());
 		payLoadObject.put("title", collection.getTitle());
 		payLoadObject.put("description", collection.getDescription());
 		SessionContextSupport.putLogParameter("payLoadObject", payLoadObject.toString());
-		JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session")) :  new JSONObject();
+		JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session").toString()) :  new JSONObject();
 		session.put("organizationUId", user.getOrganization().getPartyUid());
 		SessionContextSupport.putLogParameter("session", session.toString());
 	}
 
 	public void getEventLogs(CollectionItem collectionItem, boolean isCollectionItem, User user) throws JSONException {
 		SessionContextSupport.putLogParameter(EVENT_NAME, "collection.create");
-		JSONObject context = SessionContextSupport.getLog().get("context") != null ? new JSONObject(SessionContextSupport.getLog().get("context")) :  new JSONObject();
+		JSONObject context = SessionContextSupport.getLog().get("context") != null ? new JSONObject(SessionContextSupport.getLog().get("context").toString()) :  new JSONObject();
 		context.put("parentGooruId", collectionItem.getCollection() != null ? collectionItem.getCollection().getGooruOid() : null);
 		SessionContextSupport.putLogParameter("context", context.toString());
 
-		JSONObject payLoadObject = SessionContextSupport.getLog().get("payLoadObject") != null ? new JSONObject(SessionContextSupport.getLog().get("payLoadObject")) :  new JSONObject();
+		JSONObject payLoadObject = SessionContextSupport.getLog().get("payLoadObject") != null ? new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString()) :  new JSONObject();
 		payLoadObject.put("mode", "assign");
 		payLoadObject.put("itemSequence", collectionItem.getItemSequence());
 		payLoadObject.put("collectionItemId", collectionItem.getCollectionItemId());
@@ -1812,19 +1812,19 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		payLoadObject.put("title", collectionItem.getResource().getTitle());
 		payLoadObject.put("description", collectionItem.getResource().getDescription());
 		SessionContextSupport.putLogParameter("payLoadObject", payLoadObject.toString());
-		JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session")) :  new JSONObject();
+		JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session").toString()) :  new JSONObject();
 		session.put("organizationUId", user.getOrganization().getPartyUid());
 		SessionContextSupport.putLogParameter("session", session.toString());
 	}
 
 	public void getEventLogs(CollectionItem collectionItem, User user) throws JSONException {
 		SessionContextSupport.putLogParameter(EVENT_NAME, "collection.delete");
-		JSONObject context = SessionContextSupport.getLog().get("context") != null ? new JSONObject(SessionContextSupport.getLog().get("context")) :  new JSONObject();
+		JSONObject context = SessionContextSupport.getLog().get("context") != null ? new JSONObject(SessionContextSupport.getLog().get("context").toString()) :  new JSONObject();
 		context.put("parentGooruId", collectionItem.getCollection().getGooruOid());
 		context.put("contentGooruId", collectionItem.getResource().getGooruOid());
 		SessionContextSupport.putLogParameter("context", context.toString());
 
-		JSONObject payLoadObject = SessionContextSupport.getLog().get("payLoadObject") != null ? new JSONObject(SessionContextSupport.getLog().get("payLoadObject")) :  new JSONObject();
+		JSONObject payLoadObject = SessionContextSupport.getLog().get("payLoadObject") != null ? new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString()) :  new JSONObject();
 		payLoadObject.put("contentId", collectionItem.getResource().getContentId());
 		payLoadObject.put("mode", "delete");
 		payLoadObject.put("itemSequence", collectionItem.getItemSequence());
@@ -1833,7 +1833,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		payLoadObject.put("title", collectionItem.getResource().getTitle());
 		payLoadObject.put("description", collectionItem.getResource().getDescription());
 		SessionContextSupport.putLogParameter("payLoadObject", payLoadObject.toString());
-		JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session")) :  new JSONObject();
+		JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session").toString()) :  new JSONObject();
 		session.put("organizationUId", user.getOrganization().getPartyUid());
 		SessionContextSupport.putLogParameter("session", session.toString());
 	}
