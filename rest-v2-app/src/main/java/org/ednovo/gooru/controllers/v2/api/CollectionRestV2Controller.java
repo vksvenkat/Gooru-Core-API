@@ -140,7 +140,7 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 		if (requestContext != null && requestContext.equalsIgnoreCase("library")) {
 			includes = (String[]) ArrayUtils.addAll(LIBRARY_RESOURCE_INCLUDE_FIELDS, COLLECTION_ITEM_INCLUDE_FILEDS);
 			includes = (String[]) ArrayUtils.addAll(includes, LIBRARY_COLLECTION_INCLUDE_FIELDS);
-			final String cacheKey = "collection-data-" + requestContext + "-" + collectionId;
+			final String cacheKey = "collection-data-" + requestContext + "-" + collectionId + "-"  + rootNodeId;
 			String data = null;
 			data = getRedisService().getValue(cacheKey);
 			if (data == null) {
