@@ -518,12 +518,12 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			} catch (Exception e) {
 				logger.error(e.getMessage());
 			}
+			List<String> parenFolders = this.getParentCollection(resource.getGooruOid(), collection.getUser().getPartyUid(), false);
+			for (String parentFolder : parenFolders) {
+				updateFolderSharing(parentFolder);
+			}
 		}
 
-		List<String> parenFolders = this.getParentCollection(resource.getGooruOid(), collection.getUser().getPartyUid(), false);
-		for (String parentFolder : parenFolders) {
-			updateFolderSharing(parentFolder);
-		}
 		return new ActionResponseDTO<CollectionItem>(collectionItem, errors);
 	}
 
@@ -872,7 +872,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		if (taxonomySet != null) {
 			course = new HashSet<String>();
 			for (Code code : taxonomySet) {
-				if (code.getDepth() == 2) {
+				if (code.getDepth() == 2 && code.getRootNodeId() != null && code.getRootNodeId().toString().equalsIgnoreCase(Code.GOORU_TAXONOMY_CODE_ID)) {
 					course.add(code.getLabel());
 				}
 			}
@@ -886,7 +886,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		if (taxonomySet != null) {
 			standards = new ArrayList<StandardFo>();
 			if (!ignoreUserTaxonomyPreference) {
-				String  taxonomyPreference = rootNodeId != null &&  rootNodeId.equalsIgnoreCase(Code.GOORU_TAXONOMY_CODE_ID) ? rootNodeId : UserGroupSupport.getTaxonomyPreference();
+				String  taxonomyPreference = rootNodeId != null &&  !rootNodeId.equalsIgnoreCase(Code.GOORU_TAXONOMY_CODE_ID) ? rootNodeId : UserGroupSupport.getTaxonomyPreference();
 				for (Code code : taxonomySet) {
 					if (code.getRootNodeId() != null && taxonomyPreference != null && taxonomyPreference.contains(code.getRootNodeId().toString())) {
 						standards.add(getStandards(code));

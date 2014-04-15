@@ -449,7 +449,7 @@ public class CollectionUtil implements ParameterProperties {
 				if (length > 1) {
 					subject.add(taxonomy[length - 2]);
 				}
-				if (length > 2) {
+				if (length > 2 && code.getRootNodeId() != null && code.getRootNodeId().toString().equalsIgnoreCase(Code.GOORU_TAXONOMY_CODE_ID)) {
 					course.add(taxonomy[length - 3]);
 				}
 				if (length > 3) {
