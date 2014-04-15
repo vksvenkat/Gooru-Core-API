@@ -518,12 +518,12 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			} catch (Exception e) {
 				logger.error(e.getMessage());
 			}
+			List<String> parenFolders = this.getParentCollection(resource.getGooruOid(), collection.getUser().getPartyUid(), false);
+			for (String parentFolder : parenFolders) {
+				updateFolderSharing(parentFolder);
+			}
 		}
 
-		List<String> parenFolders = this.getParentCollection(resource.getGooruOid(), collection.getUser().getPartyUid(), false);
-		for (String parentFolder : parenFolders) {
-			updateFolderSharing(parentFolder);
-		}
 		return new ActionResponseDTO<CollectionItem>(collectionItem, errors);
 	}
 
