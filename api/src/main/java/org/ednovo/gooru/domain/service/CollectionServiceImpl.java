@@ -282,6 +282,24 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		return items;
 	}
 	
+	@Override
+	public List<Map<String, Object>> getMyFolders( Integer limit, Integer offset, String collectionType, String folderId, String folderTitle, String owner, boolean fetchChildItem){
+		StorageArea storageArea = this.getStorageRepository().getStorageAreaByTypeName(NFS);
+		List<Object[]> result = this.getCollectionRepository().getMyFolders(limit, offset, folderId, folderTitle, owner, fetchChildItem ? FOLDER : collectionType);
+		List<Map<String, Object>> folderList = new ArrayList<Map<String, Object>>();
+		if (result != null && result.size() > 0) {
+			for (Object[] object : result) {
+				Map<String, Object> collection = new HashMap<String, Object>();
+				collection.put(GOORU_OID, object[0]);
+				collection.put(TITLE, object[1]);
+				collection.put(USER_NAME, object[2]);
+				collection.put(CREATED_ON, object[3]);
+				collection.put(LAST_MODIFIED, object[4]);
+				folderList.add(collection);
+			}
+		}
+		return folderList;
+	}
 	
 	@Override
 	public SearchResults<Code> getCollectionStandards(Integer codeId, String query,Integer limit, Integer offset,Boolean skipPagination, User user) {

@@ -850,4 +850,24 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		query.setParameterList("collectionIds", collectionIds);
 		return (List<Collection>) query.list();
 	}
+	
+	public List<Object[]> getMyFolders(Integer limit, Integer offset, String folderId, String folderTitle, String owner, String collectionType) {
+		String sql = "select cc.gooru_oid as folderId, r.title as folderTitle, u.username as owner, cc.created_on as createdOn, cc.last_modified as lastModified from resource r inner join collection c on  r.content_id = c.content_id inner join content cc on c.content_id = cc.content_id inner join user u on cc.user_uid = u.gooru_uid where c.collection_type = '" +collectionType + "'";
+		if (folderId!= null)  {
+			sql += " and cc.gooru_oid = '" +folderId + "'";
+		}
+		
+		if (folderTitle!= null)  {
+			sql += " and r.title = '" +folderTitle + "'" ;
+		}
+		
+		if(owner!= null){
+			sql += " and u.username = '" + owner + "'";
+		}
+		
+		Query query = getSession().createSQLQuery(sql);
+		query.setFirstResult(offset);
+		query.setMaxResults(limit);
+		return query.list();
+	}
 }
