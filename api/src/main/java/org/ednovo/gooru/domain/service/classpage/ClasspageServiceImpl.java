@@ -427,8 +427,6 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 						this.getUserRepository().save(groupAssociation);
 						classpageMember.add(setMemberResponse(groupAssociation,ACTIVE));
 					}
-					classpage.setLastModified(new Date(System.currentTimeMillis()));
-					this.getCollectionRepository().save(classpage);
 				}
 				getEventLogs(classpage, apiCaller, userGroup, inviteUser);
 			}

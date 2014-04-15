@@ -227,7 +227,7 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 		User user = (User) request.getAttribute(Constants.USER);
 		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, CLASSPAGE_CREATE_ITEM_INCLUDE_FILEDS);	
 		includes = (String[]) ArrayUtils.addAll(includes, CLASSPAGE_INCLUDE_FIELDS);
-		return toModelAndViewWithIoFilter(getCollectionService().getCollectionItem(collectionItemId, false, user), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
+		return toModelAndViewWithIoFilter(getCollectionService().getCollectionItem(collectionItemId, false, user, null), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ITEM_READ })
