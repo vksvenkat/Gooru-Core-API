@@ -63,7 +63,7 @@ public interface ScollectionService extends BaseService {
 
 	ActionResponseDTO<Collection> updateCollection(Collection newCollection, String updateCollectionId, String taxonomyCode, String ownerUId, String creatorUId, boolean hasUnrestrictedContentAccess, String relatedContentId, boolean updateTaxonomyByCode, User apiCallerUser) throws Exception;
 
-	void deleteCollection(String collectionId);
+	void deleteCollection(String collectionId, User user);
 
 	List<Collection> getCollections(Map<String, String> filters, User user);
 

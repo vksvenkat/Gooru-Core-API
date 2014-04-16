@@ -134,8 +134,9 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}" }, method = RequestMethod.DELETE)
 	public void deleteFolder(@PathVariable(value = ID) String collectionId, HttpServletRequest request, HttpServletResponse response) {
+		User user = (User) request.getAttribute(Constants.USER);
 		SessionContextSupport.putLogParameter(EVENT_NAME, "scollection-folder-delete");
-		getCollectionService().deleteCollection(collectionId);
+		getCollectionService().deleteCollection(collectionId, user);
 		SessionContextSupport.putLogParameter(EVENT_NAME, "scollection-delete");
 		SessionContextSupport.putLogParameter(COLLECTION_ID, collectionId);
 	}
