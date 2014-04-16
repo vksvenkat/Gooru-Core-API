@@ -36,10 +36,12 @@ import org.ednovo.gooru.core.api.model.PartyCategoryType;
 import org.ednovo.gooru.core.api.model.PartyCustomField;
 import org.ednovo.gooru.core.api.model.Profile;
 import org.ednovo.gooru.core.api.model.User;
+import org.ednovo.gooru.core.api.model.UserGroupSupport;
 import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.NotFoundException;
+import org.ednovo.gooru.domain.service.redis.RedisService;
 import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.party.PartyRepository;
@@ -61,6 +63,9 @@ public class PartyServiceImpl extends BaseServiceImpl implements PartyService, P
 	
 	@Autowired
 	private SettingService settingService;
+	
+	@Autowired
+	private RedisService redisService;
 	
 	
 	private static ResourceBundle userDefaultCustomAttributes = ResourceBundle.getBundle("properties/userDefaultCustomAttributes");
@@ -128,6 +133,9 @@ public class PartyServiceImpl extends BaseServiceImpl implements PartyService, P
 				indexProcessor.index(partyId, IndexProcessor.INDEX, USER, true);
 			} else {
 				indexProcessor.index(partyId, IndexProcessor.INDEX, USER, false);
+			}
+			if (newPartyCustomField.getOptionalKey() != null && newPartyCustomField.getOptionalKey().equalsIgnoreCase(USER_TAXONOMY_ROOT_CODE)) {
+				this.redisService.deleteKey(SESSION_TOKEN_KEY + UserGroupSupport.getSessionToken());
 			}
 		}
 		return new ActionResponseDTO<PartyCustomField>(partyCustomField, errors);
