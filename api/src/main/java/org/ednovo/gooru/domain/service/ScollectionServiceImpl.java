@@ -132,7 +132,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 	@Autowired
 	private UserService userService;
-
+	
 	@Autowired
 	protected AssessmentService assessmentService;
 
@@ -439,7 +439,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 
 	@Override
-	public void deleteCollection(String collectionId) {
+	public void deleteCollection(String collectionId, User user) {
 		Collection collection = this.getCollectionByGooruOid(collectionId, null);
 		if (collection != null) {
 			try {
@@ -452,11 +452,14 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			} catch (Exception e) {
 				logger.debug(e.getMessage());
 			}
-			this.getCollectionRepository().remove(Collection.class, collection.getContentId());
 			List<CollectionItem> collectionItems = this.getCollectionRepository().getCollectionItemByAssociation(collectionId, null);
 			if (collectionItems.size() > 0) {
-				this.getCollectionRepository().removeAll(collectionItems);
+				for(CollectionItem item : collectionItems){
+					this.deleteCollectionItem(item.getCollectionItemId(), user);
+				}
 			}
+			this.getCollectionRepository().remove(Collection.class, collection.getContentId());
+			
 		} else {
 			throw new NotFoundException(generateErrorMessage(GL0056, _COLLECTION));
 		}
