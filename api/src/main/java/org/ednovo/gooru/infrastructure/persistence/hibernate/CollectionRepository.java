@@ -117,4 +117,8 @@ public interface CollectionRepository extends BaseRepository {
 	
 	List<Collection> getCollectionListByIds(List<String> collectionIds);
 	
+	List<Object[]> getFolderList(Integer limit, Integer offset, String gooruOid, String title, String username, boolean skipPagination);
+	
+	Long getFolderListCount(String gooruOid, String title, String username);
+	
 }

@@ -244,6 +244,17 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 		return toJsonModelAndView(content, true);
 	}
 
+	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
+	@RequestMapping(value = { "" }, method = RequestMethod.GET)
+	public ModelAndView getFolderList(HttpServletRequest request, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "20") Integer limit,
+			@RequestParam(value = ID, required = false) String gooruOid, @RequestParam(value = "title", required = false) String title, @RequestParam(value = "username", required = false) String username, 
+			@RequestParam(value = SKIP_PAGINATION, required = false, defaultValue = FALSE) boolean skipPagination , HttpServletResponse resHttpServletResponse) {
+		Map<String, Object> content = new HashMap<String, Object>();
+		content.put(SEARCH_RESULT, this.getCollectionService().getFolderList( limit, offset, gooruOid, title, username, skipPagination));
+		content.put(COUNT, this.getCollectionRepository().getFolderListCount( gooruOid,title, username));
+		return toJsonModelAndView(content, true);
+	}
 
 	private Collection buildCollectionFromInputParameters(String data, User user) {
 		Collection collection = JsonDeserializer.deserialize(data, Collection.class);

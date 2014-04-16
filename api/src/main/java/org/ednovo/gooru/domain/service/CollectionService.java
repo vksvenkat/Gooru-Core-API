@@ -59,4 +59,5 @@ public interface CollectionService extends ScollectionService {
 	
 	SearchResults<Code> getCollectionStandards(Integer codeId,String query, Integer limit, Integer offset,Boolean skipPagination, User user);
 	
+	List<Map<String, Object>> getFolderList(Integer limit, Integer offset, String gooruOid, String title, String username, boolean skipPagination );
 }
