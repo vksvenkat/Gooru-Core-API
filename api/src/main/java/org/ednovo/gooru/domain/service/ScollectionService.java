@@ -51,7 +51,7 @@ public interface ScollectionService extends BaseService {
 
 	ActionResponseDTO<Collection> updateCollection(Collection newCollection, String updateCollectionId, String ownerUId, String creatorUId, boolean hasUnrestrictedContentAccess, String relatedContentId, User user) throws Exception;
 
-	CollectionItem getCollectionItem(String collectionItemId, String includeAdditionalInfo, User user);
+	CollectionItem getCollectionItem(String collectionItemId, String includeAdditionalInfo, User user, String rootNodeId);
 
 	Collection copyCollection(String collectionId, Collection newCollection, boolean addToShelf, String parentId, User user) throws Exception;
 
@@ -73,13 +73,13 @@ public interface ScollectionService extends BaseService {
 
 	List<CollectionItem> getCollectionItems(String collectionId, Map<String, String> filters);
 
-	CollectionItem getCollectionItem(String collectionItemId, boolean includeAdditionalInfo, User user);
+	CollectionItem getCollectionItem(String collectionItemId, boolean includeAdditionalInfo, User user, String rootNodeId);
 
 	void deleteCollectionItem(String collectionItemId, User user);
 
 	ActionResponseDTO<CollectionItem> reorderCollectionItem(String collectionItemId, int newSequence) throws Exception;
 
-	Collection getCollection(String collectionId, boolean includeMetaInfo, boolean includeCollaborator, boolean isContentFlag, User user, String merge);
+	Collection getCollection(String collectionId, boolean includeMetaInfo, boolean includeCollaborator, boolean isContentFlag, User user, String merge, String rootNodeId);
 		
 	Collection copyCollection(String collectionId, String title, boolean addToShelf, User user, String taxonomyCode, String grade, String parentId) throws Exception;
 
@@ -111,15 +111,15 @@ public interface ScollectionService extends BaseService {
 
 	List<CollectionItem> getMyCollectionItems(String partyUid, Map<String, String> filters, User user);
 
-	List<CollectionItem> setCollectionItemMetaInfo(List<CollectionItem> collectionItems);
+	List<CollectionItem> setCollectionItemMetaInfo(List<CollectionItem> collectionItems, String rootNodeId);
 
 	Set<String> getCourse(Set<Code> taxonomySet);
 
-	List<StandardFo> getStandards(Set<Code> taxonomySet, boolean ignoreUserTaxonomyPreference);
+	List<StandardFo> getStandards(Set<Code> taxonomySet, boolean ignoreUserTaxonomyPreference, String rootNodeId);
 	
 	void updateResourceSharing(String sharing, Collection collection);
 	
-	Map<String, Object>  getCollection(String gooruOid, Map<String, Object> collection);
+	Map<String, Object>  getCollection(String gooruOid, Map<String, Object> collection, String rootNodeId);
 	
 	void updateFolderSharing(String collection);
 	
