@@ -62,6 +62,7 @@ public class CustomValueServiceImpl extends BaseServiceImpl implements CustomVal
 		cassandraField.put("search_filter_lowercase", "filter-case@lowercase");
 		cassandraField.put("search_filter_splitby_single_tilta", "search-splitBy@singleTilta");
 		cassandraField.put("index_splitby_single_tilta", "index-splitBy@singleTilta");
+		cassandraField.put("index_field_value_lowercase", "index-case@lowercase");
 	}
 	
 	public CustomValueServiceImpl(){
