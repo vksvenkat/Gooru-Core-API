@@ -283,19 +283,18 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	}
 	
 	@Override
-	public List<Map<String, Object>> getMyFolders( Integer limit, Integer offset, String collectionType, String folderId, String folderTitle, String owner, boolean fetchChildItem){
-		StorageArea storageArea = this.getStorageRepository().getStorageAreaByTypeName(NFS);
-		List<Object[]> result = this.getCollectionRepository().getMyFolders(limit, offset, folderId, folderTitle, owner, fetchChildItem ? FOLDER : collectionType);
+	public List<Map<String, Object>> getFolderList( Integer limit, Integer offset, String gooruOid, String title, String username, boolean skipPagination){
+		List<Object[]> result = this.getCollectionRepository().getFolderList(limit, offset, gooruOid, title, username, skipPagination);
 		List<Map<String, Object>> folderList = new ArrayList<Map<String, Object>>();
 		if (result != null && result.size() > 0) {
 			for (Object[] object : result) {
-				Map<String, Object> collection = new HashMap<String, Object>();
-				collection.put(GOORU_OID, object[0]);
-				collection.put(TITLE, object[1]);
-				collection.put(USER_NAME, object[2]);
-				collection.put(CREATED_ON, object[3]);
-				collection.put(LAST_MODIFIED, object[4]);
-				folderList.add(collection);
+				Map<String, Object> folder = new HashMap<String, Object>();
+				folder.put(GOORU_OID, object[0]);
+				folder.put(TITLE, object[1]);
+				folder.put(USER_NAME, object[2]);
+				folder.put(CREATED_ON, object[3]);
+				folder.put(LAST_MODIFIED, object[4]);
+				folderList.add(folder);
 			}
 		}
 		return folderList;

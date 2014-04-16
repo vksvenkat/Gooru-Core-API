@@ -851,23 +851,44 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		return (List<Collection>) query.list();
 	}
 	
-	public List<Object[]> getMyFolders(Integer limit, Integer offset, String folderId, String folderTitle, String owner, String collectionType) {
-		String sql = "select cc.gooru_oid as folderId, r.title as folderTitle, u.username as owner, cc.created_on as createdOn, cc.last_modified as lastModified from resource r inner join collection c on  r.content_id = c.content_id inner join content cc on c.content_id = cc.content_id inner join user u on cc.user_uid = u.gooru_uid where c.collection_type = '" +collectionType + "'";
-		if (folderId!= null)  {
-			sql += " and cc.gooru_oid = '" +folderId + "'";
+	public List<Object[]> getFolderList(Integer limit, Integer offset, String gooruOid, String title, String username, boolean skipPagination) {
+		String sql = "select cc.gooru_oid as gooruOid, r.title as title, u.username as username, cc.created_on as createdOn, cc.last_modified as lastModified from resource r inner join collection c on  r.content_id = c.content_id inner join content cc on c.content_id = cc.content_id inner join user u on cc.user_uid = u.gooru_uid where c.collection_type = 'folder'";
+		if (gooruOid != null) {
+			sql += " and cc.gooru_oid = '" + gooruOid + "'";
 		}
-		
-		if (folderTitle!= null)  {
-			sql += " and r.title = '" +folderTitle + "'" ;
+
+		if (title != null) {
+			sql += " and r.title = '" + title + "'";
 		}
-		
-		if(owner!= null){
-			sql += " and u.username = '" + owner + "'";
+
+		if (username != null) {
+			sql += " and u.username = '" + username + "'";
 		}
-		
+
 		Query query = getSession().createSQLQuery(sql);
-		query.setFirstResult(offset);
-		query.setMaxResults(limit);
+		if (!skipPagination) {
+			query.setFirstResult(offset);
+			query.setMaxResults(limit);
+		}
 		return query.list();
+
+	}
+
+	@Override
+	public Long getFolderListCount(String gooruOid, String title, String username) {
+		String sql = "select count(1) as count from resource r inner join collection c on  r.content_id = c.content_id inner join content cc on c.content_id = cc.content_id inner join user u on cc.user_uid = u.gooru_uid where c.collection_type = 'folder'";
+		if (gooruOid != null) {
+			sql += " and cc.gooru_oid = '" + gooruOid + "'";
+		}
+
+		if (title != null) {
+			sql += " and r.title = '" + title + "'";
+		}
+
+		if (username != null) {
+			sql += " and u.username = '" + username + "'";
+		}
+		Query query = getSession().createSQLQuery(sql).addScalar("count", StandardBasicTypes.LONG);
+		return (Long) query.list().get(0);
 	}
 }
