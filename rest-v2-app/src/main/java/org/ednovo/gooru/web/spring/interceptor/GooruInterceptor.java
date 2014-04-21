@@ -114,6 +114,7 @@ public class GooruInterceptor extends HandlerInterceptorAdapter {
 	@Override
 	public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
 		Long endTime = System.currentTimeMillis();
+		SessionContextSupport.putLogParameter("endTime", endTime);
 		Long startTime = request.getDateHeader("startTime");
 		Long totalTimeSpentInMs = endTime - startTime ;
 		JSONObject metrics = new JSONObject();
