@@ -138,6 +138,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
@@ -1787,27 +1788,13 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 
 		resource = resourceRepository.findResourceByContentGooruId(gooruContentId);
 		if (resource == null) {
-			logger.warn("invalid resource passed to deleteResource:" + gooruContentId);
-			return;
+			throw new NotFoundException("Resource not found");
 		} else {
 			if ((resource.getUser() != null && resource.getUser().getPartyUid().equalsIgnoreCase(apiCaller.getPartyUid())) || getUserService().isContentAdmin(apiCaller)) {
-
-				resource.setUser(apiCaller);
-
-				this.getBaseRepository().removeAll(resource.getContentPermissions());
-				resource.setContentPermissions(null);
-				resource.setLastModified(new Date(System.currentTimeMillis()));
-
-				resourceRepository.saveOrUpdate(resource);
-				logger.warn("Deleted resource from deleteResource:" + gooruContentId);
-
-				if (logger.isInfoEnabled()) {
-					logger.info(LogUtil.getActivityLogStream(RESOURCE, apiCaller.toString(), resource.toString(), LogUtil.RESOURCE_REMOVE, ""));
-				}
-
-				indexProcessor.index(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE);
+				this.getBaseRepository().remove(resource);
+				indexProcessor.index(gooruContentId, IndexProcessor.DELETE, RESOURCE);
 			} else {
-				logger.warn("you dont have a permission to deleteResource" + gooruContentId);
+				throw new BadCredentialsException("you dont have a permission to delete resource");
 			}
 		}
 
