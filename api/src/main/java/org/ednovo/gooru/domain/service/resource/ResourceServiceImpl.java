@@ -1784,32 +1784,32 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 
 	@Override
 	public void deleteResource(Resource resource, String gooruContentId, User apiCaller) {
+
+		resource = resourceRepository.findResourceByContentGooruId(gooruContentId);
 		if (resource == null) {
-			resource = resourceRepository.findResourceByContentGooruId(gooruContentId);
-			if (resource == null) {
-				logger.warn("invalid resource passed to deleteResource:" + gooruContentId);
-				return;
+			logger.warn("invalid resource passed to deleteResource:" + gooruContentId);
+			return;
+		} else {
+			if ((resource.getUser() != null && resource.getUser().getPartyUid().equalsIgnoreCase(apiCaller.getPartyUid())) || getUserService().isContentAdmin(apiCaller)) {
+
+				resource.setUser(apiCaller);
+
+				this.getBaseRepository().removeAll(resource.getContentPermissions());
+				resource.setContentPermissions(null);
+				resource.setLastModified(new Date(System.currentTimeMillis()));
+
+				resourceRepository.saveOrUpdate(resource);
+				logger.warn("Deleted resource from deleteResource:" + gooruContentId);
+
+				if (logger.isInfoEnabled()) {
+					logger.info(LogUtil.getActivityLogStream(RESOURCE, apiCaller.toString(), resource.toString(), LogUtil.RESOURCE_REMOVE, ""));
+				}
+
+				indexProcessor.index(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE);
+			} else {
+				logger.warn("you dont have a permission to deleteResource" + gooruContentId);
 			}
 		}
-		UserRole contentAdmin = new UserRole();
-		contentAdmin.setRoleId(Short.valueOf(UserRole.ROLE_CONTENT_ADMIN));
-
-		User systemUser = userRepository.findByRole(contentAdmin).get(0);
-		resource.setUser(systemUser);
-
-		this.getBaseRepository().removeAll(resource.getContentPermissions());
-		resource.setContentPermissions(null);
-		resource.setLastModified(new Date(System.currentTimeMillis()));
-
-		resourceRepository.saveOrUpdate(resource);
-		logger.warn("Deleted resource from deleteResource:" + gooruContentId);
-
-		if (logger.isInfoEnabled()) {
-			logger.info(LogUtil.getActivityLogStream(RESOURCE, apiCaller.toString(), resource.toString(), LogUtil.RESOURCE_REMOVE, ""));
-		}
-
-		/* Step 4 - Send the message to reindex the resource */
-		indexProcessor.index(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE);
 
 	}
 
