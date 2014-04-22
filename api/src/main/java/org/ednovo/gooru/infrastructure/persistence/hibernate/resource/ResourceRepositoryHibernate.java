@@ -978,4 +978,17 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 		return ltiContentAssoc.size() == 0 ? null : ltiContentAssoc.get(0).getResource();
 	}
 
+	 @Override
+	 public List<String> getResourceSourceAttribution() {
+            String sql = "select attribution from resource_source where  resource_source_id in ( ";
+            sql += " select r.resource_source_id from resource r inner join resource_source rs ";
+            sql += " on rs.resource_source_id = r.resource_source_id group by r.resource_source_id order by count(content_id) desc ) ";
+            Session session = getSessionFactory().getCurrentSession();
+            Query query = session.createSQLQuery(sql);
+            query.setFirstResult(0);
+            query.setMaxResults(200);
+            List<String> rsaList = (List<String>) query.list();
+            return (rsaList != null && rsaList.size() > 0 ) ? rsaList : null;
+	 }
+	 
 }
