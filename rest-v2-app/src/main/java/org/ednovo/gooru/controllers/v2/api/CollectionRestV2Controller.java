@@ -35,7 +35,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.ArrayUtils;
 import org.ednovo.gooru.controllers.BaseController;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
-import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.CollectionType;
