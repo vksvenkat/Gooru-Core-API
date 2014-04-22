@@ -46,20 +46,10 @@ public class SMTPMailSerivceHandler implements MailHandler {
 			UnsupportedEncodingException {
 			String[] to = mail.getRecipient().split(",");
 			Address[] address = new Address[to.length];
-			if(to != null && to.length > 0 ){
-				for (int i = 0; i < to.length; i++) {
-					address[i] = new InternetAddress(to[i]);
-				}
-				mail.setBcc(address);
-			} else {
-				for (int i = 0; i < to.length; i++) {
-					address[i] = new InternetAddress(to[i]);
-					break;
-				}
-				mail.setAddress(address);
+			for (int i = 0; i < to.length; i++) {
+				address[i] = new InternetAddress(to[i]);
 			}
-			
-			
+			mail.setAddress(address);
 			sendMail(mail, (System.currentTimeMillis() + 1000 * 60 * 5));
 	}
 

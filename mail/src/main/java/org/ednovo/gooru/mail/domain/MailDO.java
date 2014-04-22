@@ -12,15 +12,7 @@ public class MailDO {
 	private String recipient;
 	private String from;
 	private String fromName;
-	private Address[] bcc;
-	public Address[] getBcc() {
-		return bcc;
-	}
-
-	public void setBcc(Address[] bcc) {
-		this.bcc = bcc;
-	}
-
+	private String bcc;
 	private String Cc;
 	private String signature;
 	private Long expires;
@@ -103,6 +95,15 @@ public class MailDO {
 
 	public String getFromName() {
 		return fromName;
+	}
+
+	public void setBcc(String bcc) {
+		this.bcc = bcc;
+
+	}
+
+	public String getBcc() {
+		return bcc;
 	}
 
 	public String getSignature() {
