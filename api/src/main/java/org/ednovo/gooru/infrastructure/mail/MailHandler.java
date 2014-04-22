@@ -556,6 +556,7 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 		map.put("recipient", recipients);
 		map.put("from", getConfigSetting(ConfigConstants.MAIL_FROM, TaxonomyUtil.GOORU_ORG_UID));
 		map.put("bcc", getConfigSetting(ConfigConstants.MAIL_BCC_SUPPORT, TaxonomyUtil.GOORU_ORG_UID));
+		map.put("sendRecipient", true);
 		if (cfm != null && cfm.equalsIgnoreCase("yes")) {
 			map.put("cc", fromAddress);
 		}
