@@ -42,7 +42,6 @@ import org.ednovo.gooru.application.util.ResourceImageUtil;
 import org.ednovo.gooru.application.util.TaxonomyUtil;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.AssessmentQuestion;
-import org.ednovo.gooru.core.api.model.Classpage;
 import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
@@ -63,12 +62,10 @@ import org.ednovo.gooru.core.api.model.ShelfType;
 import org.ednovo.gooru.core.api.model.StandardFo;
 import org.ednovo.gooru.core.api.model.Textbook;
 import org.ednovo.gooru.core.api.model.User;
-import org.ednovo.gooru.core.api.model.UserGroup;
 import org.ednovo.gooru.core.api.model.UserGroupSupport;
 import org.ednovo.gooru.core.application.util.CollectionMetaInfo;
 import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.constant.ConstantProperties;
-import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.domain.cassandra.service.ResourceCassandraService;
@@ -92,7 +89,6 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.question.CommentRep
 import org.ednovo.gooru.infrastructure.persistence.hibernate.resource.ResourceRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.taxonomy.TaxonomyRespository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.taxonomy.TaxonomyStoredProcedure;
-import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -107,8 +103,6 @@ import org.springframework.validation.Errors;
 import com.google.common.collect.Lists;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.json.JettisonMappedXmlDriver;
-
-import flexjson.JSONDeserializer;
 
 public class ScollectionServiceImpl extends BaseServiceImpl implements ScollectionService, ParameterProperties, ConstantProperties {
 
@@ -138,7 +132,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 	@Autowired
 	private UserService userService;
-
+	
 	@Autowired
 	protected AssessmentService assessmentService;
 
@@ -445,7 +439,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 
 	@Override
-	public void deleteCollection(String collectionId) {
+	public void deleteCollection(String collectionId, User user) {
 		Collection collection = this.getCollectionByGooruOid(collectionId, null);
 		if (collection != null) {
 			try {
@@ -458,11 +452,14 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			} catch (Exception e) {
 				logger.debug(e.getMessage());
 			}
-			this.getCollectionRepository().remove(Collection.class, collection.getContentId());
 			List<CollectionItem> collectionItems = this.getCollectionRepository().getCollectionItemByAssociation(collectionId, null);
 			if (collectionItems.size() > 0) {
-				this.getCollectionRepository().removeAll(collectionItems);
+				for(CollectionItem item : collectionItems){
+					this.deleteCollectionItem(item.getCollectionItemId(), user);
+				}
 			}
+			this.getCollectionRepository().remove(Collection.class, collection.getContentId());
+			
 		} else {
 			throw new NotFoundException(generateErrorMessage(GL0056, _COLLECTION));
 		}

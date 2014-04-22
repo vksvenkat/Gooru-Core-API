@@ -282,6 +282,23 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		return items;
 	}
 	
+	@Override
+	public List<Map<String, Object>> getFolderList( Integer limit, Integer offset, String gooruOid, String title, String username, boolean skipPagination){
+		List<Object[]> result = this.getCollectionRepository().getFolderList(limit, offset, gooruOid, title, username, skipPagination);
+		List<Map<String, Object>> folderList = new ArrayList<Map<String, Object>>();
+		if (result != null && result.size() > 0) {
+			for (Object[] object : result) {
+				Map<String, Object> folder = new HashMap<String, Object>();
+				folder.put(GOORU_OID, object[0]);
+				folder.put(TITLE, object[1]);
+				folder.put(USER_NAME, object[2]);
+				folder.put(CREATED_ON, object[3]);
+				folder.put(LAST_MODIFIED, object[4]);
+				folderList.add(folder);
+			}
+		}
+		return folderList;
+	}
 	
 	@Override
 	public SearchResults<Code> getCollectionStandards(Integer codeId, String query,Integer limit, Integer offset,Boolean skipPagination, User user) {
