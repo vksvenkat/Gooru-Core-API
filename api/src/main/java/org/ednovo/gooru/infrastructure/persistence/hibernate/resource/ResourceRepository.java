@@ -152,4 +152,7 @@ public interface ResourceRepository extends BaseRepository {
 	Resource findResourceByContent(String gooruContentId);
 	
 	Resource findLtiResourceByContentGooruId(String gooruContentId);
+
+	List<String> getResourceSourceAttribution();
+
 }
