@@ -27,6 +27,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletResponse;
+
 import org.ednovo.gooru.core.api.model.FileMeta;
 import org.ednovo.gooru.core.api.model.MediaDTO;
 import org.json.JSONObject;
@@ -39,4 +41,6 @@ public interface MediaService {
 	String convertJsonToCsv(JSONObject data);
 
 	FileMeta handleFileUpload(MediaDTO mediaDTO, Map<String, Object> formField) throws FileNotFoundException, IOException;
+	
+	void downloadFile(HttpServletResponse response, String filename, String url);
 }
