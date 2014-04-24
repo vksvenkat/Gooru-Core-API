@@ -221,7 +221,6 @@ public class FeaturedServiceImpl implements FeaturedService, ParameterProperties
 							}
 							List<Map<String, Object>> lessonMap = new ArrayList<Map<String, Object>>();
 							List<Code> allLessons = null;
-							if (collectionTopicMap == null || collectionTopicMap.size() == 0) {
 								List<Code> lessons = this.getTaxonomyRespository().findCodeByParentCodeId(String.valueOf(topic.getCodeId()), null, lessonLimit, 0, false, LIBRARY, getOrganizationCode(libraryName), rootNodeId, null);
 								for (Code lesson : lessons) {
 									List<Object[]> collectionLessonList = this.getFeaturedRepository().getLibraryCollection(String.valueOf(lesson.getCodeId()), String.valueOf(ChildCode), null, null, true);
@@ -264,7 +263,6 @@ public class FeaturedServiceImpl implements FeaturedService, ParameterProperties
 								}
 									allLessons = this.getTaxonomyRespository().findCodeByParentCodeId(String.valueOf(topic.getCodeId()), null, 0, 3, true, LIBRARY, getOrganizationCode(libraryName), rootNodeId, null);
 								
-							}
 							
 							topicMap.add(getCode(topic, lessonMap, LESSON, collectionTopicCount != null ? collectionTopicCount
 									: (allLessons != null ? allLessons.size() : 0), getOrganizationCode(libraryName), null, collectionTopicMap, COLLECTION));
