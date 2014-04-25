@@ -24,16 +24,21 @@
 package org.ednovo.gooru.domain.service.resource.impl;
 
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 
 import javax.imageio.ImageIO;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
 import org.ednovo.gooru.application.util.TaxonomyUtil;
@@ -214,7 +219,39 @@ public class MediaServiceImpl implements MediaService,ParameterProperties {
 		}
 		return UserGroupSupport.getUserOrganizationNfsRealPath() + Constants.UPLOADED_MEDIA_FOLDER  + "/" + RequestUtil.executeRestAPI(data.toString(), settingService.getConfigSetting(ConfigConstants.GOORU_CONVERSION_RESTPOINT,0, TaxonomyUtil.GOORU_ORG_UID) + "/conversion/jsontostring", Method.POST.getName());
 	}
+	
+	@Override
+	public void downloadFile(HttpServletResponse response, String filename, String url) {
+		response.setContentType("application/force-download");
+		response.setHeader("Content-Transfer-Encoding", "binary");
+		response.setHeader("Content-Disposition", "attachment; filename=\""+ filename + "\"");
+		URL webUrl;
+		InputStream is = null;
+		try {
+			ByteArrayOutputStream bais = new ByteArrayOutputStream();
+			webUrl = new URL(url);
+			is = webUrl.openStream(); 
+			byte[] byteChunk = new byte[4096]; 							
+			int n;
 
+			while ((n = is.read(byteChunk)) > 0) {
+				bais.write(byteChunk, 0, n);
+			}
+			OutputStream os = response.getOutputStream();
+			os.write(bais.toByteArray());
+			os.close();
+		} catch (MalformedURLException mue) {
+			mue.printStackTrace();
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		} finally {
+			try {
+				if (is != null)
+					is.close();
+			} catch (IOException ioe) {
+			}
+		}
+	}
 	
 	public Properties getConfigConstants() {
 		return configConstants;
@@ -223,6 +260,7 @@ public class MediaServiceImpl implements MediaService,ParameterProperties {
 	public void setConfigConstants(Properties configConstants) {
 		this.configConstants = configConstants;
 	}
+
 
 
 	
