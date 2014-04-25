@@ -17,23 +17,113 @@ public class Collection extends Resource implements Versionable {
 	private static final String INDEX_TYPE = "scollection";
 	
 	private String collectionType;
+	
 	private String narrationLink;
+	
 	private String notes;
+	
 	private String keyPoints;
+	
 	private String language;
+	
 	private String goals;
+	
 	private String estimatedTime;
+	
 	private Set<CollectionItem> collectionItems;
+	
 	private List<User> collaborators;
+	
 	private ContentAssociation contentAssociation;
+	
 	private Map<Integer, List<Code>> taxonomySetMapping;
+	
 	private Set<CollectionTaskAssoc> collectionTaskItems;
+	
 	private CollectionMetaInfo metaInfo;
+	
 	private String network;
+	
 	private CollectionItem collectionItem;
+	
 	private CustomTableValue buildType;
+	
 	private Boolean mailNotification;
+	
     private Map<String,Object> lastModifiedUser;
+    
+    private String ideas;
+    
+    private String questions;
+    
+	private String performanceTasks;
+    
+    private String languageObjective;
+    
+    private String audience;
+    
+    private String learningSkills;
+    
+    private String instructionalMethod;    
+    
+    public String getIdeas() {
+		return ideas;
+	}
+
+	public void setIdeas(String ideas) {
+		this.ideas = ideas;
+	}
+
+	public String getQuestions() {
+		return questions;
+	}
+
+	public void setQuestions(String questions) {
+		this.questions = questions;
+	}
+
+	public String getPerformanceTasks() {
+		return performanceTasks;
+	}
+
+	public void setPerformanceTasks(String performanceTasks) {
+		this.performanceTasks = performanceTasks;
+	}
+
+	public String getLanguageObjective() {
+		return languageObjective;
+	}
+
+	public void setLanguageObjective(String languageObjective) {
+		this.languageObjective = languageObjective;
+	}
+
+	public String getAudience() {
+		return audience;
+	}
+
+	public void setAudience(String audience) {
+		this.audience = audience;
+	}
+
+	public String getLearningSkills() {
+		return learningSkills;
+	}
+
+	public void setLearningSkills(String learningSkills) {
+		this.learningSkills = learningSkills;
+	}
+
+	public String getInstructionalMethod() {
+		return instructionalMethod;
+	}
+
+	public void setInstructionalMethod(String instructionalMethod) {
+		this.instructionalMethod = instructionalMethod;
+	}
+
+
+    
 	public Map<String, Object> getLastModifiedUser() {
 		return lastModifiedUser;
 	}
