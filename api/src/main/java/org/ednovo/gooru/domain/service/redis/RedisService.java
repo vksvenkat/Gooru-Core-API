@@ -23,6 +23,7 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.domain.service.redis;
 
+import java.util.Map;
 import java.util.Set;
 
 import org.ednovo.gooru.cassandra.core.service.CassandraCacheService;
@@ -60,4 +61,6 @@ public interface RedisService extends CassandraCacheService {
 	Set<String> getkeys(String key); 
 	
 	void bulkKeyDelete(String key);
+	
+	void setValuesMulti(Map<String,String> map);
 }
