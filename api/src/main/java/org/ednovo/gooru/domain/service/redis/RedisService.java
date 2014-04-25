@@ -63,4 +63,6 @@ public interface RedisService extends CassandraCacheService {
 	void bulkKeyDelete(String key);
 	
 	void setValuesMulti(Map<String,String> map);
+
+	String getStandardValue(String key);
 }
