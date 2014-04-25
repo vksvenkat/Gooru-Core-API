@@ -401,4 +401,14 @@ public class RedisServiceImpl implements RedisService, ParameterProperties, Cons
 		return redisStringTemplate.keys(key);
 	}
 
+	@Override
+	public void setValuesMulti(Map<String, String> map) {
+		ValueOperations<String, String> valueOperations = getValueOperation();
+		try {
+			valueOperations.multiSet(map);
+		} catch (Exception e) {
+			System.out.println("Redis Error" + e);
+		}
+	}
+
 }
