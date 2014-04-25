@@ -431,4 +431,6 @@ public interface ConstantProperties {
 
 	public static final String UPDATE = "update";
 	
+	public static final String CLASSPAGE_CREATE_COLLECTION_TASK_ITEM = "classpage-create-collection-task-item";
+	
 }
