@@ -170,6 +170,13 @@ public class OAuthServiceImpl extends ServerValidationUtils implements OAuthServ
 		return new ActionResponseDTO<OAuthClient>(oAuthClient, errors);
 	}
 	
+	@Override
+	public List<OAuthClient> listOAuthClientByOrganization(String organizationUId,
+			int pageNo, int pageSize) throws Exception {
+		
+		return oAuthRepository.listOAuthClientByOrganization(organizationUId, pageNo, pageSize);
+	}
+	
     private static String getRandomString(int length) {
         String randomStr = UUID.randomUUID().toString();
         while(randomStr.length() < length) {
