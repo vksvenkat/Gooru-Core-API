@@ -129,5 +129,7 @@ public interface TaxonomyRespository extends BaseRepository{
 	String findTaxonomyCodeLabels(String codeIds);
 	
 	public List<Code> findCodeCommonCoreNotation();
+
+	String findGooruTaxonomyCourse(List<String> courseList);
 	
 }
