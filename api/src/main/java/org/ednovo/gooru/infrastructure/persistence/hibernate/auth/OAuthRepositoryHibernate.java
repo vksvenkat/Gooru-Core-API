@@ -94,8 +94,7 @@ public class OAuthRepositoryHibernate extends BaseRepositoryHibernate implements
 		String hql = " FROM OAuthClient oauthClient WHERE oauthClient.organization.partyUid=:organizationUId";
 		Query query = getSession().createQuery(hql);
 		query.setParameter("organizationUId", organizationUId);
-		List<OAuthClient> results = (List<OAuthClient>) query.list();
-			return (results.size() > 0) ? results : null;
+			return (List) query.list();
 	}
 
 }
