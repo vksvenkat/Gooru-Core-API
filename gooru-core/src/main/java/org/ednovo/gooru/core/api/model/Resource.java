@@ -180,6 +180,38 @@ public class Resource extends Content implements Serializable {
 
 	private Map<String,Object> ratings;
 	
+	private String depthOfKnowledge;
+	
+	private String educationalUse;
+	
+	private String momentsOfLearning;
+	
+	
+	
+	public String getDepthOfKnowledge() {
+		return depthOfKnowledge;
+	}
+
+	public void setDepthOfKnowledge(String depthOfKnowledge) {
+		this.depthOfKnowledge = depthOfKnowledge;
+	}
+
+	public String getEducationalUse() {
+		return educationalUse;
+	}
+
+	public void setEducationalUse(String educationalUse) {
+		this.educationalUse = educationalUse;
+	}
+
+	public String getMomentsOfLearning() {
+		return momentsOfLearning;
+	}
+
+	public void setMomentsOfLearning(String momentsOfLearning) {
+		this.momentsOfLearning = momentsOfLearning;
+	}
+
 	public static final String COLLECTION_THUMBNAIL_SIZES = "160x120,75x56,120x90,80x60,50x40,310x258,800x600";
 
 	public static final String QUIZ_THUMBNAIL_SIZES = "160x120,75x56,120x90,d80x60,50x40,800x600";
