@@ -23,23 +23,9 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.controllers.v2.api;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.util.Map;
 import java.util.Properties;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -134,7 +120,7 @@ public class MediaRestV2Controller extends BaseController implements
 				.buildMediaInput(formField.get(DATA_OBJECT).toString())
 				: new MediaDTO();
 		return toModelAndView(
-				getMediaService().handleFileUpload(mediaDTO, formField),
+				getMediaService().handleFileUpload(mediaDTO, formField, response),
 				FORMAT_JSON);
 	}
 

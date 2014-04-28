@@ -34,13 +34,13 @@ import org.ednovo.gooru.core.api.model.MediaDTO;
 import org.json.JSONObject;
 
 public interface MediaService {
-	FileMeta handleFileUpload(String fileName, String imageURL, Map<String, Object> formField, boolean resize, int height, int width) throws FileNotFoundException, IOException;
+	FileMeta handleFileUpload(String fileName, String imageURL, Map<String, Object> formField, boolean resize, int height, int width, HttpServletResponse req) throws FileNotFoundException, IOException;
 
 	String convertHtmltoPdf(JSONObject data);
 
 	String convertJsonToCsv(JSONObject data);
 
-	FileMeta handleFileUpload(MediaDTO mediaDTO, Map<String, Object> formField) throws FileNotFoundException, IOException;
+	FileMeta handleFileUpload(MediaDTO mediaDTO, Map<String, Object> formField, HttpServletResponse req) throws FileNotFoundException, IOException;
 	
 	void downloadFile(HttpServletResponse response, String filename, String url);
 }

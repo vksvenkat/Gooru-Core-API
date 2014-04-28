@@ -850,7 +850,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 
 	public boolean downloadThumbnail(String fileName, String imageURL, Resource resource) {
 		try {
-			FileMeta fileMeta = this.getMediaService().handleFileUpload(fileName, imageURL, null, false, 0, 0);
+			FileMeta fileMeta = this.getMediaService().handleFileUpload(fileName, imageURL, null, false, 0, 0,null);
 			this.getResourceImageUtil().moveFileAndSendMsgToGenerateThumbnails(resource, fileMeta.getName(), false);
 			return true;
 
