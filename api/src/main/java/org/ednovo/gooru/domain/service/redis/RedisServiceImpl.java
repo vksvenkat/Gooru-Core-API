@@ -351,6 +351,22 @@ public class RedisServiceImpl implements RedisService, ParameterProperties, Cons
 
 	}
 
+	@Override
+	public String getStandardValue(String key) {
+		ValueOperations<String, String> valueOperations = getValueOperation();
+		if (valueOperations != null) {
+			try {
+				return valueOperations.get(key);
+			} catch (Exception e) {
+				logger.error("Get Values from redis failed!" + e.getMessage());
+			}
+		} else {
+			return null;
+		}
+		return null;
+
+	}
+
 	private ValueOperations<String, String> getValueOperation() {
 		ValueOperations<String, String> valueOps = null;
 		try {
@@ -399,6 +415,16 @@ public class RedisServiceImpl implements RedisService, ParameterProperties, Cons
 	@Override
 	public Set<String> getkeys(String key) {
 		return redisStringTemplate.keys(key);
+	}
+
+	@Override
+	public void setValuesMulti(Map<String, String> map) {
+		ValueOperations<String, String> valueOperations = getValueOperation();
+		try {
+			valueOperations.multiSet(map);
+		} catch (Exception e) {
+			System.out.println("Redis Error" + e);
+		}
 	}
 
 }

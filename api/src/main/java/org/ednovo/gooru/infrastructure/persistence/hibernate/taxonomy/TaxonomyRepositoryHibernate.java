@@ -989,5 +989,23 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 		Query query = getSession().createSQLQuery(sql).addScalar("labels", StandardBasicTypes.STRING);
 		return query.list() != null ?(String) query.list().get(0) : null;
 	}
+	
+	@Cacheable("gooruCache")
+	@Override
+	public List<Code> findCodeCommonCoreNotation() {
+		String hql = "From Code code where code.organization.partyUid is not null and code.activeFlag is not null and code.commonCoreDotNotation is not null  and " + generateOrgAuthQueryWithData("code.");
+		Query query = getSession().createQuery(hql);
+		return  query.list().size() > 0 ? (List<Code>) query.list(): null;
+	}
+
+	@Cacheable("gooruCache")
+	@Override
+	public String findGooruTaxonomyCourse(List<String> courseList) {
+		String sql = "select group_concat(label) as labels from code where root_node_id=20000 and organization_uid  IN (" + getUserOrganizationUidsAsString() + ") and label IN (:courseList) ";
+		Query query = getSession().createSQLQuery(sql).addScalar("labels", StandardBasicTypes.STRING);
+		query.setParameterList("courseList", courseList);
+		return query.list() != null ?(String) query.list().get(0) : null;
+	}
+
 
 }
