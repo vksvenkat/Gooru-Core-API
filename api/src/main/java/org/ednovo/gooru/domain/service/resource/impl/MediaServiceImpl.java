@@ -24,10 +24,8 @@
 package org.ednovo.gooru.domain.service.resource.impl;
 
 import java.awt.image.BufferedImage;
-import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -40,8 +38,6 @@ import java.util.Properties;
 import java.util.UUID;
 
 import javax.imageio.ImageIO;
-import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
@@ -84,7 +80,7 @@ public class MediaServiceImpl implements MediaService,ParameterProperties {
 	 * @throws FileNotFoundException
 	 * @throws IOException
 	 */
-	public FileMeta handleFileUpload(String fileName, String imageURL, Map<String, Object> formField, boolean resize, int width, int height, HttpServletResponse response) throws FileNotFoundException, IOException {
+	public FileMeta handleFileUpload(String fileName, String imageURL, Map<String, Object> formField, boolean resize, int width, int height) throws FileNotFoundException, IOException {
 
 		final String mediaFolderPath = UserGroupSupport.getUserOrganizationNfsInternalPath() + Constants.UPLOADED_MEDIA_FOLDER;
 		
@@ -101,45 +97,7 @@ public class MediaServiceImpl implements MediaService,ParameterProperties {
 			}
 			uploadImageSource = WEB;
 			
-		} else if(true){
-			
-		    ServletOutputStream stream = null;
-		    BufferedInputStream buf = null;
-		    try {
-
-		      stream = response.getOutputStream();
-		      File mp3 = new File(resourceImageFile);
-
-		      //set response headers
-		      response.setContentType("audio/mpeg");
-
-		      response.addHeader("Content-Disposition", "attachment; filename="
-		          + fileName);
-
-		      response.setContentLength((int) mp3.length());
-
-		      FileInputStream input = new FileInputStream(mp3);
-		      buf = new BufferedInputStream(input);
-		      int readBytes = 0;
-		      //read from the file; write to the ServletOutputStream
-		      while ((readBytes = buf.read()) != -1)
-		        stream.write(readBytes);
-		    } catch (IOException ioe) {
-		      try {
-				throw new ServletException(ioe.getMessage());
-			} catch (ServletException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		    } finally {
-		      if (stream != null)
-		        stream.close();
-		      if (buf != null)
-		        buf.close();
-		    }
-		
-		}
-		else {
+		} else {
 			File classplanDir = new File(mediaFolderPath);
 
 			if (!classplanDir.exists()) {
@@ -219,7 +177,7 @@ public class MediaServiceImpl implements MediaService,ParameterProperties {
 	}
 	
 	@Override
-	public FileMeta handleFileUpload(MediaDTO mediaDTO, Map<String, Object> formField,HttpServletResponse res) throws FileNotFoundException, IOException {
+	public FileMeta handleFileUpload(MediaDTO mediaDTO, Map<String, Object> formField) throws FileNotFoundException, IOException {
 		String fileExtension = null;
 		if (formField.get(RequestUtil.UPLOADED_FILE_KEY) != null) {
 			Map<String, byte[]> files = (Map<String, byte[]>) formField.get(RequestUtil.UPLOADED_FILE_KEY);
@@ -237,7 +195,7 @@ public class MediaServiceImpl implements MediaService,ParameterProperties {
 			mediaDTO.setResize(false);
 		} 
 		mediaDTO.setFilename(UUID.randomUUID().toString() + "." + fileExtension);
-		return handleFileUpload(mediaDTO.getFilename(),mediaDTO.getImageURL(),formField, mediaDTO.getResize(), mediaDTO.getWidth(),mediaDTO.getHeight(), res);
+		return handleFileUpload(mediaDTO.getFilename(),mediaDTO.getImageURL(),formField, mediaDTO.getResize(), mediaDTO.getWidth(),mediaDTO.getHeight());
 	}
 	
 	@Override
