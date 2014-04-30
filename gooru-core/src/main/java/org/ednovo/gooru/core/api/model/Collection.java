@@ -6,192 +6,280 @@ import java.util.Set;
 
 import org.ednovo.gooru.core.application.util.CollectionMetaInfo;
 
-
 public class Collection extends Resource implements Versionable {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -3271310636333972691L;
-	
-	
-	private static final String INDEX_TYPE = "scollection";
-	
-	private String collectionType;
-	private String narrationLink;
-	private String notes;
-	private String keyPoints;
-	private String language;
-	private String goals;
-	private String estimatedTime;
-	private Set<CollectionItem> collectionItems;
-	private List<User> collaborators;
-	private ContentAssociation contentAssociation;
-	private Map<Integer, List<Code>> taxonomySetMapping;
-	private Set<CollectionTaskAssoc> collectionTaskItems;
-	private CollectionMetaInfo metaInfo;
-	private String network;
-	private CollectionItem collectionItem;
-	private CustomTableValue buildType;
-	private Boolean mailNotification;
-    private Map<String,Object> lastModifiedUser;
-	public Map<String, Object> getLastModifiedUser() {
-		return lastModifiedUser;
-	}
+private static final long serialVersionUID = -3271310636333972691L;
 
-	public void setLastModifiedUser(Map<String, Object> lastModifiedUser) {
-		this.lastModifiedUser = lastModifiedUser;
-	}
+private static final String INDEX_TYPE = "scollection";
 
-	public Collection() {
-		super();
-	}
+private String collectionType;
 
-	public String getCollectionType() {
-		return collectionType;
-	}
+private String narrationLink;
 
-	public void setCollectionType(String collectionType) {
-		this.collectionType = collectionType;
-	}
+private String notes;
 
-	public String getNarrationLink() {
-		return narrationLink;
-	}
+private String keyPoints;
 
-	public void setNarrationLink(String narrationLink) {
-		this.narrationLink = narrationLink;
-	}
+private String language;
 
-	public String getNotes() {
-		return notes;
-	}
+private String goals;
 
-	public void setNotes(String notes) {
-		this.notes = notes;
-	}
+private String estimatedTime;
 
-	public String getKeyPoints() {
-		return keyPoints;
-	}
+private Set<CollectionItem> collectionItems;
 
-	public void setKeyPoints(String keyPoints) {
-		this.keyPoints = keyPoints;
-	}
+private List<User> collaborators;
 
-	public String getLanguage() {
-		return language;
-	}
+private ContentAssociation contentAssociation;
 
-	public void setLanguage(String language) {
-		this.language = language;
-	}
+private Map<Integer, List<Code>> taxonomySetMapping;
 
-	public String getGoals() {
-		return goals;
-	}
+private Set<CollectionTaskAssoc> collectionTaskItems;
 
-	public void setGoals(String goals) {
-		this.goals = goals;
-	}
+private CollectionMetaInfo metaInfo;
 
-	public String getEstimatedTime() {
-		return estimatedTime;
-	}
+private String network;
 
-	public void setEstimatedTime(String estimatedTime) {
-		this.estimatedTime = estimatedTime;
-	}
+private CollectionItem collectionItem;
 
-	public Set<CollectionItem> getCollectionItems() {
-		return collectionItems;
-	}
+private CustomTableValue buildType;
 
-	public void setCollectionItems(Set<CollectionItem> collectionItems) {
-		this.collectionItems = collectionItems;
-	}
+private Boolean mailNotification;
 
-	public void setMetaInfo(CollectionMetaInfo metaInfo) {
-		this.metaInfo = metaInfo;
-	}
+private Map<String, Object> lastModifiedUser;
 
-	public CollectionMetaInfo getMetaInfo() {
-		return metaInfo;
-	}
+private String ideas;
 
-	public void setCollaborators(List<User> collaborators) {
-		this.collaborators = collaborators;
-	}
+private String questions;
 
-	public List<User> getCollaborators() {
-		return collaborators;
-	}
+private String performanceTasks;
 
-	public String getNetwork() {
-		return network;
-	}
+private String languageObjective;
 
-	public void setNetwork(String network) {
-		this.network = network;
-	}
+private String audience;
 
-	public ContentAssociation getContentAssociation() {
-		return contentAssociation;
-	}
+private String learningSkills;
 
-	public void setContentAssociation(ContentAssociation contentAssociation) {
-		this.contentAssociation = contentAssociation;
-	}
+private String instructionalMethod;
 
-	public void setTaxonomySetMapping(Map<Integer, List<Code>> taxonomySetMapping) {
-		this.taxonomySetMapping = taxonomySetMapping;
-	}
+public String getIdeas() {
+	return ideas;
+}
 
-	public Map<Integer, List<Code>> getTaxonomySetMapping() {
-		return taxonomySetMapping;
-	}
+public void setIdeas(String ideas) {
+	this.ideas = ideas;
+}
 
-	@Override
-	public String getEntityId() {
-		return getGooruOid();
-	}
+public String getQuestions() {
+	return questions;
+}
 
-	public void setCollectionTaskItems(Set<CollectionTaskAssoc> collectionTaskItems) {
-		this.collectionTaskItems = collectionTaskItems;
-	}
+public void setQuestions(String questions) {
+	this.questions = questions;
+}
 
-	public Set<CollectionTaskAssoc> getCollectionTaskItems() {
-		return collectionTaskItems;
-	}
-	
-	@Override
-	public String getIndexType() {
-		return INDEX_TYPE;
-	}
+public String getPerformanceTasks() {
+	return performanceTasks;
+}
 
-	public void setCollectionItem(CollectionItem collectionItem) {
-		this.collectionItem = collectionItem;
-	}
+public void setPerformanceTasks(String performanceTasks) {
+	this.performanceTasks = performanceTasks;
+}
 
-	public CollectionItem getCollectionItem() {
-		return collectionItem;
-	}
+public String getLanguageObjective() {
+	return languageObjective;
+}
 
-	public void setBuildType(CustomTableValue buildType) {
-		this.buildType = buildType;
-	}
+public void setLanguageObjective(String languageObjective) {
+	this.languageObjective = languageObjective;
+}
 
-	public CustomTableValue getBuildType() {
-		return buildType;
-	}
-	
-	public Boolean getMailNotification() {
-		return mailNotification;
-	}
+public String getAudience() {
+	return audience;
+}
 
-	public void setMailNotification(Boolean mailNotification) {
-		if(mailNotification == null){
-			mailNotification = true;
-		}
-		this.mailNotification = mailNotification;
+public void setAudience(String audience) {
+	this.audience = audience;
+}
+
+public String getLearningSkills() {
+	return learningSkills;
+}
+
+public void setLearningSkills(String learningSkills) {
+	this.learningSkills = learningSkills;
+}
+
+public String getInstructionalMethod() {
+	return instructionalMethod;
+}
+
+public void setInstructionalMethod(String instructionalMethod) {
+	this.instructionalMethod = instructionalMethod;
+}
+
+public Map<String, Object> getLastModifiedUser() {
+	return lastModifiedUser;
+}
+
+public void setLastModifiedUser(Map<String, Object> lastModifiedUser) {
+	this.lastModifiedUser = lastModifiedUser;
+}
+
+public Collection() {
+	super();
+}
+
+public String getCollectionType() {
+	return collectionType;
+}
+
+public void setCollectionType(String collectionType) {
+	this.collectionType = collectionType;
+}
+
+public String getNarrationLink() {
+	return narrationLink;
+}
+
+public void setNarrationLink(String narrationLink) {
+	this.narrationLink = narrationLink;
+}
+
+public String getNotes() {
+	return notes;
+}
+
+public void setNotes(String notes) {
+	this.notes = notes;
+}
+
+public String getKeyPoints() {
+	return keyPoints;
+}
+
+public void setKeyPoints(String keyPoints) {
+	this.keyPoints = keyPoints;
+}
+
+public String getLanguage() {
+	return language;
+}
+
+public void setLanguage(String language) {
+	this.language = language;
+}
+
+public String getGoals() {
+	return goals;
+}
+
+public void setGoals(String goals) {
+	this.goals = goals;
+}
+
+public String getEstimatedTime() {
+	return estimatedTime;
+}
+
+public void setEstimatedTime(String estimatedTime) {
+	this.estimatedTime = estimatedTime;
+}
+
+public Set<CollectionItem> getCollectionItems() {
+	return collectionItems;
+}
+
+public void setCollectionItems(Set<CollectionItem> collectionItems) {
+	this.collectionItems = collectionItems;
+}
+
+public void setMetaInfo(CollectionMetaInfo metaInfo) {
+	this.metaInfo = metaInfo;
+}
+
+public CollectionMetaInfo getMetaInfo() {
+	return metaInfo;
+}
+
+public void setCollaborators(List<User> collaborators) {
+	this.collaborators = collaborators;
+}
+
+public List<User> getCollaborators() {
+	return collaborators;
+}
+
+public String getNetwork() {
+	return network;
+}
+
+public void setNetwork(String network) {
+	this.network = network;
+}
+
+public ContentAssociation getContentAssociation() {
+	return contentAssociation;
+}
+
+public void setContentAssociation(ContentAssociation contentAssociation) {
+	this.contentAssociation = contentAssociation;
+}
+
+public void setTaxonomySetMapping(
+		Map<Integer, List<Code>> taxonomySetMapping) {
+	this.taxonomySetMapping = taxonomySetMapping;
+}
+
+public Map<Integer, List<Code>> getTaxonomySetMapping() {
+	return taxonomySetMapping;
+}
+
+@Override
+public String getEntityId() {
+	return getGooruOid();
+}
+
+public void setCollectionTaskItems(
+		Set<CollectionTaskAssoc> collectionTaskItems) {
+	this.collectionTaskItems = collectionTaskItems;
+}
+
+public Set<CollectionTaskAssoc> getCollectionTaskItems() {
+	return collectionTaskItems;
+}
+
+@Override
+public String getIndexType() {
+	return INDEX_TYPE;
+}
+
+public void setCollectionItem(CollectionItem collectionItem) {
+	this.collectionItem = collectionItem;
+}
+
+public CollectionItem getCollectionItem() {
+	return collectionItem;
+}
+
+public void setBuildType(CustomTableValue buildType) {
+	this.buildType = buildType;
+}
+
+public CustomTableValue getBuildType() {
+	return buildType;
+}
+
+public Boolean getMailNotification() {
+	return mailNotification;
+}
+
+public void setMailNotification(Boolean mailNotification) {
+	if (mailNotification == null) {
+		mailNotification = true;
 	}
+	this.mailNotification = mailNotification;
+}
 }

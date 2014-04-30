@@ -1000,10 +1000,10 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 
 	@Cacheable("gooruCache")
 	@Override
-	public String findGooruTaxonomyCourse(List<String> courseList) {
-		String sql = "select group_concat(label) as labels from code where root_node_id=20000 and organization_uid  IN (" + getUserOrganizationUidsAsString() + ") and label IN (:courseList) ";
+	public String findGooruTaxonomyCourse(List<String> codeIds) {
+		String sql = "select group_concat(label) as labels from code where root_node_id=20000 and organization_uid  IN (" + getUserOrganizationUidsAsString() + ") and code_id IN (:codeIds) ";
 		Query query = getSession().createSQLQuery(sql).addScalar("labels", StandardBasicTypes.STRING);
-		query.setParameterList("courseList", courseList);
+		query.setParameterList("codeIds", codeIds);
 		return query.list() != null ?(String) query.list().get(0) : null;
 	}
 
