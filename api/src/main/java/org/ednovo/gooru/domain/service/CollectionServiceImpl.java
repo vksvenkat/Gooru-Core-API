@@ -87,6 +87,11 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 					}
 				}
 			}
+			if(question.getDepthOfKnowledges() != null && question.getDepthOfKnowledges().size() > 0) {
+				response.getModel().getResource().setDepthOfKnowledges(this.updateContentMeta(question.getDepthOfKnowledges(),question.getGooruOid(), user, "depth_of_knowledge"));
+			} else {
+				response.getModel().getResource().setDepthOfKnowledges(this.setContentMetaAssociation(this.getContentMetaAssociation("depth_of_knowledge"), question.getGooruOid(), "depth_of_knowledge"));
+			}
 		}
 		return response;
 
