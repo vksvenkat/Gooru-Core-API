@@ -225,29 +225,30 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				collection.setCollectionItem(this.createCollectionItem(collection.getGooruOid(), null, collectionItem, collection.getUser(), CollectionType.SHElf.getCollectionType(), false).getModel());
 			}
 			this.getCollectionRepository().save(collection);
-			
-			if(collection.getDepthOfKnowledges() != null && collection.getDepthOfKnowledges().size() > 0) {
-				collection.setDepthOfKnowledges(this.updateContentMeta(collection.getDepthOfKnowledges(), collection.getGooruOid(), collection.getUser(), "depth_of_knowledge"));
-			} else {
-				collection.setDepthOfKnowledges(this.setContentMetaAssociation(this.getContentMetaAssociation("depth_of_knowledge"), collection.getGooruOid(), "depth_of_knowledge"));
-			}
-			
-			if(collection.getLearningSkills() != null && collection.getLearningSkills().size() > 0) {
-				collection.setLearningSkills(this.updateContentMeta(collection.getLearningSkills(), collection.getGooruOid(), collection.getUser(), "learning_and_innovation_skills"));
-			} else {
-				collection.setLearningSkills(this.setContentMetaAssociation(this.getContentMetaAssociation("learning_and_innovation_skills"), collection.getGooruOid(), "learning_and_innovation_skills"));
-			}
-			
-			if(collection.getAudience() != null && collection.getAudience().size() > 0) {
-				collection.setAudience(this.updateContentMeta(collection.getAudience(), collection.getGooruOid(), collection.getUser(), "audience"));
-			} else {
-				collection.setAudience(this.setContentMetaAssociation(this.getContentMetaAssociation("audience"), collection.getGooruOid(), "audience"));
-			}
-			
-			if(collection.getInstructionalMethod() != null && collection.getInstructionalMethod().size() > 0) {
-				collection.setInstructionalMethod(this.updateContentMeta(collection.getInstructionalMethod(), collection.getGooruOid(), collection.getUser(), "instructional_method"));
-			} else {
-				collection.setInstructionalMethod(this.setContentMetaAssociation(this.getContentMetaAssociation("instructional_method"), collection.getGooruOid(), "instructional_method"));
+			if (collection.getCollectionType().equalsIgnoreCase(COLLECTION)) {
+				if (collection.getDepthOfKnowledges() != null && collection.getDepthOfKnowledges().size() > 0) {
+					collection.setDepthOfKnowledges(this.updateContentMeta(collection.getDepthOfKnowledges(), collection.getGooruOid(), collection.getUser(), "depth_of_knowledge"));
+				} else {
+					collection.setDepthOfKnowledges(this.setContentMetaAssociation(this.getContentMetaAssociation("depth_of_knowledge"), collection.getGooruOid(), "depth_of_knowledge"));
+				}
+
+				if (collection.getLearningSkills() != null && collection.getLearningSkills().size() > 0) {
+					collection.setLearningSkills(this.updateContentMeta(collection.getLearningSkills(), collection.getGooruOid(), collection.getUser(), "learning_and_innovation_skills"));
+				} else {
+					collection.setLearningSkills(this.setContentMetaAssociation(this.getContentMetaAssociation("learning_and_innovation_skills"), collection.getGooruOid(), "learning_and_innovation_skills"));
+				}
+
+				if (collection.getAudience() != null && collection.getAudience().size() > 0) {
+					collection.setAudience(this.updateContentMeta(collection.getAudience(), collection.getGooruOid(), collection.getUser(), "audience"));
+				} else {
+					collection.setAudience(this.setContentMetaAssociation(this.getContentMetaAssociation("audience"), collection.getGooruOid(), "audience"));
+				}
+
+				if (collection.getInstructionalMethod() != null && collection.getInstructionalMethod().size() > 0) {
+					collection.setInstructionalMethod(this.updateContentMeta(collection.getInstructionalMethod(), collection.getGooruOid(), collection.getUser(), "instructional_method"));
+				} else {
+					collection.setInstructionalMethod(this.setContentMetaAssociation(this.getContentMetaAssociation("instructional_method"), collection.getGooruOid(), "instructional_method"));
+				}
 			}
 			
 			Collection parentCollection = collectionRepository.getCollectionByGooruOid(parentId, collection.getUser().getGooruUId());
@@ -304,29 +305,30 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				collection.setCollectionItem(this.createCollectionItem(collection.getGooruOid(), null, collectionItem, collection.getUser(), CollectionType.SHElf.getCollectionType(), false).getModel());
 			}
 			this.getCollectionRepository().save(collection);
-			
-			if(collection.getDepthOfKnowledges() != null && collection.getDepthOfKnowledges().size() > 0) {
-				collection.setDepthOfKnowledges(this.updateContentMeta(collection.getDepthOfKnowledges(), collection.getGooruOid(), collection.getUser(), "depth_of_knowledge"));
-			} else {
-				collection.setDepthOfKnowledges(this.setContentMetaAssociation(this.getContentMetaAssociation("depth_of_knowledge"), collection.getGooruOid(), "depth_of_knowledge"));
-			}
-			
-			if(collection.getLearningSkills() != null && collection.getLearningSkills().size() > 0) {
-				collection.setLearningSkills(this.updateContentMeta(collection.getLearningSkills(), collection.getGooruOid(), collection.getUser(), "learning_and_innovation_skills"));
-			} else {
-				collection.setLearningSkills(this.setContentMetaAssociation(this.getContentMetaAssociation("learning_and_innovation_skills"), collection.getGooruOid(), "learning_and_innovation_skills"));
-			}
-			
-			if(collection.getAudience() != null && collection.getAudience().size() > 0) {
-				collection.setAudience(this.updateContentMeta(collection.getAudience(), collection.getGooruOid(), collection.getUser(), "audience"));
-			} else {
-				collection.setAudience(this.setContentMetaAssociation(this.getContentMetaAssociation("audience"), collection.getGooruOid(), "audience"));
-			}
-			
-			if(collection.getInstructionalMethod() != null && collection.getInstructionalMethod().size() > 0) {
-				collection.setInstructionalMethod(this.updateContentMeta(collection.getInstructionalMethod(), collection.getGooruOid(), collection.getUser(), "instructional_method"));
-			} else {
-				collection.setInstructionalMethod(this.setContentMetaAssociation(this.getContentMetaAssociation("instructional_method"), collection.getGooruOid(), "instructional_method"));
+			if (collection.getCollectionType().equalsIgnoreCase(COLLECTION)) {
+				if (collection.getDepthOfKnowledges() != null && collection.getDepthOfKnowledges().size() > 0) {
+					collection.setDepthOfKnowledges(this.updateContentMeta(collection.getDepthOfKnowledges(), collection.getGooruOid(), collection.getUser(), "depth_of_knowledge"));
+				} else {
+					collection.setDepthOfKnowledges(this.setContentMetaAssociation(this.getContentMetaAssociation("depth_of_knowledge"), collection.getGooruOid(), "depth_of_knowledge"));
+				}
+
+				if (collection.getLearningSkills() != null && collection.getLearningSkills().size() > 0) {
+					collection.setLearningSkills(this.updateContentMeta(collection.getLearningSkills(), collection.getGooruOid(), collection.getUser(), "learning_and_innovation_skills"));
+				} else {
+					collection.setLearningSkills(this.setContentMetaAssociation(this.getContentMetaAssociation("learning_and_innovation_skills"), collection.getGooruOid(), "learning_and_innovation_skills"));
+				}
+
+				if (collection.getAudience() != null && collection.getAudience().size() > 0) {
+					collection.setAudience(this.updateContentMeta(collection.getAudience(), collection.getGooruOid(), collection.getUser(), "audience"));
+				} else {
+					collection.setAudience(this.setContentMetaAssociation(this.getContentMetaAssociation("audience"), collection.getGooruOid(), "audience"));
+				}
+
+				if (collection.getInstructionalMethod() != null && collection.getInstructionalMethod().size() > 0) {
+					collection.setInstructionalMethod(this.updateContentMeta(collection.getInstructionalMethod(), collection.getGooruOid(), collection.getUser(), "instructional_method"));
+				} else {
+					collection.setInstructionalMethod(this.setContentMetaAssociation(this.getContentMetaAssociation("instructional_method"), collection.getGooruOid(), "instructional_method"));
+				}
 			}
 			
 			Collection parentCollection = collectionRepository.getCollectionByGooruOid(parentId, collection.getUser().getGooruUId());
@@ -520,8 +522,9 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		}
 		return new ActionResponseDTO<Collection>(collection, errors);
 	}
-
-	private List<Map<String, String>> updateContentMeta(List<Map<String, String>> newDepthOfKnowledges, String collectionId, User apiCaller, String type) {
+	
+	
+	public List<Map<String, String>> updateContentMeta(List<Map<String, String>> newDepthOfKnowledges, String collectionId, User apiCaller, String type) {
 		for (Map<String, String> newMeta : newDepthOfKnowledges) {
 			ContentMetaAssociation contentMetaAssociation = this.getCollectionRepository().getContentMetaByValue(Integer.parseInt(newMeta.get(ID)), collectionId);
 			if (contentMetaAssociation == null && newMeta.get("value").equalsIgnoreCase("true")) {
@@ -819,15 +822,15 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				lastUserModifiedMap.put(GOORU_UID, lastUserModified.getGooruUId());
 			}
 			collection.setLastModifiedUser(lastUserModifiedMap);
-			
-			collection.setDepthOfKnowledges(this.setContentMetaAssociation(this.getContentMetaAssociation("depth_of_knowledge"), collectionId, "depth_of_knowledge"));
-			
-			collection.setLearningSkills(this.setContentMetaAssociation(this.getContentMetaAssociation("learning_and_innovation_skills"), collectionId, "learning_and_innovation_skills"));
-			
-			collection.setAudience(this.setContentMetaAssociation(this.getContentMetaAssociation("audience"), collectionId, "audience"));
-			
-			collection.setInstructionalMethod(this.setContentMetaAssociation(this.getContentMetaAssociation("instructional_method"), collectionId, "instructional_method"));	
-			
+			if (collection.getCollectionType().equalsIgnoreCase(COLLECTION)) {
+				collection.setDepthOfKnowledges(this.setContentMetaAssociation(this.getContentMetaAssociation("depth_of_knowledge"), collectionId, "depth_of_knowledge"));
+
+				collection.setLearningSkills(this.setContentMetaAssociation(this.getContentMetaAssociation("learning_and_innovation_skills"), collectionId, "learning_and_innovation_skills"));
+
+				collection.setAudience(this.setContentMetaAssociation(this.getContentMetaAssociation("audience"), collectionId, "audience"));
+
+				collection.setInstructionalMethod(this.setContentMetaAssociation(this.getContentMetaAssociation("instructional_method"), collectionId, "instructional_method"));
+			}
 			if (merge != null) {
 				Map<String, Object> permissions = new HashMap<String, Object>();
 				if (merge.contains(PERMISSIONS)) {
@@ -1772,12 +1775,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 					this.getResourceService().updateYoutubeResourceFeeds(resource, false);
 					this.getResourceService().saveOrUpdate(resource);
 					this.getResourceService().mapSourceToResource(resource);
-					
-					if(newResource.getDepthOfKnowledges() != null && newResource.getDepthOfKnowledges().size() > 0) {
-						resource.setDepthOfKnowledges(this.updateContentMeta(newResource.getDepthOfKnowledges(),resource.getGooruOid(), user, "depth_of_knowledge"));
-					} else {
-						resource.setDepthOfKnowledges(this.setContentMetaAssociation(this.getContentMetaAssociation("depth_of_knowledge"), resource.getGooruOid(), "depth_of_knowledge"));
-					}
 					
 					if(newResource.getMomentsOfLearning() != null && newResource.getMomentsOfLearning().size() > 0) {
 						resource.setMomentsOfLearning(this.updateContentMeta(newResource.getMomentsOfLearning(),resource.getGooruOid(), user, "moments_of_learning"));
