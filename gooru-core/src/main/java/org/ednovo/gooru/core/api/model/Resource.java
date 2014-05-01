@@ -110,6 +110,8 @@ public class Resource extends Content implements Serializable {
 	private List<ResourceInstance> resourceInstances;
 
 	private transient List<Learnguide> resourceLearnguides;
+	
+	private List<Map<String, String>> depthOfKnowledges;
 
 	@JsonManagedReference
 	private Set<ResourceMetaData> resourceMetaData;
@@ -180,37 +182,11 @@ public class Resource extends Content implements Serializable {
 
 	private Map<String,Object> ratings;
 	
-	private String depthOfKnowledge;
 	
-	private String educationalUse;
+	private List<Map<String, String>> educationalUse;
 	
-	private String momentsOfLearning;
+	private List<Map<String, String>> momentsOfLearning;
 	
-	
-	
-	public String getDepthOfKnowledge() {
-		return depthOfKnowledge;
-	}
-
-	public void setDepthOfKnowledge(String depthOfKnowledge) {
-		this.depthOfKnowledge = depthOfKnowledge;
-	}
-
-	public String getEducationalUse() {
-		return educationalUse;
-	}
-
-	public void setEducationalUse(String educationalUse) {
-		this.educationalUse = educationalUse;
-	}
-
-	public String getMomentsOfLearning() {
-		return momentsOfLearning;
-	}
-
-	public void setMomentsOfLearning(String momentsOfLearning) {
-		this.momentsOfLearning = momentsOfLearning;
-	}
 
 	public static final String COLLECTION_THUMBNAIL_SIZES = "160x120,75x56,120x90,80x60,50x40,310x258,800x600";
 
@@ -922,6 +898,30 @@ public class Resource extends Content implements Serializable {
 
 	public void setRatings(Map<String,Object> ratings) {
 		this.ratings = ratings;
+	}
+
+	public void setDepthOfKnowledges(List<Map<String, String>> depthOfKnowledges) {
+		this.depthOfKnowledges = depthOfKnowledges;
+	}
+
+	public List<Map<String, String>> getDepthOfKnowledges() {
+		return depthOfKnowledges;
+	}
+
+	public void setEducationalUse(List<Map<String, String>> educationalUse) {
+		this.educationalUse = educationalUse;
+	}
+
+	public List<Map<String, String>> getEducationalUse() {
+		return educationalUse;
+	}
+
+	public void setMomentsOfLearning(List<Map<String, String>> momentsOfLearning) {
+		this.momentsOfLearning = momentsOfLearning;
+	}
+
+	public List<Map<String, String>> getMomentsOfLearning() {
+		return momentsOfLearning;
 	}
 
 }
