@@ -68,5 +68,12 @@ public class CustomTableRepositopryHibernate extends BaseRepositoryHibernate imp
 		return    query.list(); 
 	}
 	
+	@Override
+	public CustomTableValue getCustomTableValueById(Integer id) {
+		Session session = getSession();
+		Query query = session.createQuery("From CustomTableValue ctv  where ctv.customTableValueId =:id");
+		query.setParameter("id", id);
+		return   (CustomTableValue) (query.list().size() > 0 ? query.list().get(0) : null); 
+	}
 
 }
