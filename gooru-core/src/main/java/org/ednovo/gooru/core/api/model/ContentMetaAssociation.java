@@ -16,7 +16,7 @@ public class ContentMetaAssociation implements Serializable{
 	
 	private CustomTableValue associationType;
 	
-	private CustomTableValue value;
+	private String value;
 	
 	private User user;
 	
@@ -62,13 +62,12 @@ public class ContentMetaAssociation implements Serializable{
 		this.associatedDate = associatedDate;
 	}
 
-	public void setValue(CustomTableValue value) {
+	public void setValue(String value) {
 		this.value = value;
 	}
 
-	public CustomTableValue getValue() {
+	public String getValue() {
 		return value;
 	}
-	
 
 }
