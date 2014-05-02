@@ -69,10 +69,11 @@ public class CustomTableRepositopryHibernate extends BaseRepositoryHibernate imp
 	}
 	
 	@Override
-	public CustomTableValue getCustomTableValueById(Integer id) {
+	public CustomTableValue getValueByDisplayName(String displayName, String name) {
 		Session session = getSession();
-		Query query = session.createQuery("From CustomTableValue ctv  where ctv.customTableValueId =:id");
-		query.setParameter("id", id);
+		Query query = session.createQuery("From CustomTableValue ctv  where ctv.displayName =:displayName and ctv.customTable.name=:name");
+		query.setParameter("name", name);
+		query.setParameter("displayName", displayName);
 		return   (CustomTableValue) (query.list().size() > 0 ? query.list().get(0) : null); 
 	}
 
