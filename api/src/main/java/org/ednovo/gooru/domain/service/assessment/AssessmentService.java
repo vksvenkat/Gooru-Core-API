@@ -142,6 +142,8 @@ public interface AssessmentService {
 	String updateQuizQuestionImage(String gooruContentId, String fileName, Resource resource, String assetKey) throws Exception;
 
 	AssessmentQuestion updateQuestionAssest(String gooruQuestionId, String assetKeys) throws Exception;
+	
+	AssessmentQuestion updateQuestionVideoAssest(String gooruQuestionId, String assetKeys) throws Exception;
 
 	void deleteQuestionAssest(String gooruQuestionId) throws Exception;
 
