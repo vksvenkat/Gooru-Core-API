@@ -37,6 +37,6 @@ public interface CustomTableRepository extends BaseRepository {
 
 	List<CustomTableValue> getFilterValueFromCustomTable(String name);
 
-	CustomTableValue getCustomTableValueById(Integer id);
+	CustomTableValue getValueByDisplayName(String displayName, String name);
 
 }
