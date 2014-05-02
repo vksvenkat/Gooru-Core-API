@@ -588,8 +588,10 @@ public class Resource extends Content implements Serializable {
 					} else {
 						if (getThumbnail() != null && getThumbnail().contains("gooru-default")) {
 							this.url = getAssetURI() + getThumbnail();
-						} else {
+						} else if (getThumbnail() != null && !getThumbnail().isEmpty()) {
 							this.url = getAssetURI() + getFolder() + getThumbnail();
+						} else { 
+							this.url = "";
 						}
 					}
 				}
