@@ -124,6 +124,6 @@ public interface CollectionRepository extends BaseRepository {
 	
 	List<ContentMetaAssociation> getContentMetaById(String gooruOid, String type);
 	
-	ContentMetaAssociation getContentMetaByValue(Integer id, String collectionId);
+	ContentMetaAssociation getContentMetaByValue(String value, String collectionId);
 	
 }
