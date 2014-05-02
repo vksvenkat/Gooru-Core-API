@@ -350,9 +350,6 @@ public class Code extends OrganizationModel implements Comparable<Code> , Indexa
 		}
 
 		public String getUrl() {
-			if (getCodeImage() != null) {
-				this.url = getAssetURI() + getCodeImage();
-			}
 			if (getCodeImage() != null && !getCodeImage().isEmpty()) {
 				this.url = getAssetURI() + getCodeImage();
 			} else {
