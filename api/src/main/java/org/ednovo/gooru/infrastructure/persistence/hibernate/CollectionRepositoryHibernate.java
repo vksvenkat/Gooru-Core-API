@@ -903,11 +903,11 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 	}
 
 	@Override
-	public ContentMetaAssociation getContentMetaByValue(Integer id, String gooruOid) {
-		String hql = "From ContentMetaAssociation ci where ci.content.gooruOid =:gooruOid and ci.value.customTableValueId =:id";
+	public ContentMetaAssociation getContentMetaByValue(String value, String gooruOid) {
+		String hql = "From ContentMetaAssociation ci where ci.content.gooruOid =:gooruOid and ci.value =:value";
 		Query query = getSession().createQuery(hql);
 		query.setParameter("gooruOid", gooruOid);
-		query.setParameter("id", id);
+		query.setParameter("value", value);
 		return (ContentMetaAssociation)(query.list().size() >   0 ?  query.list().get(0) : null);
 	}
 	
