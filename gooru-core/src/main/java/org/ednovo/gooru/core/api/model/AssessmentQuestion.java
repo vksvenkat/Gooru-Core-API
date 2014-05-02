@@ -367,7 +367,7 @@ public class AssessmentQuestion extends Resource {
 			}
 			for(AssessmentQuestionAssetAssoc assests : getAssets()) {
 				if(assests != null && assests.getAsset() != null && BaseUtil.getYoutubeVideoId(assests.getAsset().getName()) != null || assests.getAsset().getName().contains("http://www.youtube.com")){
-					questionThumbnail.setUrl(assests.getAsset().getUrl());
+					questionThumbnail.setUrl("img.youtube.com/vi/"+ BaseUtil.getYoutubeVideoId(assests.getAsset().getUrl()) + "/1.jpg");
 				} else {
 					questionThumbnail.setUrl(getAssetURI() + getFolder() + (assests == null  || assests.getAsset() == null  ?  null : assests.getAsset().getName()));
 				}
