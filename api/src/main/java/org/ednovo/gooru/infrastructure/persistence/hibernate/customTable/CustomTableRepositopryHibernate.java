@@ -68,5 +68,13 @@ public class CustomTableRepositopryHibernate extends BaseRepositoryHibernate imp
 		return    query.list(); 
 	}
 	
+	@Override
+	public CustomTableValue getValueByDisplayName(String displayName, String name) {
+		Session session = getSession();
+		Query query = session.createQuery("From CustomTableValue ctv  where ctv.displayName =:displayName and ctv.customTable.name=:name");
+		query.setParameter("name", name);
+		query.setParameter("displayName", displayName);
+		return   (CustomTableValue) (query.list().size() > 0 ? query.list().get(0) : null); 
+	}
 
 }

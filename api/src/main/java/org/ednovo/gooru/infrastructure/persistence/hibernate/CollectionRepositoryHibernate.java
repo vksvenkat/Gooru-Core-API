@@ -31,6 +31,7 @@ import org.ednovo.gooru.core.api.model.Classpage;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.CollectionType;
+import org.ednovo.gooru.core.api.model.ContentMetaAssociation;
 import org.ednovo.gooru.core.api.model.Quiz;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.User;
@@ -891,4 +892,23 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		Query query = getSession().createSQLQuery(sql).addScalar("count", StandardBasicTypes.LONG);
 		return (Long) query.list().get(0);
 	}
+	
+	@Override
+	public List<ContentMetaAssociation> getContentMetaById(String gooruOid, String type) {
+		String hql = "From ContentMetaAssociation ci where ci.content.gooruOid =:gooruOid and ci.associationType.value=:type";
+		Query query = getSession().createQuery(hql);
+		query.setParameter("gooruOid", gooruOid);
+		query.setParameter("type", type);
+		return  query.list();
+	}
+
+	@Override
+	public ContentMetaAssociation getContentMetaByValue(String value, String gooruOid) {
+		String hql = "From ContentMetaAssociation ci where ci.content.gooruOid =:gooruOid and ci.value =:value";
+		Query query = getSession().createQuery(hql);
+		query.setParameter("gooruOid", gooruOid);
+		query.setParameter("value", value);
+		return (ContentMetaAssociation)(query.list().size() >   0 ?  query.list().get(0) : null);
+	}
+	
 }

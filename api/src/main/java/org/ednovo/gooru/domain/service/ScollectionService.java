@@ -124,4 +124,8 @@ public interface ScollectionService extends BaseService {
 	void updateFolderSharing(String collection);
 	
 	List<String> getParentCollection(String collectionGooruOid, String gooruUid, boolean reverse);
+	
+	List<Map<String, String>> getContentMetaAssociation(String type);
+	
+	List<Map<String, String>> setContentMetaAssociation(List<Map<String, String>> depthOfKnowledges, String collectionId, String type);
 }

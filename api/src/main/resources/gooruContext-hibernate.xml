@@ -150,6 +150,8 @@
 				</value>
 				<value>org/ednovo/gooru/domain/model/content/ContentAssociation.hbm.xml
 				</value>
+				<value>org/ednovo/gooru/domain/model/content/ContentMetaAssociation.hbm.xml
+				</value>
 				<value>org/ednovo/gooru/domain/model/content/ContentClassification.hbm.xml
 				</value>
 

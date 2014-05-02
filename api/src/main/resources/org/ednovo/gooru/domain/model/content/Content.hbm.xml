@@ -188,11 +188,7 @@
 			<property name="batchId" column="batch_id" not-null="false" />
             <property name="tags" column="tags" not-null="false" />
             <property name="copiedResourceId" column="copied_resource_id" not-null="false" />
-			<property name="isFeatured" column="is_featured" not-null="true" />
-
-			<property name="depthOfKnowledge" column="depth_of_knowledge" not-null="false" />
-			<property name="educationalUse" column="educational_use" not-null="false" />
-			<property name="momentsOfLearning" column="moments_of_learning" not-null="false" />						
+			<property name="isFeatured" column="is_featured" not-null="true" />					
 			
 			<property name="numberOfSubcribers" column="number_of_subcribers"
 				not-null="false" />
@@ -262,10 +258,7 @@
 				<property name="ideas" column="ideas" not-null="false" />
 				<property name="questions" column="questions" not-null="false" />
 				<property name="performanceTasks" column="performance_tasks" not-null="false" />
-				<property name="languageObjective" column="language_objective" not-null="false" />
-				<property name="audience" column="audience" not-null="false" />
-				<property name="learningSkills" column="learning_skills" not-null="false" />
-				<property name="instructionalMethod" column="instructional_method" not-null="false" />																								
+				<property name="languageObjective" column="language_objective" not-null="false" />																							
 				
 				<many-to-one name="buildType" class="org.ednovo.gooru.core.api.model.CustomTableValue" column="build_type_id" not-null="false" lazy="proxy" cascade="none" />
 				<set name="collectionItems" inverse="true" cascade="none" lazy="true" sort="org.ednovo.gooru.core.api.model.CollectionItemComparator">

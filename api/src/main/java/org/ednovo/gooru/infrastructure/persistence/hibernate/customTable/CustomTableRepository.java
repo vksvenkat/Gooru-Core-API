@@ -32,8 +32,11 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepository;
 public interface CustomTableRepository extends BaseRepository {
 
 	CustomTableValue getCustomTableValue(String name, String value);
+
 	List<CustomTableValue> getCustomTableValues(String name);
+
 	List<CustomTableValue> getFilterValueFromCustomTable(String name);
-	
-	
+
+	CustomTableValue getValueByDisplayName(String displayName, String name);
+
 }

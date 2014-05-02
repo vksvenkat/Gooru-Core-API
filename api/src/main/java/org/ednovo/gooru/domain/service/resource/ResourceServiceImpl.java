@@ -107,6 +107,7 @@ import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.domain.cassandra.service.ResourceCassandraService;
+import org.ednovo.gooru.domain.service.CollectionService;
 import org.ednovo.gooru.domain.service.partner.CustomFieldsService;
 import org.ednovo.gooru.domain.service.rating.RatingService;
 import org.ednovo.gooru.domain.service.revision_history.RevisionHistoryService;
@@ -246,6 +247,9 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 
 	@Autowired
 	private CustomTableRepository customTableRepository;
+	
+	@Autowired
+	private CollectionService collectionService;
 
 	@Override
 	public ResourceInstance saveResourceInstance(ResourceInstance resourceInstance) throws Exception {
@@ -272,7 +276,13 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 
 	@Override
 	public Resource findResourceByContentGooruId(String gooruContentId) {
-		return getResourceRepository().findResourceByContentGooruId(gooruContentId);
+		 Resource resource = getResourceRepository().findResourceByContentGooruId(gooruContentId);
+		 if(resource == null){
+			 throw new NotFoundException("resource not found ");
+		 }
+		 resource.setDepthOfKnowledges(this.getCollectionService().setContentMetaAssociation(this.getCollectionService().getContentMetaAssociation("depth_of_knowledge"), gooruContentId, "depth_of_knowledge"));
+		 resource.setMomentsOfLearning(this.getCollectionService().setContentMetaAssociation(this.getCollectionService().getContentMetaAssociation("moments_of_learning"), gooruContentId, "moments_of_learning"));
+		 return resource;
 	}
 
 	@Override
@@ -3060,6 +3070,11 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	@Override
 	public Resource findLtiResourceByContentGooruId(String gooruContentId) {
 		return resourceRepository.findLtiResourceByContentGooruId(gooruContentId);
+	}
+
+
+	public CollectionService getCollectionService() {
+		return collectionService;
 	}
 
 	

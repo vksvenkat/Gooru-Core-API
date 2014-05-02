@@ -21,6 +21,8 @@ public class Asset extends OrganizationModel {
 
 	private byte[] fileData;
 	
+	private String url;
+	
 	public Asset() {
 
 	}
@@ -63,6 +65,14 @@ public class Asset extends OrganizationModel {
 
 	public void setHasUniqueName(Boolean hasUniqueName) {
 		this.hasUniqueName = hasUniqueName;
+	}
+
+	public String getUrl() {
+		return url;
+	}
+
+	public void setUrl(String url) {
+		this.url = url;
 	}
 
 }

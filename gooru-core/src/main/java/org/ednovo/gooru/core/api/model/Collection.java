@@ -58,11 +58,11 @@ private String performanceTasks;
 
 private String languageObjective;
 
-private String audience;
+private List<Map<String, String>> audience;
 
-private String learningSkills;
+private List<Map<String, String>> learningSkills;
 
-private String instructionalMethod;
+private List<Map<String, String>> instructionalMethod;
 
 public String getIdeas() {
 	return ideas;
@@ -94,30 +94,6 @@ public String getLanguageObjective() {
 
 public void setLanguageObjective(String languageObjective) {
 	this.languageObjective = languageObjective;
-}
-
-public String getAudience() {
-	return audience;
-}
-
-public void setAudience(String audience) {
-	this.audience = audience;
-}
-
-public String getLearningSkills() {
-	return learningSkills;
-}
-
-public void setLearningSkills(String learningSkills) {
-	this.learningSkills = learningSkills;
-}
-
-public String getInstructionalMethod() {
-	return instructionalMethod;
-}
-
-public void setInstructionalMethod(String instructionalMethod) {
-	this.instructionalMethod = instructionalMethod;
 }
 
 public Map<String, Object> getLastModifiedUser() {
@@ -281,5 +257,29 @@ public void setMailNotification(Boolean mailNotification) {
 		mailNotification = true;
 	}
 	this.mailNotification = mailNotification;
+}
+
+public void setLearningSkills(List<Map<String, String>> learningSkills) {
+	this.learningSkills = learningSkills;
+}
+
+public List<Map<String, String>> getLearningSkills() {
+	return learningSkills;
+}
+
+public void setAudience(List<Map<String, String>> audience) {
+	this.audience = audience;
+}
+
+public List<Map<String, String>> getAudience() {
+	return audience;
+}
+
+public void setInstructionalMethod(List<Map<String, String>> instructionalMethod) {
+	this.instructionalMethod = instructionalMethod;
+}
+
+public List<Map<String, String>> getInstructionalMethod() {
+	return instructionalMethod;
 }
 }
