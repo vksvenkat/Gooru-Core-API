@@ -660,19 +660,21 @@ public class FeaturedServiceImpl implements FeaturedService, ParameterProperties
 				collectionList.addAll(collectionLessonResultList);
 			}
 			List<Code> concepts = this.getTaxonomyRespository().findCodeByParentCodeId(String.valueOf(id), null, 3, 0, true, LIBRARY, getOrganizationCode(libraryName), null, null);
-			System.out.println("ssdsd");
+			boolean isConceptHasData = false;
 			for (Code concept : concepts) {
-				System.out.println("ssdsd" + concept.getCodeId());
-
 				List<Map<String, Object>> collectionResultList = this.getCollection(concept.getCodeId(), featuredId, offset, limit, skipPagination);
 				if (collectionResultList != null && collectionResultList.size() > 0) {
+					isConceptHasData = true;
 				  collectionList.addAll(collectionResultList);
 				}
 			}
-			if (collectionList == null || collectionList != null && collectionList.size() == 0) { 
-				
+			if (!isConceptHasData) { 
+				collectionList.clear();
+				Code code = this.getTaxonomyRespository().findTaxonomyCodeById(id);
+				List<Map<String, Object>> collectionResultList = this.getCollection(code.getParentId(), featuredId, offset, limit, skipPagination);
+				collectionList.addAll(collectionResultList);
+				collectionList.addAll(collectionLessonResultList);
 			}
-
 		} else {
 			List<Map<String, Object>> collectionResultList = this.getCollection(id, featuredId, offset, limit, skipPagination);
 			if (collectionResultList != null && collectionResultList.size() > 0) {
