@@ -2641,6 +2641,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 
 	@Override
 	public ActionResponseDTO<Resource> createResource(Resource newResource, User user) throws Exception {
+		Resource resource = null;
 		Errors errors = validateResource(newResource);
 		if (!errors.hasErrors()) {
 
@@ -2670,7 +2671,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				newResource.setCategory(newResource.getCategory().toLowerCase());
 			}
 			// add to db and index.
-			Resource resource = handleNewResource(newResource, null, null);
+		    resource = handleNewResource(newResource, null, null);
 			ResourceInfo resourceInfo = new ResourceInfo();
 			String tags = newResource.getTags();
 			resourceInfo.setTags(tags);
@@ -2686,7 +2687,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			this.replaceDuplicatePrivateResourceWithPublicResource(resource);
 			this.mapSourceToResource(resource);
 		}
-		return new ActionResponseDTO<Resource>(newResource, errors);
+		return new ActionResponseDTO<Resource>(resource, errors);
 	}
 
 	@Override
