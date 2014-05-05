@@ -665,26 +665,31 @@ public class FeaturedServiceImpl implements FeaturedService, ParameterProperties
 				List<Map<String, Object>> collectionResultList = this.getCollection(concept.getCodeId(), featuredId, offset, limit, skipPagination);
 				if (collectionResultList != null && collectionResultList.size() > 0) {
 					isConceptHasData = true;
-				  collectionList.addAll(collectionResultList);
+					collectionList.addAll(collectionResultList);
 				}
 			}
-			if (!isConceptHasData) { 
+			if (!isConceptHasData) {
 				collectionList.clear();
 				Code code = this.getTaxonomyRespository().findTaxonomyCodeById(id);
-				List<Map<String, Object>> collectionResultList = this.getCollection(code.getParentId(), featuredId, offset, limit, skipPagination);
-				collectionList.addAll(collectionResultList);
+				List<Code> topics = this.getTaxonomyRespository().findCodeByParentCodeId(String.valueOf(code.getParentId()), null, 3, 0, true, LIBRARY, getOrganizationCode(libraryName), null, null);
+				for (Code topic : topics) {
+					List<Map<String, Object>> collectionResultList = this.getCollection(topic.getCodeId(), featuredId, offset, limit, skipPagination);
+					if (collectionResultList != null && collectionResultList.size() > 0) {
+					  collectionList.addAll(collectionResultList);
+					}
+				}
 				collectionList.addAll(collectionLessonResultList);
 			}
 		} else {
 			List<Map<String, Object>> collectionResultList = this.getCollection(id, featuredId, offset, limit, skipPagination);
 			if (collectionResultList != null && collectionResultList.size() > 0) {
-			  collectionList.addAll(collectionResultList);
+				collectionList.addAll(collectionResultList);
 			}
 		}
 		return collectionList;
 	}
-	
-	private List<Map<String, Object>> getCollection(Integer id, String featuredId, Integer offset, Integer limit, boolean skipPagination) { 
+
+	private List<Map<String, Object>> getCollection(Integer id, String featuredId, Integer offset, Integer limit, boolean skipPagination) {
 		List<Map<String, Object>> collectionList = new ArrayList<Map<String, Object>>();
 		List<Object[]> result = this.getFeaturedRepository().getLibraryCollection(String.valueOf(id), featuredId, limit, offset, skipPagination);
 		if (result != null && result.size() > 0) {
