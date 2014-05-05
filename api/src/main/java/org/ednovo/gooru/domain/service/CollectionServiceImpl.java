@@ -207,7 +207,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				if (object[7] != null) {
 					collection.put(GOALS, object[7]);
 				}
-
+				
 				if (object[8] != null) {
 					Map<String, Object> resourceFormat = new HashMap<String, Object>();
 					resourceFormat.put(VALUE, object[8]);
@@ -220,6 +220,15 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 					resourceSource.put(ATTRIBUTION, object[10]);
 					resourceSource.put(DOMAIN_NAME, object[11]);
 					collection.put(RESOURCESOURCE, resourceSource);
+				}
+				if (object[12] != null) {
+					collection.put("ideas", object[12]);
+				}
+				if (object[13] != null) {
+					collection.put("questions", object[13]);
+				}
+				if (object[14] != null) {
+					collection.put("performanceTasks", object[14]);
 				}
 				count++;
 				folderList.add(collection);
@@ -277,6 +286,15 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 					resourceSource.put(DOMAIN_NAME, object[11]);
 					item.put(RESOURCESOURCE, resourceSource);
 				}
+				if (object[12] != null) {
+					item.put("ideas", object[12]);
+				}
+				if (object[13] != null) {
+					item.put("questions", object[13]);
+				}
+				if (object[14] != null) {
+					item.put("performanceTasks", object[14]);
+				}
 				items.add(item);
 			}
 
@@ -319,6 +337,15 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 					resourceSource.put(ATTRIBUTION, object[10]);
 					resourceSource.put(DOMAIN_NAME, object[11]);
 					item.put(RESOURCESOURCE, resourceSource);
+				}
+				if (object[12] != null) {
+					item.put("ideas", object[12]);
+				}
+				if (object[13] != null) {
+					item.put("questions", object[13]);
+				}
+				if (object[14] != null) {
+					item.put("performanceTasks", object[14]);
 				}
 				items.add(item);
 			}

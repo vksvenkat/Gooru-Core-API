@@ -42,6 +42,12 @@ public class SCollectionCo {
 	@Column
 	public String usedResourceGooruOidsJson;
 	
+	@Column
+	public String questionCount;
+
+	@Column
+	public String resourceCount;
+	
 	public String getLanguage() {
 		return language;
 	}
@@ -137,4 +143,21 @@ public class SCollectionCo {
 	public void setUsedResourceGooruOidsJson(String usedResourceGooruOidsJson) {
 		this.usedResourceGooruOidsJson = usedResourceGooruOidsJson;
 	}
+	
+	public String getQuestionCount() {
+		return questionCount;
+	}
+
+	public void setQuestionCount(String questionCount) {
+		this.questionCount = questionCount;
+	}
+
+	public String getResourceCount() {
+		return resourceCount;
+	}
+
+	public void setResourceCount(String resourceCount) {
+		this.resourceCount = resourceCount;
+	}
+	
 }
