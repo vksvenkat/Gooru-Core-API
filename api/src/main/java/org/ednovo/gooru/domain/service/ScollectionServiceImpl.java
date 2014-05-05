@@ -460,30 +460,43 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			if (newCollection.getGrade() != null) {
 				resourceService.saveOrUpdateGrade(newCollection, collection);
 			}
-			if(newCollection.getDepthOfKnowledges() != null && newCollection.getDepthOfKnowledges().size() > 0) {
-				collection.setDepthOfKnowledges(this.updateContentMeta(newCollection.getDepthOfKnowledges(), updateCollectionId, apiCallerUser, "depth_of_knowledge"));
-			} else {
-				collection.setDepthOfKnowledges(this.setContentMetaAssociation(this.getContentMetaAssociation("depth_of_knowledge"), updateCollectionId, "depth_of_knowledge"));
+			if(newCollection.getLanguageObjective() != null) {
+				collection.setLanguageObjective(newCollection.getLanguageObjective());
 			}
-			
-			if(newCollection.getLearningSkills() != null && newCollection.getLearningSkills().size() > 0) {
-				collection.setLearningSkills(this.updateContentMeta(newCollection.getLearningSkills(), updateCollectionId, apiCallerUser, "learning_and_innovation_skills"));
-			} else {
-				collection.setLearningSkills(this.setContentMetaAssociation(this.getContentMetaAssociation("learning_and_innovation_skills"), updateCollectionId, "learning_and_innovation_skills"));
+			if(newCollection.getIdeas() != null) {
+				collection.setIdeas(newCollection.getIdeas());
 			}
-			
-			if(newCollection.getAudience() != null && newCollection.getAudience().size() > 0) {
-				collection.setAudience(this.updateContentMeta(newCollection.getAudience(), updateCollectionId, apiCallerUser, "audience"));
-			} else {
-				collection.setAudience(this.setContentMetaAssociation(this.getContentMetaAssociation("audience"), updateCollectionId, "audience"));
+			if(newCollection.getQuestions() != null) {
+				collection.setQuestions(newCollection.getQuestions());
 			}
-			
-			if(newCollection.getInstructionalMethod() != null && newCollection.getInstructionalMethod().size() > 0) {
-				collection.setInstructionalMethod(this.updateContentMeta(newCollection.getInstructionalMethod(), updateCollectionId, apiCallerUser, "instructional_method"));
-			} else {
-				collection.setInstructionalMethod(this.setContentMetaAssociation(this.getContentMetaAssociation("instructional_method"), updateCollectionId, "instructional_method"));
+			if(newCollection.getPerformanceTasks() != null) {
+				collection.setPerformanceTasks(newCollection.getPerformanceTasks());
 			}
-			
+			if (collection.getCollectionType().equalsIgnoreCase(COLLECTION)) {
+				if (newCollection.getDepthOfKnowledges() != null && newCollection.getDepthOfKnowledges().size() > 0) {
+					collection.setDepthOfKnowledges(this.updateContentMeta(newCollection.getDepthOfKnowledges(), updateCollectionId, apiCallerUser, "depth_of_knowledge"));
+				} else {
+					collection.setDepthOfKnowledges(this.setContentMetaAssociation(this.getContentMetaAssociation("depth_of_knowledge"), updateCollectionId, "depth_of_knowledge"));
+				}
+
+				if (newCollection.getLearningSkills() != null && newCollection.getLearningSkills().size() > 0) {
+					collection.setLearningSkills(this.updateContentMeta(newCollection.getLearningSkills(), updateCollectionId, apiCallerUser, "learning_and_innovation_skills"));
+				} else {
+					collection.setLearningSkills(this.setContentMetaAssociation(this.getContentMetaAssociation("learning_and_innovation_skills"), updateCollectionId, "learning_and_innovation_skills"));
+				}
+
+				if (newCollection.getAudience() != null && newCollection.getAudience().size() > 0) {
+					collection.setAudience(this.updateContentMeta(newCollection.getAudience(), updateCollectionId, apiCallerUser, "audience"));
+				} else {
+					collection.setAudience(this.setContentMetaAssociation(this.getContentMetaAssociation("audience"), updateCollectionId, "audience"));
+				}
+
+				if (newCollection.getInstructionalMethod() != null && newCollection.getInstructionalMethod().size() > 0) {
+					collection.setInstructionalMethod(this.updateContentMeta(newCollection.getInstructionalMethod(), updateCollectionId, apiCallerUser, "instructional_method"));
+				} else {
+					collection.setInstructionalMethod(this.setContentMetaAssociation(this.getContentMetaAssociation("instructional_method"), updateCollectionId, "instructional_method"));
+				}
+			}
 			if (newCollection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing())) {
 				collection.setSharing(newCollection.getSharing());
 				this.getCollectionRepository().save(collection);
@@ -1507,8 +1520,8 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			if (newCollection.getGrade() != null) {
 				resourceService.saveOrUpdateGrade(newCollection, collection);
 			}
-			if(newCollection.getIdeas() != null) {
-				collection.setIdeas(newCollection.getIdeas());
+			if(newCollection.getLanguageObjective() != null) {
+				collection.setLanguageObjective(newCollection.getLanguageObjective());
 			}
 			if(newCollection.getIdeas() != null) {
 				collection.setIdeas(newCollection.getIdeas());
