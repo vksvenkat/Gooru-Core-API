@@ -128,14 +128,14 @@ public class LibraryRestV2Controller extends BaseController implements ConstantP
 	@RequestMapping(value = "/{type}/collection/{id}", method = RequestMethod.GET)
 	public ModelAndView getLibraryCollection(@PathVariable(value = TYPE) String type, @PathVariable(value = ID) Integer id, HttpServletRequest request, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset,
 			@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, @RequestParam(value = SKIP_PAGINATION, required = false, defaultValue = FALSE) Boolean skipPagination,
-			@RequestParam(value = LIBRARY_NAME, required = false, defaultValue = LIBRARY) String libraryName, @RequestParam(value = CLEAR_CACHE, required = false, defaultValue = FALSE) boolean clearCache, @RequestParam(value = ROOT_NODE_ID, required = false, defaultValue = "20000") String rootNode, HttpServletResponse response) {
+			@RequestParam(value = LIBRARY_NAME, required = false, defaultValue = LIBRARY) String libraryName, @RequestParam(value = CLEAR_CACHE, required = false, defaultValue = FALSE) boolean clearCache,  HttpServletResponse response) {
 		final String cacheKey = "v2-library-realted-collection-data-" + type + "-" + id + limit + offset + "-" + libraryName;
 		String data = null;
 		if (!clearCache) {
 			data = getRedisService().getValue(cacheKey);
 		}
 		if (data == null) {
-			data = serialize(this.getFeaturedService().getLibraryCollection(id, type, offset, limit, skipPagination, libraryName, rootNode), RESPONSE_FORMAT_JSON);
+			data = serialize(this.getFeaturedService().getLibraryCollection(id, type, offset, limit, skipPagination, libraryName), RESPONSE_FORMAT_JSON);
 			getRedisService().putValue(cacheKey, data);
 		}
 		return toModelAndView(data);
