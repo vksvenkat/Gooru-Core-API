@@ -646,7 +646,7 @@ public class FeaturedServiceImpl implements FeaturedService, ParameterProperties
 	}
 
 	@Override
-	public List<Map<String, Object>> getLibraryCollection(Integer id, String type, Integer offset, Integer limit, boolean skipPagination, String libraryName, String rootNodeId) {
+	public List<Map<String, Object>> getLibraryCollection(Integer id, String type, Integer offset, Integer limit, boolean skipPagination, String libraryName) {
 		List<Object[]> results = this.getFeaturedRepository().getLibrary(type, false, libraryName);
 		String featuredId = null;
 		if (results != null && results.size() > 0) {
@@ -659,8 +659,11 @@ public class FeaturedServiceImpl implements FeaturedService, ParameterProperties
 			if (collectionLessonResultList != null && collectionLessonResultList.size() > 0) {
 				collectionList.addAll(collectionLessonResultList);
 			}
-			List<Code> concepts = this.getTaxonomyRespository().findCodeByParentCodeId(String.valueOf(id), null, 3, 0, true, LIBRARY, getOrganizationCode(libraryName), rootNodeId, null);
+			List<Code> concepts = this.getTaxonomyRespository().findCodeByParentCodeId(String.valueOf(id), null, 3, 0, true, LIBRARY, getOrganizationCode(libraryName), null, null);
+			System.out.println("ssdsd");
 			for (Code concept : concepts) {
+				System.out.println("ssdsd" + concept.getCodeId());
+
 				List<Map<String, Object>> collectionResultList = this.getCollection(concept.getCodeId(), featuredId, offset, limit, skipPagination);
 				if (collectionResultList != null && collectionResultList.size() > 0) {
 				  collectionList.addAll(collectionResultList);
