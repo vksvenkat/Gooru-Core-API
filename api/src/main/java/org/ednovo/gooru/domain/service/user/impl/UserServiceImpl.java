@@ -1105,7 +1105,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 		Identity identity = this.getUserRepository().findIdentityByResetToken(token);
 		boolean resetTokenInvalid = false;
 		if (identity != null) {
-			long resetHoursDifferent = (new Date(System.currentTimeMillis()).getTime() - identity.getCredential().getResetPasswordRequestDate().getTime()) / (60 * 60 * 1000);
+			double resetHoursDifferent = (new Date(System.currentTimeMillis()).getTime() - identity.getCredential().getResetPasswordRequestDate().getTime()) / (60 * 60 * 1000);
 			if (resetHoursDifferent > 24) {
 				resetTokenInvalid = true;
 			}
