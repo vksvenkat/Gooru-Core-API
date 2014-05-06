@@ -537,20 +537,20 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 	
 	
-	public List<Map<String, String>> updateContentMeta(List<Map<String, String>> newDepthOfKnowledges, String collectionId, User apiCaller, String type) {
-		for (Map<String, String> newMeta : newDepthOfKnowledges) {
-			if (this.getCustomTableRepository().getValueByDisplayName(newMeta.get(VALUE), type) != null) {
-				ContentMetaAssociation contentMetaAssociation = this.getCollectionRepository().getContentMetaByValue(newMeta.get(VALUE), collectionId);
-				if (contentMetaAssociation == null && newMeta.get("selected").equalsIgnoreCase("true")) {
+	public List<CustomTableValue> updateContentMeta(List<CustomTableValue> newDepthOfKnowledges, String collectionId, User apiCaller, String type) {
+		for (CustomTableValue newMeta : newDepthOfKnowledges) {
+			if (this.getCustomTableRepository().getValueByDisplayName(newMeta.getValue(), type) != null) {
+				ContentMetaAssociation contentMetaAssociation = this.getCollectionRepository().getContentMetaByValue(newMeta.getValue(), collectionId);
+				if (contentMetaAssociation == null && newMeta.getSelected()) {
 					contentMetaAssociation = new ContentMetaAssociation();
-					contentMetaAssociation.setValue(newMeta.get(VALUE));
+					contentMetaAssociation.setValue(newMeta.getValue());
 					contentMetaAssociation.setAssociationType(this.getCustomTableRepository().getCustomTableValue("content_association_type", type));
 					contentMetaAssociation.setUser(apiCaller);
 					contentMetaAssociation.setContent(this.getContentRepositoryHibernate().findContentByGooruId(collectionId));
 					contentMetaAssociation.setAssociatedDate(new Date(System.currentTimeMillis()));
 					this.getCollectionRepository().save(contentMetaAssociation);
 				} else {
-					if (contentMetaAssociation != null && newMeta.get("selected").equalsIgnoreCase("false")) {
+					if (contentMetaAssociation != null && !newMeta.getSelected()) {
 						this.getCollectionRepository().remove(contentMetaAssociation);
 					}
 				}
@@ -870,33 +870,33 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 	
 	@Override
-	public List<Map<String, String>> getContentMetaAssociation(String type) {
-		List<Map<String, String>> depthOfKnowledges = new ArrayList<Map<String, String>>();
+	public List<CustomTableValue> getContentMetaAssociation(String type) {
+		List<CustomTableValue> depthOfKnowledges = new ArrayList<CustomTableValue>();
 		String cacheKey = "content_meta_association_type_" + type;
 		String data = redisService.getValue(cacheKey);
 		if (data == null) {
 			List<CustomTableValue> customTableValues = this.getCustomTableRepository().getCustomTableValues(type);
 			for (CustomTableValue customTableValue : customTableValues) {
-				Map<String, String> depthOfknowledge = new HashMap<String, String>();
-				depthOfknowledge.put(VALUE, customTableValue.getDisplayName());
-				depthOfknowledge.put("selected", "false");
+				CustomTableValue depthOfknowledge = new CustomTableValue();
+				depthOfknowledge.setValue(customTableValue.getDisplayName());
+				depthOfknowledge.setSelected(false);
 				depthOfKnowledges.add(depthOfknowledge);
 			}
 			redisService.putValue(cacheKey,  JsonSerializer.serialize(depthOfKnowledges, FORMAT_JSON));
 		} else {
-			depthOfKnowledges = JsonDeserializer.deserialize(data, new TypeReference<List<Map<String, String>>>() {
+			depthOfKnowledges = JsonDeserializer.deserialize(data, new TypeReference<List<CustomTableValue>>() {
 			});
 		}
 		return depthOfKnowledges;
 	}
 	
 	@Override
-	public List<Map<String, String>> setContentMetaAssociation(List<Map<String, String>> depthOfKnowledges, String collectionId, String type) {
+	public List<CustomTableValue> setContentMetaAssociation(List<CustomTableValue> depthOfKnowledges, String collectionId, String type) {
 		List<ContentMetaAssociation> metaAssociations = this.getCollectionRepository().getContentMetaById(collectionId, type);
 		for (ContentMetaAssociation contentMetaAssociation : metaAssociations) {
-			for (Map<String, String> depthOfKnowledge : depthOfKnowledges) {
-				if (depthOfKnowledge.get(VALUE).equalsIgnoreCase(contentMetaAssociation.getValue())) {
-					depthOfKnowledge.put("selected", "true");
+			for (CustomTableValue depthOfKnowledge : depthOfKnowledges) {
+				if (depthOfKnowledge.getValue().equalsIgnoreCase(contentMetaAssociation.getValue())) {
+					depthOfKnowledge.setSelected(true);
 				}
 			}
 		}
