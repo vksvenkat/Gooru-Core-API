@@ -18,6 +18,8 @@ public class CustomTableValue implements Serializable {
 	private String displayName;
 	
 	private String keyValue;
+	
+	private Boolean selected;
 
 	public String getValue() {
 		return value;
@@ -57,6 +59,14 @@ public class CustomTableValue implements Serializable {
 
 	public String getKeyValue() {
 		return keyValue;
+	}
+
+	public void setSelected(Boolean selected) {
+		this.selected = selected;
+	}
+
+	public Boolean getSelected() {
+		return selected;
 	}
 
 
