@@ -1807,7 +1807,11 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 					} else {
 						resource.setMomentsOfLearning(this.setContentMetaAssociation(this.getContentMetaAssociation("moments_of_learning"), resource.getGooruOid(), "moments_of_learning"));
 					}
-					
+					if(newResource.getMomentsOfLearning() != null && newResource.getMomentsOfLearning().size() > 0) {
+						resource.setEducationalUse(this.updateContentMeta(newResource.getMomentsOfLearning(),resource.getGooruOid(), user, "educational_use"));
+					} else {
+						resource.setEducationalUse(this.setContentMetaAssociation(this.getContentMetaAssociation("educational_use"), resource.getGooruOid(), "educational_use"));
+					}
 					if (newResource.getThumbnail() != null && newResource.getThumbnail().length() > 0) {
 						try {
 							this.getResourceImageUtil().downloadAndSendMsgToGenerateThumbnails(resource, newResource.getThumbnail());

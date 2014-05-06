@@ -282,6 +282,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		 }
 		 resource.setDepthOfKnowledges(this.getCollectionService().setContentMetaAssociation(this.getCollectionService().getContentMetaAssociation("depth_of_knowledge"), gooruContentId, "depth_of_knowledge"));
 		 resource.setMomentsOfLearning(this.getCollectionService().setContentMetaAssociation(this.getCollectionService().getContentMetaAssociation("moments_of_learning"), gooruContentId, "moments_of_learning"));
+		 resource.setMomentsOfLearning(this.getCollectionService().setContentMetaAssociation(this.getCollectionService().getContentMetaAssociation("educational_use"), gooruContentId, "educational_use"));
 		 return resource;
 	}
 
