@@ -66,6 +66,7 @@ import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.api.model.CodeType;
 import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.ContentType;
+import org.ednovo.gooru.core.api.model.CustomTableValue;
 import org.ednovo.gooru.core.api.model.License;
 import org.ednovo.gooru.core.api.model.QuestionSet;
 import org.ednovo.gooru.core.api.model.QuestionSetQuestionAssoc;
@@ -1893,7 +1894,7 @@ public class AssessmentServiceImpl implements AssessmentService, ParameterProper
 		xstream.alias(ANSWER, AssessmentAnswer.class);
 		xstream.alias(HINT, AssessmentHint.class);
 		xstream.alias(TAXONOMY_CODE, Code.class);
-
+		xstream.alias("depthOfKnowledge", CustomTableValue.class);
 		AssessmentQuestion question = (AssessmentQuestion) xstream.fromXML(jsonData);
 		if (addFlag) {
 			question.setUser(user);
@@ -1937,5 +1938,6 @@ public class AssessmentServiceImpl implements AssessmentService, ParameterProper
 	public CustomTableRepository getCustomTableRepository() {
 		return customTableRepository;
 	}
+	
 
 }
