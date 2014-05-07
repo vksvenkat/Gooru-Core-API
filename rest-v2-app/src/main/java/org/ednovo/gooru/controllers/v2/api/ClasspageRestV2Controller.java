@@ -186,7 +186,7 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	public ModelAndView createClasspageItem(@PathVariable(value = ID) String classpageId, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
 		JSONObject json = requestData(data);
-		ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().createCollectionItem(getValue(COLLECTION_ID, json), classpageId, this.buildCollectionItemFromInputParameters(getValue(COLLECTION_ITEM, json)), user, CollectionType.COLLECTION.getCollectionType(), false);
+		ActionResponseDTO<CollectionItem> responseDTO = getClasspageService().createClasspageItem(getValue(COLLECTION_ID, json), classpageId, this.buildCollectionItemFromInputParameters(getValue(COLLECTION_ITEM, json)), user, CollectionType.CLASSPAGE.getCollectionType());
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		} else {
@@ -362,7 +362,7 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 		classpage.setResourceType(getCollectionService().getResourceType(ResourceType.Type.CLASSPAGE.getType()));
 		classpage.setLastModified(new Date(System.currentTimeMillis()));
 		classpage.setCreatedOn(new Date(System.currentTimeMillis()));
-		classpage.setSharing(Sharing.PRIVATE.getSharing());
+		
 		classpage.setUser(user);
 		classpage.setCollectionType(ResourceType.Type.CLASSPAGE.getType());
 		classpage.setOrganization(user.getPrimaryOrganization());
@@ -371,13 +371,12 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 		classpage.setRecordSource(NOT_ADDED);
 		classpage.setIsFeatured(0);
 		classpage.setLastUpdatedUserUid(user.getGooruUId());
-		if (!hasUnrestrictedContentAccess()) {
-			classpage.setSharing(Sharing.PUBLIC.getSharing());
+		if(classpage.getSharing() != null && (classpage.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || classpage.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing()))) {
+			classpage.setSharing(classpage.getSharing());
 		} else {
-			classpage
-					.setSharing(classpage.getSharing() != null && (classpage.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || classpage.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing()) || classpage.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing())) ? classpage
-							.getSharing() : Sharing.PUBLIC.getSharing());
+			classpage.setSharing(Sharing.PRIVATE.getSharing());
 		}
+		
 		return classpage;
 	}
 	
