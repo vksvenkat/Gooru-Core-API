@@ -66,6 +66,7 @@ import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.api.model.CodeType;
 import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.ContentType;
+import org.ednovo.gooru.core.api.model.CustomTableValue;
 import org.ednovo.gooru.core.api.model.License;
 import org.ednovo.gooru.core.api.model.QuestionSet;
 import org.ednovo.gooru.core.api.model.QuestionSetQuestionAssoc;
@@ -1737,14 +1738,18 @@ public class AssessmentServiceImpl implements AssessmentService, ParameterProper
 
 	@Override
 	public String updateQuizQuestionImage(String gooruContentId, String fileName, Resource resource, String assetKey) throws Exception {
-		final String mediaFolderPath = resource.getOrganization().getNfsStorageArea().getInternalPath() + Constants.UPLOADED_MEDIA_FOLDER;
-		String resourceImageFile = mediaFolderPath + "/" + fileName;
-		String newImageFile = mediaFolderPath + "/" + assetKey + "_" + fileName;
-		File mediaImage = new File(resourceImageFile);
-		File newImage = new File(newImageFile);
-		mediaImage.renameTo(newImage);
-		fileName = newImage.getName();
-		return resource.getOrganization().getNfsStorageArea().getAreaPath() + Constants.UPLOADED_MEDIA_FOLDER + "/" + fileName;
+		if(fileName != null && ResourceImageUtil.getYoutubeVideoId(fileName) != null || fileName.contains(YOUTUBE_URL)) {
+			return fileName;
+		} else {
+			final String mediaFolderPath = resource.getOrganization().getNfsStorageArea().getInternalPath() + Constants.UPLOADED_MEDIA_FOLDER;
+			String resourceImageFile = mediaFolderPath + "/" + fileName;
+			String newImageFile = mediaFolderPath + "/" + assetKey + "_" + fileName;
+			File mediaImage = new File(resourceImageFile);
+			File newImage = new File(newImageFile);
+			mediaImage.renameTo(newImage);
+			fileName = newImage.getName();
+			return resource.getOrganization().getNfsStorageArea().getAreaPath() + Constants.UPLOADED_MEDIA_FOLDER + "/" + fileName;
+		}
 	}
 
 	@Override
@@ -1758,7 +1763,7 @@ public class AssessmentServiceImpl implements AssessmentService, ParameterProper
 			File mediaImage = new File(resourceImageFile);
 
 			String assetKey = StringUtils.left(assetKeyArr[i], assetKeyArr[i].indexOf("_"));
-			String fileName = assetKeyArr[i].split("_")[1];
+			String fileName = assetKeyArr[i].split("_")[0];
 			byte[] fileContent = FileUtils.readFileToByteArray(mediaImage);
 			if (fileContent.length > 0) {
 				AssessmentQuestionAssetAssoc questionAsset = null;
@@ -1782,6 +1787,46 @@ public class AssessmentServiceImpl implements AssessmentService, ParameterProper
 				assets.add(uploadQuestionAsset(gooruQuestionId, questionAsset, true));
 				question.setAssets(assets);
 				mediaImage.delete();
+			}
+		}
+		indexProcessor.index(question.getGooruOid(), IndexProcessor.INDEX, RESOURCE);
+		return question;
+	}
+	
+	@Override
+	public AssessmentQuestion updateQuestionVideoAssest(String gooruQuestionId, String assetKeys) throws Exception {
+		AssessmentQuestion question = getQuestion(gooruQuestionId);
+		String[] assetKeyArr = assetKeys.split("\\s*,\\s*");
+		for (int i = 0; i < assetKeyArr.length; i++) {
+			String assetKey = assetKeyArr[i];
+			//String fileName = assetKeyArr[i].split("_")[0];
+			if (resourceImageUtil.getYoutubeVideoId(assetKey) != null || assetKey.contains(YOUTUBE_URL)) {
+				AssessmentQuestionAssetAssoc questionAsset = null;
+				if (assetKey != null && assetKey.length() > 0) {
+					questionAsset = getQuestionAsset(assetKey, gooruQuestionId);
+				}
+				Asset asset = null;
+				if (questionAsset == null) {
+					asset = new Asset();
+					asset.setHasUniqueName(true);
+					questionAsset = new AssessmentQuestionAssetAssoc();
+					questionAsset.setQuestion(question);
+					questionAsset.setAsset(asset);
+					questionAsset.setAssetKey(assetKey);
+				} else {
+					asset = questionAsset.getAsset();
+				}
+				asset.setName(assetKey);
+				asset.setUrl(assetKey);
+				
+				assessmentRepository.save(asset);
+
+				assessmentRepository.saveAndFlush(questionAsset);
+				
+				Set<AssessmentQuestionAssetAssoc> assets = new HashSet<AssessmentQuestionAssetAssoc>();
+				assets.add(questionAsset);
+				question.setAssets(assets);
+				
 			}
 		}
 		indexProcessor.index(question.getGooruOid(), IndexProcessor.INDEX, RESOURCE);
@@ -1849,7 +1894,7 @@ public class AssessmentServiceImpl implements AssessmentService, ParameterProper
 		xstream.alias(ANSWER, AssessmentAnswer.class);
 		xstream.alias(HINT, AssessmentHint.class);
 		xstream.alias(TAXONOMY_CODE, Code.class);
-
+		xstream.alias("depthOfKnowledge", CustomTableValue.class);
 		AssessmentQuestion question = (AssessmentQuestion) xstream.fromXML(jsonData);
 		if (addFlag) {
 			question.setUser(user);
@@ -1893,5 +1938,6 @@ public class AssessmentServiceImpl implements AssessmentService, ParameterProper
 	public CustomTableRepository getCustomTableRepository() {
 		return customTableRepository;
 	}
+	
 
 }

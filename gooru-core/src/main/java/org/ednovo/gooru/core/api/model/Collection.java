@@ -58,11 +58,11 @@ private String performanceTasks;
 
 private String languageObjective;
 
-private String audience;
+private List<CustomTableValue> audience;
 
-private String learningSkills;
+private List<CustomTableValue> learningSkills;
 
-private String instructionalMethod;
+private List<CustomTableValue> instructionalMethod;
 
 public String getIdeas() {
 	return ideas;
@@ -94,30 +94,6 @@ public String getLanguageObjective() {
 
 public void setLanguageObjective(String languageObjective) {
 	this.languageObjective = languageObjective;
-}
-
-public String getAudience() {
-	return audience;
-}
-
-public void setAudience(String audience) {
-	this.audience = audience;
-}
-
-public String getLearningSkills() {
-	return learningSkills;
-}
-
-public void setLearningSkills(String learningSkills) {
-	this.learningSkills = learningSkills;
-}
-
-public String getInstructionalMethod() {
-	return instructionalMethod;
-}
-
-public void setInstructionalMethod(String instructionalMethod) {
-	this.instructionalMethod = instructionalMethod;
 }
 
 public Map<String, Object> getLastModifiedUser() {
@@ -282,4 +258,30 @@ public void setMailNotification(Boolean mailNotification) {
 	}
 	this.mailNotification = mailNotification;
 }
+
+public void setAudience(List<CustomTableValue> audience) {
+	this.audience = audience;
+}
+
+public List<CustomTableValue> getAudience() {
+	return audience;
+}
+
+public void setLearningSkills(List<CustomTableValue> learningSkills) {
+	this.learningSkills = learningSkills;
+}
+
+public List<CustomTableValue> getLearningSkills() {
+	return learningSkills;
+}
+
+public void setInstructionalMethod(List<CustomTableValue> instructionalMethod) {
+	this.instructionalMethod = instructionalMethod;
+}
+
+public List<CustomTableValue> getInstructionalMethod() {
+	return instructionalMethod;
+}
+
+
 }

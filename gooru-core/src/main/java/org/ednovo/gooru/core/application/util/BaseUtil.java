@@ -5,6 +5,8 @@ import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.Random;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -136,5 +138,18 @@ public class BaseUtil {
             return (o[2] + replaceDelimiter + o[1] + replaceDelimiter + o[0]);
 		} 
 		return null;
+	}
+	
+	public static String getYoutubeVideoId(String url) {
+		String pattern = "youtu(?:\\.be|be\\.com)/(?:.*v(?:/|=)|(?:.*/)?)([a-zA-Z0-9-_]{11}+)";
+		String videoId = null;
+		Pattern compiledPattern = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE);
+		Matcher matcher = compiledPattern.matcher(url);
+		if (matcher != null) {
+			while (matcher.find()) {
+				videoId = matcher.group(1);
+			}
+		}
+		return videoId;
 	}
 }

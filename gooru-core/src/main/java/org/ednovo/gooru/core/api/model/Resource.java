@@ -110,6 +110,8 @@ public class Resource extends Content implements Serializable {
 	private List<ResourceInstance> resourceInstances;
 
 	private transient List<Learnguide> resourceLearnguides;
+	
+	private List<CustomTableValue> depthOfKnowledges;
 
 	@JsonManagedReference
 	private Set<ResourceMetaData> resourceMetaData;
@@ -180,37 +182,11 @@ public class Resource extends Content implements Serializable {
 
 	private Map<String,Object> ratings;
 	
-	private String depthOfKnowledge;
 	
-	private String educationalUse;
+	private List<CustomTableValue> educationalUse;
 	
-	private String momentsOfLearning;
+	private List<CustomTableValue> momentsOfLearning;
 	
-	
-	
-	public String getDepthOfKnowledge() {
-		return depthOfKnowledge;
-	}
-
-	public void setDepthOfKnowledge(String depthOfKnowledge) {
-		this.depthOfKnowledge = depthOfKnowledge;
-	}
-
-	public String getEducationalUse() {
-		return educationalUse;
-	}
-
-	public void setEducationalUse(String educationalUse) {
-		this.educationalUse = educationalUse;
-	}
-
-	public String getMomentsOfLearning() {
-		return momentsOfLearning;
-	}
-
-	public void setMomentsOfLearning(String momentsOfLearning) {
-		this.momentsOfLearning = momentsOfLearning;
-	}
 
 	public static final String COLLECTION_THUMBNAIL_SIZES = "160x120,75x56,120x90,80x60,50x40,310x258,800x600";
 
@@ -612,8 +588,10 @@ public class Resource extends Content implements Serializable {
 					} else {
 						if (getThumbnail() != null && getThumbnail().contains("gooru-default")) {
 							this.url = getAssetURI() + getThumbnail();
-						} else {
+						} else if (getThumbnail() != null && !getThumbnail().isEmpty()) {
 							this.url = getAssetURI() + getFolder() + getThumbnail();
+						} else { 
+							this.url = "";
 						}
 					}
 				}
@@ -922,6 +900,30 @@ public class Resource extends Content implements Serializable {
 
 	public void setRatings(Map<String,Object> ratings) {
 		this.ratings = ratings;
+	}
+
+	public void setDepthOfKnowledges(List<CustomTableValue> depthOfKnowledges) {
+		this.depthOfKnowledges = depthOfKnowledges;
+	}
+
+	public List<CustomTableValue> getDepthOfKnowledges() {
+		return depthOfKnowledges;
+	}
+
+	public void setEducationalUse(List<CustomTableValue> educationalUse) {
+		this.educationalUse = educationalUse;
+	}
+
+	public List<CustomTableValue> getEducationalUse() {
+		return educationalUse;
+	}
+
+	public void setMomentsOfLearning(List<CustomTableValue> momentsOfLearning) {
+		this.momentsOfLearning = momentsOfLearning;
+	}
+
+	public List<CustomTableValue> getMomentsOfLearning() {
+		return momentsOfLearning;
 	}
 
 }

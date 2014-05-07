@@ -39,7 +39,6 @@ public class CustomTableRepositopryHibernate extends BaseRepositoryHibernate imp
 	private final String RETIREVE_BY_NAME = "From CustomTableValue ctv  where ctv.customTable.name=:name  and "+generateOrgAuthQuery("ctv.customTable.");
 
 	@Override
-	@Cacheable("gooruCache")
 	public CustomTableValue getCustomTableValue(String name, String value) {
 		Session session = getSession();
 		Query query = session.createQuery(RETIREVE_BY_NAME_VALUE);
@@ -68,5 +67,13 @@ public class CustomTableRepositopryHibernate extends BaseRepositoryHibernate imp
 		return    query.list(); 
 	}
 	
+	@Override
+	public CustomTableValue getValueByDisplayName(String displayName, String name) {
+		Session session = getSession();
+		Query query = session.createQuery("From CustomTableValue ctv  where ctv.displayName =:displayName and ctv.customTable.name=:name");
+		query.setParameter("name", name);
+		query.setParameter("displayName", displayName);
+		return   (CustomTableValue) (query.list().size() > 0 ? query.list().get(0) : null); 
+	}
 
 }

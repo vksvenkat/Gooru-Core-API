@@ -34,6 +34,7 @@ import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
+import org.ednovo.gooru.core.api.model.CustomTableValue;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.StandardFo;
 import org.ednovo.gooru.core.api.model.User;
@@ -124,4 +125,8 @@ public interface ScollectionService extends BaseService {
 	void updateFolderSharing(String collection);
 	
 	List<String> getParentCollection(String collectionGooruOid, String gooruUid, boolean reverse);
+	
+	List<CustomTableValue> getContentMetaAssociation(String type);
+	
+	List<CustomTableValue> setContentMetaAssociation(List<CustomTableValue> depthOfKnowledges, String collectionId, String type);
 }

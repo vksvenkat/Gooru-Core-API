@@ -45,5 +45,7 @@ public interface OAuthService {
 	public ActionResponseDTO<OAuthClient> getOAuthClient(String clientUId) throws Exception;
 	
 	public OAuthClient getOAuthClientByClientSecret(String clientSecret) throws Exception;
+	
+	List<OAuthClient> listOAuthClientByOrganization(String organizationUId, int pageNo, int pageSize) throws Exception;
 
 }
