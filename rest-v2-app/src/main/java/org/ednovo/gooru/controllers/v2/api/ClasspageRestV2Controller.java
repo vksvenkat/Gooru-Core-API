@@ -362,7 +362,7 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 		classpage.setResourceType(getCollectionService().getResourceType(ResourceType.Type.CLASSPAGE.getType()));
 		classpage.setLastModified(new Date(System.currentTimeMillis()));
 		classpage.setCreatedOn(new Date(System.currentTimeMillis()));
-		classpage.setSharing(Sharing.PRIVATE.getSharing());
+		
 		classpage.setUser(user);
 		classpage.setCollectionType(ResourceType.Type.CLASSPAGE.getType());
 		classpage.setOrganization(user.getPrimaryOrganization());
@@ -371,13 +371,12 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 		classpage.setRecordSource(NOT_ADDED);
 		classpage.setIsFeatured(0);
 		classpage.setLastUpdatedUserUid(user.getGooruUId());
-		if (!hasUnrestrictedContentAccess()) {
-			classpage.setSharing(Sharing.PUBLIC.getSharing());
+		if(classpage.getSharing() != null && (classpage.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || classpage.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing()))) {
+			classpage.setSharing(classpage.getSharing());
 		} else {
-			classpage
-					.setSharing(classpage.getSharing() != null && (classpage.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || classpage.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing()) || classpage.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing())) ? classpage
-							.getSharing() : Sharing.PUBLIC.getSharing());
+			classpage.setSharing(Sharing.PRIVATE.getSharing());
 		}
+		
 		return classpage;
 	}
 	
