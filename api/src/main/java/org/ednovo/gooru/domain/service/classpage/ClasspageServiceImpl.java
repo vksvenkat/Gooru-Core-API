@@ -144,14 +144,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 				
 				UserGroup userGroup = this.getUserGroupService().createGroup(newClasspage.getTitle(), newClasspage.getClasspageCode(), "System", user, null);
 				if (gooruOid != null && !gooruOid.isEmpty() && newCollectionItem != null) {
-					CollectionItem collectionItem = new CollectionItem();
-					collectionItem.setItemType(ShelfType.AddedType.ADDED.getAddedType());
-					collectionItem.setPlannedEndDate(newCollectionItem.getPlannedEndDate());
-					collectionItem.setNarration(newCollectionItem.getNarration());
-					collectionItem = this.createCollectionItem(gooruOid, newClasspage.getGooruOid(), collectionItem, newClasspage.getUser(), CollectionType.COLLECTION.getCollectionType(), false).getModel();
-					Set<CollectionItem> collectionItems = new TreeSet<CollectionItem>();
-					collectionItems.add(collectionItem);
-					newClasspage.setCollectionItems(collectionItems);
+					this.createClasspageItem(gooruOid, newClasspage.getGooruOid(), newCollectionItem, newClasspage.getUser(), CollectionType.USER_CLASSPAGE.getCollectionType());
 					this.getCollectionRepository().save(newClasspage);
 				}
 				if (addToMy) {
