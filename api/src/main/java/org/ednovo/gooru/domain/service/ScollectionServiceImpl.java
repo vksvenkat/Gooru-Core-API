@@ -1701,7 +1701,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			if (addToShelf) {
 				CollectionItem collectionItem = new CollectionItem();
 				collectionItem.setItemType(ShelfType.AddedType.SUBSCRIBED.getAddedType());
-				Collection myCollection = createMyShelfCollection(null, user, null, null);
+				Collection myCollection = createMyShelfCollection(null, user, null, new CollectionItem());
 				collectionItem.setCollection(myCollection);
 				collectionItem.setResource(destCollection);
 				int sequence = myCollection.getCollectionItems() != null ? myCollection.getCollectionItems().size() + 1 : 1;
