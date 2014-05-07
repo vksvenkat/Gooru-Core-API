@@ -460,30 +460,43 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			if (newCollection.getGrade() != null) {
 				resourceService.saveOrUpdateGrade(newCollection, collection);
 			}
-			if(newCollection.getDepthOfKnowledges() != null && newCollection.getDepthOfKnowledges().size() > 0) {
-				collection.setDepthOfKnowledges(this.updateContentMeta(newCollection.getDepthOfKnowledges(), updateCollectionId, apiCallerUser, "depth_of_knowledge"));
-			} else {
-				collection.setDepthOfKnowledges(this.setContentMetaAssociation(this.getContentMetaAssociation("depth_of_knowledge"), updateCollectionId, "depth_of_knowledge"));
+			if(newCollection.getLanguageObjective() != null) {
+				collection.setLanguageObjective(newCollection.getLanguageObjective());
 			}
-			
-			if(newCollection.getLearningSkills() != null && newCollection.getLearningSkills().size() > 0) {
-				collection.setLearningSkills(this.updateContentMeta(newCollection.getLearningSkills(), updateCollectionId, apiCallerUser, "learning_and_innovation_skills"));
-			} else {
-				collection.setLearningSkills(this.setContentMetaAssociation(this.getContentMetaAssociation("learning_and_innovation_skills"), updateCollectionId, "learning_and_innovation_skills"));
+			if(newCollection.getIdeas() != null) {
+				collection.setIdeas(newCollection.getIdeas());
 			}
-			
-			if(newCollection.getAudience() != null && newCollection.getAudience().size() > 0) {
-				collection.setAudience(this.updateContentMeta(newCollection.getAudience(), updateCollectionId, apiCallerUser, "audience"));
-			} else {
-				collection.setAudience(this.setContentMetaAssociation(this.getContentMetaAssociation("audience"), updateCollectionId, "audience"));
+			if(newCollection.getQuestions() != null) {
+				collection.setQuestions(newCollection.getQuestions());
 			}
-			
-			if(newCollection.getInstructionalMethod() != null && newCollection.getInstructionalMethod().size() > 0) {
-				collection.setInstructionalMethod(this.updateContentMeta(newCollection.getInstructionalMethod(), updateCollectionId, apiCallerUser, "instructional_method"));
-			} else {
-				collection.setInstructionalMethod(this.setContentMetaAssociation(this.getContentMetaAssociation("instructional_method"), updateCollectionId, "instructional_method"));
+			if(newCollection.getPerformanceTasks() != null) {
+				collection.setPerformanceTasks(newCollection.getPerformanceTasks());
 			}
-			
+			if (collection.getCollectionType().equalsIgnoreCase(COLLECTION)) {
+				if (newCollection.getDepthOfKnowledges() != null && newCollection.getDepthOfKnowledges().size() > 0) {
+					collection.setDepthOfKnowledges(this.updateContentMeta(newCollection.getDepthOfKnowledges(), updateCollectionId, apiCallerUser, "depth_of_knowledge"));
+				} else {
+					collection.setDepthOfKnowledges(this.setContentMetaAssociation(this.getContentMetaAssociation("depth_of_knowledge"), updateCollectionId, "depth_of_knowledge"));
+				}
+
+				if (newCollection.getLearningSkills() != null && newCollection.getLearningSkills().size() > 0) {
+					collection.setLearningSkills(this.updateContentMeta(newCollection.getLearningSkills(), updateCollectionId, apiCallerUser, "learning_and_innovation_skills"));
+				} else {
+					collection.setLearningSkills(this.setContentMetaAssociation(this.getContentMetaAssociation("learning_and_innovation_skills"), updateCollectionId, "learning_and_innovation_skills"));
+				}
+
+				if (newCollection.getAudience() != null && newCollection.getAudience().size() > 0) {
+					collection.setAudience(this.updateContentMeta(newCollection.getAudience(), updateCollectionId, apiCallerUser, "audience"));
+				} else {
+					collection.setAudience(this.setContentMetaAssociation(this.getContentMetaAssociation("audience"), updateCollectionId, "audience"));
+				}
+
+				if (newCollection.getInstructionalMethod() != null && newCollection.getInstructionalMethod().size() > 0) {
+					collection.setInstructionalMethod(this.updateContentMeta(newCollection.getInstructionalMethod(), updateCollectionId, apiCallerUser, "instructional_method"));
+				} else {
+					collection.setInstructionalMethod(this.setContentMetaAssociation(this.getContentMetaAssociation("instructional_method"), updateCollectionId, "instructional_method"));
+				}
+			}
 			if (newCollection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing())) {
 				collection.setSharing(newCollection.getSharing());
 				this.getCollectionRepository().save(collection);
@@ -524,20 +537,20 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 	
 	
-	public List<Map<String, String>> updateContentMeta(List<Map<String, String>> newDepthOfKnowledges, String collectionId, User apiCaller, String type) {
-		for (Map<String, String> newMeta : newDepthOfKnowledges) {
-			if (this.getCustomTableRepository().getValueByDisplayName(newMeta.get(VALUE), type) != null) {
-				ContentMetaAssociation contentMetaAssociation = this.getCollectionRepository().getContentMetaByValue(newMeta.get(VALUE), collectionId);
-				if (contentMetaAssociation == null && newMeta.get("selected").equalsIgnoreCase("true")) {
+	public List<CustomTableValue> updateContentMeta(List<CustomTableValue> newDepthOfKnowledges, String collectionId, User apiCaller, String type) {
+		for (CustomTableValue newMeta : newDepthOfKnowledges) {
+			if (this.getCustomTableRepository().getValueByDisplayName(newMeta.getValue(), type) != null) {
+				ContentMetaAssociation contentMetaAssociation = this.getCollectionRepository().getContentMetaByValue(newMeta.getValue(), collectionId);
+				if (contentMetaAssociation == null && newMeta.getSelected()) {
 					contentMetaAssociation = new ContentMetaAssociation();
-					contentMetaAssociation.setValue(newMeta.get(VALUE));
+					contentMetaAssociation.setValue(newMeta.getValue());
 					contentMetaAssociation.setAssociationType(this.getCustomTableRepository().getCustomTableValue("content_association_type", type));
 					contentMetaAssociation.setUser(apiCaller);
 					contentMetaAssociation.setContent(this.getContentRepositoryHibernate().findContentByGooruId(collectionId));
 					contentMetaAssociation.setAssociatedDate(new Date(System.currentTimeMillis()));
 					this.getCollectionRepository().save(contentMetaAssociation);
 				} else {
-					if (contentMetaAssociation != null && newMeta.get("selected").equalsIgnoreCase("false")) {
+					if (contentMetaAssociation != null && !newMeta.getSelected()) {
 						this.getCollectionRepository().remove(contentMetaAssociation);
 					}
 				}
@@ -857,33 +870,33 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 	
 	@Override
-	public List<Map<String, String>> getContentMetaAssociation(String type) {
-		List<Map<String, String>> depthOfKnowledges = new ArrayList<Map<String, String>>();
+	public List<CustomTableValue> getContentMetaAssociation(String type) {
+		List<CustomTableValue> depthOfKnowledges = new ArrayList<CustomTableValue>();
 		String cacheKey = "content_meta_association_type_" + type;
 		String data = redisService.getValue(cacheKey);
 		if (data == null) {
 			List<CustomTableValue> customTableValues = this.getCustomTableRepository().getCustomTableValues(type);
 			for (CustomTableValue customTableValue : customTableValues) {
-				Map<String, String> depthOfknowledge = new HashMap<String, String>();
-				depthOfknowledge.put(VALUE, customTableValue.getDisplayName());
-				depthOfknowledge.put("selected", "false");
+				CustomTableValue depthOfknowledge = new CustomTableValue();
+				depthOfknowledge.setValue(customTableValue.getDisplayName());
+				depthOfknowledge.setSelected(false);
 				depthOfKnowledges.add(depthOfknowledge);
 			}
 			redisService.putValue(cacheKey,  JsonSerializer.serialize(depthOfKnowledges, FORMAT_JSON));
 		} else {
-			depthOfKnowledges = JsonDeserializer.deserialize(data, new TypeReference<List<Map<String, String>>>() {
+			depthOfKnowledges = JsonDeserializer.deserialize(data, new TypeReference<List<CustomTableValue>>() {
 			});
 		}
 		return depthOfKnowledges;
 	}
 	
 	@Override
-	public List<Map<String, String>> setContentMetaAssociation(List<Map<String, String>> depthOfKnowledges, String collectionId, String type) {
+	public List<CustomTableValue> setContentMetaAssociation(List<CustomTableValue> depthOfKnowledges, String collectionId, String type) {
 		List<ContentMetaAssociation> metaAssociations = this.getCollectionRepository().getContentMetaById(collectionId, type);
 		for (ContentMetaAssociation contentMetaAssociation : metaAssociations) {
-			for (Map<String, String> depthOfKnowledge : depthOfKnowledges) {
-				if (depthOfKnowledge.get(VALUE).equalsIgnoreCase(contentMetaAssociation.getValue())) {
-					depthOfKnowledge.put("selected", "true");
+			for (CustomTableValue depthOfKnowledge : depthOfKnowledges) {
+				if (depthOfKnowledge.getValue().equalsIgnoreCase(contentMetaAssociation.getValue())) {
+					depthOfKnowledge.setSelected(true);
 				}
 			}
 		}
@@ -1507,8 +1520,8 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			if (newCollection.getGrade() != null) {
 				resourceService.saveOrUpdateGrade(newCollection, collection);
 			}
-			if(newCollection.getIdeas() != null) {
-				collection.setIdeas(newCollection.getIdeas());
+			if(newCollection.getLanguageObjective() != null) {
+				collection.setLanguageObjective(newCollection.getLanguageObjective());
 			}
 			if(newCollection.getIdeas() != null) {
 				collection.setIdeas(newCollection.getIdeas());
@@ -1794,7 +1807,11 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 					} else {
 						resource.setMomentsOfLearning(this.setContentMetaAssociation(this.getContentMetaAssociation("moments_of_learning"), resource.getGooruOid(), "moments_of_learning"));
 					}
-					
+					if(newResource.getMomentsOfLearning() != null && newResource.getMomentsOfLearning().size() > 0) {
+						resource.setEducationalUse(this.updateContentMeta(newResource.getMomentsOfLearning(),resource.getGooruOid(), user, "educational_use"));
+					} else {
+						resource.setEducationalUse(this.setContentMetaAssociation(this.getContentMetaAssociation("educational_use"), resource.getGooruOid(), "educational_use"));
+					}
 					if (newResource.getThumbnail() != null && newResource.getThumbnail().length() > 0) {
 						try {
 							this.getResourceImageUtil().downloadAndSendMsgToGenerateThumbnails(resource, newResource.getThumbnail());
