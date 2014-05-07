@@ -837,6 +837,14 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				lastUserModifiedMap.put(GOORU_UID, lastUserModified.getGooruUId());
 			}
 			collection.setLastModifiedUser(lastUserModifiedMap);
+			for (CollectionItem collectionItem : collection.getCollectionItems()) {
+				if (collectionItem.getResource().getResourceType().getName().equalsIgnoreCase("assessment-question")) {
+					collectionItem.getResource().setDepthOfKnowledges(this.setContentMetaAssociation(this.getContentMetaAssociation("depth_of_knowledge"), collectionItem.getResource().getGooruOid(), "depth_of_knowledge"));
+				} else {
+					collectionItem.getResource().setMomentsOfLearning(this.setContentMetaAssociation(this.getContentMetaAssociation("moments_of_learning"), collectionItem.getResource().getGooruOid(), "moments_of_learning"));
+				}
+				collectionItem.getResource().setEducationalUse(this.setContentMetaAssociation(this.getContentMetaAssociation("educational_use"), collectionItem.getResource().getGooruOid(), "educational_use"));
+			}
 			if (collection.getCollectionType().equalsIgnoreCase(COLLECTION)) {
 				collection.setDepthOfKnowledges(this.setContentMetaAssociation(this.getContentMetaAssociation("depth_of_knowledge"), collectionId, "depth_of_knowledge"));
 
@@ -868,6 +876,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		}
 		return collection;
 	}
+	
 	
 	@Override
 	public List<CustomTableValue> getContentMetaAssociation(String type) {
