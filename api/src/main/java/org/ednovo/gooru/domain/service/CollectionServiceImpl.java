@@ -49,7 +49,6 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.storage.StorageRepo
 import org.ednovo.gooru.infrastructure.persistence.hibernate.taxonomy.TaxonomyRespository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.Errors;
 
 @Service
 public class CollectionServiceImpl extends ScollectionServiceImpl implements CollectionService {
@@ -267,6 +266,21 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				}
 				item.put(SHARING, object[7]);
 				item.put(COLLECTION_ITEM_ID, object[8]);
+				if(String.valueOf(object[2]).equalsIgnoreCase("assessment-question")) {
+					item.put("depthOfKnowledges", this.setContentMetaAssociation(this.getContentMetaAssociation("depth_of_knowledge"), String.valueOf(object[1]), "depth_of_knowledge"));
+					item.put("educationalUse",this.setContentMetaAssociation(this.getContentMetaAssociation("educational_use"), String.valueOf(object[1]) , "educational_use"));
+				} else if(String.valueOf(object[2]).equalsIgnoreCase(SCOLLECTION)) {
+					item.put("depthOfKnowledges",this.setContentMetaAssociation(this.getContentMetaAssociation("depth_of_knowledge"), String.valueOf(object[1]), "depth_of_knowledge"));
+
+					item.put("learningSkills",this.setContentMetaAssociation(this.getContentMetaAssociation("learning_and_innovation_skills"), String.valueOf(object[1]), "learning_and_innovation_skills"));
+
+					item.put("audience",this.setContentMetaAssociation(this.getContentMetaAssociation("audience"), String.valueOf(object[1]), "audience"));
+
+					item.put("instructionalMethod",this.setContentMetaAssociation(this.getContentMetaAssociation("instructional_method"), String.valueOf(object[1]), "instructional_method"));
+				} else {
+					item.put("educationalUse",this.setContentMetaAssociation(this.getContentMetaAssociation("educational_use"), String.valueOf(object[1]) , "educational_use"));
+					item.put("momentsOfLearning",this.setContentMetaAssociation(this.getContentMetaAssociation("moments_of_learning"), String.valueOf(object[1]) , "moments_of_learning"));
+				}
 				if (fetchChildItem && (String.valueOf(object[2]).equalsIgnoreCase(SCOLLECTION) || String.valueOf(object[2]).equalsIgnoreCase(FOLDER))) {
 					if (String.valueOf(object[2]).equalsIgnoreCase(SCOLLECTION)) {
 						if (collectionItemcount == 0) {
