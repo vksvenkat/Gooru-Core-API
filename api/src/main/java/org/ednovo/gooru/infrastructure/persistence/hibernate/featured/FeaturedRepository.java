@@ -56,7 +56,7 @@ public interface FeaturedRepository extends BaseRepository {
 	
 	List<Object[]> getLibrary(String code, boolean fetchAll, String libraryName);
 	
-	List<Object[]> getLibraryCollection(String codeId, String featuredSetId, Integer limit, Integer offset,Boolean skipPagination);
+	List<Object[]> getLibraryCollection(String codeId, String featuredSetId, Integer limit, Integer offset,Boolean skipPagination, String contentId);
 	
 	Integer getFeaturedSetId(String type);
 	
