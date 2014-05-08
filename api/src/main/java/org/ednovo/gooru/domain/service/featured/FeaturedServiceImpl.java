@@ -46,6 +46,7 @@ import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.application.util.CollectionMetaInfo;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.core.exception.BadRequestException;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.domain.service.BaseServiceImpl;
 import org.ednovo.gooru.domain.service.CollectionService;
@@ -852,13 +853,13 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 	}
 
 	@Override
-	public Map<String, Object> assocaiateCollectionLibrary(String featuredId, String libraryName, String codeId, String gooruOid) {
+	public Map<String, Object> assocaiateCollectionLibrary(String featuredId, String codeId, String gooruOid) {
 		Collection collection = this.getCollectionRepository().getCollectionByGooruOid(gooruOid, null);
 		rejectIfNull(collection, GL0056, _COLLECTION);
-
+		Map<String, Object> content = null;
 		List<Object[]> result = this.getFeaturedRepository().getLibraryCollection(codeId, featuredId, 1, 0, false, String.valueOf(collection.getContentId()));
 		if (result != null && result.size() > 0) {
-			// throw bad credentinal expections
+			throw new BadRequestException(collection.getGooruOid() + " already associated");
 		} else {
 			FeaturedSet featuredSet = this.getFeaturedRepository().getFeaturedSetById(Integer.parseInt(featuredId));
 			rejectIfNull(featuredSet, GL0056, LIBRARY);
@@ -870,9 +871,25 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 			featuredSetItems.setContent(collection);
 			featuredSetItems.setSequence(1);
 			this.getFeaturedRepository().save(featuredSetItems);
+			content = new HashMap<String, Object>();
+			content.put(GOORU_OID, collection.getGooruOid());
+			content.put(LIBRARY_ID, featuredId);
+			content.put(CODE_ID, codeId);
 		}
 
-		return null;
+		return content;
+	}
+	
+	@Override
+	public void deleteLibraryCollectionAssoc(String featuredSetId, String codeId, String gooruOid) {
+		Collection collection = this.getCollectionRepository().getCollectionByGooruOid(gooruOid, null);
+		rejectIfNull(collection, GL0056, _COLLECTION);
+		FeaturedSet featuredSet = this.getFeaturedRepository().getFeaturedSetById(Integer.parseInt(featuredSetId));
+		rejectIfNull(featuredSet, GL0056, LIBRARY);
+		Code code = this.getTaxonomyRespository().findCodeByCodeId(Integer.parseInt(codeId));
+		rejectIfNull(code, GL0056, CODE);
+		this.getFeaturedRepository().deleteLibraryCollectionAssoc(featuredSetId, codeId, String.valueOf(collection.getContentId()));
+		
 	}
 	
 	@Override
@@ -932,5 +949,6 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 	public void setResourceRepository(ResourceRepository resourceRepository) {
 		this.resourceRepository = resourceRepository;
 	}
+
 
 }

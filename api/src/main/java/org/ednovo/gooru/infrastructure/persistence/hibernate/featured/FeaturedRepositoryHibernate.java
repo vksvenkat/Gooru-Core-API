@@ -322,4 +322,13 @@ public class FeaturedRepositoryHibernate extends BaseRepositoryHibernate impleme
 		return query.list();
 	}
 
+	@Override
+	public void deleteLibraryCollectionAssoc(String featuredSetId, String codeId, String contentId) {
+		String sql = "delete FeaturedSetItems where featuredSet.featuredSetId = '"+ featuredSetId +"' and code.codeId = '"+codeId+ "' and content.contentId = '" +contentId + "'";
+		Query query = getSession().createQuery(sql);
+		query.executeUpdate();
+	}
+	
+	
+
 }
