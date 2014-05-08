@@ -2667,4 +2667,6 @@ public interface ParameterProperties {
 	String FETCH_CHILDS = "fetchChilds";
 	
 	String RESOURCESOURCE = "resourceSource";
+		
+	String LIBRARY_ID = "libraryId";
 }

@@ -63,4 +63,6 @@ public interface FeaturedRepository extends BaseRepository {
 	List<Object[]> getCommunityLibraryResource(String type, Integer offset, Integer limit, boolean skipPagination,String libraryName);
 
 	Long getLibraryResourceCount(String type, String libraryName);
+	
+	List<Object[]> getLibrary(String libraryName);
 }
