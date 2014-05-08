@@ -1567,10 +1567,10 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 					collection.setInstructionalMethod(this.setContentMetaAssociation(this.getContentMetaAssociation("instructional_method"), updateCollectionId, "instructional_method"));
 				}
 			}
-			if (newCollection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing())) {
-				collection.setSharing(newCollection.getSharing());
-				updateResourceSharing(newCollection.getSharing(), collection);
-			}
+				if (newCollection.getSharing() != null && ( newCollection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing()))) {
+					collection.setSharing(newCollection.getSharing());
+					updateResourceSharing(newCollection.getSharing(), collection);
+				}
 
 			collection.setLastUpdatedUserUid(updateUser.getPartyUid());
 

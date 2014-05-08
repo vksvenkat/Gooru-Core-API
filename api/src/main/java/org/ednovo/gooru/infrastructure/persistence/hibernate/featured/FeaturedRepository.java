@@ -56,11 +56,15 @@ public interface FeaturedRepository extends BaseRepository {
 	
 	List<Object[]> getLibrary(String code, boolean fetchAll, String libraryName);
 	
-	List<Object[]> getLibraryCollection(String codeId, String featuredSetId, Integer limit, Integer offset,Boolean skipPagination);
+	List<Object[]> getLibraryCollection(String codeId, String featuredSetId, Integer limit, Integer offset,Boolean skipPagination, String contentId);
 	
 	Integer getFeaturedSetId(String type);
 	
 	List<Object[]> getCommunityLibraryResource(String type, Integer offset, Integer limit, boolean skipPagination,String libraryName);
 
 	Long getLibraryResourceCount(String type, String libraryName);
+	
+	List<Object[]> getLibrary(String libraryName);
+	
+	void deleteLibraryCollectionAssoc(String featuredSetId, String codeId, String contentId);
 }
