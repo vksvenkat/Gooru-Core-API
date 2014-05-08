@@ -34,7 +34,7 @@ import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
-import org.ednovo.gooru.core.api.model.CustomTableValue;
+import org.ednovo.gooru.core.api.model.ContentMetaDTO;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.StandardFo;
 import org.ednovo.gooru.core.api.model.User;
@@ -126,7 +126,9 @@ public interface ScollectionService extends BaseService {
 	
 	List<String> getParentCollection(String collectionGooruOid, String gooruUid, boolean reverse);
 	
-	List<CustomTableValue> getContentMetaAssociation(String type);
+	List<ContentMetaDTO> getContentMetaAssociation(String type);
 	
-	List<CustomTableValue> setContentMetaAssociation(List<CustomTableValue> depthOfKnowledges, String collectionId, String type);
+	List<ContentMetaDTO> setContentMetaAssociation(List<ContentMetaDTO> depthOfKnowledges, String collectionId, String type);
+	
+	List<ContentMetaDTO> updateContentMeta(List<ContentMetaDTO> newDepthOfKnowledges, String collectionId, User apiCaller, String type);
 }
