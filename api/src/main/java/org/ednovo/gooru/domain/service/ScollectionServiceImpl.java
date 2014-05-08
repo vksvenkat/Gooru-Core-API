@@ -1796,18 +1796,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 					}
 
 					this.getResourceService().saveOrUpdate(resource);
-					Set<Code> taxonomyCode = new HashSet<Code>();
-					Iterator<Code> iter = collection.getTaxonomySet().iterator();
-					while (iter.hasNext()) {
-						Code code = iter.next();
-						taxonomyCode.add(code);
-					}
-					Set<Code> originalTaxonomySet = resource.getTaxonomySet();
-					if (originalTaxonomySet != null) {
-						taxonomyCode.addAll(originalTaxonomySet);
-					}
-					resource.setTaxonomySet(taxonomyCode);
-					this.getResourceService().saveOrUpdate(resource);
+					resourceService.saveOrUpdateResourceTaxonomy(resource, newResource.getTaxonomySet());
 					this.getResourceService().updateYoutubeResourceFeeds(resource, false);
 					this.getResourceService().saveOrUpdate(resource);
 					this.getResourceService().mapSourceToResource(resource);
