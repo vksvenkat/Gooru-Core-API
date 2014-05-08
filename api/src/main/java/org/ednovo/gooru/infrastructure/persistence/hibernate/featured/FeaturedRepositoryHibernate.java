@@ -314,4 +314,12 @@ public class FeaturedRepositoryHibernate extends BaseRepositoryHibernate impleme
 		
 	}
 
+	@Override
+	public List<Object[]> getLibrary(String libraryName) {
+		libraryName = libraryName.contains(",") ?  libraryName.replace(",", "','") : libraryName;
+		String sql = "select featured_set_id, subject_code_id, theme_code from featured_set where theme_code in ("+libraryName + ")";
+		Query query = getSession().createSQLQuery(sql);
+		return query.list();
+	}
+
 }

@@ -852,15 +852,9 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 	}
 
 	@Override
-	public Map<String, Object> assocaiateCollectionLibrary(String type, String libraryName, String codeId, String gooruOid) {
+	public Map<String, Object> assocaiateCollectionLibrary(String featuredId, String libraryName, String codeId, String gooruOid) {
 		Collection collection = this.getCollectionRepository().getCollectionByGooruOid(gooruOid, null);
 		rejectIfNull(collection, GL0056, _COLLECTION);
-		List<Object[]> results = this.getFeaturedRepository().getLibrary(type, false, libraryName);
-		String featuredId = null;
-		if (results != null && results.size() > 0) {
-			Object[] obj = results.get(0);
-			featuredId = String.valueOf(obj[1]);
-		}
 
 		List<Object[]> result = this.getFeaturedRepository().getLibraryCollection(codeId, featuredId, 1, 0, false, String.valueOf(collection.getContentId()));
 		if (result != null && result.size() > 0) {
@@ -874,10 +868,25 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 			featuredSetItems.setCode(code);
 			featuredSetItems.setFeaturedSet(featuredSet);
 			featuredSetItems.setContent(collection);
+			featuredSetItems.setSequence(1);
 			this.getFeaturedRepository().save(featuredSetItems);
 		}
 
 		return null;
+	}
+	
+	@Override
+	public List<Map<String, Object>> getLibrary(String libraryName) {
+		List<Object[]> libraryObjectList = this.getFeaturedRepository().getLibrary(libraryName);
+		List<Map<String, Object>> libraryList = new ArrayList<Map<String,Object>>();
+		for (Object[] libraryObject : libraryObjectList) {
+			Map<String, Object> library = new HashMap<String, Object>();
+			library.put(LIBRARY_ID, libraryObject[0]);
+			library.put(SUBJECT_CODE, libraryObject[1]);
+			library.put(LIBRARY, libraryObject[2]);
+			libraryList.add(library);
+		}
+		return libraryList;
 	}
 
 	public FeaturedRepository getFeaturedRepository() {

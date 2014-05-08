@@ -68,5 +68,7 @@ public interface FeaturedService {
 
 	SearchResults<Map<String, Object>> getLibraryResource(String type, Integer offset, Integer limit, boolean skipPagination, String libraryName);
 	
-	Map<String, Object> assocaiateCollectionLibrary(String type, String libraryName, String codeId, String gooruOid);
+	Map<String, Object> assocaiateCollectionLibrary(String featuredId, String libraryName, String codeId, String gooruOid);
+	
+	List<Map<String, Object>> getLibrary(String libraryName);
 }

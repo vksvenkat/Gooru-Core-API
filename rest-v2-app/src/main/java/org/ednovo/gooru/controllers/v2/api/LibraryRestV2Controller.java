@@ -224,11 +224,17 @@ public class LibraryRestV2Controller extends BaseController implements ConstantP
 		return toModelAndView(data);
 	}
 
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAXONOMY_READ })
+	@RequestMapping(value = "", method = RequestMethod.GET)
+	public ModelAndView getLibrary(@PathVariable(value = TYPE) String type, @RequestParam(value = LIBRARY_NAME, required = false, defaultValue = LIBRARY) String libraryName, HttpServletRequest request, HttpServletResponse response) {
+		return toModelAndView(this.getFeaturedService().getLibrary(libraryName));
+	}
+	
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAXONOMY_ADD })
-	@RequestMapping(value = "/{type}", method = RequestMethod.POST)
-	public ModelAndView AssocaiateCollectionLibrary(@PathVariable(value = TYPE) String type, @RequestParam(value = LIBRARY_NAME, required = false, defaultValue = LIBRARY) String libraryName,@RequestParam(value = CODE_ID) String codeId, @RequestParam(value = GOORU_OID) String gooruOid, HttpServletRequest request, HttpServletResponse response) {
-          this.getFeaturedService().assocaiateCollectionLibrary(type, libraryName, codeId, gooruOid);
+	@RequestMapping(value = "/{libraryId}", method = RequestMethod.POST)
+	public ModelAndView AssocaiateCollectionLibrary(@PathVariable(value = LIBRARY_ID) String libraryId, @RequestParam(value = LIBRARY_NAME, required = false, defaultValue = LIBRARY) String libraryName,@RequestParam(value = CODE_ID) String codeId, @RequestParam(value = GOORU_OID) String gooruOid, HttpServletRequest request, HttpServletResponse response) {
+          this.getFeaturedService().assocaiateCollectionLibrary(libraryId, libraryName, codeId, gooruOid);
 		return null;
 	}
 
