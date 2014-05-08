@@ -58,11 +58,11 @@ private String performanceTasks;
 
 private String languageObjective;
 
-private List<CustomTableValue> audience;
+private List<ContentMetaDTO> audience;
 
-private List<CustomTableValue> learningSkills;
+private List<ContentMetaDTO> learningSkills;
 
-private List<CustomTableValue> instructionalMethod;
+private List<ContentMetaDTO> instructionalMethod;
 
 public String getIdeas() {
 	return ideas;
@@ -259,29 +259,30 @@ public void setMailNotification(Boolean mailNotification) {
 	this.mailNotification = mailNotification;
 }
 
-public void setAudience(List<CustomTableValue> audience) {
+public void setAudience(List<ContentMetaDTO> audience) {
 	this.audience = audience;
 }
 
-public List<CustomTableValue> getAudience() {
+public List<ContentMetaDTO> getAudience() {
 	return audience;
 }
 
-public void setLearningSkills(List<CustomTableValue> learningSkills) {
+public void setLearningSkills(List<ContentMetaDTO> learningSkills) {
 	this.learningSkills = learningSkills;
 }
 
-public List<CustomTableValue> getLearningSkills() {
+public List<ContentMetaDTO> getLearningSkills() {
 	return learningSkills;
 }
 
-public void setInstructionalMethod(List<CustomTableValue> instructionalMethod) {
+public void setInstructionalMethod(List<ContentMetaDTO> instructionalMethod) {
 	this.instructionalMethod = instructionalMethod;
 }
 
-public List<CustomTableValue> getInstructionalMethod() {
+public List<ContentMetaDTO> getInstructionalMethod() {
 	return instructionalMethod;
 }
+
 
 
 }

@@ -49,6 +49,7 @@ import org.ednovo.gooru.core.api.model.CollectionType;
 import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.ContentAssociation;
 import org.ednovo.gooru.core.api.model.ContentMetaAssociation;
+import org.ednovo.gooru.core.api.model.ContentMetaDTO;
 import org.ednovo.gooru.core.api.model.ContentType;
 import org.ednovo.gooru.core.api.model.CustomTableValue;
 import org.ednovo.gooru.core.api.model.Identity;
@@ -536,9 +537,9 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		return new ActionResponseDTO<Collection>(collection, errors);
 	}
 	
-	
-	public List<CustomTableValue> updateContentMeta(List<CustomTableValue> newDepthOfKnowledges, String collectionId, User apiCaller, String type) {
-		for (CustomTableValue newMeta : newDepthOfKnowledges) {
+	@Override
+	public List<ContentMetaDTO> updateContentMeta(List<ContentMetaDTO> newDepthOfKnowledges, String collectionId, User apiCaller, String type) {
+		for (ContentMetaDTO newMeta : newDepthOfKnowledges) {
 			if (this.getCustomTableRepository().getValueByDisplayName(newMeta.getValue(), type) != null) {
 				ContentMetaAssociation contentMetaAssociation = this.getCollectionRepository().getContentMetaByValue(newMeta.getValue(), collectionId);
 				if (contentMetaAssociation == null && newMeta.getSelected()) {
@@ -879,31 +880,31 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	
 	
 	@Override
-	public List<CustomTableValue> getContentMetaAssociation(String type) {
-		List<CustomTableValue> depthOfKnowledges = new ArrayList<CustomTableValue>();
+	public List<ContentMetaDTO> getContentMetaAssociation(String type) {
+		List<ContentMetaDTO> depthOfKnowledges = new ArrayList<ContentMetaDTO>();
 		String cacheKey = "content_meta_association_type_" + type;
 		String data = redisService.getValue(cacheKey);
 		if (data == null) {
 			List<CustomTableValue> customTableValues = this.getCustomTableRepository().getCustomTableValues(type);
 			for (CustomTableValue customTableValue : customTableValues) {
-				CustomTableValue depthOfknowledge = new CustomTableValue();
+				ContentMetaDTO depthOfknowledge = new ContentMetaDTO();
 				depthOfknowledge.setValue(customTableValue.getDisplayName());
 				depthOfknowledge.setSelected(false);
 				depthOfKnowledges.add(depthOfknowledge);
 			}
 			redisService.putValue(cacheKey,  JsonSerializer.serialize(depthOfKnowledges, FORMAT_JSON));
 		} else {
-			depthOfKnowledges = JsonDeserializer.deserialize(data, new TypeReference<List<CustomTableValue>>() {
+			depthOfKnowledges = JsonDeserializer.deserialize(data, new TypeReference<List<ContentMetaDTO>>() {
 			});
 		}
 		return depthOfKnowledges;
 	}
 	
 	@Override
-	public List<CustomTableValue> setContentMetaAssociation(List<CustomTableValue> depthOfKnowledges, String collectionId, String type) {
+	public List<ContentMetaDTO> setContentMetaAssociation(List<ContentMetaDTO> depthOfKnowledges, String collectionId, String type) {
 		List<ContentMetaAssociation> metaAssociations = this.getCollectionRepository().getContentMetaById(collectionId, type);
 		for (ContentMetaAssociation contentMetaAssociation : metaAssociations) {
-			for (CustomTableValue depthOfKnowledge : depthOfKnowledges) {
+			for (ContentMetaDTO depthOfKnowledge : depthOfKnowledges) {
 				if (depthOfKnowledge.getValue().equalsIgnoreCase(contentMetaAssociation.getValue())) {
 					depthOfKnowledge.setSelected(true);
 				}

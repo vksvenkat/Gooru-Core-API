@@ -2696,7 +2696,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 
 	@Override
 	public ActionResponseDTO<Resource> updateResource(String resourceId, Resource newResource, User user) throws Exception {
-		Resource resource = resourceRepository.findResourceByContentGooruId(resourceId);
+		Resource resource = this.findResourceByContentGooruId(resourceId);
 		Errors errors = validateUpdateResource(newResource, resource);
 
 		if (!errors.hasErrors()) {

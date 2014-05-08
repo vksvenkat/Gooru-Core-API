@@ -106,7 +106,7 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 	public ModelAndView updateCollection(@PathVariable(value = ID) String collectionId, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
 		JSONObject json = requestData(data);
-		ActionResponseDTO<Collection> responseDTO = getCollectionService().updateCollection(this.buildCollectionFromInputParameters(getValue(COLLECTION, json), user), collectionId, getValue(OWNER_UID, json), getValue(CREATOR_UID, json), hasUnrestrictedContentAccess(),
+		ActionResponseDTO<Collection> responseDTO = getCollectionService().updateCollection(this.buildCopyCollectionFromInputParameters(getValue(COLLECTION, json), user), collectionId, getValue(OWNER_UID, json), getValue(CREATOR_UID, json), hasUnrestrictedContentAccess(),
 				getValue(RELATED_CONTENT_ID, json), user);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
