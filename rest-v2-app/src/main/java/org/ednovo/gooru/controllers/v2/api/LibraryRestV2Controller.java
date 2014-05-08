@@ -234,7 +234,7 @@ public class LibraryRestV2Controller extends BaseController implements ConstantP
 
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAXONOMY_DELETE })
-	@RequestMapping(value = "/{libraryId}", method = RequestMethod.POST)
+	@RequestMapping(value = "/{libraryId}", method = RequestMethod.DELETE)
 	public void deleteAssocCollectionLibrary(@PathVariable(value = LIBRARY_ID) String libraryId, @RequestParam(value = CODE_ID) String codeId, @RequestParam(value = GOORU_OID) String gooruOid, HttpServletRequest request, HttpServletResponse response) {
 		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
 		this.getFeaturedService().deleteLibraryCollectionAssoc(libraryId, codeId, gooruOid);
