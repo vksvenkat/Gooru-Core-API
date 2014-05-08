@@ -226,7 +226,7 @@ public class LibraryRestV2Controller extends BaseController implements ConstantP
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAXONOMY_READ })
 	@RequestMapping(value = "", method = RequestMethod.GET)
-	public ModelAndView getLibrary(@PathVariable(value = TYPE) String type, @RequestParam(value = LIBRARY_NAME, required = false, defaultValue = LIBRARY) String libraryName, HttpServletRequest request, HttpServletResponse response) {
+	public ModelAndView getLibrary(@RequestParam(value = LIBRARY_NAME, required = false, defaultValue = LIBRARY_NAMES) String libraryName, HttpServletRequest request, HttpServletResponse response) {
 		return toModelAndView(this.getFeaturedService().getLibrary(libraryName));
 	}
 	
