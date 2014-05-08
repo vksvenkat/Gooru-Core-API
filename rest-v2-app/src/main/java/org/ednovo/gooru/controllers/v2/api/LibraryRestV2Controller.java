@@ -155,9 +155,6 @@ public class LibraryRestV2Controller extends BaseController implements ConstantP
 			data = getRedisService().getValue(cacheKey);
 		}
 		if (data == null) {
-			// SearchResults<Map<String, Object>> results =
-			// this.getFeaturedService().getLibraryCollections(limit, offset,
-			// skipPagination, themeCode, themeType);
 			SearchResults<Map<String, Object>> results = this.getFeaturedService().getLibraryCollections(limit, offset, skipPagination, themeCode, themeType, subjectId, courseId, unitId, lessonId, topicId);
 			String includes[] = (String[]) ArrayUtils.addAll(LIBRARY_FEATURED_COLLECTIONS_INCLUDE_FIELDS, LIBRARY_FEATURED_COLLECTIONS_USER_INCLUDE_FIELDS);
 			data = serialize(results, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, false, true, includes);
@@ -198,8 +195,6 @@ public class LibraryRestV2Controller extends BaseController implements ConstantP
 			library = this.getFeaturedService().getPopularLibrary(id, offset, limit, libraryName);
 			String includes[] = (String[]) ArrayUtils.addAll(LIBRARY_RESOURCE_INCLUDE_FIELDS, LIBRARY_COLLECTION_INCLUDE_FIELDS);
 			includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_ITEM_INCLUDE_FILEDS);
-			// includes = (String[]) ArrayUtils.addAll(includes,
-			// LIBRARY_CODE_INCLUDES);
 			data = serialize(library, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, false, true, includes);
 			getRedisService().putValue(cacheKey, data);
 		}
@@ -227,15 +222,22 @@ public class LibraryRestV2Controller extends BaseController implements ConstantP
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAXONOMY_READ })
 	@RequestMapping(value = "", method = RequestMethod.GET)
 	public ModelAndView getLibrary(@RequestParam(value = LIBRARY_NAME, required = false, defaultValue = LIBRARY_NAMES) String libraryName, HttpServletRequest request, HttpServletResponse response) {
-		return toModelAndView(this.getFeaturedService().getLibrary(libraryName));
+		return toModelAndView(this.getFeaturedService().getLibrary(libraryName), JSON);
 	}
-	
+
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAXONOMY_ADD })
 	@RequestMapping(value = "/{libraryId}", method = RequestMethod.POST)
-	public ModelAndView AssocaiateCollectionLibrary(@PathVariable(value = LIBRARY_ID) String libraryId, @RequestParam(value = LIBRARY_NAME, required = false, defaultValue = LIBRARY) String libraryName,@RequestParam(value = CODE_ID) String codeId, @RequestParam(value = GOORU_OID) String gooruOid, HttpServletRequest request, HttpServletResponse response) {
-          this.getFeaturedService().assocaiateCollectionLibrary(libraryId, libraryName, codeId, gooruOid);
-		return null;
+	public ModelAndView AssocaiateCollectionLibrary(@PathVariable(value = LIBRARY_ID) String libraryId, @RequestParam(value = CODE_ID) String codeId, @RequestParam(value = GOORU_OID) String gooruOid, HttpServletRequest request, HttpServletResponse response) {
+		return toModelAndView(this.getFeaturedService().assocaiateCollectionLibrary(libraryId, codeId, gooruOid), JSON);
+	}
+
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAXONOMY_DELETE })
+	@RequestMapping(value = "/{libraryId}", method = RequestMethod.POST)
+	public void deleteAssocCollectionLibrary(@PathVariable(value = LIBRARY_ID) String libraryId, @RequestParam(value = CODE_ID) String codeId, @RequestParam(value = GOORU_OID) String gooruOid, HttpServletRequest request, HttpServletResponse response) {
+		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+		this.getFeaturedService().deleteLibraryCollectionAssoc(libraryId, codeId, gooruOid);
 	}
 
 	public TaxonomyService getTaxonomyService() {

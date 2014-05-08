@@ -65,4 +65,6 @@ public interface FeaturedRepository extends BaseRepository {
 	Long getLibraryResourceCount(String type, String libraryName);
 	
 	List<Object[]> getLibrary(String libraryName);
+	
+	void deleteLibraryCollectionAssoc(String featuredSetId, String codeId, String contentId);
 }
