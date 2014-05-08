@@ -83,6 +83,7 @@ import org.ednovo.gooru.core.application.util.RequestUtil;
 import org.ednovo.gooru.core.application.util.ServerValidationUtils;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.domain.service.CollectionService;
 import org.ednovo.gooru.domain.service.content.ContentService;
 import org.ednovo.gooru.domain.service.resource.AssetManager;
 import org.ednovo.gooru.domain.service.resource.ResourceManager;
@@ -180,6 +181,9 @@ public class AssessmentServiceImpl implements AssessmentService, ParameterProper
 
 	@Autowired
 	private AsyncExecutor asyncExecutor;
+	
+	@Autowired
+	private CollectionService collectionService;
 
 	@Override
 	public AssessmentQuestion getQuestion(String gooruOQuestionId) {
@@ -555,6 +559,16 @@ public class AssessmentServiceImpl implements AssessmentService, ParameterProper
 				this.createRevisionHistoryEntry(assessment.getGooruOid(), ASSESSMENT_QUESTION_UPDATE);
 			}
 			assessmentRepository.save(question);
+			if(question.getDepthOfKnowledges() != null && question.getDepthOfKnowledges().size() > 0) {
+				question.setDepthOfKnowledges(this.collectionService.updateContentMeta(question.getDepthOfKnowledges(),question.getGooruOid(), question.getUser(), "depth_of_knowledge"));
+			} else {
+				question.setDepthOfKnowledges(this.collectionService.setContentMetaAssociation(this.collectionService.getContentMetaAssociation("depth_of_knowledge"), question.getGooruOid(), "depth_of_knowledge"));
+			}
+			if(question.getEducationalUse() != null && question.getEducationalUse().size() > 0) {
+				question.setEducationalUse(this.collectionService.updateContentMeta(question.getDepthOfKnowledges(),question.getGooruOid(), question.getUser(), "educational_use"));
+			} else {
+				question.setEducationalUse(this.collectionService.setContentMetaAssociation(this.collectionService.getContentMetaAssociation("educational_use"), question.getGooruOid(), "educational_use"));
+			}
 
 			if (question.getResourceInfo() != null) {
 				resourceRepository.save(question.getResourceInfo());

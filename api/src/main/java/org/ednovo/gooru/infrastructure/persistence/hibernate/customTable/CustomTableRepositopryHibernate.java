@@ -29,7 +29,6 @@ import org.ednovo.gooru.core.api.model.CustomTableValue;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -39,7 +38,6 @@ public class CustomTableRepositopryHibernate extends BaseRepositoryHibernate imp
 	private final String RETIREVE_BY_NAME = "From CustomTableValue ctv  where ctv.customTable.name=:name  and "+generateOrgAuthQuery("ctv.customTable.");
 
 	@Override
-	@Cacheable("gooruCache")
 	public CustomTableValue getCustomTableValue(String name, String value) {
 		Session session = getSession();
 		Query query = session.createQuery(RETIREVE_BY_NAME_VALUE);
