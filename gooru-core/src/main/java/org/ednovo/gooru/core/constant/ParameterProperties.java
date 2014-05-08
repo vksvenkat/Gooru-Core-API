@@ -2669,4 +2669,6 @@ public interface ParameterProperties {
 	String RESOURCESOURCE = "resourceSource";
 		
 	String LIBRARY_ID = "libraryId";
+	
+	String LIBRARY_NAMES = "library,rusd";
 }
