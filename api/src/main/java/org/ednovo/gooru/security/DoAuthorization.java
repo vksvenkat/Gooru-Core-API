@@ -181,13 +181,8 @@ public class DoAuthorization  {
 		} 
 		// check token expires
 		if (authentication.getUserToken().getUser() != null && (auth == null || hasRoleChanged(auth, authentication.getUserToken().getUser()))) {
-			doAuthentication(request, response, authentication.getUserToken().getUser(), sessionToken, skipCache, authentication, key);
+			doAuthentication(request, response, authentication.getUserToken().getUser(), authentication.getUserToken().getToken(), skipCache, authentication, key);
 		}
-		/*SessionContextSupport.putLogParameter("userId", authentication.getUserToken().getUser().getUserId());
-		SessionContextSupport.putLogParameter("gooruUId", authentication.getUserToken().getUser().getPartyUid());
-		SessionContextSupport.putLogParameter("sessionToken", sessionToken);
-		SessionContextSupport.putLogParameter("organizationUid", authentication.getUserToken().getUser().getOrganization().getPartyUid());*/
-		
 		JSONObject session = new JSONObject();
 			try {
 				session.put("sessionToken", sessionToken);
