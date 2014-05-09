@@ -554,6 +554,8 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 			user.setEmailId(pearsonEmailId);
 			userRepository.save(user);
 		}
+		userRepository.flush();
+		indexProcessor.index(user.getPartyUid(), IndexProcessor.INDEX, USER, userToken != null ? userToken.getToken() : null);
 
 		if (user != null && sendConfirmationMail && inviteuser.size() <= 0) {
 			if (isAdminCreateUser) {
