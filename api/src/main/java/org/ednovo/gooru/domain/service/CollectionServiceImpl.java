@@ -92,7 +92,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				response.getModel().getResource().setDepthOfKnowledges(this.setContentMetaAssociation(this.getContentMetaAssociation("depth_of_knowledge"), question.getGooruOid(), "depth_of_knowledge"));
 			}
 			if(question.getEducationalUse() != null && question.getEducationalUse().size() > 0) {
-				response.getModel().getResource().setEducationalUse(this.updateContentMeta(question.getDepthOfKnowledges(),question.getGooruOid(), user, "educational_use"));
+				response.getModel().getResource().setEducationalUse(this.updateContentMeta(question.getEducationalUse(),question.getGooruOid(), user, "educational_use"));
 			} else {
 				response.getModel().getResource().setEducationalUse(this.setContentMetaAssociation(this.getContentMetaAssociation("educational_use"), question.getGooruOid(), "educational_use"));
 			}
