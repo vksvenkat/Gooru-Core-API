@@ -2696,7 +2696,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 
 	@Override
 	public ActionResponseDTO<Resource> updateResource(String resourceId, Resource newResource, User user) throws Exception {
-		Resource resource = resourceRepository.findResourceByContentGooruId(resourceId);
+		Resource resource = this.resourceRepository.findResourceByContentGooruId(resourceId);
 		Errors errors = validateUpdateResource(newResource, resource);
 
 		if (!errors.hasErrors()) {
@@ -2747,7 +2747,17 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 					resource.setLicense(licenseData); 
 				}
 			}
-
+			if(newResource.getMomentsOfLearning() != null && newResource.getMomentsOfLearning().size() > 0) {
+				resource.setMomentsOfLearning(this.getCollectionService().updateContentMeta(newResource.getMomentsOfLearning(),resource.getGooruOid(), user, "moments_of_learning"));
+			} else {
+				resource.setMomentsOfLearning(this.getCollectionService().setContentMetaAssociation(this.getCollectionService().getContentMetaAssociation("moments_of_learning"), resource.getGooruOid(), "moments_of_learning"));
+			}
+			if(newResource.getEducationalUse() != null && newResource.getEducationalUse().size() > 0) {
+				resource.setEducationalUse(this.getCollectionService().updateContentMeta(newResource.getEducationalUse(),resource.getGooruOid(), user, "educational_use"));
+			} else {
+				resource.setEducationalUse(this.getCollectionService().setContentMetaAssociation(this.getCollectionService().getContentMetaAssociation("educational_use"), resource.getGooruOid(), "educational_use"));
+			}
+			
 			saveOrUpdateResourceTaxonomy(resource, newResource.getTaxonomySet());
 
 			if (newResource.getResourceSource() != null) {

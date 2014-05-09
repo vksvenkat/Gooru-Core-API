@@ -65,6 +65,7 @@ import org.ednovo.gooru.core.api.model.AttemptQuestionDTO;
 import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.api.model.CodeType;
 import org.ednovo.gooru.core.api.model.Content;
+import org.ednovo.gooru.core.api.model.ContentMetaDTO;
 import org.ednovo.gooru.core.api.model.ContentType;
 import org.ednovo.gooru.core.api.model.CustomTableValue;
 import org.ednovo.gooru.core.api.model.License;
@@ -83,6 +84,7 @@ import org.ednovo.gooru.core.application.util.RequestUtil;
 import org.ednovo.gooru.core.application.util.ServerValidationUtils;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.domain.service.CollectionService;
 import org.ednovo.gooru.domain.service.content.ContentService;
 import org.ednovo.gooru.domain.service.resource.AssetManager;
 import org.ednovo.gooru.domain.service.resource.ResourceManager;
@@ -180,6 +182,9 @@ public class AssessmentServiceImpl implements AssessmentService, ParameterProper
 
 	@Autowired
 	private AsyncExecutor asyncExecutor;
+	
+	@Autowired
+	private CollectionService collectionService;
 
 	@Override
 	public AssessmentQuestion getQuestion(String gooruOQuestionId) {
@@ -544,7 +549,9 @@ public class AssessmentServiceImpl implements AssessmentService, ParameterProper
 
 	@Override
 	public ActionResponseDTO<AssessmentQuestion> updateQuestion(AssessmentQuestion question, List<Integer> deleteAssets, String gooruOQuestionId, boolean copyToOriginal, boolean index) throws Exception {
-
+		List<ContentMetaDTO> depth = question.getDepthOfKnowledges();
+		List<ContentMetaDTO> educational = question.getEducationalUse();
+		
 		question = initQuestion(question, gooruOQuestionId, copyToOriginal);
 		Errors errors = validateQuestion(question);
 		List<Asset> assets = buildQuestionAssets(deleteAssets, errors);
@@ -555,6 +562,16 @@ public class AssessmentServiceImpl implements AssessmentService, ParameterProper
 				this.createRevisionHistoryEntry(assessment.getGooruOid(), ASSESSMENT_QUESTION_UPDATE);
 			}
 			assessmentRepository.save(question);
+			if(depth != null && depth.size() > 0) {
+				question.setDepthOfKnowledges(this.collectionService.updateContentMeta(depth,question.getGooruOid(), question.getUser(), "depth_of_knowledge"));
+			} else {
+				question.setDepthOfKnowledges(this.collectionService.setContentMetaAssociation(this.collectionService.getContentMetaAssociation("depth_of_knowledge"), question.getGooruOid(), "depth_of_knowledge"));
+			}
+			if(educational != null && educational.size() > 0) {
+				question.setEducationalUse(this.collectionService.updateContentMeta(educational,question.getGooruOid(), question.getUser(), "educational_use"));
+			} else {
+				question.setEducationalUse(this.collectionService.setContentMetaAssociation(this.collectionService.getContentMetaAssociation("educational_use"), question.getGooruOid(), "educational_use"));
+			}
 
 			if (question.getResourceInfo() != null) {
 				resourceRepository.save(question.getResourceInfo());
@@ -1894,7 +1911,8 @@ public class AssessmentServiceImpl implements AssessmentService, ParameterProper
 		xstream.alias(ANSWER, AssessmentAnswer.class);
 		xstream.alias(HINT, AssessmentHint.class);
 		xstream.alias(TAXONOMY_CODE, Code.class);
-		xstream.alias("depthOfKnowledge", CustomTableValue.class);
+		xstream.alias("depthOfKnowledge", ContentMetaDTO.class);
+		xstream.alias("educationalUse", ContentMetaDTO.class);
 		AssessmentQuestion question = (AssessmentQuestion) xstream.fromXML(jsonData);
 		if (addFlag) {
 			question.setUser(user);
