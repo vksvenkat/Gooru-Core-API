@@ -1567,10 +1567,10 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 					collection.setInstructionalMethod(this.setContentMetaAssociation(this.getContentMetaAssociation("instructional_method"), updateCollectionId, "instructional_method"));
 				}
 			}
-			if (newCollection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing())) {
-				collection.setSharing(newCollection.getSharing());
-				updateResourceSharing(newCollection.getSharing(), collection);
-			}
+				if (newCollection.getSharing() != null && ( newCollection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing()))) {
+					collection.setSharing(newCollection.getSharing());
+					updateResourceSharing(newCollection.getSharing(), collection);
+				}
 
 			collection.setLastUpdatedUserUid(updateUser.getPartyUid());
 
@@ -1796,18 +1796,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 					}
 
 					this.getResourceService().saveOrUpdate(resource);
-					Set<Code> taxonomyCode = new HashSet<Code>();
-					Iterator<Code> iter = collection.getTaxonomySet().iterator();
-					while (iter.hasNext()) {
-						Code code = iter.next();
-						taxonomyCode.add(code);
-					}
-					Set<Code> originalTaxonomySet = resource.getTaxonomySet();
-					if (originalTaxonomySet != null) {
-						taxonomyCode.addAll(originalTaxonomySet);
-					}
-					resource.setTaxonomySet(taxonomyCode);
-					this.getResourceService().saveOrUpdate(resource);
+					resourceService.saveOrUpdateResourceTaxonomy(resource, newResource.getTaxonomySet());
 					this.getResourceService().updateYoutubeResourceFeeds(resource, false);
 					this.getResourceService().saveOrUpdate(resource);
 					this.getResourceService().mapSourceToResource(resource);
@@ -1817,8 +1806,8 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 					} else {
 						resource.setMomentsOfLearning(this.setContentMetaAssociation(this.getContentMetaAssociation("moments_of_learning"), resource.getGooruOid(), "moments_of_learning"));
 					}
-					if(newResource.getMomentsOfLearning() != null && newResource.getMomentsOfLearning().size() > 0) {
-						resource.setEducationalUse(this.updateContentMeta(newResource.getMomentsOfLearning(),resource.getGooruOid(), user, "educational_use"));
+					if(newResource.getEducationalUse() != null && newResource.getEducationalUse().size() > 0) {
+						resource.setEducationalUse(this.updateContentMeta(newResource.getEducationalUse(),resource.getGooruOid(), user, "educational_use"));
 					} else {
 						resource.setEducationalUse(this.setContentMetaAssociation(this.getContentMetaAssociation("educational_use"), resource.getGooruOid(), "educational_use"));
 					}
