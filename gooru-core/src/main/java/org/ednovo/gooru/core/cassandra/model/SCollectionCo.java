@@ -1,7 +1,11 @@
 package org.ednovo.gooru.core.cassandra.model;
 
+import java.util.Map;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
+
+import java.util.List;
 
 @Entity(name = "scollection")
 public class SCollectionCo {
@@ -48,6 +52,51 @@ public class SCollectionCo {
 	@Column
 	public String resourceCount;
 	
+	@Column
+	public String audience;
+	
+	@Column
+	public String depthOfknowledge;
+	
+	@Column
+	private String learningAndInovation;
+    
+	@Column
+	private String instructionMethod;
+	
+	
+	public String getDepthOfknowledge() {
+		return depthOfknowledge;
+	}
+
+	public void setDepthOfknowledge(String depthOfknowledge) {
+		this.depthOfknowledge = depthOfknowledge;
+	}
+
+	public  String getAudience() {
+		return audience;
+	}
+
+	public void setAudience(String list) {
+		this.audience = list;
+	}
+
+	public String getLearningAndInovation() {
+		return learningAndInovation;
+	}
+
+	public void setLearningAndInovation(String learningAndInovation) {
+		this.learningAndInovation = learningAndInovation;
+	}
+
+	public String getInstructionMethod() {
+		return instructionMethod;
+	}
+
+	public void setInstructionMethod(String instructionMethod) {
+		this.instructionMethod = instructionMethod;
+	}
+
 	public String getLanguage() {
 		return language;
 	}

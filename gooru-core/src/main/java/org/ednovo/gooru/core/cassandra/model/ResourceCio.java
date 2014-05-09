@@ -2,12 +2,14 @@ package org.ednovo.gooru.core.cassandra.model;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
+import org.ednovo.gooru.core.api.model.CustomTableValue;
 import org.ednovo.gooru.core.constant.ColumnFamilyConstant;
 
 @Entity(name = ColumnFamilyConstant.RESOURCE)
@@ -232,6 +234,54 @@ public class ResourceCio implements IsEntityCassandraIndexable {
 	@Column
 	private Map<String,Object> ratings;
 	
+	@Column
+	private  String audience;
+	
+	@Column
+	private String depthOfknowledge;
+	
+	@Column
+	private List<CustomTableValue> customTables;
+	
+	@Column
+	private String learningAndInovation;
+	
+	@Column
+	private String instructionalMethod;
+     
+      
+	public String getLearningAndInovation() {
+		return learningAndInovation;
+	}
+
+	public void setLearningAndInovation(String learningAndInovation) {
+		this.learningAndInovation = learningAndInovation;
+	}
+
+	public String getInstructionalMethod() {
+		return instructionalMethod;
+	}
+
+	public void setInstructionalMethod(String instructionalMethod) {
+		this.instructionalMethod = instructionalMethod;
+	}
+	
+	public String getDepthOfknowledge() {
+		return depthOfknowledge;
+	}
+
+	public void setDepthOfknowledge(String depthOfknowledge) {
+		this.depthOfknowledge = depthOfknowledge;
+	}
+	
+	public List<CustomTableValue> getCustomTables() {
+		return customTables;
+	}
+
+	public void setCustomTables(List<CustomTableValue> customTables) {
+		this.customTables = customTables;
+	}
+
 	public String getSegmentConcepts() {
 		return segmentConcepts;
 	}
@@ -322,6 +372,14 @@ public class ResourceCio implements IsEntityCassandraIndexable {
 
 	public String getIsFeatured() {
 		return isFeatured;
+	}
+
+	public String getAudience() {
+		return audience;
+	}
+
+	public void setAudience(String audience) {
+		this.audience = audience;
 	}
 
 	public void setIsFeatured(String isFeatured) {
