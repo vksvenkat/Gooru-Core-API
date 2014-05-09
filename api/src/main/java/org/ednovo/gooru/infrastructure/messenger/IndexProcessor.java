@@ -45,139 +45,115 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 @Component
 public class IndexProcessor extends BaseComponent {
-	
+
 	@Autowired
 	private ContentService contentService;
-	
+
 	@Autowired
 	private HibernateTransactionManager transactionManager;
-	
+
 	private TransactionTemplate transactionTemplate;
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(IndexProcessor.class);
-	
+
 	public static final String SEARCH_REINDEX_MSG = "reindex";
 	public static final String SEARCH_BULK_INDEX_MSG = "bulkIndex";
 	public static final String SEARCH_CREATE_INDEX_MSG = "create";
 	public static final String SEARCH_DELETE_INDEX_MSG = "delete";
-	
+
 	public static final String INDEX = "index";
-	
+
 	public static final String DELETE = "delete";
-	
+
 	@PostConstruct
 	public void init() {
 		transactionTemplate = new TransactionTemplate(transactionManager);
 		transactionTemplate.setReadOnly(true);
 	}
-	
-	public void index(final String uuids,
-			final String action,
-			final String type) {
+
+	public void index(final String uuids, final String action, final String type) {
 		index(uuids, action, type, true);
 	}
 
-	public void index(final String uuids,
-			final String action,
-			final String type, final boolean isUpdateUserContent) {
+	public void index(final String uuids, final String action, final String type, String sessionToken) {
+		final GooruAuthenticationToken authentication = (GooruAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
+		index(uuids, action, type, sessionToken, authentication, true);
+	}
+
+	public void index(final String uuids, final String action, final String type, final boolean isUpdateUserContent) {
 		final String sessionToken = UserGroupSupport.getSessionToken();
 		final GooruAuthenticationToken authentication = (GooruAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
 		index(uuids, action, type, sessionToken, authentication, isUpdateUserContent);
 	}
-	
-	public void index(final String uuids,
-			final String action,
-			final String type,
-			final String sessionToken,
-			final GooruAuthenticationToken authentication, final boolean isUpdateUserContent) {
-		
-		/*try{
-			new Thread(new Runnable() {
-				
-				@Override
-				public void run() {
-					Map<String,String> indexDataMap = new HashMap();
-					indexDataMap.put("action", action);
-					indexDataMap.put("sessionToken", sessionToken);
-					indexDataMap.put("indexableIds", uuids);
-					indexDataMap.put("type", type);
-					indexDataMap.put("isUpdateUserContent", isUpdateUserContent+"");
-					String indexMessage = new JSONObject(indexDataMap).toString();
-					kafkaProducer.send(indexMessage);
-				}
-			}).start();
-		} catch (Exception e){
-			logger.info("index error using kafka :" + e);
-		}*/
-		
+
+	public void index(final String uuids, final String action, final String type, final String sessionToken, final GooruAuthenticationToken authentication, final boolean isUpdateUserContent) {
+
 
 		final String[] ids = uuids.split(",");
-		try{
-		final Thread indexThread = new Thread(new Runnable() {
+		try {
+			final Thread indexThread = new Thread(new Runnable() {
 
-			@Override
-			public void run() {
+				@Override
+				public void run() {
 
-				new ClientResourceExecuter() {
+					new ClientResourceExecuter() {
 
-					@Override
-					public void run(ClientResource clientResource,
-							Representation representation) throws Exception {
-						
+						@Override
+						public void run(ClientResource clientResource, Representation representation) throws Exception {
 
-						String url = getSearchApiPath() + "index/es-aca/" + type + "/" + action + "?sessionToken=" + sessionToken + "&ids=" + uuids;
-						try {
-							clientResource = new ClientResource(url);
-							representation = clientResource.post(new Form().getWebRepresentation());
-						} catch (Exception exception) {
-							getLogger().error("Error in Indexing: ", exception);
-							throw exception;
-						} finally {
-							releaseClientResources(clientResource, representation);
-						}
-						
-						if(type.equalsIgnoreCase("user") && isUpdateUserContent){
-							transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+							String url = getSearchApiPath() + "index/es-aca/" + type + "/" + action + "?sessionToken=" + sessionToken + "&ids=" + uuids;
+							try {
+								clientResource = new ClientResource(url);
+								representation = clientResource.post(new Form().getWebRepresentation());
+							} catch (Exception exception) {
+								getLogger().error("Error in Indexing: ", exception);
+								throw exception;
+							} finally {
+								releaseClientResources(clientResource, representation);
+							}
 
-								@Override
-								protected void doInTransactionWithoutResult(TransactionStatus status) {
-									for(String userUid : ids) {
-										SecurityContextHolder.getContext().setAuthentication(authentication);
-										List<Object[]> userids = contentService.getIdsByUserUId(userUid, null, null, null);
-										StringBuilder resourceGooruOIds = new StringBuilder();
-										StringBuilder scollectionGooruOIds = new StringBuilder();
-										for (Object[] value : userids) {
-											if(value[2].equals("scollection")){
-												if(scollectionGooruOIds.length() > 0){
-													scollectionGooruOIds.append(",");
+							if (type.equalsIgnoreCase("user") && isUpdateUserContent) {
+								transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+
+									@Override
+									protected void doInTransactionWithoutResult(TransactionStatus status) {
+										for (String userUid : ids) {
+											SecurityContextHolder.getContext().setAuthentication(authentication);
+											List<Object[]> userids = contentService.getIdsByUserUId(userUid, null, null, null);
+											StringBuilder resourceGooruOIds = new StringBuilder();
+											StringBuilder scollectionGooruOIds = new StringBuilder();
+											for (Object[] value : userids) {
+												if (value[2].equals("scollection")) {
+													if (scollectionGooruOIds.length() > 0) {
+														scollectionGooruOIds.append(",");
+													}
+													scollectionGooruOIds.append(value[1]);
+												} else {
+													if (resourceGooruOIds.length() > 0) {
+														resourceGooruOIds.append(",");
+													}
+													resourceGooruOIds.append(value[1]);
 												}
-												scollectionGooruOIds.append(value[1]);
-											}else {
-												if(resourceGooruOIds.length() > 0){
-													resourceGooruOIds.append(",");
-												}
-												resourceGooruOIds.append(value[1]);
+											}
+											if (scollectionGooruOIds.length() > 0) {
+												index(resourceGooruOIds.toString(), IndexProcessor.INDEX, "scollection", sessionToken, authentication, false);
+											}
+											if (resourceGooruOIds.length() > 0) {
+												index(resourceGooruOIds.toString(), IndexProcessor.INDEX, "resource", sessionToken, authentication, false);
 											}
 										}
-										if (scollectionGooruOIds.length() > 0) {
-											index(resourceGooruOIds.toString(), IndexProcessor.INDEX, "scollection", sessionToken, authentication, false);
-										}
-										if (resourceGooruOIds.length() > 0) {
-											index(resourceGooruOIds.toString(), IndexProcessor.INDEX, "resource", sessionToken, authentication, false);
-										}
-										}
-								}
-							});
-							
+									}
+								});
+
+							}
 						}
-					}
-				};
-			}
-		});
-		indexThread.setDaemon(true);
-		indexThread.start();
-		}catch(Exception e){
-			logger.info("Index Error : "+e.getMessage());
+					};
+				}
+			});
+			indexThread.setDaemon(true);
+			indexThread.start();
+		} catch (Exception e) {
+			logger.info("Index Error : " + e.getMessage());
 		}
 	}
 
