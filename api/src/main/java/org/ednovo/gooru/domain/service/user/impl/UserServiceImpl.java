@@ -554,6 +554,8 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 			user.setEmailId(pearsonEmailId);
 			userRepository.save(user);
 		}
+		userRepository.flush();
+		indexProcessor.index(user.getPartyUid(), IndexProcessor.INDEX, USER, userToken != null ? userToken.getToken() : null);
 
 		if (user != null && sendConfirmationMail && inviteuser.size() <= 0) {
 			if (isAdminCreateUser) {
@@ -1433,7 +1435,6 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 		String[] userPartiesAsArray = StringUtils.toStringArray(userParties);
 		String[] userOrgsAsArray = StringUtils.toStringArray(userOrgs);
 		String[] userSubOrgsArray = StringUtils.toStringArray(userSuborgs);
-		Map<String, Map<String, Object>> meta = new HashMap<String, Map<String, Object>>();
 		userCredential.setPartyPermits(userPartiesAsArray);
 		userCredential.setOrgPermits(userOrgsAsArray);
 		userCredential.setPartyPermitsAsString("'" + org.apache.commons.lang.StringUtils.join(userPartiesAsArray, "','") + "'");

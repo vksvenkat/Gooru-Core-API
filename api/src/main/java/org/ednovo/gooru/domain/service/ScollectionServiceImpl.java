@@ -1635,13 +1635,10 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			destCollection.setDescription(sourceCollection.getDescription());
 			destCollection.setNotes(sourceCollection.getNotes());
 			destCollection.setLanguage(sourceCollection.getLanguage());
-			destCollection.setKeyPoints(sourceCollection.getKeyPoints());
 			destCollection.setThumbnail(sourceCollection.getThumbnail());
 			if (newCollection.getGrade() != null) {
 				destCollection.setGrade(newCollection.getGrade());
-			} else {
-				destCollection.setGrade(sourceCollection.getGrade());
-			}
+			} 
 			destCollection.setEstimatedTime(sourceCollection.getEstimatedTime());
 			destCollection.setNarrationLink(sourceCollection.getNarrationLink());
 			destCollection.setGooruOid(UUID.randomUUID().toString());
@@ -1664,15 +1661,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			this.getCollectionRepository().save(destCollection);
 			if (newCollection.getTaxonomySet() != null && newCollection.getTaxonomySet().size() > 0) {
 				resourceService.saveOrUpdateResourceTaxonomy(destCollection, new HashSet<Code>(newCollection.getTaxonomySet()));
-			} else {
-				Set<Code> codes = new HashSet<Code>();
-				for (Code code : sourceCollection.getTaxonomySet()) {
-					if (code.getRootNodeId() != null && code.getRootNodeId().toString().equalsIgnoreCase(Code.GOORU_TAXONOMY_CODE_ID)) {
-						codes.add(code);
-					}
-				}
-				destCollection.setTaxonomySet(codes);
-			}
+			} 
 			this.getCollectionRepository().save(destCollection);
 			Iterator<CollectionItem> sourceItemIterator = sourceCollection.getCollectionItems().iterator();
 			Set<CollectionItem> collectionItems = new TreeSet<CollectionItem>();

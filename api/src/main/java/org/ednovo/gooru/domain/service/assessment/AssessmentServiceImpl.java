@@ -67,7 +67,6 @@ import org.ednovo.gooru.core.api.model.CodeType;
 import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.ContentMetaDTO;
 import org.ednovo.gooru.core.api.model.ContentType;
-import org.ednovo.gooru.core.api.model.CustomTableValue;
 import org.ednovo.gooru.core.api.model.License;
 import org.ednovo.gooru.core.api.model.QuestionSet;
 import org.ednovo.gooru.core.api.model.QuestionSetQuestionAssoc;
@@ -88,6 +87,7 @@ import org.ednovo.gooru.domain.service.CollectionService;
 import org.ednovo.gooru.domain.service.content.ContentService;
 import org.ednovo.gooru.domain.service.resource.AssetManager;
 import org.ednovo.gooru.domain.service.resource.ResourceManager;
+import org.ednovo.gooru.domain.service.resource.ResourceService;
 import org.ednovo.gooru.domain.service.revision_history.RevisionHistoryService;
 import org.ednovo.gooru.domain.service.sessionActivity.SessionActivityService;
 import org.ednovo.gooru.domain.service.storage.S3ResourceApiHandler;
@@ -185,7 +185,10 @@ public class AssessmentServiceImpl implements AssessmentService, ParameterProper
 	
 	@Autowired
 	private CollectionService collectionService;
-
+	
+	@Autowired
+	private ResourceService resourceService;
+	
 	@Override
 	public AssessmentQuestion getQuestion(String gooruOQuestionId) {
 		return (AssessmentQuestion) assessmentRepository.getByGooruOId(AssessmentQuestion.class, gooruOQuestionId);
@@ -524,8 +527,8 @@ public class AssessmentServiceImpl implements AssessmentService, ParameterProper
 		if (!errors.hasErrors()) {
 			// To Save Folder
 			question.setOrganization(question.getCreator().getOrganization());
-			assessmentRepository.save(question);
-
+			//assessmentRepository.save(question);
+			resourceService.saveOrUpdateResourceTaxonomy(question, question.getTaxonomySet());
 			if (question.getResourceInfo() != null) {
 				resourceRepository.save(question.getResourceInfo());
 			}
@@ -562,6 +565,7 @@ public class AssessmentServiceImpl implements AssessmentService, ParameterProper
 				this.createRevisionHistoryEntry(assessment.getGooruOid(), ASSESSMENT_QUESTION_UPDATE);
 			}
 			assessmentRepository.save(question);
+
 			if(depth != null && depth.size() > 0) {
 				question.setDepthOfKnowledges(this.collectionService.updateContentMeta(depth,question.getGooruOid(), question.getUser(), "depth_of_knowledge"));
 			} else {
@@ -636,20 +640,6 @@ public class AssessmentServiceImpl implements AssessmentService, ParameterProper
 					question.setTypeName(AssessmentQuestion.TYPE.MULTIPLE_CHOICE.getName());
 				}
 
-				Set<Code> taxonomySet = new HashSet<Code>();
-				if (question.getTaxonomySet() != null) {
-					for (Code code : question.getTaxonomySet()) {
-						if (code.getCode() != null) {
-							Code taxonomy = (Code) taxonomyRepository.findCodeByTaxCode(code.getCode());
-							if (taxonomy != null) {
-								taxonomySet.add(taxonomy);
-							}
-						}
-					}
-					question.setTaxonomySet(taxonomySet);
-				} else {
-					question.setTaxonomySet(null);
-				}
 				if (question.getTypeName().equalsIgnoreCase(AssessmentQuestion.TYPE.MATCH_THE_FOLLOWING.getName()) && question.getAnswers().size() > 0) {
 					for (AssessmentAnswer assessmentAnswer : question.getAnswers()) {
 						for (AssessmentAnswer matchingAnswer : question.getAnswers()) {
@@ -716,20 +706,8 @@ public class AssessmentServiceImpl implements AssessmentService, ParameterProper
 				if (question.getHints() != null) {
 					updateHintList(question.getHints(), existingQuestion.getHints());
 				}
-				Set<Code> taxonomySet = new HashSet<Code>();
-				if (question.getTaxonomySet() != null) {
-					for (Code code : question.getTaxonomySet()) {
-						if (code.getCode() != null) {
-							Code taxonomy = (Code) taxonomyRepository.findCodeByTaxCode(code.getCode());
-							if (taxonomy != null) {
-								taxonomySet.add(taxonomy);
-							}
-						}
-					}
-					existingQuestion.setTaxonomySet(taxonomySet);
-				} else {
-					existingQuestion.setTaxonomySet(null);
-				}
+			
+				resourceService.saveOrUpdateResourceTaxonomy(existingQuestion, question.getTaxonomySet());
 
 				if (question.getRecordSource() != null) {
 					existingQuestion.setRecordSource(question.getRecordSource());
