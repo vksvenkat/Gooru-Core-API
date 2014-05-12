@@ -7,7 +7,7 @@ import java.util.Set;
 import org.ednovo.gooru.core.api.model.Rating;
 import org.ednovo.gooru.core.api.model.StandardFo;
 
-public class CollectionMetaInfo implements Serializable {
+public class ResourceMetaInfo implements Serializable {
 	
 	/**
 	 * 
@@ -23,7 +23,7 @@ public class CollectionMetaInfo implements Serializable {
 	/**
 	 * 
 	 */
-	public CollectionMetaInfo() {
+	public ResourceMetaInfo() {
 	}
 
 	public List<String> getVocabulary() {

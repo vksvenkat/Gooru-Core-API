@@ -4,7 +4,7 @@ public interface ConstantProperties {
 
 	static final String[] ACTIVITY_LIST_EXCLUDE = { "*.class", "*.courseSet", "*.userRoleSetString", "*.emailId" };
 
-	static final String QUESTION_INCLUDES[] = { "hints", "taxonomySet", "assets", "answers", "tagSet", "depthOfKnowledges","educationalUse" };
+	static final String QUESTION_INCLUDES[] = { "hints", "taxonomySet", "assets", "answers", "tagSet", "depthOfKnowledges","educationalUse", "*.standards", "*.code", "*.description", "*.metaInfo" };
 
 	static final String QUESTION_EXCLUDES[] = { "answers.matchingSequence" };
 
