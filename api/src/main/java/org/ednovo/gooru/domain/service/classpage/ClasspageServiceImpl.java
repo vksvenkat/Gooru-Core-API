@@ -278,6 +278,12 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 				if (user.getIdentities().size() > 0) {
 					mailId = user.getIdentities().iterator().next().getExternalId();
 				}
+				if (classpage.getUser() != null && !classpage.getUser().getGooruUId().equalsIgnoreCase(user.getGooruUId())) {
+					inviteUser = this.getInviteRepository().findInviteUserById(mailId, collectionId, PENDING);
+					if (inviteUser != null) {
+						status = PENDING;
+					}
+				}
 			}
 			if (merge.contains(PERMISSIONS)) {
 				permissions.put(PERMISSIONS, this.getContentService().getContentPermission(collectionId, user));
