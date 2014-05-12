@@ -97,6 +97,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 			} else {
 				response.getModel().getResource().setEducationalUse(this.setContentMetaAssociation(this.getContentMetaAssociation("educational_use"), question.getGooruOid(), "educational_use"));
 			}
+			response.getModel().setStandards(this.getStandards(responseDTO.getModel().getTaxonomySet(), false, null));
 		}
 		return response;
 
