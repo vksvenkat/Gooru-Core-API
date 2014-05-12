@@ -324,7 +324,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			collectionItem.setItemType(ShelfType.AddedType.ADDED.getAddedType());
 		}
 
-		Collection collection = this.getCollectionRepository().getCollectionByGooruOid(assignmentGooruOid, classpage.getUser().getGooruUId());
+		Collection collection = this.getCollectionRepository().getCollectionByGooruOid(assignmentGooruOid, null);
 		Errors errors = validateClasspageItem(classpage, collection, collectionItem);
 		if (collection != null) {
 			if (!errors.hasErrors()) {

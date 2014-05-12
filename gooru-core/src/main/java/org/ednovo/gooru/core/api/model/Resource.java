@@ -9,6 +9,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.ednovo.gooru.core.application.util.BaseUtil;
+import org.ednovo.gooru.core.application.util.ResourceMetaInfo;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -186,6 +187,8 @@ public class Resource extends Content implements Serializable {
 	private List<ContentMetaDTO> educationalUse;
 	
 	private List<ContentMetaDTO> momentsOfLearning;
+	
+	private ResourceMetaInfo metaInfo;
 	
 
 	public static final String COLLECTION_THUMBNAIL_SIZES = "160x120,75x56,120x90,80x60,50x40,310x258,800x600";
@@ -924,6 +927,14 @@ public class Resource extends Content implements Serializable {
 
 	public List<ContentMetaDTO> getDepthOfKnowledges() {
 		return depthOfKnowledges;
+	}
+	
+	public void setMetaInfo(ResourceMetaInfo metaInfo) {
+		this.metaInfo = metaInfo;
+	}
+
+	public ResourceMetaInfo getMetaInfo() {
+		return metaInfo;
 	}
 
 
