@@ -196,11 +196,13 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				collection.put(TITLE, object[0]);
 				collection.put(GOORU_OID, object[1]);
 				collection.put(TYPE, object[2]);
+				Map<String, Object> thumbnails = new HashMap<String, Object>();
 				if (object[4] != null) {
-					Map<String, Object> thumbnails = new HashMap<String, Object>();
 					thumbnails.put(URL, storageArea.getCdnDirectPath() + String.valueOf(object[3]) + String.valueOf(object[4]));
-					collection.put(THUMBNAILS, thumbnails);
+				} else {
+					thumbnails.put(URL, "");
 				}
+				collection.put(THUMBNAILS, thumbnails);
 				if (fetchChildItem) {
 					if (count == 0) {
 						collection.put(COLLECTION_ITEMS, getFolderItem(String.valueOf(object[1]), sharing, String.valueOf(object[2]), collectionType, itemLimit, fetchChildItem));
@@ -264,9 +266,12 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				if(typeName != null && typeName.equalsIgnoreCase(ResourceType.Type.VIDEO.getType())){
 					Resource resource = getResourceService().findResourceByContentGooruId(object[1].toString());
 					thumbnails.put(URL, ResourceImageUtil.getYoutubeVideoId(resource.getUrl()) == null ? null : "img.youtube.com/vi/"+ ResourceImageUtil.getYoutubeVideoId(resource.getUrl()) + "/1.jpg");
-				}
-				if (object[4] != null && typeName != null && !typeName.equalsIgnoreCase(ResourceType.Type.VIDEO.getType())) {
-					thumbnails.put(URL, storageArea.getCdnDirectPath() + String.valueOf(object[3]) + String.valueOf(object[4]));
+				} else {
+					if(object[4] != null){
+						thumbnails.put(URL, storageArea.getCdnDirectPath() + String.valueOf(object[3]) + String.valueOf(object[4]));
+					} else {
+						thumbnails.put(URL, "");
+					}
 				}
 				item.put(THUMBNAILS, thumbnails);
 				if (object[5] != null) {
@@ -346,9 +351,12 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				if(typeName != null && typeName.equalsIgnoreCase(ResourceType.Type.VIDEO.getType())){
 					Resource resource = getResourceService().findResourceByContentGooruId(object[1].toString());
 					thumbnails.put(URL, ResourceImageUtil.getYoutubeVideoId(resource.getUrl()) == null ? null : "img.youtube.com/vi/"+ ResourceImageUtil.getYoutubeVideoId(resource.getUrl()) + "/1.jpg");
-				}
-				if (object[4] != null && typeName != null && !typeName.equalsIgnoreCase(ResourceType.Type.VIDEO.getType())) {
-					thumbnails.put(URL, storageArea.getCdnDirectPath() + String.valueOf(object[3]) + String.valueOf(object[4]));
+				} else {
+					if(object[4] != null){
+						thumbnails.put(URL, storageArea.getCdnDirectPath() + String.valueOf(object[3]) + String.valueOf(object[4]));
+					} else {
+						thumbnails.put(URL, "");
+					}
 				}
 				item.put(THUMBNAILS, thumbnails);
 				if (object[5] != null) {
