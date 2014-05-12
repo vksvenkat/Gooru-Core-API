@@ -38,6 +38,7 @@ import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.CollectionType;
 import org.ednovo.gooru.core.api.model.Resource;
+import org.ednovo.gooru.core.api.model.ResourceType;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.ShelfType;
 import org.ednovo.gooru.core.api.model.StorageArea;
@@ -258,11 +259,16 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				item.put(TITLE, object[0]);
 				item.put(GOORU_OID, object[1]);
 				item.put(TYPE, object[2]);
-				if (object[4] != null) {
-					Map<String, Object> thumbnails = new HashMap<String, Object>();
-					thumbnails.put(URL, storageArea.getCdnDirectPath() + String.valueOf(object[3]) + String.valueOf(object[4]));
-					item.put(THUMBNAILS, thumbnails);
+				String typeName = object[2].toString();
+				Map<String, Object> thumbnails = new HashMap<String, Object>();
+				if(typeName != null && typeName.equalsIgnoreCase(ResourceType.Type.VIDEO.getType())){
+					Resource resource = getResourceService().findResourceByContentGooruId(object[1].toString());
+					thumbnails.put(URL, ResourceImageUtil.getYoutubeVideoId(resource.getUrl()) == null ? null : "img.youtube.com/vi/"+ ResourceImageUtil.getYoutubeVideoId(resource.getUrl()) + "/1.jpg");
 				}
+				if (object[4] != null && typeName != null && !typeName.equalsIgnoreCase(ResourceType.Type.VIDEO.getType())) {
+					thumbnails.put(URL, storageArea.getCdnDirectPath() + String.valueOf(object[3]) + String.valueOf(object[4]));
+				}
+				item.put(THUMBNAILS, thumbnails);
 				if (object[5] != null) {
 					Map<String, Object> resourceFormat = new HashMap<String, Object>();
 					resourceFormat.put(VALUE, object[5]);
@@ -335,11 +341,16 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				item.put(TITLE, object[0]);
 				item.put(GOORU_OID, object[1]);
 				item.put(TYPE, object[2]);
-				if (object[4] != null) {
-					Map<String, Object> thumbnails = new HashMap<String, Object>();
-					thumbnails.put(URL, storageArea.getCdnDirectPath() + String.valueOf(object[3]) + String.valueOf(object[4]));
-					item.put(THUMBNAILS, thumbnails);
+				String typeName = object[2].toString();
+				Map<String, Object> thumbnails = new HashMap<String, Object>();
+				if(typeName != null && typeName.equalsIgnoreCase(ResourceType.Type.VIDEO.getType())){
+					Resource resource = getResourceService().findResourceByContentGooruId(object[1].toString());
+					thumbnails.put(URL, ResourceImageUtil.getYoutubeVideoId(resource.getUrl()) == null ? null : "img.youtube.com/vi/"+ ResourceImageUtil.getYoutubeVideoId(resource.getUrl()) + "/1.jpg");
 				}
+				if (object[4] != null && typeName != null && !typeName.equalsIgnoreCase(ResourceType.Type.VIDEO.getType())) {
+					thumbnails.put(URL, storageArea.getCdnDirectPath() + String.valueOf(object[3]) + String.valueOf(object[4]));
+				}
+				item.put(THUMBNAILS, thumbnails);
 				if (object[5] != null) {
 					Map<String, Object> resourceFormat = new HashMap<String, Object>();
 					resourceFormat.put(VALUE, object[5]);
