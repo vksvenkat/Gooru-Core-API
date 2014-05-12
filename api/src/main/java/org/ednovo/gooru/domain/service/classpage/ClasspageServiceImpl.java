@@ -280,11 +280,6 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 				}
 				if (classpage.getUser() != null && !classpage.getUser().getGooruUId().equalsIgnoreCase(user.getGooruUId())) {
 					inviteUser = this.getInviteRepository().findInviteUserById(mailId, collectionId, PENDING);
-					if (!isMember && inviteUser == null && classpage.getSharing().equalsIgnoreCase(PUBLIC)) {
-						inviteUser = this.getInviteService().createInviteUserObj(mailId, collectionId, CLASS, user);
-						this.getInviteRepository().save(inviteUser);
-						this.getInviteRepository().flush();
-					}
 					if (inviteUser != null) {
 						status = PENDING;
 					}
