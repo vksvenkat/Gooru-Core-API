@@ -65,7 +65,7 @@ import org.ednovo.gooru.core.api.model.StandardFo;
 import org.ednovo.gooru.core.api.model.Textbook;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserGroupSupport;
-import org.ednovo.gooru.core.application.util.CollectionMetaInfo;
+import org.ednovo.gooru.core.application.util.ResourceMetaInfo;
 import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
@@ -958,7 +958,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	protected Collection setColletionMetaData(Collection collection, User user, String merge, boolean ignoreUserTaxonomyPreference, String rootNodeId) {
 		if (collection != null) {
 			Set<String> acknowledgement = new HashSet<String>();
-			CollectionMetaInfo collectionMetaInfo = new CollectionMetaInfo();
+			ResourceMetaInfo collectionMetaInfo = new ResourceMetaInfo();
 			collectionMetaInfo.setRating(this.getRatingService().findByContentObj(collection));
 			collectionMetaInfo.setCourse(this.getCourse(collection.getTaxonomySet()));
 			collectionMetaInfo.setStandards(this.getStandards(collection.getTaxonomySet(), ignoreUserTaxonomyPreference, rootNodeId));
@@ -1926,10 +1926,10 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 	}
 
-	private CollectionMetaInfo setMetaData(Collection collection, boolean ignoreUserTaxonomyPreference, String rootNodeId) {
-		CollectionMetaInfo collectionMetaInfo = null;
+	private ResourceMetaInfo setMetaData(Collection collection, boolean ignoreUserTaxonomyPreference, String rootNodeId) {
+		ResourceMetaInfo collectionMetaInfo = null;
 		if (collection != null && collection.getTaxonomySet() != null) {
-			collectionMetaInfo = new CollectionMetaInfo();
+			collectionMetaInfo = new ResourceMetaInfo();
 			collectionMetaInfo.setStandards(this.getStandards(collection.getTaxonomySet(), ignoreUserTaxonomyPreference, rootNodeId));
 		}
 		return collectionMetaInfo;
