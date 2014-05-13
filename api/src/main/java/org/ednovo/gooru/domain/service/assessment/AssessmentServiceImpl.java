@@ -65,8 +65,8 @@ import org.ednovo.gooru.core.api.model.AttemptQuestionDTO;
 import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.api.model.CodeType;
 import org.ednovo.gooru.core.api.model.Content;
+import org.ednovo.gooru.core.api.model.ContentMetaDTO;
 import org.ednovo.gooru.core.api.model.ContentType;
-import org.ednovo.gooru.core.api.model.CustomTableValue;
 import org.ednovo.gooru.core.api.model.License;
 import org.ednovo.gooru.core.api.model.QuestionSet;
 import org.ednovo.gooru.core.api.model.QuestionSetQuestionAssoc;
@@ -80,12 +80,15 @@ import org.ednovo.gooru.core.api.model.UserGroupSupport;
 import org.ednovo.gooru.core.api.model.Versionable;
 import org.ednovo.gooru.core.application.util.ErrorMessage;
 import org.ednovo.gooru.core.application.util.RequestUtil;
+import org.ednovo.gooru.core.application.util.ResourceMetaInfo;
 import org.ednovo.gooru.core.application.util.ServerValidationUtils;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.domain.service.CollectionService;
 import org.ednovo.gooru.domain.service.content.ContentService;
 import org.ednovo.gooru.domain.service.resource.AssetManager;
 import org.ednovo.gooru.domain.service.resource.ResourceManager;
+import org.ednovo.gooru.domain.service.resource.ResourceService;
 import org.ednovo.gooru.domain.service.revision_history.RevisionHistoryService;
 import org.ednovo.gooru.domain.service.sessionActivity.SessionActivityService;
 import org.ednovo.gooru.domain.service.storage.S3ResourceApiHandler;
@@ -180,7 +183,13 @@ public class AssessmentServiceImpl implements AssessmentService, ParameterProper
 
 	@Autowired
 	private AsyncExecutor asyncExecutor;
-
+	
+	@Autowired
+	private CollectionService collectionService;
+	
+	@Autowired
+	private ResourceService resourceService;
+	
 	@Override
 	public AssessmentQuestion getQuestion(String gooruOQuestionId) {
 		return (AssessmentQuestion) assessmentRepository.getByGooruOId(AssessmentQuestion.class, gooruOQuestionId);
@@ -519,8 +528,8 @@ public class AssessmentServiceImpl implements AssessmentService, ParameterProper
 		if (!errors.hasErrors()) {
 			// To Save Folder
 			question.setOrganization(question.getCreator().getOrganization());
-			assessmentRepository.save(question);
-
+			//assessmentRepository.save(question);
+			resourceService.saveOrUpdateResourceTaxonomy(question, question.getTaxonomySet());
 			if (question.getResourceInfo() != null) {
 				resourceRepository.save(question.getResourceInfo());
 			}
@@ -544,7 +553,9 @@ public class AssessmentServiceImpl implements AssessmentService, ParameterProper
 
 	@Override
 	public ActionResponseDTO<AssessmentQuestion> updateQuestion(AssessmentQuestion question, List<Integer> deleteAssets, String gooruOQuestionId, boolean copyToOriginal, boolean index) throws Exception {
-
+		List<ContentMetaDTO> depth = question.getDepthOfKnowledges();
+		List<ContentMetaDTO> educational = question.getEducationalUse();
+		
 		question = initQuestion(question, gooruOQuestionId, copyToOriginal);
 		Errors errors = validateQuestion(question);
 		List<Asset> assets = buildQuestionAssets(deleteAssets, errors);
@@ -555,6 +566,17 @@ public class AssessmentServiceImpl implements AssessmentService, ParameterProper
 				this.createRevisionHistoryEntry(assessment.getGooruOid(), ASSESSMENT_QUESTION_UPDATE);
 			}
 			assessmentRepository.save(question);
+
+			if(depth != null && depth.size() > 0) {
+				question.setDepthOfKnowledges(this.collectionService.updateContentMeta(depth,question.getGooruOid(), question.getUser(), "depth_of_knowledge"));
+			} else {
+				question.setDepthOfKnowledges(this.collectionService.setContentMetaAssociation(this.collectionService.getContentMetaAssociation("depth_of_knowledge"), question.getGooruOid(), "depth_of_knowledge"));
+			}
+			if(educational != null && educational.size() > 0) {
+				question.setEducationalUse(this.collectionService.updateContentMeta(educational,question.getGooruOid(), question.getUser(), "educational_use"));
+			} else {
+				question.setEducationalUse(this.collectionService.setContentMetaAssociation(this.collectionService.getContentMetaAssociation("educational_use"), question.getGooruOid(), "educational_use"));
+			}
 
 			if (question.getResourceInfo() != null) {
 				resourceRepository.save(question.getResourceInfo());
@@ -567,6 +589,9 @@ public class AssessmentServiceImpl implements AssessmentService, ParameterProper
 			if (assets.size() > 0) {
 				assessmentRepository.removeAll(assets);
 			}
+			ResourceMetaInfo resourceMetaInfo = new ResourceMetaInfo();
+			resourceMetaInfo.setStandards(collectionService.getStandards(question.getTaxonomySet(), false, null));
+			question.setMetaInfo(resourceMetaInfo);
 			updateQuestionTime(question);
 			if (index) {
 				indexProcessor.index(question.getGooruOid(), IndexProcessor.INDEX, RESOURCE);
@@ -619,20 +644,6 @@ public class AssessmentServiceImpl implements AssessmentService, ParameterProper
 					question.setTypeName(AssessmentQuestion.TYPE.MULTIPLE_CHOICE.getName());
 				}
 
-				Set<Code> taxonomySet = new HashSet<Code>();
-				if (question.getTaxonomySet() != null) {
-					for (Code code : question.getTaxonomySet()) {
-						if (code.getCode() != null) {
-							Code taxonomy = (Code) taxonomyRepository.findCodeByTaxCode(code.getCode());
-							if (taxonomy != null) {
-								taxonomySet.add(taxonomy);
-							}
-						}
-					}
-					question.setTaxonomySet(taxonomySet);
-				} else {
-					question.setTaxonomySet(null);
-				}
 				if (question.getTypeName().equalsIgnoreCase(AssessmentQuestion.TYPE.MATCH_THE_FOLLOWING.getName()) && question.getAnswers().size() > 0) {
 					for (AssessmentAnswer assessmentAnswer : question.getAnswers()) {
 						for (AssessmentAnswer matchingAnswer : question.getAnswers()) {
@@ -699,20 +710,8 @@ public class AssessmentServiceImpl implements AssessmentService, ParameterProper
 				if (question.getHints() != null) {
 					updateHintList(question.getHints(), existingQuestion.getHints());
 				}
-				Set<Code> taxonomySet = new HashSet<Code>();
-				if (question.getTaxonomySet() != null) {
-					for (Code code : question.getTaxonomySet()) {
-						if (code.getCode() != null) {
-							Code taxonomy = (Code) taxonomyRepository.findCodeByTaxCode(code.getCode());
-							if (taxonomy != null) {
-								taxonomySet.add(taxonomy);
-							}
-						}
-					}
-					existingQuestion.setTaxonomySet(taxonomySet);
-				} else {
-					existingQuestion.setTaxonomySet(null);
-				}
+			
+				resourceService.saveOrUpdateResourceTaxonomy(existingQuestion, question.getTaxonomySet());
 
 				if (question.getRecordSource() != null) {
 					existingQuestion.setRecordSource(question.getRecordSource());
@@ -1894,7 +1893,8 @@ public class AssessmentServiceImpl implements AssessmentService, ParameterProper
 		xstream.alias(ANSWER, AssessmentAnswer.class);
 		xstream.alias(HINT, AssessmentHint.class);
 		xstream.alias(TAXONOMY_CODE, Code.class);
-		xstream.alias("depthOfKnowledge", CustomTableValue.class);
+		xstream.alias("depthOfKnowledge", ContentMetaDTO.class);
+		xstream.alias("educationalUse", ContentMetaDTO.class);
 		AssessmentQuestion question = (AssessmentQuestion) xstream.fromXML(jsonData);
 		if (addFlag) {
 			question.setUser(user);

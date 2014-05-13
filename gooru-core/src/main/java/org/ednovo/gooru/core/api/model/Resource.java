@@ -9,6 +9,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.ednovo.gooru.core.application.util.BaseUtil;
+import org.ednovo.gooru.core.application.util.ResourceMetaInfo;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -111,7 +112,7 @@ public class Resource extends Content implements Serializable {
 
 	private transient List<Learnguide> resourceLearnguides;
 	
-	private List<CustomTableValue> depthOfKnowledges;
+	private List<ContentMetaDTO> depthOfKnowledges;
 
 	@JsonManagedReference
 	private Set<ResourceMetaData> resourceMetaData;
@@ -183,9 +184,11 @@ public class Resource extends Content implements Serializable {
 	private Map<String,Object> ratings;
 	
 	
-	private List<CustomTableValue> educationalUse;
+	private List<ContentMetaDTO> educationalUse;
 	
-	private List<CustomTableValue> momentsOfLearning;
+	private List<ContentMetaDTO> momentsOfLearning;
+	
+	private ResourceMetaInfo metaInfo;
 	
 
 	public static final String COLLECTION_THUMBNAIL_SIZES = "160x120,75x56,120x90,80x60,50x40,310x258,800x600";
@@ -902,28 +905,37 @@ public class Resource extends Content implements Serializable {
 		this.ratings = ratings;
 	}
 
-	public void setDepthOfKnowledges(List<CustomTableValue> depthOfKnowledges) {
-		this.depthOfKnowledges = depthOfKnowledges;
-	}
-
-	public List<CustomTableValue> getDepthOfKnowledges() {
-		return depthOfKnowledges;
-	}
-
-	public void setEducationalUse(List<CustomTableValue> educationalUse) {
-		this.educationalUse = educationalUse;
-	}
-
-	public List<CustomTableValue> getEducationalUse() {
-		return educationalUse;
-	}
-
-	public void setMomentsOfLearning(List<CustomTableValue> momentsOfLearning) {
+	public void setMomentsOfLearning(List<ContentMetaDTO> momentsOfLearning) {
 		this.momentsOfLearning = momentsOfLearning;
 	}
 
-	public List<CustomTableValue> getMomentsOfLearning() {
+	public List<ContentMetaDTO> getMomentsOfLearning() {
 		return momentsOfLearning;
 	}
+
+	public void setEducationalUse(List<ContentMetaDTO> educationalUse) {
+		this.educationalUse = educationalUse;
+	}
+
+	public List<ContentMetaDTO> getEducationalUse() {
+		return educationalUse;
+	}
+
+	public void setDepthOfKnowledges(List<ContentMetaDTO> depthOfKnowledges) {
+		this.depthOfKnowledges = depthOfKnowledges;
+	}
+
+	public List<ContentMetaDTO> getDepthOfKnowledges() {
+		return depthOfKnowledges;
+	}
+	
+	public void setMetaInfo(ResourceMetaInfo metaInfo) {
+		this.metaInfo = metaInfo;
+	}
+
+	public ResourceMetaInfo getMetaInfo() {
+		return metaInfo;
+	}
+
 
 }

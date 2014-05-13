@@ -38,6 +38,7 @@ import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.CollectionType;
 import org.ednovo.gooru.core.api.model.Resource;
+import org.ednovo.gooru.core.api.model.ResourceType;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.ShelfType;
 import org.ednovo.gooru.core.api.model.StorageArea;
@@ -49,7 +50,6 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.storage.StorageRepo
 import org.ednovo.gooru.infrastructure.persistence.hibernate.taxonomy.TaxonomyRespository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.Errors;
 
 @Service
 public class CollectionServiceImpl extends ScollectionServiceImpl implements CollectionService {
@@ -92,6 +92,11 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 			} else {
 				response.getModel().getResource().setDepthOfKnowledges(this.setContentMetaAssociation(this.getContentMetaAssociation("depth_of_knowledge"), question.getGooruOid(), "depth_of_knowledge"));
 			}
+			if(question.getEducationalUse() != null && question.getEducationalUse().size() > 0) {
+				response.getModel().getResource().setEducationalUse(this.updateContentMeta(question.getEducationalUse(),question.getGooruOid(), user, "educational_use"));
+			} else {
+				response.getModel().getResource().setEducationalUse(this.setContentMetaAssociation(this.getContentMetaAssociation("educational_use"), question.getGooruOid(), "educational_use"));
+			}
 		}
 		return response;
 
@@ -107,8 +112,10 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		CollectionItem collectionItem = new CollectionItem();
 		collectionItem.setCollection(source);
 		CollectionItem sourceCollectionItem = this.getCollectionRepository().findCollectionItemByGooruOid(sourceId, user.getPartyUid());
-		String itemType = sourceCollectionItem.getItemType();
-		collectionItem.setItemType(itemType);
+		if(sourceCollectionItem != null && sourceCollectionItem.getItemType() != null){
+			String itemType = sourceCollectionItem.getItemType();
+			collectionItem.setItemType(itemType);
+		}
 		if (sourceCollectionItem != null) {
 			deleteCollectionItem(sourceCollectionItem.getCollectionItemId(), user);
 		}
@@ -189,11 +196,13 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				collection.put(TITLE, object[0]);
 				collection.put(GOORU_OID, object[1]);
 				collection.put(TYPE, object[2]);
+				Map<String, Object> thumbnails = new HashMap<String, Object>();
 				if (object[4] != null) {
-					Map<String, Object> thumbnails = new HashMap<String, Object>();
 					thumbnails.put(URL, storageArea.getCdnDirectPath() + String.valueOf(object[3]) + String.valueOf(object[4]));
-					collection.put(THUMBNAILS, thumbnails);
+				} else {
+					thumbnails.put(URL, "");
 				}
+				collection.put(THUMBNAILS, thumbnails);
 				if (fetchChildItem) {
 					if (count == 0) {
 						collection.put(COLLECTION_ITEMS, getFolderItem(String.valueOf(object[1]), sharing, String.valueOf(object[2]), collectionType, itemLimit, fetchChildItem));
@@ -252,11 +261,19 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				item.put(TITLE, object[0]);
 				item.put(GOORU_OID, object[1]);
 				item.put(TYPE, object[2]);
-				if (object[4] != null) {
-					Map<String, Object> thumbnails = new HashMap<String, Object>();
-					thumbnails.put(URL, storageArea.getCdnDirectPath() + String.valueOf(object[3]) + String.valueOf(object[4]));
-					item.put(THUMBNAILS, thumbnails);
+				String typeName = object[2].toString();
+				Map<String, Object> thumbnails = new HashMap<String, Object>();
+				if(typeName != null && typeName.equalsIgnoreCase(ResourceType.Type.VIDEO.getType())){
+					Resource resource = getResourceService().findResourceByContentGooruId(object[1].toString());
+					thumbnails.put(URL, ResourceImageUtil.getYoutubeVideoId(resource.getUrl()) == null ? null : "img.youtube.com/vi/"+ ResourceImageUtil.getYoutubeVideoId(resource.getUrl()) + "/1.jpg");
+				} else {
+					if(object[4] != null){
+						thumbnails.put(URL, storageArea.getCdnDirectPath() + String.valueOf(object[3]) + String.valueOf(object[4]));
+					} else {
+						thumbnails.put(URL, "");
+					}
 				}
+				item.put(THUMBNAILS, thumbnails);
 				if (object[5] != null) {
 					Map<String, Object> resourceFormat = new HashMap<String, Object>();
 					resourceFormat.put(VALUE, object[5]);
@@ -265,6 +282,21 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				}
 				item.put(SHARING, object[7]);
 				item.put(COLLECTION_ITEM_ID, object[8]);
+				if(String.valueOf(object[2]).equalsIgnoreCase("assessment-question")) {
+					item.put("depthOfKnowledges", this.setContentMetaAssociation(this.getContentMetaAssociation("depth_of_knowledge"), String.valueOf(object[1]), "depth_of_knowledge"));
+					item.put("educationalUse",this.setContentMetaAssociation(this.getContentMetaAssociation("educational_use"), String.valueOf(object[1]) , "educational_use"));
+				} else if(String.valueOf(object[2]).equalsIgnoreCase(SCOLLECTION)) {
+					item.put("depthOfKnowledges",this.setContentMetaAssociation(this.getContentMetaAssociation("depth_of_knowledge"), String.valueOf(object[1]), "depth_of_knowledge"));
+
+					item.put("learningSkills",this.setContentMetaAssociation(this.getContentMetaAssociation("learning_and_innovation_skills"), String.valueOf(object[1]), "learning_and_innovation_skills"));
+
+					item.put("audience",this.setContentMetaAssociation(this.getContentMetaAssociation("audience"), String.valueOf(object[1]), "audience"));
+
+					item.put("instructionalMethod",this.setContentMetaAssociation(this.getContentMetaAssociation("instructional_method"), String.valueOf(object[1]), "instructional_method"));
+				} else {
+					item.put("educationalUse",this.setContentMetaAssociation(this.getContentMetaAssociation("educational_use"), String.valueOf(object[1]) , "educational_use"));
+					item.put("momentsOfLearning",this.setContentMetaAssociation(this.getContentMetaAssociation("moments_of_learning"), String.valueOf(object[1]) , "moments_of_learning"));
+				}
 				if (fetchChildItem && (String.valueOf(object[2]).equalsIgnoreCase(SCOLLECTION) || String.valueOf(object[2]).equalsIgnoreCase(FOLDER))) {
 					if (String.valueOf(object[2]).equalsIgnoreCase(SCOLLECTION)) {
 						if (collectionItemcount == 0) {
@@ -314,11 +346,19 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				item.put(TITLE, object[0]);
 				item.put(GOORU_OID, object[1]);
 				item.put(TYPE, object[2]);
-				if (object[4] != null) {
-					Map<String, Object> thumbnails = new HashMap<String, Object>();
-					thumbnails.put(URL, storageArea.getCdnDirectPath() + String.valueOf(object[3]) + String.valueOf(object[4]));
-					item.put(THUMBNAILS, thumbnails);
+				String typeName = object[2].toString();
+				Map<String, Object> thumbnails = new HashMap<String, Object>();
+				if(typeName != null && typeName.equalsIgnoreCase(ResourceType.Type.VIDEO.getType())){
+					Resource resource = getResourceService().findResourceByContentGooruId(object[1].toString());
+					thumbnails.put(URL, ResourceImageUtil.getYoutubeVideoId(resource.getUrl()) == null ? null : "img.youtube.com/vi/"+ ResourceImageUtil.getYoutubeVideoId(resource.getUrl()) + "/1.jpg");
+				} else {
+					if(object[4] != null){
+						thumbnails.put(URL, storageArea.getCdnDirectPath() + String.valueOf(object[3]) + String.valueOf(object[4]));
+					} else {
+						thumbnails.put(URL, "");
+					}
 				}
+				item.put(THUMBNAILS, thumbnails);
 				if (object[5] != null) {
 					Map<String, Object> resourceFormat = new HashMap<String, Object>();
 					resourceFormat.put(VALUE, object[5]);

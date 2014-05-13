@@ -144,14 +144,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 				
 				UserGroup userGroup = this.getUserGroupService().createGroup(newClasspage.getTitle(), newClasspage.getClasspageCode(), "System", user, null);
 				if (gooruOid != null && !gooruOid.isEmpty() && newCollectionItem != null) {
-					CollectionItem collectionItem = new CollectionItem();
-					collectionItem.setItemType(ShelfType.AddedType.ADDED.getAddedType());
-					collectionItem.setPlannedEndDate(newCollectionItem.getPlannedEndDate());
-					collectionItem.setNarration(newCollectionItem.getNarration());
-					collectionItem = this.createCollectionItem(gooruOid, newClasspage.getGooruOid(), collectionItem, newClasspage.getUser(), CollectionType.COLLECTION.getCollectionType(), false).getModel();
-					Set<CollectionItem> collectionItems = new TreeSet<CollectionItem>();
-					collectionItems.add(collectionItem);
-					newClasspage.setCollectionItems(collectionItems);
+					this.createClasspageItem(gooruOid, newClasspage.getGooruOid(), newCollectionItem, newClasspage.getUser(), CollectionType.USER_CLASSPAGE.getCollectionType());
 					this.getCollectionRepository().save(newClasspage);
 				}
 				if (addToMy) {
@@ -285,17 +278,6 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 				if (user.getIdentities().size() > 0) {
 					mailId = user.getIdentities().iterator().next().getExternalId();
 				}
-				if (classpage.getUser() != null && !classpage.getUser().getGooruUId().equalsIgnoreCase(user.getGooruUId())) {
-					inviteUser = this.getInviteRepository().findInviteUserById(mailId, collectionId, PENDING);
-					if (!isMember && inviteUser == null && classpage.getSharing().equalsIgnoreCase(PUBLIC)) {
-						inviteUser = this.getInviteService().createInviteUserObj(mailId, collectionId, CLASS, user);
-						this.getInviteRepository().save(inviteUser);
-						this.getInviteRepository().flush();
-					}
-					if (inviteUser != null) {
-						status = PENDING;
-					}
-				}
 			}
 			if (merge.contains(PERMISSIONS)) {
 				permissions.put(PERMISSIONS, this.getContentService().getContentPermission(collectionId, user));
@@ -342,7 +324,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			collectionItem.setItemType(ShelfType.AddedType.ADDED.getAddedType());
 		}
 
-		Collection collection = this.getCollectionRepository().getCollectionByGooruOid(assignmentGooruOid, classpage.getUser().getGooruUId());
+		Collection collection = this.getCollectionRepository().getCollectionByGooruOid(assignmentGooruOid, null);
 		Errors errors = validateClasspageItem(classpage, collection, collectionItem);
 		if (collection != null) {
 			if (!errors.hasErrors()) {

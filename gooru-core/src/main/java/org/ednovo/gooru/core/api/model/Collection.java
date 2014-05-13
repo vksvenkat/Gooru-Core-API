@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.ednovo.gooru.core.application.util.CollectionMetaInfo;
+import org.ednovo.gooru.core.application.util.ResourceMetaInfo;
 
 public class Collection extends Resource implements Versionable {
 	/**
@@ -38,8 +38,6 @@ private Map<Integer, List<Code>> taxonomySetMapping;
 
 private Set<CollectionTaskAssoc> collectionTaskItems;
 
-private CollectionMetaInfo metaInfo;
-
 private String network;
 
 private CollectionItem collectionItem;
@@ -58,11 +56,11 @@ private String performanceTasks;
 
 private String languageObjective;
 
-private List<CustomTableValue> audience;
+private List<ContentMetaDTO> audience;
 
-private List<CustomTableValue> learningSkills;
+private List<ContentMetaDTO> learningSkills;
 
-private List<CustomTableValue> instructionalMethod;
+private List<ContentMetaDTO> instructionalMethod;
 
 public String getIdeas() {
 	return ideas;
@@ -172,14 +170,6 @@ public void setCollectionItems(Set<CollectionItem> collectionItems) {
 	this.collectionItems = collectionItems;
 }
 
-public void setMetaInfo(CollectionMetaInfo metaInfo) {
-	this.metaInfo = metaInfo;
-}
-
-public CollectionMetaInfo getMetaInfo() {
-	return metaInfo;
-}
-
 public void setCollaborators(List<User> collaborators) {
 	this.collaborators = collaborators;
 }
@@ -259,29 +249,30 @@ public void setMailNotification(Boolean mailNotification) {
 	this.mailNotification = mailNotification;
 }
 
-public void setAudience(List<CustomTableValue> audience) {
+public void setAudience(List<ContentMetaDTO> audience) {
 	this.audience = audience;
 }
 
-public List<CustomTableValue> getAudience() {
+public List<ContentMetaDTO> getAudience() {
 	return audience;
 }
 
-public void setLearningSkills(List<CustomTableValue> learningSkills) {
+public void setLearningSkills(List<ContentMetaDTO> learningSkills) {
 	this.learningSkills = learningSkills;
 }
 
-public List<CustomTableValue> getLearningSkills() {
+public List<ContentMetaDTO> getLearningSkills() {
 	return learningSkills;
 }
 
-public void setInstructionalMethod(List<CustomTableValue> instructionalMethod) {
+public void setInstructionalMethod(List<ContentMetaDTO> instructionalMethod) {
 	this.instructionalMethod = instructionalMethod;
 }
 
-public List<CustomTableValue> getInstructionalMethod() {
+public List<ContentMetaDTO> getInstructionalMethod() {
 	return instructionalMethod;
 }
+
 
 
 }

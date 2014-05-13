@@ -233,14 +233,20 @@ public class FeaturedRepositoryHibernate extends BaseRepositoryHibernate impleme
 	}
 	
 	@Override
-	public List<Object[]> getLibraryCollection(String codeId, String featuredSetId, Integer limit, Integer offset, Boolean skipPagination) {
+	public List<Object[]> getLibraryCollection(String codeId, String featuredSetId, Integer limit, Integer offset, Boolean skipPagination, String contentId) {
 		String sql = "select gooru_oid, r.title   from featured_set_items fi inner join resource r on r.content_id = fi.content_id inner join content cc on cc.content_id = r.content_id where  fi.featured_set_id=:featuredSetId ";
 		if (codeId != null) {
 			sql += " and fi.code_id =:codeId ";
 		}
+		if (contentId != null) { 
+			sql += " and fi.content_id =:contentId ";
+		}
 		Query query = getSession().createSQLQuery(sql);
 		if (codeId != null) {
 			query.setParameter("codeId", codeId);
+		}
+		if (contentId != null) {
+			query.setParameter("contentId", contentId);
 		}
 		query.setParameter("featuredSetId", featuredSetId);
 		if (!skipPagination) {
@@ -307,5 +313,22 @@ public class FeaturedRepositoryHibernate extends BaseRepositoryHibernate impleme
 		return query.list();
 		
 	}
+
+	@Override
+	public List<Object[]> getLibrary(String libraryName) {
+		libraryName = libraryName.contains(",") ?  libraryName.replace(",", "','") : libraryName;
+		String sql = "select featured_set_id, subject_code_id, theme_code from featured_set where theme_code in ('"+libraryName + "')";
+		Query query = getSession().createSQLQuery(sql);
+		return query.list();
+	}
+
+	@Override
+	public void deleteLibraryCollectionAssoc(String featuredSetId, String codeId, String contentId) {
+		String sql = "delete FeaturedSetItems where featuredSet.featuredSetId = '"+ featuredSetId +"' and code.codeId = '"+codeId+ "' and content.contentId = '" +contentId + "'";
+		Query query = getSession().createQuery(sql);
+		query.executeUpdate();
+	}
+	
+	
 
 }
