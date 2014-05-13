@@ -80,6 +80,7 @@ import org.ednovo.gooru.core.api.model.UserGroupSupport;
 import org.ednovo.gooru.core.api.model.Versionable;
 import org.ednovo.gooru.core.application.util.ErrorMessage;
 import org.ednovo.gooru.core.application.util.RequestUtil;
+import org.ednovo.gooru.core.application.util.ResourceMetaInfo;
 import org.ednovo.gooru.core.application.util.ServerValidationUtils;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
@@ -522,13 +523,15 @@ public class AssessmentServiceImpl implements AssessmentService, ParameterProper
 
 	@Override
 	public ActionResponseDTO<AssessmentQuestion> createQuestion(AssessmentQuestion question, boolean index) throws Exception {
+		Set<Code> taxonomy = question.getTaxonomySet();
 		question = initQuestion(question, null, true);
+		question.setTaxonomySet(null);
 		Errors errors = validateQuestion(question);
 		if (!errors.hasErrors()) {
 			// To Save Folder
 			question.setOrganization(question.getCreator().getOrganization());
-			//assessmentRepository.save(question);
-			resourceService.saveOrUpdateResourceTaxonomy(question, question.getTaxonomySet());
+			assessmentRepository.save(question);
+			resourceService.saveOrUpdateResourceTaxonomy(question, taxonomy);
 			if (question.getResourceInfo() != null) {
 				resourceRepository.save(question.getResourceInfo());
 			}
@@ -588,6 +591,9 @@ public class AssessmentServiceImpl implements AssessmentService, ParameterProper
 			if (assets.size() > 0) {
 				assessmentRepository.removeAll(assets);
 			}
+			ResourceMetaInfo resourceMetaInfo = new ResourceMetaInfo();
+			resourceMetaInfo.setStandards(collectionService.getStandards(question.getTaxonomySet(), false, null));
+			question.setMetaInfo(resourceMetaInfo);
 			updateQuestionTime(question);
 			if (index) {
 				indexProcessor.index(question.getGooruOid(), IndexProcessor.INDEX, RESOURCE);

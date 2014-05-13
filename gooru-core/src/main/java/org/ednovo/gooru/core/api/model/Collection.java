@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.ednovo.gooru.core.application.util.CollectionMetaInfo;
+import org.ednovo.gooru.core.application.util.ResourceMetaInfo;
 
 public class Collection extends Resource implements Versionable {
 	/**
@@ -37,8 +37,6 @@ private ContentAssociation contentAssociation;
 private Map<Integer, List<Code>> taxonomySetMapping;
 
 private Set<CollectionTaskAssoc> collectionTaskItems;
-
-private CollectionMetaInfo metaInfo;
 
 private String network;
 
@@ -170,14 +168,6 @@ public Set<CollectionItem> getCollectionItems() {
 
 public void setCollectionItems(Set<CollectionItem> collectionItems) {
 	this.collectionItems = collectionItems;
-}
-
-public void setMetaInfo(CollectionMetaInfo metaInfo) {
-	this.metaInfo = metaInfo;
-}
-
-public CollectionMetaInfo getMetaInfo() {
-	return metaInfo;
 }
 
 public void setCollaborators(List<User> collaborators) {

@@ -43,7 +43,7 @@ import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.StorageAccount;
 import org.ednovo.gooru.core.api.model.StorageArea;
 import org.ednovo.gooru.core.api.model.User;
-import org.ednovo.gooru.core.application.util.CollectionMetaInfo;
+import org.ednovo.gooru.core.application.util.ResourceMetaInfo;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.BadRequestException;
@@ -430,7 +430,7 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 
 	private void setCollectionMetaInfo(List<Collection> collections, String rootNodeId) {
 		for (Collection collection : collections) {
-			CollectionMetaInfo collectionMetaInfo = new CollectionMetaInfo();
+			ResourceMetaInfo collectionMetaInfo = new ResourceMetaInfo();
 			collectionMetaInfo.setCourse(this.getCollectionService().getCourse(collection.getTaxonomySet()));
 			collectionMetaInfo.setStandards(this.getCollectionService().getStandards(collection.getTaxonomySet(), true, rootNodeId));
 			collection.setMetaInfo(collectionMetaInfo);
