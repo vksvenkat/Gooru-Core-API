@@ -248,7 +248,40 @@ public class ResourceCio implements IsEntityCassandraIndexable {
 	
 	@Column
 	private String instructionalMethod;
-     
+	
+	@Column
+	private String educationalUse;
+	
+	@Column
+	private String Standards;
+	
+	@Column
+	private String momentsofLearning;
+	
+	
+	public String getMomentsofLearning() {
+		return momentsofLearning;
+	}
+
+	public void setMomentsofLearning(String momentsofLearning) {
+		this.momentsofLearning = momentsofLearning;
+	}
+
+	public String getEducationalUse() {
+		return educationalUse;
+	}
+
+	public void setEducationalUse(String educationalUse) {
+		this.educationalUse = educationalUse;
+	}
+
+	public String getStandards() {
+		return Standards;
+	}
+
+	public void setStandards(String standards) {
+		Standards = standards;
+	}
       
 	public String getLearningAndInovation() {
 		return learningAndInovation;
