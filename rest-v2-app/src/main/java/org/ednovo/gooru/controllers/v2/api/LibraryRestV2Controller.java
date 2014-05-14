@@ -148,14 +148,14 @@ public class LibraryRestV2Controller extends BaseController implements ConstantP
 	public ModelAndView getLibraryCollections(HttpServletRequest request, @RequestParam(value = CLEAR_CACHE, required = false, defaultValue = FALSE) boolean clearCache, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset,
 			@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, @RequestParam(value = SKIP_PAGINATION, required = false, defaultValue = FALSE) Boolean skipPagination, @RequestParam(value = THEME_CODE, required = false) String themeCode,
 			@RequestParam(value = THEME_TYPE, required = false) String themeType, @RequestParam(value = "flt.subject", required = false) String subjectId, @RequestParam(value = "flt.course", required = false) String courseId, @RequestParam(value = "flt.unit", required = false) String unitId,
-			@RequestParam(value = "flt.lesson", required = false) String lessonId, @RequestParam(value = "flt.topic", required = false) String topicId, HttpServletResponse response) {
+			@RequestParam(value = "flt.lesson", required = false) String lessonId, @RequestParam(value = "flt.topic", required = false) String topicId, @RequestParam(value = GOORU_OID, required = false) String gooruOid, @RequestParam(value = CODE_ID, required = false) String codeId, HttpServletResponse response) {
 		final String cacheKey = "v2-library-realted-collections-data-featured";
 		String data = null;
 		if (!clearCache) {
 			data = getRedisService().getValue(cacheKey);
 		}
 		if (data == null) {
-			SearchResults<Map<String, Object>> results = this.getFeaturedService().getLibraryCollections(limit, offset, skipPagination, themeCode, themeType, subjectId, courseId, unitId, lessonId, topicId);
+			SearchResults<Map<String, Object>> results = this.getFeaturedService().getLibraryCollections(limit, offset, skipPagination, themeCode, themeType, subjectId, courseId, unitId, lessonId, topicId, gooruOid, codeId);
 			String includes[] = (String[]) ArrayUtils.addAll(LIBRARY_FEATURED_COLLECTIONS_INCLUDE_FIELDS, LIBRARY_FEATURED_COLLECTIONS_USER_INCLUDE_FIELDS);
 			data = serialize(results, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, false, true, includes);
 			getRedisService().putValue(cacheKey, data);

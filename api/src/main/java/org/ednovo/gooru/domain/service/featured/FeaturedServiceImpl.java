@@ -713,9 +713,9 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 	}
 
 	@Override
-	public SearchResults<Map<String, Object>> getLibraryCollections(Integer limit, Integer offset, boolean skipPagination, String themeCode, String themeType, String subjectId, String courseId, String unitId, String lessonId, String topicId) {
-		List<Map<String, Object>> libraryCollection = getAllLibraryCollections(limit, offset, skipPagination, themeCode, themeType, subjectId, courseId, unitId, lessonId, topicId);
-		SearchResults<Map<String, Object>> result = new SearchResults<Map<String, Object>>();
+	public SearchResults<Map<String, Object>> getLibraryCollections(Integer limit, Integer offset, boolean skipPagination, String themeCode, String themeType, String subjectId, String courseId, String unitId, String lessonId, String topicId, String gooruOid, String codeId) {
+		List<Map<String, Object>> libraryCollection = getAllLibraryCollections(limit, offset, skipPagination, themeCode, themeType, subjectId, courseId, unitId, lessonId, topicId, gooruOid, codeId);
+		SearchResults<Map<String, Object>> result = new SearchResults<Map<String, Object>>(); 
 		result.setSearchResults(libraryCollection);
 		result.setTotalHitCount(this.getFeaturedRepository().getLibraryCollectionCount(themeCode, themeType));
 		return result;
@@ -742,9 +742,9 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 	}
 
 	@Override
-	public List<Map<String, Object>> getAllLibraryCollections(Integer limit, Integer offset, boolean skipPagination, String themeCode, String themeType, String subjectId, String courseId, String unitId, String lessonId, String topicId) {
+	public List<Map<String, Object>> getAllLibraryCollections(Integer limit, Integer offset, boolean skipPagination, String themeCode, String themeType, String subjectId, String courseId, String unitId, String lessonId, String topicId, String gooruOid, String codeId) {
 		List<Map<String, Object>> collectionList = new ArrayList<Map<String, Object>>();
-		List<Object[]> result = this.getFeaturedRepository().getLibraryCollectionsListByFilter(limit, offset, skipPagination, themeCode, themeType, subjectId, courseId, unitId, lessonId, topicId);
+		List<Object[]> result = this.getFeaturedRepository().getLibraryCollectionsListByFilter(limit, offset, skipPagination, themeCode, themeType, subjectId, courseId, unitId, lessonId, topicId, gooruOid, codeId);
 		if (result != null && result.size() > 0) {
 			for (Object[] object : result) {
 				Map<String, Object> collection = new HashMap<String, Object>();
@@ -769,6 +769,7 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 				collection.put("libraryCollection", featuredCollection);
 				collection.put(SUBJECT_CODE, object[6]);
 				collection.put(THEME_CODE, object[7]);
+				collection.put("featuredSetId",object[8]);
 				if (lastUpdatedUser != null) {
 					collection.put(LAST_MODIFIED_BY, lastUpdatedUser.getUsername());
 				}

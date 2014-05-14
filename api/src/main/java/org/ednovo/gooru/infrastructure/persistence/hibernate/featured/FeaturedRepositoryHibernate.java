@@ -89,10 +89,10 @@ public class FeaturedRepositoryHibernate extends BaseRepositoryHibernate impleme
 	}
 	
 	@Override
-	public List<Object[]> getLibraryCollectionsListByFilter(Integer limit, Integer offset, Boolean skipPagination, String themeCode, String themeType, String subjectId, String courseId, String unitId, String lessonId, String topicId) {
+	public List<Object[]> getLibraryCollectionsListByFilter(Integer limit, Integer offset, Boolean skipPagination, String themeCode, String themeType, String subjectId, String courseId, String unitId, String lessonId, String topicId, String gooruOid, String codeId) {
 		
-		String sql = "select distinct ct.gooru_oid, ct.created_on, ct.last_modified, ct.user_uid, ct.sharing, ct.last_updated_user_uid, f.theme_code, f.subject_code_id from code c inner join code u on u.parent_id = c.code_id inner join code t on t.parent_id = u.code_id inner join code l on l.parent_id = t.code_id inner join code cc on cc.parent_id = l.code_id inner join code s on s.code_id = cc.parent_id inner join featured_set_items fs inner join featured_set f on (f.featured_set_id = fs.featured_set_id and (fs.code_id = l.code_id or fs.code_id = cc.code_id or fs.code_id = t.code_id or fs.code_id = u.code_id or fs.code_id = s.code_id)) inner join content ct inner join collection cn on (ct.content_id = cn.content_id) inner join resource r on (cn.content_id = r.content_id and fs.content_id = r.content_id)";
-		
+	   String sql = "select distinct ct.gooru_oid, ct.created_on, ct.last_modified, ct.user_uid, ct.sharing, ct.last_updated_user_uid, f.theme_code, f.subject_code_id,f.featured_set_id from code c inner join featured_set_items fs inner join featured_set f on (f.featured_set_id = fs.featured_set_id and fs.code_id = c.code_id) inner join content ct inner join collection cn on (ct.content_id = cn.content_id) inner join resource r on (cn.content_id = r.content_id and fs.content_id = r.content_id)";
+	   
 		if(themeCode != null && themeType != null) {
 			sql += " where f.subject_code_id ='" + themeType + "'" + " and f.theme_code ='" + themeCode + "'";
 		} else if (themeType != null)  {
@@ -101,24 +101,22 @@ public class FeaturedRepositoryHibernate extends BaseRepositoryHibernate impleme
 			sql += " where f.theme_code ='" + themeCode + "'";
 		}
 		
-		if (subjectId != null) {
-		    sql += " and s.code_id ='" + subjectId + "'";
+		if (gooruOid != null) {
+			sql += " and ct.gooru_oid ='"+ gooruOid + "'";
 		}
-		if (courseId != null) {
-		    sql += " and cc.code_id ='" + courseId + "'";
-		}
-		if (unitId != null) {
-		    sql += " and u.code_id ='" + unitId + "'";
-		}
-		if (lessonId != null) {
-		    sql += " and l.code_id ='" + lessonId + "'";
-		}
-		if (topicId != null) {
-		    sql += " and t.code_id ='" + topicId + "'";
+		if (codeId != null) {
+			sql += " and fs.code_id = '"+ codeId + "'";
 		}
 		
 		Query query = getSession().createSQLQuery(sql);
-
+		
+		if (gooruOid != null) {
+			query.setParameter("gooruOid", gooruOid);
+		}
+		if (codeId != null) {
+			query.setParameter("codeId", codeId);
+		}
+		
 		if (!skipPagination) {
 			query.setFirstResult(offset);
 			query.setMaxResults(limit);
