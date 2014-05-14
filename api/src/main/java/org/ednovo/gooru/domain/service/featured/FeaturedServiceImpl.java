@@ -670,7 +670,7 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 			} else { 
 				Code code = this.getTaxonomyRespository().findCodeByCodeId(id);
 				if (code != null) {
-				  concepts = this.getTaxonomyRespository().findCodeByParentCodeId(String.valueOf(code.getParent().getCodeId()), null, 3, 0, true, LIBRARY, getOrganizationCode(libraryName), null, null);
+				  concepts = this.getTaxonomyRespository().findCodeByParentCodeId(String.valueOf(code.getParentId()), null, 3, 0, true, LIBRARY, getOrganizationCode(libraryName), null, null);
 				}
 			}
 			boolean isConceptHasData = false;
