@@ -99,7 +99,7 @@ public class OAuthServiceImpl extends ServerValidationUtils implements OAuthServ
 					
 				}
 			}else{
-				grantType.append(AuthorizationGrantType.AUTHORIZATION_CODE.getAuthorizationGrantType() + ","+AuthorizationGrantType.REFRESH_TOKEN.getAuthorizationGrantType()+ ","+AuthorizationGrantType.CLIENT_CREDENTIALS.getAuthorizationGrantType());
+				grantType.append(AuthorizationGrantType.AUTHORIZATION_CODE.getAuthorizationGrantType() + ","+AuthorizationGrantType.REFRESH_TOKEN.getAuthorizationGrantType());
 			}
 			oAuthClientNew.setGrantTypes(grantType.toString());
 			oAuthClientNew.setRedirectUris(oAuthClient.getRedirectUris());

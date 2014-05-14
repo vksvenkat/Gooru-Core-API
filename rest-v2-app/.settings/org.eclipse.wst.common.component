@@ -6,10 +6,7 @@
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/resource"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/resources"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/java"/>
-        <dependent-module archiveName="gooru-api-1.0.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/gooru-api/gooru-api">
-            <dependency-type>uses</dependency-type>
-        </dependent-module>
-        <dependent-module archiveName="gooru-cassandra-core-1.0.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/gooru-cassandra-core/gooru-cassandra-core">
+        <dependent-module archiveName="gooru-api-1.0.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/api/api">
             <dependency-type>uses</dependency-type>
         </dependent-module>
         <dependent-module archiveName="gooru-core-0.0.1-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/gooru-core/gooru-core">
