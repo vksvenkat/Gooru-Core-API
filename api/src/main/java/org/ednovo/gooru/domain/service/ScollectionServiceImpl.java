@@ -1824,6 +1824,8 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				this.getResourceRepository().save(collection);
 
 				response = createCollectionItem(resource, collection, user);
+				
+				response.getModel().setStandards(this.getStandards(resource.getTaxonomySet(), false, null));
 
 			} else {
 				throw new NotFoundException("collection does not exist in the system, required collection to map the resource");

@@ -97,6 +97,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 			} else {
 				response.getModel().getResource().setEducationalUse(this.setContentMetaAssociation(this.getContentMetaAssociation("educational_use"), question.getGooruOid(), "educational_use"));
 			}
+			response.getModel().setStandards(this.getStandards(responseDTO.getModel().getTaxonomySet(), false, null));
 		}
 		return response;
 
@@ -264,8 +265,9 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				String typeName = object[2].toString();
 				Map<String, Object> thumbnails = new HashMap<String, Object>();
 				if(typeName != null && typeName.equalsIgnoreCase(ResourceType.Type.VIDEO.getType())){
-					Resource resource = getResourceService().findResourceByContentGooruId(object[1].toString());
-					thumbnails.put(URL, ResourceImageUtil.getYoutubeVideoId(resource.getUrl()) == null ? null : "img.youtube.com/vi/"+ ResourceImageUtil.getYoutubeVideoId(resource.getUrl()) + "/1.jpg");
+					if(object[15] != null){
+						thumbnails.put(URL, ResourceImageUtil.getYoutubeVideoId(object[15].toString()) == null ? null : "http://img.youtube.com/vi/"+ ResourceImageUtil.getYoutubeVideoId(object[15].toString()) + "/1.jpg");
+					}
 				} else {
 					if(object[4] != null){
 						thumbnails.put(URL, storageArea.getCdnDirectPath() + String.valueOf(object[3]) + String.valueOf(object[4]));
@@ -349,8 +351,9 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				String typeName = object[2].toString();
 				Map<String, Object> thumbnails = new HashMap<String, Object>();
 				if(typeName != null && typeName.equalsIgnoreCase(ResourceType.Type.VIDEO.getType())){
-					Resource resource = getResourceService().findResourceByContentGooruId(object[1].toString());
-					thumbnails.put(URL, ResourceImageUtil.getYoutubeVideoId(resource.getUrl()) == null ? null : "img.youtube.com/vi/"+ ResourceImageUtil.getYoutubeVideoId(resource.getUrl()) + "/1.jpg");
+					if(object[15] != null){
+						thumbnails.put(URL, ResourceImageUtil.getYoutubeVideoId(object[15].toString()) == null ? null : "http://img.youtube.com/vi/"+ ResourceImageUtil.getYoutubeVideoId(object[15].toString()) + "/1.jpg");
+					}
 				} else {
 					if(object[4] != null){
 						thumbnails.put(URL, storageArea.getCdnDirectPath() + String.valueOf(object[3]) + String.valueOf(object[4]));
