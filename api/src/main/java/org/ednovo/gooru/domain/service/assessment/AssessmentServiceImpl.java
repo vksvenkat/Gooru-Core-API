@@ -523,13 +523,15 @@ public class AssessmentServiceImpl implements AssessmentService, ParameterProper
 
 	@Override
 	public ActionResponseDTO<AssessmentQuestion> createQuestion(AssessmentQuestion question, boolean index) throws Exception {
+		Set<Code> taxonomy = question.getTaxonomySet();
 		question = initQuestion(question, null, true);
+		question.setTaxonomySet(null);
 		Errors errors = validateQuestion(question);
 		if (!errors.hasErrors()) {
 			// To Save Folder
 			question.setOrganization(question.getCreator().getOrganization());
-			//assessmentRepository.save(question);
-			resourceService.saveOrUpdateResourceTaxonomy(question, question.getTaxonomySet());
+			assessmentRepository.save(question);
+			resourceService.saveOrUpdateResourceTaxonomy(question, taxonomy);
 			if (question.getResourceInfo() != null) {
 				resourceRepository.save(question.getResourceInfo());
 			}
