@@ -658,18 +658,27 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 		List<Map<String, Object>> collectionList = new ArrayList<Map<String, Object>>();
 		if (type != null && type.equalsIgnoreCase(STANDARD)) {
 			List<Map<String, Object>> collectionLessonResultList = this.getCollection(id, featuredId, offset, limit, skipPagination);
+			boolean fetchParentLevel =   false;
 			if (collectionLessonResultList != null && collectionLessonResultList.size() > 0) {
 				collectionList.addAll(collectionLessonResultList);
+			} else { 
+				fetchParentLevel = true;
 			}
-			List<Code> concepts = this.getTaxonomyRespository().findCodeByParentCodeId(String.valueOf(id), null, 3, 0, true, LIBRARY, getOrganizationCode(libraryName), null, null);
+			List<Code> concepts = null;
+			if (fetchParentLevel) {
+			    concepts = this.getTaxonomyRespository().findCodeByParentCodeId(String.valueOf(id), null, 3, 0, true, LIBRARY, getOrganizationCode(libraryName), null, null);
+			} else { 
+				Code code = this.getTaxonomyRespository().findCodeByCodeId(id);
+				if (code != null) {
+				  concepts = this.getTaxonomyRespository().findCodeByParentCodeId(String.valueOf(code.getParent().getCodeId()), null, 3, 0, true, LIBRARY, getOrganizationCode(libraryName), null, null);
+				}
+			}
 			boolean isConceptHasData = false;
 			for (Code concept : concepts) {
 				List<Map<String, Object>> collectionResultList = this.getCollection(concept.getCodeId(), featuredId, offset, limit, skipPagination);
 				if (collectionResultList != null && collectionResultList.size() > 0) {
 					isConceptHasData = true;
 					collectionList.addAll(collectionResultList);
-					List<Map<String, Object>> collectionConceptResultList = this.getCollection(concept.getParentId(), featuredId, offset, limit, skipPagination);
-					collectionList.addAll(collectionConceptResultList);
 				}
 			}
 			if (!isConceptHasData) {
