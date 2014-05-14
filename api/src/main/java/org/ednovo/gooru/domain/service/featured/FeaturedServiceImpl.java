@@ -656,49 +656,24 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 			featuredId = String.valueOf(obj[1]);
 		}
 		List<Map<String, Object>> collectionList = new ArrayList<Map<String, Object>>();
-		if (type != null && type.equalsIgnoreCase(STANDARD)) {
+		if (type != null && type.equalsIgnoreCase(STANDARD)) { 
+			List<Code> concepts = this.getTaxonomyRespository().findCodeByParentCodeId(String.valueOf(id), null, 3, 0, true, LIBRARY, getOrganizationCode(libraryName), null, null);
+			Code code = this.getTaxonomyRespository().findCodeByCodeId(id);
+			if ((code != null && code.getDepth() == 6) || (concepts == null && code != null)) {
+				concepts = this.getTaxonomyRespository().findCodeByParentCodeId(String.valueOf(code.getParentId()), null, 3, 0, true, LIBRARY, getOrganizationCode(libraryName), null, null);
+			} 
+			
 			List<Map<String, Object>> collectionLessonResultList = this.getCollection(id, featuredId, offset, limit, skipPagination);
-			boolean fetchParentLevel =   false;
 			if (collectionLessonResultList != null && collectionLessonResultList.size() > 0) {
 				collectionList.addAll(collectionLessonResultList);
-			} else { 
-				fetchParentLevel = true;
 			}
-			List<Code> concepts = null;
-			if (fetchParentLevel) {
-			    concepts = this.getTaxonomyRespository().findCodeByParentCodeId(String.valueOf(id), null, 3, 0, true, LIBRARY, getOrganizationCode(libraryName), null, null);
-			} else { 
-				Code code = this.getTaxonomyRespository().findCodeByCodeId(id);
-				if (code != null) {
-				  concepts = this.getTaxonomyRespository().findCodeByParentCodeId(String.valueOf(code.getParentId()), null, 3, 0, true, LIBRARY, getOrganizationCode(libraryName), null, null);
-				}
-			}
-			boolean isConceptHasData = false;
 			for (Code concept : concepts) {
 				List<Map<String, Object>> collectionResultList = this.getCollection(concept.getCodeId(), featuredId, offset, limit, skipPagination);
 				if (collectionResultList != null && collectionResultList.size() > 0) {
-					isConceptHasData = true;
 					collectionList.addAll(collectionResultList);
 				}
 			}
-			if (!isConceptHasData) {
-				collectionList.clear();
-				Code code = this.getTaxonomyRespository().findTaxonomyCodeById(id);
-				List<Code> lessons = this.getTaxonomyRespository().findCodeByParentCodeId(String.valueOf(code.getParentId()), null, 3, 0, true, LIBRARY, getOrganizationCode(libraryName), null, null);
-				for (Code lesson : lessons) {
-					List<Map<String, Object>> collectionResultList = this.getCollection(lesson.getCodeId(), featuredId, offset, limit, skipPagination);
-					if (collectionResultList != null && collectionResultList.size() > 0) {
-						collectionList.addAll(collectionResultList);
-					}
-					List<Code> lessonConcepts = this.getTaxonomyRespository().findCodeByParentCodeId(String.valueOf(lesson.getCodeId()), null, 3, 0, true, LIBRARY, getOrganizationCode(libraryName), null, null);
-					for (Code lessonConcept : lessonConcepts) {
-						List<Map<String, Object>> collectionConceptResultList = this.getCollection(lessonConcept.getCodeId(), featuredId, offset, limit, skipPagination);
-						if (collectionConceptResultList != null && collectionConceptResultList.size() > 0) {
-							collectionList.addAll(collectionConceptResultList);
-						}
-					}
-				}
-			}
+			
 		} else {
 			List<Map<String, Object>> collectionResultList = this.getCollection(id, featuredId, offset, limit, skipPagination);
 			if (collectionResultList != null && collectionResultList.size() > 0) {
