@@ -175,5 +175,7 @@ public interface ConfigConstants {
     String INSIGHTS_LOGAPI_ENDPOINT = "insights.logapi.endpoint";
     
     String INSIGHTS_ACTIVITYSTREAM_URL = "insights.activitystream.url";
+    
+    String SEARCH_INDEX_RESTENDPOINT = "search.index.restendpoint";
 
 }
