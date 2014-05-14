@@ -668,6 +668,8 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 				if (collectionResultList != null && collectionResultList.size() > 0) {
 					isConceptHasData = true;
 					collectionList.addAll(collectionResultList);
+					List<Map<String, Object>> collectionConceptResultList = this.getCollection(concept.getParentId(), featuredId, offset, limit, skipPagination);
+					collectionList.addAll(collectionConceptResultList);
 				}
 			}
 			if (!isConceptHasData) {
