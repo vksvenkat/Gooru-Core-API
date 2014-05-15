@@ -307,8 +307,8 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			resource.setCustomFieldValues(customFieldService.getCustomFieldsValuesOfResource(resource.getGooruOid()));
 			resourceObject.put(RESOURCE, resource);
 		}
-		resourceObject.put(STANDARD, this.getCollectionService().getStandards(resource.getTaxonomySet(), false, null));
-		resourceObject.put(COURSES, this.getCollectionService().getCourse(resource.getTaxonomySet()));
+		resourceObject.put(STANDARDS, this.getCollectionService().getStandards(resource.getTaxonomySet(), false, null));
+		resourceObject.put(COURSE, this.getCollectionService().getCourse(resource.getTaxonomySet()));
 		return resourceObject;
 	}
 
