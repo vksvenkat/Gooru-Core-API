@@ -724,7 +724,7 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 		List<Map<String, Object>> libraryCollection = getAllLibraryCollections(limit, offset, skipPagination, themeCode, themeType, subjectId, courseId, unitId, lessonId, topicId, gooruOid, codeId);
 		SearchResults<Map<String, Object>> result = new SearchResults<Map<String, Object>>(); 
 		result.setSearchResults(libraryCollection);
-		result.setTotalHitCount(this.getFeaturedRepository().getLibraryCollectionCount(themeCode, themeType));
+		result.setTotalHitCount(this.getFeaturedRepository().getLibraryCollectionCount(themeCode, themeType, gooruOid, codeId));
 		return result;
 	}
 
