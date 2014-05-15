@@ -674,7 +674,7 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 				if (collectionConceptResultList != null && collectionConceptResultList.size() > 0) {
 					collectionList.addAll(collectionConceptResultList);
 				}
-				if (concept.getDepth() == 5) {
+				if (code.getDepth() == 5) {
 					List<Code> codes = this.getTaxonomyRespository().findCodeByParentCodeId(String.valueOf(concept.getCodeId()), null, 3, 0, true, LIBRARY, getOrganizationCode(libraryName), null, null);
 					if (codes != null) { 
 						for (Code codeIndex : codes) {
