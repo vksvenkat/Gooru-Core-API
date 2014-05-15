@@ -33,6 +33,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.ArrayUtils;
 import org.ednovo.gooru.controllers.BaseController;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
+import org.ednovo.gooru.core.api.model.AssessmentQuestion;
 import org.ednovo.gooru.core.api.model.ContentType;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.ResourceInstance;
@@ -110,10 +111,7 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_RESOURCE_READ })
 	@RequestMapping(method = RequestMethod.GET, value = "/{id}")
 	public ModelAndView getResource(HttpServletRequest request, @PathVariable(ID) String resourceId, HttpServletResponse response) throws Exception {
-		request.setAttribute(PREDICATE, "resource.get");
-		ResourceInstance resourceInstance = new ResourceInstance(new Segment(), getResourceService().findResourceByContentGooruId(resourceId));		
-		String includes[] = (String[]) ArrayUtils.addAll( RESOURCE_INCLUDE_FIELDS, ERROR_INCLUDE);
-		return toModelAndViewWithIoFilter(resourceInstance, RESPONSE_FORMAT_JSON,EXCLUDE_ALL, true, includes);
+		return toModelAndViewWithIoFilter(this.getResourceService().getResource(resourceId), RESPONSE_FORMAT_JSON,EXCLUDE_ALL, true, RESOURCE_INCLUDE_FIELDS);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_RESOURCE_READ })
