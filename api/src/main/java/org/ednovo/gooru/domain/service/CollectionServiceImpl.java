@@ -153,13 +153,13 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 
 	@Override
 	public List<CollectionItem> createCollectionItems(List<String> collectionsIds, String resourceId, User user) throws Exception {
-		Collection collection = this.getCollectionRepository().getCollectionByGooruOid(resourceId, null);
-		if (collection == null) {
+		Collection classPage = this.getCollectionRepository().getCollectionByGooruOid(resourceId, null);
+		if (classPage == null) {
 			throw new NotFoundException(generateErrorMessage(GL0056, COLLECTION));
 		}
 		List<CollectionItem> collectionItems = new ArrayList<CollectionItem>();
 		for (String collectionId : collectionsIds) {
-			Collection classPage = this.getCollectionRepository().getCollectionByGooruOid(collectionId, null);
+			Collection collection = this.getCollectionRepository().getCollectionByGooruOid(collectionId, null);
 			if (classPage != null) {
 				CollectionItem collectionItem = new CollectionItem();
 				collectionItem.setCollection(classPage);
