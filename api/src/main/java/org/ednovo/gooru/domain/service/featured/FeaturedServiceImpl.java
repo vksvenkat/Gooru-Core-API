@@ -660,7 +660,15 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 			List<Code> concepts = this.getTaxonomyRespository().findCodeByParentCodeId(String.valueOf(id), null, 3, 0, true, LIBRARY, getOrganizationCode(libraryName), null, null);
 			Code code = this.getTaxonomyRespository().findCodeByCodeId(id);
 			List<Map<String, Object>> collectionResultList = this.getCollection(id, featuredId, offset, limit, skipPagination);
-			if ((code != null && code.getDepth() == 6) || (collectionResultList != null && collectionResultList.size() == 1)) {
+			boolean hasConcept = false;
+			concepts = this.getTaxonomyRespository().findCodeByParentCodeId(String.valueOf(id), null, 3, 0, true, LIBRARY, getOrganizationCode(libraryName), null, null);
+			for (Code concept : concepts) {
+				List<Map<String, Object>> collectionConceptResultList = this.getCollection(concept.getCodeId(), featuredId, offset, limit, skipPagination);
+				if (collectionConceptResultList != null && collectionConceptResultList.size() > 0) {
+					hasConcept = true;
+				}
+			}
+			if ((code != null && code.getDepth() == 6) || (collectionResultList != null && collectionResultList.size() == 1 && !hasConcept)) {
 				id =  code.getParentId();
 				concepts = this.getTaxonomyRespository().findCodeByParentCodeId(String.valueOf(id), null, 3, 0, true, LIBRARY, getOrganizationCode(libraryName), null, null);
 			} 
@@ -674,7 +682,7 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 				if (collectionConceptResultList != null && collectionConceptResultList.size() > 0) {
 					collectionList.addAll(collectionConceptResultList);
 				}
-				if (code.getDepth() == 5) {
+				if (concept.getDepth() == 5) {
 					List<Code> codes = this.getTaxonomyRespository().findCodeByParentCodeId(String.valueOf(concept.getCodeId()), null, 3, 0, true, LIBRARY, getOrganizationCode(libraryName), null, null);
 					if (codes != null) { 
 						for (Code codeIndex : codes) {
