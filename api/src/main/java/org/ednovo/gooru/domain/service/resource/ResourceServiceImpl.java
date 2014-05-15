@@ -108,6 +108,7 @@ import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.domain.cassandra.service.ResourceCassandraService;
 import org.ednovo.gooru.domain.service.CollectionService;
+import org.ednovo.gooru.domain.service.FeedbackService;
 import org.ednovo.gooru.domain.service.partner.CustomFieldsService;
 import org.ednovo.gooru.domain.service.rating.RatingService;
 import org.ednovo.gooru.domain.service.revision_history.RevisionHistoryService;
@@ -243,6 +244,9 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	private FeedbackRepository feedbackRepository;
 
 	@Autowired
+	private FeedbackService feedbackService;
+	
+	@Autowired
 	private AsyncExecutor asyncExecutor;
 
 	@Autowired
@@ -288,7 +292,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			resource.setMomentsOfLearning(this.collectionService.setContentMetaAssociation(this.collectionService.getContentMetaAssociation("moments_of_learning"), resource.getGooruOid(), "moments_of_learning"));
 		}
 		resource.setEducationalUse(this.collectionService.setContentMetaAssociation(this.collectionService.getContentMetaAssociation("educational_use"), resource.getGooruOid(), "educational_use"));
-		resource.setRatings(this.feedbackRepository.getContentFeedbackRating(gooruContentId, CustomProperties.FeedbackRatingType.STAR.getFeedbackRatingType()));
+		resource.setRatings(this.feedbackService.getContentFeedbackStarRating(gooruContentId));
 		return resource;
 	}
 

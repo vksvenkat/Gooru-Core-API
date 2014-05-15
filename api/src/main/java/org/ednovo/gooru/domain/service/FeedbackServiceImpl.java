@@ -123,20 +123,21 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 				} else {
 					throw new UnauthorizedException(generateErrorMessage(GL0058, USER, UPDATE));
 				}
-				Resource resource = this.getResourceRepository().findResourceByContentGooruId(feedback.getAssocGooruOid());
-				if (resource != null && resource.getContentId() != null) {
-					if (resource.getResourceType() != null && resource.getResourceType().getName().equalsIgnoreCase(ResourceType.Type.SCOLLECTION.getType())) {
-						indexProcessor.index(resource.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
-					} else {
-						indexProcessor.index(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE);
-					}
-				}
+                
 			}
 		} else {
 			throw new NotFoundException(generateErrorMessage(GL0056, FEEDBACK));
 		}
-
 		this.getFeedbackRepository().saveAll(feedbackList);
+		this.getFeedbackRepository().flush();
+		Resource resource = this.getResourceRepository().findResourceByContentGooruId(newFeedback.getAssocGooruOid());
+		if (resource != null && resource.getContentId() != null) {
+			if (resource.getResourceType() != null && resource.getResourceType().getName().equalsIgnoreCase(ResourceType.Type.SCOLLECTION.getType())) {
+				indexProcessor.index(resource.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
+			} else {
+				indexProcessor.index(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE);
+			}
+		}
 		return feedbacks;
 	}
 
@@ -154,6 +155,15 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 			}
 		} else {
 			throw new NotFoundException(generateErrorMessage(GL0056, FEEDBACK));
+		}
+		this.getFeedbackRepository().flush();
+		Resource resource = this.getResourceRepository().findResourceByContentGooruId(feedback.getAssocGooruOid());
+		if (resource != null && resource.getContentId() != null) {
+			if (resource.getResourceType() != null && resource.getResourceType().getName().equalsIgnoreCase(ResourceType.Type.SCOLLECTION.getType())) {
+				indexProcessor.index(resource.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
+			} else {
+				indexProcessor.index(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE);
+			}
 		}
 	}
 
@@ -274,6 +284,15 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 			CustomTableValue statusType = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.CONTENT_STATUS_TYPE.getTable(), CustomProperties.ContentStatusType.OPEN.getContentStatusType());
 			content.setStatusType(statusType);
 			this.getCustomTableRepository().save(content);
+		}
+		this.getFeedbackRepository().flush();
+		Resource resource = this.getResourceRepository().findResourceByContentGooruId(feedback.getAssocGooruOid());
+		if (resource != null && resource.getContentId() != null) {
+			if (resource.getResourceType() != null && resource.getResourceType().getName().equalsIgnoreCase(ResourceType.Type.SCOLLECTION.getType())) {
+				indexProcessor.index(resource.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
+			} else {
+				indexProcessor.index(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE);
+			}
 		}
 		return feedbackList;
 
