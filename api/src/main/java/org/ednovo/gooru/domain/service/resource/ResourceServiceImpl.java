@@ -109,6 +109,7 @@ import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.domain.cassandra.service.ResourceCassandraService;
 import org.ednovo.gooru.domain.service.CollectionService;
 import org.ednovo.gooru.domain.service.FeedbackService;
+import org.ednovo.gooru.domain.service.assessment.AssessmentService;
 import org.ednovo.gooru.domain.service.partner.CustomFieldsService;
 import org.ednovo.gooru.domain.service.rating.RatingService;
 import org.ednovo.gooru.domain.service.revision_history.RevisionHistoryService;
@@ -205,9 +206,6 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	private AssessmentRepository assessmentRepository;
 
 	@Autowired
-	private RatingService ratingService;
-
-	@Autowired
 	private ShelfRepository shelfRepository;
 
 	@Autowired
@@ -245,17 +243,18 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 
 	@Autowired
 	private FeedbackService feedbackService;
-	
+
 	@Autowired
 	private AsyncExecutor asyncExecutor;
 
 	@Autowired
 	private CustomTableRepository customTableRepository;
-	
+
 	@Autowired
 	private CollectionService collectionService;
-	
 
+	@Autowired
+	private AssessmentService assessmentService;
 
 	@Override
 	public ResourceInstance saveResourceInstance(ResourceInstance resourceInstance) throws Exception {
@@ -294,6 +293,23 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		resource.setEducationalUse(this.collectionService.setContentMetaAssociation(this.collectionService.getContentMetaAssociation("educational_use"), resource.getGooruOid(), "educational_use"));
 		resource.setRatings(this.feedbackService.getContentFeedbackStarRating(gooruContentId));
 		return resource;
+	}
+
+	@Override
+	public Map<String, Object> getResource(String gooruOid) {
+		Resource resource = this.findResourceByContentGooruId(gooruOid);
+		Map<String, Object> resourceObject = new HashMap<String, Object>();
+		if (resource.getResourceType().getName().equalsIgnoreCase("assessment-question")) {
+			AssessmentQuestion question = assessmentService.getQuestion(gooruOid);
+			question.setCustomFieldValues(customFieldService.getCustomFieldsValuesOfResource(question.getGooruOid()));
+			resourceObject.put(RESOURCE, question);
+		} else {
+			resource.setCustomFieldValues(customFieldService.getCustomFieldsValuesOfResource(resource.getGooruOid()));
+			resourceObject.put(RESOURCE, resource);
+		}
+		resourceObject.put(STANDARD, this.getCollectionService().getStandards(resource.getTaxonomySet(), false, null));
+		resourceObject.put(COURSES, this.getCollectionService().getCourse(resource.getTaxonomySet()));
+		return resourceObject;
 	}
 
 	@Override
@@ -1648,7 +1664,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			param.put(DOC_KEY, keys.get(DOCUMENT__ID));
 			param.put(THUMBNAIL, resource.getThumbnail());
 			param.put(RESOURCE_FILE_PATH, resourceFilePath);
-			param.put(RESOURCE_GOORU_OID , resource.getGooruOid());
+			param.put(RESOURCE_GOORU_OID, resource.getGooruOid());
 			RequestUtil.executeRestAPI(param, settingService.getConfigSetting(ConfigConstants.GOORU_CONVERSION_RESTPOINT, 0, TaxonomyUtil.GOORU_ORG_UID) + "/conversion/textbook/upload", Method.POST.getName());
 		}
 
@@ -1673,7 +1689,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 							resourceInstance.setResource(resource);
 						}
 						this.getResourceRepository().saveAll(resourceInstances);
-						indexProcessor.index(duplicateResource.getGooruOid(), IndexProcessor.INDEX,RESOURCE);
+						indexProcessor.index(duplicateResource.getGooruOid(), IndexProcessor.INDEX, RESOURCE);
 						this.getResourceRepository().remove(Resource.class, duplicateResource.getContentId());
 					}
 				}
@@ -1689,7 +1705,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			totalPages = pageSize / recordsPerPage;
 			for (int page = 1; page < totalPages; page++) {
 				logger.info("Collection default thumbnail" + page + " of " + totalPages);
-				filters.put(PAGE_NUM , page + "");
+				filters.put(PAGE_NUM, page + "");
 				filters.put(PAGE_SIZE, recordsPerPage + "");
 				List<Learnguide> collectionList = this.getLearnguideRepository().listAllCollectionsWithoutGroups(filters);
 				if (collectionList != null && collectionList.size() > 0) {
@@ -1955,7 +1971,8 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	}
 
 	@Override
-	public Resource addNewResource(String url, String title, String text, String category, String sharing, String type_name, String licenseName, Integer brokenStatus, Boolean hasFrameBreaker, String description, Integer isFeatured, String tags, boolean isReturnJson, User apiCaller, String mediaType, String resourceFormat, String resourceInstructional) {
+	public Resource addNewResource(String url, String title, String text, String category, String sharing, String type_name, String licenseName, Integer brokenStatus, Boolean hasFrameBreaker, String description, Integer isFeatured, String tags, boolean isReturnJson, User apiCaller,
+			String mediaType, String resourceFormat, String resourceInstructional) {
 
 		User user = null;
 		// construct resource:
@@ -1970,13 +1987,13 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		resource.setMediaType(mediaType);
 		user = apiCaller;
 		resource.setUser(user);
-		
-		if(resourceFormat != null){
-			CustomTableValue customTableValue = this.getCustomTableRepository().getCustomTableValue(RESOURCE_CATEGORY_FORMAT,resourceFormat );
+
+		if (resourceFormat != null) {
+			CustomTableValue customTableValue = this.getCustomTableRepository().getCustomTableValue(RESOURCE_CATEGORY_FORMAT, resourceFormat);
 			resource.setResourceFormat(customTableValue);
 		}
-		
-		if(resourceInstructional != null){
+
+		if (resourceInstructional != null) {
 			CustomTableValue customTableValue = this.getCustomTableRepository().getCustomTableValue(RESOURCE_INSTRUCTIONAL_USE, resourceInstructional);
 			resource.setInstructional(customTableValue);
 		}
@@ -2022,141 +2039,6 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		this.mapSourceToResource(resource);
 		indexProcessor.index(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE);
 
-		return resource;
-	}
-
-	// import CSV resource
-	@Override
-	public Resource importCSVResource(String url, String subject, String title, String tags, String description, String attribution, String thumbnail, String csvFileCode, String type, String grade, String content, String importMode, CsvCrawler csvCrawler, boolean isReturnJson, User user,
-			boolean indexFlag, String mediaType) {
-
-		// CsvCrawler csvCrawler = null;
-		Resource resource = null;
-		ResourceSource resourceSource = null;
-		String domainName = null;
-		if (type == null) {
-			type = "Website";
-		}
-
-		if (url == null || type == null || title == null || !url.trim().startsWith(HTTP)) {
-			// logData += "Stopped Import of file on row " + processedCount +
-			// ": " + fileName + " Due to Invalid Url | type | title - > " + url
-			// + "| " + type + "|" + title + "</br>";
-			return null;
-		}
-
-		// csvCrawler = resourceRepository.getCsvCrawler(url, type);
-		// if (csvCrawler == null) {
-		csvCrawler = new CsvCrawler();
-		csvCrawler.setType(type);
-		csvCrawler.setUrl(url);
-		// }
-		csvCrawler.setLastModified(new Date());
-		csvCrawler.setTitle(title);
-		csvCrawler.setThumbnail(thumbnail);
-		csvCrawler.setTags(tags);
-		csvCrawler.setAttribution(attribution);
-		csvCrawler.setDescription(description);
-		csvCrawler.setSubject(subject);
-		csvCrawler.setGrade(grade);
-		csvCrawler.setContent(content);
-		csvCrawler.setImportMode(importMode);
-		csvCrawler.setCsvFileCode(csvFileCode);
-
-		resource = resourceRepository.getResourceByUrl(csvCrawler.getUrl());
-
-		// Create new resource based on mode parameter (protect/update)
-		if (resource == null || csvCrawler.getImportMode().equalsIgnoreCase(ImportMode.PROTECT.getImportMode())) {
-			resource = new Resource();
-			resource.setUrl(csvCrawler.getUrl());
-			resource.setGooruOid(UUID.randomUUID().toString());
-			resource.setUser(user);
-			resource.setSharing(Sharing.PRIVATE.getSharing());
-		}
-		domainName = getDomainName(url);
-		resourceSource = this.getResourceRepository().findResourceSource(domainName);
-		if (resourceSource != null && resourceSource.getFrameBreaker() != null && resourceSource.getFrameBreaker() == 1) {
-			resource.setHasFrameBreaker(true);
-		} else {
-			resource.setHasFrameBreaker(false);
-		}
-		resource.setTitle(csvCrawler.getTitle());
-		resource.setCategory(csvCrawler.getType());
-		resource.setRecordSource(Resource.RecordSource.CRAWLED.getRecordSource());
-		resource.setBatchId(csvCrawler.getCsvFileCode());
-		ResourceType resourceType = new ResourceType();
-		if (resource.getUrl().contains(YOUTUBE)) {
-			resourceType.setName(ResourceType.Type.VIDEO.getType());
-		} else {
-			resourceType.setName(ResourceType.Type.RESOURCE.getType());
-		}
-		resource.setThumbnail(thumbnail);
-		resource.setLicense(new License());
-		resource.getLicense().setName(License.OTHER);
-		resource.setResourceType(resourceType);
-		resource.setCreatedOn(new Date());
-		resource.setCreator(resource.getUser());
-		resource.setContentType(new ContentType());
-		resource.getContentType().setName(ContentType.RESOURCE);
-		resource.setLastModified(new Date());
-		resource.setMediaType(mediaType);
-		resourceRepository.save(resource);
-
-		if (csvCrawler.getContent() != null && csvCrawler.getContent().equalsIgnoreCase(PREMIUM)) {
-			// FIXME Add logic for premium content
-		}
-
-		if (csvCrawler.getDescription() != null) {
-			resource.setDescription(csvCrawler.getDescription());
-		}
-
-		if (csvCrawler.getTags() != null) {
-			ResourceInfo resourceInfo = resourceRepository.findResourceInfo(resource.getGooruOid());
-			if (resourceInfo == null) {
-				resourceInfo = new ResourceInfo();
-			}
-			resourceInfo.setTags(csvCrawler.getTags());
-			resource.setTags(csvCrawler.getTags());
-			resourceInfo.setResource(resource);
-			resourceInfo.setLastUpdated(new Date());
-			resource.setResourceInfo(resourceInfo);
-			resourceRepository.save(resourceInfo);
-		}
-		if (csvCrawler.getAttribution() != null) {
-
-			resourceSource = null;
-			if (resource.getResourceSource() != null) {
-				resource.getResourceSource().setAttribution(csvCrawler.getAttribution());
-				resourceSource = resource.getResourceSource();
-			} else {
-				domainName = url.contains("http://") ? url.replace("http://", "") : ((url.contains("https://")) ? url.replace("https://", "") : url);
-				int lastIndex = domainName.indexOf("/");
-				if (lastIndex == -1) {
-					lastIndex = domainName.length();
-				}
-				domainName = domainName.substring(0, lastIndex);
-				resourceSource = resourceRepository.findResourceSource(domainName);
-				if (resourceSource == null) {
-					resourceSource = new ResourceSource();
-					resourceSource.setDomainName(domainName);
-					resourceSource.setAttribution(csvCrawler.getAttribution());
-					resourceSource.setActiveStatus(1);
-				}
-				resource.setResourceSource(resourceSource);
-			}
-			resourceRepository.save(resourceSource);
-		}
-
-		// resourceRepository.saveCsvCrawler(csvCrawler);
-		logger.info("Importing Resource - >" + resource.getUrl());
-
-		// download and genrate thumbnail
-		if (csvCrawler.getThumbnail() != null && csvCrawler.getThumbnail().startsWith(HTTP)) {
-			this.getResourceImageUtil().downloadAndGenerateThumbnails(resource, csvCrawler.getThumbnail());
-		}
-		if (indexFlag) {
-			indexProcessor.index(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE);
-		}
 		return resource;
 	}
 
@@ -2221,8 +2103,8 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		if (category != null) {
 			existingResource.setCategory(category);
 		}
-		if(resource_format != null){
-			CustomTableValue customTableValue = this.getCustomTableRepository().getCustomTableValue(RESOURCE_CATEGORY_FORMAT,resource_format );
+		if (resource_format != null) {
+			CustomTableValue customTableValue = this.getCustomTableRepository().getCustomTableValue(RESOURCE_CATEGORY_FORMAT, resource_format);
 			existingResource.setResourceFormat(customTableValue);
 		}
 		if (!StringUtils.isEmpty(mediaType)) {
@@ -2267,10 +2149,10 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			if (grade != null)
 				existingResource.setGrade(grade);
 		}
-		if (licenseName != null){
+		if (licenseName != null) {
 			License licenseData = this.getResourceRepository().getLicenseByLicenseName(licenseName);
-			if(licenseData != null){
-				existingResource.setLicense(licenseData); 
+			if (licenseData != null) {
+				existingResource.setLicense(licenseData);
 			}
 		}
 
@@ -2482,15 +2364,11 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				analytic.put(SCORE, this.getAssessmentRepository().getQuizUserScore(gooruOid, user.getPartyUid()));
 			}
 
-			Rating rating = ratingService.findByContent(gooruOid);
-			if (rating != null) {
-				analytic.put(LIKES, rating.getVotesUp());
-			}
 			List<ShelfItem> subscriberUserList = this.getShelfRepository().getShelfSubscribeUserList(gooruOid);
 			if (subscriberUserList != null) {
 				analytic.put(SUBSCRIBE_COUNT, subscriberUserList.size());
 			} else {
-				analytic.put(SUBSCRIBE_COUNT , 0);
+				analytic.put(SUBSCRIBE_COUNT, 0);
 			}
 			analytic.put(VIEWS, this.getResourceRepository().findViews(gooruOid));
 
@@ -2669,12 +2547,12 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			} else {
 				newResource.setHasFrameBreaker(false);
 			}
-			
-			if (newResource.getResourceFormat() != null) { 
+
+			if (newResource.getResourceFormat() != null) {
 				CustomTableValue resourceCategory = this.getCustomTableRepository().getCustomTableValue(RESOURCE_CATEGORY_FORMAT, newResource.getResourceFormat().getValue());
 				newResource.setResourceFormat(resourceCategory);
 			}
-			if (newResource.getInstructional() != null) { 
+			if (newResource.getInstructional() != null) {
 				CustomTableValue resourceType = this.getCustomTableRepository().getCustomTableValue(RESOURCE_INSTRUCTIONAL_USE, newResource.getInstructional().getValue());
 				newResource.setResourceFormat(resourceType);
 			}
@@ -2682,7 +2560,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				newResource.setCategory(newResource.getCategory().toLowerCase());
 			}
 			// add to db and index.
-		    resource = handleNewResource(newResource, null, null);
+			resource = handleNewResource(newResource, null, null);
 			ResourceInfo resourceInfo = new ResourceInfo();
 			String tags = newResource.getTags();
 			resourceInfo.setTags(tags);
@@ -2731,7 +2609,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 					resource.setUrl(newResource.getAttach().getFilename());
 				}
 			}
-			if (newResource.getResourceFormat() != null) { 
+			if (newResource.getResourceFormat() != null) {
 				CustomTableValue customTableValue = this.getCustomTableRepository().getCustomTableValue(RESOURCE_CATEGORY_FORMAT, newResource.getResourceFormat().getValue());
 				resource.setResourceFormat(customTableValue);
 			}
@@ -2748,23 +2626,23 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			if (newResource.getTags() != null && !newResource.getTags().isEmpty()) {
 				resource.setTags(newResource.getTags());
 			}
-			if (newResource.getLicense() != null){
+			if (newResource.getLicense() != null) {
 				License licenseData = this.getResourceRepository().getLicenseByLicenseName(newResource.getLicense().getName());
-				if(licenseData != null){
-					resource.setLicense(licenseData); 
+				if (licenseData != null) {
+					resource.setLicense(licenseData);
 				}
 			}
-			if(newResource.getMomentsOfLearning() != null && newResource.getMomentsOfLearning().size() > 0) {
-				resource.setMomentsOfLearning(this.getCollectionService().updateContentMeta(newResource.getMomentsOfLearning(),resource.getGooruOid(), user, "moments_of_learning"));
+			if (newResource.getMomentsOfLearning() != null && newResource.getMomentsOfLearning().size() > 0) {
+				resource.setMomentsOfLearning(this.getCollectionService().updateContentMeta(newResource.getMomentsOfLearning(), resource.getGooruOid(), user, "moments_of_learning"));
 			} else {
 				resource.setMomentsOfLearning(this.getCollectionService().setContentMetaAssociation(this.getCollectionService().getContentMetaAssociation("moments_of_learning"), resource.getGooruOid(), "moments_of_learning"));
 			}
-			if(newResource.getEducationalUse() != null && newResource.getEducationalUse().size() > 0) {
-				resource.setEducationalUse(this.getCollectionService().updateContentMeta(newResource.getEducationalUse(),resource.getGooruOid(), user, "educational_use"));
+			if (newResource.getEducationalUse() != null && newResource.getEducationalUse().size() > 0) {
+				resource.setEducationalUse(this.getCollectionService().updateContentMeta(newResource.getEducationalUse(), resource.getGooruOid(), user, "educational_use"));
 			} else {
 				resource.setEducationalUse(this.getCollectionService().setContentMetaAssociation(this.getCollectionService().getContentMetaAssociation("educational_use"), resource.getGooruOid(), "educational_use"));
 			}
-			
+
 			saveOrUpdateResourceTaxonomy(resource, newResource.getTaxonomySet());
 
 			if (newResource.getResourceSource() != null) {
@@ -2958,7 +2836,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		}
 		return errors;
 	}
-	
+
 	@Override
 	public void updateViewsBulk(List<UpdateViewsDTO> updateViewsDTOs, User apiCaller) {
 		int index = 30;
@@ -2971,10 +2849,10 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				if (gooruOids.toString().trim().length() > 0) {
 					gooruOids.append(",");
 				}
-				
+
 				gooruOids.append(updateViewsDTO.getGooruOid());
 				resourceMap.put(updateViewsDTO.getGooruOid(), updateViewsDTO.getViews());
-				
+
 			}
 			if (gooruOids.toString().trim().length() > 0) {
 				List<Resource> resources = this.getResourceRepository().findAllResourcesByGooruOId(gooruOids.toString());
@@ -2982,30 +2860,30 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 					if (resourceMap.containsKey(resource.getGooruOid())) {
 						resource.setViews(resourceMap.get(resource.getGooruOid()));
 					}
-					if(resourceIds.toString().trim().length() > 0) {
+					if (resourceIds.toString().trim().length() > 0) {
 						resourceIds.append(",");
 					}
-					if(collectionIds.toString().trim().length() > 0) {
+					if (collectionIds.toString().trim().length() > 0) {
 						collectionIds.append(",");
 					}
-					if(resource.getResourceType().getName().equalsIgnoreCase(ResourceType.Type.SCOLLECTION.getType())) {
+					if (resource.getResourceType().getName().equalsIgnoreCase(ResourceType.Type.SCOLLECTION.getType())) {
 						collectionIds.append(resource.getGooruOid());
 					} else {
 						resourceIds.append(resource.getGooruOid());
 					}
-					
+
 				}
 				this.getResourceRepository().saveAll(resources);
 				if (collectionIds.toString().trim().length() > 0) {
 					indexProcessor.index(collectionIds.toString(), IndexProcessor.INDEX, SCOLLECTION);
-				} else if(resourceIds.toString().trim().length() > 0) {
+				} else if (resourceIds.toString().trim().length() > 0) {
 					indexProcessor.index(resourceIds.toString(), IndexProcessor.INDEX, RESOURCE);
 				}
 			}
 		}
 
 	}
-	
+
 	private Errors validateUpdateResource(Resource newResource, Resource resource) throws Exception {
 		final Errors errors = new BindException(newResource, RESOURCE);
 		rejectIfNull(errors, resource, "resource.all", GL0056, generateErrorMessage(GL0056, RESOURCE));
@@ -3094,11 +2972,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		return resourceRepository.findLtiResourceByContentGooruId(gooruContentId);
 	}
 
-
 	public CollectionService getCollectionService() {
 		return collectionService;
 	}
-
-	
-
 }
