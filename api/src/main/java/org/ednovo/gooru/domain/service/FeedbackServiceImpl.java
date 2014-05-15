@@ -31,6 +31,8 @@ import java.util.Map;
 import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.CustomTableValue;
 import org.ednovo.gooru.core.api.model.Feedback;
+import org.ednovo.gooru.core.api.model.Resource;
+import org.ednovo.gooru.core.api.model.ResourceType;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.application.util.BaseUtil;
@@ -44,10 +46,12 @@ import org.ednovo.gooru.core.exception.UnauthorizedException;
 import org.ednovo.gooru.domain.service.search.SearchResults;
 import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.ednovo.gooru.domain.service.userManagement.UserManagementService;
+import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.FeedbackRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.resource.ResourceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -72,6 +76,9 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 	@Autowired
 	private SettingService settingService;
 
+	@Autowired
+	private ResourceRepository resourceRepository;
+
 	@Override
 	public Feedback createFeedback(Feedback feedback, User user) {
 		List<Feedback> feedbacks = setFeedbackData(feedback, user);
@@ -82,7 +89,7 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 	public List<Feedback> updateFeedback(String feedbackId, Feedback newFeedback, User user) {
 		List<Feedback> feedbacks = this.getFeedbackRepository().getFeedbacks(feedbackId, null);
 		List<Feedback> feedbackList = new ArrayList<Feedback>();
-		if (feedbacks != null && user!= null) {
+		if (feedbacks != null && user != null) {
 			for (Feedback feedback : feedbacks) {
 				if (this.getUserManagementService().isContentAdmin(user) || feedback.getCreator().getPartyUid().equals(user.getPartyUid())) {
 					if (newFeedback.getReferenceKey() != null) {
@@ -115,7 +122,14 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 					feedbackList.add(feedback);
 				} else {
 					throw new UnauthorizedException(generateErrorMessage(GL0058, USER, UPDATE));
-
+				}
+				Resource resource = this.getResourceRepository().findResourceByContentGooruId(feedback.getAssocGooruOid());
+				if (resource != null && resource.getContentId() != null) {
+					if (resource.getResourceType() != null && resource.getResourceType().getName().equalsIgnoreCase(ResourceType.Type.SCOLLECTION.getType())) {
+						indexProcessor.index(resource.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
+					} else {
+						indexProcessor.index(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE);
+					}
 				}
 			}
 		} else {
@@ -168,7 +182,7 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 			category = CustomProperties.Table.FEEDBACK_CATEGORY.getTable() + "_" + feedbackCategory;
 		}
 		rejectIfNull(this.getContentRepository().findContentByGooruId(assocGooruOid), GL0056, _CONTENT);
-		SearchResults<Feedback>  result = new SearchResults<Feedback>();
+		SearchResults<Feedback> result = new SearchResults<Feedback>();
 		result.setSearchResults(this.getFeedbackRepository().getContentFeedbacks(type, assocGooruOid, creatorUid, category, limit, offset, skipPagination));
 		result.setTotalHitCount(this.getFeedbackRepository().getContentFeedbacksCount(type, assocGooruOid, creatorUid, category));
 		return result;
@@ -197,14 +211,14 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 
 	private Feedback validateFeedbackData(Feedback feedback) {
 		rejectIfNull(feedback.getCategory(), GL0006, _CATEGORY);
-		rejectIfNull(feedback.getCategory().getValue(), GL0006,_CATEGORY);
+		rejectIfNull(feedback.getCategory().getValue(), GL0006, _CATEGORY);
 		rejectIfNull(feedback.getTarget(), GL0006, feedback.getCategory().getValue() + TARGET);
 		rejectIfNull(feedback.getTarget().getValue(), GL0006, feedback.getCategory().getValue() + TARGET);
 		if (feedback.getTypes() != null && (!feedback.getCategory().getValue().equalsIgnoreCase(CustomProperties.FeedbackCategory.RATING.getFeedbackCategory()))) {
 			rejectIfNull(feedback.getTypes(), GL0006, ATLEAST_ONE + feedback.getCategory().getValue() + TYPE);
 		} else {
-			rejectIfNull(feedback.getType(),GL0006, feedback.getCategory().getValue() + TYPE);
-			rejectIfNull(feedback.getType().getValue(),GL0006, feedback.getCategory().getValue() + TYPE);
+			rejectIfNull(feedback.getType(), GL0006, feedback.getCategory().getValue() + TYPE);
+			rejectIfNull(feedback.getType().getValue(), GL0006, feedback.getCategory().getValue() + TYPE);
 		}
 		if (feedback.getTypes() == null) {
 			List<CustomTableValue> types = new ArrayList<CustomTableValue>();
@@ -230,14 +244,14 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 		User user = null;
 		Content content = null;
 		if (feedback.getTarget().getValue().equalsIgnoreCase(CustomProperties.Target.USER.getTarget())) {
-			rejectIfNull(feedback.getAssocUserUid(), GL0006, _USER );
+			rejectIfNull(feedback.getAssocUserUid(), GL0006, _USER);
 			user = this.getUserRepository().findByGooruId(feedback.getAssocUserUid());
-			rejectIfNull(user, GL0056, _USER );
+			rejectIfNull(user, GL0056, _USER);
 		}
 		if (feedback.getTarget().getValue().equalsIgnoreCase(CustomProperties.Target.CONTENT.getTarget())) {
-			rejectIfNull(feedback.getAssocGooruOid(), GL0006, CONTENT );
+			rejectIfNull(feedback.getAssocGooruOid(), GL0006, CONTENT);
 			content = this.getContentRepository().findContentByGooruId(feedback.getAssocGooruOid());
-			rejectIfNull(content, GL0056, _CONTENT );
+			rejectIfNull(content, GL0056, _CONTENT);
 		}
 		StringBuilder sb = new StringBuilder();
 		for (CustomTableValue feedbackTypes : feedback.getTypes()) {
@@ -328,7 +342,7 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 			if (contentFeedback != null) {
 				contentFeedback.setScore(feedback.getScore());
 				if (feedback.getFreeText() != null) {
-				  contentFeedback.setFreeText(feedback.getFreeText());
+					contentFeedback.setFreeText(feedback.getFreeText());
 				}
 				this.getFeedbackRepository().save(contentFeedback);
 				return contentFeedback;
@@ -359,7 +373,7 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 		rejectIfNull(this.getUserRepository().findByGooruId(assocUserUid), GL0056, _USER);
 		return this.getFeedbackRepository().getUserFeedbackRating(assocUserUid, feedbackType);
 	}
-	
+
 	@Override
 	public Map<String, Object> getFlags(Integer limit, Integer offset, Boolean skipPagination, String category, String type, String status, String reportedFlagType, String startDate, String endDate, String searchQuery, String description, String reportQuery) throws Exception {
 		return this.getFeedbackRepository().getContentFlags(limit, offset, skipPagination, getTableNameByFeedbackCategory(CustomProperties.FeedbackCategory.REPORT.getFeedbackCategory(), CustomProperties.Target.CONTENT.getTarget()), type, status, reportedFlagType,
@@ -383,7 +397,7 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 
 	@Override
 	public Map<Object, Object> getContentFeedbackThumbRating(String assocGooruOid) {
-		rejectIfNull(this.getContentRepository().findContentByGooruId(assocGooruOid),GL0056, _CONTENT);
+		rejectIfNull(this.getContentRepository().findContentByGooruId(assocGooruOid), GL0056, _CONTENT);
 		return this.getFeedbackRepository().getContentFeedbackThumbs(assocGooruOid, CustomProperties.Table.FEEDBACK_RATING_TYPE.getTable() + "_" + CustomProperties.FeedbackRatingType.THUMB.getFeedbackRatingType());
 	}
 
@@ -398,7 +412,7 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 	public Integer getUserFeedbackAggregateByType(String assocUserUid, String feedbackType) {
 		String type = CustomProperties.Table.FEEDBACK_RATING_TYPE.getTable() + "_" + CustomProperties.FeedbackRatingType.THUMB.getFeedbackRatingType();
 		rejectIfNull(type, GL0006, feedbackType + TYPE);
-		rejectIfNull(this.getUserRepository().findByGooruId(assocUserUid), GL0056,  _USER);
+		rejectIfNull(this.getUserRepository().findByGooruId(assocUserUid), GL0056, _USER);
 		return this.getFeedbackRepository().getUserFeedbackAggregateByType(assocUserUid, type);
 	}
 
@@ -456,6 +470,10 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 
 	public SettingService getSettingService() {
 		return settingService;
+	}
+
+	public ResourceRepository getResourceRepository() {
+		return resourceRepository;
 	}
 
 }

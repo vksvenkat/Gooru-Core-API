@@ -250,6 +250,8 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	
 	@Autowired
 	private CollectionService collectionService;
+	
+
 
 	@Override
 	public ResourceInstance saveResourceInstance(ResourceInstance resourceInstance) throws Exception {
@@ -286,6 +288,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			resource.setMomentsOfLearning(this.collectionService.setContentMetaAssociation(this.collectionService.getContentMetaAssociation("moments_of_learning"), resource.getGooruOid(), "moments_of_learning"));
 		}
 		resource.setEducationalUse(this.collectionService.setContentMetaAssociation(this.collectionService.getContentMetaAssociation("educational_use"), resource.getGooruOid(), "educational_use"));
+		resource.setRatings(this.feedbackRepository.getContentFeedbackRating(gooruContentId, CustomProperties.FeedbackRatingType.STAR.getFeedbackRatingType()));
 		return resource;
 	}
 
