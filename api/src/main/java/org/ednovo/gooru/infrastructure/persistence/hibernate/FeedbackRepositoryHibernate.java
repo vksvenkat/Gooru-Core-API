@@ -278,11 +278,11 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 
 		if (startDate != null && endDate != null) {
 
-			sql += "and DATE(c.created_on) BETWEEN '" + startDate + "' and '" + endDate + "'";
+			sql += "and DATE(f.created_date) BETWEEN '" + startDate + "' and '" + endDate + "'";
 		} else if (startDate != null) {
-			sql += " and DATE(c.created_on) = '" + startDate + "'";
+			sql += " and DATE(f.created_date) = '" + startDate + "'";
 		} else if (endDate != null) {
-			sql += " and DATE(c.created_on) = '" + endDate + "'";
+			sql += " and DATE(f.created_date) = '" + endDate + "'";
 		}
 
 		if (searchQuery != null) {
@@ -300,6 +300,7 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 		}
 
 		sql += " group by f.creator_uid, f.assoc_gooru_oid";
+		
 		Query query = session.createSQLQuery(sql).addScalar("title", StandardBasicTypes.STRING).addScalar("description", StandardBasicTypes.STRING).addScalar("gooruOid", StandardBasicTypes.STRING).addScalar("category", StandardBasicTypes.STRING).addScalar("createdOn", StandardBasicTypes.STRING)
 				.addScalar("value", StandardBasicTypes.STRING).addScalar("reportedFlag", StandardBasicTypes.STRING).addScalar("userUid", StandardBasicTypes.STRING).addScalar("product", StandardBasicTypes.STRING).addScalar("reportId", StandardBasicTypes.STRING)
 				.addScalar("reportCreator", StandardBasicTypes.STRING).addScalar("reportCreatedOn", StandardBasicTypes.STRING).addScalar("reportDescription", StandardBasicTypes.STRING).addScalar("url", StandardBasicTypes.STRING).addScalar("browserUrl", StandardBasicTypes.STRING)
