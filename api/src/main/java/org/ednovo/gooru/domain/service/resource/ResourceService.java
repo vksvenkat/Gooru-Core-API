@@ -143,9 +143,6 @@ public interface ResourceService extends BaseService {
 
 	Resource addNewResource(String url, String title, String text, String category, String sharing, String type_name, String licenseName, Integer brokenStatus, Boolean hasFrameBreaker, String description, Integer isFeatured, String tags, boolean isReturnJson, User apiCaller, String mediaType, String resource_format, String resource_instructional);
 
-	Resource importCSVResource(String url, String subject, String title, String tags, String description, String attribution, String thumbnail, String csvFileCode, String type, String grade, String content, String importMode, CsvCrawler csvCrawler, boolean isReturnJson, User user,
-			boolean indexFlag, String mediaType);
-
 	List<ResourceSource> getSuggestAttribution(String keyword);
 
 	Map<String, Object> findAllResourcesSource(Map<String, String> filters);
@@ -210,5 +207,7 @@ public interface ResourceService extends BaseService {
 	void updateViewsBulk(List<UpdateViewsDTO> updateViewsDTOs, User apiCaller);
 	
 	Resource findLtiResourceByContentGooruId(String gooruContentId);
+	
+	Map<String, Object> getResource(String gooruOid);
 
 }
