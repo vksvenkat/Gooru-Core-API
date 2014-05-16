@@ -54,7 +54,6 @@ import org.ednovo.gooru.core.api.model.ContentType;
 import org.ednovo.gooru.core.api.model.CustomTableValue;
 import org.ednovo.gooru.core.api.model.Identity;
 import org.ednovo.gooru.core.api.model.License;
-import org.ednovo.gooru.core.api.model.Rating;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.ResourceSource;
 import org.ednovo.gooru.core.api.model.ResourceType;
@@ -65,14 +64,13 @@ import org.ednovo.gooru.core.api.model.StandardFo;
 import org.ednovo.gooru.core.api.model.Textbook;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserGroupSupport;
-import org.ednovo.gooru.core.application.util.ResourceMetaInfo;
 import org.ednovo.gooru.core.application.util.CustomProperties;
+import org.ednovo.gooru.core.application.util.ResourceMetaInfo;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.domain.cassandra.service.ResourceCassandraService;
 import org.ednovo.gooru.domain.service.assessment.AssessmentService;
-import org.ednovo.gooru.domain.service.rating.RatingService;
 import org.ednovo.gooru.domain.service.redis.RedisService;
 import org.ednovo.gooru.domain.service.resource.ResourceManager;
 import org.ednovo.gooru.domain.service.resource.ResourceService;
@@ -126,9 +124,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 	@Autowired
 	protected LearnguideRepository learnguideRepository;
-
-	@Autowired
-	protected RatingService ratingService;
 
 	@Autowired
 	private TaxonomyStoredProcedure procedureExecutor;
@@ -274,10 +269,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		}
 
 		return new ActionResponseDTO<Collection>(collection, errors);
-	}
-
-	public RatingService getRatingService() {
-		return ratingService;
 	}
 
 	@Override
@@ -725,10 +716,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		if (collectionItem != null) {
 			if (includeAdditionalInfo) {
 				collectionItem = this.setCollectionItemMoreData(collectionItem, rootNodeId);
-				if (user != null) {
-					Integer contentUserRating = this.getRatingService().getContentRatingForUser(user.getPartyUid(), collectionItem.getResource().getGooruOid());
-					collectionItem.getResource().setUserRating(contentUserRating);
-				}
 			}
 		} else {
 			throw new NotFoundException(generateErrorMessage(GL0056, _COLLECTION_ITEM));
@@ -845,6 +832,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 					collectionItem.getResource().setMomentsOfLearning(this.setContentMetaAssociation(this.getContentMetaAssociation("moments_of_learning"), collectionItem.getResource().getGooruOid(), "moments_of_learning"));
 				}
 				collectionItem.getResource().setEducationalUse(this.setContentMetaAssociation(this.getContentMetaAssociation("educational_use"), collectionItem.getResource().getGooruOid(), "educational_use"));
+				collectionItem.getResource().setRatings(this.getFeedbackService().getContentFeedbackStarRating(collectionItem.getResource().getGooruOid()));
 			}
 			if (collection.getCollectionType().equalsIgnoreCase(COLLECTION)) {
 				collection.setDepthOfKnowledges(this.setContentMetaAssociation(this.getContentMetaAssociation("depth_of_knowledge"), collectionId, "depth_of_knowledge"));
@@ -959,7 +947,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		if (collection != null) {
 			Set<String> acknowledgement = new HashSet<String>();
 			ResourceMetaInfo collectionMetaInfo = new ResourceMetaInfo();
-			collectionMetaInfo.setRating(this.getRatingService().findByContentObj(collection));
 			collectionMetaInfo.setCourse(this.getCourse(collection.getTaxonomySet()));
 			collectionMetaInfo.setStandards(this.getStandards(collection.getTaxonomySet(), ignoreUserTaxonomyPreference, rootNodeId));
 			if (collection.getVocabulary() != null) {
@@ -984,17 +971,10 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 						collectionItem.getResource().setMeta(resourcePermissions);
 					}
 
-					if (user != null) {
-						Integer contentUserRating = this.getRatingService().getContentRatingForUser(user.getPartyUid(), collectionItem.getResource().getGooruOid());
-						collectionItem.getResource().setUserRating(contentUserRating);
-					}
+					
 					this.setCollectionItemMoreData(collectionItem, rootNodeId);
 				}
 				collectionMetaInfo.setAcknowledgement(acknowledgement);
-			}
-			if (user != null) {
-				Integer contentUserRating = this.getRatingService().getContentRatingForUser(user.getPartyUid(), collection.getGooruOid());
-				collection.setUserRating(contentUserRating);
 			}
 
 		}
@@ -1006,8 +986,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		if (collectionItems != null) {
 			for (CollectionItem collectionItem : collectionItems) {
 				if (collectionItem.getResource() != null && collectionItem.getResource().getResourceType().getName().equalsIgnoreCase(ResourceType.Type.SCOLLECTION.getType())) {
-					Rating rating = this.getRatingService().findByContentObj(collectionItem.getResource());
-					collectionItem.getResource().setVotesUp(rating != null ? rating.getVotesUp() : 0);
 					collectionItem.setCourse(this.getCourse(collectionItem.getResource().getTaxonomySet()));
 					collectionItem.setStandards(this.getStandards(collectionItem.getResource().getTaxonomySet(), false, rootNodeId));
 					List<CollectionItem> collectionItemCount = this.getCollectionItems(collectionItem.getResource().getGooruOid(), new HashMap<String, String>());
@@ -1020,7 +998,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 	private CollectionItem setCollectionItemMoreData(CollectionItem collectionItem, String rootNodeId) {
 		if (collectionItem.getResource() != null) {
-			collectionItem.setRating(this.getRatingService().findByContentObj(collectionItem.getResource()));
 			if (collectionItem.getResource().getResourceType().getName().equals(ResourceType.Type.ASSESSMENT_QUESTION.getType())) {
 				collectionItem.setQuestionInfo(this.getAssessmentService().getQuestion(collectionItem.getResource().getGooruOid()));
 			}
@@ -1605,10 +1582,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		if (collectionItem != null) {
 			if (includeAdditionalInfo.equalsIgnoreCase(TRUE)) {
 				collectionItem = this.setCollectionItemMoreData(collectionItem, rootNodeId);
-				if (user != null) {
-					Integer contentUserRating = this.getRatingService().getContentRatingForUser(user.getPartyUid(), collectionItem.getResource().getGooruOid());
-					collectionItem.getResource().setUserRating(contentUserRating);
-				}
 			}
 		} else {
 			throw new NotFoundException(generateErrorMessage(GL0056, _COLLECTION_ITEM));
@@ -1881,7 +1854,12 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	public Map<String, Object> getCollection(String gooruOid, Map<String, Object> collection, String rootNodeId) {
 		Collection CollectionObj = this.getCollectionRepository().getCollectionByGooruOid(gooruOid, null);
 		collection.put("metaInfo", setMetaData(CollectionObj, false, rootNodeId));
-		collection.put("collectionItems", CollectionObj.getCollectionItems());
+		Set<CollectionItem> collectionItems = new TreeSet<CollectionItem>();
+		for (CollectionItem collectionItem : CollectionObj.getCollectionItems()) {
+			collectionItem.getResource().setRatings(this.getFeedbackService().getContentFeedbackStarRating(collectionItem.getResource().getGooruOid()));
+			collectionItems.add(collectionItem);
+		}
+		collection.put("collectionItems", collectionItems);
 		collection.put("goals", CollectionObj.getGoals());
 		collection.put("thumbnails", CollectionObj.getThumbnails());
 		collection.put("gooruOid", CollectionObj.getGooruOid());
