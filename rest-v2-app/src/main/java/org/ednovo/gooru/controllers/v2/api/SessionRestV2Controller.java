@@ -33,6 +33,7 @@ import org.ednovo.gooru.core.api.model.Session;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.SessionItem;
 import org.ednovo.gooru.core.api.model.SessionItemAttemptTry;
+import org.ednovo.gooru.core.api.model.SessionItemFeedback;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.Constants;
@@ -80,7 +81,22 @@ public class SessionRestV2Controller extends BaseController implements Parameter
 		String includes[] = (String[]) ArrayUtils.addAll(includeFields == null ? SESSION_INCLUDES : includeFields, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(session.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, includes);
 	}
-
+	
+	/*Session Item FeedBack Method*/
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_V2_SESSION_ADD })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(value = "/itemFeedback", method = RequestMethod.POST)
+	public ModelAndView createSessionItemFeedback(@RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		request.setAttribute(PREDICATE, "tag.add_resource");
+		User user = (User) request.getAttribute(Constants.USER);
+		JSONObject json = requestData(data);
+		SessionItemFeedback sessionItemFeedback = getSessionService().createSessionItemFeedback(this.buildSessionItemFeedbackFromInputParameters(getValue(SESSION_ITEM_FEEDBACK, json)), user);
+		return toModelAndViewWithIoFilter(sessionItemFeedback, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, "");
+	}
+	/***********************/
+	
+	
+	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_V2_SESSION_UPDATE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.PUT, value = "/{id}")
@@ -163,6 +179,12 @@ public class SessionRestV2Controller extends BaseController implements Parameter
 
 		return JsonDeserializer.deserialize(data, SessionItem.class);
 	}
+
+	private SessionItemFeedback buildSessionItemFeedbackFromInputParameters(String data) {
+
+		return JsonDeserializer.deserialize(data, SessionItemFeedback.class);
+	}
+
 
 	private SessionItemAttemptTry buildSessionItemAttemptFromInputParameters(String data) {
 

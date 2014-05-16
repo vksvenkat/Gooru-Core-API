@@ -37,6 +37,7 @@ import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.Session;
 import org.ednovo.gooru.core.api.model.SessionItem;
 import org.ednovo.gooru.core.api.model.SessionItemAttemptTry;
+import org.ednovo.gooru.core.api.model.SessionItemFeedback;
 import org.ednovo.gooru.core.api.model.SessionStatus;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ParameterProperties;
@@ -83,7 +84,20 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 		}
 		return new ActionResponseDTO<Session>(session, errors);
 	}
-
+	
+	@Override
+	public SessionItemFeedback createSessionItemFeedback(SessionItemFeedback sessionItemFeedback, User user) {
+		Session session = this.getSessionRepository().findSessionById(sessionItemFeedback.getSession() != null ? sessionItemFeedback.getSession().getSessionId() : null);
+		if(session != null) {
+			sessionItemFeedback.setAssociatedDate(new Date());
+			sessionItemFeedback.setFreeText(sessionItemFeedback.getFreeText());
+			sessionItemFeedback.setFeedbackUser(user);
+			sessionItemFeedback.setSession(session);
+			this.getSessionRepository().save(sessionItemFeedback);
+		}
+		return null;
+	}
+	
 	@Override
 	public ActionResponseDTO<Session> updateSession(String sessionId, Session newSession) {
 		Session session = this.getSessionRepository().findSessionById(sessionId);
@@ -263,5 +277,6 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 	public ResourceRepository getResourceRepository() {
 		return resourceRepository;
 	}
+
 
 }
