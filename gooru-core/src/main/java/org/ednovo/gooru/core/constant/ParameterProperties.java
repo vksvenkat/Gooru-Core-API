@@ -273,6 +273,8 @@ public interface ParameterProperties {
 	String COLLECTION_ITEMS = "collectionItems";
 
 	String SESSION = "session";
+	
+	String SESSION_ITEM_FEEDBACK = "sessionItemFeedback";
 
 	String GOORU_USER_CREATED_DEVICE = "gooru_user_created_device";
 
