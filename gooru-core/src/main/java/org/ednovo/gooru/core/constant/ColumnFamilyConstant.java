@@ -53,4 +53,7 @@ public interface ColumnFamilyConstant {
 	
 	String USER_CONCEPT_PROFICIENCY = "agg_event_resource_user_concept";
 
+	String CUSTOM_FILEDS_DATA = "custom_fields_data";
+	
+	String CUSTOM_FILEDS_DEFINITION = "custom_fields_definition";
 }

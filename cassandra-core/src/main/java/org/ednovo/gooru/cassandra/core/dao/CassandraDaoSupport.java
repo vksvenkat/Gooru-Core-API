@@ -376,5 +376,18 @@ public class CassandraDaoSupport<F extends CassandraColumnFamily> {
 	public CassandraFactory<?> getFactory() {
 		return factory;
 	}
-
+	
+	public Rows<String, String> getAllRows() {
+		try {
+			Rows<String, String> record = getFactory().getKeyspace().prepareQuery(getCF().getColumnFamily()).getAllRows().execute().getResult();
+			return record;
+		} catch (NotFoundException e) {
+			e.printStackTrace();
+			throw new CassandraException(HttpStatus.NOT_FOUND, "Not Found Exception") ;
+		} catch (ConnectionException e) {
+			e.printStackTrace();
+			throw new CassandraException(HttpStatus.BAD_GATEWAY, "Unable to connect to cassandra cluster") ;
+		}
+	}
+		
 }
