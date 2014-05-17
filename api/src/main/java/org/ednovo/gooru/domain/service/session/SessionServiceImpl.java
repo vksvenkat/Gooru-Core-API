@@ -72,10 +72,9 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 
 	@Autowired
 	private AssessmentService assessmentService;
-	
+
 	@Autowired
 	private UserRepository userRepository;
-
 
 	@Override
 	public ActionResponseDTO<Session> createSession(Session session, User user) {
@@ -84,7 +83,7 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 		if (!errors.hasErrors()) {
 			session.setScore(0.0);
 			if (session.getSessionId() == null) {
-			  session.setSessionId(UUID.randomUUID().toString());
+				session.setSessionId(UUID.randomUUID().toString());
 			}
 			session.setStatus(SessionStatus.OPEN.getSessionStatus());
 			session.setResource(resource);
@@ -94,24 +93,20 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 		}
 		return new ActionResponseDTO<Session>(session, errors);
 	}
-	
+
 	@Override
 	public SessionItemFeedback createSessionItemFeedback(String sessionId, SessionItemFeedback sessionItemFeedback, User user) {
-		Session session = this.getSessionRepository().findSessionById(sessionId);
-		rejectIfNull(session, GL0056, SESSION);
 		User feedbackUser = this.getUserRepository().findByGooruId(sessionItemFeedback.getUser().getPartyUid());
 		rejectIfNull(feedbackUser, GL0056, USER);
-		if(session != null) {
-			sessionItemFeedback.setAssociatedDate(new Date());
-			sessionItemFeedback.setFreeText(sessionItemFeedback.getFreeText());
-			sessionItemFeedback.setAssociatedBy(user);
-			sessionItemFeedback.setSession(session);
-			sessionItemFeedback.setUser(feedbackUser);
-			this.getSessionRepository().save(sessionItemFeedback);
-		}
+		sessionItemFeedback.setAssociatedDate(new Date());
+		sessionItemFeedback.setFreeText(sessionItemFeedback.getFreeText());
+		sessionItemFeedback.setAssociatedBy(user);
+		sessionItemFeedback.setSessionId(sessionId);
+		sessionItemFeedback.setUser(feedbackUser);
+		this.getSessionRepository().save(sessionItemFeedback);
 		return sessionItemFeedback;
 	}
-	
+
 	@Override
 	public ActionResponseDTO<Session> updateSession(String sessionId, Session newSession) {
 		Session session = this.getSessionRepository().findSessionById(sessionId);
@@ -139,7 +134,7 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 	public ActionResponseDTO<SessionItem> createSessionItem(SessionItem sessionItem, String sessionId) {
 		Session session = this.getSessionRepository().findSessionById(sessionId);
 		Resource resource = this.getResourceRepository().findResourceByContentGooruId(sessionItem.getResource().getGooruOid());
-		if (sessionItem.getSessionItemId() == null) { 
+		if (sessionItem.getSessionItemId() == null) {
 			sessionItem.setSessionItemId(UUID.randomUUID().toString());
 		}
 		Errors errors = this.validateSessionItem(session, sessionItem, resource);
@@ -192,7 +187,8 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 			question = this.assessmentService.getQuestion(sessionItem.getResource().getGooruOid());
 		}
 		Integer trySequence = this.getSessionRepository().getSessionItemAttemptTry(sessionItemId).size() + 1;
-		if (question != null && question.getTypeName().equalsIgnoreCase(AssessmentQuestion.TYPE.FILL_IN_BLANKS.getName()) || question.getTypeName().equalsIgnoreCase(AssessmentQuestion.TYPE.OPEN_ENDED.getName()) || question.getTypeName().equals(AssessmentQuestion.TYPE.SHORT_ANSWER.getName()) || question.getTypeName().equalsIgnoreCase(AssessmentQuestion.TYPE.MULTIPLE_ANSWERS.getName())) {
+		if (question != null && question.getTypeName().equalsIgnoreCase(AssessmentQuestion.TYPE.FILL_IN_BLANKS.getName()) || question.getTypeName().equalsIgnoreCase(AssessmentQuestion.TYPE.OPEN_ENDED.getName()) || question.getTypeName().equals(AssessmentQuestion.TYPE.SHORT_ANSWER.getName())
+				|| question.getTypeName().equalsIgnoreCase(AssessmentQuestion.TYPE.MULTIPLE_ANSWERS.getName())) {
 			rejectIfNull(sessionItemAttemptTry.getAnswerText(), GL0006, ANSWER_TEXT);
 		} else if (question != null && question.getTypeName().equals(AssessmentQuestion.TYPE.MATCH_THE_FOLLOWING.getName())) {
 			rejectIfNull(sessionItemAttemptTry.getAnswerText(), GL0006, ANSWER_TEXT);
@@ -221,10 +217,10 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 				sessionItemAttemptTry.setAttemptItemTryStatus(AttemptTryStatus.WRONG.getTryStatus());
 			}
 		}
-		
-		if (sessionItemAttemptTry.getAttemptItemTryStatus() != null) { 
-			sessionItemAttemptTry.setAttemptItemTryStatus(sessionItemAttemptTry.getAttemptItemTryStatus());	
-		} else { 
+
+		if (sessionItemAttemptTry.getAttemptItemTryStatus() != null) {
+			sessionItemAttemptTry.setAttemptItemTryStatus(sessionItemAttemptTry.getAttemptItemTryStatus());
+		} else {
 			sessionItemAttemptTry.setAttemptItemTryStatus(AttemptTryStatus.SKIP.getTryStatus());
 		}
 		sessionItemAttemptTry.setSessionItem(sessionItem);
@@ -244,7 +240,7 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 	private Errors validateCreateSession(Session session, Resource resource) {
 		Map<String, String> sessionMode = getSessionMode();
 		final Errors errors = new BindException(session, SESSION);
-		rejectIfNull(errors, resource, RESOURCE , GL0056, generateErrorMessage(GL0056, RESOURCE ));
+		rejectIfNull(errors, resource, RESOURCE, GL0056, generateErrorMessage(GL0056, RESOURCE));
 		rejectIfInvalidType(errors, session.getMode(), MODE, GL0007, generateErrorMessage(GL0007, MODE), sessionMode);
 		return errors;
 	}
@@ -258,7 +254,7 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 	}
 
 	private Errors validateSessionItem(Session session, SessionItem sessionItem, Resource resource) {
-		final Errors errors = new BindException(sessionItem, SESSION_ITEM );
+		final Errors errors = new BindException(sessionItem, SESSION_ITEM);
 		rejectIfNull(errors, session, SESSION, GL0056, generateErrorMessage(GL0056, SESSION));
 		rejectIfNull(errors, resource, RESOURCE, GL0056, generateErrorMessage(GL0056, RESOURCE));
 		return errors;
@@ -294,7 +290,7 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 	public ResourceRepository getResourceRepository() {
 		return resourceRepository;
 	}
-	
+
 	public UserRepository getUserRepository() {
 		return userRepository;
 	}

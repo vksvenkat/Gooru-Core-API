@@ -14,9 +14,7 @@
 
 		<property name="gooruOid" column="gooru_oid" not-null="false" />
 		
-		<many-to-one name="session"
-			class="org.ednovo.gooru.core.api.model.Session" column="session_id"
-			not-null="false" lazy="proxy" cascade="none" />
+		<property name="sessionId" column="session_id" not-null="false" />
 			
 		<property name="associatedDate" column="associated_date" not-null="true" />
 			
