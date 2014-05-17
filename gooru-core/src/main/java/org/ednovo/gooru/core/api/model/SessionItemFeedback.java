@@ -12,7 +12,7 @@ public class SessionItemFeedback implements Serializable {
 
 	private String sessionItemFeedbackUid;
 	
-	private Session session;
+	private String sessionId;
 	
 	private String gooruOid;
 	
@@ -48,14 +48,6 @@ public class SessionItemFeedback implements Serializable {
 		this.freeText = freeText;
 	}
 
-	public Session getSession() {
-		return session;
-	}
-
-	public void setSession(Session session) {
-		this.session = session;
-	}
-
 	public User getAssociatedBy() {
 		return associatedBy;
 	}
@@ -78,5 +70,13 @@ public class SessionItemFeedback implements Serializable {
 
 	public void setUser(User user) {
 		this.user = user;
+	}
+
+	public String getSessionId() {
+		return sessionId;
+	}
+
+	public void setSessionId(String sessionId) {
+		this.sessionId = sessionId;
 	}
 }
