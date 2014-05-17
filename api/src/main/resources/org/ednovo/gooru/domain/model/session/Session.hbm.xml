@@ -29,7 +29,6 @@
 	<class name="org.ednovo.gooru.core.api.model.Session"
 		table="session">
 		<id name="sessionId" column="session_id">
-			<generator class="org.ednovo.gooru.core.application.util.UUIDGenerator" />
 		</id>
 
 		<many-to-one name="resource"
