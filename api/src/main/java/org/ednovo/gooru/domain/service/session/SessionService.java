@@ -35,7 +35,7 @@ public interface SessionService extends BaseService {
 
 	ActionResponseDTO<Session> createSession(Session session, User user);
 	
-	 SessionItemFeedback createSessionItemFeedback(SessionItemFeedback sessionItemFeedback, User user);
+	 SessionItemFeedback createSessionItemFeedback(String sessionId, SessionItemFeedback sessionItemFeedback, User user);
 
 	ActionResponseDTO<Session> updateSession(String sessionId, Session session);
 

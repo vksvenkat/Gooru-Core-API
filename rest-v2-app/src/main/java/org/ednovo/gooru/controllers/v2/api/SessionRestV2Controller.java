@@ -81,22 +81,16 @@ public class SessionRestV2Controller extends BaseController implements Parameter
 		String includes[] = (String[]) ArrayUtils.addAll(includeFields == null ? SESSION_INCLUDES : includeFields, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(session.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, includes);
 	}
-	
-	/*Session Item FeedBack Method*/
+
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_V2_SESSION_ADD })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	@RequestMapping(value = "/itemFeedback", method = RequestMethod.POST)
-	public ModelAndView createSessionItemFeedback(@RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		request.setAttribute(PREDICATE, "tag.add_resource");
+	@RequestMapping(value = "/{id}/item/feedback", method = RequestMethod.POST)
+	public ModelAndView createSessionItemFeedback(@PathVariable(ID) String sessionId, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
-		JSONObject json = requestData(data);
-		SessionItemFeedback sessionItemFeedback = getSessionService().createSessionItemFeedback(this.buildSessionItemFeedbackFromInputParameters(getValue(SESSION_ITEM_FEEDBACK, json)), user);
-		return toModelAndViewWithIoFilter(sessionItemFeedback, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, "");
+		SessionItemFeedback sessionItemFeedback = getSessionService().createSessionItemFeedback(sessionId, this.buildSessionItemFeedbackFromInputParameters(data), user);
+		return toModelAndViewWithIoFilter(sessionItemFeedback, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, SESSION_ITEM_FEEDBACK_INCLUDES);
 	}
-	/***********************/
-	
-	
-	
+
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_V2_SESSION_UPDATE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.PUT, value = "/{id}")
@@ -184,7 +178,6 @@ public class SessionRestV2Controller extends BaseController implements Parameter
 
 		return JsonDeserializer.deserialize(data, SessionItemFeedback.class);
 	}
-
 
 	private SessionItemAttemptTry buildSessionItemAttemptFromInputParameters(String data) {
 
