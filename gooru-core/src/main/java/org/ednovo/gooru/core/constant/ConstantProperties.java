@@ -433,6 +433,6 @@ public interface ConstantProperties {
 	
 	public static final String CLASSPAGE_CREATE_COLLECTION_TASK_ITEM = "classpage-create-collection-task-item";
 	
-	static final String[] SESSION_ITEM_FEEDBACK_INCLUDES = {"sessionItemFeedbackUid", "freeText", "gooruOid", "associatedDate", "user.gooruUId"};
+	static final String[] SESSION_ITEM_FEEDBACK_INCLUDES = {"sessionItemFeedbackUid", "freeText", "gooruOid", "associatedDate", "user.gooruUId", "sessionId"};
 	
 }
