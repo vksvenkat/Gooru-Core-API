@@ -11,7 +11,7 @@ public class ContentProviderAssociation implements Serializable {
 	 */
 	private static final long serialVersionUID = -3872533003114192366L;
 	
-	private Integer resourceSourceId;
+	private ResourceSource resourceSourceId;
 	
 	private Date associatedDate;
 	
@@ -20,14 +20,6 @@ public class ContentProviderAssociation implements Serializable {
 	private String associatedByUid;
 	
 	private String contentProviderUid;
-
-	public Integer getResourceSourceId() {
-		return resourceSourceId;
-	}
-
-	public void setResourceSourceId(Integer resourceSourceId) {
-		this.resourceSourceId = resourceSourceId;
-	}
 
 	public Date getAssociatedDate() {
 		return associatedDate;
@@ -59,6 +51,14 @@ public class ContentProviderAssociation implements Serializable {
 
 	public void setContentProviderUid(String contentProviderUid) {
 		this.contentProviderUid = contentProviderUid;
+	}
+
+	public ResourceSource getResourceSourceId() {
+		return resourceSourceId;
+	}
+
+	public void setResourceSourceId(ResourceSource resourceSourceId) {
+		this.resourceSourceId = resourceSourceId;
 	}
 	
 	

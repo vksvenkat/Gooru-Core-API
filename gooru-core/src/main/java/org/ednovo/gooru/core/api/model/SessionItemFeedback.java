@@ -10,7 +10,7 @@ public class SessionItemFeedback implements Serializable {
 	 */
 	private static final long serialVersionUID = -6886157895374174429L;
 
-	private String sessionItemFeedbackId;
+	private String sessionItemFeedbackUid;
 	
 	private Session session;
 	
@@ -20,17 +20,9 @@ public class SessionItemFeedback implements Serializable {
 	
 	private User associatedBy;
 	
-	private User feedbackUser;
+	private User  user;
 	
 	private String freeText;
-
-	public String getSessionItemFeedbackId() {
-		return sessionItemFeedbackId;
-	}
-
-	public void setSessionItemFeedbackId(String sessionItemFeedbackId) {
-		this.sessionItemFeedbackId = sessionItemFeedbackId;
-	}
 
 	public String getGooruOid() {
 		return gooruOid;
@@ -72,12 +64,19 @@ public class SessionItemFeedback implements Serializable {
 		this.associatedBy = associatedBy;
 	}
 
-	public User getFeedbackUser() {
-		return feedbackUser;
+	public String getSessionItemFeedbackUid() {
+		return sessionItemFeedbackUid;
 	}
 
-	public void setFeedbackUser(User feedbackUser) {
-		this.feedbackUser = feedbackUser;
+	public void setSessionItemFeedbackUid(String sessionItemFeedbackUid) {
+		this.sessionItemFeedbackUid = sessionItemFeedbackUid;
 	}
 
+	public User getUser() {
+		return user;
+	}
+
+	public void setUser(User user) {
+		this.user = user;
+	}
 }
