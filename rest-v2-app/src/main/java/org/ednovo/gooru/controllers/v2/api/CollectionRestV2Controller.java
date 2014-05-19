@@ -24,6 +24,7 @@
 package org.ednovo.gooru.controllers.v2.api;
 
 import java.sql.Date;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +34,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.codehaus.jettison.json.JSONArray;
 import org.ednovo.gooru.controllers.BaseController;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Collection;
@@ -352,6 +354,29 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 		includes = (String[]) ArrayUtils.addAll(includes, ERROR_INCLUDE);
 		return toModelAndView(serialize(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes));
 	}
+	
+	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ADD })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(value = { "/resource/{id}" }, method = RequestMethod.PUT)
+	public ModelAndView updateResourceWithCollectionItem(HttpServletRequest request, @PathVariable(ID) String collectionItemId, @RequestBody String data, HttpServletResponse response) throws Exception {
+		JSONObject json = requestData(data);
+		User user = (User) request.getAttribute(Constants.USER);
+		ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().updateResourceWithCollectionItem(collectionItemId, this.buildResourceFromInputParameters(getValue(RESOURCE, json), user), user);
+		if (responseDTO.getErrors().getErrorCount() > 0) {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+		} else {
+			SessionContextSupport.putLogParameter(EVENT_NAME, "update-resource-collection-item");
+			SessionContextSupport.putLogParameter(GOORU_UID, user.getPartyUid());
+			SessionContextSupport.putLogParameter(COLLECTION_ID, responseDTO.getModel().getCollection().getGooruOid());
+			SessionContextSupport.putLogParameter(RESOURCE_ID, responseDTO.getModel().getResource().getGooruOid());
+		}
+		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, COLLECTION_INCLUDE_FIELDS);
+		includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_CREATE_ITEM_INCLUDE_FILEDS);
+		includes = (String[]) ArrayUtils.addAll(includes, ERROR_INCLUDE);
+		return toModelAndView(serializeToJson(responseDTO.getModelData(), includes));
+	}
+	
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ADD })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -373,6 +398,27 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 		includes = (String[]) ArrayUtils.addAll(includes, RESOURCE_INCLUDE_FIELDS);
 		return toModelAndView(serializeToJson(responseDTO.getModelData(), includes));
 
+	}
+	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ADD })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(value = { "/question/{id}" }, method = RequestMethod.PUT)
+	public ModelAndView updateQuestionWithCollectionItem(HttpServletRequest request, @PathVariable(ID) String collectionItemId, @RequestBody String data, HttpServletResponse response) throws Exception {
+		JSONObject json = requestData(data);
+		User user = (User) request.getAttribute(Constants.USER);
+		ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().updateQuestionWithCollectionItem(collectionItemId, data, parseJSONArray(getValue(DELETE_ASSETS, json)),  user, getValue(MEDIA_FILE_NAME, json));
+		if (responseDTO.getErrors().getErrorCount() > 0) {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+		} else {
+			SessionContextSupport.putLogParameter(EVENT_NAME, "update-question-collection-item");
+			SessionContextSupport.putLogParameter(GOORU_UID, user.getPartyUid());
+			SessionContextSupport.putLogParameter(COLLECTION_ID, responseDTO.getModel().getCollection().getGooruOid());
+			SessionContextSupport.putLogParameter(RESOURCE_ID, responseDTO.getModel().getResource().getGooruOid());
+		}
+		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, COLLECTION_INCLUDE_FIELDS);
+		includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_CREATE_ITEM_INCLUDE_FILEDS);
+		includes = (String[]) ArrayUtils.addAll(includes, ERROR_INCLUDE);
+		return toModelAndView(serializeToJson(responseDTO.getModelData(), includes));
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
@@ -480,6 +526,18 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 	private CollectionItem buildCollectionItemFromInputParameters(String data, User user) {
 		CollectionItem collectionItem = JsonDeserializer.deserialize(data, CollectionItem.class);
 		return collectionItem;
+	}
+	
+	private List<Integer> parseJSONArray(String arrayData) throws Exception {
+
+		List<Integer> list = new ArrayList<Integer>();
+		if (arrayData != null && arrayData.length() > 2) {
+			JSONArray jsonArray = new JSONArray(arrayData);
+			for (int i = 0; i < jsonArray.length(); i++) {
+				list.add((Integer) jsonArray.get(i));
+			}
+		}
+		return list;
 	}
 
 	public BaseRepository getBaseRepository() {
