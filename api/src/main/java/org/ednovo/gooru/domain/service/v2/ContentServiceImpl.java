@@ -124,7 +124,7 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 				ContentTagAssoc contentTagAssoc = this.contentRepository.getContentTagById(gooruOid, tag.getGooruOid(), apiCaller.getGooruUId());
 				if (contentTagAssoc != null) {
 					this.getContentRepository().remove(contentTagAssoc);
-					tag.setContentCount(tag.getContentCount() - 1);
+					tag.setContentCount(tag.getContentCount() <=  0 ? 0 :   tag.getContentCount() - 1);
 					this.getContentRepository().save(tag);
 				}
 			}
