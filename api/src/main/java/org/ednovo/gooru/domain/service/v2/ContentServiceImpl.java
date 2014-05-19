@@ -77,8 +77,8 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 		if (content == null) {
 			throw new NotFoundException("content not found!!!");
 		}
+		deleteTagAssoc(gooruOid, labels, apiCaller);
 		for (String label : labels) {
-			deleteTagAssoc(gooruOid, labels, apiCaller);
 			Tag tag = this.tagRepository.findTagByLabel(label);
 			if (tag == null) {
 				tag = new Tag();
