@@ -93,7 +93,7 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 				contentTagAssoc.setAssociatedUid(apiCaller.getGooruUId());
 				contentTagAssoc.setAssociatedDate(new Date(System.currentTimeMillis()));
 				this.getContentRepository().save(contentTagAssoc);
-				tag.setContentCount(tag.getContentCount() != null ? +tag.getContentCount() : 0 + 1);
+				tag.setContentCount(tag.getContentCount() != null ? tag.getContentCount() + 1 : 1);
 				this.getContentRepository().save(tag);
 				contentTagAssocs.add(setcontentTagAssoc(contentTagAssoc, tag.getLabel()));
 			}
@@ -129,6 +129,7 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 				}
 			}
 		}
+		this.getContentRepository().flush();
 
 	}
 
