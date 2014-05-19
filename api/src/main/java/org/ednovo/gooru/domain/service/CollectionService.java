@@ -44,6 +44,8 @@ import org.ednovo.gooru.domain.service.search.SearchResults;
 public interface CollectionService extends ScollectionService {
 
 	ActionResponseDTO<CollectionItem> createQuestionWithCollectionItem(String collectionId, String data, User user, String questionImgSrc) throws Exception;
+	
+	ActionResponseDTO<CollectionItem> updateQuestionWithCollectionItem(String collectionItemId, String data, List<Integer> deleteAssets, User user, String questionImgSrc) throws Exception;
 
 	ActionResponseDTO<CollectionItem> moveCollectionToFolder(String sourceId, String taregetId, User user) throws Exception;
 
