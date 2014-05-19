@@ -26,6 +26,7 @@ package org.ednovo.gooru.domain.service.session;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.AssessmentAnswer;
@@ -37,15 +38,18 @@ import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.Session;
 import org.ednovo.gooru.core.api.model.SessionItem;
 import org.ednovo.gooru.core.api.model.SessionItemAttemptTry;
+import org.ednovo.gooru.core.api.model.SessionItemFeedback;
 import org.ednovo.gooru.core.api.model.SessionStatus;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.domain.service.BaseServiceImpl;
 import org.ednovo.gooru.domain.service.assessment.AssessmentService;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepository;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.assessment.AssessmentRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.resource.ResourceRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.session.SessionRepository;
+import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindException;
@@ -69,12 +73,18 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 	@Autowired
 	private AssessmentService assessmentService;
 
+	@Autowired
+	private UserRepository userRepository;
+
 	@Override
 	public ActionResponseDTO<Session> createSession(Session session, User user) {
 		Resource resource = this.getResourceRepository().findResourceByContentGooruId(session.getResource().getGooruOid());
 		Errors errors = this.validateCreateSession(session, resource);
 		if (!errors.hasErrors()) {
 			session.setScore(0.0);
+			if (session.getSessionId() == null) {
+				session.setSessionId(UUID.randomUUID().toString());
+			}
 			session.setStatus(SessionStatus.OPEN.getSessionStatus());
 			session.setResource(resource);
 			session.setStartTime(new Date(System.currentTimeMillis()));
@@ -82,6 +92,19 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 			this.getSessionRepository().save(session);
 		}
 		return new ActionResponseDTO<Session>(session, errors);
+	}
+
+	@Override
+	public SessionItemFeedback createSessionItemFeedback(String sessionId, SessionItemFeedback sessionItemFeedback, User user) {
+		User feedbackUser = this.getUserRepository().findByGooruId(sessionItemFeedback.getUser().getPartyUid());
+		rejectIfNull(feedbackUser, GL0056, USER);
+		sessionItemFeedback.setAssociatedDate(new Date());
+		sessionItemFeedback.setFreeText(sessionItemFeedback.getFreeText());
+		sessionItemFeedback.setAssociatedBy(user);
+		sessionItemFeedback.setSessionId(sessionId);
+		sessionItemFeedback.setUser(feedbackUser);
+		this.getSessionRepository().save(sessionItemFeedback);
+		return sessionItemFeedback;
 	}
 
 	@Override
@@ -111,6 +134,9 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 	public ActionResponseDTO<SessionItem> createSessionItem(SessionItem sessionItem, String sessionId) {
 		Session session = this.getSessionRepository().findSessionById(sessionId);
 		Resource resource = this.getResourceRepository().findResourceByContentGooruId(sessionItem.getResource().getGooruOid());
+		if (sessionItem.getSessionItemId() == null) {
+			sessionItem.setSessionItemId(UUID.randomUUID().toString());
+		}
 		Errors errors = this.validateSessionItem(session, sessionItem, resource);
 		if (!errors.hasErrors()) {
 			SessionItem previousItem = this.getSessionRepository().getLastSessionItem(sessionId);
@@ -161,7 +187,8 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 			question = this.assessmentService.getQuestion(sessionItem.getResource().getGooruOid());
 		}
 		Integer trySequence = this.getSessionRepository().getSessionItemAttemptTry(sessionItemId).size() + 1;
-		if (question != null && question.getTypeName().equalsIgnoreCase(AssessmentQuestion.TYPE.FILL_IN_BLANKS.getName()) || question.getTypeName().equalsIgnoreCase(AssessmentQuestion.TYPE.OPEN_ENDED.getName()) || question.getTypeName().equals(AssessmentQuestion.TYPE.SHORT_ANSWER.getName()) || question.getTypeName().equalsIgnoreCase(AssessmentQuestion.TYPE.MULTIPLE_ANSWERS.getName())) {
+		if (question != null && question.getTypeName().equalsIgnoreCase(AssessmentQuestion.TYPE.FILL_IN_BLANKS.getName()) || question.getTypeName().equalsIgnoreCase(AssessmentQuestion.TYPE.OPEN_ENDED.getName()) || question.getTypeName().equals(AssessmentQuestion.TYPE.SHORT_ANSWER.getName())
+				|| question.getTypeName().equalsIgnoreCase(AssessmentQuestion.TYPE.MULTIPLE_ANSWERS.getName())) {
 			rejectIfNull(sessionItemAttemptTry.getAnswerText(), GL0006, ANSWER_TEXT);
 		} else if (question != null && question.getTypeName().equals(AssessmentQuestion.TYPE.MATCH_THE_FOLLOWING.getName())) {
 			rejectIfNull(sessionItemAttemptTry.getAnswerText(), GL0006, ANSWER_TEXT);
@@ -190,10 +217,10 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 				sessionItemAttemptTry.setAttemptItemTryStatus(AttemptTryStatus.WRONG.getTryStatus());
 			}
 		}
-		
-		if (sessionItemAttemptTry.getAttemptItemTryStatus() != null) { 
-			sessionItemAttemptTry.setAttemptItemTryStatus(sessionItemAttemptTry.getAttemptItemTryStatus());	
-		} else { 
+
+		if (sessionItemAttemptTry.getAttemptItemTryStatus() != null) {
+			sessionItemAttemptTry.setAttemptItemTryStatus(sessionItemAttemptTry.getAttemptItemTryStatus());
+		} else {
 			sessionItemAttemptTry.setAttemptItemTryStatus(AttemptTryStatus.SKIP.getTryStatus());
 		}
 		sessionItemAttemptTry.setSessionItem(sessionItem);
@@ -213,7 +240,7 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 	private Errors validateCreateSession(Session session, Resource resource) {
 		Map<String, String> sessionMode = getSessionMode();
 		final Errors errors = new BindException(session, SESSION);
-		rejectIfNull(errors, resource, RESOURCE , GL0056, generateErrorMessage(GL0056, RESOURCE ));
+		rejectIfNull(errors, resource, RESOURCE, GL0056, generateErrorMessage(GL0056, RESOURCE));
 		rejectIfInvalidType(errors, session.getMode(), MODE, GL0007, generateErrorMessage(GL0007, MODE), sessionMode);
 		return errors;
 	}
@@ -227,7 +254,7 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 	}
 
 	private Errors validateSessionItem(Session session, SessionItem sessionItem, Resource resource) {
-		final Errors errors = new BindException(sessionItem, SESSION_ITEM );
+		final Errors errors = new BindException(sessionItem, SESSION_ITEM);
 		rejectIfNull(errors, session, SESSION, GL0056, generateErrorMessage(GL0056, SESSION));
 		rejectIfNull(errors, resource, RESOURCE, GL0056, generateErrorMessage(GL0056, RESOURCE));
 		return errors;
@@ -262,6 +289,10 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 
 	public ResourceRepository getResourceRepository() {
 		return resourceRepository;
+	}
+
+	public UserRepository getUserRepository() {
+		return userRepository;
 	}
 
 }

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN" 
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+    
+<hibernate-mapping>
+
+	<class name="org.ednovo.gooru.core.api.model.SessionItemFeedback"
+		table="session_item_feedback">
+		
+		<id name="sessionItemFeedbackUid" column="session_item_feedback_uid" unsaved-value="null">
+			<generator class="org.ednovo.gooru.core.application.util.UUIDGenerator" />
+		</id>
+
+		<property name="gooruOid" column="gooru_oid" not-null="false" />
+		
+		<property name="sessionId" column="session_id" not-null="false" />
+			
+		<property name="associatedDate" column="associated_date" not-null="true" />
+			
+		<property name="freeText" column="free_text" not-null="false" />
+		
+		<many-to-one name="associatedBy"
+			class="org.ednovo.gooru.core.api.model.User" column="associated_user_uid"
+			not-null="false" lazy="proxy" cascade="none" />
+		
+		<many-to-one name="user"
+			class="org.ednovo.gooru.core.api.model.User" column="user_uid"
+			not-null="false" lazy="proxy" cascade="none" />
+						
+	</class>
+</hibernate-mapping>

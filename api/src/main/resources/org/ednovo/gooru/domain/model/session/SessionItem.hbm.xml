@@ -30,7 +30,6 @@
 	<class name="org.ednovo.gooru.core.api.model.SessionItem"
 		table="session_item">
 		<id name="sessionItemId" column="session_item_id" unsaved-value="null">
-			<generator class="org.ednovo.gooru.core.application.util.UUIDGenerator"></generator>
 		</id>
 		
 		<many-to-one name="session" column="session_id"

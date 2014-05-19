@@ -27,7 +27,7 @@
     "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
-	<class name="org.ednovo.gooru.core.api.model.Content" table="content_provider_assoc">
+	<class name="org.ednovo.gooru.core.api.model.ContentProviderAssociation" table="content_provider_assoc">
 		<id name="ContentProviderUid" column="content_provider_uid" unsaved-value="null">
 			<generator class="org.ednovo.gooru.core.application.util.UUIDGenerator" />
 	    </id>
