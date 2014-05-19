@@ -53,7 +53,9 @@ public interface UserManagementService extends BaseService {
 
 	User getUserByToken(String userToken);
 
-	List<User> getFollowedOnUsers(String gooruUId);
+	List<Map<String, Object>> getFollowedOnUsers(String gooruUId);
+	
+	List<Map<String, Object>> getFollowedByUsers(String gooruUserId);
 
 	Profile updateProfileInfo(Profile profile, String gooruUid, User apiCaller, String activeFlag, Boolean emailConfirmStatus, String showProfilePage,String accountType,String password);
 
@@ -95,5 +97,7 @@ public interface UserManagementService extends BaseService {
 	void updateOrgAdminCustomField(String organizationUid, User user) throws Exception;
 	
 	User updateUserViewFlagStatus(String gooruUid, Integer viewFlag);
+	
+	 Map<String, Object> followUser(User user, String followOnUserId);
 
 }

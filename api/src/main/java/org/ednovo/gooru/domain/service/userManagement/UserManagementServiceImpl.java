@@ -66,6 +66,7 @@ import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserAccountType;
 import org.ednovo.gooru.core.api.model.UserAvailability.CheckUser;
 import org.ednovo.gooru.core.api.model.UserClassification;
+import org.ednovo.gooru.core.api.model.UserRelationship;
 import org.ednovo.gooru.core.api.model.UserRole;
 import org.ednovo.gooru.core.api.model.UserRole.UserRoleType;
 import org.ednovo.gooru.core.api.model.UserRoleAssoc;
@@ -176,8 +177,23 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	}
 
 	@Override
-	public List<User> getFollowedOnUsers(String gooruUId) {
-		return getUserRepository().getFollowedOnUsers(gooruUId);
+	public List<Map<String, Object>> getFollowedOnUsers(String gooruUId) {
+		List<User> users =  getUserRepository().getFollowedOnUsers(gooruUId);
+		List<Map<String, Object>> usersObj = new ArrayList<Map<String,Object>>();
+		for(User user : users) {
+			usersObj.add(setUserObj(user));
+		}
+		return usersObj;
+	}
+	
+	@Override
+	public List<Map<String, Object>> getFollowedByUsers(String gooruUId) {
+		List<User> users =  getUserRepository().getFollowedByUsers(gooruUId);
+		List<Map<String, Object>> usersObj = new ArrayList<Map<String,Object>>();
+		for(User user : users) {
+			usersObj.add(setUserObj(user));
+		}
+		return usersObj;
 	}
 
 	@Override
@@ -1333,6 +1349,35 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	}
 	
 	@Override
+	public  Map<String, Object> followUser(User user, String followOnUserId) {
+		UserRelationship userRelationship = getUserRepository().getActiveUserRelationship(user.getPartyUid(), followOnUserId);
+		User followOnUser = getUserRepository().findByGooruId(followOnUserId);
+		if (userRelationship != null) {
+			throw new BadCredentialsException("user alreday followed the user");
+		}
+		userRelationship = new UserRelationship();
+		userRelationship.setUser(user);
+		userRelationship.setFollowOnUser(followOnUser);
+		userRelationship.setActivatedDate(new Date(System.currentTimeMillis()));
+		userRelationship.setActiveFlag(true);
+		getUserRepository().save(userRelationship);
+		
+		return this.setUserObj(followOnUser);
+	}
+	
+	private Map<String, Object> setUserObj(User user) {
+		Map<String, Object> userObj = new HashMap<String, Object>();
+		userObj.put("username",user.getUsername());
+		userObj.put("gooruUid",user.getGooruUId());
+		userObj.put("firstName",user.getFirstName());
+		userObj.put("lastName",user.getLastName());
+		userObj.put("profileImageUrl", buildUserProfileImageUrl(user));
+		userObj.put("emailId", user.getIdentities() != null ? user.getIdentities().iterator().next().getExternalId() : null);
+		
+		return userObj;
+	}
+	
+	@Override
 	public Map<String, Map<String, Object>> userMeta(User user) {
 		Map<String, Map<String, Object>> meta = new HashMap<String, Map<String, Object>>();
 		PartyCustomField partyCustomField = partyService.getPartyCustomeField(user.getPartyUid(), USER_TAXONOMY_ROOT_CODE, null);
@@ -1405,5 +1450,6 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		return inviteRepository;
 	}
 
+	
 
 }
