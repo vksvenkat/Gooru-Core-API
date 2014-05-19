@@ -197,11 +197,14 @@ public class ContentRepositoryHibernate extends BaseRepositoryHibernate implemen
 	}
 
 	@Override
-	public ContentTagAssoc getContentTagById(String gooruOid, String tagGooruOid) {
+	public ContentTagAssoc getContentTagById(String gooruOid, String tagGooruOid, String gooruUid) {
 		Session session = getSession();
 		String hql = "select contentTagAssoc From ContentTagAssoc contentTagAssoc where contentTagAssoc.contentGooruOid='" + gooruOid + "'";
 		if (tagGooruOid != null) {
-			hql += "and contentTagAssoc.tagGooruOid='" + tagGooruOid + "'";
+			hql += " and contentTagAssoc.tagGooruOid='" + tagGooruOid + "'";
+		}
+		if (gooruUid != null) {
+			hql += " and contentTagAssoc.associatedUid='" + gooruUid + "'";
 		}
 		Query query = session.createQuery(hql);
 		List<ContentTagAssoc> contentTagAssocs = query.list();
@@ -210,12 +213,12 @@ public class ContentRepositoryHibernate extends BaseRepositoryHibernate implemen
 	}
 
 	@Override
-	public List<ContentTagAssoc> getContentTagByContent(String gooruOid, Integer limit, Integer offset) {
-		Session session = getSession();
+	public List<ContentTagAssoc> getContentTagByContent(String gooruOid, String gooruUid) {
 		String hql = "select contentTagAssoc From ContentTagAssoc contentTagAssoc where contentTagAssoc.contentGooruOid='" + gooruOid + "'";
-		Query query = session.createQuery(hql);
-		query.setFirstResult(offset);
-		query.setMaxResults(limit);
+		if (gooruUid != null) {
+			hql += " and contentTagAssoc.associatedUid='" + gooruUid + "'";
+		}
+		Query query = getSession().createQuery(hql);
 		return query.list();
 	}
 

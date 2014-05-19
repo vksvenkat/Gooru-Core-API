@@ -31,7 +31,11 @@
 		<composite-id>
 			<key-property column="content_gooru_oid" name="contentGooruOid" />
 			<key-property column="tag_gooru_oid" name="tagGooruOid" />
+			<key-property column="associated_uid" name="associatedUid" />
 		</composite-id>
+            
+		<property name="associatedDate" column="associated_date"
+			not-null="false"/>
 
 	</class>
 </hibernate-mapping>
