@@ -36,8 +36,9 @@ import org.ednovo.gooru.core.api.model.Identity;
 import org.ednovo.gooru.core.api.model.Profile;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.User;
-import org.ednovo.gooru.core.api.model.UserTagAssoc;
 import org.ednovo.gooru.core.api.model.UserAvailability.CheckUser;
+import org.ednovo.gooru.core.api.model.UserRelationship;
+import org.ednovo.gooru.core.api.model.UserTagAssoc;
 import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.application.util.ServerValidationUtils;
 import org.ednovo.gooru.core.constant.ConstantProperties;
@@ -331,6 +332,39 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 		SessionContextSupport.putLogParameter(GOORU_UID, authenticatedUser.getPartyUid());
 		return toJsonModelAndView(this.getUserManagementService().checkContentAccess(authenticatedUser, gooruContentId), true);
 	}
+	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_UPDATE })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(method = RequestMethod.POST, value = "/follow/{id}")
+	public ModelAndView followUser(@PathVariable(value = ID) String followOnUserId, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		request.setAttribute(Constants.EVENT_PREDICATE, USER_FOLLOW);
+
+		User user = (User) request.getAttribute(Constants.USER);
+
+	//	UserRelationship userRelationship = getUserService().followUser(user, followOnUserId);
+		
+		return toModelAndView(getUserManagementService().followUser(user, followOnUserId), FORMAT_JSON);
+	}
+	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_READ })
+	@RequestMapping(method = RequestMethod.GET, value = "/{id}/followers")
+	public ModelAndView getFollowedByUsers(@PathVariable(value = ID) String gooruUserId, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		request.setAttribute(Constants.EVENT_PREDICATE, USER_FOLLOWERS_LIST);
+
+		return toModelAndView(getUserManagementService().getFollowedByUsers(gooruUserId), FORMAT_JSON);
+
+	}
+
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_READ })
+	@RequestMapping(method = RequestMethod.GET, value = "/{id}/following")
+	public ModelAndView getFollowedOnUsers(@PathVariable(value = ID) String gooruUserId, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		request.setAttribute(Constants.EVENT_PREDICATE, USER_FOLLOWING_LIST);
+
+		return toModelAndView(getUserManagementService().getFollowedOnUsers(gooruUserId), FORMAT_JSON);
+
+	}
+	
+	
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_UPDATE }, partyOperations = { GooruOperationConstants.ORG_ADMIN, GooruOperationConstants.GROUP_ADMIN }, partyUId = GOORU_UID)
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
