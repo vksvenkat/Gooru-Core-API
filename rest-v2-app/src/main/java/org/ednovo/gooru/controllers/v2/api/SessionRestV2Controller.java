@@ -33,6 +33,7 @@ import org.ednovo.gooru.core.api.model.Session;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.SessionItem;
 import org.ednovo.gooru.core.api.model.SessionItemAttemptTry;
+import org.ednovo.gooru.core.api.model.SessionItemFeedback;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.Constants;
@@ -79,6 +80,15 @@ public class SessionRestV2Controller extends BaseController implements Parameter
 		String[] includeFields = getValue(FIELDS, json) != null ? getFields(getValue(FIELDS, json)) : null;
 		String includes[] = (String[]) ArrayUtils.addAll(includeFields == null ? SESSION_INCLUDES : includeFields, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(session.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, includes);
+	}
+
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_V2_SESSION_ADD })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(value = "/{id}/item/feedback", method = RequestMethod.POST)
+	public ModelAndView createSessionItemFeedback(@PathVariable(ID) String sessionId, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		User user = (User) request.getAttribute(Constants.USER);
+		SessionItemFeedback sessionItemFeedback = getSessionService().createSessionItemFeedback(sessionId, this.buildSessionItemFeedbackFromInputParameters(data), user);
+		return toModelAndViewWithIoFilter(sessionItemFeedback, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, SESSION_ITEM_FEEDBACK_INCLUDES);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_V2_SESSION_UPDATE })
@@ -162,6 +172,11 @@ public class SessionRestV2Controller extends BaseController implements Parameter
 	private SessionItem buildSessionItemFromInputParameters(String data) {
 
 		return JsonDeserializer.deserialize(data, SessionItem.class);
+	}
+
+	private SessionItemFeedback buildSessionItemFeedbackFromInputParameters(String data) {
+
+		return JsonDeserializer.deserialize(data, SessionItemFeedback.class);
 	}
 
 	private SessionItemAttemptTry buildSessionItemAttemptFromInputParameters(String data) {
