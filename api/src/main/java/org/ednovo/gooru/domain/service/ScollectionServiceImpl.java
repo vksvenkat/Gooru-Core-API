@@ -281,6 +281,9 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			} else {
 				collection.setResourceFormat(this.getCustomTableRepository().getCustomTableValue(RESOURCE_CATEGORY_FORMAT, SCOLLECTION));
 			}
+			if(collection.getGrade() != null){
+				resourceService.saveOrUpdateGrade(new Resource(), collection);
+			}
 			this.getCollectionRepository().save(collection);
 
 			if (resourceId != null && !resourceId.isEmpty()) {
@@ -1806,6 +1809,79 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 		}
 		return response;
+	}
+	
+	@Override
+	public ActionResponseDTO<CollectionItem> updateResourceWithCollectionItem(String collectionItemId, Resource newResource, User user) throws Exception {
+		
+		CollectionItem collectionItem = this.getCollectionItemById(collectionItemId);
+		Errors errors = validateUpdateCollectionItem(collectionItem);
+		if (!errors.hasErrors()) { 
+		
+		Resource resource = null;
+		
+		if(collectionItem != null && collectionItem.getResource() != null){
+			resource = this.getResourceService().findResourceByContentGooruId(collectionItem.getResource().getGooruOid());
+		}
+		
+		if(resource != null){
+			if(newResource.getTitle() != null){
+				resource.setTitle(newResource.getTitle());
+			}
+			if(newResource.getDescription() != null){
+				resource.setDescription(newResource.getDescription());
+			}
+			if (newResource.getCategory() != null) {
+				resource.setCategory(newResource.getCategory().toLowerCase());
+			}
+			if (newResource.getInstructional() != null) {
+				CustomTableValue resourceCategory = this.getCustomTableRepository().getCustomTableValue(RESOURCE_INSTRUCTIONAL_USE, newResource.getInstructional().getValue());
+				resource.setInstructional(resourceCategory);
+			}
+			if (newResource.getResourceFormat() != null) {
+				CustomTableValue resourcetype = this.getCustomTableRepository().getCustomTableValue(RESOURCE_CATEGORY_FORMAT, newResource.getResourceFormat().getValue());
+				resource.setResourceFormat(resourcetype);
+			}
+			if(newResource.getSharing() != null){
+				resource.setSharing(newResource.getSharing());
+			}
+			
+			this.getResourceService().saveOrUpdate(resource);
+			
+			resourceService.saveOrUpdateResourceTaxonomy(resource, newResource.getTaxonomySet());
+			
+			if(newResource.getMomentsOfLearning() != null && newResource.getMomentsOfLearning().size() > 0) {
+				resource.setMomentsOfLearning(this.updateContentMeta(newResource.getMomentsOfLearning(),resource.getGooruOid(), user, "moments_of_learning"));
+			} else {
+				resource.setMomentsOfLearning(this.setContentMetaAssociation(this.getContentMetaAssociation("moments_of_learning"), resource.getGooruOid(), "moments_of_learning"));
+			}
+			if(newResource.getEducationalUse() != null && newResource.getEducationalUse().size() > 0) {
+				resource.setEducationalUse(this.updateContentMeta(newResource.getEducationalUse(),resource.getGooruOid(), user, "educational_use"));
+			} else {
+				resource.setEducationalUse(this.setContentMetaAssociation(this.getContentMetaAssociation("educational_use"), resource.getGooruOid(), "educational_use"));
+			}
+			
+			this.getResourceService().saveOrUpdate(resource);
+			
+			if (newResource.getThumbnail() != null && newResource.getThumbnail().length() > 0) {
+				try {
+					this.getResourceImageUtil().downloadAndSendMsgToGenerateThumbnails(resource, newResource.getThumbnail());
+				} catch (Exception e) {
+					logger.debug(e.getMessage());
+				}
+			}
+			if (newResource.getAttach() != null) {
+				this.getResourceImageUtil().moveAttachment(newResource, resource);
+			}
+			this.getResourceService().saveOrUpdate(resource);
+			collectionItem.setResource(resource);
+			this.getCollectionRepository().save(collectionItem);
+			collectionItem.setStandards(this.getStandards(resource.getTaxonomySet(), false, null));
+		} else {
+			throw new NotFoundException("Resource Not Found");
+		}
+		}
+		return new ActionResponseDTO<CollectionItem>(collectionItem, errors);
 	}
 
 	public ActionResponseDTO<CollectionItem> createCollectionItem(Resource resource, Collection collection, User user) throws Exception {

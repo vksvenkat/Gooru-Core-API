@@ -50,6 +50,8 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.storage.StorageRepo
 import org.ednovo.gooru.infrastructure.persistence.hibernate.taxonomy.TaxonomyRespository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BindException;
+import org.springframework.validation.Errors;
 
 @Service
 public class CollectionServiceImpl extends ScollectionServiceImpl implements CollectionService {
@@ -101,6 +103,47 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		}
 		return response;
 
+	}
+	
+
+	@Override
+	public ActionResponseDTO<CollectionItem> updateQuestionWithCollectionItem(String collectionItemId, String data,List<Integer> deleteAssets, User user,String mediaFileName) throws Exception {
+		CollectionItem collectionItem = this.getCollectionItemById(collectionItemId);
+		AssessmentQuestion newQuestion = getAssessmentService().buildQuestionFromInputParameters(data, user, true);
+		Errors errors = validateUpdateCollectionItem(collectionItem);
+		if (!errors.hasErrors()) { 
+			AssessmentQuestion question =getAssessmentService().getQuestion(collectionItem.getResource().getGooruOid());
+			if(question != null){
+				ActionResponseDTO<AssessmentQuestion> responseDTO = assessmentService.updateQuestion(newQuestion, deleteAssets, question.getGooruOid(), true, true);
+				if (responseDTO.getModel() != null) {
+					if (mediaFileName != null && mediaFileName.length() > 0) {
+						String questionImage = this.assessmentService.updateQuizQuestionImage(responseDTO.getModel().getGooruOid(), mediaFileName, question, ASSET_QUESTION);
+						if (questionImage != null && questionImage.length() > 0) {
+							if(ResourceImageUtil.getYoutubeVideoId(questionImage) != null || questionImage.contains(YOUTUBE_URL)){
+								collectionItem.setQuestionInfo(this.assessmentService.updateQuestionVideoAssest(responseDTO.getModel().getGooruOid(), questionImage));
+							} else {
+								collectionItem.setQuestionInfo(this.assessmentService.updateQuestionAssest(responseDTO.getModel().getGooruOid(), StringUtils.substringAfterLast(questionImage, "/")));
+							}
+						}
+					}
+					if(newQuestion.getDepthOfKnowledges() != null && newQuestion.getDepthOfKnowledges().size() > 0) {
+						collectionItem.getResource().setDepthOfKnowledges(this.updateContentMeta(newQuestion.getDepthOfKnowledges(),responseDTO.getModel().getGooruOid(), user, "depth_of_knowledge"));
+					} else {
+						collectionItem.getResource().setDepthOfKnowledges(this.setContentMetaAssociation(this.getContentMetaAssociation("depth_of_knowledge"), responseDTO.getModel().getGooruOid(), "depth_of_knowledge"));
+					}
+					if(question.getEducationalUse() != null && question.getEducationalUse().size() > 0) {
+						collectionItem.getResource().setEducationalUse(this.updateContentMeta(question.getEducationalUse(),responseDTO.getModel().getGooruOid(), user, "educational_use"));
+					} else {
+						collectionItem.getResource().setEducationalUse(this.setContentMetaAssociation(this.getContentMetaAssociation("educational_use"), responseDTO.getModel().getGooruOid(), "educational_use"));
+					}
+					collectionItem.setStandards(this.getStandards(responseDTO.getModel().getTaxonomySet(), false, null));
+				}
+			}
+			
+		}  else {
+			throw new NotFoundException("Question Not Found");
+		}
+		return new ActionResponseDTO<CollectionItem>(collectionItem, errors);
 	}
 
 	@Override
@@ -431,6 +474,16 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		result.setSearchResults(codeList);
 		return result;
 	}
+	
+	private Errors validateUpdateCollectionItem(CollectionItem collectionItem) throws Exception {
+		Map<String, String> itemType = new HashMap<String, String>();
+		itemType.put(ADDED, COLLECTION_ITEM_TYPE);
+		itemType.put(SUBSCRIBED, COLLECTION_ITEM_TYPE);
+		final Errors errors = new BindException(collectionItem, COLLECTION_ITEM);
+		rejectIfNull(errors, collectionItem, COLLECTION_ITEM, "GL0056", generateErrorMessage(GL0056, COLLECTION_ITEM));
+		rejectIfInvalidType(errors, collectionItem.getItemType(), ITEM_TYPE, GL0007, generateErrorMessage(GL0007, ITEM_TYPE), itemType);
+		return errors;
+	}
 
 	@Override
 	public Boolean resourceCopiedFrom(String gooruOid, String gooruUid) {
@@ -445,4 +498,5 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	public TaxonomyRespository getTaxonomyRespository() {
 		return taxonomyRespository;
 	}
+
 }
