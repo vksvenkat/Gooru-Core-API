@@ -104,7 +104,6 @@ public class TagServiceImpl extends BaseServiceImpl implements TagService, Param
 			newTag.setTagType(customTableRepository.getCustomTableValue(CustomProperties.Table.TAG_TYPE.getTable(), USER));
 			CustomTableValue customTableValue = this.getBlackListWordCassandraService().validate(newTag.getLabel()) ? getCustomTableRepository().getCustomTableValue(CustomProperties.Table.TAG_STATUS.getTable(), CustomProperties.TagStatus.ABUSE.getTagStatus()) : getCustomTableRepository()
 					.getCustomTableValue(CustomProperties.Table.TAG_STATUS.getTable(), CustomProperties.TagStatus.ACTIVE.getTagStatus());
-			//rejectIfNull(customTableValue, GL0007, TAG_STATUS);
 			newTag.setStatus(customTableValue);
 			newTag.setGooruOid(UUID.randomUUID().toString());
 			newTag.setSharing(Sharing.PRIVATE.getSharing());
