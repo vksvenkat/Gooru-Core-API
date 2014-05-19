@@ -32,7 +32,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.ArrayUtils;
 import org.ednovo.gooru.controllers.BaseController;
 import org.ednovo.gooru.core.api.model.Content;
-import org.ednovo.gooru.core.api.model.ContentTagAssoc;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.application.util.ServerValidationUtils;
@@ -56,6 +55,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+
 @Controller
 @RequestMapping("/v2/content")
 public class ContentRestV2Controller extends BaseController implements ConstantProperties, ParameterProperties {
@@ -72,27 +73,31 @@ public class ContentRestV2Controller extends BaseController implements ConstantP
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAG_ADD })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	@RequestMapping(method = { RequestMethod.POST }, value = "/{id}/tag/{tid}")
-	public ModelAndView createContentTagAssoc(@PathVariable(value = ID) String gooruOid, @PathVariable(value = TID) String tagGooruOid, HttpServletRequest request, HttpServletResponse response) {
-
-		ContentTagAssoc contentTagAssoc = this.contentService.createTagAssoc(gooruOid, tagGooruOid);
-		return toModelAndViewWithIoFilter(contentTagAssoc, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, CONTENT_ASSOC_INCLUDES);
+	@RequestMapping(method = { RequestMethod.POST }, value = "/{id}/tag")
+	public ModelAndView createContentTagAssoc(@PathVariable(value = ID) String gooruOid, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) {
+		User apiCaller = (User) request.getAttribute(Constants.USER);
+		
+		return toModelAndView(this.contentService.createTagAssoc(gooruOid, JsonDeserializer.deserialize(data, new TypeReference<List<String>>() {
+		}),apiCaller), FORMAT_JSON);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAG_ADD })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	@RequestMapping(method = { RequestMethod.DELETE }, value = "/{id}/tag/{tid}")
-	public void DeleteContentTagAssoc(@PathVariable(value = ID) String gooruOid, @PathVariable(value = TID) String tagGooruOid, HttpServletRequest request, HttpServletResponse response) {
-		this.getContentService().deleteTagAssoc(gooruOid, tagGooruOid);
-
+	@RequestMapping(method = { RequestMethod.DELETE }, value = "/{id}/tag")
+	public void DeleteContentTagAssoc(@PathVariable(value = ID) String gooruOid,@RequestParam String data, HttpServletRequest request, HttpServletResponse response) {
+		User apiCaller = (User) request.getAttribute(Constants.USER);
+		
+		this.getContentService().deleteTagAssoc(gooruOid, JsonDeserializer.deserialize(data, new TypeReference<List<String>>() {
+		}),apiCaller);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAG_ADD })
 	@RequestMapping(method = { RequestMethod.GET }, value = "/{id}/tag")
 	public ModelAndView getContentTagAssoc(@PathVariable(value = ID) String gooruOid, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, HttpServletRequest request,
 			HttpServletResponse response) {
-		List<ContentTagAssoc> contentTagAssoc = this.getContentService().getContentTagAssoc(gooruOid, limit, offset);
-		return toModelAndViewWithIoFilter(contentTagAssoc, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, CONTENT_ASSOC_INCLUDES);
+		User apiCaller = (User) request.getAttribute(Constants.USER);
+		
+		return toModelAndView(this.getContentService().getContentTagAssoc(gooruOid, apiCaller), FORMAT_JSON);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAG_READ })

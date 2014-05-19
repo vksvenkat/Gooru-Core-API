@@ -61,9 +61,9 @@ public interface ContentRepository extends BaseRepository {
 
 	List getIdsByUserUId(String userUId, String typeName, Integer pageNo, Integer pageSize);
 
-	ContentTagAssoc getContentTagById(String gooruOid, String tagGooruOid);
+	ContentTagAssoc getContentTagById(String gooruOid, String tagGooruOid,String gooruUid);
 
-	List<ContentTagAssoc> getContentTagByContent(String gooruOid, Integer limit, Integer offset);
+	List<ContentTagAssoc> getContentTagByContent(String gooruOid, String gooruUid);
 
 	List<Content> getContentByUserUId(String userUId);
 

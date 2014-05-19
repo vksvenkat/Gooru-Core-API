@@ -94,9 +94,7 @@ public class TagServiceImpl extends BaseServiceImpl implements TagService, Param
 			if (tag != null) {
 				throw new BadCredentialsException(generateErrorMessage(GL0041, LABEL));
 			}
-			if (newTag.getLabel().length() > 25) {
-				throw new BadCredentialsException("Tag name must with in 25 charcters");
-			}
+			
 			if (newTag.getWikiPostGooruOid() != null) {
 				newTag.setWikiPostGooruOid(this.getPostRepository().getPost(newTag.getWikiPostGooruOid()) != null ? newTag.getWikiPostGooruOid() : null);
 			}
@@ -106,7 +104,6 @@ public class TagServiceImpl extends BaseServiceImpl implements TagService, Param
 			newTag.setTagType(customTableRepository.getCustomTableValue(CustomProperties.Table.TAG_TYPE.getTable(), USER));
 			CustomTableValue customTableValue = this.getBlackListWordCassandraService().validate(newTag.getLabel()) ? getCustomTableRepository().getCustomTableValue(CustomProperties.Table.TAG_STATUS.getTable(), CustomProperties.TagStatus.ABUSE.getTagStatus()) : getCustomTableRepository()
 					.getCustomTableValue(CustomProperties.Table.TAG_STATUS.getTable(), CustomProperties.TagStatus.ACTIVE.getTagStatus());
-			rejectIfNull(customTableValue, GL0007, TAG_STATUS);
 			newTag.setStatus(customTableValue);
 			newTag.setGooruOid(UUID.randomUUID().toString());
 			newTag.setSharing(Sharing.PRIVATE.getSharing());

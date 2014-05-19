@@ -25,7 +25,9 @@ package org.ednovo.gooru.domain.service.v2;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.ContentPermission;
@@ -38,13 +40,13 @@ import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.domain.service.BaseServiceImpl;
+import org.ednovo.gooru.domain.service.tag.TagService;
 import org.ednovo.gooru.domain.service.user.UserService;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.collaborator.CollaboratorRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.tag.TagRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 
 @Service("v2Content")
@@ -63,45 +65,82 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 	private UserService userService;
 	
 	@Autowired
+	private TagService tagService;
+	
+	
+	@Autowired
 	private CollaboratorRepository collaboratorRepository;
 
 	@Override
-	public ContentTagAssoc createTagAssoc(String gooruOid, String tagGooruOid) {
+	public List<Map<String, Object>> createTagAssoc(String gooruOid, List<String> labels, User apiCaller) {
+		List<Map<String, Object>> contentTagAssocs = new ArrayList<Map<String,Object>>();
 		Content content = this.contentRepository.findContentByGooruId(gooruOid);
-		Tag tag = this.tagRepository.findTagByTagId(tagGooruOid);
-		if (tag == null || content == null) {
-			throw new NotFoundException(generateErrorMessage(GL0056, _CONTENT));
+		if(content == null) {
+			throw new NotFoundException("content not found!!!");
 		}
-		ContentTagAssoc contentTagAssocDb = this.contentRepository.getContentTagById(gooruOid, tagGooruOid);
-		if (contentTagAssocDb != null) {
-			throw new BadCredentialsException("Tag already associated by same content");
+		for (String label : labels) {
+			deleteTagAssoc(gooruOid, labels, apiCaller);
+			Tag tag = this.tagRepository.findTagByLabel(label);
+			if (tag == null) {
+				tag = new Tag();
+				tag.setLabel(label);
+				tag = this.tagService.createTag(tag, apiCaller).getModel();
+			}
+			ContentTagAssoc contentTagAssocDb = this.contentRepository.getContentTagById(gooruOid, tag.getGooruOid(),apiCaller.getGooruUId());
+			if (contentTagAssocDb == null) {
+				ContentTagAssoc contentTagAssoc = new ContentTagAssoc();
+				contentTagAssoc.setContentGooruOid(gooruOid);
+				contentTagAssoc.setTagGooruOid(tag.getGooruOid());
+				contentTagAssoc.setAssociatedUid(apiCaller.getGooruUId());
+				contentTagAssoc.setAssociatedDate(new Date(System.currentTimeMillis()));
+				this.getContentRepository().save(contentTagAssoc);
+				tag.setContentCount(tag.getContentCount() != null ? +tag.getContentCount() : 0 + 1);
+				this.getContentRepository().save(tag);
+				contentTagAssocs.add(setcontentTagAssoc(contentTagAssoc, tag.getLabel()));
+			} 
+			
 		}
-		ContentTagAssoc contentTagAssoc = new ContentTagAssoc();
-		contentTagAssoc.setContentGooruOid(gooruOid);
-		contentTagAssoc.setTagGooruOid(tagGooruOid);
-		this.getContentRepository().save(contentTagAssoc);
-		tag.setContentCount(tag.getContentCount() != null ? +tag.getContentCount() : 0 + 1);
-		this.getContentRepository().save(tag);
-		return contentTagAssoc;
+		return contentTagAssocs;
+	}
+
+	private Map<String, Object> setcontentTagAssoc(ContentTagAssoc contentTagAssoc, String label) {
+		Map<String, Object> contentTag = new HashMap<String, Object>();
+		contentTag.put("label", label);
+		contentTag.put("tagGooruOid", contentTagAssoc.getTagGooruOid());
+		contentTag.put("associatedUid", contentTagAssoc.getAssociatedUid());
+		contentTag.put("contentGooruOid", contentTagAssoc.getContentGooruOid());
+		return contentTag;
 	}
 
 	@Override
-	public void deleteTagAssoc(String gooruOid, String tagGooruOid) {
-		ContentTagAssoc contentTagAssoc = this.contentRepository.getContentTagById(gooruOid, tagGooruOid);
-		if (contentTagAssoc != null) {
-			this.getContentRepository().remove(contentTagAssoc);
-			Tag tag = this.tagRepository.findTagByTagId(tagGooruOid);
-			tag.setContentCount(tag.getContentCount() - 1);
-			this.getContentRepository().save(tag);
-		} else {
-			throw new NotFoundException(generateErrorMessage(GL0056, _CONTENT));
+	public void deleteTagAssoc(String gooruOid, List<String> labels, User apiCaller) {
+		
+		Content content = this.contentRepository.findContentByGooruId(gooruOid);
+		if(content == null) {
+			throw new NotFoundException("content not found!!!");
 		}
-
+		for(String label : labels) {
+			Tag tag = this.tagRepository.findTagByLabel(label);
+			ContentTagAssoc contentTagAssoc = this.contentRepository.getContentTagById(gooruOid, tag.getGooruOid(), apiCaller.getGooruUId());
+			if(contentTagAssoc != null) {
+				this.getContentRepository().remove(contentTagAssoc);
+				tag.setContentCount(tag.getContentCount() - 1);
+				this.getContentRepository().save(tag);
+			}
+		}
+		
 	}
+	
 
 	@Override
-	public List<ContentTagAssoc> getContentTagAssoc(String gooruOid, Integer limit, Integer offset) {
-		return this.getContentRepository().getContentTagByContent(gooruOid, limit, offset);
+	public List<Map<String, Object>> getContentTagAssoc(String gooruOid, User user) {
+		List<Map<String, Object>> contentList = new ArrayList<Map<String, Object>>();
+		List<ContentTagAssoc> contentTagAssocs = this.contentRepository.getContentTagByContent(gooruOid, user.getGooruUId());
+		for(ContentTagAssoc contentTagAssoc : contentTagAssocs) {
+			Tag tag = this.tagRepository.findTagByTagId(contentTagAssoc.getTagGooruOid());
+			contentList.add(setcontentTagAssoc(contentTagAssoc, tag.getLabel()));
+		}
+		return contentList;
 	}
 
 	@Override
