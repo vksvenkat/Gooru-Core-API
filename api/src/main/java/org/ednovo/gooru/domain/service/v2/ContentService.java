@@ -24,20 +24,20 @@
 package org.ednovo.gooru.domain.service.v2;
 
 import java.util.List;
+import java.util.Map;
 
 import org.ednovo.gooru.core.api.model.Content;
-import org.ednovo.gooru.core.api.model.ContentTagAssoc;
 import org.ednovo.gooru.core.api.model.User;
 
 
 
 public interface ContentService {
 	
-	ContentTagAssoc createTagAssoc(String gooruOid,String tagGooruOid);
+	List<Map<String, Object>> createTagAssoc(String gooruOid, List<String> labels, User apiCaller);
 	
-	void deleteTagAssoc(String gooruOid,String tagGooruOid);
+	void deleteTagAssoc(String gooruOid, List<String> labels, User apiCaller);
 	
-	List<ContentTagAssoc> getContentTagAssoc(String gooruOid,Integer limit,Integer offset);
+	List<Map<String, Object>> getContentTagAssoc(String gooruOid, User user);
 	
 	Content updateContent(String gooruOid, Content newContent);
 	

@@ -119,16 +119,16 @@
 				not-null="true" lazy="proxy" cascade="none" />
 			
 				<property name="contentCount" column="content_count"
-					not-null="true"></property>
+					not-null="false"></property>
 			
 				<property name="userCount" column="user_count"
-					not-null="true"></property>
+					not-null="false"></property>
 			
-				<property name="synonymsCount" column="synonyms_count" not-null="true"></property>
+				<property name="synonymsCount" column="synonyms_count" not-null="false"></property>
 			
 				<many-to-one name="status"
 				class="org.ednovo.gooru.core.api.model.CustomTableValue" column="status_id"
-				not-null="true" lazy="proxy" cascade="none" />
+				not-null="false" lazy="proxy" cascade="none" />
 			
 				<property name="wikiPostGooruOid" column="wiki_post_gooru_oid"
 					not-null="false"></property>
