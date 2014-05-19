@@ -315,7 +315,7 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ})
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	@RequestMapping(value = { "/my/study" }, method = RequestMethod.GET)
+	@RequestMapping(value = { "/my/study", "/my/teach-study" }, method = RequestMethod.GET)
 	public ModelAndView getMyStudy( HttpServletRequest request, HttpServletResponse response,  @RequestParam(value = SKIP_PAGINATION, required = false, defaultValue= "false") boolean skipPagination, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, 
 			@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,
 			@RequestParam(value= ORDER_BY, defaultValue="desc",required= false) String orderBy) throws Exception {
