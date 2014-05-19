@@ -244,7 +244,12 @@
 				</value>
 				<value>org/ednovo/gooru/domain/model/featuredset/FeaturedSetItems.hbm.xml
 				</value>
+				
 
+				<!-- Session Item Feedback-->
+				<value>org/ednovo/gooru/domain/model/session/SessionItemFeedback.hbm.xml</value>
+
+				
 				<!-- Storage -->
 				<value>org/ednovo/gooru/domain/model/storage/StorageAccount.hbm.xml
 				</value>
