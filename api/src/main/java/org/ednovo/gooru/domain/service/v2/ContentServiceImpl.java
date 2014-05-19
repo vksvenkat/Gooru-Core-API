@@ -79,6 +79,7 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 			throw new NotFoundException("content not found!!!");
 		}
 		for (String label : labels) {
+			deleteTagAssoc(gooruOid, labels, apiCaller);
 			Tag tag = this.tagRepository.findTagByLabel(label);
 			if (tag == null) {
 				tag = new Tag();
@@ -129,6 +130,7 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 		}
 		
 	}
+	
 
 	@Override
 	public List<Map<String, Object>> getContentTagAssoc(String gooruOid, User user) {
