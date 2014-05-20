@@ -33,7 +33,7 @@ public interface CustomFieldRepository extends BaseRepository {
 
 	int checkIfCustomFieldAlreadyInserted(String resourceGooruOId);
 
-	Map<String, Map<String, Map<String, String>>> getCustomFieldsAndValuesOfResource(String resourceGooruOId);
+	Map<String, String> getCustomFieldsAndValuesOfResource(String resourceGooruOId);
 
 	List<Object[]> getSearchAliasByOrganization(String accountUId);
 

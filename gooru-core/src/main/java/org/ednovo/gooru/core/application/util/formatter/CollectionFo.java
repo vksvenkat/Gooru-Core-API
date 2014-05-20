@@ -98,7 +98,7 @@ public class CollectionFo {
 	private Integer quotedResourceCount;
 		
 	
-	private Map<String, Map<String, Map<String, String>>> customFieldValues;
+	private Map<String, String> customFieldValues;
 	
 	public CollectionFo() {
 
@@ -448,11 +448,11 @@ public class CollectionFo {
 		return thumbnails;
 	}
 
-	public Map<String, Map<String, Map<String, String>>> getCustomFieldValues() {
+	public Map<String, String> getCustomFieldValues() {
 		return customFieldValues;
 	}
 
-	public void setCustomFieldValues(Map<String, Map<String, Map<String, String>>> customFieldValues) {
+	public void setCustomFieldValues(Map<String, String> customFieldValues) {
 		this.customFieldValues = customFieldValues;
 	}
 
