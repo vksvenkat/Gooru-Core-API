@@ -840,6 +840,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				}
 				collectionItem.getResource().setEducationalUse(this.setContentMetaAssociation(this.getContentMetaAssociation("educational_use"), collectionItem.getResource().getGooruOid(), "educational_use"));
 				collectionItem.getResource().setRatings(this.getFeedbackService().getContentFeedbackStarRating(collectionItem.getResource().getGooruOid()));
+				collectionItem.getResource().setCustomFieldValues(this.getCustomFieldsService().getCustomFieldsValuesOfResource(collectionItem.getResource().getGooruOid()));
 			}
 			if (collection.getCollectionType().equalsIgnoreCase(COLLECTION)) {
 				collection.setDepthOfKnowledges(this.setContentMetaAssociation(this.getContentMetaAssociation("depth_of_knowledge"), collectionId, "depth_of_knowledge"));
