@@ -21,7 +21,7 @@
 		<property name="freeText" column="free_text" not-null="false" />
 		
 		<many-to-one name="associatedBy"
-			class="org.ednovo.gooru.core.api.model.User" column="associated_user_uid"
+			class="org.ednovo.gooru.core.api.model.User" column="associated_user_id"
 			not-null="false" lazy="proxy" cascade="none" />
 		
 		<many-to-one name="user"
