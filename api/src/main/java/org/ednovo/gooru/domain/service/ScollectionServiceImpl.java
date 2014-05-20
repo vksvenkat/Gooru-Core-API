@@ -71,6 +71,7 @@ import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.domain.cassandra.service.ResourceCassandraService;
 import org.ednovo.gooru.domain.service.assessment.AssessmentService;
+import org.ednovo.gooru.domain.service.partner.CustomFieldsService;
 import org.ednovo.gooru.domain.service.redis.RedisService;
 import org.ednovo.gooru.domain.service.resource.ResourceManager;
 import org.ednovo.gooru.domain.service.resource.ResourceService;
@@ -185,6 +186,9 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	
 	@Autowired
 	private RedisService redisService;
+	
+	@Autowired
+	private CustomFieldsService customFieldsService;
 
 	Logger logger = LoggerFactory.getLogger(ScollectionServiceImpl.class);
 
@@ -861,6 +865,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				permissions.put("collaboratorCount", collaboratorCount);
 				permissions.put("isCollaborator", isCollaborator);
 				collection.setMeta(permissions);
+				collection.setCustomFieldValues(this.getCustomFieldsService().getCustomFieldsValuesOfResource(collection.getGooruOid()));
 			}
 
 		} else {
@@ -2173,6 +2178,10 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 	public CollaboratorRepository getCollaboratorRepository() {
 		return collaboratorRepository;
+	}
+	
+	public CustomFieldsService getCustomFieldsService() {
+		return customFieldsService;
 	}
 
 }
