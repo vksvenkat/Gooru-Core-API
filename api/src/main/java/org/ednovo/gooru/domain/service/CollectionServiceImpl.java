@@ -230,7 +230,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	@Override
 	public List<Map<String, Object>> getMyShelf(String gooruUid, Integer limit, Integer offset, String sharing, String collectionType, Integer itemLimit, boolean fetchChildItem) {
 		StorageArea storageArea = this.getStorageRepository().getStorageAreaByTypeName(NFS);
-		List<Object[]> result = this.getCollectionRepository().getMyFolder(gooruUid, limit, offset, sharing, fetchChildItem ? FOLDER : collectionType);
+		List<Object[]> result = this.getCollectionRepository().getMyFolder(gooruUid, limit, offset, sharing,  collectionType);
 		List<Map<String, Object>> folderList = new ArrayList<Map<String, Object>>();
 		int count = 0;
 		if (result != null && result.size() > 0) {
