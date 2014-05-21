@@ -77,4 +77,7 @@ public interface ContentIndexDao {
 	Long getSubscriptionCountByContentId(long contentId);
 	
 	List<String> getCollectionItemIdsByResourceId(Long collectionId);
+	
+	List<Object[]> getContentProviderAssoc(long contentId);
+	
 }
