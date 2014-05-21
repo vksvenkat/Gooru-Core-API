@@ -197,7 +197,9 @@ public class Resource extends Content implements Serializable {
 
 	public static final String RESOURCE_THUMBNAIL_SIZES = "80x60,160x120";
 	
-
+	private List<String> publisher;
+	
+	private List<String> aggregator;
 	
 	public Resource() {
 		recordSource = RecordSource.DEFAULT.getRecordSource();
@@ -936,6 +938,21 @@ public class Resource extends Content implements Serializable {
 	public ResourceMetaInfo getMetaInfo() {
 		return metaInfo;
 	}
+	
+	public List<String> getPublisher(){
+		return publisher;
+	}
+	
+	public void setPublisher(List<String> publisher){
+		this.publisher = publisher;
+	}
 
+	public List<String> getAggregator(){
+		return aggregator;
+	}
+	
+	public void setAggregator(List<String> aggregator){
+		this.aggregator = aggregator;
+	}
 
 }
