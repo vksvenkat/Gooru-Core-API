@@ -24,7 +24,7 @@ public class ResourceFo {
 	private Thumbnail thumbnails;
 	private String recordSource;
 	
-	private Map<String, Map<String, Map<String, String>>> customFieldValues;
+	private Map<String, String> customFieldValues;
 
 	public ResourceFo() {
 		instructionnotes = new InstructionNotesFo();
@@ -161,11 +161,11 @@ public class ResourceFo {
 	}
 
 
-	public Map<String, Map<String, Map<String, String>>> getCustomFieldValues() {
+	public Map<String, String> getCustomFieldValues() {
 		return customFieldValues;
 	}
 
-	public void setCustomFieldValues(Map<String, Map<String, Map<String, String>>> customFieldValues) {
+	public void setCustomFieldValues(Map<String, String> customFieldValues) {
 		this.customFieldValues = customFieldValues;
 	}
 

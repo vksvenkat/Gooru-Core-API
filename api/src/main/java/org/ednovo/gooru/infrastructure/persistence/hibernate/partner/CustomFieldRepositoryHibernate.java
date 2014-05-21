@@ -118,10 +118,10 @@ public class CustomFieldRepositoryHibernate extends BaseRepositoryHibernate impl
 		return fieldNameAndMappedColumnName;
 	}
 
-	private Map<String, Map<String, Map<String, String>>> buildCustomFieldsDataMap(String accountUId, String resourceId) {
+	private Map<String, String> buildCustomFieldsDataMap(String accountUId, String resourceId) {
 		// get all customFields for the given organization
 		List<Object[]> customFieldsList = getAllCustomFields(accountUId, null);
-		Map<String, Map<String, Map<String, String>>> customFieldValuesMap = null;
+		Map<String, String> innerCustomFieldValueMap  = new HashMap<String, String>();
 		if (customFieldsList.size() > 0) {
 			String fields = "";
 			int count = 0;
@@ -129,7 +129,6 @@ public class CustomFieldRepositoryHibernate extends BaseRepositoryHibernate impl
 			List<String> customFieldNames = new ArrayList<String>();
 			List<String> customFieldGroup = new ArrayList<String>();
 
-			Map<String, String> innerCustomFieldValueMap;
 			for (Object[] row : customFieldsList) {
 				if (count > 0) {
 					fields += ",";
@@ -149,33 +148,27 @@ public class CustomFieldRepositoryHibernate extends BaseRepositoryHibernate impl
 			}
 
 			// Get all data of the customfields for particular organization
-			Map<String, Map<String, String>> innerGroupAndCustomFieldsMap = new HashMap<String, Map<String, String>>();
 			if (fields.length() > 0) {
 				List<String> customFieldValues = getCustomFieldsData(fields, resourceId, false);
 				if (customFieldValues.size() > 0) {
 					for (int groupIndex = 0; customFieldGroup.size() > groupIndex; groupIndex++) {
-						innerCustomFieldValueMap = new HashMap<String, String>();
+						
 						for (int fieldDataIndex = 0; count > fieldDataIndex; fieldDataIndex++) {
-							if (customFieldNames.get(fieldDataIndex).startsWith(customFieldGroup.get(groupIndex))) {
+						//	if (customFieldNames.get(fieldDataIndex).startsWith(customFieldGroup.get(groupIndex))) {
 								if (customFieldValues.get(fieldDataIndex) != null) {
 									innerCustomFieldValueMap.put(customFieldNames.get(fieldDataIndex), customFieldValues.get(fieldDataIndex));
 								}
-							}
+						//	}
 						}
-						if (innerCustomFieldValueMap.size() > 0) {
-							innerGroupAndCustomFieldsMap.put(customFieldGroup.get(groupIndex), innerCustomFieldValueMap);
-						}
+						
 					}
 				}
 
 			}
 
-			customFieldValuesMap = new HashMap<String, Map<String, Map<String, String>>>();
-
-			customFieldValuesMap.put(accountUId, innerGroupAndCustomFieldsMap);
 		}
 
-		return customFieldValuesMap;
+		return innerCustomFieldValueMap;
 	}
 
 	private String getOrganizationPartyUid(String resourceGooruOid) {
@@ -188,7 +181,7 @@ public class CustomFieldRepositoryHibernate extends BaseRepositoryHibernate impl
 	}
 
 	@Override
-	public Map<String, Map<String, Map<String, String>>> getCustomFieldsAndValuesOfResource(String resourceGooruOId) {
+	public Map<String, String> getCustomFieldsAndValuesOfResource(String resourceGooruOId) {
 		return buildCustomFieldsDataMap(getOrganizationPartyUid(resourceGooruOId), resourceGooruOId);
 	}
 

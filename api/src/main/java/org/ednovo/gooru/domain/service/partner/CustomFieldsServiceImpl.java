@@ -48,7 +48,7 @@ public class CustomFieldsServiceImpl implements CustomFieldsService {
 	}
 
 	@Override
-	public Map<String, Map<String, Map<String, String>>> getCustomFieldsValuesOfResource(String resourceGooruOId) {
+	public Map<String, String> getCustomFieldsValuesOfResource(String resourceGooruOId) {
 		return customFieldRepository.getCustomFieldsAndValuesOfResource(resourceGooruOId);
 	}
 
