@@ -125,7 +125,7 @@ public class PartyRepositoryHibernate extends BaseRepositoryHibernate implements
 	@Override
 	public List<Map<Object, Object>> getPartyDetails(String optionalKey, String optionalValue) {
 		Session session = getSession();
-		String sql = "select p.party_uid as gooruUId, username, pp.optional_value  as displayName from party_custom_field p inner join user  on p.party_uid = gooru_uid inner join  party_custom_field pp on pp.party_uid = gooru_uid where p.optional_key = 'is_partner' and p.optional_value = 'true' and pp.optional_key = 'user_display_name' order by username";
+		String sql = "select p.party_uid as gooruUId, username, pp.optional_value  as displayName from party_custom_field p inner join user  on p.party_uid = gooru_uid inner join  party_custom_field pp on pp.party_uid = gooru_uid where p.optional_key = 'is_partner' and p.optional_value = 'true' and pp.optional_key = 'user_display_name' order by pp.optional_value";
 		Query query = session.createSQLQuery(sql).addScalar(GOORU_UID, StandardBasicTypes.STRING).
 		addScalar(USER_NAME, StandardBasicTypes.STRING).addScalar(DISPLAY_NAME, StandardBasicTypes.STRING);
 		return getPartyDetails(query.list());
