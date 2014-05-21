@@ -248,7 +248,10 @@
 
 				<!-- Session Item Feedback-->
 				<value>org/ednovo/gooru/domain/model/session/SessionItemFeedback.hbm.xml</value>
-
+				
+				<!-- Content Provider   -->
+				<value>org/ednovo/gooru/domain/model/content/ContentProvider.hbm.xml</value>
+				<value>org/ednovo/gooru/domain/model/content/ContentProviderAssociation.hbm.xml</value>
 				
 				<!-- Storage -->
 				<value>org/ednovo/gooru/domain/model/storage/StorageAccount.hbm.xml

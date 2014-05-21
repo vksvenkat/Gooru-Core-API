@@ -209,5 +209,7 @@ public interface ResourceService extends BaseService {
 	Resource findLtiResourceByContentGooruId(String gooruContentId);
 	
 	Map<String, Object> getResource(String gooruOid);
+	
+	void setContentProvider(Resource resource);
 
 }
