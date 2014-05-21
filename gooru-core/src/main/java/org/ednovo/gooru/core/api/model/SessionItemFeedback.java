@@ -11,34 +11,26 @@ public class SessionItemFeedback implements Serializable {
 	private static final long serialVersionUID = -6886157895374174429L;
 
 	private String sessionItemFeedbackUid;
-	
+
 	private String sessionId;
-	
-	private String gooruOid;
-	
-	private Date associatedDate;
-	
-	private User associatedBy;
-	
-	private User  user;
-	
+
+	private String contentGooruOId;
+
+	private String contentItemId;
+
+	private String parentGooruOId;
+
+	private String parentItemId;
+
+	private Date createdOn;
+
+	private User feedbackProvidedBy;
+
+	private User user;
+
 	private String freeText;
 
-	public String getGooruOid() {
-		return gooruOid;
-	}
-
-	public void setGooruOid(String gooruOid) {
-		this.gooruOid = gooruOid;
-	}
-
-	public Date getAssociatedDate() {
-		return associatedDate;
-	}
-
-	public void setAssociatedDate(Date associatedDate) {
-		this.associatedDate = associatedDate;
-	}
+	private String playLoadObject;
 
 	public String getFreeText() {
 		return freeText;
@@ -46,14 +38,6 @@ public class SessionItemFeedback implements Serializable {
 
 	public void setFreeText(String freeText) {
 		this.freeText = freeText;
-	}
-
-	public User getAssociatedBy() {
-		return associatedBy;
-	}
-
-	public void setAssociatedBy(User associatedBy) {
-		this.associatedBy = associatedBy;
 	}
 
 	public String getSessionItemFeedbackUid() {
@@ -78,5 +62,61 @@ public class SessionItemFeedback implements Serializable {
 
 	public void setSessionId(String sessionId) {
 		this.sessionId = sessionId;
+	}
+
+	public String getPlayLoadObject() {
+		return playLoadObject;
+	}
+
+	public void setPlayLoadObject(String playLoadObject) {
+		this.playLoadObject = playLoadObject;
+	}
+
+	public String getContentGooruOId() {
+		return contentGooruOId;
+	}
+
+	public void setContentGooruOId(String contentGooruOId) {
+		this.contentGooruOId = contentGooruOId;
+	}
+
+	public String getContentItemId() {
+		return contentItemId;
+	}
+
+	public void setContentItemId(String contentItemId) {
+		this.contentItemId = contentItemId;
+	}
+
+	public String getParentGooruOId() {
+		return parentGooruOId;
+	}
+
+	public void setParentGooruOId(String parentGooruOId) {
+		this.parentGooruOId = parentGooruOId;
+	}
+
+	public String getParentItemId() {
+		return parentItemId;
+	}
+
+	public void setParentItemId(String parentItemId) {
+		this.parentItemId = parentItemId;
+	}
+
+	public Date getCreatedOn() {
+		return createdOn;
+	}
+
+	public void setCreatedOn(Date createdOn) {
+		this.createdOn = createdOn;
+	}
+
+	public User getFeedbackProvidedBy() {
+		return feedbackProvidedBy;
+	}
+
+	public void setFeedbackProvidedBy(User feedbackProvidedBy) {
+		this.feedbackProvidedBy = feedbackProvidedBy;
 	}
 }

@@ -88,6 +88,7 @@ public class SessionRestV2Controller extends BaseController implements Parameter
 	public ModelAndView createSessionItemFeedback(@PathVariable(ID) String sessionId, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
 		SessionItemFeedback sessionItemFeedback = getSessionService().createSessionItemFeedback(sessionId, this.buildSessionItemFeedbackFromInputParameters(data), user);
+		
 		return toModelAndViewWithIoFilter(sessionItemFeedback, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, SESSION_ITEM_FEEDBACK_INCLUDES);
 	}
 
