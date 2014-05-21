@@ -66,6 +66,7 @@ import org.ednovo.gooru.core.api.model.AssessmentQuestion;
 import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.ContentPermission;
+import org.ednovo.gooru.core.api.model.ContentProviderAssociation;
 import org.ednovo.gooru.core.api.model.ContentType;
 import org.ednovo.gooru.core.api.model.ConverterDTO;
 import org.ednovo.gooru.core.api.model.CustomTableValue;
@@ -288,6 +289,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		}
 		resource.setEducationalUse(this.collectionService.setContentMetaAssociation(this.collectionService.getContentMetaAssociation("educational_use"), resource.getGooruOid(), "educational_use"));
 		resource.setRatings(this.feedbackService.getContentFeedbackStarRating(gooruContentId));
+		setContentProvider(resource);
 		return resource;
 	}
 
@@ -305,7 +307,29 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		}
 		resourceObject.put(STANDARDS, this.getCollectionService().getStandards(resource.getTaxonomySet(), false, null));
 		resourceObject.put(COURSE, this.getCollectionService().getCourse(resource.getTaxonomySet()));
+		setContentProvider(resource);
 		return resourceObject;
+	}
+
+	@Override
+	public void setContentProvider(Resource resource) {
+		List<ContentProviderAssociation> contentProviderAssociations = this.getContentRepository().getContentProviderByGooruOid(resource.getGooruOid());
+		if (contentProviderAssociations != null) {
+			List<String> aggregator = new ArrayList<String>();
+			List<String> publisher = new ArrayList<String>();
+			for (ContentProviderAssociation contentProviderAssociation : contentProviderAssociations) {
+				if (contentProviderAssociation.getContentProvider() != null && contentProviderAssociation.getContentProvider().getContentProviderType() != null
+						&& contentProviderAssociation.getContentProvider().getContentProviderType().getValue().equalsIgnoreCase(CustomProperties.ContentProviderType.PUBLISHER.getContentProviderType())) {
+					publisher.add(contentProviderAssociation.getContentProvider().getContentProviderName());
+				} else if (contentProviderAssociation.getContentProvider() != null && contentProviderAssociation.getContentProvider().getContentProviderType() != null
+						&& contentProviderAssociation.getContentProvider().getContentProviderType().getValue().equalsIgnoreCase(CustomProperties.ContentProviderType.AGGREGATOR.getContentProviderType())) {
+					aggregator.add(contentProviderAssociation.getContentProvider().getContentProviderName());
+				}
+			}
+			resource.setPublisher(publisher);
+			resource.setAggregator(aggregator);
+
+		}
 	}
 
 	@Override

@@ -258,6 +258,11 @@ public class ResourceCio implements IsEntityCassandraIndexable {
 	@Column
 	private String momentsofLearning;
 	
+	@Column
+	private String publisher;
+	
+	@Column
+	private String aggregator;
 	
 	public String getMomentsofLearning() {
 		return momentsofLearning;
@@ -891,5 +896,21 @@ public class ResourceCio implements IsEntityCassandraIndexable {
 	public void setRatings(Map<String, Object> ratings) {
 		this.ratings = ratings;
 	}
+	
+	public String getPublisher(){
+		return publisher;
+	}
+	
+	public void setPublisher(String publisher){
+		this.publisher = publisher;
+	}
 
+	public String getAggregator(){
+		return aggregator;
+	}
+	
+	public void setAggregator(String aggregator){
+		this.aggregator = aggregator;
+	}
+	
 }

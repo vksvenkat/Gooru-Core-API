@@ -29,6 +29,8 @@ import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.ContentAssociation;
 import org.ednovo.gooru.core.api.model.ContentPermission;
+import org.ednovo.gooru.core.api.model.ContentProvider;
+import org.ednovo.gooru.core.api.model.ContentProviderAssociation;
 import org.ednovo.gooru.core.api.model.ContentTagAssoc;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.StatusType;
@@ -70,5 +72,9 @@ public interface ContentRepository extends BaseRepository {
 	void deleteContentByContentId(String contentId);
 	
 	List<ContentPermission> getContentPermission(Long contentId, String partyUid);
+	
+	List<ContentProvider> getContentProvider(Integer offset, Integer limit);
+	
+	List<ContentProviderAssociation> getContentProviderByGooruOid(String gooruOid);
 
 }

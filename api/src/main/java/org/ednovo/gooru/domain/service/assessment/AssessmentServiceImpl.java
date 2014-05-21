@@ -525,6 +525,7 @@ public class AssessmentServiceImpl implements AssessmentService, ParameterProper
 	public ActionResponseDTO<AssessmentQuestion> createQuestion(AssessmentQuestion question, boolean index) throws Exception {
 		Set<Code> taxonomy = question.getTaxonomySet();
 		question = initQuestion(question, null, true);
+		question.setIsOer(true);
 		question.setTaxonomySet(null);
 		Errors errors = validateQuestion(question);
 		if (!errors.hasErrors()) {
