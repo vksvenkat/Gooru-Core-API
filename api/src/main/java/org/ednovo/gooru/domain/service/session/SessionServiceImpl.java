@@ -101,9 +101,9 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 	public SessionItemFeedback createSessionItemFeedback(String sessionId, SessionItemFeedback sessionItemFeedback, User user) {
 		User feedbackUser = this.getUserRepository().findByGooruId(sessionItemFeedback.getUser().getPartyUid());
 		rejectIfNull(feedbackUser, GL0056, USER);
-		sessionItemFeedback.setAssociatedDate(new Date());
+		sessionItemFeedback.setCreatedOn(new Date(System.currentTimeMillis()));
 		sessionItemFeedback.setFreeText(sessionItemFeedback.getFreeText());
-		sessionItemFeedback.setAssociatedBy(user);
+		sessionItemFeedback.setFeedbackProvidedBy(user);
 		sessionItemFeedback.setSessionId(sessionId);
 		sessionItemFeedback.setUser(feedbackUser);
 		this.getSessionRepository().save(sessionItemFeedback);
@@ -303,24 +303,24 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 		return userRepository;
 	}
 	
-	public void getEventLogs(SessionItemFeedback sessionItemFeedback, User user) throws JSONException {
-
-		SessionContextSupport.putLogParameter(EVENT_NAME, "createSessionItemFeedback.create");
+	private void getEventLogs(SessionItemFeedback sessionItemFeedback, User user) throws JSONException {
+		SessionContextSupport.putLogParameter(EVENT_NAME, "resource.user.feedback");
 		JSONObject context = SessionContextSupport.getLog().get("context") != null ? new JSONObject(SessionContextSupport.getLog().get("context").toString()) :  new JSONObject();
-		context.put("gooruUid", sessionItemFeedback.getUser().getGooruUId());
-		context.put("contentGooruOId", sessionItemFeedback.getGooruOid());
-		context.put("teacherUId", sessionItemFeedback.getUser().getGooruUId());
-		
+		context.put("gooruUId", sessionItemFeedback.getUser().getGooruUId());
+		context.put("contentGooruOId", sessionItemFeedback.getContentGooruOId());
+		context.put("contentItemId", sessionItemFeedback.getContentItemId());
+		context.put("parentGooruOId", sessionItemFeedback.getParentGooruOId());
+		context.put("parentItemId", sessionItemFeedback.getParentItemId());
 		SessionContextSupport.putLogParameter("context", context.toString());
-        System.out.println(context.toString());
 		JSONObject payLoadObject = SessionContextSupport.getLog().get("payLoadObject") != null ? new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString()) :  new JSONObject();
-		payLoadObject.put("freeText", sessionItemFeedback.getFreeText());
-		payLoadObject.put("session", sessionItemFeedback.getSessionId());
+		payLoadObject =  sessionItemFeedback.getPlayLoadObject() != null ? new JSONObject(sessionItemFeedback.getPlayLoadObject()) :  new JSONObject();
+		payLoadObject.put("text", sessionItemFeedback.getFreeText());
+		payLoadObject.put("sessionId", sessionItemFeedback.getSessionId());
+		payLoadObject.put("feedbackProviderUId", sessionItemFeedback.getFeedbackProvidedBy().getPartyUid());
 		SessionContextSupport.putLogParameter("payLoadObject", payLoadObject.toString());
 		JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session").toString()) :  new JSONObject();
 		session.put("organizationUId", user.getOrganization().getPartyUid());
-		SessionContextSupport.putLogParameter("session", session.toString());
-		
+		SessionContextSupport.putLogParameter("session", session.toString());		
 	}
 	
 
