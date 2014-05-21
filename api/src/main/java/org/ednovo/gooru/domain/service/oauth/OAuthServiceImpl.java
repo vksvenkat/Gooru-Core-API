@@ -68,7 +68,7 @@ public class OAuthServiceImpl extends ServerValidationUtils implements OAuthServ
 	}
 
 	@Override
-	public ActionResponseDTO<OAuthClient> createNewOAuthClient(OAuthClient oAuthClient) throws Exception {
+	public ActionResponseDTO<OAuthClient> createNewOAuthClient(OAuthClient oAuthClient ,String organizationUId) throws Exception {
 		Errors errors = validateOAuthClient(oAuthClient);
 		OAuthClient oAuthClientNew = new OAuthClient();
 		if(!errors.hasErrors()){
@@ -99,7 +99,7 @@ public class OAuthServiceImpl extends ServerValidationUtils implements OAuthServ
 					
 				}
 			}else{
-				grantType.append(AuthorizationGrantType.AUTHORIZATION_CODE.getAuthorizationGrantType() + ","+AuthorizationGrantType.REFRESH_TOKEN.getAuthorizationGrantType());
+				grantType.append(AuthorizationGrantType.AUTHORIZATION_CODE.getAuthorizationGrantType() + ","+AuthorizationGrantType.REFRESH_TOKEN.getAuthorizationGrantType()+ ","+AuthorizationGrantType.CLIENT_CREDENTIALS.getAuthorizationGrantType());
 			}
 			oAuthClientNew.setGrantTypes(grantType.toString());
 			oAuthClientNew.setRedirectUris(oAuthClient.getRedirectUris());
@@ -109,14 +109,23 @@ public class OAuthServiceImpl extends ServerValidationUtils implements OAuthServ
 			oAuthClientNew.setClientSecret(UUID.randomUUID().toString());
 			oAuthClientNew.setDescription(oAuthClient.getDescription());
 			
-			if(oAuthClient.getUserUid() != null) {
-				User user = userRepository.findByGooruId(oAuthClient.getUserUid());
-				oAuthClientNew.setUser(user);
-				oAuthClientNew.setOrganization(user.getOrganization());
-			} else {
-				Organization organization = organizationRepository.getOrganizationByUid(oAuthClient.getOrganization().getPartyUid());
+			if(organizationUId != null){
+				Organization organization = organizationRepository.getOrganizationByUid(organizationUId);
 				oAuthClientNew.setOrganization(organization);
+				
+			}else{
+				if(oAuthClient.getUserUid() != null) {
+					User user = userRepository.findByGooruId(oAuthClient.getUserUid());
+					oAuthClientNew.setUser(user);
+					oAuthClientNew.setOrganization(user.getOrganization());
+				} else {
+					Organization organization = organizationRepository.getOrganizationByUid(oAuthClient.getOrganization().getPartyUid());
+					oAuthClientNew.setOrganization(organization);
+				}
+				
 			}
+			
+			
 			
 			oAuthRepository.save(oAuthClientNew);
 		}

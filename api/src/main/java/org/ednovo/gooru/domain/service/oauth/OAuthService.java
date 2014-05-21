@@ -34,7 +34,7 @@ public interface OAuthService {
 
 	public User getUserByOAuthAccessToken(String accessToken) throws Exception;
 	
-	public ActionResponseDTO<OAuthClient> createNewOAuthClient(OAuthClient oAuthClient) throws Exception;
+	public ActionResponseDTO<OAuthClient> createNewOAuthClient(OAuthClient oAuthClient, String organizationUId) throws Exception;
 	
 	public ActionResponseDTO<OAuthClient> updateOAuthClient(OAuthClient oAuthClient);
 
