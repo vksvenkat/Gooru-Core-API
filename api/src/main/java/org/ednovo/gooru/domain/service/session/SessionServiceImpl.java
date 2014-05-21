@@ -36,11 +36,13 @@ import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.ModeType;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.Session;
+import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.SessionItem;
 import org.ednovo.gooru.core.api.model.SessionItemAttemptTry;
 import org.ednovo.gooru.core.api.model.SessionItemFeedback;
 import org.ednovo.gooru.core.api.model.SessionStatus;
 import org.ednovo.gooru.core.api.model.User;
+import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.domain.service.BaseServiceImpl;
 import org.ednovo.gooru.domain.service.assessment.AssessmentService;
@@ -49,14 +51,15 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.assessment.AssessmentRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.resource.ResourceRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.session.SessionRepository;
-import org.ednovo.goorucore.application.serializer.JsonDeserializer;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
 
 @Service
-public class SessionServiceImpl extends BaseServiceImpl implements SessionService, ParameterProperties {
+public class SessionServiceImpl extends BaseServiceImpl implements SessionService, ParameterProperties, ConstantProperties {
 
 	@Autowired
 	private SessionRepository sessionRepository;
@@ -98,12 +101,17 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 	public SessionItemFeedback createSessionItemFeedback(String sessionId, SessionItemFeedback sessionItemFeedback, User user) {
 		User feedbackUser = this.getUserRepository().findByGooruId(sessionItemFeedback.getUser().getPartyUid());
 		rejectIfNull(feedbackUser, GL0056, USER);
-		sessionItemFeedback.setAssociatedDate(new Date());
+		sessionItemFeedback.setCreatedOn(new Date(System.currentTimeMillis()));
 		sessionItemFeedback.setFreeText(sessionItemFeedback.getFreeText());
-		sessionItemFeedback.setAssociatedBy(user);
+		sessionItemFeedback.setFeedbackProvidedBy(user);
 		sessionItemFeedback.setSessionId(sessionId);
 		sessionItemFeedback.setUser(feedbackUser);
 		this.getSessionRepository().save(sessionItemFeedback);
+		try {
+			getEventLogs(sessionItemFeedback, user);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
 		return sessionItemFeedback;
 	}
 
@@ -294,5 +302,26 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 	public UserRepository getUserRepository() {
 		return userRepository;
 	}
+	
+	private void getEventLogs(SessionItemFeedback sessionItemFeedback, User user) throws JSONException {
+		SessionContextSupport.putLogParameter(EVENT_NAME, "resource.user.feedback");
+		JSONObject context = SessionContextSupport.getLog().get("context") != null ? new JSONObject(SessionContextSupport.getLog().get("context").toString()) :  new JSONObject();
+		context.put("gooruUId", sessionItemFeedback.getUser().getGooruUId());
+		context.put("contentGooruOId", sessionItemFeedback.getContentGooruOId());
+		context.put("contentItemId", sessionItemFeedback.getContentItemId());
+		context.put("parentGooruOId", sessionItemFeedback.getParentGooruOId());
+		context.put("parentItemId", sessionItemFeedback.getParentItemId());
+		SessionContextSupport.putLogParameter("context", context.toString());
+		JSONObject payLoadObject = SessionContextSupport.getLog().get("payLoadObject") != null ? new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString()) :  new JSONObject();
+		payLoadObject =  sessionItemFeedback.getPlayLoadObject() != null ? new JSONObject(sessionItemFeedback.getPlayLoadObject()) :  new JSONObject();
+		payLoadObject.put("text", sessionItemFeedback.getFreeText());
+		payLoadObject.put("sessionId", sessionItemFeedback.getSessionId());
+		payLoadObject.put("feedbackProviderUId", sessionItemFeedback.getFeedbackProvidedBy().getPartyUid());
+		SessionContextSupport.putLogParameter("payLoadObject", payLoadObject.toString());
+		JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session").toString()) :  new JSONObject();
+		session.put("organizationUId", user.getOrganization().getPartyUid());
+		SessionContextSupport.putLogParameter("session", session.toString());		
+	}
+	
 
 }

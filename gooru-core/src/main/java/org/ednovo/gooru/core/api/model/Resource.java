@@ -121,7 +121,7 @@ public class Resource extends Content implements Serializable {
 
 	private String social;
 
-	private Map<String, Map<String, Map<String, String>>> customFieldValues;
+	private Map<String, String> customFieldValues;
 
 	private Thumbnail thumbnails;
 
@@ -197,7 +197,9 @@ public class Resource extends Content implements Serializable {
 
 	public static final String RESOURCE_THUMBNAIL_SIZES = "80x60,160x120";
 	
-
+	private List<String> publisher;
+	
+	private List<String> aggregator;
 	
 	public Resource() {
 		recordSource = RecordSource.DEFAULT.getRecordSource();
@@ -676,11 +678,11 @@ public class Resource extends Content implements Serializable {
 		return customFields;
 	}
 
-	public Map<String, Map<String, Map<String, String>>> getCustomFieldValues() {
+	public  Map<String, String> getCustomFieldValues() {
 		return customFieldValues;
 	}
 
-	public void setCustomFieldValues(Map<String, Map<String, Map<String, String>>> customFieldValues) {
+	public void setCustomFieldValues(Map<String, String> customFieldValues) {
 		this.customFieldValues = customFieldValues;
 	}
 
@@ -936,6 +938,21 @@ public class Resource extends Content implements Serializable {
 	public ResourceMetaInfo getMetaInfo() {
 		return metaInfo;
 	}
+	
+	public List<String> getPublisher(){
+		return publisher;
+	}
+	
+	public void setPublisher(List<String> publisher){
+		this.publisher = publisher;
+	}
 
+	public List<String> getAggregator(){
+		return aggregator;
+	}
+	
+	public void setAggregator(List<String> aggregator){
+		this.aggregator = aggregator;
+	}
 
 }

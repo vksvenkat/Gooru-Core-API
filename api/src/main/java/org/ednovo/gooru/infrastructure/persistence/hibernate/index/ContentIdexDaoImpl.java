@@ -226,4 +226,12 @@ public class ContentIdexDaoImpl extends IndexDaoImpl implements ContentIndexDao 
 	public List<String> getCollectionItemIdsByResourceId(Long contentId) {
 		return createSQLQuery(GET_SCOLLECTION_ITEM_IDS_BY_RESOURCE_ID).setLong(CONTENT_ID, contentId).list();
 	}
+	
+	@Override
+	public List<Object[]> getContentProviderAssoc(long contentId) {
+		String sql = "SELECT cp.type, cp.name, cp.content_provider_uid from content_provider cp INNER JOIN content_provider_assoc cpa on cp.content_provider_uid=cpa.content_provider_uid WHERE content_id = :contentId";
+		List<Object[]> list = createSQLQuery(sql).setLong(CONTENT_ID, contentId).list();
+		return list;
+	}
+	
 }
