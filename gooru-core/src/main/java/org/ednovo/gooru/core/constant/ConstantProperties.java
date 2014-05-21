@@ -21,7 +21,7 @@ public interface ConstantProperties {
 			"*.resourceType.name", "*.sharing", "*.title", "*.views", "*.thumbnails", "*.url", "*.user", "*.creator", "*.license", "*.license.code", "*.license.icon", "*.license.name", "*.license.definition", "*.dimensions", "*.defaultImage", "*.resourceSource", "*.attribution", "*.sourceName",
 			"*.questionInfo", "*.TYPE", "*.type","*.depthOfKnowledge","*.educationalUse","*.momentsOfLearning","*.name", "*.questionText", "*.answers.*", "*.assets", "*.assets.asset", "*.assets.asset.name", "*.assets.asset.url", "*assets.asset.description", "*assets.asset.hasUniqueName", "*.hints.*", "*.description", "*.explanation", "*.taxonomySet", "*.codeId", "*.depth",
 			"*.lastModified", "*.gooruUId", "*.lastUpdatedUserUid", "*.category", "*.label", "*.code", "*.userRating", "*.hasFrameBreaker", "*.copiedResourceId", "*.assignmentContentId", "*.trackActivity", "*.trackActivity.startTime", "*.trackActivity.endTime", "*.goals", "*.grade", "*.mediaType",
-			"*.text", "*.isOer", "*.meta.*","*.resourceFormat.value","*.resourceFormat.displayName","*.instructional.value","*.instructional.displayName","*.depthOfKnowledges.value","*.depthOfKnowledges.selected","*.momentsOfLearning.selected","*.momentsOfLearning.value","*.educationalUse.value","*.educationalUse.selected", "*.ratings", "*.average","*.count", "*.standards", "*.license", "*.standards.code", "*.standards.description","*.course"};
+			"*.text", "*.isOer", "*.meta.*","*.resourceFormat.value","*.resourceFormat.displayName","*.instructional.value","*.instructional.displayName","*.depthOfKnowledges.value","*.depthOfKnowledges.selected","*.momentsOfLearning.selected","*.momentsOfLearning.value","*.educationalUse.value","*.educationalUse.selected", "*.ratings", "*.average","*.count", "*.standards", "*.license", "*.standards.code", "*.standards.description","*.course","*.customFieldValues.*"};
 
 	static final String ASSIGNMENT_INCLUDE_FIELDS[] = { "*.narrationLink", "collection.notes", "*.keyPoints", "*.language", "*.goals", "*.grade", "*.estimatedTime", "*.collectionType", "*.creator", "*.assetURI", "*.license", "*.license.code", "*.license.icon", "*.license.name",
 			"*.license.definition", "*.dimensions", "*.defaultImage", "*.createdOn", "*.user", "*.usernameDisplay", "*.profileImageUrl", "*.lastName", "*.firstName", "*.username", "*.description", "*.folder", "*.gooruOid", "*.sharing", "*.title", "*.views", "*.thumbnails", "*.url",
@@ -373,7 +373,7 @@ public interface ConstantProperties {
 	
 	static final String [] LIB_RESOURCE_FIELDS = {"*.totalHitCount","*.searchResults","*.libraryResource","*.collectionId","*.resourceId","*.title","*.thumbnails","*.resourceUrl","*.grade","*.description","*.category","*.sharing","*.hasFrameBreaker","*.recordSource","*.license","*.resourceSourceId","*.sourceName","*.domainName","*.attribution","*.narration","*.start","*.stop","*.collectionItemId","*.type","*.standards","*.course"};
 	
-	static final String [] STUDY_RESOURCE_FIELDS = {"*.totalHitCount","*.searchResults","*.classCode","*.status","*.title","*.gooruOid"};
+	static final String [] STUDY_RESOURCE_FIELDS = {"*.totalHitCount","*.searchResults","*.classCode","*.status","*.title","*.gooruOid","*.createdOn","*.gooruUId", "*.user"};
 	
 	static final String [] CLASS_MEMBER_FIELDS = {"*.totalHitCount","*.searchResults","*.emailId","*.username","*.gooruUid","*.associatedDate","*.status","*.profileImageUrl"};
 
@@ -433,6 +433,6 @@ public interface ConstantProperties {
 	
 	public static final String CLASSPAGE_CREATE_COLLECTION_TASK_ITEM = "classpage-create-collection-task-item";
 	
-	static final String[] SESSION_ITEM_FEEDBACK_INCLUDES = {"sessionItemFeedbackUid", "freeText", "gooruOid", "associatedDate", "user.gooruUId", "sessionId"};
+	static final String[] SESSION_ITEM_FEEDBACK_INCLUDES = {"sessionItemFeedbackUid", "freeText", "gooruOid", "associatedDate", "user.gooruUId", "sessionId", "feedbackProvidedBy.gooruUId", "contentGooruOId", "contentItemId", "parentGooruOId", "parentItemId", "createdOn"};
 	
 }

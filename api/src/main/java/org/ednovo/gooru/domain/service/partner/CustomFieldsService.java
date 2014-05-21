@@ -34,7 +34,7 @@ public interface CustomFieldsService {
 
 	void saveCustomFieldInfo(String resourceGooruOId, Map<String, String> customFieldAndValueMap);
 
-	Map<String, Map<String, Map<String, String>>> getCustomFieldsValuesOfResource(String resourceGooruOId);
+	Map<String, String> getCustomFieldsValuesOfResource(String resourceGooruOId);
 
 	void saveCustomField(CustomField customField);
 

@@ -12,21 +12,27 @@
 			<generator class="org.ednovo.gooru.core.application.util.UUIDGenerator" />
 		</id>
 
-		<property name="gooruOid" column="gooru_oid" not-null="false" />
+		<property name="contentGooruOId" column="content_gooru_oid" not-null="true" />
+		
+		<property name="contentItemId" column="content_item_id" not-null="false" />
+		
+		<property name="parentGooruOId" column="parent_gooru_oid" not-null="false" />
+		
+		<property name="parentItemId" column="parent_item_id" not-null="false" />
 		
 		<property name="sessionId" column="session_id" not-null="false" />
 			
-		<property name="associatedDate" column="associated_date" not-null="true" />
+		<property name="createdOn" column="created_on" not-null="true" />
 			
 		<property name="freeText" column="free_text" not-null="false" />
 		
-		<many-to-one name="associatedBy"
-			class="org.ednovo.gooru.core.api.model.User" column="associated_user_uid"
-			not-null="false" lazy="proxy" cascade="none" />
-		
 		<many-to-one name="user"
 			class="org.ednovo.gooru.core.api.model.User" column="user_uid"
-			not-null="false" lazy="proxy" cascade="none" />
+			not-null="true" lazy="proxy" cascade="none" />
+		
+		<many-to-one name="feedbackProvidedBy"
+			class="org.ednovo.gooru.core.api.model.User" column="feedback_provider_uid"
+			not-null="true" lazy="proxy" cascade="none" />
 						
 	</class>
 </hibernate-mapping>

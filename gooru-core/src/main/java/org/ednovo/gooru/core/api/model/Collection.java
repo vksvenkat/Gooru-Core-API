@@ -4,8 +4,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.ednovo.gooru.core.application.util.ResourceMetaInfo;
-
 public class Collection extends Resource implements Versionable {
 	/**
 	 * 
