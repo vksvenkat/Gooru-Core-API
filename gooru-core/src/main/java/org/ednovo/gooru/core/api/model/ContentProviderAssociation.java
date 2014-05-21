@@ -1,7 +1,6 @@
 package org.ednovo.gooru.core.api.model;
 
 import java.io.Serializable;
-import java.math.BigInteger;
 import java.util.Date;
 
 public class ContentProviderAssociation implements Serializable {
@@ -11,15 +10,17 @@ public class ContentProviderAssociation implements Serializable {
 	 */
 	private static final long serialVersionUID = -3872533003114192366L;
 	
+	private String contentProviderAssocUid;
+	
 	private ResourceSource resourceSourceId;
 	
 	private Date associatedDate;
 	
-	private BigInteger ContentId;
+	private String gooruOid;
 	
-	private String associatedByUid;
+	private User associatedBy;
 	
-	private String contentProviderUid;
+	private ContentProvider contentProvider;
 
 	public Date getAssociatedDate() {
 		return associatedDate;
@@ -29,30 +30,6 @@ public class ContentProviderAssociation implements Serializable {
 		this.associatedDate = associatedDate;
 	}
 
-	public BigInteger getContentId() {
-		return ContentId;
-	}
-
-	public void setContentId(BigInteger contentId) {
-		ContentId = contentId;
-	}
-
-	public String getAssociatedByUid() {
-		return associatedByUid;
-	}
-
-	public void setAssociatedByUid(String associatedByUid) {
-		this.associatedByUid = associatedByUid;
-	}
-
-	public String getContentProviderUid() {
-		return contentProviderUid;
-	}
-
-	public void setContentProviderUid(String contentProviderUid) {
-		this.contentProviderUid = contentProviderUid;
-	}
-
 	public ResourceSource getResourceSourceId() {
 		return resourceSourceId;
 	}
@@ -60,7 +37,37 @@ public class ContentProviderAssociation implements Serializable {
 	public void setResourceSourceId(ResourceSource resourceSourceId) {
 		this.resourceSourceId = resourceSourceId;
 	}
-	
-	
+
+	public String getContentProviderAssocUid() {
+		return contentProviderAssocUid;
+	}
+
+	public void setContentProviderAssocUid(String contentProviderAssocUid) {
+		this.contentProviderAssocUid = contentProviderAssocUid;
+	}
+
+	public String getGooruOid() {
+		return gooruOid;
+	}
+
+	public void setGooruOid(String gooruOid) {
+		this.gooruOid = gooruOid;
+	}
+
+	public User getAssociatedBy() {
+		return associatedBy;
+	}
+
+	public void setAssociatedBy(User associatedBy) {
+		this.associatedBy = associatedBy;
+	}
+
+	public ContentProvider getContentProvider() {
+		return contentProvider;
+	}
+
+	public void setContentProvider(ContentProvider contentProvider) {
+		this.contentProvider = contentProvider;
+	}
 
 }

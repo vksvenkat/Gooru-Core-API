@@ -30,6 +30,8 @@ import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.ContentAssociation;
 import org.ednovo.gooru.core.api.model.ContentPermission;
+import org.ednovo.gooru.core.api.model.ContentProvider;
+import org.ednovo.gooru.core.api.model.ContentProviderAssociation;
 import org.ednovo.gooru.core.api.model.ContentTagAssoc;
 import org.ednovo.gooru.core.api.model.License;
 import org.ednovo.gooru.core.api.model.Resource;
@@ -244,6 +246,25 @@ public class ContentRepositoryHibernate extends BaseRepositoryHibernate implemen
 			sql += " limit " + pageNo +" , " + pageSize ;
 		}
 		SQLQuery query = session.createSQLQuery(sql);
+		return query.list();
+	}
+
+	@Override
+	public List<ContentProvider> getContentProvider(Integer offset, Integer limit) {
+		Session session = getSession();
+		String hql = " FROM ContentProvider contentProvider WHERE "  + generateOrgAuthQueryWithData("contentProvider.");
+		Query query = session.createQuery(hql);
+		query.setFirstResult(offset);
+		query.setMaxResults(limit);
+		return query.list();
+	}
+
+	@Override
+	public List<ContentProviderAssociation> getContentProviderByGooruOid(String gooruOid) {
+		Session session = getSession();
+		String hql = " FROM ContentProviderAssociation contentProviderAssociation WHERE " + generateOrgAuthQueryWithData("contentProvider.") + " and " + "contentProviderAssociation.gooruOid=:gooruOid";
+		Query query = session.createQuery(hql);
+		query.setParameter("gooruOid", gooruOid);
 		return query.list();
 	}
 

@@ -84,6 +84,7 @@ import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.classplan.LearnguideRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.collaborator.CollaboratorRepository;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentAssociationRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentAssociationRepositoryHibernate;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentRepositoryHibernate;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
@@ -142,7 +143,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	private ContentRepositoryHibernate contentRepositoryHibernate;
 
 	@Autowired
-	private ContentAssociationRepositoryHibernate contentAssociationRepositoryHibernate;
+	private ContentAssociationRepository contentAssociationRepository;
 
 	@Autowired
 	@javax.annotation.Resource(name = "resourceManager")
@@ -819,7 +820,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				collection.getUser().setProfileImageUrl(this.getUserService().buildUserProfileImageUrl(collection.getUser()));
 			}
 			if (isContentFlag) {
-				collection.setContentAssociation(this.getContentAssociationRepositoryHibernate().getContentAssociationGooruOid(collectionId));
+				collection.setContentAssociation(this.contentAssociationRepository.getContentAssociationGooruOid(collectionId));
 			}
 			if (collection.getUser().getIdentities() != null) {
 				Identity identity = collection.getUser().getIdentities().iterator().next();
@@ -841,6 +842,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				collectionItem.getResource().setEducationalUse(this.setContentMetaAssociation(this.getContentMetaAssociation("educational_use"), collectionItem.getResource().getGooruOid(), "educational_use"));
 				collectionItem.getResource().setRatings(this.getFeedbackService().getContentFeedbackStarRating(collectionItem.getResource().getGooruOid()));
 				collectionItem.getResource().setCustomFieldValues(this.getCustomFieldsService().getCustomFieldsValuesOfResource(collectionItem.getResource().getGooruOid()));
+				getResourceService().setContentProvider(collectionItem.getResource());
 			}
 			if (collection.getCollectionType().equalsIgnoreCase(COLLECTION)) {
 				collection.setDepthOfKnowledges(this.setContentMetaAssociation(this.getContentMetaAssociation("depth_of_knowledge"), collectionId, "depth_of_knowledge"));
@@ -2137,9 +2139,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		return contentRepositoryHibernate;
 	}
 
-	public ContentAssociationRepositoryHibernate getContentAssociationRepositoryHibernate() {
-		return contentAssociationRepositoryHibernate;
-	}
 
 	public void setContentService(ContentService contentService) {
 		this.contentService = contentService;
