@@ -233,15 +233,17 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 	}
 	private Map<String, Object> getRating(List<Object[]> results) {
 		Double sum = 0.0;
+		Double count = 0.0;
 		Map<String, Object> rating = new HashMap<String, Object>();
 		Map<Object, Object> value = new HashMap<Object, Object>();
 		for (Object[] object : results) {
 			value.put(object[0], object[1]);
-			sum += ((Integer) object[0]) + ((Integer) object[1]);
+			sum = sum + ((Integer) object[0]) * ((Integer) object[1]);
+			count += ((Integer) object[1]);
 		}
 		rating.put("scores", value);
-		rating.put("average", results.size() > 0 ? Double.parseDouble(new DecimalFormat("##.#").format(sum/results.size())) : sum);
-		rating.put("count",results.size());
+		rating.put("average", results.size() > 0 ? Double.parseDouble(new DecimalFormat("##.#").format(sum/count)) : sum);
+		rating.put("count",count);
 		return rating; 
 	}
 
