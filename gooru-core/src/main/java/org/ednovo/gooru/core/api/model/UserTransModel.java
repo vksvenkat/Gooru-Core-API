@@ -74,7 +74,7 @@ public class UserTransModel extends OrganizationModel implements IndexableEntry 
 	private String accountCreatedType;
 	private Boolean isDeleted;
 	private Set<PartyCustomField> customFields;
-	private Map<String, Map<String, Object>> meta;
+	private Map<String, Object> meta;
 	private String organizationName;
 
 	@Override
@@ -332,20 +332,20 @@ public class UserTransModel extends OrganizationModel implements IndexableEntry 
 		return customFields;
 	}
 
-	public void setMeta(Map<String, Map<String, Object>> map) {
-		this.meta = map;
-	}
-
-	public Map<String, Map<String, Object>> getMeta() {
-		return meta;
-	}
-
 	public void setOrganizationName(String organizationName) {
 		this.organizationName = organizationName;
 	}
 
 	public String getOrganizationName() {
 		return organizationName;
+	}
+
+	public Map<String, Object> getMeta() {
+		return meta;
+	}
+
+	public void setMeta(Map<String, Object> meta) {
+		this.meta = meta;
 	}
 
 }

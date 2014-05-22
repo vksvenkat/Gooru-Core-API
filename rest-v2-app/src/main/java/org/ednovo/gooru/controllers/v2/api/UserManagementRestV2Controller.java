@@ -23,6 +23,7 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.controllers.v2.api;
 
+import java.io.FileNotFoundException;
 import java.util.Iterator;
 import java.util.List;
 
@@ -37,7 +38,6 @@ import org.ednovo.gooru.core.api.model.Profile;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserAvailability.CheckUser;
-import org.ednovo.gooru.core.api.model.UserRelationship;
 import org.ednovo.gooru.core.api.model.UserTagAssoc;
 import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.application.util.ServerValidationUtils;
@@ -213,6 +213,26 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 		}
 		return toModelAndViewWithIoFilter(identity, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
+	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SESSION_CHECK })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(method = RequestMethod.GET, value = "/check-reset-token")
+	public ModelAndView checkResetToken(HttpServletRequest request, @RequestParam String resetToken, HttpServletResponse response) throws Exception {
+		ModelAndView jsonmodel = new ModelAndView(REST_MODEL);
+		JSONObject jsonObj = new JSONObject();
+		if(resetToken != null){
+			if (this.getUserService().hasResetTokenValid(resetToken)) {
+				jsonmodel.addObject(MODEL, jsonObj.put(IS_VALID_TOKEN, FALSE));
+			} else {
+				jsonmodel.addObject(MODEL, jsonObj.put(IS_VALID_TOKEN, TRUE));
+			}
+		} else {
+			throw new FileNotFoundException("token not found!!!");
+		}
+		return jsonmodel;
+	}
+	
+	
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
