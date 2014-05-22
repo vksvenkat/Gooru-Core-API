@@ -435,4 +435,7 @@ public interface ConstantProperties {
 	
 	static final String[] SESSION_ITEM_FEEDBACK_INCLUDES = {"sessionItemFeedbackUid", "freeText", "gooruOid", "associatedDate", "user.gooruUId", "sessionId", "feedbackProvidedBy.gooruUId", "contentGooruOId", "contentItemId", "parentGooruOId", "parentItemId", "createdOn"};
 	
+	public static String IS_FEATURED_USER = "is_featured";
+	
+	public static String FEATURED_USER = "isFeaturedUser";
 }
