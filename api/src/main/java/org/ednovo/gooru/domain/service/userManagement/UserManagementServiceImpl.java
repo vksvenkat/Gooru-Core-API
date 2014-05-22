@@ -1378,10 +1378,10 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	}
 	
 	@Override
-	public Map<String, Map<String, Object>> userMeta(User user) {
-		Map<String, Map<String, Object>> meta = new HashMap<String, Map<String, Object>>();
+	public Map<String, Object> userMeta(User user) {
+		Map<String, Object> meta = new HashMap<String, Object>();
 		PartyCustomField partyCustomField = partyService.getPartyCustomeField(user.getPartyUid(), USER_TAXONOMY_ROOT_CODE, null);
-		Map<String, Object> metaData = new HashMap<String, Object>();
+		Map<String, Object> taxonomy = new HashMap<String, Object>();
 		String taxonomyCode = null;
 		if(partyCustomField != null && partyCustomField.getOptionalValue() != null && partyCustomField.getOptionalValue().length() > 0){
 			taxonomyCode = this.getTaxonomyRespository().getFindTaxonomyCodeList(partyCustomField.getOptionalValue());
@@ -1390,15 +1390,19 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		
 		if(taxonomyCode != null ){
 			List<String> taxonomyCodeList = Arrays.asList(taxonomyCode.split(","));
-			metaData.put(CODE, taxonomyCodeList);
+			taxonomy.put(CODE, taxonomyCodeList);
 		}
 		
 		if(partyCustomField != null && partyCustomField.getOptionalValue() != null && partyCustomField.getOptionalValue().length() > 0){
 			List<String> taxonomyCodeIdList = Arrays.asList(partyCustomField.getOptionalValue().split(","));
-			metaData.put(CODE_ID, taxonomyCodeIdList);
+			taxonomy.put(CODE_ID, taxonomyCodeIdList);
 		}
+		PartyCustomField partyCustomFieldFeatured = partyService.getPartyCustomeField(user.getPartyUid(), IS_FEATURED_USER, null);
 		
-		meta.put(USER_TAX_PREFERENCE, metaData);
+		if(partyCustomFieldFeatured != null && partyCustomFieldFeatured.getOptionalValue() != null && partyCustomFieldFeatured.getOptionalValue().length() > 0){
+			meta.put(FEATURED_USER, Boolean.parseBoolean(partyCustomFieldFeatured.getOptionalValue()));
+		}
+		meta.put(USER_TAX_PREFERENCE, taxonomy);
 		return meta;
 	}
 
