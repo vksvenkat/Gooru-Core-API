@@ -23,6 +23,7 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.controllers.v2.api;
 
+import java.io.FileNotFoundException;
 import java.util.Iterator;
 import java.util.List;
 
@@ -57,6 +58,7 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomT
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -213,6 +215,26 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 		}
 		return toModelAndViewWithIoFilter(identity, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
+	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SESSION_CHECK })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(method = RequestMethod.GET, value = "/check-reset-token")
+	public ModelAndView checkValidToken(HttpServletRequest request, @RequestParam String resetToken, HttpServletResponse response) throws Exception {
+		ModelAndView jsonmodel = new ModelAndView(REST_MODEL);
+		JSONObject jsonObj = new JSONObject();
+		if(resetToken != null){
+			if (this.getUserService().hasResetTokenValid(resetToken)) {
+				jsonmodel.addObject(MODEL, jsonObj.put(IS_VALID_TOKEN, FALSE));
+			} else {
+				jsonmodel.addObject(MODEL, jsonObj.put(IS_VALID_TOKEN, TRUE));
+			}
+		} else {
+			throw new FileNotFoundException("token not found!!!");
+		}
+		return jsonmodel;
+	}
+	
+	
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
