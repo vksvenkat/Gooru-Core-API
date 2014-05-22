@@ -576,11 +576,17 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			}
 			List<CollectionItem> collectionItems = this.getCollectionRepository().getCollectionItemByAssociation(collectionId, null);
 			if (collectionItems.size() > 0) {
-				for(CollectionItem item : collectionItems){
+				for (CollectionItem item : collectionItems) {
 					this.deleteCollectionItem(item.getCollectionItemId(), user);
 				}
 			}
 			this.getCollectionRepository().remove(Collection.class, collection.getContentId());
+			for (CollectionItem item : collectionItems) {
+				Collection parentCollection = item.getCollection();
+				if (parentCollection.getCollectionType().equals(FOLDER)) {
+					updateFolderSharing(parentCollection.getGooruOid());
+				}
+			}
 			
 		} else {
 			throw new NotFoundException(generateErrorMessage(GL0056, _COLLECTION));

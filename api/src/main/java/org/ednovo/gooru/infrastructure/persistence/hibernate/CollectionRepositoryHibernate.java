@@ -614,7 +614,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		if (!orderBy.equals(PLANNED_END_DATE)) {
 			hql += "order by collectionItems.associationDate desc ";
 		} else {
-			hql += "order by collectionItems.plannedEndDate desc ";
+			hql += "order by collectionItems.plannedEndDate asc ";
 		}
 		
 		Query query = session.createQuery(hql);
