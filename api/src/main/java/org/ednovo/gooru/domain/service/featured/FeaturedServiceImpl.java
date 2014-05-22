@@ -773,9 +773,9 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 
 				}
 				collection.put("taxonomyMappingSet", codeParentsMap);
-				collection.put("libraryCollection", featuredCollection);
-				collection.put(SUBJECT_CODE, object[6]);
-				collection.put(THEME_CODE, object[7]);
+				collection.put("libraryCollection", featuredCollection);	
+				collection.put(THEME_CODE, object[6]);
+				collection.put(SUBJECT_CODE, object[7]);
 				collection.put("featuredSetId",object[8]);
 				if (lastUpdatedUser != null) {
 					collection.put(LAST_MODIFIED_BY, lastUpdatedUser.getUsername());

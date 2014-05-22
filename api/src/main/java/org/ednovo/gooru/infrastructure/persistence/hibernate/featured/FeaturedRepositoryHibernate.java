@@ -122,11 +122,11 @@ public class FeaturedRepositoryHibernate extends BaseRepositoryHibernate impleme
 
 		String sql = "select count(1) as count from code c inner join featured_set_items fs inner join featured_set f on (f.featured_set_id = fs.featured_set_id and fs.code_id = c.code_id) inner join content ct inner join collection cn on (ct.content_id = cn.content_id) inner join resource r on (cn.content_id = r.content_id and fs.content_id = r.content_id)";
 		if (themeCode != null && themeType != null) {
-			sql += " where fs.subject_code_id =:themeType and fs.theme_code =:themeCode";
+			sql += " where f.subject_code_id =:themeType and f.theme_code =:themeCode";
 		} else if (themeType != null) {
-			sql += " where fs.subject_code_id =:themeType";
+			sql += " where f.subject_code_id =:themeType";
 		} else if (themeCode != null) {
-			sql += " where fs.theme_code =:themeCode";
+			sql += " where f.theme_code =:themeCode";
 		}
 
 		if (gooruOid != null) {
