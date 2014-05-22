@@ -2059,6 +2059,8 @@ public interface ParameterProperties {
 	String CONTENT_SHARE = "content-share";
 
 	String IS_AUTHENTICATED = "isAuthenticated";
+	
+	String IS_VALID_TOKEN = "isValidToken";
 
 	String CHECK_SESSION = "check-session";
 
