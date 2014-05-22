@@ -246,4 +246,12 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 		}
 		return null;
 	}
+	
+	@Override
+	public Organization getOrganizationByIdpName(String idpDomainName) {
+		if(idpDomainName != null){
+			return (Organization) organizationRepository.getOrganizationByIdpName(idpDomainName);
+		}
+		return null;
+	}
 }

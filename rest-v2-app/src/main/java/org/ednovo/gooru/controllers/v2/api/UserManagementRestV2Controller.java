@@ -219,7 +219,7 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SESSION_CHECK })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/check-reset-token")
-	public ModelAndView checkValidToken(HttpServletRequest request, @RequestParam String resetToken, HttpServletResponse response) throws Exception {
+	public ModelAndView checkResetToken(HttpServletRequest request, @RequestParam String resetToken, HttpServletResponse response) throws Exception {
 		ModelAndView jsonmodel = new ModelAndView(REST_MODEL);
 		JSONObject jsonObj = new JSONObject();
 		if(resetToken != null){
