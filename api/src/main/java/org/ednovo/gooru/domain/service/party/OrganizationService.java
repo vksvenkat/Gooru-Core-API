@@ -50,4 +50,5 @@ public interface OrganizationService {
 
 	OrganizationSetting getOrganizationSetting(String organizationUid, String key) throws Exception;
 	
+	Organization getOrganizationByIdpName(String idpDomainName);
 }
