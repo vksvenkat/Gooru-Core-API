@@ -23,7 +23,9 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.controllers.v2.api;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -31,6 +33,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.ArrayUtils;
 import org.ednovo.gooru.controllers.BaseController;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
+import org.ednovo.gooru.core.api.model.CollectionType;
 import org.ednovo.gooru.core.api.model.ContentTagAssoc;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.Tag;
@@ -141,11 +144,12 @@ public class TagRestV2Controller extends BaseController implements ParameterProp
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAG_READ })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/{id}/content")
-	public ModelAndView getTagContentAssoc(@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, @PathVariable(ID) String tagGooruOid, HttpServletRequest request,
+	public ModelAndView getTagContentAssoc(@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, 
+			@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, @PathVariable(ID) String tagGooruOid, 
+			@RequestParam(value = SKIP_PAGINATION, required = false, defaultValue = TRUE) boolean skipPagination ,HttpServletRequest request,
 			HttpServletResponse response) throws Exception {
 		request.setAttribute(PREDICATE, "tag.read");
-		List<ContentTagAssoc> contentTagAssocs = this.getTagService().getTagContentAssoc(tagGooruOid, limit, offset);
-
+		List<ContentTagAssoc> contentTagAssocs = this.getTagService().getTagContentAssoc(tagGooruOid, limit, offset, skipPagination);
 		SessionContextSupport.putLogParameter(EVENT_NAME, "get-tag using gooruOid");
 		SessionContextSupport.putLogParameter(TAG_GOORU_OID, tagGooruOid);
 		return toModelAndViewWithIoFilter(contentTagAssocs, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, CONTENT_ASSOC_INCLUDES);
