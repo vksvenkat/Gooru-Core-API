@@ -110,12 +110,14 @@ public class TagRepositoryHibernate extends BaseRepositoryHibernate implements T
 	}
 
 	@Override
-	public List<ContentTagAssoc> getTagContentAssoc(String tagGooruOid, Integer limit, Integer offset) {
+	public List<ContentTagAssoc> getTagContentAssoc(String tagGooruOid, Integer limit, Integer offset, boolean skipPagination) {
 		Session session = getSession();
 		String hql = "select contentTagAssoc From ContentTagAssoc contentTagAssoc where contentTagAssoc.tagGooruOid='"+tagGooruOid+"'" ;
 		Query query = session.createQuery(hql);
-		query.setFirstResult(offset);
-		query.setMaxResults(limit);
+		if (!skipPagination) {
+			query.setFirstResult(offset);
+			query.setMaxResults(limit);
+		}
 		return query.list();
 	}
 
