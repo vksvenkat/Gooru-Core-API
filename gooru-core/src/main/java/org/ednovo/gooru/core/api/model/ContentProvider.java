@@ -2,7 +2,7 @@ package org.ednovo.gooru.core.api.model;
 
 import java.io.Serializable;
 
-public class ContentProvider implements Serializable{
+public class ContentProvider  extends OrganizationModel implements Serializable{
 
 	/**
 	 * 
@@ -13,7 +13,7 @@ public class ContentProvider implements Serializable{
 	
 	private String contentProviderName;
 	
-	private String contentProviderType;
+	private CustomTableValue contentProviderType;
 
 	public String getContentProviderUid() {
 		return contentProviderUid;
@@ -31,11 +31,11 @@ public class ContentProvider implements Serializable{
 		this.contentProviderName = contentProviderName;
 	}
 
-	public String getContentProviderType() {
+	public CustomTableValue getContentProviderType() {
 		return contentProviderType;
 	}
 
-	public void setContentProviderType(String contentProviderType) {
+	public void setContentProviderType(CustomTableValue contentProviderType) {
 		this.contentProviderType = contentProviderType;
 	}
 

@@ -188,5 +188,18 @@ public class CustomProperties implements Serializable {
 			return this.applicationStatus;
 		}
 	}
+	
+	public static enum ContentProviderType {
+		PUBLISHER("publisher"), AGGREGATOR("aggregator");
+		private String contentProviderType;
+
+		ContentProviderType(String contentProviderType) {
+			this.contentProviderType = contentProviderType;
+		}
+
+		public String getContentProviderType() {
+			return this.contentProviderType;
+		}
+	}
 
 }
