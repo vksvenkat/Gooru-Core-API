@@ -187,8 +187,8 @@ public class TagServiceImpl extends BaseServiceImpl implements TagService, Param
 	}
 
 	@Override
-	public List<ContentTagAssoc> getTagContentAssoc(String tagGooruOid, Integer limit, Integer offset) {
-		return this.getTagRepository().getTagContentAssoc(tagGooruOid, limit, offset);
+	public List<ContentTagAssoc> getTagContentAssoc(String tagGooruOid, Integer limit, Integer offset, boolean skipPagination) {
+		return this.getTagRepository().getTagContentAssoc(tagGooruOid, limit, offset, skipPagination);
 	}
 
 	@Override

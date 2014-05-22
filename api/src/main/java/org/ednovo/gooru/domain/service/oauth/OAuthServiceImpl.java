@@ -112,6 +112,10 @@ public class OAuthServiceImpl extends ServerValidationUtils implements OAuthServ
 			if(organizationUId != null){
 				Organization organization = organizationRepository.getOrganizationByUid(organizationUId);
 				oAuthClientNew.setOrganization(organization);
+				if(oAuthClient.getUserUid() != null) {
+					User user = userRepository.findByGooruId(oAuthClient.getUserUid());
+					oAuthClientNew.setUser(user);
+				}	
 				
 			}else{
 				if(oAuthClient.getUserUid() != null) {
