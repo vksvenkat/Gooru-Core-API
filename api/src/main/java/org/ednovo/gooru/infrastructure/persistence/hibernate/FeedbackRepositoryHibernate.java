@@ -237,11 +237,11 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 		Map<Object, Object> value = new HashMap<Object, Object>();
 		for (Object[] object : results) {
 			value.put(object[0], object[1]);
-			sum += ((Integer) object[1]);
+			sum += ((Integer) object[0]) + ((Integer) object[1]);
 		}
 		rating.put("scores", value);
 		rating.put("average", results.size() > 0 ? Double.parseDouble(new DecimalFormat("##.#").format(sum/results.size())) : sum);
-		rating.put("count",sum);
+		rating.put("count",results.size());
 		return rating; 
 	}
 
