@@ -26,6 +26,7 @@ package org.ednovo.gooru.infrastructure.persistence.hibernate.resource;
 import java.util.List;
 import java.util.Map;
 
+import org.ednovo.gooru.core.api.model.ContentProvider;
 import org.ednovo.gooru.core.api.model.CsvCrawler;
 import org.ednovo.gooru.core.api.model.License;
 import org.ednovo.gooru.core.api.model.Resource;
@@ -154,5 +155,7 @@ public interface ResourceRepository extends BaseRepository {
 	Resource findLtiResourceByContentGooruId(String gooruContentId);
 
 	List<String> getResourceSourceAttribution();
+	
+	List<ContentProvider> getResourceContentProvierList();
 
 }
