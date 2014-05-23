@@ -41,7 +41,7 @@ public interface UserManagementService extends BaseService {
 
 	Set<String> checkContentAccess(User authenticationUser, String contentgooruId);
 	
-	Map<String, Map<String, Object>> userMeta(User user);
+	Map<String, Object> userMeta(User user);
 
 	User findByGooruId(String gooruId);
 
