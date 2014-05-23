@@ -265,7 +265,6 @@ public class ContentRepositoryHibernate extends BaseRepositoryHibernate implemen
 		String hql = " FROM ContentProviderAssociation contentProviderAssociation WHERE " + generateOrgAuthQueryWithData("contentProvider.") + " and " + "contentProviderAssociation.gooruOid=:gooruOid";
 		Query query = session.createQuery(hql);
 		query.setParameter("gooruOid", gooruOid);
-		getLogger().error("Query ", query.toString());
 		return query.list();
 	}
 
