@@ -241,7 +241,6 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		if (user == null) {
 			throw new AccessDeniedException(ACCESS_DENIED_EXCEPTION);
 		}
-		// user.getGooruUId().equalsIgnoreCase("anonyms");
 		Profile profile = this.getUserService().getProfile(user);
 		if (showProfilePage != null) {
 			PartyCustomField partyCustomField = new PartyCustomField();
