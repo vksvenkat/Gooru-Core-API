@@ -26,7 +26,6 @@ package org.ednovo.gooru.infrastructure.persistence.hibernate.party;
 import java.util.List;
 
 import org.ednovo.gooru.core.api.model.Organization;
-import org.ednovo.gooru.core.api.model.OrganizationSetting;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepository;
 
 public interface OrganizationRepository extends BaseRepository {
@@ -38,4 +37,6 @@ public interface OrganizationRepository extends BaseRepository {
 	List<Organization> listOrganization();
 
 	Organization getOrganizationByUid(String organizationUid);
+	
+	Organization getOrganizationByIdpName(String idpDomainName);
 }
