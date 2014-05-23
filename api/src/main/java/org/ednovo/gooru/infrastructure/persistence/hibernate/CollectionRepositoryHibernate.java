@@ -614,9 +614,9 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		if (!orderBy.equals(PLANNED_END_DATE)) {
 			hql += "order by collectionItems.associationDate desc ";
 		} else {
-			hql += "order by collectionItems.plannedEndDate asc ";
+			hql += "order by IFNULL(collectionItems.plannedEndDate, (SUBSTRING(now(), 1, 4) + 1000)) asc ";
 		}
-		
+		 
 		Query query = session.createQuery(hql);
 		query.setParameter("gooruOid", collectionId);
 		addOrgAuthParameters(query);
