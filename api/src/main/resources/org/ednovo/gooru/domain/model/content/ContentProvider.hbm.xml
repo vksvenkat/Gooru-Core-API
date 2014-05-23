@@ -27,6 +27,8 @@
 		</id>
 		<property name="ContentProviderName" column="name" not-null="true">
 		</property>
+		<property name="activeFlag" column="active_flag" not-null="true">
+		</property>
 
 		<many-to-one name="ContentProviderType"
 			class="org.ednovo.gooru.core.api.model.CustomTableValue" column="content_provider_type"
