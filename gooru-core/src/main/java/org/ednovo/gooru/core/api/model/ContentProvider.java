@@ -14,6 +14,8 @@ public class ContentProvider  extends OrganizationModel implements Serializable{
 	private String contentProviderName;
 	
 	private CustomTableValue contentProviderType;
+	
+	private boolean activeFlag;
 
 	public String getContentProviderUid() {
 		return contentProviderUid;
@@ -37,6 +39,14 @@ public class ContentProvider  extends OrganizationModel implements Serializable{
 
 	public void setContentProviderType(CustomTableValue contentProviderType) {
 		this.contentProviderType = contentProviderType;
+	}
+
+	public boolean isActiveFlag() {
+		return activeFlag;
+	}
+
+	public void setActiveFlag(boolean activeFlag) {
+		this.activeFlag = activeFlag;
 	}
 
 }
