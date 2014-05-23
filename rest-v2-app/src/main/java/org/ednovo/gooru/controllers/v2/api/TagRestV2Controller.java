@@ -23,9 +23,7 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.controllers.v2.api;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -33,7 +31,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.ArrayUtils;
 import org.ednovo.gooru.controllers.BaseController;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
-import org.ednovo.gooru.core.api.model.CollectionType;
 import org.ednovo.gooru.core.api.model.ContentTagAssoc;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.Tag;
