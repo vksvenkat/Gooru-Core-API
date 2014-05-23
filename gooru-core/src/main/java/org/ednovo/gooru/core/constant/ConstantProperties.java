@@ -71,7 +71,7 @@ public interface ConstantProperties {
 
 	static final String COLLECTION_ITEM_TAGS[] = { "*.tagSet", "*.label", "*.type", "*.resourceType" };
 
-	static final String COLLECTION_TAXONOMY[] = { "*.taxonomySet", "*.taxonomySetMapping","*.lastModifiedUser" };
+	static final String COLLECTION_TAXONOMY[] = { "*.taxonomySet", "*.taxonomySetMapping.*","*.lastModifiedUser" };
 
 	static final String COLLECTION_WORKSPACE[] = { "*.resourceCount" };
 
