@@ -58,7 +58,7 @@ public class OrganizationRepositoryHibernate extends BaseRepositoryHibernate imp
 	
 	@Override
 	public Organization getOrganizationByIdpName(String idpDomainName) {
-		String hql = "FROM Organization organization WHERE organization.domain.name = '" + idpDomainName + "'";
+		String hql = "SELECT organizationDomainAssoc.organization FROM OrganizationDomainAssoc organizationDomainAssoc WHERE organizationDomainAssoc.domain.name = '" + idpDomainName + "'";
 		return get(hql);
 	}
 
