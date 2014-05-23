@@ -115,13 +115,14 @@ public class GooruInterceptor extends HandlerInterceptorAdapter {
 	public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
 		Long endTime = System.currentTimeMillis();
 		SessionContextSupport.putLogParameter("endTime", endTime);
-		Long startTime = request.getDateHeader("startTime");
+		Long startTime = SessionContextSupport.getLog() != null ? (Long)SessionContextSupport.getLog().get("startTime") : 0;
 		Long totalTimeSpentInMs = endTime - startTime ;
 		JSONObject metrics = new JSONObject();
 		metrics.put("totalTimeSpentInMs", totalTimeSpentInMs);
 		SessionContextSupport.putLogParameter("metrics", metrics.toString());	
 		Map<String, Object> log = SessionContextSupport.getLog();
 		String logString = SERIALIZER.deepSerialize(log);
+		logger.debug(logString);
 		if (logString != null) {
 			try {
 				kafkaService.sendEventLog(logString);

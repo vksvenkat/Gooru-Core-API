@@ -33,6 +33,8 @@
 		<many-to-one name="feedbackProvidedBy"
 			class="org.ednovo.gooru.core.api.model.User" column="feedback_provider_uid"
 			not-null="true" lazy="proxy" cascade="none" />
+		
+		<property name="playLoadObject" column="play_load" not-null="false" />
 						
 	</class>
 </hibernate-mapping>
