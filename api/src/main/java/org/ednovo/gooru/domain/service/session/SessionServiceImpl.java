@@ -306,7 +306,6 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 	private void getEventLogs(SessionItemFeedback sessionItemFeedback, User user) throws JSONException {
 		SessionContextSupport.putLogParameter(EVENT_NAME, "resource.user.feedback");
 		JSONObject context = SessionContextSupport.getLog().get("context") != null ? new JSONObject(SessionContextSupport.getLog().get("context").toString()) :  new JSONObject();
-		context.put("gooruUId", sessionItemFeedback.getUser().getGooruUId());
 		context.put("contentGooruOId", sessionItemFeedback.getContentGooruOId());
 		context.put("contentItemId", sessionItemFeedback.getContentItemId());
 		context.put("parentGooruOId", sessionItemFeedback.getParentGooruOId());
