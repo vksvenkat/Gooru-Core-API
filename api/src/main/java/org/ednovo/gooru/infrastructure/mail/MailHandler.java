@@ -109,6 +109,8 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 	public static final String PASSWORD_RESET = "passwordReset";
 
 	private static final String FROM = "Gooru Accounts";
+	
+	public static final String FROM_GOORU = "Gooru";
 
 	private static final String PASSWORD_CONFIRM_SUBJECT = "Gooru Password Change Confirmation";
 
@@ -914,7 +916,7 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 			map.put(CONTENT, generateMessage((String) map.get(TEXTCONTENT), map));
 			map.put("from", getConfigSetting(ConfigConstants.MAIL_FROM, TaxonomyUtil.GOORU_ORG_UID));
 			map.put(BCC, getConfigSetting(ConfigConstants.MAIL_BCC_SUPPORT, TaxonomyUtil.GOORU_ORG_UID));
-			map.put(FROMNAME, inviteUser);
+			map.put(FROMNAME, FROM_GOORU);
 			sendMailViaRestApi(map);
 	}
 
