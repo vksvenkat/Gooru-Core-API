@@ -314,10 +314,10 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 		JSONObject payLoadObject = SessionContextSupport.getLog().get("payLoadObject") != null ? new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString()) :  new JSONObject();
 		payLoadObject =  sessionItemFeedback.getPlayLoadObject() != null ? new JSONObject(sessionItemFeedback.getPlayLoadObject()) :  new JSONObject();
 		payLoadObject.put("text", sessionItemFeedback.getFreeText());
-		payLoadObject.put("sessionId", sessionItemFeedback.getSessionId());
 		payLoadObject.put("feedbackProviderUId", sessionItemFeedback.getFeedbackProvidedBy().getPartyUid());
 		SessionContextSupport.putLogParameter("payLoadObject", payLoadObject.toString());
 		JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session").toString()) :  new JSONObject();
+		session.put("sessionId", sessionItemFeedback.getSessionId());
 		session.put("organizationUId", user.getOrganization().getPartyUid());
 		SessionContextSupport.putLogParameter("session", session.toString());		
 	}
