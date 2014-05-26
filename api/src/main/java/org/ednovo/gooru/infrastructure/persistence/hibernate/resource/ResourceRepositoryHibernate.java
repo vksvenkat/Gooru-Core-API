@@ -997,7 +997,6 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
             query.setFirstResult(0);
             query.setMaxResults(200);
             List<ContentProvider> contentProviderList = (List<ContentProvider>) query.list();
-            System.out.println("contentProviderList count : " + contentProviderList.size());
             return (contentProviderList != null && contentProviderList.size() > 0 ) ? contentProviderList : null;
 	 }
 	 
