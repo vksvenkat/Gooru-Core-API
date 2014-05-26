@@ -267,7 +267,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 					resourceFormat.put(DISPLAY_NAME, object[9]);
 					collection.put(RESOURCEFORMAT, resourceFormat);
 				}
-
+				collection.put(REACTION_AGGREGATE,this.getFeedbackService().getContentFeedbackAggregate(String.valueOf(object[1]), REACTION));
 				if (object[10] != null) {
 					Map<String, Object> resourceSource = new HashMap<String, Object>();
 					resourceSource.put(ATTRIBUTION, object[10]);
@@ -359,6 +359,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				if (object[9] != null) {
 					item.put(GOALS, object[9]);
 				}
+				item.put(REACTION_AGGREGATE,this.getFeedbackService().getContentFeedbackAggregate(gooruOid, REACTION));
 				if (object[10] != null) {
 					Map<String, Object> resourceSource = new HashMap<String, Object>();
 					resourceSource.put(ATTRIBUTION, object[10]);
