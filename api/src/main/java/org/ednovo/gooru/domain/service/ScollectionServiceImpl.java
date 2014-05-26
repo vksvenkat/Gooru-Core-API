@@ -1953,8 +1953,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		collection.put("collectionItems", collectionItems);
 		collection.put("goals", CollectionObj.getGoals());
 		collection.put("thumbnails", CollectionObj.getThumbnails());
-		collection.put(REACTION_AGGREGATE,this.getFeedbackService().getContentFeedbackAggregate(gooruOid, REACTION));
-		
 		collection.put("gooruOid", CollectionObj.getGooruOid());
 		collection.put("title", CollectionObj.getTitle());
 		return collection;
