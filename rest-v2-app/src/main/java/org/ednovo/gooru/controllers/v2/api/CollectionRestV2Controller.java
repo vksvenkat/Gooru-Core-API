@@ -137,7 +137,7 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
 	@RequestMapping(value = { "/{id}" }, method = RequestMethod.GET)
 	public ModelAndView getCollection(@PathVariable(value = ID) String collectionId, @RequestParam(value = INCLUDE_COLLECTION_ITEM, required = false, defaultValue = TRUE) boolean includeCollectionItem,
-			@RequestParam(value = INLCLUDE_META_INFO, required = false, defaultValue = FALSE) boolean includeMetaInfo, @RequestParam(value = INCLUDE_COLLABORATOR, required = false, defaultValue = FALSE) boolean includeCollaborator,
+			@RequestParam(value = INLCLUDE_META_INFO, required = false, defaultValue = FALSE) boolean includeMetaInfo, @RequestParam(value = INCLUDE_COLLABORATOR, required = false, defaultValue = FALSE) boolean includeCollaborator, @RequestParam(value = "isGat", required = false, defaultValue = FALSE) boolean isGat,
 			@RequestParam(value = INCLUDE_RELATED_CONTENT, required = false, defaultValue = FALSE) boolean includeRelatedContent, @RequestParam(value = "merge", required = false) String merge, @RequestParam(value = "requestContext", required = false, defaultValue="edit-play") String requestContext, @RequestParam(value = ROOT_NODE_ID, required = false) String rootNodeId, HttpServletRequest request, HttpServletResponse response) {
 		User user = (User) request.getAttribute(Constants.USER);
 		Collection collection = null;
@@ -160,13 +160,14 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 			}
 			if (includeMetaInfo) {
 				includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_META_INFO);
-				includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_TAXONOMY);
 			}
+			includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_TAXONOMY);
+			
 			if (includeRelatedContent) {
 				includes = (String[]) ArrayUtils.add(includes, "*.contentAssociation");
 			}
 			includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_ITEM_TAGS);
-		    collection = getCollectionService().getCollection(collectionId, includeMetaInfo, includeCollaborator, includeRelatedContent, user, merge, rootNodeId);
+		    collection = getCollectionService().getCollection( collectionId, includeMetaInfo, includeCollaborator, includeRelatedContent, user, merge, rootNodeId, isGat);
 		    return toModelAndViewWithIoFilter(collection, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 		}	
 		

@@ -992,8 +992,10 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 
 	 @Override
 	 public List<ContentProvider> getResourceContentProvierList() {
-			String hql = "From ContentProvider ";
+			String hql = "From ContentProvider where activeFlag=1";
 			Query query = getSession().createQuery(hql);
+            query.setFirstResult(0);
+            query.setMaxResults(200);
             List<ContentProvider> contentProviderList = (List<ContentProvider>) query.list();
             return (contentProviderList != null && contentProviderList.size() > 0 ) ? contentProviderList : null;
 	 }

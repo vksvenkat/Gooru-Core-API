@@ -71,7 +71,7 @@ public interface ConstantProperties {
 
 	static final String COLLECTION_ITEM_TAGS[] = { "*.tagSet", "*.label", "*.type", "*.resourceType" };
 
-	static final String COLLECTION_TAXONOMY[] = { "*.taxonomySet", "*.taxonomySetMapping","*.lastModifiedUser" };
+	static final String COLLECTION_TAXONOMY[] = { "*.taxonomySet", "*.taxonomySetMapping.*","*.lastModifiedUser" };
 
 	static final String COLLECTION_WORKSPACE[] = { "*.resourceCount" };
 
@@ -296,7 +296,7 @@ public interface ConstantProperties {
 
 	static final String[] OPTIONS_INCLUDE = { "*.isRandomize", "*.isRandomizeChoice", "*.showCorrectAnswer", "*.showHints", "*.showScore" };
 
-	static final String FEEDBACK_INCLUDE_FIELDS[] = {"*.searchResults","*.feedback","*.totalHitCount", "*.gooruOid", "*.target.value", "*.type.value", "*.category.value", "*.freeText", "*.score", "*.assocGooruOid", "*.assocUserUid", "*.creator.gooruUId", "*.creator.username", "*.creator.firstName", "*.creator.lastName", "*.referenceKey" };
+	static final String FEEDBACK_INCLUDE_FIELDS[] = {"*.searchResults","*.feedback","*.totalHitCount", "*.gooruOid", "*.target.value", "*.type.value", "*.category.value", "*.freeText", "*.score", "*.assocGooruOid", "*.assocUserUid", "*.creator.gooruUId", "*.creator.username", "*.creator.firstName", "*.creator.lastName", "*.referenceKey", "*.createdDate" };
 
 	static final String[] CONTENT_INCLUDES = { "gooruOid", "sharing", "createdOn", "lastModified", "lastUpdatedUserUid", "statusType", "statusType.value", "isDeleted", "", "", "", "", "", "" };
 
