@@ -85,7 +85,6 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepositor
 import org.ednovo.gooru.infrastructure.persistence.hibernate.classplan.LearnguideRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.collaborator.CollaboratorRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentAssociationRepository;
-import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentAssociationRepositoryHibernate;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentRepositoryHibernate;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.question.CommentRepository;
