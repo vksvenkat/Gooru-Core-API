@@ -36,6 +36,7 @@ import java.util.UUID;
 import org.apache.commons.lang.StringUtils;
 import org.ednovo.gooru.application.util.DatabaseUtil;
 import org.ednovo.gooru.application.util.ResourceImageUtil;
+import org.ednovo.gooru.core.api.model.ContentProvider;
 import org.ednovo.gooru.core.api.model.ContentType;
 import org.ednovo.gooru.core.api.model.CsvCrawler;
 import org.ednovo.gooru.core.api.model.License;
@@ -987,6 +988,14 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
             query.setMaxResults(200);
             List<String> resourceSourceAttributionList = (List<String>) query.list();
             return (resourceSourceAttributionList != null && resourceSourceAttributionList.size() > 0 ) ? resourceSourceAttributionList : null;
+	 }
+
+	 @Override
+	 public List<ContentProvider> getResourceContentProvierList() {
+			String hql = "From ContentProvider where activeFlag=1";
+			Query query = getSession().createQuery(hql);
+            List<ContentProvider> contentProviderList = (List<ContentProvider>) query.list();
+            return (contentProviderList != null && contentProviderList.size() > 0 ) ? contentProviderList : null;
 	 }
 	 
 }

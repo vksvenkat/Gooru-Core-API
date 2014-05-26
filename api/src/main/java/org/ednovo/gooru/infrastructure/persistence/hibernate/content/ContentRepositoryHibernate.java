@@ -252,7 +252,7 @@ public class ContentRepositoryHibernate extends BaseRepositoryHibernate implemen
 	@Override
 	public List<ContentProvider> getContentProvider(Integer offset, Integer limit) {
 		Session session = getSession();
-		String hql = " FROM ContentProvider contentProvider WHERE "  + generateOrgAuthQueryWithData("contentProvider.");
+		String hql = " FROM ContentProvider contentProvider WHERE "  + generateOrgAuthQueryWithData("contentProvider.") + " and " + "contentProvider.activeFlag = 1";
 		Query query = session.createQuery(hql);
 		query.setFirstResult(offset);
 		query.setMaxResults(limit);
@@ -262,7 +262,7 @@ public class ContentRepositoryHibernate extends BaseRepositoryHibernate implemen
 	@Override
 	public List<ContentProviderAssociation> getContentProviderByGooruOid(String gooruOid) {
 		Session session = getSession();
-		String hql = " FROM ContentProviderAssociation contentProviderAssociation WHERE " + generateOrgAuthQueryWithData("contentProvider.") + " and " + "contentProviderAssociation.gooruOid=:gooruOid";
+		String hql = " FROM ContentProviderAssociation contentProviderAssociation WHERE " + generateOrgAuthQueryWithData("contentProvider.") + " and " + "contentProviderAssociation.gooruOid=:gooruOid" + " and " + "contentProviderAssociation.contentProvider.activeFlag = 1";
 		Query query = session.createQuery(hql);
 		query.setParameter("gooruOid", gooruOid);
 		return query.list();
