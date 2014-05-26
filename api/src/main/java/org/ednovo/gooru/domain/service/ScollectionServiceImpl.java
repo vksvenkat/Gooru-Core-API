@@ -813,12 +813,14 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 
 	@Override
-	public Collection getCollection(String collectionId, boolean includeMetaInfo, boolean includeCollaborator, boolean isContentFlag, User user, String merge, String rootNodeId) {
+	public Collection getCollection(String collectionId, boolean includeMetaInfo, boolean includeCollaborator, boolean isContentFlag, User user, String merge, String rootNodeId, boolean isGat) {
 		Collection collection = this.getCollectionRepository().getCollectionByGooruOid(collectionId, null);
 		boolean isCollaborator = this.getCollaboratorRepository().findCollaboratorById(collectionId, user.getGooruUId()) != null ? true : false;
 		if (collection != null && (collection.getUser().getGooruUId().equalsIgnoreCase(user.getGooruUId()) || !collection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || userService.isContentAdmin(user) || isCollaborator)) {
 			if (includeMetaInfo) {
 				this.setColletionMetaData(collection, user, merge, false, rootNodeId);
+			}
+			if(isGat){
 				collection.setTaxonomySetMapping(TaxonomyUtil.getTaxonomyMapByCode(collection.getTaxonomySet(), taxonomyService));
 			}
 			if (collection.getUser() != null) {
@@ -1258,7 +1260,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		Collection targetCollection = null;
 		boolean hasSameCollection = false;
 		if (collectionId != null) {
-			targetCollection = this.getCollection(collectionId, false, false, false, sourceCollectionItem.getCollection().getUser(), null, null);
+			targetCollection = this.getCollection(collectionId, false, false, false, sourceCollectionItem.getCollection().getUser(), null, null,false);
 		}
 		if (targetCollection == null) {
 			targetCollection = sourceCollectionItem.getCollection();
@@ -1608,7 +1610,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	@Override
 	public Collection copyCollection(String collectionId, Collection newCollection, boolean addToShelf, String parentId, User user) throws Exception {
 
-		Collection sourceCollection = this.getCollection(collectionId, false, false, false, user, null, null);
+		Collection sourceCollection = this.getCollection(collectionId, false, false, false, user, null, null,false);
 		Collection destCollection = null;
 		if (sourceCollection != null) {
 			destCollection = new Collection();
