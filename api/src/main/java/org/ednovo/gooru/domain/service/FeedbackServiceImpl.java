@@ -32,6 +32,7 @@ import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.CustomTableValue;
 import org.ednovo.gooru.core.api.model.Feedback;
 import org.ednovo.gooru.core.api.model.Resource;
+import org.ednovo.gooru.core.api.model.ResourceSummary;
 import org.ednovo.gooru.core.api.model.ResourceType;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.User;
@@ -360,10 +361,18 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 			Feedback contentFeedback = this.getFeedbackRepository().getContentFeedback(feedbackType.getKeyValue(), feedback.getAssocGooruOid(), feedback.getCreator().getGooruUId());
 			if (contentFeedback != null) {
 				contentFeedback.setScore(feedback.getScore());
+				
 				if (feedback.getFreeText() != null) {
 					contentFeedback.setFreeText(feedback.getFreeText());
 				}
 				this.getFeedbackRepository().save(contentFeedback);
+				Map<String, Object> summary = this.getContentFeedbackStarRating(feedback.getAssocGooruOid());
+				ResourceSummary resourceSummary = new ResourceSummary();
+				resourceSummary.setGooruOid(feedback.getAssocGooruOid());
+				resourceSummary.setRatingStarCount((Double)summary.get("count"));
+				resourceSummary.setRatingStarAvg((Long)summary.get("average"));
+				this.getFeedbackRepository().save(resourceSummary);
+				this.getFeedbackRepository().flush();
 				return contentFeedback;
 			}
 		}
