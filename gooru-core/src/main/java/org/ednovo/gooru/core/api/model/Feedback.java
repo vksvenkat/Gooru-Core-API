@@ -3,10 +3,6 @@ package org.ednovo.gooru.core.api.model;
 import java.util.Date;
 import java.util.List;
 
-import org.ednovo.gooru.core.api.model.CustomTableValue;
-import org.ednovo.gooru.core.api.model.OrganizationModel;
-import org.ednovo.gooru.core.api.model.User;
-
 
 public class Feedback extends OrganizationModel {
 
@@ -28,6 +24,7 @@ public class Feedback extends OrganizationModel {
 	private CustomTableValue product;
 	private String contextPath;
 	private String notes;
+	private Date lastModifiedOn;
 	
 	
 	public Feedback() {	}
@@ -173,4 +170,11 @@ public class Feedback extends OrganizationModel {
 	public void setNotes(String notes) {
 		this.notes = notes;
 	}
+	public Date getLastModifiedOn() {
+		return lastModifiedOn;
+	}
+	public void setLastModifiedOn(Date lastModifiedOn) {
+		this.lastModifiedOn = lastModifiedOn;
+	}
+	
 }
