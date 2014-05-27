@@ -56,4 +56,6 @@ public interface ColumnFamilyConstant {
 	String CUSTOM_FILEDS_DATA = "custom_fields_data";
 	
 	String CUSTOM_FILEDS_DEFINITION = "custom_fields_definition";
+	
+	String CONTENT_PROVIDER="content_provider";
 }
