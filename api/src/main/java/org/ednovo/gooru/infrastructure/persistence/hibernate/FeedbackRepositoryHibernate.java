@@ -102,6 +102,7 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 		if (creatorUid != null) {
 			hql += " and feedback.creator.partyUid =:creatorUid";
 		}
+		hql += " order by  feedback.lastModifiedOn desc";
 		Query query = session.createQuery(hql);
 		query.setParameter("assocGooruOid", assocGooruOid);
 		if (type != null) {
