@@ -63,7 +63,9 @@ public class SCollectionCo {
     
 	@Column
 	private String instructionMethod;
-	
+		
+	@Column
+	private String languageObjective;
 	
 	public String getDepthOfknowledge() {
 		return depthOfknowledge;
@@ -207,6 +209,14 @@ public class SCollectionCo {
 
 	public void setResourceCount(String resourceCount) {
 		this.resourceCount = resourceCount;
+	}
+
+	public void setLanguageObjective(String languageObjective) {
+		this.languageObjective = languageObjective;
+	}
+
+	public String getLanguageObjective() {
+		return languageObjective;
 	}
 	
 }
