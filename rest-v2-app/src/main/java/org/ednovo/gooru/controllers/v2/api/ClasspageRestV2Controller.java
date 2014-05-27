@@ -374,7 +374,7 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 		if(classpage.getSharing() != null && (classpage.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || classpage.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing()))) {
 			classpage.setSharing(classpage.getSharing());
 		} else {
-			classpage.setSharing(Sharing.PRIVATE.getSharing());
+			classpage.setSharing(Sharing.PUBLIC.getSharing());
 		}
 		
 		return classpage;
