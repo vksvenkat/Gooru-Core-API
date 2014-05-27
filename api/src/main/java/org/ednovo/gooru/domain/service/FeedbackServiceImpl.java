@@ -366,11 +366,14 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 					contentFeedback.setFreeText(feedback.getFreeText());
 				}
 				this.getFeedbackRepository().save(contentFeedback);
+				ResourceSummary resourceSummary = this.getResourceRepository().getResourceSummaryById(feedback.getAssocGooruOid());
 				Map<String, Object> summary = this.getContentFeedbackStarRating(feedback.getAssocGooruOid());
-				ResourceSummary resourceSummary = new ResourceSummary();
-				resourceSummary.setGooruOid(feedback.getAssocGooruOid());
-				resourceSummary.setRatingStarCount((Double)summary.get("count"));
-				resourceSummary.setRatingStarAvg((Long)summary.get("average"));
+				if (resourceSummary == null) {
+					resourceSummary = new ResourceSummary();
+					resourceSummary.setResourceGooruOid(feedback.getAssocGooruOid());
+				}
+				resourceSummary.setRatingStarCount((Double) summary.get("count"));
+				resourceSummary.setRatingStarAvg((Long) summary.get("average"));
 				this.getFeedbackRepository().save(resourceSummary);
 				this.getFeedbackRepository().flush();
 				return contentFeedback;

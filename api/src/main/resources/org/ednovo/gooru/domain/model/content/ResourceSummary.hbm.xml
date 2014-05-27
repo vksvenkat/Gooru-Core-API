@@ -21,12 +21,8 @@
 
 <hibernate-mapping>
 	<class name="org.ednovo.gooru.core.api.model.ResourceSummary" table="resource_summary">
-		<id name="resourceSummaryUid" column="resource_summary_uid"
-			unsaved-value="null">
-			<generator class="org.ednovo.gooru.core.application.util.UUIDGenerator" />
-		</id>
 		
-		<property name="gooruOid" column="gooru_oid" not-null="true" />
+		<id name="resourceGooruOid" column="resource_gooru_oid"  />
 		
 		<property name="ratingStarAvg" column="rating_star_avg" not-null="true"/>
 		

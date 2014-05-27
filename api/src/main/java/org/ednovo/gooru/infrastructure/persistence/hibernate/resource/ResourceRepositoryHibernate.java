@@ -45,6 +45,7 @@ import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.ResourceInfo;
 import org.ednovo.gooru.core.api.model.ResourceInstance;
 import org.ednovo.gooru.core.api.model.ResourceSource;
+import org.ednovo.gooru.core.api.model.ResourceSummary;
 import org.ednovo.gooru.core.api.model.ResourceType;
 import org.ednovo.gooru.core.api.model.ResourceUrlStatus;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
@@ -999,5 +1000,12 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
             List<ContentProvider> contentProviderList = (List<ContentProvider>) query.list();
             return (contentProviderList != null && contentProviderList.size() > 0 ) ? contentProviderList : null;
 	 }
+
+	@Override
+	public ResourceSummary getResourceSummaryById(String gooruOid) {
+		String hql = "From ResourceSummary rs where rs.resourceGooruOid= '"+gooruOid+"'";
+		Query query = getSession().createQuery(hql);
+		return query.list().size() > 0 ? (ResourceSummary) query.list().get(0)  : null;
+	}
 	 
 }

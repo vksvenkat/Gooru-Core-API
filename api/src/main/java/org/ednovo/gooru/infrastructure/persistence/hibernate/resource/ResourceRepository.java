@@ -33,6 +33,7 @@ import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.ResourceInfo;
 import org.ednovo.gooru.core.api.model.ResourceInstance;
 import org.ednovo.gooru.core.api.model.ResourceSource;
+import org.ednovo.gooru.core.api.model.ResourceSummary;
 import org.ednovo.gooru.core.api.model.ResourceUrlStatus;
 import org.ednovo.gooru.core.api.model.Textbook;
 import org.ednovo.gooru.core.cassandra.model.ResourceMetadataCo;
@@ -157,5 +158,7 @@ public interface ResourceRepository extends BaseRepository {
 	List<String> getResourceSourceAttribution();
 	
 	List<ContentProvider> getResourceContentProvierList();
+	
+	ResourceSummary getResourceSummaryById(String gooruOid);
 
 }
