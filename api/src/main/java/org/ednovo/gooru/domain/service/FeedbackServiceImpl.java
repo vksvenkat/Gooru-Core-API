@@ -120,6 +120,7 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 							feedback.setScore(newFeedback.getScore());
 						}
 					}
+					feedback.setLastModifiedOn(new Date());
 					feedbackList.add(feedback);
 				} else {
 					throw new UnauthorizedException(generateErrorMessage(GL0058, USER, UPDATE));
