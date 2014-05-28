@@ -499,8 +499,8 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 	 */
 	@Override
 	public User createUser(String firstName, String lastName, String email, String password, String school, String username, Integer confirmStatus, String organizationCode, Integer addedBySystem, String userImportCode, String accountType, String dateOfBirth, String userParentId, String gender,
-			String childDOB, String source, String referenceUid, String role) throws Exception {
-		return createUser(firstName, lastName, email, password, school, username, confirmStatus, organizationCode, addedBySystem, userImportCode, accountType, dateOfBirth, userParentId, null, gender, childDOB, source, null, referenceUid, role);
+			String childDOB, String source, String referenceUid, String role, String domainName) throws Exception {
+		return createUser(firstName, lastName, email, password, school, username, confirmStatus, organizationCode, addedBySystem, userImportCode, accountType, dateOfBirth, userParentId, domainName, gender, childDOB, source, null, referenceUid, role);
 	}
 
 	public static String getDefaultUserRoles(String organizationUid) {
@@ -529,7 +529,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 
 	@Override
 	public User createUserWithValidation(String firstName, String lastName, String email, String password, String school, String username, Integer confirmStatus, String organizationCode, Boolean useGeneratedPassword, Boolean sendConfirmationMail, User apiCaller, String accountType,
-			String dateOfBirth, String userParentId, String sessionId, String gender, String childDOB, String gooruClassicUrl, String referenceUid, String role, String pearsonEmailId) throws Exception {
+			String dateOfBirth, String userParentId, String sessionId, String gender, String childDOB, String gooruClassicUrl, String referenceUid, String role, String pearsonEmailId, String domainName) throws Exception {
 
 		Boolean isAdminCreateUser = false;
 		Integer addedBySystem = 0;
@@ -546,7 +546,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 		}
 		List<InviteUser> inviteuser = this.getInviteRepository().getInviteUserByMail(email, COLLABORATOR);
 		
-		User user = createUser(firstName, lastName, email, password, school, username, confirmStatus, organizationCode, addedBySystem, null, accountType, dateOfBirth, userParentId, gender, childDOB, null, referenceUid, role);
+		User user = createUser(firstName, lastName, email, password, school, username, confirmStatus, organizationCode, addedBySystem, null, accountType, dateOfBirth, userParentId, gender, childDOB, null, referenceUid, role,  domainName);
 		ApiKey apiKey = apiTrackerService.findApiKeyByOrganization(user.getOrganization().getPartyUid());
 		UserToken userToken = this.createSessionToken(user, sessionId, apiKey);
 
@@ -595,10 +595,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 			errorList.put(FIRST_NAME, "First name cannot be null or empty");
 		}
 
-		if (!isNotEmptyString(organizationCode)) {
-			errorList.put(ORGANIZATION_CODE, "Organization code cannot be null or empty");
-		}
-
+	
 		if (!isNotEmptyString(lastName)) {
 			errorList.put(LAST_NAME, "Last name cannot be null or empty");
 		}
@@ -2069,7 +2066,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 						userToken = signIn(emailId, password, apiKey, sessionId, false);
 					} else {
 						String firstName = emailId.substring(0, emailId.indexOf("@"));
-						createUser(firstName, firstName, emailId, password, "", null, 1, apiKeyObj.getOrganization().getOrganizationCode(), 0, null, null, null, null, null, null, null, null, null);
+						createUser(firstName, firstName, emailId, password, "", null, 1, apiKeyObj.getOrganization().getOrganizationCode(), 0, null, null, null, null, null, null, null, null, null, null);
 						userToken = signIn(emailId, password, apiKey, sessionId, false);
 					}
 
