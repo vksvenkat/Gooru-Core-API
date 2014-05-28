@@ -170,6 +170,8 @@
 				</value>
 				<value>org/ednovo/gooru/domain/model/resource/ResourceMetaData.hbm.xml
 				</value>
+				<value>org/ednovo/gooru/domain/model/content/ResourceSummary.hbm.xml
+				</value>
 
 
 				<value>org/ednovo/gooru/domain/model/annotation/AnnotationType.hbm.xml
