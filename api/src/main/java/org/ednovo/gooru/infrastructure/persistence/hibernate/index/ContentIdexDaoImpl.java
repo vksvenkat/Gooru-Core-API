@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.ednovo.gooru.core.api.model.ContentProvider;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.hibernate.Criteria;
 import org.hibernate.Query;
@@ -233,5 +234,13 @@ public class ContentIdexDaoImpl extends IndexDaoImpl implements ContentIndexDao 
 		List<Object[]> list = createSQLQuery(sql).setLong(CONTENT_ID, contentId).list();
 		return list;
 	}
+
+	@Override
+	public ContentProvider  getContentProviderlist(String contentProviderId) {
+		String sql="SELECT cp FROM ContentProvider cp WHERE cp.contentProviderUid='"+contentProviderId+"'";
+		    List<ContentProvider> contentProvider =getSessionFactory().getCurrentSession().createQuery(sql).list();
+		return contentProvider.size()== 0 ? null:contentProvider.get(0);
+	}
+	
 	
 }

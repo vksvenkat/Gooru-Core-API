@@ -327,6 +327,11 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				}
 				item.put(SHARING, object[7]);
 				item.put(COLLECTION_ITEM_ID, object[8]);
+				Map<String, Object> summary = new HashMap<String, Object>();
+				summary.put("average", object[16] != null ? object[16] : 0.0);
+				summary.put("count", object[17] != null ? object[17] : 0.0);
+				item.put("ratings", summary);
+			//	item.put("ratings", this.getFeedbackService().getContentFeedbackStarRating(String.valueOf(object[1])));
 				if (!fetchChildItem) {
 					if (String.valueOf(object[2]).equalsIgnoreCase("assessment-question")) {
 						item.put("depthOfKnowledges", this.setContentMetaAssociation(this.getContentMetaAssociation("depth_of_knowledge"), String.valueOf(object[1]), "depth_of_knowledge"));
