@@ -29,6 +29,7 @@ import java.util.Map;
 import org.ednovo.gooru.core.api.model.Session;
 import org.ednovo.gooru.core.api.model.SessionItem;
 import org.ednovo.gooru.core.api.model.SessionItemAttemptTry;
+import org.ednovo.gooru.core.api.model.SessionItemFeedback;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepository;
 
 public interface SessionRepository extends BaseRepository {
@@ -43,7 +44,9 @@ public interface SessionRepository extends BaseRepository {
 
 	Map<String, Object> getQuizSummary(String sessionId, Integer trySequence, String questionType, Long quizContentId);
 
-        String getQuestionStatus(String sessionId, Integer trySequence, String questionType, Long quizContentId, String questionId);
+    String getQuestionStatus(String sessionId, Integer trySequence, String questionType, Long quizContentId, String questionId);
+    
+    SessionItemFeedback getSessionItemFeedback(String gooruOid, String gooruUid);
 
 
 }
