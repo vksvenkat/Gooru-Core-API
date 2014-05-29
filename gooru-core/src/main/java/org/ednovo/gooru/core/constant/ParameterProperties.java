@@ -2675,4 +2675,6 @@ public interface ParameterProperties {
 	String LIBRARY_ID = "libraryId";
 	
 	String LIBRARY_NAMES = "library,rusd";
+	
+	String TOP_LEVEL_COLLECTION_TYPE = "topLevelCollectionType";
 }
