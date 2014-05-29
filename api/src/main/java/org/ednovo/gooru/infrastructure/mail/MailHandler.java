@@ -912,7 +912,7 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 			map.put(GOORU_OID, gooruOid);
 			map.put(RECIPIENT, email);
 			map.put(HTMLCONTENT, generateMessage((String) map.get(HTMLCONTENT), map));
-			map.put(SUBJECT, "You’re invited to the Gooru Class \""+title+"\"");
+			map.put(SUBJECT,  inviteUser + " has invited to the Gooru Class \""+title+"\"");
 			map.put(CONTENT, generateMessage((String) map.get(TEXTCONTENT), map));
 			map.put("from", getConfigSetting(ConfigConstants.MAIL_FROM, TaxonomyUtil.GOORU_ORG_UID));
 			map.put(BCC, getConfigSetting(ConfigConstants.MAIL_BCC_SUPPORT, TaxonomyUtil.GOORU_ORG_UID));
