@@ -29,6 +29,7 @@ import java.util.Map;
 
 import org.ednovo.gooru.core.api.model.SessionItem;
 import org.ednovo.gooru.core.api.model.SessionItemAttemptTry;
+import org.ednovo.gooru.core.api.model.SessionItemFeedback;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -137,6 +138,13 @@ public class SessionRepositoryHibernate extends BaseRepositoryHibernate implemen
                         query.setParameter("quizContentId", quizContentId);
                 }
                 return query.list().size() > 0 ? (String)query.list().get(0) : null;
-        }	
+        }
+
+		@Override
+		public SessionItemFeedback getSessionItemFeedback(String gooruOid, String gooruUid) {
+			String hql = "from SessionItemFeedback si where si.contentGooruOId = '"+ gooruOid+"' and user.partyUid = '" +gooruUid+ "'";
+			Query query = getSession().createQuery(hql);
+			return query.list().size() > 0 ? (SessionItemFeedback)query.list().get(0) : null;
+		}	
 
 }
