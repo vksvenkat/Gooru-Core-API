@@ -1027,6 +1027,8 @@ public interface ParameterProperties {
 	String TEMPLATE_HTML = "Template html ";
 
 	String TEMPLATE_TEXT = "Template text ";
+	
+	String TEMPLATE_CONTENT = "templateContent";
 
 	String TEMPLATE_SUBJECT = "Template subject ";
 
