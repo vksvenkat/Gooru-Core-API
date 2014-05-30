@@ -649,7 +649,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		SessionContextSupport.putLogParameter(EVENT_NAME, "classpage.create");
 		
 		JSONObject context = SessionContextSupport.getLog().get("context") != null ? new JSONObject(SessionContextSupport.getLog().get("context").toString()) :  new JSONObject();
-		context.put("contentGooruOId", classpage.getGooruOid());
+		context.put("contentGooruId", classpage.getGooruOid());
 		SessionContextSupport.putLogParameter("context", context.toString());
 		
 		JSONObject payLoadObject = SessionContextSupport.getLog().get("payLoadObject") != null ? new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString()) :  new JSONObject();
@@ -667,7 +667,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			SessionContextSupport.putLogParameter(EVENT_NAME, "classpage.user.add");
 			
 			JSONObject context = SessionContextSupport.getLog().get("context") != null ? new JSONObject(SessionContextSupport.getLog().get("context").toString()) :  new JSONObject();
-			context.put("contentGooruOId", classpage.getGooruOid());
+			context.put("contentGooruId", classpage.getGooruOid());
 			SessionContextSupport.putLogParameter("context", context.toString());
 			
 			JSONObject payLoadObject = SessionContextSupport.getLog().get("payLoadObject") != null ? new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString()) :  new JSONObject();

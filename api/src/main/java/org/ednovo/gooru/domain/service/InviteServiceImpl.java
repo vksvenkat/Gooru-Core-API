@@ -90,7 +90,7 @@ public class InviteServiceImpl extends BaseServiceImpl implements InviteService,
 			}
 			
 			try {
-				this.getMailHandler().sendMailToInviteUser(email,classPage.getGooruOid(),classPage.getUser(),classPage.getTitle() ,apiCaller.getUsername());
+				this.getMailHandler().sendMailToInviteUser( email,classPage.getGooruOid(),classPage.getUser(),classPage.getTitle() ,apiCaller.getUsername(),classPage.getClasspageCode());
 			} catch (Exception e) {
 				logger.error("Error"+ e.getMessage());
 			}
