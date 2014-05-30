@@ -2,6 +2,7 @@ package org.ednovo.gooru.core.api.model;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 
 public class Feedback extends OrganizationModel {
@@ -25,6 +26,7 @@ public class Feedback extends OrganizationModel {
 	private String contextPath;
 	private String notes;
 	private Date lastModifiedOn;
+	private Map<String,Object> ratings;
 	
 	
 	public Feedback() {	}
@@ -175,6 +177,12 @@ public class Feedback extends OrganizationModel {
 	}
 	public void setLastModifiedOn(Date lastModifiedOn) {
 		this.lastModifiedOn = lastModifiedOn;
+	}
+	public void setRatings(Map<String,Object> ratings) {
+		this.ratings = ratings;
+	}
+	public Map<String,Object> getRatings() {
+		return ratings;
 	}
 	
 }

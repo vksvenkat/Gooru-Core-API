@@ -2064,7 +2064,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 		SessionContextSupport.putLogParameter(EVENT_NAME, "collection.create");
 		JSONObject context = SessionContextSupport.getLog().get("context") != null ? new JSONObject(SessionContextSupport.getLog().get("context").toString()) :  new JSONObject();
-		context.put("contentGooruOId", collection.getGooruOid());
+		context.put("contentGooruId", collection.getGooruOid());
 
 		SessionContextSupport.putLogParameter("context", context.toString());
 

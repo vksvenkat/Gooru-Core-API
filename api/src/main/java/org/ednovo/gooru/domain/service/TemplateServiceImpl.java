@@ -45,6 +45,7 @@ public class TemplateServiceImpl extends BaseServiceImpl implements TemplateServ
 		rejectIfNull(template.getHtmlContent(), GL0006, TEMPLATE_HTML);
 		rejectIfNull(template.getTextContent(), GL0006, TEMPLATE_TEXT);
 		rejectIfNull(template.getSubject(), GL0006, TEMPLATE_SUBJECT );
+		rejectIfNull(template.getTemplateContent(),GL0006, TEMPLATE_CONTENT);
 		template.setCreator(user);
 		template.setOrganization(user.getOrganization());
 		template.setCreatedDate(new Date(System.currentTimeMillis()));
@@ -61,6 +62,9 @@ public class TemplateServiceImpl extends BaseServiceImpl implements TemplateServ
 		}
 		if (newTemplate.getTextContent() != null) {
 			template.setTextContent(newTemplate.getTextContent());
+		}
+		if (newTemplate.getTemplateContent() != null) {
+			template.setTextContent(newTemplate.getTemplateContent());
 		}
 		if (newTemplate.getSubject() != null) {
 			template.setSubject(newTemplate.getSubject());
