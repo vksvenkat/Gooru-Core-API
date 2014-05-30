@@ -165,6 +165,16 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 	}
 
 	@Override
+	public List<Map<String, Object>> getLibraryItem(String type, String libraryName) {
+		List<Code> codes = this.getTaxonomyRespository().findCodeByParentCodeId(type, null, null, null, true, LIBRARY, getOrganizationCode(libraryName), null, null);
+		List<Map<String, Object>> codeMap = new ArrayList<Map<String, Object>>();
+		for (Code code : codes) { 
+			codeMap.add(getCode(code));
+		}
+		return codeMap;
+	}
+	
+	@Override
 	public List<Map<String, Object>> getLibraryCourse(String code, String ChildCode, String libraryName, String rootNodeId) {
 		int collectionCount = 0;
 		int unitCount = 0;
@@ -375,13 +385,7 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 	}
 
 	private Map<String, Object> getCode(Code code, List<Map<String, Object>> childern, String type, Integer count, String organizationCode, List<Map<String, Object>> concept, List<Map<String, Object>> collectionChildern, String collectionType) {
-		Map<String, Object> codeMap = new HashMap<String, Object>();
-		codeMap.put(CODE, code.getCommonCoreDotNotation() == null ? code.getdisplayCode() : code.getCommonCoreDotNotation());
-		codeMap.put(CODE_ID, code.getCodeId());
-		codeMap.put(CODE_TYPE, code.getCodeType());
-		codeMap.put(LABEL, code.getLabel());
-		codeMap.put(PARENT_ID, code.getParent() != null ? code.getParent().getCodeId() : null);
-		codeMap.put(THUMBNAILS, code.getThumbnails());
+		Map<String, Object> codeMap = getCode(code);
 		if (concept != null) {
 			codeMap.put(CONCEPT, concept);
 		}
@@ -397,6 +401,17 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 		codeMap.put(collectionType, collectionChildern);
 		return codeMap;
 
+	}
+	
+	private Map<String, Object> getCode(Code code) {
+		Map<String, Object> codeMap = new HashMap<String, Object>();
+		codeMap.put(CODE, code.getCommonCoreDotNotation() == null ? code.getdisplayCode() : code.getCommonCoreDotNotation());
+		codeMap.put(CODE_ID, code.getCodeId());
+		codeMap.put(CODE_TYPE, code.getCodeType());
+		codeMap.put(LABEL, code.getLabel());
+		codeMap.put(PARENT_ID, code.getParent() != null ? code.getParent().getCodeId() : null); 
+		codeMap.put(THUMBNAILS, code.getThumbnails());
+		return codeMap; 
 	}
 
 	private List<Map<String, String>> getUser(List<CodeUserAssoc> codeUserAssocList) {
@@ -957,6 +972,8 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 	public void setResourceRepository(ResourceRepository resourceRepository) {
 		this.resourceRepository = resourceRepository;
 	}
+
+	
 
 
 }
