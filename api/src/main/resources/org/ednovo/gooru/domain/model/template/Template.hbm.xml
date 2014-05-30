@@ -34,6 +34,7 @@
 		</id>
 		<property name="htmlContent" column="html_content" not-null="true" />
 		<property name="textContent" column="text_content" not-null="true" />
+		<property name="templateContent" column="template_content" not-null = "false"/>
 		<property name="subject" column="subject" not-null="true" />
 		<many-to-one name="creator" class="org.ednovo.gooru.core.api.model.User" column="creator_uid" not-null="false" lazy="proxy" cascade="none" />
 		<many-to-one name="organization" class="org.ednovo.gooru.core.api.model.Organization" column="organization_uid" not-null="true" lazy="proxy" cascade="none" />
