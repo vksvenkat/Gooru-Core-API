@@ -438,4 +438,6 @@ public interface ConstantProperties {
 	public static String IS_FEATURED_USER = "is_featured";
 	
 	public static String FEATURED_USER = "isFeaturedUser";
+	
+	public static String NODE = "node";
 }
