@@ -48,7 +48,7 @@ public interface FeedbackService extends BaseService {
 
 	Feedback getUserFeedback(String typeId, String assocUserUid, String gooruUid);
 
-	SearchResults<Feedback> getContentFeedbacks(String feedbackCategory, String feedbackType, String assocGooruOid, String creatorUid, Integer limit, Integer offset,Boolean skipPagination);
+	SearchResults<Feedback> getContentFeedbacks(String feedbackCategory, String feedbackType, String assocGooruOid, String creatorUid, Integer limit, Integer offset,Boolean skipPagination,String orderBy);
 
 	List<Feedback> getUserFeedbacks(String feedbackCategory, String feedbackType, String assocUserUid, String creatorUid, Integer limit, Integer offset);
 
