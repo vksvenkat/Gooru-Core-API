@@ -65,6 +65,7 @@ import org.ednovo.gooru.core.api.model.SessionItemFeedback;
 import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserAccountType;
+import org.ednovo.gooru.core.api.model.UserAccountType.accountCreatedType;
 import org.ednovo.gooru.core.api.model.UserAvailability.CheckUser;
 import org.ednovo.gooru.core.api.model.UserClassification;
 import org.ednovo.gooru.core.api.model.UserRelationship;
@@ -478,11 +479,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 				}
 			}
 		}
-		try {
-			getEventLogs(newUser, sessionId);
-		} catch (JSONException e) {
-			e.printStackTrace();
-		}
+
 		return user;
 	}
 
@@ -967,7 +964,11 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		} else {
 			SessionContextSupport.putLogParameter(IDP_NAME, GOORU_API);
 		}
-
+		try {
+			getEventLogs(user, source);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
 		return user;
 
 	}
@@ -1460,18 +1461,24 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		return inviteRepository;
 	}
 
-	private void getEventLogs(User newUser, String sessionId) throws JSONException {
+	private void getEventLogs(User user, String source) throws JSONException {
 		SessionContextSupport.putLogParameter(EVENT_NAME, "user.register");
 		JSONObject context = SessionContextSupport.getLog().get("context") != null ? new JSONObject(SessionContextSupport.getLog().get("context").toString()) :  new JSONObject();
 		SessionContextSupport.putLogParameter("context", context.toString());
-		context.put("registerType", "Gooru");		
+		if(source != null && source.equalsIgnoreCase(UserAccountType.accountCreatedType.GOOGLE_APP.getType())) {
+			context.put("registerType", accountCreatedType.GOOGLE_APP.getType());			
+		}else if (source != null) {
+			context.put("registerType", accountCreatedType.SSO.getType());
+		}else {
+			context.put("registerType", "Gooru");
+		}
 		JSONObject payLoadObject = SessionContextSupport.getLog().get("payLoadObject") != null ? new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString()) :  new JSONObject();
 		SessionContextSupport.putLogParameter("payLoadObject", payLoadObject.toString());
 		JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session").toString()) :  new JSONObject();
-		session.put("organizationUId", newUser.getOrganizationUid());
+		session.put("organizationUId", user.getOrganizationUid());
 		SessionContextSupport.putLogParameter("session", session.toString());	
-		JSONObject user = SessionContextSupport.getLog().get("user") != null ? new JSONObject(SessionContextSupport.getLog().get("user").toString()) :  new JSONObject();
-		user.put("gooruUId", newUser.getPartyUid());
+		JSONObject newUser = SessionContextSupport.getLog().get("user") != null ? new JSONObject(SessionContextSupport.getLog().get("user").toString()) :  new JSONObject();
+		newUser.put("gooruUId", user.getPartyUid());
 		SessionContextSupport.putLogParameter("user", user.toString());
 	}	
 	
