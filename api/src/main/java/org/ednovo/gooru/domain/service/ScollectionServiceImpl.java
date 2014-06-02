@@ -255,21 +255,13 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			if (parentCollection != null) {
 				collection.setCollectionItem(this.createCollectionItem(collection.getGooruOid(), parentCollection.getGooruOid(), new CollectionItem(), collection.getUser(), CollectionType.FOLDER.getCollectionType(), false).getModel());
 			}
-			if (collection.getCollectionType().equalsIgnoreCase(CollectionType.COLLECTION.getCollectionType()) && collection.getUser() != null) {
-				Map<String, String> data = new HashMap<String, String>();
-				data.put("eventType", CustomProperties.EventMapping.FIRST_COLLECTION.getEvent());
-				data.put("gooruUid", collection.getUser().getGooruUId());
-				data.put("accountTypeId", collection.getUser().getAccountTypeId() != null ? collection.getUser().getAccountTypeId().toString() : null);
-				// this.getMailAsyncExecutor().handleMailEvent(data);
-				this.mailHandler.handleMailEvent(data);
 
-			}
 			try {
 				indexProcessor.index(collection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
+				getAsyncExecutor().createVersion(collection, SCOLLECTION_CREATE, collection.getUser().getPartyUid());
 			} catch (Exception e) {
 				logger.debug(e.getMessage());
 			}
-			getAsyncExecutor().createVersion(collection, SCOLLECTION_CREATE, collection.getUser().getPartyUid());
 		}
 
 		return new ActionResponseDTO<Collection>(collection, errors);
