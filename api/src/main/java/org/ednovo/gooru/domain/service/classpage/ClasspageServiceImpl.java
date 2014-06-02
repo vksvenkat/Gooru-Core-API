@@ -343,7 +343,9 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		} else {
 			throw new Exception("invalid assignmentId -" + assignmentGooruOid);
 		}
-
+		
+		this.getCollectionService().getEventLogs(collectionItem, true, user, collectionItem.getCollection().getCollectionType());
+		
 		return new ActionResponseDTO<CollectionItem>(collectionItem, errors);
 	}
 
