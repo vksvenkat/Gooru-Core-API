@@ -421,7 +421,6 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 	@Override
 	public Map<String, Object> getContentFeedbackStarRating(String assocGooruOid) {
 		String feedbackType = CustomProperties.Table.FEEDBACK_RATING_TYPE.getTable() + "_" + CustomProperties.FeedbackRatingType.STAR.getFeedbackRatingType();
-		rejectIfNull(this.getContentRepository().findContentByGooruId(assocGooruOid), GL0056, _CONTENT);
 		return this.getFeedbackRepository().getContentFeedbackRating(assocGooruOid, feedbackType);
 	}
 
@@ -471,13 +470,7 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 	public List<Map<Object, Object>> getContentFeedbackAggregate(String assocGooruUid, String feedbackCategory) {
 		String category = CustomProperties.Table.FEEDBACK_CATEGORY.getTable() + "_" + feedbackCategory;
 		rejectIfNull(category, GL0006, feedbackCategory + CATEGORY);
-		Content content = this.getContentRepository().findContentByGooruId(assocGooruUid);
-		rejectIfNull(content, GL0056, CONTENT);
-		Boolean flag = false;
-		if (content.getContentType() != null && content.getContentType().getName().equals(TASK)) {
-			flag = true;
-		}
-		return this.getFeedbackRepository().getContentFeedbackAggregate(assocGooruUid, category, flag);
+		return this.getFeedbackRepository().getContentFeedbackAggregate(assocGooruUid, category, false);
 	}
 
 	@Override
