@@ -44,7 +44,7 @@ import org.springframework.util.MultiValueMap;
 public interface UserService {
 
 	User createUser(String firstName, String lastName, String email, String password, String school, String username, Integer confirmStatus, String organizationCode, Integer addedBySystem, String importCode, String accountType, String dateOfBirth, String userParentId, String gender,
-			String childDOB, String source, String referenceUid, String role) throws Exception;
+			String childDOB, String source, String referenceUid, String role, String domainName) throws Exception;
 
 	User createUser(String firstName, String lastName, String email, String password, String school, String username, Integer confirmStatus, String organizationCode, Integer addedBySystem, String importCode, String accountType, String dateOfBirth, String userParentId, String remoteEntityId,
 			String gender, String childDOB, String source, String emailSSO, String referenceUid, String role) throws Exception;
@@ -98,7 +98,7 @@ public interface UserService {
 	List<User> listUsers();
 
 	User createUserWithValidation(String firstName, String lastName, String email, String password, String school, String username, Integer confirmStatus, String organizationCode, Boolean useGeneratedPassword, Boolean sendConfirmationMail, User apiCaller, String accountType, String dateOfBirth,
-			String userParentId, String sessionId, String gender, String childDOB, String gooruClassicUrl, String referenceUid, String role, String pearsonEmailId) throws Exception;
+			String userParentId, String sessionId, String gender, String childDOB, String gooruClassicUrl, String referenceUid, String role, String pearsonEmailId, String domainName) throws Exception;
 
 	User getUser(String gooruUId) throws Exception;
 

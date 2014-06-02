@@ -1861,6 +1861,18 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				resource.setSharing(newResource.getSharing());
 			}
 			
+			if (newResource.getAttach() != null && newResource.getAttach().getFilename() != null) {
+				String fileExtension = org.apache.commons.lang.StringUtils.substringAfterLast(newResource.getAttach().getFilename(), ".");
+				ResourceType resourceTypeDo = new ResourceType();
+				resource.setResourceType(resourceTypeDo);
+				if (fileExtension.contains(PDF)) {
+					resourceTypeDo.setName(ResourceType.Type.HANDOUTS.getType());
+				} else {
+					resourceTypeDo.setName(ResourceType.Type.IMAGE.getType());
+				}
+				resource.setUrl(newResource.getAttach().getFilename());
+			} 
+			
 			this.getResourceService().saveOrUpdate(resource);
 			
 			resourceService.saveOrUpdateResourceTaxonomy(resource, newResource.getTaxonomySet());
@@ -2052,7 +2064,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 		SessionContextSupport.putLogParameter(EVENT_NAME, "collection.create");
 		JSONObject context = SessionContextSupport.getLog().get("context") != null ? new JSONObject(SessionContextSupport.getLog().get("context").toString()) :  new JSONObject();
-		context.put("contentGooruOId", collection.getGooruOid());
+		context.put("contentGooruId", collection.getGooruOid());
 
 		SessionContextSupport.putLogParameter("context", context.toString());
 

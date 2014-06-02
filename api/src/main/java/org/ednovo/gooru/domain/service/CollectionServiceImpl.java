@@ -228,9 +228,9 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	}
 
 	@Override
-	public List<Map<String, Object>> getMyShelf(String gooruUid, Integer limit, Integer offset, String sharing, String collectionType, Integer itemLimit, boolean fetchChildItem) {
+	public List<Map<String, Object>> getMyShelf(String gooruUid, Integer limit, Integer offset, String sharing, String collectionType, Integer itemLimit, boolean fetchChildItem, String topLevelCollectionType) {
 		StorageArea storageArea = this.getStorageRepository().getStorageAreaByTypeName(NFS);
-		List<Object[]> result = this.getCollectionRepository().getMyFolder(gooruUid, limit, offset, sharing,  collectionType);
+		List<Object[]> result = this.getCollectionRepository().getMyFolder(gooruUid, limit, offset, sharing,  topLevelCollectionType != null  ? topLevelCollectionType : collectionType);
 		List<Map<String, Object>> folderList = new ArrayList<Map<String, Object>>();
 		int count = 0;
 		if (result != null && result.size() > 0) {
@@ -328,10 +328,9 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				item.put(SHARING, object[7]);
 				item.put(COLLECTION_ITEM_ID, object[8]);
 				Map<String, Object> summary = new HashMap<String, Object>();
-				summary.put("average", object[16] != null ? object[16] : 0.0);
-				summary.put("count", object[17] != null ? object[17] : 0.0);
+				summary.put("average", object[16] != null ? object[16] : 0);
+				summary.put("count", object[17] != null ? object[17] : 0);
 				item.put("ratings", summary);
-			//	item.put("ratings", this.getFeedbackService().getContentFeedbackStarRating(String.valueOf(object[1])));
 				if (!fetchChildItem) {
 					if (String.valueOf(object[2]).equalsIgnoreCase("assessment-question")) {
 						item.put("depthOfKnowledges", this.setContentMetaAssociation(this.getContentMetaAssociation("depth_of_knowledge"), String.valueOf(object[1]), "depth_of_knowledge"));

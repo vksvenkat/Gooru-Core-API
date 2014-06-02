@@ -54,7 +54,6 @@ import org.ednovo.gooru.domain.service.CollectionService;
 import org.ednovo.gooru.domain.service.redis.RedisService;
 import org.ednovo.gooru.domain.service.resource.ResourceService;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepository;
-import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentRepository;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,8 +83,6 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 	@Autowired
 	private RedisService redisService;
 	
-	@Autowired
-	private ContentRepository contentRepository;
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ADD })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
