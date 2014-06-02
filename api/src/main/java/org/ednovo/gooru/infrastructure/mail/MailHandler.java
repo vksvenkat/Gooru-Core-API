@@ -891,7 +891,7 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 			map.put("collection-id", content.getGooruOid());
 			
 			map.put("recipient", collaboratorData.get("emailId"));
-			map.put("htmlContent", generateMessage((String) map.get("htmlContent"), map));
+			map.put("htmlContent", generateMessage((String) map.get("templateContent"), map));
 			map.put("content", generateMessage((String) map.get("textContent"), map));
 			map.put("from", getConfigSetting(ConfigConstants.MAIL_FROM, TaxonomyUtil.GOORU_ORG_UID));
 			map.put("bcc", getConfigSetting(ConfigConstants.MAIL_BCC_SUPPORT, TaxonomyUtil.GOORU_ORG_UID));
