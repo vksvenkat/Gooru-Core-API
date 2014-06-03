@@ -166,7 +166,7 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 
 	@Override
 	public List<Map<String, Object>> getLibraryItem(String type, String libraryName) {
-		List<Code> codes = this.getTaxonomyRespository().findCodeByParentCodeId(type.equalsIgnoreCase(STANDARD) ? null : type, null, null, null, true, LIBRARY, getOrganizationCode(libraryName), null, null);
+		List<Code> codes = this.getTaxonomyRespository().findCodeByParentCodeId(type.equalsIgnoreCase(STANDARD) ? null : type, null, null, null, true, LIBRARY, getOrganizationCode(libraryName), null, type.equalsIgnoreCase(STANDARD) ? "0" : null);
 		List<Map<String, Object>> codeMap = new ArrayList<Map<String, Object>>();
 		if (type.equalsIgnoreCase(STANDARD)) {
 			for (Code code : codes) {
