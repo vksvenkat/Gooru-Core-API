@@ -173,7 +173,10 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 				List<Map<String, Object>> node = new ArrayList<Map<String, Object>>();
 				List<Code> nodes = this.getTaxonomyRespository().findCodeByParentCodeId(String.valueOf(code.getCodeId()), null, null, null, true, LIBRARY, getOrganizationCode(libraryName), String.valueOf(code.getCodeId()), "1");
 				for (Code codeNode : nodes) {
-					node.add(getCode(codeNode, null, NODE));
+					List<Code> courses = this.getTaxonomyRespository().findCodeByParentCodeId(String.valueOf(codeNode.getCodeId()), null, null, null, true, LIBRARY, getOrganizationCode(libraryName), String.valueOf(code.getRootNodeId()), null);
+					for (Code course : courses) {
+						node.add(getCode(course, null, NODE));
+					}
 				}
 				codeMap.add(getCode(code, node, NODE));
 			}
