@@ -86,7 +86,18 @@ public class LibraryRestV2Controller extends BaseController implements ConstantP
 	@RequestMapping(value = "/{type}/item", method = RequestMethod.GET)
 	public ModelAndView getLibraryItem(@PathVariable(value = TYPE) String type, @RequestParam(value = CLEAR_CACHE, required = false, defaultValue = FALSE) boolean clearCache, @RequestParam(value = LIBRARY_NAME, required = false, defaultValue = LIBRARY) String libraryName, HttpServletRequest request,
 			HttpServletResponse response) {
-		return toModelAndView(this.getFeaturedService().getLibraryItem(type, libraryName), RESPONSE_FORMAT_JSON);
+		final String cacheKey = "v2-library-data-" + type + "-" + libraryName;
+		List<Map<String, Object>> library = null;
+		String data = null;
+		if (!clearCache) {
+			data = getRedisService().getValue(cacheKey);
+		}
+		if (data == null) {
+			library = this.getFeaturedService().getLibraryItem(type, libraryName);
+			data = serialize(library, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, false, true, LIBRARY_CODE_INCLUDES);
+			getRedisService().putValue(cacheKey, data);
+		}
+		return toModelAndView(library, RESPONSE_FORMAT_JSON);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAXONOMY_READ })
