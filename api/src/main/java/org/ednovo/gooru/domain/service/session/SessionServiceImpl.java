@@ -105,6 +105,7 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 		if (sessionItemFeedbackUpdate != null) {
 			sessionItemFeedbackUpdate.setFreeText(sessionItemFeedback.getFreeText());
 			this.getSessionRepository().save(sessionItemFeedbackUpdate);
+			sessionItemFeedback.setCreatedOn(new Date(System.currentTimeMillis()));
 		} else {
 			sessionItemFeedback.setCreatedOn(new Date(System.currentTimeMillis()));
 			sessionItemFeedback.setFreeText(sessionItemFeedback.getFreeText());

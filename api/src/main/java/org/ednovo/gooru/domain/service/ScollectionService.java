@@ -38,6 +38,7 @@ import org.ednovo.gooru.core.api.model.ContentMetaDTO;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.StandardFo;
 import org.ednovo.gooru.core.api.model.User;
+import org.json.JSONException;
 import org.springframework.util.MultiValueMap;
 
 /**
@@ -133,4 +134,8 @@ public interface ScollectionService extends BaseService {
 	List<ContentMetaDTO> setContentMetaAssociation(List<ContentMetaDTO> depthOfKnowledges, String collectionId, String type);
 	
 	List<ContentMetaDTO> updateContentMeta(List<ContentMetaDTO> newDepthOfKnowledges, String collectionId, User apiCaller, String type);
+	
+	void getEventLogs(CollectionItem collectionItem, boolean isCollectionItem, User user, String collectionType) throws JSONException;
+	
+	void getEventLogs(CollectionItem collectionItem, User user, String collectionType) throws JSONException;
 }

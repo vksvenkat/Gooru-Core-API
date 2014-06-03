@@ -44,7 +44,7 @@ public class ContentIdexDaoImpl extends IndexDaoImpl implements ContentIndexDao 
 
 	private final String GET_COLLECTION_INFO_FOR_RESOURCE = "SELECT c.content_id, c.gooru_oid, l.lesson, l.goals, l.vocabulary, l.narration, l.notes, r.distinguish FROM learnguide l INNER JOIN resource r ON r.content_id = l.content_id  INNER JOIN content c on c.content_id = l.content_id WHERE c.content_id = :contentId";
 
-	private final String GET_SCOLLECTION_INFO_FOR_RESOURCE = "SELECT c.content_id, c.gooru_oid, r.title FROM collection_item  ci INNER JOIN content c ON c.content_id=ci.collection_content_id INNER JOIN resource r ON r.content_id=c.content_id  WHERE  ci.resource_content_id = :contentId and c.sharing='public'";
+	private final String GET_SCOLLECTION_INFO_FOR_RESOURCE = "SELECT distinct c.content_id, c.gooru_oid, r.title FROM collection_item  ci INNER JOIN content c ON c.content_id=ci.collection_content_id INNER JOIN resource r ON r.content_id=c.content_id  WHERE  ci.resource_content_id = :contentId and c.sharing='public'";
 
 	private final String GET_COLLECTION_TAXONOMY_CODE_ID = "SELECT cc.code_id FROM content_classification cc WHERE cc.content_id = :contentId";
 
