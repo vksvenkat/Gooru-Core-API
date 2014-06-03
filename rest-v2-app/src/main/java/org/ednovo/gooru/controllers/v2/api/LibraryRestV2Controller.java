@@ -99,6 +99,25 @@ public class LibraryRestV2Controller extends BaseController implements ConstantP
 		}
 		return toModelAndView(data);
 	}
+	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAXONOMY_READ })
+	@RequestMapping(value = "/{type}/item/{itemType}/{id}", method = RequestMethod.GET)
+	public ModelAndView getLibraryItems(@PathVariable(value = TYPE) String type, @PathVariable(value = ITEM_TYPE) String itemType, @PathVariable(value = ID) String id, @RequestParam(value = CLEAR_CACHE, required = false, defaultValue = FALSE) boolean clearCache, @RequestParam(value = LIBRARY_NAME, required = false, defaultValue = LIBRARY) String libraryName, 
+			@RequestParam(value = ROOT_NODE_ID, required = false, defaultValue = "20000") String rootNodeId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "5") Integer limit, HttpServletRequest request,
+			HttpServletResponse response) {
+		final String cacheKey = "v2-library-data-item-" + type + "-" + libraryName + "-" + itemType + "-" + id  + "-" + limit + "-" + offset;
+		List<Map<String, Object>> library = null;
+		String data = null;
+		if (!clearCache) {
+			data = getRedisService().getValue(cacheKey);
+		}
+		if (data == null) {
+			library = this.getFeaturedService().getLibraryItems(itemType, type, id, libraryName, rootNodeId, limit, offset);
+			data = serialize(library, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, false, true, LIBRARY_CODE_INCLUDES);
+			getRedisService().putValue(cacheKey, data);
+		}
+		return toModelAndView(data);
+	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAXONOMY_READ })
 	@RequestMapping(value = "/{type}/{topicId}", method = RequestMethod.GET)
