@@ -945,12 +945,12 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 
 	@Override
 	public List<Map<String, Object>> getLibraryItems(String itemType, String type, String codeId, String libraryName, String rootNodeId, Integer limit, Integer offset) {
-		List<Object[]> results = this.getFeaturedRepository().getLibrary(type, true, libraryName);
+		List<Object[]> results = this.getFeaturedRepository().getLibrary(type, false, libraryName);
 		List<Map<String, Object>> items = null;
 		if (results != null && results.size() > 0) {
 			Object[] object = results.get(0);
 			if (itemType.equalsIgnoreCase(COURSE)) {
-				items = this.getLibraryCourse(codeId, String.valueOf(object[0]), libraryName, rootNodeId);
+				items = this.getLibraryCourse(codeId, String.valueOf(object[1]), libraryName, rootNodeId);
 			} else if (itemType.equalsIgnoreCase(UNIT)) {
 				items = this.getLibraryUnit(codeId, type, offset, limit, libraryName, rootNodeId);
 			} else if (itemType.equalsIgnoreCase(TOPIC)) {
