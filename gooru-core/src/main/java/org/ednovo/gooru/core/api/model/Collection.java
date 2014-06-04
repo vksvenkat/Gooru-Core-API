@@ -32,7 +32,7 @@ private List<User> collaborators;
 
 private ContentAssociation contentAssociation;
 
-private Map<Integer, List<Code>> taxonomySetMapping;
+private Map<Integer,List<Map<String, Object>>> taxonomySetMapping;
 
 private Set<CollectionTaskAssoc> collectionTaskItems;
 
@@ -193,11 +193,11 @@ public void setContentAssociation(ContentAssociation contentAssociation) {
 }
 
 public void setTaxonomySetMapping(
-		Map<Integer, List<Code>> taxonomySetMapping) {
+		Map<Integer, List<Map<String, Object>>> taxonomySetMapping) {
 	this.taxonomySetMapping = taxonomySetMapping;
 }
 
-public Map<Integer, List<Code>> getTaxonomySetMapping() {
+public Map<Integer, List<Map<String, Object>>> getTaxonomySetMapping() {
 	return taxonomySetMapping;
 }
 

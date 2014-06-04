@@ -411,7 +411,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			if (taxonomyCode != null) {
 				addCollectionTaxonomy(collection, taxonomyCode, updateTaxonomyByCode);
 				this.getCollectionRepository().save(collection);
-				collection.setTaxonomySetMapping(TaxonomyUtil.getTaxonomyMapByCode(collection.getTaxonomySet(), taxonomyService));
+				collection.setTaxonomySetMapping(TaxonomyUtil.getTaxonomyByCode(collection.getTaxonomySet(), taxonomyService));
 			}
 			
 
@@ -813,7 +813,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				this.setColletionMetaData(collection, user, merge, false, rootNodeId);
 			}
 			if(isGat){
-				collection.setTaxonomySetMapping(TaxonomyUtil.getTaxonomyMapByCode(collection.getTaxonomySet(), taxonomyService));
+				collection.setTaxonomySetMapping(TaxonomyUtil.getTaxonomyByCode(collection.getTaxonomySet(), taxonomyService));
 			}
 			if (collection.getUser() != null) {
 				collection.getUser().setProfileImageUrl(this.getUserService().buildUserProfileImageUrl(collection.getUser()));
@@ -1472,7 +1472,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 			if (newCollection.getTaxonomySet() != null) {
 				resourceService.saveOrUpdateResourceTaxonomy(collection, newCollection.getTaxonomySet());
-				collection.setTaxonomySetMapping(TaxonomyUtil.getTaxonomyMapByCode(collection.getTaxonomySet(), taxonomyService));
+				collection.setTaxonomySetMapping(TaxonomyUtil.getTaxonomyByCode(collection.getTaxonomySet(), taxonomyService));
 			}
 
 			if (newCollection.getVocabulary() != null) {
