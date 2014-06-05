@@ -312,7 +312,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	}
 
 	@Override
-	public void setContentProvider(Resource resource) {
+	public Resource setContentProvider(Resource resource) {
 		List<ContentProviderAssociation> contentProviderAssociations = this.getContentRepository().getContentProviderByGooruOid(resource.getGooruOid());
 		if (contentProviderAssociations != null) {
 			List<String> aggregator = new ArrayList<String>();
@@ -330,6 +330,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			resource.setAggregator(aggregator);
 
 		}
+		return resource;
 	}
 
 	@Override

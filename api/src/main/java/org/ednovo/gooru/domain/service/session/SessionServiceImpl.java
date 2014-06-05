@@ -53,6 +53,8 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.resource.ResourceRe
 import org.ednovo.gooru.infrastructure.persistence.hibernate.session.SessionRepository;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindException;
@@ -78,6 +80,8 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 
 	@Autowired
 	private UserRepository userRepository;
+	
+	private static final Logger logger = LoggerFactory.getLogger(SessionServiceImpl.class);
 
 	@Override
 	public ActionResponseDTO<Session> createSession(Session session, User user) {
@@ -147,12 +151,14 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 
 	@Override
 	public ActionResponseDTO<SessionItem> createSessionItem(SessionItem sessionItem, String sessionId) {
+		Errors errors = null;
+	 try {
 		Session session = this.getSessionRepository().findSessionById(sessionId);
 		Resource resource = this.getResourceRepository().findResourceByContentGooruId(sessionItem.getResource().getGooruOid());
 		if (sessionItem.getSessionItemId() == null) {
 			sessionItem.setSessionItemId(UUID.randomUUID().toString());
 		}
-		Errors errors = this.validateSessionItem(session, sessionItem, resource);
+		errors = this.validateSessionItem(session, sessionItem, resource);
 		if (!errors.hasErrors()) {
 			SessionItem previousItem = this.getSessionRepository().getLastSessionItem(sessionId);
 			if (previousItem != null) {
@@ -171,6 +177,9 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 
 			this.getSessionRepository().save(sessionItem);
 		}
+	 } catch(Exception e) { 
+		 logger.error("Failed to log : " + e);
+	 }
 		return new ActionResponseDTO<SessionItem>(sessionItem, errors);
 	}
 
