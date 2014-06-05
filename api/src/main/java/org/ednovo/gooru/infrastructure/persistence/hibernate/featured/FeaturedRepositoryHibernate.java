@@ -329,6 +329,11 @@ public class FeaturedRepositoryHibernate extends BaseRepositoryHibernate impleme
 		query.executeUpdate();
 	}
 	
-	
+	@Override
+	public FeaturedSet getFeaturedSetByIds(Integer featuredSetId) {
+		String sql = "select * from featured_set fs where fs.featured_set_id = " + featuredSetId;
+		Query query = getSession().createSQLQuery(sql).addEntity(FeaturedSet.class);
+		return query.list().size() > 0 ? (FeaturedSet) query.list().get(0) : null;	
+	}
 
 }

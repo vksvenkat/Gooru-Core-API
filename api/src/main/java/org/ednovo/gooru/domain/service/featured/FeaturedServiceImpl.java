@@ -921,7 +921,7 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 	public void deleteLibraryCollectionAssoc(String featuredSetId, String codeId, String gooruOid) {
 		Collection collection = this.getCollectionRepository().getCollectionByGooruOid(gooruOid, null);
 		rejectIfNull(collection, GL0056, _COLLECTION);
-		FeaturedSet featuredSet = this.getFeaturedRepository().getFeaturedSetById(Integer.parseInt(featuredSetId));
+		FeaturedSet featuredSet = this.getFeaturedRepository().getFeaturedSetByIds(Integer.parseInt(featuredSetId));
 		rejectIfNull(featuredSet, GL0056, LIBRARY);
 		Code code = this.getTaxonomyRespository().findCodeByCodeId(Integer.parseInt(codeId));
 		rejectIfNull(code, GL0056, CODE);
