@@ -898,7 +898,7 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 		if (result != null && result.size() > 0) {
 			throw new BadRequestException(collection.getGooruOid() + " already associated");
 		} else {
-			FeaturedSet featuredSet = this.getFeaturedRepository().getFeaturedSetById(Integer.parseInt(featuredId));
+			FeaturedSet featuredSet = this.getFeaturedRepository().getFeaturedSetByIds(Integer.parseInt(featuredId));
 			rejectIfNull(featuredSet, GL0056, LIBRARY);
 			Code code = this.getTaxonomyRespository().findCodeByCodeId(Integer.parseInt(codeId));
 			rejectIfNull(code, GL0056, CODE);
