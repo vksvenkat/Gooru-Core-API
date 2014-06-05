@@ -891,7 +891,7 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 			map.put("collection-id", content.getGooruOid());
 			
 			map.put("recipient", collaboratorData.get("emailId"));
-			map.put("htmlContent", generateMessage((String) map.get("htmlContent"), map));
+			map.put("htmlContent", generateMessage((String) map.get("templateContent"), map));
 			map.put("content", generateMessage((String) map.get("textContent"), map));
 			map.put("from", getConfigSetting(ConfigConstants.MAIL_FROM, TaxonomyUtil.GOORU_ORG_UID));
 			map.put("bcc", getConfigSetting(ConfigConstants.MAIL_BCC_SUPPORT, TaxonomyUtil.GOORU_ORG_UID));
@@ -900,7 +900,7 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 		}
 	}
 	
-	public void sendMailToInviteUser(String email, String gooruOid, User user, String title, String inviteUser) {
+	public void sendMailToInviteUser(String email, String gooruOid, User user, String title, String inviteUser, String classCode) {
 		
 		final String serverpath = this.getServerConstants().getProperty(SERVERPATH);
 			EventMapping eventMapping = this.getEventService().getTemplatesByEventName(CustomProperties.EventMapping.SEND_MAIL_TO_INVITE_USER_CLASS.getEvent());
@@ -911,8 +911,9 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 			map.put(MEMBERMAILID, email);
 			map.put(GOORU_OID, gooruOid);
 			map.put(RECIPIENT, email);
-			map.put(HTMLCONTENT, generateMessage((String) map.get(HTMLCONTENT), map));
-			map.put(SUBJECT, "You’re invited to the Gooru Class \""+title+"\"");
+			map.put("classCode", classCode);
+			map.put(HTMLCONTENT, generateMessage((String) map.get("templateContent"), map));
+			map.put(SUBJECT,  inviteUser + " has invited to the Gooru Class \""+title+"\"");
 			map.put(CONTENT, generateMessage((String) map.get(TEXTCONTENT), map));
 			map.put("from", getConfigSetting(ConfigConstants.MAIL_FROM, TaxonomyUtil.GOORU_ORG_UID));
 			map.put(BCC, getConfigSetting(ConfigConstants.MAIL_BCC_SUPPORT, TaxonomyUtil.GOORU_ORG_UID));
@@ -943,6 +944,7 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 		}
 		map.put("htmlContent", eventMapping.getTemplate().getHtmlContent());
 		map.put("textContent", eventMapping.getTemplate().getTextContent());
+		map.put("templateContent", eventMapping.getTemplate().getTemplateContent());
 		map.put("subject", eventMapping.getTemplate().getSubject());
 		map.put("media-url", settingService.getConfigSetting(ConfigConstants.GOORU_MEDIA_END_POINT, 0, TaxonomyUtil.GOORU_ORG_UID));
 		return map;

@@ -296,7 +296,7 @@ public interface ConstantProperties {
 
 	static final String[] OPTIONS_INCLUDE = { "*.isRandomize", "*.isRandomizeChoice", "*.showCorrectAnswer", "*.showHints", "*.showScore" };
 
-	static final String FEEDBACK_INCLUDE_FIELDS[] = {"*.searchResults","*.feedback","*.totalHitCount", "*.gooruOid", "*.target.value", "*.type.value", "*.category.value", "*.freeText", "*.score", "*.assocGooruOid", "*.assocUserUid", "*.creator.gooruUId", "*.creator.username", "*.creator.firstName", "*.creator.lastName", "*.referenceKey", "*.createdDate", "*.lastModifiedOn" };
+	static final String FEEDBACK_INCLUDE_FIELDS[] = {"*.searchResults","*.feedback","*.totalHitCount", "*.gooruOid", "*.target.value", "*.type.value", "*.category.value", "*.freeText", "*.score", "*.assocGooruOid", "*.assocUserUid", "*.creator.gooruUId", "*.creator.username", "*.creator.firstName", "*.creator.lastName", "*.referenceKey", "*.createdDate", "*.lastModifiedOn","*.ratings","*.ratings.count","*.ratings.average" };
 
 	static final String[] CONTENT_INCLUDES = { "gooruOid", "sharing", "createdOn", "lastModified", "lastUpdatedUserUid", "statusType", "statusType.value", "isDeleted", "", "", "", "", "", "" };
 
@@ -355,7 +355,7 @@ public interface ConstantProperties {
 	static final String ORGANIZATION_SETTING_INCLUDE[] = { "key", "value" };
 
 	static final String LIBRARY_CODE_INCLUDES[] = { "*.unit", "*.lesson", "*.count", "*.topic", "*.data", "*.course", "*.collection", "*.featured", "*.science", "*.math", "*.social-sciences", "*.language-arts", "*.code", "*.codeId", "*.code", "*.label", "*.parentId", "*.thumbnails",
-			"*.thumbnails.url", "*.thumbnails.dimensions", "*.thumbnails.isDefaultImage", "*.gooruOid", "*.title", "*.creator", "*.firstName", "*.lastName", "*.username", "*.gooruUId", "*.metaInfo", "*.gender", "*.isOwner", "*.user", "*.standard", "*.concept" };
+			"*.thumbnails.url", "*.thumbnails.dimensions", "*.thumbnails.isDefaultImage", "*.gooruOid", "*.title", "*.creator", "*.firstName", "*.lastName", "*.username", "*.gooruUId", "*.metaInfo", "*.gender", "*.isOwner", "*.user", "*.standard", "*.concept", "*.node" };
 
 	static final String LIBRARY_CONTRIBUTOR_INCLUDES[] = { "*.courses", "*.codeId", "*.code", "*.codeId", "*.code", "*.label", "*.parentId", "*.creator", "*.firstName", "*.lastName", "*.username", "*.gooruUId", "*.gooruUId", "*.isFeatured", "*.gender" };
 
@@ -376,6 +376,8 @@ public interface ConstantProperties {
 	static final String [] STUDY_RESOURCE_FIELDS = {"*.totalHitCount","*.searchResults","*.classCode","*.status","*.title","*.gooruOid","*.createdOn","*.gooruUId", "*.user"};
 	
 	static final String [] CLASS_MEMBER_FIELDS = {"*.totalHitCount","*.searchResults","*.emailId","*.username","*.gooruUid","*.associatedDate","*.status","*.profileImageUrl"};
+	
+	static final String [] USER_CONTENT_TAGS_INCLUDES = {"*.totalHitCount","*.searchResults","*.count","*.label"};
 
 	static final String[] COLLECTION_STANDARDS_INCLUDES = {"searchResults","*.code","*.label","*.codeUid","*.codeId"};
 
@@ -438,4 +440,6 @@ public interface ConstantProperties {
 	public static String IS_FEATURED_USER = "is_featured";
 	
 	public static String FEATURED_USER = "isFeaturedUser";
+	
+	public static String NODE = "node";
 }

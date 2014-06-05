@@ -73,4 +73,8 @@ public interface FeaturedService {
 	List<Map<String, Object>> getLibrary(String libraryName);
 	
 	void deleteLibraryCollectionAssoc(String featuredSetId, String codeId, String gooruOid);
+	
+	List<Map<String, Object>> getLibraryItem(String type, String libraryName);
+	
+	List<Map<String, Object>> getLibraryItems(String itemType, String type,String codeId, String libraryName, String rootNodeId, Integer limit, Integer offset);
 }

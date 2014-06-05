@@ -132,6 +132,9 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 		}
 		this.getFeedbackRepository().saveAll(feedbackList);
 		this.getFeedbackRepository().flush();
+		for (Feedback feedback : feedbacks) {
+			feedback.setRatings(this.getContentFeedbackStarRating(feedback.getAssocGooruOid()));
+		}
 		Resource resource = this.getResourceRepository().findResourceByContentGooruId(newFeedback.getAssocGooruOid());
 		if (resource != null && resource.getContentId() != null) {
 			if (resource.getResourceType() != null && resource.getResourceType().getName().equalsIgnoreCase(ResourceType.Type.SCOLLECTION.getType())) {
@@ -185,7 +188,7 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 	}
 
 	@Override
-	public SearchResults<Feedback> getContentFeedbacks(String feedbackCategory, String feedbackType, String assocGooruOid, String creatorUid, Integer limit, Integer offset, Boolean skipPagination) {
+	public SearchResults<Feedback> getContentFeedbacks(String feedbackCategory, String feedbackType, String assocGooruOid, String creatorUid, Integer limit, Integer offset, Boolean skipPagination,String orderBy) {
 		String type = null;
 		String category = null;
 		if (feedbackType != null) {
@@ -193,9 +196,9 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 		} else {
 			category = CustomProperties.Table.FEEDBACK_CATEGORY.getTable() + "_" + feedbackCategory;
 		}
-		rejectIfNull(this.getContentRepository().findContentByGooruId(assocGooruOid), GL0056, _CONTENT);
+		//rejectIfNull(this.getContentRepository().findContentByGooruId(assocGooruOid), GL0056, _CONTENT);
 		SearchResults<Feedback> result = new SearchResults<Feedback>();
-		result.setSearchResults(this.getFeedbackRepository().getContentFeedbacks(type, assocGooruOid, creatorUid, category, limit, offset, skipPagination));
+		result.setSearchResults(this.getFeedbackRepository().getContentFeedbacks(type, assocGooruOid, creatorUid, category, limit, offset, skipPagination,orderBy));
 		result.setTotalHitCount(this.getFeedbackRepository().getContentFeedbacksCount(type, assocGooruOid, creatorUid, category));
 		return result;
 	}
@@ -367,6 +370,7 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 					contentFeedback.setFreeText(feedback.getFreeText());
 				}
 				this.getFeedbackRepository().save(contentFeedback);
+				this.getFeedbackRepository().flush();
 				ResourceSummary resourceSummary = this.getResourceRepository().getResourceSummaryById(feedback.getAssocGooruOid());
 				Map<String, Object> summary = this.getContentFeedbackStarRating(feedback.getAssocGooruOid());
 				if (resourceSummary == null) {
@@ -375,6 +379,7 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 				}
 				resourceSummary.setRatingStarCount((Double) summary.get("count"));
 				resourceSummary.setRatingStarAvg((Long) summary.get("average"));
+				contentFeedback.setRatings(summary);
 				this.getFeedbackRepository().save(resourceSummary);
 				this.getFeedbackRepository().flush();
 				return contentFeedback;
@@ -415,7 +420,6 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 	@Override
 	public Map<String, Object> getContentFeedbackStarRating(String assocGooruOid) {
 		String feedbackType = CustomProperties.Table.FEEDBACK_RATING_TYPE.getTable() + "_" + CustomProperties.FeedbackRatingType.STAR.getFeedbackRatingType();
-		rejectIfNull(this.getContentRepository().findContentByGooruId(assocGooruOid), GL0056, _CONTENT);
 		return this.getFeedbackRepository().getContentFeedbackRating(assocGooruOid, feedbackType);
 	}
 
@@ -465,13 +469,7 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 	public List<Map<Object, Object>> getContentFeedbackAggregate(String assocGooruUid, String feedbackCategory) {
 		String category = CustomProperties.Table.FEEDBACK_CATEGORY.getTable() + "_" + feedbackCategory;
 		rejectIfNull(category, GL0006, feedbackCategory + CATEGORY);
-		Content content = this.getContentRepository().findContentByGooruId(assocGooruUid);
-		rejectIfNull(content, GL0056, CONTENT);
-		Boolean flag = false;
-		if (content.getContentType() != null && content.getContentType().getName().equals(TASK)) {
-			flag = true;
-		}
-		return this.getFeedbackRepository().getContentFeedbackAggregate(assocGooruUid, category, flag);
+		return this.getFeedbackRepository().getContentFeedbackAggregate(assocGooruUid, category, false);
 	}
 
 	@Override

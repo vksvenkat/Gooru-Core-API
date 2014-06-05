@@ -1027,6 +1027,8 @@ public interface ParameterProperties {
 	String TEMPLATE_HTML = "Template html ";
 
 	String TEMPLATE_TEXT = "Template text ";
+	
+	String TEMPLATE_CONTENT = "templateContent";
 
 	String TEMPLATE_SUBJECT = "Template subject ";
 
@@ -2675,4 +2677,6 @@ public interface ParameterProperties {
 	String LIBRARY_ID = "libraryId";
 	
 	String LIBRARY_NAMES = "library,rusd";
+	
+	String TOP_LEVEL_COLLECTION_TYPE = "topLevelCollectionType";
 }

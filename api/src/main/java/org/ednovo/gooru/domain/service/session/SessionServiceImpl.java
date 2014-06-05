@@ -53,6 +53,8 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.resource.ResourceRe
 import org.ednovo.gooru.infrastructure.persistence.hibernate.session.SessionRepository;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindException;
@@ -78,6 +80,8 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 
 	@Autowired
 	private UserRepository userRepository;
+	
+	private static final Logger logger = LoggerFactory.getLogger(SessionServiceImpl.class);
 
 	@Override
 	public ActionResponseDTO<Session> createSession(Session session, User user) {
@@ -101,12 +105,19 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 	public SessionItemFeedback createSessionItemFeedback(String sessionId, SessionItemFeedback sessionItemFeedback, User user) {
 		User feedbackUser = this.getUserRepository().findByGooruId(sessionItemFeedback.getUser().getPartyUid());
 		rejectIfNull(feedbackUser, GL0056, USER);
-		sessionItemFeedback.setCreatedOn(new Date(System.currentTimeMillis()));
-		sessionItemFeedback.setFreeText(sessionItemFeedback.getFreeText());
-		sessionItemFeedback.setFeedbackProvidedBy(user);
-		sessionItemFeedback.setSessionId(sessionId);
-		sessionItemFeedback.setUser(feedbackUser);
-		this.getSessionRepository().save(sessionItemFeedback);
+		SessionItemFeedback sessionItemFeedbackUpdate = this.getSessionRepository().getSessionItemFeedback(sessionItemFeedback.getContentGooruOId(), feedbackUser.getGooruUId());
+		if (sessionItemFeedbackUpdate != null) {
+			sessionItemFeedbackUpdate.setFreeText(sessionItemFeedback.getFreeText());
+			this.getSessionRepository().save(sessionItemFeedbackUpdate);
+			sessionItemFeedback.setCreatedOn(new Date(System.currentTimeMillis()));
+		} else {
+			sessionItemFeedback.setCreatedOn(new Date(System.currentTimeMillis()));
+			sessionItemFeedback.setFreeText(sessionItemFeedback.getFreeText());
+			sessionItemFeedback.setFeedbackProvidedBy(user);
+			sessionItemFeedback.setSessionId(sessionId);
+			sessionItemFeedback.setUser(feedbackUser);
+			this.getSessionRepository().save(sessionItemFeedback);
+		}
 		try {
 			getEventLogs(sessionItemFeedback, user);
 		} catch (JSONException e) {
@@ -140,12 +151,14 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 
 	@Override
 	public ActionResponseDTO<SessionItem> createSessionItem(SessionItem sessionItem, String sessionId) {
+		Errors errors = null;
+	 try {
 		Session session = this.getSessionRepository().findSessionById(sessionId);
 		Resource resource = this.getResourceRepository().findResourceByContentGooruId(sessionItem.getResource().getGooruOid());
 		if (sessionItem.getSessionItemId() == null) {
 			sessionItem.setSessionItemId(UUID.randomUUID().toString());
 		}
-		Errors errors = this.validateSessionItem(session, sessionItem, resource);
+		errors = this.validateSessionItem(session, sessionItem, resource);
 		if (!errors.hasErrors()) {
 			SessionItem previousItem = this.getSessionRepository().getLastSessionItem(sessionId);
 			if (previousItem != null) {
@@ -164,6 +177,9 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 
 			this.getSessionRepository().save(sessionItem);
 		}
+	 } catch(Exception e) { 
+		 logger.error("Failed to log : " + e);
+	 }
 		return new ActionResponseDTO<SessionItem>(sessionItem, errors);
 	}
 
@@ -306,8 +322,8 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 	private void getEventLogs(SessionItemFeedback sessionItemFeedback, User feedbackProvider) throws JSONException {
 		SessionContextSupport.putLogParameter(EVENT_NAME, "resource.user.feedback");
 		JSONObject context = SessionContextSupport.getLog().get("context") != null ? new JSONObject(SessionContextSupport.getLog().get("context").toString()) :  new JSONObject();
-		context.put("contentGooruOId", sessionItemFeedback.getContentGooruOId());
-		context.put("parentGooruOId", sessionItemFeedback.getParentGooruOId());
+		context.put("contentGooruId", sessionItemFeedback.getContentGooruOId());
+		context.put("parentGooruId", sessionItemFeedback.getParentGooruOId());
 		SessionContextSupport.putLogParameter("context", context.toString());
 		JSONObject payLoadObject = SessionContextSupport.getLog().get("payLoadObject") != null ? new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString()) :  new JSONObject();
 		payLoadObject =  sessionItemFeedback.getPlayLoadObject() != null ? new JSONObject(sessionItemFeedback.getPlayLoadObject()) :  new JSONObject();

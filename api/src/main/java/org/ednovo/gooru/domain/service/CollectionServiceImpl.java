@@ -228,9 +228,9 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	}
 
 	@Override
-	public List<Map<String, Object>> getMyShelf(String gooruUid, Integer limit, Integer offset, String sharing, String collectionType, Integer itemLimit, boolean fetchChildItem) {
+	public List<Map<String, Object>> getMyShelf(String gooruUid, Integer limit, Integer offset, String sharing, String collectionType, Integer itemLimit, boolean fetchChildItem, String topLevelCollectionType) {
 		StorageArea storageArea = this.getStorageRepository().getStorageAreaByTypeName(NFS);
-		List<Object[]> result = this.getCollectionRepository().getMyFolder(gooruUid, limit, offset, sharing,  collectionType);
+		List<Object[]> result = this.getCollectionRepository().getMyFolder(gooruUid, limit, offset, sharing,  topLevelCollectionType != null  ? topLevelCollectionType : collectionType);
 		List<Map<String, Object>> folderList = new ArrayList<Map<String, Object>>();
 		int count = 0;
 		if (result != null && result.size() > 0) {
@@ -350,11 +350,11 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				}
 				if (fetchChildItem && (String.valueOf(object[2]).equalsIgnoreCase(SCOLLECTION) || String.valueOf(object[2]).equalsIgnoreCase(FOLDER))) {
 					if (String.valueOf(object[2]).equalsIgnoreCase(SCOLLECTION)) {
-						if (collectionItemcount == 0) {
+						//if (collectionItemcount == 0) {
 							item.put(COLLECTION_ITEMS, getFolderItem(String.valueOf(object[1]), sharing, String.valueOf(object[2]), collectionType, type.equalsIgnoreCase(SCOLLECTION) ? 4 : itemLimit, fetchChildItem));
 							item.put(ITEM_COUNT, this.getCollectionRepository().getCollectionItemCount(String.valueOf(object[1]), sharing, collectionType));
 							collectionItemcount++;
-						}
+						//}
 					} else if ((String.valueOf(object[2]).equalsIgnoreCase(SCOLLECTION) || String.valueOf(object[2]).equalsIgnoreCase(FOLDER))) {
 						item.put(COLLECTION_ITEMS, getFolderItem(String.valueOf(object[1]), sharing, String.valueOf(object[2]), collectionType, type.equalsIgnoreCase(SCOLLECTION) ? 4 : itemLimit, fetchChildItem));
 						item.put(ITEM_COUNT, this.getCollectionRepository().getCollectionItemCount(String.valueOf(object[1]), sharing, collectionType));

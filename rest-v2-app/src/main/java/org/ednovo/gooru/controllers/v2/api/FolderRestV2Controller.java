@@ -234,13 +234,13 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
 	@RequestMapping(value = { "/{id}/workspace" }, method = RequestMethod.GET)
-	public ModelAndView getMyWorkspace(@PathVariable(value = ID) String gooruUid, HttpServletRequest request, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "20") Integer limit,  @RequestParam(value = SHARING, required = false, defaultValue="private,public,anyonewithlink") String sharing,@RequestParam(value = "collectionType" , required = false ) String collectionType, @RequestParam(value = ITEM_LIMIT_FIELD, required = false, defaultValue = "4") Integer itemLimit, @RequestParam(value = FETCH_CHILDS , required = false, defaultValue = "false") boolean fetchChilds, HttpServletResponse resHttpServletResponse) {
+	public ModelAndView getMyWorkspace(@PathVariable(value = ID) String gooruUid, HttpServletRequest request, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "20") Integer limit,  @RequestParam(value = SHARING, required = false, defaultValue="private,public,anyonewithlink") String sharing,@RequestParam(value = "collectionType" , required = false ) String collectionType, @RequestParam(value = ITEM_LIMIT_FIELD, required = false, defaultValue = "4") Integer itemLimit, @RequestParam(value = FETCH_CHILDS , required = false, defaultValue = "false") boolean fetchChilds, @RequestParam(value = TOP_LEVEL_COLLECTION_TYPE , required = false) String topLevelCollectionType, HttpServletResponse resHttpServletResponse) {
 		if (gooruUid.equalsIgnoreCase(MY)) {
 			User user = (User) request.getAttribute(Constants.USER);
 			gooruUid = user.getPartyUid();
 		}
 		Map<String, Object> content = new HashMap<String, Object>();
-		content.put(SEARCH_RESULT, this.getCollectionService().getMyShelf(gooruUid, limit, offset,sharing, collectionType, itemLimit, fetchChilds));
+		content.put(SEARCH_RESULT, this.getCollectionService().getMyShelf(gooruUid, limit, offset,sharing, collectionType, itemLimit, fetchChilds, topLevelCollectionType));
 		content.put(COUNT, this.getCollectionRepository().getMyShelfCount(gooruUid,sharing, collectionType));
 		return toJsonModelAndView(content, true);
 	}

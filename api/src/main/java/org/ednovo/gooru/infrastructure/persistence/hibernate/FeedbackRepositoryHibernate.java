@@ -90,7 +90,7 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 	}
 
 	@Override
-	public List<Feedback> getContentFeedbacks(String type, String assocGooruOid, String creatorUid, String category, Integer limit, Integer offset, Boolean skipPagination) {
+	public List<Feedback> getContentFeedbacks(String type, String assocGooruOid, String creatorUid, String category, Integer limit, Integer offset, Boolean skipPagination, String orderBy) {
 		Session session = getSession();
 		String hql = " FROM  Feedback feedback WHERE " + generateOrgAuthQuery("feedback.") + " and feedback.assocGooruOid=:assocGooruOid ";
 		if (category != null) {
@@ -102,7 +102,11 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 		if (creatorUid != null) {
 			hql += " and feedback.creator.partyUid =:creatorUid";
 		}
-		hql += " order by  feedback.lastModifiedOn desc";
+		if (orderBy != null && orderBy.equalsIgnoreCase("lastModified")) {
+			hql += " order by  feedback.lastModifiedOn desc";
+		} else {
+			hql += " order by  feedback.createdDate desc";
+		}
 		Query query = session.createQuery(hql);
 		query.setParameter("assocGooruOid", assocGooruOid);
 		if (type != null) {
