@@ -24,6 +24,7 @@
 package org.ednovo.gooru.infrastructure.persistence.hibernate.content;
 
 import java.util.List;
+import java.util.Map;
 
 import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.api.model.Content;
@@ -76,5 +77,9 @@ public interface ContentRepository extends BaseRepository {
 	List<ContentProvider> getContentProvider(Integer offset, Integer limit);
 	
 	List<ContentProviderAssociation> getContentProviderByGooruOid(String gooruOid);
+	
+	List<Object[]> getUserContentTagList(String gooruUid, Integer limit, Integer offset, Boolean skipPagination);
+	
+	Long getUserContentTagCount(String gooruUid);
 
 }

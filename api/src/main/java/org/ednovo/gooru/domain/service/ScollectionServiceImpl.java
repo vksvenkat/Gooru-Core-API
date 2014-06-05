@@ -411,7 +411,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			if (taxonomyCode != null) {
 				addCollectionTaxonomy(collection, taxonomyCode, updateTaxonomyByCode);
 				this.getCollectionRepository().save(collection);
-				collection.setTaxonomySetMapping(TaxonomyUtil.getTaxonomyMapByCode(collection.getTaxonomySet(), taxonomyService));
+				collection.setTaxonomySetMapping(TaxonomyUtil.getTaxonomyByCode(collection.getTaxonomySet(), taxonomyService));
 			}
 			
 
@@ -813,7 +813,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				this.setColletionMetaData(collection, user, merge, false, rootNodeId);
 			}
 			if(isGat){
-				collection.setTaxonomySetMapping(TaxonomyUtil.getTaxonomyMapByCode(collection.getTaxonomySet(), taxonomyService));
+				collection.setTaxonomySetMapping(TaxonomyUtil.getTaxonomyByCode(collection.getTaxonomySet(), taxonomyService));
 			}
 			if (collection.getUser() != null) {
 				collection.getUser().setProfileImageUrl(this.getUserService().buildUserProfileImageUrl(collection.getUser()));
@@ -841,7 +841,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				collectionItem.getResource().setEducationalUse(this.setContentMetaAssociation(this.getContentMetaAssociation("educational_use"), collectionItem.getResource().getGooruOid(), "educational_use"));
 				collectionItem.getResource().setRatings(this.getFeedbackService().getContentFeedbackStarRating(collectionItem.getResource().getGooruOid()));
 				collectionItem.getResource().setCustomFieldValues(this.getCustomFieldsService().getCustomFieldsValuesOfResource(collectionItem.getResource().getGooruOid()));
-				getResourceService().setContentProvider(collectionItem.getResource());
+				collectionItem.setResource(getResourceService().setContentProvider(collectionItem.getResource()));
 			}
 			if (collection.getCollectionType().equalsIgnoreCase(COLLECTION)) {
 				collection.setDepthOfKnowledges(this.setContentMetaAssociation(this.getContentMetaAssociation("depth_of_knowledge"), collectionId, "depth_of_knowledge"));
@@ -1472,7 +1472,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 			if (newCollection.getTaxonomySet() != null) {
 				resourceService.saveOrUpdateResourceTaxonomy(collection, newCollection.getTaxonomySet());
-				collection.setTaxonomySetMapping(TaxonomyUtil.getTaxonomyMapByCode(collection.getTaxonomySet(), taxonomyService));
+				collection.setTaxonomySetMapping(TaxonomyUtil.getTaxonomyByCode(collection.getTaxonomySet(), taxonomyService));
 			}
 
 			if (newCollection.getVocabulary() != null) {

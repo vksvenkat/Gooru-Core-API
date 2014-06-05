@@ -210,6 +210,6 @@ public interface ResourceService extends BaseService {
 	
 	Map<String, Object> getResource(String gooruOid);
 	
-	void setContentProvider(Resource resource);
+	Resource setContentProvider(Resource resource);
 
 }

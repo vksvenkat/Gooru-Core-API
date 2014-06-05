@@ -29,17 +29,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.ednovo.gooru.application.util.TaxonomyUtil;
 import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.ContentPermission;
 import org.ednovo.gooru.core.api.model.ContentTagAssoc;
 import org.ednovo.gooru.core.api.model.CustomTableValue;
+import org.ednovo.gooru.core.api.model.SearchResult;
 import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.Tag;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.application.util.CustomProperties;
+import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.domain.service.BaseServiceImpl;
+import org.ednovo.gooru.domain.service.search.SearchResults;
 import org.ednovo.gooru.domain.service.tag.TagService;
 import org.ednovo.gooru.domain.service.user.UserService;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.collaborator.CollaboratorRepository;
@@ -182,6 +186,25 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 			this.getContentRepository().removeAll(contentPermissions);
 		}
 	}
+	
+	@Override
+	public SearchResults<Map<String, Object>> getUserContentTagList(String gooruUid, Integer limit, Integer offset, Boolean skipPagination) {
+		if(this.getUserService().findByGooruId(gooruUid) == null ) {
+			throw new NotFoundException(gooruUid + " not found ");
+		}
+		List<Object[]> results = this.getContentRepository().getUserContentTagList(gooruUid, limit, offset, skipPagination);
+		SearchResults<Map<String, Object>> searchResult = new SearchResults<Map<String,Object>>();
+		List<Map<String, Object>> userTags = new ArrayList<Map<String,Object>>();
+		for (Object[] object : results) {
+			Map<String, Object> result = new HashMap<String, Object>();
+			result.put("count", object[0]);
+			result.put("label", object[1]);
+			userTags.add(result);
+		}
+		searchResult.setSearchResults(userTags);
+		searchResult.setTotalHitCount(this.getContentRepository().getUserContentTagCount(gooruUid));
+		return searchResult;
+	}
 
 	@Override
 	public List<String> getContentPermission(String gooruOid, User apiCaller) {
@@ -223,5 +246,6 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 	public CollaboratorRepository getCollaboratorRepository() {
 		return collaboratorRepository;
 	}
+
 
 }
