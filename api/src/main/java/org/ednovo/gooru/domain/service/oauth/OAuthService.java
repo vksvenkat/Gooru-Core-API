@@ -36,7 +36,7 @@ public interface OAuthService {
 	
 	public ActionResponseDTO<OAuthClient> createNewOAuthClient(OAuthClient oAuthClient, String organizationUId) throws Exception;
 	
-	public ActionResponseDTO<OAuthClient> updateOAuthClient(OAuthClient oAuthClient);
+	public ActionResponseDTO<OAuthClient> updateOAuthClient(OAuthClient oAuthClient, User apiCaller);
 
 	public List<OAuthClient> listOAuthClient(String gooruUId, int pageNo, int pageSize) throws Exception;
 
@@ -47,5 +47,7 @@ public interface OAuthService {
 	public OAuthClient getOAuthClientByClientSecret(String clientSecret) throws Exception;
 	
 	List<OAuthClient> listOAuthClientByOrganization(String organizationUId, int pageNo, int pageSize) throws Exception;
+	
+	public Boolean isSuperAdmin(User user);
 
 }
