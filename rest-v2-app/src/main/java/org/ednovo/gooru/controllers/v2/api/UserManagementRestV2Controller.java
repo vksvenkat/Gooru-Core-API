@@ -130,7 +130,6 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 				Identity identity = iter.next();
 				SessionContextSupport.putLogParameter(CREATED_TYPE, identity != null ? identity.getAccountCreatedType() : null);
 			}
-			SessionContextSupport.putLogParameter(EVENT_NAME, "create-user");
 			SessionContextSupport.putLogParameter(ORGANIZATION_ID, user.getOrganization().getPartyUid());
 			SessionContextSupport.putLogParameter(CREATED_DATE, user.getCreatedOn());
 			SessionContextSupport.putLogParameter(GOORU_UID, user.getPartyUid());

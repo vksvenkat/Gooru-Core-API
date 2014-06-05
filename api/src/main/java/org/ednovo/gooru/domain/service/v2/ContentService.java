@@ -28,6 +28,7 @@ import java.util.Map;
 
 import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.User;
+import org.ednovo.gooru.domain.service.search.SearchResults;
 
 
 
@@ -38,6 +39,8 @@ public interface ContentService {
 	void deleteTagAssoc(String gooruOid, List<String> labels, User apiCaller);
 	
 	List<Map<String, Object>> getContentTagAssoc(String gooruOid, User user);
+	
+	SearchResults<Map<String, Object>> getUserContentTagList(String gooruUid,Integer limit,Integer offset,Boolean skipPagination);
 	
 	Content updateContent(String gooruOid, Content newContent);
 	

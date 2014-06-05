@@ -127,7 +127,7 @@ public class AssignmentServiceImpl extends ScollectionServiceImpl implements Par
 
 			if (taxonomyCode != null) {
 				addCollectionTaxonomy(assignment, taxonomyCode, updateTaxonomyByCode);
-				assignment.setTaxonomySetMapping(TaxonomyUtil.getTaxonomyMapByCode(assignment.getTaxonomySet(), taxonomyService));
+				assignment.setTaxonomySetMapping(TaxonomyUtil.getTaxonomyByCode(assignment.getTaxonomySet(), taxonomyService));
 			}
 			if (newAssignment.getTrackActivity().getEndTime() != null) {
 				assignment.getTrackActivity().setEndTime(newAssignment.getTrackActivity().getEndTime());

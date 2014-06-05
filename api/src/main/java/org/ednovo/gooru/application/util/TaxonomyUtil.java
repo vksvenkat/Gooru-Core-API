@@ -148,6 +148,44 @@ public class TaxonomyUtil {
 		}
 		return codeParentsMap;
 	}
+	
+	public static final Map<Integer, List<Map<String, Object>>> getTaxonomyByCode(Set<Code> taxonomySet, TaxonomyService taxonomyService) {
+
+		Iterator<Code> iter = taxonomySet.iterator();
+		Map<Integer, List<Map<String, Object>>> codeParentsMap = new HashMap<Integer, List<Map<String, Object>>>();
+		while (iter.hasNext()) {
+			Code code = iter.next();
+
+			List<Code> codeList = taxonomyService.findParentTaxonomy(code.getCodeId(), true);
+			List<Map<String, Object>> taxonomyMap = new ArrayList<Map<String, Object>>();
+			for (Code listCode : codeList) {
+				taxonomyMap.add(getTaxonomyMapCode(listCode));
+			}
+			codeParentsMap.put(code.getCodeId(), taxonomyMap);
+
+		}
+		return codeParentsMap;
+	}
+	
+	public static Map<String, Object> getTaxonomyMapCode(Code code) {
+		Map<String, Object> codeMap = new HashMap<String, Object>();
+		codeMap.put("activeFlag", code.getActiveFlag());
+		codeMap.put("code", code.getCode());
+		codeMap.put("assetURI", code.getAssetURI());
+		codeMap.put("codeId", code.getCodeId());
+		codeMap.put("codeUid", code.getCodeUid());
+		codeMap.put("depth", code.getDepth());
+		codeMap.put("description", code.getDescription());
+		codeMap.put("displayCode", code.getdisplayCode());
+		codeMap.put("displayOrder", code.getDisplayOrder());
+		codeMap.put("entryId", code.getEntryId());
+		codeMap.put("grade", code.getGrade());
+		codeMap.put("indexId", code.getIndexId());
+		codeMap.put("indexType", code.getIndexType());
+		codeMap.put("label", code.getLabel());
+		codeMap.put("commonCoreDotNotation", code.getCommonCoreDotNotation());
+		return codeMap;
+	}
 
 	public static final Map<String, String> getTaxonomyMapByName(Set<Code> taxonomySet, TaxonomyRespository taxonomyRepository) {
 
