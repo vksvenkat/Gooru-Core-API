@@ -29,6 +29,8 @@ import java.util.UUID;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Organization;
 import org.ednovo.gooru.core.api.model.User;
+import org.ednovo.gooru.core.api.model.UserRoleAssoc;
+import org.ednovo.gooru.core.api.model.UserRole.UserRoleType;
 import org.ednovo.gooru.core.application.util.ServerValidationUtils;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.domain.model.oauth.AuthorizationGrantType;
@@ -137,7 +139,7 @@ public class OAuthServiceImpl extends ServerValidationUtils implements OAuthServ
 	}
 
 	@Override
-	public ActionResponseDTO<OAuthClient> updateOAuthClient(OAuthClient oAuthClient) {
+	public ActionResponseDTO<OAuthClient> updateOAuthClient(OAuthClient oAuthClient, User apiCaller) {
 		rejectIfNull(oAuthClient, GL0056, "oAuthClient");
 		OAuthClient exsitsOAuthClient = (OAuthClient) oAuthRepository.get(OAuthClient.class, oAuthClient.getOauthClientUId());
 		rejectIfNull(exsitsOAuthClient, GL0056, "oAuthClient");
@@ -149,6 +151,15 @@ public class OAuthServiceImpl extends ServerValidationUtils implements OAuthServ
 		}
 		if(oAuthClient.getRedirectUris() != null){
 			exsitsOAuthClient.setRedirectUris(oAuthClient.getRedirectUris());
+		}
+		if (isSuperAdmin(apiCaller)) {
+			if(oAuthClient.getClientId() != null){
+				exsitsOAuthClient.setClientId(oAuthClient.getClientId());
+			}
+			if(oAuthClient.getClientSecret() != null){
+				exsitsOAuthClient.setClientSecret(oAuthClient.getClientSecret());
+			}
+			
 		}
 		oAuthRepository.save(exsitsOAuthClient);
 		final Errors errors = new BindException(OAuthClient.class, "oAuthClient");
@@ -203,6 +214,20 @@ public class OAuthServiceImpl extends ServerValidationUtils implements OAuthServ
 		rejectIfNull(errors, oAuthClient, "userUid", GL0056, generateErrorMessage(GL0056, "userUid"));
 		rejectIfNull(errors, oAuthClient, "clientName", GL0056, generateErrorMessage(GL0056, "clientName"));
 		return errors;
+	}
+	@Override
+	public Boolean isSuperAdmin(User user) {
+		Boolean isSuperAdmin = false;
+		if (user.getUserRoleSet() != null) {
+			for (UserRoleAssoc userRoleAssoc : user.getUserRoleSet()) {
+				if (userRoleAssoc.getRole().getName().equalsIgnoreCase(UserRoleType.SUPER_ADMIN.getType())) {
+					isSuperAdmin = true;
+					break;
+				}
+			}
+		}
+
+		return isSuperAdmin;
 	}
 
 }
