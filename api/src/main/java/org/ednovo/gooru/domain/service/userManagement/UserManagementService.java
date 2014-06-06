@@ -33,7 +33,6 @@ import org.ednovo.gooru.core.api.model.ApiKey;
 import org.ednovo.gooru.core.api.model.Identity;
 import org.ednovo.gooru.core.api.model.Profile;
 import org.ednovo.gooru.core.api.model.User;
-import org.ednovo.gooru.core.api.model.UserRelationship;
 import org.ednovo.gooru.core.api.model.UserToken;
 import org.ednovo.gooru.domain.service.BaseService;
 import org.ednovo.gooru.domain.service.search.SearchResults;
@@ -103,5 +102,7 @@ public interface UserManagementService extends BaseService {
 	 Map<String, Object> followUser(User user, String followOnUserId);
 	 
 	 void  unFollowUser(User user, String unFollowUserId);
+	 
+	 Map<String, Object> getUserSummary(String gooruUid);
 
 }
