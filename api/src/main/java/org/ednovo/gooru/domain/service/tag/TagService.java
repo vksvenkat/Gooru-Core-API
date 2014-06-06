@@ -24,6 +24,7 @@
 package org.ednovo.gooru.domain.service.tag;
 
 import java.util.List;
+import java.util.Map;
 
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.ContentTagAssoc;
@@ -32,6 +33,7 @@ import org.ednovo.gooru.core.api.model.TagSynonyms;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserTagAssoc;
 import org.ednovo.gooru.domain.service.BaseService;
+import org.ednovo.gooru.domain.service.search.SearchResults;
 
 
 public interface TagService extends BaseService {
@@ -63,5 +65,7 @@ public interface TagService extends BaseService {
 	List<TagSynonyms> getTagSynonyms(String tagGooruOid);
 	
 	void deleteTagSynonyms(String tagGooruOid, Integer synonymsId);
+	
+	Map<String, Object> getResourceByLabel(String label, Integer limit, Integer offset, boolean skipPagination, User user);
 
 }
