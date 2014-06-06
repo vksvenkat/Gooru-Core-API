@@ -1366,7 +1366,7 @@ public interface ParameterProperties {
 
 	String CREDENDTIAL = "Credential";
 
-	String IDP_NAME = "Idp Name";
+	String IDP_NAME = "IdpName";
 
 	String GOORU_API = "gooruapi";
 
