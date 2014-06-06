@@ -48,6 +48,7 @@ import org.ednovo.gooru.core.api.model.ActivityStream;
 import org.ednovo.gooru.core.api.model.ActivityType;
 import org.ednovo.gooru.core.api.model.ApiKey;
 import org.ednovo.gooru.core.api.model.Code;
+import org.ednovo.gooru.core.api.model.Comment;
 import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.ContentPermission;
 import org.ednovo.gooru.core.api.model.Credential;
@@ -86,6 +87,7 @@ import org.ednovo.gooru.domain.service.PartyService;
 import org.ednovo.gooru.domain.service.apitracker.ApiTrackerService;
 import org.ednovo.gooru.domain.service.party.OrganizationService;
 import org.ednovo.gooru.domain.service.redis.RedisService;
+import org.ednovo.gooru.domain.service.search.SearchResults;
 import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.ednovo.gooru.domain.service.shelf.ShelfService;
 import org.ednovo.gooru.domain.service.user.impl.UserServiceImpl;
@@ -181,23 +183,29 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	}
 
 	@Override
-	public List<Map<String, Object>> getFollowedOnUsers(String gooruUId) {
+	public SearchResults<Map<String, Object>> getFollowedOnUsers(String gooruUId) {
 		List<User> users =  getUserRepository().getFollowedOnUsers(gooruUId);
 		List<Map<String, Object>> usersObj = new ArrayList<Map<String,Object>>();
 		for(User user : users) {
 			usersObj.add(setUserObj(user));
 		}
-		return usersObj;
+		SearchResults<Map<String, Object>> result = new SearchResults<Map<String, Object>>();
+		result.setSearchResults(usersObj);
+		result.setTotalHitCount(this.getUserRepository().getFollowedOnUsersCount(gooruUId));
+		return result;
 	}
 	
 	@Override
-	public List<Map<String, Object>> getFollowedByUsers(String gooruUId) {
+	public SearchResults<Map<String, Object>> getFollowedByUsers(String gooruUId) {
 		List<User> users =  getUserRepository().getFollowedByUsers(gooruUId);
 		List<Map<String, Object>> usersObj = new ArrayList<Map<String,Object>>();
 		for(User user : users) {
 			usersObj.add(setUserObj(user));
 		}
-		return usersObj;
+		SearchResults<Map<String, Object>> result = new SearchResults<Map<String, Object>>();
+		result.setSearchResults(usersObj);
+		result.setTotalHitCount(this.getUserRepository().getFollowedByUsersCount(gooruUId));
+		return result;
 	}
 
 	@Override
@@ -1368,19 +1376,29 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		userRelationship.setActivatedDate(new Date(System.currentTimeMillis()));
 		userRelationship.setActiveFlag(true);
 		getUserRepository().save(userRelationship);
-		
 		return this.setUserObj(followOnUser);
+	}
+	
+	@Override
+	public void unFollowUser(User user, String unFollowUserId) {
+		UserRelationship userRelationship = getUserRepository().getActiveUserRelationship(user.getPartyUid(), unFollowUserId);
+		if (userRelationship == null) {
+			throw new BadCredentialsException("user not following this user");
+		} else {
+			this.getUserRepository().remove(userRelationship);
+		}
 	}
 	
 	private Map<String, Object> setUserObj(User user) {
 		Map<String, Object> userObj = new HashMap<String, Object>();
+		Profile profile = getProfile(user);
 		userObj.put("username",user.getUsername());
 		userObj.put("gooruUid",user.getGooruUId());
 		userObj.put("firstName",user.getFirstName());
 		userObj.put("lastName",user.getLastName());
 		userObj.put("profileImageUrl", buildUserProfileImageUrl(user));
 		userObj.put("emailId", user.getIdentities() != null ? user.getIdentities().iterator().next().getExternalId() : null);
-		
+		userObj.put("course",profile.getCourses());
 		return userObj;
 	}
 	

@@ -33,8 +33,10 @@ import org.ednovo.gooru.core.api.model.ApiKey;
 import org.ednovo.gooru.core.api.model.Identity;
 import org.ednovo.gooru.core.api.model.Profile;
 import org.ednovo.gooru.core.api.model.User;
+import org.ednovo.gooru.core.api.model.UserRelationship;
 import org.ednovo.gooru.core.api.model.UserToken;
 import org.ednovo.gooru.domain.service.BaseService;
+import org.ednovo.gooru.domain.service.search.SearchResults;
 
 
 public interface UserManagementService extends BaseService {
@@ -53,9 +55,9 @@ public interface UserManagementService extends BaseService {
 
 	User getUserByToken(String userToken);
 
-	List<Map<String, Object>> getFollowedOnUsers(String gooruUId);
+	SearchResults<Map<String, Object>> getFollowedOnUsers(String gooruUId);
 	
-	List<Map<String, Object>> getFollowedByUsers(String gooruUserId);
+	SearchResults<Map<String, Object>> getFollowedByUsers(String gooruUserId);
 
 	Profile updateProfileInfo(Profile profile, String gooruUid, User apiCaller, String activeFlag, Boolean emailConfirmStatus, String showProfilePage,String accountType,String password);
 
@@ -99,5 +101,7 @@ public interface UserManagementService extends BaseService {
 	User updateUserViewFlagStatus(String gooruUid, Integer viewFlag);
 	
 	 Map<String, Object> followUser(User user, String followOnUserId);
+	 
+	 void  unFollowUser(User user, String unFollowUserId);
 
 }

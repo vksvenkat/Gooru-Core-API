@@ -294,7 +294,23 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 
 	@Override
 	public List<User> getFollowedByUsers(String gooruUId) {
-		return find("SELECT userRelation.user FROM UserRelationship userRelation  WHERE userRelation.followOnUser.partyUid = '" + gooruUId + "' AND userRelation.activeFlag = 1 AND " + generateOrgAuthQueryWithData("userRelation.") + " AND " + generateUserIsDeleted("userRelation.user."));
+		return find("SELECT userRelation.user FROM UserRelationship userRelation  WHERE userRelation.followOnUser.partyUid = '" + gooruUId + "' AND userRelation.activeFlag = 1 AND " + generateOrgAuthQueryWithData("userRelation.user.") + " AND " + generateUserIsDeleted("userRelation.user."));
+	}
+	
+	@Override
+	public long getFollowedByUsersCount(String gooruUId) {
+		Session session = getSession();
+		String hql = "SELECT count(*) FROM UserRelationship userRelation  WHERE userRelation.followOnUser.partyUid = '" + gooruUId + "' AND userRelation.activeFlag = 1 AND " + generateOrgAuthQueryWithData("userRelation.user.") + " AND " + generateUserIsDeleted("userRelation.user.");
+		Query query = session.createQuery(hql);
+		return (Long) query.list().get(0);
+	}
+	
+	@Override
+	public long getFollowedOnUsersCount(String gooruUId) {
+		Session session = getSession();
+		String hql = "SELECT count(*) FROM UserRelationship userRelation WHERE userRelation.user.partyUid = '" + gooruUId + "' AND userRelation.activeFlag = 1  AND " + generateOrgAuthQueryWithData("userRelation.user.") + " AND " + generateUserIsDeleted("userRelation.user.");
+		Query query = session.createQuery(hql);
+		return (Long) query.list().get(0);
 	}
 
 	@Override
