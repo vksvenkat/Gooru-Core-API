@@ -375,19 +375,21 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_READ })
 	@RequestMapping(method = RequestMethod.GET, value = "/{id}/followers")
-	public ModelAndView getFollowedByUsers(@PathVariable(value = ID) String gooruUserId, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public ModelAndView getFollowedByUsers(@PathVariable(value = ID) String gooruUserId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,
+			@RequestParam(value = SKIP_PAGINATION, required = false, defaultValue = FALSE) Boolean skipPagination, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		request.setAttribute(Constants.EVENT_PREDICATE, USER_FOLLOWERS_LIST);
 		String[] includes = (String[]) ArrayUtils.addAll(FOLLOWED_BY_USERS_INCLUDES, ERROR_INCLUDE);
-		return toModelAndViewWithIoFilter(this.getUserManagementService().getFollowedByUsers(gooruUserId), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
+		return toModelAndViewWithIoFilter(this.getUserManagementService().getFollowedByUsers(gooruUserId,offset,limit,skipPagination), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_READ })
 	@RequestMapping(method = RequestMethod.GET, value = "/{id}/following")
-	public ModelAndView getFollowedOnUsers(@PathVariable(value = ID) String gooruUserId, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public ModelAndView getFollowedOnUsers(@PathVariable(value = ID) String gooruUserId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,
+			@RequestParam(value = SKIP_PAGINATION, required = false, defaultValue = FALSE) Boolean skipPagination, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		request.setAttribute(Constants.EVENT_PREDICATE, USER_FOLLOWING_LIST);
 		String[] includes = (String[]) ArrayUtils.addAll(FOLLOWED_BY_USERS_INCLUDES, ERROR_INCLUDE);
-		return toModelAndViewWithIoFilter(this.getUserManagementService().getFollowedOnUsers(gooruUserId), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
+		return toModelAndViewWithIoFilter(this.getUserManagementService().getFollowedOnUsers(gooruUserId,offset,limit,skipPagination), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
 	
 	

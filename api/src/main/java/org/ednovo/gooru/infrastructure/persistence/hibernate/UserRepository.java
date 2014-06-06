@@ -72,11 +72,11 @@ public interface UserRepository extends BaseRepository {
 
 	int findAgeCheck(User user);
 
-	List<User> getFollowedByUsers(String gooruUId);
+	List<User> getFollowedByUsers(String gooruUId, Integer offset, Integer limit, boolean skipPagination);
 	
 	long getFollowedByUsersCount(String gooruUId);
 
-	List<User> getFollowedOnUsers(String gooruUId);
+	List<User> getFollowedOnUsers(String gooruUId, Integer offset, Integer limit, boolean skipPagination);
 	
 	long getFollowedOnUsersCount(String gooruUId);
 

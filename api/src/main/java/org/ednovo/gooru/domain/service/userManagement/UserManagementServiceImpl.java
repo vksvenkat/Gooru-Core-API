@@ -183,8 +183,8 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	}
 
 	@Override
-	public SearchResults<Map<String, Object>> getFollowedOnUsers(String gooruUId) {
-		List<User> users =  getUserRepository().getFollowedOnUsers(gooruUId);
+	public SearchResults<Map<String, Object>> getFollowedOnUsers(String gooruUId, Integer offset, Integer limit, boolean skipPagination) {
+		List<User> users =  getUserRepository().getFollowedOnUsers(gooruUId,offset,limit,skipPagination);
 		List<Map<String, Object>> usersObj = new ArrayList<Map<String,Object>>();
 		for(User user : users) {
 			usersObj.add(setUserObj(user));
@@ -196,8 +196,8 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	}
 	
 	@Override
-	public SearchResults<Map<String, Object>> getFollowedByUsers(String gooruUId) {
-		List<User> users =  getUserRepository().getFollowedByUsers(gooruUId);
+	public SearchResults<Map<String, Object>> getFollowedByUsers(String gooruUId, Integer offset, Integer limit, boolean skipPagination) {
+		List<User> users =  getUserRepository().getFollowedByUsers(gooruUId,offset,limit,skipPagination);
 		List<Map<String, Object>> usersObj = new ArrayList<Map<String,Object>>();
 		for(User user : users) {
 			usersObj.add(setUserObj(user));
@@ -1391,14 +1391,12 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	
 	private Map<String, Object> setUserObj(User user) {
 		Map<String, Object> userObj = new HashMap<String, Object>();
-		Profile profile = getProfile(user);
 		userObj.put("username",user.getUsername());
 		userObj.put("gooruUid",user.getGooruUId());
 		userObj.put("firstName",user.getFirstName());
 		userObj.put("lastName",user.getLastName());
 		userObj.put("profileImageUrl", buildUserProfileImageUrl(user));
 		userObj.put("emailId", user.getIdentities() != null ? user.getIdentities().iterator().next().getExternalId() : null);
-		userObj.put("course",profile.getCourses());
 		return userObj;
 	}
 	
