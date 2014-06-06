@@ -967,13 +967,8 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 
 		indexProcessor.index(user.getPartyUid(), IndexProcessor.INDEX, USER);
 
-		if (identity.getIdp() != null) {
-			SessionContextSupport.putLogParameter(IDP_NAME, identity.getIdp().getName());
-		} else {
-			SessionContextSupport.putLogParameter(IDP_NAME, GOORU_API);
-		}
 		try {
-			getEventLogs(user, source);
+			getEventLogs(user, source, identity);
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
@@ -1477,24 +1472,34 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		return inviteRepository;
 	}
 
-	private void getEventLogs(User user, String source) throws JSONException {
+	private void getEventLogs(User newUser, String source, Identity newIdentity) throws JSONException {
 		SessionContextSupport.putLogParameter(EVENT_NAME, "user.register");
 		JSONObject context = SessionContextSupport.getLog().get("context") != null ? new JSONObject(SessionContextSupport.getLog().get("context").toString()) :  new JSONObject();
-		SessionContextSupport.putLogParameter("context", context.toString());
 		if(source != null && source.equalsIgnoreCase(UserAccountType.accountCreatedType.GOOGLE_APP.getType())) {
 			context.put("registerType", accountCreatedType.GOOGLE_APP.getType());			
-		}else if (source != null) {
+		}else if (source != null && source.equalsIgnoreCase(UserAccountType.accountCreatedType.SSO.getType())) {
 			context.put("registerType", accountCreatedType.SSO.getType());
 		}else {
 			context.put("registerType", "Gooru");
 		}
+		SessionContextSupport.putLogParameter("context", context.toString());
 		JSONObject payLoadObject = SessionContextSupport.getLog().get("payLoadObject") != null ? new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString()) :  new JSONObject();
+		if (newIdentity.getIdp() != null) {
+			payLoadObject.put(IDP_NAME, newIdentity.getIdp().getName());
+		} else {
+			payLoadObject.put(IDP_NAME, GOORU_API);
+		}
+		Iterator<Identity> iter = newUser.getIdentities().iterator();
+		if (iter != null && iter.hasNext()) {
+			Identity identity = iter.next();
+			payLoadObject.put(CREATED_TYPE, identity != null ? identity.getAccountCreatedType() : null);
+		}
 		SessionContextSupport.putLogParameter("payLoadObject", payLoadObject.toString());
 		JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session").toString()) :  new JSONObject();
-		session.put("organizationUId", user.getOrganizationUid());
+		session.put("organizationUId", newUser.getOrganizationUid());
 		SessionContextSupport.putLogParameter("session", session.toString());	
-		JSONObject newUser = SessionContextSupport.getLog().get("user") != null ? new JSONObject(SessionContextSupport.getLog().get("user").toString()) :  new JSONObject();
-		newUser.put("gooruUId", user.getPartyUid());
+		JSONObject user = SessionContextSupport.getLog().get("user") != null ? new JSONObject(SessionContextSupport.getLog().get("user").toString()) :  new JSONObject();
+		user.put("gooruUId", newUser.getPartyUid());
 		SessionContextSupport.putLogParameter("user", user.toString());
 	}	
 	

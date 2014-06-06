@@ -128,11 +128,7 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 			Iterator<Identity> iter = user.getIdentities().iterator();
 			if (iter != null && iter.hasNext()) {
 				Identity identity = iter.next();
-				SessionContextSupport.putLogParameter(CREATED_TYPE, identity != null ? identity.getAccountCreatedType() : null);
 			}
-			SessionContextSupport.putLogParameter(ORGANIZATION_ID, user.getOrganization().getPartyUid());
-			SessionContextSupport.putLogParameter(CREATED_DATE, user.getCreatedOn());
-			SessionContextSupport.putLogParameter(GOORU_UID, user.getPartyUid());
 
 			indexProcessor.index(user.getPartyUid(), IndexProcessor.INDEX, USER);
 		}
