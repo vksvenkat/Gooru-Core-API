@@ -397,6 +397,7 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 		JSONObject json = requestData(data);
 		return toModelAndView(serializeToJsonWithExcludes(this.getUserManagementService().updateUserViewFlagStatus(gooruUId,Integer.parseInt(getValue(VIEW_FLAG,json))), USER_FLAG_EXCLUDE_FIELDS));
 	}
+	
 
 	private String getFeedbackCategory(HttpServletRequest request) {
 		String category = null;
