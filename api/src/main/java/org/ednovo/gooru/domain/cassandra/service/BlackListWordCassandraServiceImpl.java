@@ -49,7 +49,7 @@ public class BlackListWordCassandraServiceImpl implements BlackListWordCassandra
 
 	private static final String WILD_CARD = "*";
 
-	private static final String[] EXPRESSIONS = { "\\s", "\\s*[^a-zA-Z0-9]+\\s*" };
+	private static final String[] EXPRESSIONS = { "\\s", "\\s*[^a-zA-Z0-9']+\\s*" };
 
 	@Override
 	public boolean validate(String query) {
