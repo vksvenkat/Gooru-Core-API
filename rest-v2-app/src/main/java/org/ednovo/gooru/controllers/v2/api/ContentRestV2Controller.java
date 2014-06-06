@@ -91,7 +91,7 @@ public class ContentRestV2Controller extends BaseController implements ConstantP
 		}),apiCaller);
 	}
 
-	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAG_ADD })
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAG_READ})
 	@RequestMapping(method = { RequestMethod.GET }, value = "/{id}/tag")
 	public ModelAndView getContentTagAssoc(@PathVariable(value = ID) String gooruOid, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, HttpServletRequest request,
 			HttpServletResponse response) {

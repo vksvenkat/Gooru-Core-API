@@ -48,7 +48,6 @@ import org.ednovo.gooru.core.api.model.ActivityStream;
 import org.ednovo.gooru.core.api.model.ActivityType;
 import org.ednovo.gooru.core.api.model.ApiKey;
 import org.ednovo.gooru.core.api.model.Code;
-import org.ednovo.gooru.core.api.model.Comment;
 import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.ContentPermission;
 import org.ednovo.gooru.core.api.model.Credential;
@@ -62,7 +61,6 @@ import org.ednovo.gooru.core.api.model.PartyCategoryType;
 import org.ednovo.gooru.core.api.model.PartyCustomField;
 import org.ednovo.gooru.core.api.model.Profile;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
-import org.ednovo.gooru.core.api.model.SessionItemFeedback;
 import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserAccountType;
@@ -1392,6 +1390,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		userObj.put("lastName",user.getLastName());
 		userObj.put("profileImageUrl", buildUserProfileImageUrl(user));
 		userObj.put("emailId", user.getIdentities() != null ? user.getIdentities().iterator().next().getExternalId() : null);
+		userObj.put("summary", getUserSummary(user.getPartyUid()));
 		return userObj;
 	}
 	
@@ -1421,12 +1420,23 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			meta.put(FEATURED_USER, Boolean.parseBoolean(partyCustomFieldFeatured.getOptionalValue()));
 		}
 		meta.put(USER_TAX_PREFERENCE, taxonomy);
+		meta.put("summary", getUserSummary(user.getPartyUid()));
 		return meta;
 	}
 
 	@Override
 	public User updateUserViewFlagStatus(String gooruUid, Integer viewFlag) {
 		return this.getUserService().updateViewFlagStatus(gooruUid, viewFlag);
+	}
+	
+	@Override
+	public Map<String, Object> getUserSummary(String gooruOid) {
+		Map<String, Object>  summary = new HashMap<String, Object>();
+		summary.put("collection", 11134);
+		summary.put("tags", 11);
+		summary.put("following", 112);
+		summary.put("followers", 112);
+		return summary;
 	}
 
 	public IdpRepository getIdpRepository() {
