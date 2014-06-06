@@ -1010,13 +1010,13 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 	}
 
 	@Override
-	public List<User> getFollowedByUsers(String gooruUId) {
-		return getUserRepository().getFollowedByUsers(gooruUId);
+	public List<User> getFollowedByUsers(String gooruUId, Integer offset, Integer limit, boolean skipPagination) {
+		return getUserRepository().getFollowedByUsers(gooruUId,offset,limit,skipPagination);
 	}
 
 	@Override
-	public List<User> getFollowedOnUsers(String gooruUId) {
-		return getUserRepository().getFollowedOnUsers(gooruUId);
+	public List<User> getFollowedOnUsers(String gooruUId, Integer offset, Integer limit, boolean skipPagination) {
+		return getUserRepository().getFollowedOnUsers(gooruUId,offset,limit,skipPagination);
 	}
 
 	@Override

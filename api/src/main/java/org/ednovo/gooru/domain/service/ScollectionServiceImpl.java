@@ -618,6 +618,11 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 			try {
 				indexProcessor.index(collectionItem.getCollection().getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
+				if(collectionItem.getResource().getResourceType() != null && !collectionItem.getResource().getResourceType().getName().equalsIgnoreCase(SCOLLECTION) && !collectionItem.getResource().getResourceType().getName().equalsIgnoreCase(FOLDER) && !collectionItem.getResource().getResourceType().getName().equalsIgnoreCase(CLASSPAGE)) {
+				indexProcessor.index(collectionItem.getResource().getGooruOid(), IndexProcessor.INDEX, RESOURCE);					
+				} 
+				
+
 			} catch (Exception e) {
 				logger.error(e.getMessage());
 			}

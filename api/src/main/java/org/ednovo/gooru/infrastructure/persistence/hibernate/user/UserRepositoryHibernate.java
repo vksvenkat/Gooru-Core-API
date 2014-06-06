@@ -293,13 +293,43 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 	}
 
 	@Override
-	public List<User> getFollowedByUsers(String gooruUId) {
-		return find("SELECT userRelation.user FROM UserRelationship userRelation  WHERE userRelation.followOnUser.partyUid = '" + gooruUId + "' AND userRelation.activeFlag = 1 AND " + generateOrgAuthQueryWithData("userRelation.") + " AND " + generateUserIsDeleted("userRelation.user."));
+	public List<User> getFollowedByUsers(String gooruUId, Integer offset, Integer limit, boolean skipPagination) {
+		Session session = getSession();
+		String hql = "SELECT userRelation.user FROM UserRelationship userRelation  WHERE userRelation.followOnUser.partyUid = '" + gooruUId + "' AND userRelation.activeFlag = 1 AND " + generateOrgAuthQueryWithData("userRelation.user.") + " AND " + generateUserIsDeleted("userRelation.user.");
+		Query query = session.createQuery(hql);
+		if (!skipPagination) {
+			query.setFirstResult(offset);
+			query.setMaxResults(limit);
+		}
+		return query.list();
+	}
+	
+	@Override
+	public long getFollowedByUsersCount(String gooruUId) {
+		Session session = getSession();
+		String hql = "SELECT count(*) FROM UserRelationship userRelation  WHERE userRelation.followOnUser.partyUid = '" + gooruUId + "' AND userRelation.activeFlag = 1 AND " + generateOrgAuthQueryWithData("userRelation.user.") + " AND " + generateUserIsDeleted("userRelation.user.");
+		Query query = session.createQuery(hql);
+		return (Long) query.list().get(0);
+	}
+	
+	@Override
+	public long getFollowedOnUsersCount(String gooruUId) {
+		Session session = getSession();
+		String hql = "SELECT count(*) FROM UserRelationship userRelation WHERE userRelation.user.partyUid = '" + gooruUId + "' AND userRelation.activeFlag = 1  AND " + generateOrgAuthQueryWithData("userRelation.user.") + " AND " + generateUserIsDeleted("userRelation.user.");
+		Query query = session.createQuery(hql);
+		return (Long) query.list().get(0);
 	}
 
 	@Override
-	public List<User> getFollowedOnUsers(String gooruUId) {
-		return find("SELECT userRelation.followOnUser FROM UserRelationship userRelation WHERE userRelation.user.partyUid = '" + gooruUId + "' AND userRelation.activeFlag = 1  AND " + generateOrgAuthQueryWithData("userRelation.user.") + " AND " + generateUserIsDeleted("userRelation.user."));
+	public List<User> getFollowedOnUsers(String gooruUId, Integer offset, Integer limit, boolean skipPagination) {
+		Session session = getSession();
+		String hql = "SELECT userRelation.followOnUser FROM UserRelationship userRelation WHERE userRelation.user.partyUid = '" + gooruUId + "' AND userRelation.activeFlag = 1  AND " + generateOrgAuthQueryWithData("userRelation.user.") + " AND " + generateUserIsDeleted("userRelation.user.");
+		Query query = session.createQuery(hql);
+		if (!skipPagination) {
+			query.setFirstResult(offset);
+			query.setMaxResults(limit);
+		}
+		return query.list();
 	}
 
 	@Override

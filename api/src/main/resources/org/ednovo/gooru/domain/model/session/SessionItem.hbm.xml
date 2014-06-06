@@ -29,8 +29,7 @@
 <hibernate-mapping>
 	<class name="org.ednovo.gooru.core.api.model.SessionItem"
 		table="session_item">
-		<id name="sessionItemId" column="session_item_id" unsaved-value="null">
-		</id>
+		<id name="sessionItemId" column="session_item_id" />	
 		
 		<many-to-one name="session" column="session_id"
 			class="org.ednovo.gooru.core.api.model.Session" lazy="proxy"

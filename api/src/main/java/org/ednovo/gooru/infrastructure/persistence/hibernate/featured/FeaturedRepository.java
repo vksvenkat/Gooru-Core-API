@@ -67,4 +67,6 @@ public interface FeaturedRepository extends BaseRepository {
 	List<Object[]> getLibrary(String libraryName);
 	
 	void deleteLibraryCollectionAssoc(String featuredSetId, String codeId, String contentId);
+	
+	FeaturedSet getFeaturedSetByIds(Integer featuredSetId);
 }

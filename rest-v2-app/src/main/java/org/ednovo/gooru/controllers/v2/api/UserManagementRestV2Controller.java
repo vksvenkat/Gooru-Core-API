@@ -128,11 +128,7 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 			Iterator<Identity> iter = user.getIdentities().iterator();
 			if (iter != null && iter.hasNext()) {
 				Identity identity = iter.next();
-				SessionContextSupport.putLogParameter(CREATED_TYPE, identity != null ? identity.getAccountCreatedType() : null);
 			}
-			SessionContextSupport.putLogParameter(ORGANIZATION_ID, user.getOrganization().getPartyUid());
-			SessionContextSupport.putLogParameter(CREATED_DATE, user.getCreatedOn());
-			SessionContextSupport.putLogParameter(GOORU_UID, user.getPartyUid());
 
 			indexProcessor.index(user.getPartyUid(), IndexProcessor.INDEX, USER);
 		}
@@ -365,22 +361,31 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 		return toModelAndView(getUserManagementService().followUser(user, followOnUserId), FORMAT_JSON);
 	}
 	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_DELETE })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(method = { RequestMethod.DELETE }, value = "/unfollow/{id}")
+	public void unFollowUser(@PathVariable(value = ID) String unFollowUserId, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		User apiCaller = (User) request.getAttribute(Constants.USER);
+		this.getUserManagementService().unFollowUser(apiCaller, unFollowUserId);
+	}
+	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_READ })
 	@RequestMapping(method = RequestMethod.GET, value = "/{id}/followers")
-	public ModelAndView getFollowedByUsers(@PathVariable(value = ID) String gooruUserId, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public ModelAndView getFollowedByUsers(@PathVariable(value = ID) String gooruUserId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,
+			@RequestParam(value = SKIP_PAGINATION, required = false, defaultValue = FALSE) Boolean skipPagination, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		request.setAttribute(Constants.EVENT_PREDICATE, USER_FOLLOWERS_LIST);
-
-		return toModelAndView(getUserManagementService().getFollowedByUsers(gooruUserId), FORMAT_JSON);
+		String[] includes = (String[]) ArrayUtils.addAll(FOLLOWED_BY_USERS_INCLUDES, ERROR_INCLUDE);
+		return toModelAndViewWithIoFilter(this.getUserManagementService().getFollowedByUsers(gooruUserId,offset,limit,skipPagination), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_READ })
 	@RequestMapping(method = RequestMethod.GET, value = "/{id}/following")
-	public ModelAndView getFollowedOnUsers(@PathVariable(value = ID) String gooruUserId, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public ModelAndView getFollowedOnUsers(@PathVariable(value = ID) String gooruUserId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,
+			@RequestParam(value = SKIP_PAGINATION, required = false, defaultValue = FALSE) Boolean skipPagination, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		request.setAttribute(Constants.EVENT_PREDICATE, USER_FOLLOWING_LIST);
-
-		return toModelAndView(getUserManagementService().getFollowedOnUsers(gooruUserId), FORMAT_JSON);
-
+		String[] includes = (String[]) ArrayUtils.addAll(FOLLOWED_BY_USERS_INCLUDES, ERROR_INCLUDE);
+		return toModelAndViewWithIoFilter(this.getUserManagementService().getFollowedOnUsers(gooruUserId,offset,limit,skipPagination), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
 	
 	

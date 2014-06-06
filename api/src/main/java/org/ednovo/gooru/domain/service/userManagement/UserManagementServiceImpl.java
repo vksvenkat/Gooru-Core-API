@@ -48,6 +48,7 @@ import org.ednovo.gooru.core.api.model.ActivityStream;
 import org.ednovo.gooru.core.api.model.ActivityType;
 import org.ednovo.gooru.core.api.model.ApiKey;
 import org.ednovo.gooru.core.api.model.Code;
+import org.ednovo.gooru.core.api.model.Comment;
 import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.ContentPermission;
 import org.ednovo.gooru.core.api.model.Credential;
@@ -86,6 +87,7 @@ import org.ednovo.gooru.domain.service.PartyService;
 import org.ednovo.gooru.domain.service.apitracker.ApiTrackerService;
 import org.ednovo.gooru.domain.service.party.OrganizationService;
 import org.ednovo.gooru.domain.service.redis.RedisService;
+import org.ednovo.gooru.domain.service.search.SearchResults;
 import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.ednovo.gooru.domain.service.shelf.ShelfService;
 import org.ednovo.gooru.domain.service.user.impl.UserServiceImpl;
@@ -181,23 +183,29 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	}
 
 	@Override
-	public List<Map<String, Object>> getFollowedOnUsers(String gooruUId) {
-		List<User> users =  getUserRepository().getFollowedOnUsers(gooruUId);
+	public SearchResults<Map<String, Object>> getFollowedOnUsers(String gooruUId, Integer offset, Integer limit, boolean skipPagination) {
+		List<User> users =  getUserRepository().getFollowedOnUsers(gooruUId,offset,limit,skipPagination);
 		List<Map<String, Object>> usersObj = new ArrayList<Map<String,Object>>();
 		for(User user : users) {
 			usersObj.add(setUserObj(user));
 		}
-		return usersObj;
+		SearchResults<Map<String, Object>> result = new SearchResults<Map<String, Object>>();
+		result.setSearchResults(usersObj);
+		result.setTotalHitCount(this.getUserRepository().getFollowedOnUsersCount(gooruUId));
+		return result;
 	}
 	
 	@Override
-	public List<Map<String, Object>> getFollowedByUsers(String gooruUId) {
-		List<User> users =  getUserRepository().getFollowedByUsers(gooruUId);
+	public SearchResults<Map<String, Object>> getFollowedByUsers(String gooruUId, Integer offset, Integer limit, boolean skipPagination) {
+		List<User> users =  getUserRepository().getFollowedByUsers(gooruUId,offset,limit,skipPagination);
 		List<Map<String, Object>> usersObj = new ArrayList<Map<String,Object>>();
 		for(User user : users) {
 			usersObj.add(setUserObj(user));
 		}
-		return usersObj;
+		SearchResults<Map<String, Object>> result = new SearchResults<Map<String, Object>>();
+		result.setSearchResults(usersObj);
+		result.setTotalHitCount(this.getUserRepository().getFollowedByUsersCount(gooruUId));
+		return result;
 	}
 
 	@Override
@@ -959,13 +967,8 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 
 		indexProcessor.index(user.getPartyUid(), IndexProcessor.INDEX, USER);
 
-		if (identity.getIdp() != null) {
-			SessionContextSupport.putLogParameter(IDP_NAME, identity.getIdp().getName());
-		} else {
-			SessionContextSupport.putLogParameter(IDP_NAME, GOORU_API);
-		}
 		try {
-			getEventLogs(user, source);
+			getEventLogs(user, source, identity);
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
@@ -1368,8 +1371,17 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		userRelationship.setActivatedDate(new Date(System.currentTimeMillis()));
 		userRelationship.setActiveFlag(true);
 		getUserRepository().save(userRelationship);
-		
 		return this.setUserObj(followOnUser);
+	}
+	
+	@Override
+	public void unFollowUser(User user, String unFollowUserId) {
+		UserRelationship userRelationship = getUserRepository().getActiveUserRelationship(user.getPartyUid(), unFollowUserId);
+		if (userRelationship == null) {
+			throw new BadCredentialsException("user not following this user");
+		} else {
+			this.getUserRepository().remove(userRelationship);
+		}
 	}
 	
 	private Map<String, Object> setUserObj(User user) {
@@ -1380,7 +1392,6 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		userObj.put("lastName",user.getLastName());
 		userObj.put("profileImageUrl", buildUserProfileImageUrl(user));
 		userObj.put("emailId", user.getIdentities() != null ? user.getIdentities().iterator().next().getExternalId() : null);
-		
 		return userObj;
 	}
 	
@@ -1461,24 +1472,34 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		return inviteRepository;
 	}
 
-	private void getEventLogs(User user, String source) throws JSONException {
+	private void getEventLogs(User newUser, String source, Identity newIdentity) throws JSONException {
 		SessionContextSupport.putLogParameter(EVENT_NAME, "user.register");
 		JSONObject context = SessionContextSupport.getLog().get("context") != null ? new JSONObject(SessionContextSupport.getLog().get("context").toString()) :  new JSONObject();
-		SessionContextSupport.putLogParameter("context", context.toString());
 		if(source != null && source.equalsIgnoreCase(UserAccountType.accountCreatedType.GOOGLE_APP.getType())) {
 			context.put("registerType", accountCreatedType.GOOGLE_APP.getType());			
-		}else if (source != null) {
+		}else if (source != null && source.equalsIgnoreCase(UserAccountType.accountCreatedType.SSO.getType())) {
 			context.put("registerType", accountCreatedType.SSO.getType());
 		}else {
 			context.put("registerType", "Gooru");
 		}
+		SessionContextSupport.putLogParameter("context", context.toString());
 		JSONObject payLoadObject = SessionContextSupport.getLog().get("payLoadObject") != null ? new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString()) :  new JSONObject();
+		if (newIdentity.getIdp() != null) {
+			payLoadObject.put(IDP_NAME, newIdentity.getIdp().getName());
+		} else {
+			payLoadObject.put(IDP_NAME, GOORU_API);
+		}
+		Iterator<Identity> iter = newUser.getIdentities().iterator();
+		if (iter != null && iter.hasNext()) {
+			Identity identity = iter.next();
+			payLoadObject.put(CREATED_TYPE, identity != null ? identity.getAccountCreatedType() : null);
+		}
 		SessionContextSupport.putLogParameter("payLoadObject", payLoadObject.toString());
 		JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session").toString()) :  new JSONObject();
-		session.put("organizationUId", user.getOrganizationUid());
+		session.put("organizationUId", newUser.getOrganizationUid());
 		SessionContextSupport.putLogParameter("session", session.toString());	
-		JSONObject newUser = SessionContextSupport.getLog().get("user") != null ? new JSONObject(SessionContextSupport.getLog().get("user").toString()) :  new JSONObject();
-		newUser.put("gooruUId", user.getPartyUid());
+		JSONObject user = SessionContextSupport.getLog().get("user") != null ? new JSONObject(SessionContextSupport.getLog().get("user").toString()) :  new JSONObject();
+		user.put("gooruUId", newUser.getPartyUid());
 		SessionContextSupport.putLogParameter("user", user.toString());
 	}	
 	
