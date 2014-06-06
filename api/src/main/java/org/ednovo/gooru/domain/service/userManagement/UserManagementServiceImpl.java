@@ -62,7 +62,6 @@ import org.ednovo.gooru.core.api.model.PartyCategoryType;
 import org.ednovo.gooru.core.api.model.PartyCustomField;
 import org.ednovo.gooru.core.api.model.Profile;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
-import org.ednovo.gooru.core.api.model.SessionItemFeedback;
 import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserAccountType;
