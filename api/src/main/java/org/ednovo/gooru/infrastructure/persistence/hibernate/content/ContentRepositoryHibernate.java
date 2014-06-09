@@ -286,7 +286,7 @@ public class ContentRepositoryHibernate extends BaseRepositoryHibernate implemen
 
 	@Override
 	public Long getUserContentTagCount(String gooruUid) {
-		String  sql = "select count(1) from content_tag_assoc  where associated_uid = '"+gooruUid+"'";
+		String  sql = "select count(*) as count from  (select  count(1) as count, t.label as label  from tags t inner join content c on  (t.content_id = c.content_id) inner join content_tag_assoc ct on (c.gooru_oid= ct.tag_gooru_oid) where associated_uid  =  '"+gooruUid +"' group by ct.tag_gooru_oid) sq";
 		Query query = getSession().createSQLQuery(sql);
 		return ((BigInteger)query.list().get(0)).longValue();
 	}

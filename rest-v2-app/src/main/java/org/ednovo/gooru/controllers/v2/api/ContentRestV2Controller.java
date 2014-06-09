@@ -84,7 +84,7 @@ public class ContentRestV2Controller extends BaseController implements ConstantP
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAG_ADD })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.DELETE }, value = "/{id}/tag")
-	public void DeleteContentTagAssoc(@PathVariable(value = ID) String gooruOid,@RequestParam String data, HttpServletRequest request, HttpServletResponse response) {
+	public void deleteContentTagAssoc(@PathVariable(value = ID) String gooruOid,@RequestParam String data, HttpServletRequest request, HttpServletResponse response) {
 		User apiCaller = (User) request.getAttribute(Constants.USER);
 		
 		this.getContentService().deleteTagAssoc(gooruOid, JsonDeserializer.deserialize(data, new TypeReference<List<String>>() {
