@@ -192,8 +192,10 @@ public class TagRepositoryHibernate extends BaseRepositoryHibernate implements T
 	
 	@Override
 	public List<Object[]> getResourceByLabel(String label, Integer limit, Integer offset, boolean skipPagination, String gooruUid) {
-		String hql = "select r.title, c.gooru_oid, r.type_name, r.folder, r.thumbnail,rs.attribution, rs.domain_name from  tags t inner join content c  on (c.content_id = t.content_id) inner join content_tag_assoc ct on (ct.tag_gooru_oid = c.gooru_oid) inner join content ci on (ci.gooru_oid = ct.content_gooru_oid) inner join resource r on r.content_id = ci.content_id left join resource_source rs on rs.resource_source_id = r.resource_source_id  where t.label = '"+label+ "' and ct.associated_uid= '"+gooruUid+ "'" ;
+		String hql = "select r.title, c.gooru_oid, r.type_name, r.folder, r.thumbnail,rs.attribution, rs.domain_name from  tags t inner join content c  on (c.content_id = t.content_id) inner join content_tag_assoc ct on (ct.tag_gooru_oid = c.gooru_oid) inner join content ci on (ci.gooru_oid = ct.content_gooru_oid) inner join resource r on r.content_id = ci.content_id left join resource_source rs on rs.resource_source_id = r.resource_source_id  where t.label =:label and  ct.associated_uid =:gooruUid" ;
 		Query query = getSession().createSQLQuery(hql);
+		query.setParameter("label", label);
+		query.setParameter("gooruUid", gooruUid);
 		if (!skipPagination) {
 			query.setFirstResult(offset);
 			query.setMaxResults(limit);
@@ -202,8 +204,10 @@ public class TagRepositoryHibernate extends BaseRepositoryHibernate implements T
 	}
 	
 	public Long getResourceByLabelCount(String label, String gooruUid) {
-		String sql = "select count(1) as count from  tags t inner join content c  on (c.content_id = t.content_id) inner join content_tag_assoc ct on (ct.tag_gooru_oid = c.gooru_oid) inner join content ci on (ci.gooru_oid = ct.content_gooru_oid) inner join resource r on r.content_id = ci.content_id left join resource_source rs on rs.resource_source_id = r.resource_source_id  where t.label = '"+label+ "' and  ct.associated_uid= '"+gooruUid+ "'" ;
+		String sql = "select count(1) as count from  tags t inner join content c  on (c.content_id = t.content_id) inner join content_tag_assoc ct on (ct.tag_gooru_oid = c.gooru_oid) inner join content ci on (ci.gooru_oid = ct.content_gooru_oid) inner join resource r on r.content_id = ci.content_id left join resource_source rs on rs.resource_source_id = r.resource_source_id  where t.label =:label and  ct.associated_uid =:gooruUid" ;
 		Query query = getSession().createSQLQuery(sql).addScalar("count", StandardBasicTypes.LONG);
+		query.setParameter("label", label);
+		query.setParameter("gooruUid", gooruUid);
 		return (Long)query.list().get(0);
 	}
 	
