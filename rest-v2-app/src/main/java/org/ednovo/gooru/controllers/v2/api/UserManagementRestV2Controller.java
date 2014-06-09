@@ -356,7 +356,6 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 
 		User user = (User) request.getAttribute(Constants.USER);
 
-	//	UserRelationship userRelationship = getUserService().followUser(user, followOnUserId);
 		
 		return toModelAndView(getUserManagementService().followUser(user, followOnUserId), FORMAT_JSON);
 	}

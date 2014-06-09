@@ -104,6 +104,7 @@
 
 				<!-- Party Domain -->
 				<value>org/ednovo/gooru/domain/model/party/Party.hbm.xml</value>
+				<value>org/ednovo/gooru/domain/model/party/UserSummary.hbm.xml</value>
 				<value>org/ednovo/gooru/domain/model/party/PartyPermission.hbm.xml
 				</value>
 				<value>org/ednovo/gooru/domain/model/party/ContentPermission.hbm.xml
