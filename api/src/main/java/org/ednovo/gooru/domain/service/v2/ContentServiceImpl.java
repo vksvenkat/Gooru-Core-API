@@ -29,18 +29,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.ednovo.gooru.application.util.TaxonomyUtil;
 import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.ContentPermission;
 import org.ednovo.gooru.core.api.model.ContentTagAssoc;
 import org.ednovo.gooru.core.api.model.CustomTableValue;
-import org.ednovo.gooru.core.api.model.SearchResult;
 import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.Tag;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserSummary;
 import org.ednovo.gooru.core.application.util.CustomProperties;
-import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.domain.service.BaseServiceImpl;
@@ -214,6 +211,7 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 			Map<String, Object> result = new HashMap<String, Object>();
 			result.put("count", object[0]);
 			result.put("label", object[1]);
+			result.put("tagGooruOid", object[2]);
 			userTags.add(result);
 		}
 		searchResult.setSearchResults(userTags);
