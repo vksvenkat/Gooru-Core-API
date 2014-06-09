@@ -64,6 +64,7 @@ import org.ednovo.gooru.core.api.model.StandardFo;
 import org.ednovo.gooru.core.api.model.Textbook;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserGroupSupport;
+import org.ednovo.gooru.core.api.model.UserSummary;
 import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.application.util.ResourceMetaInfo;
 import org.ednovo.gooru.core.constant.ConstantProperties;
@@ -82,6 +83,7 @@ import org.ednovo.gooru.domain.service.v2.ContentService;
 import org.ednovo.gooru.infrastructure.mail.MailHandler;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepository;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.classplan.LearnguideRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.collaborator.CollaboratorRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentAssociationRepository;
@@ -189,6 +191,9 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	
 	@Autowired
 	private CustomFieldsService customFieldsService;
+	
+	@Autowired
+	private UserRepository userRepository;
 
 	Logger logger = LoggerFactory.getLogger(ScollectionServiceImpl.class);
 
@@ -321,6 +326,16 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 					collection.setInstructionalMethod(this.setContentMetaAssociation(this.getContentMetaAssociation("instructional_method"), collection.getGooruOid(), "instructional_method"));
 				}
 			}
+			if (collection.getSharing().equalsIgnoreCase(PUBLIC)) {
+				UserSummary userSummary = this.getUserRepository().getSummaryByUid(user.getPartyUid());
+				if (userSummary.getGooruUid() == null) {
+					userSummary.setGooruUid(user.getPartyUid());
+				}
+				userSummary.setCollections((userSummary.getCollections() != null ? userSummary.getCollections() : 0) + 1);
+				this.getUserRepository().save(userSummary);
+				this.getUserRepository().flush();
+			}
+			
 			
 			Collection parentCollection = collectionRepository.getCollectionByGooruOid(parentId, collection.getUser().getGooruUId());
 			if (parentCollection != null) {
@@ -489,7 +504,23 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				}
 			}
 			if (newCollection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing())) {
+				
+				if(collection.getSharing().equalsIgnoreCase(PUBLIC) && newCollection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing())) {
+					UserSummary userSummary = this.getUserRepository().getSummaryByUid(apiCallerUser.getPartyUid());
+					userSummary.setCollections(userSummary.getCollections() - 1);
+					this.getUserRepository().save(userSummary);
+					this.getUserRepository().flush();
+				} else if(!collection.getSharing().equalsIgnoreCase(PUBLIC) && newCollection.getSharing().equalsIgnoreCase(PUBLIC)) {
+					UserSummary userSummary = this.getUserRepository().getSummaryByUid(apiCallerUser.getPartyUid());
+					if(userSummary.getGooruUid() == null) {
+						userSummary.setGooruUid(apiCallerUser.getPartyUid());
+					}
+					userSummary.setCollections((userSummary.getCollections() != null ? userSummary.getCollections() : 0 )+ 1 );
+					this.getUserRepository().save(userSummary);
+					this.getUserRepository().flush();
+				}
 				collection.setSharing(newCollection.getSharing());
+				
 				this.getCollectionRepository().save(collection);
 				this.getCollectionRepository().flush();
 				List<String> parenFolders = this.getParentCollection(collection.getGooruOid(), apiCallerUser.getPartyUid(), false);
@@ -578,6 +609,10 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 					updateFolderSharing(parentCollection.getGooruOid());
 				}
 			}
+			UserSummary userSummary = this.getUserRepository().getSummaryByUid(user.getPartyUid());
+			userSummary.setCollections(userSummary.getCollections() - 1);
+			this.getUserRepository().save(userSummary);
+			this.getUserRepository().flush();
 			
 		} else {
 			throw new NotFoundException(generateErrorMessage(GL0056, _COLLECTION));
@@ -1561,6 +1596,21 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				}
 			}
 				if (newCollection.getSharing() != null && ( newCollection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing()))) {
+					
+					if(collection.getSharing().equalsIgnoreCase(PUBLIC) && newCollection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing())) {
+						UserSummary userSummary = this.getUserRepository().getSummaryByUid(updateUser.getPartyUid());
+						userSummary.setCollections(userSummary.getCollections() - 1);
+						this.getUserRepository().save(userSummary);
+						this.getUserRepository().flush();
+					} else if(!collection.getSharing().equalsIgnoreCase(PUBLIC) && newCollection.getSharing().equalsIgnoreCase(PUBLIC)) {
+						UserSummary userSummary = this.getUserRepository().getSummaryByUid(updateUser.getPartyUid());
+						if(userSummary.getGooruUid() == null) {
+							userSummary.setGooruUid(updateUser.getPartyUid());
+						}
+						userSummary.setCollections((userSummary.getCollections() != null ? userSummary.getCollections() : 0) + 1 );
+						this.getUserRepository().save(userSummary);
+						this.getUserRepository().flush();
+					}
 					collection.setSharing(newCollection.getSharing());
 					updateResourceSharing(newCollection.getSharing(), collection);
 				}
@@ -2218,6 +2268,10 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	
 	public CustomFieldsService getCustomFieldsService() {
 		return customFieldsService;
+	}
+
+	public UserRepository getUserRepository() {
+		return userRepository;
 	}
 
 }
