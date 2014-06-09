@@ -241,6 +241,8 @@ public interface ParameterProperties {
 	String SHOW_RATING = "Show rating";
 
 	String RATING = "rating";
+	
+	String RATINGS = "ratings";
 
 	String GOORU_CONTENT_ID = "gooruContentId";
 
@@ -1366,7 +1368,7 @@ public interface ParameterProperties {
 
 	String CREDENDTIAL = "Credential";
 
-	String IDP_NAME = "Idp Name";
+	String IDP_NAME = "IdpName";
 
 	String GOORU_API = "gooruapi";
 

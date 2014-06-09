@@ -151,7 +151,22 @@ public class TagRestV2Controller extends BaseController implements ParameterProp
 		SessionContextSupport.putLogParameter(TAG_GOORU_OID, tagGooruOid);
 		return toModelAndViewWithIoFilter(contentTagAssocs, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, CONTENT_ASSOC_INCLUDES);
 	}
-
+	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAG_READ })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(method = RequestMethod.GET, value = "/resource")
+	public ModelAndView getResourceByLabel(@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, 
+			@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, @RequestParam("label") String label, 
+			@RequestParam(value = SKIP_PAGINATION, required = false, defaultValue = TRUE) boolean skipPagination ,HttpServletRequest request,
+			HttpServletResponse response) throws Exception {
+		User user = (User) request.getAttribute(Constants.USER);
+		request.setAttribute(PREDICATE, "tag.read");
+		SessionContextSupport.putLogParameter(EVENT_NAME, "get-tag using gooruOid");
+		SessionContextSupport.putLogParameter("tagName", label);
+		return toJsonModelAndView(this.getTagService().getResourceByLabel(label, limit, offset, skipPagination,user), true );
+	}
+	
+	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAG_READ })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/{id}/user")

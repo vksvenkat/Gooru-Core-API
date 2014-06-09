@@ -746,6 +746,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			this.getCollectionRepository().remove(CollectionItem.class, collectionItem.getCollectionItemId());
 
 			collectionItem.getCollection().setLastUpdatedUserUid(user.getPartyUid());
+			collectionItem.getCollection().setLastModified(new Date(System.currentTimeMillis()));
 
 			reOrderCollectionItems(collection, collectionItemId);
 			try {
