@@ -595,14 +595,14 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 	
 	@Override
-	public SearchResults<Map<String, Object>> getMyStudy(User user, String orderBy,Integer offset, Integer limit, boolean skipPagination) {
+	public SearchResults<Map<String, Object>> getMyStudy(User user, String orderBy,Integer offset, Integer limit, boolean skipPagination, String type) {
 		if(user.getPartyUid().equalsIgnoreCase(ANONYMOUS)) {
 			throw new NotFoundException("User not Found");
 		}
-		List<Object[]> results = this.getUserGroupRepository().getMyStudy(user.getPartyUid(), user.getIdentities() != null ? user.getIdentities().iterator().next().getExternalId() : null,orderBy, offset, limit, skipPagination);
+		List<Object[]> results = this.getUserGroupRepository().getMyStudy(user.getPartyUid(), user.getIdentities() != null ? user.getIdentities().iterator().next().getExternalId() : null,orderBy, offset, limit, skipPagination, type);
 		SearchResults<Map<String, Object>> searchResult = new SearchResults<Map<String,Object>>();
 		searchResult.setSearchResults(this.setMyStudy(results));
-		searchResult.setTotalHitCount(this.getUserGroupRepository().getMyStudyCount(user.getPartyUid(), user.getIdentities() != null ? user.getIdentities().iterator().next().getExternalId() : null));
+		searchResult.setTotalHitCount(this.getUserGroupRepository().getMyStudyCount(user.getPartyUid(), user.getIdentities() != null ? user.getIdentities().iterator().next().getExternalId() : null, type));
 		return searchResult;
 	}
 	
@@ -623,8 +623,6 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			user.put("userName", object[8]);
 			result.put("user", user);
 			
-			long noOfAssignments = this.getCollectionRepository().getClasspageCollectionCount(object[0].toString(), null);
-			result.put("noOfAssignments", noOfAssignments);
 			StorageArea storageArea = this.getStorageRepository().getStorageAreaByTypeName(NFS);
 			Map<String, Object> thumbnails = new HashMap<String, Object>();
 			if (object[10] != null) {
@@ -633,6 +631,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 				thumbnails.put(URL, "");
 			}
 			result.put(THUMBNAILS, thumbnails);
+			result.put(ITEM_COUNT, object[11] == null ? 0 : object[11]);
 			listMap.add(result);
 		}
 		return listMap;

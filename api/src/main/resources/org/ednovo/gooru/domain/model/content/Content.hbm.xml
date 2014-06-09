@@ -246,6 +246,7 @@
 			<joined-subclass name="org.ednovo.gooru.core.api.model.Collection"	table="collection" lazy="true">
 				<key column="content_id" />
 				<property name="collectionType" column="collection_type" not-null="true"/>
+				<property name="itemCount" column="item_count" not-null="false"/>
 				<property name="narrationLink" column="narration_link" not-null="false" />
 				<property name="notes" column="notes" not-null="false" />
 				<property name="keyPoints" column="key_points" not-null="false"/>
