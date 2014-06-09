@@ -133,6 +133,10 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 			hql += " and collectionItems.resource.sharing in ('" + sharing + "') ";
 		}
 		
+		if (filters != null && filters.get(TYPE).equalsIgnoreCase(COLLECTION)) {
+			hql += " and collectionItems.resource.resourceType.name = 'scollection' ";
+		}
+		
 		if (filters.containsKey(ORDER_BY) && filters.get(ORDER_BY).equalsIgnoreCase(TITLE)) {
 			hql += " order by collectionItems.resource.title";
 		} else {
