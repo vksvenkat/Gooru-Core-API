@@ -45,6 +45,7 @@ import org.ednovo.gooru.core.api.model.ResourceType;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.ShelfType;
+import org.ednovo.gooru.core.api.model.StorageArea;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserGroup;
 import org.ednovo.gooru.core.api.model.UserGroupAssociation;
@@ -65,6 +66,7 @@ import org.ednovo.gooru.domain.service.v2.ContentService;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.InviteRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.party.UserGroupRepository;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.storage.StorageRepository;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -108,6 +110,9 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	
 	@Autowired
 	private SettingService settingService;
+	
+	@Autowired
+	private StorageRepository storageRepository;
 
 
 
@@ -594,10 +599,43 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		if(user.getPartyUid().equalsIgnoreCase(ANONYMOUS)) {
 			throw new NotFoundException("User not Found");
 		}
+		List<Object[]> results = this.getUserGroupRepository().getMyStudy(user.getPartyUid(), user.getIdentities() != null ? user.getIdentities().iterator().next().getExternalId() : null,orderBy, offset, limit, skipPagination);
 		SearchResults<Map<String, Object>> searchResult = new SearchResults<Map<String,Object>>();
-		searchResult.setSearchResults(this.getUserGroupRepository().getMyStudy(user.getPartyUid(), user.getIdentities() != null ? user.getIdentities().iterator().next().getExternalId() : null,orderBy, offset, limit, skipPagination));
+		searchResult.setSearchResults(this.setMyStudy(results));
 		searchResult.setTotalHitCount(this.getUserGroupRepository().getMyStudyCount(user.getPartyUid(), user.getIdentities() != null ? user.getIdentities().iterator().next().getExternalId() : null));
 		return searchResult;
+	}
+	
+	@Override
+	public List<Map<String, Object>> setMyStudy(List<Object[]> results) {
+		List<Map<String, Object>> listMap = new ArrayList<Map<String,Object>>();
+		for(Object[] object : results){
+			Map<String,Object> result = new HashMap<String, Object>();
+			result.put("gooruOid", object[0]);
+			result.put("title", object[1]);
+			result.put("classCode", object[2]);
+			result.put("status", object[3]);
+			result.put("createdOn", object[4]);
+			Map<String,Object> user = new HashMap<String, Object>();
+			user.put("gooruUId", object[5]);
+			user.put("firstName", object[6]);
+			user.put("lastName", object[7]);
+			user.put("userName", object[8]);
+			result.put("user", user);
+			
+			long noOfAssignments = this.getCollectionRepository().getClasspageCollectionCount(object[0].toString(), null);
+			result.put("noOfAssignments", noOfAssignments);
+			StorageArea storageArea = this.getStorageRepository().getStorageAreaByTypeName(NFS);
+			Map<String, Object> thumbnails = new HashMap<String, Object>();
+			if (object[10] != null) {
+				thumbnails.put(URL, storageArea.getCdnDirectPath() + String.valueOf(object[9]) + String.valueOf(object[10]));
+			} else {
+				thumbnails.put(URL, "");
+			}
+			result.put(THUMBNAILS, thumbnails);
+			listMap.add(result);
+		}
+		return listMap;
 	}
 
 	public TaskService getTaskService() {
@@ -628,6 +666,16 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 
 	public void setCollectionService(CollectionService collectionService) {
 		this.collectionService = collectionService;
+	}
+
+
+	public StorageRepository getStorageRepository() {
+		return storageRepository;
+	}
+
+
+	public void setStorageRepository(StorageRepository storageRepository) {
+		this.storageRepository = storageRepository;
 	}
 
 
@@ -683,5 +731,6 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			session.put("organizationUId",  user.getOrganization().getPartyUid());
 			SessionContextSupport.putLogParameter("session", session.toString());
 		}
+
 
 }

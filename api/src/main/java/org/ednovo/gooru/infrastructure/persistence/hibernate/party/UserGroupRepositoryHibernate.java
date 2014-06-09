@@ -117,8 +117,8 @@ public class UserGroupRepositoryHibernate extends BaseRepositoryHibernate implem
 	}
 	
 	@Override
-	public List<Map<String, Object>> getMyStudy(String gooruUid, String mailId, String orderBy,Integer offset, Integer limit, boolean skipPagination) {
-	    String sql = "select * from ((select cc.gooru_oid,rr.title , class.classpage_code , 'active' as status, cc.created_on , cc.user_uid from user u inner join content cc on (cc.user_uid = u.gooru_uid)  inner join classpage class on (cc.content_id = class.classpage_content_id) inner join resource rr  on (rr.content_id = cc.content_id) inner join collection_item ci on (cc.content_id = ci.resource_content_id) inner join collection c on (ci.collection_content_id = c.content_id) inner join resource r on (c.content_id = r.content_id) inner join content con on (r.content_id = con.content_id) where con.user_uid = '"+ gooruUid +"' and c.collection_type = 'user_classpage') union (select cc.gooru_oid , u.name , c.classpage_code ,'active' as status, ug.association_date,cc.user_uid from classpage c inner join user_group u on u.user_group_code = c.classpage_code inner join content cc on cc.content_id = classpage_content_id  inner join  user_group_association ug on ug.user_group_uid = u.user_group_uid  where  ug.gooru_uid= '"+ gooruUid+"' and ug.is_group_owner != 1)) as member order by created_on ";
+	public List<Object[]> getMyStudy(String gooruUid, String mailId, String orderBy,Integer offset, Integer limit, boolean skipPagination) {
+	    String sql = "select * from ((select cc.gooru_oid,rr.title , class.classpage_code , 'active' as status, cc.created_on , cc.user_uid, u.firstname, u.lastname, u.username, rr.folder, rr.thumbnail from user u inner join content cc on (cc.user_uid = u.gooru_uid)  inner join classpage class on (cc.content_id = class.classpage_content_id) inner join resource rr  on (rr.content_id = cc.content_id) inner join collection_item ci on (cc.content_id = ci.resource_content_id) inner join collection c on (ci.collection_content_id = c.content_id) inner join resource r on (c.content_id = r.content_id) inner join content con on (r.content_id = con.content_id) where con.user_uid = '"+ gooruUid +"' and c.collection_type = 'user_classpage') union (select cc.gooru_oid , u.name , c.classpage_code ,'active' as status, ug.association_date,cc.user_uid, null as firstname, null as lastname, null as username, null as folder, null as thumbnail from classpage c inner join user_group u on u.user_group_code = c.classpage_code inner join content cc on cc.content_id = classpage_content_id  inner join  user_group_association ug on ug.user_group_uid = u.user_group_uid  where  ug.gooru_uid= '"+ gooruUid+"' and ug.is_group_owner != 1)) as member order by created_on ";
 		if(orderBy.equalsIgnoreCase("desc") || orderBy.equalsIgnoreCase("asc")) {
 			sql += orderBy;
 		} else {
@@ -129,24 +129,7 @@ public class UserGroupRepositoryHibernate extends BaseRepositoryHibernate implem
 			query.setFirstResult(offset);
 			query.setMaxResults(limit);
 		}
-		return getMyStudy(query.list());
-	}
-
-	private List<Map<String, Object>> getMyStudy(List<Object[]> results) {
-		List<Map<String, Object>> listMap = new ArrayList<Map<String,Object>>();
-		for(Object[] object : results){
-			Map<String,Object> result = new HashMap<String, Object>();
-			result.put("gooruOid", object[0]);
-			result.put("title", object[1]);
-			result.put("classCode", object[2]);
-			result.put("status", object[3]);
-			result.put("createdOn", object[4]);
-			Map<String,Object> user = new HashMap<String, Object>();
-			user.put("gooruUId", object[5]);
-			result.put("user", user);
-			listMap.add(result);
-		}
-		return listMap;
+		return query.list();
 	}
 
 	@Override

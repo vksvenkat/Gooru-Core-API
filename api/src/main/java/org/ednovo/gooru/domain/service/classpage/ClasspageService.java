@@ -75,4 +75,6 @@ public interface ClasspageService {
 	
 	SearchResults<Map<String, Object>> getMyStudy(User apiCaller, String orderBy,Integer offset, Integer limit, boolean skipPagination);
 	
+	List<Map<String, Object>> setMyStudy(List<Object[]> results);
+	
 }
