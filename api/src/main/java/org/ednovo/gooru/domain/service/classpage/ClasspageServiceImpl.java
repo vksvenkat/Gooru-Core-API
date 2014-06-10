@@ -660,7 +660,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			Map<String, Object> resource = new HashMap<String, Object>();
 			if (!optimize)  {
 				result.put("associationDate", object[0]);
-				resource.put("folder", object[7]);
+				resource.put(FOLDER, object[7]);
 				resource.put(SHARING, object[9]);
 				Map<String, Object> thumbnails = new HashMap<String, Object>();
 				if (object[8] != null) {
@@ -683,7 +683,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			result.put("itemSequence", object[2]);
 			result.put("narration", object[3]);
 			result.put("plannedEndDate", object[4]);
-			resource.put(STATUS, object[11]);
+			result.put(STATUS, object[11]);
 			result.put("resource", resource);
 			collectionItems.add(result);
 		}
