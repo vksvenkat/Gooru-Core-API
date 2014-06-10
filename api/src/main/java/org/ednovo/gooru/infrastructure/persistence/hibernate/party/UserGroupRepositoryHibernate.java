@@ -24,10 +24,7 @@
 package org.ednovo.gooru.infrastructure.persistence.hibernate.party;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.ednovo.gooru.core.api.model.PartyPermission;
 import org.ednovo.gooru.core.api.model.UserGroup;
@@ -117,13 +114,18 @@ public class UserGroupRepositoryHibernate extends BaseRepositoryHibernate implem
 	}
 	
 	@Override
-	public List<Object[]> getMyStudy(String gooruUid, String mailId, String orderBy,Integer offset, Integer limit, boolean skipPagination) {
-	    String sql = "select * from ((select cc.gooru_oid,rr.title , class.classpage_code , 'active' as status, cc.created_on , cc.user_uid, u.firstname, u.lastname, u.username, rr.folder, rr.thumbnail from user u inner join content cc on (cc.user_uid = u.gooru_uid)  inner join classpage class on (cc.content_id = class.classpage_content_id) inner join resource rr  on (rr.content_id = cc.content_id) inner join collection_item ci on (cc.content_id = ci.resource_content_id) inner join collection c on (ci.collection_content_id = c.content_id) inner join resource r on (c.content_id = r.content_id) inner join content con on (r.content_id = con.content_id) where con.user_uid = '"+ gooruUid +"' and c.collection_type = 'user_classpage') union (select cc.gooru_oid , u.name , c.classpage_code ,'active' as status, ug.association_date,cc.user_uid, null as firstname, null as lastname, null as username, null as folder, null as thumbnail from classpage c inner join user_group u on u.user_group_code = c.classpage_code inner join content cc on cc.content_id = classpage_content_id  inner join  user_group_association ug on ug.user_group_uid = u.user_group_uid  where  ug.gooru_uid= '"+ gooruUid+"' and ug.is_group_owner != 1)) as member order by created_on ";
+	public List<Object[]> getMyStudy(String gooruUid, String mailId, String orderBy,Integer offset, Integer limit, boolean skipPagination, String type) {
+	    String sql = "select * from ((select cc.gooru_oid,rr.title , class.classpage_code , 'active' as status, cc.created_on , cc.user_uid, u.firstname, u.lastname, u.username, rr.folder, rr.thumbnail, ccc.item_count, 'teach' as type from user u inner join content cc on (cc.user_uid = u.gooru_uid)  inner join classpage class on (cc.content_id = class.classpage_content_id) inner join resource rr  on (rr.content_id = cc.content_id) inner join collection_item ci on (cc.content_id = ci.resource_content_id) inner join collection c on (ci.collection_content_id = c.content_id) inner join resource r on (c.content_id = r.content_id) inner join content con on (r.content_id = con.content_id) inner join collection ccc on (ccc.content_id = rr.content_id)  where con.user_uid = '"+ gooruUid+"' and c.collection_type = 'user_classpage') union (select cc.gooru_oid , rr.title , c.classpage_code ,'active' as status, ug.association_date,cc.user_uid, uu.firstname, uu.lastname, uu.username, rr.folder, rr.thumbnail, ccc.item_count, 'study' as type  from classpage c inner join user_group u on u.user_group_code = c.classpage_code inner join content cc on cc.content_id = classpage_content_id  inner join  user_group_association ug on ug.user_group_uid = u.user_group_uid inner join resource rr on rr.content_id = cc.content_id inner join user uu on uu.gooru_uid = cc.user_uid inner join collection ccc on (ccc.content_id = rr.content_id) where  ug.gooru_uid= '"+ gooruUid+"' and ug.is_group_owner != 1)) as member  ";
+	    if (type != null && !type.equalsIgnoreCase("teach-study"))  {
+	    	sql  += " where type = '"+ type + "' ";
+	    }
+	    sql += " order by created_on ";
 		if(orderBy.equalsIgnoreCase("desc") || orderBy.equalsIgnoreCase("asc")) {
 			sql += orderBy;
 		} else {
 			sql += "desc";
 		}
+		
 		Query query = getSession().createSQLQuery(sql);
 		if (!skipPagination) {
 			query.setFirstResult(offset);
@@ -133,8 +135,11 @@ public class UserGroupRepositoryHibernate extends BaseRepositoryHibernate implem
 	}
 
 	@Override
-	public Long getMyStudyCount(String gooruUid, String mailId) {
-		String sql= "select count(1) from ((select cc.gooru_oid,rr.title , class.classpage_code , 'active' as status, cc.created_on , cc.user_uid from user u inner join content cc on (cc.user_uid = u.gooru_uid)  inner join classpage class on (cc.content_id = class.classpage_content_id) inner join resource rr  on (rr.content_id = cc.content_id) inner join collection_item ci on (cc.content_id = ci.resource_content_id) inner join collection c on (ci.collection_content_id = c.content_id) inner join resource r on (c.content_id = r.content_id) inner join content con on (r.content_id = con.content_id) where con.user_uid = '"+gooruUid+"' and c.collection_type = 'user_classpage' order by rr.creadted_on) union (select cc.gooru_oid , u.name , c.classpage_code ,'active' as status, ug.association_date,cc.user_uid from classpage c inner join user_group u on u.user_group_code = c.classpage_code inner join content cc on cc.content_id = classpage_content_id  inner join  user_group_association ug on ug.user_group_uid = u.user_group_uid  where  ug.gooru_uid= '"+gooruUid+"' and ug.is_group_owner != 1 order by association_date)) as member ";
+	public Long getMyStudyCount(String gooruUid, String mailId, String type) {
+		String sql = "select count(1) from ((select cc.gooru_oid,rr.title , class.classpage_code , 'active' as status, cc.created_on , cc.user_uid, u.firstname, u.lastname, u.username, rr.folder, rr.thumbnail, ccc.item_count, 'teach' as type from user u inner join content cc on (cc.user_uid = u.gooru_uid)  inner join classpage class on (cc.content_id = class.classpage_content_id) inner join resource rr  on (rr.content_id = cc.content_id) inner join collection_item ci on (cc.content_id = ci.resource_content_id) inner join collection c on (ci.collection_content_id = c.content_id) inner join resource r on (c.content_id = r.content_id) inner join content con on (r.content_id = con.content_id) inner join collection ccc on (ccc.content_id = rr.content_id)  where con.user_uid = '"+ gooruUid+"' and c.collection_type = 'user_classpage') union (select cc.gooru_oid , rr.title , c.classpage_code ,'active' as status, ug.association_date,cc.user_uid, uu.firstname, uu.lastname, uu.username, rr.folder, rr.thumbnail, ccc.item_count, 'study' as type  from classpage c inner join user_group u on u.user_group_code = c.classpage_code inner join content cc on cc.content_id = classpage_content_id  inner join  user_group_association ug on ug.user_group_uid = u.user_group_uid inner join resource rr on rr.content_id = cc.content_id inner join user uu on uu.gooru_uid = cc.user_uid inner join collection ccc on (ccc.content_id = rr.content_id) where  ug.gooru_uid= '"+ gooruUid+"' and ug.is_group_owner != 1)) as member  ";
+	    if (type != null && !type.equalsIgnoreCase("teach-study"))  {
+	    	sql  += " where type = '"+ type + "' ";
+	    }
 		Query query = getSession().createSQLQuery(sql);
 		return ((BigInteger)query.list().get(0)).longValue();
 	}
