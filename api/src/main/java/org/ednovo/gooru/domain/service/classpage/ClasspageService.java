@@ -78,6 +78,6 @@ public interface ClasspageService {
 	
 	CollectionItem updateAssignment(String collectionItemId, String status, User user);
 	
-	List<Map<String, Object>> getClasspageItems(String gooruOid, Integer limit, Integer offset, String userUid, String orderBy, boolean skipPagination);
+	List<Map<String, Object>> getClasspageItems(String gooruOid, Integer limit, Integer offset, String userUid, String orderBy, boolean skipPagination, boolean optimize);
 	
 }

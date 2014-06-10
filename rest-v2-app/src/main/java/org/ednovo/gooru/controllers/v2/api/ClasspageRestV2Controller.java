@@ -277,12 +277,12 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ITEM_READ })
 	@RequestMapping(value = "/{cid}/item", method = RequestMethod.GET)
-	public ModelAndView getClasspageItems(@PathVariable(value = COLLECTIONID) String classpageId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "5") Integer limit,
-			@RequestParam(value = SKIP_PAGINATION, required = false, defaultValue = FALSE) Boolean skipPagination, @RequestParam(value = ORDER_BY, defaultValue = PLANNED_END_DATE, required = false) String orderBy, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public ModelAndView getClasspageItems(@PathVariable(value = COLLECTIONID) String classpageId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false) Integer limit,
+			@RequestParam(value = SKIP_PAGINATION, required = false, defaultValue = FALSE) Boolean skipPagination, @RequestParam(value = ORDER_BY, defaultValue = PLANNED_END_DATE, required = false) String orderBy, @RequestParam(value = OPTIMIZE, required = false, defaultValue = FALSE) Boolean optimize, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, CLASSPAGE_COLLECTION_ITEM_INCLUDE_FIELDS);
 		includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_ITEM_INCLUDE_FILEDS);
 		User user = (User) request.getAttribute(Constants.USER);
-		List<Map<String, Object>> collectionItems = this.getClasspageService().getClasspageItems(classpageId, limit, offset, user.getPartyUid(), orderBy, skipPagination);
+		List<Map<String, Object>> collectionItems = this.getClasspageService().getClasspageItems(classpageId, (limit == null && optimize) ? 30 : 5 , offset, user.getPartyUid(), orderBy, skipPagination, optimize);
 		String responseJson = null;
 		SearchResults<Map<String, Object>> result = new SearchResults<Map<String, Object>>();
 		result.setSearchResults(collectionItems);

@@ -2681,4 +2681,6 @@ public interface ParameterProperties {
 	String LIBRARY_NAMES = "library,rusd";
 	
 	String TOP_LEVEL_COLLECTION_TYPE = "topLevelCollectionType";
+	
+	String OPTIMIZE = "optimize";
 }

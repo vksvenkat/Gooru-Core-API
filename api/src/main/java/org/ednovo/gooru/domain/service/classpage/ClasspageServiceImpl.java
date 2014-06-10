@@ -652,36 +652,38 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 
 	@Override
-	public List<Map<String, Object>> getClasspageItems(String gooruOid, Integer limit, Integer offset, String userUid, String orderBy, boolean skipPagination) {
+	public List<Map<String, Object>> getClasspageItems(String gooruOid, Integer limit, Integer offset, String userUid, String orderBy, boolean skipPagination, boolean optimize) {
 		List<Object[]> results = this.getCollectionRepository().getClasspageItems(gooruOid, limit, offset, userUid, orderBy, skipPagination);
 		List<Map<String, Object>> collectionItems = new ArrayList<Map<String, Object>>();
 		for (Object[] object : results) {
 			Map<String, Object> result = new HashMap<String, Object>();
-			result.put("associationDate", object[0]);
-			result.put("collectionItemId", object[1]);
+			Map<String, Object> resource = new HashMap<String, Object>();
+			if (!optimize)  {
+				result.put("associationDate", object[0]);
+				resource.put(FOLDER, object[7]);
+				resource.put(SHARING, object[9]);
+				Map<String, Object> thumbnails = new HashMap<String, Object>();
+				if (object[8] != null) {
+					StorageArea storageArea = this.getStorageRepository().getStorageAreaByTypeName(NFS);
+					thumbnails.put(URL, storageArea.getCdnDirectPath() + String.valueOf(object[7]) + String.valueOf(object[8]));
+				} else {
+					thumbnails.put(URL, "");
+				}
+				resource.put(THUMBNAILS, thumbnails);
+				Map<String, Object> user = new HashMap<String, Object>();
+				user.put("username", object[12]);
+				user.put("gooruUId", object[13]);
+				user.put(PROFILE_IMG_URL, settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, TaxonomyUtil.GOORU_ORG_UID) + "/" + settingService.getConfigSetting(ConfigConstants.PROFILE_BUCKET, TaxonomyUtil.GOORU_ORG_UID) + String.valueOf(object[13]) + ".png");
+				resource.put("user", user);
+			}
+			resource.put(GOALS, object[10]);
+			resource.put("title", object[6]);
+			resource.put("gooruOid", object[5]);
+			result.put("collectionItemId", object[1]);				
 			result.put("itemSequence", object[2]);
 			result.put("narration", object[3]);
 			result.put("plannedEndDate", object[4]);
-			Map<String, Object> resource = new HashMap<String, Object>();
-			resource.put("gooruOid", object[5]);
-			resource.put("title", object[6]);
-			resource.put("folder", object[7]);
-			Map<String, Object> thumbnails = new HashMap<String, Object>();
-			if (object[8] != null) {
-				StorageArea storageArea = this.getStorageRepository().getStorageAreaByTypeName(NFS);
-				thumbnails.put(URL, storageArea.getCdnDirectPath() + String.valueOf(object[7]) + String.valueOf(object[8]));
-			} else {
-				thumbnails.put(URL, "");
-			}
-			resource.put(THUMBNAILS, thumbnails);
-			resource.put(SHARING, object[9]);
-			resource.put(GOALS, object[10]);
-			resource.put(STATUS, object[11]);
-			Map<String, Object> user = new HashMap<String, Object>();
-			user.put("username", object[12]);
-			user.put("gooruUId", object[13]);
-			user.put(PROFILE_IMG_URL, settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, TaxonomyUtil.GOORU_ORG_UID) + "/" + settingService.getConfigSetting(ConfigConstants.PROFILE_BUCKET, TaxonomyUtil.GOORU_ORG_UID) + String.valueOf(object[13]) + ".png");
-			result.put("user", user);
+			result.put(STATUS, object[11]);
 			result.put("resource", resource);
 			collectionItems.add(result);
 		}
