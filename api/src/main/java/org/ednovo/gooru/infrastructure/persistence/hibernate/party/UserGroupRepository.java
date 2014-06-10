@@ -24,7 +24,6 @@
 package org.ednovo.gooru.infrastructure.persistence.hibernate.party;
 
 import java.util.List;
-import java.util.Map;
 
 import org.ednovo.gooru.core.api.model.PartyPermission;
 import org.ednovo.gooru.core.api.model.UserGroup;
