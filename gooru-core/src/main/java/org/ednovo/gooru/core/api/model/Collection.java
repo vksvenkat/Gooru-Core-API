@@ -272,11 +272,11 @@ public class Collection extends Resource implements Versionable {
 	}
 
 	public Integer getItemCount() {
-		return this.getCollectionItems() != null ? 0 : this.getCollectionItems().size();
+		return this.getCollectionItems() == null ? 0 : this.getCollectionItems().size();
 	}
 
 	public void setItemCount(Integer itemCount) {
-		this.itemCount = this.getCollectionItems() != null ? 0 : this.getCollectionItems().size();
+		this.itemCount = this.getCollectionItems() == null ? 0 : this.getCollectionItems().size();
 	}
 
 }
