@@ -632,6 +632,8 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			}
 			result.put(THUMBNAILS, thumbnails);
 			result.put(ITEM_COUNT, object[11] == null ? 0 : object[11]);
+			long usersCount = this.getUserGroupRepository().getUserGroupAssociationCount(String.valueOf(object[13]));
+			result.put("usersCount", usersCount);
 			listMap.add(result);
 		}
 		return listMap;
