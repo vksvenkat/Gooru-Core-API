@@ -237,6 +237,9 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 		JSONObject json = requestData(data);
 		ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().updateCollectionItem(this.buildCollectionItemFromInputParameters(getValue(COLLECTION_ITEM, json)), collectionItemId, user);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
+			if (responseDTO.getModel().getStatus() != null) {
+				getClasspageService().updateAssignment(collectionItemId, responseDTO.getModel().getStatus(), user);
+			}
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		} else {
 
@@ -371,17 +374,7 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 		User user = (User) request.getAttribute(Constants.USER);
 		return toModelAndView(this.getClasspageService().classMemberSuggest(queryText, user.getPartyUid()), RESPONSE_FORMAT_JSON);
 	}
-	
-	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_UPDATE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	@RequestMapping(value = { "/item/{id}/{status}" }, method = RequestMethod.PUT)
-	public ModelAndView updateAssignment(@PathVariable(value = ID) String id, @PathVariable(value = STATUS) String status, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		User user = (User) request.getAttribute(Constants.USER);
-		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, COLLECTION_ITEM_INCLUDE_FILEDS);
-		includes = (String[]) ArrayUtils.addAll(includes, CLASSPAGE_COLLECTION_ITEM_INCLUDE_FIELDS);
-		return toModelAndViewWithIoFilter(this.getClasspageService().updateAssignment(id, status, user), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
-	}
-	
+
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ITEM_UPDATE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/item/{id}/reorder/{sequence}" }, method = RequestMethod.PUT)
