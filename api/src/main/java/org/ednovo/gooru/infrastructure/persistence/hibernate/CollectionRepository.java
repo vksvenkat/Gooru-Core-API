@@ -88,7 +88,7 @@ public interface CollectionRepository extends BaseRepository {
 
 	List<CollectionItem> getMyCollectionItems(Map<String, String> filters, User user);
 
-	List<CollectionItem> getCollectionItems(String collectionId, Integer offset, Integer limit, boolean skipPagination, String orderBy, String type);
+	List<CollectionItem> getCollectionItems(String collectionId, Integer offset, Integer limit, boolean skipPagination, String orderBy, String type,String sortBy);
 
 	Resource findResourceCopiedFrom(String gooruOid, String gooruUid);
 
