@@ -31,6 +31,7 @@ public class CollectionItem implements Serializable, Comparable<CollectionItem> 
 	private List<StandardFo> standards; 
 	private Set<String> course; 
 	private Integer resourceCount;
+	private String status;
 	
 	/**
 	 * 
@@ -199,6 +200,14 @@ public class CollectionItem implements Serializable, Comparable<CollectionItem> 
 
 	public Integer getResourceCount() {
 		return resourceCount;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
 	}
 
 }

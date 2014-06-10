@@ -31,7 +31,6 @@ import org.ednovo.gooru.core.api.model.Classpage;
 import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.domain.service.search.SearchResults;
-import org.json.JSONException;
 
 public interface ClasspageService {
 
@@ -76,5 +75,9 @@ public interface ClasspageService {
 	SearchResults<Map<String, Object>> getMyStudy(User apiCaller, String orderBy,Integer offset, Integer limit, boolean skipPagination, String type);
 	
 	List<Map<String, Object>> setMyStudy(List<Object[]> results);
+	
+	CollectionItem updateAssignment(String collectionItemId, String status, User user);
+	
+	List<Map<String, Object>> getClasspageItems(String gooruOid, Integer limit, Integer offset, String userUid, String orderBy, boolean skipPagination, boolean optimize);
 	
 }

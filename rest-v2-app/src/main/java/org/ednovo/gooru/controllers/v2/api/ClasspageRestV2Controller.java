@@ -28,6 +28,7 @@ package org.ednovo.gooru.controllers.v2.api;
 
 import java.sql.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
@@ -236,6 +237,9 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 		JSONObject json = requestData(data);
 		ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().updateCollectionItem(this.buildCollectionItemFromInputParameters(getValue(COLLECTION_ITEM, json)), collectionItemId, user);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
+			if (responseDTO.getModel().getStatus() != null) {
+				getClasspageService().updateAssignment(collectionItemId, responseDTO.getModel().getStatus(), user);
+			}
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		} else {
 
@@ -276,13 +280,14 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ITEM_READ })
 	@RequestMapping(value = "/{cid}/item", method = RequestMethod.GET)
-	public ModelAndView getClasspageItems(@PathVariable(value = COLLECTIONID) String classpageId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,
-			@RequestParam(value = SKIP_PAGINATION, required = false, defaultValue = FALSE) Boolean skipPagination, @RequestParam(value = ORDER_BY, defaultValue = PLANNED_END_DATE, required = false) String orderBy, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public ModelAndView getClasspageItems(@PathVariable(value = COLLECTIONID) String classpageId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false) Integer limit,
+			@RequestParam(value = SKIP_PAGINATION, required = false, defaultValue = FALSE) Boolean skipPagination, @RequestParam(value = ORDER_BY, defaultValue = PLANNED_END_DATE, required = false) String orderBy, @RequestParam(value = OPTIMIZE, required = false, defaultValue = FALSE) Boolean optimize, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, CLASSPAGE_COLLECTION_ITEM_INCLUDE_FIELDS);
 		includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_ITEM_INCLUDE_FILEDS);
-		List<CollectionItem> collectionItems = this.getCollectionService().getCollectionItems(classpageId, offset, limit, skipPagination, orderBy, "classpage");
+		User user = (User) request.getAttribute(Constants.USER);
+		List<Map<String, Object>> collectionItems = this.getClasspageService().getClasspageItems(classpageId, (limit == null && optimize) ? 30 : 5 , offset, user.getPartyUid(), orderBy, skipPagination, optimize);
 		String responseJson = null;
-		SearchResults<CollectionItem> result = new SearchResults<CollectionItem>();
+		SearchResults<Map<String, Object>> result = new SearchResults<Map<String, Object>>();
 		result.setSearchResults(collectionItems);
 		result.setTotalHitCount(this.getCollectionRepository().getClasspageCollectionCount(classpageId, "classpage"));
 		responseJson = serialize(result, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, true, includes);
@@ -318,7 +323,7 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}/member" }, method = RequestMethod.GET)
 	public ModelAndView getClassMemberList(@PathVariable(ID) String code, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,
 			@RequestParam(value = SKIP_PAGINATION, required = false, defaultValue = FALSE) Boolean skipPagination, @RequestParam(value = "groupByStatus", defaultValue = "false", required = false) Boolean groupByStatus, @RequestParam(value = "filterBy", required = false) String filterBy,
@@ -363,12 +368,32 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/member/suggest" }, method = RequestMethod.GET)
 	public ModelAndView classMemberSuggest(@RequestParam(value = "query") String queryText, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
 		return toModelAndView(this.getClasspageService().classMemberSuggest(queryText, user.getPartyUid()), RESPONSE_FORMAT_JSON);
 	}
+
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ITEM_UPDATE })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(value = { "/item/{id}/reorder/{sequence}" }, method = RequestMethod.PUT)
+	public ModelAndView reorderCollectionItemSequence(@PathVariable(value = ID) String collectionItemId, @PathVariable(value = SEQUENCE) int newSequence, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().reorderCollectionItem(collectionItemId, newSequence);
+		if (responseDTO.getErrors().getErrorCount() > 0) {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+		} else {
+			
+			SessionContextSupport.putLogParameter(EVENT_NAME, "scollection-item-re-order");
+			SessionContextSupport.putLogParameter(COLLECTION_ITEM_ID, responseDTO.getModel().getCollectionItemId());
+		}
+		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, COLLECTION_INCLUDE_FIELDS);
+		includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_ITEM_INCLUDE_FILEDS);
+		includes = (String[]) ArrayUtils.addAll(includes, ERROR_INCLUDE);
+
+		return toModelAndViewWithIoFilter(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
+	}
+	
 
 	private Classpage buildClasspageFromInputParameters(String data, User user) {
 		Classpage classpage = JsonDeserializer.deserialize(data, Classpage.class);

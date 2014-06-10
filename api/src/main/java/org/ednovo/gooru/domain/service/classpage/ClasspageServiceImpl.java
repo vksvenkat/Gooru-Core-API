@@ -22,6 +22,7 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.domain.service.classpage;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -38,6 +39,7 @@ import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.CollectionType;
 import org.ednovo.gooru.core.api.model.ContentType;
+import org.ednovo.gooru.core.api.model.CustomTableValue;
 import org.ednovo.gooru.core.api.model.Identity;
 import org.ednovo.gooru.core.api.model.InviteUser;
 import org.ednovo.gooru.core.api.model.Resource;
@@ -47,9 +49,11 @@ import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.ShelfType;
 import org.ednovo.gooru.core.api.model.StorageArea;
 import org.ednovo.gooru.core.api.model.User;
+import org.ednovo.gooru.core.api.model.UserCollectionItemAssoc;
 import org.ednovo.gooru.core.api.model.UserGroup;
 import org.ednovo.gooru.core.api.model.UserGroupAssociation;
 import org.ednovo.gooru.core.application.util.BaseUtil;
+import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.core.exception.UnauthorizedException;
@@ -79,42 +83,40 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 
 	@Autowired
 	private TaskService taskService;
-	
+
 	@Autowired
-    @javax.annotation.Resource(name = "userService")
+	@javax.annotation.Resource(name = "userService")
 	private UserService userService;
-	
+
 	@Autowired
 	private ContentService contentService;
-	
+
 	@Autowired
 	private UserGroupRepository userGroupRepository;
-	
+
 	@Autowired
 	private UserRepository userRepository;
-	
+
 	@Autowired
 	private UserGroupService userGroupService;
-	
+
 	@Autowired
-	private UserManagementService  userManagementService;
-	
+	private UserManagementService userManagementService;
+
 	@Autowired
 	private CollectionService collectionService;
-	
+
 	@Autowired
 	private InviteRepository inviteRepository;
-	
+
 	@Autowired
 	private InviteService inviteService;
-	
+
 	@Autowired
 	private SettingService settingService;
-	
+
 	@Autowired
 	private StorageRepository storageRepository;
-
-
 
 	@Override
 	public ActionResponseDTO<Classpage> createClasspage(Classpage classpage, boolean addToUserClasspage, String assignmentId) throws Exception {
@@ -139,31 +141,29 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		return new ActionResponseDTO<Classpage>(classpage, errors);
 	}
 
-	
 	@Override
-	public ActionResponseDTO<Classpage> createClasspage(Classpage newClasspage, CollectionItem newCollectionItem,
-			String gooruOid, User user, boolean addToMy) throws Exception {
-			Errors errors = validateClasspage(newClasspage);
-			if (!errors.hasErrors()) {
+	public ActionResponseDTO<Classpage> createClasspage(Classpage newClasspage, CollectionItem newCollectionItem, String gooruOid, User user, boolean addToMy) throws Exception {
+		Errors errors = validateClasspage(newClasspage);
+		if (!errors.hasErrors()) {
+			this.getCollectionRepository().save(newClasspage);
+
+			UserGroup userGroup = this.getUserGroupService().createGroup(newClasspage.getTitle(), newClasspage.getClasspageCode(), "System", user, null);
+			if (gooruOid != null && !gooruOid.isEmpty() && newCollectionItem != null) {
+				this.createClasspageItem(gooruOid, newClasspage.getGooruOid(), newCollectionItem, newClasspage.getUser(), CollectionType.USER_CLASSPAGE.getCollectionType());
 				this.getCollectionRepository().save(newClasspage);
-				
-				UserGroup userGroup = this.getUserGroupService().createGroup(newClasspage.getTitle(), newClasspage.getClasspageCode(), "System", user, null);
-				if (gooruOid != null && !gooruOid.isEmpty() && newCollectionItem != null) {
-					this.createClasspageItem(gooruOid, newClasspage.getGooruOid(), newCollectionItem, newClasspage.getUser(), CollectionType.USER_CLASSPAGE.getCollectionType());
-					this.getCollectionRepository().save(newClasspage);
-				}
-				if (addToMy) {
-					CollectionItem collectionItem = new CollectionItem();
-					collectionItem.setItemType(ShelfType.AddedType.ADDED.getAddedType());
-					this.createClasspageItem(newClasspage.getGooruOid(), null, collectionItem, newClasspage.getUser(), CollectionType.USER_CLASSPAGE.getCollectionType());
-				}
-				getEventLogs(newClasspage, user, userGroup);
 			}
-			return new ActionResponseDTO<Classpage>(newClasspage, errors);
+			if (addToMy) {
+				CollectionItem collectionItem = new CollectionItem();
+				collectionItem.setItemType(ShelfType.AddedType.ADDED.getAddedType());
+				this.createClasspageItem(newClasspage.getGooruOid(), null, collectionItem, newClasspage.getUser(), CollectionType.USER_CLASSPAGE.getCollectionType());
+			}
+			getEventLogs(newClasspage, user, userGroup);
+		}
+		return new ActionResponseDTO<Classpage>(newClasspage, errors);
 	}
 
-	public ActionResponseDTO<Classpage> updateClasspage(Classpage newClasspage, String updateClasspageId , Boolean hasUnrestrictedContentAccess ) throws Exception {
-		Classpage classpage = this.getClasspage(updateClasspageId, null,null);
+	public ActionResponseDTO<Classpage> updateClasspage(Classpage newClasspage, String updateClasspageId, Boolean hasUnrestrictedContentAccess) throws Exception {
+		Classpage classpage = this.getClasspage(updateClasspageId, null, null);
 		Errors errors = validateUpdateClasspage(classpage, newClasspage);
 		if (!errors.hasErrors()) {
 			if (newClasspage.getVocabulary() != null) {
@@ -200,32 +200,32 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			if (newClasspage.getGrade() != null) {
 				classpage.setGrade(newClasspage.getGrade());
 			}
-			if (newClasspage.getSharing() != null ){
+			if (newClasspage.getSharing() != null) {
 				if (newClasspage.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || newClasspage.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing()) || newClasspage.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing())) {
-				classpage.setSharing(newClasspage.getSharing());
+					classpage.setSharing(newClasspage.getSharing());
 				}
 			}
 			if (newClasspage.getLastUpdatedUserUid() != null) {
 				classpage.setLastUpdatedUserUid(newClasspage.getLastUpdatedUserUid());
 			}
-			
+
 			if (hasUnrestrictedContentAccess) {
-				if(newClasspage.getCreator() != null && newClasspage.getCreator().getPartyUid()!= null){
+				if (newClasspage.getCreator() != null && newClasspage.getCreator().getPartyUid() != null) {
 					User user = userService.findByGooruId(newClasspage.getCreator().getPartyUid());
-					classpage.setCreator(user);						
+					classpage.setCreator(user);
 				}
-				
+
 				if (newClasspage.getUser() != null && newClasspage.getUser().getPartyUid() != null) {
-					User user = userService.findByGooruId(newClasspage.getUser().getPartyUid());		
-					classpage.setUser(user);					
+					User user = userService.findByGooruId(newClasspage.getUser().getPartyUid());
+					classpage.setUser(user);
 				}
-		    }  
-			
+			}
+
 			this.getCollectionRepository().save(classpage);
 		}
 		return new ActionResponseDTO<Classpage>(classpage, errors);
 	}
-	
+
 	@Override
 	public Classpage getClasspage(String classpageCode, User user) throws Exception {
 		Classpage classpage = this.getCollectionRepository().getClasspageByCode(classpageCode);
@@ -234,8 +234,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		}
 		return getClasspage(classpage.getGooruOid(), user, PERMISSIONS);
 	}
-	
-	
+
 	@Override
 	public void deleteClasspage(String classpageId) {
 		Classpage classpage = this.getClasspage(classpageId, null, null);
@@ -251,14 +250,14 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	public List<Classpage> getClasspage(Map<String, String> filters, User user) {
 		return this.getCollectionRepository().getClasspage(filters, user);
 	}
-	
+
 	@Override
-	public SearchResults<Classpage> getClasspages(Integer offset, Integer limit, Boolean skipPagination, User user ,String title, String author, String userName) {
+	public SearchResults<Classpage> getClasspages(Integer offset, Integer limit, Boolean skipPagination, User user, String title, String author, String userName) {
 		if (userService.isContentAdmin(user)) {
-			List <Classpage> classpages = this.getCollectionRepository().getClasspages(offset, limit, skipPagination,title,author,userName);
-			SearchResults<Classpage>  result = new SearchResults<Classpage>();
+			List<Classpage> classpages = this.getCollectionRepository().getClasspages(offset, limit, skipPagination, title, author, userName);
+			SearchResults<Classpage> result = new SearchResults<Classpage>();
 			result.setSearchResults(classpages);
-			result.setTotalHitCount(this.getCollectionRepository().getClasspageCount(title,author,userName));
+			result.setTotalHitCount(this.getCollectionRepository().getClasspageCount(title, author, userName));
 			return result;
 		} else {
 			throw new UnauthorizedException("user don't have permission ");
@@ -298,13 +297,13 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		}
 		return classpage;
 	}
-	
+
 	@Override
 	public ActionResponseDTO<CollectionItem> createClasspageItem(String assignmentGooruOid, String classpageGooruOid, CollectionItem collectionItem, User user, String type) throws Exception {
 		Classpage classpage = null;
 		if (type != null && type.equalsIgnoreCase(CollectionType.USER_CLASSPAGE.getCollectionType())) {
 			if (classpageGooruOid != null) {
-				classpage = this.getClasspage(classpageGooruOid, null,null);
+				classpage = this.getClasspage(classpageGooruOid, null, null);
 			} else {
 				classpage = this.getCollectionRepository().getUserShelfByClasspageGooruUid(user.getGooruUId(), CollectionType.USER_CLASSPAGE.getCollectionType());
 			}
@@ -331,7 +330,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			}
 			collectionItem.setItemType(ShelfType.AddedType.SUBSCRIBED.getAddedType());
 		} else {
-			classpage = this.getClasspage(classpageGooruOid, null,null);
+			classpage = this.getClasspage(classpageGooruOid, null, null);
 			collectionItem.setItemType(ShelfType.AddedType.ADDED.getAddedType());
 		}
 
@@ -348,9 +347,9 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		} else {
 			throw new Exception("invalid assignmentId -" + assignmentGooruOid);
 		}
-		
+
 		this.getCollectionService().getEventLogs(collectionItem, true, user, collectionItem.getCollection().getCollectionType());
-		
+
 		return new ActionResponseDTO<CollectionItem>(collectionItem, errors);
 	}
 
@@ -378,23 +377,23 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		return new ActionResponseDTO<Classpage>(newclasspage, errors);
 
 	}
-	
+
 	@Override
-	public List<Classpage> getMyClasspage(Integer offset, Integer limit,  User user, boolean skipPagination, String orderBy) {
-		return this.getCollectionRepository().getMyClasspage(offset, limit,  user, skipPagination, orderBy);
+	public List<Classpage> getMyClasspage(Integer offset, Integer limit, User user, boolean skipPagination, String orderBy) {
+		return this.getCollectionRepository().getMyClasspage(offset, limit, user, skipPagination, orderBy);
 	}
-	
+
 	@Override
 	public Long getMyClasspageCount(String gooruUid) {
 		return this.getCollectionRepository().getMyClasspageCount(gooruUid);
 	}
-	
+
 	@Override
-	public ActionResponseDTO<Classpage> createClasspage(Classpage classpage, String collectionId, boolean addToMy)  throws Exception {
-		
-		return this.createClasspage(classpage, classpage.getCollectionItem() , collectionId, classpage.getUser(), addToMy);
+	public ActionResponseDTO<Classpage> createClasspage(Classpage classpage, String collectionId, boolean addToMy) throws Exception {
+
+		return this.createClasspage(classpage, classpage.getCollectionItem(), collectionId, classpage.getUser(), addToMy);
 	}
-	
+
 	@Override
 	public List<Map<String, Object>> classpageUserJoin(String code, List<String> mailIds, User apiCaller) throws Exception {
 		List<Map<String, Object>> classpageMember = new ArrayList<Map<String, Object>>();
@@ -406,7 +405,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 				Identity identity = this.getUserRepository().findByEmailIdOrUserName(mailId, true, false);
 				if (identity != null) {
 					inviteUser = this.getInviteRepository().findInviteUserById(mailId, classpage.getGooruOid(), null);
-					if(inviteUser != null) {
+					if (inviteUser != null) {
 						inviteUser.setStatus(this.getCustomTableRepository().getCustomTableValue(INVITE_USER_STATUS, ACTIVE));
 						inviteUser.setJoinedDate(new Date(System.currentTimeMillis()));
 						this.getInviteRepository().save(inviteUser);
@@ -420,7 +419,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 						classpage.setLastModified(new Date(System.currentTimeMillis()));
 						this.getCollectionRepository().save(classpage);
 						this.getUserRepository().save(groupAssociation);
-						classpageMember.add(setMemberResponse(groupAssociation,ACTIVE));
+						classpageMember.add(setMemberResponse(groupAssociation, ACTIVE));
 					}
 				}
 				getEventLogs(classpage, apiCaller, userGroup, inviteUser);
@@ -430,7 +429,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		}
 		return classpageMember;
 	}
-	
+
 	@Override
 	public void classpageUserRemove(String code, List<String> mailIds, User apiCaller) throws Exception {
 		UserGroup userGroup = this.getUserGroupService().findUserGroupByGroupCode(code);
@@ -446,14 +445,14 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 						this.getUserGroupRepository().remove(userGroupAssociation);
 					}
 				}
-				InviteUser inviteUser = this.getInviteRepository().findInviteUserById(mailId, classpage.getGooruOid(),null);
+				InviteUser inviteUser = this.getInviteRepository().findInviteUserById(mailId, classpage.getGooruOid(), null);
 				if (inviteUser != null) {
 					this.getInviteRepository().remove(inviteUser);
 				}
 			}
 		}
 	}
-	
+
 	@Override
 	public List<Map<String, Object>> getClassMemberList(String code, String filterBy) {
 		List<Map<String, Object>> classpageMember = new ArrayList<Map<String, Object>>();
@@ -467,7 +466,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		}
 		return classpageMember;
 	}
-	
+
 	@Override
 	public Map<String, List<Map<String, Object>>> getClassMemberListByGroup(String code, String filterBy) {
 		Map<String, List<Map<String, Object>>> collaboratorList = new HashMap<String, List<Map<String, Object>>>();
@@ -481,7 +480,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		}
 		return collaboratorList;
 	}
-	
+
 	private List<Map<String, Object>> getActiveMemberList(String code) {
 		List<Map<String, Object>> activeList = new ArrayList<Map<String, Object>>();
 		Classpage classpage = this.getCollectionRepository().getClasspageByCode(code);
@@ -497,7 +496,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		}
 		return activeList;
 	}
-	
+
 	private List<Map<String, Object>> getPendingMemberList(String code) {
 		Classpage classpage = this.getCollectionRepository().getClasspageByCode(code);
 		if (classpage == null) {
@@ -511,9 +510,8 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			}
 		}
 		return pendingList;
-	}	
-	
-	
+	}
+
 	private Map<String, Object> setInviteMember(InviteUser inviteUser, String status) {
 		Map<String, Object> listMap = new HashMap<String, Object>();
 		listMap.put(EMAIL_ID, inviteUser.getEmailId());
@@ -527,23 +525,23 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 
 	private Map<String, Object> setMemberResponse(UserGroupAssociation userGroupAssociation, String status) {
 		Map<String, Object> member = new HashMap<String, Object>();
-		member.put(EMAIL_ID, userGroupAssociation.getUser().getIdentities() != null ?userGroupAssociation.getUser().getIdentities().iterator().next().getExternalId() : null);
+		member.put(EMAIL_ID, userGroupAssociation.getUser().getIdentities() != null ? userGroupAssociation.getUser().getIdentities().iterator().next().getExternalId() : null);
 		member.put(_GOORU_UID, userGroupAssociation.getUser().getPartyUid());
 		member.put(USER_NAME, userGroupAssociation.getUser().getUsername());
 		member.put(PROFILE_IMG_URL, this.getUserManagementService().buildUserProfileImageUrl(userGroupAssociation.getUser()));
 		member.put(STATUS, status);
 		return member;
 	}
-	
+
 	@Override
-	public SearchResults<Map<String, Object>> getMemberList(String code,Integer offset, Integer limit, Boolean skipPagination, String filterBy) {
+	public SearchResults<Map<String, Object>> getMemberList(String code, Integer offset, Integer limit, Boolean skipPagination, String filterBy) {
 		Classpage classpage = this.getCollectionRepository().getClasspageByCode(code);
-		if(classpage == null) {
+		if (classpage == null) {
 			throw new NotFoundException("classpage not found");
-		} 
-		List<Object[]> results = this.getUserGroupRepository().getUserMemberList(code, classpage.getGooruOid(), offset, limit, skipPagination,filterBy);
-		SearchResults<Map<String, Object>> searchResult = new SearchResults<Map<String,Object>>();
-		List<Map<String, Object>> listMap = new ArrayList<Map<String,Object>>();
+		}
+		List<Object[]> results = this.getUserGroupRepository().getUserMemberList(code, classpage.getGooruOid(), offset, limit, skipPagination, filterBy);
+		SearchResults<Map<String, Object>> searchResult = new SearchResults<Map<String, Object>>();
+		List<Map<String, Object>> listMap = new ArrayList<Map<String, Object>>();
 		for (Object[] object : results) {
 			Map<String, Object> result = new HashMap<String, Object>();
 			result.put(EMAIL_ID, object[0]);
@@ -551,19 +549,18 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			result.put(_GOORU_UID, object[2]);
 			result.put(ASSOC_DATE, object[3]);
 			result.put(STATUS, object[4]);
-			if(object[2] != null) {
-				result.put(PROFILE_IMG_URL, settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, TaxonomyUtil.GOORU_ORG_UID) + "/" + settingService.getConfigSetting(ConfigConstants.PROFILE_BUCKET, TaxonomyUtil.GOORU_ORG_UID) +  String.valueOf(object[2]) + ".png");
+			if (object[2] != null) {
+				result.put(PROFILE_IMG_URL, settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, TaxonomyUtil.GOORU_ORG_UID) + "/" + settingService.getConfigSetting(ConfigConstants.PROFILE_BUCKET, TaxonomyUtil.GOORU_ORG_UID) + String.valueOf(object[2]) + ".png");
 			}
 			listMap.add(result);
 		}
 		searchResult.setSearchResults(listMap);
-		searchResult.setTotalHitCount(this.getUserGroupRepository().getUserMemberCount(code, classpage.getGooruOid(),filterBy));
+		searchResult.setTotalHitCount(this.getUserGroupRepository().getUserMemberCount(code, classpage.getGooruOid(), filterBy));
 		return searchResult;
 	}
-	
 
 	private Errors validateClasspage(Classpage classpage) throws Exception {
-		final Errors errors = new BindException(classpage,CLASSPAGE);
+		final Errors errors = new BindException(classpage, CLASSPAGE);
 		if (classpage != null) {
 			rejectIfNullOrEmpty(errors, classpage.getTitle(), TITLE, GL0006, generateErrorMessage(GL0006, TITLE));
 		}
@@ -579,7 +576,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	private Errors validateClasspageItem(Classpage classpage, Resource resource, CollectionItem collectionItem) throws Exception {
 		Map<String, String> itemType = new HashMap<String, String>();
 		itemType.put(ADDED, COLLECTION_ITEM_TYPE);
-		itemType.put(SUBSCRIBED,COLLECTION_ITEM_TYPE);
+		itemType.put(SUBSCRIBED, COLLECTION_ITEM_TYPE);
 		final Errors errors = new BindException(collectionItem, COLLECTION_ITEM);
 		if (collectionItem != null) {
 			rejectIfNull(errors, classpage, COLLECTION, GL0056, generateErrorMessage(GL0056, CLASSPAGE));
@@ -588,41 +585,41 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		}
 		return errors;
 	}
-	
+
 	@Override
 	public List<String> classMemberSuggest(String queryText, String gooruUid) {
 		return this.getUserGroupRepository().classMemberSuggest(queryText, gooruUid);
 	}
-	
+
 	@Override
-	public SearchResults<Map<String, Object>> getMyStudy(User user, String orderBy,Integer offset, Integer limit, boolean skipPagination, String type) {
-		if(user.getPartyUid().equalsIgnoreCase(ANONYMOUS)) {
+	public SearchResults<Map<String, Object>> getMyStudy(User user, String orderBy, Integer offset, Integer limit, boolean skipPagination, String type) {
+		if (user.getPartyUid().equalsIgnoreCase(ANONYMOUS)) {
 			throw new NotFoundException("User not Found");
 		}
-		List<Object[]> results = this.getUserGroupRepository().getMyStudy(user.getPartyUid(), user.getIdentities() != null ? user.getIdentities().iterator().next().getExternalId() : null,orderBy, offset, limit, skipPagination, type);
-		SearchResults<Map<String, Object>> searchResult = new SearchResults<Map<String,Object>>();
+		List<Object[]> results = this.getUserGroupRepository().getMyStudy(user.getPartyUid(), user.getIdentities() != null ? user.getIdentities().iterator().next().getExternalId() : null, orderBy, offset, limit, skipPagination, type);
+		SearchResults<Map<String, Object>> searchResult = new SearchResults<Map<String, Object>>();
 		searchResult.setSearchResults(this.setMyStudy(results));
 		searchResult.setTotalHitCount(this.getUserGroupRepository().getMyStudyCount(user.getPartyUid(), user.getIdentities() != null ? user.getIdentities().iterator().next().getExternalId() : null, type));
 		return searchResult;
 	}
-	
+
 	@Override
 	public List<Map<String, Object>> setMyStudy(List<Object[]> results) {
-		List<Map<String, Object>> listMap = new ArrayList<Map<String,Object>>();
-		for(Object[] object : results){
-			Map<String,Object> result = new HashMap<String, Object>();
+		List<Map<String, Object>> listMap = new ArrayList<Map<String, Object>>();
+		for (Object[] object : results) {
+			Map<String, Object> result = new HashMap<String, Object>();
 			result.put("gooruOid", object[0]);
 			result.put("title", object[1]);
 			result.put("classCode", object[2]);
 			result.put("status", object[3]);
 			result.put("createdOn", object[4]);
-			Map<String,Object> user = new HashMap<String, Object>();
+			Map<String, Object> user = new HashMap<String, Object>();
 			user.put("gooruUId", object[5]);
 			user.put("firstName", object[6]);
 			user.put("lastName", object[7]);
 			user.put("userName", object[8]);
 			result.put("user", user);
-			
+
 			StorageArea storageArea = this.getStorageRepository().getStorageAreaByTypeName(NFS);
 			Map<String, Object> thumbnails = new HashMap<String, Object>();
 			if (object[10] != null) {
@@ -632,15 +629,71 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			}
 			result.put(THUMBNAILS, thumbnails);
 			result.put(ITEM_COUNT, object[11] == null ? 0 : object[11]);
+			long member = this.getUserGroupRepository().getUserGroupAssociationCount(String.valueOf(object[13]));
+			result.put("memberCount", member);
 			listMap.add(result);
 		}
 		return listMap;
 	}
 
+	@Override
+	public CollectionItem updateAssignment(String collectionItemId, String status, User user) {
+		CollectionItem collectionItem = this.getCollectionItemById(collectionItemId);
+		rejectIfNull(collectionItem, GL0056, generateErrorMessage(GL0056, COLLECTION_ITEM));
+		UserCollectionItemAssoc userCollectionItemAssoc = new UserCollectionItemAssoc();
+		userCollectionItemAssoc.setCollectionItem(collectionItem);
+		userCollectionItemAssoc.setUser(user);
+		userCollectionItemAssoc.setLastModifiedOn(new Date());
+		CustomTableValue statusType = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.ASSIGNMENT_STATUS_TYPE.getTable(), status);
+		userCollectionItemAssoc.setStatus(statusType);
+		this.getCollectionRepository().save(userCollectionItemAssoc);
+		userCollectionItemAssoc.getCollectionItem().setStatus(status);
+		return userCollectionItemAssoc.getCollectionItem();
+	}
+
+	@Override
+	public List<Map<String, Object>> getClasspageItems(String gooruOid, Integer limit, Integer offset, String userUid, String orderBy, boolean skipPagination, boolean optimize) {
+		List<Object[]> results = this.getCollectionRepository().getClasspageItems(gooruOid, limit, offset, userUid, orderBy, skipPagination);
+		List<Map<String, Object>> collectionItems = new ArrayList<Map<String, Object>>();
+		for (Object[] object : results) {
+			Map<String, Object> result = new HashMap<String, Object>();
+			Map<String, Object> resource = new HashMap<String, Object>();
+			if (!optimize)  {
+				result.put("associationDate", object[0]);
+				resource.put(FOLDER, object[7]);
+				resource.put(SHARING, object[9]);
+				Map<String, Object> thumbnails = new HashMap<String, Object>();
+				if (object[8] != null) {
+					StorageArea storageArea = this.getStorageRepository().getStorageAreaByTypeName(NFS);
+					thumbnails.put(URL, storageArea.getCdnDirectPath() + String.valueOf(object[7]) + String.valueOf(object[8]));
+				} else {
+					thumbnails.put(URL, "");
+				}
+				resource.put(THUMBNAILS, thumbnails);
+				Map<String, Object> user = new HashMap<String, Object>();
+				user.put("username", object[12]);
+				user.put("gooruUId", object[13]);
+				user.put(PROFILE_IMG_URL, settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, TaxonomyUtil.GOORU_ORG_UID) + "/" + settingService.getConfigSetting(ConfigConstants.PROFILE_BUCKET, TaxonomyUtil.GOORU_ORG_UID) + String.valueOf(object[13]) + ".png");
+				resource.put("user", user);
+			}
+			resource.put(GOALS, object[10]);
+			resource.put("title", object[6]);
+			resource.put("gooruOid", object[5]);
+			result.put("collectionItemId", object[1]);				
+			result.put("itemSequence", object[2]);
+			result.put("narration", object[3]);
+			result.put("plannedEndDate", object[4]);
+			result.put(STATUS, object[11]);
+			result.put("resource", resource);
+			collectionItems.add(result);
+		}
+		return collectionItems;
+	}
+
 	public TaskService getTaskService() {
 		return taskService;
 	}
-	
+
 	public UserRepository getUserRepository() {
 		return userRepository;
 	}
@@ -657,79 +710,70 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		return userGroupService;
 	}
 
-
 	public UserManagementService getUserManagementService() {
 		return userManagementService;
 	}
-
 
 	public void setCollectionService(CollectionService collectionService) {
 		this.collectionService = collectionService;
 	}
 
-
 	public StorageRepository getStorageRepository() {
 		return storageRepository;
 	}
-
 
 	public void setStorageRepository(StorageRepository storageRepository) {
 		this.storageRepository = storageRepository;
 	}
 
-
 	public CollectionService getCollectionService() {
 		return collectionService;
 	}
-
 
 	public InviteRepository getInviteRepository() {
 		return inviteRepository;
 	}
 
-
 	public InviteService getInviteService() {
 		return inviteService;
 	}
 
-
 	public void getEventLogs(Classpage classpage, User user, UserGroup userGroup) throws JSONException {
-		
+
 		SessionContextSupport.putLogParameter(EVENT_NAME, "classpage.create");
-		
-		JSONObject context = SessionContextSupport.getLog().get("context") != null ? new JSONObject(SessionContextSupport.getLog().get("context").toString()) :  new JSONObject();
+
+		JSONObject context = SessionContextSupport.getLog().get("context") != null ? new JSONObject(SessionContextSupport.getLog().get("context").toString()) : new JSONObject();
 		context.put("contentGooruId", classpage.getGooruOid());
 		SessionContextSupport.putLogParameter("context", context.toString());
-		
-		JSONObject payLoadObject = SessionContextSupport.getLog().get("payLoadObject") != null ? new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString()) :  new JSONObject();
+
+		JSONObject payLoadObject = SessionContextSupport.getLog().get("payLoadObject") != null ? new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString()) : new JSONObject();
 		payLoadObject.put("groupUId", userGroup.getPartyUid());
 		payLoadObject.put("contentId", classpage.getContentId());
 		payLoadObject.put("classCode", classpage.getClasspageCode());
 		SessionContextSupport.putLogParameter("payLoadObject", payLoadObject.toString());
-		JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session").toString()) :  new JSONObject();
-		session.put("organizationUId",  user.getOrganization().getPartyUid());
+		JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session").toString()) : new JSONObject();
+		session.put("organizationUId", user.getOrganization().getPartyUid());
 		SessionContextSupport.putLogParameter("session", session.toString());
 	}
 
 	public void getEventLogs(Classpage classpage, User user, UserGroup userGroup, InviteUser inviteUser) throws JSONException {
-		
-			SessionContextSupport.putLogParameter(EVENT_NAME, "classpage.user.add");
-			
-			JSONObject context = SessionContextSupport.getLog().get("context") != null ? new JSONObject(SessionContextSupport.getLog().get("context").toString()) :  new JSONObject();
-			context.put("contentGooruId", classpage.getGooruOid());
-			SessionContextSupport.putLogParameter("context", context.toString());
-			
-			JSONObject payLoadObject = SessionContextSupport.getLog().get("payLoadObject") != null ? new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString()) :  new JSONObject();
-			if(inviteUser != null && inviteUser.getInviteUid() != null){
-				payLoadObject.put("InvitedUserGooruUId", classpage.getUser().getPartyUid());
-			}
-			payLoadObject.put("contentId", classpage.getContentId() );
-			payLoadObject.put("groupUId", userGroup.getPartyUid());
-			SessionContextSupport.putLogParameter("payLoadObject", payLoadObject.toString());
-			JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session").toString()) :  new JSONObject();
-			session.put("organizationUId",  user.getOrganization().getPartyUid());
-			SessionContextSupport.putLogParameter("session", session.toString());
-		}
 
+		SessionContextSupport.putLogParameter(EVENT_NAME, "classpage.user.add");
+
+		JSONObject context = SessionContextSupport.getLog().get("context") != null ? new JSONObject(SessionContextSupport.getLog().get("context").toString()) : new JSONObject();
+		context.put("contentGooruId", classpage.getGooruOid());
+		SessionContextSupport.putLogParameter("context", context.toString());
+
+		JSONObject payLoadObject = SessionContextSupport.getLog().get("payLoadObject") != null ? new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString()) : new JSONObject();
+		if (inviteUser != null && inviteUser.getInviteUid() != null) {
+			payLoadObject.put("InvitedUserGooruUId", classpage.getUser().getPartyUid());
+		}
+		payLoadObject.put("contentId", classpage.getContentId());
+		payLoadObject.put("groupUId", userGroup.getPartyUid());
+		SessionContextSupport.putLogParameter("payLoadObject", payLoadObject.toString());
+		JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session").toString()) : new JSONObject();
+		session.put("organizationUId", user.getOrganization().getPartyUid());
+		SessionContextSupport.putLogParameter("session", session.toString());
+	}
 
 }
