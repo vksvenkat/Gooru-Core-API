@@ -39,6 +39,8 @@
 
 		<property name="answeredAtTime" column="answered_at_time"
 			not-null="false"></property>
+			
+		<property name="answerOptionSequence" column="answer_option_sequence" not-null="false"></property>
 
 	</class>
 </hibernate-mapping>

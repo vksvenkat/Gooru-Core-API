@@ -27,6 +27,8 @@ public class SessionItemAttemptTry implements Serializable {
 	private String attemptItemTryStatus;
 	
 	private Date answeredAtTime;
+	
+	private Integer answerOptionSequence;
 
 	public SessionItem getSessionItem() {
 		return sessionItem;
@@ -84,5 +86,12 @@ public class SessionItemAttemptTry implements Serializable {
 		return sessionItemAttemptTryId;
 	}
 	
+	public Integer getAnswerOptionSequence() {
+		return answerOptionSequence;
+	}
+
+	public void setAnswerOptionSequence(Integer answerOptionSequence) {
+		this.answerOptionSequence = answerOptionSequence;
+	}
 
 }
