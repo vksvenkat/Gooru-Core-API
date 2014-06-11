@@ -4,10 +4,6 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.Set;
 
-import org.ednovo.gooru.core.api.model.OrganizationModel;
-import org.ednovo.gooru.core.api.model.Resource;
-import org.ednovo.gooru.core.api.model.User;
-
 public class Session extends OrganizationModel implements Serializable {
 
 	/**

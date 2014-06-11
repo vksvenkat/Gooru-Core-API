@@ -32,8 +32,6 @@ import org.apache.log4j.lf5.util.StreamUtils;
 import org.apache.xmlbeans.impl.piccolo.io.FileFormatException;
 import org.ednovo.gooru.core.api.model.StorageAccount;
 import org.ednovo.gooru.core.api.model.StorageArea;
-//import org.ednovo.gooru.domain.model.storage.StorageAccount;
-//import org.ednovo.gooru.domain.model.storage.StorageArea;
 import org.jets3t.service.acl.AccessControlList;
 import org.jets3t.service.acl.GroupGrantee;
 import org.jets3t.service.acl.Permission;
@@ -44,6 +42,8 @@ import org.jets3t.service.security.AWSCredentials;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.acls.model.NotFoundException;
+//import org.ednovo.gooru.domain.model.storage.StorageAccount;
+//import org.ednovo.gooru.domain.model.storage.StorageArea;
 
 public class S3ServiceHandler {
 

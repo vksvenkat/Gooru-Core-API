@@ -2,11 +2,6 @@ package org.ednovo.gooru.core.api.model;
 
 import java.util.Iterator;
 
-import org.ednovo.gooru.core.api.model.Identity;
-import org.ednovo.gooru.core.api.model.Organization;
-import org.ednovo.gooru.core.api.model.User;
-import org.ednovo.gooru.core.api.model.UserGroupSupport;
-import org.ednovo.gooru.core.api.model.UserTransModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

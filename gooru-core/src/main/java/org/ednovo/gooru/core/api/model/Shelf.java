@@ -3,8 +3,6 @@ package org.ednovo.gooru.core.api.model;
 import java.io.Serializable;
 import java.util.Set;
 
-import org.ednovo.gooru.core.api.model.OrganizationModel;
-
 
 
 public class Shelf extends OrganizationModel implements Serializable{

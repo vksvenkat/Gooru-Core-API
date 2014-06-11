@@ -5,10 +5,8 @@ import java.util.List;
 
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
-import org.ednovo.gooru.core.api.model.Code;
 //import org.ednovo.gooru.domain.model.taxonomy.Code;
 //import org.ednovo.gooru.domain.model.taxonomy.CodeType;
-import org.ednovo.gooru.core.api.model.CodeType;
 
 public class TaxonomyDTO implements Serializable{
 	

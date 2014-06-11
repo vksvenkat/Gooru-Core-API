@@ -2,8 +2,6 @@ package org.ednovo.gooru.core.api.model;
 
 import java.util.Set;
 
-import org.ednovo.gooru.core.api.model.Resource;
-
 public class QuestionSet extends Resource {
 
 	/**

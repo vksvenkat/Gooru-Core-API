@@ -29,6 +29,7 @@ package org.ednovo.gooru.application.serializer;
 import org.ednovo.gooru.application.serializer.mixin.LibraryCodeMixIn;
 import org.ednovo.gooru.application.serializer.mixin.LibraryCollectionMixIn;
 import org.ednovo.gooru.core.api.model.Code;
+import org.ednovo.gooru.core.filter.FilterSetting;
 import org.ednovo.gooru.domain.service.search.SearchResult;
 
 import com.fasterxml.jackson.core.JsonProcessingException;

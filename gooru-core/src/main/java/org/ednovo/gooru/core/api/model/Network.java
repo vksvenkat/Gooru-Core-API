@@ -1,8 +1,5 @@
 package org.ednovo.gooru.core.api.model;
 
-import org.ednovo.gooru.core.api.model.Organization;
-import org.ednovo.gooru.core.api.model.OrganizationWrapper;
-import org.ednovo.gooru.core.api.model.Party;
 
 public class Network extends Party implements OrganizationWrapper {
 

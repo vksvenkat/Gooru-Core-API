@@ -33,7 +33,6 @@ import org.ednovo.gooru.core.api.model.TagSynonyms;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserTagAssoc;
 import org.ednovo.gooru.domain.service.BaseService;
-import org.ednovo.gooru.domain.service.search.SearchResults;
 
 
 public interface TagService extends BaseService {
