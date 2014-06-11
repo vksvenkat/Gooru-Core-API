@@ -1609,6 +1609,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 				if (newCollection.getSharing().equalsIgnoreCase(PUBLIC) && !userService.isContentAdmin(updateUser)) {
 					collection.setPublisherStatus(this.getCustomTableRepository().getCustomTableValue("publisher_status", PENDING));
+					newCollection.setSharing(collection.getSharing());
 				}
 				if (collection.getSharing().equalsIgnoreCase(PUBLIC) && newCollection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing())) {
 					UserSummary userSummary = this.getUserRepository().getSummaryByUid(collection.getUser().getPartyUid());
