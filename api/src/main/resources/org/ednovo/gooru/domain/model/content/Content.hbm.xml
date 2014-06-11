@@ -263,7 +263,7 @@
 				
 				<many-to-one name="buildType" class="org.ednovo.gooru.core.api.model.CustomTableValue" column="build_type_id" not-null="false" lazy="proxy" cascade="none" />
 				
-				<many-to-one name="publisherStatus" class="org.ednovo.gooru.core.api.model.CustomTableValue" column="publisher_status_id" not-null="false" lazy="proxy" cascade="none" />
+				<many-to-one name="publishStatus" class="org.ednovo.gooru.core.api.model.CustomTableValue" column="publish_status_id" not-null="false" lazy="proxy" cascade="none" />
 				
 				<set name="collectionItems" inverse="true" cascade="none" lazy="true" sort="org.ednovo.gooru.core.api.model.CollectionItemComparator">
 					<key column="collection_content_id" />
