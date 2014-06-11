@@ -24,7 +24,6 @@
 package org.ednovo.gooru.infrastructure.persistence.hibernate.content;
 
 import java.util.List;
-import java.util.Map;
 
 import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.api.model.Content;

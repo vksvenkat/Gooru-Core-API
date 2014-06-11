@@ -4,9 +4,6 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
 
-import org.ednovo.gooru.core.api.model.AssessmentMetaDataDTO;
-import org.ednovo.gooru.core.api.model.User;
-
 public class AssessmentTransModel  implements Serializable {
 
 	/**

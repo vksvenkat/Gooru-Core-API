@@ -2,10 +2,6 @@ package org.ednovo.gooru.core.api.model;
 
 import java.util.List;
 
-import org.ednovo.gooru.core.api.model.AssessmentAnswer;
-import org.ednovo.gooru.core.api.model.AssessmentAttemptTry;
-import org.ednovo.gooru.core.api.model.AssessmentQuestionAssetAssoc;
-
 public class AttemptQuestionDTO {
 
 	private String questionText;

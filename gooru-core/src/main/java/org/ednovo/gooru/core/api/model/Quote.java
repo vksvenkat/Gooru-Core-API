@@ -2,10 +2,6 @@ package org.ednovo.gooru.core.api.model;
 
 import java.io.Serializable;
 
-import org.ednovo.gooru.core.api.model.Content;
-import org.ednovo.gooru.core.api.model.License;
-import org.ednovo.gooru.core.api.model.TagType;
-
 public class Quote extends Annotation implements Serializable {
 
 	/**

@@ -34,14 +34,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
-import org.ednovo.gooru.core.api.model.Content;
-import org.ednovo.gooru.core.api.model.Identity;
-import org.ednovo.gooru.core.api.model.IndexableEntry;
-import org.ednovo.gooru.core.api.model.OrganizationModel;
-import org.ednovo.gooru.core.api.model.PartyCustomField;
-import org.ednovo.gooru.core.api.model.User;
-import org.ednovo.gooru.core.api.model.UserRole;
-import org.ednovo.gooru.core.api.model.UserRoleAssoc;
 
 import flexjson.JSON;
 

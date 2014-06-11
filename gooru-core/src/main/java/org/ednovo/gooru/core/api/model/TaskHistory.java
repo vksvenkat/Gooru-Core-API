@@ -4,9 +4,6 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.Set;
 
-import org.ednovo.gooru.core.api.model.Task;
-import org.ednovo.gooru.core.api.model.User;
-
 
 public class TaskHistory implements Serializable{
 

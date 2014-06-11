@@ -34,7 +34,6 @@ import org.ednovo.gooru.core.api.model.Party;
 import org.ednovo.gooru.core.api.model.Profile;
 import org.ednovo.gooru.core.api.model.RoleEntityOperation;
 import org.ednovo.gooru.core.api.model.User;
-import org.ednovo.gooru.core.api.model.UserSummary;
 import org.ednovo.gooru.core.api.model.UserAvailability.CheckUser;
 import org.ednovo.gooru.core.api.model.UserClassification;
 import org.ednovo.gooru.core.api.model.UserGroup;
@@ -42,6 +41,7 @@ import org.ednovo.gooru.core.api.model.UserGroupAssociation;
 import org.ednovo.gooru.core.api.model.UserRelationship;
 import org.ednovo.gooru.core.api.model.UserRole;
 import org.ednovo.gooru.core.api.model.UserRoleAssoc;
+import org.ednovo.gooru.core.api.model.UserSummary;
 
 public interface UserRepository extends BaseRepository {
 
