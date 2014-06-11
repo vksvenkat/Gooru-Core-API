@@ -6,10 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.ednovo.gooru.core.api.model.Code;
-import org.ednovo.gooru.core.api.model.CodeType;
-import org.ednovo.gooru.core.api.model.User;
-
 
 public class AssessmentMetaDataDTO implements Serializable {
 

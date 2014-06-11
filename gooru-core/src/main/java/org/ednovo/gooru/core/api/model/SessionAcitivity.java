@@ -3,9 +3,6 @@ package org.ednovo.gooru.core.api.model;
 import java.util.Date;
 import java.util.Set;
 
-import org.ednovo.gooru.core.api.model.Organization;
-import org.ednovo.gooru.core.api.model.User;
-
 
 public class SessionAcitivity {
 	private String sessionActivityUid;

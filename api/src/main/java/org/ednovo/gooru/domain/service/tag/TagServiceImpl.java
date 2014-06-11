@@ -33,6 +33,7 @@ import java.util.UUID;
 import javax.annotation.Resource;
 
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
+import org.ednovo.gooru.core.api.model.ContentProviderAssociation;
 import org.ednovo.gooru.core.api.model.ContentTagAssoc;
 import org.ednovo.gooru.core.api.model.ContentType;
 import org.ednovo.gooru.core.api.model.CustomTableValue;
@@ -50,7 +51,6 @@ import org.ednovo.gooru.domain.cassandra.service.BlackListWordCassandraService;
 import org.ednovo.gooru.domain.service.BaseServiceImpl;
 import org.ednovo.gooru.domain.service.CollectionService;
 import org.ednovo.gooru.domain.service.FeedbackService;
-import org.ednovo.gooru.domain.service.search.SearchResults;
 import org.ednovo.gooru.domain.service.user.UserService;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.PostRepository;
@@ -224,11 +224,29 @@ public class TagServiceImpl extends BaseServiceImpl implements TagService, Param
 			}
 			result.put(THUMBNAILS, thumbnails);
 			if (object[5] != null) {
-				Map<String, Object> resourceSource = new HashMap<String, Object>();
-				resourceSource.put(ATTRIBUTION, object[5]);
-				resourceSource.put(DOMAIN_NAME, object[6]);
-				result.put(RESOURCESOURCE, resourceSource);
+				Map<String, Object> resourceFormat = new HashMap<String, Object>();
+				resourceFormat.put(VALUE, object[5]);
+				resourceFormat.put(DISPLAY_NAME, object[6]);
+				result.put(RESOURCEFORMAT, resourceFormat);
 			}
+			
+			List<ContentProviderAssociation> contentProviderAssociations = this.getContentRepository().getContentProviderByGooruOid(String.valueOf(object[1]));
+ 			if (contentProviderAssociations != null) {
+ 				List<String> aggregator = new ArrayList<String>();
+ 				List<String> publisher = new ArrayList<String>();
+ 				for (ContentProviderAssociation contentProviderAssociation : contentProviderAssociations) {
+ 					if (contentProviderAssociation.getContentProvider() != null && contentProviderAssociation.getContentProvider().getContentProviderType() != null
+ 							&& contentProviderAssociation.getContentProvider().getContentProviderType().getValue().equalsIgnoreCase(CustomProperties.ContentProviderType.PUBLISHER.getContentProviderType())) {
+ 						publisher.add(contentProviderAssociation.getContentProvider().getContentProviderName());
+ 					} else if (contentProviderAssociation.getContentProvider() != null && contentProviderAssociation.getContentProvider().getContentProviderType() != null
+ 							&& contentProviderAssociation.getContentProvider().getContentProviderType().getValue().equalsIgnoreCase(CustomProperties.ContentProviderType.AGGREGATOR.getContentProviderType())) {
+ 						aggregator.add(contentProviderAssociation.getContentProvider().getContentProviderName());
+ 					}
+ 				}
+ 				result.put("publisher", publisher);
+ 				result.put("aggregator", aggregator);
+ 			}
+			
 			result.put(RATINGS, this.getFeedbackService().getContentFeedbackStarRating(String.valueOf(object[0])));
 			resource.add(result);
 		}

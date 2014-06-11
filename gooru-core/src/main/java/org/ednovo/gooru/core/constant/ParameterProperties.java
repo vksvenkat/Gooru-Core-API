@@ -2628,6 +2628,8 @@ public interface ParameterProperties {
 	
 	String PENDING = "pending";
 	
+	String REVIEWED = "reviewed";
+	
 	String FEMALE = "female";
 	
 	String MALE = "male";

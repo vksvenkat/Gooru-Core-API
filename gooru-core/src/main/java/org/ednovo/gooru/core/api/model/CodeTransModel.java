@@ -7,10 +7,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import org.ednovo.gooru.core.api.model.Code;
-import org.ednovo.gooru.core.api.model.CodeType;
-import org.ednovo.gooru.core.api.model.Content;
-
 public class CodeTransModel implements Serializable {
 
 	/**

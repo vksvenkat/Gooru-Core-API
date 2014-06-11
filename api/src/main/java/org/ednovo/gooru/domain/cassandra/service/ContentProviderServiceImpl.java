@@ -5,7 +5,6 @@ import org.ednovo.gooru.core.cassandra.model.ContentProviderCio;
 import org.ednovo.gooru.core.constant.ColumnFamilyConstant;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.index.ContentIndexDao;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 @Service

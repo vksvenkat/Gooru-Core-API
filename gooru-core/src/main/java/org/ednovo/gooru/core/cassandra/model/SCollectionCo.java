@@ -1,11 +1,7 @@
 package org.ednovo.gooru.core.cassandra.model;
 
-import java.util.Map;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
-
-import java.util.List;
 
 @Entity(name = "scollection")
 public class SCollectionCo {

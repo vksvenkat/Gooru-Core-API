@@ -1,7 +1,5 @@
 package org.ednovo.gooru.core.api.model;
 
-import org.ednovo.gooru.core.api.model.Collection;
-import org.ednovo.gooru.core.api.model.TrackActivity;
 
 public class Assignment extends Collection {
 	

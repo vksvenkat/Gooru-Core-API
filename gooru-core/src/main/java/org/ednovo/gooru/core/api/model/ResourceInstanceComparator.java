@@ -2,8 +2,6 @@ package org.ednovo.gooru.core.api.model;
 
 import java.util.Comparator;
 
-import org.ednovo.gooru.core.api.model.ResourceInstance;
-
 public class ResourceInstanceComparator implements Comparator<ResourceInstance> {
 
 	public int compare(ResourceInstance resourceInstance1, ResourceInstance resourceInstance2) {

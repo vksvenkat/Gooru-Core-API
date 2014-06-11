@@ -1,6 +1,5 @@
 package org.ednovo.gooru.core.api.model;
 
-import org.ednovo.gooru.core.api.model.Code;
 
 public class CodeWrapper {
 	

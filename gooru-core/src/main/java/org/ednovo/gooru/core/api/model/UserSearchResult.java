@@ -2,8 +2,6 @@ package org.ednovo.gooru.core.api.model;
 
 import java.util.Map;
 
-import org.ednovo.gooru.core.api.model.User;
-
 public class UserSearchResult {
 
 	private User user;
