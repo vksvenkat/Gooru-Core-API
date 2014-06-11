@@ -27,7 +27,7 @@ public interface ConstantProperties {
 			"*.license.definition", "*.dimensions", "*.defaultImage", "*.createdOn", "*.user", "*.usernameDisplay", "*.profileImageUrl", "*.lastName", "*.firstName", "*.username", "*.description", "*.folder", "*.gooruOid", "*.sharing", "*.title", "*.views", "*.thumbnails", "*.url",
 			"*.lastModified", "*.gooruUId", "*.vocabulary", "*.collaborators", "*.network", "trackActivity.startTime", "trackActivity.endTime" };
 
-	static final String COLLECTION_ITEM_INCLUDE_FILEDS[] = { "*.collectionItems", "*.collectionItemId", "*.itemSequence", "*.itemType", "*.narration", "*.narrationType", "*.lastModified", "*.start", "*.stop", "*.standards", "*.license", "*.standards.code", "*.standards.description","*.associationDate","*associatedUser"};
+	static final String COLLECTION_ITEM_INCLUDE_FILEDS[] = { "*.collectionItems", "*.collectionItemId", "*.itemSequence", "*.itemType", "*.narration", "*.narrationType", "*.lastModified", "*.start", "*.stop", "*.standards", "*.license", "*.standards.code", "*.standards.description","*.associationDate","*associatedUser", "*.status"};
 	
 	static final String CLASSPAGE_COLLECTION_ITEM_INCLUDE_FIELDS[] = {"*.plannedEndDate","*.totalHitCount", "*.searchResults"};
 
@@ -375,7 +375,7 @@ public interface ConstantProperties {
 	
 	static final String [] LIB_RESOURCE_FIELDS = {"*.totalHitCount","*.searchResults","*.libraryResource","*.collectionId","*.resourceId","*.title","*.thumbnails","*.resourceUrl","*.grade","*.description","*.category","*.sharing","*.hasFrameBreaker","*.recordSource","*.license","*.resourceSourceId","*.sourceName","*.domainName","*.attribution","*.narration","*.start","*.stop","*.collectionItemId","*.type","*.standards","*.course"};
 	
-	static final String [] STUDY_RESOURCE_FIELDS = {"*.totalHitCount","*.searchResults","*.classCode","*.status","*.title","*.gooruOid","*.createdOn","*.gooruUId", "*.user","*.userName","*.lastName", "*.firstName","*.thumbnails","*.url","*.itemCount"};
+	static final String [] STUDY_RESOURCE_FIELDS = {"*.totalHitCount","*.searchResults","*.classCode","*.status","*.title","*.gooruOid","*.createdOn","*.gooruUId", "*.user","*.userName","*.lastName", "*.firstName","*.thumbnails","*.url","*.itemCount", "*.memberCount"};
 	
 	static final String [] CLASS_MEMBER_FIELDS = {"*.totalHitCount","*.searchResults","*.emailId","*.username","*.gooruUid","*.associatedDate","*.status","*.profileImageUrl"};
 	
@@ -444,4 +444,6 @@ public interface ConstantProperties {
 	public static String FEATURED_USER = "isFeaturedUser";
 	
 	public static String NODE = "node";
-}
+	
+	public static String SEQUENCE_DESC = "sequence-desc";
+	}
