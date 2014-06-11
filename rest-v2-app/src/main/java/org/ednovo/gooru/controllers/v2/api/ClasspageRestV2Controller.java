@@ -235,10 +235,11 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	public ModelAndView updateClasspageItem(@PathVariable(value = ID) String collectionItemId, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
 		JSONObject json = requestData(data);
-		ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().updateCollectionItem(this.buildCollectionItemFromInputParameters(getValue(COLLECTION_ITEM, json)), collectionItemId, user);
+		CollectionItem newCollectionItem = this.buildCollectionItemFromInputParameters(getValue(COLLECTION_ITEM, json));
+		ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().updateCollectionItem(newCollectionItem, collectionItemId, user);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
-			if (responseDTO.getModel().getStatus() != null) {
-				getClasspageService().updateAssignment(collectionItemId, responseDTO.getModel().getStatus(), user);
+			if (newCollectionItem.getStatus() != null) {
+				getClasspageService().updateAssignment(collectionItemId, newCollectionItem.getStatus(), user);
 			}
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		} else {
