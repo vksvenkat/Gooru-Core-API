@@ -629,7 +629,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			}
 			result.put(THUMBNAILS, thumbnails);
 			result.put(ITEM_COUNT, object[11] == null ? 0 : object[11]);
-			long member = this.getUserGroupRepository().getUserGroupAssociationCount(String.valueOf(object[13]));
+			long member = this.getUserGroupRepository().getUserGroupAssociationCount(String.valueOf(object[2]));
 			result.put("memberCount", member);
 			listMap.add(result);
 		}

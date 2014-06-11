@@ -135,8 +135,8 @@ public class UserGroupRepositoryHibernate extends BaseRepositoryHibernate implem
 	}
 	
 	@Override
-	public Long getUserGroupAssociationCount(String gooruUid) {
-		String sql= "select count(1) from user_group_association where user_group_uid = '" + gooruUid + "' and is_group_owner != 1";
+	public Long getUserGroupAssociationCount(String groupCode) {
+		String sql= "select count(1) from user_group_association uga inner join user_group ug on ug.user_group_uid = uga.user_group_uid where user_group_code = '"+ groupCode +"' and is_group_owner != 1";
 		Query query = getSession().createSQLQuery(sql);
 		return ((BigInteger)query.list().get(0)).longValue();
 	}
