@@ -607,20 +607,18 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 	}
 
 	@Override
-	public List<CollectionItem> getCollectionItems(String collectionId, Integer offset, Integer limit, boolean skipPagination, String orderBy, String type, String sortBy) {
+	public List<CollectionItem> getCollectionItems(String collectionId, Integer offset, Integer limit, boolean skipPagination, String orderBy, String type) {
 		Session session = getSession();
 		String hql = "select collectionItems  FROM Collection collection inner join collection.collectionItems collectionItems where collection.gooruOid=:gooruOid and " + generateOrgAuthQuery("collection.");
 		
 		if(type != null && type.equalsIgnoreCase("classpage")) {
 			hql +=	" and collectionItems.resource.sharing in('public','anyonewithlink') " ;
 		}
-
-		if (orderBy.equalsIgnoreCase("sequence")) {
-			hql += "order by collectionItems.itemSequence " + sortBy;
-		} else if (orderBy.equalsIgnoreCase("associatedDate")) {
-			hql += "order by collectionItems.associationDate " + sortBy;
+		
+		if (!orderBy.equals(PLANNED_END_DATE)) {
+			hql += "order by collectionItems.associationDate desc ";
 		} else {
-			hql += "order by IFNULL(collectionItems.plannedEndDate, (SUBSTRING(now(), 1, 4) + 1000)) " + sortBy;
+			hql += "order by IFNULL(collectionItems.plannedEndDate, (SUBSTRING(now(), 1, 4) + 1000)) asc ";
 		}
 		 
 		Query query = session.createQuery(hql);

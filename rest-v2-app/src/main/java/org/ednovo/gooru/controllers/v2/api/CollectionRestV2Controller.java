@@ -232,8 +232,8 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ITEM_LIST })
 	@RequestMapping(value = { "/{id}/item" }, method = RequestMethod.GET)
 	public ModelAndView getCollectionItems(@PathVariable(value = ID) String collectionId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,
-			@RequestParam(value = SKIP_PAGINATION, required = false, defaultValue = FALSE) Boolean skipPagination, @RequestParam(value = ORDER_BY, defaultValue = "associatedDate", required = false) String orderBy,@RequestParam(value = "sortBy", defaultValue = "asc") String sortBy, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		List<CollectionItem> collectionItems = this.getCollectionService().getCollectionItems(collectionId, offset, limit, skipPagination, orderBy,"collection", sortBy);
+			@RequestParam(value = SKIP_PAGINATION, required = false, defaultValue = FALSE) Boolean skipPagination, @RequestParam(value = ORDER_BY, defaultValue = DESC ,required = false) String orderBy, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		List<CollectionItem> collectionItems = this.getCollectionService().getCollectionItems(collectionId, offset, limit, skipPagination, orderBy,"collection");
 		String includesDefault[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, COLLECTION_ITEM_INCLUDE_FILEDS);
 		includesDefault = (String[]) ArrayUtils.addAll(includesDefault, COLLECTION_ITEM_TAGS);
 		includesDefault = (String[]) ArrayUtils.addAll(includesDefault, COLLECTION_WORKSPACE);

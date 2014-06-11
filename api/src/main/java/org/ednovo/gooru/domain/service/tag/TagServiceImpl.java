@@ -33,7 +33,6 @@ import java.util.UUID;
 import javax.annotation.Resource;
 
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
-import org.ednovo.gooru.core.api.model.ContentProviderAssociation;
 import org.ednovo.gooru.core.api.model.ContentTagAssoc;
 import org.ednovo.gooru.core.api.model.ContentType;
 import org.ednovo.gooru.core.api.model.CustomTableValue;
@@ -230,23 +229,6 @@ public class TagServiceImpl extends BaseServiceImpl implements TagService, Param
 				resourceSource.put(DOMAIN_NAME, object[6]);
 				result.put(RESOURCESOURCE, resourceSource);
 			}
-			List<ContentProviderAssociation> contentProviderAssociations = this.getContentRepository().getContentProviderByGooruOid(String.valueOf(object[1]));
-			if (contentProviderAssociations != null) {
-				List<String> aggregator = new ArrayList<String>();
-				List<String> publisher = new ArrayList<String>();
-				for (ContentProviderAssociation contentProviderAssociation : contentProviderAssociations) {
-					if (contentProviderAssociation.getContentProvider() != null && contentProviderAssociation.getContentProvider().getContentProviderType() != null
-							&& contentProviderAssociation.getContentProvider().getContentProviderType().getValue().equalsIgnoreCase(CustomProperties.ContentProviderType.PUBLISHER.getContentProviderType())) {
-						publisher.add(contentProviderAssociation.getContentProvider().getContentProviderName());
-					} else if (contentProviderAssociation.getContentProvider() != null && contentProviderAssociation.getContentProvider().getContentProviderType() != null
-							&& contentProviderAssociation.getContentProvider().getContentProviderType().getValue().equalsIgnoreCase(CustomProperties.ContentProviderType.AGGREGATOR.getContentProviderType())) {
-						aggregator.add(contentProviderAssociation.getContentProvider().getContentProviderName());
-					}
-				}
-				result.put("publisher", publisher);
-				result.put("aggregator", aggregator);
-			}
-			
 			result.put(RATINGS, this.getFeedbackService().getContentFeedbackStarRating(String.valueOf(object[0])));
 			resource.add(result);
 		}
