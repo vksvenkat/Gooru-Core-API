@@ -284,6 +284,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			}
 			if (collection.getSharing() != null && collection.getSharing().equalsIgnoreCase(PUBLIC)) { 
 				collection.setPublisherStatus(this.getCustomTableRepository().getCustomTableValue("publisher_status", PENDING));
+				collection.setSharing(Sharing.ANYONEWITHLINK.getSharing());
 			}
 			if(collection.getGrade() != null){
 				resourceService.saveOrUpdateGrade(new Resource(), collection);

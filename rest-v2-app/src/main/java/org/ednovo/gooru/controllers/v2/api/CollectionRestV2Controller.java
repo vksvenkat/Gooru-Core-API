@@ -482,7 +482,7 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 
 		collection
 				.setSharing(collection.getSharing() != null && (collection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || collection.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing()) || collection.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing())) ? collection
-						.getSharing() : Sharing.PUBLIC.getSharing());
+						.getSharing() : Sharing.ANYONEWITHLINK.getSharing());
 
 		collection.setUser(user);
 		collection.setOrganization(user.getPrimaryOrganization());
