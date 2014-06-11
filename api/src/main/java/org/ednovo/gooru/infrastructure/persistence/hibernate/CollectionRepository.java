@@ -128,6 +128,6 @@ public interface CollectionRepository extends BaseRepository {
 	
 	ContentMetaAssociation getContentMetaByValue(String value, String collectionId);
 	
-	List<Object[]> getClasspageItems(String gooruOid, Integer limit, Integer offset, String userUid, String orderBy, boolean skipPagination);
+	List<Object[]> getClasspageItems(String gooruOid, Integer limit, Integer offset, String userUid, String orderBy, boolean skipPagination, String status);
 	
 }

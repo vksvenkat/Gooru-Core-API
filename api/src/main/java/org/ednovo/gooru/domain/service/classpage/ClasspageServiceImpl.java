@@ -652,8 +652,8 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 
 	@Override
-	public List<Map<String, Object>> getClasspageItems(String gooruOid, Integer limit, Integer offset, String userUid, String orderBy, boolean skipPagination, boolean optimize) {
-		List<Object[]> results = this.getCollectionRepository().getClasspageItems(gooruOid, limit, offset, userUid, orderBy, skipPagination);
+	public List<Map<String, Object>> getClasspageItems(String gooruOid, Integer limit, Integer offset, String userUid, String orderBy, boolean skipPagination, boolean optimize, String status) {
+		List<Object[]> results = this.getCollectionRepository().getClasspageItems(gooruOid, limit, offset, userUid, orderBy, skipPagination, status);
 		List<Map<String, Object>> collectionItems = new ArrayList<Map<String, Object>>();
 		for (Object[] object : results) {
 			Map<String, Object> result = new HashMap<String, Object>();
