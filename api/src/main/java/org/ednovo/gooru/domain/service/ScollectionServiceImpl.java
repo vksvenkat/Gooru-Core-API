@@ -282,6 +282,9 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			} else {
 				collection.setResourceFormat(this.getCustomTableRepository().getCustomTableValue(RESOURCE_CATEGORY_FORMAT, SCOLLECTION));
 			}
+			if (collection.getSharing() != null && collection.getSharing().equalsIgnoreCase(PUBLIC)) { 
+				collection.setPublisherStatus(this.getCustomTableRepository().getCustomTableValue("publisher_status", PENDING));
+			}
 			if(collection.getGrade() != null){
 				resourceService.saveOrUpdateGrade(new Resource(), collection);
 			}
@@ -1525,8 +1528,9 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				}
 			}
 			if (newCollection.getPublisherStatus() != null && newCollection.getPublisherStatus().getValue() != null) {
-				if (newCollection.getPublisherStatus().getValue().equalsIgnoreCase(PENDING) || newCollection.getPublisherStatus().getValue().equalsIgnoreCase(REVIEWED)) {
+				if (newCollection.getPublisherStatus().getValue().equalsIgnoreCase(REVIEWED)) {
 					collection.setPublisherStatus(this.getCustomTableRepository().getCustomTableValue("publisher_status", newCollection.getPublisherStatus().getValue()));
+					collection.setSharing(Sharing.PUBLIC.getSharing());
 				}
 			}
 			if (newCollection.getMediaType() != null) {
