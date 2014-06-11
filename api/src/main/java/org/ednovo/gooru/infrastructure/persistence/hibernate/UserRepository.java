@@ -34,6 +34,7 @@ import org.ednovo.gooru.core.api.model.Party;
 import org.ednovo.gooru.core.api.model.Profile;
 import org.ednovo.gooru.core.api.model.RoleEntityOperation;
 import org.ednovo.gooru.core.api.model.User;
+import org.ednovo.gooru.core.api.model.UserSummary;
 import org.ednovo.gooru.core.api.model.UserAvailability.CheckUser;
 import org.ednovo.gooru.core.api.model.UserClassification;
 import org.ednovo.gooru.core.api.model.UserGroup;
@@ -181,6 +182,8 @@ public interface UserRepository extends BaseRepository {
 	List<Object[]> listChildUserByBirthDay();
 	
 	UserGroupAssociation getUserGroupMemebrByGroupUid(String groupUid, String gooruUid);
+	
+	UserSummary getSummaryByUid(String gooruUid);
 		
 	}
 

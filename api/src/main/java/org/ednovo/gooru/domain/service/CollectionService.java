@@ -64,4 +64,6 @@ public interface CollectionService extends ScollectionService {
 	List<Map<String, Object>> getFolderList(Integer limit, Integer offset, String gooruOid, String title, String username, boolean skipPagination );
 	
 	List<CollectionItem> createCollectionItems(List<String> collectionsIds, String resourceId, User user) throws Exception;
+	
+	List<CollectionItem> assignCollection(String classpageId, String collectionId, User user) throws Exception;
 }

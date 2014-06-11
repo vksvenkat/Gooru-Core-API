@@ -39,6 +39,7 @@ import org.ednovo.gooru.core.api.model.Party;
 import org.ednovo.gooru.core.api.model.Profile;
 import org.ednovo.gooru.core.api.model.RoleEntityOperation;
 import org.ednovo.gooru.core.api.model.User;
+import org.ednovo.gooru.core.api.model.UserSummary;
 import org.ednovo.gooru.core.api.model.UserAvailability.CheckUser;
 import org.ednovo.gooru.core.api.model.UserClassification;
 import org.ednovo.gooru.core.api.model.UserGroup;
@@ -803,6 +804,13 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 		String sql = "select  u.username as child_user_name, i2.external_id as parent_email_id  from identity i inner join user u on u.gooru_uid=i.user_uid inner join profile p  on p.user_uid=u.gooru_uid inner join identity i2 on i2.user_uid=u.parent_uid  where  datediff(CURDATE(),p.date_of_birth) = 4748 and u.account_type_id=2";
 		Query query = getSession().createSQLQuery(sql).addScalar("child_user_name", StandardBasicTypes.STRING).addScalar("parent_email_id", StandardBasicTypes.STRING);
 		return query.list();
+	}
+	
+	@Override
+	public UserSummary getSummaryByUid(String gooruUid) {
+		String hql = "from UserSummary u where u.gooruUid =:gooruUid";
+		Query query = getSession().createQuery(hql).setParameter("gooruUid", gooruUid);
+		return query.list().size() > 0 ? (UserSummary)query.list().get(0) : new UserSummary();
 	}
 
 }

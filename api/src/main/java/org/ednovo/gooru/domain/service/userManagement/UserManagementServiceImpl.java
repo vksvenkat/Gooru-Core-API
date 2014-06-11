@@ -71,6 +71,7 @@ import org.ednovo.gooru.core.api.model.UserRelationship;
 import org.ednovo.gooru.core.api.model.UserRole;
 import org.ednovo.gooru.core.api.model.UserRole.UserRoleType;
 import org.ednovo.gooru.core.api.model.UserRoleAssoc;
+import org.ednovo.gooru.core.api.model.UserSummary;
 import org.ednovo.gooru.core.api.model.UserToken;
 import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.constant.ConfigConstants;
@@ -1369,6 +1370,20 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		userRelationship.setActivatedDate(new Date(System.currentTimeMillis()));
 		userRelationship.setActiveFlag(true);
 		getUserRepository().save(userRelationship);
+		UserSummary userSummary = this.getUserRepository().getSummaryByUid(user.getPartyUid());
+		UserSummary followOnUserSummary = this.getUserRepository().getSummaryByUid(followOnUserId);
+		if(userSummary.getGooruUid() == null) {
+			userSummary.setGooruUid(user.getPartyUid());
+		}
+		if(followOnUserSummary.getGooruUid() == null) {
+			followOnUserSummary.setGooruUid(followOnUserId);
+		}
+		userSummary.setFollowers((userSummary.getFollowers() != null ? userSummary.getFollowers() : 0  ) + 1);
+		followOnUserSummary.setFollowing((followOnUserSummary.getFollowing() != null ? followOnUserSummary.getFollowing() : 0 )+ 1);
+		
+		this.getUserRepository().save(userSummary);
+		this.getUserRepository().save(followOnUserSummary);
+		this.getUserRepository().flush();
 		return this.setUserObj(followOnUser);
 	}
 	
@@ -1379,6 +1394,14 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			throw new BadCredentialsException("user not following this user");
 		} else {
 			this.getUserRepository().remove(userRelationship);
+			UserSummary userSummary = this.getUserRepository().getSummaryByUid(user.getPartyUid());
+			UserSummary followOnUserSummary = this.getUserRepository().getSummaryByUid(unFollowUserId);
+			userSummary.setFollowers(userSummary.getFollowers() - 1);
+			followOnUserSummary.setFollowing(followOnUserSummary.getFollowing() - 1);
+			
+			this.getUserRepository().save(userSummary);
+			this.getUserRepository().save(followOnUserSummary);
+			this.getUserRepository().flush();
 		}
 	}
 	
@@ -1430,12 +1453,13 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	}
 	
 	@Override
-	public Map<String, Object> getUserSummary(String gooruOid) {
+	public Map<String, Object> getUserSummary(String gooruUid) {
+		UserSummary userSummary = this.getUserRepository().getSummaryByUid(gooruUid);
 		Map<String, Object>  summary = new HashMap<String, Object>();
-		summary.put("collection", 11134);
-		summary.put("tags", 11);
-		summary.put("following", 112);
-		summary.put("followers", 112);
+		summary.put("collection", userSummary.getCollections() != null ? userSummary.getCollections() : 0 );
+		summary.put("tags", userSummary.getTag() != null ? userSummary.getTag() : 0 );
+		summary.put("following", userSummary.getFollowing() != null ? userSummary.getFollowing() : 0 );
+		summary.put("followers", userSummary.getFollowers() != null ? userSummary.getFollowers() : 0 );
 		return summary;
 	}
 

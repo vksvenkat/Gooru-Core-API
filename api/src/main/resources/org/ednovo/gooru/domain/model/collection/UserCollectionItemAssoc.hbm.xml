@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- SessionItemAttemptTry.hbm.xml gooru-api Created by Gooru on 2014 Copyright 
+<!-- UserCollectionItemAssoc.hbm.xml gooru-api Created by Gooru on 2014 Copyright 
 	(c) 2014 Gooru. All rights reserved. http://www.goorulearning.org/ Permission 
 	is hereby granted, free of charge, to any person obtaining a copy of this 
 	software and associated documentation files (the "Software"), to deal in 
@@ -18,29 +18,20 @@
 <!DOCTYPE hibernate-mapping PUBLIC
     "-//Hibernate/Hibernate Mapping DTD 3.0//EN" 
     "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
 <hibernate-mapping>
-	<class name="org.ednovo.gooru.core.api.model.SessionItemAttemptTry"
-		table="session_item_attempt_try">
-		<id name="sessionItemAttemptTryId" column="session_item_attempt_try_id"
-			unsaved-value="null">
-			<generator class="org.ednovo.gooru.core.application.util.UUIDGenerator" />
-		</id>
-		<many-to-one column="session_item_id" name="sessionItem"
-                class="org.ednovo.gooru.core.api.model.SessionItem" lazy="proxy" />
-		<many-to-one column="answer_id" name="AssessmentAnswer"
-			class="org.ednovo.gooru.core.api.model.AssessmentAnswer" lazy="proxy"
+	<class name="org.ednovo.gooru.core.api.model.UserCollectionItemAssoc"
+		table="user_collection_item_assoc">
+		<composite-id>
+			<key-many-to-one column="user_uid" name="user"
+				class="org.ednovo.gooru.core.api.model.User" lazy="proxy" />
+			<key-many-to-one column="collection_item_uid" name="collectionItem"
+				class="org.ednovo.gooru.core.api.model.CollectionItem" lazy="proxy" />
+		</composite-id>
+		<many-to-one column="status" name="status"
+			class="org.ednovo.gooru.core.api.model.CustomTableValue" lazy="proxy" />
+		<property name="lastModifiedOn" column="last_modified_on"
 			not-null="false" />
-		<property name="answerText" column="answer_text" not-null="false" />
-
-		<property name="trySequence" column="try_sequence" not-null="true" />
-
-		<property name="attemptItemTryStatus" column="attempt_item_try_status"
-			not-null="false"></property>
-
-		<property name="answeredAtTime" column="answered_at_time"
-			not-null="false"></property>
-			
-		<property name="answerOptionSequence" column="answer_option_sequence" not-null="false"></property>
-
 	</class>
 </hibernate-mapping>
+

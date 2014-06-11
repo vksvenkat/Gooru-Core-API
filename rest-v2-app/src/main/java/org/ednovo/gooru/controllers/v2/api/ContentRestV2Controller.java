@@ -84,7 +84,7 @@ public class ContentRestV2Controller extends BaseController implements ConstantP
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAG_ADD })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.DELETE }, value = "/{id}/tag")
-	public void DeleteContentTagAssoc(@PathVariable(value = ID) String gooruOid,@RequestParam String data, HttpServletRequest request, HttpServletResponse response) {
+	public void deleteContentTagAssoc(@PathVariable(value = ID) String gooruOid,@RequestParam String data, HttpServletRequest request, HttpServletResponse response) {
 		User apiCaller = (User) request.getAttribute(Constants.USER);
 		
 		this.getContentService().deleteTagAssoc(gooruOid, JsonDeserializer.deserialize(data, new TypeReference<List<String>>() {
@@ -101,7 +101,7 @@ public class ContentRestV2Controller extends BaseController implements ConstantP
 	}
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAG_ADD })
-	@RequestMapping(method = { RequestMethod.GET }, value = "/tag/user/{id}")
+	@RequestMapping(method = { RequestMethod.GET }, value = "/tag/{id}")
 	public ModelAndView getUserContentTagList(@PathVariable(value = ID) String gooruUid, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, HttpServletRequest request,
 			HttpServletResponse response, @RequestParam(value = SKIP_PAGINATION, required = false, defaultValue = "false") Boolean skipPagination) {
 		User apiCaller = (User) request.getAttribute(Constants.USER);

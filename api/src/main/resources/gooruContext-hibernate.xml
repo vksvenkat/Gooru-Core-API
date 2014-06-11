@@ -104,6 +104,7 @@
 
 				<!-- Party Domain -->
 				<value>org/ednovo/gooru/domain/model/party/Party.hbm.xml</value>
+				<value>org/ednovo/gooru/domain/model/party/UserSummary.hbm.xml</value>
 				<value>org/ednovo/gooru/domain/model/party/PartyPermission.hbm.xml
 				</value>
 				<value>org/ednovo/gooru/domain/model/party/ContentPermission.hbm.xml
@@ -335,6 +336,9 @@
 				<!-- Collection -->
 				<value>org/ednovo/gooru/domain/model/collection/CollectionItem.hbm.xml
 				</value>
+				<value>org/ednovo/gooru/domain/model/collection/UserCollectionItemAssoc.hbm.xml
+				</value>
+				
 
 				<!--CustomSetting -->
 				<value>org/ednovo/gooru/domain/model/customsetting/CustomSetting.hbm.xml

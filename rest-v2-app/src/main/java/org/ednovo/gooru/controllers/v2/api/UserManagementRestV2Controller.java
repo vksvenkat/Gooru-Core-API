@@ -24,7 +24,6 @@
 package org.ednovo.gooru.controllers.v2.api;
 
 import java.io.FileNotFoundException;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -124,11 +123,7 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 				this.getUserManagementService().updateOrgAdminCustomField(adminOrganizationUid, user);
 			}
 			response.setStatus(HttpServletResponse.SC_CREATED);
-			// To capture activity log
-			Iterator<Identity> iter = user.getIdentities().iterator();
-			if (iter != null && iter.hasNext()) {
-				Identity identity = iter.next();
-			}
+		
 
 			indexProcessor.index(user.getPartyUid(), IndexProcessor.INDEX, USER);
 		}
@@ -356,7 +351,6 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 
 		User user = (User) request.getAttribute(Constants.USER);
 
-	//	UserRelationship userRelationship = getUserService().followUser(user, followOnUserId);
 		
 		return toModelAndView(getUserManagementService().followUser(user, followOnUserId), FORMAT_JSON);
 	}
