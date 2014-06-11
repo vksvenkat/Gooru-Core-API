@@ -238,12 +238,11 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 		CollectionItem newCollectionItem = this.buildCollectionItemFromInputParameters(getValue(COLLECTION_ITEM, json));
 		ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().updateCollectionItem(newCollectionItem, collectionItemId, user);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+		} else {
 			if (newCollectionItem.getStatus() != null) {
 				getClasspageService().updateAssignment(collectionItemId, newCollectionItem.getStatus(), user);
 			}
-			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-		} else {
-
 			SessionContextSupport.putLogParameter(EVENT_NAME, "classpage-item-update");
 			SessionContextSupport.putLogParameter(COLLECTION_ITEM_ID, collectionItemId);
 		}
