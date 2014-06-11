@@ -1611,11 +1611,16 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 					collection.setPublisherStatus(this.getCustomTableRepository().getCustomTableValue("publisher_status", PENDING));
 					newCollection.setSharing(collection.getSharing());
 				}
+				if (newCollection.getSharing().equalsIgnoreCase(PUBLIC) && userService.isContentAdmin(updateUser)) {
+					collection.setPublisherStatus(this.getCustomTableRepository().getCustomTableValue("publisher_status", REVIEWED));
+				}
 				if (collection.getSharing().equalsIgnoreCase(PUBLIC) && newCollection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing())) {
 					UserSummary userSummary = this.getUserRepository().getSummaryByUid(collection.getUser().getPartyUid());
-					userSummary.setCollections(userSummary.getCollections() - 1);
-					this.getUserRepository().save(userSummary);
-					this.getUserRepository().flush();
+					if (userSummary.getGooruUid() != null) {
+					   userSummary.setCollections(userSummary.getCollections() - 1);
+					   this.getUserRepository().save(userSummary);
+					   this.getUserRepository().flush();
+				    }
 				} else if (!collection.getSharing().equalsIgnoreCase(PUBLIC) && newCollection.getSharing().equalsIgnoreCase(PUBLIC)) {
 					UserSummary userSummary = this.getUserRepository().getSummaryByUid(collection.getUser().getPartyUid());
 					if (userSummary.getGooruUid() == null) {
