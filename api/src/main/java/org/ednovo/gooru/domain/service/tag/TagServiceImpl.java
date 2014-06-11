@@ -50,7 +50,6 @@ import org.ednovo.gooru.domain.cassandra.service.BlackListWordCassandraService;
 import org.ednovo.gooru.domain.service.BaseServiceImpl;
 import org.ednovo.gooru.domain.service.CollectionService;
 import org.ednovo.gooru.domain.service.FeedbackService;
-import org.ednovo.gooru.domain.service.search.SearchResults;
 import org.ednovo.gooru.domain.service.user.UserService;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.PostRepository;

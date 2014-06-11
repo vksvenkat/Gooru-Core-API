@@ -1524,6 +1524,11 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 					collection.setBuildType(this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.BUILD_TYPE.getTable(), newCollection.getBuildType().getValue()));
 				}
 			}
+			if (newCollection.getPublisherStatus() != null && newCollection.getPublisherStatus().getValue() != null) {
+				if (newCollection.getPublisherStatus().getValue().equalsIgnoreCase(PENDING) || newCollection.getPublisherStatus().getValue().equalsIgnoreCase(REVIEWED)) {
+					collection.setPublisherStatus(this.getCustomTableRepository().getCustomTableValue("publisher_status", newCollection.getPublisherStatus().getValue()));
+				}
+			}
 			if (newCollection.getMediaType() != null) {
 				collection.setMediaType(newCollection.getMediaType());
 			}
@@ -1598,25 +1603,24 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			if (newCollection.getSharing() != null && (newCollection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing()))) {
 
 				if (newCollection.getSharing().equalsIgnoreCase(PUBLIC) && !userService.isContentAdmin(updateUser)) {
-					collection.setSharing(PENDING);
-				} else {
-					if (collection.getSharing().equalsIgnoreCase(PUBLIC) && newCollection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing())) {
-						UserSummary userSummary = this.getUserRepository().getSummaryByUid(collection.getUser().getPartyUid());
-						userSummary.setCollections(userSummary.getCollections() - 1);
-						this.getUserRepository().save(userSummary);
-						this.getUserRepository().flush();
-					} else if (!collection.getSharing().equalsIgnoreCase(PUBLIC) && newCollection.getSharing().equalsIgnoreCase(PUBLIC)) {
-						UserSummary userSummary = this.getUserRepository().getSummaryByUid(collection.getUser().getPartyUid());
-						if (userSummary.getGooruUid() == null) {
-							userSummary.setGooruUid(collection.getUser().getPartyUid());
-						}
-						userSummary.setCollections((userSummary.getCollections() != null ? userSummary.getCollections() : 0) + 1);
-						this.getUserRepository().save(userSummary);
-						this.getUserRepository().flush();
-					}
-					collection.setSharing(newCollection.getSharing());
-					updateResourceSharing(newCollection.getSharing(), collection);
+					collection.setPublisherStatus(this.getCustomTableRepository().getCustomTableValue("publisher_status", PENDING));
 				}
+				if (collection.getSharing().equalsIgnoreCase(PUBLIC) && newCollection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing())) {
+					UserSummary userSummary = this.getUserRepository().getSummaryByUid(collection.getUser().getPartyUid());
+					userSummary.setCollections(userSummary.getCollections() - 1);
+					this.getUserRepository().save(userSummary);
+					this.getUserRepository().flush();
+				} else if (!collection.getSharing().equalsIgnoreCase(PUBLIC) && newCollection.getSharing().equalsIgnoreCase(PUBLIC)) {
+					UserSummary userSummary = this.getUserRepository().getSummaryByUid(collection.getUser().getPartyUid());
+					if (userSummary.getGooruUid() == null) {
+						userSummary.setGooruUid(collection.getUser().getPartyUid());
+					}
+					userSummary.setCollections((userSummary.getCollections() != null ? userSummary.getCollections() : 0) + 1);
+					this.getUserRepository().save(userSummary);
+					this.getUserRepository().flush();
+				}
+				collection.setSharing(newCollection.getSharing());
+				updateResourceSharing(newCollection.getSharing(), collection);
 			}
 
 			collection.setLastUpdatedUserUid(updateUser.getPartyUid());
