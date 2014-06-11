@@ -36,7 +36,6 @@ import org.ednovo.gooru.core.api.model.Quiz;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserCollectionItemAssoc;
-import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
@@ -927,18 +926,17 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 	}
 
 	@Override
-	public List<Object[]> getClasspageItems(String gooruOid, Integer limit, Integer offset, String userUid, String orderBy, boolean skipPagination) {
+	public List<Object[]> getClasspageItems(String gooruOid, Integer limit, Integer offset, String userUid, String orderBy, boolean skipPagination, String status) {
 		String sql = "select association_date,ci.collection_item_id,item_sequence,narration,planned_end_date,c.gooru_oid,r.title, r.folder, r.thumbnail, c.sharing, co.goals, IFNULL(ct.value, 'open') as status, uu.username, uu.gooru_uid from collection_item ci inner join resource r on r.content_id = ci.resource_content_id  inner join content c on c.content_id = r.content_id inner join content rc on rc.content_id = ci.collection_content_id left join collection co on co.content_id = r.content_id left join user_collection_item_assoc uc on uc.collection_item_uid = ci.collection_item_id and uc.user_uid = '" + userUid + "' left join custom_table_value ct on ct.custom_table_value_id = uc.status inner join user uu on uu.gooru_uid = c.user_uid  where  c.sharing in ('public', 'anyonewithlink') ";
-		sql += " and rc.gooru_oid='" + gooruOid + "' ";
+		sql += " and rc.gooru_oid='" + gooruOid + "'  ";
+		if (status != null) { 
+			sql += " and IFNULL(ct.value, 'open') = '"+ status+ "' ";
+		}
 		if (orderBy != null && orderBy.equals(RECENT)) {
 			sql += " order by ci.association_date asc ";
 		}  else if (orderBy != null &&  orderBy.equals(SEQUENCE_DESC)) { 
 			sql += " order by ci.item_sequence desc ";
-		} else if (orderBy != null && orderBy.equals(CustomProperties.AssignmentStatus.COMPLETED.getAssignmentStatus()))  { 
-			sql += " order by IFNULL(ct.value, 'open') asc";
-		} else if (orderBy != null && orderBy.equals(CustomProperties.AssignmentStatus.OPEN.getAssignmentStatus()))  {
-			sql += " order by IFNULL(ct.value, 'open') desc";
-		} else { 
+		}  else { 
 			sql += " order by ci.item_sequence asc ";
 		}
 		Query query = getSession().createSQLQuery(sql);
