@@ -178,9 +178,10 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			}
 			identity.setLoginType(CREDENTIAL);
 
-			Date deactivateOn = identity.getDeactivatedOn();
+		//	Date deactivateOn = identity.getDeactivatedOn();
 
-			if (deactivateOn != null && deactivateOn.before(new Date(System.currentTimeMillis()))) {
+		//	if (deactivateOn != null && deactivateOn.before(new Date(System.currentTimeMillis()))) {
+			if (identity.getActive() == 0) {
 				throw new UnauthorizedException("The user has been deactivated from the system.\nPlease contact Gooru Administrator.");
 			}
 
