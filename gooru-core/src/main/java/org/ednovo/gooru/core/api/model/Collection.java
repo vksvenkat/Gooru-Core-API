@@ -42,7 +42,7 @@ public class Collection extends Resource implements Versionable {
 
 	private CustomTableValue buildType;
 	
-	private CustomTableValue publisherStatus;
+	private CustomTableValue publishStatus;
 
 	private Boolean mailNotification;
 
@@ -281,12 +281,12 @@ public class Collection extends Resource implements Versionable {
 		this.itemCount = this.getCollectionItems() == null ? 0 : this.getCollectionItems().size();
 	}
 
-	public void setPublisherStatus(CustomTableValue publisherStatus) {
-		this.publisherStatus = publisherStatus;
+	public CustomTableValue getPublishStatus() {
+		return publishStatus;
 	}
 
-	public CustomTableValue getPublisherStatus() {
-		return publisherStatus;
+	public void setPublishStatus(CustomTableValue publishStatus) {
+		this.publishStatus = publishStatus;
 	}
 
 }

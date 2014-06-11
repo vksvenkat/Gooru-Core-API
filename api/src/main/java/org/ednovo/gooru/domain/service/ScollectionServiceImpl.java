@@ -283,7 +283,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				collection.setResourceFormat(this.getCustomTableRepository().getCustomTableValue(RESOURCE_CATEGORY_FORMAT, SCOLLECTION));
 			}
 			if (collection.getSharing() != null && collection.getSharing().equalsIgnoreCase(PUBLIC)) { 
-				collection.setPublisherStatus(this.getCustomTableRepository().getCustomTableValue("publisher_status", PENDING));
+				collection.setPublishStatus(this.getCustomTableRepository().getCustomTableValue("publish_status", PENDING));
 				collection.setSharing(Sharing.ANYONEWITHLINK.getSharing());
 			}
 			if(collection.getGrade() != null){
@@ -1528,9 +1528,9 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 					collection.setBuildType(this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.BUILD_TYPE.getTable(), newCollection.getBuildType().getValue()));
 				}
 			}
-			if (newCollection.getPublisherStatus() != null && newCollection.getPublisherStatus().getValue() != null) {
-				if (newCollection.getPublisherStatus().getValue().equalsIgnoreCase(REVIEWED)) {
-					collection.setPublisherStatus(this.getCustomTableRepository().getCustomTableValue("publisher_status", newCollection.getPublisherStatus().getValue()));
+			if (newCollection.getPublishStatus() != null && newCollection.getPublishStatus().getValue() != null) {
+				if (newCollection.getPublishStatus().getValue().equalsIgnoreCase(REVIEWED)) {
+					collection.setPublishStatus(this.getCustomTableRepository().getCustomTableValue("publish_status", newCollection.getPublishStatus().getValue()));
 					collection.setSharing(Sharing.PUBLIC.getSharing());
 				}
 			}
@@ -1608,11 +1608,11 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			if (newCollection.getSharing() != null && (newCollection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing()))) {
 
 				if (newCollection.getSharing().equalsIgnoreCase(PUBLIC) && !userService.isContentAdmin(updateUser)) {
-					collection.setPublisherStatus(this.getCustomTableRepository().getCustomTableValue("publisher_status", PENDING));
+					collection.setPublishStatus(this.getCustomTableRepository().getCustomTableValue("publish_status", PENDING));
 					newCollection.setSharing(collection.getSharing());
 				}
 				if (newCollection.getSharing().equalsIgnoreCase(PUBLIC) && userService.isContentAdmin(updateUser)) {
-					collection.setPublisherStatus(this.getCustomTableRepository().getCustomTableValue("publisher_status", REVIEWED));
+					collection.setPublishStatus(this.getCustomTableRepository().getCustomTableValue("publish_status", REVIEWED));
 				}
 				if (collection.getSharing().equalsIgnoreCase(PUBLIC) && newCollection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing())) {
 					UserSummary userSummary = this.getUserRepository().getSummaryByUid(collection.getUser().getPartyUid());
