@@ -937,13 +937,16 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 
 	@Override
 	public List<Map<String, Object>> getLibrary(String libraryName) {
+		libraryName = (libraryName != null && libraryName.equalsIgnoreCase(GOORU)) ? LIBRARY : libraryName;
 		List<Object[]> libraryObjectList = this.getFeaturedRepository().getLibrary(libraryName);
 		List<Map<String, Object>> libraryList = new ArrayList<Map<String, Object>>();
 		for (Object[] libraryObject : libraryObjectList) {
 			Map<String, Object> library = new HashMap<String, Object>();
 			library.put(LIBRARY_ID, libraryObject[0]);
 			library.put(SUBJECT_CODE, libraryObject[1]);
-			library.put(LIBRARY, libraryObject[2]);
+			if (libraryName.contains(",")) {
+			  library.put(LIBRARY, libraryObject[2]);
+			}
 			libraryList.add(library);
 		}
 		return libraryList;
@@ -956,7 +959,7 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 		if (results != null && results.size() > 0) {
 			Object[] object = results.get(0);
 			if (itemType.equalsIgnoreCase(COURSE)) {
-				items = this.getLibrarySubject(codeId, String.valueOf(object[1]), libraryName, rootNodeId);
+				items = this.getLibraryCourse(codeId, String.valueOf(object[1]), libraryName, rootNodeId);
 			} else if (itemType.equalsIgnoreCase(UNIT)) {
 				items = this.getLibraryUnit(codeId, type, offset, limit, libraryName, rootNodeId);
 			} else if (itemType.equalsIgnoreCase(TOPIC)) {
