@@ -382,6 +382,15 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 		return toModelAndViewWithIoFilter(this.getUserManagementService().getFollowedOnUsers(gooruUserId,offset,limit,skipPagination), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
 	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_READ })
+	@RequestMapping(method = RequestMethod.GET, value = "/{id}/isfollow")
+	public ModelAndView isAlredayFollowed(@PathVariable(value = ID) String gooruUserId, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		
+		User apiCaller = (User) request.getAttribute(Constants.USER);
+		ModelAndView jsonmodel = new ModelAndView(REST_MODEL);
+		return jsonmodel.addObject(MODEL, this.getUserManagementService().isFollowedUser(gooruUserId, apiCaller));
+	}
+	
 	
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_UPDATE }, partyOperations = { GooruOperationConstants.ORG_ADMIN, GooruOperationConstants.GROUP_ADMIN }, partyUId = GOORU_UID)

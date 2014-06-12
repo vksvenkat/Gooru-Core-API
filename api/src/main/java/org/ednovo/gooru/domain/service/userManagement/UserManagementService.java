@@ -55,6 +55,8 @@ public interface UserManagementService extends BaseService {
 
 	SearchResults<Map<String, Object>> getFollowedOnUsers(String gooruUId, Integer offset, Integer limit, boolean skipPagination);
 	
+	Boolean isFollowedUser(String gooruUserId, User apiCaller);
+	
 	SearchResults<Map<String, Object>> getFollowedByUsers(String gooruUserId, Integer offset, Integer limit, boolean skipPagination);
 
 	Profile updateProfileInfo(Profile profile, String gooruUid, User apiCaller, String activeFlag, Boolean emailConfirmStatus, String showProfilePage,String accountType,String password);
