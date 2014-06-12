@@ -297,7 +297,7 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 			sql += " and f.creator_uid = '" + reportQuery + "' or u.username = '" + reportQuery + "'";
 		}
 
-		sql += " group by f.creator_uid, f.assoc_gooru_oid";
+		sql += " group by f.creator_uid, f.assoc_gooru_oid order by f.created_date desc";
 
 		Query query = session.createSQLQuery(sql).addScalar("title", StandardBasicTypes.STRING).addScalar("description", StandardBasicTypes.STRING).addScalar("gooruOid", StandardBasicTypes.STRING).addScalar("category", StandardBasicTypes.STRING).addScalar("createdOn", StandardBasicTypes.STRING)
 				.addScalar("value", StandardBasicTypes.STRING).addScalar("reportedFlag", StandardBasicTypes.STRING).addScalar("userUid", StandardBasicTypes.STRING).addScalar("product", StandardBasicTypes.STRING).addScalar("reportId", StandardBasicTypes.STRING)
