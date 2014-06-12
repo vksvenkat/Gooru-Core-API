@@ -68,6 +68,7 @@ public class UserTransModel extends OrganizationModel implements IndexableEntry 
 	private Set<PartyCustomField> customFields;
 	private Map<String, Object> meta;
 	private String organizationName;
+	private Short active;
 
 	@Override
 	public boolean equals(Object obj) {
@@ -338,6 +339,14 @@ public class UserTransModel extends OrganizationModel implements IndexableEntry 
 
 	public void setMeta(Map<String, Object> meta) {
 		this.meta = meta;
+	}
+
+	public void setActive(Short active) {
+		this.active = active;
+	}
+
+	public Short getActive() {
+		return active;
 	}
 
 }
