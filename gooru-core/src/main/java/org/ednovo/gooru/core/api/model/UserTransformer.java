@@ -90,12 +90,14 @@ public class UserTransformer extends ObjectTransformer {
 			userModel.setIsDeleted(user.getIsDeleted());
 			userModel.setCustomFields(user.getCustomFields());
 			userModel.setMeta(user.getMeta());
+			
 			userModel.setProfileImageUrl(UserGroupSupport.getProfileAssetURI() + user.getPartyUid() + ".png");
 			if(user.getIdentities() != null){
 				Iterator<Identity> iter = user.getIdentities().iterator();
 				if (iter != null && iter.hasNext()) {
 					Identity identity = iter.next();
 					userModel.setLoginType(identity != null ? identity.getLoginType() : null);
+					userModel.setActive(identity.getActive());
 					userModel.setAccountCreatedType(identity != null ? identity.getAccountCreatedType() : null);
 					if (identity != null && identity.getExternalId() != null) { 
 						String email =  identity.getExternalId().contains("@") ?  identity.getExternalId().split("@")[1] : null;
