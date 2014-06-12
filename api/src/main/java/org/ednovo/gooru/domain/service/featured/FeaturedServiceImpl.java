@@ -424,6 +424,7 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 		codeMap.put(LABEL, code.getLabel());
 		codeMap.put(PARENT_ID, code.getParent() != null ? code.getParent().getCodeId() : null);
 		codeMap.put(THUMBNAILS, code.getThumbnails());
+		codeMap.put(GRADE, code.getGrade());
 		codeMap.put(type, childern);
 		return codeMap;
 	}
