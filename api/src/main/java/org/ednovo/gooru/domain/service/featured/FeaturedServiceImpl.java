@@ -436,6 +436,7 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 			meta.put("ideas", codeOrganizationAssoc.getIdeas());
 			meta.put("performanceTasks", codeOrganizationAssoc.getPerformanceTasks());
 			meta.put("questions", codeOrganizationAssoc.getQuestions());
+			codeMap.put(META, meta);
 		}
 		codeMap.put(type, childern);
 		return codeMap;
