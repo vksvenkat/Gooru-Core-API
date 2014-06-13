@@ -515,11 +515,10 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		collectionItem.setAssociatedUser(user);
 		collectionItem.setAssociationDate(new Date(System.currentTimeMillis()));
 		int sequence = collectionItem.getCollection().getCollectionItems() != null ? collectionItem.getCollection().getCollectionItems().size() + 1 : 1;
-		Set<CollectionItem> collectionItems = new TreeSet<CollectionItem>();
+		Set<CollectionItem> collectionItems = collectionItem.getCollection().getCollectionItems() != null ? collectionItem.getCollection().getCollectionItems() : new TreeSet<CollectionItem>();
 		collectionItems.add(collectionItem);
 		collectionItem.getCollection().setCollectionItems(collectionItems);
 		collectionItem.setItemSequence(sequence);
-		collectionItem.getCollection().setItemCount(collectionItem.getCollection().getItemCount() != null ? (collectionItem.getCollection().getItemCount() + 1) : 1);
 		this.getResourceRepository().save(collectionItem);
 		SessionContextSupport.putLogParameter(EVENT_NAME, CLASSPAGE_CREATE_COLLECTION_TASK_ITEM);
 		SessionContextSupport.putLogParameter(COLLECTION_ITEM_ID, collectionItem.getCollectionItemId());
