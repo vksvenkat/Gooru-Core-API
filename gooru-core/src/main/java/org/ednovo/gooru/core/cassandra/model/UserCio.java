@@ -104,6 +104,19 @@ public class UserCio implements IsEntityCassandraIndexable {
 	@Column
 	private String metaJson;
 	
+	@Column 
+	private Short active;
+	
+	
+
+	public Short getActive() {
+		return active;
+	}
+
+	public void setActive(Short active) {
+		this.active = active;
+	}
+
 	public Integer getUserId() {
 		return userId;
 	}

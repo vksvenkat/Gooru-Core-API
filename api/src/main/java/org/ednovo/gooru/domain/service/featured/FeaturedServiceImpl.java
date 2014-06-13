@@ -947,6 +947,11 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 			if (libraryName.contains(",")) {
 			  library.put(LIBRARY, libraryObject[2]);
 			}
+			if(libraryObject[3] != null) {
+				library.put(LABEL, libraryObject[3]);
+			} else {
+				library.put(LABEL, libraryObject[1]);
+			}
 			libraryList.add(library);
 		}
 		return libraryList;
