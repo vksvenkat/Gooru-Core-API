@@ -444,10 +444,12 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 						this.getCollectionRepository().save(classpage);
 						this.getUserGroupRepository().remove(userGroupAssociation);
 					}
+					getEventLogs(classpage, userGroupAssociation, null);
 				}
 				InviteUser inviteUser = this.getInviteRepository().findInviteUserById(mailId, classpage.getGooruOid(), null);
 				if (inviteUser != null) {
 					this.getInviteRepository().remove(inviteUser);
+					getEventLogs(classpage, null, inviteUser);
 				}
 			}
 		}
@@ -775,6 +777,21 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session").toString()) : new JSONObject();
 		session.put("organizationUId", user.getOrganization().getPartyUid());
 		SessionContextSupport.putLogParameter("session", session.toString());
+	}
+	
+	public void getEventLogs(Classpage classpage, UserGroupAssociation userGroupAssociation, InviteUser inviteUser) throws JSONException {
+		SessionContextSupport.putLogParameter(EVENT_NAME, "classpage.user.remove");
+		JSONObject context = SessionContextSupport.getLog().get("context") != null ? new JSONObject(SessionContextSupport.getLog().get("context").toString()) : new JSONObject();
+		context.put("contentGooruId", classpage.getGooruOid());
+		SessionContextSupport.putLogParameter("context", context.toString());
+		JSONObject payLoadObject = SessionContextSupport.getLog().get("payLoadObject") != null ? new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString()) : new JSONObject();
+		if(userGroupAssociation != null){
+			payLoadObject.put("groupUId", userGroupAssociation.getUserGroup().getPartyUid());
+			payLoadObject.put("removedGooruUId", userGroupAssociation.getUser().getPartyUid());
+		}
+		if (inviteUser != null && inviteUser.getInviteUid() != null) {
+			payLoadObject.put("InvitedUserGooruUId", classpage.getUser().getPartyUid());
+		}
 	}
 
 }
