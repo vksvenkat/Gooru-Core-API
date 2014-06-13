@@ -519,7 +519,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		collectionItems.add(collectionItem);
 		collectionItem.getCollection().setCollectionItems(collectionItems);
 		collectionItem.setItemSequence(sequence);
-		collectionItem.getCollection().setCollectionCount(collectionItem.getCollection().getCollectionCount() != null ? (collectionItem.getCollection().getCollectionCount() + 1) : 1);
+		collectionItem.getCollection().setItemCount(collectionItem.getCollection().getItemCount() != null ? (collectionItem.getCollection().getItemCount() + 1) : 1);
 		this.getResourceRepository().save(collectionItem);
 		SessionContextSupport.putLogParameter(EVENT_NAME, CLASSPAGE_CREATE_COLLECTION_TASK_ITEM);
 		SessionContextSupport.putLogParameter(COLLECTION_ITEM_ID, collectionItem.getCollectionItemId());
