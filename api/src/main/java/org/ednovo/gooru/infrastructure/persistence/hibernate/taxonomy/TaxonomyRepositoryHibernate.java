@@ -45,6 +45,7 @@ import org.ednovo.gooru.application.util.ConfigProperties;
 import org.ednovo.gooru.application.util.DatabaseUtil;
 import org.ednovo.gooru.application.util.TaxonomyUtil;
 import org.ednovo.gooru.core.api.model.Code;
+import org.ednovo.gooru.core.api.model.CodeOrganizationAssoc;
 import org.ednovo.gooru.core.api.model.CodeType;
 import org.ednovo.gooru.core.api.model.CodeUserAssoc;
 import org.ednovo.gooru.core.api.model.User;
@@ -842,32 +843,32 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 	}
 
 	@Override
-	public List<Code> findCodeByParentCodeId(String code, String creatorUid, Integer limit, Integer offset, Boolean skipPagination, String fetchType, String organizationCode, String rootNodeId, String depth) {
-		String hql = "Select code From Code code inner join code.codeOrganizationAssoc  codeOrganizationAssoc  where  code.activeFlag=1  ";
+	public List<CodeOrganizationAssoc> findCodeByParentCodeId(String code, String creatorUid, Integer limit, Integer offset, Boolean skipPagination, String fetchType, String organizationCode, String rootNodeId, String depth) {
+		String hql = " From CodeOrganizationAssoc  codeOrganizationAssoc  where  codeOrganizationAssoc.code.activeFlag=1  ";
 
 		if (rootNodeId != null) {
-			hql += " and  code.rootNodeId=:rootNodeId";
+			hql += " and  codeOrganizationAssoc.code.rootNodeId=:rootNodeId";
 		}
 		if (code != null) {
 			if (code.equalsIgnoreCase("featured")) {
 				hql += " and codeOrganizationAssoc.isFeatured >= 1 ";
 			} else {
-				hql += " and code.parentId =:parentCodeId  ";
+				hql += " and codeOrganizationAssoc.code.parentId =:parentCodeId  ";
 			}
 		}
 
 		if (depth != null) {
-			hql += " and  code.depth=:depth";
+			hql += " and  codeOrganizationAssoc.code.depth=:depth";
 		}
 
 		if (fetchType != null && fetchType.equalsIgnoreCase("library")) {
-			hql += " and code.libraryFlag = 1 ";
+			hql += " and codeOrganizationAssoc.code.libraryFlag = 1 ";
 		}
 
 		hql += " and codeOrganizationAssoc.organizationCode =:organizationCode ";
 
 		if (creatorUid != null) {
-			hql += " and code.creator.partyUid =:creatorUid";
+			hql += " and codeOrganizationAssoc.code.creator.partyUid =:creatorUid";
 		}
 
 		if (code!= null && code.equalsIgnoreCase("featured")) {
