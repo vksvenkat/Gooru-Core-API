@@ -1378,8 +1378,8 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		if(followOnUserSummary.getGooruUid() == null) {
 			followOnUserSummary.setGooruUid(followOnUserId);
 		}
-		userSummary.setFollowers((userSummary.getFollowers() != null ? userSummary.getFollowers() : 0  ) + 1);
-		followOnUserSummary.setFollowing((followOnUserSummary.getFollowing() != null ? followOnUserSummary.getFollowing() : 0 )+ 1);
+		userSummary.setFollowing((userSummary.getFollowing() != null ? userSummary.getFollowing() : 0  ) + 1);
+		followOnUserSummary.setFollowers((followOnUserSummary.getFollowers() != null ? followOnUserSummary.getFollowers() : 0 )+ 1);
 		
 		this.getUserRepository().save(userSummary);
 		this.getUserRepository().save(followOnUserSummary);
@@ -1396,8 +1396,8 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			this.getUserRepository().remove(userRelationship);
 			UserSummary userSummary = this.getUserRepository().getSummaryByUid(user.getPartyUid());
 			UserSummary followOnUserSummary = this.getUserRepository().getSummaryByUid(unFollowUserId);
-			userSummary.setFollowers(userSummary.getFollowers() - 1);
-			followOnUserSummary.setFollowing(followOnUserSummary.getFollowing() - 1);
+			userSummary.setFollowing(userSummary.getFollowing() - 1);
+			followOnUserSummary.setFollowers(followOnUserSummary.getFollowers() - 1);
 			
 			this.getUserRepository().save(userSummary);
 			this.getUserRepository().save(followOnUserSummary);
@@ -1462,6 +1462,13 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		summary.put("followers", userSummary.getFollowers() != null ? userSummary.getFollowers() : 0 );
 		return summary;
 	}
+	
+	@Override
+	public Boolean isFollowedUser(String gooruUserId, User apiCaller) {
+		
+		return getUserRepository().getActiveUserRelationship(apiCaller.getPartyUid(), gooruUserId) != null ? true : false;
+	}	
+	
 
 	public IdpRepository getIdpRepository() {
 		return idpRepository;
@@ -1535,7 +1542,8 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		JSONObject user = SessionContextSupport.getLog().get("user") != null ? new JSONObject(SessionContextSupport.getLog().get("user").toString()) :  new JSONObject();
 		user.put("gooruUId", newUser.getPartyUid());
 		SessionContextSupport.putLogParameter("user", user.toString());
-	}	
+	}
+
 	
 
 }

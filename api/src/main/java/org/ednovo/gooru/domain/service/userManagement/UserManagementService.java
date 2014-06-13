@@ -23,7 +23,6 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.domain.service.userManagement;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -55,6 +54,8 @@ public interface UserManagementService extends BaseService {
 	User getUserByToken(String userToken);
 
 	SearchResults<Map<String, Object>> getFollowedOnUsers(String gooruUId, Integer offset, Integer limit, boolean skipPagination);
+	
+	Boolean isFollowedUser(String gooruUserId, User apiCaller);
 	
 	SearchResults<Map<String, Object>> getFollowedByUsers(String gooruUserId, Integer offset, Integer limit, boolean skipPagination);
 

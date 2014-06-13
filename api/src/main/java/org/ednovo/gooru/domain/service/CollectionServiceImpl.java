@@ -28,6 +28,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.commons.lang.StringUtils;
 import org.ednovo.gooru.application.util.ResourceImageUtil;
@@ -490,29 +492,29 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		Collection collection = this.getCollectionRepository().getCollectionByGooruOid(collectionId, null);
 		rejectIfNull(collection, GL0056, 404, generateErrorMessage(GL0056, COLLECTION));
 		List<CollectionItem> collectionItems = new ArrayList<CollectionItem>();
+		int sequence = collection.getCollectionItems() != null ? collection.getCollectionItems().size() + 1 : 1;
 		if (collection.getCollectionType().equalsIgnoreCase(FOLDER)) { 
 			Map<String, String> filters = new HashMap<String, String>();
 			filters.put(SHARING, "public,anyonewithlink");
 			filters.put(TYPE, COLLECTION);
 			List<CollectionItem> folderCollectionItems = this.getCollectionRepository().getCollectionItems(collectionId, filters);
 			for (CollectionItem collectionItem : folderCollectionItems)  {
-				collectionItems.add(createClasspageItem (classpage,collectionItem.getResource(), user));
+				collectionItems.add(createClasspageItem(classpage,collectionItem.getResource(), user, sequence++));
 			}
 		} else if (collection.getCollectionType().equalsIgnoreCase(COLLECTION)) {
-			collectionItems.add(createClasspageItem (classpage, collection, user));
+			collectionItems.add(createClasspageItem (classpage, collection, user, sequence));
 		}
 		
 		return collectionItems;
 	}
 	
-	private CollectionItem createClasspageItem (Classpage classPage, Resource collection, User user) {
+	private CollectionItem createClasspageItem (Classpage classPage, Resource collection, User user, int sequence) {
 		CollectionItem collectionItem = new CollectionItem();
 		collectionItem.setCollection(classPage);
 		collectionItem.setResource(collection);
 		collectionItem.setItemType(ShelfType.AddedType.ADDED.getAddedType());
 		collectionItem.setAssociatedUser(user);
 		collectionItem.setAssociationDate(new Date(System.currentTimeMillis()));
-		int sequence = collectionItem.getCollection().getCollectionItems() != null ? collectionItem.getCollection().getCollectionItems().size() + 1 : 1;
 		collectionItem.setItemSequence(sequence);
 		this.getResourceRepository().save(collectionItem);
 		SessionContextSupport.putLogParameter(EVENT_NAME, CLASSPAGE_CREATE_COLLECTION_TASK_ITEM);

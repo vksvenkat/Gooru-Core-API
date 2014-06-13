@@ -62,7 +62,7 @@ public interface FeaturedService {
 	
 	List<Map<String, Object>> getPopularLibrary(String courseId,  Integer offset, Integer limit,  String libraryName);
 
-	List<Map<String, Object>> getLibraryCourse(String code,String ChildCode, String libraryName, String rootNode);
+	List<Map<String, Object>> getLibrarySubject(String code,String ChildCode, String libraryName, String rootNode);
 	
 	List<Map<String,Object>> getCommunityLibraryResource(String type, Integer offset, Integer limit, boolean skipPagination,String libraryName);
 
@@ -77,4 +77,6 @@ public interface FeaturedService {
 	List<Map<String, Object>> getLibraryItem(String type, String libraryName);
 	
 	List<Map<String, Object>> getLibraryItems(String itemType, String type,String codeId, String libraryName, String rootNodeId, Integer limit, Integer offset);
+	
+	List<Map<String, Object>> getLibraryCourse(String code,String ChildCode, String libraryName, String rootNode);
 }

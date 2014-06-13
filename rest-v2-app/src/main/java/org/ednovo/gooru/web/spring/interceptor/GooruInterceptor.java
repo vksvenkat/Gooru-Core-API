@@ -81,6 +81,11 @@ public class GooruInterceptor extends HandlerInterceptorAdapter {
 		
 		JSONObject context = new JSONObject();
 		context.put("url", request.getRequestURI());
+		if(request.getHeader("User-Agent").indexOf("Mobile") != -1) {
+			context.put("clientSource", "Mobile");
+		} else {
+			context.put("clientSource", "Web");
+		}
 		SessionContextSupport.putLogParameter("context", context.toString());
 		
 		request.getHeader("VIA");
@@ -96,6 +101,7 @@ public class GooruInterceptor extends HandlerInterceptorAdapter {
 		{
 			user.put("gooruUId",  party.getPartyUid());
 		}
+		
 		user.put("userAgent",  request.getHeader("User-Agent"));
 		user.put("userIp",  ipAddress);
 		SessionContextSupport.putLogParameter("user", user.toString());

@@ -618,6 +618,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			user.put("firstName", object[6]);
 			user.put("lastName", object[7]);
 			user.put("userName", object[8]);
+			user.put(PROFILE_IMG_URL, settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, TaxonomyUtil.GOORU_ORG_UID) + "/" + settingService.getConfigSetting(ConfigConstants.PROFILE_BUCKET, TaxonomyUtil.GOORU_ORG_UID) + String.valueOf(object[5]) + ".png");
 			result.put("user", user);
 
 			StorageArea storageArea = this.getStorageRepository().getStorageAreaByTypeName(NFS);

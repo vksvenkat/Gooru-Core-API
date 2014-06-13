@@ -156,7 +156,7 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 				SessionContextSupport.putLogParameter(FEEDBACK_GOORU_UID, feedback.getAssocUserUid());
 				this.getFeedbackRepository().remove(feedback);
 			} else {
-				throw new UnauthorizedException(generateErrorMessage(GL0057, USER));
+				throw new UnauthorizedException(generateErrorMessage(GL0057, FEEDBACK));
 			}
 		} else {
 			throw new NotFoundException(generateErrorMessage(GL0056, FEEDBACK));

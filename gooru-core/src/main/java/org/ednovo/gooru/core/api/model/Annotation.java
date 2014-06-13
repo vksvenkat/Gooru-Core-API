@@ -2,10 +2,6 @@ package org.ednovo.gooru.core.api.model;
 
 import java.io.Serializable;
 
-import org.ednovo.gooru.core.api.model.AnnotationType;
-import org.ednovo.gooru.core.api.model.Content;
-import org.ednovo.gooru.core.api.model.Resource;
-
 public class Annotation extends Content implements Serializable{
 
 	

@@ -34,14 +34,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
-import org.ednovo.gooru.core.api.model.Content;
-import org.ednovo.gooru.core.api.model.Identity;
-import org.ednovo.gooru.core.api.model.IndexableEntry;
-import org.ednovo.gooru.core.api.model.OrganizationModel;
-import org.ednovo.gooru.core.api.model.PartyCustomField;
-import org.ednovo.gooru.core.api.model.User;
-import org.ednovo.gooru.core.api.model.UserRole;
-import org.ednovo.gooru.core.api.model.UserRoleAssoc;
 
 import flexjson.JSON;
 
@@ -76,6 +68,7 @@ public class UserTransModel extends OrganizationModel implements IndexableEntry 
 	private Set<PartyCustomField> customFields;
 	private Map<String, Object> meta;
 	private String organizationName;
+	private Short active;
 
 	@Override
 	public boolean equals(Object obj) {
@@ -346,6 +339,14 @@ public class UserTransModel extends OrganizationModel implements IndexableEntry 
 
 	public void setMeta(Map<String, Object> meta) {
 		this.meta = meta;
+	}
+
+	public void setActive(Short active) {
+		this.active = active;
+	}
+
+	public Short getActive() {
+		return active;
 	}
 
 }

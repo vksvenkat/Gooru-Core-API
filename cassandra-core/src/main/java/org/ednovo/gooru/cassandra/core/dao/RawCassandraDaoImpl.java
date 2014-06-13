@@ -9,8 +9,8 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
-import org.ednovo.gooru.cassandra.core.factory.SearchCassandraFactory;
 import org.ednovo.gooru.cassandra.core.factory.InsightsCassandraFactory;
+import org.ednovo.gooru.cassandra.core.factory.SearchCassandraFactory;
 
 import com.netflix.astyanax.MutationBatch;
 import com.netflix.astyanax.connectionpool.OperationResult;

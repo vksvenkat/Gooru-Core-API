@@ -33,7 +33,6 @@ import org.ednovo.gooru.core.exception.ClassplanException;
 import org.ednovo.gooru.core.exception.NotAllowedException;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.core.exception.UnauthorizedException;
-//import org.ednovo.gooru.search.es.exception.SearchException;
 import org.jets3t.service.S3ServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +42,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.SimpleMappingExceptionResolver;
 
 import flexjson.JSONSerializer;
+//import org.ednovo.gooru.search.es.exception.SearchException;
 
 public class GooruExceptionResolver extends SimpleMappingExceptionResolver {
 

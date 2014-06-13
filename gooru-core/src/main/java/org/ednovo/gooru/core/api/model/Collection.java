@@ -41,6 +41,8 @@ public class Collection extends Resource implements Versionable {
 	private CollectionItem collectionItem;
 
 	private CustomTableValue buildType;
+	
+	private CustomTableValue publishStatus;
 
 	private Boolean mailNotification;
 
@@ -277,6 +279,14 @@ public class Collection extends Resource implements Versionable {
 
 	public void setItemCount(Integer itemCount) {
 		this.itemCount = this.getCollectionItems() == null ? 0 : this.getCollectionItems().size();
+	}
+
+	public CustomTableValue getPublishStatus() {
+		return publishStatus;
+	}
+
+	public void setPublishStatus(CustomTableValue publishStatus) {
+		this.publishStatus = publishStatus;
 	}
 
 }

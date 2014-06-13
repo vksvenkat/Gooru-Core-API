@@ -78,6 +78,8 @@ public class User extends Party implements IndexableEntry, OrganizationWrapper, 
 	
 	private Map<String, Object> meta;
 	
+	private Short active;
+	
 
 	@Override
 	public Organization getOrganization() {
@@ -371,6 +373,14 @@ public class User extends Party implements IndexableEntry, OrganizationWrapper, 
 
 	public void setMeta(Map<String, Object> meta) {
 		this.meta = meta;
+	}
+
+	public void setActive(Short active) {
+		this.active = active;
+	}
+
+	public Short getActive() {
+		return active;
 	}
 	
 }

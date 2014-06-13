@@ -3,8 +3,6 @@ package org.ednovo.gooru.core.api.model;
 import java.io.Serializable;
 import java.util.Comparator;
 
-import org.ednovo.gooru.core.api.model.AssessmentHint;
-
 public class AssessmentHintComparator implements Comparator<AssessmentHint>, Serializable {
 
 	/**

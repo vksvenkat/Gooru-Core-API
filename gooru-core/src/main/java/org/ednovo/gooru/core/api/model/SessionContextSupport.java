@@ -2,8 +2,6 @@ package org.ednovo.gooru.core.api.model;
 
 import java.util.Map;
 
-import org.ednovo.gooru.core.api.model.GooruAuthenticationToken;
-import org.ednovo.gooru.core.api.model.UserCredential;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 public class SessionContextSupport {
