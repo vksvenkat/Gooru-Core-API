@@ -516,6 +516,8 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		collectionItem.setAssociatedUser(user);
 		collectionItem.setAssociationDate(new Date(System.currentTimeMillis()));
 		collectionItem.setItemSequence(sequence);
+		classPage.setItemCount(sequence);
+		this.getResourceRepository().save(classPage);
 		this.getResourceRepository().save(collectionItem);
 		SessionContextSupport.putLogParameter(EVENT_NAME, CLASSPAGE_CREATE_COLLECTION_TASK_ITEM);
 		SessionContextSupport.putLogParameter(COLLECTION_ITEM_ID, collectionItem.getCollectionItemId());
