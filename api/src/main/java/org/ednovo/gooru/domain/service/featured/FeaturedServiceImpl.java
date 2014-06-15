@@ -683,11 +683,11 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 	}
 
 	private String getOrganizationCode(String libraryName) {
-		if (libraryName != null && libraryName.equalsIgnoreCase("rusd")) {
-			return libraryName;
+		if (libraryName != null && libraryName.equalsIgnoreCase("library")) {
+			return "gooru";
 		}
 
-		return "gooru";
+		return libraryName;
 	}
 
 	@Override
