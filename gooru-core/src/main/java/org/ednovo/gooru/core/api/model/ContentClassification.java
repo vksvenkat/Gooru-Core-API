@@ -1,7 +1,5 @@
 package org.ednovo.gooru.core.api.model;
 
-import org.ednovo.gooru.core.api.model.Code;
-import org.ednovo.gooru.core.api.model.Content;
 
 
 public class ContentClassification {

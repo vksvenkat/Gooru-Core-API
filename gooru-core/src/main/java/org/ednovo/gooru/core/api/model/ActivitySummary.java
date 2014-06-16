@@ -3,9 +3,6 @@ package org.ednovo.gooru.core.api.model;
 import java.io.Serializable;
 import java.util.Date;
 
-import org.ednovo.gooru.core.api.model.Content;
-import org.ednovo.gooru.core.api.model.User;
-
 
 public class ActivitySummary implements Serializable {
 	/**

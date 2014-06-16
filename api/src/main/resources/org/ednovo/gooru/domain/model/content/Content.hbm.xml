@@ -246,6 +246,7 @@
 			<joined-subclass name="org.ednovo.gooru.core.api.model.Collection"	table="collection" lazy="true">
 				<key column="content_id" />
 				<property name="collectionType" column="collection_type" not-null="true"/>
+				<property name="itemCount" column="item_count" not-null="false"/>
 				<property name="narrationLink" column="narration_link" not-null="false" />
 				<property name="notes" column="notes" not-null="false" />
 				<property name="keyPoints" column="key_points" not-null="false"/>
@@ -261,6 +262,9 @@
 				<property name="languageObjective" column="language_objective" not-null="false" />																							
 				
 				<many-to-one name="buildType" class="org.ednovo.gooru.core.api.model.CustomTableValue" column="build_type_id" not-null="false" lazy="proxy" cascade="none" />
+				
+				<many-to-one name="publishStatus" class="org.ednovo.gooru.core.api.model.CustomTableValue" column="publish_status_id" not-null="false" lazy="proxy" cascade="none" />
+				
 				<set name="collectionItems" inverse="true" cascade="none" lazy="true" sort="org.ednovo.gooru.core.api.model.CollectionItemComparator">
 					<key column="collection_content_id" />
 					<one-to-many class="org.ednovo.gooru.core.api.model.CollectionItem" />

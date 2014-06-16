@@ -23,7 +23,6 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.domain.service.userManagement;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -35,6 +34,7 @@ import org.ednovo.gooru.core.api.model.Profile;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserToken;
 import org.ednovo.gooru.domain.service.BaseService;
+import org.ednovo.gooru.domain.service.search.SearchResults;
 
 
 public interface UserManagementService extends BaseService {
@@ -53,9 +53,11 @@ public interface UserManagementService extends BaseService {
 
 	User getUserByToken(String userToken);
 
-	List<Map<String, Object>> getFollowedOnUsers(String gooruUId);
+	SearchResults<Map<String, Object>> getFollowedOnUsers(String gooruUId, Integer offset, Integer limit, boolean skipPagination);
 	
-	List<Map<String, Object>> getFollowedByUsers(String gooruUserId);
+	Boolean isFollowedUser(String gooruUserId, User apiCaller);
+	
+	SearchResults<Map<String, Object>> getFollowedByUsers(String gooruUserId, Integer offset, Integer limit, boolean skipPagination);
 
 	Profile updateProfileInfo(Profile profile, String gooruUid, User apiCaller, String activeFlag, Boolean emailConfirmStatus, String showProfilePage,String accountType,String password);
 
@@ -99,5 +101,9 @@ public interface UserManagementService extends BaseService {
 	User updateUserViewFlagStatus(String gooruUid, Integer viewFlag);
 	
 	 Map<String, Object> followUser(User user, String followOnUserId);
+	 
+	 void  unFollowUser(User user, String unFollowUserId);
+	 
+	 Map<String, Object> getUserSummary(String gooruUid);
 
 }

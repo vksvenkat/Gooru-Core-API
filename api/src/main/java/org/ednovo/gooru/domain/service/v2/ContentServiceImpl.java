@@ -29,23 +29,22 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.ednovo.gooru.application.util.TaxonomyUtil;
 import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.ContentPermission;
 import org.ednovo.gooru.core.api.model.ContentTagAssoc;
 import org.ednovo.gooru.core.api.model.CustomTableValue;
-import org.ednovo.gooru.core.api.model.SearchResult;
 import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.Tag;
 import org.ednovo.gooru.core.api.model.User;
+import org.ednovo.gooru.core.api.model.UserSummary;
 import org.ednovo.gooru.core.application.util.CustomProperties;
-import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.domain.service.BaseServiceImpl;
 import org.ednovo.gooru.domain.service.search.SearchResults;
 import org.ednovo.gooru.domain.service.tag.TagService;
 import org.ednovo.gooru.domain.service.user.UserService;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.collaborator.CollaboratorRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
@@ -73,6 +72,9 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 
 	@Autowired
 	private CollaboratorRepository collaboratorRepository;
+	
+	@Autowired
+	private UserRepository userRepository;
 
 	@Override
 	public List<Map<String, Object>> createTagAssoc(String gooruOid, List<String> labels, User apiCaller) {
@@ -99,6 +101,13 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 				this.getContentRepository().save(contentTagAssoc);
 				tag.setContentCount(tag.getContentCount() != null ? tag.getContentCount() + 1 : 1);
 				this.getContentRepository().save(tag);
+				UserSummary userSummary = this.getUserRepository().getSummaryByUid(apiCaller.getPartyUid());
+				if(userSummary.getGooruUid() == null) {
+					userSummary.setGooruUid(apiCaller.getPartyUid());
+				}
+				userSummary.setTag(userSummary.getTag() != null ? userSummary.getTag() : 0 + 1 );
+				this.getUserRepository().save(userSummary);
+				this.getUserRepository().flush();
 				contentTagAssocs.add(setcontentTagAssoc(contentTagAssoc, tag.getLabel()));
 			}
 
@@ -130,6 +139,9 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 					this.getContentRepository().remove(contentTagAssoc);
 					tag.setContentCount(tag.getContentCount() <=  0 ? 0 :   tag.getContentCount() - 1);
 					this.getContentRepository().save(tag);
+					UserSummary userSummary = this.getUserRepository().getSummaryByUid(apiCaller.getPartyUid());
+					userSummary.setTag(userSummary.getTag() - 1);
+					this.getUserRepository().save(userSummary);
 				}
 			}
 		}
@@ -199,6 +211,7 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 			Map<String, Object> result = new HashMap<String, Object>();
 			result.put("count", object[0]);
 			result.put("label", object[1]);
+			result.put("tagGooruOid", object[2]);
 			userTags.add(result);
 		}
 		searchResult.setSearchResults(userTags);
@@ -245,6 +258,10 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 
 	public CollaboratorRepository getCollaboratorRepository() {
 		return collaboratorRepository;
+	}
+
+	public UserRepository getUserRepository() {
+		return userRepository;
 	}
 
 

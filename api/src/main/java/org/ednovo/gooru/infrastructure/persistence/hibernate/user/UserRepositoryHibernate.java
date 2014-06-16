@@ -46,6 +46,7 @@ import org.ednovo.gooru.core.api.model.UserGroupAssociation;
 import org.ednovo.gooru.core.api.model.UserRelationship;
 import org.ednovo.gooru.core.api.model.UserRole;
 import org.ednovo.gooru.core.api.model.UserRoleAssoc;
+import org.ednovo.gooru.core.api.model.UserSummary;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.hibernate.Criteria;
@@ -293,13 +294,43 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 	}
 
 	@Override
-	public List<User> getFollowedByUsers(String gooruUId) {
-		return find("SELECT userRelation.user FROM UserRelationship userRelation  WHERE userRelation.followOnUser.partyUid = '" + gooruUId + "' AND userRelation.activeFlag = 1 AND " + generateOrgAuthQueryWithData("userRelation.") + " AND " + generateUserIsDeleted("userRelation.user."));
+	public List<User> getFollowedByUsers(String gooruUId, Integer offset, Integer limit, boolean skipPagination) {
+		Session session = getSession();
+		String hql = "SELECT userRelation.user FROM UserRelationship userRelation  WHERE userRelation.followOnUser.partyUid = '" + gooruUId + "' AND userRelation.activeFlag = 1 AND " + generateOrgAuthQueryWithData("userRelation.user.") + " AND " + generateUserIsDeleted("userRelation.user.");
+		Query query = session.createQuery(hql);
+		if (!skipPagination) {
+			query.setFirstResult(offset);
+			query.setMaxResults(limit);
+		}
+		return query.list();
+	}
+	
+	@Override
+	public long getFollowedByUsersCount(String gooruUId) {
+		Session session = getSession();
+		String hql = "SELECT count(*) FROM UserRelationship userRelation  WHERE userRelation.followOnUser.partyUid = '" + gooruUId + "' AND userRelation.activeFlag = 1 AND " + generateOrgAuthQueryWithData("userRelation.user.") + " AND " + generateUserIsDeleted("userRelation.user.");
+		Query query = session.createQuery(hql);
+		return (Long) query.list().get(0);
+	}
+	
+	@Override
+	public long getFollowedOnUsersCount(String gooruUId) {
+		Session session = getSession();
+		String hql = "SELECT count(*) FROM UserRelationship userRelation WHERE userRelation.user.partyUid = '" + gooruUId + "' AND userRelation.activeFlag = 1  AND " + generateOrgAuthQueryWithData("userRelation.user.") + " AND " + generateUserIsDeleted("userRelation.user.");
+		Query query = session.createQuery(hql);
+		return (Long) query.list().get(0);
 	}
 
 	@Override
-	public List<User> getFollowedOnUsers(String gooruUId) {
-		return find("SELECT userRelation.followOnUser FROM UserRelationship userRelation WHERE userRelation.user.partyUid = '" + gooruUId + "' AND userRelation.activeFlag = 1  AND " + generateOrgAuthQueryWithData("userRelation.user.") + " AND " + generateUserIsDeleted("userRelation.user."));
+	public List<User> getFollowedOnUsers(String gooruUId, Integer offset, Integer limit, boolean skipPagination) {
+		Session session = getSession();
+		String hql = "SELECT userRelation.followOnUser FROM UserRelationship userRelation WHERE userRelation.user.partyUid = '" + gooruUId + "' AND userRelation.activeFlag = 1  AND " + generateOrgAuthQueryWithData("userRelation.user.") + " AND " + generateUserIsDeleted("userRelation.user.");
+		Query query = session.createQuery(hql);
+		if (!skipPagination) {
+			query.setFirstResult(offset);
+			query.setMaxResults(limit);
+		}
+		return query.list();
 	}
 
 	@Override
@@ -773,6 +804,13 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 		String sql = "select  u.username as child_user_name, i2.external_id as parent_email_id  from identity i inner join user u on u.gooru_uid=i.user_uid inner join profile p  on p.user_uid=u.gooru_uid inner join identity i2 on i2.user_uid=u.parent_uid  where  datediff(CURDATE(),p.date_of_birth) = 4748 and u.account_type_id=2";
 		Query query = getSession().createSQLQuery(sql).addScalar("child_user_name", StandardBasicTypes.STRING).addScalar("parent_email_id", StandardBasicTypes.STRING);
 		return query.list();
+	}
+	
+	@Override
+	public UserSummary getSummaryByUid(String gooruUid) {
+		String hql = "from UserSummary u where u.gooruUid =:gooruUid";
+		Query query = getSession().createQuery(hql).setParameter("gooruUid", gooruUid);
+		return query.list().size() > 0 ? (UserSummary)query.list().get(0) : new UserSummary();
 	}
 
 }

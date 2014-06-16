@@ -28,11 +28,14 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.commons.lang.StringUtils;
 import org.ednovo.gooru.application.util.ResourceImageUtil;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.AssessmentQuestion;
+import org.ednovo.gooru.core.api.model.Classpage;
 import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
@@ -65,7 +68,6 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	@Autowired
 	private StorageRepository storageRepository;
 
-	private static int collectionItemcount = 0;
 
 	@Override
 	public ActionResponseDTO<CollectionItem> createQuestionWithCollectionItem(String collectionId, String data, User user, String mediaFileName) throws Exception {
@@ -226,6 +228,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		return collectionItems;
 
 	}
+	
 
 	@Override
 	public List<Map<String, Object>> getMyShelf(String gooruUid, Integer limit, Integer offset, String sharing, String collectionType, Integer itemLimit, boolean fetchChildItem, String topLevelCollectionType) {
@@ -235,7 +238,6 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		int count = 0;
 		if (result != null && result.size() > 0) {
 			for (Object[] object : result) {
-				collectionItemcount = 0;
 				Map<String, Object> collection = new HashMap<String, Object>();
 				collection.put(TITLE, object[0]);
 				collection.put(GOORU_OID, object[1]);
@@ -295,11 +297,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		List<Map<String, Object>> items = new ArrayList<Map<String, Object>>();
 		List<Object[]> result = this.getCollectionRepository().getCollectionItem(gooruOid, type.equalsIgnoreCase(SCOLLECTION) ? 4 : itemLimit, 0, false, sharing, type.equalsIgnoreCase(SCOLLECTION) ? SEQUENCE : null, collectionType);
 		if (result != null && result.size() > 0) {
-			if (fetchChildItem) {
-				if (type.equalsIgnoreCase(FOLDER)) {
-					collectionItemcount = 0;
-				}
-			}
+			
 			for (Object[] object : result) {
 				Map<String, Object> item = new HashMap<String, Object>();
 				item.put(TITLE, object[0]);
@@ -350,11 +348,8 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				}
 				if (fetchChildItem && (String.valueOf(object[2]).equalsIgnoreCase(SCOLLECTION) || String.valueOf(object[2]).equalsIgnoreCase(FOLDER))) {
 					if (String.valueOf(object[2]).equalsIgnoreCase(SCOLLECTION)) {
-						//if (collectionItemcount == 0) {
 							item.put(COLLECTION_ITEMS, getFolderItem(String.valueOf(object[1]), sharing, String.valueOf(object[2]), collectionType, type.equalsIgnoreCase(SCOLLECTION) ? 4 : itemLimit, fetchChildItem));
 							item.put(ITEM_COUNT, this.getCollectionRepository().getCollectionItemCount(String.valueOf(object[1]), sharing, collectionType));
-							collectionItemcount++;
-						//}
 					} else if ((String.valueOf(object[2]).equalsIgnoreCase(SCOLLECTION) || String.valueOf(object[2]).equalsIgnoreCase(FOLDER))) {
 						item.put(COLLECTION_ITEMS, getFolderItem(String.valueOf(object[1]), sharing, String.valueOf(object[2]), collectionType, type.equalsIgnoreCase(SCOLLECTION) ? 4 : itemLimit, fetchChildItem));
 						item.put(ITEM_COUNT, this.getCollectionRepository().getCollectionItemCount(String.valueOf(object[1]), sharing, collectionType));
@@ -392,7 +387,6 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		List<Object[]> result = this.getCollectionRepository().getCollectionItem(gooruOid, limit, offset, false, sharing, orderBy, collectionType);
 		if (result != null && result.size() > 0) {
 			for (Object[] object : result) {
-				collectionItemcount = 0;
 				Map<String, Object> item = new HashMap<String, Object>();
 				item.put(TITLE, object[0]);
 				item.put(GOORU_OID, object[1]);
@@ -490,6 +484,49 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		rejectIfInvalidType(errors, collectionItem.getItemType(), ITEM_TYPE, GL0007, generateErrorMessage(GL0007, ITEM_TYPE), itemType);
 		return errors;
 	}
+	
+	@Override
+	public List<CollectionItem> assignCollection(String classpageId, String collectionId, User user) throws Exception {
+		Classpage classpage = this.getCollectionRepository().getClasspageByCode(classpageId);
+		rejectIfNull(classpage, GL0056, 404, generateErrorMessage(GL0056, CLASSPAGE));
+		Collection collection = this.getCollectionRepository().getCollectionByGooruOid(collectionId, null);
+		rejectIfNull(collection, GL0056, 404, generateErrorMessage(GL0056, COLLECTION));
+		List<CollectionItem> collectionItems = new ArrayList<CollectionItem>();
+		int sequence = classpage.getCollectionItems() != null ? classpage.getCollectionItems().size() + 1 : 1;
+		if (collection.getCollectionType().equalsIgnoreCase(FOLDER)) { 
+			Map<String, String> filters = new HashMap<String, String>();
+			filters.put(SHARING, "public,anyonewithlink");
+			filters.put(TYPE, COLLECTION);
+			List<CollectionItem> folderCollectionItems = this.getCollectionRepository().getCollectionItems(collectionId, filters);
+			for (CollectionItem collectionItem : folderCollectionItems)  {
+				collectionItems.add(createClasspageItem(classpage,collectionItem.getResource(), user, sequence++));
+			}
+		} else if (collection.getCollectionType().equalsIgnoreCase(COLLECTION)) {
+			collectionItems.add(createClasspageItem (classpage, collection, user, sequence));
+		}
+		
+		return collectionItems;
+	}
+	
+	private CollectionItem createClasspageItem (Classpage classPage, Resource collection, User user, int sequence) {
+		CollectionItem collectionItem = new CollectionItem();
+		collectionItem.setCollection(classPage);
+		collectionItem.setResource(collection);
+		collectionItem.setItemType(ShelfType.AddedType.ADDED.getAddedType());
+		collectionItem.setAssociatedUser(user);
+		collectionItem.setAssociationDate(new Date(System.currentTimeMillis()));
+		collectionItem.setItemSequence(sequence);
+		classPage.setItemCount(sequence);
+		this.getResourceRepository().save(classPage);
+		this.getResourceRepository().save(collectionItem);
+		SessionContextSupport.putLogParameter(EVENT_NAME, CLASSPAGE_CREATE_COLLECTION_TASK_ITEM);
+		SessionContextSupport.putLogParameter(COLLECTION_ITEM_ID, collectionItem.getCollectionItemId());
+		SessionContextSupport.putLogParameter(GOORU_OID, classPage.getGooruOid());
+		SessionContextSupport.putLogParameter(COLLECTION_ID, classPage.getGooruOid());
+		SessionContextSupport.putLogParameter(RESOURCE_ID, collection.getGooruOid());
+		SessionContextSupport.putLogParameter(COLLECTION_TYPE, collectionItem.getCollection().getCollectionType());
+		return collectionItem; 
+	} 
 
 	@Override
 	public Boolean resourceCopiedFrom(String gooruOid, String gooruUid) {

@@ -10,13 +10,12 @@ import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Id;
 
-//import javax.persistence.Column;
-//import javax.persistence.Id;
-
 import org.ednovo.gooru.core.cassandra.model.IsCassandraIndexable;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+//import javax.persistence.Column;
+//import javax.persistence.Id;
 
 @JsonFilter("content")
 public class Content extends OrganizationModel implements IndexableEntry, IsCassandraIndexable {

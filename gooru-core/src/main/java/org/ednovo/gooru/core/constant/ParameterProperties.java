@@ -241,6 +241,8 @@ public interface ParameterProperties {
 	String SHOW_RATING = "Show rating";
 
 	String RATING = "rating";
+	
+	String RATINGS = "ratings";
 
 	String GOORU_CONTENT_ID = "gooruContentId";
 
@@ -1366,7 +1368,7 @@ public interface ParameterProperties {
 
 	String CREDENDTIAL = "Credential";
 
-	String IDP_NAME = "Idp Name";
+	String IDP_NAME = "IdpName";
 
 	String GOORU_API = "gooruapi";
 
@@ -2626,6 +2628,8 @@ public interface ParameterProperties {
 	
 	String PENDING = "pending";
 	
+	String REVIEWED = "reviewed";
+	
 	String FEMALE = "female";
 	
 	String MALE = "male";
@@ -2679,4 +2683,6 @@ public interface ParameterProperties {
 	String LIBRARY_NAMES = "library,rusd";
 	
 	String TOP_LEVEL_COLLECTION_TYPE = "topLevelCollectionType";
+	
+	String OPTIMIZE = "optimize";
 }

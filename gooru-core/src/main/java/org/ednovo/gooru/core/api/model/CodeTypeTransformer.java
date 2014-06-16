@@ -1,7 +1,6 @@
 package org.ednovo.gooru.core.api.model;
 
 
-import org.ednovo.gooru.core.api.model.CodeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

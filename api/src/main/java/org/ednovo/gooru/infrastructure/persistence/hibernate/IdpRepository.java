@@ -23,8 +23,8 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.infrastructure.persistence.hibernate;
 
-import org.ednovo.gooru.core.api.model.OrganizationDomainAssoc;
 import org.ednovo.gooru.core.api.model.Idp;
+import org.ednovo.gooru.core.api.model.OrganizationDomainAssoc;
 
 //import org.ednovo.gooru.domain.model.user.Idp;
 

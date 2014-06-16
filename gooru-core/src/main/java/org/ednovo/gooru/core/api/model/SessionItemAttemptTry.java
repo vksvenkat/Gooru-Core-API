@@ -1,10 +1,7 @@
 package org.ednovo.gooru.core.api.model;
 
 import java.io.Serializable;
-import java.lang.reflect.Method;
 import java.util.Date;
-
-import org.ednovo.gooru.core.api.model.AssessmentAnswer;
 
 public class SessionItemAttemptTry implements Serializable {
 
@@ -27,6 +24,8 @@ public class SessionItemAttemptTry implements Serializable {
 	private String attemptItemTryStatus;
 	
 	private Date answeredAtTime;
+	
+	private Integer answerOptionSequence;
 
 	public SessionItem getSessionItem() {
 		return sessionItem;
@@ -84,5 +83,12 @@ public class SessionItemAttemptTry implements Serializable {
 		return sessionItemAttemptTryId;
 	}
 	
+	public Integer getAnswerOptionSequence() {
+		return answerOptionSequence;
+	}
+
+	public void setAnswerOptionSequence(Integer answerOptionSequence) {
+		this.answerOptionSequence = answerOptionSequence;
+	}
 
 }

@@ -1,6 +1,5 @@
 package org.ednovo.gooru.core.api.model;
 
-import org.ednovo.gooru.core.api.model.IndexableEntry;
 
 
 public class SearchResult implements IndexableEntry {

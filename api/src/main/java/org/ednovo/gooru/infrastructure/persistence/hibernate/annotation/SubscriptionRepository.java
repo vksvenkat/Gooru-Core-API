@@ -27,7 +27,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.ednovo.gooru.core.api.model.User;
-
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepository;
 
 public interface SubscriptionRepository extends BaseRepository {

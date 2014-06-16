@@ -25,7 +25,6 @@ package org.ednovo.gooru.infrastructure.persistence.hibernate;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.ednovo.gooru.core.api.model.Assignment;
 import org.ednovo.gooru.core.api.model.Classpage;
@@ -35,6 +34,7 @@ import org.ednovo.gooru.core.api.model.ContentMetaAssociation;
 import org.ednovo.gooru.core.api.model.Quiz;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.User;
+import org.ednovo.gooru.core.api.model.UserCollectionItemAssoc;
 
 public interface CollectionRepository extends BaseRepository {
 
@@ -106,11 +106,13 @@ public interface CollectionRepository extends BaseRepository {
 	
 	List<CollectionItem> findCollectionByResource(String gooruOid, String gooruUid, String type);
 	
-	Long getClasspageCollectionCount(String classpageGooruOid, String type);
+	Long getClasspageCollectionCount(String classpageGooruOid, String status, String userUid);
 	
 	List<CollectionItem> getCollectionItemByAssociation(String resourceGooruOid, String gooruUid);
 	
 	CollectionItem findCollectionItemByGooruOid(String gooruOid, String gooruUid);
+	
+	UserCollectionItemAssoc getUserCollectionItemAssoc(String collectionItemId, String userUid);
 	
 	String getParentCollection(String collectionGooruOid, String gooruUid);
 	
@@ -125,5 +127,7 @@ public interface CollectionRepository extends BaseRepository {
 	List<ContentMetaAssociation> getContentMetaById(String gooruOid, String type);
 	
 	ContentMetaAssociation getContentMetaByValue(String value, String collectionId);
+	
+	List<Object[]> getClasspageItems(String gooruOid, Integer limit, Integer offset, String userUid, String orderBy, boolean skipPagination, String status);
 	
 }

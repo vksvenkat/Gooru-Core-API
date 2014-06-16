@@ -24,11 +24,8 @@
 package org.ednovo.gooru.infrastructure.persistence.hibernate.content;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.api.model.Content;
@@ -275,8 +272,8 @@ public class ContentRepositoryHibernate extends BaseRepositoryHibernate implemen
 
 	@Override
 	public List<Object[]> getUserContentTagList(String gooruUid, Integer limit, Integer offset, Boolean skipPagination) {
-		String sql = "select  count(1) as count, t.label as label  from tags t inner join content c on  (t.content_id = c.content_id) inner join content_tag_assoc ct on (c.gooru_oid= ct.tag_gooru_oid) where associated_uid  =  '"+gooruUid +"' group by ct.tag_gooru_oid";
-		Query query = getSession().createSQLQuery(sql).addScalar("count", StandardBasicTypes.INTEGER).addScalar("label", StandardBasicTypes.STRING);
+		String sql = "select  count(1) as count, t.label as label , ct.tag_gooru_oid as tagGooruOid from tags t inner join content c on  (t.content_id = c.content_id) inner join content_tag_assoc ct on (c.gooru_oid= ct.tag_gooru_oid) where associated_uid  =  '"+gooruUid +"' group by ct.tag_gooru_oid";
+		Query query = getSession().createSQLQuery(sql).addScalar("count", StandardBasicTypes.INTEGER).addScalar("label", StandardBasicTypes.STRING).addScalar("tagGooruOid", StandardBasicTypes.STRING);
 		if (!skipPagination) {
 			query.setFirstResult(offset);
 			query.setMaxResults(limit);
@@ -286,7 +283,7 @@ public class ContentRepositoryHibernate extends BaseRepositoryHibernate implemen
 
 	@Override
 	public Long getUserContentTagCount(String gooruUid) {
-		String  sql = "select count(1) from content_tag_assoc  where associated_uid = '"+gooruUid+"'";
+		String  sql = "select count(*) as count from  (select  count(1) as count, t.label as label  from tags t inner join content c on  (t.content_id = c.content_id) inner join content_tag_assoc ct on (c.gooru_oid= ct.tag_gooru_oid) where associated_uid  =  '"+gooruUid +"' group by ct.tag_gooru_oid) sq";
 		Query query = getSession().createSQLQuery(sql);
 		return ((BigInteger)query.list().get(0)).longValue();
 	}

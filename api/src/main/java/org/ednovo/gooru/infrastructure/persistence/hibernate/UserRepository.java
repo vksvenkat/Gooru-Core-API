@@ -41,6 +41,7 @@ import org.ednovo.gooru.core.api.model.UserGroupAssociation;
 import org.ednovo.gooru.core.api.model.UserRelationship;
 import org.ednovo.gooru.core.api.model.UserRole;
 import org.ednovo.gooru.core.api.model.UserRoleAssoc;
+import org.ednovo.gooru.core.api.model.UserSummary;
 
 public interface UserRepository extends BaseRepository {
 
@@ -72,9 +73,13 @@ public interface UserRepository extends BaseRepository {
 
 	int findAgeCheck(User user);
 
-	List<User> getFollowedByUsers(String gooruUId);
+	List<User> getFollowedByUsers(String gooruUId, Integer offset, Integer limit, boolean skipPagination);
+	
+	long getFollowedByUsersCount(String gooruUId);
 
-	List<User> getFollowedOnUsers(String gooruUId);
+	List<User> getFollowedOnUsers(String gooruUId, Integer offset, Integer limit, boolean skipPagination);
+	
+	long getFollowedOnUsersCount(String gooruUId);
 
 	UserRelationship getActiveUserRelationship(String gooruUserId, String gooruFollowOnUserId);
 
@@ -177,6 +182,8 @@ public interface UserRepository extends BaseRepository {
 	List<Object[]> listChildUserByBirthDay();
 	
 	UserGroupAssociation getUserGroupMemebrByGroupUid(String groupUid, String gooruUid);
+	
+	UserSummary getSummaryByUid(String gooruUid);
 		
 	}
 

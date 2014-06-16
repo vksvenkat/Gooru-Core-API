@@ -35,6 +35,7 @@ import org.ednovo.gooru.core.api.model.ContentMetaAssociation;
 import org.ednovo.gooru.core.api.model.Quiz;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.User;
+import org.ednovo.gooru.core.api.model.UserCollectionItemAssoc;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
@@ -131,6 +132,10 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 				sharing = sharing.replace(",", "','");
 			}
 			hql += " and collectionItems.resource.sharing in ('" + sharing + "') ";
+		}
+		
+		if (filters.containsKey(TYPE) && filters.get(TYPE).equalsIgnoreCase(COLLECTION)) {
+			hql += " and collectionItems.resource.resourceType.name = 'scollection' ";
 		}
 		
 		if (filters.containsKey(ORDER_BY) && filters.get(ORDER_BY).equalsIgnoreCase(TITLE)) {
@@ -672,21 +677,13 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 	}
 	
 	@Override
-	public Long getClasspageCollectionCount(String classpageGooruOid, String type) {
-		
-		Session session = getSession();
-		String hql = "select count(*)  FROM CollectionItem collectionItem where " + generateOrgAuthQuery("collectionItem.collection.");
-		if (classpageGooruOid != null) {
-			hql += " and collectionItem.collection.gooruOid=:classpageGooruOid ";
+	public Long getClasspageCollectionCount(String classpageGooruOid, String status, String userUid) {
+		String sql = "select count(1) as count from collection_item ci inner join resource r on r.content_id = ci.resource_content_id  inner join content c on c.content_id = r.content_id inner join content rc on rc.content_id = ci.collection_content_id left join collection co on co.content_id = r.content_id left join user_collection_item_assoc uc on uc.collection_item_uid = ci.collection_item_id and uc.user_uid = '" + userUid + "' left join custom_table_value ct on ct.custom_table_value_id = uc.status inner join user uu on uu.gooru_uid = c.user_uid  where  c.sharing in ('public', 'anyonewithlink') ";
+		sql += " and rc.gooru_oid='" + classpageGooruOid + "'  ";
+		if (status != null) { 
+			sql += " and IFNULL(ct.value, 'open') = '"+ status+ "' ";
 		}
-		if(type != null && type.equalsIgnoreCase("classpage")) {
-			hql +=	" and collectionItem.resource.sharing in('public','anyonewithlink') " ;
-		}
-		Query query = session.createQuery(hql);
-		if (classpageGooruOid != null) {
-			query.setParameter("classpageGooruOid", classpageGooruOid );
-		}
-		addOrgAuthParameters(query);
+		Query query = getSession().createSQLQuery(sql).addScalar("count", StandardBasicTypes.LONG);
 		return (Long) query.list().get(0);
 	}
 
@@ -909,6 +906,37 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		query.setParameter("gooruOid", gooruOid);
 		query.setParameter("value", value);
 		return (ContentMetaAssociation)(query.list().size() >   0 ?  query.list().get(0) : null);
+	}
+
+	@Override
+	public UserCollectionItemAssoc getUserCollectionItemAssoc(String collectionItemId, String userUid) {
+		String hql = "From UserCollectionItemAssoc ci where ci.collectionItem.collectionItemId =:collectionItemId and ci.user.partyUid =:userUid";
+		Query query = getSession().createQuery(hql);
+		query.setParameter("collectionItemId", collectionItemId);
+		query.setParameter("userUid", userUid);
+		return (UserCollectionItemAssoc)(query.list().size() >   0 ?  query.list().get(0) : null);
+	}
+
+	@Override
+	public List<Object[]> getClasspageItems(String gooruOid, Integer limit, Integer offset, String userUid, String orderBy, boolean skipPagination, String status) {
+		String sql = "select association_date,ci.collection_item_id,item_sequence,narration,planned_end_date,c.gooru_oid,r.title, r.folder, r.thumbnail, c.sharing, co.goals, IFNULL(ct.value, 'open') as status, uu.username, uu.gooru_uid from collection_item ci inner join resource r on r.content_id = ci.resource_content_id  inner join content c on c.content_id = r.content_id inner join content rc on rc.content_id = ci.collection_content_id left join collection co on co.content_id = r.content_id left join user_collection_item_assoc uc on uc.collection_item_uid = ci.collection_item_id and uc.user_uid = '" + userUid + "' left join custom_table_value ct on ct.custom_table_value_id = uc.status inner join user uu on uu.gooru_uid = c.user_uid  where  c.sharing in ('public', 'anyonewithlink') ";
+		sql += " and rc.gooru_oid='" + gooruOid + "'  ";
+		if (status != null) { 
+			sql += " and IFNULL(ct.value, 'open') = '"+ status+ "' ";
+		}
+		if (orderBy != null && orderBy.equals(RECENT)) {
+			sql += " order by ci.association_date asc ";
+		}  else if (orderBy != null &&  orderBy.equals(SEQUENCE_DESC)) { 
+			sql += " order by ci.item_sequence desc ";
+		}  else { 
+			sql += " order by ci.item_sequence asc ";
+		}
+		Query query = getSession().createSQLQuery(sql);
+		if (!skipPagination) {
+			query.setFirstResult(offset);
+			query.setMaxResults(limit);
+		}
+		return query.list();
 	}
 	
 }

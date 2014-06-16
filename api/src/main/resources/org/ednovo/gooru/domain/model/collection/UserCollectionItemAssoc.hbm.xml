@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- CodeOrganizationAssoc.hbm.xml gooru-api Created by Gooru on 2014 Copyright 
+<!-- UserCollectionItemAssoc.hbm.xml gooru-api Created by Gooru on 2014 Copyright 
 	(c) 2014 Gooru. All rights reserved. http://www.goorulearning.org/ Permission 
 	is hereby granted, free of charge, to any person obtaining a copy of this 
 	software and associated documentation files (the "Software"), to deal in 
@@ -20,20 +20,18 @@
     "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
-	<class name="org.ednovo.gooru.core.api.model.CodeOrganizationAssoc"
-		table="code_organization_assoc">
-
+	<class name="org.ednovo.gooru.core.api.model.UserCollectionItemAssoc"
+		table="user_collection_item_assoc">
 		<composite-id>
-			<key-many-to-one column="code_id" name="code"
-				class="org.ednovo.gooru.core.api.model.Code" lazy="proxy" />
-			<key-property column="organization_code" name="organizationCode" />
+			<key-many-to-one column="user_uid" name="user"
+				class="org.ednovo.gooru.core.api.model.User" lazy="proxy" />
+			<key-many-to-one column="collection_item_uid" name="collectionItem"
+				class="org.ednovo.gooru.core.api.model.CollectionItem" lazy="proxy" />
 		</composite-id>
-		<property name="isFeatured" column="is_featured" not-null="false">
-		</property>
-		<property name="sequence" column="sequence" not-null="false" />
-		<property name="ideas" column="ideas" not-null="false" />
-		<property name="questions" column="questions" not-null="false" />
-		<property name="performanceTasks" column="performance_tasks"
+		<many-to-one column="status" name="status"
+			class="org.ednovo.gooru.core.api.model.CustomTableValue" lazy="proxy" />
+		<property name="lastModifiedOn" column="last_modified_on"
 			not-null="false" />
 	</class>
 </hibernate-mapping>
+

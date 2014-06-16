@@ -31,6 +31,7 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.ednovo.gooru.application.util.TaxonomyUtil;
 import org.ednovo.gooru.core.api.model.Code;
+import org.ednovo.gooru.core.api.model.CodeOrganizationAssoc;
 import org.ednovo.gooru.core.api.model.CodeType;
 import org.ednovo.gooru.core.api.model.Organization;
 import org.ednovo.gooru.core.api.model.TaxonomyDTO;
@@ -590,31 +591,33 @@ public class TaxonomyServiceImpl implements TaxonomyService,ParameterProperties 
 	
 	@Override
 	public Map<String, List<Code>> findCodeByParentCodeId(String parentCode, boolean groupByCode, String creatorUid, String fetchType, String organizationCode) {
-		List<Code> codes = this.getTaxonomyRepository().findCodeByParentCodeId(parentCode, creatorUid, null, null, true, fetchType, organizationCode, null, null);
+		List<CodeOrganizationAssoc> codes = this.getTaxonomyRepository().findCodeByParentCodeId(parentCode, creatorUid, null, null, true, fetchType, organizationCode, null, null);
 		Map<String, List<Code>> codeBygroup = new HashMap<String, List<Code>>();
+		List<Code> codeList =  new ArrayList<Code>();
 		if (groupByCode && codes.size() > 0) {
 			List<Code> elementList = new ArrayList<Code>();
 			List<Code> middleList = new ArrayList<Code>();
 			List<Code> highList = new ArrayList<Code>();
 			List<Code> otherList = new ArrayList<Code>();
-			for (Code code : codes) {
-				if (code.getGrade() != null && ELEMETRY.contains(code.getGrade().toString())) {
-					elementList.add(code);
-				} else if (code.getGrade() != null && MIDDLE.contains(code.getGrade().toString())) {
-					middleList.add(code);
-				} else if (code.getGrade() != null && HIGH.contains(code.getGrade().toString())) {
-					highList.add(code);
+			for (CodeOrganizationAssoc codeOrganizationAssoc : codes) {
+				if (codeOrganizationAssoc.getCode().getGrade() != null && ELEMETRY.contains(codeOrganizationAssoc.getCode().getGrade().toString())) {
+					elementList.add(codeOrganizationAssoc.getCode());
+				} else if (codeOrganizationAssoc.getCode().getGrade() != null && MIDDLE.contains(codeOrganizationAssoc.getCode().getGrade().toString())) {
+					middleList.add(codeOrganizationAssoc.getCode());
+				} else if (codeOrganizationAssoc.getCode().getGrade() != null && HIGH.contains(codeOrganizationAssoc.getCode().getGrade().toString())) {
+					highList.add(codeOrganizationAssoc.getCode());
 				} else {
-					otherList.add(code);
+					otherList.add(codeOrganizationAssoc.getCode());
 				}
 				codeBygroup.put(ELEMENTARY_SCHOOL, elementList);
 				codeBygroup.put(MIDDLE__SCHOOL, middleList);
 				codeBygroup.put(HIGH__SCHOOL, highList);
 				codeBygroup.put(_OTHER, otherList);
+				codeList.add(codeOrganizationAssoc.getCode());
 			}
 			return codeBygroup;
 		}
-		codeBygroup.put(TAXONOMY_CODES, codes);
+		codeBygroup.put(TAXONOMY_CODES, codeList);
 		return codeBygroup;
 	}
 	

@@ -23,33 +23,41 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.domain.service.tag;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.annotation.Resource;
 
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
+import org.ednovo.gooru.core.api.model.ContentProviderAssociation;
 import org.ednovo.gooru.core.api.model.ContentTagAssoc;
 import org.ednovo.gooru.core.api.model.ContentType;
 import org.ednovo.gooru.core.api.model.CustomTableValue;
 import org.ednovo.gooru.core.api.model.Sharing;
+import org.ednovo.gooru.core.api.model.StorageArea;
 import org.ednovo.gooru.core.api.model.Tag;
 import org.ednovo.gooru.core.api.model.TagSynonyms;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserTagAssoc;
 import org.ednovo.gooru.core.application.util.CustomProperties;
+import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.domain.cassandra.service.BlackListWordCassandraService;
 import org.ednovo.gooru.domain.service.BaseServiceImpl;
 import org.ednovo.gooru.domain.service.CollectionService;
+import org.ednovo.gooru.domain.service.FeedbackService;
 import org.ednovo.gooru.domain.service.user.UserService;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.PostRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.resource.ResourceRepository;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.storage.StorageRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.tag.TagRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -59,7 +67,7 @@ import org.springframework.validation.Errors;
 
 
 @Service
-public class TagServiceImpl extends BaseServiceImpl implements TagService, ParameterProperties {
+public class TagServiceImpl extends BaseServiceImpl implements TagService, ParameterProperties,ConstantProperties {
 
 	@Autowired
 	private ContentRepository contentRepository;
@@ -81,6 +89,12 @@ public class TagServiceImpl extends BaseServiceImpl implements TagService, Param
 
 	@Autowired
 	private BlackListWordCassandraService blackListWordCassandraService;
+	
+	@Autowired
+	private StorageRepository storageRepository;
+	
+	@Autowired
+	private FeedbackService feedbackService;
 
 	@Autowired
 	@Resource(name = "userService")
@@ -189,6 +203,56 @@ public class TagServiceImpl extends BaseServiceImpl implements TagService, Param
 	@Override
 	public List<ContentTagAssoc> getTagContentAssoc(String tagGooruOid, Integer limit, Integer offset, boolean skipPagination) {
 		return this.getTagRepository().getTagContentAssoc(tagGooruOid, limit, offset, skipPagination);
+	}
+	
+	@Override
+	public Map<String, Object> getResourceByLabel(String label, Integer limit, Integer offset, boolean skipPagination, User user) {
+		StorageArea storageArea = this.getStorageRepository().getStorageAreaByTypeName(NFS);
+		List<Object[]> results = this.getTagRepository().getResourceByLabel(label, limit, offset, skipPagination, user.getPartyUid());
+		Map<String, Object> content = new HashMap<String, Object>();
+		List<Map<String, Object>> resource = new ArrayList<Map<String,Object>>();
+		for (Object[] object : results) {
+			Map<String, Object> result = new HashMap<String, Object>();
+			result.put(TITLE, object[0]);
+			result.put(GOORU_OID, object[1]);
+			result.put(TYPE, object[2]);
+			Map<String, Object> thumbnails = new HashMap<String, Object>();
+			if (object[4] != null) {
+				thumbnails.put(URL, storageArea.getCdnDirectPath() + String.valueOf(object[3]) + String.valueOf(object[4]));
+			} else {
+				thumbnails.put(URL, "");
+			}
+			result.put(THUMBNAILS, thumbnails);
+			if (object[5] != null) {
+				Map<String, Object> resourceFormat = new HashMap<String, Object>();
+				resourceFormat.put(VALUE, object[5]);
+				resourceFormat.put(DISPLAY_NAME, object[6]);
+				result.put(RESOURCEFORMAT, resourceFormat);
+			}
+			
+			List<ContentProviderAssociation> contentProviderAssociations = this.getContentRepository().getContentProviderByGooruOid(String.valueOf(object[1]));
+ 			if (contentProviderAssociations != null) {
+ 				List<String> aggregator = new ArrayList<String>();
+ 				List<String> publisher = new ArrayList<String>();
+ 				for (ContentProviderAssociation contentProviderAssociation : contentProviderAssociations) {
+ 					if (contentProviderAssociation.getContentProvider() != null && contentProviderAssociation.getContentProvider().getContentProviderType() != null
+ 							&& contentProviderAssociation.getContentProvider().getContentProviderType().getValue().equalsIgnoreCase(CustomProperties.ContentProviderType.PUBLISHER.getContentProviderType())) {
+ 						publisher.add(contentProviderAssociation.getContentProvider().getContentProviderName());
+ 					} else if (contentProviderAssociation.getContentProvider() != null && contentProviderAssociation.getContentProvider().getContentProviderType() != null
+ 							&& contentProviderAssociation.getContentProvider().getContentProviderType().getValue().equalsIgnoreCase(CustomProperties.ContentProviderType.AGGREGATOR.getContentProviderType())) {
+ 						aggregator.add(contentProviderAssociation.getContentProvider().getContentProviderName());
+ 					}
+ 				}
+ 				result.put("publisher", publisher);
+ 				result.put("aggregator", aggregator);
+ 			}
+			result.put("views", object[7]);
+			result.put(RATINGS, this.getFeedbackService().getContentFeedbackStarRating(String.valueOf(object[0])));
+			resource.add(result);
+		}
+		content.put("searchResult",resource);
+		content.put("totalHitCount",this.getTagRepository().getResourceByLabelCount(label, user.getPartyUid()));
+		return content;
 	}
 
 	@Override
@@ -337,6 +401,22 @@ public class TagServiceImpl extends BaseServiceImpl implements TagService, Param
 
 	public CustomTableRepository getCustomTableRepository() {
 		return customTableRepository;
+	}
+
+	public void setStorageRepository(StorageRepository storageRepository) {
+		this.storageRepository = storageRepository;
+	}
+
+	public StorageRepository getStorageRepository() {
+		return storageRepository;
+	}
+
+	public void setFeedbackService(FeedbackService feedbackService) {
+		this.feedbackService = feedbackService;
+	}
+
+	public FeedbackService getFeedbackService() {
+		return feedbackService;
 	}
 
 }

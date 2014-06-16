@@ -4,8 +4,6 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.Set;
 
-import org.ednovo.gooru.core.api.model.User;
-
 
 
 public class AssessmentAttempt implements Serializable {

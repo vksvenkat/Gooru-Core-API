@@ -33,7 +33,6 @@ import org.ednovo.gooru.cassandra.core.dao.EntityCassandraColumnFamily;
 import org.ednovo.gooru.cassandra.core.dao.EntityCassandraDaoImpl;
 import org.ednovo.gooru.cassandra.core.dao.RawCassandraDaoImpl;
 import org.ednovo.gooru.cassandra.core.factory.SearchCassandraFactory;
-import org.ednovo.gooru.core.cassandra.model.ReverseIndexColumnSetting;
 import org.ednovo.gooru.cassandra.core.service.CassandraSettingService;
 import org.ednovo.gooru.core.api.model.RevisionHistory;
 import org.ednovo.gooru.core.cassandra.model.ContentProviderCio;
