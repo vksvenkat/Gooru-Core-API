@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.ednovo.gooru.core.api.model.Code;
+import org.ednovo.gooru.core.api.model.CodeOrganizationAssoc;
 import org.ednovo.gooru.core.api.model.CodeType;
 import org.ednovo.gooru.core.api.model.CodeUserAssoc;
 import org.ednovo.gooru.core.api.model.User;
@@ -114,7 +115,7 @@ public interface TaxonomyRespository extends BaseRepository{
 	
 	Code findTaxonomyCodeById(Integer codeId);
 	
-	List<Code> findCodeByParentCodeId(String code, String creatorUid, Integer limit, Integer offset,Boolean skipPagination, String fetchType, String organizationCode, String rootNode, String depth);
+	List<CodeOrganizationAssoc> findCodeByParentCodeId(String code, String creatorUid, Integer limit, Integer offset,Boolean skipPagination, String fetchType, String organizationCode, String rootNode, String depth);
 	
 	List<User> getFeaturedUser(String organizationCode);
 	

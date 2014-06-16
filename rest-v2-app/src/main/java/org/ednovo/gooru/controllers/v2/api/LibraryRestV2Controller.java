@@ -94,7 +94,10 @@ public class LibraryRestV2Controller extends BaseController implements ConstantP
 		}
 		if (data == null) {
 			library = this.getFeaturedService().getLibraryItem(type, libraryName);
-			data = serialize(library, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, false, true, LIBRARY_CODE_INCLUDES);
+			String includes[] = (String[]) ArrayUtils.addAll(LIBRARY_RESOURCE_INCLUDE_FIELDS, LIBRARY_COLLECTION_INCLUDE_FIELDS);
+			includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_ITEM_INCLUDE_FILEDS);
+			includes = (String[]) ArrayUtils.addAll(includes, LIBRARY_CODE_INCLUDES);
+			data = serialize(library, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, false, true, includes);
 			getRedisService().putValue(cacheKey, data);
 		}
 		return toModelAndView(data);
@@ -113,7 +116,10 @@ public class LibraryRestV2Controller extends BaseController implements ConstantP
 		}
 		if (data == null) {
 			library = this.getFeaturedService().getLibraryItems(itemType, type, id, libraryName, rootNodeId, limit, offset);
-			data = serialize(library, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, false, true, LIBRARY_CODE_INCLUDES);
+			String includes[] = (String[]) ArrayUtils.addAll(LIBRARY_RESOURCE_INCLUDE_FIELDS, LIBRARY_COLLECTION_INCLUDE_FIELDS);
+			includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_ITEM_INCLUDE_FILEDS);
+			includes = (String[]) ArrayUtils.addAll(includes, LIBRARY_CODE_INCLUDES);
+			data = serialize(library, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, false, true, includes);
 			getRedisService().putValue(cacheKey, data);
 		}
 		return toModelAndView(data);
