@@ -273,20 +273,20 @@ public class Collection extends Resource implements Versionable {
 		return instructionalMethod;
 	}
 
-	public Integer getItemCount() {
-		return this.getCollectionItems() == null ? 0 : this.getCollectionItems().size();
-	}
-
-	public void setItemCount(Integer itemCount) {
-		this.itemCount = this.getCollectionItems() == null ? 0 : this.getCollectionItems().size();
-	}
-
 	public CustomTableValue getPublishStatus() {
 		return publishStatus;
 	}
 
 	public void setPublishStatus(CustomTableValue publishStatus) {
 		this.publishStatus = publishStatus;
+	}
+
+	public Integer getItemCount() {
+		return itemCount;
+	}
+
+	public void setItemCount(Integer itemCount) {
+		this.itemCount = itemCount;
 	}
 
 }

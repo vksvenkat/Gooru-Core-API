@@ -492,7 +492,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		Collection collection = this.getCollectionRepository().getCollectionByGooruOid(collectionId, null);
 		rejectIfNull(collection, GL0056, 404, generateErrorMessage(GL0056, COLLECTION));
 		List<CollectionItem> collectionItems = new ArrayList<CollectionItem>();
-		int sequence = collection.getCollectionItems() != null ? collection.getCollectionItems().size() + 1 : 1;
+		int sequence = classpage.getCollectionItems() != null ? classpage.getCollectionItems().size() + 1 : 1;
 		if (collection.getCollectionType().equalsIgnoreCase(FOLDER)) { 
 			Map<String, String> filters = new HashMap<String, String>();
 			filters.put(SHARING, "public,anyonewithlink");
@@ -516,6 +516,8 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		collectionItem.setAssociatedUser(user);
 		collectionItem.setAssociationDate(new Date(System.currentTimeMillis()));
 		collectionItem.setItemSequence(sequence);
+		classPage.setItemCount(sequence);
+		this.getResourceRepository().save(classPage);
 		this.getResourceRepository().save(collectionItem);
 		SessionContextSupport.putLogParameter(EVENT_NAME, CLASSPAGE_CREATE_COLLECTION_TASK_ITEM);
 		SessionContextSupport.putLogParameter(COLLECTION_ITEM_ID, collectionItem.getCollectionItemId());
