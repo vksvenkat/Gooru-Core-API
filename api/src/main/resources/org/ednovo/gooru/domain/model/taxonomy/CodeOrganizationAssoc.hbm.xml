@@ -31,9 +31,5 @@
 		<property name="isFeatured" column="is_featured" not-null="false">
 		</property>
 		<property name="sequence" column="sequence" not-null="false" />
-		<property name="ideas" column="ideas" not-null="false" />
-		<property name="questions" column="questions" not-null="false" />
-		<property name="performanceTasks" column="performance_tasks"
-			not-null="false" />
 	</class>
 </hibernate-mapping>
