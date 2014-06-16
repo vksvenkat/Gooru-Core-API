@@ -786,7 +786,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 			collectionItem.getCollection().setLastUpdatedUserUid(user.getPartyUid());
 			collectionItem.getCollection().setLastModified(new Date(System.currentTimeMillis()));
-
+			collectionItem.getCollection().setItemCount(collectionItem.getCollection().getItemCount() != null && collectionItem.getCollection().getItemCount() == 0 ? 0  : collectionItem.getCollection().getItemCount() - 1);
 			reOrderCollectionItems(collection, collectionItemId);
 			try {
 				if (collectionItem.getResource().getResourceType() != null && collectionItem.getResource().getResourceType().getName().equalsIgnoreCase(ResourceType.Type.SCOLLECTION.getType())) {
