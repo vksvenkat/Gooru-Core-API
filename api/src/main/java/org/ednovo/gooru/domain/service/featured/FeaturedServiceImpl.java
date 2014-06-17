@@ -176,14 +176,14 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 				for (CodeOrganizationAssoc codeOrganizationAssocNode : nodes) {
 					List<CodeOrganizationAssoc> courses = this.getTaxonomyRespository().findCodeByParentCodeId(String.valueOf(codeOrganizationAssocNode.getCode().getCodeId()), null, null, null, true, LIBRARY, getOrganizationCode(libraryName), String.valueOf(codeOrganizationAssocNode.getCode().getRootNodeId()), null);
 					for (CodeOrganizationAssoc course : courses) {
-						node.add(getCode(course, null, NODE));
+						node.add(getCode(course, null, NODE,libraryName));
 					}
 				}
-				codeMap.add(getCode(codeOrganizationAssoc, node, NODE));
+				codeMap.add(getCode(codeOrganizationAssoc, node, NODE,libraryName));
 			}
 		} else {
 			for (CodeOrganizationAssoc code : codes) {
-				codeMap.add(getCode(code, null, NODE));
+				codeMap.add(getCode(code, null, NODE,libraryName));
 			}
 		}
 		return codeMap;
@@ -405,7 +405,7 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 	}
 
 	private Map<String, Object> getCode(CodeOrganizationAssoc codeOrganizationAssoc, List<Map<String, Object>> childern, String type, Integer count, String organizationCode, List<Map<String, Object>> concept, List<Map<String, Object>> collectionChildern, String collectionType) {
-		Map<String, Object> codeMap = getCode(codeOrganizationAssoc, childern, type);
+		Map<String, Object> codeMap = getCode(codeOrganizationAssoc, childern, type, null);
 		if (concept != null) {
 			codeMap.put(CONCEPT, concept);
 		}
@@ -422,7 +422,7 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 
 	}
 
-	private Map<String, Object> getCode(CodeOrganizationAssoc codeOrganizationAssoc, List<Map<String, Object>> childern, String type) {
+	private Map<String, Object> getCode(CodeOrganizationAssoc codeOrganizationAssoc, List<Map<String, Object>> childern, String type, String libraryName) {
 		Map<String, Object> codeMap = new HashMap<String, Object>();
 		codeMap.put(CODE, codeOrganizationAssoc.getCode().getCommonCoreDotNotation() == null ? codeOrganizationAssoc.getCode().getdisplayCode() : codeOrganizationAssoc.getCode().getCommonCoreDotNotation());
 		codeMap.put(CODE_ID, codeOrganizationAssoc.getCode().getCodeId());
@@ -431,12 +431,8 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 		codeMap.put(PARENT_ID, codeOrganizationAssoc.getCode().getParent() != null ? codeOrganizationAssoc.getCode().getParent().getCodeId() : null);
 		codeMap.put(THUMBNAILS, codeOrganizationAssoc.getCode().getThumbnails());
 		codeMap.put(GRADE, codeOrganizationAssoc.getCode().getGrade());
-		if (codeOrganizationAssoc.getIdeas() != null || codeOrganizationAssoc.getPerformanceTasks() != null ||  codeOrganizationAssoc.getQuestions() != null) { 
-			Map<String, String> meta = new HashMap<String, String>();
-			meta.put("ideas", codeOrganizationAssoc.getIdeas());
-			meta.put("performanceTasks", codeOrganizationAssoc.getPerformanceTasks());
-			meta.put("questions", codeOrganizationAssoc.getQuestions());
-			codeMap.put(META, meta);
+		if(libraryName != null) {
+			codeMap.put(USER, getUser(this.getTaxonomyRespository().getUserCodeAssoc(codeOrganizationAssoc.getCode().getCodeId(), getOrganizationCode(libraryName))));
 		}
 		codeMap.put(type, childern);
 		return codeMap;
