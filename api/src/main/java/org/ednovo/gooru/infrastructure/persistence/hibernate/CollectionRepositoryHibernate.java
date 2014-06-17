@@ -928,7 +928,10 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 			sql += " order by ci.association_date asc ";
 		}  else if (orderBy != null &&  orderBy.equals(SEQUENCE_DESC)) { 
 			sql += " order by ci.item_sequence desc ";
-		}  else { 
+		}  else  if (orderBy != null &&  orderBy.equals(DUE_DATE)) { 
+			sql += "order by IFNULL(ci.planned_end_date, (SUBSTRING(now(), 1, 4) + 1000)) asc ";
+			
+		} else { 
 			sql += " order by ci.item_sequence asc ";
 		}
 		Query query = getSession().createSQLQuery(sql);
