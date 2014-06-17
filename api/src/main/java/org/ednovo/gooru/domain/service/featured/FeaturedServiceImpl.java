@@ -431,13 +431,6 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 		codeMap.put(PARENT_ID, codeOrganizationAssoc.getCode().getParent() != null ? codeOrganizationAssoc.getCode().getParent().getCodeId() : null);
 		codeMap.put(THUMBNAILS, codeOrganizationAssoc.getCode().getThumbnails());
 		codeMap.put(GRADE, codeOrganizationAssoc.getCode().getGrade());
-		if (codeOrganizationAssoc.getIdeas() != null || codeOrganizationAssoc.getPerformanceTasks() != null ||  codeOrganizationAssoc.getQuestions() != null) { 
-			Map<String, String> meta = new HashMap<String, String>();
-			meta.put("ideas", codeOrganizationAssoc.getIdeas());
-			meta.put("performanceTasks", codeOrganizationAssoc.getPerformanceTasks());
-			meta.put("questions", codeOrganizationAssoc.getQuestions());
-			codeMap.put(META, meta);
-		}
 		codeMap.put(type, childern);
 		return codeMap;
 	}
