@@ -266,9 +266,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			} catch (Exception e) {
 				logger.debug(e.getMessage());
 			}
-			if (collection != null && collection.getCollectionType().equalsIgnoreCase(COLLECTION) || collection.getCollectionType().equalsIgnoreCase(FOLDER)) {
-				this.redisService.bulkKeyDelete("v2-organize-data-" + collection.getUser().getPartyUid() + "*");
-			}
+			this.redisService.bulkKeyDelete("v2-organize-data-" + collection.getUser().getPartyUid() + "*");
 		}
 
 		return new ActionResponseDTO<Collection>(collection, errors);
@@ -364,10 +362,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			getAsyncExecutor().createVersion(collection, SCOLLECTION_CREATE, user.getPartyUid());
 
 			getEventLogs(collection, user);
-
-			if (collection != null && collection.getCollectionType().equalsIgnoreCase(COLLECTION) || collection.getCollectionType().equalsIgnoreCase(FOLDER)) {
-				this.redisService.bulkKeyDelete("v2-organize-data-" + collection.getUser().getPartyUid() + "*");
-			}
+			this.redisService.bulkKeyDelete("v2-organize-data-" + collection.getUser().getPartyUid() + "*");
 
 		}
 		return new ActionResponseDTO<Collection>(collection, errors);
@@ -576,10 +571,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				logger.debug(e.getMessage());
 			}
 		}
-
-		if (collection != null && collection.getCollectionType().equalsIgnoreCase(COLLECTION) || collection.getCollectionType().equalsIgnoreCase(FOLDER)) {
-			this.redisService.bulkKeyDelete("v2-organize-data-" + collection.getUser().getPartyUid() + "*");
-		}
+		this.redisService.bulkKeyDelete("v2-organize-data-" + collection.getUser().getPartyUid() + "*");
 		return new ActionResponseDTO<Collection>(collection, errors);
 	}
 
@@ -691,11 +683,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			for (String parentFolder : parenFolders) {
 				updateFolderSharing(parentFolder);
 			}
-			if (collectionItem != null
-					&& (collectionItem.getCollection() != null && (collectionItem.getCollection().getCollectionType().equalsIgnoreCase(COLLECTION) || collectionItem.getCollection().getCollectionType().equalsIgnoreCase(MY_SHELF) || collectionItem.getCollection().getCollectionType()
-							.equalsIgnoreCase(FOLDER)))) {
-				this.redisService.bulkKeyDelete("v2-organize-data-" + user.getPartyUid() + "*");
-			}
+			this.redisService.bulkKeyDelete("v2-organize-data-" + user.getPartyUid() + "*");
 		}
 
 		return new ActionResponseDTO<CollectionItem>(collectionItem, errors);
@@ -773,11 +761,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 					indexProcessor.index(collectionItem.getResource().getGooruOid(), IndexProcessor.INDEX, RESOURCE);
 				}
 				indexProcessor.index(collectionItem.getCollection().getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
-				if (collectionItem != null
-						&& (collectionItem.getCollection() != null && (collectionItem.getCollection().getCollectionType().equalsIgnoreCase(COLLECTION) || collectionItem.getCollection().getCollectionType().equalsIgnoreCase(MY_SHELF) || collectionItem.getCollection().getCollectionType()
-								.equalsIgnoreCase(FOLDER)))) {
-					this.redisService.bulkKeyDelete("v2-organize-data-" + collectionItem.getCollection().getUser().getPartyUid() + "*");
-				}
+				this.redisService.bulkKeyDelete("v2-organize-data-" + collectionItem.getCollection().getUser().getPartyUid() + "*");
 			} catch (Exception e) {
 				logger.debug(e.getMessage());
 			}
@@ -1257,11 +1241,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		} catch (Exception e) {
 			logger.debug(e.getMessage());
 		}
-
-		if (collection != null && (collection != null && (collection.getCollectionType().equalsIgnoreCase(COLLECTION) || collection.getCollectionType().equalsIgnoreCase(MY_SHELF) || collection.getCollectionType().equalsIgnoreCase(FOLDER)))) {
-			this.redisService.bulkKeyDelete("v2-organize-data-" + collection.getUser().getPartyUid() + "*");
-		}
-
+		this.redisService.bulkKeyDelete("v2-organize-data-" + collection.getUser().getPartyUid() + "*");
 		return collection;
 	}
 
@@ -1316,12 +1296,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		if (collectionItem != null
-				&& (collectionItem.getCollection() != null && (collectionItem.getCollection().getCollectionType().equalsIgnoreCase(COLLECTION) || collectionItem.getCollection().getCollectionType().equalsIgnoreCase(MY_SHELF) || collectionItem.getCollection().getCollectionType()
-						.equalsIgnoreCase(FOLDER)))) {
-			this.redisService.bulkKeyDelete("v2-organize-data-" + collectionItem.getCollection().getUser().getPartyUid() + "*");
-		}
-
+		this.redisService.bulkKeyDelete("v2-organize-data-" + collectionItem.getCollection().getUser().getPartyUid() + "*");
 		return collectionItem;
 	}
 
@@ -1698,9 +1673,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			} catch (Exception e) {
 				logger.debug(e.getMessage());
 			}
-			if (collection != null && (collection != null && (collection.getCollectionType().equalsIgnoreCase(COLLECTION) || collection.getCollectionType().equalsIgnoreCase(MY_SHELF) || collection.getCollectionType().equalsIgnoreCase(FOLDER)))) {
-				this.redisService.bulkKeyDelete("v2-organize-data-" + collection.getUser().getPartyUid() + "*");
-			}
+			this.redisService.bulkKeyDelete("v2-organize-data-" + collection.getUser().getPartyUid() + "*");
 		}
 		return new ActionResponseDTO<Collection>(collection, errors);
 	}
@@ -1811,9 +1784,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			}
 		}
 		this.getCollectionRepository().save(destCollection);
-		if (destCollection != null && (destCollection != null && (destCollection.getCollectionType().equalsIgnoreCase(COLLECTION) || destCollection.getCollectionType().equalsIgnoreCase(MY_SHELF) || destCollection.getCollectionType().equalsIgnoreCase(FOLDER)))) {
-			this.redisService.bulkKeyDelete("v2-organize-data-" + destCollection.getUser().getPartyUid() + "*");
-		}
+		this.redisService.bulkKeyDelete("v2-organize-data-" + destCollection.getUser().getPartyUid() + "*");
 		return destCollection;
 	}
 
@@ -1934,12 +1905,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			} else {
 				throw new NotFoundException("collection does not exist in the system, required collection to map the resource");
 			}
-			if (response.getModel() != null
-					&& (response.getModel().getCollection() != null && (response.getModel().getCollection().getCollectionType().equalsIgnoreCase(COLLECTION) || response.getModel().getCollection().getCollectionType().equalsIgnoreCase(MY_SHELF) || response.getModel().getCollection()
-							.getCollectionType().equalsIgnoreCase(FOLDER)))) {
-				this.redisService.bulkKeyDelete("v2-organize-data-" + response.getModel().getCollection().getUser().getPartyUid() + "*");
-			}
-
+			this.redisService.bulkKeyDelete("v2-organize-data-" + response.getModel().getCollection().getUser().getPartyUid() + "*");
 		}
 		return response;
 	}
@@ -2025,11 +1991,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			} else {
 				throw new NotFoundException("Resource Not Found");
 			}
-			if (collectionItem != null
-					&& (collectionItem.getCollection() != null && (collectionItem.getCollection().getCollectionType().equalsIgnoreCase(COLLECTION) || collectionItem.getCollection().getCollectionType().equalsIgnoreCase(MY_SHELF) || collectionItem.getCollection().getCollectionType()
-							.equalsIgnoreCase(FOLDER)))) {
 				this.redisService.bulkKeyDelete("v2-organize-data-" + collectionItem.getCollection().getUser().getPartyUid() + "*");
-			}
 		}
 		return new ActionResponseDTO<CollectionItem>(collectionItem, errors);
 	}
@@ -2051,6 +2013,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		SessionContextSupport.putLogParameter(COLLECTION_ID, collection.getGooruOid());
 		SessionContextSupport.putLogParameter(RESOURCE_ID, resource.getGooruOid());
 		SessionContextSupport.putLogParameter(COLLECTION_TYPE, collectionItem.getCollection().getCollectionType());
+		this.redisService.bulkKeyDelete("v2-organize-data-" + collectionItem.getCollection().getUser().getPartyUid() + "*");
 		return new ActionResponseDTO<CollectionItem>(collectionItem, errors);
 	}
 
