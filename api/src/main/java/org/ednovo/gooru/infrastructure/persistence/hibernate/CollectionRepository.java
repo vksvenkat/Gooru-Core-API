@@ -96,11 +96,11 @@ public interface CollectionRepository extends BaseRepository {
 
 	Long getMyClasspageCount(String gooruUid);
 	
-	List<Object[]> getMyFolder(String gooruUid, Integer limit, Integer offset, String sharing, String collectionType);
+	List<Object[]> getMyFolder(String gooruUid, Integer limit, Integer offset, String sharing, String collectionType, boolean fetchChildItem);
 	
 	Long getMyShelfCount(String gooruUid, String sharing, String collectionType);
 	
-	List<Object[]> getCollectionItem(String gooruOid, Integer limit, Integer offset, boolean SkipPagination, String sharing, String orderBy, String collectionType);
+	List<Object[]> getCollectionItem(String gooruOid, Integer limit, Integer offset, boolean SkipPagination, String sharing, String orderBy, String collectionType,boolean fetchChildItem);
 	
 	Long getCollectionItemCount(String gooruOid, String sharing, String collectionType );
 	
@@ -129,5 +129,7 @@ public interface CollectionRepository extends BaseRepository {
 	ContentMetaAssociation getContentMetaByValue(String value, String collectionId);
 	
 	List<Object[]> getClasspageItems(String gooruOid, Integer limit, Integer offset, String userUid, String orderBy, boolean skipPagination, String status);
+	
+	List<Collection> getCollectionsList(User user,Integer limit, Integer offset,boolean skipPagination);
 	
 }
