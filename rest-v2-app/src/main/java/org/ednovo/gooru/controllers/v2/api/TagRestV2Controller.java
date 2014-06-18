@@ -157,7 +157,7 @@ public class TagRestV2Controller extends BaseController implements ParameterProp
 	@RequestMapping(method = RequestMethod.GET, value = "/{id}/resource")
 	public ModelAndView getResourceByLabel(@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, 
 			@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, @PathVariable(ID) String label, 
-			@RequestParam(value = SKIP_PAGINATION, required = false, defaultValue = TRUE) boolean skipPagination ,HttpServletRequest request,
+			@RequestParam(value = SKIP_PAGINATION, required = false, defaultValue = FALSE) boolean skipPagination ,HttpServletRequest request,
 			HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
 		request.setAttribute(PREDICATE, "tag.read");
