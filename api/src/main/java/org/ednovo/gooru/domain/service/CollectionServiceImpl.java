@@ -28,8 +28,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
 
 import org.apache.commons.lang.StringUtils;
 import org.ednovo.gooru.application.util.ResourceImageUtil;
@@ -233,7 +231,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	@Override
 	public List<Map<String, Object>> getMyShelf(String gooruUid, Integer limit, Integer offset, String sharing, String collectionType, Integer itemLimit, boolean fetchChildItem, String topLevelCollectionType) {
 		StorageArea storageArea = this.getStorageRepository().getStorageAreaByTypeName(NFS);
-		List<Object[]> result = this.getCollectionRepository().getMyFolder(gooruUid, limit, offset, sharing,  topLevelCollectionType != null  ? topLevelCollectionType : collectionType);
+		List<Object[]> result = this.getCollectionRepository().getMyFolder(gooruUid, limit, offset, sharing,  topLevelCollectionType != null  ? topLevelCollectionType : collectionType, fetchChildItem);
 		List<Map<String, Object>> folderList = new ArrayList<Map<String, Object>>();
 		int count = 0;
 		if (result != null && result.size() > 0) {
@@ -295,7 +293,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	public List<Map<String, Object>> getFolderItem(String gooruOid, String sharing, String type, String collectionType, Integer itemLimit, boolean fetchChildItem) {
 		StorageArea storageArea = this.getStorageRepository().getStorageAreaByTypeName(NFS);
 		List<Map<String, Object>> items = new ArrayList<Map<String, Object>>();
-		List<Object[]> result = this.getCollectionRepository().getCollectionItem(gooruOid, type.equalsIgnoreCase(SCOLLECTION) ? 4 : itemLimit, 0, false, sharing, type.equalsIgnoreCase(SCOLLECTION) ? SEQUENCE : null, collectionType);
+		List<Object[]> result = this.getCollectionRepository().getCollectionItem(gooruOid, type.equalsIgnoreCase(SCOLLECTION) ? 4 : itemLimit, 0, false, sharing, type.equalsIgnoreCase(SCOLLECTION) ? SEQUENCE : null, collectionType,fetchChildItem);
 		if (result != null && result.size() > 0) {
 			
 			for (Object[] object : result) {
@@ -384,7 +382,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	public List<Map<String, Object>> getFolderItems(String gooruOid, Integer limit, Integer offset, String sharing, String collectionType, String orderBy, Integer itemLimit, boolean fetchChildItem) {
 		StorageArea storageArea = this.getStorageRepository().getStorageAreaByTypeName(NFS);
 		List<Map<String, Object>> items = new ArrayList<Map<String, Object>>();
-		List<Object[]> result = this.getCollectionRepository().getCollectionItem(gooruOid, limit, offset, false, sharing, orderBy, collectionType);
+		List<Object[]> result = this.getCollectionRepository().getCollectionItem(gooruOid, limit, offset, false, sharing, orderBy, collectionType, fetchChildItem);
 		if (result != null && result.size() > 0) {
 			for (Object[] object : result) {
 				Map<String, Object> item = new HashMap<String, Object>();

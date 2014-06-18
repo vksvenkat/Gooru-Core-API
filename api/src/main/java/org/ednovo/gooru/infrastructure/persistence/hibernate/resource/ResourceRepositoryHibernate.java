@@ -981,17 +981,6 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 	}
 
 	 @Override
-	 public List<String> getResourceSourceAttribution() {
-            String sql = "select attribution from resource_source r, ( select r.resource_source_id from resource r inner join resource_source rs on rs.resource_source_id = r.resource_source_id group by r.resource_source_id order by count(content_id) desc limit 200) t where t.resource_source_id = r.resource_source_id ";
-            Session session = getSessionFactory().getCurrentSession();
-            Query query = session.createSQLQuery(sql);
-            query.setFirstResult(0);
-            query.setMaxResults(200);
-            List<String> resourceSourceAttributionList = (List<String>) query.list();
-            return (resourceSourceAttributionList != null && resourceSourceAttributionList.size() > 0 ) ? resourceSourceAttributionList : null;
-	 }
-
-	 @Override
 	 public List<ContentProvider> getResourceContentProvierList() {
 			String hql = "From ContentProvider where activeFlag=1";
 			Query query = getSession().createQuery(hql);
