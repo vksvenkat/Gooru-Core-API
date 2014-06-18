@@ -55,6 +55,7 @@ import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserGroupSupport;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.domain.service.CollectionService;
 import org.ednovo.gooru.domain.service.rating.RatingService;
 import org.ednovo.gooru.domain.service.redis.RedisService;
 import org.ednovo.gooru.domain.service.search.SearchResult;
@@ -123,6 +124,9 @@ public class CollectionUtil implements ParameterProperties {
 
 	@Autowired
 	private OperationAuthorizer operationAuthorizer;
+	
+	@Autowired
+	private CollectionService collectionService;
 
 
 	private final static Logger logger = LoggerFactory.getLogger(CollectionUtil.class);
@@ -648,13 +652,20 @@ public class CollectionUtil implements ParameterProperties {
 			e.printStackTrace();
 		}
 	}
-
-	public void setRedisService(RedisService redisService) {
-		this.redisService = redisService;
+	
+	public  void clearResourceCache(String gooruOid) { 
+		List<Collection> collections = this.getCollectionService().getResourceMoreInfo(gooruOid);
+		for (Collection collection : collections) { 
+			this.redisService.bulkKeyDelete("v2-organize-data-" + collection.getUser().getPartyUid() + "*");
+		}
 	}
 
 	public RedisService getRedisService() {
 		return redisService;
+	}
+
+	public CollectionService getCollectionService() {
+		return collectionService;
 	}
 	
 	
