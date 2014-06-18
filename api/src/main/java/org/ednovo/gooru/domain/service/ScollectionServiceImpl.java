@@ -1618,7 +1618,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			}
 			if (newCollection.getSharing() != null && (newCollection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing()))) {
 				
-				if(newCollection.getSharing().equalsIgnoreCase(PRIVATE)) {
+				if(!newCollection.getSharing().equalsIgnoreCase(PUBLIC)) {
 					collection.setPublishStatus(null);
 				}
 				if (newCollection.getSharing().equalsIgnoreCase(PUBLIC) && !userService.isContentAdmin(updateUser)) {
