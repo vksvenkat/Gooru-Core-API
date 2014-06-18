@@ -19,7 +19,11 @@ import flexjson.JSON;
 @JsonFilter("resource")
 public class Resource extends Content implements Serializable {
 
+	/**
+	 * 
+	 */
 	private static final long serialVersionUID = -9010445497258009775L;
+
 	private static final String INDEX_TYPE = "resource";
 
 	/**
@@ -950,4 +954,5 @@ public class Resource extends Content implements Serializable {
 	public void setAggregator(List<String> aggregator){
 		this.aggregator = aggregator;
 	}
+	
 }
