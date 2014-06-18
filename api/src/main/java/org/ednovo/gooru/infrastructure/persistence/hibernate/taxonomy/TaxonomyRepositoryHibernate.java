@@ -1008,5 +1008,15 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 		return query.list() != null ?(String) query.list().get(0) : null;
 	}
 
+	@Override
+	@Cacheable("gooruCache")
+	public Code findCodeByCodeIds(Integer codeId) {
+		Integer activeFlag = 1;
+		Session session = getSession();
+		String sql = "select * from code c where c.code_id = ? and c.active_flag = ?";
+		Query query = getSession().createSQLQuery(sql).addEntity(Code.class);
+		      query.setInteger(0,codeId).setInteger(1,activeFlag).list();
+		      return query.list().size()>0?(Code) query.list().get(0):null;
+	}
 
 }

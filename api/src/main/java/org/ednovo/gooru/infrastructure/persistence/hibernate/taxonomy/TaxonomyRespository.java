@@ -133,4 +133,6 @@ public interface TaxonomyRespository extends BaseRepository{
 
 	String findGooruTaxonomyCourse(List<String> courseList);
 	
+	Code findCodeByCodeIds(Integer codeId);
+	
 }
