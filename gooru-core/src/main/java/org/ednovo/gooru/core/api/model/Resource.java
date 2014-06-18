@@ -954,5 +954,4 @@ public class Resource extends Content implements Serializable {
 	public void setAggregator(List<String> aggregator){
 		this.aggregator = aggregator;
 	}
-	
 }
