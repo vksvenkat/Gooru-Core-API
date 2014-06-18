@@ -910,7 +910,7 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 		} else {
 			FeaturedSet featuredSet = this.getFeaturedRepository().getFeaturedSetByIds(Integer.parseInt(featuredId));
 			rejectIfNull(featuredSet, GL0056, LIBRARY);
-			Code code = this.getTaxonomyRespository().findCodeByCodeId(Integer.parseInt(codeId));
+			Code code = this.getTaxonomyRespository().findCodeByCodeIds(Integer.parseInt(codeId));
 			rejectIfNull(code, GL0056, CODE);
 			FeaturedSetItems featuredSetItems = new FeaturedSetItems();
 			featuredSetItems.setCode(code);
@@ -933,7 +933,7 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 		rejectIfNull(collection, GL0056, _COLLECTION);
 		FeaturedSet featuredSet = this.getFeaturedRepository().getFeaturedSetByIds(Integer.parseInt(featuredSetId));
 		rejectIfNull(featuredSet, GL0056, LIBRARY);
-		Code code = this.getTaxonomyRespository().findCodeByCodeId(Integer.parseInt(codeId));
+		Code code = this.getTaxonomyRespository().findCodeByCodeIds(Integer.parseInt(codeId));
 		rejectIfNull(code, GL0056, CODE);
 		this.getFeaturedRepository().deleteLibraryCollectionAssoc(featuredSetId, codeId, String.valueOf(collection.getContentId()));
 
