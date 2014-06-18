@@ -727,11 +727,14 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 	}
 
 	@Override
-	public List<Object[]> getMyFolder(String gooruUid, Integer limit, Integer offset, String sharing, String collectionType) {
+	public List<Object[]> getMyFolder(String gooruUid, Integer limit, Integer offset, String sharing, String collectionType, boolean fetchChildItem) {
 		String sql = "select re.title, cr.gooru_oid, re.type_name, re.folder, re.thumbnail, cr.sharing, ci.collection_item_id, co.goals, ct.value, ct.display_name, rs.attribution, rs.domain_name , co.ideas, co.questions,co.performance_tasks from  resource r inner join collection c on c.content_id = r.content_id inner join content cc on cc.content_id =  c.content_id inner join collection_item ci on ci.collection_content_id = c.content_id inner join resource re on re.content_id = ci.resource_content_id inner join content cr on  cr.content_id = re.content_id inner join organization o  on  o.organization_uid = cr.organization_uid  left join collection co on co.content_id = re.content_id inner join user uu on  uu.gooru_uid = cc.user_uid left join custom_table_value ct on ct.custom_table_value_id = r.resource_format_id left join resource_source rs on rs.resource_source_id = r.resource_source_id  where c.collection_type = 'shelf' and  cr.sharing in ('" + sharing.replace(",", "','")+ "') and (cc.user_uid='" + gooruUid + "' or uu.username='"+gooruUid+"')";
 		
 		if (collectionType!= null)  {
 			sql += " and re.type_name=:collectionType ";
+		}
+		if(fetchChildItem) {
+			sql += " and ci.item_type != 'collaborator' ";
 		}
 		sql += " order by ci.association_date desc ";
 		Query query = getSession().createSQLQuery(sql);
@@ -744,11 +747,14 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 	}
 
 	@Override
-	public List<Object[]> getCollectionItem(String gooruOid, Integer limit, Integer offset, boolean skipPagination, String sharing, String orderBy, String collectionType) {
+	public List<Object[]> getCollectionItem(String gooruOid, Integer limit, Integer offset, boolean skipPagination, String sharing, String orderBy, String collectionType, boolean fetchChildItem) {
 		String sql = "select r.title, c.gooru_oid, r.type_name, r.folder, r.thumbnail, ct.value, ct.display_name, c.sharing, ci.collection_item_id, co.goals, rs.attribution, rs.domain_name, co.ideas, co.questions, co.performance_tasks, r.url ,rsummary.rating_star_avg, rsummary.rating_star_count from collection_item ci inner join resource r on r.content_id = ci.resource_content_id  left join custom_table_value ct on ct.custom_table_value_id = r.resource_format_id inner join content c on c.content_id = r.content_id inner join content rc on rc.content_id = ci.collection_content_id left join collection co on co.content_id = r.content_id left join resource_source rs on rs.resource_source_id = r.resource_source_id left join resource_summary rsummary on   c.gooru_oid = rsummary.resource_gooru_oid where  c.sharing in ('"
 				+ sharing.replace(",", "','") + "') and rc.gooru_oid=:gooruOid  ";
 		if (collectionType != null) {
 			sql += " and r.type_name =:collectionType ";
+		}
+		if(fetchChildItem) {
+			sql += " and ci.item_type != 'collaborator' ";
 		}
 		if (orderBy != null && orderBy.equalsIgnoreCase("sequence")) {
 			sql += " order by ci.item_sequence asc";
@@ -925,7 +931,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 			sql += " and IFNULL(ct.value, 'open') = '"+ status+ "' ";
 		}
 		if (orderBy != null && orderBy.equals(RECENT)) {
-			sql += " order by ci.association_date asc ";
+			sql += " order by ci.association_date desc ";
 		}  else if (orderBy != null &&  orderBy.equals(SEQUENCE_DESC)) { 
 			sql += " order by ci.item_sequence desc ";
 		}  else  if (orderBy != null &&  orderBy.equals(DUE_DATE)) { 
