@@ -968,6 +968,19 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		this.getUserRepository().flush();
 
 		userCreatedDevice(user.getPartyUid(), request);
+		
+		if (source != null && source.equalsIgnoreCase(UserAccountType.accountCreatedType.GOOGLE_APP.getType())) { 
+			Map<String, String> dataMap = new HashMap<String, String>();
+			if(identity != null && identity.getUser() != null){ 
+				dataMap.put(GOORU_UID, identity.getUser().getPartyUid());
+			}
+			dataMap.put(EVENT_TYPE, CustomProperties.EventMapping.WELCOME_MAIL.getEvent());
+			
+			if(identity != null && identity.getExternalId() != null){
+				dataMap.put("recipient", identity.getExternalId());
+			}
+			this.getMailHandler().handleMailEvent(dataMap);
+		}
 
 		indexProcessor.index(user.getPartyUid(), IndexProcessor.INDEX, USER);
 
