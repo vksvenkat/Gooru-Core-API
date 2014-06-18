@@ -931,7 +931,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 			sql += " and IFNULL(ct.value, 'open') = '"+ status+ "' ";
 		}
 		if (orderBy != null && orderBy.equals(RECENT)) {
-			sql += " order by ci.association_date asc ";
+			sql += " order by ci.association_date desc ";
 		}  else if (orderBy != null &&  orderBy.equals(SEQUENCE_DESC)) { 
 			sql += " order by ci.item_sequence desc ";
 		}  else  if (orderBy != null &&  orderBy.equals(DUE_DATE)) { 
