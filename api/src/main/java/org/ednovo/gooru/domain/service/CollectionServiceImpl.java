@@ -525,7 +525,12 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		SessionContextSupport.putLogParameter(COLLECTION_TYPE, collectionItem.getCollection().getCollectionType());
 		return collectionItem; 
 	} 
-
+    
+	@Override
+	public List<Collection> getCollections(User user,Integer limit, Integer offset,boolean skipPagination) {
+		return this.getCollectionRepository().getCollectionsList( user,limit,offset,skipPagination);
+	}
+	
 	@Override
 	public Boolean resourceCopiedFrom(String gooruOid, String gooruUid) {
 		Resource resource = collectionRepository.findResourceCopiedFrom(gooruOid, gooruUid);

@@ -32,6 +32,7 @@ import java.util.Map;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.AssessmentQuestion;
 import org.ednovo.gooru.core.api.model.Code;
+import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.domain.service.search.SearchResults;
@@ -66,4 +67,8 @@ public interface CollectionService extends ScollectionService {
 	List<CollectionItem> createCollectionItems(List<String> collectionsIds, String resourceId, User user) throws Exception;
 	
 	List<CollectionItem> assignCollection(String classpageId, String collectionId, User user) throws Exception;
+	
+	List<Collection> getCollections(User user,Integer limit, Integer offset,boolean skipPagination);
+	
+	
 }
