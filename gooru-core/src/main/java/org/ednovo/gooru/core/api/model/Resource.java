@@ -201,11 +201,6 @@ public class Resource extends Content implements Serializable {
 	
 	private List<String> aggregator;
 	
-	private String creatorName;
-	
-	private String gooruUId;
-	
-	
 	public Resource() {
 		recordSource = RecordSource.DEFAULT.getRecordSource();
 		thumbnails = new Resource.Thumbnail();
@@ -960,19 +955,4 @@ public class Resource extends Content implements Serializable {
 		this.aggregator = aggregator;
 	}
 	
-	public String getCreatorName() {
-		return creatorName;
-	}
-
-	public void setCreatorName(String creatorName) {
-		this.creatorName = creatorName;
-	}
-
-	public String getGooruUId() {
-		return gooruUId;
-	}
-
-	public void setGooruUId(String gooruUId) {
-		this.gooruUId = gooruUId;
-	}
 }
