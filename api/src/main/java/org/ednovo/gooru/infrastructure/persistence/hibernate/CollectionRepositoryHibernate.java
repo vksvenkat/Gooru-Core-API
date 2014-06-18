@@ -938,5 +938,22 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		}
 		return query.list();
 	}
+	@Override
+	public List<Collection> getCollectionsList(User user,Integer limit, Integer offset,boolean skipPagination) {
+	
+		String hql = "SELECT collection FROM Collection collection inner join collection.publishStatus ct where ct.value =:pending";
+		hql += " AND " + generateOrgAuthQuery("collection.");		
+		Session session = getSession();
+		Query query = session.createQuery(hql);
+		query.setParameter("pending", "pending");
+		addOrgAuthParameters(query);
+		
+		if (!skipPagination) {
+			query.setFirstResult(offset);
+			query.setMaxResults(limit);
+		}
+
+		return query.list().size() >   0 ?  query.list() : null;
+	}
 	
 }
