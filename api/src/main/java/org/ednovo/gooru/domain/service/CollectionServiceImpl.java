@@ -45,6 +45,7 @@ import org.ednovo.gooru.core.api.model.ShelfType;
 import org.ednovo.gooru.core.api.model.StorageArea;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.exception.NotFoundException;
+import org.ednovo.gooru.domain.service.redis.RedisService;
 import org.ednovo.gooru.domain.service.search.SearchResults;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.storage.StorageRepository;
@@ -65,6 +66,9 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 
 	@Autowired
 	private StorageRepository storageRepository;
+	
+	@Autowired
+	private RedisService redisService;
 
 
 	@Override
@@ -138,7 +142,11 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 					}
 					collectionItem.setStandards(this.getStandards(responseDTO.getModel().getTaxonomySet(), false, null));
 				}
+				if (collectionItem != null && collectionItem.getCollection().getCollectionType().equalsIgnoreCase(COLLECTION) || collectionItem.getCollection().getCollectionType().equalsIgnoreCase(FOLDER)) {
+					this.redisService.bulkKeyDelete("v2-organize-data-" + collectionItem.getCollection().getUser().getPartyUid() + "*");
+				}
 			}
+			
 			
 		}  else {
 			throw new NotFoundException("Question Not Found");
@@ -168,7 +176,6 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		} else {
 			responseDTO = this.createCollectionItem(sourceId, null, collectionItem, user, CollectionType.SHElf.getCollectionType(), false);
 		}
-
 		return responseDTO;
 	}
 
