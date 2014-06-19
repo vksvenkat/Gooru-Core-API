@@ -665,7 +665,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 			int sequence = collectionItem.getCollection().getCollectionItems() != null ? collectionItem.getCollection().getCollectionItems().size() + 1 : 1;
 			collectionItem.setItemSequence(sequence);
-			collectionItem.getCollection().setItemCount(collectionItem.getCollection().getCollectionItems().size() + 1);
 			this.getCollectionRepository().save(collectionItem);
 			this.getCollectionRepository().flush();
 			getEventLogs(collectionItem, false, user, collectionItem.getCollection().getCollectionType());
@@ -2006,7 +2005,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		collectionItem.setAssociationDate(new Date(System.currentTimeMillis()));
 		int sequence = collectionItem.getCollection().getCollectionItems() != null ? collectionItem.getCollection().getCollectionItems().size() + 1 : 1;
 		collectionItem.setItemSequence(sequence);
-		collectionItem.getCollection().setItemCount(collectionItem.getCollection().getCollectionItems().size() + 1);
 		Errors errors = validateCollectionItem(collection, resource, collectionItem);
 		this.getResourceRepository().save(collectionItem);
 		SessionContextSupport.putLogParameter(EVENT_NAME, SCOLLECTION_ITEM_ADD);
