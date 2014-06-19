@@ -969,6 +969,8 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 
 		userCreatedDevice(user.getPartyUid(), request);
 		
+		PartyCustomField partyCustomField = this.getPartyService().getPartyCustomeField(profile.getUser().getPartyUid(), "user_confirm_status", identity.getUser());
+		
 		if (source != null && source.equalsIgnoreCase(UserAccountType.accountCreatedType.GOOGLE_APP.getType())) { 
 			Map<String, String> dataMap = new HashMap<String, String>();
 			if(identity != null && identity.getUser() != null){ 
@@ -979,6 +981,8 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			if(identity != null && identity.getExternalId() != null){
 				dataMap.put("recipient", identity.getExternalId());
 			}
+			partyCustomField.setOptionalValue("true");
+		    this.getUserRepository().save(partyCustomField);
 			this.getMailHandler().handleMailEvent(dataMap);
 		}
 
