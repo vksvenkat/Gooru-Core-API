@@ -23,6 +23,9 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.controllers.v2.api;
 
+import java.util.List;
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -32,12 +35,14 @@ import org.ednovo.gooru.core.constant.GooruOperationConstants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.security.AuthorizeOperations;
 import org.ednovo.gooru.domain.service.PartyService;
+import org.ednovo.gooru.domain.service.redis.RedisService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
@@ -47,15 +52,33 @@ public class PartnerRestV2Controller extends BaseController implements Parameter
 	@Autowired
 	private PartyService partyService;
 	
+	@Autowired
+	private RedisService redisService;
+	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_PARTY_CUSTOM_FIELD_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "")
-	public ModelAndView getPartnerList(HttpServletRequest request, HttpServletResponse response) throws Exception {
-		return toModelAndView(getPartyService().getPartyDetails(IS_PARTNER, TRUE), RESPONSE_FORMAT_JSON);
+	public ModelAndView getPartnerList(@RequestParam(value = CLEAR_CACHE, required = false, defaultValue = FALSE) boolean clearCache, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		final String cacheKey = "v2-partner-list";
+		List<Map<Object, Object>> partner = null;
+		String data = null;
+		if (!clearCache) {
+			data = getRedisService().getValue(cacheKey);
+		}
+		if (data == null) {
+			partner = getPartyService().getPartyDetails(IS_PARTNER, TRUE);
+			data = serialize(partner, RESPONSE_FORMAT_JSON);
+			getRedisService().putValue(cacheKey, data);
+		}
+		return toModelAndView(data);
 	}
 
 	public PartyService getPartyService() {
 		return partyService;
+	}
+
+	public RedisService getRedisService() {
+		return redisService;
 	}
 
 }
