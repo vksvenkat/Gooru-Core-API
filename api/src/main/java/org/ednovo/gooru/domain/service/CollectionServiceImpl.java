@@ -171,6 +171,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		} else {
 			responseDTO = this.createCollectionItem(sourceId, null, collectionItem, user, CollectionType.SHElf.getCollectionType(), false);
 		}
+		this.redisService.bulkKeyDelete("v2-organize-data-" + collectionItem.getCollection().getUser().getPartyUid() + "*");
 		return responseDTO;
 	}
 
