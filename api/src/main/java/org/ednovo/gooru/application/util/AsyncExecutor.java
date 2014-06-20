@@ -66,7 +66,7 @@ public class AsyncExecutor {
 	private ResourceManager resourceManager;
 
 	private Logger logger = LoggerFactory.getLogger(AsyncExecutor.class);
-	
+
 	@Autowired
 	private S3ResourceApiHandler s3ResourceApiHandler;
 
@@ -105,7 +105,6 @@ public class AsyncExecutor {
 		});
 	}
 
-
 	public void executeRestAPI(final Map<String, Object> param, final String requestUrl, final String requestType) {
 		transactionTemplate.execute(new TransactionCallback<Void>() {
 			@Override
@@ -132,27 +131,37 @@ public class AsyncExecutor {
 		transactionTemplate.execute(new TransactionCallback<Void>() {
 			@Override
 			public Void doInTransaction(TransactionStatus status) {
-			    getS3ResourceApiHandler().uploadResourceFolder(resource);
+				getS3ResourceApiHandler().uploadResourceFolder(resource);
 				return null;
 			}
 		});
 	}
-	
+
 	public void uploadResourceFile(final Resource resource, final String url) {
 		transactionTemplate.execute(new TransactionCallback<Void>() {
 			@Override
 			public Void doInTransaction(TransactionStatus status) {
-			    getS3ResourceApiHandler().uploadResourceFile(resource, url);
+				getS3ResourceApiHandler().uploadResourceFile(resource, url);
 				return null;
 			}
 		});
 	}
-		
+
 	public void deleteResourceFile(final Resource resource, final String fileName) {
 		transactionTemplate.execute(new TransactionCallback<Void>() {
 			@Override
 			public Void doInTransaction(TransactionStatus status) {
-			    getS3ResourceApiHandler().deleteResourceFile(resource, fileName);
+				getS3ResourceApiHandler().deleteResourceFile(resource, fileName);
+				return null;
+			}
+		});
+	}
+
+	public void clearCache(final String gooruOid) {
+		transactionTemplate.execute(new TransactionCallback<Void>() {
+			@Override
+			public Void doInTransaction(TransactionStatus status) {
+				getCollectionUtil().clearResourceCache(gooruOid);
 				return null;
 			}
 		});

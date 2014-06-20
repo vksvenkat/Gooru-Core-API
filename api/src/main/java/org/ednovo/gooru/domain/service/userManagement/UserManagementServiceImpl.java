@@ -242,7 +242,9 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		CustomTableValue type = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.USER_CLASSIFICATION_TYPE.getTable(), CustomProperties.UserClassificationType.COURSE.getUserClassificationType());
 		CustomTableValue gradeType = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.USER_CLASSIFICATION_TYPE.getTable(), CustomProperties.UserClassificationType.GRADE.getUserClassificationType());
 		profile.setCourses(this.getUserRepository().getUserClassifications(gooruUid, type.getCustomTableValueId(), activeFlag));
-		profile.setGrade(this.getUserRepository().getUserGrade(gooruUid, gradeType.getCustomTableValueId(), activeFlag));
+		if(gradeType != null && gradeType.getCustomTableValueId() != null){
+			profile.setGrade(this.getUserRepository().getUserGrade(gooruUid, gradeType.getCustomTableValueId(), activeFlag));
+		}
 		return profile;
 	}
 
@@ -968,6 +970,23 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		this.getUserRepository().flush();
 
 		userCreatedDevice(user.getPartyUid(), request);
+		
+		PartyCustomField partyCustomField = this.getPartyService().getPartyCustomeField(profile.getUser().getPartyUid(), "user_confirm_status", identity.getUser());
+		
+		if (source != null && source.equalsIgnoreCase(UserAccountType.accountCreatedType.GOOGLE_APP.getType())) { 
+			Map<String, String> dataMap = new HashMap<String, String>();
+			if(identity != null && identity.getUser() != null){ 
+				dataMap.put(GOORU_UID, identity.getUser().getPartyUid());
+			}
+			dataMap.put(EVENT_TYPE, CustomProperties.EventMapping.WELCOME_MAIL.getEvent());
+			
+			if(identity != null && identity.getExternalId() != null){
+				dataMap.put("recipient", identity.getExternalId());
+			}
+			partyCustomField.setOptionalValue("true");
+		    this.getUserRepository().save(partyCustomField);
+			this.getMailHandler().handleMailEvent(dataMap);
+		}
 
 		indexProcessor.index(user.getPartyUid(), IndexProcessor.INDEX, USER);
 
@@ -1419,6 +1438,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		userObj.put("profileImageUrl", buildUserProfileImageUrl(user));
 		userObj.put("emailId", user.getIdentities() != null ? user.getIdentities().iterator().next().getExternalId() : null);
 		userObj.put("summary", getUserSummary(user.getPartyUid()));
+		userObj.put("customFields", user.getCustomFields());
 		return userObj;
 	}
 	

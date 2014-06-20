@@ -28,6 +28,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.ednovo.gooru.application.util.AsyncExecutor;
 import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.CustomTableValue;
 import org.ednovo.gooru.core.api.model.Feedback;
@@ -79,6 +80,9 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 
 	@Autowired
 	private ResourceRepository resourceRepository;
+	
+	@Autowired
+	private AsyncExecutor asyncExecutor;
 
 	@Override
 	public Feedback createFeedback(Feedback feedback, User user) {
@@ -142,6 +146,7 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 			} else {
 				indexProcessor.index(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE);
 			}
+			this.getAsyncExecutor().clearCache(resource.getGooruOid());
 		}
 		return feedbacks;
 	}
@@ -169,6 +174,7 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 			} else {
 				indexProcessor.index(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE);
 			}
+			this.getAsyncExecutor().clearCache(resource.getGooruOid());
 		}
 	}
 
@@ -298,6 +304,7 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 			} else {
 				indexProcessor.index(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE);
 			}
+			this.getAsyncExecutor().clearCache(resource.getGooruOid());
 		}
 		return feedbackList;
 
@@ -504,6 +511,10 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 
 	public ResourceRepository getResourceRepository() {
 		return resourceRepository;
+	}
+
+	public AsyncExecutor getAsyncExecutor() {
+		return asyncExecutor;
 	}
 
 }

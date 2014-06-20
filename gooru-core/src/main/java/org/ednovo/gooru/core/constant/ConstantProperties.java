@@ -283,7 +283,9 @@ public interface ConstantProperties {
 	static final String COMMENT_INCLUDES[] = { "*.comment", "*.commentorUid", "*.commentUid", "*.gooruOid", "*.user", "*.optionalValue", "*.createdOn", "*.usernameDisplay", "*.gooruUId", "*.profileImageUrl", "*.lastName", "*.firstName", "*.username", "*.content", "*.statusType", "*.name",
 			"*.totalHitCount", "*.searchResults", "*.isDeleted", "*.lastModifiedOn" };
 
-	static final String FOLLOWED_BY_USERS_INCLUDES[] = { "*.totalHitCount", "*.searchResults", "*.username", "*.profileImageUrl", "*.firstName", "*.gooruUid", "*.emailId", "*.lastName", "*.course", "*.summary", "*.summary.tags", "*.summary.collection", "*.summary.followers", "*.summary.following" };
+	static final String FOLLOWED_BY_USERS_INCLUDES[] = { "*.totalHitCount", "*.searchResults", "*.username", "*.profileImageUrl", "*.firstName", "*.gooruUid", "*.emailId", "*.lastName", "*.course", "*.summary", "*.summary.tags", "*.summary.collection", "*.summary.followers", "*.summary.following","*.customFields","*.PartyUid","*.category","*.optionalKey","*.optionalValue"};
+	
+	static final String FOLLOW_USER_INCLUDES[] = {"*.username", "*.profileImageUrl", "*.firstName", "*.gooruUid", "*.emailId", "*.lastName", "*.course", "*.summary", "*.summary.tags", "*.summary.collection", "*.summary.followers", "*.summary.following","*.customFields","*.PartyUid","*.category","*.optionalKey","*.optionalValue"};
 
 	static final String USER_INCLUDES[] = { "*.lastName", "*.gooruUId", "*.profileImageUrl", "*.loginType", "*.userRoleSetString", "*.username", "*.viewFlag", "*.createdOn", "*.restEndPoint", "*.confirmStatus", "*.emailId", "*.token", "*.partyUid", "*.firstName", "*.usernameDisplay", "*.user",
 			"*.accountCreatedType", "*.dateOfBirth", "*.meta.*", "*.taxonomyPreference.*", "*.taxonomyPreference.code.*", "*.meta.taxonomyPreference.code.*", "*.metaData.*", "*.meta.taxonomyPreference.metaData.code.*", "*.meta.taxonomyPreference.metaData.*", "*.meta.taxonomyPreference.*",
@@ -465,6 +467,5 @@ public interface ConstantProperties {
 	public static String DUE_DATE = "due-date";
 	
 	public static String PUBLISH_STATUS = "publishStatus";
-		
 
 }
