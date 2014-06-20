@@ -948,13 +948,19 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		return query.list();
 	}
 	@Override
-	public List<Collection> getCollectionsList(User user,Integer limit, Integer offset,boolean skipPagination) {
+	public List<Collection> getCollectionsList(User user,Integer limit, Integer offset,boolean skipPagination, String publishStatus) {
 	
-		String hql = "SELECT collection FROM Collection collection inner join collection.publishStatus ct where ct.value =:pending";
-		hql += " AND " + generateOrgAuthQuery("collection.");		
+		String hql = "SELECT collection FROM Collection collection inner join collection.publishStatus ct ";
+		hql += " WHERE " + generateOrgAuthQuery("collection.");
+		if (publishStatus != null) {
+			hql += " and  ct.value =:pending";
+		}
+				
 		Session session = getSession();
 		Query query = session.createQuery(hql);
-		query.setParameter("pending", "pending");
+		if (publishStatus != null) {
+		query.setParameter("pending", publishStatus);
+		}
 		addOrgAuthParameters(query);
 		
 		if (!skipPagination) {

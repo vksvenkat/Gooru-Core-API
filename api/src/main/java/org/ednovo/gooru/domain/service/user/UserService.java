@@ -187,4 +187,6 @@ public interface UserService {
 	UserToken loginAs(String sessionToken, String gooruUid, String apiKey, Boolean isReference) throws Exception;
 	
 	Integer calculateCurrentAge(String dateOfBirth);
+	
+	 Boolean isSuperAdmin(User user);
 }

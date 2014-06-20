@@ -463,5 +463,8 @@ public interface ConstantProperties {
 	public static String SEQUENCE_DESC = "sequence-desc";
 
 	public static String DUE_DATE = "due-date";
+	
+	public static String PUBLISH_STATUS = "publishStatus";
+		
 
 }

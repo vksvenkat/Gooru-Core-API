@@ -45,6 +45,7 @@ import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.ResourceType;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.Sharing;
+import org.ednovo.gooru.core.api.model.UpdateViewsDTO;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.Constants;
@@ -66,6 +67,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+
+import com.fasterxml.jackson.core.type.TypeReference;
 
 @Controller
 @RequestMapping(value = { "/v2/collection" })
@@ -541,14 +544,28 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 		return list;
 	}
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
-	@RequestMapping(value = { "/list" }, method = RequestMethod.GET)
-	public ModelAndView getCollectionList(@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,
+	@RequestMapping(value = { "/list/status" }, method = RequestMethod.GET)
+	public ModelAndView getCollectionListForPublish(@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,@RequestParam(value = PUBLISH_STATUS, required = false) String publishStatus,
 			@RequestParam(value = SKIP_PAGINATION, required = false, defaultValue = FALSE) Boolean skipPagination, HttpServletRequest request, HttpServletResponse response) {
 		User user = (User) request.getAttribute(Constants.USER);
-		return toModelAndViewWithIoFilter(getCollectionService().getCollections(user, limit,offset,skipPagination), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, COLLECTION_INCLUDE_FIELDS);
+		String includes[] = (String[]) ArrayUtils.addAll(COLLECTION_ITEM_INCLUDE_FILEDS, COLLECTION_INCLUDE_FIELDS);
+		return toModelAndViewWithIoFilter(getCollectionService().getCollections(user, limit,offset,skipPagination,publishStatus), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 		
 	}
-
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_UPDATE })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(value = { "/publishCollections" }, method = { RequestMethod.PUT })
+	public ModelAndView updateCollectionForPublish( @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		User user = (User) request.getAttribute(Constants.USER);
+		List<Map<String,String>> collection = buildUpdatesPublishStatusFromInputParameters(data);	
+		return toModelAndViewWithIoFilter(getCollectionService().updateCollectionForPublish(collection, user), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, COLLECTION_INCLUDE_FIELDS);
+	}
+	
+	
+	private  List<Map<String,String>>  buildUpdatesPublishStatusFromInputParameters(String data) {
+		return JsonDeserializer.deserialize(data, new TypeReference<List<Map<String,String>>>() {});
+	}
+	
 
 	public BaseRepository getBaseRepository() {
 		return baseRepository;
