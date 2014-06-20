@@ -1438,6 +1438,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		userObj.put("profileImageUrl", buildUserProfileImageUrl(user));
 		userObj.put("emailId", user.getIdentities() != null ? user.getIdentities().iterator().next().getExternalId() : null);
 		userObj.put("summary", getUserSummary(user.getPartyUid()));
+		userObj.put("customFields", user.getCustomFields());
 		return userObj;
 	}
 	
