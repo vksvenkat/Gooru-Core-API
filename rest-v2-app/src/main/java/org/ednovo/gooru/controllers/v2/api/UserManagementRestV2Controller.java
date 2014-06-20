@@ -348,11 +348,9 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 	@RequestMapping(method = RequestMethod.POST, value = "/follow/{id}")
 	public ModelAndView followUser(@PathVariable(value = ID) String followOnUserId, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		request.setAttribute(Constants.EVENT_PREDICATE, USER_FOLLOW);
-
 		User user = (User) request.getAttribute(Constants.USER);
-
-		
-		return toModelAndView(getUserManagementService().followUser(user, followOnUserId), FORMAT_JSON);
+		String[] includes = (String[]) ArrayUtils.addAll(FOLLOW_USER_INCLUDES, ERROR_INCLUDE);
+		return toModelAndViewWithIoFilter(this.getUserManagementService().followUser(user, followOnUserId), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_DELETE })
