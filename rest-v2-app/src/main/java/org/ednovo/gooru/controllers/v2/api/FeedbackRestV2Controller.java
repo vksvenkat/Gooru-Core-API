@@ -44,6 +44,7 @@ import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.security.AuthorizeOperations;
 import org.ednovo.gooru.domain.service.FeedbackService;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Propagation;
@@ -88,6 +89,18 @@ public class FeedbackRestV2Controller extends BaseController implements Paramete
 		if (contextDTO != null) {
 			SessionContextSupport.putLogParameter("parentGooruId", contextDTO.getCollectionGooruId());
 			SessionContextSupport.putLogParameter("contentGooruId", contextDTO.getResourceGooruId());
+			JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session").toString()) :  new JSONObject();
+			session.put("organizationUId", user.getOrganizationUid());
+			JSONObject newUser = SessionContextSupport.getLog().get("user") != null ? new JSONObject(SessionContextSupport.getLog().get("user").toString()) :  new JSONObject();
+			newUser.put("gooruUId", user.getPartyUid());
+			JSONObject context = SessionContextSupport.getLog().get("context") != null ? new JSONObject(SessionContextSupport.getLog().get("context").toString()) :  new JSONObject();
+			context.put("contentGooruId", contextDTO.getResourceGooruId());
+            context.put("parentGooruId", contextDTO.getCollectionGooruId());
+    		JSONObject payLoadObject = SessionContextSupport.getLog().get("payLoadObject") != null ? new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString()) :  new JSONObject();
+    		payLoadObject.put("rate", feedback.getScore());
+    		payLoadObject.put("text", feedback.getFreeText());
+    		payLoadObject.put("rateType", "");			
+			
 			if(contextDTO.getEventName() != null){
 				eventName = contextDTO.getEventName();
 			}
