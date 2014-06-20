@@ -26,6 +26,7 @@ package org.ednovo.gooru.domain.service.redis;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -404,8 +405,14 @@ public class RedisServiceImpl implements RedisService, ParameterProperties, Cons
 	}
 	
 	@Override
-	public void bulkKeyDelete(String key) {
-		redisStringTemplate.delete(key);
+	public void bulkKeyDelete(String keyWildCard) {
+		Set<String> keys = this.getkeys(keyWildCard);
+		if(keys.size() > 0) {
+			Iterator<String> iterator = keys.iterator();
+			while(iterator.hasNext()) {
+				redisStringTemplate.delete(iterator.next());				
+			}
+		}
 	}
 
 	private String returnSanitizedKey(final String key) {

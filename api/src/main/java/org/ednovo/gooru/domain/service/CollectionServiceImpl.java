@@ -45,6 +45,7 @@ import org.ednovo.gooru.core.api.model.ShelfType;
 import org.ednovo.gooru.core.api.model.StorageArea;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.exception.NotFoundException;
+import org.ednovo.gooru.domain.service.redis.RedisService;
 import org.ednovo.gooru.domain.service.search.SearchResults;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.storage.StorageRepository;
@@ -66,6 +67,8 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	@Autowired
 	private StorageRepository storageRepository;
 
+	@Autowired
+	private RedisService redisService;
 
 	@Override
 	public ActionResponseDTO<CollectionItem> createQuestionWithCollectionItem(String collectionId, String data, User user, String mediaFileName) throws Exception {
@@ -82,20 +85,20 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 			if (mediaFileName != null && mediaFileName.length() > 0) {
 				String questionImage = this.assessmentService.updateQuizQuestionImage(responseDTO.getModel().getGooruOid(), mediaFileName, question, ASSET_QUESTION);
 				if (questionImage != null && questionImage.length() > 0) {
-					if(ResourceImageUtil.getYoutubeVideoId(questionImage) != null || questionImage.contains(YOUTUBE_URL)){
+					if (ResourceImageUtil.getYoutubeVideoId(questionImage) != null || questionImage.contains(YOUTUBE_URL)) {
 						response.getModel().setQuestionInfo(this.assessmentService.updateQuestionVideoAssest(responseDTO.getModel().getGooruOid(), questionImage));
 					} else {
 						response.getModel().setQuestionInfo(this.assessmentService.updateQuestionAssest(responseDTO.getModel().getGooruOid(), StringUtils.substringAfterLast(questionImage, "/")));
 					}
 				}
 			}
-			if(question.getDepthOfKnowledges() != null && question.getDepthOfKnowledges().size() > 0) {
-				response.getModel().getResource().setDepthOfKnowledges(this.updateContentMeta(question.getDepthOfKnowledges(),question.getGooruOid(), user, "depth_of_knowledge"));
+			if (question.getDepthOfKnowledges() != null && question.getDepthOfKnowledges().size() > 0) {
+				response.getModel().getResource().setDepthOfKnowledges(this.updateContentMeta(question.getDepthOfKnowledges(), question.getGooruOid(), user, "depth_of_knowledge"));
 			} else {
 				response.getModel().getResource().setDepthOfKnowledges(this.setContentMetaAssociation(this.getContentMetaAssociation("depth_of_knowledge"), question.getGooruOid(), "depth_of_knowledge"));
 			}
-			if(question.getEducationalUse() != null && question.getEducationalUse().size() > 0) {
-				response.getModel().getResource().setEducationalUse(this.updateContentMeta(question.getEducationalUse(),question.getGooruOid(), user, "educational_use"));
+			if (question.getEducationalUse() != null && question.getEducationalUse().size() > 0) {
+				response.getModel().getResource().setEducationalUse(this.updateContentMeta(question.getEducationalUse(), question.getGooruOid(), user, "educational_use"));
 			} else {
 				response.getModel().getResource().setEducationalUse(this.setContentMetaAssociation(this.getContentMetaAssociation("educational_use"), question.getGooruOid(), "educational_use"));
 			}
@@ -104,43 +107,43 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		return response;
 
 	}
-	
 
 	@Override
-	public ActionResponseDTO<CollectionItem> updateQuestionWithCollectionItem(String collectionItemId, String data,List<Integer> deleteAssets, User user,String mediaFileName) throws Exception {
+	public ActionResponseDTO<CollectionItem> updateQuestionWithCollectionItem(String collectionItemId, String data, List<Integer> deleteAssets, User user, String mediaFileName) throws Exception {
 		CollectionItem collectionItem = this.getCollectionItemById(collectionItemId);
 		AssessmentQuestion newQuestion = getAssessmentService().buildQuestionFromInputParameters(data, user, true);
 		Errors errors = validateUpdateCollectionItem(collectionItem);
-		if (!errors.hasErrors()) { 
-			AssessmentQuestion question =getAssessmentService().getQuestion(collectionItem.getResource().getGooruOid());
-			if(question != null){
+		if (!errors.hasErrors()) {
+			AssessmentQuestion question = getAssessmentService().getQuestion(collectionItem.getResource().getGooruOid());
+			if (question != null) {
 				ActionResponseDTO<AssessmentQuestion> responseDTO = assessmentService.updateQuestion(newQuestion, deleteAssets, question.getGooruOid(), true, true);
 				if (responseDTO.getModel() != null) {
 					if (mediaFileName != null && mediaFileName.length() > 0) {
 						String questionImage = this.assessmentService.updateQuizQuestionImage(responseDTO.getModel().getGooruOid(), mediaFileName, question, ASSET_QUESTION);
 						if (questionImage != null && questionImage.length() > 0) {
-							if(ResourceImageUtil.getYoutubeVideoId(questionImage) != null || questionImage.contains(YOUTUBE_URL)){
+							if (ResourceImageUtil.getYoutubeVideoId(questionImage) != null || questionImage.contains(YOUTUBE_URL)) {
 								collectionItem.setQuestionInfo(this.assessmentService.updateQuestionVideoAssest(responseDTO.getModel().getGooruOid(), questionImage));
 							} else {
 								collectionItem.setQuestionInfo(this.assessmentService.updateQuestionAssest(responseDTO.getModel().getGooruOid(), StringUtils.substringAfterLast(questionImage, "/")));
 							}
 						}
 					}
-					if(newQuestion.getDepthOfKnowledges() != null && newQuestion.getDepthOfKnowledges().size() > 0) {
-						collectionItem.getResource().setDepthOfKnowledges(this.updateContentMeta(newQuestion.getDepthOfKnowledges(),responseDTO.getModel().getGooruOid(), user, "depth_of_knowledge"));
+					if (newQuestion.getDepthOfKnowledges() != null && newQuestion.getDepthOfKnowledges().size() > 0) {
+						collectionItem.getResource().setDepthOfKnowledges(this.updateContentMeta(newQuestion.getDepthOfKnowledges(), responseDTO.getModel().getGooruOid(), user, "depth_of_knowledge"));
 					} else {
 						collectionItem.getResource().setDepthOfKnowledges(this.setContentMetaAssociation(this.getContentMetaAssociation("depth_of_knowledge"), responseDTO.getModel().getGooruOid(), "depth_of_knowledge"));
 					}
-					if(question.getEducationalUse() != null && question.getEducationalUse().size() > 0) {
-						collectionItem.getResource().setEducationalUse(this.updateContentMeta(question.getEducationalUse(),responseDTO.getModel().getGooruOid(), user, "educational_use"));
+					if (question.getEducationalUse() != null && question.getEducationalUse().size() > 0) {
+						collectionItem.getResource().setEducationalUse(this.updateContentMeta(question.getEducationalUse(), responseDTO.getModel().getGooruOid(), user, "educational_use"));
 					} else {
 						collectionItem.getResource().setEducationalUse(this.setContentMetaAssociation(this.getContentMetaAssociation("educational_use"), responseDTO.getModel().getGooruOid(), "educational_use"));
 					}
 					collectionItem.setStandards(this.getStandards(responseDTO.getModel().getTaxonomySet(), false, null));
 				}
+				this.redisService.bulkKeyDelete("v2-organize-data-" + collectionItem.getCollection().getUser().getPartyUid() + "*");
 			}
-			
-		}  else {
+
+		} else {
 			throw new NotFoundException("Question Not Found");
 		}
 		return new ActionResponseDTO<CollectionItem>(collectionItem, errors);
@@ -156,7 +159,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		CollectionItem collectionItem = new CollectionItem();
 		collectionItem.setCollection(source);
 		CollectionItem sourceCollectionItem = this.getCollectionRepository().findCollectionItemByGooruOid(sourceId, user.getPartyUid());
-		if(sourceCollectionItem != null && sourceCollectionItem.getItemType() != null){
+		if (sourceCollectionItem != null && sourceCollectionItem.getItemType() != null) {
 			String itemType = sourceCollectionItem.getItemType();
 			collectionItem.setItemType(itemType);
 		}
@@ -168,7 +171,6 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		} else {
 			responseDTO = this.createCollectionItem(sourceId, null, collectionItem, user, CollectionType.SHElf.getCollectionType(), false);
 		}
-
 		return responseDTO;
 	}
 
@@ -226,12 +228,11 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		return collectionItems;
 
 	}
-	
 
 	@Override
 	public List<Map<String, Object>> getMyShelf(String gooruUid, Integer limit, Integer offset, String sharing, String collectionType, Integer itemLimit, boolean fetchChildItem, String topLevelCollectionType) {
 		StorageArea storageArea = this.getStorageRepository().getStorageAreaByTypeName(NFS);
-		List<Object[]> result = this.getCollectionRepository().getMyFolder(gooruUid, limit, offset, sharing,  topLevelCollectionType != null  ? topLevelCollectionType : collectionType, fetchChildItem);
+		List<Object[]> result = this.getCollectionRepository().getMyFolder(gooruUid, limit, offset, sharing, topLevelCollectionType != null ? topLevelCollectionType : collectionType, fetchChildItem);
 		List<Map<String, Object>> folderList = new ArrayList<Map<String, Object>>();
 		int count = 0;
 		if (result != null && result.size() > 0) {
@@ -260,7 +261,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				if (object[7] != null) {
 					collection.put(GOALS, object[7]);
 				}
-				
+
 				if (object[8] != null) {
 					Map<String, Object> resourceFormat = new HashMap<String, Object>();
 					resourceFormat.put(VALUE, object[8]);
@@ -293,9 +294,9 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	public List<Map<String, Object>> getFolderItem(String gooruOid, String sharing, String type, String collectionType, Integer itemLimit, boolean fetchChildItem) {
 		StorageArea storageArea = this.getStorageRepository().getStorageAreaByTypeName(NFS);
 		List<Map<String, Object>> items = new ArrayList<Map<String, Object>>();
-		List<Object[]> result = this.getCollectionRepository().getCollectionItem(gooruOid, type.equalsIgnoreCase(SCOLLECTION) ? 4 : itemLimit, 0, false, sharing, type.equalsIgnoreCase(SCOLLECTION) ? SEQUENCE : null, collectionType,fetchChildItem);
+		List<Object[]> result = this.getCollectionRepository().getCollectionItem(gooruOid, type.equalsIgnoreCase(SCOLLECTION) ? 4 : itemLimit, 0, false, sharing, type.equalsIgnoreCase(SCOLLECTION) ? SEQUENCE : null, collectionType, fetchChildItem);
 		if (result != null && result.size() > 0) {
-			
+
 			for (Object[] object : result) {
 				Map<String, Object> item = new HashMap<String, Object>();
 				item.put(TITLE, object[0]);
@@ -303,12 +304,12 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				item.put(TYPE, object[2]);
 				String typeName = object[2].toString();
 				Map<String, Object> thumbnails = new HashMap<String, Object>();
-				if(typeName != null && typeName.equalsIgnoreCase(ResourceType.Type.VIDEO.getType())){
-					if(object[15] != null){
-						thumbnails.put(URL, ResourceImageUtil.getYoutubeVideoId(object[15].toString()) == null ? null : "http://img.youtube.com/vi/"+ ResourceImageUtil.getYoutubeVideoId(object[15].toString()) + "/1.jpg");
+				if (typeName != null && typeName.equalsIgnoreCase(ResourceType.Type.VIDEO.getType())) {
+					if (object[15] != null) {
+						thumbnails.put(URL, ResourceImageUtil.getYoutubeVideoId(object[15].toString()) == null ? null : "http://img.youtube.com/vi/" + ResourceImageUtil.getYoutubeVideoId(object[15].toString()) + "/1.jpg");
 					}
 				} else {
-					if(object[4] != null){
+					if (object[4] != null) {
 						thumbnails.put(URL, storageArea.getCdnDirectPath() + String.valueOf(object[3]) + String.valueOf(object[4]));
 					} else {
 						thumbnails.put(URL, "");
@@ -346,8 +347,8 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				}
 				if (fetchChildItem && (String.valueOf(object[2]).equalsIgnoreCase(SCOLLECTION) || String.valueOf(object[2]).equalsIgnoreCase(FOLDER))) {
 					if (String.valueOf(object[2]).equalsIgnoreCase(SCOLLECTION)) {
-							item.put(COLLECTION_ITEMS, getFolderItem(String.valueOf(object[1]), sharing, String.valueOf(object[2]), collectionType, type.equalsIgnoreCase(SCOLLECTION) ? 4 : itemLimit, fetchChildItem));
-							item.put(ITEM_COUNT, this.getCollectionRepository().getCollectionItemCount(String.valueOf(object[1]), sharing, collectionType));
+						item.put(COLLECTION_ITEMS, getFolderItem(String.valueOf(object[1]), sharing, String.valueOf(object[2]), collectionType, type.equalsIgnoreCase(SCOLLECTION) ? 4 : itemLimit, fetchChildItem));
+						item.put(ITEM_COUNT, this.getCollectionRepository().getCollectionItemCount(String.valueOf(object[1]), sharing, collectionType));
 					} else if ((String.valueOf(object[2]).equalsIgnoreCase(SCOLLECTION) || String.valueOf(object[2]).equalsIgnoreCase(FOLDER))) {
 						item.put(COLLECTION_ITEMS, getFolderItem(String.valueOf(object[1]), sharing, String.valueOf(object[2]), collectionType, type.equalsIgnoreCase(SCOLLECTION) ? 4 : itemLimit, fetchChildItem));
 						item.put(ITEM_COUNT, this.getCollectionRepository().getCollectionItemCount(String.valueOf(object[1]), sharing, collectionType));
@@ -391,12 +392,12 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				item.put(TYPE, object[2]);
 				String typeName = object[2].toString();
 				Map<String, Object> thumbnails = new HashMap<String, Object>();
-				if(typeName != null && typeName.equalsIgnoreCase(ResourceType.Type.VIDEO.getType())){
-					if(object[15] != null){
-						thumbnails.put(URL, ResourceImageUtil.getYoutubeVideoId(object[15].toString()) == null ? null : "http://img.youtube.com/vi/"+ ResourceImageUtil.getYoutubeVideoId(object[15].toString()) + "/1.jpg");
+				if (typeName != null && typeName.equalsIgnoreCase(ResourceType.Type.VIDEO.getType())) {
+					if (object[15] != null) {
+						thumbnails.put(URL, ResourceImageUtil.getYoutubeVideoId(object[15].toString()) == null ? null : "http://img.youtube.com/vi/" + ResourceImageUtil.getYoutubeVideoId(object[15].toString()) + "/1.jpg");
 					}
 				} else {
-					if(object[4] != null){
+					if (object[4] != null) {
 						thumbnails.put(URL, storageArea.getCdnDirectPath() + String.valueOf(object[3]) + String.valueOf(object[4]));
 					} else {
 						thumbnails.put(URL, "");
@@ -472,7 +473,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		result.setSearchResults(codeList);
 		return result;
 	}
-	
+
 	private Errors validateUpdateCollectionItem(CollectionItem collectionItem) throws Exception {
 		Map<String, String> itemType = new HashMap<String, String>();
 		itemType.put(ADDED, COLLECTION_ITEM_TYPE);
@@ -482,7 +483,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		rejectIfInvalidType(errors, collectionItem.getItemType(), ITEM_TYPE, GL0007, generateErrorMessage(GL0007, ITEM_TYPE), itemType);
 		return errors;
 	}
-	
+
 	@Override
 	public List<CollectionItem> assignCollection(String classpageId, String collectionId, User user) throws Exception {
 		Classpage classpage = this.getCollectionRepository().getClasspageByCode(classpageId);
@@ -491,22 +492,22 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		rejectIfNull(collection, GL0056, 404, generateErrorMessage(GL0056, COLLECTION));
 		List<CollectionItem> collectionItems = new ArrayList<CollectionItem>();
 		int sequence = classpage.getCollectionItems() != null ? classpage.getCollectionItems().size() + 1 : 1;
-		if (collection.getCollectionType().equalsIgnoreCase(FOLDER)) { 
+		if (collection.getCollectionType().equalsIgnoreCase(FOLDER)) {
 			Map<String, String> filters = new HashMap<String, String>();
 			filters.put(SHARING, "public,anyonewithlink");
 			filters.put(TYPE, COLLECTION);
 			List<CollectionItem> folderCollectionItems = this.getCollectionRepository().getCollectionItems(collectionId, filters);
-			for (CollectionItem collectionItem : folderCollectionItems)  {
-				collectionItems.add(createClasspageItem(classpage,collectionItem.getResource(), user, sequence++));
+			for (CollectionItem collectionItem : folderCollectionItems) {
+				collectionItems.add(createClasspageItem(classpage, collectionItem.getResource(), user, sequence++));
 			}
 		} else if (collection.getCollectionType().equalsIgnoreCase(COLLECTION)) {
-			collectionItems.add(createClasspageItem (classpage, collection, user, sequence));
+			collectionItems.add(createClasspageItem(classpage, collection, user, sequence));
 		}
-		
+
 		return collectionItems;
 	}
-	
-	private CollectionItem createClasspageItem (Classpage classPage, Resource collection, User user, int sequence) {
+
+	private CollectionItem createClasspageItem(Classpage classPage, Resource collection, User user, int sequence) {
 		CollectionItem collectionItem = new CollectionItem();
 		collectionItem.setCollection(classPage);
 		collectionItem.setResource(collection);
@@ -523,8 +524,13 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		SessionContextSupport.putLogParameter(COLLECTION_ID, classPage.getGooruOid());
 		SessionContextSupport.putLogParameter(RESOURCE_ID, collection.getGooruOid());
 		SessionContextSupport.putLogParameter(COLLECTION_TYPE, collectionItem.getCollection().getCollectionType());
-		return collectionItem; 
-	} 
+		return collectionItem;
+	}
+
+	@Override
+	public List<Collection> getCollections(User user, Integer limit, Integer offset, boolean skipPagination) {
+		return this.getCollectionRepository().getCollectionsList(user, limit, offset, skipPagination);
+	}
 
 	@Override
 	public Boolean resourceCopiedFrom(String gooruOid, String gooruUid) {

@@ -130,4 +130,6 @@ public interface CollectionRepository extends BaseRepository {
 	
 	List<Object[]> getClasspageItems(String gooruOid, Integer limit, Integer offset, String userUid, String orderBy, boolean skipPagination, String status);
 	
+	List<Collection> getCollectionsList(User user,Integer limit, Integer offset,boolean skipPagination);
+	
 }

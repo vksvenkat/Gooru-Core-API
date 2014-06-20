@@ -540,6 +540,15 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 		}
 		return list;
 	}
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
+	@RequestMapping(value = { "/list" }, method = RequestMethod.GET)
+	public ModelAndView getCollectionList(@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,
+			@RequestParam(value = SKIP_PAGINATION, required = false, defaultValue = FALSE) Boolean skipPagination, HttpServletRequest request, HttpServletResponse response) {
+		User user = (User) request.getAttribute(Constants.USER);
+		return toModelAndViewWithIoFilter(getCollectionService().getCollections(user, limit,offset,skipPagination), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, COLLECTION_INCLUDE_FIELDS);
+		
+	}
+
 
 	public BaseRepository getBaseRepository() {
 		return baseRepository;
