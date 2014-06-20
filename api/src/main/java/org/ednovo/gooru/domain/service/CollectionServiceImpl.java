@@ -50,6 +50,8 @@ import org.ednovo.gooru.domain.service.search.SearchResults;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.storage.StorageRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.taxonomy.TaxonomyRespository;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindException;
@@ -172,6 +174,11 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 			responseDTO = this.createCollectionItem(sourceId, null, collectionItem, user, CollectionType.SHElf.getCollectionType(), false);
 		}
 		this.redisService.bulkKeyDelete("v2-organize-data-" + collectionItem.getCollection().getUser().getPartyUid() + "*");
+		try {
+			getEventLogs();
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}		
 		return responseDTO;
 	}
 
@@ -545,6 +552,11 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 
 	public TaxonomyRespository getTaxonomyRespository() {
 		return taxonomyRespository;
+	}
+
+	private void getEventLogs() throws JSONException {
+		JSONObject payLoadObject = SessionContextSupport.getLog().get("payLoadObject") != null ? new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString()) :  new JSONObject();
+		payLoadObject.put("mode", "move");
 	}
 
 }
