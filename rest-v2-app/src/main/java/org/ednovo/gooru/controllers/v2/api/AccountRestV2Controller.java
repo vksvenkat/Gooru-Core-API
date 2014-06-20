@@ -23,12 +23,16 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.controllers.v2.api;
 
+import java.util.Properties;
+
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.ednovo.gooru.controllers.BaseController;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
+import org.ednovo.gooru.core.api.model.Identity;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserAccountType;
@@ -63,6 +67,10 @@ public class AccountRestV2Controller extends BaseController implements ConstantP
 
 	@Autowired
 	private UserRepository userRepository;
+	
+	@Autowired
+	@Resource(name = "serverConstants")
+	private Properties serverConstants;
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_SIGNIN })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -141,7 +149,15 @@ public class AccountRestV2Controller extends BaseController implements ConstantP
 		SessionContextSupport.putLogParameter(EVENT_NAME, "user-authenticate");
 		SessionContextSupport.putLogParameter(SECERT_KEY, getValue(SECERT_KEY, json));
 		SessionContextSupport.putLogParameter(API_KEY, getValue(API_KEY, json));
-		return toModelAndViewWithIoFilter(this.getAccountService().userAuthentication(buildUserFromInputParameters(data), getValue(SECERT_KEY, json), getValue(API_KEY, json), UserAccountType.accountCreatedType.GOOGLE_APP.getType(), request), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, USER_INCLUDES);
+		User user = this.getAccountService().userAuthentication(buildUserFromInputParameters(data), getValue(SECERT_KEY, json), getValue(API_KEY, json), UserAccountType.accountCreatedType.GOOGLE_APP.getType(), request);
+		if (user.getIdentities() != null) {
+			Identity identity = user.getIdentities().iterator().next();
+			if (identity.getActive() == 0) {
+				response.sendRedirect(this.getServerConstants().getProperty("serverPath") + "/#discover&loginEvent=true&error=403&username="+identity.getExternalId());
+			}
+			 return null;
+		}
+		return toModelAndViewWithIoFilter(user, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, USER_INCLUDES);
 	}
 
 	public UserRepository getUserRepository() {
@@ -155,6 +171,10 @@ public class AccountRestV2Controller extends BaseController implements ConstantP
 	private User buildUserFromInputParameters(String data) {
 
 		return JsonDeserializer.deserialize(data, User.class);
+	}
+
+	public Properties getServerConstants() {
+		return serverConstants;
 	}
 
 }
