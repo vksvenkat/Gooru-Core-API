@@ -152,4 +152,28 @@ public class BaseUtil {
 		}
 		return videoId;
 	}
+	
+	public static String removeCurlies(String uuid) {
+		if (uuid.length() > 0) {
+			if (uuid.startsWith("{"))
+				uuid = uuid.substring(1);
+			if (uuid.endsWith("}"))
+				uuid = uuid.substring(0, uuid.length() - 1);
+		}
+		return uuid;
+	}
+
+	public static boolean isUuid(String uuid) {
+		boolean bIsUuid = false;
+		uuid = removeCurlies(uuid);
+		if (uuid.length() == 36) {
+			String[] aParts = uuid.split("-");
+			if (aParts.length == 5) {
+				if ((aParts[0].length() == 8) && (aParts[1].length() == 4) && (aParts[2].length() == 4) && (aParts[3].length() == 4) && (aParts[4].length() == 12)) {
+					bIsUuid = true;
+				}
+			}
+		}
+		return bIsUuid;
+	}
 }
