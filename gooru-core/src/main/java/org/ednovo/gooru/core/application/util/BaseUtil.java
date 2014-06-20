@@ -154,6 +154,8 @@ public class BaseUtil {
 		return videoId;
 	}
 
+	
+	//used peace of code which is under the Apache License
 	public static String removeCurlies(String uuid) {
 		if (uuid.length() > 0) {
 			if (uuid.startsWith("{"))
@@ -163,7 +165,7 @@ public class BaseUtil {
 		}
 		return uuid;
 	}
-
+    // used peace of code which is under the Apache License
 	public static boolean isUuid(String uuid) {
 		boolean bIsUuid = false;
 		uuid = removeCurlies(uuid);
