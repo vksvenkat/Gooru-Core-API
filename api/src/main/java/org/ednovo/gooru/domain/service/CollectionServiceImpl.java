@@ -31,6 +31,7 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.ednovo.gooru.application.util.ResourceImageUtil;
+import org.ednovo.gooru.application.util.TaxonomyUtil;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.AssessmentQuestion;
 import org.ednovo.gooru.core.api.model.Classpage;
@@ -38,22 +39,37 @@ import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.CollectionType;
+import org.ednovo.gooru.core.api.model.Content;
+import org.ednovo.gooru.core.api.model.ContentAssociation;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.ResourceType;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
+import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.ShelfType;
 import org.ednovo.gooru.core.api.model.StorageArea;
+import org.ednovo.gooru.core.api.model.UpdateViewsDTO;
 import org.ednovo.gooru.core.api.model.User;
+import org.ednovo.gooru.core.api.model.UserRoleAssoc;
+import org.ednovo.gooru.core.api.model.UserSummary;
+import org.ednovo.gooru.core.api.model.UserRole.UserRoleType;
+import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.domain.service.redis.RedisService;
 import org.ednovo.gooru.domain.service.search.SearchResults;
+import org.ednovo.gooru.domain.service.user.UserService;
+import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.storage.StorageRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.taxonomy.TaxonomyRespository;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
+
+import com.google.common.collect.Lists;
 
 @Service
 public class CollectionServiceImpl extends ScollectionServiceImpl implements CollectionService {
@@ -66,6 +82,9 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 
 	@Autowired
 	private StorageRepository storageRepository;
+
+	@Autowired
+	private UserService userService;
 
 	@Autowired
 	private RedisService redisService;
@@ -172,6 +191,11 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 			responseDTO = this.createCollectionItem(sourceId, null, collectionItem, user, CollectionType.SHElf.getCollectionType(), false);
 		}
 		this.redisService.bulkKeyDelete("v2-organize-data-" + collectionItem.getCollection().getUser().getPartyUid() + "*");
+		try {
+			getEventLogs();
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}		
 		return responseDTO;
 	}
 
@@ -529,9 +553,52 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	}
 
 	@Override
-	public List<Collection> getCollections(User user, Integer limit, Integer offset, boolean skipPagination) {
-		return this.getCollectionRepository().getCollectionsList(user, limit, offset, skipPagination);
+	public List<Collection> getCollections(User user,Integer limit, Integer offset,boolean skipPagination,String publishStatus) {
+		return this.getCollectionRepository().getCollectionsList( user,limit,offset,skipPagination,publishStatus);
+
 	}
+
+	@Override
+	public List<Collection> updateCollectionForPublish(List<Map<String, String>> collection, User user) throws Exception {
+
+			List<String> gooruOids =  new ArrayList<String>();
+			List<Collection> collections= new ArrayList<Collection>();
+				StringBuffer collectionIds = new StringBuffer();
+				for (Map<String, String> map : collection) {
+					gooruOids.add(map.get("gooruOid"));
+				}
+				if (gooruOids.toString().trim().length() > 0) {
+					 collections = this.getCollectionRepository().getCollectionListByIds(gooruOids);
+					for (Collection scollection : collections) {					
+						if ( userService.isSuperAdmin(user)) {
+							if(!scollection.getSharing().equalsIgnoreCase(PUBLIC)){
+								scollection.setSharing(PUBLIC);
+							}
+							if(scollection.getPublishStatus().getValue().equalsIgnoreCase("PENDING")){
+								scollection.setPublishStatus(this.getCustomTableRepository().getCustomTableValue("publish_status", REVIEWED));
+								collectionIds.append(scollection.getGooruOid());
+								
+								if (collectionIds.toString().trim().length() > 0) {
+									collectionIds.append(",");
+								}
+								
+							}else{
+								throw new BadCredentialsException("Please try again later");
+								  
+							}
+						}
+						
+
+					}
+					this.getCollectionRepository().saveAll(collections);
+					if (collectionIds.toString().trim().length() > 0) {
+						indexProcessor.index(collectionIds.toString(), IndexProcessor.INDEX, SCOLLECTION);
+					} 
+				}
+			return collections;
+
+		}
+	
 
 	@Override
 	public Boolean resourceCopiedFrom(String gooruOid, String gooruUid) {
@@ -545,6 +612,11 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 
 	public TaxonomyRespository getTaxonomyRespository() {
 		return taxonomyRespository;
+	}
+
+	private void getEventLogs() throws JSONException {
+		JSONObject payLoadObject = SessionContextSupport.getLog().get("payLoadObject") != null ? new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString()) :  new JSONObject();
+		payLoadObject.put("mode", "move");
 	}
 
 }

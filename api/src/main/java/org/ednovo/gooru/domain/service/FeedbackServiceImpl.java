@@ -54,6 +54,8 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.resource.ResourceRepository;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -306,6 +308,12 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 			}
 			this.getAsyncExecutor().clearCache(resource.getGooruOid());
 		}
+		try {
+			getEventLogs(resource);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+
 		return feedbackList;
 
 	}
@@ -515,6 +523,16 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 
 	public AsyncExecutor getAsyncExecutor() {
 		return asyncExecutor;
+	}
+
+	private void getEventLogs(Resource resource) throws JSONException {
+
+		JSONObject payLoadObject = SessionContextSupport.getLog().get("payLoadObject") != null ? new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString()) :  new JSONObject();
+		if(resource.getResourceType().getName().equalsIgnoreCase(ResourceType.Type.SCOLLECTION.getType())) {
+    		payLoadObject.put("itemType", "collection");
+		}else {
+			payLoadObject.put("itemType", "resource");
+		}
 	}
 
 }

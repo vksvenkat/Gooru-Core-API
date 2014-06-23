@@ -36,6 +36,7 @@ import org.ednovo.gooru.core.api.model.Quiz;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserCollectionItemAssoc;
+import org.ednovo.gooru.core.application.util.BaseUtil;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
@@ -728,7 +729,12 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 
 	@Override
 	public List<Object[]> getMyFolder(String gooruUid, Integer limit, Integer offset, String sharing, String collectionType, boolean fetchChildItem) {
-		String sql = "select re.title, cr.gooru_oid, re.type_name, re.folder, re.thumbnail, cr.sharing, ci.collection_item_id, co.goals, ct.value, ct.display_name, rs.attribution, rs.domain_name , co.ideas, co.questions,co.performance_tasks from  resource r inner join collection c on c.content_id = r.content_id inner join content cc on cc.content_id =  c.content_id inner join collection_item ci on ci.collection_content_id = c.content_id inner join resource re on re.content_id = ci.resource_content_id inner join content cr on  cr.content_id = re.content_id inner join organization o  on  o.organization_uid = cr.organization_uid  left join collection co on co.content_id = re.content_id inner join user uu on  uu.gooru_uid = cc.user_uid left join custom_table_value ct on ct.custom_table_value_id = r.resource_format_id left join resource_source rs on rs.resource_source_id = r.resource_source_id  where c.collection_type = 'shelf' and  cr.sharing in ('" + sharing.replace(",", "','")+ "') and (cc.user_uid='" + gooruUid + "' or uu.username='"+gooruUid+"')";
+		String sql = "select re.title, cr.gooru_oid, re.type_name, re.folder, re.thumbnail, cr.sharing, ci.collection_item_id, co.goals, ct.value, ct.display_name, rs.attribution, rs.domain_name , co.ideas, co.questions,co.performance_tasks from  resource r inner join collection c on c.content_id = r.content_id inner join content cc on cc.content_id =  c.content_id inner join collection_item ci on ci.collection_content_id = c.content_id inner join resource re on re.content_id = ci.resource_content_id inner join content cr on  cr.content_id = re.content_id inner join organization o  on  o.organization_uid = cr.organization_uid  left join collection co on co.content_id = re.content_id inner join user uu on  uu.gooru_uid = cc.user_uid left join custom_table_value ct on ct.custom_table_value_id = r.resource_format_id left join resource_source rs on rs.resource_source_id = r.resource_source_id  where c.collection_type = 'shelf' and  cr.sharing in ('" + sharing.replace(",", "','")+ "') ";
+		if (BaseUtil.isUuid(gooruUid)) { 
+			sql += " and cc.user_uid = '" + gooruUid + "' ";
+		} else {
+			sql += " and uu.username = '" + gooruUid + "' ";
+		}
 		
 		if (collectionType!= null)  {
 			sql += " and re.type_name=:collectionType ";
@@ -948,13 +954,19 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		return query.list();
 	}
 	@Override
-	public List<Collection> getCollectionsList(User user,Integer limit, Integer offset,boolean skipPagination) {
+	public List<Collection> getCollectionsList(User user,Integer limit, Integer offset,boolean skipPagination, String publishStatus) {
 	
-		String hql = "SELECT collection FROM Collection collection inner join collection.publishStatus ct where ct.value =:pending";
-		hql += " AND " + generateOrgAuthQuery("collection.");		
+		String hql = "SELECT collection FROM Collection collection inner join collection.publishStatus ct ";
+		hql += " WHERE " + generateOrgAuthQuery("collection.");
+		if (publishStatus != null) {
+			hql += " and  ct.value =:pending";
+		}
+				
 		Session session = getSession();
 		Query query = session.createQuery(hql);
-		query.setParameter("pending", "pending");
+		if (publishStatus != null) {
+		query.setParameter("pending", publishStatus);
+		}
 		addOrgAuthParameters(query);
 		
 		if (!skipPagination) {

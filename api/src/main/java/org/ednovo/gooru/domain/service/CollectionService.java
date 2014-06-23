@@ -68,7 +68,10 @@ public interface CollectionService extends ScollectionService {
 	
 	List<CollectionItem> assignCollection(String classpageId, String collectionId, User user) throws Exception;
 	
-	List<Collection> getCollections(User user,Integer limit, Integer offset,boolean skipPagination);
+	List<Collection> getCollections(User user,Integer limit, Integer offset,boolean skipPagination, String publishStatus);
+	
+	List<Collection> updateCollectionForPublish(List<Map<String,String>> collection,User user) throws Exception;
+	
 	
 	
 }

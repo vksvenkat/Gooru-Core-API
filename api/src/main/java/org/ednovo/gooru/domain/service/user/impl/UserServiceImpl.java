@@ -980,6 +980,22 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 		}
 		return isAnonymousUser;
 	}
+	
+	@Override
+	public Boolean isSuperAdmin(User user) {
+		Boolean isSuperAdmin = false;
+		if (user.getUserRoleSet() != null) {
+			for (UserRoleAssoc userRoleAssoc : user.getUserRoleSet()) {
+				if (userRoleAssoc.getRole().getName().equalsIgnoreCase(UserRoleType.SUPER_ADMIN.getType())) {
+					isSuperAdmin = true;
+					break;
+				}
+			}
+		}
+
+		return isSuperAdmin;
+	}
+
 
 	private Boolean isNotEmptyString(String field) {
 		return StringUtils.hasLength(field);
