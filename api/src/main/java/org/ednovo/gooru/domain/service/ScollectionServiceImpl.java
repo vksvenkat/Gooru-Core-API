@@ -629,9 +629,8 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			UserSummary userSummary = this.getUserRepository().getSummaryByUid(user.getPartyUid());
 			if( userSummary != null && userSummary.getCollections() != null){
 				userSummary.setCollections(userSummary.getCollections() - 1);
-				this.getUserRepository().save(userSummary);
 			}
-			
+			this.getUserRepository().save(userSummary);
 			this.getUserRepository().flush();
 
 		} else {
