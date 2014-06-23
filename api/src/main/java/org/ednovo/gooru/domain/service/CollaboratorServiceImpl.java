@@ -34,6 +34,7 @@ import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.Identity;
 import org.ednovo.gooru.core.api.model.InviteUser;
+import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserContentAssoc;
 import org.ednovo.gooru.core.constant.ConstantProperties;
@@ -48,6 +49,8 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.InviteRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.collaborator.CollaboratorRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -122,6 +125,12 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 						this.redisService.bulkKeyDelete("v2-organize-data-" + identity.getUser().getPartyUid() + "*");
 					} else {
 						collaborator.add(setActiveCollaborator(userContentAssocs, ACTIVE));
+						try {
+							getEventLogs(userContentAssocs.getUser() );
+						} catch (JSONException e) {
+							e.printStackTrace();
+						}		
+
 					}
 
 				} else {
@@ -335,6 +344,21 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 
 	public InviteRepository getInviteRepository() {
 		return inviteRepository;
+	}
+
+	private void getEventLogs(User newUser) throws JSONException {
+		SessionContextSupport.putLogParameter(EVENT_NAME, "item.collaborate");
+		JSONObject context = SessionContextSupport.getLog().get("context") != null ? new JSONObject(SessionContextSupport.getLog().get("context").toString()) :  new JSONObject();
+		SessionContextSupport.putLogParameter("context", context.toString());
+		JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session").toString()) :  new JSONObject();
+		session.put("organizationUId", newUser.getOrganizationUid());
+		SessionContextSupport.putLogParameter("session", session.toString());	
+		JSONObject user = SessionContextSupport.getLog().get("user") != null ? new JSONObject(SessionContextSupport.getLog().get("user").toString()) :  new JSONObject();
+		user.put("gooruUId", newUser.getPartyUid());
+		SessionContextSupport.putLogParameter("user", user.toString());
+		JSONObject payLoadObject = SessionContextSupport.getLog().get("payLoadObject") != null ? new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString()) :  new JSONObject();
+		payLoadObject.put("mode", "add");
+		payLoadObject.put("collaboratedId", newUser.getUserUid());
 	}
 
 }
