@@ -123,6 +123,7 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 						collaborator.add(setActiveCollaborator(userContentAssoc, ACTIVE));
 						this.getContentService().createContentPermission(content, identity.getUser());
 						this.redisService.bulkKeyDelete("v2-organize-data-" + identity.getUser().getPartyUid() + "*");
+						this.redisService.bulkKeyDelete("v2-organize-data-" + content.getUser().getPartyUid() + "*");
 					} else {
 						collaborator.add(setActiveCollaborator(userContentAssocs, ACTIVE));
 						try {
@@ -226,6 +227,7 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 						}
 					}
 					this.redisService.bulkKeyDelete("v2-organize-data-" + identity.getUser().getPartyUid() + "*");
+					this.redisService.bulkKeyDelete("v2-organize-data-" + content.getUser().getPartyUid() + "*");
 				} else {
 					InviteUser inviteUser = this.getInviteRepository().findInviteUserById(mailId, gooruOid,PENDING);
 					if (inviteUser != null) {

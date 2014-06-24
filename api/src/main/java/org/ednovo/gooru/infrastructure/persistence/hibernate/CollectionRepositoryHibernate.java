@@ -943,6 +943,9 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		}  else  if (orderBy != null &&  orderBy.equals(DUE_DATE)) { 
 			sql += "order by IFNULL(ci.planned_end_date, (SUBSTRING(now(), 1, 4) + 1000)) asc ";
 			
+		} else  if (orderBy != null &&  orderBy.equals(DUE_DATE_EARLIEST)) { 
+			sql += "order by ci.planned_end_date desc";
+			
 		} else { 
 			sql += " order by ci.item_sequence asc ";
 		}

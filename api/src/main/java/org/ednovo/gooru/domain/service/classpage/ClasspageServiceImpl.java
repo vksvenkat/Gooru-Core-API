@@ -342,7 +342,6 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 				collectionItem.setResource(collection);
 				int sequence = collectionItem.getCollection().getCollectionItems() != null ? collectionItem.getCollection().getCollectionItems().size() + 1 : 1;
 				collectionItem.setItemSequence(sequence);
-				collectionItem.getCollection().setItemCount(collectionItem.getCollection().getCollectionItems().size() + 1);
 				this.getCollectionRepository().save(collectionItem);
 			}
 		} else {
@@ -420,6 +419,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 						classpage.setLastModified(new Date(System.currentTimeMillis()));
 						this.getCollectionRepository().save(classpage);
 						this.getUserRepository().save(groupAssociation);
+						this.getUserRepository().flush();
 						classpageMember.add(setMemberResponse(groupAssociation, ACTIVE));
 					}
 				}
