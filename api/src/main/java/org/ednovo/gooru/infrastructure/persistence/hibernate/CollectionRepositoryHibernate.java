@@ -960,12 +960,11 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 	public List<Collection> getCollectionsList(User user,Integer limit, Integer offset,boolean skipPagination, String publishStatus) {
 	
 		String hql = "SELECT collection FROM Collection collection inner join collection.publishStatus ct ";
-		hql += " WHERE " + generateOrgAuthQuery("collection.");
-		hql += " ORDER BY collection.createdOn desc ";
+		hql += " WHERE " + generateOrgAuthQuery("collection.");		
 		if (publishStatus != null) {
 			hql += " and  ct.value =:pending";
 		}
-				
+		hql += " ORDER BY collection.createdOn desc ";		
 		Session session = getSession();
 		Query query = session.createQuery(hql);
 		if (publishStatus != null) {
