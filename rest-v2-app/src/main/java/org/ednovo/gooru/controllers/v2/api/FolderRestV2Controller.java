@@ -191,7 +191,7 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 			@RequestParam(value = ITEM_LIMIT_FIELD, required = false, defaultValue = "4") Integer itemLimit, @RequestParam(value = FETCH_CHILDS, required = false, defaultValue = "false") boolean fetchChilds,
 			@RequestParam(value = CLEAR_CACHE, required = false, defaultValue = FALSE) boolean clearCache, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		Map<String, Object> content = null;
-        Content contentObj = this.getContentRepository().findContentByGooruId(collectionId);
+        Content contentObj = this.getContentRepository().findContentByGooruId(collectionId, true);
 		final String cacheKey = "v2-organize-data-" + contentObj != null ? contentObj.getUser().getPartyUid() : "" + "-" + collectionId + "-" + offset + "-" + limit + "-" + sharing + "-" + collectionType + "-" + itemLimit + "-" + fetchChilds;
 		String data = null;
 		if (!clearCache) {
