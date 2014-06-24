@@ -554,7 +554,7 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 	}
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_UPDATE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	@RequestMapping(value = { "/publishCollections" }, method = { RequestMethod.PUT })
+	@RequestMapping(value = { "/publish/collections" }, method = { RequestMethod.PUT })
 	public ModelAndView updateCollectionForPublish( @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
 		List<Map<String,String>> collection = buildUpdatesPublishStatusFromInputParameters(data);	
