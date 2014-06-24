@@ -51,6 +51,7 @@ import org.ednovo.gooru.domain.service.redis.RedisService;
 import org.ednovo.gooru.domain.service.resource.ResourceService;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepository;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentRepository;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,6 +77,9 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 
 	@Autowired
 	private CollectionRepository collectionRepository;
+	
+	@Autowired
+	private ContentRepository contentRepository;
 
 	@Autowired
 	private ResourceService resourceService;
@@ -186,7 +190,8 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 			@RequestParam(value = ITEM_LIMIT_FIELD, required = false, defaultValue = "4") Integer itemLimit, @RequestParam(value = FETCH_CHILDS, required = false, defaultValue = "false") boolean fetchChilds,
 			@RequestParam(value = CLEAR_CACHE, required = false, defaultValue = FALSE) boolean clearCache, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		Map<String, Object> content = null;
-		final String cacheKey = "v2-organize-data-" + collectionId + "-" + offset + "-" + limit + "-" + sharing + "-" + collectionType + "-" + itemLimit + "-" + fetchChilds;
+        User user = this.getContentRepository().findContentOwner(collectionId);
+		final String cacheKey = "v2-organize-data-" + user.getPartyUid() + "-" + collectionId + "-" + offset + "-" + limit + "-" + sharing + "-" + collectionType + "-" + itemLimit + "-" + fetchChilds;
 		String data = null;
 		if (!clearCache) {
 			data = getRedisService().getValue(cacheKey);
@@ -328,6 +333,10 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 
 	public RedisService getRedisService() {
 		return redisService;
+	}
+
+	public ContentRepository getContentRepository() {
+		return contentRepository;
 	}
 
 }
