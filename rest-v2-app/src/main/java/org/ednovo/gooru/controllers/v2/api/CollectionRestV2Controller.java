@@ -560,7 +560,14 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 		List<Map<String,String>> collection = buildUpdatesPublishStatusFromInputParameters(data);	
 		return toModelAndViewWithIoFilter(getCollectionService().updateCollectionForPublish(collection, user), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, COLLECTION_INCLUDE_FIELDS);
 	}
-	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_UPDATE })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(value = { "/reject/collections" }, method = { RequestMethod.PUT })
+	public ModelAndView updateCollectionForRejection( @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		User user = (User) request.getAttribute(Constants.USER);
+		List<Map<String,String>> collection = buildUpdatesPublishStatusFromInputParameters(data);	
+		return toModelAndViewWithIoFilter(getCollectionService().updateCollectionForReject(collection, user), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, COLLECTION_INCLUDE_FIELDS);
+	}
 	
 	private  List<Map<String,String>>  buildUpdatesPublishStatusFromInputParameters(String data) {
 		return JsonDeserializer.deserialize(data, new TypeReference<List<Map<String,String>>>() {});

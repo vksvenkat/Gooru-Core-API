@@ -599,6 +599,45 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 
 		}
 	
+	@Override
+	public List<Collection> updateCollectionForReject(List<Map<String, String>> collection, User user) throws Exception {
+
+			List<String> gooruOids =  new ArrayList<String>();
+			List<Collection> collections= new ArrayList<Collection>();
+				StringBuffer collectionIds = new StringBuffer();
+				for (Map<String, String> map : collection) {
+					gooruOids.add(map.get("gooruOid"));
+				}
+				if (gooruOids.toString().trim().length() > 0) {
+					 collections = this.getCollectionRepository().getCollectionListByIds(gooruOids);
+					for (Collection scollection : collections) {					
+						if ( userService.isSuperAdmin(user) || userService.isContentAdmin(user)) {							
+								scollection.setSharing("anyonewithlink");
+							if(scollection.getPublishStatus().getValue().equalsIgnoreCase("PENDING")){
+								scollection.setPublishStatus(null);
+								collectionIds.append(scollection.getGooruOid());
+								
+								if (collectionIds.toString().trim().length() > 0) {
+									collectionIds.append(",");
+								}
+								
+							}else{
+								throw new BadCredentialsException("Please try again later");
+								  
+							}
+						}
+						
+
+					}
+					this.getCollectionRepository().saveAll(collections);
+					if (collectionIds.toString().trim().length() > 0) {
+						indexProcessor.index(collectionIds.toString(), IndexProcessor.INDEX, SCOLLECTION);
+					} 
+				}
+			return collections;
+
+		}
+	
 
 	@Override
 	public Boolean resourceCopiedFrom(String gooruOid, String gooruUid) {
