@@ -524,7 +524,8 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 				if (collection.getSharing().equalsIgnoreCase(PUBLIC) && newCollection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing())) {
 					UserSummary userSummary = this.getUserRepository().getSummaryByUid(apiCallerUser.getPartyUid());
-					userSummary.setCollections(userSummary.getCollections() - 1);
+					
+					userSummary.setCollections(userSummary.getCollections() > 0 ?  userSummary.getCollections() - 1 : 0);
 					this.getUserRepository().save(userSummary);
 					this.getUserRepository().flush();
 				} else if (!collection.getSharing().equalsIgnoreCase(PUBLIC) && newCollection.getSharing().equalsIgnoreCase(PUBLIC)) {
@@ -629,7 +630,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			}
 			UserSummary userSummary = this.getUserRepository().getSummaryByUid(user.getPartyUid());
 			if( userSummary != null && userSummary.getCollections() != null){
-				userSummary.setCollections(userSummary.getCollections() - 1);
+				userSummary.setCollections(userSummary.getCollections() > 0 ?  userSummary.getCollections() - 1 : 0);
 				this.getUserRepository().save(userSummary);
 			}
 			this.getUserRepository().flush();
