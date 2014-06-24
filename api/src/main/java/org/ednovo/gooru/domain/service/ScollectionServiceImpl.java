@@ -363,6 +363,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 			getEventLogs(collection, user);
 			this.redisService.bulkKeyDelete("v2-organize-data-" + collection.getUser().getPartyUid() + "*");
+			this.redisService.bulkKeyDelete("v2-organize-data-" + parentCollection.getUser().getPartyUid() + "*");
 
 		}
 		return new ActionResponseDTO<Collection>(collection, errors);
