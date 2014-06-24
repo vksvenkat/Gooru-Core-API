@@ -37,6 +37,7 @@ import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.CollectionType;
+import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.ContentType;
 import org.ednovo.gooru.core.api.model.ResourceType;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
@@ -190,8 +191,8 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 			@RequestParam(value = ITEM_LIMIT_FIELD, required = false, defaultValue = "4") Integer itemLimit, @RequestParam(value = FETCH_CHILDS, required = false, defaultValue = "false") boolean fetchChilds,
 			@RequestParam(value = CLEAR_CACHE, required = false, defaultValue = FALSE) boolean clearCache, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		Map<String, Object> content = null;
-        User user = this.getContentRepository().findContentOwner(collectionId);
-		final String cacheKey = "v2-organize-data-" + user.getPartyUid() + "-" + collectionId + "-" + offset + "-" + limit + "-" + sharing + "-" + collectionType + "-" + itemLimit + "-" + fetchChilds;
+        Content contentObj = this.getContentRepository().findContentByGooruId(collectionId);
+		final String cacheKey = "v2-organize-data-" + contentObj != null ? contentObj.getUser().getPartyUid() : "" + "-" + collectionId + "-" + offset + "-" + limit + "-" + sharing + "-" + collectionType + "-" + itemLimit + "-" + fetchChilds;
 		String data = null;
 		if (!clearCache) {
 			data = getRedisService().getValue(cacheKey);
