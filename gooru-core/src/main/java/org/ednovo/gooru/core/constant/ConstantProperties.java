@@ -466,6 +466,8 @@ public interface ConstantProperties {
 
 	public static String DUE_DATE = "due-date";
 	
+	public static String DUE_DATE_EARLIEST = "due-date-earliest";
+	
 	public static String PUBLISH_STATUS = "publishStatus";
 
 }

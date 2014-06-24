@@ -37,6 +37,7 @@ import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.CollectionType;
+import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.ContentType;
 import org.ednovo.gooru.core.api.model.ResourceType;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
@@ -51,6 +52,7 @@ import org.ednovo.gooru.domain.service.redis.RedisService;
 import org.ednovo.gooru.domain.service.resource.ResourceService;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepository;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentRepository;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,6 +78,9 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 
 	@Autowired
 	private CollectionRepository collectionRepository;
+	
+	@Autowired
+	private ContentRepository contentRepository;
 
 	@Autowired
 	private ResourceService resourceService;
@@ -185,20 +190,11 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 			@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "20") Integer limit, @RequestParam(value = SHARING, required = false, defaultValue = "private,public,anyonewithlink") String sharing, @RequestParam(value = "collectionType", required = false) String collectionType,
 			@RequestParam(value = ITEM_LIMIT_FIELD, required = false, defaultValue = "4") Integer itemLimit, @RequestParam(value = FETCH_CHILDS, required = false, defaultValue = "false") boolean fetchChilds,
 			@RequestParam(value = CLEAR_CACHE, required = false, defaultValue = FALSE) boolean clearCache, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		Map<String, Object> content = null;
-		final String cacheKey = "v2-organize-data-" + collectionId + "-" + offset + "-" + limit + "-" + sharing + "-" + collectionType + "-" + itemLimit + "-" + fetchChilds;
-		String data = null;
-		if (!clearCache) {
-			data = getRedisService().getValue(cacheKey);
-		}
-		if (data == null) {
-			content = new HashMap<String, Object>();
-			content.put(SEARCH_RESULT, this.getCollectionService().getFolderItems(collectionId, limit, offset, sharing, collectionType, orderBy, itemLimit, fetchChilds));
-			content.put(COUNT, this.getCollectionRepository().getCollectionItemCount(collectionId, sharing, collectionType));
-			data = serializeToJson(content, true);
-			getRedisService().putValue(cacheKey, data, 86400);
-		}
-		return toModelAndView(data);
+
+		Map<String, Object> content = new HashMap<String, Object>();
+		content.put(SEARCH_RESULT, this.getCollectionService().getFolderItems(collectionId, limit, offset, sharing, collectionType, orderBy, itemLimit, fetchChilds));
+		content.put(COUNT, this.getCollectionRepository().getCollectionItemCount(collectionId, sharing, collectionType));
+		return toModelAndView(serializeToJson(content, true));
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ITEM_DELETE })
@@ -328,6 +324,10 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 
 	public RedisService getRedisService() {
 		return redisService;
+	}
+
+	public ContentRepository getContentRepository() {
+		return contentRepository;
 	}
 
 }

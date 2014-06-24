@@ -570,7 +570,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				if (gooruOids.toString().trim().length() > 0) {
 					 collections = this.getCollectionRepository().getCollectionListByIds(gooruOids);
 					for (Collection scollection : collections) {					
-						if ( userService.isSuperAdmin(user)) {
+						if ( userService.isSuperAdmin(user) || userService.isContentAdmin(user)) {
 							if(!scollection.getSharing().equalsIgnoreCase(PUBLIC)){
 								scollection.setSharing(PUBLIC);
 							}

@@ -343,6 +343,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			Collection parentCollection = collectionRepository.getCollectionByGooruOid(parentId, collection.getUser().getGooruUId());
 			if (parentCollection != null) {
 				collection.setCollectionItem(this.createCollectionItem(collection.getGooruOid(), parentCollection.getGooruOid(), new CollectionItem(), collection.getUser(), CollectionType.FOLDER.getCollectionType(), false).getModel());
+				this.redisService.bulkKeyDelete("v2-organize-data-" + parentCollection.getUser().getPartyUid() + "*");
 			}
 
 			try {
@@ -629,8 +630,8 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			UserSummary userSummary = this.getUserRepository().getSummaryByUid(user.getPartyUid());
 			if( userSummary != null && userSummary.getCollections() != null){
 				userSummary.setCollections(userSummary.getCollections() - 1);
+				this.getUserRepository().save(userSummary);
 			}
-			this.getUserRepository().save(userSummary);
 			this.getUserRepository().flush();
 
 		} else {
