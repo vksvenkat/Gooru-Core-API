@@ -72,6 +72,8 @@ public interface CollectionService extends ScollectionService {
 	
 	List<Collection> updateCollectionForPublish(List<Map<String,String>> collection,User user) throws Exception;
 	
+	List<Collection> updateCollectionForReject(List<Map<String,String>> collection,User user) throws Exception;
+	
 	
 	
 }
