@@ -958,6 +958,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 	
 		String hql = "SELECT collection FROM Collection collection inner join collection.publishStatus ct ";
 		hql += " WHERE " + generateOrgAuthQuery("collection.");
+		hql += " ORDER BY collection.createdOn desc ";
 		if (publishStatus != null) {
 			hql += " and  ct.value =:pending";
 		}
