@@ -279,7 +279,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			userToken.setUser(newUser);
 			request.getSession().setAttribute(Constants.USER, newUser);
 			request.getSession().setAttribute(Constants.SESSION_TOKEN, userToken.getToken());
-			getEventLogs(identity);
+			getEventLogs(identity,userToken);
 			indexProcessor.index(user.getPartyUid(), IndexProcessor.INDEX, USER, false);
 			
 		}
@@ -396,7 +396,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 		return new ActionResponseDTO<UserToken>(userToken, new BindException(userToken, SESSIONTOKEN));
 	}
 	
-	public void getEventLogs(Identity identity) throws JSONException {
+	public void getEventLogs(Identity identity, UserToken userToken) throws JSONException {
 		SessionContextSupport.putLogParameter(EVENT_NAME, "user.login");
 		JSONObject context = SessionContextSupport.getLog().get("context") != null ? new JSONObject(SessionContextSupport.getLog().get("context").toString()) : new JSONObject();
 		if(identity != null && identity.getLoginType().equalsIgnoreCase("Credential")) {
@@ -410,8 +410,10 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 		JSONObject payLoadObject = SessionContextSupport.getLog().get("payLoadObject") != null ? new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString()) : new JSONObject();
 		SessionContextSupport.putLogParameter("payLoadObject", payLoadObject.toString());
 		JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session").toString()) : new JSONObject();
+		session.put("sessionToken", userToken.getToken());
 		SessionContextSupport.putLogParameter("session", session.toString());
 		JSONObject user = SessionContextSupport.getLog().get("user") != null ? new JSONObject(SessionContextSupport.getLog().get("user").toString()) : new JSONObject();
+		user.put("gooruUId", identity != null && identity.getUser() != null ? identity.getUser().getPartyUid() : null );
 		SessionContextSupport.putLogParameter("user", user.toString());
 	}
 	
