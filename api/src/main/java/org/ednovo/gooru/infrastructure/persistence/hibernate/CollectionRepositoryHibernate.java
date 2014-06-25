@@ -936,14 +936,14 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		if (status != null) { 
 			sql += " and IFNULL(ct.value, 'open') = '"+ status+ "' ";
 		}
-		if (orderBy != null && orderBy.equals(RECENT)) {
+		if (orderBy != null && orderBy.equalsIgnoreCase(RECENT)) {
 			sql += " order by ci.association_date desc ";
-		}  else if (orderBy != null &&  orderBy.equals(SEQUENCE_DESC)) { 
+		}  else if (orderBy != null &&  orderBy.equalsIgnoreCase(SEQUENCE_DESC)) { 
 			sql += " order by ci.item_sequence desc ";
-		}  else  if (orderBy != null &&  orderBy.equals(DUE_DATE)) { 
+		}  else  if (orderBy != null &&  orderBy.equalsIgnoreCase(DUE_DATE)) { 
 			sql += "order by IFNULL(ci.planned_end_date, (SUBSTRING(now(), 1, 4) + 1000)) asc ";
 			
-		} else  if (orderBy != null &&  orderBy.equals(DUE_DATE_EARLIEST)) { 
+		} else  if (orderBy != null &&  orderBy.equalsIgnoreCase(DUE_DATE_EARLIEST)) { 
 			sql += "order by ci.planned_end_date desc";
 			
 		} else { 
@@ -978,6 +978,13 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		}
 
 		return query.list().size() >   0 ?  query.list() : null;
+	}
+	@Override
+	public Long getCollectionCount(String publishStatus) {
+		Session session = getSession();
+		String sql = "SELECT count(1) as count from  collection c left join custom_table_value ct on ct.custom_table_value_id = c.publish_status_id  where ct.value = '"+publishStatus+"' and c.collection_type= 'collection'";		
+		Query query = session.createSQLQuery(sql).addScalar("count", StandardBasicTypes.LONG);	
+		return (Long) query.list().get(0);
 	}
 	
 }

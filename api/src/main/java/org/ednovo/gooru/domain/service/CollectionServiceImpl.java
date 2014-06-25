@@ -31,7 +31,6 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.ednovo.gooru.application.util.ResourceImageUtil;
-import org.ednovo.gooru.application.util.TaxonomyUtil;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.AssessmentQuestion;
 import org.ednovo.gooru.core.api.model.Classpage;
@@ -39,20 +38,12 @@ import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.CollectionType;
-import org.ednovo.gooru.core.api.model.Content;
-import org.ednovo.gooru.core.api.model.ContentAssociation;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.ResourceType;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
-import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.ShelfType;
 import org.ednovo.gooru.core.api.model.StorageArea;
-import org.ednovo.gooru.core.api.model.UpdateViewsDTO;
 import org.ednovo.gooru.core.api.model.User;
-import org.ednovo.gooru.core.api.model.UserRoleAssoc;
-import org.ednovo.gooru.core.api.model.UserSummary;
-import org.ednovo.gooru.core.api.model.UserRole.UserRoleType;
-import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.domain.service.redis.RedisService;
 import org.ednovo.gooru.domain.service.search.SearchResults;
@@ -68,8 +59,6 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
-
-import com.google.common.collect.Lists;
 
 @Service
 public class CollectionServiceImpl extends ScollectionServiceImpl implements CollectionService {
@@ -551,11 +540,15 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		SessionContextSupport.putLogParameter(COLLECTION_TYPE, collectionItem.getCollection().getCollectionType());
 		return collectionItem;
 	}
-
 	@Override
-	public List<Collection> getCollections(User user,Integer limit, Integer offset,boolean skipPagination,String publishStatus) {
-		return this.getCollectionRepository().getCollectionsList( user,limit,offset,skipPagination,publishStatus);
+	public SearchResults<Collection> getCollections(Integer offset, Integer limit, Boolean skipPagination, User user, String publishStatus) {
 
+			List<Collection> collections = this.getCollectionRepository().getCollectionsList(user,limit,offset,skipPagination,publishStatus);
+			SearchResults<Collection> result = new SearchResults<Collection>();
+			result.setSearchResults(collections);
+			result.setTotalHitCount(this.getCollectionRepository().getCollectionCount(publishStatus));
+			return result;
+	
 	}
 
 	@Override
@@ -571,10 +564,11 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 					 collections = this.getCollectionRepository().getCollectionListByIds(gooruOids);
 					for (Collection scollection : collections) {					
 						if ( userService.isSuperAdmin(user) || userService.isContentAdmin(user)) {
+							this.redisService.bulkKeyDelete("v2-organize-data-" + scollection.getUser().getPartyUid() + "*");
 							if(!scollection.getSharing().equalsIgnoreCase(PUBLIC)){
 								scollection.setSharing(PUBLIC);
 							}
-							if(scollection.getPublishStatus().getValue().equalsIgnoreCase("PENDING")){
+							if(scollection.getPublishStatus().getValue().equalsIgnoreCase(PENDING)){
 								scollection.setPublishStatus(this.getCustomTableRepository().getCustomTableValue("publish_status", REVIEWED));
 								collectionIds.append(scollection.getGooruOid());
 								
@@ -583,7 +577,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 								}
 								
 							}else{
-								throw new BadCredentialsException("Please try again later");
+								throw new BadCredentialsException("You do not have the permission");
 								  
 							}
 						}
@@ -612,8 +606,8 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 					 collections = this.getCollectionRepository().getCollectionListByIds(gooruOids);
 					for (Collection scollection : collections) {					
 						if ( userService.isSuperAdmin(user) || userService.isContentAdmin(user)) {							
-								scollection.setSharing("anyonewithlink");
-							if(scollection.getPublishStatus().getValue().equalsIgnoreCase("PENDING")){
+								scollection.setSharing(ANYONE_WITH_LINK);
+							if(scollection.getPublishStatus().getValue().equalsIgnoreCase(PENDING)){
 								scollection.setPublishStatus(null);
 								collectionIds.append(scollection.getGooruOid());
 								
