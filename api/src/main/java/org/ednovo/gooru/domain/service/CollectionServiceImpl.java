@@ -44,6 +44,7 @@ import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.ShelfType;
 import org.ednovo.gooru.core.api.model.StorageArea;
 import org.ednovo.gooru.core.api.model.User;
+import org.ednovo.gooru.core.api.model.UserSummary;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.domain.service.redis.RedisService;
 import org.ednovo.gooru.domain.service.search.SearchResults;
@@ -554,83 +555,93 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	@Override
 	public List<Collection> updateCollectionForPublish(List<Map<String, String>> collection, User user) throws Exception {
 
-			List<String> gooruOids =  new ArrayList<String>();
-			List<Collection> collections= new ArrayList<Collection>();
-				StringBuffer collectionIds = new StringBuffer();
-				for (Map<String, String> map : collection) {
-					gooruOids.add(map.get("gooruOid"));
-				}
-				if (gooruOids.toString().trim().length() > 0) {
-					 collections = this.getCollectionRepository().getCollectionListByIds(gooruOids);
-					for (Collection scollection : collections) {					
-						if ( userService.isSuperAdmin(user) || userService.isContentAdmin(user)) {
-							this.redisService.bulkKeyDelete("v2-organize-data-" + scollection.getUser().getPartyUid() + "*");
-							if(!scollection.getSharing().equalsIgnoreCase(PUBLIC)){
-								scollection.setSharing(PUBLIC);
-							}
-							if(scollection.getPublishStatus().getValue().equalsIgnoreCase(PENDING)){
-								scollection.setPublishStatus(this.getCustomTableRepository().getCustomTableValue("publish_status", REVIEWED));
-								collectionIds.append(scollection.getGooruOid());
-								
-								if (collectionIds.toString().trim().length() > 0) {
-									collectionIds.append(",");
-								}
-								
-							}else{
-								throw new BadCredentialsException("You do not have the permission");
-								  
-							}
-						}
-						
-
-					}
-					this.getCollectionRepository().saveAll(collections);
-					if (collectionIds.toString().trim().length() > 0) {
-						indexProcessor.index(collectionIds.toString(), IndexProcessor.INDEX, SCOLLECTION);
-					} 
-				}
-			return collections;
-
+		List<String> gooruOids = new ArrayList<String>();
+		List<Collection> collections = new ArrayList<Collection>();
+		StringBuffer collectionIds = new StringBuffer();
+		for (Map<String, String> map : collection) {
+			gooruOids.add(map.get("gooruOid"));
 		}
+		if (gooruOids.toString().trim().length() > 0) {
+			collections = this.getCollectionRepository().getCollectionListByIds(gooruOids);
+			for (Collection scollection : collections) {
+				if (userService.isSuperAdmin(user) || userService.isContentAdmin(user)) {
+					this.redisService.bulkKeyDelete("v2-organize-data-" + scollection.getUser().getPartyUid() + "*");
+					if (!scollection.getSharing().equalsIgnoreCase(PUBLIC)) {
+						scollection.setSharing(PUBLIC);
+					}
+					if (scollection.getPublishStatus().getValue().equalsIgnoreCase(PENDING)) {
+						scollection.setPublishStatus(this.getCustomTableRepository().getCustomTableValue("publish_status", REVIEWED));
+						collectionIds.append(scollection.getGooruOid());
+						UserSummary userSummary = this.getUserRepository().getSummaryByUid(scollection.getUser().getPartyUid());
+						if (userSummary.getGooruUid() == null) {
+							userSummary.setGooruUid(scollection.getUser().getPartyUid());
+						}
+						userSummary.setCollections((userSummary.getCollections() != null ? userSummary.getCollections() : 0) + 1);
+						this.getUserRepository().save(userSummary);
+						this.getUserRepository().flush();
+
+						if (collectionIds.toString().trim().length() > 0) {
+							collectionIds.append(",");
+						}
+
+					} else {
+						throw new BadCredentialsException("You do not have the permission");
+					}
+				}
+
+			}
+			this.getCollectionRepository().saveAll(collections);
+			if (collectionIds.toString().trim().length() > 0) {
+				indexProcessor.index(collectionIds.toString(), IndexProcessor.INDEX, SCOLLECTION);
+			}
+		}
+		return collections;
+
+	}
 	
 	@Override
 	public List<Collection> updateCollectionForReject(List<Map<String, String>> collection, User user) throws Exception {
 
-			List<String> gooruOids =  new ArrayList<String>();
-			List<Collection> collections= new ArrayList<Collection>();
-				StringBuffer collectionIds = new StringBuffer();
-				for (Map<String, String> map : collection) {
-					gooruOids.add(map.get("gooruOid"));
-				}
-				if (gooruOids.toString().trim().length() > 0) {
-					 collections = this.getCollectionRepository().getCollectionListByIds(gooruOids);
-					for (Collection scollection : collections) {					
-						if ( userService.isSuperAdmin(user) || userService.isContentAdmin(user)) {							
-								scollection.setSharing(ANYONE_WITH_LINK);
-							if(scollection.getPublishStatus().getValue().equalsIgnoreCase(PENDING)){
-								scollection.setPublishStatus(null);
-								collectionIds.append(scollection.getGooruOid());
-								
-								if (collectionIds.toString().trim().length() > 0) {
-									collectionIds.append(",");
-								}
-								
-							}else{
-								throw new BadCredentialsException("Please try again later");
-								  
-							}
+		List<String> gooruOids = new ArrayList<String>();
+		List<Collection> collections = new ArrayList<Collection>();
+		StringBuffer collectionIds = new StringBuffer();
+		for (Map<String, String> map : collection) {
+			gooruOids.add(map.get("gooruOid"));
+		}
+		if (gooruOids.toString().trim().length() > 0) {
+			collections = this.getCollectionRepository().getCollectionListByIds(gooruOids);
+			for (Collection scollection : collections) {
+				if (userService.isSuperAdmin(user) || userService.isContentAdmin(user)) {
+					scollection.setSharing(ANYONE_WITH_LINK);
+					if (scollection.getPublishStatus().getValue().equalsIgnoreCase(PENDING)) {
+						scollection.setPublishStatus(null);
+						UserSummary userSummary = this.getUserRepository().getSummaryByUid(scollection.getUser().getPartyUid());
+						if (userSummary.getGooruUid() != null) {
+							userSummary.setCollections(userSummary.getCollections() <= 0 ? 0 : (userSummary.getCollections() - 1));
+							this.getUserRepository().save(userSummary);
+							this.getUserRepository().flush();
 						}
-						
+						collectionIds.append(scollection.getGooruOid());
+
+						if (collectionIds.toString().trim().length() > 0) {
+							collectionIds.append(",");
+						}
+
+					} else {
+						throw new BadCredentialsException("Please try again later");
 
 					}
-					this.getCollectionRepository().saveAll(collections);
-					if (collectionIds.toString().trim().length() > 0) {
-						indexProcessor.index(collectionIds.toString(), IndexProcessor.INDEX, SCOLLECTION);
-					} 
 				}
-			return collections;
 
+			}
+			this.getCollectionRepository().saveAll(collections);
+			if (collectionIds.toString().trim().length() > 0) {
+				indexProcessor.index(collectionIds.toString(), IndexProcessor.INDEX, SCOLLECTION);
+			}
 		}
+		return collections;
+
+	}
 	
 
 	@Override
