@@ -112,6 +112,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 			}
 			response.getModel().setStandards(this.getStandards(responseDTO.getModel().getTaxonomySet(), false, null));
 		}
+		getEventLogs(response.getModel(), false, user, response.getModel().getCollection().getCollectionType());
 		return response;
 
 	}
@@ -121,6 +122,8 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		CollectionItem collectionItem = this.getCollectionItemById(collectionItemId);
 		AssessmentQuestion newQuestion = getAssessmentService().buildQuestionFromInputParameters(data, user, true);
 		Errors errors = validateUpdateCollectionItem(collectionItem);
+		Map<String, Object> ItemData = new HashMap<String, Object>();
+		ItemData.put("ItemData", data);
 		if (!errors.hasErrors()) {
 			AssessmentQuestion question = getAssessmentService().getQuestion(collectionItem.getResource().getGooruOid());
 			if (question != null) {
@@ -154,6 +157,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		} else {
 			throw new NotFoundException("Question Not Found");
 		}
+		getEventLogs(collectionItem, ItemData, user);
 		return new ActionResponseDTO<CollectionItem>(collectionItem, errors);
 	}
 

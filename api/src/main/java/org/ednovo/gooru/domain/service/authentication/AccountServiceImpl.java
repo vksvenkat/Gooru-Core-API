@@ -412,6 +412,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 		JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session").toString()) : new JSONObject();
 		SessionContextSupport.putLogParameter("session", session.toString());
 		JSONObject user = SessionContextSupport.getLog().get("user") != null ? new JSONObject(SessionContextSupport.getLog().get("user").toString()) : new JSONObject();
+		user.put("gooruUId", identity != null && identity.getUser() != null ? identity.getUser().getPartyUid() : null );
 		SessionContextSupport.putLogParameter("user", user.toString());
 	}
 	
