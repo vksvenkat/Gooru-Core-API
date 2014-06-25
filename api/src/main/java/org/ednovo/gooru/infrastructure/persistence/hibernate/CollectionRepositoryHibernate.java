@@ -979,5 +979,12 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 
 		return query.list().size() >   0 ?  query.list() : null;
 	}
+	@Override
+	public Long getCollectionCount(String publishStatus) {
+		Session session = getSession();
+		String sql = "SELECT count(1) as count from  collection c left join custom_table_value ct on ct.custom_table_value_id = c.publish_status_id  where ct.value = '"+publishStatus+"' and c.collection_type= 'collection'";		
+		Query query = session.createSQLQuery(sql).addScalar("count", StandardBasicTypes.LONG);	
+		return (Long) query.list().get(0);
+	}
 	
 }
