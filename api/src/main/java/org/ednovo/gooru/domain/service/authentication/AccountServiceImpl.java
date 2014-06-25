@@ -279,7 +279,11 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			userToken.setUser(newUser);
 			request.getSession().setAttribute(Constants.USER, newUser);
 			request.getSession().setAttribute(Constants.SESSION_TOKEN, userToken.getToken());
-			getEventLogs(identity,userToken);
+			try{
+				getEventLogs(identity,userToken);
+			} catch(Exception e){
+				e.printStackTrace();
+			}
 			indexProcessor.index(user.getPartyUid(), IndexProcessor.INDEX, USER, false);
 			
 		}
