@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.ednovo.gooru.application.util.MailAsyncExecutor;
+import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.Identity;
@@ -107,6 +108,7 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 		if (email != null) {
 			for (String mailId : email) {
 				Identity identity = this.getUserRepository().findByEmailIdOrUserName(mailId, true, false);
+				ActionResponseDTO<CollectionItem> responseDto = new ActionResponseDTO<CollectionItem>();
 				if (identity != null) {
 					UserContentAssoc userContentAssocs = this.getCollaboratorRepository().findCollaboratorById(gooruOid, identity.getUser().getGooruUId());
 					if (userContentAssocs == null) {
@@ -119,7 +121,7 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 						userContentAssoc.setLastActiveDate(new Date());
 						userContentAssoc.setAssociationDate(new Date());
 						this.userRepository.save(userContentAssoc);
-						this.getCollectionService().createCollectionItem(content.getGooruOid(), null, new CollectionItem(), identity.getUser(), COLLABORATOR, false);
+						responseDto = this.getCollectionService().createCollectionItem(content.getGooruOid(), null, new CollectionItem(), identity.getUser(), COLLABORATOR, false);
 						collaborator.add(setActiveCollaborator(userContentAssoc, ACTIVE));
 						this.getContentService().createContentPermission(content, identity.getUser());
 						this.redisService.bulkKeyDelete("v2-organize-data-" + identity.getUser().getPartyUid() + "*");
@@ -127,7 +129,7 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 					} else {
 						collaborator.add(setActiveCollaborator(userContentAssocs, ACTIVE));
 						try {
-							getEventLogs(userContentAssocs.getUser() );
+							getEventLogs(userContentAssocs.getUser(), responseDto.getModel(), gooruOid);
 						} catch (JSONException e) {
 							e.printStackTrace();
 						}		
@@ -348,19 +350,22 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 		return inviteRepository;
 	}
 
-	private void getEventLogs(User newUser) throws JSONException {
+	private void getEventLogs(User newUser, CollectionItem collectionItem, String gooruOid) throws JSONException {
 		SessionContextSupport.putLogParameter(EVENT_NAME, "item.collaborate");
 		JSONObject context = SessionContextSupport.getLog().get("context") != null ? new JSONObject(SessionContextSupport.getLog().get("context").toString()) :  new JSONObject();
+		context.put("sourceGooruId",gooruOid);
+		context.put("targetGooruId",collectionItem.getResource() != null ? collectionItem.getResource().getGooruOid() : null);
+		context.put("targetItemId", collectionItem != null ? collectionItem.getCollectionItemId() : null);
 		SessionContextSupport.putLogParameter("context", context.toString());
 		JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session").toString()) :  new JSONObject();
-		session.put("organizationUId", newUser.getOrganizationUid());
 		SessionContextSupport.putLogParameter("session", session.toString());	
 		JSONObject user = SessionContextSupport.getLog().get("user") != null ? new JSONObject(SessionContextSupport.getLog().get("user").toString()) :  new JSONObject();
-		user.put("gooruUId", newUser.getPartyUid());
 		SessionContextSupport.putLogParameter("user", user.toString());
 		JSONObject payLoadObject = SessionContextSupport.getLog().get("payLoadObject") != null ? new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString()) :  new JSONObject();
 		payLoadObject.put("mode", "add");
-		payLoadObject.put("collaboratedId", newUser.getUserUid());
+		payLoadObject.put("collaboratedId", newUser.getPartyUid());
+		payLoadObject.put("itemType", collectionItem.getResource() != null ? collectionItem.getResource().getResourceType() : null);
+		SessionContextSupport.putLogParameter("payLoadObject", payLoadObject.toString());
 	}
 
 }

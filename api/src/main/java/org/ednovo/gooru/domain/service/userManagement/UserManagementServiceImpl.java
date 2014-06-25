@@ -245,6 +245,11 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		if(gradeType != null && gradeType.getCustomTableValueId() != null){
 			profile.setGrade(this.getUserRepository().getUserGrade(gooruUid, gradeType.getCustomTableValueId(), activeFlag));
 		}
+		try {
+			getEventLogs(false, true, user);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
 		return profile;
 	}
 
@@ -407,6 +412,11 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			
 			CustomTableValue type = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.USER_CLASSIFICATION_TYPE.getTable(), CustomProperties.UserClassificationType.COURSE.getUserClassificationType());
 			profile.setCourses(this.getUserRepository().getUserClassifications(gooruUid, type.getCustomTableValueId(), null));
+		}
+		try {
+			getEventLogs(true, false, user);
+		} catch (JSONException e) {
+			e.printStackTrace();
 		}
 		return profile;
 	}
@@ -1085,6 +1095,11 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 				}
 			}
 		}
+		try {
+			getEventLogs(false, true, user);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
 
 		return user;
 	}
@@ -1537,8 +1552,31 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	public InviteRepository getInviteRepository() {
 		return inviteRepository;
 	}
+	
+	public void getEventLogs(boolean updateProfile, boolean visitProfile, User profileVisitor) throws JSONException { 
+		SessionContextSupport.putLogParameter(EVENT_NAME, "profile.action");
+		JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session").toString()) :  new JSONObject();
+		SessionContextSupport.putLogParameter("session", session.toString());
+		JSONObject user = SessionContextSupport.getLog().get("user") != null ? new JSONObject(SessionContextSupport.getLog().get("user").toString()) :  new JSONObject();
+		SessionContextSupport.putLogParameter("user", user.toString());
+		JSONObject context = SessionContextSupport.getLog().get("context") != null ? new JSONObject(SessionContextSupport.getLog().get("context").toString()) :  new JSONObject();
+		if(updateProfile){
+			context.put("url", "/profile/edit");
+		} else if(visitProfile){
+			context.put("url", "/profile/visit");
+		}
+		SessionContextSupport.putLogParameter("context", context.toString());
+		JSONObject payLoadObject = SessionContextSupport.getLog().get("payLoadObject") != null ? new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString()) :  new JSONObject();
+		if(updateProfile){
+			payLoadObject.put("actionType", "edit");
+		} else if(visitProfile){
+			payLoadObject.put("actionType", "visit");
+			payLoadObject.put("VisitorUId", profileVisitor.getPartyUid());
+		}
+		SessionContextSupport.putLogParameter("payLoadObject", payLoadObject.toString());
+	}
 
-	private void getEventLogs(User newUser, String source, Identity newIdentity) throws JSONException {
+	public void getEventLogs(User newUser, String source, Identity newIdentity) throws JSONException {
 		SessionContextSupport.putLogParameter(EVENT_NAME, "user.register");
 		JSONObject context = SessionContextSupport.getLog().get("context") != null ? new JSONObject(SessionContextSupport.getLog().get("context").toString()) :  new JSONObject();
 		if(source != null && source.equalsIgnoreCase(UserAccountType.accountCreatedType.GOOGLE_APP.getType())) {
