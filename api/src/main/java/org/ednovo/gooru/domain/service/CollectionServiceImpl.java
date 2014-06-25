@@ -551,11 +551,15 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		SessionContextSupport.putLogParameter(COLLECTION_TYPE, collectionItem.getCollection().getCollectionType());
 		return collectionItem;
 	}
-
 	@Override
-	public List<Collection> getCollections(User user,Integer limit, Integer offset,boolean skipPagination,String publishStatus) {
-		return this.getCollectionRepository().getCollectionsList( user,limit,offset,skipPagination,publishStatus);
+	public SearchResults<Collection> getCollections(Integer offset, Integer limit, Boolean skipPagination, User user, String publishStatus) {
 
+			List<Collection> collections = this.getCollectionRepository().getCollectionsList(user,limit,offset,skipPagination,publishStatus);
+			SearchResults<Collection> result = new SearchResults<Collection>();
+			result.setSearchResults(collections);
+			result.setTotalHitCount(this.getCollectionRepository().getCollectionCount(publishStatus));
+			return result;
+	
 	}
 
 	@Override
@@ -574,7 +578,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 							if(!scollection.getSharing().equalsIgnoreCase(PUBLIC)){
 								scollection.setSharing(PUBLIC);
 							}
-							if(scollection.getPublishStatus().getValue().equalsIgnoreCase("PENDING")){
+							if(scollection.getPublishStatus().getValue().equalsIgnoreCase(PENDING)){
 								scollection.setPublishStatus(this.getCustomTableRepository().getCustomTableValue("publish_status", REVIEWED));
 								collectionIds.append(scollection.getGooruOid());
 								
@@ -612,8 +616,8 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 					 collections = this.getCollectionRepository().getCollectionListByIds(gooruOids);
 					for (Collection scollection : collections) {					
 						if ( userService.isSuperAdmin(user) || userService.isContentAdmin(user)) {							
-								scollection.setSharing("anyonewithlink");
-							if(scollection.getPublishStatus().getValue().equalsIgnoreCase("PENDING")){
+								scollection.setSharing(ANYONE_WITH_LINK);
+							if(scollection.getPublishStatus().getValue().equalsIgnoreCase(PENDING)){
 								scollection.setPublishStatus(null);
 								collectionIds.append(scollection.getGooruOid());
 								

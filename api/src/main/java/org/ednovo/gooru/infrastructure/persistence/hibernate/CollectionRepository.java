@@ -132,4 +132,6 @@ public interface CollectionRepository extends BaseRepository {
 	
 	List<Collection> getCollectionsList(User user,Integer limit, Integer offset,boolean skipPagination, String publishStatus);
 	
+	Long getCollectionCount(String publishStatus);
+	
 }

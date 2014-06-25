@@ -2685,4 +2685,6 @@ public interface ParameterProperties {
 	String TOP_LEVEL_COLLECTION_TYPE = "topLevelCollectionType";
 	
 	String OPTIMIZE = "optimize";
+	
+	String ANYONE_WITH_LINK = "anyonewithlink";
 }
