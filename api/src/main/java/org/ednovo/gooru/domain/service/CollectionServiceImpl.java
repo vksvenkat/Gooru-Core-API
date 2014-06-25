@@ -44,6 +44,7 @@ import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.ShelfType;
 import org.ednovo.gooru.core.api.model.StorageArea;
 import org.ednovo.gooru.core.api.model.User;
+import org.ednovo.gooru.core.api.model.UserContentAssoc;
 import org.ednovo.gooru.core.api.model.UserSummary;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.domain.service.redis.RedisService;
@@ -51,6 +52,7 @@ import org.ednovo.gooru.domain.service.search.SearchResults;
 import org.ednovo.gooru.domain.service.user.UserService;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepository;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.collaborator.CollaboratorRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.storage.StorageRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.taxonomy.TaxonomyRespository;
 import org.json.JSONException;
@@ -78,6 +80,9 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 
 	@Autowired
 	private RedisService redisService;
+	
+	@Autowired
+	private CollaboratorRepository collaboratorRepository;
 
 	@Override
 	public ActionResponseDTO<CollectionItem> createQuestionWithCollectionItem(String collectionId, String data, User user, String mediaFileName) throws Exception {
@@ -169,9 +174,15 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		collectionItem.setCollection(source);
 		CollectionItem sourceCollectionItem = this.getCollectionRepository().findCollectionItemByGooruOid(sourceId, user.getPartyUid());
 		if (sourceCollectionItem != null && sourceCollectionItem.getItemType() != null) {
-			String itemType = sourceCollectionItem.getItemType();
-			collectionItem.setItemType(itemType);
+			collectionItem.setItemType(sourceCollectionItem.getItemType());
 		}
+		if (!user.getPartyUid().equalsIgnoreCase(collectionItem.getCollection().getUser().getPartyUid())) { 			
+			UserContentAssoc userContentAssocs = this.getCollaboratorRepository().findCollaboratorById(sourceId, user.getPartyUid());
+			if (userContentAssocs != null) { 
+				collectionItem.setItemType(COLLABORATOR);
+			}
+		}
+		
 		if (sourceCollectionItem != null) {
 			deleteCollectionItem(sourceCollectionItem.getCollectionItemId(), user);
 		}
@@ -181,6 +192,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 			responseDTO = this.createCollectionItem(sourceId, null, collectionItem, user, CollectionType.SHElf.getCollectionType(), false);
 		}
 		this.redisService.bulkKeyDelete("v2-organize-data-" + collectionItem.getCollection().getUser().getPartyUid() + "*");
+		this.redisService.bulkKeyDelete("v2-organize-data-" + user.getPartyUid() + "*");
 		try {
 			getEventLogs();
 		} catch (JSONException e) {
@@ -661,6 +673,10 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	private void getEventLogs() throws JSONException {
 		JSONObject payLoadObject = SessionContextSupport.getLog().get("payLoadObject") != null ? new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString()) :  new JSONObject();
 		payLoadObject.put("mode", "move");
+	}
+
+	public CollaboratorRepository getCollaboratorRepository() {
+		return collaboratorRepository;
 	}
 
 }
