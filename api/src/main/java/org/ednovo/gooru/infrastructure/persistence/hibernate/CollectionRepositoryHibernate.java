@@ -936,12 +936,15 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		if (status != null) { 
 			sql += " and IFNULL(ct.value, 'open') = '"+ status+ "' ";
 		}
-		if (orderBy != null && orderBy.equals(RECENT)) {
+		if (orderBy != null && orderBy.equalsIgnoreCase(RECENT)) {
 			sql += " order by ci.association_date desc ";
-		}  else if (orderBy != null &&  orderBy.equals(SEQUENCE_DESC)) { 
+		}  else if (orderBy != null &&  orderBy.equalsIgnoreCase(SEQUENCE_DESC)) { 
 			sql += " order by ci.item_sequence desc ";
-		}  else  if (orderBy != null &&  orderBy.equals(DUE_DATE)) { 
+		}  else  if (orderBy != null &&  orderBy.equalsIgnoreCase(DUE_DATE)) { 
 			sql += "order by IFNULL(ci.planned_end_date, (SUBSTRING(now(), 1, 4) + 1000)) asc ";
+			
+		} else  if (orderBy != null &&  orderBy.equalsIgnoreCase(DUE_DATE_EARLIEST)) { 
+			sql += "order by ci.planned_end_date desc";
 			
 		} else { 
 			sql += " order by ci.item_sequence asc ";
@@ -957,11 +960,11 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 	public List<Collection> getCollectionsList(User user,Integer limit, Integer offset,boolean skipPagination, String publishStatus) {
 	
 		String hql = "SELECT collection FROM Collection collection inner join collection.publishStatus ct ";
-		hql += " WHERE " + generateOrgAuthQuery("collection.");
+		hql += " WHERE " + generateOrgAuthQuery("collection.");		
 		if (publishStatus != null) {
 			hql += " and  ct.value =:pending";
 		}
-				
+		hql += " ORDER BY collection.createdOn desc ";		
 		Session session = getSession();
 		Query query = session.createQuery(hql);
 		if (publishStatus != null) {
