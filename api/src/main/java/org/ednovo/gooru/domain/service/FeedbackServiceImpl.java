@@ -30,6 +30,7 @@ import java.util.Map;
 
 import org.ednovo.gooru.application.util.AsyncExecutor;
 import org.ednovo.gooru.core.api.model.Content;
+import org.ednovo.gooru.core.api.model.ContextDTO;
 import org.ednovo.gooru.core.api.model.CustomTableValue;
 import org.ednovo.gooru.core.api.model.Feedback;
 import org.ednovo.gooru.core.api.model.Resource;
@@ -54,6 +55,7 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.resource.ResourceRepository;
+import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -263,6 +265,10 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 
 	private List<Feedback> setFeedbackData(Feedback feedback, User creator) {
 		List<Feedback> feedbackList = new ArrayList<Feedback>();
+		ContextDTO contextDTO = null;
+		if(feedback.getContext() != null) {
+			contextDTO = buildContextInputParam(feedback.getContext());
+		}
 		feedback = validateFeedbackData(feedback);
 		User user = null;
 		Content content = null;
@@ -309,11 +315,15 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 			this.getAsyncExecutor().clearCache(resource.getGooruOid());
 		}
 		try {
-			getEventLogs(resource);
+			if(feedbackList.size() > 0){
+				Feedback userFeedback = feedbackList.get(0);
+				getEventLogs(creator, contextDTO, userFeedback);
+			}
+			
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
-
+		
 		return feedbackList;
 
 	}
@@ -524,15 +534,28 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 	public AsyncExecutor getAsyncExecutor() {
 		return asyncExecutor;
 	}
+	
+	private ContextDTO buildContextInputParam(String data) {
+		return JsonDeserializer.deserialize(data, ContextDTO.class);
+	}
 
-	private void getEventLogs(Resource resource) throws JSONException {
-
+	public void getEventLogs(User feedbackUser, ContextDTO contextDTO, Feedback feedback) throws JSONException {
+		SessionContextSupport.putLogParameter(EVENT_NAME, "resource.user.feedback");
+		JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session").toString()) :  new JSONObject();
+		session.put("organizationUId", feedbackUser.getOrganizationUid());
+		SessionContextSupport.putLogParameter("session", session.toString());	
+		JSONObject user = SessionContextSupport.getLog().get("user") != null ? new JSONObject(SessionContextSupport.getLog().get("user").toString()) :  new JSONObject();
+		user.put("gooruUId", feedbackUser.getPartyUid());
+		SessionContextSupport.putLogParameter("user", user.toString());
+		JSONObject context = SessionContextSupport.getLog().get("context") != null ? new JSONObject(SessionContextSupport.getLog().get("context").toString()) :  new JSONObject();
+		context.put("contentGooruId", contextDTO != null ? contextDTO.getResourceGooruId() : null);
+        context.put("parentGooruId", contextDTO != null ? contextDTO.getCollectionGooruId() : null);
+        SessionContextSupport.putLogParameter("context", context.toString());
 		JSONObject payLoadObject = SessionContextSupport.getLog().get("payLoadObject") != null ? new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString()) :  new JSONObject();
-		if(resource.getResourceType().getName().equalsIgnoreCase(ResourceType.Type.SCOLLECTION.getType())) {
-    		payLoadObject.put("itemType", "collection");
-		}else {
-			payLoadObject.put("itemType", "resource");
-		}
+		payLoadObject.put("rate", feedback != null ? feedback.getScore() : null);
+		payLoadObject.put("text", feedback != null ? feedback.getFreeText() : null);
+		payLoadObject.put("feedbackProviderUId", feedbackUser.getPartyUid());
+		SessionContextSupport.putLogParameter("payLoadObject", payLoadObject.toString());
 	}
 
 }
