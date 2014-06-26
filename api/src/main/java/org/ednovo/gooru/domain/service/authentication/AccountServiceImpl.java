@@ -333,11 +333,11 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 								ApiKey userApiKey = apiTrackerService.findApiKeyByOrganization(user.getOrganization().getPartyUid());
 								userToken = this.createSessionToken(user, userApiKey.getKey(), request);
 							} else {
-								throw new RuntimeException(generateErrorMessage(GL0042, _USER));
+								throw new BadCredentialsException(generateErrorMessage(GL0042, _USER));
 							}
 						}
 					} else {
-						throw new RuntimeException(generateErrorMessage(GL0043, _USER));
+						throw new BadCredentialsException(generateErrorMessage(GL0043, _USER));
 					}
 				}
 			}
