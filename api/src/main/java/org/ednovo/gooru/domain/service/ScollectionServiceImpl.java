@@ -702,7 +702,9 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			collectionItem.setItemType(CLASS);
 		} else {
 			collection = this.getCollectionByGooruOid(collectionGooruOid, null);
-			collectionItem.setItemType(ShelfType.AddedType.ADDED.getAddedType());
+			if (collectionItem != null && collectionItem.getItemType() != null) { 
+			  collectionItem.setItemType(ShelfType.AddedType.ADDED.getAddedType());
+			}
 		}
 		if (collectionGooruOid != null) {
 			collection = this.getCollectionByGooruOid(collectionGooruOid, null);
