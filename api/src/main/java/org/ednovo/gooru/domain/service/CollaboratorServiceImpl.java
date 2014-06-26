@@ -124,16 +124,15 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 						responseDto = this.getCollectionService().createCollectionItem(content.getGooruOid(), null, new CollectionItem(), identity.getUser(), COLLABORATOR, false);
 						collaborator.add(setActiveCollaborator(userContentAssoc, ACTIVE));
 						this.getContentService().createContentPermission(content, identity.getUser());
+						try {
+							getEventLogs(identity.getUser(), responseDto.getModel(), gooruOid);
+						} catch (JSONException e) {
+							e.printStackTrace();
+						}	
 						this.redisService.bulkKeyDelete("v2-organize-data-" + identity.getUser().getPartyUid() + "*");
 						this.redisService.bulkKeyDelete("v2-organize-data-" + content.getUser().getPartyUid() + "*");
 					} else {
 						collaborator.add(setActiveCollaborator(userContentAssocs, ACTIVE));
-						try {
-							getEventLogs(userContentAssocs.getUser(), responseDto.getModel(), gooruOid);
-						} catch (JSONException e) {
-							e.printStackTrace();
-						}		
-
 					}
 
 				} else {

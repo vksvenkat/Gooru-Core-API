@@ -157,7 +157,12 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 				collectionItem.setItemType(ShelfType.AddedType.ADDED.getAddedType());
 				this.createClasspageItem(newClasspage.getGooruOid(), null, collectionItem, newClasspage.getUser(), CollectionType.USER_CLASSPAGE.getCollectionType());
 			}
-			getEventLogs(newClasspage, user, userGroup);
+			try {
+				getEventLogs(newClasspage, user, userGroup);
+			} catch(Exception e){
+				e.printStackTrace();
+			}
+			
 		}
 		return new ActionResponseDTO<Classpage>(newClasspage, errors);
 	}
@@ -347,8 +352,12 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		} else {
 			throw new Exception("invalid assignmentId -" + assignmentGooruOid);
 		}
-
-		getEventLogs(collectionItem, true, user, collectionItem.getCollection().getCollectionType());
+		try{
+			getEventLogs(collectionItem, true, user, collectionItem.getCollection().getCollectionType());
+		} catch(Exception e){
+			e.printStackTrace();
+		}
+		
 
 		return new ActionResponseDTO<CollectionItem>(collectionItem, errors);
 	}
@@ -423,7 +432,11 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 						classpageMember.add(setMemberResponse(groupAssociation, ACTIVE));
 					}
 				}
-				getEventLogs(classpage, apiCaller, userGroup, inviteUser);
+				try {
+					getEventLogs(classpage, apiCaller, userGroup, inviteUser);
+				} catch(Exception e){
+					e.printStackTrace();
+				}
 			}
 		} else {
 			throw new NotFoundException("class not found");
@@ -445,12 +458,21 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 						this.getCollectionRepository().save(classpage);
 						this.getUserGroupRepository().remove(userGroupAssociation);
 					}
-					getEventLogs(classpage, userGroupAssociation, null);
+					try {
+						getEventLogs(classpage, userGroupAssociation, null);
+					} catch(Exception e){
+						e.printStackTrace();
+					}
+					
 				}
 				InviteUser inviteUser = this.getInviteRepository().findInviteUserById(mailId, classpage.getGooruOid(), null);
 				if (inviteUser != null) {
 					this.getInviteRepository().remove(inviteUser);
-					getEventLogs(classpage, null, inviteUser);
+					try{
+						getEventLogs(classpage, null, inviteUser);
+					} catch(Exception e){
+						e.printStackTrace();
+					}
 				}
 			}
 		}

@@ -324,11 +324,7 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 		ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().moveCollectionToFolder(getValue(SOURCE_ID, json), json != null && getValue(TARGET_ID, json) != null ? getValue(TARGET_ID, json) : null , user);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-		} else {
-			
-			SessionContextSupport.putLogParameter(EVENT_NAME, "move-collection-folder");
-			SessionContextSupport.putLogParameter(GOORU_UID, user.getPartyUid());
-		}
+		} 
 		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, COLLECTION_INCLUDE_FIELDS);
 		includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_CREATE_ITEM_INCLUDE_FILEDS);
 		includes = (String[]) ArrayUtils.addAll(includes, ERROR_INCLUDE);
@@ -364,11 +360,6 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 		ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().updateResourceWithCollectionItem(collectionItemId, this.buildResourceFromInputParameters(getValue(RESOURCE, json), user), user);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-		} else {
-			SessionContextSupport.putLogParameter(EVENT_NAME, "update-resource-collection-item");
-			SessionContextSupport.putLogParameter(GOORU_UID, user.getPartyUid());
-			SessionContextSupport.putLogParameter(COLLECTION_ID, responseDTO.getModel().getCollection().getGooruOid());
-			SessionContextSupport.putLogParameter(RESOURCE_ID, responseDTO.getModel().getResource().getGooruOid());
 		}
 		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, COLLECTION_INCLUDE_FIELDS);
 		includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_CREATE_ITEM_INCLUDE_FILEDS);
@@ -386,12 +377,6 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 		ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().createQuestionWithCollectionItem(collectionId, data, user, getValue(MEDIA_FILE_NAME, json));
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-		} else {
-			
-			SessionContextSupport.putLogParameter(EVENT_NAME, "question-create-collection-item");
-			SessionContextSupport.putLogParameter(GOORU_UID, user.getPartyUid());
-			SessionContextSupport.putLogParameter(COLLECTION_ID, collectionId);
-			SessionContextSupport.putLogParameter(RESOURCE_ID, responseDTO.getModel().getResource().getGooruOid());
 		}
 		String[] includes = (String[]) ArrayUtils.addAll(COLLECTION_CREATE_ITEM_INCLUDE_FILEDS, ERROR_INCLUDE);
 		includes = (String[]) ArrayUtils.addAll(includes, RESOURCE_INCLUDE_FIELDS);

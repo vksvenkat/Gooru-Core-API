@@ -73,42 +73,17 @@ public class FeedbackRestV2Controller extends BaseController implements Paramete
 		List<Feedback> feedbacks = getFeedbackService().createFeedbacks(newFeedback, user);
 		Feedback feedback = feedbacks.get(0);
 		response.setStatus(HttpServletResponse.SC_CREATED);
-		// To capture activity log
 		
-		SessionContextSupport.putLogParameter(TARGET_TYPE, feedback.getTarget().getValue());
-		SessionContextSupport.putLogParameter(FEEDBACK_GOORU_OID, feedback.getAssocGooruOid());
-		SessionContextSupport.putLogParameter(FEEDBACK_GOORU_UID, feedback.getAssocUserUid());
-		SessionContextSupport.putLogParameter(FEEDBACK_ID, feedback.getGooruOid());
-		SessionContextSupport.putLogParameter(GOORU_UID, user.getPartyUid());
-		SessionContextSupport.putLogParameter(SCORE, feedback.getScore());
 		ContextDTO contextDTO = null;
 		if(newFeedback.getContext() != null) {
 			contextDTO = buildContextInputParam(newFeedback.getContext());
 		}
 		String eventName = "create-" + feedback.getCategory().getValue();
 		if (contextDTO != null) {
-			SessionContextSupport.putLogParameter("parentGooruId", contextDTO.getCollectionGooruId());
-			SessionContextSupport.putLogParameter("contentGooruId", contextDTO.getResourceGooruId());
-			JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session").toString()) :  new JSONObject();
-			session.put("organizationUId", user.getOrganizationUid());
-			JSONObject newUser = SessionContextSupport.getLog().get("user") != null ? new JSONObject(SessionContextSupport.getLog().get("user").toString()) :  new JSONObject();
-			newUser.put("gooruUId", user.getPartyUid());
-			JSONObject context = SessionContextSupport.getLog().get("context") != null ? new JSONObject(SessionContextSupport.getLog().get("context").toString()) :  new JSONObject();
-			context.put("contentGooruId", contextDTO.getResourceGooruId());
-            context.put("parentGooruId", contextDTO.getCollectionGooruId());
-    		JSONObject payLoadObject = SessionContextSupport.getLog().get("payLoadObject") != null ? new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString()) :  new JSONObject();
-    		payLoadObject.put("rate", feedback.getScore());
-    		payLoadObject.put("text", feedback.getFreeText());
-    		payLoadObject.put("rateType", "");			
-			
 			if(contextDTO.getEventName() != null){
 				eventName = contextDTO.getEventName();
 			}
-		} else {
-			SessionContextSupport.putLogParameter("parentGooruId", null);
-			SessionContextSupport.putLogParameter("contentGooruId", null);
 		}
-		SessionContextSupport.putLogParameter(EVENT_NAME, eventName);
 		String includes[] = (String[]) ArrayUtils.addAll(FEEDBACK_INCLUDE_FIELDS, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(list ? feedbacks : feedback, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
