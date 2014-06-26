@@ -1671,10 +1671,10 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 						this.getUserRepository().flush();
 					}
 				}
-				if(newCollection.getSharing().equalsIgnoreCase(PRIVATE)) {
+				if (newCollection.getSharing().equalsIgnoreCase(PRIVATE)) {
 					List<CollectionItem> associations = this.getCollectionRepository().getCollectionItemByAssociation(collection.getGooruOid(), null, "classpage");
-					for (CollectionItem association : associations) {
-						this.getCollectionRepository().remove(association);
+					for (CollectionItem item : associations) {
+						this.deleteCollectionItem(item.getCollectionItemId(), updateUser);
 					}
 				}
 				collection.setSharing(newCollection.getSharing());

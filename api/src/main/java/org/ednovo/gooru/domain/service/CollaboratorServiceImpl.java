@@ -224,7 +224,7 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 						this.getContentService().deleteContentPermission(content, identity.getUser());
 						List<CollectionItem> associations = this.getCollectionRepository().getCollectionItemByAssociation(gooruOid, identity.getUser().getGooruUId(),null);
 						for (CollectionItem association : associations) {
-							this.getCollectionRepository().remove(association);
+							this.getCollectionService().deleteCollectionItem(association.getCollectionItemId(), identity.getUser());
 						}
 					}
 					this.redisService.bulkKeyDelete("v2-organize-data-" + identity.getUser().getPartyUid() + "*");
