@@ -1660,6 +1660,10 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 					}
 				}
 				collection.setSharing(newCollection.getSharing());
+				List<String> parenFolders = this.getParentCollection(collection.getGooruOid(), updateUser.getPartyUid(), false);
+				for (String folderGooruOid : parenFolders) {
+					updateFolderSharing(folderGooruOid);
+				}
 				updateResourceSharing(newCollection.getSharing(), collection);
 			}
 
