@@ -592,6 +592,11 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 					this.redisService.bulkKeyDelete("v2-organize-data-" + scollection.getUser().getPartyUid() + "*");
 					if (!scollection.getSharing().equalsIgnoreCase(PUBLIC)) {
 						scollection.setSharing(PUBLIC);
+						List<String> parenFolders = this.getParentCollection(scollection.getGooruOid(), scollection.getUser().getPartyUid(), false);
+						for (String folderGooruOid : parenFolders) {
+							updateFolderSharing(folderGooruOid);
+						}
+						updateResourceSharing(PUBLIC, scollection);
 					}
 					if (scollection.getPublishStatus().getValue().equalsIgnoreCase(PENDING)) {
 						scollection.setPublishStatus(this.getCustomTableRepository().getCustomTableValue("publish_status", REVIEWED));
@@ -637,6 +642,11 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 			for (Collection scollection : collections) {
 				if (userService.isSuperAdmin(user) || userService.isContentAdmin(user)) {
 					scollection.setSharing(ANYONE_WITH_LINK);
+					List<String> parenFolders = this.getParentCollection(scollection.getGooruOid(), scollection.getUser().getPartyUid(), false);
+					for (String folderGooruOid : parenFolders) {
+						updateFolderSharing(folderGooruOid);
+					}
+					updateResourceSharing(ANYONE_WITH_LINK, scollection);
 					if (scollection.getPublishStatus().getValue().equalsIgnoreCase(PENDING)) {
 						scollection.setPublishStatus(null);
 						UserSummary userSummary = this.getUserRepository().getSummaryByUid(scollection.getUser().getPartyUid());
