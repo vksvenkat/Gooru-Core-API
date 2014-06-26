@@ -43,8 +43,10 @@ import org.ednovo.gooru.core.api.model.Identity;
 import org.ednovo.gooru.core.api.model.Organization;
 import org.ednovo.gooru.core.api.model.PartyCustomField;
 import org.ednovo.gooru.core.api.model.Profile;
+import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserAccountType;
+import org.ednovo.gooru.core.api.model.UserAccountType.accountCreatedType;
 import org.ednovo.gooru.core.api.model.UserAvailability.CheckUser;
 import org.ednovo.gooru.core.api.model.UserToken;
 import org.ednovo.gooru.core.application.util.ServerValidationUtils;
@@ -67,6 +69,8 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.OrganizationSetting
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserTokenRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.activity.ActivityRepository;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -275,7 +279,13 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			userToken.setUser(newUser);
 			request.getSession().setAttribute(Constants.USER, newUser);
 			request.getSession().setAttribute(Constants.SESSION_TOKEN, userToken.getToken());
+			try{
+				getEventLogs(identity,userToken);
+			} catch(Exception e){
+				e.printStackTrace();
+			}
 			indexProcessor.index(user.getPartyUid(), IndexProcessor.INDEX, USER, false);
+			
 		}
 		return new ActionResponseDTO<UserToken>(userToken, errors);
 	}
@@ -389,6 +399,28 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 		UserToken userToken = userTokenRepository.findByToken(sessionToken);
 		return new ActionResponseDTO<UserToken>(userToken, new BindException(userToken, SESSIONTOKEN));
 	}
+	
+	public void getEventLogs(Identity identity, UserToken userToken) throws JSONException {
+		SessionContextSupport.putLogParameter(EVENT_NAME, "user.login");
+		JSONObject context = SessionContextSupport.getLog().get("context") != null ? new JSONObject(SessionContextSupport.getLog().get("context").toString()) : new JSONObject();
+		if(identity != null && identity.getLoginType().equalsIgnoreCase("Credential")) {
+			context.put("LogInType", "Gooru");
+		}else if (identity != null && identity.getLoginType().equalsIgnoreCase("Apps")) {
+			context.put("LogInType", accountCreatedType.GOOGLE_APP.getType());	
+		}else {
+			context.put("LogInType", accountCreatedType.SSO.getType());
+		}
+		SessionContextSupport.putLogParameter("context", context.toString());
+		JSONObject payLoadObject = SessionContextSupport.getLog().get("payLoadObject") != null ? new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString()) : new JSONObject();
+		SessionContextSupport.putLogParameter("payLoadObject", payLoadObject.toString());
+		JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session").toString()) : new JSONObject();
+		session.put("sessionToken", userToken.getToken());
+		SessionContextSupport.putLogParameter("session", session.toString());
+		JSONObject user = SessionContextSupport.getLog().get("user") != null ? new JSONObject(SessionContextSupport.getLog().get("user").toString()) : new JSONObject();
+		user.put("gooruUId", identity != null && identity.getUser() != null ? identity.getUser().getPartyUid() : null );
+		SessionContextSupport.putLogParameter("user", user.toString());
+	}
+	
 	private Errors validateLoginAsUser(UserToken userToken, User user) {
 		final Errors errors = new BindException(userToken, SESSIONTOKEN);
 		rejectIfNull(errors, user, USER, GL0056, generateErrorMessage(GL0056, USER));

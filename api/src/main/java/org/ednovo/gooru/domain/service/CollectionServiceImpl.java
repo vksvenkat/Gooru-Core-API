@@ -44,6 +44,7 @@ import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.ShelfType;
 import org.ednovo.gooru.core.api.model.StorageArea;
 import org.ednovo.gooru.core.api.model.User;
+import org.ednovo.gooru.core.api.model.UserContentAssoc;
 import org.ednovo.gooru.core.api.model.UserSummary;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.domain.service.redis.RedisService;
@@ -51,6 +52,7 @@ import org.ednovo.gooru.domain.service.search.SearchResults;
 import org.ednovo.gooru.domain.service.user.UserService;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepository;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.collaborator.CollaboratorRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.storage.StorageRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.taxonomy.TaxonomyRespository;
 import org.json.JSONException;
@@ -78,6 +80,9 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 
 	@Autowired
 	private RedisService redisService;
+	
+	@Autowired
+	private CollaboratorRepository collaboratorRepository;
 
 	@Override
 	public ActionResponseDTO<CollectionItem> createQuestionWithCollectionItem(String collectionId, String data, User user, String mediaFileName) throws Exception {
@@ -113,6 +118,11 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 			}
 			response.getModel().setStandards(this.getStandards(responseDTO.getModel().getTaxonomySet(), false, null));
 		}
+		try {
+			getEventLogs(response.getModel(), false, user, response.getModel().getCollection().getCollectionType());
+		} catch(Exception e){
+			e.printStackTrace();
+		}
 		return response;
 
 	}
@@ -122,6 +132,8 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		CollectionItem collectionItem = this.getCollectionItemById(collectionItemId);
 		AssessmentQuestion newQuestion = getAssessmentService().buildQuestionFromInputParameters(data, user, true);
 		Errors errors = validateUpdateCollectionItem(collectionItem);
+		Map<String, Object> ItemData = new HashMap<String, Object>();
+		ItemData.put("ItemData", data);
 		if (!errors.hasErrors()) {
 			AssessmentQuestion question = getAssessmentService().getQuestion(collectionItem.getResource().getGooruOid());
 			if (question != null) {
@@ -155,11 +167,17 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		} else {
 			throw new NotFoundException("Question Not Found");
 		}
+		try {
+			getEventLogs(collectionItem, ItemData, user);
+		} catch(Exception e){
+			e.printStackTrace();
+		}
+		
 		return new ActionResponseDTO<CollectionItem>(collectionItem, errors);
 	}
 
 	@Override
-	public ActionResponseDTO<CollectionItem> moveCollectionToFolder(String sourceId, String taregetId, User user) throws Exception {
+	public ActionResponseDTO<CollectionItem> moveCollectionToFolder(String sourceId, String targetId, User user) throws Exception {
 		ActionResponseDTO<CollectionItem> responseDTO = null;
 		Collection source = collectionRepository.getCollectionByGooruOid(sourceId, null);
 		if (source == null) {
@@ -169,20 +187,27 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		collectionItem.setCollection(source);
 		CollectionItem sourceCollectionItem = this.getCollectionRepository().findCollectionItemByGooruOid(sourceId, user.getPartyUid());
 		if (sourceCollectionItem != null && sourceCollectionItem.getItemType() != null) {
-			String itemType = sourceCollectionItem.getItemType();
-			collectionItem.setItemType(itemType);
+			collectionItem.setItemType(sourceCollectionItem.getItemType());
 		}
+		if (!user.getPartyUid().equalsIgnoreCase(collectionItem.getCollection().getUser().getPartyUid())) { 			
+			UserContentAssoc userContentAssocs = this.getCollaboratorRepository().findCollaboratorById(sourceId, user.getPartyUid());
+			if (userContentAssocs != null) { 
+				collectionItem.setItemType(COLLABORATOR);
+			}
+		}
+		
 		if (sourceCollectionItem != null) {
 			deleteCollectionItem(sourceCollectionItem.getCollectionItemId(), user);
 		}
-		if (taregetId != null) {
-			responseDTO = this.createCollectionItem(sourceId, taregetId, collectionItem, user, CollectionType.FOLDER.getCollectionType(), false);
+		if (targetId != null) {
+			responseDTO = this.createCollectionItem(sourceId, targetId, collectionItem, user, CollectionType.FOLDER.getCollectionType(), false);
 		} else {
 			responseDTO = this.createCollectionItem(sourceId, null, collectionItem, user, CollectionType.SHElf.getCollectionType(), false);
 		}
 		this.redisService.bulkKeyDelete("v2-organize-data-" + collectionItem.getCollection().getUser().getPartyUid() + "*");
+		this.redisService.bulkKeyDelete("v2-organize-data-" + user.getPartyUid() + "*");
 		try {
-			getEventLogs();
+			getEventLogs(responseDTO.getModel(), true, user, responseDTO.getModel().getCollection().getCollectionType());
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}		
@@ -533,12 +558,11 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		classPage.setItemCount(sequence);
 		this.getResourceRepository().save(classPage);
 		this.getResourceRepository().save(collectionItem);
-		SessionContextSupport.putLogParameter(EVENT_NAME, CLASSPAGE_CREATE_COLLECTION_TASK_ITEM);
-		SessionContextSupport.putLogParameter(COLLECTION_ITEM_ID, collectionItem.getCollectionItemId());
-		SessionContextSupport.putLogParameter(GOORU_OID, classPage.getGooruOid());
-		SessionContextSupport.putLogParameter(COLLECTION_ID, classPage.getGooruOid());
-		SessionContextSupport.putLogParameter(RESOURCE_ID, collection.getGooruOid());
-		SessionContextSupport.putLogParameter(COLLECTION_TYPE, collectionItem.getCollection().getCollectionType());
+		try {
+			getEventLogs(collectionItem, false, user, collectionItem.getCollection().getCollectionType());
+		} catch(Exception e){
+			e.printStackTrace();
+		}
 		return collectionItem;
 	}
 	@Override
@@ -657,10 +681,49 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	public TaxonomyRespository getTaxonomyRespository() {
 		return taxonomyRespository;
 	}
+	
+	public void getEventLogs(CollectionItem collectionItem, boolean isMoveMode, User user, String collectionType) throws JSONException {
+		SessionContextSupport.putLogParameter(EVENT_NAME, "item.create");
+		JSONObject context = SessionContextSupport.getLog().get("context") != null ? new JSONObject(SessionContextSupport.getLog().get("context").toString()) : new JSONObject();
+		context.put("parentGooruId", collectionItem.getCollection() != null ? collectionItem.getCollection().getGooruOid() : null);
+		context.put("contentGooruId", collectionItem.getResource() != null ? collectionItem.getResource().getGooruOid() : null);
+		SessionContextSupport.putLogParameter("context", context.toString());
+		JSONObject payLoadObject = SessionContextSupport.getLog().get("payLoadObject") != null ? new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString()) : new JSONObject();
+		if(isMoveMode){
+			payLoadObject.put("mode", "move");
+		} else {
+			payLoadObject.put("mode", "add");
+		}
+		payLoadObject.put("itemSequence", collectionItem.getItemSequence());
+		payLoadObject.put("ItemId", collectionItem.getCollectionItemId());
+		if (collectionType != null) {
+			if (collectionType.equalsIgnoreCase(CollectionType.COLLECTION.getCollectionType())) {
+				payLoadObject.put("itemType", "collection.resource");
+			} else if (collectionType.equalsIgnoreCase(CollectionType.FOLDER.getCollectionType())) {
+				payLoadObject.put("itemType", "folder.collection");
+			} else if (collectionType.equalsIgnoreCase(CollectionType.SHElf.getCollectionType())) {
+				payLoadObject.put("itemType", "shelf.collection");
+			} else if (collectionType.equalsIgnoreCase(CollectionType.CLASSPAGE.getCollectionType())) {
+				payLoadObject.put("itemType", "classpage.collection");
+			}
+		}
+		payLoadObject.put("parentContentId", collectionItem.getCollection() != null ? collectionItem.getCollection().getContentId() : null);
+		payLoadObject.put("contentId", collectionItem.getResource() != null ? collectionItem.getResource().getContentId() : null);
+		payLoadObject.put("title", collectionItem.getResource().getTitle());
+		payLoadObject.put("description", collectionItem.getResource().getDescription());
+		SessionContextSupport.putLogParameter("payLoadObject", payLoadObject.toString());
+		JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session").toString()) : new JSONObject();
+		session.put("organizationUId", user.getOrganization().getPartyUid());
+		SessionContextSupport.putLogParameter("session", session.toString());
+	}
 
 	private void getEventLogs() throws JSONException {
 		JSONObject payLoadObject = SessionContextSupport.getLog().get("payLoadObject") != null ? new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString()) :  new JSONObject();
 		payLoadObject.put("mode", "move");
+	}
+
+	public CollaboratorRepository getCollaboratorRepository() {
+		return collaboratorRepository;
 	}
 
 }
