@@ -361,8 +361,14 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 			}
 			getAsyncExecutor().createVersion(collection, SCOLLECTION_CREATE, user.getPartyUid());
+			
+			try {
+				getEventLogs(collection, user);
+			} catch(Exception e){
+				e.printStackTrace();
+			}
 
-			getEventLogs(collection, user);
+			
 			this.redisService.bulkKeyDelete("v2-organize-data-" + collection.getUser().getPartyUid() + "*");
 
 		}
@@ -670,7 +676,11 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			collectionItem.setItemSequence(sequence);
 			this.getCollectionRepository().save(collectionItem);
 			this.getCollectionRepository().flush();
-			getEventLogs(collectionItem, false, user, collectionItem.getCollection().getCollectionType());
+			try{
+				getEventLogs(collectionItem, false, user, collectionItem.getCollection().getCollectionType());
+			} catch(Exception e){
+				e.printStackTrace();
+			}
 
 			try {
 				indexProcessor.index(collectionItem.getCollection().getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
@@ -1919,7 +1929,11 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			}
 			this.redisService.bulkKeyDelete("v2-organize-data-" + response.getModel().getCollection().getUser().getPartyUid() + "*");
 		}
-		getEventLogs(response.getModel(), false, user, response.getModel().getCollection().getCollectionType() );
+		try{
+			getEventLogs(response.getModel(), false, user, response.getModel().getCollection().getCollectionType() );
+		} catch(Exception e){
+			e.printStackTrace();
+		}
 		return response;
 	}
 
@@ -2015,7 +2029,11 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			}
 				this.redisService.bulkKeyDelete("v2-organize-data-" + collectionItem.getCollection().getUser().getPartyUid() + "*");
 		}
-		getEventLogs(collectionItem, ItemData, user);
+		try{
+			getEventLogs(collectionItem, ItemData, user);
+		}catch(Exception e){
+			e.printStackTrace();
+		}
 		return new ActionResponseDTO<CollectionItem>(collectionItem, errors);
 	}
 
