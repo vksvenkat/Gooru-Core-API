@@ -175,10 +175,10 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			identity = this.getUserRepository().findByEmailIdOrUserName(username, true, true);
 
 			if (identity == null) {
-				throw new UnauthorizedException("Please double-check your email address and password, and then try logging in again.");
+				throw new BadCredentialsException("Please double-check your email address and password, and then try logging in again.");
 			}
 			if (identity.getUser().getIsDeleted() == true) {
-				throw new UnauthorizedException("error : User has been deleted.");
+				throw new BadCredentialsException("error : User has been deleted.");
 			}
 			identity.setLoginType(CREDENTIAL);
 
@@ -192,12 +192,12 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			User user = this.getUserRepository().findByIdentity(identity);
 			if (!isSsoLogin) {
 				if (identity.getCredential() == null) {
-					throw new UnauthorizedException("Please double check your email ID and password and try again.");
+					throw new BadCredentialsException("Please double check your email ID and password and try again.");
 				}
 				String encryptedPassword = userService.encryptPassword(password);
 				if (user == null || !(encryptedPassword.equals(identity.getCredential().getPassword()) || password.equals(identity.getCredential().getPassword()))) {
 
-					throw new UnauthorizedException("Please double-check your password and try signing in again.");
+					throw new BadCredentialsException("Please double-check your password and try signing in again.");
 				}
 
 			}
