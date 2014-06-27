@@ -108,7 +108,7 @@ public interface CollectionRepository extends BaseRepository {
 	
 	Long getClasspageCollectionCount(String classpageGooruOid, String status, String userUid);
 	
-	List<CollectionItem> getCollectionItemByAssociation(String resourceGooruOid, String gooruUid);
+	List<CollectionItem> getCollectionItemByAssociation(String resourceGooruOid, String gooruUid, String collectionType);
 	
 	CollectionItem findCollectionItemByGooruOid(String gooruOid, String gooruUid);
 	
@@ -131,5 +131,7 @@ public interface CollectionRepository extends BaseRepository {
 	List<Object[]> getClasspageItems(String gooruOid, Integer limit, Integer offset, String userUid, String orderBy, boolean skipPagination, String status);
 	
 	List<Collection> getCollectionsList(User user,Integer limit, Integer offset,boolean skipPagination, String publishStatus);
+	
+	Long getCollectionCount(String publishStatus);
 	
 }

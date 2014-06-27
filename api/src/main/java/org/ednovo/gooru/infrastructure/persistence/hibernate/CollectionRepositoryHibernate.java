@@ -238,16 +238,21 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 	}
 	
 	@Override
-	public List<CollectionItem> getCollectionItemByAssociation(String resourceGooruOid, String gooruUid) {
-		Session session = getSession();
+	public List<CollectionItem> getCollectionItemByAssociation(String resourceGooruOid, String gooruUid, String collectionType) {
 		String sql = "FROM CollectionItem collectionItem WHERE  collectionItem.resource.gooruOid=:resourceGooruOid  and  " + generateOrgAuthQuery("collectionItem.collection.");
 		if (gooruUid != null) {
 			sql += " and collectionItem.associatedUser.partyUid=:gooruUid";
 		}
-		Query query = session.createQuery(sql);
+		if (collectionType != null) {
+			sql += " and collectionItem.collection.collectionType=:collectionType";
+		}
+		Query query = getSession().createQuery(sql);
 		query.setParameter("resourceGooruOid", resourceGooruOid);
 		if (gooruUid != null) {
 			query.setParameter("gooruUid", gooruUid);
+		}
+		if (collectionType != null) {
+			query.setParameter("collectionType", collectionType);
 		}
 		addOrgAuthParameters(query);
 		return query.list();
@@ -937,7 +942,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 			sql += " and IFNULL(ct.value, 'open') = '"+ status+ "' ";
 		}
 		if (orderBy != null && orderBy.equalsIgnoreCase(RECENT)) {
-			sql += " order by ci.association_date desc ";
+			sql += " order by ci.association_date desc, item_sequence  desc ";
 		}  else if (orderBy != null &&  orderBy.equalsIgnoreCase(SEQUENCE_DESC)) { 
 			sql += " order by ci.item_sequence desc ";
 		}  else  if (orderBy != null &&  orderBy.equalsIgnoreCase(DUE_DATE)) { 
@@ -978,6 +983,13 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		}
 
 		return query.list().size() >   0 ?  query.list() : null;
+	}
+	@Override
+	public Long getCollectionCount(String publishStatus) {
+		Session session = getSession();
+		String sql = "SELECT count(1) as count from  collection c left join custom_table_value ct on ct.custom_table_value_id = c.publish_status_id  where ct.value = '"+publishStatus+"' and c.collection_type= 'collection'";		
+		Query query = session.createSQLQuery(sql).addScalar("count", StandardBasicTypes.LONG);	
+		return (Long) query.list().get(0);
 	}
 	
 }

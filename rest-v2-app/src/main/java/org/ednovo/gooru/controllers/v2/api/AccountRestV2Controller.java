@@ -23,6 +23,8 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.controllers.v2.api;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.annotation.Resource;
@@ -153,9 +155,10 @@ public class AccountRestV2Controller extends BaseController implements ConstantP
 		if (user.getIdentities() != null) {
 			Identity identity = user.getIdentities().iterator().next();
 			if (identity.getActive() == 0) {
-				response.sendRedirect(this.getServerConstants().getProperty("serverPath") + "/#discover&loginEvent=true&error=403&username="+identity.getExternalId());
+				Map<String, Object> redirectObj = new HashMap<String, Object>();
+				redirectObj.put(ACTIVE, 0);
+				 return toModelAndView(serialize(redirectObj, JSON));
 			}
-			 return null;
 		}
 		return toModelAndViewWithIoFilter(user, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, USER_INCLUDES);
 	}
