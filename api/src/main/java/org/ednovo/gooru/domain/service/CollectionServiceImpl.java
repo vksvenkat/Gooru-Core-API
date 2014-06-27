@@ -168,7 +168,9 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 			throw new NotFoundException("Question Not Found");
 		}
 		try {
-			getEventLogs(collectionItem, ItemData, user);
+			JSONObject jsonItemdata = new JSONObject();
+			jsonItemdata.put("ItemData", ItemData);
+			getEventLogs(collectionItem, jsonItemdata, user);
 		} catch(Exception e){
 			e.printStackTrace();
 		}
