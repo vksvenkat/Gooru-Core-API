@@ -267,6 +267,11 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				logger.debug(e.getMessage());
 			}
 			this.redisService.bulkKeyDelete("v2-organize-data-" + collection.getUser().getPartyUid() + "*");
+			try {
+				getEventLogs(collection.getCollectionItem(), false, collection.getUser(), collection.getCollectionItem().getCollection().getCollectionType());
+			} catch(Exception e){
+				e.printStackTrace();
+			}
 		}
 
 		return new ActionResponseDTO<Collection>(collection, errors);
@@ -781,7 +786,9 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			this.getCollectionRepository().save(collectionItem);
 			this.getCollectionRepository().save(collectionItem.getCollection());
 			try {
-				getEventLogs(collectionItem, ItemData, user);
+				JSONObject jsonItemdata = new JSONObject();
+				jsonItemdata.put("ItemData", ItemData);
+				getEventLogs(collectionItem, jsonItemdata, user);
 				if (collectionItem.getResource().getResourceType() != null && collectionItem.getResource().getResourceType().getName().equalsIgnoreCase(ResourceType.Type.SCOLLECTION.getType())) {
 					indexProcessor.index(collectionItem.getResource().getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
 				} else {
@@ -1270,6 +1277,13 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			logger.debug(e.getMessage());
 		}
 		this.redisService.bulkKeyDelete("v2-organize-data-" + collection.getUser().getPartyUid() + "*");
+		try {
+			JSONObject jsonItemdata = new JSONObject();
+			jsonItemdata.put("ItemData", data);
+			getEventLogs(collection.getCollectionItem(), jsonItemdata, apiCallerUser);
+		} catch(Exception e){
+			e.printStackTrace();
+		}
 		return collection;
 	}
 
@@ -1296,6 +1310,10 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		if (collectionItem == null) {
 			throw new NotFoundException(generateErrorMessage(GL0056, _COLLECTION_ITEM));
 		}
+		
+		Map<String, Object> ItemData = new HashMap<String, Object>();
+		
+		ItemData.putAll(data);
 
 		String narration = data.getFirst(NARRATION);
 		String narrationType = data.getFirst(NARRATION_TYPE);
@@ -1325,6 +1343,14 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			e.printStackTrace();
 		}
 		this.redisService.bulkKeyDelete("v2-organize-data-" + collectionItem.getCollection().getUser().getPartyUid() + "*");
+		
+		try {
+			JSONObject jsonItemdata = new JSONObject();
+			jsonItemdata.put("ItemData", ItemData);
+			getEventLogs(collectionItem, jsonItemdata, apiCaller);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
 		return collectionItem;
 	}
 
@@ -1741,7 +1767,9 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		}
 		
 		try{
-			getEventLogs(collection.getCollectionItem(), ItemData, updateUser);
+			JSONObject jsonItemdata = new JSONObject();
+			jsonItemdata.put("ItemData", ItemData);
+			getEventLogs(collection.getCollectionItem(), jsonItemdata, updateUser);
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -2078,7 +2106,9 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				this.redisService.bulkKeyDelete("v2-organize-data-" + collectionItem.getCollection().getUser().getPartyUid() + "*");
 		}
 		try{
-			getEventLogs(collectionItem, ItemData, user);
+			JSONObject jsonItemdata = new JSONObject();
+			jsonItemdata.put("ItemData", ItemData);
+			getEventLogs(collectionItem, jsonItemdata, user);
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -2096,12 +2126,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		collectionItem.setItemSequence(sequence);
 		Errors errors = validateCollectionItem(collection, resource, collectionItem);
 		this.getResourceRepository().save(collectionItem);
-		SessionContextSupport.putLogParameter(EVENT_NAME, SCOLLECTION_ITEM_ADD);
-		SessionContextSupport.putLogParameter(COLLECTION_ITEM_ID, collectionItem.getCollectionItemId());
-		SessionContextSupport.putLogParameter(GOORU_OID, resource.getGooruOid());
-		SessionContextSupport.putLogParameter(COLLECTION_ID, collection.getGooruOid());
-		SessionContextSupport.putLogParameter(RESOURCE_ID, resource.getGooruOid());
-		SessionContextSupport.putLogParameter(COLLECTION_TYPE, collectionItem.getCollection().getCollectionType());
 		this.redisService.bulkKeyDelete("v2-organize-data-" + collectionItem.getCollection().getUser().getPartyUid() + "*");
 		return new ActionResponseDTO<CollectionItem>(collectionItem, errors);
 	}
@@ -2285,7 +2309,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		SessionContextSupport.putLogParameter("session", session.toString());
 	}
 	
-	public void getEventLogs(CollectionItem collectionItem , Map<String, Object> ItemData, User user) throws JSONException {
+	public void getEventLogs(CollectionItem collectionItem , JSONObject ItemData, User user) throws JSONException {
 		SessionContextSupport.putLogParameter(EVENT_NAME, "item.edit");
 		JSONObject context = SessionContextSupport.getLog().get("context") != null ? new JSONObject(SessionContextSupport.getLog().get("context").toString()) : new JSONObject();
 		context.put("contentGooruId", collectionItem.getResource() != null ? collectionItem.getResource().getGooruOid() : null);
@@ -2295,7 +2319,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		SessionContextSupport.putLogParameter("context", context.toString());
 		JSONObject payLoadObject = SessionContextSupport.getLog().get("payLoadObject") != null ? new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString()) : new JSONObject();
 		payLoadObject.put("itemType", collectionItem.getResource() != null ? collectionItem.getResource().getResourceType() : null);
-		payLoadObject.put("ItemData", ItemData != null ? ItemData : null);
+		payLoadObject.put("ItemData", ItemData != null ? ItemData.toString() : null);
 		SessionContextSupport.putLogParameter("payLoadObject", payLoadObject.toString());
 		JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session").toString()) : new JSONObject();
 		session.put("organizationUId", user.getOrganization().getPartyUid());
