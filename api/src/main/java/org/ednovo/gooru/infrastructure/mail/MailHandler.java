@@ -344,7 +344,7 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 
 		String organizationUid = identity.getUser().getOrganization().getPartyUid();
 
-		model.put("htmlContent", generateMessage((String) model.get("htmlContent"), model));
+		model.put("htmlContent", generateMessage((String) model.get("templateContent"), model));
 		model.put("content", generateMessage((String) model.get("textContent"), model));
 		model.put("recipient", userEmailId);
 		model.put("from", getConfigSetting(ConfigConstants.MAIL_FROM, organizationUid));
@@ -735,7 +735,7 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 
 	public void sendChildConfirm(String gooruUId, Map<String, Object> map) {
 		final Identity identity = this.getUserRepositoryHibernate().findUserByGooruId(gooruUId);
-		map.put("htmlContent", generateMessage((String) map.get("htmlContent"), map));
+		map.put("htmlContent", generateMessage((String) map.get("templateContent"), map));
 		map.put("content", generateMessage((String) map.get("textContent"), map));
 		map.put("recipient", map.get("parentEmailId"));
 		map.put("from", getConfigSetting(ConfigConstants.MAIL_FROM, identity.getUser().getOrganization().getPartyUid()));
