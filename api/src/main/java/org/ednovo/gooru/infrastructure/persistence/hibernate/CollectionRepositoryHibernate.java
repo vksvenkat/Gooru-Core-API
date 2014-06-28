@@ -158,18 +158,24 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 
 	@Override
 	public Collection getCollectionByGooruOid(String gooruOid, String gooruUid) {
-		Session session = getSession();
 		String hql = " FROM Collection collection WHERE  collection.gooruOid=:gooruOid  and ";
 		if (gooruUid != null) {
 			hql += " collection.user.partyUid='" + gooruUid + "' and ";
 		}
-		Query query = session.createQuery(hql + generateOrgAuthQuery("collection."));
+		Query query = getSession().createQuery(hql + generateOrgAuthQuery("collection."));
 		query.setParameter("gooruOid", gooruOid);
 		addOrgAuthParameters(query);
-		List<Collection> collections = query.list();
-		return (collections.size() > 0) ? collections.get(0) : null;
+		return (query.list().size() > 0) ? (Collection)query.list().get(0) : null;
 	}
 
+	@Override
+	public Collection getCollectionByGooruOid(String gooruOid) {
+		String hql = " FROM Collection collection WHERE  collection.gooruOid=:gooruOid";
+		Query query = getSession().createQuery(hql);
+		query.setParameter("gooruOid", gooruOid);
+		return (query.list().size() > 0) ? (Collection)query.list().get(0) : null;
+	}
+	
 	@Override
 	public Classpage getClasspageByGooruOid(String gooruOid, String gooruUid) {
 		Session session = getSession();
@@ -991,5 +997,6 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		Query query = session.createSQLQuery(sql).addScalar("count", StandardBasicTypes.LONG);	
 		return (Long) query.list().get(0);
 	}
+
 	
 }

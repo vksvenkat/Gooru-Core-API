@@ -134,4 +134,6 @@ public interface CollectionRepository extends BaseRepository {
 	
 	Long getCollectionCount(String publishStatus);
 	
+	Collection getCollectionByGooruOid(String gooruOid);
+	
 }
