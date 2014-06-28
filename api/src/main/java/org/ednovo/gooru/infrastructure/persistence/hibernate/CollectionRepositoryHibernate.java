@@ -171,7 +171,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 	@Override
 	public Collection getCollectionByGooruOid(String gooruOid) {
 		String hql = " FROM Collection collection WHERE  collection.gooruOid=:gooruOid";
-		Query query = getSession().createQuery(hql + generateOrgAuthQuery("collection."));
+		Query query = getSession().createQuery(hql);
 		query.setParameter("gooruOid", gooruOid);
 		return (query.list().size() > 0) ? (Collection)query.list().get(0) : null;
 	}
