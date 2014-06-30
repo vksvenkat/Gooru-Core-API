@@ -116,11 +116,6 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 				getValue(RELATED_CONTENT_ID, json), user);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-		} else {
-			
-			SessionContextSupport.putLogParameter(EVENT_NAME, "scollection-update");
-			SessionContextSupport.putLogParameter(GOORU_UID, user.getPartyUid());
-			SessionContextSupport.putLogParameter(COLLECTION_ID, collectionId);
 		}
 
 		String[] includes = (String[]) ArrayUtils.addAll(COLLECTION_INCLUDE_FIELDS, ERROR_INCLUDE);
@@ -178,11 +173,7 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 	@RequestMapping(value = { "/{id}" }, method = RequestMethod.DELETE)
 	public void deleteCollection(@PathVariable(value = ID) String collectionId, HttpServletRequest request, HttpServletResponse response) {
 		User user = (User) request.getAttribute(Constants.USER);
-		SessionContextSupport.putLogParameter(EVENT_NAME, "scollection-delete");
 		getCollectionService().deleteCollection(collectionId, user);
-		
-		SessionContextSupport.putLogParameter(EVENT_NAME, "scollection-delete");
-		SessionContextSupport.putLogParameter(COLLECTION_ID, collectionId);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ITEM_ADD })
@@ -212,10 +203,6 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 		ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().updateCollectionItem(this.buildCollectionItemFromInputParameters(getValue(COLLECTION_ITEM, json), user), collectionItemId, user);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-		} else {
-			
-			SessionContextSupport.putLogParameter(EVENT_NAME, "scollection-item-update");
-			SessionContextSupport.putLogParameter(COLLECTION_ITEM_ID, collectionItemId);
 		}
 		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, COLLECTION_INCLUDE_FIELDS);
 		includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_ITEM_INCLUDE_FILEDS);
@@ -250,8 +237,6 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 	@RequestMapping(value = { "/item/{id}" }, method = RequestMethod.DELETE)
 	public void deleteCollectionItem(@PathVariable(value = ID) String collectionItemId, HttpServletRequest request, HttpServletResponse response) {
 		User user = (User) request.getAttribute(Constants.USER);
-		SessionContextSupport.putLogParameter(EVENT_NAME, "scollection-item-delete");
-		SessionContextSupport.putLogParameter(COLLECTION_ITEM_ID, collectionItemId);
 		getCollectionService().deleteCollectionItem(collectionItemId, user);
 	}
 
@@ -262,10 +247,6 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 		ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().reorderCollectionItem(collectionItemId, newSequence);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-		} else {
-			
-			SessionContextSupport.putLogParameter(EVENT_NAME, "scollection-item-re-order");
-			SessionContextSupport.putLogParameter(COLLECTION_ITEM_ID, responseDTO.getModel().getCollectionItemId());
 		}
 		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, COLLECTION_INCLUDE_FIELDS);
 		includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_ITEM_INCLUDE_FILEDS);

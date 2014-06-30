@@ -31,6 +31,7 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.ednovo.gooru.application.util.ResourceImageUtil;
+import org.ednovo.gooru.application.util.SerializerUtil;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.AssessmentQuestion;
 import org.ednovo.gooru.core.api.model.Classpage;
@@ -80,7 +81,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 
 	@Autowired
 	private RedisService redisService;
-	
+
 	@Autowired
 	private CollaboratorRepository collaboratorRepository;
 
@@ -120,7 +121,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		}
 		try {
 			getEventLogs(response.getModel(), false, user, response.getModel().getCollection().getCollectionType());
-		} catch(Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return response;
@@ -169,10 +170,10 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		}
 		try {
 			getEventLogs(collectionItem, ItemData, user);
-		} catch(Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		return new ActionResponseDTO<CollectionItem>(collectionItem, errors);
 	}
 
@@ -189,13 +190,13 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		if (sourceCollectionItem != null && sourceCollectionItem.getItemType() != null) {
 			collectionItem.setItemType(sourceCollectionItem.getItemType());
 		}
-		if (!user.getPartyUid().equalsIgnoreCase(collectionItem.getCollection().getUser().getPartyUid())) { 			
+		if (!user.getPartyUid().equalsIgnoreCase(collectionItem.getCollection().getUser().getPartyUid())) {
 			UserContentAssoc userContentAssocs = this.getCollaboratorRepository().findCollaboratorById(sourceId, user.getPartyUid());
-			if (userContentAssocs != null) { 
+			if (userContentAssocs != null) {
 				collectionItem.setItemType(COLLABORATOR);
 			}
 		}
-		
+
 		if (sourceCollectionItem != null) {
 			deleteCollectionItem(sourceCollectionItem.getCollectionItemId(), user);
 		}
@@ -210,7 +211,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 			getEventLogs(responseDTO.getModel(), true, user, responseDTO.getModel().getCollection().getCollectionType());
 		} catch (JSONException e) {
 			e.printStackTrace();
-		}		
+		}
 		return responseDTO;
 	}
 
@@ -560,20 +561,21 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		this.getResourceRepository().save(collectionItem);
 		try {
 			getEventLogs(collectionItem, false, user, collectionItem.getCollection().getCollectionType());
-		} catch(Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return collectionItem;
 	}
+
 	@Override
 	public SearchResults<Collection> getCollections(Integer offset, Integer limit, Boolean skipPagination, User user, String publishStatus) {
 
-			List<Collection> collections = this.getCollectionRepository().getCollectionsList(user,limit,offset,skipPagination,publishStatus);
-			SearchResults<Collection> result = new SearchResults<Collection>();
-			result.setSearchResults(collections);
-			result.setTotalHitCount(this.getCollectionRepository().getCollectionCount(publishStatus));
-			return result;
-	
+		List<Collection> collections = this.getCollectionRepository().getCollectionsList(user, limit, offset, skipPagination, publishStatus);
+		SearchResults<Collection> result = new SearchResults<Collection>();
+		result.setSearchResults(collections);
+		result.setTotalHitCount(this.getCollectionRepository().getCollectionCount(publishStatus));
+		return result;
+
 	}
 
 	@Override
@@ -627,7 +629,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		return collections;
 
 	}
-	
+
 	@Override
 	public List<Collection> updateCollectionForReject(List<Map<String, String>> collection, User user) throws Exception {
 
@@ -676,7 +678,31 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		return collections;
 
 	}
-	
+
+	@Override
+	public String getFolderItemsWithCache(String gooruOid, Integer limit, Integer offset, String sharing, String collectionType, String orderBy, Integer itemLimit, boolean fetchChildItem, boolean clearCache, User user) {
+		Map<String, Object> content = null;
+		Collection collection = this.getCollectionRepository().getCollectionByGooruOid(gooruOid);
+		String data = null;
+		if (collection != null) {
+			final String cacheKey = "v2-organize-data-" + collection.getUser().getPartyUid() + "-" + gooruOid + "-" + limit + "-" + offset + "-" + sharing + "-" + collectionType + "-" + orderBy + "-" + itemLimit + "-" + fetchChildItem;
+			if (!clearCache) {
+				data = redisService.getValue(cacheKey);
+			}
+			if (data == null) {
+				content = new HashMap<String, Object>();
+				content.put(SEARCH_RESULT, getFolderItems(gooruOid, limit, offset, sharing, collectionType, orderBy, itemLimit, fetchChildItem));
+				content.put(COUNT, this.getCollectionRepository().getCollectionItemCount(gooruOid, sharing, collectionType));
+				data = SerializerUtil.serializeToJson(content, true);
+				if (user != null && user.getUsername().equalsIgnoreCase(SAUSD)) { 
+					redisService.putValue(cacheKey, data);
+				} else { 					
+					redisService.putValue(cacheKey, data, 86400);
+				}
+			}
+		}
+		return data;
+	}
 
 	@Override
 	public Boolean resourceCopiedFrom(String gooruOid, String gooruUid) {
@@ -691,7 +717,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	public TaxonomyRespository getTaxonomyRespository() {
 		return taxonomyRespository;
 	}
-	
+
 	public void getEventLogs(CollectionItem collectionItem, boolean isMoveMode, User user, String collectionType) throws JSONException {
 		SessionContextSupport.putLogParameter(EVENT_NAME, "item.create");
 		JSONObject context = SessionContextSupport.getLog().get("context") != null ? new JSONObject(SessionContextSupport.getLog().get("context").toString()) : new JSONObject();
@@ -699,7 +725,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		context.put("contentGooruId", collectionItem.getResource() != null ? collectionItem.getResource().getGooruOid() : null);
 		SessionContextSupport.putLogParameter("context", context.toString());
 		JSONObject payLoadObject = SessionContextSupport.getLog().get("payLoadObject") != null ? new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString()) : new JSONObject();
-		if(isMoveMode){
+		if (isMoveMode) {
 			payLoadObject.put("mode", "move");
 		} else {
 			payLoadObject.put("mode", "add");
@@ -725,11 +751,6 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session").toString()) : new JSONObject();
 		session.put("organizationUId", user.getOrganization().getPartyUid());
 		SessionContextSupport.putLogParameter("session", session.toString());
-	}
-
-	private void getEventLogs() throws JSONException {
-		JSONObject payLoadObject = SessionContextSupport.getLog().get("payLoadObject") != null ? new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString()) :  new JSONObject();
-		payLoadObject.put("mode", "move");
 	}
 
 	public CollaboratorRepository getCollaboratorRepository() {

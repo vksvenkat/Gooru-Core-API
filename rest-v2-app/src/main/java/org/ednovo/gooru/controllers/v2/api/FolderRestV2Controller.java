@@ -97,11 +97,6 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 				getValue(PARENT_ID, json), user);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-		} else {
-			response.setStatus(HttpServletResponse.SC_CREATED);
-			SessionContextSupport.putLogParameter(EVENT_NAME, "scollection-folder-create");
-			SessionContextSupport.putLogParameter(GOORU_OID, responseDTO.getModel().getGooruOid());
-			SessionContextSupport.putLogParameter(GOORU_UID, user.getPartyUid());
 		}
 		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, COLLECTION_INCLUDE_FIELDS);
 		includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_ITEM_INCLUDE_FILEDS);
@@ -118,11 +113,6 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 		ActionResponseDTO<Collection> responseDTO = getCollectionService().updateCollection(this.buildUpadteCollectionFromInputParameters(data, user), collectionId, getValue(OWNER_UID, json), getValue(CREATOR_UID, json), hasUnrestrictedContentAccess(), getValue(RELATED_CONTENT_ID, json), user);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-		} else {
-
-			SessionContextSupport.putLogParameter(EVENT_NAME, "scollection-folder-update");
-			SessionContextSupport.putLogParameter(GOORU_UID, user.getPartyUid());
-			SessionContextSupport.putLogParameter(COLLECTION_ID, collectionId);
 		}
 
 		String[] includes = (String[]) ArrayUtils.addAll(COLLECTION_INCLUDE_FIELDS, ERROR_INCLUDE);
@@ -141,10 +131,7 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 	@RequestMapping(value = { "/{id}" }, method = RequestMethod.DELETE)
 	public void deleteFolder(@PathVariable(value = ID) String collectionId, HttpServletRequest request, HttpServletResponse response) {
 		User user = (User) request.getAttribute(Constants.USER);
-		SessionContextSupport.putLogParameter(EVENT_NAME, "scollection-folder-delete");
 		getCollectionService().deleteCollection(collectionId, user);
-		SessionContextSupport.putLogParameter(EVENT_NAME, "scollection-delete");
-		SessionContextSupport.putLogParameter(COLLECTION_ID, collectionId);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ITEM_ADD })
@@ -156,11 +143,6 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 		ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().createCollectionItem(getValue(GOORU_OID, json), collectionId, this.buildCollectionItemFromInputParameters(data, user), user, CollectionType.COLLECTION.getCollectionType(), false);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-		} else {
-			response.setStatus(HttpServletResponse.SC_CREATED);
-			SessionContextSupport.putLogParameter(EVENT_NAME, "scollection-folder-item-create");
-			SessionContextSupport.putLogParameter(GOORU_UID, user.getPartyUid());
-			SessionContextSupport.putLogParameter(COLLECTION_ID, collectionId);
 		}
 		String[] includes = (String[]) ArrayUtils.addAll(COLLECTION_ITEM_INCLUDE_FILEDS, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
@@ -174,10 +156,6 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 		ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().updateCollectionItem(this.buildCollectionItemFromInputParameters(data, user), collectionItemId, user);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-		} else {
-
-			SessionContextSupport.putLogParameter(EVENT_NAME, "scollection-folder-item-update");
-			SessionContextSupport.putLogParameter(COLLECTION_ITEM_ID, collectionItemId);
 		}
 		String[] includes = (String[]) ArrayUtils.addAll(COLLECTION_ITEM_INCLUDE_FILEDS, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
@@ -189,11 +167,8 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 			@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "20") Integer limit, @RequestParam(value = SHARING, required = false, defaultValue = "private,public,anyonewithlink") String sharing, @RequestParam(value = "collectionType", required = false) String collectionType,
 			@RequestParam(value = ITEM_LIMIT_FIELD, required = false, defaultValue = "4") Integer itemLimit, @RequestParam(value = FETCH_CHILDS, required = false, defaultValue = "false") boolean fetchChilds,
 			@RequestParam(value = CLEAR_CACHE, required = false, defaultValue = FALSE) boolean clearCache, HttpServletRequest request, HttpServletResponse response) throws Exception {
-
-		Map<String, Object> content = new HashMap<String, Object>();
-		content.put(SEARCH_RESULT, this.getCollectionService().getFolderItems(collectionId, limit, offset, sharing, collectionType, orderBy, itemLimit, fetchChilds));
-		content.put(COUNT, this.getCollectionRepository().getCollectionItemCount(collectionId, sharing, collectionType));
-		return toModelAndView(serializeToJson(content, true));
+		User user = (User) request.getAttribute(Constants.USER);
+		return toModelAndView(this.getCollectionService().getFolderItemsWithCache(collectionId, limit, offset, sharing, collectionType, orderBy, itemLimit, fetchChilds, clearCache, user));
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ITEM_DELETE })
@@ -201,8 +176,6 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 	@RequestMapping(value = { "/item/{id}" }, method = RequestMethod.DELETE)
 	public void deleteCollectionItem(@PathVariable(value = ID) String collectionItemId, HttpServletRequest request, HttpServletResponse response) {
 		User user = (User) request.getAttribute(Constants.USER);
-		SessionContextSupport.putLogParameter(EVENT_NAME, "scollection-item-delete");
-		SessionContextSupport.putLogParameter(COLLECTION_ITEM_ID, collectionItemId);
 		getCollectionService().deleteCollectionItem(collectionItemId, user);
 	}
 
@@ -232,10 +205,6 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 		ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().moveCollectionToFolder(getValue(SOURCE_ID, json), json != null && getValue(TARGET_ID, json) != null ? getValue(TARGET_ID, json) : null, user);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-		} else {
-
-			SessionContextSupport.putLogParameter(EVENT_NAME, "move-collection-folder");
-			SessionContextSupport.putLogParameter(GOORU_UID, user.getPartyUid());
 		}
 		String[] includes = (String[]) ArrayUtils.addAll(COLLECTION_CREATE_ITEM_INCLUDE_FILEDS, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);

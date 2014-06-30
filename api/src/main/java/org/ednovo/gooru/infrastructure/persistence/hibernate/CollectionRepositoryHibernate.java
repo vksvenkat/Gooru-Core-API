@@ -158,18 +158,24 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 
 	@Override
 	public Collection getCollectionByGooruOid(String gooruOid, String gooruUid) {
-		Session session = getSession();
 		String hql = " FROM Collection collection WHERE  collection.gooruOid=:gooruOid  and ";
 		if (gooruUid != null) {
 			hql += " collection.user.partyUid='" + gooruUid + "' and ";
 		}
-		Query query = session.createQuery(hql + generateOrgAuthQuery("collection."));
+		Query query = getSession().createQuery(hql + generateOrgAuthQuery("collection."));
 		query.setParameter("gooruOid", gooruOid);
 		addOrgAuthParameters(query);
-		List<Collection> collections = query.list();
-		return (collections.size() > 0) ? collections.get(0) : null;
+		return (query.list().size() > 0) ? (Collection)query.list().get(0) : null;
 	}
 
+	@Override
+	public Collection getCollectionByGooruOid(String gooruOid) {
+		String hql = " FROM Collection collection WHERE  collection.gooruOid=:gooruOid";
+		Query query = getSession().createQuery(hql);
+		query.setParameter("gooruOid", gooruOid);
+		return (query.list().size() > 0) ? (Collection)query.list().get(0) : null;
+	}
+	
 	@Override
 	public Classpage getClasspageByGooruOid(String gooruOid, String gooruUid) {
 		Session session = getSession();
@@ -845,14 +851,14 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 
 	@Override
 	public String getParentCollection(String collectionGooruOid, String gooruUid) {
-		String hql = "select cc.gooru_oid  as gooruOid  from collection_item ci inner join resource r on r.content_id = ci.resource_content_id inner join content cr on cr.content_id = r.content_id inner join content cc on cc.content_id = ci.collection_content_id inner join collection co on  co.content_id = ci.collection_content_id  where cr.gooru_oid='"+collectionGooruOid+"' and cc.user_uid ='"+gooruUid+"' and co.collection_type = 'folder'";
+		String hql = "select cc.gooru_oid  as gooruOid  from collection_item ci inner join resource r on r.content_id = ci.resource_content_id inner join content cr on cr.content_id = r.content_id inner join content cc on cc.content_id = ci.collection_content_id inner join collection co on  co.content_id = ci.collection_content_id  where cr.gooru_oid='"+collectionGooruOid+"' and cc.user_uid ='"+gooruUid+"' and co.collection_type = 'folder'  and ci.item_type != 'collaborator' ";
 		Query query = getSession().createSQLQuery(hql);
 		return query.list().size() > 0 ? (String)query.list().get(0) : null;
 	}
 	
 	@Override
 	public Long getPublicCollectionCount(String gooruOid,String sharing) {
-		String sql = "select count(1) as count  from collection_item  ci inner join resource r  on r.content_id = ci.resource_content_id inner join content c on c.content_id = ci.resource_content_id inner join content cc on cc.content_id = ci.collection_content_id  where cc.gooru_oid =:gooruOid and c.sharing in  ('"+sharing+"') and (r.type_name = 'folder' or r.type_name = 'scollection')";
+		String sql = "select count(1) as count  from collection_item  ci inner join resource r  on r.content_id = ci.resource_content_id inner join content c on c.content_id = ci.resource_content_id inner join content cc on cc.content_id = ci.collection_content_id  where cc.gooru_oid =:gooruOid and c.sharing in  ('"+sharing+"') and (r.type_name = 'folder' or r.type_name = 'scollection') and ci.item_type != 'collaborator' ";
 		Query query = getSession().createSQLQuery(sql).addScalar("count", StandardBasicTypes.LONG);
 		query.setParameter("gooruOid", gooruOid);
 		return (Long) query.list().get(0);
@@ -991,5 +997,6 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		Query query = session.createSQLQuery(sql).addScalar("count", StandardBasicTypes.LONG);	
 		return (Long) query.list().get(0);
 	}
+
 	
 }
