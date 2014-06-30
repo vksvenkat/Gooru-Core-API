@@ -735,12 +735,22 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		payLoadObject.put("itemSequence", collectionItem.getItemSequence());
 		payLoadObject.put("ItemId", collectionItem.getCollectionItemId());
 		if (collectionType != null) {
-			if (collectionType.equalsIgnoreCase(CollectionType.COLLECTION.getCollectionType())) {
+			if(collectionType.equalsIgnoreCase(CollectionType.SHElf.getCollectionType())){
+				String typeName = collectionItem.getResource().getResourceType().getName();
+				if(typeName.equalsIgnoreCase(ResourceType.Type.SCOLLECTION.getType())){
+					payLoadObject.put("itemType", "shelf.collection");
+				} else if(typeName.equalsIgnoreCase(ResourceType.Type.FOLDER.getType())){
+					payLoadObject.put("itemType", "shelf.folder");
+				}
+			} else if (collectionType.equalsIgnoreCase(CollectionType.COLLECTION.getCollectionType())) {
 				payLoadObject.put("itemType", "collection.resource");
 			} else if (collectionType.equalsIgnoreCase(CollectionType.FOLDER.getCollectionType())) {
-				payLoadObject.put("itemType", "folder.collection");
-			} else if (collectionType.equalsIgnoreCase(CollectionType.SHElf.getCollectionType())) {
-				payLoadObject.put("itemType", "shelf.collection");
+				String folderItemType = collectionItem.getResource().getResourceType().getName();
+				if(folderItemType.equalsIgnoreCase(ResourceType.Type.SCOLLECTION.getType())){
+					payLoadObject.put("itemType", "folder.collection");
+				} else if(folderItemType.equalsIgnoreCase(ResourceType.Type.FOLDER.getType())){
+					payLoadObject.put("itemType", "folder.folder");
+				}
 			} else if (collectionType.equalsIgnoreCase(CollectionType.CLASSPAGE.getCollectionType())) {
 				payLoadObject.put("itemType", "classpage.collection");
 			}
