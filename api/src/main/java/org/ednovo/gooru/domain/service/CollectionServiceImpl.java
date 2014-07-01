@@ -603,13 +603,15 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 					if (scollection.getPublishStatus().getValue().equalsIgnoreCase(PENDING)) {
 						scollection.setPublishStatus(this.getCustomTableRepository().getCustomTableValue("publish_status", REVIEWED));
 						collectionIds.append(scollection.getGooruOid());
-						UserSummary userSummary = this.getUserRepository().getSummaryByUid(scollection.getUser().getPartyUid());
-						if (userSummary.getGooruUid() == null) {
-							userSummary.setGooruUid(scollection.getUser().getPartyUid());
+						if (!scollection.getSharing().equalsIgnoreCase(PUBLIC)) {
+							UserSummary userSummary = this.getUserRepository().getSummaryByUid(scollection.getUser().getPartyUid());
+							if (userSummary.getGooruUid() == null) {
+								userSummary.setGooruUid(scollection.getUser().getPartyUid());
+							}
+							userSummary.setCollections((userSummary.getCollections() != null ? userSummary.getCollections() : 0) + 1);
+							this.getUserRepository().save(userSummary);
+							this.getUserRepository().flush();
 						}
-						userSummary.setCollections((userSummary.getCollections() != null ? userSummary.getCollections() : 0) + 1);
-						this.getUserRepository().save(userSummary);
-						this.getUserRepository().flush();
 
 						if (collectionIds.toString().trim().length() > 0) {
 							collectionIds.append(",");
