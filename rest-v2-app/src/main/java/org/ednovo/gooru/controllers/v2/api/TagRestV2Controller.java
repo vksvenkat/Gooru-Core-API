@@ -157,13 +157,16 @@ public class TagRestV2Controller extends BaseController implements ParameterProp
 	@RequestMapping(method = RequestMethod.GET, value = "/{id}/resource")
 	public ModelAndView getResourceByLabel(@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, 
 			@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, @PathVariable(ID) String label, 
-			@RequestParam(value = SKIP_PAGINATION, required = false, defaultValue = FALSE) boolean skipPagination ,HttpServletRequest request,
+			@RequestParam(value = SKIP_PAGINATION, required = false, defaultValue = FALSE) boolean skipPagination, @RequestParam(value = GOORU_UID, required = false) String gooruUid, HttpServletRequest request,
 			HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
+		if (gooruUid == null) { 
+			gooruUid = user.getPartyUid();
+		} 
 		request.setAttribute(PREDICATE, "tag.read");
 		SessionContextSupport.putLogParameter(EVENT_NAME, "get-tag using gooruOid");
 		SessionContextSupport.putLogParameter("tagName", label);
-		return toJsonModelAndView(this.getTagService().getResourceByLabel(label, limit, offset, skipPagination,user), true );
+		return toJsonModelAndView(this.getTagService().getResourceByLabel(label, limit, offset, skipPagination,gooruUid), true );
 	}
 	
 	
