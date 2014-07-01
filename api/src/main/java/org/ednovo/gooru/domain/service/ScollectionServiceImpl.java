@@ -1683,23 +1683,21 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				if (newCollection.getSharing().equalsIgnoreCase(PUBLIC) && userService.isContentAdmin(updateUser)) {
 					collection.setPublishStatus(this.getCustomTableRepository().getCustomTableValue("publish_status", REVIEWED));
 				}
-				if (hasUnrestrictedContentAccess) {
-					if (collection.getSharing().equalsIgnoreCase(PUBLIC) && newCollection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing())) {
-						UserSummary userSummary = this.getUserRepository().getSummaryByUid(collection.getUser().getPartyUid());
-						if (userSummary.getGooruUid() != null) {
-							userSummary.setCollections(userSummary.getCollections() <= 0 ? 0 : (userSummary.getCollections() - 1));
-							this.getUserRepository().save(userSummary);
-							this.getUserRepository().flush();
-						}
-					} else if (!collection.getSharing().equalsIgnoreCase(PUBLIC) && newCollection.getSharing().equalsIgnoreCase(PUBLIC)) {
-						UserSummary userSummary = this.getUserRepository().getSummaryByUid(collection.getUser().getPartyUid());
-						if (userSummary.getGooruUid() == null) {
-							userSummary.setGooruUid(collection.getUser().getPartyUid());
-						}
-						userSummary.setCollections((userSummary.getCollections() != null ? userSummary.getCollections() : 0) + 1);
+				if (collection.getSharing().equalsIgnoreCase(PUBLIC) && newCollection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing())) {
+					UserSummary userSummary = this.getUserRepository().getSummaryByUid(collection.getUser().getPartyUid());
+					if (userSummary.getGooruUid() != null) {
+						userSummary.setCollections(userSummary.getCollections() <= 0 ? 0 : (userSummary.getCollections() - 1));
 						this.getUserRepository().save(userSummary);
 						this.getUserRepository().flush();
 					}
+				} else if (hasUnrestrictedContentAccess &&  !collection.getSharing().equalsIgnoreCase(PUBLIC) && newCollection.getSharing().equalsIgnoreCase(PUBLIC)) {
+					UserSummary userSummary = this.getUserRepository().getSummaryByUid(collection.getUser().getPartyUid());
+					if (userSummary.getGooruUid() == null) {
+						userSummary.setGooruUid(collection.getUser().getPartyUid());
+					}
+					userSummary.setCollections((userSummary.getCollections() != null ? userSummary.getCollections() : 0) + 1);
+					this.getUserRepository().save(userSummary);
+					this.getUserRepository().flush();
 				}
 				if (newCollection.getSharing().equalsIgnoreCase(PRIVATE)) {
 					List<CollectionItem> associations = this.getCollectionRepository().getCollectionItemByAssociation(collection.getGooruOid(), null, "classpage");
