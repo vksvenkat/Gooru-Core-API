@@ -589,8 +589,8 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		}
 		if (gooruOids.toString().trim().length() > 0) {
 			collections = this.getCollectionRepository().getCollectionListByIds(gooruOids);
-			for (Collection scollection : collections) {
-				if (userService.isSuperAdmin(user) || userService.isContentAdmin(user)) {
+			if (userService.isSuperAdmin(user) || userService.isContentAdmin(user)) {
+				for (Collection scollection : collections) {
 					this.redisService.bulkKeyDelete("v2-organize-data-" + scollection.getUser().getPartyUid() + "*");
 					if (!scollection.getSharing().equalsIgnoreCase(PUBLIC)) {
 						scollection.setSharing(PUBLIC);
@@ -641,34 +641,34 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		}
 		if (gooruOids.toString().trim().length() > 0) {
 			collections = this.getCollectionRepository().getCollectionListByIds(gooruOids);
-			for (Collection scollection : collections) {
-				if (userService.isSuperAdmin(user) || userService.isContentAdmin(user)) {
-					scollection.setSharing(ANYONE_WITH_LINK);
-					List<String> parenFolders = this.getParentCollection(scollection.getGooruOid(), scollection.getUser().getPartyUid(), false);
-					for (String folderGooruOid : parenFolders) {
-						updateFolderSharing(folderGooruOid);
-					}
-					updateResourceSharing(ANYONE_WITH_LINK, scollection);
+			if (userService.isSuperAdmin(user) || userService.isContentAdmin(user)) {
+				for (Collection scollection : collections) {
 					if (scollection.getPublishStatus().getValue().equalsIgnoreCase(PENDING)) {
 						scollection.setPublishStatus(null);
-						UserSummary userSummary = this.getUserRepository().getSummaryByUid(scollection.getUser().getPartyUid());
-						if (userSummary.getGooruUid() != null) {
-							userSummary.setCollections(userSummary.getCollections() <= 0 ? 0 : (userSummary.getCollections() - 1));
-							this.getUserRepository().save(userSummary);
-							this.getUserRepository().flush();
+						if (scollection.getSharing().equalsIgnoreCase(PUBLIC)) {
+							UserSummary userSummary = this.getUserRepository().getSummaryByUid(scollection.getUser().getPartyUid());
+							if (userSummary.getGooruUid() != null) {
+								userSummary.setCollections(userSummary.getCollections() <= 0 ? 0 : (userSummary.getCollections() - 1));
+								this.getUserRepository().save(userSummary);
+								this.getUserRepository().flush();
+							}
 						}
 						collectionIds.append(scollection.getGooruOid());
 
 						if (collectionIds.toString().trim().length() > 0) {
 							collectionIds.append(",");
 						}
-
+						scollection.setSharing(ANYONE_WITH_LINK);
+						List<String> parenFolders = this.getParentCollection(scollection.getGooruOid(), scollection.getUser().getPartyUid(), false);
+						for (String folderGooruOid : parenFolders) {
+							updateFolderSharing(folderGooruOid);
+						}
+						updateResourceSharing(ANYONE_WITH_LINK, scollection);
 					} else {
 						throw new BadCredentialsException("Please try again later");
 
 					}
 				}
-
 			}
 			this.getCollectionRepository().saveAll(collections);
 			if (collectionIds.toString().trim().length() > 0) {
