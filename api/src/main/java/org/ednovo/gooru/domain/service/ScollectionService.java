@@ -135,7 +135,7 @@ public interface ScollectionService extends BaseService {
 	
 	List<ContentMetaDTO> updateContentMeta(List<ContentMetaDTO> newDepthOfKnowledges, String collectionId, User apiCaller, String type);
 	
-	void getEventLogs(CollectionItem collectionItem, boolean isCollectionItem, User user, String collectionType) throws JSONException;
+	void getEventLogs(CollectionItem collectionItem, boolean isCreate, boolean isAdd, User user, String collectionType) throws JSONException;
 	
 	void getEventLogs(CollectionItem collectionItem, User user, String collectionType) throws JSONException;
 }
