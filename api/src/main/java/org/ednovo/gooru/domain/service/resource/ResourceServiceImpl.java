@@ -3031,7 +3031,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		SessionContextSupport.putLogParameter("context", context.toString());
 		JSONObject payLoadObject = SessionContextSupport.getLog().get("payLoadObject") != null ? new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString()) : new JSONObject();
 		payLoadObject.put("itemType", resource != null ? resource.getResourceType().getName() : null);
-		payLoadObject.put("ItemData", ItemData != null ? ItemData.toString() : null);
+		payLoadObject.put("itemData", ItemData != null ? ItemData.toString() : null);
 		SessionContextSupport.putLogParameter("payLoadObject", payLoadObject.toString());
 		JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session").toString()) : new JSONObject();
 		session.put("organizationUId", user.getOrganization().getPartyUid());

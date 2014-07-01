@@ -1390,7 +1390,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		
 		try {
 			JSONObject jsonItemdata = new JSONObject();
-			jsonItemdata.put("ItemData", ItemData);
+			jsonItemdata.put("itemData", ItemData);
 			getEventLogs(collectionItem, jsonItemdata, apiCaller);
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -2305,7 +2305,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		} else if(isUpdate){
 			SessionContextSupport.putLogParameter(EVENT_NAME, "item.edit");
 		}
-		
 		JSONObject context = SessionContextSupport.getLog().get("context") != null ? new JSONObject(SessionContextSupport.getLog().get("context").toString()) : new JSONObject();
 		if(collection != null ){
 			context.put("contentGooruId", collection != null && collection.getCollectionItem() != null && collection.getCollectionItem().getResource() != null ? collection.getCollectionItem().getResource().getGooruOid() : null);
@@ -2321,7 +2320,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			payLoadObject.put("mode", "edit");
 		}
 		payLoadObject.put("itemType", collection != null ? collection.getCollectionType()  : null);
-		payLoadObject.put("ItemData", ItemData != null ? ItemData.toString() : null);
+		payLoadObject.put("itemData", ItemData != null ? ItemData.toString() : null);
 		SessionContextSupport.putLogParameter("payLoadObject", payLoadObject.toString());
 		JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session").toString()) : new JSONObject();
 		session.put("organizationUId", user.getOrganization().getPartyUid());
@@ -2390,7 +2389,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		SessionContextSupport.putLogParameter("context", context.toString());
 		JSONObject payLoadObject = SessionContextSupport.getLog().get("payLoadObject") != null ? new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString()) : new JSONObject();
 		payLoadObject.put("itemType", collectionItem != null && collectionItem.getResource() != null ? collectionItem.getResource().getResourceType().getName() : null);
-		payLoadObject.put("ItemData", ItemData != null ? ItemData.toString() : null);
+		payLoadObject.put("itemData", ItemData != null ? ItemData.toString() : null);
 		SessionContextSupport.putLogParameter("payLoadObject", payLoadObject.toString());
 		JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session").toString()) : new JSONObject();
 		session.put("organizationUId", user.getOrganization().getPartyUid());

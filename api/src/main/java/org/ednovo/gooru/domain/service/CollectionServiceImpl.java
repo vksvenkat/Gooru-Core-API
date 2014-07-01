@@ -134,7 +134,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		AssessmentQuestion newQuestion = getAssessmentService().buildQuestionFromInputParameters(data, user, true);
 		Errors errors = validateUpdateCollectionItem(collectionItem);
 		JSONObject ItemData = new JSONObject();
-		ItemData.put("ItemData", data);
+		ItemData.put("itemData", data);
 		if (!errors.hasErrors()) {
 			AssessmentQuestion question = getAssessmentService().getQuestion(collectionItem.getResource().getGooruOid());
 			if (question != null) {
