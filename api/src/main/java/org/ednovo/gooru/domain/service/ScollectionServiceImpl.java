@@ -268,11 +268,13 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				logger.debug(e.getMessage());
 			}
 			this.redisService.bulkKeyDelete("v2-organize-data-" + collection.getUser().getPartyUid() + "*");
-			try {
-				getEventLogs(collection, null, collection.getUser(), true, false);
-			} catch(Exception e){
-				e.printStackTrace();
-			}
+			
+		}
+		
+		try {
+			getEventLogs(collection, null, collection.getUser(), true, false);
+		} catch(Exception e){
+			e.printStackTrace();
 		}
 
 		return new ActionResponseDTO<Collection>(collection, errors);
@@ -833,6 +835,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				e1.printStackTrace();
 			}
 			Collection collection = collectionItem.getCollection();
+			this.getContentService().deleteContentTagAssoc(collectionItem.getResource().getGooruOid(), user);
 			this.getCollectionRepository().remove(CollectionItem.class, collectionItem.getCollectionItemId());
 
 			collectionItem.getCollection().setLastUpdatedUserUid(user.getPartyUid());
