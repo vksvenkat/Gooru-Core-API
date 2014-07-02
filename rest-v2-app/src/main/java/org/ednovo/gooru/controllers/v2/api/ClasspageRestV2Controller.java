@@ -175,9 +175,6 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
 	public void deleteClasspage(@PathVariable(value = ID) String classpageId, HttpServletRequest request, HttpServletResponse response) {
 		getClasspageService().deleteClasspage(classpageId);
-
-		SessionContextSupport.putLogParameter(EVENT_NAME, "classpage-delete");
-		SessionContextSupport.putLogParameter(CLASSPAGE_ID, classpageId);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ITEM_ADD })
