@@ -27,8 +27,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.ednovo.gooru.core.api.model.Content;
-import org.ednovo.gooru.core.api.model.ContentTagAssoc;
-import org.ednovo.gooru.core.api.model.Tag;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.domain.service.search.SearchResults;
 
