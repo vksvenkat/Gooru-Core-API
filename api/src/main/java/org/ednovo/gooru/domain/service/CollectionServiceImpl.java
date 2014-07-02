@@ -592,29 +592,28 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 			if (userService.isSuperAdmin(user) || userService.isContentAdmin(user)) {
 				for (Collection scollection : collections) {
 					this.redisService.bulkKeyDelete("v2-organize-data-" + scollection.getUser().getPartyUid() + "*");
-					if (!scollection.getSharing().equalsIgnoreCase(PUBLIC)) {
+					if (scollection.getPublishStatus().getValue().equalsIgnoreCase(PENDING)) {
+						scollection.setPublishStatus(this.getCustomTableRepository().getCustomTableValue("publish_status", REVIEWED));
+						collectionIds.append(scollection.getGooruOid());
+						if (!scollection.getSharing().equalsIgnoreCase(PUBLIC)) {
+							UserSummary userSummary = this.getUserRepository().getSummaryByUid(scollection.getUser().getPartyUid());
+							if (userSummary.getGooruUid() == null) {
+								userSummary.setGooruUid(scollection.getUser().getPartyUid());
+							}
+							userSummary.setCollections((userSummary.getCollections() != null ? userSummary.getCollections() : 0) + 1);
+							this.getUserRepository().save(userSummary);
+							this.getUserRepository().flush();
+						}
 						scollection.setSharing(PUBLIC);
 						List<String> parenFolders = this.getParentCollection(scollection.getGooruOid(), scollection.getUser().getPartyUid(), false);
 						for (String folderGooruOid : parenFolders) {
 							updateFolderSharing(folderGooruOid);
 						}
 						updateResourceSharing(PUBLIC, scollection);
-					}
-					if (scollection.getPublishStatus().getValue().equalsIgnoreCase(PENDING)) {
-						scollection.setPublishStatus(this.getCustomTableRepository().getCustomTableValue("publish_status", REVIEWED));
-						collectionIds.append(scollection.getGooruOid());
-						UserSummary userSummary = this.getUserRepository().getSummaryByUid(scollection.getUser().getPartyUid());
-						if (userSummary.getGooruUid() == null) {
-							userSummary.setGooruUid(scollection.getUser().getPartyUid());
-						}
-						userSummary.setCollections((userSummary.getCollections() != null ? userSummary.getCollections() : 0) + 1);
-						this.getUserRepository().save(userSummary);
-						this.getUserRepository().flush();
 
 						if (collectionIds.toString().trim().length() > 0) {
 							collectionIds.append(",");
 						}
-
 					} else {
 						throw new BadCredentialsException("You do not have the permission");
 					}

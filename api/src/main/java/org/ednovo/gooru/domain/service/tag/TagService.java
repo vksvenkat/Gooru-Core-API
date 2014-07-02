@@ -65,6 +65,6 @@ public interface TagService extends BaseService {
 	
 	void deleteTagSynonyms(String tagGooruOid, Integer synonymsId);
 	
-	Map<String, Object> getResourceByLabel(String label, Integer limit, Integer offset, boolean skipPagination, User user);
+	Map<String, Object> getResourceByLabel(String label, Integer limit, Integer offset, boolean skipPagination, String gooruOid);
 
 }

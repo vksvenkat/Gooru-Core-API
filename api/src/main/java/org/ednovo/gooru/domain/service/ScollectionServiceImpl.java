@@ -268,11 +268,13 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				logger.debug(e.getMessage());
 			}
 			this.redisService.bulkKeyDelete("v2-organize-data-" + collection.getUser().getPartyUid() + "*");
-			try {
-				getEventLogs(collection, null, collection.getUser(), true, false);
-			} catch(Exception e){
-				e.printStackTrace();
-			}
+			
+		}
+		
+		try {
+			getEventLogs(collection, null, collection.getUser(), true, false);
+		} catch(Exception e){
+			e.printStackTrace();
 		}
 
 		return new ActionResponseDTO<Collection>(collection, errors);
@@ -643,12 +645,14 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 					updateFolderSharing(parentCollection.getGooruOid());
 				}
 			}
-			UserSummary userSummary = this.getUserRepository().getSummaryByUid(user.getPartyUid());
-			if( userSummary != null && userSummary.getCollections() != null && userSummary.getCollections() >= 0){
-				userSummary.setCollections(userSummary.getCollections() - 1);
-				this.getUserRepository().save(userSummary);
+			if (collection.getUser() != null && collection.getUser().getGooruUId().equalsIgnoreCase(user.getPartyUid())) {
+				UserSummary userSummary = this.getUserRepository().getSummaryByUid(user.getPartyUid());
+				if (userSummary != null && userSummary.getCollections() != null) {
+					userSummary.setCollections(userSummary.getCollections() <= 0 ? 0 : (userSummary.getCollections() - 1));
+					this.getUserRepository().save(userSummary);
+				}
+				this.getUserRepository().flush();
 			}
-			this.getUserRepository().flush();
 
 		} else {
 			throw new NotFoundException(generateErrorMessage(GL0056, _COLLECTION));
@@ -831,6 +835,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				e1.printStackTrace();
 			}
 			Collection collection = collectionItem.getCollection();
+			this.getContentService().deleteContentTagAssoc(collectionItem.getResource().getGooruOid(), user);
 			this.getCollectionRepository().remove(CollectionItem.class, collectionItem.getCollectionItemId());
 
 			collectionItem.getCollection().setLastUpdatedUserUid(user.getPartyUid());
@@ -1753,7 +1758,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				if (newCollection.getSharing().equalsIgnoreCase(PUBLIC) && userService.isContentAdmin(updateUser)) {
 					collection.setPublishStatus(this.getCustomTableRepository().getCustomTableValue("publish_status", REVIEWED));
 				}
-				if (collection.getSharing().equalsIgnoreCase(PUBLIC) && newCollection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing())) {
+				if (collection.getSharing().equalsIgnoreCase(PUBLIC) && (newCollection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing()))) {
 					UserSummary userSummary = this.getUserRepository().getSummaryByUid(collection.getUser().getPartyUid());
 					if (userSummary.getGooruUid() != null) {
 						userSummary.setCollections(userSummary.getCollections() <= 0 ? 0 : (userSummary.getCollections() - 1));
