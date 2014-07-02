@@ -140,7 +140,7 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 					tag.setContentCount(tag.getContentCount() <=  0 ? 0 :   tag.getContentCount() - 1);
 					this.getContentRepository().save(tag);
 					UserSummary userSummary = this.getUserRepository().getSummaryByUid(apiCaller.getPartyUid());
-					userSummary.setTag(userSummary.getTag() - 1);
+					userSummary.setTag(userSummary.getTag() <= 0 ? 0 : userSummary.getTag() - 1);
 					this.getUserRepository().save(userSummary);
 				}
 			}
@@ -161,7 +161,7 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 					tag.setContentCount(tag.getContentCount() <=  0 ? 0 :   tag.getContentCount() - 1);
 					this.getContentRepository().save(tag);
 				}
-				userSummary.setTag(userSummary.getTag() - 1);
+				userSummary.setTag(userSummary.getTag() <= 0 ? 0 : userSummary.getTag() - 1);
 				this.getUserRepository().save(userSummary);
 			}
 		}
