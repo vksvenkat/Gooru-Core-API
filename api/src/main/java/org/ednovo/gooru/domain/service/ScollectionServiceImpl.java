@@ -636,8 +636,8 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 					this.redisService.bulkKeyDelete("v2-organize-data-" + item.getAssociatedUser().getPartyUid() + "*");
 				}
 			}
-			if (collection != null && collection.getSharing().equalsIgnoreCase(PUBLIC)) {
-				UserSummary userSummary = this.getUserRepository().getSummaryByUid(user.getPartyUid());
+			if (collection != null && collection.getUser() != null && collection.getSharing().equalsIgnoreCase(PUBLIC)) {
+				UserSummary userSummary = this.getUserRepository().getSummaryByUid(collection.getUser().getPartyUid());
 				if (userSummary != null && userSummary.getCollections() != null) {
 					userSummary.setCollections(userSummary.getCollections() <= 0 ? 0 : (userSummary.getCollections() - 1));
 					this.getUserRepository().save(userSummary);
