@@ -643,12 +643,14 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 					updateFolderSharing(parentCollection.getGooruOid());
 				}
 			}
-			UserSummary userSummary = this.getUserRepository().getSummaryByUid(user.getPartyUid());
-			if( userSummary != null && userSummary.getCollections() != null && userSummary.getCollections() >= 0){
-				userSummary.setCollections(userSummary.getCollections() - 1);
-				this.getUserRepository().save(userSummary);
+			if (collection.getUser() != null && collection.getUser().getGooruUId().equalsIgnoreCase(user.getPartyUid())) {
+				UserSummary userSummary = this.getUserRepository().getSummaryByUid(user.getPartyUid());
+				if (userSummary != null && userSummary.getCollections() != null) {
+					userSummary.setCollections(userSummary.getCollections() <= 0 ? 0 : (userSummary.getCollections() - 1));
+					this.getUserRepository().save(userSummary);
+				}
+				this.getUserRepository().flush();
 			}
-			this.getUserRepository().flush();
 
 		} else {
 			throw new NotFoundException(generateErrorMessage(GL0056, _COLLECTION));
