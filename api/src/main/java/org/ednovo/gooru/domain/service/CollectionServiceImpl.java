@@ -133,7 +133,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		CollectionItem collectionItem = this.getCollectionItemById(collectionItemId);
 		AssessmentQuestion newQuestion = getAssessmentService().buildQuestionFromInputParameters(data, user, true);
 		Errors errors = validateUpdateCollectionItem(collectionItem);
-		Map<String, Object> ItemData = new HashMap<String, Object>();
+		JSONObject ItemData = new JSONObject();
 		ItemData.put("ItemData", data);
 		if (!errors.hasErrors()) {
 			AssessmentQuestion question = getAssessmentService().getQuestion(collectionItem.getResource().getGooruOid());
@@ -170,7 +170,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		}
 		try {
 			getEventLogs(collectionItem, ItemData, user);
-		} catch (Exception e) {
+		} catch(Exception e){
 			e.printStackTrace();
 		}
 
@@ -589,32 +589,31 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		}
 		if (gooruOids.toString().trim().length() > 0) {
 			collections = this.getCollectionRepository().getCollectionListByIds(gooruOids);
-			for (Collection scollection : collections) {
-				if (userService.isSuperAdmin(user) || userService.isContentAdmin(user)) {
+			if (userService.isSuperAdmin(user) || userService.isContentAdmin(user)) {
+				for (Collection scollection : collections) {
 					this.redisService.bulkKeyDelete("v2-organize-data-" + scollection.getUser().getPartyUid() + "*");
-					if (!scollection.getSharing().equalsIgnoreCase(PUBLIC)) {
+					if (scollection.getPublishStatus().getValue().equalsIgnoreCase(PENDING)) {
+						scollection.setPublishStatus(this.getCustomTableRepository().getCustomTableValue("publish_status", REVIEWED));
+						collectionIds.append(scollection.getGooruOid());
+						if (!scollection.getSharing().equalsIgnoreCase(PUBLIC)) {
+							UserSummary userSummary = this.getUserRepository().getSummaryByUid(scollection.getUser().getPartyUid());
+							if (userSummary.getGooruUid() == null) {
+								userSummary.setGooruUid(scollection.getUser().getPartyUid());
+							}
+							userSummary.setCollections((userSummary.getCollections() != null ? userSummary.getCollections() : 0) + 1);
+							this.getUserRepository().save(userSummary);
+							this.getUserRepository().flush();
+						}
 						scollection.setSharing(PUBLIC);
 						List<String> parenFolders = this.getParentCollection(scollection.getGooruOid(), scollection.getUser().getPartyUid(), false);
 						for (String folderGooruOid : parenFolders) {
 							updateFolderSharing(folderGooruOid);
 						}
 						updateResourceSharing(PUBLIC, scollection);
-					}
-					if (scollection.getPublishStatus().getValue().equalsIgnoreCase(PENDING)) {
-						scollection.setPublishStatus(this.getCustomTableRepository().getCustomTableValue("publish_status", REVIEWED));
-						collectionIds.append(scollection.getGooruOid());
-						UserSummary userSummary = this.getUserRepository().getSummaryByUid(scollection.getUser().getPartyUid());
-						if (userSummary.getGooruUid() == null) {
-							userSummary.setGooruUid(scollection.getUser().getPartyUid());
-						}
-						userSummary.setCollections((userSummary.getCollections() != null ? userSummary.getCollections() : 0) + 1);
-						this.getUserRepository().save(userSummary);
-						this.getUserRepository().flush();
 
 						if (collectionIds.toString().trim().length() > 0) {
 							collectionIds.append(",");
 						}
-
 					} else {
 						throw new BadCredentialsException("You do not have the permission");
 					}
@@ -641,34 +640,34 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		}
 		if (gooruOids.toString().trim().length() > 0) {
 			collections = this.getCollectionRepository().getCollectionListByIds(gooruOids);
-			for (Collection scollection : collections) {
-				if (userService.isSuperAdmin(user) || userService.isContentAdmin(user)) {
-					scollection.setSharing(ANYONE_WITH_LINK);
-					List<String> parenFolders = this.getParentCollection(scollection.getGooruOid(), scollection.getUser().getPartyUid(), false);
-					for (String folderGooruOid : parenFolders) {
-						updateFolderSharing(folderGooruOid);
-					}
-					updateResourceSharing(ANYONE_WITH_LINK, scollection);
+			if (userService.isSuperAdmin(user) || userService.isContentAdmin(user)) {
+				for (Collection scollection : collections) {
 					if (scollection.getPublishStatus().getValue().equalsIgnoreCase(PENDING)) {
 						scollection.setPublishStatus(null);
-						UserSummary userSummary = this.getUserRepository().getSummaryByUid(scollection.getUser().getPartyUid());
-						if (userSummary.getGooruUid() != null) {
-							userSummary.setCollections(userSummary.getCollections() <= 0 ? 0 : (userSummary.getCollections() - 1));
-							this.getUserRepository().save(userSummary);
-							this.getUserRepository().flush();
+						if (scollection.getSharing().equalsIgnoreCase(PUBLIC)) {
+							UserSummary userSummary = this.getUserRepository().getSummaryByUid(scollection.getUser().getPartyUid());
+							if (userSummary.getGooruUid() != null) {
+								userSummary.setCollections(userSummary.getCollections() <= 0 ? 0 : (userSummary.getCollections() - 1));
+								this.getUserRepository().save(userSummary);
+								this.getUserRepository().flush();
+							}
 						}
 						collectionIds.append(scollection.getGooruOid());
 
 						if (collectionIds.toString().trim().length() > 0) {
 							collectionIds.append(",");
 						}
-
+						scollection.setSharing(ANYONE_WITH_LINK);
+						List<String> parenFolders = this.getParentCollection(scollection.getGooruOid(), scollection.getUser().getPartyUid(), false);
+						for (String folderGooruOid : parenFolders) {
+							updateFolderSharing(folderGooruOid);
+						}
+						updateResourceSharing(ANYONE_WITH_LINK, scollection);
 					} else {
 						throw new BadCredentialsException("Please try again later");
 
 					}
 				}
-
 			}
 			this.getCollectionRepository().saveAll(collections);
 			if (collectionIds.toString().trim().length() > 0) {
@@ -721,8 +720,8 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	public void getEventLogs(CollectionItem collectionItem, boolean isMoveMode, User user, String collectionType) throws JSONException {
 		SessionContextSupport.putLogParameter(EVENT_NAME, "item.create");
 		JSONObject context = SessionContextSupport.getLog().get("context") != null ? new JSONObject(SessionContextSupport.getLog().get("context").toString()) : new JSONObject();
-		context.put("parentGooruId", collectionItem.getCollection() != null ? collectionItem.getCollection().getGooruOid() : null);
-		context.put("contentGooruId", collectionItem.getResource() != null ? collectionItem.getResource().getGooruOid() : null);
+		context.put("parentGooruId", collectionItem != null && collectionItem.getCollection() != null ? collectionItem.getCollection().getGooruOid() : null);
+		context.put("contentGooruId", collectionItem != null && collectionItem.getResource() != null ? collectionItem.getResource().getGooruOid() : null);
 		SessionContextSupport.putLogParameter("context", context.toString());
 		JSONObject payLoadObject = SessionContextSupport.getLog().get("payLoadObject") != null ? new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString()) : new JSONObject();
 		if (isMoveMode) {
@@ -730,23 +729,37 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		} else {
 			payLoadObject.put("mode", "add");
 		}
-		payLoadObject.put("itemSequence", collectionItem.getItemSequence());
-		payLoadObject.put("ItemId", collectionItem.getCollectionItemId());
-		if (collectionType != null) {
-			if (collectionType.equalsIgnoreCase(CollectionType.COLLECTION.getCollectionType())) {
+		payLoadObject.put("itemSequence", collectionItem != null ? collectionItem.getItemSequence() : null);
+		payLoadObject.put("ItemId", collectionItem != null ? collectionItem.getCollectionItemId() : null);
+		if (collectionType != null && collectionItem != null) {
+			if(collectionType.equalsIgnoreCase(CollectionType.SHElf.getCollectionType())){
+				if(collectionItem.getResource() != null){
+					String typeName = collectionItem.getResource().getResourceType().getName();
+					if(typeName.equalsIgnoreCase(ResourceType.Type.SCOLLECTION.getType())){
+						payLoadObject.put("itemType", "shelf.collection");
+					} else if(typeName.equalsIgnoreCase(ResourceType.Type.FOLDER.getType())){
+						payLoadObject.put("itemType", "shelf.folder");
+					}
+				}
+			} else if (collectionType.equalsIgnoreCase(CollectionType.COLLECTION.getCollectionType())) {
 				payLoadObject.put("itemType", "collection.resource");
 			} else if (collectionType.equalsIgnoreCase(CollectionType.FOLDER.getCollectionType())) {
-				payLoadObject.put("itemType", "folder.collection");
-			} else if (collectionType.equalsIgnoreCase(CollectionType.SHElf.getCollectionType())) {
-				payLoadObject.put("itemType", "shelf.collection");
+				if(collectionItem.getResource() != null){
+					String itemTypeName = collectionItem.getResource().getResourceType().getName();
+					if(itemTypeName.equalsIgnoreCase(ResourceType.Type.FOLDER.getType())){
+						payLoadObject.put("itemType", "folder.folder");
+					} else if(itemTypeName.equalsIgnoreCase(ResourceType.Type.SCOLLECTION.getType())){
+						payLoadObject.put("itemType", "folder.collection");
+					}
+				}
 			} else if (collectionType.equalsIgnoreCase(CollectionType.CLASSPAGE.getCollectionType())) {
 				payLoadObject.put("itemType", "classpage.collection");
 			}
 		}
-		payLoadObject.put("parentContentId", collectionItem.getCollection() != null ? collectionItem.getCollection().getContentId() : null);
-		payLoadObject.put("contentId", collectionItem.getResource() != null ? collectionItem.getResource().getContentId() : null);
-		payLoadObject.put("title", collectionItem.getResource().getTitle());
-		payLoadObject.put("description", collectionItem.getResource().getDescription());
+		payLoadObject.put("parentContentId", collectionItem != null && collectionItem.getCollection() != null ? collectionItem.getCollection().getContentId() : null);
+		payLoadObject.put("contentId", collectionItem != null && collectionItem.getResource() != null ? collectionItem.getResource().getContentId() : null);
+		payLoadObject.put("title", collectionItem != null && collectionItem.getResource() != null && collectionItem.getResource().getTitle() != null ? collectionItem.getResource().getTitle() : null);
+		payLoadObject.put("description", collectionItem != null && collectionItem.getResource() != null  && collectionItem.getResource().getDescription() != null? collectionItem.getResource().getDescription() : null );
 		SessionContextSupport.putLogParameter("payLoadObject", payLoadObject.toString());
 		JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session").toString()) : new JSONObject();
 		session.put("organizationUId", user.getOrganization().getPartyUid());
