@@ -836,7 +836,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				e1.printStackTrace();
 			}
 			Collection collection = collectionItem.getCollection();
-			this.getContentService().deleteContentTagAssoc(collectionItem.getResource().getGooruOid(), user);
 			this.getCollectionRepository().remove(CollectionItem.class, collectionItem.getCollectionItemId());
 
 			collectionItem.getCollection().setLastUpdatedUserUid(user.getPartyUid());
