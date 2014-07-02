@@ -206,9 +206,9 @@ public class TagServiceImpl extends BaseServiceImpl implements TagService, Param
 	}
 	
 	@Override
-	public Map<String, Object> getResourceByLabel(String label, Integer limit, Integer offset, boolean skipPagination, User user) {
+	public Map<String, Object> getResourceByLabel(String label, Integer limit, Integer offset, boolean skipPagination, String gooruUid) {
 		StorageArea storageArea = this.getStorageRepository().getStorageAreaByTypeName(NFS);
-		List<Object[]> results = this.getTagRepository().getResourceByLabel(label, limit, offset, skipPagination, user.getPartyUid());
+		List<Object[]> results = this.getTagRepository().getResourceByLabel(label, limit, offset, skipPagination, gooruUid);
 		Map<String, Object> content = new HashMap<String, Object>();
 		List<Map<String, Object>> resource = new ArrayList<Map<String,Object>>();
 		for (Object[] object : results) {
@@ -251,7 +251,7 @@ public class TagServiceImpl extends BaseServiceImpl implements TagService, Param
 			resource.add(result);
 		}
 		content.put("searchResult",resource);
-		content.put("totalHitCount",this.getTagRepository().getResourceByLabelCount(label, user.getPartyUid()));
+		content.put("totalHitCount",this.getTagRepository().getResourceByLabelCount(label, gooruUid));
 		return content;
 	}
 
