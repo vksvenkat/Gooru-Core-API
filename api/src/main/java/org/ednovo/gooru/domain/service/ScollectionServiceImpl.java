@@ -624,16 +624,17 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				logger.debug(e.getMessage());
 			}
 
-			List<CollectionItem> collectionItems = this.getCollectionRepository().getCollectionItemByAssociation(collectionId, null,null);
-			try{
+			List<CollectionItem> collectionItems = this.getCollectionRepository().getCollectionItemByAssociation(collectionId, null, null);
+			try {
 				getEventLogs(collection.getCollectionItem(), user, collection.getCollectionItem().getCollection().getCollectionType());
-			}catch(Exception e){
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 
-			if (collectionItems.size() > 0) {
-				for (CollectionItem item : collectionItems) {
-					this.deleteCollectionItem(item.getCollectionItemId(), user);
+			for (CollectionItem item : collectionItems) {
+				this.deleteCollectionItem(item.getCollectionItemId(), user);
+				if (item.getAssociatedUser() != null && !item.getAssociatedUser().getPartyUid().equals(user.getPartyUid())) {
+					this.redisService.bulkKeyDelete("v2-organize-data-" + item.getAssociatedUser().getPartyUid() + "*");
 				}
 			}
 			this.getCollectionRepository().remove(Collection.class, collection.getContentId());
@@ -643,17 +644,19 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 					updateFolderSharing(parentCollection.getGooruOid());
 				}
 			}
-			UserSummary userSummary = this.getUserRepository().getSummaryByUid(user.getPartyUid());
-			if( userSummary != null && userSummary.getCollections() != null && userSummary.getCollections() >= 0){
-				userSummary.setCollections(userSummary.getCollections() - 1);
-				this.getUserRepository().save(userSummary);
+			if (collection.getUser() != null && collection.getUser().getGooruUId().equalsIgnoreCase(user.getPartyUid())) {
+				UserSummary userSummary = this.getUserRepository().getSummaryByUid(user.getPartyUid());
+				if (userSummary != null && userSummary.getCollections() != null) {
+					userSummary.setCollections(userSummary.getCollections() <= 0 ? 0 : (userSummary.getCollections() - 1));
+					this.getUserRepository().save(userSummary);
+				}
+				this.getUserRepository().flush();
 			}
-			this.getUserRepository().flush();
-
 		} else {
 			throw new NotFoundException(generateErrorMessage(GL0056, _COLLECTION));
 		}
 		this.redisService.bulkKeyDelete("v2-organize-data-" + user.getPartyUid() + "*");
+
 	}
 
 	@Override
