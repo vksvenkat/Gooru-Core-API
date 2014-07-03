@@ -1929,7 +1929,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		this.redisService.bulkKeyDelete("v2-organize-data-" + destCollection.getUser().getPartyUid() + "*");
 		
 		try {
-			getEventLogs(destCollection.getCollectionItem(), true, false, user, destCollection.getCollectionItem().getCollection().getCollectionType());
+			getEventLogs(destCollection.getCollectionItem(), false, false, user, destCollection.getCollectionItem().getCollection().getCollectionType());
 		} catch(Exception e){
 			e.printStackTrace();
 		}
