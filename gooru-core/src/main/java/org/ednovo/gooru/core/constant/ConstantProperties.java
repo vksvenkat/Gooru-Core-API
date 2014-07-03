@@ -472,4 +472,123 @@ public interface ConstantProperties {
 	
 	public static String SAUSD = "sausd";
 
+	public static String USER_CHECK_USERNAMEOREMAILID_AVAILABILITY = "user.check.usernameOremailid.availability";
+
+	public static String USER_FORGET_PASSWORD="user.forgot_password";
+	
+	public static String USER_DELETE_USER="user.delete_user";
+	
+    public static String USER_DELETE_PROFILE_PICTURE="user.delete_profile_picture";
+    
+    public static String CHECK_CONTENT_PERMISSION="check-content-permission";
+    
+    public static String TOKEN_NOT_FOUND="token not found";
+    
+    public static String WELCOME="WELCOME";
+    
+    public static String PROFILE_ACTION="profile.action";
+   
+    public static String VISIT_UID="visitorUId";
+    
+    public static String VISIT="visit";
+   
+    public static String REGISTER_TYPE="register.type";
+   
+     public static String FOLLOWING="following";
+    
+    public static String FOLLOWERS="followers";
+   
+    public static String CUSTOM_FIELDS="customFields";
+    
+    public static String PAY_LOAD_OBJECT="payLoadObject";
+    
+    public static String ORGANIZATION_UID="organizationUId";
+    
+    public static String USER_SWITCH_SESSION="user.switch-session";
+    
+    public static String USER_AUTHENTICATE="user-authenticate";
+    
+    public static String APPS="Apps";    
+    
+    public static String CLASSPAGE_ITEM_UPDATE="classpage-item-update";
+    
+    public static String CLASS_CODE="classCode";
+    
+    public static String MEMBER_COUNT="memberCount";
+    
+    public static String ITEM_COLLABORATE="item.collaborate";
+    
+    public static String SOURCE_GOORU_UID="sourceGooruId";
+    
+    public static String TARGET_GOORU_UID="targetGooruId";
+    
+    public static String TARGET_ITEM_ID="targetItemId";
+    
+    public static String COLLABORATED_ID="collaboratedId";
+    
+    public static String CREATE_POST="create-post";
+    
+    public static String UPDATE_POST= "update-post";
+    
+    public static String POST_ID="postId";
+    
+    public static String ASSOCIATION_DATE="associationDate";
+    
+   // public static String CLASSPAGE_CREATE="classpage.create";
+    
+    public static String INVITED_USER_GOORU_UID="InvitedUserGooruUId";
+    
+   // public static String GROUP_UID="groupUId";
+    
+   // public static String ORGANIZATION_UID="organizationUId";
+    
+    public static String ITEM_ID="ItemId";
+    
+    public static String PARENT_CONTENT_ID="parentContentId";
+    
+    public static String CLASSPAGE_USER_ADD="classpage.user.add";
+    
+    public static String COLLECTION_RESOURCE="collection.resource";
+    
+    public static String FOLDER_COLLECTION="folder.collection";
+    
+    public static String SHELF_COLLECTION="shelf.collection";
+    
+    public static String CLASSPAGE_COLLECTION="classpage.collection";
+    
+    public static String CLASSPAGE_USER_REMOVE= "classpage.user.remove";
+    
+    public static String REMOVE_GOORU_UID="removedGooruUId";
+    
+    public static String ITEM_CREATE="item.create";
+    
+    public static String COLLECTION_ALL="collection.all";
+    
+    
+    
+    
 }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+   
+    
+    
+	
+	
+	
+	
+	
+
