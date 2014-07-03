@@ -14,6 +14,10 @@ public class ContextDTO implements Serializable {
 
 	private String resourceGooruId;
 	
+	private String contentItemId;
+	
+	private String parentItemId;
+	
 	private String eventName;
 
 	public void setCollectionGooruId(String collectionGooruId) {
@@ -30,6 +34,22 @@ public class ContextDTO implements Serializable {
 
 	public String getResourceGooruId() {
 		return resourceGooruId;
+	}
+
+	public String getContentItemId() {
+		return contentItemId;
+	}
+
+	public void setContentItemId(String contentItemId) {
+		this.contentItemId = contentItemId;
+	}
+
+	public String getParentItemId() {
+		return parentItemId;
+	}
+
+	public void setParentItemId(String parentItemId) {
+		this.parentItemId = parentItemId;
 	}
 
 	public void setEventName(String eventName) {
