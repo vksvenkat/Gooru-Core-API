@@ -686,6 +686,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 			int sequence = collectionItem.getCollection().getCollectionItems() != null ? collectionItem.getCollection().getCollectionItems().size() + 1 : 1;
 			collectionItem.setItemSequence(sequence);
+			collectionItem.getCollection().setItemCount(sequence);
 			this.getCollectionRepository().save(collectionItem);
 			this.getCollectionRepository().flush();
 			try{
@@ -2164,6 +2165,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		collectionItem.setAssociationDate(new Date(System.currentTimeMillis()));
 		int sequence = collectionItem.getCollection().getCollectionItems() != null ? collectionItem.getCollection().getCollectionItems().size() + 1 : 1;
 		collectionItem.setItemSequence(sequence);
+		collectionItem.getCollection().setItemCount(sequence);
 		Errors errors = validateCollectionItem(collection, resource, collectionItem);
 		this.getResourceRepository().save(collectionItem);
 		this.redisService.bulkKeyDelete("v2-organize-data-" + collectionItem.getCollection().getUser().getPartyUid() + "*");
