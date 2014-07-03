@@ -65,7 +65,6 @@ import org.ednovo.gooru.core.api.model.Textbook;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserGroupSupport;
 import org.ednovo.gooru.core.api.model.UserSummary;
-import org.ednovo.gooru.core.api.model.ResourceType.Type;
 import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.application.util.ResourceMetaInfo;
 import org.ednovo.gooru.core.constant.ConstantProperties;
@@ -639,20 +638,20 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 					this.redisService.bulkKeyDelete("v2-organize-data-" + item.getAssociatedUser().getPartyUid() + "*");
 				}
 			}
+			if (collection != null && collection.getUser() != null && collection.getSharing().equalsIgnoreCase(PUBLIC)) {
+				UserSummary userSummary = this.getUserRepository().getSummaryByUid(collection.getUser().getPartyUid());
+				if (userSummary != null && userSummary.getCollections() != null) {
+					userSummary.setCollections(userSummary.getCollections() <= 0 ? 0 : (userSummary.getCollections() - 1));
+					this.getUserRepository().save(userSummary);
+				}
+				this.getUserRepository().flush();
+			}
 			this.getCollectionRepository().remove(Collection.class, collection.getContentId());
 			for (CollectionItem item : collectionItems) {
 				Collection parentCollection = item.getCollection();
 				if (parentCollection.getCollectionType().equals(FOLDER)) {
 					updateFolderSharing(parentCollection.getGooruOid());
 				}
-			}
-			if (collection.getUser() != null && collection.getUser().getGooruUId().equalsIgnoreCase(user.getPartyUid())) {
-				UserSummary userSummary = this.getUserRepository().getSummaryByUid(user.getPartyUid());
-				if (userSummary != null && userSummary.getCollections() != null) {
-					userSummary.setCollections(userSummary.getCollections() <= 0 ? 0 : (userSummary.getCollections() - 1));
-					this.getUserRepository().save(userSummary);
-				}
-				this.getUserRepository().flush();
 			}
 		} else {
 			throw new NotFoundException(generateErrorMessage(GL0056, _COLLECTION));
