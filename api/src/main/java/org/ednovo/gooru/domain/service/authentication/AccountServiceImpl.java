@@ -401,24 +401,24 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 	}
 	
 	public void getEventLogs(Identity identity, UserToken userToken) throws JSONException {
-		SessionContextSupport.putLogParameter(EVENT_NAME, "user.login");
-		JSONObject context = SessionContextSupport.getLog().get("context") != null ? new JSONObject(SessionContextSupport.getLog().get("context").toString()) : new JSONObject();
-		if(identity != null && identity.getLoginType().equalsIgnoreCase("Credential")) {
-			context.put("LogInType", "Gooru");
-		}else if (identity != null && identity.getLoginType().equalsIgnoreCase("Apps")) {
-			context.put("LogInType", accountCreatedType.GOOGLE_APP.getType());	
+		SessionContextSupport.putLogParameter(EVENT_NAME, USER_LOGIN);
+		JSONObject context = SessionContextSupport.getLog().get(CONTEXT) != null ? new JSONObject(SessionContextSupport.getLog().get(CONTEXT).toString()) : new JSONObject();
+		if(identity != null && identity.getLoginType().equalsIgnoreCase(CREDENTIAL)) {
+			context.put( LOGIN_TYPE, GOORU);
+		}else if (identity != null && identity.getLoginType().equalsIgnoreCase(APPS)) {
+			context.put( LOGIN_TYPE, accountCreatedType.GOOGLE_APP.getType());	
 		}else {
-			context.put("LogInType", accountCreatedType.SSO.getType());
+			context.put( LOGIN_TYPE, accountCreatedType.SSO.getType());
 		}
-		SessionContextSupport.putLogParameter("context", context.toString());
-		JSONObject payLoadObject = SessionContextSupport.getLog().get("payLoadObject") != null ? new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString()) : new JSONObject();
-		SessionContextSupport.putLogParameter("payLoadObject", payLoadObject.toString());
-		JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session").toString()) : new JSONObject();
-		session.put("sessionToken", userToken.getToken());
-		SessionContextSupport.putLogParameter("session", session.toString());
-		JSONObject user = SessionContextSupport.getLog().get("user") != null ? new JSONObject(SessionContextSupport.getLog().get("user").toString()) : new JSONObject();
-		user.put("gooruUId", identity != null && identity.getUser() != null ? identity.getUser().getPartyUid() : null );
-		SessionContextSupport.putLogParameter("user", user.toString());
+		SessionContextSupport.putLogParameter(CONTEXT, context.toString());
+		JSONObject payLoadObject = SessionContextSupport.getLog().get(PAY_LOAD_OBJECT) != null ? new JSONObject(SessionContextSupport.getLog().get(PAY_LOAD_OBJECT).toString()) : new JSONObject();
+		SessionContextSupport.putLogParameter(PAY_LOAD_OBJECT, payLoadObject.toString());
+		JSONObject session = SessionContextSupport.getLog().get(SESSION) != null ? new JSONObject(SessionContextSupport.getLog().get(SESSION).toString()) : new JSONObject();
+		session.put(SESSIONTOKEN, userToken.getToken());
+		SessionContextSupport.putLogParameter(SESSION, session.toString());
+		JSONObject user = SessionContextSupport.getLog().get(USER) != null ? new JSONObject(SessionContextSupport.getLog().get(USER).toString()) : new JSONObject();
+		user.put(_GOORU_UID, identity != null && identity.getUser() != null ? identity.getUser().getPartyUid() : null );
+		SessionContextSupport.putLogParameter(USER, user.toString());
 	}
 	
 	private Errors validateLoginAsUser(UserToken userToken, User user) {
