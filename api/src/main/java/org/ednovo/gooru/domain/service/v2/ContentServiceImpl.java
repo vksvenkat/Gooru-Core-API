@@ -140,7 +140,7 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 					tag.setContentCount(tag.getContentCount() <=  0 ? 0 :   tag.getContentCount() - 1);
 					this.getContentRepository().save(tag);
 					UserSummary userSummary = this.getUserRepository().getSummaryByUid(apiCaller.getPartyUid());
-					userSummary.setTag(userSummary.getTag() - 1);
+					userSummary.setTag(userSummary.getTag() <= 0 ? 0 : userSummary.getTag() - 1);
 					this.getUserRepository().save(userSummary);
 				}
 			}
@@ -148,6 +148,26 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 		this.getContentRepository().flush();
 
 	}
+	
+	@Override
+	public void deleteContentTagAssoc(String gooruOid, User user) {
+		List<ContentTagAssoc> contentTagAssocList = this.contentRepository.getContentTagByContent(gooruOid, user.getPartyUid());
+		for(ContentTagAssoc contentTagAssoc : contentTagAssocList){
+			if (contentTagAssoc != null) {
+				Tag tag = this.tagRepository.findTagByTagId(contentTagAssoc.getTagGooruOid());
+				this.getContentRepository().remove(contentTagAssoc);
+				UserSummary userSummary = this.getUserRepository().getSummaryByUid(user.getPartyUid());
+				if(tag != null){
+					tag.setContentCount(tag.getContentCount() <=  0 ? 0 :   tag.getContentCount() - 1);
+					this.getContentRepository().save(tag);
+				}
+				userSummary.setTag(userSummary.getTag() <= 0 ? 0 : userSummary.getTag() - 1);
+				this.getUserRepository().save(userSummary);
+			}
+		}
+		this.getContentRepository().flush();
+	}
+	
 
 	@Override
 	public List<Map<String, Object>> getContentTagAssoc(String gooruOid, User user) {

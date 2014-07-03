@@ -38,6 +38,8 @@ public interface ContentService {
 	
 	void deleteTagAssoc(String gooruOid, List<String> labels, User apiCaller);
 	
+	void deleteContentTagAssoc(String gooruOid, User user);
+	
 	List<Map<String, Object>> getContentTagAssoc(String gooruOid, User user);
 	
 	SearchResults<Map<String, Object>> getUserContentTagList(String gooruUid,Integer limit,Integer offset,Boolean skipPagination);
