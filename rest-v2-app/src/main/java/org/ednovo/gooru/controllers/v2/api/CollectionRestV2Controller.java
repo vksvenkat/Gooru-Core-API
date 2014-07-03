@@ -267,10 +267,6 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 		User user = (User) request.getAttribute(Constants.USER);
 		Collection collection = getCollectionService().copyCollection(collectionId, this.buildCopyCollectionFromInputParameters(getValue(COLLECTION, json), user), json != null && getValue(ADD_TO_SHELF, json) != null ? Boolean.parseBoolean(getValue(ADD_TO_SHELF, json)) : false, json != null && getValue(PARENT_ID, json) != null ? getValue(PARENT_ID, json) : null, user);
 		
-		SessionContextSupport.putLogParameter(EVENT_NAME, "scollection-copy");
-		SessionContextSupport.putLogParameter(COLLECTION_ID, collectionId);
-		SessionContextSupport.putLogParameter(GOORU_UID, user.getPartyUid());
-		SessionContextSupport.putLogParameter(COPY_COLLECTION_ID, collection.getGooruOid());
 		return toModelAndViewWithIoFilter(collection, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
 
