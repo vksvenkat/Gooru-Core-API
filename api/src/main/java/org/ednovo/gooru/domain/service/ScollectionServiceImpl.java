@@ -688,6 +688,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 			int sequence = collectionItem.getCollection().getCollectionItems() != null ? collectionItem.getCollection().getCollectionItems().size() + 1 : 1;
 			collectionItem.setItemSequence(sequence);
+			collectionItem.getCollection().setItemCount(sequence);
 			this.getCollectionRepository().save(collectionItem);
 			this.getCollectionRepository().flush();
 			try{
@@ -1443,6 +1444,13 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		SessionContextSupport.putLogParameter(COLLECTION_ID, destCollectionItem.getCollection().getGooruOid());
 		SessionContextSupport.putLogParameter(RESOURCE_ID, destCollectionItem.getResource().getGooruOid());
 		this.getCollectionRepository().save(destCollectionItem);
+		try{
+			if(destCollectionItem != null){
+				getEventLogs(destCollectionItem, false, false, destCollectionItem.getCollection() != null && destCollectionItem.getCollection().getUser() != null ?  destCollectionItem.getCollection().getUser() : null, destCollectionItem.getCollection() != null ? destCollectionItem.getCollection().getCollectionType() : null);
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+		}
 		return destCollectionItem;
 	}
 
@@ -1929,7 +1937,9 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		this.redisService.bulkKeyDelete("v2-organize-data-" + destCollection.getUser().getPartyUid() + "*");
 		
 		try {
-			getEventLogs(destCollection.getCollectionItem(), false, false, user, destCollection.getCollectionItem().getCollection().getCollectionType());
+			if(destCollection != null){
+				getEventLogs(destCollection, null, user, false, false);
+			}
 		} catch(Exception e){
 			e.printStackTrace();
 		}
@@ -2172,6 +2182,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		collectionItem.setAssociationDate(new Date(System.currentTimeMillis()));
 		int sequence = collectionItem.getCollection().getCollectionItems() != null ? collectionItem.getCollection().getCollectionItems().size() + 1 : 1;
 		collectionItem.setItemSequence(sequence);
+		collectionItem.getCollection().setItemCount(sequence);
 		Errors errors = validateCollectionItem(collection, resource, collectionItem);
 		this.getResourceRepository().save(collectionItem);
 		this.redisService.bulkKeyDelete("v2-organize-data-" + collectionItem.getCollection().getUser().getPartyUid() + "*");
@@ -2326,6 +2337,8 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			payLoadObject.put("mode", "create");
 		} else if(isUpdate){
 			payLoadObject.put("mode", "edit");
+		} else {
+			payLoadObject.put("mode", "copy");
 		}
 		payLoadObject.put("itemType", collection != null ? collection.getCollectionType()  : null);
 		payLoadObject.put("itemData", ItemData != null ? ItemData.toString() : null);
@@ -2354,7 +2367,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		payLoadObject.put("ItemId", collectionItem != null ? collectionItem.getCollectionItemId() : null);
 		if (collectionType != null && collectionItem != null) {
 			if(collectionType.equalsIgnoreCase(CollectionType.SHElf.getCollectionType())){
-				if(collectionItem.getResource() != null){
+				if(collectionItem != null && collectionItem.getResource() != null){
 					String typeName = collectionItem.getResource().getResourceType().getName();
 					if(typeName.equalsIgnoreCase(ResourceType.Type.SCOLLECTION.getType())){
 						payLoadObject.put("itemType", "shelf.collection");
@@ -2365,7 +2378,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			} else if (collectionType.equalsIgnoreCase(CollectionType.COLLECTION.getCollectionType())) {
 				payLoadObject.put("itemType", "collection.resource");
 			} else if (collectionType.equalsIgnoreCase(CollectionType.FOLDER.getCollectionType())) {
-				if(collectionItem.getResource() != null){
+				if(collectionItem != null && collectionItem.getResource() != null){
 					String itemTypeName = collectionItem.getResource().getResourceType().getName();
 					if(itemTypeName.equalsIgnoreCase(ResourceType.Type.FOLDER.getType())){
 						payLoadObject.put("itemType", "folder.folder");
