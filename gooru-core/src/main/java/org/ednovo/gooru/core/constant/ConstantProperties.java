@@ -534,15 +534,9 @@ public interface ConstantProperties {
     
     public static String ASSOCIATION_DATE="associationDate";
     
-   // public static String CLASSPAGE_CREATE="classpage.create";
-    
     public static String INVITED_USER_GOORU_UID="InvitedUserGooruUId";
     
-   // public static String GROUP_UID="groupUId";
-    
-   // public static String ORGANIZATION_UID="organizationUId";
-    
-    public static String ITEM_ID="itemId";
+    public static String ITEM_ID="ItemId";
     
     public static String PARENT_CONTENT_ID="parentContentId";
     
@@ -565,6 +559,62 @@ public interface ConstantProperties {
     public static String ITEM_DELETE="item.delete";
     
     public static String COLLECTION_ALL="collection.all";
+    
+    public static String PARTY_CUSTOMFIELD="Party customfield";
+    
+    public static String PARTY="party";
+    
+    public static String QUESTION_UPDATE="question-update";
+    
+    public static String DISPLAY_ORDER="displayOrder";
+    
+    public static String ENTRY_ID="entryId";
+    
+    public static String INDEX_ID="indexId";
+    
+    public static String INDEX_TYPE="indexType";
+    
+    public static String COMMON_CORE_DOT_NOTATION="commonCoreDotNotation";
+    
+    public static String TAXONOMY_MAPPING_SET="taxonomyMappingSet";
+    
+    public static String LIBRARY_COLLECTION="libraryCollection";
+    
+    public static String FEATURE_SETID="featuredSetId";
+    
+    public static String RECORD_SOURCE="recordSource";
+    
+    public static String NOT_DELETED="notdeleted";
+    
+    public static String COMMENT_COUNT="commentCount";
+    
+   public static String TASK_CREATE_TASK="task.create_task";
+   
+   public static String TASK_UPDATE_TASK="task.update_task";
+   
+   public static String TASK_GET_TASK="task.get_task";
+   
+   public static String TASK_GET_TASK_ASSOC="task.get_task_assoc";
+   
+   public static String TASK_CREATE_TASK_ASSOC="task.create_task_assoc";
+   
+   public static String TASK_GET_TASK_HISTORY="task.get_task_history";
+   
+   public static String LIBRARY_CODE_JSON="library-code-json";
+   
+   public static String CURRICULAM_CODE_JSON="curriculum-code-json";
+   
+   
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     
     

@@ -327,7 +327,7 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 						for (CodeOrganizationAssoc subject : subjects) {
 							courseMap.addAll(this.getLibrarySubject(String.valueOf(subject.getCode().getCodeId()), String.valueOf(object[1]), libraryName, String.valueOf(curriculum.getCode().getRootNodeId())));
 						}
-						curriculumMap.add(getCode(curriculum, courseMap, "course", null, getOrganizationCode(libraryName), null, null, null));
+						curriculumMap.add(getCode(curriculum, courseMap, COURSE, null, getOrganizationCode(libraryName), null, null, null));
 
 					}
 					lib.put(DATA_OBJECT, curriculumMap);
@@ -679,8 +679,8 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 	}
 
 	private String getOrganizationCode(String libraryName) {
-		if (libraryName != null && libraryName.equalsIgnoreCase("library")) {
-			return "gooru";
+		if (libraryName != null && libraryName.equalsIgnoreCase(LIBRARY)) {
+			return GOORU;
 		}
 
 		return libraryName;
@@ -769,21 +769,21 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 
 	public Map<String, Object> getTaxonomyMapCode(Code code) {
 		Map<String, Object> codeMap = new HashMap<String, Object>();
-		codeMap.put("activeFlag", code.getActiveFlag());
-		codeMap.put("code", code.getCode());
-		codeMap.put("assetURI", code.getAssetURI());
-		codeMap.put("codeId", code.getCodeId());
-		codeMap.put("codeUid", code.getCodeUid());
-		codeMap.put("depth", code.getDepth());
-		codeMap.put("description", code.getDescription());
-		codeMap.put("displayCode", code.getdisplayCode());
-		codeMap.put("displayOrder", code.getDisplayOrder());
-		codeMap.put("entryId", code.getEntryId());
-		codeMap.put("grade", code.getGrade());
-		codeMap.put("indexId", code.getIndexId());
-		codeMap.put("indexType", code.getIndexType());
-		codeMap.put("label", code.getLabel());
-		codeMap.put("commonCoreDotNotation", code.getCommonCoreDotNotation());
+		codeMap.put(ACTIVE_FLAG, code.getActiveFlag());
+		codeMap.put(CODE, code.getCode());
+		codeMap.put(ASSET_URI, code.getAssetURI());
+		codeMap.put(CODE_ID, code.getCodeId());
+		codeMap.put(CODE_UID, code.getCodeUid());
+		codeMap.put(DEPTH, code.getDepth());
+		codeMap.put(DESCRIPTION, code.getDescription());
+		codeMap.put(DISPLAY_CODE, code.getdisplayCode());
+		codeMap.put(DISPLAY_ORDER, code.getDisplayOrder());
+		codeMap.put(ENTRY_ID, code.getEntryId());
+		codeMap.put(GRADE, code.getGrade());
+		codeMap.put(INDEX_ID, code.getIndexId());
+		codeMap.put(INDEX_TYPE, code.getIndexType());
+		codeMap.put(LABEL, code.getLabel());
+		codeMap.put(COMMON_CORE_DOT_NOTATION, code.getCommonCoreDotNotation());
 		return codeMap;
 	}
 
@@ -796,8 +796,8 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 				Map<String, Object> collection = new HashMap<String, Object>();
 				User user = this.getUserRepository().findUserByPartyUid(String.valueOf(object[3]));
 				User lastUpdatedUser = this.getUserRepository().findUserByPartyUid(String.valueOf(object[5]));
-				Collection featuredCollection = this.getCollectionService().getCollection(String.valueOf(object[0]), true, true, false, user, "commentCount", null, false);
-				Long comment = this.getCommentRepository().getCommentCount(String.valueOf(object[0]), null, "notdeleted");
+				Collection featuredCollection = this.getCollectionService().getCollection(String.valueOf(object[0]), true, true, false, user, COMMENT_COUNT, null, false);
+				Long comment = this.getCommentRepository().getCommentCount(String.valueOf(object[0]), null, NOT_DELETED);
 				Long collectionItem = this.getCollectionRepository().getCollectionItemCount(String.valueOf(object[0]), "private,public,anyonewithlink", null);
 				Iterator<Code> iter = featuredCollection.getTaxonomySet().iterator();
 				Map<Integer, List<Map<String, Object>>> codeParentsMap = new HashMap<Integer, List<Map<String, Object>>>();
@@ -811,11 +811,11 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 					codeParentsMap.put(code.getCodeId(), taxonomyMap);
 
 				}
-				collection.put("taxonomyMappingSet", codeParentsMap);
-				collection.put("libraryCollection", featuredCollection);
+				collection.put(TAXONOMY_MAPPING_SET, codeParentsMap);
+				collection.put(LIBRARY_COLLECTION, featuredCollection);
 				collection.put(THEME_CODE, object[6]);
 				collection.put(SUBJECT_CODE, object[7]);
-				collection.put("featuredSetId", object[8]);
+				collection.put(FEATURE_SETID, object[8]);
 				if (lastUpdatedUser != null) {
 					collection.put(LAST_MODIFIED_BY, lastUpdatedUser.getUsername());
 				}
@@ -866,33 +866,33 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 		if (result != null && result.size() > 0) {
 			for (Object[] object : result) {
 				Map<String, Object> collection = new HashMap<String, Object>();
-				collection.put("collectionId", object[0]);
-				collection.put("resourceId", object[1]);
+				collection.put(COLLECTION_ID, object[0]);
+				collection.put(RESOURCE_ID, object[1]);
 				Resource resource = resourceRepository.findResourceByContentGooruId((String) object[1]);
-				collection.put("standards", this.getCollectionService().getStandards(resource.getTaxonomySet(), true, null));
-				collection.put("course", this.getCollectionService().getCourse(resource.getTaxonomySet()));
-				collection.put("title", object[2]);
+				collection.put(STANDARDS, this.getCollectionService().getStandards(resource.getTaxonomySet(), true, null));
+				collection.put(COURSE, this.getCollectionService().getCourse(resource.getTaxonomySet()));
+				collection.put(TITLE, object[2]);
 				if (object[4] != null) {
-					collection.put("thumbnails", storageArea.getAreaPath() + String.valueOf(object[3]) + String.valueOf(object[4]));
+					collection.put(THUMBNAILS, storageArea.getAreaPath() + String.valueOf(object[3]) + String.valueOf(object[4]));
 				}
-				collection.put("resourceUrl", object[5]);
-				collection.put("grade", object[6]);
-				collection.put("description", object[7]);
-				collection.put("category", object[8]);
-				collection.put("sharing", object[9]);
-				collection.put("hasFrameBreaker", object[10]);
-				collection.put("recordSource", object[11]);
-				collection.put("license", object[12]);
-				collection.put("narration", object[13]);
-				collection.put("start", object[14]);
-				collection.put("stop", object[15]);
-				collection.put("collectionItemId", object[16]);
-				collection.put("type", object[17]);
-				collection.put("resourceSourceId", object[18]);
-				collection.put("sourceName", object[19]);
-				collection.put("domainName", object[20]);
-				collection.put("attribution", object[21]);
-				collection.put("Count", result.size());
+				collection.put(RESOURCE_URL, object[5]);
+				collection.put(GRADE, object[6]);
+				collection.put(DESCRIPTION, object[7]);
+				collection.put(CATEGORY, object[8]);
+				collection.put(SHARING, object[9]);
+				collection.put(HAS_FRAME_BREAKER, object[10]);
+				collection.put(RECORD_SOURCE, object[11]);
+				collection.put(LICENSE, object[12]);
+				collection.put(NARRATION, object[13]);
+				collection.put(START, object[14]);
+				collection.put(STOP, object[15]);
+				collection.put(COLLECTION_ITEM_ID, object[16]);
+				collection.put(TYPE, object[17]);
+				collection.put(_RESOURCE_SOURCE_ID, object[18]);
+				collection.put(SOURCE_NAME, object[19]);
+				collection.put(DOMAIN_NAME, object[20]);
+				collection.put(ATTRIBUTION, object[21]);
+				collection.put(COUNT, result.size());
 				collectionList.add(collection);
 			}
 		}
