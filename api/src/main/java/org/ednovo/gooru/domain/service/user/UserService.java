@@ -38,6 +38,7 @@ import org.ednovo.gooru.core.api.model.UserRelationship;
 import org.ednovo.gooru.core.api.model.UserRole;
 import org.ednovo.gooru.core.api.model.UserRole.UserRoleType;
 import org.ednovo.gooru.core.api.model.UserToken;
+import org.json.JSONException;
 import org.springframework.util.MultiValueMap;
 
 
@@ -189,4 +190,6 @@ public interface UserService {
 	Integer calculateCurrentAge(String dateOfBirth);
 	
 	 Boolean isSuperAdmin(User user);
+	 
+	 public void getEventLogs(Identity identity, UserToken userToken) throws JSONException;
 }
