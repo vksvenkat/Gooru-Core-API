@@ -1213,6 +1213,28 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		this.getResourceRepository().deleteResourceBulk(contentIds);
 		indexProcessor.index(contentIds, IndexProcessor.DELETE, RESOURCE);
 	}
+	
+	@Override
+	public void deleteBulkResource(String contentIds) {
+		List<Resource> Resources = resourceRepository.findAllResourcesByGooruOId(contentIds);
+		List<Resource> removeList = new ArrayList<Resource>();
+		if (Resources.size() > 0) {
+			String removeContentIds = "";
+			int count = 0;
+			for (Resource resource : Resources) {
+				if (count > 0) {
+					removeContentIds += ",";
+				}
+				removeContentIds += resource.getGooruOid();
+				removeList.add(resource);
+				count++;
+			}
+			if (removeList.size() > 0) {
+				this.baseRepository.removeAll(removeList);
+				indexProcessor.index(removeContentIds, IndexProcessor.DELETE, RESOURCE);
+			}
+		}
+	}
 
 	@Override
 	public void updateResourceInstanceMetaData(Resource resource, User user) {

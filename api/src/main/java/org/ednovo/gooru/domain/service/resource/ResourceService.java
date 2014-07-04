@@ -107,6 +107,8 @@ public interface ResourceService extends BaseService {
 	void deleteResourceImage(String gooruContentId);
 
 	void deleteResourceBulk(String contentIds);
+	
+	void deleteBulkResource(String contentIds);
 
 	void updateResourceInstanceMetaData(Resource resource, User user);
 
