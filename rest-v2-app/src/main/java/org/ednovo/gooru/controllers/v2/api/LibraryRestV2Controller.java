@@ -115,7 +115,7 @@ public class LibraryRestV2Controller extends BaseController implements ConstantP
 			data = getRedisService().getValue(cacheKey);
 		}
 		if (data == null) {
-			library = this.getFeaturedService().getLibraryItems(itemType, type, id, libraryName, rootNodeId, limit, offset);
+			library = this.getFeaturedService().getLibraryItems(itemType, type, id, libraryName, type.equalsIgnoreCase(STANDARD) ? null : rootNodeId, limit, offset);
 			String includes[] = (String[]) ArrayUtils.addAll(LIBRARY_RESOURCE_INCLUDE_FIELDS, LIBRARY_COLLECTION_INCLUDE_FIELDS);
 			includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_ITEM_INCLUDE_FILEDS);
 			includes = (String[]) ArrayUtils.addAll(includes, LIBRARY_CODE_INCLUDES);
