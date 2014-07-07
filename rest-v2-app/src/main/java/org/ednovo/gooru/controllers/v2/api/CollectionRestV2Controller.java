@@ -282,12 +282,6 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 	public ModelAndView copyCollectionItem(@PathVariable(value = ID) String collectionItemId, @PathVariable(value = CID) String collectionId, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
 		CollectionItem collectionItem = getCollectionService().copyCollectionItem(collectionItemId, collectionId);
-		if (collectionItem != null) {
-			
-			SessionContextSupport.putLogParameter(EVENT_NAME, "scollection-item-copy");
-			SessionContextSupport.putLogParameter(COLLECTION_ITEM_ID, collectionItem.getCollectionItemId());
-			SessionContextSupport.putLogParameter(GOORU_UID, user.getPartyUid());
-		}
 		return toModelAndViewWithIoFilter(collectionItem, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, COLLECTION_ITEM_INCLUDE_FILEDS));
 	}
 
