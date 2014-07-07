@@ -177,6 +177,13 @@ public interface ConfigConstants {
     String INSIGHTS_ACTIVITYSTREAM_URL = "insights.activitystream.url";
     
     String SEARCH_INDEX_RESTENDPOINT = "search.index.restendpoint";
+    
+    String CLIENT_ID = "google.client.id";
+    
+    String CLIENT_SECRET = "google.client.secret";
+ 
+    String CALLBACK_URI = "google.callback.uri";
+    
 
 
 }
