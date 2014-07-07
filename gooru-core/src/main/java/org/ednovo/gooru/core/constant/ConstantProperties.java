@@ -536,8 +536,6 @@ public interface ConstantProperties {
     
     public static String INVITED_USER_GOORU_UID="InvitedUserGooruUId";
     
-    public static String ITEM_ID="ItemId";
-    
     public static String PARENT_CONTENT_ID="parentContentId";
     
     public static String CLASSPAGE_USER_ADD="classpage.user.add";
@@ -555,8 +553,6 @@ public interface ConstantProperties {
     public static String REMOVE_GOORU_UID="removedGooruUId";
     
     public static String ITEM_CREATE="item.create";
-    
-    public static String ITEM_DELETE="item.delete";
     
     public static String COLLECTION_ALL="collection.all";
     
@@ -584,8 +580,6 @@ public interface ConstantProperties {
     
     public static String RECORD_SOURCE="recordSource";
     
-    public static String NOT_DELETED="notdeleted";
-    
     public static String COMMENT_COUNT="commentCount";
     
    public static String TASK_CREATE_TASK="task.create_task";
@@ -604,43 +598,61 @@ public interface ConstantProperties {
    
    public static String CURRICULAM_CODE_JSON="curriculum-code-json";
    
+    public static String DEPTH_OF_KNOWLEDGE = "depth_of_knowledge";
+	
+	public static String LEARNING_AND_INNOVATION_SKILLS = "learning_and_innovation_skills";
+
+	public static String AUDIENCE = "audience";
+
+	public static String  INSTRUCTIONAL_METHOD = "instructional_method";
+
+	public static String NOT_DELETED = "notdeleted";
+	
+	public static String COMMENTCOUNT = "commentCount";
+
+	public static String CONTENT_META_ASSOCIATION_TYPE = "content_meta_association_type_";
+	
+	public static String INVALID_COLLABORATOR = "Invalid Collaborator";
+	
+	public static String V2_ORGANIZE_DATA = "v2-organize-data-";
+
+	public static String CONTENT_ASSOCIATION_TYPE = "content_association_type";
+ 
+	public static String MOMENTS_OF_LEARNING = "moments_of_learning";
+	
+    public static String INSTRUCTIONAL = "instructional";
+
+    public static String RESOURCE_NOT_FOUND = "Resource Not Found";
+
+    public static String COLLECTION_CREATE = "collection.create";
+    
+    public static String  ITEM_ID = " ItemId";
+    
+    public static String  CONTENT_ITEM_ID = "contentItemId";
+
+    public static String  PARENT_ITEM_ID = "parentItemId";
+
+    public static String  ITEM_DATA = "ItemData";
+    
+    public static String  ITEM_DELETE = "item.delete";
+    
+    public static String ITEM_EDIT = "item.edit";
+    
+    public static String CONTENTID = "contentId";
+    
+    public static String COMMENT_TEXT = "commentText";
+    
+    public static String REQUEST_PATH = "request path";
+    
+    public static String PERMISSION  = "permission denied";
+    
+    public static String NOT_FOUND = "not found";
+    
+    public static String ASSOCIATEDU_ID = "associatedUid";
+
+    public static String SEARCH_PROFILE = "search.profile";
+
+    public static String SETTING_VERSION = "setting.version";
    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     
 }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-
-   
-    
-    
-	
-	
-	
-	
-	
-
