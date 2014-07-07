@@ -2344,7 +2344,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		payLoadObject.put("itemData", ItemData != null ? ItemData.toString() : null);
 		SessionContextSupport.putLogParameter("payLoadObject", payLoadObject.toString());
 		JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session").toString()) : new JSONObject();
-		session.put("organizationUId", user.getOrganization().getPartyUid());
+		session.put("organizationUId", user != null && user.getOrganization() != null ? user.getOrganization().getPartyUid() : null);
 		SessionContextSupport.putLogParameter("session", session.toString());
 	}
 
