@@ -1928,6 +1928,12 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		}
 		this.getCollectionRepository().save(destCollection);
 		this.redisService.bulkKeyDelete("v2-organize-data-" + destCollection.getUser().getPartyUid() + "*");
+		
+		try {
+			getEventLogs(destCollection.getCollectionItem(), false, false, user, destCollection.getCollectionItem().getCollection().getCollectionType());
+		} catch(Exception e){
+			e.printStackTrace();
+		}
 		return destCollection;
 	}
 
@@ -2343,6 +2349,8 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			payLoadObject.put("mode", "create");
 		} else if(isAdd){
 			payLoadObject.put("mode", "add");
+		} else {
+			payLoadObject.put("mode", "copy");
 		}
 		payLoadObject.put("itemSequence", collectionItem != null ? collectionItem.getItemSequence() : null);
 		payLoadObject.put("ItemId", collectionItem != null ? collectionItem.getCollectionItemId() : null);

@@ -246,7 +246,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			profile.setGrade(this.getUserRepository().getUserGrade(gooruUid, gradeType.getCustomTableValueId(), activeFlag));
 		}
 		try {
-			getEventLogs(false, true, user);
+			getEventLogs(false, true, user, null);
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
@@ -256,6 +256,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	@Override
 	public Profile updateProfileInfo(Profile newProfile, String gooruUid, User apiCaller, String activeFlag, Boolean emailConfirmStatus, String showProfilePage, String accountType, String password) {
 		User user = this.getUserRepository().findByGooruId(gooruUid);
+		JSONObject itemData = new JSONObject();
 		if (user == null) {
 			throw new AccessDeniedException(ACCESS_DENIED_EXCEPTION);
 		}
@@ -275,118 +276,134 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 				identity.getCredential().setPassword(encryptedPassword);
 				this.getUserRepository().save(identity);
 			}
-			if (newProfile != null) {
-				if (newProfile.getAboutMe() != null) {
-					profile.setAboutMe(newProfile.getAboutMe());
-				}
-				if (newProfile.getSubject() != null) {
-					profile.setSubject(newProfile.getSubject());
-				}
-				if (newProfile.getGrade() != null) {
-					profile.setGrade(addGrade(newProfile.getGrade(), user, apiCaller, activeFlag));
-				}
-
-				addCourse(newProfile.getCourses(), profile.getUser(), apiCaller, activeFlag);
-
-				if (newProfile.getSchool() != null) {
-					profile.setSchool(newProfile.getSchool());
-				}
-				if (newProfile.getGender() != null && newProfile.getGender().getGenderId() != null) {
-					profile.setGender(this.getUserRepository().getGenderByGenderId(newProfile.getGender().getGenderId()));
-				}
-				if (newProfile.getUserType() != null) {
-					profile.setUserType(newProfile.getUserType());
-				}
-				if (newProfile.getNotes() != null) {
-					profile.setNotes(newProfile.getNotes());
-				}
-				
-				if (identity != null) {
-					if (user.getAccountTypeId() != null && user.getAccountTypeId().equals(UserAccountType.ACCOUNT_CHILD)) {
-						user.setEmailId(user.getParentUser().getIdentities().iterator().next().getExternalId());
-					} else {
-						user.setEmailId(identity.getExternalId());
+			try {
+				if (newProfile != null) {
+					if (newProfile.getAboutMe() != null) {
+						itemData.put("aboutMe", newProfile.getAboutMe());
+						profile.setAboutMe(newProfile.getAboutMe());
 					}
-				}
-				
-				if (newProfile.getUser() != null) {
-					if (newProfile.getUser().getActive() != null) {
-						identity.setActive(newProfile.getUser().getActive());
-						user.setActive(newProfile.getUser().getActive());
-						this.getUserRepository().save(identity);
+					if (newProfile.getSubject() != null) {
+						itemData.put("subject", newProfile.getSubject());
+						profile.setSubject(newProfile.getSubject());
 					}
-					if (identity != null && newProfile.getUser().getEmailId() != null && !newProfile.getUser().getEmailId().isEmpty()) {
-						boolean emailAvailability = this.getUserRepository().checkUserAvailability(newProfile.getUser().getEmailId(), CheckUser.BYEMAILID, false);
+					if (newProfile.getGrade() != null) {
+						itemData.put("grade", newProfile.getGrade());
+						profile.setGrade(addGrade(newProfile.getGrade(), user, apiCaller, activeFlag));
+					}
 
-						if (emailAvailability) {
-							throw new BadCredentialsException("Someone already has taken " + newProfile.getUser().getEmailId() + "!.Please pick another email.");
+					addCourse(newProfile.getCourses(), profile.getUser(), apiCaller, activeFlag);
+
+					if (newProfile.getSchool() != null) {
+						itemData.put("school", newProfile.getSchool());
+						profile.setSchool(newProfile.getSchool());
+					}
+					if (newProfile.getGender() != null && newProfile.getGender().getGenderId() != null) {
+						itemData.put("genderId", newProfile.getGender().getGenderId());
+						profile.setGender(this.getUserRepository().getGenderByGenderId(newProfile.getGender().getGenderId()));
+					}
+					if (newProfile.getUserType() != null) {
+						itemData.put("userType", newProfile.getUserType());
+						profile.setUserType(newProfile.getUserType());
+					}
+					if (newProfile.getNotes() != null) {
+						itemData.put("notes", newProfile.getNotes());
+						profile.setNotes(newProfile.getNotes());
+					}
+					
+					if (identity != null) {
+						if (user.getAccountTypeId() != null && user.getAccountTypeId().equals(UserAccountType.ACCOUNT_CHILD)) {
+							user.setEmailId(user.getParentUser().getIdentities().iterator().next().getExternalId());
+						} else {
+							user.setEmailId(identity.getExternalId());
 						}
-						if (emailConfirmStatus || (isContentAdmin(apiCaller) && !apiCaller.getPartyUid().equals(gooruUid))) {
-
-							identity.setExternalId(newProfile.getUser().getEmailId());
+					}
+					
+					if (newProfile.getUser() != null) {
+						if (newProfile.getUser().getActive() != null) {
+							identity.setActive(newProfile.getUser().getActive());
+							user.setActive(newProfile.getUser().getActive());
 							this.getUserRepository().save(identity);
-							user.setEmailId(newProfile.getUser().getEmailId());
-							if (user.getAccountTypeId().equals(UserAccountType.ACCOUNT_CHILD)) {
-								SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
-								String date = dateFormat.format(profile.getDateOfBirth());
-								Integer age = this.getUserService().calculateCurrentAge(date);
-								if (age >= 13) {
-									user.setAccountTypeId(UserAccountType.ACCOUNT_NON_PARENT);
-									Map<String, String> childData = new HashMap<String, String>();
-									Map<String, String> parentData = new HashMap<String, String>();
-									parentData.put(_GOORU_UID, user.getGooruUId());
-									parentData.put(EVENT_TYPE, CustomProperties.EventMapping.CHILD_13_CONFIRMATION.getEvent());
-									parentData.put(GOORU_USER_NAME, user.getUsername());
-									parentData.put(PARENT_EMAIL_ID, user.getParentUser().getIdentities().iterator().next().getExternalId());
-									childData.put(_GOORU_UID, user.getGooruUId());
-									childData.put(EVENT_TYPE, CustomProperties.EventMapping.STUDENT_SEPARATION_CONFIRMATION.getEvent());
-									childData.put(CHILD_EMAIL_ID, identity.getExternalId());
-									this.getMailHandler().handleMailEvent(childData);
-									this.getMailHandler().handleMailEvent(parentData);
+						}
+						if (identity != null && newProfile.getUser().getEmailId() != null && !newProfile.getUser().getEmailId().isEmpty()) {
+							boolean emailAvailability = this.getUserRepository().checkUserAvailability(newProfile.getUser().getEmailId(), CheckUser.BYEMAILID, false);
+
+							if (emailAvailability) {
+								throw new BadCredentialsException("Someone already has taken " + newProfile.getUser().getEmailId() + "!.Please pick another email.");
+							}
+							if (emailConfirmStatus || (isContentAdmin(apiCaller) && !apiCaller.getPartyUid().equals(gooruUid))) {
+
+								identity.setExternalId(newProfile.getUser().getEmailId());
+								this.getUserRepository().save(identity);
+								user.setEmailId(newProfile.getUser().getEmailId());
+								if (user.getAccountTypeId().equals(UserAccountType.ACCOUNT_CHILD)) {
+									SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+									String date = dateFormat.format(profile.getDateOfBirth());
+									Integer age = this.getUserService().calculateCurrentAge(date);
+									if (age >= 13) {
+										user.setAccountTypeId(UserAccountType.ACCOUNT_NON_PARENT);
+										Map<String, String> childData = new HashMap<String, String>();
+										Map<String, String> parentData = new HashMap<String, String>();
+										parentData.put(_GOORU_UID, user.getGooruUId());
+										parentData.put(EVENT_TYPE, CustomProperties.EventMapping.CHILD_13_CONFIRMATION.getEvent());
+										parentData.put(GOORU_USER_NAME, user.getUsername());
+										parentData.put(PARENT_EMAIL_ID, user.getParentUser().getIdentities().iterator().next().getExternalId());
+										childData.put(_GOORU_UID, user.getGooruUId());
+										childData.put(EVENT_TYPE, CustomProperties.EventMapping.STUDENT_SEPARATION_CONFIRMATION.getEvent());
+										childData.put(CHILD_EMAIL_ID, identity.getExternalId());
+										this.getMailHandler().handleMailEvent(childData);
+										this.getMailHandler().handleMailEvent(parentData);
+									}
+
 								}
 
-							}
-
-						} else {
-
-							Map<String, String> dataMap = new HashMap<String, String>();
-							dataMap.put(_GOORU_UID, user.getGooruUId());
-							dataMap.put(EVENT_TYPE, CustomProperties.EventMapping.GOORU_EXTERNALID_CHANGE.getEvent());
-							if (user.getAccountTypeId() != null && user.getAccountTypeId().equals(UserAccountType.ACCOUNT_CHILD)) {
-								dataMap.put(OLD_EMAIL_ID, user.getParentUser().getIdentities().iterator().next().getExternalId());
 							} else {
-								dataMap.put(OLD_EMAIL_ID, identity.getExternalId());
+
+								Map<String, String> dataMap = new HashMap<String, String>();
+								dataMap.put(_GOORU_UID, user.getGooruUId());
+								dataMap.put(EVENT_TYPE, CustomProperties.EventMapping.GOORU_EXTERNALID_CHANGE.getEvent());
+								if (user.getAccountTypeId() != null && user.getAccountTypeId().equals(UserAccountType.ACCOUNT_CHILD)) {
+									dataMap.put(OLD_EMAIL_ID, user.getParentUser().getIdentities().iterator().next().getExternalId());
+								} else {
+									dataMap.put(OLD_EMAIL_ID, identity.getExternalId());
+								}
+								dataMap.put(NEW_MAIL_ID, newProfile.getUser().getEmailId());
+								dataMap.put(BASE_URL, settingService.getConfigSetting(ConfigConstants.RESET_EMAIL_CONFIRM_RESTENDPOINT, 0, TaxonomyUtil.GOORU_ORG_UID) + "&confirmStatus=true&newMailId=" + newProfile.getUser().getEmailId() + "&userId=" + user.getGooruUId());
+								this.getMailHandler().handleMailEvent(dataMap);
 							}
-							dataMap.put(NEW_MAIL_ID, newProfile.getUser().getEmailId());
-							dataMap.put(BASE_URL, settingService.getConfigSetting(ConfigConstants.RESET_EMAIL_CONFIRM_RESTENDPOINT, 0, TaxonomyUtil.GOORU_ORG_UID) + "&confirmStatus=true&newMailId=" + newProfile.getUser().getEmailId() + "&userId=" + user.getGooruUId());
-							this.getMailHandler().handleMailEvent(dataMap);
 						}
-					}
 
-					if (accountType != null) {
-						if (accountType.equalsIgnoreCase(UserAccountType.userAccount.PARENT.getType())) {
-							user.setAccountTypeId(UserAccountType.ACCOUNT_PARENT);
-						} else if (accountType.equalsIgnoreCase(UserAccountType.userAccount.CHILD.getType())) {
-							user.setAccountTypeId(UserAccountType.ACCOUNT_CHILD);
-						} else if (accountType.equalsIgnoreCase(UserAccountType.userAccount.NON_PARENT.getType())) {
-							user.setAccountTypeId(UserAccountType.ACCOUNT_NON_PARENT);
+						if (accountType != null) {
+							if (accountType.equalsIgnoreCase(UserAccountType.userAccount.PARENT.getType())) {
+								user.setAccountTypeId(UserAccountType.ACCOUNT_PARENT);
+							} else if (accountType.equalsIgnoreCase(UserAccountType.userAccount.CHILD.getType())) {
+								user.setAccountTypeId(UserAccountType.ACCOUNT_CHILD);
+							} else if (accountType.equalsIgnoreCase(UserAccountType.userAccount.NON_PARENT.getType())) {
+								user.setAccountTypeId(UserAccountType.ACCOUNT_NON_PARENT);
+							}
 						}
-					}
 
-					if (newProfile.getUser().getFirstName() != null) {
-						user.setFirstName(newProfile.getUser().getFirstName());
-					}
-					if (newProfile.getUser().getConfirmStatus() != null) {
-						user.setConfirmStatus(newProfile.getUser().getConfirmStatus());
-					}
-					if (newProfile.getUser().getLastName() != null) {
-						user.setLastName(newProfile.getUser().getLastName());
-					}
-					if (newProfile.getUser().getUsername() != null && !this.getUserRepository().checkUserAvailability(newProfile.getUser().getUsername(), CheckUser.BYUSERNAME, false)) {
-						user.setUsername(newProfile.getUser().getUsername());
+						if (newProfile.getUser().getFirstName() != null) {
+							itemData.put("firstName", newProfile.getUser().getFirstName());
+							user.setFirstName(newProfile.getUser().getFirstName());
+						}
+						if (newProfile.getUser().getConfirmStatus() != null) {
+							itemData.put("confirmStatus", newProfile.getUser().getConfirmStatus());
+							user.setConfirmStatus(newProfile.getUser().getConfirmStatus());
+						}
+						if (newProfile.getUser().getLastName() != null) {
+							itemData.put("lastName", newProfile.getUser().getLastName());
+							user.setLastName(newProfile.getUser().getLastName());
+						}
+						if (newProfile.getUser().getUsername() != null && !this.getUserRepository().checkUserAvailability(newProfile.getUser().getUsername(), CheckUser.BYUSERNAME, false)) {
+							itemData.put("userName", newProfile.getUser().getUsername());
+							user.setUsername(newProfile.getUser().getUsername());
+						}
 					}
 				}
+			} catch(Exception e){
+				e.printStackTrace();
 			}
+			
 			profile.setUser(user);
 			this.getUserRepository().save(profile);
 			
@@ -414,7 +431,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			profile.setCourses(this.getUserRepository().getUserClassifications(gooruUid, type.getCustomTableValueId(), null));
 		}
 		try {
-			getEventLogs(true, false, user);
+			getEventLogs(true, false, user, itemData);
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
@@ -1096,7 +1113,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			}
 		}
 		try {
-			getEventLogs(false, true, user);
+			getEventLogs(false, true, user, null);
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
@@ -1553,7 +1570,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		return inviteRepository;
 	}
 	
-	public void getEventLogs(boolean updateProfile, boolean visitProfile, User profileVisitor) throws JSONException { 
+	public void getEventLogs(boolean updateProfile, boolean visitProfile, User profileVisitor, JSONObject itemData) throws JSONException { 
 		SessionContextSupport.putLogParameter(EVENT_NAME, "profile.action");
 		JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session").toString()) :  new JSONObject();
 		SessionContextSupport.putLogParameter("session", session.toString());
@@ -1571,7 +1588,10 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			payLoadObject.put("actionType", "edit");
 		} else if(visitProfile){
 			payLoadObject.put("actionType", "visit");
-			payLoadObject.put("VisitorUId", profileVisitor.getPartyUid());
+			payLoadObject.put("VisitorUId", profileVisitor != null ? profileVisitor.getPartyUid() : null);
+		}
+		if(itemData != null){
+			payLoadObject.put("itemData", itemData.toString());
 		}
 		SessionContextSupport.putLogParameter("payLoadObject", payLoadObject.toString());
 	}
@@ -1588,7 +1608,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		}
 		SessionContextSupport.putLogParameter("context", context.toString());
 		JSONObject payLoadObject = SessionContextSupport.getLog().get("payLoadObject") != null ? new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString()) :  new JSONObject();
-		if (newIdentity.getIdp() != null) {
+		if (newIdentity != null && newIdentity.getIdp() != null) {
 			payLoadObject.put(IDP_NAME, newIdentity.getIdp().getName());
 		} else {
 			payLoadObject.put(IDP_NAME, GOORU_API);
@@ -1600,10 +1620,10 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		}
 		SessionContextSupport.putLogParameter("payLoadObject", payLoadObject.toString());
 		JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session").toString()) :  new JSONObject();
-		session.put("organizationUId", newUser.getOrganizationUid());
+		session.put("organizationUId", newUser != null ? newUser.getOrganizationUid() : null);
 		SessionContextSupport.putLogParameter("session", session.toString());	
 		JSONObject user = SessionContextSupport.getLog().get("user") != null ? new JSONObject(SessionContextSupport.getLog().get("user").toString()) :  new JSONObject();
-		user.put("gooruUId", newUser.getPartyUid());
+		user.put("gooruUId", newUser != null ? newUser.getPartyUid() : null);
 		SessionContextSupport.putLogParameter("user", user.toString());
 	}
 
