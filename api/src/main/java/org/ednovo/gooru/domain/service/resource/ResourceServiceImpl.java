@@ -2132,7 +2132,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 
 	@Override
 	public Resource updateResourceByGooruContentId(String gooruContentId, String resourceTitle, String distinguish, Integer isFeatured, String description, Boolean hasFrameBreaker, String tags, String sharing, Integer resourceSourceId, User user, String mediaType, String attribution,
-			String category, String mediaFileName, Boolean isBlacklisted, String grade, String resource_format, String licenseName) {
+			String category, String mediaFileName, Boolean isBlacklisted, String grade, String resource_format, String licenseName, String url) {
 
 		Resource existingResource = resourceRepository.findResourceByContentGooruId(gooruContentId);
 
@@ -2148,6 +2148,23 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		if (isFeatured != null) {
 			existingResource.setIsFeatured(isFeatured);
 		}
+		
+		if(getUserService().isContentAdmin(user)){
+			ResourceSource resourceSource = null;
+			String domainName = null;
+			if(url != null){
+				existingResource.setUrl(url);
+				domainName = getDomainName(url);
+				resourceSource = this.getResourceRepository().findResourceSource(domainName);
+				if (resourceSource != null && resourceSource.getFrameBreaker() != null && resourceSource.getFrameBreaker() == 1) {
+					existingResource.setHasFrameBreaker(true);
+				} else {
+					existingResource.setHasFrameBreaker(false);
+				}
+				this.mapSourceToResource(existingResource);
+			}
+		}
+		
 		if (category != null) {
 			existingResource.setCategory(category);
 		}
@@ -2646,7 +2663,22 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		Errors errors = validateUpdateResource(newResource, resource);
 		JSONObject ItemData = new JSONObject();
 		if (!errors.hasErrors()) {
-
+			if(getUserService().isContentAdmin(user)){
+				ResourceSource resourceSource = null;
+				String domainName = null;
+				if(newResource.getUrl() != null){
+					ItemData.put("url",newResource.getUrl());
+					resource.setUrl(newResource.getUrl());
+					domainName = getDomainName(newResource.getUrl());
+					resourceSource = this.getResourceRepository().findResourceSource(domainName);
+					if (resourceSource != null && resourceSource.getFrameBreaker() != null && resourceSource.getFrameBreaker() == 1) {
+						resource.setHasFrameBreaker(true);
+					} else {
+						resource.setHasFrameBreaker(false);
+					}
+					this.mapSourceToResource(resource);
+				}
+			}
 			if (newResource.getTitle() != null) {
 				ItemData.put("title",newResource.getTitle());
 				resource.setTitle(newResource.getTitle());
