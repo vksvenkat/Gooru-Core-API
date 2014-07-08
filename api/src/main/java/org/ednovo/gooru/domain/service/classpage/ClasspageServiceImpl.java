@@ -312,7 +312,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			} else {
 				classpage = this.getCollectionRepository().getUserShelfByClasspageGooruUid(user.getGooruUId(), CollectionType.USER_CLASSPAGE.getCollectionType());
 			}
-			if (classpage == null) {
+			if (classpage == null && type != null && type.equalsIgnoreCase(CollectionType.USER_CLASSPAGE.getCollectionType())) {
 				classpage = new Classpage();
 				classpage.setTitle(MY_CLASSPAGE);
 				classpage.setCollectionType(CollectionType.USER_CLASSPAGE.getCollectionType());
