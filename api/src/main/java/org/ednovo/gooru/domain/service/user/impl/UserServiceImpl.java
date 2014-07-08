@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -70,6 +71,7 @@ import org.ednovo.gooru.core.api.model.Segment;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserAccountType;
+import org.ednovo.gooru.core.api.model.UserAccountType.accountCreatedType;
 import org.ednovo.gooru.core.api.model.UserAvailability.CheckUser;
 import org.ednovo.gooru.core.api.model.UserCredential;
 import org.ednovo.gooru.core.api.model.UserRelationship;
@@ -108,6 +110,7 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.resource.ResourceRe
 import org.ednovo.gooru.infrastructure.persistence.hibernate.taxonomy.TaxonomyRespository;
 import org.ednovo.gooru.security.OperationAuthorizer;
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -474,10 +477,16 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 
 		indexProcessor.index(user.getPartyUid(), IndexProcessor.INDEX, USER);
 
-		if (identity.getIdp() != null) {
+		/*if (identity.getIdp() != null) {
 			SessionContextSupport.putLogParameter(IDP_NAME, identity.getIdp().getName());
 		} else {
 			SessionContextSupport.putLogParameter(IDP_NAME, GOORU_API);
+		}*/
+		
+		try {
+			getEventLogs(user, source, identity);
+		}catch(Exception e){
+			e.printStackTrace();
 		}
 
 		return user;
@@ -2150,6 +2159,59 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 			throw new BadCredentialsException("error:GooruId/Session Token cannot be null or empty.");
 		}
 		return userToken;
+	}
+	
+	public void getEventLogs(User newUser, String source, Identity newIdentity) throws JSONException {
+		SessionContextSupport.putLogParameter(EVENT_NAME, "user.register");
+		JSONObject context = SessionContextSupport.getLog().get("context") != null ? new JSONObject(SessionContextSupport.getLog().get("context").toString()) :  new JSONObject();
+		if(source != null && source.equalsIgnoreCase(UserAccountType.accountCreatedType.GOOGLE_APP.getType())) {
+			context.put("registerType", accountCreatedType.GOOGLE_APP.getType());			
+		}else if (source != null && source.equalsIgnoreCase(UserAccountType.accountCreatedType.SSO.getType())) {
+			context.put("registerType", accountCreatedType.SSO.getType());
+		}else {
+			context.put("registerType", "Gooru");
+		}
+		SessionContextSupport.putLogParameter("context", context.toString());
+		JSONObject payLoadObject = SessionContextSupport.getLog().get("payLoadObject") != null ? new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString()) :  new JSONObject();
+		if (newIdentity != null && newIdentity.getIdp() != null) {
+			payLoadObject.put(IDP_NAME, newIdentity.getIdp().getName());
+		} else {
+			payLoadObject.put(IDP_NAME, GOORU_API);
+		}
+		Iterator<Identity> iter = newUser.getIdentities().iterator();
+		if (iter != null && iter.hasNext()) {
+			Identity identity = iter.next();
+			payLoadObject.put(CREATED_TYPE, identity != null ? identity.getAccountCreatedType() : null);
+		}
+		SessionContextSupport.putLogParameter("payLoadObject", payLoadObject.toString());
+		JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session").toString()) :  new JSONObject();
+		session.put("organizationUId", newUser != null ? newUser.getOrganizationUid() : null);
+		SessionContextSupport.putLogParameter("session", session.toString());	
+		JSONObject user = SessionContextSupport.getLog().get("user") != null ? new JSONObject(SessionContextSupport.getLog().get("user").toString()) :  new JSONObject();
+		user.put("gooruUId", newUser != null ? newUser.getPartyUid() : null);
+		SessionContextSupport.putLogParameter("user", user.toString());
+	}
+	
+	@Override
+	public void getEventLogs(Identity identity, UserToken userToken) throws JSONException {
+		SessionContextSupport.putLogParameter(EVENT_NAME, "user.login");
+		JSONObject context = SessionContextSupport.getLog().get("context") != null ? new JSONObject(SessionContextSupport.getLog().get("context").toString()) : new JSONObject();
+		if(identity != null && identity.getLoginType().equalsIgnoreCase("Credential")) {
+			context.put("LogInType", "Gooru");
+		}else if (identity != null && identity.getLoginType().equalsIgnoreCase("Apps")) {
+			context.put("LogInType", accountCreatedType.GOOGLE_APP.getType());	
+		}else {
+			context.put("LogInType", accountCreatedType.SSO.getType());
+		}
+		SessionContextSupport.putLogParameter("context", context.toString());
+		JSONObject payLoadObject = SessionContextSupport.getLog().get("payLoadObject") != null ? new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString()) : new JSONObject();
+		SessionContextSupport.putLogParameter("payLoadObject", payLoadObject.toString());
+		JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session").toString()) : new JSONObject();
+		session.put("sessionToken", userToken.getToken());
+		SessionContextSupport.putLogParameter("session", session.toString());
+		JSONObject user = SessionContextSupport.getLog().get("user") != null ? new JSONObject(SessionContextSupport.getLog().get("user").toString()) : new JSONObject();
+		user.put("gooruUId", identity != null && identity.getUser() != null ? identity.getUser().getPartyUid() : null );
+		SessionContextSupport.putLogParameter("user", user.toString());
 	}
 
 	public TaxonomyRespository getTaxonomyRespository() {
