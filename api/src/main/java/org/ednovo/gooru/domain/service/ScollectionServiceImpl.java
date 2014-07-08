@@ -1360,9 +1360,13 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			throw new NotFoundException(generateErrorMessage(GL0056, _COLLECTION_ITEM));
 		}
 		
-		Map<String, Object> ItemData = new HashMap<String, Object>();
+		JSONObject jsonItemdata = new JSONObject();
 		
-		ItemData.putAll(data);
+		try {
+			jsonItemdata.put("itemData", data);
+		} catch (JSONException e1) {
+			e1.printStackTrace();
+		}
 
 		String narration = data.getFirst(NARRATION);
 		String narrationType = data.getFirst(NARRATION_TYPE);
@@ -1394,8 +1398,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		this.redisService.bulkKeyDelete("v2-organize-data-" + collectionItem.getCollection().getUser().getPartyUid() + "*");
 		
 		try {
-			JSONObject jsonItemdata = new JSONObject();
-			jsonItemdata.put("itemData", ItemData);
 			getEventLogs(collectionItem, jsonItemdata, apiCaller);
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -2344,7 +2346,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		payLoadObject.put("itemData", ItemData != null ? ItemData.toString() : null);
 		SessionContextSupport.putLogParameter("payLoadObject", payLoadObject.toString());
 		JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session").toString()) : new JSONObject();
-		session.put("organizationUId", user.getOrganization().getPartyUid());
+		session.put("organizationUId", user != null && user.getOrganization() != null ? user.getOrganization().getPartyUid() : null);
 		SessionContextSupport.putLogParameter("session", session.toString());
 	}
 
