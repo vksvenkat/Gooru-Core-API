@@ -220,8 +220,8 @@ public class PartyServiceImpl extends BaseServiceImpl implements PartyService, P
 	}
 	
 	@Override
-	public List<Map<Object, Object>> getPartyDetails(String optionalKey, String optionalValue) {
-		return this.getPartyRepository().getPartyDetails(optionalKey, optionalValue);
+	public List<Map<Object, Object>> getPartyDetails() {
+		return this.getPartyRepository().getPartyDetails();
 	}
 
 	public PartyRepository getPartyRepository() {
