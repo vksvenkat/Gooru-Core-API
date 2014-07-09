@@ -347,6 +347,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 				collectionItem.setResource(collection);
 				int sequence = collectionItem.getCollection().getCollectionItems() != null ? collectionItem.getCollection().getCollectionItems().size() + 1 : 1;
 				collectionItem.setItemSequence(sequence);
+				collectionItem.getCollection().setItemCount(sequence);
 				this.getCollectionRepository().save(collectionItem);
 			}
 		} else {
