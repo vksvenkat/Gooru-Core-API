@@ -542,7 +542,7 @@ public interface ConstantProperties {
     
    // public static String ORGANIZATION_UID="organizationUId";
     
-    public static String ITEM_ID="ItemId";
+    public static String ITEM_ID="itemId";
     
     public static String PARENT_CONTENT_ID="parentContentId";
     
@@ -561,6 +561,8 @@ public interface ConstantProperties {
     public static String REMOVE_GOORU_UID="removedGooruUId";
     
     public static String ITEM_CREATE="item.create";
+    
+    public static String ITEM_DELETE="item.delete";
     
     public static String COLLECTION_ALL="collection.all";
     
