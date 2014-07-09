@@ -736,7 +736,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		} else {
 			collection = this.getCollectionRepository().getUserShelfByGooruUid(user.getGooruUId(), CollectionType.SHElf.getCollectionType());
 		}
-		if (collection == null) {
+		if (collection == null && type != null && type.equalsIgnoreCase(CollectionType.SHElf.getCollectionType())) {
 			collection = new Collection();
 			collection.setTitle(MY_SHELF);
 			collection.setCollectionType(CollectionType.SHElf.getCollectionType());
