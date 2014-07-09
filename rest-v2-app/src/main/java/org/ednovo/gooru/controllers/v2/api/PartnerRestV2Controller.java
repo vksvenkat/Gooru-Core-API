@@ -66,7 +66,7 @@ public class PartnerRestV2Controller extends BaseController implements Parameter
 			data = getRedisService().getValue(cacheKey);
 		}
 		if (data == null) {
-			partner = getPartyService().getPartyDetails(IS_PARTNER, TRUE);
+			partner = getPartyService().getPartyDetails();
 			data = serialize(partner, RESPONSE_FORMAT_JSON);
 			getRedisService().putValue(cacheKey, data);
 		}

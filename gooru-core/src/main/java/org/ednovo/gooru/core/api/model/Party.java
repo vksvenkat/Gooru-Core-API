@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.Date;
 
 import javax.persistence.Column;
-//import javax.persistence.Column;
 
 public class Party implements Serializable, IndexableEntry {
 
@@ -34,6 +33,10 @@ public class Party implements Serializable, IndexableEntry {
 	
 	@Column
 	private String lastModifiedUserUid;
+	
+	private String displayName;
+	
+	private Boolean isPartner;
 	
 	private String organizationUid;
 	
@@ -119,6 +122,22 @@ public class Party implements Serializable, IndexableEntry {
 
 	public void setOrganizationUid(String organizationUid) {
 		this.organizationUid = organizationUid;
+	}
+
+	public void setDisplayName(String displayName) {
+		this.displayName = displayName;
+	}
+
+	public String getDisplayName() {
+		return displayName;
+	}
+
+	public void setIsPartner(Boolean isPartner) {
+		this.isPartner = isPartner;
+	}
+
+	public Boolean getIsPartner() {
+		return isPartner;
 	}
 
 }

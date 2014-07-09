@@ -51,6 +51,6 @@ public interface PartyService extends BaseService {
 	
 	Profile getUserDateOfBirth(String partyId, User user);
 	
-	List<Map<Object, Object>> getPartyDetails(String optionalKey, String optionalValue);
+	List<Map<Object, Object>> getPartyDetails();
 
 }
