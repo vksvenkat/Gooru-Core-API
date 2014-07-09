@@ -88,8 +88,8 @@ public class PartyServiceImpl extends BaseServiceImpl implements PartyService, P
 	private Errors validatePartyCustomField(PartyCustomField partyCustomField, Party party) {
 		Map<String, String> partyCategory = getCategory();
 		final Errors errors = new BindException(partyCustomField, PARTY_CUSTOM_FIELD);
-		rejectIfNull(errors, party, "party", "GL0056", generateErrorMessage("GL0056", "party"));
-		rejectIfInvalidType(errors, partyCustomField.getCategory(), CATEGORY, "GL0007", generateErrorMessage("GL0007", CATEGORY), partyCategory);
+		rejectIfNull(errors, party, PARTY, GL0056, generateErrorMessage(GL0056, PARTY));
+		rejectIfInvalidType(errors, partyCustomField.getCategory(), CATEGORY, GL0007, generateErrorMessage(GL0007, CATEGORY), partyCategory);
 		return errors;
 	}
 
@@ -129,7 +129,7 @@ public class PartyServiceImpl extends BaseServiceImpl implements PartyService, P
 				}
 			}
 			this.getPartyRepository().save(partyCustomField);
-			if (newPartyCustomField.getOptionalKey() != null && newPartyCustomField.getOptionalKey().equalsIgnoreCase("show_profile_page")) {
+			if (newPartyCustomField.getOptionalKey() != null && newPartyCustomField.getOptionalKey().equalsIgnoreCase(SHOW_PROFILE_PAGE)) {
 				indexProcessor.index(partyId, IndexProcessor.INDEX, USER, true);
 			} else {
 				indexProcessor.index(partyId, IndexProcessor.INDEX, USER, false);
@@ -142,8 +142,8 @@ public class PartyServiceImpl extends BaseServiceImpl implements PartyService, P
 	}
 
 	private Errors validateUpdatePartyCustomField(PartyCustomField partyCustomField, PartyCustomField newPartyCustomField) {
-		final Errors errors = new BindException(partyCustomField, "partyCustomField");
-		rejectIfNull(errors, newPartyCustomField, "partyCustomField", "GL0056", generateErrorMessage("GL0056", "partyCustomField"));	
+		final Errors errors = new BindException(partyCustomField, PARTY_CUSTOM_FIELD);
+		rejectIfNull(errors, newPartyCustomField, PARTY_CUSTOM_FIELD, GL0056, generateErrorMessage(GL0056, PARTY_CUSTOM_FIELD));	
 		return errors;
 	}
 
@@ -158,7 +158,7 @@ public class PartyServiceImpl extends BaseServiceImpl implements PartyService, P
 			if (partyCustomField != null) {
 				getPartyRepository().deletePartyCustomField(partyId, partyCustomField.getOptionalKey());
 			} else {
-				throw new NotFoundException(generateErrorMessage("GL0056", "Party customfield"));
+				throw new NotFoundException(generateErrorMessage(GL0056, PARTY_CUSTOMFIELD));
 			}
 		}
 	}
@@ -204,7 +204,7 @@ public class PartyServiceImpl extends BaseServiceImpl implements PartyService, P
 		if(taxonomyList != null){
 			PartyCustomField partyCustomField = new PartyCustomField();
 			partyCustomField.setCategory(PartyCategoryType.USER_TAXONOMY.getpartyCategoryType());
-			partyCustomField.setOptionalKey("user_taxonomy_root_code");
+			partyCustomField.setOptionalKey(USER_TAXONOMY_ROOT_CODE);
 			partyCustomField.setPartyUid(partyId);
 			partyCustomField.setOptionalValue(taxonomyList);
 			getPartyRepository().save(partyCustomField);

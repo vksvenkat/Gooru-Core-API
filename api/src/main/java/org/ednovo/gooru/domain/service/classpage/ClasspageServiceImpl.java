@@ -622,7 +622,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 
 	private Errors validateUpdateClasspage(Collection collection, Collection newCollection) throws Exception {
 		final Errors errors = new BindException(collection, COLLECTION);
-		rejectIfNull(errors, collection, "collection.all", GL0006, generateErrorMessage(GL0006, COLLECTION));
+		rejectIfNull(errors, collection, COLLECTION_ALL, GL0006, generateErrorMessage(GL0006, COLLECTION));
 		return errors;
 	}
 
@@ -661,18 +661,18 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		List<Map<String, Object>> listMap = new ArrayList<Map<String, Object>>();
 		for (Object[] object : results) {
 			Map<String, Object> result = new HashMap<String, Object>();
-			result.put("gooruOid", object[0]);
-			result.put("title", object[1]);
-			result.put("classCode", object[2]);
-			result.put("status", object[3]);
-			result.put("createdOn", object[4]);
+			result.put(GOORU_OID, object[0]);
+			result.put(TITLE, object[1]);
+			result.put(CLASS_CODE, object[2]);
+			result.put(STATUS, object[3]);
+			result.put(CREATED_ON, object[4]);
 			Map<String, Object> user = new HashMap<String, Object>();
-			user.put("gooruUId", object[5]);
-			user.put("firstName", object[6]);
-			user.put("lastName", object[7]);
-			user.put("userName", object[8]);
+			user.put(GOORU_UID, object[5]);
+			user.put(FIRSTNAME, object[6]);
+			user.put(LASTNAME, object[7]);
+			user.put(USERNAME, object[8]);
 			user.put(PROFILE_IMG_URL, settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, TaxonomyUtil.GOORU_ORG_UID) + "/" + settingService.getConfigSetting(ConfigConstants.PROFILE_BUCKET, TaxonomyUtil.GOORU_ORG_UID) + String.valueOf(object[5]) + ".png");
-			result.put("user", user);
+			result.put(USER, user);
 
 			StorageArea storageArea = this.getStorageRepository().getStorageAreaByTypeName(NFS);
 			Map<String, Object> thumbnails = new HashMap<String, Object>();
@@ -684,7 +684,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			result.put(THUMBNAILS, thumbnails);
 			result.put(ITEM_COUNT, object[11] == null ? 0 : object[11]);
 			long member = this.getUserGroupRepository().getUserGroupAssociationCount(String.valueOf(object[2]));
-			result.put("memberCount", member);
+			result.put(MEMBER_COUNT, member);
 			listMap.add(result);
 		}
 		return listMap;
@@ -713,7 +713,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			Map<String, Object> result = new HashMap<String, Object>();
 			Map<String, Object> resource = new HashMap<String, Object>();
 			if (!optimize)  {
-				result.put("associationDate", object[0]);
+				result.put(ASSOCIATION_DATE, object[0]);
 				resource.put(FOLDER, object[7]);
 				resource.put(SHARING, object[9]);
 				Map<String, Object> thumbnails = new HashMap<String, Object>();
@@ -725,20 +725,20 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 				}
 				resource.put(THUMBNAILS, thumbnails);
 				Map<String, Object> user = new HashMap<String, Object>();
-				user.put("username", object[12]);
-				user.put("gooruUId", object[13]);
+				user.put(USERNAME, object[12]);
+				user.put(GOORU_UID, object[13]);
 				user.put(PROFILE_IMG_URL, settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, TaxonomyUtil.GOORU_ORG_UID) + "/" + settingService.getConfigSetting(ConfigConstants.PROFILE_BUCKET, TaxonomyUtil.GOORU_ORG_UID) + String.valueOf(object[13]) + ".png");
-				resource.put("user", user);
+				resource.put(USER, user);
 			}
 			resource.put(GOALS, object[10]);
-			resource.put("title", object[6]);
-			resource.put("gooruOid", object[5]);
-			result.put("collectionItemId", object[1]);				
-			result.put("itemSequence", object[2]);
-			result.put("narration", object[3]);
-			result.put("plannedEndDate", object[4]);
+			resource.put(TITLE, object[6]);
+			resource.put(GOORU_OID, object[5]);
+			result.put(COLLECTION_ITEM_ID, object[1]);				
+			result.put(ITEM_SEQUENCE, object[2]);
+			result.put(NARRATION, object[3]);
+			result.put(PLANNED_END_DATE, object[4]);
 			result.put(STATUS, object[11]);
-			result.put("resource", resource);
+			result.put(RESOURCE, resource);
 			collectionItems.add(result);
 		}
 		return collectionItems;
@@ -794,85 +794,85 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 
 	public void getEventLogs(Classpage classpage, User user, UserGroup userGroup, boolean isCreate, boolean isDelete) throws JSONException {
 		if(isCreate){
-			SessionContextSupport.putLogParameter(EVENT_NAME, "item.create");
+			SessionContextSupport.putLogParameter(EVENT_NAME, ITEM_CREATE);
 		} else if(isDelete){
-			SessionContextSupport.putLogParameter(EVENT_NAME, "item.delete");
+			SessionContextSupport.putLogParameter(EVENT_NAME, ITEM_DELETE);
 		}
-		JSONObject context = SessionContextSupport.getLog().get("context") != null ? new JSONObject(SessionContextSupport.getLog().get("context").toString()) : new JSONObject();
-		context.put("contentGooruId", classpage != null ? classpage.getGooruOid() : null);
-		SessionContextSupport.putLogParameter("context", context.toString());
-		JSONObject payLoadObject = SessionContextSupport.getLog().get("payLoadObject") != null ? new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString()) : new JSONObject();
+		JSONObject context = SessionContextSupport.getLog().get(CONTEXT) != null ? new JSONObject(SessionContextSupport.getLog().get(CONTEXT).toString()) : new JSONObject();
+		context.put(CONTENT_GOORU_ID, classpage != null ? classpage.getGooruOid() : null);
+		SessionContextSupport.putLogParameter(CONTEXT, context.toString());
+		JSONObject payLoadObject = SessionContextSupport.getLog().get(PAY_LOAD_OBJECT) != null ? new JSONObject(SessionContextSupport.getLog().get(PAY_LOAD_OBJECT).toString()) : new JSONObject();
 		if(isCreate){
-			payLoadObject.put("mode", "create");
+			payLoadObject.put(MODE, CREATE);
 		}
-		payLoadObject.put("itemType", ResourceType.Type.CLASSPAGE.getType());
-		payLoadObject.put("groupUId", userGroup != null ? userGroup.getPartyUid() : null);
-		payLoadObject.put("contentId", classpage != null ? classpage.getContentId() : null);
-		payLoadObject.put("classCode", classpage != null ? classpage.getClasspageCode() : null);
-		SessionContextSupport.putLogParameter("payLoadObject", payLoadObject.toString());
-		JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session").toString()) : new JSONObject();
-		session.put("organizationUId", user != null && user.getOrganization() != null ? user.getOrganization().getPartyUid() : null);
-		SessionContextSupport.putLogParameter("session", session.toString());
+		payLoadObject.put(ITEM_TYPE, ResourceType.Type.CLASSPAGE.getType());
+		payLoadObject.put(GROUP_UID, userGroup != null ? userGroup.getPartyUid() : null);
+		payLoadObject.put(CONTENT_ID, classpage != null ? classpage.getContentId() : null);
+		payLoadObject.put(CLASS_CODE, classpage != null ? classpage.getClasspageCode() : null);
+		SessionContextSupport.putLogParameter(PAY_LOAD_OBJECT, payLoadObject.toString());
+		JSONObject session = SessionContextSupport.getLog().get(SESSION) != null ? new JSONObject(SessionContextSupport.getLog().get(SESSION).toString()) : new JSONObject();
+		session.put(ORGANIZATION_UID, user != null && user.getOrganization() != null ? user.getOrganization().getPartyUid() : null);
+		SessionContextSupport.putLogParameter(SESSION, session.toString());
 	}
 	
 	public void getEventLogs(CollectionItem collectionItem, boolean isCollectionItem, User user, String collectionType) throws JSONException {
-		SessionContextSupport.putLogParameter(EVENT_NAME, "item.create");
-		JSONObject context = SessionContextSupport.getLog().get("context") != null ? new JSONObject(SessionContextSupport.getLog().get("context").toString()) : new JSONObject();
-		context.put("parentGooruId", collectionItem != null && collectionItem.getCollection() != null ? collectionItem.getCollection().getGooruOid() : null);
-		context.put("contentGooruId", collectionItem != null && collectionItem.getResource() != null ? collectionItem.getResource().getGooruOid() : null);
-		SessionContextSupport.putLogParameter("context", context.toString());
-		JSONObject payLoadObject = SessionContextSupport.getLog().get("payLoadObject") != null ? new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString()) : new JSONObject();
-		payLoadObject.put("mode", "add");
-		payLoadObject.put("itemSequence", collectionItem != null ? collectionItem.getItemSequence() : null);
-		payLoadObject.put("ItemId", collectionItem != null ? collectionItem.getCollectionItemId() : null);
+		SessionContextSupport.putLogParameter(EVENT_NAME, ITEM_CREATE);
+		JSONObject context = SessionContextSupport.getLog().get(CONTEXT) != null ? new JSONObject(SessionContextSupport.getLog().get(CONTEXT).toString()) : new JSONObject();
+		context.put(PARENT_GOORU_ID, collectionItem != null && collectionItem.getCollection() != null ? collectionItem.getCollection().getGooruOid() : null);
+		context.put(CONTENT_GOORU_ID, collectionItem != null && collectionItem.getResource() != null ? collectionItem.getResource().getGooruOid() : null);
+		SessionContextSupport.putLogParameter(CONTEXT, context.toString());
+		JSONObject payLoadObject = SessionContextSupport.getLog().get(PAY_LOAD_OBJECT) != null ? new JSONObject(SessionContextSupport.getLog().get(PAY_LOAD_OBJECT).toString()) : new JSONObject();
+		payLoadObject.put(MODE, ADD);
+		payLoadObject.put(ITEM_SEQUENCE, collectionItem != null ? collectionItem.getItemSequence() : null);
+		payLoadObject.put(ITEM_ID, collectionItem != null ? collectionItem.getCollectionItemId() : null);
 		if (collectionType != null && collectionItem != null) {
 			if (collectionType.equalsIgnoreCase(CollectionType.CLASSPAGE.getCollectionType())) {
-				payLoadObject.put("itemType", "classpage.collection");
+				payLoadObject.put(ITEM_TYPE, CLASSPAGE_COLLECTION);
 			}
 		}
-		payLoadObject.put("parentContentId", collectionItem != null  && collectionItem.getCollection() != null ? collectionItem.getCollection().getContentId() : null);
-		payLoadObject.put("contentId", collectionItem != null && collectionItem.getResource() != null ? collectionItem.getResource().getContentId() : null);
-		payLoadObject.put("title", collectionItem != null && collectionItem.getResource() != null ? collectionItem.getResource().getTitle() : null);
-		payLoadObject.put("description", collectionItem != null && collectionItem.getResource() != null ? collectionItem.getResource().getDescription() : null);
-		SessionContextSupport.putLogParameter("payLoadObject", payLoadObject.toString());
-		JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session").toString()) : new JSONObject();
-		session.put("organizationUId", user != null && user.getOrganization() != null ? user.getOrganization().getPartyUid() : null);
-		SessionContextSupport.putLogParameter("session", session.toString());
+		payLoadObject.put(PARENT_CONTENT_ID, collectionItem != null  && collectionItem.getCollection() != null ? collectionItem.getCollection().getContentId() : null);
+		payLoadObject.put(CONTENT_ID, collectionItem != null && collectionItem.getResource() != null ? collectionItem.getResource().getContentId() : null);
+		payLoadObject.put(TITLE, collectionItem != null && collectionItem.getResource() != null ? collectionItem.getResource().getTitle() : null);
+		payLoadObject.put(DESCRIPTION, collectionItem != null && collectionItem.getResource() != null ? collectionItem.getResource().getDescription() : null);
+		SessionContextSupport.putLogParameter(PAY_LOAD_OBJECT, payLoadObject.toString());
+		JSONObject session = SessionContextSupport.getLog().get(SESSION) != null ? new JSONObject(SessionContextSupport.getLog().get(SESSION).toString()) : new JSONObject();
+		session.put(ORGANIZATION_UID, user != null && user.getOrganization() != null ? user.getOrganization().getPartyUid() : null);
+		SessionContextSupport.putLogParameter(SESSION, session.toString());
 	}
 
 	public void getEventLogs(Classpage classpage, User user, UserGroup userGroup, InviteUser inviteUser) throws JSONException {
-
-		SessionContextSupport.putLogParameter(EVENT_NAME, "classpage.user.add");
-
-		JSONObject context = SessionContextSupport.getLog().get("context") != null ? new JSONObject(SessionContextSupport.getLog().get("context").toString()) : new JSONObject();
-		context.put("contentGooruId", classpage != null ? classpage.getGooruOid() : null);
-		SessionContextSupport.putLogParameter("context", context.toString());
-
-		JSONObject payLoadObject = SessionContextSupport.getLog().get("payLoadObject") != null ? new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString()) : new JSONObject();
+		SessionContextSupport.putLogParameter(EVENT_NAME, CLASSPAGE_USER_ADD);
+		JSONObject context = SessionContextSupport.getLog().get(CONTEXT) != null ? new JSONObject(SessionContextSupport.getLog().get(CONTEXT).toString()) : new JSONObject();
+		context.put(CONTENT_GOORU_OID, classpage != null ? classpage.getGooruOid() : null);
+		SessionContextSupport.putLogParameter(CONTEXT, context.toString());
+		JSONObject payLoadObject = SessionContextSupport.getLog().get(PAY_LOAD_OBJECT) != null ? new JSONObject(SessionContextSupport.getLog().get(PAY_LOAD_OBJECT).toString()) : new JSONObject();
 		if (inviteUser != null && inviteUser.getInviteUid() != null) {
-			payLoadObject.put("InvitedUserGooruUId", classpage != null && classpage.getUser() != null ? classpage.getUser().getPartyUid() : null);
+			payLoadObject.put(INVITED_USER_GOORU_UID, classpage != null && classpage.getUser() != null ? classpage.getUser().getPartyUid() : null);
 		}
-		payLoadObject.put("contentId", classpage != null ? classpage.getContentId() : null);
-		payLoadObject.put("groupUId", userGroup != null ? userGroup.getPartyUid() : null);
-		SessionContextSupport.putLogParameter("payLoadObject", payLoadObject.toString());
-		JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session").toString()) : new JSONObject();
-		session.put("organizationUId", user != null && user.getOrganization() != null ? user.getOrganization().getPartyUid() : null);
-		SessionContextSupport.putLogParameter("session", session.toString());
+		payLoadObject.put(CONTENT_ID, classpage != null ? classpage.getContentId() : null);
+		payLoadObject.put(GROUP_UID, userGroup != null ? userGroup.getPartyUid() : null);
+		SessionContextSupport.putLogParameter(PAY_LOAD_OBJECT, payLoadObject.toString());
+		JSONObject session = SessionContextSupport.getLog().get(SESSION) != null ? new JSONObject(SessionContextSupport.getLog().get(SESSION).toString()) : new JSONObject();
+		session.put(ORGANIZATION_UID, user != null && user.getOrganization() != null ? user.getOrganization().getPartyUid() : null);
+		SessionContextSupport.putLogParameter(SESSION, session.toString());
 	}
 	
 	public void getEventLogs(Classpage classpage, UserGroupAssociation userGroupAssociation, InviteUser inviteUser) throws JSONException {
-		SessionContextSupport.putLogParameter(EVENT_NAME, "classpage.user.remove");
-		JSONObject context = SessionContextSupport.getLog().get("context") != null ? new JSONObject(SessionContextSupport.getLog().get("context").toString()) : new JSONObject();
-		context.put("contentGooruId", classpage != null ? classpage.getGooruOid() : null);
-		SessionContextSupport.putLogParameter("context", context.toString());
-		JSONObject payLoadObject = SessionContextSupport.getLog().get("payLoadObject") != null ? new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString()) : new JSONObject();
+		SessionContextSupport.putLogParameter(EVENT_NAME, CLASSPAGE_USER_REMOVE);
+		JSONObject context = SessionContextSupport.getLog().get(CONTEXT) != null ? new JSONObject(SessionContextSupport.getLog().get(CONTEXT).toString()) : new JSONObject();
+		context.put(CONTENT_GOORU_ID, classpage != null ? classpage.getGooruOid() : null);
+		SessionContextSupport.putLogParameter(CONTEXT, context.toString());
+		JSONObject payLoadObject = SessionContextSupport.getLog().get(PAY_LOAD_OBJECT) != null ? new JSONObject(SessionContextSupport.getLog().get(PAY_LOAD_OBJECT).toString()) : new JSONObject();
 		if(userGroupAssociation != null){
-			payLoadObject.put("groupUId", userGroupAssociation != null && userGroupAssociation.getUserGroup() != null ? userGroupAssociation.getUserGroup().getPartyUid() : null);
-			payLoadObject.put("removedGooruUId", userGroupAssociation != null && userGroupAssociation.getUser() != null ? userGroupAssociation.getUser().getPartyUid() : null);
+			payLoadObject.put(GROUP_UID, userGroupAssociation != null && userGroupAssociation.getUserGroup() != null ? userGroupAssociation.getUserGroup().getPartyUid() : null);
+			payLoadObject.put(REMOVE_GOORU_UID, userGroupAssociation != null && userGroupAssociation.getUser() != null ? userGroupAssociation.getUser().getPartyUid() : null);
 		}
 		if (inviteUser != null && inviteUser.getInviteUid() != null) {
-			payLoadObject.put("InvitedUserGooruUId", classpage != null && classpage.getUser() != null ? classpage.getUser().getPartyUid() : null);
+			payLoadObject.put(INVITED_USER_GOORU_UID, classpage != null && classpage.getUser() != null ? classpage.getUser().getPartyUid() : null);
 		}
+		SessionContextSupport.putLogParameter(PAY_LOAD_OBJECT, payLoadObject.toString());
+		JSONObject session = SessionContextSupport.getLog().get(SESSION) != null ? new JSONObject(SessionContextSupport.getLog().get(SESSION).toString()) : new JSONObject();
+		SessionContextSupport.putLogParameter(SESSION, session.toString());
 	}
 
 }
