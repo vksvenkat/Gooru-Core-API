@@ -47,6 +47,7 @@ import org.ednovo.gooru.core.api.model.StorageArea;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserContentAssoc;
 import org.ednovo.gooru.core.api.model.UserSummary;
+import org.ednovo.gooru.core.application.util.BaseUtil;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.domain.service.redis.RedisService;
 import org.ednovo.gooru.domain.service.search.SearchResults;
@@ -273,6 +274,10 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	@Override
 	public List<Map<String, Object>> getMyShelf(String gooruUid, Integer limit, Integer offset, String sharing, String collectionType, Integer itemLimit, boolean fetchChildItem, String topLevelCollectionType) {
 		StorageArea storageArea = this.getStorageRepository().getStorageAreaByTypeName(NFS);
+		if (!BaseUtil.isUuid(gooruUid)) {
+			User user = this.getUserService().getUserByUserName(gooruUid);
+			gooruUid = user != null ? user.getPartyUid() : null;
+		}
 		List<Object[]> result = this.getCollectionRepository().getMyFolder(gooruUid, limit, offset, sharing, topLevelCollectionType != null ? topLevelCollectionType : collectionType, fetchChildItem);
 		List<Map<String, Object>> folderList = new ArrayList<Map<String, Object>>();
 		int count = 0;
