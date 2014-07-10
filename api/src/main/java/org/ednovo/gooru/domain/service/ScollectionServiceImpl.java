@@ -2461,6 +2461,15 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		SessionContextSupport.putLogParameter("session", session.toString());
 	}
 	
+	public void deleteBulkCollections(List<String> gooruOids){
+		List<Collection> Collections = collectionRepository.getCollectionListByIds(gooruOids);
+		String removeContentIds = "";
+		for (Collection collection : Collections) {
+			removeContentIds += collection.getGooruOid();
+		}
+		this.collectionRepository.removeAll(Collections);
+		indexProcessor.index(removeContentIds, IndexProcessor.DELETE, SCOLLECTION);
+	}
 	
 
 	public ResourceCassandraService getResourceCassandraService() {
