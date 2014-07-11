@@ -329,6 +329,8 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 				permissions.put(PERMISSIONS, this.getContentService().getContentPermission(collectionId, user));
 			}
 			permissions.put(STATUS, status);
+			long member = this.getUserGroupRepository().getUserGroupAssociationCount(classpage.getClasspageCode());
+			permissions.put(MEMBER_COUNT, member);
 			classpage.setMeta(permissions);
 		}
 		return classpage;
