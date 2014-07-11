@@ -171,7 +171,7 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.GET }, value = "/{type}/availability")
 	public ModelAndView getUserAvailability(HttpServletRequest request, @RequestParam(value = KEYWORD) String keyword, @RequestParam(value = COLLECTION_ID, required = false) String collectionId,@RequestParam(value = IS_COLLABORATOR_CHK, defaultValue = FALSE, required = false) boolean isCollaboratorCheck ,@PathVariable(TYPE) String type, HttpServletResponse response) throws Exception {
-		request.setAttribute(Constants.EVENT_PREDICATE, "user.check.usernameOremailid.availability");
+		request.setAttribute(Constants.EVENT_PREDICATE, USER_CHECK_USERNAMEOREMAILID_AVAILABILITY);
 		User user = (User) request.getAttribute(Constants.USER);
 
 		return toModelAndViewWithIoFilter(this.getUserService().getUserAvailability(keyword, type.equals(USER_NAME) ? CheckUser.BYUSERNAME.getCheckUser() : type.equals(EMAIL_ID) ? CheckUser.BYEMAILID.getCheckUser() : null, isCollaboratorCheck, collectionId, user),RESPONSE_FORMAT_JSON,EXCLUDE_ALL,true,AVAILABILITY_INCLUDES);
@@ -181,7 +181,7 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.POST, value = "/reset-password/request")
 	public ModelAndView forgotPassword(@RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		request.setAttribute(Constants.EVENT_PREDICATE, "user.forgot_password");
+		request.setAttribute(Constants.EVENT_PREDICATE, USER_FORGET_PASSWORD);
 		User apicaller = (User) request.getAttribute(Constants.USER);
 		JSONObject json = requestData(data);
 		User user = this.getUserManagementService().resetPasswordRequest(getValue(EMAIL_ID, json), getValue(GOORU_BASE_URL, json), apicaller,getValue(MAIL_CONFIRMATION_URL, json) != null ? getValue(MAIL_CONFIRMATION_URL, json) : null);
@@ -193,7 +193,7 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.POST, value = "/reset-password")
 	public ModelAndView resetCredential(HttpServletRequest request, @RequestBody String data, HttpServletResponse response) throws Exception {
-		request.setAttribute(Constants.EVENT_PREDICATE, "reset.credential");
+		request.setAttribute(Constants.EVENT_PREDICATE,RESET_CREDENTIAL);
 		User apicaller = (User) request.getAttribute(Constants.USER);
 		JSONObject json = requestData(data);
 		Identity identity = this.getUserManagementService().resetCredential(getValue(TOKEN, json), getValue(GOORU_UID, json), getValue(PASSWORD, json), apicaller, getValue(MAIL_CONFIRMATION_URL, json) != null ? getValue(MAIL_CONFIRMATION_URL, json) : null,  getValue(IS_PARTNER_PORTAL, json) != null ? Boolean.parseBoolean(getValue(IS_PARTNER_PORTAL, json)) : false);
@@ -309,7 +309,7 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.DELETE }, value = "/{id}")
 	public void deleteSoftUser(@PathVariable(value = ID) String gooruUid, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		request.setAttribute(Constants.EVENT_PREDICATE, "user.delete_user");
+		request.setAttribute(Constants.EVENT_PREDICATE, USER_DELETE_USER);
 		User apiCaller = (User) request.getAttribute(Constants.USER);
 		JSONObject json = requestData(data);
 		this.getUserManagementService().deleteUserContent(gooruUid, (getValue(IS_DELETED, json)), apiCaller);
@@ -319,7 +319,7 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.PUT, value = "/{id}/profile/picture")
 	public void deleteProfilePicture(@PathVariable(value = ID) String userId, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		request.setAttribute(Constants.EVENT_PREDICATE, "user.delete_profile_picture");
+		request.setAttribute(Constants.EVENT_PREDICATE, USER_DELETE_PROFILE_PICTURE);
 		this.getUserManagementService().deleteUserImageProfile(userId);
 	}
 
@@ -336,7 +336,7 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 	public ModelAndView checkContentAccess(HttpServletRequest request, @PathVariable(value = ID) String gooruContentId, HttpServletResponse response) throws Exception {
 
 		User authenticatedUser = (User) request.getAttribute(Constants.USER);
-		SessionContextSupport.putLogParameter(EVENT_NAME, "check-content-permission");
+		SessionContextSupport.putLogParameter(EVENT_NAME, CHECK_CONTENT_PERMISSION);
 		SessionContextSupport.putLogParameter(GOORU_CONTENT_ID, gooruContentId);
 		SessionContextSupport.putLogParameter(USER_ID, authenticatedUser.getUserId());
 		SessionContextSupport.putLogParameter(GOORU_UID, authenticatedUser.getPartyUid());

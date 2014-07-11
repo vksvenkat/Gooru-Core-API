@@ -32,16 +32,22 @@ import org.ednovo.gooru.core.api.model.Party;
 import org.ednovo.gooru.core.api.model.PartyCustomField;
 import org.ednovo.gooru.core.api.model.Profile;
 import org.ednovo.gooru.core.api.model.User;
+import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.party.PartyRepository;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.type.StandardBasicTypes;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public class PartyRepositoryHibernate extends BaseRepositoryHibernate implements PartyRepository, ParameterProperties, ConstantProperties {
+	
+	@Autowired
+	private SettingService settingService;
 
 	@Override
 	public Party findPartyById(String partyUid) {
@@ -123,11 +129,10 @@ public class PartyRepositoryHibernate extends BaseRepositoryHibernate implements
 	}
 
 	@Override
-	public List<Map<Object, Object>> getPartyDetails(String optionalKey, String optionalValue) {
-		Session session = getSession();
-		String sql = "select * from (select p.party_uid as gooruUId, username, pp.optional_value  as displayName from party_custom_field p inner join user  on p.party_uid = gooru_uid inner join  party_custom_field pp on pp.party_uid = gooru_uid where p.optional_key = 'is_partner' and p.optional_value = 'true' and pp.optional_key = 'user_display_name') as  party_custom order by displayName";
-		Query query = session.createSQLQuery(sql).addScalar(GOORU_UID, StandardBasicTypes.STRING).
-		addScalar(USER_NAME, StandardBasicTypes.STRING).addScalar(DISPLAY_NAME, StandardBasicTypes.STRING);
+	public List<Map<Object, Object>> getPartyDetails() {
+		String sql = " select p.party_uid as gooruUId, u.username as username, p.display_name as displayName, u.organization_uid as organizationUid from party p inner join user u on p.party_uid = u.gooru_uid where p.is_partner = 1 order by p.display_name";
+		Query query = getSession().createSQLQuery(sql).addScalar(GOORU_UID, StandardBasicTypes.STRING).
+		addScalar(USER_NAME, StandardBasicTypes.STRING).addScalar(DISPLAY_NAME, StandardBasicTypes.STRING).addScalar("organizationUid", StandardBasicTypes.STRING);
 		return getPartyDetails(query.list());
 	}
 	
@@ -138,6 +143,7 @@ public class PartyRepositoryHibernate extends BaseRepositoryHibernate implements
 			party.put(GOORU_UID,  object[0]);
 			party.put(USER_NAME, object[1]);
 			party.put(DISPLAY_NAME, object[2]);
+			party.put(IMAGE_URL, settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, String.valueOf(object[3])) + "/" + settingService.getConfigSetting(ConfigConstants.PROFILE_BUCKET,String.valueOf(object[3])) +String.valueOf(object[0]) + "-1000x300.png");
 			partyDetails.add(party);
 		}
 		return partyDetails; 

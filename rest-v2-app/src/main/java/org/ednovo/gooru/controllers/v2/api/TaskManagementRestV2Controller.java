@@ -75,7 +75,7 @@ public class TaskManagementRestV2Controller extends BaseController implements Pa
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "" }, method = RequestMethod.POST)
 	public ModelAndView createTask(HttpServletRequest request, @RequestBody String data, HttpServletResponse response) throws Exception {
-		request.setAttribute(PREDICATE, "task.create_task");
+		request.setAttribute(PREDICATE, TASK_CREATE_TASK);
 		User user = (User) request.getAttribute(Constants.USER);
 		JSONObject json = requestData(data);
 		ActionResponseDTO<Task> task = getTaskService().createTask(this.buildTaskFromInputParameters(getValue(TASK, json)), getValue(PLANNED_END_DATE, json) != null ? getValue(PLANNED_END_DATE, json) : null, user, this.buildAttachFromInputParameters(getValue(ATTACH_TO, json)));
@@ -99,7 +99,7 @@ public class TaskManagementRestV2Controller extends BaseController implements Pa
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.PUT, value = { "/{id}" })
 	public ModelAndView updateTask(HttpServletRequest request, @PathVariable(ID) String gooruOid, @RequestBody String data, HttpServletResponse response) throws Exception {
-		request.setAttribute(PREDICATE, "task.update_task");
+		request.setAttribute(PREDICATE, TASK_UPDATE_TASK);
 		User user = (User) request.getAttribute(Constants.USER);
 		JSONObject json = requestData(data);
 		ActionResponseDTO<Task> task = getTaskService().updateTask(gooruOid, this.buildTaskFromInputParameters(getValue(TASK, json)), getValue(PLANNED_END_DATE, json) != null ? getValue(PLANNED_END_DATE, json) : null, user);
@@ -121,7 +121,7 @@ public class TaskManagementRestV2Controller extends BaseController implements Pa
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = { "/{id}" })
 	public ModelAndView getTask(@PathVariable(ID) String gooruOid, @RequestParam(value = DATA_OBJECT, required = false) String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		request.setAttribute(PREDICATE, "task.get_task");
+		request.setAttribute(PREDICATE, TASK_GET_TASK);
 		Task task = this.getTaskService().getTask(gooruOid);
 		String[] includeFields = null;
 		if (data != null && !data.isEmpty()) {
@@ -136,7 +136,7 @@ public class TaskManagementRestV2Controller extends BaseController implements Pa
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TASK_MANAGEMENT_READ })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET)
-	public ModelAndView getTasks(@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "20") Integer limit, @RequestParam(value = "taskId", required = false) String taksGooruOid, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset,
+	public ModelAndView getTasks(@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "20") Integer limit, @RequestParam(value = TASK_ID , required = false) String taksGooruOid, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset,
 			@RequestParam(value = SKIP_PAGINATION, required = false, defaultValue = FALSE) Boolean skipPagination, @RequestParam(value = CLASSPAGE_ID, required = false) String classpageId, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
 		return toModelAndViewWithIoFilter(this.getTaskService().getTasks(limit, offset, user, skipPagination, taksGooruOid, classpageId), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, COLLECTION_TASK_INCLUDES);
@@ -278,7 +278,7 @@ public class TaskManagementRestV2Controller extends BaseController implements Pa
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.POST, value = { "/{id}/associate" })
 	public ModelAndView createTaskAssoc(@PathVariable(ID) String taskId, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		request.setAttribute(PREDICATE, "task.create_task_assoc");
+		request.setAttribute(PREDICATE, TASK_CREATE_TASK_ASSOC);
 		User user = (User) request.getAttribute(Constants.USER);
 		JSONObject json = requestData(data);
 		ActionResponseDTO<TaskAssoc> responseDTO = getTaskService().createTaskAssoc(this.buildTaskAssocFromInputParameters(getValue(TASK_ASSOC, json)), taskId, user);
@@ -302,7 +302,7 @@ public class TaskManagementRestV2Controller extends BaseController implements Pa
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = { "/{id}/associate" })
 	public ModelAndView getAssociatedTasks(@PathVariable(ID) String taskUid, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		request.setAttribute(PREDICATE, "task.get_task_assoc");
+		request.setAttribute(PREDICATE, TASK_GET_TASK_ASSOC);
 		TaskAssoc taskAssoc = this.getTaskService().getTaskAssoc(taskUid);
 		String[] includeFields = null;
 		if (data != null && !data.isEmpty()) {
@@ -328,7 +328,7 @@ public class TaskManagementRestV2Controller extends BaseController implements Pa
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = { "/{id}/taskhistory" })
 	public ModelAndView getTaskHistory(@PathVariable(ID) String taskUid, @RequestParam(value = DATA_OBJECT, required = false) String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		request.setAttribute(PREDICATE, "task.get_task_history");
+		request.setAttribute(PREDICATE, TASK_GET_TASK_HISTORY);
 		List<TaskHistoryItem> taskHistoryItems = this.getTaskService().getTaskHistory(taskUid);
 		String[] includeFields = null;
 		if (data != null && !data.isEmpty()) {

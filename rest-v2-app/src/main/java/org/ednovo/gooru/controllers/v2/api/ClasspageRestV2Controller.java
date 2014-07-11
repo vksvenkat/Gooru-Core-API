@@ -174,7 +174,8 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
 	public void deleteClasspage(@PathVariable(value = ID) String classpageId, HttpServletRequest request, HttpServletResponse response) {
-		getClasspageService().deleteClasspage(classpageId);
+		User user = (User) request.getAttribute(Constants.USER);
+		getClasspageService().deleteClasspage(classpageId,user);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ITEM_ADD })
@@ -231,8 +232,6 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 			if (newCollectionItem.getStatus() != null) {
 				getClasspageService().updateAssignment(collectionItemId, newCollectionItem.getStatus(), user);
 			}
-			SessionContextSupport.putLogParameter(EVENT_NAME, "classpage-item-update");
-			SessionContextSupport.putLogParameter(COLLECTION_ITEM_ID, collectionItemId);
 		}
 		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, COLLECTION_ITEM_INCLUDE_FILEDS);
 		includes = (String[]) ArrayUtils.addAll(includes, CLASSPAGE_COLLECTION_ITEM_INCLUDE_FIELDS);
@@ -370,10 +369,6 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 		ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().reorderCollectionItem(collectionItemId, newSequence);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-		} else {
-			
-			SessionContextSupport.putLogParameter(EVENT_NAME, "scollection-item-re-order");
-			SessionContextSupport.putLogParameter(COLLECTION_ITEM_ID, responseDTO.getModel().getCollectionItemId());
 		}
 		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, COLLECTION_INCLUDE_FIELDS);
 		includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_ITEM_INCLUDE_FILEDS);

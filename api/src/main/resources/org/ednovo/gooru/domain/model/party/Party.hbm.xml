@@ -38,6 +38,10 @@
 		<property name="lastModifiedUserUid" column="last_modified_by_uid"
 			not-null="false" />
 		<property name="userUid" column="created_by_uid" not-null="false" />
+		
+		<property name="displayName" column="display_name" not-null="false" />
+		
+		<property name="isPartner" column="is_partner" not-null="false" />
 
 		<joined-subclass name="org.ednovo.gooru.core.api.model.UserGroup"
 			table="user_group" lazy="true">
