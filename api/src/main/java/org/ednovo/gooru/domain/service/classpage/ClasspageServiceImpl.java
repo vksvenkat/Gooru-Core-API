@@ -260,19 +260,23 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 
 	@Override
-	public void deleteClasspage(String classpageId) {
+	public void deleteClasspage(String classpageId, User user) {
 		Classpage classpage = this.getClasspage(classpageId, null, null);
 		if (classpage != null) {
-			UserGroup userGroup = this.getUserGroupService().findUserGroupByGroupCode(classpage.getClasspageCode());
-			if(userGroup != null){
-				this.getUserRepository().remove(userGroup);
+			if(isOwnerOrContentAdmin(classpage.getUser(), user)){
+				UserGroup userGroup = this.getUserGroupService().findUserGroupByGroupCode(classpage.getClasspageCode());
+				if(userGroup != null){
+					this.getUserRepository().remove(userGroup);
+				}
+				try {
+					getEventLogs(classpage, classpage.getUser(), userGroup, false, true);
+				} catch(Exception e){
+					e.printStackTrace();
+				}
+				this.getCollectionRepository().remove(Classpage.class, classpage.getContentId());
+			} else {
+				throw new UnauthorizedException("user don't have permission ");
 			}
-			try {
-				getEventLogs(classpage, classpage.getUser(), userGroup, false, true);
-			} catch(Exception e){
-				e.printStackTrace();
-			}
-			this.getCollectionRepository().remove(Classpage.class, classpage.getContentId());
 		} else {
 			throw new NotFoundException(generateErrorMessage(GL0056, CLASSPAGE));
 		}
