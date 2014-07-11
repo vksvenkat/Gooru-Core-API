@@ -43,7 +43,7 @@ public interface ConstantProperties {
 
 	static final String CLASSPAGE_INCLUDE_FIELDS[] = { "*.narrationLink", "collection.notes", "*.keyPoints", "*.language", "*.goals", "*.grade", "*.estimatedTime", "*.collectionType", "*.creator", "*.assetURI", "*.license", "*.license.code", "*.license.icon", "*.license.name",
 			"*.license.definition", "*.dimensions", "*.defaultImage", "*.createdOn", "*.user", "*.usernameDisplay", "*.profileImageUrl", "*.lastName", "*.firstName", "*.username", "*.description", "*.folder", "*.gooruOid", "*.sharing", "*.title", "*.views", "*.thumbnails", "*.url",
-			"*.lastModified", "*.gooruUId", "*.vocabulary", "*.collaborators", "*.network", "*.assignmentContentId", "*.trackActivity", "*.trackActivity.startTime", "*.trackActivity.endTime", "*.classpageCode","*.itemCount" };
+			"*.lastModified", "*.gooruUId", "*.vocabulary", "*.collaborators", "*.network", "*.assignmentContentId", "*.trackActivity", "*.trackActivity.startTime", "*.trackActivity.endTime", "*.classpageCode","*.itemCount","*.memberCount" };
 
 	static final String CLASSPAGE_ITEM_INCLUDE_FIELDS[] = { "*.collectionItems", "*.collectionItemId", "*.itemSequence", "*.itemType", "*.narration", "*.narrationType", "*.lastModified", "*.start", "*.stop", "*.standards", "*.license", "*.standards.code", "*.standards.description",
 			"*.classpageCode", "*.totalHitCount", "*.searchResults" };
