@@ -615,7 +615,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	public void deleteCollection(String collectionId, User user) {
 		Collection collection = this.getCollectionByGooruOid(collectionId, null);
 		if (collection != null) {
-			
 			if(isOwnerOrContentAdmin(collection.getUser(), user)){
 				try {
 					revisionHistoryService.createVersion(collection, SCOLLECTION_DELETE);
@@ -847,28 +846,33 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	public void deleteCollectionItem(String collectionItemId, User user) {
 		CollectionItem collectionItem = this.getCollectionRepository().getCollectionItemById(collectionItemId);
 		if (collectionItem != null) {
-			try {
-				getEventLogs(collectionItem, user, collectionItem.getCollection().getCollectionType());
-			} catch (JSONException e1) {
-				e1.printStackTrace();
-			}
-			Collection collection = collectionItem.getCollection();
-			this.getCollectionRepository().remove(CollectionItem.class, collectionItem.getCollectionItemId());
-
-			collectionItem.getCollection().setLastUpdatedUserUid(user.getPartyUid());
-			collectionItem.getCollection().setLastModified(new Date(System.currentTimeMillis()));
-			collectionItem.getCollection().setItemCount((collectionItem.getCollection().getItemCount() == null || (collectionItem.getCollection().getItemCount() != null && collectionItem.getCollection().getItemCount() == 0)) ? 0 : collectionItem.getCollection().getItemCount() - 1);
-			reOrderCollectionItems(collection, collectionItemId);
-			try {
-				if (collectionItem.getResource().getResourceType() != null && collectionItem.getResource().getResourceType().getName().equalsIgnoreCase(ResourceType.Type.SCOLLECTION.getType())) {
-					indexProcessor.index(collectionItem.getResource().getGooruOid(), IndexProcessor.DELETE, SCOLLECTION);
-				} else {
-					indexProcessor.index(collectionItem.getResource().getGooruOid(), IndexProcessor.INDEX, RESOURCE);
+			if(isOwnerOrContentAdmin(collectionItem.getResource().getUser(), user)){
+				try {
+					getEventLogs(collectionItem, user, collectionItem.getCollection().getCollectionType());
+				} catch (JSONException e1) {
+					e1.printStackTrace();
 				}
-				indexProcessor.index(collectionItem.getCollection().getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
-			} catch (Exception e) {
-				logger.debug(e.getMessage());
+				Collection collection = collectionItem.getCollection();
+				this.getCollectionRepository().remove(CollectionItem.class, collectionItem.getCollectionItemId());
+
+				collectionItem.getCollection().setLastUpdatedUserUid(user.getPartyUid());
+				collectionItem.getCollection().setLastModified(new Date(System.currentTimeMillis()));
+				collectionItem.getCollection().setItemCount((collectionItem.getCollection().getItemCount() == null || (collectionItem.getCollection().getItemCount() != null && collectionItem.getCollection().getItemCount() == 0)) ? 0 : collectionItem.getCollection().getItemCount() - 1);
+				reOrderCollectionItems(collection, collectionItemId);
+				try {
+					if (collectionItem.getResource().getResourceType() != null && collectionItem.getResource().getResourceType().getName().equalsIgnoreCase(ResourceType.Type.SCOLLECTION.getType())) {
+						indexProcessor.index(collectionItem.getResource().getGooruOid(), IndexProcessor.DELETE, SCOLLECTION);
+					} else {
+						indexProcessor.index(collectionItem.getResource().getGooruOid(), IndexProcessor.INDEX, RESOURCE);
+					}
+					indexProcessor.index(collectionItem.getCollection().getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
+				} catch (Exception e) {
+					logger.debug(e.getMessage());
+				}
+			} else {
+				throw new UnauthorizedException("user don't have permission ");
 			}
+			
 		} else {
 			throw new NotFoundException(generateErrorMessage(GL0056, _COLLECTION_ITEM));
 
