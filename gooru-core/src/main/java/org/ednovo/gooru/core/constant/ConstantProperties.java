@@ -472,4 +472,187 @@ public interface ConstantProperties {
 	
 	public static String SAUSD = "sausd";
 
+	public static String USER_CHECK_USERNAMEOREMAILID_AVAILABILITY = "user.check.usernameOremailid.availability";
+
+	public static String USER_FORGET_PASSWORD="user.forgot_password";
+	
+	public static String USER_DELETE_USER="user.delete_user";
+	
+    public static String USER_DELETE_PROFILE_PICTURE="user.delete_profile_picture";
+    
+    public static String CHECK_CONTENT_PERMISSION="check-content-permission";
+    
+    public static String TOKEN_NOT_FOUND="token not found";
+    
+    public static String WELCOME="WELCOME";
+    
+    public static String PROFILE_ACTION="profile.action";
+   
+    public static String VISIT_UID="visitorUId";
+    
+    public static String VISIT="visit";
+   
+    public static String REGISTER_TYPE="register.type";
+   
+     public static String FOLLOWING="following";
+    
+    public static String FOLLOWERS="followers";
+   
+    public static String CUSTOM_FIELDS="customFields";
+    
+    public static String PAY_LOAD_OBJECT="payLoadObject";
+    
+    public static String ORGANIZATION_UID="organizationUId";
+    
+    public static String USER_SWITCH_SESSION="user.switch-session";
+    
+    public static String USER_AUTHENTICATE="user-authenticate";
+    
+    public static String APPS="Apps";    
+    
+    public static String CLASSPAGE_ITEM_UPDATE="classpage-item-update";
+    
+    public static String CLASS_CODE="classCode";
+    
+    public static String MEMBER_COUNT="memberCount";
+    
+    public static String ITEM_COLLABORATE="item.collaborate";
+    
+    public static String SOURCE_GOORU_UID="sourceGooruId";
+    
+    public static String TARGET_GOORU_UID="targetGooruId";
+    
+    public static String TARGET_ITEM_ID="targetItemId";
+    
+    public static String COLLABORATED_ID="collaboratedId";
+    
+    public static String CREATE_POST="create-post";
+    
+    public static String UPDATE_POST= "update-post";
+    
+    public static String POST_ID="postId";
+    
+    public static String ASSOCIATION_DATE="associationDate";
+    
+    public static String INVITED_USER_GOORU_UID="InvitedUserGooruUId";
+    
+    public static String PARENT_CONTENT_ID="parentContentId";
+    
+    public static String CLASSPAGE_USER_ADD="classpage.user.add";
+    
+    public static String COLLECTION_RESOURCE="collection.resource";
+    
+    public static String FOLDER_COLLECTION="folder.collection";
+    
+    public static String SHELF_COLLECTION="shelf.collection";
+    
+    public static String CLASSPAGE_COLLECTION="classpage.collection";
+    
+    public static String CLASSPAGE_USER_REMOVE= "classpage.user.remove";
+    
+    public static String REMOVE_GOORU_UID="removedGooruUId";
+    
+    public static String ITEM_CREATE="item.create";
+    
+    public static String COLLECTION_ALL="collection.all";
+    
+    public static String PARTY_CUSTOMFIELD="Party customfield";
+    
+    public static String PARTY="party";
+    
+    public static String QUESTION_UPDATE="question-update";
+    
+    public static String DISPLAY_ORDER="displayOrder";
+    
+    public static String ENTRY_ID="entryId";
+    
+    public static String INDEX_ID="indexId";
+    
+    public static String INDEX_TYPE="indexType";
+    
+    public static String COMMON_CORE_DOT_NOTATION="commonCoreDotNotation";
+    
+    public static String TAXONOMY_MAPPING_SET="taxonomyMappingSet";
+    
+    public static String LIBRARY_COLLECTION="libraryCollection";
+    
+    public static String FEATURE_SETID="featuredSetId";
+    
+    public static String RECORD_SOURCE="recordSource";
+    
+    public static String COMMENT_COUNT="commentCount";
+    
+   public static String TASK_CREATE_TASK="task.create_task";
+   
+   public static String TASK_UPDATE_TASK="task.update_task";
+   
+   public static String TASK_GET_TASK="task.get_task";
+   
+   public static String TASK_GET_TASK_ASSOC="task.get_task_assoc";
+   
+   public static String TASK_CREATE_TASK_ASSOC="task.create_task_assoc";
+   
+   public static String TASK_GET_TASK_HISTORY="task.get_task_history";
+   
+   public static String LIBRARY_CODE_JSON="library-code-json";
+   
+   public static String CURRICULAM_CODE_JSON="curriculum-code-json";
+   
+    public static String DEPTH_OF_KNOWLEDGE = "depth_of_knowledge";
+	
+	public static String LEARNING_AND_INNOVATION_SKILLS = "learning_and_innovation_skills";
+
+	public static String AUDIENCE = "audience";
+
+	public static String  INSTRUCTIONAL_METHOD = "instructional_method";
+
+	public static String NOT_DELETED = "notdeleted";
+	
+	public static String COMMENTCOUNT = "commentCount";
+
+	public static String CONTENT_META_ASSOCIATION_TYPE = "content_meta_association_type_";
+	
+	public static String INVALID_COLLABORATOR = "Invalid Collaborator";
+	
+	public static String V2_ORGANIZE_DATA = "v2-organize-data-";
+
+	public static String CONTENT_ASSOCIATION_TYPE = "content_association_type";
+ 
+	public static String MOMENTS_OF_LEARNING = "moments_of_learning";
+	
+    public static String INSTRUCTIONAL = "instructional";
+
+    public static String RESOURCE_NOT_FOUND = "Resource Not Found";
+
+    public static String COLLECTION_CREATE = "collection.create";
+    
+    public static String  ITEM_ID = " ItemId";
+    
+    public static String  CONTENT_ITEM_ID = "contentItemId";
+
+    public static String  PARENT_ITEM_ID = "parentItemId";
+
+    public static String  ITEM_DATA = "ItemData";
+    
+    public static String  ITEM_DELETE = "item.delete";
+    
+    public static String ITEM_EDIT = "item.edit";
+    
+    public static String CONTENTID = "contentId";
+    
+    public static String COMMENT_TEXT = "commentText";
+    
+    public static String REQUEST_PATH = "request path";
+    
+    public static String PERMISSION  = "permission denied";
+    
+    public static String NOT_FOUND = "not found";
+    
+    public static String ASSOCIATEDU_ID = "associatedUid";
+
+    public static String SEARCH_PROFILE = "search.profile";
+
+    public static String SETTING_VERSION = "setting.version";
+   
+    
 }

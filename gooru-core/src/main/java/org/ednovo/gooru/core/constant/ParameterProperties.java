@@ -1301,6 +1301,8 @@ public interface ParameterProperties {
 	String ASSESSMENT_ANSWER = "assessmentAnswer";
 
 	String MODE = "mode";
+	
+	String CREATE = "create";
 
 	String SHELF_UID = "shelfUid";
 

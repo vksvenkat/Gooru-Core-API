@@ -578,7 +578,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 				SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
 				dateOfBirth = dateFormat.format(profile.getDateOfBirth());
 			}
-			if (user.getAccountTypeId() != null && type.equalsIgnoreCase("welcome")) {
+			if (user.getAccountTypeId() != null && type.equalsIgnoreCase(WELCOME)) {
 				if (user.getAccountTypeId().equals(UserAccountType.ACCOUNT_CHILD)) {
 					CustomTableValue gradeType = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.USER_CLASSIFICATION_TYPE.getTable(), CustomProperties.UserClassificationType.GRADE.getUserClassificationType());
 					String userGrade = this.getUserRepository().getUserGrade(user.getGooruUId(), gradeType.getCustomTableValueId(), null);
@@ -1463,14 +1463,14 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	
 	private Map<String, Object> setUserObj(User user) {
 		Map<String, Object> userObj = new HashMap<String, Object>();
-		userObj.put("username",user.getUsername());
-		userObj.put("gooruUid",user.getGooruUId());
-		userObj.put("firstName",user.getFirstName());
-		userObj.put("lastName",user.getLastName());
-		userObj.put("profileImageUrl", buildUserProfileImageUrl(user));
-		userObj.put("emailId", user.getIdentities() != null ? user.getIdentities().iterator().next().getExternalId() : null);
-		userObj.put("summary", getUserSummary(user.getPartyUid()));
-		userObj.put("customFields", user.getCustomFields());
+		userObj.put( USER_NAME,user.getUsername());
+		userObj.put(GOORU_UID,user.getGooruUId());
+		userObj.put(FIRST_NAME,user.getFirstName());
+		userObj.put(LAST_NAME,user.getLastName());
+		userObj.put(PROFILE_IMG_URL, buildUserProfileImageUrl(user));
+		userObj.put(EMAIL_ID, user.getIdentities() != null ? user.getIdentities().iterator().next().getExternalId() : null);
+		userObj.put(SUMMARY, getUserSummary(user.getPartyUid()));
+		userObj.put(CUSTOM_FIELDS, user.getCustomFields());
 		return userObj;
 	}
 	
@@ -1500,7 +1500,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			meta.put(FEATURED_USER, Boolean.parseBoolean(partyCustomFieldFeatured.getOptionalValue()));
 		}
 		meta.put(USER_TAX_PREFERENCE, taxonomy);
-		meta.put("summary", getUserSummary(user.getPartyUid()));
+		meta.put(SUMMARY, getUserSummary(user.getPartyUid()));
 		return meta;
 	}
 
@@ -1513,10 +1513,10 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	public Map<String, Object> getUserSummary(String gooruUid) {
 		UserSummary userSummary = this.getUserRepository().getSummaryByUid(gooruUid);
 		Map<String, Object>  summary = new HashMap<String, Object>();
-		summary.put("collection", userSummary.getCollections() != null ? userSummary.getCollections() : 0 );
-		summary.put("tags", userSummary.getTag() != null ? userSummary.getTag() : 0 );
-		summary.put("following", userSummary.getFollowing() != null ? userSummary.getFollowing() : 0 );
-		summary.put("followers", userSummary.getFollowers() != null ? userSummary.getFollowers() : 0 );
+		summary.put(COLLECTION, userSummary.getCollections() != null ? userSummary.getCollections() : 0 );
+		summary.put(TAGS, userSummary.getTag() != null ? userSummary.getTag() : 0 );
+		summary.put(FOLLOWING, userSummary.getFollowing() != null ? userSummary.getFollowing() : 0 );
+		summary.put(FOLLOWERS, userSummary.getFollowers() != null ? userSummary.getFollowers() : 0 );
 		return summary;
 	}
 	
@@ -1571,44 +1571,47 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	}
 	
 	public void getEventLogs(boolean updateProfile, boolean visitProfile, User profileVisitor, JSONObject itemData) throws JSONException { 
-		SessionContextSupport.putLogParameter(EVENT_NAME, "profile.action");
-		JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session").toString()) :  new JSONObject();
-		SessionContextSupport.putLogParameter("session", session.toString());
-		JSONObject user = SessionContextSupport.getLog().get("user") != null ? new JSONObject(SessionContextSupport.getLog().get("user").toString()) :  new JSONObject();
-		SessionContextSupport.putLogParameter("user", user.toString());
-		JSONObject context = SessionContextSupport.getLog().get("context") != null ? new JSONObject(SessionContextSupport.getLog().get("context").toString()) :  new JSONObject();
+		SessionContextSupport.putLogParameter(EVENT_NAME, PROFILE_ACTION);
+		JSONObject session = SessionContextSupport.getLog().get(SESSION) != null ? new JSONObject(SessionContextSupport.getLog().get(SESSION).toString()) :  new JSONObject();
+		SessionContextSupport.putLogParameter(SESSION, session.toString());
+		JSONObject user = SessionContextSupport.getLog().get(USER) != null ? new JSONObject(SessionContextSupport.getLog().get(USER).toString()) :  new JSONObject();
+		SessionContextSupport.putLogParameter(USER, user.toString());
+		JSONObject context = SessionContextSupport.getLog().get(CONTEXT) != null ? new JSONObject(SessionContextSupport.getLog().get(CONTEXT).toString()) :  new JSONObject();
+
 		if(updateProfile){
 			context.put("url", "/profile/edit");
 		} else if(visitProfile){
 			context.put("url", "/profile/visit");
 		}
-		SessionContextSupport.putLogParameter("context", context.toString());
-		JSONObject payLoadObject = SessionContextSupport.getLog().get("payLoadObject") != null ? new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString()) :  new JSONObject();
+		SessionContextSupport.putLogParameter(CONTEXT, context.toString());
+		JSONObject payLoadObject = SessionContextSupport.getLog().get(PAY_LOAD_OBJECT) != null ? new JSONObject(SessionContextSupport.getLog().get(PAY_LOAD_OBJECT).toString()) :  new JSONObject();
 		if(updateProfile){
-			payLoadObject.put("actionType", "edit");
+			payLoadObject.put(ACTION_TYPE, EDIT);
 		} else if(visitProfile){
-			payLoadObject.put("actionType", "visit");
-			payLoadObject.put("VisitorUId", profileVisitor != null ? profileVisitor.getPartyUid() : null);
+			payLoadObject.put(ACTION_TYPE, VISIT);
+			payLoadObject.put(VISIT_UID, profileVisitor != null ? profileVisitor.getPartyUid() : null);
 		}
 		if(itemData != null){
 			payLoadObject.put("itemData", itemData.toString());
+
 		}
-		SessionContextSupport.putLogParameter("payLoadObject", payLoadObject.toString());
+		SessionContextSupport.putLogParameter(PAY_LOAD_OBJECT, payLoadObject.toString());
 	}
 
 	public void getEventLogs(User newUser, String source, Identity newIdentity) throws JSONException {
-		SessionContextSupport.putLogParameter(EVENT_NAME, "user.register");
-		JSONObject context = SessionContextSupport.getLog().get("context") != null ? new JSONObject(SessionContextSupport.getLog().get("context").toString()) :  new JSONObject();
+		SessionContextSupport.putLogParameter(EVENT_NAME, USER_REG);
+		JSONObject context = SessionContextSupport.getLog().get(CONTEXT) != null ? new JSONObject(SessionContextSupport.getLog().get(CONTEXT).toString()) :  new JSONObject();
 		if(source != null && source.equalsIgnoreCase(UserAccountType.accountCreatedType.GOOGLE_APP.getType())) {
-			context.put("registerType", accountCreatedType.GOOGLE_APP.getType());			
+			context.put(REGISTER_TYPE, accountCreatedType.GOOGLE_APP.getType());			
 		}else if (source != null && source.equalsIgnoreCase(UserAccountType.accountCreatedType.SSO.getType())) {
-			context.put("registerType", accountCreatedType.SSO.getType());
+			context.put( REGISTER_TYPE, accountCreatedType.SSO.getType());
 		}else {
-			context.put("registerType", "Gooru");
+			context.put( REGISTER_TYPE, GOORU);
 		}
-		SessionContextSupport.putLogParameter("context", context.toString());
-		JSONObject payLoadObject = SessionContextSupport.getLog().get("payLoadObject") != null ? new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString()) :  new JSONObject();
+		SessionContextSupport.putLogParameter(CONTEXT, context.toString());
+		JSONObject payLoadObject = SessionContextSupport.getLog().get(PAY_LOAD_OBJECT) != null ? new JSONObject(SessionContextSupport.getLog().get(PAY_LOAD_OBJECT).toString()) :  new JSONObject();
 		if (newIdentity != null && newIdentity.getIdp() != null) {
+
 			payLoadObject.put(IDP_NAME, newIdentity.getIdp().getName());
 		} else {
 			payLoadObject.put(IDP_NAME, GOORU_API);
@@ -1618,13 +1621,14 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			Identity identity = iter.next();
 			payLoadObject.put(CREATED_TYPE, identity != null ? identity.getAccountCreatedType() : null);
 		}
-		SessionContextSupport.putLogParameter("payLoadObject", payLoadObject.toString());
-		JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session").toString()) :  new JSONObject();
-		session.put("organizationUId", newUser != null ? newUser.getOrganizationUid() : null);
-		SessionContextSupport.putLogParameter("session", session.toString());	
-		JSONObject user = SessionContextSupport.getLog().get("user") != null ? new JSONObject(SessionContextSupport.getLog().get("user").toString()) :  new JSONObject();
-		user.put("gooruUId", newUser != null ? newUser.getPartyUid() : null);
-		SessionContextSupport.putLogParameter("user", user.toString());
+		SessionContextSupport.putLogParameter(PAY_LOAD_OBJECT, payLoadObject.toString());
+		JSONObject session = SessionContextSupport.getLog().get(SESSION) != null ? new JSONObject(SessionContextSupport.getLog().get(SESSION).toString()) :  new JSONObject();
+		session.put(ORGANIZATION_UID, newUser != null ? newUser.getOrganizationUid() : null);
+		SessionContextSupport.putLogParameter(SESSION, session.toString());	
+		JSONObject user = SessionContextSupport.getLog().get(USER) != null ? new JSONObject(SessionContextSupport.getLog().get(USER).toString()) :  new JSONObject();
+		user.put(GOORU_UID, newUser != null ? newUser.getPartyUid() : null);
+		SessionContextSupport.putLogParameter(USER, user.toString());
+
 	}
 
 	

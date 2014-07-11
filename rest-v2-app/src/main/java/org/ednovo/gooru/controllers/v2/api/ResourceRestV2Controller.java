@@ -97,11 +97,6 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 		String[] includeFields = getValue(FIELDS, json) != null ? getFields(getValue(FIELDS, json)) : null;
 		String includes[] = (String[]) ArrayUtils.addAll(includeFields == null ? RESOURCE_INCLUDE_FIELDS : includeFields, ERROR_INCLUDE);
 
-		SessionContextSupport.putLogParameter(EVENT_NAME, "resource-update");
-		SessionContextSupport.putLogParameter(GOORU_OID, resourceId);
-		SessionContextSupport.putLogParameter(USER_ID, user.getUserId());
-		SessionContextSupport.putLogParameter(GOORU_UID, user.getPartyUid());
-
 		return toModelAndViewWithIoFilter(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, includes);
 	}
 

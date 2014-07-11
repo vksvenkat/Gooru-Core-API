@@ -52,6 +52,6 @@ public interface PartyRepository extends BaseRepository {
 	
 	boolean isUserBirthDayMailSentToday(String userId, String date);
 	
-	List<Map<Object, Object>> getPartyDetails(String optionalKey, String optionalValue);
+	List<Map<Object, Object>> getPartyDetails();
 	
 }
