@@ -480,7 +480,6 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 	@Override
 	public FeaturedSet saveOrUpdateFeaturedSet(Integer featuredSetId, String name, Boolean activeFlag, Integer sequence, String themeCode) {
 		FeaturedSet featuredSet = null;
-		Code code = null;
 		if (featuredSetId != null) {
 			featuredSet = this.getFeaturedRepository().getFeaturedSetById(featuredSetId);
 		} else if (name != null && themeCode != null) {
@@ -491,7 +490,6 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 		}
 		if (name != null) {
 			featuredSet.setName(name);
-			code = this.getContentRepository().getCodeByName(name);
 		}
 
 		if (activeFlag != null) {
