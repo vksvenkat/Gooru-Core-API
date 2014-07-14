@@ -2464,12 +2464,12 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 	
 	public void deleteBulkCollections(List<String> gooruOids){
-		List<Collection> Collections = collectionRepository.getCollectionListByIds(gooruOids);
+		List<Collection> collections = collectionRepository.getCollectionListByIds(gooruOids);
 		String removeContentIds = "";
-		for (Collection collection : Collections) {
+		for (Collection collection : collections) {
 			removeContentIds += collection.getGooruOid();
 		}
-		this.collectionRepository.removeAll(Collections);
+		this.collectionRepository.removeAll(collections);
 		indexProcessor.index(removeContentIds, IndexProcessor.DELETE, SCOLLECTION);
 	}
 	
