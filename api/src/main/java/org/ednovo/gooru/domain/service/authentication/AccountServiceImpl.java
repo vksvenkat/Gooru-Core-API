@@ -417,7 +417,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 		session.put(SESSIONTOKEN, userToken.getToken());
 		SessionContextSupport.putLogParameter(SESSION, session.toString());
 		JSONObject user = SessionContextSupport.getLog().get(USER) != null ? new JSONObject(SessionContextSupport.getLog().get(USER).toString()) : new JSONObject();
-		user.put(_GOORU_UID, identity != null && identity.getUser() != null ? identity.getUser().getPartyUid() : null );
+		user.put(GOORU_UID, identity != null && identity.getUser() != null ? identity.getUser().getPartyUid() : null );
 		SessionContextSupport.putLogParameter(USER, user.toString());
 	}
 	
