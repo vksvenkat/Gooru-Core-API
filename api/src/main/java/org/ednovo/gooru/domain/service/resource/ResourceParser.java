@@ -37,11 +37,9 @@ import org.apache.tika.sax.BodyContentHandler;
 import org.xml.sax.ContentHandler;
 
 public class ResourceParser {
-	private Tika tika;
 	private Parser parser;
 
 	public void setTika(Tika tika) {
-		this.tika = tika;
 		this.parser = tika.getParser();
 	}
 

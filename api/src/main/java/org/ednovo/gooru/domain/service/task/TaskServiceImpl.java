@@ -152,27 +152,21 @@ public class TaskServiceImpl extends BaseServiceImpl implements TaskService, Par
 
 		Errors errors = this.updateTaskValidation(task, plannedEndDate);
 		if (!errors.hasErrors()) {
-			boolean isTaskChanged = false;
 
 			if (newTask.getTitle() != null) {
 				task.setTitle(newTask.getTitle());
-				isTaskChanged = true;
 			}
 			if (newTask.getDescription() != null) {
 				task.setDescription(newTask.getDescription());
-				isTaskChanged = true;
 			}
 			if (newTask.getStatus() != null) {
 				task.setStatus(newTask.getStatus());
-				isTaskChanged = true;
 			}
 			if (newTask.getEstimatedEffort() != null) {
 				task.setEstimatedEffort(newTask.getEstimatedEffort());
-				isTaskChanged = true;
 			}
 			if (plannedEndDate != null) {
 				task.setPlannedEndDate(plannedEndDate);
-				isTaskChanged = true;
 			}
 			task.setLastUpdatedUserUid(user.getUserUid());
 			boolean addToTaskHistory = false;
