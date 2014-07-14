@@ -25,8 +25,6 @@ package org.ednovo.gooru.security;
 
 import java.util.List;
 
-import org.ednovo.gooru.core.api.model.ContentPermission;
-import org.ednovo.gooru.core.api.model.ContextDTO;
 import org.ednovo.gooru.core.api.model.RoleEntityOperation;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.User;
