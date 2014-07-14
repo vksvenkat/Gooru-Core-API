@@ -138,4 +138,6 @@ public interface ScollectionService extends BaseService {
 	void getEventLogs(CollectionItem collectionItem, boolean isCreate, boolean isAdd, User user, String collectionType) throws JSONException;
 	
 	void getEventLogs(CollectionItem collectionItem, User user, String collectionType) throws JSONException;
+	
+	void deleteBulkCollections(List<String> gooruOids);
 }
