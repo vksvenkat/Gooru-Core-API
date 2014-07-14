@@ -1568,7 +1568,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		colletionType.put(LESSON, COLLECTION_TYPE);
 		colletionType.put(SHELF, COLLECTION_TYPE);
 		colletionType.put(COLLECTION, COLLECTION_TYPE);
-		colletionType.put(EBOOK, COLLECTION_TYPE);
+		colletionType.put(QUIZ, COLLECTION_TYPE);
 		colletionType.put(FOLDER, COLLECTION_TYPE);
 		colletionType.put(ASSIGNMENT, COLLECTION_TYPE);
 		final Errors errors = new BindException(collection, COLLECTION);
@@ -1955,6 +1955,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		
 		try {
 			if(destCollection != null){
+				indexProcessor.index(destCollection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
 				getEventLogs(destCollection, null, user, false, false);
 			}
 		} catch(Exception e){
