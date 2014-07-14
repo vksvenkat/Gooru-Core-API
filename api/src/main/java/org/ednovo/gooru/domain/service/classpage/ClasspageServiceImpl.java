@@ -71,6 +71,7 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.InviteRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.party.UserGroupRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.storage.StorageRepository;
+import org.ednovo.gooru.security.OperationAuthorizer;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -117,6 +118,9 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 
 	@Autowired
 	private StorageRepository storageRepository;
+	
+	@Autowired
+	private OperationAuthorizer operationAuthorizer;
 
 	@Override
 	public ActionResponseDTO<Classpage> createClasspage(Classpage classpage, boolean addToUserClasspage, String assignmentId) throws Exception {
@@ -263,7 +267,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	public void deleteClasspage(String classpageId, User user) {
 		Classpage classpage = this.getClasspage(classpageId, null, null);
 		if (classpage != null) {
-			if(isOwnerOrContentAdmin(classpage.getUser(), user)){
+			if(this.getOperationAuthorizer().hasUnrestrictedContentAccess(classpageId, user)){
 				UserGroup userGroup = this.getUserGroupService().findUserGroupByGroupCode(classpage.getClasspageCode());
 				if(userGroup != null){
 					this.getUserRepository().remove(userGroup);
@@ -772,6 +776,14 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 
 	public UserManagementService getUserManagementService() {
 		return userManagementService;
+	}
+
+	public OperationAuthorizer getOperationAuthorizer() {
+		return operationAuthorizer;
+	}
+
+	public void setOperationAuthorizer(OperationAuthorizer operationAuthorizer) {
+		this.operationAuthorizer = operationAuthorizer;
 	}
 
 	public void setCollectionService(CollectionService collectionService) {

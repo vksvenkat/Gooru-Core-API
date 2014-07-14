@@ -2689,4 +2689,10 @@ public interface ParameterProperties {
 	String OPTIMIZE = "optimize";
 	
 	String ANYONE_WITH_LINK = "anyonewithlink";
+	
+	String GOOGLE_ACCESS_TOKEN = "google_access_token";       
+	
+	String GOOGLE_REFRESH_TOKEN = "google_refresh_token";
+	
+	String REFRESH_TOKEN = "refresh_token";
 }

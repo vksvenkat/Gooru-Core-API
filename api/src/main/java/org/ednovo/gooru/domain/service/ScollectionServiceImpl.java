@@ -95,6 +95,7 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.resource.ResourceRe
 import org.ednovo.gooru.infrastructure.persistence.hibernate.taxonomy.TaxonomyRespository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.taxonomy.TaxonomyStoredProcedure;
 import org.ednovo.gooru.json.serializer.util.JsonSerializer;
+import org.ednovo.gooru.security.OperationAuthorizer;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -195,6 +196,9 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 	@Autowired
 	private UserRepository userRepository;
+	
+	@Autowired
+	private OperationAuthorizer operationAuthorizer;
 
 	Logger logger = LoggerFactory.getLogger(ScollectionServiceImpl.class);
 
@@ -615,7 +619,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	public void deleteCollection(String collectionId, User user) {
 		Collection collection = this.getCollectionByGooruOid(collectionId, null);
 		if (collection != null) {
-			if(isOwnerOrContentAdmin(collection.getUser(), user)){
+			if(this.getOperationAuthorizer().hasUnrestrictedContentAccess(collectionId, user)){
 				try {
 					revisionHistoryService.createVersion(collection, SCOLLECTION_DELETE);
 				} catch (Exception ex) {
@@ -666,16 +670,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 	}
 	
-	public Boolean isOwnerOrContentAdmin(User resourceOwner, User user){
-		Boolean isUserPermission = false;
-		if(user != null && userService.isContentAdmin(user)){
-			isUserPermission = true;
-		} else if(resourceOwner != null && resourceOwner.equals(user)){
-			isUserPermission = true;
-		}
-		return isUserPermission;
-	}
-
 	@Override
 	public List<Collection> getCollections(Map<String, String> filters, User user) {
 		return this.getCollectionRepository().getCollections(filters, user);
@@ -845,8 +839,8 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	@Override
 	public void deleteCollectionItem(String collectionItemId, User user) {
 		CollectionItem collectionItem = this.getCollectionRepository().getCollectionItemById(collectionItemId);
-		if (collectionItem != null) {
-			if(isOwnerOrContentAdmin(collectionItem.getResource().getUser(), user)){
+		if (collectionItem != null && collectionItem.getResource() != null) {
+			if(this.getOperationAuthorizer().hasUnrestrictedContentAccess(collectionItem.getResource().getGooruOid(), user)){
 				try {
 					getEventLogs(collectionItem, user, collectionItem.getCollection().getCollectionType());
 				} catch (JSONException e1) {
@@ -2484,6 +2478,15 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		SessionContextSupport.putLogParameter("session", session.toString());
 	}
 	
+	public void deleteBulkCollections(List<String> gooruOids){
+		List<Collection> collections = collectionRepository.getCollectionListByIds(gooruOids);
+		String removeContentIds = "";
+		for (Collection collection : collections) {
+			removeContentIds += collection.getGooruOid();
+		}
+		this.collectionRepository.removeAll(collections);
+		indexProcessor.index(removeContentIds, IndexProcessor.DELETE, SCOLLECTION);
+	}
 	
 
 	public ResourceCassandraService getResourceCassandraService() {
@@ -2540,6 +2543,14 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 	public FeedbackService getFeedbackService() {
 		return feedbackService;
+	}
+
+	public OperationAuthorizer getOperationAuthorizer() {
+		return operationAuthorizer;
+	}
+
+	public void setOperationAuthorizer(OperationAuthorizer operationAuthorizer) {
+		this.operationAuthorizer = operationAuthorizer;
 	}
 
 	public AsyncExecutor getAsyncExecutor() {
