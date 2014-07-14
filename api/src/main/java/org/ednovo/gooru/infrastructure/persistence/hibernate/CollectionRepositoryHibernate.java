@@ -688,11 +688,15 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 	}
 	
 	@Override
-	public Long getClasspageCollectionCount(String classpageGooruOid, String status, String userUid) {
+	public Long getClasspageCollectionCount(String classpageGooruOid, String status, String userUid, String orderBy) {
 		String sql = "select count(1) as count from collection_item ci inner join resource r on r.content_id = ci.resource_content_id  inner join content c on c.content_id = r.content_id inner join content rc on rc.content_id = ci.collection_content_id left join collection co on co.content_id = r.content_id left join user_collection_item_assoc uc on uc.collection_item_uid = ci.collection_item_id and uc.user_uid = '" + userUid + "' left join custom_table_value ct on ct.custom_table_value_id = uc.status inner join user uu on uu.gooru_uid = c.user_uid  where  c.sharing in ('public', 'anyonewithlink') ";
 		sql += " and rc.gooru_oid='" + classpageGooruOid + "'  ";
 		if (status != null) { 
 			sql += " and IFNULL(ct.value, 'open') = '"+ status+ "' ";
+		}
+		if (orderBy != null &&  (orderBy.equalsIgnoreCase(DUE_DATE) || orderBy.equalsIgnoreCase(DUE_DATE_EARLIEST))) { 
+			sql += " and ci.planned_end_date IS NOT NULL ";
+			
 		}
 		Query query = getSession().createSQLQuery(sql).addScalar("count", StandardBasicTypes.LONG);
 		return (Long) query.list().get(0);
