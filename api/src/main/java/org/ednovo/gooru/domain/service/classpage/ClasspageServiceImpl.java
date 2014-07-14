@@ -71,6 +71,7 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.InviteRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.party.UserGroupRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.storage.StorageRepository;
+import org.ednovo.gooru.security.OperationAuthorizer;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -117,6 +118,9 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 
 	@Autowired
 	private StorageRepository storageRepository;
+	
+	@Autowired
+	private OperationAuthorizer operationAuthorizer;
 
 	@Override
 	public ActionResponseDTO<Classpage> createClasspage(Classpage classpage, boolean addToUserClasspage, String assignmentId) throws Exception {
@@ -260,19 +264,23 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 
 	@Override
-	public void deleteClasspage(String classpageId) {
+	public void deleteClasspage(String classpageId, User user) {
 		Classpage classpage = this.getClasspage(classpageId, null, null);
 		if (classpage != null) {
-			UserGroup userGroup = this.getUserGroupService().findUserGroupByGroupCode(classpage.getClasspageCode());
-			if(userGroup != null){
-				this.getUserRepository().remove(userGroup);
+			if(this.getOperationAuthorizer().hasUnrestrictedContentAccess(classpageId, user)){
+				UserGroup userGroup = this.getUserGroupService().findUserGroupByGroupCode(classpage.getClasspageCode());
+				if(userGroup != null){
+					this.getUserRepository().remove(userGroup);
+				}
+				try {
+					getEventLogs(classpage, classpage.getUser(), userGroup, false, true);
+				} catch(Exception e){
+					e.printStackTrace();
+				}
+				this.getCollectionRepository().remove(Classpage.class, classpage.getContentId());
+			} else {
+				throw new UnauthorizedException("user don't have permission ");
 			}
-			try {
-				getEventLogs(classpage, classpage.getUser(), userGroup, false, true);
-			} catch(Exception e){
-				e.printStackTrace();
-			}
-			this.getCollectionRepository().remove(Classpage.class, classpage.getContentId());
 		} else {
 			throw new NotFoundException(generateErrorMessage(GL0056, CLASSPAGE));
 		}
@@ -325,6 +333,8 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 				permissions.put(PERMISSIONS, this.getContentService().getContentPermission(collectionId, user));
 			}
 			permissions.put(STATUS, status);
+			long member = this.getUserGroupRepository().getUserGroupAssociationCount(classpage.getClasspageCode());
+			permissions.put(MEMBER_COUNT, member);
 			classpage.setMeta(permissions);
 		}
 		return classpage;
@@ -766,6 +776,14 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 
 	public UserManagementService getUserManagementService() {
 		return userManagementService;
+	}
+
+	public OperationAuthorizer getOperationAuthorizer() {
+		return operationAuthorizer;
+	}
+
+	public void setOperationAuthorizer(OperationAuthorizer operationAuthorizer) {
+		this.operationAuthorizer = operationAuthorizer;
 	}
 
 	public void setCollectionService(CollectionService collectionService) {
