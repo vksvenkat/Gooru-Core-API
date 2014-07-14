@@ -512,6 +512,14 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 		return toModelAndViewWithIoFilter(getCollectionService().updateCollectionForReject(collection, user), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, COLLECTION_INCLUDE_FIELDS);
 	}
 	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_DELETE})
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(method = RequestMethod.DELETE, value = "/bulk")
+	public void deleteBulkCollections(@RequestParam String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		this.getCollectionService().deleteBulkCollections(JsonDeserializer.deserialize(data, new TypeReference<List<String>>() {
+		}));
+	}
+	
 	private  List<Map<String,String>>  buildUpdatesPublishStatusFromInputParameters(String data) {
 		return JsonDeserializer.deserialize(data, new TypeReference<List<Map<String,String>>>() {});
 	}
