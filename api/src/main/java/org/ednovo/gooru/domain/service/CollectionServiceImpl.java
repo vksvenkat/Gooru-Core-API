@@ -97,7 +97,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		question.setSharing(collection.getSharing());
 		ActionResponseDTO<AssessmentQuestion> responseDTO = assessmentService.createQuestion(question, true);
 		if (responseDTO.getModel() != null) {
-			response = this.createCollectionItem(responseDTO.getModel(), collection, user);
+			response = this.createCollectionItem(responseDTO.getModel(), collection,null,null,user);
 			if (mediaFileName != null && mediaFileName.length() > 0) {
 				String questionImage = this.assessmentService.updateQuizQuestionImage(responseDTO.getModel().getGooruOid(), mediaFileName, question, ASSET_QUESTION);
 				if (questionImage != null && questionImage.length() > 0) {
