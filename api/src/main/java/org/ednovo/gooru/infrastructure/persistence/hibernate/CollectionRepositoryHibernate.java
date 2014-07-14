@@ -946,10 +946,10 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		}  else if (orderBy != null &&  orderBy.equalsIgnoreCase(SEQUENCE_DESC)) { 
 			sql += " order by ci.item_sequence desc ";
 		}  else  if (orderBy != null &&  orderBy.equalsIgnoreCase(DUE_DATE)) { 
-			sql += "order by IFNULL(ci.planned_end_date, (SUBSTRING(now(), 1, 4) + 1000)) asc ";
+			sql += " and ci.planned_end_date IS NOT NULL order by ci.planned_end_date asc ";
 			
 		} else  if (orderBy != null &&  orderBy.equalsIgnoreCase(DUE_DATE_EARLIEST)) { 
-			sql += "order by ci.planned_end_date desc";
+			sql += " and ci.planned_end_date IS NOT NULL order by ci.planned_end_date desc";
 			
 		} else { 
 			sql += " order by ci.item_sequence asc ";
