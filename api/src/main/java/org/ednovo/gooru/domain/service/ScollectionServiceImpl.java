@@ -863,6 +863,9 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				} catch (Exception e) {
 					logger.debug(e.getMessage());
 				}
+				if(collectionItem.getResource().getSharing().equals(Sharing.PRIVATE.getSharing())){
+					this.getResourceService().deleteResource(null, collectionItem.getResource().getGooruOid(), user);
+				}
 			} else {
 				throw new UnauthorizedException("user don't have permission ");
 			}
