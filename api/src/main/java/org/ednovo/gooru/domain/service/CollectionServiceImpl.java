@@ -330,6 +330,9 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				if (object[14] != null) {
 					collection.put("performanceTasks", object[14]);
 				}
+				if (object[15] != null) {
+					collection.put("collectionType", object[15]);
+				}
 				count++;
 				folderList.add(collection);
 			}
@@ -418,6 +421,10 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				if (object[14] != null) {
 					item.put("performanceTasks", object[14]);
 				}
+				if (object[18] != null) {
+					item.put("collectionType", object[18]);
+				}
+				
 				items.add(item);
 			}
 
@@ -477,6 +484,9 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				}
 				if (object[14] != null) {
 					item.put("performanceTasks", object[14]);
+				}
+				if (object[18] != null) {
+					item.put("collectionType", object[18]);
 				}
 				items.add(item);
 			}

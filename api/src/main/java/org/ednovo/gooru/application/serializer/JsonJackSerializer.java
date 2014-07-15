@@ -101,13 +101,6 @@ public class JsonJackSerializer {
 		}
 		return mapper.writer(getFilterProviderInstance());
 	}
-	
-	public static void getFilter(FilterSetting setting , String filterString, boolean include) {
-		String[] excludeParams = filterString.split(",");
-		for(String param : excludeParams) {
-			String[] paramFields = param.split(".");
-		}
-	}
 
 	/**
 	 * Serializes the <code>Object</code> into json <code>String</code>. The

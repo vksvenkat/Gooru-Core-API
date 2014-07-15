@@ -42,7 +42,6 @@ import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.CollectionType;
 import org.ednovo.gooru.core.api.model.ContentType;
 import org.ednovo.gooru.core.api.model.ResourceType;
-import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.application.util.BaseUtil;
@@ -174,7 +173,8 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
 	public void deleteClasspage(@PathVariable(value = ID) String classpageId, HttpServletRequest request, HttpServletResponse response) {
-		getClasspageService().deleteClasspage(classpageId);
+		User user = (User) request.getAttribute(Constants.USER);
+		getClasspageService().deleteClasspage(classpageId,user);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ITEM_ADD })
@@ -275,7 +275,7 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 		String responseJson = null;
 		SearchResults<Map<String, Object>> result = new SearchResults<Map<String, Object>>();
 		result.setSearchResults(collectionItems);
-		result.setTotalHitCount(this.getCollectionRepository().getClasspageCollectionCount(classpageId, status, user.getPartyUid()));
+		result.setTotalHitCount(this.getCollectionRepository().getClasspageCollectionCount(classpageId, status, user.getPartyUid(), orderBy));
 		responseJson = serialize(result, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, true, includes);
 		return toModelAndView(responseJson);
 	}

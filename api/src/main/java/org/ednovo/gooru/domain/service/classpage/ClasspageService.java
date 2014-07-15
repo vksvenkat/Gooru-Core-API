@@ -52,7 +52,7 @@ public interface ClasspageService {
 
 	Classpage getClasspage(String classpageCode, User user) throws Exception;
 	
-	void deleteClasspage(String classpageId);
+	void deleteClasspage(String classpageId, User user);
 
 	ActionResponseDTO<Classpage> createClasspage(Classpage newclasspage, User user, boolean addToUserClasspage, String assignmentId) throws Exception;
 

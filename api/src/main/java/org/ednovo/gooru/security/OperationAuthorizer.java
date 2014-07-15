@@ -34,6 +34,7 @@ import org.ednovo.gooru.core.constant.GooruOperationConstants;
 import org.ednovo.gooru.core.security.AuthorizeOperations;
 import org.ednovo.gooru.domain.service.BaseServiceImpl;
 import org.ednovo.gooru.domain.service.user.UserService;
+import org.ednovo.gooru.domain.service.v2.ContentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -42,6 +43,9 @@ public class OperationAuthorizer  extends BaseServiceImpl {
 
 	@Autowired
 	private UserService userService;
+	
+	@Autowired
+	private ContentService contentService;
 
 	public boolean hasAuthorization(AuthorizeOperations authorizeOperations) {
 		if (hasAuthority(authorizeOperations)) {
@@ -94,6 +98,19 @@ public class OperationAuthorizer  extends BaseServiceImpl {
 			}
 		}
 		return false;
+	}
+	
+	public Boolean hasUnrestrictedContentAccess(String gooruOid, User user){
+		Boolean isUserPermission = false;
+		List<String> contentPermission = contentService.getContentPermission(gooruOid, user);
+		if(contentPermission != null && contentPermission.size() > 0){
+			for(String userPermission : contentPermission){
+				if(userPermission.equalsIgnoreCase("delete")){
+					isUserPermission = true;
+				}
+			}
+		}
+		return isUserPermission;
 	}
 
 	public boolean hasUnrestrictedContentAccess() {
