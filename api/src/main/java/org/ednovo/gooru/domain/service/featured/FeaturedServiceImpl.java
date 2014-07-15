@@ -274,11 +274,7 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 									collection.put(GOORU_OID, collectionObject[0]);
 									collection.put(TITLE, collectionObject[1]);
 									collection.put(COLLECTION_TYPE, collectionObject[2]);
-									if (collectionCount <= 1) {
-										collection = this.getCollectionService().getCollection(String.valueOf(collectionObject[0]), collection, rootNodeId);
-									}
-									collectionCount++;
-									collectionMap.add(collection);
+									collectionMap.add(this.getCollectionService().getCollection(String.valueOf(collectionObject[0]), collection, rootNodeId));
 								}
 								if (collectionMap != null && collectionMap.size() > 0) {
 									conceptMap.add(getCode(concept, collectionMap, COLLECTION, null, getOrganizationCode(libraryName), null, null, null));
@@ -386,7 +382,7 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 						collection.put(GOORU_OID, collectionObject[0]);
 						collection.put(TITLE, collectionObject[1]);
 						collection.put(COLLECTION_TYPE, collectionObject[2]);
-						collectionConceptMap.add(collection);
+						collectionConceptMap.add(this.getCollectionService().getCollection(String.valueOf(collectionObject[0]), collection, rootNodeId));
 					}
 					if (collectionMap != null && collectionMap.size() > 0) {
 						conceptMap.add(getCode(concept, collectionMap, COLLECTION, null, getOrganizationCode(libraryName), null, null, null));
@@ -642,11 +638,7 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 							collection.put(GOORU_OID, collectionObject[0]);
 							collection.put(TITLE, collectionObject[1]);
 							collection.put(COLLECTION_TYPE, collectionObject[2]);
-							if (collectionCount <= 1) {
-								collection = this.getCollectionService().getCollection(String.valueOf(collectionObject[0]), collection, rootNodeId);
-							}
-							collectionCount++;
-							collectionMap.add(collection);
+							collectionMap.add(this.getCollectionService().getCollection(String.valueOf(collectionObject[0]), collection, rootNodeId));
 						}
 						if (collectionMap != null && collectionMap.size() > 0) {
 							conceptMap.add(getCode(concept, collectionMap, COLLECTION, null, getOrganizationCode(libraryName), null, null, null));
