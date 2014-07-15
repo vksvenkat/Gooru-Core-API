@@ -234,7 +234,7 @@ public class FeaturedRepositoryHibernate extends BaseRepositoryHibernate impleme
 	
 	@Override
 	public List<Object[]> getLibraryCollection(String codeId, String featuredSetId, Integer limit, Integer offset, Boolean skipPagination, String contentId) {
-		String sql = "select gooru_oid, r.title   from featured_set_items fi inner join resource r on r.content_id = fi.content_id inner join content cc on cc.content_id = r.content_id where  fi.featured_set_id=:featuredSetId ";
+		String sql = "select gooru_oid, r.title, co.collection_type   from featured_set_items fi inner join resource r on r.content_id = fi.content_id inner join content cc on cc.content_id = r.content_id inner join collection co on co.content_id = r.content_id  where  fi.featured_set_id=:featuredSetId ";
 		if (codeId != null) {
 			sql += " and fi.code_id =:codeId ";
 		}
