@@ -184,6 +184,6 @@ public interface ConfigConstants {
  
     String CALLBACK_URI = "google.callback.uri";
     
-
+    String OAUTH_CALLBACK_URI = "google.oauth.callback";
 
 }
