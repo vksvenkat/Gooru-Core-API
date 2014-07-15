@@ -1550,7 +1550,6 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		String resourceUrl = resourceParam.get(RESOURCE_URL) != null ? resourceParam.get(RESOURCE_URL).toString().trim() : "";
 		String category = resourceParam.get(CATEGORY) != null ? resourceParam.get(CATEGORY).toString().trim() : null;
 		boolean uploadedResource = !(resourceTypeName.equals(ResourceType.Type.VIDEO.getType()) || resourceTypeName.equals(ResourceType.Type.RESOURCE.getType()));
-		boolean isUpdateTextbook = false;
 		boolean reusedResource = (resourceParam.get(REUSED_RESOURCE_ID) != null);
 		byte[] data = null;
 		FileMeta fileMeta = null;
@@ -1580,7 +1579,6 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 							textbook.setDocumentKey("");
 							resourceRepository.save(textbook);
 						}
-						isUpdateTextbook = true;
 					}
 				}
 			}
@@ -2276,7 +2274,6 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 					List<Resource> resources = resourceRepository.findAllResourceBySourceId(resourceSourceId);
 					resourceSource.setIsBlacklisted(1);
 					String sharingType = null;
-					String contentIds = "";
 					String gooruOids = "";
 					int count = 0;
 					if (resources != null && resources.size() <= 5000) {
@@ -2287,10 +2284,8 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 							}
 							resource.setBatchId(DEL_FROM_SEARCH_INDEX);
 							if (count > 0) {
-								contentIds += ",";
 								gooruOids += ",";
 							}
-							contentIds += resource.getContentId();
 							gooruOids += resource.getGooruOid();
 							count++;
 						}
@@ -2904,9 +2899,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		}
 		if (collaboratorId != null) {
 			List<String> collaboratorsList = Arrays.asList(collaboratorId.split("\\s*,\\s*"));
-			for (User collaborator : getUserService().findByIdentities(collaboratorsList)) {
-				return collectionUtil.updateNewCollaborator(content, collaboratorsList, user, COLLECTION_COLLABORATE, collaboratorOperation);
-			}
+			return collectionUtil.updateNewCollaborator(content, collaboratorsList, user, COLLECTION_COLLABORATE, collaboratorOperation);
 		}
 
 		return null;
