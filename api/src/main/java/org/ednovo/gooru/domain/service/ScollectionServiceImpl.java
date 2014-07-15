@@ -267,7 +267,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			} catch (Exception e) {
 				logger.debug(e.getMessage());
 			}
-			this.redisService.bulkKeyDelete("v2-organize-data-" + collection.getUser().getPartyUid() + "*");
+			getAsyncExecutor().deleteFromCache("v2-organize-data-" + collection.getUser().getPartyUid() + "*");
 			
 		}
 		
@@ -351,7 +351,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			Collection parentCollection = collectionRepository.getCollectionByGooruOid(parentId, collection.getUser().getGooruUId());
 			if (parentCollection != null) {
 				collection.setCollectionItem(this.createCollectionItem(collection.getGooruOid(), parentCollection.getGooruOid(), new CollectionItem(), collection.getUser(), CollectionType.FOLDER.getCollectionType(), false).getModel());
-				this.redisService.bulkKeyDelete("v2-organize-data-" + parentCollection.getUser().getPartyUid() + "*");
+				getAsyncExecutor().deleteFromCache("v2-organize-data-" + parentCollection.getUser().getPartyUid() + "*");
 			}
 
 			try {
@@ -370,7 +370,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			}
 			getAsyncExecutor().createVersion(collection, SCOLLECTION_CREATE, user.getPartyUid());
 			
-			this.redisService.bulkKeyDelete("v2-organize-data-" + collection.getUser().getPartyUid() + "*");
+			getAsyncExecutor().deleteFromCache("v2-organize-data-" + collection.getUser().getPartyUid() + "*");
 			try {
 				getEventLogs(collection.getCollectionItem(), true, false, user, collection.getCollectionItem().getCollection().getCollectionType());
 			} catch(Exception e){
@@ -583,7 +583,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				logger.debug(e.getMessage());
 			}
 		}
-		this.redisService.bulkKeyDelete("v2-organize-data-" + collection.getUser().getPartyUid() + "*");
+		getAsyncExecutor().deleteFromCache("v2-organize-data-" + collection.getUser().getPartyUid() + "*");
 		return new ActionResponseDTO<Collection>(collection, errors);
 	}
 
@@ -637,7 +637,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				for (CollectionItem item : collectionItems) {
 					this.deleteCollectionItem(item.getCollectionItemId(), user);
 					if (item.getAssociatedUser() != null && !item.getAssociatedUser().getPartyUid().equals(user.getPartyUid())) {
-						this.redisService.bulkKeyDelete("v2-organize-data-" + item.getAssociatedUser().getPartyUid() + "*");
+						getAsyncExecutor().deleteFromCache("v2-organize-data-" + item.getAssociatedUser().getPartyUid() + "*");
 					}
 				}
 				if (collection != null && collection.getUser() != null && collection.getSharing().equalsIgnoreCase(PUBLIC)) {
@@ -659,7 +659,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				throw new UnauthorizedException("user don't have permission ");
 			}
 			
-		this.redisService.bulkKeyDelete("v2-organize-data-" + user.getPartyUid() + "*");
+		getAsyncExecutor().deleteFromCache("v2-organize-data-" + user.getPartyUid() + "*");
 
 	}
 	
@@ -714,7 +714,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			for (String parentFolder : parenFolders) {
 				updateFolderSharing(parentFolder);
 			}
-			this.redisService.bulkKeyDelete("v2-organize-data-" + collectionItem.getCollection().getUser().getPartyUid() + "*");
+			getAsyncExecutor().deleteFromCache("v2-organize-data-" + collectionItem.getCollection().getUser().getPartyUid() + "*");
 		}
 
 		return new ActionResponseDTO<CollectionItem>(collectionItem, errors);
@@ -802,7 +802,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 					indexProcessor.index(collectionItem.getResource().getGooruOid(), IndexProcessor.INDEX, RESOURCE);
 				}
 				indexProcessor.index(collectionItem.getCollection().getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
-				this.redisService.bulkKeyDelete("v2-organize-data-" + collectionItem.getCollection().getUser().getPartyUid() + "*");
+				getAsyncExecutor().deleteFromCache("v2-organize-data-" + collectionItem.getCollection().getUser().getPartyUid() + "*");
 			} catch (Exception e) {
 				logger.debug(e.getMessage());
 			}
@@ -1325,7 +1325,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		} catch (Exception e) {
 			logger.debug(e.getMessage());
 		}
-		this.redisService.bulkKeyDelete("v2-organize-data-" + collection.getUser().getPartyUid() + "*");
+		getAsyncExecutor().deleteFromCache("v2-organize-data-" + collection.getUser().getPartyUid() + "*");
 		try {
 			getEventLogs(collection, jsonItemdata, apiCallerUser, false, true);
 		} catch(Exception e){
@@ -1391,7 +1391,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		this.redisService.bulkKeyDelete("v2-organize-data-" + collectionItem.getCollection().getUser().getPartyUid() + "*");
+		getAsyncExecutor().deleteFromCache("v2-organize-data-" + collectionItem.getCollection().getUser().getPartyUid() + "*");
 		
 		try {
 			getEventLogs(collectionItem, jsonItemdata, apiCaller);
@@ -1814,7 +1814,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			} catch (Exception e) {
 				logger.debug(e.getMessage());
 			}
-			this.redisService.bulkKeyDelete("v2-organize-data-" + collection.getUser().getPartyUid() + "*");
+			getAsyncExecutor().deleteFromCache("v2-organize-data-" + collection.getUser().getPartyUid() + "*");
 		}
 		
 		try{
@@ -1928,7 +1928,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			}
 		}
 		this.getCollectionRepository().save(destCollection);
-		this.redisService.bulkKeyDelete("v2-organize-data-" + destCollection.getUser().getPartyUid() + "*");
+		getAsyncExecutor().deleteFromCache("v2-organize-data-" + destCollection.getUser().getPartyUid() + "*");
 		
 		try {
 			if(destCollection != null){
@@ -2058,7 +2058,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			} else {
 				throw new NotFoundException("collection does not exist in the system, required collection to map the resource");
 			}
-			this.redisService.bulkKeyDelete("v2-organize-data-" + response.getModel().getCollection().getUser().getPartyUid() + "*");
+			getAsyncExecutor().deleteFromCache("v2-organize-data-" + response.getModel().getCollection().getUser().getPartyUid() + "*");
 		}
 		try{
 			getEventLogs(response.getModel(), true, false, user, response.getModel().getCollection().getCollectionType() );
@@ -2154,7 +2154,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			collectionItem.setResource(resource);
 			this.getCollectionRepository().save(collectionItem);
 			collectionItem.setStandards(this.getStandards(resource.getTaxonomySet(), false, null));
-			this.redisService.bulkKeyDelete("v2-organize-data-" + collectionItem.getCollection().getUser().getPartyUid() + "*");
+			getAsyncExecutor().deleteFromCache("v2-organize-data-" + collectionItem.getCollection().getUser().getPartyUid() + "*");
 		}
 		try {
 			getEventLogs(collectionItem, ItemData, user);
@@ -2176,7 +2176,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		collectionItem.getCollection().setItemCount(sequence);
 		Errors errors = validateCollectionItem(collection, resource, collectionItem);
 		this.getResourceRepository().save(collectionItem);
-		this.redisService.bulkKeyDelete("v2-organize-data-" + collectionItem.getCollection().getUser().getPartyUid() + "*");
+		getAsyncExecutor().deleteFromCache("v2-organize-data-" + collectionItem.getCollection().getUser().getPartyUid() + "*");
 		return new ActionResponseDTO<CollectionItem>(collectionItem, errors);
 	}
 

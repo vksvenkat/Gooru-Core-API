@@ -659,6 +659,10 @@ public class CollectionUtil implements ParameterProperties {
 			this.redisService.bulkKeyDelete("v2-organize-data-" + collection.getUser().getPartyUid() + "*");
 		}
 	}
+	
+	public void deleteFromCache(String key) { 
+		this.redisService.bulkKeyDelete(key);
+	}
 
 	public RedisService getRedisService() {
 		return redisService;
