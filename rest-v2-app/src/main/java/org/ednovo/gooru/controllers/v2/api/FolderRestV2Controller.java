@@ -47,10 +47,7 @@ import org.ednovo.gooru.core.constant.GooruOperationConstants;
 import org.ednovo.gooru.core.security.AuthorizeOperations;
 import org.ednovo.gooru.domain.service.CollectionService;
 import org.ednovo.gooru.domain.service.redis.RedisService;
-import org.ednovo.gooru.domain.service.resource.ResourceService;
-import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepository;
-import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentRepository;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,17 +69,8 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 	private CollectionService collectionService;
 
 	@Autowired
-	private BaseRepository baseRepository;
-
-	@Autowired
 	private CollectionRepository collectionRepository;
 	
-	@Autowired
-	private ContentRepository contentRepository;
-
-	@Autowired
-	private ResourceService resourceService;
-
 	@Autowired
 	private RedisService redisService;
 
@@ -273,16 +261,8 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 		return collectionItem;
 	}
 
-	public BaseRepository getBaseRepository() {
-		return baseRepository;
-	}
-
 	public CollectionService getCollectionService() {
 		return collectionService;
-	}
-
-	public ResourceService getResourceService() {
-		return resourceService;
 	}
 
 	public CollectionRepository getCollectionRepository() {
@@ -291,10 +271,6 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 
 	public RedisService getRedisService() {
 		return redisService;
-	}
-
-	public ContentRepository getContentRepository() {
-		return contentRepository;
 	}
 
 }
