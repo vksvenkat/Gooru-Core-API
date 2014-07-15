@@ -863,6 +863,9 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				} catch (Exception e) {
 					logger.debug(e.getMessage());
 				}
+				if(collectionItem.getResource().getSharing().equals(Sharing.PRIVATE.getSharing())){
+					this.getResourceService().deleteResource(null, collectionItem.getResource().getGooruOid(), user);
+				}
 			} else {
 				throw new UnauthorizedException("user don't have permission ");
 			}
@@ -1934,7 +1937,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			if (addToShelf) {
 				CollectionItem collectionItem = new CollectionItem();
 				collectionItem.setItemType(ShelfType.AddedType.SUBSCRIBED.getAddedType());
-				Collection myCollection = createMyShelfCollection(null, user, null, new CollectionItem());
+				Collection myCollection = createMyShelfCollection(null, user,  CollectionType.SHElf.getCollectionType(), collectionItem);
 				collectionItem.setCollection(myCollection);
 				collectionItem.setResource(destCollection);
 				int sequence = myCollection.getCollectionItems() != null ? myCollection.getCollectionItems().size() + 1 : 1;

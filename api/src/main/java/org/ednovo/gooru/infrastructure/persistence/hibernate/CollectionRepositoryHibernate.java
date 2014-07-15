@@ -34,6 +34,7 @@ import org.ednovo.gooru.core.api.model.CollectionType;
 import org.ednovo.gooru.core.api.model.ContentMetaAssociation;
 import org.ednovo.gooru.core.api.model.Quiz;
 import org.ednovo.gooru.core.api.model.Resource;
+import org.ednovo.gooru.core.api.model.ResourceType;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserCollectionItemAssoc;
 import org.ednovo.gooru.core.constant.ConstantProperties;
@@ -71,7 +72,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 
 		hql += " WHERE " + generateOrgAuthQuery("collection.");
 		if (filters != null && filters.get(Constants.FETCH_TYPE) != null && filters.get(Constants.FETCH_TYPE).equalsIgnoreCase("my") && user != null) {
-			hql += " and collection.collectionType = '" + CollectionType.COLLECTION.getCollectionType() + "' and collection.user.partyUid = '" + user.getGooruUId() + "'";
+			hql += " and collection.resourceType.name = '" + ResourceType.Type.SCOLLECTION.getType() + "' and collection.user.partyUid = '" + user.getGooruUId() + "'";
 		}
 
 		if (filters.containsKey("standards") && filters.get("standards") != null) {
@@ -249,7 +250,8 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 			sql += " and collectionItem.associatedUser.partyUid=:gooruUid";
 		}
 		if (collectionType != null) {
-			sql += " and collectionItem.collection.collectionType=:collectionType";
+			collectionType = collectionType.equalsIgnoreCase(COLLECTION) ? SCOLLECTION : collectionType;
+			sql += " and collectionItem.collection.resourceType.name=:collectionType";
 		}
 		Query query = getSession().createQuery(sql);
 		query.setParameter("resourceGooruOid", resourceGooruOid);
@@ -352,7 +354,8 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 
 		String type = "";
 		if (filters != null && filters.containsKey(Constants.FETCH_TYPE)) {
-			type = " collection.collectionType = '" + filters.get(Constants.FETCH_TYPE) + "' and ";
+			String fetchType = filters.get(Constants.FETCH_TYPE).equalsIgnoreCase(COLLECTION) ? SCOLLECTION : filters.get(Constants.FETCH_TYPE);
+			type = " collection.resourceType.name = '" + fetchType + "' and ";
 		}
 
 		String sharingType = "";
@@ -392,7 +395,8 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		Integer startAt = (offset != null) ? Integer.parseInt(offset) : OFFSET;
 		Integer pageSize = (limit != null) ? Integer.parseInt(limit) : LIMIT;
 		if (type != null && !type.equalsIgnoreCase("all")) {
-			type = " collection.collectionType = '" + type + "' and ";
+			type = type.equalsIgnoreCase(COLLECTION) ? SCOLLECTION : type;
+			type = " collection.resourceType.name = '" + type + "' and ";
 		} else {
 			type = " ";
 		}
@@ -512,18 +516,14 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 
 	@Override
 	public List<Collection> getMyCollection(Integer limit, Integer offset, String orderBy, String fetchType, String filterName, boolean skipPagination, User user) {
-
-		if (orderBy != null && orderBy.length() > 0) {
-			orderBy = orderBy;
-		}
-
 		if (orderBy.length() == 0 || (!orderBy.equalsIgnoreCase("asc") && !orderBy.equalsIgnoreCase("desc"))) {
 			orderBy = "desc";
 		}
 
 		String type = "";
 		if (fetchType != null && fetchType.length() > 0) {
-			type = " collection.collectionType = '" + fetchType + "' and ";
+			fetchType = fetchType.equalsIgnoreCase(COLLECTION) ? SCOLLECTION : fetchType;
+			type = " collection.resourceType.name = '" + fetchType + "' and ";
 		}
 
 		String resourceType = "";
@@ -576,7 +576,8 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		String type = "";
 
 		if (filters != null && filters.containsKey(Constants.FETCH_TYPE)) {
-			type = " collection.collectionType = '" + filters.get(Constants.FETCH_TYPE) + "' and ";
+			String fetchType = filters.get(Constants.FETCH_TYPE).equalsIgnoreCase(COLLECTION) ? SCOLLECTION : filters.get(Constants.FETCH_TYPE);
+			type = " collection.resourceType.name = '" + fetchType + "' and ";
 		}
 
 		if (filters != null && filters.containsKey(SHARING)) {
@@ -688,11 +689,15 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 	}
 	
 	@Override
-	public Long getClasspageCollectionCount(String classpageGooruOid, String status, String userUid) {
+	public Long getClasspageCollectionCount(String classpageGooruOid, String status, String userUid, String orderBy) {
 		String sql = "select count(1) as count from collection_item ci inner join resource r on r.content_id = ci.resource_content_id  inner join content c on c.content_id = r.content_id inner join content rc on rc.content_id = ci.collection_content_id left join collection co on co.content_id = r.content_id left join user_collection_item_assoc uc on uc.collection_item_uid = ci.collection_item_id and uc.user_uid = '" + userUid + "' left join custom_table_value ct on ct.custom_table_value_id = uc.status inner join user uu on uu.gooru_uid = c.user_uid  where  c.sharing in ('public', 'anyonewithlink') ";
 		sql += " and rc.gooru_oid='" + classpageGooruOid + "'  ";
 		if (status != null) { 
 			sql += " and IFNULL(ct.value, 'open') = '"+ status+ "' ";
+		}
+		if (orderBy != null &&  (orderBy.equalsIgnoreCase(DUE_DATE) || orderBy.equalsIgnoreCase(DUE_DATE_EARLIEST))) { 
+			sql += " and ci.planned_end_date IS NOT NULL ";
+			
 		}
 		Query query = getSession().createSQLQuery(sql).addScalar("count", StandardBasicTypes.LONG);
 		return (Long) query.list().get(0);
@@ -742,6 +747,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		String sql = "select re.title, cr.gooru_oid, re.type_name, re.folder, re.thumbnail, cr.sharing, ci.collection_item_id, co.goals, ct.value, ct.display_name, rs.attribution, rs.domain_name , co.ideas, co.questions,co.performance_tasks, co.collection_type from  resource r inner join collection c on c.content_id = r.content_id inner join content cc on cc.content_id =  c.content_id inner join collection_item ci on ci.collection_content_id = c.content_id inner join resource re on re.content_id = ci.resource_content_id inner join content cr on  cr.content_id = re.content_id inner join organization o  on  o.organization_uid = cr.organization_uid  left join collection co on co.content_id = re.content_id left join custom_table_value ct on ct.custom_table_value_id = r.resource_format_id left join resource_source rs on rs.resource_source_id = r.resource_source_id  where c.collection_type = 'shelf' and  cr.sharing in ('" + sharing.replace(",", "','")+ "') "; 
 		sql += " and cc.user_uid = '" + gooruUid + "' ";
 		if (collectionType!= null)  {
+			collectionType = collectionType.equalsIgnoreCase(COLLECTION) ? SCOLLECTION : collectionType;
 			sql += " and re.type_name =:collectionType ";
 		}
 		if(fetchChildItem) {
@@ -762,6 +768,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		String sql = "select r.title, c.gooru_oid, r.type_name, r.folder, r.thumbnail, ct.value, ct.display_name, c.sharing, ci.collection_item_id, co.goals, rs.attribution, rs.domain_name, co.ideas, co.questions, co.performance_tasks, r.url ,rsummary.rating_star_avg, rsummary.rating_star_count, co.collection_type from collection_item ci inner join resource r on r.content_id = ci.resource_content_id  left join custom_table_value ct on ct.custom_table_value_id = r.resource_format_id inner join content c on c.content_id = r.content_id inner join content rc on rc.content_id = ci.collection_content_id left join collection co on co.content_id = r.content_id left join resource_source rs on rs.resource_source_id = r.resource_source_id left join resource_summary rsummary on   c.gooru_oid = rsummary.resource_gooru_oid where  c.sharing in ('"
 				+ sharing.replace(",", "','") + "') and rc.gooru_oid=:gooruOid  ";
 		if (collectionType != null) {
+			collectionType = collectionType.equalsIgnoreCase(COLLECTION) ? SCOLLECTION : collectionType;
 			sql += " and r.type_name =:collectionType ";
 		}
 		if(fetchChildItem) {
@@ -790,6 +797,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		String sql = "select count(1) as count from  resource r inner join collection c on c.content_id = r.content_id inner join content cc on cc.content_id =  c.content_id inner join collection_item ci on ci.collection_content_id = c.content_id inner join resource re on re.content_id = ci.resource_content_id inner join content cr on  cr.content_id = re.content_id inner join organization o  on  o.organization_uid = cr.organization_uid  where c.collection_type = 'shelf' and cr.sharing in ('" + sharing.replace(",", "','")+ "') and cc.user_uid=:gooruUid";
 
 		if (collectionType != null) {
+			collectionType = collectionType.equalsIgnoreCase(COLLECTION) ? SCOLLECTION : collectionType;
 			sql += " and re.type_name =:collectionType ";
 		}
 		Query query = getSession().createSQLQuery(sql).addScalar("count", StandardBasicTypes.LONG);
@@ -804,6 +812,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 	public Long getCollectionItemCount(String gooruOid, String sharing, String collectionType) {	
 		String sql = "select count(1) as count from collection_item ci inner join resource r on r.content_id = ci.resource_content_id  left join custom_table_value ct on ct.custom_table_value_id = r.resource_format_id inner join content c on c.content_id = r.content_id inner join content rc on rc.content_id = ci.collection_content_id where rc.gooru_oid=:gooruOid and c.sharing in ('" + sharing.replace(",", "','")+ "')";
 		if (collectionType != null) {
+			collectionType = collectionType.equalsIgnoreCase(COLLECTION) ? SCOLLECTION : collectionType;
 			sql += " and r.type_name =:collectionType ";
 		}
 		Query query = getSession().createSQLQuery(sql).addScalar("count", StandardBasicTypes.LONG);
@@ -946,10 +955,10 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		}  else if (orderBy != null &&  orderBy.equalsIgnoreCase(SEQUENCE_DESC)) { 
 			sql += " order by ci.item_sequence desc ";
 		}  else  if (orderBy != null &&  orderBy.equalsIgnoreCase(DUE_DATE)) { 
-			sql += "order by IFNULL(ci.planned_end_date, (SUBSTRING(now(), 1, 4) + 1000)) asc ";
+			sql += " and ci.planned_end_date IS NOT NULL order by ci.planned_end_date asc ";
 			
 		} else  if (orderBy != null &&  orderBy.equalsIgnoreCase(DUE_DATE_EARLIEST)) { 
-			sql += "order by ci.planned_end_date desc";
+			sql += " and ci.planned_end_date IS NOT NULL order by ci.planned_end_date desc";
 			
 		} else { 
 			sql += " order by ci.item_sequence asc ";
@@ -987,7 +996,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 	@Override
 	public Long getCollectionCount(String publishStatus) {
 		Session session = getSession();
-		String sql = "SELECT count(1) as count from  collection c left join custom_table_value ct on ct.custom_table_value_id = c.publish_status_id  where ct.value = '"+publishStatus+"' and c.collection_type= 'collection'";		
+		String sql = "SELECT count(1) as count from  collection c left join custom_table_value ct on ct.custom_table_value_id = c.publish_status_id  where ct.value = '"+publishStatus+"' and c.collection_type in ('collection', 'quiz')";		
 		Query query = session.createSQLQuery(sql).addScalar("count", StandardBasicTypes.LONG);	
 		return (Long) query.list().get(0);
 	}

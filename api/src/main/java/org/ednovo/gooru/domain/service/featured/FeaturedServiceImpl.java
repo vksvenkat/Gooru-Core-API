@@ -278,7 +278,8 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 									Map<String, Object> collection = new HashMap<String, Object>();
 									collection.put(GOORU_OID, collectionObject[0]);
 									collection.put(TITLE, collectionObject[1]);
-									if (collectionCount == 0) {
+									collection.put(COLLECTION_TYPE, collectionObject[2]);
+									if (collectionCount <= 1) {
 										collection = this.getCollectionService().getCollection(String.valueOf(collectionObject[0]), collection, rootNodeId);
 									}
 									collectionCount++;
@@ -389,6 +390,7 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 						Map<String, Object> collection = new HashMap<String, Object>();
 						collection.put(GOORU_OID, collectionObject[0]);
 						collection.put(TITLE, collectionObject[1]);
+						collection.put(COLLECTION_TYPE, collectionObject[2]);
 						collectionConceptMap.add(collection);
 					}
 					if (collectionMap != null && collectionMap.size() > 0) {
@@ -480,7 +482,6 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 	@Override
 	public FeaturedSet saveOrUpdateFeaturedSet(Integer featuredSetId, String name, Boolean activeFlag, Integer sequence, String themeCode) {
 		FeaturedSet featuredSet = null;
-		Code code = null;
 		if (featuredSetId != null) {
 			featuredSet = this.getFeaturedRepository().getFeaturedSetById(featuredSetId);
 		} else if (name != null && themeCode != null) {
@@ -491,7 +492,6 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 		}
 		if (name != null) {
 			featuredSet.setName(name);
-			code = this.getContentRepository().getCodeByName(name);
 		}
 
 		if (activeFlag != null) {
@@ -652,7 +652,8 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 							Map<String, Object> collection = new HashMap<String, Object>();
 							collection.put(GOORU_OID, collectionObject[0]);
 							collection.put(TITLE, collectionObject[1]);
-							if (collectionCount == 0) {
+							collection.put(COLLECTION_TYPE, collectionObject[2]);
+							if (collectionCount <= 1) {
 								collection = this.getCollectionService().getCollection(String.valueOf(collectionObject[0]), collection, rootNodeId);
 							}
 							collectionCount++;
@@ -751,6 +752,7 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 				Map<String, Object> collection = new HashMap<String, Object>();
 				collection.put(GOORU_OID, object[0]);
 				collection.put(TITLE, object[1]);
+				collection.put(COLLECTION_TYPE, object[2]);
 
 				collectionList.add(collection);
 			}
