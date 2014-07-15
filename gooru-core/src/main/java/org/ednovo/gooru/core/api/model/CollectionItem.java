@@ -212,12 +212,11 @@ public class CollectionItem implements Serializable, Comparable<CollectionItem> 
 	}
 
 	public Integer getTotalPages() {
-		return totalPages;
+		return (this.getResource() != null && this.getResource().getResourceInfo() != null) ? this.getResource().getResourceInfo().getNumOfPages() : null;
 	}
 
 	public void setTotalPages(Integer totalPages) {
-		this.totalPages = (this.getResource() != null && this.getResource().getResourceInfo() != null) ? this.getResource().getResourceInfo().getNumOfPages() : null;
-	}
-	
+		this.totalPages = totalPages;
+	}	
 
 }
