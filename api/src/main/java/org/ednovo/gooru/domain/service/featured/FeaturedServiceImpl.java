@@ -278,7 +278,8 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 									Map<String, Object> collection = new HashMap<String, Object>();
 									collection.put(GOORU_OID, collectionObject[0]);
 									collection.put(TITLE, collectionObject[1]);
-									if (collectionCount == 0) {
+									collection.put(COLLECTION_TYPE, collectionObject[2]);
+									if (collectionCount <= 1) {
 										collection = this.getCollectionService().getCollection(String.valueOf(collectionObject[0]), collection, rootNodeId);
 									}
 									collectionCount++;
@@ -389,6 +390,7 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 						Map<String, Object> collection = new HashMap<String, Object>();
 						collection.put(GOORU_OID, collectionObject[0]);
 						collection.put(TITLE, collectionObject[1]);
+						collection.put(COLLECTION_TYPE, collectionObject[2]);
 						collectionConceptMap.add(collection);
 					}
 					if (collectionMap != null && collectionMap.size() > 0) {
@@ -650,7 +652,8 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 							Map<String, Object> collection = new HashMap<String, Object>();
 							collection.put(GOORU_OID, collectionObject[0]);
 							collection.put(TITLE, collectionObject[1]);
-							if (collectionCount == 0) {
+							collection.put(COLLECTION_TYPE, collectionObject[2]);
+							if (collectionCount <= 1) {
 								collection = this.getCollectionService().getCollection(String.valueOf(collectionObject[0]), collection, rootNodeId);
 							}
 							collectionCount++;
@@ -749,6 +752,7 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 				Map<String, Object> collection = new HashMap<String, Object>();
 				collection.put(GOORU_OID, object[0]);
 				collection.put(TITLE, object[1]);
+				collection.put(COLLECTION_TYPE, object[2]);
 
 				collectionList.add(collection);
 			}
