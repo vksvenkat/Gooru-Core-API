@@ -495,9 +495,15 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	}
 
 	@Override
-	public List<Map<String, Object>> getFolderList(Integer limit, Integer offset, String gooruOid, String title, String username, boolean skipPagination) {
-		List<Object[]> result = this.getCollectionRepository().getFolderList(limit, offset, gooruOid, title, username, skipPagination);
+	public Map<String, Object> getFolderList(Integer limit, Integer offset, String gooruOid, String title, String username, boolean skipPagination) {
+		String gooruUid = null;
+		if (username != null) { 
+			User user = this.getUserService().getUserByUserName(gooruUid);
+			gooruUid = user != null ? user.getPartyUid() : null;
+		}
+		List<Object[]> result = this.getCollectionRepository().getFolderList(limit, offset, gooruOid, title, gooruUid, skipPagination);
 		List<Map<String, Object>> folderList = new ArrayList<Map<String, Object>>();
+		Map<String, Object> content = new HashMap<String, Object>();
 		if (result != null && result.size() > 0) {
 			for (Object[] object : result) {
 				Map<String, Object> folder = new HashMap<String, Object>();
@@ -508,8 +514,10 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				folder.put(LAST_MODIFIED, object[4]);
 				folderList.add(folder);
 			}
+			content.put(SEARCH_RESULT, folderList);
+			content.put(COUNT, this.getCollectionRepository().getFolderListCount(gooruOid, title, gooruUid));
 		}
-		return folderList;
+		return content;
 	}
 
 	@Override
