@@ -42,7 +42,6 @@ import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.hibernate.Query;
 import org.hibernate.SQLQuery;
-import org.hibernate.Session;
 import org.hibernate.type.StandardBasicTypes;
 import org.springframework.stereotype.Repository;
 
@@ -86,9 +85,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 			}
 			hql += " AND assocCodes.code IN (" + includesStandards + ")";
 		}
-
-		Session session = getSession();
-		Query query = session.createQuery(hql);
+		Query query = getSession().createQuery(hql);
 		addOrgAuthParameters(query);
 		query.setFirstResult(((pageNum - 1) * pageSize));
 		query.setMaxResults(pageSize);
@@ -110,8 +107,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		if (filters != null && filters.get(Constants.FETCH_TYPE) != null && filters.get(Constants.FETCH_TYPE).equalsIgnoreCase("my") && user != null) {
 			hql += " and classpage.collectionType = '" + CollectionType.CLASSPAGE.getCollectionType() + "' and classpage.user.partyUid = '" + user.getGooruUId() + "'";
 		}
-		Session session = getSession();
-		Query query = session.createQuery(hql);
+		Query query = getSession().createQuery(hql);
 		addOrgAuthParameters(query);
 		query.setFirstResult(((pageNum - 1) * pageSize));
 		query.setMaxResults(pageSize);
@@ -120,7 +116,6 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 
 	@Override
 	public List<CollectionItem> getCollectionItems(String collectionId, Map<String, String> filters) {
-		Session session = getSession();
 		String hql = "select collectionItems  FROM Collection collection inner join collection.collectionItems collectionItems where collection.gooruOid=:gooruOid and " + generateOrgAuthQuery("collection.");
 		
 		if (filters.containsKey(TYPE) && filters.get(TYPE).equalsIgnoreCase(CLASSPAGE)) {
@@ -144,7 +139,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		} else {
 			hql += " order by collectionItems.associationDate desc";
 		}
-		Query query = session.createQuery(hql);
+		Query query = getSession().createQuery(hql);
 		query.setParameter("gooruOid", collectionId);
 		addOrgAuthParameters(query);
 		if (filters.containsKey(SKIP_PAGINATION) && filters.get(SKIP_PAGINATION).equalsIgnoreCase(NO)) {
@@ -178,23 +173,20 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 	
 	@Override
 	public Classpage getClasspageByGooruOid(String gooruOid, String gooruUid) {
-		Session session = getSession();
 		String hql = " FROM Classpage classpage WHERE  classpage.gooruOid=:gooruOid  and ";
 		if (gooruUid != null) {
 			hql += " classpage.user.partyUid='" + gooruUid + "' and ";
 		}
-		Query query = session.createQuery(hql + generateOrgAuthQuery("classpage."));
+		Query query = getSession().createQuery(hql + generateOrgAuthQuery("classpage."));
 		query.setParameter("gooruOid", gooruOid);
 		addOrgAuthParameters(query);
-		List<Classpage> classpage = query.list();
-		return (classpage.size() > 0) ? classpage.get(0) : null;
+		return (query.list().size() > 0) ? (Classpage)query.list().get(0) : null;
 	}
 
 	@Override
 	public Classpage getClasspageByCode(String classpageCode) {
-		Session session = getSession();
 		String hql = " FROM Classpage classpage WHERE  (classpage.classpageCode=:classpageCode or classpage.gooruOid=:classpageCode) and ";
-		Query query = session.createQuery(hql + generateOrgAuthQuery("classpage."));
+		Query query = getSession().createQuery(hql + generateOrgAuthQuery("classpage."));
 		query.setParameter("classpageCode", classpageCode);
 		addOrgAuthParameters(query);
 		return (Classpage) ((query.list().size() > 0) ? query.list().get(0) : null);
@@ -202,9 +194,8 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 
 	@Override
 	public Collection getUserShelfByGooruUid(String gooruUid, String type) {
-		Session session = getSession();
 		String hql = " FROM Collection collection WHERE  collection.user.partyUid=:gooruUid  and collection.collectionType=:type and ";
-		Query query = session.createQuery(hql + generateOrgAuthQuery("collection."));
+		Query query = getSession().createQuery(hql + generateOrgAuthQuery("collection."));
 		query.setParameter("gooruUid", gooruUid);
 		query.setParameter("type", type);
 		addOrgAuthParameters(query);
@@ -214,9 +205,8 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 
 	@Override
 	public Classpage getUserShelfByClasspageGooruUid(String gooruUid, String type) {
-		Session session = getSession();
 		String hql = " FROM Classpage classpage WHERE  classpage.user.partyUid=:gooruUid  and classpage.collectionType=:type and ";
-		Query query = session.createQuery(hql + generateOrgAuthQuery("classpage."));
+		Query query = getSession().createQuery(hql + generateOrgAuthQuery("classpage."));
 		query.setParameter("gooruUid", gooruUid);
 		query.setParameter("type", type);
 		addOrgAuthParameters(query);
@@ -226,8 +216,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 
 	@Override
 	public CollectionItem getCollectionItemById(String collectionItemId) {
-		Session session = getSession();
-		Query query = session.createQuery("FROM CollectionItem collectionItem WHERE  collectionItem.collectionItemId=:collectionItemId  and " + generateOrgAuthQuery("collectionItem.collection."));
+		Query query = getSession().createQuery("FROM CollectionItem collectionItem WHERE  collectionItem.collectionItemId=:collectionItemId  and " + generateOrgAuthQuery("collectionItem.collection."));
 		query.setParameter("collectionItemId", collectionItemId);
 		addOrgAuthParameters(query);
 		List<CollectionItem> collectionItems = query.list();
@@ -236,8 +225,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 
 	@Override
 	public List<Collection> getCollectionsByResourceId(String resourceGooruOid) {
-		Session session = getSession();
-		Query query = session.createQuery("Select collection FROM CollectionItem collectionItem WHERE  collectionItem.resource.gooruOid=:resourceGooruOid  and " + generateOrgAuthQuery("collectionItem.collection."));
+		Query query = getSession().createQuery("Select collection FROM CollectionItem collectionItem WHERE  collectionItem.resource.gooruOid=:resourceGooruOid  and " + generateOrgAuthQuery("collectionItem.collection."));
 		query.setParameter("resourceGooruOid", resourceGooruOid);
 		addOrgAuthParameters(query);
 		return query.list();
@@ -274,36 +262,31 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 	 */
 	@Override
 	public List<String> getCollectionGooruOidsByResourceId(long contentId) {
-		Session session = getSession();
 		String sql = "select c.gooru_oid from resource_used_collection_oid c WHERE c.resource_id=" + contentId;
-		SQLQuery query = session.createSQLQuery(sql);
+		SQLQuery query = getSession().createSQLQuery(sql);
 		return query.list();
 	}
 
 	@Override
 	public Assignment getAssignmentByGooruOid(String gooruOid, String gooruUid) {
-		Session session = getSession();
 		String hql = " FROM Assignment assignment WHERE  assignment.gooruOid=:gooruOid  and ";
 		if (gooruUid != null) {
 			hql += " assignment.user.partyUid='" + gooruUid + "' and ";
 		}
-		Query query = session.createQuery(hql + generateOrgAuthQuery("assignment."));
+		Query query = getSession().createQuery(hql + generateOrgAuthQuery("assignment."));
 		query.setParameter("gooruOid", gooruOid);
 		addOrgAuthParameters(query);
-		List<Assignment> assignments = query.list();
-		return (assignments.size() > 0) ? assignments.get(0) : null;
+		return  ((query.list().size() > 0) ? (Assignment)query.list().get(0) : null);
 	}
 
 	@Override
 	public Assignment getAssignmentUserShelfByGooruUid(String gooruUid, String type) {
-		Session session = getSession();
 		String hql = " FROM Assignment assignment WHERE  assignment.user.partyUid=:gooruUid  and assignment.collectionType=:type and ";
-		Query query = session.createQuery(hql + generateOrgAuthQuery("assignment."));
+		Query query = getSession().createQuery(hql + generateOrgAuthQuery("assignment."));
 		query.setParameter("gooruUid", gooruUid);
 		query.setParameter("type", type);
 		addOrgAuthParameters(query);
-		List<Assignment> assignments = query.list();
-		return (assignments.size() > 0) ? assignments.get(0) : null;
+		return  ((query.list().size() > 0) ? (Assignment)query.list().get(0) : null);
 	}
 
 	@Override
@@ -321,8 +304,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		if (filters != null && filters.get(Constants.FETCH_TYPE) != null && filters.get(Constants.FETCH_TYPE).equalsIgnoreCase("my") && user != null) {
 			hql += " and assignment.collectionType = '" + CollectionType.ASSIGNMENT.getCollectionType() + "' and assignment.user.partyUid = '" + user.getGooruUId() + "'";
 		}
-		Session session = getSession();
-		Query query = session.createQuery(hql);
+		Query query = getSession().createQuery(hql);
 		addOrgAuthParameters(query);
 		query.setFirstResult(((pageNum - 1) * pageSize));
 		query.setMaxResults(pageSize);
@@ -380,9 +362,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		String hql = "select collectionItems.resource  FROM Collection collection inner join collection.collectionItems collectionItems WHERE  " + type + "  " + sharingType + " " + resourceType + " collection.user.partyUid = '" + user.getGooruUId()
 				+ "'  order by collectionItems.resource.createdOn desc";
 
-		Session session = getSession();
-		Query query = session.createQuery(hql);
-
+		Query query = getSession().createQuery(hql);
 		if (filters.containsKey(SKIP_PAGINATION) && filters.get(SKIP_PAGINATION).equalsIgnoreCase(NO)) {
 			query.setFirstResult(pageSize * (pageNum - 1)).setMaxResults(pageSize);
 
@@ -406,17 +386,12 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		if (filter != null) {
 			resourceType = " collectionItems.resource.resourceType.name = '" + filter + "' and ";
 		}
-
 		String hql = "select collectionItems.resource  FROM Collection collection inner join collection.collectionItems collectionItems WHERE  " + type + " " + resourceType + " collection.user.partyUid = '" + user.getGooruUId() + "'  order by collectionItems.resource.createdOn desc";
-
-		Session session = getSession();
-		List<Collection> collections = session.createQuery(hql).setFirstResult(startAt).setMaxResults(pageSize).list();
-		return (collections != null && collections.size() > 0) ? collections : null;
+	    return getSession().createQuery(hql).setFirstResult(startAt).setMaxResults(pageSize).list();
 	}
 
 	@Override
 	public Quiz getQuiz(String gooruOid, String gooruUid, String type) {
-		Session session = getSession();
 		String hql = " FROM Quiz quiz WHERE   " + generateOrgAuthQuery("quiz.");
 		if (gooruOid != null) {
 			hql += " and  quiz.gooruOid=:gooruOid ";
@@ -427,7 +402,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		if (type != null) {
 			hql += " and quiz.collectionType=:type ";
 		}
-		Query query = session.createQuery(hql);
+		Query query = getSession().createQuery(hql);
 		if (gooruOid != null) {
 			query.setParameter("gooruOid", gooruOid);
 		}
@@ -438,13 +413,11 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 			query.setParameter("type", type);
 		}
 		addOrgAuthParameters(query);
-		List<Quiz> quizs = query.list();
-		return (quizs.size() > 0) ? quizs.get(0) : null;
+		return (query.list().size() > 0) ? (Quiz)query.list().get(0) : null;
 	}
 
 	@Override
 	public List<Quiz> getQuizList(String gooruOid, String gooruUid, String type) {
-		Session session = getSession();
 		String hql = " FROM Quiz quiz WHERE   " + generateOrgAuthQuery("quiz.");
 		if (gooruOid != null) {
 			if (gooruOid.contains(",")) {
@@ -458,7 +431,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		if (type != null) {
 			hql += " and quiz.collectionType=:type ";
 		}
-		Query query = session.createQuery(hql);
+		Query query = getSession().createQuery(hql);
 		if (gooruUid != null) {
 			query.setParameter("gooruUid", gooruUid);
 		}
@@ -472,8 +445,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 	@Override
 	public List<Quiz> getQuizzes(Integer limit, Integer offset) {
 		String hql = "FROM Quiz quiz WHERE " + generateOrgAuthQuery("quiz.");
-		Session session = getSession();
-		Query query = session.createQuery(hql);
+		Query query = getSession().createQuery(hql);
 		addOrgAuthParameters(query);
 		query.setFirstResult(offset != null ? offset : OFFSET);
 		query.setMaxResults(limit != null ? limit : LIMIT);
@@ -483,8 +455,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 	@Override
 	public List<Quiz> getMyQuizzes(Integer limit, Integer offset, String gooruUid, boolean skipPagination, String orderBy) {
 		String hql = "select collectionItems.resource  FROM Quiz quiz inner join quiz.collectionItems collectionItems WHERE   quiz.user.partyUid = '" + gooruUid + "' and quiz.collectionType = '" + CollectionType.USER_QUIZ + "' order by collectionItems.itemSequence " + orderBy;
-		Session session = getSession();
-		Query query = session.createQuery(hql);
+		Query query = getSession().createQuery(hql);
 		if (!skipPagination) {
 			query.setFirstResult(offset != null ? offset : OFFSET);
 			query.setMaxResults(limit != null ? limit : LIMIT);
@@ -494,8 +465,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 
 	@Override
 	public List<CollectionItem> getCollectionItemByResourceId(Long resourceId) {
-		Session session = getSession();
-		Query query = session.createQuery("FROM CollectionItem collectionItem WHERE  collectionItem.resource.contentId=:resourceId  and " + generateOrgAuthQuery("collectionItem.collection."));
+		Query query = getSession().createQuery("FROM CollectionItem collectionItem WHERE  collectionItem.resource.contentId=:resourceId  and " + generateOrgAuthQuery("collectionItem.collection."));
 		query.setParameter("resourceId", resourceId);
 		addOrgAuthParameters(query);
 		return query.list();
@@ -505,8 +475,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 	public List<Classpage> getMyClasspage(Integer offset, Integer limit, User user, boolean skipPagination, String orderBy) {
 		String hql = "select collectionItems.resource  FROM Collection collection inner join collection.collectionItems collectionItems WHERE   collection.user.partyUid = '" + user.getGooruUId() + "' and collection.collectionType = '" + CollectionType.USER_CLASSPAGE.getCollectionType()
 				+ "'  order by collectionItems.resource.createdOn " + orderBy;
-		Session session = getSession();
-		Query query = session.createQuery(hql);
+		Query query = getSession().createQuery(hql);
 		if (!skipPagination) {
 			query.setFirstResult(offset != null ? offset : OFFSET);
 			query.setMaxResults(limit != null ? limit : LIMIT);
@@ -525,16 +494,12 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 			fetchType = fetchType.equalsIgnoreCase(COLLECTION) ? SCOLLECTION : fetchType;
 			type = " collection.resourceType.name = '" + fetchType + "' and ";
 		}
-
 		String resourceType = "";
 		if (filterName != null && filterName.length() > 0 && (filterName.equalsIgnoreCase("folder") || filterName.equalsIgnoreCase("scollection"))) {
 			resourceType = " collectionItems.resource.resourceType.name = '" + resourceType + "' and ";
 		}
-
 		String hql = "select collectionItems.resource  FROM Collection collection inner join collection.collectionItems collectionItems WHERE  " + type + " " + resourceType + " collection.user.partyUid = '" + user.getGooruUId() + "'  order by collectionItems.resource.createdOn desc";
-
-		Session session = getSession();
-		Query query = session.createQuery(hql);
+		Query query = getSession().createQuery(hql);
 
 		if (!skipPagination) {
 			query.setFirstResult(offset != null ? offset : OFFSET);
@@ -587,13 +552,11 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 			}
 			type += " collectionItems.resource.sharing in ( '" + sharing + "' ) and ";
 		}
-
 		String resourceType = "";
 
 		if (filters != null && filters.containsKey("filterName") && (filters.get("filterName").equalsIgnoreCase("folder") || filters.get("filterName").equalsIgnoreCase("scollection"))) {
 			resourceType = " collectionItems.resource.resourceType.name = '" + filters.get("filterName") + "' and ";
 		}
-
 		String hql = "select collectionItems FROM Collection collection inner join collection.collectionItems collectionItems WHERE  " + type + " " + resourceType + " collection.user.partyUid = '" + user.getGooruUId() + "' ";
 
 		if (orderBy != null && orderBy.equalsIgnoreCase(SEQUENCE)) {
@@ -605,8 +568,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 			hql += " order by collectionItems.associationDate " + orderBy;
 		}
 
-		Session session = getSession();
-		Query query = session.createQuery(hql);
+		Query query = getSession().createQuery(hql);
 
 		if (filters.containsKey(SKIP_PAGINATION) && filters.get(SKIP_PAGINATION).equalsIgnoreCase(NO)) {
 			if (filters != null && filters.containsKey(OFFSET_FIELD)) {
@@ -621,23 +583,18 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 
 	@Override
 	public List<CollectionItem> getCollectionItems(String collectionId, Integer offset, Integer limit, boolean skipPagination, String orderBy, String type) {
-		Session session = getSession();
 		String hql = "select collectionItems  FROM Collection collection inner join collection.collectionItems collectionItems where collection.gooruOid=:gooruOid and " + generateOrgAuthQuery("collection.");
-		
 		if(type != null && type.equalsIgnoreCase("classpage")) {
 			hql +=	" and collectionItems.resource.sharing in('public','anyonewithlink') " ;
 		}
-		
 		if (!orderBy.equals(PLANNED_END_DATE)) {
 			hql += "order by collectionItems.associationDate desc ";
 		} else {
 			hql += "order by IFNULL(collectionItems.plannedEndDate, (SUBSTRING(now(), 1, 4) + 1000)) asc ";
-		}
-		 
-		Query query = session.createQuery(hql);
+		} 
+		Query query = getSession().createQuery(hql);
 		query.setParameter("gooruOid", collectionId);
 		addOrgAuthParameters(query);
-
 		if (!skipPagination) {
 			query.setFirstResult((offset != null ? offset : OFFSET));
 			query.setMaxResults((limit != null ? limit : LIMIT));
@@ -653,9 +610,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 
 	@Override
 	public List<Classpage> getClasspages(Integer offset, Integer limit, Boolean skipPagination, String title, String author, String userName) {
-		Session session = getSession();
 		String hql = "select classpage  FROM Classpage classpage where " + generateOrgAuthQuery("classpage.");
-
 		if (title != null) {
 			hql += " and classpage.title like :title ";
 		}
@@ -665,26 +620,21 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		if (author != null) {
 			hql += " and (classpage.user.username =:author or classpage.user.firstName =:author or classpage.user.lastName =:author) ";
 		}
-
-		Query query = session.createQuery(hql);
+		Query query = getSession().createQuery(hql);
 		if (title != null) {
 			query.setParameter("title", "%" + title + "%");
 		}
-
 		if (userName != null) {
 			query.setParameter("userName", userName);
 		}
-
 		if (author != null) {
 			query.setParameter("author", author);
 		}
 		addOrgAuthParameters(query);
-
 		if (!skipPagination) {
 			query.setFirstResult(offset);
 			query.setMaxResults(limit);
 		}
-
 		return query.list();
 	}
 	
@@ -696,8 +646,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 			sql += " and IFNULL(ct.value, 'open') = '"+ status+ "' ";
 		}
 		if (orderBy != null &&  (orderBy.equalsIgnoreCase(DUE_DATE) || orderBy.equalsIgnoreCase(DUE_DATE_EARLIEST))) { 
-			sql += " and ci.planned_end_date IS NOT NULL ";
-			
+			sql += " and ci.planned_end_date IS NOT NULL ";	
 		}
 		Query query = getSession().createSQLQuery(sql).addScalar("count", StandardBasicTypes.LONG);
 		return (Long) query.list().get(0);
@@ -705,7 +654,6 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 
 	@Override
 	public Long getClasspageCount(String title, String author, String userName) {
-		Session session = getSession();
 		String hql = "select count(*)  FROM Classpage classpage where " + generateOrgAuthQuery("classpage.");
 		if (title != null) {
 			hql += " and classpage.title like :title ";
@@ -716,16 +664,13 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		if (author != null) {
 			hql += " and (classpage.user.username =:author or classpage.user.firstName =:author or classpage.user.lastName =:author) ";
 		}
-
-		Query query = session.createQuery(hql);
+		Query query = getSession().createQuery(hql);
 		if (title != null) {
 			query.setParameter("title", "%" + title + "%");
 		}
-
 		if (userName != null) {
 			query.setParameter("userName", userName);
 		}
-
 		if (author != null) {
 			query.setParameter("author", author);
 		}
@@ -737,8 +682,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 	public Long getMyClasspageCount(String gooruUid) {
 		String hql = "select count(collectionItems.resource)  FROM Collection collection inner join collection.collectionItems collectionItems WHERE   collection.user.partyUid = '" + gooruUid + "' and collection.collectionType = '" + CollectionType.USER_CLASSPAGE.getCollectionType()
 				+ "'  order by collectionItems.resource.createdOn desc";
-		Session session = getSession();
-		Query query = session.createQuery(hql);
+		Query query = getSession().createQuery(hql);
 		return (Long) query.list().get(0);
 	}
 
@@ -779,7 +723,6 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		} else {
 			sql += " order by ci.association_date desc";
 		}
-
 		Query query = getSession().createSQLQuery(sql);
 		query.setParameter("gooruOid", gooruOid);
 		if (collectionType != null) {
@@ -795,7 +738,6 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 	@Override
 	public Long getMyShelfCount(String gooruUid, String sharing, String collectionType) {
 		String sql = "select count(1) as count from  resource r inner join collection c on c.content_id = r.content_id inner join content cc on cc.content_id =  c.content_id inner join collection_item ci on ci.collection_content_id = c.content_id inner join resource re on re.content_id = ci.resource_content_id inner join content cr on  cr.content_id = re.content_id inner join organization o  on  o.organization_uid = cr.organization_uid  where c.collection_type = 'shelf' and cr.sharing in ('" + sharing.replace(",", "','")+ "') and cc.user_uid=:gooruUid";
-
 		if (collectionType != null) {
 			collectionType = collectionType.equalsIgnoreCase(COLLECTION) ? SCOLLECTION : collectionType;
 			sql += " and re.type_name =:collectionType ";
@@ -825,21 +767,21 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 	
 	@Override
 	public List<CollectionItem> findCollectionByResource(String gooruOid, String gooruUid, String type) {
-		String hql = "FROM CollectionItem collectionItems where collectionItems.resource.gooruOid=:gooruOid ";
-		if (gooruUid != null) { 
-			hql += " and collectionItems.collection.user.partyUid=:gooruUid ";
-		}
-		if (type != null) { 
-			hql += " and collectionItems.itemType=:type";
-		}
-		Query query = getSession().createQuery(hql);
-		query.setParameter("gooruOid", gooruOid);
-		if (gooruUid != null) {
-		  query.setParameter("gooruUid", gooruUid);
-		}
-		if (type != null) {
-		  query.setParameter("type", type);
-		}
+			String hql = "FROM CollectionItem collectionItems where collectionItems.resource.gooruOid=:gooruOid ";
+			if (gooruUid != null) { 
+				hql += " and collectionItems.collection.user.partyUid=:gooruUid ";
+			}
+			if (type != null) { 
+				hql += " and collectionItems.itemType=:type";
+			}
+			Query query = getSession().createQuery(hql);
+			query.setParameter("gooruOid", gooruOid);
+			if (gooruUid != null) {
+			  query.setParameter("gooruUid", gooruUid);
+			}
+			if (type != null) {
+			  query.setParameter("type", type);
+			}
 		return query.list();
 	}
 
@@ -849,6 +791,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		Query query = getSession().createQuery(hql);
 		query.setParameter("gooruOid", gooruOid);
 		query.setParameter("gooruUid", gooruUid);
+		query.setMaxResults(1);
 		return (CollectionItem)(query.list().size() > 0 ? query.list().get(0) : null);
 	}
 
@@ -875,42 +818,36 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		return (List<Collection>) query.list();
 	}
 	
-	public List<Object[]> getFolderList(Integer limit, Integer offset, String gooruOid, String title, String username, boolean skipPagination) {
+	public List<Object[]> getFolderList(Integer limit, Integer offset, String gooruOid, String title, String gooruUid, boolean skipPagination) {
 		String sql = "select cc.gooru_oid as gooruOid, r.title as title, u.username as username, cc.created_on as createdOn, cc.last_modified as lastModified from resource r inner join collection c on  r.content_id = c.content_id inner join content cc on c.content_id = cc.content_id inner join user u on cc.user_uid = u.gooru_uid where c.collection_type = 'folder'";
 		if (gooruOid != null) {
 			sql += " and cc.gooru_oid = '" + gooruOid + "'";
 		}
-
 		if (title != null) {
 			sql += " and r.title = '" + title + "'";
 		}
-
-		if (username != null) {
-			sql += " and u.username = '" + username + "'";
+		if (gooruUid != null) {
+			sql += " and u.gooru_uid = '" + gooruUid + "'";
 		}
-
 		Query query = getSession().createSQLQuery(sql);
 		if (!skipPagination) {
 			query.setFirstResult(offset);
 			query.setMaxResults(limit);
 		}
 		return query.list();
-
 	}
 
 	@Override
-	public Long getFolderListCount(String gooruOid, String title, String username) {
+	public Long getFolderListCount(String gooruOid, String title, String gooruUid) {
 		String sql = "select count(1) as count from resource r inner join collection c on  r.content_id = c.content_id inner join content cc on c.content_id = cc.content_id inner join user u on cc.user_uid = u.gooru_uid where c.collection_type = 'folder'";
 		if (gooruOid != null) {
 			sql += " and cc.gooru_oid = '" + gooruOid + "'";
 		}
-
 		if (title != null) {
 			sql += " and r.title = '" + title + "'";
 		}
-
-		if (username != null) {
-			sql += " and u.username = '" + username + "'";
+		if (gooruUid != null) {
+			sql += " and u.gooru_uid = '" + gooruUid + "'";
 		}
 		Query query = getSession().createSQLQuery(sql).addScalar("count", StandardBasicTypes.LONG);
 		return (Long) query.list().get(0);
@@ -931,6 +868,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		Query query = getSession().createQuery(hql);
 		query.setParameter("gooruOid", gooruOid);
 		query.setParameter("value", value);
+		query.setMaxResults(1);
 		return (ContentMetaAssociation)(query.list().size() >   0 ?  query.list().get(0) : null);
 	}
 
@@ -940,6 +878,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		Query query = getSession().createQuery(hql);
 		query.setParameter("collectionItemId", collectionItemId);
 		query.setParameter("userUid", userUid);
+		query.setMaxResults(1);
 		return (UserCollectionItemAssoc)(query.list().size() >   0 ?  query.list().get(0) : null);
 	}
 
@@ -955,11 +894,9 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		}  else if (orderBy != null &&  orderBy.equalsIgnoreCase(SEQUENCE_DESC)) { 
 			sql += " order by ci.item_sequence desc ";
 		}  else  if (orderBy != null &&  orderBy.equalsIgnoreCase(DUE_DATE)) { 
-			sql += " and ci.planned_end_date IS NOT NULL order by ci.planned_end_date asc ";
-			
+			sql += " and ci.planned_end_date IS NOT NULL order by ci.planned_end_date asc ";		
 		} else  if (orderBy != null &&  orderBy.equalsIgnoreCase(DUE_DATE_EARLIEST)) { 
-			sql += " and ci.planned_end_date IS NOT NULL order by ci.planned_end_date desc";
-			
+			sql += " and ci.planned_end_date IS NOT NULL order by ci.planned_end_date desc";	
 		} else { 
 			sql += " order by ci.item_sequence asc ";
 		}
@@ -972,32 +909,26 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 	}
 	@Override
 	public List<Collection> getCollectionsList(User user,Integer limit, Integer offset,boolean skipPagination, String publishStatus) {
-	
 		String hql = "SELECT collection FROM Collection collection inner join collection.publishStatus ct ";
-		hql += " WHERE " + generateOrgAuthQuery("collection.");		
 		if (publishStatus != null) {
 			hql += " and  ct.value =:pending";
 		}
 		hql += " ORDER BY collection.createdOn desc ";		
-		Session session = getSession();
-		Query query = session.createQuery(hql);
+		Query query = getSession().createQuery(hql);
 		if (publishStatus != null) {
-		query.setParameter("pending", publishStatus);
+			query.setParameter("pending", publishStatus);
 		}
-		addOrgAuthParameters(query);
-		
+		addOrgAuthParameters(query);	
 		if (!skipPagination) {
 			query.setFirstResult(offset);
 			query.setMaxResults(limit);
 		}
-
 		return query.list().size() >   0 ?  query.list() : null;
 	}
 	@Override
 	public Long getCollectionCount(String publishStatus) {
-		Session session = getSession();
 		String sql = "SELECT count(1) as count from  collection c left join custom_table_value ct on ct.custom_table_value_id = c.publish_status_id  where ct.value = '"+publishStatus+"' and c.collection_type in ('collection', 'quiz')";		
-		Query query = session.createSQLQuery(sql).addScalar("count", StandardBasicTypes.LONG);	
+		Query query = getSession().createSQLQuery(sql).addScalar("count", StandardBasicTypes.LONG);	
 		return (Long) query.list().get(0);
 	}
 
