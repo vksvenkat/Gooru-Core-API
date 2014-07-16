@@ -163,7 +163,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 					}
 					collectionItem.setStandards(this.getStandards(responseDTO.getModel().getTaxonomySet(), false, null));
 				}
-				this.redisService.bulkKeyDelete("v2-organize-data-" + collectionItem.getCollection().getUser().getPartyUid() + "*");
+				getAsyncExecutor().deleteFromCache("v2-organize-data-" + collectionItem.getCollection().getUser().getPartyUid() + "*");
 			}
 
 		} else {
@@ -206,8 +206,8 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		} else {
 			responseDTO = this.createCollectionItem(sourceId, null, collectionItem, user, CollectionType.SHElf.getCollectionType(), false);
 		}
-		this.redisService.bulkKeyDelete("v2-organize-data-" + collectionItem.getCollection().getUser().getPartyUid() + "*");
-		this.redisService.bulkKeyDelete("v2-organize-data-" + user.getPartyUid() + "*");
+		getAsyncExecutor().deleteFromCache("v2-organize-data-" + collectionItem.getCollection().getUser().getPartyUid() + "*");
+		getAsyncExecutor().deleteFromCache("v2-organize-data-" + user.getPartyUid() + "*");
 		try {
 			getEventLogs(responseDTO.getModel(), true, user, responseDTO.getModel().getCollection().getCollectionType());
 		} catch (JSONException e) {
@@ -606,7 +606,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 			collections = this.getCollectionRepository().getCollectionListByIds(gooruOids);
 			if (userService.isSuperAdmin(user) || userService.isContentAdmin(user)) {
 				for (Collection scollection : collections) {
-					this.redisService.bulkKeyDelete("v2-organize-data-" + scollection.getUser().getPartyUid() + "*");
+					getAsyncExecutor().deleteFromCache("v2-organize-data-" + scollection.getUser().getPartyUid() + "*");
 					if (scollection.getPublishStatus().getValue().equalsIgnoreCase(PENDING)) {
 						scollection.setPublishStatus(this.getCustomTableRepository().getCustomTableValue("publish_status", REVIEWED));
 						collectionIds.append(scollection.getGooruOid());

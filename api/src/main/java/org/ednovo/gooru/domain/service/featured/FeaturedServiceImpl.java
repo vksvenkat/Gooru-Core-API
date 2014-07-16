@@ -56,13 +56,13 @@ import org.ednovo.gooru.domain.service.taxonomy.TaxonomyService;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentRepository;
-import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.featured.FeaturedRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.question.CommentRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.resource.ResourceRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.storage.StorageRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.taxonomy.TaxonomyRespository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -90,9 +90,6 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 	private CollectionRepository collectionRepository;
 
 	@Autowired
-	private CustomTableRepository customTableRepository;
-
-	@Autowired
 	private UserRepository userRepository;
 
 	@Autowired
@@ -116,7 +113,7 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 	@Override
 	public List<FeaturedSet> getFeaturedList(int limit, boolean random, String featuredSetName, String themeCode, String themetype) throws Exception {
 		List<FeaturedSet> featuredSet = this.getFeaturedRepository().getFeaturedList(null, limit, featuredSetName, themeCode, themetype);
-		if (featuredSet != null) {
+		if (featuredSet.size() > 0) {
 			this.getFeaturedResource(featuredSet);
 		}
 
@@ -125,10 +122,8 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 
 	@Override
 	public List<FeaturedSet> getFeaturedTheme(int limit) throws Exception {
-
-		List<FeaturedSet> featuredSet = this.getFeaturedRepository().getFeaturedTheme(limit);
-
-		return featuredSet;
+		
+		return this.getFeaturedRepository().getFeaturedTheme(limit);
 	}
 
 	@Override
@@ -278,11 +273,8 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 									Map<String, Object> collection = new HashMap<String, Object>();
 									collection.put(GOORU_OID, collectionObject[0]);
 									collection.put(TITLE, collectionObject[1]);
-									if (collectionCount == 0) {
-										collection = this.getCollectionService().getCollection(String.valueOf(collectionObject[0]), collection, rootNodeId);
-									}
-									collectionCount++;
-									collectionMap.add(collection);
+									collection.put(COLLECTION_TYPE, collectionObject[2]);
+									collectionMap.add(this.getCollectionService().getCollection(String.valueOf(collectionObject[0]), collection, rootNodeId));
 								}
 								if (collectionMap != null && collectionMap.size() > 0) {
 									conceptMap.add(getCode(concept, collectionMap, COLLECTION, null, getOrganizationCode(libraryName), null, null, null));
@@ -389,7 +381,8 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 						Map<String, Object> collection = new HashMap<String, Object>();
 						collection.put(GOORU_OID, collectionObject[0]);
 						collection.put(TITLE, collectionObject[1]);
-						collectionConceptMap.add(collection);
+						collection.put(COLLECTION_TYPE, collectionObject[2]);
+						collectionConceptMap.add(this.getCollectionService().getCollection(String.valueOf(collectionObject[0]), collection, rootNodeId));
 					}
 					if (collectionMap != null && collectionMap.size() > 0) {
 						conceptMap.add(getCode(concept, collectionMap, COLLECTION, null, getOrganizationCode(libraryName), null, null, null));
@@ -463,10 +456,6 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 		return commentRepository;
 	}
 
-	public void setCommentRepository(CommentRepository commentRepository) {
-		this.commentRepository = commentRepository;
-	}
-
 	private void setCollectionMetaInfo(List<Collection> collections, String rootNodeId) {
 		for (Collection collection : collections) {
 			ResourceMetaInfo collectionMetaInfo = new ResourceMetaInfo();
@@ -537,13 +526,9 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 	@Override
 	public FeaturedSetItems updateFeaturedContent(String type, Integer featuredSetItemId, FeaturedSetItems newFeaturedSetItems) {
 		Content content = this.getContentRepository().findContentByGooruId(newFeaturedSetItems.getContent().getGooruOid());
-		if (content == null) {
-			throw new NotFoundException("Content not found");
-		}
+		rejectIfNull(content, GL0056, CONTENT);
 		FeaturedSetItems featuredSetItem = this.getFeaturedRepository().getFeaturedItemByIdAndType(featuredSetItemId, type);
-		if (featuredSetItem == null) {
-			throw new NotFoundException("featuredSetItem not found");
-		}
+		rejectIfNull(featuredSetItem, GL0056, "item");
 		if (newFeaturedSetItems.getFeaturedSet() != null && newFeaturedSetItems.getFeaturedSet().getName() != null) {
 			featuredSetItem.getFeaturedSet().setName(newFeaturedSetItems.getFeaturedSet().getName());
 		}
@@ -642,7 +627,9 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 						collectionLessonMap.add(collection);
 					}
 					List<Map<String, Object>> conceptMap = new ArrayList<Map<String, Object>>();
+					
 					List<CodeOrganizationAssoc> concepts = this.getTaxonomyRespository().findCodeByParentCodeId(String.valueOf(lesson.getCode().getCodeId()), null, 3, 0, true, LIBRARY, getOrganizationCode(libraryName), rootNodeId, null);
+					
 					for (CodeOrganizationAssoc concept : concepts) {
 						List<Object[]> collectionList = this.getFeaturedRepository().getLibraryCollection(String.valueOf(concept.getCode().getCodeId()), featuredId, null, null, true, null);
 						List<Map<String, Object>> collectionMap = new ArrayList<Map<String, Object>>();
@@ -650,11 +637,8 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 							Map<String, Object> collection = new HashMap<String, Object>();
 							collection.put(GOORU_OID, collectionObject[0]);
 							collection.put(TITLE, collectionObject[1]);
-							if (collectionCount == 0) {
-								collection = this.getCollectionService().getCollection(String.valueOf(collectionObject[0]), collection, rootNodeId);
-							}
-							collectionCount++;
-							collectionMap.add(collection);
+							collection.put(COLLECTION_TYPE, collectionObject[2]);
+							collectionMap.add(this.getCollectionService().getCollection(String.valueOf(collectionObject[0]), collection, rootNodeId));
 						}
 						if (collectionMap != null && collectionMap.size() > 0) {
 							conceptMap.add(getCode(concept, collectionMap, COLLECTION, null, getOrganizationCode(libraryName), null, null, null));
@@ -749,6 +733,7 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 				Map<String, Object> collection = new HashMap<String, Object>();
 				collection.put(GOORU_OID, object[0]);
 				collection.put(TITLE, object[1]);
+				collection.put(COLLECTION_TYPE, object[2]);
 
 				collectionList.add(collection);
 			}
@@ -866,7 +851,7 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 				Map<String, Object> collection = new HashMap<String, Object>();
 				collection.put(COLLECTION_ID, object[0]);
 				collection.put(RESOURCE_ID, object[1]);
-				Resource resource = resourceRepository.findResourceByContentGooruId((String) object[1]);
+				Resource resource = getResourceRepository().findResourceByContentGooruId((String) object[1]);
 				collection.put(STANDARDS, this.getCollectionService().getStandards(resource.getTaxonomySet(), true, null));
 				collection.put(COURSE, this.getCollectionService().getCourse(resource.getTaxonomySet()));
 				collection.put(TITLE, object[2]);
@@ -996,16 +981,8 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 		return collectionRepository;
 	}
 
-	public void setUserRepository(UserRepository userRepository) {
-		this.userRepository = userRepository;
-	}
-
 	public UserRepository getUserRepository() {
 		return userRepository;
-	}
-
-	public CustomTableRepository getCustomTableRepository() {
-		return customTableRepository;
 	}
 
 	public StorageRepository getStorageRepository() {
@@ -1014,10 +991,6 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 
 	public ResourceRepository getResourceRepository() {
 		return resourceRepository;
-	}
-
-	public void setResourceRepository(ResourceRepository resourceRepository) {
-		this.resourceRepository = resourceRepository;
 	}
 
 }
