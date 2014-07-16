@@ -52,6 +52,7 @@ import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.domain.service.EventService;
+import org.ednovo.gooru.domain.service.ShareService;
 import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.classplan.LearnguideRepositoryHibernate;
@@ -101,6 +102,9 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 
 	@Autowired
 	private PartyRepository partyRepository;
+	
+	@Autowired
+	private ShareService shareService;
 
 	public static final String REQUEST_PUBLISHER = "requestPublisher";
 
@@ -921,6 +925,29 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 			sendMailViaRestApi(map);
 	}
 
+	public void sendMailToOpenClassUser(String email, String gooruOid, User user, String title, String inviteUser, String classCode){
+		final String serverpath = this.getServerConstants().getProperty(SERVERPATH);
+		String url = serverpath + "#students-view&id=" + gooruOid+"&pageSize=10&pageNum=0&pos=1" ;
+		String shortenUrl = this.shareService.getShortenUrl(url, true, null);
+		EventMapping eventMapping = this.getEventService().getTemplatesByEventName(CustomProperties.EventMapping.SEND_MAIL_TO_OPEN_CLASS_USER.getEvent());
+		Map<String, Object> map = eventMapData(eventMapping);
+		map.put("serverpath",serverpath);
+		map.put(TITLE, title);
+		map.put(TEACHERNAME ,user.getUsername());
+		map.put(MEMBERMAILID, email);
+		map.put(GOORU_OID, gooruOid);
+		map.put(RECIPIENT, email);
+		map.put("classCode", classCode);
+		map.put("shortenUrl", shortenUrl);
+		map.put(HTMLCONTENT, generateMessage((String) map.get("templateContent"), map));
+		map.put(SUBJECT,  inviteUser + "  has shared their class \""+title+"\""+"with you\"");
+		map.put(CONTENT, generateMessage((String) map.get(TEXTCONTENT), map));
+		map.put("from", getConfigSetting(ConfigConstants.MAIL_FROM, TaxonomyUtil.GOORU_ORG_UID));
+		map.put(BCC, getConfigSetting(ConfigConstants.MAIL_BCC_SUPPORT, TaxonomyUtil.GOORU_ORG_UID));
+		map.put(FROMNAME, FROM_GOORU);
+		sendMailViaRestApi(map);
+	}
+	
 	public void handleMailEvent(String eventType) {
 		EventMapping eventMapping = this.getEventService().getTemplatesByEventName(eventType);
 		if (eventMapping != null) {

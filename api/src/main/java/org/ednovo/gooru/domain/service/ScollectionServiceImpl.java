@@ -1480,7 +1480,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		newResource.setUrl(url);
 		newResource.setThumbnail(thumbnailImgSrc);
 		newResource.setCategory(category);
-		return this.createResourceWithCollectionItem(collectionId, newResource, user);
+		return this.createResourceWithCollectionItem(collectionId, newResource, start, stop, user);
 	}
 
 	@Override
@@ -1942,7 +1942,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 
 	@Override
-	public ActionResponseDTO<CollectionItem> createResourceWithCollectionItem(String collectionId, Resource newResource, User user) throws Exception {
+	public ActionResponseDTO<CollectionItem> createResourceWithCollectionItem(String collectionId, Resource newResource,String start,String stop ,User user) throws Exception {
 
 		ActionResponseDTO<CollectionItem> response = null;
 		ResourceSource resourceSource = null;
@@ -2051,7 +2051,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				collection.setLastUpdatedUserUid(user.getPartyUid());
 				this.getResourceRepository().save(collection);
 
-				response = createCollectionItem(resource, collection, user);
+				response = createCollectionItem(resource, collection, start, stop, user);
 
 				response.getModel().setStandards(this.getStandards(resource.getTaxonomySet(), false, null));
 
@@ -2164,7 +2164,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		return new ActionResponseDTO<CollectionItem>(collectionItem, errors);
 	}
 
-	public ActionResponseDTO<CollectionItem> createCollectionItem(Resource resource, Collection collection, User user) throws Exception {
+	public ActionResponseDTO<CollectionItem> createCollectionItem(Resource resource, Collection collection, String start, String stop, User user ) throws Exception {
 		CollectionItem collectionItem = new CollectionItem();
 		collectionItem.setCollection(collection);
 		collectionItem.setResource(resource);
@@ -2174,6 +2174,8 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		int sequence = collectionItem.getCollection().getCollectionItems() != null ? collectionItem.getCollection().getCollectionItems().size() + 1 : 1;
 		collectionItem.setItemSequence(sequence);
 		collectionItem.getCollection().setItemCount(sequence);
+		collectionItem.setStart(start);
+		collectionItem.setStop(stop);
 		Errors errors = validateCollectionItem(collection, resource, collectionItem);
 		this.getResourceRepository().save(collectionItem);
 		getAsyncExecutor().deleteFromCache("v2-organize-data-" + collectionItem.getCollection().getUser().getPartyUid() + "*");
