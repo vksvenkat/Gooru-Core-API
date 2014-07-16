@@ -322,8 +322,9 @@ public class RedisServiceImpl implements RedisService, ParameterProperties, Cons
 		Date currentDate = new Date();
 		long expiresTimes = 24;
 		if (organization != null) {
-			if (organizationSettingRepository.getOrganizationSetting(SESSION_EXPIRES_TIME, organization.getPartyUid()) != null) {
-				expiresTimes = Long.parseLong(organizationSettingRepository.getOrganizationSetting(SESSION_EXPIRES_TIME, organization.getPartyUid()));
+			Map<String, String> expireTimeList = settingService.getOrganizationExpireTime(SESSION_EXPIRES_TIME);
+			if (expireTimeList.containsKey(organization.getPartyUid())) {
+				expiresTimes = Long.parseLong(expireTimeList.get(organization.getPartyUid()));
 			}
 		}
 		Long createdTime = currentDate.getTime() + (1000 * 60 * 60 * expiresTimes);
