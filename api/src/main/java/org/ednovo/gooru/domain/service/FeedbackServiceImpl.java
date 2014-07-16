@@ -217,7 +217,7 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 	}
 
 	@Override
-	public List<Feedback> getUserFeedbacks(String feedbackCategory, String feedbackType, String assocUserUid, String creatorUid, Integer limit, Integer offset) {
+	public List<Feedback> getUserFeedbacks(String feedbackCategory, String feedbackType, String assocUserUid, String creatorUid, Integer limit, Integer offset, Boolean skipPagination) {
 		String type = null;
 		String category = null;
 		if (feedbackType != null) {
@@ -226,7 +226,7 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 			category = CustomProperties.Table.FEEDBACK_CATEGORY.getTable() + "_" + feedbackCategory;
 		}
 		rejectIfNull(this.getUserRepository().findByGooruId(assocUserUid), GL0056, _USER);
-		return this.getFeedbackRepository().getUserFeedbacks(type, assocUserUid, creatorUid, category, limit, offset);
+		return this.getFeedbackRepository().getUserFeedbacks(type, assocUserUid, creatorUid, category, limit, offset, skipPagination);
 	}
 
 	@Override
@@ -466,14 +466,14 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 
 	@Override
 	public Integer getContentFeedbackAggregateByType(String assocGooruOid, String feedbackType) {
-		String type = CustomProperties.Table.FEEDBACK_RATING_TYPE.getTable() + "_" + CustomProperties.FeedbackRatingType.THUMB.getFeedbackRatingType();
+		String type = CustomProperties.Table.FEEDBACK_OTHER_TYPE.getTable() + "_" + feedbackType;
 		rejectIfNull(this.getContentRepository().findContentByGooruId(assocGooruOid), GL0056, _CONTENT);
 		return this.getFeedbackRepository().getContentFeedbackAggregateByType(assocGooruOid, type);
 	}
 
 	@Override
 	public Integer getUserFeedbackAggregateByType(String assocUserUid, String feedbackType) {
-		String type = CustomProperties.Table.FEEDBACK_RATING_TYPE.getTable() + "_" + CustomProperties.FeedbackRatingType.THUMB.getFeedbackRatingType();
+		String type = CustomProperties.Table.FEEDBACK_OTHER_TYPE.getTable() + "_" + feedbackType;
 		rejectIfNull(type, GL0006, feedbackType + TYPE);
 		rejectIfNull(this.getUserRepository().findByGooruId(assocUserUid), GL0056, _USER);
 		return this.getFeedbackRepository().getUserFeedbackAggregateByType(assocUserUid, type);

@@ -154,7 +154,7 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 	}
 
 	@Override
-	public List<Feedback> getUserFeedbacks(String type, String assocUserUid, String creatorUid, String category, Integer limit, Integer offset) {
+	public List<Feedback> getUserFeedbacks(String type, String assocUserUid, String creatorUid, String category, Integer limit, Integer offset, Boolean skipPagination) {
 		Session session = getSession();
 		String hql = " FROM  Feedback feedback WHERE " + generateOrgAuthQuery("feedback.") + " and feedback.assocUserUid=:assocUserUid  ";
 		if (category != null) {
@@ -178,8 +178,10 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 			query.setParameter("category", category);
 		}
 		addOrgAuthParameters(query);
-		query.setFirstResult(offset);
-		query.setMaxResults(limit);
+		if (!skipPagination) {
+			query.setFirstResult(offset);
+			query.setMaxResults(limit);
+		}
 		return query.list();
 	}
 
