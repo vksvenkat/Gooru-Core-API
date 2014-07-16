@@ -58,9 +58,8 @@ public class FeaturedRepositoryHibernate extends BaseRepositoryHibernate impleme
 		}
 		hql += " ORDER BY featuredSet.sequence";
         
-		Session session = getSession();
 	
-		return session.createQuery(hql).setMaxResults(limit).list();
+		return  getSession().createQuery(hql).setMaxResults(limit).list();
 	}
 	
 	@Override

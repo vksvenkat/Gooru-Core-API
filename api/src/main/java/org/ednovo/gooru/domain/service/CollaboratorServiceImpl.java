@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.ednovo.gooru.application.util.AsyncExecutor;
 import org.ednovo.gooru.application.util.MailAsyncExecutor;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.CollectionItem;
@@ -41,7 +42,6 @@ import org.ednovo.gooru.core.api.model.UserContentAssoc;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.NotFoundException;
-import org.ednovo.gooru.domain.service.redis.RedisService;
 import org.ednovo.gooru.domain.service.userManagement.UserManagementService;
 import org.ednovo.gooru.domain.service.v2.ContentService;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
@@ -89,7 +89,7 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 	private InviteRepository inviteRepository;
 	
 	@Autowired
-	private RedisService redisService;
+	private AsyncExecutor asyncExecutor;
 	
 	private Logger logger = LoggerFactory.getLogger(CollaboratorServiceImpl.class);
 
@@ -129,8 +129,8 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 						} catch (JSONException e) {
 							e.printStackTrace();
 						}	
-						this.redisService.bulkKeyDelete("v2-organize-data-" + identity.getUser().getPartyUid() + "*");
-						this.redisService.bulkKeyDelete("v2-organize-data-" + content.getUser().getPartyUid() + "*");
+						getAsyncExecutor().deleteFromCache("v2-organize-data-" + identity.getUser().getPartyUid() + "*");
+						getAsyncExecutor().deleteFromCache("v2-organize-data-" + content.getUser().getPartyUid() + "*");
 					} else {
 						collaborator.add(setActiveCollaborator(userContentAssocs, ACTIVE));
 					}
@@ -227,8 +227,8 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 							this.getCollectionService().deleteCollectionItem(association.getCollectionItemId(), identity.getUser());
 						}
 					}
-					this.redisService.bulkKeyDelete("v2-organize-data-" + identity.getUser().getPartyUid() + "*");
-					this.redisService.bulkKeyDelete("v2-organize-data-" + content.getUser().getPartyUid() + "*");
+					getAsyncExecutor().deleteFromCache("v2-organize-data-" + identity.getUser().getPartyUid() + "*");
+					getAsyncExecutor().deleteFromCache("v2-organize-data-" + content.getUser().getPartyUid() + "*");
 				} else {
 					InviteUser inviteUser = this.getInviteRepository().findInviteUserById(mailId, gooruOid,PENDING);
 					if (inviteUser != null) {
@@ -369,6 +369,10 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 		payLoadObject.put(COLLABORATED_ID, collaborator != null ? collaborator.getPartyUid() : null);
 		payLoadObject.put(ITEM_TYPE, collectionItem != null && collectionItem.getResource() != null ? collectionItem.getResource().getResourceType().getName() : null);
 		SessionContextSupport.putLogParameter(PAY_LOAD_OBJECT, payLoadObject.toString());
+	}
+
+	public AsyncExecutor getAsyncExecutor() {
+		return asyncExecutor;
 	}
 
 }
