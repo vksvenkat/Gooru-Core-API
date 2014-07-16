@@ -34,6 +34,7 @@ import org.ednovo.gooru.core.api.model.AssessmentQuestion;
 import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
+import org.ednovo.gooru.core.api.model.ResourceSummary;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.domain.service.search.SearchResults;
 
@@ -75,7 +76,6 @@ public interface CollectionService extends ScollectionService {
 	SearchResults<Collection> getCollections(Integer offset, Integer limit, Boolean skipPagination, User user, String publishStatus);
 	
 	String getFolderItemsWithCache(String gooruOid, Integer limit, Integer offset, String sharing, String collectionType, String orderBy, Integer itemLimit, boolean fetchChildItem, boolean clearCache,User user);
-	
 	
 	
 }

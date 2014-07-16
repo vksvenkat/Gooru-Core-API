@@ -247,7 +247,7 @@ public class TagServiceImpl extends BaseServiceImpl implements TagService, Param
  				result.put("aggregator", aggregator);
  			}
 			result.put("views", object[7]);
-			result.put(RATINGS, this.getFeedbackService().getContentFeedbackStarRating(String.valueOf(object[1])));
+			result.put(RATINGS, this.collectionService.setRatingsObj(this.getResourceRepository().getResourceSummaryById(String.valueOf(object[1]))));
 			resource.add(result);
 		}
 		content.put("searchResult",resource);

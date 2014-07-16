@@ -87,6 +87,9 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 	
 	@Autowired
 	private AsyncExecutor asyncExecutor;
+	
+	@Autowired
+	private CollectionService collectionService;
 
 	@Override
 	public Feedback createFeedback(Feedback feedback, User user) {
@@ -141,7 +144,7 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 		this.getFeedbackRepository().saveAll(feedbackList);
 		this.getFeedbackRepository().flush();
 		for (Feedback feedback : feedbacks) {
-			feedback.setRatings(this.getContentFeedbackStarRating(feedback.getAssocGooruOid()));
+			feedback.setRatings(this.collectionService.setRatingsObj(this.getResourceRepository().getResourceSummaryById(feedback.getAssocGooruOid())));
 		}
 		Resource resource = this.getResourceRepository().findResourceByContentGooruId(newFeedback.getAssocGooruOid());
 		if (resource != null && resource.getContentId() != null) {
