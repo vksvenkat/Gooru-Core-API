@@ -48,7 +48,7 @@ public interface ClasspageService {
 
 	Classpage getClasspage(String classpageId, User user, String merge);
 
-	SearchResults<Classpage> getClasspages(Integer offset, Integer limit, Boolean skipPagination, User user, String title, String author, String userName);
+	SearchResults<Classpage> getClasspages(Integer offset, Integer limit, Boolean skipPagination, User user, String title, String authorGooruUid, String gooruUid);
 
 	Classpage getClasspage(String classpageCode, User user) throws Exception;
 	
