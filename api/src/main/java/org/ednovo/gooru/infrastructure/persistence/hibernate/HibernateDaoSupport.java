@@ -113,10 +113,6 @@ public abstract class HibernateDaoSupport extends UserGroupSupport {
 		return datas.size() > 0 ? datas.get(0) : null;
 	}
 
-	public void releaseSession(Session session) {
-
-	}
-
 	public Session getSession() {
 
 		Session currentSession = null;
@@ -125,7 +121,7 @@ public abstract class HibernateDaoSupport extends UserGroupSupport {
 		} catch (Exception e) {
 			currentSession = getSessionFactory().openSession();
 		}
-		currentSession.enableFilter("customFieldFilter").setParameterList("customFieldFilterParam", Constants.themeUsercustomFieldsKey);
+		currentSession.enableFilter("customFieldFilter").setParameterList("customFieldFilterParam", Constants.customFieldsKey);
 		return currentSession;
 	}
 

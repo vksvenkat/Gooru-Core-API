@@ -70,7 +70,7 @@ public final class ConfigProperties implements Serializable,ConfigConstants {
 	@Autowired
 	private SettingService settingService;
 	
-	private static final Logger logger = LoggerFactory.getLogger(ConfigProperties.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ConfigProperties.class);
 	
 	@PostConstruct
 	public void init() { 
@@ -95,62 +95,62 @@ public final class ConfigProperties implements Serializable,ConfigConstants {
 		try {
 			wsFedSSO = settingService.getWsfedOrganizationSettings(WSFEDSSO_CONFIG, null);
 		} catch (Exception e) {
-			logger.info("Failed to initialize wsFedSSO" + e.getMessage());
+			LOGGER.info("Failed to initialize wsFedSSO" + e.getMessage());
 			wsFedSSO = new HashMap<String, Map<String,String>>();
 		}
 		
 		try {
 			authSSO = JsonDeserializer.deserialize(authSSOData, new TypeReference<Map<String, String>>() {});
 		} catch(Exception e) {
-			logger.info("Failed to initialize authSSO" + e.getMessage());
+			LOGGER.info("Failed to initialize authSSO" + e.getMessage());
 			authSSO = new HashMap<String, String>();
 		}
 		try{
 			tomCat = JsonDeserializer.deserialize(tomCatData, new TypeReference<Map<String, String>>() {});
 		}catch(Exception e){
-			logger.info("Failed to initialize tomCat" + e.getMessage());
+			LOGGER.info("Failed to initialize tomCat" + e.getMessage());
 			tomCat = new HashMap<String, String>();
 		}
 		try{
 			schedulers = JsonDeserializer.deserialize(schedulersData, new TypeReference<Map<String, String>>() {});
 		}catch(Exception e){
-			logger.info("Failed to initialize schedulers" + e.getMessage());
+			LOGGER.info("Failed to initialize schedulers" + e.getMessage());
 			schedulers = new HashMap<String, String>();
 		}
 		try{
 			gooruApp = JsonDeserializer.deserialize(gooruAppData, new TypeReference<Map<String, String>>() {});		
 		}catch(Exception e){
-			logger.info("Failed to initialize gooruApp" + e.getMessage());
+			LOGGER.info("Failed to initialize gooruApp" + e.getMessage());
 			gooruApp = new HashMap<String, String>();
 		}
 		try{
 			classplanRepository = JsonDeserializer.deserialize(classplanRepositoryData, new TypeReference<Map<String, String>>() {});
 		}catch(Exception e){
-			logger.info("Failed to initialize classplanRepository" + e.getMessage());
+			LOGGER.info("Failed to initialize classplanRepository" + e.getMessage());
 			classplanRepository = new HashMap<String, String>();
 		}
 		try{
 			logSettings = JsonDeserializer.deserialize(logSettingsData, new TypeReference<Map<String, String>>() {});
 		}catch(Exception e){
-			logger.info("Failed to initialize logSettings" + e.getMessage());
+			LOGGER.info("Failed to initialize logSettings" + e.getMessage());
 			logSettings = new HashMap<String, String>();
 		}
 		try{
 			scribdAPI = JsonDeserializer.deserialize(scribdAPIData, new TypeReference<Map<String, String>>() {});
 		}catch(Exception e){
-			logger.info("Failed to initialize" + e.getMessage());
+			LOGGER.info("Failed to initialize" + e.getMessage());
 			scribdAPI = new HashMap<String, String>();
 		}
 		try{
 			taxonomyRepositoryPath = JsonDeserializer.deserialize(taxonomyRepositoryPathData, new TypeReference<Map<String, String>>() {});
 		}catch(Exception e){
-			logger.info("Failed to initialize" + e.getMessage());
+			LOGGER.info("Failed to initialize" + e.getMessage());
 			taxonomyRepositoryPath = new HashMap<String, String>();
 		}
 		try{
 			googleAnalyticsAccountId = JsonDeserializer.deserialize(googleAnalyticsAccountIdData, new TypeReference<Map<String, String>>() {});
 		}catch(Exception e){
-			logger.info("Failed to initialize" + e.getMessage());
+			LOGGER.info("Failed to initialize" + e.getMessage());
 			googleAnalyticsAccountId = new HashMap<String, String>();
 		}
 		

@@ -55,7 +55,7 @@ public class CollectionFormatter {
 	
 	private static CollectionFormatter instance;
 	
-	private static final Logger logger = LoggerFactory.getLogger(CollectionFormatter.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(CollectionFormatter.class);
 
 	public static enum SKELETON_SEGMENT {
 		ASSESSMENT("assessment"), SUGGESTED_STUDY("suggestedstudy"), HOMEWORK("homework");
@@ -175,7 +175,7 @@ public class CollectionFormatter {
 					resources.add(resource);
 				}
 			} else {
-				logger.error("Invalid Resource Instance - " + resourceInstance.getResourceInstanceId());
+				LOGGER.error("Invalid Resource Instance - " + resourceInstance.getResourceInstanceId());
 			}
 		}
 		return resources;

@@ -49,16 +49,14 @@ public class ProfileImageUtil implements ParameterProperties {
 	@Autowired
 	private S3Manager s3Manager;
 
-	 protected static final Logger logger = LoggerFactory.getLogger(ProfileImageUtil.class);
+	 protected static final Logger LOGGER = LoggerFactory.getLogger(ProfileImageUtil.class);
 
 
 	public void uploadProfileImage(final Profile profile, String mediaFileName) throws Exception {
 
 		profile.setThumbnailBlob(scaleImage(profile.getPictureBlob(), 158, 158));
 		this.getUserRepository().save(profile);
-		/*String pictureFmt = mediaFileName != null ? S3Manager.getFileFomrat(mediaFileName) : null;*/
 		String pictureFmt = PNG;
-		/*profile.setPictureFormat(pictureFmt != null ? pictureFmt : profile.getPictureFormat());*/
 		profile.setPictureFormat(pictureFmt);
 		this.getUserRepository().save(profile);
 
@@ -75,7 +73,7 @@ public class ProfileImageUtil implements ParameterProperties {
 					s3Manager.uploadFile(S3Manager.Type.PROFILE, scaleImage(profile.getPictureBlob(), 48, 48), profile.getUser().getGooruUId() + "-48x48." + profile.getPictureFormat());
 					s3Manager.uploadFile(S3Manager.Type.PROFILE, scaleImage(profile.getPictureBlob(), 130, 130), profile.getUser().getGooruUId() + "-130x130." + profile.getPictureFormat());
 				} catch (Exception exception) {
-					logger.error("S3 Profile Image Upload Failed : " + exception.getMessage());
+					LOGGER.error("S3 Profile Image Upload Failed : " + exception.getMessage());
 				}
 			}
 

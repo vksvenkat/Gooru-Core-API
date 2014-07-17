@@ -41,10 +41,7 @@ public class StorageRepositoryHibernate extends BaseRepositoryHibernate implemen
 
 	@Override
 	public StorageArea getStorageAreaByTypeName(String typeName) {
-		Session session = getSession();
-		List<StorageArea> storageAreas = session.createQuery("FROM StorageArea storageArea WHERE storageArea.storageAccount.typeName = '"+typeName+"'").list();
-		
-		releaseSession(session);
+		List<StorageArea> storageAreas = getSession().createQuery("FROM StorageArea storageArea WHERE storageArea.storageAccount.typeName = '"+typeName+"'").list();
 		return storageAreas.size() > 0 ? storageAreas.get(0) : null;
 	}
 

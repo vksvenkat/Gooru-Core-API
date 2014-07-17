@@ -173,15 +173,15 @@ public class RequestUtil implements ParameterProperties {
 
 	public static byte[] readMultipartRequest(List<FileItem> fileItemsList) throws IOException {
 
-		byte[] FILE_DATA = null;
+		byte[] fileData = null;
 		for (FileItem fileItem : fileItemsList) {
 			String paramName = ((FileItem) fileItem).getFieldName();
 			if ((paramName.equals(FILE)) && (((FileItem) fileItem).getInputStream().read() != -1)) {
-				FILE_DATA = fileItem.get();
+				fileData = fileItem.get();
 			}
 
 		}
-		return FILE_DATA;
+		return fileData;
 	}
 
 	public static Map<String, String> readMultipartRequestParams(List<FileItem> fileItemsList) throws FileUploadException, UnsupportedEncodingException {

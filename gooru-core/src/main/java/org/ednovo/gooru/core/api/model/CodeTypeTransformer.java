@@ -17,7 +17,7 @@ public class CodeTypeTransformer extends ObjectTransformer {
 		this.deepSerialize = deepSerialize;
 	}
 	
-		private static final Logger logger = LoggerFactory.getLogger(CodeTypeTransformer.class);
+		private static final Logger LOGGER = LoggerFactory.getLogger(CodeTypeTransformer.class);
 		
 		@Override
 		public void transform(Object object) {
@@ -41,7 +41,7 @@ public class CodeTypeTransformer extends ObjectTransformer {
 		    	getContext().transform(codeTypeModel);	
 			}
                 else {
-				logger.error("Serialization failed for user group transformer");
+				LOGGER.error("Serialization failed for user group transformer");
 				getContext().write(null);
 			}
 		}

@@ -26,12 +26,6 @@ public class Resource extends Content implements Serializable {
 
 	private static final String INDEX_TYPE = "resource";
 
-	/**
-	 * 
-	 */
-	public static String REPOSITORY_WEB_URI;
-	public static String REPOSITORY_WEB_URI2;
-
 	public static enum RecordSource {
 		QUOTED("userquoted"), CRAWLED("goorucrawled"), COLLECTION("useradded"), GAT("adminadded"), DEFAULT("notadded");
 

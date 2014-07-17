@@ -7,7 +7,7 @@ import flexjson.transformer.ObjectTransformer;
 
 public class ContentPermissionTransformer extends ObjectTransformer {
 
-	private static final Logger logger = LoggerFactory.getLogger(ContentPermissionTransformer.class); 
+	private static final Logger LOGGER = LoggerFactory.getLogger(ContentPermissionTransformer.class); 
 	
 	@Override
 	public void transform(Object object) {
@@ -20,7 +20,7 @@ public class ContentPermissionTransformer extends ObjectTransformer {
 			getContext().transform(organizationModel);
 
 		} else {
-			logger.error("Serialization failed for content permission transformer");
+			LOGGER.error("Serialization failed for content permission transformer");
 			getContext().write(null);
 		}
 	}

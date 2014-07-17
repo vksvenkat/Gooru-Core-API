@@ -2081,7 +2081,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 			Long start = System.currentTimeMillis();
 			if (start <= expires) {
 				String signature = paramMap.get(SIGNATURE).toString();
-				paramMap.put(expire, expires);
+				paramMap.put(EXPIRE, expires);
 				String computedSignature = new GooruMd5Util().verifySignatureFromURL(url, paramMap, apiKeyObj.getSecretKey());
 				if (signature.equals(computedSignature)) {
 					String emailId = paramMap.get(EMAIL_ID).toString();

@@ -35,7 +35,7 @@ public class Segment implements Serializable, Comparable<Segment> {
 	
 	private String narrationLink; 
 		
-	private Integer NoOfQuestions;
+	private Integer noOfQuestions;
 		
 	private Integer attemptedQuestions;
     
@@ -177,11 +177,11 @@ public class Segment implements Serializable, Comparable<Segment> {
 	}
 
 	public void setNoOfQuestions(Integer noOfQuestions) {
-		NoOfQuestions = noOfQuestions;
+		noOfQuestions = noOfQuestions;
 	}
 
 	public Integer getNoOfQuestions() {
-		return NoOfQuestions;
+		return noOfQuestions;
 	}
 
 	public void setAttemptedQuestions(Integer attemptedQuestions) {

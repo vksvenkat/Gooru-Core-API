@@ -25,7 +25,7 @@ import com.mortennobel.imagescaling.AdvancedResizeOp;
 import com.mortennobel.imagescaling.ResampleOp;
 
 public class ImageUtil implements ParameterProperties {
-	private static final Logger logger = LoggerFactory.getLogger(ImageUtil.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ImageUtil.class);
 
 	public static String getFileExtenstion(String contentType) {
 
@@ -65,7 +65,7 @@ public class ImageUtil implements ParameterProperties {
 
 			return true;
 		} catch (Exception e) {
-			logger.warn("DownloadImage failed:exception:", e);
+			LOGGER.warn("DownloadImage failed:exception:", e);
 			return false;
 		}
 	}

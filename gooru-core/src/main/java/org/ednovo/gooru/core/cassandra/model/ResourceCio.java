@@ -253,7 +253,7 @@ public class ResourceCio implements IsEntityCassandraIndexable {
 	private String educationalUse;
 	
 	@Column
-	private String Standards;
+	private String standards;
 	
 	@Column
 	private String momentsofLearning;
@@ -281,11 +281,11 @@ public class ResourceCio implements IsEntityCassandraIndexable {
 	}
 
 	public String getStandards() {
-		return Standards;
+		return standards;
 	}
 
 	public void setStandards(String standards) {
-		Standards = standards;
+		standards = standards;
 	}
       
 	public String getLearningAndInovation() {

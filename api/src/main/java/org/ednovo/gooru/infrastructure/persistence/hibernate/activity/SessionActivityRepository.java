@@ -33,7 +33,7 @@ public interface SessionActivityRepository extends BaseRepository {
 
 	SessionActivity getSessionActivity(String sessionActivityUid);
 
-	List<SessionActivity> getUserSessionActivityList(String UserUid);
+	List<SessionActivity> getUserSessionActivityList(String userUid);
 
 	SessionActivityItem getContentSessionActivityItem(String contentUid, String userUid, String status);
 
