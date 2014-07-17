@@ -2695,4 +2695,8 @@ public interface ParameterProperties {
 	String GOOGLE_REFRESH_TOKEN = "google_refresh_token";
 	
 	String REFRESH_TOKEN = "refresh_token";
+	
+	Integer MAX_LIMIT = 50;
+	
+	
 }

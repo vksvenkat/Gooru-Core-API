@@ -29,6 +29,7 @@ import java.util.List;
 import org.ednovo.gooru.core.api.model.PartyPermission;
 import org.ednovo.gooru.core.api.model.UserGroup;
 import org.ednovo.gooru.core.api.model.UserGroupAssociation;
+import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -38,7 +39,7 @@ import org.springframework.stereotype.Repository;
 
 
 @Repository
-public class UserGroupRepositoryHibernate extends BaseRepositoryHibernate implements UserGroupRepository {
+public class UserGroupRepositoryHibernate extends BaseRepositoryHibernate implements UserGroupRepository,ParameterProperties {
 	
 
 	@Override
@@ -127,9 +128,12 @@ public class UserGroupRepositoryHibernate extends BaseRepositoryHibernate implem
 		}
 		
 		Query query = getSession().createSQLQuery(sql);
-		if (!skipPagination) {
+		if (!skipPagination && limit <= MAX_LIMIT) {
 			query.setFirstResult(offset);
 			query.setMaxResults(limit);
+		} else {
+			query.setFirstResult(0);
+			query.setMaxResults(MAX_LIMIT);
 		}
 		return query.list();
 	}
@@ -160,9 +164,12 @@ public class UserGroupRepositoryHibernate extends BaseRepositoryHibernate implem
 		}
 		
 		Query query = getSession().createSQLQuery(sql);
-		if (!skipPagination) {
+		if (!skipPagination && limit <= MAX_LIMIT) {
 			query.setFirstResult(offset);
 			query.setMaxResults(limit);
+		} else {
+			query.setFirstResult(0);
+			query.setMaxResults(MAX_LIMIT);
 		}
 		return query.list();
 	}

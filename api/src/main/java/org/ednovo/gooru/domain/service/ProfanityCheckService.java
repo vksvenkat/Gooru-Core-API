@@ -24,6 +24,7 @@
 package org.ednovo.gooru.domain.service;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.ednovo.gooru.core.api.model.Profanity;
 
@@ -35,7 +36,7 @@ public interface ProfanityCheckService {
 
 	String getConfigSetting(String apiEndPoint, String key, String token);
 
-	void profanityCreate(Profanity profanity) throws Exception;
+	List<String> profanityCreate(Profanity profanity) throws Exception;
 
 	public void profanityDelete(Profanity profanity) throws Exception;
 

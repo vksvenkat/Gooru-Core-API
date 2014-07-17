@@ -27,7 +27,6 @@ import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -47,6 +46,7 @@ import org.ednovo.gooru.core.api.model.UserRelationship;
 import org.ednovo.gooru.core.api.model.UserRole;
 import org.ednovo.gooru.core.api.model.UserRoleAssoc;
 import org.ednovo.gooru.core.api.model.UserSummary;
+import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.hibernate.Criteria;
@@ -61,7 +61,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class UserRepositoryHibernate extends BaseRepositoryHibernate implements UserRepository {
+public class UserRepositoryHibernate extends BaseRepositoryHibernate implements UserRepository,ParameterProperties {
 
 	private static final String EXTERNAL_ID = "externalId";
 
@@ -295,9 +295,12 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 	public List<User> getFollowedByUsers(String gooruUId, Integer offset, Integer limit, boolean skipPagination) {
 		String hql = "SELECT userRelation.user FROM UserRelationship userRelation  WHERE userRelation.followOnUser.partyUid = '" + gooruUId + "' AND userRelation.activeFlag = 1 AND " + generateOrgAuthQueryWithData("userRelation.user.") + " AND " + generateUserIsDeleted("userRelation.user.");
 		Query query = getSession().createQuery(hql);
-		if (!skipPagination) {
+		if (!skipPagination && limit <= MAX_LIMIT) {
 			query.setFirstResult(offset);
 			query.setMaxResults(limit);
+		} else {
+			query.setFirstResult(0);
+			query.setMaxResults(MAX_LIMIT);
 		}
 		return query.list();
 	}
@@ -320,9 +323,12 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 	public List<User> getFollowedOnUsers(String gooruUId, Integer offset, Integer limit, boolean skipPagination) {
 		String hql = "SELECT userRelation.followOnUser FROM UserRelationship userRelation WHERE userRelation.user.partyUid = '" + gooruUId + "' AND userRelation.activeFlag = 1  AND " + generateOrgAuthQueryWithData("userRelation.user.") + " AND " + generateUserIsDeleted("userRelation.user.");
 		Query query = getSession().createQuery(hql);
-		if (!skipPagination) {
+		if (!skipPagination && limit <= MAX_LIMIT) {
 			query.setFirstResult(offset);
 			query.setMaxResults(limit);
+		} else {
+			query.setFirstResult(0);
+			query.setMaxResults(MAX_LIMIT);
 		}
 		return query.list();
 	}
@@ -334,28 +340,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 		return (relationships.size() > 0) ? relationships.get(0) : null;
 	}
 
-	@Override
-	public User findByRemeberMeToken(String remeberMeToken) {
-		Object[] obj = new Object[1];
-		obj[0] = (Object) remeberMeToken;
-		List<Map<String, Object>> rows = this.getJdbcTemplate().queryForList(FIND_USER_BY_TOKEN, obj);
-		User user = null;
-		for (Map row : rows) {
-			user = new User();
-			user.setGooruUId((String) row.get("gooru_uid"));
-			user.setFirstName((String) row.get("firstname"));
-			user.setLastName((String) row.get("lastname"));
-			user.setUserId(new Integer(String.valueOf(row.get("user_id"))));
-			user.setEmailId((String) row.get("external_id"));
-
-			List<UserRoleAssoc> userRoleSet = this.findUserRoleSet(user);
-			if (userRoleSet != null) {
-				user.setUserRoleSet(new HashSet<UserRoleAssoc>(userRoleSet));
-			}
-			break;
-		}
-		return user;
-	}
+	
 
 	@Override
 	public List<UserRoleAssoc> findUserRoleSet(User user) {
@@ -569,7 +554,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 		Query query = getSession().createQuery(hql);
 		addOrgAuthParameters(query);
 		query.setFirstResult((pageNum - 1) * pageSize);
-		query.setMaxResults(pageSize);
+		query.setMaxResults(pageSize <= MAX_LIMIT ? pageSize : MAX_LIMIT);
 		return query.list();
 	}
 
@@ -731,7 +716,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 	public List<Object[]> listUserByBirthDay(Integer offset, Integer limit) {
 		Query query = getSession().createSQLQuery(FETCH_USERS_BY_BIRTHDAY).addScalar("email_id", StandardBasicTypes.STRING).addScalar("user_id", StandardBasicTypes.STRING);
 		query.setFirstResult(offset);
-		query.setMaxResults(limit);
+		query.setMaxResults(limit <= MAX_LIMIT ? limit :MAX_LIMIT );
 		return query.list();
 	}
 	

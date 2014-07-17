@@ -113,15 +113,10 @@ public class MediaRestV2Controller extends BaseController implements
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_MEDIA_ADD })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.POST)
-	public ModelAndView uploadMedia(HttpServletRequest request,
-			HttpServletResponse response) throws Exception {
+	public ModelAndView uploadMedia(HttpServletRequest request,HttpServletResponse response) throws Exception {
 		Map<String, Object> formField = RequestUtil.getMultipartItems(request);
-		MediaDTO mediaDTO = formField.get(DATA_OBJECT) != null ? this
-				.buildMediaInput(formField.get(DATA_OBJECT).toString())
-				: new MediaDTO();
-		return toModelAndView(
-				getMediaService().handleFileUpload(mediaDTO, formField),
-				FORMAT_JSON);
+		MediaDTO mediaDTO = formField.get(DATA_OBJECT) != null ? this.buildMediaInput(formField.get(DATA_OBJECT).toString()): new MediaDTO();
+		return toModelAndView(getMediaService().handleFileUpload(mediaDTO, formField),FORMAT_JSON);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_MEDIA_UPDATE })
