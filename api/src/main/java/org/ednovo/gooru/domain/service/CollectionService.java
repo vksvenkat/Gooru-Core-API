@@ -34,6 +34,7 @@ import org.ednovo.gooru.core.api.model.AssessmentQuestion;
 import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
+import org.ednovo.gooru.core.api.model.ResourceSummary;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.domain.service.search.SearchResults;
 
@@ -62,7 +63,7 @@ public interface CollectionService extends ScollectionService {
 	
 	SearchResults<Code> getCollectionStandards(Integer codeId,String query, Integer limit, Integer offset,Boolean skipPagination, User user);
 	
-	List<Map<String, Object>> getFolderList(Integer limit, Integer offset, String gooruOid, String title, String username, boolean skipPagination );
+	Map<String, Object> getFolderList(Integer limit, Integer offset, String gooruOid, String title, String username, boolean skipPagination );
 	
 	List<CollectionItem> createCollectionItems(List<String> collectionsIds, String resourceId, User user) throws Exception;
 	
@@ -75,7 +76,6 @@ public interface CollectionService extends ScollectionService {
 	SearchResults<Collection> getCollections(Integer offset, Integer limit, Boolean skipPagination, User user, String publishStatus);
 	
 	String getFolderItemsWithCache(String gooruOid, Integer limit, Integer offset, String sharing, String collectionType, String orderBy, Integer itemLimit, boolean fetchChildItem, boolean clearCache,User user);
-	
 	
 	
 }

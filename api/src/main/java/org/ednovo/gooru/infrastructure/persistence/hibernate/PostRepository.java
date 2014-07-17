@@ -33,7 +33,7 @@ public interface PostRepository extends BaseRepository {
 	
 	List<Post> getPosts(String type, Integer limit, Integer offset);
 	
-	List<Post> getUserPosts(String gooruUid, Integer limit, Integer offset);
+	List<Post> getUserPosts(String gooruUid, Integer limit, Integer offset, Boolean skipPagination);
 	
 	List<Post> getContentPosts(String gooruOid, Integer limit, Integer offset);
 	

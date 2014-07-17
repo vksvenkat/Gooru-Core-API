@@ -166,6 +166,16 @@ public class AsyncExecutor {
 			}
 		});
 	}
+	
+	public void deleteFromCache(final String key) {
+		transactionTemplate.execute(new TransactionCallback<Void>() {
+			@Override
+			public Void doInTransaction(TransactionStatus status) {
+				getCollectionUtil().deleteFromCache(key);
+				return null;
+			}
+		});
+	}
 
 	public ResourceManager getResourceManager() {
 		return resourceManager;

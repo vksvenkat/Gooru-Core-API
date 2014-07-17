@@ -46,7 +46,7 @@ public interface TagRepository extends BaseRepository {
 
 	UserTagAssoc getUserTagassocById(String gooruOid, String tagGooruOid);
 
-	List<UserTagAssoc> getContentTagByUser(String gooruOid, Integer limit, Integer offset);
+	List<UserTagAssoc> getContentTagByUser(String gooruOid, Integer limit, Integer offset, Boolean skipPagination);
 
 	List<UserTagAssoc> getTagAssocUser(String tagGooruOid, Integer limit, Integer offset);
 

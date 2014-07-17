@@ -47,10 +47,7 @@ import org.ednovo.gooru.core.constant.GooruOperationConstants;
 import org.ednovo.gooru.core.security.AuthorizeOperations;
 import org.ednovo.gooru.domain.service.CollectionService;
 import org.ednovo.gooru.domain.service.redis.RedisService;
-import org.ednovo.gooru.domain.service.resource.ResourceService;
-import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepository;
-import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentRepository;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,17 +69,8 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 	private CollectionService collectionService;
 
 	@Autowired
-	private BaseRepository baseRepository;
-
-	@Autowired
 	private CollectionRepository collectionRepository;
 	
-	@Autowired
-	private ContentRepository contentRepository;
-
-	@Autowired
-	private ResourceService resourceService;
-
 	@Autowired
 	private RedisService redisService;
 
@@ -237,10 +225,7 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 	public ModelAndView getFolderList(HttpServletRequest request, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "20") Integer limit,
 			@RequestParam(value = ID, required = false) String gooruOid, @RequestParam(value = TITLE, required = false) String title, @RequestParam(value = "username", required = false) String username,
 			@RequestParam(value = SKIP_PAGINATION, required = false, defaultValue = FALSE) boolean skipPagination, HttpServletResponse resHttpServletResponse) {
-		Map<String, Object> content = new HashMap<String, Object>();
-		content.put(SEARCH_RESULT, this.getCollectionService().getFolderList(limit, offset, gooruOid, title, username, skipPagination));
-		content.put(COUNT, this.getCollectionRepository().getFolderListCount(gooruOid, title, username));
-		return toJsonModelAndView(content, true);
+		return toJsonModelAndView(this.getCollectionService().getFolderList(limit, offset, gooruOid, title, username, skipPagination), true);
 	}
 
 	private Collection buildCollectionFromInputParameters(String data, User user) {
@@ -273,16 +258,8 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 		return collectionItem;
 	}
 
-	public BaseRepository getBaseRepository() {
-		return baseRepository;
-	}
-
 	public CollectionService getCollectionService() {
 		return collectionService;
-	}
-
-	public ResourceService getResourceService() {
-		return resourceService;
 	}
 
 	public CollectionRepository getCollectionRepository() {
@@ -291,10 +268,6 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 
 	public RedisService getRedisService() {
 		return redisService;
-	}
-
-	public ContentRepository getContentRepository() {
-		return contentRepository;
 	}
 
 }

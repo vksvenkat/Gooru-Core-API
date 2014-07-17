@@ -53,7 +53,7 @@ public interface TagService extends BaseService {
 
 	void deleteUserTagAssoc(String gooruOid, String tagGooruOid);
 
-	List<UserTagAssoc> getUserTagAssoc(String gooruUid, Integer limit, Integer offset);
+	List<UserTagAssoc> getUserTagAssoc(String gooruUid, Integer limit, Integer offset, Boolean skipPagination);
 
 	List<UserTagAssoc> getTagAssocUser(String tagGooruOid, Integer limit, Integer offset);
 

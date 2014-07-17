@@ -97,7 +97,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		question.setSharing(collection.getSharing());
 		ActionResponseDTO<AssessmentQuestion> responseDTO = assessmentService.createQuestion(question, true);
 		if (responseDTO.getModel() != null) {
-			response = this.createCollectionItem(responseDTO.getModel(), collection, user);
+			response = this.createCollectionItem(responseDTO.getModel(), collection,null,null,user);
 			if (mediaFileName != null && mediaFileName.length() > 0) {
 				String questionImage = this.assessmentService.updateQuizQuestionImage(responseDTO.getModel().getGooruOid(), mediaFileName, question, ASSET_QUESTION);
 				if (questionImage != null && questionImage.length() > 0) {
@@ -163,7 +163,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 					}
 					collectionItem.setStandards(this.getStandards(responseDTO.getModel().getTaxonomySet(), false, null));
 				}
-				this.redisService.bulkKeyDelete("v2-organize-data-" + collectionItem.getCollection().getUser().getPartyUid() + "*");
+				getAsyncExecutor().deleteFromCache("v2-organize-data-" + collectionItem.getCollection().getUser().getPartyUid() + "*");
 			}
 
 		} else {
@@ -206,8 +206,8 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		} else {
 			responseDTO = this.createCollectionItem(sourceId, null, collectionItem, user, CollectionType.SHElf.getCollectionType(), false);
 		}
-		this.redisService.bulkKeyDelete("v2-organize-data-" + collectionItem.getCollection().getUser().getPartyUid() + "*");
-		this.redisService.bulkKeyDelete("v2-organize-data-" + user.getPartyUid() + "*");
+		getAsyncExecutor().deleteFromCache("v2-organize-data-" + collectionItem.getCollection().getUser().getPartyUid() + "*");
+		getAsyncExecutor().deleteFromCache("v2-organize-data-" + user.getPartyUid() + "*");
 		try {
 			getEventLogs(responseDTO.getModel(), true, user, responseDTO.getModel().getCollection().getCollectionType());
 		} catch (JSONException e) {
@@ -495,9 +495,15 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	}
 
 	@Override
-	public List<Map<String, Object>> getFolderList(Integer limit, Integer offset, String gooruOid, String title, String username, boolean skipPagination) {
-		List<Object[]> result = this.getCollectionRepository().getFolderList(limit, offset, gooruOid, title, username, skipPagination);
+	public Map<String, Object> getFolderList(Integer limit, Integer offset, String gooruOid, String title, String username, boolean skipPagination) {
+		String gooruUid = null;
+		if (username != null) { 
+			User user = this.getUserService().getUserByUserName(gooruUid);
+			gooruUid = user != null ? user.getPartyUid() : null;
+		}
+		List<Object[]> result = this.getCollectionRepository().getFolderList(limit, offset, gooruOid, title, gooruUid, skipPagination);
 		List<Map<String, Object>> folderList = new ArrayList<Map<String, Object>>();
+		Map<String, Object> content = new HashMap<String, Object>();
 		if (result != null && result.size() > 0) {
 			for (Object[] object : result) {
 				Map<String, Object> folder = new HashMap<String, Object>();
@@ -508,8 +514,10 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				folder.put(LAST_MODIFIED, object[4]);
 				folderList.add(folder);
 			}
+			content.put(SEARCH_RESULT, folderList);
+			content.put(COUNT, this.getCollectionRepository().getFolderListCount(gooruOid, title, gooruUid));
 		}
-		return folderList;
+		return content;
 	}
 
 	@Override
@@ -606,7 +614,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 			collections = this.getCollectionRepository().getCollectionListByIds(gooruOids);
 			if (userService.isSuperAdmin(user) || userService.isContentAdmin(user)) {
 				for (Collection scollection : collections) {
-					this.redisService.bulkKeyDelete("v2-organize-data-" + scollection.getUser().getPartyUid() + "*");
+					getAsyncExecutor().deleteFromCache("v2-organize-data-" + scollection.getUser().getPartyUid() + "*");
 					if (scollection.getPublishStatus().getValue().equalsIgnoreCase(PENDING)) {
 						scollection.setPublishStatus(this.getCustomTableRepository().getCustomTableValue("publish_status", REVIEWED));
 						collectionIds.append(scollection.getGooruOid());

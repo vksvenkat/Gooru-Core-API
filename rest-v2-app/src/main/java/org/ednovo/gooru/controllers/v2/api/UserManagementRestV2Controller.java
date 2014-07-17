@@ -227,9 +227,9 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = { "/{id}/post", "/{id}/review", "/{id}/response", "/{id}/question-board", "/{id}/note" })
-	public ModelAndView getUserPosts(HttpServletRequest request, @PathVariable(value = ID) String gooruUid, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "20") Integer limit,
+	public ModelAndView getUserPosts(HttpServletRequest request, @PathVariable(value = ID) String gooruUid, @RequestParam(value = SKIP_PAGINATION, required = false, defaultValue = FALSE) Boolean skipPagination,@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "20") Integer limit,
 			HttpServletResponse response) throws Exception {
-		return toModelAndViewWithIoFilter(this.getPostService().getUserPosts(gooruUid, limit, offset, getPostType(request)), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, COMMENT_INCLUDES);
+		return toModelAndViewWithIoFilter(this.getPostService().getUserPosts(gooruUid, limit, offset, getPostType(request), skipPagination), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, COMMENT_INCLUDES);
 
 	}
 
@@ -237,21 +237,21 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = { "/{id}/rating/{type}", "/{id}/report/{type}", "/{id}/flag/{type}", "/{id}/reaction/{type}" })
 	public ModelAndView getUserFeedbacks(HttpServletRequest request, @PathVariable(value = ID) String assocUserUid, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "20") Integer limit,
-			@RequestParam(value = CREATOR_UID, required = false) String creatorUid, @PathVariable(value = TYPE) String feedbackType, HttpServletResponse response) throws Exception {
+			@RequestParam(value = CREATOR_UID, required = false) String creatorUid, @PathVariable(value = TYPE) String feedbackType, HttpServletResponse response,@RequestParam(value = SKIP_PAGINATION, required = false, defaultValue = FALSE) Boolean skipPagination) throws Exception {
 		String includes[] = (String[]) ArrayUtils.addAll(FEEDBACK_INCLUDE_FIELDS, ERROR_INCLUDE);
 		if (feedbackType.equalsIgnoreCase(AVERAGE)) {
 			return toJsonModelAndView(this.getFeedbackService().getUserFeedbackAverage(assocUserUid, getFeedbackCategory(request)), true);
 		}
-		return toModelAndViewWithIoFilter(this.getFeedbackService().getUserFeedbacks(getFeedbackCategory(request), feedbackType, assocUserUid, creatorUid, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
+		return toModelAndViewWithIoFilter(this.getFeedbackService().getUserFeedbacks(getFeedbackCategory(request), feedbackType, assocUserUid, creatorUid, limit, offset, skipPagination), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = { "/{id}/rating", "/{id}/report", "/{id}/flag", "/{id}/reaction" })
 	public ModelAndView getUserFeedbackByCategory(HttpServletRequest request, @PathVariable(value = ID) String assocUserUid, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset,
-			@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "20") Integer limit, @RequestParam(value = CREATOR_UID, required = false) String creatorUid, HttpServletResponse response) throws Exception {
+			@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "20") Integer limit, @RequestParam(value = CREATOR_UID, required = false) String creatorUid, @RequestParam(value = SKIP_PAGINATION, required = false, defaultValue = FALSE) Boolean skipPagination, HttpServletResponse response) throws Exception {
 		String includes[] = (String[]) ArrayUtils.addAll(FEEDBACK_INCLUDE_FIELDS, ERROR_INCLUDE);
-		return toModelAndViewWithIoFilter(this.getFeedbackService().getUserFeedbacks(getFeedbackCategory(request), null, assocUserUid, creatorUid, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
+		return toModelAndViewWithIoFilter(this.getFeedbackService().getUserFeedbacks(getFeedbackCategory(request), null, assocUserUid, creatorUid, limit, offset,skipPagination), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAG_ADD })
@@ -291,8 +291,8 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAG_READ })
 	@RequestMapping(method = { RequestMethod.GET }, value = "/{id}/tag")
 	public ModelAndView getContentTagAssoc(@PathVariable(value = ID) String gooruUid, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, HttpServletRequest request,
-			HttpServletResponse response) {
-		List<UserTagAssoc> userTagAssoc = this.getTagService().getUserTagAssoc(gooruUid, limit, offset);
+			@RequestParam(value = SKIP_PAGINATION, required = false, defaultValue = FALSE) Boolean skipPagination, HttpServletResponse response) {
+		List<UserTagAssoc> userTagAssoc = this.getTagService().getUserTagAssoc(gooruUid, limit, offset,skipPagination);
 		String[] includes = (String[]) ArrayUtils.addAll(USER_INCLUDES, USER_ASSOC_INCLUDES);
 		return toModelAndViewWithIoFilter(userTagAssoc, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, includes);
 	}

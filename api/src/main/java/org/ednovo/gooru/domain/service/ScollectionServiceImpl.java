@@ -56,6 +56,7 @@ import org.ednovo.gooru.core.api.model.Identity;
 import org.ednovo.gooru.core.api.model.License;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.ResourceSource;
+import org.ednovo.gooru.core.api.model.ResourceSummary;
 import org.ednovo.gooru.core.api.model.ResourceType;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.Sharing;
@@ -93,7 +94,6 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomT
 import org.ednovo.gooru.infrastructure.persistence.hibernate.question.CommentRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.resource.ResourceRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.taxonomy.TaxonomyRespository;
-import org.ednovo.gooru.infrastructure.persistence.hibernate.taxonomy.TaxonomyStoredProcedure;
 import org.ednovo.gooru.json.serializer.util.JsonSerializer;
 import org.ednovo.gooru.security.OperationAuthorizer;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
@@ -131,9 +131,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	protected LearnguideRepository learnguideRepository;
 
 	@Autowired
-	private TaxonomyStoredProcedure procedureExecutor;
-
-	@Autowired
 	private TaxonomyRespository taxonomyRepository;
 
 	@Autowired
@@ -147,10 +144,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 	@Autowired
 	private ContentAssociationRepository contentAssociationRepository;
-
-	@Autowired
-	@javax.annotation.Resource(name = "resourceManager")
-	private ResourceManager resourceManager;
 
 	@Autowired
 	protected TaxonomyService taxonomyService;
@@ -172,6 +165,10 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 	@Autowired
 	private FeedbackService feedbackService;
+
+ 	@Autowired
+	@javax.annotation.Resource(name = "resourceManager")
+	private ResourceManager resourceManager;
 
 	@Autowired
 	private CustomTableRepository customTableRepository;
@@ -271,7 +268,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			} catch (Exception e) {
 				logger.debug(e.getMessage());
 			}
-			this.redisService.bulkKeyDelete("v2-organize-data-" + collection.getUser().getPartyUid() + "*");
+			getAsyncExecutor().deleteFromCache("v2-organize-data-" + collection.getUser().getPartyUid() + "*");
 			
 		}
 		
@@ -355,7 +352,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			Collection parentCollection = collectionRepository.getCollectionByGooruOid(parentId, collection.getUser().getGooruUId());
 			if (parentCollection != null) {
 				collection.setCollectionItem(this.createCollectionItem(collection.getGooruOid(), parentCollection.getGooruOid(), new CollectionItem(), collection.getUser(), CollectionType.FOLDER.getCollectionType(), false).getModel());
-				this.redisService.bulkKeyDelete("v2-organize-data-" + parentCollection.getUser().getPartyUid() + "*");
+				getAsyncExecutor().deleteFromCache("v2-organize-data-" + parentCollection.getUser().getPartyUid() + "*");
 			}
 
 			try {
@@ -374,7 +371,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			}
 			getAsyncExecutor().createVersion(collection, SCOLLECTION_CREATE, user.getPartyUid());
 			
-			this.redisService.bulkKeyDelete("v2-organize-data-" + collection.getUser().getPartyUid() + "*");
+			getAsyncExecutor().deleteFromCache("v2-organize-data-" + collection.getUser().getPartyUid() + "*");
 			try {
 				getEventLogs(collection.getCollectionItem(), true, false, user, collection.getCollectionItem().getCollection().getCollectionType());
 			} catch(Exception e){
@@ -587,7 +584,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				logger.debug(e.getMessage());
 			}
 		}
-		this.redisService.bulkKeyDelete("v2-organize-data-" + collection.getUser().getPartyUid() + "*");
+		getAsyncExecutor().deleteFromCache("v2-organize-data-" + collection.getUser().getPartyUid() + "*");
 		return new ActionResponseDTO<Collection>(collection, errors);
 	}
 
@@ -618,7 +615,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	@Override
 	public void deleteCollection(String collectionId, User user) {
 		Collection collection = this.getCollectionByGooruOid(collectionId, null);
-		if (collection != null) {
+		rejectIfNull(collection, GL0056, _COLLECTION);
 			if(this.getOperationAuthorizer().hasUnrestrictedContentAccess(collectionId, user)){
 				try {
 					revisionHistoryService.createVersion(collection, SCOLLECTION_DELETE);
@@ -641,7 +638,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				for (CollectionItem item : collectionItems) {
 					this.deleteCollectionItem(item.getCollectionItemId(), user);
 					if (item.getAssociatedUser() != null && !item.getAssociatedUser().getPartyUid().equals(user.getPartyUid())) {
-						this.redisService.bulkKeyDelete("v2-organize-data-" + item.getAssociatedUser().getPartyUid() + "*");
+						getAsyncExecutor().deleteFromCache("v2-organize-data-" + item.getAssociatedUser().getPartyUid() + "*");
 					}
 				}
 				if (collection != null && collection.getUser() != null && collection.getSharing().equalsIgnoreCase(PUBLIC)) {
@@ -663,10 +660,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				throw new UnauthorizedException("user don't have permission ");
 			}
 			
-		} else {
-			throw new NotFoundException(generateErrorMessage(GL0056, _COLLECTION));
-		}
-		this.redisService.bulkKeyDelete("v2-organize-data-" + user.getPartyUid() + "*");
+		getAsyncExecutor().deleteFromCache("v2-organize-data-" + user.getPartyUid() + "*");
 
 	}
 	
@@ -721,7 +715,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			for (String parentFolder : parenFolders) {
 				updateFolderSharing(parentFolder);
 			}
-			this.redisService.bulkKeyDelete("v2-organize-data-" + collectionItem.getCollection().getUser().getPartyUid() + "*");
+			getAsyncExecutor().deleteFromCache("v2-organize-data-" + collectionItem.getCollection().getUser().getPartyUid() + "*");
 		}
 
 		return new ActionResponseDTO<CollectionItem>(collectionItem, errors);
@@ -809,7 +803,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 					indexProcessor.index(collectionItem.getResource().getGooruOid(), IndexProcessor.INDEX, RESOURCE);
 				}
 				indexProcessor.index(collectionItem.getCollection().getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
-				this.redisService.bulkKeyDelete("v2-organize-data-" + collectionItem.getCollection().getUser().getPartyUid() + "*");
+				getAsyncExecutor().deleteFromCache("v2-organize-data-" + collectionItem.getCollection().getUser().getPartyUid() + "*");
 			} catch (Exception e) {
 				logger.debug(e.getMessage());
 			}
@@ -826,12 +820,9 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	@Override
 	public CollectionItem getCollectionItem(String collectionItemId, boolean includeAdditionalInfo, User user, String rootNodeId) {
 		CollectionItem collectionItem = this.getCollectionRepository().getCollectionItemById(collectionItemId);
-		if (collectionItem != null) {
-			if (includeAdditionalInfo) {
-				collectionItem = this.setCollectionItemMoreData(collectionItem, rootNodeId);
-			}
-		} else {
-			throw new NotFoundException(generateErrorMessage(GL0056, _COLLECTION_ITEM));
+		rejectIfNull(collectionItem, GL0056, _COLLECTION_ITEM);
+		if (includeAdditionalInfo) {
+			collectionItem = this.setCollectionItemMoreData(collectionItem, rootNodeId);
 		}
 		return collectionItem;
 	}
@@ -956,7 +947,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 					collectionItem.getResource().setMomentsOfLearning(this.setContentMetaAssociation(this.getContentMetaAssociation("moments_of_learning"), collectionItem.getResource().getGooruOid(), "moments_of_learning"));
 				}
 				collectionItem.getResource().setEducationalUse(this.setContentMetaAssociation(this.getContentMetaAssociation("educational_use"), collectionItem.getResource().getGooruOid(), "educational_use"));
-				collectionItem.getResource().setRatings(this.getFeedbackService().getContentFeedbackStarRating(collectionItem.getResource().getGooruOid()));
+				collectionItem.getResource().setRatings(this.setRatingsObj(this.getResourceRepository().getResourceSummaryById(collectionItem.getResource().getGooruOid())));
 				collectionItem.getResource().setCustomFieldValues(this.getCustomFieldsService().getCustomFieldsValuesOfResource(collectionItem.getResource().getGooruOid()));
 				collectionItem.setResource(getResourceService().setContentProvider(collectionItem.getResource()));
 			}
@@ -991,6 +982,16 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			throw new NotFoundException(generateErrorMessage(GL0056, _COLLECTION));
 		}
 		return collection;
+	}
+	
+	@Override
+	public Map<String, Object> setRatingsObj(ResourceSummary resourceSummary) {
+		Map<String, Object> ratings = new HashMap<String, Object>();
+		if (resourceSummary != null) {
+			ratings.put(AVERAGE, resourceSummary.getRatingStarAvg());
+			ratings.put(COUNT, resourceSummary.getRatingStarCount());
+		}
+		return ratings;
 	}
 
 	@Override
@@ -1043,9 +1044,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	@Override
 	public User addCollaborator(String collectionId, User user, String collaboratorId, String collaboratorOperation) {
 		Collection collection = this.getCollectionByGooruOid(collectionId, null);
-		if (collection == null) {
-			throw new NotFoundException(generateErrorMessage(GL0056, _COLLECTION));
-		}
+		rejectIfNull(collection, GL0056, _COLLECTION);
 		if (collaboratorId != null) {
 			List<String> collaboratorsList = Arrays.asList(collaboratorId.split("\\s*,\\s*"));
 			for (User collaborator : getUserService().findByIdentities(collaboratorsList)) {
@@ -1063,9 +1062,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	@Override
 	public List<User> getCollaborators(String collectionId) {
 		Collection collection = this.getCollectionByGooruOid(collectionId, null);
-		if (collection == null) {
-			throw new NotFoundException(generateErrorMessage(GL0056, _COLLECTION));
-		}
+		rejectIfNull(collection, GL0056, _COLLECTION);
 		return this.learnguideRepository.findCollaborators(collectionId, null);
 	}
 
@@ -1214,10 +1211,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		Collection collection = this.getCollectionByGooruOid(collectionId, null);
 		
 		JSONObject jsonItemdata = new JSONObject();
-
-		if (collection == null) {
-			throw new NotFoundException(generateErrorMessage(GL0056, _COLLECTION));
-		}
+		rejectIfNull(collection, GL0056, _COLLECTION);
 		Boolean taxonomyByCode = false;
 		String taxonomyCode = data.getFirst(TAXONOMY_CODE);
 		String title = data.getFirst(TITLE);
@@ -1345,7 +1339,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		} catch (Exception e) {
 			logger.debug(e.getMessage());
 		}
-		this.redisService.bulkKeyDelete("v2-organize-data-" + collection.getUser().getPartyUid() + "*");
+		getAsyncExecutor().deleteFromCache("v2-organize-data-" + collection.getUser().getPartyUid() + "*");
 		try {
 			getEventLogs(collection, jsonItemdata, apiCallerUser, false, true);
 		} catch(Exception e){
@@ -1374,9 +1368,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 		CollectionItem collectionItem = this.getCollectionItemById(collectionItemId);
 
-		if (collectionItem == null) {
-			throw new NotFoundException(generateErrorMessage(GL0056, _COLLECTION_ITEM));
-		}
+		rejectIfNull(collectionItem, GL0056, _COLLECTION_ITEM);
 		
 		JSONObject jsonItemdata = new JSONObject();
 		
@@ -1413,7 +1405,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		this.redisService.bulkKeyDelete("v2-organize-data-" + collectionItem.getCollection().getUser().getPartyUid() + "*");
+		getAsyncExecutor().deleteFromCache("v2-organize-data-" + collectionItem.getCollection().getUser().getPartyUid() + "*");
 		
 		try {
 			getEventLogs(collectionItem, jsonItemdata, apiCaller);
@@ -1426,9 +1418,8 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	@Override
 	public CollectionItem copyCollectionItem(String collectionItemId, String collectionId) throws Exception {
 		CollectionItem sourceCollectionItem = this.getCollectionItem(collectionItemId, false, null, null);
-		if (sourceCollectionItem == null) {
-			throw new NotFoundException(generateErrorMessage(GL0056, _COLLECTION_ITEM));
-		}
+		rejectIfNull(sourceCollectionItem, GL0056, _COLLECTION_ITEM);
+		
 		CollectionItem destCollectionItem = new CollectionItem();
 		Collection targetCollection = null;
 		boolean hasSameCollection = false;
@@ -1503,7 +1494,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		newResource.setUrl(url);
 		newResource.setThumbnail(thumbnailImgSrc);
 		newResource.setCategory(category);
-		return this.createResourceWithCollectionItem(collectionId, newResource, user);
+		return this.createResourceWithCollectionItem(collectionId, newResource, start, stop, user);
 	}
 
 	@Override
@@ -1837,7 +1828,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			} catch (Exception e) {
 				logger.debug(e.getMessage());
 			}
-			this.redisService.bulkKeyDelete("v2-organize-data-" + collection.getUser().getPartyUid() + "*");
+			getAsyncExecutor().deleteFromCache("v2-organize-data-" + collection.getUser().getPartyUid() + "*");
 		}
 		
 		try{
@@ -1852,12 +1843,9 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	public CollectionItem getCollectionItem(String collectionItemId, String includeAdditionalInfo, User user, String rootNodeId) {
 
 		CollectionItem collectionItem = this.getCollectionRepository().getCollectionItemById(collectionItemId);
-		if (collectionItem != null) {
-			if (includeAdditionalInfo.equalsIgnoreCase(TRUE)) {
-				collectionItem = this.setCollectionItemMoreData(collectionItem, rootNodeId);
-			}
-		} else {
-			throw new NotFoundException(generateErrorMessage(GL0056, _COLLECTION_ITEM));
+		rejectIfNull(collectionItem, GL0056, _COLLECTION_ITEM);
+		if (includeAdditionalInfo.equalsIgnoreCase(TRUE)) {
+			collectionItem = this.setCollectionItemMoreData(collectionItem, rootNodeId);
 		}
 		return collectionItem;
 	}
@@ -1954,7 +1942,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			}
 		}
 		this.getCollectionRepository().save(destCollection);
-		this.redisService.bulkKeyDelete("v2-organize-data-" + destCollection.getUser().getPartyUid() + "*");
+		getAsyncExecutor().deleteFromCache("v2-organize-data-" + destCollection.getUser().getPartyUid() + "*");
 		
 		try {
 			if(destCollection != null){
@@ -1968,7 +1956,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 
 	@Override
-	public ActionResponseDTO<CollectionItem> createResourceWithCollectionItem(String collectionId, Resource newResource, User user) throws Exception {
+	public ActionResponseDTO<CollectionItem> createResourceWithCollectionItem(String collectionId, Resource newResource,String start,String stop ,User user) throws Exception {
 
 		ActionResponseDTO<CollectionItem> response = null;
 		ResourceSource resourceSource = null;
@@ -2077,14 +2065,14 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				collection.setLastUpdatedUserUid(user.getPartyUid());
 				this.getResourceRepository().save(collection);
 
-				response = createCollectionItem(resource, collection, user);
+				response = createCollectionItem(resource, collection, start, stop, user);
 
 				response.getModel().setStandards(this.getStandards(resource.getTaxonomySet(), false, null));
 
 			} else {
 				throw new NotFoundException("collection does not exist in the system, required collection to map the resource");
 			}
-			this.redisService.bulkKeyDelete("v2-organize-data-" + response.getModel().getCollection().getUser().getPartyUid() + "*");
+			getAsyncExecutor().deleteFromCache("v2-organize-data-" + response.getModel().getCollection().getUser().getPartyUid() + "*");
 		}
 		try{
 			getEventLogs(response.getModel(), true, false, user, response.getModel().getCollection().getCollectionType() );
@@ -2107,94 +2095,90 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			if (collectionItem != null && collectionItem.getResource() != null) {
 				resource = this.getResourceService().findResourceByContentGooruId(collectionItem.getResource().getGooruOid());
 			}
-
-			if (resource != null) {
-				if (newResource.getTitle() != null) {
-					resource.setTitle(newResource.getTitle());
-					ItemData.put("title", newResource.getTitle());
-				}
-				if (newResource.getDescription() != null) {
-					resource.setDescription(newResource.getDescription());
-					ItemData.put("description", newResource.getDescription());
-				}
-				if (newResource.getCategory() != null) {
-					resource.setCategory(newResource.getCategory().toLowerCase());
-					ItemData.put("category", newResource.getCategory().toLowerCase());
-				}
-				if (newResource.getInstructional() != null) {
-					CustomTableValue resourceCategory = this.getCustomTableRepository().getCustomTableValue(RESOURCE_INSTRUCTIONAL_USE, newResource.getInstructional().getValue());
-					resource.setInstructional(resourceCategory);
-					ItemData.put("instructional", resourceCategory);
-				}
-				if (newResource.getResourceFormat() != null) {
-					CustomTableValue resourcetype = this.getCustomTableRepository().getCustomTableValue(RESOURCE_CATEGORY_FORMAT, newResource.getResourceFormat().getValue());
-					resource.setResourceFormat(resourcetype);
-					ItemData.put("resourceFormat", resourcetype);
-				}
-				if (newResource.getSharing() != null) {
-					resource.setSharing(newResource.getSharing());
-					ItemData.put("sharing", newResource.getSharing());
-				}
-
-				if (newResource.getAttach() != null && newResource.getAttach().getFilename() != null) {
-					String fileExtension = org.apache.commons.lang.StringUtils.substringAfterLast(newResource.getAttach().getFilename(), ".");
-					ResourceType resourceTypeDo = new ResourceType();
-					resource.setResourceType(resourceTypeDo);
-					if (fileExtension.contains(PDF)) {
-						resourceTypeDo.setName(ResourceType.Type.HANDOUTS.getType());
-					} else {
-						resourceTypeDo.setName(ResourceType.Type.IMAGE.getType());
-					}
-					resource.setUrl(newResource.getAttach().getFilename());
-					ItemData.put("url", newResource.getAttach().getFilename());
-				}
-
-				this.getResourceService().saveOrUpdate(resource);
-
-				resourceService.saveOrUpdateResourceTaxonomy(resource, newResource.getTaxonomySet());
-
-				if (newResource.getMomentsOfLearning() != null && newResource.getMomentsOfLearning().size() > 0) {
-					resource.setMomentsOfLearning(this.updateContentMeta(newResource.getMomentsOfLearning(), resource.getGooruOid(), user, "moments_of_learning"));
-				} else {
-					resource.setMomentsOfLearning(this.setContentMetaAssociation(this.getContentMetaAssociation("moments_of_learning"), resource.getGooruOid(), "moments_of_learning"));
-				}
-				if (newResource.getEducationalUse() != null && newResource.getEducationalUse().size() > 0) {
-					resource.setEducationalUse(this.updateContentMeta(newResource.getEducationalUse(), resource.getGooruOid(), user, "educational_use"));
-				} else {
-					resource.setEducationalUse(this.setContentMetaAssociation(this.getContentMetaAssociation("educational_use"), resource.getGooruOid(), "educational_use"));
-				}
-
-				this.getResourceService().saveOrUpdate(resource);
-
-				if (newResource.getThumbnail() != null && newResource.getThumbnail().length() > 0) {
-					try {
-						this.getResourceImageUtil().downloadAndSendMsgToGenerateThumbnails(resource, newResource.getThumbnail());
-					} catch (Exception e) {
-						logger.debug(e.getMessage());
-					}
-					ItemData.put("thumbnail", newResource.getThumbnail());
-				}
-				if (newResource.getAttach() != null) {
-					this.getResourceImageUtil().moveAttachment(newResource, resource);
-				}
-				this.getResourceService().saveOrUpdate(resource);
-				collectionItem.setResource(resource);
-				this.getCollectionRepository().save(collectionItem);
-				collectionItem.setStandards(this.getStandards(resource.getTaxonomySet(), false, null));
-			} else {
-				throw new NotFoundException("Resource Not Found");
+			rejectIfNull(resource, GL0056, RESOURCE);
+			if (newResource.getTitle() != null) {
+				resource.setTitle(newResource.getTitle());
+				ItemData.put("title", newResource.getTitle());
 			}
-				this.redisService.bulkKeyDelete("v2-organize-data-" + collectionItem.getCollection().getUser().getPartyUid() + "*");
+			if (newResource.getDescription() != null) {
+				resource.setDescription(newResource.getDescription());
+				ItemData.put("description", newResource.getDescription());
+			}
+			if (newResource.getCategory() != null) {
+				resource.setCategory(newResource.getCategory().toLowerCase());
+				ItemData.put("category", newResource.getCategory().toLowerCase());
+			}
+			if (newResource.getInstructional() != null) {
+				CustomTableValue resourceCategory = this.getCustomTableRepository().getCustomTableValue(RESOURCE_INSTRUCTIONAL_USE, newResource.getInstructional().getValue());
+				resource.setInstructional(resourceCategory);
+				ItemData.put("instructional", resourceCategory);
+			}
+			if (newResource.getResourceFormat() != null) {
+				CustomTableValue resourcetype = this.getCustomTableRepository().getCustomTableValue(RESOURCE_CATEGORY_FORMAT, newResource.getResourceFormat().getValue());
+				resource.setResourceFormat(resourcetype);
+				ItemData.put("resourceFormat", resourcetype);
+			}
+			if (newResource.getSharing() != null) {
+				resource.setSharing(newResource.getSharing());
+				ItemData.put("sharing", newResource.getSharing());
+			}
+
+			if (newResource.getAttach() != null && newResource.getAttach().getFilename() != null) {
+				String fileExtension = org.apache.commons.lang.StringUtils.substringAfterLast(newResource.getAttach().getFilename(), ".");
+				ResourceType resourceTypeDo = new ResourceType();
+				resource.setResourceType(resourceTypeDo);
+				if (fileExtension.contains(PDF)) {
+					resourceTypeDo.setName(ResourceType.Type.HANDOUTS.getType());
+				} else {
+					resourceTypeDo.setName(ResourceType.Type.IMAGE.getType());
+				}
+				resource.setUrl(newResource.getAttach().getFilename());
+				ItemData.put("url", newResource.getAttach().getFilename());
+			}
+
+			this.getResourceService().saveOrUpdate(resource);
+
+			resourceService.saveOrUpdateResourceTaxonomy(resource, newResource.getTaxonomySet());
+
+			if (newResource.getMomentsOfLearning() != null && newResource.getMomentsOfLearning().size() > 0) {
+				resource.setMomentsOfLearning(this.updateContentMeta(newResource.getMomentsOfLearning(), resource.getGooruOid(), user, "moments_of_learning"));
+			} else {
+				resource.setMomentsOfLearning(this.setContentMetaAssociation(this.getContentMetaAssociation("moments_of_learning"), resource.getGooruOid(), "moments_of_learning"));
+			}
+			if (newResource.getEducationalUse() != null && newResource.getEducationalUse().size() > 0) {
+				resource.setEducationalUse(this.updateContentMeta(newResource.getEducationalUse(), resource.getGooruOid(), user, "educational_use"));
+			} else {
+				resource.setEducationalUse(this.setContentMetaAssociation(this.getContentMetaAssociation("educational_use"), resource.getGooruOid(), "educational_use"));
+			}
+
+			this.getResourceService().saveOrUpdate(resource);
+
+			if (newResource.getThumbnail() != null && newResource.getThumbnail().length() > 0) {
+				try {
+					this.getResourceImageUtil().downloadAndSendMsgToGenerateThumbnails(resource, newResource.getThumbnail());
+				} catch (Exception e) {
+					logger.debug(e.getMessage());
+				}
+				ItemData.put("thumbnail", newResource.getThumbnail());
+			}
+			if (newResource.getAttach() != null) {
+				this.getResourceImageUtil().moveAttachment(newResource, resource);
+			}
+			this.getResourceService().saveOrUpdate(resource);
+			collectionItem.setResource(resource);
+			this.getCollectionRepository().save(collectionItem);
+			collectionItem.setStandards(this.getStandards(resource.getTaxonomySet(), false, null));
+			getAsyncExecutor().deleteFromCache("v2-organize-data-" + collectionItem.getCollection().getUser().getPartyUid() + "*");
 		}
-		try{
+		try {
 			getEventLogs(collectionItem, ItemData, user);
-		}catch(Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return new ActionResponseDTO<CollectionItem>(collectionItem, errors);
 	}
 
-	public ActionResponseDTO<CollectionItem> createCollectionItem(Resource resource, Collection collection, User user) throws Exception {
+	public ActionResponseDTO<CollectionItem> createCollectionItem(Resource resource, Collection collection, String start, String stop, User user ) throws Exception {
 		CollectionItem collectionItem = new CollectionItem();
 		collectionItem.setCollection(collection);
 		collectionItem.setResource(resource);
@@ -2204,9 +2188,11 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		int sequence = collectionItem.getCollection().getCollectionItems() != null ? collectionItem.getCollection().getCollectionItems().size() + 1 : 1;
 		collectionItem.setItemSequence(sequence);
 		collectionItem.getCollection().setItemCount(sequence);
+		collectionItem.setStart(start);
+		collectionItem.setStop(stop);
 		Errors errors = validateCollectionItem(collection, resource, collectionItem);
 		this.getResourceRepository().save(collectionItem);
-		this.redisService.bulkKeyDelete("v2-organize-data-" + collectionItem.getCollection().getUser().getPartyUid() + "*");
+		getAsyncExecutor().deleteFromCache("v2-organize-data-" + collectionItem.getCollection().getUser().getPartyUid() + "*");
 		return new ActionResponseDTO<CollectionItem>(collectionItem, errors);
 	}
 
@@ -2238,7 +2224,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		collection.put("metaInfo", setMetaData(CollectionObj, false, rootNodeId));
 		Set<CollectionItem> collectionItems = new TreeSet<CollectionItem>();
 		for (CollectionItem collectionItem : CollectionObj.getCollectionItems()) {
-			collectionItem.getResource().setRatings(this.getFeedbackService().getContentFeedbackStarRating(collectionItem.getResource().getGooruOid()));
+			collectionItem.getResource().setRatings(this.setRatingsObj(this.getResourceRepository().getResourceSummaryById(collectionItem.getResource().getGooruOid())));
 			collectionItems.add(collectionItem);
 		}
 		collection.put("collectionItems", collectionItems);
@@ -2505,20 +2491,12 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		return resourceImageUtil;
 	}
 
-	public ResourceManager getResourceManager() {
-		return resourceManager;
-	}
-
 	public CollectionRepository getCollectionRepository() {
 		return collectionRepository;
 	}
 
 	public ResourceRepository getResourceRepository() {
 		return resourceRepository;
-	}
-
-	public TaxonomyStoredProcedure getProcedureExecutor() {
-		return procedureExecutor;
 	}
 
 	public TaxonomyRespository getTaxonomyRepository() {
@@ -2533,16 +2511,8 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		return contentRepositoryHibernate;
 	}
 
-	public void setContentService(ContentService contentService) {
-		this.contentService = contentService;
-	}
-
 	public ContentService getContentService() {
 		return contentService;
-	}
-
-	public void setFeedbackService(FeedbackService feedbackService) {
-		this.feedbackService = feedbackService;
 	}
 
 	public FeedbackService getFeedbackService() {
@@ -2551,10 +2521,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 	public OperationAuthorizer getOperationAuthorizer() {
 		return operationAuthorizer;
-	}
-
-	public void setOperationAuthorizer(OperationAuthorizer operationAuthorizer) {
-		this.operationAuthorizer = operationAuthorizer;
 	}
 
 	public AsyncExecutor getAsyncExecutor() {
@@ -2573,10 +2539,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		return commentRepository;
 	}
 
-	public void setCollaboratorRepository(CollaboratorRepository collaboratorRepository) {
-		this.collaboratorRepository = collaboratorRepository;
-	}
-
 	public CollaboratorRepository getCollaboratorRepository() {
 		return collaboratorRepository;
 	}
@@ -2587,6 +2549,10 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 	public UserRepository getUserRepository() {
 		return userRepository;
+	}
+
+	public ResourceManager getResourceManager() {
+		return resourceManager;
 	}
 
 }
