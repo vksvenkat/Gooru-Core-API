@@ -160,13 +160,13 @@ public class LearnguideRepositoryHibernate extends BaseRepositoryHibernate imple
 	public List<User> findCollaborators(String gooruContentId, String userUid) {
 
 		List<User> userList = new ArrayList<User>();
-		String find_collaborators = "Select u.user_id, u.gooru_uid, u.firstname, u.lastname, i.external_id,u.username, u.organization_uid, u.primary_organization_uid from user u, content c , content_permission p, identity i where gooru_oid = '" + gooruContentId + "' and p.permission = 'edit' and u.gooru_uid = i.user_uid and c.content_id = p.content_id and u.gooru_uid = p.party_uid " ;
+		String findCollaborators = "Select u.user_id, u.gooru_uid, u.firstname, u.lastname, i.external_id,u.username, u.organization_uid, u.primary_organization_uid from user u, content c , content_permission p, identity i where gooru_oid = '" + gooruContentId + "' and p.permission = 'edit' and u.gooru_uid = i.user_uid and c.content_id = p.content_id and u.gooru_uid = p.party_uid " ;
 		if (userUid != null) {
-			find_collaborators += " and p.party_uid = '" + userUid+ "'";
+			findCollaborators += " and p.party_uid = '" + userUid+ "'";
 		}
 		
 		Session session = getSession();
-		Query query = session.createSQLQuery(find_collaborators).addScalar("user_id", StandardBasicTypes.INTEGER).addScalar("gooru_uid", StandardBasicTypes.STRING).addScalar("firstname", StandardBasicTypes.STRING).addScalar("lastname", StandardBasicTypes.STRING)
+		Query query = session.createSQLQuery(findCollaborators).addScalar("user_id", StandardBasicTypes.INTEGER).addScalar("gooru_uid", StandardBasicTypes.STRING).addScalar("firstname", StandardBasicTypes.STRING).addScalar("lastname", StandardBasicTypes.STRING)
 				.addScalar("external_id", StandardBasicTypes.STRING).addScalar("username", StandardBasicTypes.STRING).addScalar("organization_uid", StandardBasicTypes.STRING).addScalar("primary_organization_uid", StandardBasicTypes.STRING);
 		
 		List<Object[]> results = query.list(); 
@@ -547,10 +547,10 @@ public class LearnguideRepositoryHibernate extends BaseRepositoryHibernate imple
 	@Override
 	public List<String> getResourceInstanceIds(String gooruContentId) {
 		// FIXME Add account filter
-		String list_of_resource_ids = "SELECT ri.resource_instance_id FROM resource_instance AS ri INNER JOIN segment AS s ON ri.segment_id = s.segment_id INNER JOIN content c ON c.content_id = s.resource_id  WHERE c.gooru_oid = '" + gooruContentId
+		String listOfResourceIds = "SELECT ri.resource_instance_id FROM resource_instance AS ri INNER JOIN segment AS s ON ri.segment_id = s.segment_id INNER JOIN content c ON c.content_id = s.resource_id  WHERE c.gooru_oid = '" + gooruContentId
 				+ "' and s.type_name NOT IN('assessment', 'suggestedstudy', 'homework') and "+generateAuthSqlQueryWithData("c.")+" order by s.sequence, ri.sequence";
 		Session session = getSession();
-		Query query = session.createSQLQuery(list_of_resource_ids);
+		Query query = session.createSQLQuery(listOfResourceIds);
 		
 		return query.list();
 	}

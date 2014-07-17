@@ -54,7 +54,7 @@ public class IndexProcessor extends BaseComponent {
 
 	private TransactionTemplate transactionTemplate;
 
-	private static final Logger logger = LoggerFactory.getLogger(IndexProcessor.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(IndexProcessor.class);
 
 	public static final String SEARCH_REINDEX_MSG = "reindex";
 	public static final String SEARCH_BULK_INDEX_MSG = "bulkIndex";
@@ -153,7 +153,7 @@ public class IndexProcessor extends BaseComponent {
 			indexThread.setDaemon(true);
 			indexThread.start();
 		} catch (Exception e) {
-			logger.info("Index Error : " + e.getMessage());
+			LOGGER.info("Index Error : " + e.getMessage());
 		}
 	}
 

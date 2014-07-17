@@ -10,7 +10,7 @@ public class PartyCustomField implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 5604344044829539779L;
-	private String PartyUid;
+	private String partyUid;
 	private String category;
 	private String optionalKey;
 	private String optionalValue;
@@ -34,10 +34,10 @@ public class PartyCustomField implements Serializable {
 		this.optionalValue = optionalValue;
 	}
 	public void setPartyUid(String partyUid) {
-		PartyUid = partyUid;
+		partyUid = partyUid;
 	}
 	public String getPartyUid() {
-		return PartyUid;
+		return partyUid;
 	}
 	
 

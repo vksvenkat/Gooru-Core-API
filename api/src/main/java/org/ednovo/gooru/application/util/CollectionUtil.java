@@ -129,7 +129,7 @@ public class CollectionUtil implements ParameterProperties {
 	private CollectionService collectionService;
 
 
-	private final static Logger logger = LoggerFactory.getLogger(CollectionUtil.class);
+	private final static Logger LOGGER = LoggerFactory.getLogger(CollectionUtil.class);
 
 	public void enrichCollectionWithTaxonomyMap(SearchResultContainer collectionResultContainer) {
 		if (collectionResultContainer.getSearchResults() != null) {
@@ -465,7 +465,7 @@ public class CollectionUtil implements ParameterProperties {
 					lesson.add(taxonomy[length - 6]);
 				}
 			} catch (Exception e) {
-				logger.debug(e.getMessage());
+				LOGGER.debug(e.getMessage());
 			}
 		}
 
@@ -490,7 +490,7 @@ public class CollectionUtil implements ParameterProperties {
 						}
 						Code rootNode = this.getTaxonomyRepository().findCodeByCodeId(code.getRootNodeId());
 						if (rootNode == null) {
-							logger.error("FIXME: Taxonomy root was found null for code id" + code.getRootNodeId());
+							LOGGER.error("FIXME: Taxonomy root was found null for code id" + code.getRootNodeId());
 							continue;
 						}
 						String curriculumLabel = this.getTaxonomyRepository().findRootLevelTaxonomy(rootNode);
@@ -508,7 +508,7 @@ public class CollectionUtil implements ParameterProperties {
 		collectionTaxonomy.put(LESSON, lesson);
 		collectionTaxonomy.put(CURRICULUM, curriculumTaxonomy);
 		} catch (Exception e) { 
-			logger.error("failed to fetch ");
+			LOGGER.error("failed to fetch ");
 		}
 		return collectionTaxonomy;
 	}

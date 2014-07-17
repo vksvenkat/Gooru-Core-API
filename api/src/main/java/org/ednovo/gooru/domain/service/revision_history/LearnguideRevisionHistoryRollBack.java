@@ -72,7 +72,7 @@ public class LearnguideRevisionHistoryRollBack extends RevisionHistoryRollBack<L
 	@Autowired
 	private IndexProcessor indexProcessor;
 
-	private static final Logger logger = LoggerFactory.getLogger(LearnguideRevisionHistoryRollBack.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(LearnguideRevisionHistoryRollBack.class);
 
 	@Override
 	protected RevisionHistoryType getType() {
@@ -115,7 +115,7 @@ public class LearnguideRevisionHistoryRollBack extends RevisionHistoryRollBack<L
 			GooruImageUtil.copyImage(revisionImagePath, destFolderPath, revisionFileNamePrefix);
 			resourceImageUtil.sendMsgToGenerateThumbnails(newLearnguide);
 		} catch (IOException e) {
-			logger.error("Image move : " + e);
+			LOGGER.error("Image move : " + e);
 		}
 		return newLearnguide;
 	}

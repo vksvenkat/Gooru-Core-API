@@ -90,17 +90,14 @@ public class PartyRepositoryHibernate extends BaseRepositoryHibernate implements
 	
 	@Override
 	public Profile getUserDateOfBirth(String partyUid, User user){
-		Session session = getSession();
-		Query query = session.createQuery("FROM  Profile profile  WHERE profile.user.partyUid= '" + partyUid + "'");
-		releaseSession(session);
+		Query query = getSession().createQuery("FROM  Profile profile  WHERE profile.user.partyUid= '" + partyUid + "'");
 		return  (query != null && query.list() != null && query.list().size() > 0) ? (Profile) query.list().get(0) : null;
 	}
 
 	@Override
 	public Integer getCountInActiveMailSendToday() {
-		Session session = getSession();
 		String sql = "select count(1) as count from party_custom_field p where p.optional_value != '-' and  date(p.optional_value) = date(now())";
-		Query query = session.createSQLQuery(sql).addScalar("count", StandardBasicTypes.INTEGER);
+		Query query = getSession().createSQLQuery(sql).addScalar("count", StandardBasicTypes.INTEGER);
 		return (Integer) query.list().get(0);
 	}
 

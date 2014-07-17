@@ -46,12 +46,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 public class AuthorizationFilter implements Filter {
 
-	private static final Logger logger = LoggerFactory.getLogger(AuthorizationFilter.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(AuthorizationFilter.class);
 
 	@Autowired
 	private DoAuthorization doAuthorization;
 	
-	private static String BEARER_TYPE = "Bearer";
+	private static final String BEARER_TYPE = "Bearer";
 	
 	@Override
 	public void init(FilterConfig objFConfig) throws ServletException {
@@ -65,8 +65,8 @@ public class AuthorizationFilter implements Filter {
 
 		HttpServletResponse response = (HttpServletResponse) res;
 
-		if (logger.isInfoEnabled()) {
-			logger.info("Request URI: " + ((HttpServletRequest) request).getRequestURI());
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("Request URI: " + ((HttpServletRequest) request).getRequestURI());
 		}
 
 		// check the authentication object in security

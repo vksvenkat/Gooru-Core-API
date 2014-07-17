@@ -45,7 +45,7 @@ import com.fasterxml.jackson.datatype.hibernate4.Hibernate4Module;
  * @author Search Team
  * @see FilterSetting
  */
-public class LibraryQuizJsonJackSerializer {
+public final class LibraryQuizJsonJackSerializer {
 
 	private static ObjectMapper mapper;
 	/**

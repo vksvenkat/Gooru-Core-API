@@ -7,7 +7,7 @@ import flexjson.transformer.ObjectTransformer;
 
 public class OrganizationTransformer extends ObjectTransformer {
 
-	private static final Logger logger = LoggerFactory.getLogger(OrganizationTransformer.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(OrganizationTransformer.class);
 	
 	@Override
 	public void transform(Object object) {
@@ -22,7 +22,7 @@ public class OrganizationTransformer extends ObjectTransformer {
 			getContext().transform(organizationModel);
 
 		} else {
-			logger.error("Serialization failed for organization transformer");
+			LOGGER.error("Serialization failed for organization transformer");
 			getContext().write(null);
 		}
 	}

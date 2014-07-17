@@ -67,9 +67,9 @@ public class ServiceCallRepositoryHibernate extends BaseRepositoryHibernate impl
 		for (Map<String, Object> labelAndCountDB : lessonToCountsDBList) {
 			try {
 				String label = (String) labelAndCountDB.get("lesson");
-				int view_count = (int) (long) (Long) labelAndCountDB.get("view_count");
-				int copy_count = (int) (long) (Long) labelAndCountDB.get("copy_count");
-				int subscribe_count = (int) (long) (Long) labelAndCountDB.get("subscribe_count");
+				final int view_count = (int) (long) (Long) labelAndCountDB.get("view_count");
+				final int copy_count = (int) (long) (Long) labelAndCountDB.get("copy_count");
+				final int subscribe_count = (int) (long) (Long) labelAndCountDB.get("subscribe_count");
 				labelAndCount.put(label, new Integer[] { (Integer) view_count, (Integer) copy_count, (Integer) subscribe_count });
 			} catch (Exception e) {
 				return null;
@@ -131,7 +131,7 @@ public class ServiceCallRepositoryHibernate extends BaseRepositoryHibernate impl
 	@Override
 	public Map<String, Long> getUserTimeSpend(Integer userId) {
 		userId = 6;
-		List<Map<String, Object>> service_call_list = jdbcTemplate.queryForList("select * from service_call where user_id=? order by id", new Object[] { userId });
+		List<Map<String, Object>> serviceCallList = jdbcTemplate.queryForList("select * from service_call where user_id=? order by id", new Object[] { userId });
 		String[] states = new String[] { SEARCH_COLLECTION, "view collection", "search resource", "editing", "question board", "default" };
 		Map<String, String> stateChangingPredicate = new HashMap<String, String>();
 		stateChangingPredicate.put("learning_guide.search_classplans", SEARCH_COLLECTION);
@@ -145,18 +145,18 @@ public class ServiceCallRepositoryHibernate extends BaseRepositoryHibernate impl
 			timeSpend.put(state, 0L);
 		}
 
-		Timestamp LastActionTime = (Timestamp) service_call_list.get(0).get("request_date_time");
+		Timestamp lastActionTime = (Timestamp) serviceCallList.get(0).get("request_date_time");
 		long currentStateDuration = 0;
 		String currentState = "default";
 
-		for (Map<String, Object> service_call : service_call_list) {
+		for (Map<String, Object> serviceCall : serviceCallList) {
 			// add time left from previous action.
-			Timestamp CurrentActionTime = (Timestamp) service_call.get("request_date_time");
-			currentStateDuration += Math.min(CurrentActionTime.getTime() - LastActionTime.getTime(), 10 * 60 * 1000);
-			LastActionTime = CurrentActionTime;
+			final Timestamp CurrentActionTime = (Timestamp) serviceCall.get("request_date_time");
+			currentStateDuration += Math.min(CurrentActionTime.getTime() - lastActionTime.getTime(), 10 * 60 * 1000);
+			lastActionTime = CurrentActionTime;
 
 			// check if new state.
-			String predicate = (String) service_call.get("predicate");
+			String predicate = (String) serviceCall.get("predicate");
 			String state = stateChangingPredicate.get(predicate);
 			if (state != null && state != currentState) {
 				timeSpend.put(currentState, timeSpend.get(currentState) + currentStateDuration);
@@ -198,7 +198,7 @@ public class ServiceCallRepositoryHibernate extends BaseRepositoryHibernate impl
 
 		// write service_call paramters and related content to db:
 		int serviceCallDbId = jdbcTemplate.queryForInt("select LAST_INSERT_ID();");
-		WriteParameters(request, serviceCallDbId);
+		writeParameters(request, serviceCallDbId);
 	}
 
 	
@@ -211,7 +211,7 @@ public class ServiceCallRepositoryHibernate extends BaseRepositoryHibernate impl
 		return (String) res;
 	}
 
-	private void WriteParameters(HttpServletRequest request, final int ServiceCallDbId) {
+	private void writeParameters(HttpServletRequest request, final int serviceCallDbId) {
 		Map map = request.getParameterMap();
 		Iterator iter = map.entrySet().iterator();
 
@@ -235,7 +235,7 @@ public class ServiceCallRepositoryHibernate extends BaseRepositoryHibernate impl
 		// batch update:
 		jdbcTemplate.batchUpdate("insert into service_call_request_parameter(service_call_id,name,value) values (?,?,?)", new BatchPreparedStatementSetter() {
 			public void setValues(PreparedStatement ps, int i) throws SQLException {
-				ps.setInt(1, ServiceCallDbId);
+				ps.setInt(1, serviceCallDbId);
 				ps.setString(2, names.get(i));
 				ps.setString(3, values.get(i));
 			}
