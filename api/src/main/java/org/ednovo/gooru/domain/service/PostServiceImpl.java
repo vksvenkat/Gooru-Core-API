@@ -135,11 +135,11 @@ public class PostServiceImpl extends BaseServiceImpl implements PostService, Con
 	}
 
 	@Override
-	public List<Post> getUserPosts(String gooruUid, Integer limit, Integer offset, String type) {
+	public List<Post> getUserPosts(String gooruUid, Integer limit, Integer offset, String type, Boolean skipPagination) {
 		rejectIfNull(type, GL0006, TYPE);
 		CustomTableValue Usertype = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.POST_TYPE.getTable(), type);
 		rejectIfNull(type, GL0007, Usertype.getValue() + TYPE);
-		return this.getPostRepository().getUserPosts(gooruUid, limit, offset);
+		return this.getPostRepository().getUserPosts(gooruUid, limit, offset,skipPagination);
 	}
 
 	@Override
