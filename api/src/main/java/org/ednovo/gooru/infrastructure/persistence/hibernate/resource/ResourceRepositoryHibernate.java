@@ -497,11 +497,9 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 	@Override
 	public Map<String, Object> findAllResourcesSource(Map<String, String> filters) {
 
-		Session session = getSessionFactory().getCurrentSession();
-
 		List<ResourceSource> resourceSourceList = find("from ResourceSource");
 
-		Criteria criteria = session.createCriteria(ResourceSource.class);
+		Criteria criteria = getSession().createCriteria(ResourceSource.class);
 
 		Map<String, Object> rsMap = new HashMap<String, Object>();
 
@@ -553,15 +551,14 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 
 	@Override
 	public List<String> getUnorderedInstanceSegments() {
-		Session session = getSessionFactory().getCurrentSession();
-		return session.createSQLQuery(UNORDERED_SEGMENTS).list();
+		
+		return getSession().createSQLQuery(UNORDERED_SEGMENTS).list();
 	}
 
 	@Override
 	public List<ResourceInstance> getUnorderedInstances(String segmentId) {
 		String hql = "SELECT instance FROM ResourceInstance instance  WHERE instance.segment.segmentId = :segmentId AND " + generateAuthQuery("instance.resource.");
-		Session session = getSessionFactory().getCurrentSession();
-		Query query = session.createQuery(hql);
+		Query query = getSession().createQuery(hql);
 		query.setParameter("segmentId", segmentId);
 		addAuthParameters(query);
 		return (List<ResourceInstance>) query.list();
@@ -571,8 +568,7 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 	@Override
 	public ResourceInfo findResourceInfo(String resourceGooruOid) {
 		String hql = "Select info FROM ResourceInfo info left outer join info.resource r  WHERE r.gooruOid =:resourceGooruOid ";
-		Session session = getSessionFactory().getCurrentSession();
-		Query query = session.createQuery(hql);
+		Query query = getSession().createQuery(hql);
 		query.setParameter("resourceGooruOid", resourceGooruOid);
 		List<ResourceInfo> infos = query.list();
 		return infos.size() > 0 ? infos.get(0) : null;
@@ -584,8 +580,7 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 		// FIXME
 		try {
 			String hql = "DELETE Resource resource  where resource.gooruOid IN(:gooruOIds) AND  " + generateAuthQuery("resource");
-			Session session = getSessionFactory().getCurrentSession();
-			Query query = session.createQuery(hql);
+			Query query = getSession().createQuery(hql);
 			query.setParameterList("gooruOIds", contentIds.split(","));
 			addAuthParameters(query);
 			query.executeUpdate();
@@ -597,8 +592,7 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 	@Override
 	public String getContentIdsByGooruOIds(String resourceGooruOIds) {
 		String hql = "SELECT resource.contentId FROM Resource resource   WHERE resource.gooruOid IN(:gooruOIds) AND  " + generateAuthQuery("resource.");
-		Session session = getSessionFactory().getCurrentSession();
-		Query query = session.createQuery(hql);
+		Query query = getSession().createQuery(hql);
 		query.setParameterList("gooruOIds", resourceGooruOIds.split(","));
 		addAuthParameters(query);
 		List<Long> resourceContentIds = query.list();
@@ -617,8 +611,7 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 	@Override
 	public List<Resource> findAllResourcesByGooruOId(String resourceGooruOIds) {
 		String hql = "SELECT resource FROM Resource resource   WHERE resource.gooruOid IN(:gooruOIds) AND  " + generateAuthQuery("resource.");
-		Session session = getSessionFactory().getCurrentSession();
-		Query query = session.createQuery(hql);
+		Query query = getSession().createQuery(hql);
 		query.setParameterList("gooruOIds", resourceGooruOIds.split(","));
 		addAuthParameters(query);
 		return (List<Resource>) query.list();
@@ -637,8 +630,7 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 		if (userUid != null) {
 			hql += " AND r.resource.user.partyUid =:userUid";
 		}
-		Session session = getSessionFactory().getCurrentSession();
-		Query query = session.createQuery(hql);
+		Query query = getSession().createQuery(hql);
 		query.setParameter("gooruOid", gooruOid);
 		if (userUid != null) {
 			query.setParameter("userUid", userUid);
@@ -666,8 +658,7 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 		}
 
 		hql += " AND resource.resourceType.name =:type";
-		Session session = getSessionFactory().getCurrentSession();
-		Query query = session.createQuery(hql);
+		Query query = getSession().createQuery(hql);
 		query.setParameter("resourceUrl", resourceUrl);
 		query.setParameter("type", type);
 		query.setParameter("sharing", sharing);
@@ -687,8 +678,7 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 		if (userUid != null) {
 			hql += " AND resource.user.partyUid =:userUid";
 		}
-		Session session = getSessionFactory().getCurrentSession();
-		Query query = session.createQuery(hql);
+		Query query = getSession().createQuery(hql);
 		query.setParameter("resourceUrl", resourceUrl);
 		query.setParameter("sharing", sharing);
 		if (userUid != null) {
@@ -704,8 +694,7 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 		Integer pageNum = Integer.parseInt(filters.get(PAGE_NO));
 		Integer pageSize = Integer.parseInt(filters.get(PAGE_SIZE));
 		String hql = "SELECT resource FROM Resource resource   WHERE " + generateAuthQueryWithDataNew("resource.");
-		Session session = getSessionFactory().getCurrentSession();
-		List<Resource> resourceList = session.createQuery(hql).setFirstResult(pageSize * (pageNum - 1)).setMaxResults(pageSize).list();
+		List<Resource> resourceList = getSession().createQuery(hql).setFirstResult(pageSize * (pageNum - 1)).setMaxResults(pageSize).list();
 		return (resourceList.size() > 0) ? resourceList : null;
 	}
 
@@ -713,8 +702,7 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 	public Resource getResourceByResourceInstanceId(String resourceInstanceId) {
 
 		String hql = "SELECT r.resource From ResourceInstance r  WHERE r.resourceInstanceId=:resourceInstanceId AND " + generateOrgAuthQuery("r.resource.");
-		Session session = getSessionFactory().getCurrentSession();
-		Query query = session.createQuery(hql);
+		Query query = getSession().createQuery(hql);
 		query.setParameter("resourceInstanceId", resourceInstanceId);
 		addOrgAuthParameters(query);
 		List<Resource> resource = query.list();
@@ -724,7 +712,6 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 	@Override
 	public List<String> findAllPublicResourceGooruOIds(Map<String, String> filters) {
 		String hql = "SELECT r.gooruOid FROM Resource r  WHERE r.sharing='public' AND  " + generateAuthQueryWithDataNew("r.");
-		Session session = getSession();
 		int pageNum = 1;
 		int pageSize = 100;
 		if (filters.containsKey(PAGE_NO)) {
@@ -733,15 +720,14 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 		if (filters.containsKey(PAGE_SIZE)) {
 			pageSize = Integer.parseInt(filters.get(PAGE_SIZE));
 		}
-		List<String> gooruOIds = session.createQuery(hql).setFirstResult(pageSize * (pageNum - 1)).setMaxResults(pageSize).list();
+		List<String> gooruOIds = getSession().createQuery(hql).setFirstResult(pageSize * (pageNum - 1)).setMaxResults(pageSize).list();
 		return (gooruOIds.size() > 0) ? gooruOIds : null;
 	}
 
 	@Override
 	public ResourceInfo getResourcePageCount(String resourceId) {
 		String hql = "SELECT r FROM ResourceInfo r   WHERE r.resource.gooruOid=:resourceId AND " + generateAuthQuery("r.resource.");
-		Session session = getSessionFactory().getCurrentSession();
-		Query query = session.createQuery(hql);
+		Query query = getSession().createQuery(hql);
 		query.setParameter("resourceId", resourceId);
 		addAuthParameters(query);
 		List<ResourceInfo> resourceInfo = query.list();
@@ -751,8 +737,7 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 	@Override
 	public String getResourceInstanceNarration(String resourceInstanceId) {
 		String hql = "SELECT r.narrative FROM ResourceInstance r WHERE r.resourceInstanceId=:resourceInstanceId";
-		Session session = getSessionFactory().getCurrentSession();
-		Query query = session.createQuery(hql);
+		Query query = getSession().createQuery(hql);
 		query.setParameter("resourceInstanceId", resourceInstanceId);
 		List<String> resourceInstance = query.list();
 		return (resourceInstance != null && resourceInstance.size() > 0) ? resourceInstance.get(0) : null;
@@ -773,8 +758,7 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 	public boolean findIdIsValid(Class<?> modelClass, String id) {
 		String hql = "SELECT 1 FROM " + modelClass.getSimpleName() + " model WHERE model.contentId = " + id + ")";
 
-		Session session = getSessionFactory().getCurrentSession();
-		Query query = session.createQuery(hql);
+		Query query = getSession().createQuery(hql);
 		List<Long> results = query.list();
 		return (results != null && results.size() > 0) ? true : false;
 	}
@@ -782,8 +766,7 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 	@Override
 	public String shortenedUrlResourceCheck(String domainName, String domainType) {
 		String hql = "SELECT r.type FROM ResourceSource r WHERE r.domainName=:domainName AND r.type=:domainType";
-		Session session = getSessionFactory().getCurrentSession();
-		Query query = session.createQuery(hql);
+		Query query = getSession().createQuery(hql);
 		query.setParameter("domainName", domainName);
 		query.setParameter("domainType", domainType);
 		List<String> urlType = query.list();
@@ -795,17 +778,15 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 		Integer pageNum = Integer.parseInt(filters.get(PAGE_NO));
 		Integer pageSize = Integer.parseInt(filters.get(PAGE_SIZE));
 		String hql = "SELECT r.resource FROM ResourceInstance r";
-		Session session = getSessionFactory().getCurrentSession();
-		Query query = session.createQuery(hql);
+		Query query = getSession().createQuery(hql);
 		List<String> resourceInstance = query.list();
-		return session.createQuery(hql).setFirstResult(pageSize * (pageNum - 1)).setMaxResults(pageSize).list();
+		return getSession().createQuery(hql).setFirstResult(pageSize * (pageNum - 1)).setMaxResults(pageSize).list();
 	}
 
 	@Override
 	public ResourceMetadataCo findResourceFeeds(String resourceGooruOid) {
 		String hql = "Select rf FROM ResourceFeeds rf left outer join rf.resource r WHERE r.gooruOid =:resourceGooruOid AND " + generateOrgAuthQuery("r.");
-		Session session = getSessionFactory().getCurrentSession();
-		Query query = session.createQuery(hql);
+		Query query = getSession().createQuery(hql);
 		query.setParameter("resourceGooruOid", resourceGooruOid);
 		addOrgAuthParameters(query);
 		List<ResourceMetadataCo> resourceFeeds = query.list();
@@ -825,11 +806,9 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 		String contentIdsJoined = StringUtils.join(contentIds, ",");
 				String sql = "SELECT vrm.*, vrcd.*, vrsd.scollection_gooru_oids, vrcf.* from v_resource_meta vrm left join v_resource_coll_data vrcd on vrcd.content_id = vrm.id left join v_resource_scoll_data vrsd on vrsd.resource_id = vrm.id left outer join v_resource_cust_fields vrcf on vrcf.custom_fields_content_id = vrm.id where vrm.id in ("
 				+ contentIdsJoined + ")";
-		Session session = getSessionFactory().getCurrentSession();
-		SQLQuery query = session.createSQLQuery(sql);
+		SQLQuery query = getSession().createSQLQuery(sql);
 		query.setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP);
-		List results = query.list();
-		return results;
+		return query.list();
 	}
 
 	/*
@@ -841,11 +820,9 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 	@Override
 	public List getResourceRatingSubscription(long contentId) {
 		String sql = "select * from v_rating_data where content_id=" + contentId;
-		Session session = getSessionFactory().getCurrentSession();
-		SQLQuery query = session.createSQLQuery(sql);
+		SQLQuery query = getSession().createSQLQuery(sql);
 		query.setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP);
-		List results = query.list();
-		return results;
+		return query.list();
 	}
 
 	/*
@@ -866,11 +843,10 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 			sql += " r.batch_id= " + batchId;
 		}
 		sql += " LIMIT " + (pageSize * (pageNo - 1)) + " , " + pageSize;
-		Session session = getSessionFactory().getCurrentSession();
-		SQLQuery query = session.createSQLQuery(sql);
+		SQLQuery query = getSession().createSQLQuery(sql);
 		query.addScalar("content_id", StandardBasicTypes.LONG);
 		List<Long> results = query.list();
-		return query.list();
+		return results;
 	}
 
 	/*
@@ -886,17 +862,13 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 		SQLQuery query = session.createSQLQuery(sql);
 		// query.addScalar("content_id",StandardBasicTypes.LONG);
 		query.setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP);
-		List results = query.list();
-		return results;
+		return query.list();
 	}
 
 	@Override
 	public List<Resource> listResourcesUsedInCollections(Integer limit, Integer offset) {
 		String hql = "SELECT r.resource FROM ResourceInstance r";
-		Session session = getSessionFactory().getCurrentSession();
-		Query query = session.createQuery(hql);
-		List<String> resourceInstance = query.list();
-		return session.createQuery(hql).setFirstResult(limit * (offset - 1)).setMaxResults(limit).list();
+		return getSession().createQuery(hql).setFirstResult(limit * (offset - 1)).setMaxResults(limit).list();
 	}
 
 	@Override
@@ -931,8 +903,7 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 	@Override
 	public List<Long> findValidContentIds(Class<?> modelClass, String ids) {
 		String hql = "SELECT model.contentId  FROM " + modelClass.getSimpleName() + " model WHERE model.contentId in (" + ids + ")";
-		Session session = getSessionFactory().getCurrentSession();
-		Query query = session.createQuery(hql);
+		Query query = getSession().createQuery(hql);
 		return query.list();
 
 	}

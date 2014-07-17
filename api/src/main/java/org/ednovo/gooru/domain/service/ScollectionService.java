@@ -36,6 +36,7 @@ import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.ContentMetaDTO;
 import org.ednovo.gooru.core.api.model.Resource;
+import org.ednovo.gooru.core.api.model.ResourceSummary;
 import org.ednovo.gooru.core.api.model.StandardFo;
 import org.ednovo.gooru.core.api.model.User;
 import org.json.JSONException;
@@ -140,4 +141,6 @@ public interface ScollectionService extends BaseService {
 	void getEventLogs(CollectionItem collectionItem, User user, String collectionType) throws JSONException;
 	
 	void deleteBulkCollections(List<String> gooruOids);
+	
+	Map<String, Object> setRatingsObj(ResourceSummary resourceSummary);
 }

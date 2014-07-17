@@ -68,14 +68,16 @@ public class PostRepositoryHibernate extends BaseRepositoryHibernate implements 
 	}
 
 	@Override
-	public List<Post> getUserPosts(String gooruUid, Integer limit, Integer offset) {
+	public List<Post> getUserPosts(String gooruUid, Integer limit, Integer offset, Boolean skipPagination) {
 		String hql = "FROM Post post WHERE post.assocUserUid=:gooruUid and " + generateOrgAuthQuery("post.");
 		Session session = getSession();
 		Query query = session.createQuery(hql);
 		query.setParameter("gooruUid", gooruUid);
 		addOrgAuthParameters(query);
-		query.setFirstResult(offset);
-		query.setMaxResults(limit);
+		if (!skipPagination) {
+			query.setFirstResult(offset);
+			query.setMaxResults(limit);
+		}
 		return query.list();
 	}
 
