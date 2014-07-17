@@ -153,8 +153,6 @@ public interface UserRepository extends BaseRepository {
 
 	User findUserWithoutOrganization(String username);
 
-	List<Profile> getProfileList();
-
 	Timestamp getSystemCurrentTime();
 
 	UserClassification getUserClassification(String gooruUid, Integer classificationId, Integer codeId, String creatorUid, String grade);
@@ -171,7 +169,7 @@ public interface UserRepository extends BaseRepository {
 
 	String getUserGrade(String userUid, Integer classificationId, Integer activeFlag);
 
-	User findByReferenceuId(String referenceUid);
+	User findByReferenceUid(String referenceUid);
 
 	Integer getUserBirthdayCount();
 

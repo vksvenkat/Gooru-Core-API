@@ -308,7 +308,7 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 		JSONObject json = requestData(data);
 		User user = (User) request.getAttribute(Constants.USER);
 
-		ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().createResourceWithCollectionItem(collectionId, this.buildResourceFromInputParameters(getValue(RESOURCE, json), user), user);
+		ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().createResourceWithCollectionItem(collectionId, this.buildResourceFromInputParameters(getValue(RESOURCE, json), user),getValue("start",json),getValue("stop",json), user);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		} 
