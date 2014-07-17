@@ -2143,7 +2143,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 				if (isContentAdmin(loggedInUser)) {
 					User user = null;
 					if (isReference) {
-						user = this.getUserRepository().findByReferenceuId(gooruUid);
+						user = this.getUserRepository().findByReferenceUid(gooruUid);
 					} else {
 						user = this.getUserRepository().findByGooruId(gooruUid);
 					}
