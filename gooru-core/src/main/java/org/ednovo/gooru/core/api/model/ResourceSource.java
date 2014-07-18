@@ -111,7 +111,7 @@ public class ResourceSource implements Serializable {
 		return sourceName;
 	}
 	public void setIsBlacklisted(Integer isBlacklisted) {
-		isBlacklisted = isBlacklisted;
+		this.isBlacklisted = isBlacklisted;
 	}
 	public Integer getIsBlacklisted() {
 		return isBlacklisted;
