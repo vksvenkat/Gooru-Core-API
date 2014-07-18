@@ -105,6 +105,8 @@ public interface ParameterProperties {
 	String INLCLUDE_META_INFO = "includeMetaInfo";
 
 	String INCLUDE_COLLABORATOR = "includeCollaborator";
+	
+	String COLLABORATOR_INFO = "collaboratorInfo";
 
 	String INCLUDE_RELATED_CONTENT = "includeRelatedContent";
 

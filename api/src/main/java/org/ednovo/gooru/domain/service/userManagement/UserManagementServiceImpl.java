@@ -246,7 +246,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			profile.setGrade(this.getUserRepository().getUserGrade(gooruUid, gradeType.getCustomTableValueId(), activeFlag));
 		}
 		try {
-			getEventLogs(false, true, user, null);
+			getEventLogs(false, true, user, null, true, true);
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
@@ -431,7 +431,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			profile.setCourses(this.getUserRepository().getUserClassifications(gooruUid, type.getCustomTableValueId(), null));
 		}
 		try {
-			getEventLogs(true, false, user, itemData);
+			getEventLogs(true, false, user, itemData, false, false);
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
@@ -1113,7 +1113,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			}
 		}
 		try {
-			getEventLogs(false, true, user, null);
+			getEventLogs(false, true, user, null, false, false);
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
@@ -1440,6 +1440,12 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		this.getUserRepository().save(userSummary);
 		this.getUserRepository().save(followOnUserSummary);
 		this.getUserRepository().flush();
+		try {
+			getEventLogs(false, false, null, null, true, false);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+
 		return this.setUserObj(followOnUser);
 	}
 	
@@ -1459,6 +1465,12 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			this.getUserRepository().save(followOnUserSummary);
 			this.getUserRepository().flush();
 		}
+		try {
+			getEventLogs(false, false, null, null, false, true);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+
 	}
 	
 	private Map<String, Object> setUserObj(User user) {
@@ -1570,7 +1582,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		return inviteRepository;
 	}
 	
-	public void getEventLogs(boolean updateProfile, boolean visitProfile, User profileVisitor, JSONObject itemData) throws JSONException { 
+	public void getEventLogs(boolean updateProfile, boolean visitProfile, User profileVisitor, JSONObject itemData, boolean isFollow, boolean isUnfollow) throws JSONException { 
 		SessionContextSupport.putLogParameter(EVENT_NAME, PROFILE_ACTION);
 		JSONObject session = SessionContextSupport.getLog().get(SESSION) != null ? new JSONObject(SessionContextSupport.getLog().get(SESSION).toString()) :  new JSONObject();
 		SessionContextSupport.putLogParameter(SESSION, session.toString());
@@ -1590,6 +1602,11 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		} else if(visitProfile){
 			payLoadObject.put(ACTION_TYPE, VISIT);
 			payLoadObject.put(VISIT_UID, profileVisitor != null ? profileVisitor.getPartyUid() : null);
+		}else if(isFollow) {
+			payLoadObject.put(ACTION_TYPE, FOLLOW);
+						
+		}else if(isUnfollow) {
+			payLoadObject.put(ACTION_TYPE, UN_FOLLOW);
 		}
 		if(itemData != null){
 			payLoadObject.put("itemData", itemData.toString());
