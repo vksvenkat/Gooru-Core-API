@@ -52,6 +52,7 @@ import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.Textbook;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.cassandra.model.ResourceMetadataCo;
+import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate;
 import org.hibernate.Criteria;
 import org.hibernate.Query;
@@ -66,7 +67,7 @@ import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class ResourceRepositoryHibernate extends BaseRepositoryHibernate implements ResourceRepository {
+public class ResourceRepositoryHibernate extends BaseRepositoryHibernate implements ResourceRepository,ParameterProperties {
 
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
@@ -90,7 +91,6 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 	@Override
 	public ResourceSource findResourceByresourceSourceId(Integer resourceSourceId) {
 		try {
-			// FIXME
 			List<ResourceSource> resources = find("SELECT r FROM ResourceSource r where r.resourceSourceId =? ", resourceSourceId);
 			return resources.size() == 0 ? null : resources.get(0);
 		} catch (Exception ex) {
@@ -257,7 +257,7 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 			}
 
 			query.setFirstResult(startAt);
-			query.setMaxResults(pageSize);
+			query.setMaxResults(pageSize != null ? (pageSize > MAX_LIMIT ? MAX_LIMIT : pageSize) : pageSize);
 			return query.list();
 		}
 
@@ -357,10 +357,8 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 			}
 		}
 		Query query = getSession().createQuery(hql);
-		if (!filters.containsKey("pagination") || !filters.get("pagination").equals("disable")) {
-			query.setFirstResult(pageSize * (pageNum - 1));
-			query.setMaxResults(pageSize);
-		}
+		query.setFirstResult(pageSize * (pageNum - 1));
+		query.setMaxResults(pageSize != null ? (pageSize > MAX_LIMIT ? MAX_LIMIT : pageSize) : pageSize);
 		return query.list();
 	}
 
@@ -694,7 +692,7 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 		Integer pageNum = Integer.parseInt(filters.get(PAGE_NO));
 		Integer pageSize = Integer.parseInt(filters.get(PAGE_SIZE));
 		String hql = "SELECT resource FROM Resource resource   WHERE " + generateAuthQueryWithDataNew("resource.");
-		List<Resource> resourceList = getSession().createQuery(hql).setFirstResult(pageSize * (pageNum - 1)).setMaxResults(pageSize).list();
+		List<Resource> resourceList = getSession().createQuery(hql).setFirstResult(pageSize * (pageNum - 1)).setMaxResults(pageSize <= MAX_LIMIT ? pageSize : MAX_LIMIT).list();
 		return (resourceList.size() > 0) ? resourceList : null;
 	}
 
@@ -720,7 +718,7 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 		if (filters.containsKey(PAGE_SIZE)) {
 			pageSize = Integer.parseInt(filters.get(PAGE_SIZE));
 		}
-		List<String> gooruOIds = getSession().createQuery(hql).setFirstResult(pageSize * (pageNum - 1)).setMaxResults(pageSize).list();
+		List<String> gooruOIds  = getSession().createQuery(hql).setFirstResult(pageSize * (pageNum - 1)).setMaxResults(pageSize).list();
 		return (gooruOIds.size() > 0) ? gooruOIds : null;
 	}
 
@@ -779,8 +777,9 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 		Integer pageSize = Integer.parseInt(filters.get(PAGE_SIZE));
 		String hql = "SELECT r.resource FROM ResourceInstance r";
 		Query query = getSession().createQuery(hql);
-		List<String> resourceInstance = query.list();
-		return getSession().createQuery(hql).setFirstResult(pageSize * (pageNum - 1)).setMaxResults(pageSize).list();
+		query.setFirstResult(pageSize * (pageNum - 1));
+		query.setMaxResults(pageSize != null ? (pageSize > MAX_LIMIT ? MAX_LIMIT : pageSize) : pageSize);
+		return query.list();
 	}
 
 	@Override
@@ -860,7 +859,6 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 		String sql = "SELECT content_id," + fields + " FROM resource WHERE content_id IN(" + contentIds + ")";
 		Session session = getSessionFactory().getCurrentSession();
 		SQLQuery query = session.createSQLQuery(sql);
-		// query.addScalar("content_id",StandardBasicTypes.LONG);
 		query.setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP);
 		return query.list();
 	}
@@ -868,7 +866,10 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 	@Override
 	public List<Resource> listResourcesUsedInCollections(Integer limit, Integer offset) {
 		String hql = "SELECT r.resource FROM ResourceInstance r";
-		return getSession().createQuery(hql).setFirstResult(limit * (offset - 1)).setMaxResults(limit).list();
+		Query query= getSession().createQuery(hql);
+		query.setFirstResult(offset);
+		query.setMaxResults(offset != null ? (offset > MAX_LIMIT ? MAX_LIMIT : offset) : offset);
+		return query.list();
 	}
 
 	@Override

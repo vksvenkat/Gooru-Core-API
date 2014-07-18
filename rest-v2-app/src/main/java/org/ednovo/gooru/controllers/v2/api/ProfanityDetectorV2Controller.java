@@ -57,9 +57,10 @@ public class ProfanityDetectorV2Controller extends SerializerUtil implements Par
 	}
 
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
-	public void profanityCreate(@RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public ModelAndView profanityCreate(@RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		Profanity profanity = JsonDeserializer.deserialize(data, Profanity.class);
-		this.profanityCheckService.profanityCreate(profanity);
+		
+		return toModelAndView(this.profanityCheckService.profanityCreate(profanity), RESPONSE_FORMAT_JSON);
 	}
 
 	@RequestMapping(value = "", method = RequestMethod.DELETE)
