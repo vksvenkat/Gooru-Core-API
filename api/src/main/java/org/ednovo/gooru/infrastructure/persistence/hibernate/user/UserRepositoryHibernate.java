@@ -46,6 +46,7 @@ import org.ednovo.gooru.core.api.model.UserRelationship;
 import org.ednovo.gooru.core.api.model.UserRole;
 import org.ednovo.gooru.core.api.model.UserRoleAssoc;
 import org.ednovo.gooru.core.api.model.UserSummary;
+import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
@@ -61,7 +62,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class UserRepositoryHibernate extends BaseRepositoryHibernate implements UserRepository,ParameterProperties {
+public class UserRepositoryHibernate extends BaseRepositoryHibernate implements UserRepository,ParameterProperties,ConstantProperties {
 
 	private static final String EXTERNAL_ID = "externalId";
 
@@ -295,13 +296,8 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 	public List<User> getFollowedByUsers(String gooruUId, Integer offset, Integer limit, boolean skipPagination) {
 		String hql = "SELECT userRelation.user FROM UserRelationship userRelation  WHERE userRelation.followOnUser.partyUid = '" + gooruUId + "' AND userRelation.activeFlag = 1 AND " + generateOrgAuthQueryWithData("userRelation.user.") + " AND " + generateUserIsDeleted("userRelation.user.");
 		Query query = getSession().createQuery(hql);
-		if (!skipPagination && limit <= MAX_LIMIT) {
-			query.setFirstResult(offset);
-			query.setMaxResults(limit);
-		} else {
-			query.setFirstResult(0);
-			query.setMaxResults(MAX_LIMIT);
-		}
+		query.setFirstResult(offset);
+		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
 		return query.list();
 	}
 	
@@ -323,13 +319,8 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 	public List<User> getFollowedOnUsers(String gooruUId, Integer offset, Integer limit, boolean skipPagination) {
 		String hql = "SELECT userRelation.followOnUser FROM UserRelationship userRelation WHERE userRelation.user.partyUid = '" + gooruUId + "' AND userRelation.activeFlag = 1  AND " + generateOrgAuthQueryWithData("userRelation.user.") + " AND " + generateUserIsDeleted("userRelation.user.");
 		Query query = getSession().createQuery(hql);
-		if (!skipPagination && limit <= MAX_LIMIT) {
-			query.setFirstResult(offset);
-			query.setMaxResults(limit);
-		} else {
-			query.setFirstResult(0);
-			query.setMaxResults(MAX_LIMIT);
-		}
+		query.setFirstResult(offset);
+		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
 		return query.list();
 	}
 
@@ -673,7 +664,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 		String sql = "select user_uid as user_uid,  external_id as email_id from identity i inner join party_custom_field p on p.party_uid = i.user_uid where (date(last_login) between  date(last_login) and date_sub(now(),INTERVAL 2 WEEK) or  last_login is null) and p.optional_key = 'last_user_inactive_mail_send_date' and (p.optional_value = '-' or  date(p.optional_value) between  date(p.optional_value) and date_sub(now(),INTERVAL 2 WEEK))";
 		Query query = getSession().createSQLQuery(sql).addScalar("user_uid", StandardBasicTypes.STRING).addScalar("email_id", StandardBasicTypes.STRING);
 		query.setFirstResult(offset);
-		query.setMaxResults(limit);
+		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
 		return query.list();
 	}
 
@@ -716,7 +707,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 	public List<Object[]> listUserByBirthDay(Integer offset, Integer limit) {
 		Query query = getSession().createSQLQuery(FETCH_USERS_BY_BIRTHDAY).addScalar("email_id", StandardBasicTypes.STRING).addScalar("user_id", StandardBasicTypes.STRING);
 		query.setFirstResult(offset);
-		query.setMaxResults(limit <= MAX_LIMIT ? limit :MAX_LIMIT );
+		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
 		return query.list();
 	}
 	

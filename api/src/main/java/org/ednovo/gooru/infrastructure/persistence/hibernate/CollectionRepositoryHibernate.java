@@ -88,7 +88,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		Query query = getSession().createQuery(hql);
 		addOrgAuthParameters(query);
 		query.setFirstResult(((pageNum - 1) * pageSize));
-		query.setMaxResults(pageSize);
+		query.setMaxResults(pageSize != null ? (pageSize > MAX_LIMIT ? MAX_LIMIT : pageSize) : pageSize);
 		return query.list();
 	}
 
@@ -110,18 +110,18 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		Query query = getSession().createQuery(hql);
 		addOrgAuthParameters(query);
 		query.setFirstResult(((pageNum - 1) * pageSize));
-		query.setMaxResults(pageSize);
+		query.setMaxResults(pageSize != null ? (pageSize > MAX_LIMIT ? MAX_LIMIT : pageSize) : pageSize);
 		return query.list();
 	}
 
 	@Override
 	public List<CollectionItem> getCollectionItems(String collectionId, Map<String, String> filters) {
 		String hql = "select collectionItems  FROM Collection collection inner join collection.collectionItems collectionItems where collection.gooruOid=:gooruOid and " + generateOrgAuthQuery("collection.");
-		
+
 		if (filters.containsKey(TYPE) && filters.get(TYPE).equalsIgnoreCase(CLASSPAGE)) {
-			hql +=	" and collectionItems.resource.sharing in ('public','anyonewithlink') " ;
+			hql += " and collectionItems.resource.sharing in ('public','anyonewithlink') ";
 		}
-		
+
 		if (filters != null && filters.get(SHARING) != null) {
 			String sharing = filters.get(SHARING);
 			if (filters.get(SHARING).contains(",")) {
@@ -129,11 +129,11 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 			}
 			hql += " and collectionItems.resource.sharing in ('" + sharing + "') ";
 		}
-		
+
 		if (filters.containsKey(TYPE) && filters.get(TYPE).equalsIgnoreCase(COLLECTION)) {
 			hql += " and collectionItems.resource.resourceType.name = 'scollection' ";
 		}
-		
+
 		if (filters.containsKey(ORDER_BY) && filters.get(ORDER_BY).equalsIgnoreCase(TITLE)) {
 			hql += " order by collectionItems.resource.title";
 		} else {
@@ -142,12 +142,10 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		Query query = getSession().createQuery(hql);
 		query.setParameter("gooruOid", collectionId);
 		addOrgAuthParameters(query);
-		if (filters.containsKey(SKIP_PAGINATION) && filters.get(SKIP_PAGINATION).equalsIgnoreCase(NO)) {
-			int pageSize = Integer.parseInt(filters.get(PAGE_SIZE));
-			int pageNo = Integer.parseInt(filters.get(PAGE_NO));
-			query.setFirstResult(pageSize * (pageNo - 1)).setMaxResults(pageSize);
-
-		}
+		int pageSize = Integer.parseInt(filters.get(PAGE_SIZE));
+		int pageNo = Integer.parseInt(filters.get(PAGE_NO));
+		query.setFirstResult(pageSize * (pageNo - 1));
+		query.setMaxResults(pageSize > MAX_LIMIT ? MAX_LIMIT : pageSize);
 		return query.list();
 	}
 
@@ -307,7 +305,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		Query query = getSession().createQuery(hql);
 		addOrgAuthParameters(query);
 		query.setFirstResult(((pageNum - 1) * pageSize));
-		query.setMaxResults(pageSize);
+		query.setMaxResults(pageSize != null ? (pageSize > MAX_LIMIT ? MAX_LIMIT : pageSize) : pageSize);
 		return query.list();
 	}
 
@@ -363,10 +361,8 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 				+ "'  order by collectionItems.resource.createdOn desc";
 
 		Query query = getSession().createQuery(hql);
-		if (filters.containsKey(SKIP_PAGINATION) && filters.get(SKIP_PAGINATION).equalsIgnoreCase(NO)) {
-			query.setFirstResult(pageSize * (pageNum - 1)).setMaxResults(pageSize);
-
-		}
+		query.setFirstResult(((pageNum - 1) * pageSize));
+		query.setMaxResults(pageSize != null ? (pageSize > MAX_LIMIT ? MAX_LIMIT : pageSize) : pageSize);
 		return query.list();
 	}
 
@@ -448,7 +444,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		Query query = getSession().createQuery(hql);
 		addOrgAuthParameters(query);
 		query.setFirstResult(offset != null ? offset : OFFSET);
-		query.setMaxResults(limit != null ? limit : LIMIT);
+		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
 		return query.list();
 	}
 
@@ -456,13 +452,8 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 	public List<Quiz> getMyQuizzes(Integer limit, Integer offset, String gooruUid, boolean skipPagination, String orderBy) {
 		String hql = "select collectionItems.resource  FROM Quiz quiz inner join quiz.collectionItems collectionItems WHERE   quiz.user.partyUid = '" + gooruUid + "' and quiz.collectionType = '" + CollectionType.USER_QUIZ + "' order by collectionItems.itemSequence " + orderBy;
 		Query query = getSession().createQuery(hql);
-		if (!skipPagination && limit <= MAX_LIMIT) {
-			query.setFirstResult(offset);
-			query.setMaxResults(limit);
-		} else {
-			query.setFirstResult(0);
-			query.setMaxResults(MAX_LIMIT);
-		}
+		query.setFirstResult(offset);
+		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
 		return query.list();
 	}
 
@@ -479,13 +470,8 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		String hql = "select collectionItems.resource  FROM Collection collection inner join collection.collectionItems collectionItems WHERE   collection.user.partyUid = '" + user.getGooruUId() + "' and collection.collectionType = '" + CollectionType.USER_CLASSPAGE.getCollectionType()
 				+ "'  order by collectionItems.resource.createdOn " + orderBy;
 		Query query = getSession().createQuery(hql);
-		if (!skipPagination && limit <= MAX_LIMIT) {
-			query.setFirstResult(offset);
-			query.setMaxResults(limit);
-		} else {
-			query.setFirstResult(offset);
-			query.setMaxResults(MAX_LIMIT);
-		}
+		query.setFirstResult(offset);
+		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
 		return query.list();
 	}
 
@@ -507,13 +493,8 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		String hql = "select collectionItems.resource  FROM Collection collection inner join collection.collectionItems collectionItems WHERE  " + type + " " + resourceType + " collection.user.partyUid = '" + user.getGooruUId() + "'  order by collectionItems.resource.createdOn desc";
 		Query query = getSession().createQuery(hql);
 
-		if (!skipPagination && limit <= MAX_LIMIT) {
-			query.setFirstResult(offset);
-			query.setMaxResults(limit);
-		} else {
-			query.setFirstResult(offset);
-			query.setMaxResults(MAX_LIMIT);
-		}
+		query.setFirstResult(offset);
+		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
 		return query.list();
 	}
 
@@ -522,17 +503,8 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		if (filters == null || user == null) {
 			return null;
 		}
-		Integer pageNum = 1;
-		Integer pageSize = 20;
 		Integer offset = 0;
 		Integer limit = 0;
-
-		if (filters != null && filters.containsKey(PAGE_NO)) {
-			pageNum = Integer.parseInt(filters.get(PAGE_NO));
-		}
-		if (filters != null && filters.containsKey(PAGE_SIZE)) {
-			pageSize = Integer.parseInt(filters.get(PAGE_SIZE));
-		}
 
 		if (filters != null && filters.containsKey(OFFSET_FIELD)) {
 			offset = Integer.parseInt(filters.get(OFFSET_FIELD));
@@ -579,14 +551,8 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 
 		Query query = getSession().createQuery(hql);
 
-		if (filters.containsKey(SKIP_PAGINATION) && filters.get(SKIP_PAGINATION).equalsIgnoreCase(NO)) {
-			if (filters != null && filters.containsKey(OFFSET_FIELD)) {
-				query.setFirstResult(offset).setMaxResults(limit);
-			} else {
-				query.setFirstResult(pageSize * (pageNum - 1)).setMaxResults(pageSize);
-			}
-
-		}
+		query.setFirstResult(offset);
+		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
 		return query.list();
 	}
 
@@ -604,13 +570,8 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		Query query = getSession().createQuery(hql);
 		query.setParameter("gooruOid", collectionId);
 		addOrgAuthParameters(query);
-		if (!skipPagination && limit <= MAX_LIMIT) {
-			query.setFirstResult(offset);
-			query.setMaxResults(limit);
-		} else {
-			query.setFirstResult(offset);
-			query.setMaxResults(MAX_LIMIT);
-		}
+		query.setFirstResult(offset);
+		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
 		return query.list();
 	}
 
@@ -643,13 +604,8 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 			query.setParameter("author", author);
 		}
 		addOrgAuthParameters(query);
-		if (!skipPagination && limit <= MAX_LIMIT) {
-			query.setFirstResult(offset);
-			query.setMaxResults(limit);
-		} else {
-			query.setFirstResult(offset);
-			query.setMaxResults(MAX_LIMIT);
-		}
+		query.setFirstResult(offset);
+		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
 		return query.list();
 	}
 	
@@ -718,7 +674,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 			query.setParameter("collectionType", collectionType);
 		}
 		query.setFirstResult(offset);
-		query.setMaxResults(limit);
+		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
 		return query.list();
 	}
 
@@ -743,13 +699,8 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		if (collectionType != null) {
 			query.setParameter("collectionType", collectionType);
 		}
-		if (!skipPagination && limit <= MAX_LIMIT) {
-			query.setFirstResult(offset);
-			query.setMaxResults(limit);
-		} else {
-			query.setFirstResult(offset);
-			query.setMaxResults(MAX_LIMIT);
-		}
+		query.setFirstResult(offset);
+		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
 		return query.list();
 	}
 
@@ -848,13 +799,8 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 			sql += " and u.gooru_uid = '" + gooruUid + "'";
 		}
 		Query query = getSession().createSQLQuery(sql);
-		if (!skipPagination && limit <= MAX_LIMIT) {
-			query.setFirstResult(offset);
-			query.setMaxResults(limit);
-		} else {
-			query.setFirstResult(offset);
-			query.setMaxResults(MAX_LIMIT);
-		}
+		query.setFirstResult(offset);
+		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
 		return query.list();
 	}
 
@@ -922,13 +868,8 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 			sql += " order by ci.item_sequence asc ";
 		}
 		Query query = getSession().createSQLQuery(sql);
-		if (!skipPagination && limit <= MAX_LIMIT) {
-			query.setFirstResult(offset);
-			query.setMaxResults(limit);
-		} else {
-			query.setFirstResult(offset);
-			query.setMaxResults(MAX_LIMIT);
-		}
+		query.setFirstResult(offset);
+		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
 		return query.list();
 	}
 	@Override
@@ -943,13 +884,8 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 			query.setParameter("pending", publishStatus);
 		}
 		addOrgAuthParameters(query);	
-		if (!skipPagination && limit <= MAX_LIMIT) {
-			query.setFirstResult(offset);
-			query.setMaxResults(limit);
-		} else {
-			query.setFirstResult(offset);
-			query.setMaxResults(MAX_LIMIT);
-		}
+		query.setFirstResult(offset);
+		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
 		return query.list().size() >   0 ?  query.list() : null;
 	}
 	@Override

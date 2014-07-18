@@ -257,7 +257,7 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 			}
 
 			query.setFirstResult(startAt);
-			query.setMaxResults(pageSize);
+			query.setMaxResults(pageSize != null ? (pageSize > MAX_LIMIT ? MAX_LIMIT : pageSize) : pageSize);
 			return query.list();
 		}
 
@@ -357,10 +357,8 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 			}
 		}
 		Query query = getSession().createQuery(hql);
-		if (!filters.containsKey("pagination") || !filters.get("pagination").equals("disable")) {
-			query.setFirstResult(pageSize * (pageNum - 1));
-			query.setMaxResults(pageSize <= MAX_LIMIT ? pageSize : MAX_LIMIT);
-		}
+		query.setFirstResult(pageSize * (pageNum - 1));
+		query.setMaxResults(pageSize != null ? (pageSize > MAX_LIMIT ? MAX_LIMIT : pageSize) : pageSize);
 		return query.list();
 	}
 
@@ -720,7 +718,7 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 		if (filters.containsKey(PAGE_SIZE)) {
 			pageSize = Integer.parseInt(filters.get(PAGE_SIZE));
 		}
-		List<String> gooruOIds  = getSession().createQuery(hql).setFirstResult(pageSize * (pageNum - 1)).setMaxResults(pageSize <= MAX_LIMIT ? pageSize : MAX_LIMIT).list();
+		List<String> gooruOIds  = getSession().createQuery(hql).setFirstResult(pageSize * (pageNum - 1)).setMaxResults(pageSize).list();
 		return (gooruOIds.size() > 0) ? gooruOIds : null;
 	}
 
@@ -780,7 +778,7 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 		String hql = "SELECT r.resource FROM ResourceInstance r";
 		Query query = getSession().createQuery(hql);
 		query.setFirstResult(pageSize * (pageNum - 1));
-		query.setMaxResults(pageSize <= MAX_LIMIT ? pageSize : MAX_LIMIT);
+		query.setMaxResults(pageSize != null ? (pageSize > MAX_LIMIT ? MAX_LIMIT : pageSize) : pageSize);
 		return query.list();
 	}
 
@@ -870,7 +868,7 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 		String hql = "SELECT r.resource FROM ResourceInstance r";
 		Query query= getSession().createQuery(hql);
 		query.setFirstResult(offset);
-		query.setMaxResults(limit <= MAX_LIMIT ? limit : MAX_LIMIT);
+		query.setMaxResults(offset != null ? (offset > MAX_LIMIT ? MAX_LIMIT : offset) : offset);
 		return query.list();
 	}
 
