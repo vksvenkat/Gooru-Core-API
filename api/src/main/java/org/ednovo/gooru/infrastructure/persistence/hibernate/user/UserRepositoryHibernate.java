@@ -27,6 +27,7 @@ import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -330,7 +331,29 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 				.add(Restrictions.eq("followOnUser.partyUid", gooruFollowOnUserId)).add(Restrictions.eq("activeFlag", true)).list();
 		return (relationships.size() > 0) ? relationships.get(0) : null;
 	}
+	
+	@Override
+	public User findByRemeberMeToken(String remeberMeToken) {
+		Object[] obj = new Object[1];
+		obj[0] = (Object) remeberMeToken;
+		List<Map<String, Object>> rows = this.getJdbcTemplate().queryForList(FIND_USER_BY_TOKEN, obj);
+		User user = null;
+		for (Map row : rows) {
+			user = new User();
+			user.setGooruUId((String) row.get("gooru_uid"));
+			user.setFirstName((String) row.get("firstname"));
+			user.setLastName((String) row.get("lastname"));
+			user.setUserId(new Integer(String.valueOf(row.get("user_id"))));
+			user.setEmailId((String) row.get("external_id"));
 
+			List<UserRoleAssoc> userRoleSet = this.findUserRoleSet(user);
+			if (userRoleSet != null) {
+				user.setUserRoleSet(new HashSet<UserRoleAssoc>(userRoleSet));
+			}
+			break;
+		}
+		return user;
+	}
 	
 
 	@Override
