@@ -45,7 +45,7 @@ public class ImageScaler implements ImageProcessor,ParameterProperties {
 	public static final int THUMBNAIL_WIDTH = 80;
 	public static final int THUMBNAIL_HEIGHT = 60;
 
-	protected final static Logger logger = LoggerFactory.getLogger(ImageScaler.class);
+	protected final static Logger LOGGER = LoggerFactory.getLogger(ImageScaler.class);
 
 	public void process(String imgResourceFilePath) throws Exception {
 		String fileFolder = imgResourceFilePath.substring(0, imgResourceFilePath.lastIndexOf("/") + 1);
@@ -63,7 +63,7 @@ public class ImageScaler implements ImageProcessor,ParameterProperties {
 		try {
 			ImageIO.write(image, PNG , outputFile);
 		} catch (IOException e) {
-			logger.error("Error while saving image resource to disk", e);
+			LOGGER.error("Error while saving image resource to disk", e);
 		}
 	}
 

@@ -682,7 +682,7 @@ public interface ParameterProperties {
 
 	String MD_5 = "MD5";
 
-	String expire = "expires";
+	String EXPIRE = "expires";
 
 	String GET = "GET";
 

@@ -100,7 +100,7 @@ public interface CollectionRepository extends BaseRepository {
 	
 	Long getMyShelfCount(String gooruUid, String sharing, String collectionType);
 	
-	List<Object[]> getCollectionItem(String gooruOid, Integer limit, Integer offset, boolean SkipPagination, String sharing, String orderBy, String collectionType,boolean fetchChildItem);
+	List<Object[]> getCollectionItem(String gooruOid, Integer limit, Integer offset, boolean skipPagination, String sharing, String orderBy, String collectionType,boolean fetchChildItem);
 	
 	Long getCollectionItemCount(String gooruOid, String sharing, String collectionType );
 	

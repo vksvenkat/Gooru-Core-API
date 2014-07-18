@@ -41,7 +41,7 @@ import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 public class ApiInterceptor extends HandlerInterceptorAdapter {
 
-	private static final Logger logger = LoggerFactory.getLogger(ApiInterceptor.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ApiInterceptor.class);
 
 	@Autowired
 	private ApiTrackerService apiTrackerService;
@@ -70,7 +70,7 @@ public class ApiInterceptor extends HandlerInterceptorAdapter {
 				apiTrackerCache.put(element);
 			}
 		} catch (Exception exception) {
-			logger.info("Creation of apikey activity failed.");
+			LOGGER.info("Creation of apikey activity failed.");
 		}
 	}
 
@@ -105,7 +105,7 @@ public class ApiInterceptor extends HandlerInterceptorAdapter {
 								tempCache.put(new Element(tempElement.getKey(), tempValue));
 							}
 						} else {
-							logger.info("Apikey : " + key + "Has reached its limit");
+							LOGGER.info("Apikey : " + key + "Has reached its limit");
 							response.sendError(503, "Throttled");
 						}
 						cache.put(new Element(element.getKey(), cacheActivity));
@@ -114,12 +114,12 @@ public class ApiInterceptor extends HandlerInterceptorAdapter {
 						tempValue++;
 						tempCache.put(new Element(tempElement.getKey(), tempValue));
 					} else {
-						logger.info("Apikey : " + key + "is not valid");
+						LOGGER.info("Apikey : " + key + "is not valid");
 						response.sendError(503, "Throttled");
 					}
 				}
 			} else {
-				logger.info("Failed Interceptor Validation : No sessionToken or ApiKey found in Request");
+				LOGGER.info("Failed Interceptor Validation : No sessionToken or ApiKey found in Request");
 			}
 		}
 		return true;

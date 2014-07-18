@@ -36,7 +36,7 @@ public class ResourceSource implements Serializable {
 	private String type;
 	
 	@Column
-	private Integer IsBlacklisted;
+	private Integer isBlacklisted;
 	
 	/* FIX for DO-1112 */
 	private String sourceName;
@@ -111,10 +111,10 @@ public class ResourceSource implements Serializable {
 		return sourceName;
 	}
 	public void setIsBlacklisted(Integer isBlacklisted) {
-		IsBlacklisted = isBlacklisted;
+		isBlacklisted = isBlacklisted;
 	}
 	public Integer getIsBlacklisted() {
-		return IsBlacklisted;
+		return isBlacklisted;
 	}
 	public void setHasHttpsSupport(Integer hasHttpsSupport) {
 		this.hasHttpsSupport = hasHttpsSupport;

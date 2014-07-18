@@ -53,10 +53,10 @@ public class FileProcessor {
 		}
 
 		if (request != null) {
-			String filename = request.getParameter("media.filename");
+			final String filename = request.getParameter("media.filename");
 			if (filename != null) {
 				originalFilename = request.getParameter("media.originalFilename");
-				File mediaFile = new File(repositoryPath + "/" + Constants.UPLOADED_MEDIA_FOLDER + "/" + filename);
+				final File mediaFile = new File(repositoryPath + "/" + Constants.UPLOADED_MEDIA_FOLDER + "/" + filename);
 				fileData = FileUtils.readFileToByteArray(mediaFile);
 
 				fileMeta = new FileMeta();
@@ -69,7 +69,7 @@ public class FileProcessor {
 			Map<String, byte[]> files = (Map<String, byte[]>) formField.get(RequestUtil.UPLOADED_FILE_KEY);
 
 			// expecting only one file in the request right now
-			for (String name : files.keySet()) {
+			for (final String name : files.keySet()) {
 				if (name != null) {
 					originalFilename = name;
 					break;

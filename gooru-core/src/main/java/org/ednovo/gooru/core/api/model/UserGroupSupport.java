@@ -7,7 +7,7 @@ import org.springframework.util.StringUtils;
 
 public abstract class UserGroupSupport extends SessionContextSupport {
 
-	private static String DEFAULT_ORGANIZATION = "4261739e-ccae-11e1-adfb-5404a609bd14";
+	private final static  String DEFAULT_ORGANIZATION = "4261739e-ccae-11e1-adfb-5404a609bd14";
 
 	public static String getPartyPermitsAsString() {
 		UserCredential credential = getUserCredential();

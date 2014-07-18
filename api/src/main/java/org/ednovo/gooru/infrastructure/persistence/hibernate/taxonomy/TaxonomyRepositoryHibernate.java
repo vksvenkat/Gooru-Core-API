@@ -433,7 +433,7 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 
 		// Please don not change - there is a reason to specify this query
 		// string here rather than a static string....
-		String FIND_CURRICULUMS = "SELECT distinct c.label,c.display_order, c.code,c.description, c.type_id, c.code_id, c.depth, c.root_node_id,c.display_code FROM code c inner join taxonomy_association t on c.code_id = t.target_code_id where  t.source_code_id in (";
+		String findCurriculum = "SELECT distinct c.label,c.display_order, c.code,c.description, c.type_id, c.code_id, c.depth, c.root_node_id,c.display_code FROM code c inner join taxonomy_association t on c.code_id = t.target_code_id where  t.source_code_id in (";
 
 		if (codeIdList.size() == 0) {
 			return null;
@@ -443,22 +443,22 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 		for (int i = 0; i < codeIdList.size(); i++) {
 
 			if (i < (codeIdList.size() - 1)) {
-				FIND_CURRICULUMS = FIND_CURRICULUMS + "?,";
+				findCurriculum = findCurriculum + "?,";
 			} else {
-				FIND_CURRICULUMS = FIND_CURRICULUMS + "?)";
+				findCurriculum = findCurriculum + "?)";
 			}
 
 			a[i] = codeIdList.get(i).getCodeId();
 		}
 
-		FIND_CURRICULUMS += " and active_flag =1 and " + generateOrgAuthSqlQueryWithData("c.");
+		findCurriculum += " and active_flag =1 and " + generateOrgAuthSqlQueryWithData("c.");
 
 		if (UserGroupSupport.getTaxonomyPreference() != null && !excludeTaxonomyPreference) {
-			FIND_CURRICULUMS += " and c.root_node_id in (" + UserGroupSupport.getTaxonomyPreference() + ")";
+			findCurriculum += " and c.root_node_id in (" + UserGroupSupport.getTaxonomyPreference() + ")";
 		}
 
 		List<Code> codeList = new ArrayList<Code>();
-		List<Map<String, Object>> rows = getJdbcTemplate().queryForList(FIND_CURRICULUMS, a);
+		List<Map<String, Object>> rows = getJdbcTemplate().queryForList(findCurriculum, a);
 
 		for (Map row : rows) {
 			Code code = new Code();

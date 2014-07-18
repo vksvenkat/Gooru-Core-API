@@ -13,7 +13,7 @@ public class MailDO {
 	private String from;
 	private String fromName;
 	private String bcc;
-	private String Cc;
+	private String cc;
 	private String signature;
 	private Long expires;
 	private String host;
@@ -123,11 +123,11 @@ public class MailDO {
 	}
 
 	public void setCc(String cc) {
-		Cc = cc;
+		cc = cc;
 	}
 
 	public String getCc() {
-		return Cc;
+		return cc;
 	}
 
 	public void setHost(String host) {
