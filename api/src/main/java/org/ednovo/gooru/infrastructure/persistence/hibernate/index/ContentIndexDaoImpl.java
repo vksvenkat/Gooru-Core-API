@@ -37,10 +37,11 @@ import org.hibernate.Query;
 import org.hibernate.SQLQuery;
 import org.hibernate.type.StandardBasicTypes;
 import org.springframework.stereotype.Repository;
+import org.hibernate.Session;
 
 @Repository
 @SuppressWarnings("unchecked")
-public class ContentIdexDaoImpl extends IndexDaoImpl implements ContentIndexDao {
+public class ContentIndexDaoImpl extends IndexDaoImpl implements ContentIndexDao {
 
 	private final String GET_COLLECTION_INFO_FOR_RESOURCE = "SELECT c.content_id, c.gooru_oid, l.lesson, l.goals, l.vocabulary, l.narration, l.notes, r.distinguish FROM learnguide l INNER JOIN resource r ON r.content_id = l.content_id  INNER JOIN content c on c.content_id = l.content_id WHERE c.content_id = :contentId";
 
@@ -87,6 +88,14 @@ public class ContentIdexDaoImpl extends IndexDaoImpl implements ContentIndexDao 
 	private static final String GET_SUBSCRIPTION_BY_CONTENT_ID = "select count(0) AS `subscriberCount` from (`content` `c` join `annotation` `a` on((`a`.`resource_id` = `c`.`content_id`))) where (`a`.`type_name` = 'subscription') AND a.resource_id=:contentId group by `a`.`resource_id`";
 
 	private final String GET_SCOLLECTION_ITEM_IDS_BY_RESOURCE_ID = "SELECT collection_item_id FROM collection_item WHERE resource_content_id = :contentId";
+
+	private static final String MAX_SUBSCRIBERS_COUNT = "select max(totalCount) as maxSubscribers from (select count(1) as totalCount from content c inner join annotation a on a.resource_id = c.content_id where a.type_name='subscription' group by a.resource_id) a";
+	
+	private static final String MAX_RESOURCE_USED_IN_COLLECTION_COUNT = "select count(distinct ci.collection_content_id) as maxUsedInCollectionCount from content col inner join collection co on col.content_id = co.content_id inner join collection_item ci on ci.collection_content_id = co.content_id  inner join content res on res.content_id = ci.resource_content_id where co.collection_type = 'collection' and ci.collection_content_id != ci.resource_content_id and res.sharing in ('anyonewithlink', 'public') and col.sharing in ('anyonewithlink', 'public')  group by resource_content_id order by count(distinct ci.collection_content_id) desc limit 1";
+
+    private static final String RESOURCE_MAX_VIEW = "select views_total as max_views from resource where type_name in ('animation/kmz','animation/swf','assessment-question','exam/pdf','handouts','image/png','ppt/pptx','qb/question','qb/response','question','resource/url','textbook/scribd','video/youtube') order by views_total desc limit 1";
+    
+	private static final String COLLECTION_MAX_VIEW = "select views_total as max_views from resource where type_name = 'scollection' order by views_total desc limit 1";
 
 	@Override
 	public List<Object[]> getCollectionSegments(Long contentId) {
@@ -242,5 +251,31 @@ public class ContentIdexDaoImpl extends IndexDaoImpl implements ContentIndexDao 
 		return contentProvider.size()== 0 ? null:contentProvider.get(0);
 	}
 	
+	@Override
+	public Integer getMaximumSubscribersCount() {
+        Session session = getSessionFactory().getCurrentSession();
+		Query query = session.createSQLQuery(MAX_SUBSCRIBERS_COUNT).addScalar("maxSubscribers", StandardBasicTypes.INTEGER);
+		return (Integer) query.list().get(0);
+	}
 	
+	@Override
+	public Integer getMaximumUsedInCollectionCount() {
+        Session session = getSessionFactory().getCurrentSession();
+		Query query = session.createSQLQuery(MAX_RESOURCE_USED_IN_COLLECTION_COUNT).addScalar("maxUsedInCollectionCount", StandardBasicTypes.INTEGER);
+		return (Integer) query.list().get(0);
+	}
+	
+	@Override
+	public Integer getResourceMaximumView() {
+		Session session = getSessionFactory().getCurrentSession();
+		Query query = session.createSQLQuery(RESOURCE_MAX_VIEW).addScalar("max_views", StandardBasicTypes.INTEGER);
+		return (Integer) query.list().get(0);
+	}
+	
+	@Override
+	public Integer getCollectionMaximumView() {
+		Session session = getSessionFactory().getCurrentSession();
+		Query query = session.createSQLQuery(COLLECTION_MAX_VIEW).addScalar("max_views", StandardBasicTypes.INTEGER);
+		return (Integer) query.list().get(0);
+	}
 }
