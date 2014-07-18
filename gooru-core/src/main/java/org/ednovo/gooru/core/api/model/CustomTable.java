@@ -42,7 +42,7 @@ public class CustomTable extends OrganizationModel implements Serializable {
 	}
 
 	public void setCustomTableId(Integer customTableId) {
-		customTableId = customTableId;
+		this.customTableId = customTableId;
 	}
 
 	public Integer getCustomTableId() {

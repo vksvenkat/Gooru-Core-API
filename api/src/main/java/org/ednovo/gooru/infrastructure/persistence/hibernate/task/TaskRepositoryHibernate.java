@@ -93,10 +93,8 @@ public class TaskRepositoryHibernate extends BaseRepositoryHibernate implements 
 		}
 		Query query = session.createQuery(hql);
 		addOrgAuthParameters(query);
-		if (!skipPagination) {
-			query.setFirstResult(offset);
-			query.setMaxResults(limit);
-		}
+		query.setFirstResult(offset);
+		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
 		return query.list();
 	}
 

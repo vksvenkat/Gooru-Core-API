@@ -105,6 +105,8 @@ public interface ParameterProperties {
 	String INLCLUDE_META_INFO = "includeMetaInfo";
 
 	String INCLUDE_COLLABORATOR = "includeCollaborator";
+	
+	String COLLABORATOR_INFO = "collaboratorInfo";
 
 	String INCLUDE_RELATED_CONTENT = "includeRelatedContent";
 
@@ -2695,4 +2697,8 @@ public interface ParameterProperties {
 	String GOOGLE_REFRESH_TOKEN = "google_refresh_token";
 	
 	String REFRESH_TOKEN = "refresh_token";
+	
+	Integer MAX_LIMIT = 50;
+	
+	
 }
