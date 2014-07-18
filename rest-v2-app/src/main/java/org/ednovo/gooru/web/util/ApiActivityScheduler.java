@@ -38,7 +38,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 public class ApiActivityScheduler extends BaseController {
 
-	private static final Logger logger = LoggerFactory.getLogger(ApiActivityScheduler.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ApiActivityScheduler.class);
 	
 	private String schedulerEnabled;
 
@@ -72,7 +72,7 @@ public class ApiActivityScheduler extends BaseController {
 
 		if (schedulerEnabled.equalsIgnoreCase("true")) {
 
-			logger.debug("Starting " + ((reset) ? "resetting" : "Updating") + " of apikey activities by scheduler.");
+			LOGGER.debug("Starting " + ((reset) ? "resetting" : "Updating") + " of apikey activities by scheduler.");
 
 			new TransactionBox() {
 
@@ -123,9 +123,9 @@ public class ApiActivityScheduler extends BaseController {
 						}
 					}		
 					} catch (Exception exception) {
-						logger.warn("Updating of apikey activity failed.", exception);
+						LOGGER.warn("Updating of apikey activity failed.", exception);
 					}
-					logger.debug("Completed " + ((reset) ? "resetting" : "Updating") + " of apikey activities by scheduler.");
+					LOGGER.debug("Completed " + ((reset) ? "resetting" : "Updating") + " of apikey activities by scheduler.");
 				}
 			};
 		}

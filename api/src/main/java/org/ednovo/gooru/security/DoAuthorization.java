@@ -79,7 +79,7 @@ public class DoAuthorization  {
 	
 	private static final String SESSION_TOKEN_KEY = "authenticate_";
 	
-	private static final Logger logger = LoggerFactory.getLogger(DoAuthorization.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(DoAuthorization.class);
 	
 	public User doFilter(String sessionToken, String pinToken, String apiKeyToken, HttpServletRequest request, HttpServletResponse response, Authentication auth, String oAuthToken) { 
 		if (pinToken != null) { 
@@ -101,13 +101,13 @@ public class DoAuthorization  {
 					authentication = JsonDeserializer.deserialize(data, AuthenticationDo.class);
 				}
 			}  catch(Exception e) { 
-				logger.error("Failed to  get  value from redis server");
+				LOGGER.error("Failed to  get  value from redis server");
 			}
 			if (authentication == null || authentication.getUserToken() == null)  {
 		    	try {
 					user = oAuthService.getUserByOAuthAccessToken(oAuthToken);
 				} catch (Exception e) {
-					logger.error("OAuth Authentication failed --- " + e);
+					LOGGER.error("OAuth Authentication failed --- " + e);
 				}
 				userToken = userToken == null ? new UserToken() : userToken;
 				userToken.setUser(user);
@@ -127,7 +127,7 @@ public class DoAuthorization  {
 					authentication = JsonDeserializer.deserialize(data, AuthenticationDo.class);
 				}
 			}  catch(Exception e) { 
-				logger.error("Failed to  get  value from redis server");
+				LOGGER.error("Failed to  get  value from redis server");
 			}
 			if (authentication == null || authentication.getUserToken() == null)  {
 		      userToken = userTokenRepository.findByToken(sessionToken);
@@ -217,10 +217,10 @@ public class DoAuthorization  {
 			try {
 				getRedisService().putValue(key, new JSONSerializer().transform(new ExcludeNullTransformer(), void.class).include(new String[] {"*.operationAuthorities","*.userRoleSet", "*.partyOperations", "*.subOrganizationUids", "*.orgPermits", "*.partyPermits", "*.customFields", "*.identities", "*.meta"}).exclude("*.class").serialize(authentication), 1800);
 			} catch (Exception e) { 
-				logger.error("Failed to  put  value from redis server");	
+				LOGGER.error("Failed to  put  value from redis server");	
 			}
-			if (logger.isDebugEnabled()) {
-				logger.debug("Authorize User: First Name-" + user.getFirstName() + "; Last Name-" + user.getLastName() + "; Email-" + user.getUserId());
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Authorize User: First Name-" + user.getFirstName() + "; Last Name-" + user.getLastName() + "; Email-" + user.getUserId());
 			}
 			auth = new GooruAuthenticationToken(user.getPartyUid(), null, userCredential);
 			SecurityContextHolder.getContext().setAuthentication(auth);

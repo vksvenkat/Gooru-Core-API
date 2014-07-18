@@ -100,7 +100,7 @@ public class GooruMd5Util implements ParameterProperties{
 	public String verifySignatureFromURL(String baseUrl, Map<String, Object> parameterMap, String secret) throws NoSuchAlgorithmException {
 		GooruMd5Util gooruSigningUtil = new GooruMd5Util();
 
-		Long expires = (Long) parameterMap.get(expire);
+		Long expires = (Long) parameterMap.get(EXPIRE);
 		String params = getOrderedQueryString(parameterMap);
 		System.out.println("params:" + params);
 		// get MD5 for the content (in this case parameters)

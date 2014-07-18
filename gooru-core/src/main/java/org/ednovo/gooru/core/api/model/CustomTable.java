@@ -9,7 +9,7 @@ public class CustomTable extends OrganizationModel implements Serializable {
 	 */
 	private static final long serialVersionUID = 7545253432645705302L;
 
-	private Integer CustomTableId;
+	private Integer customTableId;
 
 	private String name;
 
@@ -42,11 +42,11 @@ public class CustomTable extends OrganizationModel implements Serializable {
 	}
 
 	public void setCustomTableId(Integer customTableId) {
-		CustomTableId = customTableId;
+		customTableId = customTableId;
 	}
 
 	public Integer getCustomTableId() {
-		return CustomTableId;
+		return customTableId;
 	}
 
 }

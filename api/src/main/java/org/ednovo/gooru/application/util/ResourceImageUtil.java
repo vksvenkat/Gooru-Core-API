@@ -101,7 +101,7 @@ public class ResourceImageUtil extends UserGroupSupport implements ParameterProp
 
 	private Map<String, String> propertyMap;
 
-	private static final Logger logger = LoggerFactory.getLogger(ResourceImageUtil.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ResourceImageUtil.class);
 
 	public void sendMsgToGenerateThumbnails(Resource resource) {
 
@@ -117,8 +117,8 @@ public class ResourceImageUtil extends UserGroupSupport implements ParameterProp
 		param.put(DIMENSIONS, getDimensions(resource));
 		param.put(RESOURCE_GOORU_OID, resource.getGooruOid());
 		param.put(API_END_POINT, settingService.getConfigSetting(ConfigConstants.GOORU_API_ENDPOINT, 0, TaxonomyUtil.GOORU_ORG_UID));
-		logger.debug(fileName);
-		logger.debug(settingService.getConfigSetting(ConfigConstants.GOORU_CONVERSION_RESTPOINT, 0, TaxonomyUtil.GOORU_ORG_UID) + "/conversion/image");
+		LOGGER.debug(fileName);
+		LOGGER.debug(settingService.getConfigSetting(ConfigConstants.GOORU_CONVERSION_RESTPOINT, 0, TaxonomyUtil.GOORU_ORG_UID) + "/conversion/image");
 		this.getAsyncExecutor().executeRestAPI(param, settingService.getConfigSetting(ConfigConstants.GOORU_CONVERSION_RESTPOINT, 0, TaxonomyUtil.GOORU_ORG_UID) + "/conversion/image", Method.POST.getName());
 	}
 
@@ -149,12 +149,6 @@ public class ResourceImageUtil extends UserGroupSupport implements ParameterProp
 		}
 
 		resourceRepository.save(resource);
-        try {
-	    	//this.getAsyncExecutor().uploadResourceFolder(resource);
-        } catch (Exception e) {
-        	logger.debug("failed to upload in s3 bucket {}", e);
-        }
-
 	}
 
 	public void downloadAndGenerateThumbnails(Resource resource, String webSrc) {
@@ -245,7 +239,7 @@ public class ResourceImageUtil extends UserGroupSupport implements ParameterProp
 			try {
 			 indexProcessor.index(resource.getGooruOid(), IndexProcessor.INDEX, indexType);
 			} catch(Exception e) { 
-				logger.debug("failed to index {}", e);
+				LOGGER.debug("failed to index {}", e);
 			}
 		}
 		sendMsgToGenerateThumbnails(resource);
@@ -284,7 +278,7 @@ public class ResourceImageUtil extends UserGroupSupport implements ParameterProp
 						List<String> defaultThumbnailImageList = Arrays.asList(defaultThumbnailImages.split("\\s*,\\s*"));
 						Integer randomNumber = new Random().nextInt(defaultThumbnailImageList.size());
 						resource.setThumbnail((randomNumber != null ? defaultThumbnailImageList.get(randomNumber > 0 ? randomNumber - 1 : randomNumber) : null));
-						logger.info("default thumbnail  content id: " + resource.getContentId());
+						LOGGER.info("default thumbnail  content id: " + resource.getContentId());
 					}
 				}
 				resourceRepository.save(resource);
@@ -388,7 +382,7 @@ public class ResourceImageUtil extends UserGroupSupport implements ParameterProp
 				HttpGet httpGet = new HttpGet(requestURL);
 				HttpResponse httpResponse = client.execute(httpGet);
 				status = httpResponse.getStatusLine().getStatusCode();
-				logger.info("youtube api response code: " + status);
+				LOGGER.info("youtube api response code: " + status);
 				if (status == 200) {
 					HttpEntity entity = httpResponse.getEntity();
 					InputStream inputStream = entity.getContent();
@@ -427,9 +421,9 @@ public class ResourceImageUtil extends UserGroupSupport implements ParameterProp
 				resourceFeeds.setUrlStatus(status);
 				return resourceFeeds;
 			} catch (Exception ex) {
-				logger.error("getYoutubeResourceFeeds: " + ex);
+				LOGGER.error("getYoutubeResourceFeeds: " + ex);
 			}
-			logger.error("Total time for get youtube api data :" + (System.currentTimeMillis() - start));
+			LOGGER.error("Total time for get youtube api data :" + (System.currentTimeMillis() - start));
 		}
 		return resourceFeeds;
 	}

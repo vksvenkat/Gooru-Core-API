@@ -88,14 +88,14 @@ public class CustomProperties implements Serializable {
 
 	public static enum TagStatus {
 		NEW("new"), ACTIVE("active"), SPAM("spam"), ABUSE("abuse");
-		private String TagStatus;
+		private String tagStatus;
 
-		TagStatus(String TagStatus) {
-			this.TagStatus = TagStatus;
+		TagStatus(String tagStatus) {
+			this.tagStatus = tagStatus;
 		}
 
 		public String getTagStatus() {
-			return this.TagStatus;
+			return this.tagStatus;
 		}
 	}
 

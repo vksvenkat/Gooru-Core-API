@@ -83,7 +83,7 @@ public class BlackListWordCassandraServiceImpl implements BlackListWordCassandra
 	public void save(List<String> words) {
 		if (words != null && words.size() > 0) {
 			Map<String, Object> wordMap = new HashMap<String, Object>();
-			String EMPTY = "";
+			final String EMPTY = "";
 			for (String word : words) {
 				wordMap.put(word.toLowerCase(), EMPTY);
 			}

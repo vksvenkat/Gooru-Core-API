@@ -379,9 +379,6 @@ public class SearchResult implements Serializable {
 	}
 
 	public String getAssetURI() {
-		if (assetURI == null) {
-			assetURI = Learnguide.REPOSITORY_WEB_URI + "/";
-		}
 		if (UserGroupSupport.getUserOrganizationCdnDirectPath() != null) { 
 			assetURI = UserGroupSupport.getUserOrganizationCdnDirectPath();
 		}

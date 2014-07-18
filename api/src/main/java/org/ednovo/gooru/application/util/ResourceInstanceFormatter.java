@@ -152,13 +152,13 @@ public class ResourceInstanceFormatter implements ParameterProperties{
 			folder.addText("");
 		}
 
-		Element question_set = null;
+		Element questionSet = null;
 		try {
-			question_set = (Element) DocumentHelper.parseText(questionXML.toString()).getRootElement();
+			questionSet = (Element) DocumentHelper.parseText(questionXML.toString()).getRootElement();
 		} catch (Exception e) {
-			throw new RuntimeException("Error while converting to a document", e);
+			throw new RuntimeException("Error while converting to a document");
 		}
-		resourceElm.add(question_set);
+		resourceElm.add(questionSet);
 
 		return resourceElm;
 	}

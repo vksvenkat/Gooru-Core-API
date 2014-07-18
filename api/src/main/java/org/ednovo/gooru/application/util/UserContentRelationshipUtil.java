@@ -33,7 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class UserContentRelationshipUtil {
-	private static final Logger logger = LoggerFactory.getLogger(UserContentRelationshipUtil.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(UserContentRelationshipUtil.class);
 
 	private static UserContentRepository userContentRepository;
 	
@@ -55,7 +55,7 @@ public class UserContentRelationshipUtil {
 			}
 
 		} catch (Exception exception) {
-			logger.error("Saving content association failed" , exception);
+			LOGGER.error("Saving content association failed" , exception);
 		}
 	}
 
@@ -69,7 +69,7 @@ public class UserContentRelationshipUtil {
 			}
 
 		} catch (Exception exception) {
-			logger.error("Deleting content association failed" , exception);
+			LOGGER.error("Deleting content association failed" , exception);
 		}
 		
 	}

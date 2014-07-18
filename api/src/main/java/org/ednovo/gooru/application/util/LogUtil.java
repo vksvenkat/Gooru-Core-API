@@ -68,7 +68,7 @@ public class LogUtil {
 
 	private static ActivityRepository activityRepository;
 
-	private static final Logger logger = LoggerFactory.getLogger(LogUtil.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(LogUtil.class);
 
 	public static final String getActivityLogStream(String application, String subject, String object, String predicate, String description) {
 		if (predicate.equals(CLASSBOOK_COPY) || predicate.equals(CLASSBOOK_CREATE) || predicate.equals(CLASSPLAN_CREATE) || predicate.equals(CLASSPLAN_COPY) || predicate.equals(RESOURCE_ADD) || predicate.equals(QUOTE_CREATE) || predicate.equals(ASSESSMENT_CREATE) || predicate.equals(QUESTION_ADD)) {
@@ -79,7 +79,7 @@ public class LogUtil {
 			try {
 				LogUtil.getActivityRepository().saveActivity(userId, contentGooruId, predicate, description);
 			} catch (Exception e) {
-				logger.error("Error while saving activity " + e);
+				LOGGER.error("Error while saving activity " + e);
 			}
 
 		}
@@ -93,30 +93,6 @@ public class LogUtil {
 
 	public static void setActivityRepository(ActivityRepository activityRepository) {
 		LogUtil.activityRepository = activityRepository;
-	}
-
-	public static String getSQLGivenCriteria(Criteria criteria) {
-
-		String sql = "";
-		/*
-		 * try { CriteriaImpl c = (CriteriaImpl) criteria; SessionImpl s =
-		 * (SessionImpl)c.getSession(); SessionFactoryImplementor factory =
-		 * (SessionFactoryImplementor)s.getSessionFactory(); String[]
-		 * implementors = factory.getImplementors( c.getEntityOrClassName() );
-		 * CriteriaLoader loader = new
-		 * CriteriaLoader((OuterJoinLoadable)factory.
-		 * getEntityPersister(implementors[0]), factory, c, implementors[0],
-		 * s.getEnabledFilters()); f =
-		 * OuterJoinLoader.class.getDeclaredField("sql"); f.setAccessible(true);
-		 * sql = (String) f.get(loader); } catch (SecurityException e) { // TODO
-		 * Auto-generated catch block e.printStackTrace(); } catch
-		 * (NoSuchFieldException e) { // TODO Auto-generated catch block
-		 * e.printStackTrace(); } catch (IllegalArgumentException e) { // TODO
-		 * Auto-generated catch block e.printStackTrace(); } catch
-		 * (IllegalAccessException e) { // TODO Auto-generated catch block
-		 * e.printStackTrace(); }
-		 */
-		return sql;
 	}
 
 	public static ActivityRepository getActivityRepository() {

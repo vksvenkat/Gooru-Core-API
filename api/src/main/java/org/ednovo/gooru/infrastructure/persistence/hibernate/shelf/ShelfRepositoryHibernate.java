@@ -41,26 +41,25 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class ShelfRepositoryHibernate extends BaseRepositoryHibernate implements ShelfRepository {
 
-	private String RETIREVE_SHELF_BY_SHELFID = "From Shelf s  where s.shelfId=:shelfId and  " + generateOrgAuthQuery("s.");
+	private  final static String RETIREVE_SHELF_BY_SHELFID = "From Shelf s  where s.shelfId=:shelfId and  " + generateOrgAuthQuery("s.");
 
-	private String RETIREVE_ALL_SHELF_BY_USER = "From Shelf s   where s.userId=:userId and  " + generateOrgAuthQuery("s.") + "  and s.shelfType=:shelfType";
+	private final static String RETIREVE_ALL_SHELF_BY_USER = "From Shelf s   where s.userId=:userId and  " + generateOrgAuthQuery("s.") + "  and s.shelfType=:shelfType";
 
-	private String RETIREVE_ALL_SHELF_BY_USER_AND_ID = "From ShelfItem si where si.shelf.userId=:userId and si.resource.contentId=:contentId";
+	private final static String RETIREVE_ALL_SHELF_BY_USER_AND_ID = "From ShelfItem si where si.shelf.userId=:userId and si.resource.contentId=:contentId";
 
-	private String RETIREVE_SHELF_BY_NAME = "From Shelf s   where s.name=:shelfName and s.userId=:userId and   " + generateOrgAuthQuery("s.");
+	private final static String RETIREVE_SHELF_BY_NAME = "From Shelf s   where s.name=:shelfName and s.userId=:userId and   " + generateOrgAuthQuery("s.");
 
-	private String RETIREVE_SUB_SHELF = "From Shelf s  where s.shelfParentId=:shelfParentId and s.userId=:userId and   " + generateOrgAuthQuery("s.");
+	private final static String RETIREVE_SUB_SHELF = "From Shelf s  where s.shelfParentId=:shelfParentId and s.userId=:userId and   " + generateOrgAuthQuery("s.");
 
-	private String RETIREVE_DEFAULT_SHELF_BY_USER = "From Shelf s   where  s.userId=:userId  and s.defaultFlag=:defaultFlag";
+	private final static String RETIREVE_DEFAULT_SHELF_BY_USER = "From Shelf s   where  s.userId=:userId  and s.defaultFlag=:defaultFlag";
 
-	private String RETIREVE_DEFAULT_SHELF_NAMES = "Select s.name From Shelf s   where  s.userId=:userId and  " + generateOrgAuthQuery("s.") + "  and s.name NOT IN (:name)";
+	private final static String RETIREVE_DEFAULT_SHELF_NAMES = "Select s.name From Shelf s   where  s.userId=:userId and  " + generateOrgAuthQuery("s.") + "  and s.name NOT IN (:name)";
 
-	private String RETIREVE_SHELF_BY_NAME_AND_EXCLUDE_BY_ID = "From Shelf s   where s.name=:shelfName and s.userId=:userId and  " + generateOrgAuthQuery("s.") + "  and s.shelfId !=:shelfId";
+	private final static String RETIREVE_SHELF_BY_NAME_AND_EXCLUDE_BY_ID = "From Shelf s   where s.name=:shelfName and s.userId=:userId and  " + generateOrgAuthQuery("s.") + "  and s.shelfId !=:shelfId";
 
-	private String RETIREVE_SHELF_SUBSCRIBE_USER_LIST = "Select shelfItems From ShelfItem shelfItems join shelfItems.resource resource   where resource.gooruOid=:gooruOid and shelfItems.addedType=:addedType  and  " + generateOrgAuthQuery("shelfItems.shelf.");
+	private final static String RETIREVE_SHELF_SUBSCRIBE_USER_LIST = "Select shelfItems From ShelfItem shelfItems join shelfItems.resource resource   where resource.gooruOid=:gooruOid and shelfItems.addedType=:addedType  and  " + generateOrgAuthQuery("shelfItems.shelf.");
 
-	
-	private String RETIREVE_SHELF_SUBSCRIBE_USER = "From ShelfItem shelfItems   where shelfItems.resource.gooruOid=:gooruOid  and shelfItems.shelf.userId=:gooruUid  and  " + generateOrgAuthQuery("shelfItems.shelf.");
+	private final static String RETIREVE_SHELF_SUBSCRIBE_USER = "From ShelfItem shelfItems   where shelfItems.resource.gooruOid=:gooruOid  and shelfItems.shelf.userId=:gooruUid  and  " + generateOrgAuthQuery("shelfItems.shelf.");
 
 	@Override
 	public Shelf findShelfByShelfId(String shelfId) {
