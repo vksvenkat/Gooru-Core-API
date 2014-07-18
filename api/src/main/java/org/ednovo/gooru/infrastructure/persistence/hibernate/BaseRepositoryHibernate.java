@@ -38,15 +38,6 @@ import org.springframework.beans.factory.annotation.Autowired;
  * operations.</p>
  */
 public class BaseRepositoryHibernate extends AbstractRepositoryHibernate implements BaseRepository {
-	
-
-	protected static final String PAGE_SIZE = "pageSize";
-
-	protected static final String PAGE_NO = "pageNum";
-	
-	protected static final String START_FROM = "startFrom";
-
-	protected static final String PAGE_LIMIT = "limit";
 
 	@javax.annotation.Resource(name = "sessionFactory")
 	private SessionFactory sessionFactory;
