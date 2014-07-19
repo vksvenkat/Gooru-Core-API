@@ -86,10 +86,10 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 
 	@Autowired
 	private ResourceRepository resourceRepository;
-	
+
 	@Autowired
 	private AsyncExecutor asyncExecutor;
-	
+
 	@Autowired
 	private CollectionService collectionService;
 	
@@ -200,7 +200,7 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 	}
 
 	@Override
-	public SearchResults<Feedback> getContentFeedbacks(String feedbackCategory, String feedbackType, String assocGooruOid, String creatorUid, Integer limit, Integer offset, Boolean skipPagination,String orderBy) {
+	public SearchResults<Feedback> getContentFeedbacks(String feedbackCategory, String feedbackType, String assocGooruOid, String creatorUid, Integer limit, Integer offset, String orderBy) {
 		String type = null;
 		String category = null;
 		
@@ -209,16 +209,15 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 		} else {
 			type = getTableNameByFeedbackCategory(feedbackCategory, CustomProperties.Target.CONTENT.getTarget()) + "_" + feedbackType;
 		}
-		
-		//rejectIfNull(this.getContentRepository().findContentByGooruId(assocGooruOid), GL0056, _CONTENT);
+
 		SearchResults<Feedback> result = new SearchResults<Feedback>();
-		result.setSearchResults(this.getFeedbackRepository().getContentFeedbacks(type, assocGooruOid, creatorUid, category, limit, offset, skipPagination,orderBy));
+		result.setSearchResults(this.getFeedbackRepository().getContentFeedbacks(type, assocGooruOid, creatorUid, category, limit, offset, orderBy));
 		result.setTotalHitCount(this.getFeedbackRepository().getContentFeedbacksCount(type, assocGooruOid, creatorUid, category));
 		return result;
 	}
 
 	@Override
-	public List<Feedback> getUserFeedbacks(String feedbackCategory, String feedbackType, String assocUserUid, String creatorUid, Integer limit, Integer offset, Boolean skipPagination) {
+	public List<Feedback> getUserFeedbacks(String feedbackCategory, String feedbackType, String assocUserUid, String creatorUid, Integer limit, Integer offset) {
 		String type = null;
 		String category = null;
 		
@@ -228,7 +227,7 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 			type = getTableNameByFeedbackCategory(feedbackCategory, CustomProperties.Target.USER.getTarget()) + "_" + feedbackType;
 		}
 		rejectIfNull(this.getUserRepository().findByGooruId(assocUserUid), GL0056, _USER);
-		return this.getFeedbackRepository().getUserFeedbacks(type, assocUserUid, creatorUid, category, limit, offset, skipPagination);
+		return this.getFeedbackRepository().getUserFeedbacks(type, assocUserUid, creatorUid, category, limit, offset);
 	}
 
 	@Override
@@ -273,7 +272,7 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 	private List<Feedback> setFeedbackData(Feedback feedback, User creator) {
 		List<Feedback> feedbackList = new ArrayList<Feedback>();
 		ContextDTO contextDTO = null;
-		if(feedback.getContext() != null) {
+		if (feedback.getContext() != null) {
 			contextDTO = buildContextInputParam(feedback.getContext());
 		}
 		feedback = validateFeedbackData(feedback);
@@ -325,11 +324,11 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 				Feedback userFeedback = feedbackList.get(0);
 				getEventLogs(creator, contextDTO, userFeedback, feedbackValue);
 			}
-			
+
 		} catch (JSONException e) {
 			logger.error("Error while creating feedback" + e.getMessage());
 		}
-		
+
 		return feedbackList;
 
 	}
@@ -396,7 +395,7 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 			Feedback contentFeedback = this.getFeedbackRepository().getContentFeedback(feedbackType.getKeyValue(), feedback.getAssocGooruOid(), feedback.getCreator().getGooruUId());
 			if (contentFeedback != null) {
 				contentFeedback.setScore(feedback.getScore());
-				
+
 				if (feedback.getFreeText() != null) {
 					contentFeedback.setFreeText(feedback.getFreeText());
 				}
@@ -443,8 +442,8 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 	}
 
 	@Override
-	public Map<String, Object> getFlags(Integer limit, Integer offset, Boolean skipPagination, String category, String type, String status, String reportedFlagType, String startDate, String endDate, String searchQuery, String description, String reportQuery) throws Exception {
-		return this.getFeedbackRepository().getContentFlags(limit, offset, skipPagination, getTableNameByFeedbackCategory(CustomProperties.FeedbackCategory.REPORT.getFeedbackCategory(), CustomProperties.Target.CONTENT.getTarget()), type, status, reportedFlagType,
+	public Map<String, Object> getFlags(Integer limit, Integer offset, String category, String type, String status, String reportedFlagType, String startDate, String endDate, String searchQuery, String description, String reportQuery) throws Exception {
+		return this.getFeedbackRepository().getContentFlags(limit, offset, getTableNameByFeedbackCategory(CustomProperties.FeedbackCategory.REPORT.getFeedbackCategory(), CustomProperties.Target.CONTENT.getTarget()), type, status, reportedFlagType,
 				BaseUtil.dateFormat(startDate, "/", "-"), BaseUtil.dateFormat(endDate, "/", "-"), searchQuery, description, reportQuery);
 	}
 
@@ -540,26 +539,26 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 	public AsyncExecutor getAsyncExecutor() {
 		return asyncExecutor;
 	}
-	
+
 	private ContextDTO buildContextInputParam(String data) {
 		return JsonDeserializer.deserialize(data, ContextDTO.class);
 	}
 
 	public void getEventLogs(User feedbackUser, ContextDTO contextDTO, Feedback feedback, StringBuilder reactionType) throws JSONException {
 		SessionContextSupport.putLogParameter(EVENT_NAME, "item.rate");
-		JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session").toString()) :  new JSONObject();
+		JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session").toString()) : new JSONObject();
 		session.put("organizationUId", feedbackUser.getOrganizationUid());
-		SessionContextSupport.putLogParameter("session", session.toString());	
-		JSONObject user = SessionContextSupport.getLog().get("user") != null ? new JSONObject(SessionContextSupport.getLog().get("user").toString()) :  new JSONObject();
+		SessionContextSupport.putLogParameter("session", session.toString());
+		JSONObject user = SessionContextSupport.getLog().get("user") != null ? new JSONObject(SessionContextSupport.getLog().get("user").toString()) : new JSONObject();
 		user.put("gooruUId", feedbackUser.getPartyUid());
 		SessionContextSupport.putLogParameter("user", user.toString());
-		JSONObject context = SessionContextSupport.getLog().get("context") != null ? new JSONObject(SessionContextSupport.getLog().get("context").toString()) :  new JSONObject();
+		JSONObject context = SessionContextSupport.getLog().get("context") != null ? new JSONObject(SessionContextSupport.getLog().get("context").toString()) : new JSONObject();
 		context.put("contentGooruId", contextDTO != null ? contextDTO.getResourceGooruId() : null);
-        context.put("parentGooruId", contextDTO != null ? contextDTO.getCollectionGooruId() : null);
-        context.put("contentItemId", contextDTO != null ? contextDTO.getContentItemId() : null);
-        context.put("parentItemId", contextDTO != null ? contextDTO.getParentItemId() : null);
-        SessionContextSupport.putLogParameter("context", context.toString());
-		JSONObject payLoadObject = SessionContextSupport.getLog().get("payLoadObject") != null ? new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString()) :  new JSONObject();
+		context.put("parentGooruId", contextDTO != null ? contextDTO.getCollectionGooruId() : null);
+		context.put("contentItemId", contextDTO != null ? contextDTO.getContentItemId() : null);
+		context.put("parentItemId", contextDTO != null ? contextDTO.getParentItemId() : null);
+		SessionContextSupport.putLogParameter("context", context.toString());
+		JSONObject payLoadObject = SessionContextSupport.getLog().get("payLoadObject") != null ? new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString()) : new JSONObject();
 		payLoadObject.put("rate", feedback != null ? feedback.getScore() : null);
 		payLoadObject.put("text", feedback != null ? feedback.getFreeText() : null);
 		payLoadObject.put("feedbackProviderUId", feedbackUser.getPartyUid());

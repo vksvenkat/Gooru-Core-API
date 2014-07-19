@@ -1082,7 +1082,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 					}
 					if ((merge != null && merge.contains(REACTION)) && (collectionItem.getResource() != null)) {
 						Map<String, Object> resourcePermissions = new HashMap<String, Object>();
-						resourcePermissions.put(REACTION, this.getFeedbackService().getContentFeedbacks(REACTION, null, collectionItem.getResource().getGooruOid(), collection.getUser().getPartyUid(), null, null, true, null));
+						resourcePermissions.put(REACTION, this.getFeedbackService().getContentFeedbacks(REACTION, null, collectionItem.getResource().getGooruOid(), collection.getUser().getPartyUid(), null, null, null));
 						collectionItem.getResource().setMeta(resourcePermissions);
 					}
 

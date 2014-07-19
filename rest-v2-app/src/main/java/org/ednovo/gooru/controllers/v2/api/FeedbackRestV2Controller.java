@@ -115,9 +115,9 @@ public class FeedbackRestV2Controller extends BaseController implements Paramete
 	public ModelAndView getContentFlags(HttpServletRequest request, @RequestParam(value = STATUS, required = false) String status, @RequestParam(value = "reportedFlagType", required = false) String reportedFlagType, @RequestParam(value = "startDate", required = false) String startDate,
 			@RequestParam(value = "endDate", required = false) String endDate, @RequestParam(value = "searchQuery", required = false) String searchQuery, @RequestParam(value = "description", required = false) String description,
 			@RequestParam(value = "reportQuery", required = false) String reportQuery, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,
-			@RequestParam(value = SKIP_PAGINATION, required = false, defaultValue = FALSE) Boolean skipPagination, HttpServletResponse response) throws Exception {
+			HttpServletResponse response) throws Exception {
 
-		return toJsonModelAndView(this.getFeedbackService().getFlags(limit, offset, skipPagination, getFeedbackCategory(request), getSummaryCategory(request), status, reportedFlagType, startDate, endDate, searchQuery, description, reportQuery), true);
+		return toJsonModelAndView(this.getFeedbackService().getFlags(limit, offset, getFeedbackCategory(request), getSummaryCategory(request), status, reportedFlagType, startDate, endDate, searchQuery, description, reportQuery), true);
 	}
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_FEEDBACK_DELETE })
