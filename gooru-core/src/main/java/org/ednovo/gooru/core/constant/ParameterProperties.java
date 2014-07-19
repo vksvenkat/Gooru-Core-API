@@ -115,12 +115,14 @@ public interface ParameterProperties {
 	String INCLUDE_COLLECTION_ITEM = "includeCollectionItem";
 
 	String INCLUDE_ADDITIONAL_INFO = "includeAdditionalInfo";
-
+	
 	String ORDER_BY = "orderBy";
 
 	String SOFT_DELETE = "softdelete";
 
 	String DESC = "desc";
+	
+	String ASC = "asc";
 
 	String CLASSPAGE = "classpage";
 
@@ -2702,5 +2704,32 @@ public interface ParameterProperties {
 	
 	Integer MAX_LIMIT = 50;
 	
+	String EDUCATIONAL_USE = "educational_use";
+	
+	String MAIL_NOTIFICATION = "mailNotification";
+	
+	String ESTIMATED_TIME = "estimatedTime";
+	
+	String KEYPOINTS  = "keyPoints"; 
+	
+	String LANGUAGE  = "language";
+	
+	String LANGUAGE_OBJECTIVE = "languageObjective" ;
+	
+	String IDEAS = "ideas";
+	
+	String QUESTIONS = "questions";
+	
+	String PERFORMANCE_TASKS = "performanceTasks";
+	
+	String DEPTHOFKNOWLEDGES = "depthOfKnowledges";
+	
+	String LEARNING_SKILLS = "learningSkills";
+	
+	String INSTRUCTIONALMETHOD = "instructionalMethod";
+	
+	String METAINFO = "metaInfo";
+	
+	String COLLECTIONITEMS = "collectionItems";
 	
 }
