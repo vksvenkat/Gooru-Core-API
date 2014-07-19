@@ -40,6 +40,8 @@ import org.ednovo.gooru.core.api.model.ResourceType;
 import org.ednovo.gooru.core.api.model.StatusType;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.Versionable;
+import org.ednovo.gooru.core.constant.ConstantProperties;
+import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate;
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
@@ -55,7 +57,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class ContentRepositoryHibernate extends BaseRepositoryHibernate implements ContentRepository {
+public class ContentRepositoryHibernate extends BaseRepositoryHibernate implements ContentRepository,ConstantProperties,ParameterProperties {
 
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
@@ -271,13 +273,12 @@ public class ContentRepositoryHibernate extends BaseRepositoryHibernate implemen
 	}
 
 	@Override
-	public List<Object[]> getUserContentTagList(String gooruUid, Integer limit, Integer offset, Boolean skipPagination) {
-		String sql = "select  count(1) as count, t.label as label , ct.tag_gooru_oid as tagGooruOid from tags t inner join content c on  (t.content_id = c.content_id) inner join content_tag_assoc ct on (c.gooru_oid= ct.tag_gooru_oid) where associated_uid  =  '"+gooruUid +"' group by ct.tag_gooru_oid";
+	public List<Object[]> getUserContentTagList(String gooruUid, Integer limit, Integer offset) {
+		String sql = "select  count(1) as count, t.label as label , ct.tag_gooru_oid as tagGooruOid from tags t inner join content c on  (t.content_id = c.content_id) inner join content_tag_assoc ct on (c.gooru_oid= ct.tag_gooru_oid) where associated_uid  =  '" + gooruUid
+				+ "' group by ct.tag_gooru_oid";
 		Query query = getSession().createSQLQuery(sql).addScalar("count", StandardBasicTypes.INTEGER).addScalar("label", StandardBasicTypes.STRING).addScalar("tagGooruOid", StandardBasicTypes.STRING);
-		if (!skipPagination) {
-			query.setFirstResult(offset);
-			query.setMaxResults(limit);
-		}
+		query.setFirstResult(offset);
+		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
 		return query.list();
 	}
 

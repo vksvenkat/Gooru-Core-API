@@ -201,14 +201,14 @@ public class TagServiceImpl extends BaseServiceImpl implements TagService, Param
 	}
 
 	@Override
-	public List<ContentTagAssoc> getTagContentAssoc(String tagGooruOid, Integer limit, Integer offset, boolean skipPagination) {
-		return this.getTagRepository().getTagContentAssoc(tagGooruOid, limit, offset, skipPagination);
+	public List<ContentTagAssoc> getTagContentAssoc(String tagGooruOid, Integer limit, Integer offset) {
+		return this.getTagRepository().getTagContentAssoc(tagGooruOid, limit, offset);
 	}
 	
 	@Override
-	public Map<String, Object> getResourceByLabel(String label, Integer limit, Integer offset, boolean skipPagination, String gooruUid) {
+	public Map<String, Object> getResourceByLabel(String label, Integer limit, Integer offset, String gooruUid) {
 		StorageArea storageArea = this.getStorageRepository().getStorageAreaByTypeName(NFS);
-		List<Object[]> results = this.getTagRepository().getResourceByLabel(label, limit, offset, skipPagination, gooruUid);
+		List<Object[]> results = this.getTagRepository().getResourceByLabel(label, limit, offset,  gooruUid);
 		Map<String, Object> content = new HashMap<String, Object>();
 		List<Map<String, Object>> resource = new ArrayList<Map<String,Object>>();
 		for (Object[] object : results) {
@@ -291,8 +291,8 @@ public class TagServiceImpl extends BaseServiceImpl implements TagService, Param
 	}
 
 	@Override
-	public List<UserTagAssoc> getUserTagAssoc(String gooruUid, Integer limit, Integer offset, Boolean skipPagination) {
-		return this.getTagRepository().getContentTagByUser(gooruUid, limit, offset,skipPagination);
+	public List<UserTagAssoc> getUserTagAssoc(String gooruUid, Integer limit, Integer offset) {
+		return this.getTagRepository().getContentTagByUser(gooruUid, limit, offset);
 	}
 
 	@Override
