@@ -42,7 +42,7 @@ public interface ContentService {
 	
 	List<Map<String, Object>> getContentTagAssoc(String gooruOid, User user);
 	
-	SearchResults<Map<String, Object>> getUserContentTagList(String gooruUid,Integer limit,Integer offset,Boolean skipPagination);
+	SearchResults<Map<String, Object>> getUserContentTagList(String gooruUid,Integer limit,Integer offset);
 	
 	Content updateContent(String gooruOid, Content newContent);
 	

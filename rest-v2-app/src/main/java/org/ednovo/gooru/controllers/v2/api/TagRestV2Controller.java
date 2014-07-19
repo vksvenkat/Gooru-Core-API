@@ -143,10 +143,9 @@ public class TagRestV2Controller extends BaseController implements ParameterProp
 	@RequestMapping(method = RequestMethod.GET, value = "/{id}/content")
 	public ModelAndView getTagContentAssoc(@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, 
 			@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, @PathVariable(ID) String tagGooruOid, 
-			@RequestParam(value = SKIP_PAGINATION, required = false, defaultValue = TRUE) boolean skipPagination ,HttpServletRequest request,
-			HttpServletResponse response) throws Exception {
+			HttpServletRequest request,HttpServletResponse response) throws Exception {
 		request.setAttribute(PREDICATE, "tag.read");
-		List<ContentTagAssoc> contentTagAssocs = this.getTagService().getTagContentAssoc(tagGooruOid, limit, offset, skipPagination);
+		List<ContentTagAssoc> contentTagAssocs = this.getTagService().getTagContentAssoc(tagGooruOid, limit, offset);
 		SessionContextSupport.putLogParameter(EVENT_NAME, "get-tag using gooruOid");
 		SessionContextSupport.putLogParameter(TAG_GOORU_OID, tagGooruOid);
 		return toModelAndViewWithIoFilter(contentTagAssocs, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, CONTENT_ASSOC_INCLUDES);
@@ -157,7 +156,7 @@ public class TagRestV2Controller extends BaseController implements ParameterProp
 	@RequestMapping(method = RequestMethod.GET, value = "/{id}/resource")
 	public ModelAndView getResourceByLabel(@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, 
 			@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, @PathVariable(ID) String label, 
-			@RequestParam(value = SKIP_PAGINATION, required = false, defaultValue = FALSE) boolean skipPagination, @RequestParam(value = GOORU_UID, required = false) String gooruUid, HttpServletRequest request,
+		    @RequestParam(value = GOORU_UID, required = false) String gooruUid, HttpServletRequest request,
 			HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
 		if (gooruUid == null) { 
@@ -166,7 +165,7 @@ public class TagRestV2Controller extends BaseController implements ParameterProp
 		request.setAttribute(PREDICATE, "tag.read");
 		SessionContextSupport.putLogParameter(EVENT_NAME, "get-tag using gooruOid");
 		SessionContextSupport.putLogParameter("tagName", label);
-		return toJsonModelAndView(this.getTagService().getResourceByLabel(label, limit, offset, skipPagination,gooruUid), true );
+		return toJsonModelAndView(this.getTagService().getResourceByLabel(label, limit, offset,gooruUid), true );
 	}
 	
 	
