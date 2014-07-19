@@ -180,6 +180,8 @@ public interface UserRepository extends BaseRepository {
 	UserGroupAssociation getUserGroupMemebrByGroupUid(String groupUid, String gooruUid);
 	
 	UserSummary getSummaryByUid(String gooruUid);
+	
+	User findByRemeberMeToken(String remeberMeToken);
 		
 	}
 

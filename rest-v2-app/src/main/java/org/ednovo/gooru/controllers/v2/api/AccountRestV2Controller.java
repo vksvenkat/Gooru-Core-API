@@ -120,6 +120,9 @@ public class AccountRestV2Controller extends BaseController implements ConstantP
 		getAccountService().logOut(sessionToken);
 		request.getSession().invalidate();
 		RequestUtil.deleteCookie(request, response, GOORU_SESSION_TOKEN);
+		RequestUtil.deleteCookie(request, response, COOKIE_KEY_ACCESS_TOKEN);
+		RequestUtil.deleteCookie(request, response, COOKIE_KEY_REFRESH_TOKEN);
+		
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_SIGNIN })
