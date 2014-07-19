@@ -5,7 +5,9 @@ public interface ParameterProperties {
 	public String SESSION_EXPIRES_TIME = "session.expires.time";
 
 	public static final String DELETE = "delete";
-
+	
+	public static final String DELETED = "deleted"; 
+	
 	public static final String _DELETE = "DELETE";
 
 	public static final String HREF = "href";
