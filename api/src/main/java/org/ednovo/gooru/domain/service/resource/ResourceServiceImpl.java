@@ -154,7 +154,7 @@ import com.sun.pdfview.PDFFile;
 @Service
 public class ResourceServiceImpl extends OperationAuthorizer implements ResourceService, ParameterProperties, ConstantProperties {
 
-	private static final Logger logger = LoggerFactory.getLogger(ResourceServiceImpl.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ResourceServiceImpl.class);
 
 	@Autowired
 	private ResourceRepository resourceRepository;
@@ -191,6 +191,10 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 
 	@Autowired
 	private UserRepository userRepository;
+
+	public UserRepository getUserRepository() {
+		return userRepository;
+	}
 
 	@Autowired
 	@javax.annotation.Resource(name = "resourceManager")
@@ -474,12 +478,13 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 
 		ResourceInstance resourceInstance = (ResourceInstance) getResourceRepository().get(ResourceInstance.class, resourceInstanceId);
 
-		if (resourceInstance != null) {
-			getResourceRepository().remove(ResourceInstance.class, resourceInstance.getResourceInstanceId());
-		} else {
-			logger.error("deleteSegmentResourceInstance: no resource found for : " + resourceInstanceId);
+		if (resourceInstance == null) {
+			LOGGER.error("deleteSegmentResourceInstance: no resource found for : " + resourceInstanceId);
+		}else {
+			getResourceRepository().remove(ResourceInstance.class, resourceInstance.getResourceInstanceId());			
 		}
 		getResourceRepository().flush();
+
 	}
 
 	@Override
@@ -565,7 +570,6 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		// add to index.
 		// FIXME: Add separate call to reindex here
 
-		return;
 	}
 
 	private String cleanTitle(String title) {
@@ -698,14 +702,14 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			filters.put(PAGE_SIZE, pageSize + "");
 			filters.put(RESOURCE_SOURCE, NULL);
 			resources = listResources(filters);
-			logger.debug("no of resource :" + resources.size() + " of page : " + pageNum + " of size : " + pageSize);
+			LOGGER.debug("no of resource :" + resources.size() + " of page : " + pageNum + " of size : " + pageSize);
 			int count = 0;
 			for (Resource resource : resources) {
 				String domainName = getDomainName(resource.getUrl());
 				if (!domainName.isEmpty()) {
 					ResourceSource resourceSource = this.getResourceRepository().findResourceSource(domainName);
 					if (resourceSource != null) {
-						logger.debug("resource url : " + resource.getUrl() + " source name : " + " updated domainName: " + domainName + "no of resource to go: " + (++count));
+						LOGGER.debug("resource url : " + resource.getUrl() + " source name : " + " updated domainName: " + domainName + "no of resource to go: " + (++count));
 						this.getResourceRepository().updateResourceSourceId(resource.getContentId(), resourceSource.getResourceSourceId());
 					}
 				}
@@ -713,6 +717,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			try {
 				Thread.sleep(5000);
 			} catch (Exception ex) {
+				LOGGER.debug("error"+ex.getMessage());
 			}
 		} while (resources != null && resources.size() > 0);
 	}
@@ -809,7 +814,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 
 		resource = saveResource(resource, errors, false);
 		if (resource == null || errors.hasErrors()) {
-			logger.error("save resource failed" + errors.toString());
+			LOGGER.error("save resource failed" + errors.toString());
 		}
 
 		if (downloadedFlag) {
@@ -842,8 +847,9 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		// if handouts, split and save chapters as resources:
 		if (resource.getResourceType().getName().equalsIgnoreCase(ResourceType.Type.HANDOUTS.getType())) {
 			List<Resource> chapterResources = splitToChaptersResources(resource);
-			for (Resource chapterResource : chapterResources)
+			for (Resource chapterResource : chapterResources) {
 				enrichAndAddOrUpdate(chapterResource);
+			}
 		}
 		indexProcessor.index(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE);
 
@@ -913,9 +919,9 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			return true;
 
 		} catch (FileNotFoundException e) {
-			logger.error("Error saving crawled resource image", e);
+			LOGGER.error("Error saving crawled resource image", e);
 		} catch (IOException e) {
-			logger.error("Error saving crawled resource image", e);
+			LOGGER.error("Error saving crawled resource image", e);
 		}
 		return false;
 	}
@@ -1058,19 +1064,15 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 
 				List<ResourceInstance> instances = this.getResourceRepository().getUnorderedInstances(segmentId);
 				if (instances != null) {
-					if (instances != null) {
 						for (ResourceInstance instance : instances) {
 
 							for (ResourceInstance compareInstance : instances) {
-								if (!instance.getResourceInstanceId().equals(compareInstance.getResourceInstanceId())) {
-									if (instance.getSequence().equals(compareInstance.getSequence())) {
+								if (!instance.getResourceInstanceId().equals(compareInstance.getResourceInstanceId()) && instance.getSequence().equals(compareInstance.getSequence())) {
 										compareInstance.setSequence(compareInstance.getSequence() + 1);
-									}
 								}
 							}
 
 						}
-					}
 				}
 				this.getResourceRepository().saveAll(instances);
 			}
@@ -1105,7 +1107,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				UserContentRelationshipUtil.deleteUserContentRelationship(content, apiCaller, RELATIONSHIP.CREATE);
 			}
 			if (resource != null && resource.getUser().getGooruUId().equalsIgnoreCase(apiCaller.getGooruUId()) && resource.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing())) {
-				User user = userRepository.findByGooruId(configSettingRepository.getConfigSetting(DEFAULT_ADMIN_USER, 0, apiCaller.getOrganization().getPartyUid()));
+				User user = this.getUserRepository().findByGooruId(configSettingRepository.getConfigSetting(DEFAULT_ADMIN_USER, 0, apiCaller.getOrganization().getPartyUid()));
 				resource.setUser(user);
 				this.getResourceRepository().saveOrUpdate(resource);
 			}
@@ -1212,12 +1214,12 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	
 	@Override
 	public void deleteBulkResource(String contentIds) {
-		List<Resource> Resources = resourceRepository.findAllResourcesByGooruOId(contentIds);
+		List<Resource> resources = resourceRepository.findAllResourcesByGooruOId(contentIds);
 		List<Resource> removeList = new ArrayList<Resource>();
-		if (Resources.size() > 0) {
+		if (resources.size() > 0) {
 			String removeContentIds = "";
 			int count = 0;
-			for (Resource resource : Resources) {
+			for (Resource resource : resources) {
 				if (count > 0) {
 					removeContentIds += ",";
 				}
@@ -1474,12 +1476,8 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 					updateYoutubeResourceFeeds(resource, false);
 
 					// update or insert thumbnail
-					if (!reusedResource) {
-						if ((sharing != null && !sharing.equalsIgnoreCase(Sharing.PUBLIC.getSharing())) || hasUnrestrictedContentAccess(user)) {
-							if (thumbnailImgSrc != null && thumbnailImgSrc.length() > 0) {
+					if (!reusedResource && (sharing != null && !sharing.equalsIgnoreCase(Sharing.PUBLIC.getSharing())) || hasUnrestrictedContentAccess(user) && thumbnailImgSrc != null && thumbnailImgSrc.length() > 0) {
 								this.getResourceImageUtil().downloadAndSendMsgToGenerateThumbnails(resourceInstance.getResource(), thumbnailImgSrc);
-							}
-						}
 					}
 					this.getResourceImageUtil().setDefaultThumbnailImageIfFileNotExist(resource);
 					this.mapSourceToResource(resource);
@@ -1520,11 +1518,11 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 					try {
 						revisionHistoryService.createVersion(collection, SEGMENT_UPDATE);
 					} catch (Exception ex) {
-						ex.printStackTrace();
+						LOGGER.debug("error"+ ex.getMessage());
 					}
 
-					if (logger.isInfoEnabled()) {
-						logger.info(LogUtil.getActivityLogStream(COLLECTION, user.toString(), collection.toString(), (resourceInstanceId == null) ? LogUtil.RESOURCE_ADD : LogUtil.RESOURCE_EDIT, "name:" + resourceTitle + "$type:" + resourceTypeName + "$url " + resourceUrl + "$classplan:"
+					if (LOGGER.isInfoEnabled()) {
+						LOGGER.info(LogUtil.getActivityLogStream(COLLECTION, user.toString(), collection.toString(), (resourceInstanceId == null) ? LogUtil.RESOURCE_ADD : LogUtil.RESOURCE_EDIT, "name:" + resourceTitle + "$type:" + resourceTypeName + "$url " + resourceUrl + "$classplan:"
 								+ collection.getLesson()));
 					}
 				} else {
@@ -1651,13 +1649,13 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			resource.setBatchId(batchId);
 		}
 		License license = null;
-		if (license1 != null) {
-			license = new License();
-			license.setName(license1);
-			resource.setLicense(license);
-		} else {
+		if (license1 == null) {
 			license = new License();
 			license.setName(OTHER);
+			resource.setLicense(license);			
+		} else {
+			license = new License();
+			license.setName(license1);
 			resource.setLicense(license);
 		}
 		Errors errors = new BindException(Resource.class, RESOURCE);
@@ -1745,7 +1743,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			int totalPages, recordsPerPage = batchSize;
 			totalPages = pageSize / recordsPerPage;
 			for (int page = 1; page < totalPages; page++) {
-				logger.info("Collection default thumbnail" + page + " of " + totalPages);
+				LOGGER.info("Collection default thumbnail" + page + " of " + totalPages);
 				filters.put(PAGE_NUM, page + "");
 				filters.put(PAGE_SIZE, recordsPerPage + "");
 				List<Learnguide> collectionList = this.getLearnguideRepository().listAllCollectionsWithoutGroups(filters);
@@ -1760,7 +1758,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			int totalPages, recordsPerPage = batchSize;
 			totalPages = pageSize / recordsPerPage;
 			for (int page = 1; page < totalPages; page++) {
-				logger.info("quiz default thumbnail" + page + " of " + totalPages);
+				LOGGER.info("quiz default thumbnail" + page + " of " + totalPages);
 				filters.put(PAGE_NUM, page + "");
 				filters.put(PAGE_SIZE, recordsPerPage + "");
 				List<Assessment> assessments = this.getAssessmentRepository().listAllQuizsWithoutGroups(filters);
@@ -1773,7 +1771,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			int totalPages, recordsPerPage = batchSize;
 			totalPages = pageSize / recordsPerPage;
 			for (int page = 1; page < totalPages; page++) {
-				logger.info("resource default thumbnail" + page + " of " + totalPages);
+				LOGGER.info("resource default thumbnail" + page + " of " + totalPages);
 				filters.put(PAGE_NUM, page + "");
 				filters.put(PAGE_SIZE, recordsPerPage + "");
 				List<Resource> resourceList = this.getResourceRepository().listAllResourceWithoutGroups(filters);
@@ -1886,14 +1884,14 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		// resource =
 		// resourceRepository.findResourceByAttributionGooruId(gooruAttributionId);
 		if (resource == null) {
-			logger.warn("invalid resource passed to deleteResource:" + gooruAttributionId);
+			LOGGER.warn("invalid resource passed to deleteResource:" + gooruAttributionId);
 			return;
 		}
 		// }
 		UserRole contentAdmin = new UserRole();
 		contentAdmin.setRoleId(Short.valueOf(UserRole.ROLE_CONTENT_ADMIN));
 
-		User systemUser = userRepository.findByRole(contentAdmin).get(0);
+		User systemUser = this.getUserRepository().findByRole(contentAdmin).get(0);
 		resource.setUser(systemUser);
 
 		this.getBaseRepository().removeAll(resource.getContentPermissions());
@@ -1901,10 +1899,10 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		resource.setLastModified(new Date(System.currentTimeMillis()));
 
 		resourceRepository.saveOrUpdate(resource);
-		logger.warn("Deleted resource from deleteResource:" + gooruAttributionId);
+		LOGGER.warn("Deleted resource from deleteResource:" + gooruAttributionId);
 
-		if (logger.isInfoEnabled()) {
-			logger.info(LogUtil.getActivityLogStream(RESOURCE, apiCaller.toString(), resource.toString(), LogUtil.RESOURCE_REMOVE, ""));
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info(LogUtil.getActivityLogStream(RESOURCE, apiCaller.toString(), resource.toString(), LogUtil.RESOURCE_REMOVE, ""));
 		}
 
 		/* Step 4 - Send the message to reindex the resource */
@@ -1950,7 +1948,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		resource.setUrl(url);
 		resource.setTitle(title);
 		resource.setRecordSource(Resource.RecordSource.CRAWLED.getRecordSource());
-		User user = userRepository.getUserByUserId(1);
+		User user = this.getUserRepository().getUserByUserId(1);
 		resource.setUser(user);
 		resource.setParentUrl(parentUrl);
 		resource.setDescription(description);
@@ -2013,7 +2011,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	}
 
 	@Override
-	public Resource addNewResource(String url, String title, String text, String category, String sharing, String type_name, String licenseName, Integer brokenStatus, Boolean hasFrameBreaker, String description, Integer isFeatured, String tags, boolean isReturnJson, User apiCaller,
+	public Resource addNewResource(String url, String title, String text, String category, String sharing, String typeName, String licenseName, Integer brokenStatus, Boolean hasFrameBreaker, String description, Integer isFeatured, String tags, boolean isReturnJson, User apiCaller,
 			String mediaType, String resourceFormat, String resourceInstructional) {
 
 		User user = null;
@@ -2044,18 +2042,18 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		// called from elsewhere as well
 		resource.setRecordSource(Resource.RecordSource.GAT.getRecordSource());
 
-		if (type_name != null) {
-			resource.setResourceTypeByString(ResourceType.Type.valueOf(type_name).getType());
+		if (typeName != null) {
+			resource.setResourceTypeByString(ResourceType.Type.valueOf(typeName).getType());
 		}
 		resource.setSharing(sharing);
 		/*
 		 * if (licenseName != null) { resource.setLicense(licenseName); }
 		 */
 
-		if (brokenStatus != null) {
-			resource.setBrokenStatus(brokenStatus);
-		} else {
+		if (brokenStatus == null) {
 			resource.setBrokenStatus(0);
+		} else {
+			resource.setBrokenStatus(brokenStatus);
 		}
 		domainName = getDomainName(url);
 		resourceSource = this.getResourceRepository().findResourceSource(domainName);
@@ -2126,7 +2124,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 
 	@Override
 	public Resource updateResourceByGooruContentId(String gooruContentId, String resourceTitle, String distinguish, Integer isFeatured, String description, Boolean hasFrameBreaker, String tags, String sharing, Integer resourceSourceId, User user, String mediaType, String attribution,
-			String category, String mediaFileName, Boolean isBlacklisted, String grade, String resource_format, String licenseName, String url) {
+			String category, String mediaFileName, Boolean isBlacklisted, String grade, String resourceFormat, String licenseName, String url) {
 
 		Resource existingResource = resourceRepository.findResourceByContentGooruId(gooruContentId);
 
@@ -2162,8 +2160,8 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		if (category != null) {
 			existingResource.setCategory(category);
 		}
-		if (resource_format != null) {
-			CustomTableValue customTableValue = this.getCustomTableRepository().getCustomTableValue(RESOURCE_CATEGORY_FORMAT, resource_format);
+		if (resourceFormat != null) {
+			CustomTableValue customTableValue = this.getCustomTableRepository().getCustomTableValue(RESOURCE_CATEGORY_FORMAT, resourceFormat);
 			existingResource.setResourceFormat(customTableValue);
 		}
 		if (!StringUtils.isEmpty(mediaType)) {
@@ -2204,12 +2202,11 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				existingResource.setBatchId(DEL_FROM_SEARCH_INDEX);
 			}
 		}
-		if (getUserService().isContentAdmin(user)) {
-			if (grade != null)
+		if (getUserService().isContentAdmin(user) && grade != null) {
 				existingResource.setGrade(grade);
 		}
 		if (licenseName != null) {
-			License licenseData = this.getResourceRepository().getLicenseByLicenseName(licenseName);
+			final License licenseData = this.getResourceRepository().getLicenseByLicenseName(licenseName);
 			if (licenseData != null) {
 				existingResource.setLicense(licenseData);
 			}
@@ -2264,8 +2261,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		}
 
 		this.resourceRepository.save(resourceSource);
-		if (domainName != null && isBlacklisted != null) {
-			if (isBlacklisted == true) {
+		if (domainName != null && isBlacklisted != null && isBlacklisted) {
 				if (getUserService().isContentAdmin(user)) {
 					List<Resource> resources = resourceRepository.findAllResourceBySourceId(resourceSourceId);
 					resourceSource.setIsBlacklisted(1);
@@ -2293,10 +2289,8 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				} else {
 					throw new AccessDeniedException("You are not allowed to do this operation. ");
 				}
-			}
 		}
-		if (domainName != null && frameBreaker != null) {
-			if (getUserService().isContentAdmin(user)) {
+		if (domainName != null && frameBreaker != null && getUserService().isContentAdmin(user)) { 
 				List<Resource> resources = resourceRepository.findAllResourceBySourceId(resourceSourceId);
 				int count = 0;
 				String gooruOIds = "";
@@ -2322,7 +2316,6 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				} else if (resources != null && resources.size() > 5000) {
 					throw new Exception("Frame breaker update failed -- Resources limit is upto 5000");
 				}
-			}
 		}
 	}
 
@@ -2399,10 +2392,10 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				Map<String, String> filters = new HashMap<String, String>();
 				filters.put(GOORU_COLLECTION_ID, gooruOid);
 				List<ResourceInstance> collectionResourceInstances = this.getLearnguideRepository().listCollectionResourceInstance(filters);
-				if (collectionResourceInstances != null) {
-					analytic.put(RESOURCE_COUNT, collectionResourceInstances.size());
-				} else {
+				if (collectionResourceInstances == null) {
 					analytic.put(RESOURCE_COUNT, 0);
+				} else {
+					analytic.put(RESOURCE_COUNT, collectionResourceInstances.size());
 				}
 				int studiedResourceCount = this.getSessionActivityRepository().getStudiedResourceCount(gooruOid, user.getGooruUId(), SessionActivityType.Status.OPEN.getStatus());
 				analytic.put(STUDIED_RESOURCE_COUNT, studiedResourceCount);
@@ -2421,10 +2414,10 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			}
 
 			List<ShelfItem> subscriberUserList = this.getShelfRepository().getShelfSubscribeUserList(gooruOid);
-			if (subscriberUserList != null) {
-				analytic.put(SUBSCRIBE_COUNT, subscriberUserList.size());
-			} else {
+			if (subscriberUserList == null) {
 				analytic.put(SUBSCRIBE_COUNT, 0);
+			} else {
+				analytic.put(SUBSCRIBE_COUNT, subscriberUserList.size());
 			}
 			analytic.put(VIEWS, this.getResourceRepository().findViews(gooruOid));
 
@@ -2483,14 +2476,14 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 
 	@Override
 	public boolean shortenedUrlResourceCheck(String url) {
+		boolean isShortenedUrl = false;
 		String domainName = getDomainName(url);
 		String domainType = ResourceSource.ResourceSourceType.SHORTENDED_DOMAIN.getResourceSourceType();
 		String type = resourceRepository.shortenedUrlResourceCheck(domainName, domainType);
 		if (type != null && type.equalsIgnoreCase(ResourceSource.ResourceSourceType.SHORTENDED_DOMAIN.getResourceSourceType())) {
-			return true;
-		} else {
-			return false;
+			 isShortenedUrl = true;
 		}
+		return isShortenedUrl;
 	}
 
 	@Override
@@ -2642,7 +2635,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			try{
 				getEventLogs(resource, true, false, user);
 			} catch(Exception e){
-				e.printStackTrace();
+				LOGGER.debug("error"+e.getMessage());
 			}
 		}
 		return new ActionResponseDTO<Resource>(resource, errors);
@@ -2652,13 +2645,13 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	public ActionResponseDTO<Resource> updateResource(String resourceId, Resource newResource, User user) throws Exception {
 		Resource resource = this.resourceRepository.findResourceByContentGooruId(resourceId);
 		Errors errors = validateUpdateResource(newResource, resource);
-		JSONObject ItemData = new JSONObject();
+		JSONObject itemData = new JSONObject();
 		if (!errors.hasErrors()) {
 			if(getUserService().isContentAdmin(user)){
 				ResourceSource resourceSource = null;
 				String domainName = null;
 				if(newResource.getUrl() != null){
-					ItemData.put("url",newResource.getUrl());
+					itemData.put("url",newResource.getUrl());
 					resource.setUrl(newResource.getUrl());
 					domainName = getDomainName(newResource.getUrl());
 					resourceSource = this.getResourceRepository().findResourceSource(domainName);
@@ -2671,22 +2664,22 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				}
 			}
 			if (newResource.getTitle() != null) {
-				ItemData.put("title",newResource.getTitle());
+				itemData.put("title",newResource.getTitle());
 				resource.setTitle(newResource.getTitle());
 			}
 			if (newResource.getDescription() != null) {
-				ItemData.put("description",newResource.getDescription());
+				itemData.put("description",newResource.getDescription());
 				resource.setDescription(newResource.getDescription());
 			}
 			if (newResource.getHasFrameBreaker() != null) {
-				ItemData.put("hasFrameBreaker",newResource.getHasFrameBreaker());
+				itemData.put("hasFrameBreaker",newResource.getHasFrameBreaker());
 				resource.setHasFrameBreaker(newResource.getHasFrameBreaker());
 
 			} else {
 				resource.setHasFrameBreaker(false);
 			}
 			if (newResource.getIsFeatured() != null) {
-				ItemData.put("isFeatured",newResource.getIsFeatured());
+				itemData.put("isFeatured",newResource.getIsFeatured());
 				resource.setIsFeatured(newResource.getIsFeatured());
 			}
 			if (!resource.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing())
@@ -2698,28 +2691,28 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				}
 			}
 			if (newResource.getResourceFormat() != null) {
-				ItemData.put("resourceFormat",newResource.getResourceFormat().getValue());
+				itemData.put("resourceFormat",newResource.getResourceFormat().getValue());
 				CustomTableValue customTableValue = this.getCustomTableRepository().getCustomTableValue(RESOURCE_CATEGORY_FORMAT, newResource.getResourceFormat().getValue());
 				resource.setResourceFormat(customTableValue);
 			}
 			if (newResource.getCategory() != null) {
-				ItemData.put("category",newResource.getCategory());
+				itemData.put("category",newResource.getCategory());
 				resource.setCategory(newResource.getCategory().toLowerCase());
 			}
 			if (!StringUtils.isEmpty(newResource.getMediaType())) {
 				resource.setMediaType(newResource.getMediaType());
 			}
 			if (newResource.getSharing() != null && !newResource.getSharing().isEmpty()) {
-				ItemData.put("sharing",newResource.getSharing());
+				itemData.put("sharing",newResource.getSharing());
 				SessionContextSupport.putLogParameter("sharing-" + resource.getGooruOid(), resource.getSharing() + " to " + newResource.getSharing());
 				resource.setSharing(newResource.getSharing());
 			}
 			if (newResource.getTags() != null && !newResource.getTags().isEmpty()) {
-				ItemData.put("tags",newResource.getTags());
+				itemData.put("tags",newResource.getTags());
 				resource.setTags(newResource.getTags());
 			}
 			if (newResource.getLicense() != null) {
-				ItemData.put("license",newResource.getLicense().getName());
+				itemData.put("license",newResource.getLicense().getName());
 				License licenseData = this.getResourceRepository().getLicenseByLicenseName(newResource.getLicense().getName());
 				if (licenseData != null) {
 					resource.setLicense(licenseData);
@@ -2777,9 +2770,9 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		}
 		
 		try{
-			getEventLogs(resource, ItemData, user);
+			getEventLogs(resource, itemData, user);
 		}catch(Exception e){
-			e.printStackTrace();
+			LOGGER.debug("error"+e.getMessage());
 		}
 		return new ActionResponseDTO<Resource>(resource, errors);
 
@@ -3000,7 +2993,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 					}
 				}
 			} catch (Exception e) {
-				e.printStackTrace();
+				LOGGER.debug("error"+ e.getMessage());
 			}
 		}
 		return false;
@@ -3079,14 +3072,14 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		SessionContextSupport.putLogParameter("session", session.toString());
 	}
 	
-	public void getEventLogs(Resource resource , JSONObject ItemData, User user) throws JSONException {
+	public void getEventLogs(Resource resource , JSONObject itemData, User user) throws JSONException {
 		SessionContextSupport.putLogParameter(EVENT_NAME, "item.edit");
 		JSONObject context = SessionContextSupport.getLog().get("context") != null ? new JSONObject(SessionContextSupport.getLog().get("context").toString()) : new JSONObject();
 		SessionContextSupport.putLogParameter("context", context.toString());
 		JSONObject payLoadObject = SessionContextSupport.getLog().get("payLoadObject") != null ? new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString()) : new JSONObject();
 		payLoadObject.put("mode", "edit");
 		payLoadObject.put("itemType", resource != null ? resource.getResourceType().getName() : null);
-		payLoadObject.put("itemData", ItemData != null ? ItemData.toString() : null);
+		payLoadObject.put("itemData", itemData != null ? itemData.toString() : null);
 		SessionContextSupport.putLogParameter("payLoadObject", payLoadObject.toString());
 		JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session").toString()) : new JSONObject();
 		session.put("organizationUId", user.getOrganization().getPartyUid());
