@@ -33,6 +33,7 @@ import org.ednovo.gooru.core.api.model.CustomTableValue;
 import org.ednovo.gooru.core.api.model.Feedback;
 import org.ednovo.gooru.core.api.model.StorageAccount;
 import org.ednovo.gooru.core.api.model.StorageArea;
+import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.storage.StorageRepository;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -41,7 +42,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate implements FeedbackRepository {
+public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate implements FeedbackRepository, ParameterProperties {
 
 	@Autowired
 	StorageRepository storageRepository;
@@ -342,7 +343,7 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 			flag.put("hasFrameBreaker", object[21]);
 			flag.put("mediaType", object[22]);
 			flag.put("lastModifiedOn", object[23]);
-			if (type == "resource") {
+			if (type == RESOURCE) {
 				String temp = (String) object[15];
 				if (temp != null) {
 					String[] scollection = temp.split("~");
