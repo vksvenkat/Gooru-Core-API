@@ -123,7 +123,7 @@ public class MailDO {
 	}
 
 	public void setCc(String cc) {
-		cc = cc;
+		this.cc = cc;
 	}
 
 	public String getCc() {

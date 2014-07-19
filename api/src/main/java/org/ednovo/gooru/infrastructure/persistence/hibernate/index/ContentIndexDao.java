@@ -83,4 +83,11 @@ public interface ContentIndexDao {
 	
 	ContentProvider  getContentProviderlist(String contentProviderId);
 	
+	Integer getMaximumSubscribersCount();
+	
+	Integer getMaximumUsedInCollectionCount();
+	
+	Integer getResourceMaximumView();
+	
+	Integer getCollectionMaximumView();
 }
