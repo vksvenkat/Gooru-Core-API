@@ -285,7 +285,7 @@ public class ResourceCio implements IsEntityCassandraIndexable {
 	}
 
 	public void setStandards(String standards) {
-		standards = standards;
+		this.standards = standards;
 	}
       
 	public String getLearningAndInovation() {

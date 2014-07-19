@@ -34,7 +34,7 @@ public class PartyCustomField implements Serializable {
 		this.optionalValue = optionalValue;
 	}
 	public void setPartyUid(String partyUid) {
-		partyUid = partyUid;
+		this.partyUid = partyUid;
 	}
 	public String getPartyUid() {
 		return partyUid;

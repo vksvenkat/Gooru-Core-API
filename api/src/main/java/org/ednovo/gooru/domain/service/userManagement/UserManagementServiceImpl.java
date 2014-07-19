@@ -639,8 +639,8 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 
 		if (!isNotEmptyString(user.getUsername())) {
 			throw new BadCredentialsException("Username cannot be null or empty");
-		} else if (user.getUsername().length() < 5) {
-			throw new BadCredentialsException("Username should be atleast 5 characters");
+		} else if (user.getUsername().length() < 4) {
+			throw new BadCredentialsException("Username should be atleast 4 characters");
 		}
 
 		boolean usernameAvailability = this.getUserRepository().checkUserAvailability(user.getUsername(), CheckUser.BYUSERNAME, false);
