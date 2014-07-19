@@ -47,6 +47,7 @@ public class ConfigSettingRepositoryHibernate extends BaseRepositoryHibernate im
 
 	private static final String GET_CONFIG_SETTING = "SELECT * FROM config_setting WHERE security_level = 0 AND " + generateOrgAuthSqlQuery();
 
+	@SuppressWarnings("unchecked")
 	@Override
 	@Cacheable("persistent")
 	public Map<String, String> getConfigSettings(String organizationUid) {
@@ -67,6 +68,7 @@ public class ConfigSettingRepositoryHibernate extends BaseRepositoryHibernate im
 		return getConfigSetting(key, 0, organizationUid);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	@Cacheable("persistent")
 	public String getConfigSetting(String key, int securityLevel, String organizationUid) {
@@ -85,6 +87,7 @@ public class ConfigSettingRepositoryHibernate extends BaseRepositoryHibernate im
 		return configSettingProfileName != null && !configSettingProfileName.startsWith(DEFAULT_CHECK)? configSettingProfileName : DEFAULT_PROFILE_NAME;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	@Cacheable("persistent")
 	public String getSetting(String key) {
@@ -104,6 +107,7 @@ public class ConfigSettingRepositoryHibernate extends BaseRepositoryHibernate im
 		getSession().createSQLQuery(sql);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public String getConfigSetting(String organizationName) {
 		String sql= "SELECT * FROM config_setting WHERE name='"+organizationName+"'"; 
