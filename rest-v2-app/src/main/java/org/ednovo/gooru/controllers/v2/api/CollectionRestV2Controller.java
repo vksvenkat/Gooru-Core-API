@@ -110,7 +110,7 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 	public ModelAndView updateCollection(@PathVariable(value = ID) String collectionId, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
 		JSONObject json = requestData(data);
-		ActionResponseDTO<Collection> responseDTO = getCollectionService().updateCollection(this.buildCopyCollectionFromInputParameters(getValue(COLLECTION, json), user), collectionId, getValue(OWNER_UID, json), getValue(CREATOR_UID, json), hasUnrestrictedContentAccess(),
+		ActionResponseDTO<Collection> responseDTO = getCollectionService().updateCollection(this.buildCopyCollectionFromInputParameters(getValue(COLLECTION, json)), collectionId, getValue(OWNER_UID, json), getValue(CREATOR_UID, json), hasUnrestrictedContentAccess(),
 				getValue(RELATED_CONTENT_ID, json), user);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -180,7 +180,7 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 	public ModelAndView createCollectionItem(@PathVariable(value = ID) String collectionId, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
 		JSONObject json = requestData(data);
-		ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().createCollectionItem(getValue(RESOURCE_ID, json), collectionId, this.buildCollectionItemFromInputParameters(getValue(COLLECTION_ITEM, json), user), user, CollectionType.COLLECTION.getCollectionType(), false);
+		ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().createCollectionItem(getValue(RESOURCE_ID, json), collectionId, this.buildCollectionItemFromInputParameters(getValue(COLLECTION_ITEM, json)), user, CollectionType.COLLECTION.getCollectionType(), false);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		} else {
@@ -198,7 +198,7 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 	public ModelAndView updateCollectionItem(@PathVariable(value = ID) String collectionItemId, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
 		JSONObject json = requestData(data);
-		ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().updateCollectionItem(this.buildCollectionItemFromInputParameters(getValue(COLLECTION_ITEM, json), user), collectionItemId, user);
+		ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().updateCollectionItem(this.buildCollectionItemFromInputParameters(getValue(COLLECTION_ITEM, json)), collectionItemId, user);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		}
@@ -263,7 +263,7 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 			includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_ITEM_INCLUDE_FILEDS);
 		}
 		User user = (User) request.getAttribute(Constants.USER);
-		Collection collection = getCollectionService().copyCollection(collectionId, this.buildCopyCollectionFromInputParameters(getValue(COLLECTION, json), user), json != null && getValue(ADD_TO_SHELF, json) != null ? Boolean.parseBoolean(getValue(ADD_TO_SHELF, json)) : false, json != null && getValue(PARENT_ID, json) != null ? getValue(PARENT_ID, json) : null, user);
+		Collection collection = getCollectionService().copyCollection(collectionId, this.buildCopyCollectionFromInputParameters(getValue(COLLECTION, json)), json != null && getValue(ADD_TO_SHELF, json) != null ? Boolean.parseBoolean(getValue(ADD_TO_SHELF, json)) : false, json != null && getValue(PARENT_ID, json) != null ? getValue(PARENT_ID, json) : null, user);
 		
 		return toModelAndViewWithIoFilter(collection, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
@@ -278,7 +278,6 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/item/{id}/copy/{cid}" }, method = RequestMethod.PUT)
 	public ModelAndView copyCollectionItem(@PathVariable(value = ID) String collectionItemId, @PathVariable(value = CID) String collectionId, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		User user = (User) request.getAttribute(Constants.USER);
 		CollectionItem collectionItem = getCollectionService().copyCollectionItem(collectionItemId, collectionId);
 		return toModelAndViewWithIoFilter(collectionItem, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, COLLECTION_ITEM_INCLUDE_FILEDS));
 	}
@@ -465,14 +464,14 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 		return resource;
 	}
 
-	private Collection buildCopyCollectionFromInputParameters(String data, User user) {
-		Collection collection = JsonDeserializer.deserialize(data, Collection.class);
-		return collection;
+	private Collection buildCopyCollectionFromInputParameters(String data) {
+		
+		return JsonDeserializer.deserialize(data, Collection.class);
 	}
 
-	private CollectionItem buildCollectionItemFromInputParameters(String data, User user) {
-		CollectionItem collectionItem = JsonDeserializer.deserialize(data, CollectionItem.class);
-		return collectionItem;
+	private CollectionItem buildCollectionItemFromInputParameters(String data) {
+		
+		return JsonDeserializer.deserialize(data, CollectionItem.class);
 	}
 	
 	private List<Integer> parseJSONArray(String arrayData) throws Exception {
