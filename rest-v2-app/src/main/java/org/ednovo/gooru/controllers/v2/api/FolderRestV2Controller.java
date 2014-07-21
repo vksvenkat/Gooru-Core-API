@@ -224,8 +224,8 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 	@RequestMapping(value = { "" }, method = RequestMethod.GET)
 	public ModelAndView getFolderList(HttpServletRequest request, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "20") Integer limit,
 			@RequestParam(value = ID, required = false) String gooruOid, @RequestParam(value = TITLE, required = false) String title, @RequestParam(value = "username", required = false) String username,
-			@RequestParam(value = SKIP_PAGINATION, required = false, defaultValue = FALSE) boolean skipPagination, HttpServletResponse resHttpServletResponse) {
-		return toJsonModelAndView(this.getCollectionService().getFolderList(limit, offset, gooruOid, title, username, skipPagination), true);
+		    HttpServletResponse resHttpServletResponse) {
+		return toJsonModelAndView(this.getCollectionService().getFolderList(limit, offset, gooruOid, title, username), true);
 	}
 
 	private Collection buildCollectionFromInputParameters(String data, User user) {
