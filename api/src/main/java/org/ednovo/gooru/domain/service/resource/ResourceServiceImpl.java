@@ -285,7 +285,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		if (resource == null) {
 			throw new NotFoundException("resource not found ");
 		}
-		if (resource.getResourceType().getName().equalsIgnoreCase("assessment-question")) {
+		if (resource.getResourceType().getName().equalsIgnoreCase(ASSESSMENT_QUESTION)) {
 			resource.setDepthOfKnowledges(this.collectionService.setContentMetaAssociation(this.collectionService.getContentMetaAssociation("depth_of_knowledge"), resource.getGooruOid(), "depth_of_knowledge"));
 		} else {
 			resource.setMomentsOfLearning(this.collectionService.setContentMetaAssociation(this.collectionService.getContentMetaAssociation("moments_of_learning"), resource.getGooruOid(), "moments_of_learning"));
@@ -300,7 +300,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	public Map<String, Object> getResource(String gooruOid) {
 		Resource resource = this.findResourceByContentGooruId(gooruOid);
 		Map<String, Object> resourceObject = new HashMap<String, Object>();
-		if (resource.getResourceType().getName().equalsIgnoreCase("assessment-question")) {
+		if (resource.getResourceType().getName().equalsIgnoreCase(ASSESSMENT_QUESTION)) {
 			AssessmentQuestion question = assessmentService.getQuestion(gooruOid);
 			question.setCustomFieldValues(customFieldService.getCustomFieldsValuesOfResource(question.getGooruOid()));
 			resourceObject.put(RESOURCE, question);
