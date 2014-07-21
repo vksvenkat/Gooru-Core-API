@@ -93,7 +93,7 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 	@Autowired
 	private CollectionService collectionService;
 	
-	private static final Logger logger = LoggerFactory.getLogger(FeedbackServiceImpl.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(FeedbackServiceImpl.class);
 
 	@Override
 	public Feedback createFeedback(Feedback feedback, User user) {
@@ -301,7 +301,6 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 			handleFlag(copyFeedback, feedbackType);
 			feedbackList.add(copyFeedback);
 			feedbackValue.append(feedbackTypes.getValue());
-
 		}
 		this.getFeedbackRepository().saveAll(feedbackList);
 		if (content != null) {
@@ -326,7 +325,7 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 			}
 
 		} catch (JSONException e) {
-			logger.error("Error while creating feedback" + e.getMessage());
+			LOGGER.error("Error while creating feedback" + e.getMessage());
 		}
 
 		return feedbackList;
