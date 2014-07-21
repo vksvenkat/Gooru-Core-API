@@ -52,7 +52,7 @@ public class StandardRestV2Controller extends BaseController implements Constant
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAXONOMY_READ })
 	@RequestMapping(value =  "/curriculum/{code}", method = RequestMethod.GET)
 	public ModelAndView getTaxonomyByCode(@PathVariable(value = CODE) String  code,  HttpServletRequest request, HttpServletResponse response) {
-		return toModelAndView(this.getTaxonomyService().getStandards(code));
+		return toModelAndView(this.getTaxonomyService().getStandards(code), "json");
 	}
 	
 	public TaxonomyService getTaxonomyService() {

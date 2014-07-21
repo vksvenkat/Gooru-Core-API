@@ -624,7 +624,7 @@ public class TaxonomyServiceImpl implements TaxonomyService,ParameterProperties,
 	}
 	
 	@Override
-	public Map<String, Object> getStandards(String code) {
+	public List<Map<String, Object>> getStandards(String code) {
 		List<Code> curriculums = this.getTaxonomyRepository().findCodeStartWith(code, Short.valueOf("0"));
 		for (Code curriculum : curriculums) {
 			List<Code> levelOneCodes = this.getTaxonomyRepository().findChildTaxonomyCodeByDepth(curriculum.getCodeId(), 1);
@@ -658,7 +658,7 @@ public class TaxonomyServiceImpl implements TaxonomyService,ParameterProperties,
 				levelOneMapCodes.add(getCode(levelOneCode, levelTwoMapCodes, NODE));
 				
 			}
-			return getCode(curriculum, levelOneMapCodes, NODE);
+			return levelOneMapCodes;
 		}
 		return null;
 	}

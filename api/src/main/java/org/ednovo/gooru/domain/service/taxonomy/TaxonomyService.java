@@ -141,6 +141,6 @@ public interface TaxonomyService {
 
 	FilterSubjectFo getFilterSubject(Integer codeId, Integer maxLessonLimit);
 	
-	Map<String, Object> getStandards(String code);	
+	List<Map<String, Object>> getStandards(String code);	
 
 }
