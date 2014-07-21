@@ -1449,7 +1449,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	private Map<String, Object> setUserObj(User user) {
 		Map<String, Object> userObj = new HashMap<String, Object>();
 		userObj.put( USER_NAME,user.getUsername());
-		userObj.put(GOORU_UID,user.getGooruUId());
+		userObj.put(_GOORU_UID,user.getGooruUId());
 		userObj.put(FIRST_NAME,user.getFirstName());
 		userObj.put(LAST_NAME,user.getLastName());
 		userObj.put(PROFILE_IMG_URL, buildUserProfileImageUrl(user));
