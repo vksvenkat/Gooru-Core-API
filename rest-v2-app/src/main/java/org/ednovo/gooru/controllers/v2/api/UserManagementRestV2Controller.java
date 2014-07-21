@@ -47,12 +47,10 @@ import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.security.AuthorizeOperations;
 import org.ednovo.gooru.domain.service.FeedbackService;
 import org.ednovo.gooru.domain.service.PostService;
-import org.ednovo.gooru.domain.service.classplan.LearnguideService;
 import org.ednovo.gooru.domain.service.tag.TagService;
 import org.ednovo.gooru.domain.service.user.UserService;
 import org.ednovo.gooru.domain.service.userManagement.UserManagementService;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
-import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,9 +70,6 @@ import org.springframework.web.servlet.ModelAndView;
 public class UserManagementRestV2Controller extends BaseController implements ParameterProperties, ConstantProperties {
 
 	@Autowired
-	private LearnguideService learnguideService;
-
-	@Autowired
 	private UserManagementService userManagementService;
 
 	@Autowired
@@ -85,9 +80,6 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 
 	@Autowired
 	private TagService tagService;
-
-	@Autowired
-	private CustomTableRepository customTableRepository;
 
 	@Autowired
 	private IndexProcessor indexProcessor;
@@ -227,9 +219,9 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = { "/{id}/post", "/{id}/review", "/{id}/response", "/{id}/question-board", "/{id}/note" })
-	public ModelAndView getUserPosts(HttpServletRequest request, @PathVariable(value = ID) String gooruUid, @RequestParam(value = SKIP_PAGINATION, required = false, defaultValue = FALSE) Boolean skipPagination,@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "20") Integer limit,
+	public ModelAndView getUserPosts(HttpServletRequest request, @PathVariable(value = ID) String gooruUid, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "20") Integer limit,
 			HttpServletResponse response) throws Exception {
-		return toModelAndViewWithIoFilter(this.getPostService().getUserPosts(gooruUid, limit, offset, getPostType(request), skipPagination), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, COMMENT_INCLUDES);
+		return toModelAndViewWithIoFilter(this.getPostService().getUserPosts(gooruUid, limit, offset, getPostType(request)), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, COMMENT_INCLUDES);
 
 	}
 
@@ -237,21 +229,21 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = { "/{id}/rating/{type}", "/{id}/report/{type}", "/{id}/flag/{type}", "/{id}/reaction/{type}" })
 	public ModelAndView getUserFeedbacks(HttpServletRequest request, @PathVariable(value = ID) String assocUserUid, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "20") Integer limit,
-			@RequestParam(value = CREATOR_UID, required = false) String creatorUid, @PathVariable(value = TYPE) String feedbackType, HttpServletResponse response,@RequestParam(value = SKIP_PAGINATION, required = false, defaultValue = FALSE) Boolean skipPagination) throws Exception {
+			@RequestParam(value = CREATOR_UID, required = false) String creatorUid, @PathVariable(value = TYPE) String feedbackType, HttpServletResponse response) throws Exception {
 		String includes[] = (String[]) ArrayUtils.addAll(FEEDBACK_INCLUDE_FIELDS, ERROR_INCLUDE);
 		if (feedbackType.equalsIgnoreCase(AVERAGE)) {
 			return toJsonModelAndView(this.getFeedbackService().getUserFeedbackAverage(assocUserUid, getFeedbackCategory(request)), true);
 		}
-		return toModelAndViewWithIoFilter(this.getFeedbackService().getUserFeedbacks(getFeedbackCategory(request), feedbackType, assocUserUid, creatorUid, limit, offset, skipPagination), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
+		return toModelAndViewWithIoFilter(this.getFeedbackService().getUserFeedbacks(getFeedbackCategory(request), feedbackType, assocUserUid, creatorUid, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = { "/{id}/rating", "/{id}/report", "/{id}/flag", "/{id}/reaction" })
 	public ModelAndView getUserFeedbackByCategory(HttpServletRequest request, @PathVariable(value = ID) String assocUserUid, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset,
-			@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "20") Integer limit, @RequestParam(value = CREATOR_UID, required = false) String creatorUid, @RequestParam(value = SKIP_PAGINATION, required = false, defaultValue = FALSE) Boolean skipPagination, HttpServletResponse response) throws Exception {
+			@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "20") Integer limit, @RequestParam(value = CREATOR_UID, required = false) String creatorUid, HttpServletResponse response) throws Exception {
 		String includes[] = (String[]) ArrayUtils.addAll(FEEDBACK_INCLUDE_FIELDS, ERROR_INCLUDE);
-		return toModelAndViewWithIoFilter(this.getFeedbackService().getUserFeedbacks(getFeedbackCategory(request), null, assocUserUid, creatorUid, limit, offset,skipPagination), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
+		return toModelAndViewWithIoFilter(this.getFeedbackService().getUserFeedbacks(getFeedbackCategory(request), null, assocUserUid, creatorUid, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAG_ADD })
@@ -291,8 +283,8 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAG_READ })
 	@RequestMapping(method = { RequestMethod.GET }, value = "/{id}/tag")
 	public ModelAndView getContentTagAssoc(@PathVariable(value = ID) String gooruUid, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, HttpServletRequest request,
-			@RequestParam(value = SKIP_PAGINATION, required = false, defaultValue = FALSE) Boolean skipPagination, HttpServletResponse response) {
-		List<UserTagAssoc> userTagAssoc = this.getTagService().getUserTagAssoc(gooruUid, limit, offset,skipPagination);
+			 HttpServletResponse response) {
+		List<UserTagAssoc> userTagAssoc = this.getTagService().getUserTagAssoc( gooruUid, limit, offset);
 		String[] includes = (String[]) ArrayUtils.addAll(USER_INCLUDES, USER_ASSOC_INCLUDES);
 		return toModelAndViewWithIoFilter(userTagAssoc, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, includes);
 	}
@@ -312,7 +304,7 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 		request.setAttribute(Constants.EVENT_PREDICATE, USER_DELETE_USER);
 		User apiCaller = (User) request.getAttribute(Constants.USER);
 		JSONObject json = requestData(data);
-		this.getUserManagementService().deleteUserContent(gooruUid, (getValue(IS_DELETED, json)), apiCaller);
+		this.getUserManagementService().deleteUserContent(gooruUid, getValue(IS_DELETED, json), apiCaller);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_UPDATE })
@@ -327,7 +319,7 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.GET }, value = "/token/{userToken}")
 	public ModelAndView getUserByToken(@PathVariable(value = USER_TOKEN) String userToken, HttpServletRequest request, HttpServletResponse response) {
-		return toModelAndView(serialize(getUserManagementService().getUserByToken(userToken), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, USER_PROFILE_INCUDES));
+		return toModelAndView(serialize(this.getUserManagementService().getUserByToken(userToken), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, USER_PROFILE_INCUDES));
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_READ })
@@ -425,20 +417,12 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 		return null;
 	}
 
-	public LearnguideService getLearnguideService() {
-		return learnguideService;
-	}
-
 	public UserManagementService getUserManagementService() {
 		return userManagementService;
 	}
 
 	public FeedbackService getFeedbackService() {
 		return feedbackService;
-	}
-
-	public CustomTableRepository getCustomTableRepository() {
-		return customTableRepository;
 	}
 
 	public PostService getPostService() {

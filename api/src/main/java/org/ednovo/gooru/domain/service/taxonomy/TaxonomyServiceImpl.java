@@ -261,6 +261,7 @@ public class TaxonomyServiceImpl implements TaxonomyService,ParameterProperties,
 
 	@Override
 	public void writeTaxonomyToDisk() {
+		@SuppressWarnings("unchecked")
 		List<Organization> organizations = organizationRepository.getAll(Organization.class);
 		if (organizations != null) {
 			for (Organization organization : organizations) {
