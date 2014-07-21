@@ -630,19 +630,19 @@ public class TaxonomyServiceImpl implements TaxonomyService,ParameterProperties,
 			List<Code> levelOneCodes = this.getTaxonomyRepository().findChildTaxonomyCodeByDepth(curriculum.getCodeId(), 1);
 			final List<Map<String, Object>> levelOneMapCodes =  new ArrayList<Map<String,Object>>();
 			for (Code levelOneCode : levelOneCodes)  {
-				List<Code> levelTwoCodes = this.getTaxonomyRepository().findChildTaxonomyCodeByDepth(curriculum.getCodeId(), 2);
+				List<Code> levelTwoCodes = this.getTaxonomyRepository().findChildTaxonomyCodeByDepth(levelOneCode.getCodeId(), 2);
 				final List<Map<String, Object>> levelTwoMapCodes =  new ArrayList<Map<String,Object>>();
 				for (Code levelTwoCode : levelTwoCodes)  {
-					List<Code> levelThreeCodes = this.getTaxonomyRepository().findChildTaxonomyCodeByDepth(curriculum.getCodeId(), 3);
+					List<Code> levelThreeCodes = this.getTaxonomyRepository().findChildTaxonomyCodeByDepth(levelTwoCode.getCodeId(), 3);
 					final List<Map<String, Object>> levelThreeMapCodes =  new ArrayList<Map<String,Object>>();
 					for (Code levelThreeCode : levelThreeCodes)  {
-						List<Code> levelFourCodes = this.getTaxonomyRepository().findChildTaxonomyCodeByDepth(curriculum.getCodeId(), 4);
+						List<Code> levelFourCodes = this.getTaxonomyRepository().findChildTaxonomyCodeByDepth(levelThreeCode.getCodeId(), 4);
 						final List<Map<String, Object>> levelFourMapCodes =  new ArrayList<Map<String,Object>>();
 						for (Code levelFourCode : levelFourCodes)  {
-							List<Code> levelFiveCodes = this.getTaxonomyRepository().findChildTaxonomyCodeByDepth(curriculum.getCodeId(), 5);
+							List<Code> levelFiveCodes = this.getTaxonomyRepository().findChildTaxonomyCodeByDepth(levelFourCode.getCodeId(), 5);
 							final List<Map<String, Object>> levelFiveMapCodes =  new ArrayList<Map<String,Object>>();
 							for (Code levelFiveCode : levelFiveCodes)  {
-								List<Code> levelSixCodes = this.getTaxonomyRepository().findChildTaxonomyCodeByDepth(curriculum.getCodeId(), 6);
+								List<Code> levelSixCodes = this.getTaxonomyRepository().findChildTaxonomyCodeByDepth(levelFiveCode.getCodeId(), 6);
 								final List<Map<String, Object>> levelSixMapCodes =  new ArrayList<Map<String,Object>>();
 								for (Code levelSixCode : levelSixCodes)  {
 									levelSixMapCodes.add(getCode(levelSixCode, null, NODE));
