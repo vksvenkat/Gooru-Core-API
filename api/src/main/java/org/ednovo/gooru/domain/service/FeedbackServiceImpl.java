@@ -406,8 +406,8 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 					resourceSummary = new ResourceSummary();
 					resourceSummary.setResourceGooruOid(feedback.getAssocGooruOid());
 				}
-				resourceSummary.setRatingStarCount((Double) summary.get("count"));
-				resourceSummary.setRatingStarAvg((Long) summary.get("average"));
+				resourceSummary.setRatingStarCount((Double) summary.get(COUNT));
+				resourceSummary.setRatingStarAvg((Long) summary.get(AVERAGE));
 				contentFeedback.setRatings(summary);
 				this.getFeedbackRepository().save(resourceSummary);
 				this.getFeedbackRepository().flush();
