@@ -1054,7 +1054,7 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 	@Override
 	@Cacheable("gooruCache")
 	public List<Code> findCodeStartWith(String codeStartWith, Integer depth) {
-		String hql = "FROM Code c where code LIKE :code AND depth =: depth AND and c.activeFlag = 1 and " + generateOrgAuthQueryWithData("c.");
+		String hql = "FROM Code c where code LIKE :code AND depth =: depth AND c.activeFlag = 1 and " + generateOrgAuthQueryWithData("c.");
 		Query query = getSession().createQuery(hql);
 		query.setParameter("code", codeStartWith + "%");
 		query.setParameter("depth", depth);
