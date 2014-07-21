@@ -37,7 +37,7 @@ public interface PostService extends BaseService {
 
 	List<Post> getPosts(User user, String type, Integer limit, Integer offset);
 
-	List<Post> getUserPosts(String gooruUid, Integer limit, Integer offset, String type, Boolean skipPagination);
+	List<Post> getUserPosts(String gooruUid, Integer limit, Integer offset, String type);
 
 	List<Post> getContentPosts(String gooruOid, Integer limit, Integer offset, String type);
 

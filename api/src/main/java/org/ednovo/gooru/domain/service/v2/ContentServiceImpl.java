@@ -220,11 +220,11 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 	}
 	
 	@Override
-	public SearchResults<Map<String, Object>> getUserContentTagList(String gooruUid, Integer limit, Integer offset, Boolean skipPagination) {
+	public SearchResults<Map<String, Object>> getUserContentTagList(String gooruUid, Integer limit, Integer offset) {
 		if(this.getUserService().findByGooruId(gooruUid) == null ) {
 			throw new NotFoundException(gooruUid + " not found ");
 		}
-		List<Object[]> results = this.getContentRepository().getUserContentTagList(gooruUid, limit, offset, skipPagination);
+		List<Object[]> results = this.getContentRepository().getUserContentTagList(gooruUid, limit, offset);
 		SearchResults<Map<String, Object>> searchResult = new SearchResults<Map<String,Object>>();
 		List<Map<String, Object>> userTags = new ArrayList<Map<String,Object>>();
 		for (Object[] object : results) {

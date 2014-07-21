@@ -42,11 +42,11 @@ public interface TagRepository extends BaseRepository {
 
 	List<Tag> getTag(String gooruOid);
 
-	List<ContentTagAssoc> getTagContentAssoc(String tagGooruOid, Integer limit, Integer offset, boolean skipPagination);
+	List<ContentTagAssoc> getTagContentAssoc(String tagGooruOid, Integer limit, Integer offset);
 
 	UserTagAssoc getUserTagassocById(String gooruOid, String tagGooruOid);
 
-	List<UserTagAssoc> getContentTagByUser(String gooruOid, Integer limit, Integer offset, Boolean skipPagination);
+	List<UserTagAssoc> getContentTagByUser(String gooruOid, Integer limit, Integer offset);
 
 	List<UserTagAssoc> getTagAssocUser(String tagGooruOid, Integer limit, Integer offset);
 
@@ -58,7 +58,7 @@ public interface TagRepository extends BaseRepository {
 
 	TagSynonyms getSynonymByTagAndSynonymId(String tagGooruOid, Integer synonymsId);
 	
-	List<Object[]> getResourceByLabel(String label, Integer limit, Integer offset, boolean skipPagination, String goourUid);
+	List<Object[]> getResourceByLabel(String label, Integer limit, Integer offset, String goourUid);
 	
 	Long getResourceByLabelCount(String label, String gooruUid);
 }

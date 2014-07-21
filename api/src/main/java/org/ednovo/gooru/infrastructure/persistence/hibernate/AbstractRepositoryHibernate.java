@@ -47,6 +47,7 @@ public abstract class AbstractRepositoryHibernate extends AuthorizationDaoSuppor
 		saveOrUpdate(o);
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Override
 	public List getPagedResults(Class<?> clazz, int page, int recordPerPage) {
 		
@@ -65,10 +66,12 @@ public abstract class AbstractRepositoryHibernate extends AuthorizationDaoSuppor
 	
 	
 
+	@SuppressWarnings("rawtypes")
 	public void removeAll(Collection entities) {
 		deleteAll(entities);
 	}
 
+	@SuppressWarnings("rawtypes")
 	public void saveAll(Collection entities) {
 		saveOrUpdateAll(entities);
 	}
