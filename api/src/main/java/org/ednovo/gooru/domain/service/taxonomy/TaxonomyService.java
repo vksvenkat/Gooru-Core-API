@@ -140,5 +140,7 @@ public interface TaxonomyService {
 	List<CodeFo> getCourseBySubject(Integer codeId, Integer maxLessonLimit) throws JSONException;
 
 	FilterSubjectFo getFilterSubject(Integer codeId, Integer maxLessonLimit);
+	
+	Map<String, Object> getStandards(String code);	
 
 }

@@ -90,7 +90,8 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 	private static final String FIND_TAXCODE_BY_DEPTH = "Select t.type_id from taxonomy_level_type t  where t.depth = %s and t.code_id =%s and t.organization_uid in(%s)";
 	private static final String FIND_ALL_TAXONOMY = "SELECT t.depth, t.label, c.code, c.code_id FROM taxonomy_level_type t , code c where t.code_id=c.code_id and t.organization_uid in (%s) and c.active_flag=1";
 	private static final String UPDATE_ORDER = "update code  set display_order = %s where code_id = %s and organization_uid in(%s)";
-
+	private static final String FIND_CODE_BY_CODEIDS = "select * from code c where c.code_id = ? and c.active_flag = ?";
+ 
 	@Override
 	public void updateOrder(Code code) {
 		String updateQuery = DatabaseUtil.format(UPDATE_ORDER, code.getDisplayOrder(), code.getCodeId(), getUserOrganizationUidsAsString());
@@ -288,9 +289,7 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 		proList.add(Projections.property("label"));
 
 		List<Code> codeList = getSession().createCriteria(Code.class).add(Restrictions.in("organization.partyUid", getUserOrganizationUids()))
-		// .setProjection(proList)
 				.add(Expression.eq("parentId", codeId))
-				// .add(Expression.eq("codeType.typeId", taxonomyLevel))
 				.list();
 
 		return codeList;
@@ -311,7 +310,7 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 	public List<Code> findChildTaxonomyCodeByDepth(Integer codeId, Integer depth) {
 		return getSession().createQuery("from Code c where c.parentId =" + codeId + " and c.depth =" + depth + "and c.activeFlag =1 and " + generateOrgAuthQueryWithData("c.")).list();
 	}
-	
+
 	@Override
 	public List<Code> getCurriculumCodeByDepth(Integer depth) {
 		return getSession().createQuery("from Code c where c.depth =" + depth + " and " + generateOrgAuthQueryWithData("c.")).list();
@@ -501,7 +500,7 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 	@Override
 	@Cacheable("gooruCache")
 	public String findRootLevelTaxonomy(Code code) {
-		
+
 		int index = code.getDepth().intValue();
 
 		List<String> alias = new ArrayList<String>();
@@ -664,7 +663,7 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 		for (String[] code : codes) {
 			try {
 				this.getJdbcTemplate().update("update code set display_order= " + code[1] + " where code_id = " + code[0] + "and " + generateOrgAuthSqlQueryWithData());
-						} catch (Exception e) {
+			} catch (Exception e) {
 			}
 
 		}
@@ -694,7 +693,7 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 		Integer activeFlag = 1;
 		Session session = getSession();
 		List<Code> codeList = session.createQuery("from Code c where c.rootNodeId = ? and c.activeFlag = ? and " + generateOrgAuthQueryWithData("c.")).setInteger(0, codeId).setInteger(1, activeFlag).list();
-       return codeList;
+		return codeList;
 	}
 
 	@Override
@@ -752,8 +751,6 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 			pageSize = Integer.parseInt(filters.get("pageSize"));
 		}
 		sql += " limit " + (pageNum - 1) + "," + (pageNum) * pageSize;
-		Session session = getSession();
-		// Query query = session.createSQLQuery(sql);
 		List<Map<String, Object>> rows = getJdbcTemplate().queryForList(sql);
 		standards = new ArrayList<Map<String, String>>();
 		for (Map row : rows) {
@@ -871,7 +868,7 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 			hql += " and codeOrganizationAssoc.code.creator.partyUid =:creatorUid";
 		}
 
-		if (code!= null && code.equalsIgnoreCase("featured")) {
+		if (code != null && code.equalsIgnoreCase("featured")) {
 			hql += " order by codeOrganizationAssoc.isFeatured";
 		} else {
 			hql += " order by codeOrganizationAssoc.sequence";
@@ -885,7 +882,7 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 		if (rootNodeId != null) {
 			query.setParameter("rootNodeId", Integer.parseInt(rootNodeId));
 		}
-		
+
 		if (depth != null) {
 			query.setParameter("depth", Short.parseShort(depth));
 		}
@@ -929,12 +926,13 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 
 	@Override
 	public List<Object[]> getCollectionStandards(Integer codeId, String text, Integer limit, Integer offset, Boolean skipPagination) {
-		String sql = "select distinct ifnull(c.common_core_dot_notation, c.display_code) as code_notation, c.code_id, c.label,c.code_uid, c.root_node_id from taxonomy_association ta inner join code c on ta.target_code_id = c.code_id  where ifnull(c.common_core_dot_notation, c.display_code) like '" + text + "%' and depth != 0";
+		String sql = "select distinct ifnull(c.common_core_dot_notation, c.display_code) as code_notation, c.code_id, c.label,c.code_uid, c.root_node_id from taxonomy_association ta inner join code c on ta.target_code_id = c.code_id  where ifnull(c.common_core_dot_notation, c.display_code) like '"
+				+ text + "%' and depth != 0";
 		if (codeId != null) {
 			sql += " and ta.source_code_id =" + codeId;
 		}
-		if(!UserGroupSupport.getTaxonomyPreference().isEmpty() && UserGroupSupport.getTaxonomyPreference() != null) {
-			sql += " and c.root_node_id in (" + UserGroupSupport.getTaxonomyPreference() +")";
+		if (!UserGroupSupport.getTaxonomyPreference().isEmpty() && UserGroupSupport.getTaxonomyPreference() != null) {
+			sql += " and c.root_node_id in (" + UserGroupSupport.getTaxonomyPreference() + ")";
 		}
 		Query query = getSession().createSQLQuery(sql);
 		if (!skipPagination) {
@@ -975,12 +973,12 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 
 		return codeList;
 	}
-	
+
 	private Code getTaxonomyCodeById(Integer codeId) {
 		String hql = "From Code code where code.codeId =:codeId  and " + generateOrgAuthQueryWithData("code.");
 		Query query = getSession().createQuery(hql);
 		query.setParameter("codeId", codeId);
-		return  query.list().size() > 0 ? (Code) query.list().get(0) : null;
+		return query.list().size() > 0 ? (Code) query.list().get(0) : null;
 	}
 
 	@Cacheable("gooruCache")
@@ -988,15 +986,15 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 	public String findTaxonomyCodeLabels(String codeIds) {
 		String sql = "select group_concat(label) as labels from code where depth = 0 and organization_uid  IN (" + getUserOrganizationUidsAsString() + ") and code_id  in (" + codeIds + ")";
 		Query query = getSession().createSQLQuery(sql).addScalar("labels", StandardBasicTypes.STRING);
-		return query.list() != null ?(String) query.list().get(0) : null;
+		return query.list() != null ? (String) query.list().get(0) : null;
 	}
-	
+
 	@Cacheable("gooruCache")
 	@Override
 	public List<Code> findCodeCommonCoreNotation() {
 		String hql = "From Code code where code.organization.partyUid is not null and code.activeFlag is not null and code.commonCoreDotNotation is not null  and " + generateOrgAuthQueryWithData("code.");
 		Query query = getSession().createQuery(hql);
-		return  query.list().size() > 0 ? (List<Code>) query.list(): null;
+		return query.list();
 	}
 
 	@Cacheable("gooruCache")
@@ -1005,18 +1003,24 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 		String sql = "select group_concat(label) as labels from code where root_node_id=20000 and organization_uid  IN (" + getUserOrganizationUidsAsString() + ") and code_id IN (:codeIds) ";
 		Query query = getSession().createSQLQuery(sql).addScalar("labels", StandardBasicTypes.STRING);
 		query.setParameterList("codeIds", codeIds);
-		return query.list() != null ?(String) query.list().get(0) : null;
+		return query.list() != null ? (String) query.list().get(0) : null;
 	}
 
 	@Override
 	@Cacheable("gooruCache")
 	public Code findCodeByCodeIds(Integer codeId) {
 		Integer activeFlag = 1;
-		Session session = getSession();
-		String sql = "select * from code c where c.code_id = ? and c.active_flag = ?";
-		Query query = getSession().createSQLQuery(sql).addEntity(Code.class);
-		      query.setInteger(0,codeId).setInteger(1,activeFlag).list();
-		      return query.list().size()>0?(Code) query.list().get(0):null;
+		Query query = getSession().createSQLQuery(FIND_CODE_BY_CODEIDS).addEntity(Code.class);
+		query.setInteger(0, codeId).setInteger(1, activeFlag).list();
+		return query.list().size() > 0 ? (Code) query.list().get(0) : null;
+	}
+
+	@Override
+	@Cacheable("gooruCache")
+	public List<Code> findCodeStartWith(String codeStartWith, Integer depth) {
+		String hql = "FROM Code c where code LIKE :code '%' AND depth =: depth AND and c.activeFlag = 1 and " + generateOrgAuthQueryWithData("c.");
+		Query query = getSession().createQuery(hql);
+		return query.list();
 	}
 
 }

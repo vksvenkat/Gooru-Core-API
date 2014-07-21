@@ -37,6 +37,7 @@ import org.ednovo.gooru.core.api.model.Organization;
 import org.ednovo.gooru.core.api.model.TaxonomyDTO;
 import org.ednovo.gooru.core.application.util.formatter.CodeFo;
 import org.ednovo.gooru.core.application.util.formatter.FilterSubjectFo;
+import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.domain.cassandra.service.TaxonomyCassandraService;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
@@ -49,7 +50,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 
 @Service("taxonomyService")
-public class TaxonomyServiceImpl implements TaxonomyService,ParameterProperties {
+public class TaxonomyServiceImpl implements TaxonomyService,ParameterProperties, ConstantProperties {
 
 	private Logger logger = Logger.getLogger(TaxonomyServiceImpl.class);
 	
@@ -621,6 +622,56 @@ public class TaxonomyServiceImpl implements TaxonomyService,ParameterProperties 
 		return codeBygroup;
 	}
 	
+	@Override
+	public Map<String, Object> getStandards(String code) {
+		List<Code> curriculums = this.getTaxonomyRepository().findCodeStartWith(code, 0);
+		for (Code curriculum : curriculums) {
+			List<Code> levelOneCodes = this.getTaxonomyRepository().findChildTaxonomyCodeByDepth(curriculum.getCodeId(), 1);
+			final List<Map<String, Object>> levelOneMapCodes =  new ArrayList<Map<String,Object>>();
+			for (Code levelOneCode : levelOneCodes)  {
+				List<Code> levelTwoCodes = this.getTaxonomyRepository().findChildTaxonomyCodeByDepth(curriculum.getCodeId(), 2);
+				final List<Map<String, Object>> levelTwoMapCodes =  new ArrayList<Map<String,Object>>();
+				for (Code levelTwoCode : levelTwoCodes)  {
+					List<Code> levelThreeCodes = this.getTaxonomyRepository().findChildTaxonomyCodeByDepth(curriculum.getCodeId(), 3);
+					final List<Map<String, Object>> levelThreeMapCodes =  new ArrayList<Map<String,Object>>();
+					for (Code levelThreeCode : levelThreeCodes)  {
+						List<Code> levelFourCodes = this.getTaxonomyRepository().findChildTaxonomyCodeByDepth(curriculum.getCodeId(), 4);
+						final List<Map<String, Object>> levelFourMapCodes =  new ArrayList<Map<String,Object>>();
+						for (Code levelFourCode : levelFourCodes)  {
+							List<Code> levelFiveCodes = this.getTaxonomyRepository().findChildTaxonomyCodeByDepth(curriculum.getCodeId(), 5);
+							final List<Map<String, Object>> levelFiveMapCodes =  new ArrayList<Map<String,Object>>();
+							for (Code levelFiveCode : levelFiveCodes)  {
+								List<Code> levelSixCodes = this.getTaxonomyRepository().findChildTaxonomyCodeByDepth(curriculum.getCodeId(), 6);
+								final List<Map<String, Object>> levelSixMapCodes =  new ArrayList<Map<String,Object>>();
+								for (Code levelSixCode : levelSixCodes)  {
+									levelSixMapCodes.add(getCode(levelSixCode, null, NODE));
+								}
+								levelFiveMapCodes.add(getCode(levelFiveCode, levelSixMapCodes, NODE));
+							}
+							levelFourMapCodes.add(getCode(levelFourCode, levelFiveMapCodes, NODE));
+						}
+						levelThreeMapCodes.add(getCode(levelThreeCode, levelFourMapCodes, NODE));
+					}
+					levelTwoMapCodes.add(getCode(levelTwoCode, levelThreeMapCodes, NODE));
+				}
+				levelOneMapCodes.add(getCode(levelOneCode, levelTwoMapCodes, NODE));
+				
+			}
+			return getCode(curriculum, levelOneMapCodes, NODE);
+		}
+		return null;
+	}
+	
+	private Map<String, Object> getCode(Code code, List<Map<String, Object>> childern, String type) {
+		final Map<String, Object> codeMap = new HashMap<String, Object>();
+		codeMap.put(CODE, code.getCommonCoreDotNotation() == null ? code.getdisplayCode() : code.getCommonCoreDotNotation());
+		codeMap.put(CODE_ID, code.getCodeId());
+		codeMap.put(LABEL, code.getLabel());
+		codeMap.put(PARENT_ID, code.getParent() != null ? code.getParent().getCodeId() : null);
+		codeMap.put(type, childern);
+		return codeMap;
+	}
+	
 	public TaxonomyRespository getTaxonomyRepository() {
 		return taxonomyRepository;
 	}
@@ -636,5 +687,4 @@ public class TaxonomyServiceImpl implements TaxonomyService,ParameterProperties 
 	public UserRepository getUserRepository() {
 		return userRepository;
 	}
-
 }
