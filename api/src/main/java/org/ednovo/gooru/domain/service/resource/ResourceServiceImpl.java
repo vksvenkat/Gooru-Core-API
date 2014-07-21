@@ -34,6 +34,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -87,6 +88,7 @@ import org.ednovo.gooru.core.api.model.SessionActivityType;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.ShelfItem;
+import org.ednovo.gooru.core.api.model.StatisticsDTO;
 import org.ednovo.gooru.core.api.model.Textbook;
 import org.ednovo.gooru.core.api.model.UpdateViewsDTO;
 import org.ednovo.gooru.core.api.model.User;
@@ -100,6 +102,7 @@ import org.ednovo.gooru.core.application.util.ImageUtil;
 import org.ednovo.gooru.core.application.util.RequestUtil;
 import org.ednovo.gooru.core.cassandra.model.ResourceCio;
 import org.ednovo.gooru.core.cassandra.model.ResourceMetadataCo;
+import org.ednovo.gooru.core.cassandra.model.StatisticsCo;
 import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
@@ -3101,5 +3104,41 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 
 	public CollectionService getCollectionService() {
 		return collectionService;
+	}
+
+	@Override
+	public void updateStatisticsData(List<StatisticsDTO> statisticsList) {
+		ResourceCio resourceCio = null;
+		StatisticsCo statisticsCo = null;
+		Collection<ResourceCio> resourceCioList = new ArrayList<ResourceCio>();
+		Collection<String> resourceIds = new ArrayList<String>();
+		for(StatisticsDTO statisticsDTO : statisticsList){
+			resourceCio = new ResourceCio();
+			statisticsCo = new StatisticsCo();
+			resourceCio.setId(statisticsDTO.getGooruOid());
+			resourceIds.add(resourceCio.getId());
+			if(statisticsDTO.getViews() != null){
+				statisticsCo.setViewsCount(String.valueOf(statisticsDTO.getViews()));
+			}
+			if(statisticsDTO.getVoteDown() != null){
+				statisticsCo.setVoteDown(String.valueOf(statisticsDTO.getVoteDown()));
+			}
+			if(statisticsDTO.getVoteUp() != null){
+				statisticsCo.setVoteUp(String.valueOf(statisticsDTO.getVoteUp()));
+			}
+			if(statisticsDTO.getSubscription() != null){
+				statisticsCo.setSubscriberCount(String.valueOf(statisticsDTO.getSubscription()));
+			}
+			if(statisticsDTO.getCollabrator() != null){
+				resourceCio.setCollaboratorCount(statisticsDTO.getCollabrator());
+			}
+			if(statisticsDTO.isValid()){
+				resourceCio.setStatistics(statisticsCo);
+				resourceCioList.add(resourceCio);
+			}
+		}
+		if(resourceCioList.size() > 0){
+			resourceCassandraService.save(resourceCioList, resourceIds);
+		}
 	}
 }
