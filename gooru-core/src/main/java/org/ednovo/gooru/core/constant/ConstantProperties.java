@@ -658,6 +658,9 @@ public interface ConstantProperties {
     public static String SEARCH_PROFILE = "search.profile";
 
     public static String SETTING_VERSION = "setting.version";
+    
+    public static String STATISTICS_DATA = "statisticsData";
+ 
    
     
 }
