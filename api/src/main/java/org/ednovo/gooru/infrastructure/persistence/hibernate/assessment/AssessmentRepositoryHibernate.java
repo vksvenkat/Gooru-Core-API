@@ -278,16 +278,14 @@ public class AssessmentRepositoryHibernate extends BaseRepositoryHibernate imple
 
 	@Override
 	public Map<String, Object> getAssessmentAttemptsInfo(Integer attemptId, String gooruOAssessmentId, Integer studentId) {
-		Session session = this.getSession();
 		String sql = "SELECT COUNT(1) as count, AVG(attempt.score) as avg FROM assessment_attempt attempt INNER JOIN content content ON content.gooru_oid = '" + gooruOAssessmentId
 				+ "' INNER JOIN assessment assessment ON ( assessment.assessment_id = content.content_id AND assessment.assessment_id = attempt.assessment_id )  WHERE attempt.mode = 1 AND attempt.attempt_id != '" + attemptId + "' AND attempt.student_id != " + studentId + " AND "
 				+ generateAuthSqlQueryWithData("content.");
-		Query query = session.createSQLQuery(sql).addScalar("count", StandardBasicTypes.INTEGER).addScalar("avg", StandardBasicTypes.DOUBLE);
+		Query query = getSession().createSQLQuery(sql).addScalar("count", StandardBasicTypes.INTEGER).addScalar("avg", StandardBasicTypes.DOUBLE);
 		Object[] result = (Object[]) query.uniqueResult();
 		Map<String, Object> resultMap = new HashMap<String, Object>();
 		resultMap.put("otherAttempts", result[0]);
 		resultMap.put("othersAvg", result[1]);
-		releaseSession(session);
 		return resultMap;
 	}
 
@@ -346,41 +344,34 @@ public class AssessmentRepositoryHibernate extends BaseRepositoryHibernate imple
 
 	@Override
 	public void updateTimeForSegments(Long questionId) {
-		Session session = getSession();
 		String sql = "UPDATE assessment_segment assessment_segment , content content  SET time_to_complete_in_secs = ( SELECT SUM(sumQuestion.time_to_complete_in_secs) FROM assessment_segment_question_assoc segmentQuestion INNER JOIN assessment_segment_question_assoc segmentQuestionAssoc ON segmentQuestion.segment_id = segmentQuestionAssoc.segment_id INNER JOIN assessment_question question ON ( segmentQuestionAssoc.question_id = question.question_id  AND segmentQuestionAssoc.question_id = "
 				+ questionId
 				+ " ) INNER JOIN assessment_question sumQuestion ON sumQuestion.question_id = segmentQuestion.question_id WHERE assessment_segment.segment_id = segmentQuestionAssoc.segment_id ) WHERE content.content_id=assessment_segment.assessment_id   AND "
 				+ generateAuthSqlQueryWithData("content.");
 		jdbcTemplate.execute(sql);
-		releaseSession(session);
 	}
 
 	@Override
 	public void updateTimeForAssessments(Long questionId) {
-		Session session = getSession();
 		String sql = "UPDATE assessment_segment  assessment_segment , content content SET time_to_complete_in_secs = ( SELECT SUM(sumQuestion.time_to_complete_in_secs) FROM assessment_segment_question_assoc segmentQuestion INNER JOIN assessment_segment_question_assoc segmentQuestionAssoc ON segmentQuestion.segment_id = segmentQuestionAssoc.segment_id INNER JOIN assessment_question question ON ( segmentQuestionAssoc.question_id = question.question_id  AND segmentQuestionAssoc.question_id = "
 				+ questionId
 				+ " ) INNER JOIN assessment_question sumQuestion ON sumQuestion.question_id = segmentQuestion.question_id WHERE assessment_segment.segment_id = segmentQuestionAssoc.segment_id ) WHERE content.content_id=assessment_segment.assessment_id  AND  "
 				+ generateAuthSqlQueryWithData("content.");
 		jdbcTemplate.execute(sql);
-		releaseSession(session);
 	}
 
 	@Override
-	public List<Object[]> getAssessmentAttemptQuestionSummary(Integer attemptId) {
-	
-		Session session = this.getSession();
+	public List<Object[]> getAssessmentAttemptQuestionSummary(Integer attemptId) {	
 		String sql = "SELECT question.question_text as questionText , question.type as questionType, question.concept as concept, attemptItem.attempt_status as status, question.question_id as questionId, question.explanation as explanation, resource.folder as folder, storageArea.area_path as assetURI "
 				+ " , content.gooru_oid as gooruOid ,  attemptItem.attempt_item_id as attemptItemId, attemptItem.correct_try_id as correctTrySequence  FROM assessment_attempt_item attemptItem "
 				+ " INNER JOIN assessment_question question ON question.question_id = attemptItem.question_id "
 				+ " INNER JOIN resource resource ON resource.content_id = question.question_id INNER JOIN content content ON resource.content_id = content.content_id  LEFT JOIN storage_area storageArea ON storageArea.storage_area_id = resource.storage_area_id  WHERE attemptItem.attempt_id = "
 				+ attemptId + " AND " + generateAuthSqlQueryWithData("content.");
 
-		Query query = session.createSQLQuery(sql).addScalar("questionText", StandardBasicTypes.STRING).addScalar("concept", StandardBasicTypes.STRING).addScalar("status", StandardBasicTypes.STRING).addScalar("questionId", StandardBasicTypes.INTEGER)
+		Query query = getSession().createSQLQuery(sql).addScalar("questionText", StandardBasicTypes.STRING).addScalar("concept", StandardBasicTypes.STRING).addScalar("status", StandardBasicTypes.STRING).addScalar("questionId", StandardBasicTypes.INTEGER)
 				.addScalar("explanation", StandardBasicTypes.STRING).addScalar("questionType", StandardBasicTypes.INTEGER).addScalar("folder", StandardBasicTypes.STRING).addScalar("assetURI", StandardBasicTypes.STRING).addScalar("gooruOid", StandardBasicTypes.STRING)
 				.addScalar("attemptItemId", StandardBasicTypes.INTEGER).addScalar("correctTrySequence", StandardBasicTypes.INTEGER);
 		List<Object[]> result = query.list();
-		releaseSession(session);
 		return result;
 	}
 
@@ -489,13 +480,11 @@ public class AssessmentRepositoryHibernate extends BaseRepositoryHibernate imple
 
 	@Override
 	public String getQuizUserScore(String gooruOAssessmentId, String studentId) {
-		Session session = this.getSession();
 		String sql = "SELECT Max(attempt.score) as maxScore FROM assessment_attempt attempt INNER JOIN content content ON content.gooru_oid = '" + gooruOAssessmentId
 				+ "' INNER JOIN assessment assessment ON ( assessment.assessment_id = content.content_id AND assessment.assessment_id = attempt.assessment_id ) WHERE  attempt.student_uid = '" + studentId + "'  AND  " + generateOrgAuthSqlQueryWithData("content.");
 
-		Query query = session.createSQLQuery(sql).addScalar("maxScore", StandardBasicTypes.INTEGER);
+		Query query = getSession().createSQLQuery(sql).addScalar("maxScore", StandardBasicTypes.INTEGER);
 		Integer result = (Integer) query.uniqueResult();
-		releaseSession(session);
 		return result != null ? result.toString() : "0";
 	}
 
@@ -505,8 +494,7 @@ public class AssessmentRepositoryHibernate extends BaseRepositoryHibernate imple
 		String sql = "SELECT c.gooru_oid FROM assessment_segment a INNER JOIN assessment_segment_question_assoc ass ON ( ass.segment_id = a.segment_id ) INNER JOIN content c ON (c.content_id = a.assessment_id ) INNER JOIN content ct ON ( ass.question_id = ct.content_id ) WHERE ct.gooru_oid = '"
 				+ questionGooruOid + "'";
 		Query query = session.createSQLQuery(sql);
-		List<String> quizGooruOIds = query.list();
-		return (quizGooruOIds.size() > 0) ? quizGooruOIds : null;
+		return query.list();
 	}
 
 	@Override
@@ -514,8 +502,7 @@ public class AssessmentRepositoryHibernate extends BaseRepositoryHibernate imple
 		Session session = getSession();
 		Query query = session.createQuery("From AssessmentAnswer aa   where aa.answerId=:answerId ");
 		query.setParameter("answerId", answerId);
-		List<AssessmentAnswer> AssessmentAnswers = query.list();
-		return (AssessmentAnswers.size() > 0) ? AssessmentAnswers.get(0) : null;
+		return (AssessmentAnswer) ((query.list().size() > 0) ? query.list().get(0) : null);
 	}
 
 }

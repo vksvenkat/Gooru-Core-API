@@ -498,6 +498,10 @@ public interface ConstantProperties {
      public static String FOLLOWING="following";
     
     public static String FOLLOWERS="followers";
+    
+    public static String FOLLOW="follow";
+    
+    public static String UN_FOLLOW="unfollow";    
    
     public static String CUSTOM_FIELDS="customFields";
     

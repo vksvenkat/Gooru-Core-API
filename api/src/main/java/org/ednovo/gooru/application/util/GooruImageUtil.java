@@ -70,7 +70,7 @@ public class GooruImageUtil {
 	@Autowired
 	private AsyncExecutor asyncExecutor;
 
-	private static final Logger logger = LoggerFactory.getLogger(GooruImageUtil.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(GooruImageUtil.class);
 
 	public GooruImageUtil() {
 		instance = this;
@@ -148,7 +148,7 @@ public class GooruImageUtil {
 				inputStream.close();
 				return destFilePath;
 		} catch (Exception e) {
-			logger.error("DownloadImage failed:exception:", e);
+			LOGGER.error("DownloadImage failed:exception:", e);
 			return null;
 		}
 	}
@@ -218,7 +218,7 @@ public class GooruImageUtil {
 			}
 			FileUtils.moveFile(srcFile, destFile);
 		} catch (IOException exception) {
-			logger.error("Move File Failed:" + exception);
+			LOGGER.error("Move File Failed:" + exception);
 			throw exception;
 		}
 		return destFile.getAbsolutePath();
@@ -234,7 +234,7 @@ public class GooruImageUtil {
 			}
 			FileUtils.copyFile(srcFile, destFile);
 		} catch (IOException exception) {
-			logger.error("copy File Failed:" + exception);
+			LOGGER.error("copy File Failed:" + exception);
 			throw exception;
 		}
 		return destFile.getAbsolutePath();
@@ -250,7 +250,7 @@ public class GooruImageUtil {
 			buf = channel.map(MapMode.READ_ONLY, 0, channel.size());
 			pdfFile = new PDFFile(buf);
 		} catch (Exception e) {
-			logger.error("getPDFFile: "+e);
+			LOGGER.error("getPDFFile: "+e);
 		}
 		return pdfFile;
 		

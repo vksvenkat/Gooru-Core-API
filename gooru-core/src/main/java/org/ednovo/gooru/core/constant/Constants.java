@@ -158,12 +158,12 @@ public class Constants {
 	
 	public static final String SEARCH_QUESTION_RESPONSE="{\"category\":null,\"queryUId\":null,\"searchCount\":0,\"searchInfo\":null,\"searchResults\":[],\"searchType\":null,\"totalHitCount\":0, \"assetURI\" : null}";
 	
-	public static final List<String> themeUsercustomFieldsKey;
+	public static final List<String> customFieldsKey;
 	    static {
 	        List<String> customFieldsKeyList = new ArrayList<String>();
 	        customFieldsKeyList.add("show_profile_page");
 	        customFieldsKeyList.add("organizationAdmin");
-	        themeUsercustomFieldsKey = Collections.unmodifiableList(customFieldsKeyList);
+	        customFieldsKey = Collections.unmodifiableList(customFieldsKeyList);
 	    }
 	    
 	public static final String JIRA_USERNAME = "jira.username";

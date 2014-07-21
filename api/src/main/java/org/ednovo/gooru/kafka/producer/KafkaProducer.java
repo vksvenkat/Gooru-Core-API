@@ -23,7 +23,7 @@ public class KafkaProducer {
 	private Producer<String, String> producer;
 	protected Properties props = new Properties();
 	
-	private static final Logger logger = LoggerFactory.getLogger(IndexProcessor.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(IndexProcessor.class);
 	
 	@PostConstruct
 	public void init() {
@@ -37,7 +37,7 @@ public class KafkaProducer {
 				new ProducerConfig(props));
 		}
 		catch (Exception e) {
-			logger.info("Error while creating kafka producer :" + e);
+			LOGGER.info("Error while creating kafka producer :" + e);
 		}
 	}
 	
@@ -46,7 +46,7 @@ public class KafkaProducer {
 		try{
 			producer.send(data);
 		} catch (Exception e){
-			logger.info("Errror while sending date from kafka producer :"+e);
+			LOGGER.info("Errror while sending date from kafka producer :"+e);
 		}
 	}
 

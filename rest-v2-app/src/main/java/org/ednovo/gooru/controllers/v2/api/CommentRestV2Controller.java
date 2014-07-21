@@ -33,7 +33,6 @@ import org.apache.commons.lang.ArrayUtils;
 import org.ednovo.gooru.controllers.BaseController;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Comment;
-import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.Constants;
@@ -59,6 +58,8 @@ public class CommentRestV2Controller extends BaseController implements Parameter
 
 	@Autowired
 	private CommentService commentService;
+	
+	private static final int ZERO = 0;
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_COMMENT_ADD })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -66,17 +67,12 @@ public class CommentRestV2Controller extends BaseController implements Parameter
 	public ModelAndView createComment(@RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
 		
-		
 		ActionResponseDTO<Comment> comment = getCommentService().createComment(this.buildCommentFromInputParameters(data), user );
-		if (comment.getErrors().getErrorCount() > 0) {
+		if (comment.getErrors().getErrorCount() > ZERO) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		} else {
 			response.setStatus(HttpServletResponse.SC_CREATED);
 		}
-
-		SessionContextSupport.putLogParameter(COMMENT_ID, comment.getModel().getCommentUid() + "-->create");
-		SessionContextSupport.putLogParameter(COMMENT_STATUS, comment.getModel().getStatus());
-		SessionContextSupport.putLogParameter(GOORU_UID, comment.getModel().getGooruOid());
 		String includes[] = (String[]) ArrayUtils.addAll(COMMENT_INCLUDES, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(comment.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
@@ -87,9 +83,6 @@ public class CommentRestV2Controller extends BaseController implements Parameter
 	public ModelAndView updateComment(@PathVariable(value = ID) String commentUid, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
 		Comment comment = this.getCommentService().updateComment(commentUid, this.buildCommentFromInputParameters(data), user);
-		SessionContextSupport.putLogParameter(COMMENT_ID, comment.getCommentUid() + "-->update");
-		SessionContextSupport.putLogParameter(COMMENT_STATUS, comment.getStatus());
-		SessionContextSupport.putLogParameter(GOORU_UID, comment.getGooruOid());
 		String includes[] = (String[]) ArrayUtils.addAll(COMMENT_INCLUDES, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(comment, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 
@@ -117,7 +110,6 @@ public class CommentRestV2Controller extends BaseController implements Parameter
 	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
 	public void deleteComment(@PathVariable(value = ID) String commentUid,@RequestParam(value=SOFT_DELETE,required=false,defaultValue=TRUE)Boolean softdelete, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
-		SessionContextSupport.putLogParameter(COMMENT_ID, getCommentService().getComment(commentUid) + "-->delete");
 		this.getCommentService().deleteComment(commentUid, user,softdelete);
 		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
 	}

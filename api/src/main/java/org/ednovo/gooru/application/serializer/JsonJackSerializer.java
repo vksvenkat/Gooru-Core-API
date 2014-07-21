@@ -49,7 +49,7 @@ import com.fasterxml.jackson.datatype.hibernate4.Hibernate4Module;
  * @author Search Team
  * @see FilterSetting
  */
-public class JsonJackSerializer {
+public final class JsonJackSerializer {
 
 	private static ObjectMapper mapper;
 	/**

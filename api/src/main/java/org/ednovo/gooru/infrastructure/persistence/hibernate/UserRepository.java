@@ -83,8 +83,6 @@ public interface UserRepository extends BaseRepository {
 
 	UserRelationship getActiveUserRelationship(String gooruUserId, String gooruFollowOnUserId);
 
-	User findByRemeberMeToken(String remeberMeToken);
-
 	List<UserRoleAssoc> findUserRoleSet(User user);
 
 	UserGroup findUserGroupById(String groupUid);
@@ -182,6 +180,8 @@ public interface UserRepository extends BaseRepository {
 	UserGroupAssociation getUserGroupMemebrByGroupUid(String groupUid, String gooruUid);
 	
 	UserSummary getSummaryByUid(String gooruUid);
+	
+	User findByRemeberMeToken(String remeberMeToken);
 		
 	}
 

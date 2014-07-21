@@ -169,7 +169,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	@Autowired
 	private InviteRepository inviteRepository;
 	
-	private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
 
 	@Override
 	public Identity findUserByGooruId(String gooruId) {
@@ -221,7 +221,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 
 		User user = this.findByGooruId(gooruUid);
 		if (user == null) {
-			throw new RuntimeException(generateErrorMessage(GL0056, USER));
+			throw new BadCredentialsException(generateErrorMessage(GL0056, USER));
 		}
 		Profile profile = this.getUserRepository().getProfile(user, false);
 
@@ -246,7 +246,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			profile.setGrade(this.getUserRepository().getUserGrade(gooruUid, gradeType.getCustomTableValueId(), activeFlag));
 		}
 		try {
-			getEventLogs(false, true, user, null);
+			getEventLogs(false, true, user, null, true, true);
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
@@ -431,7 +431,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			profile.setCourses(this.getUserRepository().getUserClassifications(gooruUid, type.getCustomTableValueId(), null));
 		}
 		try {
-			getEventLogs(true, false, user, itemData);
+			getEventLogs(true, false, user, itemData, false, false);
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
@@ -488,16 +488,14 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		this.validateAddUser(newUser, apiCaller, childDOB, accountType, dateOfBirth, password);
 		Boolean isAdminCreateUser = false;
 		Integer addedBySystem = 0;
-		if (apiCaller != null) {
-			if (isContentAdmin(apiCaller)) {
-				addedBySystem = 1;
-				isAdminCreateUser = true;
-				if (useGeneratedPassword) {
-					password = UUID.randomUUID().toString();
-				}
-
-				confirmStatus = 1;
+		if (apiCaller != null && isContentAdmin(apiCaller)) {
+			addedBySystem = 1;
+			isAdminCreateUser = true;
+			if (useGeneratedPassword) {
+				password = UUID.randomUUID().toString();
 			}
+
+			confirmStatus = 1;
 		}
 		List<InviteUser> inviteuser = this.getInviteRepository().getInviteUserByMail(newUser.getEmailId(), COLLABORATOR);
 		
@@ -527,13 +525,13 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	public String getUserCourse(String userId) {
 		CustomTableValue type = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.USER_CLASSIFICATION_TYPE.getTable(), CustomProperties.UserClassificationType.COURSE.getUserClassificationType());
 		List<UserClassification> userCourses = this.getUserRepository().getUserClassifications(userId, type.getCustomTableValueId(), null);
-		String courses = "";
+		StringBuffer courses = new StringBuffer();
 		if (userCourses != null) {
 			for (UserClassification userCourse : userCourses) {
-				courses += courses.length() == 0 ? userCourse.getCode().getLabel() : "," + userCourse.getCode().getLabel();
+				courses = courses.append(courses.length() == 0 ? userCourse.getCode().getLabel() : "," + userCourse.getCode().getLabel());
 			}
 		}
-		return courses.length() != 0 ? courses : null;
+		return courses.length() != 0 ? courses.toString() : null;
 	}
 
 	@Override
@@ -625,10 +623,8 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		}
 
 		if (!isNotEmptyString(password)) {
-			if (apicaller != null) {
-				if (!isContentAdmin(apicaller)) {
-					throw new BadCredentialsException("Password cannot be null or empty");
-				}
+			if (apicaller != null && !isContentAdmin(apicaller)) {
+				throw new BadCredentialsException("Password cannot be null or empty");
 			} else {
 				throw new BadCredentialsException("Password cannot be null or empty");
 			}
@@ -639,8 +635,8 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 
 		if (!isNotEmptyString(user.getUsername())) {
 			throw new BadCredentialsException("Username cannot be null or empty");
-		} else if (user.getUsername().length() < 5) {
-			throw new BadCredentialsException("Username should be atleast 5 characters");
+		} else if (user.getUsername().length() < 4) {
+			throw new BadCredentialsException("Username should be atleast 4 characters");
 		}
 
 		boolean usernameAvailability = this.getUserRepository().checkUserAvailability(user.getUsername(), CheckUser.BYUSERNAME, false);
@@ -668,7 +664,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		if (superAdminToken == null || !superAdminToken.equals(settingService.getOrganizationSetting(SUPER_ADMIN_TOKEN, TaxonomyUtil.GOORU_ORG_UID))) {
 			Organization organization = organizationService.getOrganizationByCode(organizationCode);
 			if (organization == null) {
-				throw new Exception("Given organization doesn't exists !");
+				throw new BadCredentialsException("Given organization doesn't exists !");
 			}
 
 			Boolean hasPermission = false;
@@ -694,7 +690,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		try {
 			userDateOfBirth = simpleDateFormat.parse(dateOfBirth);
 		} catch (ParseException e) {
-			e.printStackTrace();
+			LOGGER.error("Error" + e.getMessage());
 		}
 		if (userDateOfBirth.getTime() < currentDate.getTime()) {
 			long milliseconds = currentDate.getTime() - userDateOfBirth.getTime();
@@ -735,7 +731,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		try {
 			userTokenRepository.saveUserSession(sessionToken);
 		} catch (Exception e) {
-			logger.error("Error" + e.getMessage());
+			LOGGER.error("Error" + e.getMessage());
 		}
 		Organization organization = null;
 		if (sessionToken.getApiKey() != null) {
@@ -751,10 +747,6 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		List<InviteUser> inviteuser = this.getInviteRepository().getInviteUserByMail(newUser.getEmailId(), COLLABORATOR);
 		if(inviteuser.size() > 0) {
 			confirmStatus = 1;
-		}
-		boolean confirmedUser = false;
-		if (confirmStatus != null && confirmStatus == 1) {
-			confirmedUser = true;
 		}
 		if (confirmStatus == null) {
 			confirmStatus = 0;
@@ -897,11 +889,8 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		Profile profile = new Profile();
 		profile.setUser(user);
 		profile.setSchool(school);
-		if (role != null) {
-			if (role.equalsIgnoreCase(UserRole.UserRoleType.STUDENT.getType()) || role.equalsIgnoreCase(UserRole.UserRoleType.TEACHER.getType()) || role.equalsIgnoreCase(UserRole.UserRoleType.AUTHENTICATED_USER.getType()) || role.equalsIgnoreCase(UserRole.UserRoleType.OTHER.getType())) {
-				profile.setUserType(role);
-			}
-
+		if (role != null && role.equalsIgnoreCase(UserRole.UserRoleType.STUDENT.getType()) || role.equalsIgnoreCase(UserRole.UserRoleType.TEACHER.getType()) || role.equalsIgnoreCase(UserRole.UserRoleType.AUTHENTICATED_USER.getType()) || role.equalsIgnoreCase(UserRole.UserRoleType.OTHER.getType())) {
+			profile.setUserType(role);
 		}
 
 		if (dateOfBirth != null && accountType != null && !dateOfBirth.equalsIgnoreCase("null")) {
@@ -983,7 +972,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			stream.setUser(user);
 			activityStreams.add(stream);
 		}
-		if(inviteuser.size() > 0) {
+		if(inviteuser.size() != 0) {
 			this.getCollaboratorService().updateCollaboratorStatus(newUser.getEmailId());
 		}
 		this.getUserRepository().saveAll(activityStreams);
@@ -1020,7 +1009,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		try {
 			getEventLogs(user, source, identity);
 		} catch (JSONException e) {
-			e.printStackTrace();
+			LOGGER.error("Error" + e.getMessage());
 		}
 		return user;
 
@@ -1063,21 +1052,20 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 
 	@Override
 	public String encryptPassword(String password) {
-		MessageDigest md = null;
+		MessageDigest messageDigest = null;
 		try {
-			md = MessageDigest.getInstance("SHA-1"); // step 2
+			messageDigest = MessageDigest.getInstance("SHA-1"); // step 2
 		} catch (NoSuchAlgorithmException e) {
-			throw new RuntimeException("Error while authenticating user - No algorithm exists. ", e);
+			throw new BadCredentialsException("Error while authenticating user - No algorithm exists. ", e);
 		}
 		try {
-			md.update(password.getBytes("UTF-8")); // step 3
+			messageDigest.update(password.getBytes("UTF-8")); // step 3
 		} catch (UnsupportedEncodingException e) {
-			throw new RuntimeException("Error while authenticating user - ", e);
+			throw new BadCredentialsException("Error while authenticating user - ", e);
 		}
-		byte raw[] = md.digest(); // step 4
-		String hash = (new Base64Encoder()).encode(raw); // step 5
+		byte raw[] = messageDigest.digest(); // step 4
 
-		return hash; // step 6
+		return (new Base64Encoder()).encode(raw); // step 5
 	}
 
 	@Override
@@ -1113,7 +1101,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			}
 		}
 		try {
-			getEventLogs(false, true, user, null);
+			getEventLogs(false, true, user, null, false, false);
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
@@ -1261,7 +1249,6 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 				 * if(hasSubOrgPermission(content.getOrganization().getPartyUid()
 				 * )){ permissions.add(EDIT); }
 				 */
-				return permissions;
 			} else {
 				throw new NotFoundException();
 			}
@@ -1348,8 +1335,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	public void deleteUserContent(String gooruUid, String isDeleted, User apiCaller) {
 		User user = this.getUserRepository().findByGooruId(gooruUid);
 		if (user != null) {
-			if (isContentAdmin(apiCaller)) {
-				if (isDeleted != null && isDeleted.equalsIgnoreCase(TRUE)) {
+			if (isContentAdmin(apiCaller) &&  isDeleted != null && isDeleted.equalsIgnoreCase(TRUE)) {
 					user.setIsDeleted(true);
 					List<Content> contents = this.getContentRepository().getContentByUserUId(gooruUid);
 					List<ContentPermission> removeContentPermission = new ArrayList<ContentPermission>();
@@ -1381,8 +1367,6 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 						indexProcessor.index(gooruOidAsString, IndexProcessor.INDEX, RESOURCE);
 					}
 
-				}
-
 			}
 		}
 
@@ -1409,7 +1393,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			partyCustomField.setPartyUid(user.getPartyUid());
 			partyService.createPartyCustomField(MY, partyCustomField, user);
 		} else {
-			throw new RuntimeException("Given admin organization not found !");
+			throw new BadCredentialsException("Given admin organization not found !");
 		}
 	}
 	
@@ -1440,6 +1424,12 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		this.getUserRepository().save(userSummary);
 		this.getUserRepository().save(followOnUserSummary);
 		this.getUserRepository().flush();
+		try {
+			getEventLogs(false, false, null, null, true, false);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+
 		return this.setUserObj(followOnUser);
 	}
 	
@@ -1459,6 +1449,12 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			this.getUserRepository().save(followOnUserSummary);
 			this.getUserRepository().flush();
 		}
+		try {
+			getEventLogs(false, false, null, null, false, true);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+
 	}
 	
 	private Map<String, Object> setUserObj(User user) {
@@ -1570,7 +1566,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		return inviteRepository;
 	}
 	
-	public void getEventLogs(boolean updateProfile, boolean visitProfile, User profileVisitor, JSONObject itemData) throws JSONException { 
+	public void getEventLogs(boolean updateProfile, boolean visitProfile, User profileVisitor, JSONObject itemData, boolean isFollow, boolean isUnfollow) throws JSONException { 
 		SessionContextSupport.putLogParameter(EVENT_NAME, PROFILE_ACTION);
 		JSONObject session = SessionContextSupport.getLog().get(SESSION) != null ? new JSONObject(SessionContextSupport.getLog().get(SESSION).toString()) :  new JSONObject();
 		SessionContextSupport.putLogParameter(SESSION, session.toString());
@@ -1590,6 +1586,11 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		} else if(visitProfile){
 			payLoadObject.put(ACTION_TYPE, VISIT);
 			payLoadObject.put(VISIT_UID, profileVisitor != null ? profileVisitor.getPartyUid() : null);
+		}else if(isFollow) {
+			payLoadObject.put(ACTION_TYPE, FOLLOW);
+						
+		}else if(isUnfollow) {
+			payLoadObject.put(ACTION_TYPE, UN_FOLLOW);
 		}
 		if(itemData != null){
 			payLoadObject.put("itemData", itemData.toString());

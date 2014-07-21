@@ -53,7 +53,7 @@ import flexjson.JSONDeserializer;
 @Repository
 public class ClassplanFormatUtil implements ParameterProperties{
 
-	protected final static Logger logger = LoggerFactory.getLogger(ClassplanFormatUtil.class);
+	protected final static Logger LOGGER = LoggerFactory.getLogger(ClassplanFormatUtil.class);
 
 	@Autowired
 	private RestTemplate restTemplate;
@@ -71,7 +71,7 @@ public class ClassplanFormatUtil implements ParameterProperties{
 			try {
 				convertXML(xml, classplan.getGooruOid());
 			} catch (Exception e) {
-				logger.info("Error while converting classplan with id : " + classplan.getContentId(), e);
+				LOGGER.info("Error while converting classplan with id : " + classplan.getContentId(), e);
 				System.out.println("Error while converting classplan with id : " + classplan.getContentId());
 				e.printStackTrace(System.out);
 			}

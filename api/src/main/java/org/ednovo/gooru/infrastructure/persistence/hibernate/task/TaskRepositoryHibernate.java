@@ -68,6 +68,7 @@ public class TaskRepositoryHibernate extends BaseRepositoryHibernate implements 
 		return (Task) ((query.list().size() > 0) ? query.list().get(0) : null);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<Task> getTasks(Integer offset, Integer limit, Boolean skipPagination) {
 		Session session = getSession();
@@ -81,6 +82,7 @@ public class TaskRepositoryHibernate extends BaseRepositoryHibernate implements 
 		return query.list();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<CollectionTaskAssoc> getCollectionTaskAssoc(Integer offset, Integer limit, Boolean skipPagination, String taskGooruOid, String classpageId) {
 		Session session = getSession();
@@ -93,10 +95,8 @@ public class TaskRepositoryHibernate extends BaseRepositoryHibernate implements 
 		}
 		Query query = session.createQuery(hql);
 		addOrgAuthParameters(query);
-		if (!skipPagination) {
-			query.setFirstResult(offset);
-			query.setMaxResults(limit);
-		}
+		query.setFirstResult(offset);
+		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
 		return query.list();
 	}
 
@@ -121,6 +121,7 @@ public class TaskRepositoryHibernate extends BaseRepositoryHibernate implements 
 		return (CollectionTaskAssoc) ((query.list().size() > 0) ? query.list().get(0) : null);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<Map<Object, Object>> getCollectionClasspageAssoc(String collectionId, String gooruUid) {
 		Session session = getSession();
@@ -152,6 +153,7 @@ public class TaskRepositoryHibernate extends BaseRepositoryHibernate implements 
 		return listClasspageTitle;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<CollectionTaskAssoc> getCollectionTaskAssocs(String collectionId, String offset, String limit, String skipPagination, String orderBy) {
 		Integer startAt = (offset != null) ? Integer.parseInt(offset) : OFFSET;
@@ -182,6 +184,7 @@ public class TaskRepositoryHibernate extends BaseRepositoryHibernate implements 
 		return (TaskResourceAssoc) ((query.list().size() > 0) ? query.list().get(0) : null);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<String> getTaskResourceAssocs(String taskGooruOid) {
 		Session session = getSession();
@@ -218,6 +221,7 @@ public class TaskRepositoryHibernate extends BaseRepositoryHibernate implements 
 		return (TaskResourceAssoc) ((query.list().size() > 0) ? query.list().get(0) : null);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<TaskResourceAssoc> getTaskResourceId(String gooruOid, String resourceId) {
 		Session session = getSession();
@@ -237,6 +241,7 @@ public class TaskRepositoryHibernate extends BaseRepositoryHibernate implements 
 		return query.list();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<Resource> getTaskResourceAssociatedByTaskId(String gooruOid, Integer offset, Integer limit, String skipPagination, String orderBy, String sharing) {
 		Session session = getSession();
@@ -274,6 +279,7 @@ public class TaskRepositoryHibernate extends BaseRepositoryHibernate implements 
 		return (TaskAssoc) ((query.list().size() > 0) ? query.list().get(0) : null);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<TaskHistoryItem> getTaskHistory(String taskGooruOid) {
 		Session session = getSession();

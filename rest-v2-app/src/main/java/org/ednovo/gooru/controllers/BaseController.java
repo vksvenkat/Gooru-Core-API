@@ -46,6 +46,10 @@ public class BaseController extends SerializerUtil implements ParameterPropertie
 	private OperationAuthorizer operationAuthorizer;
 	
 	protected static final String GOORU_SESSION_TOKEN = "gooru-session-token";
+	
+	protected static final String COOKIE_KEY_ACCESS_TOKEN = "google-access-token";
+	
+	protected static final String COOKIE_KEY_REFRESH_TOKEN = "google-refresh-token";
 
 	public static final String ERROR_INCLUDE[] = { "*.fieldError", "*.errorCount", "*.code", "*.defaultMessage", "*.field", "*.objectName", "*.rejectedValue" };
 
