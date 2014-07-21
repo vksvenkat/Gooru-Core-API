@@ -142,5 +142,7 @@ public interface TaxonomyService {
 	FilterSubjectFo getFilterSubject(Integer codeId, Integer maxLessonLimit);
 	
 	List<Map<String, Object>> getStandards(String code);	
+	
+	String getStandardsWidthCache(String code,boolean clearCache);	
 
 }

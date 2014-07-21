@@ -37,6 +37,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
@@ -51,8 +52,8 @@ public class StandardRestV2Controller extends BaseController implements Constant
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAXONOMY_READ })
 	@RequestMapping(value =  "/curriculum/{code}", method = RequestMethod.GET)
-	public ModelAndView getTaxonomyByCode(@PathVariable(value = CODE) String  code,  HttpServletRequest request, HttpServletResponse response) {
-		return toModelAndView(this.getTaxonomyService().getStandards(code), "json");
+	public ModelAndView getTaxonomyByCode(@PathVariable(value = CODE) String  code, @RequestParam(value = CLEAR_CACHE, required = false, defaultValue = FALSE) boolean clearCache, HttpServletRequest request, HttpServletResponse response) {
+		return toModelAndView(this.getTaxonomyService().getStandardsWidthCache(code, clearCache), "json");
 	}
 	
 	public TaxonomyService getTaxonomyService() {
