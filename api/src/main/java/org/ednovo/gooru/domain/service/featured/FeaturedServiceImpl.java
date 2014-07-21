@@ -203,14 +203,14 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 			List<Map<String, Object>> topicMap = new ArrayList<Map<String, Object>>();
 			List<Map<String, Object>> collectionUnitMap = null;
 			Integer collectionUnitCount = null;
-			List<Object[]> collectionUnitListAll = this.getFeaturedRepository().getLibraryCollection(String.valueOf(unit.getCode().getCodeId()), String.valueOf(ChildCode), null, null, true, null);
+			List<Object[]> collectionUnitListAll = this.getFeaturedRepository().getLibraryCollection(String.valueOf(unit.getCode().getCodeId()), String.valueOf(ChildCode), null, null, null);
 			if (collectionUnitListAll != null && collectionUnitListAll.size() > 0) {
 				collectionUnitCount = collectionUnitListAll.size();
 			}
 			if (unitCount == 0) {
 				List<CodeOrganizationAssoc> topics = this.getTaxonomyRespository().findCodeByParentCodeId(String.valueOf(unit.getCode().getCodeId()), null, null, null, true, LIBRARY, getOrganizationCode(libraryName), rootNodeId, null);
 				List<Object[]> collectionUnitList = null;
-				collectionUnitList = this.getFeaturedRepository().getLibraryCollection(String.valueOf(unit.getCode().getCodeId()), String.valueOf(ChildCode), 10, 0, false, null);
+				collectionUnitList = this.getFeaturedRepository().getLibraryCollection(String.valueOf(unit.getCode().getCodeId()), String.valueOf(ChildCode), 10, 0, null);
 				if (collectionUnitList != null && collectionUnitList.size() > 0) {
 					if (collectionUnitListAll != null && collectionUnitListAll.size() > 0) {
 						collectionUnitCount = collectionUnitListAll.size();
@@ -226,10 +226,10 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 				if (collectionUnitMap == null || collectionUnitMap.size() == 0) {
 					for (CodeOrganizationAssoc topic : topics) {
 						Integer collectionTopicCount = null;
-						List<Object[]> collectionTopicList = this.getFeaturedRepository().getLibraryCollection(String.valueOf(topic.getCode().getCodeId()), String.valueOf(ChildCode), 10, 0, false, null);
+						List<Object[]> collectionTopicList = this.getFeaturedRepository().getLibraryCollection(String.valueOf(topic.getCode().getCodeId()), String.valueOf(ChildCode), 10, 0, null);
 						List<Map<String, Object>> collectionTopicMap = null;
 						if (collectionTopicList != null && collectionTopicList.size() > 0) {
-							List<Object[]> collectionTopicListAll = this.getFeaturedRepository().getLibraryCollection(String.valueOf(topic.getCode().getCodeId()), String.valueOf(ChildCode), null, null, true, null);
+							List<Object[]> collectionTopicListAll = this.getFeaturedRepository().getLibraryCollection(String.valueOf(topic.getCode().getCodeId()), String.valueOf(ChildCode), null, null, null);
 							if (collectionTopicListAll != null && collectionTopicListAll.size() > 0) {
 								collectionTopicCount = collectionTopicListAll.size();
 							}
@@ -250,7 +250,7 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 						List<CodeOrganizationAssoc> allLessons = null;
 						List<CodeOrganizationAssoc> lessons = this.getTaxonomyRespository().findCodeByParentCodeId(String.valueOf(topic.getCode().getCodeId()), null, lessonLimit, 0, false, LIBRARY, getOrganizationCode(libraryName), rootNodeId, null);
 						for (CodeOrganizationAssoc lesson : lessons) {
-							List<Object[]> collectionLessonList = this.getFeaturedRepository().getLibraryCollection(String.valueOf(lesson.getCode().getCodeId()), String.valueOf(ChildCode), null, null, true, null);
+							List<Object[]> collectionLessonList = this.getFeaturedRepository().getLibraryCollection(String.valueOf(lesson.getCode().getCodeId()), String.valueOf(ChildCode), null, null, null);
 							collectionCount = 0;
 							List<Map<String, Object>> collectionLessonMap = new ArrayList<Map<String, Object>>();
 							for (Object[] collectionObject : collectionLessonList) {
@@ -266,7 +266,7 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 							List<Map<String, Object>> conceptMap = new ArrayList<Map<String, Object>>();
 							List<CodeOrganizationAssoc> concepts = this.getTaxonomyRespository().findCodeByParentCodeId(String.valueOf(lesson.getCode().getCodeId()), null, 3, 0, true, LIBRARY, getOrganizationCode(libraryName), rootNodeId, null);
 							for (CodeOrganizationAssoc concept : concepts) {
-								List<Object[]> collectionList = this.getFeaturedRepository().getLibraryCollection(String.valueOf(concept.getCode().getCodeId()), String.valueOf(ChildCode), null, null, true, null);
+								List<Object[]> collectionList = this.getFeaturedRepository().getLibraryCollection(String.valueOf(concept.getCode().getCodeId()), String.valueOf(ChildCode), null, null, null);
 								List<Map<String, Object>> collectionMap = new ArrayList<Map<String, Object>>();
 								for (Object[] collectionObject : collectionList) {
 									Map<String, Object> collection = new HashMap<String, Object>();
@@ -343,7 +343,7 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 			Object[] obj = results.get(0);
 			featuredId = String.valueOf(obj[1]);
 		}
-		List<Object[]> collectionTopicList = this.getFeaturedRepository().getLibraryCollection(topicId, featuredId, limit, offset, false, null);
+		List<Object[]> collectionTopicList = this.getFeaturedRepository().getLibraryCollection(topicId, featuredId, limit, offset, null);
 		List<Map<String, Object>> collectionTopicMap = null;
 		if (collectionTopicList != null && collectionTopicList.size() > 0) {
 			int collectionCount = 0;
@@ -363,7 +363,7 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 			List<Map<String, Object>> lessonMap = new ArrayList<Map<String, Object>>();
 			List<CodeOrganizationAssoc> lessons = this.getTaxonomyRespository().findCodeByParentCodeId(topicId, null, limit, offset, false, libraryName, getOrganizationCode(libraryName), rootNodeId, null);
 			for (CodeOrganizationAssoc lesson : lessons) {
-				List<Object[]> collectionList = this.getFeaturedRepository().getLibraryCollection(String.valueOf(lesson.getCode().getCodeId()), featuredId, null, null, true, null);
+				List<Object[]> collectionList = this.getFeaturedRepository().getLibraryCollection(String.valueOf(lesson.getCode().getCodeId()), featuredId, null, null, null);
 				List<Map<String, Object>> collectionMap = new ArrayList<Map<String, Object>>();
 				for (Object[] collectionObject : collectionList) {
 					Map<String, Object> collection = new HashMap<String, Object>();
@@ -374,7 +374,7 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 				List<CodeOrganizationAssoc> concepts = this.getTaxonomyRespository().findCodeByParentCodeId(String.valueOf(lesson.getCode().getCodeId()), null, 3, 0, true, LIBRARY, getOrganizationCode(libraryName), rootNodeId, null);
 				List<Map<String, Object>> conceptMap = new ArrayList<Map<String, Object>>();
 				for (CodeOrganizationAssoc concept : concepts) {
-					List<Object[]> collectionConceptList = this.getFeaturedRepository().getLibraryCollection(String.valueOf(concept.getCode().getCodeId()), featuredId, null, null, true, null);
+					List<Object[]> collectionConceptList = this.getFeaturedRepository().getLibraryCollection(String.valueOf(concept.getCode().getCodeId()), featuredId, null, null, null);
 					List<Map<String, Object>> collectionConceptMap = new ArrayList<Map<String, Object>>();
 					for (Object[] collectionObject : collectionConceptList) {
 						Map<String, Object> collection = new HashMap<String, Object>();
@@ -572,7 +572,7 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 		}
 		List<Map<String, Object>> topicMap = new ArrayList<Map<String, Object>>();
 		List<Map<String, Object>> collectionUnitMap = null;
-		List<Object[]> collectionUnitList = this.getFeaturedRepository().getLibraryCollection(unitId, featuredId, limit, offset, false, null);
+		List<Object[]> collectionUnitList = this.getFeaturedRepository().getLibraryCollection(unitId, featuredId, limit, offset,  null);
 		if (collectionUnitList != null && collectionUnitList.size() > 0) {
 			collectionUnitMap = new ArrayList<Map<String, Object>>();
 			for (Object[] collectionObject : collectionUnitList) {
@@ -588,10 +588,10 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 			List<CodeOrganizationAssoc> topics = this.getTaxonomyRespository().findCodeByParentCodeId(unitId, null, null, null, true, LIBRARY, getOrganizationCode(libraryName), rootNodeId, null);
 			for (CodeOrganizationAssoc topic : topics) {
 				Integer collectionTopicCount = null;
-				List<Object[]> collectionTopicList = this.getFeaturedRepository().getLibraryCollection(String.valueOf(topic.getCode().getCodeId()), featuredId, 10, 0, false, null);
+				List<Object[]> collectionTopicList = this.getFeaturedRepository().getLibraryCollection(String.valueOf(topic.getCode().getCodeId()), featuredId, 10, 0, null);
 				List<Map<String, Object>> collectionTopicMap = null;
 				if (collectionTopicList != null && collectionTopicList.size() > 0) {
-					List<Object[]> collectionTopicListAll = this.getFeaturedRepository().getLibraryCollection(String.valueOf(topic.getCode().getCodeId()), featuredId, null, null, true, null);
+					List<Object[]> collectionTopicListAll = this.getFeaturedRepository().getLibraryCollection(String.valueOf(topic.getCode().getCodeId()), featuredId, null, null, null);
 					if (collectionTopicListAll != null && collectionTopicListAll.size() > 0) {
 						collectionTopicCount = collectionTopicListAll.size();
 					}
@@ -612,7 +612,7 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 				List<CodeOrganizationAssoc> allLessons = null;
 				List<CodeOrganizationAssoc> lessons = this.getTaxonomyRespository().findCodeByParentCodeId(String.valueOf(topic.getCode().getCodeId()), null, lessonLimit, 0, false, LIBRARY, getOrganizationCode(libraryName), rootNodeId, null);
 				for (CodeOrganizationAssoc lesson : lessons) {
-					List<Object[]> collectionLessonList = this.getFeaturedRepository().getLibraryCollection(String.valueOf(lesson.getCode().getCodeId()), featuredId, null, null, true, null);
+					List<Object[]> collectionLessonList = this.getFeaturedRepository().getLibraryCollection(String.valueOf(lesson.getCode().getCodeId()), featuredId, null, null, null);
 					collectionCount = 0;
 					List<Map<String, Object>> collectionLessonMap = new ArrayList<Map<String, Object>>();
 					for (Object[] collectionObject : collectionLessonList) {
@@ -630,7 +630,7 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 					List<CodeOrganizationAssoc> concepts = this.getTaxonomyRespository().findCodeByParentCodeId(String.valueOf(lesson.getCode().getCodeId()), null, 3, 0, true, LIBRARY, getOrganizationCode(libraryName), rootNodeId, null);
 					
 					for (CodeOrganizationAssoc concept : concepts) {
-						List<Object[]> collectionList = this.getFeaturedRepository().getLibraryCollection(String.valueOf(concept.getCode().getCodeId()), featuredId, null, null, true, null);
+						List<Object[]> collectionList = this.getFeaturedRepository().getLibraryCollection(String.valueOf(concept.getCode().getCodeId()), featuredId, null, null, null);
 						List<Map<String, Object>> collectionMap = new ArrayList<Map<String, Object>>();
 						for (Object[] collectionObject : collectionList) {
 							Map<String, Object> collection = new HashMap<String, Object>();
@@ -668,7 +668,7 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 	}
 
 	@Override
-	public List<Map<String, Object>> getLibraryCollection(Integer id, String type, Integer offset, Integer limit, boolean skipPagination, String libraryName) {
+	public List<Map<String, Object>> getLibraryCollection(Integer id, String type, Integer offset, Integer limit, String libraryName) {
 		List<Object[]> results = this.getFeaturedRepository().getLibrary(type, false, libraryName);
 		String featuredId = null;
 		if (results != null && results.size() > 0) {
@@ -679,11 +679,11 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 		if (type != null && type.equalsIgnoreCase(STANDARD)) {
 			List<CodeOrganizationAssoc> concepts = this.getTaxonomyRespository().findCodeByParentCodeId(String.valueOf(id), null, 3, 0, true, LIBRARY, getOrganizationCode(libraryName), null, null);
 			Code code = this.getTaxonomyRespository().findCodeByCodeId(id);
-			List<Map<String, Object>> collectionResultList = this.getCollection(id, featuredId, offset, limit, skipPagination);
+			List<Map<String, Object>> collectionResultList = this.getCollection(id, featuredId, offset, limit);
 			boolean hasConcept = false;
 			concepts = this.getTaxonomyRespository().findCodeByParentCodeId(String.valueOf(id), null, 3, 0, true, LIBRARY, getOrganizationCode(libraryName), null, null);
 			for (CodeOrganizationAssoc concept : concepts) {
-				List<Map<String, Object>> collectionConceptResultList = this.getCollection(concept.getCode().getCodeId(), featuredId, offset, limit, skipPagination);
+				List<Map<String, Object>> collectionConceptResultList = this.getCollection(concept.getCode().getCodeId(), featuredId, offset, limit);
 				if (collectionConceptResultList != null && collectionConceptResultList.size() > 0) {
 					hasConcept = true;
 				}
@@ -693,12 +693,12 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 				concepts = this.getTaxonomyRespository().findCodeByParentCodeId(String.valueOf(id), null, 3, 0, true, LIBRARY, getOrganizationCode(libraryName), null, null);
 			}
 
-			List<Map<String, Object>> collectionLessonResultList = this.getCollection(id, featuredId, offset, limit, skipPagination);
+			List<Map<String, Object>> collectionLessonResultList = this.getCollection(id, featuredId, offset, limit);
 			if (collectionLessonResultList != null && collectionLessonResultList.size() > 0) {
 				collectionList.addAll(collectionLessonResultList);
 			}
 			for (CodeOrganizationAssoc concept : concepts) {
-				List<Map<String, Object>> collectionConceptResultList = this.getCollection(concept.getCode().getCodeId(), featuredId, offset, limit, skipPagination);
+				List<Map<String, Object>> collectionConceptResultList = this.getCollection(concept.getCode().getCodeId(), featuredId, offset, limit);
 				if (collectionConceptResultList != null && collectionConceptResultList.size() > 0) {
 					collectionList.addAll(collectionConceptResultList);
 				}
@@ -706,7 +706,7 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 					List<CodeOrganizationAssoc> codes = this.getTaxonomyRespository().findCodeByParentCodeId(String.valueOf(concept.getCode().getCodeId()), null, 3, 0, true, LIBRARY, getOrganizationCode(libraryName), null, null);
 					if (codes != null) {
 						for (CodeOrganizationAssoc codeIndex : codes) {
-							List<Map<String, Object>> collectionCodeResultList = this.getCollection(codeIndex.getCode().getCodeId(), featuredId, offset, limit, skipPagination);
+							List<Map<String, Object>> collectionCodeResultList = this.getCollection(codeIndex.getCode().getCodeId(), featuredId, offset, limit);
 							if (collectionCodeResultList != null && collectionCodeResultList.size() > 0) {
 								collectionList.addAll(collectionCodeResultList);
 							}
@@ -716,7 +716,7 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 			}
 
 		} else {
-			List<Map<String, Object>> collectionResultList = this.getCollection(id, featuredId, offset, limit, skipPagination);
+			List<Map<String, Object>> collectionResultList = this.getCollection(id, featuredId, offset, limit);
 			if (collectionResultList != null && collectionResultList.size() > 0) {
 				collectionList.addAll(collectionResultList);
 			}
@@ -724,9 +724,9 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 		return collectionList;
 	}
 
-	private List<Map<String, Object>> getCollection(Integer id, String featuredId, Integer offset, Integer limit, boolean skipPagination) {
+	private List<Map<String, Object>> getCollection(Integer id, String featuredId, Integer offset, Integer limit) {
 		List<Map<String, Object>> collectionList = new ArrayList<Map<String, Object>>();
-		List<Object[]> result = this.getFeaturedRepository().getLibraryCollection(String.valueOf(id), featuredId, limit, offset, skipPagination, null);
+		List<Object[]> result = this.getFeaturedRepository().getLibraryCollection(String.valueOf(id), featuredId, limit, offset, null);
 		if (result != null && result.size() > 0) {
 			for (Object[] object : result) {
 				Map<String, Object> collection = new HashMap<String, Object>();
@@ -741,8 +741,8 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 	}
 
 	@Override
-	public SearchResults<Map<String, Object>> getLibraryCollections(Integer limit, Integer offset, boolean skipPagination, String themeCode, String themeType, String subjectId, String courseId, String unitId, String lessonId, String topicId, String gooruOid, String codeId) {
-		List<Map<String, Object>> libraryCollection = getAllLibraryCollections(limit, offset, skipPagination, themeCode, themeType, subjectId, courseId, unitId, lessonId, topicId, gooruOid, codeId);
+	public SearchResults<Map<String, Object>> getLibraryCollections(Integer limit, Integer offset, String themeCode, String themeType, String subjectId, String courseId, String unitId, String lessonId, String topicId, String gooruOid, String codeId) {
+		List<Map<String, Object>> libraryCollection = getAllLibraryCollections(limit, offset, themeCode, themeType, subjectId, courseId, unitId, lessonId, topicId, gooruOid, codeId);
 		SearchResults<Map<String, Object>> result = new SearchResults<Map<String, Object>>();
 		result.setSearchResults(libraryCollection);
 		result.setTotalHitCount(this.getFeaturedRepository().getLibraryCollectionCount(themeCode, themeType, gooruOid, codeId));
@@ -770,9 +770,9 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 	}
 
 	@Override
-	public List<Map<String, Object>> getAllLibraryCollections(Integer limit, Integer offset, boolean skipPagination, String themeCode, String themeType, String subjectId, String courseId, String unitId, String lessonId, String topicId, String gooruOid, String codeId) {
+	public List<Map<String, Object>> getAllLibraryCollections(Integer limit, Integer offset, String themeCode, String themeType, String subjectId, String courseId, String unitId, String lessonId, String topicId, String gooruOid, String codeId) {
 		List<Map<String, Object>> collectionList = new ArrayList<Map<String, Object>>();
-		List<Object[]> result = this.getFeaturedRepository().getLibraryCollectionsListByFilter(limit, offset, skipPagination, themeCode, themeType, subjectId, courseId, unitId, lessonId, topicId, gooruOid, codeId);
+		List<Object[]> result = this.getFeaturedRepository().getLibraryCollectionsListByFilter(limit, offset, themeCode, themeType, subjectId, courseId, unitId, lessonId, topicId, gooruOid, codeId);
 		if (result != null && result.size() > 0) {
 			for (Object[] object : result) {
 				Map<String, Object> collection = new HashMap<String, Object>();
@@ -820,7 +820,7 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 			throw new NotFoundException("popular collection not fund");
 		}
 		List<Map<String, Object>> collectionUnitMap = null;
-		List<Object[]> collectionUnitList = this.getFeaturedRepository().getLibraryCollection(null, featuredId, limit, offset, false, null);
+		List<Object[]> collectionUnitList = this.getFeaturedRepository().getLibraryCollection(null, featuredId, limit, offset, null);
 		collectionUnitMap = new ArrayList<Map<String, Object>>();
 		for (Object[] collectionObject : collectionUnitList) {
 			Map<String, Object> collectionUnit = this.getCollectionService().getCollection(String.valueOf(collectionObject[0]), new HashMap<String, Object>(), null);
@@ -832,8 +832,8 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 	}
 
 	@Override
-	public SearchResults<Map<String, Object>> getLibraryResource(String type, Integer offset, Integer limit, boolean skipPagination, String libraryName) {
-		List<Map<String, Object>> libraryResource = getCommunityLibraryResource(type, offset, limit, skipPagination, libraryName);
+	public SearchResults<Map<String, Object>> getLibraryResource(String type, Integer offset, Integer limit, String libraryName) {
+		List<Map<String, Object>> libraryResource = getCommunityLibraryResource(type, offset, limit, libraryName);
 		SearchResults<Map<String, Object>> result = new SearchResults<Map<String, Object>>();
 		result.setSearchResults(libraryResource);
 		result.setTotalHitCount(this.getFeaturedRepository().getLibraryResourceCount(type, libraryName));
@@ -841,10 +841,10 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 	}
 
 	@Override
-	public List<Map<String, Object>> getCommunityLibraryResource(String type, Integer offset, Integer limit, boolean skipPagination, String libraryName) {
+	public List<Map<String, Object>> getCommunityLibraryResource(String type, Integer offset, Integer limit, String libraryName) {
 		List<Map<String, Object>> collectionList = new ArrayList<Map<String, Object>>();
 		StorageArea storageArea = this.getStorageRepository().getStorageAreaByTypeName(StorageAccount.Type.NFS.getType());
-		List<Object[]> result = this.getFeaturedRepository().getCommunityLibraryResource(type, offset, limit, skipPagination, libraryName);
+		List<Object[]> result = this.getFeaturedRepository().getCommunityLibraryResource(type, offset, limit, libraryName);
 		if (result != null && result.size() > 0) {
 			for (Object[] object : result) {
 				Map<String, Object> collection = new HashMap<String, Object>();
@@ -886,7 +886,7 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 		Collection collection = this.getCollectionRepository().getCollectionByGooruOid(gooruOid, null);
 		rejectIfNull(collection, GL0056, _COLLECTION);
 		Map<String, Object> content = null;
-		List<Object[]> result = this.getFeaturedRepository().getLibraryCollection(codeId, featuredId, 1, 0, false, String.valueOf(collection.getContentId()));
+		List<Object[]> result = this.getFeaturedRepository().getLibraryCollection(codeId, featuredId, 1, 0, String.valueOf(collection.getContentId()));
 		if (result != null && result.size() > 0) {
 			throw new BadRequestException(collection.getGooruOid() + " already associated");
 		} else {
