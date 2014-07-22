@@ -122,14 +122,14 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 	@Autowired
 	private SettingService settingService;
 
-	private static final Logger logger = LoggerFactory.getLogger(AccountServiceImpl.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(AccountServiceImpl.class);
 
 	@Override
 	public UserToken createSessionToken(User user, String apiKey, HttpServletRequest request) throws Exception {
 
-		ApiKey apiKeyObj = apiTrackerService.getApiKey(apiKey);
-		UserToken sessionToken = new UserToken();
-		String apiEndPoint = getConfigSetting(ConfigConstants.GOORU_API_ENDPOINT, 0, TaxonomyUtil.GOORU_ORG_UID);
+		final ApiKey apiKeyObj = apiTrackerService.getApiKey(apiKey);
+		final UserToken sessionToken = new UserToken();
+		final String apiEndPoint = getConfigSetting(ConfigConstants.GOORU_API_ENDPOINT, 0, TaxonomyUtil.GOORU_ORG_UID);
 		sessionToken.setToken(UUID.randomUUID().toString());
 		sessionToken.setScope(SESSION);
 		sessionToken.setUser(user);
@@ -140,7 +140,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 		try {
 			userTokenRepository.saveUserSession(sessionToken);
 		} catch (Exception e) {
-			logger.error("Error" + e.getMessage());
+			LOGGER.error("Error" + e.getMessage());
 		}
 		Organization organization = null;
 		if (sessionToken.getApiKey() != null) {
@@ -155,11 +155,11 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 	@Override
 	public ActionResponseDTO<UserToken> logIn(String username, String password, String apiKeyId, boolean isSsoLogin, HttpServletRequest request) throws Exception {
 
-		ApiKey apiKey = apiTrackerService.getApiKey(apiKeyId);
+		final ApiKey apiKey = apiTrackerService.getApiKey(apiKeyId);
 
-		UserToken userToken = new UserToken();
-		Errors errors = validateApiKey(apiKey, userToken);
-		String apiEndPoint = getConfigSetting(ConfigConstants.GOORU_API_ENDPOINT, 0, TaxonomyUtil.GOORU_ORG_UID);
+		final UserToken userToken = new UserToken();
+		final Errors errors = validateApiKey(apiKey, userToken);
+		final String apiEndPoint = getConfigSetting(ConfigConstants.GOORU_API_ENDPOINT, 0, TaxonomyUtil.GOORU_ORG_UID);
 		if (!errors.hasErrors()) {
 			if (username == null) {
 				throw new BadCredentialsException("Username cannot be null or empty.");
@@ -183,19 +183,16 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			}
 			identity.setLoginType(CREDENTIAL);
 
-		//	Date deactivateOn = identity.getDeactivatedOn();
-
-		//	if (deactivateOn != null && deactivateOn.before(new Date(System.currentTimeMillis()))) {
-			if (identity.getActive() == 0) {
+			if (identity.getActive() == 0)   {
 				throw new UnauthorizedException("The user has been deactivated from the system.\nPlease contact Gooru Administrator.");
 			}
 
-			User user = this.getUserRepository().findByIdentity(identity);
+			final User user = this.getUserRepository().findByIdentity(identity);
 			if (!isSsoLogin) {
 				if (identity.getCredential() == null) {
 					throw new BadCredentialsException("Please double check your email ID and password and try again.");
 				}
-				String encryptedPassword = userService.encryptPassword(password);
+				final String encryptedPassword = userService.encryptPassword(password);
 				if (user == null || !(encryptedPassword.equals(identity.getCredential().getPassword()) || password.equals(identity.getCredential().getPassword()))) {
 
 					throw new BadCredentialsException("Please double-check your password and try signing in again.");
@@ -205,7 +202,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 
 			if (user.getConfirmStatus() == 0) {
 				final PartyCustomField userDevice = getPartyService().getPartyCustomeField(user.getPartyUid(), GOORU_USER_CREATED_DEVICE, null);
-				Integer tokenCount = this.getUserRepository().getUserTokenCount(user.getGooruUId());
+				final Integer tokenCount = this.getUserRepository().getUserTokenCount(user.getGooruUId());
 				if (userDevice == null || userDevice.getOptionalValue().indexOf(MOBILE) == -1) {
 					if (-1 != Integer.parseInt(getConfigSetting(ConfigConstants.GOORU_WEB_LOGIN_WITHOUT_CONFIRMATION_LIMIT, 0, TaxonomyUtil.GOORU_ORG_UID))) {
 						throw new BadCredentialsException("We sent you a confirmation email with instructions on how to complete your Gooru registration. Please check your email, and then try again. Didn’t receive a confirmation email? Please contact us at support@goorulearning.org");
@@ -226,7 +223,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			userToken.setFirstLogin(userRepository.checkUserFirstLogin(user.getPartyUid()));
 			userToken.getUser().setMeta(userManagementService.userMeta(user));
 			
-			Profile profile = getPartyService().getUserDateOfBirth(user.getPartyUid(), user);
+			final Profile profile = getPartyService().getUserDateOfBirth(user.getPartyUid(), user);
 			if(profile.getUserType() != null){
 				userToken.setUserRole(profile.getUserType());
 			}
@@ -248,11 +245,11 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			}
 			
 			redisService.addSessionEntry(userToken.getToken(), organization);
-			List<ActivityStream> activityStreams = new ArrayList<ActivityStream>();
+			final List<ActivityStream> activityStreams = new ArrayList<ActivityStream>();
 
-			List<ActivityType> types = this.getUserRepository().getAll(ActivityType.class);
+			final List<ActivityType> types = this.getUserRepository().getAll(ActivityType.class);
 
-			for (ActivityType type : types) {
+			for (final ActivityType type : types) {
 				ActivityStream stream = new ActivityStream();
 				stream.setActivityType(type);
 				stream.setUser(user);
@@ -269,7 +266,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			}
 			
 			this.getUserRepository().saveAll(activityStreams);
-			User newUser = (User) BeanUtils.cloneBean(userToken.getUser());
+			final User newUser = (User) BeanUtils.cloneBean(userToken.getUser());
 			if (newUser.getAccountTypeId() != null && newUser.getAccountTypeId().equals(UserAccountType.ACCOUNT_CHILD)) {
 				newUser.setEmailId(newUser.getParentUser().getIdentities() != null ? newUser.getParentUser().getIdentities().iterator().next().getExternalId() : null);
 			} else {
@@ -283,7 +280,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			try{
 				getEventLogs(identity,userToken);
 			} catch(Exception e){
-				e.printStackTrace();
+				LOGGER.debug("error"+e.getMessage());
 			}
 			indexProcessor.index(user.getPartyUid(), IndexProcessor.INDEX, USER, false);
 			
@@ -293,7 +290,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 
 	@Override
 	public void logOut(String sessionToken) {
-		UserToken userToken = this.getUserTokenRepository().findByToken(sessionToken);
+		final UserToken userToken = this.getUserTokenRepository().findByToken(sessionToken);
 
 		if (userToken != null) {
 			userToken.setScope(EXPIRED);
@@ -313,21 +310,21 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 		Errors errors = null;
 		if (gooruUid != null) {
 			if (gooruUid.equalsIgnoreCase(ANONYMOUS)) {
-				ApiKey apiKeyObj = apiTrackerService.getApiKey(apiKey);
+				final ApiKey apiKeyObj = apiTrackerService.getApiKey(apiKey);
 				errors = this.validateApiKey(apiKeyObj, userToken);
 				if (!errors.hasErrors()) {
-					Organization org = apiKeyObj.getOrganization();
-					String partyUid = org.getPartyUid();
-					String anonymousUid = organizationSettingRepository.getOrganizationSetting(Constants.ANONYMOUS, partyUid);
+					final Organization org = apiKeyObj.getOrganization();
+					final String partyUid = org.getPartyUid();
+					final String anonymousUid = organizationSettingRepository.getOrganizationSetting(Constants.ANONYMOUS, partyUid);
 					final User user = userService.findByGooruId(anonymousUid);
 					userToken = this.createSessionToken(user, apiKey, request);
 				}
 			} else {
-				User loggedInUser = this.getUserRepository().findByToken(sessionToken);
+				final User loggedInUser = this.getUserRepository().findByToken(sessionToken);
 				errors = this.validateLoginAsUser(userToken, loggedInUser);
 				if (!errors.hasErrors()) {
 					if (userService.isContentAdmin(loggedInUser)) {
-						User user = this.getUserRepository().findByGooruId(gooruUid);
+						final User user = this.getUserRepository().findByGooruId(gooruUid);
 						errors = this.validateLoginAsUser(userToken, user);
 						if (!errors.hasErrors()) {
 							if (!userService.isContentAdmin(user)) {
@@ -351,7 +348,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 		if (secretKey == null || !secretKey.equalsIgnoreCase(settingService.getConfigSetting(ConfigConstants.GOORU_AUTHENTICATION_SECERT_KEY, 0, TaxonomyUtil.GOORU_ORG_UID))) {
 			throw new UnauthorizedException("Invalid authentication request with secret key: " + secretKey);
 		}
-		Identity identity = new Identity();
+		final Identity identity = new Identity();
 		identity.setExternalId(newUser.getEmailId());
 		User userIdentity = this.getUserService().findByIdentity(identity);
 		UserToken sessionToken = null;
@@ -361,9 +358,9 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			if (newUser.getLastName() != null && newUser.getLastName().length() > 0) {
 				newUser.setUsername(newUser.getUsername() + newUser.getLastName().substring(0, 1));
 			}
-			User user = this.getUserRepository().findUserWithoutOrganization(newUser.getUsername());
+			final User user = this.getUserRepository().findUserWithoutOrganization(newUser.getUsername());
 			if (user != null && user.getUsername().equals(newUser.getUsername())) {
-				Random randomNumber = new Random();
+				final Random randomNumber = new Random();
 				newUser.setUsername(newUser.getUsername() + randomNumber.nextInt(1000));
 			}
 		}
@@ -377,7 +374,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 				}
 				userIdentity = this.getUserManagementService().createUser(newUser, null, null, 1, 0, null, null, null, null, null, null, null, source, null, request, null,null);
 			} catch (Exception e) {
-				e.printStackTrace();
+				LOGGER.debug("error"+e.getMessage());
 			}
 		}
 		sessionToken = this.getUserTokenService().findBySession(request.getSession().getId());
@@ -389,7 +386,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 		try {
 			newUser = (User) BeanUtils.cloneBean(userIdentity);
 		} catch (Exception e) {
-			e.printStackTrace();
+			LOGGER.debug("error"+e.getMessage());
 		}
 		request.getSession().setAttribute(Constants.USER, newUser);
 		return newUser;
@@ -397,13 +394,13 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 
 	@Override
 	public ActionResponseDTO<UserToken> switchSession(String sessionToken) throws Exception {
-		UserToken userToken = userTokenRepository.findByToken(sessionToken);
+		final UserToken userToken = userTokenRepository.findByToken(sessionToken);
 		return new ActionResponseDTO<UserToken>(userToken, new BindException(userToken, SESSIONTOKEN));
 	}
 	
 	public void getEventLogs(Identity identity, UserToken userToken) throws JSONException {
 		SessionContextSupport.putLogParameter(EVENT_NAME, USER_LOGIN);
-		JSONObject context = SessionContextSupport.getLog().get(CONTEXT) != null ? new JSONObject(SessionContextSupport.getLog().get(CONTEXT).toString()) : new JSONObject();
+		final JSONObject context = SessionContextSupport.getLog().get(CONTEXT) != null ? new JSONObject(SessionContextSupport.getLog().get(CONTEXT).toString()) : new JSONObject();
 		if(identity != null && identity.getLoginType().equalsIgnoreCase(CREDENTIAL)) {
 			context.put( LOGIN_TYPE, GOORU);
 		}else if (identity != null && identity.getLoginType().equalsIgnoreCase(APPS)) {
@@ -412,12 +409,12 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			context.put( LOGIN_TYPE, accountCreatedType.SSO.getType());
 		}
 		SessionContextSupport.putLogParameter(CONTEXT, context.toString());
-		JSONObject payLoadObject = SessionContextSupport.getLog().get(PAY_LOAD_OBJECT) != null ? new JSONObject(SessionContextSupport.getLog().get(PAY_LOAD_OBJECT).toString()) : new JSONObject();
+		final JSONObject payLoadObject = SessionContextSupport.getLog().get(PAY_LOAD_OBJECT) != null ? new JSONObject(SessionContextSupport.getLog().get(PAY_LOAD_OBJECT).toString()) : new JSONObject();
 		SessionContextSupport.putLogParameter(PAY_LOAD_OBJECT, payLoadObject.toString());
-		JSONObject session = SessionContextSupport.getLog().get(SESSION) != null ? new JSONObject(SessionContextSupport.getLog().get(SESSION).toString()) : new JSONObject();
+		final JSONObject session = SessionContextSupport.getLog().get(SESSION) != null ? new JSONObject(SessionContextSupport.getLog().get(SESSION).toString()) : new JSONObject();
 		session.put(SESSIONTOKEN, userToken.getToken());
 		SessionContextSupport.putLogParameter(SESSION, session.toString());
-		JSONObject user = SessionContextSupport.getLog().get(USER) != null ? new JSONObject(SessionContextSupport.getLog().get(USER).toString()) : new JSONObject();
+		final JSONObject user = SessionContextSupport.getLog().get(USER) != null ? new JSONObject(SessionContextSupport.getLog().get(USER).toString()) : new JSONObject();
 		user.put(GOORU_UID, identity != null && identity.getUser() != null ? identity.getUser().getPartyUid() : null );
 		SessionContextSupport.putLogParameter(USER, user.toString());
 	}
