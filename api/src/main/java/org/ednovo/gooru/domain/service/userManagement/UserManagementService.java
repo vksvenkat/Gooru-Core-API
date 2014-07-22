@@ -53,11 +53,11 @@ public interface UserManagementService extends BaseService {
 
 	User getUserByToken(String userToken);
 
-	SearchResults<Map<String, Object>> getFollowedOnUsers(String gooruUId, Integer offset, Integer limit, boolean skipPagination);
+	SearchResults<Map<String, Object>> getFollowedOnUsers(String gooruUId, Integer offset, Integer limit);
 	
 	Boolean isFollowedUser(String gooruUserId, User apiCaller);
 	
-	SearchResults<Map<String, Object>> getFollowedByUsers(String gooruUserId, Integer offset, Integer limit, boolean skipPagination);
+	SearchResults<Map<String, Object>> getFollowedByUsers(String gooruUserId, Integer offset, Integer limit);
 
 	Profile updateProfileInfo(Profile profile, String gooruUid, User apiCaller, String activeFlag, Boolean emailConfirmStatus, String showProfilePage,String accountType,String password);
 

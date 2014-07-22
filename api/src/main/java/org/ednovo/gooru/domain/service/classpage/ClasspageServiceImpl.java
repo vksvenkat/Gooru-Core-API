@@ -426,8 +426,8 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 
 	@Override
-	public List<Classpage> getMyClasspage(Integer offset, Integer limit, User user, String orderBy) {
-		return this.getCollectionRepository().getMyClasspage(offset, limit, user, orderBy);
+	public List<Classpage> getMyClasspage(Integer offset, Integer limit, User user,boolean skipPagination, String orderBy) {
+		return this.getCollectionRepository().getMyClasspage(offset, limit, user, skipPagination, orderBy);
 	}
 
 	@Override

@@ -56,7 +56,7 @@ public interface ClasspageService {
 
 	ActionResponseDTO<Classpage> createClasspage(Classpage newclasspage, User user, boolean addToUserClasspage, String assignmentId) throws Exception;
 
-	List<Classpage> getMyClasspage(Integer offset, Integer limit, User user, String orderBy);
+	List<Classpage> getMyClasspage(Integer offset, Integer limit, User user, boolean skipPagination, String orderBy);
 
 	Long getMyClasspageCount(String gooruUid);
 	
