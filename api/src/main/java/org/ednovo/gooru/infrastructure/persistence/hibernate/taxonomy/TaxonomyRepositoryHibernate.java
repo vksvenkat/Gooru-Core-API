@@ -320,7 +320,15 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Code> findChildTaxonomyCodeByDepth(Integer codeId, Integer depth) {
-		return getSession().createQuery("from Code c where c.parentId =" + codeId + " and c.depth =" + depth + "and c.activeFlag =1 and " + generateOrgAuthQueryWithData("c.")).list();
+		return getSession().createQuery("from Code c where c.parentId =" + codeId + " and c.depth =" + depth + " and c.activeFlag =1 and " +  generateOrgAuthQueryWithData("c.")).list();
+	}
+	
+	@Override
+	public List<Code> findChildTaxonomy(String parentIds, Integer depth) {
+		if (parentIds.contains(","))  {
+			parentIds = parentIds.replace(",", "','");
+		}
+		return getSession().createQuery("from Code c where c.parentId in ('" + parentIds + "') and c.depth =" + depth + " and c.activeFlag =1 and " +  generateOrgAuthQueryWithData("c.")).list();
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -1059,5 +1067,4 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 		query.setParameter("depth", depth);
 		return query.list();
 	}
-
 }

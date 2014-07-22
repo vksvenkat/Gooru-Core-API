@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
-import org.ednovo.gooru.application.util.SerializerUtil;
 import org.ednovo.gooru.application.util.TaxonomyUtil;
 import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.api.model.CodeOrganizationAssoc;
@@ -628,57 +627,84 @@ public class TaxonomyServiceImpl implements TaxonomyService, ParameterProperties
 	}
 
 	@Override
-	public List<Map<String, Object>> getStandards(String code) {
-		List<Code> curriculums = this.getTaxonomyRepository().findCodeStartWith(code, Short.valueOf("0"));
-		for (Code curriculum : curriculums) {
-			List<Code> levelOneCodes = this.getTaxonomyRepository().findChildTaxonomyCodeByDepth(curriculum.getCodeId(), 1);
-			final List<Map<String, Object>> levelOneMapCodes = new ArrayList<Map<String, Object>>();
-			for (Code levelOneCode : levelOneCodes) {
-				List<Code> levelTwoCodes = this.getTaxonomyRepository().findChildTaxonomyCodeByDepth(levelOneCode.getCodeId(), 2);
-				final List<Map<String, Object>> levelTwoMapCodes = new ArrayList<Map<String, Object>>();
-				for (Code levelTwoCode : levelTwoCodes) {
-					List<Code> levelThreeCodes = this.getTaxonomyRepository().findChildTaxonomyCodeByDepth(levelTwoCode.getCodeId(), 3);
-					final List<Map<String, Object>> levelThreeMapCodes = new ArrayList<Map<String, Object>>();
-					for (Code levelThreeCode : levelThreeCodes) {
-						List<Code> levelFourCodes = this.getTaxonomyRepository().findChildTaxonomyCodeByDepth(levelThreeCode.getCodeId(), 4);
-						final List<Map<String, Object>> levelFourMapCodes = new ArrayList<Map<String, Object>>();
-						for (Code levelFourCode : levelFourCodes) {
-							List<Code> levelFiveCodes = this.getTaxonomyRepository().findChildTaxonomyCodeByDepth(levelFourCode.getCodeId(), 5);
-							final List<Map<String, Object>> levelFiveMapCodes = new ArrayList<Map<String, Object>>();
-							for (Code levelFiveCode : levelFiveCodes) {
-								List<Code> levelSixCodes = this.getTaxonomyRepository().findChildTaxonomyCodeByDepth(levelFiveCode.getCodeId(), 6);
-								final List<Map<String, Object>> levelSixMapCodes = new ArrayList<Map<String, Object>>();
-								for (Code levelSixCode : levelSixCodes) {
-									levelSixMapCodes.add(getCode(levelSixCode, null, NODE));
-								}
-								levelFiveMapCodes.add(getCode(levelFiveCode, levelSixMapCodes, NODE));
-								break;
-							}
-							levelFourMapCodes.add(getCode(levelFourCode, levelFiveMapCodes, NODE));
-						}
-						levelThreeMapCodes.add(getCode(levelThreeCode, levelFourMapCodes, NODE));
-					}
-					levelTwoMapCodes.add(getCode(levelTwoCode, levelThreeMapCodes, NODE));
-				}
-				levelOneMapCodes.add(getCode(levelOneCode, levelTwoMapCodes, NODE));
-
-			}
-			return levelOneMapCodes;
+	public List<Map<String, Object>> getStandards(String code, Integer depth) {
+		List<Map<String, Object>> standards = null;
+		if (depth == 0) { 
+			standards = levelZero(code);
+		} else if (depth == 1) { 
+			standards = levelOne(code);
+		} else if (depth == 2)  {
+			standards = levelTwo(code);
+		} else if (depth == 3) { 
+			standards = levelThree(code);
 		}
-		return null;
+		return standards;
 	}
 
-	@Override
-	public String getStandardsWidthCache(String code, boolean clearCache) {
-		final String cacheKey = "v2-standards-data-" + code;
-		String data = null;
-		if (!clearCache) {
-			data = getRedisService().getValue(cacheKey);
+	private List<Map<String, Object>> levelZero(String code) { 
+		List<Code> curriculums = this.getTaxonomyRepository().findCodeStartWith(code, Short.valueOf("0"));
+		List<Map<String, Object>> levelOneMapCodes = new ArrayList<Map<String, Object>>();
+		int levelOneCount = 0;
+		for (Code curriculum : curriculums) {
+			List<Code> levelOneCodes = this.getTaxonomyRepository().findChildTaxonomy(String.valueOf(curriculum.getCodeId()), 1);
+			for (Code levelOneCode : levelOneCodes) {
+				List<Map<String, Object>> levelTwoMapCodes = null;
+				if (levelOneCount == 0) {
+					levelTwoMapCodes = levelOne(String.valueOf(levelOneCode.getCodeId()));
+				}
+				levelOneMapCodes.add(getCode(levelOneCode, levelTwoMapCodes, NODE));
+				levelOneCount++;
+			}
 		}
-		if (data == null) {
-			data = SerializerUtil.serialize(this.getStandards(code), RESPONSE_FORMAT_JSON);
+		return levelOneMapCodes;
+	}
+	
+	private  List<Map<String, Object>> levelOne(String codeId) {
+		List<Code> levelTwoCodes = this.getTaxonomyRepository().findChildTaxonomy(codeId, 2);
+		List<Map<String, Object>> levelTwoMapCodes = new ArrayList<Map<String, Object>>();
+		int levelCount = 0;
+		for (Code levelTwoCode : levelTwoCodes) {
+			List<Map<String, Object>> levelThreeMapCodes = null;
+			if (levelCount == 0) {
+				levelThreeMapCodes = levelTwo(String.valueOf(levelTwoCode.getCodeId()));
+			}
+			levelCount++;
+			levelTwoMapCodes.add(getCode(levelTwoCode, levelThreeMapCodes, NODE));
 		}
-		return data;
+		return levelTwoMapCodes;
+
+	}
+
+	private List<Map<String, Object>> levelTwo(String codeId) {
+		int levelCount = 0;
+		List<Code> levelThreeCodes = this.getTaxonomyRepository().findChildTaxonomy(codeId, 3);
+		List<Map<String, Object>> levelThreeMapCodes = new ArrayList<Map<String, Object>>();
+		for (Code levelThreeCode : levelThreeCodes) {
+			List<Map<String, Object>> levelFourMapCodes = null;
+			if (levelCount == 0) {
+				levelFourMapCodes = levelThree(String.valueOf(levelThreeCode.getCodeId()));
+			}
+			levelCount++;
+			levelThreeMapCodes.add(getCode(levelThreeCode, levelFourMapCodes, NODE));
+		}
+
+		return levelThreeMapCodes;
+	}
+
+	private List<Map<String, Object>> levelThree(String  codeId) {
+		List<Map<String, Object>> levelFourMapCodes = new ArrayList<Map<String, Object>>();
+		List<Code> levelFourCodes = this.getTaxonomyRepository().findChildTaxonomy(codeId, 4);
+		for (Code levelFourCode : levelFourCodes) {
+			List<Code> levelFiveCodes = this.getTaxonomyRepository().findChildTaxonomy(String.valueOf(levelFourCode.getCodeId()), 5);
+			for (Code levelFiveCode : levelFiveCodes) {
+				List<Code> levelSixCodes = this.getTaxonomyRepository().findChildTaxonomy(String.valueOf(levelFiveCode.getCodeId()), 6);
+				for (Code levelSixCode : levelSixCodes) {
+					levelFourMapCodes.add(getCode(levelSixCode, null, NODE));
+				}
+				levelFourMapCodes.add(getCode(levelFiveCode, null, NODE));
+			}
+		}
+		return levelFourMapCodes;
 	}
 
 	private Map<String, Object> getCode(Code code, List<Map<String, Object>> childern, String type) {
@@ -686,7 +712,7 @@ public class TaxonomyServiceImpl implements TaxonomyService, ParameterProperties
 		codeMap.put(CODE, code.getCommonCoreDotNotation() == null ? code.getdisplayCode() : code.getCommonCoreDotNotation());
 		codeMap.put(CODE_ID, code.getCodeId());
 		codeMap.put(LABEL, code.getLabel());
-		codeMap.put(PARENT_ID, code.getParent() != null ? code.getParent().getCodeId() : null);
+		codeMap.put(PARENT_ID, code.getParentId());
 		codeMap.put(type, childern);
 		return codeMap;
 	}

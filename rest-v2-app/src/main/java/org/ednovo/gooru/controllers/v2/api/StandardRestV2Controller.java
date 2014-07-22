@@ -43,26 +43,34 @@ import org.springframework.web.servlet.ModelAndView;
 @Controller
 @RequestMapping(value = "/v2/standard")
 public class StandardRestV2Controller extends BaseController implements ConstantProperties {
-	
+
 	@Autowired
 	private TaxonomyService taxonomyService;
-	
+
 	@Autowired
 	private RedisService redisService;
-	
+
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAXONOMY_READ })
-	@RequestMapping(value =  "/curriculum/{code}", method = RequestMethod.GET)
-	public ModelAndView getTaxonomyByCode(@PathVariable(value = CODE) String  code, @RequestParam(value = CLEAR_CACHE, required = false, defaultValue = FALSE) boolean clearCache, HttpServletRequest request, HttpServletResponse response) {
-		return toModelAndView(this.getTaxonomyService().getStandardsWidthCache(code, clearCache), "json");
+	@RequestMapping(value = "/{depth}/{code}", method = RequestMethod.GET)
+	public ModelAndView getStandards(@PathVariable(value = DEPTH) Integer depth, @PathVariable(value = CODE) String code, @RequestParam(value = CLEAR_CACHE, required = false, defaultValue = FALSE) boolean clearCache, HttpServletRequest request, HttpServletResponse response) {
+		final String cacheKey = "v2-standards-data-" + code + "-" + depth;
+		String data = null;
+		if (!clearCache) {
+			data = getRedisService().getValue(cacheKey);
+		}
+		if (data == null) {
+			data = serializeToJson(this.getTaxonomyService().getStandards(code, depth), true, true);
+			getRedisService().putValue(cacheKey, data);
+		}
+		return toModelAndView(data);
 	}
-	
+
 	public TaxonomyService getTaxonomyService() {
 		return taxonomyService;
 	}
 
-
 	public RedisService getRedisService() {
 		return redisService;
 	}
-	
+
 }
