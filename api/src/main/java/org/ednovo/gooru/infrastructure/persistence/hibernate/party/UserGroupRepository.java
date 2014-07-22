@@ -50,11 +50,11 @@ public interface UserGroupRepository extends BaseRepository {
 	
 	List<String> classMemberSuggest(String queryText, String gooruUid);
 	
-	List<Object[]> getMyStudy(String gooruUid, String mailId, String orderBy,Integer offset, Integer limit, boolean skipPagination, String type);
+	List<Object[]> getMyStudy(String gooruUid, String mailId, String orderBy,Integer offset, Integer limit, String type);
 	
 	Long getMyStudyCount(String gooruUid, String mailId, String type);
 	
-	List<Object[]> getUserMemberList(String code, String gooruOid, Integer offset, Integer limit, Boolean skipPagination,String filterBy);
+	List<Object[]> getUserMemberList(String code, String gooruOid, Integer offset, Integer limit, String filterBy);
 	
 	Long getUserMemberCount(String code, String gooruOid,String filterBy);
 

@@ -2183,8 +2183,8 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 
 	@Override
-	public List<Collection> getMyCollection(String limit, String offset, String orderBy, String fetchType, String resourceType, boolean skipPagination, User user) {
-		return getCollectionRepository().getMyCollection(Integer.parseInt(limit), Integer.parseInt(offset), orderBy, fetchType, resourceType, skipPagination, user);
+	public List<Collection> getMyCollection(String limit, String offset, String orderBy, String fetchType, String resourceType, User user) {
+		return getCollectionRepository().getMyCollection(Integer.parseInt(limit), Integer.parseInt(offset), orderBy, fetchType, resourceType, user);
 	}
 
 	@Override
@@ -2200,8 +2200,8 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 
 	@Override
-	public List<CollectionItem> getCollectionItems(String collectionId, Integer offset, Integer limit, boolean skipPagination, String orderBy, String type) {
-		return this.getCollectionRepository().getCollectionItems(collectionId, offset, limit, skipPagination, orderBy, "classpage");
+	public List<CollectionItem> getCollectionItems(String collectionId, Integer offset, Integer limit, String orderBy, String type) {
+		return this.getCollectionRepository().getCollectionItems(collectionId, offset, limit, orderBy, "classpage");
 	}
 
 	@Override

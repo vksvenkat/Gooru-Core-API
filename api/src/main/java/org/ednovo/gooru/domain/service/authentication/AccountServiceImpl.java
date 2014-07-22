@@ -177,7 +177,8 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			if (identity == null) {
 				throw new BadCredentialsException("Please double-check your email address and password, and then try logging in again.");
 			}
-			if (identity.getUser().getIsDeleted() == true) {
+			
+			if (identity.getUser().getIsDeleted()) {
 				throw new BadCredentialsException("error : User has been deleted.");
 			}
 			identity.setLoginType(CREDENTIAL);
@@ -203,7 +204,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			}
 
 			if (user.getConfirmStatus() == 0) {
-				PartyCustomField userDevice = getPartyService().getPartyCustomeField(user.getPartyUid(), GOORU_USER_CREATED_DEVICE, null);
+				final PartyCustomField userDevice = getPartyService().getPartyCustomeField(user.getPartyUid(), GOORU_USER_CREATED_DEVICE, null);
 				Integer tokenCount = this.getUserRepository().getUserTokenCount(user.getGooruUId());
 				if (userDevice == null || userDevice.getOptionalValue().indexOf(MOBILE) == -1) {
 					if (-1 != Integer.parseInt(getConfigSetting(ConfigConstants.GOORU_WEB_LOGIN_WITHOUT_CONFIRMATION_LIMIT, 0, TaxonomyUtil.GOORU_ORG_UID))) {
@@ -318,7 +319,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 					Organization org = apiKeyObj.getOrganization();
 					String partyUid = org.getPartyUid();
 					String anonymousUid = organizationSettingRepository.getOrganizationSetting(Constants.ANONYMOUS, partyUid);
-					User user = userService.findByGooruId(anonymousUid);
+					final User user = userService.findByGooruId(anonymousUid);
 					userToken = this.createSessionToken(user, apiKey, request);
 				}
 			} else {
@@ -330,7 +331,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 						errors = this.validateLoginAsUser(userToken, user);
 						if (!errors.hasErrors()) {
 							if (!userService.isContentAdmin(user)) {
-								ApiKey userApiKey = apiTrackerService.findApiKeyByOrganization(user.getOrganization().getPartyUid());
+								final ApiKey userApiKey = apiTrackerService.findApiKeyByOrganization(user.getOrganization().getPartyUid());
 								userToken = this.createSessionToken(user, userApiKey.getKey(), request);
 							} else {
 								throw new BadCredentialsException(generateErrorMessage(GL0042, _USER));
