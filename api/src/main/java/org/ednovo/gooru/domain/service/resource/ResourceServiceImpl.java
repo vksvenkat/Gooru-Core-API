@@ -155,7 +155,7 @@ import com.itextpdf.text.pdf.SimpleBookmark;
 import com.sun.pdfview.PDFFile;
 
 @Service
-public class ResourceServiceImpl extends OperationAuthorizer implements ResourceService, ParameterProperties, ConstantProperties {
+public class ResourceServiceImpl extends OperationAuthorizer implements ResourceService, ParameterProperties, ConstantProperties {  
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ResourceServiceImpl.class);
 
@@ -1552,7 +1552,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		FileMeta fileMeta = null;
 		String fileHash = null;
 		boolean hasNewResource = false;
-		String license1 = resourceParam.get(LICENSE) != null ? resourceParam.get(LICENSE).toString().trim() : null;
+		String newLicense = resourceParam.get(LICENSE) != null ? resourceParam.get(LICENSE).toString().trim() : null;
 		String batchId = resourceParam.get(BATCH_ID) != null ? resourceParam.get(BATCH_ID).toString().trim() : null;
 		String sharing = resourceParam.get(SHARING) != null ? resourceParam.get(SHARING).toString().trim() : null;
 		String updateNarrative = resourceParam.get(UPDATE_NARRATIVE) != null ? resourceParam.get(UPDATE_NARRATIVE).toString() : null;
@@ -1652,13 +1652,13 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			resource.setBatchId(batchId);
 		}
 		License license = null;
-		if (license1 == null) {
+		if (newLicense == null) {
 			license = new License();
 			license.setName(OTHER);
 			resource.setLicense(license);			
 		} else {
 			license = new License();
-			license.setName(license1);
+			license.setName(newLicense);
 			resource.setLicense(license);
 		}
 		Errors errors = new BindException(Resource.class, RESOURCE);
