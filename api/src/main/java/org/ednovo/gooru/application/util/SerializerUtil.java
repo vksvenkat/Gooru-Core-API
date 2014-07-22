@@ -131,6 +131,10 @@ public class SerializerUtil  implements ParameterProperties{
 		return serialize(model, FORMAT_JSON, null, deepSerialize, includes);
 	}
 
+	public static String serializeToJson(Object model, boolean deepSerialize, boolean excludeNullObject) {
+		return serialize(model, FORMAT_JSON, null, deepSerialize, false, excludeNullObject);
+	}
+	
 	public static JSONObject serializeToJsonObjectWithExcludes(Object model, String[] excludes, boolean deepSerialize, String... includes) throws Exception {
 		return new JSONObject(serialize(model, FORMAT_JSON, excludes, deepSerialize, includes));
 	}
