@@ -293,9 +293,9 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 
 	@Override
-	public SearchResults<Classpage> getClasspages(Integer offset, Integer limit, Boolean skipPagination, User user, String title, String author, String userName) {
+	public SearchResults<Classpage> getClasspages(Integer offset, Integer limit,  User user, String title, String author, String userName) {
 		if (userService.isContentAdmin(user)) {
-			List<Classpage> classpages = this.getCollectionRepository().getClasspages(offset, limit, skipPagination, title, author, userName);
+			List<Classpage> classpages = this.getCollectionRepository().getClasspages(offset, limit, title, author, userName);
 			SearchResults<Classpage> result = new SearchResults<Classpage>();
 			result.setSearchResults(classpages);
 			result.setTotalHitCount(this.getCollectionRepository().getClasspageCount(title, author, userName));
@@ -438,8 +438,8 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 
 	@Override
-	public List<Classpage> getMyClasspage(Integer offset, Integer limit, User user, boolean skipPagination, String orderBy) {
-		return this.getCollectionRepository().getMyClasspage(offset, limit, user, skipPagination, orderBy);
+	public List<Classpage> getMyClasspage(Integer offset, Integer limit, User user, String orderBy) {
+		return this.getCollectionRepository().getMyClasspage(offset, limit, user, orderBy);
 	}
 
 	@Override
@@ -609,12 +609,12 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 
 	@Override
-	public SearchResults<Map<String, Object>> getMemberList(String code, Integer offset, Integer limit, Boolean skipPagination, String filterBy) {
+	public SearchResults<Map<String, Object>> getMemberList(String code, Integer offset, Integer limit, String filterBy) {
 		Classpage classpage = this.getCollectionRepository().getClasspageByCode(code);
 		if (classpage == null) {
 			throw new NotFoundException("classpage not found");
 		}
-		List<Object[]> results = this.getUserGroupRepository().getUserMemberList(code, classpage.getGooruOid(), offset, limit, skipPagination, filterBy);
+		List<Object[]> results = this.getUserGroupRepository().getUserMemberList(code, classpage.getGooruOid(), offset, limit, filterBy);
 		SearchResults<Map<String, Object>> searchResult = new SearchResults<Map<String, Object>>();
 		List<Map<String, Object>> listMap = new ArrayList<Map<String, Object>>();
 		for (Object[] object : results) {
@@ -667,11 +667,11 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 
 	@Override
-	public SearchResults<Map<String, Object>> getMyStudy(User user, String orderBy, Integer offset, Integer limit, boolean skipPagination, String type) {
+	public SearchResults<Map<String, Object>> getMyStudy(User user, String orderBy, Integer offset, Integer limit, String type) {
 		if (user.getPartyUid().equalsIgnoreCase(ANONYMOUS)) {
 			throw new NotFoundException("User not Found");
 		}
-		List<Object[]> results = this.getUserGroupRepository().getMyStudy(user.getPartyUid(), user.getIdentities() != null ? user.getIdentities().iterator().next().getExternalId() : null, orderBy, offset, limit, skipPagination, type);
+		List<Object[]> results = this.getUserGroupRepository().getMyStudy(user.getPartyUid(), user.getIdentities() != null ? user.getIdentities().iterator().next().getExternalId() : null, orderBy, offset, limit, type);
 		SearchResults<Map<String, Object>> searchResult = new SearchResults<Map<String, Object>>();
 		searchResult.setSearchResults(this.setMyStudy(results));
 		searchResult.setTotalHitCount(this.getUserGroupRepository().getMyStudyCount(user.getPartyUid(), user.getIdentities() != null ? user.getIdentities().iterator().next().getExternalId() : null, type));
@@ -728,8 +728,8 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 
 	@Override
-	public List<Map<String, Object>> getClasspageItems(String gooruOid, Integer limit, Integer offset, String userUid, String orderBy, boolean skipPagination, boolean optimize, String status) {
-		List<Object[]> results = this.getCollectionRepository().getClasspageItems(gooruOid, limit, offset, userUid, orderBy, skipPagination, status);
+	public List<Map<String, Object>> getClasspageItems(String gooruOid, Integer limit, Integer offset, String userUid, String orderBy, boolean optimize, String status) {
+		List<Object[]> results = this.getCollectionRepository().getClasspageItems(gooruOid, limit, offset, userUid, orderBy, status);
 		List<Map<String, Object>> collectionItems = new ArrayList<Map<String, Object>>();
 		for (Object[] object : results) {
 			Map<String, Object> result = new HashMap<String, Object>();

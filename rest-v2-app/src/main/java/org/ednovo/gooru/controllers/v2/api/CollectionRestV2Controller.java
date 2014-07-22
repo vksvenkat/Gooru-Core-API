@@ -219,9 +219,10 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ITEM_LIST })
 	@RequestMapping(value = { "/{id}/item" }, method = RequestMethod.GET)
-	public ModelAndView getCollectionItems(@PathVariable(value = ID) String collectionId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,
-			@RequestParam(value = SKIP_PAGINATION, required = false, defaultValue = FALSE) Boolean skipPagination, @RequestParam(value = ORDER_BY, defaultValue = DESC ,required = false) String orderBy, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		List<CollectionItem> collectionItems = this.getCollectionService().getCollectionItems(collectionId, offset, limit, skipPagination, orderBy,"collection");
+	public ModelAndView getCollectionItems(@PathVariable(value = ID) String collectionId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, 
+			@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,@RequestParam(value = ORDER_BY, defaultValue = DESC ,required = false) String orderBy, 
+			HttpServletRequest request, HttpServletResponse response) throws Exception {
+		List<CollectionItem> collectionItems = this.getCollectionService().getCollectionItems(collectionId, offset, limit, orderBy,"collection");
 		String includesDefault[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, COLLECTION_ITEM_INCLUDE_FILEDS);
 		includesDefault = (String[]) ArrayUtils.addAll(includesDefault, COLLECTION_ITEM_TAGS);
 		includesDefault = (String[]) ArrayUtils.addAll(includesDefault, COLLECTION_WORKSPACE);
@@ -371,12 +372,11 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 	@RequestMapping(value = { "/{id}/workspace" }, method = RequestMethod.GET)
 	public ModelAndView getMyWorkspace(@PathVariable(value = ID) String partyUid, HttpServletRequest request, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,
 			@RequestParam(value = FILTER_NAME, required = false, defaultValue = ALL) String filterName, @RequestParam(value = ORDER_BY, required = false, defaultValue = "desc") String orderBy, @RequestParam(value = SHARING, required = false) String sharing,
-			@RequestParam(value = SKIP_PAGINATION, required = false, defaultValue = FALSE) boolean skipPagination, HttpServletResponse resHttpServletResponse) {
+			HttpServletResponse resHttpServletResponse) {
 		User user = (User) request.getAttribute(Constants.USER);
 		Map<String, String> filters = new HashMap<String, String>();
 		filters.put(OFFSET_FIELD, offset + "");
 		filters.put(LIMIT_FIELD, limit + "");
-		filters.put(SKIP_PAGINATION, skipPagination ? YES : NO);
 		filters.put(Constants.FETCH_TYPE, CollectionType.SHElf.getCollectionType());
 		filters.put(FILTER_NAME, filterName);
 		if (sharing != null) {
@@ -406,10 +406,10 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 	}
 	
 	@RequestMapping(value = { "/standards" }, method = RequestMethod.GET)
-	public ModelAndView getCollectionStandards(HttpServletRequest request, @RequestParam(value = ID,required = false) Integer codeId,@RequestParam(value="query",required =false) String query, HttpServletResponse resHttpServletResponse
-			,@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,@RequestParam(value = SKIP_PAGINATION, required = false, defaultValue = FALSE) boolean skipPagination) throws Exception {
+	public ModelAndView getCollectionStandards(HttpServletRequest request, @RequestParam(value = ID,required = false) Integer codeId,@RequestParam(value="query",required =false) String query, HttpServletResponse resHttpServletResponse,
+			@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
-		return toModelAndViewWithIoFilter(this.getCollectionService().getCollectionStandards(codeId,query,limit,offset,skipPagination, user), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, COLLECTION_STANDARDS_INCLUDES);
+		return toModelAndViewWithIoFilter(this.getCollectionService().getCollectionStandards(codeId,query,limit,offset, user), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, COLLECTION_STANDARDS_INCLUDES);
 	}
 
 	private Collection buildCollectionFromInputParameters(String data, User user) {
@@ -488,10 +488,10 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
 	@RequestMapping(value = { "/list/status" }, method = RequestMethod.GET)
 	public ModelAndView getCollectionListForPublish(@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,@RequestParam(value = PUBLISH_STATUS, required = false) String publishStatus,
-			@RequestParam(value = SKIP_PAGINATION, required = false, defaultValue = FALSE) Boolean skipPagination, HttpServletRequest request, HttpServletResponse response) {
+			 HttpServletRequest request, HttpServletResponse response) {
 		User user = (User) request.getAttribute(Constants.USER);
 		String includes[] = (String[]) ArrayUtils.addAll(COLLECTION_ITEM_INCLUDE_FILEDS, COLLECTION_INCLUDE_FIELDS);
-		return toModelAndViewWithIoFilter(getCollectionService().getCollections(offset,limit,skipPagination,user,publishStatus), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
+		return toModelAndViewWithIoFilter(getCollectionService().getCollections(offset,limit,user,publishStatus), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 		
 	}
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_UPDATE })

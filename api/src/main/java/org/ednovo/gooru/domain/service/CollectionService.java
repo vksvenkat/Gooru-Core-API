@@ -61,9 +61,9 @@ public interface CollectionService extends ScollectionService {
 	
 	List<Map<String, Object>> getFolderItems(String gooruOid, Integer limit, Integer offset, String sharing, String collectionType, String orderBy, Integer itemLimit, boolean fetchChildItem);
 	
-	SearchResults<Code> getCollectionStandards(Integer codeId,String query, Integer limit, Integer offset,Boolean skipPagination, User user);
+	SearchResults<Code> getCollectionStandards(Integer codeId,String query, Integer limit, Integer offset, User user);
 	
-	Map<String, Object> getFolderList(Integer limit, Integer offset, String gooruOid, String title, String username, boolean skipPagination );
+	Map<String, Object> getFolderList(Integer limit, Integer offset, String gooruOid, String title, String username );
 	
 	List<CollectionItem> createCollectionItems(List<String> collectionsIds, String resourceId, User user) throws Exception;
 	
@@ -73,7 +73,7 @@ public interface CollectionService extends ScollectionService {
 	
 	List<Collection> updateCollectionForReject(List<Map<String,String>> collection,User user) throws Exception;
 	
-	SearchResults<Collection> getCollections(Integer offset, Integer limit, Boolean skipPagination, User user, String publishStatus);
+	SearchResults<Collection> getCollections(Integer offset, Integer limit, User user, String publishStatus);
 	
 	String getFolderItemsWithCache(String gooruOid, Integer limit, Integer offset, String sharing, String collectionType, String orderBy, Integer itemLimit, boolean fetchChildItem, boolean clearCache,User user);
 	

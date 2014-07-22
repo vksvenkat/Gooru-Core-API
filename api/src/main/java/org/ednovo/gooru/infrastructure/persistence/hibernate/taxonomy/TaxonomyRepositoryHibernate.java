@@ -50,6 +50,8 @@ import org.ednovo.gooru.core.api.model.CodeType;
 import org.ednovo.gooru.core.api.model.CodeUserAssoc;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserGroupSupport;
+import org.ednovo.gooru.core.constant.ConstantProperties;
+import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.domain.service.redis.RedisService;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate;
 import org.ednovo.gooru.json.serializer.util.JsonSerializer;
@@ -76,7 +78,7 @@ import flexjson.JSONSerializer;
 
 @SuppressWarnings("deprecation")
 @Repository
-public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate implements TaxonomyRespository {
+public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate implements TaxonomyRespository,ConstantProperties, ParameterProperties {
 
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
@@ -872,7 +874,7 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<CodeOrganizationAssoc> findCodeByParentCodeId(String code, String creatorUid, Integer limit, Integer offset, Boolean skipPagination, String fetchType, String organizationCode, String rootNodeId, String depth) {
+	public List<CodeOrganizationAssoc> findCodeByParentCodeId(String code, String creatorUid, Integer limit, Integer offset, String fetchType, String organizationCode, String rootNodeId, String depth) {
 		String hql = " From CodeOrganizationAssoc  codeOrganizationAssoc  where  codeOrganizationAssoc.code.activeFlag=1  ";
 
 		if (rootNodeId != null) {
@@ -921,11 +923,9 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 		if (creatorUid != null) {
 			query.setParameter("creatorUid", creatorUid);
 		}
-		if (!skipPagination) {
 			query.setFirstResult(offset);
-			query.setMaxResults(limit);
-		}
-
+			query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
+	
 		return query.list();
 	}
 
@@ -961,7 +961,7 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Object[]> getCollectionStandards(Integer codeId, String text, Integer limit, Integer offset, Boolean skipPagination) {
+	public List<Object[]> getCollectionStandards(Integer codeId, String text, Integer limit, Integer offset) {
 		String sql = "select distinct ifnull(c.common_core_dot_notation, c.display_code) as code_notation, c.code_id, c.label,c.code_uid, c.root_node_id from taxonomy_association ta inner join code c on ta.target_code_id = c.code_id  where ifnull(c.common_core_dot_notation, c.display_code) like '" + text + "%' and depth != 0";
 		if (codeId != null) {
 			sql += " and ta.source_code_id =" + codeId;
@@ -970,10 +970,8 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 			sql += " and c.root_node_id in (" + UserGroupSupport.getTaxonomyPreference() +")";
 		}
 		Query query = getSession().createSQLQuery(sql);
-		if (!skipPagination) {
 			query.setFirstResult(offset);
-			query.setMaxResults(limit);
-		}
+			query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
 		return query.list();
 	}
 
