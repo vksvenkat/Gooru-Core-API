@@ -75,6 +75,7 @@ import org.ednovo.gooru.security.OperationAuthorizer;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
@@ -343,42 +344,53 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	@Override
 	public ActionResponseDTO<CollectionItem> createClasspageItem(String assignmentGooruOid, String classpageGooruOid, CollectionItem collectionItem, User user, String type) throws Exception {
 		Classpage classpage = null;
-		if (type != null && type.equalsIgnoreCase(CollectionType.USER_CLASSPAGE.getCollectionType())) {
-			if (classpageGooruOid != null) {
-				classpage = this.getClasspage(classpageGooruOid, null, null);
-			} else {
-				classpage = this.getCollectionRepository().getUserShelfByClasspageGooruUid(user.getGooruUId(), CollectionType.USER_CLASSPAGE.getCollectionType());
-			}
-			if (classpage == null && type != null && type.equalsIgnoreCase(CollectionType.USER_CLASSPAGE.getCollectionType())) {
-				classpage = new Classpage();
-				classpage.setTitle(MY_CLASSPAGE);
-				classpage.setCollectionType(CollectionType.USER_CLASSPAGE.getCollectionType());
-				classpage.setClasspageCode(BaseUtil.base48Encode(7));
-				classpage.setGooruOid(UUID.randomUUID().toString());
-				ContentType contentType = (ContentType) this.getCollectionRepository().get(ContentType.class, ContentType.RESOURCE);
-				classpage.setContentType(contentType);
-				ResourceType resourceType = (ResourceType) this.getCollectionRepository().get(ResourceType.class, ResourceType.Type.CLASSPAGE.getType());
-				classpage.setResourceType(resourceType);
-				classpage.setLastModified(new Date(System.currentTimeMillis()));
-				classpage.setCreatedOn(new Date(System.currentTimeMillis()));
-				classpage.setSharing(Sharing.PRIVATE.getSharing());
-				classpage.setUser(user);
-				classpage.setOrganization(user.getPrimaryOrganization());
-				classpage.setCreator(user);
-				classpage.setDistinguish(Short.valueOf(ZERO));
-				classpage.setRecordSource(NOT_ADDED);
-				classpage.setIsFeatured(0);
-				this.getCollectionRepository().save(classpage);
-			}
-			collectionItem.setItemType(ShelfType.AddedType.SUBSCRIBED.getAddedType());
-		} else {
-			classpage = this.getClasspage(classpageGooruOid, null, null);
-			collectionItem.setItemType(ShelfType.AddedType.ADDED.getAddedType());
-		}
-
 		Collection collection = this.getCollectionRepository().getCollectionByGooruOid(assignmentGooruOid, null);
 		Errors errors = validateClasspageItem(classpage, collection, collectionItem);
-		if (collection != null) {
+		
+		Date currentDate = new Date();
+		
+		if(collectionItem!= null && collectionItem.getPlannedEndDate() != null){
+			Date plannedEndDate = collectionItem.getPlannedEndDate();
+			System.out.println("currentDate :::" + currentDate + " :::plannedEndDate " + plannedEndDate );
+			if(currentDate.compareTo(plannedEndDate) > 0){
+				throw new BadCredentialsException("Invalid PlannedEndDate");
+			}
+		}
+		
+		if(collection != null){
+			if (type != null && type.equalsIgnoreCase(CollectionType.USER_CLASSPAGE.getCollectionType())) {
+				if (classpageGooruOid != null) {
+					classpage = this.getClasspage(classpageGooruOid, null, null);
+				} else {
+					classpage = this.getCollectionRepository().getUserShelfByClasspageGooruUid(user.getGooruUId(), CollectionType.USER_CLASSPAGE.getCollectionType());
+				}
+				if (classpage == null && type != null && type.equalsIgnoreCase(CollectionType.USER_CLASSPAGE.getCollectionType())) {
+					classpage = new Classpage();
+					classpage.setTitle(MY_CLASSPAGE);
+					classpage.setCollectionType(CollectionType.USER_CLASSPAGE.getCollectionType());
+					classpage.setClasspageCode(BaseUtil.base48Encode(7));
+					classpage.setGooruOid(UUID.randomUUID().toString());
+					ContentType contentType = (ContentType) this.getCollectionRepository().get(ContentType.class, ContentType.RESOURCE);
+					classpage.setContentType(contentType);
+					ResourceType resourceType = (ResourceType) this.getCollectionRepository().get(ResourceType.class, ResourceType.Type.CLASSPAGE.getType());
+					classpage.setResourceType(resourceType);
+					classpage.setLastModified(new Date(System.currentTimeMillis()));
+					classpage.setCreatedOn(new Date(System.currentTimeMillis()));
+					classpage.setSharing(Sharing.PRIVATE.getSharing());
+					classpage.setUser(user);
+					classpage.setOrganization(user.getPrimaryOrganization());
+					classpage.setCreator(user);
+					classpage.setDistinguish(Short.valueOf(ZERO));
+					classpage.setRecordSource(NOT_ADDED);
+					classpage.setIsFeatured(0);
+					this.getCollectionRepository().save(classpage);
+				}
+				collectionItem.setItemType(ShelfType.AddedType.SUBSCRIBED.getAddedType());
+			} else {
+				classpage = this.getClasspage(classpageGooruOid, null, null);
+				collectionItem.setItemType(ShelfType.AddedType.ADDED.getAddedType());
+			}
+
 			if (!errors.hasErrors()) {
 				collectionItem.setCollection(classpage);
 				collectionItem.setResource(collection);
@@ -388,15 +400,15 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 				this.getCollectionRepository().save(collectionItem);
 			}
 		} else {
-			throw new Exception("invalid assignmentId -" + assignmentGooruOid);
+			throw new NotFoundException("Invalid assignmentId -" + assignmentGooruOid);
 		}
+		
 		try{
 			getEventLogs(collectionItem, true, user, collectionItem.getCollection().getCollectionType());
 		} catch(Exception e){
 			e.printStackTrace();
 		}
 		
-
 		return new ActionResponseDTO<CollectionItem>(collectionItem, errors);
 	}
 

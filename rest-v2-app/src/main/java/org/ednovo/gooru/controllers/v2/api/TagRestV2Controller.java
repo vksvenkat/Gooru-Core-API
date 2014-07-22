@@ -86,9 +86,7 @@ public class TagRestV2Controller extends BaseController implements ParameterProp
 		} else {
 			response.setStatus(HttpServletResponse.SC_CREATED);
 		}
-		SessionContextSupport.putLogParameter(EVENT_NAME, "create-tag");
-		SessionContextSupport.putLogParameter(USER_ID, user.getUserId());
-		SessionContextSupport.putLogParameter(GOORU_UID, user.getPartyUid());
+		
 		String includes[] = (String[]) ArrayUtils.addAll(TAG_INCLUDES, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(tag.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}

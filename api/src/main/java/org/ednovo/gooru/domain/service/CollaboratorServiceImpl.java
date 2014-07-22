@@ -91,7 +91,7 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 	@Autowired
 	private AsyncExecutor asyncExecutor;
 	
-	private Logger logger = LoggerFactory.getLogger(CollaboratorServiceImpl.class);
+	private Logger LOGGER = LoggerFactory.getLogger(CollaboratorServiceImpl.class);
 
 	@Override
 	public List<Map<String, Object>> addCollaborator(List<String> email, String gooruOid, User apiCaller,boolean sendInvite) throws Exception {
@@ -106,7 +106,7 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 		}
 		List<Map<String, Object>> collaborator = new ArrayList<Map<String, Object>>();
 		if (email != null) {
-			for (String mailId : email) {
+			for (final String mailId : email) {
 				Identity identity = this.getUserRepository().findByEmailIdOrUserName(mailId, true, false);
 				ActionResponseDTO<CollectionItem> responseDto = new ActionResponseDTO<CollectionItem>();
 				if (identity != null) {
@@ -127,7 +127,7 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 						try {
 							getEventLogs(identity.getUser(), responseDto.getModel(), gooruOid, true, false);
 						} catch (JSONException e) {
-							e.printStackTrace();
+							LOGGER.debug("error"+e.getMessage());
 						}	
 						getAsyncExecutor().deleteFromCache("v2-organize-data-" + identity.getUser().getPartyUid() + "*");
 						getAsyncExecutor().deleteFromCache("v2-organize-data-" + content.getUser().getPartyUid() + "*");
@@ -161,7 +161,7 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 			try {
 				indexProcessor.index(content.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
 			} catch (Exception e) {
-				logger.debug(e.getMessage());
+				LOGGER.debug("error"+e.getMessage());
 			}
 		}
 
@@ -179,7 +179,7 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 		return listMap;
 	}
 
-	private Map<String, Object> setActiveCollaborator(UserContentAssoc userContentAssoc, String status) {
+	private Map<String, Object> setActiveCollaborator(final UserContentAssoc userContentAssoc, String status) {
 		Map<String, Object> activeMap = new HashMap<String, Object>();
 		activeMap.put(EMAIL_ID, userContentAssoc.getUser().getIdentities() != null ? userContentAssoc.getUser().getIdentities().iterator().next().getExternalId() : null);
 		activeMap.put(_GOORU_UID, userContentAssoc.getUser().getGooruUId());
@@ -222,7 +222,7 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 						  this.getCollectionRepository().removeAll(collectionItems);
 						}
 						this.getContentService().deleteContentPermission(content, identity.getUser());
-						List<CollectionItem> associations = this.getCollectionRepository().getCollectionItemByAssociation(gooruOid, identity.getUser().getGooruUId(),null);
+						final List<CollectionItem> associations = this.getCollectionRepository().getCollectionItemByAssociation(gooruOid, identity.getUser().getGooruUId(),null);
 						for (CollectionItem association : associations) {
 							this.getCollectionService().deleteCollectionItem(association.getCollectionItemId(), identity.getUser());
 						}
@@ -244,7 +244,7 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 			try {
 				indexProcessor.index(content.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
 			} catch (Exception e) {
-				logger.debug(e.getMessage());
+				LOGGER.debug(e.getMessage());
 			}
 		}
 
@@ -282,7 +282,7 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 	@Override
 	public List<Map<String, Object>> getActiveCollaborator(String gooruOid) {
 		List<Map<String, Object>> activeList = new ArrayList<Map<String, Object>>();
-		List<UserContentAssoc> userContentAssocs = this.getCollaboratorRepository().getCollaboratorsById(gooruOid);
+		final List<UserContentAssoc> userContentAssocs = this.getCollaboratorRepository().getCollaboratorsById(gooruOid);
 		if (userContentAssocs != null) {
 			for (UserContentAssoc userContentAssoc : userContentAssocs) {
 				activeList.add(this.setActiveCollaborator(userContentAssoc, ACTIVE));
