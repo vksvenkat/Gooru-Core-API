@@ -58,7 +58,7 @@ public interface CollectionRepository extends BaseRepository {
 
 	Classpage getClasspageByGooruOid(String gooruOid, String gooruUid);
 
-	List<Classpage> getClasspages(Integer offset, Integer limit, Boolean skipPagination, String title, String author, String userName);
+	List<Classpage> getClasspages(Integer offset, Integer limit, String title, String author, String userName);
 
 	Classpage getClasspageByCode(String classpageCode);
 
@@ -70,7 +70,7 @@ public interface CollectionRepository extends BaseRepository {
 
 	List<Collection> getMyCollection(String offset, String limit, String type, String filter, User user);
 
-	List<Classpage> getMyClasspage(Integer offset, Integer limit, User user, boolean skipPagination, String orderBy);
+	List<Classpage> getMyClasspage(Integer offset, Integer limit, User user, String orderBy);
 
 	List<String> getCollectionGooruOidsByResourceId(long contentId);
 
@@ -80,15 +80,15 @@ public interface CollectionRepository extends BaseRepository {
 
 	List<Quiz> getQuizzes(Integer limit, Integer offset);
 
-	List<Quiz> getMyQuizzes(Integer limit, Integer offset, String gooruUid, boolean skipPagination, String orderBy);
+	List<Quiz> getMyQuizzes(Integer limit, Integer offset, String gooruUid, String orderBy);
 
 	List<CollectionItem> getCollectionItemByResourceId(Long resourceId);
 
-	List<Collection> getMyCollection(Integer limit, Integer offset, String orderBy, String fetchType, String resourceType, boolean skipPagination, User user);
+	List<Collection> getMyCollection(Integer limit, Integer offset, String orderBy, String fetchType, String resourceType, User user);
 
 	List<CollectionItem> getMyCollectionItems(Map<String, String> filters, User user);
 
-	List<CollectionItem> getCollectionItems(String collectionId, Integer offset, Integer limit, boolean skipPagination, String orderBy, String type);
+	List<CollectionItem> getCollectionItems(String collectionId, Integer offset, Integer limit, String orderBy, String type);
 
 	Resource findResourceCopiedFrom(String gooruOid, String gooruUid);
 
@@ -100,7 +100,7 @@ public interface CollectionRepository extends BaseRepository {
 	
 	Long getMyShelfCount(String gooruUid, String sharing, String collectionType);
 	
-	List<Object[]> getCollectionItem(String gooruOid, Integer limit, Integer offset, boolean skipPagination, String sharing, String orderBy, String collectionType,boolean fetchChildItem);
+	List<Object[]> getCollectionItem(String gooruOid, Integer limit, Integer offset, String sharing, String orderBy, String collectionType,boolean fetchChildItem);
 	
 	Long getCollectionItemCount(String gooruOid, String sharing, String collectionType );
 	
@@ -120,7 +120,7 @@ public interface CollectionRepository extends BaseRepository {
 	
 	List<Collection> getCollectionListByIds(List<String> collectionIds);
 	
-	List<Object[]> getFolderList(Integer limit, Integer offset, String gooruOid, String title, String gooruUid, boolean skipPagination);
+	List<Object[]> getFolderList(Integer limit, Integer offset, String gooruOid, String title, String gooruUid);
 	
 	Long getFolderListCount(String gooruOid, String title, String username);
 	
@@ -128,9 +128,9 @@ public interface CollectionRepository extends BaseRepository {
 	
 	ContentMetaAssociation getContentMetaByValue(String value, String collectionId);
 	
-	List<Object[]> getClasspageItems(String gooruOid, Integer limit, Integer offset, String userUid, String orderBy, boolean skipPagination, String status);
+	List<Object[]> getClasspageItems(String gooruOid, Integer limit, Integer offset, String userUid, String orderBy, String status);
 	
-	List<Collection> getCollectionsList(User user,Integer limit, Integer offset,boolean skipPagination, String publishStatus);
+	List<Collection> getCollectionsList(User user,Integer limit, Integer offset, String publishStatus);
 	
 	Long getCollectionCount(String publishStatus);
 	

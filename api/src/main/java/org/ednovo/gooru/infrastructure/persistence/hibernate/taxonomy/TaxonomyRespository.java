@@ -115,7 +115,7 @@ public interface TaxonomyRespository extends BaseRepository{
 	
 	Code findTaxonomyCodeById(Integer codeId);
 	
-	List<CodeOrganizationAssoc> findCodeByParentCodeId(String code, String creatorUid, Integer limit, Integer offset,Boolean skipPagination, String fetchType, String organizationCode, String rootNode, String depth);
+	List<CodeOrganizationAssoc> findCodeByParentCodeId(String code, String creatorUid, Integer limit, Integer offset, String fetchType, String organizationCode, String rootNode, String depth);
 	
 	List<User> getFeaturedUser(String organizationCode);
 	
@@ -123,7 +123,7 @@ public interface TaxonomyRespository extends BaseRepository{
 	
 	List<Code> getCodeByDepth(String organizationCode, Short depth, String creatorUid);
 	
-	List<Object[]> getCollectionStandards(Integer codeId,String  query,Integer limit, Integer offset,Boolean skipPagination);
+	List<Object[]> getCollectionStandards(Integer codeId,String  query,Integer limit, Integer offset);
 	
 	List<Code> findParentTaxonomyCodeLevels(Integer codeId, List<Code> codeList);
 	
