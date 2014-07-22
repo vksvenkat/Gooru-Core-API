@@ -136,7 +136,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 			}
 
 		}
-		return (userStatus != null) ? userStatus : "unknown";
+		return (userStatus == null) ?  "unknown" : userStatus;
 	}
 
 	public void invite(String firstname, String lastname, String email, String school, String message, String datestr) {
@@ -247,11 +247,11 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 	@Override
 	public boolean findRegisteredUser(String emailId) {
 		int count = this.getJdbcTemplate().queryForInt(FIND_REGISTERED_USER, new Object[] { emailId });
+		Boolean isRegisteredUser = false;
 		if (count > 0) {
-			return true;
-		} else {
-			return false;
-		}
+			isRegisteredUser =  true;
+		} 
+		return isRegisteredUser;
 	}
 
 	@Override
@@ -328,7 +328,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 		String hql = "SELECT userRelation.followOnUser FROM UserRelationship userRelation WHERE userRelation.user.partyUid = '" + gooruUId + "' AND userRelation.activeFlag = 1  AND " + generateOrgAuthQueryWithData("userRelation.user.") + " AND " + generateUserIsDeleted("userRelation.user.");
 		Query query = getSession().createQuery(hql);
 		query.setFirstResult(offset);
-		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
+		query.setMaxResults(limit == null ?  LIMIT : (limit > MAX_LIMIT ? MAX_LIMIT : limit) );
 		return query.list();
 	}
 
@@ -353,7 +353,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 			user.setGooruUId((String) row.get("gooru_uid"));
 			user.setFirstName((String) row.get("firstname"));
 			user.setLastName((String) row.get("lastname"));
-			user.setUserId(new Integer(String.valueOf(row.get("user_id"))));
+			user.setUserId(Integer.valueOf((String.valueOf(row.get("user_id")))));
 			user.setEmailId((String) row.get("external_id"));
 
 			List<UserRoleAssoc> userRoleSet = this.findUserRoleSet(user);
@@ -760,7 +760,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 	public List<Object[]> listUserByBirthDay(Integer offset, Integer limit) {
 		Query query = getSession().createSQLQuery(FETCH_USERS_BY_BIRTHDAY).addScalar("email_id", StandardBasicTypes.STRING).addScalar("user_id", StandardBasicTypes.STRING);
 		query.setFirstResult(offset);
-		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
+		query.setMaxResults(limit == null ?  LIMIT : (limit > MAX_LIMIT ? MAX_LIMIT : limit));
 		return query.list();
 	}
 	

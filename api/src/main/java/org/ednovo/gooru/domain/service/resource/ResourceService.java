@@ -40,6 +40,7 @@ import org.ednovo.gooru.core.api.model.ResourceInfo;
 import org.ednovo.gooru.core.api.model.ResourceInstance;
 import org.ednovo.gooru.core.api.model.ResourceSource;
 import org.ednovo.gooru.core.api.model.Segment;
+import org.ednovo.gooru.core.api.model.StatisticsDTO;
 import org.ednovo.gooru.core.api.model.Textbook;
 import org.ednovo.gooru.core.api.model.UpdateViewsDTO;
 import org.ednovo.gooru.core.api.model.User;
@@ -212,5 +213,7 @@ public interface ResourceService extends BaseService {
 	Map<String, Object> getResource(String gooruOid);
 	
 	Resource setContentProvider(Resource resource);
+	
+	void updateStatisticsData(List<StatisticsDTO> statisticsList);
 
 }

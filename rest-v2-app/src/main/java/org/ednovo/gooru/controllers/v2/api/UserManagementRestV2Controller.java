@@ -47,12 +47,10 @@ import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.security.AuthorizeOperations;
 import org.ednovo.gooru.domain.service.FeedbackService;
 import org.ednovo.gooru.domain.service.PostService;
-import org.ednovo.gooru.domain.service.classplan.LearnguideService;
 import org.ednovo.gooru.domain.service.tag.TagService;
 import org.ednovo.gooru.domain.service.user.UserService;
 import org.ednovo.gooru.domain.service.userManagement.UserManagementService;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
-import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,9 +70,6 @@ import org.springframework.web.servlet.ModelAndView;
 public class UserManagementRestV2Controller extends BaseController implements ParameterProperties, ConstantProperties {
 
 	@Autowired
-	private LearnguideService learnguideService;
-
-	@Autowired
 	private UserManagementService userManagementService;
 
 	@Autowired
@@ -85,9 +80,6 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 
 	@Autowired
 	private TagService tagService;
-
-	@Autowired
-	private CustomTableRepository customTableRepository;
 
 	@Autowired
 	private IndexProcessor indexProcessor;
@@ -312,7 +304,7 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 		request.setAttribute(Constants.EVENT_PREDICATE, USER_DELETE_USER);
 		User apiCaller = (User) request.getAttribute(Constants.USER);
 		JSONObject json = requestData(data);
-		this.getUserManagementService().deleteUserContent(gooruUid, (getValue(IS_DELETED, json)), apiCaller);
+		this.getUserManagementService().deleteUserContent(gooruUid, getValue(IS_DELETED, json), apiCaller);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_UPDATE })
@@ -327,7 +319,7 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.GET }, value = "/token/{userToken}")
 	public ModelAndView getUserByToken(@PathVariable(value = USER_TOKEN) String userToken, HttpServletRequest request, HttpServletResponse response) {
-		return toModelAndView(serialize(getUserManagementService().getUserByToken(userToken), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, USER_PROFILE_INCUDES));
+		return toModelAndView(serialize(this.getUserManagementService().getUserByToken(userToken), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, USER_PROFILE_INCUDES));
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_READ })
@@ -425,20 +417,12 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 		return null;
 	}
 
-	public LearnguideService getLearnguideService() {
-		return learnguideService;
-	}
-
 	public UserManagementService getUserManagementService() {
 		return userManagementService;
 	}
 
 	public FeedbackService getFeedbackService() {
 		return feedbackService;
-	}
-
-	public CustomTableRepository getCustomTableRepository() {
-		return customTableRepository;
 	}
 
 	public PostService getPostService() {
