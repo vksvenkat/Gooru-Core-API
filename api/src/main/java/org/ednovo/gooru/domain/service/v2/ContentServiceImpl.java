@@ -29,6 +29,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.EntityExistsException;
+
 import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.ContentPermission;
 import org.ednovo.gooru.core.api.model.ContentTagAssoc;
@@ -90,27 +92,28 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 				tag = new Tag();
 				tag.setLabel(label);
 				tag = this.tagService.createTag(tag, apiCaller).getModel();
-			}
-			ContentTagAssoc contentTagAssocDb = this.contentRepository.getContentTagById(gooruOid, tag.getGooruOid(), apiCaller.getGooruUId());
-			if (contentTagAssocDb == null) {
-				ContentTagAssoc contentTagAssoc = new ContentTagAssoc();
-				contentTagAssoc.setContentGooruOid(gooruOid);
-				contentTagAssoc.setTagGooruOid(tag.getGooruOid());
-				contentTagAssoc.setAssociatedUid(apiCaller.getGooruUId());
-				contentTagAssoc.setAssociatedDate(new Date(System.currentTimeMillis()));
-				this.getContentRepository().save(contentTagAssoc);
-				tag.setContentCount(tag.getContentCount() != null ? tag.getContentCount() + 1 : 1);
-				this.getContentRepository().save(tag);
-				UserSummary userSummary = this.getUserRepository().getSummaryByUid(apiCaller.getPartyUid());
-				if(userSummary.getGooruUid() == null) {
-					userSummary.setGooruUid(apiCaller.getPartyUid());
+				ContentTagAssoc contentTagAssocDb = this.contentRepository.getContentTagById(gooruOid, tag.getGooruOid(), apiCaller.getGooruUId());
+				if (contentTagAssocDb == null) {
+					ContentTagAssoc contentTagAssoc = new ContentTagAssoc();
+					contentTagAssoc.setContentGooruOid(gooruOid);
+					contentTagAssoc.setTagGooruOid(tag.getGooruOid());
+					contentTagAssoc.setAssociatedUid(apiCaller.getGooruUId());
+					contentTagAssoc.setAssociatedDate(new Date(System.currentTimeMillis()));
+					this.getContentRepository().save(contentTagAssoc);
+					tag.setContentCount(tag.getContentCount() != null ? tag.getContentCount() + 1 : 1);
+					this.getContentRepository().save(tag);
+					UserSummary userSummary = this.getUserRepository().getSummaryByUid(apiCaller.getPartyUid());
+					if(userSummary.getGooruUid() == null) {
+						userSummary.setGooruUid(apiCaller.getPartyUid());
+					}
+					userSummary.setTag((userSummary.getTag() != null ? userSummary.getTag() : 0 ) + 1 );
+					this.getUserRepository().save(userSummary);
+					this.getUserRepository().flush();
+					contentTagAssocs.add(setcontentTagAssoc(contentTagAssoc, tag.getLabel()));
 				}
-				userSummary.setTag((userSummary.getTag() != null ? userSummary.getTag() : 0 ) + 1 );
-				this.getUserRepository().save(userSummary);
-				this.getUserRepository().flush();
-				contentTagAssocs.add(setcontentTagAssoc(contentTagAssoc, tag.getLabel()));
+			} else {
+				throw new EntityExistsException("Tag already exist");
 			}
-
 		}
 		return contentTagAssocs;
 	}
@@ -197,6 +200,8 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 				content.setSharing(newContent.getSharing());
 			}
 			this.getContentRepository().save(content);
+		} else {
+			throw new NotFoundException("Content not found!");
 		}
 		return content;
 	}

@@ -43,6 +43,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 @Repository
+
 public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate implements FeedbackRepository,ConstantProperties,ParameterProperties {
 
 	@Autowired
@@ -340,7 +341,7 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 			flag.put("hasFrameBreaker", object[21]);
 			flag.put("mediaType", object[22]);
 			flag.put("lastModifiedOn", object[23]);
-			if (type == "resource") {
+			if (type == RESOURCE) {
 				String temp = (String) object[15];
 				if (temp != null) {
 					String[] scollection = temp.split("~");

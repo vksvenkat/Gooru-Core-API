@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import javax.annotation.Resource;
+import javax.persistence.EntityExistsException;
 
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.ContentProviderAssociation;
@@ -103,12 +104,12 @@ public class TagServiceImpl extends BaseServiceImpl implements TagService, Param
 	@Override
 	public ActionResponseDTO<Tag> createTag(Tag newTag, User user) {
 		Tag tag = this.getTagRepository().findTagByLabel(newTag.getLabel());
+		
+		if (tag != null) {
+			throw new EntityExistsException(generateErrorMessage(GL0041, LABEL));
+		}
 		Errors errors = this.createTagValidation(newTag, tag);
 		if (!errors.hasErrors()) {
-			if (tag != null) {
-				throw new BadCredentialsException(generateErrorMessage(GL0041, LABEL));
-			}
-			
 			if (newTag.getWikiPostGooruOid() != null) {
 				newTag.setWikiPostGooruOid(this.getPostRepository().getPost(newTag.getWikiPostGooruOid()) != null ? newTag.getWikiPostGooruOid() : null);
 			}
@@ -143,7 +144,7 @@ public class TagServiceImpl extends BaseServiceImpl implements TagService, Param
 		}
 		if (newTag.getLabel() != null) {
 			if (getTagRepository().findTagByLabel(newTag.getLabel()) != null) {
-				throw new BadCredentialsException(generateErrorMessage(GL0041, LABEL));
+				throw new EntityExistsException(generateErrorMessage(GL0041, LABEL));
 			}
 			if (newTag.getLabel().length() > 25) {
 				throw new BadCredentialsException("Label should be with in 25 character!!!");

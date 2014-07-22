@@ -469,7 +469,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Quiz> getMyQuizzes(Integer limit, Integer offset, String gooruUid, boolean skipPagination, String orderBy) {
+	public List<Quiz> getMyQuizzes(Integer limit, Integer offset, String gooruUid, String orderBy) {
 		String hql = "select collectionItems.resource  FROM Quiz quiz inner join quiz.collectionItems collectionItems WHERE   quiz.user.partyUid = '" + gooruUid + "' and quiz.collectionType = '" + CollectionType.USER_QUIZ + "' order by collectionItems.itemSequence " + orderBy;
 		Query query = getSession().createQuery(hql);
 		query.setFirstResult(offset);
@@ -488,7 +488,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Classpage> getMyClasspage(Integer offset, Integer limit, User user, boolean skipPagination, String orderBy) {
+	public List<Classpage> getMyClasspage(Integer offset, Integer limit, User user, String orderBy) {
 		String hql = "select collectionItems.resource  FROM Collection collection inner join collection.collectionItems collectionItems WHERE   collection.user.partyUid = '" + user.getGooruUId() + "' and collection.collectionType = '" + CollectionType.USER_CLASSPAGE.getCollectionType()
 				+ "'  order by collectionItems.resource.createdOn " + orderBy;
 		Query query = getSession().createQuery(hql);
@@ -499,7 +499,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Collection> getMyCollection(Integer limit, Integer offset, String orderBy, String fetchType, String filterName, boolean skipPagination, User user) {
+	public List<Collection> getMyCollection(Integer limit, Integer offset, String orderBy, String fetchType, String filterName, User user) {
 		if (orderBy.length() == 0 || (!orderBy.equalsIgnoreCase(ASC) && !orderBy.equalsIgnoreCase(DESC))) {
 			orderBy = DESC;
 		}
@@ -582,7 +582,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<CollectionItem> getCollectionItems(String collectionId, Integer offset, Integer limit, boolean skipPagination, String orderBy, String type) {
+	public List<CollectionItem> getCollectionItems(String collectionId, Integer offset, Integer limit, String orderBy, String type) {
 		String hql = "select collectionItems  FROM Collection collection inner join collection.collectionItems collectionItems where collection.gooruOid=:gooruOid and " + generateOrgAuthQuery("collection.");
 		if(type != null && type.equalsIgnoreCase("classpage")) {
 			hql +=	" and collectionItems.resource.sharing in('public','anyonewithlink') " ;
@@ -609,7 +609,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Classpage> getClasspages(Integer offset, Integer limit, Boolean skipPagination, String title, String author, String userName) {
+	public List<Classpage> getClasspages(Integer offset, Integer limit, String title, String author, String userName) {
 		String hql = "select classpage  FROM Classpage classpage where " + generateOrgAuthQuery("classpage.");
 		if (title != null) {
 			hql += " and classpage.title like :title ";
@@ -708,7 +708,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Object[]> getCollectionItem(String gooruOid, Integer limit, Integer offset, boolean skipPagination, String sharing, String orderBy, String collectionType, boolean fetchChildItem) {
+	public List<Object[]> getCollectionItem(String gooruOid, Integer limit, Integer offset, String sharing, String orderBy, String collectionType, boolean fetchChildItem) {
 		String sql = "select r.title, c.gooru_oid, r.type_name, r.folder, r.thumbnail, ct.value, ct.display_name, c.sharing, ci.collection_item_id, co.goals, rs.attribution, rs.domain_name, co.ideas, co.questions, co.performance_tasks, r.url ,rsummary.rating_star_avg, rsummary.rating_star_count, co.collection_type from collection_item ci inner join resource r on r.content_id = ci.resource_content_id  left join custom_table_value ct on ct.custom_table_value_id = r.resource_format_id inner join content c on c.content_id = r.content_id inner join content rc on rc.content_id = ci.collection_content_id left join collection co on co.content_id = r.content_id left join resource_source rs on rs.resource_source_id = r.resource_source_id left join resource_summary rsummary on   c.gooru_oid = rsummary.resource_gooru_oid where  c.sharing in ('"
 				+ sharing.replace(",", "','") + "') and rc.gooru_oid=:gooruOid  ";
 		if (collectionType != null) {
@@ -819,7 +819,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 	}
 	
 	@SuppressWarnings("unchecked")
-	public List<Object[]> getFolderList(Integer limit, Integer offset, String gooruOid, String title, String gooruUid, boolean skipPagination) {
+	public List<Object[]> getFolderList(Integer limit, Integer offset, String gooruOid, String title, String gooruUid) {
 		String sql = "select cc.gooru_oid as gooruOid, r.title as title, u.username as username, cc.created_on as createdOn, cc.last_modified as lastModified from resource r inner join collection c on  r.content_id = c.content_id inner join content cc on c.content_id = cc.content_id inner join user u on cc.user_uid = u.gooru_uid where c.collection_type = 'folder'";
 		if (gooruOid != null) {
 			sql += " and cc.gooru_oid = '" + gooruOid + "'";
@@ -884,7 +884,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Object[]> getClasspageItems(String gooruOid, Integer limit, Integer offset, String userUid, String orderBy, boolean skipPagination, String status) {
+	public List<Object[]> getClasspageItems(String gooruOid, Integer limit, Integer offset, String userUid, String orderBy, String status) {
 		String sql = "select association_date,ci.collection_item_id,item_sequence,narration,planned_end_date,c.gooru_oid,r.title, r.folder, r.thumbnail, c.sharing, co.goals, IFNULL(ct.value, 'open') as status, uu.username, uu.gooru_uid from collection_item ci inner join resource r on r.content_id = ci.resource_content_id  inner join content c on c.content_id = r.content_id inner join content rc on rc.content_id = ci.collection_content_id left join collection co on co.content_id = r.content_id left join user_collection_item_assoc uc on uc.collection_item_uid = ci.collection_item_id and uc.user_uid = '" + userUid + "' left join custom_table_value ct on ct.custom_table_value_id = uc.status inner join user uu on uu.gooru_uid = c.user_uid  where  c.sharing in ('public', 'anyonewithlink') ";
 		sql += " and rc.gooru_oid='" + gooruOid + "'  ";
 		if (status != null) { 
@@ -908,7 +908,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 	}
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Collection> getCollectionsList(User user,Integer limit, Integer offset,boolean skipPagination, String publishStatus) {
+	public List<Collection> getCollectionsList(User user,Integer limit, Integer offset, String publishStatus) {
 		String hql = "SELECT collection FROM Collection collection inner join collection.publishStatus ct ";
 		if (publishStatus != null) {
 			hql += " and  ct.value =:pending";
