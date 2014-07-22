@@ -58,6 +58,8 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.resource.ResourceRe
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -90,6 +92,8 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 
 	@Autowired
 	private CollectionService collectionService;
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(FeedbackServiceImpl.class);
 
 	@Override
 	public Feedback createFeedback(Feedback feedback, User user) {
@@ -118,13 +122,11 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 						if (feedback.getCategory().getValue().equalsIgnoreCase(CustomProperties.FeedbackCategory.RATING.getFeedbackCategory()) && feedback.getType().getValue().equalsIgnoreCase(CustomProperties.FeedbackRatingType.STAR.getFeedbackRatingType())) {
 							if (newFeedback.getScore() > MAX_RATING_POINT) {
 								throw new BadRequestException(generateErrorMessage(GL0044, RATING_POINTS, MAX_RATING_POINT.toString()));
-							}
-							if (newFeedback.getScore() < MIN_RATING_POINT) {
+							} else if (newFeedback.getScore() < MIN_RATING_POINT) {
 								throw new BadRequestException(generateErrorMessage(GL0044, RATING_POINTS, MIN_RATING_POINT.toString()));
 							}
 							feedback.setScore(newFeedback.getScore());
-						}
-						if (feedback.getCategory().getValue().equalsIgnoreCase(CustomProperties.FeedbackCategory.RATING.getFeedbackCategory()) && feedback.getType().getValue().equalsIgnoreCase(CustomProperties.FeedbackRatingType.THUMB.getFeedbackRatingType())) {
+						} else if (feedback.getCategory().getValue().equalsIgnoreCase(CustomProperties.FeedbackCategory.RATING.getFeedbackCategory()) && feedback.getType().getValue().equalsIgnoreCase(CustomProperties.FeedbackRatingType.THUMB.getFeedbackRatingType())) {
 							if (newFeedback.getScore() != THUMB_UP && newFeedback.getScore() != THUMB_DOWN && newFeedback.getScore() != THUMB_NETURAL) {
 								throw new BadRequestException(generateErrorMessage(GL0007, THUMB_SCORE));
 							}
@@ -136,7 +138,6 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 				} else {
 					throw new UnauthorizedException(generateErrorMessage(GL0058, USER, UPDATE));
 				}
-
 			}
 		} else {
 			throw new NotFoundException(generateErrorMessage(GL0056, FEEDBACK));
@@ -161,17 +162,15 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 	@Override
 	public void deleteFeedback(String feedbackId, User user) throws Exception {
 		Feedback feedback = this.getFeedbackRepository().getFeedback(feedbackId);
-		if (feedback != null) {
+		
+		if(feedback == null){
+			throw new NotFoundException(generateErrorMessage(GL0056, FEEDBACK));
+		} else {
 			if (this.getUserManagementService().isContentAdmin(user) || feedback.getCreator().getPartyUid().equals(user.getPartyUid())) {
-
-				SessionContextSupport.putLogParameter(FEEDBACK_GOORU_OID, feedback.getAssocGooruOid());
-				SessionContextSupport.putLogParameter(FEEDBACK_GOORU_UID, feedback.getAssocUserUid());
 				this.getFeedbackRepository().remove(feedback);
 			} else {
 				throw new UnauthorizedException(generateErrorMessage(GL0057, FEEDBACK));
 			}
-		} else {
-			throw new NotFoundException(generateErrorMessage(GL0056, FEEDBACK));
 		}
 		this.getFeedbackRepository().flush();
 		Resource resource = this.getResourceRepository().findResourceByContentGooruId(feedback.getAssocGooruOid());
@@ -204,11 +203,13 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 	public SearchResults<Feedback> getContentFeedbacks(String feedbackCategory, String feedbackType, String assocGooruOid, String creatorUid, Integer limit, Integer offset, String orderBy) {
 		String type = null;
 		String category = null;
-		if (feedbackType != null) {
-			type = getTableNameByFeedbackCategory(feedbackCategory, CustomProperties.Target.CONTENT.getTarget()) + "_" + feedbackType;
-		} else {
+		
+		if (feedbackType == null){
 			category = CustomProperties.Table.FEEDBACK_CATEGORY.getTable() + "_" + feedbackCategory;
+		} else {
+			type = getTableNameByFeedbackCategory(feedbackCategory, CustomProperties.Target.CONTENT.getTarget()) + "_" + feedbackType;
 		}
+
 		SearchResults<Feedback> result = new SearchResults<Feedback>();
 		result.setSearchResults(this.getFeedbackRepository().getContentFeedbacks(type, assocGooruOid, creatorUid, category, limit, offset, orderBy));
 		result.setTotalHitCount(this.getFeedbackRepository().getContentFeedbacksCount(type, assocGooruOid, creatorUid, category));
@@ -219,10 +220,11 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 	public List<Feedback> getUserFeedbacks(String feedbackCategory, String feedbackType, String assocUserUid, String creatorUid, Integer limit, Integer offset) {
 		String type = null;
 		String category = null;
-		if (feedbackType != null) {
-			type = getTableNameByFeedbackCategory(feedbackCategory, CustomProperties.Target.USER.getTarget()) + "_" + feedbackType;
-		} else {
+		
+		if (feedbackType == null) {
 			category = CustomProperties.Table.FEEDBACK_CATEGORY.getTable() + "_" + feedbackCategory;
+		} else {
+			type = getTableNameByFeedbackCategory(feedbackCategory, CustomProperties.Target.USER.getTarget()) + "_" + feedbackType;
 		}
 		rejectIfNull(this.getUserRepository().findByGooruId(assocUserUid), GL0056, _USER);
 		return this.getFeedbackRepository().getUserFeedbacks(type, assocUserUid, creatorUid, category, limit, offset);
@@ -241,12 +243,14 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 		rejectIfNull(feedback.getCategory().getValue(), GL0006, _CATEGORY);
 		rejectIfNull(feedback.getTarget(), GL0006, feedback.getCategory().getValue() + TARGET);
 		rejectIfNull(feedback.getTarget().getValue(), GL0006, feedback.getCategory().getValue() + TARGET);
-		if (feedback.getTypes() != null && (!feedback.getCategory().getValue().equalsIgnoreCase(CustomProperties.FeedbackCategory.RATING.getFeedbackCategory()))) {
-			rejectIfNull(feedback.getTypes(), GL0006, ATLEAST_ONE + feedback.getCategory().getValue() + TYPE);
-		} else {
+		
+		if(feedback.getTypes() == null || feedback.getTypes() != null && (feedback.getCategory().getValue().equalsIgnoreCase(CustomProperties.FeedbackCategory.RATING.getFeedbackCategory()))){
 			rejectIfNull(feedback.getType(), GL0006, feedback.getCategory().getValue() + TYPE);
 			rejectIfNull(feedback.getType().getValue(), GL0006, feedback.getCategory().getValue() + TYPE);
+		} else {
+			rejectIfNull(feedback.getTypes(), GL0006, ATLEAST_ONE + feedback.getCategory().getValue() + TYPE);
 		}
+		
 		if (feedback.getTypes() == null) {
 			List<CustomTableValue> types = new ArrayList<CustomTableValue>();
 			types.add(feedback.getType());
@@ -284,7 +288,7 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 			content = this.getContentRepository().findContentByGooruId(feedback.getAssocGooruOid());
 			rejectIfNull(content, GL0056, _CONTENT);
 		}
-		StringBuilder sb = new StringBuilder();
+		StringBuilder feedbackValue = new StringBuilder();
 		for (CustomTableValue feedbackTypes : feedback.getTypes()) {
 			Feedback copyFeedback = new Feedback(feedback);
 			copyFeedback.setCreator(creator);
@@ -296,8 +300,7 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 			copyFeedback = handleRating(copyFeedback);
 			handleFlag(copyFeedback, feedbackType);
 			feedbackList.add(copyFeedback);
-			sb.append(feedbackTypes.getValue());
-
+			feedbackValue.append(feedbackTypes.getValue());
 		}
 		this.getFeedbackRepository().saveAll(feedbackList);
 		if (content != null) {
@@ -316,13 +319,13 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 			this.getAsyncExecutor().clearCache(resource.getGooruOid());
 		}
 		try {
-			if (feedbackList.size() > 0) {
+			if(feedbackList.isEmpty()){
 				Feedback userFeedback = feedbackList.get(0);
-				getEventLogs(creator, contextDTO, userFeedback, sb);
+				getEventLogs(creator, contextDTO, userFeedback, feedbackValue);
 			}
 
 		} catch (JSONException e) {
-			e.printStackTrace();
+			LOGGER.error("Error while creating feedback" + e.getMessage());
 		}
 
 		return feedbackList;
