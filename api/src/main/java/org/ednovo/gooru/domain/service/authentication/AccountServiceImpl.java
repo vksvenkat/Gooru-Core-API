@@ -392,6 +392,8 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			e.printStackTrace();
 		}
 		request.getSession().setAttribute(Constants.USER, newUser);
+		newUser.setToken(sessionToken.getToken());
+		
 		return newUser;
 	}
 
