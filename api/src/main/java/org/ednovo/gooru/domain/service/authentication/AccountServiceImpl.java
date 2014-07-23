@@ -249,7 +249,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 
 			final List<ActivityType> types = this.getUserRepository().getAll(ActivityType.class);
 
-			for (final ActivityType type : types) {
+			for (ActivityType type : types) {
 				ActivityStream stream = new ActivityStream();
 				stream.setActivityType(type);
 				stream.setUser(user);
