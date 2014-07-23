@@ -70,7 +70,7 @@ public interface CollectionRepository extends BaseRepository {
 
 	List<Collection> getMyCollection(String offset, String limit, String type, String filter, User user);
 
-	List<Classpage> getMyClasspage(Integer offset, Integer limit, User user, String orderBy);
+	List<Classpage> getMyClasspage(Integer offset, Integer limit, User user, boolean skipPagination,String orderBy);
 
 	List<String> getCollectionGooruOidsByResourceId(long contentId);
 

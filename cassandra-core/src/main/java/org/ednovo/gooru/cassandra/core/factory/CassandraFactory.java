@@ -1,8 +1,9 @@
 package org.ednovo.gooru.cassandra.core.factory;
 
+@SuppressWarnings("rawtypes")
 public abstract class CassandraFactory<T extends CassandraFactory> implements CassandraKeyspace {
 
-	T factory;
+	private T factory;
 	
 	public T getCassandraFactory(){
 		return factory;
