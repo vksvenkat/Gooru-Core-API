@@ -1391,7 +1391,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		UserRelationship userRelationship = getUserRepository().getActiveUserRelationship(user.getPartyUid(), followOnUserId);
 		User followOnUser = getUserRepository().findByGooruId(followOnUserId);
 		if (userRelationship != null) {
-			throw new BadCredentialsException("user alreday followed the user");
+			return this.setUserObj(followOnUser);
 		}
 		userRelationship = new UserRelationship();
 		userRelationship.setUser(user);
