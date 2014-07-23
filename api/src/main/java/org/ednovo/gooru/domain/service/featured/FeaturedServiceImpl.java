@@ -415,7 +415,7 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 	}
 
 	private Map<String, Object> getCode(CodeOrganizationAssoc codeOrganizationAssoc, List<Map<String, Object>> childern, String type, String libraryName) {
-		Map<String, Object> codeMap = new HashMap<String, Object>();
+		final Map<String, Object> codeMap = new HashMap<String, Object>();
 		codeMap.put(CODE, codeOrganizationAssoc.getCode().getCommonCoreDotNotation() == null ? codeOrganizationAssoc.getCode().getdisplayCode() : codeOrganizationAssoc.getCode().getCommonCoreDotNotation());
 		codeMap.put(CODE_ID, codeOrganizationAssoc.getCode().getCodeId());
 		codeMap.put(CODE_TYPE, codeOrganizationAssoc.getCode().getCodeType());

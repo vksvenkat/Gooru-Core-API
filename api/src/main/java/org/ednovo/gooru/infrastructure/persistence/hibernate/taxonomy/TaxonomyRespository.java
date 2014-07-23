@@ -135,4 +135,8 @@ public interface TaxonomyRespository extends BaseRepository{
 	
 	Code findCodeByCodeIds(Integer codeId);
 	
+	List<Code> findCodeStartWith(String codeStartWith, Short depth);
+	
+	List<Code> findChildTaxonomy(String  parentIds, Integer depth);
+	
 }
