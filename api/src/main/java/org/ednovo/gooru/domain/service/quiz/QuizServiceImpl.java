@@ -176,7 +176,7 @@ public class QuizServiceImpl extends ScollectionServiceImpl implements QuizServi
 
 	@Override
 	public List<Quiz> getMyQuizzes(String limit, String offset, User user) {
-		return this.getCollectionRepository().getMyQuizzes(Integer.parseInt(limit), Integer.parseInt(offset), user.getGooruUId(), true, DESC);
+		return this.getCollectionRepository().getMyQuizzes(Integer.parseInt(limit), Integer.parseInt(offset), user.getGooruUId(), DESC);
 	}
 
 	@Override
