@@ -29,7 +29,7 @@
 		</id>
 		<property name="gooruOid" column="gooru_oid" not-null="true" />
 
-		<many-to-one name="resourceSourceId"
+		<many-to-one name="resourceSource"
 			class="org.ednovo.gooru.core.api.model.ResourceSource" column="resource_source_id"
 			lazy="proxy" cascade="none" />
 		<many-to-one name="contentProvider"

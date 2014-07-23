@@ -15,9 +15,9 @@ public class ContentProvider  extends OrganizationModel implements Serializable,
 	
 	private String contentProviderUid;
 	
-	private String contentProviderName;
+	private String name;
 	
-	private CustomTableValue contentProviderType;
+	private CustomTableValue type;
 	
 	private boolean activeFlag;
 	
@@ -27,22 +27,6 @@ public class ContentProvider  extends OrganizationModel implements Serializable,
 
 	public void setContentProviderUid(String contentProviderUid) {
 		this.contentProviderUid = contentProviderUid;
-	}
-
-	public String getContentProviderName() {
-		return contentProviderName;
-	}
-
-	public void setContentProviderName(String contentProviderName) {
-		this.contentProviderName = contentProviderName;
-	}
-
-	public CustomTableValue getContentProviderType() {
-		return contentProviderType;
-	}
-
-	public void setContentProviderType(CustomTableValue contentProviderType) {
-		this.contentProviderType = contentProviderType;
 	}
 
 
@@ -62,6 +46,22 @@ public class ContentProvider  extends OrganizationModel implements Serializable,
 	@Override
 	public String getIndexId() {
 	return contentProviderUid;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setType(CustomTableValue type) {
+		this.type = type;
+	}
+
+	public CustomTableValue getType() {
+		return type;
 	}
 
 }

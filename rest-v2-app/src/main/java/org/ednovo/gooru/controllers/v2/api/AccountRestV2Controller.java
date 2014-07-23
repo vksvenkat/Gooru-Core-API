@@ -149,12 +149,12 @@ public class AccountRestV2Controller extends BaseController implements ConstantP
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_SIGNIN })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.POST, value = "/authenticate")
-	public ModelAndView authenticateUser(@RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public ModelAndView authenticateUser(@RequestBody String data, @RequestParam (value=API_KEY, required= false) String apiKey,HttpServletRequest request, HttpServletResponse response) throws Exception {
 		JSONObject json = requestData(data);
 		SessionContextSupport.putLogParameter(EVENT_NAME, USER_AUTHENTICATE);
 		SessionContextSupport.putLogParameter(SECERT_KEY, getValue(SECERT_KEY, json));
 		SessionContextSupport.putLogParameter(API_KEY, getValue(API_KEY, json));
-		User user = this.getAccountService().userAuthentication(buildUserFromInputParameters(data), getValue(SECERT_KEY, json), getValue(API_KEY, json), UserAccountType.accountCreatedType.GOOGLE_APP.getType(), request);
+		User user = this.getAccountService().userAuthentication(buildUserFromInputParameters(data), getValue(SECERT_KEY, json), getValue(API_KEY, json) == null ? apiKey : getValue(API_KEY, json) , UserAccountType.accountCreatedType.GOOGLE_APP.getType(), request);
 		if (user.getIdentities() != null) {
 			Identity identity = user.getIdentities().iterator().next();
 			if (identity.getActive() == 0) {
