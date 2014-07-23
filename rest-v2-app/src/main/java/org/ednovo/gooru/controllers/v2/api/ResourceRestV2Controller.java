@@ -71,7 +71,7 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 	@Transactional(readOnly = false, propagation = Propagation.NOT_SUPPORTED, noRollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.POST, value = "")
 	public ModelAndView createResource(@RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		request.setAttribute(PREDICATE, "resource.create_resource");
+		request.setAttribute(PREDICATE, RESOURCE_CREATE_RESOURCE);
 		JSONObject json = requestData(data);
 		User user = (User) request.getAttribute(Constants.USER);
 		ActionResponseDTO<Resource> responseDTO = getResourceService().createResource(this.buildResourceFromInputParameters(getValue(RESOURCE, json), user), user);
@@ -88,7 +88,7 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.PUT, value = "/{id}")
 	public ModelAndView updateResource(@RequestBody String data, @PathVariable(value = ID) String resourceId, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		request.setAttribute(PREDICATE, "resource.update_resource");
+		request.setAttribute(PREDICATE, RES_UPDATE_RES);
 		User user = (User) request.getAttribute(Constants.USER);
 		JSONObject json = requestData(data);
 		ActionResponseDTO<Resource> responseDTO = getResourceService().updateResource(resourceId, this.buildResourceFromInputParameters(getValue(RESOURCE, json)), user);
@@ -119,7 +119,7 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.DELETE, value = "/{id}")
 	public void deleteResource(@PathVariable(value = ID) String resourceId, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		request.setAttribute(PREDICATE, "resource.delete_resource");
+		request.setAttribute(PREDICATE, RESOURCE_DELETE_RESOURCE);
 		User user = (User) request.getAttribute(Constants.USER);
 		Resource resource = (Resource) request.getAttribute(Constants.SEC_CONTENT);
 		resourceService.deleteResource(resource, resourceId, user);
@@ -166,7 +166,7 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = {RequestMethod.DELETE,RequestMethod.PUT}, value = "/{id}/taxonomy")
 	public void deleteTaxonomyResource(@RequestBody String data, @PathVariable(value = ID) String resourceId, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		request.setAttribute(PREDICATE, "resource.delete_resource_taxonomy");
+		request.setAttribute(PREDICATE, RESOURCE_DELETE_RESOURCE_TAXONOMY);
 		User user = (User) request.getAttribute(Constants.USER);
 		JSONObject json = requestData(data);
 		getResourceService().deleteTaxonomyResource(resourceId, this.buildResourceFromInputParameters(getValue(RESOURCE, json)), user);
@@ -198,7 +198,7 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 	@RequestMapping(method = RequestMethod.GET, value = { "/{id}/play" })
 	public ModelAndView getResourceSource(HttpServletRequest request, @PathVariable(value = ID) String gooruContentId, HttpServletResponse response, @RequestParam(value = "includeBrokenPdf", required = false, defaultValue = TRUE) Boolean includeBrokenPdf,
 			@RequestParam(value = "more", required = false, defaultValue = TRUE) boolean more) throws Exception {
-		request.setAttribute(PREDICATE, "resourceSource.get");
+		request.setAttribute(PREDICATE, RESOURCE_SRC_GET);
 		User apiCaller = (User) request.getAttribute(Constants.USER);
 		return toModelAndView(serialize(getResourceService().resourcePlay(gooruContentId, apiCaller, more), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, RESOURCE_INCLUDE_FIELDS));
 
