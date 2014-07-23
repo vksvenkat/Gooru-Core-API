@@ -90,6 +90,7 @@ public class UserTransformer extends ObjectTransformer {
 			userModel.setIsDeleted(user.getIsDeleted());
 			userModel.setCustomFields(user.getCustomFields());
 			userModel.setMeta(user.getMeta());
+			userModel.setToken(user.getToken());
 			
 			userModel.setProfileImageUrl(UserGroupSupport.getProfileAssetURI() + user.getPartyUid() + ".png");
 			if(user.getIdentities() != null){
