@@ -7,12 +7,12 @@ import com.netflix.astyanax.Keyspace;
 
 public interface CassandraKeyspace {
 	
-	public boolean isInstantiated();
+	boolean isInstantiated();
 
-	public Keyspace getKeyspace();
+	Keyspace getKeyspace();
 	
-	public CassandraDaoSupport<CassandraColumnFamily> get(String name);
+	CassandraDaoSupport<CassandraColumnFamily> get(String name);
 	
-	public CassandraColumnFamily getColumnFamily(String name);
+	CassandraColumnFamily getColumnFamily(String name);
 	
 }

@@ -106,7 +106,7 @@ public class TagServiceImpl extends BaseServiceImpl implements TagService, Param
 		Tag tag = this.getTagRepository().findTagByLabel(newTag.getLabel());
 		
 		if (tag != null) {
-			throw new EntityExistsException(generateErrorMessage(GL0041, LABEL));
+			throw new BadCredentialsException(generateErrorMessage(GL0041, LABEL));
 		}
 		Errors errors = this.createTagValidation(newTag, tag);
 		if (!errors.hasErrors()) {
@@ -247,12 +247,12 @@ public class TagServiceImpl extends BaseServiceImpl implements TagService, Param
  				result.put("publisher", publisher);
  				result.put("aggregator", aggregator);
  			}
-			result.put("views", object[7]);
+			result.put(VIEWS, object[7]);
 			result.put(RATINGS, this.collectionService.setRatingsObj(this.getResourceRepository().getResourceSummaryById(String.valueOf(object[1]))));
 			resource.add(result);
 		}
-		content.put("searchResult",resource);
-		content.put("totalHitCount",this.getTagRepository().getResourceByLabelCount(label, gooruUid));
+		content.put(SEARCH_RESULT,resource);
+		content.put(TOTAL_HIT_COUNT,this.getTagRepository().getResourceByLabelCount(label, gooruUid));
 		return content;
 	}
 

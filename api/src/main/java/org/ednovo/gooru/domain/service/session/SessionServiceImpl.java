@@ -81,12 +81,12 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 	@Autowired
 	private UserRepository userRepository;
 	
-	private static final Logger logger = LoggerFactory.getLogger(SessionServiceImpl.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(SessionServiceImpl.class);
 
 	@Override
-	public ActionResponseDTO<Session> createSession(Session session, User user) {
-		Resource resource = this.getResourceRepository().findResourceByContentGooruId(session.getResource().getGooruOid());
-		Errors errors = this.validateCreateSession(session, resource);
+	public ActionResponseDTO<Session> createSession(final Session session, final User user) {
+		final Resource resource = this.getResourceRepository().findResourceByContentGooruId(session.getResource().getGooruOid());
+		final Errors errors = this.validateCreateSession(session, resource);
 		if (!errors.hasErrors()) {
 			session.setScore(0.0);
 			if (session.getSessionId() == null) {
@@ -102,36 +102,36 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 	}
 
 	@Override
-	public SessionItemFeedback createSessionItemFeedback(String sessionId, SessionItemFeedback sessionItemFeedback, User user) {
-		User feedbackUser = this.getUserRepository().findByGooruId(sessionItemFeedback.getUser().getPartyUid());
+	public SessionItemFeedback createSessionItemFeedback(final String sessionId, SessionItemFeedback sessionItemFeedback, final User user) {
+		final User feedbackUser = this.getUserRepository().findByGooruId(sessionItemFeedback.getUser().getPartyUid());
 		rejectIfNull(feedbackUser, GL0056, USER);
-		SessionItemFeedback sessionItemFeedbackUpdate = this.getSessionRepository().getSessionItemFeedback(sessionItemFeedback.getContentGooruOId(), feedbackUser.getGooruUId());
-		if (sessionItemFeedbackUpdate != null) {
-			sessionItemFeedbackUpdate.setFreeText(sessionItemFeedback.getFreeText());
-			this.getSessionRepository().save(sessionItemFeedbackUpdate);
-			sessionItemFeedback.setCreatedOn(new Date(System.currentTimeMillis()));
-		} else {
+		final SessionItemFeedback sessionItemFeedbackUpdate = this.getSessionRepository().getSessionItemFeedback(sessionItemFeedback.getContentGooruOId(), feedbackUser.getGooruUId());
+		if (sessionItemFeedbackUpdate == null) {
 			sessionItemFeedback.setCreatedOn(new Date(System.currentTimeMillis()));
 			sessionItemFeedback.setFreeText(sessionItemFeedback.getFreeText());
 			sessionItemFeedback.setFeedbackProvidedBy(user);
 			sessionItemFeedback.setSessionId(sessionId);
 			sessionItemFeedback.setUser(feedbackUser);
 			this.getSessionRepository().save(sessionItemFeedback);
+		} else {
+			sessionItemFeedbackUpdate.setFreeText(sessionItemFeedback.getFreeText());
+			this.getSessionRepository().save(sessionItemFeedbackUpdate);
+			sessionItemFeedback.setCreatedOn(new Date(System.currentTimeMillis()));
 		}
 		try {
 			getEventLogs(sessionItemFeedback, user);
 		} catch (JSONException e) {
-			e.printStackTrace();
+			LOGGER.debug("error"+e.getMessage());
 		}
 		return sessionItemFeedback;
 	}
 
 	@Override
-	public ActionResponseDTO<Session> updateSession(String sessionId, Session newSession) {
-		Session session = this.getSessionRepository().findSessionById(sessionId);
-		Errors errors = this.validateUpdateSession(session, newSession);
+	public ActionResponseDTO<Session> updateSession(final String sessionId, final Session newSession) {
+		final Session session = this.getSessionRepository().findSessionById(sessionId);
+		final Errors errors = this.validateUpdateSession(session, newSession);
 		if (!errors.hasErrors()) {
-			if ((newSession.getStatus() != null) && (newSession.getStatus().equalsIgnoreCase(SessionStatus.ARCHIVE.getSessionStatus()))) {
+			if (newSession.getStatus() != null && newSession.getStatus().equalsIgnoreCase(SessionStatus.ARCHIVE.getSessionStatus())) {
 				session.setStatus(newSession.getStatus());
 				session.setEndTime(new Date(System.currentTimeMillis()));
 			}
@@ -145,22 +145,22 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 	}
 
 	@Override
-	public Session getSession(String sessionId) {
+	public Session getSession(final String sessionId) {
 		return this.getSessionRepository().findSessionById(sessionId);
 	}
 
 	@Override
-	public ActionResponseDTO<SessionItem> createSessionItem(SessionItem sessionItem, String sessionId) {
+	public ActionResponseDTO<SessionItem> createSessionItem(final SessionItem sessionItem, final String sessionId) {
 		Errors errors = null;
 	 try {
-		Session session = this.getSessionRepository().findSessionById(sessionId);
-		Resource resource = this.getResourceRepository().findResourceByContentGooruId(sessionItem.getResource().getGooruOid());
+		final Session session = this.getSessionRepository().findSessionById(sessionId);
+		final Resource resource = this.getResourceRepository().findResourceByContentGooruId(sessionItem.getResource().getGooruOid());
 		if (sessionItem.getSessionItemId() == null) {
 			sessionItem.setSessionItemId(UUID.randomUUID().toString());
 		}
 		errors = this.validateSessionItem(session, sessionItem, resource);
 		if (!errors.hasErrors()) {
-			SessionItem previousItem = this.getSessionRepository().getLastSessionItem(sessionId);
+			final SessionItem previousItem = this.getSessionRepository().getLastSessionItem(sessionId);
 			if (previousItem != null) {
 				previousItem.setEndTime(new Date(System.currentTimeMillis()));
 				this.getSessionRepository().save(previousItem);
@@ -168,7 +168,7 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 			sessionItem.setResource(resource);
 			sessionItem.setsession(session);
 			if (sessionItem.getCollectionItem() != null && sessionItem.getCollectionItem().getCollectionItemId() != null) {
-				CollectionItem collectionItem = this.getCollectionRepository().getCollectionItemById(sessionItem.getCollectionItem().getCollectionItemId());
+				final CollectionItem collectionItem = this.getCollectionRepository().getCollectionItemById(sessionItem.getCollectionItem().getCollectionItemId());
 				if (collectionItem != null) {
 					sessionItem.setCollectionItem(collectionItem);
 				}
@@ -178,15 +178,15 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 			this.getSessionRepository().save(sessionItem);
 		}
 	 } catch(Exception e) { 
-		 logger.error("Failed to log : " + e);
+		 LOGGER.error("Failed to log : " + e);
 	 }
 		return new ActionResponseDTO<SessionItem>(sessionItem, errors);
 	}
 
 	@Override
-	public ActionResponseDTO<SessionItem> updateSessionItem(String sessionItemId, SessionItem newSessionItem) {
-		SessionItem sessionItem = this.getSessionRepository().findSessionItemById(sessionItemId);
-		Errors errors = this.validateUpdateSessionItem(sessionItem);
+	public ActionResponseDTO<SessionItem> updateSessionItem(final String sessionItemId, final SessionItem newSessionItem) {
+		final SessionItem sessionItem = this.getSessionRepository().findSessionItemById(sessionItemId);
+		final Errors errors = this.validateUpdateSessionItem(sessionItem);
 		if (!errors.hasErrors()) {
 			if (newSessionItem.getAttemptItemStatus() != null) {
 				sessionItem.setAttemptItemStatus(newSessionItem.getAttemptItemStatus());
@@ -203,26 +203,26 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 	}
 
 	@Override
-	public SessionItemAttemptTry createSessionItemAttemptTry(SessionItemAttemptTry sessionItemAttemptTry, String sessionItemId) {
-		SessionItem sessionItem = this.getSessionRepository().findSessionItemById(sessionItemId);
+	public SessionItemAttemptTry createSessionItemAttemptTry(final SessionItemAttemptTry sessionItemAttemptTry, final String sessionItemId) {
+		final SessionItem sessionItem = this.getSessionRepository().findSessionItemById(sessionItemId);
 		rejectIfNull(sessionItem, GL0056, SESSION_ITEM);
 		AssessmentQuestion question = new AssessmentQuestion();
 		if (sessionItem.getResource().getResourceType() != null && sessionItem.getResource().getResourceType().getName().equalsIgnoreCase(ASSESSMENT_QUESTION)) {
 			question = this.assessmentService.getQuestion(sessionItem.getResource().getGooruOid());
 		}
-		Integer trySequence = this.getSessionRepository().getSessionItemAttemptTry(sessionItemId).size() + 1;
+		final Integer trySequence = this.getSessionRepository().getSessionItemAttemptTry(sessionItemId).size() + 1;
 		if (question != null && question.getTypeName().equalsIgnoreCase(AssessmentQuestion.TYPE.FILL_IN_BLANKS.getName()) || question.getTypeName().equalsIgnoreCase(AssessmentQuestion.TYPE.OPEN_ENDED.getName()) || question.getTypeName().equals(AssessmentQuestion.TYPE.SHORT_ANSWER.getName())
 				|| question.getTypeName().equalsIgnoreCase(AssessmentQuestion.TYPE.MULTIPLE_ANSWERS.getName())) {
 			rejectIfNull(sessionItemAttemptTry.getAnswerText(), GL0006, ANSWER_TEXT);
 		} else if (question != null && question.getTypeName().equals(AssessmentQuestion.TYPE.MATCH_THE_FOLLOWING.getName())) {
 			rejectIfNull(sessionItemAttemptTry.getAnswerText(), GL0006, ANSWER_TEXT);
-			String[] answerTexts = sessionItemAttemptTry.getAnswerText().split(",");
+			final String[] answerTexts = sessionItemAttemptTry.getAnswerText().split(",");
 			for (int i = 0; i < answerTexts.length; i++) {
-				AssessmentAnswer answers = this.getAssessmentRepository().getAssessmentAnswerById(Integer.parseInt(answerTexts[i]));
+				final AssessmentAnswer answers = this.getAssessmentRepository().getAssessmentAnswerById(Integer.parseInt(answerTexts[i]));
 				if (answers.getMatchingAnswer().getAnswerId().equals(Integer.parseInt(answerTexts[i == 0 ? i + 1 : i - 1]))) {
 					sessionItemAttemptTry.setAttemptItemTryStatus(AttemptTryStatus.CORRECT.getTryStatus());
 					sessionItem.setCorrectTrySequence(trySequence);
-					Session session = sessionItem.getsession();
+					final Session session = sessionItem.getsession();
 					session.setScore(sessionItem.getsession().getScore() + 1);
 					this.getSessionRepository().save(session);
 				} else {
@@ -231,7 +231,7 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 			}
 
 		} else {
-			AssessmentAnswer assessmentAnswer = this.getAssessmentRepository().getAssessmentAnswerById(sessionItemAttemptTry.getAssessmentAnswer() != null ? sessionItemAttemptTry.getAssessmentAnswer().getAnswerId() : null);
+			final AssessmentAnswer assessmentAnswer = this.getAssessmentRepository().getAssessmentAnswerById(sessionItemAttemptTry.getAssessmentAnswer() != null ? sessionItemAttemptTry.getAssessmentAnswer().getAnswerId() : null);
 			rejectIfNull(assessmentAnswer, GL0006, ASSESSMENT_ANSWER);
 			sessionItemAttemptTry.setAssessmentAnswer(assessmentAnswer);
 			if (assessmentAnswer.getIsCorrect()) {
@@ -242,10 +242,10 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 			}
 		}
 
-		if (sessionItemAttemptTry.getAttemptItemTryStatus() != null) {
-			sessionItemAttemptTry.setAttemptItemTryStatus(sessionItemAttemptTry.getAttemptItemTryStatus());
-		} else {
+		if (sessionItemAttemptTry.getAttemptItemTryStatus() == null) {
 			sessionItemAttemptTry.setAttemptItemTryStatus(AttemptTryStatus.SKIP.getTryStatus());
+		} else {
+			sessionItemAttemptTry.setAttemptItemTryStatus(sessionItemAttemptTry.getAttemptItemTryStatus());
 		}
 		sessionItemAttemptTry.setSessionItem(sessionItem);
 		sessionItemAttemptTry.setAnsweredAtTime(new Date(System.currentTimeMillis()));
@@ -261,23 +261,23 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 		return errors;
 	}
 
-	private Errors validateCreateSession(Session session, Resource resource) {
-		Map<String, String> sessionMode = getSessionMode();
+	private Errors validateCreateSession(final Session session, final Resource resource) {
+		final Map<String, String> sessionMode = getSessionMode();
 		final Errors errors = new BindException(session, SESSION);
 		rejectIfNull(errors, resource, RESOURCE, GL0056, generateErrorMessage(GL0056, RESOURCE));
 		rejectIfInvalidType(errors, session.getMode(), MODE, GL0007, generateErrorMessage(GL0007, MODE), sessionMode);
 		return errors;
 	}
 
-	private Errors validateUpdateSession(Session session, Session newSession) {
-		Map<String, String> sessionStatus = getSessionStatus();
+	private Errors validateUpdateSession(final Session session, final Session newSession) {
+		final Map<String, String> sessionStatus = getSessionStatus();
 		final Errors errors = new BindException(session, SESSION);
 		rejectIfNull(errors, newSession, SESSION, GL0056, generateErrorMessage(GL0056, SESSION));
 		rejectIfInvalidType(errors, newSession.getStatus(), STATUS, GL0007, generateErrorMessage(GL0007, STATUS), sessionStatus);
 		return errors;
 	}
 
-	private Errors validateSessionItem(Session session, SessionItem sessionItem, Resource resource) {
+	private Errors validateSessionItem(final Session session, final SessionItem sessionItem, final Resource resource) {
 		final Errors errors = new BindException(sessionItem, SESSION_ITEM);
 		rejectIfNull(errors, session, SESSION, GL0056, generateErrorMessage(GL0056, SESSION));
 		rejectIfNull(errors, resource, RESOURCE, GL0056, generateErrorMessage(GL0056, RESOURCE));
@@ -285,14 +285,14 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 	}
 
 	private Map<String, String> getSessionStatus() {
-		Map<String, String> sessionStatus = new HashMap<String, String>();
+		final Map<String, String> sessionStatus = new HashMap<String, String>();
 		sessionStatus.put(SessionStatus.OPEN.getSessionStatus(), SESSION);
 		sessionStatus.put(SessionStatus.ARCHIVE.getSessionStatus(), SESSION);
 		return sessionStatus;
 	}
 
 	private Map<String, String> getSessionMode() {
-		Map<String, String> sessionMode = new HashMap<String, String>();
+		final Map<String, String> sessionMode = new HashMap<String, String>();
 		sessionMode.put(ModeType.TEST.getModeType(), SESSION);
 		sessionMode.put(ModeType.PLAY.getModeType(), SESSION);
 		sessionMode.put(ModeType.PRACTICE.getModeType(), SESSION);
@@ -320,24 +320,23 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 	}
 	
 	private void getEventLogs(SessionItemFeedback sessionItemFeedback, User feedbackProvider) throws JSONException {
-		SessionContextSupport.putLogParameter(EVENT_NAME, "resource.user.feedback");
-		JSONObject context = SessionContextSupport.getLog().get("context") != null ? new JSONObject(SessionContextSupport.getLog().get("context").toString()) :  new JSONObject();
-		context.put("contentGooruId", sessionItemFeedback.getContentGooruOId());
-		context.put("parentGooruId", sessionItemFeedback.getParentGooruOId());
-		SessionContextSupport.putLogParameter("context", context.toString());
-		JSONObject payLoadObject = SessionContextSupport.getLog().get("payLoadObject") != null ? new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString()) :  new JSONObject();
-		payLoadObject =  sessionItemFeedback.getPlayLoadObject() != null ? new JSONObject(sessionItemFeedback.getPlayLoadObject()) :  new JSONObject();
-		payLoadObject.put("text", sessionItemFeedback.getFreeText());
-		payLoadObject.put("feedbackProviderUId", feedbackProvider.getPartyUid());
-		SessionContextSupport.putLogParameter("payLoadObject", payLoadObject.toString());
-		JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session").toString()) :  new JSONObject();
-		session.put("sessionId", sessionItemFeedback.getSessionId());
-		session.put("organizationUId", feedbackProvider.getOrganization().getPartyUid());
-		SessionContextSupport.putLogParameter("session", session.toString());	
-		JSONObject user = SessionContextSupport.getLog().get("user") != null ? new JSONObject(SessionContextSupport.getLog().get("user").toString()) :  new JSONObject();
-		user.put("gooruUId", sessionItemFeedback.getUser().getPartyUid());
-		SessionContextSupport.putLogParameter("user", user.toString());
-	}
-	
+        SessionContextSupport.putLogParameter(EVENT_NAME, "resource.user.feedback");
+        JSONObject context = SessionContextSupport.getLog().get("context") != null ? new JSONObject(SessionContextSupport.getLog().get("context").toString()) :  new JSONObject();
+        context.put("contentGooruId", sessionItemFeedback.getContentGooruOId());
+        context.put("parentGooruId", sessionItemFeedback.getParentGooruOId());
+        SessionContextSupport.putLogParameter("context", context.toString());
+        JSONObject payLoadObject = SessionContextSupport.getLog().get("payLoadObject") != null ? new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString()) :  new JSONObject();
+        payLoadObject =  sessionItemFeedback.getPlayLoadObject() != null ? new JSONObject(sessionItemFeedback.getPlayLoadObject()) :  new JSONObject();
+        payLoadObject.put("text", sessionItemFeedback.getFreeText());
+        payLoadObject.put("feedbackProviderUId", feedbackProvider.getPartyUid());
+        SessionContextSupport.putLogParameter("payLoadObject", payLoadObject.toString());
+        JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session").toString()) :  new JSONObject();
+        session.put("sessionId", sessionItemFeedback.getSessionId());
+        session.put("organizationUId", feedbackProvider.getOrganization().getPartyUid());
+        SessionContextSupport.putLogParameter("session", session.toString());    
+        JSONObject user = SessionContextSupport.getLog().get("user") != null ? new JSONObject(SessionContextSupport.getLog().get("user").toString()) :  new JSONObject();
+        user.put("gooruUId", sessionItemFeedback.getUser().getPartyUid());
+        SessionContextSupport.putLogParameter("user", user.toString());
+    }
 
 }

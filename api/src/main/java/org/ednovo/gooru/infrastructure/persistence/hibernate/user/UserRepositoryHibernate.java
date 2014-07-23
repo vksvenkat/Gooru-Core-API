@@ -63,7 +63,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class UserRepositoryHibernate extends BaseRepositoryHibernate implements UserRepository,ParameterProperties,ConstantProperties {
+public class UserRepositoryHibernate extends BaseRepositoryHibernate implements UserRepository, ParameterProperties, ConstantProperties {
 
 	private static final String EXTERNAL_ID = "externalId";
 
@@ -84,25 +84,25 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 	private static final String USER_SUMMARY = "from UserSummary u where u.gooruUid =:gooruUid";
 	private static final String FETCH_CHILD_USERS_BY_BIRTHDAY = "select  u.username as child_user_name, i2.external_id as parent_email_id  from identity i inner join user u on u.gooru_uid=i.user_uid inner join profile p  on p.user_uid=u.gooru_uid inner join identity i2 on i2.user_uid=u.parent_uid  where  datediff(CURDATE(),p.date_of_birth) = 4748 and u.account_type_id=2";
 	private static final String FETCH_CHILD_USERS_BY_BIRTHDAY_COUNT = "select count(1) as count from identity i inner join user u on u.gooru_uid=i.user_uid inner join profile p  on p.user_uid=u.gooru_uid inner join identity i2 on i2.user_uid=u.parent_uid  where  datediff(CURDATE(),p.date_of_birth) = 4748 and u.account_type_id=2";
-    private static final String FETCH_USERS_BY_BIRTHDAY = "select  i.external_id as email_id , i.user_uid as user_id from identity i inner join profile p on (i.user_uid=p.user_uid) where p.date_of_birth is not null and month(p.date_of_birth) = month(now()) and day(p.date_of_birth) = day(now())  and i.external_id like '%@%'";
-    private static final String FETCH_USERS_BY_BIRTHDAY_COUNT = "select count(1) as count from identity i inner join profile p on (i.user_uid=p.user_uid) where p.date_of_birth is not null and month(p.date_of_birth) = month(now()) and day(p.date_of_birth) = day(now())  and i.external_id like '%@%'";
-    private static final String FIND_BY_REFERENCE_UID = "from User u where u.referenceUid = ?";
-    private static final String INACTIVE_USER_COUNT_FOR_LAST_TWO_WEEKS = "select count(1) as count from identity i inner join party_custom_field p on p.party_uid = i.user_uid where (date(last_login) between  date(last_login) and date_sub(now(),INTERVAL 2 WEEK) or  last_login is null) and p.optional_key = 'last_user_inactive_mail_send_date' and (p.optional_value = '-' or  date(p.optional_value) between  date(p.optional_value) and date_sub(now(),INTERVAL 2 WEEK))";
-    private static final String FIND_USER_PARTY_UID = "FROM User user WHERE user.partyUid = :partyUid";
-    private static final String SYSTEM_TIMESTAMP = "select now() ";
-    private static final String FIND_USER_WITHOUT_ORGANIZATION = "FROM User user WHERE user.username = :username";
-    private static final String FIND_SUPER_ADMIN_USER = "from User u where u.partyUid = :gooruUId ";
-    private static final String FIND_USER_GOORU_UID = "from User u where u.partyUid = :gooruUId AND " + generateUserIsDeleted("u.");
-    private static final String FIND_GENDER_BY_ID = "from Gender g where g.genderId = ?";
-    private static final String FIND_USER_ROLE_BY_NAME = "FROM UserRole ur WHERE ur.name =:name";
-    private static final String FIND_USER_ROLE_BY_UID = "FROM UserRole ur WHERE ur.roleId =:roleId";
-    private static final String FIND_ENTITY_OPERATION = "FROM EntityOperation eo where eo.entityName=:entityName and eo.operationName=:operationName";
-    private static final String CHECK_ROLE_ENTITY = "FROM RoleEntityOperation reo where reo.userRole.roleId=:roleId and reo.entityOperation.entityOperationId=:entityOperationId";
-    private static final String FETCH_ROLE_ENTITY_OPERATION = "FROM RoleEntityOperation reo where reo.userRole.roleId=:roleId ";
-    private static final String DELETE_USER_GROUP_MEMBER = "Delete FROM UserGroupAssociation userGroupAssociation WHERE userGroupAssociation.userGroup.partyUid = :partyUid and userGroupAssociation.user.partyUid IN (:partyUids)";
-    private static final String FIND_GROUP_USER_BY_IDS = "FROM UserGroupAssociation UGA WHERE UGA.user.partyUid IN (:partyUids)";
-    private static final String FIND_PARTY_ID = "FROM Party party WHERE party.partyUid =:partyUid";
-    
+	private static final String FETCH_USERS_BY_BIRTHDAY = "select  i.external_id as email_id , i.user_uid as user_id from identity i inner join profile p on (i.user_uid=p.user_uid) where p.date_of_birth is not null and month(p.date_of_birth) = month(now()) and day(p.date_of_birth) = day(now())  and i.external_id like '%@%'";
+	private static final String FETCH_USERS_BY_BIRTHDAY_COUNT = "select count(1) as count from identity i inner join profile p on (i.user_uid=p.user_uid) where p.date_of_birth is not null and month(p.date_of_birth) = month(now()) and day(p.date_of_birth) = day(now())  and i.external_id like '%@%'";
+	private static final String FIND_BY_REFERENCE_UID = "from User u where u.referenceUid = ?";
+	private static final String INACTIVE_USER_COUNT_FOR_LAST_TWO_WEEKS = "select count(1) as count from identity i inner join party_custom_field p on p.party_uid = i.user_uid where (date(last_login) between  date(last_login) and date_sub(now(),INTERVAL 2 WEEK) or  last_login is null) and p.optional_key = 'last_user_inactive_mail_send_date' and (p.optional_value = '-' or  date(p.optional_value) between  date(p.optional_value) and date_sub(now(),INTERVAL 2 WEEK))";
+	private static final String FIND_USER_PARTY_UID = "FROM User user WHERE user.partyUid = :partyUid";
+	private static final String SYSTEM_TIMESTAMP = "select now() ";
+	private static final String FIND_USER_WITHOUT_ORGANIZATION = "FROM User user WHERE user.username = :username";
+	private static final String FIND_SUPER_ADMIN_USER = "from User u where u.partyUid = :gooruUId ";
+	private static final String FIND_USER_GOORU_UID = "from User u where u.partyUid = :gooruUId AND " + generateUserIsDeleted("u.");
+	private static final String FIND_GENDER_BY_ID = "from Gender g where g.genderId = ?";
+	private static final String FIND_USER_ROLE_BY_NAME = "FROM UserRole ur WHERE ur.name =:name";
+	private static final String FIND_USER_ROLE_BY_UID = "FROM UserRole ur WHERE ur.roleId =:roleId";
+	private static final String FIND_ENTITY_OPERATION = "FROM EntityOperation eo where eo.entityName=:entityName and eo.operationName=:operationName";
+	private static final String CHECK_ROLE_ENTITY = "FROM RoleEntityOperation reo where reo.userRole.roleId=:roleId and reo.entityOperation.entityOperationId=:entityOperationId";
+	private static final String FETCH_ROLE_ENTITY_OPERATION = "FROM RoleEntityOperation reo where reo.userRole.roleId=:roleId ";
+	private static final String DELETE_USER_GROUP_MEMBER = "Delete FROM UserGroupAssociation userGroupAssociation WHERE userGroupAssociation.userGroup.partyUid = :partyUid and userGroupAssociation.user.partyUid IN (:partyUids)";
+	private static final String FIND_GROUP_USER_BY_IDS = "FROM UserGroupAssociation UGA WHERE UGA.user.partyUid IN (:partyUids)";
+	private static final String FIND_PARTY_ID = "FROM Party party WHERE party.partyUid =:partyUid";
+
 	@Autowired
 	public UserRepositoryHibernate(SessionFactory sessionFactory, JdbcTemplate jdbcTemplate) {
 		super();
@@ -136,7 +136,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 			}
 
 		}
-		return (userStatus == null) ?  "unknown" : userStatus;
+		return (userStatus == null) ? "unknown" : userStatus;
 	}
 
 	public void invite(String firstname, String lastname, String email, String school, String message, String datestr) {
@@ -197,14 +197,14 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 	public User findByGooruId(String gooruId) {
 		Query query = getSession().createQuery(FIND_USER_GOORU_UID);
 		query.setParameter("gooruUId", gooruId);
-		return query.list().size() > 0 ? (User)query.list().get(0) : null;
+		return query.list().size() > 0 ? (User) query.list().get(0) : null;
 	}
 
 	@Override
 	public User findByGooruIdforSuperAdmin(String gooruId) {
 		Query query = getSession().createQuery(FIND_SUPER_ADMIN_USER);
 		query.setParameter("gooruUId", gooruId);
-		return query.list().size() > 0 ? (User)query.list().get(0) : null;
+		return query.list().size() > 0 ? (User) query.list().get(0) : null;
 	}
 
 	@Override
@@ -213,7 +213,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 		Query query = getSession().createQuery(hql);
 		query.setParameter(EXTERNAL_ID, emailId);
 		addOrgAuthParameters(query);
-		return query.list().size() > 0 ? (Identity)query.list().get(0) : null;
+		return query.list().size() > 0 ? (Identity) query.list().get(0) : null;
 	}
 
 	public Profile getProfile(User user, boolean isSsoLogin) {
@@ -249,8 +249,8 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 		int count = this.getJdbcTemplate().queryForInt(FIND_REGISTERED_USER, new Object[] { emailId });
 		Boolean isRegisteredUser = false;
 		if (count > 0) {
-			isRegisteredUser =  true;
-		} 
+			isRegisteredUser = true;
+		}
 		return isRegisteredUser;
 	}
 
@@ -300,21 +300,21 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<User> getFollowedByUsers(String gooruUId, Integer offset, Integer limit, boolean skipPagination) {
+	public List<User> getFollowedByUsers(String gooruUId, Integer offset, Integer limit) {
 		String hql = "SELECT userRelation.user FROM UserRelationship userRelation  WHERE userRelation.followOnUser.partyUid = '" + gooruUId + "' AND userRelation.activeFlag = 1 AND " + generateOrgAuthQueryWithData("userRelation.user.") + " AND " + generateUserIsDeleted("userRelation.user.");
 		Query query = getSession().createQuery(hql);
 		query.setFirstResult(offset);
 		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
 		return query.list();
 	}
-	
+
 	@Override
 	public long getFollowedByUsersCount(String gooruUId) {
 		String hql = "SELECT count(*) FROM UserRelationship userRelation  WHERE userRelation.followOnUser.partyUid = '" + gooruUId + "' AND userRelation.activeFlag = 1 AND " + generateOrgAuthQueryWithData("userRelation.user.") + " AND " + generateUserIsDeleted("userRelation.user.");
 		Query query = getSession().createQuery(hql);
 		return (Long) query.list().get(0);
 	}
-	
+
 	@Override
 	public long getFollowedOnUsersCount(String gooruUId) {
 		String hql = "SELECT count(*) FROM UserRelationship userRelation WHERE userRelation.user.partyUid = '" + gooruUId + "' AND userRelation.activeFlag = 1  AND " + generateOrgAuthQueryWithData("userRelation.user.") + " AND " + generateUserIsDeleted("userRelation.user.");
@@ -324,11 +324,11 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<User> getFollowedOnUsers(String gooruUId, Integer offset, Integer limit, boolean skipPagination) {
+	public List<User> getFollowedOnUsers(String gooruUId, Integer offset, Integer limit) {
 		String hql = "SELECT userRelation.followOnUser FROM UserRelationship userRelation WHERE userRelation.user.partyUid = '" + gooruUId + "' AND userRelation.activeFlag = 1  AND " + generateOrgAuthQueryWithData("userRelation.user.") + " AND " + generateUserIsDeleted("userRelation.user.");
 		Query query = getSession().createQuery(hql);
 		query.setFirstResult(offset);
-		query.setMaxResults(limit == null ?  LIMIT : (limit > MAX_LIMIT ? MAX_LIMIT : limit) );
+		query.setMaxResults(limit == null ? LIMIT : (limit > MAX_LIMIT ? MAX_LIMIT : limit));
 		return query.list();
 	}
 
@@ -339,8 +339,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 				.add(Restrictions.eq("followOnUser.partyUid", gooruFollowOnUserId)).add(Restrictions.eq("activeFlag", true)).list();
 		return (relationships.size() > 0) ? relationships.get(0) : null;
 	}
-	
-	//@SuppressWarnings("rawtypes")
+
 	@SuppressWarnings("rawtypes")
 	@Override
 	public User findByRemeberMeToken(String remeberMeToken) {
@@ -364,7 +363,6 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 		}
 		return user;
 	}
-	
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -481,7 +479,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<UserRole> findAllRoles() {
-		String hql = "select userRole from UserRole userRole where "+ generateOrgAuthQuery("userRole.");
+		String hql = "select userRole from UserRole userRole where " + generateOrgAuthQuery("userRole.");
 		Query query = getSession().createQuery(hql);
 		addOrgAuthParameters(query);
 		return query.list();
@@ -489,14 +487,14 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 
 	@Override
 	public User getUserByUserName(String userName, boolean isLoginRequest) {
-		String hql = "FROM User  user WHERE user.username = :username " ;
-		if(!isLoginRequest){
-			hql +=" and " + generateOrgAuthQuery("user.");
+		String hql = "FROM User  user WHERE user.username = :username ";
+		if (!isLoginRequest) {
+			hql += " and " + generateOrgAuthQuery("user.");
 		}
 		hql += " and " + generateUserIsDeleted("user.");
 		Query query = getSession().createQuery(hql);
 		query.setParameter("username", userName);
-		if(!isLoginRequest){
+		if (!isLoginRequest) {
 			addOrgAuthParameters(query);
 		}
 		return (User) (query.list().size() > 0 ? query.list().get(0) : null);
@@ -619,7 +617,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 		query.executeUpdate();
 		return "Deleted Successfully";
 	}
-	
+
 	@Override
 	public UserGroupAssociation getUserGroupMemebrByGroupUid(String groupUid, String gooruUid) {
 		String hql = " FROM UserGroupAssociation userGroupAssociation WHERE userGroupAssociation.userGroup.partyUid = :groupUid and userGroupAssociation.user.partyUid =:gooruUid";
@@ -760,27 +758,27 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 	public List<Object[]> listUserByBirthDay(Integer offset, Integer limit) {
 		Query query = getSession().createSQLQuery(FETCH_USERS_BY_BIRTHDAY).addScalar("email_id", StandardBasicTypes.STRING).addScalar("user_id", StandardBasicTypes.STRING);
 		query.setFirstResult(offset);
-		query.setMaxResults(limit == null ?  LIMIT : (limit > MAX_LIMIT ? MAX_LIMIT : limit));
+		query.setMaxResults(limit == null ? LIMIT : (limit > MAX_LIMIT ? MAX_LIMIT : limit));
 		return query.list();
 	}
-	
+
 	@Override
 	public Integer getChildUserBirthdayCount() {
 		Query query = getSession().createSQLQuery(FETCH_CHILD_USERS_BY_BIRTHDAY_COUNT).addScalar("count", StandardBasicTypes.INTEGER);
 		return (Integer) query.list().get(0);
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Object[]> listChildUserByBirthDay() {
 		Query query = getSession().createSQLQuery(FETCH_CHILD_USERS_BY_BIRTHDAY).addScalar("child_user_name", StandardBasicTypes.STRING).addScalar("parent_email_id", StandardBasicTypes.STRING);
 		return query.list();
 	}
-	
+
 	@Override
 	public UserSummary getSummaryByUid(String gooruUid) {
 		Query query = getSession().createQuery(USER_SUMMARY).setParameter("gooruUid", gooruUid);
-		return query.list().size() > 0 ? (UserSummary)query.list().get(0) : new UserSummary();
+		return query.list().size() > 0 ? (UserSummary) query.list().get(0) : new UserSummary();
 	}
 
 }

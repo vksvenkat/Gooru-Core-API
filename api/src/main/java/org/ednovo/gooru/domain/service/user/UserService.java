@@ -52,9 +52,9 @@ public interface UserService {
 
 	String encryptPassword(String password);
 
-	List<User> getFollowedByUsers(String gooruUId,Integer offset, Integer limit, boolean skipPagination);
+	List<User> getFollowedByUsers(String gooruUId,Integer offset, Integer limit);
 
-	List<User> getFollowedOnUsers(String gooruUId, Integer offset, Integer limit, boolean skipPagination);
+	List<User> getFollowedOnUsers(String gooruUId, Integer offset, Integer limit);
 
 	UserRelationship followUser(User user, String gooruFollowOnUserId);
 
