@@ -338,7 +338,7 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 		if (data != null && !data.isEmpty()) {
 			JSONObject json = requestData(data);
 		}
-		List<Classpage> classpage = this.getClasspageService().getMyClasspage(offset, limit, user, orderBy);
+		List<Classpage> classpage = this.getClasspageService().getMyClasspage(offset, limit, user, skipPagination,orderBy);
 		String[] includes = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, CLASSPAGE_INCLUDE_FIELDS);
 		includes = (String[]) ArrayUtils.addAll(includes, CLASSPAGE_META_INFO);
 		includes = (String[]) ArrayUtils.addAll(includes, CLASSPAGE_ITEM_INCLUDE_FIELDS);
@@ -348,7 +348,7 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 			result.setTotalHitCount(this.getClasspageService().getMyClasspageCount(user.getGooruUId()));
 			return toModelAndViewWithIoFilter(result, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 		} else {
-			return toModelAndViewWithIoFilter(getClasspageService().getMyClasspage(offset, limit, user, orderBy), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
+			return toModelAndViewWithIoFilter(getClasspageService().getMyClasspage(offset, limit, user, true,orderBy), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 		}
 	}
 

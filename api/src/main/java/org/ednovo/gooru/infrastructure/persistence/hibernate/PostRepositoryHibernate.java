@@ -62,7 +62,7 @@ public class PostRepositoryHibernate extends BaseRepositoryHibernate implements 
 		Query query = session.createQuery(hql + generateOrgAuthQuery("post."));
 		addOrgAuthParameters(query);
 		query.setFirstResult(offset);
-		query.setMaxResults(limit);
+		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
 		return query.list();
 
 	}
@@ -74,10 +74,8 @@ public class PostRepositoryHibernate extends BaseRepositoryHibernate implements 
 		Query query = session.createQuery(hql);
 		query.setParameter("gooruUid", gooruUid);
 		addOrgAuthParameters(query);
-		//if (!skipPagination) {
 			query.setFirstResult(offset);
 			query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
-		//}
 		return query.list();
 	}
 
@@ -90,7 +88,7 @@ public class PostRepositoryHibernate extends BaseRepositoryHibernate implements 
 		query.setParameter("gooruOid", gooruOid);
 		addOrgAuthParameters(query);
 		query.setFirstResult(offset);
-		query.setMaxResults(limit);
+		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
 		return query.list();
 	}
 

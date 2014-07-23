@@ -612,8 +612,6 @@ public interface ConstantProperties {
 	public static String  INSTRUCTIONAL_METHOD = "instructional_method";
 
 	public static String NOT_DELETED = "notdeleted";
-	
-	public static String COMMENTCOUNT = "commentCount";
 
 	public static String CONTENT_META_ASSOCIATION_TYPE = "content_meta_association_type_";
 	
@@ -631,7 +629,7 @@ public interface ConstantProperties {
 
     public static String COLLECTION_CREATE = "collection.create";
     
-    public static String  ITEM_ID = " ItemId";
+    public static String  ITEM_ID = "ItemId";
     
     public static String  CONTENT_ITEM_ID = "contentItemId";
 
@@ -661,6 +659,26 @@ public interface ConstantProperties {
     
     public static String STATISTICS_DATA = "statisticsData";
  
-   
+    public static String _PUBLISH_STATUS ="publish_status";
     
+    public static String FOLDER_FOLDER = "folder.folder";
+    
+    public static String SHELF_FOLDER = "shelf.folder";
+    
+    public static String _ITEM_DATA = "itemData";
+    
+    public static String _COPY = "copy";
+    
+    public static String RESOURCE_CREATE_RESOURCE = "resource.create_resource";
+    
+    public static String  RESOURCE_DELETE_RESOURCE = "resource.delete_resource";
+    
+    public static String  RESOURCE_DELETE_RESOURCE_TAXONOMY = "resource.delete_resource_taxonomy"; 
+    
+    public static String TAG_ADD_RESOURCE = "tag.add_resource";
+    
+    
+    
+    
+   
 }

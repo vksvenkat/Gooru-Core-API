@@ -319,6 +319,7 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 		return userRepository;
 	}
 	
+<<<<<<< HEAD
 	private void getEventLogs(final SessionItemFeedback sessionItemFeedback, final User feedbackProvider) throws JSONException {
 		SessionContextSupport.putLogParameter(EVENT_NAME, "resource.user.feedback");
 		final JSONObject context = SessionContextSupport.getLog().get("context") != null ? new JSONObject(SessionContextSupport.getLog().get("context").toString()) :  new JSONObject();
@@ -338,6 +339,27 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 		user.put("gooruUId", sessionItemFeedback.getUser().getPartyUid());
 		SessionContextSupport.putLogParameter("user", user.toString());
 	}
+=======
+	private void getEventLogs(SessionItemFeedback sessionItemFeedback, User feedbackProvider) throws JSONException {
+        SessionContextSupport.putLogParameter(EVENT_NAME, "resource.user.feedback");
+        JSONObject context = SessionContextSupport.getLog().get("context") != null ? new JSONObject(SessionContextSupport.getLog().get("context").toString()) :  new JSONObject();
+        context.put("contentGooruId", sessionItemFeedback.getContentGooruOId());
+        context.put("parentGooruId", sessionItemFeedback.getParentGooruOId());
+        SessionContextSupport.putLogParameter("context", context.toString());
+        JSONObject payLoadObject = SessionContextSupport.getLog().get("payLoadObject") != null ? new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString()) :  new JSONObject();
+        payLoadObject =  sessionItemFeedback.getPlayLoadObject() != null ? new JSONObject(sessionItemFeedback.getPlayLoadObject()) :  new JSONObject();
+        payLoadObject.put("text", sessionItemFeedback.getFreeText());
+        payLoadObject.put("feedbackProviderUId", feedbackProvider.getPartyUid());
+        SessionContextSupport.putLogParameter("payLoadObject", payLoadObject.toString());
+        JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session").toString()) :  new JSONObject();
+        session.put("sessionId", sessionItemFeedback.getSessionId());
+        session.put("organizationUId", feedbackProvider.getOrganization().getPartyUid());
+        SessionContextSupport.putLogParameter("session", session.toString());    
+        JSONObject user = SessionContextSupport.getLog().get("user") != null ? new JSONObject(SessionContextSupport.getLog().get("user").toString()) :  new JSONObject();
+        user.put("gooruUId", sessionItemFeedback.getUser().getPartyUid());
+        SessionContextSupport.putLogParameter("user", user.toString());
+    }
+>>>>>>> goorus/master
 	
 
 }

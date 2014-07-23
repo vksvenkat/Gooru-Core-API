@@ -110,10 +110,7 @@ public interface AssessmentService {
 
 	AssessmentQuestionAssetAssoc uploadQuestionAsset(String gooruQuestionId, AssessmentQuestionAssetAssoc questionAsset, boolean index) throws Exception;
 
-	
 	AssessmentSegmentQuestionAssoc findSegmentQuestion(Integer segmentId, String gooruOQuestionId);
-
-	int publishAssessment(String gooruAssessmentId);
 
 	Assessment copyAssessment(User user, String gooruAssessmentId, String quizTitle) throws Exception;
 

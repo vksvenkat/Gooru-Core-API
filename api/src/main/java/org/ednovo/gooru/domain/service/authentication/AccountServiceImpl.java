@@ -389,6 +389,8 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			LOGGER.debug("error"+e.getMessage());
 		}
 		request.getSession().setAttribute(Constants.USER, newUser);
+		newUser.setToken(sessionToken.getToken());
+		
 		return newUser;
 	}
 
