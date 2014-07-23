@@ -64,11 +64,11 @@ public class SessionRestV2Controller extends BaseController implements Parameter
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_V2_SESSION_ADD })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "", method = RequestMethod.POST)
-	public ModelAndView createSession(@RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public ModelAndView createSession(@RequestBody final String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		request.setAttribute(PREDICATE, "tag.add_resource");
 		User user = (User) request.getAttribute(Constants.USER);
-		JSONObject json = requestData(data);
-		ActionResponseDTO<Session> session = getSessionService().createSession(this.buildSessionFromInputParameters(getValue(SESSION, json)), user);
+		final JSONObject json = requestData(data);
+		final ActionResponseDTO<Session> session = getSessionService().createSession(this.buildSessionFromInputParameters(getValue(SESSION, json)), user);
 		if (session.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		} else {
@@ -85,7 +85,7 @@ public class SessionRestV2Controller extends BaseController implements Parameter
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_V2_SESSION_ADD })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/{id}/item/feedback", method = RequestMethod.POST)
-	public ModelAndView createSessionItemFeedback(@PathVariable(ID) String sessionId, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public ModelAndView createSessionItemFeedback(@PathVariable(ID) String sessionId, @RequestBody String data, final HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
 		SessionItemFeedback sessionItemFeedback = getSessionService().createSessionItemFeedback(sessionId, this.buildSessionItemFeedbackFromInputParameters(data), user);
 		
@@ -95,10 +95,10 @@ public class SessionRestV2Controller extends BaseController implements Parameter
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_V2_SESSION_UPDATE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.PUT, value = "/{id}")
-	public ModelAndView updateSession(@RequestBody String data, @PathVariable(ID) String sessionId, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public ModelAndView updateSession(@RequestBody final String data, @PathVariable(ID) final String sessionId, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		request.setAttribute(PREDICATE, "tag.add_resource");
 		User user = (User) request.getAttribute(Constants.USER);
-		JSONObject json = requestData(data);
+		final JSONObject json = requestData(data);
 		ActionResponseDTO<Session> session = getSessionService().updateSession(sessionId, this.buildSessionFromInputParameters(getValue(SESSION, json)));
 		if (session.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -114,8 +114,8 @@ public class SessionRestV2Controller extends BaseController implements Parameter
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_V2_SESSION_READ })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/{id}")
-	public ModelAndView getSession(@PathVariable(ID) String sessionId, @RequestParam(value = DATA_OBJECT, required = false) String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		Session session = this.getSessionService().getSession(sessionId);
+	public ModelAndView getSession(@PathVariable(ID) final String sessionId, @RequestParam(value = DATA_OBJECT, required = false) String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+		final Session session = this.getSessionService().getSession(sessionId);
 		String[] includeFields = null;
 		if (data != null && !data.isEmpty()) {
 			JSONObject json = requestData(data);
@@ -130,11 +130,11 @@ public class SessionRestV2Controller extends BaseController implements Parameter
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_V2_SESSION_ADD })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.POST, value = "/{id}/item")
-	public ModelAndView createSessionItem(@RequestBody String data, @PathVariable(ID) String sessionId, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public ModelAndView createSessionItem(@RequestBody String data, @PathVariable(ID) String sessionId, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		request.setAttribute(PREDICATE, "tag.add_resource");
 		User user = (User) request.getAttribute(Constants.USER);
 		JSONObject json = requestData(data);
-		ActionResponseDTO<SessionItem> sessionItem = getSessionService().createSessionItem(this.buildSessionItemFromInputParameters(getValue(SESSION_ITEM, json)), sessionId);
+		final ActionResponseDTO<SessionItem> sessionItem = getSessionService().createSessionItem(this.buildSessionItemFromInputParameters(getValue(SESSION_ITEM, json)), sessionId);
 		if (sessionItem.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		} else {
@@ -151,7 +151,7 @@ public class SessionRestV2Controller extends BaseController implements Parameter
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_V2_SESSION_ADD })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.POST, value = "/{sid}/item/{id}/attempt")
-	public ModelAndView createSessionItemAttemptTry(@RequestBody String data, @PathVariable(ID) String sessionItemId, @PathVariable(SESSION_ID) String sessionId, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public ModelAndView createSessionItemAttemptTry(@RequestBody String data, @PathVariable(ID) final String sessionItemId, @PathVariable(SESSION_ID) String sessionId, final HttpServletRequest request, HttpServletResponse response) throws Exception {
 		request.setAttribute(PREDICATE, "tag.add_resource");
 		User user = (User) request.getAttribute(Constants.USER);
 		JSONObject json = requestData(data);
