@@ -47,7 +47,7 @@ public interface TagService extends BaseService {
 
 	void deleteTag(String gooruOid);
 
-	List<ContentTagAssoc> getTagContentAssoc(String tagGooruOid, Integer limit, Integer offset, boolean skipPagination);
+	List<ContentTagAssoc> getTagContentAssoc(String tagGooruOid, Integer limit, Integer offset);
 
 	UserTagAssoc createUserTagAssoc(String gooruUid, String tagGooruOid);
 
@@ -65,6 +65,6 @@ public interface TagService extends BaseService {
 	
 	void deleteTagSynonyms(String tagGooruOid, Integer synonymsId);
 	
-	Map<String, Object> getResourceByLabel(String label, Integer limit, Integer offset, boolean skipPagination, String gooruOid);
+	Map<String, Object> getResourceByLabel(String label, Integer limit, Integer offset, String gooruOid);
 
 }

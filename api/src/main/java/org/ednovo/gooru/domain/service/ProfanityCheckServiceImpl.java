@@ -98,7 +98,7 @@ public class ProfanityCheckServiceImpl implements ProfanityCheckService, Constan
 		return profanity;
 	}
 
-	public void profanityCreate(Profanity profanity) throws Exception {
+	public List<String> profanityCreate(Profanity profanity) throws Exception {
 		if (!getBlackListWordCassandraService().validate(profanity.getText())) {
 			String[] badwords = profanity.getText().split(",");
 			List<String> words = new ArrayList<String>();
@@ -106,6 +106,7 @@ public class ProfanityCheckServiceImpl implements ProfanityCheckService, Constan
 				words.add(badword);
 			}
 			getBlackListWordCassandraService().save(words);
+			return words;
 		} else {
 			throw new BadCredentialsException(profanity.getText());
 		}

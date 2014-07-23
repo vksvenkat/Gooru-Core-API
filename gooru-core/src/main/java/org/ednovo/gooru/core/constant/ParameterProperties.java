@@ -5,7 +5,9 @@ public interface ParameterProperties {
 	public String SESSION_EXPIRES_TIME = "session.expires.time";
 
 	public static final String DELETE = "delete";
-
+	
+	public static final String DELETED = "deleted"; 
+	
 	public static final String _DELETE = "DELETE";
 
 	public static final String HREF = "href";
@@ -105,18 +107,22 @@ public interface ParameterProperties {
 	String INLCLUDE_META_INFO = "includeMetaInfo";
 
 	String INCLUDE_COLLABORATOR = "includeCollaborator";
+	
+	String COLLABORATOR_INFO = "collaboratorInfo";
 
 	String INCLUDE_RELATED_CONTENT = "includeRelatedContent";
 
 	String INCLUDE_COLLECTION_ITEM = "includeCollectionItem";
 
 	String INCLUDE_ADDITIONAL_INFO = "includeAdditionalInfo";
-
+	
 	String ORDER_BY = "orderBy";
 
 	String SOFT_DELETE = "softdelete";
 
 	String DESC = "desc";
+	
+	String ASC = "asc";
 
 	String CLASSPAGE = "classpage";
 
@@ -682,7 +688,7 @@ public interface ParameterProperties {
 
 	String MD_5 = "MD5";
 
-	String expire = "expires";
+	String EXPIRE = "expires";
 
 	String GET = "GET";
 
@@ -2695,4 +2701,35 @@ public interface ParameterProperties {
 	String GOOGLE_REFRESH_TOKEN = "google_refresh_token";
 	
 	String REFRESH_TOKEN = "refresh_token";
+	
+	Integer MAX_LIMIT = 50;
+	
+	String EDUCATIONAL_USE = "educational_use";
+	
+	String MAIL_NOTIFICATION = "mailNotification";
+	
+	String ESTIMATED_TIME = "estimatedTime";
+	
+	String KEYPOINTS  = "keyPoints"; 
+	
+	String LANGUAGE  = "language";
+	
+	String LANGUAGE_OBJECTIVE = "languageObjective" ;
+	
+	String IDEAS = "ideas";
+	
+	String QUESTIONS = "questions";
+	
+	String PERFORMANCE_TASKS = "performanceTasks";
+	
+	String DEPTHOFKNOWLEDGES = "depthOfKnowledges";
+	
+	String LEARNING_SKILLS = "learningSkills";
+	
+	String INSTRUCTIONALMETHOD = "instructionalMethod";
+	
+	String METAINFO = "metaInfo";
+	
+	String COLLECTIONITEMS = "collectionItems";
+	
 }

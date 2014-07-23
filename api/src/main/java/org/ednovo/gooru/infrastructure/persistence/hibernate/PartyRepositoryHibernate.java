@@ -59,6 +59,7 @@ public class PartyRepositoryHibernate extends BaseRepositoryHibernate implements
 
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<PartyCustomField> getPartyCustomFields(String partyUid, String optionalKey, String category) {
 		Session session = getSession();
@@ -90,17 +91,14 @@ public class PartyRepositoryHibernate extends BaseRepositoryHibernate implements
 	
 	@Override
 	public Profile getUserDateOfBirth(String partyUid, User user){
-		Session session = getSession();
-		Query query = session.createQuery("FROM  Profile profile  WHERE profile.user.partyUid= '" + partyUid + "'");
-		releaseSession(session);
+		Query query = getSession().createQuery("FROM  Profile profile  WHERE profile.user.partyUid= '" + partyUid + "'");
 		return  (query != null && query.list() != null && query.list().size() > 0) ? (Profile) query.list().get(0) : null;
 	}
 
 	@Override
 	public Integer getCountInActiveMailSendToday() {
-		Session session = getSession();
 		String sql = "select count(1) as count from party_custom_field p where p.optional_value != '-' and  date(p.optional_value) = date(now())";
-		Query query = session.createSQLQuery(sql).addScalar("count", StandardBasicTypes.INTEGER);
+		Query query = getSession().createSQLQuery(sql).addScalar("count", StandardBasicTypes.INTEGER);
 		return (Integer) query.list().get(0);
 	}
 
@@ -128,6 +126,7 @@ public class PartyRepositoryHibernate extends BaseRepositoryHibernate implements
 		return ((Integer) query.list().get(0)) == 1 ? true : false;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<Map<Object, Object>> getPartyDetails() {
 		String sql = " select p.party_uid as gooruUId, u.username as username, p.display_name as displayName, u.organization_uid as organizationUid from party p inner join user u on p.party_uid = u.gooru_uid where p.is_partner = 1 order by p.display_name";

@@ -15,9 +15,9 @@ public class UserTransformer extends ObjectTransformer {
 	private boolean deepSerialize;
 	private static XStream xStream = new XStream(new DomDriver());
 	
-	private  String DEFAULT_ORGANIZATION_NAME = "gooru"; 
+	private  String defaultOrganizatiomName = "gooru"; 
 	
-	private static String RUSD_ORGANIZATION_NAME = "rusd";
+	private final static String RUSD_ORGANIZATION_NAME = "rusd";
 	
 	private static String GOORU_ORG_UID = "4261739e-ccae-11e1-adfb-5404a609bd14";
 
@@ -35,7 +35,7 @@ public class UserTransformer extends ObjectTransformer {
 		String organizationUid = null;
 		if(organization != null){
 			organizationUid = user.getOrganization().getPartyUid();
-			DEFAULT_ORGANIZATION_NAME = user.getOrganization().getPartyName();
+			defaultOrganizatiomName = user.getOrganization().getPartyName();
 		} else {
 			organizationUid = user.getOrganizationUid();
 		}
@@ -90,6 +90,7 @@ public class UserTransformer extends ObjectTransformer {
 			userModel.setIsDeleted(user.getIsDeleted());
 			userModel.setCustomFields(user.getCustomFields());
 			userModel.setMeta(user.getMeta());
+			userModel.setToken(user.getToken());
 			
 			userModel.setProfileImageUrl(UserGroupSupport.getProfileAssetURI() + user.getPartyUid() + ".png");
 			if(user.getIdentities() != null){
@@ -108,7 +109,7 @@ public class UserTransformer extends ObjectTransformer {
 				}
 			}  
 			if (userModel.getOrganizationName() == null) {
-			  userModel.setOrganizationName(DEFAULT_ORGANIZATION_NAME);
+			  userModel.setOrganizationName(defaultOrganizatiomName);
 			}
 			
 			if (deepSerialize) {

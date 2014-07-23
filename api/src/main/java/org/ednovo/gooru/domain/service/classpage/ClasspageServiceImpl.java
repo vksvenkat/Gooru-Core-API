@@ -75,6 +75,7 @@ import org.ednovo.gooru.security.OperationAuthorizer;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
@@ -292,9 +293,9 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 
 	@Override
-	public SearchResults<Classpage> getClasspages(Integer offset, Integer limit, Boolean skipPagination, User user, String title, String author, String userName) {
+	public SearchResults<Classpage> getClasspages(Integer offset, Integer limit,  User user, String title, String author, String userName) {
 		if (userService.isContentAdmin(user)) {
-			List<Classpage> classpages = this.getCollectionRepository().getClasspages(offset, limit, skipPagination, title, author, userName);
+			List<Classpage> classpages = this.getCollectionRepository().getClasspages(offset, limit, title, author, userName);
 			SearchResults<Classpage> result = new SearchResults<Classpage>();
 			result.setSearchResults(classpages);
 			result.setTotalHitCount(this.getCollectionRepository().getClasspageCount(title, author, userName));
@@ -343,42 +344,53 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	@Override
 	public ActionResponseDTO<CollectionItem> createClasspageItem(String assignmentGooruOid, String classpageGooruOid, CollectionItem collectionItem, User user, String type) throws Exception {
 		Classpage classpage = null;
-		if (type != null && type.equalsIgnoreCase(CollectionType.USER_CLASSPAGE.getCollectionType())) {
-			if (classpageGooruOid != null) {
-				classpage = this.getClasspage(classpageGooruOid, null, null);
-			} else {
-				classpage = this.getCollectionRepository().getUserShelfByClasspageGooruUid(user.getGooruUId(), CollectionType.USER_CLASSPAGE.getCollectionType());
-			}
-			if (classpage == null && type != null && type.equalsIgnoreCase(CollectionType.USER_CLASSPAGE.getCollectionType())) {
-				classpage = new Classpage();
-				classpage.setTitle(MY_CLASSPAGE);
-				classpage.setCollectionType(CollectionType.USER_CLASSPAGE.getCollectionType());
-				classpage.setClasspageCode(BaseUtil.base48Encode(7));
-				classpage.setGooruOid(UUID.randomUUID().toString());
-				ContentType contentType = (ContentType) this.getCollectionRepository().get(ContentType.class, ContentType.RESOURCE);
-				classpage.setContentType(contentType);
-				ResourceType resourceType = (ResourceType) this.getCollectionRepository().get(ResourceType.class, ResourceType.Type.CLASSPAGE.getType());
-				classpage.setResourceType(resourceType);
-				classpage.setLastModified(new Date(System.currentTimeMillis()));
-				classpage.setCreatedOn(new Date(System.currentTimeMillis()));
-				classpage.setSharing(Sharing.PRIVATE.getSharing());
-				classpage.setUser(user);
-				classpage.setOrganization(user.getPrimaryOrganization());
-				classpage.setCreator(user);
-				classpage.setDistinguish(Short.valueOf(ZERO));
-				classpage.setRecordSource(NOT_ADDED);
-				classpage.setIsFeatured(0);
-				this.getCollectionRepository().save(classpage);
-			}
-			collectionItem.setItemType(ShelfType.AddedType.SUBSCRIBED.getAddedType());
-		} else {
-			classpage = this.getClasspage(classpageGooruOid, null, null);
-			collectionItem.setItemType(ShelfType.AddedType.ADDED.getAddedType());
-		}
-
 		Collection collection = this.getCollectionRepository().getCollectionByGooruOid(assignmentGooruOid, null);
 		Errors errors = validateClasspageItem(classpage, collection, collectionItem);
-		if (collection != null) {
+		
+		Date currentDate = new Date();
+		
+		if(collectionItem!= null && collectionItem.getPlannedEndDate() != null){
+			Date plannedEndDate = collectionItem.getPlannedEndDate();
+			System.out.println("currentDate :::" + currentDate + " :::plannedEndDate " + plannedEndDate );
+			if(currentDate.compareTo(plannedEndDate) > 0){
+				throw new BadCredentialsException("Invalid PlannedEndDate");
+			}
+		}
+		
+		if(collection != null){
+			if (type != null && type.equalsIgnoreCase(CollectionType.USER_CLASSPAGE.getCollectionType())) {
+				if (classpageGooruOid != null) {
+					classpage = this.getClasspage(classpageGooruOid, null, null);
+				} else {
+					classpage = this.getCollectionRepository().getUserShelfByClasspageGooruUid(user.getGooruUId(), CollectionType.USER_CLASSPAGE.getCollectionType());
+				}
+				if (classpage == null && type != null && type.equalsIgnoreCase(CollectionType.USER_CLASSPAGE.getCollectionType())) {
+					classpage = new Classpage();
+					classpage.setTitle(MY_CLASSPAGE);
+					classpage.setCollectionType(CollectionType.USER_CLASSPAGE.getCollectionType());
+					classpage.setClasspageCode(BaseUtil.base48Encode(7));
+					classpage.setGooruOid(UUID.randomUUID().toString());
+					ContentType contentType = (ContentType) this.getCollectionRepository().get(ContentType.class, ContentType.RESOURCE);
+					classpage.setContentType(contentType);
+					ResourceType resourceType = (ResourceType) this.getCollectionRepository().get(ResourceType.class, ResourceType.Type.CLASSPAGE.getType());
+					classpage.setResourceType(resourceType);
+					classpage.setLastModified(new Date(System.currentTimeMillis()));
+					classpage.setCreatedOn(new Date(System.currentTimeMillis()));
+					classpage.setSharing(Sharing.PRIVATE.getSharing());
+					classpage.setUser(user);
+					classpage.setOrganization(user.getPrimaryOrganization());
+					classpage.setCreator(user);
+					classpage.setDistinguish(Short.valueOf(ZERO));
+					classpage.setRecordSource(NOT_ADDED);
+					classpage.setIsFeatured(0);
+					this.getCollectionRepository().save(classpage);
+				}
+				collectionItem.setItemType(ShelfType.AddedType.SUBSCRIBED.getAddedType());
+			} else {
+				classpage = this.getClasspage(classpageGooruOid, null, null);
+				collectionItem.setItemType(ShelfType.AddedType.ADDED.getAddedType());
+			}
+
 			if (!errors.hasErrors()) {
 				collectionItem.setCollection(classpage);
 				collectionItem.setResource(collection);
@@ -388,15 +400,15 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 				this.getCollectionRepository().save(collectionItem);
 			}
 		} else {
-			throw new Exception("invalid assignmentId -" + assignmentGooruOid);
+			throw new NotFoundException("Invalid assignmentId -" + assignmentGooruOid);
 		}
+		
 		try{
 			getEventLogs(collectionItem, true, user, collectionItem.getCollection().getCollectionType());
 		} catch(Exception e){
 			e.printStackTrace();
 		}
 		
-
 		return new ActionResponseDTO<CollectionItem>(collectionItem, errors);
 	}
 
@@ -426,7 +438,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 
 	@Override
-	public List<Classpage> getMyClasspage(Integer offset, Integer limit, User user, boolean skipPagination, String orderBy) {
+	public List<Classpage> getMyClasspage(Integer offset, Integer limit, User user,boolean skipPagination, String orderBy) {
 		return this.getCollectionRepository().getMyClasspage(offset, limit, user, skipPagination, orderBy);
 	}
 
@@ -597,12 +609,12 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 
 	@Override
-	public SearchResults<Map<String, Object>> getMemberList(String code, Integer offset, Integer limit, Boolean skipPagination, String filterBy) {
+	public SearchResults<Map<String, Object>> getMemberList(String code, Integer offset, Integer limit, String filterBy) {
 		Classpage classpage = this.getCollectionRepository().getClasspageByCode(code);
 		if (classpage == null) {
 			throw new NotFoundException("classpage not found");
 		}
-		List<Object[]> results = this.getUserGroupRepository().getUserMemberList(code, classpage.getGooruOid(), offset, limit, skipPagination, filterBy);
+		List<Object[]> results = this.getUserGroupRepository().getUserMemberList(code, classpage.getGooruOid(), offset, limit, filterBy);
 		SearchResults<Map<String, Object>> searchResult = new SearchResults<Map<String, Object>>();
 		List<Map<String, Object>> listMap = new ArrayList<Map<String, Object>>();
 		for (Object[] object : results) {
@@ -655,11 +667,11 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 
 	@Override
-	public SearchResults<Map<String, Object>> getMyStudy(User user, String orderBy, Integer offset, Integer limit, boolean skipPagination, String type) {
+	public SearchResults<Map<String, Object>> getMyStudy(User user, String orderBy, Integer offset, Integer limit, String type) {
 		if (user.getPartyUid().equalsIgnoreCase(ANONYMOUS)) {
 			throw new NotFoundException("User not Found");
 		}
-		List<Object[]> results = this.getUserGroupRepository().getMyStudy(user.getPartyUid(), user.getIdentities() != null ? user.getIdentities().iterator().next().getExternalId() : null, orderBy, offset, limit, skipPagination, type);
+		List<Object[]> results = this.getUserGroupRepository().getMyStudy(user.getPartyUid(), user.getIdentities() != null ? user.getIdentities().iterator().next().getExternalId() : null, orderBy, offset, limit, type);
 		SearchResults<Map<String, Object>> searchResult = new SearchResults<Map<String, Object>>();
 		searchResult.setSearchResults(this.setMyStudy(results));
 		searchResult.setTotalHitCount(this.getUserGroupRepository().getMyStudyCount(user.getPartyUid(), user.getIdentities() != null ? user.getIdentities().iterator().next().getExternalId() : null, type));
@@ -716,8 +728,8 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 
 	@Override
-	public List<Map<String, Object>> getClasspageItems(String gooruOid, Integer limit, Integer offset, String userUid, String orderBy, boolean skipPagination, boolean optimize, String status) {
-		List<Object[]> results = this.getCollectionRepository().getClasspageItems(gooruOid, limit, offset, userUid, orderBy, skipPagination, status);
+	public List<Map<String, Object>> getClasspageItems(String gooruOid, Integer limit, Integer offset, String userUid, String orderBy, boolean optimize, String status) {
+		List<Object[]> results = this.getCollectionRepository().getClasspageItems(gooruOid, limit, offset, userUid, orderBy, status);
 		List<Map<String, Object>> collectionItems = new ArrayList<Map<String, Object>>();
 		for (Object[] object : results) {
 			Map<String, Object> result = new HashMap<String, Object>();

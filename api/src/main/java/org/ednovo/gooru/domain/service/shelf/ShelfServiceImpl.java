@@ -472,16 +472,8 @@ public class ShelfServiceImpl implements ShelfService,ParameterProperties,Consta
 				contentId = content.getContentId();
 			}
 		}
-		List<ShelfItem> shelfItems = null;
 		if (contentId != null) {
 			this.getShelfRepository().findAllShelfByUserAndId(user.getPartyUid(), contentId);
-		}
-		if (shelfItems != null) {
-			for (ShelfItem shelfItem : shelfItems) {
-				shelfItem.setLastActivityOn(new Date(System.currentTimeMillis()));
-			}
-			this.getShelfRepositoryHibernate().saveOrUpdateAll(shelfItems);
-			this.getShelfRepositoryHibernate().flush();
 		}
 	}
 

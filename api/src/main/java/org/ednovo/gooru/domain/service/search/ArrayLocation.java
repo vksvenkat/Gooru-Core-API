@@ -27,7 +27,11 @@ import java.io.Serializable;
 
 
 public class ArrayLocation implements Serializable {
-        private int start;
+        /**
+	 * 
+	 */
+	private static final long serialVersionUID = -8686758562248907590L;
+		private int start;
         private int end;
         public int getStart() {
                 return start;

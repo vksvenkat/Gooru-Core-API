@@ -32,6 +32,7 @@ public class CollectionItem implements Serializable, Comparable<CollectionItem> 
 	private Set<String> course; 
 	private Integer resourceCount;
 	private String status;
+	private Integer totalPages;
 	
 	/**
 	 * 
@@ -209,5 +210,13 @@ public class CollectionItem implements Serializable, Comparable<CollectionItem> 
 	public void setStatus(String status) {
 		this.status = status;
 	}
+
+	public Integer getTotalPages() {
+		return (this.getResource() != null && this.getResource().getResourceInfo() != null) ? this.getResource().getResourceInfo().getNumOfPages() : null;
+	}
+
+	public void setTotalPages(Integer totalPages) {
+		this.totalPages = totalPages;
+	}	
 
 }

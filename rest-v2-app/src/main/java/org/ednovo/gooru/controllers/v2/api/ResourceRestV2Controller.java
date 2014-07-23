@@ -37,6 +37,7 @@ import org.ednovo.gooru.core.api.model.ContentType;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.Sharing;
+import org.ednovo.gooru.core.api.model.StatisticsDTO;
 import org.ednovo.gooru.core.api.model.UpdateViewsDTO;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
@@ -70,7 +71,7 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 	@Transactional(readOnly = false, propagation = Propagation.NOT_SUPPORTED, noRollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.POST, value = "")
 	public ModelAndView createResource(@RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		request.setAttribute(PREDICATE, "resource.create_resource");
+		request.setAttribute(PREDICATE, RESOURCE_CREATE_RESOURCE);
 		JSONObject json = requestData(data);
 		User user = (User) request.getAttribute(Constants.USER);
 		ActionResponseDTO<Resource> responseDTO = getResourceService().createResource(this.buildResourceFromInputParameters(getValue(RESOURCE, json), user), user);
@@ -87,7 +88,7 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.PUT, value = "/{id}")
 	public ModelAndView updateResource(@RequestBody String data, @PathVariable(value = ID) String resourceId, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		request.setAttribute(PREDICATE, "resource.update_resource");
+		request.setAttribute(PREDICATE, RES_UPDATE_RES);
 		User user = (User) request.getAttribute(Constants.USER);
 		JSONObject json = requestData(data);
 		ActionResponseDTO<Resource> responseDTO = getResourceService().updateResource(resourceId, this.buildResourceFromInputParameters(getValue(RESOURCE, json)), user);
@@ -118,7 +119,7 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.DELETE, value = "/{id}")
 	public void deleteResource(@PathVariable(value = ID) String resourceId, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		request.setAttribute(PREDICATE, "resource.delete_resource");
+		request.setAttribute(PREDICATE, RESOURCE_DELETE_RESOURCE);
 		User user = (User) request.getAttribute(Constants.USER);
 		Resource resource = (Resource) request.getAttribute(Constants.SEC_CONTENT);
 		resourceService.deleteResource(resource, resourceId, user);
@@ -165,7 +166,7 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = {RequestMethod.DELETE,RequestMethod.PUT}, value = "/{id}/taxonomy")
 	public void deleteTaxonomyResource(@RequestBody String data, @PathVariable(value = ID) String resourceId, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		request.setAttribute(PREDICATE, "resource.delete_resource_taxonomy");
+		request.setAttribute(PREDICATE, RESOURCE_DELETE_RESOURCE_TAXONOMY);
 		User user = (User) request.getAttribute(Constants.USER);
 		JSONObject json = requestData(data);
 		getResourceService().deleteTaxonomyResource(resourceId, this.buildResourceFromInputParameters(getValue(RESOURCE, json)), user);
@@ -180,7 +181,7 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_RESOURCE_READ })
 	@RequestMapping(method = RequestMethod.GET, value = "/suggest/meta/info")
-	public ModelAndView SuggestResourceMetaData(@RequestParam(value = URL) String url, @RequestParam(value = TITLE, required = false) String title, @RequestParam(value = "fetchThumbnail", required = false, defaultValue = "false") boolean fetchThumbnail, HttpServletRequest request,
+	public ModelAndView suggestResourceMetaData(@RequestParam(value = URL) String url, @RequestParam(value = TITLE, required = false) String title, @RequestParam(value = "fetchThumbnail", required = false, defaultValue = "false") boolean fetchThumbnail, HttpServletRequest request,
 			HttpServletResponse response) throws Exception {
 		return toModelAndView(serializeToJson(getResourceService().getSuggestedResourceMetaData(url, title, fetchThumbnail), true));
 	}
@@ -197,13 +198,12 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 	@RequestMapping(method = RequestMethod.GET, value = { "/{id}/play" })
 	public ModelAndView getResourceSource(HttpServletRequest request, @PathVariable(value = ID) String gooruContentId, HttpServletResponse response, @RequestParam(value = "includeBrokenPdf", required = false, defaultValue = TRUE) Boolean includeBrokenPdf,
 			@RequestParam(value = "more", required = false, defaultValue = TRUE) boolean more) throws Exception {
-		request.setAttribute(PREDICATE, "resourceSource.get");
+		request.setAttribute(PREDICATE, RESOURCE_SRC_GET);
 		User apiCaller = (User) request.getAttribute(Constants.USER);
 		return toModelAndView(serialize(getResourceService().resourcePlay(gooruContentId, apiCaller, more), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, RESOURCE_INCLUDE_FIELDS));
 
 	}
 	
-	//@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_RESOURCE_UPDATE_VIEW })
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_BULK_UPDATE_VIEW})
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.POST, value = "/update/views")
@@ -212,7 +212,16 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 		User apiCaller = (User) request.getAttribute(Constants.USER);
 		this.getResourceService().updateViewsBulk(updateViewsDTOs, apiCaller);
 	}
-	
+
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_BULK_UPDATE_VIEW})
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(method = RequestMethod.POST, value = "/statistics-data/update")
+	public void updateStatisticsData(HttpServletRequest request, HttpServletResponse response, @RequestBody String data) throws Exception {
+		JSONObject json = requestData(data);
+		List<StatisticsDTO> statisticsDataList = JsonDeserializer.deserialize(getValue(STATISTICS_DATA, json), new TypeReference<List<StatisticsDTO>>(){});
+		this.getResourceService().updateStatisticsData(statisticsDataList);
+	}
+
 	private Resource buildResourceFromInputParameters(String data) {
 		return JsonDeserializer.deserialize(data, Resource.class);
 	}

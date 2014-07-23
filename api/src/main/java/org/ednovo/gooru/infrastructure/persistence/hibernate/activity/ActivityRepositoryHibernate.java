@@ -68,7 +68,7 @@ public class ActivityRepositoryHibernate extends BaseRepositoryHibernate impleme
 
 	private static final String RETRIEVE_MY_ACTIVITY = "Select r.type_name as learnguide, s.gooru_oid, s.sharing, a.activity_id, a.user_id, a.type_name, a.content_id, a.created_date, a.description from activity a, activity_stream c, content s, resource r, user u  where a.user_uid = c.user_uid and a.type_name = c.type_name and a.user_uid ='%s' and s.content_id = a.content_id and r.content_id = a.content_id and u.gooru_uid=a.user_uid and (%s) order by a.created_date desc limit 5;";
 
-	private static final Logger logger = LoggerFactory.getLogger(ActivityRepositoryHibernate.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ActivityRepositoryHibernate.class);
 
 	@Autowired
 	public ActivityRepositoryHibernate(SessionFactory sessionFactory, JdbcTemplate jdbcTemplate, UserRepository userRepository, ContentRepository contentRepository) {
@@ -128,7 +128,7 @@ public class ActivityRepositoryHibernate extends BaseRepositoryHibernate impleme
 
 					return activity;
 				} catch (ObjectRetrievalFailureException ex) {
-					logger.error("Error while getting activity", ex);
+					LOGGER.error("Error while getting activity", ex);
 				}
 				return activity;
 			}
@@ -171,7 +171,7 @@ public class ActivityRepositoryHibernate extends BaseRepositoryHibernate impleme
 
 					return activity;
 				} catch (ObjectRetrievalFailureException ex) {
-					logger.error("Error while getting activity", ex);
+					LOGGER.error("Error while getting activity", ex);
 				}
 				return activity;
 			}
@@ -214,7 +214,7 @@ public class ActivityRepositoryHibernate extends BaseRepositoryHibernate impleme
 
 					return activity;
 				} catch (ObjectRetrievalFailureException ex) {
-					logger.error("Error while getting activity", ex);
+					LOGGER.error("Error while getting activity", ex);
 				}
 				return activity;
 			}

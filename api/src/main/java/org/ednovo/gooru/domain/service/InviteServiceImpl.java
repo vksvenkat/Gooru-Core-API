@@ -89,8 +89,13 @@ public class InviteServiceImpl extends BaseServiceImpl implements InviteService,
 				invites.add(inviteMap);
 			}
 			
+			
 			try {
+				if(classPage.getSharing().equals(PRIVATE)){
+				  this.getMailHandler().sendMailToOpenClassUser(email, classPage.getGooruOid(), classPage.getUser(), classPage.getTitle(), apiCaller.getUsername(), classPage.getClasspageCode());
+				}else{
 				this.getMailHandler().sendMailToInviteUser( email,classPage.getGooruOid(),classPage.getUser(),classPage.getTitle() ,apiCaller.getUsername(),classPage.getClasspageCode());
+				}
 			} catch (Exception e) {
 				logger.error("Error"+ e.getMessage());
 			}

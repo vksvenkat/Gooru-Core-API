@@ -20,7 +20,7 @@ public class Learnguide extends Resource implements Versionable {
 	private static final String INDEX_TYPE = "collection";
 
 
-	public static String CLASSPLAN_BASE_URI;
+	public static String classplanBaseUri;
 	public static final String MANIFEST_XML = "<gooruclassplan><info><id>NEW</id>" + "<lesson></lesson><unit></unit><duration></duration><lessonobjectives><![CDATA[]]></lessonobjectives>" + "<vocabulary><![CDATA[]]></vocabulary>"
 			+ "<studentquestions><![CDATA[]]></studentquestions><notes><![CDATA[]]></notes></info>" + "</gooruclassplan>";
 

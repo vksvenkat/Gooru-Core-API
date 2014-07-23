@@ -27,6 +27,8 @@ import java.util.List;
 
 import org.ednovo.gooru.core.api.model.FeaturedSet;
 import org.ednovo.gooru.core.api.model.FeaturedSetItems;
+import org.ednovo.gooru.core.constant.ConstantProperties;
+import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -34,7 +36,7 @@ import org.hibernate.type.StandardBasicTypes;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class FeaturedRepositoryHibernate extends BaseRepositoryHibernate implements FeaturedRepository {
+public class FeaturedRepositoryHibernate extends BaseRepositoryHibernate implements FeaturedRepository,ConstantProperties,ParameterProperties {
 
 	@Override
 	public List<FeaturedSet> getFeaturedList(Integer codeId, int limit, String featuredSetName, String themeCode, String themeType) {
@@ -58,13 +60,12 @@ public class FeaturedRepositoryHibernate extends BaseRepositoryHibernate impleme
 		}
 		hql += " ORDER BY featuredSet.sequence";
         
-		Session session = getSession();
 	
-		return session.createQuery(hql).setMaxResults(limit).list();
+		return  getSession().createQuery(hql).setMaxResults(limit).list();
 	}
 	
 	@Override
-	public List<Object[]> getLibraryCollectionsList(Integer limit, Integer offset, Boolean skipPagination, String themeCode, String themeType) {
+	public List<Object[]> getLibraryCollectionsList(Integer limit, Integer offset, String themeCode, String themeType) {
 		String sql = "select ct.gooru_oid, ct.created_on, ct.last_modified, ct.user_uid, ct.sharing, ct.last_updated_user_uid, cn.grade, cn.network, r.title, r.views_total, r.description, r.thumbnail, fs.theme_code, fs.subject_code_id from content ct inner join collection cn on (ct.content_id = cn.content_id) inner join resource r on (cn.content_id = r.content_id) inner join featured_set_items fsi on (r.content_id = fsi.content_id) inner join featured_set fs on (fsi.featured_set_id = fs.featured_set_id)";
 		
 		if(themeCode != null && themeType != null) {
@@ -81,15 +82,13 @@ public class FeaturedRepositoryHibernate extends BaseRepositoryHibernate impleme
 		if (themeCode != null)  {
 			query.setParameter("themeCode", themeCode);
 		}
-		if (!skipPagination) {
 			query.setFirstResult(offset);
-			query.setMaxResults(limit);
-		}
+			query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
 		return query.list();
 	}
 	
 	@Override
-	public List<Object[]> getLibraryCollectionsListByFilter(Integer limit, Integer offset, Boolean skipPagination, String themeCode, String themeType, String subjectId, String courseId, String unitId, String lessonId, String topicId, String gooruOid, String codeId) {
+	public List<Object[]> getLibraryCollectionsListByFilter(Integer limit, Integer offset, String themeCode, String themeType, String subjectId, String courseId, String unitId, String lessonId, String topicId, String gooruOid, String codeId) {
 
 		String sql = "select distinct ct.gooru_oid, ct.created_on, ct.last_modified, ct.user_uid, ct.sharing, ct.last_updated_user_uid, f.theme_code, f.subject_code_id,f.featured_set_id from code c inner join featured_set_items fs inner join featured_set f on (f.featured_set_id = fs.featured_set_id and fs.code_id = c.code_id) inner join content ct inner join collection cn on (ct.content_id = cn.content_id) inner join resource r on (cn.content_id = r.content_id and fs.content_id = r.content_id)";
 
@@ -110,10 +109,9 @@ public class FeaturedRepositoryHibernate extends BaseRepositoryHibernate impleme
 
 		Query query = getSession().createSQLQuery(sql);
 
-		if (!skipPagination) {
 			query.setFirstResult(offset);
-			query.setMaxResults(limit);
-		}
+			query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
+	
 		return query.list();
 	}
 	
@@ -233,8 +231,8 @@ public class FeaturedRepositoryHibernate extends BaseRepositoryHibernate impleme
 	}
 	
 	@Override
-	public List<Object[]> getLibraryCollection(String codeId, String featuredSetId, Integer limit, Integer offset, Boolean skipPagination, String contentId) {
-		String sql = "select gooru_oid, r.title   from featured_set_items fi inner join resource r on r.content_id = fi.content_id inner join content cc on cc.content_id = r.content_id where  fi.featured_set_id=:featuredSetId ";
+	public List<Object[]> getLibraryCollection(String codeId, String featuredSetId, Integer limit, Integer offset, String contentId) {
+		String sql = "select gooru_oid, r.title, co.collection_type   from featured_set_items fi inner join resource r on r.content_id = fi.content_id inner join content cc on cc.content_id = r.content_id inner join collection co on co.content_id = r.content_id  where  fi.featured_set_id=:featuredSetId ";
 		if (codeId != null) {
 			sql += " and fi.code_id =:codeId ";
 		}
@@ -249,10 +247,8 @@ public class FeaturedRepositoryHibernate extends BaseRepositoryHibernate impleme
 			query.setParameter("contentId", contentId);
 		}
 		query.setParameter("featuredSetId", featuredSetId);
-		if (!skipPagination) {
 			query.setFirstResult(offset);
-			query.setMaxResults(limit);
-		}
+			query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
 		return query.list();
 	}
 	
@@ -278,7 +274,7 @@ public class FeaturedRepositoryHibernate extends BaseRepositoryHibernate impleme
 	}
 	
 	@Override
-	public List<Object[]> getCommunityLibraryResource(String type, Integer offset, Integer limit, boolean skipPagination, String libraryName){	
+	public List<Object[]> getCommunityLibraryResource(String type, Integer offset, Integer limit, String libraryName){	
 		String sql = "select c.gooru_oid as collection_id, con.gooru_oid as resource_id," +
 				     "r.title,r.folder,r.thumbnail, r.url, r.grade, r.description, r.category," +
 				     "c.sharing, r.has_frame_breaker, r.record_source, r.license_name," +
@@ -301,10 +297,8 @@ public class FeaturedRepositoryHibernate extends BaseRepositoryHibernate impleme
 		
 		Query query = getSession().createSQLQuery(sql);
 		
-		if (!skipPagination) {
 			query.setFirstResult(offset);
-			query.setMaxResults(limit);
-		}
+			query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
 		
 		if (type != null) {
 			query.setParameter("type", type);

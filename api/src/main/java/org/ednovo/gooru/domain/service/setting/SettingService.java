@@ -82,6 +82,10 @@ public class SettingService {
 	public String getConfigSetting(String key, int securityLevel, String organizationUid) {
 		return configSettingRepository.getConfigSetting(key, securityLevel, organizationUid);
 	}
+	
+	public Map<String, String> getOrganizationExpireTime(String name)  {
+		return organizationSettingRepository.getOrganizationExpireTime(name);
+	}
 
 	public Map<String, String> getOrganizationSettings(String organizationUid) {
 		return organizationSettingRepository.getOrganizationSettings(organizationUid);

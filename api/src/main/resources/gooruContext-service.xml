@@ -58,7 +58,7 @@
 			<map>
 				<entry key="org.ednovo.gooru.core.api.model.Idp">
 					<map>
-						<entry key="DEFAULT_IDP" value="${gooru.domain}" />
+						<entry key="defaultIdp" value="${gooru.domain}" />
 					</map>
 				</entry>
 			</map>

@@ -33,6 +33,8 @@ import org.ednovo.gooru.core.api.model.CustomTableValue;
 import org.ednovo.gooru.core.api.model.Feedback;
 import org.ednovo.gooru.core.api.model.StorageAccount;
 import org.ednovo.gooru.core.api.model.StorageArea;
+import org.ednovo.gooru.core.constant.ConstantProperties;
+import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.storage.StorageRepository;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -41,7 +43,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate implements FeedbackRepository {
+
+public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate implements FeedbackRepository,ConstantProperties,ParameterProperties {
 
 	@Autowired
 	StorageRepository storageRepository;
@@ -90,7 +93,7 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 	}
 
 	@Override
-	public List<Feedback> getContentFeedbacks(String type, String assocGooruOid, String creatorUid, String category, Integer limit, Integer offset, Boolean skipPagination, String orderBy) {
+	public List<Feedback> getContentFeedbacks(String type, String assocGooruOid, String creatorUid, String category, Integer limit, Integer offset, String orderBy) {
 		Session session = getSession();
 		String hql = " FROM  Feedback feedback WHERE " + generateOrgAuthQuery("feedback.") + " and feedback.assocGooruOid=:assocGooruOid ";
 		if (category != null) {
@@ -119,10 +122,8 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 			query.setParameter("category", category);
 		}
 		addOrgAuthParameters(query);
-		if (!skipPagination) {
 			query.setFirstResult(offset);
-			query.setMaxResults(limit);
-		}
+			query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
 		return query.list();
 	}
 
@@ -178,8 +179,9 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 			query.setParameter("category", category);
 		}
 		addOrgAuthParameters(query);
-		query.setFirstResult(offset);
-		query.setMaxResults(limit);
+			query.setFirstResult(offset);
+			query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
+
 		return query.list();
 	}
 
@@ -247,7 +249,7 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 	}
 
 	@Override
-	public Map<String, Object> getContentFlags(Integer limit, Integer offset, Boolean skipPagination, String feedbackCategory, String type, String status, String reportedFlagType, String startDate, String endDate, String searchQuery, String description, String reportQuery) {
+	public Map<String, Object> getContentFlags(Integer limit, Integer offset, String feedbackCategory, String type, String status, String reportedFlagType, String startDate, String endDate, String searchQuery, String description, String reportQuery) {
 		Session session = getSession();
 		String sql = "";
 		String statusType = "";
@@ -267,7 +269,7 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 
 		if (type.equalsIgnoreCase("collection")) {
 			sql = "select  title,concat(r.folder,r.thumbnail) as thumbnail,r.has_frame_breaker as hasFrameBreaker, r.media_type as mediaType,  cl.goals as description,  gooru_oid as gooruOid, cl.collection_type as category , CONVERT_TZ(c.created_on,@@session.time_zone,'US/Pacific') as createdOn, cs.value as value, group_concat(ft.value) as reportedFlag, c.user_uid  as userUid, fp.value as product,group_concat(f.feedback_uid) as reportId, f.creator_uid as reportCreator,CONVERT_TZ(f.created_date,@@session.time_zone,'US/Pacific') as reportCreatedOn, f.feedback_text as reportDescription, f.notes as notes,url as url, f.context_path as browserUrl, 'temp' as scount,c.sharing as sharing,group_concat(u.username) as reporterName, ru.username as resourceCreatorName, f.last_modified_on as lastModifiedOn from content c  inner join feedback f inner join custom_table_value cs on f.assoc_gooru_oid = c.gooru_oid and cs.custom_table_value_id = c.status_type inner join custom_table_value fp on f.product_id = fp.custom_table_value_id inner join custom_table_value ft on ft.custom_table_value_id = f.feedback_type_id inner join collection cl  on cl.content_id = c.content_id inner join resource r on c.content_id = r.content_id   inner join custom_table_value ss on f.feedback_category_id = ss.custom_table_value_id inner join custom_table ctab on ctab.custom_table_id = ft.custom_table_id inner join user u  on u.gooru_uid = f.creator_uid inner join user ru on ru.gooru_uid = c.user_uid where ctab.name = '"
-					+ feedbackCategory + "' and  cs.value is not null  and cl.collection_type in ('collection')" + flagType + statusType + "";
+					+ feedbackCategory + "' and  cs.value is not null  and cl.collection_type in ('collection', 'quiz')" + flagType + statusType + "";
 		} else {
 
 			sql = "select title ,concat(r.folder,r.thumbnail) as thumbnail,r.has_frame_breaker as hasFrameBreaker , r.media_type as mediaType, r.description,  gooru_oid as gooruOid, r.category as category , CONVERT_TZ(c.created_on,@@session.time_zone,'US/Pacific') as createdOn, cs.value as value, group_concat(ft.value) as reportedFlag, c.user_uid  as userUid, fp.value as product, group_concat(f.feedback_uid) as reportId, f.creator_uid as reportCreator,CONVERT_TZ(f.created_date,@@session.time_zone,'US/Pacific') as reportCreatedOn, f.feedback_text as reportDescription,f.notes as notes, url as url, f.context_path as browserUrl,(select concat(count(distinct(ci.collection_content_id)) , '~' ,group_concat(distinct(rc.title))) from collection_item ci inner join resource ri on ci.resource_content_id = ri.content_id inner join resource as rc on (rc.content_id = ci.collection_content_id)   where ri.content_id = r.content_id) as scount, c.sharing as sharing,group_concat(u.username) as reporterName, ru.username as resourceCreatorName, f.last_modified_on as lastModifiedOn from content c  inner join feedback f inner join custom_table_value cs on f.assoc_gooru_oid = c.gooru_oid and cs.custom_table_value_id = c.status_type inner join custom_table_value fp on f.product_id = fp.custom_table_value_id inner join custom_table_value ft on ft.custom_table_value_id = f.feedback_type_id inner join resource r  on r.content_id = c.content_id inner join custom_table_value ss on f.feedback_category_id = ss.custom_table_value_id  inner join custom_table ctab on ctab.custom_table_id = ft.custom_table_id inner join user u  on u.gooru_uid = f.creator_uid inner join user ru on ru.gooru_uid = c.user_uid where ctab.name = '"
@@ -305,10 +307,9 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 				.addScalar("scount", StandardBasicTypes.STRING).addScalar("sharing", StandardBasicTypes.STRING).addScalar("notes", StandardBasicTypes.STRING).addScalar("reporterName", StandardBasicTypes.STRING).addScalar("resourceCreatorName", StandardBasicTypes.STRING)
 				.addScalar("thumbnail", StandardBasicTypes.STRING).addScalar("hasFrameBreaker", StandardBasicTypes.BOOLEAN).addScalar("mediaType", StandardBasicTypes.STRING).addScalar("lastModifiedOn", StandardBasicTypes.STRING);
 
-		if (!skipPagination) {
 			query.setFirstResult(offset);
-			query.setMaxResults(limit);
-		}
+			query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
+
 		return getFlags(query.list(), sql, type);
 	}
 
@@ -340,7 +341,7 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 			flag.put("hasFrameBreaker", object[21]);
 			flag.put("mediaType", object[22]);
 			flag.put("lastModifiedOn", object[23]);
-			if (type == "resource") {
+			if (type == RESOURCE) {
 				String temp = (String) object[15];
 				if (temp != null) {
 					String[] scollection = temp.split("~");
@@ -448,7 +449,7 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 		if (flag) {
 			sql = "select count(1) as count, t.value as name,cc.gooru_oid as collectionId from collection_item ci  inner join collection cn on (ci.collection_content_id = cn.content_id)  inner join content rc on (rc.content_id = ci.resource_content_id)  inner join feedback f on (rc.gooru_oid = f.assoc_gooru_oid) inner join content cc on cc.content_id = cn.content_id inner join custom_table_value c on  c.custom_table_value_id = f.feedback_category_id inner join  custom_table_value t  on  t.custom_table_value_id = f.feedback_type_id inner join  task_resource_assoc tc on tc.resource_content_id = ci.collection_content_id inner join content ct on ct.content_id = tc.task_content_id  where ct.gooru_oid =:assocGooruOid and c.key_value =:feedbackCategory group by f.feedback_type_id,cc.gooru_oid";
 		} else {
-			sql = "select count(1) as count, t.value as name,cc.gooru_oid as collectionId from collection_item ci  inner join collection cn on (ci.collection_content_id = cn.content_id)  inner join content rc on (rc.content_id = ci.resource_content_id)  inner join feedback f on (rc.gooru_oid = f.assoc_gooru_oid) inner join content cc on cc.content_id = cn.content_id inner join custom_table_value c on  c.custom_table_value_id = f.feedback_category_id inner join  custom_table_value t  on  t.custom_table_value_id = f.feedback_type_id  where cc.gooru_oid =:assocGooruOid and c.key_value =:feedbackCategory and cn.collection_type = 'collection' group by f.feedback_type_id";
+			sql = "select count(1) as count, t.value as name,cc.gooru_oid as collectionId from collection_item ci  inner join collection cn on (ci.collection_content_id = cn.content_id)  inner join content rc on (rc.content_id = ci.resource_content_id)  inner join feedback f on (rc.gooru_oid = f.assoc_gooru_oid) inner join content cc on cc.content_id = cn.content_id inner join custom_table_value c on  c.custom_table_value_id = f.feedback_category_id inner join  custom_table_value t  on  t.custom_table_value_id = f.feedback_type_id  where cc.gooru_oid =:assocGooruOid and c.key_value =:feedbackCategory and cn.collection_type in ('collection', 'quiz') group by f.feedback_type_id";
 		}
 		Query query = session.createSQLQuery(sql).addScalar("count", StandardBasicTypes.INTEGER).addScalar("name", StandardBasicTypes.STRING).addScalar("collectionId", StandardBasicTypes.STRING).setParameter("assocGooruOid", assocGooruOid).setParameter("feedbackCategory", feedbackCategory);
 		return getFeedbackAggregate(query.list());

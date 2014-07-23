@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import javax.annotation.Resource;
+import javax.persistence.EntityExistsException;
 
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.ContentProviderAssociation;
@@ -103,12 +104,12 @@ public class TagServiceImpl extends BaseServiceImpl implements TagService, Param
 	@Override
 	public ActionResponseDTO<Tag> createTag(Tag newTag, User user) {
 		Tag tag = this.getTagRepository().findTagByLabel(newTag.getLabel());
+		
+		if (tag != null) {
+			throw new BadCredentialsException(generateErrorMessage(GL0041, LABEL));
+		}
 		Errors errors = this.createTagValidation(newTag, tag);
 		if (!errors.hasErrors()) {
-			if (tag != null) {
-				throw new BadCredentialsException(generateErrorMessage(GL0041, LABEL));
-			}
-			
 			if (newTag.getWikiPostGooruOid() != null) {
 				newTag.setWikiPostGooruOid(this.getPostRepository().getPost(newTag.getWikiPostGooruOid()) != null ? newTag.getWikiPostGooruOid() : null);
 			}
@@ -143,7 +144,7 @@ public class TagServiceImpl extends BaseServiceImpl implements TagService, Param
 		}
 		if (newTag.getLabel() != null) {
 			if (getTagRepository().findTagByLabel(newTag.getLabel()) != null) {
-				throw new BadCredentialsException(generateErrorMessage(GL0041, LABEL));
+				throw new EntityExistsException(generateErrorMessage(GL0041, LABEL));
 			}
 			if (newTag.getLabel().length() > 25) {
 				throw new BadCredentialsException("Label should be with in 25 character!!!");
@@ -201,14 +202,14 @@ public class TagServiceImpl extends BaseServiceImpl implements TagService, Param
 	}
 
 	@Override
-	public List<ContentTagAssoc> getTagContentAssoc(String tagGooruOid, Integer limit, Integer offset, boolean skipPagination) {
-		return this.getTagRepository().getTagContentAssoc(tagGooruOid, limit, offset, skipPagination);
+	public List<ContentTagAssoc> getTagContentAssoc(String tagGooruOid, Integer limit, Integer offset) {
+		return this.getTagRepository().getTagContentAssoc(tagGooruOid, limit, offset);
 	}
 	
 	@Override
-	public Map<String, Object> getResourceByLabel(String label, Integer limit, Integer offset, boolean skipPagination, String gooruUid) {
+	public Map<String, Object> getResourceByLabel(String label, Integer limit, Integer offset, String gooruUid) {
 		StorageArea storageArea = this.getStorageRepository().getStorageAreaByTypeName(NFS);
-		List<Object[]> results = this.getTagRepository().getResourceByLabel(label, limit, offset, skipPagination, gooruUid);
+		List<Object[]> results = this.getTagRepository().getResourceByLabel(label, limit, offset,  gooruUid);
 		Map<String, Object> content = new HashMap<String, Object>();
 		List<Map<String, Object>> resource = new ArrayList<Map<String,Object>>();
 		for (Object[] object : results) {
@@ -246,12 +247,12 @@ public class TagServiceImpl extends BaseServiceImpl implements TagService, Param
  				result.put("publisher", publisher);
  				result.put("aggregator", aggregator);
  			}
-			result.put("views", object[7]);
-			result.put(RATINGS, this.getFeedbackService().getContentFeedbackStarRating(String.valueOf(object[1])));
+			result.put(VIEWS, object[7]);
+			result.put(RATINGS, this.collectionService.setRatingsObj(this.getResourceRepository().getResourceSummaryById(String.valueOf(object[1]))));
 			resource.add(result);
 		}
-		content.put("searchResult",resource);
-		content.put("totalHitCount",this.getTagRepository().getResourceByLabelCount(label, gooruUid));
+		content.put(SEARCH_RESULT,resource);
+		content.put(TOTAL_HIT_COUNT,this.getTagRepository().getResourceByLabelCount(label, gooruUid));
 		return content;
 	}
 

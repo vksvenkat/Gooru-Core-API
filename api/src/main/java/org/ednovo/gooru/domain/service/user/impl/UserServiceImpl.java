@@ -1035,13 +1035,13 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 	}
 
 	@Override
-	public List<User> getFollowedByUsers(String gooruUId, Integer offset, Integer limit, boolean skipPagination) {
-		return getUserRepository().getFollowedByUsers(gooruUId,offset,limit,skipPagination);
+	public List<User> getFollowedByUsers(String gooruUId, Integer offset, Integer limit) {
+		return getUserRepository().getFollowedByUsers(gooruUId,offset,limit);
 	}
 
 	@Override
-	public List<User> getFollowedOnUsers(String gooruUId, Integer offset, Integer limit, boolean skipPagination) {
-		return getUserRepository().getFollowedOnUsers(gooruUId,offset,limit,skipPagination);
+	public List<User> getFollowedOnUsers(String gooruUId, Integer offset, Integer limit) {
+		return getUserRepository().getFollowedOnUsers(gooruUId,offset,limit);
 	}
 
 	@Override
@@ -2081,7 +2081,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 			Long start = System.currentTimeMillis();
 			if (start <= expires) {
 				String signature = paramMap.get(SIGNATURE).toString();
-				paramMap.put(expire, expires);
+				paramMap.put(EXPIRE, expires);
 				String computedSignature = new GooruMd5Util().verifySignatureFromURL(url, paramMap, apiKeyObj.getSecretKey());
 				if (signature.equals(computedSignature)) {
 					String emailId = paramMap.get(EMAIL_ID).toString();
@@ -2143,7 +2143,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 				if (isContentAdmin(loggedInUser)) {
 					User user = null;
 					if (isReference) {
-						user = this.getUserRepository().findByReferenceuId(gooruUid);
+						user = this.getUserRepository().findByReferenceUid(gooruUid);
 					} else {
 						user = this.getUserRepository().findByGooruId(gooruUid);
 					}

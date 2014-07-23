@@ -50,7 +50,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @Aspect
 public class MethodAuthorizationAspect extends OperationAuthorizer {
 
-	private static final Logger logger = LoggerFactory.getLogger(MethodAuthorizationAspect.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(MethodAuthorizationAspect.class);
 
 	@Autowired
 	private ParameterNameDiscoverer parameterNameDiscoverer;
@@ -99,7 +99,7 @@ public class MethodAuthorizationAspect extends OperationAuthorizer {
 		if (hasAuthorization(authorizeOperations)) {
 			return true;
 		}
-		logger.error("Permission Denied For : " + authenticationContext.getPrincipal() + " To Access : " + pjp.getSignature().getName());
+		LOGGER.error("Permission Denied For : " + authenticationContext.getPrincipal() + " To Access : " + pjp.getSignature().getName());
 		return false;
 	}
 

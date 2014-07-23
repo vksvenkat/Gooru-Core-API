@@ -111,7 +111,7 @@ public class TaxonomyRestV2Controller extends BaseController implements Constant
 			curriculumCodeList = (String) getRedisService().getValue(cacheKey);
 		}
 		if (curriculumCodeList == null) {
-			curriculumCodeList = serializeToJsonWithExcludes(this.getTaxonomyService().getCurriculum(), CURRICULUM_EXCLUDES, true, CURRICULUM_INCLUDES);
+			curriculumCodeList = serialize(this.getTaxonomyService().getCurriculum(), RESPONSE_FORMAT_JSON,CURRICULUM_EXCLUDES, true, true,CURRICULUM_INCLUDES);
 			getRedisService().putValue(cacheKey, curriculumCodeList, RedisService.DEFAULT_PROFILE_EXP);
 		}
 		return toModelAndView(curriculumCodeList);

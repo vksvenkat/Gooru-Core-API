@@ -73,17 +73,15 @@ public interface UserRepository extends BaseRepository {
 
 	int findAgeCheck(User user);
 
-	List<User> getFollowedByUsers(String gooruUId, Integer offset, Integer limit, boolean skipPagination);
+	List<User> getFollowedByUsers(String gooruUId, Integer offset, Integer limit);
 	
 	long getFollowedByUsersCount(String gooruUId);
 
-	List<User> getFollowedOnUsers(String gooruUId, Integer offset, Integer limit, boolean skipPagination);
+	List<User> getFollowedOnUsers(String gooruUId, Integer offset, Integer limit);
 	
 	long getFollowedOnUsersCount(String gooruUId);
 
 	UserRelationship getActiveUserRelationship(String gooruUserId, String gooruFollowOnUserId);
-
-	User findByRemeberMeToken(String remeberMeToken);
 
 	List<UserRoleAssoc> findUserRoleSet(User user);
 
@@ -153,8 +151,6 @@ public interface UserRepository extends BaseRepository {
 
 	User findUserWithoutOrganization(String username);
 
-	List<Profile> getProfileList();
-
 	Timestamp getSystemCurrentTime();
 
 	UserClassification getUserClassification(String gooruUid, Integer classificationId, Integer codeId, String creatorUid, String grade);
@@ -171,7 +167,7 @@ public interface UserRepository extends BaseRepository {
 
 	String getUserGrade(String userUid, Integer classificationId, Integer activeFlag);
 
-	User findByReferenceuId(String referenceUid);
+	User findByReferenceUid(String referenceUid);
 
 	Integer getUserBirthdayCount();
 
@@ -184,6 +180,8 @@ public interface UserRepository extends BaseRepository {
 	UserGroupAssociation getUserGroupMemebrByGroupUid(String groupUid, String gooruUid);
 	
 	UserSummary getSummaryByUid(String gooruUid);
+	
+	User findByRemeberMeToken(String remeberMeToken);
 		
 	}
 

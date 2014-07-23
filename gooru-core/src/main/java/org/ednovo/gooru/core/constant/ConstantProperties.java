@@ -23,19 +23,20 @@ public interface ConstantProperties {
 			"*.hints.*", "*.description", "*.explanation", "*.taxonomySet", "*.codeId", "*.depth", "*.lastModified", "*.gooruUId", "*.lastUpdatedUserUid", "*.category", "*.label", "*.code", "*.userRating", "*.hasFrameBreaker", "*.copiedResourceId", "*.assignmentContentId", "*.trackActivity",
 			"*.trackActivity.startTime", "*.trackActivity.endTime", "*.goals", "*.grade", "*.mediaType", "*.text", "*.isOer", "*.meta.*", "*.resourceFormat.value", "*.resourceFormat.displayName", "*.instructional.value", "*.instructional.displayName", "*.depthOfKnowledges.value",
 			"*.depthOfKnowledges.selected", "*.momentsOfLearning.selected", "*.momentsOfLearning.value", "*.educationalUse.value", "*.educationalUse.selected", "*.ratings", "*.average", "*.count", "*.standards", "*.license", "*.standards.code", "*.standards.description", "*.course",
-			"*.customFieldValues.*", "*.publisher", "*.aggregator" };
+
+			"*.customFieldValues.*", "*.publisher", "*.aggregator", "*.totalPages" };
 
 	static final String ASSIGNMENT_INCLUDE_FIELDS[] = { "*.narrationLink", "collection.notes", "*.keyPoints", "*.language", "*.goals", "*.grade", "*.estimatedTime", "*.collectionType", "*.creator", "*.assetURI", "*.license", "*.license.code", "*.license.icon", "*.license.name",
 			"*.license.definition", "*.dimensions", "*.defaultImage", "*.createdOn", "*.user", "*.usernameDisplay", "*.profileImageUrl", "*.lastName", "*.firstName", "*.username", "*.description", "*.folder", "*.gooruOid", "*.sharing", "*.title", "*.views", "*.thumbnails", "*.url",
 			"*.lastModified", "*.gooruUId", "*.vocabulary", "*.collaborators", "*.network", "trackActivity.startTime", "trackActivity.endTime" };
 
 	static final String COLLECTION_ITEM_INCLUDE_FILEDS[] = { "*.collectionItems", "*.collectionItemId", "*.itemSequence", "*.itemType", "*.narration", "*.narrationType", "*.lastModified", "*.start", "*.stop", "*.standards", "*.license", "*.standards.code", "*.standards.description",
-			"*.associationDate", "*associatedUser", "*.status" };
+			"*.associationDate", "*associatedUser", "*.status", "*.totalPages" };
 
 	static final String CLASSPAGE_COLLECTION_ITEM_INCLUDE_FIELDS[] = { "*.plannedEndDate", "*.totalHitCount", "*.searchResults" };
 
 	static final String COLLECTION_ITEM_INCLUDE[] = { "collectionItems", "*.collectionItemId", "*.itemSequence", "*.itemType", "*.narration", "*.narrationType", "*.lastModified", "*.start", "*.stop", "*.standards", "*.license", "*.standards.code", "*.standards.description", "*.collectionItem",
-			"*.collectionItem.collection" };
+			"*.collectionItem.collection", "*.totalPages" };
 
 	static final String EXCLUDE_ALL[] = { "*", "*.class" };
 
@@ -65,7 +66,7 @@ public interface ConstantProperties {
 			"*.license.definition", "*.dimensions", "*.defaultImage", "*.createdOn", "*.user", "*.usernameDisplay", "*.profileImageUrl", "*.lastName", "*.firstName", "*.username", "*.description", "*.folder", "*.gooruOid", "*.sharing", "*.title", "*.views", "*.thumbnails", "*.url",
 			"*.lastModified", "*.gooruUId", "*.mailNotification", "*.vocabulary", "*.collaborators", "*.network", "*.publishStatus", "*.buildType", "*.publishStatus.value", "*.publishStatus.displayName", "*.buildType.value", "*.instructional.value", "*.instructional.displayName", "*.emailId",
 			"*.lastModifiedUser", "*.modifiedDate", "*.gooruid", "*.username", "*.ideas", "*.questions", "*.performanceTasks", "*.languageObjective", "*.audience.selected", "*.audience.value", "*.instructionalMethod.value", "*.instructionalMethod.selected", "*.depthOfKnowledges.value",
-			"*.depthOfKnowledges.selected", "*.learningSkills.selected", "*.learningSkills.value", "*.customFields", "*.optionalValue", "*.optionalKey","*.totalHitCount", "*.searchResults", "*.count" };
+			"*.depthOfKnowledges.selected", "*.learningSkills.selected", "*.learningSkills.value", "*.customFields", "*.optionalValue", "*.optionalKey","*.totalHitCount", "*.searchResults", "*.count", "*.totalPages" };
 
 	static final String LIBRARY_COLLECTION_INCLUDE_FIELDS[] = { "*.narrationLink", "collection.notes", "*.keyPoints", "*.language", "*.goals", "*.grade", "*.estimatedTime", "*.collectionType", "*.assetURI", "*.license", "*.license.code", "*.license.icon", "*.license.name", "*.license.definition",
 			"*.dimensions", "*.defaultImage", "*.createdOn", "*.description", "*.folder", "*.gooruOid", "*.sharing", "*.title", "*.views", "*.thumbnails", "*.url", "*.vocabulary", "*.collaborators", "*.network", "*.buildType", "*.buildType.value", "*.resourceFormat", "*.resourceFormat.value",
@@ -497,6 +498,10 @@ public interface ConstantProperties {
      public static String FOLLOWING="following";
     
     public static String FOLLOWERS="followers";
+    
+    public static String FOLLOW="follow";
+    
+    public static String UN_FOLLOW="unfollow";    
    
     public static String CUSTOM_FIELDS="customFields";
     
@@ -607,8 +612,6 @@ public interface ConstantProperties {
 	public static String  INSTRUCTIONAL_METHOD = "instructional_method";
 
 	public static String NOT_DELETED = "notdeleted";
-	
-	public static String COMMENTCOUNT = "commentCount";
 
 	public static String CONTENT_META_ASSOCIATION_TYPE = "content_meta_association_type_";
 	
@@ -626,7 +629,7 @@ public interface ConstantProperties {
 
     public static String COLLECTION_CREATE = "collection.create";
     
-    public static String  ITEM_ID = " ItemId";
+    public static String  ITEM_ID = "ItemId";
     
     public static String  CONTENT_ITEM_ID = "contentItemId";
 
@@ -653,6 +656,29 @@ public interface ConstantProperties {
     public static String SEARCH_PROFILE = "search.profile";
 
     public static String SETTING_VERSION = "setting.version";
-   
     
+    public static String STATISTICS_DATA = "statisticsData";
+ 
+    public static String _PUBLISH_STATUS ="publish_status";
+    
+    public static String FOLDER_FOLDER = "folder.folder";
+    
+    public static String SHELF_FOLDER = "shelf.folder";
+    
+    public static String _ITEM_DATA = "itemData";
+    
+    public static String _COPY = "copy";
+    
+    public static String RESOURCE_CREATE_RESOURCE = "resource.create_resource";
+    
+    public static String  RESOURCE_DELETE_RESOURCE = "resource.delete_resource";
+    
+    public static String  RESOURCE_DELETE_RESOURCE_TAXONOMY = "resource.delete_resource_taxonomy"; 
+    
+    public static String TAG_ADD_RESOURCE = "tag.add_resource";
+    
+    
+    
+    
+   
 }

@@ -49,7 +49,7 @@ import com.fasterxml.jackson.datatype.hibernate4.Hibernate4Module;
  * @author Search Team
  * @see FilterSetting
  */
-public class JsonJackSerializer {
+public final class JsonJackSerializer {
 
 	private static ObjectMapper mapper;
 	/**
@@ -100,13 +100,6 @@ public class JsonJackSerializer {
 			return mapper.writer(filterProvider);
 		}
 		return mapper.writer(getFilterProviderInstance());
-	}
-	
-	public static void getFilter(FilterSetting setting , String filterString, boolean include) {
-		String[] excludeParams = filterString.split(",");
-		for(String param : excludeParams) {
-			String[] paramFields = param.split(".");
-		}
 	}
 
 	/**

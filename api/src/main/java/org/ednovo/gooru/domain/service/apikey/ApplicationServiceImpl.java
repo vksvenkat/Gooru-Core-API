@@ -149,7 +149,6 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 		   Errors error = validateApiKey(apiKey);
 		   ApiKey existingApiKey = apiKeyRepository.getApplicationByAppKey(apiKey.getKey());
 		   try{
-			   String auth = new String(org.apache.commons.codec.binary.Base64.encodeBase64((username+":"+password).getBytes()));
 			   Form form = new Form();
 			   form.add("issuetype", ISSUE);
 			   form.add("pid", PID);
