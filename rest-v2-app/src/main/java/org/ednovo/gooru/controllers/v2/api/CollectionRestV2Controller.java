@@ -179,7 +179,7 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 	@RequestMapping(value = { "/{id}/item" }, method = RequestMethod.POST)
 	public ModelAndView createCollectionItem(@PathVariable(value = ID) String collectionId, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
-		JSONObject json = requestData(data);
+		final JSONObject json = requestData(data);
 		ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().createCollectionItem(getValue(RESOURCE_ID, json), collectionId, this.buildCollectionItemFromInputParameters(getValue(COLLECTION_ITEM, json)), user, CollectionType.COLLECTION.getCollectionType(), false);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -287,7 +287,7 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/move" }, method = RequestMethod.PUT)
 	public ModelAndView moveCollectionToFolder(HttpServletRequest request, @RequestBody String data, HttpServletResponse response) throws Exception {
-		User user = (User) request.getAttribute(Constants.USER);
+		final User user = (User) request.getAttribute(Constants.USER);
 		JSONObject json = requestData(data);
 
 		ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().moveCollectionToFolder(getValue(SOURCE_ID, json), json != null && getValue(TARGET_ID, json) != null ? getValue(TARGET_ID, json) : null , user);
@@ -359,7 +359,7 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 	public ModelAndView updateQuestionWithCollectionItem(HttpServletRequest request, @PathVariable(ID) String collectionItemId, @RequestBody String data, HttpServletResponse response) throws Exception {
 		JSONObject json = requestData(data);
 		User user = (User) request.getAttribute(Constants.USER);
-		ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().updateQuestionWithCollectionItem(collectionItemId, data, parseJSONArray(getValue(DELETE_ASSETS, json)),  user, getValue(MEDIA_FILE_NAME, json));
+		final ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().updateQuestionWithCollectionItem(collectionItemId, data, parseJSONArray(getValue(DELETE_ASSETS, json)),  user, getValue(MEDIA_FILE_NAME, json));
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		}
