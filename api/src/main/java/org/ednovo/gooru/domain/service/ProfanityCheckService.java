@@ -38,7 +38,7 @@ public interface ProfanityCheckService {
 
 	List<String> profanityCreate(Profanity profanity) throws Exception;
 
-	public void profanityDelete(Profanity profanity) throws Exception;
+	void profanityDelete(Profanity profanity) throws Exception;
 
-	public Collection<String> profanityList() throws Exception;
+	Collection<String> profanityList() throws Exception;
 }
