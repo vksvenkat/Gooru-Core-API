@@ -9,7 +9,9 @@ public class ServicePartyAssoc implements Serializable{
 	 */
 	private static final long serialVersionUID = -7727669846339775744L;
 	
-	private String serviceKey;
+	private String ServicePartyAssocUid;
+	
+	private Service service;
 	
 	private String partyUid;
 	
@@ -17,13 +19,6 @@ public class ServicePartyAssoc implements Serializable{
 	
 	private String serviceEndPoint;
 
-	public String getServiceKey() {
-		return serviceKey;
-	}
-
-	public void setServiceKey(String serviceKey) {
-		this.serviceKey = serviceKey;
-	}
 
 	public String getPartyUid() {
 		return partyUid;
@@ -47,6 +42,22 @@ public class ServicePartyAssoc implements Serializable{
 
 	public void setServiceEndPoint(String serviceEndPoint) {
 		this.serviceEndPoint = serviceEndPoint;
+	}
+
+	public void setServicePartyAssocUid(String servicePartyAssocUid) {
+		ServicePartyAssocUid = servicePartyAssocUid;
+	}
+
+	public String getServicePartyAssocUid() {
+		return ServicePartyAssocUid;
+	}
+
+	public void setService(Service service) {
+		this.service = service;
+	}
+
+	public Service getService() {
+		return service;
 	}
 	
 

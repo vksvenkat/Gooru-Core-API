@@ -37,9 +37,5 @@
 
 		<property name="version" column="version" not-null="false"></property>
 		
-		<many-to-one name="service"
-			class="org.ednovo.gooru.core.api.model.Service" column="service_key"
-			not-null="true" lazy="proxy" cascade="none" />
-		
 	</class>
 </hibernate-mapping>

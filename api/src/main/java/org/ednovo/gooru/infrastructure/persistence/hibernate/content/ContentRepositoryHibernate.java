@@ -264,12 +264,31 @@ public class ContentRepositoryHibernate extends BaseRepositoryHibernate implemen
 	}
 
 	@Override
-	public List<ContentProviderAssociation> getContentProviderByGooruOid(String gooruOid) {
+	public List<ContentProviderAssociation> getContentProviderByGooruOid(String gooruOid, String name ) {
 		Session session = getSession();
-		String hql = " FROM ContentProviderAssociation contentProviderAssociation WHERE " + generateOrgAuthQueryWithData("contentProvider.") + " and " + "contentProviderAssociation.gooruOid=:gooruOid" + " and " + "contentProviderAssociation.contentProvider.activeFlag = 1";
+		String hql = " FROM ContentProviderAssociation cpa WHERE " + generateOrgAuthQueryWithData("cpa.contentProvider.") + " and " + "cpa.gooruOid=:gooruOid" + " and " + "cpa.contentProvider.activeFlag = 1";
+		
+		if(name != null) {
+			hql += " and cpa.contentProvider.name ='"+ name +"'";
+		}
 		Query query = session.createQuery(hql);
 		query.setParameter("gooruOid", gooruOid);
 		return query.list();
+	}
+	
+	@Override
+	public ContentProvider getContentProviderByName(String name, String keyValue) {
+		String hql = " FROM ContentProvider cp WHERE " + generateOrgAuthQueryWithData("cp.") + " and cp.activeFlag = 1 and cp.name =:name";
+		if (keyValue != null) {
+			hql += " and cp.type.keyValue =:keyValue";
+		}
+		Query query = getSession().createQuery(hql);
+
+		query.setParameter(NAME, name);
+		if (keyValue != null) {
+			query.setParameter(KEY_VALUE, keyValue);
+		}
+		return query.list().size() > 0 ? (ContentProvider) query.list().get(0) : null;
 	}
 
 	@Override
