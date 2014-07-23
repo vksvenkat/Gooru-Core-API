@@ -62,12 +62,14 @@ public class ContentRepositoryHibernate extends BaseRepositoryHibernate implemen
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Content findByContent(Long contentId) {
 		List<Content> cc = getSession().createQuery("SELECT  c FROM Content c  WHERE c.contentId = ? AND  " + generateAuthQueryWithDataNew("c.")).setLong(0, contentId).list();
 		return cc.size() == 0 ? null : cc.get(0);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Content findByContentGooruId(String gooruContentId) {
 		List<Content> cc = getSession().createQuery("SELECT c FROM Learnguide c   WHERE c.gooruOid = ? AND  " + generateAuthQueryWithDataNew("c.")).setString(0, gooruContentId).list();
@@ -79,6 +81,7 @@ public class ContentRepositoryHibernate extends BaseRepositoryHibernate implemen
 		return findContentByGooruId(gooruContentId, false);
 	}
 
+	@SuppressWarnings({ "unchecked", "deprecation" })
 	@Override
 	public Content findContentByGooruId(String gooruContentId, boolean fetchUser) {
 		if (!fetchUser) {
@@ -93,6 +96,7 @@ public class ContentRepositoryHibernate extends BaseRepositoryHibernate implemen
 		}
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Override
 	public Resource findByResourceType(String typename, String url) {
 
@@ -119,6 +123,7 @@ public class ContentRepositoryHibernate extends BaseRepositoryHibernate implemen
 		return resource;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public User findContentOwner(String gooruContentId) {
 
@@ -143,6 +148,7 @@ public class ContentRepositoryHibernate extends BaseRepositoryHibernate implemen
 		getSession().delete(content);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public ContentAssociation getCollectionAssocContent(String contentGooruOid) {
 		String hql = "SELECT contentAssociation FROM ContentAssociation contentAssociation JOIN Content content  LEFT JOIN content.contentPermissions cps WHERE content.gooruOid = '" + contentGooruOid + "' AND  " + generateAuthQueryWithDataNew("content.");
@@ -150,6 +156,7 @@ public class ContentRepositoryHibernate extends BaseRepositoryHibernate implemen
 		return (result.size() > 0) ? null : result.get(0);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public StatusType getStatusType(String name) {
 		String hql = "FROM StatusType statusType  WHERE statusType.name = '" + name + "'";
@@ -165,12 +172,14 @@ public class ContentRepositoryHibernate extends BaseRepositoryHibernate implemen
 		this.jdbcTemplate = jdbcTemplate;
 	}
 
+	@SuppressWarnings("unchecked")
 	public Code getCodeByName(String name) {
 
 		List<Code> cc = getSession().createQuery("SELECT c FROM Code c   WHERE c.label = ?  AND  " + generateAuthQueryWithDataNew("c.taxonomySet.")).setString(0, name).list();
 		return cc.size() == 0 ? null : cc.get(0);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Boolean checkContentPermission(Long contentId, String partyUid) {
 		String hql = "FROM ContentPermission cp where cp.content.contentId=:contentId and cp.party.partyUid=:partyUid";
@@ -182,6 +191,7 @@ public class ContentRepositoryHibernate extends BaseRepositoryHibernate implemen
 		return (permissions.size() > 0) ? true : false;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<Content> getContentByUserUId(String userUId) {
 		Session session = getSession();
@@ -202,6 +212,7 @@ public class ContentRepositoryHibernate extends BaseRepositoryHibernate implemen
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public ContentTagAssoc getContentTagById(String gooruOid, String tagGooruOid, String gooruUid) {
 		Session session = getSession();
@@ -218,6 +229,7 @@ public class ContentRepositoryHibernate extends BaseRepositoryHibernate implemen
 
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<ContentTagAssoc> getContentTagByContent(String gooruOid, String gooruUid) {
 		String hql = "select contentTagAssoc From ContentTagAssoc contentTagAssoc where contentTagAssoc.contentGooruOid='" + gooruOid + "'";
@@ -228,6 +240,7 @@ public class ContentRepositoryHibernate extends BaseRepositoryHibernate implemen
 		return query.list();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<ContentPermission> getContentPermission(Long contentId, String partyUid) {
 		String hql = "FROM ContentPermission cp where cp.content.contentId=:contentId and cp.party.partyUid=:partyUid";
@@ -238,6 +251,7 @@ public class ContentRepositoryHibernate extends BaseRepositoryHibernate implemen
 		return query.list();
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Override
 	public List getIdsByUserUId(String userUId, String typeName,
 			Integer pageNo, Integer pageSize) {
@@ -253,6 +267,7 @@ public class ContentRepositoryHibernate extends BaseRepositoryHibernate implemen
 		return query.list();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<ContentProvider> getContentProvider(Integer offset, Integer limit) {
 		Session session = getSession();
@@ -263,6 +278,7 @@ public class ContentRepositoryHibernate extends BaseRepositoryHibernate implemen
 		return query.list();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<ContentProviderAssociation> getContentProviderByGooruOid(String gooruOid, String name ) {
 		Session session = getSession();
@@ -291,6 +307,7 @@ public class ContentRepositoryHibernate extends BaseRepositoryHibernate implemen
 		return query.list().size() > 0 ? (ContentProvider) query.list().get(0) : null;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<Object[]> getUserContentTagList(String gooruUid, Integer limit, Integer offset) {
 		String sql = "select  count(1) as count, t.label as label , ct.tag_gooru_oid as tagGooruOid from tags t inner join content c on  (t.content_id = c.content_id) inner join content_tag_assoc ct on (c.gooru_oid= ct.tag_gooru_oid) where associated_uid  =  '" + gooruUid

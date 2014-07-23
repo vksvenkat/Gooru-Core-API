@@ -126,7 +126,7 @@ public abstract class UserGroupSupport extends SessionContextSupport {
 		return false;
 	}
 
-	public static String getProfileAssetURI() {
+	static String getProfileAssetURI() {
 		UserCredential credential = getUserCredential();
 		if (credential != null) {
 			return credential.getProfileAssetURI();
