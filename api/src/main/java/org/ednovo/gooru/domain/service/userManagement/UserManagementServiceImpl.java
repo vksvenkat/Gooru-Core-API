@@ -183,8 +183,8 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	}
 
 	@Override
-	public SearchResults<Map<String, Object>> getFollowedOnUsers(String gooruUId, Integer offset, Integer limit, boolean skipPagination) {
-		List<User> users =  this.getUserRepository().getFollowedOnUsers(gooruUId,offset,limit,skipPagination);
+	public SearchResults<Map<String, Object>> getFollowedOnUsers(String gooruUId, Integer offset, Integer limit) {
+		List<User> users =  this.getUserRepository().getFollowedOnUsers(gooruUId,offset,limit);
 		List<Map<String, Object>> usersObj = new ArrayList<Map<String,Object>>();
 		for(User user : users) {
 			usersObj.add(setUserObj(user));
@@ -196,8 +196,8 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	}
 	
 	@Override
-	public SearchResults<Map<String, Object>> getFollowedByUsers(String gooruUId, Integer offset, Integer limit, boolean skipPagination) {
-		List<User> users =  this.getUserRepository().getFollowedByUsers(gooruUId,offset,limit,skipPagination);
+	public SearchResults<Map<String, Object>> getFollowedByUsers(String gooruUId, Integer offset, Integer limit) {
+		List<User> users =  this.getUserRepository().getFollowedByUsers(gooruUId,offset,limit);
 		List<Map<String, Object>> usersObj = new ArrayList<Map<String,Object>>();
 		for(User user : users) {
 			usersObj.add(setUserObj(user));
@@ -1391,7 +1391,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		UserRelationship userRelationship = getUserRepository().getActiveUserRelationship(user.getPartyUid(), followOnUserId);
 		User followOnUser = getUserRepository().findByGooruId(followOnUserId);
 		if (userRelationship != null) {
-			throw new BadCredentialsException("user alreday followed the user");
+			return this.setUserObj(followOnUser);
 		}
 		userRelationship = new UserRelationship();
 		userRelationship.setUser(user);
