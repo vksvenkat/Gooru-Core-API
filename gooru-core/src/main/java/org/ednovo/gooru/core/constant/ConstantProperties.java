@@ -669,5 +669,16 @@ public interface ConstantProperties {
     
     public static String _COPY = "copy";
     
+    public static String RESOURCE_CREATE_RESOURCE = "resource.create_resource";
+    
+    public static String  RESOURCE_DELETE_RESOURCE = "resource.delete_resource";
+    
+    public static String  RESOURCE_DELETE_RESOURCE_TAXONOMY = "resource.delete_resource_taxonomy"; 
+    
+    public static String TAG_ADD_RESOURCE = "tag.add_resource";
+    
+    
+    
+    
    
 }
