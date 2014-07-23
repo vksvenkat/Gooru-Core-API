@@ -41,6 +41,7 @@ public class PostRepositoryHibernate extends BaseRepositoryHibernate implements 
 	@Autowired
 	private CustomTableRepository customTableRepository;
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Post getPost(String gooruOid) {
 		Session session = getSession();
@@ -52,6 +53,7 @@ public class PostRepositoryHibernate extends BaseRepositoryHibernate implements 
 		return (post.size() > 0) ? post.get(0) : null;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<Post> getPosts(String type, Integer limit, Integer offset) {
 		String hql = "FROM Post post WHERE  ";
@@ -67,6 +69,7 @@ public class PostRepositoryHibernate extends BaseRepositoryHibernate implements 
 
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<Post> getUserPosts(String gooruUid, Integer limit, Integer offset) {
 		String hql = "FROM Post post WHERE post.assocUserUid=:gooruUid and " + generateOrgAuthQuery("post.");
@@ -79,6 +82,7 @@ public class PostRepositoryHibernate extends BaseRepositoryHibernate implements 
 		return query.list();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<Post> getContentPosts(String gooruOid, Integer limit, Integer offset) {
 		String hql = "FROM Post post WHERE post.assocGooruOid=:gooruOid and " + generateOrgAuthQuery("post.") + "and post.status.customTableValueId = "
