@@ -29,8 +29,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.persistence.EntityExistsException;
-
 import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.ContentPermission;
 import org.ednovo.gooru.core.api.model.ContentTagAssoc;
@@ -52,6 +50,7 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentRepo
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.tag.TagRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 
 @Service("v2Content")
@@ -112,7 +111,7 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 					contentTagAssocs.add(setcontentTagAssoc(contentTagAssoc, tag.getLabel()));
 				}
 			} else {
-				throw new EntityExistsException("Tag already exist");
+				throw new BadCredentialsException("Tag already exist");
 			}
 		}
 		return contentTagAssocs;
