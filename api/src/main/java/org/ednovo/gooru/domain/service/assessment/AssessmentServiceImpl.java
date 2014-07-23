@@ -686,13 +686,10 @@ public class AssessmentServiceImpl implements AssessmentService, ParameterProper
 				if (question.getTags() != null) {
 					existingQuestion.setTags(question.getTags());
 				}
-				if (question.getResourceSource() != null) {
-					if (existingQuestion.getResourceSource() != null) {
+				if (question.getResourceSource() != null && existingQuestion.getResourceSource() != null) {
 						ResourceSource resourceSource = existingQuestion.getResourceSource();
 						resourceSource.setAttribution(question.getResourceSource().getAttribution());
 						existingQuestion.setResourceSource(resourceSource);
-					}
-
 				}
 				existingQuestion.setDifficultyLevel(question.getDifficultyLevel());
 				existingQuestion.setTitle(question.getTitle());
@@ -1068,15 +1065,13 @@ public class AssessmentServiceImpl implements AssessmentService, ParameterProper
 
 		if (taxonomySet != null) {
 			for (Code code : taxonomySet) {
-				if (code.getRootNodeId() != null && UserGroupSupport.getTaxonomyPreference() != null && UserGroupSupport.getTaxonomyPreference().contains(code.getRootNodeId().toString())) {
-					if (!metaData.getCurriculumCodes().contains(code.getCode())) {
+				if (code.getRootNodeId() != null && UserGroupSupport.getTaxonomyPreference() != null && UserGroupSupport.getTaxonomyPreference().contains(code.getRootNodeId().toString()) && (!metaData.getCurriculumCodes().contains(code.getCode()))) {
 						metaData.getCurriculumCodes().add(code.getCode());
 						if (code.getDescription() != null && !code.getDescription().equals("")) {
 							metaData.getCurriculumDescs().add(code.getDescription());
 						} else {
 							metaData.getCurriculumCodes().add(BLANK + code.getCode());
 						}
-					}
 				}
 			}
 		}
@@ -1406,27 +1401,6 @@ public class AssessmentServiceImpl implements AssessmentService, ParameterProper
 	@Override
 	public AssessmentSegmentQuestionAssoc findSegmentQuestion(Integer segmentId, String gooruOQuestionId) {
 		return assessmentRepository.findSegmentQuestion(segmentId, gooruOQuestionId);
-	}
-
-	@Override
-	public int publishAssessment(String gooruAssessmentId) {
-		Assessment assessment = getAssessment(gooruAssessmentId);
-		if (assessment != null) {
-			if (assessment.getSegments() != null) {
-				for (AssessmentSegment segment : assessment.getSegments()) {
-					if (segment.getSegmentQuestions() != null && segment.getSegmentQuestions().size() > 0) {
-						for (AssessmentSegmentQuestionAssoc segmentQuestion : segment.getSegmentQuestions()) {
-							// segmentQuestion.getQuestion().setIsLive("1");
-						}
-					} else {
-						return HttpServletResponse.SC_BAD_REQUEST;
-					}
-				}
-				assessmentRepository.saveAndFlush(assessment);
-				return HttpServletResponse.SC_OK;
-			}
-		}
-		return HttpServletResponse.SC_BAD_REQUEST;
 	}
 
 	@Override
