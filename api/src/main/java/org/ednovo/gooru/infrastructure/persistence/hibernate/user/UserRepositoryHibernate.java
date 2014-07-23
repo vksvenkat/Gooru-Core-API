@@ -102,6 +102,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 	private static final String DELETE_USER_GROUP_MEMBER = "Delete FROM UserGroupAssociation userGroupAssociation WHERE userGroupAssociation.userGroup.partyUid = :partyUid and userGroupAssociation.user.partyUid IN (:partyUids)";
 	private static final String FIND_GROUP_USER_BY_IDS = "FROM UserGroupAssociation UGA WHERE UGA.user.partyUid IN (:partyUids)";
 	private static final String FIND_PARTY_ID = "FROM Party party WHERE party.partyUid =:partyUid";
+	private static final String FIND_IDENTITY = "SELECT identity.user FROM Identity  identity WHERE identity.externalId = :externalId AND " + generateOrgAuthQuery("identity.user.") + " AND " + generateUserIsDeleted("identity.user.");
 
 	@Autowired
 	public UserRepositoryHibernate(SessionFactory sessionFactory, JdbcTemplate jdbcTemplate) {
@@ -178,8 +179,9 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 	@SuppressWarnings("unchecked")
 	@Override
 	public User findByIdentity(Identity identity) {
-		List<Identity> identityList = getSession().createCriteria(Identity.class).add(Restrictions.eq(EXTERNAL_ID, identity.getExternalId())).createAlias("user", "user").list();
-		return identityList.size() == 0 ? null : (identityList.get(0).getUser());
+		Query query = getSession().createQuery(FIND_IDENTITY);
+		query.setParameter("externalId", identity.getExternalId());
+		return (User) (query.list().size() > 0 ? query.list().get(0) : null);
 	}
 
 	@SuppressWarnings("unchecked")
