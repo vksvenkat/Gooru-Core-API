@@ -40,7 +40,6 @@ import org.ednovo.gooru.core.api.model.UserGroup;
 import org.ednovo.gooru.core.api.model.UserGroupAssociation;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
-import org.ednovo.gooru.domain.service.shelf.ShelfService;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentRepository;
 import org.json.JSONObject;
@@ -57,8 +56,6 @@ public class UserGroupServiceImpl implements UserGroupService,ParameterPropertie
 	@Autowired
 	private ContentRepository contentRepository ;
 	
-	@Autowired
-	private ShelfService shelfService;
 	
 	@Override
 	public UserGroup createGroup(String name, String groupCode, String userGroupType, User apiCaller, String userMailIds) throws Exception {
@@ -254,15 +251,11 @@ public class UserGroupServiceImpl implements UserGroupService,ParameterPropertie
 
 	@Override
 	public List<ContentPermission> contentShare(String contentId, User user, String partyUids, Boolean shareOtherOrganization, String OrganizationId) throws Exception {
-				
 		List<ContentPermission> contentPermissionList = new ArrayList<ContentPermission> ();
 		Content content = this.getContentRepository().findByContentGooruId(contentId);
 		Date date = new Date();
-		List<String> partyUidList = Arrays.asList(partyUids.split(","));
-		String addType = ADDED;
-		
+		List<String> partyUidList = Arrays.asList(partyUids.split(","));		
 		for (String partyUid : partyUidList) {
-			
 			Party  party = this.getUserRepository().findPartyById(partyUid);
 			
 			if (content.getUser() != null && content.getUser().getGooruUId().equalsIgnoreCase(user.getGooruUId())) {
@@ -275,13 +268,8 @@ public class UserGroupServiceImpl implements UserGroupService,ParameterPropertie
 					contentPermission.setValidFrom(date);
 					contentPermissionList.add(contentPermission);
 				}
-				
-				if(party.getPartyType().equals(USER) && !party.getPartyUid().equalsIgnoreCase(user.getGooruUId())){
-					shelfService.addResourceToSelf(null, content.getGooruOid(), addType, null, this.getUserRepository().findUserByPartyUid(party.getPartyUid()));
-				}	
 			}
-			
-		this.getUserRepository().saveAll(contentPermissionList);
+			this.getUserRepository().saveAll(contentPermissionList);
 		
 		}
 		return contentPermissionList;

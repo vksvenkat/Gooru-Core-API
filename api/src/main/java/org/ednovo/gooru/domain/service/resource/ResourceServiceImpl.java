@@ -115,7 +115,6 @@ import org.ednovo.gooru.domain.service.partner.CustomFieldsService;
 import org.ednovo.gooru.domain.service.revision_history.RevisionHistoryService;
 import org.ednovo.gooru.domain.service.sessionActivity.SessionActivityService;
 import org.ednovo.gooru.domain.service.setting.SettingService;
-import org.ednovo.gooru.domain.service.shelf.ShelfService;
 import org.ednovo.gooru.domain.service.storage.S3ResourceApiHandler;
 import org.ednovo.gooru.domain.service.taxonomy.TaxonomyService;
 import org.ednovo.gooru.domain.service.v2.ContentService;
@@ -132,7 +131,6 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentRepo
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.resource.ResourceRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.resource.SegmentRepository;
-import org.ednovo.gooru.infrastructure.persistence.hibernate.shelf.ShelfRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.taxonomy.TaxonomyRespository;
 import org.ednovo.gooru.security.OperationAuthorizer;
 import org.json.JSONException;
@@ -211,9 +209,6 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	private AssessmentRepository assessmentRepository;
 
 	@Autowired
-	private ShelfRepository shelfRepository;
-
-	@Autowired
 	private SessionActivityRepository sessionActivityRepository;
 
 	@Autowired
@@ -233,9 +228,6 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 
 	@Autowired
 	private SubscriptionRepository subscriptionRepository;
-
-	@Autowired
-	private ShelfService shelfService;
 
 	@Autowired
 	private ConfigSettingRepository configSettingRepository;
@@ -1085,27 +1077,9 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 
 	@Override
 	public void deleteResourceFromGAT(String gooruContentId, boolean isThirdPartyUser, User apiCaller, boolean isMycontent) {
-		/*
-		 * Resource resource =
-		 * this.getResourceRepository().findResourceByContentGooruId
-		 * (gooruContentId);
-		 * this.getResourceRepository().retriveAndSetInstances(resource);
-		 * List<ResourceInstance> resourceInstanceList =
-		 * resource.getResourceInstances(); if (resourceInstanceList != null &&
-		 * resourceInstanceList.size() > 0) {
-		 * this.getResourceRepository().removeAll(resourceInstanceList); }
-		 * indexProcessor.index(resource.getGooruOid(), IndexProcessor.DELETE,
-		 * "resource"); this.getResourceRepository().remove(Resource.class,
-		 * resource.getContentId());
-		 */
 		Resource resource = this.getResourceRepository().findResourceByContentGooruId(gooruContentId);
 		Content content = this.contentRepository.findContentByGooruId(resource.getGooruOid());
 		if (resource != null && isThirdPartyUser && apiCaller != null) {
-			if (shelfService.hasContentSubscribed(apiCaller, resource.getGooruOid())) {
-				subscriptionRepository.deleteSubscription(apiCaller.getUserUid(), resource.getGooruOid());
-				UserContentRelationshipUtil.deleteUserContentRelationship(content, apiCaller, RELATIONSHIP.SUBSCRIBE);
-				shelfService.deleteShelfSubscribeUserList(resource.getGooruOid(), apiCaller.getGooruUId());
-			}
 
 			if (isMycontent) {
 				UserContentRelationshipUtil.deleteUserContentRelationship(content, apiCaller, RELATIONSHIP.CREATE);
@@ -2416,13 +2390,6 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				}
 				analytic.put(SCORE, this.getAssessmentRepository().getQuizUserScore(gooruOid, user.getPartyUid()));
 			}
-
-			List<ShelfItem> subscriberUserList = this.getShelfRepository().getShelfSubscribeUserList(gooruOid);
-			if (subscriberUserList == null) {
-				analytic.put(SUBSCRIBE_COUNT, 0);
-			} else {
-				analytic.put(SUBSCRIBE_COUNT, subscriberUserList.size());
-			}
 			analytic.put(VIEWS, this.getResourceRepository().findViews(gooruOid));
 
 		}
@@ -2450,10 +2417,6 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	@Override
 	public Resource getResourceByResourceInstanceId(String resourceInstanceId) {
 		return resourceRepository.getResourceByResourceInstanceId(resourceInstanceId);
-	}
-
-	public ShelfRepository getShelfRepository() {
-		return shelfRepository;
 	}
 
 	public ContentService getContentService() {
