@@ -104,6 +104,7 @@ public class MediaServiceImpl implements MediaService,ParameterProperties {
 				classplanDir.mkdirs();
 			}
 
+			@SuppressWarnings("unchecked")
 			Map<String, byte[]> files = (Map<String, byte[]>) formField.get(RequestUtil.UPLOADED_FILE_KEY);
 
 			byte[] fileData = null;
@@ -180,6 +181,7 @@ public class MediaServiceImpl implements MediaService,ParameterProperties {
 	public FileMeta handleFileUpload(MediaDTO mediaDTO, Map<String, Object> formField) throws FileNotFoundException, IOException {
 		String fileExtension = null;
 		if (formField.get(RequestUtil.UPLOADED_FILE_KEY) != null) {
+			@SuppressWarnings("unchecked")
 			Map<String, byte[]> files = (Map<String, byte[]>) formField.get(RequestUtil.UPLOADED_FILE_KEY);
 			for (String name : files.keySet()) {
 				if (name != null) {

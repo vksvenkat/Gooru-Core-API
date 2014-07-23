@@ -111,6 +111,7 @@ public class MediaRestV2Controller extends BaseController implements ConstantPro
 		return toModelAndView(getMediaService().handleFileUpload(mediaDTO, formField), FORMAT_JSON);
 	}
 
+	@SuppressWarnings("static-access")
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_MEDIA_UPDATE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.PUT, value = "/{id}/crop")
