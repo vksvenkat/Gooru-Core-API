@@ -45,7 +45,6 @@ import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.domain.service.setting.SettingService;
-import org.ednovo.gooru.infrastructure.persistence.hibernate.OrganizationSettingRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.assessment.AssessmentRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.classplan.LearnguideRepository;
 import org.slf4j.Logger;
@@ -75,9 +74,6 @@ public class RedisServiceImpl implements RedisService, ParameterProperties, Cons
 
 	@Autowired
 	private AssessmentRepository assessmentRepository;
-
-	@Autowired
-	private OrganizationSettingRepository organizationSettingRepository;
 
 	private String redisInstanceName;
 

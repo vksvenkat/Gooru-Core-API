@@ -27,7 +27,6 @@ import java.util.List;
 
 import org.ednovo.gooru.core.api.model.CustomTableValue;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepository;
-//import org.ednovo.gooru.domain.model.CustomTableValue;
 
 public interface CustomTableRepository extends BaseRepository {
 

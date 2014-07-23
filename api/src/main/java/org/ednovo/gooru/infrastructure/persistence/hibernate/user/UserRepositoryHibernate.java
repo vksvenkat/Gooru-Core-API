@@ -340,7 +340,6 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 		return (relationships.size() > 0) ? relationships.get(0) : null;
 	}
 
-	// @SuppressWarnings("rawtypes")
 	@SuppressWarnings("rawtypes")
 	@Override
 	public User findByRemeberMeToken(String remeberMeToken) {

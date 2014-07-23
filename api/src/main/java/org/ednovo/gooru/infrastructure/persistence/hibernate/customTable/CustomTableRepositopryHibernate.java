@@ -37,6 +37,7 @@ public class CustomTableRepositopryHibernate extends BaseRepositoryHibernate imp
 	private final String RETIREVE_BY_NAME_VALUE = "From CustomTableValue ctv  where  ctv.value=:value  and  ctv.customTable.name=:name  and "+generateOrgAuthQuery("ctv.customTable.");
 	private final String RETIREVE_BY_NAME = "From CustomTableValue ctv  where ctv.customTable.name=:name  and "+generateOrgAuthQuery("ctv.customTable.");
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public CustomTableValue getCustomTableValue(String name, String value) {
 		Session session = getSession();
@@ -47,22 +48,22 @@ public class CustomTableRepositopryHibernate extends BaseRepositoryHibernate imp
 		List<CustomTableValue> customValues = query.list();
 		return (customValues.size() > 0) ? customValues.get(0) : null;
 	}
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<CustomTableValue> getCustomTableValues(String name) {
 		Session session = getSession();
 		Query query = session.createQuery(RETIREVE_BY_NAME);
 		query.setParameter("name", name);
 		addOrgAuthParameters(query);
-		List<CustomTableValue> customValues = query.list();
 		return    query.list(); 
 
 	}
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<CustomTableValue> getFilterValueFromCustomTable(String name) {
 		Session session = getSession();
 		Query query = session.createQuery("From CustomTableValue ctv  where ctv.customTable.name=:name");
 		query.setParameter("name", name);
-		List<CustomTableValue> customValues = query.list();
 		return    query.list(); 
 	}
 	
