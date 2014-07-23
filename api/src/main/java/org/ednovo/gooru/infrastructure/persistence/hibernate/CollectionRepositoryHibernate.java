@@ -145,8 +145,14 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		Query query = getSession().createQuery(hql);
 		query.setParameter(GOORU_OID, collectionId);
 		addOrgAuthParameters(query);
-		int pageSize = Integer.parseInt(filters.get(PAGE_SIZE));
-		int pageNo = Integer.parseInt(filters.get(PAGE_NO));
+		Integer pageNo = 1;
+		if (filters != null && filters.containsKey(PAGE_NO)) {
+			pageNo = Integer.parseInt(filters.get(PAGE_NO));
+		}
+		Integer pageSize = 10;
+		if (filters != null && filters.containsKey(PAGE_SIZE)) {
+			pageSize = Integer.parseInt(filters.get(PAGE_SIZE));
+		}
 		query.setFirstResult(pageSize * (pageNo - 1));
 		query.setMaxResults(pageSize > MAX_LIMIT ? MAX_LIMIT : pageSize);
 		return query.list();
