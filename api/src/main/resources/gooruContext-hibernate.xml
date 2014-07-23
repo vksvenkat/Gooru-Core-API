@@ -371,7 +371,7 @@
 				<value>org/ednovo/gooru/domain/model/user/LtiContentAssoc.hbm.xml</value>
 				
 				<!-- Service -->
-				<!--<value>org/ednovo/gooru/domain/model/service/Service.hbm.xml</value> -->
+				<value>org/ednovo/gooru/domain/model/service/Service.hbm.xml</value>
 				<value>org/ednovo/gooru/domain/model/service/ServicePartyAssoc.hbm.xml</value>
 				
 				
