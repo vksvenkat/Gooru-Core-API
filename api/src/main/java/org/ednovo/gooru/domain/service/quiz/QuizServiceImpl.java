@@ -176,7 +176,7 @@ public class QuizServiceImpl extends ScollectionServiceImpl implements QuizServi
 
 	@Override
 	public List<Quiz> getMyQuizzes(String limit, String offset, User user) {
-		return this.getCollectionRepository().getMyQuizzes(Integer.parseInt(limit), Integer.parseInt(offset), user.getGooruUId(), true, DESC);
+		return this.getCollectionRepository().getMyQuizzes(Integer.parseInt(limit), Integer.parseInt(offset), user.getGooruUId(), DESC);
 	}
 
 	@Override
@@ -282,21 +282,18 @@ public class QuizServiceImpl extends ScollectionServiceImpl implements QuizServi
 			if (existCollectionItemSequence > newSequence) {
 				for (CollectionItem ci : collection.getCollectionItems()) {
 
-					if (ci.getItemSequence() >= newSequence) {
-						if (ci.getItemSequence() <= existCollectionItemSequence) {
+					if (ci.getItemSequence() >= newSequence && ci.getItemSequence() <= existCollectionItemSequence) {
 							if (ci.getCollectionItemId().equalsIgnoreCase(collectionItem.getCollectionItemId())) {
 								ci.setItemSequence(newSequence);
 							} else {
 								ci.setItemSequence(ci.getItemSequence() + 1);
 							}
-						}
 					}
 				}
 
 			} else if (existCollectionItemSequence < newSequence) {
 				for (CollectionItem ci : collection.getCollectionItems()) {
-					if (ci.getItemSequence() <= newSequence) {
-						if (existCollectionItemSequence <= ci.getItemSequence()) {
+					if (ci.getItemSequence() <= newSequence && existCollectionItemSequence <= ci.getItemSequence()) {
 							if (ci.getCollectionItemId().equalsIgnoreCase(collectionItem.getCollectionItemId())) {
 								if (collection.getCollectionItems().size() < newSequence) {
 									ci.setItemSequence(collection.getCollectionItems().size());
@@ -306,7 +303,6 @@ public class QuizServiceImpl extends ScollectionServiceImpl implements QuizServi
 							} else {
 								ci.setItemSequence(ci.getItemSequence() - 1);
 							}
-						}
 					}
 				}
 			}

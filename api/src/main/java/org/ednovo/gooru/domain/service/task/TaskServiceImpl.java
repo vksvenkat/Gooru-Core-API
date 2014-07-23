@@ -416,21 +416,18 @@ public class TaskServiceImpl extends BaseServiceImpl implements TaskService, Par
 			if (existTaskResourceItemSequence > sequence) {
 				for (TaskResourceAssoc ci : task.getTaskResourceAssocs()) {
 
-					if (ci.getSequence() >= sequence) {
-						if (ci.getSequence() <= existTaskResourceItemSequence) {
+					if (ci.getSequence() >= sequence && ci.getSequence() <= existTaskResourceItemSequence && ci.getTaskResourceAssocUid().equalsIgnoreCase(taskResourceAssoc.getTaskResourceAssocUid())) {
 							if (ci.getTaskResourceAssocUid().equalsIgnoreCase(taskResourceAssoc.getTaskResourceAssocUid())) {
 								ci.setSequence(sequence);
 							} else {
 								ci.setSequence(ci.getSequence() + 1);
 							}
-						}
 					}
 				}
 
 			} else if (existTaskResourceItemSequence < sequence) {
 				for (TaskResourceAssoc ci : task.getTaskResourceAssocs()) {
-					if (ci.getSequence() <= sequence) {
-						if (existTaskResourceItemSequence <= ci.getSequence()) {
+					if (ci.getSequence() <= sequence && existTaskResourceItemSequence <= ci.getSequence()) {
 							if (ci.getTaskResourceAssocUid().equalsIgnoreCase(taskResourceAssoc.getTaskResourceAssocUid())) {
 								if (task.getTaskResourceAssocs().size() < sequence) {
 									ci.setSequence(task.getTaskResourceAssocs().size());
@@ -440,7 +437,6 @@ public class TaskServiceImpl extends BaseServiceImpl implements TaskService, Par
 							} else {
 								ci.setSequence(ci.getSequence() - 1);
 							}
-						}
 					}
 				}
 			}
@@ -486,20 +482,12 @@ public class TaskServiceImpl extends BaseServiceImpl implements TaskService, Par
 		Errors errors = new BindException(task, TASK);
 		rejectIfNullOrEmpty(errors, task.getTitle(), TITLE, GL0006, generateErrorMessage(GL0006, TITLE));
 		rejectIfInvalidType(errors, task.getTypeName(), TYPE_NAME, GL0007, generateErrorMessage(GL0007, TYPE_NAME), taskType);
-		if (plannedEndDate != null) {
-			// rejectIfInvalidDate(errors, plannedEndDate, PLANNED_END_DATE,
-			// GL0007, generateErrorMessage(GL0007, PLANNED_END_DATE));
-		}
 		return errors;
 	}
 
 	private Errors updateTaskValidation(Task task, Date plannedEndDate) {
 		Errors errors = new BindException(task, TASK);
 		rejectIfNull(errors, task, TASK, GL0056, generateErrorMessage(GL0056, TASK));
-		if (plannedEndDate != null) {
-			// rejectIfInvalidDate(errors, plannedEndDate, PLANNED_END_DATE,
-			// GL0007, generateErrorMessage(GL0007, PLANNED_END_DATE));
-		}
 		return errors;
 	}
 

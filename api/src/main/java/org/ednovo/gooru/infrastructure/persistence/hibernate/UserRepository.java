@@ -181,7 +181,7 @@ public interface UserRepository extends BaseRepository {
 	
 	UserSummary getSummaryByUid(String gooruUid);
 	
-	User findByRemeberMeToken(String remeberMeToken)
+	User findByRemeberMeToken(String remeberMeToken);
 		
 	}
 

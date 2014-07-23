@@ -48,7 +48,7 @@ public interface ClasspageService {
 
 	Classpage getClasspage(String classpageId, User user, String merge);
 
-	SearchResults<Classpage> getClasspages(Integer offset, Integer limit, Boolean skipPagination, User user, String title, String authorGooruUid, String gooruUid);
+	SearchResults<Classpage> getClasspages(Integer offset, Integer limit, User user, String title, String authorGooruUid, String gooruUid);
 
 	Classpage getClasspage(String classpageCode, User user) throws Exception;
 	
@@ -56,7 +56,7 @@ public interface ClasspageService {
 
 	ActionResponseDTO<Classpage> createClasspage(Classpage newclasspage, User user, boolean addToUserClasspage, String assignmentId) throws Exception;
 
-	List<Classpage> getMyClasspage(Integer offset, Integer limit, User user, boolean skipPagination, String orderBy);
+	List<Classpage> getMyClasspage(Integer offset, Integer limit, User user, String orderBy);
 
 	Long getMyClasspageCount(String gooruUid);
 	
@@ -66,18 +66,18 @@ public interface ClasspageService {
 	
 	List<Map<String, Object>> getClassMemberList(String gooruOid, String filterBy);
 	
-	SearchResults<Map<String, Object>> getMemberList(String code,Integer offset, Integer limit, Boolean skipPagination,String filterBy);
+	SearchResults<Map<String, Object>> getMemberList(String code,Integer offset, Integer limit,String filterBy);
 	
 	Map<String, List<Map<String, Object>>> getClassMemberListByGroup(String gooruOid, String filterBy);
 	
 	List<String> classMemberSuggest(String queryText, String gooruUid);
 	
-	SearchResults<Map<String, Object>> getMyStudy(User apiCaller, String orderBy,Integer offset, Integer limit, boolean skipPagination, String type);
+	SearchResults<Map<String, Object>> getMyStudy(User apiCaller, String orderBy,Integer offset, Integer limit, String type);
 	
 	List<Map<String, Object>> setMyStudy(List<Object[]> results);
 	
 	CollectionItem updateAssignment(String collectionItemId, String status, User user);
 	
-	List<Map<String, Object>> getClasspageItems(String gooruOid, Integer limit, Integer offset, String userUid, String orderBy, boolean skipPagination, boolean optimize, String status);
+	List<Map<String, Object>> getClasspageItems(String gooruOid, Integer limit, Integer offset, String userUid, String orderBy, boolean optimize, String status);
 	
 }

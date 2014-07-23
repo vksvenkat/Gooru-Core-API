@@ -110,12 +110,14 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 		setJdbcTemplate(jdbcTemplate);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<User> findByRole(UserRole role) {
 		List<User> userList = find("from User user where user.userRole.roleId = " + role.getRoleId() + " AND " + generateOrgAuthQueryWithData("user.") + " AND " + generateUserIsDeleted("user."));
 		return userList.size() == 0 ? null : userList;
 	}
 
+	@SuppressWarnings("unchecked")
 	public String checkUserStatus(String email, String code) {
 		String userStatus = null;
 		List<Integer> results = getSession().createSQLQuery(FIND_REGISTERED_USER).addScalar(TOTAL_COUNT, StandardBasicTypes.INTEGER).setParameter("emailId", email).list();
@@ -134,7 +136,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 			}
 
 		}
-		return (userStatus != null) ? userStatus : "unknown";
+		return (userStatus == null) ?  "unknown" : userStatus;
 	}
 
 	public void invite(String firstname, String lastname, String email, String school, String message, String datestr) {
@@ -142,6 +144,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 		this.getJdbcTemplate().update(messageSql);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public User findByToken(String sessionToken) {
 		Query userQuery = getSession().createQuery("select user FROM UserToken tok where tok.token = '" + sessionToken + "'");
@@ -172,12 +175,14 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 		return (Identity) (query.list().size() == 0 ? null : (query.list().get(0)));
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public User findByIdentity(Identity identity) {
 		List<Identity> identityList = getSession().createCriteria(Identity.class).add(Restrictions.eq(EXTERNAL_ID, identity.getExternalId())).createAlias("user", "user").list();
 		return identityList.size() == 0 ? null : (identityList.get(0).getUser());
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<User> findByIdentities(List<String> idList) {
 		List<User> userList = new ArrayList<User>();
@@ -224,6 +229,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 		return query.list().size() == 0 ? null : (Profile) query.list().get(0);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<Identity> findAllIdentities() {
 
@@ -238,18 +244,16 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 		return identityList.size() == 0 ? null : identityList;
 	}
 
-	// FIXME: Deprecated
 	@Override
 	public boolean findRegisteredUser(String emailId) {
 		int count = this.getJdbcTemplate().queryForInt(FIND_REGISTERED_USER, new Object[] { emailId });
+		Boolean isRegisteredUser = false;
 		if (count > 0) {
-			return true;
-		} else {
-			return false;
-		}
+			isRegisteredUser =  true;
+		} 
+		return isRegisteredUser;
 	}
 
-	// FIXME: Deprecated
 	@Override
 	public void registerUser(String emailId, String date) {
 
@@ -275,6 +279,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 		this.getJdbcTemplate().update(updateSegment);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public int findAgeCheck(User user) {
 		Query query = getSession().createSQLQuery(FIND_AGE_CHECK);
@@ -293,6 +298,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 		this.jdbcTemplate = jdbcTemplate;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<User> getFollowedByUsers(String gooruUId, Integer offset, Integer limit, boolean skipPagination) {
 		String hql = "SELECT userRelation.user FROM UserRelationship userRelation  WHERE userRelation.followOnUser.partyUid = '" + gooruUId + "' AND userRelation.activeFlag = 1 AND " + generateOrgAuthQueryWithData("userRelation.user.") + " AND " + generateUserIsDeleted("userRelation.user.");
@@ -316,15 +322,17 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 		return (Long) query.list().get(0);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<User> getFollowedOnUsers(String gooruUId, Integer offset, Integer limit, boolean skipPagination) {
 		String hql = "SELECT userRelation.followOnUser FROM UserRelationship userRelation WHERE userRelation.user.partyUid = '" + gooruUId + "' AND userRelation.activeFlag = 1  AND " + generateOrgAuthQueryWithData("userRelation.user.") + " AND " + generateUserIsDeleted("userRelation.user.");
 		Query query = getSession().createQuery(hql);
 		query.setFirstResult(offset);
-		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
+		query.setMaxResults(limit == null ?  LIMIT : (limit > MAX_LIMIT ? MAX_LIMIT : limit) );
 		return query.list();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public UserRelationship getActiveUserRelationship(String gooruUserId, String gooruFollowOnUserId) {
 		List<UserRelationship> relationships = addOrgAuthCriterias(getSession().createCriteria(UserRelationship.class), "user.").createAlias("user", "user").createAlias("followOnUser", "followOnUser").add(Restrictions.eq("user.partyUid", gooruUserId))
@@ -332,6 +340,8 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 		return (relationships.size() > 0) ? relationships.get(0) : null;
 	}
 	
+	//@SuppressWarnings("rawtypes")
+	@SuppressWarnings("rawtypes")
 	@Override
 	public User findByRemeberMeToken(String remeberMeToken) {
 		Object[] obj = new Object[1];
@@ -343,7 +353,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 			user.setGooruUId((String) row.get("gooru_uid"));
 			user.setFirstName((String) row.get("firstname"));
 			user.setLastName((String) row.get("lastname"));
-			user.setUserId(new Integer(String.valueOf(row.get("user_id"))));
+			user.setUserId(Integer.valueOf((String.valueOf(row.get("user_id")))));
 			user.setEmailId((String) row.get("external_id"));
 
 			List<UserRoleAssoc> userRoleSet = this.findUserRoleSet(user);
@@ -356,11 +366,13 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 	}
 	
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<UserRoleAssoc> findUserRoleSet(User user) {
 		return find("From UserRoleAssoc userRoleAssoc  WHERE userRoleAssoc.user.partyUid = " + user.getGooruUId() + "  AND " + generateOrgAuthQueryWithData("userRoleAssoc.user.") + " AND " + generateUserIsDeleted("userRoleAssoc.user."));
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public boolean checkUserAvailability(String keyword, CheckUser type, boolean isCollaboratorCheck) {
 		List<Boolean> availability = null;
@@ -376,17 +388,20 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 		return (availability != null && availability.size() > 0) ? availability.get(0) : false;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<User> listUsers() {
 		return addOrgAuthCriterias(getSession().createCriteria(User.class)).list();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Gender getGenderByGenderId(String genderId) {
 		List<Gender> genderList = getSession().createQuery(FIND_GENDER_BY_ID).setParameter(0, genderId).list();
 		return genderList.size() == 0 ? null : genderList.get(0);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<UserRole> findRolesByNames(String roles) {
 		String hql = " FROM UserRole ur WHERE ur.name IN (:roleNames) and  " + generateOrgAuthQuery("ur.");
@@ -426,6 +441,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 		return (RoleEntityOperation) ((query.list().size() > 0) ? query.list().get(0) : null);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<RoleEntityOperation> getRoleEntityOperations(Short roleId) {
 		Query query = getSession().createQuery(FETCH_ROLE_ENTITY_OPERATION);
@@ -442,6 +458,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 		return (User) (query.list().size() > 0 ? query.list().get(0) : null);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<UserRoleAssoc> getUserRoleByName(String roles, String userId) {
 		String hql = "From UserRoleAssoc ura  where ura.role.name IN(:roleNames) and ura.user.partyUid =:partyUid and " + generateOrgAuthQuery("ura.user.") + " and " + generateUserIsDeleted("ura.user.");
@@ -452,6 +469,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 		return query.list();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<RoleEntityOperation> findEntityOperationByRole(String roleNames) {
 		String hql = " FROM  RoleEntityOperation rp WHERE rp.userRole.name IN (:roleNames) ";
@@ -460,6 +478,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 		return query.list();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<UserRole> findAllRoles() {
 		String hql = "select userRole from UserRole userRole where "+ generateOrgAuthQuery("userRole.");
@@ -503,6 +522,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 		return (Identity) (query.list().size() > 0 ? query.list().get(0) : null);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public boolean checkUserFirstLogin(String userId) {
 		String sql = "select count(1) from identity where user_uid='" + userId + "' and last_login is null";
@@ -544,6 +564,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 		return (UserGroup) (query.list().size() > 0 ? query.list().get(0) : null);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<User> findGroupUsers(String groupUid) {
 		String hql = "SELECT uga.user FROM UserGroupAssociation uga  WHERE uga.userGroup.partyUid = :partyUid";
@@ -552,6 +573,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 		return query.list();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<User> listUsers(Map<String, String> filters) {
 
@@ -572,6 +594,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 		return query.list();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<User> findUserByIds(String ownerIds) {
 		String hql = "FROM User user WHERE user.partyUid IN (:partyUids) and " + generateOrgAuthQuery("user.") + " and " + generateUserIsDeleted("user.");
@@ -582,6 +605,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<UserGroup> findAllGroups() {
 		return getSession().createCriteria(UserGroup.class).list();
@@ -614,6 +638,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 		return query.list().size() > 0 ? true : false;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<UserGroupAssociation> findGroupUserByIds(String ownerIds) {
 		Query query = getSession().createQuery(FIND_GROUP_USER_BY_IDS);
@@ -643,6 +668,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 		return (User) (query.list().size() > 0 ? query.list().get(0) : null);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Timestamp getSystemCurrentTime() {
 		List<Timestamp> results = getSession().createSQLQuery(SYSTEM_TIMESTAMP).list();
@@ -669,6 +695,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 		return (UserClassification) (query.list().size() > 0 ? query.list().get(0) : null);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<UserClassification> getUserClassifications(String gooruUid, Integer classificationId, Integer flag) {
 		String hql = "FROM UserClassification userClassification WHERE userClassification.user.partyUid=:gooruUid and userClassification.type.customTableValueId=:classificationId   and " + generateOrgAuthQuery("userClassification.user.");
@@ -682,6 +709,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 		return query.list();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<Object[]> getInactiveUsers(Integer offset, Integer limit) {
 		String sql = "select user_uid as user_uid,  external_id as email_id from identity i inner join party_custom_field p on p.party_uid = i.user_uid where (date(last_login) between  date(last_login) and date_sub(now(),INTERVAL 2 WEEK) or  last_login is null) and p.optional_key = 'last_user_inactive_mail_send_date' and (p.optional_value = '-' or  date(p.optional_value) between  date(p.optional_value) and date_sub(now(),INTERVAL 2 WEEK))";
@@ -714,6 +742,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 		return (String) query.list().get(0);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public User findByReferenceUid(String referenceUid) {
 		List<User> userList = getSession().createQuery(FIND_BY_REFERENCE_UID).setParameter(0, referenceUid).list();
@@ -726,11 +755,12 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 		return (Integer) query.list().get(0);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<Object[]> listUserByBirthDay(Integer offset, Integer limit) {
 		Query query = getSession().createSQLQuery(FETCH_USERS_BY_BIRTHDAY).addScalar("email_id", StandardBasicTypes.STRING).addScalar("user_id", StandardBasicTypes.STRING);
 		query.setFirstResult(offset);
-		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
+		query.setMaxResults(limit == null ?  LIMIT : (limit > MAX_LIMIT ? MAX_LIMIT : limit));
 		return query.list();
 	}
 	
@@ -740,6 +770,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 		return (Integer) query.list().get(0);
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<Object[]> listChildUserByBirthDay() {
 		Query query = getSession().createSQLQuery(FETCH_CHILD_USERS_BY_BIRTHDAY).addScalar("child_user_name", StandardBasicTypes.STRING).addScalar("parent_email_id", StandardBasicTypes.STRING);
