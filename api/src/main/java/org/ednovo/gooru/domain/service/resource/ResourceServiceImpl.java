@@ -321,7 +321,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 
 	@Override
 	public Resource setContentProvider(Resource resource) {
-		List<ContentProviderAssociation> contentProviderAssociations = this.getContentRepository().getContentProviderByGooruOid(resource.getGooruOid());
+		List<ContentProviderAssociation> contentProviderAssociations = this.getContentRepository().getContentProviderByGooruOid(resource.getGooruOid(),null);
 		if (contentProviderAssociations != null) {
 			List<String> aggregator = new ArrayList<String>();
 			List<String> publisher = new ArrayList<String>();
@@ -2617,10 +2617,10 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				CustomTableValue resourceType = this.getCustomTableRepository().getCustomTableValue(RESOURCE_INSTRUCTIONAL_USE, newResource.getInstructional().getValue());
 				newResource.setResourceFormat(resourceType);
 			}
-			if(newResource.getPublisher().size() > 0) {
+			if(newResource.getPublisher() != null && newResource.getPublisher().size() > 0) {
 				newResource.setPublisher(updateContentProvider(resource, newResource.getPublisher(), user, CustomProperties.ContentProviderType.PUBLISHER.getContentProviderType()));
 			}
-			if(newResource.getAggregator().size() > 0) {
+			if(newResource.getAggregator() != null && newResource.getAggregator().size() > 0) {
 				newResource.setAggregator(updateContentProvider(resource, newResource.getAggregator(), user, CustomProperties.ContentProviderType.AGGREGATOR.getContentProviderType()));
 			}
 			if (newResource.getCategory() != null) {
@@ -2739,10 +2739,10 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				resource.setEducationalUse(this.getCollectionService().setContentMetaAssociation(this.getCollectionService().getContentMetaAssociation("educational_use"), resource.getGooruOid(), "educational_use"));
 			}
 			
-			if(newResource.getPublisher().size() > 0) {
+			if(newResource.getPublisher() != null && newResource.getPublisher().size() > 0) {
 				resource.setPublisher(updateContentProvider(resource, newResource.getPublisher(), user, CustomProperties.ContentProviderType.PUBLISHER.getContentProviderType()));
 			}
-			if(newResource.getAggregator().size() > 0) {
+			if(newResource.getAggregator() != null && newResource.getAggregator().size() > 0) {
 				resource.setAggregator(updateContentProvider(resource, newResource.getAggregator(), user, CustomProperties.ContentProviderType.AGGREGATOR.getContentProviderType()));
 			}
 
@@ -2818,7 +2818,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				contentProviderAssociation.setAssociatedDate(new Date(System.currentTimeMillis()));
 				contentProviderAssociation.setAssociatedBy(user);
 				updateProviderList.add(contentProviderAssociation);
-			}
+			} 
 		}
 		if (updateProviderList.size() > 0) {
 			this.getContentRepository().saveAll(updateProviderList);
