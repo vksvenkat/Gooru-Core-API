@@ -176,10 +176,6 @@ public class RedisServiceImpl implements RedisService, ParameterProperties, Cons
 					logger.info("Collection Redis Updating " + collectionList.size() + " collections : page " + page + " of " + recordsPerPage);
 
 					for (Resource resource : collectionList) {
-						List<HashMap<String, String>> subscriptions = this.getCollectionUtil().getSubscribtionUserList(resource.getGooruOid());
-						if (subscriptions != null) {
-							updateRedisCount((long) subscriptions.size(), Constants.REDIS_SUBSCRIBTION, resource.getGooruOid());
-						}
 						updateRedisCount(resource.getViews(), Constants.REDIS_VIEWS, resource.getGooruOid());
 					}
 				}
@@ -194,12 +190,6 @@ public class RedisServiceImpl implements RedisService, ParameterProperties, Cons
 				if (assessments != null && assessments.size() > 0) {
 
 					for (Resource resource : assessments) {
-						List<HashMap<String, String>> subscriptions = this.getCollectionUtil().getSubscribtionUserList(resource.getGooruOid());
-
-						if (subscriptions != null) {
-							updateRedisCount((long) subscriptions.size(), Constants.REDIS_SUBSCRIBTION, resource.getGooruOid());
-						}
-
 						updateRedisCount(resource.getViews(), Constants.REDIS_VIEWS, resource.getGooruOid());
 					}
 

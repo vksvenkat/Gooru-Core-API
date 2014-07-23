@@ -89,7 +89,6 @@ import org.ednovo.gooru.domain.service.party.OrganizationService;
 import org.ednovo.gooru.domain.service.redis.RedisService;
 import org.ednovo.gooru.domain.service.search.SearchResults;
 import org.ednovo.gooru.domain.service.setting.SettingService;
-import org.ednovo.gooru.domain.service.shelf.ShelfService;
 import org.ednovo.gooru.domain.service.user.impl.UserServiceImpl;
 import org.ednovo.gooru.infrastructure.mail.MailHandler;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
@@ -136,9 +135,6 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 
 	@Autowired
 	private OrganizationService organizationService;
-
-	@Autowired
-	private ShelfService shelfService;
 
 	@Autowired
 	private PartyService partyService;
@@ -978,8 +974,6 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		}
 		this.getUserRepository().saveAll(activityStreams);
 
-		this.getShelfService().setDefaultShelvesForNewUser(user);
-
 		this.getPartyService().createUserDefaultCustomAttributes(user.getPartyUid(), user);
 
 		this.getPartyService().createTaxonomyCustomAttributes(user.getPartyUid(), user);
@@ -1518,10 +1512,6 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 
 	public PartyService getPartyService() {
 		return partyService;
-	}
-
-	public ShelfService getShelfService() {
-		return shelfService;
 	}
 
 	public CustomTableRepository getCustomTableRepository() {

@@ -31,8 +31,6 @@ public interface AnnotationService {
 
 	void create(Annotation annotation, String type, Errors errors);
 
-	Object getSubscriptionsForContent(String gooruContentId) throws JSONException;
-
 	boolean hasUserSubscribedToUserContent(String userId, String gooruContentId);
 
 }

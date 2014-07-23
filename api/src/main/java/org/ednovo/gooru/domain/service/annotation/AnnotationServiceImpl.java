@@ -100,23 +100,6 @@ public class AnnotationServiceImpl implements AnnotationService,ParameterPropert
 
 	}
 
-	@Override
-	public Object getSubscriptionsForContent(String gooruContentId) throws JSONException {
-		List<HashMap<String, String>> subscriptionsMap = this.collectionUtil.getSubscribtionUserList(gooruContentId);
-		Iterator<HashMap<String, String>> subcriptionIterator = subscriptionsMap.iterator();
-		JSONArray subcriptions = new JSONArray();
-		JSONObject subcriptionJson = new JSONObject();
-
-		while (subcriptionIterator.hasNext()) {
-			HashMap<String, String> hMap = subcriptionIterator.next();
-			JSONObject jsonObj = new JSONObject();
-			jsonObj.put(SUBSCRIBE_USER_ID, hMap.get(SCB_USER_ID)).put(SUBSCRIBED_ON, hMap.get(SUBSCRIBED_ON)).put(CONTENT_USER_ID, hMap.get(CONT_USER_ID)).put(CONT_FIRST_NAME, hMap.get(CONT_FIRSTNAME)).put(CONT_LAST_NAME, hMap.get(CONT_LASTNAME));
-			subcriptions.put(jsonObj);
-		}
-		subcriptionJson.put(SUBSCRIPTIONS, subcriptions);
-		return subcriptionJson;
-	}
-
 	public ContentRepository getContentRepository() {
 		return contentRepository;
 	}

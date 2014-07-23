@@ -397,7 +397,6 @@ public class AssessmentServiceImpl implements AssessmentService, ParameterProper
 						collaboratorList = Arrays.asList(collaboratorsStr.split("\\s*,\\s*"));
 						for (User collaborator : userService.findByIdentities(collaboratorList)) {
 							if (userService.checkCollaboratorsPermission(gooruOAssessmentId, collaborator, ASSESSMENT)) {
-								collectionUtil.updateCollaborators(existingAssessment, collaboratorList, apiCaller, ASSESSMENT_COLLABORATE, null, existingAssessment.getSegments());
 								existingAssessment.setCollaborators(collaboratorsStr);
 							} else {
 								throw new Exception("Invalid collaborators!");
