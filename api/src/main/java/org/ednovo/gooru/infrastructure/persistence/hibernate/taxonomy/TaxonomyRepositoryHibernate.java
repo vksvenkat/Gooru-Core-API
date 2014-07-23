@@ -101,6 +101,7 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 		this.getJdbcTemplate().update(updateQuery);
 	}
 
+	@SuppressWarnings("rawtypes")
 	public String makeTree(Code rootCode) {
 		int depth = findMaxDepthInTaxonomy(rootCode, rootCode.getOrganization().getPartyUid());
 		char[] alphas = new char[depth + 1];
@@ -238,7 +239,7 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 		return code.isEmpty() ? null : code.get(0);
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public int findMaxDepthInTaxonomy(Code code, String organizationUid) {
 
 		String organizationUids = null;
@@ -264,7 +265,7 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 		return maxDepth.intValue();
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public CodeType findTaxonomyTypeBydepth(Code code, Short depth) {
 		String depthQuery = DatabaseUtil.format(FIND_TAXCODE_BY_DEPTH, depth, code.getRootNodeId(), getUserOrganizationUidsAsString());
@@ -325,6 +326,7 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 		return getSession().createQuery("from Code c where c.parentId =" + codeId + " and c.depth =" + depth + " and c.activeFlag =1 and " +  generateOrgAuthQueryWithData("c.")).list();
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<Code> findChildTaxonomy(String parentIds, Integer depth) {
 		if (parentIds.contains(","))  {
@@ -346,7 +348,7 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 		return (code != null && code.size() > 0) ? code.get(0) : null;
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public List<CodeType> findAllTaxonomyLevels() {
 		List<CodeType> annotations = this.getJdbcTemplate().query(DatabaseUtil.format(FIND_ALL_TAXONOMY, getUserOrganizationUidsAsString()), new RowMapper() {
@@ -646,6 +648,7 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 		this.jdbcTemplate = jdbcTemplate;
 	}
 
+	@SuppressWarnings("rawtypes")
 	public void updateOrders() {
 		String query = "SELECT code_id, code FROM code where code_id between 10000 and 11000 and active_flag =1 and " + generateOrgAuthSqlQueryWithData() + " order by code_id";
 		@SuppressWarnings("unchecked")
@@ -1056,6 +1059,7 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 		return query.list().size() > 0 ? (Code) query.list().get(0) : null;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<Code> findCodeStartWith(String codeStartWith, Short depth) {
 		String hql = "FROM Code c where code LIKE :code AND depth =:depth AND c.activeFlag = 1 and " + generateOrgAuthQueryWithData("c.");
