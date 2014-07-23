@@ -236,12 +236,12 @@ public class TagServiceImpl extends BaseServiceImpl implements TagService, Param
  				List<String> aggregator = new ArrayList<String>();
  				List<String> publisher = new ArrayList<String>();
  				for (ContentProviderAssociation contentProviderAssociation : contentProviderAssociations) {
- 					if (contentProviderAssociation.getContentProvider() != null && contentProviderAssociation.getContentProvider().getContentProviderType() != null
- 							&& contentProviderAssociation.getContentProvider().getContentProviderType().getValue().equalsIgnoreCase(CustomProperties.ContentProviderType.PUBLISHER.getContentProviderType())) {
- 						publisher.add(contentProviderAssociation.getContentProvider().getContentProviderName());
- 					} else if (contentProviderAssociation.getContentProvider() != null && contentProviderAssociation.getContentProvider().getContentProviderType() != null
- 							&& contentProviderAssociation.getContentProvider().getContentProviderType().getValue().equalsIgnoreCase(CustomProperties.ContentProviderType.AGGREGATOR.getContentProviderType())) {
- 						aggregator.add(contentProviderAssociation.getContentProvider().getContentProviderName());
+ 					if (contentProviderAssociation.getContentProvider() != null && contentProviderAssociation.getContentProvider().getType() != null
+ 							&& contentProviderAssociation.getContentProvider().getType().getValue().equalsIgnoreCase(CustomProperties.ContentProviderType.PUBLISHER.getContentProviderType())) {
+ 						publisher.add(contentProviderAssociation.getContentProvider().getName());
+ 					} else if (contentProviderAssociation.getContentProvider() != null && contentProviderAssociation.getContentProvider().getType() != null
+ 							&& contentProviderAssociation.getContentProvider().getType().getValue().equalsIgnoreCase(CustomProperties.ContentProviderType.AGGREGATOR.getContentProviderType())) {
+ 						aggregator.add(contentProviderAssociation.getContentProvider().getName());
  					}
  				}
  				result.put("publisher", publisher);

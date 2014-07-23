@@ -12,7 +12,7 @@ public class ContentProviderAssociation implements Serializable {
 	
 	private String contentProviderAssocUid;
 	
-	private ResourceSource resourceSourceId;
+	private ResourceSource resourceSource;
 	
 	private Date associatedDate;
 	
@@ -28,14 +28,6 @@ public class ContentProviderAssociation implements Serializable {
 
 	public void setAssociatedDate(Date associatedDate) {
 		this.associatedDate = associatedDate;
-	}
-
-	public ResourceSource getResourceSourceId() {
-		return resourceSourceId;
-	}
-
-	public void setResourceSourceId(ResourceSource resourceSourceId) {
-		this.resourceSourceId = resourceSourceId;
 	}
 
 	public String getContentProviderAssocUid() {
@@ -68,6 +60,14 @@ public class ContentProviderAssociation implements Serializable {
 
 	public void setContentProvider(ContentProvider contentProvider) {
 		this.contentProvider = contentProvider;
+	}
+
+	public void setResourceSource(ResourceSource resourceSource) {
+		this.resourceSource = resourceSource;
+	}
+
+	public ResourceSource getResourceSource() {
+		return resourceSource;
 	}
 
 }

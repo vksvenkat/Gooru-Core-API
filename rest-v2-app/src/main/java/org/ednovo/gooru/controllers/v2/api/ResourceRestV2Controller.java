@@ -74,7 +74,7 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 		request.setAttribute(PREDICATE, RESOURCE_CREATE_RESOURCE);
 		JSONObject json = requestData(data);
 		User user = (User) request.getAttribute(Constants.USER);
-		ActionResponseDTO<Resource> responseDTO = getResourceService().createResource(this.buildResourceFromInputParameters(getValue(RESOURCE, json), user), user);
+		ActionResponseDTO<Resource> responseDTO = this.getResourceService().createResource(this.buildResourceFromInputParameters(getValue(RESOURCE, json), user), user);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		} else {
@@ -91,7 +91,7 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 		request.setAttribute(PREDICATE, RES_UPDATE_RES);
 		User user = (User) request.getAttribute(Constants.USER);
 		JSONObject json = requestData(data);
-		ActionResponseDTO<Resource> responseDTO = getResourceService().updateResource(resourceId, this.buildResourceFromInputParameters(getValue(RESOURCE, json)), user);
+		ActionResponseDTO<Resource> responseDTO = this.getResourceService().updateResource(resourceId, this.buildResourceFromInputParameters(getValue(RESOURCE, json)), user);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		}
@@ -122,7 +122,7 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 		request.setAttribute(PREDICATE, RESOURCE_DELETE_RESOURCE);
 		User user = (User) request.getAttribute(Constants.USER);
 		Resource resource = (Resource) request.getAttribute(Constants.SEC_CONTENT);
-		resourceService.deleteResource(resource, resourceId, user);
+		this.resourceService.deleteResource(resource, resourceId, user);
 		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
 	}
 
@@ -169,7 +169,7 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 		request.setAttribute(PREDICATE, RESOURCE_DELETE_RESOURCE_TAXONOMY);
 		User user = (User) request.getAttribute(Constants.USER);
 		JSONObject json = requestData(data);
-		getResourceService().deleteTaxonomyResource(resourceId, this.buildResourceFromInputParameters(getValue(RESOURCE, json)), user);
+		this.getResourceService().deleteTaxonomyResource(resourceId, this.buildResourceFromInputParameters(getValue(RESOURCE, json)), user);
 
 		SessionContextSupport.putLogParameter(EVENT_NAME, "taxonomy-resource-delete");
 		SessionContextSupport.putLogParameter(GOORU_OID, resourceId);
@@ -191,7 +191,7 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 	@RequestMapping(method = RequestMethod.POST, value = "/{id}/media")
 	public ModelAndView updateResourceImage(HttpServletRequest request, @PathVariable(ID) String resourceId, @RequestBody String data, HttpServletResponse response) throws Exception {
 		JSONObject json = requestData(data);
-		return toModelAndView(serializeToJson(getResourceService().updateResourceImage(resourceId, getValue(FILENAME, json)), true));
+		return toModelAndView(serializeToJson(this.getResourceService().updateResourceImage(resourceId, getValue(FILENAME, json)), true));
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_RESOURCE_READ })
@@ -200,7 +200,7 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 			@RequestParam(value = "more", required = false, defaultValue = TRUE) boolean more) throws Exception {
 		request.setAttribute(PREDICATE, RESOURCE_SRC_GET);
 		User apiCaller = (User) request.getAttribute(Constants.USER);
-		return toModelAndView(serialize(getResourceService().resourcePlay(gooruContentId, apiCaller, more), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, RESOURCE_INCLUDE_FIELDS));
+		return toModelAndView(serialize(this.getResourceService().resourcePlay(gooruContentId, apiCaller, more), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, RESOURCE_INCLUDE_FIELDS));
 
 	}
 	

@@ -25,12 +25,12 @@
 			unsaved-value="null">
 			<generator class="org.ednovo.gooru.core.application.util.UUIDGenerator" />
 		</id>
-		<property name="ContentProviderName" column="name" not-null="true">
+		<property name="name" column="name" not-null="true">
 		</property>
 		<property name="activeFlag" column="active_flag" not-null="true">
 		</property>
 
-		<many-to-one name="ContentProviderType"
+		<many-to-one name="type"
 			class="org.ednovo.gooru.core.api.model.CustomTableValue" column="content_provider_type"
 			lazy="proxy" cascade="none" />
 		<many-to-one name="organization"

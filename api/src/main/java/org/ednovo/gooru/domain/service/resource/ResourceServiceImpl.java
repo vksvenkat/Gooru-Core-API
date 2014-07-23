@@ -67,6 +67,7 @@ import org.ednovo.gooru.core.api.model.AssessmentQuestion;
 import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.ContentPermission;
+import org.ednovo.gooru.core.api.model.ContentProvider;
 import org.ednovo.gooru.core.api.model.ContentProviderAssociation;
 import org.ednovo.gooru.core.api.model.ContentType;
 import org.ednovo.gooru.core.api.model.ConverterDTO;
@@ -325,12 +326,12 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			List<String> aggregator = new ArrayList<String>();
 			List<String> publisher = new ArrayList<String>();
 			for (ContentProviderAssociation contentProviderAssociation : contentProviderAssociations) {
-				if (contentProviderAssociation.getContentProvider() != null && contentProviderAssociation.getContentProvider().getContentProviderType() != null
-						&& contentProviderAssociation.getContentProvider().getContentProviderType().getValue().equalsIgnoreCase(CustomProperties.ContentProviderType.PUBLISHER.getContentProviderType())) {
-					publisher.add(contentProviderAssociation.getContentProvider().getContentProviderName());
-				} else if (contentProviderAssociation.getContentProvider() != null && contentProviderAssociation.getContentProvider().getContentProviderType() != null
-						&& contentProviderAssociation.getContentProvider().getContentProviderType().getValue().equalsIgnoreCase(CustomProperties.ContentProviderType.AGGREGATOR.getContentProviderType())) {
-					aggregator.add(contentProviderAssociation.getContentProvider().getContentProviderName());
+				if (contentProviderAssociation.getContentProvider() != null && contentProviderAssociation.getContentProvider().getType() != null
+						&& contentProviderAssociation.getContentProvider().getType().getValue().equalsIgnoreCase(CustomProperties.ContentProviderType.PUBLISHER.getContentProviderType())) {
+					publisher.add(contentProviderAssociation.getContentProvider().getName());
+				} else if (contentProviderAssociation.getContentProvider() != null && contentProviderAssociation.getContentProvider().getType() != null
+						&& contentProviderAssociation.getContentProvider().getType().getValue().equalsIgnoreCase(CustomProperties.ContentProviderType.AGGREGATOR.getContentProviderType())) {
+					aggregator.add(contentProviderAssociation.getContentProvider().getName());
 				}
 			}
 			resource.setPublisher(publisher);
@@ -2616,6 +2617,12 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				CustomTableValue resourceType = this.getCustomTableRepository().getCustomTableValue(RESOURCE_INSTRUCTIONAL_USE, newResource.getInstructional().getValue());
 				newResource.setResourceFormat(resourceType);
 			}
+			if(newResource.getPublisher().size() > 0) {
+				newResource.setPublisher(updateContentProvider(resource, newResource.getPublisher(), user, CustomProperties.ContentProviderType.PUBLISHER.getContentProviderType()));
+			}
+			if(newResource.getAggregator().size() > 0) {
+				newResource.setAggregator(updateContentProvider(resource, newResource.getAggregator(), user, CustomProperties.ContentProviderType.AGGREGATOR.getContentProviderType()));
+			}
 			if (newResource.getCategory() != null) {
 				newResource.setCategory(newResource.getCategory().toLowerCase());
 			}
@@ -2731,6 +2738,13 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			} else {
 				resource.setEducationalUse(this.getCollectionService().setContentMetaAssociation(this.getCollectionService().getContentMetaAssociation("educational_use"), resource.getGooruOid(), "educational_use"));
 			}
+			
+			if(newResource.getPublisher().size() > 0) {
+				resource.setPublisher(updateContentProvider(resource, newResource.getPublisher(), user, CustomProperties.ContentProviderType.PUBLISHER.getContentProviderType()));
+			}
+			if(newResource.getAggregator().size() > 0) {
+				resource.setAggregator(updateContentProvider(resource, newResource.getAggregator(), user, CustomProperties.ContentProviderType.AGGREGATOR.getContentProviderType()));
+			}
 
 			saveOrUpdateResourceTaxonomy(resource, newResource.getTaxonomySet());
 
@@ -2779,6 +2793,37 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		}
 		return new ActionResponseDTO<Resource>(resource, errors);
 
+	}
+
+	private List<String> updateContentProvider(Resource resource, List<String> providerList, User user, String providerType) {
+
+		List<ContentProviderAssociation> updateProviderList = new ArrayList<ContentProviderAssociation>();
+
+		CustomTableValue customTableValue = this.getCustomTableRepository().getCustomTableValue("content_provider_type", providerType);
+		for (String provider : providerList) {
+			ContentProvider contentProvider = this.getContentRepository().getContentProviderByName(provider, "content_provider_type_" + providerType);
+			if (contentProvider == null) {
+				contentProvider = new ContentProvider();
+				contentProvider.setName(provider);
+				contentProvider.setActiveFlag(true);
+				contentProvider.setType(customTableValue);
+				this.getCustomTableRepository().save(contentProvider);
+			}
+			List<ContentProviderAssociation> ContentProviderAssociationList = this.getContentRepository().getContentProviderByGooruOid(resource.getGooruOid(), provider);
+			if (ContentProviderAssociationList.size() > 0) {
+				ContentProviderAssociation contentProviderAssociation = new ContentProviderAssociation();
+				contentProviderAssociation.setContentProvider(contentProvider);
+				contentProviderAssociation.setResourceSource(null);
+				contentProviderAssociation.setGooruOid(resource.getGooruOid());
+				contentProviderAssociation.setAssociatedDate(new Date(System.currentTimeMillis()));
+				contentProviderAssociation.setAssociatedBy(user);
+				updateProviderList.add(contentProviderAssociation);
+			}
+		}
+		if (updateProviderList.size() > 0) {
+			this.getContentRepository().saveAll(updateProviderList);
+		}
+		return providerList;
 	}
 
 	@Override
