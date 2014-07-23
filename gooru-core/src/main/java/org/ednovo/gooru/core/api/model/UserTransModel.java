@@ -69,6 +69,7 @@ public class UserTransModel extends OrganizationModel implements IndexableEntry 
 	private Map<String, Object> meta;
 	private String organizationName;
 	private Short active;
+	private String token;
 
 	@Override
 	public boolean equals(Object obj) {
@@ -347,6 +348,14 @@ public class UserTransModel extends OrganizationModel implements IndexableEntry 
 
 	public Short getActive() {
 		return active;
+	}
+
+	public String getToken() {
+		return token;
+	}
+
+	public void setToken(String token) {
+		this.token = token;
 	}
 
 }

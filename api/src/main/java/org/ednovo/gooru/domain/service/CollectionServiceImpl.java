@@ -343,7 +343,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	public List<Map<String, Object>> getFolderItem(String gooruOid, String sharing, String type, String collectionType, Integer itemLimit, boolean fetchChildItem) {
 		StorageArea storageArea = this.getStorageRepository().getStorageAreaByTypeName(NFS);
 		List<Map<String, Object>> items = new ArrayList<Map<String, Object>>();
-		List<Object[]> result = this.getCollectionRepository().getCollectionItem(gooruOid, type.equalsIgnoreCase(SCOLLECTION) ? 4 : itemLimit, 0, false, sharing, type.equalsIgnoreCase(SCOLLECTION) ? SEQUENCE : null, collectionType, fetchChildItem);
+		List<Object[]> result = this.getCollectionRepository().getCollectionItem(gooruOid, type.equalsIgnoreCase(SCOLLECTION) ? 4 : itemLimit, 0, sharing, type.equalsIgnoreCase(SCOLLECTION) ? SEQUENCE : null, collectionType, fetchChildItem);
 		if (result != null && result.size() > 0) {
 
 			for (Object[] object : result) {
@@ -436,7 +436,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	public List<Map<String, Object>> getFolderItems(String gooruOid, Integer limit, Integer offset, String sharing, String collectionType, String orderBy, Integer itemLimit, boolean fetchChildItem) {
 		StorageArea storageArea = this.getStorageRepository().getStorageAreaByTypeName(NFS);
 		List<Map<String, Object>> items = new ArrayList<Map<String, Object>>();
-		List<Object[]> result = this.getCollectionRepository().getCollectionItem(gooruOid, limit, offset, false, sharing, orderBy, collectionType, fetchChildItem);
+		List<Object[]> result = this.getCollectionRepository().getCollectionItem(gooruOid, limit, offset, sharing, orderBy, collectionType, fetchChildItem);
 		if (result != null && result.size() > 0) {
 			for (Object[] object : result) {
 				Map<String, Object> item = new HashMap<String, Object>();
@@ -495,13 +495,13 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	}
 
 	@Override
-	public Map<String, Object> getFolderList(Integer limit, Integer offset, String gooruOid, String title, String username, boolean skipPagination) {
+	public Map<String, Object> getFolderList(Integer limit, Integer offset, String gooruOid, String title, String username) {
 		String gooruUid = null;
 		if (username != null) { 
 			User user = this.getUserService().getUserByUserName(gooruUid);
 			gooruUid = user != null ? user.getPartyUid() : null;
 		}
-		List<Object[]> result = this.getCollectionRepository().getFolderList(limit, offset, gooruOid, title, gooruUid, skipPagination);
+		List<Object[]> result = this.getCollectionRepository().getFolderList(limit, offset, gooruOid, title, gooruUid);
 		List<Map<String, Object>> folderList = new ArrayList<Map<String, Object>>();
 		Map<String, Object> content = new HashMap<String, Object>();
 		if (result != null && result.size() > 0) {
@@ -521,10 +521,10 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	}
 
 	@Override
-	public SearchResults<Code> getCollectionStandards(Integer codeId, String query, Integer limit, Integer offset, Boolean skipPagination, User user) {
+	public SearchResults<Code> getCollectionStandards(Integer codeId, String query, Integer limit, Integer offset, User user) {
 
 		SearchResults<Code> result = new SearchResults<Code>();
-		List<Object[]> list = this.getTaxonomyRespository().getCollectionStandards(codeId, query, limit, offset, skipPagination);
+		List<Object[]> list = this.getTaxonomyRespository().getCollectionStandards(codeId, query, limit, offset);
 		List<Code> codeList = new ArrayList<Code>();
 		for (Object[] object : list) {
 			Code code = new Code();
@@ -591,9 +591,9 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	}
 
 	@Override
-	public SearchResults<Collection> getCollections(Integer offset, Integer limit, Boolean skipPagination, User user, String publishStatus) {
+	public SearchResults<Collection> getCollections(Integer offset, Integer limit, User user, String publishStatus) {
 
-		List<Collection> collections = this.getCollectionRepository().getCollectionsList(user, limit, offset, skipPagination, publishStatus);
+		List<Collection> collections = this.getCollectionRepository().getCollectionsList(user, limit, offset, publishStatus);
 		SearchResults<Collection> result = new SearchResults<Collection>();
 		result.setSearchResults(collections);
 		result.setTotalHitCount(this.getCollectionRepository().getCollectionCount(publishStatus));
