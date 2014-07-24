@@ -3127,10 +3127,10 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			resourceCio.setId(statisticsDTO.getGooruOid());
 			resourceIds.add(resourceCio.getId());
 			if(statisticsDTO.getViews() != null){
-				resourceStasCo.setViewsCount(statisticsDTO.getViews());
+				resourceStasCo.setViewsCount(String.valueOf(statisticsDTO.getViews()));
 			}
 			if(statisticsDTO.getSubscription() != null){
-				resourceStasCo.setSubscriberCount(statisticsDTO.getSubscription());
+				resourceStasCo.setSubscriberCount(String.valueOf(statisticsDTO.getSubscription()));
 			}
 			if(statisticsDTO.getRating() != null){
 				resourceStasCo.setRating(String.valueOf(statisticsDTO.getRating()));

@@ -10,29 +10,13 @@ import javax.persistence.Entity;
 public class ResourceStasCo {
 
 	@Column
-	private Long viewsCount;
+	private String viewsCount;
 	
 	@Column
-	private Long subscriberCount;
+	private String subscriberCount;
 	
 	@Column
 	private String rating;
-
-	public Long getViewsCount() {
-		return viewsCount;
-	}
-
-	public void setViewsCount(Long viewsCount) {
-		this.viewsCount = viewsCount;
-	}
-
-	public Long getSubscriberCount() {
-		return subscriberCount;
-	}
-
-	public void setSubscriberCount(Long subscriberCount) {
-		this.subscriberCount = subscriberCount;
-	}
 
 	public void setRating(String rating) {
 		this.rating = rating;
@@ -40,6 +24,22 @@ public class ResourceStasCo {
 
 	public String getRating() {
 		return rating;
+	}
+
+	public void setViewsCount(String viewsCount) {
+		this.viewsCount = viewsCount;
+	}
+
+	public String getViewsCount() {
+		return viewsCount;
+	}
+
+	public void setSubscriberCount(String subscriberCount) {
+		this.subscriberCount = subscriberCount;
+	}
+
+	public String getSubscriberCount() {
+		return subscriberCount;
 	}
 
 }
