@@ -154,6 +154,9 @@ public class ResourceCio implements IsEntityCassandraIndexable {
 	private StatisticsCo statistics;
 
 	@Column
+	private ResourceStasCo stas;
+
+	@Column
 	private UserCo creator;
 
 	@Column
@@ -911,6 +914,14 @@ public class ResourceCio implements IsEntityCassandraIndexable {
 	
 	public void setAggregator(String aggregator){
 		this.aggregator = aggregator;
+	}
+
+	public void setStas(ResourceStasCo stas) {
+		this.stas = stas;
+	}
+
+	public ResourceStasCo getStas() {
+		return stas;
 	}
 	
 }
