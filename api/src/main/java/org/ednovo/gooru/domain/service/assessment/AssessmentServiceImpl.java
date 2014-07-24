@@ -154,7 +154,7 @@ public class AssessmentServiceImpl implements AssessmentService, ParameterProper
 	@Autowired
 	private IndexProcessor indexProcessor;
 
-	private static final Logger logger = LoggerFactory.getLogger(AssessmentServiceImpl.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(AssessmentServiceImpl.class);
 
 	@Autowired
 	private ContentRepository contentRepository;
@@ -202,8 +202,8 @@ public class AssessmentServiceImpl implements AssessmentService, ParameterProper
 			if (!assessmentRepository.isQuestionUsedInAttemptItem(gooruOQuestionId) && !assessmentRepository.isQuestionUsedInSegmentQuestion(gooruOQuestionId)) {
 				assessmentRepository.remove(AssessmentQuestion.class, question.getContentId());
 				indexProcessor.index(question.getGooruOid(), IndexProcessor.DELETE, RESOURCE);
-				if (logger.isInfoEnabled()) {
-					logger.info(LogUtil.getActivityLogStream(QUESTION, caller.toString(), question.toString(), LogUtil.QUESTION_DELETE, ""));
+				if (LOGGER.isInfoEnabled()) {
+					LOGGER.info(LogUtil.getActivityLogStream(QUESTION, caller.toString(), question.toString(), LogUtil.QUESTION_DELETE, ""));
 				}
 
 				return 1;
@@ -238,8 +238,8 @@ public class AssessmentServiceImpl implements AssessmentService, ParameterProper
 
 			// s3ResourceApiHandler.updateOrganization(assessment);
 
-			if (logger.isInfoEnabled()) {
-				logger.info(LogUtil.getActivityLogStream(ASSESSMENT, assessment.getUser().toString(), assessment.toString(), LogUtil.ASSESSMENT_CREATE, assessment.getName()));
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info(LogUtil.getActivityLogStream(ASSESSMENT, assessment.getUser().toString(), assessment.toString(), LogUtil.ASSESSMENT_CREATE, assessment.getName()));
 			}
 
 		}
@@ -258,8 +258,8 @@ public class AssessmentServiceImpl implements AssessmentService, ParameterProper
 
 		this.createRevisionHistoryEntry(assessment.getGooruOid(), ASSESSMENT_UPDATE);
 
-		if (logger.isInfoEnabled()) {
-			logger.info(LogUtil.getActivityLogStream(ASSESSMENT, assessment.getUser().toString(), assessment.toString(), LogUtil.ASSESSMENT_EDIT, assessment.getName()));
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info(LogUtil.getActivityLogStream(ASSESSMENT, assessment.getUser().toString(), assessment.toString(), LogUtil.ASSESSMENT_EDIT, assessment.getName()));
 		}
 		indexProcessor.index(assessment.getGooruOid(), IndexProcessor.INDEX, QUIZ);
 		/* } */
@@ -486,8 +486,8 @@ public class AssessmentServiceImpl implements AssessmentService, ParameterProper
 			assessmentRepository.remove(Assessment.class, assessment.getContentId());
 			// redisService.deleteEntry(gooruOAssessmentId);
 			this.getSessionActivityService().updateSessionActivityByContent(assessment.getGooruOid(), SessionActivityType.Status.ARCHIVE.getStatus());
-			if (logger.isInfoEnabled()) {
-				logger.info(LogUtil.getActivityLogStream(ASSESSMENT, caller.toString(), assessment.toString(), LogUtil.ASSESSMENT_DELETE, ""));
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info(LogUtil.getActivityLogStream(ASSESSMENT, caller.toString(), assessment.toString(), LogUtil.ASSESSMENT_DELETE, ""));
 			}
 			return 1;
 		}
@@ -546,7 +546,7 @@ public class AssessmentServiceImpl implements AssessmentService, ParameterProper
 				try {
 					indexProcessor.index(question.getGooruOid(), IndexProcessor.INDEX, RESOURCE);
 				} catch (Exception e) {
-					logger.info(e.getMessage());
+					LOGGER.info(e.getMessage());
 				}
 			}
 		}
@@ -598,8 +598,8 @@ public class AssessmentServiceImpl implements AssessmentService, ParameterProper
 			if (index) {
 				indexProcessor.index(question.getGooruOid(), IndexProcessor.INDEX, RESOURCE);
 			}
-			if (logger.isInfoEnabled()) {
-				logger.info(LogUtil.getActivityLogStream(QUESTION, question.getUser().toString(), question.toString(), LogUtil.QUESTION_EDIT, question.getTitle()));
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info(LogUtil.getActivityLogStream(QUESTION, question.getUser().toString(), question.toString(), LogUtil.QUESTION_EDIT, question.getTitle()));
 			}
 
 		}
@@ -1393,7 +1393,7 @@ public class AssessmentServiceImpl implements AssessmentService, ParameterProper
 	}
 
 	@Override
-	public AssessmentQuestionAssetAssoc getQuestionAsset(String assetKey, String gooruOAssessmentId) {
+	public AssessmentQuestionAssetAssoc getQuestionAsset(final String assetKey, String gooruOAssessmentId) {
 		return assessmentRepository.getQuestionAsset(assetKey, gooruOAssessmentId);
 	}
 
@@ -1824,7 +1824,7 @@ public class AssessmentServiceImpl implements AssessmentService, ParameterProper
 				if (count > 0) {
 					removeContentIds += ",";
 				}
-				if ((resource.getResourceType().getName().equals(ResourceType.Type.ASSESSMENT_EXAM.getType())) || (resource.getResourceType().getName().equals(ResourceType.Type.ASSESSMENT_QUIZ.getType()))) {
+				if (resource.getResourceType().getName().equals(ResourceType.Type.ASSESSMENT_EXAM.getType()) || resource.getResourceType().getName().equals(ResourceType.Type.ASSESSMENT_QUIZ.getType())) {
 					removeContentIds += resource.getGooruOid();
 					removeQuizList.add(resource);
 					count++;
