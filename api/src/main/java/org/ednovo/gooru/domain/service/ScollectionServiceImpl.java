@@ -295,9 +295,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				collection.setPublishStatus(this.getCustomTableRepository().getCustomTableValue(_PUBLISH_STATUS, PENDING));
 				collection.setSharing(Sharing.ANYONEWITHLINK.getSharing());
 			}
-			if (collection.getGrade() != null) {
-				resourceService.saveOrUpdateGrade(new Resource(), collection);
-			}
 			this.getCollectionRepository().save(collection);
 
 			if (resourceId != null && !resourceId.isEmpty()) {
@@ -478,7 +475,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				collection.setLanguage(newCollection.getLanguage());
 			}
 			if (newCollection.getGrade() != null) {
-				resourceService.saveOrUpdateGrade(newCollection, collection);
+				collection.setGrade(newCollection.getGrade());
 			}
 			if (newCollection.getLanguageObjective() != null) {
 				collection.setLanguageObjective(newCollection.getLanguageObjective());
@@ -850,9 +847,9 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				} catch (Exception e) {
 					LOGGER.debug(e.getMessage());
 				}
-				if(collectionItem.getResource().getSharing().equals(Sharing.PRIVATE.getSharing())){
+				/*if(collectionItem.getResource().getSharing().equals(Sharing.PRIVATE.getSharing())){
 					this.getResourceService().deleteResource(null, collectionItem.getResource().getGooruOid(), user);
-				}
+				}*/
 			} else {
 				throw new UnauthorizedException("user don't have permission ");
 			}
@@ -1701,7 +1698,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			}
 			if (newCollection.getGrade() != null) {
 				itemData.put(GRADE, newCollection.getGrade());
-				resourceService.saveOrUpdateGrade(newCollection, collection);
+				collection.setGrade(newCollection.getGrade());
 			}
 			if (newCollection.getLanguageObjective() != null) {
 				itemData.put(LANGUAGE_OBJECTIVE, newCollection.getLanguageObjective());

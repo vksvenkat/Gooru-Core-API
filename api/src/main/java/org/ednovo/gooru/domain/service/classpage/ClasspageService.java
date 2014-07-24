@@ -42,8 +42,6 @@ public interface ClasspageService {
 
 	ActionResponseDTO<CollectionItem> createClasspageItem(String assignmentGooruOid, String collectionGooruOid, CollectionItem collectionItem, User user, String type) throws Exception;
 
-	List<Classpage> getClasspage(Map<String, String> filters, User user);
-
 	ActionResponseDTO<Classpage> updateClasspage(Classpage newClasspage, String classpageId, Boolean hasUnrestrictedContentAccess) throws Exception;
 
 	Classpage getClasspage(String classpageId, User user, String merge);
