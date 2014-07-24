@@ -199,12 +199,11 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 
 	@Override
 	public List<Feedback> getFeedbacks(String feedbackTargetType, String feedbackType, String feedbackCreatorUid, Integer limit, Integer offset) {
-		Session session = getSession();
 		String hql = " FROM  Feedback feedback WHERE " + generateOrgAuthQuery("feedback.") + " and feedback.type.keyValue=:feedbackType and  feedback.target.keyValue=:feedbackTargetType ";
 		if (feedbackCreatorUid != null) {
 			hql += " and feedback.creator.partyUid =:feedbackCreatorUid ";
 		}
-		Query query = session.createQuery(hql);
+		Query query = getSession().createQuery(hql);
 		query.setParameter("feedbackTargetType", feedbackTargetType);
 		query.setParameter("feedbackType", feedbackType);
 		if (feedbackCreatorUid != null) {
@@ -224,8 +223,7 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 
 	@Override
 	public Map<String, Object> getContentFeedbackRating(String assocGooruOid, String feedbackRatingType) {
-		Session session = getSession();
-		Query query = session.createSQLQuery(FETCH_CONTENT_FEEDBACK_RATING).addScalar("score", StandardBasicTypes.INTEGER).addScalar("count", StandardBasicTypes.INTEGER).setParameter("assocGooruOid", assocGooruOid).setParameter("feedbackRatingType", feedbackRatingType);
+		Query query = getSession().createSQLQuery(FETCH_CONTENT_FEEDBACK_RATING).addScalar("score", StandardBasicTypes.INTEGER).addScalar("count", StandardBasicTypes.INTEGER).setParameter("assocGooruOid", assocGooruOid).setParameter("feedbackRatingType", feedbackRatingType);
 		return getRating(query.list());
 	}
 
@@ -247,7 +245,6 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 
 	@Override
 	public Map<String, Object> getContentFlags(Integer limit, Integer offset, String feedbackCategory, String type, String status, String reportedFlagType, String startDate, String endDate, String searchQuery, String description, String reportQuery) {
-		Session session = getSession();
 		String sql = "";
 		String statusType = "";
 		String flagType = "";
@@ -298,7 +295,7 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 
 		sql += " group by f.creator_uid, f.assoc_gooru_oid order by f.created_date desc";
 
-		Query query = session.createSQLQuery(sql).addScalar("title", StandardBasicTypes.STRING).addScalar("description", StandardBasicTypes.STRING).addScalar("gooruOid", StandardBasicTypes.STRING).addScalar("category", StandardBasicTypes.STRING).addScalar("createdOn", StandardBasicTypes.STRING)
+		Query query = getSession().createSQLQuery(sql).addScalar("title", StandardBasicTypes.STRING).addScalar("description", StandardBasicTypes.STRING).addScalar("gooruOid", StandardBasicTypes.STRING).addScalar("category", StandardBasicTypes.STRING).addScalar("createdOn", StandardBasicTypes.STRING)
 				.addScalar("value", StandardBasicTypes.STRING).addScalar("reportedFlag", StandardBasicTypes.STRING).addScalar("userUid", StandardBasicTypes.STRING).addScalar("product", StandardBasicTypes.STRING).addScalar("reportId", StandardBasicTypes.STRING)
 				.addScalar("reportCreator", StandardBasicTypes.STRING).addScalar("reportCreatedOn", StandardBasicTypes.STRING).addScalar("reportDescription", StandardBasicTypes.STRING).addScalar("url", StandardBasicTypes.STRING).addScalar("browserUrl", StandardBasicTypes.STRING)
 				.addScalar("scount", StandardBasicTypes.STRING).addScalar("sharing", StandardBasicTypes.STRING).addScalar("notes", StandardBasicTypes.STRING).addScalar("reporterName", StandardBasicTypes.STRING).addScalar("resourceCreatorName", StandardBasicTypes.STRING)
@@ -428,14 +425,13 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 
 	@Override
 	public List<Map<Object, Object>> getContentFeedbackAggregate(String assocGooruOid, String feedbackCategory, Boolean flag) {
-		Session session = getSession();
 		String sql = "";
 		if (flag) {
 			sql = "select count(1) as count, t.value as name,cc.gooru_oid as collectionId from collection_item ci  inner join collection cn on (ci.collection_content_id = cn.content_id)  inner join content rc on (rc.content_id = ci.resource_content_id)  inner join feedback f on (rc.gooru_oid = f.assoc_gooru_oid) inner join content cc on cc.content_id = cn.content_id inner join custom_table_value c on  c.custom_table_value_id = f.feedback_category_id inner join  custom_table_value t  on  t.custom_table_value_id = f.feedback_type_id inner join  task_resource_assoc tc on tc.resource_content_id = ci.collection_content_id inner join content ct on ct.content_id = tc.task_content_id  where ct.gooru_oid =:assocGooruOid and c.key_value =:feedbackCategory group by f.feedback_type_id,cc.gooru_oid";
 		} else {
 			sql = "select count(1) as count, t.value as name,cc.gooru_oid as collectionId from collection_item ci  inner join collection cn on (ci.collection_content_id = cn.content_id)  inner join content rc on (rc.content_id = ci.resource_content_id)  inner join feedback f on (rc.gooru_oid = f.assoc_gooru_oid) inner join content cc on cc.content_id = cn.content_id inner join custom_table_value c on  c.custom_table_value_id = f.feedback_category_id inner join  custom_table_value t  on  t.custom_table_value_id = f.feedback_type_id  where cc.gooru_oid =:assocGooruOid and c.key_value =:feedbackCategory and cn.collection_type in ('collection', 'quiz') group by f.feedback_type_id";
 		}
-		Query query = session.createSQLQuery(sql).addScalar("count", StandardBasicTypes.INTEGER).addScalar("name", StandardBasicTypes.STRING).addScalar("collectionId", StandardBasicTypes.STRING).setParameter("assocGooruOid", assocGooruOid).setParameter("feedbackCategory", feedbackCategory);
+		Query query = getSession().createSQLQuery(sql).addScalar("count", StandardBasicTypes.INTEGER).addScalar("name", StandardBasicTypes.STRING).addScalar("collectionId", StandardBasicTypes.STRING).setParameter("assocGooruOid", assocGooruOid).setParameter("feedbackCategory", feedbackCategory);
 		return getFeedbackAggregate(query.list());
 	}
 
