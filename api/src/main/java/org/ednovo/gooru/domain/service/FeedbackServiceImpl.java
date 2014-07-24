@@ -503,8 +503,7 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 
 	@Override
 	public List<CustomTableValue> getCustomValues(String category, String type) {
-
-		return this.getFeedbackRepository().getCustomValues(getTableNameByFeedbackCategory(category, type));
+		return this.getCustomTableRepository().getCustomValues(getTableNameByFeedbackCategory(category, type));
 	}
 
 	public FeedbackRepository getFeedbackRepository() {

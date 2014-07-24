@@ -29,7 +29,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.ednovo.gooru.core.api.model.CustomTableValue;
 import org.ednovo.gooru.core.api.model.Feedback;
 import org.ednovo.gooru.core.api.model.StorageAccount;
 import org.ednovo.gooru.core.api.model.StorageArea;
@@ -43,17 +42,28 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 @Repository
-
-public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate implements FeedbackRepository,ConstantProperties,ParameterProperties {
+public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate implements FeedbackRepository, ConstantProperties, ParameterProperties {
 
 	@Autowired
-	StorageRepository storageRepository;
+	private StorageRepository storageRepository;
+
+	private static final String GET_FEEDBACK = "FROM  Feedback feedback WHERE " + generateOrgAuthQuery("feedback.") + " and feedback.gooruOid=:feedbackId";
+	private static final String GET_FEEDBACKS = "FROM  Feedback feedback WHERE " + generateOrgAuthQuery("feedback.") + " and feedback.gooruOid IN (:feedbackIds)";
+	private static final String GET_FEEDBACK_USER = "FROM  Feedback feedback WHERE " + generateOrgAuthQuery("feedback.") + " and feedback.gooruOid=:feedbackId and feedback.creator.partyUid =:gooruUid";
+	private static final String GET_CONTENT_FEEDBACKS = "FROM  Feedback feedback WHERE " + generateOrgAuthQuery("feedback.") + " and feedback.assocGooruOid=:assocGooruOid and feedback.creator.partyUid =:gooruUid and feedback.type.keyValue=:type";
+	private static final String GET_USER_FEEDBACK = " FROM  Feedback feedback WHERE " + generateOrgAuthQuery("feedback.") + " and feedback.assocUserUid=:assocUserUid and feedback.creator.partyUid =:gooruUid and feedback.type.keyValue=:type";
+	private static final String FETCH_USER_FEEDBACK_RATING = "select score, count(1) as count from feedback f inner join custom_table_value c on f.feedback_type_id = c.custom_table_value_id where f.assoc_user_uid=:assocUserUid and c.key_value=:feedbackRatingType and score is not null  group by score";
+	private static final String FETCH_CONTENT_FEEDBACK_RATING = "select score, count(1) as count from feedback f inner join custom_table_value c on f.feedback_type_id = c.custom_table_value_id  where f.assoc_gooru_oid=:assocGooruOid and c.key_value=:feedbackRatingType and score is not null  group by score";
+	private static final String GET_CONTENT_FEEDBACK_THUMBS = "select sum(case when score is null then 0 when score > 0 then 1 else 0 end) as thumb_up, sum(case when score is null then 0 when score < 0 then 1 else 0 end) as thumb_down from feedback f inner join custom_table_value c on (f.feedback_type_id = c.custom_table_value_id) where f.assoc_gooru_oid =:assocGooruOid and c.key_value=:feedbackRatingType";
+	private static final String GET_USER_FEEDBACK_THUMBS = "select sum(case when score is null then 0 when score > 0 then 1 else 0 end) as thumb_up, sum(case when score is null then 0 when score < 0 then 1 else 0 end) as thumb_down from feedback f inner join custom_table_value c on (f.feedback_type_id = c.custom_table_value_id)  where f.assoc_user_uid =:assocUserUid and c.key_value=:feedbackRatingType";
+	private static final String GET_CONTENT_FEEDBACK_AGGREGATE_BY_TYPE = "select count(1) as count from feedback f inner join custom_table_value c on (f.feedback_type_id = c.custom_table_value_id) where f.assoc_gooru_oid =:assocGooruOid and c.key_value=:feedbackType";
+	private static final String GET_USER_FEEDBACK_AGGREGATE_BY_TYPE = "select count(1) as count from feedback f inner join custom_table_value c on f.feedback_type_id = c.custom_table_value_id where f.assoc_user_uid =:assocUserUid and c.key_value=:feedbackType";
+	private static final String GET_USER_FEEDBACK_AVERAGE = "select count(1) as count, t.value as name from feedback f inner join custom_table_value c on  c.custom_table_value_id = f.feedback_category_id inner join custom_table_value t on   t.custom_table_value_id = f.feedback_type_id  where  f.key_value =:feedbackCategory and assoc_user_uid =:assocUserUid  group by f.feedback_type_id";
+	private static final String GET_CONTENT_FEEDBACK_AVERAGE = "select count(1) as count, t.value as name from feedback f inner join custom_table_value c on  c.custom_table_value_id = f.feedback_category_id inner join custom_table_value t on   t.custom_table_value_id = f.feedback_type_id  where  t.key_value =:feedbackCategory and assoc_gooru_oid =:assocGooruOid  group by f.feedback_type_id";
 
 	@Override
 	public Feedback getFeedback(String feedbackId) {
-		Session session = getSession();
-		String hql = " FROM  Feedback feedback WHERE " + generateOrgAuthQuery("feedback.") + " and feedback.gooruOid=:feedbackId";
-		Query query = session.createQuery(hql);
+		Query query = getSession().createQuery(GET_FEEDBACK);
 		query.setParameter("feedbackId", feedbackId);
 		addOrgAuthParameters(query);
 		return (Feedback) ((query.list() != null && query.list().size() > 0) ? query.list().get(0) : null);
@@ -61,9 +71,7 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 
 	@Override
 	public List<Feedback> getFeedbacks(String feedbackIds, String gooruUid) {
-		Session session = getSession();
-		String hql = " FROM  Feedback feedback WHERE " + generateOrgAuthQuery("feedback.") + " and feedback.gooruOid IN (:feedbackIds)";
-		Query query = session.createQuery(hql);
+		Query query = getSession().createQuery(GET_FEEDBACKS);
 		query.setParameterList("feedbackIds", feedbackIds.split(","));
 		addOrgAuthParameters(query);
 		return query.list();
@@ -71,9 +79,7 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 
 	@Override
 	public Feedback getFeedback(String feedbackId, String gooruUid) {
-		Session session = getSession();
-		String hql = " FROM  Feedback feedback WHERE " + generateOrgAuthQuery("feedback.") + " and feedback.gooruOid=:feedbackId and feedback.creator.partyUid =:gooruUid ";
-		Query query = session.createQuery(hql);
+		Query query = getSession().createQuery(GET_FEEDBACK_USER);
 		query.setParameter("feedbackId", feedbackId);
 		query.setParameter("gooruUid", gooruUid);
 		addOrgAuthParameters(query);
@@ -82,9 +88,7 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 
 	@Override
 	public Feedback getContentFeedback(String type, String assocGooruOid, String gooruUid) {
-		Session session = getSession();
-		String hql = " FROM  Feedback feedback WHERE " + generateOrgAuthQuery("feedback.") + " and feedback.assocGooruOid=:assocGooruOid and feedback.creator.partyUid =:gooruUid and feedback.type.keyValue=:type";
-		Query query = session.createQuery(hql);
+		Query query = getSession().createQuery(GET_CONTENT_FEEDBACKS);
 		query.setParameter("assocGooruOid", assocGooruOid);
 		query.setParameter("type", type);
 		query.setParameter("gooruUid", gooruUid);
@@ -94,7 +98,6 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 
 	@Override
 	public List<Feedback> getContentFeedbacks(String type, String assocGooruOid, String creatorUid, String category, Integer limit, Integer offset, String orderBy) {
-		Session session = getSession();
 		String hql = " FROM  Feedback feedback WHERE " + generateOrgAuthQuery("feedback.") + " and feedback.assocGooruOid=:assocGooruOid ";
 		if (category != null) {
 			hql += " and feedback.category.keyValue=:category";
@@ -110,7 +113,7 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 		} else {
 			hql += " order by  feedback.createdDate desc";
 		}
-		Query query = session.createQuery(hql);
+		Query query = getSession().createQuery(hql);
 		query.setParameter("assocGooruOid", assocGooruOid);
 		if (type != null) {
 			query.setParameter("type", type);
@@ -122,8 +125,8 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 			query.setParameter("category", category);
 		}
 		addOrgAuthParameters(query);
-			query.setFirstResult(offset);
-			query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
+		query.setFirstResult(offset);
+		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
 		return query.list();
 	}
 
@@ -156,7 +159,6 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 
 	@Override
 	public List<Feedback> getUserFeedbacks(String type, String assocUserUid, String creatorUid, String category, Integer limit, Integer offset) {
-		Session session = getSession();
 		String hql = " FROM  Feedback feedback WHERE " + generateOrgAuthQuery("feedback.") + " and feedback.assocUserUid=:assocUserUid  ";
 		if (category != null) {
 			hql += " and feedback.category.keyValue=:category";
@@ -167,7 +169,7 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 		if (creatorUid != null) {
 			hql += " and feedback.creator.partyUid =:creatorUid";
 		}
-		Query query = session.createQuery(hql);
+		Query query = getSession().createQuery(hql);
 		query.setParameter("assocUserUid", assocUserUid);
 		if (type != null) {
 			query.setParameter("type", type);
@@ -179,17 +181,15 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 			query.setParameter("category", category);
 		}
 		addOrgAuthParameters(query);
-			query.setFirstResult(offset);
-			query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
+		query.setFirstResult(offset);
+		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
 
 		return query.list();
 	}
 
 	@Override
 	public Feedback getUserFeedback(String type, String assocUserUid, String gooruUid) {
-		Session session = getSession();
-		String hql = " FROM  Feedback feedback WHERE " + generateOrgAuthQuery("feedback.") + " and feedback.assocUserUid=:assocUserUid and feedback.creator.partyUid =:gooruUid and feedback.type.keyValue=:type";
-		Query query = session.createQuery(hql);
+		Query query = getSession().createQuery(GET_USER_FEEDBACK);
 		query.setParameter("assocUserUid", assocUserUid);
 		query.setParameter("type", type);
 		query.setParameter("gooruUid", gooruUid);
@@ -218,17 +218,14 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 
 	@Override
 	public Map<String, Object> getUserFeedbackRating(String assocUserUid, String feedbackRatingType) {
-		Session session = getSession();
-		String sql = "select score, count(1) as count from feedback f inner join custom_table_value c on f.feedback_type_id = c.custom_table_value_id where f.assoc_user_uid=:assocUserUid and c.key_value=:feedbackRatingType and score is not null  group by score";
-		Query query = session.createSQLQuery(sql).addScalar("score", StandardBasicTypes.INTEGER).addScalar("count", StandardBasicTypes.INTEGER).setParameter("assocUserUid", assocUserUid).setParameter("feedbackRatingType", feedbackRatingType);
+		Query query = getSession().createSQLQuery(FETCH_USER_FEEDBACK_RATING).addScalar("score", StandardBasicTypes.INTEGER).addScalar("count", StandardBasicTypes.INTEGER).setParameter("assocUserUid", assocUserUid).setParameter("feedbackRatingType", feedbackRatingType);
 		return getRating(query.list());
 	}
 
 	@Override
 	public Map<String, Object> getContentFeedbackRating(String assocGooruOid, String feedbackRatingType) {
 		Session session = getSession();
-		String sql = "select score, count(1) as count from feedback f inner join custom_table_value c on f.feedback_type_id = c.custom_table_value_id  where f.assoc_gooru_oid=:assocGooruOid and c.key_value=:feedbackRatingType and score is not null  group by score";
-		Query query = session.createSQLQuery(sql).addScalar("score", StandardBasicTypes.INTEGER).addScalar("count", StandardBasicTypes.INTEGER).setParameter("assocGooruOid", assocGooruOid).setParameter("feedbackRatingType", feedbackRatingType);
+		Query query = session.createSQLQuery(FETCH_CONTENT_FEEDBACK_RATING).addScalar("score", StandardBasicTypes.INTEGER).addScalar("count", StandardBasicTypes.INTEGER).setParameter("assocGooruOid", assocGooruOid).setParameter("feedbackRatingType", feedbackRatingType);
 		return getRating(query.list());
 	}
 
@@ -307,8 +304,8 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 				.addScalar("scount", StandardBasicTypes.STRING).addScalar("sharing", StandardBasicTypes.STRING).addScalar("notes", StandardBasicTypes.STRING).addScalar("reporterName", StandardBasicTypes.STRING).addScalar("resourceCreatorName", StandardBasicTypes.STRING)
 				.addScalar("thumbnail", StandardBasicTypes.STRING).addScalar("hasFrameBreaker", StandardBasicTypes.BOOLEAN).addScalar("mediaType", StandardBasicTypes.STRING).addScalar("lastModifiedOn", StandardBasicTypes.STRING);
 
-			query.setFirstResult(offset);
-			query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
+		query.setFirstResult(offset);
+		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
 
 		return getFlags(query.list(), sql, type);
 	}
@@ -359,9 +356,8 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 			listFlag.add(flag);
 		}
 
-		Session session = getSession();
 		sql = "select count(1) as totalCount from (" + sql + ") as flag";
-		Query query = session.createSQLQuery(sql).addScalar("totalCount", StandardBasicTypes.INTEGER);
+		Query query = getSession().createSQLQuery(sql).addScalar("totalCount", StandardBasicTypes.INTEGER);
 		Map<String, Object> result = new HashMap<String, Object>();
 		result.put("searchResult", listFlag);
 		result.put("totalCount", (Integer) query.list().get(0));
@@ -370,17 +366,13 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 
 	@Override
 	public Map<Object, Object> getContentFeedbackThumbs(String assocGooruOid, String feedbackRatingType) {
-		Session session = getSession();
-		String sql = "select sum(case when score is null then 0 when score > 0 then 1 else 0 end) as thumb_up, sum(case when score is null then 0 when score < 0 then 1 else 0 end) as thumb_down from feedback f inner join custom_table_value c on (f.feedback_type_id = c.custom_table_value_id) where f.assoc_gooru_oid =:assocGooruOid and c.key_value=:feedbackRatingType";
-		Query query = session.createSQLQuery(sql).addScalar("thumb_up", StandardBasicTypes.INTEGER).addScalar("thumb_down", StandardBasicTypes.INTEGER).setParameter("assocGooruOid", assocGooruOid).setParameter("feedbackRatingType", feedbackRatingType);
+		Query query = getSession().createSQLQuery(GET_CONTENT_FEEDBACK_THUMBS).addScalar("thumb_up", StandardBasicTypes.INTEGER).addScalar("thumb_down", StandardBasicTypes.INTEGER).setParameter("assocGooruOid", assocGooruOid).setParameter("feedbackRatingType", feedbackRatingType);
 		return getThumbsVotes((Object[]) query.list().get(0));
 	}
 
 	@Override
 	public Map<Object, Object> getUserFeedbackThumbs(String assocUserUid, String feedbackRatingType) {
-		Session session = getSession();
-		String sql = "select sum(case when score is null then 0 when score > 0 then 1 else 0 end) as thumb_up, sum(case when score is null then 0 when score < 0 then 1 else 0 end) as thumb_down from feedback f inner join custom_table_value c on (f.feedback_type_id = c.custom_table_value_id)  where f.assoc_user_uid =:assocUserUid and c.key_value=:feedbackRatingType";
-		Query query = session.createSQLQuery(sql).addScalar("thumb_up", StandardBasicTypes.INTEGER).addScalar("thumb_down", StandardBasicTypes.INTEGER).setParameter("assocUserUid", assocUserUid).setParameter("feedbackRatingType", feedbackRatingType);
+		Query query = getSession().createSQLQuery(GET_USER_FEEDBACK_THUMBS).addScalar("thumb_up", StandardBasicTypes.INTEGER).addScalar("thumb_down", StandardBasicTypes.INTEGER).setParameter("assocUserUid", assocUserUid).setParameter("feedbackRatingType", feedbackRatingType);
 		return getThumbsVotes((Object[]) query.list().get(0));
 	}
 
@@ -393,33 +385,25 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 
 	@Override
 	public Integer getContentFeedbackAggregateByType(String assocGooruOid, String feedbackType) {
-		Session session = getSession();
-		String sql = "select count(1) as count from feedback f inner join custom_table_value c on (f.feedback_type_id = c.custom_table_value_id) where f.assoc_gooru_oid =:assocGooruOid and c.key_value=:feedbackType";
-		Query query = session.createSQLQuery(sql).addScalar("count", StandardBasicTypes.INTEGER).setParameter("assocGooruOid", assocGooruOid).setParameter("feedbackType", feedbackType);
+		Query query = getSession().createSQLQuery(GET_CONTENT_FEEDBACK_AGGREGATE_BY_TYPE).addScalar("count", StandardBasicTypes.INTEGER).setParameter("assocGooruOid", assocGooruOid).setParameter("feedbackType", feedbackType);
 		return (Integer) query.list().get(0);
 	}
 
 	@Override
 	public Integer getUserFeedbackAggregateByType(String assocUserUid, String feedbackType) {
-		Session session = getSession();
-		String sql = "select count(1) as count from feedback f inner join custom_table_value c on f.feedback_type_id = c.custom_table_value_id where f.assoc_user_uid =:assocUserUid and c.key_value=:feedbackType";
-		Query query = session.createSQLQuery(sql).addScalar("count", StandardBasicTypes.INTEGER).setParameter("assocUserUid", assocUserUid).setParameter("feedbackType", feedbackType);
+		Query query = getSession().createSQLQuery(GET_USER_FEEDBACK_AGGREGATE_BY_TYPE).addScalar("count", StandardBasicTypes.INTEGER).setParameter("assocUserUid", assocUserUid).setParameter("feedbackType", feedbackType);
 		return (Integer) query.list().get(0);
 	}
 
 	@Override
 	public Map<Object, Object> getUserFeedbackAverage(String assocUserUid, String feedbackCategory) {
-		Session session = getSession();
-		String sql = "select count(1) as count, t.value as name from feedback f inner join custom_table_value c on  c.custom_table_value_id = f.feedback_category_id inner join custom_table_value t on   t.custom_table_value_id = f.feedback_type_id  where  f.key_value =:feedbackCategory and assoc_user_uid =:assocUserUid  group by f.feedback_type_id";
-		Query query = session.createSQLQuery(sql).addScalar("count", StandardBasicTypes.INTEGER).addScalar("name", StandardBasicTypes.STRING).setParameter("assocUserUid", assocUserUid).setParameter("feedbackCategory", feedbackCategory);
+		Query query = getSession().createSQLQuery(GET_USER_FEEDBACK_AVERAGE).addScalar("count", StandardBasicTypes.INTEGER).addScalar("name", StandardBasicTypes.STRING).setParameter("assocUserUid", assocUserUid).setParameter("feedbackCategory", feedbackCategory);
 		return getFeedbackAverage(query.list());
 	}
 
 	@Override
 	public Map<Object, Object> getContentFeedbackAverage(String assocGooruOid, String feedbackCategory) {
-		Session session = getSession();
-		String sql = "select count(1) as count, t.value as name from feedback f inner join custom_table_value c on  c.custom_table_value_id = f.feedback_category_id inner join custom_table_value t on   t.custom_table_value_id = f.feedback_type_id  where  t.key_value =:feedbackCategory and assoc_gooru_oid =:assocGooruOid  group by f.feedback_type_id";
-		Query query = session.createSQLQuery(sql).addScalar("count", StandardBasicTypes.INTEGER).addScalar("name", StandardBasicTypes.STRING).setParameter("assocGooruOid", assocGooruOid).setParameter("feedbackCategory", feedbackCategory);
+		Query query = getSession().createSQLQuery(GET_CONTENT_FEEDBACK_AVERAGE).addScalar("count", StandardBasicTypes.INTEGER).addScalar("name", StandardBasicTypes.STRING).setParameter("assocGooruOid", assocGooruOid).setParameter("feedbackCategory", feedbackCategory);
 		return getFeedbackAverage(query.list());
 	}
 
@@ -453,15 +437,6 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 		}
 		Query query = session.createSQLQuery(sql).addScalar("count", StandardBasicTypes.INTEGER).addScalar("name", StandardBasicTypes.STRING).addScalar("collectionId", StandardBasicTypes.STRING).setParameter("assocGooruOid", assocGooruOid).setParameter("feedbackCategory", feedbackCategory);
 		return getFeedbackAggregate(query.list());
-	}
-
-	@Override
-	public List<CustomTableValue> getCustomValues(String type) {
-		Session session = getSession();
-		String hql = " FROM  CustomTableValue ct where ct.customTable.name=:type";
-		Query query = session.createQuery(hql);
-		query.setParameter("type", type);
-		return query.list();
 	}
 
 	public StorageRepository getStorageRepository() {
