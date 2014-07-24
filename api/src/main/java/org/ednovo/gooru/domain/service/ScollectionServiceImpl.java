@@ -411,10 +411,8 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 	public ActionResponseDTO<Collection> updateCollection(Collection newCollection, String updateCollectionId, String taxonomyCode, String ownerUId, String creatorUId, boolean hasUnrestrictedContentAccess, String relatedContentId, boolean updateTaxonomyByCode, User apiCallerUser) throws Exception {
 		String gooruUid = null;
-		if (newCollection.getUser() != null) {
-			if (!userService.isContentAdmin(newCollection.getUser())) {
-				gooruUid = newCollection.getUser().getGooruUId();
-			} 
+		if (newCollection.getUser() != null && !userService.isContentAdmin(newCollection.getUser())) {
+			gooruUid = newCollection.getUser().getGooruUId();
 		}
 		Collection collection = this.getCollectionByGooruOid(updateCollectionId, gooruUid);
 		Errors errors = validateUpdateCollection(collection);
