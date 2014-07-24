@@ -45,7 +45,6 @@ import org.ednovo.gooru.core.application.util.StringUtil;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.domain.service.annotation.AnnotationService;
 import org.ednovo.gooru.domain.service.resource.ResourceService;
-import org.ednovo.gooru.domain.service.shelf.ShelfService;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserTokenRepository;
@@ -75,8 +74,6 @@ public class QuoteServiceImpl implements QuoteService,ParameterProperties {
 	@Autowired
 	private ResourceService resourceService;
 
-	@Autowired
-	private ShelfService shelfService;
 
 	@Autowired
 	private QuoteRepository quoteRepository;
@@ -177,12 +174,6 @@ public class QuoteServiceImpl implements QuoteService,ParameterProperties {
 			if (resource != null && resource.getContentId() != null) {
 				indexProcessor.index(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE);
 			}
-		}
-		try {
-			this.shelfService.addResourceToSelf(shelfId, resource.getGooruOid(), ShelfType.AddedType.SUBSCRIBED.getAddedType(), null, user);
-		} catch (Exception e) {
-			resultJson.put(STATUS, STATUS_4011);
-			resultJson.put(MESSAGE, e.getMessage());
 		}
 
 		return resultJson;

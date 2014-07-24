@@ -30,7 +30,6 @@ import java.util.List;
 
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ParameterProperties;
-import org.ednovo.gooru.domain.service.shelf.ShelfService;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.annotation.SubscriptionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,9 +42,6 @@ public class SubscriptionServiceImpl implements SubscriptionService,ParameterPro
 
 	@Autowired
 	private UserRepository UserRepository;
-
-	@Autowired
-	private ShelfService shelfService;
 
 	@Override
 	public void deleteSubscription(String userId, String gooruContentId) {
@@ -86,19 +82,10 @@ public class SubscriptionServiceImpl implements SubscriptionService,ParameterPro
 		for (String contentId : gooruContentList) {
 			HashMap<String, String> contentMap = new HashMap<String, String>();
 			contentMap.put(GET_GOORU_OID, contentId);
-			if (this.getShelfService().hasContentSubscribed(user, contentId)) {
-				contentMap.put(IS_SUBSCRIBED, TRUE);
-			} else {
-				contentMap.put(IS_SUBSCRIBED, FALSE);
-			}
 			subscriptionStatusList.add(contentMap);
 		}
 
 		return subscriptionStatusList;
-	}
-
-	public ShelfService getShelfService() {
-		return shelfService;
 	}
 
 	public UserRepository getUserRepository() {

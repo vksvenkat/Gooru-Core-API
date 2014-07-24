@@ -295,9 +295,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				collection.setPublishStatus(this.getCustomTableRepository().getCustomTableValue(_PUBLISH_STATUS, PENDING));
 				collection.setSharing(Sharing.ANYONEWITHLINK.getSharing());
 			}
-			if (collection.getGrade() != null) {
-				resourceService.saveOrUpdateGrade(new Resource(), collection);
-			}
 			this.getCollectionRepository().save(collection);
 
 			if (resourceId != null && !resourceId.isEmpty()) {
@@ -478,7 +475,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				collection.setLanguage(newCollection.getLanguage());
 			}
 			if (newCollection.getGrade() != null) {
-				resourceService.saveOrUpdateGrade(newCollection, collection);
+				collection.setGrade(newCollection.getGrade());
 			}
 			if (newCollection.getLanguageObjective() != null) {
 				collection.setLanguageObjective(newCollection.getLanguageObjective());
@@ -850,7 +847,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				} catch (Exception e) {
 					LOGGER.debug(e.getMessage());
 				}
-				if(collectionItem.getResource().getSharing().equals(Sharing.PRIVATE.getSharing())){
+				if(collectionItem.getResource().getSharing().equals(Sharing.PRIVATE.getSharing()) && isResourceType(collectionItem.getResource())){
 					this.getResourceService().deleteResource(null, collectionItem.getResource().getGooruOid(), user);
 				}
 			} else {
@@ -862,7 +859,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 		}
 	}
-
+	
 	@Override
 	public ActionResponseDTO<CollectionItem> reorderCollectionItem(String collectionItemId, int newSequence) throws Exception {
 		CollectionItem collectionItem = getCollectionRepository().getCollectionItemById(collectionItemId);
@@ -1701,7 +1698,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			}
 			if (newCollection.getGrade() != null) {
 				itemData.put(GRADE, newCollection.getGrade());
-				resourceService.saveOrUpdateGrade(newCollection, collection);
+				collection.setGrade(newCollection.getGrade());
 			}
 			if (newCollection.getLanguageObjective() != null) {
 				itemData.put(LANGUAGE_OBJECTIVE, newCollection.getLanguageObjective());
@@ -2463,6 +2460,14 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		}
 		this.collectionRepository.removeAll(collections);
 		indexProcessor.index(removeContentIds.toString(), IndexProcessor.DELETE, SCOLLECTION);
+	}
+	
+	public boolean isResourceType(Resource resource){
+		boolean isResourceType = false;
+		if(!resource.getResourceType().equals(ResourceType.Type.SCOLLECTION.getType()) && !resource.getResourceType().equals(ResourceType.Type.CLASSPAGE.getType()) && !resource.getResourceType().equals(ResourceType.Type.FOLDER.getType())){
+			isResourceType = true;
+		}
+		return isResourceType;
 	}
 	
 

@@ -245,6 +245,7 @@ public class GooruImageUtil {
 		PDFFile pdfFile = null;
 		try {
 			File file = new File(pdfPath);
+			@SuppressWarnings("resource")
 			RandomAccessFile accessFile= new RandomAccessFile(file, "r");
 			FileChannel channel= accessFile.getChannel();
 			buf = channel.map(MapMode.READ_ONLY, 0, channel.size());

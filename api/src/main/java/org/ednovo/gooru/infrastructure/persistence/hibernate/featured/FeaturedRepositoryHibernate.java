@@ -38,6 +38,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class FeaturedRepositoryHibernate extends BaseRepositoryHibernate implements FeaturedRepository,ConstantProperties,ParameterProperties {
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<FeaturedSet> getFeaturedList(Integer codeId, int limit, String featuredSetName, String themeCode, String themeType) {
 		String hql = "FROM FeaturedSet featuredSet WHERE " +generateOrgAuthQueryWithData("featuredSet.");
@@ -64,6 +65,7 @@ public class FeaturedRepositoryHibernate extends BaseRepositoryHibernate impleme
 		return  getSession().createQuery(hql).setMaxResults(limit).list();
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<Object[]> getLibraryCollectionsList(Integer limit, Integer offset, String themeCode, String themeType) {
 		String sql = "select ct.gooru_oid, ct.created_on, ct.last_modified, ct.user_uid, ct.sharing, ct.last_updated_user_uid, cn.grade, cn.network, r.title, r.views_total, r.description, r.thumbnail, fs.theme_code, fs.subject_code_id from content ct inner join collection cn on (ct.content_id = cn.content_id) inner join resource r on (cn.content_id = r.content_id) inner join featured_set_items fsi on (r.content_id = fsi.content_id) inner join featured_set fs on (fsi.featured_set_id = fs.featured_set_id)";
@@ -87,6 +89,7 @@ public class FeaturedRepositoryHibernate extends BaseRepositoryHibernate impleme
 		return query.list();
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<Object[]> getLibraryCollectionsListByFilter(Integer limit, Integer offset, String themeCode, String themeType, String subjectId, String courseId, String unitId, String lessonId, String topicId, String gooruOid, String codeId) {
 
@@ -145,18 +148,21 @@ public class FeaturedRepositoryHibernate extends BaseRepositoryHibernate impleme
 	}
 	
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<FeaturedSet> getFeaturedTheme(int limit) {
 		String hql = "SELECT themeCode FROM FeaturedSet featuredSet WHERE " + generateOrgAuthQueryWithData("featuredSet.");
 		return getSession().createQuery(hql).setMaxResults(limit).list();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<Integer> getFeaturedThemeIds() {
 		String hql = "SELECT distinct(fs.subjectCode.codeId) AS themeId FROM FeaturedSet fs  WHERE fs.activeFlag = 1 AND  " + generateOrgAuthQueryWithData("fs.");
 		return getSession().createQuery(hql).list();
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public FeaturedSet getFeaturedSetById(Integer featuredSetId) {
 		String hql = "FROM FeaturedSet featuredSet WHERE featuredSet.featuredSetId=:featuredSetId AND " + generateOrgAuthQuery("featuredSet.");
@@ -169,6 +175,7 @@ public class FeaturedRepositoryHibernate extends BaseRepositoryHibernate impleme
 	}
 
 	
+	@SuppressWarnings("unchecked")
 	public FeaturedSetItems getFeaturedSetItem(Integer featuredSetId, Integer sequence) {
 		String hql = "FROM FeaturedSetItems featuredSetItems JOIN  WHERE featuredSetItems.featuredSet.featuredSetId=:featuredSetId  AND featuredSetItems.sequence=:sequence AND " + generateOrgAuthQuery("featuredSetItems.featuredSet.");
 		Session session = getSession();
@@ -180,6 +187,7 @@ public class FeaturedRepositoryHibernate extends BaseRepositoryHibernate impleme
 		return featuredSetItemList.size() > 0 ? featuredSetItemList.get(0) : null;
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public FeaturedSet getFeaturedSetByThemeNameAndCode(String name,String themeCode) {
 		String hql = "FROM FeaturedSet featuredSet WHERE featuredSet.name=:name AND featuredSet.themeCode=:themeCode AND " + generateOrgAuthQuery("featuredSet.");
@@ -193,6 +201,7 @@ public class FeaturedRepositoryHibernate extends BaseRepositoryHibernate impleme
 	}
 	
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public FeaturedSetItems getFeaturedSetItemsByFeatureSetId(Integer featureSetId) {
 			String hql = "FROM FeaturedSetItems featuredSetItems  WHERE featuredSetItems.featureSetId=:featureSetId AND " + generateOrgAuthQuery("featuredSetItems.featuredSet.");
@@ -204,6 +213,7 @@ public class FeaturedRepositoryHibernate extends BaseRepositoryHibernate impleme
 			return featuredSetItemList.size() > 0 ? featuredSetItemList.get(0) : null;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public FeaturedSetItems getFeaturedItemByIdAndType(Integer featuredSetItemId, String type) {
 		String hql = "FROM FeaturedSetItems featuredSetItems  WHERE featuredSetItems.featuredSetItemId=:featuredSetItemId AND  featuredSetItems.featuredSet.type.value =:type AND " + generateOrgAuthQuery("featuredSetItems.featuredSet.");
@@ -216,6 +226,7 @@ public class FeaturedRepositoryHibernate extends BaseRepositoryHibernate impleme
 		return featuredSetList.size() > 0 ? featuredSetList.get(0) : null;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<Object[]> getLibrary(String code, boolean fetchAll, String libraryName) {
 		String sql = "select subject_code_id, featured_set_id, ct.value from featured_set f inner join custom_table_value ct on f.type_id = ct.custom_table_value_id   where theme_code =:themeCode";
@@ -230,6 +241,7 @@ public class FeaturedRepositoryHibernate extends BaseRepositoryHibernate impleme
 		return query.list();
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<Object[]> getLibraryCollection(String codeId, String featuredSetId, Integer limit, Integer offset, String contentId) {
 		String sql = "select gooru_oid, r.title, co.collection_type   from featured_set_items fi inner join resource r on r.content_id = fi.content_id inner join content cc on cc.content_id = r.content_id inner join collection co on co.content_id = r.content_id  where  fi.featured_set_id=:featuredSetId ";
@@ -273,6 +285,7 @@ public class FeaturedRepositoryHibernate extends BaseRepositoryHibernate impleme
 		return (Long)query.list().get(0);
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<Object[]> getCommunityLibraryResource(String type, Integer offset, Integer limit, String libraryName){	
 		String sql = "select c.gooru_oid as collection_id, con.gooru_oid as resource_id," +
@@ -308,6 +321,7 @@ public class FeaturedRepositoryHibernate extends BaseRepositoryHibernate impleme
 		
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<Object[]> getLibrary(String libraryName) {
 		libraryName = libraryName.contains(",") ?  libraryName.replace(",", "','") : libraryName;

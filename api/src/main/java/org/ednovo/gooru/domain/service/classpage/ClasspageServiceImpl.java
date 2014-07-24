@@ -288,11 +288,6 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 
 	@Override
-	public List<Classpage> getClasspage(Map<String, String> filters, User user) {
-		return this.getCollectionRepository().getClasspage(filters, user);
-	}
-
-	@Override
 	public SearchResults<Classpage> getClasspages(Integer offset, Integer limit,  User user, String title, String author, String userName) {
 		if (userService.isContentAdmin(user)) {
 			List<Classpage> classpages = this.getCollectionRepository().getClasspages(offset, limit, title, author, userName);

@@ -93,7 +93,6 @@ import org.ednovo.gooru.domain.service.apitracker.ApiTrackerService;
 import org.ednovo.gooru.domain.service.party.OrganizationService;
 import org.ednovo.gooru.domain.service.redis.RedisService;
 import org.ednovo.gooru.domain.service.setting.SettingService;
-import org.ednovo.gooru.domain.service.shelf.ShelfService;
 import org.ednovo.gooru.domain.service.user.UserService;
 import org.ednovo.gooru.infrastructure.mail.MailHandler;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
@@ -159,9 +158,6 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 
 	@Autowired
 	private SettingService settingService;
-
-	@Autowired
-	private ShelfService shelfService;
 
 	@Autowired
 	private OperationAuthorizer operationAuthorizer;
@@ -467,7 +463,6 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 
 		this.getUserRepository().saveAll(activityStreams);
 
-		this.getShelfService().setDefaultShelvesForNewUser(user);
 
 		this.getPartyService().createUserDefaultCustomAttributes(user.getPartyUid(), user);
 
@@ -1902,10 +1897,6 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 	@Override
 	public Identity findByEmailIdOrUserName(String userName, Boolean isLoginRequest, Boolean fetchAllUser) {
 		return userRepository.findByEmailIdOrUserName(userName, isLoginRequest, fetchAllUser);
-	}
-
-	public ShelfService getShelfService() {
-		return shelfService;
 	}
 
 	@Override

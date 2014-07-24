@@ -105,7 +105,7 @@ public class AsyncExecutor {
 		});
 	}
 
-	public void executeRestAPI(final Map<String, Object> param, final String requestUrl, final String requestType) {
+	void executeRestAPI(final Map<String, Object> param, final String requestUrl, final String requestType) {
 		transactionTemplate.execute(new TransactionCallback<Void>() {
 			@Override
 			public Void doInTransaction(TransactionStatus status) {
