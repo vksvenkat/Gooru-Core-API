@@ -45,8 +45,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.ednovo.gooru.application.util.ProfileImageUtil;
 import org.ednovo.gooru.application.util.TaxonomyUtil;
-import org.ednovo.gooru.core.api.model.ActivityStream;
-import org.ednovo.gooru.core.api.model.ActivityType;
 import org.ednovo.gooru.core.api.model.ApiKey;
 import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.api.model.Content;
@@ -144,7 +142,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 
 	@Autowired
 	private MailHandler mailHandler;
-	
+
 	@Autowired
 	private CustomTableRepository customTableRepository;
 
@@ -156,16 +154,16 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 
 	@Autowired
 	private ContentRepository contentRepository;
-	
+
 	@Autowired
 	private CollaboratorService collaboratorService;
-	
+
 	@Autowired
 	private CollaboratorRepository collaboratorRepository;
 
 	@Autowired
 	private InviteRepository inviteRepository;
-	
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
 
 	@Override
@@ -180,9 +178,9 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 
 	@Override
 	public SearchResults<Map<String, Object>> getFollowedOnUsers(String gooruUId, Integer offset, Integer limit) {
-		List<User> users =  this.getUserRepository().getFollowedOnUsers(gooruUId,offset,limit);
-		List<Map<String, Object>> usersObj = new ArrayList<Map<String,Object>>();
-		for(User user : users) {
+		List<User> users = this.getUserRepository().getFollowedOnUsers(gooruUId, offset, limit);
+		List<Map<String, Object>> usersObj = new ArrayList<Map<String, Object>>();
+		for (User user : users) {
 			usersObj.add(setUserObj(user));
 		}
 		SearchResults<Map<String, Object>> result = new SearchResults<Map<String, Object>>();
@@ -190,12 +188,12 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		result.setTotalHitCount(this.getUserRepository().getFollowedOnUsersCount(gooruUId));
 		return result;
 	}
-	
+
 	@Override
 	public SearchResults<Map<String, Object>> getFollowedByUsers(String gooruUId, Integer offset, Integer limit) {
-		List<User> users =  this.getUserRepository().getFollowedByUsers(gooruUId,offset,limit);
-		List<Map<String, Object>> usersObj = new ArrayList<Map<String,Object>>();
-		for(User user : users) {
+		List<User> users = this.getUserRepository().getFollowedByUsers(gooruUId, offset, limit);
+		List<Map<String, Object>> usersObj = new ArrayList<Map<String, Object>>();
+		for (User user : users) {
 			usersObj.add(setUserObj(user));
 		}
 		SearchResults<Map<String, Object>> result = new SearchResults<Map<String, Object>>();
@@ -239,13 +237,13 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		CustomTableValue type = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.USER_CLASSIFICATION_TYPE.getTable(), CustomProperties.UserClassificationType.COURSE.getUserClassificationType());
 		CustomTableValue gradeType = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.USER_CLASSIFICATION_TYPE.getTable(), CustomProperties.UserClassificationType.GRADE.getUserClassificationType());
 		profile.setCourses(this.getUserRepository().getUserClassifications(gooruUid, type.getCustomTableValueId(), activeFlag));
-		if(gradeType != null && gradeType.getCustomTableValueId() != null){
+		if (gradeType != null && gradeType.getCustomTableValueId() != null) {
 			profile.setGrade(this.getUserRepository().getUserGrade(gooruUid, gradeType.getCustomTableValueId(), activeFlag));
 		}
 		try {
 			getEventLogs(false, true, user, null, true, true);
 		} catch (JSONException e) {
-			LOGGER.debug("Error"+e);
+			LOGGER.debug("Error" + e);
 		}
 		return profile;
 	}
@@ -306,7 +304,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 						itemData.put("notes", newProfile.getNotes());
 						profile.setNotes(newProfile.getNotes());
 					}
-					
+
 					if (identity != null) {
 						if (user.getAccountTypeId() != null && user.getAccountTypeId().equals(UserAccountType.ACCOUNT_CHILD)) {
 							user.setEmailId(user.getParentUser().getIdentities().iterator().next().getExternalId());
@@ -314,7 +312,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 							user.setEmailId(identity.getExternalId());
 						}
 					}
-					
+
 					if (newProfile.getUser() != null) {
 						if (newProfile.getUser().getActive() != null) {
 							identity.setActive(newProfile.getUser().getActive());
@@ -397,33 +395,33 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 						}
 					}
 				}
-			} catch(Exception e){
+			} catch (Exception e) {
 				LOGGER.debug("Error" + e);
 			}
-			
+
 			profile.setUser(user);
 			this.getUserRepository().save(profile);
-			
+
 			PartyCustomField partyCustomField = this.getPartyService().getPartyCustomeField(profile.getUser().getPartyUid(), "user_confirm_status", profile.getUser());
-			
-			if(partyCustomField != null && !partyCustomField.getOptionalValue().equalsIgnoreCase("true") && newProfile.getUser() != null && newProfile.getUser().getConfirmStatus() != null && newProfile.getUser().getConfirmStatus() == 1) {
-					Map<String, String> dataMap = new HashMap<String, String>();
-					dataMap.put(GOORU_UID, profile.getUser().getPartyUid());
-					dataMap.put(EVENT_TYPE, CustomProperties.EventMapping.WELCOME_MAIL.getEvent());
-					if (profile.getUser().getAccountTypeId() != null && profile.getUser().getAccountTypeId().equals(UserAccountType.ACCOUNT_CHILD)) { 
-						if(profile.getUser().getParentUser().getIdentities() != null){
-							dataMap.put("recipient", profile.getUser().getParentUser().getIdentities().iterator().next().getExternalId());
-						}
-					} else {
-						if(profile.getUser().getIdentities() != null){
-							dataMap.put("recipient", profile.getUser().getIdentities().iterator().next().getExternalId());
-						}
+
+			if (partyCustomField != null && !partyCustomField.getOptionalValue().equalsIgnoreCase("true") && newProfile.getUser() != null && newProfile.getUser().getConfirmStatus() != null && newProfile.getUser().getConfirmStatus() == 1) {
+				Map<String, String> dataMap = new HashMap<String, String>();
+				dataMap.put(GOORU_UID, profile.getUser().getPartyUid());
+				dataMap.put(EVENT_TYPE, CustomProperties.EventMapping.WELCOME_MAIL.getEvent());
+				if (profile.getUser().getAccountTypeId() != null && profile.getUser().getAccountTypeId().equals(UserAccountType.ACCOUNT_CHILD)) {
+					if (profile.getUser().getParentUser().getIdentities() != null) {
+						dataMap.put("recipient", profile.getUser().getParentUser().getIdentities().iterator().next().getExternalId());
 					}
-					partyCustomField.setOptionalValue("true");
-				    this.getUserRepository().save(partyCustomField);
-					this.getMailHandler().handleMailEvent(dataMap);
+				} else {
+					if (profile.getUser().getIdentities() != null) {
+						dataMap.put("recipient", profile.getUser().getIdentities().iterator().next().getExternalId());
+					}
+				}
+				partyCustomField.setOptionalValue("true");
+				this.getUserRepository().save(partyCustomField);
+				this.getMailHandler().handleMailEvent(dataMap);
 			}
-			
+
 			CustomTableValue type = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.USER_CLASSIFICATION_TYPE.getTable(), CustomProperties.UserClassificationType.COURSE.getUserClassificationType());
 			profile.setCourses(this.getUserRepository().getUserClassifications(gooruUid, type.getCustomTableValueId(), null));
 		}
@@ -447,7 +445,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 							UserClassification userClassification = new UserClassification();
 							userClassification.setCode(code);
 							userClassification.setType(type);
-							userClassification.setActiveFlag(activeFlag == null ?  1 : Integer.parseInt(activeFlag));
+							userClassification.setActiveFlag(activeFlag == null ? 1 : Integer.parseInt(activeFlag));
 							userClassification.setUser(user);
 							userClassification.setCreator(apiCaller);
 							this.getUserRepository().save(userClassification);
@@ -469,7 +467,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			CustomTableValue type = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.USER_CLASSIFICATION_TYPE.getTable(), CustomProperties.UserClassificationType.COURSE.getUserClassificationType());
 			for (UserClassification course : courses) {
 				if (course.getCode() != null && course.getCode().getCodeId() != null) {
-					UserClassification existingCourse = this.getUserRepository().getUserClassification(user.getGooruUId(), type.getCustomTableValueId(), course.getCode().getCodeId(), apiCaller == null ?  null :  apiCaller.getGooruUId() , null);
+					UserClassification existingCourse = this.getUserRepository().getUserClassification(user.getGooruUId(), type.getCustomTableValueId(), course.getCode().getCodeId(), apiCaller == null ? null : apiCaller.getGooruUId(), null);
 					if (existingCourse != null) {
 						this.getUserRepository().remove(existingCourse);
 					}
@@ -495,7 +493,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			confirmStatus = 1;
 		}
 		List<InviteUser> inviteuser = this.getInviteRepository().getInviteUserByMail(newUser.getEmailId(), COLLABORATOR);
-		
+
 		user = createUser(newUser, password, school, confirmStatus, addedBySystem, null, accountType, dateOfBirth, userParentId, gender, childDOB, null, request, role, mailConfirmationUrl);
 		ApiKey apiKey = this.getApiTrackerService().findApiKeyByOrganization(user.getOrganization().getPartyUid());
 		UserToken userToken = this.createSessionToken(user, sessionId, apiKey);
@@ -505,7 +503,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 				user.setToken(identity.getCredential().getToken());
 			}
 		}
-		
+
 		if (user != null && sendConfirmationMail && inviteuser.size() <= 0) {
 			if (isAdminCreateUser) {
 				this.getMailHandler().sendMailToConfirm(user.getGooruUId(), password, accountType, userToken.getToken(), null, gooruBaseUrl, mailConfirmationUrl, null, null);
@@ -528,7 +526,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 				courses = courses.append(courses.length() == 0 ? userCourse.getCode().getLabel() : "," + userCourse.getCode().getLabel());
 			}
 		}
-		return courses.length() == 0 ? null : courses.toString() ;
+		return courses.length() == 0 ? null : courses.toString();
 	}
 
 	@Override
@@ -540,7 +538,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 
 		ApiKey apiKey = this.getApiTrackerService().findApiKeyByOrganization(user.getOrganization().getPartyUid());
 		UserToken userToken = this.createSessionToken(user, sessionId, apiKey);
-		String password = user.getIdentities().iterator().next().getCredential() == null ? null : user.getIdentities().iterator().next().getCredential().getPassword() ;
+		String password = user.getIdentities().iterator().next().getCredential() == null ? null : user.getIdentities().iterator().next().getCredential().getPassword();
 		Identity identity = null;
 		if (user.getAccountTypeId() != null) {
 			identity = this.getUserService().findUserByGooruId(user.getGooruUId());
@@ -570,7 +568,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		} else {
 			String dateOfBirth = "";
 			if (profile.getDateOfBirth() != null) {
-				SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT,Locale.US);
+				SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT, Locale.US);
 				dateOfBirth = dateFormat.format(profile.getDateOfBirth());
 			}
 			if (user.getAccountTypeId() != null && type.equalsIgnoreCase(WELCOME)) {
@@ -578,7 +576,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 					CustomTableValue gradeType = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.USER_CLASSIFICATION_TYPE.getTable(), CustomProperties.UserClassificationType.GRADE.getUserClassificationType());
 					String userGrade = this.getUserRepository().getUserGrade(user.getGooruUId(), gradeType.getCustomTableValueId(), null);
 					this.getMailHandler().sendMailToConfirm(user.getGooruUId(), password, accountType, userToken.getToken(), dateOfBirth, gooruBaseUrl, null, userGrade, getUserCourse(user.getGooruUId()));
-				} 
+				}
 			} else {
 				this.getMailHandler().sendMailToConfirm(user.getGooruUId(), null, accountType, userToken.getToken(), dateOfBirth, gooruBaseUrl, null, null, null);
 			}
@@ -683,7 +681,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		int years = -1;
 		Date currentDate = new Date();
 		Date userDateOfBirth = null;
-		SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DATE_FORMAT,Locale.US);
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DATE_FORMAT, Locale.US);
 		try {
 			userDateOfBirth = simpleDateFormat.parse(dateOfBirth);
 		} catch (ParseException e) {
@@ -742,7 +740,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	public User createUser(User newUser, String password, String school, Integer confirmStatus, Integer addedBySystem, String userImportCode, String accountType, String dateOfBirth, String userParentId, String remoteEntityId, String gender, String childDOB, String source, String emailSSO,
 			HttpServletRequest request, String role, String mailConfirmationUrl) throws Exception {
 		List<InviteUser> inviteuser = this.getInviteRepository().getInviteUserByMail(newUser.getEmailId(), COLLABORATOR);
-		if(inviteuser.size() > 0) {
+		if (inviteuser.size() > 0) {
 			confirmStatus = 1;
 		}
 		if (confirmStatus == null) {
@@ -879,14 +877,10 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 				}
 			}
 		}
-		/*
-		 * Step III - create profile for user.
-		 */
-
 		Profile profile = new Profile();
 		profile.setUser(user);
 		profile.setSchool(school);
-		if (role != null && (role.equalsIgnoreCase(UserRole.UserRoleType.STUDENT.getType()) || role.equalsIgnoreCase(UserRole.UserRoleType.TEACHER.getType()) || role.equalsIgnoreCase(UserRole.UserRoleType.AUTHENTICATED_USER.getType()) || role.equalsIgnoreCase(UserRole.UserRoleType.OTHER.getType()))){
+		if (role != null && (role.equalsIgnoreCase(UserRole.UserRoleType.STUDENT.getType()) || role.equalsIgnoreCase(UserRole.UserRoleType.TEACHER.getType()) || role.equalsIgnoreCase(UserRole.UserRoleType.AUTHENTICATED_USER.getType()) || role.equalsIgnoreCase(UserRole.UserRoleType.OTHER.getType()))) {
 			profile.setUserType(role);
 		}
 
@@ -909,7 +903,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 				}
 			} else {
 				Integer age = this.calculateCurrentAge(dateOfBirth);
-				SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT,Locale.US);
+				SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT, Locale.US);
 				Date date = dateFormat.parse(dateOfBirth);
 				if (age >= 13 && accountType.equalsIgnoreCase(UserAccountType.userAccount.NON_PARENT.getType())) {
 					profile.setDateOfBirth(date);
@@ -918,7 +912,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		}
 		if (childDOB != null && !childDOB.equalsIgnoreCase("null") && accountType != null && accountType.equalsIgnoreCase(UserAccountType.userAccount.PARENT.getType())) {
 			Integer age = this.calculateCurrentAge(childDOB);
-			SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT,Locale.US);
+			SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT, Locale.US);
 			Date date = dateFormat.parse(childDOB);
 			if (age < 13 && age >= 0) {
 				profile.setChildDateOfBirth(date);
@@ -928,16 +922,10 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		if (isNotEmptyString(gender)) {
 			profile.setGender(this.getUserRepository().getGenderByGenderId(gender));
 		}
-		/*
-		 * Step IV - Persist the user object in the database.
-		 */
 		user.setOrganization(organization);
-
 		// Fix me
 		user.setPrimaryOrganization(organization);
-
 		user.setUserGroup(null);
-
 		this.getUserRepository().save(profile);
 
 		// Associate user role
@@ -958,21 +946,10 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		}
 		identity.setCredential(credential);
 		this.getUserRepository().save(identity);
-		List<ActivityStream> activityStreams = new ArrayList<ActivityStream>();
 
-		List<ActivityType> types = this.getUserRepository().getAll(ActivityType.class);
-
-		for (ActivityType type : types) {
-			ActivityStream stream = new ActivityStream();
-			stream.setActivityType(type);
-			stream.setSharing(PUBLIC);
-			stream.setUser(user);
-			activityStreams.add(stream);
-		}
-		if(inviteuser.size() > 0) {
+		if (inviteuser.size() > 0) {
 			this.getCollaboratorService().updateCollaboratorStatus(newUser.getEmailId());
 		}
-		this.getUserRepository().saveAll(activityStreams);
 
 		this.getPartyService().createUserDefaultCustomAttributes(user.getPartyUid(), user);
 
@@ -981,21 +958,21 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		this.getUserRepository().flush();
 
 		userCreatedDevice(user.getPartyUid(), request);
-		
+
 		PartyCustomField partyCustomField = this.getPartyService().getPartyCustomeField(profile.getUser().getPartyUid(), "user_confirm_status", identity.getUser());
-		
-		if (source != null && source.equalsIgnoreCase(UserAccountType.accountCreatedType.GOOGLE_APP.getType())) { 
+
+		if (source != null && source.equalsIgnoreCase(UserAccountType.accountCreatedType.GOOGLE_APP.getType())) {
 			Map<String, String> dataMap = new HashMap<String, String>();
-			if(identity != null && identity.getUser() != null){ 
+			if (identity != null && identity.getUser() != null) {
 				dataMap.put(GOORU_UID, identity.getUser().getPartyUid());
 			}
 			dataMap.put(EVENT_TYPE, CustomProperties.EventMapping.WELCOME_MAIL.getEvent());
-			
-			if(identity != null && identity.getExternalId() != null){
+
+			if (identity != null && identity.getExternalId() != null) {
 				dataMap.put("recipient", identity.getExternalId());
 			}
 			partyCustomField.setOptionalValue("true");
-		    this.getUserRepository().save(partyCustomField);
+			this.getUserRepository().save(partyCustomField);
 			this.getMailHandler().handleMailEvent(dataMap);
 		}
 
@@ -1021,17 +998,14 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 
 	@Override
 	public User getUser(String gooruUId) throws Exception {
-
 		if (gooruUId == null || gooruUId.equalsIgnoreCase("")) {
 			throw new Exception("User id cannot be null or empty");
 		}
-
 		User user = getUserRepository().findByGooruId(gooruUId);
 		if (user == null) {
 			throw new Exception("User not found");
 		}
 		user.setProfileImageUrl(buildUserProfileImageUrl(user));
-
 		return user;
 	}
 
@@ -1069,12 +1043,12 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			throw new BadCredentialsException("User token cannot be null or empty");
 		}
 		User user = getUserRepository().findByToken(userToken);
-		
+
 		if (user == null) {
 			throw new BadCredentialsException("User not found");
 		}
 		if (user != null && !user.getGooruUId().equalsIgnoreCase(ANONYMOUS)) {
-				user.setMeta(userMeta(user));
+			user.setMeta(userMeta(user));
 		}
 		if (user != null && !user.getGooruUId().equalsIgnoreCase(ANONYMOUS)) {
 			if (user.getAccountTypeId() != null && user.getAccountTypeId().equals(UserAccountType.ACCOUNT_CHILD)) {
@@ -1090,13 +1064,11 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		try {
 			getEventLogs(false, true, user, null, false, false);
 		} catch (JSONException e) {
-			LOGGER.debug("Error" +e.getMessage());
+			LOGGER.debug("Error" + e.getMessage());
 		}
 
 		return user;
 	}
-	
-	
 
 	@Override
 	public User createUser(User user, String password, String school, Integer confirmStatus, Integer addedBySystem, String userImportCode, String accountType, String dateOfBirth, String userParentId, String gender, String childDOB, String source, HttpServletRequest request, String role,
@@ -1115,15 +1087,11 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		if (identity == null) {
 			throw new NotFoundException("The email or username specified by you does not exist. Please verify your credentials and try again.");
 		}
-
 		String token = UUID.randomUUID().toString();
-
 		User user = this.userRepository.findByIdentity(identity);
-
 		if (user == null) {
 			throw new NotFoundException("The email  or username entered is not correct. Please verify your credentials and try again.");
 		}
-
 		if (user.getConfirmStatus() == 0) {
 			throw new BadCredentialsException("We sent you a confirmation email with instructions on how to complete your Gooru registration. Please check your email, and then try again. Didn’t receive a confirmation email? Please contact us at support@goorulearning.org");
 		}
@@ -1131,7 +1099,6 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		if (creds == null && identity.getAccountCreatedType() != null && identity.getAccountCreatedType().equalsIgnoreCase(UserAccountType.accountCreatedType.GOOGLE_APP.getType())) {
 			throw new BadCredentialsException("Looks like this email is tied with Google!");
 		}
-
 		if (creds == null) {
 			creds = new Credential();
 			String password = UUID.randomUUID().toString();
@@ -1148,7 +1115,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	}
 
 	@Override
-	public Identity resetCredential(String token, String gooruUid, String password, User apiCaller, String mailConfirmationUrl,Boolean isPartnerPortal) throws Exception {
+	public Identity resetCredential(String token, String gooruUid, String password, User apiCaller, String mailConfirmationUrl, Boolean isPartnerPortal) throws Exception {
 		Identity identity = null;
 		if (token != null) {
 			if (this.getUserService().hasResetTokenValid(token)) {
@@ -1165,15 +1132,11 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 				throw new BadCredentialsException("Admin user can only change another user password !");
 			}
 		}
-
 		boolean flag = false;
-
 		String tokenIsExist = identity.getCredential().getToken();
-
 		if (tokenIsExist != null && tokenIsExist.contains(RESET_TOKEN_SUFFIX)) {
 			flag = true;
 		}
-
 		String newGenereatedToken = UUID.randomUUID().toString() + RESET_TOKEN_SUFFIX;
 
 		String resetPasswordConfirmRestendpoint = this.getSettingService().getConfigSetting(ConfigConstants.RESET_PASSWORD_CONFIRM_RESTENDPOINT, 0, TaxonomyUtil.GOORU_ORG_UID);
@@ -1199,13 +1162,10 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 
 	@Override
 	public Set<String> checkContentAccess(User authenticationUser, String goorContentId) {
-
 		Set<String> permissions = new HashSet<String>();
-
 		if (authenticationUser != null) {
 			Content content = this.getContentRepository().findContentByGooruId(goorContentId, true);
 			if (content != null) {
-				// For Collaborator get whatever access that is granted
 				Set<ContentPermission> contentPermissions = content.getContentPermissions();
 				for (ContentPermission userPermission : contentPermissions) {
 
@@ -1214,28 +1174,17 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 						break;
 					}
 				}
-				// For Owner provide full access
 				if (authenticationUser.getGooruUId().equals(content.getUser().getGooruUId())) {
 					permissions.add(EDIT);
 					permissions.add(DELETE);
 				}
-
-				// If content access is public, allow read-only access for
-				// anyone
 				if (Sharing.PUBLIC.getSharing().equalsIgnoreCase(content.getSharing())) {
 					permissions.add(VIEW);
 				}
-
-				// Check for full content access
 				if (isContentAdmin(authenticationUser)) {
 					permissions.add(EDIT);
 					permissions.add(DELETE);
 				}
-				// Check for sub organization content access
-				/*
-				 * if(hasSubOrgPermission(content.getOrganization().getPartyUid()
-				 * )){ permissions.add(EDIT); }
-				 */
 			} else {
 				throw new NotFoundException();
 			}
@@ -1259,20 +1208,9 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			if (profile != null) {
 				if (newProfile.getCourses() != null) {
 					deleteCourse(newProfile.getCourses(), user, apiCaller);
-					/*
-					 * if(user.getAccountTypeId().equals(UserAccountType.
-					 * ACCOUNT_CHILD)) { deleteCourse(newProfile.getCourses(),
-					 * user.getParentUser(),apiCaller); }
-					 */
 				}
 				if (newProfile.getGrade() != null && profile.getGrade() != null) {
 					profile.setGrade(deleteGrade(newProfile.getGrade(), user, apiCaller));
-					/*
-					 * if(user.getAccountTypeId().equals(UserAccountType.
-					 * ACCOUNT_CHILD)) {
-					 * deleteGrade(newProfile.getGrade(),user.getParentUser
-					 * (),apiCaller); }
-					 */
 					this.getUserRepository().save(profile);
 				}
 				indexProcessor.index(profile.getUser().getPartyUid(), IndexProcessor.INDEX, USER);
@@ -1321,38 +1259,38 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	@Override
 	public void deleteUserContent(String gooruUid, String isDeleted, User apiCaller) {
 		User user = this.getUserRepository().findByGooruId(gooruUid);
-		if (user != null && isContentAdmin(apiCaller) &&  isDeleted != null && isDeleted.equalsIgnoreCase(TRUE)) {
-					user.setIsDeleted(true);
-					List<Content> contents = this.getContentRepository().getContentByUserUId(gooruUid);
-					List<ContentPermission> removeContentPermission = new ArrayList<ContentPermission>();
-					List<Content> removeContentList = new ArrayList<Content>();
-					String gooruOidAsString = "";
-					for (Content content : contents) {
-						if (content != null) {
-							if (gooruOidAsString.length() > 0) {
-								gooruOidAsString += ",";
-							}
-							gooruOidAsString += content.getGooruOid();
-							if (content.getSharing().equalsIgnoreCase(PUBLIC)) {
-								content.setCreator(apiCaller);
-								this.getContentRepository().save(content);
-							} else if (content.getSharing().equalsIgnoreCase(PRIVATE)) {
-								Set<ContentPermission> contentPermissions = content.getContentPermissions();
-								for (ContentPermission contentPermission : contentPermissions) {
-									removeContentPermission.add(contentPermission);
-								}
-								removeContentList.add(content);
-							}
-						}
-					}
-					this.getContentRepository().removeAll(removeContentPermission);
-					this.getContentRepository().removeAll(removeContentList);
-					this.getUserRepository().save(user);
+		if (user != null && isContentAdmin(apiCaller) && isDeleted != null && isDeleted.equalsIgnoreCase(TRUE)) {
+			user.setIsDeleted(true);
+			List<Content> contents = this.getContentRepository().getContentByUserUId(gooruUid);
+			List<ContentPermission> removeContentPermission = new ArrayList<ContentPermission>();
+			List<Content> removeContentList = new ArrayList<Content>();
+			String gooruOidAsString = "";
+			for (Content content : contents) {
+				if (content != null) {
 					if (gooruOidAsString.length() > 0) {
-						indexProcessor.index(gooruOidAsString, IndexProcessor.INDEX, RESOURCE);
+						gooruOidAsString += ",";
 					}
-
+					gooruOidAsString += content.getGooruOid();
+					if (content.getSharing().equalsIgnoreCase(PUBLIC)) {
+						content.setCreator(apiCaller);
+						this.getContentRepository().save(content);
+					} else if (content.getSharing().equalsIgnoreCase(PRIVATE)) {
+						Set<ContentPermission> contentPermissions = content.getContentPermissions();
+						for (ContentPermission contentPermission : contentPermissions) {
+							removeContentPermission.add(contentPermission);
+						}
+						removeContentList.add(content);
+					}
+				}
 			}
+			this.getContentRepository().removeAll(removeContentPermission);
+			this.getContentRepository().removeAll(removeContentList);
+			this.getUserRepository().save(user);
+			if (gooruOidAsString.length() > 0) {
+				indexProcessor.index(gooruOidAsString, IndexProcessor.INDEX, RESOURCE);
+			}
+
+		}
 	}
 
 	@Override
@@ -1379,9 +1317,9 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			throw new BadCredentialsException("Given admin organization not found !");
 		}
 	}
-	
+
 	@Override
-	public  Map<String, Object> followUser(User user, String followOnUserId) {
+	public Map<String, Object> followUser(User user, String followOnUserId) {
 		UserRelationship userRelationship = getUserRepository().getActiveUserRelationship(user.getPartyUid(), followOnUserId);
 		User followOnUser = getUserRepository().findByGooruId(followOnUserId);
 		if (userRelationship != null) {
@@ -1395,27 +1333,27 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		getUserRepository().save(userRelationship);
 		UserSummary userSummary = this.getUserRepository().getSummaryByUid(user.getPartyUid());
 		UserSummary followOnUserSummary = this.getUserRepository().getSummaryByUid(followOnUserId);
-		if(userSummary.getGooruUid() == null) {
+		if (userSummary.getGooruUid() == null) {
 			userSummary.setGooruUid(user.getPartyUid());
 		}
-		if(followOnUserSummary.getGooruUid() == null) {
+		if (followOnUserSummary.getGooruUid() == null) {
 			followOnUserSummary.setGooruUid(followOnUserId);
 		}
-		userSummary.setFollowing((userSummary.getFollowing() != null ? userSummary.getFollowing() : 0  ) + 1);
-		followOnUserSummary.setFollowers((followOnUserSummary.getFollowers() != null ? followOnUserSummary.getFollowers() : 0 )+ 1);
-		
+		userSummary.setFollowing((userSummary.getFollowing() != null ? userSummary.getFollowing() : 0) + 1);
+		followOnUserSummary.setFollowers((followOnUserSummary.getFollowers() != null ? followOnUserSummary.getFollowers() : 0) + 1);
+
 		this.getUserRepository().save(userSummary);
 		this.getUserRepository().save(followOnUserSummary);
 		this.getUserRepository().flush();
 		try {
 			getEventLogs(false, false, null, null, true, false);
 		} catch (JSONException e) {
-			LOGGER.debug("Error" +e.getMessage());
+			LOGGER.debug("Error" + e.getMessage());
 		}
 
 		return this.setUserObj(followOnUser);
 	}
-	
+
 	@Override
 	public void unFollowUser(User user, String unFollowUserId) {
 		UserRelationship userRelationship = getUserRepository().getActiveUserRelationship(user.getPartyUid(), unFollowUserId);
@@ -1427,7 +1365,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			UserSummary followOnUserSummary = this.getUserRepository().getSummaryByUid(unFollowUserId);
 			userSummary.setFollowing(userSummary.getFollowing() - 1);
 			followOnUserSummary.setFollowers(followOnUserSummary.getFollowers() - 1);
-			
+
 			this.getUserRepository().save(userSummary);
 			this.getUserRepository().save(followOnUserSummary);
 			this.getUserRepository().flush();
@@ -1435,47 +1373,46 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		try {
 			getEventLogs(false, false, null, null, false, true);
 		} catch (JSONException e) {
-			LOGGER.debug("Error" +e.getMessage());
+			LOGGER.debug("Error" + e.getMessage());
 		}
 
 	}
-	
+
 	private Map<String, Object> setUserObj(User user) {
 		Map<String, Object> userObj = new HashMap<String, Object>();
-		userObj.put( USER_NAME,user.getUsername());
-		userObj.put(_GOORU_UID,user.getGooruUId());
-		userObj.put(FIRST_NAME,user.getFirstName());
-		userObj.put(LAST_NAME,user.getLastName());
+		userObj.put(USER_NAME, user.getUsername());
+		userObj.put(_GOORU_UID, user.getGooruUId());
+		userObj.put(FIRST_NAME, user.getFirstName());
+		userObj.put(LAST_NAME, user.getLastName());
 		userObj.put(PROFILE_IMG_URL, buildUserProfileImageUrl(user));
 		userObj.put(EMAIL_ID, user.getIdentities() != null ? user.getIdentities().iterator().next().getExternalId() : null);
 		userObj.put(SUMMARY, getUserSummary(user.getPartyUid()));
 		userObj.put(CUSTOM_FIELDS, user.getCustomFields());
 		return userObj;
 	}
-	
+
 	@Override
 	public Map<String, Object> userMeta(User user) {
 		Map<String, Object> meta = new HashMap<String, Object>();
 		PartyCustomField partyCustomField = partyService.getPartyCustomeField(user.getPartyUid(), USER_TAXONOMY_ROOT_CODE, null);
 		Map<String, Object> taxonomy = new HashMap<String, Object>();
 		String taxonomyCode = null;
-		if(partyCustomField != null && partyCustomField.getOptionalValue() != null && partyCustomField.getOptionalValue().length() > 0){
+		if (partyCustomField != null && partyCustomField.getOptionalValue() != null && partyCustomField.getOptionalValue().length() > 0) {
 			taxonomyCode = this.getTaxonomyRespository().getFindTaxonomyCodeList(partyCustomField.getOptionalValue());
 		}
-		
-		
-		if(taxonomyCode != null ){
+
+		if (taxonomyCode != null) {
 			List<String> taxonomyCodeList = Arrays.asList(taxonomyCode.split(","));
 			taxonomy.put(CODE, taxonomyCodeList);
 		}
-		
-		if(partyCustomField != null && partyCustomField.getOptionalValue() != null && partyCustomField.getOptionalValue().length() > 0){
+
+		if (partyCustomField != null && partyCustomField.getOptionalValue() != null && partyCustomField.getOptionalValue().length() > 0) {
 			List<String> taxonomyCodeIdList = Arrays.asList(partyCustomField.getOptionalValue().split(","));
 			taxonomy.put(CODE_ID, taxonomyCodeIdList);
 		}
 		PartyCustomField partyCustomFieldFeatured = partyService.getPartyCustomeField(user.getPartyUid(), IS_FEATURED_USER, null);
-		
-		if(partyCustomFieldFeatured != null && partyCustomFieldFeatured.getOptionalValue() != null && partyCustomFieldFeatured.getOptionalValue().length() > 0){
+
+		if (partyCustomFieldFeatured != null && partyCustomFieldFeatured.getOptionalValue() != null && partyCustomFieldFeatured.getOptionalValue().length() > 0) {
 			meta.put(FEATURED_USER, Boolean.parseBoolean(partyCustomFieldFeatured.getOptionalValue()));
 		}
 		meta.put(USER_TAX_PREFERENCE, taxonomy);
@@ -1487,24 +1424,23 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	public User updateUserViewFlagStatus(String gooruUid, Integer viewFlag) {
 		return this.getUserService().updateViewFlagStatus(gooruUid, viewFlag);
 	}
-	
+
 	@Override
 	public Map<String, Object> getUserSummary(String gooruUid) {
 		UserSummary userSummary = this.getUserRepository().getSummaryByUid(gooruUid);
-		Map<String, Object>  summary = new HashMap<String, Object>();
-		summary.put(COLLECTION, userSummary.getCollections() != null ? userSummary.getCollections() : 0 );
-		summary.put(TAGS, userSummary.getTag() != null ? userSummary.getTag() : 0 );
-		summary.put(FOLLOWING, userSummary.getFollowing() != null ? userSummary.getFollowing() : 0 );
-		summary.put(FOLLOWERS, userSummary.getFollowers() != null ? userSummary.getFollowers() : 0 );
+		Map<String, Object> summary = new HashMap<String, Object>();
+		summary.put(COLLECTION, userSummary.getCollections() != null ? userSummary.getCollections() : 0);
+		summary.put(TAGS, userSummary.getTag() != null ? userSummary.getTag() : 0);
+		summary.put(FOLLOWING, userSummary.getFollowing() != null ? userSummary.getFollowing() : 0);
+		summary.put(FOLLOWERS, userSummary.getFollowers() != null ? userSummary.getFollowers() : 0);
 		return summary;
 	}
-	
+
 	@Override
 	public Boolean isFollowedUser(String gooruUserId, User apiCaller) {
-		
+
 		return getUserRepository().getActiveUserRelationship(apiCaller.getPartyUid(), gooruUserId) != null ? true : false;
-	}	
-	
+	}
 
 	public IdpRepository getIdpRepository() {
 		return idpRepository;
@@ -1533,6 +1469,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	public CollaboratorService getCollaboratorService() {
 		return collaboratorService;
 	}
+
 	public CollaboratorRepository getCollaboratorRepository() {
 		return collaboratorRepository;
 	}
@@ -1544,15 +1481,15 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	public InviteRepository getInviteRepository() {
 		return inviteRepository;
 	}
-	
+
 	public RedisService getRedisService() {
 		return redisService;
 	}
-	
+
 	public OrganizationService getOrganizationService() {
 		return organizationService;
 	}
-	
+
 	public SettingService getSettingService() {
 		return settingService;
 	}
@@ -1564,34 +1501,34 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	public UserTokenRepository getUserTokenRepository() {
 		return userTokenRepository;
 	}
-	
-	public void getEventLogs(boolean updateProfile, boolean visitProfile, User profileVisitor, JSONObject itemData, boolean isFollow, boolean isUnfollow) throws JSONException { 
-		SessionContextSupport.putLogParameter(EVENT_NAME, PROFILE_ACTION);
-		JSONObject session = SessionContextSupport.getLog().get(SESSION) != null ? new JSONObject(SessionContextSupport.getLog().get(SESSION).toString()) :  new JSONObject();
-		SessionContextSupport.putLogParameter(SESSION, session.toString());
-		JSONObject user = SessionContextSupport.getLog().get(USER) != null ? new JSONObject(SessionContextSupport.getLog().get(USER).toString()) :  new JSONObject();
-		SessionContextSupport.putLogParameter(USER, user.toString());
-		JSONObject context = SessionContextSupport.getLog().get(CONTEXT) != null ? new JSONObject(SessionContextSupport.getLog().get(CONTEXT).toString()) :  new JSONObject();
 
-		if(updateProfile){
+	public void getEventLogs(boolean updateProfile, boolean visitProfile, User profileVisitor, JSONObject itemData, boolean isFollow, boolean isUnfollow) throws JSONException {
+		SessionContextSupport.putLogParameter(EVENT_NAME, PROFILE_ACTION);
+		JSONObject session = SessionContextSupport.getLog().get(SESSION) != null ? new JSONObject(SessionContextSupport.getLog().get(SESSION).toString()) : new JSONObject();
+		SessionContextSupport.putLogParameter(SESSION, session.toString());
+		JSONObject user = SessionContextSupport.getLog().get(USER) != null ? new JSONObject(SessionContextSupport.getLog().get(USER).toString()) : new JSONObject();
+		SessionContextSupport.putLogParameter(USER, user.toString());
+		JSONObject context = SessionContextSupport.getLog().get(CONTEXT) != null ? new JSONObject(SessionContextSupport.getLog().get(CONTEXT).toString()) : new JSONObject();
+
+		if (updateProfile) {
 			context.put("url", "/profile/edit");
-		} else if(visitProfile){
+		} else if (visitProfile) {
 			context.put("url", "/profile/visit");
 		}
 		SessionContextSupport.putLogParameter(CONTEXT, context.toString());
-		JSONObject payLoadObject = SessionContextSupport.getLog().get(PAY_LOAD_OBJECT) != null ? new JSONObject(SessionContextSupport.getLog().get(PAY_LOAD_OBJECT).toString()) :  new JSONObject();
-		if(updateProfile){
+		JSONObject payLoadObject = SessionContextSupport.getLog().get(PAY_LOAD_OBJECT) != null ? new JSONObject(SessionContextSupport.getLog().get(PAY_LOAD_OBJECT).toString()) : new JSONObject();
+		if (updateProfile) {
 			payLoadObject.put(ACTION_TYPE, EDIT);
-		} else if(visitProfile){
+		} else if (visitProfile) {
 			payLoadObject.put(ACTION_TYPE, VISIT);
 			payLoadObject.put(VISIT_UID, profileVisitor != null ? profileVisitor.getPartyUid() : null);
-		}else if(isFollow) {
+		} else if (isFollow) {
 			payLoadObject.put(ACTION_TYPE, FOLLOW);
-						
-		}else if(isUnfollow) {
+
+		} else if (isUnfollow) {
 			payLoadObject.put(ACTION_TYPE, UN_FOLLOW);
 		}
-		if(itemData != null){
+		if (itemData != null) {
 			payLoadObject.put("itemData", itemData.toString());
 
 		}
@@ -1600,16 +1537,16 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 
 	public void getEventLogs(User newUser, String source, Identity newIdentity) throws JSONException {
 		SessionContextSupport.putLogParameter(EVENT_NAME, USER_REG);
-		JSONObject context = SessionContextSupport.getLog().get(CONTEXT) != null ? new JSONObject(SessionContextSupport.getLog().get(CONTEXT).toString()) :  new JSONObject();
-		if(source != null && source.equalsIgnoreCase(UserAccountType.accountCreatedType.GOOGLE_APP.getType())) {
-			context.put(REGISTER_TYPE, accountCreatedType.GOOGLE_APP.getType());			
-		}else if (source != null && source.equalsIgnoreCase(UserAccountType.accountCreatedType.SSO.getType())) {
-			context.put( REGISTER_TYPE, accountCreatedType.SSO.getType());
-		}else {
-			context.put( REGISTER_TYPE, GOORU);
+		JSONObject context = SessionContextSupport.getLog().get(CONTEXT) != null ? new JSONObject(SessionContextSupport.getLog().get(CONTEXT).toString()) : new JSONObject();
+		if (source != null && source.equalsIgnoreCase(UserAccountType.accountCreatedType.GOOGLE_APP.getType())) {
+			context.put(REGISTER_TYPE, accountCreatedType.GOOGLE_APP.getType());
+		} else if (source != null && source.equalsIgnoreCase(UserAccountType.accountCreatedType.SSO.getType())) {
+			context.put(REGISTER_TYPE, accountCreatedType.SSO.getType());
+		} else {
+			context.put(REGISTER_TYPE, GOORU);
 		}
 		SessionContextSupport.putLogParameter(CONTEXT, context.toString());
-		JSONObject payLoadObject = SessionContextSupport.getLog().get(PAY_LOAD_OBJECT) != null ? new JSONObject(SessionContextSupport.getLog().get(PAY_LOAD_OBJECT).toString()) :  new JSONObject();
+		JSONObject payLoadObject = SessionContextSupport.getLog().get(PAY_LOAD_OBJECT) != null ? new JSONObject(SessionContextSupport.getLog().get(PAY_LOAD_OBJECT).toString()) : new JSONObject();
 		if (newIdentity != null && newIdentity.getIdp() != null) {
 
 			payLoadObject.put(IDP_NAME, newIdentity.getIdp().getName());
@@ -1622,15 +1559,13 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			payLoadObject.put(CREATED_TYPE, identity != null ? identity.getAccountCreatedType() : null);
 		}
 		SessionContextSupport.putLogParameter(PAY_LOAD_OBJECT, payLoadObject.toString());
-		JSONObject session = SessionContextSupport.getLog().get(SESSION) != null ? new JSONObject(SessionContextSupport.getLog().get(SESSION).toString()) :  new JSONObject();
+		JSONObject session = SessionContextSupport.getLog().get(SESSION) != null ? new JSONObject(SessionContextSupport.getLog().get(SESSION).toString()) : new JSONObject();
 		session.put(ORGANIZATION_UID, newUser != null ? newUser.getOrganizationUid() : null);
-		SessionContextSupport.putLogParameter(SESSION, session.toString());	
-		JSONObject user = SessionContextSupport.getLog().get(USER) != null ? new JSONObject(SessionContextSupport.getLog().get(USER).toString()) :  new JSONObject();
+		SessionContextSupport.putLogParameter(SESSION, session.toString());
+		JSONObject user = SessionContextSupport.getLog().get(USER) != null ? new JSONObject(SessionContextSupport.getLog().get(USER).toString()) : new JSONObject();
 		user.put(GOORU_UID, newUser != null ? newUser.getPartyUid() : null);
 		SessionContextSupport.putLogParameter(USER, user.toString());
 
 	}
-
-	
 
 }
