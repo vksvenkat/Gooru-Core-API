@@ -16,7 +16,7 @@ public class ResourceStasCo {
 	private Long subscriberCount;
 	
 	@Column
-	private Integer rating;
+	private String rating;
 
 	public Long getViewsCount() {
 		return viewsCount;
@@ -34,11 +34,11 @@ public class ResourceStasCo {
 		this.subscriberCount = subscriberCount;
 	}
 
-	public void setRating(Integer rating) {
+	public void setRating(String rating) {
 		this.rating = rating;
 	}
 
-	public Integer getRating() {
+	public String getRating() {
 		return rating;
 	}
 

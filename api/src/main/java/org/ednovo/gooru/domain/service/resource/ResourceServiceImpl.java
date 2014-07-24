@@ -3133,7 +3133,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				resourceStasCo.setSubscriberCount(statisticsDTO.getSubscription());
 			}
 			if(statisticsDTO.getRating() != null){
-				resourceStasCo.setRating(statisticsDTO.getRating());
+				resourceStasCo.setRating(String.valueOf(statisticsDTO.getRating()));
 			}
 			if(statisticsDTO.isValid()){
 				resourceCio.setStas(resourceStasCo);
@@ -3142,6 +3142,8 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		}
 		if(resourceCioList.size() > 0){
 			resourceCassandraService.save(resourceCioList, resourceIds);
+			indexProcessor.index(StringUtils.join(resourceIds, ','), IndexProcessor.INDEX, RESOURCE);
+
 		}
 	}
 }
