@@ -22,6 +22,8 @@ public class StatisticsDTO implements Serializable{
 	private Integer collabrator;
 	
 	private Long voteDown;
+	
+	private Integer rating;
 
 	public String getGooruOid() {
 		return gooruOid;
@@ -84,7 +86,15 @@ public class StatisticsDTO implements Serializable{
 	}
 	
 	public boolean isValid(){
-		return views != null || voteDown != null || voteUp != null || collabrator != null || subscription != null;
+		return views != null || voteDown != null || voteUp != null || collabrator != null || subscription != null || rating != null;
+	}
+
+	public void setRating(Integer rating) {
+		this.rating = rating;
+	}
+
+	public Integer getRating() {
+		return rating;
 	}
 	
 }
