@@ -181,6 +181,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 	public User findByIdentity(Identity identity) {
 		Query query = getSession().createQuery(FIND_IDENTITY);
 		query.setParameter("externalId", identity.getExternalId());
+		addOrgAuthParameters(query);
 		return (User) (query.list().size() > 0 ? query.list().get(0) : null);
 	}
 
