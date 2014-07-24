@@ -76,4 +76,12 @@ public class CustomTableRepositopryHibernate extends BaseRepositoryHibernate imp
 		return   (CustomTableValue) (query.list().size() > 0 ? query.list().get(0) : null); 
 	}
 
+	@Override
+	public List<CustomTableValue> getCustomValues(String type) {
+		Session session = getSession();
+		String hql = " FROM  CustomTableValue ct where ct.customTable.name=:type";
+		Query query = session.createQuery(hql);
+		query.setParameter("type", type);
+		return query.list();
+	}
 }
