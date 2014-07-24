@@ -33,7 +33,7 @@ public interface EventRepository extends BaseRepository {
 
 	Event getEventByName(String name);
 
-	List<Event> getEvents();
+	List<Event> getEvents(Integer limit, Integer offset);
 
 	EventMapping getEventMapping(String eventUid, String templateUid);
 

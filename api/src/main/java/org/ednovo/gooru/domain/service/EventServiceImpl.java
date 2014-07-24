@@ -168,8 +168,8 @@ public class EventServiceImpl extends BaseServiceImpl implements EventService, P
 	}
 
 	@Override
-	public List<Event> getEvents() {
-		return this.getEventRepository().getEvents();
+	public List<Event> getEvents(Integer offset, Integer limit) {
+		return this.getEventRepository().getEvents(offset, limit);
 	}
 
 	@Override
