@@ -103,6 +103,7 @@ import org.ednovo.gooru.core.application.util.ImageUtil;
 import org.ednovo.gooru.core.application.util.RequestUtil;
 import org.ednovo.gooru.core.cassandra.model.ResourceCio;
 import org.ednovo.gooru.core.cassandra.model.ResourceMetadataCo;
+import org.ednovo.gooru.core.cassandra.model.ResourceStasCo;
 import org.ednovo.gooru.core.cassandra.model.StatisticsCo;
 import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.core.constant.ConstantProperties;
@@ -3117,31 +3118,25 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	@Override
 	public void updateStatisticsData(List<StatisticsDTO> statisticsList) {
 		ResourceCio resourceCio = null;
-		StatisticsCo statisticsCo = null;
+		ResourceStasCo resourceStasCo = null;
 		Collection<ResourceCio> resourceCioList = new ArrayList<ResourceCio>();
 		Collection<String> resourceIds = new ArrayList<String>();
 		for(StatisticsDTO statisticsDTO : statisticsList){
 			resourceCio = new ResourceCio();
-			statisticsCo = new StatisticsCo();
+			resourceStasCo = new ResourceStasCo();
 			resourceCio.setId(statisticsDTO.getGooruOid());
 			resourceIds.add(resourceCio.getId());
 			if(statisticsDTO.getViews() != null){
-				statisticsCo.setViewsCount(String.valueOf(statisticsDTO.getViews()));
-			}
-			if(statisticsDTO.getVoteDown() != null){
-				statisticsCo.setVoteDown(String.valueOf(statisticsDTO.getVoteDown()));
-			}
-			if(statisticsDTO.getVoteUp() != null){
-				statisticsCo.setVoteUp(String.valueOf(statisticsDTO.getVoteUp()));
+				resourceStasCo.setViewsCount(statisticsDTO.getViews());
 			}
 			if(statisticsDTO.getSubscription() != null){
-				statisticsCo.setSubscriberCount(String.valueOf(statisticsDTO.getSubscription()));
+				resourceStasCo.setSubscriberCount(statisticsDTO.getSubscription());
 			}
-			if(statisticsDTO.getCollabrator() != null){
-				resourceCio.setCollaboratorCount(statisticsDTO.getCollabrator());
+			if(statisticsDTO.getRating() != null){
+				resourceStasCo.setRating(statisticsDTO.getRating());
 			}
 			if(statisticsDTO.isValid()){
-				resourceCio.setStatistics(statisticsCo);
+				resourceCio.setStas(resourceStasCo);
 				resourceCioList.add(resourceCio);
 			}
 		}
