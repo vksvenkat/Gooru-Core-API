@@ -933,7 +933,7 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 		if (creatorUid != null) {
 			query.setParameter("creatorUid", creatorUid);
 		}
-			query.setFirstResult(offset);
+			query.setFirstResult(offset == null ? 0 :offset);
 			query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
 	
 		return query.list();
