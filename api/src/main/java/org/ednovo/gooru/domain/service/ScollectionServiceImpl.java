@@ -847,9 +847,9 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				} catch (Exception e) {
 					LOGGER.debug(e.getMessage());
 				}
-				/*if(collectionItem.getResource().getSharing().equals(Sharing.PRIVATE.getSharing())){
+				if(collectionItem.getResource().getSharing().equals(Sharing.PRIVATE.getSharing()) && isResourceType(collectionItem.getResource())){
 					this.getResourceService().deleteResource(null, collectionItem.getResource().getGooruOid(), user);
-				}*/
+				}
 			} else {
 				throw new UnauthorizedException("user don't have permission ");
 			}
@@ -859,7 +859,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 		}
 	}
-
+	
 	@Override
 	public ActionResponseDTO<CollectionItem> reorderCollectionItem(String collectionItemId, int newSequence) throws Exception {
 		CollectionItem collectionItem = getCollectionRepository().getCollectionItemById(collectionItemId);
@@ -2460,6 +2460,14 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		}
 		this.collectionRepository.removeAll(collections);
 		indexProcessor.index(removeContentIds.toString(), IndexProcessor.DELETE, SCOLLECTION);
+	}
+	
+	public boolean isResourceType(Resource resource){
+		boolean isResourceType = false;
+		if(!resource.getResourceType().equals(ResourceType.Type.SCOLLECTION.getType()) && !resource.getResourceType().equals(ResourceType.Type.CLASSPAGE.getType()) && !resource.getResourceType().equals(ResourceType.Type.FOLDER.getType())){
+			isResourceType = true;
+		}
+		return isResourceType;
 	}
 	
 
