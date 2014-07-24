@@ -319,7 +319,7 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 			this.getAsyncExecutor().clearCache(resource.getGooruOid());
 		}
 		try {
-			if(feedbackList.isEmpty()){
+			if(!feedbackList.isEmpty()){
 				Feedback userFeedback = feedbackList.get(0);
 				getEventLogs(creator, contextDTO, userFeedback, feedbackValue);
 			}
