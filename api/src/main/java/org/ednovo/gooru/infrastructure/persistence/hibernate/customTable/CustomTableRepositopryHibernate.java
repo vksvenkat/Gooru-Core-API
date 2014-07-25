@@ -36,12 +36,14 @@ public class CustomTableRepositopryHibernate extends BaseRepositoryHibernate imp
 	
 	private final String RETIREVE_BY_NAME_VALUE = "From CustomTableValue ctv  where  ctv.value=:value  and  ctv.customTable.name=:name  and "+generateOrgAuthQuery("ctv.customTable.");
 	private final String RETIREVE_BY_NAME = "From CustomTableValue ctv  where ctv.customTable.name=:name  and "+generateOrgAuthQuery("ctv.customTable.");
+	private final String GET_FILTER_VALUE_FROM_CUSTOMTABLE = "From CustomTableValue ctv  where ctv.customTable.name=:name";
+	private final String GET_VALUE_BY_DISPLAY_NAME = "From CustomTableValue ctv  where ctv.displayName =:displayName and ctv.customTable.name=:name";
+	private final String GET_CUSTOM_TABLE_VALUES = "FROM  CustomTableValue ct where ct.customTable.name=:type";
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public CustomTableValue getCustomTableValue(String name, String value) {
-		Session session = getSession();
-		Query query = session.createQuery(RETIREVE_BY_NAME_VALUE);
+		Query query = getSession().createQuery(RETIREVE_BY_NAME_VALUE);
 		query.setParameter("name", name);
 		query.setParameter("value", value);
 		addOrgAuthParameters(query);
@@ -51,8 +53,7 @@ public class CustomTableRepositopryHibernate extends BaseRepositoryHibernate imp
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<CustomTableValue> getCustomTableValues(String name) {
-		Session session = getSession();
-		Query query = session.createQuery(RETIREVE_BY_NAME);
+		Query query = getSession().createQuery(RETIREVE_BY_NAME);
 		query.setParameter("name", name);
 		addOrgAuthParameters(query);
 		return    query.list(); 
@@ -61,19 +62,23 @@ public class CustomTableRepositopryHibernate extends BaseRepositoryHibernate imp
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<CustomTableValue> getFilterValueFromCustomTable(String name) {
-		Session session = getSession();
-		Query query = session.createQuery("From CustomTableValue ctv  where ctv.customTable.name=:name");
+		Query query = getSession().createQuery(GET_FILTER_VALUE_FROM_CUSTOMTABLE);
 		query.setParameter("name", name);
 		return    query.list(); 
 	}
 	
 	@Override
 	public CustomTableValue getValueByDisplayName(String displayName, String name) {
-		Session session = getSession();
-		Query query = session.createQuery("From CustomTableValue ctv  where ctv.displayName =:displayName and ctv.customTable.name=:name");
+		Query query = getSession().createQuery(GET_VALUE_BY_DISPLAY_NAME);
 		query.setParameter("name", name);
 		query.setParameter("displayName", displayName);
 		return   (CustomTableValue) (query.list().size() > 0 ? query.list().get(0) : null); 
 	}
 
+	@Override
+	public List<CustomTableValue> getCustomValues(String type) {
+		Query query = getSession().createQuery(GET_CUSTOM_TABLE_VALUES);
+		query.setParameter("type", type);
+		return query.list();
+	}
 }
