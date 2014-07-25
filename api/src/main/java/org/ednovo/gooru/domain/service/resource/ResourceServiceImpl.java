@@ -2625,16 +2625,20 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				ResourceSource resourceSource = null;
 				String domainName = null;
 				if(newResource.getUrl() != null){
-					itemData.put("url",newResource.getUrl());
-					resource.setUrl(newResource.getUrl());
-					domainName = getDomainName(newResource.getUrl());
-					resourceSource = this.getResourceRepository().findResourceSource(domainName);
-					if (resourceSource != null && resourceSource.getFrameBreaker() != null && resourceSource.getFrameBreaker() == 1) {
-						resource.setHasFrameBreaker(true);
+					if(!resource.getUrl().equalsIgnoreCase(newResource.getUrl())){
+						itemData.put("url",newResource.getUrl());
+						resource.setUrl(newResource.getUrl());
+						domainName = getDomainName(newResource.getUrl());
+						resourceSource = this.getResourceRepository().findResourceSource(domainName);
+						if (resourceSource != null && resourceSource.getFrameBreaker() != null && resourceSource.getFrameBreaker() == 1) {
+							resource.setHasFrameBreaker(true);
+						} else {
+							resource.setHasFrameBreaker(false);
+						}
+						this.mapSourceToResource(resource);
 					} else {
-						resource.setHasFrameBreaker(false);
+						throw new BadCredentialsException("Url already exist");
 					}
-					this.mapSourceToResource(resource);
 				}
 			}
 			if (newResource.getTitle() != null) {
