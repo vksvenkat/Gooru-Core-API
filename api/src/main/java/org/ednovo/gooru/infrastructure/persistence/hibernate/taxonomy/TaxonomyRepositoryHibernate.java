@@ -323,7 +323,7 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Code> findChildTaxonomyCodeByDepth(Integer codeId, Integer depth) {
-		return getSession().createQuery("from Code c where c.parentId =" + codeId + " and c.depth =" + depth + " and c.activeFlag =1 and " +  generateOrgAuthQueryWithData("c.")).list();
+		return getSession().createQuery("from Code c where c.parentId =" + codeId + " and c.depth =" + depth + " and c.activeFlag =1 and " +  generateOrgAuthQueryWithData("c.") + " order by c.sequence").list();
 	}
 	
 	@SuppressWarnings("unchecked")
