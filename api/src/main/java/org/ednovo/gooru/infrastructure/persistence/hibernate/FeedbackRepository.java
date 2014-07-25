@@ -26,11 +26,11 @@ package org.ednovo.gooru.infrastructure.persistence.hibernate;
 import java.util.List;
 import java.util.Map;
 
-import org.ednovo.gooru.core.api.model.CustomTableValue;
 import org.ednovo.gooru.core.api.model.Feedback;
 
 
 public interface FeedbackRepository extends BaseRepository {
+	
 	Feedback getFeedback(String feedbackId);
 
 	List<Feedback> getFeedbacks(String feedbackId, String gooruUid);
@@ -66,9 +66,7 @@ public interface FeedbackRepository extends BaseRepository {
 	Map<Object, Object> getContentFeedbackAverage(String assocGooruOid,   String feedbackCategoryId);
 	
 	List<Map<Object, Object>> getContentFeedbackAggregate(String assocGooruOid,   String feedbackCategoryId, Boolean flag);
-	
-	List<CustomTableValue> getCustomValues(String type);
-	
+		
 	Map<String, Object> getContentFlags(Integer limit,Integer offset,String category,String type,String status,String getContentFlags, String startDate, String endDate, String searchQuery, String description, String reportQuery);
 
 }

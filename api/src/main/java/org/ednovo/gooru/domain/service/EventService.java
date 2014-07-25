@@ -47,7 +47,7 @@ public interface EventService extends BaseService {
 
 	EventMapping getEventMapping(String eventUid, String templateUid);
 
-	List<Event> getEvents();
+	List<Event> getEvents(Integer offset, Integer limit);
 
 	List<EventMapping> getTemplatesByEvent(String id);
 

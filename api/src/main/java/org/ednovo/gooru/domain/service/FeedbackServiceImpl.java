@@ -319,7 +319,7 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 			this.getAsyncExecutor().clearCache(resource.getGooruOid());
 		}
 		try {
-			if(feedbackList.isEmpty()){
+			if(!feedbackList.isEmpty()){
 				Feedback userFeedback = feedbackList.get(0);
 				getEventLogs(creator, contextDTO, userFeedback, feedbackValue);
 			}
@@ -503,8 +503,7 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 
 	@Override
 	public List<CustomTableValue> getCustomValues(String category, String type) {
-
-		return this.getFeedbackRepository().getCustomValues(getTableNameByFeedbackCategory(category, type));
+		return this.getCustomTableRepository().getCustomValues(getTableNameByFeedbackCategory(category, type));
 	}
 
 	public FeedbackRepository getFeedbackRepository() {
