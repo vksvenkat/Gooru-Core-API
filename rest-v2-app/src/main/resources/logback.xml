@@ -67,7 +67,7 @@
 			<pattern>%-30([web] %d{HH:mm:ss.SSS} [%thread]) %-5level %logger{32} - %msg%n</pattern>
 		</encoder>
 	</appender>
-	<logger name="activityLog" level="INFO" additivity="false">
+	<logger name="activityLog" level="DEBUG" additivity="false">
         <appender-ref ref="activity-out"/>
     </logger>
 	<logger name="org.springframework" level="WARN"></logger>

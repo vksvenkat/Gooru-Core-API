@@ -86,11 +86,10 @@
 		<property name="s3UploadFlag" column="s3_upload_flag"
 			not-null="true" />
 		<property name="grade" column="grade" not-null="false" />
-		<property name="activeFlag" column="active_flag" not-null="false">
-		</property>
+		<property name="activeFlag" column="active_flag" not-null="false" />
 		<property name="libraryFlag" column="library_flag" not-null="false" />
+		<property name="sequence" column="sequence" not-null="false" />
 		<property name="commonCoreDotNotation" column="common_core_dot_notation" 
-            not-null="false">
-        </property>
-	</class>
+            not-null="false"/>
+ 	</class>
 </hibernate-mapping>
