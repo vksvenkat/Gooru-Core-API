@@ -705,5 +705,7 @@ public interface ConstantProperties {
     
     public static String REPORT_QUERY = "reportQuery";
     
+    public static String STATISTICS_DATA = "statisticsData";
+    
    
 }
