@@ -551,10 +551,10 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 		user.put(GOORU_UID, feedbackUser.getPartyUid());
 		SessionContextSupport.putLogParameter(USER, user.toString());
 		JSONObject context = SessionContextSupport.getLog().get(CONTEXT) != null ? new JSONObject(SessionContextSupport.getLog().get(CONTEXT).toString()) : new JSONObject();
-		context.put(CONTENT_GOORU_ID, contextDTO != null ? contextDTO.getResourceGooruId() : null);
+		context.put(CONTENT_GOORU_ID, feedback != null ? feedback.getAssocGooruOid() : null);
 		context.put(PARENT_GOORU_ID, contextDTO != null ? contextDTO.getCollectionGooruId() : null);
 		context.put(CONTENT_ITEM_ID, contextDTO != null ? contextDTO.getContentItemId() : null);
-		context.put("parentItemId", contextDTO != null ? contextDTO.getParentItemId() : null);
+		context.put(PARENT_ITEM_ID, contextDTO != null ? contextDTO.getParentItemId() : null);
 		SessionContextSupport.putLogParameter(CONTEXT, context.toString());
 		JSONObject payLoadObject = SessionContextSupport.getLog().get(PAY_LOAD_OBJECT) != null ? new JSONObject(SessionContextSupport.getLog().get(PAY_LOAD_OBJECT).toString()) : new JSONObject();
 		payLoadObject.put(RATE, feedback != null ? feedback.getScore() : null);
