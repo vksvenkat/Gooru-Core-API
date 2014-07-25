@@ -707,5 +707,9 @@ public interface ConstantProperties {
     
     public static String STATISTICS_DATA = "statisticsData";
     
+    public static String SEARCH_QUERY = "searchQuery";
+     
+    public static String REPORTED_FLAG_TYPE = "reportedFlagType";
+    
    
 }
