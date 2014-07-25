@@ -72,21 +72,25 @@ public class IndexProcessor extends BaseComponent {
 	}
 
 	public void index(final String uuids, final String action, final String type) {
-		index(uuids, action, type, true);
+		index(uuids, action, type, true, false);
+	}
+
+	public void indexStas(final String uuids, final String action, final String type, final boolean isUpdateStas) {
+		index(uuids, action, type, true, isUpdateStas);
 	}
 
 	public void index(final String uuids, final String action, final String type, String sessionToken) {
 		final GooruAuthenticationToken authentication = (GooruAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
-		index(uuids, action, type, sessionToken, authentication, true);
+		index(uuids, action, type, sessionToken, authentication, true, false);
 	}
 
-	public void index(final String uuids, final String action, final String type, final boolean isUpdateUserContent) {
+	public void index(final String uuids, final String action, final String type, final boolean isUpdateUserContent, final boolean isUpdateStas) {
 		final String sessionToken = UserGroupSupport.getSessionToken();
 		final GooruAuthenticationToken authentication = (GooruAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
-		index(uuids, action, type, sessionToken, authentication, isUpdateUserContent);
+		index(uuids, action, type, sessionToken, authentication, isUpdateUserContent, isUpdateStas);
 	}
 
-	public void index(final String uuids, final String action, final String type, final String sessionToken, final GooruAuthenticationToken authentication, final boolean isUpdateUserContent) {
+	public void index(final String uuids, final String action, final String type, final String sessionToken, final GooruAuthenticationToken authentication, final boolean isUpdateUserContent, final boolean isUpdateStas) {
 
 
 		final String[] ids = uuids.split(",");
@@ -101,7 +105,10 @@ public class IndexProcessor extends BaseComponent {
 						@Override
 						public void run(ClientResource clientResource, Representation representation) throws Exception {
 
-							String url = getSearchApiPath() + "index/es-aca/" + type + "/" + action + "?sessionToken=" + sessionToken + "&ids=" + uuids;
+							String url = getSearchApiPath() + "index/es-aca/" + type + "/" + action + "?sessionToken=" + sessionToken + "&ids=" + uuids ;
+							if(isUpdateStas){
+								url = url + "&isUpdateStats=true";
+							}
 							try {
 								clientResource = new ClientResource(url);
 								representation = clientResource.post(new Form().getWebRepresentation());
@@ -136,10 +143,10 @@ public class IndexProcessor extends BaseComponent {
 												}
 											}
 											if (scollectionGooruOIds.length() > 0) {
-												index(resourceGooruOIds.toString(), IndexProcessor.INDEX, "scollection", sessionToken, authentication, false);
+												index(resourceGooruOIds.toString(), IndexProcessor.INDEX, "scollection", sessionToken, authentication, false, isUpdateStas);
 											}
 											if (resourceGooruOIds.length() > 0) {
-												index(resourceGooruOIds.toString(), IndexProcessor.INDEX, "resource", sessionToken, authentication, false);
+												index(resourceGooruOIds.toString(), IndexProcessor.INDEX, "resource", sessionToken, authentication, false, isUpdateStas);
 											}
 										}
 									}
