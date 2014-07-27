@@ -215,5 +215,7 @@ public interface ResourceService extends BaseService {
 	Resource setContentProvider(Resource resource);
 	
 	void updateStatisticsData(List<StatisticsDTO> statisticsList);
+	
+	List<String> updateContentProvider(String gooruOid, List<String> providerList, User user, String providerType);
 
 }

@@ -318,6 +318,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		if (contentProviderAssociations != null) {
 			List<String> aggregator = new ArrayList<String>();
 			List<String> publisher = new ArrayList<String>();
+			List<String> host = new ArrayList<String>();
 			for (ContentProviderAssociation contentProviderAssociation : contentProviderAssociations) {
 				if (contentProviderAssociation.getContentProvider() != null && contentProviderAssociation.getContentProvider().getType() != null
 						&& contentProviderAssociation.getContentProvider().getType().getValue().equalsIgnoreCase(CustomProperties.ContentProviderType.PUBLISHER.getContentProviderType())) {
@@ -325,10 +326,14 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				} else if (contentProviderAssociation.getContentProvider() != null && contentProviderAssociation.getContentProvider().getType() != null
 						&& contentProviderAssociation.getContentProvider().getType().getValue().equalsIgnoreCase(CustomProperties.ContentProviderType.AGGREGATOR.getContentProviderType())) {
 					aggregator.add(contentProviderAssociation.getContentProvider().getName());
+				} else if (contentProviderAssociation.getContentProvider() != null && contentProviderAssociation.getContentProvider().getType() != null
+						&& contentProviderAssociation.getContentProvider().getType().getValue().equalsIgnoreCase(CustomProperties.ContentProviderType.HOST.getContentProviderType())) {
+					host.add(contentProviderAssociation.getContentProvider().getName());
 				}
 			}
 			resource.setPublisher(publisher);
 			resource.setAggregator(aggregator);
+			resource.setHost(host);
 
 		}
 		return resource;
@@ -2582,10 +2587,10 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				newResource.setResourceFormat(resourceType);
 			}
 			if(newResource.getPublisher() != null && newResource.getPublisher().size() > 0) {
-				newResource.setPublisher(updateContentProvider(resource, newResource.getPublisher(), user, CustomProperties.ContentProviderType.PUBLISHER.getContentProviderType()));
+				newResource.setPublisher(updateContentProvider(resource.getGooruOid(), newResource.getPublisher(), user, CustomProperties.ContentProviderType.PUBLISHER.getContentProviderType()));
 			}
 			if(newResource.getAggregator() != null && newResource.getAggregator().size() > 0) {
-				newResource.setAggregator(updateContentProvider(resource, newResource.getAggregator(), user, CustomProperties.ContentProviderType.AGGREGATOR.getContentProviderType()));
+				newResource.setAggregator(updateContentProvider(resource.getGooruOid(), newResource.getAggregator(), user, CustomProperties.ContentProviderType.AGGREGATOR.getContentProviderType()));
 			}
 			if (newResource.getCategory() != null) {
 				newResource.setCategory(newResource.getCategory().toLowerCase());
@@ -2704,10 +2709,10 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			}
 			
 			if(newResource.getPublisher() != null && newResource.getPublisher().size() > 0) {
-				resource.setPublisher(updateContentProvider(resource, newResource.getPublisher(), user, CustomProperties.ContentProviderType.PUBLISHER.getContentProviderType()));
+				resource.setPublisher(updateContentProvider(resource.getGooruOid(), newResource.getPublisher(), user, CustomProperties.ContentProviderType.PUBLISHER.getContentProviderType()));
 			}
 			if(newResource.getAggregator() != null && newResource.getAggregator().size() > 0) {
-				resource.setAggregator(updateContentProvider(resource, newResource.getAggregator(), user, CustomProperties.ContentProviderType.AGGREGATOR.getContentProviderType()));
+				resource.setAggregator(updateContentProvider(resource.getGooruOid(), newResource.getAggregator(), user, CustomProperties.ContentProviderType.AGGREGATOR.getContentProviderType()));
 			}
 
 			saveOrUpdateResourceTaxonomy(resource, newResource.getTaxonomySet());
@@ -2759,9 +2764,9 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 
 	}
 
-	private List<String> updateContentProvider(Resource resource, List<String> providerList, User user, String providerType) {
+	@Override
+	public List<String> updateContentProvider(String gooruOid, List<String> providerList, User user, String providerType) {
 
-		List<ContentProviderAssociation> updateProviderList = new ArrayList<ContentProviderAssociation>();
 
 		CustomTableValue customTableValue = this.getCustomTableRepository().getCustomTableValue("content_provider_type", providerType);
 		for (String provider : providerList) {
@@ -2773,19 +2778,16 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				contentProvider.setType(customTableValue);
 				this.getCustomTableRepository().save(contentProvider);
 			}
-			List<ContentProviderAssociation> ContentProviderAssociationList = this.getContentRepository().getContentProviderByGooruOid(resource.getGooruOid(), provider);
-			if (ContentProviderAssociationList.size() > 0) {
+			List<ContentProviderAssociation> ContentProviderAssociationList = this.getContentRepository().getContentProviderByGooruOid(gooruOid, provider);
+			if (ContentProviderAssociationList.size() == 0) {
 				ContentProviderAssociation contentProviderAssociation = new ContentProviderAssociation();
 				contentProviderAssociation.setContentProvider(contentProvider);
 				contentProviderAssociation.setResourceSource(null);
-				contentProviderAssociation.setGooruOid(resource.getGooruOid());
+				contentProviderAssociation.setGooruOid(gooruOid);
 				contentProviderAssociation.setAssociatedDate(new Date(System.currentTimeMillis()));
 				contentProviderAssociation.setAssociatedBy(user);
-				updateProviderList.add(contentProviderAssociation);
+				this.getContentRepository().save(contentProviderAssociation);
 			} 
-		}
-		if (updateProviderList.size() > 0) {
-			this.getContentRepository().saveAll(updateProviderList);
 		}
 		return providerList;
 	}
