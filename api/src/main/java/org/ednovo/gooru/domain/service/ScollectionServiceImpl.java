@@ -822,7 +822,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	public void deleteCollectionItem(String collectionItemId, User user) {
 		CollectionItem collectionItem = this.getCollectionRepository().getCollectionItemById(collectionItemId);
 		if (collectionItem != null && collectionItem.getResource() != null) {
-			if(this.getOperationAuthorizer().hasUnrestrictedContentAccess(collectionItem.getResource().getGooruOid(), user)){
 				try {
 					getEventLogs(collectionItem, user, collectionItem.getCollection().getCollectionType());
 				} catch (JSONException e1) {
@@ -848,10 +847,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				/*if(collectionItem.getResource().getSharing().equals(Sharing.PRIVATE.getSharing()) && isResourceType(collectionItem.getResource())){
 					this.getResourceService().deleteResource(null, collectionItem.getResource().getGooruOid(), user);
 				}*/
-			} else {
-				throw new UnauthorizedException("user don't have permission ");
-			}
-			
 		} else {
 			throw new NotFoundException(generateErrorMessage(GL0056, _COLLECTION_ITEM));
 
@@ -1993,7 +1988,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 							resourceTypeDo.setName(ResourceType.Type.IMAGE.getType());
 						}
 						resource.setUrl(newResource.getAttach().getFilename());
-
+						resource.setIsOer(true);
 					} else {
 						resource.setUrl(newResource.getUrl());
 						resourceTypeDo.setName(ResourceImageUtil.getYoutubeVideoId(newResource.getUrl()) != null ? ResourceType.Type.VIDEO.getType() : ResourceType.Type.RESOURCE.getType());
@@ -2024,6 +2019,9 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 						resource.setEducationalUse(this.updateContentMeta(newResource.getEducationalUse(), resource.getGooruOid(), user, EDUCATIONAL_USE));
 					} else {
 						resource.setEducationalUse(this.setContentMetaAssociation(this.getContentMetaAssociation(EDUCATIONAL_USE), resource.getGooruOid(), EDUCATIONAL_USE));
+					}
+					if(newResource.getHost() != null && newResource.getHost().size() > 0) {
+						resource.setHost(this.getResourceService().updateContentProvider(resource.getGooruOid(), newResource.getHost(), user, "host"));
 					}
 					try {
 						this.getResourceImageUtil().downloadAndSendMsgToGenerateThumbnails(resource, newResource.getThumbnail());
