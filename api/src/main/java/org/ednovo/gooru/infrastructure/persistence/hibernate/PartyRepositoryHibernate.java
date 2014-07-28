@@ -129,7 +129,7 @@ public class PartyRepositoryHibernate extends BaseRepositoryHibernate implements
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Map<Object, Object>> getPartyDetails() {
-		String sql = " select p.party_uid as gooruUId, u.username as username, p.display_name as displayName, u.organization_uid as organizationUid from party p inner join user u on p.party_uid = u.gooru_uid where p.is_partner = 1 order by p.display_name";
+		String sql = " select p.party_uid as gooruUId, u.username as username, p.display_name as displayName, u.organization_uid as organizationUid from party p inner join user u on p.party_uid = u.gooru_uid where p.is_partner = 1 order by u.username";
 		Query query = getSession().createSQLQuery(sql).addScalar(GOORU_UID, StandardBasicTypes.STRING).
 		addScalar(USER_NAME, StandardBasicTypes.STRING).addScalar(DISPLAY_NAME, StandardBasicTypes.STRING).addScalar("organizationUid", StandardBasicTypes.STRING);
 		return getPartyDetails(query.list());
