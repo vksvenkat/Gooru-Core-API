@@ -917,9 +917,10 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Collection> getCollectionsList(User user, Integer limit, Integer offset, String publishStatus) {
-		String hql = "SELECT collection FROM Collection collection inner join collection.publishStatus ct ";
+		String hql = " FROM Collection collection  ";
+		hql += " WHERE " + generateOrgAuthQuery("collection.");	
 		if (publishStatus != null) {
-			hql += " and  ct.value =:pending";
+			hql += " and collection.publishStatus.value =:pending";
 		}
 		hql += " ORDER BY collection.createdOn desc ";
 		Query query = getSession().createQuery(hql);
