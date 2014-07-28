@@ -195,6 +195,8 @@ public class Resource extends Content implements Serializable {
 	
 	private List<String> aggregator;
 	
+	private List<String> host;
+	
 	public Resource() {
 		recordSource = RecordSource.DEFAULT.getRecordSource();
 		thumbnails = new Resource.Thumbnail();
@@ -948,4 +950,13 @@ public class Resource extends Content implements Serializable {
 	public void setAggregator(List<String> aggregator){
 		this.aggregator = aggregator;
 	}
+
+	public void setHost(List<String> host) {
+		this.host = host;
+	}
+
+	public List<String> getHost() {
+		return host;
+	}
+
 }

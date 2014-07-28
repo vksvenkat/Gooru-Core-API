@@ -190,7 +190,7 @@ public class CustomProperties implements Serializable {
 	}
 	
 	public static enum ContentProviderType {
-		PUBLISHER("publisher"), AGGREGATOR("aggregator");
+		PUBLISHER("publisher"), AGGREGATOR("aggregator"),HOST("host");
 		private String contentProviderType;
 
 		ContentProviderType(String contentProviderType) {

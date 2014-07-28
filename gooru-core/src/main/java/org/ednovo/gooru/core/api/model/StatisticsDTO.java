@@ -23,7 +23,7 @@ public class StatisticsDTO implements Serializable{
 	
 	private Long voteDown;
 	
-	private Integer rating;
+	private Integer ratings;
 
 	public String getGooruOid() {
 		return gooruOid;
@@ -86,15 +86,16 @@ public class StatisticsDTO implements Serializable{
 	}
 	
 	public boolean isValid(){
-		return views != null || voteDown != null || voteUp != null || collabrator != null || subscription != null || rating != null;
+		return views != null || voteDown != null || voteUp != null || collabrator != null || subscription != null || ratings != null;
 	}
 
-	public void setRating(Integer rating) {
-		this.rating = rating;
+	public void setRatings(Integer ratings) {
+		this.ratings = ratings;
 	}
 
-	public Integer getRating() {
-		return rating;
+	public Integer getRatings() {
+		return ratings;
 	}
+
 	
 }
