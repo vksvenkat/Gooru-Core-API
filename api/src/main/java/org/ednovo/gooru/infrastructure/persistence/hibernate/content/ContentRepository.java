@@ -82,5 +82,7 @@ public interface ContentRepository extends BaseRepository {
 	Long getUserContentTagCount(String gooruUid);
 	
 	ContentProvider getContentProviderByName(String name, String keyValue);
+	
+//	void deleteContentProvider(String gooruOid, String providerType, String name);
 
 }
