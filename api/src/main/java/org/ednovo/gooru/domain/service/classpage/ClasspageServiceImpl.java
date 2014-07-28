@@ -340,13 +340,12 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	public ActionResponseDTO<CollectionItem> createClasspageItem(String assignmentGooruOid, String classpageGooruOid, CollectionItem collectionItem, User user, String type) throws Exception {
 		Classpage classpage = null;
 		Collection collection = this.getCollectionRepository().getCollectionByGooruOid(assignmentGooruOid, null);
-		Errors errors = validateClasspageItem(classpage, collection, collectionItem);
+		Errors errors = validateClasspageItem(collection, collectionItem);
 		
 		Date currentDate = new Date();
 		
 		if(collectionItem!= null && collectionItem.getPlannedEndDate() != null){
 			Date plannedEndDate = collectionItem.getPlannedEndDate();
-			System.out.println("currentDate :::" + currentDate + " :::plannedEndDate " + plannedEndDate );
 			if(currentDate.compareTo(plannedEndDate) > 0){
 				throw new BadCredentialsException("Invalid PlannedEndDate");
 			}
@@ -394,14 +393,13 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 				collectionItem.getCollection().setItemCount(sequence);
 				this.getCollectionRepository().save(collectionItem);
 			}
+			try{
+				getEventLogs(collectionItem, true, user, collectionItem.getCollection().getCollectionType());
+			} catch(Exception e){
+				e.printStackTrace();
+			}
 		} else {
 			throw new NotFoundException("Invalid assignmentId -" + assignmentGooruOid);
-		}
-		
-		try{
-			getEventLogs(collectionItem, true, user, collectionItem.getCollection().getCollectionType());
-		} catch(Exception e){
-			e.printStackTrace();
 		}
 		
 		return new ActionResponseDTO<CollectionItem>(collectionItem, errors);
@@ -643,13 +641,12 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		return errors;
 	}
 
-	private Errors validateClasspageItem(Classpage classpage, Resource resource, CollectionItem collectionItem) throws Exception {
+	private Errors validateClasspageItem(Resource resource, CollectionItem collectionItem) throws Exception {
 		Map<String, String> itemType = new HashMap<String, String>();
 		itemType.put(ADDED, COLLECTION_ITEM_TYPE);
 		itemType.put(SUBSCRIBED, COLLECTION_ITEM_TYPE);
 		final Errors errors = new BindException(collectionItem, COLLECTION_ITEM);
 		if (collectionItem != null) {
-			rejectIfNull(errors, classpage, COLLECTION, GL0056, generateErrorMessage(GL0056, CLASSPAGE));
 			rejectIfNull(errors, resource, RESOURCE, GL0056, generateErrorMessage(GL0056, RESOURCE));
 			rejectIfInvalidType(errors, collectionItem.getItemType(), ITEM_TYPE, GL0007, generateErrorMessage(GL0007, ITEM_TYPE), itemType);
 		}
