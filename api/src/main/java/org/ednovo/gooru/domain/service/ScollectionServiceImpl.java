@@ -822,7 +822,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	public void deleteCollectionItem(String collectionItemId, User user) {
 		CollectionItem collectionItem = this.getCollectionRepository().getCollectionItemById(collectionItemId);
 		if (collectionItem != null && collectionItem.getResource() != null) {
-			if(this.getOperationAuthorizer().hasUnrestrictedContentAccess(collectionItem.getResource().getGooruOid(), user)){
 				try {
 					getEventLogs(collectionItem, user, collectionItem.getCollection().getCollectionType());
 				} catch (JSONException e1) {
@@ -845,13 +844,9 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				} catch (Exception e) {
 					LOGGER.debug(e.getMessage());
 				}
-				if(collectionItem.getResource().getSharing().equals(Sharing.PRIVATE.getSharing()) && isResourceType(collectionItem.getResource())){
+				/*if(collectionItem.getResource().getSharing().equals(Sharing.PRIVATE.getSharing()) && isResourceType(collectionItem.getResource())){
 					this.getResourceService().deleteResource(null, collectionItem.getResource().getGooruOid(), user);
-				}
-			} else {
-				throw new UnauthorizedException("user don't have permission ");
-			}
-			
+				}*/
 		} else {
 			throw new NotFoundException(generateErrorMessage(GL0056, _COLLECTION_ITEM));
 
@@ -1481,7 +1476,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		newResource.setUrl(url);
 		newResource.setThumbnail(thumbnailImgSrc);
 		newResource.setCategory(category);
-		return this.createResourceWithCollectionItem(collectionId, newResource, start, stop, user);
+		return this.createResourceWithCollectionItem(collectionId, newResource, start, stop,null ,user);
 	}
 
 	@Override
@@ -1937,7 +1932,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 
 	@Override
-	public ActionResponseDTO<CollectionItem> createResourceWithCollectionItem(String collectionId, Resource newResource,String start,String stop ,User user) throws Exception {
+	public ActionResponseDTO<CollectionItem> createResourceWithCollectionItem(String collectionId, Resource newResource,String start,String stop ,List<String> tags,User user) throws Exception {
 
 		ActionResponseDTO<CollectionItem> response = null;
 		ResourceSource resourceSource = null;
@@ -1993,7 +1988,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 							resourceTypeDo.setName(ResourceType.Type.IMAGE.getType());
 						}
 						resource.setUrl(newResource.getAttach().getFilename());
-
+						resource.setIsOer(true);
 					} else {
 						resource.setUrl(newResource.getUrl());
 						resourceTypeDo.setName(ResourceImageUtil.getYoutubeVideoId(newResource.getUrl()) != null ? ResourceType.Type.VIDEO.getType() : ResourceType.Type.RESOURCE.getType());
@@ -2024,6 +2019,12 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 						resource.setEducationalUse(this.updateContentMeta(newResource.getEducationalUse(), resource.getGooruOid(), user, EDUCATIONAL_USE));
 					} else {
 						resource.setEducationalUse(this.setContentMetaAssociation(this.getContentMetaAssociation(EDUCATIONAL_USE), resource.getGooruOid(), EDUCATIONAL_USE));
+					}
+					if(newResource.getHost() != null && newResource.getHost().size() > 0) {
+						resource.setHost(this.getResourceService().updateContentProvider(resource.getGooruOid(), newResource.getHost(), user, "host"));
+					}
+					if(tags != null && tags.size() > 0) {
+						resource.setResourceTags(this.getContentService().createTagAssoc(resource.getGooruOid(), tags, user));
 					}
 					try {
 						this.getResourceImageUtil().downloadAndSendMsgToGenerateThumbnails(resource, newResource.getThumbnail());
@@ -2064,7 +2065,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 
 	@Override
-	public ActionResponseDTO<CollectionItem> updateResourceWithCollectionItem(String collectionItemId, Resource newResource, User user) throws Exception {
+	public ActionResponseDTO<CollectionItem> updateResourceWithCollectionItem(String collectionItemId, Resource newResource, List<String> tags,User user) throws Exception {
 
 		CollectionItem collectionItem = this.getCollectionItemById(collectionItemId);
 		Errors errors = validateUpdateCollectionItem(collectionItem);
@@ -2130,6 +2131,10 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				resource.setEducationalUse(this.updateContentMeta(newResource.getEducationalUse(), resource.getGooruOid(), user, EDUCATIONAL_USE));
 			} else {
 				resource.setEducationalUse(this.setContentMetaAssociation(this.getContentMetaAssociation(EDUCATIONAL_USE), resource.getGooruOid(), EDUCATIONAL_USE));
+			}
+			
+			if(tags != null && tags.size() > 0) {
+				resource.setResourceTags(this.getContentService().createTagAssoc(resource.getGooruOid(), tags, user));
 			}
 
 			this.getResourceService().saveOrUpdate(resource);

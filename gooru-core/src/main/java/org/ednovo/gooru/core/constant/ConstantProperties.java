@@ -24,7 +24,7 @@ public interface ConstantProperties {
 			"*.trackActivity.startTime", "*.trackActivity.endTime", "*.goals", "*.grade", "*.mediaType", "*.text", "*.isOer", "*.meta.*", "*.resourceFormat.value", "*.resourceFormat.displayName", "*.instructional.value", "*.instructional.displayName", "*.depthOfKnowledges.value",
 			"*.depthOfKnowledges.selected", "*.momentsOfLearning.selected", "*.momentsOfLearning.value", "*.educationalUse.value", "*.educationalUse.selected", "*.ratings", "*.average", "*.count", "*.standards", "*.license", "*.standards.code", "*.standards.description", "*.course",
 
-			"*.customFieldValues.*", "*.publisher", "*.aggregator", "*.totalPages" };
+			"*.customFieldValues.*", "*.publisher", "*.aggregator", "*.totalPages" ,"*.host", "*.resourceTags.*"};
 
 	static final String ASSIGNMENT_INCLUDE_FIELDS[] = { "*.narrationLink", "collection.notes", "*.keyPoints", "*.language", "*.goals", "*.grade", "*.estimatedTime", "*.collectionType", "*.creator", "*.assetURI", "*.license", "*.license.code", "*.license.icon", "*.license.name",
 			"*.license.definition", "*.dimensions", "*.defaultImage", "*.createdOn", "*.user", "*.usernameDisplay", "*.profileImageUrl", "*.lastName", "*.firstName", "*.username", "*.description", "*.folder", "*.gooruOid", "*.sharing", "*.title", "*.views", "*.thumbnails", "*.url",
@@ -657,8 +657,6 @@ public interface ConstantProperties {
 
     public static String SETTING_VERSION = "setting.version";
     
-    public static String STATISTICS_DATA = "statisticsData";
- 
     public static String _PUBLISH_STATUS ="publish_status";
     
     public static String FOLDER_FOLDER = "folder.folder";
@@ -675,10 +673,39 @@ public interface ConstantProperties {
     
     public static String  RESOURCE_DELETE_RESOURCE_TAXONOMY = "resource.delete_resource_taxonomy"; 
     
+    public static String QUERY = "query";
+    
+    public static String LAST_UPDATED_USER_UID = "lastUpdatedUserUid";
+    
     public static String TAG_ADD_RESOURCE = "tag.add_resource";
     
+    public static String TAG_UPDATE = "tag.update";
     
+    public static String UPDATE_TAG = "update-tag";
     
+    public static String TAG_UID = "tagUid";
+    
+    public static String TAG_READ = "tag.read";
+    
+    public static String TAG_NAME = "tagName";
+    
+    public static String PUBLISHER = "publisher";
+    
+    public static String AGGREGATOR = "aggregator";
+    
+    public static String END_DATE = "endDate";
+    
+    public static String ITEM_RATE = "item.rate";
+    
+    public static String RATE = "rate";
+    
+    public static String FEEDBACK_PROVIDER_UID = "feedbackProviderUId";
+    
+    public static String RATE_TYPE = "rateType";
+    
+    public static String REPORT_QUERY = "reportQuery";
+    
+    public static String STATISTICS_DATA = "statisticsData";
     
    
 }

@@ -97,9 +97,10 @@ public class EventRestV2Controller extends BaseController implements ConstantPro
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_EVENT_LIST })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "")
-	public ModelAndView getEvents(HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public ModelAndView getEvents(@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, 
+			@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		String includes[] = (String[]) ArrayUtils.addAll(EVENT_INCLUDES, ERROR_INCLUDE);
-		return toModelAndViewWithIoFilter(this.getEventService().getEvents(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
+		return toModelAndViewWithIoFilter(this.getEventService().getEvents(limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_EVENT_MAPPING_ADD })

@@ -308,7 +308,7 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 		JSONObject json = requestData(data);
 		User user = (User) request.getAttribute(Constants.USER);
 
-		ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().createResourceWithCollectionItem(collectionId, this.buildResourceFromInputParameters(getValue(RESOURCE, json), user),getValue("start",json),getValue("stop",json), user);
+		ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().createResourceWithCollectionItem(collectionId, this.buildResourceFromInputParameters(getValue(RESOURCE, json), user),getValue(START,json),getValue(STOP,json), getValue(RESOURCE_TAGS,json) == null ? null : buildResourceTags(getValue("resourceTags",json)), user);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		} 
@@ -326,7 +326,7 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 	public ModelAndView updateResourceWithCollectionItem(HttpServletRequest request, @PathVariable(ID) String collectionItemId, @RequestBody String data, HttpServletResponse response) throws Exception {
 		JSONObject json = requestData(data);
 		User user = (User) request.getAttribute(Constants.USER);
-		ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().updateResourceWithCollectionItem(collectionItemId, this.buildResourceFromInputParameters(getValue(RESOURCE, json), user), user);
+		ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().updateResourceWithCollectionItem(collectionItemId, this.buildResourceFromInputParameters(getValue(RESOURCE, json),user), getValue(RESOURCE_TAGS,json) == null ? null : buildResourceTags(getValue(RESOURCE_TAGS,json)),  user);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		}
@@ -523,6 +523,9 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 		return JsonDeserializer.deserialize(data, new TypeReference<List<Map<String,String>>>() {});
 	}
 	
+	private  List<String>  buildResourceTags(String data) {
+		return JsonDeserializer.deserialize(data, new TypeReference<List<String>>() {});
+	}
 
 	public BaseRepository getBaseRepository() {
 		return baseRepository;
