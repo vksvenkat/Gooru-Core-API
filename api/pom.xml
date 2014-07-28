@@ -783,8 +783,12 @@
              <artifactId>gooru-core</artifactId>
              <version>0.0.1-SNAPSHOT</version>
          </dependency>
-
-
+     <!-- cors-filter dependency -->
+        <dependency>
+ 			<groupId>com.thetransactioncompany</groupId>
+ 			<artifactId>cors-filter</artifactId>
+		    <version>2.1.1</version>			
+	    </dependency>
 
 	</dependencies>
 
