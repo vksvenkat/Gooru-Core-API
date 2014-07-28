@@ -221,6 +221,14 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 		List<StatisticsDTO> statisticsDataList = JsonDeserializer.deserialize(getValue(STATISTICS_DATA, json), new TypeReference<List<StatisticsDTO>>(){});
 		this.getResourceService().updateStatisticsData(statisticsDataList);
 	}
+	
+	
+//	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_RESOURCE_DELETE })
+//	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+//	@RequestMapping(method = RequestMethod.DELETE, value = "/{id}")
+//	public void deleteContentProvider(@PathVariable(value = ID) String gooruOid, @RequestParam(value = "providerType") String providerType, @RequestParam(value = "name") String name, HttpServletRequest request, HttpServletResponse response) throws Exception {
+//		this.getResourceService().deleteContentProvider(gooruOid, providerType, name);
+//	}
 
 	private Resource buildResourceFromInputParameters(String data) {
 		return JsonDeserializer.deserialize(data, Resource.class);
