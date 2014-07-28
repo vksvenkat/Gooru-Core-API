@@ -55,14 +55,14 @@ public class CustomValueServiceImpl extends BaseServiceImpl implements CustomVal
 	
 	private static SecureRandom random = null;
 	
-	private static final Map<String, String> cassandraField = new HashMap<String, String>();
+	private static final Map<String, String> CASSANDRAFIELD = new HashMap<String, String>();
 	
 	static{
-		cassandraField.put("search_filter_splitby_tilta", "filter-splitBy@approx");
-		cassandraField.put("search_filter_lowercase", "filter-case@lowercase");
-		cassandraField.put("search_filter_splitby_single_tilta", "search-splitBy@singleTilta");
-		cassandraField.put("index_splitby_single_tilta", "index-splitBy@singleTilta");
-		cassandraField.put("index_field_value_lowercase", "index-case@lowercase");
+		CASSANDRAFIELD.put("search_filter_splitby_tilta", "filter-splitBy@approx");
+		CASSANDRAFIELD.put("search_filter_lowercase", "filter-case@lowercase");
+		CASSANDRAFIELD.put("search_filter_splitby_single_tilta", "search-splitBy@singleTilta");
+		CASSANDRAFIELD.put("index_splitby_single_tilta", "index-splitBy@singleTilta");
+		CASSANDRAFIELD.put("index_field_value_lowercase", "index-case@lowercase");
 	}
 	
 	public CustomValueServiceImpl(){
@@ -70,7 +70,7 @@ public class CustomValueServiceImpl extends BaseServiceImpl implements CustomVal
 	}
 
 	@Override
-	public List<CustomTableValue> getCustomValues(String type) {
+	public List<CustomTableValue> getCustomValues(final String type) {
 		
 	   return  this.getCustomTableRepository().getCustomTableValues(type);
 	}
@@ -83,7 +83,7 @@ public class CustomValueServiceImpl extends BaseServiceImpl implements CustomVal
 			profileName = "default";
 		}
 
-		for (Map.Entry<String, String> entry : cassandraField.entrySet()) {
+		for (Map.Entry<String, String> entry : CASSANDRAFIELD.entrySet()) {
 			List<CustomTableValue> customTableValues = this.getCustomTableRepository().getFilterValueFromCustomTable(entry.getKey());
 			StringBuilder values = new StringBuilder();
 			for(CustomTableValue customTableValue : customTableValues){

@@ -71,31 +71,31 @@ public class PostServiceImpl extends BaseServiceImpl implements PostService, Con
 	private BlackListWordCassandraService blackListWordCassandraService;
 
 	@Override
-	public Post createPost(Post post, User user) {
+	public Post createPost(final Post post, final User user) {
 		rejectIfNull(post.getFreeText(), GL0006, CONTENT_TEXT);
 		rejectIfNull(post.getType(), GL0006, TYPE);
-		CustomTableValue customTableValue = getBlackListWordCassandraService().validate(post.getFreeText()) ? getCustomTableRepository().getCustomTableValue(CustomProperties.Table.POST_STATUS.getTable(), CustomProperties.PostStatus.ABUSE.getPostStatus()) : getCustomTableRepository()
+		final CustomTableValue customTableValue = getBlackListWordCassandraService().validate(post.getFreeText()) ? getCustomTableRepository().getCustomTableValue(CustomProperties.Table.POST_STATUS.getTable(), CustomProperties.PostStatus.ABUSE.getPostStatus()) : getCustomTableRepository()
 				.getCustomTableValue(CustomProperties.Table.POST_STATUS.getTable(), CustomProperties.PostStatus.ACTIVE.getPostStatus());
 		rejectIfNull(customTableValue, GL0007, POST_STATUS);
 		post.setStatus(customTableValue);
-		CustomTableValue type = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.POST_TYPE.getTable(), post.getType().getValue());
+		final CustomTableValue type = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.POST_TYPE.getTable(), post.getType().getValue());
 		rejectIfNull(type, GL0007, type.getValue() + TYPE);
 		if (post.getTarget() != null && post.getTarget().getValue().equalsIgnoreCase(CustomProperties.Target.USER.getTarget())) {
 			rejectIfNull(post.getAssocUserUid(), GL0006,  _USER );
-			User assocUser = this.getUserRepository().findByGooruId(post.getAssocUserUid());
+			final User assocUser = this.getUserRepository().findByGooruId(post.getAssocUserUid());
 			rejectIfNull(assocUser, GL0056, _USER);
 			post.setTarget(this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.TARGET.getTable(), CustomProperties.Target.USER.getTarget()));
 		}
 		if (post.getTarget() != null && post.getTarget().getValue().equalsIgnoreCase(CustomProperties.Target.CONTENT.getTarget())) {
 			rejectIfNull(post.getAssocGooruOid(), GL0006,CONTENT);
-			Content assocontent = this.getContentRepository().findContentByGooruId(post.getAssocGooruOid());
+			final Content assocontent = this.getContentRepository().findContentByGooruId(post.getAssocGooruOid());
 			rejectIfNull(assocontent, GL0056, _CONTENT);
 			post.setTarget(this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.TARGET.getTable(), CustomProperties.Target.CONTENT.getTarget()));
 		}
 		post.setType(type);
 		post.setGooruOid(UUID.randomUUID().toString());
 		post.setSharing(Sharing.PRIVATE.getSharing());
-		ContentType contentType = getCollectionService().getContentType(ContentType.POST);
+		final ContentType contentType = getCollectionService().getContentType(ContentType.POST);
 		post.setContentType(contentType);
 		post.setCreator(user);
 		post.setUser(user);
@@ -106,8 +106,8 @@ public class PostServiceImpl extends BaseServiceImpl implements PostService, Con
 	}
 
 	@Override
-	public Post updatePost(String postId, Post newPost) {
-		Post post = this.getPostRepository().getPost(postId);
+	public Post updatePost(final String postId, final Post newPost) {
+		final Post post = this.getPostRepository().getPost(postId);
 		rejectIfNull(post, GL0056, newPost.getType().getValue());
 		if (newPost.getFreeText() != null) {
 			post.setFreeText(newPost.getFreeText());
@@ -120,14 +120,14 @@ public class PostServiceImpl extends BaseServiceImpl implements PostService, Con
 	}
 
 	@Override
-	public Post getPost(String postId) {
-		Post post = this.getPostRepository().getPost(postId);
+	public Post getPost(final String postId) {
+		final Post post = this.getPostRepository().getPost(postId);
 		rejectIfNull(post, GL0056);
 		return post;
 	}
 
 	@Override
-	public List<Post> getPosts(User user, String type, Integer limit, Integer offset) {
+	public List<Post> getPosts(final User user, final String type, final Integer limit, final Integer offset) {
 		if (userService.isContentAdmin(user)) {
 			return this.getPostRepository().getPosts(type, limit, offset);
 		}
@@ -135,24 +135,24 @@ public class PostServiceImpl extends BaseServiceImpl implements PostService, Con
 	}
 
 	@Override
-	public List<Post> getUserPosts(String gooruUid, Integer limit, Integer offset, String type) {
+	public List<Post> getUserPosts(final String gooruUid, final Integer limit, final Integer offset, final String type) {
 		rejectIfNull(type, GL0006, TYPE);
-		CustomTableValue Usertype = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.POST_TYPE.getTable(), type);
-		rejectIfNull(type, GL0007, Usertype.getValue() + TYPE);
+		final CustomTableValue userType = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.POST_TYPE.getTable(), type);
+		rejectIfNull(type, GL0007, userType.getValue() + TYPE);
 		return this.getPostRepository().getUserPosts(gooruUid, limit, offset);
 	}
 
 	@Override
-	public List<Post> getContentPosts(String gooruOid, Integer limit, Integer offset, String type) {
+	public List<Post> getContentPosts(final String gooruOid, final Integer limit, final Integer offset, final String type) {
 		rejectIfNull(type, GL0006, TYPE);
-		CustomTableValue contentType = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.POST_TYPE.getTable(), type);
+		final CustomTableValue contentType = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.POST_TYPE.getTable(), type);
 		rejectIfNull(type, GL0007, contentType.getValue() + TYPE);
 		return this.getPostRepository().getContentPosts(gooruOid, limit, offset);
 	}
 
 	@Override
-	public void deletePost(String postId) {
-		Post post = this.getPost(postId);
+	public void deletePost(final String postId) {
+		final Post post = this.getPost(postId);
 		rejectIfNull(post, GL0056);
 		this.getPostRepository().remove(post);
 	}
