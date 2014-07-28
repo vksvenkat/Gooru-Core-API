@@ -58,9 +58,9 @@ public interface ScollectionService extends BaseService {
 
 	Collection copyCollection(String collectionId, Collection newCollection, boolean addToShelf, String parentId, User user) throws Exception;
 
-	ActionResponseDTO<CollectionItem> createResourceWithCollectionItem(String collectionId, Resource newResource, String start, String stop, User user) throws Exception;
+	ActionResponseDTO<CollectionItem> createResourceWithCollectionItem(String collectionId, Resource newResource, String start, String stop, List<String> tags, User user) throws Exception;
 	
-	ActionResponseDTO<CollectionItem> updateResourceWithCollectionItem(String collectionItemId, Resource newResource, User user) throws Exception;
+	ActionResponseDTO<CollectionItem> updateResourceWithCollectionItem(String collectionItemId, Resource newResource,List<String> tags ,User user) throws Exception;
 
 	List<Collection> getMyCollection(String limit, String offset, String orderBy, String fetchType, String resourceType, User user);
 
