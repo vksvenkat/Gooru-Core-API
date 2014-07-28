@@ -743,5 +743,8 @@ public interface ConstantProperties {
    
    public static String CONFIRMATION = "confirmation";
    
+   public static String GROUP_BY_STATUS = "groupByStatus";
+   
+   public static String  SYSTEM =  "System";
    
 }
