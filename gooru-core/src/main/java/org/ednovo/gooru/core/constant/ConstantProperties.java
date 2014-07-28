@@ -707,5 +707,44 @@ public interface ConstantProperties {
     
     public static String STATISTICS_DATA = "statisticsData";
     
+    public static String SEARCH_QUERY = "searchQuery";
+     
+    public static String REPORTED_FLAG_TYPE = "reportedFlagType";
+    
+    public static String GENDER_ID = "genderId";
+    
+   public static String USER_CONFIRM_STATUS = "user_confirm_status";
+   
+   public static String RESOURCE_USER_FEEDBACK = "resource.user.feedback";
+
+   public static String _SESSION_ID = "sessionId";
+   
+   public static String CONTENT_PROVIDER_TYPE = "content_provider_type_";
+   
+   public static String _CONTENT_PROVIDER_TYPE = "content_provider_type";
+   
+   public static String RESOURCE_ALL = "resource.all";
+   
+   public static String V2_LIBRARY_DATA = "v2-library-data-";
+   
+   public static String ITEM = "item";
+   
+   public static String _DEPTH_OF_KNOWLEDGE = "depthOfKnowledge";
+   
+   public static String _EDUCATIONAL_USE = "educationalUse";
+   
+   public static String SHARED_SECRETKEY = "sharedSecretKey";
+    
+   public static String ORG_ADMIN = "orgAdmin";
+   
+   public static String ADMIN_ORGANIZATION_UID = "adminOrganizationUid";
+   
+   public static String _SHOW_PROFILE_PAGE = "showProfilePage";
+   
+   public static String CONFIRMATION = "confirmation";
+   
+   public static String GROUP_BY_STATUS = "groupByStatus";
+   
+   public static String  SYSTEM =  "System";
    
 }

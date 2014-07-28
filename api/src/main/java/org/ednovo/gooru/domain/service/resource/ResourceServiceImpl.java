@@ -284,11 +284,11 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			throw new NotFoundException("resource not found ");
 		}
 		if (resource.getResourceType().getName().equalsIgnoreCase(ASSESSMENT_QUESTION)) {
-			resource.setDepthOfKnowledges(this.collectionService.setContentMetaAssociation(this.collectionService.getContentMetaAssociation("depth_of_knowledge"), resource.getGooruOid(), "depth_of_knowledge"));
+			resource.setDepthOfKnowledges(this.collectionService.setContentMetaAssociation(this.collectionService.getContentMetaAssociation(DEPTH_OF_KNOWLEDGE), resource.getGooruOid(), DEPTH_OF_KNOWLEDGE));
 		} else {
-			resource.setMomentsOfLearning(this.collectionService.setContentMetaAssociation(this.collectionService.getContentMetaAssociation("moments_of_learning"), resource.getGooruOid(), "moments_of_learning"));
+			resource.setMomentsOfLearning(this.collectionService.setContentMetaAssociation(this.collectionService.getContentMetaAssociation(MOMENTS_OF_LEARNING), resource.getGooruOid(), MOMENTS_OF_LEARNING));
 		}
-		resource.setEducationalUse(this.collectionService.setContentMetaAssociation(this.collectionService.getContentMetaAssociation("educational_use"), resource.getGooruOid(), "educational_use"));
+		resource.setEducationalUse(this.collectionService.setContentMetaAssociation(this.collectionService.getContentMetaAssociation(EDUCATIONAL_USE), resource.getGooruOid(), EDUCATIONAL_USE));
 		resource.setRatings(this.collectionService.setRatingsObj(this.getResourceRepository().getResourceSummaryById(gooruContentId)));
 		setContentProvider(resource);
 		return resource;
@@ -2630,35 +2630,39 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				ResourceSource resourceSource = null;
 				String domainName = null;
 				if(newResource.getUrl() != null){
-					itemData.put("url",newResource.getUrl());
-					resource.setUrl(newResource.getUrl());
-					domainName = getDomainName(newResource.getUrl());
-					resourceSource = this.getResourceRepository().findResourceSource(domainName);
-					if (resourceSource != null && resourceSource.getFrameBreaker() != null && resourceSource.getFrameBreaker() == 1) {
-						resource.setHasFrameBreaker(true);
+					if(!resource.getUrl().equalsIgnoreCase(newResource.getUrl())){
+						itemData.put("url",newResource.getUrl());
+						resource.setUrl(newResource.getUrl());
+						domainName = getDomainName(newResource.getUrl());
+						resourceSource = this.getResourceRepository().findResourceSource(domainName);
+						if (resourceSource != null && resourceSource.getFrameBreaker() != null && resourceSource.getFrameBreaker() == 1) {
+							resource.setHasFrameBreaker(true);
+						} else {
+							resource.setHasFrameBreaker(false);
+						}
+						this.mapSourceToResource(resource);
 					} else {
-						resource.setHasFrameBreaker(false);
+						throw new BadCredentialsException("Url already exist");
 					}
-					this.mapSourceToResource(resource);
 				}
 			}
 			if (newResource.getTitle() != null) {
-				itemData.put("title",newResource.getTitle());
+				itemData.put(TITLE,newResource.getTitle());
 				resource.setTitle(newResource.getTitle());
 			}
 			if (newResource.getDescription() != null) {
-				itemData.put("description",newResource.getDescription());
+				itemData.put(DESCRIPTION,newResource.getDescription());
 				resource.setDescription(newResource.getDescription());
 			}
 			if (newResource.getHasFrameBreaker() != null) {
-				itemData.put("hasFrameBreaker",newResource.getHasFrameBreaker());
+				itemData.put(HAS_FRAME_BREAKER,newResource.getHasFrameBreaker());
 				resource.setHasFrameBreaker(newResource.getHasFrameBreaker());
 
 			} else {
 				resource.setHasFrameBreaker(false);
 			}
 			if (newResource.getIsFeatured() != null) {
-				itemData.put("isFeatured",newResource.getIsFeatured());
+				itemData.put(IS_FEATURED,newResource.getIsFeatured());
 				resource.setIsFeatured(newResource.getIsFeatured());
 			}
 			if (!resource.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing())
@@ -2670,42 +2674,42 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				}
 			}
 			if (newResource.getResourceFormat() != null) {
-				itemData.put("resourceFormat",newResource.getResourceFormat().getValue());
+				itemData.put(RESOURCEFORMAT,newResource.getResourceFormat().getValue());
 				CustomTableValue customTableValue = this.getCustomTableRepository().getCustomTableValue(RESOURCE_CATEGORY_FORMAT, newResource.getResourceFormat().getValue());
 				resource.setResourceFormat(customTableValue);
 			}
 			if (newResource.getCategory() != null) {
-				itemData.put("category",newResource.getCategory());
+				itemData.put(CATEGORY,newResource.getCategory());
 				resource.setCategory(newResource.getCategory().toLowerCase());
 			}
 			if (!StringUtils.isEmpty(newResource.getMediaType())) {
 				resource.setMediaType(newResource.getMediaType());
 			}
 			if (newResource.getSharing() != null && !newResource.getSharing().isEmpty()) {
-				itemData.put("sharing",newResource.getSharing());
+				itemData.put(SHARING,newResource.getSharing());
 				SessionContextSupport.putLogParameter("sharing-" + resource.getGooruOid(), resource.getSharing() + " to " + newResource.getSharing());
 				resource.setSharing(newResource.getSharing());
 			}
 			if (newResource.getTags() != null && !newResource.getTags().isEmpty()) {
-				itemData.put("tags",newResource.getTags());
+				itemData.put(TAGS,newResource.getTags());
 				resource.setTags(newResource.getTags());
 			}
 			if (newResource.getLicense() != null) {
-				itemData.put("license",newResource.getLicense().getName());
+				itemData.put(LICENSE,newResource.getLicense().getName());
 				License licenseData = this.getResourceRepository().getLicenseByLicenseName(newResource.getLicense().getName());
 				if (licenseData != null) {
 					resource.setLicense(licenseData);
 				}
 			}
 			if (newResource.getMomentsOfLearning() != null && newResource.getMomentsOfLearning().size() > 0) {
-				resource.setMomentsOfLearning(this.getCollectionService().updateContentMeta(newResource.getMomentsOfLearning(), resource.getGooruOid(), user, "moments_of_learning"));
+				resource.setMomentsOfLearning(this.getCollectionService().updateContentMeta(newResource.getMomentsOfLearning(), resource.getGooruOid(), user, MOMENTS_OF_LEARNING));
 			} else {
-				resource.setMomentsOfLearning(this.getCollectionService().setContentMetaAssociation(this.getCollectionService().getContentMetaAssociation("moments_of_learning"), resource.getGooruOid(), "moments_of_learning"));
+				resource.setMomentsOfLearning(this.getCollectionService().setContentMetaAssociation(this.getCollectionService().getContentMetaAssociation(MOMENTS_OF_LEARNING), resource.getGooruOid(), MOMENTS_OF_LEARNING));
 			}
 			if (newResource.getEducationalUse() != null && newResource.getEducationalUse().size() > 0) {
-				resource.setEducationalUse(this.getCollectionService().updateContentMeta(newResource.getEducationalUse(), resource.getGooruOid(), user, "educational_use"));
+				resource.setEducationalUse(this.getCollectionService().updateContentMeta(newResource.getEducationalUse(), resource.getGooruOid(), user, EDUCATIONAL_USE));
 			} else {
-				resource.setEducationalUse(this.getCollectionService().setContentMetaAssociation(this.getCollectionService().getContentMetaAssociation("educational_use"), resource.getGooruOid(), "educational_use"));
+				resource.setEducationalUse(this.getCollectionService().setContentMetaAssociation(this.getCollectionService().getContentMetaAssociation(EDUCATIONAL_USE), resource.getGooruOid(), EDUCATIONAL_USE));
 			}
 			
 			if(newResource.getPublisher() != null && newResource.getPublisher().size() > 0) {
@@ -2768,9 +2772,9 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	public List<String> updateContentProvider(String gooruOid, List<String> providerList, User user, String providerType) {
 
 
-		CustomTableValue customTableValue = this.getCustomTableRepository().getCustomTableValue("content_provider_type", providerType);
+		CustomTableValue customTableValue = this.getCustomTableRepository().getCustomTableValue(_CONTENT_PROVIDER_TYPE, providerType);
 		for (String provider : providerList) {
-			ContentProvider contentProvider = this.getContentRepository().getContentProviderByName(provider, "content_provider_type_" + providerType);
+			ContentProvider contentProvider = this.getContentRepository().getContentProviderByName(provider, CONTENT_PROVIDER_TYPE + providerType);
 			if (contentProvider == null) {
 				contentProvider = new ContentProvider();
 				contentProvider.setName(provider);
@@ -2994,7 +2998,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 
 	private Errors validateUpdateResource(Resource newResource, Resource resource) throws Exception {
 		final Errors errors = new BindException(newResource, RESOURCE);
-		rejectIfNull(errors, resource, "resource.all", GL0056, generateErrorMessage(GL0056, RESOURCE));
+		rejectIfNull(errors, resource, RESOURCE_ALL, GL0056, generateErrorMessage(GL0056, RESOURCE));
 		return errors;
 	}
 
@@ -3068,40 +3072,40 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	}
 	
 	public void getEventLogs(Resource resource, boolean isCreate, boolean isAdd, User user) throws JSONException {
-		SessionContextSupport.putLogParameter(EVENT_NAME, "item.create");
-		JSONObject context = SessionContextSupport.getLog().get("context") != null ? new JSONObject(SessionContextSupport.getLog().get("context").toString()) : new JSONObject();
-		SessionContextSupport.putLogParameter("context", context.toString());
-		JSONObject payLoadObject = SessionContextSupport.getLog().get("payLoadObject") != null ? new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString()) : new JSONObject();
+		SessionContextSupport.putLogParameter(EVENT_NAME, ITEM_CREATE);
+		JSONObject context = SessionContextSupport.getLog().get(CONTEXT) != null ? new JSONObject(SessionContextSupport.getLog().get(CONTEXT).toString()) : new JSONObject();
+		SessionContextSupport.putLogParameter(CONTEXT, context.toString());
+		JSONObject payLoadObject = SessionContextSupport.getLog().get(PAY_LOAD_OBJECT) != null ? new JSONObject(SessionContextSupport.getLog().get(PAY_LOAD_OBJECT).toString()) : new JSONObject();
 		if(isCreate){
-			payLoadObject.put("mode", "create");
+			payLoadObject.put(MODE, CREATE);
 		} else if(isAdd){
-			payLoadObject.put("mode", "add");
+			payLoadObject.put(MODE, ADD);
 		}
 		
 		if(resource != null){
-			payLoadObject.put("itemType", resource.getResourceType().getName());
+			payLoadObject.put(ITEM_TYPE, resource.getResourceType().getName());
 		}
 		
-		payLoadObject.put("title", resource != null && resource.getTitle() != null ? resource.getTitle() : null);
-		payLoadObject.put("description", resource != null && resource.getDescription() != null ? resource.getDescription() : null);
-		SessionContextSupport.putLogParameter("payLoadObject", payLoadObject.toString());
-		JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session").toString()) : new JSONObject();
-		session.put("organizationUId", user != null && user.getOrganization() != null ? user.getOrganization().getPartyUid() : null);
-		SessionContextSupport.putLogParameter("session", session.toString());
+		payLoadObject.put(TITLE, resource != null && resource.getTitle() != null ? resource.getTitle() : null);
+		payLoadObject.put(DESCRIPTION, resource != null && resource.getDescription() != null ? resource.getDescription() : null);
+		SessionContextSupport.putLogParameter(PAY_LOAD_OBJECT, payLoadObject.toString());
+		JSONObject session = SessionContextSupport.getLog().get(SESSION) != null ? new JSONObject(SessionContextSupport.getLog().get(SESSION).toString()) : new JSONObject();
+		session.put(ORGANIZATION_UID, user != null && user.getOrganization() != null ? user.getOrganization().getPartyUid() : null);
+		SessionContextSupport.putLogParameter(SESSION, session.toString());
 	}
 	
 	public void getEventLogs(Resource resource , JSONObject itemData, User user) throws JSONException {
-		SessionContextSupport.putLogParameter(EVENT_NAME, "item.edit");
-		JSONObject context = SessionContextSupport.getLog().get("context") != null ? new JSONObject(SessionContextSupport.getLog().get("context").toString()) : new JSONObject();
-		SessionContextSupport.putLogParameter("context", context.toString());
-		JSONObject payLoadObject = SessionContextSupport.getLog().get("payLoadObject") != null ? new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString()) : new JSONObject();
-		payLoadObject.put("mode", "edit");
-		payLoadObject.put("itemType", resource != null ? resource.getResourceType().getName() : null);
-		payLoadObject.put("itemData", itemData != null ? itemData.toString() : null);
-		SessionContextSupport.putLogParameter("payLoadObject", payLoadObject.toString());
-		JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session").toString()) : new JSONObject();
-		session.put("organizationUId", user.getOrganization().getPartyUid());
-		SessionContextSupport.putLogParameter("session", session.toString());
+		SessionContextSupport.putLogParameter(EVENT_NAME, ITEM_EDIT);
+		JSONObject context = SessionContextSupport.getLog().get(CONTEXT) != null ? new JSONObject(SessionContextSupport.getLog().get(CONTEXT).toString()) : new JSONObject();
+		SessionContextSupport.putLogParameter(CONTEXT, context.toString());
+		JSONObject payLoadObject = SessionContextSupport.getLog().get(PAY_LOAD_OBJECT) != null ? new JSONObject(SessionContextSupport.getLog().get(PAY_LOAD_OBJECT).toString()) : new JSONObject();
+		payLoadObject.put(MODE, EDIT);
+		payLoadObject.put(ITEM_TYPE, resource != null ? resource.getResourceType().getName() : null);
+		payLoadObject.put(_ITEM_DATA, itemData != null ? itemData.toString() : null);
+		SessionContextSupport.putLogParameter(PAY_LOAD_OBJECT, payLoadObject.toString());
+		JSONObject session = SessionContextSupport.getLog().get(SESSION) != null ? new JSONObject(SessionContextSupport.getLog().get(SESSION).toString()) : new JSONObject();
+		session.put(ORGANIZATION_UID, user.getOrganization().getPartyUid());
+		SessionContextSupport.putLogParameter(SESSION, session.toString());
 	}
 
 	public AsyncExecutor getAsyncExecutor() {
@@ -3128,7 +3132,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		Collection<ResourceCio> resourceCioList = new ArrayList<ResourceCio>();
 		Collection<String> resourceIds = new ArrayList<String>();
 		for(StatisticsDTO statisticsDTO : statisticsList){
-			resourceCio = new ResourceCio();
+			resourceCio = new ResourceCio();	
 			resourceStasCo = new ResourceStasCo();
 			resourceCio.setId(statisticsDTO.getGooruOid());
 			resourceIds.add(resourceCio.getId());

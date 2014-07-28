@@ -66,7 +66,7 @@ public class LibraryRestV2Controller extends BaseController implements ConstantP
     public ModelAndView getLibrary(@PathVariable(value = TYPE) String type, @RequestParam(value = CLEAR_CACHE, required = false, defaultValue = FALSE) boolean clearCache, @RequestParam(value = LIBRARY_NAME, required = false, defaultValue = LIBRARY) String libraryName, HttpServletRequest request,
             HttpServletResponse response) {
         Map<Object, Object> library = null;
-        final String cacheKey = "v2-library-data-" + type + "-" + libraryName;
+        final String cacheKey = V2_LIBRARY_DATA + type + "-" + libraryName;
         String data = null;
         if (!clearCache) {
             data = getRedisService().getValue(cacheKey);
@@ -131,7 +131,7 @@ public class LibraryRestV2Controller extends BaseController implements ConstantP
             @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "5") Integer limit, @RequestParam(value = LIBRARY_NAME, required = false, defaultValue = LIBRARY) String libraryName,
             @RequestParam(value = ROOT_NODE_ID, required = false, defaultValue = "20000") String rootNode, HttpServletRequest request, HttpServletResponse response) {
         List<Map<String, Object>> library = null;
-        final String cacheKey = "v2-library-data-" + type + "-" + topicId + limit + offset + "-" + libraryName + "-" + rootNode;
+        final String cacheKey = V2_LIBRARY_DATA + type + "-" + topicId + limit + offset + "-" + libraryName + "-" + rootNode;
         String data = null;
         if (!clearCache) {
             data = getRedisService().getValue(cacheKey);
@@ -153,7 +153,7 @@ public class LibraryRestV2Controller extends BaseController implements ConstantP
             @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, @RequestParam(value = LIBRARY_NAME, required = false, defaultValue = LIBRARY) String libraryName,
             @RequestParam(value = ROOT_NODE_ID, required = false, defaultValue = "20000") String rootNode, HttpServletRequest request, HttpServletResponse response) {
         List<Map<String, Object>> library = null;
-        final String cacheKey = "v2-library-data-" + type + "-" + id + limit + offset + "-" + libraryName + "-" + rootNode;
+        final String cacheKey = V2_LIBRARY_DATA + type + "-" + id + limit + offset + "-" + libraryName + "-" + rootNode;
         String data = null;
         if (!clearCache) {
             data = getRedisService().getValue(cacheKey);

@@ -274,34 +274,34 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			try {
 				if (newProfile != null) {
 					if (newProfile.getAboutMe() != null) {
-						itemData.put("aboutMe", newProfile.getAboutMe());
+						itemData.put(ABOUT_ME, newProfile.getAboutMe());
 						profile.setAboutMe(newProfile.getAboutMe());
 					}
 					if (newProfile.getSubject() != null) {
-						itemData.put("subject", newProfile.getSubject());
+						itemData.put(SUBJECT, newProfile.getSubject());
 						profile.setSubject(newProfile.getSubject());
 					}
 					if (newProfile.getGrade() != null) {
-						itemData.put("grade", newProfile.getGrade());
+						itemData.put(GRADE, newProfile.getGrade());
 						profile.setGrade(addGrade(newProfile.getGrade(), user, apiCaller, activeFlag));
 					}
 
 					addCourse(newProfile.getCourses(), profile.getUser(), apiCaller, activeFlag);
 
 					if (newProfile.getSchool() != null) {
-						itemData.put("school", newProfile.getSchool());
+						itemData.put(SCHOOL, newProfile.getSchool());
 						profile.setSchool(newProfile.getSchool());
 					}
 					if (newProfile.getGender() != null && newProfile.getGender().getGenderId() != null) {
-						itemData.put("genderId", newProfile.getGender().getGenderId());
+						itemData.put(GENDER_ID, newProfile.getGender().getGenderId());
 						profile.setGender(this.getUserRepository().getGenderByGenderId(newProfile.getGender().getGenderId()));
 					}
 					if (newProfile.getUserType() != null) {
-						itemData.put("userType", newProfile.getUserType());
+						itemData.put(_USER_TYPE, newProfile.getUserType());
 						profile.setUserType(newProfile.getUserType());
 					}
 					if (newProfile.getNotes() != null) {
-						itemData.put("notes", newProfile.getNotes());
+						itemData.put(NOTES, newProfile.getNotes());
 						profile.setNotes(newProfile.getNotes());
 					}
 
@@ -378,19 +378,19 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 						}
 
 						if (newProfile.getUser().getFirstName() != null) {
-							itemData.put("firstName", newProfile.getUser().getFirstName());
+							itemData.put(FIRST_NAME, newProfile.getUser().getFirstName());
 							user.setFirstName(newProfile.getUser().getFirstName());
 						}
 						if (newProfile.getUser().getConfirmStatus() != null) {
-							itemData.put("confirmStatus", newProfile.getUser().getConfirmStatus());
+							itemData.put(CONFIRM_STATUS, newProfile.getUser().getConfirmStatus());
 							user.setConfirmStatus(newProfile.getUser().getConfirmStatus());
 						}
 						if (newProfile.getUser().getLastName() != null) {
-							itemData.put("lastName", newProfile.getUser().getLastName());
+							itemData.put(LAST_NAME, newProfile.getUser().getLastName());
 							user.setLastName(newProfile.getUser().getLastName());
 						}
 						if (newProfile.getUser().getUsername() != null && !this.getUserRepository().checkUserAvailability(newProfile.getUser().getUsername(), CheckUser.BYUSERNAME, false)) {
-							itemData.put("userName", newProfile.getUser().getUsername());
+							itemData.put(USERNAME, newProfile.getUser().getUsername());
 							user.setUsername(newProfile.getUser().getUsername());
 						}
 					}
@@ -402,22 +402,22 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			profile.setUser(user);
 			this.getUserRepository().save(profile);
 
-			PartyCustomField partyCustomField = this.getPartyService().getPartyCustomeField(profile.getUser().getPartyUid(), "user_confirm_status", profile.getUser());
+			PartyCustomField partyCustomField = this.getPartyService().getPartyCustomeField(profile.getUser().getPartyUid(), USER_CONFIRM_STATUS, profile.getUser());
 
-			if (partyCustomField != null && !partyCustomField.getOptionalValue().equalsIgnoreCase("true") && newProfile.getUser() != null && newProfile.getUser().getConfirmStatus() != null && newProfile.getUser().getConfirmStatus() == 1) {
+			if (partyCustomField != null && !partyCustomField.getOptionalValue().equalsIgnoreCase(TRUE) && newProfile.getUser() != null && newProfile.getUser().getConfirmStatus() != null && newProfile.getUser().getConfirmStatus() == 1) {
 				Map<String, String> dataMap = new HashMap<String, String>();
 				dataMap.put(GOORU_UID, profile.getUser().getPartyUid());
 				dataMap.put(EVENT_TYPE, CustomProperties.EventMapping.WELCOME_MAIL.getEvent());
 				if (profile.getUser().getAccountTypeId() != null && profile.getUser().getAccountTypeId().equals(UserAccountType.ACCOUNT_CHILD)) {
 					if (profile.getUser().getParentUser().getIdentities() != null) {
-						dataMap.put("recipient", profile.getUser().getParentUser().getIdentities().iterator().next().getExternalId());
+						dataMap.put(RECIPIENT, profile.getUser().getParentUser().getIdentities().iterator().next().getExternalId());
 					}
 				} else {
 					if (profile.getUser().getIdentities() != null) {
-						dataMap.put("recipient", profile.getUser().getIdentities().iterator().next().getExternalId());
+						dataMap.put(RECIPIENT, profile.getUser().getIdentities().iterator().next().getExternalId());
 					}
 				}
-				partyCustomField.setOptionalValue("true");
+				partyCustomField.setOptionalValue(TRUE);
 				this.getUserRepository().save(partyCustomField);
 				this.getMailHandler().handleMailEvent(dataMap);
 			}
@@ -585,13 +585,13 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	}
 
 	private void validateAddUser(User user, User apicaller, String childDOB, String accountType, String dateOfBirth, String password) {
-		if ((isNotEmptyString(childDOB)) && (isNotEmptyString(accountType)) && childDOB != null && !childDOB.equalsIgnoreCase("null")) {
+		if ((isNotEmptyString(childDOB)) && (isNotEmptyString(accountType)) && childDOB != null && !childDOB.equalsIgnoreCase(_NULL)) {
 			Integer age = this.calculateCurrentAge(childDOB);
 			if (age < 0) {
 				throw new BadCredentialsException("Future date will not be as a data of birth");
 			}
 		}
-		if ((isNotEmptyString(dateOfBirth)) && (isNotEmptyString(accountType)) && dateOfBirth != null && !dateOfBirth.equalsIgnoreCase("null")) {
+		if ((isNotEmptyString(dateOfBirth)) && (isNotEmptyString(accountType)) && dateOfBirth != null && !dateOfBirth.equalsIgnoreCase(_NULL)) {
 			Integer age = this.calculateCurrentAge(dateOfBirth);
 			if (age < 0) {
 				throw new BadCredentialsException("Future date will not be as a data of birth");
@@ -884,7 +884,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			profile.setUserType(role);
 		}
 
-		if (dateOfBirth != null && accountType != null && !dateOfBirth.equalsIgnoreCase("null")) {
+		if (dateOfBirth != null && accountType != null && !dateOfBirth.equalsIgnoreCase(_NULL)) {
 			if (accountType.equalsIgnoreCase(UserAccountType.userAccount.CHILD.getType()) && userParentId != null) {
 				if (dateOfBirth.equalsIgnoreCase("00/00/0000")) {
 					profile.setDateOfBirth(this.getProfile(this.getUser(userParentId)).getChildDateOfBirth());
@@ -910,7 +910,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 				}
 			}
 		}
-		if (childDOB != null && !childDOB.equalsIgnoreCase("null") && accountType != null && accountType.equalsIgnoreCase(UserAccountType.userAccount.PARENT.getType())) {
+		if (childDOB != null && !childDOB.equalsIgnoreCase(_NULL) && accountType != null && accountType.equalsIgnoreCase(UserAccountType.userAccount.PARENT.getType())) {
 			Integer age = this.calculateCurrentAge(childDOB);
 			SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT, Locale.US);
 			Date date = dateFormat.parse(childDOB);
@@ -959,7 +959,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 
 		userCreatedDevice(user.getPartyUid(), request);
 
-		PartyCustomField partyCustomField = this.getPartyService().getPartyCustomeField(profile.getUser().getPartyUid(), "user_confirm_status", identity.getUser());
+		PartyCustomField partyCustomField = this.getPartyService().getPartyCustomeField(profile.getUser().getPartyUid(), USER_CONFIRM_STATUS, identity.getUser());
 
 		if (source != null && source.equalsIgnoreCase(UserAccountType.accountCreatedType.GOOGLE_APP.getType())) {
 			Map<String, String> dataMap = new HashMap<String, String>();
@@ -969,9 +969,9 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			dataMap.put(EVENT_TYPE, CustomProperties.EventMapping.WELCOME_MAIL.getEvent());
 
 			if (identity != null && identity.getExternalId() != null) {
-				dataMap.put("recipient", identity.getExternalId());
+				dataMap.put(RECIPIENT, identity.getExternalId());
 			}
-			partyCustomField.setOptionalValue("true");
+			partyCustomField.setOptionalValue(TRUE);
 			this.getUserRepository().save(partyCustomField);
 			this.getMailHandler().handleMailEvent(dataMap);
 		}

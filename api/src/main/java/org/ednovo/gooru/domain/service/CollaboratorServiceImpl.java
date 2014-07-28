@@ -129,8 +129,8 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 						} catch (JSONException e) {
 							LOGGER.debug("error"+e.getMessage());
 						}	
-						getAsyncExecutor().deleteFromCache("v2-organize-data-" + identity.getUser().getPartyUid() + "*");
-						getAsyncExecutor().deleteFromCache("v2-organize-data-" + content.getUser().getPartyUid() + "*");
+						getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + identity.getUser().getPartyUid() + "*");
+						getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + content.getUser().getPartyUid() + "*");
 					} else {
 						collaborator.add(setActiveCollaborator(userContentAssocs, ACTIVE));
 					}
@@ -215,7 +215,7 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 				Identity identity = this.getUserRepository().findByEmailIdOrUserName(mailId, true, false);
 				if (identity != null) {
 					UserContentAssoc userContentAssoc = this.getCollaboratorRepository().findCollaboratorById(gooruOid, identity.getUser().getGooruUId());
-					List<CollectionItem> collectionItems = this.getCollectionRepository().findCollectionByResource(gooruOid, identity.getUser().getGooruUId(), "collaborator");
+					List<CollectionItem> collectionItems = this.getCollectionRepository().findCollectionByResource(gooruOid, identity.getUser().getGooruUId(), COLLABORATOR);
 					if (userContentAssoc != null) {
 						this.getCollaboratorRepository().remove(userContentAssoc);
 						if (collectionItems != null) {
@@ -232,8 +232,8 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 							e.printStackTrace();
 						}						
 					}
-					getAsyncExecutor().deleteFromCache("v2-organize-data-" + identity.getUser().getPartyUid() + "*");
-					getAsyncExecutor().deleteFromCache("v2-organize-data-" + content.getUser().getPartyUid() + "*");
+					getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + identity.getUser().getPartyUid() + "*");
+					getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + content.getUser().getPartyUid() + "*");
 				} else {
 					InviteUser inviteUser = this.getInviteRepository().findInviteUserById(mailId, gooruOid,PENDING);
 					if (inviteUser != null) {

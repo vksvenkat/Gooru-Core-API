@@ -191,7 +191,7 @@ public class ContentRestV2Controller extends BaseController implements ConstantP
 				category = CustomProperties.FeedbackCategory.REACTION.getFeedbackCategory();
 			}
 		}
-		ServerValidationUtils.rejectIfNull(category, GL0007, " request path ");
+		ServerValidationUtils.rejectIfNull(category, GL0007, REQUEST_PATH);
 		return category;
 	}
 
