@@ -747,4 +747,6 @@ public interface ConstantProperties {
    
    public static String  SYSTEM =  "System";
    
+   public static String IS_GAT = "isGat";
+   
 }
