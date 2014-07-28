@@ -93,7 +93,7 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ADD })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "", method = RequestMethod.POST)
-	public ModelAndView createClasspage(@RequestBody String data, @RequestParam(value = "addToShelf", defaultValue = "true", required = false) boolean addToMy, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public ModelAndView createClasspage(@RequestBody String data, @RequestParam(value = ADD_TO_SHELF, defaultValue = TRUE, required = false) boolean addToMy, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
 		ActionResponseDTO<Classpage> responseDTO = null;
 		JSONObject json = requestData(data);
@@ -134,7 +134,7 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ })
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
 	public ModelAndView getClasspage(@PathVariable(value = ID) String classpageId, @RequestParam(value = DATA_OBJECT, required = false) String data, @RequestParam(value = INCLUDE_COLLECTION_ITEM, required = false, defaultValue = FALSE) boolean includeCollectionItem,
-			@RequestParam(value = "merge", required = false) String merge, HttpServletRequest request, HttpServletResponse response) throws Exception {
+			@RequestParam(value = MERGE, required = false) String merge, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, CLASSPAGE_INCLUDE_FIELDS);
 		includes = (String[]) ArrayUtils.addAll(includes, CLASSPAGE_ITEM_TAGS);
 		if (includeCollectionItem) {
@@ -355,7 +355,7 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/member/suggest" }, method = RequestMethod.GET)
-	public ModelAndView classMemberSuggest(@RequestParam(value = "query") String queryText, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public ModelAndView classMemberSuggest(@RequestParam(value = QUERY) String queryText, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
 		return toModelAndView(this.getClasspageService().classMemberSuggest(queryText, user.getPartyUid()), RESPONSE_FORMAT_JSON);
 	}
