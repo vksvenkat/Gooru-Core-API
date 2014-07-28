@@ -215,7 +215,7 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 				Identity identity = this.getUserRepository().findByEmailIdOrUserName(mailId, true, false);
 				if (identity != null) {
 					UserContentAssoc userContentAssoc = this.getCollaboratorRepository().findCollaboratorById(gooruOid, identity.getUser().getGooruUId());
-					List<CollectionItem> collectionItems = this.getCollectionRepository().findCollectionByResource(gooruOid, identity.getUser().getGooruUId(), "collaborator");
+					List<CollectionItem> collectionItems = this.getCollectionRepository().findCollectionByResource(gooruOid, identity.getUser().getGooruUId(), COLLABORATOR);
 					if (userContentAssoc != null) {
 						this.getCollaboratorRepository().remove(userContentAssoc);
 						if (collectionItems != null) {

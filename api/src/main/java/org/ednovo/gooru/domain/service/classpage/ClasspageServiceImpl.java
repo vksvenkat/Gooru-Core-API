@@ -152,7 +152,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		if (!errors.hasErrors()) {
 			this.getCollectionRepository().save(newClasspage);
 
-			UserGroup userGroup = this.getUserGroupService().createGroup(newClasspage.getTitle(), newClasspage.getClasspageCode(), "System", user, null);
+			UserGroup userGroup = this.getUserGroupService().createGroup(newClasspage.getTitle(), newClasspage.getClasspageCode(),SYSTEM, user, null);
 			if (gooruOid != null && !gooruOid.isEmpty() && newCollectionItem != null) {
 				this.createClasspageItem(gooruOid, newClasspage.getGooruOid(), newCollectionItem, newClasspage.getUser(), CollectionType.USER_CLASSPAGE.getCollectionType());
 				this.getCollectionRepository().save(newClasspage);
@@ -178,57 +178,57 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		JSONObject ItemData = new JSONObject();
 		if (!errors.hasErrors()) {
 			if (newClasspage.getVocabulary() != null) {
-				ItemData.put("vocabulary", newClasspage.getVocabulary());
+				ItemData.put(VOCABULARY, newClasspage.getVocabulary());
 				classpage.setVocabulary(newClasspage.getVocabulary());
 			}
 
 			if (newClasspage.getTitle() != null) {
-				ItemData.put("title", newClasspage.getTitle());
+				ItemData.put(TITLE, newClasspage.getTitle());
 				classpage.setTitle(newClasspage.getTitle());
 				UserGroup userGroup = this.getUserGroupService().findUserGroupByGroupCode(classpage.getClasspageCode());
 				userGroup.setGroupName(newClasspage.getTitle());
 				this.getUserRepository().save(userGroup);
 			}
 			if (newClasspage.getDescription() != null) {
-				ItemData.put("description", newClasspage.getDescription());
+				ItemData.put(DESCRIPTION, newClasspage.getDescription());
 				classpage.setDescription(newClasspage.getDescription());
 			}
 			if (newClasspage.getNarrationLink() != null) {
-				ItemData.put("narrationLink", newClasspage.getNarrationLink());
+				ItemData.put(NARRATION_LINK, newClasspage.getNarrationLink());
 				classpage.setNarrationLink(newClasspage.getNarrationLink());
 			}
 			if (newClasspage.getEstimatedTime() != null) {
-				ItemData.put("estimatedTime", newClasspage.getEstimatedTime());
+				ItemData.put(ESTIMATED_TIME, newClasspage.getEstimatedTime());
 				classpage.setEstimatedTime(newClasspage.getEstimatedTime());
 			}
 			if (newClasspage.getNotes() != null) {
-				ItemData.put("notes", newClasspage.getNotes());
+				ItemData.put(NOTES, newClasspage.getNotes());
 				classpage.setNotes(newClasspage.getNotes());
 			}
 			if (newClasspage.getGoals() != null) {
-				ItemData.put("goals", newClasspage.getGoals());
+				ItemData.put(GOALS, newClasspage.getGoals());
 				classpage.setGoals(newClasspage.getGoals());
 			}
 			if (newClasspage.getKeyPoints() != null) {
-				ItemData.put("keyPoints", newClasspage.getKeyPoints());
+				ItemData.put(KEYPOINTS, newClasspage.getKeyPoints());
 				classpage.setGoals(newClasspage.getKeyPoints());
 			}
 			if (newClasspage.getLanguage() != null) {
-				ItemData.put("language", newClasspage.getLanguage());
+				ItemData.put(LANGUAGE, newClasspage.getLanguage());
 				classpage.setLanguage(newClasspage.getLanguage());
 			}
 			if (newClasspage.getGrade() != null) {
-				ItemData.put("grade", newClasspage.getGrade());
+				ItemData.put(GRADE, newClasspage.getGrade());
 				classpage.setGrade(newClasspage.getGrade());
 			}
 			if (newClasspage.getSharing() != null) {
-				ItemData.put("sharing", newClasspage.getSharing());
+				ItemData.put(SHARING, newClasspage.getSharing());
 				if (newClasspage.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || newClasspage.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing()) || newClasspage.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing())) {
 					classpage.setSharing(newClasspage.getSharing());
 				}
 			}
 			if (newClasspage.getLastUpdatedUserUid() != null) {
-				ItemData.put("lastUpdatedUserUid", newClasspage.getLastUpdatedUserUid());
+				ItemData.put(LAST_UPDATED_USER_UID, newClasspage.getLastUpdatedUserUid());
 				classpage.setLastUpdatedUserUid(newClasspage.getLastUpdatedUserUid());
 			}
 

@@ -733,8 +733,18 @@ public interface ConstantProperties {
    
    public static String _EDUCATIONAL_USE = "educationalUse";
    
+   public static String SHARED_SECRETKEY = "sharedSecretKey";
+    
+   public static String ORG_ADMIN = "orgAdmin";
    
+   public static String ADMIN_ORGANIZATION_UID = "adminOrganizationUid";
    
+   public static String _SHOW_PROFILE_PAGE = "showProfilePage";
    
+   public static String CONFIRMATION = "confirmation";
+   
+   public static String GROUP_BY_STATUS = "groupByStatus";
+   
+   public static String  SYSTEM =  "System";
    
 }

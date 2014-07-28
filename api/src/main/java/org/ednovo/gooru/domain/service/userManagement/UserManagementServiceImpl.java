@@ -585,13 +585,13 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	}
 
 	private void validateAddUser(User user, User apicaller, String childDOB, String accountType, String dateOfBirth, String password) {
-		if ((isNotEmptyString(childDOB)) && (isNotEmptyString(accountType)) && childDOB != null && !childDOB.equalsIgnoreCase("null")) {
+		if ((isNotEmptyString(childDOB)) && (isNotEmptyString(accountType)) && childDOB != null && !childDOB.equalsIgnoreCase(_NULL)) {
 			Integer age = this.calculateCurrentAge(childDOB);
 			if (age < 0) {
 				throw new BadCredentialsException("Future date will not be as a data of birth");
 			}
 		}
-		if ((isNotEmptyString(dateOfBirth)) && (isNotEmptyString(accountType)) && dateOfBirth != null && !dateOfBirth.equalsIgnoreCase("null")) {
+		if ((isNotEmptyString(dateOfBirth)) && (isNotEmptyString(accountType)) && dateOfBirth != null && !dateOfBirth.equalsIgnoreCase(_NULL)) {
 			Integer age = this.calculateCurrentAge(dateOfBirth);
 			if (age < 0) {
 				throw new BadCredentialsException("Future date will not be as a data of birth");
@@ -884,7 +884,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			profile.setUserType(role);
 		}
 
-		if (dateOfBirth != null && accountType != null && !dateOfBirth.equalsIgnoreCase("null")) {
+		if (dateOfBirth != null && accountType != null && !dateOfBirth.equalsIgnoreCase(_NULL)) {
 			if (accountType.equalsIgnoreCase(UserAccountType.userAccount.CHILD.getType()) && userParentId != null) {
 				if (dateOfBirth.equalsIgnoreCase("00/00/0000")) {
 					profile.setDateOfBirth(this.getProfile(this.getUser(userParentId)).getChildDateOfBirth());
@@ -910,7 +910,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 				}
 			}
 		}
-		if (childDOB != null && !childDOB.equalsIgnoreCase("null") && accountType != null && accountType.equalsIgnoreCase(UserAccountType.userAccount.PARENT.getType())) {
+		if (childDOB != null && !childDOB.equalsIgnoreCase(_NULL) && accountType != null && accountType.equalsIgnoreCase(UserAccountType.userAccount.PARENT.getType())) {
 			Integer age = this.calculateCurrentAge(childDOB);
 			SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT, Locale.US);
 			Date date = dateFormat.parse(childDOB);
