@@ -93,7 +93,7 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ADD })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "", method = RequestMethod.POST)
-	public ModelAndView createClasspage(@RequestBody String data, @RequestParam(value = "addToShelf", defaultValue = "true", required = false) boolean addToMy, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public ModelAndView createClasspage(@RequestBody String data, @RequestParam(value = ADD_TO_SHELF, defaultValue = TRUE, required = false) boolean addToMy, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
 		ActionResponseDTO<Classpage> responseDTO = null;
 		JSONObject json = requestData(data);
@@ -355,7 +355,7 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/member/suggest" }, method = RequestMethod.GET)
-	public ModelAndView classMemberSuggest(@RequestParam(value = "query") String queryText, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public ModelAndView classMemberSuggest(@RequestParam(value = QUERY) String queryText, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
 		return toModelAndView(this.getClasspageService().classMemberSuggest(queryText, user.getPartyUid()), RESPONSE_FORMAT_JSON);
 	}
