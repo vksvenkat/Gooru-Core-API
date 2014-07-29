@@ -136,7 +136,7 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 		SessionContextSupport.putLogParameter(EVENT_NAME, "add-collaborators");
 		SessionContextSupport.putLogParameter(GOORU_UID, user.getPartyUid());
 		SessionContextSupport.putLogParameter(COLLECTION_ID, collectionId);
-		return toModelAndViewWithIoFilter(this.getResourceService().addCollaborator(collectionId, user, collaboratorId, "add"), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, COLLABORATORI_INCLUDE);
+		return toModelAndViewWithIoFilter(this.getResourceService().addCollaborator(collectionId, user, collaboratorId, ADD), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, COLLABORATORI_INCLUDE);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
@@ -181,7 +181,7 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_RESOURCE_READ })
 	@RequestMapping(method = RequestMethod.GET, value = "/suggest/meta/info")
-	public ModelAndView suggestResourceMetaData(@RequestParam(value = URL) String url, @RequestParam(value = TITLE, required = false) String title, @RequestParam(value = "fetchThumbnail", required = false, defaultValue = "false") boolean fetchThumbnail, HttpServletRequest request,
+	public ModelAndView suggestResourceMetaData(@RequestParam(value = URL) String url, @RequestParam(value = TITLE, required = false) String title, @RequestParam(value = FETCH_THUMBNAIL, required = false, defaultValue = "false") boolean fetchThumbnail, HttpServletRequest request,
 			HttpServletResponse response) throws Exception {
 		return toModelAndView(serializeToJson(getResourceService().getSuggestedResourceMetaData(url, title, fetchThumbnail), true));
 	}
@@ -196,8 +196,8 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_RESOURCE_READ })
 	@RequestMapping(method = RequestMethod.GET, value = { "/{id}/play" })
-	public ModelAndView getResourceSource(HttpServletRequest request, @PathVariable(value = ID) String gooruContentId, HttpServletResponse response, @RequestParam(value = "includeBrokenPdf", required = false, defaultValue = TRUE) Boolean includeBrokenPdf,
-			@RequestParam(value = "more", required = false, defaultValue = TRUE) boolean more) throws Exception {
+	public ModelAndView getResourceSource(HttpServletRequest request, @PathVariable(value = ID) String gooruContentId, HttpServletResponse response, @RequestParam(value = INCLUDE_BROKEN_PDF, required = false, defaultValue = TRUE) Boolean includeBrokenPdf,
+			@RequestParam(value = MORE, required = false, defaultValue = TRUE) boolean more) throws Exception {
 		request.setAttribute(PREDICATE, RESOURCE_SRC_GET);
 		User apiCaller = (User) request.getAttribute(Constants.USER);
 		return toModelAndView(serialize(this.getResourceService().resourcePlay(gooruContentId, apiCaller, more), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, RESOURCE_INCLUDE_FIELDS));
