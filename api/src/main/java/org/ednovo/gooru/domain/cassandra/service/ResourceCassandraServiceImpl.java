@@ -90,7 +90,7 @@ public class ResourceCassandraServiceImpl extends ApiCrudEntityCassandraServiceI
 	@Override
 	public void updateIndexQueue(List<String> gooruOids, String type) {
 	    DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-		String rowKey = type + SEPARATOR + dateFormat.format(new Date().toString());
+		String rowKey = type + SEPARATOR + dateFormat.format(new Date()).toString();
 		String columnPrefix = OPEN + SEPARATOR;
 		getDao(ColumnFamilyConstant.INDEX_QUEUE).addIndexQueueEntry(rowKey, columnPrefix, gooruOids);
 	}
