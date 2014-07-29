@@ -83,6 +83,7 @@ public class ApiCassandraFactory extends SearchCassandraFactory {
 		register(new RawCassandraDaoImpl(this, ColumnFamilyConstant.CONTENT_META));
 		register(new RawCassandraDaoImpl(this, ColumnFamilyConstant.CUSTOM_FILEDS_DATA));
 		register(new RawCassandraDaoImpl(this, ColumnFamilyConstant.CUSTOM_FILEDS_DEFINITION));
+		register(new RawCassandraDaoImpl(this, ColumnFamilyConstant.INDEX_QUEUE));
 		
 	}
 

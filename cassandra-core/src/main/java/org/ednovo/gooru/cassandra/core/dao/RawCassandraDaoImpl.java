@@ -5,6 +5,7 @@ package org.ednovo.gooru.cassandra.core.dao;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
@@ -12,6 +13,7 @@ import javax.annotation.PostConstruct;
 import org.ednovo.gooru.cassandra.core.factory.InsightsCassandraFactory;
 import org.ednovo.gooru.cassandra.core.factory.SearchCassandraFactory;
 
+import com.netflix.astyanax.ColumnListMutation;
 import com.netflix.astyanax.MutationBatch;
 import com.netflix.astyanax.connectionpool.OperationResult;
 import com.netflix.astyanax.connectionpool.exceptions.ConnectionException;
@@ -141,4 +143,28 @@ public class RawCassandraDaoImpl extends CassandraDaoSupport<CassandraColumnFami
 			throw new RuntimeException(e);
 		}
 	}
+
+	@Override
+	public void addIndexQueueEntry(String key, String columnPrefix, List<String> gooruOids) {
+		MutationBatch mutationBatch = getFactory().getKeyspace().prepareMutationBatch();
+		ColumnListMutation<String> mutation = mutationBatch.withRow(getCF().getColumnFamily(), key);
+		for(String gooruOid : gooruOids){
+			mutation.putColumn(columnPrefix+gooruOid, gooruOid);
+		}	
+		int success = 0;
+		while (success <= 0) {
+			try {
+				mutationBatch.execute();
+				success = 1;
+			} catch (Exception ex) {
+				success = -1;
+				if (success < -5) {
+					getLog().error("Error saving to cassandra", ex);
+					break;
+				}
+			}
+		}
+	}
+	
+	
 }
