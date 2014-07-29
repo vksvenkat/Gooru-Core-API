@@ -2996,9 +2996,9 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 
 	}
 	
-//	public void deleteContentProvider(String gooruOid, String providerType, String name){
-//		this.getContentRepository().deleteContentProvider(gooruOid, providerType, name);
-//	}
+	public void deleteContentProvider(String gooruOid, String providerType, String name){
+		this.getContentRepository().deleteContentProvider(gooruOid, providerType, name);	
+	}
 
 	private Errors validateUpdateResource(Resource newResource, Resource resource) throws Exception {
 		final Errors errors = new BindException(newResource, RESOURCE);

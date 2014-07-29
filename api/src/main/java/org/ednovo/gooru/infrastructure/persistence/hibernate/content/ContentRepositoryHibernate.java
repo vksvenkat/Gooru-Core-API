@@ -324,10 +324,10 @@ public class ContentRepositoryHibernate extends BaseRepositoryHibernate implemen
 		Query query = getSession().createSQLQuery(sql);
 		return ((BigInteger)query.list().get(0)).longValue();
 	}
-//	@Override
-//	public void deleteContentProvider(String gooruOid, String providerType, String name){
-//		String sql = "Delete from content_provider cp inner join content_provider_assoc cpa on cp.content_provider_uid = cpa.content_provider_uid where cpa.gooru_oid = '"+gooruOid+"' and cp.content_provider_type'"+providerType+"' and cp.name='"+name+"'";
-//		Query query = getSession().createQuery(sql);
-//		query.executeUpdate();
-//	}
+	@Override
+	public void deleteContentProvider(String gooruOid, String providerType, String name){
+		String sql = "delete cpa from content_provider_assoc cpa inner join content_provider cp on cpa.content_provider_uid = cp.content_provider_uid inner join custom_table_value ctv on cp.content_provider_type = ctv.custom_table_value_id where cpa.gooru_oid = '"+gooruOid+"' and ctv.value = '"+providerType+"' and cp.name = '"+name+"'";
+		Query query = getSession().createSQLQuery(sql);
+		query.executeUpdate(); 
+	}
 }
