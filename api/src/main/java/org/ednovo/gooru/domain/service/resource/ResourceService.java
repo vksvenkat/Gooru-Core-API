@@ -218,7 +218,7 @@ public interface ResourceService extends BaseService {
 	
 	List<String> updateContentProvider(String gooruOid, List<String> providerList, User user, String providerType);
 
-//	void deleteContentProvider(String gooruOid, String providerType, String name);
+	void deleteContentProvider(String gooruOid, String providerType, String name);
 
 
 }
