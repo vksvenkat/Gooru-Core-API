@@ -378,7 +378,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 				} else {
 					Integer age = this.calculateCurrentAge(dateOfBirth);
 					SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
-					Date date = dateFormat.parse(dateOfBirth);
+					final Date date = dateFormat.parse(dateOfBirth);
 					if (age < 13 && age >= 0) {
 						profile.setDateOfBirth(date);
 						User parentUser = profile.getUser().getParentUser();
@@ -575,7 +575,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 	}
 
 	@Override
-	public Map<String, String> validateUserAdd(String firstName, String lastName, String email, String password, String username, User user, String childDOB, String accountType, String dateOfBirth, String organizationCode) throws JSONException {
+	public Map<String, String> validateUserAdd(String firstName, String lastName, String email, String password, final String username, User user, String childDOB, String accountType, String dateOfBirth, String organizationCode) throws JSONException {
 		Map<String, String> errorList = new HashMap<String, String>();
 
 		if ((isNotEmptyString(childDOB)) && (isNotEmptyString(accountType)) && childDOB != null && !childDOB.equalsIgnoreCase("null")) {
@@ -903,7 +903,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 	}
 
 	@Override
-	public User revokeUserRole(String gooruUId, String roles, User apiCaller) throws Exception {
+	public User revokeUserRole(final String gooruUId, String roles, User apiCaller) throws Exception {
 		User user = null;
 		if (isNotEmptyString(gooruUId)) {
 			if (isContentAdmin(apiCaller)) {
@@ -1396,7 +1396,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 		return getUserCredential(user, key, sharedSecretKey);
 	}
 
-	private UserCredential getUserCredential(User user, String key, String sharedSecretKey) {
+	private UserCredential getUserCredential(User user,final  String key, String sharedSecretKey) {
 		String userCredentailKey = "user-credential:" + ((key != null && !key.equalsIgnoreCase(NA)) ? key : user.getGooruUId());
 		List<String> authorities = new ArrayList<String>();
 		if (user != null && user.getUserRoleSet() != null && user.getUserRoleSet().size() > 0) {
@@ -1544,7 +1544,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 	}
 
 	@Override
-	public UserRole findUserRoleByName(String name) {
+	public UserRole findUserRoleByName(final String name) {
 		return userRepository.findUserRoleByName(name, null);
 
 	}
@@ -1569,7 +1569,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 				String[] entityOperationArr = operation.split("\\.");
 				String entityName = entityOperationArr[0];
 				String operationName = entityOperationArr[1];
-				EntityOperation entityOperation = userRepository.findEntityOperation(entityName, operationName);
+				final EntityOperation entityOperation = userRepository.findEntityOperation(entityName, operationName);
 				if (entityOperation != null) {
 					roleEntityOperation = userRepository.checkRoleEntity(userRoleId, entityOperation.getEntityOperationId());
 					if (roleEntityOperation != null) {
@@ -1851,7 +1851,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 		int years = -1;
 		Date currentDate = new Date();
 		Date userDateOfBirth = null;
-		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
+		final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
 		try {
 			userDateOfBirth = simpleDateFormat.parse(dateOfBirth);
 		} catch (ParseException e) {
@@ -1933,7 +1933,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 	}
 
 	@Override
-	public boolean checkPasswordWithAlphaNumeric(String password) {
+	public boolean checkPasswordWithAlphaNumeric(final String password) {
 		int letterSize = 0;
 		int digitSize = 0;
 		for (int i = 0; i < password.length(); i++) {
@@ -1979,7 +1979,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 	}
 
 	@Override
-	public void validatePassword(String password, String userName) {
+	public void validatePassword(final String password, String userName) {
 		if (password.length() < 5) {
 			throw new BadCredentialsException("Password should be atleast 5 characters");
 		}
@@ -2075,7 +2075,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 				paramMap.put(EXPIRE, expires);
 				String computedSignature = new GooruMd5Util().verifySignatureFromURL(url, paramMap, apiKeyObj.getSecretKey());
 				if (signature.equals(computedSignature)) {
-					String emailId = paramMap.get(EMAIL_ID).toString();
+					final String emailId = paramMap.get(EMAIL_ID).toString();
 					String password = paramMap.get(PASSWORD).toString();
 					String apiKey = paramMap.get(API_KEY).toString();
 					if (paramMap.get(EMAIL_ID).toString() != null && checkUserAvailability(emailId, CheckUser.BYEMAILID, false)) {
@@ -2175,7 +2175,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 			payLoadObject.put(CREATED_TYPE, identity != null ? identity.getAccountCreatedType() : null);
 		}
 		SessionContextSupport.putLogParameter("payLoadObject", payLoadObject.toString());
-		JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session").toString()) :  new JSONObject();
+		final JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session").toString()) :  new JSONObject();
 		session.put("organizationUId", newUser != null ? newUser.getOrganizationUid() : null);
 		SessionContextSupport.putLogParameter("session", session.toString());	
 		JSONObject user = SessionContextSupport.getLog().get("user") != null ? new JSONObject(SessionContextSupport.getLog().get("user").toString()) :  new JSONObject();
@@ -2184,7 +2184,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 	}
 	
 	@Override
-	public void getEventLogs(Identity identity, UserToken userToken) throws JSONException {
+	public void getEventLogs(Identity identity, final UserToken userToken) throws JSONException {
 		SessionContextSupport.putLogParameter(EVENT_NAME, "user.login");
 		JSONObject context = SessionContextSupport.getLog().get("context") != null ? new JSONObject(SessionContextSupport.getLog().get("context").toString()) : new JSONObject();
 		if(identity != null && identity.getLoginType().equalsIgnoreCase("Credential")) {

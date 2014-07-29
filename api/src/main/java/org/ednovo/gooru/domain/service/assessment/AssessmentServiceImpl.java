@@ -1538,8 +1538,8 @@ public class AssessmentServiceImpl implements AssessmentService, ParameterProper
 			}
 			if (question.getAnswers() != null) {
 				Set<AssessmentAnswer> copyAnswers = new TreeSet<AssessmentAnswer>();
+				AssessmentAnswer copyAnswer = new AssessmentAnswer();
 				for (AssessmentAnswer answer : question.getAnswers()) {
-					AssessmentAnswer copyAnswer = new AssessmentAnswer();
 					copyAnswer.setAnswerText(answer.getAnswerText());
 					copyAnswer.setSequence(answer.getSequence());
 					copyAnswer.setIsCorrect(answer.getIsCorrect());
