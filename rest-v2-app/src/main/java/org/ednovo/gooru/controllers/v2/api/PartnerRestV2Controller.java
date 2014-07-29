@@ -59,7 +59,7 @@ public class PartnerRestV2Controller extends BaseController implements Parameter
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "")
 	public ModelAndView getPartnerList(@RequestParam(value = CLEAR_CACHE, required = false, defaultValue = FALSE) boolean clearCache, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		final String cacheKey = "v2-partner-list";
+		final String cacheKey = V2_PARTNER_LIST;
 		List<Map<Object, Object>> partner = null;
 		String data = null;
 		if (!clearCache) {
