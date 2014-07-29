@@ -21,6 +21,7 @@ import com.netflix.astyanax.connectionpool.exceptions.NotFoundException;
 import com.netflix.astyanax.model.Column;
 import com.netflix.astyanax.model.ColumnFamily;
 import com.netflix.astyanax.model.ColumnList;
+import com.netflix.astyanax.model.ConsistencyLevel;
 import com.netflix.astyanax.model.Rows;
 
 /**
@@ -29,6 +30,8 @@ import com.netflix.astyanax.model.Rows;
  */
 public class RawCassandraDaoImpl extends CassandraDaoSupport<CassandraColumnFamily> implements RawCassandraDao {
 
+	protected static final ConsistencyLevel DEFAULT_CONSISTENCY_LEVEL = ConsistencyLevel.CL_QUORUM;
+	
 	private static Map<String, RawCassandraDaoImpl> coreCassandraDaos = new HashMap<String, RawCassandraDaoImpl>();
 
 	public RawCassandraDaoImpl() {
@@ -146,10 +149,10 @@ public class RawCassandraDaoImpl extends CassandraDaoSupport<CassandraColumnFami
 
 	@Override
 	public void addIndexQueueEntry(String key, String columnPrefix, List<String> gooruOids) {
-		MutationBatch mutationBatch = getFactory().getKeyspace().prepareMutationBatch();
+		MutationBatch mutationBatch = getFactory().getKeyspace().prepareMutationBatch().setConsistencyLevel(DEFAULT_CONSISTENCY_LEVEL);
 		ColumnListMutation<String> mutation = mutationBatch.withRow(getCF().getColumnFamily(), key);
 		for(String gooruOid : gooruOids){
-			mutation.putColumn(columnPrefix+gooruOid, gooruOid);
+			mutation.putColumnIfNotNull(columnPrefix+gooruOid, gooruOid);
 		}	
 		int success = 0;
 		while (success <= 0) {

@@ -26,6 +26,8 @@
  */
 package org.ednovo.gooru.domain.cassandra.service;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -87,7 +89,8 @@ public class ResourceCassandraServiceImpl extends ApiCrudEntityCassandraServiceI
 
 	@Override
 	public void updateIndexQueue(List<String> gooruOids, String type) {
-		String rowKey = type + SEPARATOR + new Date().toString();
+	    DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		String rowKey = type + SEPARATOR + dateFormat.format(new Date().toString());
 		String columnPrefix = OPEN + SEPARATOR;
 		getDao(ColumnFamilyConstant.INDEX_QUEUE).addIndexQueueEntry(rowKey, columnPrefix, gooruOids);
 	}
