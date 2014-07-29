@@ -154,20 +154,12 @@ public class RawCassandraDaoImpl extends CassandraDaoSupport<CassandraColumnFami
 		for(String gooruOid : gooruOids){
 			mutation.putColumnIfNotNull(columnPrefix+gooruOid, gooruOid);
 		}	
-		int success = 0;
-		while (success <= 0) {
-			try {
-				mutationBatch.execute();
-				success = 1;
-			} catch (Exception ex) {
-				success = -1;
-				if (success < -5) {
-					getLog().error("Error saving to cassandra", ex);
-					break;
-				}
-			}
+		try {
+			mutationBatch.execute();
+		} catch (Exception ex) {
+			getLog().error("Error saving to cassandra", ex);
 		}
-	}
+  }
 	
 	
 }
