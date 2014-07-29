@@ -216,11 +216,19 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_BULK_UPDATE_VIEW})
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.POST, value = "/statistics-data/update")
-	public void updateStatisticsData(HttpServletRequest request, HttpServletResponse response, @RequestBody String data) throws Exception {
+	public void updateStatisticsData(HttpServletRequest request, HttpServletResponse response, @RequestBody String data, @RequestParam(required = false, defaultValue="false") boolean skipReindex) throws Exception {
 		JSONObject json = requestData(data);
 		List<StatisticsDTO> statisticsDataList = JsonDeserializer.deserialize(getValue(STATISTICS_DATA, json), new TypeReference<List<StatisticsDTO>>(){});
-		this.getResourceService().updateStatisticsData(statisticsDataList);
+		this.getResourceService().updateStatisticsData(statisticsDataList, skipReindex);
 	}
+	
+	
+//	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_RESOURCE_DELETE })
+//	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+//	@RequestMapping(method = RequestMethod.DELETE, value = "/{id}")
+//	public void deleteContentProvider(@PathVariable(value = ID) String gooruOid, @RequestParam(value = "providerType") String providerType, @RequestParam(value = "name") String name, HttpServletRequest request, HttpServletResponse response) throws Exception {
+//		this.getResourceService().deleteContentProvider(gooruOid, providerType, name);
+//	}
 
 	private Resource buildResourceFromInputParameters(String data) {
 		return JsonDeserializer.deserialize(data, Resource.class);

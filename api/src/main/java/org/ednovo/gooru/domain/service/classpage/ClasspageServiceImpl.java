@@ -175,60 +175,60 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	public ActionResponseDTO<Classpage> updateClasspage(Classpage newClasspage, String updateClasspageId, Boolean hasUnrestrictedContentAccess) throws Exception {
 		Classpage classpage = this.getClasspage(updateClasspageId, null, null);
 		Errors errors = validateUpdateClasspage(classpage, newClasspage);
-		JSONObject ItemData = new JSONObject();
+		JSONObject itemData = new JSONObject();
 		if (!errors.hasErrors()) {
 			if (newClasspage.getVocabulary() != null) {
-				ItemData.put(VOCABULARY, newClasspage.getVocabulary());
+				itemData.put(VOCABULARY, newClasspage.getVocabulary());
 				classpage.setVocabulary(newClasspage.getVocabulary());
 			}
 
 			if (newClasspage.getTitle() != null) {
-				ItemData.put(TITLE, newClasspage.getTitle());
+				itemData.put(TITLE, newClasspage.getTitle());
 				classpage.setTitle(newClasspage.getTitle());
 				UserGroup userGroup = this.getUserGroupService().findUserGroupByGroupCode(classpage.getClasspageCode());
 				userGroup.setGroupName(newClasspage.getTitle());
 				this.getUserRepository().save(userGroup);
 			}
 			if (newClasspage.getDescription() != null) {
-				ItemData.put(DESCRIPTION, newClasspage.getDescription());
+				itemData.put(DESCRIPTION, newClasspage.getDescription());
 				classpage.setDescription(newClasspage.getDescription());
 			}
 			if (newClasspage.getNarrationLink() != null) {
-				ItemData.put(NARRATION_LINK, newClasspage.getNarrationLink());
+				itemData.put(NARRATION_LINK, newClasspage.getNarrationLink());
 				classpage.setNarrationLink(newClasspage.getNarrationLink());
 			}
 			if (newClasspage.getEstimatedTime() != null) {
-				ItemData.put(ESTIMATED_TIME, newClasspage.getEstimatedTime());
+				itemData.put(ESTIMATED_TIME, newClasspage.getEstimatedTime());
 				classpage.setEstimatedTime(newClasspage.getEstimatedTime());
 			}
 			if (newClasspage.getNotes() != null) {
-				ItemData.put(NOTES, newClasspage.getNotes());
+				itemData.put(NOTES, newClasspage.getNotes());
 				classpage.setNotes(newClasspage.getNotes());
 			}
 			if (newClasspage.getGoals() != null) {
-				ItemData.put(GOALS, newClasspage.getGoals());
+				itemData.put(GOALS, newClasspage.getGoals());
 				classpage.setGoals(newClasspage.getGoals());
 			}
 			if (newClasspage.getKeyPoints() != null) {
-				ItemData.put(KEYPOINTS, newClasspage.getKeyPoints());
+				itemData.put(KEYPOINTS, newClasspage.getKeyPoints());
 				classpage.setGoals(newClasspage.getKeyPoints());
 			}
 			if (newClasspage.getLanguage() != null) {
-				ItemData.put(LANGUAGE, newClasspage.getLanguage());
+				itemData.put(LANGUAGE, newClasspage.getLanguage());
 				classpage.setLanguage(newClasspage.getLanguage());
 			}
 			if (newClasspage.getGrade() != null) {
-				ItemData.put(GRADE, newClasspage.getGrade());
+				itemData.put(GRADE, newClasspage.getGrade());
 				classpage.setGrade(newClasspage.getGrade());
 			}
 			if (newClasspage.getSharing() != null) {
-				ItemData.put(SHARING, newClasspage.getSharing());
+				itemData.put(SHARING, newClasspage.getSharing());
 				if (newClasspage.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || newClasspage.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing()) || newClasspage.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing())) {
 					classpage.setSharing(newClasspage.getSharing());
 				}
 			}
 			if (newClasspage.getLastUpdatedUserUid() != null) {
-				ItemData.put(LAST_UPDATED_USER_UID, newClasspage.getLastUpdatedUserUid());
+				itemData.put(LAST_UPDATED_USER_UID, newClasspage.getLastUpdatedUserUid());
 				classpage.setLastUpdatedUserUid(newClasspage.getLastUpdatedUserUid());
 			}
 
@@ -247,7 +247,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			this.getCollectionRepository().save(classpage);
 			
 			try{
-				getEventLogs(classpage, ItemData, classpage.getUser(), false, true);
+				getEventLogs(classpage, itemData, classpage.getUser(), false, true);
 			}catch(Exception e){
 				e.printStackTrace();
 			}

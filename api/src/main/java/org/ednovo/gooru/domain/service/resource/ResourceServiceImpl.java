@@ -2995,6 +2995,10 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		}
 
 	}
+	
+//	public void deleteContentProvider(String gooruOid, String providerType, String name){
+//		this.getContentRepository().deleteContentProvider(gooruOid, providerType, name);
+//	}
 
 	private Errors validateUpdateResource(Resource newResource, Resource resource) throws Exception {
 		final Errors errors = new BindException(newResource, RESOURCE);
@@ -3126,7 +3130,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	}
 
 	@Override
-	public void updateStatisticsData(List<StatisticsDTO> statisticsList) {
+	public void updateStatisticsData(List<StatisticsDTO> statisticsList, boolean skipReindex) {
 		ResourceCio resourceCio = null;
 		ResourceStasCo resourceStasCo = null;
 		Collection<ResourceCio> resourceCioList = new ArrayList<ResourceCio>();
@@ -3152,7 +3156,9 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		}
 		if(resourceCioList.size() > 0){
 			resourceCassandraService.save(resourceCioList, resourceIds);
-			indexProcessor.indexStas(StringUtils.join(resourceIds, ','), IndexProcessor.INDEX, RESOURCE, true);
+			if(!skipReindex){
+				indexProcessor.indexStas(StringUtils.join(resourceIds, ','), IndexProcessor.INDEX, RESOURCE, true);
+			}
 		}
 	}
 }
