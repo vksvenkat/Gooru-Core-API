@@ -23,8 +23,10 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.domain.service;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -402,12 +404,18 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 				this.getFeedbackRepository().flush();
 				ResourceSummary resourceSummary = this.getResourceRepository().getResourceSummaryById(feedback.getAssocGooruOid());
 				Map<String, Object> summary = this.getContentFeedbackStarRating(feedback.getAssocGooruOid());
+				
 				if (resourceSummary == null) {
 					resourceSummary = new ResourceSummary();
 					resourceSummary.setResourceGooruOid(feedback.getAssocGooruOid());
 				}
+				
 				resourceSummary.setRatingStarCount((Double) summary.get(COUNT));
 				resourceSummary.setRatingStarAvg((Long) summary.get(AVERAGE));
+				if (feedback.getFreeText() != null) {
+					resourceSummary.setReviewCount((resourceSummary.getReviewCount() == null ? 0 : resourceSummary.getReviewCount()) + 1);
+					summary.put("reviewCount", resourceSummary.getReviewCount());
+				}
 				contentFeedback.setRatings(summary);
 				this.getFeedbackRepository().save(resourceSummary);
 				this.getFeedbackRepository().flush();
@@ -416,7 +424,7 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 		}
 		return feedback;
 	}
-
+	
 	private String getTableNameByFeedbackCategory(String category, String target) {
 		String feedbackTypeTableName = null;
 		if (category != null && category.equalsIgnoreCase(CustomProperties.FeedbackCategory.RATING.getFeedbackCategory())) {

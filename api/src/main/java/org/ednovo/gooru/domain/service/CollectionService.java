@@ -66,7 +66,7 @@ public interface CollectionService extends ScollectionService {
 	
 	List<CollectionItem> createCollectionItems(List<String> collectionsIds, String resourceId, User user) throws Exception;
 	
-	List<CollectionItem> assignCollection(String classpageId, String collectionId, User user) throws Exception;	
+	List<CollectionItem> assignCollection(String classpageId, String collectionId, User user, String direction, String planedEndDate) throws Exception;	
 	
 	List<Collection> updateCollectionForPublish(List<Map<String,String>> collection,User user) throws Exception;
 	
