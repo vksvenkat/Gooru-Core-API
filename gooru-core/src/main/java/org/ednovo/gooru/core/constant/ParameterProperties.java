@@ -2734,4 +2734,6 @@ public interface ParameterProperties {
 	
 	String COLLECTIONITEMS = "collectionItems";
 	
+	String DEFAULT_VERSION = "version";
+	
 }
