@@ -130,15 +130,15 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
 	@RequestMapping(value = { "/{id}" }, method = RequestMethod.GET)
 	public ModelAndView getCollection(@PathVariable(value = ID) String collectionId, @RequestParam(value = INCLUDE_COLLECTION_ITEM, required = false, defaultValue = TRUE) boolean includeCollectionItem,
-			@RequestParam(value = INLCLUDE_META_INFO, required = false, defaultValue = FALSE) boolean includeMetaInfo, @RequestParam(value = INCLUDE_COLLABORATOR, required = false, defaultValue = FALSE) boolean includeCollaborator, @RequestParam(value = "isGat", required = false, defaultValue = FALSE) boolean isGat,
-			@RequestParam(value = INCLUDE_RELATED_CONTENT, required = false, defaultValue = FALSE) boolean includeRelatedContent, @RequestParam(value = "merge", required = false) String merge, @RequestParam(value = "requestContext", required = false, defaultValue="edit-play") String requestContext, @RequestParam(value = ROOT_NODE_ID, required = false) String rootNodeId, HttpServletRequest request, HttpServletResponse response) {
+			@RequestParam(value = INLCLUDE_META_INFO, required = false, defaultValue = FALSE) boolean includeMetaInfo, @RequestParam(value = INCLUDE_COLLABORATOR, required = false, defaultValue = FALSE) boolean includeCollaborator, @RequestParam(value =  IS_GAT, required = false, defaultValue = FALSE) boolean isGat,
+			@RequestParam(value = INCLUDE_RELATED_CONTENT, required = false, defaultValue = FALSE) boolean includeRelatedContent, @RequestParam(value = MERGE, required = false) String merge, @RequestParam(value = REQ_CONTEXT, required = false, defaultValue="edit-play") String requestContext, @RequestParam(value = ROOT_NODE_ID, required = false) String rootNodeId, HttpServletRequest request, HttpServletResponse response) {
 		User user = (User) request.getAttribute(Constants.USER);
 		Collection collection = null;
 		String includes[] = null;
 		if (requestContext != null && requestContext.equalsIgnoreCase("library")) {
 			includes = (String[]) ArrayUtils.addAll(LIBRARY_RESOURCE_INCLUDE_FIELDS, COLLECTION_ITEM_INCLUDE_FILEDS);
 			includes = (String[]) ArrayUtils.addAll(includes, LIBRARY_COLLECTION_INCLUDE_FIELDS);
-			final String cacheKey = "collection-data-" + requestContext + "-" + collectionId + "-"  + rootNodeId;
+			final String cacheKey = COLLECTION_DATA + requestContext + "-" + collectionId + "-"  + rootNodeId;
 			String data = null;
 			data = getRedisService().getValue(cacheKey);
 			if (data == null) {
@@ -308,7 +308,7 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 		JSONObject json = requestData(data);
 		User user = (User) request.getAttribute(Constants.USER);
 
-		ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().createResourceWithCollectionItem(collectionId, this.buildResourceFromInputParameters(getValue(RESOURCE, json), user),getValue(START,json),getValue(STOP,json), getValue(RESOURCE_TAGS,json) == null ? null : buildResourceTags(getValue("resourceTags",json)), user);
+		ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().createResourceWithCollectionItem(collectionId, this.buildResourceFromInputParameters(getValue(RESOURCE, json), user),getValue(START,json),getValue(STOP,json), getValue(RESOURCE_TAGS,json) == null ? null : buildResourceTags(getValue(RESOURCE_TAGS,json)), user);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		} 
@@ -406,7 +406,7 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 	}
 	
 	@RequestMapping(value = { "/standards" }, method = RequestMethod.GET)
-	public ModelAndView getCollectionStandards(HttpServletRequest request, @RequestParam(value = ID,required = false) Integer codeId,@RequestParam(value="query",required =false) String query, HttpServletResponse resHttpServletResponse,
+	public ModelAndView getCollectionStandards(HttpServletRequest request, @RequestParam(value = ID,required = false) Integer codeId,@RequestParam(value=QUERY,required =false) String query, HttpServletResponse resHttpServletResponse,
 			@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
 		return toModelAndViewWithIoFilter(this.getCollectionService().getCollectionStandards(codeId,query,limit,offset, user), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, COLLECTION_STANDARDS_INCLUDES);
