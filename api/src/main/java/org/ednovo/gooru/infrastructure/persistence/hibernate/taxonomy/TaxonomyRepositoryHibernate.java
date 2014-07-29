@@ -933,8 +933,8 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 		if (creatorUid != null) {
 			query.setParameter("creatorUid", creatorUid);
 		}
-			query.setFirstResult(offset == null ? 0 :offset);
-			query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
+		query.setFirstResult(offset == null ? OFFSET :offset);
+		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
 	
 		return query.list();
 	}
@@ -980,8 +980,8 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 			sql += " and c.root_node_id in (" + UserGroupSupport.getTaxonomyPreference() + ")";
 		}
 		Query query = getSession().createSQLQuery(sql);
-			query.setFirstResult(offset);
-			query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
+		query.setFirstResult(offset == null ? OFFSET :offset);
+		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
 		return query.list();
 	}
 

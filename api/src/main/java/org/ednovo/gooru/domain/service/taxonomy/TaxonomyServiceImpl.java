@@ -721,10 +721,6 @@ public class TaxonomyServiceImpl implements TaxonomyService, ParameterProperties
 		return taxonomyRepository;
 	}
 
-	public void setTaxonomyCassandraService(TaxonomyCassandraService taxonomyCassandraService) {
-		this.taxonomyCassandraService = taxonomyCassandraService;
-	}
-
 	public TaxonomyCassandraService getTaxonomyCassandraService() {
 		return taxonomyCassandraService;
 	}

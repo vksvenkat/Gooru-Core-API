@@ -84,8 +84,8 @@ public class FeaturedRepositoryHibernate extends BaseRepositoryHibernate impleme
 		if (themeCode != null)  {
 			query.setParameter("themeCode", themeCode);
 		}
-			query.setFirstResult(offset);
-			query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
+		query.setFirstResult(offset == null ? OFFSET : offset);
+		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
 		return query.list();
 	}
 	
@@ -112,7 +112,7 @@ public class FeaturedRepositoryHibernate extends BaseRepositoryHibernate impleme
 
 		Query query = getSession().createSQLQuery(sql);
 
-			query.setFirstResult(offset);
+			query.setFirstResult(offset == null ? OFFSET : offset);
 			query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
 	
 		return query.list();
@@ -259,8 +259,8 @@ public class FeaturedRepositoryHibernate extends BaseRepositoryHibernate impleme
 			query.setParameter("contentId", contentId);
 		}
 		query.setParameter("featuredSetId", featuredSetId);
-			query.setFirstResult(offset);
-			query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
+		query.setFirstResult(offset == null ? OFFSET : offset);
+		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
 		return query.list();
 	}
 	
@@ -310,8 +310,8 @@ public class FeaturedRepositoryHibernate extends BaseRepositoryHibernate impleme
 		
 		Query query = getSession().createSQLQuery(sql);
 		
-			query.setFirstResult(offset);
-			query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
+		query.setFirstResult(offset == null ? OFFSET : offset);
+		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
 		
 		if (type != null) {
 			query.setParameter("type", type);
