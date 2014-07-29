@@ -1973,11 +1973,11 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 						resource.setResourceFormat(resourcetype);
 					}
 					resource.setDescription(newResource.getDescription());
-					final License license = new License();
+					License license = new License();
 					license.setName(OTHER);
 					resource.setLicense(license);
 					resource.setRecordSource(Resource.RecordSource.COLLECTION.getRecordSource());
-					final ResourceType resourceTypeDo = new ResourceType();
+					ResourceType resourceTypeDo = new ResourceType();
 					resource.setResourceType(resourceTypeDo);
 
 					if (newResource.getAttach() != null && newResource.getAttach().getFilename() != null) {
@@ -2456,7 +2456,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	
 	public void deleteBulkCollections(List<String> gooruOids){
 		List<Collection> collections = collectionRepository.getCollectionListByIds(gooruOids);
-		final StringBuffer removeContentIds = new StringBuffer();
+		StringBuffer removeContentIds = new StringBuffer();
 		for (Collection collection : collections) {
 			removeContentIds.append(collection.getGooruOid());
 		}
