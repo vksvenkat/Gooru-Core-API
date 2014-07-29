@@ -200,8 +200,8 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	private static final Logger LOGGER = LoggerFactory.getLogger(ScollectionServiceImpl.class);
 
 	@Override
-	public ActionResponseDTO<Collection> createCollection(Collection collection, boolean addToShelf, String resourceId, String taxonomyCode, boolean updateTaxonomyByCode, String parentId) throws Exception {
-		Errors errors = validateCollection(collection);
+	public ActionResponseDTO<Collection> createCollection(final Collection collection, boolean addToShelf, String resourceId, String taxonomyCode, boolean updateTaxonomyByCode, String parentId) throws Exception {
+		final Errors errors = validateCollection(collection);
 		if (!errors.hasErrors()) {
 			if (taxonomyCode != null) {
 				addCollectionTaxonomy(collection, taxonomyCode, updateTaxonomyByCode);
@@ -220,7 +220,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				CollectionItem collectionItem = new CollectionItem();
 				collectionItem.setItemType(ShelfType.AddedType.ADDED.getAddedType());
 				collectionItem = this.createCollectionItem(resourceId, collection.getGooruOid(), collectionItem, collection.getUser(), CollectionType.COLLECTION.getCollectionType(), false).getModel();
-				Set<CollectionItem> collectionItems = new TreeSet<CollectionItem>();
+				final Set<CollectionItem> collectionItems = new TreeSet<CollectionItem>();
 				collectionItems.add(collectionItem);
 				collection.setCollectionItems(collectionItems);
 			}
@@ -257,7 +257,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				}
 			}
 
-			Collection parentCollection = collectionRepository.getCollectionByGooruOid(parentId, collection.getUser().getGooruUId());
+			final Collection parentCollection = collectionRepository.getCollectionByGooruOid(parentId, collection.getUser().getGooruUId());
 			if (parentCollection != null) {
 				collection.setCollectionItem(this.createCollectionItem(collection.getGooruOid(), parentCollection.getGooruOid(), new CollectionItem(), collection.getUser(), CollectionType.FOLDER.getCollectionType(), false).getModel());
 			}
@@ -346,7 +346,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				this.getUserRepository().flush();
 			}
 
-			Collection parentCollection = collectionRepository.getCollectionByGooruOid(parentId, collection.getUser().getGooruUId());
+			final Collection parentCollection = collectionRepository.getCollectionByGooruOid(parentId, collection.getUser().getGooruUId());
 			if (parentCollection != null) {
 				collection.setCollectionItem(this.createCollectionItem(collection.getGooruOid(), parentCollection.getGooruOid(), new CollectionItem(), collection.getUser(), CollectionType.FOLDER.getCollectionType(), false).getModel());
 				getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + parentCollection.getUser().getPartyUid() + "*");
@@ -378,7 +378,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		return new ActionResponseDTO<Collection>(collection, errors);
 	}
 
-	protected void addCollectionTaxonomy(Collection collection, String taxonomyCode, boolean updateTaxonomyByCode) {
+	protected void addCollectionTaxonomy(Collection collection, final String taxonomyCode, boolean updateTaxonomyByCode) {
 		String[] taxonomyCodes = taxonomyCode.split(",");
 		Set<Code> codes = collection.getTaxonomySet();
 		for (String codeId : taxonomyCodes) {
@@ -409,7 +409,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		collection.setTaxonomySet(codes);
 	}
 
-	public ActionResponseDTO<Collection> updateCollection(Collection newCollection, String updateCollectionId, String taxonomyCode, String ownerUId, String creatorUId, boolean hasUnrestrictedContentAccess, String relatedContentId, boolean updateTaxonomyByCode, User apiCallerUser) throws Exception {
+	public ActionResponseDTO<Collection> updateCollection(final Collection newCollection, String updateCollectionId, String taxonomyCode, final String ownerUId, String creatorUId, boolean hasUnrestrictedContentAccess, String relatedContentId, boolean updateTaxonomyByCode, final User apiCallerUser) throws Exception {
 		String gooruUid = null;
 		if (newCollection.getUser() != null && !userService.isContentAdmin(newCollection.getUser())) {
 			gooruUid = newCollection.getUser().getGooruUId();
@@ -419,8 +419,8 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		if (!errors.hasErrors()) {
 
 			if (relatedContentId != null) {
-				Content assocContent = this.getContentRepositoryHibernate().findContentByGooruId(relatedContentId);
-				Content content = this.getContentRepositoryHibernate().findContentByGooruId(updateCollectionId);
+				final Content assocContent = this.getContentRepositoryHibernate().findContentByGooruId(relatedContentId);
+				final Content content = this.getContentRepositoryHibernate().findContentByGooruId(updateCollectionId);
 
 				if (assocContent != null && content != null) {
 					ContentAssociation contentAssoc = new ContentAssociation();
@@ -526,12 +526,12 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				}
 
 				if (collection.getSharing().equalsIgnoreCase(PUBLIC) && newCollection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing())) {
-					UserSummary userSummary = this.getUserRepository().getSummaryByUid(apiCallerUser.getPartyUid());
+					final UserSummary userSummary = this.getUserRepository().getSummaryByUid(apiCallerUser.getPartyUid());
 					userSummary.setCollections(userSummary.getCollections() <= 0 ? 0 :  (userSummary.getCollections() - 1));
 					this.getUserRepository().save(userSummary);
 					this.getUserRepository().flush();
 				} else if (!collection.getSharing().equalsIgnoreCase(PUBLIC) && newCollection.getSharing().equalsIgnoreCase(PUBLIC)) {
-					UserSummary userSummary = this.getUserRepository().getSummaryByUid(apiCallerUser.getPartyUid());
+					final UserSummary userSummary = this.getUserRepository().getSummaryByUid(apiCallerUser.getPartyUid());
 					if (userSummary.getGooruUid() == null) {
 						userSummary.setGooruUid(apiCallerUser.getPartyUid());
 					}
@@ -580,7 +580,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 
 	@Override
-	public List<ContentMetaDTO> updateContentMeta(List<ContentMetaDTO> newDepthOfKnowledges, String collectionId, User apiCaller, String type) {
+	public List<ContentMetaDTO> updateContentMeta(List<ContentMetaDTO> newDepthOfKnowledges, final String collectionId, final User apiCaller, final String type) {
 		for (ContentMetaDTO newMeta : newDepthOfKnowledges) {
 			if (this.getCustomTableRepository().getValueByDisplayName(newMeta.getValue(), type) != null) {
 				ContentMetaAssociation contentMetaAssociation = this.getCollectionRepository().getContentMetaByValue(newMeta.getValue(), collectionId);
@@ -605,13 +605,13 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 	@Override
 	public void deleteCollection(String collectionId, User user) {
-		Collection collection = this.getCollectionByGooruOid(collectionId, null);
+		final Collection collection = this.getCollectionByGooruOid(collectionId, null);
 		rejectIfNull(collection, GL0056, _COLLECTION);
 			if(this.getOperationAuthorizer().hasUnrestrictedContentAccess(collectionId, user)){
 				try {
 					revisionHistoryService.createVersion(collection, SCOLLECTION_DELETE);
 				} catch (Exception ex) {
-					LOGGER.debug(ex.getMessage());
+					LOGGER.debug("error"+ex.getMessage());
 				}
 				try {
 					indexProcessor.index(collection.getGooruOid(), IndexProcessor.DELETE, SCOLLECTION);
@@ -619,7 +619,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 					LOGGER.debug(e.getMessage());
 				}
 
-				List<CollectionItem> collectionItems = this.getCollectionRepository().getCollectionItemByAssociation(collectionId, null, null);
+				final List<CollectionItem> collectionItems = this.getCollectionRepository().getCollectionItemByAssociation(collectionId, null, null);
 				try {
 					getEventLogs(collection.getCollectionItem(), user, collection.getCollectionType());
 				} catch (Exception e) {
@@ -662,11 +662,11 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 	@Override
 	public ActionResponseDTO<CollectionItem> createCollectionItem(String resourceGooruOid, String collectionGooruOid, CollectionItem collectionItem, User user, String type, boolean isCreateQuestion) throws Exception {
-		Collection collection = this.createMyShelfCollection(collectionGooruOid, user, type, collectionItem);
+		final Collection collection = this.createMyShelfCollection(collectionGooruOid, user, type, collectionItem);
 		collectionItem.setAssociatedUser(user);
 		collectionItem.setAssociationDate(new Date(System.currentTimeMillis()));
 		Resource resource = this.getResourceRepository().findResourceByContentGooruId(resourceGooruOid);
-		Errors errors = validateCollectionItem(collection, resource, collectionItem);
+		final Errors errors = validateCollectionItem(collection, resource, collectionItem);
 		if (!errors.hasErrors()) {
 			collectionItem.setCollection(collection);
 
@@ -702,7 +702,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			} catch (Exception e) {
 				LOGGER.error(e.getMessage());
 			}
-			List<String> parenFolders = this.getParentCollection(resource.getGooruOid(), collection.getUser().getPartyUid(), false);
+			final List<String> parenFolders = this.getParentCollection(resource.getGooruOid(), collection.getUser().getPartyUid(), false);
 			for (String parentFolder : parenFolders) {
 				updateFolderSharing(parentFolder);
 			}
@@ -712,7 +712,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		return new ActionResponseDTO<CollectionItem>(collectionItem, errors);
 	}
 
-	private Collection createMyShelfCollection(String collectionGooruOid, User user, String type, CollectionItem collectionItem) {
+	private Collection createMyShelfCollection(String collectionGooruOid, User user, String type, final CollectionItem collectionItem) {
 		Collection collection = null;
 		if (type != null && type.equalsIgnoreCase(CollectionType.SHElf.getCollectionType())) {
 			collectionItem.setItemType(ShelfType.AddedType.SUBSCRIBED.getAddedType());
@@ -755,10 +755,10 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 
 	@Override
-	public ActionResponseDTO<CollectionItem> updateCollectionItem(CollectionItem newcollectionItem, String collectionItemId, User user) throws Exception {
-		CollectionItem collectionItem = this.getCollectionItemById(collectionItemId);
+	public ActionResponseDTO<CollectionItem> updateCollectionItem(final CollectionItem newcollectionItem, String collectionItemId, User user) throws Exception {
+		final CollectionItem collectionItem = this.getCollectionItemById(collectionItemId);
 		Errors errors = validateUpdateCollectionItem(newcollectionItem);
-		JSONObject itemData = new JSONObject();
+		final JSONObject itemData = new JSONObject();
 		
 		if (!errors.hasErrors()) {
 			if (newcollectionItem.getNarration() != null) {
@@ -804,12 +804,12 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 
 	@Override
-	public List<CollectionItem> getCollectionItems(String collectionId, Map<String, String> filters) {
+	public List<CollectionItem> getCollectionItems(final String collectionId, Map<String, String> filters) {
 		return this.getCollectionRepository().getCollectionItems(collectionId, filters);
 	}
 
 	@Override
-	public CollectionItem getCollectionItem(String collectionItemId, boolean includeAdditionalInfo, User user, String rootNodeId) {
+	public CollectionItem getCollectionItem(String collectionItemId, boolean includeAdditionalInfo, final User user, final String rootNodeId) {
 		CollectionItem collectionItem = this.getCollectionRepository().getCollectionItemById(collectionItemId);
 		rejectIfNull(collectionItem, GL0056, _COLLECTION_ITEM);
 		if (includeAdditionalInfo) {
@@ -819,7 +819,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 
 	@Override
-	public void deleteCollectionItem(String collectionItemId, User user) {
+	public void deleteCollectionItem(String collectionItemId, final User user) {
 		CollectionItem collectionItem = this.getCollectionRepository().getCollectionItemById(collectionItemId);
 		if (collectionItem != null && collectionItem.getResource() != null) {
 				try {
@@ -842,7 +842,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 					}
 					indexProcessor.index(collectionItem.getCollection().getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
 				} catch (Exception e) {
-					LOGGER.debug(e.getMessage());
+					LOGGER.debug("error"+e.getMessage());
 				}
 				/*if(collectionItem.getResource().getSharing().equals(Sharing.PRIVATE.getSharing()) && isResourceType(collectionItem.getResource())){
 					this.getResourceService().deleteResource(null, collectionItem.getResource().getGooruOid(), user);
@@ -854,7 +854,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 	
 	@Override
-	public ActionResponseDTO<CollectionItem> reorderCollectionItem(String collectionItemId, int newSequence) throws Exception {
+	public ActionResponseDTO<CollectionItem> reorderCollectionItem(final String collectionItemId, int newSequence) throws Exception {
 		CollectionItem collectionItem = getCollectionRepository().getCollectionItemById(collectionItemId);
 		Errors errors = validateReorderCollectionItem(collectionItem);
 		if (!errors.hasErrors()) {
@@ -895,7 +895,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 
 	@Override
-	public Collection getCollection(String collectionId, boolean includeMetaInfo, boolean includeCollaborator, boolean isContentFlag, User user, String merge, String rootNodeId, boolean isGat) {
+	public Collection getCollection(String collectionId, boolean includeMetaInfo, boolean includeCollaborator, boolean isContentFlag, final User user, String merge, String rootNodeId, boolean isGat) {
 		Collection collection = this.getCollectionRepository().getCollectionByGooruOid(collectionId, null);
 		boolean isCollaborator = this.getCollaboratorRepository().findCollaboratorById(collectionId, user.getGooruUId()) != null ? true : false;
 		if (collection != null && (collection.getUser().getGooruUId().equalsIgnoreCase(user.getGooruUId()) || !collection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || userService.isContentAdmin(user) || isCollaborator)) {
@@ -915,7 +915,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				Identity identity = collection.getUser().getIdentities().iterator().next();
 				collection.getUser().setEmailId(identity.getExternalId());
 			}
-			User lastUserModified = this.getUserService().findByGooruId(collection.getLastUpdatedUserUid());
+			final User lastUserModified = this.getUserService().findByGooruId(collection.getLastUpdatedUserUid());
 			Map<String, Object> lastUserModifiedMap = new HashMap<String, Object>();
 			if (lastUserModified != null) {
 				lastUserModifiedMap.put(USER_NAME, lastUserModified.getUsername());
@@ -967,8 +967,8 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 	
 	@Override
-	public Map<String, Object> setRatingsObj(ResourceSummary resourceSummary) {
-		Map<String, Object> ratings = new HashMap<String, Object>();
+	public Map<String, Object> setRatingsObj(final ResourceSummary resourceSummary) {
+		final Map<String, Object> ratings = new HashMap<String, Object>();
 		if (resourceSummary != null) {
 			ratings.put(AVERAGE, resourceSummary.getRatingStarAvg());
 			ratings.put(COUNT, resourceSummary.getRatingStarCount());
@@ -977,10 +977,10 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 
 	@Override
-	public List<ContentMetaDTO> getContentMetaAssociation(String type) {
+	public List<ContentMetaDTO> getContentMetaAssociation(final String type) {
 		List<ContentMetaDTO> depthOfKnowledges = new ArrayList<ContentMetaDTO>();
 		String cacheKey = "content_meta_association_type_" + type;
-		String data = redisService.getValue(cacheKey);
+		final String data = redisService.getValue(cacheKey);
 		if (data == null) {
 			List<CustomTableValue> customTableValues = this.getCustomTableRepository().getCustomTableValues(type);
 			for (CustomTableValue customTableValue : customTableValues) {
@@ -998,7 +998,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 
 	@Override
-	public List<ContentMetaDTO> setContentMetaAssociation(List<ContentMetaDTO> depthOfKnowledges, String collectionId, String type) {
+	public List<ContentMetaDTO> setContentMetaAssociation(List<ContentMetaDTO> depthOfKnowledges, String collectionId, final String type) {
 		List<ContentMetaAssociation> metaAssociations = this.getCollectionRepository().getContentMetaById(collectionId, type);
 		for (ContentMetaAssociation contentMetaAssociation : metaAssociations) {
 			for (ContentMetaDTO depthOfKnowledge : depthOfKnowledges) {
@@ -1012,7 +1012,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 
 	@Override
-	public Collection copyCollection(String collectionId, String title, boolean addToShelf, User user, String taxonomyCode, String grade, String parentId) throws Exception {
+	public Collection copyCollection(final String collectionId, final String title, boolean addToShelf, User user, String taxonomyCode, final String grade, String parentId) throws Exception {
 		Collection newCollection = new Collection();
 		newCollection.setTitle(title);
 		newCollection.setUser(user);
@@ -1043,15 +1043,15 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 	@Override
 	public List<User> getCollaborators(String collectionId) {
-		Collection collection = this.getCollectionByGooruOid(collectionId, null);
+		final Collection collection = this.getCollectionByGooruOid(collectionId, null);
 		rejectIfNull(collection, GL0056, _COLLECTION);
 		return this.learnguideRepository.findCollaborators(collectionId, null);
 	}
 
-	private Collection setColletionMetaData(Collection collection, User user, String merge, boolean ignoreUserTaxonomyPreference, String rootNodeId) {
+	private Collection setColletionMetaData(Collection collection, final User user, final String merge, boolean ignoreUserTaxonomyPreference, String rootNodeId) {
 		if (collection != null) {
-			Set<String> acknowledgement = new HashSet<String>();
-			ResourceMetaInfo collectionMetaInfo = new ResourceMetaInfo();
+			final Set<String> acknowledgement = new HashSet<String>();
+			final ResourceMetaInfo collectionMetaInfo = new ResourceMetaInfo();
 			collectionMetaInfo.setCourse(this.getCourse(collection.getTaxonomySet()));
 			collectionMetaInfo.setStandards(this.getStandards(collection.getTaxonomySet(), ignoreUserTaxonomyPreference, rootNodeId));
 			if (collection.getVocabulary() != null) {
@@ -1064,7 +1064,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 						acknowledgement.add(collectionItem.getResource().getResourceSource().getAttribution());
 
 						if (collectionItem.getResource().getResourceType().getName().equalsIgnoreCase(ResourceType.Type.VIDEO.getType())) {
-							String duration = getResourceCassandraService().get(collectionItem.getResource().getGooruOid(), RESOURCE_METADATA_DURATION);
+							final String duration = getResourceCassandraService().get(collectionItem.getResource().getGooruOid(), RESOURCE_METADATA_DURATION);
 							if (duration != null) {
 								collectionItem.getResource().setDurationInSec(duration);
 							}
@@ -1086,7 +1086,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 
 	@Override
-	public List<CollectionItem> setCollectionItemMetaInfo(List<CollectionItem> collectionItems, String rootNodeId) {
+	public List<CollectionItem> setCollectionItemMetaInfo(List<CollectionItem> collectionItems, final String rootNodeId) {
 		if (collectionItems != null) {
 			for (CollectionItem collectionItem : collectionItems) {
 				if (collectionItem.getResource() != null && collectionItem.getResource().getResourceType().getName().equalsIgnoreCase(ResourceType.Type.SCOLLECTION.getType())) {
@@ -1100,13 +1100,13 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		return collectionItems;
 	}
 
-	private CollectionItem setCollectionItemMoreData(CollectionItem collectionItem, String rootNodeId) {
+	private CollectionItem setCollectionItemMoreData(CollectionItem collectionItem, final String rootNodeId) {
 		if (collectionItem.getResource() != null) {
 			if (collectionItem.getResource().getResourceType().getName().equals(ResourceType.Type.ASSESSMENT_QUESTION.getType())) {
 				collectionItem.setQuestionInfo(this.getAssessmentService().getQuestion(collectionItem.getResource().getGooruOid()));
 			}
 			if (collectionItem.getResource().getResourceType().getName().equals(ResourceType.Type.TEXTBOOK.getType())) {
-				Textbook textbook = this.getResourceRepository().findTextbookByContentGooruId(collectionItem.getResource().getGooruOid());
+				final Textbook textbook = this.getResourceRepository().findTextbookByContentGooruId(collectionItem.getResource().getGooruOid());
 				if (textbook != null) {
 					collectionItem.setDocumentid(textbook.getDocumentId());
 					collectionItem.setDocumentkey(textbook.getDocumentKey());
@@ -1134,7 +1134,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 
 	@Override
-	public List<StandardFo> getStandards(Set<Code> taxonomySet, boolean ignoreUserTaxonomyPreference, String rootNodeId) {
+	public List<StandardFo> getStandards(final Set<Code> taxonomySet, boolean ignoreUserTaxonomyPreference, String rootNodeId) {
 		List<StandardFo> standards = null;
 		if (taxonomySet != null) {
 			standards = new ArrayList<StandardFo>();
@@ -1158,7 +1158,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 
 	private StandardFo getStandards(Code code) {
-		StandardFo standard = new StandardFo();
+		final StandardFo standard = new StandardFo();
 		if (code.getCommonCoreDotNotation() != null && !code.getCommonCoreDotNotation().equals("")) {
 			standard.setCode(code.getCommonCoreDotNotation().replace(".--", " "));
 		} else if (code.getdisplayCode() != null && !code.getdisplayCode().equals("")) {
@@ -1174,7 +1174,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 
 	@Override
-	public List<Collection> getResourceMoreInfo(String resourceGooruOid) {
+	public List<Collection> getResourceMoreInfo(final String resourceGooruOid) {
 		return this.getCollectionRepository().getCollectionsByResourceId(resourceGooruOid);
 	}
 
@@ -1189,23 +1189,23 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 
 	@Override
-	public Collection updateCollectionMetadata(String collectionId, String creatorUId, String ownerUId, boolean hasUnrestrictedContentAccess, MultiValueMap<String, String> data, User apiCallerUser) {
+	public Collection updateCollectionMetadata(final String collectionId, final String creatorUId, String ownerUId, boolean hasUnrestrictedContentAccess, MultiValueMap<String, String> data, User apiCallerUser) {
 		Collection collection = this.getCollectionByGooruOid(collectionId, null);
 		
 		JSONObject jsonItemdata = new JSONObject();
 		rejectIfNull(collection, GL0056, _COLLECTION);
 		Boolean taxonomyByCode = false;
-		String taxonomyCode = data.getFirst(TAXONOMY_CODE);
-		String title = data.getFirst(TITLE);
-		String description = data.getFirst(DESCRIPTION);
+		final String taxonomyCode = data.getFirst(TAXONOMY_CODE);
+		final String title = data.getFirst(TITLE);
+		final String description = data.getFirst(DESCRIPTION);
 		String grade = data.getFirst(GRADE);
-		String sharing = data.getFirst(SHARING);
+		final String sharing = data.getFirst(SHARING);
 		String narrationLink = data.getFirst(NARRATION_LINK);
 		String vocabulary = data.getFirst(VOCABULARY);
 		String updateTaxonomyByCode = data.getFirst(UPDATE_TAXONOMY_BY_CODE);
 		String action = data.getFirst(ACTION);
 		String mediaType = data.getFirst(MEDIA_TYPE);
-		String buildType = data.getFirst(BUILD_TYPE);
+		final String buildType = data.getFirst(BUILD_TYPE);
 
 		if (isNotEmptyString(updateTaxonomyByCode) && updateTaxonomyByCode.equalsIgnoreCase(TRUE)) {
 			taxonomyByCode = true;
@@ -1247,7 +1247,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			try {
 				jsonItemdata.put(TITLE, title);
 			} catch (JSONException e) {
-				e.printStackTrace();
+				LOGGER.debug("error"+e.getMessage());
 			}
 			collection.setTitle(title);
 		}
@@ -1256,7 +1256,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			try {
 				jsonItemdata.put(DESCRIPTION, description);
 			} catch (JSONException e) {
-				e.printStackTrace();
+				LOGGER.debug("error"+e.getMessage());
 			}
 			collection.setGoals(description);
 		}
@@ -1266,7 +1266,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			try {
 				jsonItemdata.put(SHARING, sharing);
 			} catch (JSONException e) {
-				e.printStackTrace();
+				LOGGER.debug("error"+e.getMessage());
 			}
 			collection.setSharing(sharing);
 			this.getCollectionRepository().save(collection);
@@ -1282,7 +1282,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			try {
 				jsonItemdata.put(VOCABULARY, vocabulary);
 			} catch (JSONException e) {
-				e.printStackTrace();
+				LOGGER.debug("error"+e.getMessage());
 			}
 			collection.setVocabulary(vocabulary);
 		}
@@ -1290,7 +1290,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			try {
 				jsonItemdata.put(GRADE, grade);
 			} catch (JSONException e) {
-				e.printStackTrace();
+				LOGGER.debug("error"+e.getMessage());
 			}
 			saveOrUpdateCollectionGrade(grade, collection, false);
 		}
@@ -1309,7 +1309,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				collection.setCreator(user);
 			}
 			if (ownerUId != null) {
-				User user = getUserService().findByGooruId(ownerUId);
+				final User user = getUserService().findByGooruId(ownerUId);
 				collection.setUser(user);
 			}
 		}
@@ -1325,16 +1325,16 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		try {
 			getEventLogs(collection, jsonItemdata, apiCallerUser, false, true);
 		} catch(Exception e){
-			e.printStackTrace();
+			LOGGER.debug("error"+e.getMessage());
 		}
 		return collection;
 	}
 
-	private Boolean isNotEmptyString(String field) {
+	private Boolean isNotEmptyString(final String field) {
 		return StringUtils.hasLength(field);
 	}
 
-	public void updateResourceSharing(String sharing, Collection collection) {
+	public void updateResourceSharing(final String sharing, Collection collection) {
 		Iterator<CollectionItem> iterator = collection.getCollectionItems().iterator();
 		while (iterator.hasNext()) {
 			CollectionItem collectionItem = iterator.next();
@@ -1346,9 +1346,9 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 
 	@Override
-	public CollectionItem updateCollectionItemMetadata(String collectionItemId, MultiValueMap<String, String> data, User apiCaller) {
+	public CollectionItem updateCollectionItemMetadata(String collectionItemId, MultiValueMap<String, String> data, final User apiCaller) {
 
-		CollectionItem collectionItem = this.getCollectionItemById(collectionItemId);
+		final CollectionItem collectionItem = this.getCollectionItemById(collectionItemId);
 
 		rejectIfNull(collectionItem, GL0056, _COLLECTION_ITEM);
 		
@@ -1362,7 +1362,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 		String narration = data.getFirst(NARRATION);
 		String narrationType = data.getFirst(NARRATION_TYPE);
-		String start = data.getFirst(START);
+		final String start = data.getFirst(START);
 		String stop = data.getFirst(STOP);
 
 		if (data.containsKey(NARRATION)) {
@@ -1469,8 +1469,8 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 
 	@Override
-	public ActionResponseDTO<CollectionItem> createResourceWithCollectionItem(String collectionId, String title, String description, String url, String start, String stop, String thumbnailImgSrc, String resourceType, String category, User user) throws Exception {
-		Resource newResource = new Resource();
+	public ActionResponseDTO<CollectionItem> createResourceWithCollectionItem(String collectionId, String title, String description, String url, String start, String stop, String thumbnailImgSrc, String resourceType, final String category, final User user) throws Exception {
+		final Resource newResource = new Resource();
 		newResource.setTitle(title);
 		newResource.setDescription(description);
 		newResource.setUrl(url);
@@ -1480,25 +1480,25 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 
 	@Override
-	public CollectionItem buildCollectionItemFromInputParameters(String data, User user) {
+	public CollectionItem buildCollectionItemFromInputParameters(final String data, User user) {
 		XStream xstream = new XStream(new JettisonMappedXmlDriver());
 		xstream.alias(COLLECTION_ITEM, CollectionItem.class);
 		return (CollectionItem) xstream.fromXML(data);
 	}
 
 	@Override
-	public List<Collection> getMyCollection(Map<String, String> filters, User user) {
+	public List<Collection> getMyCollection(Map<String, String> filters, final User user) {
 		return getCollectionRepository().getMyCollection(filters, user);
 	}
 
 	@Override
-	public List<Collection> getMyCollection(String offset, String limit, String type, String filter, User user) {
+	public List<Collection> getMyCollection(final String offset, String limit, String type, final String filter, final User user) {
 		return this.getCollectionRepository().getMyCollection(offset, limit, type, filter, user);
 	}
 
-	protected void reOrderCollectionItems(Collection collection, String collectionItemId) {
+	protected void reOrderCollectionItems(final Collection collection, String collectionItemId) {
 		int resetSequence = 1;
-		Set<CollectionItem> items = collection.getCollectionItems();
+		final Set<CollectionItem> items = collection.getCollectionItems();
 		for (CollectionItem item : items) {
 			if (item.getCollectionItemId().equals(collectionItemId)) {
 				items.remove(item);
@@ -1511,9 +1511,9 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		this.getCollectionRepository().saveAll(items);
 	}
 
-	private void deleteCollectionTaxonomy(Collection collection, String taxonomyCode, boolean updateTaxonomyByCode) {
+	private void deleteCollectionTaxonomy(final Collection collection, final String taxonomyCode, boolean updateTaxonomyByCode) {
 		String[] taxonomyCodes = taxonomyCode.split(",");
-		Set<Code> codes = collection.getTaxonomySet();
+		final Set<Code> codes = collection.getTaxonomySet();
 		Set<Code> removeCodes = new HashSet<Code>();
 		for (String codeId : taxonomyCodes) {
 			Code removeCode = null;
@@ -1575,7 +1575,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 
 	private Errors validateUpdateCollectionItem(CollectionItem collectionItem) throws Exception {
-		Map<String, String> itemType = new HashMap<String, String>();
+		final Map<String, String> itemType = new HashMap<String, String>();
 		itemType.put(ADDED, COLLECTION_ITEM_TYPE);
 		itemType.put(SUBSCRIBED, COLLECTION_ITEM_TYPE);
 		final Errors errors = new BindException(collectionItem, COLLECTION_ITEM);
@@ -1599,22 +1599,22 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 
 	@Override
-	public ActionResponseDTO<Collection> updateCollection(Collection newCollection, String updateCollectionId, String ownerUId, String creatorUId, boolean hasUnrestrictedContentAccess, String relatedContentId, User updateUser) throws Exception {
+	public ActionResponseDTO<Collection> updateCollection(Collection newCollection, String updateCollectionId, String ownerUId, final String creatorUId, boolean hasUnrestrictedContentAccess, String relatedContentId, User updateUser) throws Exception {
 		String gooruUid = null;
 		if (newCollection.getUser() != null && !userService.isContentAdmin(updateUser)) {
 			gooruUid = newCollection.getUser().getGooruUId();
 		} 
 		Collection collection = this.getCollectionByGooruOid(updateCollectionId, gooruUid);
 		Errors errors = validateUpdateCollection(collection);
-		JSONObject itemData = new JSONObject();
+		final JSONObject itemData = new JSONObject();
 		if (!errors.hasErrors()) {
 
 			if (relatedContentId != null) {
 				Content assocContent = this.getContentRepositoryHibernate().findContentByGooruId(relatedContentId);
-				Content content = this.getContentRepositoryHibernate().findContentByGooruId(updateCollectionId);
+				final Content content = this.getContentRepositoryHibernate().findContentByGooruId(updateCollectionId);
 
 				if (assocContent != null && content != null) {
-					ContentAssociation contentAssoc = new ContentAssociation();
+					final ContentAssociation contentAssoc = new ContentAssociation();
 					contentAssoc.setAssociateContent(assocContent);
 					contentAssoc.setContent(content);
 					contentAssoc.setModifiedDate(new Date());
@@ -1753,7 +1753,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 					collection.setPublishStatus(this.getCustomTableRepository().getCustomTableValue(_PUBLISH_STATUS, REVIEWED));
 				}
 				if (collection.getSharing().equalsIgnoreCase(PUBLIC) && (newCollection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing()))) {
-					UserSummary userSummary = this.getUserRepository().getSummaryByUid(collection.getUser().getPartyUid());
+					final UserSummary userSummary = this.getUserRepository().getSummaryByUid(collection.getUser().getPartyUid());
 					if (userSummary.getGooruUid() != null) {
 						userSummary.setCollections(userSummary.getCollections() <= 0 ? 0 : (userSummary.getCollections() - 1));
 						this.getUserRepository().save(userSummary);
@@ -1790,7 +1790,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 					collection.setCreator(user);
 				}
 				if (ownerUId != null) {
-					User user = getUserService().findByGooruId(ownerUId);
+					final User user = getUserService().findByGooruId(ownerUId);
 					collection.setUser(user);
 				}
 				if (newCollection.getNetwork() != null) {
@@ -1802,7 +1802,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			try {
 				indexProcessor.index(collection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
 			} catch (Exception e) {
-				LOGGER.debug(e.getMessage());
+				LOGGER.debug("error"+e.getMessage());
 			}
 			getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collection.getUser().getPartyUid() + "*");
 		}
@@ -1816,7 +1816,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 
 	@Override
-	public CollectionItem getCollectionItem(String collectionItemId, String includeAdditionalInfo, User user, String rootNodeId) {
+	public CollectionItem getCollectionItem(String collectionItemId, final String includeAdditionalInfo, User user, final String rootNodeId) {
 
 		CollectionItem collectionItem = this.getCollectionRepository().getCollectionItemById(collectionItemId);
 		rejectIfNull(collectionItem, GL0056, _COLLECTION_ITEM);
@@ -1827,7 +1827,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 
 	@Override
-	public Collection copyCollection(String collectionId, Collection newCollection, boolean addToShelf, String parentId, User user) throws Exception {
+	public Collection copyCollection(String collectionId, Collection newCollection, boolean addToShelf, String parentId, final User user) throws Exception {
 
 		Collection sourceCollection = this.getCollection(collectionId, false, false, false, user, null, null, false);
 		Collection destCollection = null;
@@ -1899,7 +1899,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			this.getCollectionRepository().save(destCollection);
 			getAsyncExecutor().copyResourceFolder(sourceCollection, destCollection);
 			if (addToShelf) {
-				CollectionItem collectionItem = new CollectionItem();
+				final CollectionItem collectionItem = new CollectionItem();
 				collectionItem.setItemType(ShelfType.AddedType.SUBSCRIBED.getAddedType());
 				Collection myCollection = createMyShelfCollection(null, user,  CollectionType.SHElf.getCollectionType(), collectionItem);
 				collectionItem.setCollection(myCollection);
@@ -1912,7 +1912,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 		}
 		if (parentId != null) {
-			Collection parentCollection = collectionRepository.getCollectionByGooruOid(parentId, user.getPartyUid());
+			final Collection parentCollection = collectionRepository.getCollectionByGooruOid(parentId, user.getPartyUid());
 			if (parentCollection != null) {
 				destCollection.setCollectionItem(this.createCollectionItem(destCollection.getGooruOid(), parentCollection.getGooruOid(), new CollectionItem(), destCollection.getUser(), CollectionType.FOLDER.getCollectionType(), false).getModel());
 			}
@@ -1926,7 +1926,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				getEventLogs(destCollection, null, user, false, false);
 			}
 		} catch(Exception e){
-			e.printStackTrace();
+			LOGGER.debug("error"+e.getMessage());
 		}
 		return destCollection;
 	}
@@ -1941,7 +1941,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			if (newResource.getUrl() != null && getResourceService().shortenedUrlResourceCheck(newResource.getUrl())) {
 				throw new Exception("Cannot able to upload shortened URL resource.");
 			}
-			Collection collection = this.getCollectionRepository().getCollectionByGooruOid(collectionId, null);
+			final Collection collection = this.getCollectionRepository().getCollectionByGooruOid(collectionId, null);
 			if (collection != null) {
 				Resource resource = null;
 				if (newResource.getUrl() != null && !newResource.getUrl().isEmpty() && newResource.getAttach() == null) {
@@ -1965,7 +1965,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 						resource.setCategory(newResource.getCategory().toLowerCase());
 					}
 					if (newResource.getInstructional() != null) {
-						CustomTableValue resourceCategory = this.getCustomTableRepository().getCustomTableValue(RESOURCE_INSTRUCTIONAL_USE, newResource.getInstructional().getValue());
+						final CustomTableValue resourceCategory = this.getCustomTableRepository().getCustomTableValue(RESOURCE_INSTRUCTIONAL_USE, newResource.getInstructional().getValue());
 						resource.setInstructional(resourceCategory);
 					}
 					if (newResource.getResourceFormat() != null) {
@@ -1973,11 +1973,11 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 						resource.setResourceFormat(resourcetype);
 					}
 					resource.setDescription(newResource.getDescription());
-					License license = new License();
+					final License license = new License();
 					license.setName(OTHER);
 					resource.setLicense(license);
 					resource.setRecordSource(Resource.RecordSource.COLLECTION.getRecordSource());
-					ResourceType resourceTypeDo = new ResourceType();
+					final ResourceType resourceTypeDo = new ResourceType();
 					resource.setResourceType(resourceTypeDo);
 
 					if (newResource.getAttach() != null && newResource.getAttach().getFilename() != null) {
@@ -2062,11 +2062,11 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 
 	@Override
-	public ActionResponseDTO<CollectionItem> updateResourceWithCollectionItem(String collectionItemId, Resource newResource, User user) throws Exception {
+	public ActionResponseDTO<CollectionItem> updateResourceWithCollectionItem(String collectionItemId, Resource newResource, final User user) throws Exception {
 
-		CollectionItem collectionItem = this.getCollectionItemById(collectionItemId);
-		Errors errors = validateUpdateCollectionItem(collectionItem);
-		JSONObject itemData = new JSONObject();
+		final CollectionItem collectionItem = this.getCollectionItemById(collectionItemId);
+		final Errors errors = validateUpdateCollectionItem(collectionItem);
+		final JSONObject itemData = new JSONObject();
 		if (!errors.hasErrors()) {
 
 			Resource resource = null;
@@ -2157,31 +2157,31 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		return new ActionResponseDTO<CollectionItem>(collectionItem, errors);
 	}
 
-	public ActionResponseDTO<CollectionItem> createCollectionItem(Resource resource, Collection collection, String start, String stop, User user ) throws Exception {
+	public ActionResponseDTO<CollectionItem> createCollectionItem(Resource resource, Collection collection, String start, String stop, final User user ) throws Exception {
 		CollectionItem collectionItem = new CollectionItem();
 		collectionItem.setCollection(collection);
 		collectionItem.setResource(resource);
 		collectionItem.setItemType(ShelfType.AddedType.ADDED.getAddedType());
 		collectionItem.setAssociatedUser(user);
 		collectionItem.setAssociationDate(new Date(System.currentTimeMillis()));
-		int sequence = collectionItem.getCollection().getCollectionItems() != null ? collectionItem.getCollection().getCollectionItems().size() + 1 : 1;
+		final int sequence = collectionItem.getCollection().getCollectionItems() != null ? collectionItem.getCollection().getCollectionItems().size() + 1 : 1;
 		collectionItem.setItemSequence(sequence);
 		collectionItem.getCollection().setItemCount(sequence);
 		collectionItem.setStart(start);
 		collectionItem.setStop(stop);
-		Errors errors = validateCollectionItem(collection, resource, collectionItem);
+		final Errors errors = validateCollectionItem(collection, resource, collectionItem);
 		this.getResourceRepository().save(collectionItem);
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
 		return new ActionResponseDTO<CollectionItem>(collectionItem, errors);
 	}
 
 	@Override
-	public List<Collection> getMyCollection(String limit, String offset, String orderBy, String fetchType, String resourceType, User user) {
+	public List<Collection> getMyCollection(final String limit, String offset, String orderBy, final String fetchType, String resourceType, User user) {
 		return getCollectionRepository().getMyCollection(Integer.parseInt(limit), Integer.parseInt(offset), orderBy, fetchType, resourceType, user);
 	}
 
 	@Override
-	public List<CollectionItem> getMyCollectionItems(String partyUid, Map<String, String> filters, User user) {
+	public List<CollectionItem> getMyCollectionItems(String partyUid, Map<String, String> filters, final User user) {
 		User party = null;
 		if (partyUid != null && !partyUid.equalsIgnoreCase(MY)) {
 			party = userService.findByGooruId(partyUid);
@@ -2194,30 +2194,30 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 	@Override
 
-	public List<CollectionItem> getCollectionItems(String collectionId, Integer offset, Integer limit, String orderBy, String type) {
+	public List<CollectionItem> getCollectionItems(String collectionId, Integer offset, final Integer limit, final String orderBy, String type) {
 		return this.getCollectionRepository().getCollectionItems(collectionId, offset, limit, orderBy, "classpage");
 	}
 
 	@Override
-	public Map<String, Object> getCollection(String gooruOid, Map<String, Object> collection, String rootNodeId) {
-		Collection CollectionObj = this.getCollectionRepository().getCollectionByGooruOid(gooruOid, null);
-		collection.put(METAINFO, setMetaData(CollectionObj, false, rootNodeId));
-		Set<CollectionItem> collectionItems = new TreeSet<CollectionItem>();
-		for (CollectionItem collectionItem : CollectionObj.getCollectionItems()) {
+	public Map<String, Object> getCollection(String gooruOid, final Map<String, Object> collection, final String rootNodeId) {
+		Collection collectionObj = this.getCollectionRepository().getCollectionByGooruOid(gooruOid, null);
+		collection.put(METAINFO, setMetaData(collectionObj, false, rootNodeId));
+		final Set<CollectionItem> collectionItems = new TreeSet<CollectionItem>();
+		for (CollectionItem collectionItem : collectionObj.getCollectionItems()) {
 			collectionItem.getResource().setRatings(this.setRatingsObj(this.getResourceRepository().getResourceSummaryById(collectionItem.getResource().getGooruOid())));
 			collectionItems.add(collectionItem);
 		}
 		collection.put(COLLECTIONITEMS, collectionItems);
-		collection.put(GOALS, CollectionObj.getGoals());
-		collection.put(THUMBNAILS, CollectionObj.getThumbnails());
-		collection.put(GOORU_OID, CollectionObj.getGooruOid());
-		collection.put(TITLE, CollectionObj.getTitle());
+		collection.put(GOALS, collectionObj.getGoals());
+		collection.put(THUMBNAILS, collectionObj.getThumbnails());
+		collection.put(GOORU_OID, collectionObj.getGooruOid());
+		collection.put(TITLE, collectionObj.getTitle());
 		return collection;
 	}
 
 	@Override
-	public List<String> getParentCollection(String collectionGooruOid, String gooruUid, boolean reverse) {
-		List<String> parentIds = new ArrayList<String>();
+	public List<String> getParentCollection(final String collectionGooruOid, String gooruUid, boolean reverse) {
+		final List<String> parentIds = new ArrayList<String>();
 		getCollection(collectionGooruOid, gooruUid, parentIds);
 
 		if (reverse) {
@@ -2227,7 +2227,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		}
 	}
 
-	private List<String> getCollection(String collectionGooruOid, String gooruUid, List<String> parentIds) {
+	private List<String> getCollection(final String collectionGooruOid, String gooruUid, List<String> parentIds) {
 		String gooruOid = this.getCollectionRepository().getParentCollection(collectionGooruOid, gooruUid);
 		if (gooruOid != null) {
 			parentIds.add(gooruOid);
@@ -2254,7 +2254,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 	}
 
-	private ResourceMetaInfo setMetaData(Collection collection, boolean ignoreUserTaxonomyPreference, String rootNodeId) {
+	private ResourceMetaInfo setMetaData(final Collection collection, boolean ignoreUserTaxonomyPreference, final String rootNodeId) {
 		ResourceMetaInfo collectionMetaInfo = null;
 		if (collection != null && collection.getTaxonomySet() != null) {
 			collectionMetaInfo = new ResourceMetaInfo();
@@ -2266,8 +2266,8 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	private void saveOrUpdateCollectionGrade(String newResourceGrade, Resource newResource, Boolean merge) {
 		if (newResource.getGrade() != null && merge) {
 			String grade = newResource.getGrade();
-			String resourceGrade = newResourceGrade;
-			List<String> newResourceGrades = Arrays.asList(grade.split(","));
+			final String resourceGrade = newResourceGrade;
+			final List<String> newResourceGrades = Arrays.asList(grade.split(","));
 			if (resourceGrade != null) {
 				List<String> resourceGrades = Arrays.asList(resourceGrade.split(","));
 				if (resourceGrades != null) {
@@ -2305,13 +2305,13 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		return domainName;
 	}
 
-	public void getEventLogs(Collection collection, JSONObject ItemData, User user, boolean isCreate, boolean isUpdate) throws JSONException {
+	public void getEventLogs(Collection collection, JSONObject itemData, User user, boolean isCreate, boolean isUpdate) throws JSONException {
 		if(isCreate){
 			SessionContextSupport.putLogParameter(EVENT_NAME, ITEM_CREATE);
 		} else if(isUpdate){
 			SessionContextSupport.putLogParameter(EVENT_NAME,  ITEM_EDIT);
 		}
-		JSONObject context = SessionContextSupport.getLog().get(CONTEXT) != null ? new JSONObject(SessionContextSupport.getLog().get(CONTEXT).toString()) : new JSONObject();
+		final JSONObject context = SessionContextSupport.getLog().get(CONTEXT) != null ? new JSONObject(SessionContextSupport.getLog().get(CONTEXT).toString()) : new JSONObject();
 		if(collection != null ){
 			context.put(CONTENT_GOORU_ID, collection != null && collection.getCollectionItem() != null && collection.getCollectionItem().getResource() != null ? collection.getCollectionItem().getResource().getGooruOid() : null);
 			context.put(CONTENT_ITEM_ID, collection != null && collection.getCollectionItem() != null ? collection.getCollectionItem().getCollectionItemId() : null);
@@ -2319,7 +2319,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			context.put( PARENT_ITEM_ID, collection != null && collection.getCollectionItem() != null ? collection.getCollectionItem().getCollectionItemId() : null);
 		}
 		SessionContextSupport.putLogParameter(CONTEXT, context.toString());
-		JSONObject payLoadObject = SessionContextSupport.getLog().get(PAY_LOAD_OBJECT) != null ? new JSONObject(SessionContextSupport.getLog().get(PAY_LOAD_OBJECT).toString()) : new JSONObject();
+		final JSONObject payLoadObject = SessionContextSupport.getLog().get(PAY_LOAD_OBJECT) != null ? new JSONObject(SessionContextSupport.getLog().get(PAY_LOAD_OBJECT).toString()) : new JSONObject();
 		if(isCreate){
 			payLoadObject.put(MODE,   CREATE);
 		} else if(isUpdate){
@@ -2328,7 +2328,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			payLoadObject.put(MODE, _COPY);
 		}
 		payLoadObject.put(ITEM_TYPE, collection != null ? collection.getCollectionType()  : null);
-		payLoadObject.put(_ITEM_DATA , ItemData != null ? ItemData.toString() : null);
+		payLoadObject.put(_ITEM_DATA , itemData != null ? itemData.toString() : null);
 		SessionContextSupport.putLogParameter(PAY_LOAD_OBJECT, payLoadObject.toString());
 		JSONObject session = SessionContextSupport.getLog().get(SESSION) != null ? new JSONObject(SessionContextSupport.getLog().get(SESSION).toString()) : new JSONObject();
 		session.put( ORGANIZATION_UID, user != null && user.getOrganization() != null ? user.getOrganization().getPartyUid() : null);
@@ -2336,7 +2336,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 
 	@Override
-	public void getEventLogs(CollectionItem collectionItem, boolean isCreate, boolean isAdd, User user, String collectionType) throws JSONException {
+	public void getEventLogs(final CollectionItem collectionItem, boolean isCreate, boolean isAdd, User user, String collectionType) throws JSONException {
 		SessionContextSupport.putLogParameter(EVENT_NAME, ITEM_CREATE);
 		JSONObject context = SessionContextSupport.getLog().get(CONTEXT) != null ? new JSONObject(SessionContextSupport.getLog().get(CONTEXT).toString()) : new JSONObject();
 		context.put(PARENT_GOORU_ID, collectionItem != null && collectionItem.getCollection() != null ? collectionItem.getCollection().getGooruOid() : null);
@@ -2355,7 +2355,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		if (collectionType != null && collectionItem != null) {
 			if(collectionType.equalsIgnoreCase(CollectionType.SHElf.getCollectionType())){
 				if(collectionItem != null && collectionItem.getResource() != null){
-					String typeName = collectionItem.getResource().getResourceType().getName();
+					final String typeName = collectionItem.getResource().getResourceType().getName();
 					if(typeName.equalsIgnoreCase(ResourceType.Type.SCOLLECTION.getType())){
 						payLoadObject.put(ITEM_TYPE, SHELF_COLLECTION);
 					} else if(typeName.equalsIgnoreCase(ResourceType.Type.FOLDER.getType())){
@@ -2366,7 +2366,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				payLoadObject.put(ITEM_TYPE, COLLECTION_RESOURCE);
 			} else if (collectionType.equalsIgnoreCase(CollectionType.FOLDER.getCollectionType())) {
 				if(collectionItem != null && collectionItem.getResource() != null){
-					String itemTypeName = collectionItem.getResource().getResourceType().getName();
+					final String itemTypeName = collectionItem.getResource().getResourceType().getName();
 					if(itemTypeName.equalsIgnoreCase(ResourceType.Type.FOLDER.getType())){
 						payLoadObject.put(ITEM_TYPE, FOLDER_FOLDER);
 					} else if(itemTypeName.equalsIgnoreCase(ResourceType.Type.SCOLLECTION.getType())){
@@ -2387,7 +2387,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		SessionContextSupport.putLogParameter(SESSION, session.toString());
 	}
 	
-	public void getEventLogs(CollectionItem collectionItem , JSONObject ItemData, User user) throws JSONException {
+	public void getEventLogs(CollectionItem collectionItem , JSONObject itemData, User user) throws JSONException {
 		SessionContextSupport.putLogParameter(EVENT_NAME,  ITEM_EDIT);
 		JSONObject context = SessionContextSupport.getLog().get(CONTEXT) != null ? new JSONObject(SessionContextSupport.getLog().get(CONTEXT).toString()) : new JSONObject();
 		if(collectionItem != null ){
@@ -2397,9 +2397,9 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			context.put( PARENT_ITEM_ID, collectionItem != null ? collectionItem.getCollectionItemId() : null);
 		}
 		SessionContextSupport.putLogParameter(CONTEXT, context.toString());
-		JSONObject payLoadObject = SessionContextSupport.getLog().get(PAY_LOAD_OBJECT) != null ? new JSONObject(SessionContextSupport.getLog().get(PAY_LOAD_OBJECT).toString()) : new JSONObject();
+		final JSONObject payLoadObject = SessionContextSupport.getLog().get(PAY_LOAD_OBJECT) != null ? new JSONObject(SessionContextSupport.getLog().get(PAY_LOAD_OBJECT).toString()) : new JSONObject();
 		payLoadObject.put(ITEM_TYPE, collectionItem != null && collectionItem.getResource() != null ? collectionItem.getResource().getResourceType().getName() : null);
-		payLoadObject.put(_ITEM_DATA , ItemData != null ? ItemData.toString() : null);
+		payLoadObject.put(_ITEM_DATA , itemData != null ? itemData.toString() : null);
 		SessionContextSupport.putLogParameter(PAY_LOAD_OBJECT, payLoadObject.toString());
 		JSONObject session = SessionContextSupport.getLog().get(SESSION) != null ? new JSONObject(SessionContextSupport.getLog().get(SESSION).toString()) : new JSONObject();
 		session.put( ORGANIZATION_UID, user.getOrganization().getPartyUid());
@@ -2407,17 +2407,17 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 
 	@Override
-	public void getEventLogs(CollectionItem collectionItem, User user, String collectionType) throws JSONException {
+	public void getEventLogs(final CollectionItem collectionItem, User user, final String collectionType) throws JSONException {
 		SessionContextSupport.putLogParameter(EVENT_NAME, ITEM_DELETE);
-		JSONObject context = SessionContextSupport.getLog().get(CONTEXT) != null ? new JSONObject(SessionContextSupport.getLog().get(CONTEXT).toString()) : new JSONObject();
+		final JSONObject context = SessionContextSupport.getLog().get(CONTEXT) != null ? new JSONObject(SessionContextSupport.getLog().get(CONTEXT).toString()) : new JSONObject();
 		context.put(PARENT_GOORU_ID, collectionItem != null && collectionItem.getCollection() != null ? collectionItem.getCollection().getGooruOid() : null);
 		context.put(CONTENT_GOORU_ID, collectionItem != null && collectionItem.getResource() != null ? collectionItem.getResource().getGooruOid() : null);
 		SessionContextSupport.putLogParameter(CONTEXT, context.toString());
-		JSONObject payLoadObject = SessionContextSupport.getLog().get(PAY_LOAD_OBJECT) != null ? new JSONObject(SessionContextSupport.getLog().get(PAY_LOAD_OBJECT).toString()) : new JSONObject();
+		final JSONObject payLoadObject = SessionContextSupport.getLog().get(PAY_LOAD_OBJECT) != null ? new JSONObject(SessionContextSupport.getLog().get(PAY_LOAD_OBJECT).toString()) : new JSONObject();
 		if (collectionType != null && collectionItem != null) {
 			if(collectionType.equalsIgnoreCase(CollectionType.SHElf.getCollectionType())){
 				if(collectionItem.getResource() != null){
-					String typeName = collectionItem.getResource().getResourceType().getName();
+					final String typeName = collectionItem.getResource().getResourceType().getName();
 					if(typeName.equalsIgnoreCase(ResourceType.Type.SCOLLECTION.getType())){
 						payLoadObject.put(ITEM_TYPE, SHELF_COLLECTION);
 					} else if(typeName.equalsIgnoreCase(ResourceType.Type.FOLDER.getType())){
@@ -2450,7 +2450,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	
 	public void deleteBulkCollections(List<String> gooruOids){
 		List<Collection> collections = collectionRepository.getCollectionListByIds(gooruOids);
-		StringBuffer removeContentIds = new StringBuffer();
+		final StringBuffer removeContentIds = new StringBuffer();
 		for (Collection collection : collections) {
 			removeContentIds.append(collection.getGooruOid());
 		}
@@ -2458,7 +2458,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		indexProcessor.index(removeContentIds.toString(), IndexProcessor.DELETE, SCOLLECTION);
 	}
 	
-	public boolean isResourceType(Resource resource){
+	public boolean isResourceType(final Resource resource){
 		boolean isResourceType = false;
 		if(!resource.getResourceType().equals(ResourceType.Type.SCOLLECTION.getType()) && !resource.getResourceType().equals(ResourceType.Type.CLASSPAGE.getType()) && !resource.getResourceType().equals(ResourceType.Type.FOLDER.getType())){
 			isResourceType = true;

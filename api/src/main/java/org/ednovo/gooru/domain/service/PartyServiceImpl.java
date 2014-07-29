@@ -85,7 +85,7 @@ public class PartyServiceImpl extends BaseServiceImpl implements PartyService, P
 		return new ActionResponseDTO<PartyCustomField>(partyCustomField, error);
 	}
 
-	private Errors validatePartyCustomField(PartyCustomField partyCustomField, Party party) {
+	private Errors validatePartyCustomField(PartyCustomField partyCustomField, final Party party) {
 		final Map<String, String> partyCategory = getCategory();
 		final Errors errors = new BindException(partyCustomField, PARTY_CUSTOM_FIELD);
 		rejectIfNull(errors, party, PARTY, GL0056, generateErrorMessage(GL0056, PARTY));
@@ -100,7 +100,7 @@ public class PartyServiceImpl extends BaseServiceImpl implements PartyService, P
 	}
 
 	@Override
-	public PartyCustomField getPartyCustomeField(String partyId, String optionalKey, User user) {
+	public PartyCustomField getPartyCustomeField(String partyId, final String optionalKey, User user) {
 
 		return getPartyRepository().getPartyCustomField(partyId, optionalKey);
 	}
@@ -112,7 +112,7 @@ public class PartyServiceImpl extends BaseServiceImpl implements PartyService, P
 	}
 
 	@Override
-	public ActionResponseDTO<PartyCustomField> updatePartyCustomField(String partyId, PartyCustomField newPartyCustomField, final User user) {
+	public ActionResponseDTO<PartyCustomField> updatePartyCustomField(String partyId, final PartyCustomField newPartyCustomField, final User user) {
 		PartyCustomField partyCustomField = null;
 		if (partyId != null && partyId.equalsIgnoreCase(MY)) {
 			partyId = user.getUserUid();
@@ -141,7 +141,7 @@ public class PartyServiceImpl extends BaseServiceImpl implements PartyService, P
 		return new ActionResponseDTO<PartyCustomField>(partyCustomField, errors);
 	}
 
-	private Errors validateUpdatePartyCustomField(PartyCustomField partyCustomField, PartyCustomField newPartyCustomField) {
+	private Errors validateUpdatePartyCustomField(final PartyCustomField partyCustomField, final PartyCustomField newPartyCustomField) {
 		final Errors errors = new BindException(partyCustomField, PARTY_CUSTOM_FIELD);
 		rejectIfNull(errors, newPartyCustomField, PARTY_CUSTOM_FIELD, GL0056, generateErrorMessage(GL0056, PARTY_CUSTOM_FIELD));	
 		return errors;
