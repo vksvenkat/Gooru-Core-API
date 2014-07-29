@@ -175,6 +175,8 @@ public interface ParameterProperties {
 	String DESCRIPTION = "description";
 
 	String START = "start";
+	
+	String RESOURCE_TAGS = "resourceTags";
 
 	String STOP = "stop";
 

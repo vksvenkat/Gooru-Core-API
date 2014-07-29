@@ -2782,7 +2782,11 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			if (ContentProviderAssociationList.size() == 0) {
 				ContentProviderAssociation contentProviderAssociation = new ContentProviderAssociation();
 				contentProviderAssociation.setContentProvider(contentProvider);
-				contentProviderAssociation.setResourceSource(null);
+				ResourceSource resourceSource = new ResourceSource();
+				resourceSource.setDomainName(provider);
+				resourceSource.setActiveStatus(0);
+				this.getResourceRepository().save(resourceSource);
+				contentProviderAssociation.setResourceSource(resourceSource);
 				contentProviderAssociation.setGooruOid(gooruOid);
 				contentProviderAssociation.setAssociatedDate(new Date(System.currentTimeMillis()));
 				contentProviderAssociation.setAssociatedBy(user);
@@ -2987,6 +2991,10 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		}
 
 	}
+	
+//	public void deleteContentProvider(String gooruOid, String providerType, String name){
+//		this.getContentRepository().deleteContentProvider(gooruOid, providerType, name);
+//	}
 
 	private Errors validateUpdateResource(Resource newResource, Resource resource) throws Exception {
 		final Errors errors = new BindException(newResource, RESOURCE);
