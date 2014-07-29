@@ -36,7 +36,6 @@ import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.storage.StorageRepository;
 import org.hibernate.Query;
-import org.hibernate.Session;
 import org.hibernate.type.StandardBasicTypes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;

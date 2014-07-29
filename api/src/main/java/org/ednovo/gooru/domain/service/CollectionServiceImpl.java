@@ -23,10 +23,13 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.domain.service;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
@@ -549,7 +552,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	}
 
 	@Override
-	public List<CollectionItem> assignCollection(String classpageId, String collectionId, User user) throws Exception {
+	public List<CollectionItem> assignCollection(String classpageId, String collectionId, User user,String direction, String planedEndDate) throws Exception {
 		Classpage classpage = this.getCollectionRepository().getClasspageByCode(classpageId);
 		rejectIfNull(classpage, GL0056, 404, generateErrorMessage(GL0056, CLASSPAGE));
 		Collection collection = this.getCollectionRepository().getCollectionByGooruOid(collectionId, null);
@@ -562,16 +565,16 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 			filters.put(TYPE, COLLECTION);
 			List<CollectionItem> folderCollectionItems = this.getCollectionRepository().getCollectionItems(collectionId, filters);
 			for (CollectionItem collectionItem : folderCollectionItems) {
-				collectionItems.add(createClasspageItem(classpage, collectionItem.getResource(), user, sequence++));
+				collectionItems.add(createClasspageItem(classpage, collectionItem.getResource(), user, sequence++, direction, planedEndDate));
 			}
 		} else if (collection.getCollectionType().equalsIgnoreCase(COLLECTION)) {
-			collectionItems.add(createClasspageItem(classpage, collection, user, sequence));
+			collectionItems.add(createClasspageItem(classpage, collection, user, sequence, direction, planedEndDate));
 		}
 
 		return collectionItems;
 	}
 
-	private CollectionItem createClasspageItem(Classpage classPage, Resource collection, User user, int sequence) {
+	private CollectionItem createClasspageItem(Classpage classPage, Resource collection, User user, int sequence,String direction, String planedEndDate) {
 		CollectionItem collectionItem = new CollectionItem();
 		collectionItem.setCollection(classPage);
 		collectionItem.setResource(collection);
@@ -579,6 +582,18 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		collectionItem.setAssociatedUser(user);
 		collectionItem.setAssociationDate(new Date(System.currentTimeMillis()));
 		collectionItem.setItemSequence(sequence);
+		if (direction != null) {
+			collectionItem.setNarration(direction);
+		}
+		if (planedEndDate != null) {
+			try {
+				SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT, Locale.US);
+				Date date = dateFormat.parse(planedEndDate);
+				collectionItem.setPlannedEndDate(date);
+			} catch (ParseException e1) {
+				e1.printStackTrace();
+			}
+		}
 		classPage.setItemCount(sequence);
 		this.getResourceRepository().save(classPage);
 		this.getResourceRepository().save(collectionItem);
