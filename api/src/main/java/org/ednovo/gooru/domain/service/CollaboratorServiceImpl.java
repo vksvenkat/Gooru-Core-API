@@ -223,14 +223,14 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 						}
 						this.getContentService().deleteContentPermission(content, identity.getUser());
 						final List<CollectionItem> associations = this.getCollectionRepository().getCollectionItemByAssociation(gooruOid, identity.getUser().getGooruUId(),null);
+						try {
+							getEventLogs(identity.getUser(), associations.size() > 0 ? associations.get(0) : null, gooruOid, false, true);
+						} catch (JSONException e) {
+							e.printStackTrace();
+						}
 						for (CollectionItem association : associations) {
 							this.getCollectionService().deleteCollectionItem(association.getCollectionItemId(), identity.getUser());
 						}
-						try {
-							getEventLogs(identity.getUser(), associations.get(0), gooruOid, false, true);
-						} catch (JSONException e) {
-							e.printStackTrace();
-						}						
 					}
 					getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + identity.getUser().getPartyUid() + "*");
 					getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + content.getUser().getPartyUid() + "*");
@@ -360,13 +360,13 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 		context.put(SOURCE_GOORU_UID,gooruOid);
 		context.put(TARGET_GOORU_UID,collectionItem != null && collectionItem.getResource() != null ? collectionItem.getResource().getGooruOid() : null);
 		context.put(TARGET_ITEM_ID, collectionItem != null ? collectionItem.getCollectionItemId() : null);
-		context.put(PARENT_GOORU_OID, collectionItem != null ? collectionItem.getCollection().getGooruOid() : null);
+		context.put(PARENT_GOORU_OID, collectionItem != null  && collectionItem.getCollection() != null ? collectionItem.getCollection().getGooruOid() : null);
 		context.put(CONTENT_GOORU_ID, gooruOid);
 		SessionContextSupport.putLogParameter(CONTEXT, context.toString());
 		JSONObject session = SessionContextSupport.getLog().get(SESSION) != null ? new JSONObject(SessionContextSupport.getLog().get(SESSION).toString()) :  new JSONObject();
-		session.put(ORGANIZATION_UID, collaborator.getOrganizationUid());
+		session.put(ORGANIZATION_UID, collaborator != null ? collaborator.getOrganizationUid() : null);
 		JSONObject newUser = SessionContextSupport.getLog().get(USER) != null ? new JSONObject(SessionContextSupport.getLog().get(USER).toString()) :  new JSONObject();		
-		newUser.put(GOORU_UID, collaborator.getPartyUid());
+		newUser.put(GOORU_UID, collaborator != null ? collaborator.getPartyUid() : null);
 		SessionContextSupport.putLogParameter(SESSION, session.toString());	
 		JSONObject user = SessionContextSupport.getLog().get(USER) != null ? new JSONObject(SessionContextSupport.getLog().get(USER).toString()) :  new JSONObject();
 		SessionContextSupport.putLogParameter(USER, user.toString());
