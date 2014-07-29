@@ -38,6 +38,7 @@ import org.ednovo.gooru.core.api.model.Tag;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserSummary;
 import org.ednovo.gooru.core.application.util.CustomProperties;
+import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.domain.service.BaseServiceImpl;
@@ -53,7 +54,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service("v2Content")
-public class ContentServiceImpl extends BaseServiceImpl implements ContentService, ParameterProperties {
+public class ContentServiceImpl extends BaseServiceImpl implements ContentService, ConstantProperties, ParameterProperties {
 
 	@Autowired
 	private ContentRepository contentRepository;
@@ -118,8 +119,8 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 		Map<String, Object> contentTag = new HashMap<String, Object>();
 		contentTag.put(LABEL, label);
 		contentTag.put(TAG_GOORU_OID, contentTagAssoc.getTagGooruOid());
-		contentTag.put("associatedUid", contentTagAssoc.getAssociatedUid());
-		contentTag.put("contentGooruOid", contentTagAssoc.getContentGooruOid());
+		contentTag.put(ASSOCIATEDU_ID, contentTagAssoc.getAssociatedUid());
+		contentTag.put(CONTENT_GOORU_OID, contentTagAssoc.getContentGooruOid());
 		return contentTag;
 	}
 

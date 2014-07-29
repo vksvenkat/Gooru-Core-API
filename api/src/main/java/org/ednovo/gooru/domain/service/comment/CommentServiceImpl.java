@@ -176,8 +176,8 @@ public class CommentServiceImpl extends BaseServiceImpl implements CommentServic
 			commentData.put(COLLECTION_ID, comment.getGooruOid());
 		}
 		Collection collection = this.getCollectionRepository().getCollectionByGooruOid(comment.getGooruOid(), null);
-		PartyCustomField partyCustomField = this.getPartyRepository().getPartyCustomField(collection.getUser().getGooruUId(), "collection_comment_email_notification");
-		if(!collection.getUser().getPartyUid().equalsIgnoreCase(user.getPartyUid()) && partyCustomField != null && partyCustomField.getOptionalValue().equals("true") && collection.getMailNotification()){
+		PartyCustomField partyCustomField = this.getPartyRepository().getPartyCustomField(collection.getUser().getGooruUId(), COLLECTION_COMMENT_EMAIL_NOTIFICATION);
+		if(!collection.getUser().getPartyUid().equalsIgnoreCase(user.getPartyUid()) && partyCustomField != null && partyCustomField.getOptionalValue().equals(TRUE) && collection.getMailNotification()){
 				this.getMailAsyncExecuter().sendEmailNotificationforComment(commentData);
 		}
 	}
