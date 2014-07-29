@@ -5,6 +5,7 @@ package org.ednovo.gooru.cassandra.core.dao;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
@@ -12,6 +13,7 @@ import javax.annotation.PostConstruct;
 import org.ednovo.gooru.cassandra.core.factory.InsightsCassandraFactory;
 import org.ednovo.gooru.cassandra.core.factory.SearchCassandraFactory;
 
+import com.netflix.astyanax.ColumnListMutation;
 import com.netflix.astyanax.MutationBatch;
 import com.netflix.astyanax.connectionpool.OperationResult;
 import com.netflix.astyanax.connectionpool.exceptions.ConnectionException;
@@ -19,6 +21,7 @@ import com.netflix.astyanax.connectionpool.exceptions.NotFoundException;
 import com.netflix.astyanax.model.Column;
 import com.netflix.astyanax.model.ColumnFamily;
 import com.netflix.astyanax.model.ColumnList;
+import com.netflix.astyanax.model.ConsistencyLevel;
 import com.netflix.astyanax.model.Rows;
 
 /**
@@ -27,6 +30,8 @@ import com.netflix.astyanax.model.Rows;
  */
 public class RawCassandraDaoImpl extends CassandraDaoSupport<CassandraColumnFamily> implements RawCassandraDao {
 
+	protected static final ConsistencyLevel DEFAULT_CONSISTENCY_LEVEL = ConsistencyLevel.CL_QUORUM;
+	
 	private static Map<String, RawCassandraDaoImpl> coreCassandraDaos = new HashMap<String, RawCassandraDaoImpl>();
 
 	public RawCassandraDaoImpl() {
@@ -141,4 +146,20 @@ public class RawCassandraDaoImpl extends CassandraDaoSupport<CassandraColumnFami
 			throw new RuntimeException(e);
 		}
 	}
+
+	@Override
+	public void addIndexQueueEntry(String key, String columnPrefix, List<String> gooruOids) {
+		MutationBatch mutationBatch = getFactory().getKeyspace().prepareMutationBatch().setConsistencyLevel(DEFAULT_CONSISTENCY_LEVEL);
+		ColumnListMutation<String> mutation = mutationBatch.withRow(getCF().getColumnFamily(), key);
+		for(String gooruOid : gooruOids){
+			mutation.putColumnIfNotNull(columnPrefix+gooruOid, gooruOid);
+		}	
+		try {
+			mutationBatch.execute();
+		} catch (Exception ex) {
+			getLog().error("Error saving to cassandra", ex);
+		}
+  }
+	
+	
 }

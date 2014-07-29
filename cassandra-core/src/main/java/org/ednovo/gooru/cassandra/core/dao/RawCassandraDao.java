@@ -4,6 +4,7 @@
 package org.ednovo.gooru.cassandra.core.dao;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import com.netflix.astyanax.model.ColumnList;
@@ -34,4 +35,5 @@ public interface RawCassandraDao extends CassandraDao {
 	
 	void delete(String rowKey, String column);
 	
+	void addIndexQueueEntry(String key, String columnPrefix, List<String> gooruOids);
 }
