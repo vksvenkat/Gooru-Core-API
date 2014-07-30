@@ -37,6 +37,7 @@ import org.hibernate.criterion.Expression;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Repository;
 
 @Repository("userTokenRepository")
@@ -95,7 +96,7 @@ public class UserTokenRepositoryHibernate extends BaseRepositoryHibernate implem
 	public void saveUserSession(final UserToken userToken){
 		
 		if(userToken.getApiKey() == null || userToken.getApiKey().getApiKeyId() == null) {
-			throw new RuntimeException("Invalid API Key");
+			throw new BadCredentialsException("Invalid API Key");
 		}
 		
 		PreparedStatementCreator creator = new PreparedStatementCreator() {

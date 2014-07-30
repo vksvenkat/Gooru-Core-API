@@ -261,7 +261,9 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			if (parentCollection != null) {
 				collection.setCollectionItem(this.createCollectionItem(collection.getGooruOid(), parentCollection.getGooruOid(), new CollectionItem(), collection.getUser(), CollectionType.FOLDER.getCollectionType(), false).getModel());
 			}
-
+			collection.setClusterUid(collection.getGooruOid());
+			collection.setIsRepresentative(1);
+			
 			try {
 				indexProcessor.index(collection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
 				getAsyncExecutor().createVersion(collection, SCOLLECTION_CREATE, collection.getUser().getPartyUid());
@@ -706,6 +708,10 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			for (String parentFolder : parenFolders) {
 				updateFolderSharing(parentFolder);
 			}
+			if (collectionItem.getCollection().getResourceType().getName().equalsIgnoreCase(SCOLLECTION) && !collectionItem.getCollection().getClusterUid().equalsIgnoreCase(collectionItem.getCollection().getGooruOid())) { 
+				collectionItem.getCollection().setClusterUid(collectionItem.getCollection().getGooruOid());
+				this.getCollectionRepository().save(collectionItem.getCollection());
+			}
 			getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
 		}
 
@@ -844,9 +850,10 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				} catch (Exception e) {
 					LOGGER.debug("error"+e.getMessage());
 				}
-				/*if(collectionItem.getResource().getSharing().equals(Sharing.PRIVATE.getSharing()) && isResourceType(collectionItem.getResource())){
-					this.getResourceService().deleteResource(null, collectionItem.getResource().getGooruOid(), user);
-				}*/
+				if (collectionItem.getCollection().getResourceType().getName().equalsIgnoreCase(SCOLLECTION) && !collectionItem.getCollection().getClusterUid().equalsIgnoreCase(collectionItem.getCollection().getGooruOid())) { 
+					collectionItem.getCollection().setClusterUid(collectionItem.getCollection().getGooruOid());
+					this.getCollectionRepository().save(collectionItem.getCollection());
+				}
 		} else {
 			throw new NotFoundException(generateErrorMessage(GL0056, _COLLECTION_ITEM));
 
@@ -1919,6 +1926,8 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			}
 		}
 		this.getCollectionRepository().save(destCollection);
+		destCollection.setClusterUid(sourceCollection.getGooruOid());
+		destCollection.setIsRepresentative(0);
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + destCollection.getUser().getPartyUid() + "*");
 		
 		try {
@@ -2054,6 +2063,10 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 			} else {
 				throw new NotFoundException("collection does not exist in the system, required collection to map the resource");
+			}
+			if (response.getModel().getCollection().getResourceType().getName().equalsIgnoreCase(SCOLLECTION) && !response.getModel().getCollection().getClusterUid().equalsIgnoreCase(response.getModel().getCollection().getGooruOid())) { 
+				response.getModel().getCollection().setClusterUid(response.getModel().getCollection().getGooruOid());
+				this.getCollectionRepository().save(response.getModel().getCollection());
 			}
 			getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + response.getModel().getCollection().getUser().getPartyUid() + "*");
 		}
@@ -2206,10 +2219,10 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 
 	@Override
-	public Map<String, Object> getCollection(String gooruOid, final Map<String, Object> collection, final String rootNodeId) {
+	public Map<String, Object> getCollection(String gooruOid, Map<String, Object> collection, String rootNodeId) {
 		Collection collectionObj = this.getCollectionRepository().getCollectionByGooruOid(gooruOid, null);
 		collection.put(METAINFO, setMetaData(collectionObj, false, rootNodeId));
-		final Set<CollectionItem> collectionItems = new TreeSet<CollectionItem>();
+		Set<CollectionItem> collectionItems = new TreeSet<CollectionItem>();
 		for (CollectionItem collectionItem : collectionObj.getCollectionItems()) {
 			collectionItem.getResource().setRatings(this.setRatingsObj(this.getResourceRepository().getResourceSummaryById(collectionItem.getResource().getGooruOid())));
 			collectionItems.add(collectionItem);

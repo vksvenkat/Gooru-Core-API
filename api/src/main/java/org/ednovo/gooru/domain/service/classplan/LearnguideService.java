@@ -46,7 +46,7 @@ public interface LearnguideService {
 
 	List<Object> findAllLearnguides(ResourceType.Type type);
 
-	List<Learnguide> findByResource(String gooruResourceContentId, String String);
+	List<Learnguide> findByResource(String gooruResourceContentId, String string);
 
 	Learnguide findByContent(String gooruContentId);
 

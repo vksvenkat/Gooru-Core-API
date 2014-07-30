@@ -29,7 +29,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.fileupload.FileUploadBase.SizeLimitExceededException;
 import org.apache.commons.lang.NotImplementedException;
 import org.ednovo.gooru.core.exception.BadRequestException;
-import org.ednovo.gooru.core.exception.ClassplanException;
+import org.ednovo.gooru.core.exception.MethodFailureException;
 import org.ednovo.gooru.core.exception.NotAllowedException;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.core.exception.UnauthorizedException;
@@ -42,7 +42,6 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.SimpleMappingExceptionResolver;
 
 import flexjson.JSONSerializer;
-//import org.ednovo.gooru.search.es.exception.SearchException;
 
 public class GooruExceptionResolver extends SimpleMappingExceptionResolver {
 
@@ -65,10 +64,7 @@ public class GooruExceptionResolver extends SimpleMappingExceptionResolver {
 		else if (ex instanceof SizeLimitExceededException) {
 			response.setStatus(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE);
 			errorObject = new ErrorObject(413, ex.getMessage());
-		} else if (ex instanceof ClassplanException) {
-			response.setStatus(HttpServletResponse.SC_EXPECTATION_FAILED);
-			errorObject = new ErrorObject(404, ex.getMessage());
-		} else if (ex instanceof S3ServiceException) {
+		}  else if (ex instanceof S3ServiceException) {
 			response.setStatus(500);
 			errorObject = new ErrorObject(500, "Internal Server Error");
 			logger.info("Error in Resolver -- " + ((S3ServiceException) ex).getErrorMessage());
@@ -79,11 +75,15 @@ public class GooruExceptionResolver extends SimpleMappingExceptionResolver {
 		} else if (ex instanceof NotImplementedException || ex instanceof NotAllowedException) {
 			response.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
 			errorObject = new ErrorObject(405, ex.getMessage());
-		}else {
+		} else if (ex instanceof MethodFailureException) { 
+			response.setStatus(420);
+			errorObject = new ErrorObject(420, ex.getMessage());
+		} else {
 			errorObject = new ErrorObject(500, "Internal Server Error");
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			logger.info("Error in Resolver -- " + ex);
 		}
+		
 		if(!isLogError)
 		{
 			logger.debug("Error in Resolver -- ", ex);

@@ -1983,6 +1983,18 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		this.resourceRepository.save(resource);
 		return resource;
 	}
+	
+	@Override
+	public ResourceInstance checkResourceUrlExists(String url, boolean checkShortenedUrl)
+			throws Exception {
+		Resource resource = findResourceByUrl(url, Sharing.PUBLIC.getSharing(), null);
+		ResourceInstance resourceInstance = new ResourceInstance();
+		resourceInstance.setResource(resource);
+		if (checkShortenedUrl) {
+			resourceInstance.setShortenedUrlStatus(shortenedUrlResourceCheck(url));
+		}
+		return resourceInstance;
+	}
 
 	@Override
 	public Resource findResourceByUrl(String resourceUrl, String sharing, String userUid) {
@@ -3161,4 +3173,6 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			}
 		}
 	}
+
+	
 }

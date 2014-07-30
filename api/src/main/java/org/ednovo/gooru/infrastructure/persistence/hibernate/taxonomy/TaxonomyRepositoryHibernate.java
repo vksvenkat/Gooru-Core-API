@@ -274,8 +274,8 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 		maxDepth = (CodeType) this.getJdbcTemplate().queryForObject(depthQuery, new RowMapper() {
 			public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
 				CodeType codetype = new CodeType();
-				int type_id = (Integer) rs.getInt("type_id");
-				codetype.setTypeId(type_id);
+				int typeId = (Integer) rs.getInt("type_id");
+				codetype.setTypeId(typeId);
 
 				return codetype;
 			}
