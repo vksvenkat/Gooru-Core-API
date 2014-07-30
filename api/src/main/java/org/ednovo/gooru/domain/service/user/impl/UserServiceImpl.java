@@ -518,12 +518,12 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 		try {
 			md = MessageDigest.getInstance("SHA-1"); // step 2
 		} catch (NoSuchAlgorithmException e) {
-			throw new RuntimeException("Error while authenticating user - No algorithm exists. ", e);
+			throw new BadCredentialsException("Error while authenticating user - No algorithm exists. ", e);
 		}
 		try {
 			md.update(password.getBytes("UTF-8")); // step 3
 		} catch (UnsupportedEncodingException e) {
-			throw new RuntimeException("Error while authenticating user - ", e);
+			throw new BadCredentialsException("Error while authenticating user - ", e);
 		}
 		byte raw[] = md.digest(); // step 4
 		String hash = (new Base64Encoder()).encode(raw); // step 5
@@ -764,7 +764,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 
 			boolean usernameAvailability = this.getUserRepository().checkUserAvailability(username, CheckUser.BYUSERNAME, false);
 			if (usernameAvailability) {
-				throw new RuntimeException("Someone already has taken " + username + "!.Please pick another username.");
+				throw new BadCredentialsException("Someone already has taken " + username + "!.Please pick another username.");
 			} else {
 				user.setUsername(username);
 			}
@@ -785,7 +785,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 			boolean emailAvailability = this.getUserRepository().checkUserAvailability(email, CheckUser.BYEMAILID, false);
 
 			if (emailAvailability) {
-				throw new RuntimeException("Someone already has taken " + email + "!.Please pick another email.");
+				throw new BadCredentialsException("Someone already has taken " + email + "!.Please pick another email.");
 			}
 
 			identity.setExternalId(email);
@@ -1243,29 +1243,29 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 		identity = this.getUserRepository().findByEmailIdOrUserName(username, true, false);
 
 		if (identity == null) {
-			throw new RuntimeException("error:Please double-check your email address and password, and then try logging in again.");
+			throw new BadCredentialsException("error:Please double-check your email address and password, and then try logging in again.");
 		}
 
 		Date deactivateOn = identity.getDeactivatedOn();
 
 		if (deactivateOn != null && deactivateOn.before(new Date(System.currentTimeMillis()))) {
-			throw new RuntimeException("error: The user has been deactivated from the system.\nPlease contact Gooru Administrator.");
+			throw new BadCredentialsException("error: The user has been deactivated from the system.\nPlease contact Gooru Administrator.");
 		}
 
 		User user = this.getUserRepository().findByIdentity(identity);
 
 		if (!isSsoLogin) {
 			if (identity.getCredential() == null) {
-				throw new RuntimeException("error:Please double check your email ID and password and try again.");
+				throw new BadCredentialsException("error:Please double check your email ID and password and try again.");
 			}
 			String encryptedPassword = encryptPassword(password);
 			if (user == null || !(encryptedPassword.equals(identity.getCredential().getPassword()))) {
 
-				throw new RuntimeException("error:Please double-check your password and try signing in again.");
+				throw new BadCredentialsException("error:Please double-check your password and try signing in again.");
 			}
 
 			if (user.getConfirmStatus() == 0) {
-				throw new RuntimeException("error:We sent you a confirmation email with instructions on how to complete your Gooru registration. Please check your email, and then try again. Didn’t receive a confirmation email? Please contact us at support@goorulearning.org");
+				throw new BadCredentialsException("error:We sent you a confirmation email with instructions on how to complete your Gooru registration. Please check your email, and then try again. Didn’t receive a confirmation email? Please contact us at support@goorulearning.org");
 			}
 		}
 
@@ -1952,29 +1952,29 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 
 	private void usernameValidation(String username, String orgnaizationUid) {
 		if (username.length() < 5) {
-			throw new RuntimeException("Username should be atleast 5 characters");
+			throw new BadCredentialsException("Username should be atleast 5 characters");
 		}
 
 		else if (username.length() > 20) {
-			throw new RuntimeException("Username should be within 20 characters");
+			throw new BadCredentialsException("Username should be within 20 characters");
 		}
 
 		else if (username.charAt(0) >= '0' && username.charAt(0) <= '9' || checkUsernameStartAndEndWithSpecialCharacters(username, true)) {
-			throw new RuntimeException("Username must begin with a letter");
+			throw new BadCredentialsException("Username must begin with a letter");
 		}
 
 		else if (containsWhiteSpace(username)) {
-			throw new RuntimeException("Username should not contain spaces");
+			throw new BadCredentialsException("Username should not contain spaces");
 		} else if (checkLatinWordInUserName(username)) {
-			throw new RuntimeException("Username must contain only latin letters or digits.");
+			throw new BadCredentialsException("Username must contain only latin letters or digits.");
 		}
 
 		else if (checkUsernameStartAndEndWithSpecialCharacters(username, false)) {
-			throw new RuntimeException("Username must end with a letter or digit");
+			throw new BadCredentialsException("Username must end with a letter or digit");
 		}
 
 		else if (checkUsernameIsRestricted(username, orgnaizationUid)) {
-			throw new RuntimeException("Username should not give the impression that the account has permissions ");
+			throw new BadCredentialsException("Username should not give the impression that the account has permissions ");
 		}
 	}
 
