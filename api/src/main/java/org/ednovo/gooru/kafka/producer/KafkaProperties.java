@@ -45,22 +45,22 @@ public final class KafkaProperties {
 	 public static final String KAFKA_PREFIX = "kafka.";
 	  
 	  
-	 public String ZK_CONNECT_VALUE;
-	 public String GROUP_ID_VALUE;
-	 public String TOPIC_VALUE;
-	 public String KAFKA_SERVER_URL_VALUE;
+	 public String zkConnectValue;
+	 public String groupIdValue;
+	 public String topicValue;
+	 public String kafaServiceUrl;
 	  
-	  private static final Logger logger = LoggerFactory.getLogger(KafkaProperties.class);
+	  private static final Logger LOGGER = LoggerFactory.getLogger(KafkaProperties.class);
 	  
 	  @PostConstruct
 	  public void init(){
 		  try{
-			  ZK_CONNECT_VALUE = configSettingRepository.getSetting(KAFKA_PREFIX+ZK_CONNECT);
-			  GROUP_ID_VALUE = configSettingRepository.getSetting(KAFKA_PREFIX+GROUP_ID);
-			  TOPIC_VALUE = configSettingRepository.getSetting(KAFKA_PREFIX+TOPIC);
-			  KAFKA_SERVER_URL_VALUE = configSettingRepository.getSetting(KAFKA_PREFIX+KAFKA_SERVER_URL);
+			  zkConnectValue = configSettingRepository.getSetting(KAFKA_PREFIX+ZK_CONNECT);
+			  groupIdValue = configSettingRepository.getSetting(KAFKA_PREFIX+GROUP_ID);
+			  topicValue = configSettingRepository.getSetting(KAFKA_PREFIX+TOPIC);
+			  kafaServiceUrl = configSettingRepository.getSetting(KAFKA_PREFIX+KAFKA_SERVER_URL);
 		  } catch(Exception e){
-			  logger.info("kafka error while getting config setting fields value :" + e);
+			  LOGGER.info("kafka error while getting config setting fields value :" + e);
 		  }
 	  }
 }

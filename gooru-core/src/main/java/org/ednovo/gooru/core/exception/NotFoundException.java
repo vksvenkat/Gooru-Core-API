@@ -1,6 +1,11 @@
 package org.ednovo.gooru.core.exception;
 
 public class NotFoundException extends RuntimeException {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 671804410291844746L;
+
 	public NotFoundException()
 	{
 		super();

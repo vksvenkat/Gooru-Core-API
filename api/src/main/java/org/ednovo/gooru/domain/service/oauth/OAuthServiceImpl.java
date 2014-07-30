@@ -33,6 +33,7 @@ import org.ednovo.gooru.core.api.model.UserRole.UserRoleType;
 import org.ednovo.gooru.core.api.model.UserRoleAssoc;
 import org.ednovo.gooru.core.application.util.ServerValidationUtils;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.domain.model.oauth.AuthorizationGrantType;
 import org.ednovo.gooru.domain.model.oauth.OAuthClient;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
@@ -59,12 +60,12 @@ public class OAuthServiceImpl extends ServerValidationUtils implements OAuthServ
 	public User getUserByOAuthAccessToken(String accessToken) throws Exception {
 		String clientId = oAuthRepository.findClientByAccessToken(accessToken);
 		if(clientId == null){
-			throw new RuntimeException("Client not found for given oauth token");
+			throw new NotFoundException("Client not found for given oauth token");
 		}
 		OAuthClient oAuthClient = oAuthRepository.findOAuthClientByClientId(clientId);
 		User user = oAuthClient.getUser();
 		if(user == null){
-			throw new RuntimeException("User not found for given oauth token");
+			throw new NotFoundException("User not found for given oauth token");
 		}
 		return user;
 	}

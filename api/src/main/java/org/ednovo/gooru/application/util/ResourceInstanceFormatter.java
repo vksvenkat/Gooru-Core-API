@@ -40,6 +40,7 @@ import org.ednovo.gooru.core.api.model.ResourceType;
 import org.ednovo.gooru.core.api.model.Segment;
 import org.ednovo.gooru.core.api.model.Textbook;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.core.exception.MethodFailureException;
 import org.ednovo.gooru.domain.service.resource.ResourceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -156,7 +157,7 @@ public class ResourceInstanceFormatter implements ParameterProperties{
 		try {
 			questionSet = (Element) DocumentHelper.parseText(questionXML.toString()).getRootElement();
 		} catch (Exception e) {
-			throw new RuntimeException("Error while converting to a document");
+			throw new MethodFailureException("Error while converting to a document");
 		}
 		resourceElm.add(questionSet);
 
@@ -411,7 +412,7 @@ public class ResourceInstanceFormatter implements ParameterProperties{
 			String xml = getLearnguide(learnguide, retriveSkeletons).asXML();
 			document = DocumentHelper.parseText(xml);
 		} catch (Exception e) {
-			throw new RuntimeException("Error while converting xml to document", e);
+			throw new MethodFailureException("Error while converting xml to document", e);
 		}
 		return document;
 	}

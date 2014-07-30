@@ -50,6 +50,6 @@ public interface UserGroupService {
 
 	List<User> getUserGroup(String groupUid) throws Exception;
 
-	List<ContentPermission> contentShare(String contentId, User user, String partyUids, Boolean shareOtherOrganization, String OrganizationId) throws Exception;
+	List<ContentPermission> contentShare(String contentId, User user, String partyUids, Boolean shareOtherOrganization, String organizationId) throws Exception;
 
 }

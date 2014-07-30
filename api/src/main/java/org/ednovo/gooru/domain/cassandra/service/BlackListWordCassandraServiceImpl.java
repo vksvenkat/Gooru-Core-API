@@ -43,7 +43,7 @@ public class BlackListWordCassandraServiceImpl implements BlackListWordCassandra
 	@Autowired
 	private ApiCassandraFactory apiCassandraFactory;
 
-	private static List<String> BLACK_LISTED_WORDS = null;
+	private static List<String> blackListedWords = null;
 
 	private static final String BLACK_LISTED_WORDS_KEY = "black_listed_words";
 
@@ -53,7 +53,7 @@ public class BlackListWordCassandraServiceImpl implements BlackListWordCassandra
 
 	@Override
 	public boolean validate(String query) {
-		if (BLACK_LISTED_WORDS == null || BLACK_LISTED_WORDS.size() <= 0) {
+		if (blackListedWords == null || blackListedWords.size() <= 0) {
 			reset();
 		}
 		if (query != null && !query.equals(WILD_CARD)) {
@@ -61,7 +61,7 @@ public class BlackListWordCassandraServiceImpl implements BlackListWordCassandra
 				String[] blackWords = query.split(expression);
 				for (String blackWord : blackWords) {
 					blackWord = blackWord.trim();
-					if (BLACK_LISTED_WORDS.contains(blackWord.toLowerCase())) {
+					if (blackListedWords.contains(blackWord.toLowerCase())) {
 						return true;
 					}
 				}
@@ -72,10 +72,10 @@ public class BlackListWordCassandraServiceImpl implements BlackListWordCassandra
 
 	@Override
 	public synchronized void reset() {
-		BLACK_LISTED_WORDS = new ArrayList<String>();
+		blackListedWords = new ArrayList<String>();
 		ColumnList<String> blackListWords = getDao().read(BLACK_LISTED_WORDS_KEY); 
 		if (blackListWords != null) {
-			BLACK_LISTED_WORDS.addAll(blackListWords.getColumnNames());
+			blackListedWords.addAll(blackListWords.getColumnNames());
 		}
 	}
 
@@ -99,7 +99,7 @@ public class BlackListWordCassandraServiceImpl implements BlackListWordCassandra
 	}
 
 	public Collection<String> read() {
-		BLACK_LISTED_WORDS = new ArrayList<String>();
+		blackListedWords = new ArrayList<String>();
 		ColumnList<String> blackListWords = getDao().read(BLACK_LISTED_WORDS_KEY);
 		return blackListWords.getColumnNames();
 	}

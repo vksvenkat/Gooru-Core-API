@@ -280,7 +280,7 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 				ContentType contentType = (ContentType) baseRepository.get(ContentType.class, ContentType.RESOURCE);
 				assessment.setContentType(contentType);
 				if (assessment.getDistinguish() == null) {
-					assessment.setDistinguish((short) 0);
+					assessment.setDistinguish(Short.valueOf("0"));
 				}
 				if (assessment.getIsFeatured() == null) {
 					assessment.setIsFeatured(0);
@@ -638,7 +638,7 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 					question.setSharing(PUBLIC);
 				}
 				if (question.getDistinguish() == null) {
-					question.setDistinguish((short) 0);
+					question.setDistinguish(Short.valueOf("0"));
 				}
 				if (question.getIsFeatured() == null) {
 					question.setIsFeatured(0);

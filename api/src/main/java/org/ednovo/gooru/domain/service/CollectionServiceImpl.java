@@ -137,8 +137,8 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		CollectionItem collectionItem = this.getCollectionItemById(collectionItemId);
 		AssessmentQuestion newQuestion = getAssessmentService().buildQuestionFromInputParameters(data, user, true);
 		Errors errors = validateUpdateCollectionItem(collectionItem);
-		JSONObject ItemData = new JSONObject();
-		ItemData.put("itemData", data);
+		final JSONObject itemData = new JSONObject();
+		itemData.put("itemData", data);
 		if (!errors.hasErrors()) {
 			AssessmentQuestion question = getAssessmentService().getQuestion(collectionItem.getResource().getGooruOid());
 			if (question != null) {
@@ -173,7 +173,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 			throw new NotFoundException("Question Not Found");
 		}
 		try {
-			getEventLogs(collectionItem, ItemData, user);
+			getEventLogs(collectionItem, itemData, user);
 		} catch(Exception e){
 			e.printStackTrace();
 		}

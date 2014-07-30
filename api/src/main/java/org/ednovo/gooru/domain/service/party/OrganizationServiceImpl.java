@@ -49,6 +49,7 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.OrganizationSetting
 import org.ednovo.gooru.infrastructure.persistence.hibernate.party.OrganizationRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.storage.StorageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
@@ -156,7 +157,7 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 			}
 		}
 		else {
-			throw new RuntimeException("Values should not be null !");
+			throw new BadCredentialsException("Values should not be null !");
 		}
 		
 		return new ActionResponseDTO<OrganizationSetting>(organizationSetting, null);
