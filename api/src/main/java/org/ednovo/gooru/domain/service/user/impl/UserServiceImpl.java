@@ -928,7 +928,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 		if (isContentAdmin(apiCaller)) {
 			User user = getUser(gooruUId);
 			Set<UserRoleAssoc> roleSet = new HashSet<UserRoleAssoc>();
-			List<UserRole> userRoles = this.getUserRepository().findRolesByNames(roles);
+			final List<UserRole> userRoles = this.getUserRepository().findRolesByNames(roles);
 			Set<UserRoleAssoc> currentRoles = user.getUserRoleSet();
 			if (userRoles != null) {
 				for (UserRole userRole : userRoles) {
