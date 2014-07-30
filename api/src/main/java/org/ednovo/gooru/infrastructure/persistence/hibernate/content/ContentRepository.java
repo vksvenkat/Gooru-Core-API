@@ -83,6 +83,6 @@ public interface ContentRepository extends BaseRepository {
 	
 	ContentProvider getContentProviderByName(String name, String keyValue);
 	
-//	void deleteContentProvider(String gooruOid, String providerType, String name);
+	void deleteContentProvider(String gooruOid, String providerType, String name);
 
 }

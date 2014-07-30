@@ -167,17 +167,17 @@ public class CommentServiceImpl extends BaseServiceImpl implements CommentServic
 		Map<String, String> commentData = new HashMap<String, String>();
 		if (comment.getComment() != null) {
 
-			commentData.put("commentText", comment.getComment());
+			commentData.put(COMMENT_TEXT, comment.getComment());
 		}
 		if (user.getUsername() != null) {
-			commentData.put("userName", user.getUsername());
+			commentData.put(USERNAME, user.getUsername());
 		}
 		if (comment.getGooruOid() != null) {
-			commentData.put("collectionId", comment.getGooruOid());
+			commentData.put(COLLECTION_ID, comment.getGooruOid());
 		}
 		Collection collection = this.getCollectionRepository().getCollectionByGooruOid(comment.getGooruOid(), null);
-		PartyCustomField partyCustomField = this.getPartyRepository().getPartyCustomField(collection.getUser().getGooruUId(), "collection_comment_email_notification");
-		if(!collection.getUser().getPartyUid().equalsIgnoreCase(user.getPartyUid()) && partyCustomField != null && partyCustomField.getOptionalValue().equals("true") && collection.getMailNotification()){
+		PartyCustomField partyCustomField = this.getPartyRepository().getPartyCustomField(collection.getUser().getGooruUId(), COLLECTION_COMMENT_EMAIL_NOTIFICATION);
+		if(!collection.getUser().getPartyUid().equalsIgnoreCase(user.getPartyUid()) && partyCustomField != null && partyCustomField.getOptionalValue().equals(TRUE) && collection.getMailNotification()){
 				this.getMailAsyncExecuter().sendEmailNotificationforComment(commentData);
 		}
 	}

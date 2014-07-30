@@ -82,6 +82,7 @@ import org.ednovo.gooru.core.application.util.ErrorMessage;
 import org.ednovo.gooru.core.application.util.RequestUtil;
 import org.ednovo.gooru.core.application.util.ResourceMetaInfo;
 import org.ednovo.gooru.core.application.util.ServerValidationUtils;
+import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.domain.service.CollectionService;
@@ -115,7 +116,7 @@ import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.json.JettisonMappedXmlDriver;
 
 @Service
-public class AssessmentServiceImpl implements AssessmentService, ParameterProperties {
+public class AssessmentServiceImpl implements ConstantProperties, AssessmentService, ParameterProperties {
 
 	@Autowired
 	private AssessmentRepository assessmentRepository;
@@ -570,14 +571,14 @@ public class AssessmentServiceImpl implements AssessmentService, ParameterProper
 			assessmentRepository.save(question);
 
 			if(depth != null && depth.size() > 0) {
-				question.setDepthOfKnowledges(this.collectionService.updateContentMeta(depth,question.getGooruOid(), question.getUser(), "depth_of_knowledge"));
+				question.setDepthOfKnowledges(this.collectionService.updateContentMeta(depth,question.getGooruOid(), question.getUser(), DEPTH_OF_KNOWLEDGE));
 			} else {
-				question.setDepthOfKnowledges(this.collectionService.setContentMetaAssociation(this.collectionService.getContentMetaAssociation("depth_of_knowledge"), question.getGooruOid(), "depth_of_knowledge"));
+				question.setDepthOfKnowledges(this.collectionService.setContentMetaAssociation(this.collectionService.getContentMetaAssociation(DEPTH_OF_KNOWLEDGE), question.getGooruOid(), DEPTH_OF_KNOWLEDGE));
 			}
 			if(educational != null && educational.size() > 0) {
-				question.setEducationalUse(this.collectionService.updateContentMeta(educational,question.getGooruOid(), question.getUser(), "educational_use"));
+				question.setEducationalUse(this.collectionService.updateContentMeta(educational,question.getGooruOid(), question.getUser(), EDUCATIONAL_USE));
 			} else {
-				question.setEducationalUse(this.collectionService.setContentMetaAssociation(this.collectionService.getContentMetaAssociation("educational_use"), question.getGooruOid(), "educational_use"));
+				question.setEducationalUse(this.collectionService.setContentMetaAssociation(this.collectionService.getContentMetaAssociation(EDUCATIONAL_USE), question.getGooruOid(), EDUCATIONAL_USE));
 			}
 
 			if (question.getResourceInfo() != null) {
@@ -1316,9 +1317,9 @@ public class AssessmentServiceImpl implements AssessmentService, ParameterProper
 	}
 
 	private Errors validateQuestionSet(QuestionSet questionSet) throws Exception {
-		final Errors errors = new BindException(questionSet, "questionSet");
+		final Errors errors = new BindException(questionSet, QUESTION_SET);
 		if (questionSet != null) {
-			ServerValidationUtils.rejectIfNullOrEmpty(errors, questionSet.getTitle(), "title", ErrorMessage.REQUIRED_FIELD);
+			ServerValidationUtils.rejectIfNullOrEmpty(errors, questionSet.getTitle(), TITLE, ErrorMessage.REQUIRED_FIELD);
 		}
 		return errors;
 	}
@@ -1869,8 +1870,8 @@ public class AssessmentServiceImpl implements AssessmentService, ParameterProper
 		xstream.alias(ANSWER, AssessmentAnswer.class);
 		xstream.alias(HINT, AssessmentHint.class);
 		xstream.alias(TAXONOMY_CODE, Code.class);
-		xstream.alias("depthOfKnowledge", ContentMetaDTO.class);
-		xstream.alias("educationalUse", ContentMetaDTO.class);
+		xstream.alias(_DEPTH_OF_KNOWLEDGE, ContentMetaDTO.class);
+		xstream.alias(_EDUCATIONAL_USE, ContentMetaDTO.class);
 		AssessmentQuestion question = (AssessmentQuestion) xstream.fromXML(jsonData);
 		if (addFlag) {
 			question.setUser(user);

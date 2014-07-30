@@ -527,7 +527,7 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 		Content content = this.getContentRepository().findContentByGooruId(newFeaturedSetItems.getContent().getGooruOid());
 		rejectIfNull(content, GL0056, CONTENT);
 		FeaturedSetItems featuredSetItem = this.getFeaturedRepository().getFeaturedItemByIdAndType(featuredSetItemId, type);
-		rejectIfNull(featuredSetItem, GL0056, "item");
+		rejectIfNull(featuredSetItem, GL0056, ITEM);
 		if (newFeaturedSetItems.getFeaturedSet() != null && newFeaturedSetItems.getFeaturedSet().getName() != null) {
 			featuredSetItem.getFeaturedSet().setName(newFeaturedSetItems.getFeaturedSet().getName());
 		}

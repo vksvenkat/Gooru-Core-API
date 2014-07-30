@@ -91,7 +91,7 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_ADD })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.POST }, value = "")
-	public ModelAndView createUser(HttpServletRequest request, @RequestBody String data, @RequestParam(value = SESSIONTOKEN, required = false) String sessionToken, @RequestParam(value = "sharedSecretKey", required = false) String sharedSecretKey, @RequestParam(value = "orgAdmin", required = false, defaultValue="false") Boolean orgAdmin, @RequestParam(value = "adminOrganizationUid", required = false) String adminOrganizationUid, HttpServletResponse response) throws Exception {
+	public ModelAndView createUser(HttpServletRequest request, @RequestBody String data, @RequestParam(value = SESSIONTOKEN, required = false) String sessionToken, @RequestParam(value = SHARED_SECRETKEY, required = false) String sharedSecretKey, @RequestParam(value = ORG_ADMIN, required = false, defaultValue="false") Boolean orgAdmin, @RequestParam(value = ADMIN_ORGANIZATION_UID, required = false) String adminOrganizationUid, HttpServletResponse response) throws Exception {
 		JSONObject json = requestData(data);
 		User creator = this.buildUserFromInputParameters((getValue(USER, json)));
 		String sessionId = request.getSession().getId();
@@ -109,7 +109,7 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 
 		User user = this.getUserManagementService().createUserWithValidation(creator, getValue(PASSWORD, json), null, getValue(CONFIRM_STATUS, json) != null ? Integer.parseInt(getValue(CONFIRM_STATUS, json)) : null, getValue(USEGENERATEDPASSWORD, json) != null ? Boolean.parseBoolean(getValue(USEGENERATEDPASSWORD, json)) : false,
 				getValue(SENDCONFIRMATIONMAIL, json) != null ? Boolean.parseBoolean(getValue(SENDCONFIRMATIONMAIL, json)) : true, apiCaller, getValue(ACCOUNTTYPE, json), dateOfBirth, getValue(USERPARENTID, json), sessionId, getValue(GENDER, json), getValue(CHILDDOB, json),
-				getValue(GOORU_BASE_URL, json), getValue(TOKEN, json) != null ? Boolean.parseBoolean(getValue(TOKEN, json)) : false, request, getValue("role", json), getValue(MAIL_CONFIRMATION_URL, json) != null ? getValue(MAIL_CONFIRMATION_URL, json) : null );
+				getValue(GOORU_BASE_URL, json), getValue(TOKEN, json) != null ? Boolean.parseBoolean(getValue(TOKEN, json)) : false, request, getValue(ROLE, json), getValue(MAIL_CONFIRMATION_URL, json) != null ? getValue(MAIL_CONFIRMATION_URL, json) : null );
 		if (user != null) {
 			if(orgAdmin && adminOrganizationUid != null){
 				this.getUserManagementService().updateOrgAdminCustomField(adminOrganizationUid, user);
@@ -131,10 +131,10 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 		JSONObject json = requestData(data);
 		Boolean emailConfirmStatus = false;
 
-		if (getValue(EMAIL_CONFIRM_STATUS, json) != null && getValue(EMAIL_CONFIRM_STATUS, json).equalsIgnoreCase("true")) {
+		if (getValue(EMAIL_CONFIRM_STATUS, json) != null && getValue(EMAIL_CONFIRM_STATUS, json).equalsIgnoreCase(TRUE)) {
 			emailConfirmStatus = true;
 		}
-		Profile profile = this.getUserManagementService().updateProfileInfo(getValue(PROFILE, json) != null ? this.buildProfileFromInputParameters(getValue(PROFILE, json)) : null, gooruUid, apicaller, getValue(USER_META_ACTIVE_FLAG, json), emailConfirmStatus, getValue("showProfilePage", json),getValue("accountType", json),getValue("password", json));
+		Profile profile = this.getUserManagementService().updateProfileInfo(getValue(PROFILE, json) != null ? this.buildProfileFromInputParameters(getValue(PROFILE, json)) : null, gooruUid, apicaller, getValue(USER_META_ACTIVE_FLAG, json), emailConfirmStatus, getValue(_SHOW_PROFILE_PAGE, json),getValue(ACCOUNTTYPE, json),getValue(PASSWORD, json));
 
 		if (profile != null) {
 			indexProcessor.index(profile.getUser().getPartyUid(), IndexProcessor.INDEX, USER);
@@ -156,7 +156,7 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 		User apicaller = (User) request.getAttribute(Constants.USER);
 		String sessionId = request.getSession().getId();
 		JSONObject json = requestData(data);
-		return toModelAndViewWithIoFilter(getUserManagementService().resendConfirmationMail(gooruUid,apicaller,sessionId,getValue(GOORU_BASE_URL, json),getValue(TYPE, json) != null ? getValue(TYPE, json) : "confirmation"), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, USER_INCLUDES);
+		return toModelAndViewWithIoFilter(getUserManagementService().resendConfirmationMail(gooruUid,apicaller,sessionId,getValue(GOORU_BASE_URL, json),getValue(TYPE, json) != null ? getValue(TYPE, json) : CONFIRMATION), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, USER_INCLUDES);
 	}
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CHECK_IF_USER_EXISTS })
@@ -405,7 +405,7 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 				category = CustomProperties.FeedbackCategory.REACTION.getFeedbackCategory();
 			}
 		}
-		ServerValidationUtils.rejectIfNull(category, GL0007, " request path ");
+		ServerValidationUtils.rejectIfNull(category, GL0007, REQUEST_PATH);
 		return category;
 	}
 

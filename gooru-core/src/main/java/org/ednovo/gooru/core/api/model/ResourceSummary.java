@@ -15,6 +15,8 @@ public class ResourceSummary implements Serializable{
 	private Long ratingStarAvg;
 	
 	private Double ratingStarCount;
+	
+	private Double reviewCount;
 
 
 	public void setRatingStarAvg(Long ratingStarAvg) {
@@ -39,6 +41,14 @@ public class ResourceSummary implements Serializable{
 
 	public String getResourceGooruOid() {
 		return resourceGooruOid;
+	}
+
+	public void setReviewCount(Double reviewCount) {
+		this.reviewCount = reviewCount;
+	}
+
+	public Double getReviewCount() {
+		return reviewCount;
 	}
 
 }

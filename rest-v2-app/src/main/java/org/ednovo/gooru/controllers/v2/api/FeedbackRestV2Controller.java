@@ -112,8 +112,8 @@ public class FeedbackRestV2Controller extends BaseController implements Paramete
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_FEEDBACK_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = { "/resource", "/collection" })
-	public ModelAndView getContentFlags(HttpServletRequest request, @RequestParam(value = STATUS, required = false) String status, @RequestParam(value = "reportedFlagType", required = false) String reportedFlagType, @RequestParam(value = "startDate", required = false) String startDate,
-			@RequestParam(value = END_DATE, required = false) String endDate, @RequestParam(value = "searchQuery", required = false) String searchQuery, @RequestParam(value = "description", required = false) String description,
+	public ModelAndView getContentFlags(HttpServletRequest request, @RequestParam(value = STATUS, required = false) String status, @RequestParam(value = REPORTED_FLAG_TYPE, required = false) String reportedFlagType, @RequestParam(value = "startDate", required = false) String startDate,
+			@RequestParam(value = END_DATE, required = false) String endDate, @RequestParam(value = SEARCH_QUERY, required = false) String searchQuery, @RequestParam(value = DESCRIPTION, required = false) String description,
 			@RequestParam(value = REPORT_QUERY, required = false) String reportQuery, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,
 			HttpServletResponse response) throws Exception {
 

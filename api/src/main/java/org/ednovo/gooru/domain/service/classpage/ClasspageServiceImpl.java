@@ -152,7 +152,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		if (!errors.hasErrors()) {
 			this.getCollectionRepository().save(newClasspage);
 
-			UserGroup userGroup = this.getUserGroupService().createGroup(newClasspage.getTitle(), newClasspage.getClasspageCode(), "System", user, null);
+			UserGroup userGroup = this.getUserGroupService().createGroup(newClasspage.getTitle(), newClasspage.getClasspageCode(),SYSTEM, user, null);
 			if (gooruOid != null && !gooruOid.isEmpty() && newCollectionItem != null) {
 				this.createClasspageItem(gooruOid, newClasspage.getGooruOid(), newCollectionItem, newClasspage.getUser(), CollectionType.USER_CLASSPAGE.getCollectionType());
 				this.getCollectionRepository().save(newClasspage);
@@ -175,60 +175,60 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	public ActionResponseDTO<Classpage> updateClasspage(Classpage newClasspage, String updateClasspageId, Boolean hasUnrestrictedContentAccess) throws Exception {
 		Classpage classpage = this.getClasspage(updateClasspageId, null, null);
 		Errors errors = validateUpdateClasspage(classpage, newClasspage);
-		JSONObject ItemData = new JSONObject();
+		JSONObject itemData = new JSONObject();
 		if (!errors.hasErrors()) {
 			if (newClasspage.getVocabulary() != null) {
-				ItemData.put("vocabulary", newClasspage.getVocabulary());
+				itemData.put(VOCABULARY, newClasspage.getVocabulary());
 				classpage.setVocabulary(newClasspage.getVocabulary());
 			}
 
 			if (newClasspage.getTitle() != null) {
-				ItemData.put("title", newClasspage.getTitle());
+				itemData.put(TITLE, newClasspage.getTitle());
 				classpage.setTitle(newClasspage.getTitle());
 				UserGroup userGroup = this.getUserGroupService().findUserGroupByGroupCode(classpage.getClasspageCode());
 				userGroup.setGroupName(newClasspage.getTitle());
 				this.getUserRepository().save(userGroup);
 			}
 			if (newClasspage.getDescription() != null) {
-				ItemData.put("description", newClasspage.getDescription());
+				itemData.put(DESCRIPTION, newClasspage.getDescription());
 				classpage.setDescription(newClasspage.getDescription());
 			}
 			if (newClasspage.getNarrationLink() != null) {
-				ItemData.put("narrationLink", newClasspage.getNarrationLink());
+				itemData.put(NARRATION_LINK, newClasspage.getNarrationLink());
 				classpage.setNarrationLink(newClasspage.getNarrationLink());
 			}
 			if (newClasspage.getEstimatedTime() != null) {
-				ItemData.put("estimatedTime", newClasspage.getEstimatedTime());
+				itemData.put(ESTIMATED_TIME, newClasspage.getEstimatedTime());
 				classpage.setEstimatedTime(newClasspage.getEstimatedTime());
 			}
 			if (newClasspage.getNotes() != null) {
-				ItemData.put("notes", newClasspage.getNotes());
+				itemData.put(NOTES, newClasspage.getNotes());
 				classpage.setNotes(newClasspage.getNotes());
 			}
 			if (newClasspage.getGoals() != null) {
-				ItemData.put("goals", newClasspage.getGoals());
+				itemData.put(GOALS, newClasspage.getGoals());
 				classpage.setGoals(newClasspage.getGoals());
 			}
 			if (newClasspage.getKeyPoints() != null) {
-				ItemData.put("keyPoints", newClasspage.getKeyPoints());
+				itemData.put(KEYPOINTS, newClasspage.getKeyPoints());
 				classpage.setGoals(newClasspage.getKeyPoints());
 			}
 			if (newClasspage.getLanguage() != null) {
-				ItemData.put("language", newClasspage.getLanguage());
+				itemData.put(LANGUAGE, newClasspage.getLanguage());
 				classpage.setLanguage(newClasspage.getLanguage());
 			}
 			if (newClasspage.getGrade() != null) {
-				ItemData.put("grade", newClasspage.getGrade());
+				itemData.put(GRADE, newClasspage.getGrade());
 				classpage.setGrade(newClasspage.getGrade());
 			}
 			if (newClasspage.getSharing() != null) {
-				ItemData.put("sharing", newClasspage.getSharing());
+				itemData.put(SHARING, newClasspage.getSharing());
 				if (newClasspage.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || newClasspage.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing()) || newClasspage.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing())) {
 					classpage.setSharing(newClasspage.getSharing());
 				}
 			}
 			if (newClasspage.getLastUpdatedUserUid() != null) {
-				ItemData.put("lastUpdatedUserUid", newClasspage.getLastUpdatedUserUid());
+				itemData.put(LAST_UPDATED_USER_UID, newClasspage.getLastUpdatedUserUid());
 				classpage.setLastUpdatedUserUid(newClasspage.getLastUpdatedUserUid());
 			}
 
@@ -247,7 +247,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			this.getCollectionRepository().save(classpage);
 			
 			try{
-				getEventLogs(classpage, ItemData, classpage.getUser(), false, true);
+				getEventLogs(classpage, itemData, classpage.getUser(), false, true);
 			}catch(Exception e){
 				e.printStackTrace();
 			}

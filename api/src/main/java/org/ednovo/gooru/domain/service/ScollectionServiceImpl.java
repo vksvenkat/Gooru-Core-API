@@ -972,6 +972,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		if (resourceSummary != null) {
 			ratings.put(AVERAGE, resourceSummary.getRatingStarAvg());
 			ratings.put(COUNT, resourceSummary.getRatingStarCount());
+			ratings.put("reviewCount", resourceSummary.getReviewCount());
 		}
 		return ratings;
 	}

@@ -51,7 +51,7 @@ public class CustomValueServiceImpl extends BaseServiceImpl implements CustomVal
 	@Autowired
 	private SearchSettingCassandraService searchSettingCassandraService;
 	
-	private static String profileName = "default";
+	private static String profileName = DEFAULT;
 	
 	private static SecureRandom random = null;
 	
@@ -78,9 +78,9 @@ public class CustomValueServiceImpl extends BaseServiceImpl implements CustomVal
 	@Override
 	public void updateSearchSettings() {
 		
-		profileName = configSettingRepository.getConfigSetting("search.profile", UserGroupSupport.getUserOrganizationUid());
+		profileName = configSettingRepository.getConfigSetting(SEARCH_PROFILE, UserGroupSupport.getUserOrganizationUid());
 		if (profileName == null) {
-			profileName = "default";
+			profileName = DEFAULT;
 		}
 
 		for (Map.Entry<String, String> entry : CASSANDRAFIELD.entrySet()) {
@@ -94,7 +94,7 @@ public class CustomValueServiceImpl extends BaseServiceImpl implements CustomVal
 			}
 			if(values.toString().trim().length() > 0){
 				searchSettingCassandraService.save(entry.getValue(), profileName, values.toString());
-				searchSettingCassandraService.save("setting.version", profileName, getSettingVersion());
+				searchSettingCassandraService.save(SETTING_VERSION, profileName, getSettingVersion());
 			}
 		}
 	}
