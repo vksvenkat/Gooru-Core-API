@@ -22,7 +22,7 @@ public interface ConstantProperties {
 			"*.questionInfo", "*.TYPE", "*.type", "*.depthOfKnowledge", "*.educationalUse", "*.momentsOfLearning", "*.name", "*.questionText", "*.answers.*", "*.assets", "*.assets.asset", "*.assets.asset.name", "*.assets.asset.url", "*assets.asset.description", "*assets.asset.hasUniqueName",
 			"*.hints.*", "*.description", "*.explanation", "*.taxonomySet", "*.codeId", "*.depth", "*.lastModified", "*.gooruUId", "*.lastUpdatedUserUid", "*.category", "*.label", "*.code", "*.userRating", "*.hasFrameBreaker", "*.copiedResourceId", "*.assignmentContentId", "*.trackActivity",
 			"*.trackActivity.startTime", "*.trackActivity.endTime", "*.goals", "*.grade", "*.mediaType", "*.text", "*.isOer", "*.meta.*", "*.resourceFormat.value", "*.resourceFormat.displayName", "*.instructional.value", "*.instructional.displayName", "*.depthOfKnowledges.value",
-			"*.depthOfKnowledges.selected", "*.momentsOfLearning.selected", "*.momentsOfLearning.value", "*.educationalUse.value", "*.educationalUse.selected", "*.ratings", "*.average", "*.count", "*.standards", "*.license", "*.standards.code", "*.standards.description", "*.course",
+			"*.depthOfKnowledges.selected", "*.momentsOfLearning.selected", "*.momentsOfLearning.value", "*.educationalUse.value", "*.educationalUse.selected", "*.ratings", "*.average", "*.count","*.reviewCount", "*.standards", "*.license", "*.standards.code", "*.standards.description", "*.course",
 
 			"*.customFieldValues.*", "*.publisher", "*.aggregator", "*.totalPages" ,"*.host", "*.resourceTags.*"};
 
@@ -311,7 +311,7 @@ public interface ConstantProperties {
 	static final String[] OPTIONS_INCLUDE = { "*.isRandomize", "*.isRandomizeChoice", "*.showCorrectAnswer", "*.showHints", "*.showScore" };
 
 	static final String FEEDBACK_INCLUDE_FIELDS[] = { "*.searchResults", "*.feedback", "*.totalHitCount", "*.gooruOid", "*.target.value", "*.type.value", "*.category.value", "*.freeText", "*.score", "*.assocGooruOid", "*.assocUserUid", "*.creator.gooruUId", "*.creator.username",
-			"*.creator.firstName", "*.creator.lastName", "*.referenceKey", "*.createdDate", "*.lastModifiedOn", "*.ratings", "*.ratings.count", "*.ratings.average" };
+			"*.creator.firstName", "*.creator.lastName", "*.referenceKey", "*.createdDate", "*.lastModifiedOn", "*.ratings", "*.ratings.count", "*.ratings.average", "*.ratings.reviewCount" };
 
 	static final String[] CONTENT_INCLUDES = { "gooruOid", "sharing", "createdOn", "lastModified", "lastUpdatedUserUid", "statusType", "statusType.value", "isDeleted", "", "", "", "", "", "" };
 
@@ -749,4 +749,32 @@ public interface ConstantProperties {
    
    public static String IS_GAT = "isGat";
    
+   public static String COLLECTION_COMMENT_EMAIL_NOTIFICATION = "collection_comment_email_notification";
+   
+   public static String V2_LIBRARY_DATA_ITEM = "v2-library-data-item-";
+   
+   public static String V2_LIBRARY_REALTED_COLLECTION_DATA = "v2-library-realted-collection-data-";
+   
+   public static String V2_LIBRARY_REALTED_RESOURCES_DATA_FEATURED = "v2-library-realted-resources-data-featured";
+   
+   public static String V2_LIBRARY_DATA_CONTRIBUTOR = "v2-library-data-contributor-";
+   
+   public static String V2_LIBRARY_POPULAR_DATA = "v2-library-popular-data-";
+   
+   public static String FLT_COURSE = "flt.course";
+   
+   public static String FLT_LESSON = "flt.lesson";
+   
+   public static String FLT_TOPIC = "flt.topic";
+   
+   public static String FLT_UNIT = "flt.unit";
+   
+   public static String FLT_SUBJECT = "flt.subject";
+   
+   public static String V2_LIBRARY_REALTED_COLLECTIONS_DATA_FEATURED = "v2-library-realted-collections-data-featured";
+   
+   public static String V2_PARTNER_LIST = "v2-partner-list";
+   
+   public static String MORE = "more";
 }
+

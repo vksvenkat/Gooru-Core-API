@@ -27,6 +27,8 @@
 		<property name="ratingStarAvg" column="rating_star_avg" not-null="true"/>
 		
 		<property name="ratingStarCount" column="rating_star_count" not-null="true"/>
+		
+		<property name="reviewCount" column="review_count" not-null="false"/>
 
 	</class>
 </hibernate-mapping>

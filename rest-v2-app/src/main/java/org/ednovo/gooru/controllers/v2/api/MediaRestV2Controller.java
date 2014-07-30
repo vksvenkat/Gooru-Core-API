@@ -126,7 +126,7 @@ public class MediaRestV2Controller extends BaseController implements ConstantPro
 		if (fileName != null && file.exists()) {
 
 			try {
-				if (getValue(CROP_ENGINE, json).equalsIgnoreCase("imageMagick")) {
+				if (getValue(CROP_ENGINE, json).equalsIgnoreCase(IMG_MAGICK)) {
 					getGooruImageUtil().cropImageUsingImageMagick(file.getPath(), Integer.parseInt(getValue(WIDTH, json)), Integer.parseInt(getValue(HEIGHT, json)), Integer.parseInt(getValue(XPOSITION, json)), Integer.parseInt(getValue(YPOSITION, json)), file.getPath());
 				} else {
 					getGooruImageUtil().cropImage(file.getPath(), Integer.parseInt(getValue(XPOSITION, json)), Integer.parseInt(getValue(YPOSITION, json)), Integer.parseInt(getValue(WIDTH, json)), Integer.parseInt(getValue(HEIGHT, json)));

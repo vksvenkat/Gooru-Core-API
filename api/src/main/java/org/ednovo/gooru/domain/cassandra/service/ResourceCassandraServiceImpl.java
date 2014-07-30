@@ -26,6 +26,11 @@
  */
 package org.ednovo.gooru.domain.cassandra.service;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+
 import org.ednovo.gooru.cassandra.core.dao.RawCassandraDao;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.cassandra.model.ResourceCio;
@@ -46,6 +51,10 @@ public class ResourceCassandraServiceImpl extends ApiCrudEntityCassandraServiceI
 	@Autowired
 	private ContentIndexDao contentIndexDao;
 
+	private static final String SEPARATOR = "_";
+	
+	private static final String OPEN = "open";
+	
 	@Override
 	protected Resource fetchSource(String key) {
 		return contentIndexDao.findResourceByContentGooruId(key);
@@ -68,10 +77,22 @@ public class ResourceCassandraServiceImpl extends ApiCrudEntityCassandraServiceI
 	private RawCassandraDao getDao() {
 		return (RawCassandraDao) apiCassandraFactory.get(ColumnFamilyConstant.CONTENT_META);
 	}
-	
+
+	private RawCassandraDao getDao(String columnFamilyName) {
+		return (RawCassandraDao) apiCassandraFactory.get(columnFamilyName);
+	}
+
 	@Override
 	String getDaoName() {
 		return ColumnFamilyConstant.RESOURCE;
+	}
+
+	@Override
+	public void updateIndexQueue(List<String> gooruOids, String type) {
+	    DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		String rowKey = type + SEPARATOR + dateFormat.format(new Date()).toString();
+		String columnPrefix = OPEN + SEPARATOR;
+		getDao(ColumnFamilyConstant.INDEX_QUEUE).addIndexQueueEntry(rowKey, columnPrefix, gooruOids);
 	}
 
 }
