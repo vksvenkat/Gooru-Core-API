@@ -37,10 +37,10 @@ public class ServicePartyAssocRepositoryHibernate extends BaseRepositoryHibernat
 				+ " left outer join user u on u.gooru_uid = spa.party_uid and spa.party_type = 'user' "
 				+ " left outer join party ug on ug.party_uid = spa.party_uid and spa.party_type = 'group' "
 				+ " inner join service s on s.service_key = spa.service_key "
-				+ " where spa.party_uid = '"+userUid+"' or spa.party_uid = '"+organizationUid+"' or ";
+				+ " where spa.party_uid = '"+userUid+"' or spa.party_uid = '"+organizationUid+"' ";
 		
 		if(groupUid != null && groupUid != "") {
-			sql += " spa.party_uid = '"+groupUid+"'";			
+			sql += " or spa.party_uid = '"+groupUid+"'";			
 		}
 		
 		Query query = session.createSQLQuery(sql).addScalar("version", StandardBasicTypes.STRING).addScalar("type_order", StandardBasicTypes.INTEGER);		
@@ -54,7 +54,7 @@ public class ServicePartyAssocRepositoryHibernate extends BaseRepositoryHibernat
 			result.put("version", object[0]);
 			result.put("order", object[1]);
 		}
-		return null;
+		return result;
 	}
 
 
