@@ -229,6 +229,12 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 	public void deleteContentProvider(@PathVariable(value = ID) String gooruOid, @RequestParam(value = "providerType") String providerType, @RequestParam(value = "name") String name, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		this.getResourceService().deleteContentProvider(gooruOid, providerType, name);
 	}
+	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_RESOURCE_READ })
+	@RequestMapping(method= RequestMethod.GET, value="/url/exist")
+	public ModelAndView checkResourceUrlExists(@RequestParam(value=URL) String url, @RequestParam(required = false, value=CHK_SHORTENED_URL, defaultValue = FALSE) boolean checkShortenedUrl) throws Exception {
+		return toModelAndViewWithIoFilter(this.getResourceService().checkResourceUrlExists(url,checkShortenedUrl), RESPONSE_FORMAT_JSON,EXCLUDE_ALL, true, RESOURCE_INSTANCE_INCLUDES);
+	}
 
 	private Resource buildResourceFromInputParameters(String data) {
 		return JsonDeserializer.deserialize(data, Resource.class);

@@ -16,6 +16,9 @@ public interface ConstantProperties {
 	static final String SEGMENT_QUESTION_INCLUDES[] = { "question.hints", "question.answers", "question.assets" };
 
 	static final String QUESTION_SET_INCLUDES[] = { "questionSetQuestions" };
+	
+	static final String RESOURCE_INSTANCE_INCLUDES[] = {"*.resource","*.type","*.profileImageUrl","*.shortenedUrlStatus","*.resourceSource","*.resourceInfo","*.thumbnails","*.description", "*.createdOn", "*.folder", "*.gooruOid", "*.resourceType","*.label","*.url","*.taxonomySet","*.sharing", "*.title","*.category","*.resourceType.name","*.attribution","*.meta.*", "*.resourceFormat.value", "*.resourceFormat.displayName", "*.instructional.value", "*.instructional.displayName", "*.depthOfKnowledges.value",
+		"*.depthOfKnowledges.selected", "*.momentsOfLearning.selected", "*.momentsOfLearning.value", "*.educationalUse.value", "*.educationalUse.selected","*.grade", "*.mediaType"};
 
 	static final String RESOURCE_INCLUDE_FIELDS[] = { "*.resource", "*.assetURI", "*.brokenStatus", "*.category", "*.createdOn", "*.usernameDisplay", "*.profileImageUrl", "*.lastName", "*.firstName", "*.username", "*.description", "*.distinguish", "*.folder", "*.gooruOid", "*.resourceType",
 			"*.resourceType.name", "*.sharing", "*.title", "*.views", "*.thumbnails", "*.url", "*.user", "*.creator", "*.license", "*.license.code", "*.license.icon", "*.license.name", "*.license.definition", "*.dimensions", "*.defaultImage", "*.resourceSource", "*.attribution", "*.sourceName",
