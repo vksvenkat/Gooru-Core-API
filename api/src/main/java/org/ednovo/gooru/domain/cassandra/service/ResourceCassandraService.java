@@ -31,6 +31,8 @@ import java.util.List;
 import org.ednovo.gooru.cassandra.core.service.EntityCassandraService;
 import org.ednovo.gooru.core.cassandra.model.ResourceCio;
 
+import com.netflix.astyanax.model.ColumnList;
+
 /**
  * @author SearchTeam
  * 
@@ -41,6 +43,8 @@ public interface ResourceCassandraService extends EntityCassandraService<String,
 
 	String getContentMeta(String id, String name);
 	
-	void updateIndexQueue(List<String> gooruOids, String type);
+	void updateIndexQueue(List<String> gooruOids, String type, String rowKey, String columnPrefix, boolean isUpdate);
+
+	ColumnList<String> readIndexQueuedData(String rowKey, Integer limit, String columnPrefix);
 
 }

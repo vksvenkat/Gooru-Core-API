@@ -12,6 +12,8 @@ import javax.annotation.PostConstruct;
 
 import org.ednovo.gooru.cassandra.core.factory.InsightsCassandraFactory;
 import org.ednovo.gooru.cassandra.core.factory.SearchCassandraFactory;
+import org.ednovo.gooru.core.constant.ColumnFamilyConstant;
+import org.hibernate.engine.jdbc.ColumnNameCache;
 
 import com.netflix.astyanax.ColumnListMutation;
 import com.netflix.astyanax.MutationBatch;
@@ -23,6 +25,8 @@ import com.netflix.astyanax.model.ColumnFamily;
 import com.netflix.astyanax.model.ColumnList;
 import com.netflix.astyanax.model.ConsistencyLevel;
 import com.netflix.astyanax.model.Rows;
+import com.netflix.astyanax.util.RangeBuilder;
+import com.yammer.metrics.core.HealthCheck.Result;
 
 /**
  * @author Search Team
@@ -148,10 +152,13 @@ public class RawCassandraDaoImpl extends CassandraDaoSupport<CassandraColumnFami
 	}
 
 	@Override
-	public void addIndexQueueEntry(String key, String columnPrefix, List<String> gooruOids) {
+	public void addIndexQueueEntry(String key, String columnPrefix, List<String> gooruOids, boolean isUpdate) {
 		MutationBatch mutationBatch = getFactory().getKeyspace().prepareMutationBatch().setConsistencyLevel(DEFAULT_CONSISTENCY_LEVEL);
 		ColumnListMutation<String> mutation = mutationBatch.withRow(getCF().getColumnFamily(), key);
 		for(String gooruOid : gooruOids){
+			if(isUpdate){
+				gooruOid = gooruOid.replace("_", "");
+			}
 			mutation.putColumnIfNotNull(columnPrefix+gooruOid, gooruOid);
 		}	
 		try {
@@ -160,6 +167,23 @@ public class RawCassandraDaoImpl extends CassandraDaoSupport<CassandraColumnFami
 			getLog().error("Error saving to cassandra", ex);
 		}
   }
+	
+	@Override
+	public ColumnList<String> readIndexQueuedData(String rowKey, Integer limit, String columnPrefix){
+		OperationResult<ColumnList<String>> result = null;
+		try {
+			result = getFactory().getKeyspace().prepareQuery(getCF().getColumnFamily())
+			.getKey(rowKey)
+			.withColumnRange(new RangeBuilder()
+			    .setStart(columnPrefix +"\u00000")
+			    .setEnd(columnPrefix +"\uffff")
+			    .setLimit(limit).build())
+			.execute();
+		} catch (ConnectionException e) {
+			getLog().error("Error reading index queue data", e);
+		}
+		return result != null ? result.getResult() : null;
+	}
 	
 	
 }
