@@ -189,7 +189,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 	@Autowired
 	private CollaboratorService collaboratorService;
 	
-	private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
 
 	@Override
 	public User createUser(String firstName, String lastName, String email, String password, String school, String username, Integer confirmStatus, String organizationCode, Integer addedBySystem, String userImportCode, String accountType, String dateOfBirth, String userParentId,
@@ -1655,7 +1655,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 		try {
 			userTokenRepository.saveUserSession(sessionToken);
 		} catch (Exception e) {
-			logger.error("Error" + e.getMessage());
+			LOGGER.error("Error" + e.getMessage());
 		}
 		Organization organization = null;
 		if (sessionToken.getApiKey() != null) {
@@ -1700,7 +1700,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 						availability = checkCollaboratorsPermission(resourceId, user, contentType);
 					}
 				} else {
-					logger.debug("User identity not exisit !");
+					LOGGER.debug("User identity not exisit !");
 					availability = false;
 				}
 			}
@@ -1736,7 +1736,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 					for (ResourceInstance resourceInstance : segment.getResourceInstances()) {
 						if (!hasContentAccessPermission(collaboratorPermissions, collaborator, resourceInstance.getResource())) {
 							hasPermission = false;
-							logger.debug("User organization and resource organization doesn't match !");
+							LOGGER.debug("User organization and resource organization doesn't match !");
 						} else {
 							hasPermission = true;
 						}
@@ -1751,7 +1751,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 						for (CollectionItem collectionItem2 : collectionItem.getCollection().getCollectionItems()) {
 							if (!hasContentAccessPermission(collaboratorPermissions, collaborator, collectionItem2.getResource())) {
 								hasPermission = false;
-								logger.debug("User organization and resource organization doesn't match !");
+								LOGGER.debug("User organization and resource organization doesn't match !");
 							} else {
 								hasPermission = true;
 							}
@@ -1759,7 +1759,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 					} else {
 						if (!hasContentAccessPermission(collaboratorPermissions, collaborator, collectionItem.getResource())) {
 							hasPermission = false;
-							logger.debug("User organization and resource organization doesn't match !");
+							LOGGER.debug("User organization and resource organization doesn't match !");
 						} else {
 							hasPermission = true;
 						}
@@ -1771,7 +1771,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 					for (AssessmentSegmentQuestionAssoc aQuestionAssoc : segment.getSegmentQuestions()) {
 						if (!hasContentAccessPermission(collaboratorPermissions, collaborator, aQuestionAssoc.getQuestion())) {
 							hasPermission = false;
-							logger.debug("User organization and resource organization doesn't match !");
+							LOGGER.debug("User organization and resource organization doesn't match !");
 						} else {
 							hasPermission = true;
 						}
