@@ -24,6 +24,7 @@
 package org.ednovo.gooru.json.serializer.util;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.ednovo.gooru.core.exception.MethodFailureException;
 import org.json.JSONObject;
 import org.springframework.validation.Errors;
 import org.springframework.web.servlet.ModelAndView;
@@ -170,7 +171,7 @@ public class JsonSerializer {
 				serializedData = deepSerialize ? serializer.deepSerialize(model) : serializer.serialize(model);
 
 			} catch (Exception ex) {
-				throw new RuntimeException(ex);
+				throw new MethodFailureException(ex.getMessage());
 			}
 
 		} else {

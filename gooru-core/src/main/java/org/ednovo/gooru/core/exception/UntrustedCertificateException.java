@@ -27,6 +27,10 @@ import java.security.cert.X509Certificate;
 public class UntrustedCertificateException extends CertificateException {
 
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = 8335426062079670779L;
+	/**
      * Untrusted chain.
      */
     private X509Certificate[] x509Certificates;

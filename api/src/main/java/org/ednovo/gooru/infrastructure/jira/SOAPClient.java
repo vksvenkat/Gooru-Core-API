@@ -57,7 +57,7 @@ public class SOAPClient implements ConfigConstants,ParameterProperties{
 	
 	private static final String JIRA_ERROR = "Error during jira issue creation";
 
-	private static final Logger logger = LoggerFactory.getLogger(SOAPClient.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(SOAPClient.class);
 
 	private String username;
 	private String password;
@@ -83,7 +83,7 @@ public class SOAPClient implements ConfigConstants,ParameterProperties{
 			this.componentId = jiraConfig.get(COMPONENT_ID);
 			
 		} catch(Exception e) {
-			logger.info("Failed to initialize jira config");
+			LOGGER.info("Failed to initialize jira config");
 		}
 	}
 
@@ -135,17 +135,17 @@ public class SOAPClient implements ConfigConstants,ParameterProperties{
 		try {
 			returnedIssue = jiraSoapService.createIssue(authToken, issue);
 		} catch (RemotePermissionException e) {			
-			logger.error(JIRA_ERROR,e);
+			LOGGER.error(JIRA_ERROR,e);
 		} catch (RemoteValidationException e) {
-			logger.error(JIRA_ERROR,e);
+			LOGGER.error(JIRA_ERROR,e);
 		} catch (RemoteAuthenticationException e) {
-			logger.error(JIRA_ERROR,e);
+			LOGGER.error(JIRA_ERROR,e);
 		} catch (com.atlassian.jira.rpc.exception.RemoteException e) {
-			logger.error(JIRA_ERROR,e);
+			LOGGER.error(JIRA_ERROR,e);
 		} catch (RemoteException e) {
-			logger.error(JIRA_ERROR,e);
+			LOGGER.error(JIRA_ERROR,e);
 		} catch (Exception e) {
-			logger.error(JIRA_ERROR,e);
+			LOGGER.error(JIRA_ERROR,e);
 		}
 		final String issueKey = returnedIssue.getKey();		
 		

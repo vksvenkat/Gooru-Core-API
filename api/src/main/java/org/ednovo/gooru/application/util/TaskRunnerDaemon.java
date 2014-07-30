@@ -44,19 +44,17 @@ public class TaskRunnerDaemon extends Thread implements ParameterProperties {
 	private SettingService settingService;
 
 	@Autowired
-	ConfigProperties configProperties;
+	private ConfigProperties configProperties;
 
-	private static final Logger logger = LoggerFactory.getLogger(TaskRunnerDaemon.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(TaskRunnerDaemon.class);
 
 	private long runIndex = 0;
 	private boolean stopRequested;
-	private Properties configConstants;
 	private String restEndPoint;
 	private String tomcatUsername;
 	private String tomcatPassword;
 
 	public TaskRunnerDaemon(Properties configConstants) {
-		this.configConstants = configConstants;
 		this.restEndPoint = settingService.getConfigSetting(ConfigConstants.GOORU_SERVICES_ENDPOINT, 0, TaxonomyUtil.GOORU_ORG_UID);
 		tomcatUsername = configProperties.getTomCat().get(USER_NAME);
 		tomcatPassword = configProperties.getTomCat().get(PASSWORD);
@@ -74,7 +72,7 @@ public class TaskRunnerDaemon extends Thread implements ParameterProperties {
 	public void runBatch(String urlPath, Map<String, String> configOptions, boolean recursive) {
 		while (!stopRequested) {
 			try {
-				logger.debug("Starting run:" + runIndex);
+				LOGGER.debug("Starting run:" + runIndex);
 				runUrlTask(urlPath, configOptions);
 				Thread.sleep(1000);
 
@@ -83,7 +81,7 @@ public class TaskRunnerDaemon extends Thread implements ParameterProperties {
 			}
 			runIndex++;
 		}
-		logger.info("TaskRunnerDaemon: Stop requested, stopping at run " + runIndex);
+		LOGGER.info("TaskRunnerDaemon: Stop requested, stopping at run " + runIndex);
 	}
 
 	private void runUrlTask(String urlPath, Map<String, String> configOptions) {
@@ -124,7 +122,7 @@ public class TaskRunnerDaemon extends Thread implements ParameterProperties {
 			representation = resource.get();
 
 		} catch (Exception exception) {
-			logger.warn("UrlRunner exception while trying to call " + resourceUrl + ": ", exception);
+			LOGGER.warn("UrlRunner exception while trying to call " + resourceUrl + ": ", exception);
 		} finally {
 			try {
 				if (representation != null) {

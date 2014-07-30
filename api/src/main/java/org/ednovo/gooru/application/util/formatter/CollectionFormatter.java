@@ -243,7 +243,7 @@ public class CollectionFormatter {
 			classplanFo.setTaxonomySet(collection.getTaxonomySet());
 			classplanFo.setGooruOid(collection.getGooruOid());
 			classplanFo.setAssetURI(collection.getAssetURI());
-			classplanFo.setDistinguish(collection.getDistinguish() != null ? collection.getDistinguish() : (short)0);
+			classplanFo.setDistinguish(collection.getDistinguish() != null ? collection.getDistinguish() : Short.valueOf("0"));
 			classplanFo.setSharing(collection.getSharing());
 			classplanFo.setSource(collection.getSource());
 			classplanFo.setLastModified(collection.getLastModified());

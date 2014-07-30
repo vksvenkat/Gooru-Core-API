@@ -25,6 +25,7 @@ package org.ednovo.gooru.infrastructure.google;
 
 import org.ednovo.gooru.application.util.ConfigProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.core.exception.MethodFailureException;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.gdata.client.GoogleService;
@@ -55,7 +56,7 @@ public class GoogleAppService implements ParameterProperties{
 			isAuthorized = true;
 		} catch (OAuthException e1) {
 			isAuthorized = false;
-			throw new RuntimeException("Error in authorization while scheduling classplan " , e1);
+			throw new MethodFailureException("Error in authorization while scheduling classplan " , e1);
 		}
 		return isAuthorized;
 	}

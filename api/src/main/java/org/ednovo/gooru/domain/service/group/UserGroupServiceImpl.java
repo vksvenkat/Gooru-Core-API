@@ -44,6 +44,7 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentRepository;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -109,7 +110,7 @@ public class UserGroupServiceImpl implements UserGroupService,ParameterPropertie
 		if (this.getUserRepository().getUserGroupOwnerByGooruUid(apiCaller.getGooruUId(), groupUid)) {
 			this.getUserRepository().removeUserGroupByGroupUid(groupUid);
 		} else {
-			throw new Exception("You don't have permission to do this action");
+			throw new AccessDeniedException("You don't have permission to do this action");
 		}
 		return "Deleted Successfully";
 	}
@@ -250,7 +251,7 @@ public class UserGroupServiceImpl implements UserGroupService,ParameterPropertie
 	}
 
 	@Override
-	public List<ContentPermission> contentShare(String contentId, User user, String partyUids, Boolean shareOtherOrganization, String OrganizationId) throws Exception {
+	public List<ContentPermission> contentShare(String contentId, User user, String partyUids, Boolean shareOtherOrganization, String organizationId) throws Exception {
 		List<ContentPermission> contentPermissionList = new ArrayList<ContentPermission> ();
 		Content content = this.getContentRepository().findByContentGooruId(contentId);
 		Date date = new Date();

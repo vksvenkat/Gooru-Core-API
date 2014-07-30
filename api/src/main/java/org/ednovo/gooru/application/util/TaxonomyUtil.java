@@ -42,6 +42,7 @@ import org.dom4j.DocumentException;
 import org.dom4j.io.SAXReader;
 import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.constant.ConfigConstants;
+import org.ednovo.gooru.core.exception.MethodFailureException;
 import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.ednovo.gooru.domain.service.taxonomy.TaxonomyService;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.taxonomy.TaxonomyRespository;
@@ -60,7 +61,7 @@ public class TaxonomyUtil {
 	public static final String CODE_PARENTS_EXCLUDES[] = { "*.associatedCodes", "*.description", "*.taxonomySet", "*.class", "*.displayOrder", "*.parentId" };
 	public static final String CODE_THUMBNAILS_EXCLUDES[] = { "*.associatedCodes", "*.description", "*.taxonomySet", "*.class", "*.displayOrder", "*.parentId", "code", "codeType", "rootNodeId", "s3UploadFlag", "parent", "depth" };
 
-	public static String GOORU_ORG_UID = SettingService.instance.getConfigSetting("organization.gooru.uid");
+	public static final String GOORU_ORG_UID = SettingService.instance.getConfigSetting("organization.gooru.uid");
 	
 	public static final void updateClassplanLibrary(String taxonomyPath, Integer rootCodeId) throws Exception {
 		
@@ -69,7 +70,7 @@ public class TaxonomyUtil {
 		try {
 			taxonomyXML = reader.read(taxonomyPath + "/" + rootCodeId + ".xml");
 		} catch (DocumentException e) {
-			throw new RuntimeException(e);
+			throw new MethodFailureException(e.getMessage());
 		}
 
 		String taxonomyStep2XML = XMLTransformer.getInstance().transform(taxonomyXML, "VIEW_CLASSPLAN_LIBRARY_XSL_PATH_STEP_1", taxonomyPath, null);
@@ -90,7 +91,7 @@ public class TaxonomyUtil {
 		try {
 			taxonomyXML = reader.read(taxonomyPath + "/" + rootCodeId + ".xml");
 		} catch (DocumentException e) {
-			throw new RuntimeException(e);
+			throw new MethodFailureException(e.getMessage());
 		}
 		
 
@@ -118,7 +119,7 @@ public class TaxonomyUtil {
 		try {
 			taxonomyXML = reader.read(taxonomyPath + "/" + rootCodeId + ".xml");
 		} catch (DocumentException e) {
-			throw new RuntimeException(e);
+			throw new MethodFailureException(e.getMessage());
 		}
 		String taxonomyStep2XML = XMLTransformer.getInstance().transform(taxonomyXML, "VIEW_CLASSPLAN_LIBRARY_XSL_PATH_STEP_1", taxonomyPath, null);
 

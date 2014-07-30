@@ -28,7 +28,7 @@ public class KafkaProducer {
 	@PostConstruct
 	public void init() {
 		props.put(KafkaProperties.SERIALIZER_CLASS, KafkaProperties.SERIALIZER_CLASS_VALUE);
-		props.put(KafkaProperties.ZK_CONNECT, kafkaProperties.ZK_CONNECT_VALUE);
+		props.put(KafkaProperties.ZK_CONNECT, kafkaProperties.zkConnectValue);
 		props.put(KafkaProperties.PRODUCER_TYPE, KafkaProperties.PRODUCER_TYPE_VALUE);
 		props.put(KafkaProperties.COMPRESSION_CODEC, KafkaProperties.COMPRESSION_CODEC_VALUE);
 		
@@ -42,7 +42,7 @@ public class KafkaProducer {
 	}
 	
 	public void send(String message) {
-		ProducerData<String, String> data = new ProducerData<String, String>(kafkaProperties.TOPIC_VALUE, message);
+		ProducerData<String, String> data = new ProducerData<String, String>(kafkaProperties.topicValue, message);
 		try{
 			producer.send(data);
 		} catch (Exception e){

@@ -35,6 +35,7 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.ednovo.gooru.core.api.model.GooruAuthenticationToken;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.GooruOperationConstants;
+import org.ednovo.gooru.core.exception.MethodFailureException;
 import org.ednovo.gooru.core.security.AuthorizeOperations;
 import org.ednovo.gooru.domain.service.user.impl.UserServiceImpl;
 import org.slf4j.Logger;
@@ -90,7 +91,7 @@ public class MethodAuthorizationAspect extends OperationAuthorizer {
 			if (authenticationContext.getErrorCode() == 403) {
 				throw new AccessDeniedException(authenticationContext.getErrorMessage());
 			} else { 
-				throw new RuntimeException(authenticationContext.getErrorMessage());
+				throw new MethodFailureException(authenticationContext.getErrorMessage());
 			}
 		}
 		if (authenticationContext == null) {
