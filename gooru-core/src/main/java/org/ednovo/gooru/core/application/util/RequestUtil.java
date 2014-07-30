@@ -113,10 +113,12 @@ public class RequestUtil implements ParameterProperties {
 			for (Cookie cookie : request.getCookies()) {
 				// Delete the cookie by setting its maximum age to zero
 				if (cookie.getName().equals(name)) {
-					cookie.setMaxAge(0);
-					cookie.setPath(COOKIE_PATH);
-					cookie.setDomain(request.getServerName());
-					response.addCookie(cookie);
+					Cookie gooruCookie = new Cookie(cookie.getName(), "");
+					gooruCookie.setMaxAge(0);
+					gooruCookie.setPath(COOKIE_PATH);
+					gooruCookie.setDomain(request.getServerName());
+					gooruCookie.setValue("");
+					response.addCookie(gooruCookie);
 				}
 			}
 		}
