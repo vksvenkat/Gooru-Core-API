@@ -63,7 +63,11 @@ public class Collection extends Resource implements Versionable {
 	private List<ContentMetaDTO> instructionalMethod;
 
 	private Integer itemCount;
+	
+	private String clusterUid;
 
+	private Integer isRepresentative;
+	
 	public String getIdeas() {
 		return ideas;
 	}
@@ -287,6 +291,22 @@ public class Collection extends Resource implements Versionable {
 
 	public void setItemCount(Integer itemCount) {
 		this.itemCount = itemCount;
+	}
+
+	public String getClusterUid() {
+		return clusterUid;
+	}
+
+	public void setClusterUid(String clusterUid) {
+		this.clusterUid = clusterUid;
+	}
+
+	public Integer getIsRepresentative() {
+		return isRepresentative;
+	}
+
+	public void setIsRepresentative(Integer isRepresentative) {
+		this.isRepresentative = isRepresentative;
 	}
 
 }
