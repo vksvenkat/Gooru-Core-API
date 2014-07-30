@@ -58,4 +58,6 @@ public interface ColumnFamilyConstant {
 	String CUSTOM_FILEDS_DEFINITION = "custom_fields_definition";
 	
 	String CONTENT_PROVIDER="content_provider";
+	
+	String INDEX_QUEUE ="index_queue";
 }

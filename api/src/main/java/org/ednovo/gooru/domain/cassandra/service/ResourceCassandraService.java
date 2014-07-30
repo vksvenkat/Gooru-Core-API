@@ -26,6 +26,8 @@
  */
 package org.ednovo.gooru.domain.cassandra.service;
 
+import java.util.List;
+
 import org.ednovo.gooru.cassandra.core.service.EntityCassandraService;
 import org.ednovo.gooru.core.cassandra.model.ResourceCio;
 
@@ -38,5 +40,7 @@ public interface ResourceCassandraService extends EntityCassandraService<String,
 	void saveViews(String id);
 
 	String getContentMeta(String id, String name);
+	
+	void updateIndexQueue(List<String> gooruOids, String type);
 
 }
