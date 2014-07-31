@@ -13,7 +13,7 @@ import org.json.JSONObject;
 import org.springframework.stereotype.Component;
 
 @Component
-public class CollectionEventlog implements ParameterProperties, ConstantProperties{
+public class CollectionEventLog implements ParameterProperties, ConstantProperties{
 
 	public void getEventLogs(Collection collection, JSONObject ItemData, User user, boolean isCreate, boolean isUpdate) throws JSONException {
 		if(isCreate){
@@ -156,4 +156,53 @@ public class CollectionEventlog implements ParameterProperties, ConstantProperti
 		session.put(ORGANIZATION_UID, user!= null && user.getOrganization() != null ? user.getOrganization().getPartyUid() : null);
 		SessionContextSupport.putLogParameter(SESSION, session.toString());
 	}
+
+public void getEventLogs(CollectionItem collectionItem, boolean isMoveMode, User user, String collectionType) throws JSONException {
+	SessionContextSupport.putLogParameter(EVENT_NAME, "item.create");
+	JSONObject context = SessionContextSupport.getLog().get("context") != null ? new JSONObject(SessionContextSupport.getLog().get("context").toString()) : new JSONObject();
+	context.put("parentGooruId", collectionItem != null && collectionItem.getCollection() != null ? collectionItem.getCollection().getGooruOid() : null);
+	context.put("contentGooruId", collectionItem != null && collectionItem.getResource() != null ? collectionItem.getResource().getGooruOid() : null);
+	SessionContextSupport.putLogParameter("context", context.toString());
+	JSONObject payLoadObject = SessionContextSupport.getLog().get("payLoadObject") != null ? new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString()) : new JSONObject();
+	if (isMoveMode) {
+		payLoadObject.put("mode", "move");
+	} else {
+		payLoadObject.put("mode", "add");
+	}
+	payLoadObject.put("itemSequence", collectionItem != null ? collectionItem.getItemSequence() : null);
+	payLoadObject.put("ItemId", collectionItem != null ? collectionItem.getCollectionItemId() : null);
+	if (collectionType != null && collectionItem != null) {
+		if(collectionType.equalsIgnoreCase(CollectionType.SHElf.getCollectionType())){
+			if(collectionItem.getResource() != null){
+				String typeName = collectionItem.getResource().getResourceType().getName();
+				if(typeName.equalsIgnoreCase(ResourceType.Type.SCOLLECTION.getType())){
+					payLoadObject.put("itemType", "shelf.collection");
+				} else if(typeName.equalsIgnoreCase(ResourceType.Type.FOLDER.getType())){
+					payLoadObject.put("itemType", "shelf.folder");
+				}
+			}
+		} else if (collectionType.equalsIgnoreCase(CollectionType.COLLECTION.getCollectionType())) {
+			payLoadObject.put("itemType", "collection.resource");
+		} else if (collectionType.equalsIgnoreCase(CollectionType.FOLDER.getCollectionType())) {
+			if(collectionItem.getResource() != null){
+				String itemTypeName = collectionItem.getResource().getResourceType().getName();
+				if(itemTypeName.equalsIgnoreCase(ResourceType.Type.FOLDER.getType())){
+					payLoadObject.put("itemType", "folder.folder");
+				} else if(itemTypeName.equalsIgnoreCase(ResourceType.Type.SCOLLECTION.getType())){
+					payLoadObject.put("itemType", "folder.collection");
+				}
+			}
+		} else if (collectionType.equalsIgnoreCase(CollectionType.CLASSPAGE.getCollectionType())) {
+			payLoadObject.put("itemType", "classpage.collection");
+		}
+	}
+	payLoadObject.put("parentContentId", collectionItem != null && collectionItem.getCollection() != null ? collectionItem.getCollection().getContentId() : null);
+	payLoadObject.put("contentId", collectionItem != null && collectionItem.getResource() != null ? collectionItem.getResource().getContentId() : null);
+	payLoadObject.put("title", collectionItem != null && collectionItem.getResource() != null && collectionItem.getResource().getTitle() != null ? collectionItem.getResource().getTitle() : null);
+	payLoadObject.put("description", collectionItem != null && collectionItem.getResource() != null  && collectionItem.getResource().getDescription() != null? collectionItem.getResource().getDescription() : null );
+	SessionContextSupport.putLogParameter("payLoadObject", payLoadObject.toString());
+	JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session").toString()) : new JSONObject();
+	session.put("organizationUId", user.getOrganization().getPartyUid());
+	SessionContextSupport.putLogParameter("session", session.toString());
+}
 }

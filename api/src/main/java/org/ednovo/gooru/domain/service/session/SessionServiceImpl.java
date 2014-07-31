@@ -36,7 +36,6 @@ import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.ModeType;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.Session;
-import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.SessionItem;
 import org.ednovo.gooru.core.api.model.SessionItemAttemptTry;
 import org.ednovo.gooru.core.api.model.SessionItemFeedback;
@@ -46,13 +45,13 @@ import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.domain.service.BaseServiceImpl;
 import org.ednovo.gooru.domain.service.assessment.AssessmentService;
+import org.ednovo.gooru.domain.service.eventlogs.SessionEventLog;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.assessment.AssessmentRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.resource.ResourceRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.session.SessionRepository;
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,7 +64,10 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 
 	@Autowired
 	private SessionRepository sessionRepository;
-
+	
+	@Autowired
+	private SessionEventLog sessionEventLog;
+	
 	@Autowired
 	private ResourceRepository resourceRepository;
 
@@ -119,7 +121,7 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 			sessionItemFeedback.setCreatedOn(new Date(System.currentTimeMillis()));
 		}
 		try {
-			getEventLogs(sessionItemFeedback, user);
+			this.getSessionEventLog().getEventLogs(sessionItemFeedback, user);
 		} catch (JSONException e) {
 			LOGGER.debug("error"+e.getMessage());
 		}
@@ -299,6 +301,10 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 		return sessionMode;
 	}
 
+	public SessionEventLog getSessionEventLog() {
+		return sessionEventLog;
+	}
+
 	public SessionRepository getSessionRepository() {
 		return sessionRepository;
 	}
@@ -319,24 +325,4 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 		return userRepository;
 	}
 	
-	private void getEventLogs(SessionItemFeedback sessionItemFeedback, User feedbackProvider) throws JSONException {
-        SessionContextSupport.putLogParameter(EVENT_NAME, RESOURCE_USER_FEEDBACK);
-        JSONObject context = SessionContextSupport.getLog().get(CONTEXT) != null ? new JSONObject(SessionContextSupport.getLog().get(CONTEXT).toString()) :  new JSONObject();
-        context.put(CONTENT_GOORU_ID, sessionItemFeedback.getContentGooruOId());
-        context.put(PARENT_GOORU_ID, sessionItemFeedback.getParentGooruOId());
-        SessionContextSupport.putLogParameter(CONTEXT, context.toString());
-        JSONObject payLoadObject = SessionContextSupport.getLog().get(PAY_LOAD_OBJECT) != null ? new JSONObject(SessionContextSupport.getLog().get(PAY_LOAD_OBJECT).toString()) :  new JSONObject();
-        payLoadObject =  sessionItemFeedback.getPlayLoadObject() != null ? new JSONObject(sessionItemFeedback.getPlayLoadObject()) :  new JSONObject();
-        payLoadObject.put(TEXT, sessionItemFeedback.getFreeText());
-        payLoadObject.put(FEEDBACK_PROVIDER_UID, feedbackProvider.getPartyUid());
-        SessionContextSupport.putLogParameter(PAY_LOAD_OBJECT, payLoadObject.toString());
-        JSONObject session = SessionContextSupport.getLog().get(SESSION) != null ? new JSONObject(SessionContextSupport.getLog().get(SESSION).toString()) :  new JSONObject();
-        session.put(_SESSION_ID, sessionItemFeedback.getSessionId());
-        session.put(ORGANIZATION_UID, feedbackProvider.getOrganization().getPartyUid());
-        SessionContextSupport.putLogParameter(SESSION, session.toString());    
-        JSONObject user = SessionContextSupport.getLog().get(USER) != null ? new JSONObject(SessionContextSupport.getLog().get(USER).toString()) :  new JSONObject();
-        user.put(GOORU_UID, sessionItemFeedback.getUser().getPartyUid());
-        SessionContextSupport.putLogParameter(USER, user.toString());
-    }
-
 }
