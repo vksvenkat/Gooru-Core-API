@@ -36,6 +36,9 @@ import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.core.exception.MethodFailureException;
+import org.ednovo.gooru.core.exception.NotAllowedException;
+import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.domain.service.BaseServiceImpl;
 import org.ednovo.gooru.domain.service.PartyService;
 import org.ednovo.gooru.domain.service.party.OrganizationService;
@@ -86,7 +89,7 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
                 }
 				
                 if(organization == null){
-					throw new RuntimeException("Organization not found !");
+					throw new NotFoundException("Organization not found !");
 				}
 
 				apikey.setActiveFlag(1);
@@ -101,7 +104,7 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 				apiKeyRepository.save(apikey);
 			}
 			else {
-				throw new RuntimeException("Admin organization not found in custom fields");
+				throw new NotFoundException("Admin organization not found in custom fields");
 			}
 		}
 		return new ActionResponseDTO<ApiKey>(apikey, error);
@@ -178,12 +181,12 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 			 		 apiKey.setKey(appKey);
 			 		 apiKeyRepository.save(existingApiKey);
 		 		}else{				   
-		 			 throw new RuntimeException(text);
+		 			 throw new NotAllowedException(text);
 			 			   
 		 		}	
 		   }catch(Exception e){
 			   
-			   throw new RuntimeException(e);   
+			   throw new MethodFailureException(e.getMessage());   
 		   }
 		   
 		return new ActionResponseDTO<ApiKey>(existingApiKey, error);	

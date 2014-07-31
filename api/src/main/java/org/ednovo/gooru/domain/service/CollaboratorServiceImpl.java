@@ -91,7 +91,7 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 	@Autowired
 	private AsyncExecutor asyncExecutor;
 	
-	private Logger LOGGER = LoggerFactory.getLogger(CollaboratorServiceImpl.class);
+	private final Logger LOGGER = LoggerFactory.getLogger(CollaboratorServiceImpl.class);
 
 	@Override
 	public List<Map<String, Object>> addCollaborator(List<String> email, String gooruOid, User apiCaller,boolean sendInvite) throws Exception {

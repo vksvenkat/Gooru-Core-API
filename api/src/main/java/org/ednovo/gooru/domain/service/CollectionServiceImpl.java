@@ -122,6 +122,10 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				response.getModel().getResource().setEducationalUse(this.setContentMetaAssociation(this.getContentMetaAssociation("educational_use"), question.getGooruOid(), "educational_use"));
 			}
 			response.getModel().setStandards(this.getStandards(responseDTO.getModel().getTaxonomySet(), false, null));
+			if (response.getModel().getCollection().getResourceType().getName().equalsIgnoreCase(SCOLLECTION) && !response.getModel().getCollection().getClusterUid().equalsIgnoreCase(response.getModel().getCollection().getGooruOid())) { 
+				response.getModel().getCollection().setClusterUid(response.getModel().getCollection().getGooruOid());
+				this.getCollectionRepository().save(response.getModel().getCollection());
+			}
 		}
 		try {
 			getEventLogs(response.getModel(), false, user, response.getModel().getCollection().getCollectionType());
@@ -137,8 +141,8 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		CollectionItem collectionItem = this.getCollectionItemById(collectionItemId);
 		AssessmentQuestion newQuestion = getAssessmentService().buildQuestionFromInputParameters(data, user, true);
 		Errors errors = validateUpdateCollectionItem(collectionItem);
-		JSONObject ItemData = new JSONObject();
-		ItemData.put("itemData", data);
+		final JSONObject itemData = new JSONObject();
+		itemData.put("itemData", data);
 		if (!errors.hasErrors()) {
 			AssessmentQuestion question = getAssessmentService().getQuestion(collectionItem.getResource().getGooruOid());
 			if (question != null) {
@@ -173,7 +177,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 			throw new NotFoundException("Question Not Found");
 		}
 		try {
-			getEventLogs(collectionItem, ItemData, user);
+			getEventLogs(collectionItem, itemData, user);
 		} catch(Exception e){
 			e.printStackTrace();
 		}

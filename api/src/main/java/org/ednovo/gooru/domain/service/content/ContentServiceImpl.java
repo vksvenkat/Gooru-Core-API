@@ -86,7 +86,7 @@ public class ContentServiceImpl implements ContentService,ParameterProperties {
 	@Autowired
 	private QuoteRepository quoteRepository;
 
-	private static final Logger logger = LoggerFactory.getLogger(ContentServiceImpl.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ContentServiceImpl.class);
 
 	@Override
 	public Content findByContent(Long contentId) {
@@ -212,9 +212,9 @@ public class ContentServiceImpl implements ContentService,ParameterProperties {
 
 		contentRepository.save(quote);
 
-		if (logger.isInfoEnabled()) {
+		if (LOGGER.isInfoEnabled()) {
 
-			logger.info(LogUtil.getActivityLogStream(CLASS_PLAN, user.toString(), quote.toString() + quote.getGooruOid(), LogUtil.QUOTE_CREATE, ""));
+			LOGGER.info(LogUtil.getActivityLogStream(CLASS_PLAN, user.toString(), quote.toString() + quote.getGooruOid(), LogUtil.QUOTE_CREATE, ""));
 		}
 
 		List<QuoteDTO> quoteDTOList = new ArrayList<QuoteDTO>();
@@ -338,8 +338,8 @@ public class ContentServiceImpl implements ContentService,ParameterProperties {
 		annotation.setResource(resource);
 		annotationService.create(annotation, SUBSCRIPTION, errors);
 
-		if (logger.isInfoEnabled()) {
-			logger.info(LogUtil.getActivityLogStream(CLASS_PLAN, user.toString(), quote.toString() + quote.getGooruOid(), LogUtil.QUOTE_CREATE, ""));
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info(LogUtil.getActivityLogStream(CLASS_PLAN, user.toString(), quote.toString() + quote.getGooruOid(), LogUtil.QUOTE_CREATE, ""));
 		}
 
 		User apiCaller = userRepository.findByGooruId(user.getPartyUid());
@@ -427,7 +427,7 @@ public class ContentServiceImpl implements ContentService,ParameterProperties {
 
 		contentRepository.save(quote);
 
-		if (logger.isInfoEnabled()) {
+		if (LOGGER.isInfoEnabled()) {
 
 			// activity.info(LogUtil.getActivityLogStream("classplan",
 			// user.toString(), annotation.getAnnotationType().toString() +

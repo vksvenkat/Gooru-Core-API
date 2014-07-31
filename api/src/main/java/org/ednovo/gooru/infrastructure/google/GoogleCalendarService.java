@@ -26,6 +26,8 @@ package org.ednovo.gooru.infrastructure.google;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import org.ednovo.gooru.core.exception.MethodFailureException;
+
 import com.google.gdata.client.GoogleService;
 import com.google.gdata.client.calendar.CalendarService;
 import com.google.gdata.data.DateTime;
@@ -53,7 +55,7 @@ public class GoogleCalendarService extends GoogleAppService{
 		try {
 			feedUrl = new URL(feedUrlString);
 		} catch (MalformedURLException e1) {
-			throw new RuntimeException("Error in URL while scheduling classplan with id : " + classplanId , e1);
+			throw new MethodFailureException("Error in URL while scheduling classplan with id : " + classplanId , e1);
 		}
 
 		try
@@ -80,7 +82,7 @@ public class GoogleCalendarService extends GoogleAppService{
 		}
 		catch(Exception e)
 		{	
-			throw new RuntimeException("Error while scheduling classplan with id : " + classplanId , e);
+			throw new MethodFailureException("Error while scheduling classplan with id : " + classplanId , e);
 		}
 
 	}

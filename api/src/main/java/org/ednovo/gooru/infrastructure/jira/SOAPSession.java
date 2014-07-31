@@ -27,6 +27,7 @@ import java.net.URL;
 
 import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.core.exception.MethodFailureException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -65,7 +66,7 @@ public class SOAPSession implements ConfigConstants,ParameterProperties {
 				logger.info("SOAP Session service endpoint at " + webServicePort.toExternalForm());
 			}
 		} catch (Exception e) {
-			throw new RuntimeException("Error while executing SOAP request", e);
+			throw new MethodFailureException("Error while executing SOAP request", e);
 		}
 
 	}
@@ -77,7 +78,7 @@ public class SOAPSession implements ConfigConstants,ParameterProperties {
 		try {
 			token = getJiraSoapService().login(userName, password);
 		} catch (Exception e) {
-			throw new RuntimeException("Error while logging in", e);
+			throw new MethodFailureException("Error while logging in", e);
 		}
 
 		logger.info("\tConnected");

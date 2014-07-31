@@ -91,7 +91,7 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 
 	private static final String PAGE_START = "startAt";
 	
-	private static final Logger logger = LoggerFactory.getLogger(ResourceServiceImpl.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ResourceServiceImpl.class);
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -334,7 +334,7 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 				Integer taxonomyParentId = Integer.valueOf(taxonomyParentIdString);
 				hql += " AND taxonomySet.parentId = '" + taxonomyParentId + "'";
 			} catch (NumberFormatException ex) {
-				logger.debug("Invalid Number Format"+ex);
+				LOGGER.debug("Invalid Number Format"+ex);
 			}
 		}
 

@@ -43,6 +43,7 @@ import org.ednovo.gooru.core.api.model.UserGroupTransformer;
 import org.ednovo.gooru.core.api.model.UserTransformer;
 import org.ednovo.gooru.core.application.util.BaseUtil;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.core.exception.MethodFailureException;
 import org.ednovo.goorucore.application.serializer.ExcludeNullTransformer;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -60,7 +61,7 @@ import flexjson.JSONSerializer;
 
 public class SerializerUtil  implements ParameterProperties{
 
-	private static final Logger logger = LoggerFactory.getLogger(SerializerUtil.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(SerializerUtil.class);
 
 	private static final String[] EXCLUDES = { "*.class", "*.userRole", "*.organization", "*.primaryOrganization", "organization", "*.codeType.organization.*" };
 
@@ -204,14 +205,14 @@ public class SerializerUtil  implements ParameterProperties{
 
 			} catch (Exception ex) {
 				if (model instanceof Resource) {
-					logger.error("Serialization failed for resource : " + ((Resource) model).getContentId());
+					LOGGER.error("Serialization failed for resource : " + ((Resource) model).getContentId());
 				} else if (model instanceof List) {
 					List list = (List<?>) model;
 					if (list != null && list.size() > 0 && list.get(0) instanceof Resource) {
-						logger.error("Serialization failed for list resources of size : " + list.size() + " resource : " + ((Resource) list.get(0)).getContentId());
+						LOGGER.error("Serialization failed for list resources of size : " + list.size() + " resource : " + ((Resource) list.get(0)).getContentId());
 					}
 				}
-				throw new RuntimeException(ex);
+				throw new MethodFailureException(ex.getMessage());
 			}
 
 		} else {
