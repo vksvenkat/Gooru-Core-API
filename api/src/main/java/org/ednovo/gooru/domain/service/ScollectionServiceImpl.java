@@ -263,6 +263,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			}
 			collection.setClusterUid(collection.getGooruOid());
 			collection.setIsRepresentative(1);
+			this.getCollectionRepository().save(collection);
 			
 			try {
 				indexProcessor.index(collection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
@@ -1928,6 +1929,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		this.getCollectionRepository().save(destCollection);
 		destCollection.setClusterUid(sourceCollection.getGooruOid());
 		destCollection.setIsRepresentative(0);
+		this.getCollectionRepository().save(destCollection);
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + destCollection.getUser().getPartyUid() + "*");
 		
 		try {
