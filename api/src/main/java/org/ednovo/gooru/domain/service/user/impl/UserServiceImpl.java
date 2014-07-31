@@ -189,7 +189,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 	@Autowired
 	private CollaboratorService collaboratorService;
 	
-	private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
 
 	@Override
 	public User createUser(String firstName, String lastName, String email, String password, String school, String username, Integer confirmStatus, String organizationCode, Integer addedBySystem, String userImportCode, String accountType, String dateOfBirth, String userParentId,
@@ -378,7 +378,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 				} else {
 					Integer age = this.calculateCurrentAge(dateOfBirth);
 					SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
-					Date date = dateFormat.parse(dateOfBirth);
+					final Date date = dateFormat.parse(dateOfBirth);
 					if (age < 13 && age >= 0) {
 						profile.setDateOfBirth(date);
 						User parentUser = profile.getUser().getParentUser();
@@ -518,12 +518,12 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 		try {
 			md = MessageDigest.getInstance("SHA-1"); // step 2
 		} catch (NoSuchAlgorithmException e) {
-			throw new RuntimeException("Error while authenticating user - No algorithm exists. ", e);
+			throw new BadCredentialsException("Error while authenticating user - No algorithm exists. ", e);
 		}
 		try {
 			md.update(password.getBytes("UTF-8")); // step 3
 		} catch (UnsupportedEncodingException e) {
-			throw new RuntimeException("Error while authenticating user - ", e);
+			throw new BadCredentialsException("Error while authenticating user - ", e);
 		}
 		byte raw[] = md.digest(); // step 4
 		String hash = (new Base64Encoder()).encode(raw); // step 5
@@ -575,7 +575,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 	}
 
 	@Override
-	public Map<String, String> validateUserAdd(String firstName, String lastName, String email, String password, String username, User user, String childDOB, String accountType, String dateOfBirth, String organizationCode) throws JSONException {
+	public Map<String, String> validateUserAdd(String firstName, String lastName, String email, String password, final String username, User user, String childDOB, String accountType, String dateOfBirth, String organizationCode) throws JSONException {
 		Map<String, String> errorList = new HashMap<String, String>();
 
 		if ((isNotEmptyString(childDOB)) && (isNotEmptyString(accountType)) && childDOB != null && !childDOB.equalsIgnoreCase("null")) {
@@ -764,7 +764,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 
 			boolean usernameAvailability = this.getUserRepository().checkUserAvailability(username, CheckUser.BYUSERNAME, false);
 			if (usernameAvailability) {
-				throw new RuntimeException("Someone already has taken " + username + "!.Please pick another username.");
+				throw new BadCredentialsException("Someone already has taken " + username + "!.Please pick another username.");
 			} else {
 				user.setUsername(username);
 			}
@@ -785,7 +785,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 			boolean emailAvailability = this.getUserRepository().checkUserAvailability(email, CheckUser.BYEMAILID, false);
 
 			if (emailAvailability) {
-				throw new RuntimeException("Someone already has taken " + email + "!.Please pick another email.");
+				throw new BadCredentialsException("Someone already has taken " + email + "!.Please pick another email.");
 			}
 
 			identity.setExternalId(email);
@@ -903,7 +903,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 	}
 
 	@Override
-	public User revokeUserRole(String gooruUId, String roles, User apiCaller) throws Exception {
+	public User revokeUserRole(final String gooruUId, String roles, User apiCaller) throws Exception {
 		User user = null;
 		if (isNotEmptyString(gooruUId)) {
 			if (isContentAdmin(apiCaller)) {
@@ -928,7 +928,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 		if (isContentAdmin(apiCaller)) {
 			User user = getUser(gooruUId);
 			Set<UserRoleAssoc> roleSet = new HashSet<UserRoleAssoc>();
-			List<UserRole> userRoles = this.getUserRepository().findRolesByNames(roles);
+			final List<UserRole> userRoles = this.getUserRepository().findRolesByNames(roles);
 			Set<UserRoleAssoc> currentRoles = user.getUserRoleSet();
 			if (userRoles != null) {
 				for (UserRole userRole : userRoles) {
@@ -1243,29 +1243,29 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 		identity = this.getUserRepository().findByEmailIdOrUserName(username, true, false);
 
 		if (identity == null) {
-			throw new RuntimeException("error:Please double-check your email address and password, and then try logging in again.");
+			throw new BadCredentialsException("error:Please double-check your email address and password, and then try logging in again.");
 		}
 
 		Date deactivateOn = identity.getDeactivatedOn();
 
 		if (deactivateOn != null && deactivateOn.before(new Date(System.currentTimeMillis()))) {
-			throw new RuntimeException("error: The user has been deactivated from the system.\nPlease contact Gooru Administrator.");
+			throw new BadCredentialsException("error: The user has been deactivated from the system.\nPlease contact Gooru Administrator.");
 		}
 
 		User user = this.getUserRepository().findByIdentity(identity);
 
 		if (!isSsoLogin) {
 			if (identity.getCredential() == null) {
-				throw new RuntimeException("error:Please double check your email ID and password and try again.");
+				throw new BadCredentialsException("error:Please double check your email ID and password and try again.");
 			}
 			String encryptedPassword = encryptPassword(password);
 			if (user == null || !(encryptedPassword.equals(identity.getCredential().getPassword()))) {
 
-				throw new RuntimeException("error:Please double-check your password and try signing in again.");
+				throw new BadCredentialsException("error:Please double-check your password and try signing in again.");
 			}
 
 			if (user.getConfirmStatus() == 0) {
-				throw new RuntimeException("error:We sent you a confirmation email with instructions on how to complete your Gooru registration. Please check your email, and then try again. Didn’t receive a confirmation email? Please contact us at support@goorulearning.org");
+				throw new BadCredentialsException("error:We sent you a confirmation email with instructions on how to complete your Gooru registration. Please check your email, and then try again. Didn’t receive a confirmation email? Please contact us at support@goorulearning.org");
 			}
 		}
 
@@ -1396,7 +1396,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 		return getUserCredential(user, key, sharedSecretKey);
 	}
 
-	private UserCredential getUserCredential(User user, String key, String sharedSecretKey) {
+	private UserCredential getUserCredential(User user,final  String key, String sharedSecretKey) {
 		String userCredentailKey = "user-credential:" + ((key != null && !key.equalsIgnoreCase(NA)) ? key : user.getGooruUId());
 		List<String> authorities = new ArrayList<String>();
 		if (user != null && user.getUserRoleSet() != null && user.getUserRoleSet().size() > 0) {
@@ -1544,7 +1544,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 	}
 
 	@Override
-	public UserRole findUserRoleByName(String name) {
+	public UserRole findUserRoleByName(final String name) {
 		return userRepository.findUserRoleByName(name, null);
 
 	}
@@ -1569,7 +1569,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 				String[] entityOperationArr = operation.split("\\.");
 				String entityName = entityOperationArr[0];
 				String operationName = entityOperationArr[1];
-				EntityOperation entityOperation = userRepository.findEntityOperation(entityName, operationName);
+				final EntityOperation entityOperation = userRepository.findEntityOperation(entityName, operationName);
 				if (entityOperation != null) {
 					roleEntityOperation = userRepository.checkRoleEntity(userRoleId, entityOperation.getEntityOperationId());
 					if (roleEntityOperation != null) {
@@ -1655,7 +1655,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 		try {
 			userTokenRepository.saveUserSession(sessionToken);
 		} catch (Exception e) {
-			logger.error("Error" + e.getMessage());
+			LOGGER.error("Error" + e.getMessage());
 		}
 		Organization organization = null;
 		if (sessionToken.getApiKey() != null) {
@@ -1700,7 +1700,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 						availability = checkCollaboratorsPermission(resourceId, user, contentType);
 					}
 				} else {
-					logger.debug("User identity not exisit !");
+					LOGGER.debug("User identity not exisit !");
 					availability = false;
 				}
 			}
@@ -1736,7 +1736,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 					for (ResourceInstance resourceInstance : segment.getResourceInstances()) {
 						if (!hasContentAccessPermission(collaboratorPermissions, collaborator, resourceInstance.getResource())) {
 							hasPermission = false;
-							logger.debug("User organization and resource organization doesn't match !");
+							LOGGER.debug("User organization and resource organization doesn't match !");
 						} else {
 							hasPermission = true;
 						}
@@ -1751,7 +1751,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 						for (CollectionItem collectionItem2 : collectionItem.getCollection().getCollectionItems()) {
 							if (!hasContentAccessPermission(collaboratorPermissions, collaborator, collectionItem2.getResource())) {
 								hasPermission = false;
-								logger.debug("User organization and resource organization doesn't match !");
+								LOGGER.debug("User organization and resource organization doesn't match !");
 							} else {
 								hasPermission = true;
 							}
@@ -1759,7 +1759,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 					} else {
 						if (!hasContentAccessPermission(collaboratorPermissions, collaborator, collectionItem.getResource())) {
 							hasPermission = false;
-							logger.debug("User organization and resource organization doesn't match !");
+							LOGGER.debug("User organization and resource organization doesn't match !");
 						} else {
 							hasPermission = true;
 						}
@@ -1771,7 +1771,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 					for (AssessmentSegmentQuestionAssoc aQuestionAssoc : segment.getSegmentQuestions()) {
 						if (!hasContentAccessPermission(collaboratorPermissions, collaborator, aQuestionAssoc.getQuestion())) {
 							hasPermission = false;
-							logger.debug("User organization and resource organization doesn't match !");
+							LOGGER.debug("User organization and resource organization doesn't match !");
 						} else {
 							hasPermission = true;
 						}
@@ -1851,7 +1851,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 		int years = -1;
 		Date currentDate = new Date();
 		Date userDateOfBirth = null;
-		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
+		final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
 		try {
 			userDateOfBirth = simpleDateFormat.parse(dateOfBirth);
 		} catch (ParseException e) {
@@ -1933,7 +1933,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 	}
 
 	@Override
-	public boolean checkPasswordWithAlphaNumeric(String password) {
+	public boolean checkPasswordWithAlphaNumeric(final String password) {
 		int letterSize = 0;
 		int digitSize = 0;
 		for (int i = 0; i < password.length(); i++) {
@@ -1952,34 +1952,34 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 
 	private void usernameValidation(String username, String orgnaizationUid) {
 		if (username.length() < 5) {
-			throw new RuntimeException("Username should be atleast 5 characters");
+			throw new BadCredentialsException("Username should be atleast 5 characters");
 		}
 
 		else if (username.length() > 20) {
-			throw new RuntimeException("Username should be within 20 characters");
+			throw new BadCredentialsException("Username should be within 20 characters");
 		}
 
 		else if (username.charAt(0) >= '0' && username.charAt(0) <= '9' || checkUsernameStartAndEndWithSpecialCharacters(username, true)) {
-			throw new RuntimeException("Username must begin with a letter");
+			throw new BadCredentialsException("Username must begin with a letter");
 		}
 
 		else if (containsWhiteSpace(username)) {
-			throw new RuntimeException("Username should not contain spaces");
+			throw new BadCredentialsException("Username should not contain spaces");
 		} else if (checkLatinWordInUserName(username)) {
-			throw new RuntimeException("Username must contain only latin letters or digits.");
+			throw new BadCredentialsException("Username must contain only latin letters or digits.");
 		}
 
 		else if (checkUsernameStartAndEndWithSpecialCharacters(username, false)) {
-			throw new RuntimeException("Username must end with a letter or digit");
+			throw new BadCredentialsException("Username must end with a letter or digit");
 		}
 
 		else if (checkUsernameIsRestricted(username, orgnaizationUid)) {
-			throw new RuntimeException("Username should not give the impression that the account has permissions ");
+			throw new BadCredentialsException("Username should not give the impression that the account has permissions ");
 		}
 	}
 
 	@Override
-	public void validatePassword(String password, String userName) {
+	public void validatePassword(final String password, String userName) {
 		if (password.length() < 5) {
 			throw new BadCredentialsException("Password should be atleast 5 characters");
 		}
@@ -2075,7 +2075,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 				paramMap.put(EXPIRE, expires);
 				String computedSignature = new GooruMd5Util().verifySignatureFromURL(url, paramMap, apiKeyObj.getSecretKey());
 				if (signature.equals(computedSignature)) {
-					String emailId = paramMap.get(EMAIL_ID).toString();
+					final String emailId = paramMap.get(EMAIL_ID).toString();
 					String password = paramMap.get(PASSWORD).toString();
 					String apiKey = paramMap.get(API_KEY).toString();
 					if (paramMap.get(EMAIL_ID).toString() != null && checkUserAvailability(emailId, CheckUser.BYEMAILID, false)) {
@@ -2175,7 +2175,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 			payLoadObject.put(CREATED_TYPE, identity != null ? identity.getAccountCreatedType() : null);
 		}
 		SessionContextSupport.putLogParameter("payLoadObject", payLoadObject.toString());
-		JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session").toString()) :  new JSONObject();
+		final JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session").toString()) :  new JSONObject();
 		session.put("organizationUId", newUser != null ? newUser.getOrganizationUid() : null);
 		SessionContextSupport.putLogParameter("session", session.toString());	
 		JSONObject user = SessionContextSupport.getLog().get("user") != null ? new JSONObject(SessionContextSupport.getLog().get("user").toString()) :  new JSONObject();
@@ -2184,7 +2184,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 	}
 	
 	@Override
-	public void getEventLogs(Identity identity, UserToken userToken) throws JSONException {
+	public void getEventLogs(Identity identity, final UserToken userToken) throws JSONException {
 		SessionContextSupport.putLogParameter(EVENT_NAME, "user.login");
 		JSONObject context = SessionContextSupport.getLog().get("context") != null ? new JSONObject(SessionContextSupport.getLog().get("context").toString()) : new JSONObject();
 		if(identity != null && identity.getLoginType().equalsIgnoreCase("Credential")) {
