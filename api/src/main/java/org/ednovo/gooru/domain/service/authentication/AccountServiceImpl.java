@@ -43,10 +43,8 @@ import org.ednovo.gooru.core.api.model.Identity;
 import org.ednovo.gooru.core.api.model.Organization;
 import org.ednovo.gooru.core.api.model.PartyCustomField;
 import org.ednovo.gooru.core.api.model.Profile;
-import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserAccountType;
-import org.ednovo.gooru.core.api.model.UserAccountType.accountCreatedType;
 import org.ednovo.gooru.core.api.model.UserAvailability.CheckUser;
 import org.ednovo.gooru.core.api.model.UserToken;
 import org.ednovo.gooru.core.application.util.ServerValidationUtils;
@@ -58,7 +56,7 @@ import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.core.exception.UnauthorizedException;
 import org.ednovo.gooru.domain.service.PartyService;
 import org.ednovo.gooru.domain.service.apitracker.ApiTrackerService;
-import org.ednovo.gooru.domain.service.eventlogs.AccountEventlog;
+import org.ednovo.gooru.domain.service.eventlogs.AccountEventLog;
 import org.ednovo.gooru.domain.service.redis.RedisService;
 import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.ednovo.gooru.domain.service.user.UserService;
@@ -70,8 +68,6 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.OrganizationSetting
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserTokenRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.activity.ActivityRepository;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,7 +83,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 	private UserTokenRepository userTokenRepository;
 	
 	@Autowired
-	private AccountEventlog accountEventlog;
+	private AccountEventLog accountEventlog;
 
 	@Autowired
 	private RedisService redisService;
@@ -416,7 +412,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 		return errors;
 	}
 
-	public AccountEventlog getAccountEventlog() {
+	public AccountEventLog getAccountEventlog() {
 		return accountEventlog;
 	}
 

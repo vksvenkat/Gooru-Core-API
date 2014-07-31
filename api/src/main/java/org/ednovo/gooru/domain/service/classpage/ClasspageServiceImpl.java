@@ -60,8 +60,8 @@ import org.ednovo.gooru.core.exception.UnauthorizedException;
 import org.ednovo.gooru.domain.service.CollectionService;
 import org.ednovo.gooru.domain.service.InviteService;
 import org.ednovo.gooru.domain.service.ScollectionServiceImpl;
-import org.ednovo.gooru.domain.service.eventlogs.ClasspageEventlog;
-import org.ednovo.gooru.domain.service.eventlogs.CollectionEventlog;
+import org.ednovo.gooru.domain.service.eventlogs.ClasspageEventLog;
+import org.ednovo.gooru.domain.service.eventlogs.CollectionEventLog;
 import org.ednovo.gooru.domain.service.group.UserGroupService;
 import org.ednovo.gooru.domain.service.search.SearchResults;
 import org.ednovo.gooru.domain.service.setting.SettingService;
@@ -96,10 +96,10 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	private ContentService contentService;
 	
 	@Autowired
-	private ClasspageEventlog classpageEventlog;
+	private ClasspageEventLog classpageEventlog;
 	
 	@Autowired
-	private CollectionEventlog scollectionEventlog;
+	private CollectionEventLog scollectionEventlog;
 
 	@Autowired
 	private UserGroupRepository userGroupRepository;
@@ -770,7 +770,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		return collectionItems;
 	}
 	
-	public CollectionEventlog getScollectionEventlog() {
+	public CollectionEventLog getScollectionEventlog() {
 		return scollectionEventlog;
 	}
 
@@ -830,7 +830,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		return inviteService;
 	}
 	
-	public ClasspageEventlog getClasspageEventlog() {
+	public ClasspageEventLog getClasspageEventlog() {
 		return classpageEventlog;
 	}
 

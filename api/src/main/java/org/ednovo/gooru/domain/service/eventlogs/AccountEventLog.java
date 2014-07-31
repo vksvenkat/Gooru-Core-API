@@ -11,7 +11,7 @@ import org.json.JSONObject;
 import org.springframework.stereotype.Component;
 
 @Component
-public class AccountEventlog implements ParameterProperties, ConstantProperties {
+public class AccountEventLog implements ParameterProperties, ConstantProperties {
 
 	public void getEventLogs(Identity identity, UserToken userToken) throws JSONException {
 		SessionContextSupport.putLogParameter(EVENT_NAME, USER_LOGIN);

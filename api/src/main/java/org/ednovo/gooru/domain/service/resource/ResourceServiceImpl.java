@@ -88,7 +88,6 @@ import org.ednovo.gooru.core.api.model.Segment;
 import org.ednovo.gooru.core.api.model.SessionActivityType;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.Sharing;
-import org.ednovo.gooru.core.api.model.ShelfItem;
 import org.ednovo.gooru.core.api.model.StatisticsDTO;
 import org.ednovo.gooru.core.api.model.Textbook;
 import org.ednovo.gooru.core.api.model.UpdateViewsDTO;
@@ -104,7 +103,6 @@ import org.ednovo.gooru.core.application.util.RequestUtil;
 import org.ednovo.gooru.core.cassandra.model.ResourceCio;
 import org.ednovo.gooru.core.cassandra.model.ResourceMetadataCo;
 import org.ednovo.gooru.core.cassandra.model.ResourceStasCo;
-import org.ednovo.gooru.core.cassandra.model.StatisticsCo;
 import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
@@ -112,6 +110,7 @@ import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.domain.cassandra.service.ResourceCassandraService;
 import org.ednovo.gooru.domain.service.CollectionService;
 import org.ednovo.gooru.domain.service.assessment.AssessmentService;
+import org.ednovo.gooru.domain.service.eventlogs.ResourceEventLog;
 import org.ednovo.gooru.domain.service.partner.CustomFieldsService;
 import org.ednovo.gooru.domain.service.revision_history.RevisionHistoryService;
 import org.ednovo.gooru.domain.service.sessionActivity.SessionActivityService;
@@ -161,6 +160,9 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 
 	@Autowired
 	private ResourceRepository resourceRepository;
+	
+	@Autowired
+	private ResourceEventLog resourceEventLog;
 
 	@Autowired
 	private ResourceParser resourceParser;
@@ -194,10 +196,6 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 
 	@Autowired
 	private UserRepository userRepository;
-
-	public UserRepository getUserRepository() {
-		return userRepository;
-	}
 
 	@Autowired
 	@javax.annotation.Resource(name = "resourceManager")
@@ -2624,7 +2622,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			this.replaceDuplicatePrivateResourceWithPublicResource(resource);
 			this.mapSourceToResource(resource);
 			try{
-				getEventLogs(resource, true, false, user);
+				this.getResourceEventLog().getEventLogs(resource, true, false, user);
 			} catch(Exception e){
 				LOGGER.debug("error"+e.getMessage());
 			}
@@ -2772,7 +2770,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		}
 		
 		try{
-			getEventLogs(resource, itemData, user);
+			this.getResourceEventLog().getEventLogs(resource, itemData, user);
 		}catch(Exception e){
 			LOGGER.debug("error"+e.getMessage());
 		}
@@ -3041,6 +3039,10 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	public TaxonomyRespository getTaxonomyRepository() {
 		return taxonomyRepository;
 	}
+	
+	public ResourceEventLog getResourceEventLog() {
+		return resourceEventLog;
+	}
 
 	public TaxonomyService getTaxonomyService() {
 		return taxonomyService;
@@ -3066,6 +3068,10 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	public List<Map<String, Object>> getPartyPermissions(long contentId) {
 		return resourceRepository.getPartyPermissions(contentId);
 	}
+	
+	public UserRepository getUserRepository() {
+		return userRepository;
+	}
 
 	@Override
 	public Resource resourcePlay(String gooruContentId, User apiCaller, boolean more) throws Exception {
@@ -3087,43 +3093,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 
 	}
 	
-	public void getEventLogs(Resource resource, boolean isCreate, boolean isAdd, User user) throws JSONException {
-		SessionContextSupport.putLogParameter(EVENT_NAME, ITEM_CREATE);
-		JSONObject context = SessionContextSupport.getLog().get(CONTEXT) != null ? new JSONObject(SessionContextSupport.getLog().get(CONTEXT).toString()) : new JSONObject();
-		SessionContextSupport.putLogParameter(CONTEXT, context.toString());
-		JSONObject payLoadObject = SessionContextSupport.getLog().get(PAY_LOAD_OBJECT) != null ? new JSONObject(SessionContextSupport.getLog().get(PAY_LOAD_OBJECT).toString()) : new JSONObject();
-		if(isCreate){
-			payLoadObject.put(MODE, CREATE);
-		} else if(isAdd){
-			payLoadObject.put(MODE, ADD);
-		}
-		
-		if(resource != null){
-			payLoadObject.put(ITEM_TYPE, resource.getResourceType().getName());
-		}
-		
-		payLoadObject.put(TITLE, resource != null && resource.getTitle() != null ? resource.getTitle() : null);
-		payLoadObject.put(DESCRIPTION, resource != null && resource.getDescription() != null ? resource.getDescription() : null);
-		SessionContextSupport.putLogParameter(PAY_LOAD_OBJECT, payLoadObject.toString());
-		JSONObject session = SessionContextSupport.getLog().get(SESSION) != null ? new JSONObject(SessionContextSupport.getLog().get(SESSION).toString()) : new JSONObject();
-		session.put(ORGANIZATION_UID, user != null && user.getOrganization() != null ? user.getOrganization().getPartyUid() : null);
-		SessionContextSupport.putLogParameter(SESSION, session.toString());
-	}
 	
-	public void getEventLogs(Resource resource , JSONObject itemData, User user) throws JSONException {
-		SessionContextSupport.putLogParameter(EVENT_NAME, ITEM_EDIT);
-		JSONObject context = SessionContextSupport.getLog().get(CONTEXT) != null ? new JSONObject(SessionContextSupport.getLog().get(CONTEXT).toString()) : new JSONObject();
-		SessionContextSupport.putLogParameter(CONTEXT, context.toString());
-		JSONObject payLoadObject = SessionContextSupport.getLog().get(PAY_LOAD_OBJECT) != null ? new JSONObject(SessionContextSupport.getLog().get(PAY_LOAD_OBJECT).toString()) : new JSONObject();
-		payLoadObject.put(MODE, EDIT);
-		payLoadObject.put(ITEM_TYPE, resource != null ? resource.getResourceType().getName() : null);
-		payLoadObject.put(_ITEM_DATA, itemData != null ? itemData.toString() : null);
-		SessionContextSupport.putLogParameter(PAY_LOAD_OBJECT, payLoadObject.toString());
-		JSONObject session = SessionContextSupport.getLog().get(SESSION) != null ? new JSONObject(SessionContextSupport.getLog().get(SESSION).toString()) : new JSONObject();
-		session.put(ORGANIZATION_UID, user.getOrganization().getPartyUid());
-		SessionContextSupport.putLogParameter(SESSION, session.toString());
-	}
-
 	public AsyncExecutor getAsyncExecutor() {
 		return asyncExecutor;
 	}
