@@ -26,6 +26,7 @@
  */
 package org.ednovo.gooru.domain.cassandra.service;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.ednovo.gooru.cassandra.core.service.EntityCassandraService;
@@ -46,5 +47,7 @@ public interface ResourceCassandraService extends EntityCassandraService<String,
 	void updateIndexQueue(List<String> gooruOids, String type, String rowKey, String columnPrefix, boolean isUpdate);
 
 	ColumnList<String> readIndexQueuedData(String rowKey, Integer limit, String columnPrefix);
+	
+	void deleteIndexQueue(String rowKey, Collection<String> columns);
 
 }

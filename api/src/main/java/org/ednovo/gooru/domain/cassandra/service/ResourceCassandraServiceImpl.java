@@ -26,6 +26,7 @@
  */
 package org.ednovo.gooru.domain.cassandra.service;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.ednovo.gooru.cassandra.core.dao.RawCassandraDao;
@@ -90,6 +91,11 @@ public class ResourceCassandraServiceImpl extends ApiCrudEntityCassandraServiceI
 	@Override
 	public ColumnList<String> readIndexQueuedData(String rowKey, Integer limit, String columnPrefix){
 		return getDao().readIndexQueuedData(rowKey, limit, columnPrefix);
+	}
+
+	@Override
+	public void deleteIndexQueue(String rowKey, Collection<String> columns) {
+		getDao(ColumnFamilyConstant.INDEX_QUEUE).deleteIndexQueue(rowKey, columns);
 	}
 
 }
