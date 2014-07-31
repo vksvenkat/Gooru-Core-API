@@ -42,6 +42,7 @@ import org.ednovo.gooru.core.api.model.UserContentAssoc;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.NotFoundException;
+import org.ednovo.gooru.domain.service.eventlogs.CollaboratorEventLog;
 import org.ednovo.gooru.domain.service.userManagement.UserManagementService;
 import org.ednovo.gooru.domain.service.v2.ContentService;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
@@ -63,6 +64,9 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 
 	@Autowired
 	private UserRepository userRepository;
+	
+	@Autowired
+	private CollaboratorEventLog collaboratorEventLog;
 
 	@Autowired
 	private CollectionRepository collectionRepository;
@@ -125,7 +129,7 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 						collaborator.add(setActiveCollaborator(userContentAssoc, ACTIVE));
 						this.getContentService().createContentPermission(content, identity.getUser());
 						try {
-							getEventLogs(identity.getUser(), responseDto.getModel(), gooruOid, true, false);
+							this.getCollaboratorEventLog().getEventLogs(identity.getUser(), responseDto.getModel(), gooruOid, true, false);
 						} catch (JSONException e) {
 							LOGGER.debug("error"+e.getMessage());
 						}	
@@ -224,7 +228,7 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 						this.getContentService().deleteContentPermission(content, identity.getUser());
 						final List<CollectionItem> associations = this.getCollectionRepository().getCollectionItemByAssociation(gooruOid, identity.getUser().getGooruUId(),null);
 						try {
-							getEventLogs(identity.getUser(), associations.size() > 0 ? associations.get(0) : null, gooruOid, false, true);
+							this.getCollaboratorEventLog().getEventLogs(identity.getUser(), associations.size() > 0 ? associations.get(0) : null, gooruOid, false, true);
 						} catch (JSONException e) {
 							e.printStackTrace();
 						}
@@ -353,8 +357,13 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 	public InviteRepository getInviteRepository() {
 		return inviteRepository;
 	}
+	
+	public CollaboratorEventLog getCollaboratorEventLog() {
+		return collaboratorEventLog;
+	}
 
-	private void getEventLogs(User collaborator, CollectionItem collectionItem, String gooruOid, boolean isAdd, boolean isRemove) throws JSONException {
+
+	public void getEventLogs(User collaborator, CollectionItem collectionItem, String gooruOid, boolean isAdd, boolean isRemove) throws JSONException {
 		SessionContextSupport.putLogParameter(EVENT_NAME, ITEM_COLLABORATE);
 		JSONObject context = SessionContextSupport.getLog().get(CONTEXT) != null ? new JSONObject(SessionContextSupport.getLog().get(CONTEXT).toString()) :  new JSONObject();
 		context.put(SOURCE_GOORU_UID,gooruOid);

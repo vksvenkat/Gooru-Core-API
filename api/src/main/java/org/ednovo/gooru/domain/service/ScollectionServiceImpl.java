@@ -74,7 +74,7 @@ import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.core.exception.UnauthorizedException;
 import org.ednovo.gooru.domain.cassandra.service.ResourceCassandraService;
 import org.ednovo.gooru.domain.service.assessment.AssessmentService;
-import org.ednovo.gooru.domain.service.eventlogs.CollectionEventlog;
+import org.ednovo.gooru.domain.service.eventlogs.CollectionEventLog;
 import org.ednovo.gooru.domain.service.partner.CustomFieldsService;
 import org.ednovo.gooru.domain.service.redis.RedisService;
 import org.ednovo.gooru.domain.service.resource.ResourceManager;
@@ -120,7 +120,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	private CollectionRepository collectionRepository;
 	
 	@Autowired
-	private CollectionEventlog scollectionEventlog;
+	private CollectionEventLog collectionEventLog;
 	
 	@Autowired
 	private ResourceRepository resourceRepository;
@@ -278,9 +278,9 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collection.getUser().getPartyUid() + "*");
 			
 		}
-		
+	
 		try {
-			this.getScollectionEventlog().getEventLogs(collection, null, collection.getUser(), true, false);
+			  this.getCollectionEventLog().getEventLogs(collection, null, collection.getUser(), true, false);
 		} catch(Exception e){
 			LOGGER.error("Error"+ e.getMessage());
 		}
@@ -377,7 +377,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			
 			getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collection.getUser().getPartyUid() + "*");
 			try {
-				this.getScollectionEventlog().getEventLogs(collection.getCollectionItem(), true, false, user, collection.getCollectionItem().getCollection().getCollectionType());
+				this.getCollectionEventLog().getEventLogs(collection.getCollectionItem(), true, false, user, collection.getCollectionItem().getCollection().getCollectionType());
 			} catch(Exception e){
 				LOGGER.debug(e.getMessage());
 			}
@@ -628,7 +628,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 				final List<CollectionItem> collectionItems = this.getCollectionRepository().getCollectionItemByAssociation(collectionId, null, null);
 				try {
-					this.getScollectionEventlog().getEventLogs(collection.getCollectionItem(), user, collection.getCollectionType());
+					this.getCollectionEventLog().getEventLogs(collection.getCollectionItem(), user, collection.getCollectionType());
 				} catch (Exception e) {
 					LOGGER.debug(e.getMessage());
 				}
@@ -694,7 +694,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			this.getCollectionRepository().save(collectionItem);
 			this.getCollectionRepository().flush();
 			try{
-				this.getScollectionEventlog().getEventLogs(collectionItem, false, true, user, collectionItem.getCollection().getCollectionType());
+			     this.getCollectionEventLog().getEventLogs(collectionItem, false, true, user, collectionItem.getCollection().getCollectionType());
 			} catch(Exception e){
 				LOGGER.debug(e.getMessage());
 			}
@@ -798,7 +798,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			this.getCollectionRepository().save(collectionItem);
 			this.getCollectionRepository().save(collectionItem.getCollection());
 			try {
-				this.getScollectionEventlog().getEventLogs(collectionItem, itemData, user);
+				  this.getCollectionEventLog().getEventLogs(collectionItem, itemData, user);
 				if (collectionItem.getResource().getResourceType() != null && collectionItem.getResource().getResourceType().getName().equalsIgnoreCase(ResourceType.Type.SCOLLECTION.getType())) {
 					indexProcessor.index(collectionItem.getResource().getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
 				} else {
@@ -834,7 +834,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		CollectionItem collectionItem = this.getCollectionRepository().getCollectionItemById(collectionItemId);
 		if (collectionItem != null && collectionItem.getResource() != null) {
 				try {
-					this.getScollectionEventlog().getEventLogs(collectionItem, user, collectionItem.getCollection().getCollectionType());
+					   this.getCollectionEventLog().getEventLogs(collectionItem, user, collectionItem.getCollection().getCollectionType());
 				} catch (JSONException e1) {
 					e1.printStackTrace();
 				}
@@ -1336,7 +1336,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		}
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collection.getUser().getPartyUid() + "*");
 		try {
-			this.getScollectionEventlog().getEventLogs(collection, jsonItemdata, apiCallerUser, false, true);
+			this.getCollectionEventLog().getEventLogs(collection, jsonItemdata, apiCallerUser, false, true);
 		} catch(Exception e){
 			LOGGER.debug("error"+e.getMessage());
 		}
@@ -1403,7 +1403,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
 		
 		try {
-			this.getScollectionEventlog().getEventLogs(collectionItem, jsonItemdata, apiCaller);
+		      this.getCollectionEventLog().getEventLogs(collectionItem, jsonItemdata, apiCaller);
 		} catch (JSONException e) {
 			LOGGER.debug("Error"+e.getMessage());
 		}
@@ -1452,7 +1452,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		this.getCollectionRepository().save(destCollectionItem);
 		try{
 			if(destCollectionItem != null){
-				this.getScollectionEventlog().getEventLogs(destCollectionItem, false, false, destCollectionItem.getCollection() != null && destCollectionItem.getCollection().getUser() != null ?  destCollectionItem.getCollection().getUser() : null, destCollectionItem.getCollection() != null ? destCollectionItem.getCollection().getCollectionType() : null);
+				this.getCollectionEventLog().getEventLogs(destCollectionItem, false, false, destCollectionItem.getCollection() != null && destCollectionItem.getCollection().getUser() != null ?  destCollectionItem.getCollection().getUser() : null, destCollectionItem.getCollection() != null ? destCollectionItem.getCollection().getCollectionType() : null);
 			}
 		}catch(Exception e){
 			LOGGER.debug("Error"+e.getMessage());
@@ -1821,7 +1821,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		}
 		
 		try{
-			this.getScollectionEventlog().getEventLogs(collection, itemData, collection.getUser(), false, true);
+			    this.getCollectionEventLog().getEventLogs(collection, itemData, collection.getUser(), false, true);
 		}catch(Exception e){
 			LOGGER.debug(e.getMessage());
 		}
@@ -1939,7 +1939,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		try {
 			if(destCollection != null){
 				indexProcessor.index(destCollection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
-				this.getScollectionEventlog().getEventLogs(destCollection, null, user, false, false);
+				this.getCollectionEventLog().getEventLogs(destCollection, null, user, false, false);
 			}
 		} catch(Exception e){
 			LOGGER.debug("error"+e.getMessage());
@@ -2077,7 +2077,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + response.getModel().getCollection().getUser().getPartyUid() + "*");
 		}
 		try{
-			this.getScollectionEventlog().getEventLogs(response.getModel(), true, false, user, response.getModel().getCollection().getCollectionType() );
+		      this.getCollectionEventLog().getEventLogs(response.getModel(), true, false, user, response.getModel().getCollection().getCollectionType() );
 		} catch(Exception e){
 			e.printStackTrace();
 		}
@@ -2176,7 +2176,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
 		}
 		try {
-			this.getScollectionEventlog().getEventLogs(collectionItem, itemData, user);
+			    this.getCollectionEventLog().getEventLogs(collectionItem, itemData, user);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -2331,150 +2331,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		return domainName;
 	}
 
-	public void getEventLogs(Collection collection, JSONObject itemData, User user, boolean isCreate, boolean isUpdate) throws JSONException {
-		if(isCreate){
-			SessionContextSupport.putLogParameter(EVENT_NAME, ITEM_CREATE);
-		} else if(isUpdate){
-			SessionContextSupport.putLogParameter(EVENT_NAME,  ITEM_EDIT);
-		}
-		final JSONObject context = SessionContextSupport.getLog().get(CONTEXT) != null ? new JSONObject(SessionContextSupport.getLog().get(CONTEXT).toString()) : new JSONObject();
-		if(collection != null ){
-			context.put(CONTENT_GOORU_ID, collection != null && collection.getCollectionItem() != null && collection.getCollectionItem().getResource() != null ? collection.getCollectionItem().getResource().getGooruOid() : null);
-			context.put(CONTENT_ITEM_ID, collection != null && collection.getCollectionItem() != null ? collection.getCollectionItem().getCollectionItemId() : null);
-			context.put(PARENT_GOORU_ID, collection != null ? collection.getGooruOid() : null);
-			context.put( PARENT_ITEM_ID, collection != null && collection.getCollectionItem() != null ? collection.getCollectionItem().getCollectionItemId() : null);
-		}
-		SessionContextSupport.putLogParameter(CONTEXT, context.toString());
-		final JSONObject payLoadObject = SessionContextSupport.getLog().get(PAY_LOAD_OBJECT) != null ? new JSONObject(SessionContextSupport.getLog().get(PAY_LOAD_OBJECT).toString()) : new JSONObject();
-		if(isCreate){
-			payLoadObject.put(MODE,   CREATE);
-		} else if(isUpdate){
-			payLoadObject.put(MODE, EDIT);
-		} else {
-			payLoadObject.put(MODE, _COPY);
-		}
-		payLoadObject.put(ITEM_TYPE, collection != null ? collection.getCollectionType()  : null);
-		payLoadObject.put(_ITEM_DATA , itemData != null ? itemData.toString() : null);
-		SessionContextSupport.putLogParameter(PAY_LOAD_OBJECT, payLoadObject.toString());
-		JSONObject session = SessionContextSupport.getLog().get(SESSION) != null ? new JSONObject(SessionContextSupport.getLog().get(SESSION).toString()) : new JSONObject();
-		session.put( ORGANIZATION_UID, user != null && user.getOrganization() != null ? user.getOrganization().getPartyUid() : null);
-		SessionContextSupport.putLogParameter(SESSION, session.toString());
-	}
-
-	@Override
-	public void getEventLogs(final CollectionItem collectionItem, boolean isCreate, boolean isAdd, User user, String collectionType) throws JSONException {
-		SessionContextSupport.putLogParameter(EVENT_NAME, ITEM_CREATE);
-		JSONObject context = SessionContextSupport.getLog().get(CONTEXT) != null ? new JSONObject(SessionContextSupport.getLog().get(CONTEXT).toString()) : new JSONObject();
-		context.put(PARENT_GOORU_ID, collectionItem != null && collectionItem.getCollection() != null ? collectionItem.getCollection().getGooruOid() : null);
-		context.put(CONTENT_GOORU_ID, collectionItem != null && collectionItem.getResource() != null ? collectionItem.getResource().getGooruOid() : null);
-		SessionContextSupport.putLogParameter(CONTEXT, context.toString());
-		JSONObject payLoadObject = SessionContextSupport.getLog().get(PAY_LOAD_OBJECT) != null ? new JSONObject(SessionContextSupport.getLog().get(PAY_LOAD_OBJECT).toString()) : new JSONObject();
-		if(isCreate){
-			payLoadObject.put(MODE,   CREATE);
-		} else if(isAdd){
-			payLoadObject.put(MODE, ADD);
-		} else {
-			payLoadObject.put(MODE, _COPY);
-		}
-		payLoadObject.put(ITEM_SEQUENCE, collectionItem != null ? collectionItem.getItemSequence() : null);
-		payLoadObject.put(ITEM_ID, collectionItem != null ? collectionItem.getCollectionItemId() : null);
-		if (collectionType != null && collectionItem != null) {
-			if(collectionType.equalsIgnoreCase(CollectionType.SHElf.getCollectionType())){
-				if(collectionItem != null && collectionItem.getResource() != null){
-					final String typeName = collectionItem.getResource().getResourceType().getName();
-					if(typeName.equalsIgnoreCase(ResourceType.Type.SCOLLECTION.getType())){
-						payLoadObject.put(ITEM_TYPE, SHELF_COLLECTION);
-					} else if(typeName.equalsIgnoreCase(ResourceType.Type.FOLDER.getType())){
-						payLoadObject.put(ITEM_TYPE, SHELF_FOLDER);
-					}
-				}
-			} else if (collectionType.equalsIgnoreCase(CollectionType.COLLECTION.getCollectionType())) {
-				payLoadObject.put(ITEM_TYPE, COLLECTION_RESOURCE);
-			} else if (collectionType.equalsIgnoreCase(CollectionType.FOLDER.getCollectionType())) {
-				if(collectionItem != null && collectionItem.getResource() != null){
-					final String itemTypeName = collectionItem.getResource().getResourceType().getName();
-					if(itemTypeName.equalsIgnoreCase(ResourceType.Type.FOLDER.getType())){
-						payLoadObject.put(ITEM_TYPE, FOLDER_FOLDER);
-					} else if(itemTypeName.equalsIgnoreCase(ResourceType.Type.SCOLLECTION.getType())){
-						payLoadObject.put(ITEM_TYPE, FOLDER_COLLECTION);
-					}
-				}
-			} else if (collectionType.equalsIgnoreCase(CollectionType.CLASSPAGE.getCollectionType())) {
-				payLoadObject.put(ITEM_TYPE, CLASSPAGE_COLLECTION);
-			}
-		}
-		payLoadObject.put(PARENT_CONTENT_ID, collectionItem != null && collectionItem.getCollection() != null ? collectionItem.getCollection().getContentId() : null);
-		payLoadObject.put(CONTENTID , collectionItem != null && collectionItem.getResource() != null ? collectionItem.getResource().getContentId() : null);
-		payLoadObject.put(TITLE, collectionItem != null && collectionItem.getResource() != null ? collectionItem.getResource().getTitle() : null);
-		payLoadObject.put(DESCRIPTION, collectionItem != null && collectionItem.getResource() != null ?  collectionItem.getResource().getDescription() : null);
-		SessionContextSupport.putLogParameter(PAY_LOAD_OBJECT, payLoadObject.toString());
-		JSONObject session = SessionContextSupport.getLog().get(SESSION) != null ? new JSONObject(SessionContextSupport.getLog().get(SESSION).toString()) : new JSONObject();
-		session.put( ORGANIZATION_UID, user != null && user.getOrganization() != null ? user.getOrganization().getPartyUid() : null);
-		SessionContextSupport.putLogParameter(SESSION, session.toString());
-	}
-	
-	public void getEventLogs(CollectionItem collectionItem , JSONObject itemData, User user) throws JSONException {
-		SessionContextSupport.putLogParameter(EVENT_NAME,  ITEM_EDIT);
-		JSONObject context = SessionContextSupport.getLog().get(CONTEXT) != null ? new JSONObject(SessionContextSupport.getLog().get(CONTEXT).toString()) : new JSONObject();
-		if(collectionItem != null ){
-			context.put(CONTENT_GOORU_ID, collectionItem != null && collectionItem.getResource() != null ? collectionItem.getResource().getGooruOid() : null);
-			context.put(CONTENT_ITEM_ID, collectionItem != null ? collectionItem.getCollectionItemId() : null);
-			context.put(PARENT_GOORU_ID, collectionItem != null && collectionItem.getCollection() != null ? collectionItem.getCollection().getGooruOid() : null);
-			context.put( PARENT_ITEM_ID, collectionItem != null ? collectionItem.getCollectionItemId() : null);
-		}
-		SessionContextSupport.putLogParameter(CONTEXT, context.toString());
-		final JSONObject payLoadObject = SessionContextSupport.getLog().get(PAY_LOAD_OBJECT) != null ? new JSONObject(SessionContextSupport.getLog().get(PAY_LOAD_OBJECT).toString()) : new JSONObject();
-		payLoadObject.put(ITEM_TYPE, collectionItem != null && collectionItem.getResource() != null ? collectionItem.getResource().getResourceType().getName() : null);
-		payLoadObject.put(_ITEM_DATA , itemData != null ? itemData.toString() : null);
-		SessionContextSupport.putLogParameter(PAY_LOAD_OBJECT, payLoadObject.toString());
-		JSONObject session = SessionContextSupport.getLog().get(SESSION) != null ? new JSONObject(SessionContextSupport.getLog().get(SESSION).toString()) : new JSONObject();
-		session.put( ORGANIZATION_UID, user.getOrganization().getPartyUid());
-		SessionContextSupport.putLogParameter(SESSION, session.toString());
-	}
-
-	@Override
-	public void getEventLogs(final CollectionItem collectionItem, User user, final String collectionType) throws JSONException {
-		SessionContextSupport.putLogParameter(EVENT_NAME, ITEM_DELETE);
-		final JSONObject context = SessionContextSupport.getLog().get(CONTEXT) != null ? new JSONObject(SessionContextSupport.getLog().get(CONTEXT).toString()) : new JSONObject();
-		context.put(PARENT_GOORU_ID, collectionItem != null && collectionItem.getCollection() != null ? collectionItem.getCollection().getGooruOid() : null);
-		context.put(CONTENT_GOORU_ID, collectionItem != null && collectionItem.getResource() != null ? collectionItem.getResource().getGooruOid() : null);
-		SessionContextSupport.putLogParameter(CONTEXT, context.toString());
-		final JSONObject payLoadObject = SessionContextSupport.getLog().get(PAY_LOAD_OBJECT) != null ? new JSONObject(SessionContextSupport.getLog().get(PAY_LOAD_OBJECT).toString()) : new JSONObject();
-		if (collectionType != null && collectionItem != null) {
-			if(collectionType.equalsIgnoreCase(CollectionType.SHElf.getCollectionType())){
-				if(collectionItem.getResource() != null){
-					final String typeName = collectionItem.getResource().getResourceType().getName();
-					if(typeName.equalsIgnoreCase(ResourceType.Type.SCOLLECTION.getType())){
-						payLoadObject.put(ITEM_TYPE, SHELF_COLLECTION);
-					} else if(typeName.equalsIgnoreCase(ResourceType.Type.FOLDER.getType())){
-						payLoadObject.put(ITEM_TYPE, SHELF_FOLDER);
-					}
-				}
-			} else if (collectionType.equalsIgnoreCase(CollectionType.COLLECTION.getCollectionType())) {
-				payLoadObject.put(ITEM_TYPE, COLLECTION_RESOURCE);
-			} else if (collectionType.equalsIgnoreCase(CollectionType.FOLDER.getCollectionType())) {
-				if(collectionItem.getResource() != null){
-					String itemTypeName = collectionItem.getResource().getResourceType().getName();
-					if(itemTypeName.equalsIgnoreCase(ResourceType.Type.FOLDER.getType())){
-						payLoadObject.put(ITEM_TYPE, FOLDER_FOLDER);
-					} else if(itemTypeName.equalsIgnoreCase(ResourceType.Type.SCOLLECTION.getType())){
-						payLoadObject.put(ITEM_TYPE, FOLDER_COLLECTION);
-					}
-				}
-			} else if (collectionType.equalsIgnoreCase(CollectionType.CLASSPAGE.getCollectionType())) {
-				payLoadObject.put(ITEM_TYPE, CLASSPAGE_COLLECTION);
-			}
-		}
-		payLoadObject.put(ITEM_ID, collectionItem != null ? collectionItem.getCollectionItemId() : null);
-		payLoadObject.put(PARENT_CONTENT_ID, collectionItem != null && collectionItem.getCollection() != null ? collectionItem.getCollection().getContentId() : null);
-		payLoadObject.put(CONTENTID , collectionItem != null && collectionItem.getResource() != null ? collectionItem.getResource().getContentId() : null);
-		SessionContextSupport.putLogParameter(PAY_LOAD_OBJECT, payLoadObject.toString());
-		JSONObject session = SessionContextSupport.getLog().get(SESSION) != null ? new JSONObject(SessionContextSupport.getLog().get(SESSION).toString()) : new JSONObject();
-		session.put(ORGANIZATION_UID, user!= null && user.getOrganization() != null ? user.getOrganization().getPartyUid() : null);
-		SessionContextSupport.putLogParameter(SESSION, session.toString());
-	}
-	
-	public void deleteBulkCollections(List<String> gooruOids){
+  public void deleteBulkCollections(List<String> gooruOids){
 		List<Collection> collections = collectionRepository.getCollectionListByIds(gooruOids);
 		StringBuffer removeContentIds = new StringBuffer();
 		for (Collection collection : collections) {
@@ -2491,10 +2348,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		}
 		return isResourceType;
 	}
-	
-	public CollectionEventlog getScollectionEventlog() {
-		return scollectionEventlog;
-	}
 
 	public ResourceCassandraService getResourceCassandraService() {
 		return resourceCassandraService;
@@ -2510,6 +2363,10 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 	public CollectionRepository getCollectionRepository() {
 		return collectionRepository;
+	}
+	
+	public CollectionEventLog getCollectionEventLog() {
+		return collectionEventLog;
 	}
 
 	public ResourceRepository getResourceRepository() {
@@ -2571,5 +2428,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	public ResourceManager getResourceManager() {
 		return resourceManager;
 	}
+
+	
 
 }
