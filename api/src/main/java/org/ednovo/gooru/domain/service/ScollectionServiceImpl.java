@@ -852,6 +852,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 						indexProcessor.index(collectionItem.getResource().getGooruOid(), IndexProcessor.INDEX, RESOURCE);
 					}
 					indexProcessor.index(collectionItem.getCollection().getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
+					getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
 				} catch (Exception e) {
 					LOGGER.debug("error"+e.getMessage());
 				}
