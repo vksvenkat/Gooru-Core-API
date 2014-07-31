@@ -713,7 +713,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			for (String parentFolder : parenFolders) {
 				updateFolderSharing(parentFolder);
 			}
-			if (collectionItem.getCollection().getResourceType().getName().equalsIgnoreCase(SCOLLECTION) && !collectionItem.getCollection().getClusterUid().equalsIgnoreCase(collectionItem.getCollection().getGooruOid())) { 
+			if (collectionItem.getCollection().getResourceType().getName().equalsIgnoreCase(SCOLLECTION) && collectionItem.getCollection().getClusterUid() != null &&  !collectionItem.getCollection().getClusterUid().equalsIgnoreCase(collectionItem.getCollection().getGooruOid())) { 
 				collectionItem.getCollection().setClusterUid(collectionItem.getCollection().getGooruOid());
 				this.getCollectionRepository().save(collectionItem.getCollection());
 			}
@@ -855,7 +855,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				} catch (Exception e) {
 					LOGGER.debug("error"+e.getMessage());
 				}
-				if (collectionItem.getCollection().getResourceType().getName().equalsIgnoreCase(SCOLLECTION) && !collectionItem.getCollection().getClusterUid().equalsIgnoreCase(collectionItem.getCollection().getGooruOid())) { 
+				if (collectionItem.getCollection().getResourceType().getName().equalsIgnoreCase(SCOLLECTION) && collectionItem.getCollection().getClusterUid() != null && !collectionItem.getCollection().getClusterUid().equalsIgnoreCase(collectionItem.getCollection().getGooruOid())) { 
 					collectionItem.getCollection().setClusterUid(collectionItem.getCollection().getGooruOid());
 					this.getCollectionRepository().save(collectionItem.getCollection());
 				}
