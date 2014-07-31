@@ -8,7 +8,9 @@ import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.stereotype.Component;
 
+@Component
 public class AccountEventlog implements ParameterProperties, ConstantProperties {
 
 	public void getEventLogs(Identity identity, UserToken userToken) throws JSONException {
