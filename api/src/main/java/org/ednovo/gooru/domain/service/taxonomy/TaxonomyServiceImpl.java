@@ -698,10 +698,10 @@ public class TaxonomyServiceImpl implements TaxonomyService, ParameterProperties
 			List<Code> levelFiveCodes = this.getTaxonomyRepository().findChildTaxonomy(String.valueOf(levelFourCode.getCodeId()), 5);
 			for (Code levelFiveCode : levelFiveCodes) {
 				List<Code> levelSixCodes = this.getTaxonomyRepository().findChildTaxonomy(String.valueOf(levelFiveCode.getCodeId()), 6);
+				levelFourMapCodes.add(getCode(levelFiveCode, null, NODE));
 				for (Code levelSixCode : levelSixCodes) {
 					levelFourMapCodes.add(getCode(levelSixCode, null, NODE));
 				}
-				levelFourMapCodes.add(getCode(levelFiveCode, null, NODE));
 			}
 		}
 		return levelFourMapCodes;
