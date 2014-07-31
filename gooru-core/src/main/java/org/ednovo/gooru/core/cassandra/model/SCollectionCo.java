@@ -62,6 +62,12 @@ public class SCollectionCo {
 		
 	@Column
 	private String languageObjective;
+
+	@Column
+	private String clusterUid;
+
+	@Column
+	private Integer isCanonical;
 	
 	public String getDepthOfknowledge() {
 		return depthOfknowledge;
@@ -214,5 +220,22 @@ public class SCollectionCo {
 	public String getLanguageObjective() {
 		return languageObjective;
 	}
+	
+	public String getClusterUid() {
+		return clusterUid;
+	}
+
+	public void setClusterUid(String clusterUid) {
+		this.clusterUid = clusterUid;
+	}
+
+	public Integer getIsCanonical() {
+		return isCanonical;
+	}
+
+	public void setIsCanonical(Integer isCanonical) {
+		this.isCanonical = isCanonical;
+	}
+	
 	
 }
