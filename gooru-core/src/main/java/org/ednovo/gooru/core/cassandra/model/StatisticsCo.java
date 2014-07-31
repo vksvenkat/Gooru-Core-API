@@ -60,6 +60,11 @@ public class StatisticsCo {
 	@Column
 	private Integer statusIsBroken;
 
+	@Column
+	private long copiedLevelCount;
+	
+	@Column
+	private long copiedCount;
 
 	public String getUsedInCollectionCount() {
 		return usedInCollectionCount;
@@ -196,5 +201,22 @@ public class StatisticsCo {
 	public void setStatusIsBroken(Integer statusIsBroken) {
 		this.statusIsBroken = statusIsBroken;
 	}
+
+	public long getCopiedLevelCount(){
+		return copiedLevelCount;
+	}
+	
+	public void setCopiedLevelCount(long copiedLevelCount){
+		this.copiedLevelCount = copiedLevelCount;
+	}
+	
+	public long getCopiedCount(){
+		return copiedCount;
+	}
+	
+	public void setCopiedCount(long copiedCount){
+		this.copiedCount = copiedCount;
+	}
+	
 
 }
