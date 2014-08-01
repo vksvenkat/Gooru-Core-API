@@ -784,8 +784,6 @@ public interface ConstantProperties {
    
    public static String MOVE = "move";
    
-  
-   
- 
+   public static String CREATIVE_COMMONS = "creative commons";
 }
 

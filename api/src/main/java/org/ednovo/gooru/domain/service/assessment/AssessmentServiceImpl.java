@@ -747,7 +747,7 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 		}
 		if (question.getLicense() == null) {
 			question.setLicense(new License());
-			question.getLicense().setName(License.OTHER);
+			question.getLicense().setName(CREATIVE_COMMONS);
 		}
 		if (question.getUrl() == null) {
 			question.setUrl("");
