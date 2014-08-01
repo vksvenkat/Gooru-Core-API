@@ -779,5 +779,13 @@ public interface ConstantProperties {
    public static String V2_PARTNER_LIST = "v2-partner-list";
    
    public static String MORE = "more";
+   
+   public static String MOMENTSOFLEARNING = "momentsOfLearning";
+   
+   public static String MOVE = "move";
+   
+  
+   
+ 
 }
 
