@@ -524,9 +524,6 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 	@Override
 	public ActionResponseDTO<AssessmentQuestion> createQuestion(AssessmentQuestion question, boolean index) throws Exception {
 		Set<Code> taxonomy = question.getTaxonomySet();
-		License license = new License();
-		license.setName(CREATIVE_COMMONS);
-		question.setLicense(license);
 		question = initQuestion(question, null, true);
 		question.setIsOer(1);
 		question.setTaxonomySet(null);
@@ -627,7 +624,7 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 	private AssessmentQuestion initQuestion(AssessmentQuestion question, String gooruOQuestionId, boolean copyToOriginal) {
 		if (copyToOriginal) {
 			if (gooruOQuestionId == null) {
-				License license = (License) baseRepository.get(License.class, License.OTHER);
+				License license = (License) baseRepository.get(License.class, CREATIVE_COMMONS);
 				question.setLicense(license);
 				ContentType contentType = (ContentType) baseRepository.get(ContentType.class, ContentType.RESOURCE);
 				question.setContentType(contentType);
@@ -1299,7 +1296,7 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 
 	private QuestionSet initQuestionSet(QuestionSet questionSet, String gooruOQuestionSetId) {
 		if (gooruOQuestionSetId == null) {
-			License license = (License) baseRepository.get(License.class, License.OTHER);
+			License license = (License) baseRepository.get(License.class, OTHER);
 			questionSet.setLicense(license);
 			questionSet.setGooruOid(UUID.randomUUID().toString());
 			questionSet.setContentId(null);
