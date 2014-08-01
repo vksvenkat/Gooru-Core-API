@@ -122,6 +122,7 @@ public class AccountRestV2Controller extends BaseController implements ConstantP
 		RequestUtil.deleteCookie(request, response, GOORU_SESSION_TOKEN);
 		RequestUtil.deleteCookie(request, response, COOKIE_KEY_ACCESS_TOKEN);
 		RequestUtil.deleteCookie(request, response, COOKIE_KEY_REFRESH_TOKEN);
+		RequestUtil.deleteCookie(request, response, COOKIE_KEY_SERVICE_VERSION);
 		
 	}
 
