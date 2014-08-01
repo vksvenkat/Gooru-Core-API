@@ -526,6 +526,7 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 		Set<Code> taxonomy = question.getTaxonomySet();
 		question = initQuestion(question, null, true);
 		question.setIsOer(1);
+		question.getLicense().setName(CREATIVE_COMMONS);
 		question.setTaxonomySet(null);
 		Errors errors = validateQuestion(question);
 		if (!errors.hasErrors()) {
