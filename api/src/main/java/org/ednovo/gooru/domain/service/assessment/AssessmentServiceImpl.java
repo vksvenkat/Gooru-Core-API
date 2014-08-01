@@ -524,7 +524,9 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 	@Override
 	public ActionResponseDTO<AssessmentQuestion> createQuestion(AssessmentQuestion question, boolean index) throws Exception {
 		Set<Code> taxonomy = question.getTaxonomySet();
-		question.getLicense().setName(CREATIVE_COMMONS);
+		License license = new License();
+		license.setName(CREATIVE_COMMONS);
+		question.setLicense(license);
 		question = initQuestion(question, null, true);
 		question.setIsOer(1);
 		question.setTaxonomySet(null);
