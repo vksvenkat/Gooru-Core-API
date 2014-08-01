@@ -40,6 +40,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.netflix.astyanax.model.ColumnList;
+import com.netflix.astyanax.model.Rows;
 
 /**
  * @author SearchTeam
@@ -84,13 +85,13 @@ public class ResourceCassandraServiceImpl extends ApiCrudEntityCassandraServiceI
 	}
 
 	@Override
-	public void updateIndexQueue(List<String> gooruOids, String type, String rowKey, String columnPrefix, boolean isUpdate) {
+	public void updateIndexQueue(List<String> gooruOids, String rowKey, String columnPrefix, boolean isUpdate) {
 		getDao(ColumnFamilyConstant.INDEX_QUEUE).addIndexQueueEntry(rowKey, columnPrefix, gooruOids, isUpdate);
 	}
 	
 	@Override
-	public ColumnList<String> readIndexQueuedData(String rowKey, Integer limit, String columnPrefix){
-		return getDao().readIndexQueuedData(rowKey, limit, columnPrefix);
+	public Rows<String, String> readIndexQueuedData(Integer limit, String columnPrefix){
+		return getDao().readIndexQueuedData(limit, columnPrefix);
 	}
 
 	@Override

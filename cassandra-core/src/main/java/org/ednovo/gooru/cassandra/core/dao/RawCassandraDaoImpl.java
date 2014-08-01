@@ -167,11 +167,11 @@ public class RawCassandraDaoImpl extends CassandraDaoSupport<CassandraColumnFami
   }
 	
 	@Override
-	public ColumnList<String> readIndexQueuedData(String rowKey, Integer limit, String columnPrefix){
-		OperationResult<ColumnList<String>> result = null;
+	public Rows<String, String> readIndexQueuedData(Integer limit, String columnPrefix){
+		OperationResult<Rows<String, String>> result = null;
 		try {
 			result = getFactory().getKeyspace().prepareQuery(getFactory().getColumnFamily(ColumnFamilyConstant.INDEX_QUEUE).getColumnFamily())
-			.getKey(rowKey)
+			.getAllRows()
 			.withColumnRange(new RangeBuilder()
 			    .setStart(columnPrefix +"\u00000")
 			    .setEnd(columnPrefix +"\uffff")
