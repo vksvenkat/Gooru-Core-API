@@ -43,48 +43,48 @@ public class ActivityServiceImpl implements ActivityService {
 	private ActivityRepository activityRepository;
 
 	@Override
-	public List<Activity> findActivities(User user, String type) {
+	public List<Activity> findActivities(final User user, final String type) {
 		return activityRepository.findActivities(user, type);
 	}
 
 	@Override
-	public List<Activity> findMyActivities(User user) {
+	public List<Activity> findMyActivities(final User user) {
 		return activityRepository.findMyActivities(user);
 	}
 
 	@Override
-	public List<ActivityStream> findActivityStreamByUser(User user) {
+	public List<ActivityStream> findActivityStreamByUser(final User user) {
 		return activityRepository.findActivityStreamByUser(user);
 	}
 
 	@Override
-	public ActivityStream findActivityStreamByType(ActivityStream activityStream) {
+	public ActivityStream findActivityStreamByType(final ActivityStream activityStream) {
 		return activityRepository.findActivityStreamByType(activityStream);
 	}
 
 	@Override
-	public List<Activity> findOthersActivities(User user) {
+	public List<Activity> findOthersActivities(final User user) {
 		return activityRepository.findOthersActivities(user);
 	}
 
 	@Override
-	public void saveActivity(String userId, String contentGooruId, String activityName, String description) {
+	public void saveActivity(final String userId, final String contentGooruId, final String activityName, final String description) {
 		activityRepository.saveActivity(userId, contentGooruId, activityName, description);
 
 	}
 
 	@Override
-	public void insertActivityLog(String eventId, String eventName, String type, String userIp, Integer userId, String contentGooruOid, String parentGooruOid, String context, String sessionToken) {
+	public void insertActivityLog(final String eventId, final String eventName, final String type, final String userIp, final Integer userId, final String contentGooruOid, String parentGooruOid, final String context, final String sessionToken) {
 		activityRepository.insertActivityLog(eventId, eventName, type, userIp, userId, contentGooruOid, parentGooruOid, context, sessionToken);
 	}
 
 	@Override
-	public ActivityLog findActivityLogByEventId(String eventId) {
+	public ActivityLog findActivityLogByEventId(final String eventId) {
 		return activityRepository.findActivityLogByEventId(eventId);
 	}
 
 	@Override
-	public ActivitySummary findActivitySummaryByEventId(String eventId, String userIp) {
+	public ActivitySummary findActivitySummaryByEventId(final String eventId, final String userIp) {
 		return activityRepository.findActivitySummaryByEventId(eventId, userIp);
 
 	}
@@ -102,7 +102,7 @@ public class ActivityServiceImpl implements ActivityService {
 	}
 
 	@Override
-	public void updateActivitySummaries(Integer withInHours) {
+	public void updateActivitySummaries(final Integer withInHours) {
 		activityRepository.updateActivitySummaries(withInHours);
 	}
 
@@ -123,7 +123,7 @@ public class ActivityServiceImpl implements ActivityService {
 	}
 
 	@Override
-	public void updateActivitySettings(User user, String sharing, String activityType) {
+	public void updateActivitySettings(final User user, final String sharing, final String activityType) {
 		ActivityType type = new ActivityType();
 		type.setName(activityType);
 
@@ -138,11 +138,11 @@ public class ActivityServiceImpl implements ActivityService {
 	}
 
 	@Override
-	public void updateBulkActivitySettings(User user, String sharing, String activityType) {
+	public void updateBulkActivitySettings(final User user, final String sharing, final String activityType) {
 
 		String[] activityTypeArray = activityType.split(",");
 		String[] sharingArray = sharing.split(",");
-		List<ActivityStream> activities = new ArrayList<ActivityStream>();
+		final List<ActivityStream> activities = new ArrayList<ActivityStream>();
 
 		for (int activityIndex = 0; activityIndex < activityTypeArray.length; activityIndex++) {
 			ActivityType type = new ActivityType();
