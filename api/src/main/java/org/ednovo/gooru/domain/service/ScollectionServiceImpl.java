@@ -2005,7 +2005,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 							resourceTypeDo.setName(ResourceType.Type.IMAGE.getType());
 						}
 						resource.setUrl(newResource.getAttach().getFilename());
-						resource.setIsOer(true);
+						resource.setIsOer(1);
 					} else {
 						resource.setUrl(newResource.getUrl());
 						resourceTypeDo.setName(ResourceImageUtil.getYoutubeVideoId(newResource.getUrl()) != null ? ResourceType.Type.VIDEO.getType() : ResourceType.Type.RESOURCE.getType());
