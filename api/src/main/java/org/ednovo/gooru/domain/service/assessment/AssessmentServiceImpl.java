@@ -525,7 +525,7 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 	public ActionResponseDTO<AssessmentQuestion> createQuestion(AssessmentQuestion question, boolean index) throws Exception {
 		Set<Code> taxonomy = question.getTaxonomySet();
 		question = initQuestion(question, null, true);
-		question.setIsOer(true);
+		question.setIsOer(1);
 		question.setTaxonomySet(null);
 		Errors errors = validateQuestion(question);
 		if (!errors.hasErrors()) {

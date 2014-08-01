@@ -17,8 +17,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class UserEventlog implements ParameterProperties, ConstantProperties{
 	
-	
-	
 	public void getEventLogs(boolean updateProfile, boolean visitProfile, User profileVisitor, JSONObject itemData, boolean isFollow, boolean isUnfollow) throws JSONException {
 		SessionContextSupport.putLogParameter(EVENT_NAME, PROFILE_ACTION);
 		JSONObject session = SessionContextSupport.getLog().get(SESSION) != null ? new JSONObject(SessionContextSupport.getLog().get(SESSION).toString()) : new JSONObject();

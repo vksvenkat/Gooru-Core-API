@@ -36,12 +36,12 @@ import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.Identity;
 import org.ednovo.gooru.core.api.model.InviteUser;
-import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserContentAssoc;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.NotFoundException;
+import org.ednovo.gooru.domain.service.eventlogs.CollaboratorEventLog;
 import org.ednovo.gooru.domain.service.userManagement.UserManagementService;
 import org.ednovo.gooru.domain.service.v2.ContentService;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
@@ -51,7 +51,6 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.collaborator.CollaboratorRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,6 +62,9 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 
 	@Autowired
 	private UserRepository userRepository;
+	
+	@Autowired
+	private CollaboratorEventLog collaboratorEventLog;
 
 	@Autowired
 	private CollectionRepository collectionRepository;
@@ -125,7 +127,7 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 						collaborator.add(setActiveCollaborator(userContentAssoc, ACTIVE));
 						this.getContentService().createContentPermission(content, identity.getUser());
 						try {
-							getEventLogs(identity.getUser(), responseDto.getModel(), gooruOid, true, false);
+							this.getCollaboratorEventLog().getEventLogs(identity.getUser(), responseDto.getModel(), gooruOid, true, false);
 						} catch (JSONException e) {
 							LOGGER.debug("error"+e.getMessage());
 						}	
@@ -224,7 +226,7 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 						this.getContentService().deleteContentPermission(content, identity.getUser());
 						final List<CollectionItem> associations = this.getCollectionRepository().getCollectionItemByAssociation(gooruOid, identity.getUser().getGooruUId(),null);
 						try {
-							getEventLogs(identity.getUser(), associations.size() > 0 ? associations.get(0) : null, gooruOid, false, true);
+							this.getCollaboratorEventLog().getEventLogs(identity.getUser(), associations.size() > 0 ? associations.get(0) : null, gooruOid, false, true);
 						} catch (JSONException e) {
 							e.printStackTrace();
 						}
@@ -353,32 +355,9 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 	public InviteRepository getInviteRepository() {
 		return inviteRepository;
 	}
-
-	private void getEventLogs(User collaborator, CollectionItem collectionItem, String gooruOid, boolean isAdd, boolean isRemove) throws JSONException {
-		SessionContextSupport.putLogParameter(EVENT_NAME, ITEM_COLLABORATE);
-		JSONObject context = SessionContextSupport.getLog().get(CONTEXT) != null ? new JSONObject(SessionContextSupport.getLog().get(CONTEXT).toString()) :  new JSONObject();
-		context.put(SOURCE_GOORU_UID,gooruOid);
-		context.put(TARGET_GOORU_UID,collectionItem != null && collectionItem.getResource() != null ? collectionItem.getResource().getGooruOid() : null);
-		context.put(TARGET_ITEM_ID, collectionItem != null ? collectionItem.getCollectionItemId() : null);
-		context.put(PARENT_GOORU_OID, collectionItem != null  && collectionItem.getCollection() != null ? collectionItem.getCollection().getGooruOid() : null);
-		context.put(CONTENT_GOORU_ID, gooruOid);
-		SessionContextSupport.putLogParameter(CONTEXT, context.toString());
-		JSONObject session = SessionContextSupport.getLog().get(SESSION) != null ? new JSONObject(SessionContextSupport.getLog().get(SESSION).toString()) :  new JSONObject();
-		session.put(ORGANIZATION_UID, collaborator != null ? collaborator.getOrganizationUid() : null);
-		JSONObject newUser = SessionContextSupport.getLog().get(USER) != null ? new JSONObject(SessionContextSupport.getLog().get(USER).toString()) :  new JSONObject();		
-		newUser.put(GOORU_UID, collaborator != null ? collaborator.getPartyUid() : null);
-		SessionContextSupport.putLogParameter(SESSION, session.toString());	
-		JSONObject user = SessionContextSupport.getLog().get(USER) != null ? new JSONObject(SessionContextSupport.getLog().get(USER).toString()) :  new JSONObject();
-		SessionContextSupport.putLogParameter(USER, user.toString());
-		JSONObject payLoadObject = SessionContextSupport.getLog().get(PAY_LOAD_OBJECT) != null ? new JSONObject(SessionContextSupport.getLog().get(PAY_LOAD_OBJECT).toString()) :  new JSONObject();
-		if(isAdd){
-			payLoadObject.put(MODE, ADD);
-		} else if(isRemove){
-			payLoadObject.put(MODE, DELETE);
-		}
-		payLoadObject.put(COLLABORATED_ID, collaborator != null ? collaborator.getPartyUid() : null);
-		payLoadObject.put(ITEM_TYPE, collectionItem != null && collectionItem.getResource() != null ? collectionItem.getResource().getResourceType().getName() : null);
-		SessionContextSupport.putLogParameter(PAY_LOAD_OBJECT, payLoadObject.toString());
+	
+	public CollaboratorEventLog getCollaboratorEventLog() {
+		return collaboratorEventLog;
 	}
 
 	public AsyncExecutor getAsyncExecutor() {

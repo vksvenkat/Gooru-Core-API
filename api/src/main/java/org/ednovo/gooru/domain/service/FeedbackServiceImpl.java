@@ -23,10 +23,8 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.domain.service;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -38,7 +36,6 @@ import org.ednovo.gooru.core.api.model.Feedback;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.ResourceSummary;
 import org.ednovo.gooru.core.api.model.ResourceType;
-import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.application.util.BaseUtil;
 import org.ednovo.gooru.core.application.util.CustomProperties;
@@ -48,6 +45,7 @@ import org.ednovo.gooru.core.exception.BadRequestException;
 import org.ednovo.gooru.core.exception.NotAllowedException;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.core.exception.UnauthorizedException;
+import org.ednovo.gooru.domain.service.eventlogs.FeedbackEventLog;
 import org.ednovo.gooru.domain.service.search.SearchResults;
 import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.ednovo.gooru.domain.service.userManagement.UserManagementService;
@@ -59,7 +57,6 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomT
 import org.ednovo.gooru.infrastructure.persistence.hibernate.resource.ResourceRepository;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,6 +67,9 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 
 	@Autowired
 	private FeedbackRepository feedbackRepository;
+	
+	@Autowired
+	private FeedbackEventLog feedbackEventLog;
 
 	@Autowired
 	private CustomTableRepository customTableRepository;
@@ -323,7 +323,7 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 		try {
 			if(!feedbackList.isEmpty()){
 				Feedback userFeedback = feedbackList.get(0);
-				getEventLogs(creator, contextDTO, userFeedback, feedbackValue);
+				this.getFeedbackEventLog().getEventLogs(creator, contextDTO, userFeedback, feedbackValue);
 			}
 
 		} catch (JSONException e) {
@@ -549,28 +549,9 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 	private ContextDTO buildContextInputParam(String data) {
 		return JsonDeserializer.deserialize(data, ContextDTO.class);
 	}
-
-	public void getEventLogs(User feedbackUser, ContextDTO contextDTO, Feedback feedback, StringBuilder reactionType) throws JSONException {
-		SessionContextSupport.putLogParameter(EVENT_NAME, ITEM_RATE);
-		JSONObject session = SessionContextSupport.getLog().get(SESSION) != null ? new JSONObject(SessionContextSupport.getLog().get(SESSION).toString()) : new JSONObject();
-		session.put(ORGANIZATION_UID, feedbackUser.getOrganizationUid());
-		SessionContextSupport.putLogParameter(SESSION, session.toString());
-		JSONObject user = SessionContextSupport.getLog().get(USER) != null ? new JSONObject(SessionContextSupport.getLog().get(USER).toString()) : new JSONObject();
-		user.put(GOORU_UID, feedbackUser.getPartyUid());
-		SessionContextSupport.putLogParameter(USER, user.toString());
-		JSONObject context = SessionContextSupport.getLog().get(CONTEXT) != null ? new JSONObject(SessionContextSupport.getLog().get(CONTEXT).toString()) : new JSONObject();
-		context.put(CONTENT_GOORU_ID, feedback != null ? feedback.getAssocGooruOid() : null);
-		context.put(PARENT_GOORU_ID, contextDTO != null ? contextDTO.getCollectionGooruId() : null);
-		context.put(CONTENT_ITEM_ID, contextDTO != null ? contextDTO.getContentItemId() : null);
-		context.put(PARENT_ITEM_ID, contextDTO != null ? contextDTO.getParentItemId() : null);
-		SessionContextSupport.putLogParameter(CONTEXT, context.toString());
-		JSONObject payLoadObject = SessionContextSupport.getLog().get(PAY_LOAD_OBJECT) != null ? new JSONObject(SessionContextSupport.getLog().get(PAY_LOAD_OBJECT).toString()) : new JSONObject();
-		payLoadObject.put(RATE, feedback != null ? feedback.getScore() : null);
-		payLoadObject.put(TEXT, feedback != null ? feedback.getFreeText() : null);
-		payLoadObject.put(FEEDBACK_PROVIDER_UID, feedbackUser.getPartyUid());
-		payLoadObject.put(RATE_TYPE, ADD);
-		payLoadObject.put(REACTION_TYPE, reactionType != null ? reactionType.toString() : null);
-		SessionContextSupport.putLogParameter(PAY_LOAD_OBJECT, payLoadObject.toString());
+	
+	public FeedbackEventLog getFeedbackEventLog() {
+		return feedbackEventLog;
 	}
 
 }

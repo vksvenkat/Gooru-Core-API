@@ -30,6 +30,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.ednovo.gooru.application.util.SerializerUtil;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserGroupSupport;
+import org.ednovo.gooru.core.application.util.RequestUtil;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.security.OperationAuthorizer;
@@ -50,6 +51,10 @@ public class BaseController extends SerializerUtil implements ParameterPropertie
 	protected static final String COOKIE_KEY_ACCESS_TOKEN = "google-access-token";
 	
 	protected static final String COOKIE_KEY_REFRESH_TOKEN = "google-refresh-token";
+	
+	protected static final String COOKIE_KEY_SERVICE_VERSION = "gooru-version";
+	
+
 
 	public static final String ERROR_INCLUDE[] = { "*.fieldError", "*.errorCount", "*.code", "*.defaultMessage", "*.field", "*.objectName", "*.rejectedValue" };
 

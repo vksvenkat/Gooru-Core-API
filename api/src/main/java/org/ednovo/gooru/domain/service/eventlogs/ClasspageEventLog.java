@@ -16,7 +16,7 @@ import org.json.JSONObject;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ClasspageEventlog implements ParameterProperties, ConstantProperties{
+public class ClasspageEventLog implements ParameterProperties, ConstantProperties{
  
 
 	public void getEventLogs(Classpage classpage, User user, UserGroup userGroup, boolean isCreate, boolean isDelete) throws JSONException {
