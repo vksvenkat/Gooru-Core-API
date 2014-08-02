@@ -12,6 +12,7 @@ import javax.annotation.PostConstruct;
 
 import org.ednovo.gooru.cassandra.core.factory.InsightsCassandraFactory;
 import org.ednovo.gooru.cassandra.core.factory.SearchCassandraFactory;
+import org.ednovo.gooru.core.constant.ColumnFamilyConstant;
 
 import com.netflix.astyanax.ColumnListMutation;
 import com.netflix.astyanax.MutationBatch;
@@ -23,6 +24,7 @@ import com.netflix.astyanax.model.ColumnFamily;
 import com.netflix.astyanax.model.ColumnList;
 import com.netflix.astyanax.model.ConsistencyLevel;
 import com.netflix.astyanax.model.Rows;
+import com.netflix.astyanax.util.RangeBuilder;
 
 /**
  * @author Search Team
@@ -148,10 +150,13 @@ public class RawCassandraDaoImpl extends CassandraDaoSupport<CassandraColumnFami
 	}
 
 	@Override
-	public void addIndexQueueEntry(String key, String columnPrefix, List<String> gooruOids) {
+	public void addIndexQueueEntry(String key, String columnPrefix, List<String> gooruOids, boolean isUpdate) {
 		MutationBatch mutationBatch = getFactory().getKeyspace().prepareMutationBatch().setConsistencyLevel(DEFAULT_CONSISTENCY_LEVEL);
 		ColumnListMutation<String> mutation = mutationBatch.withRow(getCF().getColumnFamily(), key);
 		for(String gooruOid : gooruOids){
+			if(isUpdate){
+				gooruOid = gooruOid.replace("open_", "");
+			}
 			mutation.putColumnIfNotNull(columnPrefix+gooruOid, gooruOid);
 		}	
 		try {
@@ -161,5 +166,35 @@ public class RawCassandraDaoImpl extends CassandraDaoSupport<CassandraColumnFami
 		}
   }
 	
+	@Override
+	public Rows<String, String> readIndexQueuedData(Integer limit, String columnPrefix){
+		OperationResult<Rows<String, String>> result = null;
+		try {
+			result = getFactory().getKeyspace().prepareQuery(getFactory().getColumnFamily(ColumnFamilyConstant.INDEX_QUEUE).getColumnFamily())
+			.getAllRows()
+			.withColumnRange(new RangeBuilder()
+			    .setStart(columnPrefix +"\u00000")
+			    .setEnd(columnPrefix +"\uffff")
+			    .setLimit(limit).build())
+			.execute();
+		} catch (ConnectionException e) {
+			getLog().error("Error reading index queue data", e);
+		}
+		return result != null ? result.getResult() : null;
+	}
+
+	@Override
+	public void deleteIndexQueue(String rowKey, Collection<String> columns) {
+		try {
+			MutationBatch batch = getFactory().getKeyspace().prepareMutationBatch();
+			ColumnListMutation<String>  columnListMution = batch.withRow(getFactory().getColumnFamily(ColumnFamilyConstant.INDEX_QUEUE).getColumnFamily(), rowKey);
+			for(String column : columns){
+			  columnListMution.deleteColumn(column);
+			}
+			batch.execute();
+		} catch (ConnectionException e) {
+			getLog().error("Error delete index queue data", e);
+		}
+	}
 	
 }
