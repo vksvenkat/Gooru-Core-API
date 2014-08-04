@@ -156,7 +156,7 @@ public interface ResourceService extends BaseService {
 	Resource updateResourceByGooruContentId(String gooruContentId, String resourceTitle, String distinguish, Integer isFeatured, String description, Boolean hasFrameBreaker, String tags, String sharing, Integer resourceSourceId, User user, String mediaType, String attribution, String category,
 			String mediaFileName, Boolean isBlacklisted, String grade, String resource_format, String licenseName, String url);
 
-	ActionResponseDTO<Resource> updateResource(String resourceId, Resource newResource, User user) throws Exception;
+	ActionResponseDTO<Resource> updateResource(String resourceId, Resource newResource, List<String> resourceTags,User user) throws Exception;
 
 	void updateResourceSourceAttribution(Integer resourceSourceId, String domainName, String attribution, Integer frameBreaker, User user, Boolean isBlacklisted) throws Exception;
 

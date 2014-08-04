@@ -161,7 +161,7 @@ public class Resource extends Content implements Serializable {
 
 	private TrackActivity trackActivity;
 
-	private Boolean isOer;
+	private Integer isOer;
 
 	private String goals;
 
@@ -865,11 +865,11 @@ public class Resource extends Content implements Serializable {
 		return scollectionIds;
 	}
 
-	public void setIsOer(Boolean isOer) {
+	public void setIsOer(Integer isOer) {
 		this.isOer = isOer;
 	}
 
-	public Boolean getIsOer() {
+	public Integer getIsOer() {
 		return isOer;
 	}
 

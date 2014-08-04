@@ -945,6 +945,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				collectionItem.getResource().setRatings(this.setRatingsObj(this.getResourceRepository().getResourceSummaryById(collectionItem.getResource().getGooruOid())));
 				collectionItem.getResource().setCustomFieldValues(this.getCustomFieldsService().getCustomFieldsValuesOfResource(collectionItem.getResource().getGooruOid()));
 				collectionItem.setResource(getResourceService().setContentProvider(collectionItem.getResource()));
+				collectionItem.getResource().setResourceTags(this.getContentService().getContentTagAssoc(collectionItem.getResource().getGooruOid(), user));
 			}
 			if (collection.getCollectionType().equalsIgnoreCase(COLLECTION)) {
 				collection.setDepthOfKnowledges(this.setContentMetaAssociation(this.getContentMetaAssociation(DEPTH_OF_KNOWLEDGE), collectionId, DEPTH_OF_KNOWLEDGE));
@@ -1992,7 +1993,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 					resource.setDescription(newResource.getDescription());
 					License license = new License();
 					license.setName(OTHER);
-					resource.setLicense(license);
 					resource.setRecordSource(Resource.RecordSource.COLLECTION.getRecordSource());
 					ResourceType resourceTypeDo = new ResourceType();
 					resource.setResourceType(resourceTypeDo);
@@ -2005,11 +2005,13 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 							resourceTypeDo.setName(ResourceType.Type.IMAGE.getType());
 						}
 						resource.setUrl(newResource.getAttach().getFilename());
-						resource.setIsOer(true);
+						resource.setIsOer(1);
+						license.setName(CREATIVE_COMMONS);
 					} else {
 						resource.setUrl(newResource.getUrl());
 						resourceTypeDo.setName(ResourceImageUtil.getYoutubeVideoId(newResource.getUrl()) != null ? ResourceType.Type.VIDEO.getType() : ResourceType.Type.RESOURCE.getType());
 					}
+					resource.setLicense(license);
 					resource.setSharing(sharing);
 					domainName = getDomainName(newResource.getUrl());
 					resourceSource = this.getResourceRepository().findResourceSource(domainName);

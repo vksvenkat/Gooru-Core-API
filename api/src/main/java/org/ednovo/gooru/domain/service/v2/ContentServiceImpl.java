@@ -33,6 +33,7 @@ import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.ContentPermission;
 import org.ednovo.gooru.core.api.model.ContentTagAssoc;
 import org.ednovo.gooru.core.api.model.CustomTableValue;
+import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.Tag;
 import org.ednovo.gooru.core.api.model.User;
@@ -49,6 +50,7 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.collaborator.CollaboratorRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.resource.ResourceRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.tag.TagRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -76,6 +78,9 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 	
 	@Autowired
 	private UserRepository userRepository;
+	
+	@Autowired
+	private ResourceRepository resourceRepository;
 
 	@Override
 	public List<Map<String, Object>> createTagAssoc(String gooruOid, List<String> labels, User apiCaller) {
@@ -86,6 +91,15 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 		}
 
 		for (String label : labels) {
+			if (label.equalsIgnoreCase("OER")) { 
+				Resource resource = this.getResourceRepository().findResourceByContentGooruId(gooruOid);
+				if (resource != null) { 
+					resource.setLicense(CREATIVE_COMMONS);
+					resource.setIsOer(1);
+					this.getResourceRepository().save(resource);
+				}
+				continue;
+			}
 			Tag tag = this.tagRepository.findTagByLabel(label);
 			if (tag == null) {
 				tag = new Tag();
@@ -155,6 +169,14 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 		for(ContentTagAssoc contentTagAssoc : contentTagAssocList){
 			if (contentTagAssoc != null) {
 				Tag tag = this.tagRepository.findTagByTagId(contentTagAssoc.getTagGooruOid());
+				if (tag.getLabel().equalsIgnoreCase("OER")) { 
+					Resource resource = this.getResourceRepository().findResourceByContentGooruId(gooruOid);
+					if (resource != null) { 
+						resource.setLicense(OTHER);
+						resource.setIsOer(0);
+						this.getResourceRepository().save(resource);
+					}
+				}
 				this.getContentRepository().remove(contentTagAssoc);
 				UserSummary userSummary = this.getUserRepository().getSummaryByUid(user.getPartyUid());
 				if(tag != null){
@@ -284,6 +306,10 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 
 	public UserRepository getUserRepository() {
 		return userRepository;
+	}
+
+	public ResourceRepository getResourceRepository() {
+		return resourceRepository;
 	}
 
 

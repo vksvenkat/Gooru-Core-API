@@ -917,7 +917,7 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 			map.put(RECIPIENT, email);
 			map.put("classCode", classCode);
 			map.put(HTMLCONTENT, generateMessage((String) map.get("templateContent"), map));
-			map.put(SUBJECT,  inviteUser + " has invited to the Gooru Class \""+title+"\"");
+			map.put(SUBJECT,  inviteUser + " has invited you to the Gooru Class \""+title+"\"");
 			map.put(CONTENT, generateMessage((String) map.get(TEXTCONTENT), map));
 			map.put("from", getConfigSetting(ConfigConstants.MAIL_FROM, TaxonomyUtil.GOORU_ORG_UID));
 			map.put(BCC, getConfigSetting(ConfigConstants.MAIL_BCC_SUPPORT, TaxonomyUtil.GOORU_ORG_UID));
@@ -940,7 +940,7 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 		map.put("classCode", classCode);
 		map.put("shortenUrl", shortenUrl);
 		map.put(HTMLCONTENT, generateMessage((String) map.get("templateContent"), map));
-		map.put(SUBJECT,  inviteUser + "  has shared their class \""+title+"\""+"with you\"");
+		map.put(SUBJECT,  inviteUser + "  has shared their class \""+title+"\" "+" with you");
 		map.put(CONTENT, generateMessage((String) map.get(TEXTCONTENT), map));
 		map.put("from", getConfigSetting(ConfigConstants.MAIL_FROM, TaxonomyUtil.GOORU_ORG_UID));
 		map.put(BCC, getConfigSetting(ConfigConstants.MAIL_BCC_SUPPORT, TaxonomyUtil.GOORU_ORG_UID));
