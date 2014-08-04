@@ -14,7 +14,7 @@
 						#if( ! $gooruClassicUrl )
 							<a style="color: #1076bb;" href="${serverpath}/gooru/index.g#!/user/registration/${userId}/session/${sessionId}/${encodedDateOfBirth}/type/${userAccountType}" target="_blank">Click Here to Complete Registration.</a>
 						#else
-							<a style="color: #1076bb;" href="${gooruClassicUrl}/#discover&gooruuid=${userId}&sessionid=${sessionId}&dob=${encodedDateOfBirth}&type=${userAccountType}&callback=confirmUser" target="_blank">Click Here to Complete Registration.</a>
+							<a style="color: #1076bb;" href="${gooruClassicUrl}/#home&gooruuid=${userId}&sessionid=${sessionId}&dob=${encodedDateOfBirth}&type=${userAccountType}&callback=confirmUser" target="_blank">Click Here to Complete Registration.</a>
 						#end
 				   #else
 								<a style="color: #1076bb;" href="${mailConfirmationUrl}?gooruuid=${userId}&sessionid=${sessionId}&dob=${encodedDateOfBirth}&type=${userAccountType}&callback=confirmUser" target="_blank">Click Here to Complete Registration.</a>
