@@ -852,6 +852,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 						indexProcessor.index(collectionItem.getResource().getGooruOid(), IndexProcessor.INDEX, RESOURCE);
 					}
 					indexProcessor.index(collectionItem.getCollection().getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
+					getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
 				} catch (Exception e) {
 					LOGGER.debug("error"+e.getMessage());
 				}
@@ -2070,7 +2071,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			} else {
 				throw new NotFoundException("collection does not exist in the system, required collection to map the resource");
 			}
-			if (response.getModel().getCollection().getResourceType().getName().equalsIgnoreCase(SCOLLECTION) && !response.getModel().getCollection().getClusterUid().equalsIgnoreCase(response.getModel().getCollection().getGooruOid())) { 
+			if (response.getModel().getCollection().getResourceType().getName().equalsIgnoreCase(SCOLLECTION) && response.getModel().getCollection().getClusterUid() != null &&!response.getModel().getCollection().getClusterUid().equalsIgnoreCase(response.getModel().getCollection().getGooruOid())) { 
 				response.getModel().getCollection().setClusterUid(response.getModel().getCollection().getGooruOid());
 				this.getCollectionRepository().save(response.getModel().getCollection());
 			}

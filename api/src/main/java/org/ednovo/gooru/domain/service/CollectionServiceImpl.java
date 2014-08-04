@@ -116,17 +116,17 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				}
 			}
 			if (question.getDepthOfKnowledges() != null && question.getDepthOfKnowledges().size() > 0) {
-				response.getModel().getResource().setDepthOfKnowledges(this.updateContentMeta(question.getDepthOfKnowledges(), question.getGooruOid(), user, "depth_of_knowledge"));
+				response.getModel().getResource().setDepthOfKnowledges(this.updateContentMeta(question.getDepthOfKnowledges(), question.getGooruOid(), user, DEPTH_OF_KNOWLEDGE));
 			} else {
-				response.getModel().getResource().setDepthOfKnowledges(this.setContentMetaAssociation(this.getContentMetaAssociation("depth_of_knowledge"), question.getGooruOid(), "depth_of_knowledge"));
+				response.getModel().getResource().setDepthOfKnowledges(this.setContentMetaAssociation(this.getContentMetaAssociation(DEPTH_OF_KNOWLEDGE), question.getGooruOid(), DEPTH_OF_KNOWLEDGE));
 			}
 			if (question.getEducationalUse() != null && question.getEducationalUse().size() > 0) {
-				response.getModel().getResource().setEducationalUse(this.updateContentMeta(question.getEducationalUse(), question.getGooruOid(), user, "educational_use"));
+				response.getModel().getResource().setEducationalUse(this.updateContentMeta(question.getEducationalUse(), question.getGooruOid(), user, EDUCATIONAL_USE));
 			} else {
-				response.getModel().getResource().setEducationalUse(this.setContentMetaAssociation(this.getContentMetaAssociation("educational_use"), question.getGooruOid(), "educational_use"));
+				response.getModel().getResource().setEducationalUse(this.setContentMetaAssociation(this.getContentMetaAssociation(EDUCATIONAL_USE), question.getGooruOid(), EDUCATIONAL_USE));
 			}
 			response.getModel().setStandards(this.getStandards(responseDTO.getModel().getTaxonomySet(), false, null));
-			if (response.getModel().getCollection().getResourceType().getName().equalsIgnoreCase(SCOLLECTION) && !response.getModel().getCollection().getClusterUid().equalsIgnoreCase(response.getModel().getCollection().getGooruOid())) { 
+			if (response.getModel().getCollection().getResourceType().getName().equalsIgnoreCase(SCOLLECTION) && response.getModel().getCollection().getClusterUid() != null && !response.getModel().getCollection().getClusterUid().equalsIgnoreCase(response.getModel().getCollection().getGooruOid())) { 
 				response.getModel().getCollection().setClusterUid(response.getModel().getCollection().getGooruOid());
 				this.getCollectionRepository().save(response.getModel().getCollection());
 			}
@@ -146,7 +146,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		AssessmentQuestion newQuestion = getAssessmentService().buildQuestionFromInputParameters(data, user, true);
 		Errors errors = validateUpdateCollectionItem(collectionItem);
 		final JSONObject itemData = new JSONObject();
-		itemData.put("itemData", data);
+		itemData.put(_ITEM_DATA, data);
 		if (!errors.hasErrors()) {
 			AssessmentQuestion question = getAssessmentService().getQuestion(collectionItem.getResource().getGooruOid());
 			if (question != null) {
@@ -163,18 +163,18 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 						}
 					}
 					if (newQuestion.getDepthOfKnowledges() != null && newQuestion.getDepthOfKnowledges().size() > 0) {
-						collectionItem.getResource().setDepthOfKnowledges(this.updateContentMeta(newQuestion.getDepthOfKnowledges(), responseDTO.getModel().getGooruOid(), user, "depth_of_knowledge"));
+						collectionItem.getResource().setDepthOfKnowledges(this.updateContentMeta(newQuestion.getDepthOfKnowledges(), responseDTO.getModel().getGooruOid(), user, DEPTH_OF_KNOWLEDGE));
 					} else {
-						collectionItem.getResource().setDepthOfKnowledges(this.setContentMetaAssociation(this.getContentMetaAssociation("depth_of_knowledge"), responseDTO.getModel().getGooruOid(), "depth_of_knowledge"));
+						collectionItem.getResource().setDepthOfKnowledges(this.setContentMetaAssociation(this.getContentMetaAssociation(DEPTH_OF_KNOWLEDGE), responseDTO.getModel().getGooruOid(), DEPTH_OF_KNOWLEDGE));
 					}
 					if (question.getEducationalUse() != null && question.getEducationalUse().size() > 0) {
-						collectionItem.getResource().setEducationalUse(this.updateContentMeta(question.getEducationalUse(), responseDTO.getModel().getGooruOid(), user, "educational_use"));
+						collectionItem.getResource().setEducationalUse(this.updateContentMeta(question.getEducationalUse(), responseDTO.getModel().getGooruOid(), user, EDUCATIONAL_USE));
 					} else {
-						collectionItem.getResource().setEducationalUse(this.setContentMetaAssociation(this.getContentMetaAssociation("educational_use"), responseDTO.getModel().getGooruOid(), "educational_use"));
+						collectionItem.getResource().setEducationalUse(this.setContentMetaAssociation(this.getContentMetaAssociation(EDUCATIONAL_USE), responseDTO.getModel().getGooruOid(), EDUCATIONAL_USE));
 					}
 					collectionItem.setStandards(this.getStandards(responseDTO.getModel().getTaxonomySet(), false, null));
 				}
-				getAsyncExecutor().deleteFromCache("v2-organize-data-" + collectionItem.getCollection().getUser().getPartyUid() + "*");
+				getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
 			}
 
 		} else {
@@ -194,7 +194,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		ActionResponseDTO<CollectionItem> responseDTO = null;
 		Collection source = collectionRepository.getCollectionByGooruOid(sourceId, null);
 		if (source == null) {
-			throw new NotFoundException(generateErrorMessage("GL0056", "Collection"));
+			throw new NotFoundException(generateErrorMessage(GL0056, _COLLECTION));
 		}
 		CollectionItem collectionItem = new CollectionItem();
 		collectionItem.setCollection(source);
@@ -217,8 +217,8 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		} else {
 			responseDTO = this.createCollectionItem(sourceId, null, collectionItem, user, CollectionType.SHElf.getCollectionType(), false);
 		}
-		getAsyncExecutor().deleteFromCache("v2-organize-data-" + collectionItem.getCollection().getUser().getPartyUid() + "*");
-		getAsyncExecutor().deleteFromCache("v2-organize-data-" + user.getPartyUid() + "*");
+		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
+		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + user.getPartyUid() + "*");
 		try {
 			this.getCollectionEventLog().getEventLogs(responseDTO.getModel(), true, user, responseDTO.getModel().getCollection().getCollectionType());
 		} catch (JSONException e) {
@@ -233,13 +233,13 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		ActionResponseDTO<CollectionItem> response = null;
 		Collection collection = collectionRepository.getCollectionByGooruOid(collectionId, null);
 		if (collection == null) {
-			throw new NotFoundException(generateErrorMessage("GL0056", "Collection"));
+			throw new NotFoundException(generateErrorMessage(GL0056, _COLLECTION));
 		}
 		ActionResponseDTO<AssessmentQuestion> responseDTO = assessmentService.createQuestion(assessmentQuestion, true);
 		if (responseDTO.getModel() != null) {
 			response = this.createCollectionItem(responseDTO.getModel().getGooruOid(), collectionId, new CollectionItem(), user, CollectionType.COLLECTION.getCollectionType(), true);
 			if (mediaFileName != null && mediaFileName.length() > 0) {
-				String questionImage = this.assessmentService.updateQuizQuestionImage(responseDTO.getModel().getGooruOid(), mediaFileName, assessmentQuestion, "asset-question");
+				String questionImage = this.assessmentService.updateQuizQuestionImage(responseDTO.getModel().getGooruOid(), mediaFileName, assessmentQuestion, ASSET_QUESTION);
 				if (questionImage != null && questionImage.length() > 0) {
 					response.getModel().setQuestionInfo(this.assessmentService.updateQuestionAssest(responseDTO.getModel().getGooruOid(), StringUtils.substringAfterLast(questionImage, "/")));
 				}
@@ -333,16 +333,16 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 					collection.put(RESOURCESOURCE, resourceSource);
 				}
 				if (object[12] != null) {
-					collection.put("ideas", object[12]);
+					collection.put(IDEAS, object[12]);
 				}
 				if (object[13] != null) {
-					collection.put("questions", object[13]);
+					collection.put(QUESTIONS, object[13]);
 				}
 				if (object[14] != null) {
-					collection.put("performanceTasks", object[14]);
+					collection.put(PERFORMANCE_TASKS, object[14]);
 				}
 				if (object[15] != null) {
-					collection.put("collectionType", object[15]);
+					collection.put(COLLECTION_TYPE, object[15]);
 				}
 				count++;
 				folderList.add(collection);
@@ -385,24 +385,24 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				item.put(SHARING, object[7]);
 				item.put(COLLECTION_ITEM_ID, object[8]);
 				Map<String, Object> summary = new HashMap<String, Object>();
-				summary.put("average", object[16] != null ? object[16] : 0);
-				summary.put("count", object[17] != null ? object[17] : 0);
-				item.put("ratings", summary);
+				summary.put(AVERAGE, object[16] != null ? object[16] : 0);
+				summary.put(COUNT, object[17] != null ? object[17] : 0);
+				item.put(RATINGS, summary);
 				if (!fetchChildItem) {
-					if (String.valueOf(object[2]).equalsIgnoreCase("assessment-question")) {
-						item.put("depthOfKnowledges", this.setContentMetaAssociation(this.getContentMetaAssociation("depth_of_knowledge"), String.valueOf(object[1]), "depth_of_knowledge"));
-						item.put("educationalUse", this.setContentMetaAssociation(this.getContentMetaAssociation("educational_use"), String.valueOf(object[1]), "educational_use"));
+					if (String.valueOf(object[2]).equalsIgnoreCase(ASSESSMENT_QUESTION)) {
+						item.put(DEPTHOFKNOWLEDGES, this.setContentMetaAssociation(this.getContentMetaAssociation(DEPTH_OF_KNOWLEDGE), String.valueOf(object[1]), DEPTH_OF_KNOWLEDGE));
+						item.put(_EDUCATIONAL_USE, this.setContentMetaAssociation(this.getContentMetaAssociation(EDUCATIONAL_USE), String.valueOf(object[1]), EDUCATIONAL_USE));
 					} else if (String.valueOf(object[2]).equalsIgnoreCase(SCOLLECTION)) {
-						item.put("depthOfKnowledges", this.setContentMetaAssociation(this.getContentMetaAssociation("depth_of_knowledge"), String.valueOf(object[1]), "depth_of_knowledge"));
+						item.put(DEPTHOFKNOWLEDGES, this.setContentMetaAssociation(this.getContentMetaAssociation(DEPTH_OF_KNOWLEDGE), String.valueOf(object[1]), DEPTH_OF_KNOWLEDGE));
 
-						item.put("learningSkills", this.setContentMetaAssociation(this.getContentMetaAssociation("learning_and_innovation_skills"), String.valueOf(object[1]), "learning_and_innovation_skills"));
+						item.put(LEARNING_SKILLS, this.setContentMetaAssociation(this.getContentMetaAssociation(LEARNING_AND_INNOVATION_SKILLS), String.valueOf(object[1]), LEARNING_AND_INNOVATION_SKILLS));
 
-						item.put("audience", this.setContentMetaAssociation(this.getContentMetaAssociation("audience"), String.valueOf(object[1]), "audience"));
+						item.put(AUDIENCE, this.setContentMetaAssociation(this.getContentMetaAssociation(AUDIENCE), String.valueOf(object[1]), AUDIENCE));
 
-						item.put("instructionalMethod", this.setContentMetaAssociation(this.getContentMetaAssociation("instructional_method"), String.valueOf(object[1]), "instructional_method"));
+						item.put(INSTRUCTIONALMETHOD, this.setContentMetaAssociation(this.getContentMetaAssociation(INSTRUCTIONAL_METHOD), String.valueOf(object[1]), INSTRUCTIONAL_METHOD));
 					} else {
-						item.put("educationalUse", this.setContentMetaAssociation(this.getContentMetaAssociation("educational_use"), String.valueOf(object[1]), "educational_use"));
-						item.put("momentsOfLearning", this.setContentMetaAssociation(this.getContentMetaAssociation("moments_of_learning"), String.valueOf(object[1]), "moments_of_learning"));
+						item.put(_EDUCATIONAL_USE, this.setContentMetaAssociation(this.getContentMetaAssociation(EDUCATIONAL_USE), String.valueOf(object[1]), EDUCATIONAL_USE));
+						item.put(MOMENTSOFLEARNING, this.setContentMetaAssociation(this.getContentMetaAssociation(MOMENTS_OF_LEARNING), String.valueOf(object[1]), MOMENTS_OF_LEARNING));
 					}
 				}
 				if (fetchChildItem && (String.valueOf(object[2]).equalsIgnoreCase(SCOLLECTION) || String.valueOf(object[2]).equalsIgnoreCase(FOLDER))) {
@@ -424,16 +424,16 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 					item.put(RESOURCESOURCE, resourceSource);
 				}
 				if (object[12] != null) {
-					item.put("ideas", object[12]);
+					item.put(IDEAS, object[12]);
 				}
 				if (object[13] != null) {
-					item.put("questions", object[13]);
+					item.put(QUESTIONS, object[13]);
 				}
 				if (object[14] != null) {
-					item.put("performanceTasks", object[14]);
+					item.put(PERFORMANCE_TASKS, object[14]);
 				}
 				if (object[18] != null) {
-					item.put("collectionType", object[18]);
+					item.put(COLLECTION_TYPE, object[18]);
 				}
 				
 				items.add(item);
@@ -488,16 +488,16 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 					item.put(RESOURCESOURCE, resourceSource);
 				}
 				if (object[12] != null) {
-					item.put("ideas", object[12]);
+					item.put(IDEAS, object[12]);
 				}
 				if (object[13] != null) {
-					item.put("questions", object[13]);
+					item.put(QUESTIONS, object[13]);
 				}
 				if (object[14] != null) {
-					item.put("performanceTasks", object[14]);
+					item.put(PERFORMANCE_TASKS, object[14]);
 				}
 				if (object[18] != null) {
-					item.put("collectionType", object[18]);
+					item.put(COLLECTION_TYPE, object[18]);
 				}
 				items.add(item);
 			}
@@ -554,7 +554,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		itemType.put(ADDED, COLLECTION_ITEM_TYPE);
 		itemType.put(SUBSCRIBED, COLLECTION_ITEM_TYPE);
 		final Errors errors = new BindException(collectionItem, COLLECTION_ITEM);
-		rejectIfNull(errors, collectionItem, COLLECTION_ITEM, "GL0056", generateErrorMessage(GL0056, COLLECTION_ITEM));
+		rejectIfNull(errors, collectionItem, COLLECTION_ITEM, GL0056, generateErrorMessage(GL0056, COLLECTION_ITEM));
 		rejectIfInvalidType(errors, collectionItem.getItemType(), ITEM_TYPE, GL0007, generateErrorMessage(GL0007, ITEM_TYPE), itemType);
 		return errors;
 	}
@@ -631,15 +631,15 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		List<Collection> collections = new ArrayList<Collection>();
 		StringBuffer collectionIds = new StringBuffer();
 		for (Map<String, String> map : collection) {
-			gooruOids.add(map.get("gooruOid"));
+			gooruOids.add(map.get(GOORU_OID));
 		}
 		if (gooruOids.toString().trim().length() > 0) {
 			collections = this.getCollectionRepository().getCollectionListByIds(gooruOids);
 			if (userService.isSuperAdmin(user) || userService.isContentAdmin(user)) {
 				for (Collection scollection : collections) {
-					getAsyncExecutor().deleteFromCache("v2-organize-data-" + scollection.getUser().getPartyUid() + "*");
+					getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + scollection.getUser().getPartyUid() + "*");
 					if (scollection.getPublishStatus().getValue().equalsIgnoreCase(PENDING)) {
-						scollection.setPublishStatus(this.getCustomTableRepository().getCustomTableValue("publish_status", REVIEWED));
+						scollection.setPublishStatus(this.getCustomTableRepository().getCustomTableValue(_PUBLISH_STATUS, REVIEWED));
 						collectionIds.append(scollection.getGooruOid());
 						if (!scollection.getSharing().equalsIgnoreCase(PUBLIC)) {
 							UserSummary userSummary = this.getUserRepository().getSummaryByUid(scollection.getUser().getPartyUid());
@@ -682,7 +682,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		List<Collection> collections = new ArrayList<Collection>();
 		StringBuffer collectionIds = new StringBuffer();
 		for (Map<String, String> map : collection) {
-			gooruOids.add(map.get("gooruOid"));
+			gooruOids.add(map.get(GOORU_OID));
 		}
 		if (gooruOids.toString().trim().length() > 0) {
 			collections = this.getCollectionRepository().getCollectionListByIds(gooruOids);
@@ -730,7 +730,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		Collection collection = this.getCollectionRepository().getCollectionByGooruOid(gooruOid);
 		String data = null;
 		if (collection != null) {
-			final String cacheKey = "v2-organize-data-" + collection.getUser().getPartyUid() + "-" + gooruOid + "-" + limit + "-" + offset + "-" + sharing + "-" + collectionType + "-" + orderBy + "-" + itemLimit + "-" + fetchChildItem;
+			final String cacheKey = V2_ORGANIZE_DATA + collection.getUser().getPartyUid() + "-" + gooruOid + "-" + limit + "-" + offset + "-" + sharing + "-" + collectionType + "-" + orderBy + "-" + itemLimit + "-" + fetchChildItem;
 			if (!clearCache) {
 				data = redisService.getValue(cacheKey);
 			}
