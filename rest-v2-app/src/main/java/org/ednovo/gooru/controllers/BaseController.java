@@ -32,12 +32,12 @@ import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserGroupSupport;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.core.exception.BadRequestException;
 import org.ednovo.gooru.security.OperationAuthorizer;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.BadCredentialsException;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
@@ -88,7 +88,7 @@ public class BaseController extends SerializerUtil implements ParameterPropertie
 			return json.getString(key);
 
 		} catch (JSONException e) {
-			throw new BadCredentialsException("Input JSON parse failed!");
+			throw new BadRequestException("Input JSON parse failed!");
 		}
 	}
 
@@ -96,7 +96,7 @@ public class BaseController extends SerializerUtil implements ParameterPropertie
 		try {
 			return data != null ? new JSONObject(data) : null;
 		} catch (JSONException e) {
-			throw new BadCredentialsException("Input JSON parse failed!");
+			throw new BadRequestException("Input JSON parse failed!");
 		}
 	}
 
