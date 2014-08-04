@@ -24,6 +24,7 @@
 package org.ednovo.gooru.web.spring.interceptor;
 
 import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
@@ -36,10 +37,12 @@ import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.kafka.producer.KafkaEventHandler;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
@@ -62,7 +65,21 @@ public class GooruInterceptor extends HandlerInterceptorAdapter {
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 
 		Enumeration e = gooruConstants.propertyNames();
-
+		
+		Map paramsMap=request.getParameterMap();
+        
+        Iterator paramsMapIter = paramsMap.entrySet().iterator();
+		
+		while(paramsMapIter != null && paramsMapIter.hasNext()){
+			Map.Entry<String,String[]> paramsEntry = (Map.Entry<String,String[]>)paramsMapIter.next();
+			String paramKey = paramsEntry.getKey();
+			String[] paramValue = paramsEntry.getValue();
+			
+			if(paramKey != null && paramKey.equalsIgnoreCase("data")) {
+				requestData(paramValue.toString());
+			}
+		}
+		
 		while (e.hasMoreElements()) {
 			String key = (String) e.nextElement();
 			request.setAttribute(key, gooruConstants.getProperty(key));
@@ -131,6 +148,7 @@ public class GooruInterceptor extends HandlerInterceptorAdapter {
 		LOGGER.debug(logString);
 		if (logString != null) {
 			try {
+				LOGGER.info(logString);
 				kafkaService.sendEventLog(logString);
 			} catch(Exception e) {
 				LOGGER.error("Error while pushing event log data to kafka : " + e.getMessage() );
@@ -144,5 +162,13 @@ public class GooruInterceptor extends HandlerInterceptorAdapter {
 
 	public void setGooruConstants(Properties gooruConstants) {
 		this.gooruConstants = gooruConstants;
+	}
+	
+	public static JSONObject requestData(String data)  {
+		try {
+			return data != null ? new JSONObject(data) : null;
+		} catch (JSONException e) {
+			throw new BadCredentialsException("Input JSON parse failed!");
+		}
 	}
 }
