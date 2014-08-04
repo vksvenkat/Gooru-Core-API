@@ -66,20 +66,6 @@ public class GooruInterceptor extends HandlerInterceptorAdapter {
 
 		Enumeration e = gooruConstants.propertyNames();
 		
-		Map paramsMap=request.getParameterMap();
-        
-        Iterator paramsMapIter = paramsMap.entrySet().iterator();
-		
-		while(paramsMapIter != null && paramsMapIter.hasNext()){
-			Map.Entry<String,String[]> paramsEntry = (Map.Entry<String,String[]>)paramsMapIter.next();
-			String paramKey = paramsEntry.getKey();
-			String[] paramValue = paramsEntry.getValue();
-			
-			if(paramKey != null && paramKey.equalsIgnoreCase("data")) {
-				requestData(paramValue.toString());
-			}
-		}
-		
 		while (e.hasMoreElements()) {
 			String key = (String) e.nextElement();
 			request.setAttribute(key, gooruConstants.getProperty(key));
