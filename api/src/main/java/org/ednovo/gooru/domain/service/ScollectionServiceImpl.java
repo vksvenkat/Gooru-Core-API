@@ -903,6 +903,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				}
 			}
 			this.getCollectionRepository().save(collection);
+			getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collection.getUser().getPartyUid() + "*");
 		}
 		return new ActionResponseDTO<CollectionItem>(collectionItem, errors);
 	}
@@ -1447,8 +1448,9 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		destCollectionItem.setItemSequence(sequence);
 		destCollectionItem.setNarration(sourceCollectionItem.getNarration());
 		destCollectionItem.setNarrationType(sourceCollectionItem.getNarrationType());
-		destCollectionItem.setStart(destCollectionItem.getStart());
+		destCollectionItem.setStart(sourceCollectionItem.getStart());
 		destCollectionItem.setStop(sourceCollectionItem.getStop());
+		destCollectionItem.setAssociatedUser(targetCollection.getUser());
 		SessionContextSupport.putLogParameter(COLLECTION_ID, destCollectionItem.getCollection().getGooruOid());
 		SessionContextSupport.putLogParameter(RESOURCE_ID, destCollectionItem.getResource().getGooruOid());
 		this.getCollectionRepository().save(destCollectionItem);
@@ -1905,6 +1907,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				destItem.setNarration(sourceItem.getNarration());
 				destItem.setNarrationType(sourceItem.getNarrationType());
 				destItem.setStart(sourceItem.getStart());
+				destItem.setAssociatedUser(user);
 				destItem.setStop(sourceItem.getStop());
 				destItem.setCollection(destCollection);
 				this.getCollectionRepository().save(destItem);
@@ -2126,7 +2129,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				resource.setSharing(newResource.getSharing());
 				itemData.put(SHARING, newResource.getSharing());
 			}
-
+			
 			if (newResource.getAttach() != null && newResource.getAttach().getFilename() != null) {
 				String fileExtension = org.apache.commons.lang.StringUtils.substringAfterLast(newResource.getAttach().getFilename(), ".");
 				ResourceType resourceTypeDo = new ResourceType();
@@ -2139,7 +2142,10 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				resource.setUrl(newResource.getAttach().getFilename());
 				itemData.put(URL, newResource.getAttach().getFilename());
 			}
-
+			if(newResource.getS3UploadFlag() > 0) {
+				resource.setS3UploadFlag(newResource.getS3UploadFlag());
+			}
+			
 			this.getResourceService().saveOrUpdate(resource);
 
 			resourceService.saveOrUpdateResourceTaxonomy(resource, newResource.getTaxonomySet());
