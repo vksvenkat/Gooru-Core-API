@@ -64,8 +64,8 @@ public class ApiCassandraFactory extends SearchCassandraFactory {
 		register(new CassandraColumnFamily(ColumnFamilyConstant.DATA_STORE));
 		register(new CassandraColumnFamily(ColumnFamilyConstant.SEARCH_SETTING));
 		register(new CassandraColumnFamily(ColumnFamilyConstant.CONTENT_META));
-		register(new CassandraColumnFamily(ColumnFamilyConstant.CUSTOM_FILEDS_DATA));
-		register(new CassandraColumnFamily(ColumnFamilyConstant.CUSTOM_FILEDS_DEFINITION));
+		register(new CassandraColumnFamily(ColumnFamilyConstant.CUSTOM_FIELDS_DATA));
+		register(new CassandraColumnFamily(ColumnFamilyConstant.CUSTOM_FIELDS_DEFINITION));
 		register(new CassandraColumnFamily(ColumnFamilyConstant.INDEX_QUEUE));
 		register(new EntityCassandraColumnFamily<DomainCio>(DomainCio.class, new ReverseIndexColumnSetting().putField("name", "id")));
 		register(new EntityCassandraColumnFamily<ResourceCio>(ResourceCio.class, new ReverseIndexColumnSetting().putField("type","resourceType").putField("batch", "batchId").putField("categoy", "category").putField("resourceFormat", "resourceFormat").putField("instructional", "instructional")));
@@ -82,8 +82,8 @@ public class ApiCassandraFactory extends SearchCassandraFactory {
 		register(new EntityCassandraDaoImpl<DomainCio>(this, ColumnFamilyConstant.DOMAIN));
 		register(new EntityCassandraDaoImpl<ContentProviderCio>(this, ColumnFamilyConstant.CONTENT_PROVIDER));
 		register(new RawCassandraDaoImpl(this, ColumnFamilyConstant.CONTENT_META));
-		register(new RawCassandraDaoImpl(this, ColumnFamilyConstant.CUSTOM_FILEDS_DATA));
-		register(new RawCassandraDaoImpl(this, ColumnFamilyConstant.CUSTOM_FILEDS_DEFINITION));
+		register(new RawCassandraDaoImpl(this, ColumnFamilyConstant.CUSTOM_FIELDS_DATA));
+		register(new RawCassandraDaoImpl(this, ColumnFamilyConstant.CUSTOM_FIELDS_DEFINITION));
 		register(new RawCassandraDaoImpl(this, ColumnFamilyConstant.INDEX_QUEUE));
 		
 	}

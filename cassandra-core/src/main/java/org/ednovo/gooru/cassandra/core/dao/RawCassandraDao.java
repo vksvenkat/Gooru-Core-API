@@ -35,5 +35,10 @@ public interface RawCassandraDao extends CassandraDao {
 	
 	void delete(String rowKey, String column);
 	
-	void addIndexQueueEntry(String key, String columnPrefix, List<String> gooruOids);
+	void addIndexQueueEntry(String key, String columnPrefix, List<String> gooruOids, boolean isUpdate);
+
+	Rows<String, String> readIndexQueuedData(Integer limit, String columnPrefix);
+	
+	void deleteIndexQueue(String rowKey, Collection<String> columns);
+
 }

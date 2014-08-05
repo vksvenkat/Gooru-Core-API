@@ -26,9 +26,7 @@
  */
 package org.ednovo.gooru.domain.cassandra.service;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.Collection;
 import java.util.List;
 
 import org.ednovo.gooru.cassandra.core.dao.RawCassandraDao;
@@ -41,6 +39,9 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.index.ContentIndexD
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.netflix.astyanax.model.ColumnList;
+import com.netflix.astyanax.model.Rows;
+
 /**
  * @author SearchTeam
  * 
@@ -51,10 +52,6 @@ public class ResourceCassandraServiceImpl extends ApiCrudEntityCassandraServiceI
 	@Autowired
 	private ContentIndexDao contentIndexDao;
 
-	private static final String SEPARATOR = "_";
-	
-	private static final String OPEN = "open";
-	
 	@Override
 	protected Resource fetchSource(String key) {
 		return contentIndexDao.findResourceByContentGooruId(key);
@@ -88,11 +85,18 @@ public class ResourceCassandraServiceImpl extends ApiCrudEntityCassandraServiceI
 	}
 
 	@Override
-	public void updateIndexQueue(List<String> gooruOids, String type) {
-	    DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-		String rowKey = type + SEPARATOR + dateFormat.format(new Date()).toString();
-		String columnPrefix = OPEN + SEPARATOR;
-		getDao(ColumnFamilyConstant.INDEX_QUEUE).addIndexQueueEntry(rowKey, columnPrefix, gooruOids);
+	public void updateIndexQueue(List<String> gooruOids, String rowKey, String columnPrefix, boolean isUpdate) {
+		getDao(ColumnFamilyConstant.INDEX_QUEUE).addIndexQueueEntry(rowKey, columnPrefix, gooruOids, isUpdate);
+	}
+	
+	@Override
+	public Rows<String, String> readIndexQueuedData(Integer limit, String columnPrefix){
+		return getDao().readIndexQueuedData(limit, columnPrefix);
+	}
+
+	@Override
+	public void deleteIndexQueue(String rowKey, Collection<String> columns) {
+		getDao(ColumnFamilyConstant.INDEX_QUEUE).deleteIndexQueue(rowKey, columns);
 	}
 
 }

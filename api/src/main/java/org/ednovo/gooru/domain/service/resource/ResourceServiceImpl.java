@@ -2631,7 +2631,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	}
 
 	@Override
-	public ActionResponseDTO<Resource> updateResource(String resourceId, Resource newResource, User user) throws Exception {
+	public ActionResponseDTO<Resource> updateResource(String resourceId, Resource newResource, List<String> resourceTags, User user) throws Exception {
 		Resource resource = this.resourceRepository.findResourceByContentGooruId(resourceId);
 		Errors errors = validateUpdateResource(newResource, resource);
 		JSONObject itemData = new JSONObject();
@@ -2727,6 +2727,10 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			}
 			if(newResource.getAggregator() != null && newResource.getAggregator().size() > 0) {
 				resource.setAggregator(updateContentProvider(resource.getGooruOid(), newResource.getAggregator(), user, CustomProperties.ContentProviderType.AGGREGATOR.getContentProviderType()));
+			}
+			
+			if(resourceTags != null && resourceTags.size() > 0) {
+				resource.setResourceTags(this.getContentService().createTagAssoc(resource.getGooruOid(), resourceTags, user));
 			}
 
 			saveOrUpdateResourceTaxonomy(resource, newResource.getTaxonomySet());
