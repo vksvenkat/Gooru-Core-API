@@ -2125,6 +2125,12 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				resource.setResourceFormat(resourcetype);
 				itemData.put(RESOURCEFORMAT, resourcetype);
 			}
+			
+			if(newResource.getMediaType() != null){
+				resource.setMediaType(newResource.getMediaType());
+				itemData.put(MEDIA_TYPE, newResource.getMediaType());
+			}
+			
 			if (newResource.getSharing() != null) {
 				resource.setSharing(newResource.getSharing());
 				itemData.put(SHARING, newResource.getSharing());
