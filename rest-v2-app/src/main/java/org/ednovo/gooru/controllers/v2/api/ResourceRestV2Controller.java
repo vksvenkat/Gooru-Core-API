@@ -91,7 +91,7 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 		request.setAttribute(PREDICATE, RES_UPDATE_RES);
 		User user = (User) request.getAttribute(Constants.USER);
 		JSONObject json = requestData(data);
-		ActionResponseDTO<Resource> responseDTO = this.getResourceService().updateResource(resourceId, this.buildResourceFromInputParameters(getValue(RESOURCE, json)), user);
+		ActionResponseDTO<Resource> responseDTO = this.getResourceService().updateResource(resourceId, this.buildResourceFromInputParameters(getValue(RESOURCE, json)),getValue(RESOURCE_TAGS,json) == null ? null : buildResourceTags(getValue(RESOURCE_TAGS,json)), user);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		}
@@ -242,6 +242,10 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 	
 	private  List<UpdateViewsDTO> buildUpdatesViewFromInputParameters(String data) {
 		return JsonDeserializer.deserialize(data, new TypeReference<List<UpdateViewsDTO>>(){});
+	}
+	
+	private  List<String>  buildResourceTags(String data) {
+		return JsonDeserializer.deserialize(data, new TypeReference<List<String>>() {});
 	}
 
 	private Resource buildResourceFromInputParameters(String data, User user) {

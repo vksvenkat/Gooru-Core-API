@@ -129,9 +129,9 @@ public class PartyRepositoryHibernate extends BaseRepositoryHibernate implements
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Map<Object, Object>> getPartyDetails() {
-		String sql = " select p.party_uid as gooruUId, u.username as username, p.display_name as displayName, u.organization_uid as organizationUid , pc.optional_value as sequence from party p inner join user u on p.party_uid = u.gooru_uid inner join party_custom_field pc on pc.party_uid= u.gooru_uid  where p.is_partner = 1 and pc.optional_key = 'sequence' order by u.username";
+		String sql = " select p.party_uid as gooruUId, u.username as username, p.display_name as displayName, u.organization_uid as organizationUid  from party p inner join user u on p.party_uid = u.gooru_uid inner join party_custom_field pc on pc.party_uid= u.gooru_uid  where p.is_partner = 1 and pc.optional_key = 'sequence'  order by cast(pc.optional_value as SIGNED )";
 		Query query = getSession().createSQLQuery(sql).addScalar(GOORU_UID, StandardBasicTypes.STRING).
-		addScalar(USER_NAME, StandardBasicTypes.STRING).addScalar(DISPLAY_NAME, StandardBasicTypes.STRING).addScalar("organizationUid", StandardBasicTypes.STRING).addScalar("sequence",StandardBasicTypes.STRING);
+		addScalar(USER_NAME, StandardBasicTypes.STRING).addScalar(DISPLAY_NAME, StandardBasicTypes.STRING).addScalar("organizationUid", StandardBasicTypes.STRING);
 		return getPartyDetails(query.list());
 	}
 	
@@ -143,7 +143,6 @@ public class PartyRepositoryHibernate extends BaseRepositoryHibernate implements
 			party.put(USER_NAME, object[1]);
 			party.put(DISPLAY_NAME, object[2]);
 			party.put(IMAGE_URL, settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, String.valueOf(object[3])) + "/" + settingService.getConfigSetting(ConfigConstants.PROFILE_BUCKET,String.valueOf(object[3])) +String.valueOf(object[0]) + "-1000x300.png");
-			party.put(SEQUENCE, object[4]);
 			partyDetails.add(party);
 		}
 		return partyDetails; 

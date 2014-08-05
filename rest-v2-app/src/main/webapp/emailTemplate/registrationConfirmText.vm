@@ -7,7 +7,7 @@ Hello there!,
 		    #if( ! $gooruClassicUrl )
 		        ${serverpath}/gooru/index.g#!/user/registration/${userId}/session/${sessionId}/${encodedDateOfBirth}/type/${userAccountType}
 		    #else
-		        ${gooruClassicUrl}/#discover&gooruuid=${userId}&sessionid=${sessionId}&dob=${encodedDateOfBirth}&type=${userAccountType}&callback=confirmUser
+		        ${gooruClassicUrl}/#home&gooruuid=${userId}&sessionid=${sessionId}&dob=${encodedDateOfBirth}&type=${userAccountType}&callback=confirmUser
 		    #end
 	#else
 				${mailConfirmationUrl}/partner-portal/mailconfirmation?gooruuid=${userId}&sessionid=${sessionId}&dob=${encodedDateOfBirth}&type=${userAccountType}&callback=confirmUser

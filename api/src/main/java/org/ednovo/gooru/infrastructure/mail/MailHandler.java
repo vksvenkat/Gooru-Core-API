@@ -711,8 +711,7 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 			Map<String, Object> map = eventMapData(eventMapping);
 			if (eventMapping.getEvent().getDisplayName().equalsIgnoreCase(CustomProperties.EventMapping.WELCOME_MAIL.getEvent())) {
 				map.put("recipient", data.get("recipient"));
-				sendMail(data.get("gooruUid"), map);
-				
+				sendMail(data.get("gooruUid"), map);				
 			} else if (eventMapping.getEvent().getDisplayName().equalsIgnoreCase(CustomProperties.EventMapping.FIRST_COLLECTION.getEvent())) {
 				sendUserFirstCollectionCreate(data.get("gooruUid"), data.get("accountTypeId"), map);
 			} else 
@@ -895,7 +894,7 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 			map.put("collection-id", content.getGooruOid());
 			
 			map.put("recipient", collaboratorData.get("emailId"));
-			map.put("htmlContent", generateMessage((String) map.get("templateContent"), map));
+			map.put("htmlContent", generateMessage((String) map.get("htmlContent"), map));
 			map.put("content", generateMessage((String) map.get("textContent"), map));
 			map.put("from", getConfigSetting(ConfigConstants.MAIL_FROM, TaxonomyUtil.GOORU_ORG_UID));
 			map.put("bcc", getConfigSetting(ConfigConstants.MAIL_BCC_SUPPORT, TaxonomyUtil.GOORU_ORG_UID));
@@ -916,7 +915,7 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 			map.put(GOORU_OID, gooruOid);
 			map.put(RECIPIENT, email);
 			map.put("classCode", classCode);
-			map.put(HTMLCONTENT, generateMessage((String) map.get("templateContent"), map));
+			map.put(HTMLCONTENT, generateMessage((String) map.get("htmlContent"), map));
 			map.put(SUBJECT,  inviteUser + " has invited you to the Gooru Class \""+title+"\"");
 			map.put(CONTENT, generateMessage((String) map.get(TEXTCONTENT), map));
 			map.put("from", getConfigSetting(ConfigConstants.MAIL_FROM, TaxonomyUtil.GOORU_ORG_UID));
