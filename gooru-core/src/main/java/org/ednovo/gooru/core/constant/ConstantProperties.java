@@ -398,7 +398,7 @@ public interface ConstantProperties {
 	static final String[] STUDY_RESOURCE_FIELDS = { "*.totalHitCount", "*.searchResults", "*.classCode", "*.status", "*.title", "*.gooruOid", "*.createdOn", "*.gooruUId", "*.user", "*.userName", "*.lastName", "*.firstName", "*.thumbnails", "*.url", "*.itemCount", "*.memberCount",
 			"*.profileImageUrl" };
 
-	static final String[] CLASS_MEMBER_FIELDS = { "*.totalHitCount", "*.searchResults", "*.emailId", "*.username", "*.gooruUid", "*.associatedDate", "*.status", "*.profileImageUrl" };
+	static final String[] CLASS_MEMBER_FIELDS = { "*.totalHitCount", "*.searchResults", "*.emailId", "*.username", "*.gooruUid", "*.associatedDate", "*.status", "*.profileImageUrl", "*.firstName", "*.lastName"};
 
 	static final String[] USER_CONTENT_TAGS_INCLUDES = { "*.totalHitCount", "*.searchResults", "*.count", "*.label", "*.tagGooruOid" };
 
