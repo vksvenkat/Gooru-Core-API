@@ -75,6 +75,7 @@ import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.core.exception.BadRequestException;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.core.exception.UnauthorizedException;
 import org.ednovo.gooru.domain.service.BaseServiceImpl;
@@ -326,7 +327,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 							boolean emailAvailability = this.getUserRepository().checkUserAvailability(newProfile.getUser().getEmailId(), CheckUser.BYEMAILID, false);
 
 							if (emailAvailability) {
-								throw new BadCredentialsException("Someone already has taken " + newProfile.getUser().getEmailId() + "!.Please pick another email.");
+								throw new BadCredentialsException(generateErrorMessage(GL0058)+ newProfile.getUser().getEmailId() + "!.Please pick another email.");
 							}
 							if (emailConfirmStatus || (isContentAdmin(apiCaller) && !apiCaller.getPartyUid().equals(gooruUid))) {
 
@@ -510,7 +511,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 
 		if (user != null && sendConfirmationMail && inviteuser.size() <= 0) {
 			if (isAdminCreateUser) {
-				this.getMailHandler().sendMailToConfirm(user.getGooruUId(), password, accountType, userToken.getToken(), null, gooruBaseUrl, mailConfirmationUrl, null, null);
+		        	this.getMailHandler().sendMailToConfirm(user.getGooruUId(), password, accountType, userToken.getToken(), null, gooruBaseUrl, mailConfirmationUrl, null, null);
 			} else {
 				if (user.getAccountTypeId() == null || !user.getAccountTypeId().equals(UserAccountType.ACCOUNT_CHILD)) {
 					this.getMailHandler().sendMailToConfirm(user.getGooruUId(), null, accountType, userToken.getToken(), dateOfBirth, gooruBaseUrl, mailConfirmationUrl, null, null);
@@ -537,7 +538,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	public User resendConfirmationMail(String gooruUid, User apiCaller, String sessionId, String gooruBaseUrl, String type) throws Exception {
 		User user = this.getUserRepository().findByGooruId(gooruUid);
 		if (user == null) {
-			throw new NotFoundException("User Not Found!!!");
+			throw new NotFoundException(generateErrorMessage(GL0056, "User"));
 		}
 
 		ApiKey apiKey = this.getApiTrackerService().findApiKeyByOrganization(user.getOrganization().getPartyUid());
@@ -592,67 +593,65 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		if ((isNotEmptyString(childDOB)) && (isNotEmptyString(accountType)) && childDOB != null && !childDOB.equalsIgnoreCase(_NULL)) {
 			Integer age = this.calculateCurrentAge(childDOB);
 			if (age < 0) {
-				throw new BadCredentialsException("Future date will not be as a data of birth");
+				throw new BadCredentialsException(generateErrorMessage("GL0059"));
 			}
 		}
 		if ((isNotEmptyString(dateOfBirth)) && (isNotEmptyString(accountType)) && dateOfBirth != null && !dateOfBirth.equalsIgnoreCase(_NULL)) {
 			Integer age = this.calculateCurrentAge(dateOfBirth);
 			if (age < 0) {
-				throw new BadCredentialsException("Future date will not be as a data of birth");
+				throw new BadCredentialsException(generateErrorMessage("GL0059"));
 			}
-			if (age < 13 && age >= 0 && (accountType.equalsIgnoreCase(UserAccountType.userAccount.NON_PARENT.getType()))) {
-				throw new UnauthorizedException("You are below 13 , please register with parent emailId");
+		
+		if (age < 13 && age >= 0 && (accountType.equalsIgnoreCase(UserAccountType.userAccount.NON_PARENT.getType()))) {
+				throw new UnauthorizedException(generateErrorMessage("GL0060","13"));
 			}
 		}
 
 		if (!isNotEmptyString(user.getFirstName())) {
-			throw new BadCredentialsException("First name cannot be null or empty");
+			throw new BadCredentialsException(generateErrorMessage("GL0061", "First name"));
 		}
 
 		if (!isNotEmptyString(user.getOrganization() != null ? user.getOrganization().getOrganizationCode() : null)) {
-			throw new UnauthorizedException("Organization code cannot be null or empty");
+			throw new UnauthorizedException(generateErrorMessage("GL0061", "Organization code"));
 		}
 
 		if (!isNotEmptyString(user.getLastName())) {
-			throw new BadCredentialsException("Last name cannot be null or empty");
+			throw new BadRequestException(generateErrorMessage("GL0061", "Last name"));
 		}
 
 		if (!isNotEmptyString(user.getEmailId())) {
-			throw new BadCredentialsException("Email cannot be null or empty");
+			throw new BadRequestException(generateErrorMessage("GL0061", "Email"));
 		}
 
 		if (!isNotEmptyString(password)) {
 			if (apicaller != null && !isContentAdmin(apicaller)) {
-				throw new BadCredentialsException("Password cannot be null or empty");
-			} else {
-				throw new BadCredentialsException("Password cannot be null or empty");
-			}
-
+				throw new BadRequestException(generateErrorMessage("GL0061", "Password"));
+			} 
 		} else if (password.length() < 5) {
-			throw new BadCredentialsException("Password should be atleast 5 characters");
+			throw new BadRequestException(generateErrorMessage("GL0064", "5"));
 		}
 
 		if (!isNotEmptyString(user.getUsername())) {
-			throw new BadCredentialsException("Username cannot be null or empty");
+			throw new BadRequestException(generateErrorMessage("GL0061", "Username"));
 		} else if (user.getUsername().length() < 4) {
-			throw new BadCredentialsException("Username should be atleast 4 characters");
+			throw new BadRequestException(generateErrorMessage("GL0065", "4"));
 		}
 
 		boolean usernameAvailability = this.getUserRepository().checkUserAvailability(user.getUsername(), CheckUser.BYUSERNAME, false);
 
 		if (usernameAvailability) {
-			throw new NotFoundException("Someone already has taken " + user.getUsername() + "!.Please pick another username.");
+			throw new NotFoundException(generateErrorMessage("GL0058") + user.getUsername() + "!.Please pick another username.");
 		}
 
 		boolean emailidAvailability = this.getUserRepository().checkUserAvailability(user.getEmailId(), CheckUser.BYEMAILID, false);
 
 		if (accountType != null) {
 			if (emailidAvailability && (!accountType.equalsIgnoreCase(UserAccountType.userAccount.CHILD.getType()))) {
-				throw new NotFoundException("The email address specified already exists within Gooru. Please use sign-in to log in to your existing account.");
+				throw new NotFoundException(generateErrorMessage("GL0062"));
 			}
 		} else {
 			if (emailidAvailability) {
-				throw new NotFoundException("The email address specified already exists within Gooru. Please use sign-in to log in to your existing account.");
+				throw new NotFoundException(generateErrorMessage("GL0062"));
 			}
 		}
 
@@ -663,7 +662,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		if (superAdminToken == null || !superAdminToken.equals(this.getSettingService().getOrganizationSetting(SUPER_ADMIN_TOKEN, TaxonomyUtil.GOORU_ORG_UID))) {
 			Organization organization = this.getOrganizationService().getOrganizationByCode(organizationCode);
 			if (organization == null) {
-				throw new BadCredentialsException("Given organization doesn't exists !");
+				throw new BadRequestException(generateErrorMessage("GL0066"));
 			}
 
 			Boolean hasPermission = false;
@@ -675,7 +674,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 				}
 			}
 			if (!hasPermission) {
-				throw new AccessDeniedException("Permission denied for given organization");
+				throw new AccessDeniedException(generateErrorMessage("GL0067"));
 			}
 		}
 	}
@@ -1030,12 +1029,12 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		try {
 			messageDigest = MessageDigest.getInstance("SHA-1"); // step 2
 		} catch (NoSuchAlgorithmException e) {
-			throw new BadCredentialsException("Error while authenticating user - No algorithm exists. ", e);
+			throw new BadRequestException(generateErrorMessage("GL0068"), e);
 		}
 		try {
 			messageDigest.update(password.getBytes("UTF-8")); // step 3
 		} catch (UnsupportedEncodingException e) {
-			throw new BadCredentialsException("Error while authenticating user - ", e);
+			throw new BadRequestException(generateErrorMessage("GL0069"), e);
 		}
 		byte raw[] = messageDigest.digest(); // step 4
 
@@ -1045,12 +1044,12 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	@Override
 	public User getUserByToken(String userToken) {
 		if (userToken == null || userToken.equalsIgnoreCase("")) {
-			throw new BadCredentialsException("User token cannot be null or empty");
+			throw new BadRequestException(generateErrorMessage("GL0061","User token"));
 		}
 		User user = getUserRepository().findByToken(userToken);
 
 		if (user == null) {
-			throw new BadCredentialsException("User not found");
+			throw new BadRequestException(generateErrorMessage("GL0056","User"));
 		}
 		if (user != null && !user.getGooruUId().equalsIgnoreCase(ANONYMOUS)) {
 			user.setMeta(userMeta(user));
@@ -1091,19 +1090,19 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			identity = this.getUserRepository().findByEmailIdOrUserName(emailId, true, false);
 		}
 		if (identity == null) {
-			throw new NotFoundException("The email or username specified by you does not exist. Please verify your credentials and try again.");
+			throw new NotFoundException(generateErrorMessage("GL0070"));
 		}
 		String token = UUID.randomUUID().toString();
 		User user = this.userRepository.findByIdentity(identity);
 		if (user == null) {
-			throw new NotFoundException("The email  or username entered is not correct. Please verify your credentials and try again.");
+			throw new NotFoundException(generateErrorMessage("GL0071"));
 		}
 		if (user.getConfirmStatus() == 0) {
-			throw new BadCredentialsException("We sent you a confirmation email with instructions on how to complete your Gooru registration. Please check your email, and then try again. Didn’t receive a confirmation email? Please contact us at support@goorulearning.org");
+			throw new BadRequestException(generateErrorMessage("GL0072"));
 		}
 		Credential creds = identity.getCredential();
 		if (creds == null && identity.getAccountCreatedType() != null && identity.getAccountCreatedType().equalsIgnoreCase(UserAccountType.accountCreatedType.GOOGLE_APP.getType())) {
-			throw new BadCredentialsException("Looks like this email is tied with Google!");
+			throw new BadRequestException(generateErrorMessage("GL0073"));
 		}
 		if (creds == null) {
 			creds = new Credential();
@@ -1129,13 +1128,13 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			}
 			identity = this.getUserService().findIdentityByResetToken(token);
 			if (identity.getUser().getUsername().equalsIgnoreCase(password)) {
-				throw new BadCredentialsException("Password should not be same with the Username");
+				throw new BadRequestException(generateErrorMessage("GL0074"));
 			}
 		} else {
 			if (this.isContentAdmin(apiCaller)) {
 				identity = this.findUserByGooruId(gooruUid);
 			} else {
-				throw new BadCredentialsException("Admin user can only change another user password !");
+				throw new BadRequestException(generateErrorMessage("GL0075"));
 			}
 		}
 		boolean flag = false;
@@ -1305,7 +1304,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		if (user != null) {
 			profileImageUtil.deleteS3Upload(this.getUserRepository().getProfile(user, false));
 		} else {
-			throw new FileNotFoundException("user not found!!!");
+			throw new FileNotFoundException(generateErrorMessage("GL0075","User"));
 		}
 	}
 
@@ -1320,7 +1319,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			partyCustomField.setPartyUid(user.getPartyUid());
 			partyService.createPartyCustomField(MY, partyCustomField, user);
 		} else {
-			throw new BadCredentialsException("Given admin organization not found !");
+			throw new BadRequestException(generateErrorMessage("GL0076"));
 		}
 	}
 
@@ -1365,7 +1364,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	public void unFollowUser(User user, String unFollowUserId) {
 		UserRelationship userRelationship = getUserRepository().getActiveUserRelationship(user.getPartyUid(), unFollowUserId);
 		if (userRelationship == null) {
-			throw new BadCredentialsException("user not following this user");
+			throw new BadRequestException(generateErrorMessage("GL0077"));
 		} else {
 			this.getUserRepository().remove(userRelationship);
 			UserSummary userSummary = this.getUserRepository().getSummaryByUid(user.getPartyUid());
