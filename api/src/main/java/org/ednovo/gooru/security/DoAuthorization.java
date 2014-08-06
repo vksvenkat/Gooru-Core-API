@@ -153,11 +153,6 @@ public class DoAuthorization  {
 				redisService.addSessionEntry(sessionToken, organization);
 			}
 		} else if(apiKeyToken != null) {
-			key = SESSION_TOKEN_KEY  + apiKeyToken;
-			data = getRedisService().getValue(key);
-			if (data != null && (skipCache == null || skipCache.equals("0"))) { 
-				authentication = JsonDeserializer.deserialize(data, AuthenticationDo.class);
-			}
 			if (authentication == null)  {
 				ApiKey apiKey = apiTrackerService.getApiKey(apiKeyToken);
 				if (apiKey == null) {
