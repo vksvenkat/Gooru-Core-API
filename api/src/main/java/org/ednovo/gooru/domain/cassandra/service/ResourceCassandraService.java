@@ -44,10 +44,12 @@ public interface ResourceCassandraService extends EntityCassandraService<String,
 
 	String getContentMeta(String id, String name);
 	
-	void updateIndexQueue(List<String> gooruOids, String rowKey, String columnPrefix, boolean isUpdate);
+	void updateIndexQueue(List<String> gooruOids, String rowKey, String columnPrefix);
 
-	Rows<String, String> readIndexQueuedData(Integer limit, String columnPrefix);
+	Rows<String, String> readIndexQueuedData(Integer limit);
 	
 	void deleteIndexQueue(String rowKey, Collection<String> columns);
+
+	void updateQueueStatus(String columnName, String rowKey, String prefix);
 
 }
