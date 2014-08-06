@@ -696,7 +696,9 @@ public class TaxonomyServiceImpl implements TaxonomyService, ParameterProperties
 		List<Code> levelFourCodes = this.getTaxonomyRepository().findChildTaxonomy(codeId, 4);
 		for (Code levelFourCode : levelFourCodes) {
 			List<Code> levelFiveCodes = this.getTaxonomyRepository().findChildTaxonomy(String.valueOf(levelFourCode.getCodeId()), 5);
-			levelFourMapCodes.add(getCode(levelFourCode, null, NODE));
+			if (levelFourCode.getCommonCoreDotNotation() != null) { 
+				levelFourMapCodes.add(getCode(levelFourCode, null, NODE));
+			}
 			for (Code levelFiveCode : levelFiveCodes) {
 				List<Code> levelSixCodes = this.getTaxonomyRepository().findChildTaxonomy(String.valueOf(levelFiveCode.getCodeId()), 6);
 				levelFourMapCodes.add(getCode(levelFiveCode, null, NODE));
