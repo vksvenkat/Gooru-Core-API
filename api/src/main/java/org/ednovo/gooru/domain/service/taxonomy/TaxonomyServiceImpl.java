@@ -629,19 +629,19 @@ public class TaxonomyServiceImpl implements TaxonomyService, ParameterProperties
 	@Override
 	public List<Map<String, Object>> getStandards(String code, Integer depth) {
 		List<Map<String, Object>> standards = null;
-		if (depth == 0) { 
+		if (depth == 0) {
 			standards = levelZero(code);
-		} else if (depth == 1) { 
+		} else if (depth == 1) {
 			standards = levelOne(code);
-		} else if (depth == 2)  {
+		} else if (depth == 2) {
 			standards = levelTwo(code);
-		} else if (depth == 3) { 
+		} else if (depth == 3) {
 			standards = levelThree(code);
 		}
 		return standards;
 	}
 
-	private List<Map<String, Object>> levelZero(String code) { 
+	private List<Map<String, Object>> levelZero(String code) {
 		List<Code> curriculums = this.getTaxonomyRepository().findCodeStartWith(code, Short.valueOf("0"));
 		List<Map<String, Object>> levelOneMapCodes = new ArrayList<Map<String, Object>>();
 		int levelOneCount = 0;
@@ -658,8 +658,8 @@ public class TaxonomyServiceImpl implements TaxonomyService, ParameterProperties
 		}
 		return levelOneMapCodes;
 	}
-	
-	private  List<Map<String, Object>> levelOne(String codeId) {
+
+	private List<Map<String, Object>> levelOne(String codeId) {
 		List<Code> levelTwoCodes = this.getTaxonomyRepository().findChildTaxonomy(codeId, 2);
 		List<Map<String, Object>> levelTwoMapCodes = new ArrayList<Map<String, Object>>();
 		int levelCount = 0;
@@ -691,11 +691,16 @@ public class TaxonomyServiceImpl implements TaxonomyService, ParameterProperties
 		return levelThreeMapCodes;
 	}
 
-	private List<Map<String, Object>> levelThree(String  codeId) {
+	private List<Map<String, Object>> levelThree(String codeId) {
+		Code code = this.getTaxonomyRepository().findCodeByCodeId(Integer.valueOf(codeId));
+		Code curriculum = this.getTaxonomyRepository().findCodeByCodeId(code.getCodeId());
 		List<Map<String, Object>> levelFourMapCodes = new ArrayList<Map<String, Object>>();
 		List<Code> levelFourCodes = this.getTaxonomyRepository().findChildTaxonomy(codeId, 4);
 		for (Code levelFourCode : levelFourCodes) {
 			List<Code> levelFiveCodes = this.getTaxonomyRepository().findChildTaxonomy(String.valueOf(levelFourCode.getCodeId()), 5);
+			if (curriculum.getCode().equalsIgnoreCase("CA") || curriculum.getCode().equalsIgnoreCase("CASK5") || curriculum.getCode().equalsIgnoreCase("TEKS")) {
+				levelFourMapCodes.add(getCode(levelFourCode, null, NODE));
+			}
 			for (Code levelFiveCode : levelFiveCodes) {
 				List<Code> levelSixCodes = this.getTaxonomyRepository().findChildTaxonomy(String.valueOf(levelFiveCode.getCodeId()), 6);
 				levelFourMapCodes.add(getCode(levelFiveCode, null, NODE));

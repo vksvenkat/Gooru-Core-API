@@ -174,13 +174,8 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 			resetPasswordLink = "<a style=\"color: #1076bb;text-decoration: none;\" href=\"" + mailConfirmationUrl + "?resetToken=" + resetToken + "&callback=changePassword\" target=\"_blank\">Click here to reset your password.</a>";
 			resetPasswordURL = "<a style=\"color: #1076bb;text-decoration: none;\" href=\"" + mailConfirmationUrl + "?resetToken=" + resetToken + "&callback=changePassword\" target=\"_blank\">" + mailConfirmationUrl + "?resetToken=" + resetToken + "&callback=changePassword</a>";
 		} else {
-			if (gooruClassicUrl != null) {
-				resetPasswordLink = "<a style=\"color: #1076bb;text-decoration: none;\" href=\"" + gooruClassicUrl + "&resetToken=" + resetToken + "&callback=changePassword\" target=\"_blank\">Click here to reset your password.</a>";
-				resetPasswordURL = "<a style=\"color: #1076bb;text-decoration: none;\" href=\"" + gooruClassicUrl + "&resetToken=" + resetToken + "&callback=changePassword\" target=\"_blank\">" + gooruClassicUrl + "&resetToken=" + resetToken + "&callback=changePassword</a>";
-			} else {
-				resetPasswordLink = "<a style=\"color: #1076bb;text-decoration: none;\" href=\" " + serverpath + "/gooru/index.g#!/change-password/" + resetToken + "\">Click here to reset your password.</a>";
-				resetPasswordURL = "<a style=\"color: #1076bb;text-decoration: none;\" href=\" " + serverpath + "/gooru/index.g#!/change-password/" + resetToken + "\">" + serverpath + "/gooru/index.g#!/change-password/" + resetToken + "</a>";
-			}
+				resetPasswordLink = "<a style=\"color: #1076bb;text-decoration: none;\" href=\"" + serverpath + "/#home&resetToken=" + resetToken + "&callback=changePassword\" target=\"_blank\">Click here to reset your password.</a>";
+				resetPasswordURL = "<a style=\"color: #1076bb;text-decoration: none;\" href=\"" + gooruClassicUrl + "/#home&resetToken=" + resetToken + "&callback=changePassword\" target=\"_blank\">" + serverpath + "/#home&resetToken=" + resetToken + "&callback=changePassword</a>";
 		}
 		map.put("resetPasswordLink", resetPasswordLink);
 		map.put("resetPasswordURL", resetPasswordURL);
@@ -895,7 +890,7 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 			map.put("collection-id", content.getGooruOid());
 			
 			map.put("recipient", collaboratorData.get("emailId"));
-			map.put("htmlContent", generateMessage((String) map.get("templateContent"), map));
+			map.put("htmlContent", generateMessage((String) map.get("htmlContent"), map));
 			map.put("content", generateMessage((String) map.get("textContent"), map));
 			map.put("from", getConfigSetting(ConfigConstants.MAIL_FROM, TaxonomyUtil.GOORU_ORG_UID));
 			map.put("bcc", getConfigSetting(ConfigConstants.MAIL_BCC_SUPPORT, TaxonomyUtil.GOORU_ORG_UID));
@@ -916,7 +911,7 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 			map.put(GOORU_OID, gooruOid);
 			map.put(RECIPIENT, email);
 			map.put("classCode", classCode);
-			map.put(HTMLCONTENT, generateMessage((String) map.get("templateContent"), map));
+			map.put(HTMLCONTENT, generateMessage((String) map.get("htmlContent"), map));
 			map.put(SUBJECT,  inviteUser + " has invited you to the Gooru Class \""+title+"\"");
 			map.put(CONTENT, generateMessage((String) map.get(TEXTCONTENT), map));
 			map.put("from", getConfigSetting(ConfigConstants.MAIL_FROM, TaxonomyUtil.GOORU_ORG_UID));

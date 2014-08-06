@@ -3,6 +3,8 @@
  */
 package org.ednovo.goorucore.application.serializer;
 
+import org.ednovo.gooru.core.exception.BadRequestException;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import flexjson.JSONDeserializer;
@@ -19,8 +21,7 @@ public class JsonDeserializer extends JsonProcessor {
 		try {
 			return new JSONDeserializer<T>().use(null, clazz).deserialize(json);
 		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
+			throw new BadRequestException("Input JSON parse failed!");
 		}
 	}
 	
@@ -28,9 +29,8 @@ public class JsonDeserializer extends JsonProcessor {
 		try {
 			return getMapper().readValue(json, type);
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new BadRequestException("Input JSON parse failed!");
 		}
-		return null;
 	}
 	
 	
