@@ -24,7 +24,6 @@ import com.netflix.astyanax.model.ColumnFamily;
 import com.netflix.astyanax.model.ColumnList;
 import com.netflix.astyanax.model.ConsistencyLevel;
 import com.netflix.astyanax.model.Rows;
-import com.netflix.astyanax.util.RangeBuilder;
 
 /**
  * @author Search Team
@@ -150,14 +149,11 @@ public class RawCassandraDaoImpl extends CassandraDaoSupport<CassandraColumnFami
 	}
 
 	@Override
-	public void addIndexQueueEntry(String key, String columnPrefix, List<String> gooruOids, boolean isUpdate) {
+	public void addIndexQueueEntry(String key, String prefix, List<String> gooruOids) {
 		MutationBatch mutationBatch = getFactory().getKeyspace().prepareMutationBatch().setConsistencyLevel(DEFAULT_CONSISTENCY_LEVEL);
 		ColumnListMutation<String> mutation = mutationBatch.withRow(getCF().getColumnFamily(), key);
 		for(String gooruOid : gooruOids){
-			if(isUpdate){
-				gooruOid = gooruOid.replace("open_", "");
-			}
-			mutation.putColumnIfNotNull(columnPrefix+gooruOid, gooruOid);
+			mutation.putColumn(gooruOid, prefix+gooruOid);
 		}	
 		try {
 			mutationBatch.execute();
@@ -167,15 +163,11 @@ public class RawCassandraDaoImpl extends CassandraDaoSupport<CassandraColumnFami
   }
 	
 	@Override
-	public Rows<String, String> readIndexQueuedData(Integer limit, String columnPrefix){
+	public Rows<String, String> readIndexQueuedData(Integer limit){
 		OperationResult<Rows<String, String>> result = null;
 		try {
 			result = getFactory().getKeyspace().prepareQuery(getFactory().getColumnFamily(ColumnFamilyConstant.INDEX_QUEUE).getColumnFamily())
-			.getAllRows()
-			.withColumnRange(new RangeBuilder()
-			    .setStart(columnPrefix +"\u00000")
-			    .setEnd(columnPrefix +"\uffff")
-			    .setLimit(limit).build())
+			.getAllRows().setRowLimit(limit)
 			.execute();
 		} catch (ConnectionException e) {
 			getLog().error("Error reading index queue data", e);
@@ -194,6 +186,16 @@ public class RawCassandraDaoImpl extends CassandraDaoSupport<CassandraColumnFami
 			batch.execute();
 		} catch (ConnectionException e) {
 			getLog().error("Error delete index queue data", e);
+		}
+	}
+
+	@Override
+	public void updateQueueStatus(String columnName, String rowKey,	String prefix) {
+		try {
+			 getFactory().getKeyspace().prepareColumnMutation(getCF().getColumnFamily(), rowKey, columnName)
+			 .putValue(prefix+columnName, null).execute();
+		} catch (Exception ex) {
+			getLog().error("Error updating queue status to cassandra", ex);
 		}
 	}
 	
