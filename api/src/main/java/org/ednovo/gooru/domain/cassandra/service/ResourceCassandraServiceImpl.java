@@ -85,13 +85,18 @@ public class ResourceCassandraServiceImpl extends ApiCrudEntityCassandraServiceI
 	}
 
 	@Override
-	public void updateIndexQueue(List<String> gooruOids, String rowKey, String columnPrefix, boolean isUpdate) {
-		getDao(ColumnFamilyConstant.INDEX_QUEUE).addIndexQueueEntry(rowKey, columnPrefix, gooruOids, isUpdate);
+	public void updateIndexQueue(List<String> gooruOids, String rowKey, String prefix) {
+		getDao(ColumnFamilyConstant.INDEX_QUEUE).addIndexQueueEntry(rowKey, prefix, gooruOids);
 	}
-	
+
 	@Override
-	public Rows<String, String> readIndexQueuedData(Integer limit, String columnPrefix){
-		return getDao().readIndexQueuedData(limit, columnPrefix);
+	public void updateQueueStatus(String columnName, String rowKey, String prefix) {
+		getDao(ColumnFamilyConstant.INDEX_QUEUE).updateQueueStatus(columnName, rowKey, prefix);
+	}
+
+	@Override
+	public Rows<String, String> readIndexQueuedData(Integer limit){
+		return getDao().readIndexQueuedData(limit);
 	}
 
 	@Override
