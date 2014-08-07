@@ -143,9 +143,9 @@ public class PostServiceImpl extends BaseServiceImpl implements PostService, Con
 	}
 
 	@Override
-	public List<Post> getContentPosts(final String gooruOid, final Integer limit, final Integer offset, final String type) {
+	public List<Post> getContentPosts(final String gooruOid, final Integer limit, final Integer offset, String type) {
 		rejectIfNull(type, GL0006, TYPE);
-		final CustomTableValue contentType = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.POST_TYPE.getTable(), type);
+		CustomTableValue contentType = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.POST_TYPE.getTable(), type);
 		rejectIfNull(type, GL0007, contentType.getValue() + TYPE);
 		return this.getPostRepository().getContentPosts(gooruOid, limit, offset);
 	}

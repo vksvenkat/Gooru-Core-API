@@ -131,6 +131,7 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ })
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
 	public ModelAndView getClasspage(@PathVariable(value = ID) String classpageId, @RequestParam(value = DATA_OBJECT, required = false) String data, @RequestParam(value = INCLUDE_COLLECTION_ITEM, required = false, defaultValue = FALSE) boolean includeCollectionItem,
 			@RequestParam(value = MERGE, required = false) String merge, HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -144,6 +145,7 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ })
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "", method = RequestMethod.GET)
 	public ModelAndView getClasspages(@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,
 		    @RequestParam(value = TITLE, required = false) String title, @RequestParam(value = AUTHOR, required = false) String author,
@@ -156,6 +158,7 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ })
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/code/{code}", method = RequestMethod.GET)
 	public ModelAndView getClasspageByCode(@PathVariable(value = CLASSPAGE_CODE) String classpageCode, @RequestParam(value = DATA_OBJECT, required = false) String data, @RequestParam(value = INCLUDE_COLLECTION_ITEM, required = false, defaultValue = FALSE) boolean includeCollectionItem,
 			HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -237,6 +240,7 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ITEM_READ })
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "item/{id}", method = RequestMethod.GET)
 	public ModelAndView getClasspageItem(@PathVariable(value = ID) String collectionItemId, HttpServletRequest request, HttpServletResponse response) {
 		User user = (User) request.getAttribute(Constants.USER);
@@ -246,24 +250,28 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ITEM_READ })
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/collection/{id}", method = RequestMethod.GET)
 	public ModelAndView getCollectionClasspageAssoc(@PathVariable(value = ID) String collectionId, @RequestParam(value = GOORU_UID, required = false) String gooruUid, HttpServletRequest request, HttpServletResponse response) {
 		return toJsonModelAndView(this.getTaskRepository().getCollectionClasspageAssoc(collectionId, gooruUid), true);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ITEM_READ })
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/collection/{id}/count", method = RequestMethod.GET)
 	public ModelAndView getCollectionClasspageAssocCount(@PathVariable(value = ID) String collectionId, @RequestParam(value = GOORU_UID, required = false) String gooruUid, HttpServletRequest request, HttpServletResponse response) {
 		return toJsonModelAndView(this.getTaskRepository().getCollectionClasspageAssocCount(collectionId), true);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ITEM_DELETE })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/collection/{id}", method = RequestMethod.DELETE)
 	public void deleteCollectionAssocInAssignment(@PathVariable(value = ID) String collectionId, HttpServletRequest request, HttpServletResponse response) {
 		this.getTaskService().deleteCollectionAssocInAssignment(collectionId);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ITEM_READ })
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/{cid}/item", method = RequestMethod.GET)
 	public ModelAndView getClasspageItems(@PathVariable(value = COLLECTIONID) String classpageId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false) Integer limit,
 		@RequestParam(value = ORDER_BY, defaultValue = PLANNED_END_DATE, required = false) String orderBy, @RequestParam(value = OPTIMIZE, required = false, defaultValue = FALSE) Boolean optimize, @RequestParam(value = STATUS, required = false) String status, HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -329,6 +337,7 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ })
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/my", method = RequestMethod.GET)
 	public ModelAndView getMyClasspage(HttpServletRequest request, @RequestParam(value = DATA_OBJECT, required = false) String data, @RequestParam(value = SKIP_PAGINATION, required = false, defaultValue = "false") boolean skipPagination,
 			@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, @RequestParam(value = ORDER_BY, required = false, defaultValue = DESC) String orderBy,

@@ -81,7 +81,7 @@ public class ContentRestV2Controller extends BaseController implements ConstantP
 		}),apiCaller), FORMAT_JSON);
 	}
 
-	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAG_ADD })
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAG_DELETE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.DELETE }, value = "/{id}/tag")
 	public void deleteContentTagAssoc(@PathVariable(value = ID) String gooruOid,@RequestParam String data, HttpServletRequest request, HttpServletResponse response) {
@@ -92,6 +92,7 @@ public class ContentRestV2Controller extends BaseController implements ConstantP
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAG_READ})
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.GET }, value = "/{id}/tag")
 	public ModelAndView getContentTagAssoc(@PathVariable(value = ID) String gooruOid, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, HttpServletRequest request,
 			HttpServletResponse response) {
@@ -101,6 +102,7 @@ public class ContentRestV2Controller extends BaseController implements ConstantP
 	}
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAG_READ })
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.GET }, value = "/tag/{id}")
 	public ModelAndView getUserContentTagList(@PathVariable(value = ID) String gooruUid, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, HttpServletRequest request,
 			HttpServletResponse response) {
@@ -112,7 +114,7 @@ public class ContentRestV2Controller extends BaseController implements ConstantP
 		return toModelAndView(serialize(this.getContentService().getUserContentTagList(gooruUid,limit,offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, false, true, USER_CONTENT_TAGS_INCLUDES));
 	}
 
-	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAG_READ })
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CONTENT_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.GET }, value = { "/{id}/post", "/{id}/review", "/{id}/response", "/{id}/question-board", "/{id}/note" })
 	public ModelAndView getContentPosts(@PathVariable(value = ID) String gooruOid, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "20") Integer limit, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, HttpServletRequest request,
@@ -145,7 +147,7 @@ public class ContentRestV2Controller extends BaseController implements ConstantP
 		return toModelAndViewWithIoFilter(this.getFeedbackService().getContentFeedbacks(getFeedbackCategory(request), null, assocContentUid, creatorUid, limit, offset, orderBy).getSearchResults(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
 
-	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAG_READ })
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_FEEDBACK_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = { "/{id}/rating/{type}/count", "/{id}/report/{type}/count", "/{id}/flag/{type}/count", "/{id}/reaction/{type}/count" })
 	public ModelAndView getContentFeedback(HttpServletRequest request, @PathVariable(value = TYPE) String type, @PathVariable(value = ID) String assocGooruOid, HttpServletResponse response) throws Exception {
@@ -159,7 +161,7 @@ public class ContentRestV2Controller extends BaseController implements ConstantP
 		}
 	}
 
-	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_UPDATE })
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CONTENT_UPDATE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}" }, method = { RequestMethod.PUT })
 	public ModelAndView updateContent(@PathVariable(value = ID) String gooruOid, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -169,7 +171,7 @@ public class ContentRestV2Controller extends BaseController implements ConstantP
 		return toModelAndView(serialize(content, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, CONTENT_INCLUDES));
 	}
 
-	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_READ })
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CONTENT_READ })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.GET }, value = "/{id}/check-access")
 	public ModelAndView checkContentAccess(HttpServletRequest request, @PathVariable(value = ID) String gooruOid, HttpServletResponse response) throws Exception {
