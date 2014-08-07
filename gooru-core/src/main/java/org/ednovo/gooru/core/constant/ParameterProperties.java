@@ -267,6 +267,8 @@ public interface ParameterProperties {
 	String GOORU_UID = "gooruUId";
 
 	String COUNT = "count";
+	
+	String COLLECTION_COUNT = "collectionCount";
 
 	String SCORE = "score";
 	
