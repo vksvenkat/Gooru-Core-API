@@ -60,4 +60,7 @@ public interface ColumnFamilyConstant {
 	String CONTENT_PROVIDER="content_provider";
 	
 	String INDEX_QUEUE ="index_queue";
+	
+	String CUSTOM_FIELDS_GROUP = "custom_fields_group";
+	
 }
