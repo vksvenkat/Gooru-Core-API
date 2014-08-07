@@ -174,13 +174,8 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 			resetPasswordLink = "<a style=\"color: #1076bb;text-decoration: none;\" href=\"" + mailConfirmationUrl + "?resetToken=" + resetToken + "&callback=changePassword\" target=\"_blank\">Click here to reset your password.</a>";
 			resetPasswordURL = "<a style=\"color: #1076bb;text-decoration: none;\" href=\"" + mailConfirmationUrl + "?resetToken=" + resetToken + "&callback=changePassword\" target=\"_blank\">" + mailConfirmationUrl + "?resetToken=" + resetToken + "&callback=changePassword</a>";
 		} else {
-			if (gooruClassicUrl != null) {
-				resetPasswordLink = "<a style=\"color: #1076bb;text-decoration: none;\" href=\"" + gooruClassicUrl + "&resetToken=" + resetToken + "&callback=changePassword\" target=\"_blank\">Click here to reset your password.</a>";
-				resetPasswordURL = "<a style=\"color: #1076bb;text-decoration: none;\" href=\"" + gooruClassicUrl + "&resetToken=" + resetToken + "&callback=changePassword\" target=\"_blank\">" + gooruClassicUrl + "&resetToken=" + resetToken + "&callback=changePassword</a>";
-			} else {
-				resetPasswordLink = "<a style=\"color: #1076bb;text-decoration: none;\" href=\" " + serverpath + "/gooru/index.g#!/change-password/" + resetToken + "\">Click here to reset your password.</a>";
-				resetPasswordURL = "<a style=\"color: #1076bb;text-decoration: none;\" href=\" " + serverpath + "/gooru/index.g#!/change-password/" + resetToken + "\">" + serverpath + "/gooru/index.g#!/change-password/" + resetToken + "</a>";
-			}
+				resetPasswordLink = "<a style=\"color: #1076bb;text-decoration: none;\" href=\"" + serverpath + "/#home&resetToken=" + resetToken + "&callback=changePassword\" target=\"_blank\">Click here to reset your password.</a>";
+				resetPasswordURL = "<a style=\"color: #1076bb;text-decoration: none;\" href=\"" + serverpath + "/#home&resetToken=" + resetToken + "&callback=changePassword\" target=\"_blank\">" + serverpath + "/#home&resetToken=" + resetToken + "&callback=changePassword</a>";
 		}
 		map.put("resetPasswordLink", resetPasswordLink);
 		map.put("resetPasswordURL", resetPasswordURL);
@@ -711,8 +706,7 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 			Map<String, Object> map = eventMapData(eventMapping);
 			if (eventMapping.getEvent().getDisplayName().equalsIgnoreCase(CustomProperties.EventMapping.WELCOME_MAIL.getEvent())) {
 				map.put("recipient", data.get("recipient"));
-				sendMail(data.get("gooruUid"), map);
-				
+				sendMail(data.get("gooruUid"), map);				
 			} else if (eventMapping.getEvent().getDisplayName().equalsIgnoreCase(CustomProperties.EventMapping.FIRST_COLLECTION.getEvent())) {
 				sendUserFirstCollectionCreate(data.get("gooruUid"), data.get("accountTypeId"), map);
 			} else 

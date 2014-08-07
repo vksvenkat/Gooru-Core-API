@@ -332,7 +332,7 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 		if (parentIds.contains(","))  {
 			parentIds = parentIds.replace(",", "','");
 		}
-		return getSession().createQuery("from Code c where c.parentId in ('" + parentIds + "') and c.depth =" + depth + " and c.activeFlag =1 and " +  generateOrgAuthQueryWithData("c.")).list();
+		return getSession().createQuery("from Code c where c.parentId in ('" + parentIds + "') and c.depth =" + depth + " and c.activeFlag =1 and " +  generateOrgAuthQueryWithData("c.") + " order by c.sequence").list();
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -1062,7 +1062,7 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Code> findCodeStartWith(String codeStartWith, Short depth) {
-		String hql = "FROM Code c where code LIKE :code AND depth =:depth AND c.activeFlag = 1 and " + generateOrgAuthQueryWithData("c.");
+		String hql = "FROM Code c where code LIKE :code AND depth =:depth AND c.activeFlag = 1 and " + generateOrgAuthQueryWithData("c.") +  " order by c.sequence";
 		Query query = getSession().createQuery(hql);
 		query.setParameter("code", codeStartWith + "%");
 		query.setParameter("depth", depth);
