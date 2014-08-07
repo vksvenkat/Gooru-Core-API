@@ -128,6 +128,7 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}" }, method = RequestMethod.GET)
 	public ModelAndView getCollection(@PathVariable(value = ID) String collectionId, @RequestParam(value = INCLUDE_COLLECTION_ITEM, required = false, defaultValue = TRUE) boolean includeCollectionItem,
 			@RequestParam(value = INLCLUDE_META_INFO, required = false, defaultValue = FALSE) boolean includeMetaInfo, @RequestParam(value = INCLUDE_COLLABORATOR, required = false, defaultValue = FALSE) boolean includeCollaborator, @RequestParam(value =  IS_GAT, required = false, defaultValue = FALSE) boolean isGat,
@@ -209,6 +210,7 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ITEM_READ })
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/item/{id}" }, method = RequestMethod.GET)
 	public ModelAndView getCollectionItem(@PathVariable(value = ID) String collectionItemId, @RequestParam(value = INCLUDE_ADDITIONAL_INFO, required = false, defaultValue = FALSE) boolean includeAdditionalInfo, HttpServletRequest request, HttpServletResponse response) {
 		User user = (User) request.getAttribute(Constants.USER);
@@ -218,6 +220,7 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ITEM_LIST })
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}/item" }, method = RequestMethod.GET)
 	public ModelAndView getCollectionItems(@PathVariable(value = ID) String collectionId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, 
 			@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,@RequestParam(value = ORDER_BY, defaultValue = DESC ,required = false) String orderBy, 
@@ -254,7 +257,7 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 		return toModelAndViewWithIoFilter(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
 
-	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ITEM_UPDATE })
+	@AuthorizeOperations(operations = {GooruOperationConstants.OPERATION_SCOLLECTION_COPY })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}/copy" }, method = RequestMethod.PUT)
 	public ModelAndView copyCollection(@PathVariable(value = ID) String collectionId, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -270,12 +273,13 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ITEM_READ })
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/resource/moreinfo/{id}" }, method = RequestMethod.GET)
 	public ModelAndView getResourceMoreInfo(@PathVariable(value = ID) String resourceId, HttpServletRequest request, HttpServletResponse response) {
 		return toModelAndViewWithIoFilter(this.getCollectionService().getResourceMoreInfo(resourceId), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, COLLECTION_INCLUDE_FIELDS);
 	}
 
-	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ITEM_UPDATE })
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ITEM_COPY })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/item/{id}/copy/{cid}" }, method = RequestMethod.PUT)
 	public ModelAndView copyCollectionItem(@PathVariable(value = ID) String collectionItemId, @PathVariable(value = CID) String collectionId, HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -283,7 +287,7 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 		return toModelAndViewWithIoFilter(collectionItem, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, COLLECTION_ITEM_INCLUDE_FILEDS));
 	}
 
-	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ADD })
+	@AuthorizeOperations(operations = {GooruOperationConstants.OPERATION_SCOLLECTION_MOVE})
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/move" }, method = RequestMethod.PUT)
 	public ModelAndView moveCollectionToFolder(HttpServletRequest request, @RequestBody String data, HttpServletResponse response) throws Exception {
@@ -301,7 +305,7 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 
 	}
 
-	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ADD })
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_RESOURCE_ADD })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}/resource" }, method = RequestMethod.POST)
 	public ModelAndView createResourceWithCollectionItem(HttpServletRequest request, @PathVariable(ID) String collectionId, @RequestBody String data, HttpServletResponse response) throws Exception {
@@ -320,7 +324,7 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 	}
 	
 	
-	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ADD })
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_RESOURCE_UPDATE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/resource/{id}" }, method = RequestMethod.PUT)
 	public ModelAndView updateResourceWithCollectionItem(HttpServletRequest request, @PathVariable(ID) String collectionItemId, @RequestBody String data, HttpServletResponse response) throws Exception {
@@ -353,7 +357,7 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 
 	}
 	
-	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ADD })
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_UPDATE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/question/{id}" }, method = RequestMethod.PUT)
 	public ModelAndView updateQuestionWithCollectionItem(HttpServletRequest request, @PathVariable(ID) String collectionItemId, @RequestBody String data, HttpServletResponse response) throws Exception {
@@ -369,6 +373,7 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}/workspace" }, method = RequestMethod.GET)
 	public ModelAndView getMyWorkspace(@PathVariable(value = ID) String partyUid, HttpServletRequest request, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,
 			@RequestParam(value = FILTER_NAME, required = false, defaultValue = ALL) String filterName, @RequestParam(value = ORDER_BY, required = false, defaultValue = "desc") String orderBy, @RequestParam(value = SHARING, required = false) String sharing,
@@ -391,6 +396,8 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 		return toModelAndView(serialize(collectionItems, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes));
 	}
 
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}/isAdded" }, method = RequestMethod.GET)
 	public ModelAndView isAlreadyCopied(HttpServletRequest request, @PathVariable(value = ID) String gooruOid, HttpServletResponse resHttpServletResponse) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
@@ -399,12 +406,16 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 		return jsonmodel.addObject(MODEL, this.getCollectionService().resourceCopiedFrom(gooruOid, user.getGooruUId()));
 	}
 	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}/parents" }, method = RequestMethod.GET)
 	public ModelAndView getCollectionParent(HttpServletRequest request, @PathVariable(value = ID) String gooruOid, HttpServletResponse resHttpServletResponse) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
 		return toJsonModelAndView(this.getCollectionService().getParentCollection(gooruOid, user.getPartyUid(),true), true);
 	}
 	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/standards" }, method = RequestMethod.GET)
 	public ModelAndView getCollectionStandards(HttpServletRequest request, @RequestParam(value = ID,required = false) Integer codeId,@RequestParam(value=QUERY,required =false) String query, HttpServletResponse resHttpServletResponse,
 			@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit) throws Exception {
@@ -486,6 +497,7 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 		return list;
 	}
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/list/status" }, method = RequestMethod.GET)
 	public ModelAndView getCollectionListForPublish(@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,@RequestParam(value = PUBLISH_STATUS, required = false) String publishStatus,
 			 HttpServletRequest request, HttpServletResponse response) {

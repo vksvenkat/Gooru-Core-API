@@ -67,7 +67,7 @@ public class CollaboratorRestV2Controller extends BaseController implements Para
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/suggest" }, method = RequestMethod.GET)
 	public ModelAndView collaboratorSuggest(@RequestParam(value = QUERY) String query, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
@@ -75,7 +75,7 @@ public class CollaboratorRestV2Controller extends BaseController implements Para
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/content/{id}" }, method = RequestMethod.GET)
 	public ModelAndView getCollaborators(@PathVariable(ID) String gooruOid, @RequestParam(value = GROUP_BY_STATUS, defaultValue = "false", required = false) Boolean groupByStatus, @RequestParam(value = FILTER_BY, required = false) String filterBy, HttpServletRequest request,
 			HttpServletResponse response) throws Exception {
