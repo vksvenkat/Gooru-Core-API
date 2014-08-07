@@ -629,6 +629,8 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			result.put(_GOORU_UID, object[2]);
 			result.put(ASSOC_DATE, object[3]);
 			result.put(STATUS, object[4]);
+			result.put(FIRST_NAME, object[5]);
+			result.put(LAST_NAME, object[6]);
 			if (object[2] != null) {
 				result.put(PROFILE_IMG_URL, settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, TaxonomyUtil.GOORU_ORG_UID) + "/" + settingService.getConfigSetting(ConfigConstants.PROFILE_BUCKET, TaxonomyUtil.GOORU_ORG_UID) + String.valueOf(object[2]) + ".png");
 			}
