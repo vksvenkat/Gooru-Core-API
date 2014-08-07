@@ -738,6 +738,9 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				content = new HashMap<String, Object>();
 				content.put(SEARCH_RESULT, getFolderItems(gooruOid, limit, offset, sharing, collectionType, orderBy, itemLimit, fetchChildItem));
 				content.put(COUNT, this.getCollectionRepository().getCollectionItemCount(gooruOid, sharing, collectionType));
+				if(collectionType == null || (collectionType != null && collectionType.equalsIgnoreCase(COLLECTION) || collectionType.equalsIgnoreCase(SCOLLECTION) )){
+					content.put(COLLECTION_COUNT, this.getCollectionRepository().getCollectionItemCount(gooruOid, sharing, collectionType != null ? collectionType : COLLECTION ));
+				}
 				data = SerializerUtil.serializeToJson(content, true);
 				if (user != null && user.getUsername().equalsIgnoreCase(SAUSD)) { 
 					redisService.putValue(cacheKey, data);
