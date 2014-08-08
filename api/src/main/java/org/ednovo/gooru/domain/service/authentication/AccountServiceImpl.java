@@ -68,6 +68,7 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.OrganizationSetting
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserTokenRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.activity.ActivityRepository;
+import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -278,7 +279,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			request.getSession().setAttribute(Constants.USER, newUser);
 			request.getSession().setAttribute(Constants.SESSION_TOKEN, userToken.getToken());
 			try{
-				this.getAccountEventlog().getEventLogs(identity,userToken);
+				this.getAccountEventlog().getEventLogs(identity,userToken,true);
 			} catch(Exception e){
 				LOGGER.debug("error"+e.getMessage());
 			}
@@ -293,6 +294,11 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 		final UserToken userToken = this.getUserTokenRepository().findByToken(sessionToken);
 
 		if (userToken != null) {
+			try {
+				this.getAccountEventlog().getEventLogs(null,userToken,false);
+			} catch (JSONException e) {
+				LOGGER.debug("error"+e.getMessage());
+			}
 			userToken.setScope(EXPIRED);
 			this.getUserTokenRepository().save(userToken);
 			this.redisService.deleteKey(SESSION_TOKEN_KEY + sessionToken);
