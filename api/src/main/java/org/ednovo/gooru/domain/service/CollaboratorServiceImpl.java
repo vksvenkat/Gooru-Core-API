@@ -40,6 +40,7 @@ import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserContentAssoc;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.core.exception.BadRequestException;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.domain.service.eventlogs.CollaboratorEventLog;
 import org.ednovo.gooru.domain.service.userManagement.UserManagementService;
@@ -54,7 +55,6 @@ import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -101,10 +101,10 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 		if (gooruOid != null) {
 			content = getContentRepository().findContentByGooruId(gooruOid, true);
 			if (content == null) {
-				throw new NotFoundException("content not found");
+				throw new NotFoundException(generateErrorMessage("GL0056", "content"));
 			}
 		} else {
-			throw new BadCredentialsException("content required");
+			throw new BadRequestException(generateErrorMessage("GL0088"));
 		}
 		List<Map<String, Object>> collaborator = new ArrayList<Map<String, Object>>();
 		if (email != null) {
@@ -207,10 +207,10 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 		if (gooruOid != null) {
 			content = getContentRepository().findContentByGooruId(gooruOid, true);
 			if (content == null) {
-				throw new NotFoundException("content not found");
+				throw new NotFoundException(generateErrorMessage("GL0056", "content"));
 			}
 		} else {
-			throw new BadCredentialsException("content required");
+			throw new BadRequestException(generateErrorMessage("GL0088"));
 		}
 		if (email != null) {
 			for (String mailId : email) {

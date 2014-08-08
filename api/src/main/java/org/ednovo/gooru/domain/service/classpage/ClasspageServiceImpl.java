@@ -44,7 +44,6 @@ import org.ednovo.gooru.core.api.model.Identity;
 import org.ednovo.gooru.core.api.model.InviteUser;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.ResourceType;
-import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.ShelfType;
 import org.ednovo.gooru.core.api.model.StorageArea;
@@ -55,6 +54,7 @@ import org.ednovo.gooru.core.api.model.UserGroupAssociation;
 import org.ednovo.gooru.core.application.util.BaseUtil;
 import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.constant.ConfigConstants;
+import org.ednovo.gooru.core.exception.BadRequestException;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.core.exception.UnauthorizedException;
 import org.ednovo.gooru.domain.service.CollectionService;
@@ -74,10 +74,8 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.party.UserGroupRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.storage.StorageRepository;
 import org.ednovo.gooru.security.OperationAuthorizer;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
@@ -269,7 +267,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	public Classpage getClasspage(String classpageCode, User user) throws Exception {
 		Classpage classpage = this.getCollectionRepository().getClasspageByCode(classpageCode);
 		if (classpage == null) {
-			throw new NotFoundException("Class not found");
+			throw new NotFoundException(generateErrorMessage("GL0056", "Class"));
 		}
 		return getClasspage(classpage.getGooruOid(), user, PERMISSIONS);
 	}
@@ -291,7 +289,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 				}
 				this.getCollectionRepository().remove(Classpage.class, classpage.getContentId());
 			} else {
-				throw new UnauthorizedException("user don't have permission ");
+				throw new UnauthorizedException(generateErrorMessage("GL0085"));
 			}
 		} else {
 			throw new NotFoundException(generateErrorMessage(GL0056, CLASSPAGE));
@@ -307,7 +305,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			result.setTotalHitCount(this.getCollectionRepository().getClasspageCount(title, author, userName));
 			return result;
 		} else {
-			throw new UnauthorizedException("user don't have permission ");
+			throw new UnauthorizedException(generateErrorMessage("GL0085"));
 		}
 	}
 
@@ -358,7 +356,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		if(collectionItem!= null && collectionItem.getPlannedEndDate() != null){
 			Date plannedEndDate = collectionItem.getPlannedEndDate();
 			if(currentDate.compareTo(plannedEndDate) > 0){
-				throw new BadCredentialsException("Invalid PlannedEndDate");
+				throw new BadRequestException(generateErrorMessage("GL0086"));
 			}
 		}
 		
@@ -411,7 +409,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 				e.printStackTrace();
 			}
 		} else {
-			throw new NotFoundException("Invalid assignmentId -" + assignmentGooruOid);
+			throw new NotFoundException(generateErrorMessage("GL0087", assignmentGooruOid));
 		}
 		
 		return new ActionResponseDTO<CollectionItem>(collectionItem, errors);
@@ -494,7 +492,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 				}
 			}
 		} else {
-			throw new NotFoundException("class not found");
+			throw new NotFoundException(generateErrorMessage("GL0056","class"));
 		}
 		return classpageMember;
 	}
@@ -565,7 +563,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		List<Map<String, Object>> activeList = new ArrayList<Map<String, Object>>();
 		Classpage classpage = this.getCollectionRepository().getClasspageByCode(code);
 		if (classpage == null) {
-			throw new NotFoundException("Class not found!!!");
+			throw new NotFoundException(generateErrorMessage("GL0056", "Class"));
 		}
 		UserGroup userGroup = this.getUserGroupService().findUserGroupByGroupCode(code);
 		List<UserGroupAssociation> userGroupAssociations = this.getUserGroupRepository().getUserGroupAssociationByGroup(userGroup.getPartyUid());
@@ -580,7 +578,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	private List<Map<String, Object>> getPendingMemberList(String code) {
 		Classpage classpage = this.getCollectionRepository().getClasspageByCode(code);
 		if (classpage == null) {
-			throw new NotFoundException("Class not found!!!");
+			throw new NotFoundException(generateErrorMessage("GL0056","Class"));
 		}
 		List<InviteUser> inviteUsers = this.getInviteRepository().getInviteUsersById(classpage.getGooruOid());
 		List<Map<String, Object>> pendingList = new ArrayList<Map<String, Object>>();
@@ -617,7 +615,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	public SearchResults<Map<String, Object>> getMemberList(String code, Integer offset, Integer limit, String filterBy) {
 		Classpage classpage = this.getCollectionRepository().getClasspageByCode(code);
 		if (classpage == null) {
-			throw new NotFoundException("classpage not found");
+			throw new NotFoundException(generateErrorMessage("GL0056", "classpage"));
 		}
 		List<Object[]> results = this.getUserGroupRepository().getUserMemberList(code, classpage.getGooruOid(), offset, limit, filterBy);
 		SearchResults<Map<String, Object>> searchResult = new SearchResults<Map<String, Object>>();
@@ -675,7 +673,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	@Override
 	public SearchResults<Map<String, Object>> getMyStudy(User user, String orderBy, Integer offset, Integer limit, String type) {
 		if (user.getPartyUid().equalsIgnoreCase(ANONYMOUS)) {
-			throw new NotFoundException("User not Found");
+			throw new NotFoundException(generateErrorMessage("GL0056","User"));
 		}
 		List<Object[]> results = this.getUserGroupRepository().getMyStudy(user.getPartyUid(), user.getIdentities() != null ? user.getIdentities().iterator().next().getExternalId() : null, orderBy, offset, limit, type);
 		SearchResults<Map<String, Object>> searchResult = new SearchResults<Map<String, Object>>();

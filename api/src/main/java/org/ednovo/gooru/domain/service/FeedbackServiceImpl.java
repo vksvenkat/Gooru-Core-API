@@ -344,7 +344,7 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 			if (feedback.getTarget().getValue().equalsIgnoreCase(CustomProperties.Target.USER.getTarget())) {
 				Feedback userFeedback = this.getFeedbackRepository().getUserFeedback(feedbackType.getKeyValue(), feedback.getAssocUserUid(), feedback.getCreator().getGooruUId());
 				if (userFeedback != null) {
-					throw new NotAllowedException("Already this user is flagged as " + feedbackType.getDisplayName() + " by you");
+					throw new NotAllowedException(generateErrorMessage("GL0092", feedbackType.getDisplayName()));
 				}
 			}
 
