@@ -106,6 +106,7 @@ import org.ednovo.gooru.core.cassandra.model.ResourceStasCo;
 import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.core.exception.BadRequestException;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.domain.cassandra.service.ResourceCassandraService;
 import org.ednovo.gooru.domain.service.CollectionService;
@@ -140,7 +141,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
@@ -764,7 +764,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			String resourceFilePath = resource.getOrganization().getNfsStorageArea().getInternalPath() + resource.getFolder() + File.separator + fileName;
 			boolean downloaded = ImageUtil.downloadAndSaveFile(sourceUrl, resourceFilePath);
 			if (!downloaded) {
-				throw new IOException("Save resource failed. Resource could not be downloaded from " + resource.getUrl());
+				throw new IOException(generateErrorMessage("GL0093",resource.getUrl()));
 			}
 			this.getAsyncExecutor().uploadResourceFolder(resource);
 
@@ -1245,7 +1245,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			if (resourceParam.get(RESOURCE_URL) != null) {
 
 				if (shortenedUrlResourceCheck((String) resourceParam.get(RESOURCE_URL))) {
-					throw new Exception("Cannot able to upload shortened URL resource.");
+					throw new Exception(generateErrorMessage("GL0094"));
 				}
 			}
 			ResourceSource resourceSource = null;
@@ -1255,7 +1255,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				domainName = getDomainName((String) resourceParam.get(RESOURCE_URL));
 				resourceSource = this.getResourceRepository().findResourceSource(domainName);
 				if ((resourceSource != null) && (resourceSource.getIsBlacklisted() == 1)) {
-					throw new Exception("Domain has been Blacklisted.");
+					throw new Exception(generateErrorMessage("GL0095"));
 				}
 			}
 
@@ -1331,7 +1331,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 						}
 					}
 					if (!updateNarrative.equalsIgnoreCase(ONE) && resourceInstanceId != null && resource != null && resource.getSharing() != null && resource.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing()) && !reusedResource) {
-						throw new AccessDeniedException("This is public resource, do  not have premission to edit this resource, edit via GAT");
+						throw new AccessDeniedException(generateErrorMessage("GL0096"));
 					}
 					String sharing = collection.getSharing();
 					String resourceTitle = resourceParam.get(RESOURCE_TITLE) != null ? resourceParam.get(RESOURCE_TITLE).toString() : "";
@@ -1508,10 +1508,10 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 								+ collection.getLesson()));
 					}
 				} else {
-					throw new AccessDeniedException("Do not have permission to customize this collection");
+					throw new AccessDeniedException(generateErrorMessage("GL0097"));
 				}
 			} else {
-				throw new NotFoundException("collection does not exist in the system, required collection to map the resource");
+				throw new NotFoundException(generateErrorMessage("GL0098"));
 			}
 
 		}
@@ -1846,14 +1846,14 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 
 		resource = resourceRepository.findResourceByContentGooruId(gooruContentId);
 		if (resource == null) {
-			throw new NotFoundException("Resource not found");
+			throw new NotFoundException(generateErrorMessage("GL0056", "Resource"));
 		} else {
 			if ((resource.getUser() != null && resource.getUser().getPartyUid().equalsIgnoreCase(apiCaller.getPartyUid())) || getUserService().isContentAdmin(apiCaller)) {
 				this.getContentService().deleteContentTagAssoc(resource.getGooruOid(), apiCaller);
 				this.getBaseRepository().remove(resource);
 				indexProcessor.index(gooruContentId, IndexProcessor.DELETE, RESOURCE);
 			} else {
-				throw new BadCredentialsException("you dont have a permission to delete resource");
+				throw new BadRequestException(generateErrorMessage("GL0099"));
 			}
 		}
 
@@ -2278,10 +2278,10 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 						indexProcessor.index(gooruOids, IndexProcessor.INDEX, RESOURCE);
 						this.resourceRepository.saveAll(resources);
 					} else if (resources != null && resources.size() > 5000) {
-						throw new Exception("Domain Blacklist failed -- Resources limit is upto 5000");
+						throw new Exception(generateErrorMessage("GL0001"));
 					}
 				} else {
-					throw new AccessDeniedException("You are not allowed to do this operation. ");
+					throw new AccessDeniedException(generateErrorMessage("GL0002"));
 				}
 		}
 		if (domainName != null && frameBreaker != null && getUserService().isContentAdmin(user)) { 
@@ -2308,7 +2308,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 					indexProcessor.index(gooruOIds, IndexProcessor.INDEX, RESOURCE);
 					this.resourceRepository.saveAll(resources);
 				} else if (resources != null && resources.size() > 5000) {
-					throw new Exception("Frame breaker update failed -- Resources limit is upto 5000");
+					throw new Exception(generateErrorMessage("GL0004"));
 				}
 		}
 	}
@@ -2652,7 +2652,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 						}
 						this.mapSourceToResource(resource);
 					} else {
-						throw new BadCredentialsException("Url already exist");
+						throw new BadRequestException(generateErrorMessage("GL0005"));
 					}
 				}
 			}
@@ -3082,7 +3082,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		Resource resource = this.findResourceByContentGooruId(gooruContentId);
 
 		if (resource == null) {
-			throw new NotFoundException("Resource not found Exception");
+			throw new NotFoundException(generateErrorMessage("GL0003"));
 		}
 
 		resource.setCustomFieldValues(customFieldService.getCustomFieldsValuesOfResource(resource.getGooruOid()));
