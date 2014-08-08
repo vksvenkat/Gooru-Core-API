@@ -32,7 +32,7 @@
 					#if( ! $gooruClassicUrl )
 					<a style="color: #1076bb;text-decoration: none;" href="${serverpath}/gooru/index.g#!/change-password/${resetToken}" target="_blank"> here</a>
 					#else
-						<a style="color: #1076bb;text-decoration: none;" href="${gooruClassicUrl}/#home&amp;resetToken=${resetToken}&amp;callback=changePassword" target="_blank"> here</a>
+						<a style="color: #1076bb;text-decoration: none;" href="${serverpath}/#home&amp;resetToken=${resetToken}&amp;callback=changePassword" target="_blank"> here</a>
 					#end  
 				    </span>, or by logging into their account, going into settings, and clicking the "reset password" link in the "security" tab. You can also disable their account at anytime by contacting us at <a style="color: #1076bb;text-decoration:underline;" href="mailto:support@goorulearning.org">support@goorulearning.org.</a></div>
 				<div style="margin-top: 15px;">
