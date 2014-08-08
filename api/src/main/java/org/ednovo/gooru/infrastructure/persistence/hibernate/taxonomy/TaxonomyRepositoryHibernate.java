@@ -869,10 +869,11 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 	@Cacheable("gooruCache")
 	@Override
 	public String findTaxonomyRootCode(String code) {
-		String hql = "select root_node_id from code where organization_uid  IN (" + getUserOrganizationUidsAsString() + ") and code=:code";
+		String hql = "select root_node_id from code where organization_uid  IN (" + getUserOrganizationUidsAsString() + ") and code=:code or display_code=:displayCode";
 		Query query = getSession().createSQLQuery(hql).addScalar("root_node_id", StandardBasicTypes.STRING);
 		query.setParameter("code", code);
-		return (String) query.list().get(0);
+		query.setParameter("displayCode", code);
+		return (String) (query.list().size() > 0 ? query.list().get(0) : null);
 	}
 
 	public void setRedisService(RedisService redisService) {
