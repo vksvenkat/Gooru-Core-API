@@ -52,6 +52,7 @@ import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.core.exception.BadRequestException;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.core.exception.UnauthorizedException;
 import org.ednovo.gooru.domain.service.PartyService;
@@ -163,11 +164,11 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 		final String apiEndPoint = getConfigSetting(ConfigConstants.GOORU_API_ENDPOINT, 0, TaxonomyUtil.GOORU_ORG_UID);
 		if (!errors.hasErrors()) {
 			if (username == null) {
-				throw new BadCredentialsException("Username cannot be null or empty.");
+				throw new BadRequestException(generateErrorMessage("GL0061","Username"));
 			}
 
 			if (password == null) {
-				throw new BadCredentialsException("Password cannot be null or empty.");
+				throw new BadRequestException(generateErrorMessage("GL0061","Password"));
 			}
 
 			Identity identity = new Identity();
@@ -176,27 +177,23 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			identity = this.getUserRepository().findByEmailIdOrUserName(username, true, true);
 
 			if (identity == null) {
-				throw new BadCredentialsException("Please double-check your email address and password, and then try logging in again.");
-			}
-			
-			if (identity.getUser().getIsDeleted()) {
-				throw new BadCredentialsException("error : User has been deleted.");
+				throw new BadRequestException(generateErrorMessage("GL0078"));
 			}
 			identity.setLoginType(CREDENTIAL);
 
 			if (identity.getActive() == 0)   {
-				throw new UnauthorizedException("The user has been deactivated from the system.\nPlease contact Gooru Administrator.");
+				throw new UnauthorizedException(generateErrorMessage("GL0079"));
 			}
 
 			final User user = this.getUserRepository().findByIdentity(identity);
 			if (!isSsoLogin) {
 				if (identity.getCredential() == null) {
-					throw new BadCredentialsException("Please double check your email ID and password and try again.");
+					throw new BadRequestException(generateErrorMessage("GL0080"));
 				}
 				final String encryptedPassword = userService.encryptPassword(password);
 				if (user == null || !(encryptedPassword.equals(identity.getCredential().getPassword()) || password.equals(identity.getCredential().getPassword()))) {
 
-					throw new BadCredentialsException("Please double-check your password and try signing in again.");
+					throw new BadRequestException(generateErrorMessage("GL0081"));
 				}
 
 			}
@@ -206,11 +203,11 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 				final Integer tokenCount = this.getUserRepository().getUserTokenCount(user.getGooruUId());
 				if (userDevice == null || userDevice.getOptionalValue().indexOf(MOBILE) == -1) {
 					if (-1 != Integer.parseInt(getConfigSetting(ConfigConstants.GOORU_WEB_LOGIN_WITHOUT_CONFIRMATION_LIMIT, 0, TaxonomyUtil.GOORU_ORG_UID))) {
-						throw new BadCredentialsException("We sent you a confirmation email with instructions on how to complete your Gooru registration. Please check your email, and then try again. Didn’t receive a confirmation email? Please contact us at support@goorulearning.org");
+						throw new BadRequestException(generateErrorMessage("GL0072"));
 					}
 				} else {
 					if (tokenCount >= Integer.parseInt(getConfigSetting(ConfigConstants.GOORU_IPAD_LOGIN_WITHOUT_CONFIRMATION_LIMIT, 0, TaxonomyUtil.GOORU_ORG_UID))) {
-						throw new BadCredentialsException("We sent you a confirmation email with instructions on how to complete your Gooru registration. Please check your email, and then try again. Didn’t receive a confirmation email? Please contact us at support@goorulearning.org");
+						throw new BadRequestException(generateErrorMessage("GL0072"));
 					}
 				}
 			}
@@ -341,7 +338,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 							}
 						}
 					} else {
-						throw new BadCredentialsException(generateErrorMessage(GL0043, _USER));
+						throw new BadRequestException(generateErrorMessage(GL0043, _USER));
 					}
 				}
 			}
@@ -352,7 +349,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 	@Override
 	public User userAuthentication(User newUser, String secretKey, String apiKey, String source, HttpServletRequest request) {
 		if (secretKey == null || !secretKey.equalsIgnoreCase(settingService.getConfigSetting(ConfigConstants.GOORU_AUTHENTICATION_SECERT_KEY, 0, TaxonomyUtil.GOORU_ORG_UID))) {
-			throw new UnauthorizedException("Invalid authentication request with secret key: " + secretKey);
+			throw new UnauthorizedException(generateErrorMessage("GL0082") + secretKey);
 		}
 		final Identity identity = new Identity();
 		identity.setExternalId(newUser.getEmailId());
@@ -376,7 +373,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 				boolean usernameAvailability = this.getUserRepository().checkUserAvailability(newUser.getUsername(), CheckUser.BYUSERNAME, false);
 
 				if (usernameAvailability) {
-					throw new NotFoundException("Someone already has taken " + newUser.getUsername() + "!.Please pick another username.");
+					throw new NotFoundException(generateErrorMessage("GL0084", newUser.getUsername()));
 				}
 				userIdentity = this.getUserManagementService().createUser(newUser, null, null, 1, 0, null, null, null, null, null, null, null, source, null, request, null,null);
 			} catch (Exception e) {
