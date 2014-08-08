@@ -267,6 +267,8 @@ public interface ParameterProperties {
 	String GOORU_UID = "gooruUId";
 
 	String COUNT = "count";
+	
+	String COLLECTION_COUNT = "collectionCount";
 
 	String SCORE = "score";
 	
@@ -2229,6 +2231,8 @@ public interface ParameterProperties {
 	String USER_UPDATE_USER_DENY_ROLE = "user.update_user_deny_role";
 
 	String USER_LOGIN = "user.login";
+	
+	String USER_LOG_OUT = "user.logout";
 
 	String USER_SIGN_IN = "User-Signin";
 
@@ -2239,6 +2243,8 @@ public interface ParameterProperties {
 	String CREATED_ON = "createdOn";
 
 	String LOGIN_TYPE = "loginType";
+	
+	String LOG_OUT_TYPE = "LogOutType";
 
 	String GOORU_LOG_OUT = "gooru.logout";
 

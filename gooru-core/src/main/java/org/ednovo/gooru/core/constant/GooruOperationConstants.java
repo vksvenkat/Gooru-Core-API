@@ -120,6 +120,10 @@ public class GooruOperationConstants {
 	
 	public static final String ENTITY_CASSANDRA_FIELDS = "CassandraFields";
 	
+	public static final String ENTITY_CACHE = "Cache";
+	
+	public static final String ENTITY_CUSTOM = "Custom";
+	
 	// Actions
 
 	public static final String ACTION_READ = "Read";
@@ -171,6 +175,8 @@ public class GooruOperationConstants {
 	public static final String ACTION_SIGNOUT = "SignOut";
 
 	public static final String ACTION_RESET = "Reset";
+	
+	public static final String ACTION_MOVE = "Move";
 	
 	public static final String ENTITY_USER_GROUP="UserGroup";
 
@@ -227,6 +233,16 @@ public class GooruOperationConstants {
 	public static final String OPERATION_ACTIVITY_READ = ENTITY_ACTIVITY + ENTITY_ACTION_SEPARATOR + ACTION_READ;
 
 	public static final String OPERATION_ACTIVITY_UPDATE = ENTITY_ACTIVITY + ENTITY_ACTION_SEPARATOR + ACTION_UPDATE;
+	
+	//Content
+	
+	public static final String OPERATION_CONTENT_ADD = ENTITY_CONTENT + ENTITY_ACTION_SEPARATOR + ACTION_ADD;
+	
+	public static final String OPERATION_CONTENT_READ = ENTITY_CONTENT + ENTITY_ACTION_SEPARATOR + ACTION_READ;
+	
+	public static final String OPERATION_CONTENT_UPDATE = ENTITY_CONTENT + ENTITY_ACTION_SEPARATOR + ACTION_UPDATE;
+	
+	public static final String OPERATION_CONTENT_LIST = ENTITY_CONTENT + ENTITY_ACTION_SEPARATOR + ACTION_LIST;
 
 	// Collection
 
@@ -582,7 +598,7 @@ public class GooruOperationConstants {
 
 	public static final String OPERATION_RESPONSE_FIELD_SET_LIST = ENTITY_RESPONSE_FIELD + ENTITY_ACTION_SEPARATOR + ACTION_LIST;
 	
-	//All Operaions
+	//All Operations
 	
 	public static final String OPERATION_CONTENT_UNRESTRICTED = ENTITY_CONTENT + ENTITY_ACTION_SEPARATOR + ACTION_UNRESTRICTED ;
 	
@@ -597,6 +613,10 @@ public class GooruOperationConstants {
 	
 	public static final String OPERATION_SCOLLECTION_DELETE = ENTITY_SCOLLECTION + ENTITY_ACTION_SEPARATOR + ACTION_DELETE;
 	
+	public static final String OPERATION_SCOLLECTION_COPY = ENTITY_SCOLLECTION + ENTITY_ACTION_SEPARATOR + ACTION_COPY;
+	
+	public static final String OPERATION_SCOLLECTION_MOVE = ENTITY_SCOLLECTION + ENTITY_ACTION_SEPARATOR + ACTION_MOVE;
+	
 	public static final String OPERATION_SCOLLECTION_ITEM_ADD = ENTITY_SCOLLECTION_ITEM + ENTITY_ACTION_SEPARATOR + ACTION_ADD;
 	
 	public static final String OPERATION_SCOLLECTION_ITEM_UPDATE = ENTITY_SCOLLECTION_ITEM + ENTITY_ACTION_SEPARATOR + ACTION_UPDATE;
@@ -606,12 +626,18 @@ public class GooruOperationConstants {
 	public static final String OPERATION_SCOLLECTION_ITEM_DELETE = ENTITY_SCOLLECTION_ITEM + ENTITY_ACTION_SEPARATOR + ACTION_DELETE;
 	
 	public static final String OPERATION_SCOLLECTION_ITEM_LIST = ENTITY_SCOLLECTION_ITEM + ENTITY_ACTION_SEPARATOR + ACTION_LIST;
+	
+	public static final String OPERATION_SCOLLECTION_ITEM_COPY = ENTITY_SCOLLECTION_ITEM + ENTITY_ACTION_SEPARATOR + ACTION_COPY;
 	//post
 	
 	public static final String OPERATION_POST_ADD=ENTITY_POST+ENTITY_ACTION_SEPARATOR+ACTION_ADD; 
 	public static final String OPERATION_POST_UPDATE=ENTITY_POST+ENTITY_ACTION_SEPARATOR+ACTION_UPDATE;
 	public static final String OPERATION_POST_DELETE=ENTITY_POST+ENTITY_ACTION_SEPARATOR+ACTION_DELETE;
 	public static final String OPERATION_POST_READ=ENTITY_POST+ENTITY_ACTION_SEPARATOR+ACTION_READ;
+	
+	//CustomTable
+	
+	public static final String OPERATION_CUSTOM_READ = ENTITY_CUSTOM + ENTITY_ACTION_SEPARATOR + ACTION_READ;
 	
 	// Feedback
 	
@@ -799,6 +825,10 @@ public class GooruOperationConstants {
 	//Update Cassandra Fields
 	
 	public static final String OPERATION_CASSANDRA_FIELDS_UPDATE = ENTITY_CASSANDRA_FIELDS + ENTITY_ACTION_SEPARATOR + ACTION_UPDATE;
+	
+	//Clear Cache
+	
+	public static final String OPERATION_CACHE_CLEAR = ENTITY_CACHE + ENTITY_ACTION_SEPARATOR + ACTION_DELETE;
 	
 	
 }
