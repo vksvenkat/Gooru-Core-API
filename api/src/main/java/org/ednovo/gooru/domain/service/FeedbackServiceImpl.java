@@ -25,6 +25,7 @@ package org.ednovo.gooru.domain.service;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -37,6 +38,7 @@ import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.ResourceSummary;
 import org.ednovo.gooru.core.api.model.ResourceType;
 import org.ednovo.gooru.core.api.model.User;
+import org.ednovo.gooru.core.api.model.UserSummary;
 import org.ednovo.gooru.core.application.util.BaseUtil;
 import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.constant.ConstantProperties;
@@ -396,34 +398,35 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 			Feedback contentFeedback = this.getFeedbackRepository().getContentFeedback(feedbackType.getKeyValue(), feedback.getAssocGooruOid(), feedback.getCreator().getGooruUId());
 			if (contentFeedback != null) {
 				contentFeedback.setScore(feedback.getScore());
-
 				if (feedback.getFreeText() != null) {
 					contentFeedback.setFreeText(feedback.getFreeText());
 				}
-				this.getFeedbackRepository().save(contentFeedback);
-				this.getFeedbackRepository().flush();
-				ResourceSummary resourceSummary = this.getResourceRepository().getResourceSummaryById(feedback.getAssocGooruOid());
-				Map<String, Object> summary = this.getContentFeedbackStarRating(feedback.getAssocGooruOid());
-				
-				if (resourceSummary == null) {
-					resourceSummary = new ResourceSummary();
-					resourceSummary.setResourceGooruOid(feedback.getAssocGooruOid());
-				}
-				
-				resourceSummary.setRatingStarCount((Double) summary.get(COUNT));
-				resourceSummary.setRatingStarAvg((Long) summary.get(AVERAGE));
-				if (feedback.getFreeText() != null) {
-					resourceSummary.setReviewCount((resourceSummary.getReviewCount() == null ? 0 : resourceSummary.getReviewCount()) + 1);
-					summary.put("reviewCount", resourceSummary.getReviewCount());
-				}
-				contentFeedback.setRatings(summary);
-				this.getFeedbackRepository().save(resourceSummary);
-				this.getFeedbackRepository().flush();
-				return contentFeedback;
+				feedback = contentFeedback;
 			}
+			this.getFeedbackRepository().save(feedback);
+			this.getFeedbackRepository().flush();
+			ResourceSummary resourceSummary = this.getResourceRepository().getResourceSummaryById(feedback.getAssocGooruOid());
+			Map<String, Object> summary = this.getContentFeedbackStarRating(feedback.getAssocGooruOid());
+
+			if (resourceSummary == null) {
+				resourceSummary = new ResourceSummary();
+				resourceSummary.setResourceGooruOid(feedback.getAssocGooruOid());
+			}
+
+			resourceSummary.setRatingStarCount((Double) summary.get(COUNT));
+			resourceSummary.setRatingStarAvg((Long) summary.get(AVERAGE));
+			if (feedback.getFreeText() != null) {
+				resourceSummary.setReviewCount((resourceSummary.getReviewCount() == null ? 0 : resourceSummary.getReviewCount()) + 1);
+				summary.put("reviewCount", resourceSummary.getReviewCount());
+			}
+			this.getFeedbackRepository().save(feedback);
+			this.getFeedbackRepository().save(resourceSummary);
+			this.getFeedbackRepository().flush();
+			feedback.setRatings(summary);
 		}
 		return feedback;
 	}
+
 	
 	private String getTableNameByFeedbackCategory(String category, String target) {
 		String feedbackTypeTableName = null;
