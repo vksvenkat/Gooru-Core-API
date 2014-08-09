@@ -2148,7 +2148,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				resource.setUrl(newResource.getAttach().getFilename());
 				itemData.put(URL, newResource.getAttach().getFilename());
 			}
-			if(newResource.getS3UploadFlag() > 0) {
+			if(newResource.getS3UploadFlag() >= 0) {
 				resource.setS3UploadFlag(newResource.getS3UploadFlag());
 			}
 			
