@@ -268,6 +268,8 @@ public interface ParameterProperties {
 
 	String COUNT = "count";
 	
+	String REVIEW_COUNT = "reviewCount";
+	
 	String COLLECTION_COUNT = "collectionCount";
 
 	String SCORE = "score";
