@@ -124,6 +124,18 @@ public abstract class HibernateDaoSupport extends UserGroupSupport {
 		currentSession.enableFilter("customFieldFilter").setParameterList("customFieldFilterParam", Constants.customFieldsKey);
 		return currentSession;
 	}
+	
+	public Session getSessionReadOnly() {
+
+		Session currentSession = null;
+		try {
+			currentSession = getSessionFactoryReadOnly().getCurrentSession();
+		} catch (Exception e) {
+			currentSession = getSessionFactoryReadOnly().openSession();
+		}
+		currentSession.enableFilter("customFieldFilter").setParameterList("customFieldFilterParam", Constants.customFieldsKey);
+		return currentSession;
+	}
 
 	protected Organization getCurrentUserOrganization() {
 
@@ -148,5 +160,7 @@ public abstract class HibernateDaoSupport extends UserGroupSupport {
 	}
 
 	public abstract SessionFactory getSessionFactory();
+	
+	public abstract SessionFactory getSessionFactoryReadOnly();
 
 }

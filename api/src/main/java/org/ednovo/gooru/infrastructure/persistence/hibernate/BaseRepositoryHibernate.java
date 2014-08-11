@@ -41,7 +41,15 @@ public class BaseRepositoryHibernate extends AbstractRepositoryHibernate impleme
 
 	@javax.annotation.Resource(name = "sessionFactory")
 	private SessionFactory sessionFactory;
+	
+	@javax.annotation.Resource(name = "sessionFactoryReadOnly")
+	private SessionFactory sessionFactoryReadOnly;
 
+
+	public SessionFactory getSessionFactoryReadOnly() {
+		return sessionFactoryReadOnly;
+	}
+	
 	@Autowired
 	private RevisionHistoryService revisionHistoryService;
 
@@ -83,9 +91,7 @@ public class BaseRepositoryHibernate extends AbstractRepositoryHibernate impleme
 	public void setSessionFactory(SessionFactory sessionFactory) {
 		this.sessionFactory = sessionFactory;
 	}
-
-
-	public RevisionHistoryService getRevisionHistoryService() {
+		public RevisionHistoryService getRevisionHistoryService() {
 		return revisionHistoryService;
 	}
 

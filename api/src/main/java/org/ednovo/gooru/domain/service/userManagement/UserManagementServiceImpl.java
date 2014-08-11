@@ -104,7 +104,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -121,7 +120,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	
 	@Autowired
 	private UserEventlog usereventlog;
-	
+
 	@Autowired
 	private SettingService settingService;
 
@@ -219,7 +218,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 
 		User user = this.findByGooruId(gooruUid);
 		if (user == null) {
-			throw new BadCredentialsException(generateErrorMessage(GL0056, USER));
+			throw new BadRequestException(generateErrorMessage(GL0056, USER));
 		}
 		Profile profile = this.getUserRepository().getProfile(user, false);
 
@@ -596,13 +595,13 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		if ((isNotEmptyString(childDOB)) && (isNotEmptyString(accountType)) && childDOB != null && !childDOB.equalsIgnoreCase(_NULL)) {
 			Integer age = this.calculateCurrentAge(childDOB);
 			if (age < 0) {
-				throw new BadCredentialsException(generateErrorMessage("GL0059"));
+				throw new BadRequestException(generateErrorMessage("GL0059"));
 			}
 		}
 		if ((isNotEmptyString(dateOfBirth)) && (isNotEmptyString(accountType)) && dateOfBirth != null && !dateOfBirth.equalsIgnoreCase(_NULL)) {
 			Integer age = this.calculateCurrentAge(dateOfBirth);
 			if (age < 0) {
-				throw new BadCredentialsException(generateErrorMessage("GL0059"));
+				throw new BadRequestException(generateErrorMessage("GL0059"));
 			}
 		
 		if (age < 13 && age >= 0 && (accountType.equalsIgnoreCase(UserAccountType.userAccount.NON_PARENT.getType()))) {
@@ -611,7 +610,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		}
 
 		if (!isNotEmptyString(user.getFirstName())) {
-			throw new BadCredentialsException(generateErrorMessage("GL0061", "First name"));
+			throw new BadRequestException(generateErrorMessage("GL0061", "First name"));
 		}
 
 		if (!isNotEmptyString(user.getOrganization() != null ? user.getOrganization().getOrganizationCode() : null)) {
@@ -1130,7 +1129,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		Identity identity = null;
 		if (token != null) {
 			if (this.getUserService().hasResetTokenValid(token)) {
-				throw new BadCredentialsException(TOKEN_EXPIRED);
+				throw new BadRequestException(TOKEN_EXPIRED);
 			}
 			identity = this.getUserService().findIdentityByResetToken(token);
 			if (identity.getUser().getUsername().equalsIgnoreCase(password)) {

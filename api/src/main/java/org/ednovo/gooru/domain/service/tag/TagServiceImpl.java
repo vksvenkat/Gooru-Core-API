@@ -47,6 +47,7 @@ import org.ednovo.gooru.core.api.model.UserTagAssoc;
 import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.core.exception.BadRequestException;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.domain.cassandra.service.BlackListWordCassandraService;
 import org.ednovo.gooru.domain.service.BaseServiceImpl;
@@ -61,7 +62,6 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.resource.ResourceRe
 import org.ednovo.gooru.infrastructure.persistence.hibernate.storage.StorageRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.tag.TagRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
@@ -106,7 +106,7 @@ public class TagServiceImpl extends BaseServiceImpl implements TagService, Param
 		Tag tag = this.getTagRepository().findTagByLabel(newTag.getLabel());
 		
 		if (tag != null) {
-			throw new BadCredentialsException(generateErrorMessage(GL0041, LABEL));
+			throw new BadRequestException(generateErrorMessage(GL0041, LABEL));
 		}
 		Errors errors = this.createTagValidation(newTag, tag);
 		if (!errors.hasErrors()) {
@@ -147,7 +147,7 @@ public class TagServiceImpl extends BaseServiceImpl implements TagService, Param
 				throw new EntityExistsException(generateErrorMessage(GL0041, LABEL));
 			}
 			if (newTag.getLabel().length() > 25) {
-				throw new BadCredentialsException("Label should be with in 25 character!!!");
+				throw new BadRequestException("Label should be with in 25 character!!!");
 			}
 			tag.setLabel(newTag.getLabel());
 		}
@@ -265,7 +265,7 @@ public class TagServiceImpl extends BaseServiceImpl implements TagService, Param
 		}
 		UserTagAssoc userTagAssocDb = this.tagRepository.getUserTagassocById(gooruUid, tagGooruOid);
 		if (userTagAssocDb != null) {
-			throw new BadCredentialsException("Tag already associated by same user");
+			throw new BadRequestException("Tag already associated by same user");
 		}
 		UserTagAssoc userTagAssoc = new UserTagAssoc();
 		userTagAssoc.setUser(user);
@@ -309,10 +309,10 @@ public class TagServiceImpl extends BaseServiceImpl implements TagService, Param
 		}
 		rejectIfNull(tagSynonyms.getTargetTagName(), GL0006, SYNONYM);
 		if (getTagRepository().findSynonymByName(tagSynonyms.getTargetTagName()) != null) {
-			throw new BadCredentialsException(generateErrorMessage(GL0041, SYNONYM));
+			throw new BadRequestException(generateErrorMessage(GL0041, SYNONYM));
 		}
 		if (tagSynonyms.getTargetTagName().length() > 25) {
-			throw new BadCredentialsException("Synonym must with in 25 character");
+			throw new BadRequestException("Synonym must with in 25 character");
 		}
 		tagSynonyms.setCreator(user);
 		tagSynonyms.setCreatedOn(new Date());
@@ -336,10 +336,10 @@ public class TagServiceImpl extends BaseServiceImpl implements TagService, Param
 		}
 		if (newTagSynonyms.getTargetTagName() != null) {
 			if (getTagRepository().findSynonymByName(newTagSynonyms.getTargetTagName()) != null) {
-				throw new BadCredentialsException(generateErrorMessage(GL0041, SYNONYM));
+				throw new BadRequestException(generateErrorMessage(GL0041, SYNONYM));
 			}
 			if (newTagSynonyms.getTargetTagName().length() > 25) {
-				throw new BadCredentialsException("Synonym must with in 25 character");
+				throw new BadRequestException("Synonym must with in 25 character");
 			}
 			tagSynonyms.setTargetTagName(newTagSynonyms.getTargetTagName());
 		}

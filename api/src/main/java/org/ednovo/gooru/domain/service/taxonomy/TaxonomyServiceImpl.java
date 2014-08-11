@@ -39,6 +39,7 @@ import org.ednovo.gooru.core.application.util.formatter.CodeFo;
 import org.ednovo.gooru.core.application.util.formatter.FilterSubjectFo;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.core.exception.BadRequestException;
 import org.ednovo.gooru.domain.cassandra.service.TaxonomyCassandraService;
 import org.ednovo.gooru.domain.service.redis.RedisService;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
@@ -47,7 +48,6 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.party.OrganizationR
 import org.ednovo.gooru.infrastructure.persistence.hibernate.taxonomy.TaxonomyRespository;
 import org.json.JSONException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 
 @Service("taxonomyService")
@@ -589,7 +589,7 @@ public class TaxonomyServiceImpl implements TaxonomyService, ParameterProperties
 	public Code findTaxonomyCodeById(Integer taxonomyCodeId) {
 		Code code = this.getTaxonomyRepository().findTaxonomyCodeById(taxonomyCodeId);
 		if (code == null) {
-			throw new BadCredentialsException("Invalid CodeId!!!");
+			throw new BadRequestException("Invalid CodeId!!!");
 		}
 		return code;
 	}
