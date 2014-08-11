@@ -182,6 +182,9 @@ public interface UserRepository extends BaseRepository {
 	UserSummary getSummaryByUid(String gooruUid);
 	
 	User findByRemeberMeToken(String remeberMeToken);
+	
+	public Integer getChildAccountCount(String userUId);
+	
 		
 	}
 
