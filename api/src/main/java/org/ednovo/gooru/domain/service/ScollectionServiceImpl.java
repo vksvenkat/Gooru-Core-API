@@ -594,7 +594,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				if (contentMetaAssociation == null && newMeta.getSelected()) {
 					contentMetaAssociation = new ContentMetaAssociation();
 					contentMetaAssociation.setValue(newMeta.getValue());
-					contentMetaAssociation.setAssociationType(this.getCustomTableRepository().getCustomTableValue("content_association_type", type));
+					contentMetaAssociation.setAssociationType(this.getCustomTableRepository().getCustomTableValue(CONTENT_ASSOCIATION_TYPE, type));
 					contentMetaAssociation.setUser(apiCaller);
 					contentMetaAssociation.setContent(this.getContentRepositoryHibernate().findContentByGooruId(collectionId));
 					contentMetaAssociation.setAssociatedDate(new Date(System.currentTimeMillis()));
@@ -655,7 +655,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 					}
 				}
 			} else {
-				throw new UnauthorizedException("user don't have permission ");
+				throw new UnauthorizedException(generateErrorMessage("GL0010))"));
 			}
 			
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + user.getPartyUid() + "*");
@@ -937,7 +937,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			}
 			collection.setLastModifiedUser(lastUserModifiedMap);
 			for (CollectionItem collectionItem : collection.getCollectionItems()) {
-				if (collectionItem.getResource().getResourceType().getName().equalsIgnoreCase("assessment-question")) {
+				if (collectionItem.getResource().getResourceType().getName().equalsIgnoreCase(ASSESSMENT_QUESTION)) {
 					collectionItem.getResource().setDepthOfKnowledges(this.setContentMetaAssociation(this.getContentMetaAssociation(DEPTH_OF_KNOWLEDGE), collectionItem.getResource().getGooruOid(), DEPTH_OF_KNOWLEDGE));
 				} else {
 					collectionItem.getResource().setMomentsOfLearning(this.setContentMetaAssociation(this.getContentMetaAssociation(MOMENTS_OF_LEARNING), collectionItem.getResource().getGooruOid(), MOMENTS_OF_LEARNING));
@@ -1049,7 +1049,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				if (getUserService().checkCollaboratorsPermission(collectionId, collaborator, SCOLLECTION)) {
 					return collectionUtil.updateNewCollaborators(collection, collaboratorsList, user, COLLECTION_COLLABORATE, collaboratorOperation);
 				} else {
-					throw new NotFoundException("Invalid Collaborator");
+					throw new NotFoundException(generateErrorMessage("GL0006"));
 				}
 			}
 		}
@@ -1960,7 +1960,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		String domainName = null;
 		if (collectionId != null) {
 			if (newResource.getUrl() != null && getResourceService().shortenedUrlResourceCheck(newResource.getUrl())) {
-				throw new Exception("Cannot able to upload shortened URL resource.");
+				throw new Exception(generateErrorMessage("GL0007"));
 			}
 			final Collection collection = this.getCollectionRepository().getCollectionByGooruOid(collectionId, null);
 			if (collection != null) {
@@ -1972,7 +1972,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 					}
 				}
 				if (resource != null && resource.getSharing() != null && resource.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing())) {
-					throw new AccessDeniedException("This is public resource, do  not have premission to edit this resource, edit via GAT");
+					throw new AccessDeniedException(generateErrorMessage("GL0008"));
 				}
 
 				String sharing = collection.getSharing();
@@ -2074,7 +2074,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				response.getModel().setStandards(this.getStandards(resource.getTaxonomySet(), false, null));
 
 			} else {
-				throw new NotFoundException("collection does not exist in the system, required collection to map the resource");
+				throw new NotFoundException(generateErrorMessage("GL0009"));
 			}
 			if (response.getModel().getCollection().getResourceType().getName().equalsIgnoreCase(SCOLLECTION) && response.getModel().getCollection().getClusterUid() != null &&!response.getModel().getCollection().getClusterUid().equalsIgnoreCase(response.getModel().getCollection().getGooruOid())) { 
 				response.getModel().getCollection().setClusterUid(response.getModel().getCollection().getGooruOid());
