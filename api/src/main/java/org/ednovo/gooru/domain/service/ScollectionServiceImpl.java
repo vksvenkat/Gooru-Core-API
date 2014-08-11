@@ -23,6 +23,7 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.domain.service;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -35,6 +36,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
 
+import org.apache.commons.io.FileUtils;
 import org.ednovo.gooru.application.util.AsyncExecutor;
 import org.ednovo.gooru.application.util.CollectionUtil;
 import org.ednovo.gooru.application.util.MailAsyncExecutor;
@@ -66,9 +68,11 @@ import org.ednovo.gooru.core.api.model.Textbook;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserGroupSupport;
 import org.ednovo.gooru.core.api.model.UserSummary;
+import org.ednovo.gooru.core.application.util.BaseUtil;
 import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.application.util.ResourceMetaInfo;
 import org.ednovo.gooru.core.constant.ConstantProperties;
+import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.core.exception.UnauthorizedException;
@@ -1977,6 +1981,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 				String sharing = collection.getSharing();
 				String title = newResource.getTitle().length() > 1000 ? newResource.getTitle().substring(0, 1000) : newResource.getTitle();
+				
 				if (resource == null) {
 					resource = new Resource();
 					resource.setGooruOid(UUID.randomUUID().toString());
@@ -2061,6 +2066,24 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 							LOGGER.debug(e.getMessage());
 						}
 					}
+					if (newResource.getAttach() != null && newResource.getAttach().getFilename() != null) {
+						String fileHash = null;
+						byte[] fileData = null;
+						final File mediaFile = new File(UserGroupSupport.getUserOrganizationNfsInternalPath() + "/" + Constants.UPLOADED_MEDIA_FOLDER + "/" + newResource.getAttach().getMediaFilename());
+						fileData = FileUtils.readFileToByteArray(mediaFile);
+						fileHash = BaseUtil.getByteMD5Hash(fileData);
+						if (fileHash != null) {
+							resource.setClusterUid(fileHash);
+							Resource  fileHashresource = getResourceRepository().findByFileHash(fileHash, resource.getResourceType().getName(), resource.getUrl(), null);
+							if (fileHashresource != null)  {
+								resource.setIsRepresentative(0);
+							} else { 
+								resource.setIsRepresentative(1);
+							}
+						}
+						this.getResourceRepository().save(resource);
+					}
+			
 				}
 
 				if (newResource.getAttach() != null) {
