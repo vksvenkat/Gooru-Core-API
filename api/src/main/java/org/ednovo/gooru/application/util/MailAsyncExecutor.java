@@ -131,66 +131,6 @@ public class MailAsyncExecutor {
 		});
 	}
 	
-	public void   sendMailForFollowedOnUserOrGroup(final String gooruUId) { 
-		transactionTemplate.execute(new TransactionCallback<Void>() {
-			@Override
-			public Void doInTransaction(TransactionStatus status) {
-				try {
-					getMailHandler().sendMailForFollowedOnUserOrGroup(gooruUId);
-				} catch (Exception e) {
-					logger.debug("sending mail " + e);
-				}
-				return null;
-				
-			}
-		});
-	}
-	
-	public void   sendMailForUnFollowUserOrGroup(final String gooruUId) { 
-		transactionTemplate.execute(new TransactionCallback<Void>() {
-			@Override
-			public Void doInTransaction(TransactionStatus status) {
-				try {
-					getMailHandler().sendMailForUnFollowUserOrGroup(gooruUId);
-				} catch (Exception e) {
-					logger.debug("sending mail " + e);
-				}
-				return null;
-				
-			}
-		});
-	}
-	
-	public void   sendMailToRequestPublisher(final Map<String, Object> model) { 
-		transactionTemplate.execute(new TransactionCallback<Void>() {
-			@Override
-			public Void doInTransaction(TransactionStatus status) {
-				try {
-					getMailHandler().sendMailToRequestPublisher(model);
-				} catch (Exception e) {
-					logger.debug("sending mail " + e);
-				}
-				return null;
-				
-			}
-		});
-	}
-	
-	public void   sendMailForCollaborator(final String gooruUId, final String senderUserName, final String gooruOid, final String collectionOrQuizTitle, final String flag) { 
-		transactionTemplate.execute(new TransactionCallback<Void>() {
-			@Override
-			public Void doInTransaction(TransactionStatus status) {
-				try {
-					getMailHandler().sendMailForCollaborator(gooruUId, senderUserName, gooruOid, collectionOrQuizTitle, flag);
-				} catch (Exception e) {
-					logger.debug("sending mail " + e);
-				}
-				return null;
-				
-			}
-		});
-	}
-	
 	public void  sendEmailNotificationforComment(final Map<String, String> commentData) { 
 		transactionTemplate.execute(new TransactionCallback<Void>() {
 			@Override

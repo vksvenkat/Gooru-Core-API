@@ -76,7 +76,7 @@ public class PartyRestV2Controller extends BaseController implements ParameterPr
 		return toModelAndViewWithIoFilter(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, includes);
 	}
 
-	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_PARTY_CUSTOM_FIELD_UPDATE })
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_PARTY_CUSTOM_FIELD_ADD })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.POST, value = "/default/{id}/custom-field")
 	public ModelAndView createDefaultPartyCustomField(@RequestParam(value = TYPE, required = true, defaultValue = USER_TYPE) String type, @PathVariable(value = ID) String partyId, HttpServletRequest request, HttpServletResponse response) throws Exception {
