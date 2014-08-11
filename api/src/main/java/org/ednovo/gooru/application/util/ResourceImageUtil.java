@@ -430,6 +430,7 @@ public class ResourceImageUtil extends UserGroupSupport implements ParameterProp
 
 	public void moveAttachment(Resource newResource, Resource resource) {
 		try {
+			
 			File parentFolderFile = new File(UserGroupSupport.getUserOrganizationNfsInternalPath() + resource.getFolder());
 			if (!parentFolderFile.exists()) {
 				parentFolderFile.mkdirs();
