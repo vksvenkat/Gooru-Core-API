@@ -73,7 +73,6 @@ import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
@@ -334,7 +333,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 								final ApiKey userApiKey = apiTrackerService.findApiKeyByOrganization(user.getOrganization().getPartyUid());
 								userToken = this.createSessionToken(user, userApiKey.getKey(), request);
 							} else {
-								throw new BadCredentialsException(generateErrorMessage(GL0042, _USER));
+								throw new BadRequestException(generateErrorMessage(GL0042, _USER));
 							}
 						}
 					} else {
