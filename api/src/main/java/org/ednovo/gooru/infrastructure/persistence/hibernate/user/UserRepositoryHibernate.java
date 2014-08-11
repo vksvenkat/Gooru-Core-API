@@ -784,8 +784,8 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 		return query.list().size() > 0 ? (UserSummary) query.list().get(0) : new UserSummary();
 	}
 
-	public Integer getChildAccountCount(String user_uid) {
-		String sql = "select count(1) from user where parent_uid='" + user_uid + "' ";
+	public Integer getChildAccountCount(String userUId) {
+		String sql = "select count(1) from user where parent_uid='" + userUId + "' ";
 		List<BigInteger> results = getSession().createSQLQuery(sql).list();
 		if (results != null && results.get(0) != null) {
 			return (results.get(0).intValue());

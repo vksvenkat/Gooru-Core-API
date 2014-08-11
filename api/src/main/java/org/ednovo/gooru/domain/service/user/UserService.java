@@ -193,6 +193,6 @@ public interface UserService {
 	 
 	 public void getEventLogs(Identity identity, UserToken userToken) throws JSONException;
 	 
-	 public Integer getChildAccountCount(String user_uid);
+	 public Integer getChildAccountCount(String userUId);
 	 
 }

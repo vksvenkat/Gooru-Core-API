@@ -2225,8 +2225,8 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 		return collaboratorService;
 	}
 	
-	public Integer getChildAccountCount(String user_uid){
-		return userRepository.getChildAccountCount(user_uid);
+	public Integer getChildAccountCount(String userUId){
+		return userRepository.getChildAccountCount(userUId);
 	}
 
 }

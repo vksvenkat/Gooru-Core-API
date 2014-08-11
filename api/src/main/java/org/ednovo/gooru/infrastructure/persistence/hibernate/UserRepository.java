@@ -183,7 +183,7 @@ public interface UserRepository extends BaseRepository {
 	
 	User findByRemeberMeToken(String remeberMeToken);
 	
-	public Integer getChildAccountCount(String user_uid);
+	public Integer getChildAccountCount(String userUId);
 	
 		
 	}
