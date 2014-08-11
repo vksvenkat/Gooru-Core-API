@@ -107,6 +107,11 @@ public class UserCio implements IsEntityCassandraIndexable {
 	@Column 
 	private Short active;
 	
+	@Column 
+	private String parentAccountUserName;
+	
+	@Column 
+	private Integer childAccountCount;
 	
 
 	public Short getActive() {
@@ -341,6 +346,22 @@ public class UserCio implements IsEntityCassandraIndexable {
 
 	public void setMetaJson(String metaJson) {
 		this.metaJson = metaJson;
+	}
+	
+	public String getParentAccountUserName() {
+		return parentAccountUserName;
+	}
+
+	public void setParentAccountUserName(String parentAccountUserName) {
+		this.parentAccountUserName = parentAccountUserName;
+	}
+
+	public Integer getChildAccountCount() {
+		return childAccountCount;
+	}
+
+	public void setChildAccountCount(Integer childAccountCount) {
+		this.childAccountCount = childAccountCount;
 	}
 
 }
