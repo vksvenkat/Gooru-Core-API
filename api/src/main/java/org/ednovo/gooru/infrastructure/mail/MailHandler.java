@@ -32,7 +32,6 @@ import java.util.Properties;
 
 import javax.annotation.Resource;
 
-import org.apache.velocity.app.VelocityEngine;
 import org.ednovo.gooru.application.util.TaxonomyUtil;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
@@ -66,7 +65,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.ui.velocity.VelocityEngineUtils;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
@@ -87,9 +85,6 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 	private LearnguideRepositoryHibernate learnGuideRepositoryHibernate;
 
 	public static Logger logger = LoggerFactory.getLogger(MailHandler.class);
-
-	@Autowired
-	private VelocityEngine velocityEngine;
 
 	@Autowired
 	private EventService eventService;
@@ -117,14 +112,6 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 	public static final String FROM_GOORU = "Gooru";
 
 	private static final String PASSWORD_CONFIRM_SUBJECT = "Gooru Password Change Confirmation";
-
-	private static final String REGISTRATION = "Your Gooru account is confirmed!";
-
-	private static final String COLLABORATOR_GREETING = "You've been added as a Collaborator!";
-
-	private static final String FOLLOWER_GREETING = "You've a follower in Gooru!";
-
-	private static final String UNFOLLOWER_GREETING = "You've lose a follower in Gooru!";
 
 	public static final String REQUEST_PUBLISHER_SUBJECT = " user collection publish request on Gooru";
 
@@ -336,81 +323,6 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 		sendMailViaRestApi(model);
 	}
 
-	public void sendMailToConfirmBulkUser(String gooruUid, String password, String accountType, String tokenId, String encodedDateOfBirth) throws Exception {
-
-		final String serverpath = this.getServerConstants().getProperty("serverPath");
-		final Identity identity = this.getUserRepositoryHibernate().findUserByGooruId(gooruUid);
-
-		String userEmailId = identity.getExternalId();
-
-		String mailToConfirmType = "bulkUserConfirmHtml.vm";
-		String mailToConfirmTypeText = "bulkUserConfirmText.vm";
-		Boolean parentExistingFlag = false;
-		String userAccountType = "NonParent";
-
-		if (encodedDateOfBirth == null) {
-			encodedDateOfBirth = "MTIzNDU2Nzg5"; // encoded data for '123456789'
-		} else {
-			encodedDateOfBirth = encodedDateOfBirth.replaceAll("/", "d");
-		}
-
-		Map<String, Object> map = new HashMap<String, Object>();
-		Map<String, Object> model = new HashMap<String, Object>();
-		model.put("serverpath", serverpath);
-		model.put("firstName", identity.getFirstName());
-		model.put("userId", identity.getUser().getGooruUId());
-		model.put("sessionId", tokenId);
-		model.put("registerToken", identity.getUser().getRegisterToken());
-		model.put("gooruUserName", identity.getUser().getUsername());
-		model.put("gooruUserPassword", password);
-		if (identity.getCredential() != null && identity.getCredential().getToken() != null) {
-			model.put("resetToken", identity.getCredential().getToken());
-		}
-		model.put("encodedDateOfBirth", encodedDateOfBirth);
-		model.put("parentExistingFlag", parentExistingFlag);
-		model.put("userAccountType", userAccountType);
-
-		String htmlResource = "";
-		String resource = "";
-		if (password != null && !password.equalsIgnoreCase("")) {
-			htmlResource = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, mailToConfirmType, model);
-			resource = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, mailToConfirmTypeText, model);
-		} else {
-			htmlResource = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, mailToConfirmType, model);
-			resource = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, mailToConfirmTypeText, model);
-		}
-		String organizationUid = identity.getUser().getOrganization().getPartyUid();
-		map.put("htmlContent", htmlResource);
-		map.put("content", resource);
-		map.put("recipient", userEmailId);
-		map.put("from", getConfigSetting(ConfigConstants.MAIL_FROM, organizationUid));
-		map.put("bcc", getConfigSetting(ConfigConstants.MAIL_BCC_SUPPORT, organizationUid));
-		map.put("fromName", FROM);
-		map.put("subject", REGISTRATION);
-
-		logger.warn("Sending Registration confirmation for email " + userEmailId);
-
-		sendMailViaRestApi(map);
-	}
-
-	public void sendMailToRequestPublisher(Map<String, Object> model) throws Exception {
-		Map<String, Object> map = new HashMap<String, Object>();
-		User user = (User) model.get("user");
-		String organizationUid = user.getOrganization().getPartyUid();
-		String username = user.getFirstName() + " " + user.getLastName();
-
-		String htmlContent = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, "requestToPublisher.vm", model);
-		String content = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, "requestToPublisherText.vm", model);
-		map.put("htmlContent", htmlContent);
-		map.put("content", content);
-		map.put("recipient", getConfigSetting(ConfigConstants.PUBLISHER, organizationUid));
-		map.put("from", getConfigSetting(ConfigConstants.MAIL_FROM, organizationUid));
-		map.put("bcc", getConfigSetting(ConfigConstants.MAIL_BCC_SUPPORT, organizationUid));
-		map.put("fromName", FROM);
-		map.put("subject", username + REQUEST_PUBLISHER_SUBJECT);
-		sendMailViaRestApi(map);
-	}
-
 	public void sendCSVImportInfoMail(String htmlContent, String organizationUid) throws Exception {
 
 		Map<String, Object> map = new HashMap<String, Object>();
@@ -422,108 +334,6 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 		map.put("fromName", FROM);
 		map.put("subject", S3_CSV_RESOURCE_IMPORT);
 		sendMailViaRestApi(map);
-	}
-
-	public void sendMailForCollaborator(String gooruUId, String senderUserName, String gooruOid, String collectionOrQuizTitle, String flag) throws Exception {
-		final String serverpath = this.getServerConstants().getProperty("serverPath");
-		final Identity identity = this.getUserRepositoryHibernate().findUserByGooruId(gooruUId);
-		String userEmailId = identity.getExternalId();
-		String collaboratorMailHtml = "collaboratorMailHtml.vm";
-		String collaboratorMailText = "collaboratorMailText.vm";
-		Map<String, Object> map = new HashMap<String, Object>();
-		Map<String, Object> model = new HashMap<String, Object>();
-		model.put("serverpath", serverpath);
-		model.put("gooruUserName", identity.getUser().getUsername());
-		model.put("collectionOrQuizTitle", collectionOrQuizTitle);
-		model.put("collectionOrQuizId", gooruOid);
-		model.put("Owner-Username", senderUserName);
-		model.put("flag", flag);
-		if (identity.getCredential() != null && identity.getCredential().getToken() != null) {
-			model.put("resetToken", identity.getCredential().getToken());
-		}
-		String htmlResource = "";
-		String resource = "";
-		htmlResource = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, collaboratorMailHtml, model);
-		resource = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, collaboratorMailText, model);
-		String organizationUid = identity.getUser().getOrganization().getPartyUid();
-		map.put("htmlContent", htmlResource);
-		map.put("content", resource);
-		map.put("recipient", userEmailId);
-		map.put("username", getConfigSetting(ConfigConstants.MAIL_USERNAME, organizationUid));
-		map.put("from", getConfigSetting(ConfigConstants.MAIL_FROM, organizationUid));
-		map.put("password", getConfigSetting(ConfigConstants.MAIL_PASSWORD, organizationUid));
-		map.put("host", getConfigSetting(ConfigConstants.MAIL_SMTP_HOST, organizationUid));
-		map.put("port", getConfigSetting(ConfigConstants.MAIL_SMTP_PORT, organizationUid));
-		map.put("bcc", getConfigSetting(ConfigConstants.MAIL_BCC_SUPPORT, organizationUid));
-		map.put("fromName", FROM);
-		map.put("subject", COLLABORATOR_GREETING);
-		logger.warn("Sending Collaborator Greeting from email " + userEmailId);
-
-		sendMailViaRestApi(map);
-
-	}
-
-	public void sendMailForFollowedOnUserOrGroup(String gooruUId) throws Exception {
-		final String serverpath = this.getServerConstants().getProperty("serverPath");
-		final Identity identity = this.getUserRepositoryHibernate().findUserByGooruId(gooruUId);
-		String userEmailId = identity.getExternalId();
-		String followOnUserOrGroup = "followOnUserOrGroupHtml.vm";
-		String followOnUserOrGroupMailHtmlText = "followOnUserOrGroupText.vm";
-		Map<String, Object> map = new HashMap<String, Object>();
-		Map<String, Object> model = new HashMap<String, Object>();
-		model.put("serverpath", serverpath);
-		if (identity.getCredential() != null && identity.getCredential().getToken() != null) {
-			model.put("resetToken", identity.getCredential().getToken());
-		}
-
-		String htmlResource = "";
-		String resource = "";
-		htmlResource = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, followOnUserOrGroup, model);
-		resource = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, followOnUserOrGroupMailHtmlText, model);
-		String organizationUid = identity.getUser().getOrganization().getPartyUid();
-		map.put("htmlContent", htmlResource);
-		map.put("content", resource);
-		map.put("recipient", userEmailId);
-		map.put("from", getConfigSetting(ConfigConstants.MAIL_FROM, organizationUid));
-		map.put("bcc", getConfigSetting(ConfigConstants.MAIL_BCC_SUPPORT, organizationUid));
-		map.put("fromName", FROM);
-		map.put("subject", FOLLOWER_GREETING);
-
-		logger.warn("Sending FollowedOnUserOrGroup Greeting from email " + userEmailId);
-
-		sendMailViaRestApi(map);
-
-	}
-
-	public void sendMailForUnFollowUserOrGroup(String gooruUId) throws Exception {
-		final String serverpath = this.getServerConstants().getProperty("serverPath");
-		final Identity identity = this.getUserRepositoryHibernate().findUserByGooruId(gooruUId);
-		String userEmailId = identity.getExternalId();
-		String followOnUserOrGroupMailHtml = "followOnUserOrGroupHtml.vm";
-		String followOnUserOrGroupMailHtmlText = "followOnUserOrGroupText.vm";
-		Map<String, Object> map = new HashMap<String, Object>();
-		Map<String, Object> model = new HashMap<String, Object>();
-		model.put("serverpath", serverpath);
-		if (identity.getCredential() != null && identity.getCredential().getToken() != null) {
-			model.put("resetToken", identity.getCredential().getToken());
-		}
-		String htmlResource = "";
-		String resource = "";
-		htmlResource = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, followOnUserOrGroupMailHtml, model);
-		resource = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, followOnUserOrGroupMailHtmlText, model);
-		String organizationUid = identity.getUser().getOrganization().getPartyUid();
-		map.put("htmlContent", htmlResource);
-		map.put("content", resource);
-		map.put("recipient", userEmailId);
-		map.put("from", getConfigSetting(ConfigConstants.MAIL_FROM, organizationUid));
-		map.put("bcc", getConfigSetting(ConfigConstants.MAIL_BCC_SUPPORT, organizationUid));
-		map.put("fromName", FROM);
-		map.put("subject", UNFOLLOWER_GREETING);
-
-		logger.warn("Sending FollowedOnUserOrGroup Greeting from email " + userEmailId);
-
-		sendMailViaRestApi(map);
-
 	}
 
 	public void shareMailForContent(String toAddress, String fromAddress, String gooruUId, String subject, String message, String cfm, List<Map<String, String>> attachments, String fromDisplayName) throws Exception {
