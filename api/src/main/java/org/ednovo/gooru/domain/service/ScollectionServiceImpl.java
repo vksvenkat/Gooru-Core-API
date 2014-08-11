@@ -2066,23 +2066,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 							LOGGER.debug(e.getMessage());
 						}
 					}
-					if (newResource.getAttach() != null && newResource.getAttach().getFilename() != null) {
-						String fileHash = null;
-						byte[] fileData = null;
-						final File mediaFile = new File(UserGroupSupport.getUserOrganizationNfsInternalPath() + "/" + Constants.UPLOADED_MEDIA_FOLDER + "/" + newResource.getAttach().getMediaFilename());
-						fileData = FileUtils.readFileToByteArray(mediaFile);
-						fileHash = BaseUtil.getByteMD5Hash(fileData);
-						if (fileHash != null) {
-							resource.setClusterUid(fileHash);
-							Resource  fileHashresource = getResourceRepository().findByFileHash(fileHash, resource.getResourceType().getName(), resource.getUrl(), null);
-							if (fileHashresource != null)  {
-								resource.setIsRepresentative(0);
-							} else { 
-								resource.setIsRepresentative(1);
-							}
-						}
-						this.getResourceRepository().save(resource);
-					}
 			
 				}
 
