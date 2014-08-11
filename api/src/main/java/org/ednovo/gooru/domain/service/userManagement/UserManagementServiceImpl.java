@@ -327,7 +327,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 							boolean emailAvailability = this.getUserRepository().checkUserAvailability(newProfile.getUser().getEmailId(), CheckUser.BYEMAILID, false);
 
 							if (emailAvailability) {
-								throw new BadCredentialsException(generateErrorMessage(GL0058)+ newProfile.getUser().getEmailId() + "!.Please pick another email.");
+								throw new BadRequestException(generateErrorMessage("GL0058", newProfile.getUser().getEmailId()));
 							}
 							if (emailConfirmStatus || (isContentAdmin(apiCaller) && !apiCaller.getPartyUid().equals(gooruUid))) {
 
@@ -497,7 +497,10 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 
 			confirmStatus = 1;
 		}
-		List<InviteUser> inviteuser = this.getInviteRepository().getInviteUserByMail(newUser.getEmailId(), COLLABORATOR);
+		List<InviteUser> inviteuser = null;
+		if (accountType != null && !accountType.equalsIgnoreCase(UserAccountType.userAccount.CHILD.getType())) {
+			inviteuser = this.getInviteRepository().getInviteUserByMail(newUser.getEmailId(), COLLABORATOR);
+		}
 
 		user = createUser(newUser, password, school, confirmStatus, addedBySystem, null, accountType, dateOfBirth, userParentId, gender, childDOB, null, request, role, mailConfirmationUrl);
 		ApiKey apiKey = this.getApiTrackerService().findApiKeyByOrganization(user.getOrganization().getPartyUid());
@@ -509,7 +512,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			}
 		}
 
-		if (user != null && sendConfirmationMail && inviteuser.size() <= 0) {
+		if (user != null && sendConfirmationMail && inviteuser == null) {
 			if (isAdminCreateUser) {
 		        	this.getMailHandler().sendMailToConfirm(user.getGooruUId(), password, accountType, userToken.getToken(), null, gooruBaseUrl, mailConfirmationUrl, null, null);
 			} else {
@@ -640,7 +643,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		boolean usernameAvailability = this.getUserRepository().checkUserAvailability(user.getUsername(), CheckUser.BYUSERNAME, false);
 
 		if (usernameAvailability) {
-			throw new NotFoundException(generateErrorMessage("GL0058") + user.getUsername() + "!.Please pick another username.");
+			throw new NotFoundException(generateErrorMessage("GL0084", user.getUsername()));
 		}
 
 		boolean emailidAvailability = this.getUserRepository().checkUserAvailability(user.getEmailId(), CheckUser.BYEMAILID, false);
@@ -742,8 +745,11 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	@Override
 	public User createUser(User newUser, String password, String school, Integer confirmStatus, Integer addedBySystem, String userImportCode, String accountType, String dateOfBirth, String userParentId, String remoteEntityId, String gender, String childDOB, String source, String emailSSO,
 			HttpServletRequest request, String role, String mailConfirmationUrl) throws Exception {
-		List<InviteUser> inviteuser = this.getInviteRepository().getInviteUserByMail(newUser.getEmailId(), COLLABORATOR);
-		if (inviteuser.size() > 0) {
+		List<InviteUser> inviteuser = null;
+		if (accountType != null && !accountType.equalsIgnoreCase(UserAccountType.userAccount.CHILD.getType())) {
+		 inviteuser = this.getInviteRepository().getInviteUserByMail(newUser.getEmailId(), COLLABORATOR);
+		}
+		if (inviteuser !=null && inviteuser.size() > 0) {
 			confirmStatus = 1;
 		}
 		if (confirmStatus == null) {
@@ -950,7 +956,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		identity.setCredential(credential);
 		this.getUserRepository().save(identity);
 
-		if (inviteuser.size() > 0) {
+		if (inviteuser != null && inviteuser.size() > 0 ) {
 			this.getCollaboratorService().updateCollaboratorStatus(newUser.getEmailId());
 		}
 

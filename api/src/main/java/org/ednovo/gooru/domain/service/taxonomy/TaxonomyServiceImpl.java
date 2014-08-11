@@ -693,7 +693,7 @@ public class TaxonomyServiceImpl implements TaxonomyService, ParameterProperties
 
 	private List<Map<String, Object>> levelThree(String codeId) {
 		Code code = this.getTaxonomyRepository().findCodeByCodeId(Integer.valueOf(codeId));
-		Code curriculum = this.getTaxonomyRepository().findCodeByCodeId(code.getCodeId());
+		Code curriculum = this.getTaxonomyRepository().findCodeByCodeId(code.getRootNodeId());
 		List<Map<String, Object>> levelFourMapCodes = new ArrayList<Map<String, Object>>();
 		List<Code> levelFourCodes = this.getTaxonomyRepository().findChildTaxonomy(codeId, 4);
 		for (Code levelFourCode : levelFourCodes) {

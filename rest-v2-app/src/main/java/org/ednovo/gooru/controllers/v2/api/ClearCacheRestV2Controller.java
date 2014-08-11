@@ -29,6 +29,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.ednovo.gooru.controllers.BaseController;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.constant.ConstantProperties;
+import org.ednovo.gooru.core.constant.GooruOperationConstants;
+import org.ednovo.gooru.core.security.AuthorizeOperations;
 import org.ednovo.gooru.domain.service.redis.RedisService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -45,7 +47,8 @@ public class ClearCacheRestV2Controller extends BaseController implements Consta
 
 	@Autowired
 	private RedisService redisService;
-
+    
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CACHE_CLEAR })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/{entity}", method = { RequestMethod.DELETE })
 	public void clearCache(@PathVariable(value = ENTITY) String entity, @RequestParam(value = KEY, required = false, defaultValue = "*library-*") String key, HttpServletRequest request, HttpServletResponse response) throws Exception {

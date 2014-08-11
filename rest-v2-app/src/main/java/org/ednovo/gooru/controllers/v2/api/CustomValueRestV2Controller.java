@@ -48,7 +48,7 @@ public class CustomValueRestV2Controller  extends BaseController implements Para
 	@Autowired
 	private CustomValueService customValueService;
 	
-	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_POST_READ })
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CUSTOM_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/{type}")
 	public ModelAndView getCustom(HttpServletRequest request , @PathVariable(value = TYPE) String type,  HttpServletResponse response) throws Exception {

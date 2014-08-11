@@ -51,6 +51,7 @@ import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserContentAssoc;
 import org.ednovo.gooru.core.api.model.UserSummary;
 import org.ednovo.gooru.core.application.util.BaseUtil;
+import org.ednovo.gooru.core.exception.BadRequestException;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.domain.service.eventlogs.CollectionEventLog;
 import org.ednovo.gooru.domain.service.redis.RedisService;
@@ -64,7 +65,6 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.taxonomy.TaxonomyRe
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
@@ -178,7 +178,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 			}
 
 		} else {
-			throw new NotFoundException("Question Not Found");
+			throw new NotFoundException(generateErrorMessage("GL0056", "Qusetion"));
 		}
 		try {
 			this.collectionEventLog.getEventLogs(collectionItem, itemData, user);
@@ -661,7 +661,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 							collectionIds.append(",");
 						}
 					} else {
-						throw new BadCredentialsException("You do not have the permission");
+						throw new BadRequestException(generateErrorMessage("GL0089"));
 					}
 				}
 
@@ -710,7 +710,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 						}
 						updateResourceSharing(ANYONE_WITH_LINK, scollection);
 					} else {
-						throw new BadCredentialsException("Please try again later");
+						throw new BadRequestException(generateErrorMessage("GL0091"));
 
 					}
 				}
@@ -738,6 +738,9 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				content = new HashMap<String, Object>();
 				content.put(SEARCH_RESULT, getFolderItems(gooruOid, limit, offset, sharing, collectionType, orderBy, itemLimit, fetchChildItem));
 				content.put(COUNT, this.getCollectionRepository().getCollectionItemCount(gooruOid, sharing, collectionType));
+				if(!fetchChildItem && (collectionType == null || (collectionType != null && collectionType.equalsIgnoreCase(COLLECTION) || collectionType.equalsIgnoreCase(SCOLLECTION) ))){
+					content.put(COLLECTION_COUNT, this.getCollectionRepository().getCollectionItemCount(gooruOid, sharing, collectionType != null ? collectionType : COLLECTION ));
+				}
 				data = SerializerUtil.serializeToJson(content, true);
 				if (user != null && user.getUsername().equalsIgnoreCase(SAUSD)) { 
 					redisService.putValue(cacheKey, data);
