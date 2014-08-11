@@ -33,6 +33,8 @@ import org.ednovo.gooru.controllers.BaseController;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.Constants;
+import org.ednovo.gooru.core.constant.GooruOperationConstants;
+import org.ednovo.gooru.core.security.AuthorizeOperations;
 import org.ednovo.gooru.domain.service.InviteService;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,6 +56,7 @@ public class InviteUserRestV2Controller extends BaseController implements Consta
 	@Autowired
 	private InviteService inviteService;
 	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_INVITE_CODE_ADD })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/class/{id}" }, method = RequestMethod.POST)
 	public ModelAndView inviteUserForClass(@PathVariable(ID) String gooruOid, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {

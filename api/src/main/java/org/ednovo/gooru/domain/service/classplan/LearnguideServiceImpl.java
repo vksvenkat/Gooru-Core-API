@@ -274,48 +274,6 @@ public class LearnguideServiceImpl extends OperationAuthorizer implements Learng
 		return responseJSON;
 	}
 
-	@Override
-	public JSONObject sendRequestForPublishCollection(User user, String contentGooruOid, String message, HttpServletRequest request) throws Exception {
-		JSONObject responseJSON = new JSONObject();
-		Learnguide collection = this.getLearnguideRepository().findByContent(contentGooruOid);
-		if (collection != null) {
-			this.resetRequestPending(user, contentGooruOid, 1);
-			Profile profile = this.getUserRepository().getProfile(user, false);
-			Iterator<Identity> iter = user.getIdentities().iterator();
-			String emailId = iter.next().getExternalId();
-			Map<String, Object> model = new HashMap<String, Object>();
-			model.put(COLLECTION, collection);
-			model.put(PROFILE, profile);
-			model.put(USER, user);
-			model.put(REQUEST, request);
-			model.put(EMAIL_ID, emailId);
-			model.put(MESSAGE, message);
-			if (collection.getLesson().startsWith(COPY)) {
-				model.put(COLLECTION_COPY_TEXT, "'Copy' is  in the title");
-			} else {
-				model.put(COLLECTION_COPY_TEXT, "'Copy' is not  in the title");
-			}
-			Map<String, String> filters = new HashMap<String, String>();
-			filters.put(GOORU_COLLECTION_ID, contentGooruOid);
-			List<Segment> collectionSegments = this.getLearnguideRepository().listCollectionSegments(filters);
-			List<ResourceInstance> resourceInstances = this.getLearnguideRepository().listCollectionResourceInstance(filters);
-
-			if (collectionSegments != null && collectionSegments.size() >= 1 && resourceInstances != null && resourceInstances.size() >= 5) {
-				model.put(MIN_REQ_SATISFY, YES);
-			} else {
-				model.put(MIN_REQ_SATISFY, NO);
-			}
-			filters.put(SHARING, PRIVATE);
-			List<ResourceInstance> privateResourceInstances = this.getLearnguideRepository().listCollectionResourceInstance(filters);
-			model.put(PVT_RES_LIST, privateResourceInstances);
-
-			this.getMailAsyncExecutor().sendMailToRequestPublisher(model);
-			responseJSON.put(STATUS, STATUS_200).put(MESSAGE, "Your request sent successfully");
-		} else {
-			responseJSON.put(STATUS, STATUS_404).put(MESSAGE, "collection dosen't exist");
-		}
-		return responseJSON;
-	}
 
 	@Override
 	public JSONObject publishCollection(String action, User user, String contentGooruOid) throws Exception {
