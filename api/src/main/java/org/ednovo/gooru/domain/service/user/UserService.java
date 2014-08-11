@@ -189,4 +189,7 @@ public interface UserService {
 	 Boolean isSuperAdmin(User user);
 	 
 	 public void getEventLogs(Identity identity, UserToken userToken) throws JSONException;
+	 
+	 public Integer getChildAccountCount(String userUId);
+	 
 }
