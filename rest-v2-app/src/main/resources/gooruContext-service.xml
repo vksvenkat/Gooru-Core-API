@@ -52,7 +52,7 @@
 		<constructor-arg index="2" value="${insights.kafa.topic}" />
 	</bean>
 	<jee:jndi-lookup id="jndiDataSource" jndi-name="java:comp/env/jdbc/gooruapi" />
-	<jee:jndi-lookup id="jndiDataSourceReadOnly" jndi-name="java:comp/env/jdbc/gooruapi_ReadOnly" />
+	<jee:jndi-lookup id="jndiDataSourceReadOnly" jndi-name="java:comp/env/jdbc/gooruapiReadOnly" />
 
 	<bean id="procedureExecutor"
 		class="org.ednovo.gooru.infrastructure.persistence.hibernate.taxonomy.TaxonomyStoredProcedure">
