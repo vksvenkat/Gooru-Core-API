@@ -233,6 +233,8 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 		return toModelAndViewWithIoFilter(getCollectionService().setCollectionItemMetaInfo(collectionItems, null), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 
 	}
+	
+	
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ITEM_DELETE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
