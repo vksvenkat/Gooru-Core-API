@@ -164,7 +164,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		if (gooruUid != null) {
 			hql += " collection.user.partyUid='" + gooruUid + "' and ";
 		}
-		Query query = getSessionReadOnly().createQuery(hql + generateOrgAuthQuery("collection."));
+		Query query = getSession().createQuery(hql + generateOrgAuthQuery("collection."));
 		query.setParameter(GOORU_OID, gooruOid);
 		addOrgAuthParameters(query);
 		return (query.list().size() > 0) ? (Collection) query.list().get(0) : null;

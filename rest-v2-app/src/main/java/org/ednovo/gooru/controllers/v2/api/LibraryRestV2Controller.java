@@ -61,7 +61,8 @@ public class LibraryRestV2Controller extends BaseController implements ConstantP
     @Autowired
     private RedisService redisService;
 
-    @AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAXONOMY_READ })
+    @AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_LIBRARY_READ })
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @RequestMapping(value = "/{type}", method = RequestMethod.GET)
     public ModelAndView getLibrary(@PathVariable(value = TYPE) String type, @RequestParam(value = CLEAR_CACHE, required = false, defaultValue = FALSE) boolean clearCache, @RequestParam(value = LIBRARY_NAME, required = false, defaultValue = LIBRARY) String libraryName, HttpServletRequest request,
             HttpServletResponse response) {
@@ -82,7 +83,8 @@ public class LibraryRestV2Controller extends BaseController implements ConstantP
         return toModelAndView(data);
     }
     
-    @AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAXONOMY_READ })
+    @AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_LIBRARY_READ })
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @RequestMapping(value = "/{type}/item", method = RequestMethod.GET)
     public ModelAndView getLibraryItem(@PathVariable(value = TYPE) String type, @RequestParam(value = CLEAR_CACHE, required = false, defaultValue = FALSE) boolean clearCache, @RequestParam(value = LIBRARY_NAME, required = false, defaultValue = LIBRARY) String libraryName, HttpServletRequest request,
             HttpServletResponse response) {
@@ -103,7 +105,8 @@ public class LibraryRestV2Controller extends BaseController implements ConstantP
         return toModelAndView(data);
     }
     
-    @AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAXONOMY_READ })
+    @AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_LIBRARY_READ })
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @RequestMapping(value = "/{type}/item/{itemType}/{id}", method = RequestMethod.GET)
     public ModelAndView getLibraryItems(@PathVariable(value = TYPE) String type, @PathVariable(value = ITEM_TYPE) String itemType, @PathVariable(value = ID) String id, @RequestParam(value = CLEAR_CACHE, required = false, defaultValue = FALSE) boolean clearCache, @RequestParam(value = LIBRARY_NAME, required = false, defaultValue = LIBRARY) String libraryName, 
             @RequestParam(value = ROOT_NODE_ID, required = false, defaultValue = "20000") String rootNodeId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "5") Integer limit, HttpServletRequest request,
@@ -125,7 +128,8 @@ public class LibraryRestV2Controller extends BaseController implements ConstantP
         return toModelAndView(data);
     }
 
-    @AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAXONOMY_READ })
+    @AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_LIBRARY_READ })
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @RequestMapping(value = "/{type}/{topicId}", method = RequestMethod.GET)
     public ModelAndView getLibraryTopic(@PathVariable(value = TYPE) String type, @PathVariable(value = TOPIC_ID) String topicId, @RequestParam(value = CLEAR_CACHE, required = false, defaultValue = FALSE) boolean clearCache,
             @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "5") Integer limit, @RequestParam(value = LIBRARY_NAME, required = false, defaultValue = LIBRARY) String libraryName,
@@ -147,7 +151,8 @@ public class LibraryRestV2Controller extends BaseController implements ConstantP
         return toModelAndView(data);
     }
 
-    @AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAXONOMY_READ })
+    @AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_LIBRARY_READ })
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @RequestMapping(value = "/{type}/unit/{id}", method = RequestMethod.GET)
     public ModelAndView getLibraryUnit(@PathVariable(value = TYPE) String type, @PathVariable(value = ID) String id, @RequestParam(value = CLEAR_CACHE, required = false, defaultValue = FALSE) boolean clearCache,
             @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, @RequestParam(value = LIBRARY_NAME, required = false, defaultValue = LIBRARY) String libraryName,
@@ -169,7 +174,8 @@ public class LibraryRestV2Controller extends BaseController implements ConstantP
         return toModelAndView(data);
     }
 
-    @AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAXONOMY_READ })
+    @AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_LIBRARY_READ })
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @RequestMapping(value = "/{type}/collection/{id}", method = RequestMethod.GET)
     public ModelAndView getLibraryCollection(@PathVariable(value = TYPE) String type, @PathVariable(value = ID) Integer id, HttpServletRequest request, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset,
             @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,@RequestParam(value = LIBRARY_NAME, required = false, defaultValue = LIBRARY) String libraryName, @RequestParam(value = CLEAR_CACHE, required = false, defaultValue = FALSE) boolean clearCache, HttpServletResponse response) {
@@ -185,7 +191,8 @@ public class LibraryRestV2Controller extends BaseController implements ConstantP
         return toModelAndView(data);
     }
 
-    @AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAXONOMY_READ })
+    @AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_LIBRARY_READ })
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @RequestMapping(value = "/collection", method = RequestMethod.GET)
     public ModelAndView getLibraryCollections(HttpServletRequest request, @RequestParam(value = CLEAR_CACHE, required = false, defaultValue = FALSE) boolean clearCache, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset,
             @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, @RequestParam(value = THEME_CODE, required = false) String themeCode,
@@ -205,7 +212,8 @@ public class LibraryRestV2Controller extends BaseController implements ConstantP
         return toModelAndView(data);
     }
 
-    @AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAXONOMY_READ })
+    @AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_LIBRARY_READ })
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @RequestMapping(value = "/user/contributors", method = RequestMethod.GET)
     public ModelAndView getLibraryContributor(@RequestParam(value = LIBRARY_NAME, required = false, defaultValue = LIBRARY) String libraryName, HttpServletRequest request, HttpServletResponse response, @RequestParam(value = CLEAR_CACHE, required = false, defaultValue = FALSE) boolean clearCache) {
         List<Map<Object, Object>> contributors = null;
@@ -223,7 +231,8 @@ public class LibraryRestV2Controller extends BaseController implements ConstantP
         return toModelAndView(data);
     }
 
-    @AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAXONOMY_READ })
+    @AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_LIBRARY_READ })
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @RequestMapping(value = "/{id}/collection/popular", method = RequestMethod.GET)
     public ModelAndView getLibraryPopularCollection(@PathVariable(value = ID) String id, @RequestParam(value = CLEAR_CACHE, required = false, defaultValue = FALSE) boolean clearCache, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset,
             @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, @RequestParam(value = LIBRARY_NAME, required = false, defaultValue = LIBRARY) String libraryName, HttpServletRequest request, HttpServletResponse response) {
@@ -243,7 +252,8 @@ public class LibraryRestV2Controller extends BaseController implements ConstantP
         return toModelAndView(data);
     }
 
-    @AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAXONOMY_READ })
+    @AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_LIBRARY_READ })
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @RequestMapping(value = "/resource", method = RequestMethod.GET)
     public ModelAndView getLibraryResource(HttpServletRequest request, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = TYPE, required = false) String type,
             @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,@RequestParam(value = LIBRARY_NAME, required = false, defaultValue = LIBRARY) String libraryName, @RequestParam(value = CLEAR_CACHE, required = false, defaultValue = FALSE) boolean clearCache, HttpServletResponse response) {
@@ -260,21 +270,24 @@ public class LibraryRestV2Controller extends BaseController implements ConstantP
         return toModelAndView(data);
     }
 
-    @AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAXONOMY_READ })
+    @AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_LIBRARY_READ })
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @RequestMapping(value = "", method = RequestMethod.GET)
     public ModelAndView getLibrary(@RequestParam(value = LIBRARY_NAME, required = false, defaultValue = LIBRARY_NAMES) String libraryName, HttpServletRequest request, HttpServletResponse response) {
         return toModelAndView(this.getFeaturedService().getLibrary(libraryName), JSON);
     }
 
+    
+    @AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_LIBRARY_ADD })
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    @AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAXONOMY_ADD })
     @RequestMapping(value = "/{libraryId}", method = RequestMethod.POST)
     public ModelAndView assocaiateCollectionLibrary(@PathVariable(value = LIBRARY_ID) String libraryId, @RequestParam(value = CODE_ID) String codeId, @RequestParam(value = GOORU_OID) String gooruOid, HttpServletRequest request, HttpServletResponse response) {
         return toModelAndView(this.getFeaturedService().assocaiateCollectionLibrary(libraryId, codeId, gooruOid), JSON);
     }
 
+  
+    @AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_LIBRARY_DELETE })
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    @AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAXONOMY_DELETE })
     @RequestMapping(value = "/{libraryId}", method = RequestMethod.DELETE)
     public void deleteAssocCollectionLibrary(@PathVariable(value = LIBRARY_ID) String libraryId, @RequestParam(value = CODE_ID) String codeId, @RequestParam(value = GOORU_OID) String gooruOid, HttpServletRequest request, HttpServletResponse response) {
         response.setStatus(HttpServletResponse.SC_NO_CONTENT);

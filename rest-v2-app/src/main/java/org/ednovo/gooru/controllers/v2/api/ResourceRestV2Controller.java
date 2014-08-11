@@ -102,12 +102,14 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_RESOURCE_READ })
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/{id}")
 	public ModelAndView getResource(HttpServletRequest request, @PathVariable(ID) String resourceId, HttpServletResponse response) throws Exception {
 		return toModelAndViewWithIoFilter(this.getResourceService().getResource(resourceId), RESPONSE_FORMAT_JSON,EXCLUDE_ALL, true, RESOURCE_INCLUDE_FIELDS);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_RESOURCE_READ })
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/collection/resource/list")
 	public ModelAndView listResourcesUsedInCollections(@RequestParam(value = DATA_OBJECT, required = true) String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
@@ -126,7 +128,7 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
 	}
 
-	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_UPDATE })
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_RESOURCE_UPDATE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/collaborators/{id}", method = { RequestMethod.PUT })
 	public ModelAndView addCollborators(@PathVariable(value = ID) String collectionId, HttpServletRequest request, HttpServletResponse response, @RequestParam(value = "collaborator", required = true) String collaboratorId) {
@@ -139,7 +141,8 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 		return toModelAndViewWithIoFilter(this.getResourceService().addCollaborator(collectionId, user, collaboratorId, ADD), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, COLLABORATORI_INCLUDE);
 	}
 
-	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_RESOURCE_READ })
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/collaborators/{id}", method = RequestMethod.GET)
 	public ModelAndView getCollaborators(@PathVariable(value = ID) String collectionId, HttpServletRequest request, HttpServletResponse response) {
 
@@ -149,7 +152,8 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 		return toModelAndViewWithIoFilter(this.getResourceService().getCollaborators(collectionId), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, COLLABORATORI_INCLUDE);
 	}
 
-	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_DELETE })
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_RESOURCE_DELETE })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/collaborators/{id}", method = RequestMethod.DELETE)
 	public ModelAndView deleteCollaborators(@PathVariable(value = ID) String collectionId, HttpServletRequest request, HttpServletResponse response, @RequestParam(value = "collaborator", required = true) String collaboratorId) {
 		User user = (User) request.getAttribute(Constants.USER);
@@ -180,6 +184,7 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_RESOURCE_READ })
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/suggest/meta/info")
 	public ModelAndView suggestResourceMetaData(@RequestParam(value = URL) String url, @RequestParam(value = TITLE, required = false) String title, @RequestParam(value = FETCH_THUMBNAIL, required = false, defaultValue = "false") boolean fetchThumbnail, HttpServletRequest request,
 			HttpServletResponse response) throws Exception {
