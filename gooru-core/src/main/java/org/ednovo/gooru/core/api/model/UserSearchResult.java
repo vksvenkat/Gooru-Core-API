@@ -27,6 +27,8 @@ public class UserSearchResult {
 	private String profileVisibility;
 	private Map<String, Map<String, Object>> meta;
 	private Integer active;
+	private String parentAccountUserName;
+	private Integer childAccountCount;
 	
 	public String getConfirmStatus() {
 		return confirmStatus;
@@ -165,6 +167,22 @@ public class UserSearchResult {
 	}
 	public void setActive(Integer active) {
 		this.active = active;
+	}
+	
+	public String getParentAccountUserName() {
+		return parentAccountUserName;
+	}
+
+	public void setParentAccountUserName(String parentAccountUserName) {
+		this.parentAccountUserName = parentAccountUserName;
+	}
+
+	public Integer getChildAccountCount() {
+		return childAccountCount;
+	}
+
+	public void setChildAccountCount(Integer childAccountCount) {
+		this.childAccountCount = childAccountCount;
 	}
 	
 }
