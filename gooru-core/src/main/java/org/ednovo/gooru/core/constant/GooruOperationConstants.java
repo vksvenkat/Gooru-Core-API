@@ -82,7 +82,7 @@ public class GooruOperationConstants {
 	
 	public static final String ENTITY_CLASSPAGE = "Classpage";
 	
-	public static final String ENTITY_PARTY_CUSTOM_FIELD = "PartyCustomField";
+	public static final String ENTITY_PARTY_CUSTOM_FIELD = "e ";
 	
 	public static final String ENTITY_QUIZ_ITEM = "QuizItem";
 	
@@ -123,6 +123,26 @@ public class GooruOperationConstants {
 	public static final String ENTITY_CACHE = "Cache";
 	
 	public static final String ENTITY_CUSTOM = "Custom";
+	
+	public static final String ENTITY_FOLDER = "Folder";
+	
+	public static final String ENTITY_FOLDER_ITEM = "FolderItem";
+	
+	public static final String ENTITY_LIBRARY = "Library";
+	
+	public static final String ENTITY_PROFANITY = "Profanity";
+	
+    public static final String ENTITY_SHORTEN = "Shorten";
+	
+	public static final String ENTITY_SHARE = "Share";
+	
+	public static final String BULK_UPDATE_VIEW = "BulkUpdateView";
+	
+	public static final String ENTITY_PARTNER = "Partner";
+	
+	public static final String ENTITY_ANONYMOUS_USER = "AnonymousUser";
+	
+	public static final String ENTITY_USER_GROUP="UserGroup";
 	
 	// Actions
 
@@ -177,16 +197,12 @@ public class GooruOperationConstants {
 	public static final String ACTION_RESET = "Reset";
 	
 	public static final String ACTION_MOVE = "Move";
-	
-	public static final String ENTITY_USER_GROUP="UserGroup";
 
 	public static final String ACTION_SEARCH_ANY = "SearchAny";
 
 	public static final String ACTION_SUGGEST = "Suggest";
 
 	public static final String ACTION_SEARCH_ADMIN = "AdminSearch";
-
-	public static final String ENTITY_ANONYMOUS_USER = "AnonymousUser";
 	
 	public static final String ACTION_IMPORT = "Import";
 
@@ -194,11 +210,8 @@ public class GooruOperationConstants {
 	
 	public static final String ACTION_COLLECTION_RESOURCE_READ = "collectionResources";
 	
-	public static final String ENTITY_SHORTEN = "Shorten";
+	public static final String ACTION_VALIDATE = "Validate";
 	
-	public static final String ENTITY_SHARE = "Share";
-	
-	public static final String BULK_UPDATE_VIEW = "BulkUpdateView";
 	
 	// Entity Operations
 
@@ -503,6 +516,15 @@ public class GooruOperationConstants {
 	public static final String OPERATION_TAXONOMY_UPDATE = ENTITY_TAXONOMY + ENTITY_ACTION_SEPARATOR + ACTION_UPDATE;
 
 	public static final String OPERATION_TAXONOMY_SUGGEST = ENTITY_TAXONOMY + ENTITY_ACTION_SEPARATOR + ACTION_SUGGEST;
+	
+	//Library
+	
+	
+	public static final String OPERATION_LIBRARY_ADD = ENTITY_LIBRARY + ENTITY_ACTION_SEPARATOR + ACTION_ADD;
+	
+	public static final String OPERATION_LIBRARY_READ = ENTITY_LIBRARY + ENTITY_ACTION_SEPARATOR + ACTION_READ;
+	
+	public static final String OPERATION_LIBRARY_DELETE = ENTITY_LIBRARY + ENTITY_ACTION_SEPARATOR + ACTION_DELETE;
 
 	// User
 
@@ -631,8 +653,11 @@ public class GooruOperationConstants {
 	//post
 	
 	public static final String OPERATION_POST_ADD=ENTITY_POST+ENTITY_ACTION_SEPARATOR+ACTION_ADD; 
+	
 	public static final String OPERATION_POST_UPDATE=ENTITY_POST+ENTITY_ACTION_SEPARATOR+ACTION_UPDATE;
+	
 	public static final String OPERATION_POST_DELETE=ENTITY_POST+ENTITY_ACTION_SEPARATOR+ACTION_DELETE;
+	
 	public static final String OPERATION_POST_READ=ENTITY_POST+ENTITY_ACTION_SEPARATOR+ACTION_READ;
 	
 	//CustomTable
@@ -641,11 +666,34 @@ public class GooruOperationConstants {
 	
 	// Feedback
 	
-	
 	public static final String OPERATION_FEEDBACK_ADD=ENTITY_FEEDBACK+ ENTITY_ACTION_SEPARATOR +ACTION_ADD;
+	
 	public static final String OPERATION_FEEDBACK_UPDATE=ENTITY_FEEDBACK+ ENTITY_ACTION_SEPARATOR +ACTION_UPDATE;
+	
 	public static final String OPERATION_FEEDBACK_DELETE=ENTITY_FEEDBACK+ ENTITY_ACTION_SEPARATOR +ACTION_DELETE;
+	
 	public static final String OPERATION_FEEDBACK_READ=ENTITY_FEEDBACK+ ENTITY_ACTION_SEPARATOR +ACTION_READ;
+	
+	//Folder
+	
+	public static final String OPERATION_FOLDER_ADD = ENTITY_FOLDER + ENTITY_ACTION_SEPARATOR + ACTION_ADD;
+	
+	public static final String OPERATION_FOLDER_UPDATE = ENTITY_FOLDER +  ENTITY_ACTION_SEPARATOR +ACTION_UPDATE;
+	
+	public static final String OPERATION_FOLDER_DELETE = ENTITY_FOLDER +  ENTITY_ACTION_SEPARATOR +ACTION_DELETE;
+	
+	public static final String OPERATION_FOLDER_READ = ENTITY_FOLDER +  ENTITY_ACTION_SEPARATOR +ACTION_READ;
+	
+	public static final String OPERATION_FOLDER_ITEM_ADD = ENTITY_FOLDER_ITEM + ENTITY_ACTION_SEPARATOR + ACTION_ADD;
+	
+	public static final String OPERATION_FOLDER_ITEM_UPDATE = ENTITY_FOLDER_ITEM + ENTITY_ACTION_SEPARATOR + ACTION_UPDATE;
+	
+	public static final String OPERATION_FOLDER_ITEM_LIST = ENTITY_FOLDER_ITEM + ENTITY_ACTION_SEPARATOR + ACTION_LIST;
+	
+	public static final String OPERATION_FOLDER_ITEM_DELETE = ENTITY_FOLDER_ITEM + ENTITY_ACTION_SEPARATOR + ACTION_DELETE;
+	
+	public static final String OPERATION_FOLDER_MOVE = ENTITY_FOLDER + ENTITY_ACTION_SEPARATOR + ACTION_MOVE;
+	
 	
 	//classpage
 	public static final String OPERATION_CLASSPAGE_ADD = ENTITY_CLASSPAGE + ENTITY_ACTION_SEPARATOR + ACTION_ADD;
@@ -714,6 +762,9 @@ public class GooruOperationConstants {
 	public static final String OPERATION_PARTY_CUSTOM_FIELD_READ = ENTITY_PARTY_CUSTOM_FIELD + ENTITY_ACTION_SEPARATOR + ACTION_READ;
 	
 	public static final String OPERATION_PARTY_CUSTOM_FIELD_DELETE = ENTITY_PARTY_CUSTOM_FIELD + ENTITY_ACTION_SEPARATOR + ACTION_DELETE;
+	//partner
+	
+	public static final String OPERATION_PARTNER_LIST = ENTITY_PARTNER + ENTITY_ACTION_SEPARATOR + ACTION_LIST;
 	
 	//Session
 	
@@ -732,6 +783,8 @@ public class GooruOperationConstants {
 	public static final String OPERATION_QUIZ_V2_READ = ENTITY_QUIZ + ENTITY_ACTION_SEPARATOR + ACTION_READ;
 	
 	public static final String OPERATION_QUIZ_V2_DELETE = ENTITY_QUIZ + ENTITY_ACTION_SEPARATOR + ACTION_DELETE;
+	
+	public static final String OPERATION_QUIZ_V2_COPY =  ENTITY_QUIZ + ENTITY_ACTION_SEPARATOR + ACTION_COPY;
 	
 	public static final String OPERATION_QUIZ_V2_ITEM_ADD = ENTITY_QUIZ_ITEM + ENTITY_ACTION_SEPARATOR + ACTION_ADD;
 	
@@ -829,6 +882,16 @@ public class GooruOperationConstants {
 	//Clear Cache
 	
 	public static final String OPERATION_CACHE_CLEAR = ENTITY_CACHE + ENTITY_ACTION_SEPARATOR + ACTION_DELETE;
+	
+	//Profanity
+	
+    public static final String OPERATION_PROFANITY_ADD = ENTITY_PROFANITY + ENTITY_ACTION_SEPARATOR + ACTION_ADD;
+	
+	public static final String OPERATION_PROFANITY_DELETE = ENTITY_PROFANITY + ENTITY_ACTION_SEPARATOR + ACTION_DELETE;
+	
+	public static final String OPERATION_PROFANITY_READ = ENTITY_PROFANITY + ENTITY_ACTION_SEPARATOR + ACTION_READ;
+	
+	public static final String OPERATION_PROFANITY_VALIDATE = ENTITY_PROFANITY + ENTITY_ACTION_SEPARATOR + ACTION_VALIDATE;
 	
 	
 }
