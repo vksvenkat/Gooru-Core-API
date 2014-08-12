@@ -414,10 +414,9 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 
 			resourceSummary.setRatingStarCount((Double) summary.get(COUNT));
 			resourceSummary.setRatingStarAvg((Long) summary.get(AVERAGE));
-			if (feedback.getFreeText() != null) {
-				resourceSummary.setReviewCount((resourceSummary.getReviewCount() == null ? 0 : reviewSummary));
-				summary.put(REVIEW_COUNT, resourceSummary.getReviewCount());
-			}
+			resourceSummary.setReviewCount(reviewSummary);
+			summary.put(REVIEW_COUNT, resourceSummary.getReviewCount());
+			
 			this.getFeedbackRepository().save(feedback);
 			this.getFeedbackRepository().save(resourceSummary);
 			this.getFeedbackRepository().flush();
