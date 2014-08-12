@@ -230,7 +230,7 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 	@Override
 	public Map<String, Object> getContentFeedbackReviewCount(String assocGooruOid, String feedbackRatingType) {
 		Query query = getSession().createSQLQuery(FETCH_CONTENT_FEEDBACK_REVIEW_COUNT).addScalar("count", StandardBasicTypes.INTEGER).setParameter("assocGooruOid", assocGooruOid).setParameter("feedbackRatingType", feedbackRatingType);
-		return getRating(query.list());
+		return getReviewCount(query.list());
 	}
 
 	private Map<String, Object> getRating(List<Object[]> results) {
@@ -239,20 +239,24 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 		Map<String, Object> rating = new HashMap<String, Object>();
 		Map<Object, Object> value = new HashMap<Object, Object>();
 		for (Object[] object : results) {
-			if(object[0] != null && object[1] != null){
 				value.put(object[0], object[1]);
 				sum = sum + ((Integer) object[0]) * ((Integer) object[1]);
-			}
-			if(object[1] != null){
 				count += ((Integer) object[1]);
-			}
 		}
-		if(value != null){
-			rating.put("scores", value);
-		}
+		rating.put("scores", value);
 		rating.put("average", Math.round(results.size() > 0 ? Double.parseDouble(new DecimalFormat("##.#").format(sum / count)) : sum));
 		rating.put("count", count);
 		return rating;
+	}
+	
+	private Map<String, Object> getReviewCount(List<Object[]> results) {
+		Double count = 0.0;
+		Map<String, Object> reviewCount = new HashMap<String, Object>();
+		for (Object[] object : results) {
+				count += ((Integer) object[0]);
+		}
+		reviewCount.put("count", count);
+		return reviewCount;
 	}
 
 	@Override
