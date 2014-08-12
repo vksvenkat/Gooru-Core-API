@@ -53,7 +53,7 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 	private static final String GET_USER_FEEDBACK = " FROM  Feedback feedback WHERE " + generateOrgAuthQuery("feedback.") + " and feedback.assocUserUid=:assocUserUid and feedback.creator.partyUid =:gooruUid and feedback.type.keyValue=:type";
 	private static final String FETCH_USER_FEEDBACK_RATING = "select score, count(1) as count from feedback f inner join custom_table_value c on f.feedback_type_id = c.custom_table_value_id where f.assoc_user_uid=:assocUserUid and c.key_value=:feedbackRatingType and score is not null  group by score";
 	private static final String FETCH_CONTENT_FEEDBACK_RATING = "select score, count(1) as count from feedback f inner join custom_table_value c on f.feedback_type_id = c.custom_table_value_id  where f.assoc_gooru_oid=:assocGooruOid and c.key_value=:feedbackRatingType and score is not null  group by score";
-	private static final String FETCH_CONTENT_FEEDBACK_REVIEW_COUNT = "select count(1) as count from feedback f inner join custom_table_value c on f.feedback_type_id = c.custom_table_value_id where f.assoc_gooru_oid=:assocGooruOid and c.key_value=:feedbackRatingType and feedback_text is not null";
+	private static final String FETCH_CONTENT_FEEDBACK_REVIEW_COUNT = "select count(1) as count from feedback f inner join custom_table_value c on f.feedback_type_id = c.custom_table_value_id where f.assoc_gooru_oid=:assocGooruOid and c.key_value=:feedbackRatingType and f.feedback_text is not null";
 	private static final String GET_CONTENT_FEEDBACK_THUMBS = "select sum(case when score is null then 0 when score > 0 then 1 else 0 end) as thumb_up, sum(case when score is null then 0 when score < 0 then 1 else 0 end) as thumb_down from feedback f inner join custom_table_value c on (f.feedback_type_id = c.custom_table_value_id) where f.assoc_gooru_oid =:assocGooruOid and c.key_value=:feedbackRatingType";
 	private static final String GET_USER_FEEDBACK_THUMBS = "select sum(case when score is null then 0 when score > 0 then 1 else 0 end) as thumb_up, sum(case when score is null then 0 when score < 0 then 1 else 0 end) as thumb_down from feedback f inner join custom_table_value c on (f.feedback_type_id = c.custom_table_value_id)  where f.assoc_user_uid =:assocUserUid and c.key_value=:feedbackRatingType";
 	private static final String GET_CONTENT_FEEDBACK_AGGREGATE_BY_TYPE = "select count(1) as count from feedback f inner join custom_table_value c on (f.feedback_type_id = c.custom_table_value_id) where f.assoc_gooru_oid =:assocGooruOid and c.key_value=:feedbackType";
@@ -228,9 +228,9 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 	}
 	
 	@Override
-	public Map<String, Object> getContentFeedbackReviewCount(String assocGooruOid, String feedbackRatingType) {
-		Query query = getSession().createSQLQuery(FETCH_CONTENT_FEEDBACK_REVIEW_COUNT).addScalar("count", StandardBasicTypes.INTEGER).setParameter("assocGooruOid", assocGooruOid).setParameter("feedbackRatingType", feedbackRatingType);
-		return getReviewCount(query.list());
+	public Long getContentFeedbackReviewCount(String assocGooruOid, String feedbackRatingType) {
+		Query query = getSession().createSQLQuery(FETCH_CONTENT_FEEDBACK_REVIEW_COUNT).addScalar("count", StandardBasicTypes.LONG).setParameter("assocGooruOid", assocGooruOid).setParameter("feedbackRatingType", feedbackRatingType);
+		return (Long) query.list().get(0);
 	}
 
 	private Map<String, Object> getRating(List<Object[]> results) {
@@ -249,15 +249,6 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 		return rating;
 	}
 	
-	private Map<String, Object> getReviewCount(List<Object[]> results) {
-		Double count = 0.0;
-		Map<String, Object> reviewCount = new HashMap<String, Object>();
-		for (Object[] object : results) {
-				count += ((Integer) object[0]);
-		}
-		reviewCount.put("count", count);
-		return reviewCount;
-	}
 
 	@Override
 	public Map<String, Object> getContentFlags(Integer limit, Integer offset, String feedbackCategory, String type, String status, String reportedFlagType, String startDate, String endDate, String searchQuery, String description, String reportQuery) {

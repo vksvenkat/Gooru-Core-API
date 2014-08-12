@@ -53,7 +53,7 @@ public interface FeedbackRepository extends BaseRepository {
 	
 	Map<String, Object> getContentFeedbackRating(String assocGooruOid,  String feedbackRatingType);
 	
-	Map<String, Object> getContentFeedbackReviewCount(String assocGooruOid,  String feedbackRatingType);
+	Long getContentFeedbackReviewCount(String assocGooruOid,  String feedbackRatingType);
 	
 	Map<Object, Object> getContentFeedbackThumbs(String assocGooruOid,  String feedbackRatingType);
 	

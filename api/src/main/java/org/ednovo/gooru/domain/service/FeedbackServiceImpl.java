@@ -407,7 +407,7 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 			this.getFeedbackRepository().flush();
 			ResourceSummary resourceSummary = this.getResourceRepository().getResourceSummaryById(feedback.getAssocGooruOid());
 			Map<String, Object> summary = this.getContentFeedbackStarRating(feedback.getAssocGooruOid());
-			Map<String, Object> reviewSummary = this.getContentFeedbackReviewCount(feedback.getAssocGooruOid());
+			Long reviewSummary = this.getContentFeedbackReviewCount(feedback.getAssocGooruOid());
 
 			if (resourceSummary == null) {
 				resourceSummary = new ResourceSummary();
@@ -417,7 +417,7 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 			resourceSummary.setRatingStarCount((Double) summary.get(COUNT));
 			resourceSummary.setRatingStarAvg((Long) summary.get(AVERAGE));
 			if (feedback.getFreeText() != null) {
-				resourceSummary.setReviewCount((resourceSummary.getReviewCount() == null ? 0 : (Double) reviewSummary.get(COUNT)));
+				resourceSummary.setReviewCount((resourceSummary.getReviewCount() == null ? 0 : reviewSummary));
 				summary.put(REVIEW_COUNT, resourceSummary.getReviewCount());
 			}
 			this.getFeedbackRepository().save(feedback);
@@ -465,7 +465,7 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 	}
 	
 	@Override
-	public Map<String, Object> getContentFeedbackReviewCount(
+	public Long getContentFeedbackReviewCount(
 			String assocGooruOid) {
 		String feedbackType = CustomProperties.Table.FEEDBACK_RATING_TYPE.getTable() + "_" + CustomProperties.FeedbackRatingType.STAR.getFeedbackRatingType();
 		return this.getFeedbackRepository().getContentFeedbackReviewCount(assocGooruOid, feedbackType);
