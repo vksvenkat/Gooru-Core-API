@@ -405,6 +405,7 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 			this.getFeedbackRepository().flush();
 			ResourceSummary resourceSummary = this.getResourceRepository().getResourceSummaryById(feedback.getAssocGooruOid());
 			Map<String, Object> summary = this.getContentFeedbackStarRating(feedback.getAssocGooruOid());
+			Long reviewSummary = this.getContentFeedbackReviewCount(feedback.getAssocGooruOid());
 
 			if (resourceSummary == null) {
 				resourceSummary = new ResourceSummary();
@@ -413,9 +414,9 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 
 			resourceSummary.setRatingStarCount((Double) summary.get(COUNT));
 			resourceSummary.setRatingStarAvg((Long) summary.get(AVERAGE));
-			if (feedback.getFreeText() != null ) {
-				resourceSummary.setReviewCount((resourceSummary.getReviewCount() == null ? 0 : resourceSummary.getReviewCount()) + 1);
-				summary.put("reviewCount", resourceSummary.getReviewCount());
+			if (feedback.getFreeText() != null) {
+				resourceSummary.setReviewCount((resourceSummary.getReviewCount() == null ? 0 : reviewSummary));
+				summary.put(REVIEW_COUNT, resourceSummary.getReviewCount());
 			}
 			this.getFeedbackRepository().save(feedback);
 			this.getFeedbackRepository().save(resourceSummary);
@@ -459,6 +460,13 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 	public Map<String, Object> getContentFeedbackStarRating(String assocGooruOid) {
 		String feedbackType = CustomProperties.Table.FEEDBACK_RATING_TYPE.getTable() + "_" + CustomProperties.FeedbackRatingType.STAR.getFeedbackRatingType();
 		return this.getFeedbackRepository().getContentFeedbackRating(assocGooruOid, feedbackType);
+	}
+	
+	@Override
+	public Long getContentFeedbackReviewCount(
+			String assocGooruOid) {
+		String feedbackType = CustomProperties.Table.FEEDBACK_RATING_TYPE.getTable() + "_" + CustomProperties.FeedbackRatingType.STAR.getFeedbackRatingType();
+		return this.getFeedbackRepository().getContentFeedbackReviewCount(assocGooruOid, feedbackType);
 	}
 
 	@Override
