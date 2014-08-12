@@ -149,12 +149,12 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		if (filters != null && filters.containsKey(PAGE_NO)) {
 			pageNo = Integer.parseInt(filters.get(PAGE_NO));
 		}
-		Integer pageSize = 10;
+		Integer pageSize = null;
 		if (filters != null && filters.containsKey(PAGE_SIZE)) {
 			pageSize = Integer.parseInt(filters.get(PAGE_SIZE));
 		}
 		query.setFirstResult(pageSize * (pageNo - 1));
-		query.setMaxResults(pageSize > MAX_LIMIT ? MAX_LIMIT : pageSize);
+		query.setMaxResults(pageSize != null ? (pageSize > MAX_LIMIT ? MAX_LIMIT : pageSize) : MAX_LIMIT);
 		return query.list();
 	}
 
