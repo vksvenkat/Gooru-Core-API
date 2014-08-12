@@ -592,26 +592,44 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 	@Override
 	public List<ContentMetaDTO> updateContentMeta(List<ContentMetaDTO> newDepthOfKnowledges, final String collectionId, final User apiCaller, final String type) {
+		Resource resource = this.getResourceRepository().findResourceByContentGooruId(collectionId);
+		List<ContentMetaAssociation> removeAll = new ArrayList<ContentMetaAssociation>();
+		List<ContentMetaAssociation> saveAll = new ArrayList<ContentMetaAssociation>();
+		Set<ContentMetaAssociation> updateContent= new HashSet<ContentMetaAssociation>();
 		for (ContentMetaDTO newMeta : newDepthOfKnowledges) {
-			if (this.getCustomTableRepository().getValueByDisplayName(newMeta.getValue(), type) != null) {
-				ContentMetaAssociation contentMetaAssociation = this.getCollectionRepository().getContentMetaByValue(newMeta.getValue(), collectionId);
-				if (contentMetaAssociation == null && newMeta.getSelected()) {
-					contentMetaAssociation = new ContentMetaAssociation();
-					contentMetaAssociation.setValue(newMeta.getValue());
-					contentMetaAssociation.setAssociationType(this.getCustomTableRepository().getCustomTableValue(CONTENT_ASSOCIATION_TYPE, type));
-					contentMetaAssociation.setUser(apiCaller);
-					contentMetaAssociation.setContent(this.getContentRepositoryHibernate().findContentByGooruId(collectionId));
-					contentMetaAssociation.setAssociatedDate(new Date(System.currentTimeMillis()));
-					this.getCollectionRepository().save(contentMetaAssociation);
-				} else {
-					if (contentMetaAssociation != null && !newMeta.getSelected()) {
-						this.getCollectionRepository().remove(contentMetaAssociation);
+
+			CustomTableValue customTableValue = this.getCustomTableRepository().getValueByDisplayName(newMeta.getValue(), type);
+			if (customTableValue != null) {
+				Boolean isAlreadyUpdated = false;
+				for(ContentMetaAssociation contentMetaAssociation : resource.getContentMetaAssoc()) {
+					if(contentMetaAssociation.getAssociationType().getDisplayName().equalsIgnoreCase(newMeta.getValue()) && !newMeta.getSelected()) {
+						removeAll.add(contentMetaAssociation);
+						break;
+					} else if (contentMetaAssociation.getAssociationType().getDisplayName().equalsIgnoreCase(newMeta.getValue())) {
+						isAlreadyUpdated = true;
+						updateContent.add(contentMetaAssociation);
+						break;
 					}
+				} 
+				if (newMeta.getSelected() && !isAlreadyUpdated) {
+					ContentMetaAssociation contentMetaAssociationNew = new ContentMetaAssociation();
+					contentMetaAssociationNew.setAssociationType(customTableValue);
+					contentMetaAssociationNew.setUser(apiCaller);
+					contentMetaAssociationNew.setContent(this.getContentRepositoryHibernate().findContentByGooruId(collectionId));
+					contentMetaAssociationNew.setAssociatedDate(new Date(System.currentTimeMillis()));
+					saveAll.add(contentMetaAssociationNew);
+					updateContent.add(contentMetaAssociationNew);
 				}
 			}
 		}
+		if(saveAll.size() > 0) {
+			this.getCollectionRepository().saveAll(saveAll);
+		}
+		if(removeAll.size() > 0) {
+			this.getCollectionRepository().removeAll(removeAll);
+		}
 
-		return this.setContentMetaAssociation(this.getContentMetaAssociation(type), collectionId, type);
+		return this.setContentMetaAssociation(this.getContentMetaAssociation(type), updateContent, type);
 	}
 
 	@Override
@@ -1002,7 +1020,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		String cacheKey = "content_meta_association_type_" + type;
 		final String data = redisService.getValue(cacheKey);
 		if (data == null) {
-			List<CustomTableValue> customTableValues = this.getCustomTableRepository().getCustomTableValues(type);
+			List<CustomTableValue> customTableValues = this.getCustomTableRepository().getFilterValueFromCustomTable(type);
 			for (CustomTableValue customTableValue : customTableValues) {
 				ContentMetaDTO depthOfknowledge = new ContentMetaDTO();
 				depthOfknowledge.setValue(customTableValue.getDisplayName());
@@ -1019,16 +1037,19 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 	@Override
 	public List<ContentMetaDTO> setContentMetaAssociation(List<ContentMetaDTO> depthOfKnowledges, String collectionId, final String type) {
-		List<ContentMetaAssociation> metaAssociations = this.getCollectionRepository().getContentMetaById(collectionId, type);
-		for (ContentMetaAssociation contentMetaAssociation : metaAssociations) {
+		Resource resource = this.getResourceRepository().findResourceByContentGooruId(collectionId);
+		return   setContentMetaAssociation( depthOfKnowledges,  resource.getContentMetaAssoc(),  type);
+	}
+	
+	public List<ContentMetaDTO> setContentMetaAssociation(List<ContentMetaDTO> depthOfKnowledges, Set<ContentMetaAssociation> contentMetaAssociations, final String type) {
+		for (ContentMetaAssociation contentMetaAssociation : contentMetaAssociations) {
 			for (ContentMetaDTO depthOfKnowledge : depthOfKnowledges) {
-				if (depthOfKnowledge.getValue().equalsIgnoreCase(contentMetaAssociation.getValue())) {
+				if (depthOfKnowledge.getValue().equalsIgnoreCase(contentMetaAssociation.getAssociationType().getDisplayName())) {
 					depthOfKnowledge.setSelected(true);
 				}
 			}
 		}
 		return depthOfKnowledges;
-
 	}
 
 	@Override

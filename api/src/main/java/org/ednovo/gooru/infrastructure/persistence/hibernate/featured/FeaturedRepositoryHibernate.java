@@ -62,7 +62,7 @@ public class FeaturedRepositoryHibernate extends BaseRepositoryHibernate impleme
 		hql += " ORDER BY featuredSet.sequence";
         
 	
-		return  getSession().createQuery(hql).setMaxResults(limit).list();
+		return  getSessionReadOnly().createQuery(hql).setMaxResults(limit).list();
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -77,7 +77,7 @@ public class FeaturedRepositoryHibernate extends BaseRepositoryHibernate impleme
 		} else if (themeCode != null)  {
 			sql += " where fs.theme_code =:themeCode";
 		}
-		Query query = getSession().createSQLQuery(sql);
+		Query query = getSessionReadOnly().createSQLQuery(sql);
 		if (themeType != null) {
 			query.setParameter("themeType", themeType);
 		}
@@ -110,7 +110,7 @@ public class FeaturedRepositoryHibernate extends BaseRepositoryHibernate impleme
 			sql += " and fs.code_id = '" + codeId + "'";
 		}
 
-		Query query = getSession().createSQLQuery(sql);
+		Query query = getSessionReadOnly().createSQLQuery(sql);
 
 			query.setFirstResult(offset == null ? OFFSET : offset);
 			query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
@@ -137,7 +137,7 @@ public class FeaturedRepositoryHibernate extends BaseRepositoryHibernate impleme
 			sql += " and fs.code_id = '" + codeId + "'";
 		}
 
-		Query query = getSession().createSQLQuery(sql).addScalar("count", StandardBasicTypes.LONG);
+		Query query = getSessionReadOnly().createSQLQuery(sql).addScalar("count", StandardBasicTypes.LONG);
 		if (themeType != null) {
 			query.setParameter("themeType", themeType);
 		}
@@ -152,22 +152,21 @@ public class FeaturedRepositoryHibernate extends BaseRepositoryHibernate impleme
 	@Override
 	public List<FeaturedSet> getFeaturedTheme(int limit) {
 		String hql = "SELECT themeCode FROM FeaturedSet featuredSet WHERE " + generateOrgAuthQueryWithData("featuredSet.");
-		return getSession().createQuery(hql).setMaxResults(limit).list();
+		return getSessionReadOnly().createQuery(hql).setMaxResults(limit).list();
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Integer> getFeaturedThemeIds() {
 		String hql = "SELECT distinct(fs.subjectCode.codeId) AS themeId FROM FeaturedSet fs  WHERE fs.activeFlag = 1 AND  " + generateOrgAuthQueryWithData("fs.");
-		return getSession().createQuery(hql).list();
+		return getSessionReadOnly().createQuery(hql).list();
 	}
 	
 	@SuppressWarnings("unchecked")
 	@Override
 	public FeaturedSet getFeaturedSetById(Integer featuredSetId) {
 		String hql = "FROM FeaturedSet featuredSet WHERE featuredSet.featuredSetId=:featuredSetId AND " + generateOrgAuthQuery("featuredSet.");
-		Session session = getSession();
-		Query query = session.createQuery(hql);
+		Query query = getSessionReadOnly().createQuery(hql);
 		query.setParameter("featuredSetId", featuredSetId);
 		addOrgAuthParameters(query);
 		List<FeaturedSet> featuredSetList = (List<FeaturedSet>) query.list();
@@ -178,8 +177,7 @@ public class FeaturedRepositoryHibernate extends BaseRepositoryHibernate impleme
 	@SuppressWarnings("unchecked")
 	public FeaturedSetItems getFeaturedSetItem(Integer featuredSetId, Integer sequence) {
 		String hql = "FROM FeaturedSetItems featuredSetItems JOIN  WHERE featuredSetItems.featuredSet.featuredSetId=:featuredSetId  AND featuredSetItems.sequence=:sequence AND " + generateOrgAuthQuery("featuredSetItems.featuredSet.");
-		Session session = getSession();
-		Query query = session.createQuery(hql);
+		Query query = getSessionReadOnly().createQuery(hql);
 		query.setParameter("featuredSetId", featuredSetId);
 		query.setParameter("sequence", sequence);
 		addOrgAuthParameters(query);
@@ -191,8 +189,7 @@ public class FeaturedRepositoryHibernate extends BaseRepositoryHibernate impleme
 	@Override
 	public FeaturedSet getFeaturedSetByThemeNameAndCode(String name,String themeCode) {
 		String hql = "FROM FeaturedSet featuredSet WHERE featuredSet.name=:name AND featuredSet.themeCode=:themeCode AND " + generateOrgAuthQuery("featuredSet.");
-		Session session = getSession();
-		Query query = session.createQuery(hql);
+		Query query = getSessionReadOnly().createQuery(hql);
 		query.setParameter("name", name);
 		query.setParameter("themeCode", themeCode);
 		addOrgAuthParameters(query);
@@ -205,8 +202,7 @@ public class FeaturedRepositoryHibernate extends BaseRepositoryHibernate impleme
 	@Override
 	public FeaturedSetItems getFeaturedSetItemsByFeatureSetId(Integer featureSetId) {
 			String hql = "FROM FeaturedSetItems featuredSetItems  WHERE featuredSetItems.featureSetId=:featureSetId AND " + generateOrgAuthQuery("featuredSetItems.featuredSet.");
-			Session session = getSession();
-			Query query = session.createQuery(hql);
+			Query query = getSessionReadOnly().createQuery(hql);
 			query.setParameter("featureSetId", featureSetId);
 			addOrgAuthParameters(query);
 			List<FeaturedSetItems> featuredSetItemList = (List<FeaturedSetItems>) query.list();
@@ -217,8 +213,7 @@ public class FeaturedRepositoryHibernate extends BaseRepositoryHibernate impleme
 	@Override
 	public FeaturedSetItems getFeaturedItemByIdAndType(Integer featuredSetItemId, String type) {
 		String hql = "FROM FeaturedSetItems featuredSetItems  WHERE featuredSetItems.featuredSetItemId=:featuredSetItemId AND  featuredSetItems.featuredSet.type.value =:type AND " + generateOrgAuthQuery("featuredSetItems.featuredSet.");
-		Session session = getSession();
-		Query query = session.createQuery(hql);
+		Query query = getSessionReadOnly().createQuery(hql);
 		query.setParameter("type", type);
 		query.setParameter("featuredSetItemId", featuredSetItemId);
 		addOrgAuthParameters(query);
@@ -233,7 +228,7 @@ public class FeaturedRepositoryHibernate extends BaseRepositoryHibernate impleme
 		if (!fetchAll)  {
 			sql += " and subject_code_id =:code";
 		}
-		Query query = getSession().createSQLQuery(sql);
+		Query query = getSessionReadOnly().createSQLQuery(sql);
 		if (!fetchAll) {
 			query.setParameter("code", code);
 		}
@@ -251,7 +246,7 @@ public class FeaturedRepositoryHibernate extends BaseRepositoryHibernate impleme
 		if (contentId != null) { 
 			sql += " and fi.content_id =:contentId ";
 		}
-		Query query = getSession().createSQLQuery(sql);
+		Query query = getSessionReadOnly().createSQLQuery(sql);
 		if (codeId != null) {
 			query.setParameter("codeId", codeId);
 		}
@@ -267,7 +262,7 @@ public class FeaturedRepositoryHibernate extends BaseRepositoryHibernate impleme
 	@Override
 	public Integer getFeaturedSetId(String type) {
 		String sql = "select featured_set_id as featuredSetId from featured_set f inner join custom_table_value ct on f.type_id = ct.custom_table_value_id   where theme_code = 'library' and ct.value ='"+type+"'";
-		Query query = getSession().createSQLQuery(sql).addScalar("featuredSetId", StandardBasicTypes.INTEGER);
+		Query query = getSessionReadOnly().createSQLQuery(sql).addScalar("featuredSetId", StandardBasicTypes.INTEGER);
 		return query.list().size() > 0 ? (Integer)query.list().get(0) : null;
 	}
 
@@ -277,7 +272,7 @@ public class FeaturedRepositoryHibernate extends BaseRepositoryHibernate impleme
 		if (type!= null)  {
 			sql += " and f.subject_code_id =:type";
 		}
-		Query query = getSession().createSQLQuery(sql).addScalar("count", StandardBasicTypes.LONG);
+		Query query = getSessionReadOnly().createSQLQuery(sql).addScalar("count", StandardBasicTypes.LONG);
 		if (type != null) {
 			query.setParameter("type", type);
 		}
@@ -308,7 +303,7 @@ public class FeaturedRepositoryHibernate extends BaseRepositoryHibernate impleme
 			sql += " and f.subject_code_id =:type";
 		}
 		
-		Query query = getSession().createSQLQuery(sql);
+		Query query = getSessionReadOnly().createSQLQuery(sql);
 		
 		query.setFirstResult(offset == null ? OFFSET : offset);
 		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
@@ -326,7 +321,7 @@ public class FeaturedRepositoryHibernate extends BaseRepositoryHibernate impleme
 	public List<Object[]> getLibrary(String libraryName) {
 		libraryName = libraryName.contains(",") ?  libraryName.replace(",", "','") : libraryName;
 		String sql = "select fs.featured_set_id, fs.subject_code_id, fs.theme_code, c.label from featured_set fs left  join code c  on c.code_id = fs.subject_code_id where theme_code in ('"+libraryName + "')";
-		Query query = getSession().createSQLQuery(sql);
+		Query query = getSessionReadOnly().createSQLQuery(sql);
 		return query.list();
 	}
 
@@ -340,7 +335,7 @@ public class FeaturedRepositoryHibernate extends BaseRepositoryHibernate impleme
 	@Override
 	public FeaturedSet getFeaturedSetByIds(Integer featuredSetId) {
 		String sql = "select * from featured_set fs where fs.featured_set_id = " + featuredSetId;
-		Query query = getSession().createSQLQuery(sql).addEntity(FeaturedSet.class);
+		Query query = getSessionReadOnly().createSQLQuery(sql).addEntity(FeaturedSet.class);
 		return query.list().size() > 0 ? (FeaturedSet) query.list().get(0) : null;	
 	}
 
