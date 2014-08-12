@@ -25,7 +25,6 @@ package org.ednovo.gooru.domain.service;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -38,7 +37,6 @@ import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.ResourceSummary;
 import org.ednovo.gooru.core.api.model.ResourceType;
 import org.ednovo.gooru.core.api.model.User;
-import org.ednovo.gooru.core.api.model.UserSummary;
 import org.ednovo.gooru.core.application.util.BaseUtil;
 import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.constant.ConstantProperties;
@@ -407,6 +405,7 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 			this.getFeedbackRepository().flush();
 			ResourceSummary resourceSummary = this.getResourceRepository().getResourceSummaryById(feedback.getAssocGooruOid());
 			Map<String, Object> summary = this.getContentFeedbackStarRating(feedback.getAssocGooruOid());
+			Long reviewSummary = this.getContentFeedbackReviewCount(feedback.getAssocGooruOid());
 
 			if (resourceSummary == null) {
 				resourceSummary = new ResourceSummary();
@@ -415,10 +414,8 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 
 			resourceSummary.setRatingStarCount((Double) summary.get(COUNT));
 			resourceSummary.setRatingStarAvg((Long) summary.get(AVERAGE));
-			Double reviewCount = 0.0;
 			if (feedback.getFreeText() != null) {
-				reviewCount+= resourceSummary.getReviewCount();
-				resourceSummary.setReviewCount((resourceSummary.getReviewCount() == null ? 0 : (Double) reviewCount));
+				resourceSummary.setReviewCount((resourceSummary.getReviewCount() == null ? 0 : reviewSummary));
 				summary.put(REVIEW_COUNT, resourceSummary.getReviewCount());
 			}
 			this.getFeedbackRepository().save(feedback);
@@ -463,6 +460,13 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 	public Map<String, Object> getContentFeedbackStarRating(String assocGooruOid) {
 		String feedbackType = CustomProperties.Table.FEEDBACK_RATING_TYPE.getTable() + "_" + CustomProperties.FeedbackRatingType.STAR.getFeedbackRatingType();
 		return this.getFeedbackRepository().getContentFeedbackRating(assocGooruOid, feedbackType);
+	}
+	
+	@Override
+	public Long getContentFeedbackReviewCount(
+			String assocGooruOid) {
+		String feedbackType = CustomProperties.Table.FEEDBACK_RATING_TYPE.getTable() + "_" + CustomProperties.FeedbackRatingType.STAR.getFeedbackRatingType();
+		return this.getFeedbackRepository().getContentFeedbackReviewCount(assocGooruOid, feedbackType);
 	}
 
 	@Override
