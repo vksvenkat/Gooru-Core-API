@@ -79,6 +79,11 @@
 				column="code_id" unique="true" />
 		</set>
 		
+		<set name="contentMetaAssoc" table="content_meta_association" cascade="none" lazy="true">
+			<key column="content_id" />
+			<one-to-many class="org.ednovo.gooru.core.api.model.ContentMetaAssociation" />
+		</set>
+		
 		<joined-subclass name="org.ednovo.gooru.core.api.model.Task" table="task">
 
 				<key column="task_content_id" />
@@ -197,8 +202,8 @@
 				not-null="false" />
 			<property name="sourceReference" column="source_reference"
 				not-null="false"></property>
-			<property name="s3UploadFlag" column="s3_upload_flag"
-				not-null="true" />
+			<property name="s3UploadFlag" column="s3_upload_flag" 
+				not-null="false" />
 			<set name="resourceSegments" cascade="all"
 				sort="org.ednovo.gooru.core.api.model.SegmentComparator">
 				<key column="resource_id" not-null="true" />
