@@ -1042,10 +1042,12 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 	
 	public List<ContentMetaDTO> setContentMetaAssociation(List<ContentMetaDTO> depthOfKnowledges, Set<ContentMetaAssociation> contentMetaAssociations, final String type) {
-		for (ContentMetaAssociation contentMetaAssociation : contentMetaAssociations) {
-			for (ContentMetaDTO depthOfKnowledge : depthOfKnowledges) {
-				if (depthOfKnowledge.getValue().equalsIgnoreCase(contentMetaAssociation.getAssociationType().getDisplayName())) {
-					depthOfKnowledge.setSelected(true);
+		if (contentMetaAssociations != null && contentMetaAssociations.size() > 0) {
+			for (ContentMetaAssociation contentMetaAssociation : contentMetaAssociations) {
+				for (ContentMetaDTO depthOfKnowledge : depthOfKnowledges) {
+					if (depthOfKnowledge.getValue().equalsIgnoreCase(contentMetaAssociation.getAssociationType().getDisplayName())) {
+						depthOfKnowledge.setSelected(true);
+					}
 				}
 			}
 		}
