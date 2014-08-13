@@ -44,6 +44,7 @@ import org.ednovo.gooru.core.api.model.UserRole.UserRoleType;
 import org.ednovo.gooru.core.api.model.UserRoleAssoc;
 import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.core.constant.ConstantProperties;
+import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.domain.service.BaseServiceImpl;
 import org.ednovo.gooru.domain.service.PartyService;
@@ -116,6 +117,7 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 	@Override
 	public ActionResponseDTO<Organization> saveOrganization(Organization organizationData, User user, HttpServletRequest request) {
 		Errors errors = validateNullFields(organizationData);
+		User apiCaller = (User) request.getAttribute(Constants.USER);
 		Organization newOrganization = new Organization();
 		if(!errors.hasErrors()){
 			newOrganization.setPartyName(organizationData.getPartyName());
@@ -134,7 +136,7 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 			newUser.setOrganization(newOrganization);
 			newUser.setFirstName(FIRST);
 			newUser.setLastName(LAST);
-			newUser.setGooruUId(ANONYMOUS_ + randomString);
+			newUser.setPartyUid(ANONYMOUS_ + randomString);
 			newUser.setUsername(ANONYMOUS_ + randomString);
 			newUser.setEmailId(ANONYMOUS_ +randomString+ AT_GMAIL_DOT_COM);
  
@@ -142,9 +144,15 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 			 appApiKey.setAppName(newOrganization.getPartyName());
 			 appApiKey.setAppURL(HTTP_URL +newOrganization.getPartyName()+ DOT_COM);
 			try {
-				userManagementService.createUser(newUser, null, null, 1, null, null, null, null, null, null, null, null, request, null, null);
-				applicationService.saveApplication(appApiKey, newUser, newOrganization.getOrganizationUid());
-				accountService.createSessionToken(newUser, appApiKey.getKey(), request);
+				User newOrgUser = new User();
+				newOrgUser = userManagementService.createUser(newUser, null, null, 1, null, null, null, null, null, null, null, null, request, null, null);
+				OrganizationSetting newOrganizationSetting = new OrganizationSetting();
+				newOrganizationSetting.setOrganization(newOrganization);
+				newOrganizationSetting.setKey(ANONYMOUS);
+				newOrganizationSetting.setValue(newOrgUser.getPartyUid());
+				organizationSettingRepository.save(newOrganizationSetting);
+				applicationService.saveApplication(appApiKey, newOrgUser, newOrganization.getPartyUid(),apiCaller);
+				accountService.createSessionToken(newOrgUser, appApiKey.getKey(), request);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -237,9 +245,9 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 			partyService.createPartyCustomField(MY, partyCustomField, user);
 		}
 		else {
-			partyCustomField.setOptionalValue(partyCustomField.getOptionalValue()+","+organizationUid);
+/*			partyCustomField.setOptionalValue(partyCustomField.getOptionalValue()+","+organizationUid);
 			organizationRepository.save(partyCustomField);
-		}
+*/		}
 	}
 /*	private void updateDefaultOrganizationPermission(Organization permittedOrg){
 		PartyPermission partyPermission = new PartyPermission();

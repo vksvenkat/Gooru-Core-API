@@ -75,10 +75,16 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 	}
 
 	@Override
-	public ActionResponseDTO<ApiKey> saveApplication(ApiKey apikey, User user ,String organizationUid) throws Exception{
+	public ActionResponseDTO<ApiKey> saveApplication(ApiKey apikey, User user ,String organizationUid, User apiCaller) throws Exception{
 		Errors error = validateApiKey(apikey);
+	    PartyCustomField partyCustomField = null;
 		if (!error.hasErrors()) {
-			PartyCustomField partyCustomField = partyService.getPartyCustomeField(user.getPartyUid(), ConstantProperties.ORG_ADMIN_KEY, user);
+			if(apiCaller != null){
+				 partyCustomField = partyService.getPartyCustomeField(apiCaller.getPartyUid(), ConstantProperties.ORG_ADMIN_KEY, apiCaller);				
+			}else {
+				 partyCustomField = partyService.getPartyCustomeField(user.getPartyUid(), ConstantProperties.ORG_ADMIN_KEY, user);
+			}
+
 			if(partyCustomField != null && partyCustomField.getOptionalValue() != null){
 				Organization organization = null;
 				 //If organization is passed from superadmin use it else set loggedin users organization details
