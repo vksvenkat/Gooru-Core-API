@@ -318,10 +318,15 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 
 					if (newProfile.getUser() != null) {
 						if (newProfile.getUser().getActive() != null) {
+							
 							identity.setActive(newProfile.getUser().getActive());
 							user.setActive(newProfile.getUser().getActive());
+							if(newProfile.getUser().getActive()== 0){
+								this.getMailHandler().sendUserDisabledMail(gooruUid);
+							}
 							this.getUserRepository().save(identity);
 						}
+						
 						if (identity != null && newProfile.getUser().getEmailId() != null && !newProfile.getUser().getEmailId().isEmpty()) {
 							boolean emailAvailability = this.getUserRepository().checkUserAvailability(newProfile.getUser().getEmailId(), CheckUser.BYEMAILID, false);
 
@@ -1389,7 +1394,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		}
 
 	}
-
+	
 	private Map<String, Object> setUserObj(User user) {
 		Map<String, Object> userObj = new HashMap<String, Object>();
 		userObj.put(USER_NAME, user.getUsername());
