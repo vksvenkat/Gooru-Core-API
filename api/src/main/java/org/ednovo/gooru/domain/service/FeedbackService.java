@@ -57,6 +57,8 @@ public interface FeedbackService extends BaseService {
 	Map<String, Object> getUserFeedbackStarRating(String assocUserUid);
 
 	Map<String, Object> getContentFeedbackStarRating(String assocGooruOid);
+	
+	Long getContentFeedbackReviewCount(String assocGooruOid);
 
 	Map<Object, Object> getUserFeedbackThumbRating(String assocUserUid);
 

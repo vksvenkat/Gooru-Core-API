@@ -28,15 +28,22 @@ import java.io.Serializable;
 
 import org.apache.commons.io.FileUtils;
 import org.ednovo.gooru.application.util.GooruImageUtil;
+import org.ednovo.gooru.application.util.TaxonomyUtil;
 import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.api.model.Organization;
 import org.ednovo.gooru.core.api.model.Resource;
+import org.ednovo.gooru.core.api.model.UserGroupSupport;
+import org.ednovo.gooru.core.application.util.RequestUtil;
+import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.taxonomy.TaxonomyRespository;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.jets3t.service.S3ServiceException;
+import org.json.JSONObject;
+import org.restlet.data.Method;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,6 +58,9 @@ public abstract class S3ResourceHandler extends S3ServiceHandler implements Para
 
 	@Autowired
 	private TaxonomyRespository taxonomyRespository;
+	
+	@Autowired
+	private SettingService settingService;
 
 	private static final Logger logger = LoggerFactory.getLogger(S3ResourceHandler.class);
 
@@ -94,6 +104,16 @@ public abstract class S3ResourceHandler extends S3ServiceHandler implements Para
 		} catch (Exception ex) {
 			logger.error("Deleting of resource :" + resource.getContentId() + " file : " + fileName + " from S3 Failed : ", ex);
 		}
+	}
+	
+	public void moveFileToS3(String fileName, String sourcePath, String gooruContentId) throws Exception {
+		JSONObject data = new JSONObject();
+		data.put("folderInBucket", "resource/");
+		data.put("gooruBucket", settingService.getConfigSetting(ConfigConstants.PROFILE_BUCKET, TaxonomyUtil.GOORU_ORG_UID));
+		data.put("sourceFilePath", sourcePath);
+		data.put("fileName",fileName );
+		data.put("callBackUrl", settingService.getConfigSetting(ConfigConstants.PROFILE_BUCKET, TaxonomyUtil.GOORU_ORG_UID)+"v2/resource/"+gooruContentId+"?sessionToken="+UserGroupSupport.getSessionToken());
+		RequestUtil.executeRestAPI(data.toString(), settingService.getConfigSetting(ConfigConstants.GOORU_CONVERSION_RESTPOINT,0, TaxonomyUtil.GOORU_ORG_UID) + "/conversion/image/upload", Method.POST.getName());
 	}
 
 	public void uploadResourceFolder(Resource resource) {
