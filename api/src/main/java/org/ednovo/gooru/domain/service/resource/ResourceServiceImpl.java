@@ -125,7 +125,6 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.ConfigSettingReposi
 import org.ednovo.gooru.infrastructure.persistence.hibernate.FeedbackRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.activity.SessionActivityRepository;
-import org.ednovo.gooru.infrastructure.persistence.hibernate.annotation.SubscriptionRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.assessment.AssessmentRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.classplan.LearnguideRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentRepository;
@@ -224,9 +223,6 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 
 	@Autowired
 	private ResourceCassandraService resourceCassandraService;
-
-	@Autowired
-	private SubscriptionRepository subscriptionRepository;
 
 	@Autowired
 	private ConfigSettingRepository configSettingRepository;
@@ -1161,8 +1157,15 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 
 		Resource resource = this.getResourceRepository().findResourceByContentGooruId(gooruContentId);
 		this.getResourceImageUtil().moveFileAndSendMsgToGenerateThumbnails(resource, fileName, true);
+		/*try {
+			this.getAsyncExecutor().updateResourceFileInS3(resource.getFolder(), resource.getOrganization().getNfsStorageArea().getAreaPath() , gooruContentId);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}*/
 		return resource.getOrganization().getNfsStorageArea().getAreaPath() + resource.getFolder() + "/" + resource.getThumbnail();
 	}
+
+
 
 	@Override
 	public void deleteResourceImage(String gooruContentId) {

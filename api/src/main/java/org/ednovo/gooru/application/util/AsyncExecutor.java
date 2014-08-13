@@ -156,6 +156,21 @@ public class AsyncExecutor {
 			}
 		});
 	}
+	
+	public void updateResourceFileInS3(final String fileName,final String sourcePath, final String gooruContentId) {
+		transactionTemplate.execute(new TransactionCallback<Void>() {
+			@Override
+			public Void doInTransaction(TransactionStatus status) {
+				try {
+					Thread.sleep(500);
+					getS3ResourceApiHandler().moveFileToS3(fileName, sourcePath, gooruContentId);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				return null;
+			}
+		});
+	}
 
 	public void clearCache(final String gooruOid) {
 		transactionTemplate.execute(new TransactionCallback<Void>() {
