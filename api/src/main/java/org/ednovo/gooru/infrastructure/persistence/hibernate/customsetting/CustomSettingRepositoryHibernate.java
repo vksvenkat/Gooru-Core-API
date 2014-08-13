@@ -23,9 +23,8 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.infrastructure.persistence.hibernate.customsetting;
 
-import java.util.List;
-
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate;
+import org.hibernate.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -34,8 +33,8 @@ public class CustomSettingRepositoryHibernate extends BaseRepositoryHibernate im
 	@Override
 	public boolean isOwnerOfAssestURI(Integer customSettingId) {
 		String hql = "SELECT customSetting FROM CustomSetting customSetting  WHERE  customSetting.customId =" + customSettingId + " AND customSetting.key='showassesturi' ";
-		List result = find(hql);
-		if (result != null && result.size() != 0) {
+		Query query = getSessionReadOnly().createQuery(hql);
+		if (query.list() != null && query.list().size() != 0) {
 			return false;
 		} else {
 			return true;

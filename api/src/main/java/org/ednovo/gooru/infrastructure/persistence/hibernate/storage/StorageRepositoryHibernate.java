@@ -23,26 +23,29 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.infrastructure.persistence.hibernate.storage;
 
-import java.util.List;
-
 import org.ednovo.gooru.core.api.model.StorageArea;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate;
-import org.hibernate.Session;
+import org.hibernate.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public class StorageRepositoryHibernate extends BaseRepositoryHibernate implements StorageRepository {
 
+	private static final String STORAGE_AREA = "FROM StorageArea storageArea WHERE storageArea.storageAccount.storageAccountId =:storageAccountId";
+	private static final String STORAGE_AREA_BY_NAME = "FROM StorageArea storageArea WHERE storageArea.storageAccount.typeName =:typeName";
+	
 	@Override
 	public StorageArea getAvailableStorageArea(Integer storageAccountId) {
-		List<StorageArea> storageAreas = find("FROM StorageArea storageArea WHERE storageArea.storageAccount.storageAccountId = " + storageAccountId);
-		return storageAreas.size() > 0 ? storageAreas.get(0) : null;
+		Query query = getSessionReadOnly().createQuery(STORAGE_AREA);
+		query.setParameter("storageAccountId", storageAccountId);
+		return (StorageArea) (query.list().size() > 0 ? query.list().get(0) : null);
 	}
 
 	@Override
 	public StorageArea getStorageAreaByTypeName(String typeName) {
-		List<StorageArea> storageAreas = getSession().createQuery("FROM StorageArea storageArea WHERE storageArea.storageAccount.typeName = '"+typeName+"'").list();
-		return storageAreas.size() > 0 ? storageAreas.get(0) : null;
+		Query query = getSessionReadOnly().createQuery(STORAGE_AREA_BY_NAME);
+		query.setParameter("typeName", typeName);
+		return (StorageArea) (query.list().size() > 0 ? query.list().get(0) : null);
 	}
 
 }
