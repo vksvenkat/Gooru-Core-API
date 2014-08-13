@@ -1,3 +1,27 @@
+/////////////////////////////////////////////////////////////
+//OganizationRestV2Controller.java
+//rest-v2-app
+// Created by Gooru on 2014
+// Copyright (c) 2014 Gooru. All rights reserved.
+// http://www.goorulearning.org/
+// Permission is hereby granted, free of charge, to any person      obtaining
+// a copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to
+// permit persons to whom the Software is furnished to do so,  subject to
+// the following conditions:
+// The above copyright notice and this permission notice shall be
+// included in all copies or substantial portions of the Software.
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY  KIND,
+// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE    WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR  PURPOSE     AND
+// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR  COPYRIGHT HOLDERS BE
+// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+// OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+/////////////////////////////////////////////////////////////
+
 package org.ednovo.gooru.controllers.v2.api;
 
 import javax.servlet.http.HttpServletRequest;
@@ -35,9 +59,8 @@ public class OrganizationRestV2Controller extends BaseController implements Cons
 	@RequestMapping(method = RequestMethod.POST)
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ModelAndView createOrganization(HttpServletRequest request, HttpServletResponse response, @RequestBody String data) throws Exception {
-		JSONObject json = requestData(data);
 		User user = (User) request.getAttribute(Constants.USER);
-		ActionResponseDTO<Organization> responseDTO  = getOrganizationService().saveOrganization(buildOrganizationFromInputParameters(getValue(ORGANIZATION, json)), user, request);
+		ActionResponseDTO<Organization> responseDTO  = getOrganizationService().saveOrganization(buildOrganizationFromInputParameters(data), user, request);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		} else {

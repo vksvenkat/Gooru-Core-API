@@ -52,12 +52,15 @@ import org.ednovo.gooru.domain.service.apikey.ApplicationService;
 import org.ednovo.gooru.domain.service.authentication.AccountService;
 import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.ednovo.gooru.domain.service.user.UserService;
+import org.ednovo.gooru.domain.service.user.impl.UserServiceImpl;
 import org.ednovo.gooru.domain.service.userManagement.UserManagementService;
 import org.ednovo.gooru.domain.service.userManagement.UserManagementServiceImpl;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.OrganizationSettingRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.party.OrganizationRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.storage.StorageRepository;
 import org.mortbay.jetty.security.Password;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
@@ -93,6 +96,8 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 	
 	@Autowired
 	private ApplicationService applicationService; 
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
 	
 	@Override
 	public Organization getOrganizationById(String organizationUid) {
@@ -138,11 +143,11 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 			newUser.setLastName(LAST);
 			newUser.setPartyUid(ANONYMOUS_ + randomString);
 			newUser.setUsername(ANONYMOUS_ + randomString);
-			newUser.setEmailId(ANONYMOUS_ +randomString+ AT_GMAIL_DOT_COM);
+			newUser.setEmailId(ANONYMOUS_ + randomString + AT_GMAIL_DOT_COM);
  
 			 ApiKey appApiKey = new ApiKey();
 			 appApiKey.setAppName(newOrganization.getPartyName());
-			 appApiKey.setAppURL(HTTP_URL +newOrganization.getPartyName()+ DOT_COM);
+			 appApiKey.setAppURL(HTTP_URL + newOrganization.getPartyName() + DOT_COM);
 			try {
 				User newOrgUser = new User();
 				newOrgUser = userManagementService.createUser(newUser, null, null, 1, null, null, null, null, null, null, null, null, request, null, null);
@@ -151,10 +156,10 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 				newOrganizationSetting.setKey(ANONYMOUS);
 				newOrganizationSetting.setValue(newOrgUser.getPartyUid());
 				organizationSettingRepository.save(newOrganizationSetting);
-				applicationService.saveApplication(appApiKey, newOrgUser, newOrganization.getPartyUid(),apiCaller);
+				applicationService.saveApplication(appApiKey, newOrgUser, newOrganization.getPartyUid(), apiCaller);
 				accountService.createSessionToken(newOrgUser, appApiKey.getKey(), request);
 			} catch (Exception e) {
-				e.printStackTrace();
+				LOGGER.debug("Error" + e);
 			}
 		}
 		return new ActionResponseDTO<Organization>(newOrganization,errors);
