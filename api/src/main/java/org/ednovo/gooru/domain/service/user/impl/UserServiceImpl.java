@@ -1040,43 +1040,6 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 	}
 
 	@Override
-	public UserRelationship followUser(User user, String gooruFollowOnUserId) {
-		UserRelationship userRelationship = getUserRepository().getActiveUserRelationship(user.getPartyUid(), gooruFollowOnUserId);
-		if (userRelationship == null) {
-			userRelationship = new UserRelationship();
-			userRelationship.setUser(user);
-			userRelationship.setFollowOnUser(getUserRepository().findByGooruId(gooruFollowOnUserId));
-			userRelationship.setActivatedDate(new Date());
-			userRelationship.setActiveFlag(true);
-			getUserRepository().save(userRelationship);
-			getUserRepository().flush();
-			try {
-				this.getMailHandler().sendMailForFollowedOnUserOrGroup(gooruFollowOnUserId);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-		return userRelationship;
-	}
-
-	@Override
-	public boolean unFollowUser(String gooruUserId, String gooruFollowOnUserId) {
-		UserRelationship userRelationship = getUserRepository().getActiveUserRelationship(gooruUserId, gooruFollowOnUserId);
-		if (userRelationship != null) {
-			userRelationship.setDeactivatedDate(new Date());
-			userRelationship.setActiveFlag(false);
-			getUserRepository().save(userRelationship);
-			try {
-				this.getMailHandler().sendMailForUnFollowUserOrGroup(gooruFollowOnUserId);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			return true;
-		}
-		return false;
-	}
-
-	@Override
 	public void signout(String sessionToken) {
 		UserToken userToken = this.getUserTokenRepository().findByToken(sessionToken);
 
@@ -2223,6 +2186,10 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 
 	public CollaboratorService getCollaboratorService() {
 		return collaboratorService;
+	}
+	
+	public Integer getChildAccountCount(String userUId){
+		return userRepository.getChildAccountCount(userUId);
 	}
 
 }

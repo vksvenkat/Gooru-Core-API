@@ -79,6 +79,11 @@
 				column="code_id" unique="true" />
 		</set>
 		
+		<set name="contentMetaAssoc" table="content_meta_association" cascade="none" lazy="true">
+			<key column="content_id" />
+			<one-to-many class="org.ednovo.gooru.core.api.model.ContentMetaAssociation" />
+		</set>
+		
 		<joined-subclass name="org.ednovo.gooru.core.api.model.Task" table="task">
 
 				<key column="task_content_id" />
@@ -188,14 +193,17 @@
 			<property name="batchId" column="batch_id" not-null="false" />
             <property name="tags" column="tags" not-null="false" />
             <property name="copiedResourceId" column="copied_resource_id" not-null="false" />
-			<property name="isFeatured" column="is_featured" not-null="true" />					
+			<property name="isFeatured" column="is_featured" not-null="true" />	
+			<property name="clusterUid" column="cluster_uid" not-null="false"/>
+			<property name="isRepresentative" column="is_representative" not-null="false"/>																				
+								
 			
 			<property name="numberOfSubcribers" column="number_of_subcribers"
 				not-null="false" />
 			<property name="sourceReference" column="source_reference"
 				not-null="false"></property>
-			<property name="s3UploadFlag" column="s3_upload_flag"
-				not-null="true" />
+			<property name="s3UploadFlag" column="s3_upload_flag" 
+				not-null="false" />
 			<set name="resourceSegments" cascade="all"
 				sort="org.ednovo.gooru.core.api.model.SegmentComparator">
 				<key column="resource_id" not-null="true" />
@@ -260,9 +268,6 @@
 				<property name="questions" column="questions" not-null="false" />
 				<property name="performanceTasks" column="performance_tasks" not-null="false" />
 				<property name="languageObjective" column="language_objective" not-null="false" />	
-				<property name="clusterUid" column="cluster_uid" not-null="false"/>
-				<property name="isRepresentative" column="is_representative" not-null="false"/>																				
-				
 				<many-to-one name="buildType" class="org.ednovo.gooru.core.api.model.CustomTableValue" column="build_type_id" not-null="false" lazy="proxy" cascade="none" />
 				
 				<many-to-one name="publishStatus" class="org.ednovo.gooru.core.api.model.CustomTableValue" column="publish_status_id" not-null="false" lazy="proxy" cascade="none" />

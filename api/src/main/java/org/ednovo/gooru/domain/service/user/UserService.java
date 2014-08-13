@@ -56,9 +56,6 @@ public interface UserService {
 
 	List<User> getFollowedOnUsers(String gooruUId, Integer offset, Integer limit);
 
-	UserRelationship followUser(User user, String gooruFollowOnUserId);
-
-	boolean unFollowUser(String gooruUserId, String gooruFollowOnUserId);
 
 	void signout(String sessionToken);
 
@@ -192,4 +189,7 @@ public interface UserService {
 	 Boolean isSuperAdmin(User user);
 	 
 	 public void getEventLogs(Identity identity, UserToken userToken) throws JSONException;
+	 
+	 public Integer getChildAccountCount(String userUId);
+	 
 }

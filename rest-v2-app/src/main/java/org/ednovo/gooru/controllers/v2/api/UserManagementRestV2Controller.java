@@ -144,6 +144,7 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_READ })
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/{id}")
 	public ModelAndView getUser(@PathVariable(value = ID) String userId, @RequestParam(value = USER_META_ACTIVE_FLAG, required = false) Integer activeFlag, HttpServletRequest request, HttpServletResponse response) throws Exception {
 
@@ -151,6 +152,7 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 	}
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_CONFIRM_MAIL })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.POST, value = "/sendmail/{id}")
 	public ModelAndView resendConfirmationMail(@PathVariable(value = ID) String gooruUid, @RequestBody String data , HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User apicaller = (User) request.getAttribute(Constants.USER);
@@ -281,6 +283,7 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAG_READ })
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.GET }, value = "/{id}/tag")
 	public ModelAndView getContentTagAssoc(@PathVariable(value = ID) String gooruUid, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, HttpServletRequest request,
 			 HttpServletResponse response) {
@@ -292,7 +295,7 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_UPDATE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.PUT }, value = "/{id}/meta")
-	public void deleteUserMeta(@PathVariable(value = ID) String gooruUid, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) {
+	public void updateUserMeta(@PathVariable(value = ID) String gooruUid, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) {
 		User apicaller = (User) request.getAttribute(Constants.USER);
 		this.getUserManagementService().deleteUserMeta(gooruUid, this.buildProfileFromInputParameters(data), apicaller);
 	}
@@ -310,7 +313,7 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_UPDATE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.PUT, value = "/{id}/profile/picture")
-	public void deleteProfilePicture(@PathVariable(value = ID) String userId, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public void updateProfilePicture(@PathVariable(value = ID) String userId, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		request.setAttribute(Constants.EVENT_PREDICATE, USER_DELETE_PROFILE_PICTURE);
 		this.getUserManagementService().deleteUserImageProfile(userId);
 	}
@@ -354,6 +357,7 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 	}
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_READ })
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/{id}/followers")
 	public ModelAndView getFollowedByUsers(@PathVariable(value = ID) String gooruUserId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,
 		  HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -364,6 +368,7 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_READ })
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/{id}/following")
 	public ModelAndView getFollowedOnUsers(@PathVariable(value = ID) String gooruUserId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,
 	    HttpServletRequest request, HttpServletResponse response) throws Exception {

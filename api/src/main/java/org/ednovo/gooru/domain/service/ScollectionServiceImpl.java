@@ -23,6 +23,7 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.domain.service;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -35,6 +36,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
 
+import org.apache.commons.io.FileUtils;
 import org.ednovo.gooru.application.util.AsyncExecutor;
 import org.ednovo.gooru.application.util.CollectionUtil;
 import org.ednovo.gooru.application.util.MailAsyncExecutor;
@@ -66,9 +68,11 @@ import org.ednovo.gooru.core.api.model.Textbook;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserGroupSupport;
 import org.ednovo.gooru.core.api.model.UserSummary;
+import org.ednovo.gooru.core.application.util.BaseUtil;
 import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.application.util.ResourceMetaInfo;
 import org.ednovo.gooru.core.constant.ConstantProperties;
+import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.core.exception.UnauthorizedException;
@@ -588,26 +592,44 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 	@Override
 	public List<ContentMetaDTO> updateContentMeta(List<ContentMetaDTO> newDepthOfKnowledges, final String collectionId, final User apiCaller, final String type) {
+		Resource resource = this.getResourceRepository().findResourceByContentGooruId(collectionId);
+		List<ContentMetaAssociation> removeAll = new ArrayList<ContentMetaAssociation>();
+		List<ContentMetaAssociation> saveAll = new ArrayList<ContentMetaAssociation>();
+		Set<ContentMetaAssociation> updateContent= new HashSet<ContentMetaAssociation>();
 		for (ContentMetaDTO newMeta : newDepthOfKnowledges) {
-			if (this.getCustomTableRepository().getValueByDisplayName(newMeta.getValue(), type) != null) {
-				ContentMetaAssociation contentMetaAssociation = this.getCollectionRepository().getContentMetaByValue(newMeta.getValue(), collectionId);
-				if (contentMetaAssociation == null && newMeta.getSelected()) {
-					contentMetaAssociation = new ContentMetaAssociation();
-					contentMetaAssociation.setValue(newMeta.getValue());
-					contentMetaAssociation.setAssociationType(this.getCustomTableRepository().getCustomTableValue("content_association_type", type));
-					contentMetaAssociation.setUser(apiCaller);
-					contentMetaAssociation.setContent(this.getContentRepositoryHibernate().findContentByGooruId(collectionId));
-					contentMetaAssociation.setAssociatedDate(new Date(System.currentTimeMillis()));
-					this.getCollectionRepository().save(contentMetaAssociation);
-				} else {
-					if (contentMetaAssociation != null && !newMeta.getSelected()) {
-						this.getCollectionRepository().remove(contentMetaAssociation);
+
+			CustomTableValue customTableValue = this.getCustomTableRepository().getValueByDisplayName(newMeta.getValue(), type);
+			if (customTableValue != null) {
+				Boolean isAlreadyUpdated = false;
+				for(ContentMetaAssociation contentMetaAssociation : resource.getContentMetaAssoc()) {
+					if(contentMetaAssociation.getAssociationType().getDisplayName().equalsIgnoreCase(newMeta.getValue()) && !newMeta.getSelected()) {
+						removeAll.add(contentMetaAssociation);
+						break;
+					} else if (contentMetaAssociation.getAssociationType().getDisplayName().equalsIgnoreCase(newMeta.getValue())) {
+						isAlreadyUpdated = true;
+						updateContent.add(contentMetaAssociation);
+						break;
 					}
+				} 
+				if (newMeta.getSelected() && !isAlreadyUpdated) {
+					ContentMetaAssociation contentMetaAssociationNew = new ContentMetaAssociation();
+					contentMetaAssociationNew.setAssociationType(customTableValue);
+					contentMetaAssociationNew.setUser(apiCaller);
+					contentMetaAssociationNew.setContent(this.getContentRepositoryHibernate().findContentByGooruId(collectionId));
+					contentMetaAssociationNew.setAssociatedDate(new Date(System.currentTimeMillis()));
+					saveAll.add(contentMetaAssociationNew);
+					updateContent.add(contentMetaAssociationNew);
 				}
 			}
 		}
+		if(saveAll.size() > 0) {
+			this.getCollectionRepository().saveAll(saveAll);
+		}
+		if(removeAll.size() > 0) {
+			this.getCollectionRepository().removeAll(removeAll);
+		}
 
-		return this.setContentMetaAssociation(this.getContentMetaAssociation(type), collectionId, type);
+		return this.setContentMetaAssociation(this.getContentMetaAssociation(type), updateContent, type);
 	}
 
 	@Override
@@ -655,7 +677,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 					}
 				}
 			} else {
-				throw new UnauthorizedException("user don't have permission ");
+				throw new UnauthorizedException(generateErrorMessage("GL0010))"));
 			}
 			
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + user.getPartyUid() + "*");
@@ -937,7 +959,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			}
 			collection.setLastModifiedUser(lastUserModifiedMap);
 			for (CollectionItem collectionItem : collection.getCollectionItems()) {
-				if (collectionItem.getResource().getResourceType().getName().equalsIgnoreCase("assessment-question")) {
+				if (collectionItem.getResource().getResourceType().getName().equalsIgnoreCase(ASSESSMENT_QUESTION)) {
 					collectionItem.getResource().setDepthOfKnowledges(this.setContentMetaAssociation(this.getContentMetaAssociation(DEPTH_OF_KNOWLEDGE), collectionItem.getResource().getGooruOid(), DEPTH_OF_KNOWLEDGE));
 				} else {
 					collectionItem.getResource().setMomentsOfLearning(this.setContentMetaAssociation(this.getContentMetaAssociation(MOMENTS_OF_LEARNING), collectionItem.getResource().getGooruOid(), MOMENTS_OF_LEARNING));
@@ -998,7 +1020,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		String cacheKey = "content_meta_association_type_" + type;
 		final String data = redisService.getValue(cacheKey);
 		if (data == null) {
-			List<CustomTableValue> customTableValues = this.getCustomTableRepository().getCustomTableValues(type);
+			List<CustomTableValue> customTableValues = this.getCustomTableRepository().getFilterValueFromCustomTable(type);
 			for (CustomTableValue customTableValue : customTableValues) {
 				ContentMetaDTO depthOfknowledge = new ContentMetaDTO();
 				depthOfknowledge.setValue(customTableValue.getDisplayName());
@@ -1015,16 +1037,19 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 	@Override
 	public List<ContentMetaDTO> setContentMetaAssociation(List<ContentMetaDTO> depthOfKnowledges, String collectionId, final String type) {
-		List<ContentMetaAssociation> metaAssociations = this.getCollectionRepository().getContentMetaById(collectionId, type);
-		for (ContentMetaAssociation contentMetaAssociation : metaAssociations) {
+		Resource resource = this.getResourceRepository().findResourceByContentGooruId(collectionId);
+		return   setContentMetaAssociation( depthOfKnowledges,  resource.getContentMetaAssoc(),  type);
+	}
+	
+	public List<ContentMetaDTO> setContentMetaAssociation(List<ContentMetaDTO> depthOfKnowledges, Set<ContentMetaAssociation> contentMetaAssociations, final String type) {
+		for (ContentMetaAssociation contentMetaAssociation : contentMetaAssociations) {
 			for (ContentMetaDTO depthOfKnowledge : depthOfKnowledges) {
-				if (depthOfKnowledge.getValue().equalsIgnoreCase(contentMetaAssociation.getValue())) {
+				if (depthOfKnowledge.getValue().equalsIgnoreCase(contentMetaAssociation.getAssociationType().getDisplayName())) {
 					depthOfKnowledge.setSelected(true);
 				}
 			}
 		}
 		return depthOfKnowledges;
-
 	}
 
 	@Override
@@ -1049,7 +1074,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				if (getUserService().checkCollaboratorsPermission(collectionId, collaborator, SCOLLECTION)) {
 					return collectionUtil.updateNewCollaborators(collection, collaboratorsList, user, COLLECTION_COLLABORATE, collaboratorOperation);
 				} else {
-					throw new NotFoundException("Invalid Collaborator");
+					throw new NotFoundException(generateErrorMessage("GL0006"));
 				}
 			}
 		}
@@ -1960,7 +1985,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		String domainName = null;
 		if (collectionId != null) {
 			if (newResource.getUrl() != null && getResourceService().shortenedUrlResourceCheck(newResource.getUrl())) {
-				throw new Exception("Cannot able to upload shortened URL resource.");
+				throw new Exception(generateErrorMessage("GL0007"));
 			}
 			final Collection collection = this.getCollectionRepository().getCollectionByGooruOid(collectionId, null);
 			if (collection != null) {
@@ -1972,11 +1997,12 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 					}
 				}
 				if (resource != null && resource.getSharing() != null && resource.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing())) {
-					throw new AccessDeniedException("This is public resource, do  not have premission to edit this resource, edit via GAT");
+					throw new AccessDeniedException(generateErrorMessage("GL0008"));
 				}
 
 				String sharing = collection.getSharing();
 				String title = newResource.getTitle().length() > 1000 ? newResource.getTitle().substring(0, 1000) : newResource.getTitle();
+				
 				if (resource == null) {
 					resource = new Resource();
 					resource.setGooruOid(UUID.randomUUID().toString());
@@ -2061,6 +2087,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 							LOGGER.debug(e.getMessage());
 						}
 					}
+			
 				}
 
 				if (newResource.getAttach() != null) {
@@ -2074,7 +2101,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				response.getModel().setStandards(this.getStandards(resource.getTaxonomySet(), false, null));
 
 			} else {
-				throw new NotFoundException("collection does not exist in the system, required collection to map the resource");
+				throw new NotFoundException(generateErrorMessage("GL0009"));
 			}
 			if (response.getModel().getCollection().getResourceType().getName().equalsIgnoreCase(SCOLLECTION) && response.getModel().getCollection().getClusterUid() != null &&!response.getModel().getCollection().getClusterUid().equalsIgnoreCase(response.getModel().getCollection().getGooruOid())) { 
 				response.getModel().getCollection().setClusterUid(response.getModel().getCollection().getGooruOid());

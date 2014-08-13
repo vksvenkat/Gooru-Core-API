@@ -27,7 +27,6 @@ import java.util.List;
 
 import org.ednovo.gooru.core.api.model.StorageArea;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate;
-import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
 
 @Repository
