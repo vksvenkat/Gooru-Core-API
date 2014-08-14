@@ -319,7 +319,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 					if (newProfile.getUser() != null && newProfile.getUser().getActive() != null) {
 							identity.setActive(newProfile.getUser().getActive());
 							user.setActive(newProfile.getUser().getActive());
-							if(newProfile.getUser().getActive()== 0){
+							if(newProfile.getUser().getActive() == 0){
 								this.getMailHandler().sendUserDisabledMail(gooruUid);
 							}
 							this.getUserRepository().save(identity);
