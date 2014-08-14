@@ -68,7 +68,7 @@ public class ProfanityDetectorV2Controller extends SerializerUtil implements Par
 	public ModelAndView profanityCreate(@RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		Profanity profanity = JsonDeserializer.deserialize(data, Profanity.class);
 		
-		return toModelAndView(this.profanityCheckService.profanityCreate(profanity), RESPONSE_FORMAT_JSON);
+		return toModelAndViewWithIoFilter(this.profanityCheckService.profanityCreate(profanity), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, PROFANITY_INCLUDES);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_PROFANITY_DELETE })

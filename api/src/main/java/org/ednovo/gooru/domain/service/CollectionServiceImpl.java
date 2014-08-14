@@ -208,18 +208,22 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				collectionItem.setItemType(COLLABORATOR);
 			}
 		}
-		List<String> parenFolders = this.getParentCollection(sourceCollectionItem.getCollection().getGooruOid(), user.getPartyUid(), true);
-		for (String folderGooruOid : parenFolders) {
-			updateFolderSharing(folderGooruOid);
-		}
-		
+		String collectionGooruOid = sourceCollectionItem.getCollection().getGooruOid();
 		if (sourceCollectionItem != null) {
 			deleteCollectionItem(sourceCollectionItem.getCollectionItemId(), user);
 		}
+		
+		
 		if (targetId != null) {
 			responseDTO = this.createCollectionItem(sourceId, targetId, collectionItem, user, CollectionType.FOLDER.getCollectionType(), false);
 		} else {
 			responseDTO = this.createCollectionItem(sourceId, null, collectionItem, user, CollectionType.SHElf.getCollectionType(), false);
+		}
+		
+		updateFolderSharing(collectionGooruOid);
+		List<String> parenFolders = this.getParentCollection(collectionGooruOid, user.getPartyUid(), false);
+		for (String folderGooruOid : parenFolders) {
+			updateFolderSharing(folderGooruOid);
 		}
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + user.getPartyUid() + "*");
