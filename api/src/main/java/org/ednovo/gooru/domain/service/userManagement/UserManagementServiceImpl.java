@@ -326,7 +326,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 							boolean emailAvailability = this.getUserRepository().checkUserAvailability(newProfile.getUser().getEmailId(), CheckUser.BYEMAILID, false);
 
 							if (emailAvailability) {
-								throw new BadRequestException(generateErrorMessage("GL0058", newProfile.getUser().getEmailId()));
+								throw new BadRequestException(generateErrorMessage("GL0084" ,newProfile.getUser().getEmailId(),"Email id"));
 							}
 							if (emailConfirmStatus || (isContentAdmin(apiCaller) && !apiCaller.getPartyUid().equals(gooruUid))) {
 
@@ -642,7 +642,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		boolean usernameAvailability = this.getUserRepository().checkUserAvailability(user.getUsername(), CheckUser.BYUSERNAME, false);
 
 		if (usernameAvailability) {
-			throw new NotFoundException(generateErrorMessage("GL0084", user.getUsername()));
+			throw new NotFoundException(generateErrorMessage("GL0084", user.getUsername(),"username"));
 		}
 
 		boolean emailidAvailability = this.getUserRepository().checkUserAvailability(user.getEmailId(), CheckUser.BYEMAILID, false);
