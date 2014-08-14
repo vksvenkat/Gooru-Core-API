@@ -28,7 +28,6 @@ import java.util.List;
 import org.ednovo.gooru.core.api.model.CustomTableValue;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate;
 import org.hibernate.Query;
-import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -43,7 +42,7 @@ public class CustomTableRepositopryHibernate extends BaseRepositoryHibernate imp
 	@SuppressWarnings("unchecked")
 	@Override
 	public CustomTableValue getCustomTableValue(String name, String value) {
-		Query query = getSession().createQuery(RETIREVE_BY_NAME_VALUE);
+		Query query = getSessionReadOnly().createQuery(RETIREVE_BY_NAME_VALUE);
 		query.setParameter("name", name);
 		query.setParameter("value", value);
 		addOrgAuthParameters(query);
@@ -53,7 +52,7 @@ public class CustomTableRepositopryHibernate extends BaseRepositoryHibernate imp
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<CustomTableValue> getCustomTableValues(String name) {
-		Query query = getSession().createQuery(RETIREVE_BY_NAME);
+		Query query = getSessionReadOnly().createQuery(RETIREVE_BY_NAME);
 		query.setParameter("name", name);
 		addOrgAuthParameters(query);
 		return    query.list(); 
@@ -62,14 +61,14 @@ public class CustomTableRepositopryHibernate extends BaseRepositoryHibernate imp
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<CustomTableValue> getFilterValueFromCustomTable(String name) {
-		Query query = getSession().createQuery(GET_FILTER_VALUE_FROM_CUSTOMTABLE);
+		Query query = getSessionReadOnly().createQuery(GET_FILTER_VALUE_FROM_CUSTOMTABLE);
 		query.setParameter("name", name);
 		return    query.list(); 
 	}
 	
 	@Override
 	public CustomTableValue getValueByDisplayName(String displayName, String name) {
-		Query query = getSession().createQuery(GET_VALUE_BY_DISPLAY_NAME);
+		Query query = getSessionReadOnly().createQuery(GET_VALUE_BY_DISPLAY_NAME);
 		query.setParameter("name", name);
 		query.setParameter("displayName", displayName);
 		return   (CustomTableValue) (query.list().size() > 0 ? query.list().get(0) : null); 
@@ -77,7 +76,7 @@ public class CustomTableRepositopryHibernate extends BaseRepositoryHibernate imp
 
 	@Override
 	public List<CustomTableValue> getCustomValues(String type) {
-		Query query = getSession().createQuery(GET_CUSTOM_TABLE_VALUES);
+		Query query = getSessionReadOnly().createQuery(GET_CUSTOM_TABLE_VALUES);
 		query.setParameter("type", type);
 		return query.list();
 	}

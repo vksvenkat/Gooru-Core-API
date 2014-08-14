@@ -25,6 +25,8 @@ package org.ednovo.gooru.domain.service.party;
 
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Organization;
 import org.ednovo.gooru.core.api.model.OrganizationSetting;
@@ -40,8 +42,8 @@ public interface OrganizationService {
 
 	Organization getOrganizationByName(String partyName);
 	
-	ActionResponseDTO<Organization> saveOrganization(Organization organization, User user);
-	
+	ActionResponseDTO<Organization> saveOrganization(Organization organization, User user, HttpServletRequest request);
+
 	ActionResponseDTO<Organization> updateOrganization(Organization organization, String existingOrganizationUid, User apiCaller) throws Exception;
 	
 	ActionResponseDTO<OrganizationSetting> saveOrUpdateOrganizationSetting(String organizationUid, OrganizationSetting organizationSetting) throws Exception;

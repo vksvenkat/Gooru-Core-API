@@ -68,7 +68,7 @@ public class BaseController extends SerializerUtil implements ParameterPropertie
 		return operationAuthorizer;
 	}
 
-	public void setOperationAuthorizer(OperationAuthorizer operationAuthorizer) {
+	public void setOperationAuthorizer(final OperationAuthorizer operationAuthorizer) {
 		this.operationAuthorizer = operationAuthorizer;
 	}
 
@@ -80,7 +80,7 @@ public class BaseController extends SerializerUtil implements ParameterPropertie
 		return getOperationAuthorizer().hasPublishAccess();
 	}
 
-	public static String getValue(String key, JSONObject json) throws Exception {
+	public static String getValue(final String key, JSONObject json) throws Exception {
 		try {
 			if (json.isNull(key)) {
 				return null;
@@ -101,7 +101,7 @@ public class BaseController extends SerializerUtil implements ParameterPropertie
 	}
 
 	public static String[] getFields(String data) {
-		List<String> fields = JsonDeserializer.deserialize(data, new TypeReference<List<String>>() {
+		final List<String> fields = JsonDeserializer.deserialize(data, new TypeReference<List<String>>() {
 		});
 		return fields.toArray(new String[fields.size()]);
 	}
