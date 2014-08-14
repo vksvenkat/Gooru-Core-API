@@ -1983,7 +1983,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		String domainName = null;
 		if (collectionId != null) {
 			if (newResource.getUrl() != null && getResourceService().shortenedUrlResourceCheck(newResource.getUrl())) {
-				throw new Exception(generateErrorMessage("GL0007"));
+				throw new Exception(generateErrorMessage("GL0011"));
 			}
 			final Collection collection = this.getCollectionRepository().getCollectionByGooruOid(collectionId, null);
 			if (collection != null) {
@@ -1995,7 +1995,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 					}
 				}
 				if (resource != null && resource.getSharing() != null && resource.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing())) {
-					throw new AccessDeniedException(generateErrorMessage("GL0008"));
+					throw new AccessDeniedException(generateErrorMessage("GL0012"));
 				}
 
 				String sharing = collection.getSharing();
@@ -2098,7 +2098,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				response.getModel().setStandards(this.getStandards(resource.getTaxonomySet(), false, null));
 
 			} else {
-				throw new NotFoundException(generateErrorMessage("GL0009"));
+				throw new NotFoundException(generateErrorMessage("GL0013"));
 			}
 			if (response.getModel().getCollection().getResourceType().getName().equalsIgnoreCase(SCOLLECTION) && response.getModel().getCollection().getClusterUid() != null &&!response.getModel().getCollection().getClusterUid().equalsIgnoreCase(response.getModel().getCollection().getGooruOid())) { 
 				response.getModel().getCollection().setClusterUid(response.getModel().getCollection().getGooruOid());
