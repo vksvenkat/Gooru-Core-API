@@ -82,7 +82,7 @@ public class GooruOperationConstants {
 	
 	public static final String ENTITY_CLASSPAGE = "Classpage";
 	
-	public static final String ENTITY_PARTY_CUSTOM_FIELD = "PartyCustomField ";
+	public static final String ENTITY_PARTY_CUSTOM_FIELD = "PartyCustomField";
 	
 	public static final String ENTITY_QUIZ_ITEM = "QuizItem";
 	
