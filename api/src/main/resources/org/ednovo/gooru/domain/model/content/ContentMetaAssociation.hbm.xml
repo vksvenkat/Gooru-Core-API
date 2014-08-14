@@ -17,8 +17,8 @@
 			not-null="false" lazy="proxy" cascade="none" />
 			
 		<many-to-one name="associationType"
-			class="org.ednovo.gooru.core.api.model.CustomTableValue" column="associaation_type"
-			not-null="false" lazy="proxy" cascade="none" />
+			class="org.ednovo.gooru.core.api.model.CustomTableValue" column="association_type"
+			not-null="true" lazy="proxy" cascade="none" />
 			
 		<property name="value" column="value"
 			not-null="false" />
