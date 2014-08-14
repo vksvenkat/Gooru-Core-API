@@ -24,13 +24,10 @@
 package org.ednovo.gooru.domain.service.annotation;
 
 import org.ednovo.gooru.core.api.model.Annotation;
-import org.json.JSONException;
 import org.springframework.validation.Errors;
 
 public interface AnnotationService {
 
 	void create(Annotation annotation, String type, Errors errors);
-
-	boolean hasUserSubscribedToUserContent(String userId, String gooruContentId);
 
 }
