@@ -1034,6 +1034,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	@Override
 	public List<ContentMetaDTO> setContentMetaAssociation(List<ContentMetaDTO> depthOfKnowledges, String collectionId, final String type) {
 		Resource resource = this.getResourceRepository().findResourceByContentGooruId(collectionId);
+		rejectIfNull(resource, "GL0056", COLLECTION, " ID: ", collectionId);
 		return   setContentMetaAssociation( depthOfKnowledges,  resource.getContentMetaAssoc(),  type);
 	}
 	
