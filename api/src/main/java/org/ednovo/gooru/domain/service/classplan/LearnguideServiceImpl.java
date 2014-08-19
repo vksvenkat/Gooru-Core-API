@@ -31,15 +31,12 @@ import java.sql.Date;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
-
-import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
@@ -53,10 +50,8 @@ import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.ContentAssociation;
 import org.ednovo.gooru.core.api.model.ContentType;
-import org.ednovo.gooru.core.api.model.Identity;
 import org.ednovo.gooru.core.api.model.Learnguide;
 import org.ednovo.gooru.core.api.model.License;
-import org.ednovo.gooru.core.api.model.Profile;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.ResourceInfo;
 import org.ednovo.gooru.core.api.model.ResourceInstance;
@@ -88,7 +83,6 @@ import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.activity.SessionActivityRepository;
-import org.ednovo.gooru.infrastructure.persistence.hibernate.annotation.SubscriptionRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.classplan.LearnguideRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.resource.ResourceRepository;
@@ -151,9 +145,6 @@ public class LearnguideServiceImpl extends OperationAuthorizer implements Learng
 	@Autowired
 	@javax.annotation.Resource(name = "resourceManager")
 	private ResourceManager resourceManager;
-
-	@Autowired
-	private SubscriptionRepository subscriptionRepository;
 
 	@Autowired
 	private SessionActivityRepository sessionActivityRepository;
@@ -678,7 +669,6 @@ public class LearnguideServiceImpl extends OperationAuthorizer implements Learng
 			}
 		}
 
-		this.getSubscriptionRepository().deleteSubscription(user.getPartyUid(), gooruContentId);
 
 		try {
 			revisionHistoryService.createVersion(targetCollection, COPY_COLLECTION);
@@ -865,14 +855,6 @@ public class LearnguideServiceImpl extends OperationAuthorizer implements Learng
 
 	public void setResourceManager(ResourceManager resourceManager) {
 		this.resourceManager = resourceManager;
-	}
-
-	public SubscriptionRepository getSubscriptionRepository() {
-		return subscriptionRepository;
-	}
-
-	public void setSubscriptionRepository(SubscriptionRepository subscriptionRepository) {
-		this.subscriptionRepository = subscriptionRepository;
 	}
 
 	public ResourceService getResourceService() {

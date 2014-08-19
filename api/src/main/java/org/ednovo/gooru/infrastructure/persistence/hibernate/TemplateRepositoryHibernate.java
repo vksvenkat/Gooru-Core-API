@@ -27,7 +27,6 @@ import java.util.List;
 
 import org.ednovo.gooru.core.api.model.Template;
 import org.hibernate.Query;
-import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -35,9 +34,8 @@ public class TemplateRepositoryHibernate extends BaseRepositoryHibernate impleme
 
 	@Override
 	public Template getTemplate(String id) {
-		Session session = getSession();
 		String hql = " FROM  Template template WHERE " + generateOrgAuthQuery("template.") + " and template.gooruOid=:id";
-		Query query = session.createQuery(hql);
+		Query query = getSessionReadOnly().createQuery(hql);
 		query.setParameter("id", id);
 		addOrgAuthParameters(query);
 		return (Template) ((query.list() != null && query.list().size() > 0) ? query.list().get(0) : null);
@@ -45,9 +43,8 @@ public class TemplateRepositoryHibernate extends BaseRepositoryHibernate impleme
 
 	@Override
 	public List<Template> getTemplates() {
-		Session session = getSession();
 		String hql = " FROM  Template template WHERE " + generateOrgAuthQuery("template.");
-		Query query = session.createQuery(hql);
+		Query query = getSessionReadOnly().createQuery(hql);
 		addOrgAuthParameters(query);
 		return query.list();
 	}

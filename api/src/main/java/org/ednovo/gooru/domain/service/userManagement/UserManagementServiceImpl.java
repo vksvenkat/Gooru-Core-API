@@ -316,17 +316,19 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 						}
 					}
 
-					if (newProfile.getUser() != null) {
-						if (newProfile.getUser().getActive() != null) {
+					if (newProfile.getUser() != null && newProfile.getUser().getActive() != null) {
 							identity.setActive(newProfile.getUser().getActive());
 							user.setActive(newProfile.getUser().getActive());
+							if(newProfile.getUser().getActive() == 0){
+								this.getMailHandler().sendUserDisabledMail(gooruUid);
+							}
 							this.getUserRepository().save(identity);
-						}
+						
 						if (identity != null && newProfile.getUser().getEmailId() != null && !newProfile.getUser().getEmailId().isEmpty()) {
 							boolean emailAvailability = this.getUserRepository().checkUserAvailability(newProfile.getUser().getEmailId(), CheckUser.BYEMAILID, false);
 
 							if (emailAvailability) {
-								throw new BadRequestException(generateErrorMessage("GL0058", newProfile.getUser().getEmailId()));
+								throw new BadRequestException(generateErrorMessage("GL0084" ,newProfile.getUser().getEmailId(),"Email id"));
 							}
 							if (emailConfirmStatus || (isContentAdmin(apiCaller) && !apiCaller.getPartyUid().equals(gooruUid))) {
 
@@ -642,7 +644,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		boolean usernameAvailability = this.getUserRepository().checkUserAvailability(user.getUsername(), CheckUser.BYUSERNAME, false);
 
 		if (usernameAvailability) {
-			throw new NotFoundException(generateErrorMessage("GL0084", user.getUsername()));
+			throw new NotFoundException(generateErrorMessage("GL0084", user.getUsername(),"username"));
 		}
 
 		boolean emailidAvailability = this.getUserRepository().checkUserAvailability(user.getEmailId(), CheckUser.BYEMAILID, false);
@@ -1389,7 +1391,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		}
 
 	}
-
+	
 	private Map<String, Object> setUserObj(User user) {
 		Map<String, Object> userObj = new HashMap<String, Object>();
 		userObj.put(USER_NAME, user.getUsername());

@@ -91,6 +91,8 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 
 	private static final String PAGE_START = "startAt";
 	
+	private static final String COUNT_SUBSCRIPTION_FOR_GOORUOID = "select count(1) as totalCount from content c inner join annotation a on a.resource_id = c.content_id where a.type_name='subscription' and c.gooru_oid= :gooruOid and " + generateOrgAuthSqlQuery("c.");
+	
 	private static final Logger LOGGER = LoggerFactory.getLogger(ResourceServiceImpl.class);
 
 	@SuppressWarnings("unchecked")
@@ -1020,6 +1022,19 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 		String hql = "From ResourceSummary rs where rs.resourceGooruOid= '"+gooruOid+"'";
 		Query query = getSession().createQuery(hql);
 		return query.list().size() > 0 ? (ResourceSummary) query.list().get(0)  : null;
+	}
+	
+	@Override
+	public Integer getSubscriptionCountForGooruOid(String contentGooruOid) {
+		Query query = getSession().createSQLQuery(COUNT_SUBSCRIPTION_FOR_GOORUOID).addScalar("totalCount", StandardBasicTypes.INTEGER).setParameter("gooruOid", contentGooruOid);
+		addOrgAuthParameters(query);
+		List<Integer> subscriptionCounts = query.list();
+
+		if ((subscriptionCounts != null) && (subscriptionCounts.size() > 0)) {
+			return subscriptionCounts.get(0);
+		} else {
+			return new Integer(0);
+		}
 	}
 	 
 }

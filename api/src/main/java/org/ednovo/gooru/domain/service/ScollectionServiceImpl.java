@@ -23,7 +23,6 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.domain.service;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -36,7 +35,6 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
 
-import org.apache.commons.io.FileUtils;
 import org.ednovo.gooru.application.util.AsyncExecutor;
 import org.ednovo.gooru.application.util.CollectionUtil;
 import org.ednovo.gooru.application.util.MailAsyncExecutor;
@@ -68,11 +66,9 @@ import org.ednovo.gooru.core.api.model.Textbook;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserGroupSupport;
 import org.ednovo.gooru.core.api.model.UserSummary;
-import org.ednovo.gooru.core.application.util.BaseUtil;
 import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.application.util.ResourceMetaInfo;
 import org.ednovo.gooru.core.constant.ConstantProperties;
-import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.core.exception.UnauthorizedException;
@@ -1037,15 +1033,18 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 	@Override
 	public List<ContentMetaDTO> setContentMetaAssociation(List<ContentMetaDTO> depthOfKnowledges, String collectionId, final String type) {
-		Resource resource = this.getResourceRepository().findResourceByContentGooruId(collectionId);
+		Resource resource = this.getResourceRepository().findResourceByContent(collectionId);
+		rejectIfNull(resource, "GL0056", RESOURCE + " ID: " + collectionId);
 		return   setContentMetaAssociation( depthOfKnowledges,  resource.getContentMetaAssoc(),  type);
 	}
 	
 	public List<ContentMetaDTO> setContentMetaAssociation(List<ContentMetaDTO> depthOfKnowledges, Set<ContentMetaAssociation> contentMetaAssociations, final String type) {
-		for (ContentMetaAssociation contentMetaAssociation : contentMetaAssociations) {
-			for (ContentMetaDTO depthOfKnowledge : depthOfKnowledges) {
-				if (depthOfKnowledge.getValue().equalsIgnoreCase(contentMetaAssociation.getAssociationType().getDisplayName())) {
-					depthOfKnowledge.setSelected(true);
+		if (contentMetaAssociations != null && contentMetaAssociations.size() > 0) {
+			for (ContentMetaAssociation contentMetaAssociation : contentMetaAssociations) {
+				for (ContentMetaDTO depthOfKnowledge : depthOfKnowledges) {
+					if (depthOfKnowledge.getValue().equalsIgnoreCase(contentMetaAssociation.getAssociationType().getDisplayName())) {
+						depthOfKnowledge.setSelected(true);
+					}
 				}
 			}
 		}
@@ -1985,7 +1984,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		String domainName = null;
 		if (collectionId != null) {
 			if (newResource.getUrl() != null && getResourceService().shortenedUrlResourceCheck(newResource.getUrl())) {
-				throw new Exception(generateErrorMessage("GL0007"));
+				throw new Exception(generateErrorMessage("GL0011"));
 			}
 			final Collection collection = this.getCollectionRepository().getCollectionByGooruOid(collectionId, null);
 			if (collection != null) {
@@ -1997,12 +1996,11 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 					}
 				}
 				if (resource != null && resource.getSharing() != null && resource.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing())) {
-					throw new AccessDeniedException(generateErrorMessage("GL0008"));
+					throw new AccessDeniedException(generateErrorMessage("GL0012"));
 				}
 
 				String sharing = collection.getSharing();
 				String title = newResource.getTitle().length() > 1000 ? newResource.getTitle().substring(0, 1000) : newResource.getTitle();
-				
 				if (resource == null) {
 					resource = new Resource();
 					resource.setGooruOid(UUID.randomUUID().toString());
@@ -2087,7 +2085,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 							LOGGER.debug(e.getMessage());
 						}
 					}
-			
+
 				}
 
 				if (newResource.getAttach() != null) {
@@ -2101,7 +2099,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				response.getModel().setStandards(this.getStandards(resource.getTaxonomySet(), false, null));
 
 			} else {
-				throw new NotFoundException(generateErrorMessage("GL0009"));
+				throw new NotFoundException(generateErrorMessage("GL0013"));
 			}
 			if (response.getModel().getCollection().getResourceType().getName().equalsIgnoreCase(SCOLLECTION) && response.getModel().getCollection().getClusterUid() != null &&!response.getModel().getCollection().getClusterUid().equalsIgnoreCase(response.getModel().getCollection().getGooruOid())) { 
 				response.getModel().getCollection().setClusterUid(response.getModel().getCollection().getGooruOid());

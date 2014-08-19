@@ -473,6 +473,22 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 		}
 	}
 
+	 public void  sendUserDisabledMail(String gooruUid){
+		 final String serverpath = this.getServerConstants().getProperty(SERVERPATH);
+		 final Identity identity = this.getUserRepositoryHibernate().findUserByGooruId(gooruUid);
+		 EventMapping eventMapping = this.getEventService().getTemplatesByEventName(CustomProperties.EventMapping.USER_DISABLED_NOTIFICATION.getEvent());
+			Map<String, Object> map = eventMapData(eventMapping);
+			map.put(SERVERPATH,serverpath);
+			map.put(USERNAME, identity.getUser().getUsername());
+			map.put(_GOORU_UID, gooruUid);
+			map.put(HTMLCONTENT, generateMessage((String) map.get(HTMLCONTENT), map));
+			map.put(SUBJECT, eventMapping.getTemplate().getSubject() );
+			map.put(CONTENT, generateMessage((String) map.get(TEXTCONTENT), map));
+			map.put(RECIPIENT, getConfigSetting(ConfigConstants.USER_MAIL_DISABLE_NOTIFICATION, TaxonomyUtil.GOORU_ORG_UID));
+			map.put(FROMNAME, FROM_GOORU);
+			sendMailViaRestApi(map);
+		 
+	 }
 	private void sendMailViaRestApi(Map<String, Object> paramMap) {
 		String url = settingService.getConfigSetting(ConfigConstants.GOORU_MAIL_RESTPOINT, 0, TaxonomyUtil.GOORU_ORG_UID) + "send-mail";
 		long expires = System.currentTimeMillis() + 1000 * 60 * 5;
