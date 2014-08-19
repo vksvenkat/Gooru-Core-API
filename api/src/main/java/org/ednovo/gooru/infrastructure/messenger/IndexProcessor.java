@@ -147,7 +147,7 @@ public class IndexProcessor extends BaseComponent {
 												}
 											}
 											if (scollectionGooruOIds.length() > 0) {
-												index(resourceGooruOIds.toString(), IndexProcessor.INDEX, "scollection", sessionToken, authentication, false, isUpdateStas);
+												index(scollectionGooruOIds.toString(), IndexProcessor.INDEX, "scollection", sessionToken, authentication, false, isUpdateStas);
 											}
 											if (resourceGooruOIds.length() > 0) {
 												index(resourceGooruOIds.toString(), IndexProcessor.INDEX, "resource", sessionToken, authentication, false, isUpdateStas);
