@@ -945,5 +945,4 @@ public class ResourceCio implements IsEntityCassandraIndexable {
 	public void setIsCanonical(Integer isCanonical) {
 		this.isCanonical = isCanonical;
 	}
-	
 }

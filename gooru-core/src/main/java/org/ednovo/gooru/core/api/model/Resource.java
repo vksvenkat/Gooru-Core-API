@@ -198,6 +198,8 @@ public class Resource extends Content implements Serializable {
 	private List<String> host;
 	
 	private List<Map<String, Object>> resourceTags;
+	private String clusterUid;
+	private Integer isRepresentative;
 	
 	public Resource() {
 		recordSource = RecordSource.DEFAULT.getRecordSource();
@@ -968,5 +970,20 @@ public class Resource extends Content implements Serializable {
 	public List<Map<String, Object>> getResourceTags() {
 		return resourceTags;
 	}
+	public String getClusterUid() {
+		return clusterUid;
+	}
+
+	public void setClusterUid(String clusterUid) {
+		this.clusterUid = clusterUid;
+	}
+
+	public Integer getIsRepresentative() {
+		return isRepresentative;
+	}
+
+	public void setIsRepresentative(Integer isRepresentative) {
+		this.isRepresentative = isRepresentative;
+	}	
 
 }
