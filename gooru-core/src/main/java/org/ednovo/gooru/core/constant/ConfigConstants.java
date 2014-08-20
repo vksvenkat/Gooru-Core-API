@@ -189,5 +189,7 @@ public interface ConfigConstants {
     String SERVICE_DEFAULT_VERSION = "service.default.version";
     
     String USER_MAIL_DISABLE_NOTIFICATION = "gooru.user.disabled.mail.notification";
+    
+    String GOORU_SETTING = "gooru.setting";
 
 }
