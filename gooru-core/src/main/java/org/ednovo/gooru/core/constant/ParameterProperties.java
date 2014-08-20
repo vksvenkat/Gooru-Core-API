@@ -268,6 +268,8 @@ public interface ParameterProperties {
 
 	String COUNT = "count";
 	
+	String REVIEW_COUNT = "reviewCount";
+	
 	String COLLECTION_COUNT = "collectionCount";
 
 	String SCORE = "score";
@@ -1237,6 +1239,16 @@ public interface ParameterProperties {
 	String QUOTE = "quote";
 
 	String FIRST = "first";
+	
+	String LAST = "last";
+	
+	String ANONYMOUS_ = "anonymous_";
+	
+	String HTTP_URL = "http://";
+	
+	String DOT_COM = ".com";
+	
+	String AT_GMAIL_DOT_COM = "@gmail.com";
 
 	String IN_USE = "in_use";
 

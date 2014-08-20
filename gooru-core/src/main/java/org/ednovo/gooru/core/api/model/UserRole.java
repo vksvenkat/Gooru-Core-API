@@ -32,6 +32,7 @@ public class UserRole extends OrganizationModel implements Serializable{
 		CONTENT_ADMIN("Content_Admin"),
 		ANONYMOUS("ANONYMOUS"),
 		AUTHENTICATED_USER("User"),
+		PARENT("Parent"),
 		OTHER("other"),
 		PUBLISHER("Publisher"),
 		SUPER_ADMIN("superadmin");

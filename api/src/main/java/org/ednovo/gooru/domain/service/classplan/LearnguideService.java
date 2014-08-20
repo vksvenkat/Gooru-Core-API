@@ -78,8 +78,6 @@ public interface LearnguideService {
 
 	JSONObject resetRequestPending(User user, String contentGooruOid, Integer pendingStatus) throws Exception;
 
-	JSONObject sendRequestForPublishCollection(User user, String contentGooruOid, String message, HttpServletRequest request) throws Exception;
-
 	JSONObject publishCollection(String action, User user, String contentGooruOid) throws Exception;
 
 	Learnguide createNewCollection(String lesson, String grade, String[] taxonomyCode, User user, String type, Map<String, String> customFieldAndValueMap, String lessonObjectives);

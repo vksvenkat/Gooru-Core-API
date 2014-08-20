@@ -27,7 +27,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.cassandra.cql3.statements.CreateUserStatement;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
+import org.ednovo.gooru.core.api.model.ApiKey;
 import org.ednovo.gooru.core.api.model.Organization;
 import org.ednovo.gooru.core.api.model.OrganizationSetting;
 import org.ednovo.gooru.core.api.model.PartyCategoryType;
@@ -40,14 +44,23 @@ import org.ednovo.gooru.core.api.model.UserRole.UserRoleType;
 import org.ednovo.gooru.core.api.model.UserRoleAssoc;
 import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.core.constant.ConstantProperties;
+import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.domain.service.BaseServiceImpl;
 import org.ednovo.gooru.domain.service.PartyService;
+import org.ednovo.gooru.domain.service.apikey.ApplicationService;
+import org.ednovo.gooru.domain.service.authentication.AccountService;
 import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.ednovo.gooru.domain.service.user.UserService;
+import org.ednovo.gooru.domain.service.user.impl.UserServiceImpl;
+import org.ednovo.gooru.domain.service.userManagement.UserManagementService;
+import org.ednovo.gooru.domain.service.userManagement.UserManagementServiceImpl;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.OrganizationSettingRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.party.OrganizationRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.storage.StorageRepository;
+import org.mortbay.jetty.security.Password;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
@@ -55,7 +68,7 @@ import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
 
 @Service
-public class OrganizationServiceImpl extends BaseServiceImpl implements OrganizationService,ParameterProperties,ConstantProperties {
+public class OrganizationServiceImpl extends BaseServiceImpl implements OrganizationService, ParameterProperties, ConstantProperties {
 
 	@Autowired
 	private OrganizationRepository organizationRepository;
@@ -74,6 +87,17 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 
 	@Autowired
 	private StorageRepository storageRepository;
+	
+	@Autowired
+	private UserManagementService userManagementService;
+	
+	@Autowired
+	private AccountService accountService;
+	
+	@Autowired
+	private ApplicationService applicationService; 
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
 	
 	@Override
 	public Organization getOrganizationById(String organizationUid) {
@@ -96,12 +120,14 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 	}
 
 	@Override
-	public ActionResponseDTO<Organization> saveOrganization(Organization organizationData, User user) {
+	public ActionResponseDTO<Organization> saveOrganization(Organization organizationData, User user, HttpServletRequest request) {
 		Errors errors = validateNullFields(organizationData);
+		User apiCaller = (User) request.getAttribute(Constants.USER);
 		Organization newOrganization = new Organization();
 		if(!errors.hasErrors()){
 			newOrganization.setPartyName(organizationData.getPartyName());
-			newOrganization.setOrganizationCode(getRandomString(5));
+			String randomString = getRandomString(5);
+			newOrganization.setOrganizationCode(randomString);
 			newOrganization.setPartyType(PartyType.ORGANIZATION.getType());
 			newOrganization.setCreatedOn(new Date(System.currentTimeMillis()));
 			newOrganization.setS3StorageArea(storageRepository.getAvailableStorageArea(1));
@@ -111,6 +137,30 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 			updateOrgAdminCustomField(newOrganization.getPartyUid(), user);
 			//updateDefaultOrganizationPermission(newOrganization);
 			updateOrgSetting(newOrganization);
+			User newUser = new User();
+			newUser.setOrganization(newOrganization);
+			newUser.setFirstName(FIRST);
+			newUser.setLastName(LAST);
+			newUser.setPartyUid(ANONYMOUS_ + randomString);
+			newUser.setUsername(ANONYMOUS_ + randomString);
+			newUser.setEmailId(ANONYMOUS_ + randomString + AT_GMAIL_DOT_COM);
+ 
+			 ApiKey appApiKey = new ApiKey();
+			 appApiKey.setAppName(newOrganization.getPartyName());
+			 appApiKey.setAppURL(HTTP_URL + newOrganization.getPartyName() + DOT_COM);
+			try {
+				User newOrgUser = new User();
+				newOrgUser = userManagementService.createUser(newUser, null, null, 1, null, null, null, null, null, null, null, null, request, null, null);
+				OrganizationSetting newOrganizationSetting = new OrganizationSetting();
+				newOrganizationSetting.setOrganization(newOrganization);
+				newOrganizationSetting.setKey(ANONYMOUS);
+				newOrganizationSetting.setValue(newOrgUser.getPartyUid());
+				organizationSettingRepository.save(newOrganizationSetting);
+				applicationService.saveApplication(appApiKey, newOrgUser, newOrganization.getPartyUid(), apiCaller);
+				accountService.createSessionToken(newOrgUser, appApiKey.getKey(), request);
+			} catch (Exception e) {
+				LOGGER.debug("Error" + e);
+			}
 		}
 		return new ActionResponseDTO<Organization>(newOrganization,errors);
 	}
@@ -200,9 +250,9 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 			partyService.createPartyCustomField(MY, partyCustomField, user);
 		}
 		else {
-			partyCustomField.setOptionalValue(partyCustomField.getOptionalValue()+","+organizationUid);
+/*			partyCustomField.setOptionalValue(partyCustomField.getOptionalValue()+","+organizationUid);
 			organizationRepository.save(partyCustomField);
-		}
+*/		}
 	}
 /*	private void updateDefaultOrganizationPermission(Organization permittedOrg){
 		PartyPermission partyPermission = new PartyPermission();

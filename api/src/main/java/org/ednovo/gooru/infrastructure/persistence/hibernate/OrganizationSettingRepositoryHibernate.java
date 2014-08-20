@@ -39,7 +39,7 @@ public class OrganizationSettingRepositoryHibernate extends BaseRepositoryHibern
 	@Override
 	public Map<String, String> getOrganizationSettings(String organizationUid) {
 		Map<String, String> settings = new HashMap<String, String>();
-		Query query = getSession().createSQLQuery(GET_ORGAIZATION_SETTINGS).addScalar(NAME, StandardBasicTypes.STRING).addScalar(VALUE, StandardBasicTypes.STRING);
+		Query query = getSessionReadOnly().createSQLQuery(GET_ORGAIZATION_SETTINGS).addScalar(NAME, StandardBasicTypes.STRING).addScalar(VALUE, StandardBasicTypes.STRING);
 		query.setParameter(ORG_UID_PARAM, organizationUid);
 		List<Object[]> results = query.list();
 		for (Object[] object : results) {
@@ -52,7 +52,7 @@ public class OrganizationSettingRepositoryHibernate extends BaseRepositoryHibern
 	@Cacheable("persistent")
 	public Map<String, String> getOrganizationExpireTime(String name) {
 		Map<String, String> settings = new HashMap<String, String>();
-		Query query = getSession().createSQLQuery(GET_ORGANIZATION_EXPIRE_TIME).addScalar("organization_uid", StandardBasicTypes.STRING).addScalar(VALUE, StandardBasicTypes.STRING);
+		Query query = getSessionReadOnly().createSQLQuery(GET_ORGANIZATION_EXPIRE_TIME).addScalar("organization_uid", StandardBasicTypes.STRING).addScalar(VALUE, StandardBasicTypes.STRING);
 		query.setParameter(NAME, name);
 		List<Object[]> results = query.list();
 		for (Object[] object : results) {
@@ -63,7 +63,7 @@ public class OrganizationSettingRepositoryHibernate extends BaseRepositoryHibern
 
 	@Override
 	public String getOrganizationSetting(String key, String organizationUid) {
-		Query query = getSession().createSQLQuery(GET_ORGANIZATION_SETTING).addScalar(VALUE, StandardBasicTypes.STRING);
+		Query query = getSessionReadOnly().createSQLQuery(GET_ORGANIZATION_SETTING).addScalar(VALUE, StandardBasicTypes.STRING);
 		query.setParameter(ORG_UID_PARAM, organizationUid);
 		query.setParameter(NAME, key);
 		List<String> results = query.list();
@@ -76,7 +76,7 @@ public class OrganizationSettingRepositoryHibernate extends BaseRepositoryHibern
 	@Override
 	public OrganizationSetting getOrganizationSettings(String organizationUid, String configKey) throws Exception {
 		String hql = "FROM OrganizationSetting orgSetting where orgSetting.organization.partyUid = :organizationUid and orgSetting.key=:name";
-		Query query = getSession().createQuery(hql);
+		Query query = getSessionReadOnly().createQuery(hql);
 		query.setParameter(ORG_UID_PARAM, organizationUid);
 		query.setParameter(NAME, configKey);
 		if(query.list() != null && query.list().size() > 0){
@@ -91,7 +91,7 @@ public class OrganizationSettingRepositoryHibernate extends BaseRepositoryHibern
 		if(organizationUid != null){
 			hql += " and orgSetting.organization.partyUid = :organizationUid " ;
 		}
-		Query query = getSession().createQuery(hql);
+		Query query = getSessionReadOnly().createQuery(hql);
 		
 		if(organizationUid != null){
 			query.setParameter(ORG_UID_PARAM, organizationUid);

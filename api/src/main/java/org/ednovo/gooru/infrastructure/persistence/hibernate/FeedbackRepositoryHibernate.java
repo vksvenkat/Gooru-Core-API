@@ -53,6 +53,7 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 	private static final String GET_USER_FEEDBACK = " FROM  Feedback feedback WHERE " + generateOrgAuthQuery("feedback.") + " and feedback.assocUserUid=:assocUserUid and feedback.creator.partyUid =:gooruUid and feedback.type.keyValue=:type";
 	private static final String FETCH_USER_FEEDBACK_RATING = "select score, count(1) as count from feedback f inner join custom_table_value c on f.feedback_type_id = c.custom_table_value_id where f.assoc_user_uid=:assocUserUid and c.key_value=:feedbackRatingType and score is not null  group by score";
 	private static final String FETCH_CONTENT_FEEDBACK_RATING = "select score, count(1) as count from feedback f inner join custom_table_value c on f.feedback_type_id = c.custom_table_value_id  where f.assoc_gooru_oid=:assocGooruOid and c.key_value=:feedbackRatingType and score is not null  group by score";
+	private static final String FETCH_CONTENT_FEEDBACK_REVIEW_COUNT = "select count(1) as count from feedback f inner join custom_table_value c on f.feedback_type_id = c.custom_table_value_id where f.assoc_gooru_oid=:assocGooruOid and c.key_value=:feedbackRatingType and f.feedback_text is not null";
 	private static final String GET_CONTENT_FEEDBACK_THUMBS = "select sum(case when score is null then 0 when score > 0 then 1 else 0 end) as thumb_up, sum(case when score is null then 0 when score < 0 then 1 else 0 end) as thumb_down from feedback f inner join custom_table_value c on (f.feedback_type_id = c.custom_table_value_id) where f.assoc_gooru_oid =:assocGooruOid and c.key_value=:feedbackRatingType";
 	private static final String GET_USER_FEEDBACK_THUMBS = "select sum(case when score is null then 0 when score > 0 then 1 else 0 end) as thumb_up, sum(case when score is null then 0 when score < 0 then 1 else 0 end) as thumb_down from feedback f inner join custom_table_value c on (f.feedback_type_id = c.custom_table_value_id)  where f.assoc_user_uid =:assocUserUid and c.key_value=:feedbackRatingType";
 	private static final String GET_CONTENT_FEEDBACK_AGGREGATE_BY_TYPE = "select count(1) as count from feedback f inner join custom_table_value c on (f.feedback_type_id = c.custom_table_value_id) where f.assoc_gooru_oid =:assocGooruOid and c.key_value=:feedbackType";
@@ -225,6 +226,12 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 		Query query = getSession().createSQLQuery(FETCH_CONTENT_FEEDBACK_RATING).addScalar("score", StandardBasicTypes.INTEGER).addScalar("count", StandardBasicTypes.INTEGER).setParameter("assocGooruOid", assocGooruOid).setParameter("feedbackRatingType", feedbackRatingType);
 		return getRating(query.list());
 	}
+	
+	@Override
+	public Long getContentFeedbackReviewCount(String assocGooruOid, String feedbackRatingType) {
+		Query query = getSession().createSQLQuery(FETCH_CONTENT_FEEDBACK_REVIEW_COUNT).addScalar("count", StandardBasicTypes.LONG).setParameter("assocGooruOid", assocGooruOid).setParameter("feedbackRatingType", feedbackRatingType);
+		return (Long) query.list().get(0);
+	}
 
 	private Map<String, Object> getRating(List<Object[]> results) {
 		Double sum = 0.0;
@@ -232,15 +239,16 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 		Map<String, Object> rating = new HashMap<String, Object>();
 		Map<Object, Object> value = new HashMap<Object, Object>();
 		for (Object[] object : results) {
-			value.put(object[0], object[1]);
-			sum = sum + ((Integer) object[0]) * ((Integer) object[1]);
-			count += ((Integer) object[1]);
+				value.put(object[0], object[1]);
+				sum = sum + ((Integer) object[0]) * ((Integer) object[1]);
+				count += ((Integer) object[1]);
 		}
 		rating.put("scores", value);
 		rating.put("average", Math.round(results.size() > 0 ? Double.parseDouble(new DecimalFormat("##.#").format(sum / count)) : sum));
 		rating.put("count", count);
 		return rating;
 	}
+	
 
 	@Override
 	public Map<String, Object> getContentFlags(Integer limit, Integer offset, String feedbackCategory, String type, String status, String reportedFlagType, String startDate, String endDate, String searchQuery, String description, String reportQuery) {
@@ -265,8 +273,8 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 					+ feedbackCategory + "' and  cs.value is not null  and cl.collection_type in ('collection', 'quiz')" + flagType + statusType + "";
 		} else {
 
-			sql = "select title ,concat(r.folder,r.thumbnail) as thumbnail,r.has_frame_breaker as hasFrameBreaker , r.media_type as mediaType, r.description,  gooru_oid as gooruOid, r.category as category , CONVERT_TZ(c.created_on,@@session.time_zone,'US/Pacific') as createdOn, cs.value as value, group_concat(ft.value) as reportedFlag, c.user_uid  as userUid, fp.value as product, group_concat(f.feedback_uid) as reportId, f.creator_uid as reportCreator,CONVERT_TZ(f.created_date,@@session.time_zone,'US/Pacific') as reportCreatedOn, f.feedback_text as reportDescription,f.notes as notes, url as url, f.context_path as browserUrl,(select concat(count(distinct(ci.collection_content_id)) , '~' ,group_concat(distinct(rc.title))) from collection_item ci inner join resource ri on ci.resource_content_id = ri.content_id inner join resource as rc on (rc.content_id = ci.collection_content_id)   where ri.content_id = r.content_id) as scount, c.sharing as sharing,group_concat(u.username) as reporterName, ru.username as resourceCreatorName, f.last_modified_on as lastModifiedOn from content c  inner join feedback f inner join custom_table_value cs on f.assoc_gooru_oid = c.gooru_oid and cs.custom_table_value_id = c.status_type inner join custom_table_value fp on f.product_id = fp.custom_table_value_id inner join custom_table_value ft on ft.custom_table_value_id = f.feedback_type_id inner join resource r  on r.content_id = c.content_id inner join custom_table_value ss on f.feedback_category_id = ss.custom_table_value_id  inner join custom_table ctab on ctab.custom_table_id = ft.custom_table_id inner join user u  on u.gooru_uid = f.creator_uid inner join user ru on ru.gooru_uid = c.user_uid where ctab.name = '"
-					+ feedbackCategory + "' and  cs.value is not null  and r.type_name in ('resource/url','ppt/pptx', 'video/youtube', 'animation/swf', 'animation/kmz','textbook/scribd', 'assessment-question') " + statusType + "" + flagType + "  ";
+			sql = "select title ,concat(r.folder,r.thumbnail) as thumbnail,r.has_frame_breaker as hasFrameBreaker , r.media_type as mediaType, r.description,  gooru_oid as gooruOid, r.category as category , CONVERT_TZ(c.created_on,@@session.time_zone,'US/Pacific') as createdOn, cs.value as value, group_concat(ft.value) as reportedFlag, c.user_uid  as userUid, fp.value as product, group_concat(f.feedback_uid) as reportId, f.creator_uid as reportCreator,CONVERT_TZ(f.created_date,@@session.time_zone,'US/Pacific') as reportCreatedOn, f.feedback_text as reportDescription,f.notes as notes, url as url, f.context_path as browserUrl,(select concat(group_concat(distinct(rc.gooru_oid)), '#!', count(distinct(ci.collection_content_id)) , '~' ,group_concat(distinct(ri.title))) from collection_item ci inner join resource ri on ci.collection_content_id = ri.content_id inner join content as rc on (rc.content_id = ci.collection_content_id)   where ri.content_id = r.content_id) as scount, c.sharing as sharing,group_concat(u.username) as reporterName, ru.username as resourceCreatorName, f.last_modified_on as lastModifiedOn from content c  inner join feedback f inner join custom_table_value cs on f.assoc_gooru_oid = c.gooru_oid and cs.custom_table_value_id = c.status_type inner join custom_table_value fp on f.product_id = fp.custom_table_value_id inner join custom_table_value ft on ft.custom_table_value_id = f.feedback_type_id inner join resource r  on r.content_id = c.content_id inner join custom_table_value ss on f.feedback_category_id = ss.custom_table_value_id  inner join custom_table ctab on ctab.custom_table_id = ft.custom_table_id inner join user u  on u.gooru_uid = f.creator_uid inner join user ru on ru.gooru_uid = c.user_uid where ctab.name = '"
+ 					+ feedbackCategory + "' and  cs.value is not null  and r.type_name in ('resource/url','ppt/pptx', 'video/youtube', 'animation/swf', 'animation/kmz','textbook/scribd', 'assessment-question') " + statusType + "" + flagType + "  "; 
 		}
 
 		if (startDate != null && endDate != null) {
@@ -337,10 +345,15 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 			if (type == RESOURCE) {
 				String temp = (String) object[15];
 				if (temp != null) {
-					String[] scollection = temp.split("~");
+					String[] scollectionList = temp.split("#!");
+					String scollectionIds = scollectionList[0];
+					String scollectionOthers = scollectionList[1];
+					String[] scollection = scollectionOthers.split("~");
+					flag.put("collectionId", scollectionIds);
 					flag.put("scollectionCount", scollection[0]);
 					flag.put("scollectionTitle", scollection[1]);
 				} else {
+					flag.put("collectionId", null);
 					flag.put("scollectionCount", null);
 					flag.put("scollectionTitle", null);
 				}

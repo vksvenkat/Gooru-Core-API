@@ -208,17 +208,26 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				collectionItem.setItemType(COLLABORATOR);
 			}
 		}
-
+		String collectionGooruOid = sourceCollectionItem.getCollection().getGooruOid();
 		if (sourceCollectionItem != null) {
 			deleteCollectionItem(sourceCollectionItem.getCollectionItemId(), user);
 		}
+		
+		
 		if (targetId != null) {
 			responseDTO = this.createCollectionItem(sourceId, targetId, collectionItem, user, CollectionType.FOLDER.getCollectionType(), false);
 		} else {
 			responseDTO = this.createCollectionItem(sourceId, null, collectionItem, user, CollectionType.SHElf.getCollectionType(), false);
 		}
+		
+		updateFolderSharing(collectionGooruOid);
+		List<String> parenFolders = this.getParentCollection(collectionGooruOid, user.getPartyUid(), false);
+		for (String folderGooruOid : parenFolders) {
+			updateFolderSharing(folderGooruOid);
+		}
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + user.getPartyUid() + "*");
+		
 		try {
 			this.getCollectionEventLog().getEventLogs(responseDTO.getModel(), true, user, responseDTO.getModel().getCollection().getCollectionType());
 		} catch (JSONException e) {
@@ -567,7 +576,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		rejectIfNull(collection, GL0056, 404, generateErrorMessage(GL0056, COLLECTION));
 		List<CollectionItem> collectionItems = new ArrayList<CollectionItem>();
 		int sequence = classpage.getCollectionItems() != null ? classpage.getCollectionItems().size() + 1 : 1;
-		if (collection.getCollectionType().equalsIgnoreCase(FOLDER)) {
+		if (collection.getResourceType().getName().equalsIgnoreCase(FOLDER)) {
 			Map<String, String> filters = new HashMap<String, String>();
 			filters.put(SHARING, "public,anyonewithlink");
 			filters.put(TYPE, COLLECTION);
@@ -575,7 +584,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 			for (CollectionItem collectionItem : folderCollectionItems) {
 				collectionItems.add(createClasspageItem(classpage, collectionItem.getResource(), user, sequence++, direction, planedEndDate));
 			}
-		} else if (collection.getCollectionType().equalsIgnoreCase(COLLECTION)) {
+		} else if (collection.getResourceType().getName().equalsIgnoreCase(SCOLLECTION)) {
 			collectionItems.add(createClasspageItem(classpage, collection, user, sequence, direction, planedEndDate));
 		}
 

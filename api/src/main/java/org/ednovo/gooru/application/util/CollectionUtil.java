@@ -478,35 +478,6 @@ public class CollectionUtil implements ParameterProperties {
 		this.operationAuthorizer = operationAuthorizer;
 	}
 
-	private void sendMailToCollabrators(List<User> users, Resource resource, User apiCaller) {
-		try {
-			String flag = "";
-			String collectionOrQuizTitle = "";
-			Learnguide learnguide = learnguideRepository.findByContent(resource.getGooruOid());
-			Assessment assessment = assessmentRepository.findQuizContent(resource.getGooruOid());
-			if (resource.getResourceType().getName().equalsIgnoreCase(ResourceType.Type.CLASSPLAN.getType()) || resource.getResourceType().getName().equalsIgnoreCase(ResourceType.Type.CLASSBOOK.getType())) {
-				collectionOrQuizTitle = learnguide.getLesson();
-				if (collectionOrQuizTitle == null) {
-					collectionOrQuizTitle = learnguide.getTitle();
-				}
-				flag = COLLECTION;
-			} else if (resource.getResourceType().getName().equalsIgnoreCase(ResourceType.Type.ASSESSMENT_QUIZ.getType()) || resource.getResourceType().getName().equalsIgnoreCase(ResourceType.Type.ASSESSMENT_EXAM.getType())) {
-				collectionOrQuizTitle = assessment.getName();
-				if (collectionOrQuizTitle == null) {
-					collectionOrQuizTitle = assessment.getTitle();
-				}
-				flag = "quiz";
-			}
-			for (User user : users) {
-
-				mailHandler.sendMailForCollaborator(user.getPartyUid(), apiCaller.getUsername(), resource.getGooruOid(), collectionOrQuizTitle, flag);
-			}
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	
 	public  void clearResourceCache(String gooruOid) { 
 		List<Collection> collections = this.getCollectionService().getResourceMoreInfo(gooruOid);
 		for (Collection collection : collections) { 

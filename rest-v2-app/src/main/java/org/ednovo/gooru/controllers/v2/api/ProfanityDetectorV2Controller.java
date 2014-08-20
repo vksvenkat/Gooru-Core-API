@@ -29,11 +29,15 @@ import javax.servlet.http.HttpServletResponse;
 import org.ednovo.gooru.application.util.SerializerUtil;
 import org.ednovo.gooru.core.api.model.Profanity;
 import org.ednovo.gooru.core.constant.ConstantProperties;
+import org.ednovo.gooru.core.constant.GooruOperationConstants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.core.security.AuthorizeOperations;
 import org.ednovo.gooru.domain.service.ProfanityCheckService;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -46,6 +50,8 @@ public class ProfanityDetectorV2Controller extends SerializerUtil implements Par
 	@Autowired
 	private ProfanityCheckService profanityCheckService;
 
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_PROFANITY_VALIDATE })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "", method = RequestMethod.POST)
 	public ModelAndView handleRequestInternal(@RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		Profanity profanity = JsonDeserializer.deserialize(data, Profanity.class);
@@ -56,13 +62,17 @@ public class ProfanityDetectorV2Controller extends SerializerUtil implements Par
 		return toModelAndViewWithIoFilter(getProfanityCheckService().profanityWordCheck(profanity), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, PROFANITY_INCLUDES);
 	}
 
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_PROFANITY_ADD })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	public ModelAndView profanityCreate(@RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		Profanity profanity = JsonDeserializer.deserialize(data, Profanity.class);
 		
-		return toModelAndView(this.profanityCheckService.profanityCreate(profanity), RESPONSE_FORMAT_JSON);
+		return toModelAndViewWithIoFilter(this.profanityCheckService.profanityCreate(profanity), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, PROFANITY_INCLUDES);
 	}
 
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_PROFANITY_DELETE })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "", method = RequestMethod.DELETE)
 	public void profanityDelete(@RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		Profanity profanity = JsonDeserializer.deserialize(data, Profanity.class);
@@ -70,6 +80,8 @@ public class ProfanityDetectorV2Controller extends SerializerUtil implements Par
 
 	}
 
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_PROFANITY_READ })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "", method = RequestMethod.GET)
 	public ModelAndView profanityList(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		return toModelAndView(getProfanityCheckService().profanityList(), RESPONSE_FORMAT_JSON);

@@ -229,6 +229,7 @@ public class TaskManagementRestV2Controller extends BaseController implements Pa
 
 	}
 
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TASK_MANAGEMENT_UPDATE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.PUT, value = { "/{tid}/item/{id}/reorder/{sequence}" })
 	public ModelAndView reorderTaskResourceAssociatedItem(@PathVariable(ID) String taskResourceAssocId, @PathVariable(TID) String taskUid, @PathVariable(value = SEQUENCE) int sequence, @RequestParam(value = DATA_OBJECT, required = false) String data, HttpServletRequest request,

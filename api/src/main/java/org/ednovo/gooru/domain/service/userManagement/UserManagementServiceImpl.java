@@ -104,7 +104,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -121,7 +120,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	
 	@Autowired
 	private UserEventlog usereventlog;
-	
+
 	@Autowired
 	private SettingService settingService;
 
@@ -219,7 +218,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 
 		User user = this.findByGooruId(gooruUid);
 		if (user == null) {
-			throw new BadCredentialsException(generateErrorMessage(GL0056, USER));
+			throw new BadRequestException(generateErrorMessage(GL0056, USER));
 		}
 		Profile profile = this.getUserRepository().getProfile(user, false);
 
@@ -317,17 +316,21 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 						}
 					}
 
-					if (newProfile.getUser() != null) {
-						if (newProfile.getUser().getActive() != null) {
+					if (newProfile.getUser() != null ) {
+						if(newProfile.getUser().getActive() != null){
 							identity.setActive(newProfile.getUser().getActive());
 							user.setActive(newProfile.getUser().getActive());
+							if(newProfile.getUser().getActive() == 0){
+								this.getMailHandler().sendUserDisabledMail(gooruUid);
+							}
 							this.getUserRepository().save(identity);
 						}
+						
 						if (identity != null && newProfile.getUser().getEmailId() != null && !newProfile.getUser().getEmailId().isEmpty()) {
 							boolean emailAvailability = this.getUserRepository().checkUserAvailability(newProfile.getUser().getEmailId(), CheckUser.BYEMAILID, false);
 
 							if (emailAvailability) {
-								throw new BadRequestException(generateErrorMessage("GL0058", newProfile.getUser().getEmailId()));
+								throw new BadRequestException(generateErrorMessage("GL0084" ,newProfile.getUser().getEmailId(),"Email id"));
 							}
 							if (emailConfirmStatus || (isContentAdmin(apiCaller) && !apiCaller.getPartyUid().equals(gooruUid))) {
 
@@ -596,13 +599,13 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		if ((isNotEmptyString(childDOB)) && (isNotEmptyString(accountType)) && childDOB != null && !childDOB.equalsIgnoreCase(_NULL)) {
 			Integer age = this.calculateCurrentAge(childDOB);
 			if (age < 0) {
-				throw new BadCredentialsException(generateErrorMessage("GL0059"));
+				throw new BadRequestException(generateErrorMessage("GL0059"));
 			}
 		}
 		if ((isNotEmptyString(dateOfBirth)) && (isNotEmptyString(accountType)) && dateOfBirth != null && !dateOfBirth.equalsIgnoreCase(_NULL)) {
 			Integer age = this.calculateCurrentAge(dateOfBirth);
 			if (age < 0) {
-				throw new BadCredentialsException(generateErrorMessage("GL0059"));
+				throw new BadRequestException(generateErrorMessage("GL0059"));
 			}
 		
 		if (age < 13 && age >= 0 && (accountType.equalsIgnoreCase(UserAccountType.userAccount.NON_PARENT.getType()))) {
@@ -611,7 +614,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		}
 
 		if (!isNotEmptyString(user.getFirstName())) {
-			throw new BadCredentialsException(generateErrorMessage("GL0061", "First name"));
+			throw new BadRequestException(generateErrorMessage("GL0061", "First name"));
 		}
 
 		if (!isNotEmptyString(user.getOrganization() != null ? user.getOrganization().getOrganizationCode() : null)) {
@@ -643,7 +646,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		boolean usernameAvailability = this.getUserRepository().checkUserAvailability(user.getUsername(), CheckUser.BYUSERNAME, false);
 
 		if (usernameAvailability) {
-			throw new NotFoundException(generateErrorMessage("GL0084", user.getUsername()));
+			throw new NotFoundException(generateErrorMessage("GL0084", user.getUsername(),"username"));
 		}
 
 		boolean emailidAvailability = this.getUserRepository().checkUserAvailability(user.getEmailId(), CheckUser.BYEMAILID, false);
@@ -889,7 +892,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		Profile profile = new Profile();
 		profile.setUser(user);
 		profile.setSchool(school);
-		if (role != null && (role.equalsIgnoreCase(UserRole.UserRoleType.STUDENT.getType()) || role.equalsIgnoreCase(UserRole.UserRoleType.TEACHER.getType()) || role.equalsIgnoreCase(UserRole.UserRoleType.AUTHENTICATED_USER.getType()) || role.equalsIgnoreCase(UserRole.UserRoleType.OTHER.getType()))) {
+		if (role != null && (role.equalsIgnoreCase(UserRole.UserRoleType.STUDENT.getType()) || role.equalsIgnoreCase(UserRole.UserRoleType.PARENT.getType())  || role.equalsIgnoreCase(UserRole.UserRoleType.TEACHER.getType()) || role.equalsIgnoreCase(UserRole.UserRoleType.AUTHENTICATED_USER.getType()) || role.equalsIgnoreCase(UserRole.UserRoleType.OTHER.getType()))) {
 			profile.setUserType(role);
 		}
 
@@ -1130,7 +1133,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		Identity identity = null;
 		if (token != null) {
 			if (this.getUserService().hasResetTokenValid(token)) {
-				throw new BadCredentialsException(TOKEN_EXPIRED);
+				throw new BadRequestException(TOKEN_EXPIRED);
 			}
 			identity = this.getUserService().findIdentityByResetToken(token);
 			if (identity.getUser().getUsername().equalsIgnoreCase(password)) {
@@ -1390,7 +1393,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		}
 
 	}
-
+	
 	private Map<String, Object> setUserObj(User user) {
 		Map<String, Object> userObj = new HashMap<String, Object>();
 		userObj.put(USER_NAME, user.getUsername());
