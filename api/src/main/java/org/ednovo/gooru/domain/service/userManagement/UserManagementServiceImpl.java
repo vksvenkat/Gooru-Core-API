@@ -316,13 +316,15 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 						}
 					}
 
-					if (newProfile.getUser() != null && newProfile.getUser().getActive() != null) {
+					if (newProfile.getUser() != null ) {
+						if(newProfile.getUser().getActive() != null){
 							identity.setActive(newProfile.getUser().getActive());
 							user.setActive(newProfile.getUser().getActive());
 							if(newProfile.getUser().getActive() == 0){
 								this.getMailHandler().sendUserDisabledMail(gooruUid);
 							}
 							this.getUserRepository().save(identity);
+						}
 						
 						if (identity != null && newProfile.getUser().getEmailId() != null && !newProfile.getUser().getEmailId().isEmpty()) {
 							boolean emailAvailability = this.getUserRepository().checkUserAvailability(newProfile.getUser().getEmailId(), CheckUser.BYEMAILID, false);
@@ -890,7 +892,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		Profile profile = new Profile();
 		profile.setUser(user);
 		profile.setSchool(school);
-		if (role != null && (role.equalsIgnoreCase(UserRole.UserRoleType.STUDENT.getType()) || role.equalsIgnoreCase(UserRole.UserRoleType.TEACHER.getType()) || role.equalsIgnoreCase(UserRole.UserRoleType.AUTHENTICATED_USER.getType()) || role.equalsIgnoreCase(UserRole.UserRoleType.OTHER.getType()))) {
+		if (role != null && (role.equalsIgnoreCase(UserRole.UserRoleType.STUDENT.getType()) || role.equalsIgnoreCase(UserRole.UserRoleType.PARENT.getType())  || role.equalsIgnoreCase(UserRole.UserRoleType.TEACHER.getType()) || role.equalsIgnoreCase(UserRole.UserRoleType.AUTHENTICATED_USER.getType()) || role.equalsIgnoreCase(UserRole.UserRoleType.OTHER.getType()))) {
 			profile.setUserType(role);
 		}
 
