@@ -229,7 +229,8 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 	
 	@Override
 	public Long getContentFeedbackReviewCount(String assocGooruOid, String feedbackRatingType) {
-		Query query = getSession().createSQLQuery(FETCH_CONTENT_FEEDBACK_REVIEW_COUNT).addScalar("count", StandardBasicTypes.LONG).setParameter("assocGooruOid", assocGooruOid).setParameter("feedbackRatingType", feedbackRatingType);
+		String sql = "select count(1) as count from feedback where assoc_gooru_oid = " + "'" + assocGooruOid + "'" + "and feedback_text is not null and feedback_text<>''";
+		Query query = getSession().createSQLQuery(sql).addScalar("count", StandardBasicTypes.LONG);
 		return (Long) query.list().get(0);
 	}
 
