@@ -81,6 +81,9 @@ public class RedisServiceImpl implements RedisService, ParameterProperties, Cons
 
 	@Autowired
 	private CollectionUtil collectionUtil;
+	
+	@Autowired
+	private String redisVersion;
 
 	@Override
 	public Long getCount(String gooruOId, String type) {
@@ -403,8 +406,8 @@ public class RedisServiceImpl implements RedisService, ParameterProperties, Cons
 	}
 
 	private String returnSanitizedKey(final String key) {
-		return BaseUtil.appendProtocol(StringUtils.replace(key, " ", ""));
-	}
+		return BaseUtil.appendProtocol(getRedisVersion()+"-" + key);
+	}  
 
 	@Override
 	public Set<String> getkeys(String key) {
@@ -419,6 +422,14 @@ public class RedisServiceImpl implements RedisService, ParameterProperties, Cons
 		} catch (Exception e) {
 			System.out.println("Redis Error" + e);
 		}
+	}
+	
+	public String getRedisVersion() {
+		return redisVersion;
+	}
+
+	public void setRedisVersion(String redisVersion) {
+		this.redisVersion = redisVersion;
 	}
 
 }
