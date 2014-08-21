@@ -380,6 +380,14 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 		return toModelAndViewWithIoFilter(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
 	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ })
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(value = "/assoc", method = RequestMethod.GET)
+	public ModelAndView getClasspageAssoc(@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,@RequestParam(value = "gooruOid", required = false) String gooruOid ,
+			@RequestParam(value = "title", required = false) String title, @RequestParam(value = "classCode", required = false) String classCode,@RequestParam(value = "creatorUsername", required = false) String creatorUsername, @RequestParam(value = "creatorFirstname", required = false) String creatorFirstname, @RequestParam(value = "creatorLastname", required = false) String creatorLastname  ){	
+		return toJsonModelAndView(this.getClasspageService().getClasspageAssoc(offset, limit, gooruOid,title,classCode,creatorUsername,creatorFirstname,creatorLastname),true);
+	}
+	
 
 	private Classpage buildClasspageFromInputParameters(String data, User user) {
 		Classpage classpage = JsonDeserializer.deserialize(data, Classpage.class);

@@ -37,6 +37,7 @@ import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Classpage;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
+import org.ednovo.gooru.core.api.model.CollectionTaskAssoc;
 import org.ednovo.gooru.core.api.model.CollectionType;
 import org.ednovo.gooru.core.api.model.ContentType;
 import org.ednovo.gooru.core.api.model.CustomTableValue;
@@ -770,6 +771,29 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		return collectionItems;
 	}
 	
+	public List<Map<String, Object>> getClasspageAssoc(Integer offset, Integer limit, String gooruOid,String title, String classCode, String creatorUsername,String creatorFirstname,String creatorLastname) {
+		List<Object[]> classpageAssocs = this.getCollectionRepository().getClasspageAssoc(offset, limit, gooruOid,title,classCode,creatorUsername,creatorFirstname,creatorLastname);
+		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
+		for (Object[] object : classpageAssocs) {
+			Map<String, Object> results = new HashMap<String, Object>();
+			results.put("classCode", object[0]);
+			results.put("title", object[1]);
+			results.put("classpageId", object[2]);
+			results.put("classPageItemId", object[3]);
+			results.put("userId", object[4]);
+			Map<String, Object> creator = new HashMap<String, Object>();
+			creator.put("creatorFirstname", object[5]);
+			creator.put("creatorLastname", object[6]);
+			creator.put("creatorUsername", object[7]);
+			results.put("creator", creator);
+			results.put("associatedUsername", object[8]);				
+			result.add(results);
+		}
+		Map<String, Object> result1 = new HashMap<String, Object>();
+		result1.put(TOTAL_HIT_COUNT, this.getCollectionRepository().getClasspageAssocCount(gooruOid,title,classCode,creatorUsername,creatorFirstname,creatorLastname));
+		result.add(result1);
+		return result;
+	}
 	public CollectionEventLog getScollectionEventlog() {
 		return scollectionEventlog;
 	}
