@@ -99,6 +99,10 @@
 			<value>${gooru.services.endpoint}</value>
 		</constructor-arg>
 	</bean>
+	
+	<bean id="redisVersion" class="java.lang.String">
+		<constructor-arg type="java.lang.String" value="${redis.server.version}"/>
+	</bean>
 
 
 	<bean id="configSettingProfileName" class="java.lang.String">
@@ -137,7 +141,6 @@
 			</props>
 		</property>
 	</bean>
-
 	<bean id="serverConstants"
 		class="org.springframework.beans.factory.config.PropertiesFactoryBean">
 		<property name="properties">

@@ -32,7 +32,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.lang.StringUtils;
 import org.ednovo.gooru.application.util.CollectionUtil;
 import org.ednovo.gooru.application.util.TaxonomyUtil;
 import org.ednovo.gooru.core.api.model.Assessment;
@@ -406,7 +405,7 @@ public class RedisServiceImpl implements RedisService, ParameterProperties, Cons
 	}
 
 	private String returnSanitizedKey(final String key) {
-		return BaseUtil.appendProtocol(getRedisVersion()+"-" + key);
+		return BaseUtil.appendProtocol(getRedisVersion()+"_" + key);
 	}  
 
 	@Override
