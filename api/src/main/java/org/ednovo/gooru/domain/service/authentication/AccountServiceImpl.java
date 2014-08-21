@@ -138,6 +138,9 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 		sessionToken.setApiKey(apiKeyObj);
 		sessionToken.setCreatedOn(new Date(System.currentTimeMillis()));
 		sessionToken.setRestEndPoint(apiEndPoint);
+		
+		
+		
 		try {
 			userTokenRepository.saveUserSession(sessionToken);
 		} catch (Exception e) {
@@ -155,9 +158,9 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 
 	@Override
 	public ActionResponseDTO<UserToken> logIn(String username, String password, String apiKeyId, boolean isSsoLogin, HttpServletRequest request) throws Exception {
-
+		
 		final ApiKey apiKey = apiTrackerService.getApiKey(apiKeyId);
-
+		
 		final UserToken userToken = new UserToken();
 		final Errors errors = validateApiKey(apiKey, userToken);
 		final String apiEndPoint = getConfigSetting(ConfigConstants.GOORU_API_ENDPOINT, 0, TaxonomyUtil.GOORU_ORG_UID);
@@ -169,10 +172,11 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			if (password == null) {
 				throw new BadRequestException(generateErrorMessage("GL0061","Password"));
 			}
-
 			Identity identity = new Identity();
 			identity.setExternalId(username);
-
+			
+		
+			
 			identity = this.getUserRepository().findByEmailIdOrUserName(username, true, true);
 
 			if (identity == null) {
@@ -183,7 +187,9 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			if (identity.getActive() == 0)   {
 				throw new UnauthorizedException(generateErrorMessage("GL0079"));
 			}
-
+			
+			
+			
 			final User user = this.getUserRepository().findByIdentity(identity);
 			if (!isSsoLogin) {
 				if (identity.getCredential() == null) {
@@ -196,7 +202,8 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 				}
 
 			}
-
+			
+			
 			if (user.getConfirmStatus() == 0) {
 				final PartyCustomField userDevice = getPartyService().getPartyCustomeField(user.getPartyUid(), GOORU_USER_CREATED_DEVICE, null);
 				final Integer tokenCount = this.getUserRepository().getUserTokenCount(user.getGooruUId());
@@ -211,16 +218,27 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 				}
 			}
 			
+			
+			
 			userToken.setUser(user);
 			userToken.setSessionId(request.getSession().getId());
 			userToken.setScope(SESSION);
 			userToken.setCreatedOn(new Date(System.currentTimeMillis()));
+			
 			userToken.setApiKey(apiKey);
 			userToken.setRestEndPoint(apiEndPoint);
-			userToken.setFirstLogin(userRepository.checkUserFirstLogin(user.getPartyUid()));
+			Boolean firstLogin = false;
+			if (user.getIdentities().size() > 0 && user.getIdentities().iterator().next().getLastLogin() == null) {
+			firstLogin = true;
+			}
+			userToken.setFirstLogin(firstLogin);
 			userToken.getUser().setMeta(userManagementService.userMeta(user));
 			
+			
+			
 			final Profile profile = getPartyService().getUserDateOfBirth(user.getPartyUid(), user);
+			
+			
 			if(profile.getUserType() != null){
 				userToken.setUserRole(profile.getUserType());
 			}
@@ -241,29 +259,14 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 				organization = user.getOrganization();
 			}
 			
-			redisService.addSessionEntry(userToken.getToken(), organization);
-			final List<ActivityStream> activityStreams = new ArrayList<ActivityStream>();
-
-			final List<ActivityType> types = this.getUserRepository().getAll(ActivityType.class);
-
-			for (ActivityType type : types) {
-				ActivityStream stream = new ActivityStream();
-				stream.setActivityType(type);
-				stream.setUser(user);
-
-				stream = activityRepository.findActivityStreamByType(stream);
-
-				if (stream == null) {
-					stream = new ActivityStream();
-					stream.setActivityType(type);
-					stream.setUser(user);
-					stream.setSharing(PUBLIC);
-					activityStreams.add(stream);
-				}
-			}
+	
 			
-			this.getUserRepository().saveAll(activityStreams);
+			redisService.addSessionEntry(userToken.getToken(), organization);
+			
+			
 			final User newUser = (User) BeanUtils.cloneBean(userToken.getUser());
+			
+			
 			if (newUser.getAccountTypeId() != null && newUser.getAccountTypeId().equals(UserAccountType.ACCOUNT_CHILD)) {
 				newUser.setEmailId(newUser.getParentUser().getIdentities() != null ? newUser.getParentUser().getIdentities().iterator().next().getExternalId() : null);
 			} else {
@@ -282,6 +285,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			indexProcessor.index(user.getPartyUid(), IndexProcessor.INDEX, USER, false);
 			
 		}
+
 		return new ActionResponseDTO<UserToken>(userToken, errors);
 	}
 

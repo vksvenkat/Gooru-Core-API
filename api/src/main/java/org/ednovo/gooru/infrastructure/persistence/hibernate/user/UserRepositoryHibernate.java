@@ -506,21 +506,29 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 	@Override
 	public Identity findByEmailIdOrUserName(String userName, Boolean isLoginRequest, Boolean fetchAlluser) {
 
-		String hql = "from Identity identity  where identity.user.username=:userName or identity.externalId=:externalId ";
+		String hql = "select identity from Identity identity join identity.user as user where ";
 		if (!fetchAlluser) {
-			hql += " and " + generateUserIsDeleted("identity.user.");
+			hql +=  generateUserIsDeleted("identity.user.") + " AND ";
 		}
 		if (!isLoginRequest) {
-			hql += " and  " + generateOrgAuthQuery("identity.user.");
+			hql +=  generateOrgAuthQuery("identity.user.") + " AND ";
 		}
 
-		Query query = getSession().createQuery(hql);
+		Query query = getSession().createQuery(hql + " user.username=:userName ");
 		query.setParameter("userName", userName);
-		query.setParameter(EXTERNAL_ID, userName);
 		if (!isLoginRequest) {
 			addOrgAuthParameters(query);
 		}
-		return (Identity) (query.list().size() > 0 ? query.list().get(0) : null);
+		Identity identity = (Identity) (query.list().size() > 0 ? query.list().get(0) : null);
+		if (identity == null) { 
+			Query queryEmail = getSession().createQuery(hql + "  identity.externalId=:userName ");
+			queryEmail.setParameter(EXTERNAL_ID, userName);
+			if (!isLoginRequest) {
+				addOrgAuthParameters(queryEmail);
+			}
+			identity = (Identity) (queryEmail.list().size() > 0 ? queryEmail.list().get(0) : null);
+		}
+		return identity;
 	}
 
 	@SuppressWarnings("unchecked")

@@ -78,6 +78,8 @@ public class AccountRestV2Controller extends BaseController implements ConstantP
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.POST }, value = "/login")
 	public ModelAndView login(@RequestParam(value = API_KEY, required = true) String apiKey, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		
+
 		request.setAttribute(Constants.EVENT_PREDICATE, USER_LOGIN);
 		JSONObject json = requestData(data);
 		ActionResponseDTO<UserToken> responseDTO = null;
@@ -89,6 +91,8 @@ public class AccountRestV2Controller extends BaseController implements ConstantP
 			SessionContextSupport.putLogParameter(EVENT_NAME, USER_LOGIN);
 		}
 		String[] includes = (String[]) ArrayUtils.addAll(USER_INCLUDES, ERROR_INCLUDE);
+		
+
 		return toModelAndView(serialize(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, includes));
 
 	}
