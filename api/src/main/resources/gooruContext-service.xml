@@ -95,8 +95,8 @@
 		</constructor-arg>
 	</bean>
 	
-	<bean id="redisVersion" class="java.lang.String">
-		<constructor-arg type="java.lang.String" value="${redis.server.version}"/>
+	<bean id="releaseVersion" class="java.lang.String">
+		<constructor-arg type="java.lang.String" value="${release.server.version}"/>
 	</bean>
 
    <bean id="configSettingProfileName" class="java.lang.String">
