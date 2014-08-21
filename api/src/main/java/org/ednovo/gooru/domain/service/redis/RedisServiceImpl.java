@@ -55,6 +55,7 @@ import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.SerializationException;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 @Service
 public class RedisServiceImpl implements RedisService, ParameterProperties, ConstantProperties {
@@ -255,7 +256,6 @@ public class RedisServiceImpl implements RedisService, ParameterProperties, Cons
 
 		return countKey;
 	}
-
 	private String getRedisInstance() {
 		try {
 			if (redisInstanceName == null) {
@@ -405,7 +405,7 @@ public class RedisServiceImpl implements RedisService, ParameterProperties, Cons
 	}
 
 	private String returnSanitizedKey(final String key) {
-		return BaseUtil.appendProtocol(getRedisVersion()+"_" + key);
+		return getRedisVersion() + "_" + BaseUtil.appendProtocol(StringUtils.replace(key, " ", ""));	
 	}  
 
 	@Override
