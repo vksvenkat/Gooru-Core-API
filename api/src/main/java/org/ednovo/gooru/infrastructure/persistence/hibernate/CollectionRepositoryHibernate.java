@@ -789,8 +789,12 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 	}
 
 	@Override
-	public CollectionItem findCollectionItemByGooruOid(String gooruOid, String gooruUid) {
+	public CollectionItem findCollectionItemByGooruOid(String gooruOid, String gooruUid, String type) {
+		
 		String hql = "FROM CollectionItem collectionItems where collectionItems.resource.gooruOid=:gooruOid and collectionItems.collection.user.partyUid=:gooruUid";
+		
+		hql += " and collectionItems.collection.resourceType.name = '"+type+"'";
+		
 		Query query = getSession().createQuery(hql);
 		query.setParameter(GOORU_OID, gooruOid);
 		query.setParameter(_GOORU_UID, gooruUid);
