@@ -153,20 +153,6 @@
 
 	<context:component-scan base-package="org.ednovo.gooru.application.util" />
 
-	<bean id="velocityEngine"
-		class="org.springframework.ui.velocity.VelocityEngineFactoryBean">
-		<property name="velocityProperties">
-			<props>
-				<prop key="resource.loader">file</prop>
-				<prop key="file.resource.loader.class">
-					org.apache.velocity.runtime.resource.loader.FileResourceLoader
-				</prop>
-				<prop key="file.resource.loader.path">${email.templates.path}</prop>
-				<prop key="file.resource.loader.cache">false</prop>
-			</props>
-		</property>
-	</bean>
-
 	<bean id="redisConnectionFactory"
 		class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory">
 		<property name="port" value="6379" />
