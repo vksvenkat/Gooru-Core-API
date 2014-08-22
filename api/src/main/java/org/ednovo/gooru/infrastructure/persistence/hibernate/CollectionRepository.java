@@ -138,8 +138,8 @@ public interface CollectionRepository extends BaseRepository {
 	
 	Collection getCollectionByGooruOid(String gooruOid);
 	
-	List<Object[]> getClasspageAssoc(Integer offset, Integer limit, String gooruOid, String title, String classCode, String creatorUsername,String creatorFirstname,String creatorLastname);
+	List<Object[]> getClasspageAssoc(Integer offset, Integer limit, String gooruOid, String gooruUid, String title, String classCode, String creatorUsername);
 	
-	BigInteger getClasspageAssocCount(String gooruOid,String title, String classCode, String creatorUsername, String creatorFirstname, String creatorLastname);
+	BigInteger getClasspageAssocCount(String gooruOid,String title, String classCode, String creatorUsername);
 	
 }

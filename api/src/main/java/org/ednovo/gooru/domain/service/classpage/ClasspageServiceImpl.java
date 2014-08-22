@@ -771,8 +771,14 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		return collectionItems;
 	}
 	
-	public List<Map<String, Object>> getClasspageAssoc(Integer offset, Integer limit, String gooruOid,String title, String classCode, String creatorUsername,String creatorFirstname,String creatorLastname) {
-		List<Object[]> classpageAssocs = this.getCollectionRepository().getClasspageAssoc(offset, limit, gooruOid,title,classCode,creatorUsername,creatorFirstname,creatorLastname);
+	public List<Map<String, Object>> getClasspageAssoc(Integer offset, Integer limit, String gooruOid,String title, String classCode, String creatorUsername) {
+		User user = this.getUserService().getUserByUserName(creatorUsername);
+		String gooruUid = null;
+		if(user!= null){
+		    gooruUid = user.getPartyUid();
+		}
+		
+		List<Object[]> classpageAssocs = this.getCollectionRepository().getClasspageAssoc(offset, limit, gooruOid, gooruUid, title, classCode, creatorUsername);
 		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
 		for (Object[] object : classpageAssocs) {
 			Map<String, Object> results = new HashMap<String, Object>();
@@ -782,15 +788,13 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			results.put("classPageItemId", object[3]);
 			results.put("userId", object[4]);
 			Map<String, Object> creator = new HashMap<String, Object>();
-			creator.put("creatorFirstname", object[5]);
-			creator.put("creatorLastname", object[6]);
-			creator.put("creatorUsername", object[7]);
+			creator.put("creatorUsername", object[5]);
 			results.put("creator", creator);
-			results.put("associatedUsername", object[8]);				
+			results.put("associatedUsername", object[6]);				
 			result.add(results);
 		}
 		Map<String, Object> result1 = new HashMap<String, Object>();
-		result1.put(TOTAL_HIT_COUNT, this.getCollectionRepository().getClasspageAssocCount(gooruOid,title,classCode,creatorUsername,creatorFirstname,creatorLastname));
+		result1.put(TOTAL_HIT_COUNT, this.getCollectionRepository().getClasspageAssocCount(gooruOid,title,classCode,creatorUsername));
 		result.add(result1);
 		return result;
 	}

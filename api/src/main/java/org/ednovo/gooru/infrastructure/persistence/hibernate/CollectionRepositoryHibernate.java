@@ -943,10 +943,13 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 	}
    
 	@Override
-	public List<Object[]> getClasspageAssoc(Integer offset, Integer limit, String gooruOid, String title, String classCode,String creatorUsername, String creatorFirstname, String creatorLastname) {
-		String sql = "select cp.classpage_code as classCode,r.title as title, cc.gooru_oid as classpageId, cr.gooru_oid as classpageItemId, cr.user_uid as user_id, usr.firstname as firstname, usr.lastname as lastname, usr.username as username, u.username as AssociatedUsername from classpage cp inner join resource r on r.content_id = cp.classpage_content_id inner join content cc on cc.content_id = r.content_id inner join collection_item ci on cp.classpage_content_id = ci.collection_content_id left join user u on ci.associated_by_uid = u.gooru_uid inner join content ct on ct.content_id = ci.collection_content_id inner join resource res on res.content_id = ci.resource_content_id inner join content cr on cr.content_id = res.content_id inner join user usr on cr.user_uid = usr.gooru_uid";
+	public List<Object[]> getClasspageAssoc(Integer offset, Integer limit, String gooruOid,String gooruUid ,String title, String classCode, String creatorUsername) {
+		String sql = "select cp.classpage_code as classCode,r.title as title, cc.gooru_oid as classpageId, cr.gooru_oid as classpageItemId, cr.user_uid as user_id, usr.username as username, u.username as AssociatedUsername from classpage cp inner join resource r on r.content_id = cp.classpage_content_id inner join content cc on cc.content_id = r.content_id inner join collection_item ci on cp.classpage_content_id = ci.collection_content_id left join user u on ci.associated_by_uid = u.gooru_uid inner join content ct on ct.content_id = ci.collection_content_id inner join resource res on res.content_id = ci.resource_content_id inner join content cr on cr.content_id = res.content_id inner join user usr on cr.user_uid = usr.gooru_uid";
 		if(gooruOid != null){
 			sql += " where cr.gooru_oid = '" + gooruOid + "' ";
+		}
+		if(gooruUid != null){
+			sql += " where cr.user_uid = '" + gooruUid + "' ";
 		}
 		if(title != null){
 			sql += " where r.title = '" + title + "' ";
@@ -956,21 +959,15 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		}
 		if(creatorUsername != null){
 			sql += " where usr.username = '" + creatorUsername + "' ";
-		}
-		if(creatorFirstname != null){
-			sql += " where usr.firstname = '" + creatorFirstname + "' ";
-		}
-		if(creatorLastname != null){
-			sql += " where usr.lastname = '" + creatorLastname + "' ";
-		}
-		Query query = getSession().createSQLQuery(sql);
+		}		
+		Query query = getSession().createSQLQuery(sql);	
 		query.setFirstResult(offset);
 		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
 		return query.list();
 	}
 	
 	@Override
-	public BigInteger getClasspageAssocCount(String gooruOid,String title, String classCode,  String creatorUsername, String creatorFirstname, String creatorLastname) {
+	public BigInteger getClasspageAssocCount(String gooruOid,String title, String classCode,  String creatorUsername) {
 		
 		String sql = "select count(*) from classpage cp inner join resource r on r.content_id = cp.classpage_content_id inner join content cc on cc.content_id = r.content_id inner join collection_item ci on cp.classpage_content_id = ci.collection_content_id left join user u on ci.associated_by_uid = u.gooru_uid inner join content ct on ct.content_id = ci.collection_content_id inner join resource res on res.content_id = ci.resource_content_id inner join content cr on cr.content_id = res.content_id inner join user usr on cr.user_uid = usr.gooru_uid";
 		
@@ -985,12 +982,6 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		}
 		if(creatorUsername != null){
 			sql += " where usr.username = '" + creatorUsername + "' ";
-		}
-		if(creatorFirstname != null){
-			sql += " where usr.firstname = '" + creatorFirstname + "' ";
-		}
-		if(creatorLastname != null){
-			sql += " where usr.lastname = '" + creatorLastname + "' ";
 		}
 		Query query = getSession().createSQLQuery(sql);
 		return (BigInteger) query.list().get(0);
