@@ -81,11 +81,7 @@
 
 	<context:component-scan base-package="org.ednovo.gooru.infrastructure.mail" />
 
-
-
-
 	<context:component-scan base-package="org.ednovo.gooru.security" />
-
 
 	<bean id="searchAPIEndPoint" class="java.lang.String">
 		<constructor-arg>
@@ -93,29 +89,27 @@
 		</constructor-arg>
 	</bean>
 
-
 	<bean id="restAPIEndPoint" class="java.lang.String">
 		<constructor-arg>
 			<value>${gooru.services.endpoint}</value>
 		</constructor-arg>
 	</bean>
+	
+	<bean id="releaseVersion" class="java.lang.String">
+		<constructor-arg type="java.lang.String" value="${release.server.version}"/>
+	</bean>
 
-
-	<bean id="configSettingProfileName" class="java.lang.String">
+   <bean id="configSettingProfileName" class="java.lang.String">
 		<constructor-arg>
 			<value>${config-setting.profile}</value>
 		</constructor-arg>
 	</bean>
 
-
-
-	<bean id="databaseUtil" class="org.ednovo.gooru.application.util.DatabaseUtil">
+   <bean id="databaseUtil" class="org.ednovo.gooru.application.util.DatabaseUtil">
 		<property name="classplanRepository" ref="classplanRepository" />
 	</bean>
 
-
-
-	<context:component-scan base-package="org.ednovo.gooru.domain.service.resource.impl" />
+    <context:component-scan base-package="org.ednovo.gooru.domain.service.resource.impl" />
 
 	<bean id="classplanConstants"
 		class="org.springframework.beans.factory.config.PropertiesFactoryBean">
@@ -126,7 +120,7 @@
 				<prop key="gooruSEOWebdriverEndPoint">${gooru.seo.webdriver.endpoint}</prop>
 			</props>
 		</property>
-	</bean>
+	 </bean>
 
 	<bean id="s3Constants"
 		class="org.springframework.beans.factory.config.PropertiesFactoryBean">
@@ -137,7 +131,6 @@
 			</props>
 		</property>
 	</bean>
-
 	<bean id="serverConstants"
 		class="org.springframework.beans.factory.config.PropertiesFactoryBean">
 		<property name="properties">
@@ -158,10 +151,7 @@
 		</property>
 	</bean>
 
-
 	<context:component-scan base-package="org.ednovo.gooru.application.util" />
-
-
 
 	<bean id="velocityEngine"
 		class="org.springframework.ui.velocity.VelocityEngineFactoryBean">
@@ -198,7 +188,6 @@
 	<context:component-scan
 		base-package="org.ednovo.gooru.domain.service.revision_history" />
 	<context:component-scan base-package="org.ednovo.gooru.domain.service.redis" />
-
 
 	<bean
 		class="org.springframework.core.LocalVariableTableParameterNameDiscoverer" />

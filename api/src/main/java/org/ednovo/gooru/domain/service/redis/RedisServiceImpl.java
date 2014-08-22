@@ -32,7 +32,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.lang.StringUtils;
 import org.ednovo.gooru.application.util.CollectionUtil;
 import org.ednovo.gooru.application.util.TaxonomyUtil;
 import org.ednovo.gooru.core.api.model.Assessment;
@@ -56,6 +55,7 @@ import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.SerializationException;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 @Service
 public class RedisServiceImpl implements RedisService, ParameterProperties, ConstantProperties {
@@ -82,6 +82,9 @@ public class RedisServiceImpl implements RedisService, ParameterProperties, Cons
 	@Autowired
 	private CollectionUtil collectionUtil;
 
+	@Autowired
+	private String releaseVersion;
+	
 	@Override
 	public Long getCount(String gooruOId, String type) {
 
@@ -253,7 +256,6 @@ public class RedisServiceImpl implements RedisService, ParameterProperties, Cons
 
 		return countKey;
 	}
-
 	private String getRedisInstance() {
 		try {
 			if (redisInstanceName == null) {
@@ -403,8 +405,8 @@ public class RedisServiceImpl implements RedisService, ParameterProperties, Cons
 	}
 
 	private String returnSanitizedKey(final String key) {
-		return BaseUtil.appendProtocol(StringUtils.replace(key, " ", ""));
-	}
+		return getReleaseVersion() + "_" + BaseUtil.appendProtocol(StringUtils.replace(key, " ", ""));	
+	}  
 
 	@Override
 	public Set<String> getkeys(String key) {
@@ -419,6 +421,13 @@ public class RedisServiceImpl implements RedisService, ParameterProperties, Cons
 		} catch (Exception e) {
 			System.out.println("Redis Error" + e);
 		}
+	}
+	public String getReleaseVersion() {
+		return releaseVersion;
+	}
+
+	public void setReleaseVersion(String releaseVersion) {
+		this.releaseVersion = releaseVersion;
 	}
 
 }
