@@ -508,10 +508,10 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 
 		String hql = "select identity from Identity identity join identity.user as user where ";
 		if (!fetchAlluser) {
-			hql +=  generateUserIsDeleted("identity.user.") + " AND ";
+			hql += generateUserIsDeleted("identity.user.") + " AND ";
 		}
 		if (!isLoginRequest) {
-			hql +=  generateOrgAuthQuery("identity.user.") + " AND ";
+			hql += generateOrgAuthQuery("identity.user.") + " AND ";
 		}
 
 		Query query = getSession().createQuery(hql + " user.username=:userName ");
@@ -520,7 +520,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 			addOrgAuthParameters(query);
 		}
 		Identity identity = (Identity) (query.list().size() > 0 ? query.list().get(0) : null);
-		if (identity == null) { 
+		if (identity == null) {
 			Query queryEmail = getSession().createQuery(hql + "  identity.externalId=:userName ");
 			queryEmail.setParameter(EXTERNAL_ID, userName);
 			if (!isLoginRequest) {
@@ -800,5 +800,5 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 		}
 		return 0;
 	}
-	
+
 }

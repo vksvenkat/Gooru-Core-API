@@ -69,7 +69,7 @@ public class AccountRestV2Controller extends BaseController implements ConstantP
 
 	@Autowired
 	private UserRepository userRepository;
-	
+
 	@Autowired
 	@Resource(name = "serverConstants")
 	private Properties serverConstants;
@@ -78,8 +78,6 @@ public class AccountRestV2Controller extends BaseController implements ConstantP
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.POST }, value = "/login")
 	public ModelAndView login(@RequestParam(value = API_KEY, required = true) String apiKey, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		
-
 		request.setAttribute(Constants.EVENT_PREDICATE, USER_LOGIN);
 		JSONObject json = requestData(data);
 		ActionResponseDTO<UserToken> responseDTO = null;
@@ -91,12 +89,10 @@ public class AccountRestV2Controller extends BaseController implements ConstantP
 			SessionContextSupport.putLogParameter(EVENT_NAME, USER_LOGIN);
 		}
 		String[] includes = (String[]) ArrayUtils.addAll(USER_INCLUDES, ERROR_INCLUDE);
-		
-
 		return toModelAndView(serialize(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, includes));
 
 	}
-	
+
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_SIGNIN })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.PUT }, value = "/switch-session")
@@ -119,7 +115,7 @@ public class AccountRestV2Controller extends BaseController implements ConstantP
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_SIGNOUT })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.POST, value = "/logout")
-	public void logout(HttpServletRequest request, HttpServletResponse response,@RequestParam(value = SESSIONTOKEN, required = false) String sessionToken) throws Exception {
+	public void logout(HttpServletRequest request, HttpServletResponse response, @RequestParam(value = SESSIONTOKEN, required = false) String sessionToken) throws Exception {
 		request.setAttribute(Constants.EVENT_PREDICATE, GOORU_LOG_OUT);
 		getAccountService().logOut(sessionToken);
 		request.getSession().invalidate();
@@ -127,7 +123,7 @@ public class AccountRestV2Controller extends BaseController implements ConstantP
 		RequestUtil.deleteCookie(request, response, COOKIE_KEY_ACCESS_TOKEN);
 		RequestUtil.deleteCookie(request, response, COOKIE_KEY_REFRESH_TOKEN);
 		RequestUtil.deleteCookie(request, response, COOKIE_KEY_SERVICE_VERSION);
-		
+
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_SIGNIN })
@@ -154,18 +150,18 @@ public class AccountRestV2Controller extends BaseController implements ConstantP
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_SIGNIN })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.POST, value = "/authenticate")
-	public ModelAndView authenticateUser(@RequestBody String data, @RequestParam (value=API_KEY, required= false) String apiKey,HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public ModelAndView authenticateUser(@RequestBody String data, @RequestParam(value = API_KEY, required = false) String apiKey, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		JSONObject json = requestData(data);
 		SessionContextSupport.putLogParameter(EVENT_NAME, USER_AUTHENTICATE);
 		SessionContextSupport.putLogParameter(SECERT_KEY, getValue(SECERT_KEY, json));
 		SessionContextSupport.putLogParameter(API_KEY, getValue(API_KEY, json));
-		User user = this.getAccountService().userAuthentication(buildUserFromInputParameters(data), getValue(SECERT_KEY, json), getValue(API_KEY, json) == null ? apiKey : getValue(API_KEY, json) , UserAccountType.accountCreatedType.GOOGLE_APP.getType(), request);
+		User user = this.getAccountService().userAuthentication(buildUserFromInputParameters(data), getValue(SECERT_KEY, json), getValue(API_KEY, json) == null ? apiKey : getValue(API_KEY, json), UserAccountType.accountCreatedType.GOOGLE_APP.getType(), request);
 		if (user.getIdentities() != null) {
 			Identity identity = user.getIdentities().iterator().next();
 			if (identity.getActive() == 0) {
 				Map<String, Object> redirectObj = new HashMap<String, Object>();
 				redirectObj.put(ACTIVE, 0);
-				 return toModelAndView(serialize(redirectObj, JSON));
+				return toModelAndView(serialize(redirectObj, JSON));
 			}
 		}
 		return toModelAndViewWithIoFilter(user, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, USER_INCLUDES);
