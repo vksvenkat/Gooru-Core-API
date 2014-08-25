@@ -194,9 +194,7 @@
             <property name="tags" column="tags" not-null="false" />
             <property name="copiedResourceId" column="copied_resource_id" not-null="false" />
 			<property name="isFeatured" column="is_featured" not-null="true" />					
-			<property name="clusterUid" column="cluster_uid" not-null="false"/>
-			<property name="isRepresentative" column="is_representative" not-null="false"/>							
-						
+			
 			<property name="numberOfSubcribers" column="number_of_subcribers"
 				not-null="false" />
 			<property name="sourceReference" column="source_reference"
@@ -267,6 +265,8 @@
 				<property name="questions" column="questions" not-null="false" />
 				<property name="performanceTasks" column="performance_tasks" not-null="false" />
 				<property name="languageObjective" column="language_objective" not-null="false" />	
+				<!-- <property name="clusterUid" column="cluster_uid" not-null="false"/>
+				<property name="isRepresentative" column="is_representative" not-null="false"/> -- >																				
 				
 				<many-to-one name="buildType" class="org.ednovo.gooru.core.api.model.CustomTableValue" column="build_type_id" not-null="false" lazy="proxy" cascade="none" />
 				
