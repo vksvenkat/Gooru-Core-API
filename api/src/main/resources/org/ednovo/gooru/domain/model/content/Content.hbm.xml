@@ -266,7 +266,7 @@
 				<property name="performanceTasks" column="performance_tasks" not-null="false" />
 				<property name="languageObjective" column="language_objective" not-null="false" />	
 				<!-- <property name="clusterUid" column="cluster_uid" not-null="false"/>
-				<property name="isRepresentative" column="is_representative" not-null="false"/> -- >																				
+				<property name="isRepresentative" column="is_representative" not-null="false"/> -->																				
 				
 				<many-to-one name="buildType" class="org.ednovo.gooru.core.api.model.CustomTableValue" column="build_type_id" not-null="false" lazy="proxy" cascade="none" />
 				
