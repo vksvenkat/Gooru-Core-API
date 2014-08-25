@@ -305,7 +305,16 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		setContentProvider(resource);
 		return resourceObject;
 	}
-
+	
+	@Override
+	public Resource setContentProvider(String gooruOid) {
+		Resource resource = this.getResourceRepository().findResourceByContentGooruId(gooruOid);
+		if(resource == null) {
+			return null;
+		}
+		return setContentProvider(resource);
+	}
+	
 	@Override
 	public Resource setContentProvider(Resource resource) {
 		List<ContentProviderAssociation> contentProviderAssociations = this.getContentRepository().getContentProviderByGooruOid(resource.getGooruOid(),null);
