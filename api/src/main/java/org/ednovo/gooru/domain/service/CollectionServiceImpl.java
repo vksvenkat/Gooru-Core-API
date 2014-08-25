@@ -426,6 +426,12 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				if (object[9] != null) {
 					item.put(GOALS, object[9]);
 				}
+				if (object[10] != null) {
+					 Map<String, Object> resourceSource = new HashMap<String, Object>();
+					 resourceSource.put(ATTRIBUTION, object[10]);
+					 resourceSource.put(DOMAIN_NAME, object[11]);
+					 item.put(RESOURCESOURCE, resourceSource);
+				}
 				Resource resource = this.getResourceService().setContentProvider(object[1].toString());
 				if (resource != null) {
 					if (resource.getPublisher() != null && resource.getPublisher().size() > 0) {
@@ -496,6 +502,12 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				item.put(COLLECTION_ITEM_ID, object[8]);
 				if (object[9] != null) {
 					item.put(GOALS, object[9]);
+				}
+				if (object[10] != null) {
+					 Map<String, Object> resourceSource = new HashMap<String, Object>();
+					 resourceSource.put(ATTRIBUTION, object[10]);
+					 resourceSource.put(DOMAIN_NAME, object[11]);
+					 item.put(RESOURCESOURCE, resourceSource);
 				}
 				Resource resource = this.getResourceService().setContentProvider(object[1].toString());
 				if (resource != null) {
