@@ -521,7 +521,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 		}
 		Identity identity = (Identity) (query.list().size() > 0 ? query.list().get(0) : null);
 		if (identity == null) {
-			Query queryEmail = getSession().createQuery(hql + "  identity.externalId=:userName ");
+			Query queryEmail = getSession().createQuery(hql + "  identity.externalId=:externalId ");
 			queryEmail.setParameter(EXTERNAL_ID, userName);
 			if (!isLoginRequest) {
 				addOrgAuthParameters(queryEmail);
