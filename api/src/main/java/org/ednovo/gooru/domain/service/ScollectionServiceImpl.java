@@ -235,7 +235,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				collection.setCollectionItem(this.createCollectionItem(collection.getGooruOid(), null, collectionItem, collection.getUser(), CollectionType.SHElf.getCollectionType(), false).getModel());
 			}
 			this.getCollectionRepository().save(collection);
-			if (collection.getCollectionType().equalsIgnoreCase(COLLECTION)) {
+			if (collection.getResourceType().getName().equalsIgnoreCase(SCOLLECTION)) {
 				if (collection.getDepthOfKnowledges() != null && collection.getDepthOfKnowledges().size() > 0) {
 					collection.setDepthOfKnowledges(this.updateContentMeta(collection.getDepthOfKnowledges(), collection.getGooruOid(), collection.getUser(), DEPTH_OF_KNOWLEDGE));
 				} else {
@@ -318,7 +318,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				collection.setCollectionItem(this.createCollectionItem(collection.getGooruOid(), null, collectionItem, collection.getUser(), CollectionType.SHElf.getCollectionType(), false).getModel());
 			}
 			this.getCollectionRepository().save(collection);
-			if (collection.getCollectionType().equalsIgnoreCase(COLLECTION)) {
+			if (collection.getResourceType().getName().equalsIgnoreCase(SCOLLECTION)) {
 				if (collection.getDepthOfKnowledges() != null && collection.getDepthOfKnowledges().size() > 0) {
 					collection.setDepthOfKnowledges(this.updateContentMeta(collection.getDepthOfKnowledges(), collection.getGooruOid(), collection.getUser(), DEPTH_OF_KNOWLEDGE));
 				} else {
@@ -494,7 +494,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			if (newCollection.getPerformanceTasks() != null) {
 				collection.setPerformanceTasks(newCollection.getPerformanceTasks());
 			}
-			if (collection.getCollectionType().equalsIgnoreCase(COLLECTION)) {
+			if (collection.getResourceType().getName().equalsIgnoreCase(SCOLLECTION)) {
 				if (newCollection.getDepthOfKnowledges() != null && newCollection.getDepthOfKnowledges().size() > 0) {
 					collection.setDepthOfKnowledges(this.updateContentMeta(newCollection.getDepthOfKnowledges(), updateCollectionId, apiCallerUser, DEPTH_OF_KNOWLEDGE));
 				} else {
@@ -966,7 +966,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				collectionItem.setResource(getResourceService().setContentProvider(collectionItem.getResource()));
 				collectionItem.getResource().setResourceTags(this.getContentService().getContentTagAssoc(collectionItem.getResource().getGooruOid(), user));
 			}
-			if (collection.getCollectionType().equalsIgnoreCase(COLLECTION)) {
+			if (collection.getResourceType().getName().equalsIgnoreCase(SCOLLECTION)) {
 				collection.setDepthOfKnowledges(this.setContentMetaAssociation(this.getContentMetaAssociation(DEPTH_OF_KNOWLEDGE), collectionId, DEPTH_OF_KNOWLEDGE));
 
 				collection.setLearningSkills(this.setContentMetaAssociation(this.getContentMetaAssociation(LEARNING_AND_INNOVATION_SKILLS), collectionId, LEARNING_AND_INNOVATION_SKILLS));
@@ -1750,7 +1750,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				itemData.put(PERFORMANCE_TASKS, newCollection.getPerformanceTasks());
 				collection.setPerformanceTasks(newCollection.getPerformanceTasks());
 			}
-			if (collection.getCollectionType().equalsIgnoreCase(COLLECTION)) {
+			if (collection.getResourceType().getName().equalsIgnoreCase(SCOLLECTION)) {
 				if (newCollection.getDepthOfKnowledges() != null && newCollection.getDepthOfKnowledges().size() > 0) {
 					itemData.put(DEPTHOFKNOWLEDGES, newCollection.getDepthOfKnowledges());
 					collection.setDepthOfKnowledges(this.updateContentMeta(newCollection.getDepthOfKnowledges(), updateCollectionId, updateUser, DEPTH_OF_KNOWLEDGE));
@@ -2271,6 +2271,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		Set<CollectionItem> collectionItems = new TreeSet<CollectionItem>();
 		for (CollectionItem collectionItem : collectionObj.getCollectionItems()) {
 			collectionItem.getResource().setRatings(this.setRatingsObj(this.getResourceRepository().getResourceSummaryById(collectionItem.getResource().getGooruOid())));
+			this.getResourceService().setContentProvider(collectionItem.getResource());
 			collectionItems.add(collectionItem);
 		}
 		collection.put(COLLECTIONITEMS, collectionItems);

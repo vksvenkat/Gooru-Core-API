@@ -256,7 +256,7 @@ public class ContentRepositoryHibernate extends BaseRepositoryHibernate implemen
 	public List getIdsByUserUId(String userUId, String typeName,
 			Integer pageNo, Integer pageSize) {
 		Session session = getSession();
-		String sql = "SELECT c.content_id,c.gooru_oid, r.type_name FROM content c INNER JOIN resource r ON (r.content_id=c.content_id) WHERE c.user_uid = '"+ userUId +"'";
+		String sql = "SELECT c.content_id,c.gooru_oid, r.type_name FROM content c INNER JOIN resource r ON (r.content_id=c.content_id) WHERE c.user_uid = '"+ userUId +"' OR c.creator_uid = '"+ userUId +"'";
 		if(typeName != null){
 			sql += " and r.type_name in ('"+ typeName + "')";
 		}

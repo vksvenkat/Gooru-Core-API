@@ -267,6 +267,23 @@ public class ResourceCio implements IsEntityCassandraIndexable {
 	@Column
 	private String aggregator;
 	
+	@Column
+	private String clusterUid;
+
+	@Column
+	private Integer isCanonical;
+	
+	@Column
+	private String rootNodeId; 
+	
+	public String getRootNodeId() {
+		return rootNodeId;
+	}
+
+	public void setRootNodeId(String rootNodeId) {
+		this.rootNodeId = rootNodeId;
+	}
+
 	public String getMomentsofLearning() {
 		return momentsofLearning;
 	}
@@ -924,4 +941,19 @@ public class ResourceCio implements IsEntityCassandraIndexable {
 		return stas;
 	}
 	
+	public String getClusterUid() {
+		return clusterUid;
+	}
+
+	public void setClusterUid(String clusterUid) {
+		this.clusterUid = clusterUid;
+	}
+
+	public Integer getIsCanonical() {
+		return isCanonical;
+	}
+
+	public void setIsCanonical(Integer isCanonical) {
+		this.isCanonical = isCanonical;
+	}
 }
