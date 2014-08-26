@@ -793,7 +793,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		
 		String hql = "FROM CollectionItem collectionItems where collectionItems.resource.gooruOid=:gooruOid and collectionItems.collection.user.partyUid=:gooruUid";
 		if(type != null) { 
-			hql += " and collectionItems.collection.resourceType.name=:type";
+			hql += " and collectionItems.resource.resourceType.name=:type";
 		}
 		Query query = getSession().createQuery(hql);
 		query.setParameter(GOORU_OID, gooruOid);
