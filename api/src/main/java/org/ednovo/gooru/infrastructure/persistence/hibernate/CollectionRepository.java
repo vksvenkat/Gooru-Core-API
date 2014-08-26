@@ -112,7 +112,7 @@ public interface CollectionRepository extends BaseRepository {
 	
 	List<CollectionItem> getCollectionItemByAssociation(String resourceGooruOid, String gooruUid, String collectionType);
 	
-	CollectionItem findCollectionItemByGooruOid(String gooruOid, String gooruUid);
+	CollectionItem findCollectionItemByGooruOid(String gooruOid, String gooruUid, String type);
 	
 	UserCollectionItemAssoc getUserCollectionItemAssoc(String collectionItemId, String userUid);
 	

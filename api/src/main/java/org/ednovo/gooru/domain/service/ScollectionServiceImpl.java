@@ -2271,6 +2271,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		Set<CollectionItem> collectionItems = new TreeSet<CollectionItem>();
 		for (CollectionItem collectionItem : collectionObj.getCollectionItems()) {
 			collectionItem.getResource().setRatings(this.setRatingsObj(this.getResourceRepository().getResourceSummaryById(collectionItem.getResource().getGooruOid())));
+			this.getResourceService().setContentProvider(collectionItem.getResource());
 			collectionItems.add(collectionItem);
 		}
 		collection.put(COLLECTIONITEMS, collectionItems);

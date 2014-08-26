@@ -222,6 +222,7 @@ public interface ResourceService extends BaseService {
 	
 	ResourceInstance checkResourceUrlExists(String url, boolean checkShortenedUrl) throws Exception;
 	
+	Resource setContentProvider(String gooruOid);
 	
 
 
