@@ -383,8 +383,8 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/item", method = RequestMethod.GET)
-	public ModelAndView getClasspageAssoc(@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,@RequestParam(value = "gooruOid", required = false) String gooruOid ,
-			@RequestParam(value = "title", required = false) String title, @RequestParam(value = "classCode", required = false) String classCode,@RequestParam(value = "creatorUsername", required = false) String creatorUsername ){	
+	public ModelAndView getClasspageAssoc(@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,@RequestParam(value = GOORU_OID, required = false) String gooruOid ,
+			@RequestParam(value = TITLE, required = false) String title, @RequestParam(value = CLASS_CODE, required = false) String classCode,@RequestParam(value = CREATOR_USER_NAME, required = false) String creatorUsername ){	
 		return toJsonModelAndView(this.getClasspageService().getClasspageAssoc(offset, limit, gooruOid,title,classCode,creatorUsername),true);
 	}
 	

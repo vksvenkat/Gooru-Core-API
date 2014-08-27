@@ -782,15 +782,15 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
 		for (Object[] object : classpageAssocs) {
 			Map<String, Object> results = new HashMap<String, Object>();
-			results.put("classCode", object[0]);
-			results.put("title", object[1]);
-			results.put("classpageId", object[2]);
-			results.put("classPageItemId", object[3]);
-			results.put("userId", object[4]);
+			results.put(CLASS_CODE, object[0]);
+			results.put(TITLE, object[1]);
+			results.put(CLASSPAGE_ID, object[2]);
+			results.put(CLASSPAGE_ITEM_ID, object[3]);
+			results.put(USER_ID, object[4]);
 			Map<String, Object> creator = new HashMap<String, Object>();
-			creator.put("creatorUsername", object[5]);
-			results.put("creator", creator);
-			results.put("associatedUsername", object[6]);				
+			creator.put(CREATOR_USER_NAME, object[5]);
+			results.put(CREATOR, creator);
+			results.put(ASSOCIATED_USER_NAME, object[6]);				
 			result.add(results);
 		}
 		Map<String, Object> result1 = new HashMap<String, Object>();

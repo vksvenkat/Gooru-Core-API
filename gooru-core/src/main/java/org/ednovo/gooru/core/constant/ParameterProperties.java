@@ -2754,4 +2754,8 @@ public interface ParameterProperties {
 	
 	String DEFAULT_VERSION = "version";
 	
+	String CREATOR_USER_NAME = "creatorUsername";
+	
+	String ASSOCIATED_USER_NAME = "associatedUsername";
+	
 }
