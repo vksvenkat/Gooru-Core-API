@@ -194,8 +194,8 @@
             <property name="tags" column="tags" not-null="false" />
             <property name="copiedResourceId" column="copied_resource_id" not-null="false" />
 			<property name="isFeatured" column="is_featured" not-null="true" />		
-			<!-- <property name="clusterUid" column="cluster_uid" not-null="false"/>
-				<property name="isRepresentative" column="is_representative" not-null="false"/> -->				
+			<property name="clusterUid" column="cluster_uid" not-null="false"/>
+			<property name="isRepresentative" column="is_representative" not-null="false"/> 				
 			
 			<property name="numberOfSubcribers" column="number_of_subcribers"
 				not-null="false" />

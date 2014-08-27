@@ -46,8 +46,12 @@ public interface OAuthService {
 	
 	public OAuthClient getOAuthClientByClientSecret(String clientSecret) throws Exception;
 	
-	List<OAuthClient> listOAuthClientByOrganization(String organizationUId, int pageNo, int pageSize) throws Exception;
+	List<OAuthClient> listOAuthClientByOrganization(String organizationUId, int pageNo, int pageSize,String grantType) throws Exception;
 	
 	public Boolean isSuperAdmin(User user);
+	
+    public ActionResponseDTO<OAuthClient> createNewLTIClient(OAuthClient LTIClient) throws Exception;
+	
+	public ActionResponseDTO<OAuthClient> updateLTIClient(OAuthClient LTIClient, User apiCaller);
 
 }

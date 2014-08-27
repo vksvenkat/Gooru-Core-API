@@ -197,9 +197,9 @@ public class OAuthServiceImpl extends ServerValidationUtils implements OAuthServ
 	
 	@Override
 	public List<OAuthClient> listOAuthClientByOrganization(String organizationUId,
-			int pageNo, int pageSize) throws Exception {
+			int pageNo, int pageSize, String grantType) throws Exception {
 		
-		return oAuthRepository.listOAuthClientByOrganization(organizationUId, pageNo, pageSize);
+		return oAuthRepository.listOAuthClientByOrganization(organizationUId, pageNo, pageSize, grantType);
 	}
 	
     private static String getRandomString(int length) {
@@ -211,7 +211,7 @@ public class OAuthServiceImpl extends ServerValidationUtils implements OAuthServ
      }
 
 	private Errors validateOAuthClient(OAuthClient oAuthClient) throws Exception {
-		final Errors errors = new BindException(oAuthClient, "oAuthClient");
+		final Errors errors = new BindException(oAuthClient, OAUTH_CLIENT);
 		rejectIfNull(errors, oAuthClient, "userUid", GL0056, generateErrorMessage(GL0056, "userUid"));
 		rejectIfNull(errors, oAuthClient, "clientName", GL0056, generateErrorMessage(GL0056, "clientName"));
 		return errors;
@@ -229,6 +229,71 @@ public class OAuthServiceImpl extends ServerValidationUtils implements OAuthServ
 		}
 
 		return isSuperAdmin;
+	}
+	@Override
+	public ActionResponseDTO<OAuthClient> createNewLTIClient(OAuthClient LTIClient) throws Exception {
+		Errors errors = validateOAuthClient(LTIClient);
+		if(!errors.hasErrors()){
+			LTIClient.setAccessTokenValiditySeconds(new Integer(86400));
+			LTIClient.setAuthorities(ROLE_CLIENT);
+			LTIClient.setGrantTypes(LTI);
+			LTIClient.setScopes(READ);
+			
+			if( LTIClient.getOrganization() != null && LTIClient.getOrganization().getOrganizationUid() !=null){
+				Organization organization = organizationRepository.getOrganizationByUid(LTIClient.getOrganization().getOrganizationUid());
+				LTIClient.setOrganization(organization);
+				if(LTIClient.getUserUid() != null) {
+					User user = userRepository.findByGooruId(LTIClient.getUserUid());
+					LTIClient.setUser(user);
+				}	
+				
+			}else{
+				if(LTIClient.getUserUid() != null) {
+					User user = userRepository.findByGooruId(LTIClient.getUserUid());
+					LTIClient.setUser(user);
+					LTIClient.setOrganization(user.getOrganization());
+				} 
+				
+				
+			}			
+			oAuthRepository.save(LTIClient);
+		}
+		return new ActionResponseDTO<OAuthClient>(LTIClient, errors);
+	}
+	
+	@Override
+	public ActionResponseDTO<OAuthClient> updateLTIClient(OAuthClient LTIClient, User apiCaller) {
+		rejectIfNull(LTIClient, GL0056, OAUTH_CLIENT);
+		OAuthClient exsitsLTIClient = (OAuthClient) oAuthRepository.get(OAuthClient.class, LTIClient.getOauthClientUId());
+		rejectIfNull(exsitsLTIClient, GL0056, OAUTH_CLIENT);
+		
+		if(LTIClient.getClientId()!= null){
+			exsitsLTIClient.setClientId(LTIClient.getClientId());
+		}
+		if(LTIClient.getClientSecret() != null){
+			exsitsLTIClient.setClientSecret(LTIClient.getClientSecret());
+		}
+		if(LTIClient.getClientName() != null){
+			exsitsLTIClient.setClientName(LTIClient.getClientName());
+		}
+		if(LTIClient.getDescription() != null){
+			exsitsLTIClient.setDescription(LTIClient.getDescription());
+		}
+		if(LTIClient.getRedirectUris() != null){
+			exsitsLTIClient.setRedirectUris(LTIClient.getRedirectUris());
+		}
+		if (isSuperAdmin(apiCaller)) {
+			if(LTIClient.getClientId() != null){
+				exsitsLTIClient.setClientId(LTIClient.getClientId());
+			}
+			if(LTIClient.getClientSecret() != null){
+				exsitsLTIClient.setClientSecret(LTIClient.getClientSecret());
+			}
+			
+		}
+		oAuthRepository.save(exsitsLTIClient);
+		final Errors errors = new BindException(OAuthClient.class, OAUTH_CLIENT);
+		return new ActionResponseDTO<OAuthClient>(exsitsLTIClient, errors);
 	}
 
 }

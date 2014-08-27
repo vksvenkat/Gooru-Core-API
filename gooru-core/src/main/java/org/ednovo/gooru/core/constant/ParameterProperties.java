@@ -2757,5 +2757,13 @@ public interface ParameterProperties {
 	String CREATOR_USER_NAME = "creatorUsername";
 	
 	String ASSOCIATED_USER_NAME = "associatedUsername";
+
+	String OAUTH_CLIENT = "oauthClient";
+	
+	String ROLE_CLIENT = "ROLE_CLIENT";
+	
+	String LTI = "LTI";
+	
+	String READ = "read";
 	
 }

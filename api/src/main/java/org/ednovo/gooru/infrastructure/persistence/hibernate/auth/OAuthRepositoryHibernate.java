@@ -90,10 +90,16 @@ public class OAuthRepositoryHibernate extends BaseRepositoryHibernate implements
 	}
 	
 	@Override
-	public List<OAuthClient> listOAuthClientByOrganization(String organizationUId, int pageNo, int pageSize) {
+	public List<OAuthClient> listOAuthClientByOrganization(String organizationUId, int pageNo, int pageSize,String grantType) {
 		String hql = " FROM OAuthClient oauthClient WHERE oauthClient.organization.partyUid=:organizationUId";
+		if (grantType != null){
+		hql +=" AND	oauthClient.grantTypes=:grantTypes";	
+		}
 		Query query = getSession().createQuery(hql);
 		query.setParameter("organizationUId", organizationUId);
+		if (grantType != null){
+			query.setParameter("grantTypes", grantType);	
+		}
 			return (List) query.list();
 	}
 
