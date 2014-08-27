@@ -2754,4 +2754,12 @@ public interface ParameterProperties {
 	
 	String DEFAULT_VERSION = "version";
 	
+	String OAUTH_CLIENT = "oauthClient";
+	
+	String ROLE_CLIENT = "ROLE_CLIENT";
+	
+	String LTI = "LTI";
+	
+	String READ = "read";
+	
 }
