@@ -10,6 +10,7 @@ import java.util.List;
 
 import org.ednovo.gooru.cassandra.core.CassandraIndexSrcBuilder;
 import org.ednovo.gooru.core.cassandra.model.IsCassandraIndexable;
+import org.ednovo.gooru.core.exception.NotFoundException;
 
 /**
  * @author SearchTeam
@@ -39,7 +40,7 @@ public abstract class CrudEntityCassandraServiceImpl<S extends IsCassandraIndexa
 			for (String key : ids) {
 				S source = fetchSource(key);
 				if(source == null) {
-					throw new RuntimeException("Content not exist : " + key);
+					throw new NotFoundException("Content not exist : " + key);
 				}
 				CassandraIndexSrcBuilder<S, M> builder = CassandraIndexSrcBuilder.get(source.getIndexType());
 				M modelCio = builder.build(source);
