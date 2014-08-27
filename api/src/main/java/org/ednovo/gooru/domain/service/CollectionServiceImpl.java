@@ -198,7 +198,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		}
 		CollectionItem collectionItem = new CollectionItem();
 		collectionItem.setCollection(source);
-		CollectionItem sourceCollectionItem = this.getCollectionRepository().findCollectionItemByGooruOid(sourceId, user.getPartyUid(), SCOLLECTION);
+		CollectionItem sourceCollectionItem = this.getCollectionRepository().findCollectionItemByGooruOid(sourceId, user.getPartyUid(), CLASSPAGE);
 		if (sourceCollectionItem != null && sourceCollectionItem.getItemType() != null) {
 			collectionItem.setItemType(sourceCollectionItem.getItemType());
 		}
@@ -208,8 +208,9 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				collectionItem.setItemType(COLLABORATOR);
 			}
 		}
-		String collectionGooruOid = sourceCollectionItem.getCollection().getGooruOid();
+		String collectionGooruOid  = null;
 		if (sourceCollectionItem != null) {
+			collectionGooruOid = sourceCollectionItem.getCollection().getGooruOid();
 			deleteCollectionItem(sourceCollectionItem.getCollectionItemId(), user);
 		}
 		
@@ -219,11 +220,12 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		} else {
 			responseDTO = this.createCollectionItem(sourceId, null, collectionItem, user, CollectionType.SHElf.getCollectionType(), false);
 		}
-		
-		updateFolderSharing(collectionGooruOid);
-		List<String> parenFolders = this.getParentCollection(collectionGooruOid, user.getPartyUid(), false);
-		for (String folderGooruOid : parenFolders) {
-			updateFolderSharing(folderGooruOid);
+		if (collectionGooruOid != null) {
+			updateFolderSharing(collectionGooruOid);
+			List<String> parenFolders = this.getParentCollection(collectionGooruOid, user.getPartyUid(), false);
+			for (String folderGooruOid : parenFolders) {
+				updateFolderSharing(folderGooruOid);
+			}
 		}
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + user.getPartyUid() + "*");
