@@ -423,6 +423,10 @@ public interface ConstantProperties {
 	public static final String WEBPURIFY_CONFIG_KEY = "webpurify.com.api.key";
 
 	public static final String WEBPURIFY_API_END_POINT = "http://api1.webpurify.com/services/rest";
+	
+	public static final String ACCESS_TOKEN_BY_REFRESH_TOKEN = "https://accounts.google.com/o/oauth2/token";
+	
+	public static final String REVOKE_REFRESH_TOKEN = "https://accounts.google.com/o/oauth2/revoke?token=";	
 
 	public static final String METHOD = "webpurify.live.check";
 
