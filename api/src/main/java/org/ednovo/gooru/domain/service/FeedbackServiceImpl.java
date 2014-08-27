@@ -418,7 +418,6 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 		ResourceSummary resourceSummary = this.getResourceRepository().getResourceSummaryById(assocGooruOid);
 		Map<String, Object> summary = this.getContentFeedbackStarRating(assocGooruOid);
 		Long reviewSummary = this.getContentFeedbackReviewCount(assocGooruOid);
-
 		if (resourceSummary == null) {
 			resourceSummary = new ResourceSummary();
 			resourceSummary.setResourceGooruOid(assocGooruOid);
@@ -429,7 +428,7 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 		this.getFeedbackRepository().save(resourceSummary);
 		this.getFeedbackRepository().flush();
 		return resourceSummary;
-		}
+	}
 
 	
 	private String getTableNameByFeedbackCategory(String category, String target) {
