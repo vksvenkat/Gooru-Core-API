@@ -81,16 +81,6 @@
 		</property>
 	</bean>
 
-	<bean id="revisionHistorySessionFactory" parent="revisionHistoryAbstractSessionFactory">
-		<property name="dataSource" ref="jndiDataSource" />
-	</bean>
-
-	<!-- Transaction manager for a RevisionHistory SessionFactory -->
-	<bean id="revisionHistoryTransactionManager"
-		class="org.springframework.orm.hibernate4.HibernateTransactionManager">
-		<property name="sessionFactory" ref="revisionHistorySessionFactory" />
-	</bean>
-
 	<bean id="baseRepository"
 		class="org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate">
 		<property name="sessionFactory" ref="sessionFactory" />
@@ -400,36 +390,9 @@
 		class="org.ednovo.gooru.infrastructure.persistence.hibernate.HibernateLogger" />
 
 	<bean id="splitResourceController" class="org.ednovo.gooru.application.util.ResourceProcessor" />
-
-	<bean id="sessionFactory" parent="abstractSessionFactory">
-		<!-- <bean id="sessionFactory" parent="abstractSessionFactory" depends-on="flyway"> -->
-		<property name="dataSource" ref="jndiDataSource" />
-	</bean>
-
-	<!-- Transaction manager for a single Hibernate SessionFactory (alternative 
-		to JTA) -->
-	<bean id="transactionManager"
-		class="org.springframework.orm.hibernate4.HibernateTransactionManager">
-		<property name="sessionFactory" ref="sessionFactory" />
-	</bean>
-
-
-	<!-- ========================= BUSINESS OBJECT DEFINITIONS ========================= -->
-	<jee:jndi-lookup id="jndiDataSource" jndi-name="java:comp/env/jdbc/gooruapi" />
-	<!-- configure JdbcTemplate with the same datasource -->
-	<bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
-		<constructor-arg>
-			<ref bean="jndiDataSource" />
-		</constructor-arg>
-	</bean>
-
+	
 	<bean id="databaseUtil" class="org.ednovo.gooru.application.util.DatabaseUtil">
 		<property name="classplanRepository" ref="classplanRepository" />
-	</bean>
-
-	<bean id="procedureExecutor"
-		class="org.ednovo.gooru.infrastructure.persistence.hibernate.taxonomy.TaxonomyStoredProcedure">
-		<property name="dataSource" ref="jndiDataSource" />
 	</bean>
 
 	<!-- Activates various annotations to be detected in bean classes: Spring's 
