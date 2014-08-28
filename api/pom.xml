@@ -791,7 +791,7 @@
 	    </dependency>
         <dependency>
                 <groupId>com.jolbox</groupId>
-                <artifactId>bonecp-provider</artifactId>
+                <artifactId>bonecp</artifactId>
                 <version>0.8.0.RELEASE</version>
 	    </dependency>
 	    <dependency>
