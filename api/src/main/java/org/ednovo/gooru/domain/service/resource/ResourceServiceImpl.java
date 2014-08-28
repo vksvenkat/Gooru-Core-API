@@ -3092,7 +3092,8 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	@Override
 	public Resource resourcePlay(String gooruContentId, User apiCaller, boolean more) throws Exception {
 		Resource resource = this.findResourceByContentGooruId(gooruContentId);
-
+        this.resourceCassandraService.get(resource.getGooruOid(),"stas.viewsCount");
+        
 		if (resource == null) {
 			throw new NotFoundException(generateErrorMessage("GL0003"));
 		}
