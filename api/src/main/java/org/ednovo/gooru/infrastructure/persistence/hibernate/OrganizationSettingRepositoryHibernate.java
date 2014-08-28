@@ -37,6 +37,7 @@ import org.springframework.stereotype.Repository;
 public class OrganizationSettingRepositoryHibernate extends BaseRepositoryHibernate implements OrganizationSettingRepository {
 
 	@Override
+	@Cacheable("persistent")
 	public Map<String, String> getOrganizationSettings(String organizationUid) {
 		Map<String, String> settings = new HashMap<String, String>();
 		Query query = getSessionReadOnly().createSQLQuery(GET_ORGAIZATION_SETTINGS).addScalar(NAME, StandardBasicTypes.STRING).addScalar(VALUE, StandardBasicTypes.STRING);
@@ -62,6 +63,7 @@ public class OrganizationSettingRepositoryHibernate extends BaseRepositoryHibern
 	}
 
 	@Override
+	@Cacheable("persistent")
 	public String getOrganizationSetting(String key, String organizationUid) {
 		Query query = getSessionReadOnly().createSQLQuery(GET_ORGANIZATION_SETTING).addScalar(VALUE, StandardBasicTypes.STRING);
 		query.setParameter(ORG_UID_PARAM, organizationUid);
@@ -74,6 +76,7 @@ public class OrganizationSettingRepositoryHibernate extends BaseRepositoryHibern
 	}
 
 	@Override
+	@Cacheable("persistent")
 	public OrganizationSetting getOrganizationSettings(String organizationUid, String configKey) throws Exception {
 		String hql = "FROM OrganizationSetting orgSetting where orgSetting.organization.partyUid = :organizationUid and orgSetting.key=:name";
 		Query query = getSessionReadOnly().createQuery(hql);
@@ -86,6 +89,7 @@ public class OrganizationSettingRepositoryHibernate extends BaseRepositoryHibern
 	}
 
 	@Override
+	@Cacheable("persistent")
 	public OrganizationSetting listOrgSetting(String organizationUid, String configKey) throws Exception {
 		String hql = "FROM OrganizationSetting orgSetting where orgSetting.key=:name";
 		if(organizationUid != null){
