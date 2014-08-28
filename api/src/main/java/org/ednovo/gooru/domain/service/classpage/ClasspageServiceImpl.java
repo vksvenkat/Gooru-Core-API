@@ -793,9 +793,9 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			results.put(ASSOCIATED_USER_NAME, object[6]);				
 			result.add(results);
 		}
-		Map<String, Object> result1 = new HashMap<String, Object>();
-		result1.put(TOTAL_HIT_COUNT, this.getCollectionRepository().getClasspageAssocCount(gooruOid,title,classCode,creatorUsername));
-		result.add(result1);
+		Map<String, Object> resultCount = new HashMap<String, Object>();
+		resultCount.put(TOTAL_HIT_COUNT, this.getCollectionRepository().getClasspageAssocCount(gooruOid,title,classCode,creatorUsername));
+		result.add(resultCount);
 		return result;
 	}
 	public CollectionEventLog getScollectionEventlog() {
