@@ -77,5 +77,7 @@ public interface ClasspageService {
 	CollectionItem updateAssignment(String collectionItemId, String status, User user);
 	
 	List<Map<String, Object>> getClasspageItems(String gooruOid, Integer limit, Integer offset, String userUid, String orderBy, boolean optimize, String status);
+
+	List<Map<String,Object>> getClasspageAssoc(Integer offset, Integer limit, String gooruOid, String title, String classCode,String creatorUsername);
 	
 }
