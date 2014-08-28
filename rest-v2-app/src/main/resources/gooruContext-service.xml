@@ -82,15 +82,4 @@
 	<bean id="revisionHistorySessionFactory" parent="revisionHistoryAbstractSessionFactory">
 		<property name="dataSource" ref="jndiDataSource" />
 	</bean>
-	<!-- Transaction manager for a single Hibernate SessionFactory (alternative to JTA) -->
-	<bean id="transactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
-	    <property name="sessionFactory" ref="sessionFactory" />
-	</bean>
-	<bean id="transactionManagerReadyOnly" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
-        <property name="sessionFactory" ref="sessionFactoryReadOnly" />
-    </bean>
-	<bean id="revisionHistoryTransactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
-	    <property name="sessionFactory" ref="revisionHistorySessionFactory" />
-	</bean>
-	
 </beans>
