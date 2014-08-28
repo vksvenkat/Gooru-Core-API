@@ -33,11 +33,13 @@ import java.util.UUID;
 import javax.annotation.Resource;
 import javax.persistence.EntityExistsException;
 
+import org.ednovo.gooru.application.util.ResourceImageUtil;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.ContentProviderAssociation;
 import org.ednovo.gooru.core.api.model.ContentTagAssoc;
 import org.ednovo.gooru.core.api.model.ContentType;
 import org.ednovo.gooru.core.api.model.CustomTableValue;
+import org.ednovo.gooru.core.api.model.ResourceType;
 import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.StorageArea;
 import org.ednovo.gooru.core.api.model.Tag;
@@ -217,11 +219,18 @@ public class TagServiceImpl extends BaseServiceImpl implements TagService, Param
 			result.put(TITLE, object[0]);
 			result.put(GOORU_OID, object[1]);
 			result.put(TYPE, object[2]);
+			String typeName = object[2].toString();
 			Map<String, Object> thumbnails = new HashMap<String, Object>();
-			if (object[4] != null) {
-				thumbnails.put(URL, storageArea.getCdnDirectPath() + String.valueOf(object[3]) + String.valueOf(object[4]));
+			if (typeName != null && typeName.equalsIgnoreCase(ResourceType.Type.VIDEO.getType())) {
+				if (object[8] != null) {
+					thumbnails.put(URL, ResourceImageUtil.getYoutubeVideoId(object[8].toString()) == null ? null : "http://img.youtube.com/vi/" + ResourceImageUtil.getYoutubeVideoId(object[8].toString()) + "/1.jpg");
+				}
 			} else {
-				thumbnails.put(URL, "");
+				if (object[4] != null) {
+					thumbnails.put(URL, storageArea.getCdnDirectPath() + String.valueOf(object[3]) + String.valueOf(object[4]));
+				} else {
+					thumbnails.put(URL, "");
+				}
 			}
 			result.put(THUMBNAILS, thumbnails);
 			if (object[5] != null) {

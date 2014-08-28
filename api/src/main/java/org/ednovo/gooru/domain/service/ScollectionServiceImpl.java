@@ -718,9 +718,11 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			}
 
 			try {
-				indexProcessor.index(collectionItem.getCollection().getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
+				if (collectionItem.getCollection().getResourceType().getName().equalsIgnoreCase(SHELF)) {
+					indexProcessor.index(collectionItem.getCollection().getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
+				}
 				if (collectionItem.getResource().getResourceType() != null && !collectionItem.getResource().getResourceType().getName().equalsIgnoreCase(SCOLLECTION) && !collectionItem.getResource().getResourceType().getName().equalsIgnoreCase(FOLDER)
-						&& !collectionItem.getResource().getResourceType().getName().equalsIgnoreCase(CLASSPAGE)) {
+							&& !collectionItem.getResource().getResourceType().getName().equalsIgnoreCase(CLASSPAGE)) {
 					indexProcessor.index(collectionItem.getResource().getGooruOid(), IndexProcessor.INDEX, RESOURCE);
 				}
 
@@ -767,7 +769,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			collection.setGooruOid(UUID.randomUUID().toString());
 			ContentType contentType = (ContentType) this.getCollectionRepository().get(ContentType.class, ContentType.RESOURCE);
 			collection.setContentType(contentType);
-			ResourceType resourceType = (ResourceType) this.getCollectionRepository().get(ResourceType.class, ResourceType.Type.SCOLLECTION.getType());
+			ResourceType resourceType = (ResourceType) this.getCollectionRepository().get(ResourceType.class, ResourceType.Type.SHELF.getType());
 			collection.setResourceType(resourceType);
 			collection.setLastModified(new Date(System.currentTimeMillis()));
 			collection.setCreatedOn(new Date(System.currentTimeMillis()));
@@ -2271,6 +2273,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		Set<CollectionItem> collectionItems = new TreeSet<CollectionItem>();
 		for (CollectionItem collectionItem : collectionObj.getCollectionItems()) {
 			collectionItem.getResource().setRatings(this.setRatingsObj(this.getResourceRepository().getResourceSummaryById(collectionItem.getResource().getGooruOid())));
+			this.getResourceService().setContentProvider(collectionItem.getResource());
 			collectionItems.add(collectionItem);
 		}
 		collection.put(COLLECTIONITEMS, collectionItems);

@@ -37,6 +37,7 @@ public class ResourceType implements Serializable{
 		, ASSESSMENT_EXAM("assessment-exam")
 		, ASSESSMENT_QUESTION("assessment-question")
 		,SCOLLECTION("scollection")
+		,SHELF("shelf")
 		,FOLDER("folder")
 		,ASSIGNMENT("assignment")
 		,CLASSPAGE("classpage")
