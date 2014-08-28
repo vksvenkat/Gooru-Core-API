@@ -64,8 +64,6 @@
         <aop:include name="studyshelfSecurityAspect" />   
     </aop:aspectj-autoproxy>
     
-	<!--  Configures the @Transactional programming model -->
-	<tx:annotation-driven transaction-manager="transactionManager" proxy-target-class="true" />
  
 	<!-- Application Message Bundle -->
 	<bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
