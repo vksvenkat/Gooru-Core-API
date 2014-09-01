@@ -2766,4 +2766,14 @@ public interface ParameterProperties {
 	
 	String READ = "read";
 	
+	String ASSOC_COLLECTION_NO = "assocCollectionNo";
+	
+	String DIRECTION = "direction";
+	
+	String DUEDATE = "dueDate";
+	
+	String COLLECTION_CREATOR = "collectionCreator";
+	
+	String CLASSPAGE_CREATOR = "classpageCreator";
+	
 }
