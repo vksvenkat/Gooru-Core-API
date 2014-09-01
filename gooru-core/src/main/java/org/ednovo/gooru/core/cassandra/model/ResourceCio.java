@@ -276,6 +276,18 @@ public class ResourceCio implements IsEntityCassandraIndexable {
 	@Column
 	private String rootNodeId; 
 	
+	@Column
+	private String rootCodes;
+	
+	
+	public String getRootCodes() {
+		return rootCodes;
+	}
+
+	public void setRootCodeId(String rootCodeId) {
+		this.rootCodes = rootCodeId;
+	}
+
 	public String getRootNodeId() {
 		return rootNodeId;
 	}

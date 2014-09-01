@@ -2608,17 +2608,18 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				CustomTableValue resourceType = this.getCustomTableRepository().getCustomTableValue(RESOURCE_INSTRUCTIONAL_USE, newResource.getInstructional().getValue());
 				newResource.setResourceFormat(resourceType);
 			}
+			
+			if (newResource.getCategory() != null) {
+				newResource.setCategory(newResource.getCategory().toLowerCase());
+			}
+			// add to db and index.
+			resource = handleNewResource(newResource, null, null);
 			if(newResource.getPublisher() != null && newResource.getPublisher().size() > 0) {
 				newResource.setPublisher(updateContentProvider(resource.getGooruOid(), newResource.getPublisher(), user, CustomProperties.ContentProviderType.PUBLISHER.getContentProviderType()));
 			}
 			if(newResource.getAggregator() != null && newResource.getAggregator().size() > 0) {
 				newResource.setAggregator(updateContentProvider(resource.getGooruOid(), newResource.getAggregator(), user, CustomProperties.ContentProviderType.AGGREGATOR.getContentProviderType()));
 			}
-			if (newResource.getCategory() != null) {
-				newResource.setCategory(newResource.getCategory().toLowerCase());
-			}
-			// add to db and index.
-			resource = handleNewResource(newResource, null, null);
 			ResourceInfo resourceInfo = new ResourceInfo();
 			String tags = newResource.getTags();
 			resourceInfo.setTags(tags);
