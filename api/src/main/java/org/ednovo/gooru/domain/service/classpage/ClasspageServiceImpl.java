@@ -37,6 +37,7 @@ import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Classpage;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
+import org.ednovo.gooru.core.api.model.CollectionTaskAssoc;
 import org.ednovo.gooru.core.api.model.CollectionType;
 import org.ednovo.gooru.core.api.model.ContentType;
 import org.ednovo.gooru.core.api.model.CustomTableValue;
@@ -770,6 +771,33 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		return collectionItems;
 	}
 	
+	public List<Map<String, Object>> getClasspageAssoc(Integer offset, Integer limit, String gooruOid,String title, String classCode, String creatorUsername) {
+		User user = this.getUserService().getUserByUserName(creatorUsername);
+		String gooruUid = null;
+		if(user!= null){
+		    gooruUid = user.getPartyUid();
+		}
+		
+		List<Object[]> classpageAssocs = this.getCollectionRepository().getClasspageAssoc(offset, limit, gooruOid, gooruUid, title, classCode, creatorUsername);
+		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
+		for (Object[] object : classpageAssocs) {
+			Map<String, Object> results = new HashMap<String, Object>();
+			results.put(CLASS_CODE, object[0]);
+			results.put(TITLE, object[1]);
+			results.put(CLASSPAGE_ID, object[2]);
+			results.put(CLASSPAGE_ITEM_ID, object[3]);
+			results.put(USER_ID, object[4]);
+			Map<String, Object> creator = new HashMap<String, Object>();
+			creator.put(CREATOR_USER_NAME, object[5]);
+			results.put(CREATOR, creator);
+			results.put(ASSOCIATED_USER_NAME, object[6]);				
+			result.add(results);
+		}
+		Map<String, Object> result1 = new HashMap<String, Object>();
+		result1.put(TOTAL_HIT_COUNT, this.getCollectionRepository().getClasspageAssocCount(gooruOid,title,classCode,creatorUsername));
+		result.add(result1);
+		return result;
+	}
 	public CollectionEventLog getScollectionEventlog() {
 		return scollectionEventlog;
 	}
