@@ -559,6 +559,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				folder.put(USER_NAME, object[2]);
 				folder.put(CREATED_ON, object[3]);
 				folder.put(LAST_MODIFIED, object[4]);
+				folder.put(SHARING, object[5]);
 				folderList.add(folder);
 			}
 			content.put(SEARCH_RESULT, folderList);
