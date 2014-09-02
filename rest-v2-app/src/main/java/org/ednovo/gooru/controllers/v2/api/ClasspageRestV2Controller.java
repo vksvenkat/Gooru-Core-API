@@ -383,9 +383,9 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/item", method = RequestMethod.GET)
-	public ModelAndView getClasspageAssoc(@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,@RequestParam(value = GOORU_OID, required = false) String gooruOid ,
-			@RequestParam(value = TITLE, required = false) String title, @RequestParam(value = CLASS_CODE, required = false) String classCode,@RequestParam(value = CREATOR_USER_NAME, required = false) String creatorUsername ){	
-		return toJsonModelAndView(this.getClasspageService().getClasspageAssoc(offset, limit, gooruOid,title,classCode,creatorUsername),true);
+	public ModelAndView getClasspageAssoc(@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,@RequestParam(value = CLASSPAGE_ID, required = false) String classpageId ,
+			@RequestParam(value = COLLECTION_ID, required = false) String collectionId,@RequestParam(value = TITLE, required = false) String title, @RequestParam(value = CLASS_CODE, required = false) String classCode,@RequestParam(value = COLLECTION_CREATOR, required = false) String collectionCreator ){	
+		return toJsonModelAndView(this.getClasspageService().getClasspageAssoc(offset, limit, classpageId,collectionId,title,classCode,collectionCreator),true);
 	}
 	
 

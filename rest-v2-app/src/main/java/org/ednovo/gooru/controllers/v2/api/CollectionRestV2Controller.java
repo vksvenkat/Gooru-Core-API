@@ -117,9 +117,7 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 		}
 
 		String[] includes = (String[]) ArrayUtils.addAll(COLLECTION_INCLUDE_FIELDS, ERROR_INCLUDE);
-		if (getValue(TAXONOMY_SET, json) != null) {
-			includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_TAXONOMY);
-		}
+		includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_TAXONOMY);
 
 		if (getValue(RELATED_CONTENT_ID, json) != null) {
 			includes = (String[]) ArrayUtils.add(includes, "*.contentAssociation.associateContent");
