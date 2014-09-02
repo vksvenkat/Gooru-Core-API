@@ -52,4 +52,9 @@ public interface EntityCassandraDao<M> extends CassandraDao {
 	ColumnList<String> getColumns(String rowKey,
 			Collection<String> fields);
 	
+	Map<String, String> readViewsCount(String rowKeys);
+	
+	void updateViewsCount(Map<String,String> viewsData);
+
+	
 }
