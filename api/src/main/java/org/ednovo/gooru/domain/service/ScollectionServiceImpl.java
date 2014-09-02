@@ -865,6 +865,9 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 				collectionItem.getCollection().setLastUpdatedUserUid(user.getPartyUid());
 				collectionItem.getCollection().setLastModified(new Date(System.currentTimeMillis()));
+				if (collectionItem.getCollection().getResourceType().getName().equalsIgnoreCase(SCOLLECTION) && collectionItem.getCollection().getClusterUid() != null && !collectionItem.getCollection().getClusterUid().equalsIgnoreCase(collectionItem.getCollection().getGooruOid())) { 
+					collectionItem.getCollection().setClusterUid(collectionItem.getCollection().getGooruOid());
+				}
 				collectionItem.getCollection().setItemCount((collectionItem.getCollection().getItemCount() == null || (collectionItem.getCollection().getItemCount() != null && collectionItem.getCollection().getItemCount() == 0)) ? 0 : collectionItem.getCollection().getItemCount() - 1);
 				reOrderCollectionItems(collection, collectionItemId);
 				try {
@@ -878,10 +881,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				} catch (Exception e) {
 					LOGGER.debug("error"+e.getMessage());
 				}
-				if (collectionItem.getCollection().getResourceType().getName().equalsIgnoreCase(SCOLLECTION) && collectionItem.getCollection().getClusterUid() != null && !collectionItem.getCollection().getClusterUid().equalsIgnoreCase(collectionItem.getCollection().getGooruOid())) { 
-					collectionItem.getCollection().setClusterUid(collectionItem.getCollection().getGooruOid());
-					this.getCollectionRepository().save(collectionItem.getCollection());
-				}
+				
 		} else {
 			throw new NotFoundException(generateErrorMessage(GL0056, _COLLECTION_ITEM));
 
