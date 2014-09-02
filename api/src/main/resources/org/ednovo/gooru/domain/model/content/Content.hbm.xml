@@ -185,7 +185,6 @@
 			<property name="brokenStatus" column="broken_status"
 				not-null="false" />
 
-			<property name="views" column="views_total" not-null="false" />
 			<property name="isOer" column="is_oer" not-null="false" />
 			<property name="vocabulary" column="vocabulary" not-null="false" />
 			<property name="distinguish" column="distinguish" not-null="false" />
