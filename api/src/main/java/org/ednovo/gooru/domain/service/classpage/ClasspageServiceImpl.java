@@ -771,14 +771,15 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		return collectionItems;
 	}
 	
-	public List<Map<String, Object>> getClasspageAssoc(Integer offset, Integer limit, String classpageId, String collectionId, String title, String classCode, String creatorUsername) {
-		User user = this.getUserService().getUserByUserName(creatorUsername);
+	public List<Map<String, Object>> getClasspageAssoc(Integer offset, Integer limit, String classpageId, String collectionId, String title, String classCode, String collectionCreator) {
 		String gooruUid = null;
-		if(user!= null){
-		    gooruUid = user.getPartyUid();
+		if (collectionCreator != null) {
+			User user = this.getUserService().getUserByUserName(collectionCreator);
+			if (user != null) {
+				gooruUid = user.getPartyUid();
+			}
 		}
-		
-		List<Object[]> classpageAssocs = this.getCollectionRepository().getClasspageAssoc(offset, limit, classpageId, collectionId, gooruUid, title, classCode, creatorUsername);
+		List<Object[]> classpageAssocs = this.getCollectionRepository().getClasspageAssoc(offset, limit, classpageId, collectionId, gooruUid, title, classCode);
 		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
 		for (Object[] object : classpageAssocs) {
 			Map<String, Object> results = new HashMap<String, Object>();
@@ -796,7 +797,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			result.add(results);
 		}
 		Map<String, Object> resultCount = new HashMap<String, Object>();
-		resultCount.put(TOTAL_HIT_COUNT, this.getCollectionRepository().getClasspageAssocCount(classpageId,collectionId,title,classCode,creatorUsername));
+		resultCount.put(TOTAL_HIT_COUNT, this.getCollectionRepository().getClasspageAssocCount(classpageId,collectionId,title,classCode,collectionCreator));
 		result.add(resultCount);
 		return result;
 	}
