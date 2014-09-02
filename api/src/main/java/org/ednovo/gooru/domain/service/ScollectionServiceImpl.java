@@ -597,16 +597,18 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			CustomTableValue customTableValue = this.getCustomTableRepository().getValueByDisplayName(newMeta.getValue(), type);
 			if (customTableValue != null) {
 				Boolean isAlreadyUpdated = false;
-				for(ContentMetaAssociation contentMetaAssociation : resource.getContentMetaAssoc()) {
-					if(contentMetaAssociation.getAssociationType().getDisplayName().equalsIgnoreCase(newMeta.getValue()) && !newMeta.getSelected()) {
-						removeAll.add(contentMetaAssociation);
-						break;
-					} else if (contentMetaAssociation.getAssociationType().getDisplayName().equalsIgnoreCase(newMeta.getValue())) {
-						isAlreadyUpdated = true;
-						updateContent.add(contentMetaAssociation);
-						break;
+				if(resource.getContentMetaAssoc() != null) {
+					for (ContentMetaAssociation contentMetaAssociation : resource.getContentMetaAssoc()) {
+						if (contentMetaAssociation.getAssociationType().getDisplayName().equalsIgnoreCase(newMeta.getValue()) && !newMeta.getSelected()) {
+							removeAll.add(contentMetaAssociation);
+							break;
+						} else if (contentMetaAssociation.getAssociationType().getDisplayName().equalsIgnoreCase(newMeta.getValue())) {
+							isAlreadyUpdated = true;
+							updateContent.add(contentMetaAssociation);
+							break;
+						}
 					}
-				} 
+				}
 				if (newMeta.getSelected() && !isAlreadyUpdated) {
 					ContentMetaAssociation contentMetaAssociationNew = new ContentMetaAssociation();
 					contentMetaAssociationNew.setAssociationType(customTableValue);
