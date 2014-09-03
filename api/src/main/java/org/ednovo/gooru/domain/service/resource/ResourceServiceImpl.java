@@ -3141,11 +3141,18 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		ResourceStasCo resourceStasCo = null;
 		Collection<ResourceCio> resourceCioList = new ArrayList<ResourceCio>();
 		Collection<String> resourceIds = new ArrayList<String>();
+		Collection<String> collectionIds = new ArrayList<String>();
+
 		for(StatisticsDTO statisticsDTO : statisticsList){
 			resourceCio = new ResourceCio();	
 			resourceStasCo = new ResourceStasCo();
 			resourceCio.setId(statisticsDTO.getGooruOid());
-			resourceIds.add(resourceCio.getId());
+			if(statisticsDTO.getResourceType() != null && statisticsDTO.getResourceType().equalsIgnoreCase("scollection")){
+				collectionIds.add(resourceCio.getId());
+			}
+			else{
+				resourceIds.add(resourceCio.getId());
+			}
 			if(statisticsDTO.getViews() != null){
 				resourceStasCo.setViewsCount(String.valueOf(statisticsDTO.getViews()));
 			}
@@ -3163,7 +3170,12 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		if(resourceCioList.size() > 0){
 			resourceCassandraService.save(resourceCioList, resourceIds);
 			if(!skipReindex){
-				indexProcessor.indexStas(StringUtils.join(resourceIds, ','), IndexProcessor.INDEX, RESOURCE, true);
+				if(resourceIds.size() > 0){
+					indexProcessor.indexStas(StringUtils.join(resourceIds, ','), IndexProcessor.INDEX, RESOURCE, true);
+				}
+				if(collectionIds.size() > 0){
+					indexProcessor.indexStas(StringUtils.join(collectionIds, ','), IndexProcessor.INDEX, SCOLLECTION, true);
+				}
 			}
 		}
 	}

@@ -929,7 +929,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		if (publishStatus != null) {
 			hql += " and collection.publishStatus.value =:pending";
 		}
-		hql += " ORDER BY collection.lastModified desc ";
+		
 		Query query = getSession().createQuery(hql);
 		if (publishStatus != null) {
 			query.setParameter(PENDING, publishStatus);
