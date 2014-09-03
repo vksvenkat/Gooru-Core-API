@@ -79,7 +79,7 @@
 				column="code_id" unique="true" />
 		</set>
 		
-		<set name="contentMetaAssoc" inverse= "true" table="content_meta_association" cascade="all" lazy="true">
+		<set name="contentMetaAssoc" inverse= "true" table="content_meta_association" cascade="none" lazy="true">
 			<key column="content_id" not-null= "true"/>
 			<one-to-many class="org.ednovo.gooru.core.api.model.ContentMetaAssociation"  />
 		</set>
