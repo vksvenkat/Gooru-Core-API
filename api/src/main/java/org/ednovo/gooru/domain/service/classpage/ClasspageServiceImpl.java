@@ -771,31 +771,34 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		return collectionItems;
 	}
 	
-	public List<Map<String, Object>> getClasspageAssoc(Integer offset, Integer limit, String gooruOid,String title, String classCode, String creatorUsername) {
-		User user = this.getUserService().getUserByUserName(creatorUsername);
+	public List<Map<String, Object>> getClasspageAssoc(Integer offset, Integer limit, String classpageId, String collectionId, String title, String classCode, String collectionCreator) {
 		String gooruUid = null;
-		if(user!= null){
-		    gooruUid = user.getPartyUid();
+		if (collectionCreator != null) {
+			User user = this.getUserService().getUserByUserName(collectionCreator);
+			if (user != null) {
+				gooruUid = user.getPartyUid();
+			}
 		}
-		
-		List<Object[]> classpageAssocs = this.getCollectionRepository().getClasspageAssoc(offset, limit, gooruOid, gooruUid, title, classCode, creatorUsername);
+		List<Object[]> classpageAssocs = this.getCollectionRepository().getClasspageAssoc(offset, limit, classpageId, collectionId, gooruUid, title, classCode);
 		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
 		for (Object[] object : classpageAssocs) {
 			Map<String, Object> results = new HashMap<String, Object>();
-			results.put(CLASS_CODE, object[0]);
-			results.put(TITLE, object[1]);
-			results.put(CLASSPAGE_ID, object[2]);
-			results.put(CLASSPAGE_ITEM_ID, object[3]);
-			results.put(USER_ID, object[4]);
-			Map<String, Object> creator = new HashMap<String, Object>();
-			creator.put(CREATOR_USER_NAME, object[5]);
-			results.put(CREATOR, creator);
-			results.put(ASSOCIATED_USER_NAME, object[6]);				
+			results.put(CLASSPAGE_ID, object[0]);
+			results.put(COLLECTION_ID, object[1]);
+			results.put(COLLECTION_ITEM_ID, object[2]);
+			results.put(ASSOC_COLLECTION_NO, object[3]);
+			results.put(DIRECTION,object[4]);
+			results.put(DUEDATE,object[5]);
+			results.put(COLLECTION_CREATOR, object[6]);
+			results.put(CREATED_DATE, object[7]);
+			results.put(LAST_MODIFIED_DATE, object[8]);
+			results.put(TITLE, object[9]);
+			results.put(CLASSPAGE_CREATOR, object[10]);
 			result.add(results);
 		}
-		Map<String, Object> result1 = new HashMap<String, Object>();
-		result1.put(TOTAL_HIT_COUNT, this.getCollectionRepository().getClasspageAssocCount(gooruOid,title,classCode,creatorUsername));
-		result.add(result1);
+		Map<String, Object> resultCount = new HashMap<String, Object>();
+		resultCount.put(TOTAL_HIT_COUNT, this.getCollectionRepository().getClasspageAssocCount(classpageId,collectionId,title,classCode,collectionCreator));
+		result.add(resultCount);
 		return result;
 	}
 	public CollectionEventLog getScollectionEventlog() {

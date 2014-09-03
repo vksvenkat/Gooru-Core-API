@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.ednovo.gooru.cassandra.core.dao.EntityCassandraDao;
+import org.ednovo.gooru.core.constant.ColumnFamilyConstant;
 
 import com.netflix.astyanax.model.ColumnList;
 
@@ -78,5 +79,16 @@ public abstract class EntityCassandraServiceImpl<M extends Serializable> impleme
 			Collection<String> fields){
 		return getCassandraDao().getColumns(rowKey, fields);
 	}
+	
+	@Override
+	public Map<String, String> readViewsCount(String rowKeys) {
+		return getCassandraDao().readViewsCount(rowKeys);
+	}
+
+	@Override
+	public void updateViewsCount(Map<String, String> viewsData) {
+		getCassandraDao().updateViewsCount(viewsData);
+	}
+
 	
 }
