@@ -68,6 +68,7 @@ public final class ConfigProperties implements Serializable, ConfigConstants {
 	public static Map<String, Map<String, String>> wsFedSSO;
 
 	private static Map<String, String> googleDrive;
+	
 
 	@Autowired
 	private SettingService settingService;
@@ -101,16 +102,20 @@ public final class ConfigProperties implements Serializable, ConfigConstants {
 		String clientId = settingService.getConfigSetting(ConfigConstants.CLIENT_ID, 0, TaxonomyUtil.GOORU_ORG_UID);
 		
 		String clientSecret = settingService.getConfigSetting(ConfigConstants.CLIENT_SECRET, 0, TaxonomyUtil.GOORU_ORG_UID);
-		
+		        
+		String googleCallbackUri = settingService.getConfigSetting(ConfigConstants.OAUTH_CALLBACK_URI, 0, TaxonomyUtil.GOORU_ORG_UID);
+				
 		try { 
 			googleDrive = new HashMap<String, String>();
 			googleDrive.put("settingUrl", settingUrl);
 			googleDrive.put("callbackUri", callbackUri);
 			googleDrive.put("clientId", clientId);
 			googleDrive.put("clientSecret", clientSecret);
+			googleDrive.put("googleCallbackUri", googleCallbackUri);
 		} catch (Exception e) {
 			googleDrive = new HashMap<String, String>();
 		}
+		
 		
 		try {
 			wsFedSSO = settingService.getWsfedOrganizationSettings(WSFEDSSO_CONFIG, null);
@@ -228,5 +233,6 @@ public final class ConfigProperties implements Serializable, ConfigConstants {
 	public  Map<String, String> getGoogleDrive() {
 		return googleDrive;
 	}
+	
 
 }
