@@ -43,7 +43,6 @@ import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.hibernate.Query;
 import org.hibernate.SQLQuery;
-import org.hibernate.Session;
 import org.hibernate.type.StandardBasicTypes;
 import org.springframework.stereotype.Repository;
 
@@ -926,16 +925,16 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Collection> getCollectionsList(User user, Integer limit, Integer offset, String publishStatus) {
-		String hql = " FROM Collection collection  ";
-		hql += " WHERE " + generateOrgAuthQuery("collection.");	
+		String hql = " FROM Collection collection   WHERE  collection.resourceType.name=:type and " + generateOrgAuthQuery("collection.");
 		if (publishStatus != null) {
 			hql += " and collection.publishStatus.value =:pending";
 		}
-		hql += " ORDER BY collection.lastModified desc ";
+		
 		Query query = getSession().createQuery(hql);
 		if (publishStatus != null) {
 			query.setParameter(PENDING, publishStatus);
 		}
+		query.setParameter(TYPE, SCOLLECTION);
 		addOrgAuthParameters(query);
 		query.setFirstResult(offset);
 		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
