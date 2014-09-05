@@ -211,13 +211,6 @@ public class OAuthServiceImpl extends ServerValidationUtils implements OAuthServ
 	}
 	
 	
-	/*@Override
-	public List<OAuthClient> listOAuthClientByOrganization(String organizationUId,
-			int offset, int limit, String grantType) throws Exception {
-		
-		return oAuthRepository.listOAuthClientByOrganization(organizationUId,offset,limit, grantType);
-	}*/
-	
     private static String getRandomString(int length) {
         String randomStr = UUID.randomUUID().toString();
         while(randomStr.length() < length) {

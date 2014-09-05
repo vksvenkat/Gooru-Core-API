@@ -178,12 +178,6 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 			        httpClient.getRequestAttributes().put("org.restlet.http.headers", headers);
 			    }
 			    headers.add("X-Atlassian-Token", "no-check");
-			   /* Series<Header> headers = (Series<Header>) httpClient.getRequestAttributes().get("org.restlet.http.headers"); 
-			    if (headers == null) {
-			    	 headers = new Series<Header>(Header.class);
-			    	 headers.set("X-Atlassian-Token", "no-check");
-			    	
-			    }*/
 			    ChallengeResponse challengeResponse = new ChallengeResponse(ChallengeScheme.HTTP_BASIC, username, password);
 			    httpClient.setChallengeResponse(challengeResponse);
 			    httpClient.post(form);

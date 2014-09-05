@@ -74,8 +74,7 @@ public class OauthRestV2Controller extends BaseController implements ConstantPro
 	@RequestMapping(method = { RequestMethod.GET }, value = "/client/list")
 	public ModelAndView listLTIClientByOrganization(@RequestParam String organizationUId,@RequestParam (required = false)String grantType ,HttpServletRequest request, HttpServletResponse response , @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, 
 			@RequestParam (value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit) throws Exception {
-
-		//List<OAuthClient> LTIClients = oAuthService.listOAuthClientByOrganization(organizationUId, pageNo, pageSize, grantType);		
+		
 		String [] includes = (String[]) ArrayUtils.addAll(ERROR_INCLUDE, OAUTH_CLIENT_INCLUDES);
 		return toModelAndViewWithIoFilter(this.getOAuthService().listOAuthClientByOrganization(organizationUId, offset, limit, grantType), RESPONSE_FORMAT_JSON, EXCLUDE_ALL,true, includes);
 
