@@ -3171,10 +3171,10 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			resourceCassandraService.save(resourceCioList, resourceIds);
 			if(!skipReindex){
 				if(resourceIds.size() > 0){
-					indexProcessor.indexStas(StringUtils.join(resourceIds, ','), IndexProcessor.INDEX, RESOURCE, true);
+					indexProcessor.indexStas(StringUtils.join(resourceIds, ','), IndexProcessor.INDEX, RESOURCE, false);
 				}
 				if(collectionIds.size() > 0){
-					indexProcessor.indexStas(StringUtils.join(collectionIds, ','), IndexProcessor.INDEX, SCOLLECTION, true);
+					indexProcessor.indexStas(StringUtils.join(collectionIds, ','), IndexProcessor.INDEX, SCOLLECTION, false);
 				}
 			}
 		}
