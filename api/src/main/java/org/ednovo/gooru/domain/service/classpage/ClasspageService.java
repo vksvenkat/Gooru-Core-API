@@ -78,6 +78,6 @@ public interface ClasspageService {
 	
 	List<Map<String, Object>> getClasspageItems(String gooruOid, Integer limit, Integer offset, String userUid, String orderBy, boolean optimize, String status);
 
-	List<Map<String,Object>> getClasspageAssoc(Integer offset, Integer limit, String classpageId, String collectionId,String title, String classCode,String collectionCreator);
+	Map<String,Object> getClasspageAssoc(Integer offset, Integer limit, String classpageId, String collectionId, String title, String collectionTitle, String classCode,String collectionCreator);
 	
 }

@@ -79,7 +79,7 @@
 				column="code_id" unique="true" />
 		</set>
 		
-		<set name="contentMetaAssoc" inverse= "true" table="content_meta_association" cascade="all" lazy="true">
+		<set name="contentMetaAssoc" inverse= "true" table="content_meta_association" cascade="none" lazy="true">
 			<key column="content_id" not-null= "true"/>
 			<one-to-many class="org.ednovo.gooru.core.api.model.ContentMetaAssociation"  />
 		</set>
@@ -184,7 +184,8 @@
 
 			<property name="brokenStatus" column="broken_status"
 				not-null="false" />
-
+				
+			<property name="views" column="views_total" not-null="false" />
 			<property name="isOer" column="is_oer" not-null="false" />
 			<property name="vocabulary" column="vocabulary" not-null="false" />
 			<property name="distinguish" column="distinguish" not-null="false" />

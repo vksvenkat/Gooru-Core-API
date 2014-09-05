@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.lang.ArrayUtils;
 import org.ednovo.gooru.controllers.BaseController;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
@@ -71,16 +72,19 @@ public class OauthRestV2Controller extends BaseController implements ConstantPro
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_OAUTH_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.GET }, value = "/client/list")
-	public ModelAndView listLTIClientByOrganization(@RequestParam String organizationUId,@RequestParam (required = false)String grantType ,HttpServletRequest request, HttpServletResponse response , @RequestParam(required = false , defaultValue= "0") int pageNo ,@RequestParam(required=false, defaultValue="20") int pageSize ) throws Exception {
-
-		List<OAuthClient> LTIClients = oAuthService.listOAuthClientByOrganization(organizationUId, pageNo, pageSize, grantType);		
+	public ModelAndView listLTIClientByOrganization(@RequestParam String organizationUId,@RequestParam (required = false)String grantType ,HttpServletRequest request, HttpServletResponse response , @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, 
+			@RequestParam (value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit) throws Exception {
+		
 		String [] includes = (String[]) ArrayUtils.addAll(ERROR_INCLUDE, OAUTH_CLIENT_INCLUDES);
-		return toModelAndViewWithIoFilter(LTIClients, RESPONSE_FORMAT_JSON, EXCLUDE_ALL,true, includes);
+		return toModelAndViewWithIoFilter(this.getOAuthService().listOAuthClientByOrganization(organizationUId, offset, limit, grantType), RESPONSE_FORMAT_JSON, EXCLUDE_ALL,true, includes);
 
 	}
 	
 	private OAuthClient buildLTIClientFromInputParameters(String data) {
 		return JsonDeserializer.deserialize(data, OAuthClient.class);
+	}
+	public OAuthService getOAuthService() {
+		return oAuthService;
 	}
 
 }
