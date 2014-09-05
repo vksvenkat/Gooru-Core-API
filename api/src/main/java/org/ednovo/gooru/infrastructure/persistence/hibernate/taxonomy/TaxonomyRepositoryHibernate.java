@@ -932,6 +932,15 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 		return query.list();
 	}
 
+
+	@Override
+	public List<Code> findCodeByMappedLevel(Long contentId) {
+		  Query query= getSessionReadOnly().createQuery("select Code from ContentClassification cc inner join Code c where cc.content.contentId=:contentId");
+	      query.setParameter("contentId", contentId);
+		  return query.list();
+	}
+	
+	
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<CodeUserAssoc> getUserCodeAssoc(Integer codeId, String organizationCode) {
@@ -1064,4 +1073,5 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 	public JdbcTemplate getJdbcTemplate() {
 		return jdbcTemplate;
 	}
+
 }

@@ -141,4 +141,6 @@ public interface TaxonomyRespository extends BaseRepository{
 
 	String findTaxonomyRootCode(String code);
 	
+	List<Code> findCodeByMappedLevel(Long contentId);
+	
 }

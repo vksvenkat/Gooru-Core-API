@@ -213,7 +213,7 @@ public class ResourceCio implements IsEntityCassandraIndexable {
 	@Column
 	private String partyPermissionsJson;
 
-	@Column
+	@Column	
 	private String versionUid;
 
 	@Column
@@ -279,7 +279,19 @@ public class ResourceCio implements IsEntityCassandraIndexable {
 	@Column
 	private String rootCodes;
 	
+	@Column
+	private Map<String,String> codeAndDescription;
 	
+	
+	
+	public Map<String, String> getCodeAndDescription() {
+		return codeAndDescription;
+	}
+
+	public void setCodeAndDescription(Map<String, String> codeAndDescription) {
+		this.codeAndDescription = codeAndDescription;
+	}
+
 	public String getRootCodes() {
 		return rootCodes;
 	}
