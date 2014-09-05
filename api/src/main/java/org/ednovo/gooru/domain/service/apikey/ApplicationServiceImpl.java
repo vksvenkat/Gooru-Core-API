@@ -48,11 +48,14 @@ import org.restlet.Response;
 import org.restlet.data.ChallengeResponse;
 import org.restlet.data.ChallengeScheme;
 import org.restlet.data.Form;
+import org.restlet.engine.header.Header;
 import org.restlet.resource.ClientResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
+import org.restlet.util.Series;
+
 
 @Service
 public class ApplicationServiceImpl extends BaseServiceImpl implements ApplicationService,ParameterProperties,ConstantProperties {
@@ -170,11 +173,17 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 			    ClientResource httpClient = new ClientResource("http://collab.ednovo.org/jira/secure/QuickCreateIssue.jspa?decorator=none");
 			    Form headers = (Form)httpClient.getRequestAttributes().get("org.restlet.http.headers");
 			    
-			    if (headers == null) {
+			   if (headers == null) {
 			        headers = new Form();
 			        httpClient.getRequestAttributes().put("org.restlet.http.headers", headers);
 			    }
-			    headers.set("X-Atlassian-Token", "no-check");
+			    headers.add("X-Atlassian-Token", "no-check");
+			   /* Series<Header> headers = (Series<Header>) httpClient.getRequestAttributes().get("org.restlet.http.headers"); 
+			    if (headers == null) {
+			    	 headers = new Series<Header>(Header.class);
+			    	 headers.set("X-Atlassian-Token", "no-check");
+			    	
+			    }*/
 			    ChallengeResponse challengeResponse = new ChallengeResponse(ChallengeScheme.HTTP_BASIC, username, password);
 			    httpClient.setChallengeResponse(challengeResponse);
 			    httpClient.post(form);
