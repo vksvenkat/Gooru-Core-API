@@ -27,7 +27,7 @@ public interface ConstantProperties {
 			"*.trackActivity.startTime", "*.trackActivity.endTime", "*.goals", "*.grade", "*.mediaType", "*.text", "*.isOer", "*.meta.*", "*.resourceFormat.value", "*.resourceFormat.displayName", "*.instructional.value", "*.instructional.displayName", "*.depthOfKnowledges.value",
 			"*.depthOfKnowledges.selected", "*.momentsOfLearning.selected", "*.momentsOfLearning.value", "*.educationalUse.value", "*.educationalUse.selected", "*.ratings", "*.average", "*.count","*.reviewCount", "*.standards", "*.license", "*.standards.code", "*.standards.description", "*.course",
 
-			"*.customFieldValues.*", "*.publisher", "*.aggregator", "*.totalPages" ,"*.host", "*.resourceTags.*"};
+			"*.customFieldValues.*", "*.publisher", "*.aggregator", "*.totalPages" ,"*.host", "*.resourceTags.*","*.typeName"};
 
 	static final String ASSIGNMENT_INCLUDE_FIELDS[] = { "*.narrationLink", "collection.notes", "*.keyPoints", "*.language", "*.goals", "*.grade", "*.estimatedTime", "*.collectionType", "*.creator", "*.assetURI", "*.license", "*.license.code", "*.license.icon", "*.license.name",
 			"*.license.definition", "*.dimensions", "*.defaultImage", "*.createdOn", "*.user", "*.usernameDisplay", "*.profileImageUrl", "*.lastName", "*.firstName", "*.username", "*.description", "*.folder", "*.gooruOid", "*.sharing", "*.title", "*.views", "*.thumbnails", "*.url",
