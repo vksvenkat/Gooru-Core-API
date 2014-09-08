@@ -770,6 +770,64 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		return collectionItems;
 	}
 	
+	public Map<String, Object> getClasspageAssoc(Integer offset, Integer limit, String classpageId, String collectionId, String title, String collectionTitle, String classCode, String collectionCreator) {
+		String gooruUid = null;
+		if (collectionCreator != null) {
+			User user = this.getUserService().getUserByUserName(collectionCreator);
+			if (user != null) {
+				gooruUid = user.getPartyUid();
+			}
+		}
+		List<Object[]> classpageAssocs = this.getCollectionRepository().getClasspageAssoc(offset, limit, classpageId, collectionId, gooruUid, title, collectionTitle, classCode);
+		Map<String, Object> resultCount = new HashMap<String, Object>();	
+		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
+		for (Object[] object : classpageAssocs) {
+			Map<String, Object> results = new HashMap<String, Object>();
+			results.put(CLASSPAGE_ID, object[0]);
+			results.put(COLLECTION_ID, object[1]);
+			results.put(COLLECTION_ITEM_ID, object[2]);
+			results.put(ASSOC_COLLECTION_NO, object[3]);
+			results.put(DIRECTION,object[4]);
+			results.put(DUEDATE,object[5]);
+			results.put(COLLECTION_CREATOR, object[6]);
+			results.put(CREATED_DATE, object[7]);
+			results.put(LAST_MODIFIED_DATE, object[8]);
+			results.put(TITLE, object[9]);
+			results.put(COLLECTION_TITLE, object[10]);
+			results.put(CLASSPAGE_CREATOR, object[11]);
+			result.add(results);
+		}
+		resultCount.put(SEARCH_RESULT, result);
+		resultCount.put(TOTAL_HIT_COUNT, this.getCollectionRepository().getClasspageAssocCount(classpageId, collectionId, gooruUid, title, collectionTitle, classCode));
+		return resultCount;
+	}
+	
+	@Override
+	public Collection createPathway(String classId, Collection pathway, String collectionId) throws Exception {
+		Classpage classpage = this.getCollectionRepository().getClasspageByGooruOid(classId, null);
+		if (classpage == null) {
+			throw new BadRequestException(generateErrorMessage(GL0056, COLLECTION));
+		}
+		this.getCollectionRepository().save(pathway);
+		this.getCollectionService().createCollectionItem(pathway.getGooruOid(), classpage.getGooruOid(), new CollectionItem(), pathway.getUser(), ADDED, false);
+		if (collectionId != null && this.getCollectionRepository().getCollectionByGooruOid(collectionId,null) != null) {
+			this.getCollectionService().createCollectionItem(collectionId, pathway.getGooruOid(), new CollectionItem(), pathway.getUser(), ADDED, false);
+		}
+		return pathway;
+	}
+	
+	@Override
+	public List<CollectionItem> getPathwayItems(String classId, String pathwayId, Integer offset, Integer limit, String orderBy) {
+		if (this.getCollectionRepository().getCollectionByIdWithType(pathwayId, PATHWAY) == null) {
+			throw new BadRequestException("pathway not found");
+		}
+		if (this.getCollectionRepository().getCollectionByIdWithType(classId, CLASSPAGE) == null) {
+			throw new BadRequestException("class not found");
+		}
+		return this.getCollectionRepository().getCollectionItems(pathwayId, 0, 10, orderBy, CLASSPAGE);
+	}
+	
+	
 	public CollectionEventLog getScollectionEventlog() {
 		return scollectionEventlog;
 	}
@@ -833,5 +891,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	public ClasspageEventLog getClasspageEventlog() {
 		return classpageEventlog;
 	}
+
+
 
 }

@@ -40,7 +40,7 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 @Component
-public final class ConfigProperties implements Serializable,ConfigConstants {
+public final class ConfigProperties implements Serializable, ConfigConstants {
 
 	/**
 	 * 
@@ -48,148 +48,176 @@ public final class ConfigProperties implements Serializable,ConfigConstants {
 	private static final long serialVersionUID = 8151007026627388928L;
 
 	private static Map<String, String> authSSO;
-	
+
 	private static Map<String, String> tomCat;
-	
+
 	public static Map<String, String> schedulers;
-	
+
 	public static Map<String, String> gooruApp;
-	
+
 	public static Map<String, String> classplanRepository;
-	
+
 	public static Map<String, String> logSettings;
-	
+
 	public static Map<String, String> scribdAPI;
-	
+
 	public static Map<String, String> taxonomyRepositoryPath;
-	
+
 	public static Map<String, String> googleAnalyticsAccountId;
-	
+
 	public static Map<String, Map<String, String>> wsFedSSO;
+
+	private static Map<String, String> googleDrive;
 	
+
 	@Autowired
 	private SettingService settingService;
-	
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(ConfigProperties.class);
-	
+
 	@PostConstruct
-	public void init() { 
+	public void init() {
 		String authSSOData = settingService.getConfigSetting(AUTHSSO_CONFIG, TaxonomyUtil.GOORU_ORG_UID);
-		
+
 		String tomCatData = settingService.getConfigSetting(TOMCAT_CONFIG, TaxonomyUtil.GOORU_ORG_UID);
-		
+
 		String schedulersData = settingService.getConfigSetting(SCHEDULERS_CONFIG, TaxonomyUtil.GOORU_ORG_UID);
-		
+
 		String gooruAppData = settingService.getConfigSetting(GOORU_APP, TaxonomyUtil.GOORU_ORG_UID);
-		
+
 		String classplanRepositoryData = settingService.getConfigSetting(CLASSPLAN_REPOSITORY, TaxonomyUtil.GOORU_ORG_UID);
-		
+
 		String logSettingsData = settingService.getConfigSetting(LOG_SETTINGS_CONFIG, TaxonomyUtil.GOORU_ORG_UID);
-		
+
 		String scribdAPIData = settingService.getConfigSetting(SCRIBD_API_CONFIG, TaxonomyUtil.GOORU_ORG_UID);
-		
+
 		String taxonomyRepositoryPathData = settingService.getConfigSetting(TAXONOMY_REPOSITORY_CONFIG, TaxonomyUtil.GOORU_ORG_UID);
-		
+
 		String googleAnalyticsAccountIdData = settingService.getConfigSetting(GOOGLE_ANALYTICS_CONFIG, TaxonomyUtil.GOORU_ORG_UID);
+
+		String settingUrl = settingService.getConfigSetting(ConfigConstants.GOORU_SETTING, 0, TaxonomyUtil.GOORU_ORG_UID);
+        
+		String callbackUri = settingService.getConfigSetting(ConfigConstants.CALLBACK_URI, 0, TaxonomyUtil.GOORU_ORG_UID);
+		
+		String clientId = settingService.getConfigSetting(ConfigConstants.CLIENT_ID, 0, TaxonomyUtil.GOORU_ORG_UID);
+		
+		String clientSecret = settingService.getConfigSetting(ConfigConstants.CLIENT_SECRET, 0, TaxonomyUtil.GOORU_ORG_UID);
+		        
+		String googleCallbackUri = settingService.getConfigSetting(ConfigConstants.OAUTH_CALLBACK_URI, 0, TaxonomyUtil.GOORU_ORG_UID);
+				
+		try { 
+			googleDrive = new HashMap<String, String>();
+			googleDrive.put("settingUrl", settingUrl);
+			googleDrive.put("callbackUri", callbackUri);
+			googleDrive.put("clientId", clientId);
+			googleDrive.put("clientSecret", clientSecret);
+			googleDrive.put("googleCallbackUri", googleCallbackUri);
+		} catch (Exception e) {
+			googleDrive = new HashMap<String, String>();
+		}
+		
 		
 		try {
 			wsFedSSO = settingService.getWsfedOrganizationSettings(WSFEDSSO_CONFIG, null);
 		} catch (Exception e) {
 			LOGGER.info("Failed to initialize wsFedSSO" + e.getMessage());
-			wsFedSSO = new HashMap<String, Map<String,String>>();
+			wsFedSSO = new HashMap<String, Map<String, String>>();
 		}
-		
+
 		try {
-			authSSO = JsonDeserializer.deserialize(authSSOData, new TypeReference<Map<String, String>>() {});
-		} catch(Exception e) {
+			authSSO = JsonDeserializer.deserialize(authSSOData, new TypeReference<Map<String, String>>() {
+			});
+		} catch (Exception e) {
 			LOGGER.info("Failed to initialize authSSO" + e.getMessage());
 			authSSO = new HashMap<String, String>();
 		}
-		try{
-			tomCat = JsonDeserializer.deserialize(tomCatData, new TypeReference<Map<String, String>>() {});
-		}catch(Exception e){
+		try {
+			tomCat = JsonDeserializer.deserialize(tomCatData, new TypeReference<Map<String, String>>() {
+			});
+		} catch (Exception e) {
 			LOGGER.info("Failed to initialize tomCat" + e.getMessage());
 			tomCat = new HashMap<String, String>();
 		}
-		try{
-			schedulers = JsonDeserializer.deserialize(schedulersData, new TypeReference<Map<String, String>>() {});
-		}catch(Exception e){
+		try {
+			schedulers = JsonDeserializer.deserialize(schedulersData, new TypeReference<Map<String, String>>() {
+			});
+		} catch (Exception e) {
 			LOGGER.info("Failed to initialize schedulers" + e.getMessage());
 			schedulers = new HashMap<String, String>();
 		}
-		try{
-			gooruApp = JsonDeserializer.deserialize(gooruAppData, new TypeReference<Map<String, String>>() {});		
-		}catch(Exception e){
+		try {
+			gooruApp = JsonDeserializer.deserialize(gooruAppData, new TypeReference<Map<String, String>>() {
+			});
+		} catch (Exception e) {
 			LOGGER.info("Failed to initialize gooruApp" + e.getMessage());
 			gooruApp = new HashMap<String, String>();
 		}
-		try{
-			classplanRepository = JsonDeserializer.deserialize(classplanRepositoryData, new TypeReference<Map<String, String>>() {});
-		}catch(Exception e){
+		try {
+			classplanRepository = JsonDeserializer.deserialize(classplanRepositoryData, new TypeReference<Map<String, String>>() {
+			});
+		} catch (Exception e) {
 			LOGGER.info("Failed to initialize classplanRepository" + e.getMessage());
 			classplanRepository = new HashMap<String, String>();
 		}
-		try{
-			logSettings = JsonDeserializer.deserialize(logSettingsData, new TypeReference<Map<String, String>>() {});
-		}catch(Exception e){
+		try {
+			logSettings = JsonDeserializer.deserialize(logSettingsData, new TypeReference<Map<String, String>>() {
+			});
+		} catch (Exception e) {
 			LOGGER.info("Failed to initialize logSettings" + e.getMessage());
 			logSettings = new HashMap<String, String>();
 		}
-		try{
-			scribdAPI = JsonDeserializer.deserialize(scribdAPIData, new TypeReference<Map<String, String>>() {});
-		}catch(Exception e){
+		try {
+			scribdAPI = JsonDeserializer.deserialize(scribdAPIData, new TypeReference<Map<String, String>>() {
+			});
+		} catch (Exception e) {
 			LOGGER.info("Failed to initialize" + e.getMessage());
 			scribdAPI = new HashMap<String, String>();
 		}
-		try{
-			taxonomyRepositoryPath = JsonDeserializer.deserialize(taxonomyRepositoryPathData, new TypeReference<Map<String, String>>() {});
-		}catch(Exception e){
+		try {
+			taxonomyRepositoryPath = JsonDeserializer.deserialize(taxonomyRepositoryPathData, new TypeReference<Map<String, String>>() {
+			});
+		} catch (Exception e) {
 			LOGGER.info("Failed to initialize" + e.getMessage());
 			taxonomyRepositoryPath = new HashMap<String, String>();
 		}
-		try{
-			googleAnalyticsAccountId = JsonDeserializer.deserialize(googleAnalyticsAccountIdData, new TypeReference<Map<String, String>>() {});
-		}catch(Exception e){
+		try {
+			googleAnalyticsAccountId = JsonDeserializer.deserialize(googleAnalyticsAccountIdData, new TypeReference<Map<String, String>>() {
+			});
+		} catch (Exception e) {
 			LOGGER.info("Failed to initialize" + e.getMessage());
 			googleAnalyticsAccountId = new HashMap<String, String>();
 		}
-		
+
 	}
 
-	
-/*	public static void main (String [] args){
-		String json  = "{\"wsfed-config\":{\"gooru-wsfed\": {\"issuer\":\"https://signin.silverbacklearning.net/issue/wsfed\",\"thumbprint\":\"2F2275E98D56E0F078E34F8C20E0E633FFA5DD4B\",\"friendlyname\":\"My Identity Provider\",\"audienceUris\":\"http://www.goorulearning.org/\",\"realm\":\"http://www.goorulearning.org/\",\"enableManualRedirect\":\"false\"},\"sbl-wsfed\":{\"issuer\":\"https://signin.silverbacklearning.net/issue/wsfed\",\"thumbprint\":\"2F2275E98D56E0F078E34F8C20E0E633FFA5DD4B\",\"friendlyname\":\"My Identity Provider\",\"audienceUris\":\"http://www.goorulearning.org/\",\"realm\":\"http://www.goorulearning.org/\",\"enableManualRedirect\":\"false\"},\"mile-wsfed\": {\"issuer\":\"https://mile.silverbacklearning.net/issue/wsfed\",\"thumbprint\":\"2F2275E98D56E0F078E34F8C20E0E633FFA5DD4B\",\"friendlyname\":\"My Identity Provider\",\"audienceUris\":\"http://mile.goorulearning.org/\",\"realm\":\"http://www.goorulearning.org/\",\"enableManualRedirect\":\"false\"}}}";
-		Map<String, Map<String, Map<String,String>>> data = JsonDeserializer.deserialize(json, new TypeReference<Map<String, Map<String, Map<String,String>>>>(){});
-		System.out.println(data.get("wsfed-config").get("mile-wsfed").get("issuer"));
-	}
-*/	public Map<String, String> getGoogleAnalyticsAccountId() {
+	public Map<String, String> getGoogleAnalyticsAccountId() {
 		return googleAnalyticsAccountId;
 	}
-	
+
 	public Map<String, String> getTaxonomyRepositoryPath() {
 		return taxonomyRepositoryPath;
 	}
-	
+
 	public Map<String, String> getScribdAPI() {
 		return scribdAPI;
 	}
-	
-	public Map<String, String> getLogSettings(){
+
+	public Map<String, String> getLogSettings() {
 		return logSettings;
 	}
-	
-	public Map<String, String> getClassplanRepository(){
+
+	public Map<String, String> getClassplanRepository() {
 		return classplanRepository;
 	}
-	
-	public Map<String, String> getGooruApp(){
+
+	public Map<String, String> getGooruApp() {
 		return gooruApp;
 	}
-	
-	public Map<String,String> getSchedulers(){
+
+	public Map<String, String> getSchedulers() {
 		return schedulers;
 	}
-	
+
 	public Map<String, String> getTomCat() {
 		return tomCat;
 	}
@@ -201,5 +229,10 @@ public final class ConfigProperties implements Serializable,ConfigConstants {
 	public Map<String, Map<String, String>> getWsFedSSO() {
 		return wsFedSSO;
 	}
+
+	public  Map<String, String> getGoogleDrive() {
+		return googleDrive;
+	}
 	
+
 }

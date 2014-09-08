@@ -23,6 +23,7 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.infrastructure.persistence.hibernate;
 
+import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
 
@@ -30,6 +31,7 @@ import org.ednovo.gooru.core.api.model.Assignment;
 import org.ednovo.gooru.core.api.model.Classpage;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
+import org.ednovo.gooru.core.api.model.CollectionTaskAssoc;
 import org.ednovo.gooru.core.api.model.ContentMetaAssociation;
 import org.ednovo.gooru.core.api.model.Quiz;
 import org.ednovo.gooru.core.api.model.Resource;
@@ -134,6 +136,10 @@ public interface CollectionRepository extends BaseRepository {
 	
 	Long getCollectionCount(String publishStatus);
 	
-	Collection getCollectionByGooruOid(String gooruOid);
+	Collection getCollectionByIdWithType(String gooruOid, String type);
+	
+	List<Object[]> getClasspageAssoc(Integer offset, Integer limit,String classpageId ,String collectionId, String gooruUid, String title, String collectionTitle, String classCode);
+	
+	BigInteger getClasspageAssocCount(String classpageId,String collectionId, String gooruUid, String title, String collectionTitle, String classCode);
 	
 }

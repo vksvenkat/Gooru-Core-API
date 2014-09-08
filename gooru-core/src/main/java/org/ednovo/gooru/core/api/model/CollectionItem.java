@@ -33,6 +33,7 @@ public class CollectionItem implements Serializable, Comparable<CollectionItem> 
 	private Integer resourceCount;
 	private String status;
 	private Integer totalPages;
+	private Boolean isRequired = false; 
 	
 	/**
 	 * 
@@ -217,6 +218,14 @@ public class CollectionItem implements Serializable, Comparable<CollectionItem> 
 
 	public void setTotalPages(Integer totalPages) {
 		this.totalPages = totalPages;
+	}
+
+	public void setIsRequired(Boolean isRequired) {
+		this.isRequired = isRequired;
+	}
+
+	public Boolean getIsRequired() {
+		return isRequired;
 	}	
 
 }
