@@ -90,4 +90,8 @@ public interface ContentIndexDao {
 	Integer getResourceMaximumView();
 	
 	Integer getCollectionMaximumView();
+
+	Integer getUpperboundResourceCountInCollection();
+	
+	Integer getUpperboundQuestionCountInCollection();
 }
