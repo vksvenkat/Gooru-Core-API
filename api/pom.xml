@@ -208,7 +208,7 @@
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-core</artifactId>
-			<version>4.2.7.Final</version>
+			<version>4.2.15.Final</version>
 		</dependency>
 		<dependency>
 			<groupId>log4j</groupId>
@@ -367,7 +367,7 @@
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-ehcache</artifactId>
-			<version>4.2.7.Final</version>
+			<version>4.2.15.Final</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.flexjson</groupId>
@@ -789,11 +789,16 @@
  			<artifactId>cors-filter</artifactId>
 		    <version>2.1.1</version>			
 	    </dependency>
-            <dependency>
+        <dependency>
+                <groupId>com.jolbox</groupId>
+                <artifactId>bonecp</artifactId>
+                <version>0.8.0.RELEASE</version>
+	    </dependency>
+	    <dependency>
                 <groupId>com.jolbox</groupId>
                 <artifactId>bonecp-provider</artifactId>
-                <version>0.7.1.RELEASE</version>
-	    </dependency>
+                <version>0.8.0-alpha1</version>
+            </dependency>
 	    <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>

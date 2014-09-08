@@ -291,7 +291,12 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	@Override
 	public Map<String, Object> getResource(String gooruOid) {
 		Resource resource = this.findResourceByContentGooruId(gooruOid);
+		if(resource == null) {
+			throw new NotFoundException("resource not found");
+		}
 		Map<String, Object> resourceObject = new HashMap<String, Object>();
+		resource.setViewCount(Integer.parseInt(this.resourceCassandraService.get(resource.getGooruOid(),"stas.viewsCount") != null ? this.resourceCassandraService.get(resource.getGooruOid(),"stas.viewsCount") : "0" ));
+	    resource.setViews(Long.parseLong(this.resourceCassandraService.get(resource.getGooruOid(),"stas.viewsCount") != null ? this.resourceCassandraService.get(resource.getGooruOid(),"stas.viewsCount") : "0"));
 		if (resource.getResourceType().getName().equalsIgnoreCase(ASSESSMENT_QUESTION)) {
 			AssessmentQuestion question = assessmentService.getQuestion(gooruOid);
 			question.setCustomFieldValues(customFieldService.getCustomFieldsValuesOfResource(question.getGooruOid()));
@@ -305,7 +310,16 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		setContentProvider(resource);
 		return resourceObject;
 	}
-
+	
+	@Override
+	public Resource setContentProvider(String gooruOid) {
+		Resource resource = this.getResourceRepository().findResourceByContentGooruId(gooruOid);
+		if(resource == null) {
+			return null;
+		}
+		return setContentProvider(resource);
+	}
+	
 	@Override
 	public Resource setContentProvider(Resource resource) {
 		List<ContentProviderAssociation> contentProviderAssociations = this.getContentRepository().getContentProviderByGooruOid(resource.getGooruOid(),null);
@@ -2599,17 +2613,18 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				CustomTableValue resourceType = this.getCustomTableRepository().getCustomTableValue(RESOURCE_INSTRUCTIONAL_USE, newResource.getInstructional().getValue());
 				newResource.setResourceFormat(resourceType);
 			}
+			
+			if (newResource.getCategory() != null) {
+				newResource.setCategory(newResource.getCategory().toLowerCase());
+			}
+			// add to db and index.
+			resource = handleNewResource(newResource, null, null);
 			if(newResource.getPublisher() != null && newResource.getPublisher().size() > 0) {
 				newResource.setPublisher(updateContentProvider(resource.getGooruOid(), newResource.getPublisher(), user, CustomProperties.ContentProviderType.PUBLISHER.getContentProviderType()));
 			}
 			if(newResource.getAggregator() != null && newResource.getAggregator().size() > 0) {
 				newResource.setAggregator(updateContentProvider(resource.getGooruOid(), newResource.getAggregator(), user, CustomProperties.ContentProviderType.AGGREGATOR.getContentProviderType()));
 			}
-			if (newResource.getCategory() != null) {
-				newResource.setCategory(newResource.getCategory().toLowerCase());
-			}
-			// add to db and index.
-			resource = handleNewResource(newResource, null, null);
 			ResourceInfo resourceInfo = new ResourceInfo();
 			String tags = newResource.getTags();
 			resourceInfo.setTags(tags);
@@ -3087,6 +3102,8 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		if (resource == null) {
 			throw new NotFoundException(generateErrorMessage("GL0003"));
 		}
+		resource.setViewCount(Integer.parseInt(this.resourceCassandraService.get(resource.getGooruOid(),"stas.viewsCount") != null ? this.resourceCassandraService.get(resource.getGooruOid(),"stas.viewsCount") : "0" ));
+	    resource.setViews(Long.parseLong(this.resourceCassandraService.get(resource.getGooruOid(),"stas.viewsCount") != null ? this.resourceCassandraService.get(resource.getGooruOid(),"stas.viewsCount") : "0"));
 
 		resource.setCustomFieldValues(customFieldService.getCustomFieldsValuesOfResource(resource.getGooruOid()));
 		if (more) {
@@ -3124,11 +3141,18 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		ResourceStasCo resourceStasCo = null;
 		Collection<ResourceCio> resourceCioList = new ArrayList<ResourceCio>();
 		Collection<String> resourceIds = new ArrayList<String>();
+		Collection<String> collectionIds = new ArrayList<String>();
+
 		for(StatisticsDTO statisticsDTO : statisticsList){
 			resourceCio = new ResourceCio();	
 			resourceStasCo = new ResourceStasCo();
 			resourceCio.setId(statisticsDTO.getGooruOid());
-			resourceIds.add(resourceCio.getId());
+			if(statisticsDTO.getResourceType() != null && statisticsDTO.getResourceType().equalsIgnoreCase("scollection")){
+				collectionIds.add(resourceCio.getId());
+			}
+			else{
+				resourceIds.add(resourceCio.getId());
+			}
 			if(statisticsDTO.getViews() != null){
 				resourceStasCo.setViewsCount(String.valueOf(statisticsDTO.getViews()));
 			}
@@ -3146,7 +3170,12 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		if(resourceCioList.size() > 0){
 			resourceCassandraService.save(resourceCioList, resourceIds);
 			if(!skipReindex){
-				indexProcessor.indexStas(StringUtils.join(resourceIds, ','), IndexProcessor.INDEX, RESOURCE, true);
+				if(resourceIds.size() > 0){
+					indexProcessor.indexStas(StringUtils.join(resourceIds, ','), IndexProcessor.INDEX, RESOURCE, false);
+				}
+				if(collectionIds.size() > 0){
+					indexProcessor.indexStas(StringUtils.join(collectionIds, ','), IndexProcessor.INDEX, SCOLLECTION, false);
+				}
 			}
 		}
 	}

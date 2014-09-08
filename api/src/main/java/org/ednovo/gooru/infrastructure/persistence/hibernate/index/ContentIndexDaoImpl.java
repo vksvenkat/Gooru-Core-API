@@ -97,6 +97,10 @@ public class ContentIndexDaoImpl extends IndexDaoImpl implements ContentIndexDao
     
 	private static final String COLLECTION_MAX_VIEW = "select views_total as max_views from resource where type_name = 'scollection' order by views_total desc limit 1";
 
+	private static final String UPPERBOUND_QUESTION_RESOURCE_IN_COLLECTION = "select count(ci.resource_content_id) as upperbound_question_count from resource c inner join collection_item ci on ci.collection_content_id = c.content_id inner join content cr on cr.content_id = ci.resource_content_id inner join resource r on r.content_id = cr.content_id where c.type_name = 'scollection' and r.resource_format_id = 104 group by c.content_id order by count(ci.resource_content_id) desc limit 1";
+	
+	private static final String UPPERBOUND_OTHER_RESOURCE_IN_COLLECTION = "select count(ci.resource_content_id) as upperbound_resource_count from resource c inner join collection_item ci on ci.collection_content_id = c.content_id inner join content cr on cr.content_id = ci.resource_content_id inner join resource r on r.content_id = cr.content_id where c.type_name = 'scollection' and r.resource_format_id in (100, 101, 102, 103, 105, 106) group by c.content_id order by count(ci.resource_content_id) desc limit 1";
+	
 	@Override
 	public List<Object[]> getCollectionSegments(Long contentId) {
 		return createSQLQuery(GET_COLLECTION_SEGMENTS_SQL).setParameter(CONTENT_ID, contentId).list();
@@ -276,6 +280,20 @@ public class ContentIndexDaoImpl extends IndexDaoImpl implements ContentIndexDao
 	public Integer getCollectionMaximumView() {
 		Session session = getSessionFactory().getCurrentSession();
 		Query query = session.createSQLQuery(COLLECTION_MAX_VIEW).addScalar("max_views", StandardBasicTypes.INTEGER);
+		return (Integer) query.list().get(0);
+	}
+	
+	@Override
+	public Integer getUpperboundQuestionCountInCollection() {
+		Session session = getSessionFactory().getCurrentSession();
+		Query query = session.createSQLQuery(UPPERBOUND_QUESTION_RESOURCE_IN_COLLECTION).addScalar("upperbound_question_count", StandardBasicTypes.INTEGER);
+		return (Integer) query.list().get(0);
+	}
+	
+	@Override
+	public Integer getUpperboundResourceCountInCollection() {
+		Session session = getSessionFactory().getCurrentSession();
+		Query query = session.createSQLQuery(UPPERBOUND_OTHER_RESOURCE_IN_COLLECTION).addScalar("upperbound_resource_count", StandardBasicTypes.INTEGER);
 		return (Integer) query.list().get(0);
 	}
 }

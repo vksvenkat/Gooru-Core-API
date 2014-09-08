@@ -15,11 +15,14 @@ import org.ednovo.gooru.core.cassandra.model.IsEntityCassandraIndexable;
 
 import com.netflix.astyanax.ColumnListMutation;
 import com.netflix.astyanax.MutationBatch;
+import com.netflix.astyanax.connectionpool.OperationResult;
 import com.netflix.astyanax.connectionpool.exceptions.ConnectionException;
 import com.netflix.astyanax.connectionpool.exceptions.NotFoundException;
 import com.netflix.astyanax.model.Column;
 import com.netflix.astyanax.model.ColumnFamily;
 import com.netflix.astyanax.model.ColumnList;
+import com.netflix.astyanax.model.ConsistencyLevel;
+import com.netflix.astyanax.model.CqlResult;
 import com.netflix.astyanax.model.Row;
 import com.netflix.astyanax.model.Rows;
 import com.netflix.astyanax.query.RowQuery;
@@ -30,6 +33,8 @@ import com.netflix.astyanax.util.RangeBuilder;
  * 
  */
 public class EntityCassandraDaoImpl<M extends IsEntityCassandraIndexable> extends CassandraDaoSupport<EntityCassandraColumnFamily<M>> implements EntityCassandraDao<M> {
+
+	protected static final ConsistencyLevel DEFAULT_CONSISTENCY_LEVEL = ConsistencyLevel.CL_QUORUM;
 
 	public EntityCassandraDaoImpl() {
 
@@ -225,4 +230,47 @@ public class EntityCassandraDaoImpl<M extends IsEntityCassandraIndexable> extend
 		return getCF().getRiColumnFamily();
 	}
 
+	@Override
+	public Map<String, String> readViewsCount(String rowKeys){
+		Map<String,String> resultMap = null;
+		String cql = "select key,value from resource where column1='stas.viewsCount' and key in ('"+rowKeys+ "')";
+		try {
+			OperationResult<CqlResult<String, String>> result = getFactory().getKeyspace().prepareQuery(getCF().getColumnFamily()).withCql(cql).execute();
+			
+			if(result != null){
+				resultMap = new HashMap<String, String>();
+				for (Row<String, String> row : result.getResult().getRows()) {
+					
+					ColumnList<String> columns = row.getColumns();
+					
+					resultMap.put(columns.getStringValue ("key", null), columns.getStringValue ("value",  null));
+				}        
+			}
+
+		} catch (ConnectionException e) {
+			getLog().error("Error reading viewscount", e.getMessage());
+		}
+		return resultMap;
+		
+	}
+
+	@Override
+	public void updateViewsCount(Map<String, String> viewsData) {
+		MutationBatch mutationBatch = getFactory().getKeyspace().prepareMutationBatch().setConsistencyLevel(DEFAULT_CONSISTENCY_LEVEL);
+
+		for(String key : viewsData.keySet()){
+			String value = viewsData.get(key);
+			if(value != null){
+				
+				mutationBatch.withRow(getCF().getColumnFamily(), key).putColumn("stas.viewsCount", value);
+			}
+		}	
+		try {
+			mutationBatch.execute();
+		} catch (Exception ex) {
+			getLog().error("Error saving to cassandra", ex);
+		}
+	}
+
 }
+

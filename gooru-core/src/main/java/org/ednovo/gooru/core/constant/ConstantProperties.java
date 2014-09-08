@@ -34,7 +34,7 @@ public interface ConstantProperties {
 			"*.lastModified", "*.gooruUId", "*.vocabulary", "*.collaborators", "*.network", "trackActivity.startTime", "trackActivity.endTime" };
 
 	static final String COLLECTION_ITEM_INCLUDE_FILEDS[] = { "*.collectionItems", "*.collectionItemId", "*.itemSequence", "*.itemType", "*.narration", "*.narrationType", "*.lastModified", "*.start", "*.stop", "*.standards", "*.license", "*.standards.code", "*.standards.description",
-			"*.associationDate", "*associatedUser", "*.status", "*.totalPages" };
+			"*.associationDate", "*associatedUser", "*.status", "*.totalPages","*.isRequired" };
 
 	static final String CLASSPAGE_COLLECTION_ITEM_INCLUDE_FIELDS[] = { "*.plannedEndDate", "*.totalHitCount", "*.searchResults" };
 
@@ -381,7 +381,7 @@ public interface ConstantProperties {
 	static final String LIBRARY_RESOURCE_INCLUDE_FIELDS[] = { "*.resource", "*.assetURI", "*.brokenStatus", "*.category", "*.createdOn", "*.usernameDisplay", "*.profileImageUrl", "*.lastName", "*.firstName", "*.username", "*.description", "*.distinguish", "*.folder", "*.gooruOid", "*.resourceType",
 			"*.resourceType.name", "*.sharing", "*.title", "*.views", "*.thumbnails", "*.url", "*.license", "*.license.code", "*.license.icon", "*.license.name", "*.license.definition", "*.dimensions", "*.defaultImage", "*.resourceSource", "*.attribution", "*.sourceName", "*.questionInfo",
 			"*.TYPE", "*.type", "*.name", "*.questionText", "*.assets", "*.assets.asset", "*.assets.asset.name", "*.assets.asset.url", "*assets.asset.description", "*assets.asset.hasUniqueName", "*.description", "*.explanation", "*.lastModified", "*.gooruUId", "*.lastUpdatedUserUid", "*.category",
-			"*.label", "*.code", "*.userRating", "*.hasFrameBreaker", "*.copiedResourceId", "*.assignmentContentId", "*.trackActivity", "*.trackActivity.startTime", "*.trackActivity.endTime", "*.goals", "*.grade", "*.mediaType", "*.text", "*.isOer", "*.ratings", "*.average", "*.count" };
+			"*.label", "*.code", "*.userRating", "*.hasFrameBreaker", "*.copiedResourceId", "*.assignmentContentId", "*.trackActivity", "*.trackActivity.startTime", "*.trackActivity.endTime", "*.goals", "*.grade", "*.mediaType", "*.text", "*.isOer", "*.ratings", "*.average", "*.count","*.publisher","*.aggregator","*.host" };
 
 	static final String[] LIBRARY_FEATURED_COLLECTIONS_INCLUDE_FIELDS = { "*.totalHitCount", "*.searchResults", "*.libraryCollection", "*.comment", "*.collaborators", "*.network", "*.description", "*.grade", "*.gooruOid", "*.createdOn", "*.lastModified", "*.sharing", "*.title", "*.views",
 			"*.thumbnails", "*.subjectCode", "*.themeCode", "*.metaInfo", "*.standard", "*.collaborators", "*.meta", "*.meta.collaboratorCount", "*.meta.isCollaborator", "*.meta.commentCount", "*.metaInfo.standards", "*.thumbnails.defaultImage", "*.thumbnails.dimensions", "*.thumbnails.url",
@@ -412,7 +412,7 @@ public interface ConstantProperties {
 
 	static final String CUSTOM_VALUE_INCLUDE_FIELDS[] = { "displayName" };
 
-	public static final String OAUTH_CLIENT_INCLUDES[] = { "*.oauthClientUId", "*.clientId", "*.clientName", "*.description", "*.clientSecret", "*.scopes", "*.grantTypes", "*.authorities", "*.redirectUris", "*.accessTokenValiditySeconds", "*.refreshTokenValiditySeconds" };
+	public static final String OAUTH_CLIENT_INCLUDES[] = { "*.oauthClientUId", "*.clientId", "*.clientName", "*.description", "*.clientSecret", "*.scopes", "*.grantTypes", "*.authorities", "*.redirectUris", "*.accessTokenValiditySeconds", "*.refreshTokenValiditySeconds","*.totalHitCount", "*.searchResults", "*.count", "*.totalPages" };
 
 	public static final String CONSUMER_SECRET_INCLUDES[] = { "*.consumerKey", "*.consumerSecret", "*.organization" };
 
@@ -423,6 +423,10 @@ public interface ConstantProperties {
 	public static final String WEBPURIFY_CONFIG_KEY = "webpurify.com.api.key";
 
 	public static final String WEBPURIFY_API_END_POINT = "http://api1.webpurify.com/services/rest";
+	
+	public static final String ACCESS_TOKEN_BY_REFRESH_TOKEN = "https://accounts.google.com/o/oauth2/token";
+	
+	public static final String REVOKE_REFRESH_TOKEN = "https://accounts.google.com/o/oauth2/revoke?token=";	
 
 	public static final String METHOD = "webpurify.live.check";
 

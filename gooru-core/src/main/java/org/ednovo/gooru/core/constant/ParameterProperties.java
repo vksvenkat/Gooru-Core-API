@@ -641,6 +641,8 @@ public interface ParameterProperties {
 	String RESOURCE_MANAGER = "resourceManager";
 
 	String SCOLLECTION = "scollection";
+	
+	String PATHWAY = "pathway";
 
 	String SUGGESTEDSTUDY = "suggestedstudy";
 
@@ -2753,5 +2755,27 @@ public interface ParameterProperties {
 	String COLLECTIONITEMS = "collectionItems";
 	
 	String DEFAULT_VERSION = "version";
+	
+	String CREATOR_USER_NAME = "creatorUsername";
+	
+	String ASSOCIATED_USER_NAME = "associatedUsername";
+
+	String OAUTH_CLIENT = "oauthClient";
+	
+	String ROLE_CLIENT = "ROLE_CLIENT";
+	
+	String LTI = "LTI";
+	
+	String READ = "read";
+	
+	String ASSOC_COLLECTION_NO = "assocCollectionNo";
+	
+	String DIRECTION = "direction";
+	
+	String DUEDATE = "dueDate";
+	
+	String COLLECTION_CREATOR = "collectionCreator";
+	
+	String CLASSPAGE_CREATOR = "classpageCreator";
 	
 }
