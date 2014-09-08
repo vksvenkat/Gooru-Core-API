@@ -25,6 +25,8 @@ package org.ednovo.gooru.infrastructure.persistence.hibernate.auth;
 
 import java.util.List;
 
+import org.ednovo.gooru.core.constant.ConstantProperties;
+import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.domain.model.oauth.OAuthClient;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate;
 import org.hibernate.Query;
@@ -33,7 +35,7 @@ import org.hibernate.type.StandardBasicTypes;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class OAuthRepositoryHibernate extends BaseRepositoryHibernate implements OAuthRepository{
+public class OAuthRepositoryHibernate extends BaseRepositoryHibernate implements OAuthRepository, ParameterProperties, ConstantProperties{
 
 	private static final String GET_USER_INFO = "select client_id from oauth_access_token where token_id = :accessToken";
 
@@ -91,7 +93,7 @@ public class OAuthRepositoryHibernate extends BaseRepositoryHibernate implements
 	}
 	
 	@Override
-	public List<OAuthClient> listOAuthClientByOrganization(String organizationUId, int offset, int limit,String grantType) {
+	public List<OAuthClient> listOAuthClientByOrganization(String organizationUId, Integer offset, Integer limit,String grantType) {
 		String hql = " FROM OAuthClient oauthClient WHERE oauthClient.organization.partyUid=:organizationUId";
 		if (grantType != null){
 		hql +=" AND	oauthClient.grantTypes=:grantTypes";	
@@ -101,7 +103,10 @@ public class OAuthRepositoryHibernate extends BaseRepositoryHibernate implements
 		if (grantType != null){
 			query.setParameter("grantTypes", grantType);	
 		}
-			return (List) query.list();
+		query.setFirstResult(offset);
+		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
+		return query.list().size() > 0 ? query.list() : null;
+			//return (List) query.list();
 	}
 	@Override
 	public Long getOauthClientCount(String organizationUId, String grantType) {
