@@ -38,6 +38,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.ednovo.gooru.controllers.BaseController;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Classpage;
+import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.CollectionType;
 import org.ednovo.gooru.core.api.model.ContentType;
@@ -388,6 +389,45 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 		return toJsonModelAndView(this.getClasspageService().getClasspageAssoc(offset, limit, classpageId,collectionId,title,collectionTitle,classCode,collectionCreator),true);
 	}
 	
+	/********************pathway ***********************/
+	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ADD })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(value = "/{id}/pathway", method = RequestMethod.POST)
+	public ModelAndView createPathway(@RequestBody String data, @PathVariable(value= ID) String classId ,HttpServletRequest request, HttpServletResponse response) throws Exception {
+		User user = (User) request.getAttribute(Constants.USER);
+		JSONObject json = requestData(data);
+		Collection collection = this.getClasspageService().createPathway(classId,this.buildPathwayFromInputParameters(data, user),getValue(COLLECTION_ID, json));
+		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, COLLECTION_INCLUDE_FIELDS);
+		includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_ITEM_INCLUDE_FILEDS);
+		includes = (String[]) ArrayUtils.addAll(includes, ERROR_INCLUDE);
+		return toModelAndViewWithIoFilter(collection , RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
+	}
+	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ITEM_READ })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(value = "/{id}/pathway/{pid}", method = RequestMethod.GET)
+	public ModelAndView getPathwayItems(@PathVariable(value= ID) String classId ,  @PathVariable(value= "pid") String pathId ,@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, 
+			@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,@RequestParam(value = ORDER_BY, defaultValue = DESC ,required = false) String orderBy ,HttpServletRequest request, HttpServletResponse response) throws Exception {
+		List<CollectionItem> collectionItems = this.getClasspageService().getPathwayItems(classId,pathId,offset,limit,orderBy);
+		String includesDefault[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, COLLECTION_ITEM_INCLUDE_FILEDS);
+		includesDefault = (String[]) ArrayUtils.addAll(includesDefault, COLLECTION_ITEM_TAGS);
+		includesDefault = (String[]) ArrayUtils.addAll(includesDefault, COLLECTION_WORKSPACE);
+		String includes[] = (String[]) ArrayUtils.addAll(includesDefault, ERROR_INCLUDE);
+		return toModelAndViewWithIoFilter(getCollectionService().setCollectionItemMetaInfo(collectionItems, null), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
+	}
+	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ITEM_ADD })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(value = "/{id}/pathway/{pid}/assign/{cid}", method = RequestMethod.POST)
+	public ModelAndView assignCollectionToPathway(@PathVariable(value = ID) String classPageId, @PathVariable(value= "pid") String pathwayId, @RequestParam(value="direction", required=false ) String direction,@RequestParam(value="planedEndDate", required=false ) String planedEndDate,@PathVariable(value = CID) String collectionId, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		User user = (User) request.getAttribute(Constants.USER);
+		List<CollectionItem> collectionItems = getCollectionService().assignCollectionToPathway(classPageId, pathwayId ,collectionId, user, direction,planedEndDate);
+		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, CLASSPAGE_COLLECTION_ITEM_INCLUDE_FIELDS);
+		includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_CREATE_ITEM_INCLUDE_FILEDS);
+		return toModelAndViewWithIoFilter(collectionItems, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
+	}
+	
 
 	private Classpage buildClasspageFromInputParameters(String data, User user) {
 		Classpage classpage = JsonDeserializer.deserialize(data, Classpage.class);
@@ -413,6 +453,30 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 		}
 
 		return classpage;
+	}
+	
+	private Collection buildPathwayFromInputParameters(String data, User user) {
+		Collection collection = JsonDeserializer.deserialize(data, Collection.class);
+		collection.setGooruOid(UUID.randomUUID().toString());
+		collection.setContentType(getCollectionService().getContentType(ContentType.RESOURCE));
+		collection.setResourceType(getCollectionService().getResourceType(ResourceType.Type.PATHWAY.getType()));
+		collection.setLastModified(new Date(System.currentTimeMillis()));
+		collection.setCreatedOn(new Date(System.currentTimeMillis()));
+		collection.setUser(user);
+		collection.setCollectionType(ResourceType.Type.PATHWAY.getType());
+		collection.setOrganization(user.getPrimaryOrganization());
+		collection.setCreator(user);
+		collection.setDistinguish(Short.valueOf("0"));
+		collection.setRecordSource(NOT_ADDED);
+		collection.setIsFeatured(0);
+		collection.setLastUpdatedUserUid(user.getGooruUId());
+		if (collection.getSharing() != null && (collection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || collection.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing()))) {
+			collection.setSharing(collection.getSharing());
+		} else {
+			collection.setSharing(Sharing.PUBLIC.getSharing());
+		}
+
+		return collection;
 	}
 
 	private Classpage buildClasspageForUpdateParameters(String data) {

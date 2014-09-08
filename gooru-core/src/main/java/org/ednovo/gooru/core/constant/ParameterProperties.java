@@ -641,6 +641,8 @@ public interface ParameterProperties {
 	String RESOURCE_MANAGER = "resourceManager";
 
 	String SCOLLECTION = "scollection";
+	
+	String PATHWAY = "pathway";
 
 	String SUGGESTEDSTUDY = "suggestedstudy";
 
