@@ -143,4 +143,5 @@ public interface TaxonomyRespository extends BaseRepository{
 	
 	List<Code> findCodeByMappedLevel(Long contentId);
 	
+
 }
