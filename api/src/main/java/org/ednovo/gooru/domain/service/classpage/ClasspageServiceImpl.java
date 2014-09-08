@@ -37,7 +37,6 @@ import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Classpage;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
-import org.ednovo.gooru.core.api.model.CollectionTaskAssoc;
 import org.ednovo.gooru.core.api.model.CollectionType;
 import org.ednovo.gooru.core.api.model.ContentType;
 import org.ednovo.gooru.core.api.model.CustomTableValue;
@@ -802,6 +801,33 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		resultCount.put(TOTAL_HIT_COUNT, this.getCollectionRepository().getClasspageAssocCount(classpageId, collectionId, gooruUid, title, collectionTitle, classCode));
 		return resultCount;
 	}
+	
+	@Override
+	public Collection createPathway(String classId, Collection pathway, String collectionId) throws Exception {
+		Classpage classpage = this.getCollectionRepository().getClasspageByGooruOid(classId, null);
+		if (classpage == null) {
+			throw new BadRequestException(generateErrorMessage(GL0056, COLLECTION));
+		}
+		this.getCollectionRepository().save(pathway);
+		this.getCollectionService().createCollectionItem(pathway.getGooruOid(), classpage.getGooruOid(), new CollectionItem(), pathway.getUser(), ADDED, false);
+		if (collectionId != null && this.getCollectionRepository().getCollectionByGooruOid(collectionId,null) != null) {
+			this.getCollectionService().createCollectionItem(collectionId, pathway.getGooruOid(), new CollectionItem(), pathway.getUser(), ADDED, false);
+		}
+		return pathway;
+	}
+	
+	@Override
+	public List<CollectionItem> getPathwayItems(String classId, String pathwayId, Integer offset, Integer limit, String orderBy) {
+		if (this.getCollectionRepository().getCollectionByIdWithType(pathwayId, PATHWAY) == null) {
+			throw new BadRequestException("pathway not found");
+		}
+		if (this.getCollectionRepository().getCollectionByIdWithType(classId, CLASSPAGE) == null) {
+			throw new BadRequestException("class not found");
+		}
+		return this.getCollectionRepository().getCollectionItems(pathwayId, 0, 10, orderBy, CLASSPAGE);
+	}
+	
+	
 	public CollectionEventLog getScollectionEventlog() {
 		return scollectionEventlog;
 	}
@@ -865,5 +891,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	public ClasspageEventLog getClasspageEventlog() {
 		return classpageEventlog;
 	}
+
+
 
 }

@@ -720,7 +720,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			}
 
 			try {
-				if (collectionItem.getCollection().getResourceType().getName().equalsIgnoreCase(SHELF)) {
+				if (!collectionItem.getCollection().getResourceType().getName().equalsIgnoreCase(SHELF)) {
 					indexProcessor.index(collectionItem.getCollection().getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
 				}
 				if (collectionItem.getResource().getResourceType() != null && !collectionItem.getResource().getResourceType().getName().equalsIgnoreCase(SCOLLECTION) && !collectionItem.getResource().getResourceType().getName().equalsIgnoreCase(FOLDER)

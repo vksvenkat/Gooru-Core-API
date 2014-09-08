@@ -200,7 +200,7 @@ public class OAuthServiceImpl extends ServerValidationUtils implements OAuthServ
 	}
 	@Override
 	public SearchResults<OAuthClient> listOAuthClientByOrganization(String organizationUId,
-			int offset, int limit, String grantType) throws Exception {
+			Integer offset, Integer limit, String grantType) throws Exception {
 
 		List<OAuthClient> oAuthClient = this.getOAuthRepository().listOAuthClientByOrganization(organizationUId,offset,limit, grantType);
 		SearchResults<OAuthClient> result = new SearchResults<OAuthClient>();

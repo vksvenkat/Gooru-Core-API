@@ -41,6 +41,7 @@ public class ResourceType implements Serializable{
 		,FOLDER("folder")
 		,ASSIGNMENT("assignment")
 		,CLASSPAGE("classpage")
+		,PATHWAY("pathway")
 		, ALL("all")
 		,Quiz("quiz")
 		, DOCUMENTS("documents")

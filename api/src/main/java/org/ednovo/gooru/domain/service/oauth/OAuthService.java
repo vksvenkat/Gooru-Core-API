@@ -47,7 +47,7 @@ public interface OAuthService {
 	
 	public OAuthClient getOAuthClientByClientSecret(String clientSecret) throws Exception;
 	
-	SearchResults<OAuthClient> listOAuthClientByOrganization(String organizationUId, int offset, int limit,String grantType) throws Exception;
+	SearchResults<OAuthClient> listOAuthClientByOrganization(String organizationUId, Integer offset, Integer limit,String grantType) throws Exception;
 	
 	public Boolean isSuperAdmin(User user);
 	
