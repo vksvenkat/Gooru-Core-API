@@ -602,24 +602,42 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		rejectIfNull(classpage, GL0056, 404, generateErrorMessage(GL0056, CLASSPAGE));
 		Collection collection = this.getCollectionRepository().getCollectionByGooruOid(collectionId, null);
 		rejectIfNull(collection, GL0056, 404, generateErrorMessage(GL0056, COLLECTION));
+
+		return classAssign(classpage, collection, user, direction, planedEndDate);
+	}
+	
+	@Override
+	public List<CollectionItem> assignCollectionToPathway(String classpageId,String pathwayId ,String collectionId, User user,String direction, String planedEndDate) throws Exception {
+		Classpage classpage = this.getCollectionRepository().getClasspageByCode(classpageId);
+		rejectIfNull(classpage, GL0056, 404, generateErrorMessage(GL0056, CLASSPAGE));
+		Collection collection = this.getCollectionRepository().getCollectionByGooruOid(collectionId, null);
+		rejectIfNull(collection, GL0056, 404, generateErrorMessage(GL0056, COLLECTION));
+		Collection pathway = this.getCollectionRepository().getCollectionByIdWithType(pathwayId, PATHWAY);
+		rejectIfNull(pathway, GL0056, 404, generateErrorMessage(GL0056, PATHWAY));
+
+		return classAssign(pathway, collection, user, direction, planedEndDate);
+	}
+	
+	public List<CollectionItem> classAssign(Collection classpage, Collection collection, User user,String direction, String planedEndDate) {
+		
 		List<CollectionItem> collectionItems = new ArrayList<CollectionItem>();
 		int sequence = classpage.getCollectionItems() != null ? classpage.getCollectionItems().size() + 1 : 1;
 		if (collection.getResourceType().getName().equalsIgnoreCase(FOLDER)) {
 			Map<String, String> filters = new HashMap<String, String>();
 			filters.put(SHARING, "public,anyonewithlink");
 			filters.put(TYPE, COLLECTION);
-			List<CollectionItem> folderCollectionItems = this.getCollectionRepository().getCollectionItems(collectionId, filters);
+			List<CollectionItem> folderCollectionItems = this.getCollectionRepository().getCollectionItems(collection.getGooruOid(), filters);
 			for (CollectionItem collectionItem : folderCollectionItems) {
 				collectionItems.add(createClasspageItem(classpage, collectionItem.getResource(), user, sequence++, direction, planedEndDate));
 			}
 		} else if (collection.getResourceType().getName().equalsIgnoreCase(SCOLLECTION)) {
 			collectionItems.add(createClasspageItem(classpage, collection, user, sequence, direction, planedEndDate));
 		}
-
+		
 		return collectionItems;
 	}
 
-	private CollectionItem createClasspageItem(Classpage classPage, Resource collection, User user, int sequence,String direction, String planedEndDate) {
+	private CollectionItem createClasspageItem(Collection classPage, Resource collection, User user, int sequence,String direction, String planedEndDate) {
 		CollectionItem collectionItem = new CollectionItem();
 		collectionItem.setCollection(classPage);
 		collectionItem.setResource(collection);
@@ -764,7 +782,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	@Override
 	public String getFolderItemsWithCache(String gooruOid, Integer limit, Integer offset, String sharing, String collectionType, String orderBy, Integer itemLimit, boolean fetchChildItem, boolean clearCache, User user) {
 		Map<String, Object> content = null;
-		Collection collection = this.getCollectionRepository().getCollectionByGooruOid(gooruOid);
+		Collection collection = this.getCollectionRepository().getCollectionByGooruOid(gooruOid, null);
 		String data = null;
 		if (collection != null) {
 			final String cacheKey = V2_ORGANIZE_DATA + collection.getUser().getPartyUid() + "-" + gooruOid + "-" + limit + "-" + offset + "-" + sharing + "-" + collectionType + "-" + orderBy + "-" + itemLimit + "-" + fetchChildItem;
