@@ -660,7 +660,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 						getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + item.getAssociatedUser().getPartyUid() + "*");
 					}
 				}
-				if (collection != null && collection.getUser() != null && collection.getSharing().equalsIgnoreCase(PUBLIC)) {
+				if (collection != null && collection.getUser() != null && collection.getSharing().equalsIgnoreCase(PUBLIC) && !collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.PATHWAY.getType())) {
 					UserSummary userSummary = this.getUserRepository().getSummaryByUid(collection.getUser().getPartyUid());
 					if (userSummary != null && userSummary.getCollections() != null) {
 						userSummary.setCollections(userSummary.getCollections() <= 0 ? 0 : (userSummary.getCollections() - 1));

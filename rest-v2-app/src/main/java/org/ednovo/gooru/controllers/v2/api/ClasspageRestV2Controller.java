@@ -404,12 +404,12 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 		return toModelAndViewWithIoFilter(collection , RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
 	
-	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ADD })
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_UPDATE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	@RequestMapping(value = "/{cid}/pathway/{id}", method = RequestMethod.PUT)
-	public ModelAndView updatePathway(@RequestBody String data, @PathVariable(value= CID) String classId , @PathVariable(value= ID) String pathwayGooruOid ,HttpServletRequest request, HttpServletResponse response) throws Exception {
+	@RequestMapping(value = "/{id}/pathway/{pid}", method = RequestMethod.PUT)
+	public ModelAndView updatePathway(@RequestBody String data, @PathVariable(value= ID) String classId , @PathVariable(value= "pid") String pathwayGooruOid ,HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
-		Collection pathwayCollection = this.getClasspageService().updatePathway(pathwayGooruOid, this.buildUpadtePathwayCollectionFromInputParameters(data, user));
+		Collection pathwayCollection = this.getClasspageService().updatePathway(pathwayGooruOid, this.buildUpadtePathwayCollectionFromInputParameters(data));
 		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, COLLECTION_INCLUDE_FIELDS);
 		includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_ITEM_INCLUDE_FILEDS);
 		includes = (String[]) ArrayUtils.addAll(includes, ERROR_INCLUDE);
@@ -418,10 +418,10 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_DELETE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	@RequestMapping(value = { "/pathway/{id}" }, method = RequestMethod.DELETE)
-	public void deletePathway(@PathVariable(value = ID) String pathwayGooruOId, HttpServletRequest request, HttpServletResponse response) {
+	@RequestMapping(value = { "/{id}/pathway/{pid}" }, method = RequestMethod.DELETE)
+	public void deletePathway(@PathVariable(value= ID) String classId , @PathVariable(value= "pid") String pathwayGooruOid, HttpServletRequest request, HttpServletResponse response) {
 		User user = (User) request.getAttribute(Constants.USER);
-		this.getClasspageService().deletePathway(pathwayGooruOId, user);
+		this.getClasspageService().deletePathway(pathwayGooruOid, user);
 	}
 	
 	
@@ -515,7 +515,7 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 		return collection;
 	}
 	
-	private Collection buildUpadtePathwayCollectionFromInputParameters(String data, User user) {
+	private Collection buildUpadtePathwayCollectionFromInputParameters(String data) {
 		return JsonDeserializer.deserialize(data, Collection.class);
 	}
 
