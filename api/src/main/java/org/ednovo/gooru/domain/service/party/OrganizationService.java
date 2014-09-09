@@ -31,6 +31,7 @@ import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Organization;
 import org.ednovo.gooru.core.api.model.OrganizationSetting;
 import org.ednovo.gooru.core.api.model.User;
+import org.ednovo.gooru.domain.service.search.SearchResults;
 
 public interface OrganizationService {
 
@@ -38,7 +39,7 @@ public interface OrganizationService {
 
 	Organization getOrganizationByCode(String organizationCode);
 
-	List<Organization> listAllOrganizations();
+	SearchResults<Organization> listAllOrganizations(Integer offset, Integer limit);
 
 	Organization getOrganizationByName(String partyName);
 	
