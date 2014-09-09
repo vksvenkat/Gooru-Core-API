@@ -799,6 +799,34 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				collectionItem.setNarration(newcollectionItem.getNarration());
 				itemData.put(NARRATION, newcollectionItem.getNarration());
 			}
+			if (newcollectionItem.getIsRequired() != null) {
+				collectionItem.setIsRequired(newcollectionItem.getIsRequired());
+				itemData.put(IS_REQUIRED, newcollectionItem.getIsRequired());
+			}
+			if (newcollectionItem.getShowAnswerByQuestions() != null) {
+				collectionItem.setShowAnswerByQuestions(newcollectionItem.getShowAnswerByQuestions());
+				itemData.put("showAnswerByQuestions", newcollectionItem.getShowAnswerByQuestions());
+			}
+			if (newcollectionItem.getShowAnswerByQuestions() != null) {
+				collectionItem.setShowAnswerByQuestions(newcollectionItem.getShowAnswerByQuestions());
+				itemData.put("showAnswerByQuestions", newcollectionItem.getShowAnswerByQuestions());
+			}
+			if (newcollectionItem.getShowAnswerEnd() != null) {
+				collectionItem.setShowAnswerEnd(newcollectionItem.getShowAnswerEnd());
+				itemData.put("showAnswerEnd", newcollectionItem.getShowAnswerEnd());
+			}
+			if (newcollectionItem.getShowHints() != null) {
+				collectionItem.setShowHints(newcollectionItem.getShowHints());
+				itemData.put("showHints", newcollectionItem.getShowHints());
+			}
+			if (newcollectionItem.getMinimumScore() != null) {
+				collectionItem.setMinimumScore(newcollectionItem.getMinimumScore());
+				itemData.put("MinimumScore", newcollectionItem.getMinimumScore());
+			}
+			if (newcollectionItem.getEstimatedTime() != null) {
+				collectionItem.setEstimatedTime(newcollectionItem.getEstimatedTime());
+				itemData.put("EstimatedTime", newcollectionItem.getEstimatedTime());
+			}
 			if (newcollectionItem.getPlannedEndDate() != null) {
 				collectionItem.setPlannedEndDate(newcollectionItem.getPlannedEndDate());
 				itemData.put(PLANNED_END_DATE, newcollectionItem.getPlannedEndDate());
