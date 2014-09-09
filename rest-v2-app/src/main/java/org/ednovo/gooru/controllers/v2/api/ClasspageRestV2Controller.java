@@ -404,6 +404,27 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 		return toModelAndViewWithIoFilter(collection , RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
 	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_UPDATE })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(value = "/{id}/pathway/{pid}", method = RequestMethod.PUT)
+	public ModelAndView updatePathway(@RequestBody String data, @PathVariable(value= ID) String classId , @PathVariable(value= "pid") String pathwayGooruOid ,HttpServletRequest request, HttpServletResponse response) throws Exception {
+		User user = (User) request.getAttribute(Constants.USER);
+		Collection pathwayCollection = this.getClasspageService().updatePathway(pathwayGooruOid, this.buildUpadtePathwayCollectionFromInputParameters(data));
+		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, COLLECTION_INCLUDE_FIELDS);
+		includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_ITEM_INCLUDE_FILEDS);
+		includes = (String[]) ArrayUtils.addAll(includes, ERROR_INCLUDE);
+		return toModelAndViewWithIoFilter(pathwayCollection , RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
+	}
+	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_DELETE })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(value = { "/{id}/pathway/{pid}" }, method = RequestMethod.DELETE)
+	public void deletePathway(@PathVariable(value= ID) String classId , @PathVariable(value= "pid") String pathwayGooruOid, HttpServletRequest request, HttpServletResponse response) {
+		User user = (User) request.getAttribute(Constants.USER);
+		this.getClasspageService().deletePathway(pathwayGooruOid, user);
+	}
+	
+	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ITEM_READ })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/{id}/pathway/{pid}", method = RequestMethod.GET)
@@ -492,6 +513,10 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 		}
 
 		return collection;
+	}
+	
+	private Collection buildUpadtePathwayCollectionFromInputParameters(String data) {
+		return JsonDeserializer.deserialize(data, Collection.class);
 	}
 
 	private Classpage buildClasspageForUpdateParameters(String data) {
