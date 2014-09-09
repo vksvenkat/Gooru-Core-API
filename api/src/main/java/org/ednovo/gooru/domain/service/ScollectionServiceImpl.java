@@ -70,6 +70,7 @@ import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.application.util.ResourceMetaInfo;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.core.exception.BadRequestException;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.core.exception.UnauthorizedException;
 import org.ednovo.gooru.domain.cassandra.service.ResourceCassandraService;
@@ -891,6 +892,9 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	@Override
 	public ActionResponseDTO<CollectionItem> reorderCollectionItem(final String collectionItemId, int newSequence) throws Exception {
 		CollectionItem collectionItem = getCollectionRepository().getCollectionItemById(collectionItemId);
+		if(collectionItem == null) {
+			throw new BadRequestException(generateErrorMessage(GL0056, COLLECTION_ITEM));
+		}
 		Errors errors = validateReorderCollectionItem(collectionItem);
 		if (!errors.hasErrors()) {
 			Collection collection = getCollectionRepository().getCollectionByGooruOid(collectionItem.getCollection().getGooruOid(), null);
