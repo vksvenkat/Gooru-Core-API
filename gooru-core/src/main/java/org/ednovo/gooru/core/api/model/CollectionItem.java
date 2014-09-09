@@ -33,7 +33,13 @@ public class CollectionItem implements Serializable, Comparable<CollectionItem> 
 	private Integer resourceCount;
 	private String status;
 	private Integer totalPages;
-	private Boolean isRequired = false; 
+	private Boolean isRequired;
+	private Integer minimumScore ; 
+	private Date estimatedTime; 
+	private Boolean showAnswerByQuestions ; 
+	private Boolean showHints ;
+	private Boolean showAnswerEnd;
+	
 	
 	/**
 	 * 
@@ -226,6 +232,46 @@ public class CollectionItem implements Serializable, Comparable<CollectionItem> 
 
 	public Boolean getIsRequired() {
 		return isRequired;
+	}
+
+	public void setMinimumScore(Integer minimumScore) {
+		this.minimumScore = minimumScore;
+	}
+
+	public Integer getMinimumScore() {
+		return minimumScore;
+	}
+
+	public void setEstimatedTime(Date estimatedTime) {
+		this.estimatedTime = estimatedTime;
+	}
+
+	public Date getEstimatedTime() {
+		return estimatedTime;
+	}
+
+	public void setShowAnswerByQuestions(Boolean showAnswerByQuestions) {
+		this.showAnswerByQuestions = showAnswerByQuestions;
+	}
+
+	public Boolean getShowAnswerByQuestions() {
+		return showAnswerByQuestions;
+	}
+
+	public void setShowHints(Boolean showHints) {
+		this.showHints = showHints;
+	}
+
+	public Boolean getShowHints() {
+		return showHints;
+	}
+
+	public void setShowAnswerEnd(Boolean showAnswerEnd) {
+		this.showAnswerEnd = showAnswerEnd;
+	}
+
+	public Boolean getShowAnswerEnd() {
+		return showAnswerEnd;
 	}	
 
 }

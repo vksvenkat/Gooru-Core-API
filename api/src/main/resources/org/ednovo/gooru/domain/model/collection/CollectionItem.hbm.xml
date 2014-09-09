@@ -47,6 +47,11 @@
 		<property name="plannedEndDate" column="planned_end_date" not-null="false" />
 		<property name="associationDate" column="association_date" not-null="false" />
 		<property name="isRequired" column="is_required" not-null="false" />
+		<property name="minimumScore" column="minimum_score" not-null="false" />
+		<property name="estimatedTime" column="estimated_time" not-null="false" />
+		<property name="showAnswerByQuestions" column="show_answer_by_questions" not-null="false" />
+		<property name="showHints" column="show_hints" not-null="false" />
+		<property name="showAnswerEnd" column="show_answer_end" not-null="false" />
 		<many-to-one name="associatedUser" column="associated_by_uid"
 			class="org.ednovo.gooru.core.api.model.User" fetch="join"
 			not-null="false" cascade="none" />
