@@ -820,6 +820,32 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 	
 	@Override
+	public Collection updatePathway(String pathwayGooruOid, Collection newPathway) throws Exception {
+		Collection pathwayCollection = this.getCollectionRepository().getCollectionByIdWithType(pathwayGooruOid, ResourceType.Type.PATHWAY.getType());
+		if(pathwayCollection != null){
+			if (newPathway.getTitle() != null) {
+				pathwayCollection.setTitle(newPathway.getTitle());
+			}
+			if (newPathway.getDescription() != null) {
+				pathwayCollection.setDescription(newPathway.getDescription());
+			}
+			this.getCollectionRepository().save(pathwayCollection);
+		} else {
+			throw new BadRequestException("pathway not found");
+		}
+		return pathwayCollection;
+	}
+	
+	@Override
+	public void deletePathway(String pathwayGooruOid, User user) {
+		final List<CollectionItem> collectionItems = this.getCollectionRepository().getCollectionItemByParentId(pathwayGooruOid, null, null);
+		for (CollectionItem item : collectionItems) {
+			this.deleteCollectionItem(item.getCollectionItemId(), user);
+		}
+		this.getCollectionService().deleteCollection(pathwayGooruOid, user);
+	}
+	
+	@Override
 	public List<CollectionItem> getPathwayItems(String classId, String pathwayId, Integer offset, Integer limit, String orderBy) {
 		if (this.getCollectionRepository().getCollectionByIdWithType(pathwayId, PATHWAY) == null) {
 			throw new BadRequestException("pathway not found");
@@ -905,6 +931,5 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	public ClasspageEventLog getClasspageEventlog() {
 		return classpageEventlog;
 	}
-
 
 }
