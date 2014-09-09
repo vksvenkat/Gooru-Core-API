@@ -23,15 +23,14 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.domain.service.apikey;
 
-import java.util.List;
-
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.ApiKey;
 import org.ednovo.gooru.core.api.model.User;
+import org.ednovo.gooru.domain.service.search.SearchResults;
 
 public interface ApplicationService {
 
-	List<ApiKey> findApplicationByOrganization(String organizationUid);
+	SearchResults<ApiKey> findApplicationByOrganization(String organizationUid, Integer offset, Integer limit);
 	
 	ActionResponseDTO<ApiKey> saveApplication(ApiKey apikey, User user, String organizationUid, User apiCaller) throws Exception;
 	

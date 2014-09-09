@@ -366,7 +366,7 @@ public interface ConstantProperties {
 	static final String TAXONOMY_CODE_INCLUDES[] = { "elementrySchool", "middleSchool", "highSchool", "other", "taxonomyCodes", "*.code", "*.codeId", "*.code", "*.label", "*.parentId", "*.thumbnails", "*.thumbnails.url", "*.thumbnails.dimensions", "*.thumbnails.isDefaultImage",
 			"*.creator.username", "*.creator.gooruUId", "*.creator.firstName", "*.creator.lastName" };
 
-	static final String APPLICATION_INCLUDES[] = { "key", "appName", "appURL", "secretKey", "activeFlag", "searchLimit", "description", "comment", "status" };
+	static final String APPLICATION_INCLUDES[] = { "key", "appName", "appURL", "secretKey", "activeFlag", "searchLimit", "description", "comment", "status", "*.totalHitCount", "*.searchResults"};
 
 	static final String ORGANIZATION_INCLUDES_ADD[] = { "partyUid", "partyName", "partyType", "organizationCode" };
 
