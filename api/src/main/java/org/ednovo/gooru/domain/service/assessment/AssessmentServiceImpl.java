@@ -85,6 +85,7 @@ import org.ednovo.gooru.core.application.util.ServerValidationUtils;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.core.exception.BadRequestException;
 import org.ednovo.gooru.domain.service.CollectionService;
 import org.ednovo.gooru.domain.service.content.ContentService;
 import org.ednovo.gooru.domain.service.resource.AssetManager;
@@ -1737,7 +1738,9 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 		for (int i = 0; i < assetKeyArr.length; i++) {
 			String resourceImageFile = mediaFolderPath + "/" + assetKeyArr[i];
 			File mediaImage = new File(resourceImageFile);
-
+			if(!mediaImage.isFile()) {
+				throw new BadRequestException("file not found");
+			}
 			String assetKey = StringUtils.left(assetKeyArr[i], assetKeyArr[i].indexOf("_"));
 			String fileName = assetKeyArr[i].split("_")[0];
 			byte[] fileContent = FileUtils.readFileToByteArray(mediaImage);

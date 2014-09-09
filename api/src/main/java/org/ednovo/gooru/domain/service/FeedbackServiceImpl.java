@@ -177,6 +177,7 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 		this.getFeedbackRepository().flush();
 		Resource resource = this.getResourceRepository().findResourceByContentGooruId(feedback.getAssocGooruOid());
 		if (resource != null && resource.getContentId() != null) {
+			updateResourceSummary(resource.getGooruOid());
 			if (resource.getResourceType() != null && resource.getResourceType().getName().equalsIgnoreCase(ResourceType.Type.SCOLLECTION.getType())) {
 				indexProcessor.index(resource.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
 			} else {
@@ -403,26 +404,30 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 			}
 			this.getFeedbackRepository().save(feedback);
 			this.getFeedbackRepository().flush();
-			ResourceSummary resourceSummary = this.getResourceRepository().getResourceSummaryById(feedback.getAssocGooruOid());
-			Map<String, Object> summary = this.getContentFeedbackStarRating(feedback.getAssocGooruOid());
-			Long reviewSummary = this.getContentFeedbackReviewCount(feedback.getAssocGooruOid());
-
-			if (resourceSummary == null) {
-				resourceSummary = new ResourceSummary();
-				resourceSummary.setResourceGooruOid(feedback.getAssocGooruOid());
-			}
-
-			resourceSummary.setRatingStarCount((Double) summary.get(COUNT));
-			resourceSummary.setRatingStarAvg((Long) summary.get(AVERAGE));
-			resourceSummary.setReviewCount(reviewSummary);
-			summary.put(REVIEW_COUNT, resourceSummary.getReviewCount());
-			
-			this.getFeedbackRepository().save(feedback);
+			ResourceSummary resourceSummary = updateResourceSummary(feedback.getAssocGooruOid());
 			this.getFeedbackRepository().save(resourceSummary);
+			Map<String, Object> summary = this.getContentFeedbackStarRating(feedback.getAssocGooruOid());
+			summary.put(REVIEW_COUNT, resourceSummary.getReviewCount());
 			this.getFeedbackRepository().flush();
 			feedback.setRatings(summary);
 		}
 		return feedback;
+	}
+	
+	public ResourceSummary updateResourceSummary(String assocGooruOid) {
+		ResourceSummary resourceSummary = this.getResourceRepository().getResourceSummaryById(assocGooruOid);
+		Map<String, Object> summary = this.getContentFeedbackStarRating(assocGooruOid);
+		Long reviewSummary = this.getContentFeedbackReviewCount(assocGooruOid);
+		if (resourceSummary == null) {
+			resourceSummary = new ResourceSummary();
+			resourceSummary.setResourceGooruOid(assocGooruOid);
+		}
+		resourceSummary.setRatingStarCount((Double) summary.get(COUNT));
+		resourceSummary.setRatingStarAvg((Long) summary.get(AVERAGE));
+		resourceSummary.setReviewCount(reviewSummary);
+		this.getFeedbackRepository().save(resourceSummary);
+		this.getFeedbackRepository().flush();
+		return resourceSummary;
 	}
 
 	

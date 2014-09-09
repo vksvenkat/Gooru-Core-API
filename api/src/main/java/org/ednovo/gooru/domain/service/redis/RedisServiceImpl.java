@@ -405,7 +405,7 @@ public class RedisServiceImpl implements RedisService, ParameterProperties, Cons
 	}
 
 	private String returnSanitizedKey(final String key) {
-		return getReleaseVersion() + "_" + BaseUtil.appendProtocol(StringUtils.replace(key, " ", ""));	
+		return   BaseUtil.appendProtocol(StringUtils.replace(key, " ", "")) + "_" + getReleaseVersion();	
 	}  
 
 	@Override

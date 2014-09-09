@@ -23,9 +23,7 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.domain.service.authentication;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
@@ -36,8 +34,6 @@ import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.ednovo.gooru.application.util.TaxonomyUtil;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
-import org.ednovo.gooru.core.api.model.ActivityStream;
-import org.ednovo.gooru.core.api.model.ActivityType;
 import org.ednovo.gooru.core.api.model.ApiKey;
 import org.ednovo.gooru.core.api.model.Identity;
 import org.ednovo.gooru.core.api.model.Organization;
@@ -68,7 +64,6 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.ConfigSettingReposi
 import org.ednovo.gooru.infrastructure.persistence.hibernate.OrganizationSettingRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserTokenRepository;
-import org.ednovo.gooru.infrastructure.persistence.hibernate.activity.ActivityRepository;
 import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -100,9 +95,6 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 
 	@Autowired
 	private UserRepository userRepository;
-
-	@Autowired
-	private ActivityRepository activityRepository;
 
 	@Autowired
 	private IndexProcessor indexProcessor;
@@ -185,7 +177,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 				if (identity.getCredential() == null) {
 					throw new BadRequestException(generateErrorMessage("GL0080"));
 				}
-				final String encryptedPassword = userService.encryptPassword(password);
+				final String encryptedPassword = this.getUserService().encryptPassword(password);
 				if (user == null || !(encryptedPassword.equals(identity.getCredential().getPassword()) || password.equals(identity.getCredential().getPassword()))) {
 
 					throw new BadRequestException(generateErrorMessage("GL0081"));
@@ -214,12 +206,12 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 
 			userToken.setApiKey(apiKey);
 			userToken.setRestEndPoint(apiEndPoint);
-			Boolean firstLogin = false;
+			boolean firstLogin = false;
 			if (user.getIdentities().size() > 0 && user.getIdentities().iterator().next().getLastLogin() == null) {
 				firstLogin = true;
 			}
 			userToken.setFirstLogin(firstLogin);
-			userToken.getUser().setMeta(userManagementService.userMeta(user));
+			userToken.getUser().setMeta(this.getUserManagementService().userMeta(user));
 
 			final Profile profile = getPartyService().getUserDateOfBirth(user.getPartyUid(), user);
 
@@ -302,18 +294,18 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 					final Organization org = apiKeyObj.getOrganization();
 					final String partyUid = org.getPartyUid();
 					final String anonymousUid = organizationSettingRepository.getOrganizationSetting(Constants.ANONYMOUS, partyUid);
-					final User user = userService.findByGooruId(anonymousUid);
+					final User user = this.getUserService().findByGooruId(anonymousUid);
 					userToken = this.createSessionToken(user, apiKey, request);
 				}
 			} else {
 				final User loggedInUser = this.getUserRepository().findByToken(sessionToken);
 				errors = this.validateLoginAsUser(userToken, loggedInUser);
 				if (!errors.hasErrors()) {
-					if (userService.isContentAdmin(loggedInUser)) {
+					if (this.getUserService().isContentAdmin(loggedInUser)) {
 						final User user = this.getUserRepository().findByGooruId(gooruUid);
 						errors = this.validateLoginAsUser(userToken, user);
 						if (!errors.hasErrors()) {
-							if (!userService.isContentAdmin(user)) {
+							if (!this.getUserService().isContentAdmin(user)) {
 								final ApiKey userApiKey = apiTrackerService.findApiKeyByOrganization(user.getOrganization().getPartyUid());
 								userToken = this.createSessionToken(user, userApiKey.getKey(), request);
 							} else {

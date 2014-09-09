@@ -105,7 +105,10 @@ public class OAuthRepositoryHibernate extends BaseRepositoryHibernate implements
 		}
 		query.setFirstResult(offset);
 		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
+
 		return (List) query.list();
+		
+			
 	}
 	@Override
 	public Long getOauthClientCount(String organizationUId, String grantType) {

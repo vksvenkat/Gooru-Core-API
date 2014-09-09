@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
+import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.Organization;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserRole.UserRoleType;
@@ -36,13 +37,16 @@ import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.domain.model.oauth.AuthorizationGrantType;
 import org.ednovo.gooru.domain.model.oauth.OAuthClient;
+import org.ednovo.gooru.domain.service.search.SearchResults;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.auth.OAuthRepository;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.collaborator.CollaboratorRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.party.OrganizationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
+import org.ednovo.gooru.domain.service.search.SearchResults;
 
 @Service
 public class OAuthServiceImpl extends ServerValidationUtils implements OAuthService, ParameterProperties{
@@ -194,13 +198,18 @@ public class OAuthServiceImpl extends ServerValidationUtils implements OAuthServ
 		rejectIfNull(oAuthClient, GL0056, "oAuthClient");
 		return new ActionResponseDTO<OAuthClient>(oAuthClient, errors);
 	}
-	
 	@Override
-	public List<OAuthClient> listOAuthClientByOrganization(String organizationUId,
-			int pageNo, int pageSize) throws Exception {
-		
-		return oAuthRepository.listOAuthClientByOrganization(organizationUId, pageNo, pageSize);
+	public SearchResults<OAuthClient> listOAuthClientByOrganization(String organizationUId,
+			Integer offset, Integer limit, String grantType) throws Exception {
+
+		List<OAuthClient> oAuthClient = this.getOAuthRepository().listOAuthClientByOrganization(organizationUId,offset,limit, grantType);
+		SearchResults<OAuthClient> result = new SearchResults<OAuthClient>();
+		result.setSearchResults(oAuthClient);
+		result.setTotalHitCount(this.getOAuthRepository().getOauthClientCount(organizationUId, grantType));
+		return result;
+
 	}
+	
 	
     private static String getRandomString(int length) {
         String randomStr = UUID.randomUUID().toString();
@@ -211,7 +220,7 @@ public class OAuthServiceImpl extends ServerValidationUtils implements OAuthServ
      }
 
 	private Errors validateOAuthClient(OAuthClient oAuthClient) throws Exception {
-		final Errors errors = new BindException(oAuthClient, "oAuthClient");
+		final Errors errors = new BindException(oAuthClient, OAUTH_CLIENT);
 		rejectIfNull(errors, oAuthClient, "userUid", GL0056, generateErrorMessage(GL0056, "userUid"));
 		rejectIfNull(errors, oAuthClient, "clientName", GL0056, generateErrorMessage(GL0056, "clientName"));
 		return errors;
@@ -229,6 +238,75 @@ public class OAuthServiceImpl extends ServerValidationUtils implements OAuthServ
 		}
 
 		return isSuperAdmin;
+	}
+	@Override
+	public ActionResponseDTO<OAuthClient> createNewLTIClient(OAuthClient LTIClient) throws Exception {
+		Errors errors = validateOAuthClient(LTIClient);
+		if(!errors.hasErrors()){
+			LTIClient.setAccessTokenValiditySeconds(new Integer(86400));
+			LTIClient.setAuthorities(ROLE_CLIENT);
+			LTIClient.setGrantTypes(LTI);
+			LTIClient.setScopes(READ);
+			
+			if( LTIClient.getOrganization() != null && LTIClient.getOrganization().getOrganizationUid() !=null){
+				Organization organization = organizationRepository.getOrganizationByUid(LTIClient.getOrganization().getOrganizationUid());
+				LTIClient.setOrganization(organization);
+				if(LTIClient.getUserUid() != null) {
+					User user = userRepository.findByGooruId(LTIClient.getUserUid());
+					LTIClient.setUser(user);
+				}	
+				
+			}else{
+				if(LTIClient.getUserUid() != null) {
+					User user = userRepository.findByGooruId(LTIClient.getUserUid());
+					LTIClient.setUser(user);
+					LTIClient.setOrganization(user.getOrganization());
+				} 
+				
+				
+			}			
+			oAuthRepository.save(LTIClient);
+		}
+		return new ActionResponseDTO<OAuthClient>(LTIClient, errors);
+	}
+	
+	@Override
+	public ActionResponseDTO<OAuthClient> updateLTIClient(OAuthClient LTIClient, User apiCaller) {
+		rejectIfNull(LTIClient, GL0056, OAUTH_CLIENT);
+		OAuthClient exsitsLTIClient = (OAuthClient) oAuthRepository.get(OAuthClient.class, LTIClient.getOauthClientUId());
+		rejectIfNull(exsitsLTIClient, GL0056, OAUTH_CLIENT);
+		
+		if(LTIClient.getClientId()!= null){
+			exsitsLTIClient.setClientId(LTIClient.getClientId());
+		}
+		if(LTIClient.getClientSecret() != null){
+			exsitsLTIClient.setClientSecret(LTIClient.getClientSecret());
+		}
+		if(LTIClient.getClientName() != null){
+			exsitsLTIClient.setClientName(LTIClient.getClientName());
+		}
+		if(LTIClient.getDescription() != null){
+			exsitsLTIClient.setDescription(LTIClient.getDescription());
+		}
+		if(LTIClient.getRedirectUris() != null){
+			exsitsLTIClient.setRedirectUris(LTIClient.getRedirectUris());
+		}
+		if (isSuperAdmin(apiCaller)) {
+			if(LTIClient.getClientId() != null){
+				exsitsLTIClient.setClientId(LTIClient.getClientId());
+			}
+			if(LTIClient.getClientSecret() != null){
+				exsitsLTIClient.setClientSecret(LTIClient.getClientSecret());
+			}
+			
+		}
+		oAuthRepository.save(exsitsLTIClient);
+		final Errors errors = new BindException(OAuthClient.class, OAUTH_CLIENT);
+		return new ActionResponseDTO<OAuthClient>(exsitsLTIClient, errors);
+	}
+	
+	public OAuthRepository getOAuthRepository() {
+		return oAuthRepository;
 	}
 
 }

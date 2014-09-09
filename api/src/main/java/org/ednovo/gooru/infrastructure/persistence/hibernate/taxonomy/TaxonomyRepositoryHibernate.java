@@ -81,7 +81,7 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 
 	@javax.annotation.Resource(name = "jdbcTemplate")
 	private JdbcTemplate jdbcTemplate;
-	
+
 	@javax.annotation.Resource(name = "jdbcTemplateReadOnly")
 	private JdbcTemplate jdbcTemplateReadOnly;
 
@@ -96,7 +96,7 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 	private static final String FIND_ALL_TAXONOMY = "SELECT t.depth, t.label, c.code, c.code_id FROM taxonomy_level_type t , code c where t.code_id=c.code_id and t.organization_uid in (%s) and c.active_flag=1";
 	private static final String UPDATE_ORDER = "update code  set display_order = %s where code_id = %s and organization_uid in(%s)";
 	private static final String FIND_CODE_BY_CODEIDS = "select * from code c where c.code_id = ? and c.active_flag = ?";
- 
+
 	@Override
 	public void updateOrder(Code code) {
 		String updateQuery = DatabaseUtil.format(UPDATE_ORDER, code.getDisplayOrder(), code.getCodeId(), getUserOrganizationUidsAsString());
@@ -325,7 +325,7 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 	public List<Code> findChildTaxonomyCodeByDepth(Integer codeId, Integer depth) {
 		return getSessionReadOnly().createQuery("from Code c where c.parentId =" + codeId + " and c.depth =" + depth + " and c.activeFlag =1 and " +  generateOrgAuthQueryWithData("c.") + " order by c.sequence").list();
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Code> findChildTaxonomy(String parentIds, Integer depth) {
@@ -334,7 +334,7 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 		}
 		return getSessionReadOnly().createQuery("from Code c where c.parentId in ('" + parentIds + "') and c.depth =" + depth + " and c.activeFlag =1 and " +  generateOrgAuthQueryWithData("c.") + " order by c.sequence").list();
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Code> getCurriculumCodeByDepth(Integer depth) {
@@ -813,7 +813,7 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.ednovo.gooru.domain.model.taxonomy.TaxonomyRespository#
 	 * getCodeIdByContentId(java.lang.String)
 	 */
@@ -919,7 +919,7 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 		}
 		query.setFirstResult(offset == null ? OFFSET :offset);
 		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
-	
+
 		return query.list();
 	}
 
@@ -931,6 +931,15 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 		query.setParameter("organizationCode", organizationCode);
 		return query.list();
 	}
+
+
+	@Override
+	public List<Code> findCodeByMappedLevel(Long contentId) {
+		  Query query= getSessionReadOnly().createQuery("select Code from ContentClassification cc inner join Code c where cc.content.contentId=:contentId");
+	      query.setParameter("contentId", contentId);
+		  return query.list();
+	}
+
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -1015,7 +1024,7 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 		Query query = getSessionReadOnly().createSQLQuery(sql).addScalar("labels", StandardBasicTypes.STRING);
 		return query.list() != null ? (String) query.list().get(0) : null;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@Cacheable("gooruCache")
 	@Override
@@ -1056,12 +1065,13 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 	public JdbcTemplate getJdbcTemplateReadOnly() {
 		return jdbcTemplateReadOnly;
 	}
-	
+
 	public RedisService getRedisService() {
 		return redisService;
 	}
-	
+
 	public JdbcTemplate getJdbcTemplate() {
 		return jdbcTemplate;
 	}
+
 }

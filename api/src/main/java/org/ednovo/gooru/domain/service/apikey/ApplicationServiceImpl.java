@@ -49,11 +49,14 @@ import org.restlet.Response;
 import org.restlet.data.ChallengeResponse;
 import org.restlet.data.ChallengeScheme;
 import org.restlet.data.Form;
+import org.restlet.engine.header.Header;
 import org.restlet.resource.ClientResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
+import org.restlet.util.Series;
+
 
 
 @Service

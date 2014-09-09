@@ -28,6 +28,7 @@ import java.util.Map;
 
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Classpage;
+import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.domain.service.search.SearchResults;
@@ -77,5 +78,13 @@ public interface ClasspageService {
 	CollectionItem updateAssignment(String collectionItemId, String status, User user);
 	
 	List<Map<String, Object>> getClasspageItems(String gooruOid, Integer limit, Integer offset, String userUid, String orderBy, boolean optimize, String status);
+
+	Map<String,Object> getClasspageAssoc(Integer offset, Integer limit, String classpageId, String collectionId, String title, String collectionTitle, String classCode,String collectionCreator);
+	
+	Collection createPathway(String classId,Collection collection, String parentId, Boolean isRequired) throws Exception;
+	
+	List<CollectionItem> getPathwayItems(String classId,String pathId, Integer offset, Integer limit, String orderBy);
+	
+	ActionResponseDTO<CollectionItem> reorderPathwaySequence(String classId,String pathwayId ,int newSequence) throws Exception;
 	
 }
