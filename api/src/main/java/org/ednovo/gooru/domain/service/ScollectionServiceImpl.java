@@ -824,11 +824,11 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			}
 			if (newcollectionItem.getMinimumScore() != null) {
 				collectionItem.setMinimumScore(newcollectionItem.getMinimumScore());
-				itemData.put("MinimumScore", newcollectionItem.getMinimumScore());
+				itemData.put("minimumScore", newcollectionItem.getMinimumScore());
 			}
 			if (newcollectionItem.getEstimatedTime() != null) {
 				collectionItem.setEstimatedTime(newcollectionItem.getEstimatedTime());
-				itemData.put("EstimatedTime", newcollectionItem.getEstimatedTime());
+				itemData.put("estimatedTime", newcollectionItem.getEstimatedTime());
 			}
 			if (newcollectionItem.getPlannedEndDate() != null) {
 				collectionItem.setPlannedEndDate(newcollectionItem.getPlannedEndDate());

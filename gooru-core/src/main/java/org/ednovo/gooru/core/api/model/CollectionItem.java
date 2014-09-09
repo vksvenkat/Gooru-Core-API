@@ -34,8 +34,8 @@ public class CollectionItem implements Serializable, Comparable<CollectionItem> 
 	private String status;
 	private Integer totalPages;
 	private Boolean isRequired;
-	private Integer minimumScore ; 
-	private Date estimatedTime; 
+	private String minimumScore ; 
+	private String estimatedTime; 
 	private Boolean showAnswerByQuestions ; 
 	private Boolean showHints ;
 	private Boolean showAnswerEnd;
@@ -234,22 +234,6 @@ public class CollectionItem implements Serializable, Comparable<CollectionItem> 
 		return isRequired;
 	}
 
-	public void setMinimumScore(Integer minimumScore) {
-		this.minimumScore = minimumScore;
-	}
-
-	public Integer getMinimumScore() {
-		return minimumScore;
-	}
-
-	public void setEstimatedTime(Date estimatedTime) {
-		this.estimatedTime = estimatedTime;
-	}
-
-	public Date getEstimatedTime() {
-		return estimatedTime;
-	}
-
 	public void setShowAnswerByQuestions(Boolean showAnswerByQuestions) {
 		this.showAnswerByQuestions = showAnswerByQuestions;
 	}
@@ -272,6 +256,22 @@ public class CollectionItem implements Serializable, Comparable<CollectionItem> 
 
 	public Boolean getShowAnswerEnd() {
 		return showAnswerEnd;
+	}
+
+	public void setMinimumScore(String minimumScore) {
+		this.minimumScore = minimumScore;
+	}
+
+	public String getMinimumScore() {
+		return minimumScore;
+	}
+
+	public void setEstimatedTime(String estimatedTime) {
+		this.estimatedTime = estimatedTime;
+	}
+
+	public String getEstimatedTime() {
+		return estimatedTime;
 	}	
 
 }

@@ -230,10 +230,8 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 		ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().updateCollectionItem(newCollectionItem, collectionItemId, user);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-		} else {
-			if (newCollectionItem.getStatus() != null) {
-				getClasspageService().updateAssignment(collectionItemId, newCollectionItem.getStatus(), user);
-			}
+		} else if (newCollectionItem.getStatus() != null) {
+			getClasspageService().updateAssignment(collectionItemId, newCollectionItem.getStatus(), user);
 		}
 		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, COLLECTION_ITEM_INCLUDE_FILEDS);
 		includes = (String[]) ArrayUtils.addAll(includes, CLASSPAGE_COLLECTION_ITEM_INCLUDE_FIELDS);
