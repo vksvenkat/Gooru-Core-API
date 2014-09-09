@@ -814,7 +814,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		collectionItem.setIsRequired(isRequired);
 		this.getCollectionService().createCollectionItem(pathway.getGooruOid(), classpage.getGooruOid(), collectionItem, pathway.getUser(), ADDED, false);
 		if (collectionId != null && this.getCollectionRepository().getCollectionByGooruOid(collectionId,null) != null) {
-			this.getCollectionService().createCollectionItem(collectionId, pathway.getGooruOid(), new CollectionItem(), pathway.getUser(), ADDED, false);
+			this.getCollectionService().createCollectionItem(collectionId, pathway.getGooruOid(), pathway.getCollectionItem() == null ? new CollectionItem() : pathway.getCollectionItem(), pathway.getUser(), ADDED, false);
 		}
 		return pathway;
 	}
