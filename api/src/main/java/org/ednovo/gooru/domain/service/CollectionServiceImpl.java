@@ -587,12 +587,8 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	}
 
 	private Errors validateUpdateCollectionItem(CollectionItem collectionItem) throws Exception {
-		Map<String, String> itemType = new HashMap<String, String>();
-		itemType.put(ADDED, COLLECTION_ITEM_TYPE);
-		itemType.put(SUBSCRIBED, COLLECTION_ITEM_TYPE);
 		final Errors errors = new BindException(collectionItem, COLLECTION_ITEM);
 		rejectIfNull(errors, collectionItem, COLLECTION_ITEM, GL0056, generateErrorMessage(GL0056, COLLECTION_ITEM));
-		rejectIfInvalidType(errors, collectionItem.getItemType(), ITEM_TYPE, GL0007, generateErrorMessage(GL0007, ITEM_TYPE), itemType);
 		return errors;
 	}
 

@@ -791,6 +791,9 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	@Override
 	public ActionResponseDTO<CollectionItem> updateCollectionItem(final CollectionItem newcollectionItem, String collectionItemId, User user) throws Exception {
 		final CollectionItem collectionItem = this.getCollectionItemById(collectionItemId);
+		if(collectionItem == null) {
+			throw new BadRequestException("Item not found");
+		}
 		Errors errors = validateUpdateCollectionItem(newcollectionItem);
 		final JSONObject itemData = new JSONObject();
 		
@@ -821,11 +824,11 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			}
 			if (newcollectionItem.getMinimumScore() != null) {
 				collectionItem.setMinimumScore(newcollectionItem.getMinimumScore());
-				itemData.put("MinimumScore", newcollectionItem.getMinimumScore());
+				itemData.put("minimumScore", newcollectionItem.getMinimumScore());
 			}
 			if (newcollectionItem.getEstimatedTime() != null) {
 				collectionItem.setEstimatedTime(newcollectionItem.getEstimatedTime());
-				itemData.put("EstimatedTime", newcollectionItem.getEstimatedTime());
+				itemData.put("estimatedTime", newcollectionItem.getEstimatedTime());
 			}
 			if (newcollectionItem.getPlannedEndDate() != null) {
 				collectionItem.setPlannedEndDate(newcollectionItem.getPlannedEndDate());
@@ -1658,12 +1661,8 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 
 	private Errors validateUpdateCollectionItem(CollectionItem collectionItem) throws Exception {
-		final Map<String, String> itemType = new HashMap<String, String>();
-		itemType.put(ADDED, COLLECTION_ITEM_TYPE);
-		itemType.put(SUBSCRIBED, COLLECTION_ITEM_TYPE);
 		final Errors errors = new BindException(collectionItem, COLLECTION_ITEM);
 		rejectIfNull(errors, collectionItem, COLLECTION_ITEM, "GL0056", generateErrorMessage(GL0056, COLLECTION_ITEM));
-		rejectIfInvalidType(errors, collectionItem.getItemType(), ITEM_TYPE, GL0007, generateErrorMessage(GL0007, ITEM_TYPE), itemType);
 		return errors;
 	}
 

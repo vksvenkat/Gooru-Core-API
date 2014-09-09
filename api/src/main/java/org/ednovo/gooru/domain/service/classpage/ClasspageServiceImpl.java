@@ -853,7 +853,15 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		if (this.getCollectionRepository().getCollectionByIdWithType(classId, CLASSPAGE) == null) {
 			throw new BadRequestException("class not found");
 		}
-		return this.getCollectionRepository().getCollectionItems(pathwayId, 0, 10, orderBy, CLASSPAGE);
+		List<CollectionItem> collectionItems = this.getCollectionRepository().getCollectionItems(pathwayId, offset, limit, orderBy, CLASSPAGE);
+		for (CollectionItem collectionItem : collectionItems) {
+			UserCollectionItemAssoc userCollectionItemAssoc = this.getCollectionRepository().getUserCollectionItemAssoc(collectionItem.getCollectionItemId(), collectionItem.getAssociatedUser().getPartyUid());
+			if (userCollectionItemAssoc != null && userCollectionItemAssoc.getStatus() != null) {
+				collectionItem.setStatus(userCollectionItemAssoc.getStatus().getValue());
+			}
+		}
+
+		return collectionItems;
 	}
 	
 	
