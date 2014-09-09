@@ -758,6 +758,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			}
 			resource.put(GOALS, object[10]);
 			resource.put(TITLE, object[6]);
+			resource.put(TYPE_NAME, object[14]);
 			resource.put(GOORU_OID, object[5]);
 			result.put(COLLECTION_ITEM_ID, object[1]);				
 			result.put(ITEM_SEQUENCE, object[2]);
@@ -803,13 +804,15 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 	
 	@Override
-	public Collection createPathway(String classId, Collection pathway, String collectionId) throws Exception {
+	public Collection createPathway(String classId, Collection pathway, String collectionId, Boolean isRequired) throws Exception {
 		Classpage classpage = this.getCollectionRepository().getClasspageByGooruOid(classId, null);
 		if (classpage == null) {
 			throw new BadRequestException(generateErrorMessage(GL0056, COLLECTION));
 		}
 		this.getCollectionRepository().save(pathway);
-		this.getCollectionService().createCollectionItem(pathway.getGooruOid(), classpage.getGooruOid(), new CollectionItem(), pathway.getUser(), ADDED, false);
+		CollectionItem collectionItem = new CollectionItem();
+		collectionItem.setIsRequired(isRequired);
+		this.getCollectionService().createCollectionItem(pathway.getGooruOid(), classpage.getGooruOid(), collectionItem, pathway.getUser(), ADDED, false);
 		if (collectionId != null && this.getCollectionRepository().getCollectionByGooruOid(collectionId,null) != null) {
 			this.getCollectionService().createCollectionItem(collectionId, pathway.getGooruOid(), new CollectionItem(), pathway.getUser(), ADDED, false);
 		}
@@ -827,6 +830,17 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		return this.getCollectionRepository().getCollectionItems(pathwayId, 0, 10, orderBy, CLASSPAGE);
 	}
 	
+	
+	@Override
+	public ActionResponseDTO<CollectionItem> reorderPathwaySequence(String classId, String pathwayId, int newSequence) throws Exception {
+		Classpage classpage = this.getCollectionRepository().getClasspageByGooruOid(classId, null);
+		if (classpage == null) {
+			throw new BadRequestException(generateErrorMessage(GL0056, COLLECTION));
+		}
+		return this.getCollectionService().reorderCollectionItem(pathwayId, newSequence);
+	}
+
+
 	
 	public CollectionEventLog getScollectionEventlog() {
 		return scollectionEventlog;
@@ -891,7 +905,6 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	public ClasspageEventLog getClasspageEventlog() {
 		return classpageEventlog;
 	}
-
 
 
 }
