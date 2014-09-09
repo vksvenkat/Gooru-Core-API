@@ -32,7 +32,6 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHiber
 import org.hibernate.type.StandardBasicTypes;
 import org.springframework.stereotype.Repository;
 
-//import com.google.gdata.client.Query;
 import org.hibernate.Query;
 
 @Repository
