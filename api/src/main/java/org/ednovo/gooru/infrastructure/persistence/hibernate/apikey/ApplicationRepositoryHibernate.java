@@ -26,22 +26,28 @@ package org.ednovo.gooru.infrastructure.persistence.hibernate.apikey;
 import java.util.List;
 
 import org.ednovo.gooru.core.api.model.ApiKey;
+import org.ednovo.gooru.core.constant.ConstantProperties;
+import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate;
 import org.hibernate.Query;
+import org.hibernate.type.StandardBasicTypes;
 import org.springframework.stereotype.Repository;
 
+import com.wordnik.swagger.annotations.Api;
+
 @Repository
-public class ApplicationRepositoryHibernate extends BaseRepositoryHibernate implements ApplicationRepository {
+public class ApplicationRepositoryHibernate extends BaseRepositoryHibernate implements ApplicationRepository, ParameterProperties, ConstantProperties {
 
 	@Override
-	public List<ApiKey> getApplicationByOrganization(String organizationUid) {
+	public List<ApiKey> getApplicationByOrganization(String organizationUid, Integer offset, Integer limit) {
 		int activeFlag= 1;
 		String hql = "FROM ApiKey apiKey WHERE apiKey.organization.partyUid =:partyUid AND apiKey.activeFlag =:activeFlag";
 		Query query = getSession().createQuery(hql);
 		query.setParameter("partyUid", organizationUid);
 		query.setParameter("activeFlag", activeFlag);
-		List<ApiKey> list = query.list();
-		return (list == null || list.size() == 0) ? null : list;
+		query.setFirstResult(offset);
+        query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
+        return (List) query.list();
 	}
 	@Override
 	public ApiKey getApplicationByAppKey(String appKey) {
@@ -53,5 +59,12 @@ public class ApplicationRepositoryHibernate extends BaseRepositoryHibernate impl
 		List<ApiKey> list = query.list();
 		return (list == null || list.size() == 0) ? null : list.get(0);
 	}
+	
+	public Long getApplicationCount(String organizationUid) {
+		String sql = "select  count(1) as count from api_key  where organization_uid= '"+organizationUid+"'";		
+		Query query = getSession().createSQLQuery(sql).addScalar("count", StandardBasicTypes.LONG);
+        return (Long) query.list().get(0);
+	}
+	
 
 }

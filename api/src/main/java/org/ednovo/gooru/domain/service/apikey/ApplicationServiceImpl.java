@@ -42,6 +42,7 @@ import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.domain.service.BaseServiceImpl;
 import org.ednovo.gooru.domain.service.PartyService;
 import org.ednovo.gooru.domain.service.party.OrganizationService;
+import org.ednovo.gooru.domain.service.search.SearchResults;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.apikey.ApplicationRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
 import org.restlet.Response;
@@ -53,6 +54,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
+
 
 @Service
 public class ApplicationServiceImpl extends BaseServiceImpl implements ApplicationService,ParameterProperties,ConstantProperties {
@@ -69,11 +71,22 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 	@Autowired
 	private CustomTableRepository customTableRepository;
 
-	@Override
-	public List<ApiKey> findApplicationByOrganization(String organizationUid){
+/*	@Override
+	public List<ApiKey> findApplicationByOrganization(String organizationUid, Integer offset, Integer limit){
 		return apiKeyRepository.getApplicationByOrganization(organizationUid);
-	}
+	}*/
 
+	@Override
+	public SearchResults<ApiKey> findApplicationByOrganization(String organizationUid, Integer offset, Integer limit) {
+
+		List<ApiKey> application = this.getApplicationRepository().getApplicationByOrganization(organizationUid, offset, limit);
+		SearchResults<ApiKey> result = new SearchResults<ApiKey>();
+		result.setSearchResults(application);
+		result.setTotalHitCount(this.getApplicationRepository().getApplicationCount(organizationUid));
+		return result;
+
+	}
+	
 	@Override
 	public ActionResponseDTO<ApiKey> saveApplication(ApiKey apikey, User user ,String organizationUid, User apiCaller) throws Exception{
 		Errors error = validateApiKey(apikey);
@@ -170,11 +183,11 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 			    ClientResource httpClient = new ClientResource("http://collab.ednovo.org/jira/secure/QuickCreateIssue.jspa?decorator=none");
 			    Form headers = (Form)httpClient.getRequestAttributes().get("org.restlet.http.headers");
 			    
-			    if (headers == null) {
+			   if (headers == null) {
 			        headers = new Form();
 			        httpClient.getRequestAttributes().put("org.restlet.http.headers", headers);
 			    }
-			    headers.set("X-Atlassian-Token", "no-check");
+			    headers.add("X-Atlassian-Token", "no-check");
 			    ChallengeResponse challengeResponse = new ChallengeResponse(ChallengeScheme.HTTP_BASIC, username, password);
 			    httpClient.setChallengeResponse(challengeResponse);
 			    httpClient.post(form);
@@ -199,6 +212,10 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 	}
 	public CustomTableRepository getCustomTableRepository() {
 		return customTableRepository;
+	}
+	
+	public ApplicationRepository getApplicationRepository() {
+		return apiKeyRepository;
 	}
 
 }
