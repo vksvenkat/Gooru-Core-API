@@ -273,6 +273,29 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		addOrgAuthParameters(query);
 		return query.list();
 	}
+	
+	@Override
+	public List<CollectionItem> getCollectionItemByParentId(String collectionGooruOid, String gooruUid, String type) {
+		String sql = "FROM CollectionItem collectionItem WHERE  collectionItem.collection.gooruOid=:collectionGooruOid  and  " + generateOrgAuthQuery("collectionItem.collection.");
+		String collectionType = "";
+		if (gooruUid != null) {
+			sql += " and collectionItem.associatedUser.partyUid=:gooruUid";
+		}
+		if (type != null) {
+			collectionType = type.equalsIgnoreCase(COLLECTION) ? SCOLLECTION : type;
+			sql += " and collectionItem.collection.resourceType.name=:collectionType";
+		}
+		Query query = getSession().createQuery(sql);
+		query.setParameter("collectionGooruOid", collectionGooruOid);
+		if (gooruUid != null) {
+			query.setParameter(_GOORU_UID, gooruUid);
+		}
+		if (type != null) {
+			query.setParameter(COLLECTION_TYPE, collectionType);
+		}
+		addOrgAuthParameters(query);
+		return query.list();
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -1007,4 +1030,5 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		Query query = getSession().createSQLQuery(sql);
 		return (BigInteger) query.list().get(0);
 	}
+
 }
