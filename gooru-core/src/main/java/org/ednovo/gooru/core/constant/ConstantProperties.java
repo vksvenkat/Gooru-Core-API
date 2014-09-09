@@ -117,7 +117,7 @@ public interface ConstantProperties {
 
 	static final String CUSTOM_SETTING_INCLUDES[] = { "*.key", "*.value" };
 
-	static String ORGANIZATION_INCLUDES[] = { "subGroups" };
+	static String ORGANIZATION_INCLUDES[] = { "*.subGroups","*.totalHitCount", "*.searchResults"};
 
 	static final String RESOURCE_EXCLUDES[] = { "*.class", "*.resourceMetaData", "*.resourceMetaData.*", "*.userPermSet", "*.grpMbrshipSet" };
 
