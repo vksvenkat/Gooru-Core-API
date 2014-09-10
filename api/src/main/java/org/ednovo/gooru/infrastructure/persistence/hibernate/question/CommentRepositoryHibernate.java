@@ -53,11 +53,14 @@ public class CommentRepositoryHibernate extends BaseRepositoryHibernate implemen
 	}
 
 	@Override
-	public List<Comment> getComments(String gooruOid, String gooruUid, Integer limit, Integer offset,String fetchType) {
+	public List<Comment> getComments(String itemId, String gooruOid, String gooruUid, Integer limit, Integer offset,String fetchType) {
 		Session session = getSession();
 		String hql = " FROM  Comment comment WHERE " + generateOrgAuthQuery("comment.");
 		if (gooruOid != null) {	
 			hql += " and comment.gooruOid = '" + gooruOid + "'";	
+		}
+		if (itemId != null) {	
+			hql += " and comment.itemId = '" + itemId + "'";	
 		}
 		
 		if (gooruUid == null) { 
@@ -79,11 +82,14 @@ public class CommentRepositoryHibernate extends BaseRepositoryHibernate implemen
 	}
 	
 	@Override
-	public Long getCommentCount(String gooruOid,String commentorUid,String fetchType) {
+	public Long getCommentCount(String itemId, String gooruOid,String commentorUid,String fetchType) {
 		Session session = getSession();
 		String hql = "select count(*)  FROM Comment comment where "+ generateOrgAuthQuery("comment.");
 		if (gooruOid != null) {	
 			hql += " and comment.gooruOid = '" + gooruOid + "'";	
+		}
+		if (itemId != null) {	
+			hql += " and comment.itemId = '" + itemId + "'";	
 		}
 		
 		if (commentorUid == null) {
