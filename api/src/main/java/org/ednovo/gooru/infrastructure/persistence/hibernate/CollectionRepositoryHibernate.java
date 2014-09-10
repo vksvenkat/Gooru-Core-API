@@ -630,6 +630,25 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
 		return query.list();
 	}
+	
+	@Override
+	public Long getCollectionItemsCount(String collectionId, Integer offset, Integer limit, String orderBy, String type) {
+		String hql = "select count(*)  FROM Collection collection inner join collection.collectionItems collectionItems where collection.gooruOid=:gooruOid and " + generateOrgAuthQuery("collection.");
+		if (type != null && type.equalsIgnoreCase("classpage")) {
+			hql += " and collectionItems.resource.sharing in('public','anyonewithlink') ";
+		}
+		if (!orderBy.equals(PLANNED_END_DATE)) {
+			hql += "order by collectionItems.associationDate desc ";
+		} else {
+			hql += "order by IFNULL(collectionItems.plannedEndDate, (SUBSTRING(now(), 1, 4) + 1000)) asc ";
+		}
+		Query query = getSession().createQuery(hql);
+		query.setParameter(GOORU_OID, collectionId);
+		addOrgAuthParameters(query);
+		query.setFirstResult(offset);
+		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
+		return (Long) query.list().get(0);
+	}
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -818,7 +837,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		}
 		return query.list();
 	}
-
+	
 	@Override
 	public CollectionItem findCollectionItemByGooruOid(String gooruOid, String gooruUid, String type) {
 		
