@@ -660,7 +660,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 						getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + item.getAssociatedUser().getPartyUid() + "*");
 					}
 				}
-				if (collection != null && collection.getUser() != null && collection.getSharing().equalsIgnoreCase(PUBLIC)) {
+				if (collection != null && collection.getUser() != null && collection.getSharing().equalsIgnoreCase(PUBLIC) && !collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.PATHWAY.getType())) {
 					UserSummary userSummary = this.getUserRepository().getSummaryByUid(collection.getUser().getPartyUid());
 					if (userSummary != null && userSummary.getCollections() != null) {
 						userSummary.setCollections(userSummary.getCollections() <= 0 ? 0 : (userSummary.getCollections() - 1));
@@ -791,6 +791,9 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	@Override
 	public ActionResponseDTO<CollectionItem> updateCollectionItem(final CollectionItem newcollectionItem, String collectionItemId, User user) throws Exception {
 		final CollectionItem collectionItem = this.getCollectionItemById(collectionItemId);
+		if(collectionItem == null) {
+			throw new BadRequestException("Item not found");
+		}
 		Errors errors = validateUpdateCollectionItem(newcollectionItem);
 		final JSONObject itemData = new JSONObject();
 		
@@ -798,6 +801,34 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			if (newcollectionItem.getNarration() != null) {
 				collectionItem.setNarration(newcollectionItem.getNarration());
 				itemData.put(NARRATION, newcollectionItem.getNarration());
+			}
+			if (newcollectionItem.getIsRequired() != null) {
+				collectionItem.setIsRequired(newcollectionItem.getIsRequired());
+				itemData.put(IS_REQUIRED, newcollectionItem.getIsRequired());
+			}
+			if (newcollectionItem.getShowAnswerByQuestions() != null) {
+				collectionItem.setShowAnswerByQuestions(newcollectionItem.getShowAnswerByQuestions());
+				itemData.put("showAnswerByQuestions", newcollectionItem.getShowAnswerByQuestions());
+			}
+			if (newcollectionItem.getShowAnswerByQuestions() != null) {
+				collectionItem.setShowAnswerByQuestions(newcollectionItem.getShowAnswerByQuestions());
+				itemData.put("showAnswerByQuestions", newcollectionItem.getShowAnswerByQuestions());
+			}
+			if (newcollectionItem.getShowAnswerEnd() != null) {
+				collectionItem.setShowAnswerEnd(newcollectionItem.getShowAnswerEnd());
+				itemData.put("showAnswerEnd", newcollectionItem.getShowAnswerEnd());
+			}
+			if (newcollectionItem.getShowHints() != null) {
+				collectionItem.setShowHints(newcollectionItem.getShowHints());
+				itemData.put("showHints", newcollectionItem.getShowHints());
+			}
+			if (newcollectionItem.getMinimumScore() != null) {
+				collectionItem.setMinimumScore(newcollectionItem.getMinimumScore());
+				itemData.put("minimumScore", newcollectionItem.getMinimumScore());
+			}
+			if (newcollectionItem.getEstimatedTime() != null) {
+				collectionItem.setEstimatedTime(newcollectionItem.getEstimatedTime());
+				itemData.put("estimatedTime", newcollectionItem.getEstimatedTime());
 			}
 			if (newcollectionItem.getPlannedEndDate() != null) {
 				collectionItem.setPlannedEndDate(newcollectionItem.getPlannedEndDate());
@@ -1630,12 +1661,8 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 
 	private Errors validateUpdateCollectionItem(CollectionItem collectionItem) throws Exception {
-		final Map<String, String> itemType = new HashMap<String, String>();
-		itemType.put(ADDED, COLLECTION_ITEM_TYPE);
-		itemType.put(SUBSCRIBED, COLLECTION_ITEM_TYPE);
 		final Errors errors = new BindException(collectionItem, COLLECTION_ITEM);
 		rejectIfNull(errors, collectionItem, COLLECTION_ITEM, "GL0056", generateErrorMessage(GL0056, COLLECTION_ITEM));
-		rejectIfInvalidType(errors, collectionItem.getItemType(), ITEM_TYPE, GL0007, generateErrorMessage(GL0007, ITEM_TYPE), itemType);
 		return errors;
 	}
 
