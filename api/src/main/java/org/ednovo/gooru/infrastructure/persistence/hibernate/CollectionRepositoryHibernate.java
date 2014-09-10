@@ -618,11 +618,15 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		if (type != null && type.equalsIgnoreCase("classpage")) {
 			hql += " and collectionItems.resource.sharing in('public','anyonewithlink') ";
 		}
-		if (!orderBy.equals(PLANNED_END_DATE)) {
-			hql += "order by collectionItems.associationDate desc ";
-		} else {
+		
+		if (orderBy != null && ( !orderBy.equals(PLANNED_END_DATE) && !orderBy.equals(SEQUENCE))) {
+			hql += " order by collectionItems.associationDate desc ";
+		} else if(orderBy != null && orderBy.equals(PLANNED_END_DATE)) {
 			hql += "order by IFNULL(collectionItems.plannedEndDate, (SUBSTRING(now(), 1, 4) + 1000)) asc ";
+		} else {
+			hql += " order by collectionItems.itemSequence";
 		}
+		
 		Query query = getSession().createQuery(hql);
 		query.setParameter(GOORU_OID, collectionId);
 		addOrgAuthParameters(query);

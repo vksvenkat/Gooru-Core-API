@@ -426,7 +426,7 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/{id}/pathway/{pid}", method = RequestMethod.GET)
 	public ModelAndView getPathwayItems(@PathVariable(value= ID) String classId ,  @PathVariable(value= "pid") String pathId ,@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, 
-			@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,@RequestParam(value = ORDER_BY, defaultValue = DESC ,required = false) String orderBy ,HttpServletRequest request, HttpServletResponse response) throws Exception {
+			@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,@RequestParam(value = ORDER_BY, defaultValue = SEQUENCE ,required = false) String orderBy ,HttpServletRequest request, HttpServletResponse response) throws Exception {
 		SearchResults<CollectionItem> searchResults = this.getClasspageService().getPathwayItemsSearchResults(classId, pathId, offset, limit, orderBy);
 		String includesDefault[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, COLLECTION_ITEM_INCLUDE_FILEDS);
 		includesDefault = (String[]) ArrayUtils.addAll(includesDefault, COLLECTION_ITEM_TAGS);
@@ -471,7 +471,6 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 		classpage.setResourceType(getCollectionService().getResourceType(ResourceType.Type.CLASSPAGE.getType()));
 		classpage.setLastModified(new Date(System.currentTimeMillis()));
 		classpage.setCreatedOn(new Date(System.currentTimeMillis()));
-
 		classpage.setUser(user);
 		classpage.setCollectionType(ResourceType.Type.CLASSPAGE.getType());
 		classpage.setOrganization(user.getPrimaryOrganization());
@@ -485,7 +484,6 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 		} else {
 			classpage.setSharing(Sharing.PUBLIC.getSharing());
 		}
-
 		return classpage;
 	}
 	
