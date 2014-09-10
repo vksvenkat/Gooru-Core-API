@@ -23,7 +23,9 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.infrastructure.messenger;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
@@ -49,11 +51,17 @@ public class IndexProcessor extends BaseComponent {
 	@Autowired
 	private ContentService contentService;
 
-	@Autowired
-	private HibernateTransactionManager transactionManager;
-
 	private TransactionTemplate transactionTemplate;
+	
+/*	@Autowired
+	private KafkaProducer kafkaProducer;
+	
 
+	private static final JSONSerializer SERIALIZER = new JSONSerializer();
+*/
+	@Autowired
+ 	private HibernateTransactionManager transactionManager;
+	
 	private static final Logger LOGGER = LoggerFactory.getLogger(IndexProcessor.class);
 
 	public static final String SEARCH_REINDEX_MSG = "reindex";
@@ -95,8 +103,14 @@ public class IndexProcessor extends BaseComponent {
 	}
 
 	public void index(final String uuids, final String action, final String type, final String sessionToken, final GooruAuthenticationToken authentication, final boolean isUpdateUserContent, final boolean isUpdateStas) {
-
-
+		Map<String, Object> indexData = new HashMap<String, Object>();
+		indexData.put("indexableIds", uuids);
+		indexData.put("type", type);
+		indexData.put("action", action);
+		indexData.put("priority", "0");
+/*		String indexMsg = SERIALIZER.deepSerialize(indexData);
+		kafkaProducer.send(indexMsg, type);
+*/		
 		final String[] ids = uuids.split(",");
 		try {
 			final Thread indexThread = new Thread(new Runnable() {
@@ -166,6 +180,6 @@ public class IndexProcessor extends BaseComponent {
 		} catch (Exception e) {
 			LOGGER.info("Index Error : " + e.getMessage());
 		}
-	}
+}
 
 }
