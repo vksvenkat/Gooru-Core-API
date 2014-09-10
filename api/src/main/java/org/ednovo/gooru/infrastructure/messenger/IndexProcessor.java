@@ -24,22 +24,26 @@
 package org.ednovo.gooru.infrastructure.messenger;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
 import org.ednovo.gooru.core.api.model.GooruAuthenticationToken;
 import org.ednovo.gooru.core.api.model.UserGroupSupport;
-import org.ednovo.gooru.kafka.producer.KafkaProducer;
+import org.ednovo.gooru.domain.service.content.ContentService;
+import org.restlet.data.Form;
+import org.restlet.representation.Representation;
+import org.restlet.resource.ClientResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate4.HibernateTransactionManager;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
-
-import flexjson.JSONSerializer;
 
 @Component
 public class IndexProcessor extends BaseComponent {
@@ -49,12 +53,15 @@ public class IndexProcessor extends BaseComponent {
 
 	private TransactionTemplate transactionTemplate;
 	
-	@Autowired
+/*	@Autowired
 	private KafkaProducer kafkaProducer;
 	
 
 	private static final JSONSerializer SERIALIZER = new JSONSerializer();
-
+*/
+	
+	@Autowired
+	private ContentService contentService;
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(IndexProcessor.class);
 
@@ -102,9 +109,9 @@ public class IndexProcessor extends BaseComponent {
 		indexData.put("type", type);
 		indexData.put("action", action);
 		indexData.put("priority", "0");
-		String indexMsg = SERIALIZER.deepSerialize(indexData);
+/*		String indexMsg = SERIALIZER.deepSerialize(indexData);
 		kafkaProducer.send(indexMsg, type);
-/*		
+*/		
 		final String[] ids = uuids.split(",");
 		try {
 			final Thread indexThread = new Thread(new Runnable() {
@@ -174,6 +181,6 @@ public class IndexProcessor extends BaseComponent {
 		} catch (Exception e) {
 			LOGGER.info("Index Error : " + e.getMessage());
 		}
-*/	}
+}
 
 }
