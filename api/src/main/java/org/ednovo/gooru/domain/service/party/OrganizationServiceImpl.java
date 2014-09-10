@@ -50,12 +50,14 @@ import org.ednovo.gooru.domain.service.BaseServiceImpl;
 import org.ednovo.gooru.domain.service.PartyService;
 import org.ednovo.gooru.domain.service.apikey.ApplicationService;
 import org.ednovo.gooru.domain.service.authentication.AccountService;
+import org.ednovo.gooru.domain.service.search.SearchResults;
 import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.ednovo.gooru.domain.service.user.UserService;
 import org.ednovo.gooru.domain.service.user.impl.UserServiceImpl;
 import org.ednovo.gooru.domain.service.userManagement.UserManagementService;
 import org.ednovo.gooru.domain.service.userManagement.UserManagementServiceImpl;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.OrganizationSettingRepository;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.apikey.ApplicationRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.party.OrganizationRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.storage.StorageRepository;
 import org.mortbay.jetty.security.Password;
@@ -104,10 +106,7 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 		return (Organization) organizationRepository.get(Organization.class, organizationUid);
 	}
 
-	@Override
-	public List<Organization> listAllOrganizations() {
-		return organizationRepository.getAll(Organization.class);
-	}
+
 
 	@Override
 	public Organization getOrganizationByName(String partyName) {
@@ -117,6 +116,15 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 	@Override
 	public Organization getOrganizationByCode(String organizationCode) {
 		return organizationRepository.getOrganizationByCode(organizationCode);
+	}
+	
+	@Override
+	public SearchResults<Organization> listAllOrganizations(Integer offset, Integer limit) {
+		List<Organization> organization = this.getOrganizationRepository().listOrganization(offset, limit);
+		SearchResults<Organization> result = new SearchResults<Organization>();
+		result.setSearchResults(organization);
+		result.setTotalHitCount(this.getOrganizationRepository().getOrganizationCount());
+		return result;
 	}
 
 	@Override
@@ -304,5 +312,9 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 			return (Organization) organizationRepository.getOrganizationByIdpName(idpDomainName);
 		}
 		return null;
+	}
+	
+	public OrganizationRepository getOrganizationRepository() {
+		return organizationRepository;
 	}
 }

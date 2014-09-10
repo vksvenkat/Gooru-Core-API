@@ -212,9 +212,9 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ITEM_ADD })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/{id}/assign/{cid}", method = RequestMethod.POST)
-	public ModelAndView assignCollection(@PathVariable(value = ID) String classPageId, @RequestParam(value="direction", required=false ) String direction,@RequestParam(value="planedEndDate", required=false ) String planedEndDate,@PathVariable(value = CID) String collectionId, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public ModelAndView assignCollection(@PathVariable(value = ID) String classPageId,@RequestParam(value="isRequired", required=false ) Boolean isRequired ,@RequestParam(value="direction", required=false ) String direction,@RequestParam(value="planedEndDate", required=false ) String planedEndDate,@PathVariable(value = CID) String collectionId, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
-		List<CollectionItem> collectionItems = getCollectionService().assignCollection(classPageId, collectionId, user, direction,planedEndDate);
+		List<CollectionItem> collectionItems = getCollectionService().assignCollection(classPageId, collectionId, user, direction,planedEndDate, isRequired);
 		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, CLASSPAGE_COLLECTION_ITEM_INCLUDE_FIELDS);
 		includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_CREATE_ITEM_INCLUDE_FILEDS);
 		return toModelAndViewWithIoFilter(collectionItems, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
@@ -230,10 +230,8 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 		ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().updateCollectionItem(newCollectionItem, collectionItemId, user);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-		} else {
-			if (newCollectionItem.getStatus() != null) {
-				getClasspageService().updateAssignment(collectionItemId, newCollectionItem.getStatus(), user);
-			}
+		} else if (newCollectionItem.getStatus() != null) {
+			getClasspageService().updateAssignment(collectionItemId, newCollectionItem.getStatus(), user);
 		}
 		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, COLLECTION_ITEM_INCLUDE_FILEDS);
 		includes = (String[]) ArrayUtils.addAll(includes, CLASSPAGE_COLLECTION_ITEM_INCLUDE_FIELDS);
@@ -397,12 +395,33 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	public ModelAndView createPathway(@RequestBody String data, @PathVariable(value= ID) String classId ,HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
 		JSONObject json = requestData(data);
-		Collection collection = this.getClasspageService().createPathway(classId,this.buildPathwayFromInputParameters(data, user),getValue(COLLECTION_ID, json));
+		Collection collection = this.getClasspageService().createPathway(classId,this.buildPathwayFromInputParameters(data, user),getValue(COLLECTION_ID, json), getValue(IS_REQUIRED, json) != null ? Boolean.parseBoolean(getValue(IS_REQUIRED, json)) : false);
 		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, COLLECTION_INCLUDE_FIELDS);
 		includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_ITEM_INCLUDE_FILEDS);
 		includes = (String[]) ArrayUtils.addAll(includes, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(collection , RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
+	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_UPDATE })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(value = "/{id}/pathway/{pid}", method = RequestMethod.PUT)
+	public ModelAndView updatePathway(@RequestBody String data, @PathVariable(value= ID) String classId , @PathVariable(value= "pid") String pathwayGooruOid ,HttpServletRequest request, HttpServletResponse response) throws Exception {
+		User user = (User) request.getAttribute(Constants.USER);
+		Collection pathwayCollection = this.getClasspageService().updatePathway(pathwayGooruOid, this.buildUpadtePathwayCollectionFromInputParameters(data));
+		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, COLLECTION_INCLUDE_FIELDS);
+		includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_ITEM_INCLUDE_FILEDS);
+		includes = (String[]) ArrayUtils.addAll(includes, ERROR_INCLUDE);
+		return toModelAndViewWithIoFilter(pathwayCollection , RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
+	}
+	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_DELETE })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(value = { "/{id}/pathway/{pid}" }, method = RequestMethod.DELETE)
+	public void deletePathway(@PathVariable(value= ID) String classId , @PathVariable(value= "pid") String pathwayGooruOid, HttpServletRequest request, HttpServletResponse response) {
+		User user = (User) request.getAttribute(Constants.USER);
+		this.getClasspageService().deletePathway(pathwayGooruOid, user);
+	}
+	
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ITEM_READ })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -420,12 +439,27 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ITEM_ADD })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/{id}/pathway/{pid}/assign/{cid}", method = RequestMethod.POST)
-	public ModelAndView assignCollectionToPathway(@PathVariable(value = ID) String classPageId, @PathVariable(value= "pid") String pathwayId, @RequestParam(value="direction", required=false ) String direction,@RequestParam(value="planedEndDate", required=false ) String planedEndDate,@PathVariable(value = CID) String collectionId, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public ModelAndView assignCollectionToPathway(@PathVariable(value = ID) String classPageId, @PathVariable(value= "pid") String pathwayId, @RequestParam(value="direction", required=false ) String direction,@RequestParam(value="planedEndDate", required=false ) String planedEndDate,@PathVariable(value = CID) String collectionId,@RequestParam(value="isRequired", required=false ) Boolean isRequired ,HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
-		List<CollectionItem> collectionItems = getCollectionService().assignCollectionToPathway(classPageId, pathwayId ,collectionId, user, direction,planedEndDate);
+		List<CollectionItem> collectionItems = getCollectionService().assignCollectionToPathway(classPageId, pathwayId ,collectionId, user, direction,planedEndDate,isRequired);
 		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, CLASSPAGE_COLLECTION_ITEM_INCLUDE_FIELDS);
 		includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_CREATE_ITEM_INCLUDE_FILEDS);
 		return toModelAndViewWithIoFilter(collectionItems, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
+	}
+	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ITEM_UPDATE })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(value = { "{id}/pathway/{pid}/reorder/{sequence}" }, method = RequestMethod.PUT)
+	public ModelAndView reorderPathwaySequence(@PathVariable(value = ID) String classId, @PathVariable(value= "pid") String pathwayId, @PathVariable(value = SEQUENCE) int newSequence, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		ActionResponseDTO<CollectionItem> responseDTO = this.getClasspageService().reorderPathwaySequence(classId,pathwayId ,newSequence);
+		if (responseDTO.getErrors().getErrorCount() > 0) {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+		}
+		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, COLLECTION_INCLUDE_FIELDS);
+		includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_ITEM_INCLUDE_FILEDS);
+		includes = (String[]) ArrayUtils.addAll(includes, ERROR_INCLUDE);
+
+		return toModelAndViewWithIoFilter(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
 	
 
@@ -477,6 +511,10 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 		}
 
 		return collection;
+	}
+	
+	private Collection buildUpadtePathwayCollectionFromInputParameters(String data) {
+		return JsonDeserializer.deserialize(data, Collection.class);
 	}
 
 	private Classpage buildClasspageForUpdateParameters(String data) {

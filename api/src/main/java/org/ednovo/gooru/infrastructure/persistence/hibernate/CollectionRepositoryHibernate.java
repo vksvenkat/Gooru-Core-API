@@ -273,6 +273,29 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		addOrgAuthParameters(query);
 		return query.list();
 	}
+	
+	@Override
+	public List<CollectionItem> getCollectionItemByParentId(String collectionGooruOid, String gooruUid, String type) {
+		String sql = "FROM CollectionItem collectionItem WHERE  collectionItem.collection.gooruOid=:collectionGooruOid  and  " + generateOrgAuthQuery("collectionItem.collection.");
+		String collectionType = "";
+		if (gooruUid != null) {
+			sql += " and collectionItem.associatedUser.partyUid=:gooruUid";
+		}
+		if (type != null) {
+			collectionType = type.equalsIgnoreCase(COLLECTION) ? SCOLLECTION : type;
+			sql += " and collectionItem.collection.resourceType.name=:collectionType";
+		}
+		Query query = getSession().createQuery(sql);
+		query.setParameter("collectionGooruOid", collectionGooruOid);
+		if (gooruUid != null) {
+			query.setParameter(_GOORU_UID, gooruUid);
+		}
+		if (type != null) {
+			query.setParameter(COLLECTION_TYPE, collectionType);
+		}
+		addOrgAuthParameters(query);
+		return query.list();
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -906,7 +929,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Object[]> getClasspageItems(String gooruOid, Integer limit, Integer offset, String userUid, String orderBy, String status) {
-		String sql = "select association_date,ci.collection_item_id,item_sequence,narration,planned_end_date,c.gooru_oid,r.title, r.folder, r.thumbnail, c.sharing, co.goals, IFNULL(ct.value, 'open') as status, uu.username, uu.gooru_uid from collection_item ci inner join resource r on r.content_id = ci.resource_content_id  inner join content c on c.content_id = r.content_id inner join content rc on rc.content_id = ci.collection_content_id left join collection co on co.content_id = r.content_id left join user_collection_item_assoc uc on uc.collection_item_uid = ci.collection_item_id and uc.user_uid = '"
+		String sql = "select association_date,ci.collection_item_id,item_sequence,narration,planned_end_date,c.gooru_oid,r.title, r.folder, r.thumbnail, c.sharing, co.goals, IFNULL(ct.value, 'open') as status, uu.username, uu.gooru_uid, r.type_name from collection_item ci inner join resource r on r.content_id = ci.resource_content_id  inner join content c on c.content_id = r.content_id inner join content rc on rc.content_id = ci.collection_content_id left join collection co on co.content_id = r.content_id left join user_collection_item_assoc uc on uc.collection_item_uid = ci.collection_item_id and uc.user_uid = '"
 				+ userUid + "' left join custom_table_value ct on ct.custom_table_value_id = uc.status inner join user uu on uu.gooru_uid = c.user_uid  where  c.sharing in ('public', 'anyonewithlink') ";
 		sql += " and rc.gooru_oid='" + gooruOid + "'  ";
 		if (status != null) {
@@ -1007,4 +1030,5 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		Query query = getSession().createSQLQuery(sql);
 		return (BigInteger) query.list().get(0);
 	}
+
 }

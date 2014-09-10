@@ -42,6 +42,7 @@ import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.domain.service.BaseServiceImpl;
 import org.ednovo.gooru.domain.service.PartyService;
 import org.ednovo.gooru.domain.service.party.OrganizationService;
+import org.ednovo.gooru.domain.service.search.SearchResults;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.apikey.ApplicationRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
 import org.restlet.Response;
@@ -55,6 +56,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
 import org.restlet.util.Series;
+
 
 
 @Service
@@ -72,11 +74,22 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 	@Autowired
 	private CustomTableRepository customTableRepository;
 
-	@Override
-	public List<ApiKey> findApplicationByOrganization(String organizationUid){
+/*	@Override
+	public List<ApiKey> findApplicationByOrganization(String organizationUid, Integer offset, Integer limit){
 		return apiKeyRepository.getApplicationByOrganization(organizationUid);
-	}
+	}*/
 
+	@Override
+	public SearchResults<ApiKey> findApplicationByOrganization(String organizationUid, Integer offset, Integer limit) {
+
+		List<ApiKey> application = this.getApplicationRepository().getApplicationByOrganization(organizationUid, offset, limit);
+		SearchResults<ApiKey> result = new SearchResults<ApiKey>();
+		result.setSearchResults(application);
+		result.setTotalHitCount(this.getApplicationRepository().getApplicationCount(organizationUid));
+		return result;
+
+	}
+	
 	@Override
 	public ActionResponseDTO<ApiKey> saveApplication(ApiKey apikey, User user ,String organizationUid, User apiCaller) throws Exception{
 		Errors error = validateApiKey(apikey);
@@ -202,6 +215,10 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 	}
 	public CustomTableRepository getCustomTableRepository() {
 		return customTableRepository;
+	}
+	
+	public ApplicationRepository getApplicationRepository() {
+		return apiKeyRepository;
 	}
 
 }

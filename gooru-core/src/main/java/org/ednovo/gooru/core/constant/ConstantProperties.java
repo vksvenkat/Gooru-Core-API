@@ -27,14 +27,14 @@ public interface ConstantProperties {
 			"*.trackActivity.startTime", "*.trackActivity.endTime", "*.goals", "*.grade", "*.mediaType", "*.text", "*.isOer", "*.meta.*", "*.resourceFormat.value", "*.resourceFormat.displayName", "*.instructional.value", "*.instructional.displayName", "*.depthOfKnowledges.value",
 			"*.depthOfKnowledges.selected", "*.momentsOfLearning.selected", "*.momentsOfLearning.value", "*.educationalUse.value", "*.educationalUse.selected", "*.ratings", "*.average", "*.count","*.reviewCount", "*.standards", "*.license", "*.standards.code", "*.standards.description", "*.course",
 
-			"*.customFieldValues.*", "*.publisher", "*.aggregator", "*.totalPages" ,"*.host", "*.resourceTags.*"};
+			"*.customFieldValues.*", "*.publisher", "*.aggregator", "*.totalPages" ,"*.host", "*.resourceTags.*","*.typeName"};
 
 	static final String ASSIGNMENT_INCLUDE_FIELDS[] = { "*.narrationLink", "collection.notes", "*.keyPoints", "*.language", "*.goals", "*.grade", "*.estimatedTime", "*.collectionType", "*.creator", "*.assetURI", "*.license", "*.license.code", "*.license.icon", "*.license.name",
 			"*.license.definition", "*.dimensions", "*.defaultImage", "*.createdOn", "*.user", "*.usernameDisplay", "*.profileImageUrl", "*.lastName", "*.firstName", "*.username", "*.description", "*.folder", "*.gooruOid", "*.sharing", "*.title", "*.views", "*.thumbnails", "*.url",
 			"*.lastModified", "*.gooruUId", "*.vocabulary", "*.collaborators", "*.network", "trackActivity.startTime", "trackActivity.endTime" };
 
 	static final String COLLECTION_ITEM_INCLUDE_FILEDS[] = { "*.collectionItems", "*.collectionItemId", "*.itemSequence", "*.itemType", "*.narration", "*.narrationType", "*.lastModified", "*.start", "*.stop", "*.standards", "*.license", "*.standards.code", "*.standards.description",
-			"*.associationDate", "*associatedUser", "*.status", "*.totalPages","*.isRequired" };
+			"*.associationDate", "*associatedUser", "*.status", "*.totalPages","*.isRequired","*.minimumScore","*.estimatedTime","*.showAnswerByQuestions","*.showHints","*.showAnswerEnd" };
 
 	static final String CLASSPAGE_COLLECTION_ITEM_INCLUDE_FIELDS[] = { "*.plannedEndDate", "*.totalHitCount", "*.searchResults" };
 
@@ -86,7 +86,7 @@ public interface ConstantProperties {
 	static final String COLLECTION_WORKSPACE[] = { "*.resourceCount" };
 
 	static final String COLLECTION_CREATE_ITEM_INCLUDE_FILEDS[] = { "*.collectionItemId", "*.itemSequence", "*.itemType", "*.narration", "*.narrationType", "*.lastModified", "*.start", "*.stop", "*.standards", "*.license", "*.standards.code", "*.standards.description", "*.resourceInfo",
-			"*.lastModifiedUser" };
+			"*.lastModifiedUser","*.minimumScore","*.estimatedTime","*.ShowAnswerByQuestions","*.ShowHints","*.showAnswerEnd","*.isRequired" };
 
 	static final String CUSTOM_VALUE_EXCLUDE[] = { "*.resourceFormat", "*.resourceFormat.customTable", "*.resourceFormat.customTableValueId", "*.resourceFormat.displayName", "*.instructional.customTable", "*.instructional.customTableValueId", "*.instructional.displayName" };
 
@@ -117,7 +117,7 @@ public interface ConstantProperties {
 
 	static final String CUSTOM_SETTING_INCLUDES[] = { "*.key", "*.value" };
 
-	static String ORGANIZATION_INCLUDES[] = { "subGroups" };
+	static String ORGANIZATION_INCLUDES[] = { "*.subGroups","*.totalHitCount", "*.searchResults"};
 
 	static final String RESOURCE_EXCLUDES[] = { "*.class", "*.resourceMetaData", "*.resourceMetaData.*", "*.userPermSet", "*.grpMbrshipSet" };
 
@@ -366,7 +366,7 @@ public interface ConstantProperties {
 	static final String TAXONOMY_CODE_INCLUDES[] = { "elementrySchool", "middleSchool", "highSchool", "other", "taxonomyCodes", "*.code", "*.codeId", "*.code", "*.label", "*.parentId", "*.thumbnails", "*.thumbnails.url", "*.thumbnails.dimensions", "*.thumbnails.isDefaultImage",
 			"*.creator.username", "*.creator.gooruUId", "*.creator.firstName", "*.creator.lastName" };
 
-	static final String APPLICATION_INCLUDES[] = { "key", "appName", "appURL", "secretKey", "activeFlag", "searchLimit", "description", "comment", "status" };
+	static final String APPLICATION_INCLUDES[] = { "*.key", "*.appName", "*.appURL", "*.secretKey", "*.activeFlag", "*.searchLimit", "*.description", "*.comment", "*.status", "*.totalHitCount", "*.searchResults"};
 
 	static final String ORGANIZATION_INCLUDES_ADD[] = { "partyUid", "partyName", "partyType", "organizationCode" };
 
