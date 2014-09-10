@@ -1029,7 +1029,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 					permissions.put(REACTION_AGGREGATE, this.getFeedbackService().getContentFeedbackAggregate(collectionId, REACTION));
 				}
 				if (merge.contains(COMMENT_COUNT)) {
-					permissions.put(COMMENT_COUNT, this.getCommentRepository().getCommentCount(collection.getGooruOid(), null, "notdeleted"));
+					permissions.put(COMMENT_COUNT, this.getCommentRepository().getCommentCount(null,collection.getGooruOid(), null, "notdeleted"));
 				}
 				long collaboratorCount = this.getCollaboratorRepository().getCollaboratorsCountById(collectionId);
 				permissions.put(COLLABORATOR_COUNT, collaboratorCount);

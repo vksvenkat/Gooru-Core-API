@@ -29,11 +29,11 @@ import org.ednovo.gooru.core.api.model.Comment;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepository;
 
 public interface CommentRepository extends BaseRepository {
-	List<Comment> getComments(String gooruOid, String gooruUid, Integer limit, Integer offset,String fetchType);
+	List<Comment> getComments(String itemId, String gooruOid, String gooruUid, Integer limit, Integer offset,String fetchType);
 
 	Comment getComment(String commentId);
 	
-	Long getCommentCount(String gooruOid,String commentorUid,String fetchType);
+	Long getCommentCount(String itemId, String gooruOid,String commentorUid,String fetchType);
 
 	Comment findCommentByUser(String commentId, String commentorUid);
 

@@ -593,17 +593,17 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	}
 
 	@Override
-	public List<CollectionItem> assignCollection(String classpageId, String collectionId, User user,String direction, String planedEndDate, Boolean isRequired) throws Exception {
+	public List<CollectionItem> assignCollection(String classpageId, String collectionId, User user,String direction, String planedEndDate, Boolean isRequired, String minimumScore,String estimatedTime,Boolean showAnswerByQuestions,Boolean showAnswerEnd,Boolean showHints) throws Exception {
 		Classpage classpage = this.getCollectionRepository().getClasspageByCode(classpageId);
 		rejectIfNull(classpage, GL0056, 404, generateErrorMessage(GL0056, CLASSPAGE));
 		Collection collection = this.getCollectionRepository().getCollectionByGooruOid(collectionId, null);
 		rejectIfNull(collection, GL0056, 404, generateErrorMessage(GL0056, COLLECTION));
 
-		return classAssign(classpage, collection, user, direction, planedEndDate, isRequired);
+		return classAssign(classpage, collection, user, direction, planedEndDate, isRequired, minimumScore,estimatedTime,showAnswerByQuestions,showAnswerEnd,showHints);
 	}
 	
 	@Override
-	public List<CollectionItem> assignCollectionToPathway(String classpageId,String pathwayId ,String collectionId, User user,String direction, String planedEndDate, Boolean isRequired) throws Exception {
+	public List<CollectionItem> assignCollectionToPathway(String classpageId,String pathwayId ,String collectionId, User user,String direction, String planedEndDate, Boolean isRequired, String minimumScore,String estimatedTime,Boolean showAnswerByQuestions,Boolean showAnswerEnd,Boolean showHints) throws Exception {
 		Classpage classpage = this.getCollectionRepository().getClasspageByCode(classpageId);
 		rejectIfNull(classpage, GL0056, 404, generateErrorMessage(GL0056, CLASSPAGE));
 		Collection collection = this.getCollectionRepository().getCollectionByGooruOid(collectionId, null);
@@ -611,10 +611,10 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		Collection pathway = this.getCollectionRepository().getCollectionByIdWithType(pathwayId, PATHWAY);
 		rejectIfNull(pathway, GL0056, 404, generateErrorMessage(GL0056, PATHWAY));
 
-		return classAssign(pathway, collection, user, direction, planedEndDate, isRequired);
+		return classAssign(pathway, collection, user, direction, planedEndDate, isRequired, minimumScore,estimatedTime,showAnswerByQuestions,showAnswerEnd,showHints);
 	}
 	
-	public List<CollectionItem> classAssign(Collection classpage, Collection collection, User user,String direction, String planedEndDate, Boolean isRequired) {
+	public List<CollectionItem> classAssign(Collection classpage, Collection collection, User user,String direction, String planedEndDate, Boolean isRequired, String minimumScore,String estimatedTime,Boolean showAnswerByQuestions,Boolean showAnswerEnd,Boolean showHints) {
 		
 		List<CollectionItem> collectionItems = new ArrayList<CollectionItem>();
 		int sequence = classpage.getCollectionItems() != null ? classpage.getCollectionItems().size() + 1 : 1;
