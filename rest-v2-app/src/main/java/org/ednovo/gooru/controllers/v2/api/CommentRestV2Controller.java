@@ -99,10 +99,10 @@ public class CommentRestV2Controller extends BaseController implements Parameter
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_COMMENT_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "", method = RequestMethod.GET)
-	public ModelAndView getComments(HttpServletRequest request, @RequestParam(value = GOORU_OID, required = false) String gooruOid,@RequestParam(value = _GOORU_UID, required = false) String gooruUid, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset,
+	public ModelAndView getComments(HttpServletRequest request, @RequestParam(value = GOORU_OID, required = false) String gooruOid,@RequestParam(value = "itemId", required = false) String itemId,@RequestParam(value = _GOORU_UID, required = false) String gooruUid, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset,
 			@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "20") Integer limit,@RequestParam(value=FETCH_TYPE,required=true,defaultValue="notdeleted")String fetchType, HttpServletResponse response) throws Exception {
 		String includes[] = (String[]) ArrayUtils.addAll(COMMENT_INCLUDES, ERROR_INCLUDE);
-		return toModelAndViewWithIoFilter(this.getCommentService().getCommentsCount(gooruOid, gooruUid, limit, offset, fetchType), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
+		return toModelAndViewWithIoFilter(this.getCommentService().getCommentsCount(itemId,gooruOid, gooruUid, limit, offset, fetchType), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_COMMENT_DELETE })

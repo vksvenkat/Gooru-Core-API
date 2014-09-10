@@ -18,6 +18,7 @@ public class Comment extends OrganizationModel implements Serializable {
 	private Date createdOn;
 	private CustomTableValue status;
 	private String gooruOid;
+	private String itemId;
 	private Boolean isDeleted;
 	private Date lastModifiedOn;
 	public String getComment() {
@@ -67,6 +68,12 @@ public class Comment extends OrganizationModel implements Serializable {
 	}
 	public Date getLastModifiedOn() {
 		return lastModifiedOn;
+	}
+	public void setItemId(String itemId) {
+		this.itemId = itemId;
+	}
+	public String getItemId() {
+		return itemId;
 	}
 
 	

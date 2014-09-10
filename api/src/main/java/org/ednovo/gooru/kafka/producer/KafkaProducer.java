@@ -23,6 +23,13 @@ public class KafkaProducer {
 	private Producer<String, String> producer;
 	protected Properties props = new Properties();
 	
+	
+	private static final String TOPIC_RESOURCE = "resource_queue";
+	
+	private static final String TOPIC_SCOLLECTION = "scollection_queue";
+	
+	private static final String TOPIC_USER = "user_queue";
+	
 	private static final Logger LOGGER = LoggerFactory.getLogger(IndexProcessor.class);
 	
 	@PostConstruct
@@ -49,5 +56,25 @@ public class KafkaProducer {
 			LOGGER.info("Errror while sending date from kafka producer :"+e);
 		}
 	}
+	
+	public void send(String message, String indexType) {
+		String topicName = null;
+		if(indexType.equalsIgnoreCase("resource")){
+			topicName = TOPIC_RESOURCE;
+		}
+		else if(indexType.equalsIgnoreCase("scollection")){
+			topicName = TOPIC_SCOLLECTION;
+		}
+		else if(indexType.equalsIgnoreCase("user")){
+			topicName = TOPIC_USER;
+		}
+		ProducerData<String, String> data = new ProducerData<String, String>(topicName, message);
+		try{
+			producer.send(data);
+		} catch (Exception e){
+			LOGGER.info("Errror while sending date from kafka producer :"+e);
+		}
+	}
+
 
 }

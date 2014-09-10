@@ -846,7 +846,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 	
 	@Override
-	public List<CollectionItem> getPathwayItems(String classId, String pathwayId, Integer offset, Integer limit, String orderBy) {
+	public List<CollectionItem> getPathwayItems(String classId, String pathwayId, Integer offset, Integer limit, String orderBy, User user) {
 		if (this.getCollectionRepository().getCollectionByIdWithType(pathwayId, PATHWAY) == null) {
 			throw new BadRequestException("pathway not found");
 		}
@@ -855,13 +855,21 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		}
 		List<CollectionItem> collectionItems = this.getCollectionRepository().getCollectionItems(pathwayId, offset, limit, orderBy, CLASSPAGE);
 		for (CollectionItem collectionItem : collectionItems) {
-			UserCollectionItemAssoc userCollectionItemAssoc = this.getCollectionRepository().getUserCollectionItemAssoc(collectionItem.getCollectionItemId(), collectionItem.getAssociatedUser().getPartyUid());
+			UserCollectionItemAssoc userCollectionItemAssoc = this.getCollectionRepository().getUserCollectionItemAssoc(collectionItem.getCollectionItemId(), user.getPartyUid());
 			if (userCollectionItemAssoc != null && userCollectionItemAssoc.getStatus() != null) {
 				collectionItem.setStatus(userCollectionItemAssoc.getStatus().getValue());
 			}
 		}
-
 		return collectionItems;
+	}
+	
+	@Override
+	public SearchResults<CollectionItem> getPathwayItemsSearchResults( String classId, String pathwayId, Integer offset, Integer limit, String orderBy,User user) {
+		List<CollectionItem> collectionItems = getPathwayItems(classId,pathwayId,offset,limit,orderBy,user);
+		SearchResults<CollectionItem> searchResults = new SearchResults<CollectionItem>();
+		searchResults.setSearchResults(getCollectionService().setCollectionItemMetaInfo(collectionItems, null));
+		searchResults.setTotalHitCount(this.getCollectionRepository().getCollectionItemsCount(pathwayId, offset, limit, orderBy, CLASSPAGE));
+		return searchResults; 
 	}
 	
 	
