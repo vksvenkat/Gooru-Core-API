@@ -89,6 +89,8 @@ public interface ClasspageService {
 	
 	List<CollectionItem> getPathwayItems(String classId,String pathId, Integer offset, Integer limit, String orderBy, User user);
 	
+	SearchResults<CollectionItem> getPathwayItemsSearchResults(String classId,String pathId, Integer offset, Integer limit, String orderBy, User user);
+	
 	ActionResponseDTO<CollectionItem> reorderPathwaySequence(String classId,String pathwayId ,int newSequence) throws Exception;
 	
 }

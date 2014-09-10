@@ -860,8 +860,16 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 				collectionItem.setStatus(userCollectionItemAssoc.getStatus().getValue());
 			}
 		}
-
 		return collectionItems;
+	}
+	
+	@Override
+	public SearchResults<CollectionItem> getPathwayItemsSearchResults( String classId, String pathwayId, Integer offset, Integer limit, String orderBy,User user) {
+		List<CollectionItem> collectionItems = getPathwayItems(classId,pathwayId,offset,limit,orderBy,user);
+		SearchResults<CollectionItem> searchResults = new SearchResults<CollectionItem>();
+		searchResults.setSearchResults(getCollectionService().setCollectionItemMetaInfo(collectionItems, null));
+		searchResults.setTotalHitCount(this.getCollectionRepository().getCollectionItemsCount(pathwayId, offset, limit, orderBy, CLASSPAGE));
+		return searchResults; 
 	}
 	
 	
