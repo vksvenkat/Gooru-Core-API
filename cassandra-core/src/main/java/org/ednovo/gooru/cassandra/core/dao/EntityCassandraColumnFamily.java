@@ -5,10 +5,10 @@ package org.ednovo.gooru.cassandra.core.dao;
 
 import javax.persistence.Entity;
 
+import org.ednovo.gooru.cassandra.custom.entity.GooruDefaultEntityManager;
 import org.ednovo.gooru.core.cassandra.model.ReverseIndexColumnSetting;
 
 import com.netflix.astyanax.Keyspace;
-import com.netflix.astyanax.entitystore.DefaultEntityManager;
 import com.netflix.astyanax.entitystore.EntityManager;
 
 /**
@@ -37,7 +37,7 @@ public class EntityCassandraColumnFamily<M> extends CassandraColumnFamily {
 		setColumnFamilyName(initColumnFamilyName(clazz));
 		super.init(keyspace);
 		if (keyspace != null) {
-			entityManager = new DefaultEntityManager.Builder<M, String>().withEntityType(clazz).withKeyspace(keyspace).build();
+			entityManager = new GooruDefaultEntityManager.Builder<M, String>().withEntityType(clazz).withKeyspace(keyspace).build();
 		} else {
 			getLog().error("Cassandra Mapper for " + getColumnFamilyName() + " : FAILED");
 		}

@@ -618,6 +618,29 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		if (type != null && type.equalsIgnoreCase("classpage")) {
 			hql += " and collectionItems.resource.sharing in('public','anyonewithlink') ";
 		}
+		
+		if (orderBy != null && ( !orderBy.equals(PLANNED_END_DATE) && !orderBy.equals(SEQUENCE))) {
+			hql += " order by collectionItems.associationDate desc ";
+		} else if(orderBy != null && orderBy.equals(PLANNED_END_DATE)) {
+			hql += "order by IFNULL(collectionItems.plannedEndDate, (SUBSTRING(now(), 1, 4) + 1000)) asc ";
+		} else {
+			hql += " order by collectionItems.itemSequence";
+		}
+		
+		Query query = getSession().createQuery(hql);
+		query.setParameter(GOORU_OID, collectionId);
+		addOrgAuthParameters(query);
+		query.setFirstResult(offset);
+		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
+		return query.list();
+	}
+	
+	@Override
+	public Long getCollectionItemsCount(String collectionId, Integer offset, Integer limit, String orderBy, String type) {
+		String hql = "select count(*)  FROM Collection collection inner join collection.collectionItems collectionItems where collection.gooruOid=:gooruOid and " + generateOrgAuthQuery("collection.");
+		if (type != null && type.equalsIgnoreCase("classpage")) {
+			hql += " and collectionItems.resource.sharing in('public','anyonewithlink') ";
+		}
 		if (!orderBy.equals(PLANNED_END_DATE)) {
 			hql += "order by collectionItems.associationDate desc ";
 		} else {
@@ -628,7 +651,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		addOrgAuthParameters(query);
 		query.setFirstResult(offset);
 		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
-		return query.list();
+		return (Long) query.list().get(0);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -818,7 +841,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		}
 		return query.list();
 	}
-
+	
 	@Override
 	public CollectionItem findCollectionItemByGooruOid(String gooruOid, String gooruUid, String type) {
 		

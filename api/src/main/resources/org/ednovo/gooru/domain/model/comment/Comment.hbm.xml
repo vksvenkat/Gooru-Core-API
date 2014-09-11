@@ -39,10 +39,9 @@
 		</property>
 		<many-to-one name="commentorUid" class="org.ednovo.gooru.core.api.model.User"
 			column="commentor_uid" not-null="true" lazy="proxy" cascade="none" />
-		<property name="gooruOid" column="post_gooru_oid" length="36"
-			not-null="true">
-		</property>
-		<property name="createdOn" column="created_date" not-null="true">
+		<property name="gooruOid" column="post_gooru_oid" length="36" not-null="false" />
+		<property name="itemId" column="collection_item_id"  not-null="false" />
+		<property name="createdOn" column="created_date" not-null="false">
 		</property>
 		<many-to-one name="status"
 			class="org.ednovo.gooru.core.api.model.CustomTableValue" column="status_id"

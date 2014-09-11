@@ -86,8 +86,9 @@ public class CommentServiceImpl extends BaseServiceImpl implements CommentServic
 			comment.setCommentorUid(user);
 			comment.setOrganization(user.getPrimaryOrganization());
 			this.getCommentRepository().save(comment);
-
-			commentMailNotification(comment, user);
+			if (comment.getItemId() == null) {
+				commentMailNotification(comment, user);
+			}
 		}
 		return new ActionResponseDTO<Comment>(comment, error);
 	}
@@ -125,16 +126,16 @@ public class CommentServiceImpl extends BaseServiceImpl implements CommentServic
 	}
 
 	@Override
-	public List<Comment> getComments(String gooruOid, String gooruUid, Integer limit, Integer offset, String fetchType) {
-		return this.getCommentRepository().getComments(gooruOid, gooruUid, limit, offset, fetchType);
+	public List<Comment> getComments(String itemId,String gooruOid, String gooruUid, Integer limit, Integer offset, String fetchType) {
+		return this.getCommentRepository().getComments(itemId,gooruOid, gooruUid, limit, offset, fetchType);
 	}
 
 	@Override
-	public SearchResults<Comment> getCommentsCount(String gooruOid, String gooruUid, Integer limit, Integer offset, String fetchType) {
-		List<Comment> comments = this.getCommentRepository().getComments(gooruOid, gooruUid, limit, offset, fetchType);
+	public SearchResults<Comment> getCommentsCount(String itemId,String gooruOid, String gooruUid, Integer limit, Integer offset, String fetchType) {
+		List<Comment> comments = this.getCommentRepository().getComments(itemId,gooruOid, gooruUid, limit, offset, fetchType);
 		SearchResults<Comment> result = new SearchResults<Comment>();
 		result.setSearchResults(comments);
-		result.setTotalHitCount(this.getCommentRepository().getCommentCount(gooruOid, gooruUid, fetchType));
+		result.setTotalHitCount(this.getCommentRepository().getCommentCount(itemId,gooruOid, gooruUid, fetchType));
 		return result;
 	}
 
@@ -186,7 +187,6 @@ public class CommentServiceImpl extends BaseServiceImpl implements CommentServic
 		final Errors errors = new BindException(comment, COMMENT);
 		rejectIfNull(errors, comment, COMMENT, GL0056, generateErrorMessage(GL0056, COMMENT));
 		rejectIfNullOrEmpty(errors, comment.getComment(), COMMENT, GL0006, generateErrorMessage(GL0006, COMMENT));
-		rejectIfNullOrEmpty(errors, comment.getGooruOid(), COMMENT, GL0006, generateErrorMessage(GL0006, CONTENT));
 		return errors;
 	}
 
