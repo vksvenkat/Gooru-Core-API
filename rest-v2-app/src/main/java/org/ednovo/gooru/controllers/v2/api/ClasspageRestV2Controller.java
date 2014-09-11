@@ -278,7 +278,7 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, CLASSPAGE_COLLECTION_ITEM_INCLUDE_FIELDS);
 		includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_ITEM_INCLUDE_FILEDS);
 		User user = (User) request.getAttribute(Constants.USER);
-		List<Map<String, Object>> collectionItems = this.getClasspageService().getClasspageItems(classpageId, limit != null ? limit : (optimize ? 30 : 5)  , offset, user.getPartyUid(), orderBy, optimize, status);
+		List<Map<String, Object>> collectionItems = this.getClasspageService().getClasspageItems(classpageId, limit != null ? limit : (optimize ? 30 : 5)  , offset, user, orderBy, optimize, status);
 		String responseJson = null;
 		SearchResults<Map<String, Object>> result = new SearchResults<Map<String, Object>>();
 		result.setSearchResults(collectionItems);
