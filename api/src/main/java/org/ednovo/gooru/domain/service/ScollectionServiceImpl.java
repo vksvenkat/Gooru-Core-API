@@ -423,6 +423,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			gooruUid = newCollection.getUser().getGooruUId();
 		}
 		Collection collection = this.getCollectionByGooruOid(updateCollectionId, gooruUid);
+		rejectIfNull(collection, GL0056, COLLECTION);
 		Errors errors = validateUpdateCollection(collection);
 		if (!errors.hasErrors()) {
 
