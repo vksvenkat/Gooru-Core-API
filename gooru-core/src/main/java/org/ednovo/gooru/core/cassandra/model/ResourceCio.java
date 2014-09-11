@@ -1,3 +1,4 @@
+
 package org.ednovo.gooru.core.cassandra.model;
 
 import java.util.Date;
@@ -22,9 +23,9 @@ public class ResourceCio implements IsEntityCassandraIndexable {
 	private static final String BATCH_ID = "batchId";
 
 	private static final String CATEGORY = "category";
-	
+
 	private static final String RESOURCE_FORMAT = "resourceFormat";
-	
+
 	private static final String INSTRUCTIONAL = "instructional";
 
 	@Id
@@ -131,7 +132,7 @@ public class ResourceCio implements IsEntityCassandraIndexable {
 
 	@Column
 	private String collectionGooruOIds;
-	
+
 	@Column
 	private String scollectionTitles;
 
@@ -218,68 +219,79 @@ public class ResourceCio implements IsEntityCassandraIndexable {
 
 	@Column
 	private String copiedResourceId;
-	
+
 	@Column
 	private String isOer;
-	
+
 	@Column
 	private String scollectionItemGooruOIds;
-	
+
 	@Column
 	private String resourceFormat;
-	
+
 	@Column
 	private String instructional;
-	
+
 	@Column
 	private String protocolSupported;
-	
+
 	@Column
 	private Map<String,Object> ratings;
-	
+
 	@Column
 	private  String audience;
-	
+
 	@Column
 	private String depthOfknowledge;
-	
+
 	@Column
 	private List<CustomTableValue> customTables;
-	
+
 	@Column
 	private String learningAndInovation;
-	
+
 	@Column
 	private String instructionalMethod;
-	
+
 	@Column
 	private String educationalUse;
-	
+
 	@Column
 	private String standards;
-	
+
 	@Column
 	private String momentsofLearning;
-	
+
 	@Column
 	private String publisher;
-	
+
 	@Column
 	private String aggregator;
-	
+
 	@Column
 	private String clusterUid;
 
 	@Column
 	private Integer isCanonical;
-	
+
 	@Column
-	private String rootNodeId; 
-	
+	private String rootNodeId;
+
 	@Column
 	private String rootCodes;
-	
-	
+
+	@Column
+	private Map<String,String> codeAndDescription;
+
+
+	public Map<String, String> getCodeAndDescription() {
+		return codeAndDescription;
+	}
+
+	public void setCodeAndDescription(Map<String, String> codeAndDescription) {
+		this.codeAndDescription = codeAndDescription;
+	}
+
 	public String getRootCodes() {
 		return rootCodes;
 	}
@@ -319,7 +331,7 @@ public class ResourceCio implements IsEntityCassandraIndexable {
 	public void setStandards(String standards) {
 		this.standards = standards;
 	}
-      
+
 	public String getLearningAndInovation() {
 		return learningAndInovation;
 	}
@@ -335,7 +347,7 @@ public class ResourceCio implements IsEntityCassandraIndexable {
 	public void setInstructionalMethod(String instructionalMethod) {
 		this.instructionalMethod = instructionalMethod;
 	}
-	
+
 	public String getDepthOfknowledge() {
 		return depthOfknowledge;
 	}
@@ -343,7 +355,7 @@ public class ResourceCio implements IsEntityCassandraIndexable {
 	public void setDepthOfknowledge(String depthOfknowledge) {
 		this.depthOfknowledge = depthOfknowledge;
 	}
-	
+
 	public List<CustomTableValue> getCustomTables() {
 		return customTables;
 	}
@@ -928,11 +940,11 @@ public class ResourceCio implements IsEntityCassandraIndexable {
 	public void setRatings(Map<String, Object> ratings) {
 		this.ratings = ratings;
 	}
-	
+
 	public String getPublisher(){
 		return publisher;
 	}
-	
+
 	public void setPublisher(String publisher){
 		this.publisher = publisher;
 	}
@@ -940,7 +952,7 @@ public class ResourceCio implements IsEntityCassandraIndexable {
 	public String getAggregator(){
 		return aggregator;
 	}
-	
+
 	public void setAggregator(String aggregator){
 		this.aggregator = aggregator;
 	}
@@ -952,7 +964,7 @@ public class ResourceCio implements IsEntityCassandraIndexable {
 	public ResourceStasCo getStas() {
 		return stas;
 	}
-	
+
 	public String getClusterUid() {
 		return clusterUid;
 	}

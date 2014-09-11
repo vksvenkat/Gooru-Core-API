@@ -26,11 +26,16 @@ package org.ednovo.gooru.infrastructure.persistence.hibernate.party;
 import java.util.List;
 
 import org.ednovo.gooru.core.api.model.Organization;
+import org.ednovo.gooru.core.constant.ConstantProperties;
+import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate;
+import org.hibernate.type.StandardBasicTypes;
 import org.springframework.stereotype.Repository;
 
+import org.hibernate.Query;
+
 @Repository
-public class OrganizationRepositoryHibernate extends BaseRepositoryHibernate implements OrganizationRepository {
+public class OrganizationRepositoryHibernate extends BaseRepositoryHibernate implements OrganizationRepository,ParameterProperties, ConstantProperties {
 
 	@Override
 	public Organization getOrganizationByName(String partyName) {
@@ -51,9 +56,13 @@ public class OrganizationRepositoryHibernate extends BaseRepositoryHibernate imp
 	}
 
 	@Override
-	public List<Organization> listOrganization() {
+	public List<Organization> listOrganization(Integer offset, Integer limit) {
 		String hql = "FROM Organization";
-		return get(hql);
+		Query query = getSession().createQuery(hql);
+		query.setFirstResult(offset);
+        query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
+        return (List) query.list();
+
 	}
 	
 	@Override
@@ -61,5 +70,12 @@ public class OrganizationRepositoryHibernate extends BaseRepositoryHibernate imp
 		String hql = "SELECT organizationDomainAssoc.organization FROM OrganizationDomainAssoc organizationDomainAssoc WHERE organizationDomainAssoc.domain.name = '" + idpDomainName + "'";
 		return get(hql);
 	}
+	
+	public Long getOrganizationCount() {
+		String sql = "select  count(*) as count from organization";		
+		Query query = getSession().createSQLQuery(sql).addScalar("count", StandardBasicTypes.LONG);
+        return (Long) query.list().get(0);
+	}
+
 
 }

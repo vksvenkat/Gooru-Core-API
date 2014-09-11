@@ -111,7 +111,7 @@ public class PostRestV2Controller extends BaseController implements ParameterPro
 	@RequestMapping(method = RequestMethod.GET, value = "/{id}/comment")
 	public ModelAndView getPostComments(HttpServletRequest request, @PathVariable(value = ID) String gooruOid, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "20") Integer limit,
 			HttpServletResponse response) throws Exception {
-		return toModelAndViewWithIoFilter(this.getCommentService().getComments(gooruOid, null, limit, offset,NOT_DELETED), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, POST_INCLUDE_FIELDS);
+		return toModelAndViewWithIoFilter(this.getCommentService().getComments(null,gooruOid, null, limit, offset,NOT_DELETED), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, POST_INCLUDE_FIELDS);
 	}
 
 	private String getPostType(HttpServletRequest request) {
