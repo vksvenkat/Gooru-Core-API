@@ -423,6 +423,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			gooruUid = newCollection.getUser().getGooruUId();
 		}
 		Collection collection = this.getCollectionByGooruOid(updateCollectionId, gooruUid);
+		rejectIfNull(collection, GL0056, COLLECTION);
 		Errors errors = validateUpdateCollection(collection);
 		if (!errors.hasErrors()) {
 
@@ -748,24 +749,12 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 	private Collection createMyShelfCollection(String collectionGooruOid, User user, String type, final CollectionItem collectionItem) {
 		Collection collection = null;
-		if (type != null && type.equalsIgnoreCase(CollectionType.SHElf.getCollectionType())) {
-			collectionItem.setItemType(ShelfType.AddedType.SUBSCRIBED.getAddedType());
-		} else if (type != null && type.equalsIgnoreCase(COLLABORATOR)) {
-			collectionItem.setItemType(COLLABORATOR);
-		} else if (type != null && type.equalsIgnoreCase(CLASS)) {
-			collectionItem.setItemType(CLASS);
-		} else {
-			collection = this.getCollectionByGooruOid(collectionGooruOid, null);
-			if (collectionItem != null && collectionItem.getItemType() == null) { 
-			  collectionItem.setItemType(ShelfType.AddedType.ADDED.getAddedType());
-			}
-		}
 		if (collectionGooruOid != null) {
 			collection = this.getCollectionByGooruOid(collectionGooruOid, null);
 		} else {
 			collection = this.getCollectionRepository().getUserShelfByGooruUid(user.getGooruUId(), CollectionType.SHElf.getCollectionType());
 		}
-		if (collection == null && type != null && type.equalsIgnoreCase(CollectionType.SHElf.getCollectionType())) {
+			if (collection == null) {
 			collection = new Collection();
 			collection.setTitle(MY_SHELF);
 			collection.setCollectionType(CollectionType.SHElf.getCollectionType());
