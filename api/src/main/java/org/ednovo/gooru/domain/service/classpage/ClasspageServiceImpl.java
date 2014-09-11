@@ -181,6 +181,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 
 	public ActionResponseDTO<Classpage> updateClasspage(Classpage newClasspage, String updateClasspageId, Boolean hasUnrestrictedContentAccess) throws Exception {
 		Classpage classpage = this.getClasspage(updateClasspageId, null, null);
+		rejectIfNull(classpage, GL0056, "classpage");
 		Errors errors = validateUpdateClasspage(classpage, newClasspage);
 		JSONObject itemData = new JSONObject();
 		if (!errors.hasErrors()) {
