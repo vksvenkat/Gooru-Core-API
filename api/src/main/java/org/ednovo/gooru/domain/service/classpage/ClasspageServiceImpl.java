@@ -733,8 +733,8 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 
 	@Override
-	public List<Map<String, Object>> getClasspageItems(String gooruOid, Integer limit, Integer offset, String userUid, String orderBy, boolean optimize, String status) {
-		List<Object[]> results = this.getCollectionRepository().getClasspageItems(gooruOid, limit, offset, userUid, orderBy, status);
+	public List<Map<String, Object>> getClasspageItems(String gooruOid, Integer limit, Integer offset, User apiCaller, String orderBy, boolean optimize, String status) {
+		List<Object[]> results = this.getCollectionRepository().getClasspageItems(gooruOid, limit, offset, apiCaller.getPartyUid(), orderBy, status);
 		List<Map<String, Object>> collectionItems = new ArrayList<Map<String, Object>>();
 		for (Object[] object : results) {
 			Map<String, Object> result = new HashMap<String, Object>();
@@ -761,7 +761,8 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			resource.put(TITLE, object[6]);
 			resource.put(TYPE_NAME, object[14]);
 			resource.put(GOORU_OID, object[5]);
-			result.put(COLLECTION_ITEM_ID, object[1]);				
+			resource.put(COLLECTIONITEMS, getPathwayItems(gooruOid, object[5].toString(), 0, 50, orderBy, apiCaller));
+			result.put(COLLECTION_ITEM_ID, object[1]);	
 			result.put(ITEM_SEQUENCE, object[2]);
 			result.put(NARRATION, object[3]);
 			result.put(PLANNED_END_DATE, object[4]);
