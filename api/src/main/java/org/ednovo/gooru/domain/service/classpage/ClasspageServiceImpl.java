@@ -761,7 +761,9 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			resource.put(TITLE, object[6]);
 			resource.put(TYPE_NAME, object[14]);
 			resource.put(GOORU_OID, object[5]);
-			resource.put(COLLECTIONITEMS, getPathwayItems(gooruOid, object[5].toString(), 0, 50, orderBy, apiCaller));
+			List<CollectionItem> pathwayItems = getPathwayItems(gooruOid, object[5].toString(), 0, 50, orderBy, apiCaller);
+			resource.put(COLLECTIONITEMS, pathwayItems);
+			resource.put(ITEM_COUNT, pathwayItems.size());
 			result.put(COLLECTION_ITEM_ID, object[1]);	
 			result.put(ITEM_SEQUENCE, object[2]);
 			result.put(NARRATION, object[3]);
