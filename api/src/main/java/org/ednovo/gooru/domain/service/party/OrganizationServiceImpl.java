@@ -29,7 +29,7 @@ import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.cassandra.cql3.statements.CreateUserStatement;
+import org.ednovo.gooru.application.util.TaxonomyUtil;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.ApiKey;
 import org.ednovo.gooru.core.api.model.Organization;
@@ -55,12 +55,9 @@ import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.ednovo.gooru.domain.service.user.UserService;
 import org.ednovo.gooru.domain.service.user.impl.UserServiceImpl;
 import org.ednovo.gooru.domain.service.userManagement.UserManagementService;
-import org.ednovo.gooru.domain.service.userManagement.UserManagementServiceImpl;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.OrganizationSettingRepository;
-import org.ednovo.gooru.infrastructure.persistence.hibernate.apikey.ApplicationRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.party.OrganizationRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.storage.StorageRepository;
-import org.mortbay.jetty.security.Password;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -166,6 +163,14 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 				organizationSettingRepository.save(newOrganizationSetting);
 				applicationService.saveApplication(appApiKey, newOrgUser, newOrganization.getPartyUid(), apiCaller);
 				accountService.createSessionToken(newOrgUser, appApiKey.getKey(), request);
+			//for inserting one entry in custom field
+				PartyPermission newPartyPermission = new PartyPermission();
+				Organization gooruOrganization = organizationRepository.getOrganizationByUid(TaxonomyUtil.GOORU_ORG_UID);
+				newPartyPermission.setParty(gooruOrganization);
+				newPartyPermission.setPermittedParty(newOrganization);
+				newPartyPermission.setValidFrom(new Date(System.currentTimeMillis()));
+				newPartyPermission.setPermission(READ_ONLY);
+				organizationRepository.save(newPartyPermission);
 			} catch (Exception e) {
 				LOGGER.debug("Error" + e);
 			}
