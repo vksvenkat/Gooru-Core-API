@@ -149,8 +149,7 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 			newUser.setPartyUid(ANONYMOUS_ + randomString);
 			newUser.setUsername(ANONYMOUS_ + randomString);
 			newUser.setEmailId(ANONYMOUS_ + randomString + AT_GMAIL_DOT_COM);
- 
-			 ApiKey appApiKey = new ApiKey();
+ 			 ApiKey appApiKey = new ApiKey();
 			 appApiKey.setAppName(newOrganization.getPartyName());
 			 appApiKey.setAppURL(HTTP_URL + newOrganization.getPartyName() + DOT_COM);
 			try {
@@ -235,7 +234,6 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 			if(existingOrganization != null){
 				existingOrganization.setPartyName(newOrganization.getPartyName());
 				existingOrganization.setLastModifiedOn(new Date(System.currentTimeMillis()));
-				
 				// need to add logic for current user is organization admin
 				existingOrganization.setLastModifiedUserUid(apiCaller.getPartyUid());
 				organizationRepository.save(existingOrganization);
