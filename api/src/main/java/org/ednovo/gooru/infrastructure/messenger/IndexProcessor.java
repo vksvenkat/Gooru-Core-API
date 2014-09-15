@@ -32,6 +32,7 @@ import javax.annotation.PostConstruct;
 import org.ednovo.gooru.core.api.model.GooruAuthenticationToken;
 import org.ednovo.gooru.core.api.model.UserGroupSupport;
 import org.ednovo.gooru.domain.service.content.ContentService;
+import org.ednovo.gooru.domain.service.redis.RedisService;
 import org.ednovo.gooru.kafka.producer.KafkaProducer;
 import org.restlet.data.Form;
 import org.restlet.representation.Representation;
@@ -58,6 +59,9 @@ public class IndexProcessor extends BaseComponent {
 	
 	@Autowired
 	private KafkaProducer kafkaProducer;
+	
+	@Autowired
+	private RedisService redisService;
 	
 
 	private static final JSONSerializer SERIALIZER = new JSONSerializer();
@@ -88,13 +92,19 @@ public class IndexProcessor extends BaseComponent {
 	}
 
 	public void indexStas(final String uuids, final String action, final String type) {
-		Map<String, Object> indexData = new HashMap<String, Object>();
-		indexData.put("indexableIds", uuids);
-		indexData.put("type", type);
-		indexData.put("action", action);
-		indexData.put("priority", "0");
-		String indexMsg = SERIALIZER.deepSerialize(indexData);
-		kafkaProducer.send(indexMsg, type);
+		String indexMode = redisService.getValue("index-mode");
+		if(indexMode != null && indexMode.equalsIgnoreCase("kafka")){
+			Map<String, Object> indexData = new HashMap<String, Object>();
+			indexData.put("indexableIds", uuids);
+			indexData.put("type", type);
+			indexData.put("action", action);
+			indexData.put("priority", "0");
+			String indexMsg = SERIALIZER.deepSerialize(indexData);
+			kafkaProducer.send(indexMsg, type);
+		}
+		else{
+			index(uuids, action, type, false, false);
+		}
 	}
 
 	public void index(final String uuids, final String action, final String type, String sessionToken) {
