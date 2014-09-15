@@ -624,16 +624,17 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 			filters.put(TYPE, COLLECTION);
 			List<CollectionItem> folderCollectionItems = this.getCollectionRepository().getCollectionItems(collection.getGooruOid(), filters);
 			for (CollectionItem collectionItem : folderCollectionItems) {
-				collectionItems.add(createClasspageItem(classpage, collectionItem.getResource(), user, sequence++, direction, planedEndDate, isRequired));
+				collectionItems.add(createClasspageItem(classpage, collectionItem.getResource(), user, sequence++, direction, planedEndDate, isRequired, minimumScore,estimatedTime,showAnswerByQuestions,showAnswerEnd,showHints));
 			}
 		} else if (collection.getResourceType().getName().equalsIgnoreCase(SCOLLECTION)) {
-			collectionItems.add(createClasspageItem(classpage, collection, user, sequence, direction, planedEndDate, isRequired));
+			collectionItems.add(createClasspageItem(classpage, collection, user, sequence, direction, planedEndDate, isRequired, minimumScore,estimatedTime,showAnswerByQuestions,showAnswerEnd,showHints));
 		}
 		
 		return collectionItems;
 	}
 
-	private CollectionItem createClasspageItem(Collection classPage, Resource collection, User user, int sequence,String direction, String planedEndDate, Boolean isRequired) {
+	private CollectionItem createClasspageItem(Collection classPage, Resource collection, User user, int sequence,String direction, String planedEndDate, Boolean isRequired,
+			String minimumScore,String estimatedTime,Boolean showAnswerByQuestions,Boolean showAnswerEnd,Boolean showHints) {
 		CollectionItem collectionItem = new CollectionItem();
 		collectionItem.setCollection(classPage);
 		collectionItem.setResource(collection);
@@ -646,6 +647,21 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		}
 		if(isRequired != null) {
 			collectionItem.setIsRequired(isRequired);
+		}
+		if(minimumScore != null) {
+			collectionItem.setMinimumScore(minimumScore);
+		}
+		if(estimatedTime != null) {
+			collectionItem.setEstimatedTime(estimatedTime);
+		}
+		if(showAnswerByQuestions != null) {
+			collectionItem.setShowAnswerByQuestions(showAnswerByQuestions);
+		}
+		if(showAnswerEnd == null) {
+			collectionItem.setShowAnswerEnd(showAnswerEnd);
+		}
+		if(showHints != null) {
+			collectionItem.setShowHints(showHints);
 		}
 		if (planedEndDate != null) {
 			try {

@@ -42,11 +42,11 @@ public class SessionRepositoryHibernate extends BaseRepositoryHibernate implemen
 
 	private final String RETRIEVE_SESSION_BY_ID = "From Session s   where s.sessionId=:sessionId and " + generateOrgAuthQuery("s.");
 	
-	private final String RETRIEVE_SESSION_ITEM_BY_ID = "From SessionItem si   where si.sessionItemId=:sessionItemId and " + generateOrgAuthQuery("si.session.");
+	private final String RETRIEVE_SESSION_ITEM_BY_ID = "select si From SessionItem si  join si.session s  where si.sessionItemId=:sessionItemId and " + generateOrgAuthQuery("s.");
 	
-	private final String RETRIEVE_ITEM_BY_ID_USING_DATE = "From SessionItem si   where si.session.sessionId=:sessionId and " + generateOrgAuthQuery("si.session.") + "order by si.startTime desc";
+	private final String RETRIEVE_ITEM_BY_ID_USING_DATE = " select si From SessionItem si join  si.session  s where s.sessionId=:sessionId and " + generateOrgAuthQuery("s.") + "order by si.startTime desc";
 	
-	private final String RETRIEVE_SESSION_ITEM_ATTEMPT_TRY = "From SessionItemAttemptTry at    where at.sessionItem.sessionItemId=:sessionItemId and " + generateOrgAuthQuery("at.sessionItem.session.");
+	private final String RETRIEVE_SESSION_ITEM_ATTEMPT_TRY = "select at From SessionItemAttemptTry at  join at.sessionItem si join si.session s   where si.sessionItemId=:sessionItemId and " + generateOrgAuthQuery("s.");
 	
 	@Override
 	public org.ednovo.gooru.core.api.model.Session findSessionById(String sessionId) {

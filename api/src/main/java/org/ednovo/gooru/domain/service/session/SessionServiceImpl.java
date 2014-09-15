@@ -128,10 +128,11 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 		}
 		return sessionItemFeedback;
 	}
-
+	
 	@Override
 	public ActionResponseDTO<Session> updateSession(final String sessionId, final Session newSession) {
 		final Session session = this.getSessionRepository().findSessionById(sessionId);
+		rejectIfNull(session, GL0056, SESSION);
 		final Errors errors = this.validateUpdateSession(session, newSession);
 		if (!errors.hasErrors()) {
 			if (newSession.getStatus() != null && newSession.getStatus().equalsIgnoreCase(SessionStatus.ARCHIVE.getSessionStatus())) {
@@ -149,7 +150,9 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 
 	@Override
 	public Session getSession(final String sessionId) {
-		return this.getSessionRepository().findSessionById(sessionId);
+		Session session = this.getSessionRepository().findSessionById(sessionId);
+		rejectIfNull(session, GL0056, SESSION);
+		return session;
 	}
 
 	@Override
@@ -157,7 +160,9 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 		Errors errors = null;
 	 try {
 		final Session session = this.getSessionRepository().findSessionById(sessionId);
+		rejectIfNull(session, GL0056, SESSION);
 		final Resource resource = this.getResourceRepository().findResourceByContentGooruId(sessionItem.getResource().getGooruOid());
+		rejectIfNull(resource, GL0056, SESSION);
 		if (sessionItem.getSessionItemId() == null) {
 			sessionItem.setSessionItemId(UUID.randomUUID().toString());
 		}
@@ -189,6 +194,7 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 	@Override
 	public ActionResponseDTO<SessionItem> updateSessionItem(final String sessionItemId, final SessionItem newSessionItem) {
 		final SessionItem sessionItem = this.getSessionRepository().findSessionItemById(sessionItemId);
+		rejectIfNull(sessionItem, GL0056, SESSION_ITEM);
 		final Errors errors = this.validateUpdateSessionItem(sessionItem);
 		if (!errors.hasErrors()) {
 			if (newSessionItem.getAttemptItemStatus() != null) {

@@ -181,6 +181,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 
 	public ActionResponseDTO<Classpage> updateClasspage(Classpage newClasspage, String updateClasspageId, Boolean hasUnrestrictedContentAccess) throws Exception {
 		Classpage classpage = this.getClasspage(updateClasspageId, null, null);
+		rejectIfNull(classpage, GL0056, "classpage");
 		Errors errors = validateUpdateClasspage(classpage, newClasspage);
 		JSONObject itemData = new JSONObject();
 		if (!errors.hasErrors()) {
@@ -732,8 +733,8 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 
 	@Override
-	public List<Map<String, Object>> getClasspageItems(String gooruOid, Integer limit, Integer offset, String userUid, String orderBy, boolean optimize, String status) {
-		List<Object[]> results = this.getCollectionRepository().getClasspageItems(gooruOid, limit, offset, userUid, orderBy, status);
+	public List<Map<String, Object>> getClasspageItems(String gooruOid, Integer limit, Integer offset, User apiCaller, String orderBy, boolean optimize, String status) {
+		List<Object[]> results = this.getCollectionRepository().getClasspageItems(gooruOid, limit, offset, apiCaller.getPartyUid(), orderBy, status);
 		List<Map<String, Object>> collectionItems = new ArrayList<Map<String, Object>>();
 		for (Object[] object : results) {
 			Map<String, Object> result = new HashMap<String, Object>();
@@ -755,12 +756,14 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 				user.put(GOORU_UID, object[13]);
 				user.put(PROFILE_IMG_URL, settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, TaxonomyUtil.GOORU_ORG_UID) + "/" + settingService.getConfigSetting(ConfigConstants.PROFILE_BUCKET, TaxonomyUtil.GOORU_ORG_UID) + String.valueOf(object[13]) + ".png");
 				resource.put(USER, user);
+				resource.put(COLLECTIONITEMS, getPathwayItems(gooruOid, object[5].toString(), 0, 50, orderBy, apiCaller));
 			}
+			resource.put(ITEM_COUNT, this.getCollectionRepository().getCollectionItemsCount(object[5].toString(), null, CLASSPAGE));
 			resource.put(GOALS, object[10]);
 			resource.put(TITLE, object[6]);
 			resource.put(TYPE_NAME, object[14]);
 			resource.put(GOORU_OID, object[5]);
-			result.put(COLLECTION_ITEM_ID, object[1]);				
+			result.put(COLLECTION_ITEM_ID, object[1]);	
 			result.put(ITEM_SEQUENCE, object[2]);
 			result.put(NARRATION, object[3]);
 			result.put(PLANNED_END_DATE, object[4]);
@@ -868,7 +871,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		List<CollectionItem> collectionItems = getPathwayItems(classId,pathwayId,offset,limit,orderBy,user);
 		SearchResults<CollectionItem> searchResults = new SearchResults<CollectionItem>();
 		searchResults.setSearchResults(getCollectionService().setCollectionItemMetaInfo(collectionItems, null));
-		searchResults.setTotalHitCount(this.getCollectionRepository().getCollectionItemsCount(pathwayId, offset, limit, orderBy, CLASSPAGE));
+		searchResults.setTotalHitCount(this.getCollectionRepository().getCollectionItemsCount(pathwayId, orderBy, CLASSPAGE));
 		return searchResults; 
 	}
 	
