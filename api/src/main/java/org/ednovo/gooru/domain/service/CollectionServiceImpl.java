@@ -650,7 +650,9 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		}
 		if(minimumScore != null) {
 			collectionItem.setMinimumScore(minimumScore);
-			
+		}
+		if(estimatedTime != null) {
+			collectionItem.setEstimatedTime(estimatedTime);
 		}
 		if(showAnswerByQuestions != null) {
 			collectionItem.setShowAnswerByQuestions(showAnswerByQuestions);

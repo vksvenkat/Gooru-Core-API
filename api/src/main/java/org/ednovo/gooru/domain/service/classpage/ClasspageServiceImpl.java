@@ -756,12 +756,13 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 				user.put(GOORU_UID, object[13]);
 				user.put(PROFILE_IMG_URL, settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, TaxonomyUtil.GOORU_ORG_UID) + "/" + settingService.getConfigSetting(ConfigConstants.PROFILE_BUCKET, TaxonomyUtil.GOORU_ORG_UID) + String.valueOf(object[13]) + ".png");
 				resource.put(USER, user);
+				resource.put(COLLECTIONITEMS, getPathwayItems(gooruOid, object[5].toString(), 0, 50, orderBy, apiCaller));
 			}
+			resource.put(ITEM_COUNT, this.getCollectionRepository().getCollectionItemsCount(object[5].toString(), null, CLASSPAGE));
 			resource.put(GOALS, object[10]);
 			resource.put(TITLE, object[6]);
 			resource.put(TYPE_NAME, object[14]);
 			resource.put(GOORU_OID, object[5]);
-			resource.put(COLLECTIONITEMS, getPathwayItems(gooruOid, object[5].toString(), 0, 50, orderBy, apiCaller));
 			result.put(COLLECTION_ITEM_ID, object[1]);	
 			result.put(ITEM_SEQUENCE, object[2]);
 			result.put(NARRATION, object[3]);
