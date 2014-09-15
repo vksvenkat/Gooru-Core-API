@@ -36,13 +36,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
-@RequestMapping(value = { "/v2/clearcache" })
+@RequestMapping(value = { "/v2/redis" })
 public class RedisRestV2Controller extends BaseController implements ConstantProperties {
 
 	@Autowired
@@ -50,12 +49,20 @@ public class RedisRestV2Controller extends BaseController implements ConstantPro
     
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CACHE_CLEAR })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	@RequestMapping(value = "/{entity}", method = { RequestMethod.DELETE })
-	public void clearCache(@PathVariable(value = ENTITY) String entity, @RequestParam(value = KEY, required = false, defaultValue = "*library-*") String key, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		this.getRedisService().bulkKeyDelete(key);
-		SessionContextSupport.putLogParameter(EVENT_NAME, "clear-cache-" + entity + "-key-" + key);
+	@RequestMapping(method = { RequestMethod.POST })
+	public void addRedisEntry(@RequestParam(value = KEY, required = true) String key,@RequestParam(value = VALUE, required = true) String value, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		getRedisService().putValue(key, value);
+		SessionContextSupport.putLogParameter(EVENT_NAME, "add-redis-entry" + "-key-" + key + "-value-"+value);
 	}
-	
+
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CACHE_CLEAR })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(method = { RequestMethod.DELETE })
+	public void deleteRedisEntry(@RequestParam(value = KEY, required = true) String key, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		getRedisService().deleteKey(key);
+		SessionContextSupport.putLogParameter(EVENT_NAME, "delete-redis-entry" + "-key-" + key);
+	}
+
 	public RedisService getRedisService() {
 		return redisService;
 	}
