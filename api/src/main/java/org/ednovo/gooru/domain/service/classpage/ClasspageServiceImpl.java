@@ -257,6 +257,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			try{
 				
 				this.getScollectionEventlog().getEventLogs(classpage, itemData, classpage.getUser(), false, true);
+				getAsyncExecutor().deleteFromCache("v2-class-data-"+classpage.getGooruOid()+ "*");
 			}catch(Exception e){
 				e.printStackTrace();
 			}
@@ -406,6 +407,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			try{
 				
 				this.getClasspageEventlog().getEventLogs(collectionItem, true, user, collectionItem.getCollection().getCollectionType());
+				getAsyncExecutor().deleteFromCache("v2-class-data-"+classpage.getGooruOid()+ "*");
 			} catch(Exception e){
 				e.printStackTrace();
 			}
@@ -756,7 +758,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 				user.put(GOORU_UID, object[13]);
 				user.put(PROFILE_IMG_URL, settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, TaxonomyUtil.GOORU_ORG_UID) + "/" + settingService.getConfigSetting(ConfigConstants.PROFILE_BUCKET, TaxonomyUtil.GOORU_ORG_UID) + String.valueOf(object[13]) + ".png");
 				resource.put(USER, user);
-				resource.put(COLLECTIONITEMS, getPathwayItems(gooruOid, object[5].toString(), 0, 50, orderBy, apiCaller));
+				resource.put(COLLECTIONITEMS, getPathwayItems(gooruOid, object[5].toString(), 0, 10, orderBy, apiCaller));
 			}
 			resource.put(ITEM_COUNT, this.getCollectionRepository().getCollectionItemsCount(object[5].toString(), null, CLASSPAGE));
 			resource.put(GOALS, object[10]);
@@ -819,11 +821,12 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		if (collectionId != null && this.getCollectionRepository().getCollectionByGooruOid(collectionId,null) != null) {
 			this.getCollectionService().createCollectionItem(collectionId, pathway.getGooruOid(), pathway.getCollectionItem() == null ? new CollectionItem() : pathway.getCollectionItem(), pathway.getUser(), ADDED, false);
 		}
+		getAsyncExecutor().deleteFromCache("v2-class-data-"+ classId+"*");
 		return pathway;
 	}
 	
 	@Override
-	public Collection updatePathway(String pathwayGooruOid, Collection newPathway) throws Exception {
+	public Collection updatePathway(String classId,String pathwayGooruOid, Collection newPathway) throws Exception {
 		Collection pathwayCollection = this.getCollectionRepository().getCollectionByIdWithType(pathwayGooruOid, ResourceType.Type.PATHWAY.getType());
 		if(pathwayCollection != null){
 			if (newPathway.getTitle() != null) {
@@ -833,6 +836,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 				pathwayCollection.setDescription(newPathway.getDescription());
 			}
 			this.getCollectionRepository().save(pathwayCollection);
+			getAsyncExecutor().deleteFromCache("v2-class-data-"+ classId+"*");
 		} else {
 			throw new BadRequestException("pathway not found");
 		}
@@ -840,12 +844,13 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 	
 	@Override
-	public void deletePathway(String pathwayGooruOid, User user) {
+	public void deletePathway(String classId,String pathwayGooruOid, User user) {
 		final List<CollectionItem> collectionItems = this.getCollectionRepository().getCollectionItemByParentId(pathwayGooruOid, null, null);
 		for (CollectionItem item : collectionItems) {
 			this.deleteCollectionItem(item.getCollectionItemId(), user);
 		}
 		this.getCollectionService().deleteCollection(pathwayGooruOid, user);
+		getAsyncExecutor().deleteFromCache("v2-class-data-"+ classId +"*");
 	}
 	
 	@Override
@@ -882,6 +887,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		if (classpage == null) {
 			throw new BadRequestException(generateErrorMessage(GL0056, COLLECTION));
 		}
+		getAsyncExecutor().deleteFromCache("v2-class-data-"+ classId +"*");
 		return this.getCollectionService().reorderCollectionItem(pathwayId, newSequence);
 	}
 
