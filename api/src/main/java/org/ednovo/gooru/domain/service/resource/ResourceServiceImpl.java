@@ -2842,6 +2842,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	public Resource deleteTaxonomyResource(String resourceId, Resource newResource, User user) {
 
 		Resource resource = resourceRepository.findResourceByContentGooruId(resourceId);
+		rejectIfNull(resource, GL0056, RESOURCE);
 		deleteResourceTaxonomy(resource, newResource.getTaxonomySet());
 		return resource;
 	}
