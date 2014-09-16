@@ -337,7 +337,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 				newUser.setUsername(newUser.getUsername() + newUser.getLastName().substring(0, 1));
 			}
 			final User user = this.getUserRepository().findUserWithoutOrganization(newUser.getUsername());
-			if (user != null && user.getUsername().equals(newUser.getUsername())) {
+			if (user != null && user.getUsername().equalsIgnoreCase(newUser.getUsername())) {
 				final Random randomNumber = new Random();
 				newUser.setUsername(newUser.getUsername() + randomNumber.nextInt(1000));
 			}
