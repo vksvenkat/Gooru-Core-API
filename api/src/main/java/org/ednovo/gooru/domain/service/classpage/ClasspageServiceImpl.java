@@ -720,17 +720,27 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 
 	@Override
-	public CollectionItem updateAssignment(String collectionItemId, String status, User user) {
+	public CollectionItem updateAssignment(String collectionItemId, String status, String minimumScore ,User user) {
 		CollectionItem collectionItem = this.getCollectionItemById(collectionItemId);
 		rejectIfNull(collectionItem, GL0056, generateErrorMessage(GL0056, COLLECTION_ITEM));
-		UserCollectionItemAssoc userCollectionItemAssoc = new UserCollectionItemAssoc();
-		userCollectionItemAssoc.setCollectionItem(collectionItem);
-		userCollectionItemAssoc.setUser(user);
+		UserCollectionItemAssoc userCollectionItemAssoc = null;
+		userCollectionItemAssoc = this.getCollectionRepository().getUserCollectionItemAssoc(collectionItem.getCollectionItemId(), user.getPartyUid());
+		if (userCollectionItemAssoc == null) {
+			userCollectionItemAssoc = new UserCollectionItemAssoc();
+			userCollectionItemAssoc.setCollectionItem(collectionItem);
+			userCollectionItemAssoc.setUser(user);
+		}
 		userCollectionItemAssoc.setLastModifiedOn(new Date());
-		CustomTableValue statusType = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.ASSIGNMENT_STATUS_TYPE.getTable(), status);
-		userCollectionItemAssoc.setStatus(statusType);
+		if (minimumScore != null) {
+			userCollectionItemAssoc.setMinimumScore(minimumScore);
+		}
+		if (status != null) {
+			CustomTableValue statusType = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.ASSIGNMENT_STATUS_TYPE.getTable(), status);
+			userCollectionItemAssoc.setStatus(statusType);
+		}
 		this.getCollectionRepository().save(userCollectionItemAssoc);
-		userCollectionItemAssoc.getCollectionItem().setStatus(status);
+		userCollectionItemAssoc.getCollectionItem().setStatus(userCollectionItemAssoc.getStatus() != null ? userCollectionItemAssoc.getStatus().getValue() : null);
+		userCollectionItemAssoc.getCollectionItem().setMinimumScoreByUser(userCollectionItemAssoc.getMinimumScore());
 		return userCollectionItemAssoc.getCollectionItem();
 	}
 
@@ -866,6 +876,9 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			UserCollectionItemAssoc userCollectionItemAssoc = this.getCollectionRepository().getUserCollectionItemAssoc(collectionItem.getCollectionItemId(), user.getPartyUid());
 			if (userCollectionItemAssoc != null && userCollectionItemAssoc.getStatus() != null) {
 				collectionItem.setStatus(userCollectionItemAssoc.getStatus().getValue());
+			}
+			if(userCollectionItemAssoc != null && userCollectionItemAssoc.getMinimumScore() != null){
+				collectionItem.setMinimumScoreByUser(userCollectionItemAssoc.getMinimumScore());
 			}
 		}
 		return collectionItems;

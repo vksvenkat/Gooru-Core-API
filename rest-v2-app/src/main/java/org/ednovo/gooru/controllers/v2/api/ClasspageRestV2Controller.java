@@ -235,8 +235,8 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 		ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().updateCollectionItem(newCollectionItem, collectionItemId, user);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-		} else if (newCollectionItem.getStatus() != null) {
-			getClasspageService().updateAssignment(collectionItemId, newCollectionItem.getStatus(), user);
+		} else if (newCollectionItem.getStatus() != null || newCollectionItem.getMinimumScoreByUser() != null) {
+			getClasspageService().updateAssignment(collectionItemId, newCollectionItem.getStatus(), newCollectionItem.getMinimumScoreByUser() ,user);
 		}
 		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, COLLECTION_ITEM_INCLUDE_FILEDS);
 		includes = (String[]) ArrayUtils.addAll(includes, CLASSPAGE_COLLECTION_ITEM_INCLUDE_FIELDS);
@@ -282,7 +282,7 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, CLASSPAGE_COLLECTION_ITEM_INCLUDE_FIELDS);
 		includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_ITEM_INCLUDE_FILEDS);
 		User user = (User) request.getAttribute(Constants.USER);
-		final String cacheKey = "v2-class-data-" + classpageId + "-" + offset + "-" + limit  + "-" + optimize + "-" + orderBy ;
+		final String cacheKey = "v2-class-data-" + classpageId + "-" + offset + "-" + limit  + "-" + optimize + "-" + orderBy +"-"+ status ;
 		String data = null;
 		if (!clearCache) {
 			data = getRedisService().getValue(cacheKey);

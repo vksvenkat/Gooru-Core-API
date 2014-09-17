@@ -75,7 +75,7 @@ public interface ClasspageService {
 	
 	List<Map<String, Object>> setMyStudy(List<Object[]> results);
 	
-	CollectionItem updateAssignment(String collectionItemId, String status, User user);
+	CollectionItem updateAssignment(String collectionItemId, String status, String minimumscore ,User user);
 	
 	List<Map<String, Object>> getClasspageItems(String gooruOid, Integer limit, Integer offset, User user, String orderBy, boolean optimize, String status);
 
