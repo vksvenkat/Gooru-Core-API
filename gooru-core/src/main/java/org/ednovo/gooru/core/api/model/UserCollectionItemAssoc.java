@@ -17,6 +17,8 @@ public class UserCollectionItemAssoc implements Serializable{
 	private CustomTableValue status;
 	
 	private Date lastModifiedOn;
+	
+	private String minimumScore;
 
 	public User getUser() {
 		return user;
@@ -48,6 +50,14 @@ public class UserCollectionItemAssoc implements Serializable{
 
 	public void setLastModifiedOn(Date lastModifiedOn) {
 		this.lastModifiedOn = lastModifiedOn;
+	}
+
+	public void setMinimumScore(String minimumScore) {
+		this.minimumScore = minimumScore;
+	}
+
+	public String getMinimumScore() {
+		return minimumScore;
 	}
 
 }

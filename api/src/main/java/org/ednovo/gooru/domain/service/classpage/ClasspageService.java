@@ -75,7 +75,7 @@ public interface ClasspageService {
 	
 	List<Map<String, Object>> setMyStudy(List<Object[]> results);
 	
-	CollectionItem updateAssignment(String collectionItemId, String status, User user);
+	CollectionItem updateAssignment(String collectionItemId, String status, String minimumscore ,User user);
 	
 	List<Map<String, Object>> getClasspageItems(String gooruOid, Integer limit, Integer offset, User user, String orderBy, boolean optimize, String status);
 
@@ -83,9 +83,9 @@ public interface ClasspageService {
 	
 	Collection createPathway(String classId,Collection collection, String parentId, Boolean isRequired) throws Exception;
 	
-	Collection updatePathway(String pathwayGooruOid, Collection newPathway) throws Exception;
+	Collection updatePathway(String classId, String pathwayGooruOid, Collection newPathway) throws Exception;
 	
-	void deletePathway(String pathwayGooruOid, User user);
+	void deletePathway(String classId, String pathwayGooruOid, User user);
 	
 	List<CollectionItem> getPathwayItems(String classId,String pathId, Integer offset, Integer limit, String orderBy, User user);
 	
