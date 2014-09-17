@@ -32,6 +32,8 @@
 			class="org.ednovo.gooru.core.api.model.CustomTableValue" lazy="proxy" />
 		<property name="lastModifiedOn" column="last_modified_on"
 			not-null="false" />
+		<property name="minimumScore" column="minimum_score"
+			not-null="false" />
 	</class>
 </hibernate-mapping>
 

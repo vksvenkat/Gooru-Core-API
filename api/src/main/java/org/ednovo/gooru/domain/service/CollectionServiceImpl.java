@@ -629,6 +629,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		} else if (collection.getResourceType().getName().equalsIgnoreCase(SCOLLECTION)) {
 			collectionItems.add(createClasspageItem(classpage, collection, user, sequence, direction, planedEndDate, isRequired, minimumScore,estimatedTime,showAnswerByQuestions,showAnswerEnd,showHints));
 		}
+		getAsyncExecutor().deleteFromCache("v2-class-data-"+classpage.getGooruOid()+ "*");
 		
 		return collectionItems;
 	}

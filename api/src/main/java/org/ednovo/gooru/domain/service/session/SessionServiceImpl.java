@@ -158,11 +158,10 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 	@Override
 	public ActionResponseDTO<SessionItem> createSessionItem(final SessionItem sessionItem, final String sessionId) {
 		Errors errors = null;
-	 try {
 		final Session session = this.getSessionRepository().findSessionById(sessionId);
 		rejectIfNull(session, GL0056, SESSION);
 		final Resource resource = this.getResourceRepository().findResourceByContentGooruId(sessionItem.getResource().getGooruOid());
-		rejectIfNull(resource, GL0056, SESSION);
+		rejectIfNull(resource, GL0056, RESOURCE);
 		if (sessionItem.getSessionItemId() == null) {
 			sessionItem.setSessionItemId(UUID.randomUUID().toString());
 		}
@@ -185,9 +184,6 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 
 			this.getSessionRepository().save(sessionItem);
 		}
-	 } catch(Exception e) { 
-		 LOGGER.error("Failed to log : " + e);
-	 }
 		return new ActionResponseDTO<SessionItem>(sessionItem, errors);
 	}
 
