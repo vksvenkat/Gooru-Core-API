@@ -2,6 +2,11 @@ package org.ednovo.gooru.core.api.model;
 
 import java.io.Serializable;
 
+import javax.persistence.Entity;
+
+
+
+@Entity(name="organizationSetting")
 public class OrganizationSetting extends OrganizationModel implements Serializable{
 
 	/**
