@@ -2813,6 +2813,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				contentProvider.setActiveFlag(true);
 				contentProvider.setType(customTableValue);
 				this.getCustomTableRepository().save(contentProvider);
+				this.getCustomTableRepository().flush();
 			}
 			List<ContentProviderAssociation> ContentProviderAssociationList = this.getContentRepository().getContentProviderByGooruOid(gooruOid, provider);
 			if (ContentProviderAssociationList.size() == 0) {
@@ -2827,6 +2828,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				contentProviderAssociation.setAssociatedDate(new Date(System.currentTimeMillis()));
 				contentProviderAssociation.setAssociatedBy(user);
 				this.getContentRepository().save(contentProviderAssociation);
+				this.getCustomTableRepository().flush();
 			} 
 		}
 		return providerList;

@@ -812,10 +812,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				collectionItem.setShowAnswerByQuestions(newcollectionItem.getShowAnswerByQuestions());
 				itemData.put("showAnswerByQuestions", newcollectionItem.getShowAnswerByQuestions());
 			}
-			if (newcollectionItem.getShowAnswerByQuestions() != null) {
-				collectionItem.setShowAnswerByQuestions(newcollectionItem.getShowAnswerByQuestions());
-				itemData.put("showAnswerByQuestions", newcollectionItem.getShowAnswerByQuestions());
-			}
 			if (newcollectionItem.getShowAnswerEnd() != null) {
 				collectionItem.setShowAnswerEnd(newcollectionItem.getShowAnswerEnd());
 				itemData.put("showAnswerEnd", newcollectionItem.getShowAnswerEnd());
