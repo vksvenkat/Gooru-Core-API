@@ -217,7 +217,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	public Profile getUserProfile(String gooruUid, Integer activeFlag) {
 
 		User user = this.findByGooruId(gooruUid);
-		if (user == null) {
+		if (user == null || user.getGooruUId().equalsIgnoreCase(ANONYMOUS)) {
 			throw new BadRequestException(generateErrorMessage(GL0056, USER));
 		}
 		Profile profile = this.getUserRepository().getProfile(user, false);
