@@ -486,6 +486,24 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 		return toModelAndViewWithIoFilter(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
 	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ITEM_UPDATE })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(value = { "{id}/pathway/move" }, method = RequestMethod.PUT)
+	public ModelAndView moveAndReorderPathwayCollection(@PathVariable(value = ID) String classId, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		User user = (User) request.getAttribute(Constants.USER);
+		JSONObject json = requestData(data);
+		ActionResponseDTO<CollectionItem> responseDTO = getClasspageService().moveAndReorderCollectionToPathway(json != null && getValue(SOURCE_ID, json) != null ? getValue(SOURCE_ID, json) : null, json != null && getValue(TARGET_ID, json) != null ? getValue(TARGET_ID, json) : null, json != null && getValue("newSequence", json) != null ? Integer.parseInt(getValue("newSequence", json)) : null , user);
+		if (responseDTO.getErrors().getErrorCount() > 0) {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+		}
+		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, COLLECTION_INCLUDE_FIELDS);
+		includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_ITEM_INCLUDE_FILEDS);
+		includes = (String[]) ArrayUtils.addAll(includes, ERROR_INCLUDE);
+		return toModelAndViewWithIoFilter(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
+	}
+	
+	
+	
 
 	private Classpage buildClasspageFromInputParameters(String data, User user) {
 		Classpage classpage = JsonDeserializer.deserialize(data, Classpage.class);

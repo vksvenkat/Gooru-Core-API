@@ -49,6 +49,7 @@ import org.ednovo.gooru.core.api.model.ShelfType;
 import org.ednovo.gooru.core.api.model.StorageArea;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserCollectionItemAssoc;
+import org.ednovo.gooru.core.api.model.UserContentAssoc;
 import org.ednovo.gooru.core.api.model.UserGroup;
 import org.ednovo.gooru.core.api.model.UserGroupAssociation;
 import org.ednovo.gooru.core.application.util.BaseUtil;
@@ -69,11 +70,13 @@ import org.ednovo.gooru.domain.service.task.TaskService;
 import org.ednovo.gooru.domain.service.user.UserService;
 import org.ednovo.gooru.domain.service.userManagement.UserManagementService;
 import org.ednovo.gooru.domain.service.v2.ContentService;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.InviteRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.party.UserGroupRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.storage.StorageRepository;
 import org.ednovo.gooru.security.OperationAuthorizer;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -128,6 +131,9 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	
 	@Autowired
 	private OperationAuthorizer operationAuthorizer;
+	
+	@Autowired
+	private CollectionRepository collectionRepository;
 
 	@Override
 	public ActionResponseDTO<Classpage> createClasspage(Classpage classpage, boolean addToUserClasspage, String assignmentId) throws Exception {
@@ -904,7 +910,51 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		return this.getCollectionService().reorderCollectionItem(pathwayId, newSequence);
 	}
 
-
+	@Override
+	public ActionResponseDTO<CollectionItem> moveAndReorderCollectionToPathway(String sourceId, String taregetId, Integer newSequence, User user) throws Exception {
+		ActionResponseDTO<CollectionItem> responseDTO = null;
+		
+		CollectionItem sourceIdItem = this.getCollectionRepository().getCollectionItemById(sourceId);
+		
+		CollectionItem pathwayItem = this.getCollectionRepository().getCollectionItemById(taregetId);
+		
+		if(sourceIdItem != null && pathwayItem != null){
+			responseDTO = moveCollectionToPathway(sourceIdItem,pathwayItem,responseDTO,user);
+		}
+		try {
+			this.getCollectionEventLog().getEventLogs(responseDTO.getModel(), true, user, responseDTO.getModel().getCollection().getCollectionType());
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return responseDTO;
+	}
+	
+	public ActionResponseDTO<CollectionItem> moveCollectionToPathway(CollectionItem  sourceIdItem, CollectionItem pathwayItem, ActionResponseDTO<CollectionItem> responseDTO, User user) throws Exception { 
+		Collection source = null;
+		if(sourceIdItem != null && sourceIdItem.getResource() != null){
+			source = this.getCollectionRepository().getCollectionByGooruOid(sourceIdItem.getResource().getGooruOid(), null);
+		}
+		if (source == null) {
+			throw new NotFoundException(generateErrorMessage(GL0056, _COLLECTION));
+		}
+		CollectionItem collectionItem = new CollectionItem();
+		collectionItem.setCollection(source);
+		if (sourceIdItem != null && sourceIdItem.getItemType() != null) {
+			collectionItem.setItemType(sourceIdItem.getItemType());
+		}
+		
+		if(pathwayItem != null && pathwayItem.getResource() != null){
+			responseDTO = this.getCollectionService().createCollectionItem(sourceIdItem.getResource().getGooruOid(), pathwayItem.getResource().getGooruOid(), collectionItem , user, ADDED, false);
+		}
+		
+		if (sourceIdItem != null) {
+			deleteCollectionItem(sourceIdItem.getCollectionItemId(), user);
+		}
+		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
+		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + user.getPartyUid() + "*");
+		
+		return responseDTO;
+	}
 	
 	public CollectionEventLog getScollectionEventlog() {
 		return scollectionEventlog;
@@ -968,6 +1018,10 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	
 	public ClasspageEventLog getClasspageEventlog() {
 		return classpageEventlog;
+	}
+	
+	public CollectionRepository getCollectionRepository() {
+		return collectionRepository;
 	}
 
 }

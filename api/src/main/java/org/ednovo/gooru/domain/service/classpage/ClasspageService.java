@@ -93,4 +93,6 @@ public interface ClasspageService {
 	
 	ActionResponseDTO<CollectionItem> reorderPathwaySequence(String classId,String pathwayId ,int newSequence) throws Exception;
 	
+	ActionResponseDTO<CollectionItem> moveAndReorderCollectionToPathway(String sourceCollectionId, String taregetPathwayId, Integer newSequence, User user) throws Exception;
+	
 }
