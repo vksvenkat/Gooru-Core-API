@@ -47,7 +47,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public abstract class AbstractS3Manager implements ParameterProperties {
+public abstract class AbstractS3Manager implements ParameterProperties  {
 
 	private final Logger logger = LoggerFactory.getLogger(AbstractS3Manager.class);
 

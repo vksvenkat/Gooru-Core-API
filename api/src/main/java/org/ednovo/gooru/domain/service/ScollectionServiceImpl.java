@@ -742,6 +742,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				this.getCollectionRepository().save(collectionItem.getCollection());
 			}
 			getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
+			getAsyncExecutor().deleteFromCache("v2-class-data-"+ collection.getGooruOid()+"*");
 		}
 
 		return new ActionResponseDTO<CollectionItem>(collectionItem, errors);
@@ -806,10 +807,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			if (newcollectionItem.getIsRequired() != null) {
 				collectionItem.setIsRequired(newcollectionItem.getIsRequired());
 				itemData.put(IS_REQUIRED, newcollectionItem.getIsRequired());
-			}
-			if (newcollectionItem.getShowAnswerByQuestions() != null) {
-				collectionItem.setShowAnswerByQuestions(newcollectionItem.getShowAnswerByQuestions());
-				itemData.put("showAnswerByQuestions", newcollectionItem.getShowAnswerByQuestions());
 			}
 			if (newcollectionItem.getShowAnswerByQuestions() != null) {
 				collectionItem.setShowAnswerByQuestions(newcollectionItem.getShowAnswerByQuestions());
@@ -911,6 +908,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 					}
 					indexProcessor.index(collectionItem.getCollection().getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
 					getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
+					getAsyncExecutor().deleteFromCache("v2-class-data-"+ collectionItem.getCollection().getGooruOid()+ "*");
 				} catch (Exception e) {
 					LOGGER.debug("error"+e.getMessage());
 				}
@@ -962,6 +960,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			}
 			this.getCollectionRepository().save(collection);
 			getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collection.getUser().getPartyUid() + "*");
+			getAsyncExecutor().deleteFromCache("v2-class-data-" + collection.getGooruOid() + "*");
 		}
 		return new ActionResponseDTO<CollectionItem>(collectionItem, errors);
 	}

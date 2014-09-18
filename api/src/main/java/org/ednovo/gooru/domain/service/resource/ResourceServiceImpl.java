@@ -2813,6 +2813,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				contentProvider.setActiveFlag(true);
 				contentProvider.setType(customTableValue);
 				this.getCustomTableRepository().save(contentProvider);
+				this.getCustomTableRepository().flush();
 			}
 			List<ContentProviderAssociation> ContentProviderAssociationList = this.getContentRepository().getContentProviderByGooruOid(gooruOid, provider);
 			if (ContentProviderAssociationList.size() == 0) {
@@ -2827,6 +2828,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				contentProviderAssociation.setAssociatedDate(new Date(System.currentTimeMillis()));
 				contentProviderAssociation.setAssociatedBy(user);
 				this.getContentRepository().save(contentProviderAssociation);
+				this.getCustomTableRepository().flush();
 			} 
 		}
 		return providerList;
@@ -2842,6 +2844,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	public Resource deleteTaxonomyResource(String resourceId, Resource newResource, User user) {
 
 		Resource resource = resourceRepository.findResourceByContentGooruId(resourceId);
+		rejectIfNull(resource, GL0056, RESOURCE);
 		deleteResourceTaxonomy(resource, newResource.getTaxonomySet());
 		return resource;
 	}
@@ -3171,10 +3174,10 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			resourceCassandraService.save(resourceCioList, resourceIds);
 			if(!skipReindex){
 				if(resourceIds.size() > 0){
-					indexProcessor.indexStas(StringUtils.join(resourceIds, ','), IndexProcessor.INDEX, RESOURCE, false);
+					indexProcessor.indexStas(StringUtils.join(resourceIds, ','), IndexProcessor.INDEX, RESOURCE);
 				}
 				if(collectionIds.size() > 0){
-					indexProcessor.indexStas(StringUtils.join(collectionIds, ','), IndexProcessor.INDEX, SCOLLECTION, false);
+					indexProcessor.indexStas(StringUtils.join(collectionIds, ','), IndexProcessor.INDEX, SCOLLECTION);
 				}
 			}
 		}
