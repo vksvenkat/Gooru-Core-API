@@ -61,13 +61,13 @@ public class OrganizationRestV2Controller extends BaseController implements Cons
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ORGANIZATION_READ })
 	@RequestMapping(method = RequestMethod.GET, value = "/{organizationUid}")
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public ModelAndView getOrganization(HttpServletRequest request, HttpServletResponse response, @PathVariable(_ORGANIZATION_UID) String accountUid) throws Exception {
-		Organization account = getOrganizationService().getOrganizationById(accountUid);
+	public ModelAndView getOrganization(HttpServletRequest request, HttpServletResponse response, @PathVariable(_ORGANIZATION_UID) String organizationUid) throws Exception {
+		Organization account = getOrganizationService().getOrganizationById(organizationUid);
 		return toModelAndViewWithIoFilter(account, FORMAT_JSON, EXCLUDE_ALL, true, ORGANIZATION_INCLUDES);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ORGANIZATION_LIST })
-	@RequestMapping(method = RequestMethod.GET, value = "/account/list")
+	@RequestMapping(method = RequestMethod.GET, value = " ")
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ModelAndView getOrganizations(HttpServletRequest request, HttpServletResponse response,
 			@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, 
