@@ -158,7 +158,6 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 	@Override
 	public ActionResponseDTO<SessionItem> createSessionItem(final SessionItem sessionItem, final String sessionId) {
 		Errors errors = null;
-	 try {
 		final Session session = this.getSessionRepository().findSessionById(sessionId);
 		rejectIfNull(session, GL0056, SESSION);
 		final Resource resource = this.getResourceRepository().findResourceByContentGooruId(sessionItem.getResource().getGooruOid());
@@ -185,9 +184,6 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 
 			this.getSessionRepository().save(sessionItem);
 		}
-	 } catch(Exception e) { 
-		 LOGGER.error("Failed to log : " + e);
-	 }
 		return new ActionResponseDTO<SessionItem>(sessionItem, errors);
 	}
 
@@ -213,7 +209,6 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 
 	@Override
 	public SessionItemAttemptTry createSessionItemAttemptTry(final SessionItemAttemptTry sessionItemAttemptTry, final String sessionItemId) {
-		try{
 			final SessionItem sessionItem = this.getSessionRepository().findSessionItemById(sessionItemId);
 			rejectIfNull(sessionItem, GL0056, SESSION_ITEM);
 			AssessmentQuestion question = new AssessmentQuestion();
@@ -262,9 +257,6 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 			sessionItemAttemptTry.setTrySequence(trySequence);
 			this.getSessionRepository().save(sessionItemAttemptTry);
 			this.getSessionRepository().save(sessionItem);
-		} catch(Exception e){
-			SessionContextSupport.putLogParameter("sessionErrorLog", e.getMessage());
-		}
 		return sessionItemAttemptTry;
 	}
 
