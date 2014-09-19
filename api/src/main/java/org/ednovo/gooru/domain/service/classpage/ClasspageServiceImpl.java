@@ -925,46 +925,35 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	@Override
 	public ActionResponseDTO<CollectionItem> moveAndReorderCollectionToPathway(String sourceId, String taregetId, Integer newSequence, User user) throws Exception {
 		ActionResponseDTO<CollectionItem> responseDTO = null;
-		
 		CollectionItem sourceIdItem = this.getCollectionRepository().getCollectionItemById(sourceId);
-		
 		CollectionItem pathwayItem = this.getCollectionRepository().getCollectionItemById(taregetId);
-		
 		if(sourceIdItem != null && pathwayItem != null){
 			responseDTO = moveCollectionToPathway(sourceIdItem,pathwayItem,responseDTO,user);
-		}
-		try {
-			this.getCollectionEventLog().getEventLogs(responseDTO.getModel(), true, user, responseDTO.getModel().getCollection().getCollectionType());
-		} catch (JSONException e) {
-			e.printStackTrace();
 		}
 		return responseDTO;
 	}
 	
 	public ActionResponseDTO<CollectionItem> moveCollectionToPathway(CollectionItem  sourceIdItem, CollectionItem pathwayItem, ActionResponseDTO<CollectionItem> responseDTO, User user) throws Exception { 
-		Collection source = null;
-		if(sourceIdItem != null && sourceIdItem.getResource() != null){
-			source = this.getCollectionRepository().getCollectionByGooruOid(sourceIdItem.getResource().getGooruOid(), null);
-		}
-		if (source == null) {
-			throw new NotFoundException(generateErrorMessage(GL0056, _COLLECTION));
-		}
 		CollectionItem collectionItem = new CollectionItem();
-		collectionItem.setCollection(source);
+		if(sourceIdItem != null && sourceIdItem.getCollection() != null ){
+			collectionItem.setCollection(sourceIdItem.getCollection());
+		} 
 		if (sourceIdItem != null && sourceIdItem.getItemType() != null) {
 			collectionItem.setItemType(sourceIdItem.getItemType());
-		}
-		
+		} 
 		if(pathwayItem != null && pathwayItem.getResource() != null){
 			responseDTO = this.getCollectionService().createCollectionItem(sourceIdItem.getResource().getGooruOid(), pathwayItem.getResource().getGooruOid(), collectionItem , user, ADDED, false);
 		}
-		
 		if (sourceIdItem != null) {
 			deleteCollectionItem(sourceIdItem.getCollectionItemId(), user);
 		}
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + user.getPartyUid() + "*");
-		
+		try {
+			this.getCollectionEventLog().getEventLogs(responseDTO.getModel(), true, user, responseDTO.getModel().getCollection().getCollectionType());
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
 		return responseDTO;
 	}
 	
