@@ -75,7 +75,7 @@ public interface ClasspageService {
 	
 	List<Map<String, Object>> setMyStudy(List<Object[]> results);
 	
-	CollectionItem updateAssignment(String collectionItemId, String status, String minimumscore ,User user);
+	CollectionItem updateAssignment(String collectionItemId, String status, String minimumscore ,String assignmentCompleted , String timeStudying,User user);
 	
 	List<Map<String, Object>> getClasspageItems(String gooruOid, Integer limit, Integer offset, User user, String orderBy, boolean optimize, String status);
 
@@ -92,5 +92,9 @@ public interface ClasspageService {
 	SearchResults<CollectionItem> getPathwayItemsSearchResults(String classId,String pathId, Integer offset, Integer limit, String orderBy, User user);
 	
 	ActionResponseDTO<CollectionItem> reorderPathwaySequence(String classId,String pathwayId ,int newSequence) throws Exception;
+	
+	void deletePathwayItem(String classId,String pathwayGooruOid,String collectionItemId ,User user);
+	
+	ActionResponseDTO<CollectionItem> updatePathwayItem(String classId,String pathwayGooruOid,String collectionItemId,CollectionItem newcollectionItem,  User user) throws Exception;
 	
 }

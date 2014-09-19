@@ -720,11 +720,11 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 
 	@Override
-	public CollectionItem updateAssignment(String collectionItemId, String status, String minimumScore ,User user) {
+	public CollectionItem updateAssignment(String collectionItemId, String status, String minimumScore,String assignmentCompleted , String timeStudying ,User user) {
 		CollectionItem collectionItem = this.getCollectionItemById(collectionItemId);
 		rejectIfNull(collectionItem, GL0056, generateErrorMessage(GL0056, COLLECTION_ITEM));
-		UserCollectionItemAssoc userCollectionItemAssoc = null;
-		userCollectionItemAssoc = this.getCollectionRepository().getUserCollectionItemAssoc(collectionItem.getCollectionItemId(), user.getPartyUid());
+		
+		UserCollectionItemAssoc  userCollectionItemAssoc = this.getCollectionRepository().getUserCollectionItemAssoc(collectionItem.getCollectionItemId(), user.getPartyUid());
 		if (userCollectionItemAssoc == null) {
 			userCollectionItemAssoc = new UserCollectionItemAssoc();
 			userCollectionItemAssoc.setCollectionItem(collectionItem);
@@ -734,6 +734,12 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		if (minimumScore != null) {
 			userCollectionItemAssoc.setMinimumScore(minimumScore);
 		}
+		if(assignmentCompleted != null) {
+			userCollectionItemAssoc.setAssignmentCompleted(assignmentCompleted);
+		}
+		if(timeStudying != null) {
+			userCollectionItemAssoc.setTimeStudying(timeStudying);
+		}
 		if (status != null) {
 			CustomTableValue statusType = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.ASSIGNMENT_STATUS_TYPE.getTable(), status);
 			userCollectionItemAssoc.setStatus(statusType);
@@ -741,6 +747,8 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		this.getCollectionRepository().save(userCollectionItemAssoc);
 		userCollectionItemAssoc.getCollectionItem().setStatus(userCollectionItemAssoc.getStatus() != null ? userCollectionItemAssoc.getStatus().getValue() : null);
 		userCollectionItemAssoc.getCollectionItem().setMinimumScoreByUser(userCollectionItemAssoc.getMinimumScore());
+		userCollectionItemAssoc.getCollectionItem().setAssignmentCompleted(userCollectionItemAssoc.getAssignmentCompleted());
+		userCollectionItemAssoc.getCollectionItem().setTimeStudying(userCollectionItemAssoc.getTimeStudying());
 		return userCollectionItemAssoc.getCollectionItem();
 	}
 
@@ -880,6 +888,8 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			if(userCollectionItemAssoc != null && userCollectionItemAssoc.getMinimumScore() != null){
 				collectionItem.setMinimumScoreByUser(userCollectionItemAssoc.getMinimumScore());
 			}
+			collectionItem.setAssignmentCompleted(userCollectionItemAssoc.getAssignmentCompleted());
+			collectionItem.setTimeStudying(userCollectionItemAssoc.getTimeStudying());
 		}
 		return collectionItems;
 	}
@@ -968,6 +978,30 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	
 	public ClasspageEventLog getClasspageEventlog() {
 		return classpageEventlog;
+	}
+
+	@Override
+	public void deletePathwayItem(String classId, String pathwayGooruOid, String collectionItemId, User user) {
+		if (this.getCollectionRepository().getCollectionByIdWithType(pathwayGooruOid, PATHWAY) == null) {
+			throw new BadRequestException("pathway not found");
+		}
+		if (this.getCollectionRepository().getCollectionByIdWithType(classId, CLASSPAGE) == null) {
+			throw new BadRequestException("class not found");
+		}
+		getCollectionService().deleteCollectionItem(collectionItemId, user);
+		getAsyncExecutor().deleteFromCache("v2-class-data-" + classId + "*");
+	}
+	
+	@Override
+	public ActionResponseDTO<CollectionItem> updatePathwayItem(String classId,String pathwayGooruOid,String collectionItemId,CollectionItem newcollectionItem,  User user) throws Exception {
+		if (this.getCollectionRepository().getCollectionByIdWithType(pathwayGooruOid, PATHWAY) == null) {
+			throw new BadRequestException("pathway not found");
+		}
+		if (this.getCollectionRepository().getCollectionByIdWithType(classId, CLASSPAGE) == null) {
+			throw new BadRequestException("class not found");
+		}
+		getAsyncExecutor().deleteFromCache("v2-class-data-" + classId + "*");
+		return updateCollectionItem(newcollectionItem, collectionItemId, user);
 	}
 
 }
