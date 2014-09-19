@@ -467,7 +467,7 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 			@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, @RequestParam(value = CLEAR_CACHE, required = false, defaultValue = "false") Boolean clearCache, @RequestParam(value = ORDER_BY, defaultValue = SEQUENCE, required = false) String orderBy,
 			HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
-		final String cacheKey = "v2-class-data	-" + classId+ "-"+ pathId + "-" + offset + "-" + limit + "-" + orderBy;
+		final String cacheKey = "v2-class-data-" + classId+ "-"+ pathId + "-" + offset + "-" + limit + "-" + orderBy;
 		String data = null;
 		if (!clearCache) {
 			data = getRedisService().getValue(cacheKey);
