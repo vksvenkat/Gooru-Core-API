@@ -19,6 +19,10 @@ public class UserCollectionItemAssoc implements Serializable{
 	private Date lastModifiedOn;
 	
 	private String minimumScore;
+	
+	private String assignmentCompleted;
+	
+	private String timeStudying;
 
 	public User getUser() {
 		return user;
@@ -58,6 +62,22 @@ public class UserCollectionItemAssoc implements Serializable{
 
 	public String getMinimumScore() {
 		return minimumScore;
+	}
+
+	public void setAssignmentCompleted(String assignmentCompleted) {
+		this.assignmentCompleted = assignmentCompleted;
+	}
+
+	public String getAssignmentCompleted() {
+		return assignmentCompleted;
+	}
+
+	public void setTimeStudying(String timeStudying) {
+		this.timeStudying = timeStudying;
+	}
+
+	public String getTimeStudying() {
+		return timeStudying;
 	}
 
 }

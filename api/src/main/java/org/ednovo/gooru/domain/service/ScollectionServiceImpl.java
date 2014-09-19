@@ -858,6 +858,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				}
 				indexProcessor.index(collectionItem.getCollection().getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
 				getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
+				getAsyncExecutor().deleteFromCache("v2-class-data-" + collectionItem.getCollection().getGooruOid() + "*");
 			} catch (Exception e) {
 				LOGGER.debug(e.getMessage());
 			}
@@ -2422,7 +2423,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		this.collectionRepository.removeAll(collections);
 		indexProcessor.index(removeContentIds.toString(), IndexProcessor.DELETE, SCOLLECTION);
 	}
-	
+  
 	public boolean isResourceType(final Resource resource){
 		boolean isResourceType = false;
 		if(!resource.getResourceType().equals(ResourceType.Type.SCOLLECTION.getType()) && !resource.getResourceType().equals(ResourceType.Type.CLASSPAGE.getType()) && !resource.getResourceType().equals(ResourceType.Type.FOLDER.getType())){

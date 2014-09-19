@@ -34,7 +34,7 @@ public interface ConstantProperties {
 			"*.lastModified", "*.gooruUId", "*.vocabulary", "*.collaborators", "*.network", "trackActivity.startTime", "trackActivity.endTime" };
 
 	static final String COLLECTION_ITEM_INCLUDE_FILEDS[] = { "*.collectionItems", "*.collectionItemId", "*.itemSequence", "*.itemType", "*.narration", "*.narrationType", "*.lastModified", "*.start", "*.stop", "*.standards", "*.license", "*.standards.code", "*.standards.description",
-			"*.associationDate", "*associatedUser", "*.status", "*.totalPages","*.isRequired","*.minimumScore","*.estimatedTime","*.showAnswerByQuestions","*.showHints","*.showAnswerEnd","*.resource","*.resource.collectionItems.resource" ,"*.itemCount","*.minimumScoreByUser"};
+			"*.associationDate", "*associatedUser", "*.status", "*.totalPages","*.isRequired","*.minimumScore","*.estimatedTime","*.showAnswerByQuestions","*.showHints","*.showAnswerEnd","*.resource","*.resource.collectionItems.resource" ,"*.itemCount","*.minimumScoreByUser","*.timeStudying","*.assignmentCompleted"};
 
 	static final String CLASSPAGE_COLLECTION_ITEM_INCLUDE_FIELDS[] = { "*.plannedEndDate", "*.totalHitCount", "*.searchResults" ,"*.collectionItems", "*.resource", "*.resource.collectionItems.resource","*.itemCount","*.minimumScoreByUser"};
 
