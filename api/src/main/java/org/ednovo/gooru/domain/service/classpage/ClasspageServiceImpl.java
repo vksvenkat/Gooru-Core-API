@@ -882,14 +882,16 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		List<CollectionItem> collectionItems = this.getCollectionRepository().getCollectionItems(pathwayId, offset, limit, orderBy, CLASSPAGE);
 		for (CollectionItem collectionItem : collectionItems) {
 			UserCollectionItemAssoc userCollectionItemAssoc = this.getCollectionRepository().getUserCollectionItemAssoc(collectionItem.getCollectionItemId(), user.getPartyUid());
-			if (userCollectionItemAssoc != null && userCollectionItemAssoc.getStatus() != null) {
-				collectionItem.setStatus(userCollectionItemAssoc.getStatus().getValue());
+			if (userCollectionItemAssoc != null) {
+				if (userCollectionItemAssoc.getStatus() != null) {
+					collectionItem.setStatus(userCollectionItemAssoc.getStatus().getValue());
+				}
+				if (userCollectionItemAssoc.getMinimumScore() != null) {
+					collectionItem.setMinimumScoreByUser(userCollectionItemAssoc.getMinimumScore());
+				}
+				collectionItem.setAssignmentCompleted(userCollectionItemAssoc.getAssignmentCompleted());
+				collectionItem.setTimeStudying(userCollectionItemAssoc.getTimeStudying());
 			}
-			if(userCollectionItemAssoc != null && userCollectionItemAssoc.getMinimumScore() != null){
-				collectionItem.setMinimumScoreByUser(userCollectionItemAssoc.getMinimumScore());
-			}
-			collectionItem.setAssignmentCompleted(userCollectionItemAssoc.getAssignmentCompleted());
-			collectionItem.setTimeStudying(userCollectionItemAssoc.getTimeStudying());
 		}
 		return collectionItems;
 	}
