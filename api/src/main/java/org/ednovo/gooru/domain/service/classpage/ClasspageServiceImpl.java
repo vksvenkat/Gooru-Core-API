@@ -69,11 +69,13 @@ import org.ednovo.gooru.domain.service.task.TaskService;
 import org.ednovo.gooru.domain.service.user.UserService;
 import org.ednovo.gooru.domain.service.userManagement.UserManagementService;
 import org.ednovo.gooru.domain.service.v2.ContentService;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.InviteRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.party.UserGroupRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.storage.StorageRepository;
 import org.ednovo.gooru.security.OperationAuthorizer;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -128,6 +130,9 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	
 	@Autowired
 	private OperationAuthorizer operationAuthorizer;
+	
+	@Autowired
+	private CollectionRepository collectionRepository;
 
 	@Override
 	public ActionResponseDTO<Classpage> createClasspage(Classpage classpage, boolean addToUserClasspage, String assignmentId) throws Exception {
@@ -753,8 +758,8 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 
 	@Override
-	public List<Map<String, Object>> getClasspageItems(String gooruOid, Integer limit, Integer offset, User apiCaller, String orderBy, boolean optimize, String status) {
-		List<Object[]> results = this.getCollectionRepository().getClasspageItems(gooruOid, limit, offset, apiCaller.getPartyUid(), orderBy, status);
+	public List<Map<String, Object>> getClasspageItems(String gooruOid, Integer limit, Integer offset, User apiCaller, String orderBy, boolean optimize, String status, String type) {
+		List<Object[]> results = this.getCollectionRepository().getClasspageItems(gooruOid, limit, offset, apiCaller.getPartyUid(), orderBy, status,type);
 		List<Map<String, Object>> collectionItems = new ArrayList<Map<String, Object>>();
 		for (Object[] object : results) {
 			Map<String, Object> result = new HashMap<String, Object>();
@@ -916,7 +921,59 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		return this.getCollectionService().reorderCollectionItem(pathwayId, newSequence);
 	}
 
-
+	@Override
+	public CollectionItem pathwayItemMoveWithReorder(String classId, String pathwayId,String sourceId, String taregetId, Integer newSequence, User user) throws Exception {
+		CollectionItem targetItem = null;
+		CollectionItem sourceItem = this.getCollectionRepository().getCollectionItemById(sourceId);
+		rejectIfNull(sourceItem, GL0056, "item");
+		Collection targetPathway = this.getCollectionRepository().getCollectionByIdWithType(taregetId, PATHWAY);
+		if (targetPathway != null) {
+			CollectionItem collectionItem = new CollectionItem();
+			collectionItem.setItemType(sourceItem.getItemType());
+			collectionItem.setNarration(sourceItem.getNarration());
+			collectionItem.setIsRequired(sourceItem.getIsRequired());
+			collectionItem.setMinimumScore(sourceItem.getMinimumScore());
+			collectionItem.setEstimatedTime(sourceItem.getEstimatedTime());
+			collectionItem.setShowAnswerByQuestions(sourceItem.getShowAnswerByQuestions());
+			collectionItem.setShowAnswerEnd(sourceItem.getShowAnswerEnd());
+			collectionItem.setShowHints(sourceItem.getShowHints());
+			targetItem = this.getCollectionService().createCollectionItem(sourceItem.getResource().getGooruOid(), targetPathway.getGooruOid(), collectionItem, user, ADDED, false).getModel();
+			Set<CollectionItem> collectionItems = new TreeSet<CollectionItem>(targetPathway.getCollectionItems());
+			collectionItems.add(collectionItem);
+			targetPathway.setCollectionItems(collectionItems);
+			this.getCollectionRepository().save(targetPathway);
+			deleteCollectionItem(sourceItem.getCollectionItemId(), user);
+		}
+		if (newSequence != null) {
+			targetItem = this.getCollectionService().reorderCollectionItem(targetItem != null ? targetItem.getCollectionItemId() : sourceId, newSequence).getModel();
+		}
+		getAsyncExecutor().deleteFromCache("v2-class-data-"+ classId +"*");
+		return targetItem != null ? targetItem : sourceItem;
+	}
+	
+	public ActionResponseDTO<CollectionItem> moveCollectionToPathway(CollectionItem  sourceIdItem, CollectionItem pathwayItem, ActionResponseDTO<CollectionItem> responseDTO, User user) throws Exception { 
+		CollectionItem collectionItem = new CollectionItem();
+		if(sourceIdItem != null && sourceIdItem.getCollection() != null ){
+			collectionItem.setCollection(sourceIdItem.getCollection());
+		} 
+		if (sourceIdItem != null && sourceIdItem.getItemType() != null) {
+			collectionItem.setItemType(sourceIdItem.getItemType());
+		} 
+		if(pathwayItem != null && pathwayItem.getResource() != null){
+			responseDTO = this.getCollectionService().createCollectionItem(sourceIdItem.getResource().getGooruOid(), pathwayItem.getResource().getGooruOid(), collectionItem , user, ADDED, false);
+		}
+		if (sourceIdItem != null) {
+			deleteCollectionItem(sourceIdItem.getCollectionItemId(), user);
+		}
+		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
+		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + user.getPartyUid() + "*");
+		try {
+			this.getCollectionEventLog().getEventLogs(responseDTO.getModel(), true, user, responseDTO.getModel().getCollection().getCollectionType());
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return responseDTO;
+	}
 	
 	public CollectionEventLog getScollectionEventlog() {
 		return scollectionEventlog;
@@ -980,6 +1037,10 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	
 	public ClasspageEventLog getClasspageEventlog() {
 		return classpageEventlog;
+	}
+	
+	public CollectionRepository getCollectionRepository() {
+		return collectionRepository;
 	}
 
 	@Override

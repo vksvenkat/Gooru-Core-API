@@ -278,20 +278,20 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/{cid}/item", method = RequestMethod.GET)
 	public ModelAndView getClasspageItems(@PathVariable(value = COLLECTIONID) String classpageId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue= "10") Integer limit,
-		@RequestParam(value = ORDER_BY, defaultValue = PLANNED_END_DATE, required = false) String orderBy,@RequestParam(value=CLEAR_CACHE, required=false, defaultValue="false" ) Boolean clearCache, @RequestParam(value = OPTIMIZE, required = false, defaultValue = FALSE) Boolean optimize, @RequestParam(value = STATUS, required = false) String status, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		@RequestParam(value = ORDER_BY, defaultValue = PLANNED_END_DATE, required = false) String orderBy,@RequestParam(value=CLEAR_CACHE, required=false, defaultValue="false" ) Boolean clearCache, @RequestParam(value = OPTIMIZE, required = false, defaultValue = FALSE) Boolean optimize, @RequestParam(value = STATUS, required = false) String status, @RequestParam(value = TYPE, required = false) String type,HttpServletRequest request, HttpServletResponse response) throws Exception {
 		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, CLASSPAGE_COLLECTION_ITEM_INCLUDE_FIELDS);
 		includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_ITEM_INCLUDE_FILEDS);
 		User user = (User) request.getAttribute(Constants.USER);
-		final String cacheKey = "v2-class-data-" + classpageId + "-" + offset + "-" + limit  + "-" + optimize + "-" + orderBy +"-"+ status ;
+		final String cacheKey = "v2-class-data-" + classpageId + "-" + offset + "-" + limit  + "-" + optimize + "-" + orderBy +"-"+ status+"-"+type ;
 		String data = null;
 		if (!clearCache) {
 			data = getRedisService().getValue(cacheKey);
 		}
 		if (data == null) {
-			List<Map<String, Object>> collectionItems = this.getClasspageService().getClasspageItems(classpageId, limit != null ? limit : (optimize ? limit : 5), offset, user, orderBy, optimize, status);
+			List<Map<String, Object>> collectionItems = this.getClasspageService().getClasspageItems(classpageId, limit != null ? limit : (optimize ? limit : 5), offset, user, orderBy, optimize, status, type);
 			SearchResults<Map<String, Object>> result = new SearchResults<Map<String, Object>>();
 			result.setSearchResults(collectionItems);
-			result.setTotalHitCount(this.getCollectionRepository().getClasspageCollectionCount(classpageId, status, user.getPartyUid(), orderBy));
+			result.setTotalHitCount(this.getCollectionRepository().getClasspageCollectionCount(classpageId, status, user.getPartyUid(), orderBy, type));
 			data = serialize(result, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, true, includes);
 			getRedisService().putValue(cacheKey, data, 86400);
 		}
@@ -511,6 +511,22 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 
 		return toModelAndViewWithIoFilter(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
+	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ITEM_UPDATE })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(value = { "{id}/pathway/{pid}/item/{itemId}/move" }, method = RequestMethod.PUT)
+	public ModelAndView pathwayItemMoveWithReorder(@PathVariable(value= ID) String classId , @PathVariable(value= "itemId") String collectionItemId,@PathVariable(value= "pid") String pathwayId, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		User user = (User) request.getAttribute(Constants.USER);
+		JSONObject json = requestData(data);
+		CollectionItem collectionItem = getClasspageService().pathwayItemMoveWithReorder(classId,pathwayId,collectionItemId, json != null && getValue(TARGET_ID, json) != null ? getValue(TARGET_ID, json) : null, json != null && getValue("newSequence", json) != null ? Integer.parseInt(getValue("newSequence", json)) : null , user);
+
+		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, COLLECTION_INCLUDE_FIELDS);
+		includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_ITEM_INCLUDE_FILEDS);
+		includes = (String[]) ArrayUtils.addAll(includes, ERROR_INCLUDE);
+		return toModelAndViewWithIoFilter(collectionItem, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
+	}
+	
+	
 	
 
 	private Classpage buildClasspageFromInputParameters(String data, User user) {
