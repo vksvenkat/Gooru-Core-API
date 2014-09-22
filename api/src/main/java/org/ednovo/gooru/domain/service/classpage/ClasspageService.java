@@ -77,7 +77,7 @@ public interface ClasspageService {
 	
 	CollectionItem updateAssignment(String collectionItemId, String status, String minimumscore ,String assignmentCompleted , String timeStudying,User user);
 	
-	List<Map<String, Object>> getClasspageItems(String gooruOid, Integer limit, Integer offset, User user, String orderBy, boolean optimize, String status);
+	List<Map<String, Object>> getClasspageItems(String gooruOid, Integer limit, Integer offset, User user, String orderBy, boolean optimize, String status, String type);
 
 	Map<String,Object> getClasspageAssoc(Integer offset, Integer limit, String classpageId, String collectionId, String title, String collectionTitle, String classCode,String collectionCreator);
 	
@@ -93,7 +93,7 @@ public interface ClasspageService {
 	
 	ActionResponseDTO<CollectionItem> reorderPathwaySequence(String classId,String pathwayId ,int newSequence) throws Exception;
 	
-	ActionResponseDTO<CollectionItem> moveAndReorderCollectionToPathway(String sourceCollectionId, String taregetPathwayId, Integer newSequence, User user) throws Exception;
+	CollectionItem pathwayItemMoveWithReorder(String classId,String pathwayId,String sourceItemId, String taregetPathwayId, Integer newSequence, User user) throws Exception;
 	
 	void deletePathwayItem(String classId,String pathwayGooruOid,String collectionItemId ,User user);
 	
