@@ -93,6 +93,8 @@ public interface ClasspageService {
 	
 	ActionResponseDTO<CollectionItem> reorderPathwaySequence(String classId,String pathwayId ,int newSequence) throws Exception;
 	
+	ActionResponseDTO<CollectionItem> moveAndReorderCollectionToPathway(String sourceCollectionId, String taregetPathwayId, Integer newSequence, User user) throws Exception;
+	
 	void deletePathwayItem(String classId,String pathwayGooruOid,String collectionItemId ,User user);
 	
 	ActionResponseDTO<CollectionItem> updatePathwayItem(String classId,String pathwayGooruOid,String collectionItemId,CollectionItem newcollectionItem,  User user) throws Exception;
