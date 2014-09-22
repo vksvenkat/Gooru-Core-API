@@ -923,37 +923,21 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 
 	@Override
 	public CollectionItem pathwayItemMoveWithReorder(String classId, String pathwayId,String sourceId, String taregetId, Integer newSequence, User user) throws Exception {
-		CollectionItem responseDTO = null;
+		CollectionItem targetItem = null;
 		CollectionItem sourceItem = this.getCollectionRepository().getCollectionItemById(sourceId);
 		rejectIfNull(sourceItem, GL0056, "item");
 		Collection targetPathway = this.getCollectionRepository().getCollectionByIdWithType(taregetId, PATHWAY);
-		if(targetPathway != null ){
+		if (targetPathway != null) {
 			CollectionItem collectionItem = new CollectionItem();
-			if (sourceItem.getItemType() != null) {
-				collectionItem.setItemType(sourceItem.getItemType());
-			}
-			if (sourceItem.getNarration() != null) {
-				collectionItem.setNarration(sourceItem.getNarration());
-			}
-			if(sourceItem.getIsRequired() != null) {
-				collectionItem.setIsRequired(sourceItem.getIsRequired());
-			}
-			if(sourceItem.getMinimumScore() != null) {
-				collectionItem.setMinimumScore(sourceItem.getMinimumScore());
-			}
-			if(sourceItem.getEstimatedTime() != null) {
-				collectionItem.setEstimatedTime(sourceItem.getEstimatedTime());
-			}
-			if(sourceItem.getShowAnswerByQuestions() != null) {
-				collectionItem.setShowAnswerByQuestions(sourceItem.getShowAnswerByQuestions());
-			}
-			if(sourceItem.getShowAnswerEnd() == null) {
-				collectionItem.setShowAnswerEnd(sourceItem.getShowAnswerEnd());
-			}
-			if(sourceItem.getShowHints() != null) {
-				collectionItem.setShowHints(sourceItem.getShowHints());
-			}
-			responseDTO = this.getCollectionService().createCollectionItem(sourceItem.getResource().getGooruOid(), targetPathway.getGooruOid(), collectionItem, user,ADDED, false).getModel();
+			collectionItem.setItemType(sourceItem.getItemType());
+			collectionItem.setNarration(sourceItem.getNarration());
+			collectionItem.setIsRequired(sourceItem.getIsRequired());
+			collectionItem.setMinimumScore(sourceItem.getMinimumScore());
+			collectionItem.setEstimatedTime(sourceItem.getEstimatedTime());
+			collectionItem.setShowAnswerByQuestions(sourceItem.getShowAnswerByQuestions());
+			collectionItem.setShowAnswerEnd(sourceItem.getShowAnswerEnd());
+			collectionItem.setShowHints(sourceItem.getShowHints());
+			targetItem = this.getCollectionService().createCollectionItem(sourceItem.getResource().getGooruOid(), targetPathway.getGooruOid(), collectionItem, user, ADDED, false).getModel();
 			Set<CollectionItem> collectionItems = new TreeSet<CollectionItem>(targetPathway.getCollectionItems());
 			collectionItems.add(collectionItem);
 			targetPathway.setCollectionItems(collectionItems);
@@ -961,10 +945,10 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			deleteCollectionItem(sourceItem.getCollectionItemId(), user);
 		}
 		if (newSequence != null) {
-			responseDTO = this.getCollectionService().reorderCollectionItem(responseDTO != null ? responseDTO.getCollectionItemId() : sourceId, newSequence).getModel();
+			targetItem = this.getCollectionService().reorderCollectionItem(targetItem != null ? targetItem.getCollectionItemId() : sourceId, newSequence).getModel();
 		}
 		getAsyncExecutor().deleteFromCache("v2-class-data-"+ classId +"*");
-		return responseDTO != null ? responseDTO : sourceItem;
+		return targetItem != null ? targetItem : sourceItem;
 	}
 	
 	public ActionResponseDTO<CollectionItem> moveCollectionToPathway(CollectionItem  sourceIdItem, CollectionItem pathwayItem, ActionResponseDTO<CollectionItem> responseDTO, User user) throws Exception { 
