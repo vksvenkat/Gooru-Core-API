@@ -49,7 +49,6 @@ import org.ednovo.gooru.core.api.model.ShelfType;
 import org.ednovo.gooru.core.api.model.StorageArea;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserCollectionItemAssoc;
-import org.ednovo.gooru.core.api.model.UserContentAssoc;
 import org.ednovo.gooru.core.api.model.UserGroup;
 import org.ednovo.gooru.core.api.model.UserGroupAssociation;
 import org.ednovo.gooru.core.application.util.BaseUtil;
@@ -759,8 +758,8 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 
 	@Override
-	public List<Map<String, Object>> getClasspageItems(String gooruOid, Integer limit, Integer offset, User apiCaller, String orderBy, boolean optimize, String status) {
-		List<Object[]> results = this.getCollectionRepository().getClasspageItems(gooruOid, limit, offset, apiCaller.getPartyUid(), orderBy, status);
+	public List<Map<String, Object>> getClasspageItems(String gooruOid, Integer limit, Integer offset, User apiCaller, String orderBy, boolean optimize, String status, String type) {
+		List<Object[]> results = this.getCollectionRepository().getClasspageItems(gooruOid, limit, offset, apiCaller.getPartyUid(), orderBy, status,type);
 		List<Map<String, Object>> collectionItems = new ArrayList<Map<String, Object>>();
 		for (Object[] object : results) {
 			Map<String, Object> result = new HashMap<String, Object>();
@@ -923,14 +922,49 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 
 	@Override
-	public ActionResponseDTO<CollectionItem> moveAndReorderCollectionToPathway(String sourceId, String taregetId, Integer newSequence, User user) throws Exception {
-		ActionResponseDTO<CollectionItem> responseDTO = null;
-		CollectionItem sourceIdItem = this.getCollectionRepository().getCollectionItemById(sourceId);
-		CollectionItem pathwayItem = this.getCollectionRepository().getCollectionItemById(taregetId);
-		if(sourceIdItem != null && pathwayItem != null){
-			responseDTO = moveCollectionToPathway(sourceIdItem,pathwayItem,responseDTO,user);
+	public CollectionItem pathwayItemMoveWithReorder(String classId, String pathwayId,String sourceId, String taregetId, Integer newSequence, User user) throws Exception {
+		CollectionItem responseDTO = null;
+		CollectionItem sourceItem = this.getCollectionRepository().getCollectionItemById(sourceId);
+		rejectIfNull(sourceItem, GL0056, "item");
+		Collection targetPathway = this.getCollectionRepository().getCollectionByIdWithType(taregetId, PATHWAY);
+		if(targetPathway != null ){
+			CollectionItem collectionItem = new CollectionItem();
+			if (sourceItem.getItemType() != null) {
+				collectionItem.setItemType(sourceItem.getItemType());
+			}
+			if (sourceItem.getNarration() != null) {
+				collectionItem.setNarration(sourceItem.getNarration());
+			}
+			if(sourceItem.getIsRequired() != null) {
+				collectionItem.setIsRequired(sourceItem.getIsRequired());
+			}
+			if(sourceItem.getMinimumScore() != null) {
+				collectionItem.setMinimumScore(sourceItem.getMinimumScore());
+			}
+			if(sourceItem.getEstimatedTime() != null) {
+				collectionItem.setEstimatedTime(sourceItem.getEstimatedTime());
+			}
+			if(sourceItem.getShowAnswerByQuestions() != null) {
+				collectionItem.setShowAnswerByQuestions(sourceItem.getShowAnswerByQuestions());
+			}
+			if(sourceItem.getShowAnswerEnd() == null) {
+				collectionItem.setShowAnswerEnd(sourceItem.getShowAnswerEnd());
+			}
+			if(sourceItem.getShowHints() != null) {
+				collectionItem.setShowHints(sourceItem.getShowHints());
+			}
+			responseDTO = this.getCollectionService().createCollectionItem(sourceItem.getResource().getGooruOid(), targetPathway.getGooruOid(), collectionItem, user,ADDED, false).getModel();
+			Set<CollectionItem> collectionItems = new TreeSet<CollectionItem>(targetPathway.getCollectionItems());
+			collectionItems.add(collectionItem);
+			targetPathway.setCollectionItems(collectionItems);
+			this.getCollectionRepository().save(targetPathway);
+			deleteCollectionItem(sourceItem.getCollectionItemId(), user);
 		}
-		return responseDTO;
+		if (newSequence != null) {
+			responseDTO = this.getCollectionService().reorderCollectionItem(responseDTO != null ? responseDTO.getCollectionItemId() : sourceId, newSequence).getModel();
+		}
+		getAsyncExecutor().deleteFromCache("v2-class-data-"+ classId +"*");
+		return responseDTO != null ? responseDTO : sourceItem;
 	}
 	
 	public ActionResponseDTO<CollectionItem> moveCollectionToPathway(CollectionItem  sourceIdItem, CollectionItem pathwayItem, ActionResponseDTO<CollectionItem> responseDTO, User user) throws Exception { 
