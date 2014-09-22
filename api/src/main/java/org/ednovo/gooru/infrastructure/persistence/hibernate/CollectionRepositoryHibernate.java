@@ -691,6 +691,8 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		
 		if(type != null) {
 			sql +=" and r.type_name ='"+type+"'";
+		} else {
+			sql +=" and r.type_name != 'pathway'";
 		}
 		
 		if (status != null) {
@@ -958,6 +960,8 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		}
 		if(type != null) {
 			sql +=" and r.type_name ='"+type+"'";
+		} else {
+			sql +=" and r.type_name != 'pathway'";
 		}
 		if (orderBy != null && orderBy.equalsIgnoreCase(RECENT)) {
 			sql += " order by ci.association_date desc, item_sequence  desc ";
