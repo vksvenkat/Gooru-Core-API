@@ -1874,7 +1874,7 @@ public interface ParameterProperties {
 	
 	String NETWORK = "network";
 
-	String _ACCOUNT_UID = "accountUid";
+	String _ORGANIZATION_UID = "organizationUid";
 
 	String BROWSER_NAME = "browserName";
 

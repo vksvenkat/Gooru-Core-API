@@ -2803,7 +2803,6 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	@Override
 	public List<String> updateContentProvider(String gooruOid, List<String> providerList, User user, String providerType) {
 
-
 		CustomTableValue customTableValue = this.getCustomTableRepository().getCustomTableValue(_CONTENT_PROVIDER_TYPE, providerType);
 		for (String provider : providerList) {
 			ContentProvider contentProvider = this.getContentRepository().getContentProviderByName(provider, CONTENT_PROVIDER_TYPE + providerType);
@@ -2812,22 +2811,26 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				contentProvider.setName(provider);
 				contentProvider.setActiveFlag(true);
 				contentProvider.setType(customTableValue);
-				this.getCustomTableRepository().save(contentProvider);
+				this.getContentRepository().save(contentProvider);
+				this.getContentRepository().flush();
 			}
-			List<ContentProviderAssociation> ContentProviderAssociationList = this.getContentRepository().getContentProviderByGooruOid(gooruOid, provider);
-			if (ContentProviderAssociationList.size() == 0) {
-				ContentProviderAssociation contentProviderAssociation = new ContentProviderAssociation();
-				contentProviderAssociation.setContentProvider(contentProvider);
-				ResourceSource resourceSource = new ResourceSource();
-				resourceSource.setDomainName(provider);
-				resourceSource.setActiveStatus(0);
-				this.getResourceRepository().save(resourceSource);
-				contentProviderAssociation.setResourceSource(resourceSource);
-				contentProviderAssociation.setGooruOid(gooruOid);
-				contentProviderAssociation.setAssociatedDate(new Date(System.currentTimeMillis()));
-				contentProviderAssociation.setAssociatedBy(user);
-				this.getContentRepository().save(contentProviderAssociation);
-			} 
+			List<ContentProviderAssociation> contentProviderAssociationList = this.getContentRepository().getContentProviderByGooruOid(gooruOid, null);
+
+			if (contentProviderAssociationList.size() > 0) {
+				this.getContentRepository().removeAll(contentProviderAssociationList);
+			}
+			ContentProviderAssociation contentProviderAssociation = new ContentProviderAssociation();
+			contentProviderAssociation.setContentProvider(contentProvider);
+			ResourceSource resourceSource = new ResourceSource();
+			resourceSource.setDomainName(provider);
+			resourceSource.setActiveStatus(0);
+			this.getResourceRepository().save(resourceSource);
+			contentProviderAssociation.setResourceSource(resourceSource);
+			contentProviderAssociation.setGooruOid(gooruOid);
+			contentProviderAssociation.setAssociatedDate(new Date(System.currentTimeMillis()));
+			contentProviderAssociation.setAssociatedBy(user);
+			this.getContentRepository().save(contentProviderAssociation);
+			this.getContentRepository().flush();
 		}
 		return providerList;
 	}
@@ -2842,6 +2845,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	public Resource deleteTaxonomyResource(String resourceId, Resource newResource, User user) {
 
 		Resource resource = resourceRepository.findResourceByContentGooruId(resourceId);
+		rejectIfNull(resource, GL0056, RESOURCE);
 		deleteResourceTaxonomy(resource, newResource.getTaxonomySet());
 		return resource;
 	}
@@ -3171,10 +3175,10 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			resourceCassandraService.save(resourceCioList, resourceIds);
 			if(!skipReindex){
 				if(resourceIds.size() > 0){
-					indexProcessor.indexStas(StringUtils.join(resourceIds, ','), IndexProcessor.INDEX, RESOURCE, false);
+					indexProcessor.indexStas(StringUtils.join(resourceIds, ','), IndexProcessor.INDEX, RESOURCE);
 				}
 				if(collectionIds.size() > 0){
-					indexProcessor.indexStas(StringUtils.join(collectionIds, ','), IndexProcessor.INDEX, SCOLLECTION, false);
+					indexProcessor.indexStas(StringUtils.join(collectionIds, ','), IndexProcessor.INDEX, SCOLLECTION);
 				}
 			}
 		}

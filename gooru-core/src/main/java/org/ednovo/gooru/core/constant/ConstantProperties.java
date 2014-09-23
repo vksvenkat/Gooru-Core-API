@@ -34,9 +34,9 @@ public interface ConstantProperties {
 			"*.lastModified", "*.gooruUId", "*.vocabulary", "*.collaborators", "*.network", "trackActivity.startTime", "trackActivity.endTime" };
 
 	static final String COLLECTION_ITEM_INCLUDE_FILEDS[] = { "*.collectionItems", "*.collectionItemId", "*.itemSequence", "*.itemType", "*.narration", "*.narrationType", "*.lastModified", "*.start", "*.stop", "*.standards", "*.license", "*.standards.code", "*.standards.description",
-			"*.associationDate", "*associatedUser", "*.status", "*.totalPages","*.isRequired","*.minimumScore","*.estimatedTime","*.showAnswerByQuestions","*.showHints","*.showAnswerEnd","*.resource","*.resource.collectionItems.resource" ,"*.itemCount"};
+			"*.associationDate", "*associatedUser", "*.status", "*.totalPages","*.isRequired","*.minimumScore","*.estimatedTime","*.showAnswerByQuestions","*.showHints","*.showAnswerEnd","*.resource","*.resource.collectionItems.resource" ,"*.itemCount","*.minimumScoreByUser","*.timeStudying","*.assignmentCompleted"};
 
-	static final String CLASSPAGE_COLLECTION_ITEM_INCLUDE_FIELDS[] = { "*.plannedEndDate", "*.totalHitCount", "*.searchResults" ,"*.collectionItems", "*.resource", "*.resource.collectionItems.resource","*.itemCount"};
+	static final String CLASSPAGE_COLLECTION_ITEM_INCLUDE_FIELDS[] = { "*.plannedEndDate", "*.totalHitCount", "*.searchResults" ,"*.collectionItems", "*.resource", "*.resource.collectionItems.resource","*.itemCount","*.minimumScoreByUser"};
 
 	static final String COLLECTION_ITEM_INCLUDE[] = { "collectionItems", "*.collectionItemId", "*.itemSequence", "*.itemType", "*.narration", "*.narrationType", "*.lastModified", "*.start", "*.stop", "*.standards", "*.license", "*.standards.code", "*.standards.description", "*.collectionItem",
 			"*.collectionItem.collection", "*.totalPages" };
@@ -117,7 +117,7 @@ public interface ConstantProperties {
 
 	static final String CUSTOM_SETTING_INCLUDES[] = { "*.key", "*.value" };
 
-	static String ORGANIZATION_INCLUDES[] = { "*.subGroups","*.totalHitCount", "*.searchResults"};
+	static String ORGANIZATION_INCLUDES[] = { "*.subGroups","*.totalHitCount", "*.searchResults", "*.organizationCode", "*.organizationName", "*.organizationUid"};
 
 	static final String RESOURCE_EXCLUDES[] = { "*.class", "*.resourceMetaData", "*.resourceMetaData.*", "*.userPermSet", "*.grpMbrshipSet" };
 
@@ -370,7 +370,7 @@ public interface ConstantProperties {
 
 	static final String ORGANIZATION_INCLUDES_ADD[] = { "partyUid", "partyName", "partyType", "organizationCode" };
 
-	static final String ORGANIZATION_SETTING_INCLUDE[] = { "key", "value" };
+	static final String ORGANIZATION_SETTING_INCLUDE[] = { "*.key", "*.value", "*.organizationSettingId" };
 
 	static final String LIBRARY_CODE_INCLUDES[] = { "*.unit", "*.lesson", "*.count", "*.topic", "*.data", "*.course", "*.grade", "*.collection", "*.featured", "*.science", "*.math", "*.social-sciences", "*.language-arts", "*.code", "*.codeId", "*.code", "*.label", "*.parentId", "*.thumbnails",
 			"*.thumbnails.url", "*.thumbnails.dimensions", "*.thumbnails.isDefaultImage", "*.gooruOid", "*.title", "*.creator", "*.firstName", "*.lastName", "*.username", "*.gooruUId", "*.metaInfo", "*.gender", "*.isOwner", "*.user", "*.standard", "*.concept", "*.node", "*.grade", "*.meta",

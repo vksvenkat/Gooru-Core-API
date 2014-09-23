@@ -610,7 +610,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		rejectIfNull(collection, GL0056, 404, generateErrorMessage(GL0056, COLLECTION));
 		Collection pathway = this.getCollectionRepository().getCollectionByIdWithType(pathwayId, PATHWAY);
 		rejectIfNull(pathway, GL0056, 404, generateErrorMessage(GL0056, PATHWAY));
-
+		getAsyncExecutor().deleteFromCache("v2-class-data-"+classpage.getGooruOid()+ "*");
 		return classAssign(pathway, collection, user, direction, planedEndDate, isRequired, minimumScore,estimatedTime,showAnswerByQuestions,showAnswerEnd,showHints);
 	}
 	
@@ -629,6 +629,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		} else if (collection.getResourceType().getName().equalsIgnoreCase(SCOLLECTION)) {
 			collectionItems.add(createClasspageItem(classpage, collection, user, sequence, direction, planedEndDate, isRequired, minimumScore,estimatedTime,showAnswerByQuestions,showAnswerEnd,showHints));
 		}
+		getAsyncExecutor().deleteFromCache("v2-class-data-"+classpage.getGooruOid()+ "*");
 		
 		return collectionItems;
 	}
