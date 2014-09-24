@@ -89,11 +89,11 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 		Errors error = validateApiKey(apikey);
 		if (!error.hasErrors()) {
 				Organization organization = null;
+				
                 if(organizationUid != null){
                    organization = organizationService.getOrganizationById(organizationUid);
-                }else{
-                	throw new NotFoundException("Organization not found !");
                 }
+                rejectIfNull(organization, GL0056,ORGANIZATION );
 				apikey.setActiveFlag(1);
 				apikey.setSecretKey(UUID.randomUUID().toString());
 				apikey.setKey(UUID.randomUUID().toString());
@@ -112,7 +112,7 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 	private Errors validateApiKey(ApiKey apiKey) {
 		final Errors errors = new BindException(apiKey, API_KEY);
 		rejectIfNull(errors, apiKey, APP_NAME, GL0056, generateErrorMessage(GL0056, APP_NAME));
-		rejectIfNull(errors, apiKey, APP_URL, GL0056, generateErrorMessage(GL0056, APP_URL));
+		rejectIfNull(errors, apiKey, APP_URL, GL0056, generateErrorMessage(GL0056, APP_URL));		
 		return errors;
 	}
 
