@@ -799,6 +799,9 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			result.put(SHOW_ANSWER_END, object[18]);
 			result.put(MINIMUM_SCORE, object[19]);
 			result.put(ESTIMATED_TIME, object[20]);
+			result.put("minimumScoreByUser", object[21]);
+			result.put("assignmentCompleted", object[22]);
+			result.put("timeStudying", object[23]);
 			result.put(RESOURCE, resource);
 			collectionItems.add(result);
 		}
