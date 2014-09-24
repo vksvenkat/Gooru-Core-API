@@ -139,8 +139,6 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 			newOrganization.setNfsStorageArea(storageRepository.getAvailableStorageArea(2));
 			newOrganization.setUserUid(user.getPartyUid());
 			organizationRepository.save(newOrganization);
-			updateOrgAdminCustomField(newOrganization.getPartyUid(), user);
-			//updateDefaultOrganizationPermission(newOrganization);
 			updateOrgSetting(newOrganization);
 			User newUser = new User();
 			newUser.setOrganization(newOrganization);
@@ -265,15 +263,6 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 			organizationRepository.save(partyCustomField);
 */		}
 	}
-/*	private void updateDefaultOrganizationPermission(Organization permittedOrg){
-		PartyPermission partyPermission = new PartyPermission();
-		partyPermission.setParty(organizationRepository.getOrganizationByUid(TaxonomyUtil.GOORU_ORG_UID));
-		partyPermission.setPermittedParty(permittedOrg);
-		partyPermission.setPermission(READ_ONLY);
-		partyPermission.setValidFrom(new Date(System.currentTimeMillis()));
-		organizationRepository.save(partyPermission);
-	}
-*/	
 	// This method should be not be used
 	@Override
 	public User updateUserOrganization(String organizationUid, String gooruUid)	throws Exception {
