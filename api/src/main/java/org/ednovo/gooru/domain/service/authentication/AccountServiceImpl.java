@@ -355,7 +355,6 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 				LOGGER.debug("error" + e.getMessage());
 			}
 		}
-		sessionToken = this.getUserTokenService().findBySession(request.getSession().getId());
 
 		if (sessionToken == null) {
 			sessionToken = this.getUserManagementService().createSessionToken(userIdentity, request.getSession().getId(), apiTrackerService.getApiKey(apiKey));
