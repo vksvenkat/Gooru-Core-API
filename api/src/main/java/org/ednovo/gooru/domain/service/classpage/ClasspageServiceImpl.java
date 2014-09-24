@@ -793,6 +793,12 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			result.put(NARRATION, object[3]);
 			result.put(PLANNED_END_DATE, object[4]);
 			result.put(STATUS, object[11]);
+			result.put(IS_REQUIRED, object[15]);
+			result.put(SHOW_ANSWER_BY_QUESTIONS, object[16]);
+			result.put(SHOW_HINTS, object[17]);
+			result.put(SHOW_ANSWER_END, object[18]);
+			result.put(MINIMUM_SCORE, object[19]);
+			result.put(ESTIMATED_TIME, object[20]);
 			result.put(RESOURCE, resource);
 			collectionItems.add(result);
 		}

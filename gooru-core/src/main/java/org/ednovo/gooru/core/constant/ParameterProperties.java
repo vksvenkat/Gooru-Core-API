@@ -1109,6 +1109,10 @@ public interface ParameterProperties {
 	String SHOW_SCORE = "showScore";
 
 	String SHOW_HINTS = "showHints";
+	
+	String SHOW_ANSWER_END = "showAnswerEnd";
+	
+	String MINIMUM_SCORE = "minimumScore";
 
 	String SHOW_CORRECT_ANSWER = "showCorrectAnswer";
 
@@ -1791,6 +1795,8 @@ public interface ParameterProperties {
 	String DATA_COLUMN_NAME = "dataColumnName";
 
 	String IS_REQUIRED = "isRequired";
+	
+	String SHOW_ANSWER_BY_QUESTIONS = "showAnswerByQuestions";
 
 	String GROUPNAME = "groupName";
 
