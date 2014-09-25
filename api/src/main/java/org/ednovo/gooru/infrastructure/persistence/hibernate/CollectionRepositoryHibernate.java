@@ -682,6 +682,19 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
 		return query.list();
 	}
+	@Override
+	public Long getClasspageCount(String gooruOid, String itemType) {
+		String sql = "select count(1) as count from collection_item ci inner join resource r on r.content_id = ci.resource_content_id  inner join content c on c.content_id = r.content_id inner join content rc on rc.content_id = ci.collection_content_id left join collection co on co.content_id = r.content_id   " +
+				"where  c.sharing in ('public', 'anyonewithlink') and rc.gooru_oid='"+gooruOid+ "'";
+		
+		if(itemType != null) {
+			sql +=" and r.type_name ='"+itemType+"'";
+		} else {
+			sql +=" and r.type_name != 'pathway'";
+		}
+		Query query = getSession().createSQLQuery(sql).addScalar("count", StandardBasicTypes.LONG);
+		return (Long) query.list().get(0);
+	}
 
 	@Override
 	public Long getClasspageCollectionCount(String classpageGooruOid, String status, String userUid, String orderBy, String type) {
