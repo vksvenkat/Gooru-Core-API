@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////
-//OganizationRestV2Controller.java
-//rest-v2-app
+// OganizationRestV2Controller.java
+// rest-v2-app
 // Created by Gooru on 2014
 // Copyright (c) 2014 Gooru. All rights reserved.
 // http://www.goorulearning.org/
@@ -131,8 +131,6 @@ public class OrganizationRestV2Controller extends BaseController implements Cons
 	public ModelAndView getOrganizationSettings(HttpServletRequest request, HttpServletResponse response, @PathVariable String organizationUid, @RequestParam String key) throws Exception {
 		return toModelAndViewWithIoFilter(getOrganizationService().getOrganizationSetting(organizationUid, key), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, ORGANIZATION_SETTING_INCLUDE);
 	}
-
-	
 	
 	public OrganizationService getOrganizationService() {
 		return organizationService;
