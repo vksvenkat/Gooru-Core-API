@@ -23,13 +23,17 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.infrastructure.messenger;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
 import org.ednovo.gooru.core.api.model.GooruAuthenticationToken;
 import org.ednovo.gooru.core.api.model.UserGroupSupport;
 import org.ednovo.gooru.domain.service.content.ContentService;
+import org.ednovo.gooru.domain.service.redis.RedisService;
+import org.ednovo.gooru.kafka.producer.KafkaProducer;
 import org.restlet.data.Form;
 import org.restlet.representation.Representation;
 import org.restlet.resource.ClientResource;
@@ -43,17 +47,29 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import flexjson.JSONSerializer;
+
 @Component
 public class IndexProcessor extends BaseComponent {
-
-	@Autowired
-	private ContentService contentService;
 
 	@Autowired
 	private HibernateTransactionManager transactionManager;
 
 	private TransactionTemplate transactionTemplate;
+	
+	@Autowired
+	private KafkaProducer kafkaProducer;
+	
+	@Autowired
+	private RedisService redisService;
+	
 
+	private static final JSONSerializer SERIALIZER = new JSONSerializer();
+
+	
+	@Autowired
+	private ContentService contentService;
+	
 	private static final Logger LOGGER = LoggerFactory.getLogger(IndexProcessor.class);
 
 	public static final String SEARCH_REINDEX_MSG = "reindex";
@@ -75,8 +91,20 @@ public class IndexProcessor extends BaseComponent {
 		index(uuids, action, type, true, false);
 	}
 
-	public void indexStas(final String uuids, final String action, final String type, final boolean isUpdateStas) {
-		index(uuids, action, type, true, isUpdateStas);
+	public void indexStas(final String uuids, final String action, final String type) {
+		String indexMode = redisService.getValue("index-mode");
+		if(indexMode != null && indexMode.equalsIgnoreCase("kafka")){
+			Map<String, Object> indexData = new HashMap<String, Object>();
+			indexData.put("indexableIds", uuids);
+			indexData.put("type", type);
+			indexData.put("action", action);
+			indexData.put("priority", "0");
+			String indexMsg = SERIALIZER.deepSerialize(indexData);
+			kafkaProducer.send(indexMsg, type);
+		}
+		else{
+			index(uuids, action, type, false, false);
+		}
 	}
 
 	public void index(final String uuids, final String action, final String type, String sessionToken) {
@@ -95,8 +123,14 @@ public class IndexProcessor extends BaseComponent {
 	}
 
 	public void index(final String uuids, final String action, final String type, final String sessionToken, final GooruAuthenticationToken authentication, final boolean isUpdateUserContent, final boolean isUpdateStas) {
-
-
+		Map<String, Object> indexData = new HashMap<String, Object>();
+		indexData.put("indexableIds", uuids);
+		indexData.put("type", type);
+		indexData.put("action", action);
+		indexData.put("priority", "0");
+/*		String indexMsg = SERIALIZER.deepSerialize(indexData);
+		kafkaProducer.send(indexMsg, type);
+*/		
 		final String[] ids = uuids.split(",");
 		try {
 			final Thread indexThread = new Thread(new Runnable() {
@@ -166,6 +200,6 @@ public class IndexProcessor extends BaseComponent {
 		} catch (Exception e) {
 			LOGGER.info("Index Error : " + e.getMessage());
 		}
-	}
+}
 
 }

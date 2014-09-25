@@ -34,9 +34,11 @@ public interface OrganizationRepository extends BaseRepository {
 
 	Organization getOrganizationByCode(String organizationCode);
 	
-	List<Organization> listOrganization();
+	List<Organization> listOrganization(Integer offset, Integer limit);
 
 	Organization getOrganizationByUid(String organizationUid);
 	
 	Organization getOrganizationByIdpName(String idpDomainName);
+	
+	Long getOrganizationCount();
 }

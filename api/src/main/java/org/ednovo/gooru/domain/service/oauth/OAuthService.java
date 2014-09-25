@@ -28,6 +28,7 @@ import java.util.List;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.domain.model.oauth.OAuthClient;
+import org.ednovo.gooru.domain.service.search.SearchResults;
 
 
 public interface OAuthService {
@@ -46,7 +47,7 @@ public interface OAuthService {
 	
 	public OAuthClient getOAuthClientByClientSecret(String clientSecret) throws Exception;
 	
-	List<OAuthClient> listOAuthClientByOrganization(String organizationUId, int pageNo, int pageSize,String grantType) throws Exception;
+	SearchResults<OAuthClient> listOAuthClientByOrganization(String organizationUId, Integer offset, Integer limit,String grantType) throws Exception;
 	
 	public Boolean isSuperAdmin(User user);
 	

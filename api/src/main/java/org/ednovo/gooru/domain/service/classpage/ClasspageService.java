@@ -28,6 +28,7 @@ import java.util.Map;
 
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Classpage;
+import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.domain.service.search.SearchResults;
@@ -70,14 +71,32 @@ public interface ClasspageService {
 	
 	List<String> classMemberSuggest(String queryText, String gooruUid);
 	
-	SearchResults<Map<String, Object>> getMyStudy(User apiCaller, String orderBy,Integer offset, Integer limit, String type);
+	SearchResults<Map<String, Object>> getMyStudy(User apiCaller, String orderBy,Integer offset, Integer limit, String type, String itemType);
 	
-	List<Map<String, Object>> setMyStudy(List<Object[]> results);
+	List<Map<String, Object>> setMyStudy(List<Object[]> results, String itemType);
 	
-	CollectionItem updateAssignment(String collectionItemId, String status, User user);
+	CollectionItem updateAssignment(String collectionItemId, String status, String minimumscore ,String assignmentCompleted , String timeStudying,User user);
 	
-	List<Map<String, Object>> getClasspageItems(String gooruOid, Integer limit, Integer offset, String userUid, String orderBy, boolean optimize, String status);
+	List<Map<String, Object>> getClasspageItems(String gooruOid, Integer limit, Integer offset, User user, String orderBy, boolean optimize, String status, String type);
 
-	List<Map<String,Object>> getClasspageAssoc(Integer offset, Integer limit, String gooruOid, String title, String classCode,String creatorUsername);
+	Map<String,Object> getClasspageAssoc(Integer offset, Integer limit, String classpageId, String collectionId, String title, String collectionTitle, String classCode,String collectionCreator);
+	
+	Collection createPathway(String classId,Collection collection, String parentId, Boolean isRequired) throws Exception;
+	
+	Collection updatePathway(String classId, String pathwayGooruOid, Collection newPathway) throws Exception;
+	
+	void deletePathway(String classId, String pathwayGooruOid, User user);
+	
+	List<CollectionItem> getPathwayItems(String classId,String pathId, Integer offset, Integer limit, String orderBy, User user);
+	
+	SearchResults<CollectionItem> getPathwayItemsSearchResults(String classId,String pathId, Integer offset, Integer limit, String orderBy, User user);
+	
+	ActionResponseDTO<CollectionItem> reorderPathwaySequence(String classId,String pathwayId ,int newSequence) throws Exception;
+	
+	CollectionItem pathwayItemMoveWithReorder(String classId,String pathwayId,String sourceItemId, String taregetPathwayId, Integer newSequence, User user) throws Exception;
+	
+	void deletePathwayItem(String classId,String pathwayGooruOid,String collectionItemId ,User user);
+	
+	ActionResponseDTO<CollectionItem> updatePathwayItem(String classId,String pathwayGooruOid,String collectionItemId,CollectionItem newcollectionItem,  User user) throws Exception;
 	
 }

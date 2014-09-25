@@ -29,7 +29,7 @@ import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.cassandra.cql3.statements.CreateUserStatement;
+import org.ednovo.gooru.application.util.TaxonomyUtil;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.ApiKey;
 import org.ednovo.gooru.core.api.model.Organization;
@@ -50,15 +50,14 @@ import org.ednovo.gooru.domain.service.BaseServiceImpl;
 import org.ednovo.gooru.domain.service.PartyService;
 import org.ednovo.gooru.domain.service.apikey.ApplicationService;
 import org.ednovo.gooru.domain.service.authentication.AccountService;
+import org.ednovo.gooru.domain.service.search.SearchResults;
 import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.ednovo.gooru.domain.service.user.UserService;
 import org.ednovo.gooru.domain.service.user.impl.UserServiceImpl;
 import org.ednovo.gooru.domain.service.userManagement.UserManagementService;
-import org.ednovo.gooru.domain.service.userManagement.UserManagementServiceImpl;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.OrganizationSettingRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.party.OrganizationRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.storage.StorageRepository;
-import org.mortbay.jetty.security.Password;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -104,10 +103,7 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 		return (Organization) organizationRepository.get(Organization.class, organizationUid);
 	}
 
-	@Override
-	public List<Organization> listAllOrganizations() {
-		return organizationRepository.getAll(Organization.class);
-	}
+
 
 	@Override
 	public Organization getOrganizationByName(String partyName) {
@@ -117,6 +113,15 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 	@Override
 	public Organization getOrganizationByCode(String organizationCode) {
 		return organizationRepository.getOrganizationByCode(organizationCode);
+	}
+	
+	@Override
+	public SearchResults<Organization> listAllOrganizations(Integer offset, Integer limit) {
+		List<Organization> organization = this.getOrganizationRepository().listOrganization(offset, limit);
+		SearchResults<Organization> result = new SearchResults<Organization>();
+		result.setSearchResults(organization);
+		result.setTotalHitCount(this.getOrganizationRepository().getOrganizationCount());
+		return result;
 	}
 
 	@Override
@@ -134,8 +139,6 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 			newOrganization.setNfsStorageArea(storageRepository.getAvailableStorageArea(2));
 			newOrganization.setUserUid(user.getPartyUid());
 			organizationRepository.save(newOrganization);
-			updateOrgAdminCustomField(newOrganization.getPartyUid(), user);
-			//updateDefaultOrganizationPermission(newOrganization);
 			updateOrgSetting(newOrganization);
 			User newUser = new User();
 			newUser.setOrganization(newOrganization);
@@ -144,8 +147,7 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 			newUser.setPartyUid(ANONYMOUS_ + randomString);
 			newUser.setUsername(ANONYMOUS_ + randomString);
 			newUser.setEmailId(ANONYMOUS_ + randomString + AT_GMAIL_DOT_COM);
- 
-			 ApiKey appApiKey = new ApiKey();
+ 			 ApiKey appApiKey = new ApiKey();
 			 appApiKey.setAppName(newOrganization.getPartyName());
 			 appApiKey.setAppURL(HTTP_URL + newOrganization.getPartyName() + DOT_COM);
 			try {
@@ -158,7 +160,15 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 				organizationSettingRepository.save(newOrganizationSetting);
 				applicationService.saveApplication(appApiKey, newOrgUser, newOrganization.getPartyUid(), apiCaller);
 				accountService.createSessionToken(newOrgUser, appApiKey.getKey(), request);
-			} catch (Exception e) {
+			//for inserting one entry in custom field
+/*				PartyPermission newPartyPermission = new PartyPermission();
+				Organization gooruOrganization = organizationRepository.getOrganizationByUid(TaxonomyUtil.GOORU_ORG_UID);
+				newPartyPermission.setParty(gooruOrganization);
+				newPartyPermission.setPermittedParty(newOrganization);
+				newPartyPermission.setValidFrom(new Date(System.currentTimeMillis()));
+				newPartyPermission.setPermission(READ_ONLY);
+				organizationRepository.save(newPartyPermission);
+*/			} catch (Exception e) {
 				LOGGER.debug("Error" + e);
 			}
 		}
@@ -222,7 +232,6 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 			if(existingOrganization != null){
 				existingOrganization.setPartyName(newOrganization.getPartyName());
 				existingOrganization.setLastModifiedOn(new Date(System.currentTimeMillis()));
-				
 				// need to add logic for current user is organization admin
 				existingOrganization.setLastModifiedUserUid(apiCaller.getPartyUid());
 				organizationRepository.save(existingOrganization);
@@ -254,15 +263,6 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 			organizationRepository.save(partyCustomField);
 */		}
 	}
-/*	private void updateDefaultOrganizationPermission(Organization permittedOrg){
-		PartyPermission partyPermission = new PartyPermission();
-		partyPermission.setParty(organizationRepository.getOrganizationByUid(TaxonomyUtil.GOORU_ORG_UID));
-		partyPermission.setPermittedParty(permittedOrg);
-		partyPermission.setPermission(READ_ONLY);
-		partyPermission.setValidFrom(new Date(System.currentTimeMillis()));
-		organizationRepository.save(partyPermission);
-	}
-*/	
 	// This method should be not be used
 	@Override
 	public User updateUserOrganization(String organizationUid, String gooruUid)	throws Exception {
@@ -304,5 +304,9 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 			return (Organization) organizationRepository.getOrganizationByIdpName(idpDomainName);
 		}
 		return null;
+	}
+	
+	public OrganizationRepository getOrganizationRepository() {
+		return organizationRepository;
 	}
 }

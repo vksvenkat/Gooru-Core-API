@@ -217,7 +217,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	public Profile getUserProfile(String gooruUid, Integer activeFlag) {
 
 		User user = this.findByGooruId(gooruUid);
-		if (user == null) {
+		if (user == null || user.getGooruUId().equalsIgnoreCase(ANONYMOUS)) {
 			throw new BadRequestException(generateErrorMessage(GL0056, USER));
 		}
 		Profile profile = this.getUserRepository().getProfile(user, false);
@@ -501,7 +501,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			confirmStatus = 1;
 		}
 		List<InviteUser> inviteuser = null;
-		if (accountType != null && !accountType.equalsIgnoreCase(UserAccountType.userAccount.CHILD.getType())) {
+		if (accountType == null || !accountType.equalsIgnoreCase(UserAccountType.userAccount.CHILD.getType())) {
 			inviteuser = this.getInviteRepository().getInviteUserByMail(newUser.getEmailId(), COLLABORATOR);
 		}
 
@@ -749,7 +749,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	public User createUser(User newUser, String password, String school, Integer confirmStatus, Integer addedBySystem, String userImportCode, String accountType, String dateOfBirth, String userParentId, String remoteEntityId, String gender, String childDOB, String source, String emailSSO,
 			HttpServletRequest request, String role, String mailConfirmationUrl) throws Exception {
 		List<InviteUser> inviteuser = null;
-		if (accountType != null && !accountType.equalsIgnoreCase(UserAccountType.userAccount.CHILD.getType())) {
+		if (accountType == null || !accountType.equalsIgnoreCase(UserAccountType.userAccount.CHILD.getType())) {
 		 inviteuser = this.getInviteRepository().getInviteUserByMail(newUser.getEmailId(), COLLABORATOR);
 		}
 		if (inviteuser !=null && inviteuser.size() > 0) {

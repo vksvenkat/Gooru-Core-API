@@ -91,6 +91,8 @@ public interface CollectionRepository extends BaseRepository {
 	List<CollectionItem> getMyCollectionItems(Map<String, String> filters, User user);
 
 	List<CollectionItem> getCollectionItems(String collectionId, Integer offset, Integer limit, String orderBy, String type);
+	
+	Long getCollectionItemsCount(String collectionId, String orderBy, String type);
 
 	Resource findResourceCopiedFrom(String gooruOid, String gooruUid);
 
@@ -108,9 +110,11 @@ public interface CollectionRepository extends BaseRepository {
 	
 	List<CollectionItem> findCollectionByResource(String gooruOid, String gooruUid, String type);
 	
-	Long getClasspageCollectionCount(String classpageGooruOid, String status, String userUid, String orderBy);
+	Long getClasspageCollectionCount(String classpageGooruOid, String status, String userUid, String orderBy, String type);
 	
 	List<CollectionItem> getCollectionItemByAssociation(String resourceGooruOid, String gooruUid, String collectionType);
+	
+	List<CollectionItem> getCollectionItemByParentId(String collectionGooruOid, String gooruUid, String collectionType);
 	
 	CollectionItem findCollectionItemByGooruOid(String gooruOid, String gooruUid, String type);
 	
@@ -130,16 +134,18 @@ public interface CollectionRepository extends BaseRepository {
 	
 	ContentMetaAssociation getContentMetaByValue(String value, String collectionId);
 	
-	List<Object[]> getClasspageItems(String gooruOid, Integer limit, Integer offset, String userUid, String orderBy, String status);
+	List<Object[]> getClasspageItems(String gooruOid, Integer limit, Integer offset, String userUid, String orderBy, String status, String type);
 	
 	List<Collection> getCollectionsList(User user,Integer limit, Integer offset, String publishStatus);
 	
 	Long getCollectionCount(String publishStatus);
 	
-	Collection getCollectionByGooruOid(String gooruOid);
+	Collection getCollectionByIdWithType(String gooruOid, String type);
 	
-	List<Object[]> getClasspageAssoc(Integer offset, Integer limit, String gooruOid, String gooruUid, String title, String classCode, String creatorUsername);
+	List<Object[]> getClasspageAssoc(Integer offset, Integer limit,String classpageId ,String collectionId, String gooruUid, String title, String collectionTitle, String classCode);
 	
-	BigInteger getClasspageAssocCount(String gooruOid,String title, String classCode, String creatorUsername);
+	BigInteger getClasspageAssocCount(String classpageId,String collectionId, String gooruUid, String title, String collectionTitle, String classCode);
+	
+	Long getClasspageCount(String gooruOid, String type);
 	
 }

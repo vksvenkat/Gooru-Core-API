@@ -641,6 +641,8 @@ public interface ParameterProperties {
 	String RESOURCE_MANAGER = "resourceManager";
 
 	String SCOLLECTION = "scollection";
+	
+	String PATHWAY = "pathway";
 
 	String SUGGESTEDSTUDY = "suggestedstudy";
 
@@ -1107,6 +1109,10 @@ public interface ParameterProperties {
 	String SHOW_SCORE = "showScore";
 
 	String SHOW_HINTS = "showHints";
+	
+	String SHOW_ANSWER_END = "showAnswerEnd";
+	
+	String MINIMUM_SCORE = "minimumScore";
 
 	String SHOW_CORRECT_ANSWER = "showCorrectAnswer";
 
@@ -1789,6 +1795,8 @@ public interface ParameterProperties {
 	String DATA_COLUMN_NAME = "dataColumnName";
 
 	String IS_REQUIRED = "isRequired";
+	
+	String SHOW_ANSWER_BY_QUESTIONS = "showAnswerByQuestions";
 
 	String GROUPNAME = "groupName";
 
@@ -1872,7 +1880,7 @@ public interface ParameterProperties {
 	
 	String NETWORK = "network";
 
-	String _ACCOUNT_UID = "accountUid";
+	String _ORGANIZATION_UID = "organizationUid";
 
 	String BROWSER_NAME = "browserName";
 
@@ -2765,5 +2773,15 @@ public interface ParameterProperties {
 	String LTI = "LTI";
 	
 	String READ = "read";
+	
+	String ASSOC_COLLECTION_NO = "assocCollectionNo";
+	
+	String DIRECTION = "direction";
+	
+	String DUEDATE = "dueDate";
+	
+	String COLLECTION_CREATOR = "collectionCreator";
+	
+	String CLASSPAGE_CREATOR = "classpageCreator";
 	
 }

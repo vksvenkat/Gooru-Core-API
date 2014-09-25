@@ -25,14 +25,17 @@ package org.ednovo.gooru.infrastructure.persistence.hibernate.auth;
 
 import java.util.List;
 
+import org.ednovo.gooru.core.constant.ConstantProperties;
+import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.domain.model.oauth.OAuthClient;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate;
 import org.hibernate.Query;
 import org.hibernate.SQLQuery;
+import org.hibernate.type.StandardBasicTypes;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class OAuthRepositoryHibernate extends BaseRepositoryHibernate implements OAuthRepository{
+public class OAuthRepositoryHibernate extends BaseRepositoryHibernate implements OAuthRepository, ParameterProperties, ConstantProperties{
 
 	private static final String GET_USER_INFO = "select client_id from oauth_access_token where token_id = :accessToken";
 
@@ -90,7 +93,7 @@ public class OAuthRepositoryHibernate extends BaseRepositoryHibernate implements
 	}
 	
 	@Override
-	public List<OAuthClient> listOAuthClientByOrganization(String organizationUId, int pageNo, int pageSize,String grantType) {
+	public List<OAuthClient> listOAuthClientByOrganization(String organizationUId, Integer offset, Integer limit,String grantType) {
 		String hql = " FROM OAuthClient oauthClient WHERE oauthClient.organization.partyUid=:organizationUId";
 		if (grantType != null){
 		hql +=" AND	oauthClient.grantTypes=:grantTypes";	
@@ -100,7 +103,22 @@ public class OAuthRepositoryHibernate extends BaseRepositoryHibernate implements
 		if (grantType != null){
 			query.setParameter("grantTypes", grantType);	
 		}
-			return (List) query.list();
+		query.setFirstResult(offset);
+		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
+
+		return (List) query.list();
+		
+			
+	}
+	@Override
+	public Long getOauthClientCount(String organizationUId, String grantType) {
+		String sql = "SELECT count(1) as count from  oauth_client c WHERE organization_uid = '"+organizationUId+"'";
+		if (grantType != null){
+			sql +="AND  c.grant_types = '" + grantType +"'";
+			
+		}
+		Query query = getSession().createSQLQuery(sql).addScalar("count", StandardBasicTypes.LONG);
+		return (Long) query.list().get(0);
 	}
 
 }

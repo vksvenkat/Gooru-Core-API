@@ -74,7 +74,6 @@ import org.ednovo.gooru.core.api.model.UserAccountType;
 import org.ednovo.gooru.core.api.model.UserAccountType.accountCreatedType;
 import org.ednovo.gooru.core.api.model.UserAvailability.CheckUser;
 import org.ednovo.gooru.core.api.model.UserCredential;
-import org.ednovo.gooru.core.api.model.UserRelationship;
 import org.ednovo.gooru.core.api.model.UserRole;
 import org.ednovo.gooru.core.api.model.UserRole.UserRoleType;
 import org.ednovo.gooru.core.api.model.UserRoleAssoc;
@@ -658,12 +657,12 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 	public User getUser(String gooruUId) throws Exception {
 
 		if (gooruUId == null || gooruUId.equalsIgnoreCase("")) {
-			throw new Exception("User id cannot be null or empty");
+			throw new BadCredentialsException("User id cannot be null or empty");
 		}
 
 		User user = getUserRepository().findByGooruId(gooruUId);
 		if (user == null) {
-			throw new Exception("User not found");
+			throw new BadCredentialsException("User not found");
 		}
 		user.setProfileImageUrl(buildUserProfileImageUrl(user));
 
@@ -679,7 +678,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 	public Profile updateUserInfo(String gooruUId, MultiValueMap<String, String> data, User apiCaller, Boolean isDisableUser) throws Exception {
 
 		if (gooruUId == null || gooruUId.equalsIgnoreCase("")) {
-			throw new Exception("User Id cannot be null or empty");
+			throw new BadCredentialsException("User Id cannot be null or empty");
 		}
 
 		if ((!apiCaller.getGooruUId().equals(gooruUId)) && (!isContentAdmin(apiCaller))) {
@@ -913,11 +912,11 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 				user = userRepository.findByGooruId(gooruUId);
 				indexProcessor.index(user.getPartyUid(), IndexProcessor.INDEX, USER);
 			} else {
-				throw new Exception("You are not authorized to perform this action");
+				throw new BadCredentialsException("You are not authorized to perform this action");
 			}
 
 		} else {
-			throw new Exception("Gooru user Id cannot be null or empty");
+			throw new BadCredentialsException("Gooru user Id cannot be null or empty");
 		}
 
 		return getUser(gooruUId);
@@ -949,7 +948,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 			indexProcessor.index(user.getPartyUid(), IndexProcessor.INDEX, USER);
 			return user;
 		} else {
-			throw new Exception("You are not authorized to perform this action");
+			throw new BadCredentialsException("You are not authorized to perform this action");
 		}
 	}
 

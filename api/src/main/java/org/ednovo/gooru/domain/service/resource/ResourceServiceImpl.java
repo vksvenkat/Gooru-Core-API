@@ -291,7 +291,12 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	@Override
 	public Map<String, Object> getResource(String gooruOid) {
 		Resource resource = this.findResourceByContentGooruId(gooruOid);
+		if(resource == null) {
+			throw new NotFoundException("resource not found");
+		}
 		Map<String, Object> resourceObject = new HashMap<String, Object>();
+		resource.setViewCount(Integer.parseInt(this.resourceCassandraService.get(resource.getGooruOid(),"stas.viewsCount") != null ? this.resourceCassandraService.get(resource.getGooruOid(),"stas.viewsCount") : "0" ));
+	    resource.setViews(Long.parseLong(this.resourceCassandraService.get(resource.getGooruOid(),"stas.viewsCount") != null ? this.resourceCassandraService.get(resource.getGooruOid(),"stas.viewsCount") : "0"));
 		if (resource.getResourceType().getName().equalsIgnoreCase(ASSESSMENT_QUESTION)) {
 			AssessmentQuestion question = assessmentService.getQuestion(gooruOid);
 			question.setCustomFieldValues(customFieldService.getCustomFieldsValuesOfResource(question.getGooruOid()));
@@ -2798,7 +2803,6 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	@Override
 	public List<String> updateContentProvider(String gooruOid, List<String> providerList, User user, String providerType) {
 
-
 		CustomTableValue customTableValue = this.getCustomTableRepository().getCustomTableValue(_CONTENT_PROVIDER_TYPE, providerType);
 		for (String provider : providerList) {
 			ContentProvider contentProvider = this.getContentRepository().getContentProviderByName(provider, CONTENT_PROVIDER_TYPE + providerType);
@@ -2807,22 +2811,26 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				contentProvider.setName(provider);
 				contentProvider.setActiveFlag(true);
 				contentProvider.setType(customTableValue);
-				this.getCustomTableRepository().save(contentProvider);
+				this.getContentRepository().save(contentProvider);
+				this.getContentRepository().flush();
 			}
-			List<ContentProviderAssociation> ContentProviderAssociationList = this.getContentRepository().getContentProviderByGooruOid(gooruOid, provider);
-			if (ContentProviderAssociationList.size() == 0) {
-				ContentProviderAssociation contentProviderAssociation = new ContentProviderAssociation();
-				contentProviderAssociation.setContentProvider(contentProvider);
-				ResourceSource resourceSource = new ResourceSource();
-				resourceSource.setDomainName(provider);
-				resourceSource.setActiveStatus(0);
-				this.getResourceRepository().save(resourceSource);
-				contentProviderAssociation.setResourceSource(resourceSource);
-				contentProviderAssociation.setGooruOid(gooruOid);
-				contentProviderAssociation.setAssociatedDate(new Date(System.currentTimeMillis()));
-				contentProviderAssociation.setAssociatedBy(user);
-				this.getContentRepository().save(contentProviderAssociation);
-			} 
+			List<ContentProviderAssociation> contentProviderAssociationList = this.getContentRepository().getContentProviderByGooruOid(gooruOid, null);
+
+			if (contentProviderAssociationList.size() > 0) {
+				this.getContentRepository().removeAll(contentProviderAssociationList);
+			}
+			ContentProviderAssociation contentProviderAssociation = new ContentProviderAssociation();
+			contentProviderAssociation.setContentProvider(contentProvider);
+			ResourceSource resourceSource = new ResourceSource();
+			resourceSource.setDomainName(provider);
+			resourceSource.setActiveStatus(0);
+			this.getResourceRepository().save(resourceSource);
+			contentProviderAssociation.setResourceSource(resourceSource);
+			contentProviderAssociation.setGooruOid(gooruOid);
+			contentProviderAssociation.setAssociatedDate(new Date(System.currentTimeMillis()));
+			contentProviderAssociation.setAssociatedBy(user);
+			this.getContentRepository().save(contentProviderAssociation);
+			this.getContentRepository().flush();
 		}
 		return providerList;
 	}
@@ -2837,6 +2845,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	public Resource deleteTaxonomyResource(String resourceId, Resource newResource, User user) {
 
 		Resource resource = resourceRepository.findResourceByContentGooruId(resourceId);
+		rejectIfNull(resource, GL0056, RESOURCE);
 		deleteResourceTaxonomy(resource, newResource.getTaxonomySet());
 		return resource;
 	}
@@ -3098,6 +3107,8 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		if (resource == null) {
 			throw new NotFoundException(generateErrorMessage("GL0003"));
 		}
+		resource.setViewCount(Integer.parseInt(this.resourceCassandraService.get(resource.getGooruOid(),"stas.viewsCount") != null ? this.resourceCassandraService.get(resource.getGooruOid(),"stas.viewsCount") : "0" ));
+	    resource.setViews(Long.parseLong(this.resourceCassandraService.get(resource.getGooruOid(),"stas.viewsCount") != null ? this.resourceCassandraService.get(resource.getGooruOid(),"stas.viewsCount") : "0"));
 
 		resource.setCustomFieldValues(customFieldService.getCustomFieldsValuesOfResource(resource.getGooruOid()));
 		if (more) {
@@ -3135,11 +3146,18 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		ResourceStasCo resourceStasCo = null;
 		Collection<ResourceCio> resourceCioList = new ArrayList<ResourceCio>();
 		Collection<String> resourceIds = new ArrayList<String>();
+		Collection<String> collectionIds = new ArrayList<String>();
+
 		for(StatisticsDTO statisticsDTO : statisticsList){
 			resourceCio = new ResourceCio();	
 			resourceStasCo = new ResourceStasCo();
 			resourceCio.setId(statisticsDTO.getGooruOid());
-			resourceIds.add(resourceCio.getId());
+			if(statisticsDTO.getResourceType() != null && statisticsDTO.getResourceType().equalsIgnoreCase("scollection")){
+				collectionIds.add(resourceCio.getId());
+			}
+			else{
+				resourceIds.add(resourceCio.getId());
+			}
 			if(statisticsDTO.getViews() != null){
 				resourceStasCo.setViewsCount(String.valueOf(statisticsDTO.getViews()));
 			}
@@ -3157,7 +3175,12 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		if(resourceCioList.size() > 0){
 			resourceCassandraService.save(resourceCioList, resourceIds);
 			if(!skipReindex){
-				indexProcessor.indexStas(StringUtils.join(resourceIds, ','), IndexProcessor.INDEX, RESOURCE, true);
+				if(resourceIds.size() > 0){
+					indexProcessor.indexStas(StringUtils.join(resourceIds, ','), IndexProcessor.INDEX, RESOURCE);
+				}
+				if(collectionIds.size() > 0){
+					indexProcessor.indexStas(StringUtils.join(collectionIds, ','), IndexProcessor.INDEX, SCOLLECTION);
+				}
 			}
 		}
 	}

@@ -116,14 +116,14 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				}
 			}
 			if (question.getDepthOfKnowledges() != null && question.getDepthOfKnowledges().size() > 0) {
-				response.getModel().getResource().setDepthOfKnowledges(this.updateContentMeta(question.getDepthOfKnowledges(), question.getGooruOid(), user, DEPTH_OF_KNOWLEDGE));
+				response.getModel().getResource().setDepthOfKnowledges(this.updateContentMeta(question.getDepthOfKnowledges(), responseDTO.getModel().getGooruOid(), user, DEPTH_OF_KNOWLEDGE));
 			} else {
-				response.getModel().getResource().setDepthOfKnowledges(this.setContentMetaAssociation(this.getContentMetaAssociation(DEPTH_OF_KNOWLEDGE), question.getGooruOid(), DEPTH_OF_KNOWLEDGE));
+				response.getModel().getResource().setDepthOfKnowledges(this.setContentMetaAssociation(this.getContentMetaAssociation(DEPTH_OF_KNOWLEDGE), responseDTO.getModel().getGooruOid(), DEPTH_OF_KNOWLEDGE));
 			}
 			if (question.getEducationalUse() != null && question.getEducationalUse().size() > 0) {
-				response.getModel().getResource().setEducationalUse(this.updateContentMeta(question.getEducationalUse(), question.getGooruOid(), user, EDUCATIONAL_USE));
+				response.getModel().getResource().setEducationalUse(this.updateContentMeta(question.getEducationalUse(), responseDTO.getModel().getGooruOid(), user, EDUCATIONAL_USE));
 			} else {
-				response.getModel().getResource().setEducationalUse(this.setContentMetaAssociation(this.getContentMetaAssociation(EDUCATIONAL_USE), question.getGooruOid(), EDUCATIONAL_USE));
+				response.getModel().getResource().setEducationalUse(this.setContentMetaAssociation(this.getContentMetaAssociation(EDUCATIONAL_USE), responseDTO.getModel().getGooruOid(), EDUCATIONAL_USE));
 			}
 			response.getModel().setStandards(this.getStandards(responseDTO.getModel().getTaxonomySet(), false, null));
 			if (response.getModel().getCollection().getResourceType().getName().equalsIgnoreCase(SCOLLECTION) && response.getModel().getCollection().getClusterUid() != null && !response.getModel().getCollection().getClusterUid().equalsIgnoreCase(response.getModel().getCollection().getGooruOid())) { 
@@ -559,6 +559,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				folder.put(USER_NAME, object[2]);
 				folder.put(CREATED_ON, object[3]);
 				folder.put(LAST_MODIFIED, object[4]);
+				folder.put(SHARING, object[5]);
 				folderList.add(folder);
 			}
 			content.put(SEARCH_RESULT, folderList);
@@ -586,39 +587,55 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	}
 
 	private Errors validateUpdateCollectionItem(CollectionItem collectionItem) throws Exception {
-		Map<String, String> itemType = new HashMap<String, String>();
-		itemType.put(ADDED, COLLECTION_ITEM_TYPE);
-		itemType.put(SUBSCRIBED, COLLECTION_ITEM_TYPE);
 		final Errors errors = new BindException(collectionItem, COLLECTION_ITEM);
 		rejectIfNull(errors, collectionItem, COLLECTION_ITEM, GL0056, generateErrorMessage(GL0056, COLLECTION_ITEM));
-		rejectIfInvalidType(errors, collectionItem.getItemType(), ITEM_TYPE, GL0007, generateErrorMessage(GL0007, ITEM_TYPE), itemType);
 		return errors;
 	}
 
 	@Override
-	public List<CollectionItem> assignCollection(String classpageId, String collectionId, User user,String direction, String planedEndDate) throws Exception {
+	public List<CollectionItem> assignCollection(String classpageId, String collectionId, User user,String direction, String planedEndDate, Boolean isRequired, String minimumScore,String estimatedTime,Boolean showAnswerByQuestions,Boolean showAnswerEnd,Boolean showHints) throws Exception {
 		Classpage classpage = this.getCollectionRepository().getClasspageByCode(classpageId);
 		rejectIfNull(classpage, GL0056, 404, generateErrorMessage(GL0056, CLASSPAGE));
 		Collection collection = this.getCollectionRepository().getCollectionByGooruOid(collectionId, null);
 		rejectIfNull(collection, GL0056, 404, generateErrorMessage(GL0056, COLLECTION));
+
+		return classAssign(classpage, collection, user, direction, planedEndDate, isRequired, minimumScore,estimatedTime,showAnswerByQuestions,showAnswerEnd,showHints);
+	}
+	
+	@Override
+	public List<CollectionItem> assignCollectionToPathway(String classpageId,String pathwayId ,String collectionId, User user,String direction, String planedEndDate, Boolean isRequired, String minimumScore,String estimatedTime,Boolean showAnswerByQuestions,Boolean showAnswerEnd,Boolean showHints) throws Exception {
+		Classpage classpage = this.getCollectionRepository().getClasspageByCode(classpageId);
+		rejectIfNull(classpage, GL0056, 404, generateErrorMessage(GL0056, CLASSPAGE));
+		Collection collection = this.getCollectionRepository().getCollectionByGooruOid(collectionId, null);
+		rejectIfNull(collection, GL0056, 404, generateErrorMessage(GL0056, COLLECTION));
+		Collection pathway = this.getCollectionRepository().getCollectionByIdWithType(pathwayId, PATHWAY);
+		rejectIfNull(pathway, GL0056, 404, generateErrorMessage(GL0056, PATHWAY));
+		getAsyncExecutor().deleteFromCache("v2-class-data-"+classpage.getGooruOid()+ "*");
+		return classAssign(pathway, collection, user, direction, planedEndDate, isRequired, minimumScore,estimatedTime,showAnswerByQuestions,showAnswerEnd,showHints);
+	}
+	
+	public List<CollectionItem> classAssign(Collection classpage, Collection collection, User user,String direction, String planedEndDate, Boolean isRequired, String minimumScore,String estimatedTime,Boolean showAnswerByQuestions,Boolean showAnswerEnd,Boolean showHints) {
+		
 		List<CollectionItem> collectionItems = new ArrayList<CollectionItem>();
 		int sequence = classpage.getCollectionItems() != null ? classpage.getCollectionItems().size() + 1 : 1;
 		if (collection.getResourceType().getName().equalsIgnoreCase(FOLDER)) {
 			Map<String, String> filters = new HashMap<String, String>();
 			filters.put(SHARING, "public,anyonewithlink");
 			filters.put(TYPE, COLLECTION);
-			List<CollectionItem> folderCollectionItems = this.getCollectionRepository().getCollectionItems(collectionId, filters);
+			List<CollectionItem> folderCollectionItems = this.getCollectionRepository().getCollectionItems(collection.getGooruOid(), filters);
 			for (CollectionItem collectionItem : folderCollectionItems) {
-				collectionItems.add(createClasspageItem(classpage, collectionItem.getResource(), user, sequence++, direction, planedEndDate));
+				collectionItems.add(createClasspageItem(classpage, collectionItem.getResource(), user, sequence++, direction, planedEndDate, isRequired, minimumScore,estimatedTime,showAnswerByQuestions,showAnswerEnd,showHints));
 			}
 		} else if (collection.getResourceType().getName().equalsIgnoreCase(SCOLLECTION)) {
-			collectionItems.add(createClasspageItem(classpage, collection, user, sequence, direction, planedEndDate));
+			collectionItems.add(createClasspageItem(classpage, collection, user, sequence, direction, planedEndDate, isRequired, minimumScore,estimatedTime,showAnswerByQuestions,showAnswerEnd,showHints));
 		}
-
+		getAsyncExecutor().deleteFromCache("v2-class-data-"+classpage.getGooruOid()+ "*");
+		
 		return collectionItems;
 	}
 
-	private CollectionItem createClasspageItem(Classpage classPage, Resource collection, User user, int sequence,String direction, String planedEndDate) {
+	private CollectionItem createClasspageItem(Collection classPage, Resource collection, User user, int sequence,String direction, String planedEndDate, Boolean isRequired,
+			String minimumScore,String estimatedTime,Boolean showAnswerByQuestions,Boolean showAnswerEnd,Boolean showHints) {
 		CollectionItem collectionItem = new CollectionItem();
 		collectionItem.setCollection(classPage);
 		collectionItem.setResource(collection);
@@ -628,6 +645,24 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		collectionItem.setItemSequence(sequence);
 		if (direction != null) {
 			collectionItem.setNarration(direction);
+		}
+		if(isRequired != null) {
+			collectionItem.setIsRequired(isRequired);
+		}
+		if(minimumScore != null) {
+			collectionItem.setMinimumScore(minimumScore);
+		}
+		if(estimatedTime != null) {
+			collectionItem.setEstimatedTime(estimatedTime);
+		}
+		if(showAnswerByQuestions != null) {
+			collectionItem.setShowAnswerByQuestions(showAnswerByQuestions);
+		}
+		if(showAnswerEnd == null) {
+			collectionItem.setShowAnswerEnd(showAnswerEnd);
+		}
+		if(showHints != null) {
+			collectionItem.setShowHints(showHints);
 		}
 		if (planedEndDate != null) {
 			try {
@@ -674,7 +709,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 			if (userService.isSuperAdmin(user) || userService.isContentAdmin(user)) {
 				for (Collection scollection : collections) {
 					getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + scollection.getUser().getPartyUid() + "*");
-					if (scollection.getPublishStatus().getValue().equalsIgnoreCase(PENDING)) {
+					if (scollection.getPublishStatus() != null && scollection.getPublishStatus().getValue().equalsIgnoreCase(PENDING)) {
 						scollection.setPublishStatus(this.getCustomTableRepository().getCustomTableValue(_PUBLISH_STATUS, REVIEWED));
 						collectionIds.append(scollection.getGooruOid());
 						if (!scollection.getSharing().equalsIgnoreCase(PUBLIC)) {
@@ -724,7 +759,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 			collections = this.getCollectionRepository().getCollectionListByIds(gooruOids);
 			if (userService.isSuperAdmin(user) || userService.isContentAdmin(user)) {
 				for (Collection scollection : collections) {
-					if (scollection.getPublishStatus().getValue().equalsIgnoreCase(PENDING)) {
+					if (scollection.getPublishStatus() != null && scollection.getPublishStatus().getValue().equalsIgnoreCase(PENDING)) {
 						scollection.setPublishStatus(null);
 						if (scollection.getSharing().equalsIgnoreCase(PUBLIC)) {
 							UserSummary userSummary = this.getUserRepository().getSummaryByUid(scollection.getUser().getPartyUid());
@@ -763,7 +798,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	@Override
 	public String getFolderItemsWithCache(String gooruOid, Integer limit, Integer offset, String sharing, String collectionType, String orderBy, Integer itemLimit, boolean fetchChildItem, boolean clearCache, User user) {
 		Map<String, Object> content = null;
-		Collection collection = this.getCollectionRepository().getCollectionByGooruOid(gooruOid);
+		Collection collection = this.getCollectionRepository().getCollectionByGooruOid(gooruOid, null);
 		String data = null;
 		if (collection != null) {
 			final String cacheKey = V2_ORGANIZE_DATA + collection.getUser().getPartyUid() + "-" + gooruOid + "-" + limit + "-" + offset + "-" + sharing + "-" + collectionType + "-" + orderBy + "-" + itemLimit + "-" + fetchChildItem;
