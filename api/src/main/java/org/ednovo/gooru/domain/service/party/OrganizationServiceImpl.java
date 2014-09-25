@@ -161,14 +161,14 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 				applicationService.saveApplication(appApiKey, newOrgUser, newOrganization.getPartyUid(), apiCaller);
 				accountService.createSessionToken(newOrgUser, appApiKey.getKey(), request);
 			//for inserting one entry in custom field
-				PartyPermission newPartyPermission = new PartyPermission();
+/*				PartyPermission newPartyPermission = new PartyPermission();
 				Organization gooruOrganization = organizationRepository.getOrganizationByUid(TaxonomyUtil.GOORU_ORG_UID);
 				newPartyPermission.setParty(gooruOrganization);
 				newPartyPermission.setPermittedParty(newOrganization);
 				newPartyPermission.setValidFrom(new Date(System.currentTimeMillis()));
 				newPartyPermission.setPermission(READ_ONLY);
 				organizationRepository.save(newPartyPermission);
-			} catch (Exception e) {
+*/			} catch (Exception e) {
 				LOGGER.debug("Error" + e);
 			}
 		}
