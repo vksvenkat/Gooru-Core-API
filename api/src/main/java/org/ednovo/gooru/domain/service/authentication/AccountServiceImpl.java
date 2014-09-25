@@ -171,7 +171,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			if (identity.getActive() == 0) {
 				throw new UnauthorizedException(generateErrorMessage("GL0079"));
 			}
-			final User user = this.getUserRepository().findByIdentity(identity);
+			final User user = this.getUserRepository().findByIdentityLogin(identity);
 			
 			if (!isSsoLogin) {
 				if (identity.getCredential() == null) {
@@ -199,7 +199,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 				}
 			}
 
-			final ApiKey apiKey = apiTrackerService.findApiKeyByOrganization(user.getOrganizationUid());
+			final ApiKey apiKey = apiTrackerService.findApiKeyByOrganization(user.getOrganization().getPartyUid());
 
 			userToken.setUser(user);
 			userToken.setSessionId(request.getSession().getId());
