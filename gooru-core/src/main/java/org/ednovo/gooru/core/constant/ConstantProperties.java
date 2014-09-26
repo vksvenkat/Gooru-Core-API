@@ -793,6 +793,8 @@ public interface ConstantProperties {
    static final String COUNTRY[] = { "*.countryId", "*.name", "*.totalHitCount", "*.searchResults"};
    
    static final String STATE[] = { "*.stateId", "*.name", "*.totalHitCount", "*.searchResults"};
+   
+   static final String CITY[] = { "*.cityId", "*.name", "*.totalHitCount", "*.searchResults"};
 
 }
 
