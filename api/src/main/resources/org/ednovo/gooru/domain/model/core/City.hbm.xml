@@ -43,7 +43,7 @@
 		    class="org.ednovo.gooru.core.api.model.Country" 		    
 		    column="country_id" 
 		    not-null="true" 	
-		    lazy="false" fetch="join" cascade="none"/>
+		    lazy="proxy" cascade="none"/>
 		<many-to-one 
 		    name="province" 
 		    class="org.ednovo.gooru.core.api.model.Province" 		    
