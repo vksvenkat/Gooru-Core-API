@@ -916,6 +916,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		SearchResults<CollectionItem> searchResults = new SearchResults<CollectionItem>();
 		searchResults.setSearchResults(getCollectionService().setCollectionItemMetaInfo(collectionItems, null));
 		searchResults.setTotalHitCount(this.getCollectionRepository().getCollectionItemsCount(pathwayId, orderBy, CLASSPAGE));
+		searchResults.setTitle(collectionItems.size() > 0 ? collectionItems.get(0).getCollection().getTitle() : null);
 		return searchResults; 
 	}
 	

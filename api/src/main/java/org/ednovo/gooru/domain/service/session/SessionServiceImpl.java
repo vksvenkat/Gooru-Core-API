@@ -209,7 +209,7 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 
 	@Override
 	public SessionItemAttemptTry createSessionItemAttemptTry(final SessionItemAttemptTry sessionItemAttemptTry, final String sessionItemId) {
-		try{
+		
 			final SessionItem sessionItem = this.getSessionRepository().findSessionItemById(sessionItemId);
 			rejectIfNull(sessionItem, GL0056, SESSION_ITEM);
 			AssessmentQuestion question = new AssessmentQuestion();
@@ -258,9 +258,6 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 			sessionItemAttemptTry.setTrySequence(trySequence);
 			this.getSessionRepository().save(sessionItemAttemptTry);
 			this.getSessionRepository().save(sessionItem);
-		} catch(Exception e){
-			SessionContextSupport.putLogParameter("sessionErrorLog", e.getMessage());
-		}
 		return sessionItemAttemptTry;
 	}
 
