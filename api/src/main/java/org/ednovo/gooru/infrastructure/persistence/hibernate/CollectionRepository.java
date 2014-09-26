@@ -146,4 +146,6 @@ public interface CollectionRepository extends BaseRepository {
 	
 	BigInteger getClasspageAssocCount(String classpageId,String collectionId, String gooruUid, String title, String collectionTitle, String classCode);
 	
+	Long getClasspageCount(String gooruOid, String type);
+	
 }

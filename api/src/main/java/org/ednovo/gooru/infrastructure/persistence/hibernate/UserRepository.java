@@ -185,6 +185,7 @@ public interface UserRepository extends BaseRepository {
 	
 	public Integer getChildAccountCount(String userUId);
 	
+	User findByIdentityLogin(Identity identity);	
 		
 	}
 
