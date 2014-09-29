@@ -56,22 +56,23 @@ public class OrganizationRepositoryHibernate extends BaseRepositoryHibernate imp
 
 	@Override
 	public List<Organization> getOrganizations(String type, String parentOrganizationUid, String stateProvinceId, Integer offset, Integer limit) {
-		String hql = "FROM Organization o where 1 ";
+		String hql = "SELECT o FROM Organization o  where 1 = 1";
 		if (stateProvinceId != null) {
 			hql += " AND o.stateProvince.stateId=:stateProvinceId";
 		}
 		if (type != null) { 
-			hql += " AND o.type.customTableKeyValue=:type";
+			hql += " AND o.type.keyValue=:type";
 		}
-		Query query = getSession().createQuery(hql);
 		if (parentOrganizationUid != null) { 
 			hql += " AND o.parentOrganization.partyUid=:parentOrganizationUid";
 		}
+		Query query = getSession().createQuery(hql);
+		
 		if (stateProvinceId != null) {
 			query.setParameter("stateProvinceId", stateProvinceId);
 		}
 		if (type != null) {
-			query.setParameter("typeId", type);
+			query.setParameter("type", type);
 		}
 		if (parentOrganizationUid != null) { 
 			query.setParameter("parentOrganizationUid", parentOrganizationUid);
@@ -90,9 +91,9 @@ public class OrganizationRepositoryHibernate extends BaseRepositoryHibernate imp
 	
 	@Override
 	public Long getOrganizationCount(String type, String parentOrganizationUid, String sateProvinceId) {
-		String sql = "select  count(*) as count from organization where 1";		
+		String sql = "select  count(1) as count from organization o  inner join custom_table_value ct on ct.custom_table_value_id = o.type_id where 1";		
 		if (type != null) { 
-			sql += " AND type = " + type;
+			sql += " AND ct.key_value = " + type;
 		}
 		if (parentOrganizationUid != null) { 
 			sql += " AND parent_organization_uid = " + parentOrganizationUid;

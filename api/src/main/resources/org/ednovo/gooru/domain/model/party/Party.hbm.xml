@@ -85,7 +85,7 @@
 				not-null="false" lazy="proxy" cascade="none" />
 
 			<many-to-one name="type"
-				class="org.ednovo.gooru.core.api.model.CustomTableValue" column="type"
+				class="org.ednovo.gooru.core.api.model.CustomTableValue" column="type_id"
 				not-null="false" lazy="proxy" cascade="none" />
 
 		</joined-subclass>
