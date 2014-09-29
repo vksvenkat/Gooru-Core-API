@@ -29,10 +29,9 @@ import org.ednovo.gooru.core.api.model.Organization;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate;
+import org.hibernate.Query;
 import org.hibernate.type.StandardBasicTypes;
 import org.springframework.stereotype.Repository;
-
-import org.hibernate.Query;
 
 @Repository
 public class OrganizationRepositoryHibernate extends BaseRepositoryHibernate implements OrganizationRepository,ParameterProperties, ConstantProperties {
@@ -56,9 +55,27 @@ public class OrganizationRepositoryHibernate extends BaseRepositoryHibernate imp
 	}
 
 	@Override
-	public List<Organization> listOrganization(Integer offset, Integer limit) {
-		String hql = "FROM Organization";
+	public List<Organization> getOrganizations(Integer typeId, String parentOrganizationUid, String stateProvinceId, Integer offset, Integer limit) {
+		String hql = "FROM Organization o where 1 ";
+		if (stateProvinceId != null) {
+			hql += " AND o.stateProvince.stateId=:stateProvinceId";
+		}
+		if (typeId != null) { 
+			hql += " AND o.type.customTableValueId=:type";
+		}
 		Query query = getSession().createQuery(hql);
+		if (parentOrganizationUid != null) { 
+			hql += " AND o.parentOrganization.partyUid=:parentOrganizationUid";
+		}
+		if (stateProvinceId != null) {
+			query.setParameter("stateProvinceId", stateProvinceId);
+		}
+		if (typeId != null) {
+			query.setParameter("typeId", typeId);
+		}
+		if (parentOrganizationUid != null) { 
+			query.setParameter("parentOrganizationUid", parentOrganizationUid);
+		}
 		query.setFirstResult(offset);
         query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
         return (List) query.list();
@@ -71,11 +88,20 @@ public class OrganizationRepositoryHibernate extends BaseRepositoryHibernate imp
 		return get(hql);
 	}
 	
-	public Long getOrganizationCount() {
-		String sql = "select  count(*) as count from organization";		
+	@Override
+	public Long getOrganizationCount(String type, String parentOrganizationUid, String sateProvinceId) {
+		String sql = "select  count(*) as count from organization where 1";		
+		if (type != null) { 
+			sql += " AND type = " + type;
+		}
+		if (parentOrganizationUid != null) { 
+			sql += " AND parent_organization_uid = " + parentOrganizationUid;
+		}
 		Query query = getSession().createSQLQuery(sql).addScalar("count", StandardBasicTypes.LONG);
         return (Long) query.list().get(0);
 	}
+
+	
 
 
 }

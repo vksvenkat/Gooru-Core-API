@@ -29,7 +29,6 @@ import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.ednovo.gooru.application.util.TaxonomyUtil;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.ApiKey;
 import org.ednovo.gooru.core.api.model.Organization;
@@ -117,10 +116,10 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 	
 	@Override
 	public SearchResults<Organization> listAllOrganizations(Integer offset, Integer limit) {
-		List<Organization> organization = this.getOrganizationRepository().listOrganization(offset, limit);
+		List<Organization> organization = this.getOrganizationRepository().getOrganizations(null, null, null, offset, limit);
 		SearchResults<Organization> result = new SearchResults<Organization>();
 		result.setSearchResults(organization);
-		result.setTotalHitCount(this.getOrganizationRepository().getOrganizationCount());
+		result.setTotalHitCount(this.getOrganizationRepository().getOrganizationCount(null, null, null));
 		return result;
 	}
 
@@ -306,7 +305,13 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 		return null;
 	}
 	
+	@Override
+	public List<Organization> getOrganizations(String type, String parentOrganizationUid, String sateProvinceId, Integer offset, Integer limit) {
+		return this.getOrganizationRepository().getOrganizations(typeId, parentOrganizationUid, sateProvinceId, offset, limit);
+	}
+	
 	public OrganizationRepository getOrganizationRepository() {
 		return organizationRepository;
 	}
+
 }
