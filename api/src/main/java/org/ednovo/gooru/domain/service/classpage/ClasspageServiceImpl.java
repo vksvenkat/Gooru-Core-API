@@ -679,19 +679,19 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 
 	@Override
-	public SearchResults<Map<String, Object>> getMyStudy(User user, String orderBy, Integer offset, Integer limit, String type) {
+	public SearchResults<Map<String, Object>> getMyStudy(User user, String orderBy, Integer offset, Integer limit, String type, String itemType) {
 		if (user.getPartyUid().equalsIgnoreCase(ANONYMOUS)) {
 			throw new NotFoundException(generateErrorMessage("GL0056","User"));
 		}
 		List<Object[]> results = this.getUserGroupRepository().getMyStudy(user.getPartyUid(), user.getIdentities() != null ? user.getIdentities().iterator().next().getExternalId() : null, orderBy, offset, limit, type);
 		SearchResults<Map<String, Object>> searchResult = new SearchResults<Map<String, Object>>();
-		searchResult.setSearchResults(this.setMyStudy(results));
+		searchResult.setSearchResults(this.setMyStudy(results,itemType));
 		searchResult.setTotalHitCount(this.getUserGroupRepository().getMyStudyCount(user.getPartyUid(), user.getIdentities() != null ? user.getIdentities().iterator().next().getExternalId() : null, type));
 		return searchResult;
 	}
 
 	@Override
-	public List<Map<String, Object>> setMyStudy(List<Object[]> results) {
+	public List<Map<String, Object>> setMyStudy(List<Object[]> results, String itemType) {
 		List<Map<String, Object>> listMap = new ArrayList<Map<String, Object>>();
 		for (Object[] object : results) {
 			Map<String, Object> result = new HashMap<String, Object>();
@@ -716,7 +716,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 				thumbnails.put(URL, "");
 			}
 			result.put(THUMBNAILS, thumbnails);
-			result.put(ITEM_COUNT, object[11] == null ? 0 : object[11]);
+			result.put(ITEM_COUNT, this.getCollectionRepository().getClasspageCount(object[0].toString(), itemType));
 			long member = this.getUserGroupRepository().getUserGroupAssociationCount(String.valueOf(object[2]));
 			result.put(MEMBER_COUNT, member);
 			listMap.add(result);
@@ -916,6 +916,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		SearchResults<CollectionItem> searchResults = new SearchResults<CollectionItem>();
 		searchResults.setSearchResults(getCollectionService().setCollectionItemMetaInfo(collectionItems, null));
 		searchResults.setTotalHitCount(this.getCollectionRepository().getCollectionItemsCount(pathwayId, orderBy, CLASSPAGE));
+		searchResults.setTitle(collectionItems.size() > 0 ? collectionItems.get(0).getCollection().getTitle() : null);
 		return searchResults; 
 	}
 	
