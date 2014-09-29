@@ -912,11 +912,12 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	
 	@Override
 	public SearchResults<CollectionItem> getPathwayItemsSearchResults( String classId, String pathwayId, Integer offset, Integer limit, String orderBy,User user) {
+		Collection pathway = this.getCollectionRepository().getCollectionByIdWithType(pathwayId, PATHWAY);
 		List<CollectionItem> collectionItems = getPathwayItems(classId,pathwayId,offset,limit,orderBy,user);
 		SearchResults<CollectionItem> searchResults = new SearchResults<CollectionItem>();
 		searchResults.setSearchResults(getCollectionService().setCollectionItemMetaInfo(collectionItems, null));
 		searchResults.setTotalHitCount(this.getCollectionRepository().getCollectionItemsCount(pathwayId, orderBy, CLASSPAGE));
-		searchResults.setTitle(collectionItems.size() > 0 ? collectionItems.get(0).getCollection().getTitle() : null);
+		searchResults.setTitle(pathway.getTitle());
 		return searchResults; 
 	}
 	
