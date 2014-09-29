@@ -57,6 +57,22 @@ public class OrganizationRestV2Controller extends BaseController implements Cons
 	@Autowired
 	private OrganizationService organizationService;
 
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ORGANIZATION_ADD })
+	@RequestMapping(method = RequestMethod.POST)
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public ModelAndView createOrganization(HttpServletRequest request, HttpServletResponse response, @RequestBody String data) throws Exception {
+		JSONObject json = requestData(data);
+		User user = (User) request.getAttribute(Constants.USER);
+		ActionResponseDTO<Organization> responseDTO  = getOrganizationService().saveOrganization(buildOrganizationFromInputParameters(getValue(ORGANIZATION, json)), user, request);
+		if (responseDTO.getErrors().getErrorCount() > 0) {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+		} else {
+			response.setStatus(HttpServletResponse.SC_CREATED);
+		}
+		String includes[] = (String[]) ArrayUtils.addAll(ORGANIZATION_INCLUDES_ADD, ERROR_INCLUDE);
+
+		return toModelAndViewWithInFilter(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, includes);
+	}
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ORGANIZATION_READ })
 	@RequestMapping(method = RequestMethod.GET, value = "/{organizationUid}")
@@ -73,23 +89,6 @@ public class OrganizationRestV2Controller extends BaseController implements Cons
 			@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, 
 			@RequestParam (value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit) throws Exception {
 		return toModelAndViewWithIoFilter(getOrganizationService().listAllOrganizations( offset, limit), FORMAT_JSON, EXCLUDE_ALL, true, ORGANIZATION_INCLUDES);
-	}
-	
-	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ORGANIZATION_ADD })
-	@RequestMapping(method = RequestMethod.POST)
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public ModelAndView createOrganization(HttpServletRequest request, HttpServletResponse response, @RequestBody String data) throws Exception {
-		JSONObject json = requestData(data);
-		User user = (User) request.getAttribute(Constants.USER);
-		ActionResponseDTO<Organization> responseDTO  = getOrganizationService().saveOrganization(buildOrganizationFromInputParameters(getValue(ORGANIZATION, json)), user, request);
-		if (responseDTO.getErrors().getErrorCount() > 0) {
-			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-		} else {
-			response.setStatus(HttpServletResponse.SC_CREATED);
-		}
-		String includes[] = (String[]) ArrayUtils.addAll(ORGANIZATION_INCLUDES_ADD, ERROR_INCLUDE);
-
-		return toModelAndViewWithInFilter(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, includes);
 	}
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ORGANIZATION_UPDATE })
@@ -145,7 +144,4 @@ public class OrganizationRestV2Controller extends BaseController implements Cons
 	private OrganizationSetting buildOrganizationSettingFromInputParameters(String data) {
 		return JsonDeserializer.deserialize(data, OrganizationSetting.class);
 	}
-
-
-
 }
