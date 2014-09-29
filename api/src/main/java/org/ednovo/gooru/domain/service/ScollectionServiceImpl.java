@@ -681,6 +681,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			}
 			
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + user.getPartyUid() + "*");
+		getAsyncExecutor().deleteFromCache("v2-class-data-*");
 
 	}
 	
