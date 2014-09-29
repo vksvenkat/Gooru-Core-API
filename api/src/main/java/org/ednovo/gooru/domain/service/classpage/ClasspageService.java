@@ -99,4 +99,6 @@ public interface ClasspageService {
 	
 	ActionResponseDTO<CollectionItem> updatePathwayItem(String classId,String pathwayGooruOid,String collectionItemId,CollectionItem newcollectionItem,  User user) throws Exception;
 	
+	Map<String, Object> getParentDetails(String collectionItemId);
+	
 }
