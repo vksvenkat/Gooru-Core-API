@@ -55,13 +55,13 @@ public class OrganizationRepositoryHibernate extends BaseRepositoryHibernate imp
 	}
 
 	@Override
-	public List<Organization> getOrganizations(Integer typeId, String parentOrganizationUid, String stateProvinceId, Integer offset, Integer limit) {
+	public List<Organization> getOrganizations(String type, String parentOrganizationUid, String stateProvinceId, Integer offset, Integer limit) {
 		String hql = "FROM Organization o where 1 ";
 		if (stateProvinceId != null) {
 			hql += " AND o.stateProvince.stateId=:stateProvinceId";
 		}
-		if (typeId != null) { 
-			hql += " AND o.type.customTableValueId=:type";
+		if (type != null) { 
+			hql += " AND o.type.customTableKeyValue=:type";
 		}
 		Query query = getSession().createQuery(hql);
 		if (parentOrganizationUid != null) { 
@@ -70,8 +70,8 @@ public class OrganizationRepositoryHibernate extends BaseRepositoryHibernate imp
 		if (stateProvinceId != null) {
 			query.setParameter("stateProvinceId", stateProvinceId);
 		}
-		if (typeId != null) {
-			query.setParameter("typeId", typeId);
+		if (type != null) {
+			query.setParameter("typeId", type);
 		}
 		if (parentOrganizationUid != null) { 
 			query.setParameter("parentOrganizationUid", parentOrganizationUid);

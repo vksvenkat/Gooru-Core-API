@@ -37,15 +37,18 @@ import org.ednovo.gooru.core.api.model.PartyCategoryType;
 import org.ednovo.gooru.core.api.model.PartyCustomField;
 import org.ednovo.gooru.core.api.model.PartyPermission;
 import org.ednovo.gooru.core.api.model.PartyType;
+import org.ednovo.gooru.core.api.model.Province;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserRole;
 import org.ednovo.gooru.core.api.model.UserRole.UserRoleType;
 import org.ednovo.gooru.core.api.model.UserRoleAssoc;
+import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.domain.service.BaseServiceImpl;
+import org.ednovo.gooru.domain.service.CountryRepository;
 import org.ednovo.gooru.domain.service.PartyService;
 import org.ednovo.gooru.domain.service.apikey.ApplicationService;
 import org.ednovo.gooru.domain.service.authentication.AccountService;
@@ -55,6 +58,7 @@ import org.ednovo.gooru.domain.service.user.UserService;
 import org.ednovo.gooru.domain.service.user.impl.UserServiceImpl;
 import org.ednovo.gooru.domain.service.userManagement.UserManagementService;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.OrganizationSettingRepository;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.party.OrganizationRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.storage.StorageRepository;
 import org.slf4j.Logger;
@@ -93,7 +97,13 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 	private AccountService accountService;
 	
 	@Autowired
-	private ApplicationService applicationService; 
+	private ApplicationService applicationService;
+	
+	@Autowired
+	private CountryRepository countryRepository;
+	
+	@Autowired
+	private CustomTableRepository customTableRepository;
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
 	
@@ -159,15 +169,14 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 				organizationSettingRepository.save(newOrganizationSetting);
 				applicationService.saveApplication(appApiKey, newOrgUser, newOrganization.getPartyUid(), apiCaller);
 				accountService.createSessionToken(newOrgUser, appApiKey.getKey(), request);
-			//for inserting one entry in custom field
-/*				PartyPermission newPartyPermission = new PartyPermission();
-				Organization gooruOrganization = organizationRepository.getOrganizationByUid(TaxonomyUtil.GOORU_ORG_UID);
-				newPartyPermission.setParty(gooruOrganization);
-				newPartyPermission.setPermittedParty(newOrganization);
-				newPartyPermission.setValidFrom(new Date(System.currentTimeMillis()));
-				newPartyPermission.setPermission(READ_ONLY);
-				organizationRepository.save(newPartyPermission);
-*/			} catch (Exception e) {
+				if(newOrganization.getStateProvince() != null && newOrganization.getStateProvince().getStateId() != null){
+                    newOrganization.setStateProvince(getCountryRepository().getState(null, newOrganization.getStateProvince().getStateId()));
+				}
+				if (newOrganization.getType()  != null && newOrganization.getType().getValue() != null) { 
+					rejectIfNull(this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.ORGANIZATION_CATEGORY.getTable(), newOrganization.getType().getValue()), GL0056, _USER);
+					
+				}
+			} catch (Exception e) {
 				LOGGER.debug("Error" + e);
 			}
 		}
@@ -231,7 +240,6 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 			if(existingOrganization != null){
 				existingOrganization.setPartyName(newOrganization.getPartyName());
 				existingOrganization.setLastModifiedOn(new Date(System.currentTimeMillis()));
-				// need to add logic for current user is organization admin
 				existingOrganization.setLastModifiedUserUid(apiCaller.getPartyUid());
 				organizationRepository.save(existingOrganization);
 			}
@@ -246,23 +254,7 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 	   }
 	   return randomStr.substring(0, length);
 	}
-
-	private void updateOrgAdminCustomField(String organizationUid, User user){
-		PartyCustomField partyCustomField = partyService.getPartyCustomeField(user.getPartyUid(), ORG_ADMIN_KEY, user);
-		if(partyCustomField == null){
-			partyCustomField = new PartyCustomField();
-			partyCustomField.setCategory(PartyCategoryType.USER_META.getpartyCategoryType());
-			partyCustomField.setOptionalKey(ORG_ADMIN_KEY);
-			partyCustomField.setOptionalValue(organizationUid);
-			partyCustomField.setPartyUid(user.getPartyUid());
-			partyService.createPartyCustomField(MY, partyCustomField, user);
-		}
-		else {
-/*			partyCustomField.setOptionalValue(partyCustomField.getOptionalValue()+","+organizationUid);
-			organizationRepository.save(partyCustomField);
-*/		}
-	}
-	// This method should be not be used
+	
 	@Override
 	public User updateUserOrganization(String organizationUid, String gooruUid)	throws Exception {
 		User user = null;
@@ -307,11 +299,23 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 	
 	@Override
 	public List<Organization> getOrganizations(String type, String parentOrganizationUid, String sateProvinceId, Integer offset, Integer limit) {
-		return this.getOrganizationRepository().getOrganizations(typeId, parentOrganizationUid, sateProvinceId, offset, limit);
+		return this.getOrganizationRepository().getOrganizations(CustomProperties.Table.ORGANIZATION_CATEGORY.getTable() + "_" + type, parentOrganizationUid, sateProvinceId, offset, limit);
 	}
 	
 	public OrganizationRepository getOrganizationRepository() {
 		return organizationRepository;
+	}
+
+
+
+	public CountryRepository getCountryRepository() {
+		return countryRepository;
+	}
+
+
+
+	public CustomTableRepository getCustomTableRepository() {
+		return customTableRepository;
 	}
 
 }
