@@ -28,10 +28,7 @@
 
 <hibernate-mapping>
     <class name="org.ednovo.gooru.core.api.model.Country" table="country">
-    	<cache usage="read-only"/> 
-	    <id name="countryId" column="country_id" unsaved-value="null">
-	     	<generator class="assigned"/>				 
-		</id>	
+	    <id name="countryId" column="country_id" />			 
 		<property
 	        name="name"
 	        column="name"

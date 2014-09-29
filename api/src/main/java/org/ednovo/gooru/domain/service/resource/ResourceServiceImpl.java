@@ -3102,13 +3102,13 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	@Override
 	public Resource resourcePlay(String gooruContentId, User apiCaller, boolean more) throws Exception {
 		Resource resource = this.findResourceByContentGooruId(gooruContentId);
-
+        
+        
 		if (resource == null) {
 			throw new NotFoundException(generateErrorMessage("GL0003"));
 		}
 		resource.setViewCount(Integer.parseInt(this.resourceCassandraService.get(resource.getGooruOid(),"stas.viewsCount") != null ? this.resourceCassandraService.get(resource.getGooruOid(),"stas.viewsCount") : "0" ));
 	    resource.setViews(Long.parseLong(this.resourceCassandraService.get(resource.getGooruOid(),"stas.viewsCount") != null ? this.resourceCassandraService.get(resource.getGooruOid(),"stas.viewsCount") : "0"));
-
 		resource.setCustomFieldValues(customFieldService.getCustomFieldsValuesOfResource(resource.getGooruOid()));
 		if (more) {
 			String category = CustomProperties.Table.FEEDBACK_CATEGORY.getTable() + "_" + RATING;
