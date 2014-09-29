@@ -2,6 +2,7 @@ package org.ednovo.gooru.controllers.v2.api;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.lang.ArrayUtils;
 import org.ednovo.gooru.controllers.BaseController;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
@@ -13,6 +14,7 @@ import org.ednovo.gooru.core.constant.GooruOperationConstants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.security.AuthorizeOperations;
 import org.ednovo.gooru.domain.service.CountryService;
+import org.ednovo.gooru.domain.service.party.OrganizationService;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -32,6 +34,9 @@ public class CountryRestV2Controller extends BaseController implements ConstantP
 	@Autowired
 	public CountryService countryService;
 
+	@Autowired
+	public OrganizationService organizationService;
+	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_COUNTRY_ADD })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { " " }, method = RequestMethod.POST)
@@ -162,6 +167,20 @@ public class CountryRestV2Controller extends BaseController implements ConstantP
 		getCountryService().deleteCity(countryId, stateId, cityId);
 		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
 	}
+	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_COUNTRY_READ })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(value = { "/{id}/state/{sid}/school-district" }, method = RequestMethod.GET)
+	public ModelAndView getStateSchoolDistricts(@PathVariable(value = ID) String countryId, @PathVariable(value = SID) String stateId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, HttpServletRequest request, HttpServletResponse response) {
+		return toModelAndView(this.getOrganizationService().getOrganizations("school_district", null, stateId, offset, limit), RESPONSE_FORMAT_JSON);
+	}
+	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_COUNTRY_READ })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(value = { "/{id}/state/{sid}/school-district/{schoolDistrictId}/school" }, method = RequestMethod.GET)
+	public ModelAndView getStateSchoolDistrictSchools(@PathVariable(value = ID) String countryId, @PathVariable(value = SID) String stateId, @PathVariable(value = "schoolDistrictId") String schoolDistrictId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, HttpServletRequest request, HttpServletResponse response) {
+		return toModelAndView(this.getOrganizationService().getOrganizations("school", schoolDistrictId, stateId, offset, limit), RESPONSE_FORMAT_JSON);
+	}
 
 	private Country buildCountryFromInputParameters(String data) {
 		return JsonDeserializer.deserialize(data, Country.class);
@@ -177,6 +196,10 @@ public class CountryRestV2Controller extends BaseController implements ConstantP
 
 	public CountryService getCountryService() {
 		return countryService;
+	}
+
+	public OrganizationService getOrganizationService() {
+		return organizationService;
 	}
 
 }

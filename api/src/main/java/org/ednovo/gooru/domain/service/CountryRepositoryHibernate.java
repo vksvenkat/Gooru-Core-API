@@ -36,7 +36,10 @@ public class CountryRepositoryHibernate extends BaseRepositoryHibernate implemen
 
 	@Override
 	public Province getState(String countryId, String stateId) {
-		String hql = "FROM Province c  WHERE c.stateId=:stateId  and c.country.countryId=:countryId";
+		String hql = "FROM Province c  WHERE c.stateId=:stateId";
+		if (countryId != null) { 
+			hql += " and c.country.countryId=:countryId";
+		} 
 		Query query = getSession().createQuery(hql);
 		query.setParameter("stateId", stateId);
 		if (countryId != null) {

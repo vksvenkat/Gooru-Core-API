@@ -53,9 +53,6 @@ public class Profile implements Serializable {
 	private Language firstLanguage;
 	private Language secondLanguage;
 	private Language thirdLanguage;
-	private City city;
-	private Country country;
-	private Province province;
 	private Gender gender;
 
 	private String school;
@@ -196,30 +193,6 @@ public class Profile implements Serializable {
 
 	public void setThirdLanguage(Language thirdLanguage) {
 		this.thirdLanguage = thirdLanguage;
-	}
-
-	public City getCity() {
-		return city;
-	}
-
-	public void setCity(City city) {
-		this.city = city;
-	}
-
-	public Country getCountry() {
-		return country;
-	}
-
-	public void setCountry(Country country) {
-		this.country = country;
-	}
-
-	public Province getProvince() {
-		return province;
-	}
-
-	public void setProvince(Province province) {
-		this.province = province;
 	}
 
 	public Gender getGender() {
