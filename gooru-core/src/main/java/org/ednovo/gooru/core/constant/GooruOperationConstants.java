@@ -144,6 +144,13 @@ public class GooruOperationConstants {
 	
 	public static final String ENTITY_USER_GROUP="UserGroup";
 	
+	public static final String ENTITY_COUNTRY="Country";
+	 
+	public static final String ENTITY_STATE="State";
+
+	public static final String ENTITY_CITY="City";
+	
+	
 	// Actions
 
 	public static final String ACTION_READ = "Read";
@@ -893,5 +900,38 @@ public class GooruOperationConstants {
 	
 	public static final String OPERATION_PROFANITY_VALIDATE = ENTITY_PROFANITY + ENTITY_ACTION_SEPARATOR + ACTION_VALIDATE;
 	
+	//COUNTRY
+	
+    
+
+	public static final String OPERATION_COUNTRY_ADD = ENTITY_COUNTRY + ENTITY_ACTION_SEPARATOR + ACTION_ADD;
+	
+	public static final String OPERATION_COUNTRY_READ = ENTITY_COUNTRY + ENTITY_ACTION_SEPARATOR + ACTION_READ;
+	
+	public static final String OPERATION_COUNTRY_UPDATE = ENTITY_COUNTRY + ENTITY_ACTION_SEPARATOR + ACTION_UPDATE;
+	
+	public static final String OPERATION_COUNTRY_DELETE = ENTITY_COUNTRY + ENTITY_ACTION_SEPARATOR + ACTION_DELETE;
+
+		
+	//STATE
+	
+    public static final String OPERATION_STATE_ADD = ENTITY_STATE + ENTITY_ACTION_SEPARATOR + ACTION_ADD;
+	
+	public static final String OPERATION_STATE_READ = ENTITY_STATE + ENTITY_ACTION_SEPARATOR + ACTION_READ;
+	
+	public static final String OPERATION_STATE_UPDATE = ENTITY_STATE + ENTITY_ACTION_SEPARATOR + ACTION_UPDATE;
+	
+	public static final String OPERATION_STATE_DELETE = ENTITY_STATE + ENTITY_ACTION_SEPARATOR + ACTION_DELETE;
+	
+	//CITY
+
+    public static final String OPERATION_CITY_ADD = ENTITY_CITY + ENTITY_ACTION_SEPARATOR + ACTION_ADD;
+	
+	public static final String OPERATION_CITY_READ = ENTITY_CITY + ENTITY_ACTION_SEPARATOR + ACTION_READ;
+	
+	public static final String OPERATION_CITY_UPDATE = ENTITY_CITY + ENTITY_ACTION_SEPARATOR + ACTION_UPDATE;
+	
+	public static final String OPERATION_CITY_DELETE = ENTITY_CITY + ENTITY_ACTION_SEPARATOR + ACTION_DELETE;
+
 	
 }
