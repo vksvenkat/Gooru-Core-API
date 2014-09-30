@@ -168,14 +168,14 @@ public class CountryRestV2Controller extends BaseController implements ConstantP
 		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
 	}
 	
-	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_STATE_SCHOOL_DISTRICTS_READ })
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCHOOL_DISTRICT_READ })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}/state/{sid}/school-district" }, method = RequestMethod.GET)
 	public ModelAndView getStateSchoolDistricts(@PathVariable(value = ID) String countryId, @PathVariable(value = SID) String stateId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, HttpServletRequest request, HttpServletResponse response) {
 		return toModelAndView(this.getOrganizationService().getOrganizations("school_district", null, stateId, offset, limit), RESPONSE_FORMAT_JSON);
 	}
 	
-	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_STATE_SCHOOL_DISTRICTS_SCHOOLS_READ})
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCHOOL_READ })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}/state/{sid}/school-district/{schoolDistrictId}/school" }, method = RequestMethod.GET)
 	public ModelAndView getStateSchoolDistrictSchools(@PathVariable(value = ID) String countryId, @PathVariable(value = SID) String stateId, @PathVariable(value = "schoolDistrictId") String schoolDistrictId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, HttpServletRequest request, HttpServletResponse response) {
