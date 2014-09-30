@@ -9,7 +9,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.ednovo.gooru.cassandra.core.dao.EntityCassandraDao;
-import org.ednovo.gooru.core.constant.ColumnFamilyConstant;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.netflix.astyanax.model.ColumnList;
 
@@ -19,6 +20,9 @@ import com.netflix.astyanax.model.ColumnList;
  */
 public abstract class EntityCassandraServiceImpl<M extends Serializable> implements EntityCassandraService<String, M> {
 
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(EntityCassandraServiceImpl.class);
+	
 	@Override
 	public void delete(String id) {
 		getCassandraDao().delete(id);
@@ -35,6 +39,11 @@ public abstract class EntityCassandraServiceImpl<M extends Serializable> impleme
 	public String get(String key,
 			String column) {
 		return getCassandraDao().read(key, column);
+	}
+	
+	@Override
+	public Integer getInt(String key, String column) {
+	 return null;
 	}
 
 	@Override

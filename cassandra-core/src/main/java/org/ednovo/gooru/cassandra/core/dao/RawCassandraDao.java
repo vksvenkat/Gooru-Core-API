@@ -42,5 +42,9 @@ public interface RawCassandraDao extends CassandraDao {
 	void deleteIndexQueue(String rowKey, Collection<String> columns);
 
 	void updateQueueStatus(String columnName, String rowKey, String prefix);
+	
+	Long readAsLong(String rowKey, String column);
+	
+	Integer readAsInteger(String rowKey, String column);
 
 }

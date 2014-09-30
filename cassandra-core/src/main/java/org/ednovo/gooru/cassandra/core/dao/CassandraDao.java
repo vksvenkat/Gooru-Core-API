@@ -15,7 +15,7 @@ import com.netflix.astyanax.model.ColumnFamily;
 public interface CassandraDao {
 
 	String read(String rowKey, String column);
-
+	
 	void delete(String rowKey);
 	
 	Collection<String> getRiKeys(String reverseIndexName);
