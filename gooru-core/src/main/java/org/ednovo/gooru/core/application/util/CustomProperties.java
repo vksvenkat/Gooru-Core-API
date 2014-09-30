@@ -214,5 +214,18 @@ public class CustomProperties implements Serializable {
 			return this.assignmentStatus;
 		}
 	}
+	
+	public static enum InstitutionType {
+		SCHOOL("school"), DISTRICT("school-district") ,SCHOOL_DISTRICT("school_district");
+		private String institutionType;
+
+		InstitutionType(String institutionType) {
+			this.institutionType = institutionType;
+		}
+
+		public String getInstitutionType() {
+			return this.institutionType;
+		}
+	}
 
 }
