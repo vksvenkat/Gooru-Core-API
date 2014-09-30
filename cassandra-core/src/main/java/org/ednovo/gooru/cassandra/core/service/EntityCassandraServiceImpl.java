@@ -43,7 +43,26 @@ public abstract class EntityCassandraServiceImpl<M extends Serializable> impleme
 	
 	@Override
 	public Integer getInt(String key, String column) {
-	 return null;
+		Integer value = 0;
+		try {
+		 Long viewL =  getCassandraDao().readAsLong(key, column);
+		 value = Integer.parseInt(viewL + "");
+		} catch (Exception e) { 
+			LOGGER.error("parser error : " + e);
+			try {
+				value =  getCassandraDao().readAsInteger(key, column);
+			} catch (Exception e1) { 
+				LOGGER.error("parser error : " + e1);
+				try {
+					 String view =  getCassandraDao().read(key, column);
+					 value = Integer.parseInt(view);
+				} catch (Exception e2) {
+					LOGGER.error("parser error : " + e2);
+					
+				}
+			}	
+		}
+		return value;
 	}
 
 	@Override
