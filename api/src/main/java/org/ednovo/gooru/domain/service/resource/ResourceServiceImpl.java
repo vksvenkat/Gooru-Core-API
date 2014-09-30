@@ -295,9 +295,10 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			throw new NotFoundException("resource not found");
 		}
 		Map<String, Object> resourceObject = new HashMap<String, Object>();
-		resource.setViewCount(Integer.parseInt(this.resourceCassandraService.get(resource.getGooruOid(),"stas.viewsCount") != null ? this.resourceCassandraService.get(resource.getGooruOid(),"stas.viewsCount") : "0" ));
-	    resource.setViews(Long.parseLong(this.resourceCassandraService.get(resource.getGooruOid(),"stas.viewsCount") != null ? this.resourceCassandraService.get(resource.getGooruOid(),"stas.viewsCount") : "0"));
-		if (resource.getResourceType().getName().equalsIgnoreCase(ASSESSMENT_QUESTION)) {
+    resource.setViewCount(501);
+              resource.setViews(Long.parseLong("501"));
+              		
+if (resource.getResourceType().getName().equalsIgnoreCase(ASSESSMENT_QUESTION)) {
 			AssessmentQuestion question = assessmentService.getQuestion(gooruOid);
 			question.setCustomFieldValues(customFieldService.getCustomFieldsValuesOfResource(question.getGooruOid()));
 			resourceObject.put(RESOURCE, question);
@@ -3102,9 +3103,9 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		if (resource == null) {
 			throw new NotFoundException(generateErrorMessage("GL0003"));
 		}
-		resource.setViewCount(Integer.parseInt(this.resourceCassandraService.get(resource.getGooruOid(),"stas.viewsCount") != null ? this.resourceCassandraService.get(resource.getGooruOid(),"stas.viewsCount") : "0" ));
-	    resource.setViews(Long.parseLong(this.resourceCassandraService.get(resource.getGooruOid(),"stas.viewsCount") != null ? this.resourceCassandraService.get(resource.getGooruOid(),"stas.viewsCount") : "0"));
-
+resource.setViewCount(501);
+              resource.setViews(Long.parseLong("501"));
+              
 		resource.setCustomFieldValues(customFieldService.getCustomFieldsValuesOfResource(resource.getGooruOid()));
 		if (more) {
 			String category = CustomProperties.Table.FEEDBACK_CATEGORY.getTable() + "_" + RATING;
