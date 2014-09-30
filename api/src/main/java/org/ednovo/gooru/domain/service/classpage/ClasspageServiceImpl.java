@@ -912,11 +912,12 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	
 	@Override
 	public SearchResults<CollectionItem> getPathwayItemsSearchResults( String classId, String pathwayId, Integer offset, Integer limit, String orderBy,User user) {
+		Collection pathway = this.getCollectionRepository().getCollectionByIdWithType(pathwayId, PATHWAY);
 		List<CollectionItem> collectionItems = getPathwayItems(classId,pathwayId,offset,limit,orderBy,user);
 		SearchResults<CollectionItem> searchResults = new SearchResults<CollectionItem>();
 		searchResults.setSearchResults(getCollectionService().setCollectionItemMetaInfo(collectionItems, null));
 		searchResults.setTotalHitCount(this.getCollectionRepository().getCollectionItemsCount(pathwayId, orderBy, CLASSPAGE));
-		searchResults.setTitle(collectionItems.size() > 0 ? collectionItems.get(0).getCollection().getTitle() : null);
+		searchResults.setTitle(pathway.getTitle());
 		return searchResults; 
 	}
 	
@@ -983,6 +984,51 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			e.printStackTrace();
 		}
 		return responseDTO;
+	}
+	
+	@Override
+	public void deletePathwayItem(String classId, String pathwayGooruOid, String collectionItemId, User user) {
+		if (this.getCollectionRepository().getCollectionByIdWithType(pathwayGooruOid, PATHWAY) == null) {
+			throw new BadRequestException("pathway not found");
+		}
+		if (this.getCollectionRepository().getCollectionByIdWithType(classId, CLASSPAGE) == null) {
+			throw new BadRequestException("class not found");
+		}
+		getCollectionService().deleteCollectionItem(collectionItemId, user);
+		getAsyncExecutor().deleteFromCache("v2-class-data-" + classId + "*");
+	}
+	
+	@Override
+	public ActionResponseDTO<CollectionItem> updatePathwayItem(String classId,String pathwayGooruOid,String collectionItemId,CollectionItem newcollectionItem,  User user) throws Exception {
+		if (this.getCollectionRepository().getCollectionByIdWithType(pathwayGooruOid, PATHWAY) == null) {
+			throw new BadRequestException("pathway not found");
+		}
+		if (this.getCollectionRepository().getCollectionByIdWithType(classId, CLASSPAGE) == null) {
+			throw new BadRequestException("class not found");
+		}
+		getAsyncExecutor().deleteFromCache("v2-class-data-" + classId + "*");
+		return updateCollectionItem(newcollectionItem, collectionItemId, user);
+	}
+	
+	@Override
+	public Map<String, Object> getParentDetails(String collectionItemId) {
+		List<Object[]> result = this.getCollectionRepository().getParentDetails(collectionItemId);
+		Map<String, Object> items = new HashMap<String, Object>();
+		if (result != null && result.size() > 0) {
+			for (Object[] object : result) {
+				items.put("classGooruOid", object[0]);
+				items.put("classTitle", object[1]);
+				items.put("pathwayGooruOid", object[2]);
+				items.put("pathwayTitle", object[3]);
+				items.put("collectionGooruOid", object[4]);
+				items.put("collectionTitle", object[5]);
+				items.put("narration", object[6]);
+				items.put("plannedEndDate", object[7]);
+				items.put("isRequired", object[8]);
+				items.put("minimumScore", object[9]);
+			}
+		}
+		return items;
 	}
 	
 	public CollectionEventLog getScollectionEventlog() {
@@ -1053,28 +1099,5 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		return collectionRepository;
 	}
 
-	@Override
-	public void deletePathwayItem(String classId, String pathwayGooruOid, String collectionItemId, User user) {
-		if (this.getCollectionRepository().getCollectionByIdWithType(pathwayGooruOid, PATHWAY) == null) {
-			throw new BadRequestException("pathway not found");
-		}
-		if (this.getCollectionRepository().getCollectionByIdWithType(classId, CLASSPAGE) == null) {
-			throw new BadRequestException("class not found");
-		}
-		getCollectionService().deleteCollectionItem(collectionItemId, user);
-		getAsyncExecutor().deleteFromCache("v2-class-data-" + classId + "*");
-	}
-	
-	@Override
-	public ActionResponseDTO<CollectionItem> updatePathwayItem(String classId,String pathwayGooruOid,String collectionItemId,CollectionItem newcollectionItem,  User user) throws Exception {
-		if (this.getCollectionRepository().getCollectionByIdWithType(pathwayGooruOid, PATHWAY) == null) {
-			throw new BadRequestException("pathway not found");
-		}
-		if (this.getCollectionRepository().getCollectionByIdWithType(classId, CLASSPAGE) == null) {
-			throw new BadRequestException("class not found");
-		}
-		getAsyncExecutor().deleteFromCache("v2-class-data-" + classId + "*");
-		return updateCollectionItem(newcollectionItem, collectionItemId, user);
-	}
 
 }

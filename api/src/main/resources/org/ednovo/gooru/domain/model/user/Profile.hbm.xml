@@ -67,27 +67,7 @@
 		    column="gender" 
 		    not-null="false" 	
 		    lazy="false" fetch="join" cascade="none"/>
-		 
-		 <many-to-one 
-		    name="country" 
-		    class="org.ednovo.gooru.core.api.model.Country" 		    
-		    column="country_id" 
-		    not-null="false"	
-		    lazy="false" fetch="join" cascade="none"/>
-		  
-		  <many-to-one 
-		    name="province" 
-		    class="org.ednovo.gooru.core.api.model.Province" 		    
-		    column="state_province_id" 
-		    not-null="false" 	
-		    lazy="false" fetch="join" cascade="none"/>
 		    
-		  <many-to-one 
-		    name="city" 
-		    class="org.ednovo.gooru.core.api.model.City" 		    
-		    column="city_id" 
-		    not-null="false" 	
-		    lazy="false" fetch="join" cascade="none"/>
 		 
 		 <many-to-one 
 		    name="firstLanguage" 

@@ -500,7 +500,7 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ITEM_UPDATE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	@RequestMapping(value = { "{id}/pathway/{pid}/reorder/{sequence}" }, method = RequestMethod.PUT)
+	@RequestMapping(value = { "/{id}/pathway/{pid}/reorder/{sequence}" }, method = RequestMethod.PUT)
 	public ModelAndView reorderPathwaySequence(@PathVariable(value = ID) String classId, @PathVariable(value= "pid") String pathwayId, @PathVariable(value = SEQUENCE) int newSequence, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		ActionResponseDTO<CollectionItem> responseDTO = this.getClasspageService().reorderPathwaySequence(classId,pathwayId ,newSequence);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
@@ -513,9 +513,11 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 		return toModelAndViewWithIoFilter(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
 	
+	
+	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ITEM_UPDATE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	@RequestMapping(value = { "{id}/pathway/{pid}/item/{itemId}/move" }, method = RequestMethod.PUT)
+	@RequestMapping(value = { "/{id}/pathway/{pid}/item/{itemId}/move" }, method = RequestMethod.PUT)
 	public ModelAndView pathwayItemMoveWithReorder(@PathVariable(value= ID) String classId , @PathVariable(value= "itemId") String collectionItemId,@PathVariable(value= "pid") String pathwayId, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
 		JSONObject json = requestData(data);
@@ -525,6 +527,14 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 		includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_ITEM_INCLUDE_FILEDS);
 		includes = (String[]) ArrayUtils.addAll(includes, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(collectionItem, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
+	}
+	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ITEM_READ })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(value = { "/assignment/{id}" }, method = RequestMethod.GET)
+	public ModelAndView getParentDetails( @PathVariable(value= ID) String collectionItemId,  HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+		return toModelAndView(serializeToJson(this.getClasspageService().getParentDetails(collectionItemId), false, true));
 	}
 	
 	

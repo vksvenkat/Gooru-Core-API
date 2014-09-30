@@ -22,6 +22,10 @@ public class Organization extends Party {
 	
 	private Organization parentOrganization;
 	
+	private Province stateProvince;
+    
+    private CustomTableValue type;
+	
 	public String getOrganizationCode() {
 		return organizationCode;
 	}
@@ -53,4 +57,22 @@ public class Organization extends Party {
 	public Organization getParentOrganization() {
 		return parentOrganization;
 	}
+
+	public Province getStateProvince() {
+		return stateProvince;
+	}
+
+	public void setStateProvince(Province stateProvince) {
+		this.stateProvince = stateProvince;
+	}
+
+	public CustomTableValue getType() {
+		return type;
+	}
+
+	public void setType(CustomTableValue type) {
+		this.type = type;
+	}
+
+	
 }
