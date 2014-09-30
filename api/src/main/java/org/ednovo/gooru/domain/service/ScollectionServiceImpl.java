@@ -1010,8 +1010,13 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				collectionItem.setResource(getResourceService().setContentProvider(collectionItem.getResource()));
 				collectionItem.getResource().setResourceTags(this.getContentService().getContentTagAssoc(collectionItem.getResource().getGooruOid(), user));
 				
-				collectionItem.getResource().setViewCount(Integer.parseInt(this.resourceCassandraService.get(collectionItem.getResource().getGooruOid(),"stas.viewsCount") != null ? this.resourceCassandraService.get(collectionItem.getResource().getGooruOid(),"stas.viewsCount") : "0" ));
-				collectionItem.getResource().setViews(Long.parseLong(this.resourceCassandraService.get(collectionItem.getResource().getGooruOid(),"stas.viewsCount") != null ? this.resourceCassandraService.get(collectionItem.getResource().getGooruOid(),"stas.viewsCount") : "0"));
+				try {
+					collectionItem.getResource().setViewCount(Integer.parseInt(this.resourceCassandraService.get(collectionItem.getResource().getGooruOid(),"stas.viewsCount") != null ? this.resourceCassandraService.get(collectionItem.getResource().getGooruOid(),"stas.viewsCount") : "0" ));
+					collectionItem.getResource().setViews(Long.parseLong(this.resourceCassandraService.get(collectionItem.getResource().getGooruOid(),"stas.viewsCount") != null ? this.resourceCassandraService.get(collectionItem.getResource().getGooruOid(),"stas.viewsCount") : "0"));
+				} catch(Exception e) {
+					LOGGER.info(e.getMessage() + this.resourceCassandraService.get(collectionItem.getResource().getGooruOid(),"stas.viewsCount"));
+				}
+				
 			}
 			if (collection.getResourceType().getName().equalsIgnoreCase(SCOLLECTION)) {
 				collection.setDepthOfKnowledges(this.setContentMetaAssociation(this.getContentMetaAssociation(DEPTH_OF_KNOWLEDGE), collectionId, DEPTH_OF_KNOWLEDGE));
