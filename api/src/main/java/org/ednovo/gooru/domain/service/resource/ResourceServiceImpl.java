@@ -2746,6 +2746,9 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			if(newResource.getAggregator() != null && newResource.getAggregator().size() > 0) {
 				resource.setAggregator(updateContentProvider(resource.getGooruOid(), newResource.getAggregator(), user, CustomProperties.ContentProviderType.AGGREGATOR.getContentProviderType()));
 			}
+			if(newResource.getHost() != null && newResource.getHost().size() > 0) {
+				resource.setHost(updateContentProvider(resource.getGooruOid(), newResource.getHost(), user, "host"));
+			}
 			
 			if(resourceTags != null && resourceTags.size() > 0) {
 				resource.setResourceTags(this.getContentService().createTagAssoc(resource.getGooruOid(), resourceTags, user));
