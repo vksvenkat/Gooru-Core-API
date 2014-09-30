@@ -960,8 +960,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			}
 			
 			collection.setLastModifiedUser(lastUserModifiedMap);
-			collection.setViewCount(Integer.parseInt(this.resourceCassandraService.get(collection.getGooruOid(),"stas.viewsCount") != null ? this.resourceCassandraService.get(collection.getGooruOid(),"stas.viewsCount") : "0" ));
-			collection.setViews(Long.parseLong(this.resourceCassandraService.get(collection.getGooruOid(),"stas.viewsCount") != null ? this.resourceCassandraService.get(collection.getGooruOid(),"stas.viewsCount") : "0"));
 			try {
 				collection.setViewCount(this.resourceCassandraService.getInt(collection.getGooruOid(),"stas.viewsCount"));
 				collection.setViews(Long.parseLong(this.resourceCassandraService.getInt(collection.getGooruOid(),"stas.viewsCount") + ""));
