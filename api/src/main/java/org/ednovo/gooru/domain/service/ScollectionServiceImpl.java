@@ -962,6 +962,12 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			collection.setLastModifiedUser(lastUserModifiedMap);
 			collection.setViewCount(Integer.parseInt(this.resourceCassandraService.get(collection.getGooruOid(),"stas.viewsCount") != null ? this.resourceCassandraService.get(collection.getGooruOid(),"stas.viewsCount") : "0" ));
 			collection.setViews(Long.parseLong(this.resourceCassandraService.get(collection.getGooruOid(),"stas.viewsCount") != null ? this.resourceCassandraService.get(collection.getGooruOid(),"stas.viewsCount") : "0"));
+			try {
+				collection.setViewCount(this.resourceCassandraService.getInt(collection.getGooruOid(),"stas.viewsCount"));
+				collection.setViews(Long.parseLong(this.resourceCassandraService.getInt(collection.getGooruOid(),"stas.viewsCount") + ""));
+			} catch (Exception e) { 
+				LOGGER.error("parser error : " + e);
+			}
 			for (CollectionItem collectionItem : collection.getCollectionItems()) {
 				if (collectionItem.getResource().getResourceType().getName().equalsIgnoreCase(ASSESSMENT_QUESTION)) {
 					collectionItem.getResource().setDepthOfKnowledges(this.setContentMetaAssociation(this.getContentMetaAssociation(DEPTH_OF_KNOWLEDGE), collectionItem.getResource().getGooruOid(), DEPTH_OF_KNOWLEDGE));
@@ -973,9 +979,12 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				collectionItem.getResource().setCustomFieldValues(this.getCustomFieldsService().getCustomFieldsValuesOfResource(collectionItem.getResource().getGooruOid()));
 				collectionItem.setResource(getResourceService().setContentProvider(collectionItem.getResource()));
 				collectionItem.getResource().setResourceTags(this.getContentService().getContentTagAssoc(collectionItem.getResource().getGooruOid(), user));
-				
-				collectionItem.getResource().setViewCount(Integer.parseInt(this.resourceCassandraService.get(collectionItem.getResource().getGooruOid(),"stas.viewsCount") != null ? this.resourceCassandraService.get(collectionItem.getResource().getGooruOid(),"stas.viewsCount") : "0" ));
-				collectionItem.getResource().setViews(Long.parseLong(this.resourceCassandraService.get(collectionItem.getResource().getGooruOid(),"stas.viewsCount") != null ? this.resourceCassandraService.get(collectionItem.getResource().getGooruOid(),"stas.viewsCount") : "0"));
+				try {
+					collectionItem.getResource().setViewCount(this.resourceCassandraService.getInt(collectionItem.getResource().getGooruOid(),"stas.viewsCount"));
+					collectionItem.getResource().setViews(Long.parseLong(this.resourceCassandraService.getInt(collectionItem.getResource().getGooruOid(),"stas.viewsCount") + ""));
+				} catch (Exception e) { 
+					LOGGER.error("parser error : " + e);
+				}
 			}
 			if (collection.getResourceType().getName().equalsIgnoreCase(SCOLLECTION)) {
 				collection.setDepthOfKnowledges(this.setContentMetaAssociation(this.getContentMetaAssociation(DEPTH_OF_KNOWLEDGE), collectionId, DEPTH_OF_KNOWLEDGE));

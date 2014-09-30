@@ -295,8 +295,12 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			throw new NotFoundException("resource not found");
 		}
 		Map<String, Object> resourceObject = new HashMap<String, Object>();
-		resource.setViewCount(Integer.parseInt(this.resourceCassandraService.get(resource.getGooruOid(),"stas.viewsCount") != null ? this.resourceCassandraService.get(resource.getGooruOid(),"stas.viewsCount") : "0" ));
-	    resource.setViews(Long.parseLong(this.resourceCassandraService.get(resource.getGooruOid(),"stas.viewsCount") != null ? this.resourceCassandraService.get(resource.getGooruOid(),"stas.viewsCount") : "0"));
+	    try {
+	    	resource.setViewCount(this.resourceCassandraService.getInt(resource.getGooruOid(),"stas.viewsCount"));
+			resource.setViews(Long.parseLong(this.resourceCassandraService.getInt(resource.getGooruOid(),"stas.viewsCount") + ""));
+		} catch (Exception e) { 
+			LOGGER.error("parser error : " + e);
+		}
 		if (resource.getResourceType().getName().equalsIgnoreCase(ASSESSMENT_QUESTION)) {
 			AssessmentQuestion question = assessmentService.getQuestion(gooruOid);
 			question.setCustomFieldValues(customFieldService.getCustomFieldsValuesOfResource(question.getGooruOid()));
