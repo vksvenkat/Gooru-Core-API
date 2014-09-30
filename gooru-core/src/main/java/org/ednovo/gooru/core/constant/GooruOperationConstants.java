@@ -149,6 +149,10 @@ public class GooruOperationConstants {
 	public static final String ENTITY_STATE = "State";
 
 	public static final String ENTITY_CITY = "City";
+	
+	public static final String ENTITY_SCHOOL_DISTRICT="SchoolDistrict";
+
+	public static final String ENTITY_SCHOOL="School";
 
 	// Actions
 
@@ -923,5 +927,13 @@ public class GooruOperationConstants {
 	public static final String OPERATION_CITY_UPDATE = ENTITY_CITY + ENTITY_ACTION_SEPARATOR + ACTION_UPDATE;
 
 	public static final String OPERATION_CITY_DELETE = ENTITY_CITY + ENTITY_ACTION_SEPARATOR + ACTION_DELETE;
+	
+	// SCHOOL_DISTRICT
 
+	public static final String OPERATION_SCHOOL_DISTRICT_READ = ENTITY_SCHOOL_DISTRICT+ ENTITY_ACTION_SEPARATOR + ACTION_READ;
+    
+	// SCHOOL
+	
+	public static final String  OPERATION_SCHOOL_READ = ENTITY_SCHOOL + ENTITY_ACTION_SEPARATOR + ACTION_READ;
+    
 }
