@@ -198,7 +198,7 @@ public class RawCassandraDaoImpl extends CassandraDaoSupport<CassandraColumnFami
 			getLog().error("Error updating queue status to cassandra", ex);
 		}
 	}
-
+	
 	@Override
 	public Long readAsLong(String rowKey, String column) {
 		try {
