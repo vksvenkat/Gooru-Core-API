@@ -151,6 +151,10 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 				rejectIfNull(type, GL0056, "type ");
 				newOrganization.setType(type);
 			}
+			
+			if (organizationData.getParentId() != null) { 
+				newOrganization.setParentOrganization(this.getOrganizationById(organizationData.getParentId()));
+			}
 			organizationRepository.save(newOrganization);
 			updateOrgSetting(newOrganization);
 			User newUser = new User();
@@ -294,8 +298,11 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 	}
 
 	@Override
-	public List<Organization> getOrganizations(String type, String parentOrganizationUid, String sateProvinceId, Integer offset, Integer limit) {
-		return this.getOrganizationRepository().getOrganizations(CustomProperties.Table.ORGANIZATION_CATEGORY.getTable() + "_" + type, parentOrganizationUid, sateProvinceId, offset, limit);
+	public SearchResults<Organization> getOrganizations(String type, String parentOrganizationUid, String sateProvinceId, Integer offset, Integer limit) {
+		SearchResults<Organization> result = new SearchResults<Organization>();
+		result.setSearchResults(this.getOrganizationRepository().getOrganizations(CustomProperties.Table.ORGANIZATION_CATEGORY.getTable() + "_" + type, parentOrganizationUid, sateProvinceId, offset, limit));
+		result.setTotalHitCount(this.getOrganizationRepository().getOrganizationCount(CustomProperties.Table.ORGANIZATION_CATEGORY.getTable() + "_" + type, parentOrganizationUid, sateProvinceId));
+		return result;
 	}
 
 	public OrganizationRepository getOrganizationRepository() {

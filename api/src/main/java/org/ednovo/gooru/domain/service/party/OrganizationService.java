@@ -23,8 +23,6 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.domain.service.party;
 
-import java.util.List;
-
 import javax.servlet.http.HttpServletRequest;
 
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
@@ -55,5 +53,5 @@ public interface OrganizationService {
 
 	Organization getOrganizationByIdpName(String idpDomainName);
 
-	List<Organization> getOrganizations(String  type, String parentOrganizationUid, String stateProvinceId, Integer offset, Integer limit);
+	SearchResults<Organization> getOrganizations(String  type, String parentOrganizationUid, String stateProvinceId, Integer offset, Integer limit);
 }

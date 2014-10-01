@@ -40,6 +40,10 @@ public class Party implements Serializable, IndexableEntry {
 	
 	private String organizationUid;
 	
+	private String id;
+	
+	private String name;
+	
 	public static enum TYPE {
 
 		NETWORK("network"), ORGANIZATION("organization"), USER("user"), GROUP("group");
@@ -140,4 +144,18 @@ public class Party implements Serializable, IndexableEntry {
 		return isPartner;
 	}
 
+	public String getId() {
+		return this.getPartyUid();
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		if (name != null) { 
+			this.setPartyName(name);
+		} 
+		this.name = this.getPartyName();
+	}
 }
