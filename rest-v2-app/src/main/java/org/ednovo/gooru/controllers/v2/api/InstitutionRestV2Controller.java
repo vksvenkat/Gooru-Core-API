@@ -54,6 +54,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
@@ -100,6 +101,22 @@ public class InstitutionRestV2Controller extends BaseController implements Const
 		}
 		String includes[] = (String[]) ArrayUtils.addAll(INSTITUTION_INCLUDES_ADD, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
+	}
+	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ORGANIZATION_UPDATE })
+	@RequestMapping(method = RequestMethod.GET, value="")
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public ModelAndView getOrganization(HttpServletRequest request, HttpServletResponse response,  @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "20") Integer limit) throws Exception {	
+		String includes[] = (String[]) ArrayUtils.addAll(INSTITUTION_INCLUDES_ADD, ERROR_INCLUDE);
+		return toModelAndViewWithIoFilter(this.getOrganizationService().getOrganizations(getInstitutionType(request), null, null, offset, limit), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
+	}
+	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ORGANIZATION_UPDATE })
+	@RequestMapping(method = RequestMethod.GET, value="/{id}/{type}")
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public ModelAndView getOrganizationByParent(HttpServletRequest request, HttpServletResponse response, @PathVariable String type, @PathVariable String id, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "20") Integer limit) throws Exception {	
+		String includes[] = (String[]) ArrayUtils.addAll(INSTITUTION_INCLUDES_ADD, ERROR_INCLUDE);
+		return toModelAndViewWithIoFilter(this.getOrganizationService().getOrganizations(type, id, null, offset, limit), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
 	
 
