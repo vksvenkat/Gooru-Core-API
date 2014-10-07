@@ -148,9 +148,8 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 
 	@Override
 	public ActionResponseDTO<UserToken> logIn(String username, String password, String apiKeyId, boolean isSsoLogin, HttpServletRequest request) throws Exception {
-		final ApiKey apiKey = apiTrackerService.getApiKey(apiKeyId);
 		final UserToken userToken = new UserToken();
-		final Errors errors = validateApiKey(apiKey, userToken);
+		final Errors errors =  new BindException(userToken, SESSIONTOKEN);
 		final String apiEndPoint = getConfigSetting(ConfigConstants.GOORU_API_ENDPOINT, 0, TaxonomyUtil.GOORU_ORG_UID);
 		if (!errors.hasErrors()) {
 			if (username == null) {
@@ -172,7 +171,8 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			if (identity.getActive() == 0) {
 				throw new UnauthorizedException(generateErrorMessage("GL0079"));
 			}
-			final User user = this.getUserRepository().findByIdentity(identity);
+			final User user = this.getUserRepository().findByIdentityLogin(identity);
+			
 			if (!isSsoLogin) {
 				if (identity.getCredential() == null) {
 					throw new BadRequestException(generateErrorMessage("GL0080"));
@@ -198,6 +198,8 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 					}
 				}
 			}
+
+			final ApiKey apiKey = apiTrackerService.findApiKeyByOrganization(user.getOrganization().getPartyUid());
 
 			userToken.setUser(user);
 			userToken.setSessionId(request.getSession().getId());
@@ -355,7 +357,6 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 				LOGGER.debug("error" + e.getMessage());
 			}
 		}
-		sessionToken = this.getUserTokenService().findBySession(request.getSession().getId());
 
 		if (sessionToken == null) {
 			sessionToken = this.getUserManagementService().createSessionToken(userIdentity, request.getSession().getId(), apiTrackerService.getApiKey(apiKey));

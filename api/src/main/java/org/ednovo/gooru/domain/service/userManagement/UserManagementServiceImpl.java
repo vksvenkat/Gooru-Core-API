@@ -56,6 +56,7 @@ import org.ednovo.gooru.core.api.model.Identity;
 import org.ednovo.gooru.core.api.model.Idp;
 import org.ednovo.gooru.core.api.model.InviteUser;
 import org.ednovo.gooru.core.api.model.Organization;
+import org.ednovo.gooru.core.api.model.OrganizationDomainAssoc;
 import org.ednovo.gooru.core.api.model.PartyCategoryType;
 import org.ednovo.gooru.core.api.model.PartyCustomField;
 import org.ednovo.gooru.core.api.model.Profile;
@@ -762,10 +763,6 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			confirmStatus = 1;
 		}
 
-		Organization organization = null;
-		if (newUser.getOrganization() != null && newUser.getOrganization().getOrganizationCode() != null) {
-			organization = this.getOrganizationService().getOrganizationByCode(newUser.getOrganization().getOrganizationCode().toLowerCase());
-		}
 
 		Identity identity = new Identity();
 		if (emailSSO != null) {
@@ -788,6 +785,35 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			identity.setAccountCreatedType(UserAccountType.accountCreatedType.GOOGLE_APP.getType());
 		} else if (source != null) {
 			identity.setAccountCreatedType(UserAccountType.accountCreatedType.SSO.getType());
+		}
+		String domain = newUser.getEmailId().substring(newUser.getEmailId().indexOf("@") + 1, newUser.getEmailId().length());
+
+		Idp idp = null;
+
+		if (remoteEntityId != null) {
+			idp = this.getIdpRepository().findByName(remoteEntityId);
+			if (idp == null) {
+				idp = new Idp();
+				idp.setName(remoteEntityId);
+				this.getUserRepository().save(idp);
+			}
+		} else {
+			idp = this.getIdpRepository().findByName(domain);
+		}
+
+		if (idp != null) {
+			identity.setIdp(idp);
+		}
+		
+		Organization organization = null;
+		if (idp != null) {
+			OrganizationDomainAssoc domainOrganizationAssoc = this.getIdpRepository().findByDomain(idp);
+			if (domainOrganizationAssoc != null ) { 
+				organization  = domainOrganizationAssoc.getOrganization();
+			}
+		}
+		if (organization == null && newUser.getOrganization() != null && newUser.getOrganization().getOrganizationCode() != null) {
+			organization = this.getOrganizationService().getOrganizationByCode(newUser.getOrganization().getOrganizationCode().toLowerCase());
 		}
 
 		/*
@@ -833,7 +859,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			user.setUsername(newUser.getEmailId());
 		} else {
 			user.setUsername(newUser.getUsername());
-		}
+		}		
 		user.setConfirmStatus(confirmStatus);
 		user.setRegisterToken(UUID.randomUUID().toString());
 		user.setAddedBySystem(addedBySystem);
@@ -854,24 +880,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			accountType = UserAccountType.userAccount.NON_PARENT.getType();
 		}
 
-		String domain = newUser.getEmailId().substring(newUser.getEmailId().indexOf("@") + 1, newUser.getEmailId().length());
 
-		Idp idp = null;
-
-		if (remoteEntityId != null) {
-			idp = this.getIdpRepository().findByName(remoteEntityId);
-			if (idp == null) {
-				idp = new Idp();
-				idp.setName(remoteEntityId);
-				this.getUserRepository().save(idp);
-			}
-		} else {
-			idp = this.getIdpRepository().findByName(domain);
-		}
-
-		if (idp != null) {
-			identity.setIdp(idp);
-		}
 		identity.setRegisteredOn(new Date(System.currentTimeMillis()));
 		identity.setUser(user);
 		Credential credential = null;

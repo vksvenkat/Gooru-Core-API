@@ -23,8 +23,11 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.domain.service;
 
+import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.AnnotationType;
 import org.ednovo.gooru.core.api.model.ContentType;
+import org.ednovo.gooru.core.api.model.Country;
+import org.ednovo.gooru.core.api.model.Province;
 import org.ednovo.gooru.core.api.model.ResourceType;
 import org.ednovo.gooru.core.api.model.StatusType;
 
@@ -36,5 +39,7 @@ public interface BaseService {
 	AnnotationType getAnnotationType(String type);
 
 	StatusType getStatusType(String type);
+
+	
 
 }

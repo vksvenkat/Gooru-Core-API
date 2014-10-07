@@ -17,12 +17,15 @@ public interface CassandraDao {
 	String read(String rowKey, String column);
 
 	void delete(String rowKey);
-	
+
 	Collection<String> getRiKeys(String reverseIndexName);
-	
+
 	ColumnFamily<String, String> getRiColumnFamily();
-	
+
 	Keyspace getKeyspace();
-	
+
+	Long readAsLong(String rowKey, String column);
+
+	Integer readAsInteger(String rowKey, String column);
 
 }

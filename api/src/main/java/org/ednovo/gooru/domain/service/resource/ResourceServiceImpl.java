@@ -295,8 +295,12 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			throw new NotFoundException("resource not found");
 		}
 		Map<String, Object> resourceObject = new HashMap<String, Object>();
-		resource.setViewCount(Integer.parseInt(this.resourceCassandraService.get(resource.getGooruOid(),"stas.viewsCount") != null ? this.resourceCassandraService.get(resource.getGooruOid(),"stas.viewsCount") : "0" ));
-	    resource.setViews(Long.parseLong(this.resourceCassandraService.get(resource.getGooruOid(),"stas.viewsCount") != null ? this.resourceCassandraService.get(resource.getGooruOid(),"stas.viewsCount") : "0"));
+	    try {
+	    	resource.setViewCount(this.resourceCassandraService.getInt(resource.getGooruOid(),"stas.viewsCount"));
+			resource.setViews(Long.parseLong(this.resourceCassandraService.getInt(resource.getGooruOid(),"stas.viewsCount") + ""));
+		} catch (Exception e) { 
+			LOGGER.error("parser error : " + e);
+		}
 		if (resource.getResourceType().getName().equalsIgnoreCase(ASSESSMENT_QUESTION)) {
 			AssessmentQuestion question = assessmentService.getQuestion(gooruOid);
 			question.setCustomFieldValues(customFieldService.getCustomFieldsValuesOfResource(question.getGooruOid()));
@@ -2746,6 +2750,9 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			if(newResource.getAggregator() != null && newResource.getAggregator().size() > 0) {
 				resource.setAggregator(updateContentProvider(resource.getGooruOid(), newResource.getAggregator(), user, CustomProperties.ContentProviderType.AGGREGATOR.getContentProviderType()));
 			}
+			if(newResource.getHost() != null && newResource.getHost().size() > 0) {
+				resource.setHost(updateContentProvider(resource.getGooruOid(), newResource.getHost(), user, "host"));
+			}
 			
 			if(resourceTags != null && resourceTags.size() > 0) {
 				resource.setResourceTags(this.getContentService().createTagAssoc(resource.getGooruOid(), resourceTags, user));
@@ -3102,13 +3109,13 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	@Override
 	public Resource resourcePlay(String gooruContentId, User apiCaller, boolean more) throws Exception {
 		Resource resource = this.findResourceByContentGooruId(gooruContentId);
-
+        
+        
 		if (resource == null) {
 			throw new NotFoundException(generateErrorMessage("GL0003"));
 		}
 		resource.setViewCount(Integer.parseInt(this.resourceCassandraService.get(resource.getGooruOid(),"stas.viewsCount") != null ? this.resourceCassandraService.get(resource.getGooruOid(),"stas.viewsCount") : "0" ));
 	    resource.setViews(Long.parseLong(this.resourceCassandraService.get(resource.getGooruOid(),"stas.viewsCount") != null ? this.resourceCassandraService.get(resource.getGooruOid(),"stas.viewsCount") : "0"));
-
 		resource.setCustomFieldValues(customFieldService.getCustomFieldsValuesOfResource(resource.getGooruOid()));
 		if (more) {
 			String category = CustomProperties.Table.FEEDBACK_CATEGORY.getTable() + "_" + RATING;

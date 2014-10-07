@@ -72,10 +72,6 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 	@Autowired
 	private CustomTableRepository customTableRepository;
 
-/*	@Override
-	public List<ApiKey> findApplicationByOrganization(String organizationUid, Integer offset, Integer limit){
-		return apiKeyRepository.getApplicationByOrganization(organizationUid);
-	}*/
 
 	@Override
 	public SearchResults<ApiKey> findApplicationByOrganization(String organizationUid, Integer offset, Integer limit) {
@@ -91,27 +87,13 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 	@Override
 	public ActionResponseDTO<ApiKey> saveApplication(ApiKey apikey, User user ,String organizationUid, User apiCaller) throws Exception{
 		Errors error = validateApiKey(apikey);
-	    PartyCustomField partyCustomField = null;
 		if (!error.hasErrors()) {
-			if(apiCaller != null){
-				 partyCustomField = partyService.getPartyCustomeField(apiCaller.getPartyUid(), ConstantProperties.ORG_ADMIN_KEY, apiCaller);				
-			}else {
-				 partyCustomField = partyService.getPartyCustomeField(user.getPartyUid(), ConstantProperties.ORG_ADMIN_KEY, user);
-			}
-
-			if(partyCustomField != null && partyCustomField.getOptionalValue() != null){
 				Organization organization = null;
-				 //If organization is passed from superadmin use it else set loggedin users organization details
+				
                 if(organizationUid != null){
                    organization = organizationService.getOrganizationById(organizationUid);
-                }else{
-                      organization = organizationService.getOrganizationById(partyCustomField.getOptionalValue());
                 }
-				
-                if(organization == null){
-					throw new NotFoundException("Organization not found !");
-				}
-
+                rejectIfNull(organization, GL0056,ORGANIZATION );
 				apikey.setActiveFlag(1);
 				apikey.setSecretKey(UUID.randomUUID().toString());
 				apikey.setKey(UUID.randomUUID().toString());
@@ -122,10 +104,7 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 				apikey.setStatus(type.getValue());
 				apikey.setComment(apikey.getComment());
 				apiKeyRepository.save(apikey);
-			}
-			else {
-				throw new NotFoundException("Admin organization not found in custom fields");
-			}
+			
 		}
 		return new ActionResponseDTO<ApiKey>(apikey, error);
 	}
@@ -133,7 +112,7 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 	private Errors validateApiKey(ApiKey apiKey) {
 		final Errors errors = new BindException(apiKey, API_KEY);
 		rejectIfNull(errors, apiKey, APP_NAME, GL0056, generateErrorMessage(GL0056, APP_NAME));
-		rejectIfNull(errors, apiKey, APP_URL, GL0056, generateErrorMessage(GL0056, APP_URL));
+		rejectIfNull(errors, apiKey, APP_URL, GL0056, generateErrorMessage(GL0056, APP_URL));		
 		return errors;
 	}
 

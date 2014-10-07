@@ -71,9 +71,9 @@ public interface ClasspageService {
 	
 	List<String> classMemberSuggest(String queryText, String gooruUid);
 	
-	SearchResults<Map<String, Object>> getMyStudy(User apiCaller, String orderBy,Integer offset, Integer limit, String type);
+	SearchResults<Map<String, Object>> getMyStudy(User apiCaller, String orderBy,Integer offset, Integer limit, String type, String itemType);
 	
-	List<Map<String, Object>> setMyStudy(List<Object[]> results);
+	List<Map<String, Object>> setMyStudy(List<Object[]> results, String itemType);
 	
 	CollectionItem updateAssignment(String collectionItemId, String status, String minimumscore ,String assignmentCompleted , String timeStudying,User user);
 	
@@ -98,5 +98,7 @@ public interface ClasspageService {
 	void deletePathwayItem(String classId,String pathwayGooruOid,String collectionItemId ,User user);
 	
 	ActionResponseDTO<CollectionItem> updatePathwayItem(String classId,String pathwayGooruOid,String collectionItemId,CollectionItem newcollectionItem,  User user) throws Exception;
+	
+	Map<String, Object> getParentDetails(String collectionItemId);
 	
 }

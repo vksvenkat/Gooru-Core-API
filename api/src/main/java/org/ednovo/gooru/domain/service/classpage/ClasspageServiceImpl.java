@@ -679,19 +679,19 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 
 	@Override
-	public SearchResults<Map<String, Object>> getMyStudy(User user, String orderBy, Integer offset, Integer limit, String type) {
+	public SearchResults<Map<String, Object>> getMyStudy(User user, String orderBy, Integer offset, Integer limit, String type, String itemType) {
 		if (user.getPartyUid().equalsIgnoreCase(ANONYMOUS)) {
 			throw new NotFoundException(generateErrorMessage("GL0056","User"));
 		}
 		List<Object[]> results = this.getUserGroupRepository().getMyStudy(user.getPartyUid(), user.getIdentities() != null ? user.getIdentities().iterator().next().getExternalId() : null, orderBy, offset, limit, type);
 		SearchResults<Map<String, Object>> searchResult = new SearchResults<Map<String, Object>>();
-		searchResult.setSearchResults(this.setMyStudy(results));
+		searchResult.setSearchResults(this.setMyStudy(results,itemType));
 		searchResult.setTotalHitCount(this.getUserGroupRepository().getMyStudyCount(user.getPartyUid(), user.getIdentities() != null ? user.getIdentities().iterator().next().getExternalId() : null, type));
 		return searchResult;
 	}
 
 	@Override
-	public List<Map<String, Object>> setMyStudy(List<Object[]> results) {
+	public List<Map<String, Object>> setMyStudy(List<Object[]> results, String itemType) {
 		List<Map<String, Object>> listMap = new ArrayList<Map<String, Object>>();
 		for (Object[] object : results) {
 			Map<String, Object> result = new HashMap<String, Object>();
@@ -716,7 +716,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 				thumbnails.put(URL, "");
 			}
 			result.put(THUMBNAILS, thumbnails);
-			result.put(ITEM_COUNT, object[11] == null ? 0 : object[11]);
+			result.put(ITEM_COUNT, this.getCollectionRepository().getClasspageCount(object[0].toString(), itemType));
 			long member = this.getUserGroupRepository().getUserGroupAssociationCount(String.valueOf(object[2]));
 			result.put(MEMBER_COUNT, member);
 			listMap.add(result);
@@ -793,6 +793,15 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			result.put(NARRATION, object[3]);
 			result.put(PLANNED_END_DATE, object[4]);
 			result.put(STATUS, object[11]);
+			result.put(IS_REQUIRED, object[15]);
+			result.put(SHOW_ANSWER_BY_QUESTIONS, object[16]);
+			result.put(SHOW_HINTS, object[17]);
+			result.put(SHOW_ANSWER_END, object[18]);
+			result.put(MINIMUM_SCORE, object[19]);
+			result.put(ESTIMATED_TIME, object[20]);
+			result.put("minimumScoreByUser", object[21]);
+			result.put("assignmentCompleted", object[22]);
+			result.put("timeStudying", object[23]);
 			result.put(RESOURCE, resource);
 			collectionItems.add(result);
 		}
@@ -903,10 +912,12 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	
 	@Override
 	public SearchResults<CollectionItem> getPathwayItemsSearchResults( String classId, String pathwayId, Integer offset, Integer limit, String orderBy,User user) {
+		Collection pathway = this.getCollectionRepository().getCollectionByIdWithType(pathwayId, PATHWAY);
 		List<CollectionItem> collectionItems = getPathwayItems(classId,pathwayId,offset,limit,orderBy,user);
 		SearchResults<CollectionItem> searchResults = new SearchResults<CollectionItem>();
 		searchResults.setSearchResults(getCollectionService().setCollectionItemMetaInfo(collectionItems, null));
 		searchResults.setTotalHitCount(this.getCollectionRepository().getCollectionItemsCount(pathwayId, orderBy, CLASSPAGE));
+		searchResults.setTitle(pathway.getTitle());
 		return searchResults; 
 	}
 	
@@ -973,6 +984,51 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			e.printStackTrace();
 		}
 		return responseDTO;
+	}
+	
+	@Override
+	public void deletePathwayItem(String classId, String pathwayGooruOid, String collectionItemId, User user) {
+		if (this.getCollectionRepository().getCollectionByIdWithType(pathwayGooruOid, PATHWAY) == null) {
+			throw new BadRequestException("pathway not found");
+		}
+		if (this.getCollectionRepository().getCollectionByIdWithType(classId, CLASSPAGE) == null) {
+			throw new BadRequestException("class not found");
+		}
+		getCollectionService().deleteCollectionItem(collectionItemId, user);
+		getAsyncExecutor().deleteFromCache("v2-class-data-" + classId + "*");
+	}
+	
+	@Override
+	public ActionResponseDTO<CollectionItem> updatePathwayItem(String classId,String pathwayGooruOid,String collectionItemId,CollectionItem newcollectionItem,  User user) throws Exception {
+		if (this.getCollectionRepository().getCollectionByIdWithType(pathwayGooruOid, PATHWAY) == null) {
+			throw new BadRequestException("pathway not found");
+		}
+		if (this.getCollectionRepository().getCollectionByIdWithType(classId, CLASSPAGE) == null) {
+			throw new BadRequestException("class not found");
+		}
+		getAsyncExecutor().deleteFromCache("v2-class-data-" + classId + "*");
+		return updateCollectionItem(newcollectionItem, collectionItemId, user);
+	}
+	
+	@Override
+	public Map<String, Object> getParentDetails(String collectionItemId) {
+		List<Object[]> result = this.getCollectionRepository().getParentDetails(collectionItemId);
+		Map<String, Object> items = new HashMap<String, Object>();
+		if (result != null && result.size() > 0) {
+			for (Object[] object : result) {
+				items.put("classGooruOid", object[0]);
+				items.put("classTitle", object[1]);
+				items.put("pathwayGooruOid", object[2]);
+				items.put("pathwayTitle", object[3]);
+				items.put("collectionGooruOid", object[4]);
+				items.put("collectionTitle", object[5]);
+				items.put("narration", object[6]);
+				items.put("plannedEndDate", object[7]);
+				items.put("isRequired", object[8]);
+				items.put("minimumScore", object[9]);
+			}
+		}
+		return items;
 	}
 	
 	public CollectionEventLog getScollectionEventlog() {
@@ -1043,28 +1099,5 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		return collectionRepository;
 	}
 
-	@Override
-	public void deletePathwayItem(String classId, String pathwayGooruOid, String collectionItemId, User user) {
-		if (this.getCollectionRepository().getCollectionByIdWithType(pathwayGooruOid, PATHWAY) == null) {
-			throw new BadRequestException("pathway not found");
-		}
-		if (this.getCollectionRepository().getCollectionByIdWithType(classId, CLASSPAGE) == null) {
-			throw new BadRequestException("class not found");
-		}
-		getCollectionService().deleteCollectionItem(collectionItemId, user);
-		getAsyncExecutor().deleteFromCache("v2-class-data-" + classId + "*");
-	}
-	
-	@Override
-	public ActionResponseDTO<CollectionItem> updatePathwayItem(String classId,String pathwayGooruOid,String collectionItemId,CollectionItem newcollectionItem,  User user) throws Exception {
-		if (this.getCollectionRepository().getCollectionByIdWithType(pathwayGooruOid, PATHWAY) == null) {
-			throw new BadRequestException("pathway not found");
-		}
-		if (this.getCollectionRepository().getCollectionByIdWithType(classId, CLASSPAGE) == null) {
-			throw new BadRequestException("class not found");
-		}
-		getAsyncExecutor().deleteFromCache("v2-class-data-" + classId + "*");
-		return updateCollectionItem(newcollectionItem, collectionItemId, user);
-	}
 
 }
