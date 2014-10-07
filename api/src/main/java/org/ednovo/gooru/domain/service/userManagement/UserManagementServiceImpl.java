@@ -516,6 +516,10 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			}
 		}
 
+		if(user.getAccountTypeId() != UserAccountType.ACCOUNT_CHILD) {
+			user.setEmailId(newUser.getEmailId());
+		}
+		
 		if (user != null && sendConfirmationMail && inviteuser == null) {
 			if (isAdminCreateUser) {
 		        	this.getMailHandler().sendMailToConfirm(user.getGooruUId(), password, accountType, userToken.getToken(), null, gooruBaseUrl, mailConfirmationUrl, null, null);
