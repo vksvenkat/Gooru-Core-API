@@ -188,15 +188,16 @@ public class SerializerUtil  implements ParameterProperties{
 					excludes = EXCLUDES;
 				}
 			}
-			if (excludes != null) {
-				serializer.exclude(excludes);
-			}
-
+			
 			if (model instanceof User) {
 				deepSerialize = true;
 			}
 			if (model != null) {
 				serializer = appendTransformers(serializer, excludeNullObject);
+			}
+			
+			if (excludes != null) {
+				serializer.exclude(excludes);
 			}
 
 			try {

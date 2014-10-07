@@ -18,7 +18,9 @@ public class OrganizationTransformer extends ObjectTransformer {
 			organizationModel.setOrganizationCode(organization.getOrganizationCode());
 			organizationModel.setOrganizationUid(organization.getPartyUid());
 			organizationModel.setOrganizationName(organization.getPartyName());
-
+			organizationModel.setId(organization.getPartyUid());
+			organizationModel.setName(organization.getPartyName());
+			organizationModel.setParentId(organization.getParentId());
 			getContext().transform(organizationModel);
 
 		} else {

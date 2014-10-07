@@ -199,4 +199,28 @@ public class RawCassandraDaoImpl extends CassandraDaoSupport<CassandraColumnFami
 		}
 	}
 	
+	@Override
+	public Long readAsLong(String rowKey, String column) {
+		try {
+			Column<String> cfColumn = getFactory().getKeyspace().prepareQuery(getCF().getColumnFamily()).getKey(rowKey).getColumn(column).execute().getResult();
+			return cfColumn != null && cfColumn.hasValue() ? cfColumn.getLongValue() : null;
+		} catch (NotFoundException e) {
+			return null;
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@Override
+	public Integer readAsInteger(String rowKey, String column) {
+		try {
+			Column<String> cfColumn = getFactory().getKeyspace().prepareQuery(getCF().getColumnFamily()).getKey(rowKey).getColumn(column).execute().getResult();
+			return cfColumn != null && cfColumn.hasValue() ? cfColumn.getIntegerValue() : null;
+		} catch (NotFoundException e) {
+			return null;
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
 }

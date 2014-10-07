@@ -74,11 +74,11 @@ public interface UserRepository extends BaseRepository {
 	int findAgeCheck(User user);
 
 	List<User> getFollowedByUsers(String gooruUId, Integer offset, Integer limit);
-	
+
 	long getFollowedByUsersCount(String gooruUId);
 
 	List<User> getFollowedOnUsers(String gooruUId, Integer offset, Integer limit);
-	
+
 	long getFollowedOnUsersCount(String gooruUId);
 
 	UserRelationship getActiveUserRelationship(String gooruUserId, String gooruFollowOnUserId);
@@ -172,20 +172,23 @@ public interface UserRepository extends BaseRepository {
 	Integer getUserBirthdayCount();
 
 	List<Object[]> listUserByBirthDay(Integer offset, Integer limit);
-	
-	Integer getChildUserBirthdayCount();
-	
-	List<Object[]> listChildUserByBirthDay();
-	
-	UserGroupAssociation getUserGroupMemebrByGroupUid(String groupUid, String gooruUid);
-	
-	UserSummary getSummaryByUid(String gooruUid);
-	
-	User findByRemeberMeToken(String remeberMeToken);
-	
-	public Integer getChildAccountCount(String userUId);
-	
-	User findByIdentityLogin(Identity identity);	
-		
-	}
 
+	Integer getChildUserBirthdayCount();
+
+	List<Object[]> listChildUserByBirthDay();
+
+	UserGroupAssociation getUserGroupMemebrByGroupUid(String groupUid, String gooruUid);
+
+	UserSummary getSummaryByUid(String gooruUid);
+
+	User findByRemeberMeToken(String remeberMeToken);
+
+	public Integer getChildAccountCount(String userUId);
+
+	User findByIdentityLogin(Identity identity);
+	
+	List<User> findUsersByOrganization(String organizationUid, String parentOrganizationUid, Integer offset, Integer limit);
+	
+	Long getUsersByOrganizationCount(String organizationUid, String parentOrganizationUid);
+
+}

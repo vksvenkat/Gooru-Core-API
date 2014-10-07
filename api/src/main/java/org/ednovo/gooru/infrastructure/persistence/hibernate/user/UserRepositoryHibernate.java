@@ -809,4 +809,46 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 		return (User) (query.list().size() > 0 ? query.list().get(0) : null);
 	}
 
+	@Override
+	public List<User> findUsersByOrganization(String organizationUid, String parentOrganizationUid, Integer offset, Integer limit) {
+		String hql = "from User u where  1=1 ";
+		if (organizationUid != null) {
+			hql += " AND u.organization.partyUid =:organizationUid ";
+		}
+		if (parentOrganizationUid != null) {
+			hql += " AND u.organization.parentOrganization.partyUid =:parentOrganizationUid";
+		}
+
+		Query query = getSession().createQuery(hql);
+		if (organizationUid != null) {
+			query.setParameter("organizationUid", organizationUid);
+		}
+		if (parentOrganizationUid != null) {
+			query.setParameter("parentOrganizationUid", parentOrganizationUid);
+		}
+		query.setFirstResult(offset);
+		query.setMaxResults(limit == null ? LIMIT : (limit > MAX_LIMIT ? MAX_LIMIT : limit));
+		return query.list();
+	}
+
+	@Override
+	public Long getUsersByOrganizationCount(String organizationUid, String parentOrganizationUid) {
+		String hql = "SELECT count(*) from User u where  1=1 ";
+		if (organizationUid != null) {
+			hql += " AND u.organization.partyUid =:organizationUid ";
+		}
+		if (parentOrganizationUid != null) {
+			hql += " AND u.organization.parentOrganization.partyUid =:parentOrganizationUid";
+		}
+
+		Query query = getSession().createQuery(hql);
+		if (organizationUid != null) {
+			query.setParameter("organizationUid", organizationUid);
+		}
+		if (parentOrganizationUid != null) {
+			query.setParameter("parentOrganizationUid", parentOrganizationUid);
+		}
+		return (Long) (query.list().size() > 0 ? query.list().get(0) : 0);
+	}
+
 }

@@ -260,7 +260,8 @@ public class TagServiceImpl extends BaseServiceImpl implements TagService, Param
  				result.put(PUBLISHER, publisher);
  				result.put(AGGREGATOR, aggregator);
  			}
-			result.put(VIEWS, Long.parseLong(this.resourceCassandraService.get(object[1].toString() ,"stas.viewsCount") != null ? this.resourceCassandraService.get(object[1].toString(),"stas.viewsCount") : "0"));
+ 			
+			result.put(VIEWS, this.resourceCassandraService.getInt(object[1].toString(),"stas.viewsCount"));
 			result.put(RATINGS, this.collectionService.setRatingsObj(this.getResourceRepository().getResourceSummaryById(String.valueOf(object[1]))));
 			resource.add(result);
 		}

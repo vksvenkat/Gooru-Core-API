@@ -43,5 +43,7 @@ public interface EntityCassandraService<K, M extends Serializable> {
 	void updateViewsCount(Map<String, String> viewsData);
 
 	Map<String, String> readViewsCount(String rowKeys);
+	
+	public Integer getInt(String key, String column);
 
 }

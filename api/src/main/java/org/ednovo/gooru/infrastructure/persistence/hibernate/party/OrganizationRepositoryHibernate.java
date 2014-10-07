@@ -91,12 +91,12 @@ public class OrganizationRepositoryHibernate extends BaseRepositoryHibernate imp
 	
 	@Override
 	public Long getOrganizationCount(String type, String parentOrganizationUid, String sateProvinceId) {
-		String sql = "select  count(1) as count from organization o  inner join custom_table_value ct on ct.custom_table_value_id = o.type_id where 1";		
+		String sql = "select  count(1) as count from organization o  inner join custom_table_value ct on ct.custom_table_value_id = o.type_id where 1=1";		
 		if (type != null) { 
-			sql += " AND ct.key_value = " + type;
+			sql += " AND ct.key_value = '" + type + "'";
 		}
 		if (parentOrganizationUid != null) { 
-			sql += " AND parent_organization_uid = " + parentOrganizationUid;
+			sql += " AND parent_organization_uid = '" + parentOrganizationUid + "'";
 		}
 		Query query = getSession().createSQLQuery(sql).addScalar("count", StandardBasicTypes.LONG);
         return (Long) query.list().get(0);
