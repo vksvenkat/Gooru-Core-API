@@ -89,7 +89,14 @@ public class AccountRestV2Controller extends BaseController implements ConstantP
 			SessionContextSupport.putLogParameter(EVENT_NAME, USER_LOGIN);
 		}
 		String[] includes = (String[]) ArrayUtils.addAll(USER_INCLUDES, ERROR_INCLUDE);
-		return toModelAndView(serialize(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, includes));
+		
+		if(getValue(RETURN_URL, json) !=null){
+			response.sendRedirect(getValue(RETURN_URL, json));
+			return null;
+		}
+		else{
+			return toModelAndView(serialize(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, includes));
+		}
 
 	}
 
