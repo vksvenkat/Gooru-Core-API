@@ -54,4 +54,6 @@ public interface OrganizationService {
 	Organization getOrganizationByIdpName(String idpDomainName);
 
 	SearchResults<Organization> getOrganizations(String  type, String parentOrganizationUid, String stateProvinceId, Integer offset, Integer limit);
+	
+	SearchResults<User> getUsersByOrganization(String type, String  parentOrganizationUid, String organizationUid, Integer offset, Integer limit);
 }
