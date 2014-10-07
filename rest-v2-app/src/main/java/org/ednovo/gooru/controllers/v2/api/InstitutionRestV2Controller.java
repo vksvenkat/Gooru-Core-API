@@ -45,7 +45,6 @@ import org.ednovo.gooru.domain.service.authentication.AccountService;
 import org.ednovo.gooru.domain.service.party.OrganizationService;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Propagation;
@@ -62,14 +61,9 @@ import org.springframework.web.servlet.ModelAndView;
 public class InstitutionRestV2Controller extends BaseController implements ConstantProperties, ParameterProperties {
 
 	@Autowired
-	private AccountService accountService;
-
-	@Autowired
-	private UserRepository userRepository;
-
-	@Autowired
 	@Resource(name = "serverConstants")
 	private Properties serverConstants;
+	
 	@Autowired
 	private OrganizationService organizationService;
 
@@ -78,7 +72,7 @@ public class InstitutionRestV2Controller extends BaseController implements Const
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ModelAndView createOrganization(HttpServletRequest request, HttpServletResponse response, @RequestBody String data) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
-		ActionResponseDTO<Organization> responseDTO  = getOrganizationService().saveOrganization(buildOrganizationFromInputParameters(data, request), user, request);
+		ActionResponseDTO<Organization> responseDTO = getOrganizationService().saveOrganization(buildOrganizationFromInputParameters(data, request), user, request);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		} else {
@@ -87,13 +81,13 @@ public class InstitutionRestV2Controller extends BaseController implements Const
 		String includes[] = (String[]) ArrayUtils.addAll(INSTITUTION_INCLUDES_ADD, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
-	
+
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ORGANIZATION_UPDATE })
-	@RequestMapping(method = RequestMethod.PUT, value="/{id}")
+	@RequestMapping(method = RequestMethod.PUT, value = "/{id}")
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ModelAndView updateOrganization(HttpServletRequest request, HttpServletResponse response, @RequestBody String data, @PathVariable String id) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
-		ActionResponseDTO<Organization> responseDTO  = getOrganizationService().updateOrganization(buildOrganizationFromInputParameters(data, request), id, user);
+		ActionResponseDTO<Organization> responseDTO = getOrganizationService().updateOrganization(buildOrganizationFromInputParameters(data, request), id, user);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		} else {
@@ -102,28 +96,38 @@ public class InstitutionRestV2Controller extends BaseController implements Const
 		String includes[] = (String[]) ArrayUtils.addAll(INSTITUTION_INCLUDES_ADD, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
-	
+
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ORGANIZATION_UPDATE })
-	@RequestMapping(method = RequestMethod.GET, value="")
+	@RequestMapping(method = RequestMethod.GET, value = "")
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public ModelAndView getOrganization(HttpServletRequest request, HttpServletResponse response,  @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "20") Integer limit) throws Exception {	
+	public ModelAndView getOrganization(HttpServletRequest request, HttpServletResponse response, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "20") Integer limit) throws Exception {
 		String includes[] = (String[]) ArrayUtils.addAll(INSTITUTION_INCLUDES_ADD, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(this.getOrganizationService().getOrganizations(getInstitutionType(request), null, null, offset, limit), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
-	
+
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ORGANIZATION_UPDATE })
-	@RequestMapping(method = RequestMethod.GET, value="/{id}/{type}")
+	@RequestMapping(method = RequestMethod.GET, value = "/{id}/{type}")
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public ModelAndView getOrganizationByParent(HttpServletRequest request, HttpServletResponse response, @PathVariable String type, @PathVariable String id, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "20") Integer limit) throws Exception {	
+	public ModelAndView getOrganizationByParent(HttpServletRequest request, HttpServletResponse response, @PathVariable String type, @PathVariable String id, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset,
+			@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "20") Integer limit) throws Exception {
 		String includes[] = (String[]) ArrayUtils.addAll(INSTITUTION_INCLUDES_ADD, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(this.getOrganizationService().getOrganizations(type, id, null, offset, limit), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
-	
+
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ORGANIZATION_UPDATE })
+	@RequestMapping(method = RequestMethod.GET, value = "/{id}/user")
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public ModelAndView getUserByOrganization(HttpServletRequest request, HttpServletResponse response, @PathVariable String id, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset,
+			@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "20") Integer limit) throws Exception {
+		String includes[] = (String[]) ArrayUtils.addAll(INSTITUTION_INCLUDES_ADD, ERROR_INCLUDE);
+		includes = (String[]) ArrayUtils.addAll(includes, USER_INCLUDES);
+		return toModelAndViewWithIoFilter(this.getOrganizationService().getUsersByOrganization(getInstitutionType(request), id, id, offset, limit), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
+	}
 
 	public OrganizationService getOrganizationService() {
 		return organizationService;
 	}
-	
+
 	private Organization buildOrganizationFromInputParameters(String data, HttpServletRequest request) {
 		Organization organization = JsonDeserializer.deserialize(data, Organization.class);
 		if (getInstitutionType(request) != null) {
@@ -133,16 +137,15 @@ public class InstitutionRestV2Controller extends BaseController implements Const
 		}
 		return organization;
 	}
-	
+
 	private String getInstitutionType(HttpServletRequest request) {
 		String type = null;
 		if (request != null && request.getRequestURL() != null) {
 			if (request.getRequestURL().toString().contains(CustomProperties.InstitutionType.DISTRICT.getInstitutionType())) {
 				type = CustomProperties.InstitutionType.SCHOOL_DISTRICT.getInstitutionType();
-			} 
-			else if (request.getRequestURL().toString().contains(CustomProperties.InstitutionType.SCHOOL.getInstitutionType())) {
+			} else if (request.getRequestURL().toString().contains(CustomProperties.InstitutionType.SCHOOL.getInstitutionType())) {
 				type = CustomProperties.InstitutionType.SCHOOL.getInstitutionType();
-			} 
+			}
 		}
 		return type;
 	}
