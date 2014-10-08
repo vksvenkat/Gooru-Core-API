@@ -1175,11 +1175,11 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 
 		Resource resource = this.getResourceRepository().findResourceByContentGooruId(gooruContentId);
 		this.getResourceImageUtil().moveFileAndSendMsgToGenerateThumbnails(resource, fileName, true);
-		/*try {
-			this.getAsyncExecutor().updateResourceFileInS3(resource.getFolder(), resource.getOrganization().getNfsStorageArea().getAreaPath() , gooruContentId);
+		try {
+			this.getAsyncExecutor().updateResourceFileInS3(resource.getFolder(), resource.getOrganization().getNfsStorageArea().getInternalPath() , gooruContentId);
 		} catch (Exception e) {
-			e.printStackTrace();
-		}*/
+			
+		}
 		return resource.getOrganization().getNfsStorageArea().getAreaPath() + resource.getFolder() + "/" + resource.getThumbnail();
 	}
 
@@ -2681,6 +2681,9 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			if (newResource.getTitle() != null) {
 				itemData.put(TITLE,newResource.getTitle());
 				resource.setTitle(newResource.getTitle());
+			}
+			if(newResource.getS3UploadFlag() != null) {
+				resource.setS3UploadFlag(newResource.getS3UploadFlag());
 			}
 			if (newResource.getDescription() != null) {
 				itemData.put(DESCRIPTION,newResource.getDescription());

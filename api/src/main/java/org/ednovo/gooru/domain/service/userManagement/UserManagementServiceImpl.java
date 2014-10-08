@@ -947,11 +947,11 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	@Override
 	public User getUser(String gooruUId) throws Exception {
 		if (gooruUId == null || gooruUId.equalsIgnoreCase("")) {
-			throw new Exception("User id cannot be null or empty");
+			throw new BadRequestException("User id cannot be null or empty");
 		}
 		User user = getUserRepository().findByGooruId(gooruUId);
 		if (user == null) {
-			throw new Exception("User not found");
+			throw new BadRequestException("User not found");
 		}
 		user.setProfileImageUrl(buildUserProfileImageUrl(user));
 		return user;
