@@ -64,6 +64,7 @@ import org.ednovo.gooru.core.api.model.ShelfType;
 import org.ednovo.gooru.core.api.model.StandardFo;
 import org.ednovo.gooru.core.api.model.Textbook;
 import org.ednovo.gooru.core.api.model.User;
+import org.ednovo.gooru.core.api.model.UserCollectionItemAssoc;
 import org.ednovo.gooru.core.api.model.UserGroupSupport;
 import org.ednovo.gooru.core.api.model.UserSummary;
 import org.ednovo.gooru.core.application.util.CustomProperties;
@@ -877,6 +878,17 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	public CollectionItem getCollectionItem(String collectionItemId, boolean includeAdditionalInfo, final User user, final String rootNodeId) {
 		CollectionItem collectionItem = this.getCollectionRepository().getCollectionItemById(collectionItemId);
 		rejectIfNull(collectionItem, GL0056, _COLLECTION_ITEM);
+		UserCollectionItemAssoc userCollectionItemAssoc = this.getCollectionRepository().getUserCollectionItemAssoc(collectionItemId, user.getPartyUid());
+		if (userCollectionItemAssoc != null) {
+			if (userCollectionItemAssoc.getStatus() != null) {
+				collectionItem.setStatus(userCollectionItemAssoc.getStatus().getValue());
+			}
+			if (userCollectionItemAssoc.getMinimumScore() != null) {
+				collectionItem.setMinimumScoreByUser(userCollectionItemAssoc.getMinimumScore());
+			}
+			collectionItem.setAssignmentCompleted(userCollectionItemAssoc.getAssignmentCompleted());
+			collectionItem.setTimeStudying(userCollectionItemAssoc.getTimeStudying());
+		}
 		if (includeAdditionalInfo) {
 			collectionItem = this.setCollectionItemMoreData(collectionItem, rootNodeId);
 		}
@@ -2223,9 +2235,9 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				resource.setUrl(newResource.getAttach().getFilename());
 				itemData.put(URL, newResource.getAttach().getFilename());
 			}
-			if(newResource.getS3UploadFlag() >= 0) {
+			/*if(newResource.getS3UploadFlag() != null) {
 				resource.setS3UploadFlag(newResource.getS3UploadFlag());
-			}
+			}*/
 			
 			this.getResourceService().saveOrUpdate(resource);
 
