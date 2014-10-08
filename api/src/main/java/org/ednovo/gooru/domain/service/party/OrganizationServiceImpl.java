@@ -56,6 +56,7 @@ import org.ednovo.gooru.domain.service.user.UserService;
 import org.ednovo.gooru.domain.service.user.impl.UserServiceImpl;
 import org.ednovo.gooru.domain.service.userManagement.UserManagementService;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.OrganizationSettingRepository;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.party.OrganizationRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.storage.StorageRepository;
@@ -102,6 +103,9 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 
 	@Autowired
 	private CustomTableRepository customTableRepository;
+
+	@Autowired
+	private UserRepository userRepository;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
 
@@ -151,8 +155,8 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 				rejectIfNull(type, GL0056, "type ");
 				newOrganization.setType(type);
 			}
-			
-			if (organizationData.getParentId() != null) { 
+
+			if (organizationData.getParentId() != null) {
 				newOrganization.setParentOrganization(this.getOrganizationById(organizationData.getParentId()));
 			}
 			organizationRepository.save(newOrganization);
@@ -305,6 +309,14 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 		return result;
 	}
 
+	@Override
+	public SearchResults<User> getUsersByOrganization(String type, String organizationUid, String parentOrganizationUid, Integer offset, Integer limit) {
+		SearchResults<User> result = new SearchResults<User>();
+		result.setSearchResults(this.getUserRepository().findUsersByOrganization(type.equalsIgnoreCase(CustomProperties.InstitutionType.SCHOOL_DISTRICT.getInstitutionType()) ? organizationUid : null, type.equalsIgnoreCase(CustomProperties.InstitutionType.SCHOOL.getInstitutionType()) ? parentOrganizationUid : null, offset, limit));
+		result.setTotalHitCount(this.getUserRepository().getUsersByOrganizationCount(type.equalsIgnoreCase(CustomProperties.InstitutionType.SCHOOL_DISTRICT.getInstitutionType()) ? organizationUid : null, type.equalsIgnoreCase(CustomProperties.InstitutionType.SCHOOL.getInstitutionType()) ? parentOrganizationUid : null));
+		return result;
+	}
+
 	public OrganizationRepository getOrganizationRepository() {
 		return organizationRepository;
 	}
@@ -315,6 +327,10 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 
 	public CustomTableRepository getCustomTableRepository() {
 		return customTableRepository;
+	}
+
+	public UserRepository getUserRepository() {
+		return userRepository;
 	}
 
 }
