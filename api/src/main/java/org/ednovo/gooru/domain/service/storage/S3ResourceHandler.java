@@ -260,9 +260,6 @@ public abstract class S3ResourceHandler extends S3ServiceHandler implements Para
 			}
 		}
 	}
-	public static void main(String[] ar) {
-		System.out.println("s");
-	}
 
 	public void uploadResourceFileWithNewSession(String gooruContentOid, String fileName) {
 		TransactionStatus transactionStatus = null;
