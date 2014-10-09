@@ -935,7 +935,8 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 
 	@Override
 	public List<Code> findCodeByMappedLevel(Long contentId) {
-		  Query query= getSession().createQuery("select Code from ContentClassification cc inner join Code c where cc.content.contentId=:contentId");
+			String hql = "SELECT cc.code from  ContentClassification cc where cc.content.contentId=:contentId";
+		  Query query= getSession().createQuery(hql);
 	      query.setParameter("contentId", contentId);
 		  return query.list();
 	}
