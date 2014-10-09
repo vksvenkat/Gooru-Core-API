@@ -216,19 +216,14 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 
 	@Override
 	public Profile getUserProfile(String gooruUid, Integer activeFlag) {
-
 		User user = this.findByGooruId(gooruUid);
 		if (user == null || user.getGooruUId().equalsIgnoreCase(ANONYMOUS)) {
 			throw new BadRequestException(generateErrorMessage(GL0056, USER));
 		}
 		Profile profile = this.getUserRepository().getProfile(user, false);
-
 		String externalId = null;
-
 		String profileImageUrl = this.getSettingService().getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, 0, TaxonomyUtil.GOORU_ORG_UID) + '/' + this.getSettingService().getConfigSetting(ConfigConstants.PROFILE_BUCKET, 0, TaxonomyUtil.GOORU_ORG_UID).toString() + user.getGooruUId() + DOT_PNG;
-
 		if (user.getAccountTypeId() != null && (user.getAccountTypeId().equals(UserAccountType.ACCOUNT_CHILD))) {
-
 			externalId = this.findUserByGooruId(user.getParentUser().getGooruUId()).getExternalId();
 		} else {
 			externalId = this.findUserByGooruId(user.getGooruUId()).getExternalId();
@@ -245,7 +240,6 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		}
 		try {
 			this.getUsereventlog().getEventLogs(false, true, user, null, true, true);
-			
 		} catch (JSONException e) {
 			LOGGER.debug("Error" + e);
 		}
@@ -289,9 +283,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 						itemData.put(GRADE, newProfile.getGrade());
 						profile.setGrade(addGrade(newProfile.getGrade(), user, apiCaller, activeFlag));
 					}
-
 					addCourse(newProfile.getCourses(), profile.getUser(), apiCaller, activeFlag);
-
 					if (newProfile.getSchool() != null) {
 						itemData.put(SCHOOL, newProfile.getSchool());
 						profile.setSchool(newProfile.getSchool());
@@ -308,7 +300,6 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 						itemData.put(NOTES, newProfile.getNotes());
 						profile.setNotes(newProfile.getNotes());
 					}
-
 					if (identity != null) {
 						if (user.getAccountTypeId() != null && user.getAccountTypeId().equals(UserAccountType.ACCOUNT_CHILD)) {
 							user.setEmailId(user.getParentUser().getIdentities().iterator().next().getExternalId());
@@ -316,7 +307,6 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 							user.setEmailId(identity.getExternalId());
 						}
 					}
-
 					if (newProfile.getUser() != null ) {
 						if(newProfile.getUser().getActive() != null){
 							identity.setActive(newProfile.getUser().getActive());
@@ -326,15 +316,12 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 							}
 							this.getUserRepository().save(identity);
 						}
-						
 						if (identity != null && newProfile.getUser().getEmailId() != null && !newProfile.getUser().getEmailId().isEmpty()) {
 							boolean emailAvailability = this.getUserRepository().checkUserAvailability(newProfile.getUser().getEmailId(), CheckUser.BYEMAILID, false);
-
 							if (emailAvailability) {
 								throw new BadRequestException(generateErrorMessage("GL0084" ,newProfile.getUser().getEmailId(),"Email id"));
 							}
 							if (emailConfirmStatus || (isContentAdmin(apiCaller) && !apiCaller.getPartyUid().equals(gooruUid))) {
-
 								identity.setExternalId(newProfile.getUser().getEmailId());
 								this.getUserRepository().save(identity);
 								user.setEmailId(newProfile.getUser().getEmailId());
@@ -360,7 +347,6 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 								}
 
 							} else {
-
 								Map<String, String> dataMap = new HashMap<String, String>();
 								dataMap.put(_GOORU_UID, user.getGooruUId());
 								dataMap.put(EVENT_TYPE, CustomProperties.EventMapping.GOORU_EXTERNALID_CHANGE.getEvent());
@@ -374,7 +360,6 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 								this.getMailHandler().handleMailEvent(dataMap);
 							}
 						}
-
 						if (accountType != null) {
 							if (accountType.equalsIgnoreCase(UserAccountType.userAccount.PARENT.getType())) {
 								user.setAccountTypeId(UserAccountType.ACCOUNT_PARENT);
@@ -384,7 +369,6 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 								user.setAccountTypeId(UserAccountType.ACCOUNT_NON_PARENT);
 							}
 						}
-
 						if (newProfile.getUser().getFirstName() != null) {
 							itemData.put(FIRST_NAME, newProfile.getUser().getFirstName());
 							user.setFirstName(newProfile.getUser().getFirstName());
@@ -406,12 +390,9 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			} catch (Exception e) {
 				LOGGER.debug("Error" + e);
 			}
-
 			profile.setUser(user);
 			this.getUserRepository().save(profile);
-
 			PartyCustomField partyCustomField = this.getPartyService().getPartyCustomeField(profile.getUser().getPartyUid(), USER_CONFIRM_STATUS, profile.getUser());
-
 			if (partyCustomField != null && !partyCustomField.getOptionalValue().equalsIgnoreCase(TRUE) && newProfile.getUser() != null && newProfile.getUser().getConfirmStatus() != null && newProfile.getUser().getConfirmStatus() == 1) {
 				Map<String, String> dataMap = new HashMap<String, String>();
 				dataMap.put(GOORU_UID, profile.getUser().getPartyUid());
@@ -429,12 +410,10 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 				this.getUserRepository().save(partyCustomField);
 				this.getMailHandler().handleMailEvent(dataMap);
 			}
-
 			CustomTableValue type = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.USER_CLASSIFICATION_TYPE.getTable(), CustomProperties.UserClassificationType.COURSE.getUserClassificationType());
 			profile.setCourses(this.getUserRepository().getUserClassifications(gooruUid, type.getCustomTableValueId(), null));
 		}
 		try {
-			
 			this.getUsereventlog().getEventLogs(true, false, user, itemData, false, false);
 		} catch (JSONException e) {
 			LOGGER.debug("Error" + e);
@@ -498,14 +477,12 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			if (useGeneratedPassword) {
 				password = UUID.randomUUID().toString();
 			}
-
 			confirmStatus = 1;
 		}
 		List<InviteUser> inviteuser = null;
 		if (accountType == null || !accountType.equalsIgnoreCase(UserAccountType.userAccount.CHILD.getType())) {
 			inviteuser = this.getInviteRepository().getInviteUserByMail(newUser.getEmailId(), COLLABORATOR);
 		}
-
 		user = createUser(newUser, password, school, confirmStatus, addedBySystem, null, accountType, dateOfBirth, userParentId, gender, childDOB, null, request, role, mailConfirmationUrl);
 		ApiKey apiKey = this.getApiTrackerService().findApiKeyByOrganization(user.getOrganization().getPartyUid());
 		UserToken userToken = this.createSessionToken(user, sessionId, apiKey);
@@ -515,7 +492,9 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 				user.setToken(identity.getCredential().getToken());
 			}
 		}
-
+		if(user.getAccountTypeId() != UserAccountType.ACCOUNT_CHILD) {
+			user.setEmailId(newUser.getEmailId());
+		}
 		if (user != null && sendConfirmationMail && inviteuser == null) {
 			if (isAdminCreateUser) {
 		        	this.getMailHandler().sendMailToConfirm(user.getGooruUId(), password, accountType, userToken.getToken(), null, gooruBaseUrl, mailConfirmationUrl, null, null);
@@ -525,7 +504,6 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 				}
 			}
 		}
-
 		return user;
 	}
 
@@ -547,7 +525,6 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		if (user == null) {
 			throw new NotFoundException(generateErrorMessage(GL0056, "User"));
 		}
-
 		ApiKey apiKey = this.getApiTrackerService().findApiKeyByOrganization(user.getOrganization().getPartyUid());
 		UserToken userToken = this.createSessionToken(user, sessionId, apiKey);
 		String password = user.getIdentities().iterator().next().getCredential() == null ? null : user.getIdentities().iterator().next().getCredential().getPassword();
@@ -574,7 +551,6 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			}
 		}
 		Profile profile = this.getUserService().getProfile(user);
-
 		if (isContentAdmin(apiCaller)) {
 			this.getMailHandler().sendMailToConfirm(user.getGooruUId(), password, accountType, userToken.getToken(), null, gooruBaseUrl, null, null, null);
 		} else {
@@ -608,12 +584,10 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			if (age < 0) {
 				throw new BadRequestException(generateErrorMessage("GL0059"));
 			}
-		
 		if (age < 13 && age >= 0 && (accountType.equalsIgnoreCase(UserAccountType.userAccount.NON_PARENT.getType()))) {
 				throw new UnauthorizedException(generateErrorMessage("GL0060","13"));
 			}
 		}
-
 		if (!isNotEmptyString(user.getFirstName())) {
 			throw new BadRequestException(generateErrorMessage("GL0061", "First name"));
 		}
@@ -621,15 +595,12 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		if (!isNotEmptyString(user.getOrganization() != null ? user.getOrganization().getOrganizationCode() : null)) {
 			throw new UnauthorizedException(generateErrorMessage("GL0061", "Organization code"));
 		}
-
 		if (!isNotEmptyString(user.getLastName())) {
 			throw new BadRequestException(generateErrorMessage("GL0061", "Last name"));
 		}
-
 		if (!isNotEmptyString(user.getEmailId())) {
 			throw new BadRequestException(generateErrorMessage("GL0061", "Email"));
 		}
-
 		if (!isNotEmptyString(password)) {
 			if (apicaller != null && !isContentAdmin(apicaller)) {
 				throw new BadRequestException(generateErrorMessage("GL0061", "Password"));
@@ -637,21 +608,16 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		} else if (password.length() < 5) {
 			throw new BadRequestException(generateErrorMessage("GL0064", "5"));
 		}
-
 		if (!isNotEmptyString(user.getUsername())) {
 			throw new BadRequestException(generateErrorMessage("GL0061", "Username"));
 		} else if (user.getUsername().length() < 4) {
 			throw new BadRequestException(generateErrorMessage("GL0065", "4"));
 		}
-
 		boolean usernameAvailability = this.getUserRepository().checkUserAvailability(user.getUsername(), CheckUser.BYUSERNAME, false);
-
 		if (usernameAvailability) {
 			throw new NotFoundException(generateErrorMessage("GL0084", user.getUsername(),"username"));
 		}
-
 		boolean emailidAvailability = this.getUserRepository().checkUserAvailability(user.getEmailId(), CheckUser.BYEMAILID, false);
-
 		if (accountType != null) {
 			if (emailidAvailability && (!accountType.equalsIgnoreCase(UserAccountType.userAccount.CHILD.getType()))) {
 				throw new NotFoundException(generateErrorMessage("GL0062"));
@@ -671,7 +637,6 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			if (organization == null) {
 				throw new BadRequestException(generateErrorMessage("GL0066"));
 			}
-
 			Boolean hasPermission = false;
 			GooruAuthenticationToken authenticationContext = (GooruAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
 			String[] partyPermits = authenticationContext.getUserCredential().getPartyPermits();
@@ -687,7 +652,6 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	}
 
 	private Integer calculateCurrentAge(String dateOfBirth) {
-
 		int years = -1;
 		Date currentDate = new Date();
 		Date userDateOfBirth = null;
@@ -719,7 +683,6 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 				}
 			}
 		}
-
 		return isAdminUser;
 	}
 
@@ -762,8 +725,6 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		if (newUser.getOrganization() != null && newUser.getOrganization().getOrganizationCode() != null && newUser.getOrganization().getOrganizationCode().length() > 0 && newUser.getOrganization().getOrganizationCode().equalsIgnoreCase(GLOBAL)) {
 			confirmStatus = 1;
 		}
-
-
 		Identity identity = new Identity();
 		if (emailSSO != null) {
 			identity.setSsoEmailId(emailSSO);
@@ -780,16 +741,13 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			identity.setExternalId(newUser.getEmailId());
 			identity.setAccountCreatedType(UserAccountType.accountCreatedType.NORMAL.getType());
 		}
-
 		if (source != null && source.equalsIgnoreCase(UserAccountType.accountCreatedType.GOOGLE_APP.getType())) {
 			identity.setAccountCreatedType(UserAccountType.accountCreatedType.GOOGLE_APP.getType());
 		} else if (source != null) {
 			identity.setAccountCreatedType(UserAccountType.accountCreatedType.SSO.getType());
 		}
 		String domain = newUser.getEmailId().substring(newUser.getEmailId().indexOf("@") + 1, newUser.getEmailId().length());
-
 		Idp idp = null;
-
 		if (remoteEntityId != null) {
 			idp = this.getIdpRepository().findByName(remoteEntityId);
 			if (idp == null) {
@@ -800,11 +758,9 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		} else {
 			idp = this.getIdpRepository().findByName(domain);
 		}
-
 		if (idp != null) {
 			identity.setIdp(idp);
 		}
-		
 		Organization organization = null;
 		if (idp != null) {
 			OrganizationDomainAssoc domainOrganizationAssoc = this.getIdpRepository().findByDomain(idp);
@@ -821,18 +777,14 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		 */
 		Set<Identity> identities = new HashSet<Identity>();
 		identities.add(identity);
-
 		User user = new User();
 		user.setIdentities(identities);
 		user.setViewFlag(0);
-
 		/*
 		 * Assuming Teacher Role for all users. In future, it will be a
 		 * parameter to the function
 		 */
-
 		UserRole userRole = null;
-
 		if (organization != null) {
 			String roles = getDefaultUserRoles(organization.getPartyUid());
 			if (roles != null) {
@@ -844,17 +796,13 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			} else {
 				userRole = userRepository.findUserRoleByName(UserRoleType.AUTHENTICATED_USER.getType(), null);
 			}
-
 		}
-
 		user.setFirstName(newUser.getFirstName());
 		user.setLastName(newUser.getLastName());
-
 		// create a party
 		user.setPartyName(organization.getPartyName());
 		user.setPartyType(_USER);
 		user.setCreatedOn(new Date(System.currentTimeMillis()));
-
 		if (newUser.getUsername() == null) {
 			user.setUsername(newUser.getEmailId());
 		} else {
@@ -864,7 +812,6 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		user.setRegisterToken(UUID.randomUUID().toString());
 		user.setAddedBySystem(addedBySystem);
 		user.setImportCode(userImportCode);
-
 		if (accountType != null) {
 			if (accountType.equalsIgnoreCase(UserAccountType.userAccount.PARENT.getType())) {
 				user.setAccountTypeId(UserAccountType.ACCOUNT_PARENT);
@@ -879,8 +826,6 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			user.setAccountTypeId(UserAccountType.ACCOUNT_NON_PARENT);
 			accountType = UserAccountType.userAccount.NON_PARENT.getType();
 		}
-
-
 		identity.setRegisteredOn(new Date(System.currentTimeMillis()));
 		identity.setUser(user);
 		Credential credential = null;
@@ -904,7 +849,6 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		if (role != null && (role.equalsIgnoreCase(UserRole.UserRoleType.STUDENT.getType()) || role.equalsIgnoreCase(UserRole.UserRoleType.PARENT.getType())  || role.equalsIgnoreCase(UserRole.UserRoleType.TEACHER.getType()) || role.equalsIgnoreCase(UserRole.UserRoleType.AUTHENTICATED_USER.getType()) || role.equalsIgnoreCase(UserRole.UserRoleType.OTHER.getType()))) {
 			profile.setUserType(role);
 		}
-
 		if (dateOfBirth != null && accountType != null && !dateOfBirth.equalsIgnoreCase(_NULL)) {
 			if (accountType.equalsIgnoreCase(UserAccountType.userAccount.CHILD.getType()) && userParentId != null) {
 				if (dateOfBirth.equalsIgnoreCase("00/00/0000")) {
@@ -919,7 +863,6 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 						Profile parentProfile = this.getUserRepository().getProfile(getUser(parentUser.getGooruUId()), false);
 						parentProfile.setChildDateOfBirth(date);
 						this.getUserRepository().save(parentProfile);
-
 					}
 				}
 			} else {
@@ -939,7 +882,6 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 				profile.setChildDateOfBirth(date);
 			}
 		}
-
 		if (isNotEmptyString(gender)) {
 			profile.setGender(this.getUserRepository().getGenderByGenderId(gender));
 		}
@@ -948,7 +890,6 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		user.setPrimaryOrganization(organization);
 		user.setUserGroup(null);
 		this.getUserRepository().save(profile);
-
 		// Associate user role
 		if (userRole != null) {
 			UserRoleAssoc userRoleAssoc = new UserRoleAssoc();
@@ -958,37 +899,27 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			user.setUserRoleSet(new HashSet<UserRoleAssoc>());
 			user.getUserRoleSet().add(userRoleAssoc);
 		}
-
 		user.setUserUid(user.getPartyUid());
 		this.getUserRepository().save(user);
-
 		if (password != null && credential != null) {
 			this.getUserRepository().save(credential);
 		}
 		identity.setCredential(credential);
 		this.getUserRepository().save(identity);
-
 		if (inviteuser != null && inviteuser.size() > 0 ) {
 			this.getCollaboratorService().updateCollaboratorStatus(newUser.getEmailId());
 		}
-
 		this.getPartyService().createUserDefaultCustomAttributes(user.getPartyUid(), user);
-
 		this.getPartyService().createTaxonomyCustomAttributes(user.getPartyUid(), user);
-
 		this.getUserRepository().flush();
-
 		userCreatedDevice(user.getPartyUid(), request);
-
 		PartyCustomField partyCustomField = this.getPartyService().getPartyCustomeField(profile.getUser().getPartyUid(), USER_CONFIRM_STATUS, identity.getUser());
-
 		if (source != null && source.equalsIgnoreCase(UserAccountType.accountCreatedType.GOOGLE_APP.getType())) {
 			Map<String, String> dataMap = new HashMap<String, String>();
 			if (identity != null && identity.getUser() != null) {
 				dataMap.put(GOORU_UID, identity.getUser().getPartyUid());
 			}
 			dataMap.put(EVENT_TYPE, CustomProperties.EventMapping.WELCOME_MAIL.getEvent());
-
 			if (identity != null && identity.getExternalId() != null) {
 				dataMap.put(RECIPIENT, identity.getExternalId());
 			}
@@ -996,17 +927,13 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			this.getUserRepository().save(partyCustomField);
 			this.getMailHandler().handleMailEvent(dataMap);
 		}
-
 		indexProcessor.index(user.getPartyUid(), IndexProcessor.INDEX, USER);
-
 		try {
-		
 			this.getUsereventlog().getEventLogs(user, source, identity);
 		} catch (JSONException e) {
 			LOGGER.error("Error" + e.getMessage());
 		}
 		return user;
-
 	}
 
 	private void userCreatedDevice(String partyUid, HttpServletRequest request) {
@@ -1015,7 +942,6 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		partyCustomField.setOptionalValue(request.getHeader(USER_AGENT));
 		partyCustomField.setOptionalKey(GOORU_USER_CREATED_DEVICE);
 		this.getPartyService().createPartyCustomField(partyUid, partyCustomField, null);
-
 	}
 
 	@Override
@@ -1055,7 +981,6 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			throw new BadRequestException(generateErrorMessage("GL0069"), e);
 		}
 		byte raw[] = messageDigest.digest(); // step 4
-
 		return new Base64Encoder().encode(raw); // step 5
 	}
 
@@ -1065,7 +990,6 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			throw new BadRequestException(generateErrorMessage("GL0061","User token"));
 		}
 		User user = getUserRepository().findByToken(userToken);
-
 		if (user == null) {
 			throw new BadRequestException(generateErrorMessage("GL0056","User"));
 		}
@@ -1084,12 +1008,10 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			}
 		}
 		try {
-			
 			this.getUsereventlog().getEventLogs(false, true, user, null, false, false);
 		} catch (JSONException e) {
 			LOGGER.debug("Error" + e.getMessage());
 		}
-
 		return user;
 	}
 
@@ -1161,9 +1083,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			flag = true;
 		}
 		String newGenereatedToken = UUID.randomUUID().toString() + RESET_TOKEN_SUFFIX;
-
 		String resetPasswordConfirmRestendpoint = this.getSettingService().getConfigSetting(ConfigConstants.RESET_PASSWORD_CONFIRM_RESTENDPOINT, 0, TaxonomyUtil.GOORU_ORG_UID);
-
 		this.getUserService().validatePassword(password, identity.getUser().getUsername());
 		String encryptedPassword = this.encryptPassword(password);
 		identity.setLastLogin(new Date(System.currentTimeMillis()));
@@ -1191,7 +1111,6 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			if (content != null) {
 				Set<ContentPermission> contentPermissions = content.getContentPermissions();
 				for (ContentPermission userPermission : contentPermissions) {
-
 					if (userPermission.getParty().getPartyUid().equals(authenticationUser.getPartyUid())) {
 						permissions.add(EDIT);
 						break;
@@ -1211,10 +1130,8 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			} else {
 				throw new NotFoundException();
 			}
-
 		}
 		return permissions;
-
 	}
 
 	@Override
@@ -1364,17 +1281,14 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		}
 		userSummary.setFollowing((userSummary.getFollowing() != null ? userSummary.getFollowing() : 0) + 1);
 		followOnUserSummary.setFollowers((followOnUserSummary.getFollowers() != null ? followOnUserSummary.getFollowers() : 0) + 1);
-
 		this.getUserRepository().save(userSummary);
 		this.getUserRepository().save(followOnUserSummary);
 		this.getUserRepository().flush();
 		try {
-			
 			this.getUsereventlog().getEventLogs(false, false, null, null, true, false);
 		} catch (JSONException e) {
 			LOGGER.debug("Error" + e.getMessage());
 		}
-
 		return this.setUserObj(followOnUser);
 	}
 
@@ -1389,18 +1303,15 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			UserSummary followOnUserSummary = this.getUserRepository().getSummaryByUid(unFollowUserId);
 			userSummary.setFollowing(userSummary.getFollowing() - 1);
 			followOnUserSummary.setFollowers(followOnUserSummary.getFollowers() - 1);
-
 			this.getUserRepository().save(userSummary);
 			this.getUserRepository().save(followOnUserSummary);
 			this.getUserRepository().flush();
 		}
 		try {
-			
 			this.getUsereventlog().getEventLogs(false, false, null, null, false, true);
 		} catch (JSONException e) {
 			LOGGER.debug("Error" + e.getMessage());
 		}
-
 	}
 	
 	private Map<String, Object> setUserObj(User user) {
@@ -1425,18 +1336,15 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		if (partyCustomField != null && partyCustomField.getOptionalValue() != null && partyCustomField.getOptionalValue().length() > 0) {
 			taxonomyCode = this.getTaxonomyRespository().getFindTaxonomyCodeList(partyCustomField.getOptionalValue());
 		}
-
 		if (taxonomyCode != null) {
 			List<String> taxonomyCodeList = Arrays.asList(taxonomyCode.split(","));
 			taxonomy.put(CODE, taxonomyCodeList);
 		}
-
 		if (partyCustomField != null && partyCustomField.getOptionalValue() != null && partyCustomField.getOptionalValue().length() > 0) {
 			List<String> taxonomyCodeIdList = Arrays.asList(partyCustomField.getOptionalValue().split(","));
 			taxonomy.put(CODE_ID, taxonomyCodeIdList);
 		}
 		PartyCustomField partyCustomFieldFeatured = partyService.getPartyCustomeField(user.getPartyUid(), IS_FEATURED_USER, null);
-
 		if (partyCustomFieldFeatured != null && partyCustomFieldFeatured.getOptionalValue() != null && partyCustomFieldFeatured.getOptionalValue().length() > 0) {
 			meta.put(FEATURED_USER, Boolean.parseBoolean(partyCustomFieldFeatured.getOptionalValue()));
 		}
@@ -1463,7 +1371,6 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 
 	@Override
 	public Boolean isFollowedUser(String gooruUserId, User apiCaller) {
-
 		return getUserRepository().getActiveUserRelationship(apiCaller.getPartyUid(), gooruUserId) != null ? true : false;
 	}
 
@@ -1531,5 +1438,4 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		return usereventlog;
 	}
 }
-
 	
