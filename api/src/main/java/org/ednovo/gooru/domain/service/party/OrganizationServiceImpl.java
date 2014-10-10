@@ -30,7 +30,7 @@ import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
-import org.ednovo.gooru.core.api.model.ApiKey;
+import org.ednovo.gooru.core.api.model.Application;
 import org.ednovo.gooru.core.api.model.CustomTableValue;
 import org.ednovo.gooru.core.api.model.Organization;
 import org.ednovo.gooru.core.api.model.OrganizationSetting;
@@ -168,9 +168,9 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 			newUser.setPartyUid(ANONYMOUS_ + randomString);
 			newUser.setUsername(ANONYMOUS_ + randomString);
 			newUser.setEmailId(ANONYMOUS_ + randomString + AT_GMAIL_DOT_COM);
-			ApiKey appApiKey = new ApiKey();
-			appApiKey.setAppName(newOrganization.getPartyName());
-			appApiKey.setAppURL(HTTP_URL + newOrganization.getPartyName() + DOT_COM);
+			Application application = new Application();
+			application.setTitle(newOrganization.getPartyName());
+			application.setUrl(HTTP_URL + newOrganization.getPartyName() + DOT_COM);
 			try {
 				User newOrgUser = new User();
 				newOrgUser = userManagementService.createUser(newUser, null, null, 1, null, null, null, null, null, null, null, null, request, null, null);
@@ -179,8 +179,9 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 				newOrganizationSetting.setKey(ANONYMOUS);
 				newOrganizationSetting.setValue(newOrgUser.getPartyUid());
 				organizationSettingRepository.save(newOrganizationSetting);
-				applicationService.saveApplication(appApiKey, newOrgUser, newOrganization.getPartyUid(), apiCaller);
-				accountService.createSessionToken(newOrgUser, appApiKey.getKey(), request);
+				application.setOrganization(newOrganization);
+				applicationService.createApplication(application, newOrgUser);
+				accountService.createSessionToken(newOrgUser, application.getGooruOid(), request);
 
 			} catch (Exception e) {
 				LOGGER.debug("Error" + e);

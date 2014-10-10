@@ -25,14 +25,16 @@ package org.ednovo.gooru.infrastructure.persistence.hibernate.apikey;
 
 import java.util.List;
 
-import org.ednovo.gooru.core.api.model.ApiKey;
+import org.ednovo.gooru.core.api.model.Application;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepository;
 
 public interface ApplicationRepository extends BaseRepository {
 	
-	List<ApiKey> getApplicationByOrganization(String organizationUid, Integer offset, Integer limit);
-
-	ApiKey getApplicationByAppKey(String appKey);
+	Application getApplication(String gooruOid);
 	
+	List<Application> getApplications(String organizationUid, Integer offset, Integer limit);
+
 	Long getApplicationCount(String organizationUid);
+	
+	Application getApplicationByOrganization(String organizationUid);
 }
