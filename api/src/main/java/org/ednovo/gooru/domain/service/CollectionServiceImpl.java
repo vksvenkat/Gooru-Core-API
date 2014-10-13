@@ -355,6 +355,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				if (object[15] != null) {
 					collection.put(COLLECTION_TYPE, object[15]);
 				}
+				collection.put(ITEM_SEQUENCE, object[16]);
 				count++;
 				folderList.add(collection);
 			}
@@ -459,6 +460,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				if (object[18] != null) {
 					item.put(COLLECTION_TYPE, object[18]);
 				}
+				item.put(ITEM_SEQUENCE, object[19]);
 				
 				items.add(item);
 			}
@@ -535,6 +537,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				if (object[18] != null) {
 					item.put(COLLECTION_TYPE, object[18]);
 				}
+				item.put(ITEM_SEQUENCE, object[19]);
 				items.add(item);
 			}
 		}
@@ -844,5 +847,6 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	public CollaboratorRepository getCollaboratorRepository() {
 		return collaboratorRepository;
 	}
-
+	
+	
 }
