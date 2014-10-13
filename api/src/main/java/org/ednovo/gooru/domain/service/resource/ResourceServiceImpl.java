@@ -57,7 +57,6 @@ import org.ednovo.gooru.application.converter.FileProcessor;
 import org.ednovo.gooru.application.util.AsyncExecutor;
 import org.ednovo.gooru.application.util.CollectionUtil;
 import org.ednovo.gooru.application.util.GooruImageUtil;
-import org.ednovo.gooru.application.util.LogUtil;
 import org.ednovo.gooru.application.util.ResourceImageUtil;
 import org.ednovo.gooru.application.util.TaxonomyUtil;
 import org.ednovo.gooru.application.util.UserContentRelationshipUtil;
@@ -1524,10 +1523,6 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 						LOGGER.debug("error"+ ex.getMessage());
 					}
 
-					if (LOGGER.isInfoEnabled()) {
-						LOGGER.info(LogUtil.getActivityLogStream(COLLECTION, user.toString(), collection.toString(), (resourceInstanceId == null) ? LogUtil.RESOURCE_ADD : LogUtil.RESOURCE_EDIT, "name:" + resourceTitle + "$type:" + resourceTypeName + "$url " + resourceUrl + "$classplan:"
-								+ collection.getLesson()));
-					}
 				} else {
 					throw new AccessDeniedException(generateErrorMessage("GL0097"));
 				}
@@ -1903,10 +1898,6 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 
 		resourceRepository.saveOrUpdate(resource);
 		LOGGER.warn("Deleted resource from deleteResource:" + gooruAttributionId);
-
-		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info(LogUtil.getActivityLogStream(RESOURCE, apiCaller.toString(), resource.toString(), LogUtil.RESOURCE_REMOVE, ""));
-		}
 
 		/* Step 4 - Send the message to reindex the resource */
 		indexProcessor.index(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE);

@@ -52,7 +52,7 @@ public class UserTokenRepositoryHibernate extends BaseRepositoryHibernate implem
 		setJdbcTemplate(jdbcTemplate);
 	}
 	
-	private final String INSERT_SESSION = "INSERT INTO user_token (token, session_id, api_key_id, scope, user_uid, created_on) VALUES(?,?,?,?,?,now())";
+	private final String INSERT_SESSION = "INSERT INTO user_token (token, session_id, application_content_id, scope, user_uid, created_on) VALUES(?,?,?,?,?,now())";
 
 	
 	@Override
@@ -95,7 +95,7 @@ public class UserTokenRepositoryHibernate extends BaseRepositoryHibernate implem
 	@Override
 	public void saveUserSession(final UserToken userToken){
 		
-		if(userToken.getApiKey() == null || userToken.getApiKey().getApiKeyId() == null) {
+		if(userToken.getApplication() == null || userToken.getApplication().getGooruOid() == null) {
 			throw new BadCredentialsException("Invalid API Key");
 		}
 		
@@ -106,7 +106,7 @@ public class UserTokenRepositoryHibernate extends BaseRepositoryHibernate implem
 				PreparedStatement sessionFields = con.prepareStatement(INSERT_SESSION);
 				sessionFields.setString(1, userToken.getToken());
 				sessionFields.setString(2, userToken.getSessionId());
-				sessionFields.setInt(3, userToken.getApiKey().getApiKeyId());
+				sessionFields.setLong(3, userToken.getApplication().getContentId());
 				sessionFields.setString(4, userToken.getScope());
 				sessionFields.setString(5, userToken.getUser().getPartyUid());
 				return sessionFields;
