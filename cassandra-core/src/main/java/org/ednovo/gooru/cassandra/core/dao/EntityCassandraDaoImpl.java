@@ -278,7 +278,7 @@ public class EntityCassandraDaoImpl<M extends IsEntityCassandraIndexable> extend
 			Column<String> cfColumn = getFactory().getKeyspace().prepareQuery(getCF().getColumnFamily()).getKey(rowKey).getColumn(column).execute().getResult();
 			return cfColumn != null && cfColumn.hasValue() ? cfColumn.getLongValue() : null;
 		} catch (NotFoundException e) {
-			return null;
+			return 0L;
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -290,7 +290,7 @@ public class EntityCassandraDaoImpl<M extends IsEntityCassandraIndexable> extend
 			Column<String> cfColumn = getFactory().getKeyspace().prepareQuery(getCF().getColumnFamily()).getKey(rowKey).getColumn(column).execute().getResult();
 			return cfColumn != null && cfColumn.hasValue() ? cfColumn.getIntegerValue() : null;
 		} catch (NotFoundException e) {
-			return null;
+			return 0;
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
