@@ -2786,4 +2786,6 @@ public interface ParameterProperties {
 	
 	String CLASSPAGE_CREATOR = "classpageCreator";
 	
+	String RETURN_URL ="returnUrl";
+	
 }
