@@ -129,7 +129,7 @@ public class Resource extends Content implements Serializable {
 
 	private String vocaularyString;
 
-	private Integer s3UploadFlag;
+	private Integer s3UploadFlag = 0;
 
 	private Integer viewCount;
 
