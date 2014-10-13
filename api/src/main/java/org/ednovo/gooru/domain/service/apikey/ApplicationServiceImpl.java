@@ -23,179 +23,133 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.domain.service.apikey;
 
-import java.util.Date;
-import java.util.List;
+import java.sql.Date;
 import java.util.UUID;
 
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
-import org.ednovo.gooru.core.api.model.ApiKey;
+import org.ednovo.gooru.core.api.model.Application;
+import org.ednovo.gooru.core.api.model.ContentType;
 import org.ednovo.gooru.core.api.model.CustomTableValue;
-import org.ednovo.gooru.core.api.model.Organization;
-import org.ednovo.gooru.core.api.model.PartyCustomField;
+import org.ednovo.gooru.core.api.model.ResourceType;
+import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
-import org.ednovo.gooru.core.exception.MethodFailureException;
-import org.ednovo.gooru.core.exception.NotAllowedException;
-import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.domain.service.BaseServiceImpl;
-import org.ednovo.gooru.domain.service.PartyService;
 import org.ednovo.gooru.domain.service.party.OrganizationService;
 import org.ednovo.gooru.domain.service.search.SearchResults;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.apikey.ApplicationRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
-import org.restlet.Response;
-import org.restlet.data.ChallengeResponse;
-import org.restlet.data.ChallengeScheme;
-import org.restlet.data.Form;
-import org.restlet.resource.ClientResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
 
-
-
 @Service
-public class ApplicationServiceImpl extends BaseServiceImpl implements ApplicationService,ParameterProperties,ConstantProperties {
+public class ApplicationServiceImpl extends BaseServiceImpl implements ApplicationService, ParameterProperties, ConstantProperties {
 
 	@Autowired
-	private ApplicationRepository apiKeyRepository;
+	private ApplicationRepository applicatioRepository;
 
-	@Autowired
-	private PartyService partyService;
-	
 	@Autowired
 	private OrganizationService organizationService;
-	
+
 	@Autowired
 	private CustomTableRepository customTableRepository;
 
+	@Override
+	public ActionResponseDTO<Application> createApplication(Application application, User apiCaller) {
+		final Errors errors = validateCreateApplication(application);
+		if (!errors.hasErrors()) {
+			application.setGooruOid(UUID.randomUUID().toString());
+			application.setSecretKey(UUID.randomUUID().toString().replaceAll("-", ""));
+			application.setApiKey(UUID.randomUUID().toString().replaceAll("-", ""));
+			if (application.getStatus() != null && application.getStatus().getValue() != null) {
+				CustomTableValue status = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.APPLICATION_STATUS.getTable(), application.getStatus().getValue());
+				rejectIfNull(status, GL0007, " application status ");
+				application.setStatus(status);
+			} else { 
+				CustomTableValue status = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.APPLICATION_STATUS.getTable(), CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus());
+				application.setStatus(status);
+			}
+			rejectIfNull(application.getOrganization(), GL0006, "Organization ");
+			rejectIfNull(application.getOrganization().getPartyUid(), GL0006, "Organization ");
+			rejectIfNull(this.getOrganizationService().getOrganizationById(application.getOrganization().getPartyUid()), GL0007, "Organization ");
+			application.setContentType((ContentType) this.getApplicationRepository().get(ContentType.class, RESOURCE));
+			application.setResourceType((ResourceType) this.getApplicationRepository().get(ResourceType.class, ResourceType.Type.APPLICATION.getType()));
+			application.setLastModified(new Date(System.currentTimeMillis()));
+			application.setCreatedOn(new Date(System.currentTimeMillis()));
+			application.setUser(apiCaller);
+			application.setOrganization(apiCaller.getPrimaryOrganization());
+			application.setCreator(apiCaller);
+			application.setRecordSource(NOT_ADDED);
+			application.setLastUpdatedUserUid(apiCaller.getGooruUId());
+			application.setSharing(Sharing.PRIVATE.getSharing());
+			this.getApplicationRepository().save(application);
+		}
+		return new ActionResponseDTO<Application>(application, errors);
+	}
 
 	@Override
-	public SearchResults<ApiKey> findApplicationByOrganization(String organizationUid, Integer offset, Integer limit) {
+	public Application updateApplication(Application newapplication, String apiKey) {
+		Application application = this.getApplicationRepository().getApplication(apiKey);
+		rejectIfNull(application, GL0056, 404, "Application ");
+		if (newapplication.getTitle() != null) {
+			application.setTitle(newapplication.getTitle());
+		}
+		if (newapplication.getDescription() != null) {
+			application.setDescription(newapplication.getDescription());
+		}
+		if (newapplication.getUrl() != null) {
+			application.setUrl(newapplication.getUrl());
+		}
 
-		List<ApiKey> application = this.getApplicationRepository().getApplicationByOrganization(organizationUid, offset, limit);
-		SearchResults<ApiKey> result = new SearchResults<ApiKey>();
-		result.setSearchResults(application);
+		if (newapplication.getStatus() != null && newapplication.getStatus().getValue() != null) {
+			CustomTableValue status = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.APPLICATION_STATUS.getTable(), application.getStatus().getValue());
+			rejectIfNull(status, GL0007, " application status ");
+			application.setStatus(status);
+		}
+		this.getApplicationRepository().save(application);
+		return application;
+	}
+
+	@Override
+	public Application getApplication(String apiKey) {
+		return this.getApplicationRepository().getApplication(apiKey);
+	}
+
+	@Override
+	public SearchResults<Application> getApplications(String organizationUid, Integer limit, Integer offset) {
+		SearchResults<Application> result = new SearchResults<Application>();
+		result.setSearchResults(this.getApplicationRepository().getApplications(organizationUid, offset, limit));
 		result.setTotalHitCount(this.getApplicationRepository().getApplicationCount(organizationUid));
 		return result;
+	}
 
-	}
-	
 	@Override
-	public ActionResponseDTO<ApiKey> saveApplication(ApiKey apikey, User user ,String organizationUid, User apiCaller) throws Exception{
-		Errors error = validateApiKey(apikey);
-		if (!error.hasErrors()) {
-				Organization organization = null;
-				
-                if(organizationUid != null){
-                   organization = organizationService.getOrganizationById(organizationUid);
-                }
-                rejectIfNull(organization, GL0056,ORGANIZATION );
-				apikey.setActiveFlag(1);
-				apikey.setSecretKey(UUID.randomUUID().toString());
-				apikey.setKey(UUID.randomUUID().toString());
-				apikey.setOrganization(organization);
-				apikey.setLimit(-1);
-				apikey.setDescription(apikey.getDescription());
-				CustomTableValue type = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.APPLICATION_STATUS.getTable(), CustomProperties.ApplicationStatus.DEVELOPMENT.getApplicationStatus());
-				apikey.setStatus(type.getValue());
-				apikey.setComment(apikey.getComment());
-				apiKeyRepository.save(apikey);
-			
-		}
-		return new ActionResponseDTO<ApiKey>(apikey, error);
+	public void deleteApplication(String apiKey) {
+		Application application = this.getApplicationRepository().getApplication(apiKey);
+		rejectIfNull(application, GL0056, 404, "Application ");
+		this.getApplicationRepository().remove(application);
 	}
-	
-	private Errors validateApiKey(ApiKey apiKey) {
-		final Errors errors = new BindException(apiKey, API_KEY);
-		rejectIfNull(errors, apiKey, APP_NAME, GL0056, generateErrorMessage(GL0056, APP_NAME));
-		rejectIfNull(errors, apiKey, APP_URL, GL0056, generateErrorMessage(GL0056, APP_URL));		
+
+	private Errors validateCreateApplication(Application application) {
+		final Errors errors = new BindException(application, "application");
+		rejectIfNull(errors, application, TITLE, GL0006, generateErrorMessage(GL0006, TITLE));
 		return errors;
 	}
 
-	@Override
-	public ActionResponseDTO<ApiKey> updateApplication(ApiKey apikey, User user)
-			throws Exception {
-		Errors error = validateApiKey(apikey);
-		ApiKey existingApiKey = apiKeyRepository.getApplicationByAppKey(apikey.getKey());
-		if (!error.hasErrors()) {
-			if(apikey.getDescription() != null){
-			 existingApiKey.setDescription(apikey.getDescription());
-			}
-			if(apikey.getAppName() != null){
-			 existingApiKey.setAppName(apikey.getAppName());
-			}
-			if(apikey.getAppURL() != null){
-			 existingApiKey.setAppURL(apikey.getAppURL());
-			}
-			existingApiKey.setLastUpdatedUserUid(user.getPartyUid());
-			existingApiKey.setLastUpdatedDate(new Date(System.currentTimeMillis()));
-			
-			if(apikey.getStatus() != null){
-			 existingApiKey.setStatus(apikey.getStatus());
-			}
-			if(apikey.getComment() != null){
-			 existingApiKey.setComment(apikey.getComment());
-			}
-			apiKeyRepository.save(existingApiKey);
-		}
-		return new ActionResponseDTO<ApiKey>(existingApiKey, error);
-	}
-	
-	@Override
-	public ActionResponseDTO<ApiKey> createJira(ApiKey apiKey, String username,String password,String appName,String appKey)  {
-		   
-		   Errors error = validateApiKey(apiKey);
-		   ApiKey existingApiKey = apiKeyRepository.getApplicationByAppKey(apiKey.getKey());
-		   try{
-			   Form form = new Form();
-			   form.add("issuetype", ISSUE);
-			   form.add("pid", PID);
-			   form.add("summary", "Request to create Appkey for "+ appName +" in the Production");
-			   form.add("description", "Request to create Appkey for development Application Name : "+ appName + " and development Application Key : "+ appKey + " in the Production");
-			   form.add("components", COMPONENTS);
-			   form.add("assignee", "-1");
-			   form.add("reporter", JIRA_REPORTER);
-	
-			    ClientResource httpClient = new ClientResource("http://collab.ednovo.org/jira/secure/QuickCreateIssue.jspa?decorator=none");
-			    Form headers = (Form)httpClient.getRequestAttributes().get("org.restlet.http.headers");
-			    
-			   if (headers == null) {
-			        headers = new Form();
-			        httpClient.getRequestAttributes().put("org.restlet.http.headers", headers);
-			    }
-			    headers.add("X-Atlassian-Token", "no-check");
-			    ChallengeResponse challengeResponse = new ChallengeResponse(ChallengeScheme.HTTP_BASIC, username, password);
-			    httpClient.setChallengeResponse(challengeResponse);
-			    httpClient.post(form);
-			    Response resp = httpClient.getResponse();
-			    String text = resp.getEntity().getText();
-			    String status = resp.getStatus().toString();
-			    if (status.contains("200")){
-			    	 CustomTableValue type = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.APPLICATION_STATUS.getTable(), CustomProperties.ApplicationStatus.SUBMITTED_FOR_REVIEW.getApplicationStatus());
-			 		 apiKey.setStatus(type.getValue());
-			 		 apiKey.setKey(appKey);
-			 		 apiKeyRepository.save(existingApiKey);
-		 		}else{				   
-		 			 throw new NotAllowedException(text);
-			 			   
-		 		}	
-		   }catch(Exception e){
-			   
-			   throw new MethodFailureException(e.getMessage());   
-		   }
-		   
-		return new ActionResponseDTO<ApiKey>(existingApiKey, error);	
-	}
 	public CustomTableRepository getCustomTableRepository() {
 		return customTableRepository;
 	}
-	
+
 	public ApplicationRepository getApplicationRepository() {
-		return apiKeyRepository;
+		return applicatioRepository;
+	}
+
+	public OrganizationService getOrganizationService() {
+		return organizationService;
 	}
 
 }

@@ -34,7 +34,7 @@ import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.ednovo.gooru.application.util.TaxonomyUtil;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
-import org.ednovo.gooru.core.api.model.ApiKey;
+import org.ednovo.gooru.core.api.model.Application;
 import org.ednovo.gooru.core.api.model.Identity;
 import org.ednovo.gooru.core.api.model.Organization;
 import org.ednovo.gooru.core.api.model.PartyCustomField;
@@ -52,7 +52,6 @@ import org.ednovo.gooru.core.exception.BadRequestException;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.core.exception.UnauthorizedException;
 import org.ednovo.gooru.domain.service.PartyService;
-import org.ednovo.gooru.domain.service.apitracker.ApiTrackerService;
 import org.ednovo.gooru.domain.service.eventlogs.AccountEventLog;
 import org.ednovo.gooru.domain.service.redis.RedisService;
 import org.ednovo.gooru.domain.service.setting.SettingService;
@@ -64,6 +63,7 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.ConfigSettingReposi
 import org.ednovo.gooru.infrastructure.persistence.hibernate.OrganizationSettingRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserTokenRepository;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.apikey.ApplicationRepository;
 import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,7 +85,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 	private RedisService redisService;
 
 	@Autowired
-	private ApiTrackerService apiTrackerService;
+	private ApplicationRepository applicationRepository;
 
 	@Autowired
 	private OrganizationSettingRepository organizationSettingRepository;
@@ -119,15 +119,14 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 
 	@Override
 	public UserToken createSessionToken(User user, String apiKey, HttpServletRequest request) throws Exception {
-
-		final ApiKey apiKeyObj = apiTrackerService.getApiKey(apiKey);
+		final Application application =  this.getApplicationRepository().getApplication(apiKey);
 		final UserToken sessionToken = new UserToken();
 		final String apiEndPoint = getConfigSetting(ConfigConstants.GOORU_API_ENDPOINT, 0, TaxonomyUtil.GOORU_ORG_UID);
 		sessionToken.setToken(UUID.randomUUID().toString());
 		sessionToken.setScope(SESSION);
 		sessionToken.setUser(user);
 		sessionToken.setSessionId(request.getSession().getId());
-		sessionToken.setApiKey(apiKeyObj);
+		sessionToken.setApplication(application);
 		sessionToken.setCreatedOn(new Date(System.currentTimeMillis()));
 		sessionToken.setRestEndPoint(apiEndPoint);
 
@@ -137,8 +136,8 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			LOGGER.error("Error" + e.getMessage());
 		}
 		Organization organization = null;
-		if (sessionToken.getApiKey() != null) {
-			organization = sessionToken.getApiKey().getOrganization();
+		if (sessionToken.getApplication() != null) {
+			organization = sessionToken.getApplication().getOrganization();
 		}
 		redisService.addSessionEntry(sessionToken.getToken(), organization);
 		request.getSession().setAttribute(Constants.USER, sessionToken.getUser());
@@ -199,14 +198,13 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 				}
 			}
 
-			final ApiKey apiKey = apiTrackerService.findApiKeyByOrganization(user.getOrganization().getPartyUid());
+			final Application application = this.getApplicationRepository().getApplicationByOrganization(user.getOrganization().getPartyUid());
 
 			userToken.setUser(user);
 			userToken.setSessionId(request.getSession().getId());
 			userToken.setScope(SESSION);
 			userToken.setCreatedOn(new Date(System.currentTimeMillis()));
-
-			userToken.setApiKey(apiKey);
+			userToken.setApplication(application);
 			userToken.setRestEndPoint(apiEndPoint);
 			boolean firstLogin = false;
 			if (user.getIdentities().size() > 0 && user.getIdentities().iterator().next().getLastLogin() == null) {
@@ -290,10 +288,10 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 		Errors errors = null;
 		if (gooruUid != null) {
 			if (gooruUid.equalsIgnoreCase(ANONYMOUS)) {
-				final ApiKey apiKeyObj = apiTrackerService.getApiKey(apiKey);
-				errors = this.validateApiKey(apiKeyObj, userToken);
+				final Application  application = this.getApplicationRepository().getApplication(apiKey);
+				errors = this.validateApiKey(application, userToken);
 				if (!errors.hasErrors()) {
-					final Organization org = apiKeyObj.getOrganization();
+					final Organization org = application.getOrganization();
 					final String partyUid = org.getPartyUid();
 					final String anonymousUid = organizationSettingRepository.getOrganizationSetting(Constants.ANONYMOUS, partyUid);
 					final User user = this.getUserService().findByGooruId(anonymousUid);
@@ -308,7 +306,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 						errors = this.validateLoginAsUser(userToken, user);
 						if (!errors.hasErrors()) {
 							if (!this.getUserService().isContentAdmin(user)) {
-								final ApiKey userApiKey = apiTrackerService.findApiKeyByOrganization(user.getOrganization().getPartyUid());
+								final Application userApiKey = this.getApplicationRepository().getApplicationByOrganization(user.getOrganization().getPartyUid()); 
 								userToken = this.createSessionToken(user, userApiKey.getKey(), request);
 							} else {
 								throw new BadRequestException(generateErrorMessage(GL0042, _USER));
@@ -359,7 +357,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 		}
 
 		if (sessionToken == null) {
-			sessionToken = this.getUserManagementService().createSessionToken(userIdentity, request.getSession().getId(), apiTrackerService.getApiKey(apiKey));
+			sessionToken = this.getUserManagementService().createSessionToken(userIdentity, request.getSession().getId(), this.getApplicationRepository().getApplicationByOrganization(apiKey));
 		}
 		request.getSession().setAttribute(Constants.SESSION_TOKEN, sessionToken.getToken());
 		try {
@@ -385,9 +383,9 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 		return errors;
 	}
 
-	private Errors validateApiKey(ApiKey apiKey, UserToken sessToken) throws Exception {
+	private Errors validateApiKey(Application application, UserToken sessToken) throws Exception {
 		final Errors errors = new BindException(sessToken, SESSIONTOKEN);
-		rejectIfNull(errors, apiKey, API_KEY, GL0056, generateErrorMessage(GL0056, API_KEY));
+		rejectIfNull(errors, application, GOORU_OID, GL0056, generateErrorMessage(GL0056, "Application key"));
 		return errors;
 	}
 
@@ -399,9 +397,6 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 		return userTokenRepository;
 	}
 
-	public ApiTrackerService getApiTrackerService() {
-		return apiTrackerService;
-	}
 
 	public UserRepository getUserRepository() {
 		return userRepository;
@@ -421,6 +416,10 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 
 	public UserService getUserService() {
 		return userService;
+	}
+
+	public ApplicationRepository getApplicationRepository() {
+		return applicationRepository;
 	}
 
 }
