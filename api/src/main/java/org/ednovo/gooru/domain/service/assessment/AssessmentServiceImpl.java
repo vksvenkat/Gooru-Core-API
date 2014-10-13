@@ -44,7 +44,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.ednovo.gooru.application.util.AsyncExecutor;
 import org.ednovo.gooru.application.util.CollectionUtil;
-import org.ednovo.gooru.application.util.LogUtil;
 import org.ednovo.gooru.application.util.ResourceImageUtil;
 import org.ednovo.gooru.application.util.TaxonomyUtil;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
@@ -204,9 +203,6 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 			if (!assessmentRepository.isQuestionUsedInAttemptItem(gooruOQuestionId) && !assessmentRepository.isQuestionUsedInSegmentQuestion(gooruOQuestionId)) {
 				assessmentRepository.remove(AssessmentQuestion.class, question.getContentId());
 				indexProcessor.index(question.getGooruOid(), IndexProcessor.DELETE, RESOURCE);
-				if (LOGGER.isInfoEnabled()) {
-					LOGGER.info(LogUtil.getActivityLogStream(QUESTION, caller.toString(), question.toString(), LogUtil.QUESTION_DELETE, ""));
-				}
 
 				return 1;
 			} else {
@@ -233,17 +229,6 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 			// "AssessmentCreate");
 			this.getResourceImageUtil().setDefaultThumbnailImageIfFileNotExist((Resource) assessment);
 
-			/*
-			 * Commenting this line of code. Organization already saved in
-			 * resource level in base class(saveOrUpdate)
-			 */
-
-			// s3ResourceApiHandler.updateOrganization(assessment);
-
-			if (LOGGER.isInfoEnabled()) {
-				LOGGER.info(LogUtil.getActivityLogStream(ASSESSMENT, assessment.getUser().toString(), assessment.toString(), LogUtil.ASSESSMENT_CREATE, assessment.getName()));
-			}
-
 		}
 		return new ActionResponseDTO<Assessment>(assessment, errors);
 	}
@@ -253,18 +238,12 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 
 		assessment = initAssessment(assessment, gooruOAssessmentId, copyToOriginal, apiCaller);
 
-		/*
-		 * Errors errors = validateAssessment(assessment); if
-		 * (!errors.hasErrors()) {
-		 */assessmentRepository.save(assessment);
+		assessmentRepository.save(assessment);
 
 		this.createRevisionHistoryEntry(assessment.getGooruOid(), ASSESSMENT_UPDATE);
 
-		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info(LogUtil.getActivityLogStream(ASSESSMENT, assessment.getUser().toString(), assessment.toString(), LogUtil.ASSESSMENT_EDIT, assessment.getName()));
-		}
+		
 		indexProcessor.index(assessment.getGooruOid(), IndexProcessor.INDEX, QUIZ);
-		/* } */
 
 		return new ActionResponseDTO<Assessment>(assessment, new BindException(assessment, ASSESSMENT));
 	}
@@ -488,9 +467,6 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 			assessmentRepository.remove(Assessment.class, assessment.getContentId());
 			// redisService.deleteEntry(gooruOAssessmentId);
 			this.getSessionActivityService().updateSessionActivityByContent(assessment.getGooruOid(), SessionActivityType.Status.ARCHIVE.getStatus());
-			if (LOGGER.isInfoEnabled()) {
-				LOGGER.info(LogUtil.getActivityLogStream(ASSESSMENT, caller.toString(), assessment.toString(), LogUtil.ASSESSMENT_DELETE, ""));
-			}
 			return 1;
 		}
 		return 0;
@@ -600,10 +576,6 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 			if (index) {
 				indexProcessor.index(question.getGooruOid(), IndexProcessor.INDEX, RESOURCE);
 			}
-			if (LOGGER.isInfoEnabled()) {
-				LOGGER.info(LogUtil.getActivityLogStream(QUESTION, question.getUser().toString(), question.toString(), LogUtil.QUESTION_EDIT, question.getTitle()));
-			}
-
 		}
 
 		return new ActionResponseDTO<AssessmentQuestion>(question, errors);

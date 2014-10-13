@@ -45,7 +45,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.ednovo.gooru.application.util.ProfileImageUtil;
 import org.ednovo.gooru.application.util.TaxonomyUtil;
-import org.ednovo.gooru.core.api.model.ApiKey;
+import org.ednovo.gooru.core.api.model.Application;
 import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.ContentPermission;
@@ -82,7 +82,6 @@ import org.ednovo.gooru.core.exception.UnauthorizedException;
 import org.ednovo.gooru.domain.service.BaseServiceImpl;
 import org.ednovo.gooru.domain.service.CollaboratorService;
 import org.ednovo.gooru.domain.service.PartyService;
-import org.ednovo.gooru.domain.service.apitracker.ApiTrackerService;
 import org.ednovo.gooru.domain.service.eventlogs.UserEventlog;
 import org.ednovo.gooru.domain.service.party.OrganizationService;
 import org.ednovo.gooru.domain.service.redis.RedisService;
@@ -95,6 +94,7 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.IdpRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.InviteRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserTokenRepository;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.apikey.ApplicationRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.collaborator.CollaboratorRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
@@ -124,9 +124,6 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 
 	@Autowired
 	private SettingService settingService;
-
-	@Autowired
-	private ApiTrackerService apiTrackerService;
 
 	@Autowired
 	private UserTokenRepository userTokenRepository;
@@ -166,6 +163,9 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 
 	@Autowired
 	private InviteRepository inviteRepository;
+	
+	@Autowired
+	private ApplicationRepository applicationRepository;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
 
@@ -484,8 +484,8 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			inviteuser = this.getInviteRepository().getInviteUserByMail(newUser.getEmailId(), COLLABORATOR);
 		}
 		user = createUser(newUser, password, school, confirmStatus, addedBySystem, null, accountType, dateOfBirth, userParentId, gender, childDOB, null, request, role, mailConfirmationUrl);
-		ApiKey apiKey = this.getApiTrackerService().findApiKeyByOrganization(user.getOrganization().getPartyUid());
-		UserToken userToken = this.createSessionToken(user, sessionId, apiKey);
+		Application application = this.getApplicationRepository().getApplicationByOrganization(user.getOrganization().getPartyUid());
+		UserToken userToken = this.createSessionToken(user, sessionId, application);
 		if (user != null && token) {
 			Identity identity = this.findUserByGooruId(user.getGooruUId());
 			if (identity != null) {
@@ -525,8 +525,9 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		if (user == null) {
 			throw new NotFoundException(generateErrorMessage(GL0056, "User"));
 		}
-		ApiKey apiKey = this.getApiTrackerService().findApiKeyByOrganization(user.getOrganization().getPartyUid());
-		UserToken userToken = this.createSessionToken(user, sessionId, apiKey);
+
+		Application application = this.getApplicationRepository().getApplicationByOrganization(user.getOrganization().getPartyUid());
+		UserToken userToken = this.createSessionToken(user, sessionId, application);
 		String password = user.getIdentities().iterator().next().getCredential() == null ? null : user.getIdentities().iterator().next().getCredential().getPassword();
 		Identity identity = null;
 		if (user.getAccountTypeId() != null) {
@@ -688,13 +689,13 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public UserToken createSessionToken(User user, String sessionId, ApiKey apikey) {
+	public UserToken createSessionToken(User user, String sessionId, Application application) {
 		UserToken sessionToken = new UserToken();
 		sessionToken.setToken(UUID.randomUUID().toString());
 		sessionToken.setScope(SESSION);
 		sessionToken.setUser(user);
 		sessionToken.setSessionId(sessionId);
-		sessionToken.setApiKey(apikey);
+		sessionToken.setApplication(application);
 		sessionToken.setCreatedOn(new Date(System.currentTimeMillis()));
 		try {
 			this.getUserTokenRepository().saveUserSession(sessionToken);
@@ -702,8 +703,8 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			LOGGER.error("Error" + e.getMessage());
 		}
 		Organization organization = null;
-		if (sessionToken.getApiKey() != null) {
-			organization = sessionToken.getApiKey().getOrganization();
+		if (sessionToken.getApplication() != null) {
+			organization = sessionToken.getApplication().getOrganization();
 		}
 		this.getRedisService().addSessionEntry(sessionToken.getToken(), organization);
 		return sessionToken;
@@ -1426,16 +1427,16 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		return settingService;
 	}
 
-	public ApiTrackerService getApiTrackerService() {
-		return apiTrackerService;
-	}
-
 	public UserTokenRepository getUserTokenRepository() {
 		return userTokenRepository;
 	}
 	
 	public UserEventlog getUsereventlog() {
 		return usereventlog;
+	}
+
+	public ApplicationRepository getApplicationRepository() {
+		return applicationRepository;
 	}
 }
 	

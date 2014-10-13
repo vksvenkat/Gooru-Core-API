@@ -41,7 +41,6 @@ import java.util.UUID;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.ednovo.gooru.application.util.CollectionUtil;
-import org.ednovo.gooru.application.util.LogUtil;
 import org.ednovo.gooru.application.util.MailAsyncExecutor;
 import org.ednovo.gooru.application.util.ResourceImageUtil;
 import org.ednovo.gooru.application.util.UserContentRelationshipUtil;
@@ -416,9 +415,6 @@ public class LearnguideServiceImpl extends OperationAuthorizer implements Learng
 
 		UserContentRelationshipUtil.updateUserContentRelationship(collection, user, RELATIONSHIP.CREATE);
 
-		if (logger.isInfoEnabled()) {
-			logger.info(LogUtil.getApplicationLogStream(LEARN_GUIDE, "Indexing new learnguide with content id as " + collection.getGooruOid()));
-		}
 
 		final String cacheKey = "e.col.i-" + collection.getContentId().toString();
 		getRedisService().putValue(cacheKey, JsonSerializer.serializeToJson(collection, true), RedisService.DEFAULT_PROFILE_EXP);
@@ -657,18 +653,6 @@ public class LearnguideServiceImpl extends OperationAuthorizer implements Learng
 		indexProcessor.index(targetCollection.getGooruOid(), IndexProcessor.INDEX, COLLECTION );
 
 		this.s3ResourceApiHandler.uploadS3Resource(targetCollection);
-		if (logger.isInfoEnabled()) {
-			logger.info(LogUtil.getApplicationLogStream(LEARN_GUIDE, "copying learnguide with contetnt Id as " + sourceCollection.getGooruOid()));
-		}
-
-		if (logger.isInfoEnabled()) {
-			if (isClassplan) {
-				logger.info(LogUtil.getActivityLogStream(CLASS_PLAN, user.toString(), sourceCollection.toString(), LogUtil.CLASSPLAN_COPY, lesson));
-			} else {
-				logger.info(LogUtil.getActivityLogStream(CLASS_BOOK, user.toString(), sourceCollection.toString(), LogUtil.CLASSBOOK_COPY, lesson));
-			}
-		}
-
 
 		try {
 			revisionHistoryService.createVersion(targetCollection, COPY_COLLECTION);
