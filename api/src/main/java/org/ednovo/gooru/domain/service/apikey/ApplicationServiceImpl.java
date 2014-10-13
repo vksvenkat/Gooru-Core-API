@@ -82,6 +82,7 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 			application.setCreatedOn(new Date(System.currentTimeMillis()));
 			application.setUser(apiCaller);
 			application.setOrganization(apiCaller.getPrimaryOrganization());
+			application.setIsFeatured(0);
 			application.setCreator(apiCaller);
 			application.setRecordSource(NOT_ADDED);
 			application.setLastUpdatedUserUid(apiCaller.getGooruUId());
