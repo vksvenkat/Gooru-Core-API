@@ -38,7 +38,7 @@ public class ApplicationRepositoryHibernate extends BaseRepositoryHibernate impl
 	@Override
 	public List<Application> getApplications(String organizationUid, Integer offset, Integer limit) {
 		String hql = "FROM Application app WHERE  1=1";
-		if (organizationUid != null) { 
+		if (organizationUid != null) {
 			hql += " AND app.organization.partyUid =:partyUid";
 		}
 		Query query = getSession().createQuery(hql);
@@ -46,31 +46,36 @@ public class ApplicationRepositoryHibernate extends BaseRepositoryHibernate impl
 			query.setParameter("partyUid", organizationUid);
 		}
 		query.setFirstResult(offset);
-        query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
-        return (List) query.list();
+		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
+		return (List) query.list();
 	}
-	
+
 	@Override
-	public Application getApplication(String gooruOid) {
-		String hql = "FROM Application app WHERE app.gooruOid=:gooruOid";
+	public Application getApplication(String apiKey) {
+		String hql = "FROM Application app WHERE app.apiKey=:apiKey";
 		Query query = getSession().createQuery(hql);
-		query.setParameter("gooruOid", gooruOid);
+		query.setParameter("apiKey", apiKey);
 		return (Application) (query.list().size() > 0 ? query.list().get(0) : null);
 	}
-	
+
 	public Long getApplicationCount(String organizationUid) {
-		String hql = "SELECT count(*) FROM Application app WHERE app.gooruOid=:organizationUid";
+		String hql = "SELECT count(*) FROM Application app WHERE 1=1";
+		if (organizationUid != null)  {
+			hql += " AND app.organization.partyUid =:organizationUid";
+		}
 		Query query = getSession().createQuery(hql);
-		query.setParameter("organizationUid", organizationUid);
-        return (Long) query.list().get(0);
+		if (organizationUid != null)  {
+			query.setParameter("organizationUid", organizationUid);
+		}
+		return (Long) query.list().get(0);
 	}
 
 	@Override
 	public Application getApplicationByOrganization(String organizationUid) {
-		String hql = "FROM Application app WHERE app.organization.partyUid =:partyUid";
+		String hql = "FROM Application app WHERE app.organization.partyUid =:organizationUid";
 		Query query = getSession().createQuery(hql);
+		query.setParameter("organizationUid", organizationUid);
 		return (Application) (query.list().size() > 0 ? query.list().get(0) : null);
 	}
-	
 
 }

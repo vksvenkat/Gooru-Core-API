@@ -5,7 +5,7 @@ public class Application extends Resource {
 
 	private static final long serialVersionUID = -2886634467039659836L;
 
-	private String key;
+	private String apiKey;
 	
 	private Integer searchLimit;
 	
@@ -59,6 +59,14 @@ public class Application extends Resource {
 
 	public void setLimit(Integer limit) {
 		this.limit = limit;
+	}
+
+	public String getApiKey() {
+		return apiKey;
+	}
+
+	public void setApiKey(String apiKey) {
+		this.apiKey = apiKey;
 	}
 
 }

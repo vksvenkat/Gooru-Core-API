@@ -161,6 +161,7 @@
 		<joined-subclass name="org.ednovo.gooru.core.api.model.Application"
 			table="application">
 			<key column="application_content_id" />
+			<property name="apiKey" column="api_key" not-null="true" />
 			<property name="limit" column="api_limit" not-null="false" />
 			<property name="searchLimit" column="search_limit" type="int"
 				not-null="false" />

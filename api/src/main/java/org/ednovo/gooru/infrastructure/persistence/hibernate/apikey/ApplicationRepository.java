@@ -30,7 +30,7 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepository;
 
 public interface ApplicationRepository extends BaseRepository {
 	
-	Application getApplication(String gooruOid);
+	Application getApplication(String apiKey);
 	
 	List<Application> getApplications(String organizationUid, Integer offset, Integer limit);
 

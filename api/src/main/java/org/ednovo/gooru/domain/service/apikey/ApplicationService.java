@@ -32,11 +32,11 @@ public interface ApplicationService {
 
 	ActionResponseDTO<Application> createApplication(Application application, User apicaller);
 
-	Application updateApplication(Application newapplication, String gooruOid);
+	Application updateApplication(Application newapplication, String apiKey);
 
-	Application getApplication(String gooruOid);
+	Application getApplication(String apiKey);
 
 	SearchResults<Application> getApplications(String organizationUid, Integer limit, Integer offset);
 
-	void deleteApplication(String gooruOid);
+	void deleteApplication(String apiKey);
 }

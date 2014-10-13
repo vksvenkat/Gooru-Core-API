@@ -31,6 +31,7 @@ import org.ednovo.gooru.core.api.model.Application;
 import org.ednovo.gooru.core.api.model.ContentType;
 import org.ednovo.gooru.core.api.model.CustomTableValue;
 import org.ednovo.gooru.core.api.model.ResourceType;
+import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.constant.ConstantProperties;
@@ -49,7 +50,7 @@ import org.springframework.validation.Errors;
 public class ApplicationServiceImpl extends BaseServiceImpl implements ApplicationService, ParameterProperties, ConstantProperties {
 
 	@Autowired
-	private ApplicationRepository apiKeyRepository;
+	private ApplicationRepository applicatioRepository;
 
 	@Autowired
 	private OrganizationService organizationService;
@@ -63,13 +64,17 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 		if (!errors.hasErrors()) {
 			application.setGooruOid(UUID.randomUUID().toString());
 			application.setSecretKey(UUID.randomUUID().toString().replaceAll("-", ""));
+			application.setApiKey(UUID.randomUUID().toString().replaceAll("-", ""));
 			if (application.getStatus() != null && application.getStatus().getValue() != null) {
 				CustomTableValue status = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.APPLICATION_STATUS.getTable(), application.getStatus().getValue());
 				rejectIfNull(status, GL0007, " application status ");
 				application.setStatus(status);
+			} else { 
+				CustomTableValue status = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.APPLICATION_STATUS.getTable(), CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus());
+				application.setStatus(status);
 			}
-			rejectIfNull(application.getOrganization(), GL0007, "Organization ");
-			rejectIfNull(application.getOrganization().getPartyUid(), GL0007, "Organization ");
+			rejectIfNull(application.getOrganization(), GL0006, "Organization ");
+			rejectIfNull(application.getOrganization().getPartyUid(), GL0006, "Organization ");
 			rejectIfNull(this.getOrganizationService().getOrganizationById(application.getOrganization().getPartyUid()), GL0007, "Organization ");
 			application.setContentType((ContentType) this.getApplicationRepository().get(ContentType.class, RESOURCE));
 			application.setResourceType((ResourceType) this.getApplicationRepository().get(ResourceType.class, ResourceType.Type.APPLICATION.getType()));
@@ -80,14 +85,15 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 			application.setCreator(apiCaller);
 			application.setRecordSource(NOT_ADDED);
 			application.setLastUpdatedUserUid(apiCaller.getGooruUId());
+			application.setSharing(Sharing.PRIVATE.getSharing());
 			this.getApplicationRepository().save(application);
 		}
 		return new ActionResponseDTO<Application>(application, errors);
 	}
 
 	@Override
-	public Application updateApplication(Application newapplication, String gooruOid) {
-		Application application = this.getApplicationRepository().getApplication(gooruOid);
+	public Application updateApplication(Application newapplication, String apiKey) {
+		Application application = this.getApplicationRepository().getApplication(apiKey);
 		rejectIfNull(application, GL0056, 404, "Application ");
 		if (newapplication.getTitle() != null) {
 			application.setTitle(newapplication.getTitle());
@@ -109,8 +115,8 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 	}
 
 	@Override
-	public Application getApplication(String gooruOid) {
-		return this.getApplicationRepository().getApplication(gooruOid);
+	public Application getApplication(String apiKey) {
+		return this.getApplicationRepository().getApplication(apiKey);
 	}
 
 	@Override
@@ -122,8 +128,8 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 	}
 
 	@Override
-	public void deleteApplication(String gooruOid) {
-		Application application = this.getApplicationRepository().getApplication(gooruOid);
+	public void deleteApplication(String apiKey) {
+		Application application = this.getApplicationRepository().getApplication(apiKey);
 		rejectIfNull(application, GL0056, 404, "Application ");
 		this.getApplicationRepository().remove(application);
 	}
@@ -139,7 +145,7 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 	}
 
 	public ApplicationRepository getApplicationRepository() {
-		return apiKeyRepository;
+		return applicatioRepository;
 	}
 
 	public OrganizationService getOrganizationService() {
