@@ -42,9 +42,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.ednovo.gooru.application.util.TaxonomyUtil;
-import org.ednovo.gooru.core.api.model.ActivityStream;
-import org.ednovo.gooru.core.api.model.ActivityType;
-import org.ednovo.gooru.core.api.model.ApiKey;
+import org.ednovo.gooru.core.api.model.Application;
 import org.ednovo.gooru.core.api.model.Assessment;
 import org.ednovo.gooru.core.api.model.AssessmentSegment;
 import org.ednovo.gooru.core.api.model.AssessmentSegmentQuestionAssoc;
@@ -88,7 +86,6 @@ import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.UserNotConfirmedException;
 import org.ednovo.gooru.domain.service.CollaboratorService;
 import org.ednovo.gooru.domain.service.PartyService;
-import org.ednovo.gooru.domain.service.apitracker.ApiTrackerService;
 import org.ednovo.gooru.domain.service.party.OrganizationService;
 import org.ednovo.gooru.domain.service.redis.RedisService;
 import org.ednovo.gooru.domain.service.setting.SettingService;
@@ -100,7 +97,7 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.IdpRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.InviteRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserTokenRepository;
-import org.ednovo.gooru.infrastructure.persistence.hibernate.activity.ActivityRepository;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.apikey.ApplicationRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.assessment.AssessmentRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.classplan.LearnguideRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.party.UserGroupRepository;
@@ -130,12 +127,6 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 
 	@Autowired
 	private UserRepository userRepository;
-
-	@Autowired
-	private ActivityRepository activityRepository;
-
-	@Autowired
-	private ApiTrackerService apiTrackerService;
 
 	@Autowired
 	private IdpRepository idpRepository;
@@ -187,6 +178,9 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 	
 	@Autowired
 	private CollaboratorService collaboratorService;
+	
+	@Autowired
+	private ApplicationRepository applicationRepository;
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
 
@@ -444,24 +438,10 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 
 		identity.setCredential(credential);
 		this.getUserRepository().save(identity);
-		List<ActivityStream> activityStreams = new ArrayList<ActivityStream>();
-
-		List<ActivityType> types = this.getUserRepository().getAll(ActivityType.class);
-
-		for (ActivityType type : types) {
-			ActivityStream stream = new ActivityStream();
-			stream.setActivityType(type);
-			stream.setSharing(PUBLIC);
-			stream.setUser(user);
-			activityStreams.add(stream);
-		}
 		
 		if(inviteuser.size() > 0) {
 			this.getCollaboratorService().updateCollaboratorStatus(email);
 		}
-
-		this.getUserRepository().saveAll(activityStreams);
-
 
 		this.getPartyService().createUserDefaultCustomAttributes(user.getPartyUid(), user);
 
@@ -550,8 +530,8 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 		List<InviteUser> inviteuser = this.getInviteRepository().getInviteUserByMail(email, COLLABORATOR);
 		
 		User user = createUser(firstName, lastName, email, password, school, username, confirmStatus, organizationCode, addedBySystem, null, accountType, dateOfBirth, userParentId, gender, childDOB, null, referenceUid, role,  domainName);
-		ApiKey apiKey = apiTrackerService.findApiKeyByOrganization(user.getOrganization().getPartyUid());
-		UserToken userToken = this.createSessionToken(user, sessionId, apiKey);
+		Application application = this.getApplicationRepository().getApplicationByOrganization(user.getOrganization().getPartyUid());
+		UserToken userToken = this.createSessionToken(user, sessionId, application);
 
 		if (isNotEmptyString(pearsonEmailId)) {
 			user.setEmailId(pearsonEmailId);
@@ -1099,7 +1079,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 	@Override
 	public UserToken signIn(String username, String password, String apikeyId, String sessionId, boolean isSsoLogin) {
 
-		ApiKey apiKey = apiTrackerService.getApiKey(apikeyId);
+		Application application = this.getApplicationRepository().getApplication(apikeyId);
 		if (username == null) {
 			throw new BadCredentialsException("error:Username cannot be null or empty.");
 		}
@@ -1151,41 +1131,18 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 		userToken.setSessionId(sessionId);
 		userToken.setScope(SESSION);
 		userToken.setCreatedOn(new Date(System.currentTimeMillis()));
-		userToken.setApiKey(apiKey);
+		userToken.setApplication(application);
 		userToken.setFirstLogin(userRepository.checkUserFirstLogin(user.getPartyUid()));
 
 		identity.setLastLogin(new Date(System.currentTimeMillis()));
 		this.getUserRepository().save(identity);
 		this.getUserTokenRepository().save(userToken);
 		Organization organization = null;
-		if (userToken.getApiKey() != null) {
-			organization = userToken.getApiKey().getOrganization();
+		if (userToken.getApplication() != null) {
+			organization = userToken.getApplication().getOrganization();
 		}
 
 		redisService.addSessionEntry(userToken.getToken(), organization);
-		List<ActivityStream> activityStreams = new ArrayList<ActivityStream>();
-
-		List<ActivityType> types = this.getUserRepository().getAll(ActivityType.class);
-
-		for (ActivityType type : types) {
-			ActivityStream stream = new ActivityStream();
-			stream.setActivityType(type);
-			stream.setUser(user);
-
-			stream = activityRepository.findActivityStreamByType(stream);
-
-			if (stream == null) {
-				stream = new ActivityStream();
-				stream.setActivityType(type);
-				stream.setUser(user);
-				stream.setSharing(PUBLIC);
-				activityStreams.add(stream);
-			}
-		}
-
-		this.getUserRepository().saveAll(activityStreams);
-		// indexProcessor.index(user.getPartyUid(), IndexProcessor.INDEX,
-		// "user");
 
 		if (identity.getIdp() != null) {
 			SessionContextSupport.putLogParameter(IDP_NAME, identity.getIdp().getName());
@@ -1433,8 +1390,8 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 		String storedSecret = settingService.getOrganizationSetting(ConstantProperties.SUPER_ADMIN_TOKEN, TaxonomyUtil.GOORU_ORG_UID);
 		userCredential.setStoredSecretKey(storedSecret);
 		UserToken userToken = userTokenRepository.findByToken(key);
-		if (userToken != null && userToken.getApiKey() != null) {
-			userCredential.setApiKeySearchLimit(userToken.getApiKey().getSearchLimit());
+		if (userToken != null && userToken.getApplication() != null) {
+			userCredential.setApiKeySearchLimit(userToken.getApplication().getSearchLimit());
 		}
 		PartyCustomField partyCustomFieldTax = partyService.getPartyCustomeField(user.getPartyUid(), USER_TAXONOMY_ROOT_CODE, null);
 		if (partyCustomFieldTax != null) {
@@ -1606,13 +1563,13 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public UserToken createSessionToken(User user, String sessionId, ApiKey apikey) {
+	public UserToken createSessionToken(User user, String sessionId, Application application) {
 		UserToken sessionToken = new UserToken();
 		sessionToken.setToken(UUID.randomUUID().toString());
 		sessionToken.setScope(SESSION);
 		sessionToken.setUser(user);
 		sessionToken.setSessionId(sessionId);
-		sessionToken.setApiKey(apikey);
+		sessionToken.setApplication(application);
 		sessionToken.setCreatedOn(new Date(System.currentTimeMillis()));
 		try {
 			userTokenRepository.saveUserSession(sessionToken);
@@ -1620,8 +1577,8 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 			LOGGER.error("Error" + e.getMessage());
 		}
 		Organization organization = null;
-		if (sessionToken.getApiKey() != null) {
-			organization = sessionToken.getApiKey().getOrganization();
+		if (sessionToken.getApplication() != null) {
+			organization = sessionToken.getApplication().getOrganization();
 		}
 		redisService.addSessionEntry(sessionToken.getToken(), organization);
 		return sessionToken;
@@ -1874,8 +1831,8 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 	public void sendUserRegistrationConfirmationMail(String gooruUid, String accountType, String sessionId, String dateOfBirth, String gooruClassicUrl) throws Exception {
 		User user = this.findByGooruId(gooruUid);
 		if (user != null) {
-			ApiKey apiKey = apiTrackerService.findApiKeyByOrganization(user.getOrganization().getPartyUid());
-			UserToken userToken = this.createSessionToken(user, sessionId, apiKey);
+			Application application = this.getApplicationRepository().getApplication(user.getOrganization().getPartyUid());
+			UserToken userToken = this.createSessionToken(user, sessionId, application);
 			this.getMailHandler().sendMailToConfirm(gooruUid, null, accountType, userToken.getToken(), dateOfBirth, gooruClassicUrl,null,null,null);
 		}
 	}
@@ -2027,15 +1984,15 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 	@Override
 	public UserToken partnerSignin(Map<String, Object> paramMap, String sessionId, String url, Long expires) throws Exception {
 		UserToken userToken = null;
-		ApiKey apiKeyObj = apiTrackerService.getApiKey(paramMap.get(API_KEY).toString());
-		if (apiKeyObj == null) {
+		Application application = this.getApplicationRepository().getApplication(paramMap.get(API_KEY).toString());
+		if (application == null) {
 			throw new BadCredentialsException("error:Invalid API Key.");
 		} else {
 			Long start = System.currentTimeMillis();
 			if (start <= expires) {
 				String signature = paramMap.get(SIGNATURE).toString();
 				paramMap.put(EXPIRE, expires);
-				String computedSignature = new GooruMd5Util().verifySignatureFromURL(url, paramMap, apiKeyObj.getSecretKey());
+				String computedSignature = new GooruMd5Util().verifySignatureFromURL(url, paramMap, application.getSecretKey());
 				if (signature.equals(computedSignature)) {
 					final String emailId = paramMap.get(EMAIL_ID).toString();
 					String password = paramMap.get(PASSWORD).toString();
@@ -2044,7 +2001,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 						userToken = signIn(emailId, password, apiKey, sessionId, false);
 					} else {
 						String firstName = emailId.substring(0, emailId.indexOf("@"));
-						createUser(firstName, firstName, emailId, password, "", null, 1, apiKeyObj.getOrganization().getOrganizationCode(), 0, null, null, null, null, null, null, null, null, null, null);
+						createUser(firstName, firstName, emailId, password, "", null, 1, application.getOrganization().getOrganizationCode(), 0, null, null, null, null, null, null, null, null, null, null);
 						userToken = signIn(emailId, password, apiKey, sessionId, false);
 					}
 
@@ -2101,8 +2058,8 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 						user = this.getUserRepository().findByGooruId(gooruUid);
 					}
 					if (user != null) {
-						ApiKey adminUserApiKey = apiTrackerService.findApiKeyByOrganization(user.getOrganization().getPartyUid());
-						userToken = this.createSessionToken(user, sessionToken, adminUserApiKey);
+						Application application = this.getApplicationRepository().getApplicationByOrganization(user.getOrganization().getPartyUid());
+						userToken = this.createSessionToken(user, sessionToken, application);
 					}
 				} else {
 					throw new BadCredentialsException("error:This User doesn't have a permission to login as another user.");
@@ -2189,6 +2146,10 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 	
 	public Integer getChildAccountCount(String userUId){
 		return userRepository.getChildAccountCount(userUId);
+	}
+
+	public ApplicationRepository getApplicationRepository() {
+		return applicationRepository;
 	}
 
 }
