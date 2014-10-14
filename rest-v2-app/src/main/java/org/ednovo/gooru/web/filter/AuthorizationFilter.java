@@ -69,7 +69,6 @@ public class AuthorizationFilter implements Filter {
 
 		HttpServletResponse response = (HttpServletResponse) res;
 		MultiReadHttpServletRequest httpServletRequestWrapper = new MultiReadHttpServletRequest(request);
-		httpServletRequestWrapper.setAttribute("body", readRequestBody(httpServletRequestWrapper));
 
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("Request URI: " + ((HttpServletRequest) request).getRequestURI());
@@ -114,20 +113,5 @@ public class AuthorizationFilter implements Filter {
 
 	public DoAuthorization getDoAuthorization() {
 		return doAuthorization;
-	}
-
-	private StringBuffer readRequestBody(MultiReadHttpServletRequest request) {
-		StringBuffer jb = new StringBuffer();
-		String line = null;
-		try {
-			InputStream inputStream = request.getInputStream();
-			if (inputStream != null) {
-				BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-				while ((line = reader.readLine()) != null)
-					jb.append(line);
-			}
-		} catch (Exception e) {
-		}
-		return jb;
 	}
 }
