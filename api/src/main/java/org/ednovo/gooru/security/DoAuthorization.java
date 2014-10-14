@@ -230,8 +230,7 @@ public class DoAuthorization  {
 		}
 		return false;
 	}
-	
-	
+		
 	public RedisService getRedisService() {
 		return redisService;
 	}
