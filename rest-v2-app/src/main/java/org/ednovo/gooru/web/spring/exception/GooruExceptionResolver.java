@@ -76,7 +76,6 @@ public class GooruExceptionResolver extends SimpleMappingExceptionResolver {
 			response.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
 			errorObject = new ErrorObject(405, ex.getMessage());
 		} else if (ex instanceof MethodFailureException) { 
-			isLogError = true;
 			response.setStatus(420);
 			errorObject = new ErrorObject(420, ex.getMessage());
 		} else {
