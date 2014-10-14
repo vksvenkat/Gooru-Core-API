@@ -244,7 +244,7 @@ public class TagServiceImpl extends BaseServiceImpl implements TagService, Param
 				result.put(RESOURCEFORMAT, resourceFormat);
 			}
 			
-			List<ContentProviderAssociation> contentProviderAssociations = this.getContentRepository().getContentProviderByGooruOid(String.valueOf(object[1]),null);
+			List<ContentProviderAssociation> contentProviderAssociations = this.getContentRepository().getContentProviderByGooruOid(String.valueOf(object[1]),null,null);
  			if (contentProviderAssociations != null) {
  				List<String> aggregator = new ArrayList<String>();
  				List<String> publisher = new ArrayList<String>();

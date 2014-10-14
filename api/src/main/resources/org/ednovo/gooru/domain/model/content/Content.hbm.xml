@@ -158,19 +158,6 @@
 			<property name="assocUserUid" column="assoc_user_uid"
 				not-null="false" />
 		</joined-subclass>
-		<joined-subclass name="org.ednovo.gooru.core.api.model.Application"
-			table="application">
-			<key column="application_content_id" />
-			<property name="apiKey" column="api_key" not-null="true" />
-			<property name="limit" column="api_limit" not-null="false" />
-			<property name="searchLimit" column="search_limit" type="int"
-				not-null="false" />
-			<property name="secretKey" column="secret_key" not-null="true" />
-			<many-to-one name="status"
-				class="org.ednovo.gooru.core.api.model.CustomTableValue" column="status_id"
-				not-null="true" lazy="proxy" cascade="none" />
-			<property name="comment" column="comment" not-null="false" />
-		</joined-subclass>
 
 		<joined-subclass name="org.ednovo.gooru.core.api.model.Resource"
 			table="resource" lazy="true">
@@ -262,6 +249,19 @@
 					not-null="false" />
 			</joined-subclass>
 
+				<joined-subclass name="org.ednovo.gooru.core.api.model.Application"
+					table="application">
+					<key column="application_content_id" />
+					<property name="apiKey" column="api_key" not-null="true" />
+					<property name="limit" column="api_limit" not-null="false" />
+					<property name="searchLimit" column="search_limit" type="int"
+						not-null="false" />
+					<property name="secretKey" column="secret_key" not-null="true" />
+					<many-to-one name="status"
+						class="org.ednovo.gooru.core.api.model.CustomTableValue" column="status_id"
+						not-null="true" lazy="proxy" cascade="none" />
+					<property name="comment" column="comment" not-null="false" />
+				</joined-subclass>
 
 			<joined-subclass name="org.ednovo.gooru.core.api.model.Collection"
 				table="collection" lazy="true">
@@ -306,7 +306,6 @@
 					<key column="collection_content_id" />
 					<one-to-many class="org.ednovo.gooru.core.api.model.CollectionTaskAssoc" />
 				</set>
-
 
 				<joined-subclass name="org.ednovo.gooru.core.api.model.Classpage"
 					table="classpage" lazy="true">
