@@ -23,6 +23,8 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.web.spring.exception;
 
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -34,6 +36,8 @@ import org.ednovo.gooru.core.exception.NotAllowedException;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.core.exception.UnauthorizedException;
 import org.jets3t.service.S3ServiceException;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.access.AccessDeniedException;
@@ -54,17 +58,16 @@ public class GooruExceptionResolver extends SimpleMappingExceptionResolver {
 		if (ex instanceof AccessDeniedException) {
 			errorObject = new ErrorObject(403, ex.getMessage());
 			response.setStatus(403);
-		} else if(ex instanceof BadCredentialsException || ex instanceof BadRequestException) { 
+		} else if (ex instanceof BadCredentialsException || ex instanceof BadRequestException) {
 			errorObject = new ErrorObject(400, ex.getMessage());
 			response.setStatus(400);
-		}  else if (ex instanceof UnauthorizedException) {  
+		} else if (ex instanceof UnauthorizedException) {
 			errorObject = new ErrorObject(401, ex.getMessage());
 			response.setStatus(401);
-		}
-		else if (ex instanceof SizeLimitExceededException) {
+		} else if (ex instanceof SizeLimitExceededException) {
 			response.setStatus(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE);
 			errorObject = new ErrorObject(413, ex.getMessage());
-		}  else if (ex instanceof S3ServiceException) {
+		} else if (ex instanceof S3ServiceException) {
 			response.setStatus(500);
 			errorObject = new ErrorObject(500, "Internal Server Error");
 			logger.info("Error in Resolver -- " + ((S3ServiceException) ex).getErrorMessage());
@@ -75,18 +78,21 @@ public class GooruExceptionResolver extends SimpleMappingExceptionResolver {
 		} else if (ex instanceof NotImplementedException || ex instanceof NotAllowedException) {
 			response.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
 			errorObject = new ErrorObject(405, ex.getMessage());
-		} else if (ex instanceof MethodFailureException) { 
+		} else if (ex instanceof MethodFailureException) {
 			isLogError = true;
 			response.setStatus(420);
 			errorObject = new ErrorObject(420, ex.getMessage());
+			logger.info("Error in Resolver -- ", ex);
+			logger.info("input parameters --- " + getRequestInfo(request).toString());
 		} else {
 			errorObject = new ErrorObject(500, "Internal Server Error");
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			logger.info("Error in Resolver -- " + ex);
+			logger.info("Error in Resolver -- ", ex);
+			logger.info("input parameters --- " + getRequestInfo(request).toString());
 		}
+
 		
-		if(!isLogError)
-		{
+		if (!isLogError) {
 			logger.debug("Error in Resolver -- ", ex);
 		}
 		ModelAndView jsonModel = new ModelAndView("rest/model");
@@ -94,4 +100,16 @@ public class GooruExceptionResolver extends SimpleMappingExceptionResolver {
 		return jsonModel;
 	}
 
+	private JSONObject getRequestInfo(HttpServletRequest request) {
+		JSONObject inputParams = new JSONObject();
+		Map map = request.getParameterMap();
+		if (map != null) {
+			try {
+				inputParams.put("parameters", new JSONObject(map));
+				inputParams.put("body", request.getAttribute("body"));
+			} catch (JSONException e) {
+			}
+		}
+		return inputParams;
+	}
 }
