@@ -30,6 +30,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.fileupload.FileUploadBase.SizeLimitExceededException;
 import org.apache.commons.lang.NotImplementedException;
+import org.ednovo.gooru.core.application.util.BaseUtil;
 import org.ednovo.gooru.core.exception.BadRequestException;
 import org.ednovo.gooru.core.exception.MethodFailureException;
 import org.ednovo.gooru.core.exception.NotAllowedException;
@@ -88,8 +89,8 @@ public class GooruExceptionResolver extends SimpleMappingExceptionResolver {
 			errorObject = new ErrorObject(500, "Internal Server Error");
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			logger.info("Error in Resolver -- ", ex);
-			logger.info("input parameters --- " + getRequestInfo(request).toString());
 		}
+		logger.info("input parameters --- " + getRequestInfo(request).toString());
 
 		
 		if (!isLogError) {
@@ -106,10 +107,11 @@ public class GooruExceptionResolver extends SimpleMappingExceptionResolver {
 		if (map != null) {
 			try {
 				inputParams.put("parameters", new JSONObject(map));
-				inputParams.put("body", request.getAttribute("body"));
+				inputParams.put("body", BaseUtil.readRequestBody(request));
 			} catch (JSONException e) {
 			}
 		}
 		return inputParams;
 	}
+	
 }
