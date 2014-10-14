@@ -305,7 +305,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				collection.setSharing(Sharing.ANYONEWITHLINK.getSharing());
 			}
 			this.getCollectionRepository().save(collection);
-
+			this.getResourceService().saveOrUpdateResourceTaxonomy(collection, collection.getTaxonomySet());
 			if (resourceId != null && !resourceId.isEmpty()) {
 				CollectionItem collectionItem = new CollectionItem();
 				collectionItem.setItemType(ShelfType.AddedType.ADDED.getAddedType());
