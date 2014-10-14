@@ -31,7 +31,6 @@ import java.util.UUID;
 import org.apache.commons.lang.StringUtils;
 import org.ednovo.gooru.application.util.CollectionUtil;
 import org.ednovo.gooru.application.util.GooruImageUtil;
-import org.ednovo.gooru.application.util.LogUtil;
 import org.ednovo.gooru.application.util.ResourceImageUtil;
 import org.ednovo.gooru.application.util.TaxonomyUtil;
 import org.ednovo.gooru.core.api.model.Learnguide;
@@ -136,9 +135,6 @@ public class SegmentServiceImpl implements SegmentService {
 			ex.printStackTrace();
 		}
 
-		if (logger.isInfoEnabled()) {
-			logger.info(LogUtil.getActivityLogStream(COLLECTION, user.toString(), updateSegment.toString(), LogUtil.SEGMENT_EDIT, ""));
-		}
 		indexProcessor.index(collection.getGooruOid(), IndexProcessor.INDEX, "collection");
 		// Remove the collection from cache
 		collectionUtil.deleteCollectionFromCache(gooruContentId, COLLECTION);
@@ -195,9 +191,6 @@ public class SegmentServiceImpl implements SegmentService {
 			ex.printStackTrace();
 		}
 
-		if (logger.isInfoEnabled()) {
-			logger.info(LogUtil.getActivityLogStream(COLLECTION, user.toString(), segment.toString(), LogUtil.SEGMENT_ADD, ""));
-		}
 		indexProcessor.index(collection.getGooruOid(), IndexProcessor.INDEX, "collection");
 
 		// Remove the collection from cache

@@ -27,11 +27,9 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
-import org.ednovo.gooru.application.util.LogUtil;
 import org.ednovo.gooru.application.util.UserContentRelationshipUtil;
 import org.ednovo.gooru.domain.service.taxonomy.TaxonomyService;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserContentRepository;
-import org.ednovo.gooru.infrastructure.persistence.hibernate.activity.ActivityRepository;
 import org.hibernate.FlushMode;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -96,8 +94,6 @@ public class StartupListener extends ContextLoaderListener implements ServletCon
 			LOGGER.debug("Drop-down initialization complete [OK]");
 		}
 
-		ActivityRepository activityRepository = (ActivityRepository) ctx.getBean("activityRepository");
-		LogUtil.setActivityRepository(activityRepository);
 
 		UserContentRepository userContentRepository = (UserContentRepository) ctx.getBean("userContentRepository");
 		UserContentRelationshipUtil.setUserContentRepository(userContentRepository);
