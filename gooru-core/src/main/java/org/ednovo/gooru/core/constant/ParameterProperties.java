@@ -1013,8 +1013,6 @@ public interface ParameterProperties {
 	String SCOLLECTION_ITEM_ADD = "scollection-item-add";
 
 	String MY_SHELF = "My Shelf";
-	
-	String MY_STORY = "My Story";
 
 	String PERMISSIONS = "permissions";
 	
