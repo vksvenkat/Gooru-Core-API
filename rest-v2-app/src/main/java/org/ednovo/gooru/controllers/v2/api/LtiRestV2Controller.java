@@ -29,7 +29,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 @RequestMapping(value = { "v2/lti" })
-public class OauthRestV2Controller extends BaseController implements ConstantProperties, ParameterProperties {
+public class LtiRestV2Controller extends BaseController implements ConstantProperties, ParameterProperties {
 
 	
 	@Autowired

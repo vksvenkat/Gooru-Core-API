@@ -69,8 +69,7 @@ public class OAuthRestV2Controller extends BaseController implements ConstantPro
 		request.setAttribute(Constants.EVENT_PREDICATE, "oauthclient.create");
 		JSONObject json = requestData(data);
 		OAuthClient oAuthClient = buildOAuthClientFromInputParameters(getValue("oauthClient", json));
-		ActionResponseDTO<OAuthClient> responseDTO = null;
-		responseDTO = oAuthService.createNewOAuthClient(oAuthClient,organizationUid);
+		ActionResponseDTO<OAuthClient> responseDTO = oAuthService.createNewOAuthClient(oAuthClient,organizationUid);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		} else {
@@ -91,8 +90,7 @@ public class OAuthRestV2Controller extends BaseController implements ConstantPro
 		User apiCaller = (User) request.getAttribute(Constants.USER);
 		JSONObject json = requestData(data);
 		OAuthClient oAuthClient = buildOAuthClientFromInputParameters(getValue("oauthClient", json));
-		ActionResponseDTO<OAuthClient> responseDTO = null;
-		responseDTO = oAuthService.updateOAuthClient(oAuthClient,apiCaller);
+		ActionResponseDTO<OAuthClient> responseDTO = oAuthService.updateOAuthClient(oAuthClient,apiCaller);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		} else {
@@ -111,8 +109,7 @@ public class OAuthRestV2Controller extends BaseController implements ConstantPro
 	@RequestMapping(method = { RequestMethod.GET }, value = "/client/{clientUId}")
 	public ModelAndView getOAuthClient(@PathVariable String clientUId, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		request.setAttribute(Constants.EVENT_PREDICATE, "oauthclient.read");
-		ActionResponseDTO<OAuthClient> responseDTO = null;
-		responseDTO = oAuthService.getOAuthClient(clientUId);
+		ActionResponseDTO<OAuthClient> responseDTO = oAuthService.getOAuthClient(clientUId);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		} else {
