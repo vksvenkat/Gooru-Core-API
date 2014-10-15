@@ -105,6 +105,9 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 		if (newapplication.getUrl() != null) {
 			application.setUrl(newapplication.getUrl());
 		}
+		if (newapplication.getComment() != null) {
+			application.setComment(newapplication.getComment());
+		}
 
 		if (newapplication.getStatus() != null && newapplication.getStatus().getValue() != null) {
 			CustomTableValue status = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.APPLICATION_STATUS.getTable(), application.getStatus().getValue());
