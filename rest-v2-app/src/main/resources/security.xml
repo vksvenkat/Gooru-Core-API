@@ -53,15 +53,4 @@
 	
 	<bean id="requestSupport"  class="org.ednovo.gooru.core.api.model.RequestSupport" scope="request"/>
 
-	<!-- <security:authentication-manager alias="authenticationManager">
-		<security:authentication-provider ref="preauthAuthProvider" />
-	</security:authentication-manager>
-
-	<bean id="preauthAuthProvider" class="org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider">				
-		<property name="preAuthenticatedUserDetailsService">
-			<bean id="userDetailsServiceWrapper" class="org.springframework.security.core.userdetails.UserDetailsByNameServiceWrapper">
-				<property name="userDetailsService" ref="userDetailsService" />
-			</bean>
-		</property>				
-	</bean>	  -->
 </beans>

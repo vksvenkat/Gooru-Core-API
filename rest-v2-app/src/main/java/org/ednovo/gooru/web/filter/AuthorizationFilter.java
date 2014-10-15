@@ -23,7 +23,10 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.web.filter;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -37,6 +40,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringUtils;
 import org.ednovo.gooru.core.api.model.GooruAuthenticationToken;
 import org.ednovo.gooru.security.DoAuthorization;
+import org.ednovo.gooru.security.MultiReadHttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,9 +54,9 @@ public class AuthorizationFilter implements Filter {
 
 	@Autowired
 	private DoAuthorization doAuthorization;
-	
+
 	private static final String BEARER_TYPE = "Bearer";
-	
+
 	@Override
 	public void init(FilterConfig objFConfig) throws ServletException {
 		// Does nothing
@@ -64,6 +68,7 @@ public class AuthorizationFilter implements Filter {
 		HttpServletRequest request = (HttpServletRequest) req;
 
 		HttpServletResponse response = (HttpServletResponse) res;
+		MultiReadHttpServletRequest httpServletRequestWrapper = new MultiReadHttpServletRequest(request);
 
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("Request URI: " + ((HttpServletRequest) request).getRequestURI());
@@ -71,35 +76,34 @@ public class AuthorizationFilter implements Filter {
 
 		// check the authentication object in security
 
-	       try {
-               // check the authentication object in security
-               Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-               String sessionToken = request.getParameter("sessionToken");
-               String pinToken = request.getParameter("pinToken");
-               String apiKeyToken = request.getParameter("apiKey");
-               String oAuthToken = request.getHeader("OAuth-Authorization");
-               
-               if(oAuthToken != null){
-            	   if(oAuthToken.contains(BEARER_TYPE)){
-            		   oAuthToken = StringUtils.substringAfterLast(oAuthToken, BEARER_TYPE).trim();
-            	   }
-            	   else{
-            		   oAuthToken = null;
-            	   }
-               }
+		try {
+			// check the authentication object in security
+			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+			String sessionToken = request.getParameter("sessionToken");
+			String pinToken = request.getParameter("pinToken");
+			String apiKeyToken = request.getParameter("apiKey");
+			String oAuthToken = request.getHeader("OAuth-Authorization");
 
-               getDoAuthorization().doFilter(sessionToken, pinToken, apiKeyToken, request, response, auth, oAuthToken);
+			if (oAuthToken != null) {
+				if (oAuthToken.contains(BEARER_TYPE)) {
+					oAuthToken = StringUtils.substringAfterLast(oAuthToken, BEARER_TYPE).trim();
+				} else {
+					oAuthToken = null;
+				}
+			}
 
-       } catch (Exception ex) {
-               int  errorCode = 500;
-               if (ex instanceof AccessDeniedException) {
-                       errorCode = 403;
-               }
-               Authentication auth = new GooruAuthenticationToken(ex, null, ex.getMessage(), errorCode);
-               SecurityContextHolder.getContext().setAuthentication(auth);
-       }
+			getDoAuthorization().doFilter(sessionToken, pinToken, apiKeyToken, request, response, auth, oAuthToken);
 
-       chain.doFilter(request, response);
+		} catch (Exception ex) {
+			int errorCode = 500;
+			if (ex instanceof AccessDeniedException) {
+				errorCode = 403;
+			}
+			Authentication auth = new GooruAuthenticationToken(ex, null, ex.getMessage(), errorCode);
+			SecurityContextHolder.getContext().setAuthentication(auth);
+		}
+
+		chain.doFilter(httpServletRequestWrapper, response);
 	}
 
 	@Override
