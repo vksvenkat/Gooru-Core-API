@@ -231,10 +231,10 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				collection.setCollectionItems(collectionItems);
 			}
 
-			if (addToShelf || (collection.getCollectionType() != null && collection.getCollectionType().equalsIgnoreCase(CollectionType.STORY.getCollectionType()))) {
+			if (addToShelf) {
 				CollectionItem collectionItem = new CollectionItem();
 				collectionItem.setItemType(ShelfType.AddedType.ADDED.getAddedType());
-				collection.setCollectionItem(this.createCollectionItem(collection.getGooruOid(), null, collectionItem, collection.getUser(), (collection.getCollectionType() != null && collection.getCollectionType().equalsIgnoreCase(CollectionType.STORY.getCollectionType())) ? CollectionType.USER_STORY.getCollectionType() : CollectionType.SHElf.getCollectionType(), false).getModel());
+				collection.setCollectionItem(this.createCollectionItem(collection.getGooruOid(), null, collectionItem, collection.getUser(), CollectionType.SHElf.getCollectionType(), false).getModel());
 			}
 			this.getCollectionRepository().save(collection);
 			if (collection.getResourceType().getName().equalsIgnoreCase(SCOLLECTION)) {
@@ -314,10 +314,10 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				collectionItems.add(collectionItem);
 				collection.setCollectionItems(collectionItems);
 			}
-			if (addToShelf || (collection.getCollectionType() != null && collection.getCollectionType().equalsIgnoreCase(CollectionType.STORY.getCollectionType()))) {
+			if (addToShelf) {
 				CollectionItem collectionItem = new CollectionItem();
 				collectionItem.setItemType(ShelfType.AddedType.ADDED.getAddedType());
-				collection.setCollectionItem(this.createCollectionItem(collection.getGooruOid(), null, collectionItem, collection.getUser(), collection.getCollectionType().equalsIgnoreCase(CollectionType.STORY.getCollectionType())  ? CollectionType.STORY.getCollectionType() : CollectionType.SHElf.getCollectionType(), false).getModel());
+				collection.setCollectionItem(this.createCollectionItem(collection.getGooruOid(), null, collectionItem, collection.getUser(), CollectionType.SHElf.getCollectionType(), false).getModel());
 			}
 			this.getCollectionRepository().save(collection);
 			if (collection.getResourceType().getName().equalsIgnoreCase(SCOLLECTION)) {
@@ -751,8 +751,9 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 
 	private Collection createMyShelfCollection(String collectionGooruOid, User user, String type, final CollectionItem collectionItem) {
+
 		Collection collection = null;
-		if (type != null && type.equalsIgnoreCase(CollectionType.SHElf.getCollectionType()) || type != null && type.equalsIgnoreCase(CollectionType.USER_STORY.getCollectionType())) {
+		if (type != null && type.equalsIgnoreCase(CollectionType.SHElf.getCollectionType())) {
 			collectionItem.setItemType(ShelfType.AddedType.SUBSCRIBED.getAddedType());
 		} else if (type != null && type.equalsIgnoreCase(COLLABORATOR)) {
 			collectionItem.setItemType(COLLABORATOR);
@@ -763,26 +764,19 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				collectionItem.setItemType(ShelfType.AddedType.ADDED.getAddedType());
 			}
 		}
-		String collectionType  = CollectionType.SHElf.getCollectionType();
-		if (type != null && type.equalsIgnoreCase(CollectionType.SHElf.getCollectionType())) { 
-			collectionType = CollectionType.SHElf.getCollectionType();
-		} else if (type != null && type.equalsIgnoreCase(CollectionType.STORY.getCollectionType()) || type != null && type.equalsIgnoreCase(CollectionType.USER_STORY.getCollectionType())) { 
-			collectionType = CollectionType.USER_STORY.getCollectionType();
-		}
-		
 		if (collectionGooruOid != null) {
 			collection = this.getCollectionByGooruOid(collectionGooruOid, null);
 		} else {
-			collection = this.getCollectionRepository().getUserShelfByGooruUid(user.getGooruUId(), collectionType);
+			collection = this.getCollectionRepository().getUserShelfByGooruUid(user.getGooruUId(), CollectionType.SHElf.getCollectionType());
 		}
 		if (collection == null) {
 			collection = new Collection();
-			collection.setTitle(collectionType.equalsIgnoreCase(CollectionType.SHElf.getCollectionType()) ? MY_SHELF  : MY_STORY);
-			collection.setCollectionType(collectionType);
+			collection.setTitle(MY_SHELF);
+			collection.setCollectionType(CollectionType.SHElf.getCollectionType());
 			collection.setGooruOid(UUID.randomUUID().toString());
 			ContentType contentType = (ContentType) this.getCollectionRepository().get(ContentType.class, ContentType.RESOURCE);
 			collection.setContentType(contentType);
-			ResourceType resourceType = (ResourceType) this.getCollectionRepository().get(ResourceType.class, collectionType);
+			ResourceType resourceType = (ResourceType) this.getCollectionRepository().get(ResourceType.class, ResourceType.Type.SHELF.getType());
 			collection.setResourceType(resourceType);
 			collection.setLastModified(new Date(System.currentTimeMillis()));
 			collection.setCreatedOn(new Date(System.currentTimeMillis()));
@@ -1658,7 +1652,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		colletionType.put(QUIZ, COLLECTION_TYPE);
 		colletionType.put(FOLDER, COLLECTION_TYPE);
 		colletionType.put(ASSIGNMENT, COLLECTION_TYPE);
-		colletionType.put(CollectionType.STORY.getCollectionType(), COLLECTION_TYPE);
 		final Errors errors = new BindException(collection, COLLECTION);
 		if (collection != null) {
 			rejectIfNullOrEmpty(errors, collection.getTitle(), TITLE, GL0006, generateErrorMessage(GL0006, TITLE));
@@ -2009,10 +2002,10 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			destCollection.setCollectionItems(collectionItems);
 			this.getCollectionRepository().save(destCollection);
 			getAsyncExecutor().copyResourceFolder(sourceCollection, destCollection);
-			if (addToShelf || destCollection.getCollectionType().equalsIgnoreCase(CollectionType.STORY.getCollectionType())) {
+			if (addToShelf) {
 				final CollectionItem collectionItem = new CollectionItem();
 				collectionItem.setItemType(ShelfType.AddedType.SUBSCRIBED.getAddedType());
-				Collection myCollection = createMyShelfCollection(null, user,  destCollection.getCollectionType().equalsIgnoreCase(CollectionType.STORY.getCollectionType()) ? CollectionType.USER_STORY.getCollectionType() : CollectionType.SHElf.getCollectionType(), collectionItem);
+				Collection myCollection = createMyShelfCollection(null, user,  CollectionType.SHElf.getCollectionType(), collectionItem);
 				collectionItem.setCollection(myCollection);
 				collectionItem.setResource(destCollection);
 				int sequence = myCollection.getCollectionItems() != null ? myCollection.getCollectionItems().size() + 1 : 1;

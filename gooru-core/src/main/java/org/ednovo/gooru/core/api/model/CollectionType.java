@@ -10,9 +10,7 @@ public enum CollectionType {
 	USER_CLASSPAGE("user_classpage"),
 	ASSIGNMENT("assignment"),
 	Quiz("quiz"),
-	STORY("story"),
-	USER_QUIZ("user_quiz"),
-	USER_STORY("user_story");
+	USER_QUIZ("user_quiz");
 	
 	private String collectionType;
 	
