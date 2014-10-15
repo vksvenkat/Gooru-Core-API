@@ -16,6 +16,8 @@ public class Application extends Resource {
 	private CustomTableValue status;
 	
 	private String comment;
+	
+	private String ContactEmailId;
 
 	public String getKey() {
 		return getGooruOid();
@@ -67,6 +69,14 @@ public class Application extends Resource {
 
 	public void setApiKey(String apiKey) {
 		this.apiKey = apiKey;
+	}
+
+	public String getContactEmailId() {
+		return ContactEmailId;
+	}
+
+	public void setContactEmailId(String contactEmailId) {
+		ContactEmailId = contactEmailId;
 	}
 
 }

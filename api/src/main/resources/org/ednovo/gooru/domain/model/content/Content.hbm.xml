@@ -261,6 +261,7 @@
 						class="org.ednovo.gooru.core.api.model.CustomTableValue" column="status_id"
 						not-null="true" lazy="proxy" cascade="none" />
 					<property name="comment" column="comment" not-null="false" />
+					<property name="contactEmailId" column="contact_email_id" not-null="false" />
 				</joined-subclass>
 
 			<joined-subclass name="org.ednovo.gooru.core.api.model.Collection"
