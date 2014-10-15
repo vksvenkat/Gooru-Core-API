@@ -2740,13 +2740,13 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			}
 			
 			if(newResource.getPublisher() != null && newResource.getPublisher().size() > 0) {
-				resource.setPublisher(updateContentProvider(resource.getGooruOid(), newResource.getPublisher(), user, CustomProperties.ContentProviderType.PUBLISHER.getContentProviderType()));
+				updateContentProvider(resource.getGooruOid(), newResource.getPublisher(), user, CustomProperties.ContentProviderType.PUBLISHER.getContentProviderType());
 			}
 			if(newResource.getAggregator() != null && newResource.getAggregator().size() > 0) {
-				resource.setAggregator(updateContentProvider(resource.getGooruOid(), newResource.getAggregator(), user, CustomProperties.ContentProviderType.AGGREGATOR.getContentProviderType()));
+				updateContentProvider(resource.getGooruOid(), newResource.getAggregator(), user, CustomProperties.ContentProviderType.AGGREGATOR.getContentProviderType());
 			} 
 			if(newResource.getHost() != null && newResource.getHost().size() > 0) {
-				resource.setHost(updateContentProvider(resource.getGooruOid(), newResource.getHost(), user, CustomProperties.ContentProviderType.HOST.getContentProviderType()));
+				updateContentProvider(resource.getGooruOid(), newResource.getHost(), user, CustomProperties.ContentProviderType.HOST.getContentProviderType());
 			}
 			
 			if(resourceTags != null && resourceTags.size() > 0) {
@@ -2773,7 +2773,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			if (newResource.getThumbnail() != null) {
 				this.getResourceImageUtil().downloadAndSendMsgToGenerateThumbnails(resource, newResource.getThumbnail());
 			}
-
+			setContentProvider(resource);
 			if (newResource.getTags() != null && !newResource.getTags().isEmpty()) {
 				ResourceInfo resourceInfo = resourceRepository.findResourceInfo(resourceId);
 				if (resourceInfo == null) {
