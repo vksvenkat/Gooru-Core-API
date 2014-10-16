@@ -29,6 +29,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
+
 import org.ednovo.gooru.cassandra.core.dao.RawCassandraDao;
 import org.ednovo.gooru.core.constant.ColumnFamilyConstant;
 import org.ednovo.gooru.domain.cassandra.ApiCassandraFactory;
@@ -51,6 +53,13 @@ public class BlackListWordCassandraServiceImpl implements BlackListWordCassandra
 
 	private static final String[] EXPRESSIONS = { "\\s", "\\s*[^a-zA-Z0-9']+\\s*" };
 
+	@PostConstruct
+	public final void init(){
+		if (blackListedWords == null || blackListedWords.size() <= 0) {
+			reset();
+		}
+	}
+	
 	@Override
 	public boolean validate(String query) {
 		if (blackListedWords == null || blackListedWords.size() <= 0) {
