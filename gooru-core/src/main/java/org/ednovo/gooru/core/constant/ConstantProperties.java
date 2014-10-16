@@ -796,5 +796,9 @@ public interface ConstantProperties {
    static final String CITY[] = { "*.cityId", "*.name", "*.totalHitCount", "*.searchResults"};
    
    static final String INSTITUTION_INCLUDES_ADD[] = {"*.name", "*.id", "*.ParentId", "*.stateProvince", "*.stateId", "*.totalHitCount", "*.searchResults"};
+   
+   public static final String PUBLISH_COLLECTION = "publish_collection";
+   
+   public static final String SEND_RECIPIENT = "sendRecipient";
 }
 
