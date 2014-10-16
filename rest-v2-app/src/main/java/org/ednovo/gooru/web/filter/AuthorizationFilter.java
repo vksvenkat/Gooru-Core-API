@@ -23,10 +23,7 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.web.filter;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
