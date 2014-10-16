@@ -64,7 +64,7 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 		if (!errors.hasErrors()) {
 			application.setGooruOid(UUID.randomUUID().toString());
 			application.setSecretKey(UUID.randomUUID().toString().replaceAll("-", ""));
-			application.setApiKey(UUID.randomUUID().toString().replaceAll("-", ""));
+			application.setKey(UUID.randomUUID().toString().replaceAll("-", ""));
 			if (application.getStatus() != null && application.getStatus().getValue() != null) {
 				CustomTableValue status = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.APPLICATION_STATUS.getTable(), application.getStatus().getValue());
 				rejectIfNull(status, GL0007, " application status ");

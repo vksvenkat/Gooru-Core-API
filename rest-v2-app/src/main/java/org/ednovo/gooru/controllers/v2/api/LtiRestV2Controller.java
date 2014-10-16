@@ -39,9 +39,10 @@ public class LtiRestV2Controller extends BaseController implements ConstantPrope
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.POST }, value = "/client")
 	public ModelAndView createLTIClient(@RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
-
+        
+		User user = (User) request.getAttribute(Constants.USER);
 		OAuthClient LTIClient = buildLTIClientFromInputParameters(data);
-		 ActionResponseDTO<OAuthClient> responseDTO = oAuthService.createNewLTIClient(LTIClient);
+		 ActionResponseDTO<OAuthClient> responseDTO = oAuthService.createNewLTIClient(LTIClient, user);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		} else {
