@@ -23,15 +23,20 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.domain.service.oauth;
 
+import java.sql.Date;
 import java.util.List;
 import java.util.UUID;
 
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
-import org.ednovo.gooru.core.api.model.Collection;
-import org.ednovo.gooru.core.api.model.Organization;
+import org.ednovo.gooru.core.api.model.Application;
+import org.ednovo.gooru.core.api.model.ContentType;
+import org.ednovo.gooru.core.api.model.CustomTableValue;
+import org.ednovo.gooru.core.api.model.ResourceType;
+import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserRole.UserRoleType;
 import org.ednovo.gooru.core.api.model.UserRoleAssoc;
+import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.application.util.ServerValidationUtils;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.NotFoundException;
@@ -39,133 +44,99 @@ import org.ednovo.gooru.domain.model.oauth.AuthorizationGrantType;
 import org.ednovo.gooru.domain.model.oauth.OAuthClient;
 import org.ednovo.gooru.domain.service.search.SearchResults;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.apikey.ApplicationRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.auth.OAuthRepository;
-import org.ednovo.gooru.infrastructure.persistence.hibernate.collaborator.CollaboratorRepository;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.party.OrganizationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
-import org.ednovo.gooru.domain.service.search.SearchResults;
 
 @Service
-public class OAuthServiceImpl extends ServerValidationUtils implements OAuthService, ParameterProperties{
+public class OAuthServiceImpl extends ServerValidationUtils implements OAuthService, ParameterProperties {
 
 	@Autowired
 	private UserRepository userRepository;
-	
+
 	@Autowired
 	private OAuthRepository oAuthRepository;
-	
+
 	@Autowired
 	private OrganizationRepository organizationRepository;
-	
+
+	@Autowired
+	private CustomTableRepository customTableRepository;
+
+	@Autowired
+	private ApplicationRepository applicationRepository;
+
 	@Override
 	public User getUserByOAuthAccessToken(String accessToken) throws Exception {
 		String clientId = oAuthRepository.findClientByAccessToken(accessToken);
-		if(clientId == null){
+		if (clientId == null) {
 			throw new NotFoundException("Client not found for given oauth token");
 		}
 		OAuthClient oAuthClient = oAuthRepository.findOAuthClientByClientId(clientId);
 		User user = oAuthClient.getUser();
-		if(user == null){
+		if (user == null) {
 			throw new NotFoundException("User not found for given oauth token");
 		}
 		return user;
 	}
 
 	@Override
-	public ActionResponseDTO<OAuthClient> createNewOAuthClient(OAuthClient oAuthClient ,String organizationUId) throws Exception {
+	public ActionResponseDTO<OAuthClient> createOAuthClient(OAuthClient oAuthClient, User apiCaller) throws Exception {
 		Errors errors = validateOAuthClient(oAuthClient);
-		OAuthClient oAuthClientNew = new OAuthClient();
-		if(!errors.hasErrors()){
-			oAuthClientNew.setAccessTokenValiditySeconds(new Integer(86400));
-			oAuthClientNew.setAuthorities("ROLE_CLIENT");
-			StringBuilder grantType = new StringBuilder();
-			if(oAuthClient.getGrantTypes() != null){
-				String [] grantTypes = oAuthClient.getGrantTypes().split(",");
-				for(int grantTypeCount = 0; grantTypeCount < grantTypes.length; grantTypeCount++){
-					if(grantType.length() > 0){
-						grantType.append(","); 
-					}
-					if(grantTypes[grantTypeCount].equals(AuthorizationGrantType.AUTHORIZATION_CODE.getAuthorizationGrantType())){
-						grantType.append(AuthorizationGrantType.AUTHORIZATION_CODE.getAuthorizationGrantType());
-					}
-					else if(grantTypes[grantTypeCount].equals(AuthorizationGrantType.IMPLICIT.getAuthorizationGrantType())){
-						grantType.append(AuthorizationGrantType.IMPLICIT.getAuthorizationGrantType());
-					}
-					else if(grantTypes[grantTypeCount].equals(AuthorizationGrantType.CLIENT_CREDENTIALS.getAuthorizationGrantType())){
-						grantType.append(AuthorizationGrantType.CLIENT_CREDENTIALS.getAuthorizationGrantType());
-					}
-					else if(grantTypes[grantTypeCount].equals(AuthorizationGrantType.REFRESH_TOKEN.getAuthorizationGrantType())){
-						grantType.append(AuthorizationGrantType.REFRESH_TOKEN.getAuthorizationGrantType());
-					}
-					else if(grantTypes[grantTypeCount].equals(AuthorizationGrantType.PASSWORD.getAuthorizationGrantType())){
-						grantType.append(AuthorizationGrantType.PASSWORD.getAuthorizationGrantType());
-					}
-					
-				}
-			}else{
-				grantType.append(AuthorizationGrantType.AUTHORIZATION_CODE.getAuthorizationGrantType() + ","+AuthorizationGrantType.REFRESH_TOKEN.getAuthorizationGrantType()+ ","+AuthorizationGrantType.CLIENT_CREDENTIALS.getAuthorizationGrantType());
+		if (!errors.hasErrors()) {
+			oAuthClient.setGooruOid(UUID.randomUUID().toString());
+			oAuthClient.setAccessTokenValiditySeconds(new Integer(86400));
+			oAuthClient.setAuthorities("ROLE_CLIENT");
+			if (oAuthClient.getSecretKey() == null) {
+				oAuthClient.setSecretKey(UUID.randomUUID().toString().replaceAll("-", ""));
 			}
-			oAuthClientNew.setGrantTypes(grantType.toString());
-			oAuthClientNew.setRedirectUris(oAuthClient.getRedirectUris());
-			oAuthClientNew.setScopes("read");
-			oAuthClientNew.setClientId(getRandomString(5));
-			oAuthClientNew.setClientName(oAuthClient.getClientName());
-			oAuthClientNew.setClientSecret(UUID.randomUUID().toString());
-			oAuthClientNew.setDescription(oAuthClient.getDescription());
-			
-			if(organizationUId != null){
-				Organization organization = organizationRepository.getOrganizationByUid(organizationUId);
-				oAuthClientNew.setOrganization(organization);
-				if(oAuthClient.getUserUid() != null) {
-					User user = userRepository.findByGooruId(oAuthClient.getUserUid());
-					oAuthClientNew.setUser(user);
-				}	
-				
-			}else{
-				if(oAuthClient.getUserUid() != null) {
-					User user = userRepository.findByGooruId(oAuthClient.getUserUid());
-					oAuthClientNew.setUser(user);
-					oAuthClientNew.setOrganization(user.getOrganization());
-				} else {
-					Organization organization = organizationRepository.getOrganizationByUid(oAuthClient.getOrganization().getPartyUid());
-					oAuthClientNew.setOrganization(organization);
-				}
-				
+			if (oAuthClient.getKey() == null) {
+				oAuthClient.setKey(UUID.randomUUID().toString().replaceAll("-", ""));
 			}
-			
-			
-			
-			oAuthRepository.save(oAuthClientNew);
+			if (oAuthClient.getGrantTypes() == null) {
+				oAuthClient.setGrantTypes(AuthorizationGrantType.AUTHORIZATION_CODE.getAuthorizationGrantType() + "," + AuthorizationGrantType.REFRESH_TOKEN.getAuthorizationGrantType() + "," + AuthorizationGrantType.CLIENT_CREDENTIALS.getAuthorizationGrantType());
+			}
+			rejectIfNull(oAuthClient.getApplication(), GL0006, "Application key ");
+			rejectIfNull(oAuthClient.getApplication().getKey(), GL0006, "Application key ");
+			Application application = this.getApplicationRepository().getApplication(oAuthClient.getApplication().getKey());
+			rejectIfNull(application, GL0007, "Application key ");
+			oAuthClient.setApplication(application);
+			CustomTableValue status = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.APPLICATION_STATUS.getTable(), CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus());
+			oAuthClient.setStatus(status);
+			oAuthClient.setScopes("read");
+			oAuthClient.setContentType((ContentType) this.getOAuthRepository().get(ContentType.class, RESOURCE));
+			oAuthClient.setResourceType((ResourceType) this.getOAuthRepository().get(ResourceType.class, ResourceType.Type.APPLICATION.getType()));
+			oAuthClient.setLastModified(new Date(System.currentTimeMillis()));
+			oAuthClient.setCreatedOn(new Date(System.currentTimeMillis()));
+			oAuthClient.setUser(apiCaller);
+			oAuthClient.setOrganization(apiCaller.getPrimaryOrganization());
+			oAuthClient.setIsFeatured(0);
+			oAuthClient.setCreator(apiCaller);
+			oAuthClient.setRecordSource(NOT_ADDED);
+			oAuthClient.setLastUpdatedUserUid(apiCaller.getGooruUId());
+			oAuthClient.setSharing(Sharing.PRIVATE.getSharing());
+			oAuthRepository.save(oAuthClient);
 		}
-		return new ActionResponseDTO<OAuthClient>(oAuthClientNew, errors);
+		return new ActionResponseDTO<OAuthClient>(oAuthClient, errors);
 	}
 
 	@Override
-	public ActionResponseDTO<OAuthClient> updateOAuthClient(OAuthClient oAuthClient, User apiCaller) {
+	public ActionResponseDTO<OAuthClient> updateOAuthClient(OAuthClient oAuthClient) {
 		rejectIfNull(oAuthClient, GL0056, "oAuthClient");
-		OAuthClient exsitsOAuthClient = (OAuthClient) oAuthRepository.get(OAuthClient.class, oAuthClient.getOauthClientUId());
+		OAuthClient exsitsOAuthClient = (OAuthClient) oAuthRepository.findOAuthClientByApiKey(oAuthClient.getKey());
 		rejectIfNull(exsitsOAuthClient, GL0056, "oAuthClient");
-		if(oAuthClient.getClientName() != null){
-			exsitsOAuthClient.setClientName(oAuthClient.getClientName());
+		if (oAuthClient.getRedirectUrl() != null) {
+			exsitsOAuthClient.setRedirectUrl(oAuthClient.getRedirectUrl());
 		}
-		if(oAuthClient.getDescription() != null){
-			exsitsOAuthClient.setDescription(oAuthClient.getDescription());
+		if (oAuthClient.getGrantTypes() != null) {
+			exsitsOAuthClient.setGrantTypes(oAuthClient.getGrantTypes());
 		}
-		if(oAuthClient.getRedirectUris() != null){
-			exsitsOAuthClient.setRedirectUris(oAuthClient.getRedirectUris());
-		}
-		if (isSuperAdmin(apiCaller)) {
-			if(oAuthClient.getClientId() != null){
-				exsitsOAuthClient.setClientId(oAuthClient.getClientId());
-			}
-			if(oAuthClient.getClientSecret() != null){
-				exsitsOAuthClient.setClientSecret(oAuthClient.getClientSecret());
-			}
-			
-		}
+
 		oAuthRepository.save(exsitsOAuthClient);
 		final Errors errors = new BindException(OAuthClient.class, "oAuthClient");
 		return new ActionResponseDTO<OAuthClient>(exsitsOAuthClient, errors);
@@ -179,7 +150,7 @@ public class OAuthServiceImpl extends ServerValidationUtils implements OAuthServ
 	@Override
 	public void deleteOAuthClient(String clientUId, User apiCaller) throws Exception {
 		OAuthClient oAuthClient = (OAuthClient) oAuthRepository.get(OAuthClient.class, clientUId);
-		if(oAuthClient != null && oAuthClient.getUser().getPartyUid().equalsIgnoreCase(apiCaller.getPartyUid())){
+		if (oAuthClient != null && oAuthClient.getUser().getPartyUid().equalsIgnoreCase(apiCaller.getPartyUid())) {
 			oAuthRepository.remove(oAuthClient);
 			oAuthRepository.flush();
 		}
@@ -189,35 +160,33 @@ public class OAuthServiceImpl extends ServerValidationUtils implements OAuthServ
 	public OAuthClient getOAuthClientByClientSecret(String clientSecret) throws Exception {
 		return oAuthRepository.findOAuthClientByclientSecret(clientSecret);
 	}
-	
-	
+
 	@Override
 	public ActionResponseDTO<OAuthClient> getOAuthClient(String clientUId) throws Exception {
-		OAuthClient oAuthClient = (OAuthClient) oAuthRepository.get(OAuthClient.class, clientUId);
+		OAuthClient oAuthClient = (OAuthClient) oAuthRepository.findOAuthClientByApiKey(clientUId);
 		final Errors errors = new BindException(OAuthClient.class, "oAuthClient");
 		rejectIfNull(oAuthClient, GL0056, "oAuthClient");
 		return new ActionResponseDTO<OAuthClient>(oAuthClient, errors);
 	}
-	@Override
-	public SearchResults<OAuthClient> listOAuthClientByOrganization(String organizationUId,
-			Integer offset, Integer limit, String grantType) throws Exception {
 
-		List<OAuthClient> oAuthClient = this.getOAuthRepository().listOAuthClientByOrganization(organizationUId,offset,limit, grantType);
+	@Override
+	public SearchResults<OAuthClient> listOAuthClientByOrganization(String organizationUId, Integer offset, Integer limit, String grantType) throws Exception {
+
+		List<OAuthClient> oAuthClient = this.getOAuthRepository().listOAuthClientByOrganization(organizationUId, offset, limit, grantType);
 		SearchResults<OAuthClient> result = new SearchResults<OAuthClient>();
 		result.setSearchResults(oAuthClient);
 		result.setTotalHitCount(this.getOAuthRepository().getOauthClientCount(organizationUId, grantType));
 		return result;
 
 	}
-	
-	
-    private static String getRandomString(int length) {
-        String randomStr = UUID.randomUUID().toString();
-        while(randomStr.length() < length) {
-            randomStr += UUID.randomUUID().toString();
-        }
-        return randomStr.substring(0, length);
-     }
+
+	private static String getRandomString(int length) {
+		String randomStr = UUID.randomUUID().toString();
+		while (randomStr.length() < length) {
+			randomStr += UUID.randomUUID().toString();
+		}
+		return randomStr.substring(0, length);
+	}
 
 	private Errors validateOAuthClient(OAuthClient oAuthClient) throws Exception {
 		final Errors errors = new BindException(oAuthClient, OAUTH_CLIENT);
@@ -225,6 +194,7 @@ public class OAuthServiceImpl extends ServerValidationUtils implements OAuthServ
 		rejectIfNull(errors, oAuthClient, "clientName", GL0056, generateErrorMessage(GL0056, "clientName"));
 		return errors;
 	}
+
 	@Override
 	public Boolean isSuperAdmin(User user) {
 		Boolean isSuperAdmin = false;
@@ -239,74 +209,33 @@ public class OAuthServiceImpl extends ServerValidationUtils implements OAuthServ
 
 		return isSuperAdmin;
 	}
-	@Override
-	public ActionResponseDTO<OAuthClient> createNewLTIClient(OAuthClient LTIClient) throws Exception {
-		Errors errors = validateOAuthClient(LTIClient);
-		if(!errors.hasErrors()){
-			LTIClient.setAccessTokenValiditySeconds(new Integer(86400));
-			LTIClient.setAuthorities(ROLE_CLIENT);
-			LTIClient.setGrantTypes(LTI);
-			LTIClient.setScopes(READ);
-			
-			if( LTIClient.getOrganization() != null && LTIClient.getOrganization().getOrganizationUid() !=null){
-				Organization organization = organizationRepository.getOrganizationByUid(LTIClient.getOrganization().getOrganizationUid());
-				LTIClient.setOrganization(organization);
-				if(LTIClient.getUserUid() != null) {
-					User user = userRepository.findByGooruId(LTIClient.getUserUid());
-					LTIClient.setUser(user);
-				}	
-				
-			}else{
-				if(LTIClient.getUserUid() != null) {
-					User user = userRepository.findByGooruId(LTIClient.getUserUid());
-					LTIClient.setUser(user);
-					LTIClient.setOrganization(user.getOrganization());
-				} 
-				
-				
-			}			
-			oAuthRepository.save(LTIClient);
-		}
-		return new ActionResponseDTO<OAuthClient>(LTIClient, errors);
-	}
+
 	
+
 	@Override
 	public ActionResponseDTO<OAuthClient> updateLTIClient(OAuthClient LTIClient, User apiCaller) {
 		rejectIfNull(LTIClient, GL0056, OAUTH_CLIENT);
-		OAuthClient exsitsLTIClient = (OAuthClient) oAuthRepository.get(OAuthClient.class, LTIClient.getOauthClientUId());
+		OAuthClient exsitsLTIClient = (OAuthClient) oAuthRepository.findOAuthClientByApiKey(LTIClient.getApplication().getKey());
 		rejectIfNull(exsitsLTIClient, GL0056, OAUTH_CLIENT);
-		
-		if(LTIClient.getClientId()!= null){
-			exsitsLTIClient.setClientId(LTIClient.getClientId());
-		}
-		if(LTIClient.getClientSecret() != null){
-			exsitsLTIClient.setClientSecret(LTIClient.getClientSecret());
-		}
-		if(LTIClient.getClientName() != null){
-			exsitsLTIClient.setClientName(LTIClient.getClientName());
-		}
-		if(LTIClient.getDescription() != null){
-			exsitsLTIClient.setDescription(LTIClient.getDescription());
-		}
-		if(LTIClient.getRedirectUris() != null){
-			exsitsLTIClient.setRedirectUris(LTIClient.getRedirectUris());
-		}
-		if (isSuperAdmin(apiCaller)) {
-			if(LTIClient.getClientId() != null){
-				exsitsLTIClient.setClientId(LTIClient.getClientId());
-			}
-			if(LTIClient.getClientSecret() != null){
-				exsitsLTIClient.setClientSecret(LTIClient.getClientSecret());
-			}
-			
+
+		if (LTIClient.getRedirectUrl() != null) {
+			exsitsLTIClient.setRedirectUrl(LTIClient.getRedirectUrl());
 		}
 		oAuthRepository.save(exsitsLTIClient);
 		final Errors errors = new BindException(OAuthClient.class, OAUTH_CLIENT);
 		return new ActionResponseDTO<OAuthClient>(exsitsLTIClient, errors);
 	}
-	
+
+	public CustomTableRepository getCustomTableRepository() {
+		return customTableRepository;
+	}
+
 	public OAuthRepository getOAuthRepository() {
 		return oAuthRepository;
+	}
+
+	public ApplicationRepository getApplicationRepository() {
+		return applicationRepository;
 	}
 
 }

@@ -334,8 +334,8 @@
 				<!--  Organization Setting -->
 				<value>org/ednovo/gooru/domain/model/organizationSetting/OrganizationSetting.hbm.xml</value>
 				
-				<!-- Oauth -->
-				<value>org/ednovo/gooru/domain/model/oauth/OAuthClient.hbm.xml</value>
+				<!-- Oauth 
+				<value>org/ednovo/gooru/domain/model/oauth/OAuthClient.hbm.xml</value>-->
 				
 				<value>org/ednovo/gooru/domain/model/user/OrganizationDomainAssoc.hbm.xml</value>
 				
