@@ -51,6 +51,5 @@ public interface OAuthService {
 	
 	public Boolean isSuperAdmin(User user);
 	
-	public ActionResponseDTO<OAuthClient> updateLTIClient(OAuthClient LTIClient, User apiCaller);
 
 }
