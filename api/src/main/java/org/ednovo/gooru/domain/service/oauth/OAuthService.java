@@ -51,8 +51,6 @@ public interface OAuthService {
 	
 	public Boolean isSuperAdmin(User user);
 	
-    public ActionResponseDTO<OAuthClient> createNewLTIClient(OAuthClient LTIClient,User apiCaller) throws Exception;
-	
 	public ActionResponseDTO<OAuthClient> updateLTIClient(OAuthClient LTIClient, User apiCaller);
 
 }

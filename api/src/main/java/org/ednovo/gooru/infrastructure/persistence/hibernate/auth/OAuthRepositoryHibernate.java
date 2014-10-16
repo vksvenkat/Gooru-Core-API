@@ -123,7 +123,7 @@ public class OAuthRepositoryHibernate extends BaseRepositoryHibernate implements
 	
 	@Override
 	public OAuthClient findOAuthClientByApiKey(String apiKey) {
-		String hql = " FROM OAuthClient oauthClient WHERE oauthClient.application.key=:apiKey";
+		String hql = " FROM OAuthClient oauthClient WHERE oauthClient.key=:apiKey";
 		Query query = getSession().createQuery(hql);
 		query.setParameter("apiKey", apiKey);
 		List<OAuthClient> results = (List<OAuthClient>) query.list();

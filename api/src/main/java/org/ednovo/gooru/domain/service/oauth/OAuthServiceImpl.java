@@ -128,10 +128,13 @@ public class OAuthServiceImpl extends ServerValidationUtils implements OAuthServ
 	@Override
 	public ActionResponseDTO<OAuthClient> updateOAuthClient(OAuthClient oAuthClient) {
 		rejectIfNull(oAuthClient, GL0056, "oAuthClient");
-		OAuthClient exsitsOAuthClient = (OAuthClient) oAuthRepository.findOAuthClientByApiKey(oAuthClient.getApplication().getKey());
+		OAuthClient exsitsOAuthClient = (OAuthClient) oAuthRepository.findOAuthClientByApiKey(oAuthClient.getKey());
 		rejectIfNull(exsitsOAuthClient, GL0056, "oAuthClient");
 		if (oAuthClient.getRedirectUrl() != null) {
 			exsitsOAuthClient.setRedirectUrl(oAuthClient.getRedirectUrl());
+		}
+		if (oAuthClient.getGrantTypes() != null) {
+			exsitsOAuthClient.setGrantTypes(oAuthClient.getGrantTypes());
 		}
 
 		oAuthRepository.save(exsitsOAuthClient);
@@ -207,37 +210,7 @@ public class OAuthServiceImpl extends ServerValidationUtils implements OAuthServ
 		return isSuperAdmin;
 	}
 
-	@Override
-	public ActionResponseDTO<OAuthClient> createNewLTIClient(OAuthClient LTIClient, User apiCaller) throws Exception {
-		Errors errors = validateOAuthClient(LTIClient);
-		if (!errors.hasErrors()) {
-			LTIClient.setGooruOid(UUID.randomUUID().toString());
-			LTIClient.setAccessTokenValiditySeconds(new Integer(86400));
-			LTIClient.setAuthorities(ROLE_CLIENT);
-			LTIClient.setGrantTypes(LTI);
-			LTIClient.setScopes(READ);
-			rejectIfNull(LTIClient.getApplication(), GL0006, "Application key ");
-			rejectIfNull(LTIClient.getApplication().getKey(), GL0006, "Application key ");
-			Application application = this.getApplicationRepository().getApplication(LTIClient.getApplication().getKey());
-			rejectIfNull(application, GL0007, "Application key ");
-			LTIClient.setApplication(application);
-			CustomTableValue status = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.APPLICATION_STATUS.getTable(), CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus());
-			LTIClient.setStatus(status);
-			LTIClient.setContentType((ContentType) this.getOAuthRepository().get(ContentType.class, RESOURCE));
-			LTIClient.setResourceType((ResourceType) this.getOAuthRepository().get(ResourceType.class, ResourceType.Type.APPLICATION.getType()));
-			LTIClient.setLastModified(new Date(System.currentTimeMillis()));
-			LTIClient.setCreatedOn(new Date(System.currentTimeMillis()));
-			LTIClient.setUser(apiCaller);
-			LTIClient.setOrganization(apiCaller.getPrimaryOrganization());
-			LTIClient.setIsFeatured(0);
-			LTIClient.setCreator(apiCaller);
-			LTIClient.setRecordSource(NOT_ADDED);
-			LTIClient.setLastUpdatedUserUid(apiCaller.getGooruUId());
-			LTIClient.setSharing(Sharing.PRIVATE.getSharing());
-			oAuthRepository.save(LTIClient);
-		}
-		return new ActionResponseDTO<OAuthClient>(LTIClient, errors);
-	}
+	
 
 	@Override
 	public ActionResponseDTO<OAuthClient> updateLTIClient(OAuthClient LTIClient, User apiCaller) {
