@@ -180,13 +180,6 @@ public class OAuthServiceImpl extends ServerValidationUtils implements OAuthServ
 
 	}
 
-	private static String getRandomString(int length) {
-		String randomStr = UUID.randomUUID().toString();
-		while (randomStr.length() < length) {
-			randomStr += UUID.randomUUID().toString();
-		}
-		return randomStr.substring(0, length);
-	}
 
 	private Errors validateOAuthClient(OAuthClient oAuthClient) throws Exception {
 		final Errors errors = new BindException(oAuthClient, OAUTH_CLIENT);
@@ -212,19 +205,6 @@ public class OAuthServiceImpl extends ServerValidationUtils implements OAuthServ
 
 	
 
-	@Override
-	public ActionResponseDTO<OAuthClient> updateLTIClient(OAuthClient LTIClient, User apiCaller) {
-		rejectIfNull(LTIClient, GL0056, OAUTH_CLIENT);
-		OAuthClient exsitsLTIClient = (OAuthClient) oAuthRepository.findOAuthClientByApiKey(LTIClient.getApplication().getKey());
-		rejectIfNull(exsitsLTIClient, GL0056, OAUTH_CLIENT);
-
-		if (LTIClient.getRedirectUrl() != null) {
-			exsitsLTIClient.setRedirectUrl(LTIClient.getRedirectUrl());
-		}
-		oAuthRepository.save(exsitsLTIClient);
-		final Errors errors = new BindException(OAuthClient.class, OAUTH_CLIENT);
-		return new ActionResponseDTO<OAuthClient>(exsitsLTIClient, errors);
-	}
 
 	public CustomTableRepository getCustomTableRepository() {
 		return customTableRepository;
