@@ -181,7 +181,7 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 				organizationSettingRepository.save(newOrganizationSetting);
 				application.setOrganization(newOrganization);
 				applicationService.createApplication(application, newOrgUser);
-				accountService.createSessionToken(newOrgUser, application.getApiKey(), request);
+				accountService.createSessionToken(newOrgUser, application.getKey(), request);
 
 			} catch (Exception e) {
 				LOGGER.debug("Error" + e);
