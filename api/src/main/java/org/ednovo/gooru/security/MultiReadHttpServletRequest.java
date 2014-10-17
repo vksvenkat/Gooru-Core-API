@@ -19,7 +19,6 @@ public class MultiReadHttpServletRequest extends HttpServletRequestWrapper {
 
 	public MultiReadHttpServletRequest(HttpServletRequest httpServletRequest) {
 		super(httpServletRequest);
-		if (httpServletRequest.getContentType() != null && (httpServletRequest.getContentType().equalsIgnoreCase(MediaType.APPLICATION_JSON.getName()) || httpServletRequest.getContentType().contains("text/"))) {
 			InputStream is = null;
 			try {
 				is = super.getInputStream();
@@ -29,7 +28,6 @@ public class MultiReadHttpServletRequest extends HttpServletRequestWrapper {
 				body = IOUtils.toByteArray(is);
 			} catch (IOException e) {
 			}
-		}
 	}
 
 	@Override
