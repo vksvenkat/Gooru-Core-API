@@ -1697,7 +1697,7 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 			File newImage = new File(newImageFile);
 			mediaImage.renameTo(newImage);
 			fileName = newImage.getName();
-			return resource.getOrganization().getNfsStorageArea().getAreaPath() + Constants.UPLOADED_MEDIA_FOLDER + "/" + fileName;
+			return newImageFile;
 		}
 	}
 
@@ -1714,7 +1714,7 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 				throw new BadRequestException("file not found");
 			}
 			String assetKey = StringUtils.left(assetKeyArr[i], assetKeyArr[i].indexOf("_"));
-			String fileName = assetKeyArr[i].split("_")[0];
+			String fileName = assetKeyArr[i].split("_")[1];
 			byte[] fileContent = FileUtils.readFileToByteArray(mediaImage);
 			if (fileContent.length > 0) {
 				AssessmentQuestionAssetAssoc questionAsset = null;
