@@ -99,27 +99,19 @@ public class ApplicationRestV2Controller extends BaseController implements Const
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_APPLICATION_READ })
 	@RequestMapping(method = RequestMethod.GET, value = "")
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public ModelAndView getApplications(HttpServletRequest request, HttpServletResponse response, @RequestParam(value = ORGANIZATION_UID, required = false) String organizationUid, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit) throws Exception {
+	public ModelAndView getApplications(HttpServletRequest request, HttpServletResponse response, @RequestParam(value = ORGANIZATION_UID, required = false) String organizationUid,@RequestParam(value = ID, required = false) String gooruUid, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit) throws Exception {
 		String includes[] = (String[]) ArrayUtils.addAll(APPLICATION_INCLUDES, ERROR_INCLUDE);
-		return toModelAndViewWithIoFilter(this.getApplicationService().getApplications(organizationUid, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
+		return toModelAndViewWithIoFilter(this.getApplicationService().getApplications(organizationUid,gooruUid, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_OAUTH_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	@RequestMapping(method = { RequestMethod.GET }, value = "/{apiKey}/client")
+	@RequestMapping(method = { RequestMethod.GET }, value = "/{apiKey}/oauth/client")
 	public ModelAndView getOAuthClientByApiKey(@PathVariable String apiKey, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		request.setAttribute(Constants.EVENT_PREDICATE, "oauthclient.read");
-		ActionResponseDTO<OAuthClient> responseDTO = oAuthService.getOAuthClient(apiKey);
-		if (responseDTO.getErrors().getErrorCount() > 0) {
-			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-		} else {
-			response.setStatus(HttpServletResponse.SC_OK);
-			// To capture activity log
-			SessionContextSupport.putLogParameter(EVENT_NAME, "OauthClient-Read");
-			SessionContextSupport.putLogParameter("OAuthClientId", responseDTO.getModel().getKey());
-		}
-		String [] includes = (String[]) ArrayUtils.addAll(ERROR_INCLUDE, OAUTH_CLIENT_INCLUDES);
-		return toModelAndViewWithIoFilter(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL,true, includes);
+		Application responseDTO = this.getApplicationService().getApplication(apiKey);
+		String [] includes = (String[]) ArrayUtils.addAll(APPLICATION_INCLUDES, OAUTH_CLIENT_INCLUDES);
+		return toModelAndViewWithIoFilter(responseDTO, RESPONSE_FORMAT_JSON, EXCLUDE_ALL,true, includes);
 	}
 		
 	
