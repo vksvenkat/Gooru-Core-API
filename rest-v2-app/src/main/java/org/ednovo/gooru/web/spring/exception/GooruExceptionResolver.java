@@ -88,12 +88,13 @@ public class GooruExceptionResolver extends SimpleMappingExceptionResolver {
 			errorObject = new ErrorObject(500, "Internal Server Error");
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			logger.info("Error in Resolver -- ", ex);
+			logger.info("input parameters --- " + getRequestInfo(request).toString());
 		}
-		logger.info("input parameters --- " + getRequestInfo(request).toString());
 
 		
 		if (!isLogError) {
 			logger.debug("Error in Resolver -- ", ex);
+			logger.debug("input parameters --- " + getRequestInfo(request).toString());
 		}
 		ModelAndView jsonModel = new ModelAndView("rest/model");
 		jsonModel.addObject("model", new JSONSerializer().exclude("*.class").serialize(errorObject));
