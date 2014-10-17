@@ -24,6 +24,8 @@
 
 package org.ednovo.gooru.controllers.v2.api;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -31,12 +33,15 @@ import org.apache.commons.lang.ArrayUtils;
 import org.ednovo.gooru.controllers.BaseController;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Application;
+import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.GooruOperationConstants;
 import org.ednovo.gooru.core.security.AuthorizeOperations;
+import org.ednovo.gooru.domain.model.oauth.OAuthClient;
 import org.ednovo.gooru.domain.service.apikey.ApplicationService;
+import org.ednovo.gooru.domain.service.oauth.OAuthService;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -55,6 +60,9 @@ public class ApplicationRestV2Controller extends BaseController implements Const
 
 	@Autowired
 	private ApplicationService applicationService;
+	
+	@Autowired
+	private OAuthService oAuthService;
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_APPLICATION_ADD })
 	@RequestMapping(method = RequestMethod.POST)
@@ -88,7 +96,6 @@ public class ApplicationRestV2Controller extends BaseController implements Const
 		return toModelAndViewWithIoFilter(this.getApplicationService().getApplication(id), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
 	
-	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_APPLICATION_READ })
 	@RequestMapping(method = RequestMethod.GET, value = "")
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -96,6 +103,26 @@ public class ApplicationRestV2Controller extends BaseController implements Const
 		String includes[] = (String[]) ArrayUtils.addAll(APPLICATION_INCLUDES, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(this.getApplicationService().getApplications(organizationUid, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
+	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_OAUTH_READ })
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(method = { RequestMethod.GET }, value = "/{apiKey}/client")
+	public ModelAndView getOAuthClientByApiKey(@PathVariable String apiKey, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		request.setAttribute(Constants.EVENT_PREDICATE, "oauthclient.read");
+		ActionResponseDTO<OAuthClient> responseDTO = oAuthService.getOAuthClient(apiKey);
+		if (responseDTO.getErrors().getErrorCount() > 0) {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+		} else {
+			response.setStatus(HttpServletResponse.SC_OK);
+			// To capture activity log
+			SessionContextSupport.putLogParameter(EVENT_NAME, "OauthClient-Read");
+			SessionContextSupport.putLogParameter("OAuthClientId", responseDTO.getModel().getKey());
+		}
+		String [] includes = (String[]) ArrayUtils.addAll(ERROR_INCLUDE, OAUTH_CLIENT_INCLUDES);
+		return toModelAndViewWithIoFilter(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL,true, includes);
+	}
+		
+	
 
 	public ApplicationService getApplicationService() {
 		return applicationService;
@@ -103,6 +130,10 @@ public class ApplicationRestV2Controller extends BaseController implements Const
 
 	private Application buildApplicationFromInputParameters(String data) {
 		return JsonDeserializer.deserialize(data, Application.class);
+	}
+	
+	public OAuthService getOAuthService() {
+		return oAuthService;
 	}
 
 }

@@ -340,7 +340,6 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 		return toModelAndView(serialize(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes));
 	}
 	
-
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ADD })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}/question" }, method = RequestMethod.POST)
@@ -403,7 +402,6 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 	public ModelAndView isAlreadyCopied(HttpServletRequest request, @PathVariable(value = ID) String gooruOid, HttpServletResponse resHttpServletResponse) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
 		ModelAndView jsonmodel = new ModelAndView(REST_MODEL);
-
 		return jsonmodel.addObject(MODEL, this.getCollectionService().resourceCopiedFrom(gooruOid, user.getGooruUId()));
 	}
 	
@@ -523,7 +521,6 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 		List<Map<String,String>> collection = buildUpdatesPublishStatusFromInputParameters(data);	
 		return toModelAndViewWithIoFilter(getCollectionService().updateCollectionForReject(collection, user), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, COLLECTION_INCLUDE_FIELDS);
 	}
-	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_DELETE})
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.DELETE, value = "/bulk")

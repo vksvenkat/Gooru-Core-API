@@ -5,7 +5,7 @@ public class Application extends Resource {
 
 	private static final long serialVersionUID = -2886634467039659836L;
 
-	private String apiKey;
+	private String key;
 	
 	private Integer searchLimit;
 	
@@ -19,9 +19,6 @@ public class Application extends Resource {
 	
 	private String ContactEmailId;
 
-	public String getKey() {
-		return getGooruOid();
-	}
 
 	public Integer getSearchLimit() {
 		return searchLimit;
@@ -63,14 +60,6 @@ public class Application extends Resource {
 		this.limit = limit;
 	}
 
-	public String getApiKey() {
-		return apiKey;
-	}
-
-	public void setApiKey(String apiKey) {
-		this.apiKey = apiKey;
-	}
-
 	public String getContactEmailId() {
 		return ContactEmailId;
 	}
@@ -78,5 +67,14 @@ public class Application extends Resource {
 	public void setContactEmailId(String contactEmailId) {
 		ContactEmailId = contactEmailId;
 	}
+
+	public String getKey() {
+		return key;
+	}
+
+	public void setKey(String key) {
+		this.key = key;
+	}
+
 
 }

@@ -52,7 +52,7 @@ public class ApplicationRepositoryHibernate extends BaseRepositoryHibernate impl
 
 	@Override
 	public Application getApplication(String apiKey) {
-		String hql = "FROM Application app WHERE app.apiKey=:apiKey";
+		String hql = "FROM Application app WHERE app.key=:apiKey";
 		Query query = getSession().createQuery(hql);
 		query.setParameter("apiKey", apiKey);
 		return (Application) (query.list().size() > 0 ? query.list().get(0) : null);
