@@ -154,29 +154,30 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		if (!errors.hasErrors()) {
 			AssessmentQuestion question = getAssessmentService().getQuestion(collectionItem.getResource().getGooruOid());
 			if (question != null) {
-				ActionResponseDTO<AssessmentQuestion> responseDTO = assessmentService.updateQuestion(newQuestion, deleteAssets, question.getGooruOid(), true, true);
-				if (responseDTO.getModel() != null) {
+				AssessmentQuestion assessmentQuestion = assessmentService.updateQuestion(newQuestion, deleteAssets, question.getGooruOid(), true, true).getModel();
+				if (assessmentQuestion != null) {
 					if (mediaFileName != null && mediaFileName.length() > 0) {
-						String questionImage = this.assessmentService.updateQuizQuestionImage(responseDTO.getModel().getGooruOid(), mediaFileName, question, ASSET_QUESTION);
+						String questionImage = this.assessmentService.updateQuizQuestionImage(assessmentQuestion.getGooruOid(), mediaFileName, question, ASSET_QUESTION);
 						if (questionImage != null && questionImage.length() > 0) {
 							if (ResourceImageUtil.getYoutubeVideoId(questionImage) != null || questionImage.contains(YOUTUBE_URL)) {
-								collectionItem.setQuestionInfo(this.assessmentService.updateQuestionVideoAssest(responseDTO.getModel().getGooruOid(), questionImage));
+								assessmentQuestion = this.assessmentService.updateQuestionVideoAssest(assessmentQuestion.getGooruOid(), questionImage);
 							} else {
-								collectionItem.setQuestionInfo(this.assessmentService.updateQuestionAssest(responseDTO.getModel().getGooruOid(), StringUtils.substringAfterLast(questionImage, "/")));
+								assessmentQuestion = this.assessmentService.updateQuestionAssest(assessmentQuestion.getGooruOid(), StringUtils.substringAfterLast(questionImage, "/"));
 							}
 						}
 					}
+					collectionItem.setQuestionInfo(assessmentQuestion);
 					if (newQuestion.getDepthOfKnowledges() != null && newQuestion.getDepthOfKnowledges().size() > 0) {
-						collectionItem.getResource().setDepthOfKnowledges(this.updateContentMeta(newQuestion.getDepthOfKnowledges(), responseDTO.getModel().getGooruOid(), user, DEPTH_OF_KNOWLEDGE));
+						collectionItem.getResource().setDepthOfKnowledges(this.updateContentMeta(newQuestion.getDepthOfKnowledges(), assessmentQuestion.getGooruOid(), user, DEPTH_OF_KNOWLEDGE));
 					} else {
-						collectionItem.getResource().setDepthOfKnowledges(this.setContentMetaAssociation(this.getContentMetaAssociation(DEPTH_OF_KNOWLEDGE), responseDTO.getModel().getGooruOid(), DEPTH_OF_KNOWLEDGE));
+						collectionItem.getResource().setDepthOfKnowledges(this.setContentMetaAssociation(this.getContentMetaAssociation(DEPTH_OF_KNOWLEDGE), assessmentQuestion.getGooruOid(), DEPTH_OF_KNOWLEDGE));
 					}
 					if (question.getEducationalUse() != null && question.getEducationalUse().size() > 0) {
-						collectionItem.getResource().setEducationalUse(this.updateContentMeta(question.getEducationalUse(), responseDTO.getModel().getGooruOid(), user, EDUCATIONAL_USE));
+						collectionItem.getResource().setEducationalUse(this.updateContentMeta(question.getEducationalUse(), assessmentQuestion.getGooruOid(), user, EDUCATIONAL_USE));
 					} else {
-						collectionItem.getResource().setEducationalUse(this.setContentMetaAssociation(this.getContentMetaAssociation(EDUCATIONAL_USE), responseDTO.getModel().getGooruOid(), EDUCATIONAL_USE));
+						collectionItem.getResource().setEducationalUse(this.setContentMetaAssociation(this.getContentMetaAssociation(EDUCATIONAL_USE), assessmentQuestion.getGooruOid(), EDUCATIONAL_USE));
 					}
-					collectionItem.setStandards(this.getStandards(responseDTO.getModel().getTaxonomySet(), false, null));
+					collectionItem.setStandards(this.getStandards(assessmentQuestion.getTaxonomySet(), false, null));
 				}
 				getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
 			}
