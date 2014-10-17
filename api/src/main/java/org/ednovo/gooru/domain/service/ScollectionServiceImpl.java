@@ -878,16 +878,18 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	public CollectionItem getCollectionItem(String collectionItemId, boolean includeAdditionalInfo, final User user, final String rootNodeId) {
 		CollectionItem collectionItem = this.getCollectionRepository().getCollectionItemById(collectionItemId);
 		rejectIfNull(collectionItem, GL0056, _COLLECTION_ITEM);
-		UserCollectionItemAssoc userCollectionItemAssoc = this.getCollectionRepository().getUserCollectionItemAssoc(collectionItemId, user.getPartyUid());
-		if (userCollectionItemAssoc != null) {
-			if (userCollectionItemAssoc.getStatus() != null) {
-				collectionItem.setStatus(userCollectionItemAssoc.getStatus().getValue());
-			}
+		if(user != null) {
+			UserCollectionItemAssoc userCollectionItemAssoc = this.getCollectionRepository().getUserCollectionItemAssoc(collectionItemId, user.getPartyUid());
+			if (userCollectionItemAssoc != null) {
+				if (userCollectionItemAssoc.getStatus() != null) {
+					collectionItem.setStatus(userCollectionItemAssoc.getStatus().getValue());
+				}
 			if (userCollectionItemAssoc.getMinimumScore() != null) {
 				collectionItem.setMinimumScoreByUser(userCollectionItemAssoc.getMinimumScore());
 			}
 			collectionItem.setAssignmentCompleted(userCollectionItemAssoc.getAssignmentCompleted());
 			collectionItem.setTimeStudying(userCollectionItemAssoc.getTimeStudying());
+		}
 		}
 		if (includeAdditionalInfo) {
 			collectionItem = this.setCollectionItemMoreData(collectionItem, rootNodeId);
