@@ -35,21 +35,6 @@ public class LtiRestV2Controller extends BaseController implements ConstantPrope
 	@Autowired
 	private OAuthService oAuthService;
 
-	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_OAUTH_ADD })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	@RequestMapping(method = { RequestMethod.POST }, value = "/client")
-	public ModelAndView createLTIClient(@RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
-
-		OAuthClient LTIClient = buildLTIClientFromInputParameters(data);
-		 ActionResponseDTO<OAuthClient> responseDTO = oAuthService.createNewLTIClient(LTIClient);
-		if (responseDTO.getErrors().getErrorCount() > 0) {
-			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-		} else {
-			response.setStatus(HttpServletResponse.SC_CREATED);		
-		}
-		String [] includes = (String[]) ArrayUtils.addAll(ERROR_INCLUDE, OAUTH_CLIENT_INCLUDES);
-		return toModelAndViewWithIoFilter(responseDTO.getModel(), RESPONSE_FORMAT_JSON, EXCLUDE,true, includes);
-	}
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_OAUTH_UPDATE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -58,7 +43,7 @@ public class LtiRestV2Controller extends BaseController implements ConstantPrope
 
 		User apiCaller = (User) request.getAttribute(Constants.USER);
 		OAuthClient LTIClient = buildLTIClientFromInputParameters(data); 
-		 ActionResponseDTO<OAuthClient> responseDTO = oAuthService.updateLTIClient(LTIClient,apiCaller);
+		 ActionResponseDTO<OAuthClient> responseDTO = oAuthService.updateOAuthClient(LTIClient);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		} else {

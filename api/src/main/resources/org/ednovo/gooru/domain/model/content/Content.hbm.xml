@@ -249,19 +249,45 @@
 					not-null="false" />
 			</joined-subclass>
 
-				<joined-subclass name="org.ednovo.gooru.core.api.model.Application"
-					table="application">
-					<key column="application_content_id" />
-					<property name="apiKey" column="api_key" not-null="true" />
-					<property name="limit" column="api_limit" not-null="false" />
-					<property name="searchLimit" column="search_limit" type="int"
+			<joined-subclass name="org.ednovo.gooru.core.api.model.Application"
+				table="application">
+				<key column="application_content_id" />
+				<property name="key" column="api_key" not-null="true" />
+				<property name="limit" column="api_limit" not-null="false" />
+				<property name="searchLimit" column="search_limit" type="int"
+					not-null="false" />
+				<property name="secretKey" column="secret_key" not-null="true" />
+				<many-to-one name="status"
+					class="org.ednovo.gooru.core.api.model.CustomTableValue" column="status_id"
+					not-null="true" lazy="proxy" cascade="none" />
+				<property name="comment" column="comment" not-null="false" />
+				<property name="contactEmailId" column="contact_email_id"
+					not-null="false" />
+				<joined-subclass name="org.ednovo.gooru.domain.model.oauth.OAuthClient"
+					table="oauth2_client" lazy="true">
+					<key column="oauth_content_id" />
+					<many-to-one name="application"
+						class="org.ednovo.gooru.core.api.model.Application" column="application_content_id"
+						not-null="false" lazy="proxy" cascade="none" />
+					
+
+					<property name="grantTypes" column="grant_types" not-null="true" />
+					
+					<property name="scopes" column="scopes" not-null="true" />
+
+					<property name="authorities" column="authorities"
+						not-null="true" />
+
+					<property name="accessTokenValiditySeconds" column="access_token_validity"
 						not-null="false" />
-					<property name="secretKey" column="secret_key" not-null="true" />
-					<many-to-one name="status"
-						class="org.ednovo.gooru.core.api.model.CustomTableValue" column="status_id"
-						not-null="true" lazy="proxy" cascade="none" />
-					<property name="comment" column="comment" not-null="false" />
+
+					<property name="refreshTokenValiditySeconds" column="refresh_token_validity"
+						not-null="false" />
+
+					<property name="redirectUrl" column="redirect_url"
+						not-null="false" />
 				</joined-subclass>
+			</joined-subclass>
 
 			<joined-subclass name="org.ednovo.gooru.core.api.model.Collection"
 				table="collection" lazy="true">
