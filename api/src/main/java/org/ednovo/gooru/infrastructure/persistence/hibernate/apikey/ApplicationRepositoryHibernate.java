@@ -44,6 +44,7 @@ public class ApplicationRepositoryHibernate extends BaseRepositoryHibernate impl
 		if (gooruUid != null) {
 			hql += " AND app.user.partyUid =:gooruUid";
 		}
+		hql += " ORDER BY app.lastModified desc";
 		Query query = getSession().createQuery(hql);
 		if (organizationUid != null) {
 			query.setParameter("partyUid", organizationUid);
