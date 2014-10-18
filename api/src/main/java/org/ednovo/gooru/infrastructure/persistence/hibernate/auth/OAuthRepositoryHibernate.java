@@ -132,5 +132,15 @@ public class OAuthRepositoryHibernate extends BaseRepositoryHibernate implements
 		}
 		return null;
 	}
+	public OAuthClient findOAuthClientByApplicationKey(String apiKey) {
+		String hql = " FROM OAuthClient oauthClient WHERE oauthClient.application.key=:apiKey";
+		Query query = getSession().createQuery(hql);
+		query.setParameter("apiKey", apiKey);
+		List<OAuthClient> results = (List<OAuthClient>) query.list();
+		if(results.size() > 0){
+			return results.get(0);
+		}
+		return null;
+	}
 
 }

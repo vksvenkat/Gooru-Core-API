@@ -109,9 +109,8 @@ public class ApplicationRestV2Controller extends BaseController implements Const
 	@RequestMapping(method = { RequestMethod.GET }, value = "/{apiKey}/oauth/client")
 	public ModelAndView getOAuthClientByApiKey(@PathVariable String apiKey, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		request.setAttribute(Constants.EVENT_PREDICATE, "oauthclient.read");
-		Application responseDTO = this.getApplicationService().getApplication(apiKey);
-		String [] includes = (String[]) ArrayUtils.addAll(APPLICATION_INCLUDES, OAUTH_CLIENT_INCLUDES);
-		return toModelAndViewWithIoFilter(responseDTO, RESPONSE_FORMAT_JSON, EXCLUDE_ALL,true, includes);
+		String [] includes = (String[]) ArrayUtils.addAll(OAUTH_CLIENT_INCLUDES, ERROR_INCLUDE);
+		return toModelAndViewWithIoFilter(oAuthService.getOAuthClientByApiKey(apiKey), RESPONSE_FORMAT_JSON, EXCLUDE_ALL,true, includes);
 	}
 		
 	

@@ -203,7 +203,10 @@ public class OAuthServiceImpl extends ServerValidationUtils implements OAuthServ
 		return isSuperAdmin;
 	}
 
-	
+	@Override
+	public OAuthClient getOAuthClientByApiKey(String apiKey) throws Exception {
+		return oAuthRepository.findOAuthClientByApplicationKey(apiKey);
+	}
 
 
 	public CustomTableRepository getCustomTableRepository() {
