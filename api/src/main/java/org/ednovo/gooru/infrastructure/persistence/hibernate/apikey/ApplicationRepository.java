@@ -34,7 +34,7 @@ public interface ApplicationRepository extends BaseRepository {
 	
 	List<Application> getApplications(String organizationUid,String gooruUid, Integer offset, Integer limit);
 
-	Long getApplicationCount(String organizationUid);
+	Long getApplicationCount(String organizationUid,String gooruUid);
 	
 	Application getApplicationByOrganization(String organizationUid);
 }

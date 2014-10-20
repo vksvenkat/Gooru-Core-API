@@ -130,7 +130,7 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 	public SearchResults<Application> getApplications(String organizationUid,String gooruUid, Integer limit, Integer offset) {
 		SearchResults<Application> result = new SearchResults<Application>();
 		result.setSearchResults(this.getApplicationRepository().getApplications(organizationUid,gooruUid, offset, limit));
-		result.setTotalHitCount(this.getApplicationRepository().getApplicationCount(organizationUid));
+		result.setTotalHitCount(this.getApplicationRepository().getApplicationCount(organizationUid, gooruUid));
 		return result;
 	}
 
