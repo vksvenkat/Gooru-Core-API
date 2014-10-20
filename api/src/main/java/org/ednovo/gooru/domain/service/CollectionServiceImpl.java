@@ -57,6 +57,7 @@ import org.ednovo.gooru.domain.service.eventlogs.CollectionEventLog;
 import org.ednovo.gooru.domain.service.redis.RedisService;
 import org.ednovo.gooru.domain.service.search.SearchResults;
 import org.ednovo.gooru.domain.service.user.UserService;
+import org.ednovo.gooru.infrastructure.mail.MailHandler;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.collaborator.CollaboratorRepository;
@@ -74,6 +75,9 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 
 	@Autowired
 	private CollectionRepository collectionRepository;
+	
+	@Autowired
+	private MailHandler mailHandler;
 	
 	@Autowired
 	private CollectionEventLog collectionEventLog;
@@ -150,29 +154,30 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		if (!errors.hasErrors()) {
 			AssessmentQuestion question = getAssessmentService().getQuestion(collectionItem.getResource().getGooruOid());
 			if (question != null) {
-				ActionResponseDTO<AssessmentQuestion> responseDTO = assessmentService.updateQuestion(newQuestion, deleteAssets, question.getGooruOid(), true, true);
-				if (responseDTO.getModel() != null) {
+				AssessmentQuestion assessmentQuestion = assessmentService.updateQuestion(newQuestion, deleteAssets, question.getGooruOid(), true, true).getModel();
+				if (assessmentQuestion != null) {
 					if (mediaFileName != null && mediaFileName.length() > 0) {
-						String questionImage = this.assessmentService.updateQuizQuestionImage(responseDTO.getModel().getGooruOid(), mediaFileName, question, ASSET_QUESTION);
+						String questionImage = this.assessmentService.updateQuizQuestionImage(assessmentQuestion.getGooruOid(), mediaFileName, question, ASSET_QUESTION);
 						if (questionImage != null && questionImage.length() > 0) {
 							if (ResourceImageUtil.getYoutubeVideoId(questionImage) != null || questionImage.contains(YOUTUBE_URL)) {
-								collectionItem.setQuestionInfo(this.assessmentService.updateQuestionVideoAssest(responseDTO.getModel().getGooruOid(), questionImage));
+								assessmentQuestion = this.assessmentService.updateQuestionVideoAssest(assessmentQuestion.getGooruOid(), questionImage);
 							} else {
-								collectionItem.setQuestionInfo(this.assessmentService.updateQuestionAssest(responseDTO.getModel().getGooruOid(), StringUtils.substringAfterLast(questionImage, "/")));
+								assessmentQuestion = this.assessmentService.updateQuestionAssest(assessmentQuestion.getGooruOid(), StringUtils.substringAfterLast(questionImage, "/"));
 							}
 						}
 					}
+					collectionItem.setQuestionInfo(assessmentQuestion);
 					if (newQuestion.getDepthOfKnowledges() != null && newQuestion.getDepthOfKnowledges().size() > 0) {
-						collectionItem.getResource().setDepthOfKnowledges(this.updateContentMeta(newQuestion.getDepthOfKnowledges(), responseDTO.getModel().getGooruOid(), user, DEPTH_OF_KNOWLEDGE));
+						collectionItem.getResource().setDepthOfKnowledges(this.updateContentMeta(newQuestion.getDepthOfKnowledges(), assessmentQuestion.getGooruOid(), user, DEPTH_OF_KNOWLEDGE));
 					} else {
-						collectionItem.getResource().setDepthOfKnowledges(this.setContentMetaAssociation(this.getContentMetaAssociation(DEPTH_OF_KNOWLEDGE), responseDTO.getModel().getGooruOid(), DEPTH_OF_KNOWLEDGE));
+						collectionItem.getResource().setDepthOfKnowledges(this.setContentMetaAssociation(this.getContentMetaAssociation(DEPTH_OF_KNOWLEDGE), assessmentQuestion.getGooruOid(), DEPTH_OF_KNOWLEDGE));
 					}
 					if (question.getEducationalUse() != null && question.getEducationalUse().size() > 0) {
-						collectionItem.getResource().setEducationalUse(this.updateContentMeta(question.getEducationalUse(), responseDTO.getModel().getGooruOid(), user, EDUCATIONAL_USE));
+						collectionItem.getResource().setEducationalUse(this.updateContentMeta(question.getEducationalUse(), assessmentQuestion.getGooruOid(), user, EDUCATIONAL_USE));
 					} else {
-						collectionItem.getResource().setEducationalUse(this.setContentMetaAssociation(this.getContentMetaAssociation(EDUCATIONAL_USE), responseDTO.getModel().getGooruOid(), EDUCATIONAL_USE));
+						collectionItem.getResource().setEducationalUse(this.setContentMetaAssociation(this.getContentMetaAssociation(EDUCATIONAL_USE), assessmentQuestion.getGooruOid(), EDUCATIONAL_USE));
 					}
-					collectionItem.setStandards(this.getStandards(responseDTO.getModel().getTaxonomySet(), false, null));
+					collectionItem.setStandards(this.getStandards(assessmentQuestion.getTaxonomySet(), false, null));
 				}
 				getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
 			}
@@ -712,8 +717,8 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 			if (userService.isSuperAdmin(user) || userService.isContentAdmin(user)) {
 				for (Collection scollection : collections) {
 					getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + scollection.getUser().getPartyUid() + "*");
-					if (scollection.getPublishStatus() != null && scollection.getPublishStatus().getValue().equalsIgnoreCase(PENDING)) {
-						scollection.setPublishStatus(this.getCustomTableRepository().getCustomTableValue(_PUBLISH_STATUS, REVIEWED));
+					if(scollection.getPublishStatus() != null && scollection.getPublishStatus().getValue().equalsIgnoreCase(PENDING)) {
+					    scollection.setPublishStatus(this.getCustomTableRepository().getCustomTableValue(_PUBLISH_STATUS, REVIEWED));
 						collectionIds.append(scollection.getGooruOid());
 						if (!scollection.getSharing().equalsIgnoreCase(PUBLIC)) {
 							UserSummary userSummary = this.getUserRepository().getSummaryByUid(scollection.getUser().getPartyUid());
@@ -730,16 +735,22 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 							updateFolderSharing(folderGooruOid);
 						}
 						updateResourceSharing(PUBLIC, scollection);
-
+						try {
+							String mailId=scollection.getUser().getIdentities().iterator().next().getExternalId();
+							this.getMailHandler().sendAdminPortalMail(PUBLISH_COLLECTION,mailId, scollection.getUser().getFirstName(),scollection.getTitle(),scollection.getGooruOid());
+						} catch(Exception e) {
+							
+						}
 						if (collectionIds.toString().trim().length() > 0) {
 							collectionIds.append(",");
 						}
-					} else {
+					else {
 						throw new BadRequestException(generateErrorMessage("GL0089"));
 					}
 				}
 
 			}
+		}
 			this.getCollectionRepository().saveAll(collections);
 			if (collectionIds.toString().trim().length() > 0) {
 				indexProcessor.index(collectionIds.toString(), IndexProcessor.INDEX, SCOLLECTION);
@@ -747,7 +758,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		}
 		return collections;
 
-	}
+}
 
 	@Override
 	public List<Collection> updateCollectionForReject(List<Map<String, String>> collection, User user) throws Exception {
@@ -848,5 +859,8 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		return collaboratorRepository;
 	}
 	
-	
+	public MailHandler getMailHandler() {
+		return mailHandler;
+	}
+
 }

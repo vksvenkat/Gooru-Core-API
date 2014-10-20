@@ -114,9 +114,7 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 			if(orgAdmin && adminOrganizationUid != null){
 				this.getUserManagementService().updateOrgAdminCustomField(adminOrganizationUid, user);
 			}
-			response.setStatus(HttpServletResponse.SC_CREATED);
-		
-
+       		response.setStatus(HttpServletResponse.SC_CREATED);
 			indexProcessor.index(user.getPartyUid(), IndexProcessor.INDEX, USER);
 		}
 
@@ -197,7 +195,6 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 		}
 		return toModelAndViewWithIoFilter(identity, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
-	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SESSION_CHECK })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/check-reset-token")

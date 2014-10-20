@@ -36,14 +36,23 @@ import org.springframework.stereotype.Repository;
 public class ApplicationRepositoryHibernate extends BaseRepositoryHibernate implements ApplicationRepository, ParameterProperties, ConstantProperties {
 
 	@Override
-	public List<Application> getApplications(String organizationUid, Integer offset, Integer limit) {
+	public List<Application> getApplications(String organizationUid,String gooruUid, Integer offset, Integer limit) {
 		String hql = "FROM Application app WHERE  1=1";
 		if (organizationUid != null) {
 			hql += " AND app.organization.partyUid =:partyUid";
 		}
+		if (gooruUid != null) {
+			hql += " AND app.user.partyUid =:gooruUid";
+		}
+		
+		hql += " AND app.title is not null";		
+		hql += " ORDER BY app.lastModified desc";
 		Query query = getSession().createQuery(hql);
 		if (organizationUid != null) {
 			query.setParameter("partyUid", organizationUid);
+		}
+		if (gooruUid != null) {
+			query.setParameter("gooruUid", gooruUid);
 		}
 		query.setFirstResult(offset);
 		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
@@ -52,7 +61,7 @@ public class ApplicationRepositoryHibernate extends BaseRepositoryHibernate impl
 
 	@Override
 	public Application getApplication(String apiKey) {
-		String hql = "FROM Application app WHERE app.apiKey=:apiKey";
+		String hql = "FROM Application app WHERE app.key=:apiKey";
 		Query query = getSession().createQuery(hql);
 		query.setParameter("apiKey", apiKey);
 		return (Application) (query.list().size() > 0 ? query.list().get(0) : null);

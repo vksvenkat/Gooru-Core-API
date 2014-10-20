@@ -39,7 +39,6 @@ import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.ResourceSummary;
 import org.ednovo.gooru.core.api.model.StandardFo;
 import org.ednovo.gooru.core.api.model.User;
-import org.json.JSONException;
 import org.springframework.util.MultiValueMap;
 
 /**

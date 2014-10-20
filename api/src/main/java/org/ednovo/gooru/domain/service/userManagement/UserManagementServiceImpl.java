@@ -217,7 +217,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	@Override
 	public Profile getUserProfile(String gooruUid, Integer activeFlag) {
 		User user = this.findByGooruId(gooruUid);
-		if (user == null || user.getGooruUId().equalsIgnoreCase(ANONYMOUS)) {
+		if (user == null || user.getGooruUId().contains(ANONYMOUS)) {
 			throw new BadRequestException(generateErrorMessage(GL0056, USER));
 		}
 		Profile profile = this.getUserRepository().getProfile(user, false);
@@ -994,10 +994,10 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		if (user == null) {
 			throw new BadRequestException(generateErrorMessage("GL0056","User"));
 		}
-		if (user != null && !user.getGooruUId().equalsIgnoreCase(ANONYMOUS)) {
+		if (user != null && !user.getGooruUId().contains(ANONYMOUS)) {
 			user.setMeta(userMeta(user));
 		}
-		if (user != null && !user.getGooruUId().equalsIgnoreCase(ANONYMOUS)) {
+		if (user != null && !user.getGooruUId().contains(ANONYMOUS)) {
 			if (user.getAccountTypeId() != null && user.getAccountTypeId().equals(UserAccountType.ACCOUNT_CHILD)) {
 				if (user.getParentUser().getIdentities() != null) {
 					user.setEmailId(user.getParentUser().getIdentities().iterator().next().getExternalId());
@@ -1025,7 +1025,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	@Override
 	public User resetPasswordRequest(String emailId, String gooruBaseUrl, User apicaller, String mailConfirmationUrl) throws Exception {
 		Identity identity = new Identity();
-		if (apicaller != null && !apicaller.getGooruUId().equalsIgnoreCase(Constants.ANONYMOUS)) {
+		if (apicaller != null && !apicaller.getGooruUId().contains(Constants.ANONYMOUS)) {
 			identity = this.findUserByGooruId(apicaller.getGooruUId());
 		} else {
 			identity = this.getUserRepository().findByEmailIdOrUserName(emailId, true, false);

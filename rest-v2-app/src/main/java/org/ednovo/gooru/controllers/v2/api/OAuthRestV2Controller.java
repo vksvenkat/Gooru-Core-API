@@ -65,19 +65,17 @@ public class OAuthRestV2Controller extends BaseController implements ConstantPro
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_OAUTH_ADD })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.POST }, value = "/client")
-	public ModelAndView createOAuthClient(@RequestBody String data,@RequestParam (required = false)String organizationUid, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		request.setAttribute(Constants.EVENT_PREDICATE, "oauthclient.create");
-		JSONObject json = requestData(data);
-		OAuthClient oAuthClient = buildOAuthClientFromInputParameters(getValue("oauthClient", json));
-		ActionResponseDTO<OAuthClient> responseDTO = null;
-		responseDTO = oAuthService.createNewOAuthClient(oAuthClient,organizationUid);
+	public ModelAndView createOAuthClient(@RequestBody String data,  HttpServletRequest request, HttpServletResponse response) throws Exception {
+		
+		User user = (User) request.getAttribute(Constants.USER);
+		ActionResponseDTO<OAuthClient> responseDTO = getOAuthService().createOAuthClient(buildOAuthClientFromInputParameters(data), user);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		} else {
 			response.setStatus(HttpServletResponse.SC_CREATED);
 			// To capture activity log
 			SessionContextSupport.putLogParameter(EVENT_NAME, "OauthClient-Register");
-			SessionContextSupport.putLogParameter("OAuthClientId", responseDTO.getModel().getOauthClientUId());
+			SessionContextSupport.putLogParameter("OAuthClientId", responseDTO.getModel().getKey());
 		}
 		String [] includes = (String[]) ArrayUtils.addAll(ERROR_INCLUDE, OAUTH_CLIENT_INCLUDES);
 		return toModelAndView(serialize(responseDTO.getModel(), RESPONSE_FORMAT_JSON, EXCLUDE, includes));
@@ -91,15 +89,14 @@ public class OAuthRestV2Controller extends BaseController implements ConstantPro
 		User apiCaller = (User) request.getAttribute(Constants.USER);
 		JSONObject json = requestData(data);
 		OAuthClient oAuthClient = buildOAuthClientFromInputParameters(getValue("oauthClient", json));
-		ActionResponseDTO<OAuthClient> responseDTO = null;
-		responseDTO = oAuthService.updateOAuthClient(oAuthClient,apiCaller);
+		ActionResponseDTO<OAuthClient> responseDTO = oAuthService.updateOAuthClient(oAuthClient);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		} else {
 			response.setStatus(HttpServletResponse.SC_OK);
 			// To capture activity log
 			SessionContextSupport.putLogParameter(EVENT_NAME, "OauthClient-Update");
-			SessionContextSupport.putLogParameter("OAuthClientId", responseDTO.getModel().getOauthClientUId());
+			SessionContextSupport.putLogParameter("OAuthClientId", responseDTO.getModel().getKey());
 		}
 		String [] includes = (String[]) ArrayUtils.addAll(ERROR_INCLUDE, OAUTH_CLIENT_INCLUDES);
 
@@ -108,18 +105,17 @@ public class OAuthRestV2Controller extends BaseController implements ConstantPro
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_OAUTH_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	@RequestMapping(method = { RequestMethod.GET }, value = "/client/{clientUId}")
-	public ModelAndView getOAuthClient(@PathVariable String clientUId, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	@RequestMapping(method = { RequestMethod.GET }, value = "/client/{oauthKey}")
+	public ModelAndView getOAuthClient(@PathVariable String oauthKey, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		request.setAttribute(Constants.EVENT_PREDICATE, "oauthclient.read");
-		ActionResponseDTO<OAuthClient> responseDTO = null;
-		responseDTO = oAuthService.getOAuthClient(clientUId);
+		ActionResponseDTO<OAuthClient> responseDTO = oAuthService.getOAuthClient(oauthKey);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		} else {
 			response.setStatus(HttpServletResponse.SC_OK);
 			// To capture activity log
 			SessionContextSupport.putLogParameter(EVENT_NAME, "OauthClient-Read");
-			SessionContextSupport.putLogParameter("OAuthClientId", responseDTO.getModel().getOauthClientUId());
+			SessionContextSupport.putLogParameter("OAuthClientId", responseDTO.getModel().getKey());
 		}
 		String [] includes = (String[]) ArrayUtils.addAll(ERROR_INCLUDE, OAUTH_CLIENT_INCLUDES);
 		return toModelAndView(serialize(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, includes));
@@ -171,5 +167,6 @@ public class OAuthRestV2Controller extends BaseController implements ConstantPro
 	public OAuthService getOAuthService() {
 		return oAuthService;
 	}
+
 
 }

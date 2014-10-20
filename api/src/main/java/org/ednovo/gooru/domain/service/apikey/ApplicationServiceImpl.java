@@ -64,7 +64,7 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 		if (!errors.hasErrors()) {
 			application.setGooruOid(UUID.randomUUID().toString());
 			application.setSecretKey(UUID.randomUUID().toString().replaceAll("-", ""));
-			application.setApiKey(UUID.randomUUID().toString().replaceAll("-", ""));
+			application.setKey(UUID.randomUUID().toString().replaceAll("-", ""));
 			if (application.getStatus() != null && application.getStatus().getValue() != null) {
 				CustomTableValue status = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.APPLICATION_STATUS.getTable(), application.getStatus().getValue());
 				rejectIfNull(status, GL0007, " application status ");
@@ -105,6 +105,12 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 		if (newapplication.getUrl() != null) {
 			application.setUrl(newapplication.getUrl());
 		}
+		if (newapplication.getComment() != null) {
+			application.setComment(newapplication.getComment());
+		}
+		if (newapplication.getContactEmailId() != null) {
+			application.setContactEmailId(newapplication.getContactEmailId());
+		}
 
 		if (newapplication.getStatus() != null && newapplication.getStatus().getValue() != null) {
 			CustomTableValue status = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.APPLICATION_STATUS.getTable(), application.getStatus().getValue());
@@ -121,9 +127,9 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 	}
 
 	@Override
-	public SearchResults<Application> getApplications(String organizationUid, Integer limit, Integer offset) {
+	public SearchResults<Application> getApplications(String organizationUid,String gooruUid, Integer limit, Integer offset) {
 		SearchResults<Application> result = new SearchResults<Application>();
-		result.setSearchResults(this.getApplicationRepository().getApplications(organizationUid, offset, limit));
+		result.setSearchResults(this.getApplicationRepository().getApplications(organizationUid,gooruUid, offset, limit));
 		result.setTotalHitCount(this.getApplicationRepository().getApplicationCount(organizationUid));
 		return result;
 	}

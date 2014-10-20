@@ -497,13 +497,14 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 		paramMap.put("password", getConfigSetting(ConfigConstants.MAIL_PASSWORD, TaxonomyUtil.GOORU_ORG_UID));
 		paramMap.put("host", getConfigSetting(ConfigConstants.MAIL_SMTP_HOST, TaxonomyUtil.GOORU_ORG_UID));
 		paramMap.put("port", getConfigSetting(ConfigConstants.MAIL_SMTP_PORT, TaxonomyUtil.GOORU_ORG_UID));
-		// paramMap.put("port", "587");
+		paramMap.put("port", "587");
 		try {
 			paramMap.put("signature", new GooruMd5Util().signURLForClient(url, paramMap, SECRET_KEY, expires));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		JSONObject json = new JSONObject(paramMap);
+		//System.out.println(settingService.getConfigSetting(ConfigConstants.GOORU_MAIL_RESTPOINT, 0, TaxonomyUtil.GOORU_ORG_UID));
 		ClientResource clientResource = new ClientResource((settingService.getConfigSetting(ConfigConstants.GOORU_MAIL_RESTPOINT, 0, TaxonomyUtil.GOORU_ORG_UID) + "send-mail"));
 		clientResource.post(json.toString());
 	}
@@ -637,7 +638,26 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 			}
 		}
 	}
-
+	public void sendAdminPortalMail(String eventType, String mailId,String firstName,String title,String gooruOid) {
+        final String serverpath = this.getServerConstants().getProperty("serverPath");
+			EventMapping eventMapping = this.getEventService().getTemplatesByEventName(eventType);
+				Map<String, Object> map = eventMapData(eventMapping);
+                    map.put("serverpath",serverpath);
+				    map.put(_FIRST_NAME,firstName);
+				    map.put(TITLE,title);
+				    map.put(GOORU_OID, gooruOid);
+				    map.put(HTMLCONTENT, generateMessage((String) map.get(HTMLCONTENT), map));
+					map.put(CONTENT, generateMessage((String) map.get(TEXTCONTENT), map));
+				    map.put(RECIPIENT, mailId);
+					map.put(SEND_RECIPIENT, true);
+					map.put(SUBJECT, eventMapping.getTemplate().getSubject());
+					map.put(FROM_ADDRESS, getConfigSetting(ConfigConstants.MAIL_FROM, TaxonomyUtil.GOORU_ORG_UID));
+					map.put(BCC, getConfigSetting(ConfigConstants.MAIL_BCC_SUPPORT, TaxonomyUtil.GOORU_ORG_UID));
+					map.put(FROMNAME, FROM);
+					sendMailViaRestApi(map);	
+		}
+	
+	
 	public void sendEmailNotificationforComment(Map<String, String> commentData) {
 
 		final String serverpath = this.getServerConstants().getProperty("serverPath");
@@ -645,7 +665,6 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 		String collectionId = commentData.get("collectionId");
 		Identity identity = null;
 		EventMapping eventMapping = null;
-
 		Map<String, Object> map = new HashMap<String, Object>();
 		Collection collection = this.getCollectionRepository().getCollectionByGooruOid(collectionId, null);
 		if (serverpath != null) {
@@ -695,7 +714,6 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 				map.put("username",content.getUser().getUsername() );
 			}
 			map.put("collection-id", content.getGooruOid());
-			
 			map.put("recipient", collaboratorData.get("emailId"));
 			map.put("htmlContent", generateMessage((String) map.get("htmlContent"), map));
 			map.put("content", generateMessage((String) map.get("textContent"), map));

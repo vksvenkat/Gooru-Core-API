@@ -316,16 +316,14 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	
 	@Override
 	public Resource setContentProvider(String gooruOid) {
-		Resource resource = this.getResourceRepository().findResourceByContentGooruId(gooruOid);
-		if(resource == null) {
-			return null;
-		}
+		Resource resource = this.getResourceRepository().findResourceByContent(gooruOid);
+		rejectIfNull(resource, GL0056, RESOURCE);
 		return setContentProvider(resource);
 	}
 	
 	@Override
 	public Resource setContentProvider(Resource resource) {
-		List<ContentProviderAssociation> contentProviderAssociations = this.getContentRepository().getContentProviderByGooruOid(resource.getGooruOid(),null);
+		List<ContentProviderAssociation> contentProviderAssociations = this.getContentRepository().getContentProviderByGooruOid(resource.getGooruOid(),null,null);
 		if (contentProviderAssociations != null) {
 			List<String> aggregator = new ArrayList<String>();
 			List<String> publisher = new ArrayList<String>();
@@ -2620,6 +2618,9 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			if(newResource.getAggregator() != null && newResource.getAggregator().size() > 0) {
 				newResource.setAggregator(updateContentProvider(resource.getGooruOid(), newResource.getAggregator(), user, CustomProperties.ContentProviderType.AGGREGATOR.getContentProviderType()));
 			}
+			if(newResource.getHost() != null && newResource.getHost().size() > 0) {
+				resource.setHost(updateContentProvider(resource.getGooruOid(), newResource.getHost(), user, CustomProperties.ContentProviderType.HOST.getContentProviderType()));
+			}
 			ResourceInfo resourceInfo = new ResourceInfo();
 			String tags = newResource.getTags();
 			resourceInfo.setTags(tags);
@@ -2739,13 +2740,13 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			}
 			
 			if(newResource.getPublisher() != null && newResource.getPublisher().size() > 0) {
-				resource.setPublisher(updateContentProvider(resource.getGooruOid(), newResource.getPublisher(), user, CustomProperties.ContentProviderType.PUBLISHER.getContentProviderType()));
+				updateContentProvider(resource.getGooruOid(), newResource.getPublisher(), user, CustomProperties.ContentProviderType.PUBLISHER.getContentProviderType());
 			}
 			if(newResource.getAggregator() != null && newResource.getAggregator().size() > 0) {
-				resource.setAggregator(updateContentProvider(resource.getGooruOid(), newResource.getAggregator(), user, CustomProperties.ContentProviderType.AGGREGATOR.getContentProviderType()));
-			}
+				updateContentProvider(resource.getGooruOid(), newResource.getAggregator(), user, CustomProperties.ContentProviderType.AGGREGATOR.getContentProviderType());
+			} 
 			if(newResource.getHost() != null && newResource.getHost().size() > 0) {
-				resource.setHost(updateContentProvider(resource.getGooruOid(), newResource.getHost(), user, "host"));
+				updateContentProvider(resource.getGooruOid(), newResource.getHost(), user, CustomProperties.ContentProviderType.HOST.getContentProviderType());
 			}
 			
 			if(resourceTags != null && resourceTags.size() > 0) {
@@ -2772,7 +2773,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			if (newResource.getThumbnail() != null) {
 				this.getResourceImageUtil().downloadAndSendMsgToGenerateThumbnails(resource, newResource.getThumbnail());
 			}
-
+			setContentProvider(resource);
 			if (newResource.getTags() != null && !newResource.getTags().isEmpty()) {
 				ResourceInfo resourceInfo = resourceRepository.findResourceInfo(resourceId);
 				if (resourceInfo == null) {
@@ -2815,7 +2816,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				this.getContentRepository().save(contentProvider);
 				this.getContentRepository().flush();
 			}
-			List<ContentProviderAssociation> contentProviderAssociationList = this.getContentRepository().getContentProviderByGooruOid(gooruOid, null);
+			List<ContentProviderAssociation> contentProviderAssociationList = this.getContentRepository().getContentProviderByGooruOid(gooruOid, null,providerType);
 
 			if (contentProviderAssociationList.size() > 0) {
 				this.getContentRepository().removeAll(contentProviderAssociationList);
