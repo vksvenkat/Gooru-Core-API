@@ -67,14 +67,20 @@ public class ApplicationRepositoryHibernate extends BaseRepositoryHibernate impl
 		return (Application) (query.list().size() > 0 ? query.list().get(0) : null);
 	}
 
-	public Long getApplicationCount(String organizationUid) {
+	public Long getApplicationCount(String organizationUid , String gooruUid) {
 		String hql = "SELECT count(*) FROM Application app WHERE 1=1";
 		if (organizationUid != null)  {
 			hql += " AND app.organization.partyUid =:organizationUid";
 		}
+		if (gooruUid != null) {
+			hql += " AND app.user.partyUid =:gooruUid";
+		}
 		Query query = getSession().createQuery(hql);
 		if (organizationUid != null)  {
 			query.setParameter("organizationUid", organizationUid);
+		}
+		if (gooruUid != null)  {
+			query.setParameter("gooruUid", gooruUid);
 		}
 		return (Long) query.list().get(0);
 	}
