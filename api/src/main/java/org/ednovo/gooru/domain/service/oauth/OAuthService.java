@@ -43,7 +43,7 @@ public interface OAuthService {
 
 	public void deleteOAuthClient(String clientUId, User apiCaller) throws Exception;
 
-	public ActionResponseDTO<OAuthClient> getOAuthClient(String clientUId) throws Exception;
+	public ActionResponseDTO<OAuthClient> getOAuthClient(String oauthKey) throws Exception;
 	
 	public OAuthClient getOAuthClientByClientSecret(String clientSecret) throws Exception;
 	
@@ -51,5 +51,5 @@ public interface OAuthService {
 	
 	public Boolean isSuperAdmin(User user);
 	
-
+	public OAuthClient getOAuthClientByApiKey(String apiKey) throws Exception ;
 }

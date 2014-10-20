@@ -357,7 +357,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 		}
 
 		if (sessionToken == null) {
-			sessionToken = this.getUserManagementService().createSessionToken(userIdentity, request.getSession().getId(), this.getApplicationRepository().getApplicationByOrganization(apiKey));
+			sessionToken = this.getUserManagementService().createSessionToken(userIdentity, request.getSession().getId(), this.getApplicationRepository().getApplication(apiKey));
 		}
 		request.getSession().setAttribute(Constants.SESSION_TOKEN, sessionToken.getToken());
 		try {

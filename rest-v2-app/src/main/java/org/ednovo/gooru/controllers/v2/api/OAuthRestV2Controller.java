@@ -105,10 +105,10 @@ public class OAuthRestV2Controller extends BaseController implements ConstantPro
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_OAUTH_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	@RequestMapping(method = { RequestMethod.GET }, value = "/client/{apiKey}")
-	public ModelAndView getOAuthClient(@PathVariable String apiKey, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	@RequestMapping(method = { RequestMethod.GET }, value = "/client/{oauthKey}")
+	public ModelAndView getOAuthClient(@PathVariable String oauthKey, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		request.setAttribute(Constants.EVENT_PREDICATE, "oauthclient.read");
-		ActionResponseDTO<OAuthClient> responseDTO = oAuthService.getOAuthClient(apiKey);
+		ActionResponseDTO<OAuthClient> responseDTO = oAuthService.getOAuthClient(oauthKey);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		} else {

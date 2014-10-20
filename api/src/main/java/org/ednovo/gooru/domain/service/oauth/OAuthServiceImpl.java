@@ -128,7 +128,7 @@ public class OAuthServiceImpl extends ServerValidationUtils implements OAuthServ
 	@Override
 	public ActionResponseDTO<OAuthClient> updateOAuthClient(OAuthClient oAuthClient) {
 		rejectIfNull(oAuthClient, GL0056, "oAuthClient");
-		OAuthClient exsitsOAuthClient = (OAuthClient) oAuthRepository.findOAuthClientByApiKey(oAuthClient.getKey());
+		OAuthClient exsitsOAuthClient = (OAuthClient) oAuthRepository.findOAuthClientByOauthKey(oAuthClient.getKey());
 		rejectIfNull(exsitsOAuthClient, GL0056, "oAuthClient");
 		if (oAuthClient.getRedirectUrl() != null) {
 			exsitsOAuthClient.setRedirectUrl(oAuthClient.getRedirectUrl());
@@ -162,8 +162,8 @@ public class OAuthServiceImpl extends ServerValidationUtils implements OAuthServ
 	}
 
 	@Override
-	public ActionResponseDTO<OAuthClient> getOAuthClient(String clientUId) throws Exception {
-		OAuthClient oAuthClient = (OAuthClient) oAuthRepository.findOAuthClientByApiKey(clientUId);
+	public ActionResponseDTO<OAuthClient> getOAuthClient(String oauthKey) throws Exception {
+		OAuthClient oAuthClient = (OAuthClient) oAuthRepository.findOAuthClientByOauthKey(oauthKey);
 		final Errors errors = new BindException(OAuthClient.class, "oAuthClient");
 		rejectIfNull(oAuthClient, GL0056, "oAuthClient");
 		return new ActionResponseDTO<OAuthClient>(oAuthClient, errors);
@@ -203,7 +203,10 @@ public class OAuthServiceImpl extends ServerValidationUtils implements OAuthServ
 		return isSuperAdmin;
 	}
 
-	
+	@Override
+	public OAuthClient getOAuthClientByApiKey(String apiKey) throws Exception {
+		return oAuthRepository.findOAuthClientByApplicationKey(apiKey);
+	}
 
 
 	public CustomTableRepository getCustomTableRepository() {
