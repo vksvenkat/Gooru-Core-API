@@ -18,6 +18,8 @@ public class Application extends Resource {
 	private String comment;
 	
 	private String ContactEmailId;
+	
+	private CustomTableValue type;
 
 
 	public Integer getSearchLimit() {
@@ -74,6 +76,14 @@ public class Application extends Resource {
 
 	public void setKey(String key) {
 		this.key = key;
+	}
+
+	public CustomTableValue getType() {
+		return type;
+	}
+
+	public void setType(CustomTableValue type) {
+		this.type = type;
 	}
 
 

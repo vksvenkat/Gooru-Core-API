@@ -9,7 +9,7 @@ public class CustomProperties implements Serializable {
 	public static enum Table {
 		FEEDBACK_RATING_TYPE("feedback_rating_type"), FEEDBACK_REPORT_CONTENT_TYPE("feedback_report_content_type"), FEEDBACK_REPORT_USER_TYPE("feedback_report_user_type"), FEEDBACK_OTHER_TYPE("feedback_other_type"), TARGET("target"), FEEDBACK_CATEGORY("feedback_category"), COMMNET_STATUS(
 				"comment_status"), TAG_STATUS("tag_status"), TAG_TYPE("tag_type"), POST_TYPE("post_type"), POST_STATUS("post_status"), USER_CLASSIFICATION_TYPE("user_classification_type"), FEEDBACK_REACTION("feedback_reaction"), EVENT_STATUS("event_status"), THEME_TYPE("theme_type"), PRODUCT_TYPE(
-				"product_type"), BUILD_TYPE("build_type"), CONTENT_STATUS_TYPE("content_status_type"), ORGANIZATION_TYPE("organization_type"), APPLICATION_STATUS("application_status"), ASSIGNMENT_STATUS_TYPE("assignment_status_type"), ORGANIZATION_CATEGORY("organization_category");
+				"product_type"), BUILD_TYPE("build_type"), CONTENT_STATUS_TYPE("content_status_type"), ORGANIZATION_TYPE("organization_type"), APPLICATION_STATUS("application_status"), ASSIGNMENT_STATUS_TYPE("assignment_status_type"), ORGANIZATION_CATEGORY("organization_category"),APPLICATION_TYPE("application_type");
 		private String table;
 
 		Table(String table) {
@@ -230,6 +230,19 @@ public class CustomProperties implements Serializable {
 
 		public String getInstitutionType() {
 			return this.institutionType;
+		}
+	}
+	public static enum ApplicationType {
+		APIKEY("api_key"),OAUTH("oauth"), LTI("lti");
+		
+		private String applicationType;
+
+		ApplicationType(String applicationType) {
+			this.applicationType = applicationType;
+		}
+
+		public String getApplicationType() {
+			return this.applicationType;
 		}
 	}
 

@@ -260,6 +260,9 @@
 				<many-to-one name="status"
 					class="org.ednovo.gooru.core.api.model.CustomTableValue" column="status_id"
 					not-null="true" lazy="proxy" cascade="none" />
+				<many-to-one name="type"
+					class="org.ednovo.gooru.core.api.model.CustomTableValue" column="application_type"
+					not-null="true" lazy="proxy" cascade="none" />
 				<property name="comment" column="comment" not-null="false" />
 				<property name="contactEmailId" column="contact_email_id"
 					not-null="false" />
