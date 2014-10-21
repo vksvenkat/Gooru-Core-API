@@ -91,15 +91,19 @@ public class OAuthServiceImpl extends ServerValidationUtils implements OAuthServ
 		if (!errors.hasErrors()) {
 			oAuthClient.setGooruOid(UUID.randomUUID().toString());
 			oAuthClient.setAccessTokenValiditySeconds(new Integer(86400));
-			oAuthClient.setAuthorities("ROLE_CLIENT");
+			oAuthClient.setAuthorities(ROLE_CLIENT);
 			if (oAuthClient.getSecretKey() == null) {
 				oAuthClient.setSecretKey(UUID.randomUUID().toString().replaceAll("-", ""));
 			}
 			if (oAuthClient.getKey() == null) {
-				oAuthClient.setKey(UUID.randomUUID().toString().replaceAll("-", ""));
+				oAuthClient.setKey(UUID.randomUUID().toString().replaceAll("-", ""));				
 			}
 			if (oAuthClient.getGrantTypes() == null) {
 				oAuthClient.setGrantTypes(AuthorizationGrantType.AUTHORIZATION_CODE.getAuthorizationGrantType() + "," + AuthorizationGrantType.REFRESH_TOKEN.getAuthorizationGrantType() + "," + AuthorizationGrantType.CLIENT_CREDENTIALS.getAuthorizationGrantType());
+				oAuthClient.setResourceType((ResourceType) this.getOAuthRepository().get(ResourceType.class, ResourceType.Type.OAUTH.getType()));
+			}else{
+				oAuthClient.setGrantTypes(LTI);
+				oAuthClient.setResourceType((ResourceType) this.getOAuthRepository().get(ResourceType.class, ResourceType.Type.LTI.getType()));
 			}
 			rejectIfNull(oAuthClient.getApplication(), GL0006, "Application key ");
 			rejectIfNull(oAuthClient.getApplication().getKey(), GL0006, "Application key ");
@@ -108,9 +112,9 @@ public class OAuthServiceImpl extends ServerValidationUtils implements OAuthServ
 			oAuthClient.setApplication(application);
 			CustomTableValue status = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.APPLICATION_STATUS.getTable(), CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus());
 			oAuthClient.setStatus(status);
-			oAuthClient.setScopes("read");
+			oAuthClient.setScopes(READ);
 			oAuthClient.setContentType((ContentType) this.getOAuthRepository().get(ContentType.class, RESOURCE));
-			oAuthClient.setResourceType((ResourceType) this.getOAuthRepository().get(ResourceType.class, ResourceType.Type.APPLICATION.getType()));
+			
 			oAuthClient.setLastModified(new Date(System.currentTimeMillis()));
 			oAuthClient.setCreatedOn(new Date(System.currentTimeMillis()));
 			oAuthClient.setUser(apiCaller);
