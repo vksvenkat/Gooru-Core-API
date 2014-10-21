@@ -26,6 +26,7 @@ package org.ednovo.gooru.infrastructure.persistence.hibernate.apikey;
 import java.util.List;
 
 import org.ednovo.gooru.core.api.model.Application;
+import org.ednovo.gooru.core.api.model.ResourceType;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate;
@@ -45,7 +46,7 @@ public class ApplicationRepositoryHibernate extends BaseRepositoryHibernate impl
 			hql += " AND app.user.partyUid =:gooruUid";
 		}
 		
-		hql += " AND app.title is not null";		
+		hql += " and app.resourceType.name = '" + ResourceType.Type.APPLICATION.getType()+"'";	
 		hql += " ORDER BY app.lastModified desc";
 		Query query = getSession().createQuery(hql);
 		if (organizationUid != null) {
@@ -75,6 +76,7 @@ public class ApplicationRepositoryHibernate extends BaseRepositoryHibernate impl
 		if (gooruUid != null) {
 			hql += " AND app.user.partyUid =:gooruUid";
 		}
+		hql += " and app.resourceType.name = '" + ResourceType.Type.APPLICATION.getType()+"'";	
 		Query query = getSession().createQuery(hql);
 		if (organizationUid != null)  {
 			query.setParameter("organizationUid", organizationUid);
