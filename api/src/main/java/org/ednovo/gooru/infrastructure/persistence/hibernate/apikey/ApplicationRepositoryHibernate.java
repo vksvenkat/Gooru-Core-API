@@ -26,21 +26,15 @@ package org.ednovo.gooru.infrastructure.persistence.hibernate.apikey;
 import java.util.List;
 
 import org.ednovo.gooru.core.api.model.Application;
-import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate;
-import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
 import org.hibernate.Query;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public class ApplicationRepositoryHibernate extends BaseRepositoryHibernate implements ApplicationRepository, ParameterProperties, ConstantProperties {
 
-	@Autowired
-	private CustomTableRepository customTableRepository;
-	
 	@Override
 	public List<Application> getApplications(String organizationUid,String gooruUid, Integer offset, Integer limit) {
 		String hql = "FROM Application app WHERE  1=1";
@@ -51,8 +45,7 @@ public class ApplicationRepositoryHibernate extends BaseRepositoryHibernate impl
 			hql += " AND app.user.partyUid =:gooruUid";
 		}
 		
-		hql += " AND app.type.customTableValueId = "
-		      + this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.APPLICATION_TYPE.getTable(), CustomProperties.ApplicationType.APIKEY.getApplicationType()).getCustomTableValueId();
+		hql += " AND app.title is not null";		
 		hql += " ORDER BY app.lastModified desc";
 		Query query = getSession().createQuery(hql);
 		if (organizationUid != null) {
@@ -82,9 +75,6 @@ public class ApplicationRepositoryHibernate extends BaseRepositoryHibernate impl
 		if (gooruUid != null) {
 			hql += " AND app.user.partyUid =:gooruUid";
 		}
-		hql += " AND app.type.customTableValueId = "
-				+ this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.APPLICATION_TYPE.getTable(), CustomProperties.ApplicationType.APIKEY.getApplicationType()).getCustomTableValueId();
-				
 		Query query = getSession().createQuery(hql);
 		if (organizationUid != null)  {
 			query.setParameter("organizationUid", organizationUid);
@@ -101,10 +91,6 @@ public class ApplicationRepositoryHibernate extends BaseRepositoryHibernate impl
 		Query query = getSession().createQuery(hql);
 		query.setParameter("organizationUid", organizationUid);
 		return (Application) (query.list().size() > 0 ? query.list().get(0) : null);
-	}
-	
-	public CustomTableRepository getCustomTableRepository() {
-		return customTableRepository;
 	}
 
 }

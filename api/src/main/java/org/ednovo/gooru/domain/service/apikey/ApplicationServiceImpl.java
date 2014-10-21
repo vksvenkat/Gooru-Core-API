@@ -73,15 +73,6 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 				CustomTableValue status = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.APPLICATION_STATUS.getTable(), CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus());
 				application.setStatus(status);
 			}
-			if (application.getType() != null && application.getType().getValue() != null) {
-				CustomTableValue type = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.APPLICATION_TYPE.getTable(), application.getType().getValue());
-				rejectIfNull(type, GL0007, " application type ");
-				application.setType(type);
-			} else { 
-				CustomTableValue type = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.APPLICATION_TYPE.getTable(), CustomProperties.ApplicationType.APIKEY.getApplicationType());
-				application.setType(type);
-			}
-			
 			rejectIfNull(application.getOrganization(), GL0006, "Organization ");
 			rejectIfNull(application.getOrganization().getPartyUid(), GL0006, "Organization ");
 			rejectIfNull(this.getOrganizationService().getOrganizationById(application.getOrganization().getPartyUid()), GL0007, "Organization ");
