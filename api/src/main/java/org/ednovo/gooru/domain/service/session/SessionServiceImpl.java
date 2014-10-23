@@ -212,13 +212,13 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 		
 			final SessionItem sessionItem = this.getSessionRepository().findSessionItemById(sessionItemId);
 			rejectIfNull(sessionItem, GL0056, SESSION_ITEM);
-			AssessmentQuestion question = new AssessmentQuestion();
+			AssessmentQuestion question = null;
 			if (sessionItem.getResource().getResourceType() != null && sessionItem.getResource().getResourceType().getName().equalsIgnoreCase(ASSESSMENT_QUESTION)) {
 				question = this.assessmentService.getQuestion(sessionItem.getResource().getGooruOid());
 			}
 			final Integer trySequence = this.getSessionRepository().getSessionItemAttemptTry(sessionItemId).size() + 1;
-			if (question != null && question.getTypeName().equalsIgnoreCase(AssessmentQuestion.TYPE.FILL_IN_BLANKS.getName()) || question.getTypeName().equalsIgnoreCase(AssessmentQuestion.TYPE.OPEN_ENDED.getName()) || question.getTypeName().equals(AssessmentQuestion.TYPE.SHORT_ANSWER.getName())
-					|| question.getTypeName().equalsIgnoreCase(AssessmentQuestion.TYPE.MULTIPLE_ANSWERS.getName())) {
+			if (question != null && (question.getTypeName().equalsIgnoreCase(AssessmentQuestion.TYPE.FILL_IN_BLANKS.getName()) || question.getTypeName().equalsIgnoreCase(AssessmentQuestion.TYPE.OPEN_ENDED.getName()) || question.getTypeName().equals(AssessmentQuestion.TYPE.SHORT_ANSWER.getName())
+					|| question.getTypeName().equalsIgnoreCase(AssessmentQuestion.TYPE.MULTIPLE_ANSWERS.getName()))) {
 				rejectIfNull(sessionItemAttemptTry.getAnswerText(), GL0006, ANSWER_TEXT);
 			} else if (question != null && question.getTypeName().equals(AssessmentQuestion.TYPE.MATCH_THE_FOLLOWING.getName())) {
 				rejectIfNull(sessionItemAttemptTry.getAnswerText(), GL0006, ANSWER_TEXT);

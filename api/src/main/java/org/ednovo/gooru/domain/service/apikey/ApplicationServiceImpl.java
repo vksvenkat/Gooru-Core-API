@@ -127,10 +127,10 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 	}
 
 	@Override
-	public SearchResults<Application> getApplications(String organizationUid, Integer limit, Integer offset) {
+	public SearchResults<Application> getApplications(String organizationUid,String gooruUid, Integer limit, Integer offset) {
 		SearchResults<Application> result = new SearchResults<Application>();
-		result.setSearchResults(this.getApplicationRepository().getApplications(organizationUid, offset, limit));
-		result.setTotalHitCount(this.getApplicationRepository().getApplicationCount(organizationUid));
+		result.setSearchResults(this.getApplicationRepository().getApplications(organizationUid,gooruUid, offset, limit));
+		result.setTotalHitCount(this.getApplicationRepository().getApplicationCount(organizationUid, gooruUid));
 		return result;
 	}
 

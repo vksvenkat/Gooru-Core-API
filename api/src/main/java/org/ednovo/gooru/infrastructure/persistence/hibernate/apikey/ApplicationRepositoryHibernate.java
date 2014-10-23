@@ -26,6 +26,7 @@ package org.ednovo.gooru.infrastructure.persistence.hibernate.apikey;
 import java.util.List;
 
 import org.ednovo.gooru.core.api.model.Application;
+import org.ednovo.gooru.core.api.model.ResourceType;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate;
@@ -36,14 +37,23 @@ import org.springframework.stereotype.Repository;
 public class ApplicationRepositoryHibernate extends BaseRepositoryHibernate implements ApplicationRepository, ParameterProperties, ConstantProperties {
 
 	@Override
-	public List<Application> getApplications(String organizationUid, Integer offset, Integer limit) {
+	public List<Application> getApplications(String organizationUid,String gooruUid, Integer offset, Integer limit) {
 		String hql = "FROM Application app WHERE  1=1";
 		if (organizationUid != null) {
 			hql += " AND app.organization.partyUid =:partyUid";
 		}
+		if (gooruUid != null) {
+			hql += " AND app.user.partyUid =:gooruUid";
+		}
+		
+		hql += " and app.resourceType.name = '" + ResourceType.Type.APPLICATION.getType()+"'";	
+		hql += " ORDER BY app.lastModified desc";
 		Query query = getSession().createQuery(hql);
 		if (organizationUid != null) {
 			query.setParameter("partyUid", organizationUid);
+		}
+		if (gooruUid != null) {
+			query.setParameter("gooruUid", gooruUid);
 		}
 		query.setFirstResult(offset);
 		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
@@ -58,14 +68,21 @@ public class ApplicationRepositoryHibernate extends BaseRepositoryHibernate impl
 		return (Application) (query.list().size() > 0 ? query.list().get(0) : null);
 	}
 
-	public Long getApplicationCount(String organizationUid) {
+	public Long getApplicationCount(String organizationUid , String gooruUid) {
 		String hql = "SELECT count(*) FROM Application app WHERE 1=1";
 		if (organizationUid != null)  {
 			hql += " AND app.organization.partyUid =:organizationUid";
 		}
+		if (gooruUid != null) {
+			hql += " AND app.user.partyUid =:gooruUid";
+		}
+		hql += " and app.resourceType.name = '" + ResourceType.Type.APPLICATION.getType()+"'";	
 		Query query = getSession().createQuery(hql);
 		if (organizationUid != null)  {
 			query.setParameter("organizationUid", organizationUid);
+		}
+		if (gooruUid != null)  {
+			query.setParameter("gooruUid", gooruUid);
 		}
 		return (Long) query.list().get(0);
 	}

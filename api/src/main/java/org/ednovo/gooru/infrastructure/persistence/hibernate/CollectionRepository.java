@@ -31,7 +31,6 @@ import org.ednovo.gooru.core.api.model.Assignment;
 import org.ednovo.gooru.core.api.model.Classpage;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
-import org.ednovo.gooru.core.api.model.CollectionTaskAssoc;
 import org.ednovo.gooru.core.api.model.ContentMetaAssociation;
 import org.ednovo.gooru.core.api.model.Quiz;
 import org.ednovo.gooru.core.api.model.Resource;
@@ -100,7 +99,7 @@ public interface CollectionRepository extends BaseRepository {
 
 	Long getMyClasspageCount(String gooruUid);
 	
-	List<Object[]> getMyFolder(String gooruUid, Integer limit, Integer offset, String sharing, String collectionType, boolean fetchChildItem);
+	List<Object[]> getMyFolder(String gooruUid, Integer limit, Integer offset, String sharing, String collectionType, boolean fetchChildItem, String orderBy);
 	
 	Long getMyShelfCount(String gooruUid, String sharing, String collectionType);
 	

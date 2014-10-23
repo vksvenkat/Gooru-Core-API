@@ -58,7 +58,7 @@ public class OAuthRepositoryHibernate extends BaseRepositoryHibernate implements
 
 	@Override
 	public OAuthClient findOAuthClientByClientId(String clientId) {
-		String hql = " FROM OAuthClient oauthClient WHERE oauthClient.clientId=:clientId";
+		String hql = " FROM OAuthClient oauthClient WHERE oauthClient.key=:clientId";
 		Query query = getSession().createQuery(hql);
 		query.setParameter("clientId", clientId);
 		List<OAuthClient> results = (List<OAuthClient>) query.list();
@@ -82,7 +82,7 @@ public class OAuthRepositoryHibernate extends BaseRepositoryHibernate implements
 	
 	@Override
 	public OAuthClient findOAuthClientByclientSecret(String clientSecret) {
-		String hql = " FROM OAuthClient oauthClient WHERE oauthClient.clientSecret=:clientSecret";
+		String hql = " FROM OAuthClient oauthClient WHERE oauthClient.secretKey=:clientSecret";
 		Query query = getSession().createQuery(hql);
 		query.setParameter("clientSecret", clientSecret);
 		List<OAuthClient> results = (List<OAuthClient>) query.list();
@@ -122,8 +122,18 @@ public class OAuthRepositoryHibernate extends BaseRepositoryHibernate implements
 	}
 	
 	@Override
-	public OAuthClient findOAuthClientByApiKey(String apiKey) {
+	public OAuthClient findOAuthClientByOauthKey(String oauthKey) {
 		String hql = " FROM OAuthClient oauthClient WHERE oauthClient.key=:apiKey";
+		Query query = getSession().createQuery(hql);
+		query.setParameter("apiKey", oauthKey);
+		List<OAuthClient> results = (List<OAuthClient>) query.list();
+		if(results.size() > 0){
+			return results.get(0);
+		}
+		return null;
+	}
+	public OAuthClient findOAuthClientByApplicationKey(String apiKey) {
+		String hql = " FROM OAuthClient oauthClient WHERE oauthClient.application.key=:apiKey";
 		Query query = getSession().createQuery(hql);
 		query.setParameter("apiKey", apiKey);
 		List<OAuthClient> results = (List<OAuthClient>) query.list();

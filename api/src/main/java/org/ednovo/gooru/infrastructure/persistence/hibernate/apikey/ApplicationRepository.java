@@ -32,9 +32,9 @@ public interface ApplicationRepository extends BaseRepository {
 	
 	Application getApplication(String apiKey);
 	
-	List<Application> getApplications(String organizationUid, Integer offset, Integer limit);
+	List<Application> getApplications(String organizationUid,String gooruUid, Integer offset, Integer limit);
 
-	Long getApplicationCount(String organizationUid);
+	Long getApplicationCount(String organizationUid,String gooruUid);
 	
 	Application getApplicationByOrganization(String organizationUid);
 }

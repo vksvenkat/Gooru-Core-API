@@ -23,6 +23,7 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.fileupload.util.Streams;
 import org.ednovo.gooru.core.api.model.UserGroupSupport;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.core.exception.BadRequestException;
 import org.json.JSONObject;
 import org.restlet.data.Method;
 import org.restlet.representation.Representation;
@@ -254,7 +255,7 @@ public class RequestUtil implements ParameterProperties {
 			return formFieldMap;
 
 		} else {
-			return null;
+			throw new BadRequestException("Invalid Content Type " + request.getContentType());
 		}
 	}
 

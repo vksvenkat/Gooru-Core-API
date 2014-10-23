@@ -36,7 +36,7 @@ public interface ApplicationService {
 
 	Application getApplication(String apiKey);
 
-	SearchResults<Application> getApplications(String organizationUid, Integer limit, Integer offset);
+	SearchResults<Application> getApplications(String organizationUid, String gooruUid, Integer limit, Integer offset);
 
 	void deleteApplication(String apiKey);
 }
