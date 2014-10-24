@@ -2786,4 +2786,8 @@ public interface ParameterProperties {
 	
 	String RETURN_URL ="returnUrl";
 	
+	String APPLICATION_URL = "applicationUrl";
+	
+	String APPLICATION_ITEM = "applicationItem";
+	
 }
