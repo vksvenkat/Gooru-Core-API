@@ -27,14 +27,14 @@
     "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
-	<class name="org.ednovo.gooru.core.api.model.ApplicationLink" table="application_links" >
-		<id name="linkId" column="link_id" unsaved-value="null">
+	<class name="org.ednovo.gooru.core.api.model.ApplicationItem" table="application_item" >
+		<id name="applicationItemUid" column="link_id" unsaved-value="null">
 			<generator class="org.ednovo.gooru.core.application.util.UUIDGenerator"></generator>
 		</id>
 					<many-to-one name="application"
 						class="org.ednovo.gooru.core.api.model.Application" column="application_content_id"
 						not-null="false" lazy="proxy" cascade="none" />
-						<property name="applicationLinkUrl" column="application_url" not-null="true" />					
+						<property name="url" column="url" not-null="true" />					
 					    <property name="displayName" column="display_name" not-null="true" />
                         <property name="displaySequence" column="display_sequence" not-null="true" />
 					

@@ -28,7 +28,7 @@ import java.util.UUID;
 
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Application;
-import org.ednovo.gooru.core.api.model.ApplicationLink;
+import org.ednovo.gooru.core.api.model.ApplicationItem;
 import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.ContentType;
 import org.ednovo.gooru.core.api.model.CustomTableValue;
@@ -150,57 +150,57 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 		return errors;
 	}
 	@Override
-	public ActionResponseDTO<ApplicationLink> createApplicationLink(ApplicationLink applicationLink,String apiKey, User apiCaller) {
-		final Errors errors = validateCreateApplicationLink(applicationLink);
+	public ActionResponseDTO<ApplicationItem> createApplicationItem(ApplicationItem applicationItem,String apiKey, User apiCaller) {
+		final Errors errors = validateCreateApplicationItem(applicationItem);
 		if (!errors.hasErrors()) {
-			rejectIfNull(applicationLink.getApplication(), GL0006, "Application key ");
-			rejectIfNull(applicationLink.getApplication().getKey(), GL0006, "Application key ");
+			rejectIfNull(applicationItem.getApplication(), GL0006, "Application key ");
+			rejectIfNull(applicationItem.getApplication().getKey(), GL0006, "Application key ");
 			Application application = this.getApplicationRepository().getApplication(apiKey);
 			rejectIfNull(application, GL0007, "Application key ");
-			applicationLink.setApplication(application);
-			this.getApplicationRepository().save(applicationLink);
+			applicationItem.setApplication(application);
+			this.getApplicationRepository().save(applicationItem);
 		}
-		return new ActionResponseDTO<ApplicationLink>(applicationLink, errors);
+		return new ActionResponseDTO<ApplicationItem>(applicationItem, errors);
 	}
 	
 	@Override
-	public ActionResponseDTO<ApplicationLink>  updateApplicationLink(ApplicationLink newApplicationLink, String applicationLinkId, User apiCaller) throws Exception {
-		ApplicationLink applicationLink = this.getApplicationRepository().getApplicationItem(applicationLinkId);
-		final Errors errors = validateUpdateApplicationLink(applicationLink);
-		rejectIfNull(applicationLink, GL0056, 404, "ApplicationLink ");
-		if (newApplicationLink.getApplicationLinkUrl() != null) {
-			applicationLink.setApplicationLinkUrl(newApplicationLink.getApplicationLinkUrl());
+	public ActionResponseDTO<ApplicationItem>  updateApplicationItem(ApplicationItem newApplicationItem, String applicationItemId, User apiCaller) throws Exception {
+		ApplicationItem applicationItem = this.getApplicationRepository().getApplicationItem(applicationItemId);
+		final Errors errors = validateUpdateApplicationItem(applicationItem);
+		rejectIfNull(applicationItem, GL0056, 404, "ApplicationItem ");
+		if (newApplicationItem.getUrl() != null) {
+			applicationItem.setUrl(newApplicationItem.getUrl());
 		}
-		if (newApplicationLink.getDisplayName() != null) {
-			applicationLink.setDisplayName(newApplicationLink.getDisplayName());
+		if (newApplicationItem.getDisplayName() != null) {
+			applicationItem.setDisplayName(newApplicationItem.getDisplayName());
 		}
-		if (newApplicationLink.getDisplaySequence() != null) {
-			applicationLink.setDisplaySequence(newApplicationLink.getDisplaySequence());
+		if (newApplicationItem.getDisplaySequence() != null) {
+			applicationItem.setDisplaySequence(newApplicationItem.getDisplaySequence());
 		}
-		this.getApplicationRepository().save(applicationLink);
-		return new ActionResponseDTO<ApplicationLink>(applicationLink, errors);
+		this.getApplicationRepository().save(applicationItem);
+		return new ActionResponseDTO<ApplicationItem>(applicationItem, errors);
 	}
 	
-	private Errors validateUpdateApplicationLink(ApplicationLink applicationLink) throws Exception {
-		final Errors errors = new BindException(applicationLink, APPLICATION_LINK);
-		rejectIfNull(errors, applicationLink, APPLICATION_LINK, GL0056, generateErrorMessage(GL0056, APPLICATION_LINK));
+	private Errors validateUpdateApplicationItem(ApplicationItem applicationItem) throws Exception {
+		final Errors errors = new BindException(applicationItem, APPLICATION_ITEM);
+		rejectIfNull(errors, applicationItem, APPLICATION_ITEM, GL0056, generateErrorMessage(GL0056, APPLICATION_ITEM));
 		return errors;
 	}
 	
 	@Override
-	public ApplicationLink getApplicationItem(String appLinkId) {
-		return this.getApplicationRepository().getApplicationItem(appLinkId);
+	public ApplicationItem getApplicationItem(String applicationItemId) {
+		return this.getApplicationRepository().getApplicationItem(applicationItemId);
 	}
 	
-	private Errors validateCreateApplicationLink(ApplicationLink applicationLink) {
-		final Errors errors = new BindException(applicationLink, "applicationLink");
-		rejectIfNull(errors, applicationLink, APPLICATION_LINK_URL, GL0006, generateErrorMessage(GL0006, APPLICATION_LINK_URL));
+	private Errors validateCreateApplicationItem(ApplicationItem applicationItem) {
+		final Errors errors = new BindException(applicationItem, "applicationItem");
+		rejectIfNull(errors, applicationItem, APPLICATION_URL, GL0006, generateErrorMessage(GL0006, APPLICATION_URL));
 		return errors;
 	}
 	
 
 	@Override
-	public ApplicationLink getApplicationItemByApiKey(String apiKey) throws Exception {
+	public ApplicationItem getApplicationItemByApiKey(String apiKey) throws Exception {
 		return this.getApplicationRepository().getApplicationItemByApiKey(apiKey);
 	}
 	

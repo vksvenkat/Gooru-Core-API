@@ -2,14 +2,14 @@ package org.ednovo.gooru.core.api.model;
 
 import java.io.Serializable;
 
-public class ApplicationLink implements Serializable {
+public class ApplicationItem implements Serializable {
 	
 	private static final long serialVersionUID = 7173591300165688575L;
 	
-	private String linkId;
+	private String applicationItemUid;
 	private String displayName;
 	private String displaySequence;
-	private String applicationLinkUrl;
+	private String url;
 	
 	private Application application;
 
@@ -30,14 +30,6 @@ public class ApplicationLink implements Serializable {
 		this.displaySequence = displaySequence;
 	}
 
-	public String getApplicationLinkUrl() {
-		return applicationLinkUrl;
-	}
-
-	public void setApplicationLinkUrl(String applicationLinkUrl) {
-		this.applicationLinkUrl = applicationLinkUrl;
-	}
-
 	public Application getApplication() {
 		return application;
 	}
@@ -46,12 +38,20 @@ public class ApplicationLink implements Serializable {
 		this.application = application;
 	}
 
-	public String getLinkId() {
-		return linkId;
+	public String getUrl() {
+		return url;
 	}
 
-	public void setLinkId(String linkId) {
-		this.linkId = linkId;
+	public void setUrl(String url) {
+		this.url = url;
+	}
+
+	public String getApplicationItemUid() {
+		return applicationItemUid;
+	}
+
+	public void setApplicationItemUid(String applicationItemUid) {
+		this.applicationItemUid = applicationItemUid;
 	}
 
 }

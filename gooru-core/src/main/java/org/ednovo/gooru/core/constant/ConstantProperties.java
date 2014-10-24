@@ -403,7 +403,7 @@ public interface ConstantProperties {
 
 	static final String[] COLLECTION_STANDARDS_INCLUDES = { "searchResults", "*.code", "*.label", "*.codeUid", "*.codeId" };
 	
-	static final String[] APPLICATION_LINK_INCLUDES = { "*.linkId", "*.displayName", "*.displaySequence", "*.applicationLinkUrl"};
+	static final String[] APPLICATION_ITEM_INCLUDES = { "*.applicationItemUid", "*.displayName", "*.displaySequence", "*.url"};
 	
 	static final String SUPER_ADMIN_TOKEN = "super.admin.token";
 

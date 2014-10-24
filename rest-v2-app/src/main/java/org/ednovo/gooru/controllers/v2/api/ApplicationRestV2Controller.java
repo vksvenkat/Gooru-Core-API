@@ -31,7 +31,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.ednovo.gooru.controllers.BaseController;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Application;
-import org.ednovo.gooru.core.api.model.ApplicationLink;
+import org.ednovo.gooru.core.api.model.ApplicationItem;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.Constants;
@@ -115,7 +115,7 @@ public class ApplicationRestV2Controller extends BaseController implements Const
 	@RequestMapping(method = RequestMethod.GET, value = "/item/{id}")
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ModelAndView getApplicationItem(HttpServletRequest request, HttpServletResponse response, @PathVariable String id) throws Exception {
-		String includes[] = (String[]) ArrayUtils.addAll(APPLICATION_LINK_INCLUDES, ERROR_INCLUDE);
+		String includes[] = (String[]) ArrayUtils.addAll(APPLICATION_ITEM_INCLUDES, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(this.getApplicationService().getApplicationItem(id), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
 
@@ -124,37 +124,37 @@ public class ApplicationRestV2Controller extends BaseController implements Const
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ModelAndView createApplicationItem(@PathVariable(value = ID) String apiKey,@RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
-		ActionResponseDTO<ApplicationLink> responseDTO = getApplicationService().createApplicationLink(buildApplicationItemFromInputParameters(data),apiKey, user);
+		ActionResponseDTO<ApplicationItem> responseDTO = getApplicationService().createApplicationItem(buildApplicationItemFromInputParameters(data),apiKey, user);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		} else {
 			response.setStatus(HttpServletResponse.SC_CREATED);
 		}
-		String includes[] = (String[]) ArrayUtils.addAll(APPLICATION_LINK_INCLUDES, ERROR_INCLUDE);
+		String includes[] = (String[]) ArrayUtils.addAll(APPLICATION_ITEM_INCLUDES, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_APPLICATION_UPDATE })
 	@RequestMapping(method = RequestMethod.PUT, value = "/item/{id}")
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public ModelAndView UpdateApplicationItem(@PathVariable(value = ID) String applicationLinkId,@RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public ModelAndView UpdateApplicationItem(@PathVariable(value = ID) String applicationItemId,@RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
-		ActionResponseDTO<ApplicationLink> responseDTO = getApplicationService().updateApplicationLink(buildApplicationItemFromInputParameters(data),applicationLinkId, user);
+		ActionResponseDTO<ApplicationItem> responseDTO = getApplicationService().updateApplicationItem(buildApplicationItemFromInputParameters(data),applicationItemId, user);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		} else {
 			response.setStatus(HttpServletResponse.SC_CREATED);
 		}
-		String includes[] = (String[]) ArrayUtils.addAll(APPLICATION_LINK_INCLUDES, ERROR_INCLUDE);
+		String includes[] = (String[]) ArrayUtils.addAll(APPLICATION_ITEM_INCLUDES, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_OAUTH_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	@RequestMapping(method = { RequestMethod.GET }, value = "/{apiKey}/applicationItem")
+	@RequestMapping(method = { RequestMethod.GET }, value = "/{apiKey}/item")
 	public ModelAndView getApplicationItemByApiKey(@PathVariable String apiKey, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		request.setAttribute(Constants.EVENT_PREDICATE, "oauthclient.read");
-		String [] includes = (String[]) ArrayUtils.addAll(APPLICATION_LINK_INCLUDES, ERROR_INCLUDE);
+		String [] includes = (String[]) ArrayUtils.addAll(APPLICATION_ITEM_INCLUDES, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(this.getApplicationService().getApplicationItemByApiKey(apiKey), RESPONSE_FORMAT_JSON, EXCLUDE_ALL,true, includes);
 	}
 	
@@ -168,8 +168,8 @@ public class ApplicationRestV2Controller extends BaseController implements Const
 		return JsonDeserializer.deserialize(data, Application.class);
 	}
 	
-	private ApplicationLink buildApplicationItemFromInputParameters(String data) {
-		return JsonDeserializer.deserialize(data, ApplicationLink.class);
+	private ApplicationItem buildApplicationItemFromInputParameters(String data) {
+		return JsonDeserializer.deserialize(data, ApplicationItem.class);
 	}
 	
 	public OAuthService getOAuthService() {

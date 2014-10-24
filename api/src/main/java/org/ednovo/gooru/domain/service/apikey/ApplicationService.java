@@ -25,7 +25,7 @@ package org.ednovo.gooru.domain.service.apikey;
 
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Application;
-import org.ednovo.gooru.core.api.model.ApplicationLink;
+import org.ednovo.gooru.core.api.model.ApplicationItem;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.domain.service.search.SearchResults;
 
@@ -41,11 +41,11 @@ public interface ApplicationService {
 
 	void deleteApplication(String apiKey);
 	
-	ApplicationLink getApplicationItem(String appLinkId);
+	ApplicationItem getApplicationItem(String appLinkId);
 	
-	ActionResponseDTO<ApplicationLink> createApplicationLink(ApplicationLink applicationLink,String apiKey, User apicaller);
+	ActionResponseDTO<ApplicationItem> createApplicationItem(ApplicationItem applicationItem,String apiKey, User apicaller);
 	
-	ActionResponseDTO<ApplicationLink> updateApplicationLink(ApplicationLink applicationLink, String applicationLinkId, User apicaller)throws Exception ;
+	ActionResponseDTO<ApplicationItem> updateApplicationItem(ApplicationItem applicationItem, String applicationItemId, User apicaller)throws Exception ;
 	
-	public ApplicationLink getApplicationItemByApiKey(String apiKey) throws Exception ;
+	public ApplicationItem getApplicationItemByApiKey(String apiKey) throws Exception ;
 }

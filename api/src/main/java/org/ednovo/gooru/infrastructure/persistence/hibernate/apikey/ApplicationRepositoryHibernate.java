@@ -26,7 +26,7 @@ package org.ednovo.gooru.infrastructure.persistence.hibernate.apikey;
 import java.util.List;
 
 import org.ednovo.gooru.core.api.model.Application;
-import org.ednovo.gooru.core.api.model.ApplicationLink;
+import org.ednovo.gooru.core.api.model.ApplicationItem;
 import org.ednovo.gooru.core.api.model.ResourceType;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
@@ -97,19 +97,19 @@ public class ApplicationRepositoryHibernate extends BaseRepositoryHibernate impl
 	}
 	
 	@Override
-	public ApplicationLink getApplicationItem(String appLinkId) {
-		String hql = "FROM ApplicationLink appLink WHERE appLink.linkId=:appLink";
+	public ApplicationItem getApplicationItem(String applicationItemId) {
+		String hql = "FROM ApplicationItem appItem WHERE appItem.applicationItemUid=:appLink";
 		Query query = getSession().createQuery(hql);
-		query.setParameter("appLink", appLinkId);
-		return (ApplicationLink) (query.list().size() > 0 ? query.list().get(0) : null);
+		query.setParameter("appLink", applicationItemId);
+		return (ApplicationItem) (query.list().size() > 0 ? query.list().get(0) : null);
 	}
 	
 	@Override
-	public ApplicationLink getApplicationItemByApiKey(String apiKey) {
-		String hql = "FROM ApplicationLink appLink WHERE appLink.application.key=:appLink";
+	public ApplicationItem getApplicationItemByApiKey(String apiKey) {
+		String hql = "FROM ApplicationItem appItem WHERE appItem.application.key=:apiKey";
 		Query query = getSession().createQuery(hql);
-		query.setParameter("appLink", apiKey);
-		return (ApplicationLink) (query.list().size() > 0 ? query.list().get(0) : null);
+		query.setParameter("apiKey", apiKey);
+		return (ApplicationItem) (query.list().size() > 0 ? query.list().get(0) : null);
 	}
 
 }
