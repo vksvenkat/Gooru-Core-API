@@ -46,6 +46,7 @@ public abstract class HibernateDaoSupport extends UserGroupSupport {
 		if (model instanceof Annotation) {
 			if (((Annotation) model).getResource() != null) {
 				((Content) model).setOrganization(((Annotation) model).getResource().getOrganization());
+				((Content) model).setVersion(((Content) model).getVersion() == null ? 1 : ((Content) model).getVersion() + 1);
 			}
 
 		} else if (model instanceof OrganizationWrapper && ((OrganizationWrapper) model).getOrganization() == null) {
@@ -54,13 +55,15 @@ public abstract class HibernateDaoSupport extends UserGroupSupport {
 
 		if (model instanceof Content) {
 			((Content) model).setLastModified(new Date(System.currentTimeMillis()));
+			((Content) model).setVersion(((Content) model).getVersion() == null ? 1 : ((Content) model).getVersion() + 1);
 		}
-	
+
 		if (model instanceof CollectionItem) {
-			((CollectionItem) model).getCollection().setLastModified(new Date(System.currentTimeMillis()));           
+			((CollectionItem) model).getCollection().setLastModified(new Date(System.currentTimeMillis()));
+			((CollectionItem) model).getCollection().setVersion(((CollectionItem) model).getCollection().getVersion() == null ? 1 : ((CollectionItem) model).getCollection().getVersion() + 1);
+
 		}
-		
-		
+
 		if (model instanceof User) {
 			((User) model).setLastModifiedOn(new Date(System.currentTimeMillis()));
 		}
@@ -68,7 +71,6 @@ public abstract class HibernateDaoSupport extends UserGroupSupport {
 		getSession().saveOrUpdate(model);
 
 	}
-
 
 	public void delete(Object object) {
 		getSession().delete(object);
@@ -124,7 +126,7 @@ public abstract class HibernateDaoSupport extends UserGroupSupport {
 		currentSession.enableFilter("customFieldFilter").setParameterList("customFieldFilterParam", Constants.customFieldsKey);
 		return currentSession;
 	}
-	
+
 	public Session getSessionReadOnly() {
 
 		Session currentSession = null;
@@ -160,7 +162,7 @@ public abstract class HibernateDaoSupport extends UserGroupSupport {
 	}
 
 	public abstract SessionFactory getSessionFactory();
-	
+
 	public abstract SessionFactory getSessionFactoryReadOnly();
 
 }
