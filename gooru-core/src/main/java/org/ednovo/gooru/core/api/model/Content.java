@@ -56,6 +56,10 @@ public class Content extends OrganizationModel implements IndexableEntry, IsCass
 	@Column
 	private String lastUpdatedUserUid;
 	
+	@Column
+	private Integer version;
+	
+	
 	private ContentType contentType;
 	
 	@JsonManagedReference
@@ -274,6 +278,13 @@ public class Content extends OrganizationModel implements IndexableEntry, IsCass
 	public Set<ContentMetaAssociation> getContentMetaAssoc() {
 		return contentMetaAssoc;
 	}
-
+	
+	public Integer getVersion() {
+		return version;
+	}
+	
+	public void setVersion(Integer version) {
+		this.version = version;
+	}
 
 }
