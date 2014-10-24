@@ -82,13 +82,13 @@ public class GooruExceptionResolver extends SimpleMappingExceptionResolver {
 		} else if (ex instanceof MethodFailureException) { 
 			response.setStatus(420);
 			errorObject = new ErrorObject(420, ex.getMessage());
-			logger.info("Error in Resolver -- ", ex);
-			logger.info("input parameters --- " + getRequestInfo(request).toString());
+			logger.error("Error in Resolver -- ", ex);
+			logger.error("input parameters --- " + getRequestInfo(request).toString());
 		} else {
 			errorObject = new ErrorObject(500, "Internal Server Error");
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			logger.info("Error in Resolver -- ", ex);
-			logger.info("input parameters --- " + getRequestInfo(request).toString());
+			logger.error("Error in Resolver -- ", ex);
+			logger.error("input parameters --- " + getRequestInfo(request).toString());
 		}
 
 		
