@@ -28,6 +28,8 @@ import java.util.UUID;
 
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Application;
+import org.ednovo.gooru.core.api.model.ApplicationLink;
+import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.ContentType;
 import org.ednovo.gooru.core.api.model.CustomTableValue;
 import org.ednovo.gooru.core.api.model.ResourceType;
@@ -36,6 +38,7 @@ import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.domain.model.oauth.OAuthClient;
 import org.ednovo.gooru.domain.service.BaseServiceImpl;
 import org.ednovo.gooru.domain.service.party.OrganizationService;
 import org.ednovo.gooru.domain.service.search.SearchResults;
@@ -146,7 +149,61 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 		rejectIfNull(errors, application, TITLE, GL0006, generateErrorMessage(GL0006, TITLE));
 		return errors;
 	}
+	@Override
+	public ActionResponseDTO<ApplicationLink> createApplicationLink(ApplicationLink applicationLink,String apiKey, User apiCaller) {
+		final Errors errors = validateCreateApplicationLink(applicationLink);
+		if (!errors.hasErrors()) {
+			rejectIfNull(applicationLink.getApplication(), GL0006, "Application key ");
+			rejectIfNull(applicationLink.getApplication().getKey(), GL0006, "Application key ");
+			Application application = this.getApplicationRepository().getApplication(apiKey);
+			rejectIfNull(application, GL0007, "Application key ");
+			applicationLink.setApplication(application);
+			this.getApplicationRepository().save(applicationLink);
+		}
+		return new ActionResponseDTO<ApplicationLink>(applicationLink, errors);
+	}
+	
+	@Override
+	public ActionResponseDTO<ApplicationLink>  updateApplicationLink(ApplicationLink newApplicationLink, String applicationLinkId, User apiCaller) throws Exception {
+		ApplicationLink applicationLink = this.getApplicationRepository().getApplicationItem(applicationLinkId);
+		final Errors errors = validateUpdateApplicationLink(applicationLink);
+		rejectIfNull(applicationLink, GL0056, 404, "ApplicationLink ");
+		if (newApplicationLink.getApplicationLinkUrl() != null) {
+			applicationLink.setApplicationLinkUrl(newApplicationLink.getApplicationLinkUrl());
+		}
+		if (newApplicationLink.getDisplayName() != null) {
+			applicationLink.setDisplayName(newApplicationLink.getDisplayName());
+		}
+		if (newApplicationLink.getDisplaySequence() != null) {
+			applicationLink.setDisplaySequence(newApplicationLink.getDisplaySequence());
+		}
+		this.getApplicationRepository().save(applicationLink);
+		return new ActionResponseDTO<ApplicationLink>(applicationLink, errors);
+	}
+	
+	private Errors validateUpdateApplicationLink(ApplicationLink applicationLink) throws Exception {
+		final Errors errors = new BindException(applicationLink, APPLICATION_LINK);
+		rejectIfNull(errors, applicationLink, APPLICATION_LINK, GL0056, generateErrorMessage(GL0056, APPLICATION_LINK));
+		return errors;
+	}
+	
+	@Override
+	public ApplicationLink getApplicationItem(String appLinkId) {
+		return this.getApplicationRepository().getApplicationItem(appLinkId);
+	}
+	
+	private Errors validateCreateApplicationLink(ApplicationLink applicationLink) {
+		final Errors errors = new BindException(applicationLink, "applicationLink");
+		rejectIfNull(errors, applicationLink, APPLICATION_LINK_URL, GL0006, generateErrorMessage(GL0006, APPLICATION_LINK_URL));
+		return errors;
+	}
+	
 
+	@Override
+	public ApplicationLink getApplicationItemByApiKey(String apiKey) throws Exception {
+		return this.getApplicationRepository().getApplicationItemByApiKey(apiKey);
+	}
+	
 	public CustomTableRepository getCustomTableRepository() {
 		return customTableRepository;
 	}
@@ -158,5 +215,7 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 	public OrganizationService getOrganizationService() {
 		return organizationService;
 	}
+	
+	
 
 }

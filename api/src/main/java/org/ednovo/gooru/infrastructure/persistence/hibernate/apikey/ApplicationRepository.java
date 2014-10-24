@@ -26,6 +26,7 @@ package org.ednovo.gooru.infrastructure.persistence.hibernate.apikey;
 import java.util.List;
 
 import org.ednovo.gooru.core.api.model.Application;
+import org.ednovo.gooru.core.api.model.ApplicationLink;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepository;
 
 public interface ApplicationRepository extends BaseRepository {
@@ -37,4 +38,8 @@ public interface ApplicationRepository extends BaseRepository {
 	Long getApplicationCount(String organizationUid,String gooruUid);
 	
 	Application getApplicationByOrganization(String organizationUid);
+	
+	ApplicationLink getApplicationItem(String appLinkId);
+	
+    ApplicationLink getApplicationItemByApiKey(String apiKey);
 }

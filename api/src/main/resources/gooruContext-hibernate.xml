@@ -345,6 +345,8 @@
 				<!-- Service -->
 				<value>org/ednovo/gooru/domain/model/service/Service.hbm.xml</value>
 				<value>org/ednovo/gooru/domain/model/service/ServicePartyAssoc.hbm.xml</value>
+				<!-- Application -->
+				<value>org/ednovo/gooru/domain/model/application/ApplicationLink.hbm.xml</value>
 				
 				
 			</list>
