@@ -41,7 +41,7 @@ public interface ApplicationService {
 
 	void deleteApplication(String apiKey);
 	
-	ApplicationItem getApplicationItem(String appLinkId);
+	ApplicationItem getApplicationItem(String applicationItemId);
 	
 	ActionResponseDTO<ApplicationItem> createApplicationItem(ApplicationItem applicationItem,String apiKey, User apicaller);
 	

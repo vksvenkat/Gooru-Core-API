@@ -98,9 +98,9 @@ public class ApplicationRepositoryHibernate extends BaseRepositoryHibernate impl
 	
 	@Override
 	public ApplicationItem getApplicationItem(String applicationItemId) {
-		String hql = "FROM ApplicationItem appItem WHERE appItem.applicationItemUid=:appLink";
+		String hql = "FROM ApplicationItem appItem WHERE appItem.applicationItemUid=:applicationItemId";
 		Query query = getSession().createQuery(hql);
-		query.setParameter("appLink", applicationItemId);
+		query.setParameter("applicationItemId", applicationItemId);
 		return (ApplicationItem) (query.list().size() > 0 ? query.list().get(0) : null);
 	}
 	
