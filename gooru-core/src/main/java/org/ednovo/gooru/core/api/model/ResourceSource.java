@@ -45,6 +45,8 @@ public class ResourceSource implements Serializable {
 	
 	private Integer protocolSupported;
 	
+	private String domainBoost;
+	
 	public String getAttribution() {
 		return attribution;
 	}
@@ -128,6 +130,12 @@ public class ResourceSource implements Serializable {
 	}
 	public Integer getIsBlacklisted() {
 		return isBlacklisted;
+	}
+	public void setDomainBoost(String domainBoost) {
+		this.domainBoost = domainBoost;
+	}
+	public String getDomainBoost() {
+		return domainBoost;
 	}
 
 }
