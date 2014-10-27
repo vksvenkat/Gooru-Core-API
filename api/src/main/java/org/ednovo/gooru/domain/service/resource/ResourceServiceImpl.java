@@ -1093,9 +1093,9 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	@Override
 	public void deleteResourceFromGAT(String gooruContentId, boolean isThirdPartyUser, User apiCaller, boolean isMycontent) {
 		Resource resource = this.getResourceRepository().findResourceByContentGooruId(gooruContentId);
+		rejectIfNull(resource, GL0056, RESOURCE);
 		Content content = this.contentRepository.findContentByGooruId(resource.getGooruOid());
 		if (resource != null && isThirdPartyUser && apiCaller != null) {
-
 			if (isMycontent) {
 				UserContentRelationshipUtil.deleteUserContentRelationship(content, apiCaller, RELATIONSHIP.CREATE);
 			}
