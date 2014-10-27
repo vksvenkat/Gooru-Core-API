@@ -31,7 +31,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang.ArrayUtils;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
-import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.ContentPermission;
 import org.ednovo.gooru.core.api.model.ContentPermissionTransformer;
 import org.ednovo.gooru.core.api.model.Identity;
@@ -295,25 +294,20 @@ public class SerializerUtil implements ParameterProperties {
 		if (RequestContextHolder.getRequestAttributes() != null) {
 			request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
 			if (request != null && request.getMethod() != null && (request.getMethod().equalsIgnoreCase(RequestMethod.POST.name()) || request.getMethod().equalsIgnoreCase(RequestMethod.PUT.name()))) {
-				if (model instanceof Content) {
-
-				} else if (model instanceof Resource) {
-					org.json.simple.parser.JSONParser payLoadParser = null;
-					org.json.simple.JSONObject payLoadObject = null;
-					payLoadParser = new org.json.simple.parser.JSONParser();
-					if (SessionContextSupport.getLog() != null && SessionContextSupport.getLog().get("payLoadObject") != null) {
-						try {
-							payLoadObject = (org.json.simple.JSONObject) payLoadParser.parse(SessionContextSupport.getLog().get("payLoadObject").toString());
-						} catch (ParseException e) {
-							payLoadObject = new org.json.simple.JSONObject();
-						}
-					} else {
+				org.json.simple.parser.JSONParser payLoadParser = null;
+				org.json.simple.JSONObject payLoadObject = null;
+				payLoadParser = new org.json.simple.parser.JSONParser();
+				if (SessionContextSupport.getLog() != null && SessionContextSupport.getLog().get("payLoadObject") != null) {
+					try {
+						payLoadObject = (org.json.simple.JSONObject) payLoadParser.parse(SessionContextSupport.getLog().get("payLoadObject").toString());
+					} catch (ParseException e) {
 						payLoadObject = new org.json.simple.JSONObject();
 					}
-					SessionContextSupport.putLogParameter("payLoadObject", payLoadObject.toString());
+				} else {
+					payLoadObject = new org.json.simple.JSONObject();
 				}
+				SessionContextSupport.putLogParameter("payLoadObject", payLoadObject.toString());
 			}
-
 		}
 	}
 
