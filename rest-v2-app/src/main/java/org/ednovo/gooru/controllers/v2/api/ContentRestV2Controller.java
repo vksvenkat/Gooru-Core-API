@@ -44,6 +44,8 @@ import org.ednovo.gooru.domain.service.FeedbackService;
 import org.ednovo.gooru.domain.service.PostService;
 import org.ednovo.gooru.domain.service.v2.ContentService;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Propagation;
@@ -70,6 +72,8 @@ public class ContentRestV2Controller extends BaseController implements ConstantP
 
 	@Autowired
 	private PostService postService;
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(ContentRestV2Controller.class);
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAG_ADD })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -144,7 +148,12 @@ public class ContentRestV2Controller extends BaseController implements ConstantP
 			@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "20") Integer limit, @RequestParam(value = ORDER_BY, required = false) String orderBy, @RequestParam(value = CREATOR_UID, required = false) String creatorUid,
 			HttpServletResponse response) throws Exception {
 		String includes[] = (String[]) ArrayUtils.addAll(FEEDBACK_INCLUDE_FIELDS, ERROR_INCLUDE);
-		return toModelAndViewWithIoFilter(this.getFeedbackService().getContentFeedbacks(getFeedbackCategory(request), null, assocContentUid, creatorUid, limit, offset, orderBy).getSearchResults(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
+		try { 
+			return toModelAndViewWithIoFilter(this.getFeedbackService().getContentFeedbacks(getFeedbackCategory(request), null, assocContentUid, creatorUid, limit, offset, orderBy).getSearchResults(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
+		} catch (Exception e) { 
+			LOGGER.error("Error resolver : {} ", e);
+			throw new RuntimeException(e);
+		}
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_FEEDBACK_READ })

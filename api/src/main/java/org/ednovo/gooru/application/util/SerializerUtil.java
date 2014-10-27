@@ -31,12 +31,14 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang.ArrayUtils;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
+import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.ContentPermission;
 import org.ednovo.gooru.core.api.model.ContentPermissionTransformer;
 import org.ednovo.gooru.core.api.model.Identity;
 import org.ednovo.gooru.core.api.model.Organization;
 import org.ednovo.gooru.core.api.model.OrganizationTransformer;
 import org.ednovo.gooru.core.api.model.Resource;
+import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserGroup;
 import org.ednovo.gooru.core.api.model.UserGroupTransformer;
@@ -46,9 +48,11 @@ import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.MethodFailureException;
 import org.ednovo.goorucore.application.serializer.ExcludeNullTransformer;
 import org.json.JSONObject;
+import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.validation.Errors;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.servlet.ModelAndView;
@@ -58,8 +62,7 @@ import com.thoughtworks.xstream.io.xml.DomDriver;
 
 import flexjson.JSONSerializer;
 
-
-public class SerializerUtil  implements ParameterProperties{
+public class SerializerUtil implements ParameterProperties {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(SerializerUtil.class);
 
@@ -135,7 +138,7 @@ public class SerializerUtil  implements ParameterProperties{
 	public static String serializeToJson(Object model, boolean deepSerialize, boolean excludeNullObject) {
 		return serialize(model, FORMAT_JSON, null, deepSerialize, false, excludeNullObject);
 	}
-	
+
 	public static JSONObject serializeToJsonObjectWithExcludes(Object model, String[] excludes, boolean deepSerialize, String... includes) throws Exception {
 		return new JSONObject(serialize(model, FORMAT_JSON, excludes, deepSerialize, includes));
 	}
@@ -155,8 +158,6 @@ public class SerializerUtil  implements ParameterProperties{
 	public static String serialize(Object model, String type, String[] excludes, String... includes) {
 		return serialize(model, type, excludes, false, includes);
 	}
-	
-	
 
 	/**
 	 * @param model
@@ -180,6 +181,7 @@ public class SerializerUtil  implements ParameterProperties{
 			} else {
 				serializer.include("*.contentPermissions");
 			}
+			includes = (String[]) ArrayUtils.add(includes, "*.version");
 
 			if (useBaseExcludes) {
 				if (excludes != null) {
@@ -188,14 +190,14 @@ public class SerializerUtil  implements ParameterProperties{
 					excludes = EXCLUDES;
 				}
 			}
-			
+
 			if (model instanceof User) {
 				deepSerialize = true;
 			}
 			if (model != null) {
 				serializer = appendTransformers(serializer, excludeNullObject);
 			}
-			
+
 			if (excludes != null) {
 				serializer.exclude(excludes);
 			}
@@ -203,6 +205,7 @@ public class SerializerUtil  implements ParameterProperties{
 			try {
 				model = protocolSwitch(model);
 				serializedData = deepSerialize ? serializer.deepSerialize(model) : serializer.serialize(model);
+				log(model, serializedData);
 
 			} catch (Exception ex) {
 				if (model instanceof Resource) {
@@ -221,13 +224,13 @@ public class SerializerUtil  implements ParameterProperties{
 		}
 		return serializedData;
 	}
-	
-	private static Object protocolSwitch(Object model) { 
+
+	private static Object protocolSwitch(Object model) {
 		HttpServletRequest request = null;
 		if (RequestContextHolder.getRequestAttributes() != null) {
 			request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
 		}
-		if(request != null){
+		if (request != null) {
 			String requestProtocol = request.getAttribute("requestProtocol") != null ? (String) request.getAttribute("requestProtocol") : null;
 			String protocolAutoSwitch = request.getAttribute("protocolAutoSwitch") != null ? (String) request.getAttribute("protocolAutoSwitch") : "true";
 			if (protocolAutoSwitch != null && protocolAutoSwitch.equalsIgnoreCase("true")) {
@@ -246,14 +249,14 @@ public class SerializerUtil  implements ParameterProperties{
 							BaseUtil.changeHttpsProtocolByHeader(((CollectionItem) list.get(resourceIndex)).getResource(), requestProtocol, BaseUtil.isSecure(request), request.getMethod());
 						}
 					}
-				} else if (model instanceof Collection) { 
-					if (((Collection) model) != null  && ((Collection) model).getCollectionItems() != null) { 
-						for (CollectionItem collectionItem : ((Collection) model).getCollectionItems()) { 
+				} else if (model instanceof Collection) {
+					if (((Collection) model) != null && ((Collection) model).getCollectionItems() != null) {
+						for (CollectionItem collectionItem : ((Collection) model).getCollectionItems()) {
 							BaseUtil.changeHttpsProtocolByHeader(collectionItem.getResource(), requestProtocol, BaseUtil.isSecure(request), request.getMethod());
 						}
 					}
 				}
-				
+
 			}
 		}
 		return model;
@@ -285,6 +288,33 @@ public class SerializerUtil  implements ParameterProperties{
 		}
 		return serializer;
 
+	}
+
+	private static void log(Object model, String data) {
+		HttpServletRequest request = null;
+		if (RequestContextHolder.getRequestAttributes() != null) {
+			request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+			if (request != null && request.getMethod() != null && (request.getMethod().equalsIgnoreCase(RequestMethod.POST.name()) || request.getMethod().equalsIgnoreCase(RequestMethod.PUT.name()))) {
+				if (model instanceof Content) {
+
+				} else if (model instanceof Resource) {
+					org.json.simple.parser.JSONParser payLoadParser = null;
+					org.json.simple.JSONObject payLoadObject = null;
+					payLoadParser = new org.json.simple.parser.JSONParser();
+					if (SessionContextSupport.getLog() != null && SessionContextSupport.getLog().get("payLoadObject") != null) {
+						try {
+							payLoadObject = (org.json.simple.JSONObject) payLoadParser.parse(SessionContextSupport.getLog().get("payLoadObject").toString());
+						} catch (ParseException e) {
+							payLoadObject = new org.json.simple.JSONObject();
+						}
+					} else {
+						payLoadObject = new org.json.simple.JSONObject();
+					}
+					SessionContextSupport.putLogParameter("payLoadObject", payLoadObject.toString());
+				}
+			}
+
+		}
 	}
 
 	public static User cloneUserForSerialization(User user) {
