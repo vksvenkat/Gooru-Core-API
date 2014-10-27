@@ -28,6 +28,8 @@ import java.util.UUID;
 
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Application;
+import org.ednovo.gooru.core.api.model.ApplicationItem;
+import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.ContentType;
 import org.ednovo.gooru.core.api.model.CustomTableValue;
 import org.ednovo.gooru.core.api.model.ResourceType;
@@ -36,6 +38,7 @@ import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.domain.model.oauth.OAuthClient;
 import org.ednovo.gooru.domain.service.BaseServiceImpl;
 import org.ednovo.gooru.domain.service.party.OrganizationService;
 import org.ednovo.gooru.domain.service.search.SearchResults;
@@ -146,7 +149,61 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 		rejectIfNull(errors, application, TITLE, GL0006, generateErrorMessage(GL0006, TITLE));
 		return errors;
 	}
+	@Override
+	public ActionResponseDTO<ApplicationItem> createApplicationItem(ApplicationItem applicationItem,String apiKey, User apiCaller) {
+		final Errors errors = validateCreateApplicationItem(applicationItem);
+		if (!errors.hasErrors()) {
+			rejectIfNull(applicationItem.getApplication(), GL0006, "Application key ");
+			rejectIfNull(applicationItem.getApplication().getKey(), GL0006, "Application key ");
+			Application application = this.getApplicationRepository().getApplication(apiKey);
+			rejectIfNull(application, GL0007, "Application key ");
+			applicationItem.setApplication(application);
+			this.getApplicationRepository().save(applicationItem);
+		}
+		return new ActionResponseDTO<ApplicationItem>(applicationItem, errors);
+	}
+	
+	@Override
+	public ActionResponseDTO<ApplicationItem>  updateApplicationItem(ApplicationItem newApplicationItem, String applicationItemId, User apiCaller) throws Exception {
+		ApplicationItem applicationItem = this.getApplicationRepository().getApplicationItem(applicationItemId);
+		final Errors errors = validateUpdateApplicationItem(applicationItem);
+		rejectIfNull(applicationItem, GL0056, 404, "ApplicationItem ");
+		if (newApplicationItem.getUrl() != null) {
+			applicationItem.setUrl(newApplicationItem.getUrl());
+		}
+		if (newApplicationItem.getDisplayName() != null) {
+			applicationItem.setDisplayName(newApplicationItem.getDisplayName());
+		}
+		if (newApplicationItem.getDisplaySequence() != null) {
+			applicationItem.setDisplaySequence(newApplicationItem.getDisplaySequence());
+		}
+		this.getApplicationRepository().save(applicationItem);
+		return new ActionResponseDTO<ApplicationItem>(applicationItem, errors);
+	}
+	
+	private Errors validateUpdateApplicationItem(ApplicationItem applicationItem) throws Exception {
+		final Errors errors = new BindException(applicationItem, APPLICATION_ITEM);
+		rejectIfNull(errors, applicationItem, APPLICATION_ITEM, GL0056, generateErrorMessage(GL0056, APPLICATION_ITEM));
+		return errors;
+	}
+	
+	@Override
+	public ApplicationItem getApplicationItem(String applicationItemId) {
+		return this.getApplicationRepository().getApplicationItem(applicationItemId);
+	}
+	
+	private Errors validateCreateApplicationItem(ApplicationItem applicationItem) {
+		final Errors errors = new BindException(applicationItem, "applicationItem");
+		rejectIfNull(errors, applicationItem, APPLICATION_URL, GL0006, generateErrorMessage(GL0006, APPLICATION_URL));
+		return errors;
+	}
+	
 
+	@Override
+	public ApplicationItem getApplicationItemByApiKey(String apiKey) throws Exception {
+		return this.getApplicationRepository().getApplicationItemByApiKey(apiKey);
+	}
+	
 	public CustomTableRepository getCustomTableRepository() {
 		return customTableRepository;
 	}
@@ -158,5 +215,7 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 	public OrganizationService getOrganizationService() {
 		return organizationService;
 	}
+	
+	
 
 }

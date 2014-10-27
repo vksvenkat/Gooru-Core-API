@@ -42,6 +42,8 @@
 		</property>
 		<property name="isDeleted" column="is_deleted" length="1"
 			not-null="false" />
+		<property name="version" column="version" not-null="false">
+		</property>
 		<property name="createdOn" column="created_on" not-null="false">
 		</property>
 		<property name="lastModified" column="last_modified"

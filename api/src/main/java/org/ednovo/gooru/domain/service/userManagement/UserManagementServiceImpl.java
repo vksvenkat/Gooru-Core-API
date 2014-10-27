@@ -105,6 +105,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -661,6 +662,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			userDateOfBirth = simpleDateFormat.parse(dateOfBirth);
 		} catch (ParseException e) {
 			LOGGER.error("Error" + e.getMessage());
+			throw new BadCredentialsException("Invalid date format. Expected format is MM/DD/YYY");
 		}
 		if (userDateOfBirth.getTime() < currentDate.getTime()) {
 			long milliseconds = currentDate.getTime() - userDateOfBirth.getTime();
