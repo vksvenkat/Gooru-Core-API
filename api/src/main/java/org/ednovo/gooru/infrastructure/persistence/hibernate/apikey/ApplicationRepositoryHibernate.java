@@ -26,6 +26,7 @@ package org.ednovo.gooru.infrastructure.persistence.hibernate.apikey;
 import java.util.List;
 
 import org.ednovo.gooru.core.api.model.Application;
+import org.ednovo.gooru.core.api.model.ApplicationItem;
 import org.ednovo.gooru.core.api.model.ResourceType;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
@@ -93,6 +94,22 @@ public class ApplicationRepositoryHibernate extends BaseRepositoryHibernate impl
 		Query query = getSession().createQuery(hql);
 		query.setParameter("organizationUid", organizationUid);
 		return (Application) (query.list().size() > 0 ? query.list().get(0) : null);
+	}
+	
+	@Override
+	public ApplicationItem getApplicationItem(String applicationItemId) {
+		String hql = "FROM ApplicationItem appItem WHERE appItem.applicationItemUid=:applicationItemId";
+		Query query = getSession().createQuery(hql);
+		query.setParameter("applicationItemId", applicationItemId);
+		return (ApplicationItem) (query.list().size() > 0 ? query.list().get(0) : null);
+	}
+	
+	@Override
+	public ApplicationItem getApplicationItemByApiKey(String apiKey) {
+		String hql = "FROM ApplicationItem appItem WHERE appItem.application.key=:apiKey";
+		Query query = getSession().createQuery(hql);
+		query.setParameter("apiKey", apiKey);
+		return (ApplicationItem) (query.list().size() > 0 ? query.list().get(0) : null);
 	}
 
 }

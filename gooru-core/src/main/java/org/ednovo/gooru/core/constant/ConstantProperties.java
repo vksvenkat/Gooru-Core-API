@@ -402,7 +402,9 @@ public interface ConstantProperties {
 	static final String[] USER_CONTENT_TAGS_INCLUDES = { "*.totalHitCount", "*.searchResults", "*.count", "*.label", "*.tagGooruOid" };
 
 	static final String[] COLLECTION_STANDARDS_INCLUDES = { "searchResults", "*.code", "*.label", "*.codeUid", "*.codeId" };
-
+	
+	static final String[] APPLICATION_ITEM_INCLUDES = { "*.applicationItemUid", "*.displayName", "*.displaySequence", "*.url"};
+	
 	static final String SUPER_ADMIN_TOKEN = "super.admin.token";
 
 	static final String ORG_ADMIN_KEY = "organizationAdmin";
