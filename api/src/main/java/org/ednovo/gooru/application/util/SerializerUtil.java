@@ -181,6 +181,7 @@ public class SerializerUtil implements ParameterProperties {
 				serializer.include("*.contentPermissions");
 			}
 			includes = (String[]) ArrayUtils.add(includes, "*.version");
+			serializer.include(includes);
 
 			if (useBaseExcludes) {
 				if (excludes != null) {
@@ -297,15 +298,21 @@ public class SerializerUtil implements ParameterProperties {
 				org.json.simple.parser.JSONParser payLoadParser = null;
 				org.json.simple.JSONObject payLoadObject = null;
 				payLoadParser = new org.json.simple.parser.JSONParser();
-				if (SessionContextSupport.getLog() != null && SessionContextSupport.getLog().get("payLoadObject") != null) {
-					try {
+				try {
+					if (SessionContextSupport.getLog() != null && SessionContextSupport.getLog().get("payLoadObject") != null) {
+
 						payLoadObject = (org.json.simple.JSONObject) payLoadParser.parse(SessionContextSupport.getLog().get("payLoadObject").toString());
-					} catch (ParseException e) {
+
+					} else {
 						payLoadObject = new org.json.simple.JSONObject();
 					}
-				} else {
+					if (data != null) {
+						payLoadObject.putAll((org.json.simple.JSONObject) new org.json.simple.parser.JSONParser().parse(data));
+					}
+				} catch (ParseException e) {
 					payLoadObject = new org.json.simple.JSONObject();
 				}
+
 				SessionContextSupport.putLogParameter("payLoadObject", payLoadObject.toString());
 			}
 		}
