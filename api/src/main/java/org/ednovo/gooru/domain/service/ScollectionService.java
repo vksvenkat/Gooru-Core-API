@@ -138,4 +138,8 @@ public interface ScollectionService extends BaseService {
 	void deleteBulkCollections(List<String> gooruOids);
 	
 	Map<String, Object> setRatingsObj(ResourceSummary resourceSummary);
+	
+	List<ContentMetaDTO> setContentMetaAssociation(List<ContentMetaDTO> depthOfKnowledges, Resource resource, String type);
+	
+	List<ContentMetaDTO> updateContentMeta(List<ContentMetaDTO> newDepthOfKnowledges, Resource resource, User apiCaller, String type);
 }
