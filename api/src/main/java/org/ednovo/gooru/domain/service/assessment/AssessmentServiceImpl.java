@@ -40,6 +40,7 @@ import java.util.UUID;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.cassandra.thrift.NotFoundException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.ednovo.gooru.application.util.AsyncExecutor;
@@ -535,7 +536,6 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 	public ActionResponseDTO<AssessmentQuestion> updateQuestion(AssessmentQuestion question, List<Integer> deleteAssets, String gooruOQuestionId, boolean copyToOriginal, boolean index) throws Exception {
 		List<ContentMetaDTO> depth = question.getDepthOfKnowledges();
 		List<ContentMetaDTO> educational = question.getEducationalUse();
-		
 		question = initQuestion(question, gooruOQuestionId, copyToOriginal);
 		Errors errors = validateQuestion(question);
 		List<Asset> assets = buildQuestionAssets(deleteAssets, errors);
@@ -594,7 +594,7 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 		return assetList;
 	}
 
-	private AssessmentQuestion initQuestion(AssessmentQuestion question, String gooruOQuestionId, boolean copyToOriginal) {
+	private AssessmentQuestion initQuestion(AssessmentQuestion question, String gooruOQuestionId, boolean copyToOriginal) throws NotFoundException {
 		if (copyToOriginal) {
 			if (gooruOQuestionId == null) {
 				License license = (License) baseRepository.get(License.class, CREATIVE_COMMONS);
@@ -619,7 +619,6 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 				if (question.getTypeName() == null) {
 					question.setTypeName(AssessmentQuestion.TYPE.MULTIPLE_CHOICE.getName());
 				}
-
 				if (question.getTypeName().equalsIgnoreCase(AssessmentQuestion.TYPE.MATCH_THE_FOLLOWING.getName()) && question.getAnswers().size() > 0) {
 					for (AssessmentAnswer assessmentAnswer : question.getAnswers()) {
 						for (AssessmentAnswer matchingAnswer : question.getAnswers()) {
@@ -635,12 +634,16 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 				question.setTypeName(question.getTypeName());
 				question.setCategory(QUESTION);
 				question.setResourceFormat(this.getCustomTableRepository().getCustomTableValue(RESOURCE_CATEGORY_FORMAT,QUESTION));
-			} else {
+			} else 
+				
+			{
 				AssessmentQuestion existingQuestion = getQuestion(gooruOQuestionId);
-				if (question.getQuestionText() != null) {
+				if( existingQuestion == null) {
+					throw new BadRequestException("Resource not found");
+				}
+			    if (question.getQuestionText() != null) {
 					existingQuestion.setQuestionText(question.getQuestionText());
 				}
-
 				if (question.getDescription() != null) {
 					existingQuestion.setDescription(question.getDescription());
 				}
@@ -673,7 +676,6 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 				if (question.getCategory() != null) {
 					existingQuestion.setCategory(question.getCategory());
 				}
-
 				if (question.getSharing() != null) {
 					existingQuestion.setSharing(question.getSharing());
 				}
@@ -683,8 +685,7 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 				if (question.getHints() != null) {
 					updateHintList(question.getHints(), existingQuestion.getHints());
 				}
-			
-				resourceService.saveOrUpdateResourceTaxonomy(existingQuestion, question.getTaxonomySet());
+                resourceService.saveOrUpdateResourceTaxonomy(existingQuestion, question.getTaxonomySet());
 
 				if (question.getRecordSource() != null) {
 					existingQuestion.setRecordSource(question.getRecordSource());
@@ -731,6 +732,16 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 		}
 
 		return question;
+	}
+
+	private NotFoundException generateErrorMessage(String gl0056, String string) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	private void rejectIfNull(String gl0056, String string) {
+		// TODO Auto-generated method stub
+		
 	}
 
 	private void updateAnswerList(Set<AssessmentAnswer> sourceList, Set<AssessmentAnswer> existingList) {
