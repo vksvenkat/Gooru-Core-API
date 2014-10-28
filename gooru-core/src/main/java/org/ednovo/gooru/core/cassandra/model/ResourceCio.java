@@ -281,6 +281,9 @@ public class ResourceCio implements IsEntityCassandraIndexable {
 	private String rootCodes;
 
 	@Column
+	private Double domainBoost;
+	
+	@Column
 	private Map<String,String> codeAndDescription;
 
 
@@ -979,5 +982,13 @@ public class ResourceCio implements IsEntityCassandraIndexable {
 
 	public void setIsCanonical(Integer isCanonical) {
 		this.isCanonical = isCanonical;
+	}
+
+	public void setDomainBoost(Double domainBoost) {
+		this.domainBoost = domainBoost;
+	}
+
+	public Double getDomainBoost() {
+		return domainBoost;
 	}
 }
