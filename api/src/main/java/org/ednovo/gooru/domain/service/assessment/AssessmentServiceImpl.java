@@ -734,16 +734,6 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 		return question;
 	}
 
-	private NotFoundException generateErrorMessage(String gl0056, String string) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	private void rejectIfNull(String gl0056, String string) {
-		// TODO Auto-generated method stub
-		
-	}
-
 	private void updateAnswerList(Set<AssessmentAnswer> sourceList, Set<AssessmentAnswer> existingList) {
 		Set<AssessmentAnswer> addList = new TreeSet<AssessmentAnswer>();
 		if (sourceList != null && sourceList.size() > 0) {
