@@ -30,7 +30,7 @@
 	<class name="org.ednovo.gooru.core.api.model.MenuRoleAssoc" table="menu_role_assoc">		
 	   
 		<composite-id>
-			<key-many-to-one  column="role_id" name="role" class="org.ednovo.gooru.core.api.model.MenuRole" lazy="proxy" />
+			<key-many-to-one  column="role_id" name="role" class="org.ednovo.gooru.core.api.model.UserRole" lazy="proxy" />
 			<key-many-to-one  column="menu_uid" name="menu" class="org.ednovo.gooru.core.api.model.Menu" lazy="proxy" />			
 		</composite-id>
 	</class>
