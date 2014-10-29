@@ -1845,7 +1845,12 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 		xstream.alias(TAXONOMY_CODE, Code.class);
 		xstream.alias(_DEPTH_OF_KNOWLEDGE, ContentMetaDTO.class);
 		xstream.alias(_EDUCATIONAL_USE, ContentMetaDTO.class);
-		AssessmentQuestion question = (AssessmentQuestion) xstream.fromXML(jsonData);
+		AssessmentQuestion question = null;
+		try  {
+			question = (AssessmentQuestion) xstream.fromXML(jsonData);
+		} catch (Exception e)  {
+			throw new BadRequestException(e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
+		}
 		if (addFlag) {
 			question.setUser(user);
 		}
