@@ -47,7 +47,7 @@ public class CollaboratorRepositoryHibernate extends BaseRepositoryHibernate imp
 
 	@Override
 	public List<String> collaboratorSuggest(String text, String gooruUid) {
-		String hql= "select external_id as mailId from  identity i inner join user_content_assoc uc on uc.user_uid = i.user_uid where uc.associated_by_uid=:gooruUid and i.external_id like '" +text+ "%'";
+		String hql= "select external_id as mailId from  identity i inner join user_content_assoc uc on uc.user_uid = i.user_uid where uc.associated_by_uid=:gooruUid and i.external_id like '" +text.replace("'", "\\")+ "%'";
 		Query query = getSession().createSQLQuery(hql).addScalar("mailId",StandardBasicTypes.STRING);
 		query.setParameter("gooruUid", gooruUid);
 		return query.list();
