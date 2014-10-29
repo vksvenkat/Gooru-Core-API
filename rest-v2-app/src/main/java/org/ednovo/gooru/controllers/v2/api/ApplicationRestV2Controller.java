@@ -90,6 +90,8 @@ public class ApplicationRestV2Controller extends BaseController implements Const
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ModelAndView getApplication(HttpServletRequest request, HttpServletResponse response, @PathVariable String id) throws Exception {
 		String includes[] = (String[]) ArrayUtils.addAll(APPLICATION_INCLUDES, ERROR_INCLUDE);
+		includes = (String[]) ArrayUtils.addAll(includes, OAUTH_CLIENT_INCLUDES);
+		includes = (String[]) ArrayUtils.addAll(includes,APPLICATION_ITEM_INCLUDES);
 		return toModelAndViewWithIoFilter(this.getApplicationService().getApplication(id), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
 	

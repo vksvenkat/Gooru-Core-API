@@ -265,7 +265,7 @@
 				<property name="comment" column="comment" not-null="false" />
 				<property name="contactEmailId" column="contact_email_id"
 					not-null="false" />
-				<joined-subclass name="org.ednovo.gooru.domain.model.oauth.OAuthClient"
+				<joined-subclass name="org.ednovo.gooru.core.api.model.OAuthClient"
 					table="oauth2_client" lazy="true">
 					<key column="oauth_content_id" />
 					<many-to-one name="application"
