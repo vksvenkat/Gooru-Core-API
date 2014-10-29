@@ -40,7 +40,6 @@ import java.util.UUID;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.cassandra.thrift.NotFoundException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.ednovo.gooru.application.util.AsyncExecutor;
@@ -86,6 +85,7 @@ import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.BadRequestException;
+import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.domain.service.CollectionService;
 import org.ednovo.gooru.domain.service.content.ContentService;
 import org.ednovo.gooru.domain.service.resource.AssetManager;
@@ -185,13 +185,13 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 
 	@Autowired
 	private AsyncExecutor asyncExecutor;
-	
+
 	@Autowired
 	private CollectionService collectionService;
-	
+
 	@Autowired
 	private ResourceService resourceService;
-	
+
 	@Override
 	public AssessmentQuestion getQuestion(String gooruOQuestionId) {
 		return (AssessmentQuestion) assessmentRepository.getByGooruOId(AssessmentQuestion.class, gooruOQuestionId);
@@ -243,7 +243,6 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 
 		this.createRevisionHistoryEntry(assessment.getGooruOid(), ASSESSMENT_UPDATE);
 
-		
 		indexProcessor.index(assessment.getGooruOid(), IndexProcessor.INDEX, QUIZ);
 
 		return new ActionResponseDTO<Assessment>(assessment, new BindException(assessment, ASSESSMENT));
@@ -547,13 +546,13 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 			}
 			assessmentRepository.save(question);
 
-			if(depth != null && depth.size() > 0) {
-				question.setDepthOfKnowledges(this.collectionService.updateContentMeta(depth,question.getGooruOid(), question.getUser(), DEPTH_OF_KNOWLEDGE));
+			if (depth != null && depth.size() > 0) {
+				question.setDepthOfKnowledges(this.collectionService.updateContentMeta(depth, question.getGooruOid(), question.getUser(), DEPTH_OF_KNOWLEDGE));
 			} else {
 				question.setDepthOfKnowledges(this.collectionService.setContentMetaAssociation(this.collectionService.getContentMetaAssociation(DEPTH_OF_KNOWLEDGE), question.getGooruOid(), DEPTH_OF_KNOWLEDGE));
 			}
-			if(educational != null && educational.size() > 0) {
-				question.setEducationalUse(this.collectionService.updateContentMeta(educational,question.getGooruOid(), question.getUser(), EDUCATIONAL_USE));
+			if (educational != null && educational.size() > 0) {
+				question.setEducationalUse(this.collectionService.updateContentMeta(educational, question.getGooruOid(), question.getUser(), EDUCATIONAL_USE));
 			} else {
 				question.setEducationalUse(this.collectionService.setContentMetaAssociation(this.collectionService.getContentMetaAssociation(EDUCATIONAL_USE), question.getGooruOid(), EDUCATIONAL_USE));
 			}
@@ -594,7 +593,7 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 		return assetList;
 	}
 
-	private AssessmentQuestion initQuestion(AssessmentQuestion question, String gooruOQuestionId, boolean copyToOriginal) throws NotFoundException {
+	private AssessmentQuestion initQuestion(AssessmentQuestion question, String gooruOQuestionId, boolean copyToOriginal) {
 		if (copyToOriginal) {
 			if (gooruOQuestionId == null) {
 				License license = (License) baseRepository.get(License.class, CREATIVE_COMMONS);
@@ -633,15 +632,13 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 				question.setResourceType(resourceType);
 				question.setTypeName(question.getTypeName());
 				question.setCategory(QUESTION);
-				question.setResourceFormat(this.getCustomTableRepository().getCustomTableValue(RESOURCE_CATEGORY_FORMAT,QUESTION));
-			} else 
-				
-			{
+				question.setResourceFormat(this.getCustomTableRepository().getCustomTableValue(RESOURCE_CATEGORY_FORMAT, QUESTION));
+			} else {
 				AssessmentQuestion existingQuestion = getQuestion(gooruOQuestionId);
-				if( existingQuestion == null) {
-					throw new BadRequestException("Resource not found");
+				if (existingQuestion == null) {
+					throw new NotFoundException("Resource not found");
 				}
-			    if (question.getQuestionText() != null) {
+				if (question.getQuestionText() != null) {
 					existingQuestion.setQuestionText(question.getQuestionText());
 				}
 				if (question.getDescription() != null) {
@@ -663,9 +660,9 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 					existingQuestion.setTags(question.getTags());
 				}
 				if (question.getResourceSource() != null && existingQuestion.getResourceSource() != null) {
-						ResourceSource resourceSource = existingQuestion.getResourceSource();
-						resourceSource.setAttribution(question.getResourceSource().getAttribution());
-						existingQuestion.setResourceSource(resourceSource);
+					ResourceSource resourceSource = existingQuestion.getResourceSource();
+					resourceSource.setAttribution(question.getResourceSource().getAttribution());
+					existingQuestion.setResourceSource(resourceSource);
 				}
 				existingQuestion.setDifficultyLevel(question.getDifficultyLevel());
 				existingQuestion.setTitle(question.getTitle());
@@ -685,7 +682,7 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 				if (question.getHints() != null) {
 					updateHintList(question.getHints(), existingQuestion.getHints());
 				}
-                resourceService.saveOrUpdateResourceTaxonomy(existingQuestion, question.getTaxonomySet());
+				resourceService.saveOrUpdateResourceTaxonomy(existingQuestion, question.getTaxonomySet());
 
 				if (question.getRecordSource() != null) {
 					existingQuestion.setRecordSource(question.getRecordSource());
@@ -1040,12 +1037,12 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 		if (taxonomySet != null) {
 			for (Code code : taxonomySet) {
 				if (code.getRootNodeId() != null && UserGroupSupport.getTaxonomyPreference() != null && UserGroupSupport.getTaxonomyPreference().contains(code.getRootNodeId().toString()) && (!metaData.getCurriculumCodes().contains(code.getCode()))) {
-						metaData.getCurriculumCodes().add(code.getCode());
-						if (code.getDescription() != null && !code.getDescription().equals("")) {
-							metaData.getCurriculumDescs().add(code.getDescription());
-						} else {
-							metaData.getCurriculumCodes().add(BLANK + code.getCode());
-						}
+					metaData.getCurriculumCodes().add(code.getCode());
+					if (code.getDescription() != null && !code.getDescription().equals("")) {
+						metaData.getCurriculumDescs().add(code.getDescription());
+					} else {
+						metaData.getCurriculumCodes().add(BLANK + code.getCode());
+					}
 				}
 			}
 		}
@@ -1688,7 +1685,7 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 
 	@Override
 	public String updateQuizQuestionImage(String gooruContentId, String fileName, Resource resource, String assetKey) throws Exception {
-		if(fileName != null && ResourceImageUtil.getYoutubeVideoId(fileName) != null || fileName.contains(YOUTUBE_URL)) {
+		if (fileName != null && ResourceImageUtil.getYoutubeVideoId(fileName) != null || fileName.contains(YOUTUBE_URL)) {
 			return fileName;
 		} else {
 			final String mediaFolderPath = resource.getOrganization().getNfsStorageArea().getInternalPath() + Constants.UPLOADED_MEDIA_FOLDER;
@@ -1711,7 +1708,7 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 		for (int i = 0; i < assetKeyArr.length; i++) {
 			String resourceImageFile = mediaFolderPath + "/" + assetKeyArr[i];
 			File mediaImage = new File(resourceImageFile);
-			if(!mediaImage.isFile()) {
+			if (!mediaImage.isFile()) {
 				throw new BadRequestException("file not found");
 			}
 			String assetKey = StringUtils.left(assetKeyArr[i], assetKeyArr[i].indexOf("_"));
@@ -1744,14 +1741,14 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 		indexProcessor.index(question.getGooruOid(), IndexProcessor.INDEX, RESOURCE);
 		return question;
 	}
-	
+
 	@Override
 	public AssessmentQuestion updateQuestionVideoAssest(String gooruQuestionId, String assetKeys) throws Exception {
 		AssessmentQuestion question = getQuestion(gooruQuestionId);
 		String[] assetKeyArr = assetKeys.split("\\s*,\\s*");
 		for (int i = 0; i < assetKeyArr.length; i++) {
 			String assetKey = assetKeyArr[i];
-			//String fileName = assetKeyArr[i].split("_")[0];
+			// String fileName = assetKeyArr[i].split("_")[0];
 			if (resourceImageUtil.getYoutubeVideoId(assetKey) != null || assetKey.contains(YOUTUBE_URL)) {
 				AssessmentQuestionAssetAssoc questionAsset = null;
 				if (assetKey != null && assetKey.length() > 0) {
@@ -1770,15 +1767,15 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 				}
 				asset.setName(assetKey);
 				asset.setUrl(assetKey);
-				
+
 				assessmentRepository.save(asset);
 
 				assessmentRepository.saveAndFlush(questionAsset);
-				
+
 				Set<AssessmentQuestionAssetAssoc> assets = new HashSet<AssessmentQuestionAssetAssoc>();
 				assets.add(questionAsset);
 				question.setAssets(assets);
-				
+
 			}
 		}
 		indexProcessor.index(question.getGooruOid(), IndexProcessor.INDEX, RESOURCE);
@@ -1891,6 +1888,5 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 	public CustomTableRepository getCustomTableRepository() {
 		return customTableRepository;
 	}
-	
 
 }
