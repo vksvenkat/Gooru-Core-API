@@ -147,7 +147,10 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	@Override
 	public ActionResponseDTO<CollectionItem> updateQuestionWithCollectionItem(String collectionItemId, String data, List<Integer> deleteAssets, User user, String mediaFileName) throws Exception {
 		CollectionItem collectionItem = this.getCollectionItemById(collectionItemId);
-		AssessmentQuestion newQuestion = getAssessmentService().buildQuestionFromInputParameters(data, user, true);
+		 if(collectionItem == null){
+			 throw new NotFoundException(generateErrorMessage(GL0056, COLLECTION_ITEM));
+		}
+	    AssessmentQuestion newQuestion = getAssessmentService().buildQuestionFromInputParameters(data, user, true);
 		Errors errors = validateUpdateCollectionItem(collectionItem);
 		final JSONObject itemData = new JSONObject();
 		itemData.put(_ITEM_DATA, data);
