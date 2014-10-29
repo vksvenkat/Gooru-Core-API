@@ -285,7 +285,20 @@ public class ResourceCio implements IsEntityCassandraIndexable {
 	
 	@Column
 	private Map<String,String> codeAndDescription;
+	
+	
+	@Column 
+	private Integer version;
 
+
+	
+	public Integer getVersion() {
+		return version;
+	}
+
+	public void setVersion(Integer version) {
+		this.version = version;
+	}
 
 	public Map<String, String> getCodeAndDescription() {
 		return codeAndDescription;
