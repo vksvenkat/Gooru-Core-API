@@ -90,6 +90,13 @@ public class PartyRepositoryHibernate extends BaseRepositoryHibernate implements
 	}
 	
 	@Override
+	public PartyCustomField getPartyCustomFieldByKey(String optionalValue, String optionalKey) {
+		String hql = " FROM  PartyCustomField partycustomfield  WHERE partycustomfield.optionalValue= '" + optionalValue + "'  and  partycustomfield.optionalKey= '" + optionalKey + "'";
+		Query query = getSession().createQuery(hql);
+		return (query != null && query.list() != null && query.list().size() > 0) ? (PartyCustomField) query.list().get(0) : null;
+	}
+	
+	@Override
 	public Profile getUserDateOfBirth(String partyUid, User user){
 		Query query = getSession().createQuery("FROM  Profile profile  WHERE profile.user.partyUid= '" + partyUid + "'");
 		return  (query != null && query.list() != null && query.list().size() > 0) ? (Profile) query.list().get(0) : null;
