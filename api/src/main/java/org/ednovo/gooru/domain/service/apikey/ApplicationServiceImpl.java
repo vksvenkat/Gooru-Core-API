@@ -29,20 +29,20 @@ import java.util.UUID;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Application;
 import org.ednovo.gooru.core.api.model.ApplicationItem;
-import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.ContentType;
 import org.ednovo.gooru.core.api.model.CustomTableValue;
+import org.ednovo.gooru.core.api.model.OAuthClient;
 import org.ednovo.gooru.core.api.model.ResourceType;
 import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
-import org.ednovo.gooru.domain.model.oauth.OAuthClient;
 import org.ednovo.gooru.domain.service.BaseServiceImpl;
 import org.ednovo.gooru.domain.service.party.OrganizationService;
 import org.ednovo.gooru.domain.service.search.SearchResults;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.apikey.ApplicationRepository;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.auth.OAuthRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -61,6 +61,9 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 	@Autowired
 	private CustomTableRepository customTableRepository;
 
+	@Autowired
+	private OAuthRepository oAuthRepository;
+	
 	@Override
 	public ActionResponseDTO<Application> createApplication(Application application, User apiCaller) {
 		final Errors errors = validateCreateApplication(application);
@@ -126,7 +129,14 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 
 	@Override
 	public Application getApplication(String apiKey) {
-		return this.getApplicationRepository().getApplication(apiKey);
+		Application application = this.getApplicationRepository().getApplication(apiKey);		
+		ApplicationItem applicationItem = this.getApplicationRepository().getApplicationItemByApiKey(apiKey);
+		application.setApplicationItem(applicationItem);
+		OAuthClient OauthClient = oAuthRepository.findOAuthClientByApplicationKey(apiKey);
+		application.setOauthClient(OauthClient);
+		return application;
+		
+		//return this.getApplicationRepository().getApplication(apiKey);
 	}
 
 	@Override
@@ -216,6 +226,10 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 		return organizationService;
 	}
 	
+	public OAuthRepository getOAuthRepository() {
+		return oAuthRepository;
+	}
+
 	
 
 }
