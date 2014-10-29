@@ -309,7 +309,7 @@ public class SerializerUtil implements ParameterProperties {
 					if (data != null) {
 						payLoadObject.putAll((org.json.simple.JSONObject) new org.json.simple.parser.JSONParser().parse(data));
 					}
-				} catch (ParseException e) {
+				} catch (Exception e) {
 					payLoadObject = new org.json.simple.JSONObject();
 				}
 
