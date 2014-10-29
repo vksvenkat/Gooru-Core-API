@@ -791,7 +791,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 			sql += " and ci.item_type != 'collaborator' ";
 		}
 		if (orderBy != null && orderBy.equalsIgnoreCase(SEQUENCE)) {
-			sql += " order by ci.item_sequence asc";
+			sql += " order by ci.item_sequence desc";
 		} else {
 			sql += " order by ci.association_date desc";
 		}
