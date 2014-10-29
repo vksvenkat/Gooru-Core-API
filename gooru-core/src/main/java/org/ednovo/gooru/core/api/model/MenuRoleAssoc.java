@@ -6,7 +6,7 @@ public class MenuRoleAssoc implements Serializable {
 
 	private static final long serialVersionUID = -8458963691088485340L;
 	private Menu menu;
-	private UserRole role;
+	private Role role;
 	
 	public Menu getMenu() {
 		return menu;
@@ -14,10 +14,10 @@ public class MenuRoleAssoc implements Serializable {
 	public void setMenu(Menu menu) {
 		this.menu = menu;
 	}
-	public UserRole getRole() {
+	public Role getRole() {
 		return role;
 	}
-	public void setRole(UserRole role) {
+	public void setRole(Role role) {
 		this.role = role;
 	}
 	
