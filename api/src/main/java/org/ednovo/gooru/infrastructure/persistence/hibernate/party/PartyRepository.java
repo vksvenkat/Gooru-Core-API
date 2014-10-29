@@ -54,4 +54,6 @@ public interface PartyRepository extends BaseRepository {
 	
 	List<Map<Object, Object>> getPartyDetails();
 	
+	PartyCustomField getPartyCustomFieldByKey(String optionalValue, String optionalKey);
+	
 }
