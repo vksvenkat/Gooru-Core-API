@@ -366,6 +366,8 @@ public interface ConstantProperties {
 			"*.creator.username", "*.creator.gooruUId", "*.creator.firstName", "*.creator.lastName" };
 
 	static final String APPLICATION_INCLUDES[] = { "*.key", "*.title", "*.url", "*.secretKey", "*.activeFlag", "*.searchLimit", "*.description", "*.comment", "*.status", "*.value", "*.totalHitCount", "*.searchResults", "*.contactEmailId"};
+	
+	static final String MENU_INCLUDES[] = { "*.menuUid", "*.name", "*.description", "*.url", "*.iconUrl", "*.creatorUid", "*.createdOn", "*.lastModified", "*.isActive"};
 
 	static final String ORGANIZATION_INCLUDES_ADD[] = { "partyUid", "partyName", "partyType", "organizationCode" };
 
