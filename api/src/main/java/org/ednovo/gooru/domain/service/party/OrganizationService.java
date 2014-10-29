@@ -23,8 +23,6 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.domain.service.party;
 
-import java.util.List;
-
 import javax.servlet.http.HttpServletRequest;
 
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
@@ -42,16 +40,20 @@ public interface OrganizationService {
 	SearchResults<Organization> listAllOrganizations(Integer offset, Integer limit);
 
 	Organization getOrganizationByName(String partyName);
-	
+
 	ActionResponseDTO<Organization> saveOrganization(Organization organization, User user, HttpServletRequest request);
 
 	ActionResponseDTO<Organization> updateOrganization(Organization organization, String existingOrganizationUid, User apiCaller) throws Exception;
-	
+
 	ActionResponseDTO<OrganizationSetting> saveOrUpdateOrganizationSetting(String organizationUid, OrganizationSetting organizationSetting) throws Exception;
-	
+
 	User updateUserOrganization(String orgnaizationUid, String gooruUid) throws Exception;
 
 	OrganizationSetting getOrganizationSetting(String organizationUid, String key) throws Exception;
-	
+
 	Organization getOrganizationByIdpName(String idpDomainName);
+
+	SearchResults<Organization> getOrganizations(String  type, String parentOrganizationUid, String stateProvinceId, Integer offset, Integer limit);
+	
+	SearchResults<User> getUsersByOrganization(String type, String  parentOrganizationUid, String organizationUid, Integer offset, Integer limit);
 }

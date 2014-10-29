@@ -27,14 +27,13 @@ import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
 
-import org.ednovo.gooru.core.api.model.ApiKey;
+import org.ednovo.gooru.core.api.model.Application;
 import org.ednovo.gooru.core.api.model.Identity;
 import org.ednovo.gooru.core.api.model.Profile;
 import org.ednovo.gooru.core.api.model.RoleEntityOperation;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserAvailability.CheckUser;
 import org.ednovo.gooru.core.api.model.UserCredential;
-import org.ednovo.gooru.core.api.model.UserRelationship;
 import org.ednovo.gooru.core.api.model.UserRole;
 import org.ednovo.gooru.core.api.model.UserRole.UserRoleType;
 import org.ednovo.gooru.core.api.model.UserToken;
@@ -130,7 +129,7 @@ public interface UserService {
 
 	User getUserByUserName(String userName);
 
-	UserToken createSessionToken(User user, String sessionId, ApiKey apiKey);
+	UserToken createSessionToken(User user, String sessionId, Application application);
 
 	Map<String, Object> getUserAvailability(String keyword, String type, boolean isCollaboratorCheck, String collectionId, User apiCaller);
 

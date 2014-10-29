@@ -168,13 +168,6 @@
 				<value>org/ednovo/gooru/domain/model/annotation/AnnotationType.hbm.xml
 				</value>
 
-				<!-- Activity Domain -->
-				<value>org/ednovo/gooru/domain/model/activity/ActivityType.hbm.xml
-				</value>
-				<value>org/ednovo/gooru/domain/model/activity/Activity.hbm.xml
-				</value>
-				<value>org/ednovo/gooru/domain/model/activity/ActivityStream.hbm.xml
-				</value>
 
 				<!-- Taxonomy Domain -->
 				<value>org/ednovo/gooru/domain/model/taxonomy/CodeType.hbm.xml
@@ -210,17 +203,6 @@
 				<value>org/ednovo/gooru/domain/model/Job.hbm.xml</value>
 				<value>org/ednovo/gooru/domain/model/JobType.hbm.xml</value>
 
-				<!-- Api Tracker Domain -->
-				<value>org/ednovo/gooru/domain/model/apitracker/ApiKey.hbm.xml
-				</value>
-				<value>org/ednovo/gooru/domain/model/apitracker/ApiActivity.hbm.xml
-				</value>
-
-				<!-- Activity Log Domain -->
-				<value>org/ednovo/gooru/domain/model/activity/ActivityLog.hbm.xml
-				</value>
-				<value>org/ednovo/gooru/domain/model/activity/ActivitySummary.hbm.xml
-				</value>
 
 				<!-- Consumer Domain -->
 				<value>org/ednovo/gooru/domain/model/consumer/ConsumerAccount.hbm.xml
@@ -352,8 +334,8 @@
 				<!--  Organization Setting -->
 				<value>org/ednovo/gooru/domain/model/organizationSetting/OrganizationSetting.hbm.xml</value>
 				
-				<!-- Oauth -->
-				<value>org/ednovo/gooru/domain/model/oauth/OAuthClient.hbm.xml</value>
+				<!-- Oauth 
+				<value>org/ednovo/gooru/domain/model/oauth/OAuthClient.hbm.xml</value>-->
 				
 				<value>org/ednovo/gooru/domain/model/user/OrganizationDomainAssoc.hbm.xml</value>
 				
@@ -363,7 +345,13 @@
 				<!-- Service -->
 				<value>org/ednovo/gooru/domain/model/service/Service.hbm.xml</value>
 				<value>org/ednovo/gooru/domain/model/service/ServicePartyAssoc.hbm.xml</value>
+				<!-- Application -->
+				<value>org/ednovo/gooru/domain/model/application/ApplicationItem.hbm.xml</value>
 				
+				<!-- Menu -->
+				<value>org/ednovo/gooru/domain/model/menu/Menu.hbm.xml</value>
+				<value>org/ednovo/gooru/domain/model/menu/MenuItem.hbm.xml</value>
+				<value>org/ednovo/gooru/domain/model/menu/MenuRoleAssoc.hbm.xml</value>
 				
 			</list>
 		</property>

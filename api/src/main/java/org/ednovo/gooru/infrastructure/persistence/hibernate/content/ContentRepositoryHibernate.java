@@ -280,15 +280,20 @@ public class ContentRepositoryHibernate extends BaseRepositoryHibernate implemen
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<ContentProviderAssociation> getContentProviderByGooruOid(String gooruOid, String name ) {
-		Session session = getSession();
+	public List<ContentProviderAssociation> getContentProviderByGooruOid(String gooruOid, String name, String providerType ) {
 		String hql = " FROM ContentProviderAssociation cpa WHERE " + generateOrgAuthQueryWithData("cpa.contentProvider.") + " and " + "cpa.gooruOid=:gooruOid" + " and " + "cpa.contentProvider.activeFlag = 1";
 		
 		if(name != null) {
 			hql += " and cpa.contentProvider.name ='"+ name +"'";
 		}
-		Query query = session.createQuery(hql);
+		if (providerType != null) {
+			hql += " and cpa.contentProvider.type.value =:providerType";
+		}
+		Query query = getSession().createQuery(hql);
 		query.setParameter("gooruOid", gooruOid);
+		if (providerType != null) {
+			query.setParameter("providerType", providerType);
+		}
 		return query.list();
 	}
 	

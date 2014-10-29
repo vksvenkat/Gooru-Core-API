@@ -57,7 +57,6 @@ import org.ednovo.gooru.application.converter.FileProcessor;
 import org.ednovo.gooru.application.util.AsyncExecutor;
 import org.ednovo.gooru.application.util.CollectionUtil;
 import org.ednovo.gooru.application.util.GooruImageUtil;
-import org.ednovo.gooru.application.util.LogUtil;
 import org.ednovo.gooru.application.util.ResourceImageUtil;
 import org.ednovo.gooru.application.util.TaxonomyUtil;
 import org.ednovo.gooru.application.util.UserContentRelationshipUtil;
@@ -295,8 +294,12 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			throw new NotFoundException("resource not found");
 		}
 		Map<String, Object> resourceObject = new HashMap<String, Object>();
-		resource.setViewCount(Integer.parseInt(this.resourceCassandraService.get(resource.getGooruOid(),"stas.viewsCount") != null ? this.resourceCassandraService.get(resource.getGooruOid(),"stas.viewsCount") : "0" ));
-	    resource.setViews(Long.parseLong(this.resourceCassandraService.get(resource.getGooruOid(),"stas.viewsCount") != null ? this.resourceCassandraService.get(resource.getGooruOid(),"stas.viewsCount") : "0"));
+	    try {
+	    	resource.setViewCount(this.resourceCassandraService.getInt(resource.getGooruOid(),"stas.viewsCount"));
+			resource.setViews(Long.parseLong(this.resourceCassandraService.getInt(resource.getGooruOid(),"stas.viewsCount") + ""));
+		} catch (Exception e) { 
+			LOGGER.error("parser error : " + e);
+		}
 		if (resource.getResourceType().getName().equalsIgnoreCase(ASSESSMENT_QUESTION)) {
 			AssessmentQuestion question = assessmentService.getQuestion(gooruOid);
 			question.setCustomFieldValues(customFieldService.getCustomFieldsValuesOfResource(question.getGooruOid()));
@@ -313,16 +316,14 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	
 	@Override
 	public Resource setContentProvider(String gooruOid) {
-		Resource resource = this.getResourceRepository().findResourceByContentGooruId(gooruOid);
-		if(resource == null) {
-			return null;
-		}
+		Resource resource = this.getResourceRepository().findResourceByContent(gooruOid);
+		rejectIfNull(resource, GL0056, RESOURCE);
 		return setContentProvider(resource);
 	}
 	
 	@Override
 	public Resource setContentProvider(Resource resource) {
-		List<ContentProviderAssociation> contentProviderAssociations = this.getContentRepository().getContentProviderByGooruOid(resource.getGooruOid(),null);
+		List<ContentProviderAssociation> contentProviderAssociations = this.getContentRepository().getContentProviderByGooruOid(resource.getGooruOid(),null,null);
 		if (contentProviderAssociations != null) {
 			List<String> aggregator = new ArrayList<String>();
 			List<String> publisher = new ArrayList<String>();
@@ -1092,9 +1093,9 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	@Override
 	public void deleteResourceFromGAT(String gooruContentId, boolean isThirdPartyUser, User apiCaller, boolean isMycontent) {
 		Resource resource = this.getResourceRepository().findResourceByContentGooruId(gooruContentId);
+		rejectIfNull(resource, GL0056, RESOURCE);
 		Content content = this.contentRepository.findContentByGooruId(resource.getGooruOid());
 		if (resource != null && isThirdPartyUser && apiCaller != null) {
-
 			if (isMycontent) {
 				UserContentRelationshipUtil.deleteUserContentRelationship(content, apiCaller, RELATIONSHIP.CREATE);
 			}
@@ -1172,9 +1173,9 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		Resource resource = this.getResourceRepository().findResourceByContentGooruId(gooruContentId);
 		this.getResourceImageUtil().moveFileAndSendMsgToGenerateThumbnails(resource, fileName, true);
 		/*try {
-			this.getAsyncExecutor().updateResourceFileInS3(resource.getFolder(), resource.getOrganization().getNfsStorageArea().getAreaPath() , gooruContentId);
+			this.getAsyncExecutor().updateResourceFileInS3(resource.getFolder(), resource.getOrganization().getNfsStorageArea().getInternalPath() , gooruContentId);
 		} catch (Exception e) {
-			e.printStackTrace();
+			
 		}*/
 		return resource.getOrganization().getNfsStorageArea().getAreaPath() + resource.getFolder() + "/" + resource.getThumbnail();
 	}
@@ -1520,10 +1521,6 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 						LOGGER.debug("error"+ ex.getMessage());
 					}
 
-					if (LOGGER.isInfoEnabled()) {
-						LOGGER.info(LogUtil.getActivityLogStream(COLLECTION, user.toString(), collection.toString(), (resourceInstanceId == null) ? LogUtil.RESOURCE_ADD : LogUtil.RESOURCE_EDIT, "name:" + resourceTitle + "$type:" + resourceTypeName + "$url " + resourceUrl + "$classplan:"
-								+ collection.getLesson()));
-					}
 				} else {
 					throw new AccessDeniedException(generateErrorMessage("GL0097"));
 				}
@@ -1899,10 +1896,6 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 
 		resourceRepository.saveOrUpdate(resource);
 		LOGGER.warn("Deleted resource from deleteResource:" + gooruAttributionId);
-
-		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info(LogUtil.getActivityLogStream(RESOURCE, apiCaller.toString(), resource.toString(), LogUtil.RESOURCE_REMOVE, ""));
-		}
 
 		/* Step 4 - Send the message to reindex the resource */
 		indexProcessor.index(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE);
@@ -2625,6 +2618,9 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			if(newResource.getAggregator() != null && newResource.getAggregator().size() > 0) {
 				newResource.setAggregator(updateContentProvider(resource.getGooruOid(), newResource.getAggregator(), user, CustomProperties.ContentProviderType.AGGREGATOR.getContentProviderType()));
 			}
+			if(newResource.getHost() != null && newResource.getHost().size() > 0) {
+				resource.setHost(updateContentProvider(resource.getGooruOid(), newResource.getHost(), user, CustomProperties.ContentProviderType.HOST.getContentProviderType()));
+			}
 			ResourceInfo resourceInfo = new ResourceInfo();
 			String tags = newResource.getTags();
 			resourceInfo.setTags(tags);
@@ -2677,6 +2673,9 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			if (newResource.getTitle() != null) {
 				itemData.put(TITLE,newResource.getTitle());
 				resource.setTitle(newResource.getTitle());
+			}
+			if(newResource.getS3UploadFlag() != null) {
+				resource.setS3UploadFlag(newResource.getS3UploadFlag());
 			}
 			if (newResource.getDescription() != null) {
 				itemData.put(DESCRIPTION,newResource.getDescription());
@@ -2741,10 +2740,13 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			}
 			
 			if(newResource.getPublisher() != null && newResource.getPublisher().size() > 0) {
-				resource.setPublisher(updateContentProvider(resource.getGooruOid(), newResource.getPublisher(), user, CustomProperties.ContentProviderType.PUBLISHER.getContentProviderType()));
+				updateContentProvider(resource.getGooruOid(), newResource.getPublisher(), user, CustomProperties.ContentProviderType.PUBLISHER.getContentProviderType());
 			}
 			if(newResource.getAggregator() != null && newResource.getAggregator().size() > 0) {
-				resource.setAggregator(updateContentProvider(resource.getGooruOid(), newResource.getAggregator(), user, CustomProperties.ContentProviderType.AGGREGATOR.getContentProviderType()));
+				updateContentProvider(resource.getGooruOid(), newResource.getAggregator(), user, CustomProperties.ContentProviderType.AGGREGATOR.getContentProviderType());
+			} 
+			if(newResource.getHost() != null && newResource.getHost().size() > 0) {
+				updateContentProvider(resource.getGooruOid(), newResource.getHost(), user, CustomProperties.ContentProviderType.HOST.getContentProviderType());
 			}
 			
 			if(resourceTags != null && resourceTags.size() > 0) {
@@ -2771,7 +2773,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			if (newResource.getThumbnail() != null) {
 				this.getResourceImageUtil().downloadAndSendMsgToGenerateThumbnails(resource, newResource.getThumbnail());
 			}
-
+			setContentProvider(resource);
 			if (newResource.getTags() != null && !newResource.getTags().isEmpty()) {
 				ResourceInfo resourceInfo = resourceRepository.findResourceInfo(resourceId);
 				if (resourceInfo == null) {
@@ -2803,7 +2805,6 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	@Override
 	public List<String> updateContentProvider(String gooruOid, List<String> providerList, User user, String providerType) {
 
-
 		CustomTableValue customTableValue = this.getCustomTableRepository().getCustomTableValue(_CONTENT_PROVIDER_TYPE, providerType);
 		for (String provider : providerList) {
 			ContentProvider contentProvider = this.getContentRepository().getContentProviderByName(provider, CONTENT_PROVIDER_TYPE + providerType);
@@ -2812,22 +2813,26 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				contentProvider.setName(provider);
 				contentProvider.setActiveFlag(true);
 				contentProvider.setType(customTableValue);
-				this.getCustomTableRepository().save(contentProvider);
+				this.getContentRepository().save(contentProvider);
+				this.getContentRepository().flush();
 			}
-			List<ContentProviderAssociation> ContentProviderAssociationList = this.getContentRepository().getContentProviderByGooruOid(gooruOid, provider);
-			if (ContentProviderAssociationList.size() == 0) {
-				ContentProviderAssociation contentProviderAssociation = new ContentProviderAssociation();
-				contentProviderAssociation.setContentProvider(contentProvider);
-				ResourceSource resourceSource = new ResourceSource();
-				resourceSource.setDomainName(provider);
-				resourceSource.setActiveStatus(0);
-				this.getResourceRepository().save(resourceSource);
-				contentProviderAssociation.setResourceSource(resourceSource);
-				contentProviderAssociation.setGooruOid(gooruOid);
-				contentProviderAssociation.setAssociatedDate(new Date(System.currentTimeMillis()));
-				contentProviderAssociation.setAssociatedBy(user);
-				this.getContentRepository().save(contentProviderAssociation);
-			} 
+			List<ContentProviderAssociation> contentProviderAssociationList = this.getContentRepository().getContentProviderByGooruOid(gooruOid, null,providerType);
+
+			if (contentProviderAssociationList.size() > 0) {
+				this.getContentRepository().removeAll(contentProviderAssociationList);
+			}
+			ContentProviderAssociation contentProviderAssociation = new ContentProviderAssociation();
+			contentProviderAssociation.setContentProvider(contentProvider);
+			ResourceSource resourceSource = new ResourceSource();
+			resourceSource.setDomainName(provider);
+			resourceSource.setActiveStatus(0);
+			this.getResourceRepository().save(resourceSource);
+			contentProviderAssociation.setResourceSource(resourceSource);
+			contentProviderAssociation.setGooruOid(gooruOid);
+			contentProviderAssociation.setAssociatedDate(new Date(System.currentTimeMillis()));
+			contentProviderAssociation.setAssociatedBy(user);
+			this.getContentRepository().save(contentProviderAssociation);
+			this.getContentRepository().flush();
 		}
 		return providerList;
 	}
@@ -2842,6 +2847,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	public Resource deleteTaxonomyResource(String resourceId, Resource newResource, User user) {
 
 		Resource resource = resourceRepository.findResourceByContentGooruId(resourceId);
+		rejectIfNull(resource, GL0056, RESOURCE);
 		deleteResourceTaxonomy(resource, newResource.getTaxonomySet());
 		return resource;
 	}
@@ -3098,13 +3104,13 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	@Override
 	public Resource resourcePlay(String gooruContentId, User apiCaller, boolean more) throws Exception {
 		Resource resource = this.findResourceByContentGooruId(gooruContentId);
-
+        
+        
 		if (resource == null) {
 			throw new NotFoundException(generateErrorMessage("GL0003"));
 		}
 		resource.setViewCount(Integer.parseInt(this.resourceCassandraService.get(resource.getGooruOid(),"stas.viewsCount") != null ? this.resourceCassandraService.get(resource.getGooruOid(),"stas.viewsCount") : "0" ));
 	    resource.setViews(Long.parseLong(this.resourceCassandraService.get(resource.getGooruOid(),"stas.viewsCount") != null ? this.resourceCassandraService.get(resource.getGooruOid(),"stas.viewsCount") : "0"));
-
 		resource.setCustomFieldValues(customFieldService.getCustomFieldsValuesOfResource(resource.getGooruOid()));
 		if (more) {
 			String category = CustomProperties.Table.FEEDBACK_CATEGORY.getTable() + "_" + RATING;
@@ -3171,10 +3177,10 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			resourceCassandraService.save(resourceCioList, resourceIds);
 			if(!skipReindex){
 				if(resourceIds.size() > 0){
-					indexProcessor.indexStas(StringUtils.join(resourceIds, ','), IndexProcessor.INDEX, RESOURCE, false);
+					indexProcessor.indexStas(StringUtils.join(resourceIds, ','), IndexProcessor.INDEX, RESOURCE);
 				}
 				if(collectionIds.size() > 0){
-					indexProcessor.indexStas(StringUtils.join(collectionIds, ','), IndexProcessor.INDEX, SCOLLECTION, false);
+					indexProcessor.indexStas(StringUtils.join(collectionIds, ','), IndexProcessor.INDEX, SCOLLECTION);
 				}
 			}
 		}

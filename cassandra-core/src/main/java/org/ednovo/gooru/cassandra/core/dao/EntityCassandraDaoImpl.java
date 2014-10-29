@@ -271,6 +271,30 @@ public class EntityCassandraDaoImpl<M extends IsEntityCassandraIndexable> extend
 			getLog().error("Error saving to cassandra", ex);
 		}
 	}
+	
+	@Override
+	public Long readAsLong(String rowKey, String column) {
+		try {
+			Column<String> cfColumn = getFactory().getKeyspace().prepareQuery(getCF().getColumnFamily()).getKey(rowKey).getColumn(column).execute().getResult();
+			return cfColumn != null && cfColumn.hasValue() ? cfColumn.getLongValue() : null;
+		} catch (NotFoundException e) {
+			return 0L;
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@Override
+	public Integer readAsInteger(String rowKey, String column) {
+		try {
+			Column<String> cfColumn = getFactory().getKeyspace().prepareQuery(getCF().getColumnFamily()).getKey(rowKey).getColumn(column).execute().getResult();
+			return cfColumn != null && cfColumn.hasValue() ? cfColumn.getIntegerValue() : null;
+		} catch (NotFoundException e) {
+			return 0;
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
 
 }
 

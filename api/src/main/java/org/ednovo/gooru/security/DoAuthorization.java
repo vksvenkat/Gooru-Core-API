@@ -27,7 +27,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.httpclient.HttpStatus;
-import org.ednovo.gooru.core.api.model.ApiKey;
+import org.ednovo.gooru.core.api.model.Application;
 import org.ednovo.gooru.core.api.model.GooruAuthenticationToken;
 import org.ednovo.gooru.core.api.model.Organization;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
@@ -36,12 +36,12 @@ import org.ednovo.gooru.core.api.model.UserCredential;
 import org.ednovo.gooru.core.api.model.UserToken;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.security.AuthenticationDo;
-import org.ednovo.gooru.domain.service.apitracker.ApiTrackerService;
 import org.ednovo.gooru.domain.service.oauth.OAuthService;
 import org.ednovo.gooru.domain.service.redis.RedisService;
 import org.ednovo.gooru.domain.service.user.UserService;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.OrganizationSettingRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserTokenRepository;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.apikey.ApplicationRepository;
 import org.ednovo.goorucore.application.serializer.ExcludeNullTransformer;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.json.JSONException;
@@ -63,9 +63,6 @@ public class DoAuthorization  {
 	private UserService userService;
 	
 	@Autowired
-	private ApiTrackerService apiTrackerService;
-	
-	@Autowired
 	private OrganizationSettingRepository organizationSettingRepository;
 	
 	@Autowired
@@ -76,6 +73,9 @@ public class DoAuthorization  {
 	
 	@Autowired
 	private OAuthService oAuthService;
+	
+	@Autowired
+	private ApplicationRepository applicationRepository;
 	
 	private static final String SESSION_TOKEN_KEY = "authenticate_";
 	
@@ -147,18 +147,18 @@ public class DoAuthorization  {
 			}
 			else if(sessionToken != null){
 		        Organization organization = null;
-		        if(userToken.getApiKey() != null){
-		        	organization = userToken.getApiKey().getOrganization();
+		        if(userToken.getApplication() != null){
+		        	organization = userToken.getApplication().getOrganization();
 		        }
 				redisService.addSessionEntry(sessionToken, organization);
 			}
 		} else if(apiKeyToken != null) {
 			if (authentication == null)  {
-				ApiKey apiKey = apiTrackerService.getApiKey(apiKeyToken);
-				if (apiKey == null) {
+				Application application = this.getApplicationRepository().getApplication(apiKeyToken);
+				if (application == null) {
 					throw new AccessDeniedException("Invalid ApiKey : " + apiKeyToken);
 				} else {
-					String anonymousUid = organizationSettingRepository.getOrganizationSetting(Constants.ANONYMOUS, apiKey.getOrganization().getPartyUid());
+					String anonymousUid = organizationSettingRepository.getOrganizationSetting(Constants.ANONYMOUS, application.getOrganization().getPartyUid());
 					user = userService.findByGooruId(anonymousUid);
 					userToken = userToken == null ? new UserToken() : userToken;
 					userToken.setUser(user);
@@ -230,9 +230,12 @@ public class DoAuthorization  {
 		}
 		return false;
 	}
-	
-	
+		
 	public RedisService getRedisService() {
 		return redisService;
+	}
+
+	public ApplicationRepository getApplicationRepository() {
+		return applicationRepository;
 	}
 }

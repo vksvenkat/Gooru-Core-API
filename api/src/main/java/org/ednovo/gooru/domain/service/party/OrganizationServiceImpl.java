@@ -29,24 +29,24 @@ import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.cassandra.cql3.statements.CreateUserStatement;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
-import org.ednovo.gooru.core.api.model.ApiKey;
+import org.ednovo.gooru.core.api.model.Application;
+import org.ednovo.gooru.core.api.model.CustomTableValue;
 import org.ednovo.gooru.core.api.model.Organization;
 import org.ednovo.gooru.core.api.model.OrganizationSetting;
-import org.ednovo.gooru.core.api.model.PartyCategoryType;
-import org.ednovo.gooru.core.api.model.PartyCustomField;
 import org.ednovo.gooru.core.api.model.PartyPermission;
 import org.ednovo.gooru.core.api.model.PartyType;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserRole;
 import org.ednovo.gooru.core.api.model.UserRole.UserRoleType;
 import org.ednovo.gooru.core.api.model.UserRoleAssoc;
+import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.domain.service.BaseServiceImpl;
+import org.ednovo.gooru.domain.service.CountryRepository;
 import org.ednovo.gooru.domain.service.PartyService;
 import org.ednovo.gooru.domain.service.apikey.ApplicationService;
 import org.ednovo.gooru.domain.service.authentication.AccountService;
@@ -55,12 +55,11 @@ import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.ednovo.gooru.domain.service.user.UserService;
 import org.ednovo.gooru.domain.service.user.impl.UserServiceImpl;
 import org.ednovo.gooru.domain.service.userManagement.UserManagementService;
-import org.ednovo.gooru.domain.service.userManagement.UserManagementServiceImpl;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.OrganizationSettingRepository;
-import org.ednovo.gooru.infrastructure.persistence.hibernate.apikey.ApplicationRepository;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.party.OrganizationRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.storage.StorageRepository;
-import org.mortbay.jetty.security.Password;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,39 +73,46 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 
 	@Autowired
 	private OrganizationRepository organizationRepository;
-	
+
 	@Autowired
 	private OrganizationSettingRepository organizationSettingRepository;
-	
+
 	@Autowired
 	private UserService userService;
 
 	@Autowired
 	private PartyService partyService;
-	
+
 	@Autowired
 	private SettingService settingService;
 
 	@Autowired
 	private StorageRepository storageRepository;
-	
+
 	@Autowired
 	private UserManagementService userManagementService;
-	
+
 	@Autowired
 	private AccountService accountService;
-	
+
 	@Autowired
-	private ApplicationService applicationService; 
-	
+	private ApplicationService applicationService;
+
+	@Autowired
+	private CountryRepository countryRepository;
+
+	@Autowired
+	private CustomTableRepository customTableRepository;
+
+	@Autowired
+	private UserRepository userRepository;
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
-	
+
 	@Override
 	public Organization getOrganizationById(String organizationUid) {
 		return (Organization) organizationRepository.get(Organization.class, organizationUid);
 	}
-
-
 
 	@Override
 	public Organization getOrganizationByName(String partyName) {
@@ -117,13 +123,13 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 	public Organization getOrganizationByCode(String organizationCode) {
 		return organizationRepository.getOrganizationByCode(organizationCode);
 	}
-	
+
 	@Override
 	public SearchResults<Organization> listAllOrganizations(Integer offset, Integer limit) {
-		List<Organization> organization = this.getOrganizationRepository().listOrganization(offset, limit);
+		List<Organization> organization = this.getOrganizationRepository().getOrganizations(null, null, null, offset, limit);
 		SearchResults<Organization> result = new SearchResults<Organization>();
 		result.setSearchResults(organization);
-		result.setTotalHitCount(this.getOrganizationRepository().getOrganizationCount());
+		result.setTotalHitCount(this.getOrganizationRepository().getOrganizationCount(null, null, null));
 		return result;
 	}
 
@@ -132,7 +138,7 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 		Errors errors = validateNullFields(organizationData);
 		User apiCaller = (User) request.getAttribute(Constants.USER);
 		Organization newOrganization = new Organization();
-		if(!errors.hasErrors()){
+		if (!errors.hasErrors()) {
 			newOrganization.setPartyName(organizationData.getPartyName());
 			String randomString = getRandomString(5);
 			newOrganization.setOrganizationCode(randomString);
@@ -141,9 +147,19 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 			newOrganization.setS3StorageArea(storageRepository.getAvailableStorageArea(1));
 			newOrganization.setNfsStorageArea(storageRepository.getAvailableStorageArea(2));
 			newOrganization.setUserUid(user.getPartyUid());
+			if (organizationData.getStateProvince() != null && organizationData.getStateProvince().getStateId() != null) {
+				newOrganization.setStateProvince(getCountryRepository().getState(null, organizationData.getStateProvince().getStateId()));
+			}
+			if (organizationData.getType() != null && organizationData.getType().getValue() != null) {
+				CustomTableValue type = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.ORGANIZATION_CATEGORY.getTable(), organizationData.getType().getValue());
+				rejectIfNull(type, GL0056, "type ");
+				newOrganization.setType(type);
+			}
+
+			if (organizationData.getParentId() != null) {
+				newOrganization.setParentOrganization(this.getOrganizationById(organizationData.getParentId()));
+			}
 			organizationRepository.save(newOrganization);
-			updateOrgAdminCustomField(newOrganization.getPartyUid(), user);
-			//updateDefaultOrganizationPermission(newOrganization);
 			updateOrgSetting(newOrganization);
 			User newUser = new User();
 			newUser.setOrganization(newOrganization);
@@ -152,10 +168,9 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 			newUser.setPartyUid(ANONYMOUS_ + randomString);
 			newUser.setUsername(ANONYMOUS_ + randomString);
 			newUser.setEmailId(ANONYMOUS_ + randomString + AT_GMAIL_DOT_COM);
- 
-			 ApiKey appApiKey = new ApiKey();
-			 appApiKey.setAppName(newOrganization.getPartyName());
-			 appApiKey.setAppURL(HTTP_URL + newOrganization.getPartyName() + DOT_COM);
+			Application application = new Application();
+			application.setTitle(newOrganization.getPartyName());
+			application.setUrl(HTTP_URL + newOrganization.getPartyName() + DOT_COM);
 			try {
 				User newOrgUser = new User();
 				newOrgUser = userManagementService.createUser(newUser, null, null, 1, null, null, null, null, null, null, null, null, request, null, null);
@@ -164,15 +179,17 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 				newOrganizationSetting.setKey(ANONYMOUS);
 				newOrganizationSetting.setValue(newOrgUser.getPartyUid());
 				organizationSettingRepository.save(newOrganizationSetting);
-				applicationService.saveApplication(appApiKey, newOrgUser, newOrganization.getPartyUid(), apiCaller);
-				accountService.createSessionToken(newOrgUser, appApiKey.getKey(), request);
+				application.setOrganization(newOrganization);
+				applicationService.createApplication(application, newOrgUser);
+				accountService.createSessionToken(newOrgUser, application.getKey(), request);
+
 			} catch (Exception e) {
 				LOGGER.debug("Error" + e);
 			}
 		}
-		return new ActionResponseDTO<Organization>(newOrganization,errors);
+		return new ActionResponseDTO<Organization>(newOrganization, errors);
 	}
-	
+
 	private void updateOrgSetting(Organization newOrganization) {
 		OrganizationSetting newOrganizationSetting = new OrganizationSetting();
 		newOrganizationSetting.setOrganization(newOrganization);
@@ -181,9 +198,9 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 		organizationSettingRepository.save(newOrganizationSetting);
 	}
 
-	private Errors validateNullFields(Organization organization){
+	private Errors validateNullFields(Organization organization) {
 		final Errors errors = new BindException(organization, ORGANIZATION);
-		rejectIfNull(errors, organization, PARTY_NAME,GL0056, generateErrorMessage(GL0056, PARTY_NAME));
+		rejectIfNull(errors, organization, PARTY_NAME, GL0056, generateErrorMessage(GL0056, PARTY_NAME));
 		return errors;
 
 	}
@@ -191,18 +208,17 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 	@Override
 	public ActionResponseDTO<OrganizationSetting> saveOrUpdateOrganizationSetting(String organizationUid, OrganizationSetting organizationSetting) throws Exception {
 		boolean isUpdateOrInsertDone = false;
-		if(organizationUid != null && organizationSetting != null && organizationSetting.getValue() != null){
+		if (organizationUid != null && organizationSetting != null && organizationSetting.getValue() != null) {
 			OrganizationSetting existingOrganizationSetting = organizationSettingRepository.getOrganizationSettings(organizationUid, organizationSetting.getKey());
-			if(existingOrganizationSetting == null){
+			if (existingOrganizationSetting == null) {
 				OrganizationSetting newOrganizationSetting = new OrganizationSetting();
 				newOrganizationSetting.setOrganization(organizationRepository.getOrganizationByUid(organizationUid));
 				newOrganizationSetting.setKey(organizationSetting.getKey());
 				newOrganizationSetting.setValue(organizationSetting.getValue());
 				organizationSettingRepository.save(newOrganizationSetting);
 				isUpdateOrInsertDone = true;
-			}
-			else {
-				if(existingOrganizationSetting != null){
+			} else {
+				if (existingOrganizationSetting != null) {
 					existingOrganizationSetting.setValue(organizationSetting.getValue());
 					organizationSetting.setOrganization(organizationRepository.getOrganizationByUid(organizationUid));
 					organizationSettingRepository.save(existingOrganizationSetting);
@@ -210,76 +226,48 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 					isUpdateOrInsertDone = true;
 				}
 			}
-			if(isUpdateOrInsertDone){
+			if (isUpdateOrInsertDone) {
 				settingService.resetOrganizationSettings(organizationSetting.getKey());
 			}
-		}
-		else {
+		} else {
 			throw new BadCredentialsException("Values should not be null !");
 		}
-		
+
 		return new ActionResponseDTO<OrganizationSetting>(organizationSetting, null);
 	}
 
 	@Override
-	public ActionResponseDTO<Organization> updateOrganization(Organization newOrganization, String existingOrganizationUid, User apiCaller) throws Exception{
+	public ActionResponseDTO<Organization> updateOrganization(Organization newOrganization, String existingOrganizationUid, User apiCaller) throws Exception {
 		Organization existingOrganization = null;
 		Errors errors = validateNullFields(newOrganization);
-		if(!errors.hasErrors()){
+		if (!errors.hasErrors()) {
 			existingOrganization = organizationRepository.getOrganizationByUid(existingOrganizationUid);
-			if(existingOrganization != null){
+			if (existingOrganization != null) {
 				existingOrganization.setPartyName(newOrganization.getPartyName());
 				existingOrganization.setLastModifiedOn(new Date(System.currentTimeMillis()));
-				
-				// need to add logic for current user is organization admin
 				existingOrganization.setLastModifiedUserUid(apiCaller.getPartyUid());
 				organizationRepository.save(existingOrganization);
 			}
 		}
-		return new ActionResponseDTO<Organization>(existingOrganization,errors);
-	}
-	
-	public static String getRandomString(int length) {
-	   String randomStr = UUID.randomUUID().toString();
-	   while(randomStr.length() < length) {
-	       randomStr += UUID.randomUUID().toString();
-	   }
-	   return randomStr.substring(0, length);
+		return new ActionResponseDTO<Organization>(existingOrganization, errors);
 	}
 
-	private void updateOrgAdminCustomField(String organizationUid, User user){
-		PartyCustomField partyCustomField = partyService.getPartyCustomeField(user.getPartyUid(), ORG_ADMIN_KEY, user);
-		if(partyCustomField == null){
-			partyCustomField = new PartyCustomField();
-			partyCustomField.setCategory(PartyCategoryType.USER_META.getpartyCategoryType());
-			partyCustomField.setOptionalKey(ORG_ADMIN_KEY);
-			partyCustomField.setOptionalValue(organizationUid);
-			partyCustomField.setPartyUid(user.getPartyUid());
-			partyService.createPartyCustomField(MY, partyCustomField, user);
+	public static String getRandomString(int length) {
+		String randomStr = UUID.randomUUID().toString();
+		while (randomStr.length() < length) {
+			randomStr += UUID.randomUUID().toString();
 		}
-		else {
-/*			partyCustomField.setOptionalValue(partyCustomField.getOptionalValue()+","+organizationUid);
-			organizationRepository.save(partyCustomField);
-*/		}
+		return randomStr.substring(0, length);
 	}
-/*	private void updateDefaultOrganizationPermission(Organization permittedOrg){
-		PartyPermission partyPermission = new PartyPermission();
-		partyPermission.setParty(organizationRepository.getOrganizationByUid(TaxonomyUtil.GOORU_ORG_UID));
-		partyPermission.setPermittedParty(permittedOrg);
-		partyPermission.setPermission(READ_ONLY);
-		partyPermission.setValidFrom(new Date(System.currentTimeMillis()));
-		organizationRepository.save(partyPermission);
-	}
-*/	
-	// This method should be not be used
+
 	@Override
-	public User updateUserOrganization(String organizationUid, String gooruUid)	throws Exception {
+	public User updateUserOrganization(String organizationUid, String gooruUid) throws Exception {
 		User user = null;
-		if(organizationUid != null && gooruUid != null){
+		if (organizationUid != null && gooruUid != null) {
 			Organization organization = organizationRepository.getOrganizationByUid(organizationUid);
 			user = userService.findByGooruId(gooruUid);
-			if(organization != null && user != null){
-				if(!userService.isContentAdmin(user)){
+			if (organization != null && user != null) {
+				if (!userService.isContentAdmin(user)) {
 					UserRole userRole = userService.findUserRoleByName(UserRoleType.CONTENT_ADMIN.getType());
 					UserRoleAssoc userRoleAssoc = new UserRoleAssoc();
 					userRoleAssoc.setRole(userRole);
@@ -293,28 +281,57 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 				partyPermission.setValidFrom(new Date(System.currentTimeMillis()));
 				organizationRepository.save(partyPermission);
 			}
-		return user;
+			return user;
 		}
 		return user;
 	}
-	
+
 	@Override
 	public OrganizationSetting getOrganizationSetting(String organizationUid, String key) throws Exception {
-		if(organizationUid != null && key != null){
+		if (organizationUid != null && key != null) {
 			return organizationSettingRepository.getOrganizationSettings(organizationUid, key);
 		}
 		return null;
 	}
-	
+
 	@Override
 	public Organization getOrganizationByIdpName(String idpDomainName) {
-		if(idpDomainName != null){
+		if (idpDomainName != null) {
 			return (Organization) organizationRepository.getOrganizationByIdpName(idpDomainName);
 		}
 		return null;
 	}
-	
+
+	@Override
+	public SearchResults<Organization> getOrganizations(String type, String parentOrganizationUid, String sateProvinceId, Integer offset, Integer limit) {
+		SearchResults<Organization> result = new SearchResults<Organization>();
+		result.setSearchResults(this.getOrganizationRepository().getOrganizations(CustomProperties.Table.ORGANIZATION_CATEGORY.getTable() + "_" + type, parentOrganizationUid, sateProvinceId, offset, limit));
+		result.setTotalHitCount(this.getOrganizationRepository().getOrganizationCount(CustomProperties.Table.ORGANIZATION_CATEGORY.getTable() + "_" + type, parentOrganizationUid, sateProvinceId));
+		return result;
+	}
+
+	@Override
+	public SearchResults<User> getUsersByOrganization(String type, String organizationUid, String parentOrganizationUid, Integer offset, Integer limit) {
+		SearchResults<User> result = new SearchResults<User>();
+		result.setSearchResults(this.getUserRepository().findUsersByOrganization(type.equalsIgnoreCase(CustomProperties.InstitutionType.SCHOOL_DISTRICT.getInstitutionType()) ? organizationUid : null, type.equalsIgnoreCase(CustomProperties.InstitutionType.SCHOOL.getInstitutionType()) ? parentOrganizationUid : null, offset, limit));
+		result.setTotalHitCount(this.getUserRepository().getUsersByOrganizationCount(type.equalsIgnoreCase(CustomProperties.InstitutionType.SCHOOL_DISTRICT.getInstitutionType()) ? organizationUid : null, type.equalsIgnoreCase(CustomProperties.InstitutionType.SCHOOL.getInstitutionType()) ? parentOrganizationUid : null));
+		return result;
+	}
+
 	public OrganizationRepository getOrganizationRepository() {
 		return organizationRepository;
 	}
+
+	public CountryRepository getCountryRepository() {
+		return countryRepository;
+	}
+
+	public CustomTableRepository getCustomTableRepository() {
+		return customTableRepository;
+	}
+
+	public UserRepository getUserRepository() {
+		return userRepository;
+	}
+
 }

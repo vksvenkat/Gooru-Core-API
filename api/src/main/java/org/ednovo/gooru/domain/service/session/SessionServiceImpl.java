@@ -158,11 +158,10 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 	@Override
 	public ActionResponseDTO<SessionItem> createSessionItem(final SessionItem sessionItem, final String sessionId) {
 		Errors errors = null;
-	 try {
 		final Session session = this.getSessionRepository().findSessionById(sessionId);
 		rejectIfNull(session, GL0056, SESSION);
 		final Resource resource = this.getResourceRepository().findResourceByContentGooruId(sessionItem.getResource().getGooruOid());
-		rejectIfNull(resource, GL0056, SESSION);
+		rejectIfNull(resource, GL0056, RESOURCE);
 		if (sessionItem.getSessionItemId() == null) {
 			sessionItem.setSessionItemId(UUID.randomUUID().toString());
 		}
@@ -185,9 +184,6 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 
 			this.getSessionRepository().save(sessionItem);
 		}
-	 } catch(Exception e) { 
-		 LOGGER.error("Failed to log : " + e);
-	 }
 		return new ActionResponseDTO<SessionItem>(sessionItem, errors);
 	}
 
@@ -213,16 +209,16 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 
 	@Override
 	public SessionItemAttemptTry createSessionItemAttemptTry(final SessionItemAttemptTry sessionItemAttemptTry, final String sessionItemId) {
-		try{
+		
 			final SessionItem sessionItem = this.getSessionRepository().findSessionItemById(sessionItemId);
 			rejectIfNull(sessionItem, GL0056, SESSION_ITEM);
-			AssessmentQuestion question = new AssessmentQuestion();
+			AssessmentQuestion question = null;
 			if (sessionItem.getResource().getResourceType() != null && sessionItem.getResource().getResourceType().getName().equalsIgnoreCase(ASSESSMENT_QUESTION)) {
 				question = this.assessmentService.getQuestion(sessionItem.getResource().getGooruOid());
 			}
 			final Integer trySequence = this.getSessionRepository().getSessionItemAttemptTry(sessionItemId).size() + 1;
-			if (question != null && question.getTypeName().equalsIgnoreCase(AssessmentQuestion.TYPE.FILL_IN_BLANKS.getName()) || question.getTypeName().equalsIgnoreCase(AssessmentQuestion.TYPE.OPEN_ENDED.getName()) || question.getTypeName().equals(AssessmentQuestion.TYPE.SHORT_ANSWER.getName())
-					|| question.getTypeName().equalsIgnoreCase(AssessmentQuestion.TYPE.MULTIPLE_ANSWERS.getName())) {
+			if (question != null && (question.getTypeName().equalsIgnoreCase(AssessmentQuestion.TYPE.FILL_IN_BLANKS.getName()) || question.getTypeName().equalsIgnoreCase(AssessmentQuestion.TYPE.OPEN_ENDED.getName()) || question.getTypeName().equals(AssessmentQuestion.TYPE.SHORT_ANSWER.getName())
+					|| question.getTypeName().equalsIgnoreCase(AssessmentQuestion.TYPE.MULTIPLE_ANSWERS.getName()))) {
 				rejectIfNull(sessionItemAttemptTry.getAnswerText(), GL0006, ANSWER_TEXT);
 			} else if (question != null && question.getTypeName().equals(AssessmentQuestion.TYPE.MATCH_THE_FOLLOWING.getName())) {
 				rejectIfNull(sessionItemAttemptTry.getAnswerText(), GL0006, ANSWER_TEXT);
@@ -262,9 +258,6 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 			sessionItemAttemptTry.setTrySequence(trySequence);
 			this.getSessionRepository().save(sessionItemAttemptTry);
 			this.getSessionRepository().save(sessionItem);
-		} catch(Exception e){
-			SessionContextSupport.putLogParameter("sessionErrorLog", e.getMessage());
-		}
 		return sessionItemAttemptTry;
 	}
 

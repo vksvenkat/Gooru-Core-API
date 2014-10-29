@@ -88,9 +88,7 @@
 		<bean class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor" />
 		<bean id="gooruInterceptor" class="org.ednovo.gooru.web.spring.interceptor.GooruInterceptor">        	
         	<property name = "gooruConstants" ref = "gooruConstants"/>
-	  	</bean>
-	  	<bean id="apiInterceptor" class="org.ednovo.gooru.web.spring.interceptor.ApiInterceptor" init-method="init" />        	        			
-	    	
+	  	</bean>	    	
 	</mvc:interceptors>
 
 	<!-- Saves a locale change using a cookie -->

@@ -641,11 +641,6 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		if (type != null && type.equalsIgnoreCase("classpage")) {
 			hql += " and collectionItems.resource.sharing in('public','anyonewithlink') ";
 		}
-		if (!orderBy.equals(PLANNED_END_DATE)) {
-			hql += "order by collectionItems.associationDate desc ";
-		} else {
-			hql += "order by IFNULL(collectionItems.plannedEndDate, (SUBSTRING(now(), 1, 4) + 1000)) asc ";
-		}
 		Query query = getSession().createQuery(hql);
 		query.setParameter(GOORU_OID, collectionId);
 		addOrgAuthParameters(query);
@@ -687,12 +682,32 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
 		return query.list();
 	}
+	@Override
+	public Long getClasspageCount(String gooruOid, String itemType) {
+		String sql = "select count(1) as count from collection_item ci inner join resource r on r.content_id = ci.resource_content_id  inner join content c on c.content_id = r.content_id inner join content rc on rc.content_id = ci.collection_content_id left join collection co on co.content_id = r.content_id   " +
+				"where  c.sharing in ('public', 'anyonewithlink') and rc.gooru_oid='"+gooruOid+ "'";
+		
+		if(itemType != null) {
+			sql +=" and r.type_name ='"+itemType+"'";
+		} else {
+			sql +=" and r.type_name != 'pathway'";
+		}
+		Query query = getSession().createSQLQuery(sql).addScalar("count", StandardBasicTypes.LONG);
+		return (Long) query.list().get(0);
+	}
 
 	@Override
-	public Long getClasspageCollectionCount(String classpageGooruOid, String status, String userUid, String orderBy) {
+	public Long getClasspageCollectionCount(String classpageGooruOid, String status, String userUid, String orderBy, String type) {
 		String sql = "select count(1) as count from collection_item ci inner join resource r on r.content_id = ci.resource_content_id  inner join content c on c.content_id = r.content_id inner join content rc on rc.content_id = ci.collection_content_id left join collection co on co.content_id = r.content_id left join user_collection_item_assoc uc on uc.collection_item_uid = ci.collection_item_id and uc.user_uid = '"
 				+ userUid + "' left join custom_table_value ct on ct.custom_table_value_id = uc.status inner join user uu on uu.gooru_uid = c.user_uid  where  c.sharing in ('public', 'anyonewithlink') ";
 		sql += " and rc.gooru_oid='" + classpageGooruOid + "'  ";
+		
+		if(type != null) {
+			sql +=" and r.type_name ='"+type+"'";
+		} else {
+			sql +=" and r.type_name != 'pathway'";
+		}
+		
 		if (status != null) {
 			sql += " and IFNULL(ct.value, 'open') = '" + status + "' ";
 		}
@@ -739,9 +754,8 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Object[]> getMyFolder(String gooruUid, Integer limit, Integer offset, String sharing, String collectionType, boolean fetchChildItem) {
-		String sql = "select re.title, cr.gooru_oid, re.type_name, re.folder, re.thumbnail, cr.sharing, ci.collection_item_id, co.goals, ct.value, ct.display_name, rs.attribution, rs.domain_name , co.ideas, co.questions,co.performance_tasks, co.collection_type from  resource r inner join collection c on c.content_id = r.content_id inner join content cc on cc.content_id =  c.content_id inner join collection_item ci on ci.collection_content_id = c.content_id inner join resource re on re.content_id = ci.resource_content_id inner join content cr on  cr.content_id = re.content_id inner join organization o  on  o.organization_uid = cr.organization_uid  left join collection co on co.content_id = re.content_id left join custom_table_value ct on ct.custom_table_value_id = r.resource_format_id left join resource_source rs on rs.resource_source_id = r.resource_source_id  where c.collection_type = 'shelf' and  cr.sharing in ('"
-				+ sharing.replace(",", "','") + "') ";
+	public List<Object[]> getMyFolder(String gooruUid, Integer limit, Integer offset, String sharing, String collectionType, boolean fetchChildItem, String orderBy) {
+		String sql = "select re.title, cr.gooru_oid, re.type_name, re.folder, re.thumbnail, cr.sharing, ci.collection_item_id, co.goals, ct.value, ct.display_name, rs.attribution, rs.domain_name , co.ideas, co.questions,co.performance_tasks, co.collection_type, ci.item_sequence, cc.gooru_oid as parentGooruOid from  resource r inner join collection c on c.content_id = r.content_id inner join content cc on cc.content_id =  c.content_id inner join collection_item ci on ci.collection_content_id = c.content_id inner join resource re on re.content_id = ci.resource_content_id inner join content cr on  cr.content_id = re.content_id inner join organization o  on  o.organization_uid = cr.organization_uid  left join collection co on co.content_id = re.content_id left join custom_table_value ct on ct.custom_table_value_id = r.resource_format_id left join resource_source rs on rs.resource_source_id = r.resource_source_id  where c.collection_type = 'shelf' and  cr.sharing in ('"+ sharing.replace(",", "','") + "') ";
 		sql += " and cc.user_uid = '" + gooruUid + "' ";
 		if (collectionType != null) {
 			collectionType = collectionType.equalsIgnoreCase(COLLECTION) ? SCOLLECTION : collectionType;
@@ -750,7 +764,11 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		if (fetchChildItem) {
 			sql += " and ci.item_type != 'collaborator' ";
 		}
-		sql += " order by ci.association_date desc ";
+		if(orderBy != null && orderBy.equalsIgnoreCase(SEQUENCE)) {
+			sql += " order by ci.item_sequence desc ";
+		} else {
+			sql += " order by ci.association_date desc ";
+		}
 		Query query = getSession().createSQLQuery(sql);
 		if (collectionType != null) {
 			query.setParameter(COLLECTION_TYPE, collectionType);
@@ -763,7 +781,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Object[]> getCollectionItem(String gooruOid, Integer limit, Integer offset, String sharing, String orderBy, String collectionType, boolean fetchChildItem) {
-		String sql = "select r.title, c.gooru_oid, r.type_name, r.folder, r.thumbnail, ct.value, ct.display_name, c.sharing, ci.collection_item_id, co.goals, rs.attribution, rs.domain_name, co.ideas, co.questions, co.performance_tasks, r.url ,rsummary.rating_star_avg, rsummary.rating_star_count, co.collection_type from collection_item ci inner join resource r on r.content_id = ci.resource_content_id  left join custom_table_value ct on ct.custom_table_value_id = r.resource_format_id inner join content c on c.content_id = r.content_id inner join content rc on rc.content_id = ci.collection_content_id left join collection co on co.content_id = r.content_id left join resource_source rs on rs.resource_source_id = r.resource_source_id left join resource_summary rsummary on   c.gooru_oid = rsummary.resource_gooru_oid where  c.sharing in ('"
+		String sql = "select r.title, c.gooru_oid, r.type_name, r.folder, r.thumbnail, ct.value, ct.display_name, c.sharing, ci.collection_item_id, co.goals, rs.attribution, rs.domain_name, co.ideas, co.questions, co.performance_tasks, r.url ,rsummary.rating_star_avg, rsummary.rating_star_count, co.collection_type, ci.item_sequence, rc.gooru_oid as parentGooruOid  from collection_item ci inner join resource r on r.content_id = ci.resource_content_id  left join custom_table_value ct on ct.custom_table_value_id = r.resource_format_id inner join content c on c.content_id = r.content_id inner join content rc on rc.content_id = ci.collection_content_id left join collection co on co.content_id = r.content_id left join resource_source rs on rs.resource_source_id = r.resource_source_id left join resource_summary rsummary on   c.gooru_oid = rsummary.resource_gooru_oid where  c.sharing in ('"
 				+ sharing.replace(",", "','") + "') and rc.gooru_oid=:gooruOid  ";
 		if (collectionType != null) {
 			collectionType = collectionType.equalsIgnoreCase(COLLECTION) ? SCOLLECTION : collectionType;
@@ -773,7 +791,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 			sql += " and ci.item_type != 'collaborator' ";
 		}
 		if (orderBy != null && orderBy.equalsIgnoreCase(SEQUENCE)) {
-			sql += " order by ci.item_sequence asc";
+			sql += " order by ci.item_sequence desc";
 		} else {
 			sql += " order by ci.association_date desc";
 		}
@@ -949,12 +967,17 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Object[]> getClasspageItems(String gooruOid, Integer limit, Integer offset, String userUid, String orderBy, String status) {
-		String sql = "select association_date,ci.collection_item_id,item_sequence,narration,planned_end_date,c.gooru_oid,r.title, r.folder, r.thumbnail, c.sharing, co.goals, IFNULL(ct.value, 'open') as status, uu.username, uu.gooru_uid, r.type_name from collection_item ci inner join resource r on r.content_id = ci.resource_content_id  inner join content c on c.content_id = r.content_id inner join content rc on rc.content_id = ci.collection_content_id left join collection co on co.content_id = r.content_id left join user_collection_item_assoc uc on uc.collection_item_uid = ci.collection_item_id and uc.user_uid = '"
+	public List<Object[]> getClasspageItems(String gooruOid, Integer limit, Integer offset, String userUid, String orderBy, String status, String type) {
+		String sql = "select association_date,ci.collection_item_id,item_sequence,narration,planned_end_date,c.gooru_oid,r.title, r.folder, r.thumbnail, c.sharing, co.goals, IFNULL(ct.value, 'open') as status, uu.username, uu.gooru_uid, r.type_name,ci.is_required , ci.show_answer_by_questions, ci.show_hints, ci.show_answer_end ,ci.minimum_score, ci.estimated_time,uc.minimum_score as user, uc.assignment_completed , uc.time_studying from collection_item ci inner join resource r on r.content_id = ci.resource_content_id  inner join content c on c.content_id = r.content_id inner join content rc on rc.content_id = ci.collection_content_id left join collection co on co.content_id = r.content_id left join user_collection_item_assoc uc on uc.collection_item_uid = ci.collection_item_id and uc.user_uid = '"
 				+ userUid + "' left join custom_table_value ct on ct.custom_table_value_id = uc.status inner join user uu on uu.gooru_uid = c.user_uid  where  c.sharing in ('public', 'anyonewithlink') ";
 		sql += " and rc.gooru_oid='" + gooruOid + "'  ";
 		if (status != null) {
 			sql += " and IFNULL(ct.value, 'open') = '" + status + "' ";
+		}
+		if(type != null) {
+			sql +=" and r.type_name ='"+type+"'";
+		} else {
+			sql +=" and r.type_name != 'pathway'";
 		}
 		if (orderBy != null && orderBy.equalsIgnoreCase(RECENT)) {
 			sql += " order by ci.association_date desc, item_sequence  desc ";
@@ -1050,6 +1073,13 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		}
 		Query query = getSession().createSQLQuery(sql);
 		return (BigInteger) query.list().get(0);
+	}
+
+	@Override
+	public List<Object[]> getParentDetails(String collectionItemId) {
+		String sql = "select cc.gooru_oid as classId, rc.title as classTitle, cp.gooru_oid as pathwayId, rp.title as pathwayTitle, cs.gooru_oid as assignmentId, rs.title as assignmentTitle,cii.narration,cii.planned_end_date,cii.is_required,cii.minimum_score from content cc inner join resource rc on (rc.content_id = cc.content_id) inner join collection_item ci on (ci.collection_content_id = rc.content_id) inner join content cp on (cp.content_id = ci.resource_content_id) inner join resource rp on (rp.content_id = cp.content_id) inner join collection_item cii on (cii.collection_content_id = rp.content_id) inner join content cs on (cs.content_id = cii.resource_content_id) inner join resource rs on (cs.content_id = rs.content_id) where cii.collection_item_id ='"+collectionItemId+"'";
+		Query query = getSession().createSQLQuery(sql);
+		return query.list();
 	}
 
 }

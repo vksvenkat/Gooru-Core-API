@@ -39,6 +39,9 @@ public class CollectionItem implements Serializable, Comparable<CollectionItem> 
 	private Boolean showAnswerByQuestions ; 
 	private Boolean showHints ;
 	private Boolean showAnswerEnd;
+	private String  minimumScoreByUser;
+	private String assignmentCompleted;
+	private String timeStudying;
 	
 	
 	/**
@@ -272,6 +275,30 @@ public class CollectionItem implements Serializable, Comparable<CollectionItem> 
 
 	public String getEstimatedTime() {
 		return estimatedTime;
+	}
+
+	public void setMinimumScoreByUser(String minimumScoreByUser) {
+		this.minimumScoreByUser = minimumScoreByUser;
+	}
+
+	public String getMinimumScoreByUser() {
+		return minimumScoreByUser;
+	}
+
+	public void setAssignmentCompleted(String assignmentCompleted) {
+		this.assignmentCompleted = assignmentCompleted;
+	}
+
+	public String getAssignmentCompleted() {
+		return assignmentCompleted;
+	}
+
+	public void setTimeStudying(String timeStudying) {
+		this.timeStudying = timeStudying;
+	}
+
+	public String getTimeStudying() {
+		return timeStudying;
 	}	
 
 }

@@ -28,7 +28,7 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.ednovo.gooru.core.api.model.ApiKey;
+import org.ednovo.gooru.core.api.model.Application;
 import org.ednovo.gooru.core.api.model.Identity;
 import org.ednovo.gooru.core.api.model.Profile;
 import org.ednovo.gooru.core.api.model.User;
@@ -68,7 +68,7 @@ public interface UserManagementService extends BaseService {
 
 	Boolean isContentAdmin(User user);
 
-	UserToken createSessionToken(User user, String sessionId, ApiKey apiKey);
+	UserToken createSessionToken(User user, String sessionId, Application application);
 
 	User createUser(User user, String password, String school, Integer confirmStatus, Integer addedBySystem, String userImportCode, String accountType, String dateOfBirth, String userParentId, String remoteEntityId, String gender, String childDOB, String source, String emailSSO,
 			HttpServletRequest resRequest, String role, String mailConfirmationUrl) throws Exception;

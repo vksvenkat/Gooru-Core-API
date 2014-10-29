@@ -103,6 +103,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 	private static final String FIND_GROUP_USER_BY_IDS = "FROM UserGroupAssociation UGA WHERE UGA.user.partyUid IN (:partyUids)";
 	private static final String FIND_PARTY_ID = "FROM Party party WHERE party.partyUid =:partyUid";
 	private static final String FIND_IDENTITY = "SELECT identity.user FROM Identity  identity WHERE identity.externalId = :externalId AND " + generateOrgAuthQuery("identity.user.") + " AND " + generateUserIsDeleted("identity.user.");
+	private static final String FIND_IDENTITY_LOGIN = "SELECT identity.user FROM Identity  identity WHERE identity.externalId = :externalId AND " + generateUserIsDeleted("identity.user.");
 
 	@Autowired
 	public UserRepositoryHibernate(SessionFactory sessionFactory, JdbcTemplate jdbcTemplate) {
@@ -799,6 +800,61 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 			return (results.get(0).intValue());
 		}
 		return 0;
+	}
+
+	@Override
+	public User findByIdentityLogin(Identity identity) {
+		Query query = getSession().createQuery(FIND_IDENTITY_LOGIN);
+		query.setParameter("externalId", identity.getExternalId());
+		return (User) (query.list().size() > 0 ? query.list().get(0) : null);
+	}
+
+	@Override
+	public List<User> findUsersByOrganization(String organizationUid, String parentOrganizationUid, Integer offset, Integer limit) {
+		String hql = "from User u where  1=1 ";
+		if (organizationUid != null) {
+			hql += " AND u.organization.partyUid =:organizationUid ";
+		}
+		if (parentOrganizationUid != null) {
+			hql += " AND u.organization.parentOrganization.partyUid =:parentOrganizationUid";
+		}
+
+		Query query = getSession().createQuery(hql);
+		if (organizationUid != null) {
+			query.setParameter("organizationUid", organizationUid);
+		}
+		if (parentOrganizationUid != null) {
+			query.setParameter("parentOrganizationUid", parentOrganizationUid);
+		}
+		query.setFirstResult(offset);
+		query.setMaxResults(limit == null ? LIMIT : (limit > MAX_LIMIT ? MAX_LIMIT : limit));
+		return query.list();
+	}
+
+	@Override
+	public Long getUsersByOrganizationCount(String organizationUid, String parentOrganizationUid) {
+		String hql = "SELECT count(*) from User u where  1=1 ";
+		if (organizationUid != null) {
+			hql += " AND u.organization.partyUid =:organizationUid ";
+		}
+		if (parentOrganizationUid != null) {
+			hql += " AND u.organization.parentOrganization.partyUid =:parentOrganizationUid";
+		}
+
+		Query query = getSession().createQuery(hql);
+		if (organizationUid != null) {
+			query.setParameter("organizationUid", organizationUid);
+		}
+		if (parentOrganizationUid != null) {
+			query.setParameter("parentOrganizationUid", parentOrganizationUid);
+		}
+		return (Long) (query.list().size() > 0 ? query.list().get(0) : 0);
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<UserRoleAssoc> findUserRoleSetByUserUid(String userUid) {
+		return find("From UserRoleAssoc userRoleAssoc  WHERE userRoleAssoc.user.partyUid = " + userUid + "  AND " + generateOrgAuthQueryWithData("userRoleAssoc.user.") + " AND " + generateUserIsDeleted("userRoleAssoc.user."));
 	}
 
 }

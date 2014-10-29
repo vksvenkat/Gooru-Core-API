@@ -53,6 +53,7 @@ import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.security.AuthorizeOperations;
 import org.ednovo.gooru.domain.service.CollectionService;
 import org.ednovo.gooru.domain.service.classpage.ClasspageService;
+import org.ednovo.gooru.domain.service.redis.RedisService;
 import org.ednovo.gooru.domain.service.search.SearchResults;
 import org.ednovo.gooru.domain.service.task.TaskService;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepository;
@@ -90,6 +91,9 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 
 	@Autowired
 	private TaskRepository taskRepository;
+	
+	@Autowired
+	private RedisService redisService;
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ADD })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -231,8 +235,8 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 		ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().updateCollectionItem(newCollectionItem, collectionItemId, user);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-		} else if (newCollectionItem.getStatus() != null) {
-			getClasspageService().updateAssignment(collectionItemId, newCollectionItem.getStatus(), user);
+		} else if (newCollectionItem.getStatus() != null || newCollectionItem.getMinimumScoreByUser() != null || newCollectionItem.getAssignmentCompleted() != null || newCollectionItem.getTimeStudying() != null) {
+			getClasspageService().updateAssignment(collectionItemId, newCollectionItem.getStatus(), newCollectionItem.getMinimumScoreByUser(),newCollectionItem.getAssignmentCompleted(), newCollectionItem.getTimeStudying() ,user);
 		}
 		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, COLLECTION_ITEM_INCLUDE_FILEDS);
 		includes = (String[]) ArrayUtils.addAll(includes, CLASSPAGE_COLLECTION_ITEM_INCLUDE_FIELDS);
@@ -273,18 +277,25 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ITEM_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/{cid}/item", method = RequestMethod.GET)
-	public ModelAndView getClasspageItems(@PathVariable(value = COLLECTIONID) String classpageId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false) Integer limit,
-		@RequestParam(value = ORDER_BY, defaultValue = PLANNED_END_DATE, required = false) String orderBy, @RequestParam(value = OPTIMIZE, required = false, defaultValue = FALSE) Boolean optimize, @RequestParam(value = STATUS, required = false) String status, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public ModelAndView getClasspageItems(@PathVariable(value = COLLECTIONID) String classpageId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue= "10") Integer limit,
+		@RequestParam(value = ORDER_BY, defaultValue = PLANNED_END_DATE, required = false) String orderBy,@RequestParam(value=CLEAR_CACHE, required=false, defaultValue="false" ) Boolean clearCache, @RequestParam(value = OPTIMIZE, required = false, defaultValue = FALSE) Boolean optimize, @RequestParam(value = STATUS, required = false) String status, @RequestParam(value = TYPE, required = false) String type,HttpServletRequest request, HttpServletResponse response) throws Exception {
 		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, CLASSPAGE_COLLECTION_ITEM_INCLUDE_FIELDS);
 		includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_ITEM_INCLUDE_FILEDS);
 		User user = (User) request.getAttribute(Constants.USER);
-		List<Map<String, Object>> collectionItems = this.getClasspageService().getClasspageItems(classpageId, limit != null ? limit : (optimize ? 30 : 5)  , offset, user, orderBy, optimize, status);
-		String responseJson = null;
-		SearchResults<Map<String, Object>> result = new SearchResults<Map<String, Object>>();
-		result.setSearchResults(collectionItems);
-		result.setTotalHitCount(this.getCollectionRepository().getClasspageCollectionCount(classpageId, status, user.getPartyUid(), orderBy));
-		responseJson = serialize(result, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, true, includes);
-		return toModelAndView(responseJson);
+		final String cacheKey = "v2-class-data-" + classpageId + "-" + offset + "-" + limit  + "-" + optimize + "-" + orderBy +"-"+ status+"-"+type ;
+		String data = null;
+		if (!clearCache) {
+			data = getRedisService().getValue(cacheKey);
+		}
+		if (data == null) {
+			List<Map<String, Object>> collectionItems = this.getClasspageService().getClasspageItems(classpageId, limit != null ? limit : (optimize ? limit : 5), offset, user, orderBy, optimize, status, type);
+			SearchResults<Map<String, Object>> result = new SearchResults<Map<String, Object>>();
+			result.setSearchResults(collectionItems);
+			result.setTotalHitCount(this.getCollectionRepository().getClasspageCollectionCount(classpageId, status, user.getPartyUid(), orderBy, type));
+			data = serialize(result, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, true, includes);
+			getRedisService().putValue(cacheKey, data, 86400);
+		}
+		return toModelAndView(data);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ITEM_DELETE })
@@ -329,10 +340,11 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/my/{type}" }, method = RequestMethod.GET)
 	public ModelAndView getMyTeachAndStudy(@PathVariable(value = TYPE) String type, HttpServletRequest request, HttpServletResponse response,  @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset,
-			@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, @RequestParam(value = ORDER_BY, defaultValue = "desc", required = false) String orderBy) throws Exception {
+			@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, 
+			@RequestParam(value = ITEM_TYPE, required = false) String itemType,@RequestParam(value = ORDER_BY, defaultValue = "desc", required = false) String orderBy) throws Exception {
 		User apiCaller = (User) request.getAttribute(Constants.USER);
 
-		return toModelAndView(serialize(this.getClasspageService().getMyStudy(apiCaller, orderBy, offset, limit, type), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, false, true, STUDY_RESOURCE_FIELDS));
+		return toModelAndView(serialize(this.getClasspageService().getMyStudy(apiCaller, orderBy, offset, limit, type,itemType), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, false, true, STUDY_RESOURCE_FIELDS));
 	}
 	
 
@@ -407,7 +419,7 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/{id}/pathway/{pid}", method = RequestMethod.PUT)
 	public ModelAndView updatePathway(@RequestBody String data, @PathVariable(value= ID) String classId , @PathVariable(value= "pid") String pathwayGooruOid ,HttpServletRequest request, HttpServletResponse response) throws Exception {
-		Collection pathwayCollection = this.getClasspageService().updatePathway(pathwayGooruOid, this.buildUpadtePathwayCollectionFromInputParameters(data));
+		Collection pathwayCollection = this.getClasspageService().updatePathway(classId,pathwayGooruOid, this.buildUpadtePathwayCollectionFromInputParameters(data));
 		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, COLLECTION_INCLUDE_FIELDS);
 		includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_ITEM_INCLUDE_FILEDS);
 		includes = (String[]) ArrayUtils.addAll(includes, ERROR_INCLUDE);
@@ -419,23 +431,59 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	@RequestMapping(value = { "/{id}/pathway/{pid}" }, method = RequestMethod.DELETE)
 	public void deletePathway(@PathVariable(value= ID) String classId , @PathVariable(value= "pid") String pathwayGooruOid, HttpServletRequest request, HttpServletResponse response) {
 		User user = (User) request.getAttribute(Constants.USER);
-		this.getClasspageService().deletePathway(pathwayGooruOid, user);
+		this.getClasspageService().deletePathway(classId,pathwayGooruOid, user);
+	}
+	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ITEM_UPDATE })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(value = { "/{id}/pathway/{pid}/item/{itemId}" }, method = RequestMethod.PUT)
+	public ModelAndView updatePathwayItem(@PathVariable(value= ID) String classId , @PathVariable(value= "itemId") String collectionItemId,@PathVariable(value= "pid") String pathwayGooruOid, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		User user = (User) request.getAttribute(Constants.USER);
+		JSONObject json = requestData(data);
+		CollectionItem newCollectionItem = this.buildCollectionItemFromInputParameters(getValue(COLLECTION_ITEM, json));
+		ActionResponseDTO<CollectionItem> responseDTO = getClasspageService().updatePathwayItem(classId,pathwayGooruOid,collectionItemId,newCollectionItem,  user);
+		if (responseDTO.getErrors().getErrorCount() > 0) {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+		} else if (newCollectionItem.getStatus() != null || newCollectionItem.getMinimumScoreByUser() != null && newCollectionItem.getAssignmentCompleted() != null || newCollectionItem.getTimeStudying() != null) {
+			getClasspageService().updateAssignment(collectionItemId, newCollectionItem.getStatus(), newCollectionItem.getMinimumScoreByUser(), newCollectionItem.getAssignmentCompleted(), newCollectionItem.getTimeStudying() ,user);
+		}
+		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, COLLECTION_ITEM_INCLUDE_FILEDS);
+		includes = (String[]) ArrayUtils.addAll(includes, CLASSPAGE_COLLECTION_ITEM_INCLUDE_FIELDS);
+		return toModelAndViewWithIoFilter(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
+	}
+	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ITEM_DELETE })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(value = { "/{id}/pathway/{pid}/item/{itemId}" }, method = RequestMethod.DELETE)
+	public void deletePathwayItem(@PathVariable(value= ID) String classId , @PathVariable(value= "itemId") String collectionItemId,@PathVariable(value= "pid") String pathwayGooruOid, HttpServletRequest request, HttpServletResponse response) {
+		User user = (User) request.getAttribute(Constants.USER);
+		this.getClasspageService().deletePathwayItem(classId,pathwayGooruOid,collectionItemId ,user);
 	}
 	
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ITEM_READ })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/{id}/pathway/{pid}", method = RequestMethod.GET)
-	public ModelAndView getPathwayItems(@PathVariable(value= ID) String classId ,  @PathVariable(value= "pid") String pathId ,@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, 
-			@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,@RequestParam(value = ORDER_BY, defaultValue = SEQUENCE ,required = false) String orderBy ,HttpServletRequest request, HttpServletResponse response) throws Exception {
-			User user = (User) request.getAttribute(Constants.USER);
-		SearchResults<CollectionItem> searchResults = this.getClasspageService().getPathwayItemsSearchResults(classId, pathId, offset, limit, orderBy,user);
-		String includesDefault[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, COLLECTION_ITEM_INCLUDE_FILEDS);
-		includesDefault = (String[]) ArrayUtils.addAll(includesDefault, COLLECTION_ITEM_TAGS);
-		includesDefault = (String[]) ArrayUtils.addAll(includesDefault, CLASSPAGE_COLLECTION_ITEM_INCLUDE_FIELDS);
-		includesDefault = (String[]) ArrayUtils.addAll(includesDefault, COLLECTION_WORKSPACE);
-		String includes[] = (String[]) ArrayUtils.addAll(includesDefault, ERROR_INCLUDE);
-		return toModelAndViewWithIoFilter(searchResults, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
+	public ModelAndView getPathwayItems(@PathVariable(value = ID) String classId, @PathVariable(value = "pid") String pathId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset,
+			@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, @RequestParam(value = CLEAR_CACHE, required = false, defaultValue = "false") Boolean clearCache, @RequestParam(value = ORDER_BY, defaultValue = SEQUENCE, required = false) String orderBy,
+			HttpServletRequest request, HttpServletResponse response) throws Exception {
+		User user = (User) request.getAttribute(Constants.USER);
+		final String cacheKey = "v2-class-data-" + classId+ "-"+ pathId + "-" + offset + "-" + limit + "-" + orderBy;
+		String data = null;
+		if (!clearCache) {
+			data = getRedisService().getValue(cacheKey);
+		}
+		if (data == null) {
+			SearchResults<CollectionItem> searchResults = this.getClasspageService().getPathwayItemsSearchResults(classId, pathId, offset, limit, orderBy, user);
+			String includesDefault[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, COLLECTION_ITEM_INCLUDE_FILEDS);
+			includesDefault = (String[]) ArrayUtils.addAll(includesDefault, COLLECTION_ITEM_TAGS);
+			includesDefault = (String[]) ArrayUtils.addAll(includesDefault, CLASSPAGE_COLLECTION_ITEM_INCLUDE_FIELDS);
+			includesDefault = (String[]) ArrayUtils.addAll(includesDefault, COLLECTION_WORKSPACE);
+			String includes[] = (String[]) ArrayUtils.addAll(includesDefault, ERROR_INCLUDE);
+			data = serialize(searchResults, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, true, includes);
+			getRedisService().putValue(cacheKey, data, 86400);
+		}
+		return toModelAndView(data);
 	}
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ITEM_ADD })
@@ -452,7 +500,7 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ITEM_UPDATE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	@RequestMapping(value = { "{id}/pathway/{pid}/reorder/{sequence}" }, method = RequestMethod.PUT)
+	@RequestMapping(value = { "/{id}/pathway/{pid}/reorder/{sequence}" }, method = RequestMethod.PUT)
 	public ModelAndView reorderPathwaySequence(@PathVariable(value = ID) String classId, @PathVariable(value= "pid") String pathwayId, @PathVariable(value = SEQUENCE) int newSequence, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		ActionResponseDTO<CollectionItem> responseDTO = this.getClasspageService().reorderPathwaySequence(classId,pathwayId ,newSequence);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
@@ -464,6 +512,32 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 
 		return toModelAndViewWithIoFilter(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
+	
+	
+	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ITEM_UPDATE })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(value = { "/{id}/pathway/{pid}/item/{itemId}/move" }, method = RequestMethod.PUT)
+	public ModelAndView pathwayItemMoveWithReorder(@PathVariable(value= ID) String classId , @PathVariable(value= "itemId") String collectionItemId,@PathVariable(value= "pid") String pathwayId, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		User user = (User) request.getAttribute(Constants.USER);
+		JSONObject json = requestData(data);
+		CollectionItem collectionItem = getClasspageService().pathwayItemMoveWithReorder(classId,pathwayId,collectionItemId, json != null && getValue(TARGET_ID, json) != null ? getValue(TARGET_ID, json) : null, json != null && getValue("newSequence", json) != null ? Integer.parseInt(getValue("newSequence", json)) : null , user);
+
+		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, COLLECTION_INCLUDE_FIELDS);
+		includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_ITEM_INCLUDE_FILEDS);
+		includes = (String[]) ArrayUtils.addAll(includes, ERROR_INCLUDE);
+		return toModelAndViewWithIoFilter(collectionItem, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
+	}
+	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ITEM_READ })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(value = { "/assignment/{id}" }, method = RequestMethod.GET)
+	public ModelAndView getParentDetails( @PathVariable(value= ID) String collectionItemId,  HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+		return toModelAndView(serializeToJson(this.getClasspageService().getParentDetails(collectionItemId), false, true));
+	}
+	
+	
 	
 
 	private Classpage buildClasspageFromInputParameters(String data, User user) {
@@ -545,6 +619,10 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 
 	public TaskRepository getTaskRepository() {
 		return taskRepository;
+	}
+
+	public RedisService getRedisService() {
+		return redisService;
 	}
 
 }

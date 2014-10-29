@@ -1109,6 +1109,10 @@ public interface ParameterProperties {
 	String SHOW_SCORE = "showScore";
 
 	String SHOW_HINTS = "showHints";
+	
+	String SHOW_ANSWER_END = "showAnswerEnd";
+	
+	String MINIMUM_SCORE = "minimumScore";
 
 	String SHOW_CORRECT_ANSWER = "showCorrectAnswer";
 
@@ -1791,6 +1795,8 @@ public interface ParameterProperties {
 	String DATA_COLUMN_NAME = "dataColumnName";
 
 	String IS_REQUIRED = "isRequired";
+	
+	String SHOW_ANSWER_BY_QUESTIONS = "showAnswerByQuestions";
 
 	String GROUPNAME = "groupName";
 
@@ -1874,7 +1880,7 @@ public interface ParameterProperties {
 	
 	String NETWORK = "network";
 
-	String _ACCOUNT_UID = "accountUid";
+	String _ORGANIZATION_UID = "organizationUid";
 
 	String BROWSER_NAME = "browserName";
 
@@ -2764,7 +2770,7 @@ public interface ParameterProperties {
 	
 	String ROLE_CLIENT = "ROLE_CLIENT";
 	
-	String LTI = "LTI";
+	String LTI = "LTIConsumer";
 	
 	String READ = "read";
 	
@@ -2777,5 +2783,11 @@ public interface ParameterProperties {
 	String COLLECTION_CREATOR = "collectionCreator";
 	
 	String CLASSPAGE_CREATOR = "classpageCreator";
+	
+	String RETURN_URL ="returnUrl";
+	
+	String APPLICATION_URL = "applicationUrl";
+	
+	String APPLICATION_ITEM = "applicationItem";
 	
 }

@@ -31,7 +31,6 @@ import org.ednovo.gooru.core.api.model.Assignment;
 import org.ednovo.gooru.core.api.model.Classpage;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
-import org.ednovo.gooru.core.api.model.CollectionTaskAssoc;
 import org.ednovo.gooru.core.api.model.ContentMetaAssociation;
 import org.ednovo.gooru.core.api.model.Quiz;
 import org.ednovo.gooru.core.api.model.Resource;
@@ -100,7 +99,7 @@ public interface CollectionRepository extends BaseRepository {
 
 	Long getMyClasspageCount(String gooruUid);
 	
-	List<Object[]> getMyFolder(String gooruUid, Integer limit, Integer offset, String sharing, String collectionType, boolean fetchChildItem);
+	List<Object[]> getMyFolder(String gooruUid, Integer limit, Integer offset, String sharing, String collectionType, boolean fetchChildItem, String orderBy);
 	
 	Long getMyShelfCount(String gooruUid, String sharing, String collectionType);
 	
@@ -110,7 +109,7 @@ public interface CollectionRepository extends BaseRepository {
 	
 	List<CollectionItem> findCollectionByResource(String gooruOid, String gooruUid, String type);
 	
-	Long getClasspageCollectionCount(String classpageGooruOid, String status, String userUid, String orderBy);
+	Long getClasspageCollectionCount(String classpageGooruOid, String status, String userUid, String orderBy, String type);
 	
 	List<CollectionItem> getCollectionItemByAssociation(String resourceGooruOid, String gooruUid, String collectionType);
 	
@@ -134,7 +133,7 @@ public interface CollectionRepository extends BaseRepository {
 	
 	ContentMetaAssociation getContentMetaByValue(String value, String collectionId);
 	
-	List<Object[]> getClasspageItems(String gooruOid, Integer limit, Integer offset, String userUid, String orderBy, String status);
+	List<Object[]> getClasspageItems(String gooruOid, Integer limit, Integer offset, String userUid, String orderBy, String status, String type);
 	
 	List<Collection> getCollectionsList(User user,Integer limit, Integer offset, String publishStatus);
 	
@@ -145,5 +144,9 @@ public interface CollectionRepository extends BaseRepository {
 	List<Object[]> getClasspageAssoc(Integer offset, Integer limit,String classpageId ,String collectionId, String gooruUid, String title, String collectionTitle, String classCode);
 	
 	BigInteger getClasspageAssocCount(String classpageId,String collectionId, String gooruUid, String title, String collectionTitle, String classCode);
+	
+	Long getClasspageCount(String gooruOid, String type);
+	
+	List<Object[]> getParentDetails(String collectionItemId);
 	
 }

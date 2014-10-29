@@ -28,7 +28,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-import org.ednovo.gooru.application.util.LogUtil;
 import org.ednovo.gooru.core.api.model.Annotation;
 import org.ednovo.gooru.core.api.model.AnnotationType;
 import org.ednovo.gooru.core.api.model.Content;
@@ -212,11 +211,6 @@ public class ContentServiceImpl implements ContentService,ParameterProperties {
 
 		contentRepository.save(quote);
 
-		if (LOGGER.isInfoEnabled()) {
-
-			LOGGER.info(LogUtil.getActivityLogStream(CLASS_PLAN, user.toString(), quote.toString() + quote.getGooruOid(), LogUtil.QUOTE_CREATE, ""));
-		}
-
 		List<QuoteDTO> quoteDTOList = new ArrayList<QuoteDTO>();
 		QuoteDTO quoteDto = new QuoteDTO();
 		quoteDto.setAnchor(quote.getAnchor());
@@ -337,10 +331,6 @@ public class ContentServiceImpl implements ContentService,ParameterProperties {
 		annotation.setUser(user);
 		annotation.setResource(resource);
 		annotationService.create(annotation, SUBSCRIPTION, errors);
-
-		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info(LogUtil.getActivityLogStream(CLASS_PLAN, user.toString(), quote.toString() + quote.getGooruOid(), LogUtil.QUOTE_CREATE, ""));
-		}
 
 		User apiCaller = userRepository.findByGooruId(user.getPartyUid());
 		String externalId = null;

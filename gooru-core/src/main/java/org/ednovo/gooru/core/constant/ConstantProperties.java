@@ -26,17 +26,16 @@ public interface ConstantProperties {
 			"*.hints.*", "*.description", "*.explanation", "*.taxonomySet", "*.codeId", "*.depth", "*.lastModified", "*.gooruUId", "*.lastUpdatedUserUid", "*.category", "*.label", "*.code", "*.userRating", "*.hasFrameBreaker", "*.copiedResourceId", "*.assignmentContentId", "*.trackActivity",
 			"*.trackActivity.startTime", "*.trackActivity.endTime", "*.goals", "*.grade", "*.mediaType", "*.text", "*.isOer", "*.meta.*", "*.resourceFormat.value", "*.resourceFormat.displayName", "*.instructional.value", "*.instructional.displayName", "*.depthOfKnowledges.value",
 			"*.depthOfKnowledges.selected", "*.momentsOfLearning.selected", "*.momentsOfLearning.value", "*.educationalUse.value", "*.educationalUse.selected", "*.ratings", "*.average", "*.count","*.reviewCount", "*.standards", "*.license", "*.standards.code", "*.standards.description", "*.course",
-
-			"*.customFieldValues.*", "*.publisher", "*.aggregator", "*.totalPages" ,"*.host", "*.resourceTags.*","*.typeName"};
+			"*.customFieldValues.*", "*.publisher", "*.aggregator", "*.totalPages" ,"*.host", "*.resourceTags.*","*.typeName","*.s3UploadFlag"};
 
 	static final String ASSIGNMENT_INCLUDE_FIELDS[] = { "*.narrationLink", "collection.notes", "*.keyPoints", "*.language", "*.goals", "*.grade", "*.estimatedTime", "*.collectionType", "*.creator", "*.assetURI", "*.license", "*.license.code", "*.license.icon", "*.license.name",
 			"*.license.definition", "*.dimensions", "*.defaultImage", "*.createdOn", "*.user", "*.usernameDisplay", "*.profileImageUrl", "*.lastName", "*.firstName", "*.username", "*.description", "*.folder", "*.gooruOid", "*.sharing", "*.title", "*.views", "*.thumbnails", "*.url",
 			"*.lastModified", "*.gooruUId", "*.vocabulary", "*.collaborators", "*.network", "trackActivity.startTime", "trackActivity.endTime" };
 
 	static final String COLLECTION_ITEM_INCLUDE_FILEDS[] = { "*.collectionItems", "*.collectionItemId", "*.itemSequence", "*.itemType", "*.narration", "*.narrationType", "*.lastModified", "*.start", "*.stop", "*.standards", "*.license", "*.standards.code", "*.standards.description",
-			"*.associationDate", "*associatedUser", "*.status", "*.totalPages","*.isRequired","*.minimumScore","*.estimatedTime","*.showAnswerByQuestions","*.showHints","*.showAnswerEnd","*.resource","*.resource.collectionItems.resource" ,"*.itemCount"};
+			"*.associationDate", "*associatedUser", "*.status","*.totalPages","*.isRequired","*.minimumScore","*.estimatedTime","*.showAnswerByQuestions","*.showHints","*.showAnswerEnd","*.resource","*.resource.collectionItems.resource" ,"*.itemCount","*.minimumScoreByUser","*.timeStudying","*.assignmentCompleted","*.plannedEndDate"};
 
-	static final String CLASSPAGE_COLLECTION_ITEM_INCLUDE_FIELDS[] = { "*.plannedEndDate", "*.totalHitCount", "*.searchResults" ,"*.collectionItems", "*.resource", "*.resource.collectionItems.resource","*.itemCount"};
+	static final String CLASSPAGE_COLLECTION_ITEM_INCLUDE_FIELDS[] = { "*.plannedEndDate", "*.totalHitCount","*.title", "*.searchResults" ,"*.collectionItems", "*.resource", "*.resource.collectionItems.resource","*.itemCount","*.minimumScoreByUser"};
 
 	static final String COLLECTION_ITEM_INCLUDE[] = { "collectionItems", "*.collectionItemId", "*.itemSequence", "*.itemType", "*.narration", "*.narrationType", "*.lastModified", "*.start", "*.stop", "*.standards", "*.license", "*.standards.code", "*.standards.description", "*.collectionItem",
 			"*.collectionItem.collection", "*.totalPages" };
@@ -55,7 +54,7 @@ public interface ConstantProperties {
 	static final String CLASSPAGE_ITEMS_INCLUDE_FIELDS[] = { "*.collectionItems", "*.collectionItemId", "*.itemSequence", "*.itemType", "*.narration", "*.narrationType", "*.lastModified", "*.start", "*.stop", "*.standards", "*.license", "*.standards.code", "*.standards.description",
 			"*.classpageCode", "*.totalHitCount", "*.searchResults" };
 
-	static final String CLASSPAGE_META_INFO[] = { "*.vocabulary", "*.course", "*.standards", "*.code", "*.description", "*.rating", "*.score", "*.count", "*.average", "*.votesUp", "*.votesDown", "*.votes", "*.acknowledgement", "*.metaInfo", "*.taxonomySetMapping" }; // };
+	static final String CLASSPAGE_META_INFO[] = { "*.vocabulary", "*.course", "*.standards", "*.code", "*.description", "*.rating", "*.score", "*.count", "*.average", "*.votesUp", "*.votesDown", "*.votes", "*.acknowledgement", "*.metaInfo", "*.taxonomySetMapping" }; 
 
 	static final String CLASSPAGE_ITEM_TAGS[] = { "*.tagSet", "*.label", "*.type", "*.resourceType" };
 
@@ -117,7 +116,7 @@ public interface ConstantProperties {
 
 	static final String CUSTOM_SETTING_INCLUDES[] = { "*.key", "*.value" };
 
-	static String ORGANIZATION_INCLUDES[] = { "*.subGroups","*.totalHitCount", "*.searchResults"};
+	static String ORGANIZATION_INCLUDES[] = { "*.subGroups","*.totalHitCount", "*.searchResults", "*.organizationCode", "*.organizationName", "*.organizationUid"};
 
 	static final String RESOURCE_EXCLUDES[] = { "*.class", "*.resourceMetaData", "*.resourceMetaData.*", "*.userPermSet", "*.grpMbrshipSet" };
 
@@ -366,11 +365,13 @@ public interface ConstantProperties {
 	static final String TAXONOMY_CODE_INCLUDES[] = { "elementrySchool", "middleSchool", "highSchool", "other", "taxonomyCodes", "*.code", "*.codeId", "*.code", "*.label", "*.parentId", "*.thumbnails", "*.thumbnails.url", "*.thumbnails.dimensions", "*.thumbnails.isDefaultImage",
 			"*.creator.username", "*.creator.gooruUId", "*.creator.firstName", "*.creator.lastName" };
 
-	static final String APPLICATION_INCLUDES[] = { "*.key", "*.appName", "*.appURL", "*.secretKey", "*.activeFlag", "*.searchLimit", "*.description", "*.comment", "*.status", "*.totalHitCount", "*.searchResults"};
+	static final String APPLICATION_INCLUDES[] = { "*.key", "*.title", "*.url", "*.secretKey", "*.activeFlag", "*.searchLimit", "*.description", "*.comment", "*.status", "*.value", "*.totalHitCount", "*.searchResults", "*.contactEmailId"};
+	
+	static final String MENU_INCLUDES[] = { "*.menuUid", "*.name", "*.description", "*.url", "*.iconUrl", "*.creatorUid", "*.createdOn", "*.lastModified", "*.isActive"};
 
 	static final String ORGANIZATION_INCLUDES_ADD[] = { "partyUid", "partyName", "partyType", "organizationCode" };
 
-	static final String ORGANIZATION_SETTING_INCLUDE[] = { "key", "value" };
+	static final String ORGANIZATION_SETTING_INCLUDE[] = { "*.key", "*.value", "*.organizationSettingId" };
 
 	static final String LIBRARY_CODE_INCLUDES[] = { "*.unit", "*.lesson", "*.count", "*.topic", "*.data", "*.course", "*.grade", "*.collection", "*.featured", "*.science", "*.math", "*.social-sciences", "*.language-arts", "*.code", "*.codeId", "*.code", "*.label", "*.parentId", "*.thumbnails",
 			"*.thumbnails.url", "*.thumbnails.dimensions", "*.thumbnails.isDefaultImage", "*.gooruOid", "*.title", "*.creator", "*.firstName", "*.lastName", "*.username", "*.gooruUId", "*.metaInfo", "*.gender", "*.isOwner", "*.user", "*.standard", "*.concept", "*.node", "*.grade", "*.meta",
@@ -403,7 +404,9 @@ public interface ConstantProperties {
 	static final String[] USER_CONTENT_TAGS_INCLUDES = { "*.totalHitCount", "*.searchResults", "*.count", "*.label", "*.tagGooruOid" };
 
 	static final String[] COLLECTION_STANDARDS_INCLUDES = { "searchResults", "*.code", "*.label", "*.codeUid", "*.codeId" };
-
+	
+	static final String[] APPLICATION_ITEM_INCLUDES = { "*.applicationItemUid", "*.displayName", "*.displaySequence", "*.url"};
+	
 	static final String SUPER_ADMIN_TOKEN = "super.admin.token";
 
 	static final String ORG_ADMIN_KEY = "organizationAdmin";
@@ -412,7 +415,7 @@ public interface ConstantProperties {
 
 	static final String CUSTOM_VALUE_INCLUDE_FIELDS[] = { "displayName" };
 
-	public static final String OAUTH_CLIENT_INCLUDES[] = { "*.oauthClientUId", "*.clientId", "*.clientName", "*.description", "*.clientSecret", "*.scopes", "*.grantTypes", "*.authorities", "*.redirectUris", "*.accessTokenValiditySeconds", "*.refreshTokenValiditySeconds","*.totalHitCount", "*.searchResults", "*.count", "*.totalPages" };
+	public static final String OAUTH_CLIENT_INCLUDES[] = { "*.key", "*.secretKey", "*.clientName", "*.description", "*.clientSecret", "*.scopes", "*.grantTypes", "*.authorities", "*.redirectUrl","*.title", "*.accessTokenValiditySeconds", "*.refreshTokenValiditySeconds","*.totalHitCount", "*.searchResults", "*.count", "*.totalPages"};
 
 	public static final String CONSUMER_SECRET_INCLUDES[] = { "*.consumerKey", "*.consumerSecret", "*.organization" };
 
@@ -789,5 +792,17 @@ public interface ConstantProperties {
    public static String MOVE = "move";
    
    public static String CREATIVE_COMMONS = "creative commons";
+   
+   static final String COUNTRY[] = { "*.countryId", "*.name", "*.totalHitCount", "*.searchResults"};
+   
+   static final String STATE[] = { "*.stateId", "*.name", "*.totalHitCount", "*.searchResults"};
+   
+   static final String CITY[] = { "*.cityId", "*.name", "*.totalHitCount", "*.searchResults"};
+   
+   static final String INSTITUTION_INCLUDES_ADD[] = {"*.name", "*.id", "*.ParentId", "*.stateProvince", "*.stateId", "*.totalHitCount", "*.searchResults"};
+   
+   public static final String PUBLISH_COLLECTION = "publish_collection";
+   
+   public static final String SEND_RECIPIENT = "sendRecipient";
 }
 

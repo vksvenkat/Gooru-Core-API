@@ -237,7 +237,7 @@ public class QuizRestV2Controller extends BaseController implements ConstantProp
 		quiz.setResourceType(resourceType);
 		quiz.setLastModified(new Date(System.currentTimeMillis()));
 		quiz.setCreatedOn(new Date(System.currentTimeMillis()));
-		quiz.setCollectionType(CollectionType.Quiz.getCollectionType());
+		quiz.setCollectionType(CollectionType.QUIZ.getCollectionType());
 		if (!hasUnrestrictedContentAccess()) {
 			quiz.setSharing(Sharing.PUBLIC.getSharing());
 		} else {

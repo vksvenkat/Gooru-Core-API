@@ -1,6 +1,9 @@
 package org.ednovo.gooru.core.application.util;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.util.Arrays;
@@ -178,5 +181,20 @@ public class BaseUtil {
 			}
 		}
 		return bIsUuid;
+	}
+	
+	public  static StringBuffer readRequestBody(HttpServletRequest request) {
+		StringBuffer jb = new StringBuffer();
+		String line = null;
+		try {
+			InputStream inputStream = request.getInputStream();
+			if (inputStream != null) {
+				BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+				while ((line = reader.readLine()) != null)
+					jb.append(line);
+			}
+		} catch (Exception e) {
+		}
+		return jb;
 	}
 }

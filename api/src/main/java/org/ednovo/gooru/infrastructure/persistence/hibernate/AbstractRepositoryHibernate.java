@@ -27,6 +27,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.ednovo.gooru.core.api.model.OrganizationModel;
+import org.ednovo.gooru.core.api.model.Province;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
@@ -87,5 +88,7 @@ public abstract class AbstractRepositoryHibernate extends AuthorizationDaoSuppor
 	public Logger getLogger() {
 		return logger;
 	}
+
+	
 
 }
