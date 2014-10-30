@@ -118,6 +118,7 @@ public class PartyServiceImpl extends BaseServiceImpl implements PartyService, P
 			partyId = user.getUserUid();
 		}
 		partyCustomField = this.getPartyRepository().getPartyCustomField(partyId, newPartyCustomField.getOptionalKey());
+		rejectIfNull(partyCustomField, GL0056, 404, "PartyCustomField");
 		final Errors errors = validateUpdatePartyCustomField(partyCustomField, newPartyCustomField);
 		if (!errors.hasErrors()) {
 			if (partyCustomField != null) {
