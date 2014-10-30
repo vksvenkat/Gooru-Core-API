@@ -122,4 +122,12 @@ public class ServerValidationUtils {
 		return rawData;
 	}
 	
+	public static void rejectIfMaxLimitExceed(int maxlimit, String content, String code, String... message) {
+		if (content != null && content.length() > maxlimit) {
+
+			throw new BadRequestException(generateErrorMessage(code, message));
+		}
+
+	}
+	
 }
