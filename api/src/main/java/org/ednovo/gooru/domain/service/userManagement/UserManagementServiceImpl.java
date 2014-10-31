@@ -614,6 +614,8 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			throw new BadRequestException(generateErrorMessage("GL0061", "Username"));
 		} else if (user.getUsername().length() < 4) {
 			throw new BadRequestException(generateErrorMessage("GL0065", "4"));
+		}else if (user.getUsername().length() > 15) {
+			throw new BadRequestException(generateErrorMessage("GL0100", "15"));
 		}
 		boolean usernameAvailability = this.getUserRepository().checkUserAvailability(user.getUsername(), CheckUser.BYUSERNAME, false);
 		if (usernameAvailability) {
