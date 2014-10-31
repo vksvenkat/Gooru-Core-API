@@ -2790,4 +2790,6 @@ public interface ParameterProperties {
 	
 	String APPLICATION_ITEM = "applicationItem";
 	
+	String MENU = "menu";
+	
 }

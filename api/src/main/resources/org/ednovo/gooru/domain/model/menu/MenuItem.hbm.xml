@@ -25,9 +25,9 @@
 			<generator class="org.ednovo.gooru.core.application.util.UUIDGenerator"></generator>
 		</id>
 		<property name="parentMenuUid" column="parent_menu_uid"
-			not-null="true">
+			not-null="false">
 		</property>
-		<property name="sequence" column="sequence" not-null="true">
+		<property name="sequence" column="item_sequence" not-null="true">
 		</property>
 
 		<many-to-one name="menu" class="org.ednovo.gooru.core.api.model.Menu"

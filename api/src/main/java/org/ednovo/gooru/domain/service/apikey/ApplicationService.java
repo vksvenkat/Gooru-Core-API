@@ -23,6 +23,8 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.domain.service.apikey;
 
+import java.util.List;
+
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Application;
 import org.ednovo.gooru.core.api.model.ApplicationItem;
@@ -47,5 +49,5 @@ public interface ApplicationService {
 	
 	ActionResponseDTO<ApplicationItem> updateApplicationItem(ApplicationItem applicationItem, String applicationItemId, User apicaller)throws Exception ;
 	
-	public ApplicationItem getApplicationItemByApiKey(String apiKey) throws Exception ;
+    List<ApplicationItem> getApplicationItemByApiKey(String apiKey) throws Exception ;
 }

@@ -24,6 +24,7 @@
 package org.ednovo.gooru.domain.service.apikey;
 
 import java.sql.Date;
+import java.util.List;
 import java.util.UUID;
 
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
@@ -130,13 +131,16 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 	@Override
 	public Application getApplication(String apiKey) {
 		Application application = this.getApplicationRepository().getApplication(apiKey);		
-		ApplicationItem applicationItem = this.getApplicationRepository().getApplicationItemByApiKey(apiKey);
-		application.setApplicationItem(applicationItem);
-		OAuthClient OauthClient = oAuthRepository.findOAuthClientByApplicationKey(apiKey);
-		application.setOauthClient(OauthClient);
-		return application;
+		List<ApplicationItem> applicationItems = this.getApplicationRepository().getApplicationItemByApiKey(apiKey);
+		if(!applicationItems.isEmpty()){
+			application.setApplicationItems(applicationItems);	
+		}			
+		List<OAuthClient> OauthClients = oAuthRepository.findOAuthClientByApplicationKey(apiKey);	
+		if(!OauthClients.isEmpty()){
+			application.setOauthClients(OauthClients);
+		}
 		
-		//return this.getApplicationRepository().getApplication(apiKey);
+		return application;
 	}
 
 	@Override
@@ -210,7 +214,7 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 	
 
 	@Override
-	public ApplicationItem getApplicationItemByApiKey(String apiKey) throws Exception {
+	public List<ApplicationItem> getApplicationItemByApiKey(String apiKey) throws Exception {
 		return this.getApplicationRepository().getApplicationItemByApiKey(apiKey);
 	}
 	
