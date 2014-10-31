@@ -231,9 +231,9 @@
 		<amp.genericCore>true</amp.genericCore>
 		<amp.fullSource>false</amp.fullSource>
 		<!-- Framework dependency versions -->
-		<org.springframework.version>3.1.2.RELEASE</org.springframework.version>
-		<org.springframework.security.version>3.1.1.RELEASE</org.springframework.security.version>
-		<spring.security.oauth.version>1.0.0.RC2</spring.security.oauth.version>
+		<org.springframework.version>4.1.0.RELEASE</org.springframework.version>
+		<org.springframework.security.version>3.2.5.RELEASE</org.springframework.security.version>
+		<spring.security.oauth.version>2.0.3.RELEASE</spring.security.oauth.version>
 
 		<!-- Testing dependency versions -->
 		<jmock.version>2.4.0</jmock.version>

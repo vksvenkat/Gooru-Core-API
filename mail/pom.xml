@@ -103,13 +103,13 @@
 				<type>jar</type>
 				<scope>compile</scope>
 			</dependency>
-			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-asm</artifactId>
-				<version>${org.springframework.version}</version>
-				<type>jar</type>
-				<scope>compile</scope>
-			</dependency>
+<!-- 			<dependency> -->
+<!-- 				<groupId>org.springframework</groupId> -->
+<!-- 				<artifactId>spring-asm</artifactId> -->
+<!-- 				<version>${org.springframework.version}</version> -->
+<!-- 				<type>jar</type> -->
+<!-- 				<scope>compile</scope> -->
+<!-- 			</dependency> -->
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-core</artifactId>
@@ -209,7 +209,7 @@
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-web</artifactId>
-			<version>3.0.5.RELEASE</version>
+			<version>4.1.0.RELEASE</version>
 		</dependency>
 	</dependencies>
 </project>
