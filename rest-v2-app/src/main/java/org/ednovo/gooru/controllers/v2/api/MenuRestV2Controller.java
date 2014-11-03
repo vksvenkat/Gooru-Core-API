@@ -40,7 +40,7 @@ public class MenuRestV2Controller extends BaseController implements ConstantProp
 	@RequestMapping(method = RequestMethod.POST)
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ModelAndView createMenu(@RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
-	    
+
 		User user = (User) request.getAttribute(Constants.USER);
 		ActionResponseDTO<Menu> responseDTO = getMenuService().createMenu(buildMenuFromInputParameters(data), user);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
@@ -69,13 +69,13 @@ public class MenuRestV2Controller extends BaseController implements ConstantProp
 	@RequestMapping(method = RequestMethod.PUT, value = "item/{id}")
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ModelAndView updateMenuItem(@RequestBody String data, HttpServletRequest request, HttpServletResponse response, @PathVariable String id) throws Exception {
-		
+
 		User user = (User) request.getAttribute(Constants.USER);
-		MenuItem responseDTO = getMenuService().updateMenuItem(buildMenuItemFromInputParameters(data), id,user);
+		MenuItem responseDTO = getMenuService().updateMenuItem(buildMenuItemFromInputParameters(data), id, user);
 		String includes[] = (String[]) ArrayUtils.addAll(MENU_ITEM_INCLUDES, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(responseDTO, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
-	
+
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_MENU_READ })
 	@RequestMapping(value = "/{id}",method = RequestMethod.GET)
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -89,12 +89,10 @@ public class MenuRestV2Controller extends BaseController implements ConstantProp
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_MENU_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}/item" }, method = RequestMethod.GET)
-	public ModelAndView getMenuItems(@PathVariable(value = ID) String menuUid, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, 
-			@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,@RequestParam(value = ORDER_BY, defaultValue = DESC ,required = false) String orderBy, 
-			HttpServletRequest request, HttpServletResponse response) throws Exception {
-		List<MenuItem> menuItems = this.getMenuService().getMenuItems(menuUid);
+	public ModelAndView getMenuItems(@PathVariable(value = ID) String menuUid, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,
+			@RequestParam(value = ORDER_BY, defaultValue = DESC, required = false) String orderBy, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		String includes[] = (String[]) ArrayUtils.addAll(MENU_ITEM_INCLUDES, ERROR_INCLUDE);
-		return toModelAndViewWithIoFilter(menuItems, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
+		return toModelAndViewWithIoFilter(this.getMenuService().getMenuItems(menuUid), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 
 	}
 
@@ -112,7 +110,9 @@ public class MenuRestV2Controller extends BaseController implements ConstantProp
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
    	public ModelAndView getMenuByUserRole(ModelMap model, HttpServletRequest request, HttpServletResponse response) { 
 		User user = (User) request.getAttribute(Constants.USER);
-		String includes[] = (String[]) ArrayUtils.addAll(MENU_ROLE_ASSOC_INCLUDES, ERROR_INCLUDE);
+		String includes[] = (String[]) ArrayUtils.addAll(MENU_INCLUDES, ERROR_INCLUDE);
+		includes = (String[]) ArrayUtils.addAll(includes, MENU_ITEM_INCLUDES);
+		
 		return toModelAndViewWithIoFilter(this.getMenuService().getMenuByUserUid(user), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 
 	}

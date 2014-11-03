@@ -138,8 +138,7 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 		List<OAuthClient> OauthClients = oAuthRepository.findOAuthClientByApplicationKey(apiKey);	
 		if(!OauthClients.isEmpty()){
 			application.setOauthClients(OauthClients);
-		}
-		
+		}		
 		return application;
 	}
 

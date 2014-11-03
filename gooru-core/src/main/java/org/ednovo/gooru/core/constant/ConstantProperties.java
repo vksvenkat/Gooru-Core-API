@@ -367,7 +367,7 @@ public interface ConstantProperties {
 
 	static final String APPLICATION_INCLUDES[] = { "*.key", "*.title", "*.url", "*.secretKey", "*.activeFlag", "*.searchLimit", "*.description", "*.comment", "*.status", "*.value", "*.totalHitCount", "*.searchResults", "*.contactEmailId","*.applicationItem","*.oauthClient","*.applicationItems","*.oauthClients"};
 	
-	static final String MENU_INCLUDES[] = { "*.menuUid", "*.name", "*.description", "*.url", "*.iconUrl", "*.creatorUid", "*.createdOn", "*.lastModified", "*.isActive","*.menuItem"};
+	static final String MENU_INCLUDES[] = { "*.menuUid", "*.name", "*.description", "*.url", "*.iconUrl", "*.creatorUid", "*.createdOn", "*.lastModified", "*.isActive","*.menuItem","*.menuItems"};
 
 	static final String ORGANIZATION_INCLUDES_ADD[] = { "partyUid", "partyName", "partyType", "organizationCode" };
 
@@ -421,9 +421,9 @@ public interface ConstantProperties {
 
 	public static final String PROFANITY_INCLUDES[] = { "*.found", "*.foundBy", "*.text", "*.count", "*.expletive" };
 	
-	static final String MENU_ITEM_INCLUDES[] = { "*.menuItemUid","*.parentMenuUid","*.sequence"};
+	static final String MENU_ITEM_INCLUDES[] = { "*.menuItemUid","*.parentMenuUid","*.sequence","*.menu"};
 	
-	static final String MENU_ROLE_ASSOC_INCLUDES[] = { "*.menu.menuUid","*.role.roleId"};
+	static final String MENU_ROLE_ASSOC_INCLUDES[] = { "*.menu.menuUid","*.role.roleId","*.menu","*.menuItem"};
 	
 	public static final String WEBPURIFY_API_KEY = "2b9dbbde0e50edf204a6e742cfdd79bc";
 
