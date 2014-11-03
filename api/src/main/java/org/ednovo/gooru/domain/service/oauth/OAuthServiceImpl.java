@@ -208,7 +208,7 @@ public class OAuthServiceImpl extends ServerValidationUtils implements OAuthServ
 	}
 
 	@Override
-	public OAuthClient getOAuthClientByApiKey(String apiKey) throws Exception {
+	public List<OAuthClient> getOAuthClientByApiKey(String apiKey) throws Exception {
 		return oAuthRepository.findOAuthClientByApplicationKey(apiKey);
 	}
 

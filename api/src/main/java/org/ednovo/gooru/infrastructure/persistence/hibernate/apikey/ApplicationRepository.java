@@ -41,5 +41,5 @@ public interface ApplicationRepository extends BaseRepository {
 	
 	ApplicationItem getApplicationItem(String applicationItemId);
 	
-    ApplicationItem getApplicationItemByApiKey(String apiKey);
+    List<ApplicationItem> getApplicationItemByApiKey(String apiKey);
 }

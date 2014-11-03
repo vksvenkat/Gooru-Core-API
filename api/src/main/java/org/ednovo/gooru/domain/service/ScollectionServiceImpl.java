@@ -69,6 +69,7 @@ import org.ednovo.gooru.core.api.model.UserGroupSupport;
 import org.ednovo.gooru.core.api.model.UserSummary;
 import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.application.util.ResourceMetaInfo;
+import org.ednovo.gooru.core.application.util.ServerValidationUtils;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.BadRequestException;
@@ -1469,6 +1470,10 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 		rejectIfNull(collectionItem, GL0056, _COLLECTION_ITEM);
 
+		ServerValidationUtils.rejectIfMaxLimitExceed(8, data.getFirst(NARRATION_TYPE), "GL0014", NARRATION_TYPE, "8");
+		ServerValidationUtils.rejectIfMaxLimitExceed(8, data.getFirst(START), "GL0014", START, "8");
+		ServerValidationUtils.rejectIfMaxLimitExceed(8, data.getFirst(STOP), "GL0014", STOP, "8");
+
 		JSONObject jsonItemdata = new JSONObject();
 
 		try {
@@ -1502,14 +1507,14 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			indexProcessor.index(collectionItem.getResource().getGooruOid(), IndexProcessor.INDEX, RESOURCE);
 			indexProcessor.index(collectionItem.getCollection().getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
 		} catch (Exception e) {
-			LOGGER.debug("Error" + e.getMessage());
+			LOGGER.error("Error" + e.getMessage());
 		}
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
 
 		try {
 			this.getCollectionEventLog().getEventLogs(collectionItem, jsonItemdata, apiCaller);
 		} catch (JSONException e) {
-			LOGGER.debug("Error" + e.getMessage());
+			LOGGER.error("Error" + e.getMessage());
 		}
 		return collectionItem;
 	}
