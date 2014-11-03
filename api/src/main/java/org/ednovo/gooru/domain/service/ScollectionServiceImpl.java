@@ -1468,11 +1468,12 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 		final CollectionItem collectionItem = this.getCollectionItemById(collectionItemId);
 
+		rejectIfNull(collectionItem, GL0056, _COLLECTION_ITEM);
+
 		ServerValidationUtils.rejectIfMaxLimitExceed(8, data.getFirst(NARRATION_TYPE), "GL0014", NARRATION_TYPE, "8");
 		ServerValidationUtils.rejectIfMaxLimitExceed(8, data.getFirst(START), "GL0014", START, "8");
 		ServerValidationUtils.rejectIfMaxLimitExceed(8, data.getFirst(STOP), "GL0014", STOP, "8");
 
-		rejectIfNull(collectionItem, GL0056, _COLLECTION_ITEM);
 		JSONObject jsonItemdata = new JSONObject();
 
 		try {
