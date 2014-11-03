@@ -51,15 +51,17 @@ public class RoleRestV2Controller extends BaseController implements
 		Map<String, Object> roles = null;
 		if (data == null) {
 			roles = new HashMap<String, Object>();
-			roles.put(SEARCH_RESULT, this.getUserService().findAllRoles());
-			Long roleCount=this.getUserService().allRolesCount();
-			roles.put(COUNT, roleCount);			
+			roles.put(SEARCH_RESULT, this.getUserService().getAllRoles());
+			Long roleCount = this.getUserService().allRolesCount();
+			roles.put(COUNT, roleCount);
 			data = serializeToJson(roles, true);
 		}
 		return toModelAndView(data);
 	}
 
-	@RequestMapping(method = RequestMethod.GET, value = "{userUid}/list")
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ROLE_LIST })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(method = RequestMethod.GET, value = "/{userUid}/list")
 	public ModelAndView listUserRoles(
 			@PathVariable(value = USER_UID) String userUid,
 			@RequestParam(value = SESSIONTOKEN, required = false) String sessionToken,
@@ -70,13 +72,109 @@ public class RoleRestV2Controller extends BaseController implements
 		Map<String, Object> roles = null;
 		if (data == null) {
 			roles = new HashMap<String, Object>();
-			roles.put(SEARCH_RESULT, this.getUserService().findUserRoles(userUid));
-			Long roleCount=this.getUserService().userRolesCount(userUid);
-			roles.put(COUNT, roleCount);			
+			roles.put(SEARCH_RESULT,
+					this.getUserService().findUserRoles(userUid));
+			Long roleCount = this.getUserService().userRolesCount(userUid);
+			roles.put(COUNT, roleCount);
 			data = serializeToJson(roles, true);
 		}
 		return toModelAndView(data);
 	}
+
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ROLE_ADD })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(method = RequestMethod.POST)
+	public ModelAndView createRole(
+			HttpServletRequest request,
+			@RequestBody String data,
+			@RequestParam(value = SESSIONTOKEN, required = false) String sessionToken,
+			@RequestParam(value = FORMAT, defaultValue = FORMAT_JSON) String format,
+			HttpServletResponse response) throws Exception {
+		UserRole role = JsonDeserializer.deserialize(data, UserRole.class);
+		User apiCaller = (User) request.getAttribute(Constants.USER);
+		UserRole userRole = this.getUserService().createRole(role.getName(),
+				role.getDescription(), apiCaller);
+		return toModelAndView(userRole, format);
+	}
+
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ROLE_UPDATE })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(method = RequestMethod.PUT, value = "/{roleId}/operation")
+	public ModelAndView updateRoleOperation(
+			HttpServletRequest request,
+			@RequestParam(value = OPERATIONS) String operations,
+			@PathVariable(ROLE_ID) Integer roleId,
+			@RequestParam(value = SESSIONTOKEN, required = false) String sessionToken,
+			@RequestParam(value = FORMAT, defaultValue = FORMAT_JSON) String format,
+			HttpServletResponse response) throws Exception {
+		List<RoleEntityOperation> roleEntityOperation = this.getUserService()
+				.updateRoleOperation(roleId, operations);
+		return toModelAndView(roleEntityOperation, format);
+
+	}
+
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ROLE_DELETE })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(method = RequestMethod.DELETE, value = "/{roleId}/operation")
+	public ModelAndView removeRoleOperation(
+			HttpServletRequest request,
+			@RequestParam(value = OPERATIONS) String operations,
+			@PathVariable(ROLE_ID) Integer roleId,
+			@RequestParam(value = SESSIONTOKEN, required = false) String sessionToken,
+			@RequestParam(value = FORMAT, defaultValue = FORMAT_JSON) String format,
+			HttpServletResponse response) throws Exception {
+
+		String data = null;
+		Map<String, Object> message = null;
+		if(data== null){
+			message = new HashMap<String, Object>();
+			String isDeleted = this.getUserService().removeRoleOperation(roleId,
+					operations);
+			message.put(RESPONSE, isDeleted);
+			data = serializeToJson(message, true);
+		}
+		return toModelAndView(data);
+	}
+
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ROLE_UPDATE })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(method = RequestMethod.PUT, value = "/{roleId}")
+	public ModelAndView updateRole(
+			HttpServletRequest request,
+			@RequestBody String data,
+			@PathVariable(ROLE_ID) Short roleId,
+			@RequestParam(value = SESSIONTOKEN, required = false) String sessionToken,
+			@RequestParam(value = FORMAT, defaultValue = FORMAT_JSON) String format,
+			HttpServletResponse response) throws Exception {
+
+		UserRole role = JsonDeserializer.deserialize(data, UserRole.class);
+		role.setRoleId(roleId);
+		UserRole userRole = this.getUserService().updateRole(role);
+		return toModelAndView(userRole, format);
+
+	}
+
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ROLE_DELETE })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(method = RequestMethod.DELETE, value = "/{roleId}")
+	public ModelAndView removeRole(
+			HttpServletRequest request,
+			@PathVariable(ROLE_ID) Short roleId,
+			@RequestParam(value = SESSIONTOKEN, required = false) String sessionToken,
+			@RequestParam(value = FORMAT, defaultValue = FORMAT_JSON) String format,
+			HttpServletResponse response) throws Exception {
+		
+		String data = null;
+		Map<String, Object> message = null;
+		if(data== null){
+			message = new HashMap<String, Object>();
+			String isDeleted = this.getUserService().removeRole(roleId);
+			message.put(RESPONSE, isDeleted);
+			data = serializeToJson(message, true);
+		}
+		return toModelAndView(data);
+	}
+
 	public UserService getUserService() {
 		return userService;
 	}

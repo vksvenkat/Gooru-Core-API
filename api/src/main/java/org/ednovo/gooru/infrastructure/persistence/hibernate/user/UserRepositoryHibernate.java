@@ -489,33 +489,6 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 		return query.list();
 	}	
 	
-	@SuppressWarnings("unchecked")
-	@Override
-	public Long countAllRoles() {
-		String hql = "select count(*) from UserRole userRole where " + generateOrgAuthQuery("userRole.");
-		Query query = getSession().createQuery(hql);
-		addOrgAuthParameters(query);
-		return (Long)query.list().get(0);
-	}
-	
-	@SuppressWarnings("unchecked")
-	@Override
-	public List<UserRole> findUserRoles(String userUid) {
-		String hql = "select userRoleAssoc.role From UserRoleAssoc userRoleAssoc  WHERE userRoleAssoc.user.partyUid = '"+userUid+"' AND " + generateOrgAuthQuery("userRoleAssoc.role.");
-		Query query = getSession().createQuery(hql);
-		addOrgAuthParameters(query);
-		return query.list();
-	}
-	
-	@SuppressWarnings("unchecked")
-	@Override
-	public Long countUserRoles(String userUid) {
-		String hql = "select count(*) From UserRoleAssoc userRoleAssoc  WHERE userRoleAssoc.user.partyUid = '"+userUid+"' AND " + generateOrgAuthQuery("userRoleAssoc.role.");
-		Query query = getSession().createQuery(hql);
-		addOrgAuthParameters(query);
-		return (Long)query.list().get(0);
-	}
-	
 	@Override
 	public User getUserByUserName(String userName, boolean isLoginRequest) {
 		String hql = "FROM User  user WHERE user.username = :username ";
@@ -883,5 +856,30 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 	public List<UserRoleAssoc> findUserRoleSetByUserUid(String userUid) {
 		return find("From UserRoleAssoc userRoleAssoc  WHERE userRoleAssoc.user.partyUid = " + userUid + "  AND " + generateOrgAuthQueryWithData("userRoleAssoc.user.") + " AND " + generateUserIsDeleted("userRoleAssoc.user."));
 	}
+	
+	@Override
+	public Long countAllRoles() {
+		String hql = "select count(*) from UserRole userRole where " + generateOrgAuthQuery("userRole.");
+		Query query = getSession().createQuery(hql);
+		addOrgAuthParameters(query);
+		return (Long)query.list().get(0);
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<UserRole> findUserRoles(String userUid) {
+		String hql = "select userRoleAssoc.role From UserRoleAssoc userRoleAssoc  WHERE userRoleAssoc.user.partyUid = '"+userUid+"' AND " + generateOrgAuthQuery("userRoleAssoc.role.");
+		Query query = getSession().createQuery(hql);
+		addOrgAuthParameters(query);
+		return query.list();
+	}
 
+	@Override
+	public Long countUserRoles(String userUid) {
+		String hql = "select count(*) From UserRoleAssoc userRoleAssoc  WHERE userRoleAssoc.user.partyUid = '"+userUid+"' AND " + generateOrgAuthQuery("userRoleAssoc.role.");
+		Query query = getSession().createQuery(hql);
+		addOrgAuthParameters(query);
+		return (Long)query.list().get(0);
+	}
+	
 }

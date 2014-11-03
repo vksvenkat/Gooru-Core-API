@@ -120,7 +120,7 @@ public interface UserService {
 		
 	List<RoleEntityOperation> updateRoleOperation(Integer roleId, String operations) throws Exception;
 
-	String removeRoleOperation(Integer roleId, String operations) throws Exception;
+	String removeRoleOperation(Integer roleId, String operations);
 
 	List<RoleEntityOperation> getUserOperations(String roleNames) throws Exception;
 	
@@ -192,11 +192,17 @@ public interface UserService {
 	 
 	 public Integer getChildAccountCount(String userUId);
 
-	 List<Map<String, Object>> findAllRoles();
+	 List<UserRole> findAllRoles();
+	 
+	 List<Map<String, Object>> getAllRoles();
 	 
 	 Long allRolesCount();
 	 
-	 List<Map<String, Object>> findUserRoles(String userUId);
+	 List<UserRole> findUserRoles(String userUId);
 
 	 Long userRolesCount(String userUId);
+
+	 UserRole updateRole(UserRole role) throws Exception;
+	 
+	 String removeRole(Short roleId);
 }
