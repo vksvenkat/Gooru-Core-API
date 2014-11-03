@@ -51,5 +51,5 @@ public interface OAuthService {
 	
 	public Boolean isSuperAdmin(User user);
 	
-	public OAuthClient getOAuthClientByApiKey(String apiKey) throws Exception ;
+	List<OAuthClient> getOAuthClientByApiKey(String apiKey) throws Exception ;
 }

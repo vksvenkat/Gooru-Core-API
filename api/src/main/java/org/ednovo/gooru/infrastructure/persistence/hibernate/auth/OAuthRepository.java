@@ -46,7 +46,7 @@ public interface OAuthRepository extends BaseRepository {
 	
 	public OAuthClient findOAuthClientByOauthKey(String oauthKey);
 	
-	public OAuthClient findOAuthClientByApplicationKey(String apiKey);
+	List<OAuthClient> findOAuthClientByApplicationKey(String apiKey);
 
 	
 }
