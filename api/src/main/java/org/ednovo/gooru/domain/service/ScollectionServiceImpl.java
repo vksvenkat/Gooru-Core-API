@@ -671,7 +671,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				}
 				this.getUserRepository().flush();
 			}
-			this.getCollectionRepository().remove(Collection.class, collection.getContentId());
+			this.getCollectionRepository().remove(collection);
 			for (CollectionItem item : collectionItems) {
 				Collection parentCollection = item.getCollection();
 				if (parentCollection.getCollectionType().equals(FOLDER)) {
