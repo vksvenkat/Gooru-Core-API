@@ -156,6 +156,8 @@ public class GooruOperationConstants {
 	
 	public static final String ENTITY_APPLICATION="Application";
 	
+	public static final String ENTITY_MENU="Menu";
+	
 	
 
 	// Actions
@@ -952,4 +954,12 @@ public class GooruOperationConstants {
 	
 	public static final String  OPERATION_SCHOOL_READ = ENTITY_SCHOOL + ENTITY_ACTION_SEPARATOR + ACTION_READ;
     
+	//MENU
+	
+	public static final String OPERATION_MENU_ADD = ENTITY_MENU + ENTITY_ACTION_SEPARATOR + ACTION_ADD;
+
+	public static final String OPERATION_MENU_READ = ENTITY_MENU + ENTITY_ACTION_SEPARATOR + ACTION_READ;
+
+	public static final String OPERATION_MENU_UPDATE = ENTITY_MENU + ENTITY_ACTION_SEPARATOR + ACTION_UPDATE;
+
 }

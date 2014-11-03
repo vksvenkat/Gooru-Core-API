@@ -105,11 +105,11 @@ public class ApplicationRepositoryHibernate extends BaseRepositoryHibernate impl
 	}
 	
 	@Override
-	public ApplicationItem getApplicationItemByApiKey(String apiKey) {
+	public List<ApplicationItem> getApplicationItemByApiKey(String apiKey) {
 		String hql = "FROM ApplicationItem appItem WHERE appItem.application.key=:apiKey";
 		Query query = getSession().createQuery(hql);
 		query.setParameter("apiKey", apiKey);
-		return (ApplicationItem) (query.list().size() > 0 ? query.list().get(0) : null);
+		return (List) query.list();
 	}
 
 }

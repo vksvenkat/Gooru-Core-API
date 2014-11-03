@@ -854,7 +854,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<UserRoleAssoc> findUserRoleSetByUserUid(String userUid) {
-		return find("From UserRoleAssoc userRoleAssoc  WHERE userRoleAssoc.user.partyUid = " + userUid + "  AND " + generateOrgAuthQueryWithData("userRoleAssoc.user.") + " AND " + generateUserIsDeleted("userRoleAssoc.user."));
+		return find("From UserRoleAssoc userRoleAssoc  WHERE userRoleAssoc.user.partyUid =' " + userUid + "'  AND " + generateOrgAuthQueryWithData("userRoleAssoc.user.") + " AND " + generateUserIsDeleted("userRoleAssoc.user."));
 	}
 	
 	@Override
