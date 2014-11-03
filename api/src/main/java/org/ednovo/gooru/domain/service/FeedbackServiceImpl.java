@@ -169,7 +169,7 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 			throw new NotFoundException(generateErrorMessage(GL0056, FEEDBACK));
 		} else {
 			
-			if (this.getUserManagementService().isContentAdmin(user) || (feedback.getCreator()!=null && feedback.getCreator().getPartyUid().equals(user.getPartyUid()))) {
+			if (this.getUserManagementService().isContentAdmin(user) || (feedback.getCreator() != null && feedback.getCreator().getPartyUid().equals(user.getPartyUid()))) {
 				this.getFeedbackRepository().remove(feedback);
 			} else {
 				throw new UnauthorizedException(generateErrorMessage(GL0057, FEEDBACK));
