@@ -349,9 +349,9 @@
 				<value>org/ednovo/gooru/domain/model/application/ApplicationItem.hbm.xml</value>
 				
 				<!-- Menu -->
-                <value>org/ednovo/gooru/domain/model/menu/Menu.hbm.xml</value>
-                <value>org/ednovo/gooru/domain/model/menu/MenuItem.hbm.xml</value>
-                <value>org/ednovo/gooru/domain/model/menu/MenuRoleAssoc.hbm.xml</value>
+				<value>org/ednovo/gooru/domain/model/menu/Menu.hbm.xml</value>
+				<value>org/ednovo/gooru/domain/model/menu/MenuItem.hbm.xml</value>
+				<value>org/ednovo/gooru/domain/model/menu/MenuRoleAssoc.hbm.xml</value>
 				
 			</list>
 		</property>

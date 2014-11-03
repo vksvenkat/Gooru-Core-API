@@ -18,6 +18,10 @@ public class Application extends Resource {
 	private String comment;
 	
 	private String ContactEmailId;
+	
+	private ApplicationItem applicationItem;
+	
+	private OAuthClient oauthClient;
 
 
 	public Integer getSearchLimit() {
@@ -74,6 +78,22 @@ public class Application extends Resource {
 
 	public void setKey(String key) {
 		this.key = key;
+	}
+
+	public ApplicationItem getApplicationItem() {
+		return applicationItem;
+	}
+
+	public void setApplicationItem(ApplicationItem applicationItem) {
+		this.applicationItem = applicationItem;
+	}
+
+	public OAuthClient getOauthClient() {
+		return oauthClient;
+	}
+
+	public void setOauthClient(OAuthClient oauthClient) {
+		this.oauthClient = oauthClient;
 	}
 
 

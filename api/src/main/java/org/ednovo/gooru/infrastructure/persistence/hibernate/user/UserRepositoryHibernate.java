@@ -850,5 +850,11 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 		}
 		return (Long) (query.list().size() > 0 ? query.list().get(0) : 0);
 	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<UserRoleAssoc> findUserRoleSetByUserUid(String userUid) {
+		return find("From UserRoleAssoc userRoleAssoc  WHERE userRoleAssoc.user.partyUid = " + userUid + "  AND " + generateOrgAuthQueryWithData("userRoleAssoc.user.") + " AND " + generateUserIsDeleted("userRoleAssoc.user."));
+	}
 
 }

@@ -109,7 +109,7 @@ public class UserGroupRepositoryHibernate extends BaseRepositoryHibernate implem
 
 	@Override
 	public List<String> classMemberSuggest(String queryText, String gooruUid) {
-		String hql= "select distinct(external_id)  as mailId from classpage c inner join user_group u on u.user_group_code = c.classpage_code inner join content cc on cc.content_id = classpage_content_id  inner join  user_group_association ug on ug.user_group_uid = u.user_group_uid inner join identity i on i.user_uid = ug.gooru_uid  where cc.user_uid=:gooruUid  and external_id like '" + queryText.replace("'", "\\'") + "%'";
+		String hql= "select distinct(external_id)  as mailId from classpage c inner join user_group u on u.user_group_code = c.classpage_code inner join content cc on cc.content_id = classpage_content_id  inner join  user_group_association ug on ug.user_group_uid = u.user_group_uid inner join identity i on i.user_uid = ug.gooru_uid  where cc.user_uid=:gooruUid  and external_id like '" + queryText.replace("'", "\\")+ "%'";
 	    Query query = getSession().createSQLQuery(hql).addScalar("mailId",StandardBasicTypes.STRING);
 		query.setParameter("gooruUid", gooruUid);
 		return query.list();

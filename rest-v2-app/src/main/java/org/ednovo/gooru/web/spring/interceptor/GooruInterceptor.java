@@ -53,6 +53,8 @@ public class GooruInterceptor extends HandlerInterceptorAdapter {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(GooruInterceptor.class);
 	
+	private static final Logger ACTIVITY_LOGGER = LoggerFactory.getLogger("activityLog");
+	
 	private static final JSONSerializer SERIALIZER = new JSONSerializer();
 	
 	@Autowired
@@ -133,7 +135,7 @@ public class GooruInterceptor extends HandlerInterceptorAdapter {
 		LOGGER.debug(logString);
 		if (logString != null) {
 			try {
-				LOGGER.info(logString);
+				ACTIVITY_LOGGER.info(logString);
 				kafkaService.sendEventLog(logString);
 			} catch(Exception e) {
 				LOGGER.error("Error while pushing event log data to kafka : " + e.getMessage() );

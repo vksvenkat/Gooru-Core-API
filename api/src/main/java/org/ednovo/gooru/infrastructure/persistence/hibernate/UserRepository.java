@@ -190,5 +190,7 @@ public interface UserRepository extends BaseRepository {
 	List<User> findUsersByOrganization(String organizationUid, String parentOrganizationUid, Integer offset, Integer limit);
 	
 	Long getUsersByOrganizationCount(String organizationUid, String parentOrganizationUid);
+	
+	List<UserRoleAssoc> findUserRoleSetByUserUid(String userUid);
 
 }
