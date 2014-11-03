@@ -130,15 +130,9 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 
 	@Override
 	public Application getApplication(String apiKey) {
-		Application application = this.getApplicationRepository().getApplication(apiKey);		
-		List<ApplicationItem> applicationItems = this.getApplicationRepository().getApplicationItemByApiKey(apiKey);
-		if(!applicationItems.isEmpty()){
-			application.setApplicationItems(applicationItems);	
-		}			
-		List<OAuthClient> OauthClients = oAuthRepository.findOAuthClientByApplicationKey(apiKey);	
-		if(!OauthClients.isEmpty()){
-			application.setOauthClients(OauthClients);
-		}		
+		Application application = this.getApplicationRepository().getApplication(apiKey);
+		application.setApplicationItems(this.getApplicationRepository().getApplicationItemByApiKey(apiKey));
+		application.setOauthClients(oAuthRepository.findOAuthClientByApplicationKey(apiKey));
 		return application;
 	}
 

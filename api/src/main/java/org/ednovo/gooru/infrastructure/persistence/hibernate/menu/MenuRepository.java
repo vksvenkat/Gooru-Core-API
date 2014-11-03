@@ -19,7 +19,7 @@ public interface MenuRepository extends BaseRepository{
 	
 	MenuItem findMenuItemById(String menuItemUid);
 	
-	Long getMenuItemCount( String menuUid);
+	Integer getMenuItemCount( String menuUid);
 	
     List<MenuItem> getMenuItemsByMenuId(String menuUid);
 	

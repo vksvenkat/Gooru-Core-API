@@ -67,7 +67,7 @@ public class MenuRepositoryHibernate extends BaseRepositoryHibernate implements 
 	}
 
 	@Override
-	public Long getMenuItemCount(String menuUid) {
+	public Integer getMenuItemCount(String menuUid) {
 
 		String hql = "SELECT count(*) FROM MenuItem mi";
 		if (menuUid != null) {
@@ -77,7 +77,7 @@ public class MenuRepositoryHibernate extends BaseRepositoryHibernate implements 
 		if (menuUid != null) {
 			query.setParameter("parentMenuUid", menuUid);
 		}
-		return (Long) query.list().get(0);
+		return (Integer) query.list().get(0);
 	}
 	
 	@Override

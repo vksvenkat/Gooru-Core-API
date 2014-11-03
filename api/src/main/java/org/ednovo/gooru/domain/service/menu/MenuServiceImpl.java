@@ -68,8 +68,6 @@ public class MenuServiceImpl extends BaseServiceImpl implements MenuService, Par
 			menu.setCreatedOn(new Date(System.currentTimeMillis()));
 			menu.setCreatorUid(user.getGooruUId());
 			menu.setLastModified(new Date(System.currentTimeMillis()));
-			Boolean isActive= (menu.getIsActive() != null)?menu.getIsActive():true;
-			menu.setIsActive(isActive);
 			this.getMenuRepository().save(menu);
 			MenuItem menuItem = new MenuItem();
 			menuItem.setMenu(menu);		
@@ -95,6 +93,9 @@ public class MenuServiceImpl extends BaseServiceImpl implements MenuService, Par
 		}
 		if (newMenu.getUrl() != null) {
 			menu.setUrl(newMenu.getUrl());
+		}
+		if (newMenu.getIsActive() != null) {
+			menu.setIsActive(newMenu.getIsActive());
 		}
 		this.getMenuRepository().save(menu);
 		return menu;
@@ -124,7 +125,7 @@ public class MenuServiceImpl extends BaseServiceImpl implements MenuService, Par
 		rejectIfNull(menuItem, GL0056, 404, "MenuItem ");
 		if (newMenuItem.getParentMenuUid() != null) {
 			menuItem.setParentMenuUid(newMenuItem.getParentMenuUid());
-			final Integer sequence = Integer.parseInt(getMenuRepository().getMenuItemCount(newMenuItem.getParentMenuUid()).toString()) + 1;
+			final Integer sequence = getMenuRepository().getMenuItemCount(newMenuItem.getParentMenuUid()) + 1;
 			menuItem.setSequence(sequence);
 		}
 		this.getMenuRepository().save(menuItem);

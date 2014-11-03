@@ -16,7 +16,7 @@ public class Menu implements Serializable {
 	private String creatorUid;
 	private Date createdOn;
 	private Date lastModified;
-	private Boolean isActive;
+	private Boolean isActive = true;
 	private MenuItem menuItem;
 	private List<MenuItem> menuItems;
 	
