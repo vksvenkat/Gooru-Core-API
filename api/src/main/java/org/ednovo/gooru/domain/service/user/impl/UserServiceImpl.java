@@ -42,12 +42,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.ednovo.gooru.application.util.TaxonomyUtil;
+import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Application;
 import org.ednovo.gooru.core.api.model.Assessment;
 import org.ednovo.gooru.core.api.model.AssessmentSegment;
 import org.ednovo.gooru.core.api.model.AssessmentSegmentQuestionAssoc;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
+import org.ednovo.gooru.core.api.model.Country;
 import org.ednovo.gooru.core.api.model.Credential;
 import org.ednovo.gooru.core.api.model.EntityOperation;
 import org.ednovo.gooru.core.api.model.GooruAuthenticationToken;
@@ -933,8 +935,46 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 	}
 
 	@Override
-	public List<UserRole> findAllRoles() {
-		return getUserRepository().findAllRoles();
+	public List<Map<String, Object>> findAllRoles() {
+		
+		List<UserRole> result = this.getUserRepository().findAllRoles();
+		List<Map<String, Object>> roleList = new ArrayList<Map<String, Object>>();
+			for (UserRole userRole : result) {
+				Map<String, Object> role = new HashMap<String, Object>();
+				role.put(DESCRIPTION, userRole.getDescription());
+				role.put(NAME, userRole.getName());
+				role.put(ROLE_ID, userRole.getRoleId());
+				roleList.add(role);
+		}
+		return roleList;
+	}
+
+	@Override
+	public Long allRolesCount() {
+		
+		Long count = this.getUserRepository().countAllRoles();
+		return count;
+	}
+	
+	@Override
+	public List<Map<String, Object>> findUserRoles(String userUid) {
+		
+		List<UserRole> result = this.getUserRepository().findUserRoles(userUid);
+		List<Map<String, Object>> roleList = new ArrayList<Map<String, Object>>();
+			for (UserRole userRole : result) {
+				Map<String, Object> role = new HashMap<String, Object>();
+				role.put(DESCRIPTION, userRole.getDescription());
+				role.put(NAME, userRole.getName());
+				role.put(ROLE_ID, userRole.getRoleId());
+				roleList.add(role);
+		}
+		return roleList;
+	}
+	
+	public Long userRolesCount(String userUid) {
+		
+		Long count = this.getUserRepository().countUserRoles(userUid);
+		return count;
 	}
 
 	@Override
@@ -1461,7 +1501,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 		}
 		return userRole;
 	}
-
+	
 	@Override
 	public UserRole findUserRoleByName(final String name) {
 		return userRepository.findUserRoleByName(name, null);
