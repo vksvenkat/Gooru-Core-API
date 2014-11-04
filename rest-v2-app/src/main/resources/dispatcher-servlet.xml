@@ -1,36 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  dispatcher-servlet.xml
-  rest-v2-app
-   Created by Gooru on 2014
-   Copyright (c) 2014 Gooru. All rights reserved.
-   http://www.goorulearning.org/
-   Permission is hereby granted, free of charge, to any person      obtaining
-   a copy of this software and associated documentation files (the
-   "Software"), to deal in the Software without restriction, including
-   without limitation the rights to use, copy, modify, merge, publish,
-   distribute, sublicense, and/or sell copies of the Software, and to
-   permit persons to whom the Software is furnished to do so,  subject to
-   the following conditions:
-   The above copyright notice and this permission notice shall be
-   included in all copies or substantial portions of the Software.
-   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY  KIND,
-   EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE    WARRANTIES OF
-   MERCHANTABILITY, FITNESS FOR A PARTICULAR  PURPOSE     AND
-   NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR  COPYRIGHT HOLDERS BE
-   LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-   OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
--->
+<!-- dispatcher-servlet.xml rest-v2-app Created by Gooru on 2014 Copyright 
+	(c) 2014 Gooru. All rights reserved. http://www.goorulearning.org/ Permission 
+	is hereby granted, free of charge, to any person obtaining a copy of this 
+	software and associated documentation files (the "Software"), to deal in 
+	the Software without restriction, including without limitation the rights 
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell 
+	copies of the Software, and to permit persons to whom the Software is furnished 
+	to do so, subject to the following conditions: The above copyright notice 
+	and this permission notice shall be included in all copies or substantial 
+	portions of the Software. THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY 
+	OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES 
+	OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+	IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
+	DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
+	ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
+	DEALINGS IN THE SOFTWARE. -->
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mvc="http://www.springframework.org/schema/mvc"
 	xmlns:sec="http://www.springframework.org/schema/security"
-	xmlns:context="http://www.springframework.org/schema/context"
-	xmlns:p="http://www.springframework.org/schema/p"
-	xmlns:oxm="http://www.springframework.org/schema/oxm"
-	 xmlns:tx="http://www.springframework.org/schema/tx"	
-	 xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:oxm="http://www.springframework.org/schema/oxm" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:aop="http://www.springframework.org/schema/aop"
 	xsi:schemaLocation="
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.1.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.1.xsd
@@ -40,175 +30,156 @@
 		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.1.xsd
 		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.1.xsd">
 
-	<sec:global-method-security pre-post-annotations="enabled"/> 
+	<sec:global-method-security
+		pre-post-annotations="enabled" />
 
-	<context:component-scan base-package="org.ednovo.gooru.search"/>
-	
-	<context:component-scan base-package="org.ednovo.gooru.v1.search"/>
-	
-	<context:component-scan base-package="org.ednovo.gooru.index"/>
-	
-	<!--
-		- The controllers are autodetected POJOs labeled with the @Controller annotation.
-	-->
-	<context:component-scan base-package="org.ednovo.gooru.controllers"/>
-	
+	<context:component-scan base-package="org.ednovo.gooru.search" />
 
-	<!-- 
-		- Enables the AspectJ support
-	 -->
+	<context:component-scan base-package="org.ednovo.gooru.v1.search" />
+
+	<context:component-scan base-package="org.ednovo.gooru.index" />
+
+	<!-- - The controllers are autodetected POJOs labeled with the @Controller 
+		annotation. -->
+	<context:component-scan base-package="org.ednovo.gooru.controllers" />
+
+
+	<!-- - Enables the AspectJ support -->
 	<bean id="methodAuthorizationAspect" class="org.ednovo.gooru.security.MethodAuthorizationAspect" />
 
 	<aop:aspectj-autoproxy>
-        <aop:include name="methodAuthorizationAspect" />            
-        <aop:include name="studyshelfSecurityAspect" />   
-    </aop:aspectj-autoproxy>
-    
-	<!--  Configures the @Transactional programming model -->
-	<tx:annotation-driven transaction-manager="transactionManager" proxy-target-class="true" />
-	<tx:annotation-driven transaction-manager="transactionManagerReadyOnly" proxy-target-class="true" />
-	<tx:annotation-driven transaction-manager="revisionHistoryTransactionManager" proxy-target-class="true" />
- 
+		<aop:include name="methodAuthorizationAspect" />
+		<aop:include name="studyshelfSecurityAspect" />
+	</aop:aspectj-autoproxy>
+
+	<!-- Configures the @Transactional programming model -->
+	<tx:annotation-driven transaction-manager="transactionManager"
+		proxy-target-class="true" />
+	<tx:annotation-driven transaction-manager="transactionManagerReadyOnly"
+		proxy-target-class="true" />
+	<tx:annotation-driven transaction-manager="revisionHistoryTransactionManager"
+		proxy-target-class="true" />
+
 	<!-- Application Message Bundle -->
-	<bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
-		<property name="basename" value="ApplicationResources" />		
+	<bean id="messageSource"
+		class="org.springframework.context.support.ResourceBundleMessageSource">
+		<property name="basename" value="ApplicationResources" />
 	</bean>
-	
+
 
 
 	<!-- Configures the @Controller programming model -->
 	<mvc:annotation-driven />
 
 	<!-- Forwards requests to the "/" resource to the "welcome" view -->
-	<mvc:view-controller path="/" view-name="welcome"/>	
+	<mvc:view-controller path="/" view-name="welcome" />
 
-	<!-- Configures Handler Interceptors -->	
+	<!-- Configures Handler Interceptors -->
 	<mvc:interceptors>
-		<!-- Changes the locale when a 'locale' request parameter is sent; e.g. /?locale=de -->
+		<!-- Changes the locale when a 'locale' request parameter is sent; e.g. 
+			/?locale=de -->
 		<bean class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor" />
-		<bean id="gooruInterceptor" class="org.ednovo.gooru.web.spring.interceptor.GooruInterceptor">        	
-        	<property name = "gooruConstants" ref = "gooruConstants"/>
-	  	</bean>	    	
+		<bean id="gooruInterceptor"
+			class="org.ednovo.gooru.web.spring.interceptor.GooruInterceptor">
+			<property name="gooruConstants" ref="gooruConstants" />
+		</bean>
 	</mvc:interceptors>
 
 	<!-- Saves a locale change using a cookie -->
-	<bean id="localeResolver" class="org.springframework.web.servlet.i18n.CookieLocaleResolver" />
+	<bean id="localeResolver"
+		class="org.springframework.web.servlet.i18n.CookieLocaleResolver" />
 
 
-	<!-- View Resolvers in order
-	  
-		1. XmlViewResolver - Resolves specifically "xmlView" & "jsonView"
-		2. ContentNegotiatingViewResolver - XML or JSON response if the 
-											Clients sets appropriate 
-											Request-Accept header. 
-	
-		3. InternalResourceViewResolver - Attempts to resolve the view as 
-										  a JSP
-	-->
-	
+	<!-- View Resolvers in order 1. XmlViewResolver - Resolves specifically 
+		"xmlView" & "jsonView" 2. ContentNegotiatingViewResolver - XML or JSON response 
+		if the Clients sets appropriate Request-Accept header. 3. InternalResourceViewResolver 
+		- Attempts to resolve the view as a JSP -->
+
 	<bean class="org.ednovo.gooru.web.spring.exception.GooruExceptionResolver">
-	   <property name="exceptionMappings">
-	     <props>
-	     	<prop key="org.apache.commons.fileupload.FileUploadBase$SizeLimitExceededException">sizeExceeded</prop>		
-	        <prop key="java.lang.Exception">error</prop>
-	        <prop key="org.springframework.security.access.AccessDeniedException">accessdenied</prop>
-	        <prop key="org.ednovo.gooru.domain.exception.ClassplanException">notfound</prop>	        
-	     </props>
-	   </property>
+		<property name="exceptionMappings">
+			<props>
+				<prop
+					key="org.apache.commons.fileupload.FileUploadBase$SizeLimitExceededException">sizeExceeded</prop>
+				<prop key="java.lang.Exception">error</prop>
+				<prop key="org.springframework.security.access.AccessDeniedException">accessdenied</prop>
+				<prop key="org.ednovo.gooru.domain.exception.ClassplanException">notfound</prop>
+			</props>
+		</property>
 	</bean>
-	
-<!--	<bean class="org.springframework.web.servlet.view.XmlViewResolver">
-		  <property name="order" value="1"/>
-		  <property name="location" value="/WEB-INF/views.xml"/>
-	</bean> -->
 
-	<bean class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">
-	  <property name="order" value="2"/>
-	  <property name="mediaTypes">
-	    <map>
-	      <entry key="xml" value="application/xml"/>
-	      <entry key="json" value="application/json"/>
-	    </map>
-	  </property>	  
-	  <property name="defaultViews">
-	    <list>
-			<bean class="org.springframework.web.servlet.view.json.MappingJacksonJsonView" />
-		 	<bean class="org.springframework.web.servlet.view.xml.MarshallingView">
-			    <constructor-arg>
-			       <bean class="org.springframework.oxm.xstream.XStreamMarshaller">
-				  		<property name="autodetectAnnotations" value="true"/>
-			       </bean>
-			    </constructor-arg>
-			</bean>			
-	    </list>
-	  </property>
+	<bean
+		class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">
+		<property name="order" value="1" />
+		<property name="contentNegotiationManager">
+			<bean class="org.springframework.web.accept.ContentNegotiationManager">
+				<constructor-arg>
+					<bean
+						class="org.springframework.web.accept.PathExtensionContentNegotiationStrategy">
+						<constructor-arg>
+							<map>
+								<entry key="json" value="application/json" />
+								<entry key="xml" value="application/xml" />
+							</map>
+						</constructor-arg>
+					</bean>
+				</constructor-arg>
+			</bean>
+		</property>
+
+		<property name="defaultViews">
+			<list>
+				<bean
+					class="org.springframework.web.servlet.view.json.MappingJackson2JsonView" />
+				<bean class="org.springframework.web.servlet.view.xml.MarshallingView">
+					<constructor-arg>
+						<bean class="org.springframework.oxm.xstream.XStreamMarshaller">
+							<property name="autodetectAnnotations" value="true" />
+						</bean>
+					</constructor-arg>
+				</bean>
+			</list>
+		</property>
 	</bean>
-	
-	<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
-	 	<property name="order" value="1"/>
-		 <property name="prefix" value="/WEB-INF/jsp/"/>
-		 <property name="suffix" value=".jsp"/>
-	</bean>	
-	
-	<bean id="gooruConstants" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
-	    <property name="properties">
-	        <props>
-	            <prop key="sakai.portal">${sakai.portal}</prop>
-	            <prop key="sakai.logout">${sakai.logout}</prop>	 
-	            <prop key="gooru.home">${gooru.home}</prop>
-	            <prop key="gooru.instance">${gooru.instance}</prop>
-	            <prop key="guestSpeaker.URI">${guestSpeaker.URI}</prop>
-	            <prop key="gooru.services.endpoint">${gooru.services.endpoint}</prop>
-	            <prop key="gooru.googleapps.login">${gooru.googleapps.login}</prop>
-	        </props>
-	    </property> 
+
+
+
+	<bean
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="order" value="1" />
+		<property name="prefix" value="/WEB-INF/jsp/" />
+		<property name="suffix" value=".jsp" />
 	</bean>
-	
-<!-- 	    <bean id="photoController" class="org.springframework.security.oauth.examples.sparklr.mvc.PhotoController"
-          p:photoService-ref="photoServices" />
-	    <bean id="photoServices" class="org.springframework.security.oauth.examples.sparklr.impl.PhotoServiceImpl">
-        <property name="photos">
-            <list>
-                <bean parent="photoInfoType"
-                      p:id="1"
-                      p:name="photo1.jpg"
-                      p:userId="marissa"
-                      p:resourceURL="/org/springframework/security/oauth/examples/sparklr/impl/resources/photo1.jpg" />
 
-                <bean parent="photoInfoType"
-                      p:id="2"
-                      p:name="photo2.jpg"
-                      p:userId="paul"
-                      p:resourceURL="/org/springframework/security/oauth/examples/sparklr/impl/resources/photo2.jpg" />
+	<bean id="gooruConstants"
+		class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+		<property name="properties">
+			<props>
+				<prop key="sakai.portal">${sakai.portal}</prop>
+				<prop key="sakai.logout">${sakai.logout}</prop>
+				<prop key="gooru.home">${gooru.home}</prop>
+				<prop key="gooru.instance">${gooru.instance}</prop>
+				<prop key="guestSpeaker.URI">${guestSpeaker.URI}</prop>
+				<prop key="gooru.services.endpoint">${gooru.services.endpoint}</prop>
+				<prop key="gooru.googleapps.login">${gooru.googleapps.login}</prop>
+			</props>
+		</property>
+	</bean>
 
-                <bean parent="photoInfoType"
-                      p:id="3"
-                      p:name="photo3.jpg"
-                      p:userId="marissa"
-                      p:resourceURL="/org/springframework/security/oauth/examples/sparklr/impl/resources/photo3.jpg" />
-
-                <bean parent="photoInfoType"
-                      p:id="4"
-                      p:name="photo4.jpg"
-                      p:userId="paul"
-                      p:resourceURL="/org/springframework/security/oauth/examples/sparklr/impl/resources/photo4.jpg" />
-
-                <bean parent="photoInfoType"
-                      p:id="5"
-                      p:name="photo5.jpg"
-                      p:userId="marissa"
-                      p:resourceURL="/org/springframework/security/oauth/examples/sparklr/impl/resources/photo5.jpg" />
-
-                <bean parent="photoInfoType"
-                      p:id="6"
-                      p:name="photo6.jpg"
-                      p:userId="paul"
-                      p:resourceURL="/org/springframework/security/oauth/examples/sparklr/impl/resources/photo6.jpg" />
-            </list>
-        </property>
-    </bean>
-
-    <bean id="photoInfoType" class="org.springframework.security.oauth.examples.sparklr.PhotoInfo" abstract="true" />
- -->	
+	<!-- <bean id="photoController" class="org.springframework.security.oauth.examples.sparklr.mvc.PhotoController" 
+		p:photoService-ref="photoServices" /> <bean id="photoServices" class="org.springframework.security.oauth.examples.sparklr.impl.PhotoServiceImpl"> 
+		<property name="photos"> <list> <bean parent="photoInfoType" p:id="1" p:name="photo1.jpg" 
+		p:userId="marissa" p:resourceURL="/org/springframework/security/oauth/examples/sparklr/impl/resources/photo1.jpg" 
+		/> <bean parent="photoInfoType" p:id="2" p:name="photo2.jpg" p:userId="paul" 
+		p:resourceURL="/org/springframework/security/oauth/examples/sparklr/impl/resources/photo2.jpg" 
+		/> <bean parent="photoInfoType" p:id="3" p:name="photo3.jpg" p:userId="marissa" 
+		p:resourceURL="/org/springframework/security/oauth/examples/sparklr/impl/resources/photo3.jpg" 
+		/> <bean parent="photoInfoType" p:id="4" p:name="photo4.jpg" p:userId="paul" 
+		p:resourceURL="/org/springframework/security/oauth/examples/sparklr/impl/resources/photo4.jpg" 
+		/> <bean parent="photoInfoType" p:id="5" p:name="photo5.jpg" p:userId="marissa" 
+		p:resourceURL="/org/springframework/security/oauth/examples/sparklr/impl/resources/photo5.jpg" 
+		/> <bean parent="photoInfoType" p:id="6" p:name="photo6.jpg" p:userId="paul" 
+		p:resourceURL="/org/springframework/security/oauth/examples/sparklr/impl/resources/photo6.jpg" 
+		/> </list> </property> </bean> <bean id="photoInfoType" class="org.springframework.security.oauth.examples.sparklr.PhotoInfo" 
+		abstract="true" /> -->
 
 </beans>
