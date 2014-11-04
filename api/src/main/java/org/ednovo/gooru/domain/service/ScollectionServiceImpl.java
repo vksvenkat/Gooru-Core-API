@@ -650,7 +650,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				LOGGER.debug(e.getMessage());
 			}
 
-			final List<CollectionItem> collectionItems = this.getCollectionRepository().getCollectionItemByAssociation(collectionId, null, null, DELETE);
+			final List<CollectionItem> collectionItems = this.getCollectionRepository().getCollectionItemByAssociation(collectionId, null, null, true);
 			try {
 				this.getCollectionEventLog().getEventLogs(collection.getCollectionItem(), user, collection.getCollectionType());
 			} catch (Exception e) {
