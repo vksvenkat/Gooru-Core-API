@@ -42,12 +42,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.ednovo.gooru.application.util.TaxonomyUtil;
+import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Application;
 import org.ednovo.gooru.core.api.model.Assessment;
 import org.ednovo.gooru.core.api.model.AssessmentSegment;
 import org.ednovo.gooru.core.api.model.AssessmentSegmentQuestionAssoc;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
+import org.ednovo.gooru.core.api.model.Country;
 import org.ednovo.gooru.core.api.model.Credential;
 import org.ednovo.gooru.core.api.model.EntityOperation;
 import org.ednovo.gooru.core.api.model.GooruAuthenticationToken;
@@ -935,8 +937,8 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 	@Override
 	public List<UserRole> findAllRoles() {
 		return getUserRepository().findAllRoles();
-	}
-
+	}	
+	
 	@Override
 	public Boolean isContentAdmin(User user) {
 		Boolean isAdminUser = false;
@@ -1461,7 +1463,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 		}
 		return userRole;
 	}
-
+	
 	@Override
 	public UserRole findUserRoleByName(final String name) {
 		return userRepository.findUserRoleByName(name, null);
@@ -1521,9 +1523,9 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 	}
 
 	@Override
-	public String removeRoleOperation(Integer roleId, String operations) throws Exception {
+	public String removeRoleOperation(Integer roleId, String operations){
 
-		String roleOperationDelete = "failed to delete";
+		String roleOperationDelete = "Failed to delete";
 		UserRole userRole = null;
 		Short userRoleId = null;
 		RoleEntityOperation roleEntityOperation = null;
@@ -1533,7 +1535,8 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 			userRole = findUserRoleByRoleId(userRoleId);
 		}
 		if (userRole == null) {
-			throw new Exception("user role not exists");
+			roleOperationDelete="User role not exists";
+			return roleOperationDelete;
 		}
 
 		if (operations != null) {
@@ -1549,12 +1552,13 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 						roleEntityOperations.add(roleEntityOperation);
 					}
 				} else {
-					throw new Exception("entity operation not exists");
+					roleOperationDelete="Entity operation not exists";
+					return roleOperationDelete;
 				}
 			}
 			if (roleEntityOperations.size() > 0) {
 				userRepository.removeAll(roleEntityOperations);
-				roleOperationDelete = "deleted successfully";
+				roleOperationDelete = "Deleted successfully";
 			}
 
 		}
@@ -2124,6 +2128,95 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 		SessionContextSupport.putLogParameter("user", user.toString());
 	}
 
+	@Override
+	public List<Map<String, Object>> getAllRoles() {
+		
+		List<UserRole> result = this.getUserRepository().findAllRoles();
+		List<Map<String, Object>> roleList = new ArrayList<Map<String, Object>>();
+			for (UserRole userRole : result) {
+				Map<String, Object> role = new HashMap<String, Object>();
+				role.put(DESCRIPTION, userRole.getDescription());
+				role.put(NAME, userRole.getName());
+				role.put(ROLE_ID, userRole.getRoleId());
+				roleList.add(role);
+		}
+		return roleList;
+	}
+	
+	@Override
+	public Long allRolesCount() {
+		
+		Long count = this.getUserRepository().countAllRoles();
+		return count;
+	}
+	
+	@Override
+	public List<UserRole> findUserRoles(String userUid) {
+		
+		/* Do not delete it
+		 * List<UserRole> userRoles = this.getUserRepository().findUserRoles(userUid);
+		List<Map<String, Object>> roleList = new ArrayList<Map<String, Object>>();
+			for (UserRole userRole : result) {
+				Map<String, Object> role = new HashMap<String, Object>();
+				role.put(DESCRIPTION, userRole.getDescription());
+				role.put(NAME, userRole.getName());
+				role.put(ROLE_ID, userRole.getRoleId());
+				roleList.add(role);
+		}
+		return roleList*/	
+		return this.getUserRepository().findUserRoles(userUid);
+	}
+
+	@Override
+	public Long userRolesCount(String userUid) {
+		
+		Long count = this.getUserRepository().countUserRoles(userUid);
+		return count;
+	}
+
+	@Override
+	public UserRole updateRole(UserRole role) throws Exception {
+		
+		UserRole userRole = null;
+		if (role.getRoleId() != null) {
+			userRole = findUserRoleByRoleId(role.getRoleId());
+		}
+		if (userRole == null) {
+			throw new Exception("user role not exists");
+		}
+
+		if (userRole != null) {
+			if(role.getName()!=null){	
+			userRole.setName(role.getName());
+			}
+			if(role.getDescription()!=null){
+			userRole.setDescription(role.getDescription());
+			}
+			userRepository.save(userRole);
+		}
+		return userRole;
+	}
+
+	@Override
+	public String removeRole(Short roleId){
+
+		String roleDelete = "Failed to delete";
+		UserRole userRole = null;
+		if (roleId != null) {
+			userRole = findUserRoleByRoleId(roleId);
+		}
+		if (userRole == null) {
+			roleDelete="User role not exists";
+			return roleDelete;
+		}
+
+		if (userRole != null) {
+			userRepository.remove(userRole);
+			roleDelete = "Deleted successfully";
+		}
+		return roleDelete;
+	}
+	
 	public TaxonomyRespository getTaxonomyRespository() {
 		return taxonomyRespository;
 	}

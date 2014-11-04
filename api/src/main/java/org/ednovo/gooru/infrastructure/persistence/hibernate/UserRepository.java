@@ -120,7 +120,7 @@ public interface UserRepository extends BaseRepository {
 	List<UserRoleAssoc> getUserRoleByName(String roles, String userId);
 
 	List<UserRole> findAllRoles();
-
+	
 	User getUserByUserName(String userName, boolean isLoginRequest);
 
 	Identity findByEmailIdOrUserName(String userName, Boolean isLoginRequest, Boolean fetchAllUser);
@@ -193,4 +193,10 @@ public interface UserRepository extends BaseRepository {
 	
 	List<UserRoleAssoc> findUserRoleSetByUserUid(String userUid);
 
+	List<UserRole> findUserRoles(String userUid);
+
+	Long countAllRoles();
+	
+	Long countUserRoles(String userUid);
+	
 }

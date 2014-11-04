@@ -2789,5 +2789,9 @@ public interface ParameterProperties {
 	String APPLICATION_URL = "applicationUrl";
 	
 	String APPLICATION_ITEM = "applicationItem";
+
+	String RESPONSE = "response";
+	
+	String MENU = "menu";
 	
 }

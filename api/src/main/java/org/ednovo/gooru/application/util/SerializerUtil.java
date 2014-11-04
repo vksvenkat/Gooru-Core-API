@@ -44,6 +44,7 @@ import org.ednovo.gooru.core.api.model.UserGroupTransformer;
 import org.ednovo.gooru.core.api.model.UserTransformer;
 import org.ednovo.gooru.core.application.util.BaseUtil;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.core.exception.BadRequestException;
 import org.ednovo.gooru.core.exception.MethodFailureException;
 import org.ednovo.goorucore.application.serializer.ExcludeNullTransformer;
 import org.json.JSONObject;

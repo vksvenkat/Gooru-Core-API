@@ -2806,6 +2806,11 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	public List<String> updateContentProvider(String gooruOid, List<String> providerList, User user, String providerType) {
 
 		CustomTableValue customTableValue = this.getCustomTableRepository().getCustomTableValue(_CONTENT_PROVIDER_TYPE, providerType);
+		List<ContentProviderAssociation> contentProviderAssociationList = this.getContentRepository().getContentProviderByGooruOid(gooruOid, null,providerType);
+
+		if (contentProviderAssociationList.size() > 0) {
+			this.getContentRepository().removeAll(contentProviderAssociationList);
+		}
 		for (String provider : providerList) {
 			ContentProvider contentProvider = this.getContentRepository().getContentProviderByName(provider, CONTENT_PROVIDER_TYPE + providerType);
 			if (contentProvider == null) {
@@ -2816,11 +2821,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				this.getContentRepository().save(contentProvider);
 				this.getContentRepository().flush();
 			}
-			List<ContentProviderAssociation> contentProviderAssociationList = this.getContentRepository().getContentProviderByGooruOid(gooruOid, null,providerType);
-
-			if (contentProviderAssociationList.size() > 0) {
-				this.getContentRepository().removeAll(contentProviderAssociationList);
-			}
+			
 			ContentProviderAssociation contentProviderAssociation = new ContentProviderAssociation();
 			contentProviderAssociation.setContentProvider(contentProvider);
 			ResourceSource resourceSource = new ResourceSource();
