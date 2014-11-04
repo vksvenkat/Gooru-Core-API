@@ -252,35 +252,16 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<CollectionItem> getCollectionItemByAssociation(String resourceGooruOid, String gooruUid, String type) {
+	public List<CollectionItem> getCollectionItemByAssociation(String resourceGooruOid, String gooruUid, String type, String action) {
 		String sql = "FROM CollectionItem collectionItem WHERE  collectionItem.resource.gooruOid=:resourceGooruOid  and  " + generateOrgAuthQuery("collectionItem.collection.");
 		String collectionType = "";
 		if (gooruUid != null) {
 			sql += " and collectionItem.associatedUser.partyUid=:gooruUid";
 		}
-		if (type != null) {
-			collectionType = type.equalsIgnoreCase(COLLECTION) ? SCOLLECTION : type;
-			sql += " and collectionItem.collection.resourceType.name=:collectionType";
+		if (action != null && action.equalsIgnoreCase("delete")) {
+			sql += " or collectionItem.collection.gooruOid =:resourceGooruOid ";
 		}
-		Query query = getSession().createQuery(sql);
-		query.setParameter("resourceGooruOid", resourceGooruOid);
-		if (gooruUid != null) {
-			query.setParameter(_GOORU_UID, gooruUid);
-		}
-		if (type != null) {
-			query.setParameter(COLLECTION_TYPE, collectionType);
-		}
-		addOrgAuthParameters(query);
-		return query.list();
-	}
-	
-	@Override
-	public List<CollectionItem> getCollectionItemByCollections(String resourceGooruOid, String gooruUid, String type) {
-		String sql = "FROM CollectionItem collectionItem WHERE  collectionItem.resource.gooruOid=:resourceGooruOid  or collectionItem.collection.gooruOid =:resourceGooruOid  and  " + generateOrgAuthQuery("collectionItem.collection.");
-		String collectionType = "";
-		if (gooruUid != null) {
-			sql += " and collectionItem.associatedUser.partyUid=:gooruUid";
-		}
+		
 		if (type != null) {
 			collectionType = type.equalsIgnoreCase(COLLECTION) ? SCOLLECTION : type;
 			sql += " and collectionItem.collection.resourceType.name=:collectionType";

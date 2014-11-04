@@ -650,7 +650,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				LOGGER.debug(e.getMessage());
 			}
 
-			final List<CollectionItem> collectionItems = this.getCollectionRepository().getCollectionItemByCollections(collectionId, null, null);
+			final List<CollectionItem> collectionItems = this.getCollectionRepository().getCollectionItemByAssociation(collectionId, null, null, DELETE);
 			try {
 				this.getCollectionEventLog().getEventLogs(collection.getCollectionItem(), user, collection.getCollectionType());
 			} catch (Exception e) {
@@ -1889,7 +1889,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 					this.getUserRepository().flush();
 				}
 				if (newCollection.getSharing().equalsIgnoreCase(PRIVATE)) {
-					List<CollectionItem> associations = this.getCollectionRepository().getCollectionItemByAssociation(collection.getGooruOid(), null, CLASSPAGE);
+					List<CollectionItem> associations = this.getCollectionRepository().getCollectionItemByAssociation(collection.getGooruOid(), null, CLASSPAGE, null);
 					for (CollectionItem item : associations) {
 						this.deleteCollectionItem(item.getCollectionItemId(), updateUser);
 					}
