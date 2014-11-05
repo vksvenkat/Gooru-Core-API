@@ -111,8 +111,8 @@ public interface CollectionRepository extends BaseRepository {
 	
 	Long getClasspageCollectionCount(String classpageGooruOid, String status, String userUid, String orderBy, String type);
 	
-	List<CollectionItem> getCollectionItemByAssociation(String resourceGooruOid, String gooruUid, String collectionType);
-	
+	List<CollectionItem> getCollectionItemByAssociation(String resourceGooruOid, String gooruUid, String collectionType, Boolean fetchWithParent);
+		
 	List<CollectionItem> getCollectionItemByParentId(String collectionGooruOid, String gooruUid, String collectionType);
 	
 	CollectionItem findCollectionItemByGooruOid(String gooruOid, String gooruUid, String type);
