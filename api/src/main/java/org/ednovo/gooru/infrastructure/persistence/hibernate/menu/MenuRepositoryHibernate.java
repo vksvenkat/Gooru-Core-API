@@ -68,6 +68,13 @@ public class MenuRepositoryHibernate extends BaseRepositoryHibernate implements 
 
 		return (Integer) query.list().get(0);
 	}
+	@Override
+	public Integer getParentMenuCount() {
+
+		String sql = "SELECT count(1) as count FROM menu_item mi WHERE mi.parent_menu_uid is null";
+		Query query = getSession().createSQLQuery(sql).addScalar("count", StandardBasicTypes.INTEGER);
+		return (Integer) query.list().get(0);
+	}
 
 	@Override
 	public List<MenuItem> getMenuItemsByMenuId(String menuUid) {
