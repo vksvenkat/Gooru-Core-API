@@ -51,7 +51,7 @@ public class MenuRepositoryHibernate extends BaseRepositoryHibernate implements 
 		if (menuItemUid != null) {
 			query.setParameter("menuItemUid", menuItemUid);
 		}
-		return (MenuItem) (query.list().size() > 0 ? query.list().get(0) : null);
+		return  (query.list().size() > 0 ? (MenuItem) query.list().get(0) : null);
 	}
 
 	@Override
@@ -89,19 +89,7 @@ public class MenuRepositoryHibernate extends BaseRepositoryHibernate implements 
 		return (List) query.list();
 	}
 
-	@Override
-	public Menu getParentMenuById(String menuUid) {
-		String hql = "Select mi.menu FROM MenuItem mi WHERE  mi.sequence = 1";
-		if (menuUid != null) {
-			hql += " AND mi.menu.menuUid =:menuUid";
-		}
-		Query query = getSession().createQuery(hql);
-		if (menuUid != null) {
-			query.setParameter("menuUid", menuUid);
-		}
-		return (Menu) (query.list().size() > 0 ? query.list().get(0) : null);
-	}
-
+	
 	@Override
 	public List<MenuItem> getMenuItems(List<Integer> roleIds, Integer sequence, String parentMenuUid) {
 		String hql = "SELECT menuItem FROM MenuItem menuItem join menuItem.menu.menuRoleAssocs menuRoleAssoc  WHERE 1=1 ";

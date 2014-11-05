@@ -23,7 +23,5 @@ public interface MenuRepository extends BaseRepository{
     List<MenuItem> getMenuItemsByMenuId(String menuUid);
 	
     List<Menu> getMenuBySequence(Integer id, String roleIds) ;
-    
-    Menu getParentMenuById(String menuUid);
 	
 }

@@ -103,6 +103,7 @@ public class MenuRestV2Controller extends BaseController implements ConstantProp
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ModelAndView getMenuItem(HttpServletRequest request, HttpServletResponse response, @PathVariable String id) throws Exception {
 		String includes[] = (String[]) ArrayUtils.addAll(MENU_ITEM_INCLUDES, ERROR_INCLUDE);
+		includes = (String[]) ArrayUtils.addAll(includes, MENU_INCLUDES);
 		return toModelAndViewWithIoFilter(this.getMenuService().getMenuItemById(id), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
 
