@@ -32,6 +32,8 @@ public interface ConfigConstants {
 	
 	String PROFILE_IMAGE_URL = "profile.image.url";
 	
+	String GOORU_USER_MAIL_RESET = "gooru.user.mail.reset";	
+	
 	String  RESOURCE_IMAGE_URL = "s3.resource.image.url";
 	
 	String PROFILE_BUCKET = "s3.profileBucket";

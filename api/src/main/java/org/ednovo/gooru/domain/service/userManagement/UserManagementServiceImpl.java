@@ -1375,6 +1375,25 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	}
 
 	@Override
+	public void resetEmailAddress(List<String> data) throws Exception {
+		for (final String mailId : data) {
+			Identity identity = this.getUserRepository().findByEmailIdOrUserName(mailId, true, false);
+			String domainName = this.getSettingService().getConfigSetting(ConfigConstants.GOORU_USER_MAIL_RESET, 0, TaxonomyUtil.GOORU_ORG_UID);
+			String[] mailArray = mailId.split("@");
+			if(domainName != null && identity != null) {
+				String[] domainNameArray = domainName.split(",");
+				for(String domainListItem : domainNameArray) {
+					if(mailArray[1].equalsIgnoreCase(domainListItem)) {
+						   identity.setExternalId(mailArray[1] + System.currentTimeMillis());
+						   this.getUserRepository().save(identity);
+						   this.getUserRepository().flush();
+					   }
+				}
+			}
+		}
+	}
+	
+	@Override
 	public Boolean isFollowedUser(String gooruUserId, User apiCaller) {
 		return getUserRepository().getActiveUserRelationship(apiCaller.getPartyUid(), gooruUserId) != null ? true : false;
 	}

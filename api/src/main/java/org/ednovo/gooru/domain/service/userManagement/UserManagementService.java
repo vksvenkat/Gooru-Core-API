@@ -23,6 +23,7 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.domain.service.userManagement;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -100,10 +101,12 @@ public interface UserManagementService extends BaseService {
 	
 	User updateUserViewFlagStatus(String gooruUid, Integer viewFlag);
 	
-	 Map<String, Object> followUser(User user, String followOnUserId);
+	Map<String, Object> followUser(User user, String followOnUserId);
 	 
-	 void  unFollowUser(User user, String unFollowUserId);
+	void  unFollowUser(User user, String unFollowUserId);
 	 
-	 Map<String, Object> getUserSummary(String gooruUid);
+	Map<String, Object> getUserSummary(String gooruUid);
+	 
+	void resetEmailAddress(List<String> data) throws Exception;
 
 }
