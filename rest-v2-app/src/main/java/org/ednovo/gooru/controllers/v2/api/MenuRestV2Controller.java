@@ -14,6 +14,7 @@ import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.GooruOperationConstants;
+import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.security.AuthorizeOperations;
 import org.ednovo.gooru.domain.service.menu.MenuService;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
@@ -31,7 +32,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 @RequestMapping(value = { "/v2/menu" })
 @Controller
-public class MenuRestV2Controller extends BaseController implements ConstantProperties{
+public class MenuRestV2Controller extends BaseController implements ConstantProperties, ParameterProperties {
 	
 	@Autowired
 	private MenuService menuService;
@@ -92,6 +93,7 @@ public class MenuRestV2Controller extends BaseController implements ConstantProp
 	public ModelAndView getMenuItems(@PathVariable(value = ID) String menuUid, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,
 			@RequestParam(value = ORDER_BY, defaultValue = DESC, required = false) String orderBy, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		String includes[] = (String[]) ArrayUtils.addAll(MENU_ITEM_INCLUDES, ERROR_INCLUDE);
+		includes = (String[]) ArrayUtils.addAll(includes, MENU_INCLUDES);
 		return toModelAndViewWithIoFilter(this.getMenuService().getMenuItems(menuUid), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 
 	}
@@ -101,6 +103,7 @@ public class MenuRestV2Controller extends BaseController implements ConstantProp
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ModelAndView getMenuItem(HttpServletRequest request, HttpServletResponse response, @PathVariable String id) throws Exception {
 		String includes[] = (String[]) ArrayUtils.addAll(MENU_ITEM_INCLUDES, ERROR_INCLUDE);
+		includes = (String[]) ArrayUtils.addAll(includes, MENU_INCLUDES);
 		return toModelAndViewWithIoFilter(this.getMenuService().getMenuItemById(id), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
 
@@ -108,15 +111,14 @@ public class MenuRestV2Controller extends BaseController implements ConstantProp
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_MENU_READ })
 	@RequestMapping(value = "", method = RequestMethod.GET)  
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-   	public ModelAndView getMenuByUserRole(ModelMap model, HttpServletRequest request, HttpServletResponse response) { 
+   	public ModelAndView getMenuByUserRole(@RequestParam (value = CHILDFLAG , required = false,defaultValue= "true")Boolean childFlag, ModelMap model, HttpServletRequest request, HttpServletResponse response) { 
 		User user = (User) request.getAttribute(Constants.USER);
 		String includes[] = (String[]) ArrayUtils.addAll(MENU_INCLUDES, ERROR_INCLUDE);
 		includes = (String[]) ArrayUtils.addAll(includes, MENU_ITEM_INCLUDES);
 		
-		return toModelAndViewWithIoFilter(this.getMenuService().getMenuByUserUid(user), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
+		return toModelAndViewWithIoFilter(this.getMenuService().getMenus(user,childFlag), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 
-	}
-	
+	}	
 
 	private Menu buildMenuFromInputParameters(String data) {
 		return JsonDeserializer.deserialize(data, Menu.class);

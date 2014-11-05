@@ -23,8 +23,6 @@
 		<id name="menuUid" column="menu_uid" unsaved-value="null">
 			<generator class="org.ednovo.gooru.core.application.util.UUIDGenerator"></generator>
 		</id>
-		<!-- <property name="menuUid" column="menuUid" not-null="true"> 
-		</property>-->
 		<property name="name" column="name" not-null="true">
 		</property>
 		<property name="description" column="description">
@@ -43,6 +41,10 @@
 		</property>
 		<property name="isActive" column="is_active" not-null="true">
 		</property>
+		 <set name="menuRoleAssocs"  inverse="true" cascade="none" lazy="true">
+			<key column="menu_uid" />
+			<one-to-many class="org.ednovo.gooru.core.api.model.MenuRoleAssoc" />
+		</set> 
 
 	</class>
 </hibernate-mapping>
