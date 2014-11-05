@@ -10,7 +10,6 @@ import org.apache.commons.lang.StringUtils;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Menu;
 import org.ednovo.gooru.core.api.model.MenuItem;
-import org.ednovo.gooru.core.api.model.MenuRoleAssoc;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserRoleAssoc;
 import org.ednovo.gooru.core.constant.ConstantProperties;
@@ -28,41 +27,27 @@ public class MenuServiceImpl extends BaseServiceImpl implements MenuService, Par
 
 	@Autowired
 	private MenuRepository menuRepository;
-	
+
 	@Autowired
 	private UserRepository userRepository;
-	
+
 	@Override
-	public List<Menu> getMenuByUserUid(User user) {
-		Set<String> roleIds = new HashSet<String>();
-		if (user.getUserRoleSet() != null) {
-			for (UserRoleAssoc userRoleAssoc : user.getUserRoleSet()) {
-				roleIds.add(userRoleAssoc.getRole().getRoleId().toString());
+	public List<Menu> getMenus(User user, Boolean flag) {
+		List<MenuItem> menuItems = this.getMenuRepository().getMenuItems(getRoles(user), 1, null);
+		List<Menu> menu = new ArrayList<Menu>();
+		for (MenuItem menuItem : menuItems) {
+			if (flag) {
+				menuItem.getMenu().setMenuItems(this.getMenuRepository().getMenuItems(getRoles(user), null, menuItem.getMenu().getMenuUid()));
+				menu.add(menuItem.getMenu());
+			} else {
+				menu.add(menuItem.getMenu());
 			}
 		}
-		List<String> roleIdList = new ArrayList<String>(roleIds);
-		StringUtils.join(roleIdList, ',');
-		List<MenuRoleAssoc> userMenuList = menuRepository.getMenuByUserRoles(StringUtils.join(roleIdList, ','));
-		List<Menu> userMenus = new ArrayList<Menu>();
-		Menu userMenu = new Menu();
-		List<MenuItem> menuItems = new ArrayList<MenuItem>();
-		for (MenuRoleAssoc menuRoleAssoc : userMenuList) {
-			userMenu = this.getMenuRepository().findMenuById(menuRoleAssoc.getMenu().getMenuUid());
-			if (userMenu != null) {
-				menuItems = this.getMenuRepository().getMenuItemsByMenuId(menuRoleAssoc.getMenu().getMenuUid());
-				if (menuItems != null || !(menuItems.isEmpty())) {
-					userMenu.setMenuItems(menuItems);
-				}
-				userMenus.add(userMenu);
-			}
-		}
-
-		return userMenus;
-
+		return menu;
 	}
 
 	@Override
-	public ActionResponseDTO<Menu> createMenu(Menu menu, User user){
+	public ActionResponseDTO<Menu> createMenu(Menu menu, User user) {
 		final Errors errors = validateCreateMenu(menu);
 		if (!errors.hasErrors()) {
 			menu.setCreatedOn(new Date(System.currentTimeMillis()));
@@ -70,18 +55,19 @@ public class MenuServiceImpl extends BaseServiceImpl implements MenuService, Par
 			menu.setLastModified(new Date(System.currentTimeMillis()));
 			this.getMenuRepository().save(menu);
 			MenuItem menuItem = new MenuItem();
-			menuItem.setMenu(menu);		
-			menuItem.setSequence(1);	
+			menuItem.setMenu(menu);
+			menuItem.setSequence(1);
+			menu.setMenuItem(menuItem);
 			this.getMenuRepository().save(menuItem);
 		}
 		return new ActionResponseDTO<Menu>(menu, errors);
 	}
-	
+
 	@Override
-	public Menu updateMenu(Menu newMenu, User user, String menuUid){
+	public Menu updateMenu(Menu newMenu, User user, String menuUid) {
 		Menu menu = this.getMenuRepository().findMenuById(menuUid);
 		rejectIfNull(menu, GL0056, 404, "menu ");
-		
+
 		if (newMenu.getName() != null) {
 			menu.setName(newMenu.getName());
 		}
@@ -100,24 +86,23 @@ public class MenuServiceImpl extends BaseServiceImpl implements MenuService, Par
 		this.getMenuRepository().save(menu);
 		return menu;
 	}
-	
+
 	@Override
-	public Menu  getMenuById(String menuUid){
+	public Menu getMenuById(String menuUid) {
 		return this.getMenuRepository().findMenuById(menuUid);
-		
+
 	}
-	
 
 	@Override
 	public List<MenuItem> getMenuItems(String menuUid) {
 		return this.getMenuRepository().getMenuItemsByMenuId(menuUid);
 	}
-	
+
 	@Override
 	public MenuItem getMenuItemById(String menuItemUid) {
 		return this.getMenuRepository().findMenuItemById(menuItemUid);
 	}
-	
+
 	@Override
 	public MenuItem updateMenuItem(MenuItem newMenuItem, String menuItemUid, User user) {
 
@@ -138,8 +123,17 @@ public class MenuServiceImpl extends BaseServiceImpl implements MenuService, Par
 		rejectIfNull(errors, menu, NAME, GL0006, generateErrorMessage(GL0006, NAME));
 		return errors;
 	}
-	
-	
+
+	private List<Integer> getRoles(User user) {
+		Set<Integer> roleIds = new HashSet<Integer>();
+		if (user.getUserRoleSet() != null) {
+			for (UserRoleAssoc userRoleAssoc : user.getUserRoleSet()) {
+				roleIds.add(Integer.parseInt(userRoleAssoc.getRole().getRoleId().toString()));
+			}
+		}
+		return new ArrayList<Integer>(roleIds);
+	}
+
 	public MenuRepository getMenuRepository() {
 		return menuRepository;
 	}
