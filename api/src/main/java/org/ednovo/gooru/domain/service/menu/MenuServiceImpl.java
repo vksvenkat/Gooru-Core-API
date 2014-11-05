@@ -33,7 +33,7 @@ public class MenuServiceImpl extends BaseServiceImpl implements MenuService, Par
 
 	@Override
 	public List<Menu> getMenus(User user, Boolean flag) {
-		List<MenuItem> menuItems = this.getMenuRepository().getMenuItems(getRoles(user), 1, null);
+		List<MenuItem> menuItems = this.getMenuRepository().getMenuItems(getRoles(user), null, null);
 		List<Menu> menu = new ArrayList<Menu>();
 		for (MenuItem menuItem : menuItems) {
 			if (flag) {
@@ -56,7 +56,8 @@ public class MenuServiceImpl extends BaseServiceImpl implements MenuService, Par
 			this.getMenuRepository().save(menu);
 			MenuItem menuItem = new MenuItem();
 			menuItem.setMenu(menu);
-			menuItem.setSequence(1);
+			int sequence = getMenuRepository().getParentMenuCount() == 0 ? 1 :  getMenuRepository().getParentMenuCount() + 1;
+			menuItem.setSequence(sequence);
 			menu.setMenuItem(menuItem);
 			this.getMenuRepository().save(menuItem);
 		}
@@ -110,7 +111,7 @@ public class MenuServiceImpl extends BaseServiceImpl implements MenuService, Par
 		rejectIfNull(menuItem, GL0056, 404, "MenuItem ");
 		if (newMenuItem.getParentMenuUid() != null) {
 			menuItem.setParentMenuUid(newMenuItem.getParentMenuUid());
-			final Integer sequence = getMenuRepository().getMenuItemCount(newMenuItem.getParentMenuUid()) + 1;
+			int sequence = getMenuRepository().getMenuItemCount(newMenuItem.getParentMenuUid()) == 0 ? 1 :  getMenuRepository().getMenuItemCount(newMenuItem.getParentMenuUid()) + 1;
 			menuItem.setSequence(sequence);
 		}
 		this.getMenuRepository().save(menuItem);
