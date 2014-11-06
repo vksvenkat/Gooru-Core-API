@@ -3,6 +3,7 @@ package org.ednovo.gooru.core.api.model;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 public class Menu implements Serializable {
 
@@ -19,6 +20,7 @@ public class Menu implements Serializable {
 	private Boolean isActive = true;
 	private MenuItem menuItem;
 	private List<MenuItem> menuItems;
+	private Set<MenuRoleAssoc> menuRoleAssocs;
 	
 
 	public String getMenuUid() {
@@ -97,7 +99,8 @@ public class Menu implements Serializable {
 		return menuItem;
 	}
 
-	public void setMenuItem(MenuItem menuItem) {
+	public void setMenuItem(MenuItem 
+			menuItem) {
 		this.menuItem = menuItem;
 	}
 
@@ -108,5 +111,14 @@ public class Menu implements Serializable {
 	public void setMenuItems(List<MenuItem> menuItems) {
 		this.menuItems = menuItems;
 	}
+
+	public Set<MenuRoleAssoc> getMenuRoleAssocs() {
+		return menuRoleAssocs;
+	}
+
+	public void setMenuRoleAssocs(Set<MenuRoleAssoc> menuRoleAssocs) {
+		this.menuRoleAssocs = menuRoleAssocs;
+	}
+
 
 }

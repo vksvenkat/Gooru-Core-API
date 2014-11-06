@@ -252,12 +252,16 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<CollectionItem> getCollectionItemByAssociation(String resourceGooruOid, String gooruUid, String type) {
+	public List<CollectionItem> getCollectionItemByAssociation(String resourceGooruOid, String gooruUid, String type, Boolean fetchWithParent) {
 		String sql = "FROM CollectionItem collectionItem WHERE  collectionItem.resource.gooruOid=:resourceGooruOid  and  " + generateOrgAuthQuery("collectionItem.collection.");
 		String collectionType = "";
 		if (gooruUid != null) {
 			sql += " and collectionItem.associatedUser.partyUid=:gooruUid";
 		}
+		if (fetchWithParent != null && fetchWithParent) {
+			sql += " or collectionItem.collection.gooruOid =:resourceGooruOid ";
+		}
+		
 		if (type != null) {
 			collectionType = type.equalsIgnoreCase(COLLECTION) ? SCOLLECTION : type;
 			sql += " and collectionItem.collection.resourceType.name=:collectionType";
@@ -273,6 +277,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		addOrgAuthParameters(query);
 		return query.list();
 	}
+	
 	
 	@Override
 	public List<CollectionItem> getCollectionItemByParentId(String collectionGooruOid, String gooruUid, String type) {
