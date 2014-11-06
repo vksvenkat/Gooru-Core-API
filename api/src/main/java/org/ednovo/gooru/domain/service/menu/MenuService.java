@@ -8,21 +8,20 @@ import org.ednovo.gooru.core.api.model.MenuItem;
 import org.ednovo.gooru.core.api.model.User;
 
 public interface MenuService {
-	
-	List<Menu> getMenuByUserUid(User user);
-	
+
+	List<Menu> getMenus(User user, Boolean flag);
+
 	ActionResponseDTO<Menu> createMenu(Menu menu, User user);
-	
+
 	Menu getMenuById(String menuUid);
-	
-    MenuItem getMenuItemById(String menuItemUid);
-    
-    List<MenuItem> getMenuItems(String menuUid) ;
-    
-    Menu updateMenu(Menu neweMenu, User user, String menuUid);
-    
-    MenuItem updateMenuItem(MenuItem newMenuItem, String menuItemUid,User user);
-	
-	
+
+	MenuItem getMenuItemById(String menuItemUid);
+
+	List<MenuItem> getMenuItems(String menuUid);
+
+	Menu updateMenu(Menu neweMenu, User user, String menuUid);
+
+	MenuItem updateMenuItem(MenuItem newMenuItem, String menuItemUid, User user);
+
 
 }

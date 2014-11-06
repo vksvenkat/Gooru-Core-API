@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.ednovo.gooru.core.api.model.Menu;
 import org.ednovo.gooru.core.api.model.MenuItem;
-import org.ednovo.gooru.core.api.model.MenuRoleAssoc;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepository;
 
 public interface MenuRepository extends BaseRepository{
@@ -13,7 +12,7 @@ public interface MenuRepository extends BaseRepository{
 
 	List<Menu> listMenu();
 	
-	List<MenuRoleAssoc> getMenuByUserRoles(String roleIds);
+	List<MenuItem> getMenuItems(List<Integer> roleIds, Integer sequence, String parentMenuUid);
 	
 	Menu findMenuById(String menuUid);
 	
@@ -23,6 +22,8 @@ public interface MenuRepository extends BaseRepository{
 	
     List<MenuItem> getMenuItemsByMenuId(String menuUid);
 	
-
+    List<Menu> getMenuBySequence(Integer id, String roleIds) ;
+    
+    Integer getParentMenuCount();
 	
 }
