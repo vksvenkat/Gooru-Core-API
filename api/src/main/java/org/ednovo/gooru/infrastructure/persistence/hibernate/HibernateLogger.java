@@ -39,6 +39,7 @@ import org.hibernate.event.spi.EventType;
 import org.hibernate.event.spi.PostDeleteEvent;
 import org.hibernate.event.spi.PostDeleteEventListener;
 import org.hibernate.internal.SessionFactoryImpl;
+import org.hibernate.persister.entity.EntityPersister;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,6 +79,12 @@ public class HibernateLogger implements PostDeleteEventListener {
 		final String entityName = event.getPersister().getEntityName();
 		final Date transTime = new Date();
 		LOG.warn("{ \"operation\" : \"DELETE\"  \"entity\" : \"" + entityId + "\" \"type\" : \"" + entityName + "\" \"time\" : \"" + new SimpleDateFormat().format(transTime) +"\" \"userId\" : \"" + UserGroupSupport.getCurrentUserUid() + "\" \"eventName\" : \"" + UserGroupSupport.getLog().get("eventName")+ "\"");
+	}
+
+	@Override
+	public boolean requiresPostCommitHanding(EntityPersister arg0) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }

@@ -1,27 +1,19 @@
 <?xml version="1.0"?>
-<!--
-   pom.xml
-   gooru-api
-   Created by Gooru on 2014
-   Copyright (c) 2014 Gooru. All rights reserved.
-   http://www.goorulearning.org/
-   Permission is hereby granted, free of charge, to any person obtaining
-   a copy of this software and associated documentation files (the
-   "Software"), to deal in the Software without restriction, including
-   without limitation the rights to use, copy, modify, merge, publish,
-   distribute, sublicense, and/or sell copies of the Software, and to
-   permit persons to whom the Software is furnished to do so, subject to
-   the following conditions:
-   The above copyright notice and this permission notice shall be
-   included in all copies or substantial portions of the Software.
-   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-   EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-   NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-   LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-   OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
--->
+<!-- pom.xml gooru-api Created by Gooru on 2014 Copyright (c) 2014 Gooru. 
+	All rights reserved. http://www.goorulearning.org/ Permission is hereby granted, 
+	free of charge, to any person obtaining a copy of this software and associated 
+	documentation files (the "Software"), to deal in the Software without restriction, 
+	including without limitation the rights to use, copy, modify, merge, publish, 
+	distribute, sublicense, and/or sell copies of the Software, and to permit 
+	persons to whom the Software is furnished to do so, subject to the following 
+	conditions: The above copyright notice and this permission notice shall be 
+	included in all copies or substantial portions of the Software. THE SOFTWARE 
+	IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING 
+	BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
+	PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS 
+	BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION 
+	OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH 
+	THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. -->
 <project
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
 	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -45,10 +37,10 @@
 			<resource>
 				<directory>src/main/resources</directory>
 				<filtering>true</filtering>
-                                 <excludes>
-                           	    <exclude>**/*.sql</exclude>
-                                    <exclude>**/*.cli</exclude>
-                          	</excludes>
+				<excludes>
+					<exclude>**/*.sql</exclude>
+					<exclude>**/*.cli</exclude>
+				</excludes>
 
 			</resource>
 		</resources>
@@ -62,7 +54,7 @@
 					<source>1.6</source>
 					<target>1.6</target>
 				</configuration>
-					</plugin>
+			</plugin>
 			<plugin>
 				<groupId>com.googlecode.flyway</groupId>
 				<artifactId>flyway-maven-plugin</artifactId>
@@ -141,6 +133,13 @@
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
+				<artifactId>spring-context-support</artifactId>
+				<version>${org.springframework.version}</version>
+				<type>jar</type>
+				<scope>compile</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
 				<artifactId>spring-web</artifactId>
 				<version>${org.springframework.version}</version>
 				<type>jar</type>
@@ -150,36 +149,36 @@
 	</dependencyManagement>
 
 	<dependencies>
-		 <!-- Event Logger API dependency  start-->
-		 <dependency>
-                        <groupId>org.clojars.paul</groupId>
-                        <artifactId>core-kafka_2.8.0</artifactId>
-                        <version>0.7.0-1</version>
-                        <exclusions>
-                                <exclusion>
-                                        <groupId>com.sun.jmx</groupId>
-                                        <artifactId>jmxri</artifactId>
-                                </exclusion>
-                                <exclusion>
-                                        <groupId>com.sun.jdmk</groupId>
-                                        <artifactId>jmxtools</artifactId>
-                                </exclusion>
-                                <exclusion>
-                                        <groupId>javax.jms</groupId>
-                                        <artifactId>jms</artifactId>
-                                </exclusion>
-                        </exclusions>
-                </dependency>
-        	<dependency>
-                	<groupId>org.ednovo.data.kafka.producer</groupId>
-                	<artifactId>kafka-producer</artifactId>
-                	<version>1.4</version>
-        	</dependency>
-		 <dependency>
-                        <groupId>org.scala-lang</groupId>
-                        <artifactId>scala-library</artifactId>
-                        <version>2.8.1</version>
-                 </dependency>
+		<!-- Event Logger API dependency start -->
+		<dependency>
+			<groupId>org.clojars.paul</groupId>
+			<artifactId>core-kafka_2.8.0</artifactId>
+			<version>0.7.0-1</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.sun.jmx</groupId>
+					<artifactId>jmxri</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.sun.jdmk</groupId>
+					<artifactId>jmxtools</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>javax.jms</groupId>
+					<artifactId>jms</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.ednovo.data.kafka.producer</groupId>
+			<artifactId>kafka-producer</artifactId>
+			<version>1.4</version>
+		</dependency>
+		<dependency>
+			<groupId>org.scala-lang</groupId>
+			<artifactId>scala-library</artifactId>
+			<version>2.8.1</version>
+		</dependency>
 
 		<dependency>
 			<groupId>com.ibm.icu</groupId>
@@ -208,7 +207,7 @@
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-core</artifactId>
-			<version>4.2.15.Final</version>
+			<version>4.3.5.Final</version>
 		</dependency>
 		<dependency>
 			<groupId>log4j</groupId>
@@ -313,7 +312,7 @@
 		<dependency>
 			<groupId>com.thoughtworks.xstream</groupId>
 			<artifactId>xstream</artifactId>
-			<version>1.4.2</version>
+			<version>1.4.7</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-lang</groupId>
@@ -347,15 +346,15 @@
 			<type>jar</type>
 			<scope>compile</scope>
 		</dependency>
-		 <dependency>
-                        <groupId>org.ednovo.gooru</groupId>
-                        <artifactId>gooru-cassandra-core</artifactId>
-                        <version>1.0</version>
-                </dependency>
+		<dependency>
+			<groupId>org.ednovo.gooru</groupId>
+			<artifactId>gooru-cassandra-core</artifactId>
+			<version>1.0</version>
+		</dependency>
 		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
-			<version>5.1.31</version>
+			<version>5.1.33</version>
 			<type>jar</type>
 			<scope>compile</scope>
 		</dependency>
@@ -367,7 +366,7 @@
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-ehcache</artifactId>
-			<version>4.2.15.Final</version>
+			<version>4.3.5.Final</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.flexjson</groupId>
@@ -387,12 +386,12 @@
 			<artifactId>httpclient</artifactId>
 			<version>4.3.4</version>
 		</dependency>
-            
-	   <dependency>
-         <groupId>org.glassfish</groupId>
-         <artifactId>javax.json</artifactId>
-         <version>1.0</version>              
-        </dependency>
+
+		<dependency>
+			<groupId>org.glassfish</groupId>
+			<artifactId>javax.json</artifactId>
+			<version>1.0</version>
+		</dependency>
 		<dependency>
 			<groupId>commons-digester</groupId>
 			<artifactId>commons-digester</artifactId>
@@ -583,9 +582,6 @@
 			<artifactId>logback-core</artifactId>
 			<version>1.0.0</version>
 		</dependency>
-		<!-- <dependency> <groupId>com.mangofactory</groupId> <artifactId>swagger-springmvc</artifactId> 
-			<version>0.2.2</version> </dependency> -->
-
 		<dependency>
 			<groupId>com.wordnik</groupId>
 			<artifactId>swagger-annotations_2.9.1</artifactId>
@@ -601,11 +597,11 @@
 			<artifactId>swagger-core_2.9.1</artifactId>
 			<version>1.0.1</version>
 		</dependency>
-	<dependency>
-		<groupId>com.googlecode.flyway</groupId>
-		<artifactId>flyway-core</artifactId>
-		<version>2.2.1</version>
-	</dependency> 
+		<dependency>
+			<groupId>com.googlecode.flyway</groupId>
+			<artifactId>flyway-core</artifactId>
+			<version>2.2.1</version>
+		</dependency>
 		<dependency>
 			<groupId>com.wordnik</groupId>
 			<artifactId>swagger-jaxrs_2.9.1</artifactId>
@@ -689,126 +685,115 @@
 			<version>1.7.2</version>
 		</dependency>
 		<dependency>
-            <groupId>commons-dbcp</groupId>
-            <artifactId>commons-dbcp</artifactId>
-            <version>1.4</version>
-        </dependency>
-	<dependency>
-                       <groupId>javax.xml</groupId>
-                       <artifactId>jaxrpc-api</artifactId>
-                       <version>1.1</version>
-                       <scope>compile</scope>
-           </dependency>
+			<groupId>commons-dbcp</groupId>
+			<artifactId>commons-dbcp</artifactId>
+			<version>1.4</version>
+		</dependency>
+		<dependency>
+			<groupId>javax.xml</groupId>
+			<artifactId>jaxrpc-api</artifactId>
+			<version>1.1</version>
+			<scope>compile</scope>
+		</dependency>
 
-	<dependency>
-		<groupId>cglib</groupId>
-		<artifactId>cglib-nodep</artifactId>
-                       <version>2.2</version>
-                       <type>jar</type>
-                       <scope>compile</scope>
-               </dependency>
+		<dependency>
+			<groupId>cglib</groupId>
+			<artifactId>cglib-nodep</artifactId>
+			<version>2.2</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
 
-	<dependency>
-		<groupId>org.springframework.security</groupId>
-                       <artifactId>spring-security-web</artifactId>
-                       <version>${org.springframework.security.version}</version>
-                       <type>jar</type>
-                       <scope>compile</scope>
-                       <exclusions>
-                               <exclusion>
-                                       <groupId>org.springframework</groupId>
-                                       <artifactId>spring-aop</artifactId>
-                               </exclusion>
-                               <exclusion>
-                                       <groupId>org.springframework</groupId>
-                                       <artifactId>spring-context</artifactId>
-                               </exclusion>
-                               <exclusion>
-                                       <groupId>org.springframework</groupId>
-                                       <artifactId>spring-web</artifactId>
-                               </exclusion>
-                       </exclusions>
-        </dependency>
-        <dependency>
-                       <groupId>org.springframework.security</groupId>
-                       <artifactId>spring-security-config</artifactId>
-                       <version>${org.springframework.security.version}</version>
-                       <exclusions>
-                               <exclusion>
-                                       <groupId>org.springframework</groupId>
-                                       <artifactId>spring-context</artifactId>
-                               </exclusion>
-                       </exclusions>
-               </dependency>
-               <dependency>
-                       <groupId>org.springframework.security</groupId>
-                       <artifactId>spring-security-taglibs</artifactId>
-                       <version>${org.springframework.security.version}</version>
-                       <exclusions>
-                               <exclusion>
-                                       <groupId>org.springframework</groupId>
-                                       <artifactId>spring-expression</artifactId>
-                               </exclusion>
-                               <exclusion>
-                                       <groupId>org.springframework</groupId>
-                                       <artifactId>spring-context</artifactId>
-                               </exclusion>
-                               <exclusion>
-                                       <groupId>org.springframework</groupId>
-                                       <artifactId>spring-web</artifactId>
-                               </exclusion>
-                       </exclusions>
-         </dependency>
-	<dependency>
-                       <groupId>org.springframework</groupId>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-web</artifactId>
+			<version>${org.springframework.security.version}</version>
+			<type>jar</type>
+			<scope>compile</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework</groupId>
+					<artifactId>spring-aop</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.springframework</groupId>
+					<artifactId>spring-context</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.springframework</groupId>
+					<artifactId>spring-web</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-config</artifactId>
+			<version>${org.springframework.security.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework</groupId>
+					<artifactId>spring-context</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-taglibs</artifactId>
+			<version>${org.springframework.security.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework</groupId>
+					<artifactId>spring-expression</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.springframework</groupId>
+					<artifactId>spring-context</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.springframework</groupId>
+					<artifactId>spring-web</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
 			<artifactId>spring-oxm</artifactId>
-                       <version>${org.springframework.version}</version>
-                       <type>jar</type>
-                       <scope>compile</scope>
-         </dependency>
-	<dependency>
-                       <groupId>org.springframework</groupId>
-                       <artifactId>spring-asm</artifactId>
-                       <version>${org.springframework.version}</version>
-                       <type>jar</type>
-                       <scope>compile</scope>
-        </dependency>
-	<dependency>
-                       <groupId>org.springframework</groupId>
-                       <artifactId>spring-aop</artifactId>
-                       <version>${org.springframework.version}</version>
-         </dependency>
-         <dependency>
-             <groupId>org.ednovo.gooru-core</groupId>
-             <artifactId>gooru-core</artifactId>
-             <version>0.0.1-SNAPSHOT</version>
-         </dependency>
-     <!-- cors-filter dependency -->
-        <dependency>
- 			<groupId>com.thetransactioncompany</groupId>
- 			<artifactId>cors-filter</artifactId>
-		    <version>2.1.1</version>			
-	    </dependency>
-        <dependency>
-                <groupId>com.jolbox</groupId>
-                <artifactId>bonecp</artifactId>
-                <version>0.8.0.RELEASE</version>
-	    </dependency>
-	    <dependency>
-                <groupId>com.jolbox</groupId>
-                <artifactId>bonecp-provider</artifactId>
-                <version>0.8.0-alpha1</version>
-            </dependency>
-	    <dependency>
-                <groupId>com.google.guava</groupId>
-                <artifactId>guava</artifactId>
-                <version>14.0.1</version>
-            </dependency>
-
+			<version>${org.springframework.version}</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-aop</artifactId>
+			<version>${org.springframework.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.ednovo.gooru-core</groupId>
+			<artifactId>gooru-core</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		<!-- cors-filter dependency -->
+		<dependency>
+			<groupId>com.thetransactioncompany</groupId>
+			<artifactId>cors-filter</artifactId>
+			<version>2.1.1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.jolbox</groupId>
+			<artifactId>bonecp</artifactId>
+			<version>0.8.0.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>com.jolbox</groupId>
+			<artifactId>bonecp-provider</artifactId>
+			<version>0.8.0-alpha1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>14.0.1</version>
+		</dependency>
 	</dependencies>
-
-
-
 </project>
 
 
