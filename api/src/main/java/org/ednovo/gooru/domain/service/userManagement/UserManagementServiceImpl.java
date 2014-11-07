@@ -1379,16 +1379,18 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		for (final String mailId : data) {
 			Identity identity = this.getUserRepository().findByEmailIdOrUserName(mailId, true, false);
 			String domainName = this.getSettingService().getConfigSetting(ConfigConstants.GOORU_USER_MAIL_RESET, 0, TaxonomyUtil.GOORU_ORG_UID);
-			String[] mailArray = mailId.split("@");
+			String[] mailAddress = mailId.split("@");
 			if(domainName != null && identity != null) {
-				String[] domainNameArray = domainName.split(",");
-				for(String domainListItem : domainNameArray) {
-					if(mailArray[1].equalsIgnoreCase(domainListItem)) {
-						   identity.setExternalId(mailArray[1] + System.currentTimeMillis());
+				String[] domains = domainName.split(",");
+				for(String domain : domains) {
+					if(mailAddress[1].equalsIgnoreCase(domain)) {
+						   identity.setExternalId(mailAddress[1] + System.currentTimeMillis());
 						   this.getUserRepository().save(identity);
 						   this.getUserRepository().flush();
 					   }
 				}
+			}else { 
+				throw new BadRequestException("Requested domain not found");
 			}
 		}
 	}

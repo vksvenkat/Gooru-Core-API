@@ -397,7 +397,7 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_EMAIL_RESET })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	@RequestMapping(method = { RequestMethod.PUT }, value = "reset/account/email")
+	@RequestMapping(method = { RequestMethod.PUT }, value = "reset/account")
 	public void resetEmailAddress(@RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		this.getUserManagementService().resetEmailAddress(JsonDeserializer.deserialize(data, new TypeReference<List<String>>() {
 		}));
