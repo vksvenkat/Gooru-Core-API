@@ -1,27 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  pom.xml
-  rest-v2-app
-   Created by Gooru on 2014
-   Copyright (c) 2014 Gooru. All rights reserved.
-   http://www.goorulearning.org/
-   Permission is hereby granted, free of charge, to any person      obtaining
-   a copy of this software and associated documentation files (the
-   "Software"), to deal in the Software without restriction, including
-   without limitation the rights to use, copy, modify, merge, publish,
-   distribute, sublicense, and/or sell copies of the Software, and to
-   permit persons to whom the Software is furnished to do so,  subject to
-   the following conditions:
-   The above copyright notice and this permission notice shall be
-   included in all copies or substantial portions of the Software.
-   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY  KIND,
-   EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE    WARRANTIES OF
-   MERCHANTABILITY, FITNESS FOR A PARTICULAR  PURPOSE     AND
-   NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR  COPYRIGHT HOLDERS BE
-   LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-   OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
--->
+<!-- pom.xml rest-v2-app Created by Gooru on 2014 Copyright (c) 2014 Gooru. 
+	All rights reserved. http://www.goorulearning.org/ Permission is hereby granted, 
+	free of charge, to any person obtaining a copy of this software and associated 
+	documentation files (the "Software"), to deal in the Software without restriction, 
+	including without limitation the rights to use, copy, modify, merge, publish, 
+	distribute, sublicense, and/or sell copies of the Software, and to permit 
+	persons to whom the Software is furnished to do so, subject to the following 
+	conditions: The above copyright notice and this permission notice shall be 
+	included in all copies or substantial portions of the Software. THE SOFTWARE 
+	IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING 
+	BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
+	PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS 
+	BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION 
+	OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH 
+	THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
@@ -49,18 +41,18 @@
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>tomcat-maven-plugin</artifactId>
 				<version>1.1</version>
-			</plugin> 
+			</plugin>
 			<plugin>
 				<artifactId>maven-war-plugin</artifactId>
 				<version>2.0.2</version>
 				<configuration>
-					<webappDirectory>${webapp.container.home}/webapps/gooruv2api</webappDirectory> 
+					<webappDirectory>${webapp.container.home}/webapps/gooruv2api</webappDirectory>
 					<!-- This is the context name we would like to use -->
 					<warName>gooruv2api</warName>
-					
+
 					<dependentWarExcludes>
 						**/jdbc.properties,**/hibernate.cfg.xml,**/sql-map-config.xml,**/web.xml,WEB-INF/classes/META-INF/**
-                    </dependentWarExcludes>
+					</dependentWarExcludes>
 				</configuration>
 			</plugin>
 		</plugins>
@@ -79,6 +71,11 @@
 		<dependencies>
 			<dependency>
 				<groupId>org.springframework</groupId>
+				<artifactId>org.springframework.web.servlet</artifactId>
+				<version>4.1.0.RELEASE</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
 				<artifactId>spring-expression</artifactId>
 				<version>${org.springframework.version}</version>
 			</dependency>
@@ -95,9 +92,9 @@
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
-			<groupId>org.ednovo.gooru</groupId>
-			<artifactId>rest-v2-app</artifactId>
-	         <version>1.0</version>
+				<groupId>org.ednovo.gooru</groupId>
+				<artifactId>rest-v2-app</artifactId>
+				<version>1.0</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
@@ -127,21 +124,28 @@
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
+				<artifactId>spring-context-support</artifactId>
+				<version>${org.springframework.version}</version>
+				<type>jar</type>
+				<scope>compile</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
 				<artifactId>spring-web</artifactId>
 				<version>${org.springframework.version}</version>
 				<type>jar</type>
 				<scope>compile</scope>
 			</dependency>
-                    <dependency>
-             <groupId>org.ednovo.gooru-core</groupId>
-             <artifactId>gooru-core</artifactId>
-             <version>0.0.1-SNAPSHOT</version>
-         </dependency>
+			<dependency>
+				<groupId>org.ednovo.gooru-core</groupId>
+				<artifactId>gooru-core</artifactId>
+				<version>0.0.1-SNAPSHOT</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
-	<dependencies>			
-	<!-- Event Logger API dependency  start-->
-	<dependency>
+	<dependencies>
+		<!-- Event Logger API dependency start -->
+		<dependency>
 			<groupId>org.clojars.paul</groupId>
 			<artifactId>core-kafka_2.8.0</artifactId>
 			<version>0.7.0-1</version>
@@ -160,17 +164,14 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-	<dependency>
-		<groupId>org.ednovo.data.kafka.producer</groupId>
-		<artifactId>kafka-producer</artifactId>
-		<version>1.4</version>
-	</dependency>		
-	<!-- Event Logger API dependency  end-->
-	<!--	<dependency>
-			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>gooru-search-core</artifactId>
-			<version>${project.parent.version}</version>
-		</dependency> -->
+		<dependency>
+			<groupId>org.ednovo.data.kafka.producer</groupId>
+			<artifactId>kafka-producer</artifactId>
+			<version>1.4</version>
+		</dependency>
+		<!-- Event Logger API dependency end -->
+		<!-- <dependency> <groupId>${project.parent.groupId}</groupId> <artifactId>gooru-search-core</artifactId> 
+			<version>${project.parent.version}</version> </dependency> -->
 		<!-- Dependencies with scope=provided aren't picked up from dependent JARs -->
 		<dependency>
 			<groupId>opensymphony</groupId>
@@ -197,37 +198,44 @@
 			<type>jar</type>
 			<scope>compile</scope>
 		</dependency>
-			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-tx</artifactId>
-				<version>${org.springframework.version}</version>
-				<!-- will come with all needed Spring dependencies such as spring-core 
-					and spring-beans -->
-			</dependency>
-			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-webmvc</artifactId>
-				<version>${org.springframework.version}</version>
-				<type>jar</type>
-				<scope>compile</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-orm</artifactId>
-				<version>${org.springframework.version}</version>
-				<!-- will come with all needed Spring dependencies such as spring-core 
-					and spring-beans -->
-			</dependency>
-	<dependency>
-		<groupId>org.scala-lang</groupId>
-		<artifactId>scala-library</artifactId>
-		<version>2.8.1</version>
-	</dependency>
-	      <dependency>
-            <groupId>org.springframework.security.oauth</groupId>
-            <artifactId>spring-security-oauth2</artifactId>
-            <version>${spring.security.oauth.version}</version>
-       </dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-tx</artifactId>
+			<version>${org.springframework.version}</version>
+			<!-- will come with all needed Spring dependencies such as spring-core 
+				and spring-beans -->
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-webmvc</artifactId>
+			<version>${org.springframework.version}</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-orm</artifactId>
+			<version>${org.springframework.version}</version>
+			<!-- will come with all needed Spring dependencies such as spring-core 
+				and spring-beans -->
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context-support</artifactId>
+			<version>${org.springframework.version}</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.scala-lang</groupId>
+			<artifactId>scala-library</artifactId>
+			<version>2.8.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.security.oauth</groupId>
+			<artifactId>spring-security-oauth2</artifactId>
+			<version>${spring.security.oauth.version}</version>
+		</dependency>
 	</dependencies>
 	<profiles>
 		<profile>
