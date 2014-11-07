@@ -83,23 +83,10 @@ public class MenuRepositoryHibernate extends BaseRepositoryHibernate implements 
 		query.setParameter("parentMenuUid", menuUid);
 		return (List) query.list();
 	}
-
-	@Override
-	public List<Menu> getMenuBySequence(Integer id, String roleIds) {
-		String hql = "Select m FROM MenuItem m join m.menu.menuRoleAssocs mac  WHERE  m.sequence =:sequence";
-		if (roleIds != null) {
-			hql += " AND mac.role.roleId IN   (" + roleIds + ")";
-		}
-
-		Query query = getSession().createQuery(hql);
-		query.setParameter("sequence", id);
-		return (List) query.list();
-	}
-
 	
 	@Override
 	public List<MenuItem> getMenuItems(List<Integer> roleIds, Integer sequence, String parentMenuUid) {
-		String hql = "SELECT menuItem FROM MenuItem menuItem join menuItem.menu.menuRoleAssocs menuRoleAssoc  WHERE 1=1 ";
+		String hql = "SELECT distinct menuItem FROM MenuItem menuItem join menuItem.menu.menuRoleAssocs menuRoleAssoc  WHERE 1=1 ";
 		if (roleIds != null) {
 			hql += " AND menuRoleAssoc.role.roleId IN ( :roleIds )";
 		}
@@ -108,7 +95,12 @@ public class MenuRepositoryHibernate extends BaseRepositoryHibernate implements 
 		}
 		if (sequence != null)  {
 			hql += " AND menuItem.sequence =:sequence";
-		} 
+		}
+		if (parentMenuUid == null) {
+			hql += " AND menuItem.parentMenuUid is null";
+		}
+		    hql += " ORDER BY menuItem.sequence";
+		    
 		Query query = getSession().createQuery(hql);
 		if (roleIds != null) {
 			query.setParameterList("roleIds", roleIds);
