@@ -86,7 +86,7 @@ public class MenuRepositoryHibernate extends BaseRepositoryHibernate implements 
 	
 	@Override
 	public List<MenuItem> getMenuItems(List<Integer> roleIds, Integer sequence, String parentMenuUid) {
-		String hql = "SELECT menuItem FROM MenuItem menuItem join menuItem.menu.menuRoleAssocs menuRoleAssoc  WHERE 1=1 ";
+		String hql = "SELECT distinct menuItem FROM MenuItem menuItem join menuItem.menu.menuRoleAssocs menuRoleAssoc  WHERE 1=1 ";
 		if (roleIds != null) {
 			hql += " AND menuRoleAssoc.role.roleId IN ( :roleIds )";
 		}
