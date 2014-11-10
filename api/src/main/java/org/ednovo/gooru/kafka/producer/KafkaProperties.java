@@ -14,7 +14,8 @@ public final class KafkaProperties {
 	@Autowired
 	private ConfigSettingRepository configSettingRepository;
 	  
-	 public static final String ZK_CONNECT = "zk.connect";
+	 public static final String ZK_CONNECT = "metadata.broker.list";
+	 public static final String ZK_OLD_CONNECT = "zk.connect";
 	 public static final String GROUP_ID = "groupid";
 	 public static final String TOPIC = "topic";
 	 public static final String KAFKA_SERVER_URL = "kafkaServerURL";
@@ -43,6 +44,10 @@ public final class KafkaProperties {
 	 public static final String AUTO_OFFSET_RESET = "auto.offset.reset";
 	 public static final String AUTO_OFFSET_RESET_VALUE = "smallest";
 	 public static final String KAFKA_PREFIX = "kafka.";
+	 public static final String REQUEST_REQUIRED_ACKS = "request.required.acks";
+	 public static final int REQUEST_REQUIRED_ACKS_VALUE = 1;
+	 public static final String RETRY_BACKOFF_MS = "retry.backoff.ms";
+	 public static final String RETRY_BACKOFF_MS_VALUE = "1000";
 	  
 	  
 	 public String zkConnectValue;
@@ -55,7 +60,7 @@ public final class KafkaProperties {
 	  @PostConstruct
 	  public void init(){
 		  try{
-			  zkConnectValue = configSettingRepository.getSetting(KAFKA_PREFIX+ZK_CONNECT);
+			  zkConnectValue = configSettingRepository.getSetting(KAFKA_PREFIX+ZK_OLD_CONNECT);
 			  groupIdValue = configSettingRepository.getSetting(KAFKA_PREFIX+GROUP_ID);
 			  topicValue = configSettingRepository.getSetting(KAFKA_PREFIX+TOPIC);
 			  kafaServiceUrl = configSettingRepository.getSetting(KAFKA_PREFIX+KAFKA_SERVER_URL);
