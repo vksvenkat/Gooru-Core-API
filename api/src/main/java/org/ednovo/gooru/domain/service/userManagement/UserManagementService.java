@@ -23,25 +23,25 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.domain.service.userManagement;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.ednovo.gooru.core.api.model.ApiKey;
+import org.ednovo.gooru.core.api.model.Application;
 import org.ednovo.gooru.core.api.model.Identity;
 import org.ednovo.gooru.core.api.model.Profile;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserToken;
 import org.ednovo.gooru.domain.service.BaseService;
+import org.ednovo.gooru.domain.service.search.SearchResults;
 
 
 public interface UserManagementService extends BaseService {
 
 	Set<String> checkContentAccess(User authenticationUser, String contentgooruId);
 	
-	Map<String, Map<String, Object>> userMeta(User user);
+	Map<String, Object> userMeta(User user);
 
 	User findByGooruId(String gooruId);
 
@@ -53,7 +53,11 @@ public interface UserManagementService extends BaseService {
 
 	User getUserByToken(String userToken);
 
-	List<User> getFollowedOnUsers(String gooruUId);
+	SearchResults<Map<String, Object>> getFollowedOnUsers(String gooruUId, Integer offset, Integer limit);
+	
+	Boolean isFollowedUser(String gooruUserId, User apiCaller);
+	
+	SearchResults<Map<String, Object>> getFollowedByUsers(String gooruUserId, Integer offset, Integer limit);
 
 	Profile updateProfileInfo(Profile profile, String gooruUid, User apiCaller, String activeFlag, Boolean emailConfirmStatus, String showProfilePage,String accountType,String password);
 
@@ -64,7 +68,7 @@ public interface UserManagementService extends BaseService {
 
 	Boolean isContentAdmin(User user);
 
-	UserToken createSessionToken(User user, String sessionId, ApiKey apiKey);
+	UserToken createSessionToken(User user, String sessionId, Application application);
 
 	User createUser(User user, String password, String school, Integer confirmStatus, Integer addedBySystem, String userImportCode, String accountType, String dateOfBirth, String userParentId, String remoteEntityId, String gender, String childDOB, String source, String emailSSO,
 			HttpServletRequest resRequest, String role, String mailConfirmationUrl) throws Exception;
@@ -95,5 +99,11 @@ public interface UserManagementService extends BaseService {
 	void updateOrgAdminCustomField(String organizationUid, User user) throws Exception;
 	
 	User updateUserViewFlagStatus(String gooruUid, Integer viewFlag);
+	
+	 Map<String, Object> followUser(User user, String followOnUserId);
+	 
+	 void  unFollowUser(User user, String unFollowUserId);
+	 
+	 Map<String, Object> getUserSummary(String gooruUid);
 
 }

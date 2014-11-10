@@ -43,6 +43,7 @@
 		<property name="referenceKey" column="reference_key" not-null="false" />
 		<many-to-one name="organization" class="org.ednovo.gooru.core.api.model.Organization" column="organization_uid" not-null="true" lazy="proxy" cascade="none" />
 		<property name="createdDate" column="created_date" not-null="true" />
+		<property name="lastModifiedOn" column="last_modified_on" not-null="false" />
 		<property name="contextPath" column="context_path" not-null="false" />
 		<property name ="notes" column="notes" not-null="false"/>
 	</class>

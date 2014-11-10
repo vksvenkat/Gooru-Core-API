@@ -33,9 +33,9 @@ import org.ednovo.gooru.cassandra.core.dao.EntityCassandraColumnFamily;
 import org.ednovo.gooru.cassandra.core.dao.EntityCassandraDaoImpl;
 import org.ednovo.gooru.cassandra.core.dao.RawCassandraDaoImpl;
 import org.ednovo.gooru.cassandra.core.factory.SearchCassandraFactory;
-import org.ednovo.gooru.core.cassandra.model.ReverseIndexColumnSetting;
 import org.ednovo.gooru.cassandra.core.service.CassandraSettingService;
 import org.ednovo.gooru.core.api.model.RevisionHistory;
+import org.ednovo.gooru.core.cassandra.model.ContentProviderCio;
 import org.ednovo.gooru.core.cassandra.model.DomainCio;
 import org.ednovo.gooru.core.cassandra.model.ResourceCio;
 import org.ednovo.gooru.core.cassandra.model.ReverseIndexColumnSetting;
@@ -64,20 +64,30 @@ public class ApiCassandraFactory extends SearchCassandraFactory {
 		register(new CassandraColumnFamily(ColumnFamilyConstant.DATA_STORE));
 		register(new CassandraColumnFamily(ColumnFamilyConstant.SEARCH_SETTING));
 		register(new CassandraColumnFamily(ColumnFamilyConstant.CONTENT_META));
+		register(new CassandraColumnFamily(ColumnFamilyConstant.CUSTOM_FIELDS_DATA));
+		register(new CassandraColumnFamily(ColumnFamilyConstant.CUSTOM_FIELDS_DEFINITION));
+		register(new CassandraColumnFamily(ColumnFamilyConstant.CUSTOM_FIELDS_GROUP));
+		register(new CassandraColumnFamily(ColumnFamilyConstant.INDEX_QUEUE));
 		register(new EntityCassandraColumnFamily<DomainCio>(DomainCio.class, new ReverseIndexColumnSetting().putField("name", "id")));
 		register(new EntityCassandraColumnFamily<ResourceCio>(ResourceCio.class, new ReverseIndexColumnSetting().putField("type","resourceType").putField("batch", "batchId").putField("categoy", "category").putField("resourceFormat", "resourceFormat").putField("instructional", "instructional")));
 		register(new EntityCassandraColumnFamily<RevisionHistory>(RevisionHistory.class, new ReverseIndexColumnSetting().putField("entity", "entityName")));
 		register(new EntityCassandraColumnFamily<TaxonomyCio>(TaxonomyCio.class, new ReverseIndexColumnSetting().putField("organization", "organization.partyUid")));
 		register(new EntityCassandraColumnFamily<UserCio>(UserCio.class, new ReverseIndexColumnSetting().putField("organization", "organization.partyUid")));
-
-		register(new RawCassandraDaoImpl(this, ColumnFamilyConstant.DATA_STORE));
+		register(new EntityCassandraColumnFamily<ContentProviderCio>(ContentProviderCio.class, new ReverseIndexColumnSetting().putField("entity", "entityName")));
+    	register(new RawCassandraDaoImpl(this, ColumnFamilyConstant.DATA_STORE));
 		register(new RawCassandraDaoImpl(this, ColumnFamilyConstant.SEARCH_SETTING));
 		register(new EntityCassandraDaoImpl<ResourceCio>(this, ColumnFamilyConstant.RESOURCE));
 		register(new EntityCassandraDaoImpl<TaxonomyCio>(this, ColumnFamilyConstant.TAXONOMY));
 		register(new EntityCassandraDaoImpl<UserCio>(this, ColumnFamilyConstant.USER));
 		register(new EntityCassandraDaoImpl<RevisionHistory>(this, ColumnFamilyConstant.REVISION_HISTORY));
 		register(new EntityCassandraDaoImpl<DomainCio>(this, ColumnFamilyConstant.DOMAIN));
+		register(new EntityCassandraDaoImpl<ContentProviderCio>(this, ColumnFamilyConstant.CONTENT_PROVIDER));
 		register(new RawCassandraDaoImpl(this, ColumnFamilyConstant.CONTENT_META));
+		register(new RawCassandraDaoImpl(this, ColumnFamilyConstant.CUSTOM_FIELDS_DATA));
+		register(new RawCassandraDaoImpl(this, ColumnFamilyConstant.CUSTOM_FIELDS_DEFINITION));
+		register(new RawCassandraDaoImpl(this, ColumnFamilyConstant.CUSTOM_FIELDS_GROUP));
+		register(new RawCassandraDaoImpl(this, ColumnFamilyConstant.INDEX_QUEUE));
+		
 	}
 
 	@Override

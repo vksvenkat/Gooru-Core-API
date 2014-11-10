@@ -23,12 +23,19 @@ public class KafkaProducer {
 	private Producer<String, String> producer;
 	protected Properties props = new Properties();
 	
-	private static final Logger logger = LoggerFactory.getLogger(IndexProcessor.class);
+	
+	private static final String TOPIC_RESOURCE = "resource_queue";
+	
+	private static final String TOPIC_SCOLLECTION = "scollection_queue";
+	
+	private static final String TOPIC_USER = "user_queue";
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(IndexProcessor.class);
 	
 	@PostConstruct
 	public void init() {
 		props.put(KafkaProperties.SERIALIZER_CLASS, KafkaProperties.SERIALIZER_CLASS_VALUE);
-		props.put(KafkaProperties.ZK_CONNECT, kafkaProperties.ZK_CONNECT_VALUE);
+		props.put(KafkaProperties.ZK_CONNECT, kafkaProperties.zkConnectValue);
 		props.put(KafkaProperties.PRODUCER_TYPE, KafkaProperties.PRODUCER_TYPE_VALUE);
 		props.put(KafkaProperties.COMPRESSION_CODEC, KafkaProperties.COMPRESSION_CODEC_VALUE);
 		
@@ -37,17 +44,37 @@ public class KafkaProducer {
 				new ProducerConfig(props));
 		}
 		catch (Exception e) {
-			logger.info("Error while creating kafka producer :" + e);
+			LOGGER.info("Error while creating kafka producer :" + e);
 		}
 	}
 	
 	public void send(String message) {
-		ProducerData<String, String> data = new ProducerData<String, String>(kafkaProperties.TOPIC_VALUE, message);
+		ProducerData<String, String> data = new ProducerData<String, String>(kafkaProperties.topicValue, message);
 		try{
 			producer.send(data);
 		} catch (Exception e){
-			logger.info("Errror while sending date from kafka producer :"+e);
+			LOGGER.info("Errror while sending date from kafka producer :"+e);
 		}
 	}
+	
+	public void send(String message, String indexType) {
+		String topicName = null;
+		if(indexType.equalsIgnoreCase("resource")){
+			topicName = TOPIC_RESOURCE;
+		}
+		else if(indexType.equalsIgnoreCase("scollection")){
+			topicName = TOPIC_SCOLLECTION;
+		}
+		else if(indexType.equalsIgnoreCase("user")){
+			topicName = TOPIC_USER;
+		}
+		ProducerData<String, String> data = new ProducerData<String, String>(topicName, message);
+		try{
+			producer.send(data);
+		} catch (Exception e){
+			LOGGER.info("Errror while sending date from kafka producer :"+e);
+		}
+	}
+
 
 }

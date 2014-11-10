@@ -41,7 +41,7 @@
 			
 	   <many-to-one name="type" class="org.ednovo.gooru.core.api.model.CustomTableValue" column="type_id" not-null="false" lazy="proxy" cascade="none" />
 			
-		<set name="featuredSetItems" inverse="true" cascade="save-update,delete" lazy="false">
+		<set name="featuredSetItems" inverse="true" cascade="save-update,delete" lazy="true">
         	<key column="featured_set_id"/>
         	<one-to-many class="org.ednovo.gooru.core.api.model.FeaturedSetItems"/>
    		</set>

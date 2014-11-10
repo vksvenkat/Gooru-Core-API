@@ -9,6 +9,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.ednovo.gooru.core.application.util.BaseUtil;
+import org.ednovo.gooru.core.application.util.ResourceMetaInfo;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -24,12 +25,6 @@ public class Resource extends Content implements Serializable {
 	private static final long serialVersionUID = -9010445497258009775L;
 
 	private static final String INDEX_TYPE = "resource";
-
-	/**
-	 * 
-	 */
-	public static String REPOSITORY_WEB_URI;
-	public static String REPOSITORY_WEB_URI2;
 
 	public static enum RecordSource {
 		QUOTED("userquoted"), CRAWLED("goorucrawled"), COLLECTION("useradded"), GAT("adminadded"), DEFAULT("notadded");
@@ -110,6 +105,8 @@ public class Resource extends Content implements Serializable {
 	private List<ResourceInstance> resourceInstances;
 
 	private transient List<Learnguide> resourceLearnguides;
+	
+	private List<ContentMetaDTO> depthOfKnowledges;
 
 	@JsonManagedReference
 	private Set<ResourceMetaData> resourceMetaData;
@@ -118,7 +115,7 @@ public class Resource extends Content implements Serializable {
 
 	private String social;
 
-	private Map<String, Map<String, Map<String, String>>> customFieldValues;
+	private Map<String, String> customFieldValues;
 
 	private Thumbnail thumbnails;
 
@@ -132,7 +129,7 @@ public class Resource extends Content implements Serializable {
 
 	private String vocaularyString;
 
-	private int s3UploadFlag;
+	private Integer s3UploadFlag = 0;
 
 	private Integer viewCount;
 
@@ -164,7 +161,7 @@ public class Resource extends Content implements Serializable {
 
 	private TrackActivity trackActivity;
 
-	private Boolean isOer;
+	private Integer isOer;
 
 	private String goals;
 
@@ -180,13 +177,29 @@ public class Resource extends Content implements Serializable {
 
 	private Map<String,Object> ratings;
 	
+	
+	private List<ContentMetaDTO> educationalUse;
+	
+	private List<ContentMetaDTO> momentsOfLearning;
+	
+	private ResourceMetaInfo metaInfo;
+	
+
 	public static final String COLLECTION_THUMBNAIL_SIZES = "160x120,75x56,120x90,80x60,50x40,310x258,800x600";
 
 	public static final String QUIZ_THUMBNAIL_SIZES = "160x120,75x56,120x90,d80x60,50x40,800x600";
 
 	public static final String RESOURCE_THUMBNAIL_SIZES = "80x60,160x120";
 	
-
+	private List<String> publisher;
+	
+	private List<String> aggregator;
+	
+	private List<String> host;
+	
+	private List<Map<String, Object>> resourceTags;
+	private String clusterUid;
+	private Integer isRepresentative;
 	
 	public Resource() {
 		recordSource = RecordSource.DEFAULT.getRecordSource();
@@ -310,7 +323,7 @@ public class Resource extends Content implements Serializable {
 
 	public String getAssetURI() {
 		if (getOrganization() != null) {
-			if (getS3UploadFlag() == 0 && getOrganization().getNfsStorageArea() != null) {
+			if ((getS3UploadFlag() == null || getS3UploadFlag() == 0) && getOrganization().getNfsStorageArea() != null) {
 				if (getOrganization().getNfsStorageArea().getCdnDirectPath() != null) {
 					assetURI = getOrganization().getNfsStorageArea().getCdnDirectPath().split(",")[0];
 				} else {
@@ -532,14 +545,6 @@ public class Resource extends Content implements Serializable {
 		this.batchId = batchId;
 	}
 
-	public int getS3UploadFlag() {
-		return s3UploadFlag;
-	}
-
-	public void setS3UploadFlag(int s3UploadFlag) {
-		this.s3UploadFlag = s3UploadFlag;
-	}
-
 	public Date getAddDate() {
 		return addDate;
 	}
@@ -572,16 +577,19 @@ public class Resource extends Content implements Serializable {
 		private boolean isDefaultImage;
 
 		public String getUrl() {
-
-			if(getResourceType() != null) {
+			if(getS3UploadFlag() != null && getS3UploadFlag() == 1) {
+				 this.url = "http://qa-resource-image.s3.amazonaws.com/"+ getFolder() +getThumbnail();
+			} else if(getResourceType() != null) {
 				if (!getResourceType().getName().equalsIgnoreCase("assessment-question")) {
 					if(getResourceType().getName().equalsIgnoreCase(ResourceType.Type.VIDEO.getType())) {
 						this.url = this.getYoutubeVideoId(Resource.this.getUrl()) == null ? null : "img.youtube.com/vi/"+ this.getYoutubeVideoId(Resource.this.getUrl()) + "/1.jpg";
 					} else {
 						if (getThumbnail() != null && getThumbnail().contains("gooru-default")) {
 							this.url = getAssetURI() + getThumbnail();
-						} else {
+						} else if (getThumbnail() != null && !getThumbnail().isEmpty()) {
 							this.url = getAssetURI() + getFolder() + getThumbnail();
+						} else { 
+							this.url = "";
 						}
 					}
 				}
@@ -663,11 +671,11 @@ public class Resource extends Content implements Serializable {
 		return customFields;
 	}
 
-	public Map<String, Map<String, Map<String, String>>> getCustomFieldValues() {
+	public  Map<String, String> getCustomFieldValues() {
 		return customFieldValues;
 	}
 
-	public void setCustomFieldValues(Map<String, Map<String, Map<String, String>>> customFieldValues) {
+	public void setCustomFieldValues(Map<String, String> customFieldValues) {
 		this.customFieldValues = customFieldValues;
 	}
 
@@ -852,11 +860,11 @@ public class Resource extends Content implements Serializable {
 		return scollectionIds;
 	}
 
-	public void setIsOer(Boolean isOer) {
+	public void setIsOer(Integer isOer) {
 		this.isOer = isOer;
 	}
 
-	public Boolean getIsOer() {
+	public Integer getIsOer() {
 		return isOer;
 	}
 
@@ -891,5 +899,93 @@ public class Resource extends Content implements Serializable {
 	public void setRatings(Map<String,Object> ratings) {
 		this.ratings = ratings;
 	}
+
+	public void setMomentsOfLearning(List<ContentMetaDTO> momentsOfLearning) {
+		this.momentsOfLearning = momentsOfLearning;
+	}
+
+	public List<ContentMetaDTO> getMomentsOfLearning() {
+		return momentsOfLearning;
+	}
+
+	public void setEducationalUse(List<ContentMetaDTO> educationalUse) {
+		this.educationalUse = educationalUse;
+	}
+
+	public List<ContentMetaDTO> getEducationalUse() {
+		return educationalUse;
+	}
+
+	public void setDepthOfKnowledges(List<ContentMetaDTO> depthOfKnowledges) {
+		this.depthOfKnowledges = depthOfKnowledges;
+	}
+
+	public List<ContentMetaDTO> getDepthOfKnowledges() {
+		return depthOfKnowledges;
+	}
+	
+	public void setMetaInfo(ResourceMetaInfo metaInfo) {
+		this.metaInfo = metaInfo;
+	}
+
+	public ResourceMetaInfo getMetaInfo() {
+		return metaInfo;
+	}
+	
+	public List<String> getPublisher(){
+		return publisher;
+	}
+	
+	public void setPublisher(List<String> publisher){
+		this.publisher = publisher;
+	}
+
+	public List<String> getAggregator(){
+		return aggregator;
+	}
+	
+	public void setAggregator(List<String> aggregator){
+		this.aggregator = aggregator;
+	}
+
+	public void setHost(List<String> host) {
+		this.host = host;
+	}
+
+	public List<String> getHost() {
+		return host;
+	}
+
+	public void setResourceTags(List<Map<String, Object>> resourceTags) {
+		this.resourceTags = resourceTags;
+	}
+
+	public List<Map<String, Object>> getResourceTags() {
+		return resourceTags;
+	}
+	public String getClusterUid() {
+		return clusterUid;
+	}
+
+	public void setClusterUid(String clusterUid) {
+		this.clusterUid = clusterUid;
+	}
+
+	public Integer getIsRepresentative() {
+		return isRepresentative;
+	}
+
+	public void setIsRepresentative(Integer isRepresentative) {
+		this.isRepresentative = isRepresentative;
+	}	
+	
+	public Integer getS3UploadFlag() {
+		return s3UploadFlag;
+	}
+
+	public void setS3UploadFlag(Integer s3UploadFlag) {
+		this.s3UploadFlag = s3UploadFlag;
+	}
+
 
 }

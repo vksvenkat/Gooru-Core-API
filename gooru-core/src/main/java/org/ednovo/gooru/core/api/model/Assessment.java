@@ -3,11 +3,6 @@ package org.ednovo.gooru.core.api.model;
 import java.util.List;
 import java.util.Set;
 
-import org.ednovo.gooru.core.api.model.AssessmentMetaDataDTO;
-import org.ednovo.gooru.core.api.model.Resource;
-import org.ednovo.gooru.core.api.model.User;
-import org.ednovo.gooru.core.api.model.Versionable;
-
 
 public class Assessment extends Resource implements Versionable {
 

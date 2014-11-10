@@ -26,7 +26,6 @@ package org.ednovo.gooru.infrastructure.persistence.hibernate.party;
 import java.util.List;
 
 import org.ednovo.gooru.core.api.model.Organization;
-import org.ednovo.gooru.core.api.model.OrganizationSetting;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepository;
 
 public interface OrganizationRepository extends BaseRepository {
@@ -35,7 +34,11 @@ public interface OrganizationRepository extends BaseRepository {
 
 	Organization getOrganizationByCode(String organizationCode);
 	
-	List<Organization> listOrganization();
+	List<Organization> getOrganizations(String type, String parentOrganizationUid, String stateProvinceId, Integer offset, Integer limit);
 
 	Organization getOrganizationByUid(String organizationUid);
+	
+	Organization getOrganizationByIdpName(String idpDomainName);
+	
+	Long getOrganizationCount(String type, String parentOrganizationUid, String sateProvinceId);
 }

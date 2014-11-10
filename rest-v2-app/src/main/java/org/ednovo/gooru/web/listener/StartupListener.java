@@ -27,11 +27,9 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
-import org.ednovo.gooru.application.util.LogUtil;
 import org.ednovo.gooru.application.util.UserContentRelationshipUtil;
 import org.ednovo.gooru.domain.service.taxonomy.TaxonomyService;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserContentRepository;
-import org.ednovo.gooru.infrastructure.persistence.hibernate.activity.ActivityRepository;
 import org.hibernate.FlushMode;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -61,12 +59,12 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
  */
 public class StartupListener extends ContextLoaderListener implements ServletContextListener {
 
-	private static final Logger logger = LoggerFactory.getLogger(StartupListener.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(StartupListener.class);
 
 	public void contextInitialized(ServletContextEvent event) {
 
-		if (logger.isInfoEnabled()) {
-			logger.info("initializing context...");
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("initializing context...");
 		}
 
 		// call Spring's context ContextLoaderListener to initialize
@@ -82,8 +80,8 @@ public class StartupListener extends ContextLoaderListener implements ServletCon
 			// do not modify the Session: just set the participate flag
 			participate = true;
 		} else {
-			if (logger.isDebugEnabled()) {
-				logger.debug("Opening temporary Hibernate session in StartupListener");
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Opening temporary Hibernate session in StartupListener");
 			}
 			session = getSession(sessionFactory);
 			TransactionSynchronizationManager.bindResource(sessionFactory, new SessionHolder(session));
@@ -92,12 +90,10 @@ public class StartupListener extends ContextLoaderListener implements ServletCon
 
 		ApplicationContext ctx = WebApplicationContextUtils.getRequiredWebApplicationContext(context);
 
-		if (logger.isInfoEnabled()) {
-			logger.debug("Drop-down initialization complete [OK]");
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.debug("Drop-down initialization complete [OK]");
 		}
 
-		ActivityRepository activityRepository = (ActivityRepository) ctx.getBean("activityRepository");
-		LogUtil.setActivityRepository(activityRepository);
 
 		UserContentRepository userContentRepository = (UserContentRepository) ctx.getBean("userContentRepository");
 		UserContentRelationshipUtil.setUserContentRepository(userContentRepository);
@@ -106,7 +102,7 @@ public class StartupListener extends ContextLoaderListener implements ServletCon
 			TaxonomyService taxonomyService = (TaxonomyService) ctx.getBean("taxonomyService");
 			taxonomyService.writeTaxonomyToDisk();
 		} catch (Exception e) {
-			logger.error("Error while creating taxonomy", e);
+			LOGGER.error("Error while creating taxonomy", e);
 		}
 
 		// Setup the default TransformerFactory provide. Current we use two
@@ -121,8 +117,8 @@ public class StartupListener extends ContextLoaderListener implements ServletCon
 
 		if (!participate) {
 			TransactionSynchronizationManager.unbindResource(sessionFactory);
-			if (logger.isDebugEnabled()) {
-				logger.debug("Closing temporary Hibernate session in StartupListener");
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Closing temporary Hibernate session in StartupListener");
 			}
 			closeSession(session, sessionFactory);
 		}
@@ -137,8 +133,8 @@ public class StartupListener extends ContextLoaderListener implements ServletCon
 	 * @see #getSessionFactoryBeanName
 	 */
 	protected SessionFactory lookupSessionFactory(ServletContext servletContext) {
-		if (logger.isDebugEnabled()) {
-			logger.debug("Using session factory '" + getSessionFactoryBeanName() + "' for StartupListener");
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Using session factory '" + getSessionFactoryBeanName() + "' for StartupListener");
 		}
 		WebApplicationContext wac = WebApplicationContextUtils.getRequiredWebApplicationContext(servletContext);
 		return (SessionFactory) wac.getBean(getSessionFactoryBeanName());

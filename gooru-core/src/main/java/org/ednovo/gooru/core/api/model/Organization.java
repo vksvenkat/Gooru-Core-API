@@ -22,6 +22,12 @@ public class Organization extends Party {
 	
 	private Organization parentOrganization;
 	
+	private String parentId;
+	
+	private Province stateProvince;
+    
+    private CustomTableValue type;
+	
 	public String getOrganizationCode() {
 		return organizationCode;
 	}
@@ -53,4 +59,32 @@ public class Organization extends Party {
 	public Organization getParentOrganization() {
 		return parentOrganization;
 	}
+
+	public Province getStateProvince() {
+		return stateProvince;
+	}
+
+	public void setStateProvince(Province stateProvince) {
+		this.stateProvince = stateProvince;
+	}
+
+	public CustomTableValue getType() {
+		return type;
+	}
+
+	public void setType(CustomTableValue type) {
+		this.type = type;
+	}
+
+	public String getParentId() {
+		return parentId;
+	}
+
+	public void setParentId(String parentId) {
+		if (parentId != null) { 
+			this.parentId = this.getParentOrganization() != null ? this.getParentOrganization().getPartyUid() : null;
+		} 
+		this.parentId = parentId;
+	}
+	
 }

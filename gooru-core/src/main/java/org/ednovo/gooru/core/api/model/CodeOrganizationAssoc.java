@@ -2,7 +2,7 @@ package org.ednovo.gooru.core.api.model;
 
 import java.io.Serializable;
 
-public class CodeOrganizationAssoc  implements Serializable {
+public class CodeOrganizationAssoc implements Serializable {
 
 	/**
 	 * 
@@ -12,30 +12,38 @@ public class CodeOrganizationAssoc  implements Serializable {
 	private String organizationCode;
 	private Boolean isFeatured;
 	private Integer sequence;
+
+
 	public Code getCode() {
 		return code;
 	}
+
 	public void setCode(Code code) {
-		this.code =code;
+		this.code = code;
 	}
+
 	public void setOrganizationCode(String organizationCode) {
 		this.organizationCode = organizationCode;
 	}
+
 	public String getOrganizationCode() {
 		return organizationCode;
 	}
+
 	public void setIsFeatured(Boolean isFeatured) {
 		this.isFeatured = isFeatured;
 	}
+
 	public Boolean getIsFeatured() {
 		return isFeatured;
 	}
+
 	public void setSequence(Integer sequence) {
 		this.sequence = sequence;
 	}
+
 	public Integer getSequence() {
 		return sequence;
 	}
-	
 
 }

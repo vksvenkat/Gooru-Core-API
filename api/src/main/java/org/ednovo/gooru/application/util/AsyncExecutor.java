@@ -66,7 +66,7 @@ public class AsyncExecutor {
 	private ResourceManager resourceManager;
 
 	private Logger logger = LoggerFactory.getLogger(AsyncExecutor.class);
-	
+
 	@Autowired
 	private S3ResourceApiHandler s3ResourceApiHandler;
 
@@ -105,8 +105,7 @@ public class AsyncExecutor {
 		});
 	}
 
-
-	public void executeRestAPI(final Map<String, Object> param, final String requestUrl, final String requestType) {
+	void executeRestAPI(final Map<String, Object> param, final String requestUrl, final String requestType) {
 		transactionTemplate.execute(new TransactionCallback<Void>() {
 			@Override
 			public Void doInTransaction(TransactionStatus status) {
@@ -132,27 +131,62 @@ public class AsyncExecutor {
 		transactionTemplate.execute(new TransactionCallback<Void>() {
 			@Override
 			public Void doInTransaction(TransactionStatus status) {
-			    getS3ResourceApiHandler().uploadResourceFolder(resource);
+				getS3ResourceApiHandler().uploadResourceFolder(resource);
+				return null;
+			}
+		});
+	}
+
+	public void uploadResourceFile(final Resource resource, final String url) {
+		transactionTemplate.execute(new TransactionCallback<Void>() {
+			@Override
+			public Void doInTransaction(TransactionStatus status) {
+				getS3ResourceApiHandler().uploadResourceFile(resource, url);
+				return null;
+			}
+		});
+	}
+
+	public void deleteResourceFile(final Resource resource, final String fileName) {
+		transactionTemplate.execute(new TransactionCallback<Void>() {
+			@Override
+			public Void doInTransaction(TransactionStatus status) {
+				getS3ResourceApiHandler().deleteResourceFile(resource, fileName);
 				return null;
 			}
 		});
 	}
 	
-	public void uploadResourceFile(final Resource resource, final String url) {
+	public void updateResourceFileInS3(final String fileName,final String sourcePath, final String gooruContentId) {
 		transactionTemplate.execute(new TransactionCallback<Void>() {
 			@Override
 			public Void doInTransaction(TransactionStatus status) {
-			    getS3ResourceApiHandler().uploadResourceFile(resource, url);
+				try {
+					Thread.sleep(500);
+					getS3ResourceApiHandler().moveFileToS3(fileName, sourcePath, gooruContentId);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 				return null;
 			}
 		});
 	}
-		
-	public void deleteResourceFile(final Resource resource, final String fileName) {
+
+	public void clearCache(final String gooruOid) {
 		transactionTemplate.execute(new TransactionCallback<Void>() {
 			@Override
 			public Void doInTransaction(TransactionStatus status) {
-			    getS3ResourceApiHandler().deleteResourceFile(resource, fileName);
+				getCollectionUtil().clearResourceCache(gooruOid);
+				return null;
+			}
+		});
+	}
+	
+	public void deleteFromCache(final String key) {
+		transactionTemplate.execute(new TransactionCallback<Void>() {
+			@Override
+			public Void doInTransaction(TransactionStatus status) {
+				getCollectionUtil().deleteFromCache(key);
 				return null;
 			}
 		});

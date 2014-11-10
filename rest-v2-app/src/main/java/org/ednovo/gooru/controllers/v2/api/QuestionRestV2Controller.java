@@ -74,7 +74,7 @@ public class QuestionRestV2Controller extends BaseController implements Constant
 	@RequestMapping(method = RequestMethod.POST)
 	public ModelAndView createQuestion(@RequestBody String data, @RequestParam(value = INDEX_FLAG, required = false, defaultValue = FALSE) Boolean indexFlag, @RequestParam(value = COLLECTION_ID, required = false) String collectionId, HttpServletRequest request, HttpServletResponse response)
 			throws Exception {
-		request.setAttribute(PREDICATE, "assesment.create_question");
+		request.setAttribute(PREDICATE, ASSESSMENT_CREATE_QUESTION);
 		User apiCaller = (User) request.getAttribute(Constants.USER);
 
 		AssessmentQuestion question = getAssessmentService().buildQuestionFromInputParameters(data, apiCaller, true);
@@ -84,7 +84,7 @@ public class QuestionRestV2Controller extends BaseController implements Constant
 		if (customFieldAndValueMap.size() > 0) {
 			customFieldService.saveCustomFieldInfo(question.getGooruOid(), customFieldAndValueMap);
 		}
-		SessionContextSupport.putLogParameter(EVENT_NAME, "question-create");
+		SessionContextSupport.putLogParameter(EVENT_NAME, QUESTION_CREATE);
 		SessionContextSupport.putLogParameter(USER_ID, apiCaller.getUserId());
 		SessionContextSupport.putLogParameter(GOORU_UID, apiCaller.getPartyUid());
 		String[] includes = (String[]) ArrayUtils.addAll(ERROR_INCLUDE, QUESTION_INCLUDE_FIELDS);
@@ -97,7 +97,7 @@ public class QuestionRestV2Controller extends BaseController implements Constant
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.PUT, value = "/{id}")
 	public ModelAndView updateQuestion(@RequestBody String data, @PathVariable(ID) String questionId, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		request.setAttribute(PREDICATE, "assesment.update_question");
+		request.setAttribute(PREDICATE, ASSESSMENT_UPDATE_QUESTION);
 		User apiCaller = (User) request.getAttribute(Constants.USER);
 
 		JSONObject json = requestData(data);
@@ -107,7 +107,7 @@ public class QuestionRestV2Controller extends BaseController implements Constant
 
 		setUpdateActionResponseStatus(response, responseDTO);
 
-		SessionContextSupport.putLogParameter(EVENT_NAME, "question-update");
+		SessionContextSupport.putLogParameter(EVENT_NAME, QUESTION_UPDATE);
 		SessionContextSupport.putLogParameter(USER_ID, apiCaller.getUserId());
 		SessionContextSupport.putLogParameter(GOORU_UID, apiCaller.getPartyUid());
 		SessionContextSupport.putLogParameter(ASSESSMENT_GOORU_ID, question.getAssessmentGooruId());
@@ -120,7 +120,7 @@ public class QuestionRestV2Controller extends BaseController implements Constant
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.DELETE, value = "/{id}")
 	public ModelAndView deleteQuestion(@PathVariable(ID) String questionId, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		request.setAttribute(PREDICATE, "assesment.delete_question");
+		request.setAttribute(PREDICATE, ASSESSMENT_DELETE_QUESTION);
 		User apiCaller = (User) request.getAttribute(Constants.USER);
 
 		setDeleteResponseStatus(response, getAssessmentService().deleteQuestion(questionId, apiCaller));
@@ -129,7 +129,7 @@ public class QuestionRestV2Controller extends BaseController implements Constant
 		jsonObj.put(IS_DELETE_SUCCESS, 1);
 		jsonmodel.addObject(MODEL, jsonObj);
 
-		SessionContextSupport.putLogParameter(EVENT_NAME, "question-delete");
+		SessionContextSupport.putLogParameter(EVENT_NAME, QUESTION_DELETE);
 		SessionContextSupport.putLogParameter(USER_ID, apiCaller.getUserId());
 		SessionContextSupport.putLogParameter(GOORU_UID, apiCaller.getPartyUid());
 		SessionContextSupport.putLogParameter(GOORU_OID, questionId);
@@ -141,7 +141,7 @@ public class QuestionRestV2Controller extends BaseController implements Constant
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.POST, value = "/{id}/copy")
 	public ModelAndView copyQuestion(@PathVariable(ID) String questionId, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		request.setAttribute(PREDICATE, "assesment-question.copy");
+		request.setAttribute(PREDICATE, ASSESS_QUES_COPY);
 		User apiCaller = (User) request.getAttribute(Constants.USER);
 		return toModelAndViewWithInFilter(getAssessmentService().copyAssessmentQuestion(apiCaller, questionId), RESPONSE_FORMAT_JSON, QUESTION_INCLUDES);
 	}

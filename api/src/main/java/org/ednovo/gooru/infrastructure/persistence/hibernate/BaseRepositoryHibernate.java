@@ -38,19 +38,18 @@ import org.springframework.beans.factory.annotation.Autowired;
  * operations.</p>
  */
 public class BaseRepositoryHibernate extends AbstractRepositoryHibernate implements BaseRepository {
-	
-
-	protected static final String PAGE_SIZE = "pageSize";
-
-	protected static final String PAGE_NO = "pageNum";
-	
-	protected static final String START_FROM = "startFrom";
-
-	protected static final String PAGE_LIMIT = "limit";
 
 	@javax.annotation.Resource(name = "sessionFactory")
 	private SessionFactory sessionFactory;
+	
+	@javax.annotation.Resource(name = "sessionFactoryReadOnly")
+	private SessionFactory sessionFactoryReadOnly;
 
+
+	public SessionFactory getSessionFactoryReadOnly() {
+		return sessionFactoryReadOnly;
+	}
+	
 	@Autowired
 	private RevisionHistoryService revisionHistoryService;
 
@@ -92,9 +91,7 @@ public class BaseRepositoryHibernate extends AbstractRepositoryHibernate impleme
 	public void setSessionFactory(SessionFactory sessionFactory) {
 		this.sessionFactory = sessionFactory;
 	}
-
-
-	public RevisionHistoryService getRevisionHistoryService() {
+		public RevisionHistoryService getRevisionHistoryService() {
 		return revisionHistoryService;
 	}
 

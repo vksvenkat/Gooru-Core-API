@@ -27,7 +27,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.httpclient.HttpStatus;
-import org.ednovo.gooru.core.api.model.ApiKey;
+import org.ednovo.gooru.core.api.model.Application;
 import org.ednovo.gooru.core.api.model.GooruAuthenticationToken;
 import org.ednovo.gooru.core.api.model.Organization;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
@@ -36,12 +36,12 @@ import org.ednovo.gooru.core.api.model.UserCredential;
 import org.ednovo.gooru.core.api.model.UserToken;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.security.AuthenticationDo;
-import org.ednovo.gooru.domain.service.apitracker.ApiTrackerService;
 import org.ednovo.gooru.domain.service.oauth.OAuthService;
 import org.ednovo.gooru.domain.service.redis.RedisService;
 import org.ednovo.gooru.domain.service.user.UserService;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.OrganizationSettingRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserTokenRepository;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.apikey.ApplicationRepository;
 import org.ednovo.goorucore.application.serializer.ExcludeNullTransformer;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.json.JSONException;
@@ -63,9 +63,6 @@ public class DoAuthorization  {
 	private UserService userService;
 	
 	@Autowired
-	private ApiTrackerService apiTrackerService;
-	
-	@Autowired
 	private OrganizationSettingRepository organizationSettingRepository;
 	
 	@Autowired
@@ -77,9 +74,12 @@ public class DoAuthorization  {
 	@Autowired
 	private OAuthService oAuthService;
 	
+	@Autowired
+	private ApplicationRepository applicationRepository;
+	
 	private static final String SESSION_TOKEN_KEY = "authenticate_";
 	
-	private static final Logger logger = LoggerFactory.getLogger(DoAuthorization.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(DoAuthorization.class);
 	
 	public User doFilter(String sessionToken, String pinToken, String apiKeyToken, HttpServletRequest request, HttpServletResponse response, Authentication auth, String oAuthToken) { 
 		if (pinToken != null) { 
@@ -101,13 +101,13 @@ public class DoAuthorization  {
 					authentication = JsonDeserializer.deserialize(data, AuthenticationDo.class);
 				}
 			}  catch(Exception e) { 
-				logger.error("Failed to  get  value from redis server");
+				LOGGER.error("Failed to  get  value from redis server");
 			}
 			if (authentication == null || authentication.getUserToken() == null)  {
 		    	try {
 					user = oAuthService.getUserByOAuthAccessToken(oAuthToken);
 				} catch (Exception e) {
-					logger.error("OAuth Authentication failed --- " + e);
+					LOGGER.error("OAuth Authentication failed --- " + e);
 				}
 				userToken = userToken == null ? new UserToken() : userToken;
 				userToken.setUser(user);
@@ -127,7 +127,7 @@ public class DoAuthorization  {
 					authentication = JsonDeserializer.deserialize(data, AuthenticationDo.class);
 				}
 			}  catch(Exception e) { 
-				logger.error("Failed to  get  value from redis server");
+				LOGGER.error("Failed to  get  value from redis server");
 			}
 			if (authentication == null || authentication.getUserToken() == null)  {
 		      userToken = userTokenRepository.findByToken(sessionToken);
@@ -147,23 +147,18 @@ public class DoAuthorization  {
 			}
 			else if(sessionToken != null){
 		        Organization organization = null;
-		        if(userToken.getApiKey() != null){
-		        	organization = userToken.getApiKey().getOrganization();
+		        if(userToken.getApplication() != null){
+		        	organization = userToken.getApplication().getOrganization();
 		        }
 				redisService.addSessionEntry(sessionToken, organization);
 			}
 		} else if(apiKeyToken != null) {
-			key = SESSION_TOKEN_KEY  + apiKeyToken;
-			data = getRedisService().getValue(key);
-			if (data != null && (skipCache == null || skipCache.equals("0"))) { 
-				authentication = JsonDeserializer.deserialize(data, AuthenticationDo.class);
-			}
 			if (authentication == null)  {
-				ApiKey apiKey = apiTrackerService.getApiKey(apiKeyToken);
-				if (apiKey == null) {
+				Application application = this.getApplicationRepository().getApplication(apiKeyToken);
+				if (application == null) {
 					throw new AccessDeniedException("Invalid ApiKey : " + apiKeyToken);
 				} else {
-					String anonymousUid = organizationSettingRepository.getOrganizationSetting(Constants.ANONYMOUS, apiKey.getOrganization().getPartyUid());
+					String anonymousUid = organizationSettingRepository.getOrganizationSetting(Constants.ANONYMOUS, application.getOrganization().getPartyUid());
 					user = userService.findByGooruId(anonymousUid);
 					userToken = userToken == null ? new UserToken() : userToken;
 					userToken.setUser(user);
@@ -181,13 +176,8 @@ public class DoAuthorization  {
 		} 
 		// check token expires
 		if (authentication.getUserToken().getUser() != null && (auth == null || hasRoleChanged(auth, authentication.getUserToken().getUser()))) {
-			doAuthentication(request, response, authentication.getUserToken().getUser(), sessionToken, skipCache, authentication, key);
+			doAuthentication(request, response, authentication.getUserToken().getUser(), authentication.getUserToken().getToken(), skipCache, authentication, key);
 		}
-		/*SessionContextSupport.putLogParameter("userId", authentication.getUserToken().getUser().getUserId());
-		SessionContextSupport.putLogParameter("gooruUId", authentication.getUserToken().getUser().getPartyUid());
-		SessionContextSupport.putLogParameter("sessionToken", sessionToken);
-		SessionContextSupport.putLogParameter("organizationUid", authentication.getUserToken().getUser().getOrganization().getPartyUid());*/
-		
 		JSONObject session = new JSONObject();
 			try {
 				session.put("sessionToken", sessionToken);
@@ -222,10 +212,10 @@ public class DoAuthorization  {
 			try {
 				getRedisService().putValue(key, new JSONSerializer().transform(new ExcludeNullTransformer(), void.class).include(new String[] {"*.operationAuthorities","*.userRoleSet", "*.partyOperations", "*.subOrganizationUids", "*.orgPermits", "*.partyPermits", "*.customFields", "*.identities", "*.meta"}).exclude("*.class").serialize(authentication), 1800);
 			} catch (Exception e) { 
-				logger.error("Failed to  put  value from redis server");	
+				LOGGER.error("Failed to  put  value from redis server");	
 			}
-			if (logger.isDebugEnabled()) {
-				logger.debug("Authorize User: First Name-" + user.getFirstName() + "; Last Name-" + user.getLastName() + "; Email-" + user.getUserId());
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Authorize User: First Name-" + user.getFirstName() + "; Last Name-" + user.getLastName() + "; Email-" + user.getUserId());
 			}
 			auth = new GooruAuthenticationToken(user.getPartyUid(), null, userCredential);
 			SecurityContextHolder.getContext().setAuthentication(auth);
@@ -240,9 +230,12 @@ public class DoAuthorization  {
 		}
 		return false;
 	}
-	
-	
+		
 	public RedisService getRedisService() {
 		return redisService;
+	}
+
+	public ApplicationRepository getApplicationRepository() {
+		return applicationRepository;
 	}
 }

@@ -31,49 +31,54 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.ednovo.gooru.application.util.TaxonomyUtil;
 import org.ednovo.gooru.core.api.model.Code;
+import org.ednovo.gooru.core.api.model.CodeOrganizationAssoc;
 import org.ednovo.gooru.core.api.model.CodeType;
 import org.ednovo.gooru.core.api.model.Organization;
 import org.ednovo.gooru.core.api.model.TaxonomyDTO;
 import org.ednovo.gooru.core.application.util.formatter.CodeFo;
 import org.ednovo.gooru.core.application.util.formatter.FilterSubjectFo;
+import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.core.exception.BadRequestException;
 import org.ednovo.gooru.domain.cassandra.service.TaxonomyCassandraService;
+import org.ednovo.gooru.domain.service.redis.RedisService;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.party.OrganizationRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.taxonomy.TaxonomyRespository;
 import org.json.JSONException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 
 @Service("taxonomyService")
-public class TaxonomyServiceImpl implements TaxonomyService,ParameterProperties {
+public class TaxonomyServiceImpl implements TaxonomyService, ParameterProperties, ConstantProperties {
 
 	private Logger logger = Logger.getLogger(TaxonomyServiceImpl.class);
-	
+
 	private static final String ELEMETRY = "K,1,2,3,4";
-	
+
 	private static final String MIDDLE = "5,6,7,8";
-	
+
 	private static final String HIGH = "9,10,11,12";
 
 	@Autowired
 	private TaxonomyRespository taxonomyRepository;
-	
+
 	@Autowired
 	private OrganizationRepository organizationRepository;
 
 	@Autowired
 	private IndexProcessor indexProcessor;
-	
+
 	@Autowired
 	private TaxonomyCassandraService taxonomyCassandraService;
-	
+
 	@Autowired
 	private UserRepository userRepository;
 
-	
+	@Autowired
+	private RedisService redisService;
+
 	@Override
 	public Code findCodeByTaxCode(String taxonomyCode) {
 		return taxonomyRepository.findCodeByTaxCode(taxonomyCode);
@@ -83,62 +88,62 @@ public class TaxonomyServiceImpl implements TaxonomyService,ParameterProperties 
 	public List<Code> findRootTaxonomies(Short depth) {
 		return taxonomyRepository.findRootTaxonomies(depth, null);
 	}
-	
+
 	@Override
 	public int findMaxDepthInTaxonomy(Code code) {
 		return taxonomyRepository.findMaxDepthInTaxonomy(code, null);
 	}
-	
+
 	@Override
 	public CodeType findTaxonomyTypeBydepth(Code code, Short depth) {
 		return taxonomyRepository.findTaxonomyTypeBydepth(code, depth);
 	}
-	
+
 	@Override
 	public List<CodeType> findTaxonomyLevels(Code root) {
 		return taxonomyRepository.findTaxonomyLevels(root);
 	}
-	
+
 	@Override
 	public List<CodeType> findAllTaxonomyLevels() {
 		return taxonomyRepository.findAllTaxonomyLevels();
 	}
-	
+
 	@Override
 	public List<Code> findChildTaxonomyCode(Integer codeId) {
 		return taxonomyRepository.findChildTaxonomyCode(codeId);
 	}
-	
+
 	@Override
 	public List<Code> findChildTaxonomyCodeByOrder(Integer codeId, String order) {
 		return taxonomyRepository.findChildTaxonomyCodeByOrder(codeId, order);
 	}
-	
+
 	@Override
 	public List<Code> findCodeByType(Integer taxonomyLevel) {
 		return taxonomyRepository.findCodeByType(taxonomyLevel);
 	}
-	
+
 	@Override
 	public List<Code> findParentTaxonomyCodes(Integer codeId, List<Code> codeList) {
 		return taxonomyRepository.findParentTaxonomyCodes(codeId, codeList);
 	}
-	
+
 	@Override
 	public List<Code> findSiblingTaxonomy(Code code) {
 		return taxonomyRepository.findSiblingTaxonomy(code);
 	}
-	
+
 	@Override
 	public List<Code> findTaxonomyMappings(List<Code> codeList) {
 		return taxonomyRepository.findTaxonomyMappings(codeList, false);
 	}
-	
+
 	@Override
 	public String findRootLevelTaxonomy(Code code) {
 		return taxonomyRepository.findRootLevelTaxonomy(code);
 	}
-	
+
 	@Override
 	public void updateOrder(Code code) {
 		taxonomyRepository.updateOrder(code);
@@ -148,37 +153,37 @@ public class TaxonomyServiceImpl implements TaxonomyService,ParameterProperties 
 	public String makeTree(Code rootCode) {
 		return taxonomyRepository.makeTree(rootCode);
 	}
-	
+
 	@Override
 	public void writeToDisk(Code cde) throws Exception {
 		taxonomyRepository.writeToDisk(cde);
 	}
-	
+
 	@Override
 	public String findTaxonomyTree(String taxonomyCode, String format) throws Exception {
 		return taxonomyRepository.findTaxonomyTree(taxonomyCode, format);
 	}
-	
+
 	@Override
 	public void updateTaxonomyAssociation(Code taxonomy, List<Code> codes) {
 		taxonomyRepository.updateTaxonomyAssociation(taxonomy, codes);
 	}
-	
+
 	@Override
 	public void deleteTaxonomyMapping(Code code, List<Code> codes) {
 		taxonomyRepository.deleteTaxonomyMapping(code, codes);
 	}
-	
+
 	@Override
 	public Code findByLabel(String label) {
 		return taxonomyRepository.findByLabel(label);
 	}
-	
+
 	@Override
 	public Code findByParent(String label, Integer parentId) {
 		return taxonomyRepository.findByParent(label, parentId);
 	}
-	
+
 	@Override
 	public List<Code> findChildTaxonomyCodeByDepth(Integer codeId, Integer depth) {
 		return taxonomyRepository.findChildTaxonomyCodeByDepth(codeId, depth);
@@ -203,14 +208,14 @@ public class TaxonomyServiceImpl implements TaxonomyService,ParameterProperties 
 	public Code findCodeByCodeId(Integer codeId) {
 		return taxonomyRepository.findCodeByCodeId(codeId);
 	}
-	
+
 	@Override
 	public Code findCodeByCodeUId(String codeUId) {
 		return taxonomyRepository.findCodeByCodeUId(codeUId);
 	}
 
 	@Override
-	public TaxonomyDTO createTaxonomy(String parentCode, String label, String code, String order, String rootNodeId, String codeRoot , String displayCode) throws Exception {
+	public TaxonomyDTO createTaxonomy(String parentCode, String label, String code, String order, String rootNodeId, String codeRoot, String displayCode) throws Exception {
 
 		Code parentTaxonomy = (Code) taxonomyRepository.get(Code.class, new Integer(parentCode));
 
@@ -252,13 +257,14 @@ public class TaxonomyServiceImpl implements TaxonomyService,ParameterProperties 
 		codes.add(newCode);
 
 		taxdto.setCode(codes);
-        indexProcessor.index(newCode.getCodeId()+"", IndexProcessor.INDEX, TAXONOMY);
+		indexProcessor.index(newCode.getCodeId() + "", IndexProcessor.INDEX, TAXONOMY);
 
 		return taxdto;
 	}
 
 	@Override
 	public void writeTaxonomyToDisk() {
+		@SuppressWarnings("unchecked")
 		List<Organization> organizations = organizationRepository.getAll(Organization.class);
 		if (organizations != null) {
 			for (Organization organization : organizations) {
@@ -281,14 +287,14 @@ public class TaxonomyServiceImpl implements TaxonomyService,ParameterProperties 
 	public TaxonomyDTO updateTaxonomy(String codeId, String label, String order, String code) throws Exception {
 
 		Code node = (Code) taxonomyRepository.get(Code.class, new Integer(codeId));
-		if(code != null){
+		if (code != null) {
 			node.setCode(code);
 		}
-	
-		if(label != null){
+
+		if (label != null) {
 			node.setLabel(label);
 		}
-		
+
 		node.setDisplayOrder(new Integer(order));
 
 		List<Code> siblings = this.findChildTaxonomyCodeByOrder(node.getParentId(), order);
@@ -310,7 +316,7 @@ public class TaxonomyServiceImpl implements TaxonomyService,ParameterProperties 
 		codes.add(node);
 
 		taxdto.setCode(codes);
-        indexProcessor.index(node.getCodeId()+"", IndexProcessor.INDEX, TAXONOMY);
+		indexProcessor.index(node.getCodeId() + "", IndexProcessor.INDEX, TAXONOMY);
 
 		return taxdto;
 	}
@@ -325,7 +331,7 @@ public class TaxonomyServiceImpl implements TaxonomyService,ParameterProperties 
 		taxonomyRepository.remove(Code.class, node.getCodeId());
 
 		this.writeToDisk(rootNode);
-        indexProcessor.index(node.getCodeId()+"", IndexProcessor.DELETE, TAXONOMY);
+		indexProcessor.index(node.getCodeId() + "", IndexProcessor.DELETE, TAXONOMY);
 	}
 
 	@Override
@@ -363,7 +369,7 @@ public class TaxonomyServiceImpl implements TaxonomyService,ParameterProperties 
 		codes.add(newCode);
 
 		taxdto.setCode(codes);
-        indexProcessor.index(newCode.getCodeId()+"", IndexProcessor.INDEX, TAXONOMY);
+		indexProcessor.index(newCode.getCodeId() + "", IndexProcessor.INDEX, TAXONOMY);
 		return taxdto;
 	}
 
@@ -383,7 +389,7 @@ public class TaxonomyServiceImpl implements TaxonomyService,ParameterProperties 
 		taxonomyRepository.save(codeType);
 
 		codeType.setCode(code);
-        indexProcessor.index(code.getCodeId()+"", IndexProcessor.INDEX, TAXONOMY);
+		indexProcessor.index(code.getCodeId() + "", IndexProcessor.INDEX, TAXONOMY);
 
 		TaxonomyDTO taxDto = new TaxonomyDTO();
 		List<CodeType> codes = new ArrayList<CodeType>();
@@ -405,9 +411,9 @@ public class TaxonomyServiceImpl implements TaxonomyService,ParameterProperties 
 		codeType.setDepth(Short.valueOf(leveldepth));
 
 		taxonomyRepository.save(codeType);
-		
+
 		codeType.setCode(code);
-        indexProcessor.index(code.getCodeId()+"", IndexProcessor.INDEX, TAXONOMY);
+		indexProcessor.index(code.getCodeId() + "", IndexProcessor.INDEX, TAXONOMY);
 
 		TaxonomyDTO taxDto = new TaxonomyDTO();
 		List<CodeType> codes = new ArrayList<CodeType>();
@@ -422,9 +428,9 @@ public class TaxonomyServiceImpl implements TaxonomyService,ParameterProperties 
 	public void deleteLevel(String leveldepth, String taxonomyCode) {
 
 		Code code = (Code) taxonomyRepository.get(Code.class, new Integer(taxonomyCode));
-		
+
 		CodeType codeType = this.findTaxonomyTypeBydepth(code, Short.valueOf(leveldepth));
-		
+
 		taxonomyRepository.remove(CodeType.class, codeType.getTypeId());
 	}
 
@@ -462,7 +468,7 @@ public class TaxonomyServiceImpl implements TaxonomyService,ParameterProperties 
 				if (curriculum != null && curriculum.getCodeType().getCodeId() != 1) {
 					curriculums.add(curriculum);
 				}
-		        indexProcessor.index(curriculum.getCodeId()+"", IndexProcessor.INDEX, TAXONOMY);
+				indexProcessor.index(curriculum.getCodeId() + "", IndexProcessor.INDEX, TAXONOMY);
 			}
 
 			this.updateTaxonomyAssociation(code, curriculums);
@@ -486,7 +492,7 @@ public class TaxonomyServiceImpl implements TaxonomyService,ParameterProperties 
 				if (curriculum != null && curriculum.getCodeType().getCodeId() != 1) {
 					curriculums.add(curriculum);
 				}
-		        indexProcessor.index(curriculum.getCodeId()+"", IndexProcessor.INDEX, TAXONOMY);
+				indexProcessor.index(curriculum.getCodeId() + "", IndexProcessor.INDEX, TAXONOMY);
 			}
 
 			this.deleteTaxonomyMapping(code, curriculums);
@@ -496,7 +502,7 @@ public class TaxonomyServiceImpl implements TaxonomyService,ParameterProperties 
 		codes.add(code);
 
 		List<Code> mappings = this.findTaxonomyMappings(codes);
-		
+
 		TaxonomyDTO taxDto = new TaxonomyDTO();
 		taxDto.setCode(mappings);
 		return taxDto;
@@ -534,18 +540,18 @@ public class TaxonomyServiceImpl implements TaxonomyService,ParameterProperties 
 				courseCodeObj.setS3UploadFlag(courseCode.getS3UploadFlag());
 				courseCodeObj.setdisplayCode(courseCode.getdisplayCode());
 				List<CodeFo> courseLessonList = new ArrayList<CodeFo>();
-				Code unitCode =  taxonomyRepository.findFirstChildTaxonomyCodeByDepth(courseCode.getCodeId(), 3);
+				Code unitCode = taxonomyRepository.findFirstChildTaxonomyCodeByDepth(courseCode.getCodeId(), 3);
 				courseCodeObj.setFirstUnitId(unitCode != null ? unitCode.getCodeId() : null);
 				courseCodeObj.setNode(courseLessonList);
 				courseCodeObj.setCommonCoreDotNotation(courseCode.getCommonCoreDotNotation());
 				subjectCourseList.add(courseCodeObj);
 			}
 			subjectCodeObj.setNode(subjectCourseList);
-			taxonomyCodeList.add(subjectCodeObj);	
-		} 
+			taxonomyCodeList.add(subjectCodeObj);
+		}
 		return taxonomyCodeList;
 	}
-	
+
 	@Override
 	public List<Code> getCurriculum() {
 		List<Code> curriculumCodeList = taxonomyRepository.getCurriculumCodeByDepth(0);
@@ -571,59 +577,153 @@ public class TaxonomyServiceImpl implements TaxonomyService,ParameterProperties 
 		categories.add(TEXT_BOOKS);
 		categories.add(EXAMS);
 		categories.add(LESSONS);
-		categories.add(HAND_OUTS );
+		categories.add(HAND_OUTS);
 		filterSubjectFo.setCategory(categories);
 		gradeLevels.add(MIDDLE_SCHOOL);
 		gradeLevels.add(HIGH_SCHOOL);
 		filterSubjectFo.setGradeLevel(gradeLevels);
 		return filterSubjectFo;
 	}
-	
+
 	@Override
 	public Code findTaxonomyCodeById(Integer taxonomyCodeId) {
 		Code code = this.getTaxonomyRepository().findTaxonomyCodeById(taxonomyCodeId);
-		if(code == null) {
-			throw new BadCredentialsException("Invalid CodeId!!!");
+		if (code == null) {
+			throw new BadRequestException("Invalid CodeId!!!");
 		}
 		return code;
 	}
-	
+
 	@Override
 	public Map<String, List<Code>> findCodeByParentCodeId(String parentCode, boolean groupByCode, String creatorUid, String fetchType, String organizationCode) {
-		List<Code> codes = this.getTaxonomyRepository().findCodeByParentCodeId(parentCode, creatorUid, null, null, true, fetchType, organizationCode, null, null);
+		List<CodeOrganizationAssoc> codes = this.getTaxonomyRepository().findCodeByParentCodeId(parentCode, creatorUid, null, null, fetchType, organizationCode, null, null);
 		Map<String, List<Code>> codeBygroup = new HashMap<String, List<Code>>();
+		List<Code> codeList = new ArrayList<Code>();
 		if (groupByCode && codes.size() > 0) {
 			List<Code> elementList = new ArrayList<Code>();
 			List<Code> middleList = new ArrayList<Code>();
 			List<Code> highList = new ArrayList<Code>();
 			List<Code> otherList = new ArrayList<Code>();
-			for (Code code : codes) {
-				if (code.getGrade() != null && ELEMETRY.contains(code.getGrade().toString())) {
-					elementList.add(code);
-				} else if (code.getGrade() != null && MIDDLE.contains(code.getGrade().toString())) {
-					middleList.add(code);
-				} else if (code.getGrade() != null && HIGH.contains(code.getGrade().toString())) {
-					highList.add(code);
+			for (CodeOrganizationAssoc codeOrganizationAssoc : codes) {
+				if (codeOrganizationAssoc.getCode().getGrade() != null && ELEMETRY.contains(codeOrganizationAssoc.getCode().getGrade().toString())) {
+					elementList.add(codeOrganizationAssoc.getCode());
+				} else if (codeOrganizationAssoc.getCode().getGrade() != null && MIDDLE.contains(codeOrganizationAssoc.getCode().getGrade().toString())) {
+					middleList.add(codeOrganizationAssoc.getCode());
+				} else if (codeOrganizationAssoc.getCode().getGrade() != null && HIGH.contains(codeOrganizationAssoc.getCode().getGrade().toString())) {
+					highList.add(codeOrganizationAssoc.getCode());
 				} else {
-					otherList.add(code);
+					otherList.add(codeOrganizationAssoc.getCode());
 				}
 				codeBygroup.put(ELEMENTARY_SCHOOL, elementList);
 				codeBygroup.put(MIDDLE__SCHOOL, middleList);
 				codeBygroup.put(HIGH__SCHOOL, highList);
 				codeBygroup.put(_OTHER, otherList);
+				codeList.add(codeOrganizationAssoc.getCode());
 			}
 			return codeBygroup;
 		}
-		codeBygroup.put(TAXONOMY_CODES, codes);
+		codeBygroup.put(TAXONOMY_CODES, codeList);
 		return codeBygroup;
 	}
-	
+
+	@Override
+	public List<Map<String, Object>> getStandards(String code, Integer depth) {
+		List<Map<String, Object>> standards = null;
+		if (depth == 0) {
+			standards = levelZero(code);
+		} else if (depth == 1) {
+			standards = levelOne(code);
+		} else if (depth == 2) {
+			standards = levelTwo(code);
+		} else if (depth == 3) {
+			standards = levelThree(code);
+		}
+		return standards;
+	}
+
+	private List<Map<String, Object>> levelZero(String code) {
+		List<Code> curriculums = this.getTaxonomyRepository().findCodeStartWith(code, Short.valueOf("0"));
+		List<Map<String, Object>> levelOneMapCodes = new ArrayList<Map<String, Object>>();
+		int levelOneCount = 0;
+		for (Code curriculum : curriculums) {
+			List<Code> levelOneCodes = this.getTaxonomyRepository().findChildTaxonomy(String.valueOf(curriculum.getCodeId()), 1);
+			for (Code levelOneCode : levelOneCodes) {
+				List<Map<String, Object>> levelTwoMapCodes = null;
+				if (levelOneCount == 0) {
+					levelTwoMapCodes = levelOne(String.valueOf(levelOneCode.getCodeId()));
+				}
+				levelOneMapCodes.add(getCode(levelOneCode, levelTwoMapCodes, NODE));
+				levelOneCount++;
+			}
+		}
+		return levelOneMapCodes;
+	}
+
+	private List<Map<String, Object>> levelOne(String codeId) {
+		List<Code> levelTwoCodes = this.getTaxonomyRepository().findChildTaxonomy(codeId, 2);
+		List<Map<String, Object>> levelTwoMapCodes = new ArrayList<Map<String, Object>>();
+		int levelCount = 0;
+		for (Code levelTwoCode : levelTwoCodes) {
+			List<Map<String, Object>> levelThreeMapCodes = null;
+			if (levelCount == 0) {
+				levelThreeMapCodes = levelTwo(String.valueOf(levelTwoCode.getCodeId()));
+			}
+			levelCount++;
+			levelTwoMapCodes.add(getCode(levelTwoCode, levelThreeMapCodes, NODE));
+		}
+		return levelTwoMapCodes;
+
+	}
+
+	private List<Map<String, Object>> levelTwo(String codeId) {
+		int levelCount = 0;
+		List<Code> levelThreeCodes = this.getTaxonomyRepository().findChildTaxonomy(codeId, 3);
+		List<Map<String, Object>> levelThreeMapCodes = new ArrayList<Map<String, Object>>();
+		for (Code levelThreeCode : levelThreeCodes) {
+			List<Map<String, Object>> levelFourMapCodes = null;
+			if (levelCount == 0) {
+				levelFourMapCodes = levelThree(String.valueOf(levelThreeCode.getCodeId()));
+			}
+			levelCount++;
+			levelThreeMapCodes.add(getCode(levelThreeCode, levelFourMapCodes, NODE));
+		}
+
+		return levelThreeMapCodes;
+	}
+
+	private List<Map<String, Object>> levelThree(String codeId) {
+		Code code = this.getTaxonomyRepository().findCodeByCodeId(Integer.valueOf(codeId));
+		Code curriculum = this.getTaxonomyRepository().findCodeByCodeId(code.getRootNodeId());
+		List<Map<String, Object>> levelFourMapCodes = new ArrayList<Map<String, Object>>();
+		List<Code> levelFourCodes = this.getTaxonomyRepository().findChildTaxonomy(codeId, 4);
+		for (Code levelFourCode : levelFourCodes) {
+			List<Code> levelFiveCodes = this.getTaxonomyRepository().findChildTaxonomy(String.valueOf(levelFourCode.getCodeId()), 5);
+			if (curriculum.getCode().equalsIgnoreCase("CA") || curriculum.getCode().equalsIgnoreCase("CASK5") || curriculum.getCode().equalsIgnoreCase("TEKS")) {
+				levelFourMapCodes.add(getCode(levelFourCode, null, NODE));
+			}
+			for (Code levelFiveCode : levelFiveCodes) {
+				List<Code> levelSixCodes = this.getTaxonomyRepository().findChildTaxonomy(String.valueOf(levelFiveCode.getCodeId()), 6);
+				levelFourMapCodes.add(getCode(levelFiveCode, null, NODE));
+				for (Code levelSixCode : levelSixCodes) {
+					levelFourMapCodes.add(getCode(levelSixCode, null, NODE));
+				}
+			}
+		}
+		return levelFourMapCodes;
+	}
+
+	private Map<String, Object> getCode(Code code, List<Map<String, Object>> childern, String type) {
+		final Map<String, Object> codeMap = new HashMap<String, Object>();
+		codeMap.put(CODE, code.getCommonCoreDotNotation() == null ? code.getdisplayCode() : code.getCommonCoreDotNotation());
+		codeMap.put(CODE_ID, code.getCodeId());
+		codeMap.put(LABEL, code.getLabel());
+		codeMap.put(PARENT_ID, code.getParentId());
+		codeMap.put(type, childern);
+		return codeMap;
+	}
+
 	public TaxonomyRespository getTaxonomyRepository() {
 		return taxonomyRepository;
-	}
-	
-	public void setTaxonomyCassandraService(TaxonomyCassandraService taxonomyCassandraService) {
-		this.taxonomyCassandraService = taxonomyCassandraService;
 	}
 
 	public TaxonomyCassandraService getTaxonomyCassandraService() {
@@ -634,4 +734,7 @@ public class TaxonomyServiceImpl implements TaxonomyService,ParameterProperties 
 		return userRepository;
 	}
 
+	public RedisService getRedisService() {
+		return redisService;
+	}
 }

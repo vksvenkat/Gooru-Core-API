@@ -31,7 +31,6 @@ import java.sql.Date;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -39,12 +38,9 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.ednovo.gooru.application.util.CollectionUtil;
-import org.ednovo.gooru.application.util.LogUtil;
 import org.ednovo.gooru.application.util.MailAsyncExecutor;
 import org.ednovo.gooru.application.util.ResourceImageUtil;
 import org.ednovo.gooru.application.util.UserContentRelationshipUtil;
@@ -53,10 +49,8 @@ import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.ContentAssociation;
 import org.ednovo.gooru.core.api.model.ContentType;
-import org.ednovo.gooru.core.api.model.Identity;
 import org.ednovo.gooru.core.api.model.Learnguide;
 import org.ednovo.gooru.core.api.model.License;
-import org.ednovo.gooru.core.api.model.Profile;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.ResourceInfo;
 import org.ednovo.gooru.core.api.model.ResourceInstance;
@@ -88,7 +82,6 @@ import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.activity.SessionActivityRepository;
-import org.ednovo.gooru.infrastructure.persistence.hibernate.annotation.SubscriptionRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.classplan.LearnguideRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.resource.ResourceRepository;
@@ -151,9 +144,6 @@ public class LearnguideServiceImpl extends OperationAuthorizer implements Learng
 	@Autowired
 	@javax.annotation.Resource(name = "resourceManager")
 	private ResourceManager resourceManager;
-
-	@Autowired
-	private SubscriptionRepository subscriptionRepository;
 
 	@Autowired
 	private SessionActivityRepository sessionActivityRepository;
@@ -274,48 +264,6 @@ public class LearnguideServiceImpl extends OperationAuthorizer implements Learng
 		return responseJSON;
 	}
 
-	@Override
-	public JSONObject sendRequestForPublishCollection(User user, String contentGooruOid, String message, HttpServletRequest request) throws Exception {
-		JSONObject responseJSON = new JSONObject();
-		Learnguide collection = this.getLearnguideRepository().findByContent(contentGooruOid);
-		if (collection != null) {
-			this.resetRequestPending(user, contentGooruOid, 1);
-			Profile profile = this.getUserRepository().getProfile(user, false);
-			Iterator<Identity> iter = user.getIdentities().iterator();
-			String emailId = iter.next().getExternalId();
-			Map<String, Object> model = new HashMap<String, Object>();
-			model.put(COLLECTION, collection);
-			model.put(PROFILE, profile);
-			model.put(USER, user);
-			model.put(REQUEST, request);
-			model.put(EMAIL_ID, emailId);
-			model.put(MESSAGE, message);
-			if (collection.getLesson().startsWith(COPY)) {
-				model.put(COLLECTION_COPY_TEXT, "'Copy' is  in the title");
-			} else {
-				model.put(COLLECTION_COPY_TEXT, "'Copy' is not  in the title");
-			}
-			Map<String, String> filters = new HashMap<String, String>();
-			filters.put(GOORU_COLLECTION_ID, contentGooruOid);
-			List<Segment> collectionSegments = this.getLearnguideRepository().listCollectionSegments(filters);
-			List<ResourceInstance> resourceInstances = this.getLearnguideRepository().listCollectionResourceInstance(filters);
-
-			if (collectionSegments != null && collectionSegments.size() >= 1 && resourceInstances != null && resourceInstances.size() >= 5) {
-				model.put(MIN_REQ_SATISFY, YES);
-			} else {
-				model.put(MIN_REQ_SATISFY, NO);
-			}
-			filters.put(SHARING, PRIVATE);
-			List<ResourceInstance> privateResourceInstances = this.getLearnguideRepository().listCollectionResourceInstance(filters);
-			model.put(PVT_RES_LIST, privateResourceInstances);
-
-			this.getMailAsyncExecutor().sendMailToRequestPublisher(model);
-			responseJSON.put(STATUS, STATUS_200).put(MESSAGE, "Your request sent successfully");
-		} else {
-			responseJSON.put(STATUS, STATUS_404).put(MESSAGE, "collection dosen't exist");
-		}
-		return responseJSON;
-	}
 
 	@Override
 	public JSONObject publishCollection(String action, User user, String contentGooruOid) throws Exception {
@@ -467,9 +415,6 @@ public class LearnguideServiceImpl extends OperationAuthorizer implements Learng
 
 		UserContentRelationshipUtil.updateUserContentRelationship(collection, user, RELATIONSHIP.CREATE);
 
-		if (logger.isInfoEnabled()) {
-			logger.info(LogUtil.getApplicationLogStream(LEARN_GUIDE, "Indexing new learnguide with content id as " + collection.getGooruOid()));
-		}
 
 		final String cacheKey = "e.col.i-" + collection.getContentId().toString();
 		getRedisService().putValue(cacheKey, JsonSerializer.serializeToJson(collection, true), RedisService.DEFAULT_PROFILE_EXP);
@@ -708,19 +653,6 @@ public class LearnguideServiceImpl extends OperationAuthorizer implements Learng
 		indexProcessor.index(targetCollection.getGooruOid(), IndexProcessor.INDEX, COLLECTION );
 
 		this.s3ResourceApiHandler.uploadS3Resource(targetCollection);
-		if (logger.isInfoEnabled()) {
-			logger.info(LogUtil.getApplicationLogStream(LEARN_GUIDE, "copying learnguide with contetnt Id as " + sourceCollection.getGooruOid()));
-		}
-
-		if (logger.isInfoEnabled()) {
-			if (isClassplan) {
-				logger.info(LogUtil.getActivityLogStream(CLASS_PLAN, user.toString(), sourceCollection.toString(), LogUtil.CLASSPLAN_COPY, lesson));
-			} else {
-				logger.info(LogUtil.getActivityLogStream(CLASS_BOOK, user.toString(), sourceCollection.toString(), LogUtil.CLASSBOOK_COPY, lesson));
-			}
-		}
-
-		this.getSubscriptionRepository().deleteSubscription(user.getPartyUid(), gooruContentId);
 
 		try {
 			revisionHistoryService.createVersion(targetCollection, COPY_COLLECTION);
@@ -907,14 +839,6 @@ public class LearnguideServiceImpl extends OperationAuthorizer implements Learng
 
 	public void setResourceManager(ResourceManager resourceManager) {
 		this.resourceManager = resourceManager;
-	}
-
-	public SubscriptionRepository getSubscriptionRepository() {
-		return subscriptionRepository;
-	}
-
-	public void setSubscriptionRepository(SubscriptionRepository subscriptionRepository) {
-		this.subscriptionRepository = subscriptionRepository;
 	}
 
 	public ResourceService getResourceService() {

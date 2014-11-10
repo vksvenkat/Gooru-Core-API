@@ -34,14 +34,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
-import org.ednovo.gooru.core.api.model.Content;
-import org.ednovo.gooru.core.api.model.Identity;
-import org.ednovo.gooru.core.api.model.IndexableEntry;
-import org.ednovo.gooru.core.api.model.OrganizationModel;
-import org.ednovo.gooru.core.api.model.PartyCustomField;
-import org.ednovo.gooru.core.api.model.User;
-import org.ednovo.gooru.core.api.model.UserRole;
-import org.ednovo.gooru.core.api.model.UserRoleAssoc;
 
 import flexjson.JSON;
 
@@ -74,8 +66,10 @@ public class UserTransModel extends OrganizationModel implements IndexableEntry 
 	private String accountCreatedType;
 	private Boolean isDeleted;
 	private Set<PartyCustomField> customFields;
-	private Map<String, Map<String, Object>> meta;
+	private Map<String, Object> meta;
 	private String organizationName;
+	private Short active;
+	private String token;
 
 	@Override
 	public boolean equals(Object obj) {
@@ -332,20 +326,36 @@ public class UserTransModel extends OrganizationModel implements IndexableEntry 
 		return customFields;
 	}
 
-	public void setMeta(Map<String, Map<String, Object>> map) {
-		this.meta = map;
-	}
-
-	public Map<String, Map<String, Object>> getMeta() {
-		return meta;
-	}
-
 	public void setOrganizationName(String organizationName) {
 		this.organizationName = organizationName;
 	}
 
 	public String getOrganizationName() {
 		return organizationName;
+	}
+
+	public Map<String, Object> getMeta() {
+		return meta;
+	}
+
+	public void setMeta(Map<String, Object> meta) {
+		this.meta = meta;
+	}
+
+	public void setActive(Short active) {
+		this.active = active;
+	}
+
+	public Short getActive() {
+		return active;
+	}
+
+	public String getToken() {
+		return token;
+	}
+
+	public void setToken(String token) {
+		this.token = token;
 	}
 
 }

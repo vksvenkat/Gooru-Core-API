@@ -41,6 +41,7 @@ import org.ednovo.gooru.core.api.model.UserGroupAssociation;
 import org.ednovo.gooru.core.api.model.UserRelationship;
 import org.ednovo.gooru.core.api.model.UserRole;
 import org.ednovo.gooru.core.api.model.UserRoleAssoc;
+import org.ednovo.gooru.core.api.model.UserSummary;
 
 public interface UserRepository extends BaseRepository {
 
@@ -72,13 +73,15 @@ public interface UserRepository extends BaseRepository {
 
 	int findAgeCheck(User user);
 
-	List<User> getFollowedByUsers(String gooruUId);
+	List<User> getFollowedByUsers(String gooruUId, Integer offset, Integer limit);
 
-	List<User> getFollowedOnUsers(String gooruUId);
+	long getFollowedByUsersCount(String gooruUId);
+
+	List<User> getFollowedOnUsers(String gooruUId, Integer offset, Integer limit);
+
+	long getFollowedOnUsersCount(String gooruUId);
 
 	UserRelationship getActiveUserRelationship(String gooruUserId, String gooruFollowOnUserId);
-
-	User findByRemeberMeToken(String remeberMeToken);
 
 	List<UserRoleAssoc> findUserRoleSet(User user);
 
@@ -117,7 +120,7 @@ public interface UserRepository extends BaseRepository {
 	List<UserRoleAssoc> getUserRoleByName(String roles, String userId);
 
 	List<UserRole> findAllRoles();
-
+	
 	User getUserByUserName(String userName, boolean isLoginRequest);
 
 	Identity findByEmailIdOrUserName(String userName, Boolean isLoginRequest, Boolean fetchAllUser);
@@ -148,8 +151,6 @@ public interface UserRepository extends BaseRepository {
 
 	User findUserWithoutOrganization(String username);
 
-	List<Profile> getProfileList();
-
 	Timestamp getSystemCurrentTime();
 
 	UserClassification getUserClassification(String gooruUid, Integer classificationId, Integer codeId, String creatorUid, String grade);
@@ -166,17 +167,36 @@ public interface UserRepository extends BaseRepository {
 
 	String getUserGrade(String userUid, Integer classificationId, Integer activeFlag);
 
-	User findByReferenceuId(String referenceUid);
+	User findByReferenceUid(String referenceUid);
 
 	Integer getUserBirthdayCount();
 
 	List<Object[]> listUserByBirthDay(Integer offset, Integer limit);
-	
-	Integer getChildUserBirthdayCount();
-	
-	List<Object[]> listChildUserByBirthDay();
-	
-	UserGroupAssociation getUserGroupMemebrByGroupUid(String groupUid, String gooruUid);
-		
-	}
 
+	Integer getChildUserBirthdayCount();
+
+	List<Object[]> listChildUserByBirthDay();
+
+	UserGroupAssociation getUserGroupMemebrByGroupUid(String groupUid, String gooruUid);
+
+	UserSummary getSummaryByUid(String gooruUid);
+
+	User findByRemeberMeToken(String remeberMeToken);
+
+	public Integer getChildAccountCount(String userUId);
+
+	User findByIdentityLogin(Identity identity);
+	
+	List<User> findUsersByOrganization(String organizationUid, String parentOrganizationUid, Integer offset, Integer limit);
+	
+	Long getUsersByOrganizationCount(String organizationUid, String parentOrganizationUid);
+	
+	List<UserRoleAssoc> findUserRoleSetByUserUid(String userUid);
+
+	List<UserRole> findUserRoles(String userUid);
+
+	Long countAllRoles();
+	
+	Long countUserRoles(String userUid);
+	
+}

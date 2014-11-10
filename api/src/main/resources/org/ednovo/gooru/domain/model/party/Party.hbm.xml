@@ -1,27 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-   Party.hbm.xml
-   gooru-api
-   Created by Gooru on 2014
-   Copyright (c) 2014 Gooru. All rights reserved.
-   http://www.goorulearning.org/
-   Permission is hereby granted, free of charge, to any person obtaining
-   a copy of this software and associated documentation files (the
-   "Software"), to deal in the Software without restriction, including
-   without limitation the rights to use, copy, modify, merge, publish,
-   distribute, sublicense, and/or sell copies of the Software, and to
-   permit persons to whom the Software is furnished to do so, subject to
-   the following conditions:
-   The above copyright notice and this permission notice shall be
-   included in all copies or substantial portions of the Software.
-   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-   EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-   NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-   LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-   OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
--->
+<!-- Party.hbm.xml gooru-api Created by Gooru on 2014 Copyright (c) 2014 
+	Gooru. All rights reserved. http://www.goorulearning.org/ Permission is hereby 
+	granted, free of charge, to any person obtaining a copy of this software 
+	and associated documentation files (the "Software"), to deal in the Software 
+	without restriction, including without limitation the rights to use, copy, 
+	modify, merge, publish, distribute, sublicense, and/or sell copies of the 
+	Software, and to permit persons to whom the Software is furnished to do so, 
+	subject to the following conditions: The above copyright notice and this 
+	permission notice shall be included in all copies or substantial portions 
+	of the Software. THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY 
+	KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF 
+	MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN 
+	NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
+	DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
+	ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
+	DEALINGS IN THE SOFTWARE. -->
 <!DOCTYPE hibernate-mapping PUBLIC
     "-//Hibernate/Hibernate Mapping DTD 3.0//EN" 
     "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
@@ -34,10 +27,15 @@
 		<property name="partyName" column="party_name" not-null="true" />
 		<property name="partyType" column="party_type" not-null="true" />
 		<property name="createdOn" column="created_on" not-null="true" />
-		<property name="lastModifiedOn" column="last_modified_on" not-null="false" />
+		<property name="lastModifiedOn" column="last_modified_on"
+			not-null="false" />
 		<property name="lastModifiedUserUid" column="last_modified_by_uid"
 			not-null="false" />
 		<property name="userUid" column="created_by_uid" not-null="false" />
+
+		<property name="displayName" column="display_name" not-null="false" />
+
+		<property name="isPartner" column="is_partner" not-null="false" />
 
 		<joined-subclass name="org.ednovo.gooru.core.api.model.UserGroup"
 			table="user_group" lazy="true">
@@ -73,14 +71,21 @@
 
 			<many-to-one name="s3StorageArea"
 				class="org.ednovo.gooru.core.api.model.StorageArea" column="s3_storage_area_id"
-				not-null="false" lazy="false"  cascade="none" />
+				not-null="false" lazy="false" cascade="none" />
 
 			<many-to-one name="nfsStorageArea"
 				class="org.ednovo.gooru.core.api.model.StorageArea" column="nfs_storage_area_id"
-				not-null="false" lazy="false"  cascade="none" />
+				not-null="false" lazy="false" cascade="none" />
 
 			<many-to-one name="parentOrganization"
 				class="org.ednovo.gooru.core.api.model.Organization" column="parent_organization_uid"
+				not-null="false" lazy="proxy" cascade="none" />
+			<many-to-one name="stateProvince"
+				class="org.ednovo.gooru.core.api.model.Province" column="state_province_id"
+				not-null="false" lazy="proxy" cascade="none" />
+
+			<many-to-one name="type"
+				class="org.ednovo.gooru.core.api.model.CustomTableValue" column="type_id"
 				not-null="false" lazy="proxy" cascade="none" />
 
 		</joined-subclass>
@@ -124,9 +129,8 @@
 			<property name="accountTypeId" column="account_type_id"
 				not-null="false" />
 
-			<many-to-one name="parentUser"
-				class="org.ednovo.gooru.core.api.model.User" column="parent_uid"
-				not-null="false" />
+			<many-to-one name="parentUser" class="org.ednovo.gooru.core.api.model.User"
+				column="parent_uid" not-null="false" />
 
 			<many-to-one name="organization"
 				class="org.ednovo.gooru.core.api.model.Organization" column="organization_uid"
@@ -152,26 +156,23 @@
 				<one-to-many class="org.ednovo.gooru.core.api.model.PartyCustomField" />
 				<filter name="customFieldFilter" condition="optional_key in (:customFieldFilterParam)" />
 			</set>
-			
+
 			<many-to-one name="userGroup"
 				class="org.ednovo.gooru.core.api.model.UserGroup" column="user_group_uid"
 				not-null="false" lazy="false" fetch="join" cascade="none" />
 			<property name="viewFlag" column="view_flag" length="40"
 				not-null="false">
 			</property>
-			
-			<property
-		        name="referenceUid"
-		        column="reference_uid"
-		        length="36"	        
-		        not-null="false">	        
-		    </property>
+
+			<property name="referenceUid" column="reference_uid" length="36"
+				not-null="false">
+			</property>
 
 		</joined-subclass>
 	</class>
 	<filter-def name="customFieldFilter">
-         <filter-param name="customFieldFilterParam" type="java.lang.String"  />
-    </filter-def>
+		<filter-param name="customFieldFilterParam" type="java.lang.String" />
+	</filter-def>
 
 </hibernate-mapping>
 

@@ -48,6 +48,8 @@
 		<property name="hasHttpsSupport" column="has_https_support" not-null="false" />
 		
 		<property name="protocolSupported" column="protocol_supported" not-null="false" />
-
+		
+		<property name="domainBoost" column="domain_boost" not-null="false" />
+		
 	</class>
 </hibernate-mapping>

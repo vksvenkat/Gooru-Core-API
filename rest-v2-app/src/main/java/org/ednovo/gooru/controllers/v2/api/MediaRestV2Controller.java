@@ -53,13 +53,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 @RequestMapping(value = { "/v2/media" })
 public class MediaRestV2Controller extends BaseController implements ConstantProperties, ParameterProperties {
 
-	private static final Logger logger = LoggerFactory.getLogger(MediaRestV2Controller.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(MediaRestV2Controller.class);
 	@Autowired
 	@javax.annotation.Resource(name = "classplanConstants")
 	private Properties classPlanConstants;
@@ -84,6 +85,13 @@ public class MediaRestV2Controller extends BaseController implements ConstantPro
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_MEDIA_HTMLTOPDF })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(method = { RequestMethod.GET }, value = "/download")
+	public void createHtmlToPdfAndDownload(@RequestParam String url, @RequestParam String filename, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		getMediaService().downloadFile(response, filename, url);
+	}
+
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_MEDIA_HTMLTOPDF })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.POST }, value = "/jsontostring")
 	public ModelAndView jsontocsv(@RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		String res = getMediaService().convertJsonToCsv(requestData(data));
@@ -103,6 +111,7 @@ public class MediaRestV2Controller extends BaseController implements ConstantPro
 		return toModelAndView(getMediaService().handleFileUpload(mediaDTO, formField), FORMAT_JSON);
 	}
 
+	@SuppressWarnings("static-access")
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_MEDIA_UPDATE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.PUT, value = "/{id}/crop")
@@ -117,13 +126,13 @@ public class MediaRestV2Controller extends BaseController implements ConstantPro
 		if (fileName != null && file.exists()) {
 
 			try {
-				if (getValue(CROP_ENGINE, json).equalsIgnoreCase("imageMagick")) {
+				if (getValue(CROP_ENGINE, json).equalsIgnoreCase(IMG_MAGICK)) {
 					getGooruImageUtil().cropImageUsingImageMagick(file.getPath(), Integer.parseInt(getValue(WIDTH, json)), Integer.parseInt(getValue(HEIGHT, json)), Integer.parseInt(getValue(XPOSITION, json)), Integer.parseInt(getValue(YPOSITION, json)), file.getPath());
 				} else {
 					getGooruImageUtil().cropImage(file.getPath(), Integer.parseInt(getValue(XPOSITION, json)), Integer.parseInt(getValue(YPOSITION, json)), Integer.parseInt(getValue(WIDTH, json)), Integer.parseInt(getValue(HEIGHT, json)));
 				}
 			} catch (Exception exception) {
-				logger.error("Cannot crop Image : " + exception.getMessage());
+				LOGGER.error("Cannot crop Image : " + exception.getMessage());
 				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			}
 

@@ -27,14 +27,15 @@ import java.util.List;
 
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.User;
-import org.ednovo.gooru.domain.model.oauth.OAuthClient;
+import org.ednovo.gooru.core.api.model.OAuthClient;
+import org.ednovo.gooru.domain.service.search.SearchResults;
 
 
 public interface OAuthService {
 
 	public User getUserByOAuthAccessToken(String accessToken) throws Exception;
 	
-	public ActionResponseDTO<OAuthClient> createNewOAuthClient(OAuthClient oAuthClient) throws Exception;
+	public ActionResponseDTO<OAuthClient> createOAuthClient(OAuthClient oAuthClient, User apiCaller) throws Exception;
 	
 	public ActionResponseDTO<OAuthClient> updateOAuthClient(OAuthClient oAuthClient);
 
@@ -42,8 +43,13 @@ public interface OAuthService {
 
 	public void deleteOAuthClient(String clientUId, User apiCaller) throws Exception;
 
-	public ActionResponseDTO<OAuthClient> getOAuthClient(String clientUId) throws Exception;
+	public ActionResponseDTO<OAuthClient> getOAuthClient(String oauthKey) throws Exception;
 	
 	public OAuthClient getOAuthClientByClientSecret(String clientSecret) throws Exception;
-
+	
+	SearchResults<OAuthClient> listOAuthClientByOrganization(String organizationUId, Integer offset, Integer limit,String grantType) throws Exception;
+	
+	public Boolean isSuperAdmin(User user);
+	
+	List<OAuthClient> getOAuthClientByApiKey(String apiKey) throws Exception ;
 }

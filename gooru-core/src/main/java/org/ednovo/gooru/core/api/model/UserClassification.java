@@ -2,10 +2,6 @@ package org.ednovo.gooru.core.api.model;
 
 import java.io.Serializable;
 
-import org.ednovo.gooru.core.api.model.Code;
-import org.ednovo.gooru.core.api.model.CustomTableValue;
-import org.ednovo.gooru.core.api.model.User;
-
 public class UserClassification implements Serializable {
 
 	/**

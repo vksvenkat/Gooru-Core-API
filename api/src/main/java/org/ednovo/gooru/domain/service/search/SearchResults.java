@@ -39,6 +39,7 @@ public class SearchResults<T> implements Serializable {
 	private String userInput;
 	private String searchType;
 	private String category;
+	private String title;
 
 	Map<String, Object> searchInfo;
 
@@ -117,6 +118,14 @@ public class SearchResults<T> implements Serializable {
 	 */
 	public void setSearchCount(long searchCount) {
 		this.searchCount = searchCount;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+	public String getTitle() {
+		return title;
 	}
 
 }

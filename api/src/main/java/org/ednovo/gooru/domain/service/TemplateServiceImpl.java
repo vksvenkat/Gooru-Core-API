@@ -41,10 +41,11 @@ public class TemplateServiceImpl extends BaseServiceImpl implements TemplateServ
 	private TemplateRepository templateRepository;
 
 	@Override
-	public Template createTemplate(Template template, User user) {
+	public Template createTemplate(final Template template, final User user) {
 		rejectIfNull(template.getHtmlContent(), GL0006, TEMPLATE_HTML);
 		rejectIfNull(template.getTextContent(), GL0006, TEMPLATE_TEXT);
 		rejectIfNull(template.getSubject(), GL0006, TEMPLATE_SUBJECT );
+		rejectIfNull(template.getTemplateContent(),GL0006, TEMPLATE_CONTENT);
 		template.setCreator(user);
 		template.setOrganization(user.getOrganization());
 		template.setCreatedDate(new Date(System.currentTimeMillis()));
@@ -53,14 +54,17 @@ public class TemplateServiceImpl extends BaseServiceImpl implements TemplateServ
 	}
 
 	@Override
-	public Template updateTemplate(String id, Template newTemplate) {
-		Template template = this.getTemplateRepository().getTemplate(id);
+	public Template updateTemplate(String id, final Template newTemplate) {
+		final Template template = this.getTemplateRepository().getTemplate(id);
 		rejectIfNull(template, GL0006, TEMPLATE);
 		if (newTemplate.getHtmlContent() != null) {
 			template.setHtmlContent(newTemplate.getHtmlContent());
 		}
 		if (newTemplate.getTextContent() != null) {
 			template.setTextContent(newTemplate.getTextContent());
+		}
+		if (newTemplate.getTemplateContent() != null) {
+			template.setTextContent(newTemplate.getTemplateContent());
 		}
 		if (newTemplate.getSubject() != null) {
 			template.setSubject(newTemplate.getSubject());
@@ -78,7 +82,7 @@ public class TemplateServiceImpl extends BaseServiceImpl implements TemplateServ
 
 	@Override
 	public void deleteTemplate(String id) {
-		Template template = this.getTemplateRepository().getTemplate(id);
+		final Template template = this.getTemplateRepository().getTemplate(id);
 		rejectIfNull(template, GL0056,TEMPLATE);
 		this.getTemplateRepository().remove(template);
 

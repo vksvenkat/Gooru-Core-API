@@ -27,8 +27,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.ednovo.gooru.core.api.model.Learnguide;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.ResourceInstance;
@@ -46,7 +44,7 @@ public interface LearnguideService {
 
 	List<Object> findAllLearnguides(ResourceType.Type type);
 
-	List<Learnguide> findByResource(String gooruResourceContentId, String String);
+	List<Learnguide> findByResource(String gooruResourceContentId, String string);
 
 	Learnguide findByContent(String gooruContentId);
 
@@ -77,8 +75,6 @@ public interface LearnguideService {
 	JSONObject updateContentSharingPermission(User user, String contentGooruOid, String sharing, String type) throws Exception;
 
 	JSONObject resetRequestPending(User user, String contentGooruOid, Integer pendingStatus) throws Exception;
-
-	JSONObject sendRequestForPublishCollection(User user, String contentGooruOid, String message, HttpServletRequest request) throws Exception;
 
 	JSONObject publishCollection(String action, User user, String contentGooruOid) throws Exception;
 

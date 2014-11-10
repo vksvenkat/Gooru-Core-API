@@ -32,6 +32,7 @@ import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserGroupSupport;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.core.exception.BadRequestException;
 import org.ednovo.gooru.security.OperationAuthorizer;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.json.JSONException;
@@ -46,6 +47,10 @@ public class BaseController extends SerializerUtil implements ParameterPropertie
 	private OperationAuthorizer operationAuthorizer;
 	
 	protected static final String GOORU_SESSION_TOKEN = "gooru-session-token";
+		
+	protected static final String COOKIE_KEY_SERVICE_VERSION = "gooru-version";
+	
+
 
 	public static final String ERROR_INCLUDE[] = { "*.fieldError", "*.errorCount", "*.code", "*.defaultMessage", "*.field", "*.objectName", "*.rejectedValue" };
 
@@ -59,7 +64,7 @@ public class BaseController extends SerializerUtil implements ParameterPropertie
 		return operationAuthorizer;
 	}
 
-	public void setOperationAuthorizer(OperationAuthorizer operationAuthorizer) {
+	public void setOperationAuthorizer(final OperationAuthorizer operationAuthorizer) {
 		this.operationAuthorizer = operationAuthorizer;
 	}
 
@@ -71,7 +76,7 @@ public class BaseController extends SerializerUtil implements ParameterPropertie
 		return getOperationAuthorizer().hasPublishAccess();
 	}
 
-	public static String getValue(String key, JSONObject json) throws Exception {
+	public static String getValue(final String key, JSONObject json) throws Exception {
 		try {
 			if (json.isNull(key)) {
 				return null;
@@ -79,17 +84,20 @@ public class BaseController extends SerializerUtil implements ParameterPropertie
 			return json.getString(key);
 
 		} catch (JSONException e) {
-			throw new Exception(e.getMessage());
+			throw new BadRequestException("Input JSON parse failed!");
 		}
 	}
 
-	public static JSONObject requestData(String data) throws Exception {
-
-		return data != null ? new JSONObject(data) : null;
+	public static JSONObject requestData(String data)  {
+		try {
+			return data != null ? new JSONObject(data) : null;
+		} catch (JSONException e) {
+			throw new BadRequestException("Input JSON parse failed!");
+		}
 	}
 
 	public static String[] getFields(String data) {
-		List<String> fields = JsonDeserializer.deserialize(data, new TypeReference<List<String>>() {
+		final List<String> fields = JsonDeserializer.deserialize(data, new TypeReference<List<String>>() {
 		});
 		return fields.toArray(new String[fields.size()]);
 	}

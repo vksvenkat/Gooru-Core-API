@@ -36,10 +36,12 @@ import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.kafka.producer.KafkaEventHandler;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
@@ -49,7 +51,9 @@ public class GooruInterceptor extends HandlerInterceptorAdapter {
 
 	private Properties gooruConstants;
 	
-	private static final Logger logger = LoggerFactory.getLogger(GooruInterceptor.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(GooruInterceptor.class);
+	
+	private static final Logger ACTIVITY_LOGGER = LoggerFactory.getLogger("activityLog");
 	
 	private static final JSONSerializer SERIALIZER = new JSONSerializer();
 	
@@ -62,7 +66,7 @@ public class GooruInterceptor extends HandlerInterceptorAdapter {
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 
 		Enumeration e = gooruConstants.propertyNames();
-
+		
 		while (e.hasMoreElements()) {
 			String key = (String) e.nextElement();
 			request.setAttribute(key, gooruConstants.getProperty(key));
@@ -81,6 +85,11 @@ public class GooruInterceptor extends HandlerInterceptorAdapter {
 		
 		JSONObject context = new JSONObject();
 		context.put("url", request.getRequestURI());
+		if(request.getHeader("User-Agent").indexOf("Mobile") != -1) {
+			context.put("clientSource", "mobile");
+		} else {
+			context.put("clientSource", "web");
+		}
 		SessionContextSupport.putLogParameter("context", context.toString());
 		
 		request.getHeader("VIA");
@@ -96,6 +105,7 @@ public class GooruInterceptor extends HandlerInterceptorAdapter {
 		{
 			user.put("gooruUId",  party.getPartyUid());
 		}
+		
 		user.put("userAgent",  request.getHeader("User-Agent"));
 		user.put("userIp",  ipAddress);
 		SessionContextSupport.putLogParameter("user", user.toString());
@@ -115,18 +125,20 @@ public class GooruInterceptor extends HandlerInterceptorAdapter {
 	public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
 		Long endTime = System.currentTimeMillis();
 		SessionContextSupport.putLogParameter("endTime", endTime);
-		Long startTime = request.getDateHeader("startTime");
+		Long startTime = SessionContextSupport.getLog() != null ? (Long)SessionContextSupport.getLog().get("startTime") : 0;
 		Long totalTimeSpentInMs = endTime - startTime ;
 		JSONObject metrics = new JSONObject();
 		metrics.put("totalTimeSpentInMs", totalTimeSpentInMs);
 		SessionContextSupport.putLogParameter("metrics", metrics.toString());	
 		Map<String, Object> log = SessionContextSupport.getLog();
 		String logString = SERIALIZER.deepSerialize(log);
+		LOGGER.debug(logString);
 		if (logString != null) {
 			try {
+				ACTIVITY_LOGGER.info(logString);
 				kafkaService.sendEventLog(logString);
 			} catch(Exception e) {
-				logger.error("Error while pushing event log data to kafka : " + e.getMessage() );
+				LOGGER.error("Error while pushing event log data to kafka : " + e.getMessage() );
 			}
 		}
 	}
@@ -137,5 +149,13 @@ public class GooruInterceptor extends HandlerInterceptorAdapter {
 
 	public void setGooruConstants(Properties gooruConstants) {
 		this.gooruConstants = gooruConstants;
+	}
+	
+	public static JSONObject requestData(String data)  {
+		try {
+			return data != null ? new JSONObject(data) : null;
+		} catch (JSONException e) {
+			throw new BadCredentialsException("Input JSON parse failed!");
+		}
 	}
 }

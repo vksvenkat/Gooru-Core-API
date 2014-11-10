@@ -32,6 +32,8 @@ public class Constants {
 	public static final String ADMIN_SESSIONTOKEN ="ff7ed4a0-ac0d-11e2-871a-123140ff59d0";
 	public static final String FIRST_LOGIN = "firstLogin";
 	public static final String OAUTH_TOKEN = "OAUTH_TOKEN";
+	public static final String VERSION_PARTY_TYPE_USER = "user";
+	public static final String VERSION_PARTY_TYPE_ORG = "party";
 	/**
 	 * The name of the CSS Theme setting.
 	 */
@@ -158,12 +160,12 @@ public class Constants {
 	
 	public static final String SEARCH_QUESTION_RESPONSE="{\"category\":null,\"queryUId\":null,\"searchCount\":0,\"searchInfo\":null,\"searchResults\":[],\"searchType\":null,\"totalHitCount\":0, \"assetURI\" : null}";
 	
-	public static final List<String> themeUsercustomFieldsKey;
+	public static final List<String> customFieldsKey;
 	    static {
 	        List<String> customFieldsKeyList = new ArrayList<String>();
 	        customFieldsKeyList.add("show_profile_page");
 	        customFieldsKeyList.add("organizationAdmin");
-	        themeUsercustomFieldsKey = Collections.unmodifiableList(customFieldsKeyList);
+	        customFieldsKey = Collections.unmodifiableList(customFieldsKeyList);
 	    }
 	    
 	public static final String JIRA_USERNAME = "jira.username";

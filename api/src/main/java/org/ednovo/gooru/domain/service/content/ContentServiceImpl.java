@@ -28,7 +28,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-import org.ednovo.gooru.application.util.LogUtil;
 import org.ednovo.gooru.core.api.model.Annotation;
 import org.ednovo.gooru.core.api.model.AnnotationType;
 import org.ednovo.gooru.core.api.model.Content;
@@ -86,7 +85,7 @@ public class ContentServiceImpl implements ContentService,ParameterProperties {
 	@Autowired
 	private QuoteRepository quoteRepository;
 
-	private static final Logger logger = LoggerFactory.getLogger(ContentServiceImpl.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ContentServiceImpl.class);
 
 	@Override
 	public Content findByContent(Long contentId) {
@@ -212,11 +211,6 @@ public class ContentServiceImpl implements ContentService,ParameterProperties {
 
 		contentRepository.save(quote);
 
-		if (logger.isInfoEnabled()) {
-
-			logger.info(LogUtil.getActivityLogStream(CLASS_PLAN, user.toString(), quote.toString() + quote.getGooruOid(), LogUtil.QUOTE_CREATE, ""));
-		}
-
 		List<QuoteDTO> quoteDTOList = new ArrayList<QuoteDTO>();
 		QuoteDTO quoteDto = new QuoteDTO();
 		quoteDto.setAnchor(quote.getAnchor());
@@ -338,10 +332,6 @@ public class ContentServiceImpl implements ContentService,ParameterProperties {
 		annotation.setResource(resource);
 		annotationService.create(annotation, SUBSCRIPTION, errors);
 
-		if (logger.isInfoEnabled()) {
-			logger.info(LogUtil.getActivityLogStream(CLASS_PLAN, user.toString(), quote.toString() + quote.getGooruOid(), LogUtil.QUOTE_CREATE, ""));
-		}
-
 		User apiCaller = userRepository.findByGooruId(user.getPartyUid());
 		String externalId = null;
 		if (apiCaller.getIdentities() != null) {
@@ -427,7 +417,7 @@ public class ContentServiceImpl implements ContentService,ParameterProperties {
 
 		contentRepository.save(quote);
 
-		if (logger.isInfoEnabled()) {
+		if (LOGGER.isInfoEnabled()) {
 
 			// activity.info(LogUtil.getActivityLogStream("classplan",
 			// user.toString(), annotation.getAnnotationType().toString() +

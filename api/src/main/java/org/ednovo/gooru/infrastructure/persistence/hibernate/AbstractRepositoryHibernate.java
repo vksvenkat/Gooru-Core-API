@@ -27,6 +27,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.ednovo.gooru.core.api.model.OrganizationModel;
+import org.ednovo.gooru.core.api.model.Province;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
@@ -47,6 +48,7 @@ public abstract class AbstractRepositoryHibernate extends AuthorizationDaoSuppor
 		saveOrUpdate(o);
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Override
 	public List getPagedResults(Class<?> clazz, int page, int recordPerPage) {
 		
@@ -65,10 +67,12 @@ public abstract class AbstractRepositoryHibernate extends AuthorizationDaoSuppor
 	
 	
 
+	@SuppressWarnings("rawtypes")
 	public void removeAll(Collection entities) {
 		deleteAll(entities);
 	}
 
+	@SuppressWarnings("rawtypes")
 	public void saveAll(Collection entities) {
 		saveOrUpdateAll(entities);
 	}
@@ -84,5 +88,7 @@ public abstract class AbstractRepositoryHibernate extends AuthorizationDaoSuppor
 	public Logger getLogger() {
 		return logger;
 	}
+
+	
 
 }

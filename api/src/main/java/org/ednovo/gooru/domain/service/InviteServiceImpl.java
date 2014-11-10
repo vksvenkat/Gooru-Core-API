@@ -69,17 +69,17 @@ public class InviteServiceImpl extends BaseServiceImpl implements InviteService,
 	@Autowired
 	private MailHandler mailHandler;
 	
-	private static final Logger logger = LoggerFactory.getLogger(InviteServiceImpl.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(InviteServiceImpl.class);
 
 	@Override
-	public List<Map<String, String>> inviteUserForClass(List<String> emails, String classCode, User apiCaller) {
-		Classpage classPage = this.getCollectionRepository().getClasspageByCode(classCode);
+	public List<Map<String, String>> inviteUserForClass(List<String> emails, final String classCode, final User apiCaller) {
+		final Classpage classPage = this.getCollectionRepository().getClasspageByCode(classCode);
 		if (classPage == null) {
 			throw new NotFoundException(generateErrorMessage(GL0006, CLASS));
 		}
 		List<Map<String, String>> invites = new ArrayList<Map<String, String>>();
 		for (String email : emails) {
-			InviteUser inviteUser = this.getInviteRepository().findInviteUserById(email, classPage.getGooruOid(),null);
+			final InviteUser inviteUser = this.getInviteRepository().findInviteUserById(email, classPage.getGooruOid(),null);
 			if (inviteUser  == null) {
 				this.getInviteRepository().save(createInviteUserObj(email,classPage.getGooruOid(), CLASS, apiCaller));
 				Map<String, String> inviteMap = new HashMap<String, String>();
@@ -89,10 +89,15 @@ public class InviteServiceImpl extends BaseServiceImpl implements InviteService,
 				invites.add(inviteMap);
 			}
 			
+			
 			try {
-				this.getMailHandler().sendMailToInviteUser(email,classPage.getGooruOid(),classPage.getUser(),classPage.getTitle() ,apiCaller.getUsername());
+				if(classPage.getSharing().equals(PUBLIC)){
+				  this.getMailHandler().sendMailToOpenClassUser(email, classPage.getGooruOid(), classPage.getUser(), classPage.getTitle(), apiCaller.getUsername(), classPage.getClasspageCode());
+				}else{
+				this.getMailHandler().sendMailToInviteUser( email,classPage.getGooruOid(),classPage.getUser(),classPage.getTitle() ,apiCaller.getUsername(),classPage.getClasspageCode());
+				}
 			} catch (Exception e) {
-				logger.error("Error"+ e.getMessage());
+				LOGGER.error("Error"+ e.getMessage());
 			}
 		}
 		return invites;
@@ -100,8 +105,8 @@ public class InviteServiceImpl extends BaseServiceImpl implements InviteService,
 	}
 
 	@Override
-	public InviteUser createInviteUserObj(String email, String gooruOid, String invitationType, User user) {
-		InviteUser  inviteUser = new InviteUser();
+	public InviteUser createInviteUserObj(final String email, final String gooruOid, final String invitationType, final User user) {
+		final InviteUser  inviteUser = new InviteUser();
 		inviteUser.setEmailId(email);
 		inviteUser.setCreatedDate(new Date());
 		inviteUser.setGooruOid(gooruOid);
@@ -131,7 +136,7 @@ public class InviteServiceImpl extends BaseServiceImpl implements InviteService,
 		return customTableRepository;
 	}
 
-	public void setMailHandler(MailHandler mailHandler) {
+	public void setMailHandler(final MailHandler mailHandler) {
 		this.mailHandler = mailHandler;
 	}
 

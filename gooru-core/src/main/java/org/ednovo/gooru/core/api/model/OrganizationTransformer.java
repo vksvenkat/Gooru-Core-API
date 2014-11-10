@@ -1,6 +1,5 @@
 package org.ednovo.gooru.core.api.model;
 
-import org.ednovo.gooru.core.api.model.Organization;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -8,7 +7,7 @@ import flexjson.transformer.ObjectTransformer;
 
 public class OrganizationTransformer extends ObjectTransformer {
 
-	private static final Logger logger = LoggerFactory.getLogger(OrganizationTransformer.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(OrganizationTransformer.class);
 	
 	@Override
 	public void transform(Object object) {
@@ -19,11 +18,13 @@ public class OrganizationTransformer extends ObjectTransformer {
 			organizationModel.setOrganizationCode(organization.getOrganizationCode());
 			organizationModel.setOrganizationUid(organization.getPartyUid());
 			organizationModel.setOrganizationName(organization.getPartyName());
-
+			organizationModel.setId(organization.getPartyUid());
+			organizationModel.setName(organization.getPartyName());
+			organizationModel.setParentId(organization.getParentId());
 			getContext().transform(organizationModel);
 
 		} else {
-			logger.error("Serialization failed for organization transformer");
+			LOGGER.error("Serialization failed for organization transformer");
 			getContext().write(null);
 		}
 	}

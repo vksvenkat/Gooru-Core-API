@@ -16,7 +16,7 @@ public class AssessmentTransformer extends ObjectTransformer {
 		this.deepSerialize = deepSerialize;
 	}
 	
-	private static final Logger logger = LoggerFactory.getLogger(AssessmentTransformer.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(AssessmentTransformer.class);
 			
 			@Override
 			public void transform(Object object) {
@@ -45,7 +45,7 @@ public class AssessmentTransformer extends ObjectTransformer {
 					getContext().transform(assessModel);
 
 				} else {
-					logger.error("Serialization failed for user group transformer");
+					LOGGER.error("Serialization failed for user group transformer");
 					getContext().write(null);
 				}
 			}

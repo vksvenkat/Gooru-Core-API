@@ -3,9 +3,6 @@ package org.ednovo.gooru.core.api.model;
 import java.io.Serializable;
 import java.util.Date;
 
-import org.ednovo.gooru.core.api.model.ApiKey;
-import org.ednovo.gooru.core.api.model.User;
-
 
 public class UserToken  implements Serializable {
 
@@ -19,16 +16,13 @@ public class UserToken  implements Serializable {
 	private String sessionId;
 	private String token;
 	private String scope;
-	
-	private ApiKey apiKey;
+	private Application application;
 	private Date createdOn;
 	private User user;
 	private boolean firstLogin;
 	private String restEndPoint;
 	private String dateOfBirth;
 	private String userRole;
-	
-
 	
 	public String getSessionId() {
 		return sessionId;
@@ -70,14 +64,6 @@ public class UserToken  implements Serializable {
 		this.createdOn = createdOn;
 	}
 
-	public ApiKey getApiKey() {
-		return apiKey;
-	}
-
-	public void setApiKey(ApiKey apiKey) {
-		this.apiKey = apiKey;
-	}
-
 	public void setFirstLogin(boolean firstLogin) {
 		this.firstLogin = firstLogin;
 	}
@@ -108,5 +94,13 @@ public class UserToken  implements Serializable {
 
 	public String getUserRole() {
 		return userRole;
+	}
+
+	public Application getApplication() {
+		return application;
+	}
+
+	public void setApplication(Application application) {
+		this.application = application;
 	}
 }

@@ -26,12 +26,12 @@ package org.ednovo.gooru.domain.service.redis;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.lang.StringUtils;
 import org.ednovo.gooru.application.util.CollectionUtil;
 import org.ednovo.gooru.application.util.TaxonomyUtil;
 import org.ednovo.gooru.core.api.model.Assessment;
@@ -44,7 +44,6 @@ import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.domain.service.setting.SettingService;
-import org.ednovo.gooru.infrastructure.persistence.hibernate.OrganizationSettingRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.assessment.AssessmentRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.classplan.LearnguideRepository;
 import org.slf4j.Logger;
@@ -56,6 +55,7 @@ import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.SerializationException;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 @Service
 public class RedisServiceImpl implements RedisService, ParameterProperties, ConstantProperties {
@@ -75,9 +75,6 @@ public class RedisServiceImpl implements RedisService, ParameterProperties, Cons
 	@Autowired
 	private AssessmentRepository assessmentRepository;
 
-	@Autowired
-	private OrganizationSettingRepository organizationSettingRepository;
-
 	private String redisInstanceName;
 
 	private static final Logger logger = LoggerFactory.getLogger(RedisServiceImpl.class);
@@ -85,6 +82,9 @@ public class RedisServiceImpl implements RedisService, ParameterProperties, Cons
 	@Autowired
 	private CollectionUtil collectionUtil;
 
+	@Autowired
+	private String releaseVersion;
+	
 	@Override
 	public Long getCount(String gooruOId, String type) {
 
@@ -179,10 +179,6 @@ public class RedisServiceImpl implements RedisService, ParameterProperties, Cons
 					logger.info("Collection Redis Updating " + collectionList.size() + " collections : page " + page + " of " + recordsPerPage);
 
 					for (Resource resource : collectionList) {
-						List<HashMap<String, String>> subscriptions = this.getCollectionUtil().getSubscribtionUserList(resource.getGooruOid());
-						if (subscriptions != null) {
-							updateRedisCount((long) subscriptions.size(), Constants.REDIS_SUBSCRIBTION, resource.getGooruOid());
-						}
 						updateRedisCount(resource.getViews(), Constants.REDIS_VIEWS, resource.getGooruOid());
 					}
 				}
@@ -197,12 +193,6 @@ public class RedisServiceImpl implements RedisService, ParameterProperties, Cons
 				if (assessments != null && assessments.size() > 0) {
 
 					for (Resource resource : assessments) {
-						List<HashMap<String, String>> subscriptions = this.getCollectionUtil().getSubscribtionUserList(resource.getGooruOid());
-
-						if (subscriptions != null) {
-							updateRedisCount((long) subscriptions.size(), Constants.REDIS_SUBSCRIBTION, resource.getGooruOid());
-						}
-
 						updateRedisCount(resource.getViews(), Constants.REDIS_VIEWS, resource.getGooruOid());
 					}
 
@@ -266,7 +256,6 @@ public class RedisServiceImpl implements RedisService, ParameterProperties, Cons
 
 		return countKey;
 	}
-
 	private String getRedisInstance() {
 		try {
 			if (redisInstanceName == null) {
@@ -321,8 +310,9 @@ public class RedisServiceImpl implements RedisService, ParameterProperties, Cons
 		Date currentDate = new Date();
 		long expiresTimes = 24;
 		if (organization != null) {
-			if (organizationSettingRepository.getOrganizationSetting(SESSION_EXPIRES_TIME, organization.getPartyUid()) != null) {
-				expiresTimes = Long.parseLong(organizationSettingRepository.getOrganizationSetting(SESSION_EXPIRES_TIME, organization.getPartyUid()));
+			Map<String, String> expireTimeList = settingService.getOrganizationExpireTime(SESSION_EXPIRES_TIME);
+			if (expireTimeList.containsKey(organization.getPartyUid())) {
+				expiresTimes = Long.parseLong(expireTimeList.get(organization.getPartyUid()));
 			}
 		}
 		Long createdTime = currentDate.getTime() + (1000 * 60 * 60 * expiresTimes);
@@ -341,6 +331,22 @@ public class RedisServiceImpl implements RedisService, ParameterProperties, Cons
 		if (valueOperations != null) {
 			try {
 				return valueOperations.get(returnSanitizedKey(key));
+			} catch (Exception e) {
+				logger.error("Get Values from redis failed!" + e.getMessage());
+			}
+		} else {
+			return null;
+		}
+		return null;
+
+	}
+
+	@Override
+	public String getStandardValue(String key) {
+		ValueOperations<String, String> valueOperations = getValueOperation();
+		if (valueOperations != null) {
+			try {
+				return valueOperations.get(key);
 			} catch (Exception e) {
 				logger.error("Get Values from redis failed!" + e.getMessage());
 			}
@@ -388,17 +394,40 @@ public class RedisServiceImpl implements RedisService, ParameterProperties, Cons
 	}
 	
 	@Override
-	public void bulkKeyDelete(String key) {
-		redisStringTemplate.delete(key);
+	public void bulkKeyDelete(String keyWildCard) {
+		Set<String> keys = this.getkeys(keyWildCard);
+		if(keys.size() > 0) {
+			Iterator<String> iterator = keys.iterator();
+			while(iterator.hasNext()) {
+				redisStringTemplate.delete(iterator.next());				
+			}
+		}
 	}
 
 	private String returnSanitizedKey(final String key) {
-		return BaseUtil.appendProtocol(StringUtils.replace(key, " ", ""));
-	}
+		return   BaseUtil.appendProtocol(StringUtils.replace(key, " ", "")) + "_" + getReleaseVersion();	
+	}  
 
 	@Override
 	public Set<String> getkeys(String key) {
 		return redisStringTemplate.keys(key);
+	}
+
+	@Override
+	public void setValuesMulti(Map<String, String> map) {
+		ValueOperations<String, String> valueOperations = getValueOperation();
+		try {
+			valueOperations.multiSet(map);
+		} catch (Exception e) {
+			System.out.println("Redis Error" + e);
+		}
+	}
+	public String getReleaseVersion() {
+		return releaseVersion;
+	}
+
+	public void setReleaseVersion(String releaseVersion) {
+		this.releaseVersion = releaseVersion;
 	}
 
 }

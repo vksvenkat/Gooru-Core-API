@@ -29,6 +29,8 @@ import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.ContentAssociation;
 import org.ednovo.gooru.core.api.model.ContentPermission;
+import org.ednovo.gooru.core.api.model.ContentProvider;
+import org.ednovo.gooru.core.api.model.ContentProviderAssociation;
 import org.ednovo.gooru.core.api.model.ContentTagAssoc;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.StatusType;
@@ -61,14 +63,26 @@ public interface ContentRepository extends BaseRepository {
 
 	List getIdsByUserUId(String userUId, String typeName, Integer pageNo, Integer pageSize);
 
-	ContentTagAssoc getContentTagById(String gooruOid, String tagGooruOid);
+	ContentTagAssoc getContentTagById(String gooruOid, String tagGooruOid,String gooruUid);
 
-	List<ContentTagAssoc> getContentTagByContent(String gooruOid, Integer limit, Integer offset);
+	List<ContentTagAssoc> getContentTagByContent(String gooruOid, String gooruUid);
 
 	List<Content> getContentByUserUId(String userUId);
 
 	void deleteContentByContentId(String contentId);
 	
 	List<ContentPermission> getContentPermission(Long contentId, String partyUid);
+	
+	List<ContentProvider> getContentProvider(Integer offset, Integer limit);
+	
+	List<ContentProviderAssociation> getContentProviderByGooruOid(String gooruOid, String name, String providerType);
+	
+	List<Object[]> getUserContentTagList(String gooruUid, Integer limit, Integer offset);
+	
+	Long getUserContentTagCount(String gooruUid);
+	
+	ContentProvider getContentProviderByName(String name, String keyValue);
+	
+	void deleteContentProvider(String gooruOid, String providerType, String name);
 
 }

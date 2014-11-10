@@ -27,37 +27,37 @@ import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
 
-import org.ednovo.gooru.core.api.model.ApiKey;
+import org.ednovo.gooru.core.api.model.ActionResponseDTO;
+import org.ednovo.gooru.core.api.model.Application;
+import org.ednovo.gooru.core.api.model.Country;
 import org.ednovo.gooru.core.api.model.Identity;
 import org.ednovo.gooru.core.api.model.Profile;
 import org.ednovo.gooru.core.api.model.RoleEntityOperation;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserAvailability.CheckUser;
 import org.ednovo.gooru.core.api.model.UserCredential;
-import org.ednovo.gooru.core.api.model.UserRelationship;
 import org.ednovo.gooru.core.api.model.UserRole;
 import org.ednovo.gooru.core.api.model.UserRole.UserRoleType;
+import org.ednovo.gooru.core.api.model.UserRoleAssoc;
 import org.ednovo.gooru.core.api.model.UserToken;
+import org.json.JSONException;
 import org.springframework.util.MultiValueMap;
 
 
 public interface UserService {
 
 	User createUser(String firstName, String lastName, String email, String password, String school, String username, Integer confirmStatus, String organizationCode, Integer addedBySystem, String importCode, String accountType, String dateOfBirth, String userParentId, String gender,
-			String childDOB, String source, String referenceUid, String role) throws Exception;
+			String childDOB, String source, String referenceUid, String role, String domainName) throws Exception;
 
 	User createUser(String firstName, String lastName, String email, String password, String school, String username, Integer confirmStatus, String organizationCode, Integer addedBySystem, String importCode, String accountType, String dateOfBirth, String userParentId, String remoteEntityId,
 			String gender, String childDOB, String source, String emailSSO, String referenceUid, String role) throws Exception;
 
 	String encryptPassword(String password);
 
-	List<User> getFollowedByUsers(String gooruUId);
+	List<User> getFollowedByUsers(String gooruUId,Integer offset, Integer limit);
 
-	List<User> getFollowedOnUsers(String gooruUId);
+	List<User> getFollowedOnUsers(String gooruUId, Integer offset, Integer limit);
 
-	UserRelationship followUser(User user, String gooruFollowOnUserId);
-
-	boolean unFollowUser(String gooruUserId, String gooruFollowOnUserId);
 
 	void signout(String sessionToken);
 
@@ -98,7 +98,7 @@ public interface UserService {
 	List<User> listUsers();
 
 	User createUserWithValidation(String firstName, String lastName, String email, String password, String school, String username, Integer confirmStatus, String organizationCode, Boolean useGeneratedPassword, Boolean sendConfirmationMail, User apiCaller, String accountType, String dateOfBirth,
-			String userParentId, String sessionId, String gender, String childDOB, String gooruClassicUrl, String referenceUid, String role, String pearsonEmailId) throws Exception;
+			String userParentId, String sessionId, String gender, String childDOB, String gooruClassicUrl, String referenceUid, String role, String pearsonEmailId, String domainName) throws Exception;
 
 	User getUser(String gooruUId) throws Exception;
 
@@ -117,22 +117,20 @@ public interface UserService {
 	UserRole findUserRoleByRoleId(Short roleId);
 
 	UserRole createRole(String name, String description, User user) throws Exception;
-
+		
 	List<RoleEntityOperation> updateRoleOperation(Integer roleId, String operations) throws Exception;
 
-	String removeRoleOperation(Integer roleId, String operations) throws Exception;
+	String removeRoleOperation(Integer roleId, String operations);
 
 	List<RoleEntityOperation> getUserOperations(String roleNames) throws Exception;
-
-	List<UserRole> findAllRoles();
-
+	
 	Map<String, String> validateUserAdd(String firstName, String lastName, String email, String password, String username, User user, String childDOB, String accountType, String dateOfBirth, String organizationCode) throws Exception;
 
 	UserCredential getUserCredential(User user, String key, String skipCache, String sharedSecretKey);
 
 	User getUserByUserName(String userName);
 
-	UserToken createSessionToken(User user, String sessionId, ApiKey apiKey);
+	UserToken createSessionToken(User user, String sessionId, Application application);
 
 	Map<String, Object> getUserAvailability(String keyword, String type, boolean isCollaboratorCheck, String collectionId, User apiCaller);
 
@@ -187,4 +185,24 @@ public interface UserService {
 	UserToken loginAs(String sessionToken, String gooruUid, String apiKey, Boolean isReference) throws Exception;
 	
 	Integer calculateCurrentAge(String dateOfBirth);
+	
+	 Boolean isSuperAdmin(User user);
+	 
+	 public void getEventLogs(Identity identity, UserToken userToken) throws JSONException;
+	 
+	 public Integer getChildAccountCount(String userUId);
+
+	 List<UserRole> findAllRoles();
+	 
+	 List<Map<String, Object>> getAllRoles();
+	 
+	 Long allRolesCount();
+	 
+	 List<UserRole> findUserRoles(String userUId);
+
+	 Long userRolesCount(String userUId);
+
+	 UserRole updateRole(UserRole role) throws Exception;
+	 
+	 String removeRole(Short roleId);
 }

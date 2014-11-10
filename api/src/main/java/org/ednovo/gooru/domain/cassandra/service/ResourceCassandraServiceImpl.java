@@ -26,6 +26,9 @@
  */
 package org.ednovo.gooru.domain.cassandra.service;
 
+import java.util.Collection;
+import java.util.List;
+
 import org.ednovo.gooru.cassandra.core.dao.RawCassandraDao;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.cassandra.model.ResourceCio;
@@ -35,6 +38,9 @@ import org.ednovo.gooru.domain.cassandra.ApiCassandraFactory;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.index.ContentIndexDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.netflix.astyanax.model.ColumnList;
+import com.netflix.astyanax.model.Rows;
 
 /**
  * @author SearchTeam
@@ -68,10 +74,34 @@ public class ResourceCassandraServiceImpl extends ApiCrudEntityCassandraServiceI
 	private RawCassandraDao getDao() {
 		return (RawCassandraDao) apiCassandraFactory.get(ColumnFamilyConstant.CONTENT_META);
 	}
-	
+
+	private RawCassandraDao getDao(String columnFamilyName) {
+		return (RawCassandraDao) apiCassandraFactory.get(columnFamilyName);
+	}
+
 	@Override
 	String getDaoName() {
 		return ColumnFamilyConstant.RESOURCE;
+	}
+
+	@Override
+	public void updateIndexQueue(List<String> gooruOids, String rowKey, String prefix) {
+		getDao(ColumnFamilyConstant.INDEX_QUEUE).addIndexQueueEntry(rowKey, prefix, gooruOids);
+	}
+
+	@Override
+	public void updateQueueStatus(String columnName, String rowKey, String prefix) {
+		getDao(ColumnFamilyConstant.INDEX_QUEUE).updateQueueStatus(columnName, rowKey, prefix);
+	}
+
+	@Override
+	public Rows<String, String> readIndexQueuedData(Integer limit){
+		return getDao().readIndexQueuedData(limit);
+	}
+
+	@Override
+	public void deleteIndexQueue(String rowKey, Collection<String> columns) {
+		getDao(ColumnFamilyConstant.INDEX_QUEUE).deleteIndexQueue(rowKey, columns);
 	}
 
 }

@@ -2,8 +2,6 @@ package org.ednovo.gooru.core.api.model;
 
 import java.util.Date;
 
-import org.ednovo.gooru.core.api.model.User;
-
 public class QuoteDTO {
 	
 	private String title;

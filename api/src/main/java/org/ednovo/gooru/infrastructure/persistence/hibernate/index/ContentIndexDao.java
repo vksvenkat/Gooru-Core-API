@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.ednovo.gooru.core.api.model.ContentProvider;
 import org.ednovo.gooru.core.api.model.Resource;
 
 public interface ContentIndexDao {
@@ -77,4 +78,20 @@ public interface ContentIndexDao {
 	Long getSubscriptionCountByContentId(long contentId);
 	
 	List<String> getCollectionItemIdsByResourceId(Long collectionId);
+	
+	List<Object[]> getContentProviderAssoc(long contentId);
+	
+	ContentProvider  getContentProviderlist(String contentProviderId);
+	
+	Integer getMaximumSubscribersCount();
+	
+	Integer getMaximumUsedInCollectionCount();
+	
+	Integer getResourceMaximumView();
+	
+	Integer getCollectionMaximumView();
+
+	Integer getUpperboundResourceCountInCollection();
+	
+	Integer getUpperboundQuestionCountInCollection();
 }

@@ -28,43 +28,43 @@ import java.util.List;
 import org.ednovo.gooru.core.api.model.Event;
 import org.ednovo.gooru.core.api.model.EventMapping;
 import org.hibernate.Query;
-import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public class EventRepositoryHibernate extends BaseRepositoryHibernate implements EventRepository {
 
+	private static final String GET_EVENT = "FROM  Event event WHERE  event.gooruOid=:id";
+	private static final String GET_EVENT_BY_NAME = "FROM  Event event WHERE  event.name=:name";
+	private static final String GET_EVENTS = "FROM  Event event";
+	private static final String GET_EVENT_MAPPING = "FROM  EventMapping eventMapping WHERE " + generateOrgAuthQuery("eventMapping.template.") + " and eventMapping.template.gooruOid=:templateUid and eventMapping.event.gooruOid=:eventUid";
+	private static final String GET_TEMPLATE_BY_EVENT = "FROM  EventMapping eventMapping WHERE " + generateOrgAuthQuery("eventMapping.template.") + " and eventMapping.event.gooruOid=:eventUid";
+	private static final String GET_EVENT_MAPPING_TYPE = "FROM  EventMapping eventMapping WHERE " + generateOrgAuthQuery("eventMapping.template.") + " and eventMapping.event.displayName=:eventType and eventMapping.status.value='active'";
+	
 	@Override
 	public Event getEvent(String id) {
-		Session session = getSession();
-		String hql = " FROM  Event event WHERE  event.gooruOid=:id";
-		Query query = session.createQuery(hql);
+		Query query = getSessionReadOnly().createQuery(GET_EVENT);
 		query.setParameter("id", id);
 		return (Event) ((query.list() != null && query.list().size() > 0) ? query.list().get(0) : null);
 	}
 
 	@Override
 	public Event getEventByName(String name) {
-		Session session = getSession();
-		String hql = " FROM  Event event WHERE  event.name=:name";
-		Query query = session.createQuery(hql);
+		Query query = getSessionReadOnly().createQuery(GET_EVENT_BY_NAME);
 		query.setParameter("name", name);
 		return (Event) ((query.list() != null && query.list().size() > 0) ? query.list().get(0) : null);
 	}
 
 	@Override
-	public List<Event> getEvents() {
-		Session session = getSession();
-		String hql = " FROM  Event event";
-		Query query = session.createQuery(hql);
+	public List<Event> getEvents(Integer limit, Integer offset) {
+		Query query = getSessionReadOnly().createQuery(GET_EVENTS);
+		query.setFirstResult(offset);
+		query.setMaxResults(limit);
 		return query.list();
 	}
 
 	@Override
 	public EventMapping getEventMapping(String eventUid, String templateUid) {
-		Session session = getSession();
-		String hql = " FROM  EventMapping eventMapping WHERE " + generateOrgAuthQuery("eventMapping.template.") + " and eventMapping.template.gooruOid=:templateUid and eventMapping.event.gooruOid=:eventUid";
-		Query query = session.createQuery(hql);
+		Query query = getSessionReadOnly().createQuery(GET_EVENT_MAPPING);
 		query.setParameter("eventUid", eventUid);
 		query.setParameter("templateUid", templateUid);
 		addOrgAuthParameters(query);
@@ -73,9 +73,7 @@ public class EventRepositoryHibernate extends BaseRepositoryHibernate implements
 
 	@Override
 	public List<EventMapping> getTemplatesByEvent(String eventUid) {
-		Session session = getSession();
-		String hql = " FROM  EventMapping eventMapping WHERE " + generateOrgAuthQuery("eventMapping.template.") + " and eventMapping.event.gooruOid=:eventUid";
-		Query query = session.createQuery(hql);
+		Query query = getSessionReadOnly().createQuery(GET_TEMPLATE_BY_EVENT);
 		query.setParameter("eventUid", eventUid);
 		addOrgAuthParameters(query);
 		return query.list();
@@ -83,9 +81,7 @@ public class EventRepositoryHibernate extends BaseRepositoryHibernate implements
 
 	@Override
 	public EventMapping getEventMappingByType(String eventType) {
-		Session session = getSession();
-		String hql = " FROM  EventMapping eventMapping WHERE " + generateOrgAuthQuery("eventMapping.template.") + " and eventMapping.event.displayName=:eventType and eventMapping.status.value='active'";
-		Query query = session.createQuery(hql);
+		Query query = getSessionReadOnly().createQuery(GET_EVENT_MAPPING_TYPE);
 		query.setParameter("eventType", eventType);
 		addOrgAuthParameters(query);
 		return (EventMapping) ((query.list() != null && query.list().size() > 0) ? query.list().get(0) : null);

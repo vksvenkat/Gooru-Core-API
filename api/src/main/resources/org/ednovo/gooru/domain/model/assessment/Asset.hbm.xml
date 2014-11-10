@@ -43,6 +43,10 @@
 	        name="hasUniqueName"
 	        column="has_unique_name"	       	       	       
 	        not-null="false"/>
+	    <property
+	        name="url"
+	        column="url"	       	       	       
+	        not-null="false"/>
 	  	 <many-to-one 
 		    name="organization" 
 		    class="org.ednovo.gooru.core.api.model.Organization" 

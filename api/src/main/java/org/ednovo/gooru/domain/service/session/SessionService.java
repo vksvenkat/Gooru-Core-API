@@ -27,12 +27,15 @@ import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Session;
 import org.ednovo.gooru.core.api.model.SessionItem;
 import org.ednovo.gooru.core.api.model.SessionItemAttemptTry;
+import org.ednovo.gooru.core.api.model.SessionItemFeedback;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.domain.service.BaseService;
 
 public interface SessionService extends BaseService {
 
 	ActionResponseDTO<Session> createSession(Session session, User user);
+	
+	 SessionItemFeedback createSessionItemFeedback(String sessionId, SessionItemFeedback sessionItemFeedback, User user);
 
 	ActionResponseDTO<Session> updateSession(String sessionId, Session session);
 

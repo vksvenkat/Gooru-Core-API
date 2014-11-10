@@ -10,13 +10,12 @@ import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Id;
 
-//import javax.persistence.Column;
-//import javax.persistence.Id;
-
 import org.ednovo.gooru.core.cassandra.model.IsCassandraIndexable;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+//import javax.persistence.Column;
+//import javax.persistence.Id;
 
 @JsonFilter("content")
 public class Content extends OrganizationModel implements IndexableEntry, IsCassandraIndexable {
@@ -57,10 +56,17 @@ public class Content extends OrganizationModel implements IndexableEntry, IsCass
 	@Column
 	private String lastUpdatedUserUid;
 	
+	@Column
+	private Integer version;
+	
+	
 	private ContentType contentType;
 	
 	@JsonManagedReference
 	private Set<Code> taxonomySet = new HashSet<Code>();
+	
+	@JsonManagedReference
+	private Set<ContentMetaAssociation> contentMetaAssoc = new HashSet<ContentMetaAssociation>();
 
 	private Set<ContentPermission> contentPermissions;
 	
@@ -78,6 +84,7 @@ public class Content extends OrganizationModel implements IndexableEntry, IsCass
 	public Long getContentId() {
 		return contentId;
 	}
+	
 
 	public void setContentId(Long contentId) {
 		this.contentId = contentId;
@@ -260,6 +267,24 @@ public class Content extends OrganizationModel implements IndexableEntry, IsCass
 
 	public Map<String, Object> getMeta() {
 		return meta;
+	}
+
+
+	public void setContentMetaAssoc(Set<ContentMetaAssociation> contentMetaAssoc) {
+		this.contentMetaAssoc = contentMetaAssoc;
+	}
+
+
+	public Set<ContentMetaAssociation> getContentMetaAssoc() {
+		return contentMetaAssoc;
+	}
+	
+	public Integer getVersion() {
+		return version;
+	}
+	
+	public void setVersion(Integer version) {
+		this.version = version;
 	}
 
 }

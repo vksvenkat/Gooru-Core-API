@@ -32,6 +32,8 @@ public interface ConfigConstants {
 	
 	String PROFILE_IMAGE_URL = "profile.image.url";
 	
+	String  RESOURCE_IMAGE_URL = "s3.resource.image.url";
+	
 	String PROFILE_BUCKET = "s3.profileBucket";
 	
 	String USER_NAME_RESTRICTIONS = "username.restrictions";
@@ -175,5 +177,21 @@ public interface ConfigConstants {
     String INSIGHTS_LOGAPI_ENDPOINT = "insights.logapi.endpoint";
     
     String INSIGHTS_ACTIVITYSTREAM_URL = "insights.activitystream.url";
+    
+    String SEARCH_INDEX_RESTENDPOINT = "search.index.restendpoint";
+    
+    String CLIENT_ID = "google.client.id";
+    
+    String CLIENT_SECRET = "google.client.secret";
+ 
+    String CALLBACK_URI = "google.callback.uri";
+    
+    String OAUTH_CALLBACK_URI = "google.oauth.callback";
+    
+    String SERVICE_DEFAULT_VERSION = "service.default.version";
+    
+    String USER_MAIL_DISABLE_NOTIFICATION = "gooru.user.disabled.mail.notification";
+    
+    String GOORU_SETTING = "gooru.setting";
 
 }

@@ -26,11 +26,15 @@ package org.ednovo.gooru.infrastructure.persistence.hibernate.party;
 import java.util.List;
 
 import org.ednovo.gooru.core.api.model.Organization;
+import org.ednovo.gooru.core.constant.ConstantProperties;
+import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate;
+import org.hibernate.Query;
+import org.hibernate.type.StandardBasicTypes;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class OrganizationRepositoryHibernate extends BaseRepositoryHibernate implements OrganizationRepository {
+public class OrganizationRepositoryHibernate extends BaseRepositoryHibernate implements OrganizationRepository,ParameterProperties, ConstantProperties {
 
 	@Override
 	public Organization getOrganizationByName(String partyName) {
@@ -51,9 +55,54 @@ public class OrganizationRepositoryHibernate extends BaseRepositoryHibernate imp
 	}
 
 	@Override
-	public List<Organization> listOrganization() {
-		String hql = "FROM Organization";
+	public List<Organization> getOrganizations(String type, String parentOrganizationUid, String stateProvinceId, Integer offset, Integer limit) {
+		String hql = "SELECT o FROM Organization o  where 1 = 1";
+		if (stateProvinceId != null) {
+			hql += " AND o.stateProvince.stateId=:stateProvinceId";
+		}
+		if (type != null) { 
+			hql += " AND o.type.keyValue=:type";
+		}
+		if (parentOrganizationUid != null) { 
+			hql += " AND o.parentOrganization.partyUid=:parentOrganizationUid";
+		}
+		Query query = getSession().createQuery(hql);
+		
+		if (stateProvinceId != null) {
+			query.setParameter("stateProvinceId", stateProvinceId);
+		}
+		if (type != null) {
+			query.setParameter("type", type);
+		}
+		if (parentOrganizationUid != null) { 
+			query.setParameter("parentOrganizationUid", parentOrganizationUid);
+		}
+		query.setFirstResult(offset);
+        query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
+        return (List) query.list();
+
+	}
+	
+	@Override
+	public Organization getOrganizationByIdpName(String idpDomainName) {
+		String hql = "SELECT organizationDomainAssoc.organization FROM OrganizationDomainAssoc organizationDomainAssoc WHERE organizationDomainAssoc.domain.name = '" + idpDomainName + "'";
 		return get(hql);
 	}
+	
+	@Override
+	public Long getOrganizationCount(String type, String parentOrganizationUid, String sateProvinceId) {
+		String sql = "select  count(1) as count from organization o  inner join custom_table_value ct on ct.custom_table_value_id = o.type_id where 1=1";		
+		if (type != null) { 
+			sql += " AND ct.key_value = '" + type + "'";
+		}
+		if (parentOrganizationUid != null) { 
+			sql += " AND parent_organization_uid = '" + parentOrganizationUid + "'";
+		}
+		Query query = getSession().createSQLQuery(sql).addScalar("count", StandardBasicTypes.LONG);
+        return (Long) query.list().get(0);
+	}
+
+	
+
 
 }

@@ -9,7 +9,7 @@ public class Idp implements Serializable{
 	private static final long serialVersionUID = -8057521950467645504L;
 
 	
-	public static String DEFAULT_IDP = "NA"; 
+	public static  String defaultIdp = "NA"; 
 	
 	private Short idpId;
 	private String name;
@@ -33,10 +33,10 @@ public class Idp implements Serializable{
 	public void setGooruInstalled(Short gooruInstalled) {
 		this.gooruInstalled = gooruInstalled;
 	}
-	public static String getDEFAULT_IDP() {
-		return DEFAULT_IDP;
+	public static String getDefaultIdp() {
+		return defaultIdp;
 	}
-	public static void setDEFAULT_IDP(String dEFAULTIDP) {
-		DEFAULT_IDP = dEFAULTIDP;
+	public static void setDefaultIdp(final String DEFAULT_IDP) {
+		defaultIdp = DEFAULT_IDP;
 	}
 }

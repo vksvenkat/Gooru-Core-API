@@ -110,10 +110,7 @@ public interface AssessmentService {
 
 	AssessmentQuestionAssetAssoc uploadQuestionAsset(String gooruQuestionId, AssessmentQuestionAssetAssoc questionAsset, boolean index) throws Exception;
 
-	
 	AssessmentSegmentQuestionAssoc findSegmentQuestion(Integer segmentId, String gooruOQuestionId);
-
-	int publishAssessment(String gooruAssessmentId);
 
 	Assessment copyAssessment(User user, String gooruAssessmentId, String quizTitle) throws Exception;
 
@@ -142,6 +139,8 @@ public interface AssessmentService {
 	String updateQuizQuestionImage(String gooruContentId, String fileName, Resource resource, String assetKey) throws Exception;
 
 	AssessmentQuestion updateQuestionAssest(String gooruQuestionId, String assetKeys) throws Exception;
+	
+	AssessmentQuestion updateQuestionVideoAssest(String gooruQuestionId, String assetKeys) throws Exception;
 
 	void deleteQuestionAssest(String gooruQuestionId) throws Exception;
 

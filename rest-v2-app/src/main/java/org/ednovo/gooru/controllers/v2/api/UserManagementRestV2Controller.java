@@ -23,7 +23,7 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.controllers.v2.api;
 
-import java.util.Iterator;
+import java.io.FileNotFoundException;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -36,8 +36,8 @@ import org.ednovo.gooru.core.api.model.Identity;
 import org.ednovo.gooru.core.api.model.Profile;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.User;
-import org.ednovo.gooru.core.api.model.UserTagAssoc;
 import org.ednovo.gooru.core.api.model.UserAvailability.CheckUser;
+import org.ednovo.gooru.core.api.model.UserTagAssoc;
 import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.application.util.ServerValidationUtils;
 import org.ednovo.gooru.core.constant.ConstantProperties;
@@ -47,12 +47,10 @@ import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.security.AuthorizeOperations;
 import org.ednovo.gooru.domain.service.FeedbackService;
 import org.ednovo.gooru.domain.service.PostService;
-import org.ednovo.gooru.domain.service.classplan.LearnguideService;
 import org.ednovo.gooru.domain.service.tag.TagService;
 import org.ednovo.gooru.domain.service.user.UserService;
 import org.ednovo.gooru.domain.service.userManagement.UserManagementService;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
-import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,9 +70,6 @@ import org.springframework.web.servlet.ModelAndView;
 public class UserManagementRestV2Controller extends BaseController implements ParameterProperties, ConstantProperties {
 
 	@Autowired
-	private LearnguideService learnguideService;
-
-	@Autowired
 	private UserManagementService userManagementService;
 
 	@Autowired
@@ -87,9 +82,6 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 	private TagService tagService;
 
 	@Autowired
-	private CustomTableRepository customTableRepository;
-
-	@Autowired
 	private IndexProcessor indexProcessor;
 	
 	@Autowired
@@ -99,7 +91,7 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_ADD })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.POST }, value = "")
-	public ModelAndView createUser(HttpServletRequest request, @RequestBody String data, @RequestParam(value = SESSIONTOKEN, required = false) String sessionToken, @RequestParam(value = "sharedSecretKey", required = false) String sharedSecretKey, @RequestParam(value = "orgAdmin", required = false, defaultValue="false") Boolean orgAdmin, @RequestParam(value = "adminOrganizationUid", required = false) String adminOrganizationUid, HttpServletResponse response) throws Exception {
+	public ModelAndView createUser(HttpServletRequest request, @RequestBody String data, @RequestParam(value = SESSIONTOKEN, required = false) String sessionToken, @RequestParam(value = SHARED_SECRETKEY, required = false) String sharedSecretKey, @RequestParam(value = ORG_ADMIN, required = false, defaultValue="false") Boolean orgAdmin, @RequestParam(value = ADMIN_ORGANIZATION_UID, required = false) String adminOrganizationUid, HttpServletResponse response) throws Exception {
 		JSONObject json = requestData(data);
 		User creator = this.buildUserFromInputParameters((getValue(USER, json)));
 		String sessionId = request.getSession().getId();
@@ -117,23 +109,12 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 
 		User user = this.getUserManagementService().createUserWithValidation(creator, getValue(PASSWORD, json), null, getValue(CONFIRM_STATUS, json) != null ? Integer.parseInt(getValue(CONFIRM_STATUS, json)) : null, getValue(USEGENERATEDPASSWORD, json) != null ? Boolean.parseBoolean(getValue(USEGENERATEDPASSWORD, json)) : false,
 				getValue(SENDCONFIRMATIONMAIL, json) != null ? Boolean.parseBoolean(getValue(SENDCONFIRMATIONMAIL, json)) : true, apiCaller, getValue(ACCOUNTTYPE, json), dateOfBirth, getValue(USERPARENTID, json), sessionId, getValue(GENDER, json), getValue(CHILDDOB, json),
-				getValue(GOORU_BASE_URL, json), getValue(TOKEN, json) != null ? Boolean.parseBoolean(getValue(TOKEN, json)) : false, request, getValue("role", json), getValue(MAIL_CONFIRMATION_URL, json) != null ? getValue(MAIL_CONFIRMATION_URL, json) : null );
+				getValue(GOORU_BASE_URL, json), getValue(TOKEN, json) != null ? Boolean.parseBoolean(getValue(TOKEN, json)) : false, request, getValue(ROLE, json), getValue(MAIL_CONFIRMATION_URL, json) != null ? getValue(MAIL_CONFIRMATION_URL, json) : null );
 		if (user != null) {
 			if(orgAdmin && adminOrganizationUid != null){
 				this.getUserManagementService().updateOrgAdminCustomField(adminOrganizationUid, user);
 			}
-			response.setStatus(HttpServletResponse.SC_CREATED);
-			// To capture activity log
-			Iterator<Identity> iter = user.getIdentities().iterator();
-			if (iter != null && iter.hasNext()) {
-				Identity identity = iter.next();
-				SessionContextSupport.putLogParameter(CREATED_TYPE, identity != null ? identity.getAccountCreatedType() : null);
-			}
-			SessionContextSupport.putLogParameter(EVENT_NAME, "create-user");
-			SessionContextSupport.putLogParameter(ORGANIZATION_ID, user.getOrganization().getPartyUid());
-			SessionContextSupport.putLogParameter(CREATED_DATE, user.getCreatedOn());
-			SessionContextSupport.putLogParameter(GOORU_UID, user.getPartyUid());
-
+       		response.setStatus(HttpServletResponse.SC_CREATED);
 			indexProcessor.index(user.getPartyUid(), IndexProcessor.INDEX, USER);
 		}
 
@@ -148,10 +129,10 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 		JSONObject json = requestData(data);
 		Boolean emailConfirmStatus = false;
 
-		if (getValue(EMAIL_CONFIRM_STATUS, json) != null && getValue(EMAIL_CONFIRM_STATUS, json).equalsIgnoreCase("true")) {
+		if (getValue(EMAIL_CONFIRM_STATUS, json) != null && getValue(EMAIL_CONFIRM_STATUS, json).equalsIgnoreCase(TRUE)) {
 			emailConfirmStatus = true;
 		}
-		Profile profile = this.getUserManagementService().updateProfileInfo(getValue(PROFILE, json) != null ? this.buildProfileFromInputParameters(getValue(PROFILE, json)) : null, gooruUid, apicaller, getValue(USER_META_ACTIVE_FLAG, json), emailConfirmStatus, getValue("showProfilePage", json),getValue("accountType", json),getValue("password", json));
+		Profile profile = this.getUserManagementService().updateProfileInfo(getValue(PROFILE, json) != null ? this.buildProfileFromInputParameters(getValue(PROFILE, json)) : null, gooruUid, apicaller, getValue(USER_META_ACTIVE_FLAG, json), emailConfirmStatus, getValue(_SHOW_PROFILE_PAGE, json),getValue(ACCOUNTTYPE, json),getValue(PASSWORD, json));
 
 		if (profile != null) {
 			indexProcessor.index(profile.getUser().getPartyUid(), IndexProcessor.INDEX, USER);
@@ -161,6 +142,7 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_READ })
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/{id}")
 	public ModelAndView getUser(@PathVariable(value = ID) String userId, @RequestParam(value = USER_META_ACTIVE_FLAG, required = false) Integer activeFlag, HttpServletRequest request, HttpServletResponse response) throws Exception {
 
@@ -168,19 +150,20 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 	}
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_CONFIRM_MAIL })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.POST, value = "/sendmail/{id}")
 	public ModelAndView resendConfirmationMail(@PathVariable(value = ID) String gooruUid, @RequestBody String data , HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User apicaller = (User) request.getAttribute(Constants.USER);
 		String sessionId = request.getSession().getId();
 		JSONObject json = requestData(data);
-		return toModelAndViewWithIoFilter(getUserManagementService().resendConfirmationMail(gooruUid,apicaller,sessionId,getValue(GOORU_BASE_URL, json),getValue(TYPE, json) != null ? getValue(TYPE, json) : "confirmation"), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, USER_INCLUDES);
+		return toModelAndViewWithIoFilter(getUserManagementService().resendConfirmationMail(gooruUid,apicaller,sessionId,getValue(GOORU_BASE_URL, json),getValue(TYPE, json) != null ? getValue(TYPE, json) : CONFIRMATION), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, USER_INCLUDES);
 	}
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CHECK_IF_USER_EXISTS })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.GET }, value = "/{type}/availability")
 	public ModelAndView getUserAvailability(HttpServletRequest request, @RequestParam(value = KEYWORD) String keyword, @RequestParam(value = COLLECTION_ID, required = false) String collectionId,@RequestParam(value = IS_COLLABORATOR_CHK, defaultValue = FALSE, required = false) boolean isCollaboratorCheck ,@PathVariable(TYPE) String type, HttpServletResponse response) throws Exception {
-		request.setAttribute(Constants.EVENT_PREDICATE, "user.check.usernameOremailid.availability");
+		request.setAttribute(Constants.EVENT_PREDICATE, USER_CHECK_USERNAMEOREMAILID_AVAILABILITY);
 		User user = (User) request.getAttribute(Constants.USER);
 
 		return toModelAndViewWithIoFilter(this.getUserService().getUserAvailability(keyword, type.equals(USER_NAME) ? CheckUser.BYUSERNAME.getCheckUser() : type.equals(EMAIL_ID) ? CheckUser.BYEMAILID.getCheckUser() : null, isCollaboratorCheck, collectionId, user),RESPONSE_FORMAT_JSON,EXCLUDE_ALL,true,AVAILABILITY_INCLUDES);
@@ -190,7 +173,7 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.POST, value = "/reset-password/request")
 	public ModelAndView forgotPassword(@RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		request.setAttribute(Constants.EVENT_PREDICATE, "user.forgot_password");
+		request.setAttribute(Constants.EVENT_PREDICATE, USER_FORGET_PASSWORD);
 		User apicaller = (User) request.getAttribute(Constants.USER);
 		JSONObject json = requestData(data);
 		User user = this.getUserManagementService().resetPasswordRequest(getValue(EMAIL_ID, json), getValue(GOORU_BASE_URL, json), apicaller,getValue(MAIL_CONFIRMATION_URL, json) != null ? getValue(MAIL_CONFIRMATION_URL, json) : null);
@@ -202,7 +185,7 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.POST, value = "/reset-password")
 	public ModelAndView resetCredential(HttpServletRequest request, @RequestBody String data, HttpServletResponse response) throws Exception {
-		request.setAttribute(Constants.EVENT_PREDICATE, "reset.credential");
+		request.setAttribute(Constants.EVENT_PREDICATE,RESET_CREDENTIAL);
 		User apicaller = (User) request.getAttribute(Constants.USER);
 		JSONObject json = requestData(data);
 		Identity identity = this.getUserManagementService().resetCredential(getValue(TOKEN, json), getValue(GOORU_UID, json), getValue(PASSWORD, json), apicaller, getValue(MAIL_CONFIRMATION_URL, json) != null ? getValue(MAIL_CONFIRMATION_URL, json) : null,  getValue(IS_PARTNER_PORTAL, json) != null ? Boolean.parseBoolean(getValue(IS_PARTNER_PORTAL, json)) : false);
@@ -212,6 +195,25 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 		}
 		return toModelAndViewWithIoFilter(identity, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SESSION_CHECK })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(method = RequestMethod.GET, value = "/check-reset-token")
+	public ModelAndView checkResetToken(HttpServletRequest request, @RequestParam String resetToken, HttpServletResponse response) throws Exception {
+		ModelAndView jsonmodel = new ModelAndView(REST_MODEL);
+		JSONObject jsonObj = new JSONObject();
+		if(resetToken != null){
+			if (this.getUserService().hasResetTokenValid(resetToken)) {
+				jsonmodel.addObject(MODEL, jsonObj.put(IS_VALID_TOKEN, FALSE));
+			} else {
+				jsonmodel.addObject(MODEL, jsonObj.put(IS_VALID_TOKEN, TRUE));
+			}
+		} else {
+			throw new FileNotFoundException("token not found!!!");
+		}
+		return jsonmodel;
+	}
+	
+	
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -278,10 +280,11 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAG_READ })
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.GET }, value = "/{id}/tag")
 	public ModelAndView getContentTagAssoc(@PathVariable(value = ID) String gooruUid, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, HttpServletRequest request,
-			HttpServletResponse response) {
-		List<UserTagAssoc> userTagAssoc = this.getTagService().getUserTagAssoc(gooruUid, limit, offset);
+			 HttpServletResponse response) {
+		List<UserTagAssoc> userTagAssoc = this.getTagService().getUserTagAssoc( gooruUid, limit, offset);
 		String[] includes = (String[]) ArrayUtils.addAll(USER_INCLUDES, USER_ASSOC_INCLUDES);
 		return toModelAndViewWithIoFilter(userTagAssoc, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, includes);
 	}
@@ -289,7 +292,7 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_UPDATE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.PUT }, value = "/{id}/meta")
-	public void deleteUserMeta(@PathVariable(value = ID) String gooruUid, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) {
+	public void updateUserMeta(@PathVariable(value = ID) String gooruUid, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) {
 		User apicaller = (User) request.getAttribute(Constants.USER);
 		this.getUserManagementService().deleteUserMeta(gooruUid, this.buildProfileFromInputParameters(data), apicaller);
 	}
@@ -298,17 +301,17 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.DELETE }, value = "/{id}")
 	public void deleteSoftUser(@PathVariable(value = ID) String gooruUid, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		request.setAttribute(Constants.EVENT_PREDICATE, "user.delete_user");
+		request.setAttribute(Constants.EVENT_PREDICATE, USER_DELETE_USER);
 		User apiCaller = (User) request.getAttribute(Constants.USER);
 		JSONObject json = requestData(data);
-		this.getUserManagementService().deleteUserContent(gooruUid, (getValue(IS_DELETED, json)), apiCaller);
+		this.getUserManagementService().deleteUserContent(gooruUid, getValue(IS_DELETED, json), apiCaller);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_UPDATE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.PUT, value = "/{id}/profile/picture")
-	public void deleteProfilePicture(@PathVariable(value = ID) String userId, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		request.setAttribute(Constants.EVENT_PREDICATE, "user.delete_profile_picture");
+	public void updateProfilePicture(@PathVariable(value = ID) String userId, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		request.setAttribute(Constants.EVENT_PREDICATE, USER_DELETE_PROFILE_PICTURE);
 		this.getUserManagementService().deleteUserImageProfile(userId);
 	}
 
@@ -316,7 +319,7 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.GET }, value = "/token/{userToken}")
 	public ModelAndView getUserByToken(@PathVariable(value = USER_TOKEN) String userToken, HttpServletRequest request, HttpServletResponse response) {
-		return toModelAndView(serialize(getUserManagementService().getUserByToken(userToken), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, USER_PROFILE_INCUDES));
+		return toModelAndView(serialize(this.getUserManagementService().getUserByToken(userToken), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, USER_PROFILE_INCUDES));
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_READ })
@@ -325,12 +328,62 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 	public ModelAndView checkContentAccess(HttpServletRequest request, @PathVariable(value = ID) String gooruContentId, HttpServletResponse response) throws Exception {
 
 		User authenticatedUser = (User) request.getAttribute(Constants.USER);
-		SessionContextSupport.putLogParameter(EVENT_NAME, "check-content-permission");
+		SessionContextSupport.putLogParameter(EVENT_NAME, CHECK_CONTENT_PERMISSION);
 		SessionContextSupport.putLogParameter(GOORU_CONTENT_ID, gooruContentId);
 		SessionContextSupport.putLogParameter(USER_ID, authenticatedUser.getUserId());
 		SessionContextSupport.putLogParameter(GOORU_UID, authenticatedUser.getPartyUid());
 		return toJsonModelAndView(this.getUserManagementService().checkContentAccess(authenticatedUser, gooruContentId), true);
 	}
+	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_UPDATE })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(method = RequestMethod.POST, value = "/follow/{id}")
+	public ModelAndView followUser(@PathVariable(value = ID) String followOnUserId, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		request.setAttribute(Constants.EVENT_PREDICATE, USER_FOLLOW);
+		User user = (User) request.getAttribute(Constants.USER);
+		String[] includes = (String[]) ArrayUtils.addAll(FOLLOW_USER_INCLUDES, ERROR_INCLUDE);
+		return toModelAndViewWithIoFilter(this.getUserManagementService().followUser(user, followOnUserId), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
+	}
+	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_DELETE })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(method = { RequestMethod.DELETE }, value = "/unfollow/{id}")
+	public void unFollowUser(@PathVariable(value = ID) String unFollowUserId, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		User apiCaller = (User) request.getAttribute(Constants.USER);
+		this.getUserManagementService().unFollowUser(apiCaller, unFollowUserId);
+	}
+	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_READ })
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(method = RequestMethod.GET, value = "/{id}/followers")
+	public ModelAndView getFollowedByUsers(@PathVariable(value = ID) String gooruUserId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,
+		  HttpServletRequest request, HttpServletResponse response) throws Exception {
+		request.setAttribute(Constants.EVENT_PREDICATE, USER_FOLLOWERS_LIST);
+		String[] includes = (String[]) ArrayUtils.addAll(FOLLOWED_BY_USERS_INCLUDES, ERROR_INCLUDE);
+		return toModelAndViewWithIoFilter(this.getUserManagementService().getFollowedByUsers(gooruUserId,offset,limit), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
+
+	}
+
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_READ })
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(method = RequestMethod.GET, value = "/{id}/following")
+	public ModelAndView getFollowedOnUsers(@PathVariable(value = ID) String gooruUserId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,
+	    HttpServletRequest request, HttpServletResponse response) throws Exception {
+		request.setAttribute(Constants.EVENT_PREDICATE, USER_FOLLOWING_LIST);
+		String[] includes = (String[]) ArrayUtils.addAll(FOLLOWED_BY_USERS_INCLUDES, ERROR_INCLUDE);
+		return toModelAndViewWithIoFilter(this.getUserManagementService().getFollowedOnUsers(gooruUserId,offset,limit), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
+	}
+	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_READ })
+	@RequestMapping(method = RequestMethod.GET, value = "/{id}/isfollow")
+	public ModelAndView isAlredayFollowed(@PathVariable(value = ID) String gooruUserId, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		
+		User apiCaller = (User) request.getAttribute(Constants.USER);
+		ModelAndView jsonmodel = new ModelAndView(REST_MODEL);
+		return jsonmodel.addObject(MODEL, this.getUserManagementService().isFollowedUser(gooruUserId, apiCaller));
+	}
+	
+	
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_UPDATE }, partyOperations = { GooruOperationConstants.ORG_ADMIN, GooruOperationConstants.GROUP_ADMIN }, partyUId = GOORU_UID)
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -339,6 +392,7 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 		JSONObject json = requestData(data);
 		return toModelAndView(serializeToJsonWithExcludes(this.getUserManagementService().updateUserViewFlagStatus(gooruUId,Integer.parseInt(getValue(VIEW_FLAG,json))), USER_FLAG_EXCLUDE_FIELDS));
 	}
+	
 
 	private String getFeedbackCategory(HttpServletRequest request) {
 		String category = null;
@@ -353,7 +407,7 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 				category = CustomProperties.FeedbackCategory.REACTION.getFeedbackCategory();
 			}
 		}
-		ServerValidationUtils.rejectIfNull(category, GL0007, " request path ");
+		ServerValidationUtils.rejectIfNull(category, GL0007, REQUEST_PATH);
 		return category;
 	}
 
@@ -365,20 +419,12 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 		return null;
 	}
 
-	public LearnguideService getLearnguideService() {
-		return learnguideService;
-	}
-
 	public UserManagementService getUserManagementService() {
 		return userManagementService;
 	}
 
 	public FeedbackService getFeedbackService() {
 		return feedbackService;
-	}
-
-	public CustomTableRepository getCustomTableRepository() {
-		return customTableRepository;
 	}
 
 	public PostService getPostService() {

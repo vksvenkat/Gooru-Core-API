@@ -40,4 +40,10 @@ public interface EntityCassandraService<K, M extends Serializable> {
 
 	ColumnList<String> getColumns(String rowKey, Collection<String> fields);
 
+	void updateViewsCount(Map<String, String> viewsData);
+
+	Map<String, String> readViewsCount(String rowKeys);
+	
+	public Integer getInt(String key, String column);
+
 }

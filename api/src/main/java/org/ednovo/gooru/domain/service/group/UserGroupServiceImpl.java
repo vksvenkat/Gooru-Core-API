@@ -40,11 +40,11 @@ import org.ednovo.gooru.core.api.model.UserGroup;
 import org.ednovo.gooru.core.api.model.UserGroupAssociation;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
-import org.ednovo.gooru.domain.service.shelf.ShelfService;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentRepository;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -57,8 +57,6 @@ public class UserGroupServiceImpl implements UserGroupService,ParameterPropertie
 	@Autowired
 	private ContentRepository contentRepository ;
 	
-	@Autowired
-	private ShelfService shelfService;
 	
 	@Override
 	public UserGroup createGroup(String name, String groupCode, String userGroupType, User apiCaller, String userMailIds) throws Exception {
@@ -112,7 +110,7 @@ public class UserGroupServiceImpl implements UserGroupService,ParameterPropertie
 		if (this.getUserRepository().getUserGroupOwnerByGooruUid(apiCaller.getGooruUId(), groupUid)) {
 			this.getUserRepository().removeUserGroupByGroupUid(groupUid);
 		} else {
-			throw new Exception("You don't have permission to do this action");
+			throw new AccessDeniedException("You don't have permission to do this action");
 		}
 		return "Deleted Successfully";
 	}
@@ -253,16 +251,12 @@ public class UserGroupServiceImpl implements UserGroupService,ParameterPropertie
 	}
 
 	@Override
-	public List<ContentPermission> contentShare(String contentId, User user, String partyUids, Boolean shareOtherOrganization, String OrganizationId) throws Exception {
-				
+	public List<ContentPermission> contentShare(String contentId, User user, String partyUids, Boolean shareOtherOrganization, String organizationId) throws Exception {
 		List<ContentPermission> contentPermissionList = new ArrayList<ContentPermission> ();
 		Content content = this.getContentRepository().findByContentGooruId(contentId);
 		Date date = new Date();
-		List<String> partyUidList = Arrays.asList(partyUids.split(","));
-		String addType = ADDED;
-		
+		List<String> partyUidList = Arrays.asList(partyUids.split(","));		
 		for (String partyUid : partyUidList) {
-			
 			Party  party = this.getUserRepository().findPartyById(partyUid);
 			
 			if (content.getUser() != null && content.getUser().getGooruUId().equalsIgnoreCase(user.getGooruUId())) {
@@ -275,13 +269,8 @@ public class UserGroupServiceImpl implements UserGroupService,ParameterPropertie
 					contentPermission.setValidFrom(date);
 					contentPermissionList.add(contentPermission);
 				}
-				
-				if(party.getPartyType().equals(USER) && !party.getPartyUid().equalsIgnoreCase(user.getGooruUId())){
-					shelfService.addResourceToSelf(null, content.getGooruOid(), addType, null, this.getUserRepository().findUserByPartyUid(party.getPartyUid()));
-				}	
 			}
-			
-		this.getUserRepository().saveAll(contentPermissionList);
+			this.getUserRepository().saveAll(contentPermissionList);
 		
 		}
 		return contentPermissionList;

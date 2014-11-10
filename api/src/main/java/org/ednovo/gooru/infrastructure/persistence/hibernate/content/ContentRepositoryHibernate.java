@@ -23,6 +23,7 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.infrastructure.persistence.hibernate.content;
 
+import java.math.BigInteger;
 import java.util.Iterator;
 import java.util.List;
 
@@ -30,6 +31,8 @@ import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.ContentAssociation;
 import org.ednovo.gooru.core.api.model.ContentPermission;
+import org.ednovo.gooru.core.api.model.ContentProvider;
+import org.ednovo.gooru.core.api.model.ContentProviderAssociation;
 import org.ednovo.gooru.core.api.model.ContentTagAssoc;
 import org.ednovo.gooru.core.api.model.License;
 import org.ednovo.gooru.core.api.model.Resource;
@@ -37,6 +40,8 @@ import org.ednovo.gooru.core.api.model.ResourceType;
 import org.ednovo.gooru.core.api.model.StatusType;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.Versionable;
+import org.ednovo.gooru.core.constant.ConstantProperties;
+import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate;
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
@@ -46,22 +51,25 @@ import org.hibernate.Session;
 import org.hibernate.criterion.ProjectionList;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.type.StandardBasicTypes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class ContentRepositoryHibernate extends BaseRepositoryHibernate implements ContentRepository {
+public class ContentRepositoryHibernate extends BaseRepositoryHibernate implements ContentRepository,ConstantProperties,ParameterProperties {
 
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Content findByContent(Long contentId) {
 		List<Content> cc = getSession().createQuery("SELECT  c FROM Content c  WHERE c.contentId = ? AND  " + generateAuthQueryWithDataNew("c.")).setLong(0, contentId).list();
 		return cc.size() == 0 ? null : cc.get(0);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Content findByContentGooruId(String gooruContentId) {
 		List<Content> cc = getSession().createQuery("SELECT c FROM Learnguide c   WHERE c.gooruOid = ? AND  " + generateAuthQueryWithDataNew("c.")).setString(0, gooruContentId).list();
@@ -73,6 +81,7 @@ public class ContentRepositoryHibernate extends BaseRepositoryHibernate implemen
 		return findContentByGooruId(gooruContentId, false);
 	}
 
+	@SuppressWarnings({ "unchecked", "deprecation" })
 	@Override
 	public Content findContentByGooruId(String gooruContentId, boolean fetchUser) {
 		if (!fetchUser) {
@@ -87,6 +96,7 @@ public class ContentRepositoryHibernate extends BaseRepositoryHibernate implemen
 		}
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Override
 	public Resource findByResourceType(String typename, String url) {
 
@@ -113,6 +123,7 @@ public class ContentRepositoryHibernate extends BaseRepositoryHibernate implemen
 		return resource;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public User findContentOwner(String gooruContentId) {
 
@@ -137,6 +148,7 @@ public class ContentRepositoryHibernate extends BaseRepositoryHibernate implemen
 		getSession().delete(content);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public ContentAssociation getCollectionAssocContent(String contentGooruOid) {
 		String hql = "SELECT contentAssociation FROM ContentAssociation contentAssociation JOIN Content content  LEFT JOIN content.contentPermissions cps WHERE content.gooruOid = '" + contentGooruOid + "' AND  " + generateAuthQueryWithDataNew("content.");
@@ -144,6 +156,7 @@ public class ContentRepositoryHibernate extends BaseRepositoryHibernate implemen
 		return (result.size() > 0) ? null : result.get(0);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public StatusType getStatusType(String name) {
 		String hql = "FROM StatusType statusType  WHERE statusType.name = '" + name + "'";
@@ -159,12 +172,14 @@ public class ContentRepositoryHibernate extends BaseRepositoryHibernate implemen
 		this.jdbcTemplate = jdbcTemplate;
 	}
 
+	@SuppressWarnings("unchecked")
 	public Code getCodeByName(String name) {
 
 		List<Code> cc = getSession().createQuery("SELECT c FROM Code c   WHERE c.label = ?  AND  " + generateAuthQueryWithDataNew("c.taxonomySet.")).setString(0, name).list();
 		return cc.size() == 0 ? null : cc.get(0);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Boolean checkContentPermission(Long contentId, String partyUid) {
 		String hql = "FROM ContentPermission cp where cp.content.contentId=:contentId and cp.party.partyUid=:partyUid";
@@ -176,6 +191,7 @@ public class ContentRepositoryHibernate extends BaseRepositoryHibernate implemen
 		return (permissions.size() > 0) ? true : false;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<Content> getContentByUserUId(String userUId) {
 		Session session = getSession();
@@ -196,12 +212,16 @@ public class ContentRepositoryHibernate extends BaseRepositoryHibernate implemen
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public ContentTagAssoc getContentTagById(String gooruOid, String tagGooruOid) {
+	public ContentTagAssoc getContentTagById(String gooruOid, String tagGooruOid, String gooruUid) {
 		Session session = getSession();
 		String hql = "select contentTagAssoc From ContentTagAssoc contentTagAssoc where contentTagAssoc.contentGooruOid='" + gooruOid + "'";
 		if (tagGooruOid != null) {
-			hql += "and contentTagAssoc.tagGooruOid='" + tagGooruOid + "'";
+			hql += " and contentTagAssoc.tagGooruOid='" + tagGooruOid + "'";
+		}
+		if (gooruUid != null) {
+			hql += " and contentTagAssoc.associatedUid='" + gooruUid + "'";
 		}
 		Query query = session.createQuery(hql);
 		List<ContentTagAssoc> contentTagAssocs = query.list();
@@ -209,16 +229,18 @@ public class ContentRepositoryHibernate extends BaseRepositoryHibernate implemen
 
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public List<ContentTagAssoc> getContentTagByContent(String gooruOid, Integer limit, Integer offset) {
-		Session session = getSession();
+	public List<ContentTagAssoc> getContentTagByContent(String gooruOid, String gooruUid) {
 		String hql = "select contentTagAssoc From ContentTagAssoc contentTagAssoc where contentTagAssoc.contentGooruOid='" + gooruOid + "'";
-		Query query = session.createQuery(hql);
-		query.setFirstResult(offset);
-		query.setMaxResults(limit);
+		if (gooruUid != null) {
+			hql += " and contentTagAssoc.associatedUid='" + gooruUid + "'";
+		}
+		Query query = getSession().createQuery(hql);
 		return query.list();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<ContentPermission> getContentPermission(Long contentId, String partyUid) {
 		String hql = "FROM ContentPermission cp where cp.content.contentId=:contentId and cp.party.partyUid=:partyUid";
@@ -229,11 +251,12 @@ public class ContentRepositoryHibernate extends BaseRepositoryHibernate implemen
 		return query.list();
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Override
 	public List getIdsByUserUId(String userUId, String typeName,
 			Integer pageNo, Integer pageSize) {
 		Session session = getSession();
-		String sql = "SELECT c.content_id,c.gooru_oid, r.type_name FROM content c INNER JOIN resource r ON (r.content_id=c.content_id) WHERE c.user_uid = '"+ userUId +"'";
+		String sql = "SELECT c.content_id,c.gooru_oid, r.type_name FROM content c INNER JOIN resource r ON (r.content_id=c.content_id) WHERE c.user_uid = '"+ userUId +"' OR c.creator_uid = '"+ userUId +"'";
 		if(typeName != null){
 			sql += " and r.type_name in ('"+ typeName + "')";
 		}
@@ -244,4 +267,72 @@ public class ContentRepositoryHibernate extends BaseRepositoryHibernate implemen
 		return query.list();
 	}
 
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<ContentProvider> getContentProvider(Integer offset, Integer limit) {
+		Session session = getSession();
+		String hql = " FROM ContentProvider contentProvider WHERE "  + generateOrgAuthQueryWithData("contentProvider.") + " and " + "contentProvider.activeFlag = 1";
+		Query query = session.createQuery(hql);
+		query.setFirstResult(offset);
+		query.setMaxResults(limit);
+		return query.list();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<ContentProviderAssociation> getContentProviderByGooruOid(String gooruOid, String name, String providerType ) {
+		String hql = " FROM ContentProviderAssociation cpa WHERE " + generateOrgAuthQueryWithData("cpa.contentProvider.") + " and " + "cpa.gooruOid=:gooruOid" + " and " + "cpa.contentProvider.activeFlag = 1";
+		
+		if(name != null) {
+			hql += " and cpa.contentProvider.name ='"+ name +"'";
+		}
+		if (providerType != null) {
+			hql += " and cpa.contentProvider.type.value =:providerType";
+		}
+		Query query = getSession().createQuery(hql);
+		query.setParameter("gooruOid", gooruOid);
+		if (providerType != null) {
+			query.setParameter("providerType", providerType);
+		}
+		return query.list();
+	}
+	
+	@Override
+	public ContentProvider getContentProviderByName(String name, String keyValue) {
+		String hql = " FROM ContentProvider cp WHERE " + generateOrgAuthQueryWithData("cp.") + " and cp.activeFlag = 1 and cp.name =:name";
+		if (keyValue != null) {
+			hql += " and cp.type.keyValue =:keyValue";
+		}
+		Query query = getSession().createQuery(hql);
+
+		query.setParameter(NAME, name);
+		if (keyValue != null) {
+			query.setParameter(KEY_VALUE, keyValue);
+		}
+		return query.list().size() > 0 ? (ContentProvider) query.list().get(0) : null;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Object[]> getUserContentTagList(String gooruUid, Integer limit, Integer offset) {
+		String sql = "select  count(1) as count, t.label as label , ct.tag_gooru_oid as tagGooruOid from tags t inner join content c on  (t.content_id = c.content_id) inner join content_tag_assoc ct on (c.gooru_oid= ct.tag_gooru_oid) where associated_uid  =  '" + gooruUid
+				+ "' group by ct.tag_gooru_oid";
+		Query query = getSession().createSQLQuery(sql).addScalar("count", StandardBasicTypes.INTEGER).addScalar("label", StandardBasicTypes.STRING).addScalar("tagGooruOid", StandardBasicTypes.STRING);
+		query.setFirstResult(offset);
+		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
+		return query.list();
+	}
+
+	@Override
+	public Long getUserContentTagCount(String gooruUid) {
+		String  sql = "select count(*) as count from  (select  count(1) as count, t.label as label  from tags t inner join content c on  (t.content_id = c.content_id) inner join content_tag_assoc ct on (c.gooru_oid= ct.tag_gooru_oid) where associated_uid  =  '"+gooruUid +"' group by ct.tag_gooru_oid) sq";
+		Query query = getSession().createSQLQuery(sql);
+		return ((BigInteger)query.list().get(0)).longValue();
+	}
+	@Override
+	public void deleteContentProvider(String gooruOid, String providerType, String name){
+		String sql = "delete cpa from content_provider_assoc cpa inner join content_provider cp on cpa.content_provider_uid = cp.content_provider_uid inner join custom_table_value ctv on cp.content_provider_type = ctv.custom_table_value_id where cpa.gooru_oid = '"+gooruOid+"' and ctv.value = '"+providerType+"' and cp.name = '"+name+"'";
+		Query query = getSession().createSQLQuery(sql);
+		query.executeUpdate(); 
+	}
 }

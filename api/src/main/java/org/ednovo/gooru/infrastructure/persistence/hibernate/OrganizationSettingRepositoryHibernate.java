@@ -30,16 +30,31 @@ import java.util.Map;
 import org.ednovo.gooru.core.api.model.OrganizationSetting;
 import org.hibernate.Query;
 import org.hibernate.type.StandardBasicTypes;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public class OrganizationSettingRepositoryHibernate extends BaseRepositoryHibernate implements OrganizationSettingRepository {
 
 	@Override
+	@Cacheable("persistent")
 	public Map<String, String> getOrganizationSettings(String organizationUid) {
 		Map<String, String> settings = new HashMap<String, String>();
-		Query query = getSession().createSQLQuery(GET_ORGAIZATION_SETTINGS).addScalar(NAME, StandardBasicTypes.STRING).addScalar(VALUE, StandardBasicTypes.STRING);
+		Query query = getSessionReadOnly().createSQLQuery(GET_ORGAIZATION_SETTINGS).addScalar(NAME, StandardBasicTypes.STRING).addScalar(VALUE, StandardBasicTypes.STRING);
 		query.setParameter(ORG_UID_PARAM, organizationUid);
+		List<Object[]> results = query.list();
+		for (Object[] object : results) {
+			settings.put((String) object[0], (String) object[1]);
+		}
+		return settings;
+	}
+	
+	@Override
+	@Cacheable("persistent")
+	public Map<String, String> getOrganizationExpireTime(String name) {
+		Map<String, String> settings = new HashMap<String, String>();
+		Query query = getSessionReadOnly().createSQLQuery(GET_ORGANIZATION_EXPIRE_TIME).addScalar("organization_uid", StandardBasicTypes.STRING).addScalar(VALUE, StandardBasicTypes.STRING);
+		query.setParameter(NAME, name);
 		List<Object[]> results = query.list();
 		for (Object[] object : results) {
 			settings.put((String) object[0], (String) object[1]);
@@ -48,8 +63,9 @@ public class OrganizationSettingRepositoryHibernate extends BaseRepositoryHibern
 	}
 
 	@Override
+	@Cacheable("persistent")
 	public String getOrganizationSetting(String key, String organizationUid) {
-		Query query = getSession().createSQLQuery(GET_ORGANIZATION_SETTING).addScalar(VALUE, StandardBasicTypes.STRING);
+		Query query = getSessionReadOnly().createSQLQuery(GET_ORGANIZATION_SETTING).addScalar(VALUE, StandardBasicTypes.STRING);
 		query.setParameter(ORG_UID_PARAM, organizationUid);
 		query.setParameter(NAME, key);
 		List<String> results = query.list();
@@ -60,9 +76,10 @@ public class OrganizationSettingRepositoryHibernate extends BaseRepositoryHibern
 	}
 
 	@Override
+	@Cacheable("persistent")
 	public OrganizationSetting getOrganizationSettings(String organizationUid, String configKey) throws Exception {
 		String hql = "FROM OrganizationSetting orgSetting where orgSetting.organization.partyUid = :organizationUid and orgSetting.key=:name";
-		Query query = getSession().createQuery(hql);
+		Query query = getSessionReadOnly().createQuery(hql);
 		query.setParameter(ORG_UID_PARAM, organizationUid);
 		query.setParameter(NAME, configKey);
 		if(query.list() != null && query.list().size() > 0){
@@ -72,12 +89,13 @@ public class OrganizationSettingRepositoryHibernate extends BaseRepositoryHibern
 	}
 
 	@Override
+	@Cacheable("persistent")
 	public OrganizationSetting listOrgSetting(String organizationUid, String configKey) throws Exception {
 		String hql = "FROM OrganizationSetting orgSetting where orgSetting.key=:name";
 		if(organizationUid != null){
 			hql += " and orgSetting.organization.partyUid = :organizationUid " ;
 		}
-		Query query = getSession().createQuery(hql);
+		Query query = getSessionReadOnly().createQuery(hql);
 		
 		if(organizationUid != null){
 			query.setParameter(ORG_UID_PARAM, organizationUid);
@@ -88,4 +106,5 @@ public class OrganizationSettingRepositoryHibernate extends BaseRepositoryHibern
 		}
 		return null;
 	}
+	
 }

@@ -28,7 +28,6 @@ import java.util.List;
 import org.ednovo.gooru.core.api.model.CustomTableValue;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate;
 import org.hibernate.Query;
-import org.hibernate.Session;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
 
@@ -37,36 +36,54 @@ public class CustomTableRepositopryHibernate extends BaseRepositoryHibernate imp
 	
 	private final String RETIREVE_BY_NAME_VALUE = "From CustomTableValue ctv  where  ctv.value=:value  and  ctv.customTable.name=:name  and "+generateOrgAuthQuery("ctv.customTable.");
 	private final String RETIREVE_BY_NAME = "From CustomTableValue ctv  where ctv.customTable.name=:name  and "+generateOrgAuthQuery("ctv.customTable.");
+	private final String GET_FILTER_VALUE_FROM_CUSTOMTABLE = "From CustomTableValue ctv  where ctv.customTable.name=:name";
+	private final String GET_VALUE_BY_DISPLAY_NAME = "From CustomTableValue ctv  where ctv.displayName =:displayName and ctv.customTable.name=:name";
+	private final String GET_CUSTOM_TABLE_VALUES = "FROM  CustomTableValue ct where ct.customTable.name=:type";
 
+	@SuppressWarnings("unchecked")
 	@Override
-	@Cacheable("gooruCache")
+	@Cacheable("persistent")
 	public CustomTableValue getCustomTableValue(String name, String value) {
-		Session session = getSession();
-		Query query = session.createQuery(RETIREVE_BY_NAME_VALUE);
+		Query query = getSessionReadOnly().createQuery(RETIREVE_BY_NAME_VALUE);
 		query.setParameter("name", name);
 		query.setParameter("value", value);
 		addOrgAuthParameters(query);
 		List<CustomTableValue> customValues = query.list();
 		return (customValues.size() > 0) ? customValues.get(0) : null;
 	}
+	@SuppressWarnings("unchecked")
 	@Override
+	@Cacheable("persistent")
 	public List<CustomTableValue> getCustomTableValues(String name) {
-		Session session = getSession();
-		Query query = session.createQuery(RETIREVE_BY_NAME);
+		Query query = getSessionReadOnly().createQuery(RETIREVE_BY_NAME);
 		query.setParameter("name", name);
 		addOrgAuthParameters(query);
-		List<CustomTableValue> customValues = query.list();
 		return    query.list(); 
 
 	}
+	@SuppressWarnings("unchecked")
 	@Override
+	@Cacheable("persistent")
 	public List<CustomTableValue> getFilterValueFromCustomTable(String name) {
-		Session session = getSession();
-		Query query = session.createQuery("From CustomTableValue ctv  where ctv.customTable.name=:name");
+		Query query = getSessionReadOnly().createQuery(GET_FILTER_VALUE_FROM_CUSTOMTABLE);
 		query.setParameter("name", name);
-		List<CustomTableValue> customValues = query.list();
 		return    query.list(); 
 	}
 	
+	@Override
+	@Cacheable("persistent")
+	public CustomTableValue getValueByDisplayName(String displayName, String name) {
+		Query query = getSessionReadOnly().createQuery(GET_VALUE_BY_DISPLAY_NAME);
+		query.setParameter("name", name);
+		query.setParameter("displayName", displayName);
+		return   (CustomTableValue) (query.list().size() > 0 ? query.list().get(0) : null); 
+	}
 
+	@Override
+	@Cacheable("persistent")
+	public List<CustomTableValue> getCustomValues(String type) {
+		Query query = getSessionReadOnly().createQuery(GET_CUSTOM_TABLE_VALUES);
+		query.setParameter("type", type);
+		return query.list();
+	}
 }

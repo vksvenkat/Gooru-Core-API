@@ -2,11 +2,6 @@ package org.ednovo.gooru.core.api.model;
 
 import java.util.Iterator;
 
-import org.ednovo.gooru.core.api.model.Identity;
-import org.ednovo.gooru.core.api.model.Organization;
-import org.ednovo.gooru.core.api.model.User;
-import org.ednovo.gooru.core.api.model.UserGroupSupport;
-import org.ednovo.gooru.core.api.model.UserTransModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,9 +15,9 @@ public class UserTransformer extends ObjectTransformer {
 	private boolean deepSerialize;
 	private static XStream xStream = new XStream(new DomDriver());
 	
-	private  String DEFAULT_ORGANIZATION_NAME = "gooru"; 
+	private  String defaultOrganizatiomName = "gooru"; 
 	
-	private static String RUSD_ORGANIZATION_NAME = "rusd";
+	private final static String RUSD_ORGANIZATION_NAME = "rusd";
 	
 	private static String GOORU_ORG_UID = "4261739e-ccae-11e1-adfb-5404a609bd14";
 
@@ -40,7 +35,7 @@ public class UserTransformer extends ObjectTransformer {
 		String organizationUid = null;
 		if(organization != null){
 			organizationUid = user.getOrganization().getPartyUid();
-			DEFAULT_ORGANIZATION_NAME = user.getOrganization().getPartyName();
+			defaultOrganizatiomName = user.getOrganization().getPartyName();
 		} else {
 			organizationUid = user.getOrganizationUid();
 		}
@@ -95,12 +90,15 @@ public class UserTransformer extends ObjectTransformer {
 			userModel.setIsDeleted(user.getIsDeleted());
 			userModel.setCustomFields(user.getCustomFields());
 			userModel.setMeta(user.getMeta());
+			userModel.setToken(user.getToken());
+			
 			userModel.setProfileImageUrl(UserGroupSupport.getProfileAssetURI() + user.getPartyUid() + ".png");
 			if(user.getIdentities() != null){
 				Iterator<Identity> iter = user.getIdentities().iterator();
 				if (iter != null && iter.hasNext()) {
 					Identity identity = iter.next();
 					userModel.setLoginType(identity != null ? identity.getLoginType() : null);
+					userModel.setActive(identity.getActive());
 					userModel.setAccountCreatedType(identity != null ? identity.getAccountCreatedType() : null);
 					if (identity != null && identity.getExternalId() != null) { 
 						String email =  identity.getExternalId().contains("@") ?  identity.getExternalId().split("@")[1] : null;
@@ -111,7 +109,7 @@ public class UserTransformer extends ObjectTransformer {
 				}
 			}  
 			if (userModel.getOrganizationName() == null) {
-			  userModel.setOrganizationName(DEFAULT_ORGANIZATION_NAME);
+			  userModel.setOrganizationName(defaultOrganizatiomName);
 			}
 			
 			if (deepSerialize) {

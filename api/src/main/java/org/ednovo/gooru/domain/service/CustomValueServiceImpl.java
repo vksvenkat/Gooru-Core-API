@@ -51,17 +51,18 @@ public class CustomValueServiceImpl extends BaseServiceImpl implements CustomVal
 	@Autowired
 	private SearchSettingCassandraService searchSettingCassandraService;
 	
-	private static String profileName = "default";
+	private static String profileName = DEFAULT;
 	
 	private static SecureRandom random = null;
 	
-	private static final Map<String, String> cassandraField = new HashMap<String, String>();
+	private static final Map<String, String> CASSANDRAFIELD = new HashMap<String, String>();
 	
 	static{
-		cassandraField.put("search_filter_splitby_tilta", "filter-splitBy@approx");
-		cassandraField.put("search_filter_lowercase", "filter-case@lowercase");
-		cassandraField.put("search_filter_splitby_single_tilta", "search-splitBy@singleTilta");
-		cassandraField.put("index_splitby_single_tilta", "index-splitBy@singleTilta");
+		CASSANDRAFIELD.put("search_filter_splitby_tilta", "filter-splitBy@approx");
+		CASSANDRAFIELD.put("search_filter_lowercase", "filter-case@lowercase");
+		CASSANDRAFIELD.put("search_filter_splitby_single_tilta", "search-splitBy@singleTilta");
+		CASSANDRAFIELD.put("index_splitby_single_tilta", "index-splitBy@singleTilta");
+		CASSANDRAFIELD.put("index_field_value_lowercase", "index-case@lowercase");
 	}
 	
 	public CustomValueServiceImpl(){
@@ -69,7 +70,7 @@ public class CustomValueServiceImpl extends BaseServiceImpl implements CustomVal
 	}
 
 	@Override
-	public List<CustomTableValue> getCustomValues(String type) {
+	public List<CustomTableValue> getCustomValues(final String type) {
 		
 	   return  this.getCustomTableRepository().getCustomTableValues(type);
 	}
@@ -77,12 +78,12 @@ public class CustomValueServiceImpl extends BaseServiceImpl implements CustomVal
 	@Override
 	public void updateSearchSettings() {
 		
-		profileName = configSettingRepository.getConfigSetting("search.profile", UserGroupSupport.getUserOrganizationUid());
+		profileName = configSettingRepository.getConfigSetting(SEARCH_PROFILE, UserGroupSupport.getUserOrganizationUid());
 		if (profileName == null) {
-			profileName = "default";
+			profileName = DEFAULT;
 		}
 
-		for (Map.Entry<String, String> entry : cassandraField.entrySet()) {
+		for (Map.Entry<String, String> entry : CASSANDRAFIELD.entrySet()) {
 			List<CustomTableValue> customTableValues = this.getCustomTableRepository().getFilterValueFromCustomTable(entry.getKey());
 			StringBuilder values = new StringBuilder();
 			for(CustomTableValue customTableValue : customTableValues){
@@ -93,7 +94,7 @@ public class CustomValueServiceImpl extends BaseServiceImpl implements CustomVal
 			}
 			if(values.toString().trim().length() > 0){
 				searchSettingCassandraService.save(entry.getValue(), profileName, values.toString());
-				searchSettingCassandraService.save("setting.version", profileName, getSettingVersion());
+				searchSettingCassandraService.save(SETTING_VERSION, profileName, getSettingVersion());
 			}
 		}
 	}

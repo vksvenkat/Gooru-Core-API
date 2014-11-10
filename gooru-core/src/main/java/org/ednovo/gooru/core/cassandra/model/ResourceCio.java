@@ -1,13 +1,16 @@
+
 package org.ednovo.gooru.core.cassandra.model;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
+import org.ednovo.gooru.core.api.model.CustomTableValue;
 import org.ednovo.gooru.core.constant.ColumnFamilyConstant;
 
 @Entity(name = ColumnFamilyConstant.RESOURCE)
@@ -20,9 +23,9 @@ public class ResourceCio implements IsEntityCassandraIndexable {
 	private static final String BATCH_ID = "batchId";
 
 	private static final String CATEGORY = "category";
-	
+
 	private static final String RESOURCE_FORMAT = "resourceFormat";
-	
+
 	private static final String INSTRUCTIONAL = "instructional";
 
 	@Id
@@ -129,7 +132,7 @@ public class ResourceCio implements IsEntityCassandraIndexable {
 
 	@Column
 	private String collectionGooruOIds;
-	
+
 	@Column
 	private String scollectionTitles;
 
@@ -150,6 +153,9 @@ public class ResourceCio implements IsEntityCassandraIndexable {
 
 	@Column
 	private StatisticsCo statistics;
+
+	@Column
+	private ResourceStasCo stas;
 
 	@Column
 	private UserCo creator;
@@ -213,25 +219,167 @@ public class ResourceCio implements IsEntityCassandraIndexable {
 
 	@Column
 	private String copiedResourceId;
-	
+
 	@Column
 	private String isOer;
-	
+
 	@Column
 	private String scollectionItemGooruOIds;
-	
+
 	@Column
 	private String resourceFormat;
-	
+
 	@Column
 	private String instructional;
-	
+
 	@Column
 	private String protocolSupported;
-	
+
 	@Column
 	private Map<String,Object> ratings;
+
+	@Column
+	private  String audience;
+
+	@Column
+	private String depthOfknowledge;
+
+	@Column
+	private List<CustomTableValue> customTables;
+
+	@Column
+	private String learningAndInovation;
+
+	@Column
+	private String instructionalMethod;
+
+	@Column
+	private String educationalUse;
+
+	@Column
+	private String standards;
+
+	@Column
+	private String momentsofLearning;
+
+	@Column
+	private String publisher;
+
+	@Column
+	private String aggregator;
+
+	@Column
+	private String clusterUid;
+
+	@Column
+	private Integer isCanonical;
+
+	@Column
+	private String rootNodeId;
+
+	@Column
+	private String rootCodes;
+
+	@Column
+	private Double domainBoost;
 	
+	@Column
+	private Map<String,String> codeAndDescription;
+	
+	
+	@Column 
+	private Integer version;
+
+
+	
+	public Integer getVersion() {
+		return version;
+	}
+
+	public void setVersion(Integer version) {
+		this.version = version;
+	}
+
+	public Map<String, String> getCodeAndDescription() {
+		return codeAndDescription;
+	}
+
+	public void setCodeAndDescription(Map<String, String> codeAndDescription) {
+		this.codeAndDescription = codeAndDescription;
+	}
+
+	public String getRootCodes() {
+		return rootCodes;
+	}
+
+	public void setRootCodeId(String rootCodeId) {
+		this.rootCodes = rootCodeId;
+	}
+
+	public String getRootNodeId() {
+		return rootNodeId;
+	}
+
+	public void setRootNodeId(String rootNodeId) {
+		this.rootNodeId = rootNodeId;
+	}
+
+	public String getMomentsofLearning() {
+		return momentsofLearning;
+	}
+
+	public void setMomentsofLearning(String momentsofLearning) {
+		this.momentsofLearning = momentsofLearning;
+	}
+
+	public String getEducationalUse() {
+		return educationalUse;
+	}
+
+	public void setEducationalUse(String educationalUse) {
+		this.educationalUse = educationalUse;
+	}
+
+	public String getStandards() {
+		return standards;
+	}
+
+	public void setStandards(String standards) {
+		this.standards = standards;
+	}
+
+	public String getLearningAndInovation() {
+		return learningAndInovation;
+	}
+
+	public void setLearningAndInovation(String learningAndInovation) {
+		this.learningAndInovation = learningAndInovation;
+	}
+
+	public String getInstructionalMethod() {
+		return instructionalMethod;
+	}
+
+	public void setInstructionalMethod(String instructionalMethod) {
+		this.instructionalMethod = instructionalMethod;
+	}
+
+	public String getDepthOfknowledge() {
+		return depthOfknowledge;
+	}
+
+	public void setDepthOfknowledge(String depthOfknowledge) {
+		this.depthOfknowledge = depthOfknowledge;
+	}
+
+	public List<CustomTableValue> getCustomTables() {
+		return customTables;
+	}
+
+	public void setCustomTables(List<CustomTableValue> customTables) {
+		this.customTables = customTables;
+	}
+
 	public String getSegmentConcepts() {
 		return segmentConcepts;
 	}
@@ -322,6 +470,14 @@ public class ResourceCio implements IsEntityCassandraIndexable {
 
 	public String getIsFeatured() {
 		return isFeatured;
+	}
+
+	public String getAudience() {
+		return audience;
+	}
+
+	public void setAudience(String audience) {
+		this.audience = audience;
 	}
 
 	public void setIsFeatured(String isFeatured) {
@@ -801,4 +957,51 @@ public class ResourceCio implements IsEntityCassandraIndexable {
 		this.ratings = ratings;
 	}
 
+	public String getPublisher(){
+		return publisher;
+	}
+
+	public void setPublisher(String publisher){
+		this.publisher = publisher;
+	}
+
+	public String getAggregator(){
+		return aggregator;
+	}
+
+	public void setAggregator(String aggregator){
+		this.aggregator = aggregator;
+	}
+
+	public void setStas(ResourceStasCo stas) {
+		this.stas = stas;
+	}
+
+	public ResourceStasCo getStas() {
+		return stas;
+	}
+
+	public String getClusterUid() {
+		return clusterUid;
+	}
+
+	public void setClusterUid(String clusterUid) {
+		this.clusterUid = clusterUid;
+	}
+
+	public Integer getIsCanonical() {
+		return isCanonical;
+	}
+
+	public void setIsCanonical(Integer isCanonical) {
+		this.isCanonical = isCanonical;
+	}
+
+	public void setDomainBoost(Double domainBoost) {
+		this.domainBoost = domainBoost;
+	}
+
+	public Double getDomainBoost() {
+		return domainBoost;
+	}
 }

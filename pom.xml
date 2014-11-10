@@ -76,22 +76,6 @@
 					</plugin>
 				</plugins>
 			</build>
-			<repositories>
-				<repository>
-				<id>releases</id>
-				<name>Releases</name>
-				<url>http://devl3.goorulearning.org/artifactory/repo</url>
-				</repository>
-		<!--		<repository>
-				  <id>spy</id>
-				  <name>Spy Repository</name>
-				  <layout>default</layout>
-				  <url>http://files.couchbase.com/maven2/</url>
-				  <snapshots>
-				    <enabled>false</enabled>
-				  </snapshots>
-				</repository>-->
-			</repositories>
 			<pluginRepositories/>
 			<dependencies>
 				<dependency>
@@ -144,32 +128,32 @@
 		    <dependency>
 					<groupId>com.fasterxml.jackson.core</groupId>
 					<artifactId>jackson-annotations</artifactId>
-					<version>2.1.0</version>
+					<version>2.3.0</version>
 			</dependency>
 			<dependency>
 				<groupId>com.fasterxml.jackson.core</groupId>
 				<artifactId>jackson-core</artifactId>
-				<version>2.1.0</version>
+				<version>2.3.0</version>
 			</dependency>
 			<dependency>
 				<groupId>com.fasterxml.jackson.core</groupId>
 				<artifactId>jackson-databind</artifactId>
-				<version>2.1.0</version>
+				<version>2.3.0</version>
 			</dependency>
 			<dependency>
 				<groupId>com.fasterxml.jackson.datatype</groupId>
 				<artifactId>jackson-datatype-hibernate4</artifactId>
-				<version>2.1.0</version>
+				<version>2.3.0</version>
 			</dependency>  	
 			<dependency>
 				<groupId>org.codehaus.jackson</groupId>
 				<artifactId>jackson-mapper-asl</artifactId>
-				<version>1.9.9</version>
+				<version>1.9.13</version>
 				</dependency>
 			<dependency>
 				<groupId>org.codehaus.jackson</groupId>
 				<artifactId>jackson-core-asl</artifactId>
-				<version>1.9.9</version>
+				<version>1.9.13</version>
 			</dependency>
 			</dependencies>
 			<reporting>
@@ -247,15 +231,15 @@
 		<amp.genericCore>true</amp.genericCore>
 		<amp.fullSource>false</amp.fullSource>
 		<!-- Framework dependency versions -->
-		<org.springframework.version>3.1.2.RELEASE</org.springframework.version>
-		<org.springframework.security.version>3.1.1.RELEASE</org.springframework.security.version>
-		<spring.security.oauth.version>1.0.0.RC2</spring.security.oauth.version>
+		<org.springframework.version>4.1.0.RELEASE</org.springframework.version>
+		<org.springframework.security.version>3.2.5.RELEASE</org.springframework.security.version>
+		<spring.security.oauth.version>2.0.3.RELEASE</spring.security.oauth.version>
 
 		<!-- Testing dependency versions -->
-		<jmock.version>2.4.0</jmock.version>
-		<jsp.version>2.0</jsp.version>
-		<junit.version>4.4</junit.version>
-		<servlet.version>2.4</servlet.version>		
+		<jmock.version>2.6.1</jmock.version>
+		<jsp.version>2.1</jsp.version>
+		<junit.version>4.10</junit.version>
+		<servlet.version>2.5</servlet.version>		
 		<!-- WebTest dependency versions  -->
 		<webtest.version>R_1702</webtest.version>
 		<!-- Cargo settings -->
@@ -271,7 +255,7 @@
 		<hibernate.dialect>org.hibernate.dialect.MySQL5InnoDBDialect</hibernate.dialect>
 		<jdbc.groupId>mysql</jdbc.groupId>
 		<jdbc.artifactId>mysql-connector-java</jdbc.artifactId>
-		<jdbc.version>5.1.18</jdbc.version>
+		<jdbc.version>5.1.33</jdbc.version>
 		<jdbc.driverClassName>com.mysql.jdbc.Driver</jdbc.driverClassName>
 		<jdbc.url>
 			<![CDATA[jdbc:mysql://localhost/gooru?createDatabaseIfNotExist=true&amp;useUnicode=true&amp;characterEncoding=utf-8]]>

@@ -23,6 +23,7 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.fileupload.util.Streams;
 import org.ednovo.gooru.core.api.model.UserGroupSupport;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.core.exception.BadRequestException;
 import org.json.JSONObject;
 import org.restlet.data.Method;
 import org.restlet.representation.Representation;
@@ -113,10 +114,12 @@ public class RequestUtil implements ParameterProperties {
 			for (Cookie cookie : request.getCookies()) {
 				// Delete the cookie by setting its maximum age to zero
 				if (cookie.getName().equals(name)) {
-					cookie.setMaxAge(0);
-					cookie.setPath(COOKIE_PATH);
-					cookie.setDomain(request.getServerName());
-					response.addCookie(cookie);
+					Cookie gooruCookie = new Cookie(cookie.getName(), "");
+					gooruCookie.setMaxAge(0);
+					gooruCookie.setPath(COOKIE_PATH);
+					gooruCookie.setDomain(request.getServerName());
+					gooruCookie.setValue("");
+					response.addCookie(gooruCookie);
 				}
 			}
 		}
@@ -173,15 +176,15 @@ public class RequestUtil implements ParameterProperties {
 
 	public static byte[] readMultipartRequest(List<FileItem> fileItemsList) throws IOException {
 
-		byte[] FILE_DATA = null;
+		byte[] fileData = null;
 		for (FileItem fileItem : fileItemsList) {
 			String paramName = ((FileItem) fileItem).getFieldName();
 			if ((paramName.equals(FILE)) && (((FileItem) fileItem).getInputStream().read() != -1)) {
-				FILE_DATA = fileItem.get();
+				fileData = fileItem.get();
 			}
 
 		}
-		return FILE_DATA;
+		return fileData;
 	}
 
 	public static Map<String, String> readMultipartRequestParams(List<FileItem> fileItemsList) throws FileUploadException, UnsupportedEncodingException {
@@ -252,7 +255,7 @@ public class RequestUtil implements ParameterProperties {
 			return formFieldMap;
 
 		} else {
-			return null;
+			throw new BadRequestException("Invalid Content Type " + request.getContentType());
 		}
 	}
 

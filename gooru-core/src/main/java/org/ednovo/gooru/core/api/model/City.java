@@ -10,7 +10,6 @@ public class City implements Serializable{
 	private static final long serialVersionUID = 1767890553132273348L;
 	private String cityId;
 	private String name;
-	
 	private Country country;
 	private Province province;
 	

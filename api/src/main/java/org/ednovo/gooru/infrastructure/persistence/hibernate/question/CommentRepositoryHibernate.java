@@ -53,23 +53,28 @@ public class CommentRepositoryHibernate extends BaseRepositoryHibernate implemen
 	}
 
 	@Override
-	public List<Comment> getComments(String gooruOid, String gooruUid, Integer limit, Integer offset,String fetchType) {
+	public List<Comment> getComments(String itemId, String gooruOid, String gooruUid, Integer limit, Integer offset,String fetchType) {
 		Session session = getSession();
 		String hql = " FROM  Comment comment WHERE " + generateOrgAuthQuery("comment.");
 		if (gooruOid != null) {	
 			hql += " and comment.gooruOid = '" + gooruOid + "'";	
 		}
-			
-		if (gooruUid != null) {
-			hql += " and comment.commentorUid = '" + gooruUid + "'";
-		} else {
-			hql += " and comment.status.keyValue = 'comment_status_active'";
+		if (itemId != null) {	
+			hql += " and comment.itemId = '" + itemId + "'";	
 		}
-		if (fetchType.equalsIgnoreCase("deleted")) {
+		
+		if (gooruUid == null) { 
+			hql += " and comment.status.keyValue = 'comment_status_active'";
+		} else {
+			hql += " and comment.commentorUid = '" + gooruUid + "'";
+		}
+		
+		if(DELETED.equalsIgnoreCase(fetchType)){
 			hql += " and comment.isDeleted = 1";
-		} else if(fetchType.equalsIgnoreCase("notdeleted")) {
+		} else if(NOT_DELETED.equalsIgnoreCase(fetchType)){
 			hql += " and (comment.isDeleted != 1 or comment.isDeleted is null)";
 		}
+		
 		Query query = session.createQuery(hql);
 		addOrgAuthParameters(query);
 		query.setFirstResult(offset).setMaxResults(limit);
@@ -77,22 +82,28 @@ public class CommentRepositoryHibernate extends BaseRepositoryHibernate implemen
 	}
 	
 	@Override
-	public Long getCommentCount(String gooruOid,String commentorUid,String fetchType) {
+	public Long getCommentCount(String itemId, String gooruOid,String commentorUid,String fetchType) {
 		Session session = getSession();
 		String hql = "select count(*)  FROM Comment comment where "+ generateOrgAuthQuery("comment.");
 		if (gooruOid != null) {	
 			hql += " and comment.gooruOid = '" + gooruOid + "'";	
 		}
-		if (commentorUid != null) {
-			hql += " and comment.commentorUid = '" + commentorUid + "'";
-		} else {
-			hql += " and comment.status.customTableValueId = " + this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.COMMNET_STATUS.getTable(), CustomProperties.CommentStatus.ACTIVE.getCommentStatus()).getCustomTableValueId();
+		if (itemId != null) {	
+			hql += " and comment.itemId = '" + itemId + "'";	
 		}
-		if (fetchType.equalsIgnoreCase("deleted")) {
+		
+		if (commentorUid == null) {
+			hql += " and comment.status.customTableValueId = " + this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.COMMNET_STATUS.getTable(), CustomProperties.CommentStatus.ACTIVE.getCommentStatus()).getCustomTableValueId();
+		} else {
+			hql += " and comment.commentorUid = '" + commentorUid + "'";
+		}
+		
+		if(DELETED.equalsIgnoreCase(fetchType)){
 			hql += " and comment.isDeleted = 1";
-		} else if(fetchType.equalsIgnoreCase("notdeleted")) {
+		} else if(NOT_DELETED.equalsIgnoreCase(fetchType)){
 			hql += " and (comment.isDeleted != 1 or comment.isDeleted is null)";
 		}
+		
 		Query query = session.createQuery(hql);
 		addOrgAuthParameters(query);
 		return (Long) query.list().get(0);

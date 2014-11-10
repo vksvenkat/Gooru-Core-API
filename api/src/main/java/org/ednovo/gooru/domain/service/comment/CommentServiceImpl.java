@@ -41,10 +41,8 @@ import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.domain.service.BaseServiceImpl;
 import org.ednovo.gooru.domain.service.search.SearchResults;
-import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.ednovo.gooru.domain.service.user.UserService;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepository;
-import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.party.PartyRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.question.CommentRepository;
@@ -64,13 +62,7 @@ public class CommentServiceImpl extends BaseServiceImpl implements CommentServic
 	private ResourceRepository resourceRepository;
 
 	@Autowired
-	private ContentRepository contentRepository;
-
-	@Autowired
 	private CustomTableRepository customTableRepository;
-
-	@Autowired
-	private SettingService settingService;
 
 	@Autowired
 	private MailAsyncExecutor mailAsyncExecuter;
@@ -86,7 +78,7 @@ public class CommentServiceImpl extends BaseServiceImpl implements CommentServic
 
 	@Override
 	public ActionResponseDTO<Comment> createComment(Comment comment, User user) {
-		Errors error = validateComment(comment);
+		final Errors error = validateComment(comment);
 
 		if (!error.hasErrors()) {
 			comment.setCreatedOn(new Date());
@@ -94,8 +86,9 @@ public class CommentServiceImpl extends BaseServiceImpl implements CommentServic
 			comment.setCommentorUid(user);
 			comment.setOrganization(user.getPrimaryOrganization());
 			this.getCommentRepository().save(comment);
-
-			commentMailNotification(comment, user);
+			if (comment.getItemId() == null) {
+				commentMailNotification(comment, user);
+			}
 		}
 		return new ActionResponseDTO<Comment>(comment, error);
 	}
@@ -133,16 +126,16 @@ public class CommentServiceImpl extends BaseServiceImpl implements CommentServic
 	}
 
 	@Override
-	public List<Comment> getComments(String gooruOid, String gooruUid, Integer limit, Integer offset, String fetchType) {
-		return this.getCommentRepository().getComments(gooruOid, gooruUid, limit, offset, fetchType);
+	public List<Comment> getComments(String itemId,String gooruOid, String gooruUid, Integer limit, Integer offset, String fetchType) {
+		return this.getCommentRepository().getComments(itemId,gooruOid, gooruUid, limit, offset, fetchType);
 	}
 
 	@Override
-	public SearchResults<Comment> getCommentsCount(String gooruOid, String gooruUid, Integer limit, Integer offset, String fetchType) {
-		List<Comment> comments = this.getCommentRepository().getComments(gooruOid, gooruUid, limit, offset, fetchType);
+	public SearchResults<Comment> getCommentsCount(String itemId,String gooruOid, String gooruUid, Integer limit, Integer offset, String fetchType) {
+		List<Comment> comments = this.getCommentRepository().getComments(itemId,gooruOid, gooruUid, limit, offset, fetchType);
 		SearchResults<Comment> result = new SearchResults<Comment>();
 		result.setSearchResults(comments);
-		result.setTotalHitCount(this.getCommentRepository().getCommentCount(gooruOid, gooruUid, fetchType));
+		result.setTotalHitCount(this.getCommentRepository().getCommentCount(itemId,gooruOid, gooruUid, fetchType));
 		return result;
 	}
 
@@ -161,13 +154,11 @@ public class CommentServiceImpl extends BaseServiceImpl implements CommentServic
 	@Override
 	public Boolean isContentOwner(String commentUid, User user) {
 		Boolean isContentOwner = false;
-		Comment comment = this.getCommentRepository().getComment(commentUid);
+		final Comment comment = this.getCommentRepository().getComment(commentUid);
 		if (comment != null) {
 			Collection collection = this.getCollectionRepository().getCollectionByGooruOid(comment.getGooruOid(), null);
-			if(collection != null && collection.getUser()!= null){
-				if(collection.getUser().equals(user)){
+			if(collection != null && collection.getUser()!= null && collection.getUser().equals(user)){
 					isContentOwner = true;
-				}
 			}
 		}
 		return isContentOwner;
@@ -177,20 +168,18 @@ public class CommentServiceImpl extends BaseServiceImpl implements CommentServic
 		Map<String, String> commentData = new HashMap<String, String>();
 		if (comment.getComment() != null) {
 
-			commentData.put("commentText", comment.getComment());
+			commentData.put(COMMENT_TEXT, comment.getComment());
 		}
 		if (user.getUsername() != null) {
-			commentData.put("userName", user.getUsername());
+			commentData.put(USERNAME, user.getUsername());
 		}
 		if (comment.getGooruOid() != null) {
-			commentData.put("collectionId", comment.getGooruOid());
+			commentData.put(COLLECTION_ID, comment.getGooruOid());
 		}
 		Collection collection = this.getCollectionRepository().getCollectionByGooruOid(comment.getGooruOid(), null);
-		PartyCustomField partyCustomField = this.getPartyRepository().getPartyCustomField(collection.getUser().getGooruUId(), "collection_comment_email_notification");
-		if(!collection.getUser().getPartyUid().equalsIgnoreCase(user.getPartyUid())){
-			if (partyCustomField != null && partyCustomField.getOptionalValue().equals("true") && collection.getMailNotification()) {
+		PartyCustomField partyCustomField = this.getPartyRepository().getPartyCustomField(collection.getUser().getGooruUId(), COLLECTION_COMMENT_EMAIL_NOTIFICATION);
+		if(!collection.getUser().getPartyUid().equalsIgnoreCase(user.getPartyUid()) && partyCustomField != null && partyCustomField.getOptionalValue().equals(TRUE) && collection.getMailNotification()){
 				this.getMailAsyncExecuter().sendEmailNotificationforComment(commentData);
-			}
 		}
 	}
 
@@ -198,7 +187,6 @@ public class CommentServiceImpl extends BaseServiceImpl implements CommentServic
 		final Errors errors = new BindException(comment, COMMENT);
 		rejectIfNull(errors, comment, COMMENT, GL0056, generateErrorMessage(GL0056, COMMENT));
 		rejectIfNullOrEmpty(errors, comment.getComment(), COMMENT, GL0006, generateErrorMessage(GL0006, COMMENT));
-		rejectIfNullOrEmpty(errors, comment.getGooruOid(), COMMENT, GL0006, generateErrorMessage(GL0006, CONTENT));
 		return errors;
 	}
 
@@ -208,10 +196,6 @@ public class CommentServiceImpl extends BaseServiceImpl implements CommentServic
 
 	public ResourceRepository getResourceRepository() {
 		return resourceRepository;
-	}
-
-	public ContentRepository getContentRepository() {
-		return contentRepository;
 	}
 
 	public CustomTableRepository getCustomTableRepository() {

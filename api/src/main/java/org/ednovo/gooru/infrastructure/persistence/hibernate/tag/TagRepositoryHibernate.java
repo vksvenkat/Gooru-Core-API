@@ -30,13 +30,15 @@ import org.ednovo.gooru.core.api.model.Tag;
 import org.ednovo.gooru.core.api.model.TagSynonyms;
 import org.ednovo.gooru.core.api.model.UserTagAssoc;
 import org.ednovo.gooru.core.constant.ConstantProperties;
+import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.type.StandardBasicTypes;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class TagRepositoryHibernate extends BaseRepositoryHibernate implements TagRepository,ConstantProperties {
+public class TagRepositoryHibernate extends BaseRepositoryHibernate implements TagRepository,ConstantProperties,ParameterProperties {
 	
 	private final String RETIREVE_TAG_BY_LABEL = "From Tag t   where t.label=:label  and  "+generateOrgAuthQuery("t.");
 	
@@ -53,6 +55,7 @@ public class TagRepositoryHibernate extends BaseRepositoryHibernate implements T
 	private final String RETIREVE_TAG_BY_USER = "From Tag t   where t.user.userId=:userId and t.activeFlag=1 and  "+generateOrgAuthQuery("t.");
 	
 	
+	@SuppressWarnings("unchecked")
 	public Tag findTagByLabel(String label){
 		Session session = getSession();
 		Query query = session.createQuery(RETIREVE_TAG_BY_LABEL);
@@ -62,6 +65,7 @@ public class TagRepositoryHibernate extends BaseRepositoryHibernate implements T
 		return (tags.size() > 0) ? tags.get(0) : null;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public Tag findTagByTagId(String gooruOid){
 		Session session = getSession();
 		Query query = session.createQuery(RETIREVE_TAG_BY_TAGID);
@@ -72,16 +76,18 @@ public class TagRepositoryHibernate extends BaseRepositoryHibernate implements T
 	}
 
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<Tag> getTagByUser(Integer userId) {
 		Session session = getSession();
 		Query query = session.createQuery(RETIREVE_TAG_BY_USER);
 		query.setParameter("userId", userId);
 		addOrgAuthParameters(query);
-		List<Tag> tags = (List<Tag>)query.list();
+		List<Tag> tags = ((List<Tag>)query.list());
 		return tags.size() == 0 ? null : tags;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<Tag> getTags(Integer offset, Integer limit) {
 		String hql = "FROM Tag tag where " + generateOrgAuthQuery("tag.");
@@ -94,6 +100,7 @@ public class TagRepositoryHibernate extends BaseRepositoryHibernate implements T
 	}
 
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<Tag> getTag(String gooruOid) {
 		Session session = getSession();
@@ -109,16 +116,18 @@ public class TagRepositoryHibernate extends BaseRepositoryHibernate implements T
 		return query.list();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public List<ContentTagAssoc> getTagContentAssoc(String tagGooruOid, Integer limit, Integer offset) {
+	public List<ContentTagAssoc> getTagContentAssoc( String tagGooruOid, Integer limit, Integer offset) {
 		Session session = getSession();
 		String hql = "select contentTagAssoc From ContentTagAssoc contentTagAssoc where contentTagAssoc.tagGooruOid='"+tagGooruOid+"'" ;
-		Query query = session.createQuery(hql);
-		query.setFirstResult(offset);
-		query.setMaxResults(limit);
+		Query query = session.createQuery(hql);	
+			query.setFirstResult(offset);
+			query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
 		return query.list();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public UserTagAssoc getUserTagassocById(String gooruUid, String tagGooruOid) {
 		Session session = getSession();
@@ -131,26 +140,29 @@ public class TagRepositoryHibernate extends BaseRepositoryHibernate implements T
 		return (userTagAssocs.size() > 0) ? userTagAssocs.get(0) : null;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<UserTagAssoc> getContentTagByUser(String gooruUid, Integer limit, Integer offset) {
 		Session session = getSession();
-		String hql = "select userTagAssoc From UserTagAssoc userTagAssoc where userTagAssoc.user.partyUid='"+gooruUid+"'" ;
+		String hql = "select userTagAssoc From UserTagAssoc userTagAssoc where userTagAssoc.user.partyUid='" + gooruUid + "'";
 		Query query = session.createQuery(hql);
-		query.setFirstResult(offset);
-		query.setMaxResults(limit);
+			query.setFirstResult(offset);
+			query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
 		return query.list();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<UserTagAssoc> getTagAssocUser(String tagGooruOid, Integer limit, Integer offset) {
 		Session session = getSession();
 		String hql = "select userTagAssoc From UserTagAssoc userTagAssoc where userTagAssoc.tagGooruOid='"+tagGooruOid+"'" ;
 		Query query = session.createQuery(hql);
 		query.setFirstResult(offset);
-		query.setMaxResults(limit);
+		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
 		return query.list();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public TagSynonyms findSynonymByName(String targetTagName) {
 		Session session = getSession();
@@ -160,6 +172,7 @@ public class TagRepositoryHibernate extends BaseRepositoryHibernate implements T
 		return (tagSynonyms.size() > 0) ? tagSynonyms.get(0) : null;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public TagSynonyms findTagSynonymById(Integer tagSynonymsId) {
 		Session session = getSession();
@@ -169,6 +182,7 @@ public class TagRepositoryHibernate extends BaseRepositoryHibernate implements T
 		return (tagSynonyms.size() > 0) ? tagSynonyms.get(0) : null;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<TagSynonyms> getTagSynonyms(String tagContentGooruOid) {
 		Session session = getSession();
@@ -177,6 +191,7 @@ public class TagRepositoryHibernate extends BaseRepositoryHibernate implements T
 		return  query.list();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public TagSynonyms getSynonymByTagAndSynonymId(String tagContentGooruOid, Integer tagSynonymsId) {
 		Session session = getSession();
@@ -185,6 +200,26 @@ public class TagRepositoryHibernate extends BaseRepositoryHibernate implements T
 		query.setParameter("tagSynonymsId", tagSynonymsId);
 		List<TagSynonyms> tagSynonyms = query.list();
 		return (tagSynonyms.size() > 0) ? tagSynonyms.get(0) : null;
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Object[]> getResourceByLabel(String label, Integer limit, Integer offset, String gooruUid) {
+		String hql = "select r.title, ci.gooru_oid, r.type_name, r.folder, r.thumbnail, cu.value, cu.display_name, r.views_total, r.url from  tags t inner join content c  on (c.content_id = t.content_id) inner join content_tag_assoc ct on (ct.tag_gooru_oid = c.gooru_oid) inner join content ci on (ci.gooru_oid = ct.content_gooru_oid) inner join resource r on r.content_id = ci.content_id left join custom_table_value cu on cu.custom_table_value_id = r.resource_format_id  where (t.label =:label or ct.tag_gooru_oid =:label) and  ct.associated_uid =:gooruUid" ;
+		Query query = getSession().createSQLQuery(hql);
+		query.setParameter("label", label);
+		query.setParameter("gooruUid", gooruUid);
+			query.setFirstResult(offset);
+			query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
+		return query.list();
+	}
+	
+	public Long getResourceByLabelCount(String label, String gooruUid) {
+		String sql = "select count(1) as count from  tags t inner join content c  on (c.content_id = t.content_id) inner join content_tag_assoc ct on (ct.tag_gooru_oid = c.gooru_oid) inner join content ci on (ci.gooru_oid = ct.content_gooru_oid) inner join resource r on r.content_id = ci.content_id left join  custom_table_value cu on cu.custom_table_value_id = r.resource_format_id  where (t.label =:label or ct.tag_gooru_oid =:label) and  ct.associated_uid =:gooruUid" ;
+		Query query = getSession().createSQLQuery(sql).addScalar("count", StandardBasicTypes.LONG);
+		query.setParameter("label", label);
+		query.setParameter("gooruUid", gooruUid);
+		return (Long)query.list().get(0);
 	}
 	
 }

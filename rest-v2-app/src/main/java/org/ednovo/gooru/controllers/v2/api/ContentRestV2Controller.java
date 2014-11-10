@@ -32,7 +32,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.ArrayUtils;
 import org.ednovo.gooru.controllers.BaseController;
 import org.ednovo.gooru.core.api.model.Content;
-import org.ednovo.gooru.core.api.model.ContentTagAssoc;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.application.util.ServerValidationUtils;
@@ -45,6 +44,8 @@ import org.ednovo.gooru.domain.service.FeedbackService;
 import org.ednovo.gooru.domain.service.PostService;
 import org.ednovo.gooru.domain.service.v2.ContentService;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Propagation;
@@ -55,6 +56,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+
+import com.fasterxml.jackson.core.type.TypeReference;
 
 @Controller
 @RequestMapping("/v2/content")
@@ -69,33 +72,53 @@ public class ContentRestV2Controller extends BaseController implements ConstantP
 
 	@Autowired
 	private PostService postService;
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(ContentRestV2Controller.class);
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAG_ADD })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	@RequestMapping(method = { RequestMethod.POST }, value = "/{id}/tag/{tid}")
-	public ModelAndView createContentTagAssoc(@PathVariable(value = ID) String gooruOid, @PathVariable(value = TID) String tagGooruOid, HttpServletRequest request, HttpServletResponse response) {
-
-		ContentTagAssoc contentTagAssoc = this.contentService.createTagAssoc(gooruOid, tagGooruOid);
-		return toModelAndViewWithIoFilter(contentTagAssoc, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, CONTENT_ASSOC_INCLUDES);
+	@RequestMapping(method = { RequestMethod.POST }, value = "/{id}/tag")
+	public ModelAndView createContentTagAssoc(@PathVariable(value = ID) String gooruOid, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) {
+		User apiCaller = (User) request.getAttribute(Constants.USER);
+		
+		return toModelAndView(this.contentService.createTagAssoc(gooruOid, JsonDeserializer.deserialize(data, new TypeReference<List<String>>() {
+		}),apiCaller), FORMAT_JSON);
 	}
 
-	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAG_ADD })
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAG_DELETE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	@RequestMapping(method = { RequestMethod.DELETE }, value = "/{id}/tag/{tid}")
-	public void DeleteContentTagAssoc(@PathVariable(value = ID) String gooruOid, @PathVariable(value = TID) String tagGooruOid, HttpServletRequest request, HttpServletResponse response) {
-		this.getContentService().deleteTagAssoc(gooruOid, tagGooruOid);
-
+	@RequestMapping(method = { RequestMethod.DELETE }, value = "/{id}/tag")
+	public void deleteContentTagAssoc(@PathVariable(value = ID) String gooruOid,@RequestParam String data, HttpServletRequest request, HttpServletResponse response) {
+		User apiCaller = (User) request.getAttribute(Constants.USER);
+		
+		this.getContentService().deleteTagAssoc(gooruOid, JsonDeserializer.deserialize(data, new TypeReference<List<String>>() {
+		}),apiCaller);
 	}
 
-	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAG_ADD })
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAG_READ})
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.GET }, value = "/{id}/tag")
 	public ModelAndView getContentTagAssoc(@PathVariable(value = ID) String gooruOid, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, HttpServletRequest request,
 			HttpServletResponse response) {
-		List<ContentTagAssoc> contentTagAssoc = this.getContentService().getContentTagAssoc(gooruOid, limit, offset);
-		return toModelAndViewWithIoFilter(contentTagAssoc, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, CONTENT_ASSOC_INCLUDES);
+		User apiCaller = (User) request.getAttribute(Constants.USER);
+		
+		return toModelAndView(this.getContentService().getContentTagAssoc(gooruOid, apiCaller), FORMAT_JSON);
+	}
+	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAG_READ })
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(method = { RequestMethod.GET }, value = "/tag/{id}")
+	public ModelAndView getUserContentTagList(@PathVariable(value = ID) String gooruUid, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, HttpServletRequest request,
+			HttpServletResponse response) {
+		User apiCaller = (User) request.getAttribute(Constants.USER);
+		if(gooruUid.equalsIgnoreCase(MY)) {
+			gooruUid = apiCaller.getPartyUid();
+		}
+		
+		return toModelAndView(serialize(this.getContentService().getUserContentTagList(gooruUid,limit,offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, false, true, USER_CONTENT_TAGS_INCLUDES));
 	}
 
-	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAG_READ })
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CONTENT_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.GET }, value = { "/{id}/post", "/{id}/review", "/{id}/response", "/{id}/question-board", "/{id}/note" })
 	public ModelAndView getContentPosts(@PathVariable(value = ID) String gooruOid, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "20") Integer limit, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, HttpServletRequest request,
@@ -108,27 +131,32 @@ public class ContentRestV2Controller extends BaseController implements ConstantP
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = { "/{id}/rating/{type}", "/{id}/report/{type}", "/{id}/flag/{type}", "/{id}/reaction/{type}" })
 	public ModelAndView getContentFeedbacks(HttpServletRequest request, @PathVariable(value = ID) String assocContentUid, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset,
-			@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "20") Integer limit, @RequestParam(value = CREATOR_UID, required = false) String creatorUid, @PathVariable(value = TYPE) String feedbackType, HttpServletResponse response) throws Exception {
+			@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "20") Integer limit, @RequestParam(value = ORDER_BY, required = false) String orderBy, @RequestParam(value = CREATOR_UID, required = false) String creatorUid, @PathVariable(value = TYPE) String feedbackType, HttpServletResponse response) throws Exception {
 		String includes[] = (String[]) ArrayUtils.addAll(FEEDBACK_INCLUDE_FIELDS, ERROR_INCLUDE);
 		if (feedbackType.equalsIgnoreCase(AVERAGE)) {
 			return toJsonModelAndView(this.getFeedbackService().getContentFeedbackAverage(assocContentUid, getFeedbackCategory(request)), true);
 		} else if (feedbackType.equalsIgnoreCase(AGGREGATE)) {
 			return toJsonModelAndView(this.getFeedbackService().getContentFeedbackAggregate(assocContentUid, getFeedbackCategory(request)), true);
 		}
-		return toModelAndViewWithIoFilter(this.getFeedbackService().getContentFeedbacks(getFeedbackCategory(request), feedbackType, assocContentUid, creatorUid, limit, offset, false), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
+		return toModelAndViewWithIoFilter(this.getFeedbackService().getContentFeedbacks(getFeedbackCategory(request), feedbackType, assocContentUid, creatorUid, limit, offset, orderBy), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_FEEDBACK_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = { "/{id}/rating", "/{id}/report", "/{id}/flag", "/{id}/reaction" })
 	public ModelAndView getContentFeedbacksByCategory(HttpServletRequest request, @PathVariable(value = ID) String assocContentUid, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset,
-			@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "20") Integer limit, @RequestParam(value = SKIP_PAGINATION, required = false, defaultValue = "false") Boolean skipPagination, @RequestParam(value = CREATOR_UID, required = false) String creatorUid,
+			@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "20") Integer limit, @RequestParam(value = ORDER_BY, required = false) String orderBy, @RequestParam(value = CREATOR_UID, required = false) String creatorUid,
 			HttpServletResponse response) throws Exception {
 		String includes[] = (String[]) ArrayUtils.addAll(FEEDBACK_INCLUDE_FIELDS, ERROR_INCLUDE);
-		return toModelAndViewWithIoFilter(this.getFeedbackService().getContentFeedbacks(getFeedbackCategory(request), null, assocContentUid, creatorUid, limit, offset, skipPagination).getSearchResults(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
+		try { 
+			return toModelAndViewWithIoFilter(this.getFeedbackService().getContentFeedbacks(getFeedbackCategory(request), null, assocContentUid, creatorUid, limit, offset, orderBy).getSearchResults(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
+		} catch (Exception e) { 
+			LOGGER.error("Error resolver : {} ", e);
+			throw new RuntimeException(e);
+		}
 	}
 
-	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAG_READ })
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_FEEDBACK_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = { "/{id}/rating/{type}/count", "/{id}/report/{type}/count", "/{id}/flag/{type}/count", "/{id}/reaction/{type}/count" })
 	public ModelAndView getContentFeedback(HttpServletRequest request, @PathVariable(value = TYPE) String type, @PathVariable(value = ID) String assocGooruOid, HttpServletResponse response) throws Exception {
@@ -142,7 +170,7 @@ public class ContentRestV2Controller extends BaseController implements ConstantP
 		}
 	}
 
-	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_UPDATE })
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CONTENT_UPDATE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}" }, method = { RequestMethod.PUT })
 	public ModelAndView updateContent(@PathVariable(value = ID) String gooruOid, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -152,7 +180,7 @@ public class ContentRestV2Controller extends BaseController implements ConstantP
 		return toModelAndView(serialize(content, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, CONTENT_INCLUDES));
 	}
 
-	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_READ })
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CONTENT_READ })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.GET }, value = "/{id}/check-access")
 	public ModelAndView checkContentAccess(HttpServletRequest request, @PathVariable(value = ID) String gooruOid, HttpServletResponse response) throws Exception {
@@ -174,7 +202,7 @@ public class ContentRestV2Controller extends BaseController implements ConstantP
 				category = CustomProperties.FeedbackCategory.REACTION.getFeedbackCategory();
 			}
 		}
-		ServerValidationUtils.rejectIfNull(category, GL0007, " request path ");
+		ServerValidationUtils.rejectIfNull(category, GL0007, REQUEST_PATH);
 		return category;
 	}
 

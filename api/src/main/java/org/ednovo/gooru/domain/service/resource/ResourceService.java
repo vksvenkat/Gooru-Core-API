@@ -33,7 +33,6 @@ import java.util.Set;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.api.model.ConverterDTO;
-import org.ednovo.gooru.core.api.model.CsvCrawler;
 import org.ednovo.gooru.core.api.model.Job;
 import org.ednovo.gooru.core.api.model.Learnguide;
 import org.ednovo.gooru.core.api.model.Resource;
@@ -41,6 +40,7 @@ import org.ednovo.gooru.core.api.model.ResourceInfo;
 import org.ednovo.gooru.core.api.model.ResourceInstance;
 import org.ednovo.gooru.core.api.model.ResourceSource;
 import org.ednovo.gooru.core.api.model.Segment;
+import org.ednovo.gooru.core.api.model.StatisticsDTO;
 import org.ednovo.gooru.core.api.model.Textbook;
 import org.ednovo.gooru.core.api.model.UpdateViewsDTO;
 import org.ednovo.gooru.core.api.model.User;
@@ -108,6 +108,8 @@ public interface ResourceService extends BaseService {
 	void deleteResourceImage(String gooruContentId);
 
 	void deleteResourceBulk(String contentIds);
+	
+	void deleteBulkResource(String contentIds);
 
 	void updateResourceInstanceMetaData(Resource resource, User user);
 
@@ -143,9 +145,6 @@ public interface ResourceService extends BaseService {
 
 	Resource addNewResource(String url, String title, String text, String category, String sharing, String type_name, String licenseName, Integer brokenStatus, Boolean hasFrameBreaker, String description, Integer isFeatured, String tags, boolean isReturnJson, User apiCaller, String mediaType, String resource_format, String resource_instructional);
 
-	Resource importCSVResource(String url, String subject, String title, String tags, String description, String attribution, String thumbnail, String csvFileCode, String type, String grade, String content, String importMode, CsvCrawler csvCrawler, boolean isReturnJson, User user,
-			boolean indexFlag, String mediaType);
-
 	List<ResourceSource> getSuggestAttribution(String keyword);
 
 	Map<String, Object> findAllResourcesSource(Map<String, String> filters);
@@ -155,9 +154,9 @@ public interface ResourceService extends BaseService {
 	void saveOrUpdate(Resource resource);
 
 	Resource updateResourceByGooruContentId(String gooruContentId, String resourceTitle, String distinguish, Integer isFeatured, String description, Boolean hasFrameBreaker, String tags, String sharing, Integer resourceSourceId, User user, String mediaType, String attribution, String category,
-			String mediaFileName, Boolean isBlacklisted, String grade, String resource_format, String licenseName);
+			String mediaFileName, Boolean isBlacklisted, String grade, String resource_format, String licenseName, String url);
 
-	ActionResponseDTO<Resource> updateResource(String resourceId, Resource newResource, User user) throws Exception;
+	ActionResponseDTO<Resource> updateResource(String resourceId, Resource newResource, List<String> resourceTags,User user) throws Exception;
 
 	void updateResourceSourceAttribution(Integer resourceSourceId, String domainName, String attribution, Integer frameBreaker, User user, Boolean isBlacklisted) throws Exception;
 
@@ -210,5 +209,21 @@ public interface ResourceService extends BaseService {
 	void updateViewsBulk(List<UpdateViewsDTO> updateViewsDTOs, User apiCaller);
 	
 	Resource findLtiResourceByContentGooruId(String gooruContentId);
+	
+	Map<String, Object> getResource(String gooruOid);
+	
+	Resource setContentProvider(Resource resource);
+	
+	void updateStatisticsData(List<StatisticsDTO> statisticsList, boolean skipReindex);
+	
+	List<String> updateContentProvider(String gooruOid, List<String> providerList, User user, String providerType);
+
+	void deleteContentProvider(String gooruOid, String providerType, String name);
+	
+	ResourceInstance checkResourceUrlExists(String url, boolean checkShortenedUrl) throws Exception;
+	
+	Resource setContentProvider(String gooruOid);
+	
+
 
 }

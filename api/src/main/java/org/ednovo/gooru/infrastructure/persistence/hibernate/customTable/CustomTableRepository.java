@@ -26,14 +26,18 @@ package org.ednovo.gooru.infrastructure.persistence.hibernate.customTable;
 import java.util.List;
 
 import org.ednovo.gooru.core.api.model.CustomTableValue;
-//import org.ednovo.gooru.domain.model.CustomTableValue;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepository;
 
 public interface CustomTableRepository extends BaseRepository {
 
 	CustomTableValue getCustomTableValue(String name, String value);
+
 	List<CustomTableValue> getCustomTableValues(String name);
+
 	List<CustomTableValue> getFilterValueFromCustomTable(String name);
+
+	CustomTableValue getValueByDisplayName(String displayName, String name);
 	
-	
+	List<CustomTableValue> getCustomValues(String type);
+
 }

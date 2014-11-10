@@ -24,14 +24,13 @@
 package org.ednovo.gooru.infrastructure.persistence.hibernate.party;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.ednovo.gooru.core.api.model.PartyPermission;
 import org.ednovo.gooru.core.api.model.UserGroup;
 import org.ednovo.gooru.core.api.model.UserGroupAssociation;
+import org.ednovo.gooru.core.constant.ConstantProperties;
+import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -41,7 +40,7 @@ import org.springframework.stereotype.Repository;
 
 
 @Repository
-public class UserGroupRepositoryHibernate extends BaseRepositoryHibernate implements UserGroupRepository {
+public class UserGroupRepositoryHibernate extends BaseRepositoryHibernate implements UserGroupRepository,ConstantProperties,ParameterProperties {
 	
 
 	@Override
@@ -110,68 +109,65 @@ public class UserGroupRepositoryHibernate extends BaseRepositoryHibernate implem
 
 	@Override
 	public List<String> classMemberSuggest(String queryText, String gooruUid) {
-		String hql= "select distinct(external_id)  as mailId from classpage c inner join user_group u on u.user_group_code = c.classpage_code inner join content cc on cc.content_id = classpage_content_id  inner join  user_group_association ug on ug.user_group_uid = u.user_group_uid inner join identity i on i.user_uid = ug.gooru_uid  where cc.user_uid=:gooruUid  and external_id like '" + queryText + "%'";
-		Query query = getSession().createSQLQuery(hql).addScalar("mailId",StandardBasicTypes.STRING);
+		String hql= "select distinct(external_id)  as mailId from classpage c inner join user_group u on u.user_group_code = c.classpage_code inner join content cc on cc.content_id = classpage_content_id  inner join  user_group_association ug on ug.user_group_uid = u.user_group_uid inner join identity i on i.user_uid = ug.gooru_uid  where cc.user_uid=:gooruUid  and external_id like '" + queryText.replace("'", "\\")+ "%'";
+	    Query query = getSession().createSQLQuery(hql).addScalar("mailId",StandardBasicTypes.STRING);
 		query.setParameter("gooruUid", gooruUid);
 		return query.list();
 	}
 	
 	@Override
-	public List<Map<String, String>> getMyStudy(String gooruUid, String mailId, String orderBy,Integer offset, Integer limit, boolean skipPagination) {
-		String sql= "select * from  ((select cc.gooru_oid , u.name , c.classpage_code ,'active' as status, ug.association_date from classpage c inner join user_group u on u.user_group_code = c.classpage_code inner join content cc on cc.content_id = classpage_content_id  inner join  user_group_association ug on ug.user_group_uid = u.user_group_uid  where  ug.gooru_uid= '"+gooruUid+"' and ug.is_group_owner != 1 ) union (select iu.gooru_oid , r.title,clas.classpage_code ,'pending' as status, iu.created_date from invite_user iu inner join content c on c.gooru_oid = iu.gooru_oid inner join resource r on r.content_id =c.content_id inner join classpage clas on clas.classpage_content_id = r.content_id inner join custom_table_value ct on ct.custom_table_value_id = iu.status_id where iu.email = '"+mailId+"' and ct.value = 'pending')) as member ";
-		sql += "order by association_date "; 
+	public List<Object[]> getMyStudy(String gooruUid, String mailId, String orderBy,Integer offset, Integer limit, String type) {
+	    String sql = "select * from ((select cc.gooru_oid,rr.title , class.classpage_code , 'active' as status, cc.created_on , cc.user_uid, u.firstname, u.lastname, u.username, rr.folder, rr.thumbnail, ccc.item_count, 'teach' as type from user u inner join content cc on (cc.user_uid = u.gooru_uid)  inner join classpage class on (cc.content_id = class.classpage_content_id) inner join resource rr  on (rr.content_id = cc.content_id) inner join collection_item ci on (cc.content_id = ci.resource_content_id) inner join collection c on (ci.collection_content_id = c.content_id) inner join resource r on (c.content_id = r.content_id) inner join content con on (r.content_id = con.content_id) inner join collection ccc on (ccc.content_id = rr.content_id)  where con.user_uid = '"+ gooruUid+"' and c.collection_type = 'user_classpage') union (select cc.gooru_oid , rr.title , c.classpage_code ,'active' as status, ug.association_date,cc.user_uid, uu.firstname, uu.lastname, uu.username, rr.folder, rr.thumbnail, ccc.item_count, 'study' as type  from classpage c inner join user_group u on u.user_group_code = c.classpage_code inner join content cc on cc.content_id = classpage_content_id  inner join  user_group_association ug on ug.user_group_uid = u.user_group_uid inner join resource rr on rr.content_id = cc.content_id inner join user uu on uu.gooru_uid = cc.user_uid inner join collection ccc on (ccc.content_id = rr.content_id) where  ug.gooru_uid= '"+ gooruUid+"' and ug.is_group_owner != 1)) as member ";
+	    if (type != null && !type.equalsIgnoreCase("teach-study"))  {
+	    	sql  += " where type = '"+ type + "' ";
+	    }
+	    sql += " order by created_on ";
 		if(orderBy.equalsIgnoreCase("desc") || orderBy.equalsIgnoreCase("asc")) {
 			sql += orderBy;
 		} else {
 			sql += "desc";
 		}
+		
 		Query query = getSession().createSQLQuery(sql);
-		if (!skipPagination) {
 			query.setFirstResult(offset);
-			query.setMaxResults(limit);
-		}
-		return getMyStudy(query.list());
+			query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
+		return query.list();
 	}
-
-	private List<Map<String, String>> getMyStudy(List<Object[]> results) {
-		List<Map<String, String>> listMap = new ArrayList<Map<String,String>>();
-		for(Object[] object : results){
-			Map<String, String> result = new HashMap<String, String>();
-			result.put("gooruOid", (String)object[0]);
-			result.put("title", (String)object[1]);
-			result.put("classCode", (String)object[2]);
-			result.put("status", (String)object[3]);
-			listMap.add(result);
-		}
-		return listMap;
+	
+	@Override
+	public Long getUserGroupAssociationCount(String groupCode) {
+		String sql= "select count(1) from user_group_association uga inner join user_group ug on ug.user_group_uid = uga.user_group_uid where user_group_code = '"+ groupCode +"' and is_group_owner != 1";
+		Query query = getSession().createSQLQuery(sql);
+		return ((BigInteger)query.list().get(0)).longValue();
 	}
 
 	@Override
-	public Long getMyStudyCount(String gooruUid, String mailId) {
-		String sql= "select count(1) from  ((select cc.gooru_oid , u.name , c.classpage_code ,'active' as status from classpage c inner join user_group u on u.user_group_code = c.classpage_code inner join content cc on cc.content_id = classpage_content_id  inner join  user_group_association ug on ug.user_group_uid = u.user_group_uid  where  ug.gooru_uid= '"+gooruUid+"' and ug.is_group_owner != 1 ) union (select iu.gooru_oid , r.title,clas.classpage_code ,'pending' as status from invite_user iu inner join content c on c.gooru_oid = iu.gooru_oid inner join resource r on r.content_id =c.content_id inner join classpage clas on clas.classpage_content_id = r.content_id inner join custom_table_value ct on ct.custom_table_value_id = iu.status_id where iu.email = '"+mailId+"' and ct.value = 'pending')) as member ";
+	public Long getMyStudyCount(String gooruUid, String mailId, String type) {
+		String sql = "select count(1) from ((select cc.gooru_oid,rr.title , class.classpage_code , 'active' as status, cc.created_on , cc.user_uid, u.firstname, u.lastname, u.username, rr.folder, rr.thumbnail, ccc.item_count, 'teach' as type from user u inner join content cc on (cc.user_uid = u.gooru_uid)  inner join classpage class on (cc.content_id = class.classpage_content_id) inner join resource rr  on (rr.content_id = cc.content_id) inner join collection_item ci on (cc.content_id = ci.resource_content_id) inner join collection c on (ci.collection_content_id = c.content_id) inner join resource r on (c.content_id = r.content_id) inner join content con on (r.content_id = con.content_id) inner join collection ccc on (ccc.content_id = rr.content_id)  where con.user_uid = '"+ gooruUid+"' and c.collection_type = 'user_classpage') union (select cc.gooru_oid , rr.title , c.classpage_code ,'active' as status, ug.association_date,cc.user_uid, uu.firstname, uu.lastname, uu.username, rr.folder, rr.thumbnail, ccc.item_count, 'study' as type  from classpage c inner join user_group u on u.user_group_code = c.classpage_code inner join content cc on cc.content_id = classpage_content_id  inner join  user_group_association ug on ug.user_group_uid = u.user_group_uid inner join resource rr on rr.content_id = cc.content_id inner join user uu on uu.gooru_uid = cc.user_uid inner join collection ccc on (ccc.content_id = rr.content_id) where  ug.gooru_uid= '"+ gooruUid+"' and ug.is_group_owner != 1)) as member  ";
+	    if (type != null && !type.equalsIgnoreCase("teach-study"))  {
+	    	sql  += " where type = '"+ type + "' ";
+	    }
 		Query query = getSession().createSQLQuery(sql);
 		return ((BigInteger)query.list().get(0)).longValue();
 	}
 	
 	@Override
-	public List<Object[]> getUserMemberList(String code, String gooruOid, Integer offset, Integer limit, Boolean skipPagination, String filterBy) {
-		String sql= "select * from  ((select external_id, ui.username, ui.gooru_uid, null as createdDate ,'active' as status   from classpage c inner join user_group u on u.user_group_code = c.classpage_code inner join content cc on cc.content_id = classpage_content_id  inner join  user_group_association ug on ug.user_group_uid = u.user_group_uid inner join identity i on i.user_uid = ug.gooru_uid inner join user ui on ui.gooru_uid = i.user_uid   where  c.classpage_code = '"+code+"' and ug.is_group_owner != 1) union (select email,  username ,gooru_uid, created_date, 'pending' as status from invite_user iu inner join custom_table_value ctv on ctv.custom_table_value_id = iu.status_id left join identity i on iu.email = i.external_id left join user user on user.gooru_uid = i.user_uid   where gooru_oid = '"+gooruOid+"' and ctv.value= 'pending')) as member";
+	public List<Object[]> getUserMemberList(String code, String gooruOid, Integer offset, Integer limit, String filterBy) {
+		String sql= "select * from  ((select external_id, ui.username, ui.gooru_uid,  ug.association_date ,'active' as status, ui.firstname, ui.lastname   from classpage c inner join user_group u on u.user_group_code = c.classpage_code inner join content cc on cc.content_id = classpage_content_id  inner join  user_group_association ug on ug.user_group_uid = u.user_group_uid inner join identity i on i.user_uid = ug.gooru_uid inner join user ui on ui.gooru_uid = i.user_uid   where  c.classpage_code = '"+code+"' and ug.is_group_owner != 1) union (select email,  username ,gooru_uid, created_date, 'pending' as status, null, null from invite_user iu inner join custom_table_value ctv on ctv.custom_table_value_id = iu.status_id left join identity i on iu.email = i.external_id left join user user on user.gooru_uid = i.user_uid   where gooru_oid = '"+gooruOid+"' and ctv.value= 'pending')) as member";
 		
 		if(filterBy != null) {
 			sql += " where status='"+ filterBy +"'";
 		}
 		
 		Query query = getSession().createSQLQuery(sql);
-		if (!skipPagination) {
 			query.setFirstResult(offset);
-			query.setMaxResults(limit);
-		}
+			query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
 		return query.list();
 	}
 	
 	@Override
 	public Long getUserMemberCount(String code, String gooruOid, String filterBy) {
-		String sql= "select count(1) from  ((select external_id, ui.username, ui.gooru_uid, null as createdDate ,'active' as status   from classpage c inner join user_group u on u.user_group_code = c.classpage_code inner join content cc on cc.content_id = classpage_content_id  inner join  user_group_association ug on ug.user_group_uid = u.user_group_uid inner join identity i on i.user_uid = ug.gooru_uid inner join user ui on ui.gooru_uid = i.user_uid   where  c.classpage_code = '"+code+"' and ug.is_group_owner != 1) union (select email,  username ,gooru_uid, created_date, 'pending' as status from invite_user iu inner join custom_table_value ctv on ctv.custom_table_value_id = iu.status_id left join identity i on iu.email = i.external_id left join user user on user.gooru_uid = i.user_uid   where gooru_oid = '"+gooruOid+"' and ctv.value= 'pending')) as member ";
+		String sql= "select count(1) from  ((select external_id, ui.username, ui.gooru_uid, null as createdDate ,'active' as status, ui.firstname, ui.lastname   from classpage c inner join user_group u on u.user_group_code = c.classpage_code inner join content cc on cc.content_id = classpage_content_id  inner join  user_group_association ug on ug.user_group_uid = u.user_group_uid inner join identity i on i.user_uid = ug.gooru_uid inner join user ui on ui.gooru_uid = i.user_uid   where  c.classpage_code = '"+code+"' and ug.is_group_owner != 1) union (select email,  username ,gooru_uid, created_date, 'pending' as status, null , null from invite_user iu inner join custom_table_value ctv on ctv.custom_table_value_id = iu.status_id left join identity i on iu.email = i.external_id left join user user on user.gooru_uid = i.user_uid   where gooru_oid = '"+gooruOid+"' and ctv.value= 'pending')) as member ";
 		
 		if(filterBy != null) {
 			sql += " where status='"+ filterBy +"'";
@@ -179,5 +175,5 @@ public class UserGroupRepositoryHibernate extends BaseRepositoryHibernate implem
 		Query query = getSession().createSQLQuery(sql);
 		return ((BigInteger)query.list().get(0)).longValue();
 	}
-	
+
 }

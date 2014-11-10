@@ -2,8 +2,6 @@ package org.ednovo.gooru.core.api.model;
 
 import java.util.Map;
 
-import org.ednovo.gooru.core.api.model.User;
-
 public class UserSearchResult {
 
 	private User user;
@@ -28,6 +26,9 @@ public class UserSearchResult {
 	private String notes;
 	private String profileVisibility;
 	private Map<String, Map<String, Object>> meta;
+	private Integer active;
+	private String parentAccountUserName;
+	private Integer childAccountCount;
 	
 	public String getConfirmStatus() {
 		return confirmStatus;
@@ -160,6 +161,28 @@ public class UserSearchResult {
 	}
 	public void setMeta(Map<String, Map<String, Object>> meta) {
 		this.meta = meta;
+	}
+	public Integer getActive() {
+		return active;
+	}
+	public void setActive(Integer active) {
+		this.active = active;
+	}
+	
+	public String getParentAccountUserName() {
+		return parentAccountUserName;
+	}
+
+	public void setParentAccountUserName(String parentAccountUserName) {
+		this.parentAccountUserName = parentAccountUserName;
+	}
+
+	public Integer getChildAccountCount() {
+		return childAccountCount;
+	}
+
+	public void setChildAccountCount(Integer childAccountCount) {
+		this.childAccountCount = childAccountCount;
 	}
 	
 }

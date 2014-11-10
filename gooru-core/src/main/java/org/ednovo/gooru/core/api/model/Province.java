@@ -8,17 +8,17 @@ public class Province implements Serializable{
 	 * 
 	 */
 	private static final long serialVersionUID = 4360205019474599215L;
-	private String provinceId;
+	private String stateId;
 	private String name;
 	
 	private Country country;
 
-	public String getProvinceId() {
-		return provinceId;
+	public String getStateId() {
+		return stateId;
 	}
 
-	public void setProvinceId(String provinceId) {
-		this.provinceId = provinceId;
+	public void setStateId(String stateId) {
+		this.stateId = stateId;
 	}
 
 	public String getName() {

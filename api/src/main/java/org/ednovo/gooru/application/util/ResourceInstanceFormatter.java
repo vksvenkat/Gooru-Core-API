@@ -40,8 +40,8 @@ import org.ednovo.gooru.core.api.model.ResourceType;
 import org.ednovo.gooru.core.api.model.Segment;
 import org.ednovo.gooru.core.api.model.Textbook;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.core.exception.MethodFailureException;
 import org.ednovo.gooru.domain.service.resource.ResourceService;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -153,13 +153,13 @@ public class ResourceInstanceFormatter implements ParameterProperties{
 			folder.addText("");
 		}
 
-		Element question_set = null;
+		Element questionSet = null;
 		try {
-			question_set = (Element) DocumentHelper.parseText(questionXML.toString()).getRootElement();
+			questionSet = (Element) DocumentHelper.parseText(questionXML.toString()).getRootElement();
 		} catch (Exception e) {
-			throw new RuntimeException("Error while converting to a document", e);
+			throw new MethodFailureException("Error while converting to a document");
 		}
-		resourceElm.add(question_set);
+		resourceElm.add(questionSet);
 
 		return resourceElm;
 	}
@@ -262,7 +262,6 @@ public class ResourceInstanceFormatter implements ParameterProperties{
 				isDefaultThumbnail = TRUE;
 			}
 			setElementText(thumbnails, DEFAULT_IMAGE, isDefaultThumbnail, true);
-			JSONObject taxonomyDataSet = getCollectionUtil().getContentTaxonomyData(resource.getTaxonomySet(), null);
 			setElementText(resourceElement, TAXONOMY_DATA_SET, TAXONOMY_DATA_SET != null ? TAXONOMY_DATA_SET.toString() : "", true);
 			return resourceElement;
 		} catch (Exception e) {
@@ -413,7 +412,7 @@ public class ResourceInstanceFormatter implements ParameterProperties{
 			String xml = getLearnguide(learnguide, retriveSkeletons).asXML();
 			document = DocumentHelper.parseText(xml);
 		} catch (Exception e) {
-			throw new RuntimeException("Error while converting xml to document", e);
+			throw new MethodFailureException("Error while converting xml to document", e);
 		}
 		return document;
 	}

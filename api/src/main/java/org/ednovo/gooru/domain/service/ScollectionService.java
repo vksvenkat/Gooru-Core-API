@@ -34,7 +34,9 @@ import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
+import org.ednovo.gooru.core.api.model.ContentMetaDTO;
 import org.ednovo.gooru.core.api.model.Resource;
+import org.ednovo.gooru.core.api.model.ResourceSummary;
 import org.ednovo.gooru.core.api.model.StandardFo;
 import org.ednovo.gooru.core.api.model.User;
 import org.springframework.util.MultiValueMap;
@@ -55,11 +57,13 @@ public interface ScollectionService extends BaseService {
 
 	Collection copyCollection(String collectionId, Collection newCollection, boolean addToShelf, String parentId, User user) throws Exception;
 
-	ActionResponseDTO<CollectionItem> createResourceWithCollectionItem(String collectionId, Resource newResource, User user) throws Exception;
+	ActionResponseDTO<CollectionItem> createResourceWithCollectionItem(String collectionId, Resource newResource, String start, String stop, List<String> tags, User user) throws Exception;
+	
+	ActionResponseDTO<CollectionItem> updateResourceWithCollectionItem(String collectionItemId, Resource newResource,List<String> tags ,User user) throws Exception;
 
-	List<Collection> getMyCollection(String limit, String offset, String orderBy, String fetchType, String resourceType, boolean skipPagination, User user);
+	List<Collection> getMyCollection(String limit, String offset, String orderBy, String fetchType, String resourceType, User user);
 
-	List<CollectionItem> getCollectionItems(String collectionId, Integer offset, Integer limit, boolean skipPagination, String orderBy, String type);
+	List<CollectionItem> getCollectionItems(String collectionId, Integer offset, Integer limit, String orderBy, String type);
 
 	ActionResponseDTO<Collection> updateCollection(Collection newCollection, String updateCollectionId, String taxonomyCode, String ownerUId, String creatorUId, boolean hasUnrestrictedContentAccess, String relatedContentId, boolean updateTaxonomyByCode, User apiCallerUser) throws Exception;
 
@@ -79,7 +83,7 @@ public interface ScollectionService extends BaseService {
 
 	ActionResponseDTO<CollectionItem> reorderCollectionItem(String collectionItemId, int newSequence) throws Exception;
 
-	Collection getCollection(String collectionId, boolean includeMetaInfo, boolean includeCollaborator, boolean isContentFlag, User user, String merge, String rootNodeId);
+	Collection getCollection(String collectionId, boolean includeMetaInfo, boolean includeCollaborator, boolean isContentFlag, User user, String merge, String rootNodeId, boolean isGat);
 		
 	Collection copyCollection(String collectionId, String title, boolean addToShelf, User user, String taxonomyCode, String grade, String parentId) throws Exception;
 
@@ -124,4 +128,18 @@ public interface ScollectionService extends BaseService {
 	void updateFolderSharing(String collection);
 	
 	List<String> getParentCollection(String collectionGooruOid, String gooruUid, boolean reverse);
+	
+	List<ContentMetaDTO> getContentMetaAssociation(String type);
+	
+	List<ContentMetaDTO> setContentMetaAssociation(List<ContentMetaDTO> depthOfKnowledges, String collectionId, String type);
+	
+	List<ContentMetaDTO> updateContentMeta(List<ContentMetaDTO> newDepthOfKnowledges, String collectionId, User apiCaller, String type);
+	
+	void deleteBulkCollections(List<String> gooruOids);
+	
+	Map<String, Object> setRatingsObj(ResourceSummary resourceSummary);
+	
+	List<ContentMetaDTO> setContentMetaAssociation(List<ContentMetaDTO> depthOfKnowledges, Resource resource, String type);
+	
+	List<ContentMetaDTO> updateContentMeta(List<ContentMetaDTO> newDepthOfKnowledges, Resource resource, User apiCaller, String type);
 }

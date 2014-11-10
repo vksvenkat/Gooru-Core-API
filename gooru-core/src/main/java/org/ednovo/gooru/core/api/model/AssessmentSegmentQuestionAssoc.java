@@ -2,8 +2,6 @@ package org.ednovo.gooru.core.api.model;
 
 import java.io.Serializable;
 
-import org.ednovo.gooru.core.api.model.AssessmentQuestion;
-
 public class AssessmentSegmentQuestionAssoc implements Serializable {
 
 	/**

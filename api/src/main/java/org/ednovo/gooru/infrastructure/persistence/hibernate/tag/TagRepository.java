@@ -57,4 +57,8 @@ public interface TagRepository extends BaseRepository {
 	List<TagSynonyms> getTagSynonyms(String tagGooruOid);
 
 	TagSynonyms getSynonymByTagAndSynonymId(String tagGooruOid, Integer synonymsId);
+	
+	List<Object[]> getResourceByLabel(String label, Integer limit, Integer offset, String goourUid);
+	
+	Long getResourceByLabelCount(String label, String gooruUid);
 }

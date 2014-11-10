@@ -3,9 +3,6 @@ package org.ednovo.gooru.core.api.model;
 import java.io.Serializable;
 import java.util.Date;
 
-import org.ednovo.gooru.core.api.model.OrganizationModel;
-import org.ednovo.gooru.core.api.model.User;
-
 public class Template extends OrganizationModel implements Serializable {
 
 	/**
@@ -16,6 +13,7 @@ public class Template extends OrganizationModel implements Serializable {
 	private String gooruOid;
 	private String htmlContent;
 	private String textContent;
+	private String templateContent;
 	private Date createdDate;
 	private User creator;
 	private String subject;
@@ -43,7 +41,15 @@ public class Template extends OrganizationModel implements Serializable {
 	public void setTextContent(String textContent) {
 		this.textContent = textContent;
 	}
+	
+	public String getTemplateContent() {
+		return templateContent;
+	}
 
+	public void setTemplateContent(String templateContent) {
+		this.templateContent = templateContent;
+	}
+	
 	public Date getCreatedDate() {
 		return createdDate;
 	}

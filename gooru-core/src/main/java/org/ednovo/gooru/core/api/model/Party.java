@@ -2,8 +2,8 @@ package org.ednovo.gooru.core.api.model;
 
 import java.io.Serializable;
 import java.util.Date;
+
 import javax.persistence.Column;
-//import javax.persistence.Column;
 
 public class Party implements Serializable, IndexableEntry {
 
@@ -34,7 +34,15 @@ public class Party implements Serializable, IndexableEntry {
 	@Column
 	private String lastModifiedUserUid;
 	
+	private String displayName;
+	
+	private Boolean isPartner;
+	
 	private String organizationUid;
+	
+	private String id;
+	
+	private String name;
 	
 	public static enum TYPE {
 
@@ -120,4 +128,34 @@ public class Party implements Serializable, IndexableEntry {
 		this.organizationUid = organizationUid;
 	}
 
+	public void setDisplayName(String displayName) {
+		this.displayName = displayName;
+	}
+
+	public String getDisplayName() {
+		return displayName;
+	}
+
+	public void setIsPartner(Boolean isPartner) {
+		this.isPartner = isPartner;
+	}
+
+	public Boolean getIsPartner() {
+		return isPartner;
+	}
+
+	public String getId() {
+		return this.getPartyUid();
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		if (name != null) { 
+			this.setPartyName(name);
+		} 
+		this.name = this.getPartyName();
+	}
 }

@@ -67,17 +67,17 @@ public class CollaboratorRestV2Controller extends BaseController implements Para
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/suggest" }, method = RequestMethod.GET)
-	public ModelAndView collaboratorSuggest(@RequestParam(value = "query") String query, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public ModelAndView collaboratorSuggest(@RequestParam(value = QUERY) String query, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
 		return toModelAndView(this.getCollaboratorService().collaboratorSuggest(query, user.getGooruUId()), RESPONSE_FORMAT_JSON);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/content/{id}" }, method = RequestMethod.GET)
-	public ModelAndView getCollaborators(@PathVariable(ID) String gooruOid, @RequestParam(value = "groupByStatus", defaultValue = "false", required = false) Boolean groupByStatus, @RequestParam(value = "filterBy", required = false) String filterBy, HttpServletRequest request,
+	public ModelAndView getCollaborators(@PathVariable(ID) String gooruOid, @RequestParam(value = GROUP_BY_STATUS, defaultValue = "false", required = false) Boolean groupByStatus, @RequestParam(value = FILTER_BY, required = false) String filterBy, HttpServletRequest request,
 			HttpServletResponse response) throws Exception {
 		return toJsonModelAndView(groupByStatus ? this.getCollaboratorService().getCollaboratorsByGroup(gooruOid, filterBy) : this.getCollaboratorService().getCollaborators(gooruOid, filterBy), true);
 	}

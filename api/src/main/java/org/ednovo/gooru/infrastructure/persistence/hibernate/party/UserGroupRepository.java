@@ -24,7 +24,6 @@
 package org.ednovo.gooru.infrastructure.persistence.hibernate.party;
 
 import java.util.List;
-import java.util.Map;
 
 import org.ednovo.gooru.core.api.model.PartyPermission;
 import org.ednovo.gooru.core.api.model.UserGroup;
@@ -45,15 +44,17 @@ public interface UserGroupRepository extends BaseRepository {
 	
 	UserGroupAssociation getUserGroupAssociation(String gooruUid, String groupUid);
 	
+	Long getUserGroupAssociationCount(String gooruUid);
+	
 	List<UserGroupAssociation> getUserGroupAssociationByGroup(String groupUid);
 	
 	List<String> classMemberSuggest(String queryText, String gooruUid);
 	
-	List<Map<String, String>> getMyStudy(String gooruUid, String mailId, String orderBy,Integer offset, Integer limit, boolean skipPagination);
+	List<Object[]> getMyStudy(String gooruUid, String mailId, String orderBy,Integer offset, Integer limit, String type);
 	
-	Long getMyStudyCount(String gooruUid, String mailId);
+	Long getMyStudyCount(String gooruUid, String mailId, String type);
 	
-	List<Object[]> getUserMemberList(String code, String gooruOid, Integer offset, Integer limit, Boolean skipPagination,String filterBy);
+	List<Object[]> getUserMemberList(String code, String gooruOid, Integer offset, Integer limit, String filterBy);
 	
 	Long getUserMemberCount(String code, String gooruOid,String filterBy);
 

@@ -68,12 +68,12 @@ public class EventServiceImpl extends BaseServiceImpl implements EventService, P
 	@Autowired
 	private FeedbackService feedbackService;
 
-	private static final Logger logger = LoggerFactory.getLogger(EventServiceImpl.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(EventServiceImpl.class);
 
 	@Override
-	public Event createEvent(Event event, User user) {
+	public Event createEvent(final Event event, final User user) {
 		rejectIfNull(event.getName(), GL0006, EVENT__NAME);
-		Event eventData = this.getEventRepository().getEventByName(event.getName());
+		final Event eventData = this.getEventRepository().getEventByName(event.getName());
 		if (eventData != null) {
 			throw new UnauthorizedException("Event name already exists.");
 		}
@@ -85,8 +85,8 @@ public class EventServiceImpl extends BaseServiceImpl implements EventService, P
 	}
 
 	@Override
-	public Event updateEvent(String id, Event newEvent) {
-		Event event = this.getEventRepository().getEvent(id);
+	public Event updateEvent(final String id, final Event newEvent) {
+		final Event event = this.getEventRepository().getEvent(id);
 		rejectIfNull(event, GL0056, EVENT);
 		if (newEvent.getName() != null) {
 			event.setName(newEvent.getName());
@@ -97,33 +97,33 @@ public class EventServiceImpl extends BaseServiceImpl implements EventService, P
 	}
 
 	@Override
-	public Event getEvent(String id) {
+	public Event getEvent(final String id) {
 		return this.getEventRepository().getEvent(id);
 	}
 
 	@Override
-	public void deleteEvent(String id) {
-		Event event = this.getEventRepository().getEvent(id);
+	public void deleteEvent(final String eventId) {
+		final Event event = this.getEventRepository().getEvent(eventId);
 		if (event != null) {
 			this.getEventRepository().remove(event);
 		}
 	}
 
 	@Override
-	public EventMapping createEventMapping(EventMapping eventMapping, User user) {
+	public EventMapping createEventMapping(final EventMapping eventMapping, final User user) {
 		rejectIfNull(eventMapping.getEvent(),GL0006, EVENT_ID);
 		rejectIfNull(eventMapping.getEvent().getGooruOid(), GL0006,EVENT_ID);
 		rejectIfNull(eventMapping.getTemplate(), GL0006, TEMPLATE_ID);
 		rejectIfNull(eventMapping.getTemplate().getGooruOid(),GL0006, TEMPLATE_ID);
-		Event event = this.getEvent(eventMapping.getEvent().getGooruOid());
+		final Event event = this.getEvent(eventMapping.getEvent().getGooruOid());
 		rejectIfNull(event, GL0056, EVENT);
-		Template template = this.getTemplateRepository().getTemplate(eventMapping.getTemplate().getGooruOid());
+		final Template template = this.getTemplateRepository().getTemplate(eventMapping.getTemplate().getGooruOid());
 		rejectIfNull(template, GL0056, TEMPLATE);
 		eventMapping.setAssociatedBy(user);
 		eventMapping.setCreatedDate(new Date(System.currentTimeMillis()));
 		eventMapping.setTemplate(template);
 		eventMapping.setEvent(event);
-		CustomTableValue customTableValue = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.EVENT_STATUS.getTable(),
+		final CustomTableValue customTableValue = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.EVENT_STATUS.getTable(),
 				(eventMapping.getStatus() != null && eventMapping.getStatus().getValue() != null) ? eventMapping.getStatus().getValue() : CustomProperties.EventStatus.IN_ACTIVE.getStatus());
 		rejectIfNull(customTableValue, GL0056, EVENT_STATUS);
 		eventMapping.setStatus(customTableValue);
@@ -132,22 +132,22 @@ public class EventServiceImpl extends BaseServiceImpl implements EventService, P
 	}
 
 	@Override
-	public EventMapping updateEventMapping(EventMapping newEventMapping, User user) {
+	public EventMapping updateEventMapping(final EventMapping newEventMapping, final User user) {
 		rejectIfNull(newEventMapping.getEvent(),GL0006, EVENT_ID);
 		rejectIfNull(newEventMapping.getEvent().getGooruOid(), GL0006,EVENT_ID);
 		rejectIfNull(newEventMapping.getTemplate(), GL0006, TEMPLATE_ID);
 		rejectIfNull(newEventMapping.getTemplate().getGooruOid(), GL0006,TEMPLATE_ID);
-		Event event = this.getEvent(newEventMapping.getEvent().getGooruOid());
+		final Event event = this.getEvent(newEventMapping.getEvent().getGooruOid());
 		rejectIfNull(event, GL0056, EVENT);
-		Template template = this.getTemplateRepository().getTemplate(newEventMapping.getTemplate().getGooruOid());
+		final Template template = this.getTemplateRepository().getTemplate(newEventMapping.getTemplate().getGooruOid());
 		rejectIfNull(template, GL0056, TEMPLATE);
-		EventMapping eventMapping = this.getEventMapping(newEventMapping.getEvent().getGooruOid(), newEventMapping.getTemplate().getGooruOid());
+		final EventMapping eventMapping = this.getEventMapping(newEventMapping.getEvent().getGooruOid(), newEventMapping.getTemplate().getGooruOid());
 		rejectIfNull(eventMapping, GL0056, EVENT_MAPPING);
 		if (newEventMapping.getData() != null) {
 			eventMapping.setData(newEventMapping.getData());
 		}
 		if (newEventMapping.getStatus() != null && newEventMapping.getStatus().getValue() != null) {
-			CustomTableValue customTableValue = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.EVENT_STATUS.getTable(), newEventMapping.getStatus().getValue());
+			final CustomTableValue customTableValue = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.EVENT_STATUS.getTable(), newEventMapping.getStatus().getValue());
 			rejectIfNull(customTableValue,GL0056, EVENT_STATUS);
 			eventMapping.setStatus(customTableValue);
 		}
@@ -155,7 +155,7 @@ public class EventServiceImpl extends BaseServiceImpl implements EventService, P
 	}
 
 	@Override
-	public void deleteEventMapping(String eventUid, String templateUid) {
+	public void deleteEventMapping(String eventUid, final String templateUid) {
 		EventMapping eventMapping = this.getEventMapping(eventUid, templateUid);
 		if (eventMapping != null) {
 			this.getEventRepository().remove(eventMapping);
@@ -163,34 +163,32 @@ public class EventServiceImpl extends BaseServiceImpl implements EventService, P
 	}
 
 	@Override
-	public EventMapping getEventMapping(String eventUid, String templateUid) {
+	public EventMapping getEventMapping(final String eventUid, final String templateUid) {
 		return this.getEventRepository().getEventMapping(eventUid, templateUid);
 	}
 
 	@Override
-	public List<Event> getEvents() {
-		return this.getEventRepository().getEvents();
+	public List<Event> getEvents(final Integer offset, final Integer limit) {
+		return this.getEventRepository().getEvents(offset, limit);
 	}
 
 	@Override
-	public List<EventMapping> getTemplatesByEvent(String id) {
-		return this.getEventRepository().getTemplatesByEvent(id);
+	public List<EventMapping> getTemplatesByEvent(final String templateEventID) {
+		return this.getEventRepository().getTemplatesByEvent(templateEventID);
 	}
 
 	@Override
-	public EventMapping getTemplatesByEventName(String name) {
+	public EventMapping getTemplatesByEventName(final String name) {
 		return this.getEventRepository().getEventMappingByType(name);
 	}
 
 	@Override
 	public void handleJiraEvent(Map<String, String> fields) {
-		String issueKey = sendMessageToJira(fields);
-		if (issueKey != null && fields != null && fields.get(EVENT_TYPE) != null) {
-			if (fields.get(EVENT_TYPE).equals(FEEDBACK)) {
+		final String issueKey = sendMessageToJira(fields);
+		if (issueKey != null && fields != null && fields.get(EVENT_TYPE) != null && fields.get(EVENT_TYPE).equals(FEEDBACK)) {
 				Feedback newFeedback = new Feedback();
 				newFeedback.setReferenceKey(issueKey);
 				this.getFeedbackService().updateFeedback(fields.get(IDS), newFeedback,null);			
-			}
 		}
 	}
 
@@ -199,7 +197,7 @@ public class EventServiceImpl extends BaseServiceImpl implements EventService, P
 		try {
 			issueKey = this.getSoapClient().createIssue(this.getSoapSession(), null, standardJiraFields);
 		} catch (Exception e) {
-			logger.debug("Error while connecting JIRA", e);
+			LOGGER.debug("Error while connecting JIRA", e);
 		}
 		return issueKey;
 	}

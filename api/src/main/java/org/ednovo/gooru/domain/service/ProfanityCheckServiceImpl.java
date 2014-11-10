@@ -45,7 +45,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class ProfanityCheckServiceImpl implements ProfanityCheckService, ConstantProperties {
 
-	private static final Logger logger = LoggerFactory.getLogger(ProfanityCheckServiceImpl.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ProfanityCheckServiceImpl.class);
 
 	private String webPurifyAPIKey;
 
@@ -53,27 +53,27 @@ public class ProfanityCheckServiceImpl implements ProfanityCheckService, Constan
 	private BlackListWordCassandraService blackListWordCassandraService;
 
 	@Override
-	public Profanity profanityWordCheck(Profanity profanity) {
+	public Profanity profanityWordCheck(final Profanity profanity) {
 
 		if (!getBlackListWordCassandraService().validate(profanity.getText())) {
 			if (getWebPurifyAPIKey() == null) {
 				setWebPurifyAPIKey(WEBPURIFY_API_KEY);
 			}
-			ClientResource client = new ClientResource(UrlGenerator.generateUrl(WEBPURIFY_API_END_POINT, UrlToken.GET_webpurify_PROFANITY, getWebPurifyAPIKey(), LIST_METHOD, RESPONSE_FORMAT, profanity.getText()));
+			final ClientResource client = new ClientResource(UrlGenerator.generateUrl(WEBPURIFY_API_END_POINT, UrlToken.GET_webpurify_PROFANITY, getWebPurifyAPIKey(), LIST_METHOD, RESPONSE_FORMAT, profanity.getText()));
 			if (client.getStatus().isSuccess()) {
 				String response = null;
 
 				try {
 					response = client.get().getText();
-					JSONObject jsonResponse = new JSONObject(response);
-					JSONObject jsonRsp = jsonResponse.getJSONObject("rsp");
+					final JSONObject jsonResponse = new JSONObject(response);
+					final JSONObject jsonRsp = jsonResponse.getJSONObject("rsp");
 					if (jsonRsp.getString("found").equals("0")) {
 						profanity.setFound(false);
 					} else {
 						profanity.setFound(true);
 						profanity.setFoundBy("webpurify");
-						List<String> getWords = new ArrayList<String>();
-						JSONArray length = jsonRsp.getJSONArray("expletive");
+						final List<String> getWords = new ArrayList<String>();
+						final JSONArray length = jsonRsp.getJSONArray("expletive");
 						for (int i = 0; i < length.length(); i++) {
 							getWords.add(length.getString(i));
 						}
@@ -82,11 +82,11 @@ public class ProfanityCheckServiceImpl implements ProfanityCheckService, Constan
 					}
 
 				} catch (Exception e) {
-					e.printStackTrace();
+					LOGGER.debug("error"+e.getMessage());
 				}
 
 			} else {
-				logger.error("failed to web purify call failed.");
+				LOGGER.error("failed to web purify call failed.");
 				return null;
 			}
 		} else {
@@ -98,20 +98,21 @@ public class ProfanityCheckServiceImpl implements ProfanityCheckService, Constan
 		return profanity;
 	}
 
-	public void profanityCreate(Profanity profanity) throws Exception {
+	public Profanity profanityCreate(final Profanity profanity) throws Exception {
 		if (!getBlackListWordCassandraService().validate(profanity.getText())) {
-			String[] badwords = profanity.getText().split(",");
-			List<String> words = new ArrayList<String>();
+			final String[] badwords = profanity.getText().split(",");
+			final List<String> words = new ArrayList<String>();
 			for (String badword : badwords) {
 				words.add(badword);
 			}
 			getBlackListWordCassandraService().save(words);
+			return profanity;
 		} else {
 			throw new BadCredentialsException(profanity.getText());
 		}
 	}
 
-	public void profanityDelete(Profanity profanity) throws Exception {
+	public void profanityDelete(final Profanity profanity) throws Exception {
 		if (getBlackListWordCassandraService().validate(profanity.getText())) {
 			getBlackListWordCassandraService().delete(profanity.getText());
 		} else {
@@ -126,8 +127,8 @@ public class ProfanityCheckServiceImpl implements ProfanityCheckService, Constan
 	public void callBackprofanityWordCheck(Profanity profanity) throws Exception {
 		profanity = this.profanityWordCheck(profanity);
 		if (profanity != null) {
-			JSONObject response = new JSONObject();
-			JSONObject status = new JSONObject();
+			final JSONObject response = new JSONObject();
+			final JSONObject status = new JSONObject();
 			if (profanity.isFound()) {
 				status.put("value", "abuse");
 			} else {
@@ -139,20 +140,20 @@ public class ProfanityCheckServiceImpl implements ProfanityCheckService, Constan
 	}
 
 	@Override
-	public String getConfigSetting(String apiEndPoint, String key, String token) {
-		ClientResource client = new ClientResource(UrlGenerator.generateUrl(apiEndPoint, UrlToken.GET_CONFIG_SETTING, key, token));
+	public String getConfigSetting(final String apiEndPoint, final String key, final String token) {
+		final ClientResource client = new ClientResource(UrlGenerator.generateUrl(apiEndPoint, UrlToken.GET_CONFIG_SETTING, key, token));
 		String response = null;
 		if (client.getStatus().isSuccess()) {
 			try {
 				response = client.get().getText();
 			} catch (Exception e) {
-				logger.error("failed to get the config setting");
+				LOGGER.error("failed to get the config setting");
 			}
 		}
 		return response;
 	}
 
-	public void setWebPurifyAPIKey(String webPurifyAPIKey) {
+	public void setWebPurifyAPIKey(final String webPurifyAPIKey) {
 		this.webPurifyAPIKey = webPurifyAPIKey;
 	}
 

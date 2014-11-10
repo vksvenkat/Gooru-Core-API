@@ -39,7 +39,6 @@ import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.CollectionType;
 import org.ednovo.gooru.core.api.model.ContentType;
 import org.ednovo.gooru.core.api.model.ResourceType;
-import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
@@ -47,8 +46,7 @@ import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.GooruOperationConstants;
 import org.ednovo.gooru.core.security.AuthorizeOperations;
 import org.ednovo.gooru.domain.service.CollectionService;
-import org.ednovo.gooru.domain.service.resource.ResourceService;
-import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepository;
+import org.ednovo.gooru.domain.service.redis.RedisService;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepository;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.json.JSONObject;
@@ -71,29 +69,21 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 	private CollectionService collectionService;
 
 	@Autowired
-	private BaseRepository baseRepository;
-
-	@Autowired
 	private CollectionRepository collectionRepository;
 	
 	@Autowired
-	private ResourceService resourceService;
+	private RedisService redisService;
 
-	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ADD })
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_FOLDER_ADD })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { " " }, method = RequestMethod.POST)
 	public ModelAndView createFolder(@RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
 		JSONObject json = requestData(data);
-		ActionResponseDTO<Collection> responseDTO = getCollectionService().createCollection(this.buildCollectionFromInputParameters(data, user), Boolean.parseBoolean(json != null && getValue(ADD_TO_SHELF, json) != null ? getValue(ADD_TO_SHELF, json) : FALSE),
-				getValue(RESOURCE_ID, json), getValue(PARENT_ID, json), user);
+		ActionResponseDTO<Collection> responseDTO = getCollectionService().createCollection(this.buildCollectionFromInputParameters(data, user), Boolean.parseBoolean(json != null && getValue(ADD_TO_SHELF, json) != null ? getValue(ADD_TO_SHELF, json) : FALSE), getValue(RESOURCE_ID, json),
+				getValue(PARENT_ID, json), user);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-		} else {
-			response.setStatus(HttpServletResponse.SC_CREATED);
-			SessionContextSupport.putLogParameter(EVENT_NAME, "scollection-folder-create");
-			SessionContextSupport.putLogParameter(GOORU_OID, responseDTO.getModel().getGooruOid());
-			SessionContextSupport.putLogParameter(GOORU_UID, user.getPartyUid());
 		}
 		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, COLLECTION_INCLUDE_FIELDS);
 		includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_ITEM_INCLUDE_FILEDS);
@@ -101,21 +91,15 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 		return toModelAndViewWithIoFilter(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
 
-	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_UPDATE })
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_FOLDER_UPDATE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}" }, method = { RequestMethod.PUT })
 	public ModelAndView updateFolder(@PathVariable(value = ID) String collectionId, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
 		JSONObject json = requestData(data);
-		ActionResponseDTO<Collection> responseDTO = getCollectionService().updateCollection(this.buildCollectionFromInputParameters(data, user), collectionId, getValue(OWNER_UID, json), getValue(CREATOR_UID, json), hasUnrestrictedContentAccess(),
-				getValue(RELATED_CONTENT_ID, json), user);
+		ActionResponseDTO<Collection> responseDTO = getCollectionService().updateCollection(this.buildUpadteCollectionFromInputParameters(data, user), collectionId, getValue(OWNER_UID, json), getValue(CREATOR_UID, json), hasUnrestrictedContentAccess(), getValue(RELATED_CONTENT_ID, json), user);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-		} else {
-			
-			SessionContextSupport.putLogParameter(EVENT_NAME, "scollection-folder-update");
-			SessionContextSupport.putLogParameter(GOORU_UID, user.getPartyUid());
-			SessionContextSupport.putLogParameter(COLLECTION_ID, collectionId);
 		}
 
 		String[] includes = (String[]) ArrayUtils.addAll(COLLECTION_INCLUDE_FIELDS, ERROR_INCLUDE);
@@ -129,19 +113,15 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 		return toModelAndViewWithIoFilter(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
 
-
-	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_DELETE })
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_FOLDER_DELETE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}" }, method = RequestMethod.DELETE)
 	public void deleteFolder(@PathVariable(value = ID) String collectionId, HttpServletRequest request, HttpServletResponse response) {
 		User user = (User) request.getAttribute(Constants.USER);
-		SessionContextSupport.putLogParameter(EVENT_NAME, "scollection-folder-delete");
 		getCollectionService().deleteCollection(collectionId, user);
-		SessionContextSupport.putLogParameter(EVENT_NAME, "scollection-delete");
-		SessionContextSupport.putLogParameter(COLLECTION_ID, collectionId);
 	}
 
-	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ITEM_ADD })
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_FOLDER_ITEM_ADD })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}/item" }, method = RequestMethod.POST)
 	public ModelAndView createFolderItem(@PathVariable(value = ID) String collectionId, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -150,17 +130,12 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 		ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().createCollectionItem(getValue(GOORU_OID, json), collectionId, this.buildCollectionItemFromInputParameters(data, user), user, CollectionType.COLLECTION.getCollectionType(), false);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-		} else {
-			response.setStatus(HttpServletResponse.SC_CREATED);
-			SessionContextSupport.putLogParameter(EVENT_NAME, "scollection-folder-item-create");
-			SessionContextSupport.putLogParameter(GOORU_UID, user.getPartyUid());
-			SessionContextSupport.putLogParameter(COLLECTION_ID, collectionId);
 		}
 		String[] includes = (String[]) ArrayUtils.addAll(COLLECTION_ITEM_INCLUDE_FILEDS, ERROR_INCLUDE);
-		return toModelAndViewWithIoFilter(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true,includes);
+		return toModelAndViewWithIoFilter(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
 
-	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ITEM_UPDATE })
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_FOLDER_ITEM_UPDATE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/item/{id}" }, method = RequestMethod.PUT)
 	public ModelAndView updateFolderItem(@PathVariable(value = ID) String collectionItemId, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -168,93 +143,90 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 		ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().updateCollectionItem(this.buildCollectionItemFromInputParameters(data, user), collectionItemId, user);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-		} else {
-			
-			SessionContextSupport.putLogParameter(EVENT_NAME, "scollection-folder-item-update");
-			SessionContextSupport.putLogParameter(COLLECTION_ITEM_ID, collectionItemId);
 		}
 		String[] includes = (String[]) ArrayUtils.addAll(COLLECTION_ITEM_INCLUDE_FILEDS, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
-	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ITEM_LIST })
+
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_FOLDER_ITEM_LIST })
 	@RequestMapping(value = { "/{id}/item" }, method = RequestMethod.GET)
-	public ModelAndView getFolderItems(@PathVariable(value = ID) String collectionId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = ORDER_BY, required = false) String orderBy, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "20") Integer limit, @RequestParam(value = SHARING, required = false, defaultValue="private,public,anyonewithlink") String sharing, @RequestParam(value = "collectionType" , required = false) String collectionType, @RequestParam(value = ITEM_LIMIT_FIELD, required = false, defaultValue = "4") Integer itemLimit, @RequestParam(value = FETCH_CHILDS , required = false, defaultValue = "false") boolean fetchChilds, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		Map<String, Object> content = new HashMap<String, Object>();
-		content.put(SEARCH_RESULT, this.getCollectionService().getFolderItems(collectionId, limit, offset,sharing,collectionType,orderBy, itemLimit, fetchChilds));
-		content.put(COUNT, this.getCollectionRepository().getCollectionItemCount(collectionId,sharing, collectionType));
-		return toJsonModelAndView(content, true);
+	public ModelAndView getFolderItems(@PathVariable(value = ID) String collectionId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = ORDER_BY, required = false) String orderBy,
+			@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "20") Integer limit, @RequestParam(value = SHARING, required = false, defaultValue = "private,public,anyonewithlink") String sharing, @RequestParam(value = COLLECTION_TYPE, required = false) String collectionType,
+			@RequestParam(value = ITEM_LIMIT_FIELD, required = false, defaultValue = "4") Integer itemLimit, @RequestParam(value = FETCH_CHILDS, required = false, defaultValue = "false") boolean fetchChilds,
+			@RequestParam(value = CLEAR_CACHE, required = false, defaultValue = FALSE) boolean clearCache, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		User user = (User) request.getAttribute(Constants.USER);
+		return toModelAndView(this.getCollectionService().getFolderItemsWithCache(collectionId, limit, offset, sharing, collectionType, orderBy, itemLimit, fetchChilds, clearCache, user));
 	}
 
-	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ITEM_DELETE })
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_FOLDER_ITEM_DELETE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/item/{id}" }, method = RequestMethod.DELETE)
 	public void deleteCollectionItem(@PathVariable(value = ID) String collectionItemId, HttpServletRequest request, HttpServletResponse response) {
 		User user = (User) request.getAttribute(Constants.USER);
-		SessionContextSupport.putLogParameter(EVENT_NAME, "scollection-item-delete");
-		SessionContextSupport.putLogParameter(COLLECTION_ITEM_ID, collectionItemId);
 		getCollectionService().deleteCollectionItem(collectionItemId, user);
 	}
 
-	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ITEM_UPDATE })
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_FOLDER_ITEM_UPDATE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/item/{id}/reorder/{sequence}" }, method = RequestMethod.PUT)
 	public ModelAndView reorderCollectionItemSequence(@PathVariable(value = ID) String collectionItemId, @PathVariable(value = SEQUENCE) int newSequence, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().reorderCollectionItem(collectionItemId, newSequence);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-		} else {
-			
-			SessionContextSupport.putLogParameter(EVENT_NAME, "scollection-item-re-order");
-			SessionContextSupport.putLogParameter(COLLECTION_ITEM_ID, responseDTO.getModel().getCollectionItemId());
 		}
 		String[] includes = (String[]) ArrayUtils.addAll(COLLECTION_ITEM_INCLUDE_FILEDS, ERROR_INCLUDE);
 
 		return toModelAndView(serialize(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes));
 	}
 
-
-	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ADD })
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_FOLDER_MOVE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/move" }, method = RequestMethod.PUT)
 	public ModelAndView moveCollectionToFolder(HttpServletRequest request, @RequestBody String data, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
 		JSONObject json = requestData(data);
-		ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().moveCollectionToFolder(getValue(SOURCE_ID, json),json != null && getValue(TARGET_ID, json) != null ? getValue(TARGET_ID, json) : null , user);
+		ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().moveCollectionToFolder(getValue(SOURCE_ID, json), json != null && getValue(TARGET_ID, json) != null ? getValue(TARGET_ID, json) : null, user);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-		} else {
-			
-			SessionContextSupport.putLogParameter(EVENT_NAME, "move-collection-folder");
-			SessionContextSupport.putLogParameter(GOORU_UID, user.getPartyUid());
 		}
 		String[] includes = (String[]) ArrayUtils.addAll(COLLECTION_CREATE_ITEM_INCLUDE_FILEDS, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 
 	}
 
-	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_FOLDER_READ })
 	@RequestMapping(value = { "/{id}/workspace" }, method = RequestMethod.GET)
-	public ModelAndView getMyWorkspace(@PathVariable(value = ID) String gooruUid, HttpServletRequest request, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "20") Integer limit,  @RequestParam(value = SHARING, required = false, defaultValue="private,public,anyonewithlink") String sharing,@RequestParam(value = "collectionType" , required = false) String collectionType, @RequestParam(value = ITEM_LIMIT_FIELD, required = false, defaultValue = "4") Integer itemLimit, @RequestParam(value = FETCH_CHILDS , required = false, defaultValue = "false") boolean fetchChilds, HttpServletResponse resHttpServletResponse) {
+	public ModelAndView getMyWorkspace(@PathVariable(value = ID) String gooruUid, HttpServletRequest request, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "20") Integer limit,
+			@RequestParam(value = SHARING, required = false, defaultValue = "private,public,anyonewithlink") String sharing, @RequestParam(value = COLLECTION_TYPE, required = false) String collectionType,
+			@RequestParam(value = ITEM_LIMIT_FIELD, required = false, defaultValue = "4") Integer itemLimit, @RequestParam(value = FETCH_CHILDS, required = false, defaultValue = "false") boolean fetchChilds,
+			@RequestParam(value = TOP_LEVEL_COLLECTION_TYPE, required = false) String topLevelCollectionType, @RequestParam(value = ORDER_BY, required = false) String orderBy,
+			@RequestParam(value = CLEAR_CACHE, required = false, defaultValue = FALSE) boolean clearCache, HttpServletResponse resHttpServletResponse) {
 		if (gooruUid.equalsIgnoreCase(MY)) {
 			User user = (User) request.getAttribute(Constants.USER);
 			gooruUid = user.getPartyUid();
 		}
-		Map<String, Object> content = new HashMap<String, Object>();
-		content.put(SEARCH_RESULT, this.getCollectionService().getMyShelf(gooruUid, limit, offset,sharing, collectionType, itemLimit, fetchChilds));
-		content.put(COUNT, this.getCollectionRepository().getMyShelfCount(gooruUid,sharing, collectionType));
-		return toJsonModelAndView(content, true);
+		Map<String, Object> content = null;
+		final String cacheKey = "v2-organize-data-" + gooruUid + "-" + offset + "-" + limit + "-" + sharing + "-" + collectionType + "-" + itemLimit + "-" + fetchChilds + "-" + topLevelCollectionType + "-" + orderBy;
+		String data = null;
+		if (!clearCache) {
+			data = getRedisService().getValue(cacheKey);
+		}
+		if (data == null) {
+			content = new HashMap<String, Object>();
+			content.put(SEARCH_RESULT, this.getCollectionService().getMyShelf(gooruUid, limit, offset, sharing, collectionType, itemLimit, fetchChilds, topLevelCollectionType,orderBy));
+			content.put(COUNT, this.getCollectionRepository().getMyShelfCount(gooruUid, sharing, collectionType));
+			data = serializeToJson(content, true);
+			getRedisService().putValue(cacheKey, data, 86400);
+		}
+		return toModelAndView(data);
 	}
 
-	
-	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_FOLDER_READ })
 	@RequestMapping(value = { "" }, method = RequestMethod.GET)
 	public ModelAndView getFolderList(HttpServletRequest request, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "20") Integer limit,
-			@RequestParam(value = ID, required = false) String gooruOid, @RequestParam(value = "title", required = false) String title, @RequestParam(value = "username", required = false) String username, 
-			@RequestParam(value = SKIP_PAGINATION, required = false, defaultValue = FALSE) boolean skipPagination , HttpServletResponse resHttpServletResponse) {
-		Map<String, Object> content = new HashMap<String, Object>();
-		content.put(SEARCH_RESULT, this.getCollectionService().getFolderList( limit, offset, gooruOid, title, username, skipPagination));
-		content.put(COUNT, this.getCollectionRepository().getFolderListCount( gooruOid,title, username));
-		return toJsonModelAndView(content, true);
+			@RequestParam(value = ID, required = false) String gooruOid, @RequestParam(value = TITLE, required = false) String title, @RequestParam(value = USER_NAME, required = false) String username,
+		    HttpServletResponse resHttpServletResponse) {
+		return toJsonModelAndView(this.getCollectionService().getFolderList(limit, offset, gooruOid, title, username), true);
 	}
 
 	private Collection buildCollectionFromInputParameters(String data, User user) {
@@ -277,26 +249,26 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 
 		return collection;
 	}
+	
+	private Collection buildUpadteCollectionFromInputParameters(String data, User user) {
+		return JsonDeserializer.deserialize(data, Collection.class);
+	}
 
 	private CollectionItem buildCollectionItemFromInputParameters(String data, User user) {
 		CollectionItem collectionItem = JsonDeserializer.deserialize(data, CollectionItem.class);
 		return collectionItem;
 	}
 
-	public BaseRepository getBaseRepository() {
-		return baseRepository;
-	}
-
 	public CollectionService getCollectionService() {
 		return collectionService;
 	}
 
-	public ResourceService getResourceService() {
-		return resourceService;
-	}
-
 	public CollectionRepository getCollectionRepository() {
 		return collectionRepository;
+	}
+
+	public RedisService getRedisService() {
+		return redisService;
 	}
 
 }

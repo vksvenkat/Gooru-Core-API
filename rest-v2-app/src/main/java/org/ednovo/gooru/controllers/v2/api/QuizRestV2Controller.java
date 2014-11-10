@@ -102,7 +102,7 @@ public class QuizRestV2Controller extends BaseController implements ConstantProp
 		return toModelAndView(serialize(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, includes));
 	}
 
-	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_QUIZ_V2_ITEM_UPDATE })
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_QUIZ_V2_COPY })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/{id}/copy", method = RequestMethod.PUT)
 	public ModelAndView copyQuiz(@RequestBody String data, @PathVariable(value = ID) String quizId, HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -237,7 +237,7 @@ public class QuizRestV2Controller extends BaseController implements ConstantProp
 		quiz.setResourceType(resourceType);
 		quiz.setLastModified(new Date(System.currentTimeMillis()));
 		quiz.setCreatedOn(new Date(System.currentTimeMillis()));
-		quiz.setCollectionType(CollectionType.Quiz.getCollectionType());
+		quiz.setCollectionType(CollectionType.QUIZ.getCollectionType());
 		if (!hasUnrestrictedContentAccess()) {
 			quiz.setSharing(Sharing.PUBLIC.getSharing());
 		} else {

@@ -54,17 +54,29 @@ public interface FeaturedService {
 	
 	List<Map<String, Object>> getLibraryUnit(String unitId, String type, Integer offset, Integer limit, String libraryName, String rootNode);
 	
-	List<Map<String, Object>> getLibraryCollection(Integer id, String type,Integer offset, Integer limit, boolean skipPagination, String libraryName);
+	List<Map<String, Object>> getLibraryCollection(Integer id, String type,Integer offset, Integer limit, String libraryName);
 	
-	List<Map<String, Object>> getAllLibraryCollections(Integer limit, Integer offset, boolean skipPagination, String themeCode, String themeType, String subjectId, String courseId, String unitId, String lessonId, String topicId);
+	List<Map<String, Object>> getAllLibraryCollections(Integer limit, Integer offset, String themeCode, String themeType, String subjectId, String courseId, String unitId, String lessonId, String topicId, String gooruOid, String codeId);
 	
-	SearchResults<Map<String, Object>> getLibraryCollections(Integer limit, Integer offset, boolean skipPagination, String themeCode, String themeType, String subjectId, String courseId, String unitId, String lessonId, String topicId);
+	SearchResults<Map<String, Object>> getLibraryCollections(Integer limit, Integer offset, String themeCode, String themeType, String subjectId, String courseId, String unitId, String lessonId, String topicId, String gooruOid, String codeId);
 	
 	List<Map<String, Object>> getPopularLibrary(String courseId,  Integer offset, Integer limit,  String libraryName);
 
-	List<Map<String, Object>> getLibraryCourse(String code,String ChildCode, String libraryName, String rootNode);
+	List<Map<String, Object>> getLibrarySubject(String code,String childCode, String libraryName, String rootNode);
 	
-	List<Map<String,Object>> getCommunityLibraryResource(String type, Integer offset, Integer limit, boolean skipPagination,String libraryName);
+	List<Map<String,Object>> getCommunityLibraryResource(String type, Integer offset, Integer limit, String libraryName);
 
-	SearchResults<Map<String, Object>> getLibraryResource(String type, Integer offset, Integer limit, boolean skipPagination, String libraryName);
+	SearchResults<Map<String, Object>> getLibraryResource(String type, Integer offset, Integer limit, String libraryName);
+	
+	Map<String, Object> assocaiateCollectionLibrary(String featuredId,  String codeId, String gooruOid);
+	
+	List<Map<String, Object>> getLibrary(String libraryName);
+	
+	void deleteLibraryCollectionAssoc(String featuredSetId, String codeId, String gooruOid);
+	
+	List<Map<String, Object>> getLibraryItem(String type, String libraryName);
+	
+	List<Map<String, Object>> getLibraryItems(String itemType, String type,String codeId, String libraryName, String rootNodeId, Integer limit, Integer offset);
+	
+	List<Map<String, Object>> getLibraryCourse(String code,String childCode, String libraryName, String rootNode);
 }

@@ -1,7 +1,6 @@
 package org.ednovo.gooru.core.api.model;
 
 
-import org.ednovo.gooru.core.api.model.Code;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,7 +17,7 @@ public class CodeTransformer extends ObjectTransformer {
 		this.deepSerialize = deepSerialize;
 	}
 	
-		private static final Logger logger = LoggerFactory.getLogger(CodeTransformer.class);
+		private static final Logger LOGGER = LoggerFactory.getLogger(CodeTransformer.class);
 		
 		@Override
 		public void transform(Object object) {
@@ -42,7 +41,7 @@ public class CodeTransformer extends ObjectTransformer {
 		    	getContext().transform(codeModel);	
 			}
                 else {
-				logger.error("Serialization failed for user group transformer");
+				LOGGER.error("Serialization failed for user group transformer");
 				getContext().write(null);
 			}
 		}

@@ -37,8 +37,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.ednovo.gooru.core.api.model.Assessment;
 import org.ednovo.gooru.core.api.model.AssessmentQuestion;
-import org.ednovo.gooru.core.api.model.AssessmentSegment;
-import org.ednovo.gooru.core.api.model.AssessmentSegmentQuestionAssoc;
 import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.Content;
@@ -46,10 +44,8 @@ import org.ednovo.gooru.core.api.model.ContentPermission;
 import org.ednovo.gooru.core.api.model.Learnguide;
 import org.ednovo.gooru.core.api.model.Rating;
 import org.ednovo.gooru.core.api.model.Resource;
-import org.ednovo.gooru.core.api.model.ResourceInstance;
 import org.ednovo.gooru.core.api.model.ResourceType;
 import org.ednovo.gooru.core.api.model.Segment;
-import org.ednovo.gooru.core.api.model.ShelfItem;
 import org.ednovo.gooru.core.api.model.StandardFo;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserGroupSupport;
@@ -60,7 +56,6 @@ import org.ednovo.gooru.domain.service.rating.RatingService;
 import org.ednovo.gooru.domain.service.redis.RedisService;
 import org.ednovo.gooru.domain.service.search.SearchResult;
 import org.ednovo.gooru.domain.service.search.SearchResultContainer;
-import org.ednovo.gooru.domain.service.shelf.ShelfService;
 import org.ednovo.gooru.domain.service.taxonomy.TaxonomyService;
 import org.ednovo.gooru.infrastructure.mail.MailHandler;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepository;
@@ -68,11 +63,9 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.assessment.AssessmentRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.classplan.LearnguideRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentRepository;
-import org.ednovo.gooru.infrastructure.persistence.hibernate.shelf.ShelfRepositoryHibernate;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.taxonomy.TaxonomyRespository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.taxonomy.TaxonomyStoredProcedure;
 import org.ednovo.gooru.security.OperationAuthorizer;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -117,16 +110,13 @@ public class CollectionUtil implements ParameterProperties {
 	private TaxonomyService taxonomyService;
 
 	@Autowired
-	private ShelfService shelfService;
-
-	@Autowired
-	private ShelfRepositoryHibernate shelfRepositoryHibernate;
-
-	@Autowired
 	private OperationAuthorizer operationAuthorizer;
+	
+	@Autowired
+	private CollectionService collectionService;
 
 
-	private final static Logger logger = LoggerFactory.getLogger(CollectionUtil.class);
+	private final static Logger LOGGER = LoggerFactory.getLogger(CollectionUtil.class);
 
 	public void enrichCollectionWithTaxonomyMap(SearchResultContainer collectionResultContainer) {
 		if (collectionResultContainer.getSearchResults() != null) {
@@ -143,95 +133,6 @@ public class CollectionUtil implements ParameterProperties {
 		}
 	}
 
-	public void updateCollaborators(Resource resource, List<String> collaboratorsList, User apiCaller, String predicate, Set<Segment> collectionSegments, Set<AssessmentSegment> quizSegments) {
-		if (collaboratorsList != null && collaboratorsList.size() > 0 && !collaboratorsList.isEmpty()) {
-			List<User> userList = this.getUserRepository().findByIdentities(collaboratorsList);
-			updateCollaborators(resource, userList, apiCaller, predicate, true);
-			if (collectionSegments != null && collectionSegments.size() > 0) {
-				for (Segment segment : collectionSegments) {
-					for (ResourceInstance resourceInstance : segment.getResourceInstances()) {
-						if (resourceInstance != null) {
-							updateCollaborators(resourceInstance.getResource(), userList, apiCaller, predicate, false);
-						}
-					}
-				}
-			} else if (quizSegments != null && quizSegments.size() > 0) {
-				for (AssessmentSegment quizSegment : quizSegments) {
-					for (AssessmentSegmentQuestionAssoc quizSegmentQuestionAssoc : quizSegment.getSegmentQuestions()) {
-						if (quizSegmentQuestionAssoc != null) {
-							updateCollaborators(quizSegmentQuestionAssoc.getQuestion(), userList, apiCaller, predicate, false);
-						}
-					}
-				}
-			}
-
-		}
-
-	}
-
-	public void updateCollaborators(Resource resource, List<User> userList, User apiCaller, String predicate, boolean addToShelf) {
-
-		Set<ContentPermission> contentPermissions = resource.getContentPermissions();
-		List<User> newUsers = new ArrayList<User>();
-		if (contentPermissions == null) {
-			contentPermissions = new HashSet<ContentPermission>();
-		}
-		if (userList != null && userList.size() > 0) {
-			Date date = new Date();
-			for (User user : userList) {
-				if (!user.getGooruUId().equals(resource.getUser().getGooruUId())) {
-					boolean newFlag = true;
-					for (ContentPermission contentPermission : contentPermissions) {
-						if (contentPermission.getParty().getPartyUid().equals(user.getPartyUid())) {
-							newFlag = false;
-							break;
-						}
-					}
-					if (newFlag) {
-						ContentPermission contentPerm = new ContentPermission();
-						contentPerm.setParty(user);
-						contentPerm.setContent(resource);
-						contentPerm.setPermission(EDIT);
-						contentPerm.setValidFrom(date);
-						contentPermissions.add(contentPerm);
-						if (!newUsers.contains(user)) {
-							newUsers.add(user);
-						}
-						if (addToShelf) {
-							this.getShelfService().addCollaboratorShelf(contentPerm);
-						}
-					}
-				}
-			}
-			if (addToShelf) {
-				if (newUsers.size() > 0) {
-					sendMailToCollabrators(newUsers, resource, apiCaller);
-				}
-			}
-		}
-		Set<ContentPermission> removePermissions = new HashSet<ContentPermission>();
-		for (ContentPermission contentPermission : contentPermissions) {
-			boolean remove = true;
-			if (userList != null) {
-				for (User user : userList) {
-					if (user.getPartyUid().equals(contentPermission.getParty().getPartyUid())) {
-						remove = false;
-						break;
-					}
-				}
-			}
-			if (remove) {
-				removePermissions.add(contentPermission);
-			}
-		}
-		if (removePermissions.size() > 0) {
-			this.getShelfService().removeCollaboratorShelf(removePermissions);
-			contentPermissions.removeAll(removePermissions);
-			this.getBaseRepository().removeAll(removePermissions);
-		}
-
-		this.getBaseRepository().save(resource);
-	}
 
 	public List<User> updateNewCollaborator(Content content, List<String> collaboratorsList, User apiCaller, String predicate, String collaboratorOperation) {
 		List<User> userList = null;
@@ -329,22 +230,6 @@ public class CollectionUtil implements ParameterProperties {
 		}
 	}
 
-	public ShelfRepositoryHibernate getShelfRepositoryHibernate() {
-		return shelfRepositoryHibernate;
-	}
-
-	public void setShelfRepositoryHibernate(ShelfRepositoryHibernate shelfRepositoryHibernate) {
-		this.shelfRepositoryHibernate = shelfRepositoryHibernate;
-	}
-
-	public ShelfService getShelfService() {
-		return shelfService;
-	}
-
-	public void setShelfService(ShelfService shelfService) {
-		this.shelfService = shelfService;
-	}
-
 	public List<AssessmentQuestion> getAllDataOfQuestions(SearchResultContainer collectionResultContainer) {
 		if (collectionResultContainer.getSearchResults() != null) {
 			String assessmentGooruOid = "";
@@ -413,14 +298,9 @@ public class CollectionUtil implements ParameterProperties {
 	public JSONObject getContentSocialData(User user, String contentGooruOid) throws JSONException {
 		JSONObject socialDataJSON = new JSONObject();
 		Integer contentUserRating = ratingService.getContentRatingForUser(user.getPartyUid(), contentGooruOid);
-		boolean isContentAlreadySubscribed = this.getShelfService().hasContentSubscribed(user, contentGooruOid);
-		List<HashMap<String, String>> subscriptions = this.getSubscribtionUserList(contentGooruOid);
 		Rating rating = ratingService.findByContent(contentGooruOid);
 		socialDataJSON.put(CONTENT_USER_RATING, contentUserRating);
-		socialDataJSON.put(IS_CONTENT_ALREADY_SUBSCRIBED, isContentAlreadySubscribed);
 		socialDataJSON.put(CONTENT_RATING, new JSONObject(rating).put(VOTE_UP, rating.getVotesUp()));
-		socialDataJSON.put(SUBSCRIPTION_COUNT, subscriptions.size());
-		socialDataJSON.put(SUBSCRIPTION_LIST, new JSONArray(SerializerUtil.serializeToJson(subscriptions)));
 		return socialDataJSON;
 	}
 
@@ -462,7 +342,7 @@ public class CollectionUtil implements ParameterProperties {
 					lesson.add(taxonomy[length - 6]);
 				}
 			} catch (Exception e) {
-				logger.debug(e.getMessage());
+				LOGGER.debug(e.getMessage());
 			}
 		}
 
@@ -487,7 +367,7 @@ public class CollectionUtil implements ParameterProperties {
 						}
 						Code rootNode = this.getTaxonomyRepository().findCodeByCodeId(code.getRootNodeId());
 						if (rootNode == null) {
-							logger.error("FIXME: Taxonomy root was found null for code id" + code.getRootNodeId());
+							LOGGER.error("FIXME: Taxonomy root was found null for code id" + code.getRootNodeId());
 							continue;
 						}
 						String curriculumLabel = this.getTaxonomyRepository().findRootLevelTaxonomy(rootNode);
@@ -505,7 +385,7 @@ public class CollectionUtil implements ParameterProperties {
 		collectionTaxonomy.put(LESSON, lesson);
 		collectionTaxonomy.put(CURRICULUM, curriculumTaxonomy);
 		} catch (Exception e) { 
-			logger.error("failed to fetch ");
+			LOGGER.error("failed to fetch ");
 		}
 		return collectionTaxonomy;
 	}
@@ -529,29 +409,6 @@ public class CollectionUtil implements ParameterProperties {
 			segment.setSegmentImage(resource.getAssetURI() + resource.getFolder() + Constants.SEGMENT_FOLDER + "/" + segment.getSegmentImage());
 		}
 		return segment;
-	}
-
-	public List<HashMap<String, String>> getSubscribtionUserList(String gooruOid) {
-		List<ShelfItem> shelfItemList = shelfService.getShelfSubscribeUserList(gooruOid);
-		List<HashMap<String, String>> subscriptions = new ArrayList<HashMap<String, String>>();
-		if (shelfItemList != null) {
-			for (ShelfItem shelfItem : shelfItemList) {
-				User user = this.getUserRepository().findByGooruId(shelfItem.getShelf().getUserId());
-				if (user != null) {
-					if (shelfItem.getResource().getUser().getGooruUId().equalsIgnoreCase(user.getGooruUId())) {
-						continue;
-					}
-					HashMap<String, String> hMap = new HashMap<String, String>();
-					hMap.put(SUBSCRIBED_ON, shelfItem.getCreatedOn().toString());
-					hMap.put(CONT_USER_ID, shelfItem.getResource().getUser().getGooruUId());
-					hMap.put(CONT_FIRSTNAME, user.getFirstName());
-					hMap.put(CONT_LASTNAME, user.getLastName());
-					hMap.put(SCB_USER_ID, shelfItem.getShelf().getUserId());
-					subscriptions.add(hMap);
-				}
-			}
-		}
-		return subscriptions;
 	}
 
 	public Set<StandardFo> getContentStandards(Set<Code> taxonomySet, String contentGooruOid) {
@@ -621,41 +478,23 @@ public class CollectionUtil implements ParameterProperties {
 		this.operationAuthorizer = operationAuthorizer;
 	}
 
-	private void sendMailToCollabrators(List<User> users, Resource resource, User apiCaller) {
-		try {
-			String flag = "";
-			String collectionOrQuizTitle = "";
-			Learnguide learnguide = learnguideRepository.findByContent(resource.getGooruOid());
-			Assessment assessment = assessmentRepository.findQuizContent(resource.getGooruOid());
-			if (resource.getResourceType().getName().equalsIgnoreCase(ResourceType.Type.CLASSPLAN.getType()) || resource.getResourceType().getName().equalsIgnoreCase(ResourceType.Type.CLASSBOOK.getType())) {
-				collectionOrQuizTitle = learnguide.getLesson();
-				if (collectionOrQuizTitle == null) {
-					collectionOrQuizTitle = learnguide.getTitle();
-				}
-				flag = COLLECTION;
-			} else if (resource.getResourceType().getName().equalsIgnoreCase(ResourceType.Type.ASSESSMENT_QUIZ.getType()) || resource.getResourceType().getName().equalsIgnoreCase(ResourceType.Type.ASSESSMENT_EXAM.getType())) {
-				collectionOrQuizTitle = assessment.getName();
-				if (collectionOrQuizTitle == null) {
-					collectionOrQuizTitle = assessment.getTitle();
-				}
-				flag = "quiz";
-			}
-			for (User user : users) {
-
-				mailHandler.sendMailForCollaborator(user.getPartyUid(), apiCaller.getUsername(), resource.getGooruOid(), collectionOrQuizTitle, flag);
-			}
-
-		} catch (Exception e) {
-			e.printStackTrace();
+	public  void clearResourceCache(String gooruOid) { 
+		List<Collection> collections = this.getCollectionService().getResourceMoreInfo(gooruOid);
+		for (Collection collection : collections) { 
+			this.redisService.bulkKeyDelete("v2-organize-data-" + collection.getUser().getPartyUid() + "*");
 		}
 	}
-
-	public void setRedisService(RedisService redisService) {
-		this.redisService = redisService;
+	
+	public void deleteFromCache(String key) { 
+		this.redisService.bulkKeyDelete(key);
 	}
 
 	public RedisService getRedisService() {
 		return redisService;
+	}
+
+	public CollectionService getCollectionService() {
+		return collectionService;
 	}
 	
 	

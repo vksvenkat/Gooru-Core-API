@@ -2,10 +2,6 @@ package org.ednovo.gooru.core.api.model;
 
 import java.io.Serializable;
 
-import org.ednovo.gooru.core.api.model.OrganizationModel;
-import org.ednovo.gooru.core.api.model.Task;
-import org.ednovo.gooru.core.api.model.User;
-
 
 public class TaskUserAssoc extends OrganizationModel implements Serializable {
 

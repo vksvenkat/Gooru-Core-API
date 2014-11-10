@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.ednovo.gooru.core.application.util.BaseUtil;
+
 
 public class AssessmentQuestion extends Resource {
 	
@@ -362,12 +364,17 @@ public class AssessmentQuestion extends Resource {
 				questionThumbnail = new Thumbnail();
 			}
 			for(AssessmentQuestionAssetAssoc assests : getAssets()) {
-				questionThumbnail.setUrl(getAssetURI() + getFolder() + (assests == null  || assests.getAsset() == null  ?  null : assests.getAsset().getName()));
+				if(assests != null && assests.getAsset() != null && BaseUtil.getYoutubeVideoId(assests.getAsset().getName()) != null || assests.getAsset().getName().contains("http://www.youtube.com")){
+					questionThumbnail.setUrl("img.youtube.com/vi/"+ BaseUtil.getYoutubeVideoId(assests.getAsset().getUrl()) + "/1.jpg");
+				} else {
+					questionThumbnail.setUrl(getAssetURI() + getFolder() + (assests == null  || assests.getAsset() == null  ?  null : assests.getAsset().getName()));
+				}
 				break;
 			}
 		}
 		return questionThumbnail;
 	}
+	
 
 	public String getQuizNetwork() {
 		return quizNetwork;

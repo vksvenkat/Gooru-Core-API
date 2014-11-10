@@ -32,16 +32,22 @@ import org.ednovo.gooru.core.api.model.Party;
 import org.ednovo.gooru.core.api.model.PartyCustomField;
 import org.ednovo.gooru.core.api.model.Profile;
 import org.ednovo.gooru.core.api.model.User;
+import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.party.PartyRepository;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.type.StandardBasicTypes;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public class PartyRepositoryHibernate extends BaseRepositoryHibernate implements PartyRepository, ParameterProperties, ConstantProperties {
+	
+	@Autowired
+	private SettingService settingService;
 
 	@Override
 	public Party findPartyById(String partyUid) {
@@ -53,6 +59,7 @@ public class PartyRepositoryHibernate extends BaseRepositoryHibernate implements
 
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<PartyCustomField> getPartyCustomFields(String partyUid, String optionalKey, String category) {
 		Session session = getSession();
@@ -83,18 +90,22 @@ public class PartyRepositoryHibernate extends BaseRepositoryHibernate implements
 	}
 	
 	@Override
+	public PartyCustomField getPartyCustomFieldByKey(String optionalValue, String optionalKey) {
+		String hql = " FROM  PartyCustomField partycustomfield  WHERE partycustomfield.optionalValue= '" + optionalValue + "'  and  partycustomfield.optionalKey= '" + optionalKey + "'";
+		Query query = getSession().createQuery(hql);
+		return (query != null && query.list() != null && query.list().size() > 0) ? (PartyCustomField) query.list().get(0) : null;
+	}
+	
+	@Override
 	public Profile getUserDateOfBirth(String partyUid, User user){
-		Session session = getSession();
-		Query query = session.createQuery("FROM  Profile profile  WHERE profile.user.partyUid= '" + partyUid + "'");
-		releaseSession(session);
+		Query query = getSession().createQuery("FROM  Profile profile  WHERE profile.user.partyUid= '" + partyUid + "'");
 		return  (query != null && query.list() != null && query.list().size() > 0) ? (Profile) query.list().get(0) : null;
 	}
 
 	@Override
 	public Integer getCountInActiveMailSendToday() {
-		Session session = getSession();
 		String sql = "select count(1) as count from party_custom_field p where p.optional_value != '-' and  date(p.optional_value) = date(now())";
-		Query query = session.createSQLQuery(sql).addScalar("count", StandardBasicTypes.INTEGER);
+		Query query = getSession().createSQLQuery(sql).addScalar("count", StandardBasicTypes.INTEGER);
 		return (Integer) query.list().get(0);
 	}
 
@@ -122,12 +133,12 @@ public class PartyRepositoryHibernate extends BaseRepositoryHibernate implements
 		return ((Integer) query.list().get(0)) == 1 ? true : false;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public List<Map<Object, Object>> getPartyDetails(String optionalKey, String optionalValue) {
-		Session session = getSession();
-		String sql = "select p.party_uid as gooruUId, username, pp.optional_value  as displayName from party_custom_field p inner join user  on p.party_uid = gooru_uid inner join  party_custom_field pp on pp.party_uid = gooru_uid where p.optional_key = 'is_partner' and p.optional_value = 'true' and pp.optional_key = 'user_display_name' order by username";
-		Query query = session.createSQLQuery(sql).addScalar(GOORU_UID, StandardBasicTypes.STRING).
-		addScalar(USER_NAME, StandardBasicTypes.STRING).addScalar(DISPLAY_NAME, StandardBasicTypes.STRING);
+	public List<Map<Object, Object>> getPartyDetails() {
+		String sql = " select p.party_uid as gooruUId, u.username as username, p.display_name as displayName, u.organization_uid as organizationUid  from party p inner join user u on p.party_uid = u.gooru_uid inner join party_custom_field pc on pc.party_uid= u.gooru_uid  where p.is_partner = 1 and pc.optional_key = 'sequence'  order by cast(pc.optional_value as SIGNED )";
+		Query query = getSession().createSQLQuery(sql).addScalar(GOORU_UID, StandardBasicTypes.STRING).
+		addScalar(USER_NAME, StandardBasicTypes.STRING).addScalar(DISPLAY_NAME, StandardBasicTypes.STRING).addScalar("organizationUid", StandardBasicTypes.STRING);
 		return getPartyDetails(query.list());
 	}
 	
@@ -138,6 +149,7 @@ public class PartyRepositoryHibernate extends BaseRepositoryHibernate implements
 			party.put(GOORU_UID,  object[0]);
 			party.put(USER_NAME, object[1]);
 			party.put(DISPLAY_NAME, object[2]);
+			party.put(IMAGE_URL, settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, String.valueOf(object[3])) + "/" + settingService.getConfigSetting(ConfigConstants.PROFILE_BUCKET,String.valueOf(object[3])) +String.valueOf(object[0]) + "-1000x300.png");
 			partyDetails.add(party);
 		}
 		return partyDetails; 

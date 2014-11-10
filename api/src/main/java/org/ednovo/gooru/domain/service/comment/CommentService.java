@@ -39,9 +39,9 @@ public interface CommentService extends BaseService {
 
 	Comment getComment(String commentUid);
 
-	List<Comment> getComments(String gooruOid, String gooruUid, Integer limit, Integer offset,String fetchType);
+	List<Comment> getComments(String itemId, String gooruOid, String gooruUid, Integer limit, Integer offset,String fetchType);
 	
-	SearchResults<Comment> getCommentsCount(String gooruOid, String gooruUid, Integer limit, Integer offset,String fetchType);
+	SearchResults<Comment> getCommentsCount(String itemId,String gooruOid, String gooruUid, Integer limit, Integer offset,String fetchType);
 
 	void deleteComment(String commentUid, User user,Boolean softdelete);
 	

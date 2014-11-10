@@ -66,7 +66,7 @@ public class PostRestV2Controller extends BaseController implements ParameterPro
 	public ModelAndView createPost(@RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
 		Post post = this.getPostService().createPost(this.buildPostFromInputParameters(data, request), user);
-		SessionContextSupport.putLogParameter(EVENT_NAME, "create-post");
+		SessionContextSupport.putLogParameter(EVENT_NAME, CREATE_POST);
 		SessionContextSupport.putLogParameter(USER_ID, user.getUserId());
 		SessionContextSupport.putLogParameter(GOORU_UID, user.getPartyUid());
 		return toModelAndViewWithIoFilter(post, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, POST_INCLUDE_FIELDS);
@@ -77,8 +77,8 @@ public class PostRestV2Controller extends BaseController implements ParameterPro
 	@RequestMapping(method = RequestMethod.PUT, value = "/{id}")
 	public ModelAndView updatePost(@RequestBody String data, @PathVariable(value = ID) String postId, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		Post post = this.getPostService().updatePost(postId, this.buildPostFromInputParameters(data, request));
-		SessionContextSupport.putLogParameter(EVENT_NAME, "update-post");
-		SessionContextSupport.putLogParameter("postId", postId);
+		SessionContextSupport.putLogParameter(EVENT_NAME,UPDATE_POST);
+		SessionContextSupport.putLogParameter(POST_ID, postId);
 		return toModelAndViewWithIoFilter(post, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, POST_INCLUDE_FIELDS);
 
 	}
@@ -111,7 +111,7 @@ public class PostRestV2Controller extends BaseController implements ParameterPro
 	@RequestMapping(method = RequestMethod.GET, value = "/{id}/comment")
 	public ModelAndView getPostComments(HttpServletRequest request, @PathVariable(value = ID) String gooruOid, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "20") Integer limit,
 			HttpServletResponse response) throws Exception {
-		return toModelAndViewWithIoFilter(this.getCommentService().getComments(gooruOid, null, limit, offset,"notdelted"), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, POST_INCLUDE_FIELDS);
+		return toModelAndViewWithIoFilter(this.getCommentService().getComments(null,gooruOid, null, limit, offset,NOT_DELETED), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, POST_INCLUDE_FIELDS);
 	}
 
 	private String getPostType(HttpServletRequest request) {

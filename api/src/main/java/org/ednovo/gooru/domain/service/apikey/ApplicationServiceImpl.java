@@ -23,174 +23,210 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.domain.service.apikey;
 
-import java.util.Date;
+import java.sql.Date;
 import java.util.List;
 import java.util.UUID;
 
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
-import org.ednovo.gooru.core.api.model.ApiKey;
+import org.ednovo.gooru.core.api.model.Application;
+import org.ednovo.gooru.core.api.model.ApplicationItem;
+import org.ednovo.gooru.core.api.model.ContentType;
 import org.ednovo.gooru.core.api.model.CustomTableValue;
-import org.ednovo.gooru.core.api.model.Organization;
-import org.ednovo.gooru.core.api.model.PartyCustomField;
+import org.ednovo.gooru.core.api.model.OAuthClient;
+import org.ednovo.gooru.core.api.model.ResourceType;
+import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.domain.service.BaseServiceImpl;
-import org.ednovo.gooru.domain.service.PartyService;
 import org.ednovo.gooru.domain.service.party.OrganizationService;
+import org.ednovo.gooru.domain.service.search.SearchResults;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.apikey.ApplicationRepository;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.auth.OAuthRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
-import org.restlet.Response;
-import org.restlet.data.ChallengeResponse;
-import org.restlet.data.ChallengeScheme;
-import org.restlet.data.Form;
-import org.restlet.resource.ClientResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
 
 @Service
-public class ApplicationServiceImpl extends BaseServiceImpl implements ApplicationService,ParameterProperties,ConstantProperties {
+public class ApplicationServiceImpl extends BaseServiceImpl implements ApplicationService, ParameterProperties, ConstantProperties {
 
 	@Autowired
-	private ApplicationRepository apiKeyRepository;
+	private ApplicationRepository applicatioRepository;
 
-	@Autowired
-	private PartyService partyService;
-	
 	@Autowired
 	private OrganizationService organizationService;
-	
+
 	@Autowired
 	private CustomTableRepository customTableRepository;
 
-	@Override
-	public List<ApiKey> findApplicationByOrganization(String organizationUid){
-		return apiKeyRepository.getApplicationByOrganization(organizationUid);
-	}
-
-	@Override
-	public ActionResponseDTO<ApiKey> saveApplication(ApiKey apikey, User user ,String organizationUid) throws Exception{
-		Errors error = validateApiKey(apikey);
-		if (!error.hasErrors()) {
-			PartyCustomField partyCustomField = partyService.getPartyCustomeField(user.getPartyUid(), ConstantProperties.ORG_ADMIN_KEY, user);
-			if(partyCustomField != null && partyCustomField.getOptionalValue() != null){
-				Organization organization = null;
-				 //If organization is passed from superadmin use it else set loggedin users organization details
-                if(organizationUid != null){
-                   organization = organizationService.getOrganizationById(organizationUid);
-                }else{
-                      organization = organizationService.getOrganizationById(partyCustomField.getOptionalValue());
-                }
-				
-                if(organization == null){
-					throw new RuntimeException("Organization not found !");
-				}
-
-				apikey.setActiveFlag(1);
-				apikey.setSecretKey(UUID.randomUUID().toString());
-				apikey.setKey(UUID.randomUUID().toString());
-				apikey.setOrganization(organization);
-				apikey.setLimit(-1);
-				apikey.setDescription(apikey.getDescription());
-				CustomTableValue type = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.APPLICATION_STATUS.getTable(), CustomProperties.ApplicationStatus.DEVELOPMENT.getApplicationStatus());
-				apikey.setStatus(type.getValue());
-				apikey.setComment(apikey.getComment());
-				apiKeyRepository.save(apikey);
-			}
-			else {
-				throw new RuntimeException("Admin organization not found in custom fields");
-			}
-		}
-		return new ActionResponseDTO<ApiKey>(apikey, error);
-	}
+	@Autowired
+	private OAuthRepository oAuthRepository;
 	
-	private Errors validateApiKey(ApiKey apiKey) {
-		final Errors errors = new BindException(apiKey, API_KEY);
-		rejectIfNull(errors, apiKey, APP_NAME, GL0056, generateErrorMessage(GL0056, APP_NAME));
-		rejectIfNull(errors, apiKey, APP_URL, GL0056, generateErrorMessage(GL0056, APP_URL));
+	@Override
+	public ActionResponseDTO<Application> createApplication(Application application, User apiCaller) {
+		final Errors errors = validateCreateApplication(application);
+		if (!errors.hasErrors()) {
+			application.setGooruOid(UUID.randomUUID().toString());
+			application.setSecretKey(UUID.randomUUID().toString().replaceAll("-", ""));
+			application.setKey(UUID.randomUUID().toString().replaceAll("-", ""));
+			if (application.getStatus() != null && application.getStatus().getValue() != null) {
+				CustomTableValue status = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.APPLICATION_STATUS.getTable(), application.getStatus().getValue());
+				rejectIfNull(status, GL0007, " application status ");
+				application.setStatus(status);
+			} else { 
+				CustomTableValue status = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.APPLICATION_STATUS.getTable(), CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus());
+				application.setStatus(status);
+			}
+			rejectIfNull(application.getOrganization(), GL0006, "Organization ");
+			rejectIfNull(application.getOrganization().getPartyUid(), GL0006, "Organization ");
+			rejectIfNull(this.getOrganizationService().getOrganizationById(application.getOrganization().getPartyUid()), GL0007, "Organization ");
+			application.setContentType((ContentType) this.getApplicationRepository().get(ContentType.class, RESOURCE));
+			application.setResourceType((ResourceType) this.getApplicationRepository().get(ResourceType.class, ResourceType.Type.APPLICATION.getType()));
+			application.setLastModified(new Date(System.currentTimeMillis()));
+			application.setCreatedOn(new Date(System.currentTimeMillis()));
+			application.setUser(apiCaller);
+			application.setOrganization(apiCaller.getPrimaryOrganization());
+			application.setIsFeatured(0);
+			application.setCreator(apiCaller);
+			application.setRecordSource(NOT_ADDED);
+			application.setLastUpdatedUserUid(apiCaller.getGooruUId());
+			application.setSharing(Sharing.PRIVATE.getSharing());
+			this.getApplicationRepository().save(application);
+		}
+		return new ActionResponseDTO<Application>(application, errors);
+	}
+
+	@Override
+	public Application updateApplication(Application newapplication, String apiKey) {
+		Application application = this.getApplicationRepository().getApplication(apiKey);
+		rejectIfNull(application, GL0056, 404, "Application ");
+		if (newapplication.getTitle() != null) {
+			application.setTitle(newapplication.getTitle());
+		}
+		if (newapplication.getDescription() != null) {
+			application.setDescription(newapplication.getDescription());
+		}
+		if (newapplication.getUrl() != null) {
+			application.setUrl(newapplication.getUrl());
+		}
+		if (newapplication.getComment() != null) {
+			application.setComment(newapplication.getComment());
+		}
+		if (newapplication.getContactEmailId() != null) {
+			application.setContactEmailId(newapplication.getContactEmailId());
+		}
+
+		if (newapplication.getStatus() != null && newapplication.getStatus().getValue() != null) {
+			CustomTableValue status = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.APPLICATION_STATUS.getTable(), application.getStatus().getValue());
+			rejectIfNull(status, GL0007, " application status ");
+			application.setStatus(status);
+		}
+		this.getApplicationRepository().save(application);
+		return application;
+	}
+
+	@Override
+	public Application getApplication(String apiKey) {
+		Application application = this.getApplicationRepository().getApplication(apiKey);
+		application.setApplicationItems(this.getApplicationRepository().getApplicationItemByApiKey(apiKey));
+		application.setOauthClients(oAuthRepository.findOAuthClientByApplicationKey(apiKey));
+		return application;
+	}
+
+	@Override
+	public SearchResults<Application> getApplications(String organizationUid,String gooruUid, Integer limit, Integer offset) {
+		SearchResults<Application> result = new SearchResults<Application>();
+		result.setSearchResults(this.getApplicationRepository().getApplications(organizationUid,gooruUid, offset, limit));
+		result.setTotalHitCount(this.getApplicationRepository().getApplicationCount(organizationUid, gooruUid));
+		return result;
+	}
+
+	@Override
+	public void deleteApplication(String apiKey) {
+		Application application = this.getApplicationRepository().getApplication(apiKey);
+		rejectIfNull(application, GL0056, 404, "Application ");
+		this.getApplicationRepository().remove(application);
+	}
+
+	private Errors validateCreateApplication(Application application) {
+		final Errors errors = new BindException(application, "application");
+		rejectIfNull(errors, application, TITLE, GL0006, generateErrorMessage(GL0006, TITLE));
 		return errors;
 	}
+	@Override
+	public ActionResponseDTO<ApplicationItem> createApplicationItem(ApplicationItem applicationItem,String apiKey, User apiCaller) {
+		final Errors errors = validateCreateApplicationItem(applicationItem);
+		if (!errors.hasErrors()) {
+			rejectIfNull(applicationItem.getApplication(), GL0006, "Application key ");
+			rejectIfNull(applicationItem.getApplication().getKey(), GL0006, "Application key ");
+			Application application = this.getApplicationRepository().getApplication(apiKey);
+			rejectIfNull(application, GL0007, "Application key ");
+			applicationItem.setApplication(application);
+			this.getApplicationRepository().save(applicationItem);
+		}
+		return new ActionResponseDTO<ApplicationItem>(applicationItem, errors);
+	}
+	
+	@Override
+	public ActionResponseDTO<ApplicationItem>  updateApplicationItem(ApplicationItem newApplicationItem, String applicationItemId, User apiCaller) throws Exception {
+		ApplicationItem applicationItem = this.getApplicationRepository().getApplicationItem(applicationItemId);
+		final Errors errors = validateUpdateApplicationItem(applicationItem);
+		rejectIfNull(applicationItem, GL0056, 404, "ApplicationItem ");
+		if (newApplicationItem.getUrl() != null) {
+			applicationItem.setUrl(newApplicationItem.getUrl());
+		}
+		if (newApplicationItem.getDisplayName() != null) {
+			applicationItem.setDisplayName(newApplicationItem.getDisplayName());
+		}
+		if (newApplicationItem.getDisplaySequence() != null) {
+			applicationItem.setDisplaySequence(newApplicationItem.getDisplaySequence());
+		}
+		this.getApplicationRepository().save(applicationItem);
+		return new ActionResponseDTO<ApplicationItem>(applicationItem, errors);
+	}
+	
+	private Errors validateUpdateApplicationItem(ApplicationItem applicationItem) throws Exception {
+		final Errors errors = new BindException(applicationItem, APPLICATION_ITEM);
+		rejectIfNull(errors, applicationItem, APPLICATION_ITEM, GL0056, generateErrorMessage(GL0056, APPLICATION_ITEM));
+		return errors;
+	}
+	
+	@Override
+	public ApplicationItem getApplicationItem(String applicationItemId) {
+		return this.getApplicationRepository().getApplicationItem(applicationItemId);
+	}
+	
+	private Errors validateCreateApplicationItem(ApplicationItem applicationItem) {
+		final Errors errors = new BindException(applicationItem, "applicationItem");
+		rejectIfNull(errors, applicationItem, APPLICATION_URL, GL0006, generateErrorMessage(GL0006, APPLICATION_URL));
+		return errors;
+	}
+	
 
 	@Override
-	public ActionResponseDTO<ApiKey> updateApplication(ApiKey apikey, User user)
-			throws Exception {
-		Errors error = validateApiKey(apikey);
-		ApiKey existingApiKey = apiKeyRepository.getApplicationByAppKey(apikey.getKey());
-		if (!error.hasErrors()) {
-			if(apikey.getDescription() != null){
-			 existingApiKey.setDescription(apikey.getDescription());
-			}
-			if(apikey.getAppName() != null){
-			 existingApiKey.setAppName(apikey.getAppName());
-			}
-			if(apikey.getAppURL() != null){
-			 existingApiKey.setAppURL(apikey.getAppURL());
-			}
-			existingApiKey.setLastUpdatedUserUid(user.getPartyUid());
-			existingApiKey.setLastUpdatedDate(new Date(System.currentTimeMillis()));
-			
-			if(apikey.getStatus() != null){
-			 existingApiKey.setStatus(apikey.getStatus());
-			}
-			if(apikey.getComment() != null){
-			 existingApiKey.setComment(apikey.getComment());
-			}
-			apiKeyRepository.save(existingApiKey);
-		}
-		return new ActionResponseDTO<ApiKey>(existingApiKey, error);
+	public List<ApplicationItem> getApplicationItemByApiKey(String apiKey) throws Exception {
+		return this.getApplicationRepository().getApplicationItemByApiKey(apiKey);
 	}
 	
-	@Override
-	public ActionResponseDTO<ApiKey> createJira(ApiKey apiKey, String username,String password,String appName,String appKey)  {
-		   
-		   Errors error = validateApiKey(apiKey);
-		   ApiKey existingApiKey = apiKeyRepository.getApplicationByAppKey(apiKey.getKey());
-		   try{
-			   String auth = new String(org.apache.commons.codec.binary.Base64.encodeBase64((username+":"+password).getBytes()));
-			   Form form = new Form();
-			   form.add("issuetype", ISSUE);
-			   form.add("pid", PID);
-			   form.add("summary", "Request to create Appkey for "+ appName +" in the Production");
-			   form.add("description", "Request to create Appkey for development Application Name : "+ appName + " and development Application Key : "+ appKey + " in the Production");
-			   form.add("components", COMPONENTS);
-			   form.add("assignee", "-1");
-			   form.add("reporter", JIRA_REPORTER);
-	
-			    ClientResource httpClient = new ClientResource("http://collab.ednovo.org/jira/secure/QuickCreateIssue.jspa?decorator=none");
-			    Form headers = (Form)httpClient.getRequestAttributes().get("org.restlet.http.headers");
-			    
-			    if (headers == null) {
-			        headers = new Form();
-			        httpClient.getRequestAttributes().put("org.restlet.http.headers", headers);
-			    }
-			    headers.set("X-Atlassian-Token", "no-check");
-			    ChallengeResponse challengeResponse = new ChallengeResponse(ChallengeScheme.HTTP_BASIC, username, password);
-			    httpClient.setChallengeResponse(challengeResponse);
-			    httpClient.post(form);
-			    Response resp = httpClient.getResponse();
-			    String text = resp.getEntity().getText();
-			    String status = resp.getStatus().toString();
-			    if (status.contains("200")){
-			    	 CustomTableValue type = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.APPLICATION_STATUS.getTable(), CustomProperties.ApplicationStatus.SUBMITTED_FOR_REVIEW.getApplicationStatus());
-			 		 apiKey.setStatus(type.getValue());
-			 		 apiKey.setKey(appKey);
-			 		 apiKeyRepository.save(existingApiKey);
-		 		}else{				   
-		 			 throw new RuntimeException(text);
-			 			   
-		 		}	
-		   }catch(Exception e){
-			   
-			   throw new RuntimeException(e);   
-		   }
-		   
-		return new ActionResponseDTO<ApiKey>(existingApiKey, error);	
-	}
 	public CustomTableRepository getCustomTableRepository() {
 		return customTableRepository;
 	}
+
+	public ApplicationRepository getApplicationRepository() {
+		return applicatioRepository;
+	}
+
+	public OrganizationService getOrganizationService() {
+		return organizationService;
+	}
+	
+	public OAuthRepository getOAuthRepository() {
+		return oAuthRepository;
+	}
+
+	
 
 }

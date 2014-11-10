@@ -75,8 +75,8 @@ public class PartyServiceImpl extends BaseServiceImpl implements PartyService, P
 		if (partyId != null && partyId.equalsIgnoreCase(MY)) {
 			partyId = user.getUserUid();
 		}
-		Party party = getPartyRepository().findPartyById(partyId);
-		Errors error = validatePartyCustomField(partyCustomField, party);
+		final Party party = getPartyRepository().findPartyById(partyId);
+		final Errors error = validatePartyCustomField(partyCustomField, party);
 		if (!error.hasErrors()) {
 			partyCustomField.setPartyUid(partyId);
 			getPartyRepository().save(partyCustomField);
@@ -85,40 +85,41 @@ public class PartyServiceImpl extends BaseServiceImpl implements PartyService, P
 		return new ActionResponseDTO<PartyCustomField>(partyCustomField, error);
 	}
 
-	private Errors validatePartyCustomField(PartyCustomField partyCustomField, Party party) {
-		Map<String, String> partyCategory = getCategory();
+	private Errors validatePartyCustomField(PartyCustomField partyCustomField, final Party party) {
+		final Map<String, String> partyCategory = getCategory();
 		final Errors errors = new BindException(partyCustomField, PARTY_CUSTOM_FIELD);
-		rejectIfNull(errors, party, "party", "GL0056", generateErrorMessage("GL0056", "party"));
-		rejectIfInvalidType(errors, partyCustomField.getCategory(), CATEGORY, "GL0007", generateErrorMessage("GL0007", CATEGORY), partyCategory);
+		rejectIfNull(errors, party, PARTY, GL0056, generateErrorMessage(GL0056, PARTY));
+		rejectIfInvalidType(errors, partyCustomField.getCategory(), CATEGORY, GL0007, generateErrorMessage(GL0007, CATEGORY), partyCategory);
 		return errors;
 	}
 
 	@Override
-	public List<PartyCustomField> getPartyCustomFields(String partyId, PartyCustomField partyCustomField, User user) {
+	public List<PartyCustomField> getPartyCustomFields(String partyId, final PartyCustomField partyCustomField, User user) {
 
 		return getPartyRepository().getPartyCustomFields(partyId, partyCustomField != null ? partyCustomField.getOptionalKey() : null, partyCustomField != null ? partyCustomField.getCategory() : null);
 	}
 
 	@Override
-	public PartyCustomField getPartyCustomeField(String partyId, String optionalKey, User user) {
+	public PartyCustomField getPartyCustomeField(String partyId, final String optionalKey, User user) {
 
 		return getPartyRepository().getPartyCustomField(partyId, optionalKey);
 	}
 	
 
 	@Override
-	public Profile getUserDateOfBirth(String partyId, User user) {
+	public Profile getUserDateOfBirth(String partyId, final User user) {
 		return getPartyRepository().getUserDateOfBirth(partyId, user);
 	}
 
 	@Override
-	public ActionResponseDTO<PartyCustomField> updatePartyCustomField(String partyId, PartyCustomField newPartyCustomField, User user) {
+	public ActionResponseDTO<PartyCustomField> updatePartyCustomField(String partyId, final PartyCustomField newPartyCustomField, final User user) {
 		PartyCustomField partyCustomField = null;
 		if (partyId != null && partyId.equalsIgnoreCase(MY)) {
 			partyId = user.getUserUid();
 		}
 		partyCustomField = this.getPartyRepository().getPartyCustomField(partyId, newPartyCustomField.getOptionalKey());
-		Errors errors = validateUpdatePartyCustomField(partyCustomField, newPartyCustomField);
+		rejectIfNull(partyCustomField, GL0056, 404, "PartyCustomField");
+		final Errors errors = validateUpdatePartyCustomField(partyCustomField, newPartyCustomField);
 		if (!errors.hasErrors()) {
 			if (partyCustomField != null) {
 				if (newPartyCustomField.getOptionalValue() != null) {
@@ -129,7 +130,7 @@ public class PartyServiceImpl extends BaseServiceImpl implements PartyService, P
 				}
 			}
 			this.getPartyRepository().save(partyCustomField);
-			if (newPartyCustomField.getOptionalKey() != null && newPartyCustomField.getOptionalKey().equalsIgnoreCase("show_profile_page")) {
+			if (newPartyCustomField.getOptionalKey() != null && newPartyCustomField.getOptionalKey().equalsIgnoreCase(SHOW_PROFILE_PAGE)) {
 				indexProcessor.index(partyId, IndexProcessor.INDEX, USER, true);
 			} else {
 				indexProcessor.index(partyId, IndexProcessor.INDEX, USER, false);
@@ -141,30 +142,30 @@ public class PartyServiceImpl extends BaseServiceImpl implements PartyService, P
 		return new ActionResponseDTO<PartyCustomField>(partyCustomField, errors);
 	}
 
-	private Errors validateUpdatePartyCustomField(PartyCustomField partyCustomField, PartyCustomField newPartyCustomField) {
-		final Errors errors = new BindException(partyCustomField, "partyCustomField");
-		rejectIfNull(errors, newPartyCustomField, "partyCustomField", "GL0056", generateErrorMessage("GL0056", "partyCustomField"));	
+	private Errors validateUpdatePartyCustomField(final PartyCustomField partyCustomField, final PartyCustomField newPartyCustomField) {
+		final Errors errors = new BindException(partyCustomField, PARTY_CUSTOM_FIELD);
+		rejectIfNull(errors, newPartyCustomField, PARTY_CUSTOM_FIELD, GL0056, generateErrorMessage(GL0056, PARTY_CUSTOM_FIELD));	
 		return errors;
 	}
 
 	@Override
-	public void deleteCustomField(String partyId, PartyCustomField newpartyCustomField, User user) throws Exception {
+	public void deleteCustomField(String partyId, final PartyCustomField newpartyCustomField, User user) throws Exception {
 		if (newpartyCustomField != null) {
 			if (partyId != null && partyId.equalsIgnoreCase(MY)) {
 				partyId = user.getUserUid();
 			}
 
-			PartyCustomField partyCustomField = getPartyRepository().getPartyCustomField(partyId, newpartyCustomField.getOptionalKey());
+			final PartyCustomField partyCustomField = getPartyRepository().getPartyCustomField(partyId, newpartyCustomField.getOptionalKey());
 			if (partyCustomField != null) {
 				getPartyRepository().deletePartyCustomField(partyId, partyCustomField.getOptionalKey());
 			} else {
-				throw new NotFoundException(generateErrorMessage("GL0056", "Party customfield"));
+				throw new NotFoundException(generateErrorMessage(GL0056, PARTY_CUSTOMFIELD));
 			}
 		}
 	}
 
 	private Map<String, String> getCategory() {
-		Map<String, String> partyCategory = new HashMap<String, String>();
+		final Map<String, String> partyCategory = new HashMap<String, String>();
 		partyCategory.put(PartyCategoryType.USER_INFO.getpartyCategoryType(), CATEGORY);
 		partyCategory.put(PartyCategoryType.USER_META.getpartyCategoryType(), CATEGORY);
 		partyCategory.put(PartyCategoryType.ORGANIZATION_INFO.getpartyCategoryType(), CATEGORY);
@@ -176,18 +177,18 @@ public class PartyServiceImpl extends BaseServiceImpl implements PartyService, P
 
 	@Override
 	public List<PartyCustomField> createUserDefaultCustomAttributes(String partyId, User user) {
-		Enumeration<String> keys = userDefaultCustomAttributes.getKeys();
+		final Enumeration<String> keys = userDefaultCustomAttributes.getKeys();
 		if (partyId != null && partyId.equalsIgnoreCase(MY)) {
 			partyId = user.getUserUid();
 		}
 		List<PartyCustomField> partyCustomFields = null;
-		Party party = getPartyRepository().findPartyById(partyId);
+		final Party party = getPartyRepository().findPartyById(partyId);
 		if (keys != null && party != null) {
 			partyCustomFields = new ArrayList<PartyCustomField>();
 			while (keys.hasMoreElements()) {
-				PartyCustomField partyCustomField = new PartyCustomField();
+				final PartyCustomField partyCustomField = new PartyCustomField();
 				partyCustomField.setCategory(PartyCategoryType.USER_META.getpartyCategoryType());
-				String key = keys.nextElement();
+				final String key = keys.nextElement();
 				partyCustomField.setOptionalKey(key);
 				partyCustomField.setPartyUid(partyId);
 				partyCustomField.setOptionalValue(userDefaultCustomAttributes.getString(key));
@@ -199,12 +200,12 @@ public class PartyServiceImpl extends BaseServiceImpl implements PartyService, P
 	}
 
 	@Override
-	public void createTaxonomyCustomAttributes(String partyId, User user) {
-		String taxonomyList = this.getTaxonomyRespository().getFindTaxonomyList(settingService.getConfigSetting(ConfigConstants.GOORU_EXCLUDE_TAXONOMY_PREFERENCE,0, user.getOrganization().getPartyUid()));
+	public void createTaxonomyCustomAttributes(final String partyId, User user) {
+		final String taxonomyList = this.getTaxonomyRespository().getFindTaxonomyList(settingService.getConfigSetting(ConfigConstants.GOORU_EXCLUDE_TAXONOMY_PREFERENCE,0, user.getOrganization().getPartyUid()));
 		if(taxonomyList != null){
-			PartyCustomField partyCustomField = new PartyCustomField();
+			final PartyCustomField partyCustomField = new PartyCustomField();
 			partyCustomField.setCategory(PartyCategoryType.USER_TAXONOMY.getpartyCategoryType());
-			partyCustomField.setOptionalKey("user_taxonomy_root_code");
+			partyCustomField.setOptionalKey(USER_TAXONOMY_ROOT_CODE);
 			partyCustomField.setPartyUid(partyId);
 			partyCustomField.setOptionalValue(taxonomyList);
 			getPartyRepository().save(partyCustomField);
@@ -212,7 +213,7 @@ public class PartyServiceImpl extends BaseServiceImpl implements PartyService, P
 	}
 
 	@Override
-	public List<PartyCustomField> createPartyDefaultCustomAttributes(String partyId, User user, String type) {
+	public List<PartyCustomField> createPartyDefaultCustomAttributes(String partyId, User user, final String type) {
 		if (type != null && type.equalsIgnoreCase(USER_TYPE)) {
 			return createUserDefaultCustomAttributes(partyId, user);
 		}
@@ -220,8 +221,8 @@ public class PartyServiceImpl extends BaseServiceImpl implements PartyService, P
 	}
 	
 	@Override
-	public List<Map<Object, Object>> getPartyDetails(String optionalKey, String optionalValue) {
-		return this.getPartyRepository().getPartyDetails(optionalKey, optionalValue);
+	public List<Map<Object, Object>> getPartyDetails() {
+		return this.getPartyRepository().getPartyDetails();
 	}
 
 	public PartyRepository getPartyRepository() {

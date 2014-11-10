@@ -42,6 +42,65 @@ public class SCollectionCo {
 	@Column
 	public String usedResourceGooruOidsJson;
 	
+	@Column
+	public String questionCount;
+
+	@Column
+	public String resourceCount;
+	
+	@Column
+	public String audience;
+	
+	@Column
+	public String depthOfknowledge;
+	
+	@Column
+	private String learningAndInovation;
+    
+	@Column
+	private String instructionMethod;
+		
+	@Column
+	private String languageObjective;
+
+	@Column
+	private String clusterUid;
+
+	@Column
+	private Integer isCanonical;
+	
+	public String getDepthOfknowledge() {
+		return depthOfknowledge;
+	}
+
+	public void setDepthOfknowledge(String depthOfknowledge) {
+		this.depthOfknowledge = depthOfknowledge;
+	}
+
+	public  String getAudience() {
+		return audience;
+	}
+
+	public void setAudience(String list) {
+		this.audience = list;
+	}
+
+	public String getLearningAndInovation() {
+		return learningAndInovation;
+	}
+
+	public void setLearningAndInovation(String learningAndInovation) {
+		this.learningAndInovation = learningAndInovation;
+	}
+
+	public String getInstructionMethod() {
+		return instructionMethod;
+	}
+
+	public void setInstructionMethod(String instructionMethod) {
+		this.instructionMethod = instructionMethod;
+	}
+
 	public String getLanguage() {
 		return language;
 	}
@@ -137,4 +196,46 @@ public class SCollectionCo {
 	public void setUsedResourceGooruOidsJson(String usedResourceGooruOidsJson) {
 		this.usedResourceGooruOidsJson = usedResourceGooruOidsJson;
 	}
+	
+	public String getQuestionCount() {
+		return questionCount;
+	}
+
+	public void setQuestionCount(String questionCount) {
+		this.questionCount = questionCount;
+	}
+
+	public String getResourceCount() {
+		return resourceCount;
+	}
+
+	public void setResourceCount(String resourceCount) {
+		this.resourceCount = resourceCount;
+	}
+
+	public void setLanguageObjective(String languageObjective) {
+		this.languageObjective = languageObjective;
+	}
+
+	public String getLanguageObjective() {
+		return languageObjective;
+	}
+	
+	public String getClusterUid() {
+		return clusterUid;
+	}
+
+	public void setClusterUid(String clusterUid) {
+		this.clusterUid = clusterUid;
+	}
+
+	public Integer getIsCanonical() {
+		return isCanonical;
+	}
+
+	public void setIsCanonical(Integer isCanonical) {
+		this.isCanonical = isCanonical;
+	}
+	
+	
 }

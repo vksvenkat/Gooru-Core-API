@@ -1,6 +1,5 @@
 package org.ednovo.gooru.core.api.model;
 
-import org.ednovo.gooru.core.api.model.UserGroup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -8,7 +7,7 @@ import flexjson.transformer.ObjectTransformer;
 
 public class UserGroupTransformer extends ObjectTransformer {
 
-	private static final Logger logger = LoggerFactory.getLogger(UserGroupTransformer.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(UserGroupTransformer.class);
 	
 	@Override
 	public void transform(Object object) {
@@ -27,7 +26,7 @@ public class UserGroupTransformer extends ObjectTransformer {
 			getContext().transform(sgModel);
 
 		} else {
-			logger.error("Serialization failed for user group transformer");
+			LOGGER.error("Serialization failed for user group transformer");
 			getContext().write(null);
 		}
 	}

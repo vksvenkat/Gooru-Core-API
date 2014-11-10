@@ -34,11 +34,11 @@ public interface FeaturedRepository extends BaseRepository {
 
 	List<FeaturedSet> getFeaturedList(Integer codeId, int limit, String featuredSetName, String themeCode, String themeType);
 	
-	List<Object[]> getLibraryCollectionsList(Integer limit, Integer offset, Boolean skipPagination, String themeCode, String themeType);
+	List<Object[]> getLibraryCollectionsList(Integer limit, Integer offset, String themeCode, String themeType);
 	
-	List<Object[]> getLibraryCollectionsListByFilter(Integer limit, Integer offset, Boolean skipPagination, String themeCode, String themeType, String subjectId, String courseId, String unitId, String lessonId, String topicId);
+	List<Object[]> getLibraryCollectionsListByFilter(Integer limit, Integer offset, String themeCode, String themeType, String subjectId, String courseId, String unitId, String lessonId, String topicId, String gooruOid, String codeId);
 	
-	Long getLibraryCollectionCount(String themeCode, String themeType);
+	Long getLibraryCollectionCount(String themeCode, String themeType, String gooruOid, String codeId);
 
 	List<Integer> getFeaturedThemeIds();
 
@@ -56,11 +56,17 @@ public interface FeaturedRepository extends BaseRepository {
 	
 	List<Object[]> getLibrary(String code, boolean fetchAll, String libraryName);
 	
-	List<Object[]> getLibraryCollection(String codeId, String featuredSetId, Integer limit, Integer offset,Boolean skipPagination);
+	List<Object[]> getLibraryCollection(String codeId, String featuredSetId, Integer limit, Integer offset, String contentId);
 	
 	Integer getFeaturedSetId(String type);
 	
-	List<Object[]> getCommunityLibraryResource(String type, Integer offset, Integer limit, boolean skipPagination,String libraryName);
+	List<Object[]> getCommunityLibraryResource(String type, Integer offset, Integer limit, String libraryName);
 
 	Long getLibraryResourceCount(String type, String libraryName);
+	
+	List<Object[]> getLibrary(String libraryName);
+	
+	void deleteLibraryCollectionAssoc(String featuredSetId, String codeId, String contentId);
+	
+	FeaturedSet getFeaturedSetByIds(Integer featuredSetId);
 }

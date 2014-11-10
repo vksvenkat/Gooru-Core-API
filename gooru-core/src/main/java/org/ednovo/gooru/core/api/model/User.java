@@ -76,16 +76,10 @@ public class User extends Party implements IndexableEntry, OrganizationWrapper, 
 	
 	private Set<PartyCustomField> customFields;
 	
-	private Map<String, Map<String, Object>> meta;
+	private Map<String, Object> meta;
 	
+	private Short active;
 	
-	public Map<String, Map<String, Object>> getMeta() {
-		return meta;
-	}
-
-	public void setMeta(Map<String, Map<String, Object>> meta) {
-		this.meta = meta;
-	}
 
 	@Override
 	public Organization getOrganization() {
@@ -372,7 +366,21 @@ public class User extends Party implements IndexableEntry, OrganizationWrapper, 
 	public void setReferenceUid(String referenceUid) {
 		this.referenceUid = referenceUid;
 	}
-	
-	
+
+	public Map<String, Object> getMeta() {
+		return meta;
+	}
+
+	public void setMeta(Map<String, Object> meta) {
+		this.meta = meta;
+	}
+
+	public void setActive(Short active) {
+		this.active = active;
+	}
+
+	public Short getActive() {
+		return active;
+	}
 	
 }

@@ -1,6 +1,5 @@
 package org.ednovo.gooru.core.api.model;
 
-import org.ednovo.gooru.core.api.model.OrganizationModel;
 
 
 public class Asset extends OrganizationModel {
@@ -20,6 +19,8 @@ public class Asset extends OrganizationModel {
 	private Boolean hasUniqueName;
 
 	private byte[] fileData;
+	
+	private String url;
 	
 	public Asset() {
 
@@ -63,6 +64,14 @@ public class Asset extends OrganizationModel {
 
 	public void setHasUniqueName(Boolean hasUniqueName) {
 		this.hasUniqueName = hasUniqueName;
+	}
+
+	public String getUrl() {
+		return url;
+	}
+
+	public void setUrl(String url) {
+		this.url = url;
 	}
 
 }

@@ -48,6 +48,7 @@ public class Code extends OrganizationModel implements Comparable<Code> , Indexa
 	private Integer libraryFlag;
 	private Set<Code> codeOrganizationAssoc;
 	private String commonCoreDotNotation;
+	private Integer sequence;
 	
     
 	public Code() {
@@ -325,6 +326,16 @@ public class Code extends OrganizationModel implements Comparable<Code> , Indexa
 
 
 
+	public void setSequence(Integer sequence) {
+		this.sequence = sequence;
+	}
+
+	public Integer getSequence() {
+		return sequence;
+	}
+
+
+
 	public class Thumbnail implements Serializable {
 
 		/**
@@ -350,7 +361,11 @@ public class Code extends OrganizationModel implements Comparable<Code> , Indexa
 		}
 
 		public String getUrl() {
-			this.url= getAssetURI() + getCodeImage();
+			if (getCodeImage() != null && !getCodeImage().isEmpty()) {
+				this.url = getAssetURI() + getCodeImage();
+			} else {
+				this.url = "";
+			}
 			return url;
 		}
 

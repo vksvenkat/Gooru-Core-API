@@ -23,43 +23,55 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.domain.service.tag;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.annotation.Resource;
+import javax.persistence.EntityExistsException;
 
+import org.ednovo.gooru.application.util.ResourceImageUtil;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
+import org.ednovo.gooru.core.api.model.ContentProviderAssociation;
 import org.ednovo.gooru.core.api.model.ContentTagAssoc;
 import org.ednovo.gooru.core.api.model.ContentType;
 import org.ednovo.gooru.core.api.model.CustomTableValue;
+import org.ednovo.gooru.core.api.model.ResourceType;
 import org.ednovo.gooru.core.api.model.Sharing;
+import org.ednovo.gooru.core.api.model.StorageArea;
 import org.ednovo.gooru.core.api.model.Tag;
 import org.ednovo.gooru.core.api.model.TagSynonyms;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserTagAssoc;
 import org.ednovo.gooru.core.application.util.CustomProperties;
+import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.core.exception.BadRequestException;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.domain.cassandra.service.BlackListWordCassandraService;
+import org.ednovo.gooru.domain.cassandra.service.ResourceCassandraService;
 import org.ednovo.gooru.domain.service.BaseServiceImpl;
 import org.ednovo.gooru.domain.service.CollectionService;
+import org.ednovo.gooru.domain.service.FeedbackService;
 import org.ednovo.gooru.domain.service.user.UserService;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.PostRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.resource.ResourceRepository;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.storage.StorageRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.tag.TagRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
 
 
 @Service
-public class TagServiceImpl extends BaseServiceImpl implements TagService, ParameterProperties {
+public class TagServiceImpl extends BaseServiceImpl implements TagService, ParameterProperties,ConstantProperties {
 
 	@Autowired
 	private ContentRepository contentRepository;
@@ -81,6 +93,15 @@ public class TagServiceImpl extends BaseServiceImpl implements TagService, Param
 
 	@Autowired
 	private BlackListWordCassandraService blackListWordCassandraService;
+	
+	@Autowired
+	private StorageRepository storageRepository;
+	
+	@Autowired
+	private FeedbackService feedbackService;
+	
+	@Autowired
+	private ResourceCassandraService resourceCassandraService;
 
 	@Autowired
 	@Resource(name = "userService")
@@ -89,14 +110,12 @@ public class TagServiceImpl extends BaseServiceImpl implements TagService, Param
 	@Override
 	public ActionResponseDTO<Tag> createTag(Tag newTag, User user) {
 		Tag tag = this.getTagRepository().findTagByLabel(newTag.getLabel());
+		
+		if (tag != null) {
+			throw new BadRequestException(generateErrorMessage(GL0041, LABEL));
+		}
 		Errors errors = this.createTagValidation(newTag, tag);
 		if (!errors.hasErrors()) {
-			if (tag != null) {
-				throw new BadCredentialsException(generateErrorMessage(GL0041, LABEL));
-			}
-			if (newTag.getLabel().length() > 25) {
-				throw new BadCredentialsException("Tag name must with in 25 charcters");
-			}
 			if (newTag.getWikiPostGooruOid() != null) {
 				newTag.setWikiPostGooruOid(this.getPostRepository().getPost(newTag.getWikiPostGooruOid()) != null ? newTag.getWikiPostGooruOid() : null);
 			}
@@ -106,7 +125,6 @@ public class TagServiceImpl extends BaseServiceImpl implements TagService, Param
 			newTag.setTagType(customTableRepository.getCustomTableValue(CustomProperties.Table.TAG_TYPE.getTable(), USER));
 			CustomTableValue customTableValue = this.getBlackListWordCassandraService().validate(newTag.getLabel()) ? getCustomTableRepository().getCustomTableValue(CustomProperties.Table.TAG_STATUS.getTable(), CustomProperties.TagStatus.ABUSE.getTagStatus()) : getCustomTableRepository()
 					.getCustomTableValue(CustomProperties.Table.TAG_STATUS.getTable(), CustomProperties.TagStatus.ACTIVE.getTagStatus());
-			rejectIfNull(customTableValue, GL0007, TAG_STATUS);
 			newTag.setStatus(customTableValue);
 			newTag.setGooruOid(UUID.randomUUID().toString());
 			newTag.setSharing(Sharing.PRIVATE.getSharing());
@@ -132,10 +150,10 @@ public class TagServiceImpl extends BaseServiceImpl implements TagService, Param
 		}
 		if (newTag.getLabel() != null) {
 			if (getTagRepository().findTagByLabel(newTag.getLabel()) != null) {
-				throw new BadCredentialsException(generateErrorMessage(GL0041, LABEL));
+				throw new EntityExistsException(generateErrorMessage(GL0041, LABEL));
 			}
 			if (newTag.getLabel().length() > 25) {
-				throw new BadCredentialsException("Label should be with in 25 character!!!");
+				throw new BadRequestException("Label should be with in 25 character!!!");
 			}
 			tag.setLabel(newTag.getLabel());
 		}
@@ -193,6 +211,64 @@ public class TagServiceImpl extends BaseServiceImpl implements TagService, Param
 	public List<ContentTagAssoc> getTagContentAssoc(String tagGooruOid, Integer limit, Integer offset) {
 		return this.getTagRepository().getTagContentAssoc(tagGooruOid, limit, offset);
 	}
+	
+	@Override
+	public Map<String, Object> getResourceByLabel(String label, Integer limit, Integer offset, String gooruUid) {
+		StorageArea storageArea = this.getStorageRepository().getStorageAreaByTypeName(NFS);
+		List<Object[]> results = this.getTagRepository().getResourceByLabel(label, limit, offset,  gooruUid);
+		Map<String, Object> content = new HashMap<String, Object>();
+		List<Map<String, Object>> resource = new ArrayList<Map<String,Object>>();
+		for (Object[] object : results) {
+			Map<String, Object> result = new HashMap<String, Object>();
+			result.put(TITLE, object[0]);
+			result.put(GOORU_OID, object[1]);
+			result.put(TYPE, object[2]);
+			String typeName = object[2].toString();
+			Map<String, Object> thumbnails = new HashMap<String, Object>();
+			if (typeName != null && typeName.equalsIgnoreCase(ResourceType.Type.VIDEO.getType())) {
+				if (object[8] != null) {
+					thumbnails.put(URL, ResourceImageUtil.getYoutubeVideoId(object[8].toString()) == null ? null : "http://img.youtube.com/vi/" + ResourceImageUtil.getYoutubeVideoId(object[8].toString()) + "/1.jpg");
+				}
+			} else {
+				if (object[4] != null) {
+					thumbnails.put(URL, storageArea.getCdnDirectPath() + String.valueOf(object[3]) + String.valueOf(object[4]));
+				} else {
+					thumbnails.put(URL, "");
+				}
+			}
+			result.put(THUMBNAILS, thumbnails);
+			if (object[5] != null) {
+				Map<String, Object> resourceFormat = new HashMap<String, Object>();
+				resourceFormat.put(VALUE, object[5]);
+				resourceFormat.put(DISPLAY_NAME, object[6]);
+				result.put(RESOURCEFORMAT, resourceFormat);
+			}
+			
+			List<ContentProviderAssociation> contentProviderAssociations = this.getContentRepository().getContentProviderByGooruOid(String.valueOf(object[1]),null,null);
+ 			if (contentProviderAssociations != null) {
+ 				List<String> aggregator = new ArrayList<String>();
+ 				List<String> publisher = new ArrayList<String>();
+ 				for (ContentProviderAssociation contentProviderAssociation : contentProviderAssociations) {
+ 					if (contentProviderAssociation.getContentProvider() != null && contentProviderAssociation.getContentProvider().getType() != null
+ 							&& contentProviderAssociation.getContentProvider().getType().getValue().equalsIgnoreCase(CustomProperties.ContentProviderType.PUBLISHER.getContentProviderType())) {
+ 						publisher.add(contentProviderAssociation.getContentProvider().getName());
+ 					} else if (contentProviderAssociation.getContentProvider() != null && contentProviderAssociation.getContentProvider().getType() != null
+ 							&& contentProviderAssociation.getContentProvider().getType().getValue().equalsIgnoreCase(CustomProperties.ContentProviderType.AGGREGATOR.getContentProviderType())) {
+ 						aggregator.add(contentProviderAssociation.getContentProvider().getName());
+ 					}
+ 				}
+ 				result.put(PUBLISHER, publisher);
+ 				result.put(AGGREGATOR, aggregator);
+ 			}
+ 			
+			result.put(VIEWS, this.resourceCassandraService.getInt(object[1].toString(),"stas.viewsCount"));
+			result.put(RATINGS, this.collectionService.setRatingsObj(this.getResourceRepository().getResourceSummaryById(String.valueOf(object[1]))));
+			resource.add(result);
+		}
+		content.put(SEARCH_RESULT,resource);
+		content.put(TOTAL_HIT_COUNT,this.getTagRepository().getResourceByLabelCount(label, gooruUid));
+		return content;
+	}
 
 	@Override
 	public UserTagAssoc createUserTagAssoc(String gooruUid, String tagGooruOid) {
@@ -203,7 +279,7 @@ public class TagServiceImpl extends BaseServiceImpl implements TagService, Param
 		}
 		UserTagAssoc userTagAssocDb = this.tagRepository.getUserTagassocById(gooruUid, tagGooruOid);
 		if (userTagAssocDb != null) {
-			throw new BadCredentialsException("Tag already associated by same user");
+			throw new BadRequestException("Tag already associated by same user");
 		}
 		UserTagAssoc userTagAssoc = new UserTagAssoc();
 		userTagAssoc.setUser(user);
@@ -247,10 +323,10 @@ public class TagServiceImpl extends BaseServiceImpl implements TagService, Param
 		}
 		rejectIfNull(tagSynonyms.getTargetTagName(), GL0006, SYNONYM);
 		if (getTagRepository().findSynonymByName(tagSynonyms.getTargetTagName()) != null) {
-			throw new BadCredentialsException(generateErrorMessage(GL0041, SYNONYM));
+			throw new BadRequestException(generateErrorMessage(GL0041, SYNONYM));
 		}
 		if (tagSynonyms.getTargetTagName().length() > 25) {
-			throw new BadCredentialsException("Synonym must with in 25 character");
+			throw new BadRequestException("Synonym must with in 25 character");
 		}
 		tagSynonyms.setCreator(user);
 		tagSynonyms.setCreatedOn(new Date());
@@ -274,10 +350,10 @@ public class TagServiceImpl extends BaseServiceImpl implements TagService, Param
 		}
 		if (newTagSynonyms.getTargetTagName() != null) {
 			if (getTagRepository().findSynonymByName(newTagSynonyms.getTargetTagName()) != null) {
-				throw new BadCredentialsException(generateErrorMessage(GL0041, SYNONYM));
+				throw new BadRequestException(generateErrorMessage(GL0041, SYNONYM));
 			}
 			if (newTagSynonyms.getTargetTagName().length() > 25) {
-				throw new BadCredentialsException("Synonym must with in 25 character");
+				throw new BadRequestException("Synonym must with in 25 character");
 			}
 			tagSynonyms.setTargetTagName(newTagSynonyms.getTargetTagName());
 		}
@@ -340,6 +416,22 @@ public class TagServiceImpl extends BaseServiceImpl implements TagService, Param
 
 	public CustomTableRepository getCustomTableRepository() {
 		return customTableRepository;
+	}
+
+	public void setStorageRepository(StorageRepository storageRepository) {
+		this.storageRepository = storageRepository;
+	}
+
+	public StorageRepository getStorageRepository() {
+		return storageRepository;
+	}
+
+	public void setFeedbackService(FeedbackService feedbackService) {
+		this.feedbackService = feedbackService;
+	}
+
+	public FeedbackService getFeedbackService() {
+		return feedbackService;
 	}
 
 }

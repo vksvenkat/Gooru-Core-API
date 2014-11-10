@@ -30,10 +30,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.ednovo.gooru.controllers.BaseController;
-import org.ednovo.gooru.core.api.model.ContextDTO;
 import org.ednovo.gooru.core.api.model.CustomTableValue;
 import org.ednovo.gooru.core.api.model.Feedback;
-import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.application.util.ServerValidationUtils;
@@ -68,34 +66,10 @@ public class FeedbackRestV2Controller extends BaseController implements Paramete
 	public ModelAndView createFeedback(@RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
 		Feedback newFeedback = this.buildFeedbackFromInputParameters(data, request);
-		boolean list = newFeedback.getTypes() != null ? true : false;
+		boolean list = newFeedback.getTypes() == null ? false : true;
 		List<Feedback> feedbacks = getFeedbackService().createFeedbacks(newFeedback, user);
 		Feedback feedback = feedbacks.get(0);
 		response.setStatus(HttpServletResponse.SC_CREATED);
-		// To capture activity log
-		
-		SessionContextSupport.putLogParameter(TARGET_TYPE, feedback.getTarget().getValue());
-		SessionContextSupport.putLogParameter(FEEDBACK_GOORU_OID, feedback.getAssocGooruOid());
-		SessionContextSupport.putLogParameter(FEEDBACK_GOORU_UID, feedback.getAssocUserUid());
-		SessionContextSupport.putLogParameter(FEEDBACK_ID, feedback.getGooruOid());
-		SessionContextSupport.putLogParameter(GOORU_UID, user.getPartyUid());
-		SessionContextSupport.putLogParameter(SCORE, feedback.getScore());
-		ContextDTO contextDTO = null;
-		if(newFeedback.getContext() != null) {
-			contextDTO = buildContextInputParam(newFeedback.getContext());
-		}
-		String eventName = "create-" + feedback.getCategory().getValue();
-		if (contextDTO != null) {
-			SessionContextSupport.putLogParameter("parentGooruId", contextDTO.getCollectionGooruId());
-			SessionContextSupport.putLogParameter("contentGooruId", contextDTO.getResourceGooruId());
-			if(contextDTO.getEventName() != null){
-				eventName = contextDTO.getEventName();
-			}
-		} else {
-			SessionContextSupport.putLogParameter("parentGooruId", null);
-			SessionContextSupport.putLogParameter("contentGooruId", null);
-		}
-		SessionContextSupport.putLogParameter(EVENT_NAME, eventName);
 		String includes[] = (String[]) ArrayUtils.addAll(FEEDBACK_INCLUDE_FIELDS, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(list ? feedbacks : feedback, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
@@ -106,15 +80,6 @@ public class FeedbackRestV2Controller extends BaseController implements Paramete
 	public ModelAndView updateFeedback(@RequestBody String data, @PathVariable(value = ID) String feedbackId, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
 		List<Feedback> feedbacks = getFeedbackService().updateFeedback(feedbackId, this.buildFeedbackFromInputParameters(data, request), user);
-		Feedback feedback = feedbacks.get(0);
-		// To capture activity log
-		SessionContextSupport.putLogParameter(EVENT_NAME, "update-" + feedback.getCategory().getValue());
-		SessionContextSupport.putLogParameter(FEEDBACK_ID, feedback.getGooruOid());
-		SessionContextSupport.putLogParameter(FEEDBACK_GOORU_OID, feedback.getAssocGooruOid());
-		SessionContextSupport.putLogParameter(FEEDBACK_GOORU_UID, feedback.getAssocUserUid());
-		SessionContextSupport.putLogParameter(GOORU_UID, user.getPartyUid());
-		SessionContextSupport.putLogParameter(SCORE, feedback.getScore());
-		SessionContextSupport.putLogParameter(CONTEXT, feedback.getContext());
 		String includes[] = (String[]) ArrayUtils.addAll(FEEDBACK_INCLUDE_FIELDS, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(feedbacks, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
@@ -147,12 +112,12 @@ public class FeedbackRestV2Controller extends BaseController implements Paramete
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_FEEDBACK_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = { "/resource", "/collection" })
-	public ModelAndView getContentFlags(HttpServletRequest request, @RequestParam(value = STATUS, required = false) String status, @RequestParam(value = "reportedFlagType", required = false) String reportedFlagType, @RequestParam(value = "startDate", required = false) String startDate,
-			@RequestParam(value = "endDate", required = false) String endDate, @RequestParam(value = "searchQuery", required = false) String searchQuery, @RequestParam(value = "description", required = false) String description,
-			@RequestParam(value = "reportQuery", required = false) String reportQuery, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,
-			@RequestParam(value = SKIP_PAGINATION, required = false, defaultValue = FALSE) Boolean skipPagination, HttpServletResponse response) throws Exception {
+	public ModelAndView getContentFlags(HttpServletRequest request, @RequestParam(value = STATUS, required = false) String status, @RequestParam(value = REPORTED_FLAG_TYPE, required = false) String reportedFlagType, @RequestParam(value = "startDate", required = false) String startDate,
+			@RequestParam(value = END_DATE, required = false) String endDate, @RequestParam(value = SEARCH_QUERY, required = false) String searchQuery, @RequestParam(value = DESCRIPTION, required = false) String description,
+			@RequestParam(value = REPORT_QUERY, required = false) String reportQuery, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,
+			HttpServletResponse response) throws Exception {
 
-		return toJsonModelAndView(this.getFeedbackService().getFlags(limit, offset, skipPagination, getFeedbackCategory(request), getSummaryCategory(request), status, reportedFlagType, startDate, endDate, searchQuery, description, reportQuery), true);
+		return toJsonModelAndView(this.getFeedbackService().getFlags(limit, offset, getFeedbackCategory(request), getSummaryCategory(request), status, reportedFlagType, startDate, endDate, searchQuery, description, reportQuery), true);
 	}
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_FEEDBACK_DELETE })
@@ -160,13 +125,7 @@ public class FeedbackRestV2Controller extends BaseController implements Paramete
 	@RequestMapping(method = RequestMethod.DELETE, value = "/{id}")
 	public void deleteFeedback(@PathVariable(value = ID) String feedbackId, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
-		if (data != null && data.length() > 0) {
-			Feedback feedback = this.buildFeedbackFromInputParameters(data, request);
-			SessionContextSupport.putLogParameter(CONTEXT, feedback.getContext());
-		}
 		this.getFeedbackService().deleteFeedback(feedbackId, user);
-		SessionContextSupport.putLogParameter(EVENT_NAME, "delete-" + getFeedbackCategory(request));
-		SessionContextSupport.putLogParameter(FEEDBACK_ID, feedbackId);
 		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
 	}
 
@@ -194,12 +153,8 @@ public class FeedbackRestV2Controller extends BaseController implements Paramete
 				category = CustomProperties.FeedbackCategory.REACTION.getFeedbackCategory();
 			}
 		}
-		ServerValidationUtils.rejectIfNull(category, GL0007, " request path ");
+		ServerValidationUtils.rejectIfNull(category, GL0007, REQUEST_PATH);
 		return category;
-	}
-
-	private ContextDTO buildContextInputParam(String data) {
-		return JsonDeserializer.deserialize(data, ContextDTO.class);
 	}
 
 	private String getSummaryCategory(HttpServletRequest request) {

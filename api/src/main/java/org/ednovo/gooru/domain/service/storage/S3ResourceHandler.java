@@ -28,20 +28,27 @@ import java.io.Serializable;
 
 import org.apache.commons.io.FileUtils;
 import org.ednovo.gooru.application.util.GooruImageUtil;
+import org.ednovo.gooru.application.util.TaxonomyUtil;
 import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.api.model.Organization;
 import org.ednovo.gooru.core.api.model.Resource;
+import org.ednovo.gooru.core.api.model.UserGroupSupport;
+import org.ednovo.gooru.core.application.util.RequestUtil;
+import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.core.exception.NotFoundException;
+import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.taxonomy.TaxonomyRespository;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.jets3t.service.S3ServiceException;
+import org.json.JSONObject;
+import org.restlet.data.Method;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate4.HibernateTransactionManager;
-import org.springframework.security.acls.model.NotFoundException;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
@@ -51,6 +58,9 @@ public abstract class S3ResourceHandler extends S3ServiceHandler implements Para
 
 	@Autowired
 	private TaxonomyRespository taxonomyRespository;
+	
+	@Autowired
+	private SettingService settingService;
 
 	private static final Logger logger = LoggerFactory.getLogger(S3ResourceHandler.class);
 
@@ -70,7 +80,7 @@ public abstract class S3ResourceHandler extends S3ServiceHandler implements Para
 
 	public void deleteResourceFolder(Resource resource) {
 		try {
-			if (resource.getS3UploadFlag() == 1) {
+			if (resource.getS3UploadFlag() != null &&resource.getS3UploadFlag() == 1) {
 				deleteSubKey(resource.getOrganization().getS3StorageArea(), resource.getFolder());
 			}
 		} catch (S3ServiceException ex) {
@@ -86,7 +96,7 @@ public abstract class S3ResourceHandler extends S3ServiceHandler implements Para
 			return;
 		}
 		try {
-			if (resource.getS3UploadFlag() == 1) {
+			if (resource.getS3UploadFlag() != null && resource.getS3UploadFlag() == 1) {
 				deleteKey(resource.getOrganization().getS3StorageArea(), resource.getFolder() + fileName);
 			}
 		} catch (S3ServiceException ex) {
@@ -95,9 +105,18 @@ public abstract class S3ResourceHandler extends S3ServiceHandler implements Para
 			logger.error("Deleting of resource :" + resource.getContentId() + " file : " + fileName + " from S3 Failed : ", ex);
 		}
 	}
+	
+	public void moveFileToS3(String fileName, String sourcePath, String gooruContentId) throws Exception {
+		JSONObject data = new JSONObject();
+		data.put("gooruBucket", settingService.getConfigSetting("s3.resourceBucket", 0, TaxonomyUtil.GOORU_ORG_UID));
+		data.put("sourceFilePath", sourcePath);
+		data.put("fileName",fileName );
+		data.put("callBackUrl",settingService.getConfigSetting(ConfigConstants.GOORU_API_ENDPOINT, 0, TaxonomyUtil.GOORU_ORG_UID)+"/v2/resource/"+gooruContentId+"?sessionToken="+UserGroupSupport.getSessionToken());
+		RequestUtil.executeRestAPI(data.toString(), settingService.getConfigSetting(ConfigConstants.GOORU_CONVERSION_RESTPOINT,0, TaxonomyUtil.GOORU_ORG_UID) + "/conversion/image/upload", Method.POST.getName());
+	}
 
 	public void uploadResourceFolder(Resource resource) {
-		int s3UploadFlag = 0;
+		Integer s3UploadFlag = 0;
 		try {
 			Organization organization = updateOrganization(resource);
 			upload(getRepoRealPath(), organization.getS3StorageArea(), resource.getFolder(), resource.getGooruOid(), GooruImageUtil.getFileNamePrefix(resource.getThumbnail()));
@@ -132,7 +151,7 @@ public abstract class S3ResourceHandler extends S3ServiceHandler implements Para
 	}
 
 	public void uploadResourceFile(Resource resource, String fileName) {
-		int s3UploadFlag = 0;
+		Integer s3UploadFlag = 0;
 		try {
 			Organization organization = updateOrganization(resource);
 
@@ -175,7 +194,7 @@ public abstract class S3ResourceHandler extends S3ServiceHandler implements Para
 			resource.setOrganization(resource.getCreator().getOrganization());
 			save(resource);
 		}
-		if (resource.getS3UploadFlag() == 1) {
+		if (resource.getS3UploadFlag() != null && resource.getS3UploadFlag() == 1) {
 			// resource.setS3UploadFlag(0);
 			save(resource);
 		}
@@ -346,7 +365,7 @@ public abstract class S3ResourceHandler extends S3ServiceHandler implements Para
 			throw new NotFoundException("Resoruce : " + resourceGooruOid + " doesn't exist");
 		}
 		if (resource.getOrganization() != null) {
-			if (resource.getS3UploadFlag() == 1) {
+			if (resource.getS3UploadFlag() != null && resource.getS3UploadFlag() == 1) {
 				logger.warn("downloadSignedGetUrl  Called");
 				return downloadSignedGetUrl(resource.getOrganization().getS3StorageArea(), resource.getFolder(), file);
 			} else {
@@ -363,7 +382,7 @@ public abstract class S3ResourceHandler extends S3ServiceHandler implements Para
 		if (resource == null) {
 			throw new NotFoundException("Resource : " + resourceGooruOid + " doesn't exist");
 		}
-		if ((resource.getOrganization() != null) && (resource.getS3UploadFlag() == 1)) {
+		if ((resource.getOrganization() != null) && (resource.getS3UploadFlag() != null  && resource.getS3UploadFlag() == 1)) {
 			return true;
 		}
 		return false;

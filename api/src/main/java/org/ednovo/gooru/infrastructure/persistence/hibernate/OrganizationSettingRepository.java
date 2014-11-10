@@ -26,7 +26,6 @@
  */
 package org.ednovo.gooru.infrastructure.persistence.hibernate;
 
-import java.util.List;
 import java.util.Map;
 
 import org.ednovo.gooru.core.api.model.OrganizationSetting;
@@ -39,6 +38,8 @@ public interface OrganizationSettingRepository extends BaseRepository {
 	String GET_ORGAIZATION_SETTINGS = "SELECT * FROM organization_setting WHERE organization_uid = :" + ORG_UID_PARAM;
 
 	String GET_ORGANIZATION_SETTING = "SELECT * FROM organization_setting WHERE name = :name AND organization_uid = :" + ORG_UID_PARAM;
+	
+	String GET_ORGANIZATION_EXPIRE_TIME = "SELECT * FROM organization_setting WHERE name = :name ";
 
 	String NAME = "name";
 
@@ -51,4 +52,6 @@ public interface OrganizationSettingRepository extends BaseRepository {
 	OrganizationSetting getOrganizationSettings(String organizationUid, String configKey) throws Exception;
 	
 	OrganizationSetting listOrgSetting(String organizationUid, String configKey) throws Exception;
+	
+	Map<String, String> getOrganizationExpireTime(String name);
 }

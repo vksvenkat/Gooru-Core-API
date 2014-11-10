@@ -48,7 +48,7 @@ public interface FeedbackService extends BaseService {
 
 	Feedback getUserFeedback(String typeId, String assocUserUid, String gooruUid);
 
-	SearchResults<Feedback> getContentFeedbacks(String feedbackCategory, String feedbackType, String assocGooruOid, String creatorUid, Integer limit, Integer offset,Boolean skipPagination);
+	SearchResults<Feedback> getContentFeedbacks(String feedbackCategory, String feedbackType, String assocGooruOid, String creatorUid, Integer limit, Integer offset,String orderBy);
 
 	List<Feedback> getUserFeedbacks(String feedbackCategory, String feedbackType, String assocUserUid, String creatorUid, Integer limit, Integer offset);
 
@@ -57,6 +57,8 @@ public interface FeedbackService extends BaseService {
 	Map<String, Object> getUserFeedbackStarRating(String assocUserUid);
 
 	Map<String, Object> getContentFeedbackStarRating(String assocGooruOid);
+	
+	Long getContentFeedbackReviewCount(String assocGooruOid);
 
 	Map<Object, Object> getUserFeedbackThumbRating(String assocUserUid);
 
@@ -72,7 +74,7 @@ public interface FeedbackService extends BaseService {
 	
 	List<Map<Object, Object>> getContentFeedbackAggregate(String assocGooruUid, String feedbackCategory);
 	
-	Map<String, Object> getFlags(Integer limit, Integer offset, Boolean skipPagination,String category,String type,String status,String reportedFlagType, String startDate, String endDate, String searchQuery, String description, String reportQuery) throws Exception ;
+	Map<String, Object> getFlags(Integer limit, Integer offset, String category,String type,String status,String reportedFlagType, String startDate, String endDate, String searchQuery, String description, String reportQuery) throws Exception ;
 	               
 	}
 

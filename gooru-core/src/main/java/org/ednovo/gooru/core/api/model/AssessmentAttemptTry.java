@@ -3,8 +3,6 @@ package org.ednovo.gooru.core.api.model;
 import java.io.Serializable;
 import java.util.Date;
 
-import org.ednovo.gooru.core.api.model.AssessmentAnswer;
-
 public class AssessmentAttemptTry implements Serializable{
 
 	/**
