@@ -13,18 +13,18 @@ public class UserRole extends OrganizationModel implements Serializable{
 	 * 
 	 */
 	private static final long serialVersionUID = -5564110791867719163L;
-	private Short roleId;
+	private Integer roleId;
 	private String name;
 	private String description;
 	private Set<RoleEntityOperation> roleOperations;
 	
-	public static final Short ROLE_TEACHER = 1;
-	public static final Short ROLE_STUDENT = 2;
-	public static final Short ROLE_CONTENT_ADMIN = 3;
-	public static final Short ROLE_ANONYMOUS = 4;
-	public static final Short ROLE_AUTHENTICATED = 5;
-	public static final Short ROLE_PUBLISHER = 6;
-	public static final Short SUPER_ADMIN=7;
+	public static final Integer ROLE_TEACHER = 1;
+	public static final Integer ROLE_STUDENT = 2;
+	public static final Integer ROLE_CONTENT_ADMIN = 3;
+	public static final Integer ROLE_ANONYMOUS = 4;
+	public static final Integer ROLE_AUTHENTICATED = 5;
+	public static final Integer ROLE_PUBLISHER = 6;
+	public static final Integer SUPER_ADMIN=7;
 
 	public static enum UserRoleType{
 		TEACHER("Teacher"),
@@ -52,10 +52,10 @@ public class UserRole extends OrganizationModel implements Serializable{
 	}
 		
 
-	public Short getRoleId() {
+	public Integer getRoleId() {
 		return roleId;
 	}
-	public void setRoleId(Short roleId) {
+	public void setRoleId(Integer roleId) {
 		this.roleId = roleId;
 	}
 	public String getName() {

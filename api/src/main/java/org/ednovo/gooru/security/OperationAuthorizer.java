@@ -73,7 +73,7 @@ public class OperationAuthorizer  extends BaseServiceImpl {
 		return false;
 	}
 
-	public boolean hasRole(Short userRoleId, User user) {
+	public boolean hasRole(Integer userRoleId, User user) {
 		if (user != null && user.getUserRoleSet() != null) {
 			for (UserRoleAssoc userRoleAssoc : user.getUserRoleSet()) {
 				if (userRoleAssoc.getRole().getRoleId().equals(userRoleId)) {
