@@ -14,7 +14,8 @@ public final class KafkaProperties {
 	@Autowired
 	private ConfigSettingRepository configSettingRepository;
 	  
-	 public static final String ZK_CONNECT = "zk.connect";
+	 public static final String ZK_CONNECT = "metadata.broker.list";
+	 public static final String ZK_OLD_CONNECT = "zk.connect";
 	 public static final String GROUP_ID = "groupid";
 	 public static final String TOPIC = "topic";
 	 public static final String KAFKA_SERVER_URL = "kafkaServerURL";
@@ -29,6 +30,10 @@ public final class KafkaProperties {
 	 public static final String SERIALIZER_CLASS = "serializer.class";
 	 public static final String SERIALIZER_CLASS_VALUE = "kafka.serializer.StringEncoder";
 	 public static final String PRODUCER_TYPE = "producer.type";
+	 public static final String REQUEST_REQUIRED_ACKS = "request.required.acks";
+	 public static final int REQUEST_REQUIRED_ACKS_VALUE = 1;
+	 public static final String RETRY_BACKOFF_MS = "retry.backoff.ms";
+	 public static final String RETRY_BACKOFF_MS_VALUE = "1000";
 	 public static final String PRODUCER_TYPE_VALUE = "async";
 	 public static final String COMPRESSION_CODEC = "compression.codec";
 	 public static final String COMPRESSION_CODEC_VALUE = "1";
@@ -55,7 +60,7 @@ public final class KafkaProperties {
 	  @PostConstruct
 	  public void init(){
 		  try{
-			  ZK_CONNECT_VALUE = configSettingRepository.getSetting(KAFKA_PREFIX+ZK_CONNECT);
+			  ZK_CONNECT_VALUE = configSettingRepository.getSetting(KAFKA_PREFIX+ZK_OLD_CONNECT);
 			  GROUP_ID_VALUE = configSettingRepository.getSetting(KAFKA_PREFIX+GROUP_ID);
 			  TOPIC_VALUE = configSettingRepository.getSetting(KAFKA_PREFIX+TOPIC);
 			  KAFKA_SERVER_URL_VALUE = configSettingRepository.getSetting(KAFKA_PREFIX+KAFKA_SERVER_URL);
