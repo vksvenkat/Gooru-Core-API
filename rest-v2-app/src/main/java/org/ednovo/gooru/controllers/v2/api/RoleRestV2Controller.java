@@ -1,17 +1,13 @@
 package org.ednovo.gooru.controllers.v2.api;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.ednovo.gooru.controllers.BaseController;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
-import org.ednovo.gooru.core.api.model.Country;
-import org.ednovo.gooru.core.api.model.RoleEntityOperation;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserRole;
 import org.ednovo.gooru.core.constant.ConstantProperties;
@@ -20,6 +16,7 @@ import org.ednovo.gooru.core.constant.GooruOperationConstants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.security.AuthorizeOperations;
 import org.ednovo.gooru.domain.service.user.UserService;
+import org.ednovo.gooru.domain.service.userManagement.UserManagementService;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -38,144 +35,144 @@ public class RoleRestV2Controller extends BaseController implements
 		ParameterProperties, ConstantProperties {
 
 	@Autowired
+	private UserManagementService userManagementService;
+
+	@Autowired
 	private UserService userService;
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ROLE_LIST })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	@RequestMapping(method = RequestMethod.GET, value = "/list")
-	public ModelAndView listRoles(
-			@RequestParam(value = SESSIONTOKEN, required = false) String sessionToken,
-			HttpServletRequest request, HttpServletResponse response)
-			throws Exception {
-		String data = null;
-		Map<String, Object> roles = null;
-		if (data == null) {
-			roles = new HashMap<String, Object>();
-			roles.put(SEARCH_RESULT, this.getUserService().getAllRoles());
-			Long roleCount = this.getUserService().allRolesCount();
-			roles.put(COUNT, roleCount);
-			data = serializeToJson(roles, true);
-		}
-		return toModelAndView(data);
+	@RequestMapping(method = RequestMethod.GET)
+	public ModelAndView listRoles(HttpServletRequest request,
+			HttpServletResponse response) throws Exception {
+		Map<String, Object> roles = new HashMap<String, Object>();
+		roles.put(SEARCH_RESULT, this.getUserManagementService().findAllRoles());
+		roles.put(COUNT, this.getUserManagementService().allRolesCount());
+		return toModelAndView(serializeToJson(roles, true));
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ROLE_LIST })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	@RequestMapping(method = RequestMethod.GET, value = "/{userUid}/list")
+	@RequestMapping(method = RequestMethod.GET, value = "/{userUid}")
 	public ModelAndView listUserRoles(
 			@PathVariable(value = USER_UID) String userUid,
-			@RequestParam(value = SESSIONTOKEN, required = false) String sessionToken,
 			HttpServletRequest request, HttpServletResponse response)
 			throws Exception {
 
-		String data = null;
-		Map<String, Object> roles = null;
-		if (data == null) {
-			roles = new HashMap<String, Object>();
-			roles.put(SEARCH_RESULT,
-					this.getUserService().findUserRoles(userUid));
-			Long roleCount = this.getUserService().userRolesCount(userUid);
-			roles.put(COUNT, roleCount);
-			data = serializeToJson(roles, true);
-		}
-		return toModelAndView(data);
+		Map<String, Object> roles = new HashMap<String, Object>();
+		roles.put(SEARCH_RESULT,
+				this.getUserManagementService().findUserRoles(userUid));
+		roles.put(COUNT, this.getUserManagementService()
+				.userRolesCount(userUid));
+		return toModelAndView(serializeToJson(roles, true));
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ROLE_ADD })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.POST)
-	public ModelAndView createRole(
-			HttpServletRequest request,
-			@RequestBody String data,
-			@RequestParam(value = SESSIONTOKEN, required = false) String sessionToken,
-			@RequestParam(value = FORMAT, defaultValue = FORMAT_JSON) String format,
-			HttpServletResponse response) throws Exception {
-		UserRole role = JsonDeserializer.deserialize(data, UserRole.class);
-		User apiCaller = (User) request.getAttribute(Constants.USER);
-		UserRole userRole = this.getUserService().createRole(role.getName(),
-				role.getDescription(), apiCaller);
-		return toModelAndView(userRole, format);
+	public ModelAndView createRole(@RequestBody String data,
+			HttpServletRequest request, HttpServletResponse response)
+			throws Exception {
+		User user = (User) request.getAttribute(Constants.USER);
+		ActionResponseDTO<UserRole> responseDTO = getUserManagementService()
+				.createNewRole(buildRoleFromInputParameters(data), user);
+		if (responseDTO.getErrors().getErrorCount() > 0) {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+		} else {
+			response.setStatus(HttpServletResponse.SC_CREATED);
+		}
+		return toModelAndViewWithIoFilter(responseDTO.getModelData(),
+				RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true,
+				(String[]) ArrayUtils.addAll(ROLE_INCLUDES, ERROR_INCLUDE));
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ROLE_UPDATE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.PUT, value = "/{roleId}/operation")
-	public ModelAndView updateRoleOperation(
-			HttpServletRequest request,
+	public ModelAndView updateRoleOperation(HttpServletRequest request,
 			@RequestParam(value = OPERATIONS) String operations,
-			@PathVariable(ROLE_ID) Integer roleId,
-			@RequestParam(value = SESSIONTOKEN, required = false) String sessionToken,
-			@RequestParam(value = FORMAT, defaultValue = FORMAT_JSON) String format,
-			HttpServletResponse response) throws Exception {
-		List<RoleEntityOperation> roleEntityOperation = this.getUserService()
-				.updateRoleOperation(roleId, operations);
-		return toModelAndView(roleEntityOperation, format);
+			@PathVariable(ROLE_ID) Integer roleId, HttpServletResponse response)
+			throws Exception {
+		return toModelAndView(
+				this.getUserService().updateRoleOperation(roleId, operations),
+				RESPONSE_FORMAT_JSON);
 
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ROLE_DELETE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.DELETE, value = "/{roleId}/operation")
-	public ModelAndView removeRoleOperation(
-			HttpServletRequest request,
+	public ModelAndView removeRoleOperation(HttpServletRequest request,
 			@RequestParam(value = OPERATIONS) String operations,
-			@PathVariable(ROLE_ID) Integer roleId,
-			@RequestParam(value = SESSIONTOKEN, required = false) String sessionToken,
-			@RequestParam(value = FORMAT, defaultValue = FORMAT_JSON) String format,
-			HttpServletResponse response) throws Exception {
-
-		String data = null;
-		Map<String, Object> message = null;
-		if(data== null){
-			message = new HashMap<String, Object>();
-			String isDeleted = this.getUserService().removeRoleOperation(roleId,
-					operations);
-			message.put(RESPONSE, isDeleted);
-			data = serializeToJson(message, true);
-		}
-		return toModelAndView(data);
+			@PathVariable(ROLE_ID) Integer roleId, HttpServletResponse response)
+			throws Exception {
+		return toModelAndView(
+				this.getUserService().removeRoleOperation(roleId, operations),
+				RESPONSE_FORMAT_JSON);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ROLE_UPDATE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.PUT, value = "/{roleId}")
-	public ModelAndView updateRole(
-			HttpServletRequest request,
-			@RequestBody String data,
-			@PathVariable(ROLE_ID) Short roleId,
-			@RequestParam(value = SESSIONTOKEN, required = false) String sessionToken,
-			@RequestParam(value = FORMAT, defaultValue = FORMAT_JSON) String format,
-			HttpServletResponse response) throws Exception {
-
-		UserRole role = JsonDeserializer.deserialize(data, UserRole.class);
-		role.setRoleId(roleId);
-		UserRole userRole = this.getUserService().updateRole(role);
-		return toModelAndView(userRole, format);
-
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public ModelAndView updateRole(@RequestBody String data,
+			HttpServletRequest request, HttpServletResponse response,
+			@PathVariable(ROLE_ID) Integer roleId) throws Exception {
+		return toModelAndView(
+				this.getUserManagementService().updateRole(
+						buildRoleFromInputParameters(data), roleId),
+				RESPONSE_FORMAT_JSON);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ROLE_DELETE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.DELETE, value = "/{roleId}")
-	public ModelAndView removeRole(
-			HttpServletRequest request,
-			@PathVariable(ROLE_ID) Short roleId,
-			@RequestParam(value = SESSIONTOKEN, required = false) String sessionToken,
-			@RequestParam(value = FORMAT, defaultValue = FORMAT_JSON) String format,
+	public ModelAndView removeRole(HttpServletRequest request,
+			@PathVariable(ROLE_ID) Integer roleId, HttpServletResponse response)
+			throws Exception {
+
+		return toModelAndView(this.getUserManagementService()
+				.removeRole(roleId), RESPONSE_FORMAT_JSON);
+	}
+
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ROLE_LIST })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(method = RequestMethod.GET, value = "/entity")
+	public ModelAndView listEntityNames(HttpServletRequest request,
 			HttpServletResponse response) throws Exception {
-		
-		String data = null;
-		Map<String, Object> message = null;
-		if(data== null){
-			message = new HashMap<String, Object>();
-			String isDeleted = this.getUserService().removeRole(roleId);
-			message.put(RESPONSE, isDeleted);
-			data = serializeToJson(message, true);
-		}
-		return toModelAndView(data);
+
+		Map<String, Object> roleOperations = new HashMap<String, Object>();
+		roleOperations.put(SEARCH_RESULT, this.getUserManagementService()
+				.findAllEntityNames());
+		roleOperations.put(COUNT, this.getUserManagementService()
+				.allEntityNamesCount());
+		return toModelAndView(serializeToJson(roleOperations, true));
+	}
+
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ROLE_LIST })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(method = RequestMethod.GET, value = "/entity/operations")
+	public ModelAndView listOperationsByEntityName(HttpServletRequest request,
+			HttpServletResponse response,
+			@RequestParam(value = ENTITY_NAME) String entityName)
+			throws Exception {
+
+		Map<String, Object> roleOperations = new HashMap<String, Object>();
+		roleOperations.put(SEARCH_RESULT, this.getUserManagementService()
+				.getOperationsByEntityName(entityName));
+		roleOperations.put(COUNT, this.getUserManagementService()
+				.getOperationCountByEntityName(entityName));
+		return toModelAndView(serializeToJson(roleOperations, true));
+	}
+
+	public UserManagementService getUserManagementService() {
+		return userManagementService;
 	}
 
 	public UserService getUserService() {
 		return userService;
+	}
+
+	private UserRole buildRoleFromInputParameters(String data) {
+		return JsonDeserializer.deserialize(data, UserRole.class);
 	}
 }

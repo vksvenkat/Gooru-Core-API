@@ -42,14 +42,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.ednovo.gooru.application.util.TaxonomyUtil;
-import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Application;
 import org.ednovo.gooru.core.api.model.Assessment;
 import org.ednovo.gooru.core.api.model.AssessmentSegment;
 import org.ednovo.gooru.core.api.model.AssessmentSegmentQuestionAssoc;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
-import org.ednovo.gooru.core.api.model.Country;
 import org.ednovo.gooru.core.api.model.Credential;
 import org.ednovo.gooru.core.api.model.EntityOperation;
 import org.ednovo.gooru.core.api.model.GooruAuthenticationToken;
@@ -81,10 +79,12 @@ import org.ednovo.gooru.core.api.model.UserToken;
 import org.ednovo.gooru.core.application.util.BaseUtil;
 import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.application.util.GooruMd5Util;
+import org.ednovo.gooru.core.application.util.ServerValidationUtils;
 import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.GooruOperationConstants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.core.exception.UserNotConfirmedException;
 import org.ednovo.gooru.domain.service.CollaboratorService;
 import org.ednovo.gooru.domain.service.PartyService;
@@ -121,11 +121,10 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
-
 import com.thoughtworks.xstream.core.util.Base64Encoder;
 
 @Service("userService")
-public class UserServiceImpl implements UserService,ParameterProperties,ConstantProperties {
+public class UserServiceImpl extends ServerValidationUtils implements UserService,ParameterProperties,ConstantProperties {
 
 	@Autowired
 	private UserRepository userRepository;
@@ -1473,15 +1472,13 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 	@Override
 	public List<RoleEntityOperation> updateRoleOperation(Integer roleId, String operations) throws Exception {
 		UserRole userRole = null;
-		Short userRoleId = null;
 		RoleEntityOperation roleEntityOperation = null;
 		List<RoleEntityOperation> roleEntityOperations = new ArrayList<RoleEntityOperation>();
 		if (roleId != null) {
-			userRoleId = roleId.shortValue();
-			userRole = findUserRoleByRoleId(userRoleId);
+			userRole = findUserRoleByRoleId(roleId);
 		}
 		if (userRole == null) {
-			throw new Exception("user role not exists");
+			throw new NotFoundException("user role not exists");
 		}
 
 		if (operations != null) {
@@ -1492,9 +1489,9 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 				String operationName = entityOperationArr[1];
 				final EntityOperation entityOperation = userRepository.findEntityOperation(entityName, operationName);
 				if (entityOperation != null) {
-					roleEntityOperation = userRepository.checkRoleEntity(userRoleId, entityOperation.getEntityOperationId());
+					roleEntityOperation = userRepository.checkRoleEntity(roleId, entityOperation.getEntityOperationId());
 					if (roleEntityOperation != null) {
-						throw new Exception("entity operation exists for the role");
+						throw new NotFoundException("entity operation exists for the role");
 					} else {
 						roleEntityOperation = new RoleEntityOperation();
 						roleEntityOperation.setUserRole(userRole);
@@ -1508,7 +1505,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 			}
 			if (roleEntityOperations.size() > 0) {
 				userRepository.saveAll(roleEntityOperations);
-				roleEntityOperations = userRepository.getRoleEntityOperations(userRoleId);
+				roleEntityOperations = userRepository.getRoleEntityOperations(roleId);
 			}
 
 		}
@@ -1517,26 +1514,23 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 	}
 
 	@Override
-	public UserRole findUserRoleByRoleId(Short roleId) {
+	public UserRole findUserRoleByRoleId(Integer roleId) {
 
 		return userRepository.findUserRoleByRoleId(roleId);
 	}
 
 	@Override
-	public String removeRoleOperation(Integer roleId, String operations){
+	public String removeRoleOperation(Integer roleId, String operations) throws Exception{
 
 		String roleOperationDelete = "Failed to delete";
 		UserRole userRole = null;
-		Short userRoleId = null;
 		RoleEntityOperation roleEntityOperation = null;
 		List<RoleEntityOperation> roleEntityOperations = new ArrayList<RoleEntityOperation>();
 		if (roleId != null) {
-			userRoleId = roleId.shortValue();
-			userRole = findUserRoleByRoleId(userRoleId);
+			userRole = findUserRoleByRoleId(roleId);
 		}
 		if (userRole == null) {
-			roleOperationDelete="User role not exists";
-			return roleOperationDelete;
+			throw new NotFoundException("User role not exists");
 		}
 
 		if (operations != null) {
@@ -1547,13 +1541,12 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 				String operationName = entityOperationArr[1];
 				EntityOperation entityOperation = userRepository.findEntityOperation(entityName, operationName);
 				if (entityOperation != null) {
-					roleEntityOperation = userRepository.checkRoleEntity(userRoleId, entityOperation.getEntityOperationId());
+					roleEntityOperation = userRepository.checkRoleEntity(roleId, entityOperation.getEntityOperationId());
 					if (roleEntityOperation != null) {
 						roleEntityOperations.add(roleEntityOperation);
 					}
 				} else {
-					roleOperationDelete="Entity operation not exists";
-					return roleOperationDelete;
+					throw new NotFoundException("Entity operation not exists");
 				}
 			}
 			if (roleEntityOperations.size() > 0) {
@@ -2127,96 +2120,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 		user.put("gooruUId", identity != null && identity.getUser() != null ? identity.getUser().getPartyUid() : null );
 		SessionContextSupport.putLogParameter("user", user.toString());
 	}
-
-	@Override
-	public List<Map<String, Object>> getAllRoles() {
 		
-		List<UserRole> result = this.getUserRepository().findAllRoles();
-		List<Map<String, Object>> roleList = new ArrayList<Map<String, Object>>();
-			for (UserRole userRole : result) {
-				Map<String, Object> role = new HashMap<String, Object>();
-				role.put(DESCRIPTION, userRole.getDescription());
-				role.put(NAME, userRole.getName());
-				role.put(ROLE_ID, userRole.getRoleId());
-				roleList.add(role);
-		}
-		return roleList;
-	}
-	
-	@Override
-	public Long allRolesCount() {
-		
-		Long count = this.getUserRepository().countAllRoles();
-		return count;
-	}
-	
-	@Override
-	public List<UserRole> findUserRoles(String userUid) {
-		
-		/* Do not delete it
-		 * List<UserRole> userRoles = this.getUserRepository().findUserRoles(userUid);
-		List<Map<String, Object>> roleList = new ArrayList<Map<String, Object>>();
-			for (UserRole userRole : result) {
-				Map<String, Object> role = new HashMap<String, Object>();
-				role.put(DESCRIPTION, userRole.getDescription());
-				role.put(NAME, userRole.getName());
-				role.put(ROLE_ID, userRole.getRoleId());
-				roleList.add(role);
-		}
-		return roleList*/	
-		return this.getUserRepository().findUserRoles(userUid);
-	}
-
-	@Override
-	public Long userRolesCount(String userUid) {
-		
-		Long count = this.getUserRepository().countUserRoles(userUid);
-		return count;
-	}
-
-	@Override
-	public UserRole updateRole(UserRole role) throws Exception {
-		
-		UserRole userRole = null;
-		if (role.getRoleId() != null) {
-			userRole = findUserRoleByRoleId(role.getRoleId());
-		}
-		if (userRole == null) {
-			throw new Exception("user role not exists");
-		}
-
-		if (userRole != null) {
-			if(role.getName()!=null){	
-			userRole.setName(role.getName());
-			}
-			if(role.getDescription()!=null){
-			userRole.setDescription(role.getDescription());
-			}
-			userRepository.save(userRole);
-		}
-		return userRole;
-	}
-
-	@Override
-	public String removeRole(Short roleId){
-
-		String roleDelete = "Failed to delete";
-		UserRole userRole = null;
-		if (roleId != null) {
-			userRole = findUserRoleByRoleId(roleId);
-		}
-		if (userRole == null) {
-			roleDelete="User role not exists";
-			return roleDelete;
-		}
-
-		if (userRole != null) {
-			userRepository.remove(userRole);
-			roleDelete = "Deleted successfully";
-		}
-		return roleDelete;
-	}
-	
 	public TaxonomyRespository getTaxonomyRespository() {
 		return taxonomyRespository;
 	}

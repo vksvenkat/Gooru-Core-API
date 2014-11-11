@@ -808,5 +808,8 @@ public interface ConstantProperties {
    public static final String PUBLISH_COLLECTION = "publish_collection";
    
    public static final String SEND_RECIPIENT = "sendRecipient";
+   
+   static final String ROLE_INCLUDES[] = { "*.roleId", "*.name", "*.description" };
+      
 }
 
