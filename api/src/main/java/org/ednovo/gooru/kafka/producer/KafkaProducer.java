@@ -5,7 +5,7 @@ import java.util.Properties;
 import javax.annotation.PostConstruct;
 
 import kafka.javaapi.producer.Producer;
-import kafka.javaapi.producer.ProducerData;
+import kafka.producer.KeyedMessage;
 import kafka.producer.ProducerConfig;
 
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
@@ -37,7 +37,8 @@ public class KafkaProducer {
 		props.put(KafkaProperties.SERIALIZER_CLASS, KafkaProperties.SERIALIZER_CLASS_VALUE);
 		props.put(KafkaProperties.ZK_CONNECT, kafkaProperties.zkConnectValue);
 		props.put(KafkaProperties.PRODUCER_TYPE, KafkaProperties.PRODUCER_TYPE_VALUE);
-		props.put(KafkaProperties.COMPRESSION_CODEC, KafkaProperties.COMPRESSION_CODEC_VALUE);
+		props.put(KafkaProperties.REQUEST_REQUIRED_ACKS, KafkaProperties.REQUEST_REQUIRED_ACKS_VALUE);
+		props.put(KafkaProperties.RETRY_BACKOFF_MS, KafkaProperties.RETRY_BACKOFF_MS_VALUE);
 		
 		try{
 		producer = new Producer<String, String>(
@@ -49,7 +50,7 @@ public class KafkaProducer {
 	}
 	
 	public void send(String message) {
-		ProducerData<String, String> data = new ProducerData<String, String>(kafkaProperties.topicValue, message);
+		KeyedMessage<String, String> data = new KeyedMessage<String, String>(kafkaProperties.topicValue,message);
 		try{
 			producer.send(data);
 		} catch (Exception e){
@@ -68,7 +69,7 @@ public class KafkaProducer {
 		else if(indexType.equalsIgnoreCase("user")){
 			topicName = TOPIC_USER;
 		}
-		ProducerData<String, String> data = new ProducerData<String, String>(topicName, message);
+		KeyedMessage<String, String> data = new KeyedMessage<String, String>(topicName,message);
 		try{
 			producer.send(data);
 		} catch (Exception e){
