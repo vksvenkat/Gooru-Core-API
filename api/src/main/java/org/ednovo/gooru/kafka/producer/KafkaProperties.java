@@ -13,9 +13,9 @@ public final class KafkaProperties {
 
 	@Autowired
 	private ConfigSettingRepository configSettingRepository;
-	  
 	 public static final String ZK_CONNECT = "metadata.broker.list";
-	 public static final String ZK_OLD_CONNECT = "zk.connect";
+	 public static final String ZK_CONSUMER_CONNECT = "zookeeper.connect";
+	 public static final String ZK_CONSUMER_GROUP = "group.id";
 	 public static final String GROUP_ID = "groupid";
 	 public static final String TOPIC = "topic";
 	 public static final String KAFKA_SERVER_URL = "kafkaServerURL";
@@ -33,11 +33,11 @@ public final class KafkaProperties {
 	 public static final String PRODUCER_TYPE_VALUE = "async";
 	 public static final String COMPRESSION_CODEC = "compression.codec";
 	 public static final String COMPRESSION_CODEC_VALUE = "1";
-	 public static final String ZK_SESSION_TIME_OUT_MS = "zk.sessiontimeout.ms";
+	 public static final String ZK_SESSION_TIME_OUT_MS = "zookeeper.session.timeout.ms";
 	 public static final String ZK_SESSION_TIME_OUT_MS_VALUE = "10000";
-	 public static final String ZK_SYNCTIME_MS = "zk.synctime.ms";
+	 public static final String ZK_SYNCTIME_MS = "zookeeper.sync.time.ms";
 	 public static final String ZK_SYNCTIME_MS_VALUE = "200";
-	 public static final String AUTOCOMMIT_INTERVAL_MS = "autocommit.interval.ms";
+	 public static final String AUTOCOMMIT_INTERVAL_MS = "auto.commit.interval.ms";
 	 public static final String AUTOCOMMIT_INTERVAL_MS_VALUE = "1000";
 	 public static final String FETCH_SIZE = "fetch.size";
 	 public static final String FETCH_SIZE_VALUE = "1048576";
@@ -47,11 +47,13 @@ public final class KafkaProperties {
 	 public static final String REQUEST_REQUIRED_ACKS = "request.required.acks";
 	 public static final int REQUEST_REQUIRED_ACKS_VALUE = 1;
 	 public static final String RETRY_BACKOFF_MS = "retry.backoff.ms";
-	 public static final String RETRY_BACKOFF_MS_VALUE = "1000";
+	 public static final int RETRY_BACKOFF_MS_VALUE = 1000;
 	  
 	  
 	 public String zkConnectValue;
 	 public String groupIdValue;
+	 public String zkConsumerConnectValue;
+	 public String consumerGroupIdValue;
 	 public String topicValue;
 	 public String kafaServiceUrl;
 	  
@@ -60,8 +62,10 @@ public final class KafkaProperties {
 	  @PostConstruct
 	  public void init(){
 		  try{
-			  zkConnectValue = configSettingRepository.getSetting(KAFKA_PREFIX+ZK_OLD_CONNECT);
+			  zkConnectValue = configSettingRepository.getSetting(KAFKA_PREFIX+ZK_CONNECT);
 			  groupIdValue = configSettingRepository.getSetting(KAFKA_PREFIX+GROUP_ID);
+			  zkConsumerConnectValue = configSettingRepository.getSetting(KAFKA_PREFIX+ZK_CONSUMER_CONNECT);
+			  consumerGroupIdValue = configSettingRepository.getSetting(KAFKA_PREFIX+ZK_CONSUMER_GROUP);
 			  topicValue = configSettingRepository.getSetting(KAFKA_PREFIX+TOPIC);
 			  kafaServiceUrl = configSettingRepository.getSetting(KAFKA_PREFIX+KAFKA_SERVER_URL);
 		  } catch(Exception e){
