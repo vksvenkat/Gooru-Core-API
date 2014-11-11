@@ -420,7 +420,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 	}
 
 	@Override
-	public UserRole findUserRoleByRoleId(Short roleId) {
+	public UserRole findUserRoleByRoleId(Integer roleId) {
 		Query query = getSession().createQuery(FIND_USER_ROLE_BY_UID);
 		query.setParameter("roleId", roleId);
 		return (UserRole) ((query.list().size() > 0) ? query.list().get(0) : null);
@@ -436,7 +436,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 	}
 
 	@Override
-	public RoleEntityOperation checkRoleEntity(Short roleId, Integer entityOperationId) {
+	public RoleEntityOperation checkRoleEntity(Integer roleId, Integer entityOperationId) {
 		Query query = getSession().createQuery(CHECK_ROLE_ENTITY);
 		query.setParameter("roleId", roleId);
 		query.setParameter("entityOperationId", entityOperationId);
@@ -445,7 +445,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<RoleEntityOperation> getRoleEntityOperations(Short roleId) {
+	public List<RoleEntityOperation> getRoleEntityOperations(Integer roleId) {
 		Query query = getSession().createQuery(FETCH_ROLE_ENTITY_OPERATION);
 		query.setParameter("roleId", roleId);
 		return query.list();
@@ -882,4 +882,40 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 		return (Long)query.list().get(0);
 	}
 	
+	@Override
+	public EntityOperation getEntityOperationByEntityOperationId(Integer entityOperationId){
+		String hql = "select entityOperation From EntityOperation entityOperation  WHERE entityOperation.entityOperationId = "+entityOperationId;
+		Query query = getSession().createQuery(hql);
+		return (EntityOperation) (query.list().size() > 0 ? query.list().get(0) : null);
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<EntityOperation> findAllEntityNames() {
+		String hql = "select distinct entityOperation.entityName from EntityOperation entityOperation";
+		Query query = getSession().createQuery(hql);
+		return query.list();
+	}
+	
+	@Override
+	public Long countAllEntityNames() {
+		String hql = "select count(distinct entityOperation.entityName) from EntityOperation entityOperation";
+		Query query = getSession().createQuery(hql);
+		return (Long)query.list().get(0);
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<EntityOperation> findOperationsByEntityName(String entityName) {
+		String hql = "select distinct entityOperation.operationName from EntityOperation entityOperation where entityOperation.entityName='"+entityName+"'";
+		Query query = getSession().createQuery(hql);
+		return query.list();
+	}
+	
+	@Override
+	public Long countOperationsByEntityName(String entityName) {
+		String hql = "select count(distinct entityOperation.operationName) from EntityOperation entityOperation where entityOperation.entityName='"+entityName+"'";
+		Query query = getSession().createQuery(hql);
+		return (Long)query.list().get(0);
+	}
 }
