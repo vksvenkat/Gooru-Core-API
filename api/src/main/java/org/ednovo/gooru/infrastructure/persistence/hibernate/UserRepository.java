@@ -107,20 +107,20 @@ public interface UserRepository extends BaseRepository {
 
 	User findUserByImportCode(String importCode);
 
-	UserRole findUserRoleByRoleId(Short roleId);
+	UserRole findUserRoleByRoleId(Integer roleId);
 
 	EntityOperation findEntityOperation(String entityName, String operationName);
 
-	RoleEntityOperation checkRoleEntity(Short roleId, Integer entityOperationId);
+	RoleEntityOperation checkRoleEntity(Integer roleId, Integer entityOperationId);
 
-	List<RoleEntityOperation> getRoleEntityOperations(Short roleId);
+	List<RoleEntityOperation> getRoleEntityOperations(Integer roleId);
 
 	List<RoleEntityOperation> findEntityOperationByRole(String roleNames);
 
 	List<UserRoleAssoc> getUserRoleByName(String roles, String userId);
 
 	List<UserRole> findAllRoles();
-
+	
 	User getUserByUserName(String userName, boolean isLoginRequest);
 
 	Identity findByEmailIdOrUserName(String userName, Boolean isLoginRequest, Boolean fetchAllUser);
@@ -190,5 +190,22 @@ public interface UserRepository extends BaseRepository {
 	List<User> findUsersByOrganization(String organizationUid, String parentOrganizationUid, Integer offset, Integer limit);
 	
 	Long getUsersByOrganizationCount(String organizationUid, String parentOrganizationUid);
+	
+	List<UserRoleAssoc> findUserRoleSetByUserUid(String userUid);
 
+	List<UserRole> findUserRoles(String userUid);
+
+	Long countAllRoles();
+	
+	Long countUserRoles(String userUid);
+	
+	EntityOperation getEntityOperationByEntityOperationId(Integer entityOperationId);
+	
+	List<EntityOperation> findAllEntityNames();
+	
+	Long countAllEntityNames();
+
+	List<EntityOperation> findOperationsByEntityName(String entityName);
+	
+	Long countOperationsByEntityName(String entityName);
 }

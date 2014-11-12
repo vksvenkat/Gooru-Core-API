@@ -2770,7 +2770,7 @@ public interface ParameterProperties {
 	
 	String ROLE_CLIENT = "ROLE_CLIENT";
 	
-	String LTI = "LTI";
+	String LTI = "LTIConsumer";
 	
 	String READ = "read";
 	
@@ -2785,5 +2785,11 @@ public interface ParameterProperties {
 	String CLASSPAGE_CREATOR = "classpageCreator";
 	
 	String RETURN_URL ="returnUrl";
+	
+	String APPLICATION_URL = "applicationUrl";
+	
+	String APPLICATION_ITEM = "applicationItem";
+
+	String MENU = "menu";
 	
 }

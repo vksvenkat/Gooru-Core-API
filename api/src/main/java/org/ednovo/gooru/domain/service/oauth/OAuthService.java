@@ -27,7 +27,7 @@ import java.util.List;
 
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.User;
-import org.ednovo.gooru.domain.model.oauth.OAuthClient;
+import org.ednovo.gooru.core.api.model.OAuthClient;
 import org.ednovo.gooru.domain.service.search.SearchResults;
 
 
@@ -51,5 +51,5 @@ public interface OAuthService {
 	
 	public Boolean isSuperAdmin(User user);
 	
-	public OAuthClient getOAuthClientByApiKey(String apiKey) throws Exception ;
+	List<OAuthClient> getOAuthClientByApiKey(String apiKey) throws Exception ;
 }

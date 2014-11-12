@@ -27,7 +27,7 @@ import java.util.List;
 
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
-import org.ednovo.gooru.domain.model.oauth.OAuthClient;
+import org.ednovo.gooru.core.api.model.OAuthClient;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate;
 import org.hibernate.Query;
 import org.hibernate.SQLQuery;
@@ -58,7 +58,7 @@ public class OAuthRepositoryHibernate extends BaseRepositoryHibernate implements
 
 	@Override
 	public OAuthClient findOAuthClientByClientId(String clientId) {
-		String hql = " FROM OAuthClient oauthClient WHERE oauthClient.clientId=:clientId";
+		String hql = " FROM OAuthClient oauthClient WHERE oauthClient.key=:clientId";
 		Query query = getSession().createQuery(hql);
 		query.setParameter("clientId", clientId);
 		List<OAuthClient> results = (List<OAuthClient>) query.list();
@@ -82,7 +82,7 @@ public class OAuthRepositoryHibernate extends BaseRepositoryHibernate implements
 	
 	@Override
 	public OAuthClient findOAuthClientByclientSecret(String clientSecret) {
-		String hql = " FROM OAuthClient oauthClient WHERE oauthClient.clientSecret=:clientSecret";
+		String hql = " FROM OAuthClient oauthClient WHERE oauthClient.secretKey=:clientSecret";
 		Query query = getSession().createQuery(hql);
 		query.setParameter("clientSecret", clientSecret);
 		List<OAuthClient> results = (List<OAuthClient>) query.list();
@@ -132,15 +132,12 @@ public class OAuthRepositoryHibernate extends BaseRepositoryHibernate implements
 		}
 		return null;
 	}
-	public OAuthClient findOAuthClientByApplicationKey(String apiKey) {
+	public List<OAuthClient> findOAuthClientByApplicationKey(String apiKey) {
 		String hql = " FROM OAuthClient oauthClient WHERE oauthClient.application.key=:apiKey";
 		Query query = getSession().createQuery(hql);
 		query.setParameter("apiKey", apiKey);
-		List<OAuthClient> results = (List<OAuthClient>) query.list();
-		if(results.size() > 0){
-			return results.get(0);
-		}
-		return null;
+		return (List) query.list();
+	
 	}
 
 }

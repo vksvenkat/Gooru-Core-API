@@ -14,7 +14,7 @@ import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.GooruOperationConstants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.security.AuthorizeOperations;
-import org.ednovo.gooru.domain.model.oauth.OAuthClient;
+import org.ednovo.gooru.core.api.model.OAuthClient;
 import org.ednovo.gooru.domain.service.oauth.OAuthService;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;

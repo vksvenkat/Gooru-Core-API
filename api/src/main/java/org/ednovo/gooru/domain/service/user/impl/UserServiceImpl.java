@@ -79,10 +79,12 @@ import org.ednovo.gooru.core.api.model.UserToken;
 import org.ednovo.gooru.core.application.util.BaseUtil;
 import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.application.util.GooruMd5Util;
+import org.ednovo.gooru.core.application.util.ServerValidationUtils;
 import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.GooruOperationConstants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.core.exception.UserNotConfirmedException;
 import org.ednovo.gooru.domain.service.CollaboratorService;
 import org.ednovo.gooru.domain.service.PartyService;
@@ -119,11 +121,10 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
-
 import com.thoughtworks.xstream.core.util.Base64Encoder;
 
 @Service("userService")
-public class UserServiceImpl implements UserService,ParameterProperties,ConstantProperties {
+public class UserServiceImpl extends ServerValidationUtils implements UserService,ParameterProperties,ConstantProperties {
 
 	@Autowired
 	private UserRepository userRepository;
@@ -935,8 +936,8 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 	@Override
 	public List<UserRole> findAllRoles() {
 		return getUserRepository().findAllRoles();
-	}
-
+	}	
+	
 	@Override
 	public Boolean isContentAdmin(User user) {
 		Boolean isAdminUser = false;
@@ -1461,7 +1462,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 		}
 		return userRole;
 	}
-
+	
 	@Override
 	public UserRole findUserRoleByName(final String name) {
 		return userRepository.findUserRoleByName(name, null);
@@ -1471,15 +1472,13 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 	@Override
 	public List<RoleEntityOperation> updateRoleOperation(Integer roleId, String operations) throws Exception {
 		UserRole userRole = null;
-		Short userRoleId = null;
 		RoleEntityOperation roleEntityOperation = null;
 		List<RoleEntityOperation> roleEntityOperations = new ArrayList<RoleEntityOperation>();
 		if (roleId != null) {
-			userRoleId = roleId.shortValue();
-			userRole = findUserRoleByRoleId(userRoleId);
+			userRole = findUserRoleByRoleId(roleId);
 		}
 		if (userRole == null) {
-			throw new Exception("user role not exists");
+			throw new NotFoundException("user role not exists");
 		}
 
 		if (operations != null) {
@@ -1490,9 +1489,9 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 				String operationName = entityOperationArr[1];
 				final EntityOperation entityOperation = userRepository.findEntityOperation(entityName, operationName);
 				if (entityOperation != null) {
-					roleEntityOperation = userRepository.checkRoleEntity(userRoleId, entityOperation.getEntityOperationId());
+					roleEntityOperation = userRepository.checkRoleEntity(roleId, entityOperation.getEntityOperationId());
 					if (roleEntityOperation != null) {
-						throw new Exception("entity operation exists for the role");
+						throw new NotFoundException("entity operation exists for the role");
 					} else {
 						roleEntityOperation = new RoleEntityOperation();
 						roleEntityOperation.setUserRole(userRole);
@@ -1506,7 +1505,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 			}
 			if (roleEntityOperations.size() > 0) {
 				userRepository.saveAll(roleEntityOperations);
-				roleEntityOperations = userRepository.getRoleEntityOperations(userRoleId);
+				roleEntityOperations = userRepository.getRoleEntityOperations(roleId);
 			}
 
 		}
@@ -1515,25 +1514,23 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 	}
 
 	@Override
-	public UserRole findUserRoleByRoleId(Short roleId) {
+	public UserRole findUserRoleByRoleId(Integer roleId) {
 
 		return userRepository.findUserRoleByRoleId(roleId);
 	}
 
 	@Override
-	public String removeRoleOperation(Integer roleId, String operations) throws Exception {
+	public String removeRoleOperation(Integer roleId, String operations) throws Exception{
 
-		String roleOperationDelete = "failed to delete";
+		String roleOperationDelete = "Failed to delete";
 		UserRole userRole = null;
-		Short userRoleId = null;
 		RoleEntityOperation roleEntityOperation = null;
 		List<RoleEntityOperation> roleEntityOperations = new ArrayList<RoleEntityOperation>();
 		if (roleId != null) {
-			userRoleId = roleId.shortValue();
-			userRole = findUserRoleByRoleId(userRoleId);
+			userRole = findUserRoleByRoleId(roleId);
 		}
 		if (userRole == null) {
-			throw new Exception("user role not exists");
+			throw new NotFoundException("User role not exists");
 		}
 
 		if (operations != null) {
@@ -1544,17 +1541,17 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 				String operationName = entityOperationArr[1];
 				EntityOperation entityOperation = userRepository.findEntityOperation(entityName, operationName);
 				if (entityOperation != null) {
-					roleEntityOperation = userRepository.checkRoleEntity(userRoleId, entityOperation.getEntityOperationId());
+					roleEntityOperation = userRepository.checkRoleEntity(roleId, entityOperation.getEntityOperationId());
 					if (roleEntityOperation != null) {
 						roleEntityOperations.add(roleEntityOperation);
 					}
 				} else {
-					throw new Exception("entity operation not exists");
+					throw new NotFoundException("Entity operation not exists");
 				}
 			}
 			if (roleEntityOperations.size() > 0) {
 				userRepository.removeAll(roleEntityOperations);
-				roleOperationDelete = "deleted successfully";
+				roleOperationDelete = "Deleted successfully";
 			}
 
 		}
@@ -2123,7 +2120,7 @@ public class UserServiceImpl implements UserService,ParameterProperties,Constant
 		user.put("gooruUId", identity != null && identity.getUser() != null ? identity.getUser().getPartyUid() : null );
 		SessionContextSupport.putLogParameter("user", user.toString());
 	}
-
+		
 	public TaxonomyRespository getTaxonomyRespository() {
 		return taxonomyRespository;
 	}

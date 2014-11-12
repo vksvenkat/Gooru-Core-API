@@ -277,11 +277,11 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			throw new NotFoundException("resource not found ");
 		}
 		if (resource.getResourceType().getName().equalsIgnoreCase(ASSESSMENT_QUESTION)) {
-			resource.setDepthOfKnowledges(this.collectionService.setContentMetaAssociation(this.collectionService.getContentMetaAssociation(DEPTH_OF_KNOWLEDGE), resource.getGooruOid(), DEPTH_OF_KNOWLEDGE));
+			resource.setDepthOfKnowledges(this.collectionService.setContentMetaAssociation(this.collectionService.getContentMetaAssociation(DEPTH_OF_KNOWLEDGE), resource, DEPTH_OF_KNOWLEDGE));
 		} else {
-			resource.setMomentsOfLearning(this.collectionService.setContentMetaAssociation(this.collectionService.getContentMetaAssociation(MOMENTS_OF_LEARNING), resource.getGooruOid(), MOMENTS_OF_LEARNING));
+			resource.setMomentsOfLearning(this.collectionService.setContentMetaAssociation(this.collectionService.getContentMetaAssociation(MOMENTS_OF_LEARNING), resource, MOMENTS_OF_LEARNING));
 		}
-		resource.setEducationalUse(this.collectionService.setContentMetaAssociation(this.collectionService.getContentMetaAssociation(EDUCATIONAL_USE), resource.getGooruOid(), EDUCATIONAL_USE));
+		resource.setEducationalUse(this.collectionService.setContentMetaAssociation(this.collectionService.getContentMetaAssociation(EDUCATIONAL_USE), resource, EDUCATIONAL_USE));
 		resource.setRatings(this.collectionService.setRatingsObj(this.getResourceRepository().getResourceSummaryById(gooruContentId)));
 		setContentProvider(resource);
 		return resource;
@@ -1093,9 +1093,9 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	@Override
 	public void deleteResourceFromGAT(String gooruContentId, boolean isThirdPartyUser, User apiCaller, boolean isMycontent) {
 		Resource resource = this.getResourceRepository().findResourceByContentGooruId(gooruContentId);
+		rejectIfNull(resource, GL0056, RESOURCE);
 		Content content = this.contentRepository.findContentByGooruId(resource.getGooruOid());
 		if (resource != null && isThirdPartyUser && apiCaller != null) {
-
 			if (isMycontent) {
 				UserContentRelationshipUtil.deleteUserContentRelationship(content, apiCaller, RELATIONSHIP.CREATE);
 			}
@@ -1885,7 +1885,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		}
 		// }
 		UserRole contentAdmin = new UserRole();
-		contentAdmin.setRoleId(Short.valueOf(UserRole.ROLE_CONTENT_ADMIN));
+		contentAdmin.setRoleId(UserRole.ROLE_CONTENT_ADMIN);
 
 		User systemUser = this.getUserRepository().findByRole(contentAdmin).get(0);
 		resource.setUser(systemUser);
@@ -2806,6 +2806,11 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	public List<String> updateContentProvider(String gooruOid, List<String> providerList, User user, String providerType) {
 
 		CustomTableValue customTableValue = this.getCustomTableRepository().getCustomTableValue(_CONTENT_PROVIDER_TYPE, providerType);
+		List<ContentProviderAssociation> contentProviderAssociationList = this.getContentRepository().getContentProviderByGooruOid(gooruOid, null,providerType);
+
+		if (contentProviderAssociationList.size() > 0) {
+			this.getContentRepository().removeAll(contentProviderAssociationList);
+		}
 		for (String provider : providerList) {
 			ContentProvider contentProvider = this.getContentRepository().getContentProviderByName(provider, CONTENT_PROVIDER_TYPE + providerType);
 			if (contentProvider == null) {
@@ -2816,11 +2821,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				this.getContentRepository().save(contentProvider);
 				this.getContentRepository().flush();
 			}
-			List<ContentProviderAssociation> contentProviderAssociationList = this.getContentRepository().getContentProviderByGooruOid(gooruOid, null,providerType);
-
-			if (contentProviderAssociationList.size() > 0) {
-				this.getContentRepository().removeAll(contentProviderAssociationList);
-			}
+			
 			ContentProviderAssociation contentProviderAssociation = new ContentProviderAssociation();
 			contentProviderAssociation.setContentProvider(contentProvider);
 			ResourceSource resourceSource = new ResourceSource();

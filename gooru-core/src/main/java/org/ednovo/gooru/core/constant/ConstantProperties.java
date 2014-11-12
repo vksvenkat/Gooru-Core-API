@@ -365,7 +365,9 @@ public interface ConstantProperties {
 	static final String TAXONOMY_CODE_INCLUDES[] = { "elementrySchool", "middleSchool", "highSchool", "other", "taxonomyCodes", "*.code", "*.codeId", "*.code", "*.label", "*.parentId", "*.thumbnails", "*.thumbnails.url", "*.thumbnails.dimensions", "*.thumbnails.isDefaultImage",
 			"*.creator.username", "*.creator.gooruUId", "*.creator.firstName", "*.creator.lastName" };
 
-	static final String APPLICATION_INCLUDES[] = { "*.key", "*.title", "*.url", "*.secretKey", "*.activeFlag", "*.searchLimit", "*.description", "*.comment", "*.status", "*.value", "*.totalHitCount", "*.searchResults", "*.contactEmailId"};
+	static final String APPLICATION_INCLUDES[] = { "*.key", "*.title", "*.url", "*.secretKey", "*.activeFlag", "*.searchLimit", "*.description", "*.comment", "*.status", "*.value", "*.totalHitCount", "*.searchResults", "*.contactEmailId","*.applicationItem","*.oauthClient","*.applicationItems","*.oauthClients"};
+	
+	static final String MENU_INCLUDES[] = { "*.menuUid", "*.name", "*.description", "*.url", "*.iconUrl", "*.creatorUid", "*.createdOn", "*.lastModified", "*.isActive","*.menuItem","*.menuItems"};
 
 	static final String ORGANIZATION_INCLUDES_ADD[] = { "partyUid", "partyName", "partyType", "organizationCode" };
 
@@ -402,7 +404,9 @@ public interface ConstantProperties {
 	static final String[] USER_CONTENT_TAGS_INCLUDES = { "*.totalHitCount", "*.searchResults", "*.count", "*.label", "*.tagGooruOid" };
 
 	static final String[] COLLECTION_STANDARDS_INCLUDES = { "searchResults", "*.code", "*.label", "*.codeUid", "*.codeId" };
-
+	
+	static final String[] APPLICATION_ITEM_INCLUDES = { "*.applicationItemUid", "*.displayName", "*.displaySequence", "*.url"};
+	
 	static final String SUPER_ADMIN_TOKEN = "super.admin.token";
 
 	static final String ORG_ADMIN_KEY = "organizationAdmin";
@@ -416,7 +420,11 @@ public interface ConstantProperties {
 	public static final String CONSUMER_SECRET_INCLUDES[] = { "*.consumerKey", "*.consumerSecret", "*.organization" };
 
 	public static final String PROFANITY_INCLUDES[] = { "*.found", "*.foundBy", "*.text", "*.count", "*.expletive" };
-
+	
+	static final String MENU_ITEM_INCLUDES[] = { "*.menuItemUid","*.parentMenuUid","*.sequence","*.menu"};
+	
+	static final String MENU_ROLE_ASSOC_INCLUDES[] = { "*.menu.menuUid","*.role.roleId","*.menu","*.menuItem"};
+	
 	public static final String WEBPURIFY_API_KEY = "2b9dbbde0e50edf204a6e742cfdd79bc";
 
 	public static final String WEBPURIFY_CONFIG_KEY = "webpurify.com.api.key";
@@ -800,5 +808,8 @@ public interface ConstantProperties {
    public static final String PUBLISH_COLLECTION = "publish_collection";
    
    public static final String SEND_RECIPIENT = "sendRecipient";
+   
+   static final String ROLE_INCLUDES[] = { "*.roleId", "*.name", "*.description" };
+      
 }
 

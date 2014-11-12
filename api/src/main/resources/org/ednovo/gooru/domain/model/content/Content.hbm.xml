@@ -42,6 +42,8 @@
 		</property>
 		<property name="isDeleted" column="is_deleted" length="1"
 			not-null="false" />
+		<property name="version" column="version" not-null="false">
+		</property>
 		<property name="createdOn" column="created_on" not-null="false">
 		</property>
 		<property name="lastModified" column="last_modified"
@@ -263,7 +265,7 @@
 				<property name="comment" column="comment" not-null="false" />
 				<property name="contactEmailId" column="contact_email_id"
 					not-null="false" />
-				<joined-subclass name="org.ednovo.gooru.domain.model.oauth.OAuthClient"
+				<joined-subclass name="org.ednovo.gooru.core.api.model.OAuthClient"
 					table="oauth2_client" lazy="true">
 					<key column="oauth_content_id" />
 					<many-to-one name="application"

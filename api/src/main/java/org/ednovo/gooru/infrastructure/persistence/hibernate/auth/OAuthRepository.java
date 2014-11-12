@@ -25,7 +25,7 @@ package org.ednovo.gooru.infrastructure.persistence.hibernate.auth;
 
 import java.util.List;
 
-import org.ednovo.gooru.domain.model.oauth.OAuthClient;
+import org.ednovo.gooru.core.api.model.OAuthClient;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepository;
 
 public interface OAuthRepository extends BaseRepository {
@@ -46,7 +46,7 @@ public interface OAuthRepository extends BaseRepository {
 	
 	public OAuthClient findOAuthClientByOauthKey(String oauthKey);
 	
-	public OAuthClient findOAuthClientByApplicationKey(String apiKey);
+	List<OAuthClient> findOAuthClientByApplicationKey(String apiKey);
 
 	
 }

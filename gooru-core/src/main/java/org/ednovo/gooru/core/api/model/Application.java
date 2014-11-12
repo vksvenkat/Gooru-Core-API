@@ -1,6 +1,8 @@
 
 package org.ednovo.gooru.core.api.model;
 
+import java.util.List;
+
 public class Application extends Resource {
 
 	private static final long serialVersionUID = -2886634467039659836L;
@@ -18,7 +20,14 @@ public class Application extends Resource {
 	private String comment;
 	
 	private String ContactEmailId;
-
+	
+	private ApplicationItem applicationItem;
+	
+	private OAuthClient oauthClient;
+	
+    private List<OAuthClient> oauthClients;
+    
+    private List<ApplicationItem> applicationItems;
 
 	public Integer getSearchLimit() {
 		return searchLimit;
@@ -74,6 +83,38 @@ public class Application extends Resource {
 
 	public void setKey(String key) {
 		this.key = key;
+	}
+
+	public ApplicationItem getApplicationItem() {
+		return applicationItem;
+	}
+
+	public void setApplicationItem(ApplicationItem applicationItem) {
+		this.applicationItem = applicationItem;
+	}
+
+	public OAuthClient getOauthClient() {
+		return oauthClient;
+	}
+
+	public void setOauthClient(OAuthClient oauthClient) {
+		this.oauthClient = oauthClient;
+	}
+
+	public List<OAuthClient> getOauthClients() {
+		return oauthClients;
+	}
+
+	public void setOauthClients(List<OAuthClient> oauthClients) {
+		this.oauthClients = oauthClients;
+	}
+
+	public List<ApplicationItem> getApplicationItems() {
+		return applicationItems;
+	}
+
+	public void setApplicationItems(List<ApplicationItem> applicationItems) {
+		this.applicationItems = applicationItems;
 	}
 
 

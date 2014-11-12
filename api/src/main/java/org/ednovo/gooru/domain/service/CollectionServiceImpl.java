@@ -75,10 +75,10 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 
 	@Autowired
 	private CollectionRepository collectionRepository;
-	
+
 	@Autowired
 	private MailHandler mailHandler;
-	
+
 	@Autowired
 	private CollectionEventLog collectionEventLog;
 
@@ -108,7 +108,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		question.setSharing(collection.getSharing());
 		ActionResponseDTO<AssessmentQuestion> responseDTO = assessmentService.createQuestion(question, true);
 		if (responseDTO.getModel() != null) {
-			response = this.createCollectionItem(responseDTO.getModel(), collection,null,null,user);
+			response = this.createCollectionItem(responseDTO.getModel(), collection, null, null, user);
 			if (mediaFileName != null && mediaFileName.length() > 0) {
 				String questionImage = this.assessmentService.updateQuizQuestionImage(responseDTO.getModel().getGooruOid(), mediaFileName, question, ASSET_QUESTION);
 				if (questionImage != null && questionImage.length() > 0) {
@@ -130,7 +130,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				response.getModel().getResource().setEducationalUse(this.setContentMetaAssociation(this.getContentMetaAssociation(EDUCATIONAL_USE), responseDTO.getModel().getGooruOid(), EDUCATIONAL_USE));
 			}
 			response.getModel().setStandards(this.getStandards(responseDTO.getModel().getTaxonomySet(), false, null));
-			if (response.getModel().getCollection().getResourceType().getName().equalsIgnoreCase(SCOLLECTION) && response.getModel().getCollection().getClusterUid() != null && !response.getModel().getCollection().getClusterUid().equalsIgnoreCase(response.getModel().getCollection().getGooruOid())) { 
+			if (response.getModel().getCollection().getResourceType().getName().equalsIgnoreCase(SCOLLECTION) && response.getModel().getCollection().getClusterUid() != null && !response.getModel().getCollection().getClusterUid().equalsIgnoreCase(response.getModel().getCollection().getGooruOid())) {
 				response.getModel().getCollection().setClusterUid(response.getModel().getCollection().getGooruOid());
 				this.getCollectionRepository().save(response.getModel().getCollection());
 			}
@@ -147,7 +147,10 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	@Override
 	public ActionResponseDTO<CollectionItem> updateQuestionWithCollectionItem(String collectionItemId, String data, List<Integer> deleteAssets, User user, String mediaFileName) throws Exception {
 		CollectionItem collectionItem = this.getCollectionItemById(collectionItemId);
-		AssessmentQuestion newQuestion = getAssessmentService().buildQuestionFromInputParameters(data, user, true);
+		 if(collectionItem == null){
+			 throw new NotFoundException(generateErrorMessage(GL0056, COLLECTION_ITEM));
+		}
+	    AssessmentQuestion newQuestion = getAssessmentService().buildQuestionFromInputParameters(data, user, true);
 		Errors errors = validateUpdateCollectionItem(collectionItem);
 		final JSONObject itemData = new JSONObject();
 		itemData.put(_ITEM_DATA, data);
@@ -187,7 +190,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		}
 		try {
 			this.collectionEventLog.getEventLogs(collectionItem, itemData, user);
-		} catch(Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
@@ -213,13 +216,12 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				collectionItem.setItemType(COLLABORATOR);
 			}
 		}
-		String collectionGooruOid  = null;
+		String collectionGooruOid = null;
 		if (sourceCollectionItem != null) {
 			collectionGooruOid = sourceCollectionItem.getCollection().getGooruOid();
 			deleteCollectionItem(sourceCollectionItem.getCollectionItemId(), user);
 		}
-		
-		
+
 		if (targetId != null) {
 			responseDTO = this.createCollectionItem(sourceId, targetId, collectionItem, user, CollectionType.FOLDER.getCollectionType(), false);
 		} else {
@@ -234,7 +236,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		}
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + user.getPartyUid() + "*");
-		
+
 		try {
 			this.getCollectionEventLog().getEventLogs(responseDTO.getModel(), true, user, responseDTO.getModel().getCollection().getCollectionType());
 		} catch (JSONException e) {
@@ -299,13 +301,13 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	}
 
 	@Override
-	public List<Map<String, Object>> getMyShelf(String gooruUid, Integer limit, Integer offset, String sharing, String collectionType, Integer itemLimit, boolean fetchChildItem, String topLevelCollectionType) {
+	public List<Map<String, Object>> getMyShelf(String gooruUid, Integer limit, Integer offset, String sharing, String collectionType, Integer itemLimit, boolean fetchChildItem, String topLevelCollectionType, String orderBy) {
 		StorageArea storageArea = this.getStorageRepository().getStorageAreaByTypeName(NFS);
 		if (!BaseUtil.isUuid(gooruUid)) {
 			User user = this.getUserService().getUserByUserName(gooruUid);
 			gooruUid = user != null ? user.getPartyUid() : null;
 		}
-		List<Object[]> result = this.getCollectionRepository().getMyFolder(gooruUid, limit, offset, sharing, topLevelCollectionType != null ? topLevelCollectionType : collectionType, fetchChildItem);
+		List<Object[]> result = this.getCollectionRepository().getMyFolder(gooruUid, limit, offset, sharing, topLevelCollectionType != null ? topLevelCollectionType : collectionType, fetchChildItem, orderBy);
 		List<Map<String, Object>> folderList = new ArrayList<Map<String, Object>>();
 		int count = 0;
 		if (result != null && result.size() > 0) {
@@ -323,10 +325,10 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				collection.put(THUMBNAILS, thumbnails);
 				if (fetchChildItem) {
 					if (count == 0) {
-						collection.put(COLLECTION_ITEMS, getFolderItem(String.valueOf(object[1]), sharing, String.valueOf(object[2]), collectionType, itemLimit, fetchChildItem));
+						collection.put(COLLECTION_ITEMS, getFolderItem(String.valueOf(object[1]), sharing, String.valueOf(object[2]), collectionType, itemLimit, fetchChildItem, orderBy));
 					}
 				} else {
-					collection.put(COLLECTION_ITEMS, getFolderItem(String.valueOf(object[1]), sharing, String.valueOf(object[2]), collectionType, itemLimit, fetchChildItem));
+					collection.put(COLLECTION_ITEMS, getFolderItem(String.valueOf(object[1]), sharing, String.valueOf(object[2]), collectionType, itemLimit, fetchChildItem, orderBy));
 				}
 				collection.put(ITEM_COUNT, this.getCollectionRepository().getCollectionItemCount(String.valueOf(object[1]), sharing, collectionType));
 				collection.put(SHARING, object[5]);
@@ -361,6 +363,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 					collection.put(COLLECTION_TYPE, object[15]);
 				}
 				collection.put(ITEM_SEQUENCE, object[16]);
+				collection.put(PARENT_GOORU_OID, object[17]);
 				count++;
 				folderList.add(collection);
 			}
@@ -368,10 +371,10 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		return folderList;
 	}
 
-	public List<Map<String, Object>> getFolderItem(String gooruOid, String sharing, String type, String collectionType, Integer itemLimit, boolean fetchChildItem) {
+	public List<Map<String, Object>> getFolderItem(String gooruOid, String sharing, String type, String collectionType, Integer itemLimit, boolean fetchChildItem, String orderBy) {
 		StorageArea storageArea = this.getStorageRepository().getStorageAreaByTypeName(NFS);
 		List<Map<String, Object>> items = new ArrayList<Map<String, Object>>();
-		List<Object[]> result = this.getCollectionRepository().getCollectionItem(gooruOid, type.equalsIgnoreCase(SCOLLECTION) ? 4 : itemLimit, 0, sharing, type.equalsIgnoreCase(SCOLLECTION) ? SEQUENCE : null, collectionType, fetchChildItem);
+		List<Object[]> result = this.getCollectionRepository().getCollectionItem(gooruOid, type.equalsIgnoreCase(SCOLLECTION) ? 4 : itemLimit, 0, sharing, orderBy, collectionType, fetchChildItem);
 		if (result != null && result.size() > 0) {
 
 			for (Object[] object : result) {
@@ -424,10 +427,10 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				}
 				if (fetchChildItem && (String.valueOf(object[2]).equalsIgnoreCase(SCOLLECTION) || String.valueOf(object[2]).equalsIgnoreCase(FOLDER))) {
 					if (String.valueOf(object[2]).equalsIgnoreCase(SCOLLECTION)) {
-						item.put(COLLECTION_ITEMS, getFolderItem(String.valueOf(object[1]), sharing, String.valueOf(object[2]), collectionType, type.equalsIgnoreCase(SCOLLECTION) ? 4 : itemLimit, fetchChildItem));
+						item.put(COLLECTION_ITEMS, getFolderItem(String.valueOf(object[1]), sharing, String.valueOf(object[2]), collectionType, type.equalsIgnoreCase(SCOLLECTION) ? 4 : itemLimit, fetchChildItem, orderBy));
 						item.put(ITEM_COUNT, this.getCollectionRepository().getCollectionItemCount(String.valueOf(object[1]), sharing, collectionType));
 					} else if ((String.valueOf(object[2]).equalsIgnoreCase(SCOLLECTION) || String.valueOf(object[2]).equalsIgnoreCase(FOLDER))) {
-						item.put(COLLECTION_ITEMS, getFolderItem(String.valueOf(object[1]), sharing, String.valueOf(object[2]), collectionType, type.equalsIgnoreCase(SCOLLECTION) ? 4 : itemLimit, fetchChildItem));
+						item.put(COLLECTION_ITEMS, getFolderItem(String.valueOf(object[1]), sharing, String.valueOf(object[2]), collectionType, type.equalsIgnoreCase(SCOLLECTION) ? 4 : itemLimit, fetchChildItem, orderBy));
 						item.put(ITEM_COUNT, this.getCollectionRepository().getCollectionItemCount(String.valueOf(object[1]), sharing, collectionType));
 					}
 				}
@@ -435,10 +438,10 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 					item.put(GOALS, object[9]);
 				}
 				if (object[10] != null) {
-					 Map<String, Object> resourceSource = new HashMap<String, Object>();
-					 resourceSource.put(ATTRIBUTION, object[10]);
-					 resourceSource.put(DOMAIN_NAME, object[11]);
-					 item.put(RESOURCESOURCE, resourceSource);
+					Map<String, Object> resourceSource = new HashMap<String, Object>();
+					resourceSource.put(ATTRIBUTION, object[10]);
+					resourceSource.put(DOMAIN_NAME, object[11]);
+					item.put(RESOURCESOURCE, resourceSource);
 				}
 				Resource resource = this.getResourceService().setContentProvider(object[1].toString());
 				if (resource != null) {
@@ -452,7 +455,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 						item.put("host", resource.getHost());
 					}
 				}
-				
+
 				if (object[12] != null) {
 					item.put(IDEAS, object[12]);
 				}
@@ -466,7 +469,9 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 					item.put(COLLECTION_TYPE, object[18]);
 				}
 				item.put(ITEM_SEQUENCE, object[19]);
-				
+
+				item.put(PARENT_GOORU_OID, object[20]);
+
 				items.add(item);
 			}
 
@@ -505,7 +510,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 					resourceFormat.put(DISPLAY_NAME, object[6]);
 					item.put(RESOURCEFORMAT, resourceFormat);
 				}
-				item.put(COLLECTION_ITEMS, getFolderItem(String.valueOf(object[1]), sharing, String.valueOf((object[2])), collectionType, itemLimit, fetchChildItem));
+				item.put(COLLECTION_ITEMS, getFolderItem(String.valueOf(object[1]), sharing, String.valueOf((object[2])), collectionType, itemLimit, fetchChildItem, orderBy));
 				item.put(ITEM_COUNT, this.getCollectionRepository().getCollectionItemCount(String.valueOf(object[1]), sharing, collectionType));
 				item.put(SHARING, object[7]);
 				item.put(COLLECTION_ITEM_ID, object[8]);
@@ -513,10 +518,10 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 					item.put(GOALS, object[9]);
 				}
 				if (object[10] != null) {
-					 Map<String, Object> resourceSource = new HashMap<String, Object>();
-					 resourceSource.put(ATTRIBUTION, object[10]);
-					 resourceSource.put(DOMAIN_NAME, object[11]);
-					 item.put(RESOURCESOURCE, resourceSource);
+					Map<String, Object> resourceSource = new HashMap<String, Object>();
+					resourceSource.put(ATTRIBUTION, object[10]);
+					resourceSource.put(DOMAIN_NAME, object[11]);
+					item.put(RESOURCESOURCE, resourceSource);
 				}
 				Resource resource = this.getResourceService().setContentProvider(object[1].toString());
 				if (resource != null) {
@@ -543,6 +548,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 					item.put(COLLECTION_TYPE, object[18]);
 				}
 				item.put(ITEM_SEQUENCE, object[19]);
+				item.put(PARENT_GOORU_OID, object[20]);
 				items.add(item);
 			}
 		}
@@ -552,7 +558,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	@Override
 	public Map<String, Object> getFolderList(Integer limit, Integer offset, String gooruOid, String title, String username) {
 		String gooruUid = null;
-		if (username != null) { 
+		if (username != null) {
 			User user = this.getUserService().getUserByUserName(gooruUid);
 			gooruUid = user != null ? user.getPartyUid() : null;
 		}
@@ -601,29 +607,30 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	}
 
 	@Override
-	public List<CollectionItem> assignCollection(String classpageId, String collectionId, User user,String direction, String planedEndDate, Boolean isRequired, String minimumScore,String estimatedTime,Boolean showAnswerByQuestions,Boolean showAnswerEnd,Boolean showHints) throws Exception {
+	public List<CollectionItem> assignCollection(String classpageId, String collectionId, User user, String direction, String planedEndDate, Boolean isRequired, String minimumScore, String estimatedTime, Boolean showAnswerByQuestions, Boolean showAnswerEnd, Boolean showHints) throws Exception {
 		Classpage classpage = this.getCollectionRepository().getClasspageByCode(classpageId);
 		rejectIfNull(classpage, GL0056, 404, generateErrorMessage(GL0056, CLASSPAGE));
 		Collection collection = this.getCollectionRepository().getCollectionByGooruOid(collectionId, null);
 		rejectIfNull(collection, GL0056, 404, generateErrorMessage(GL0056, COLLECTION));
 
-		return classAssign(classpage, collection, user, direction, planedEndDate, isRequired, minimumScore,estimatedTime,showAnswerByQuestions,showAnswerEnd,showHints);
+		return classAssign(classpage, collection, user, direction, planedEndDate, isRequired, minimumScore, estimatedTime, showAnswerByQuestions, showAnswerEnd, showHints);
 	}
-	
+
 	@Override
-	public List<CollectionItem> assignCollectionToPathway(String classpageId,String pathwayId ,String collectionId, User user,String direction, String planedEndDate, Boolean isRequired, String minimumScore,String estimatedTime,Boolean showAnswerByQuestions,Boolean showAnswerEnd,Boolean showHints) throws Exception {
+	public List<CollectionItem> assignCollectionToPathway(String classpageId, String pathwayId, String collectionId, User user, String direction, String planedEndDate, Boolean isRequired, String minimumScore, String estimatedTime, Boolean showAnswerByQuestions, Boolean showAnswerEnd,
+			Boolean showHints) throws Exception {
 		Classpage classpage = this.getCollectionRepository().getClasspageByCode(classpageId);
 		rejectIfNull(classpage, GL0056, 404, generateErrorMessage(GL0056, CLASSPAGE));
 		Collection collection = this.getCollectionRepository().getCollectionByGooruOid(collectionId, null);
 		rejectIfNull(collection, GL0056, 404, generateErrorMessage(GL0056, COLLECTION));
 		Collection pathway = this.getCollectionRepository().getCollectionByIdWithType(pathwayId, PATHWAY);
 		rejectIfNull(pathway, GL0056, 404, generateErrorMessage(GL0056, PATHWAY));
-		getAsyncExecutor().deleteFromCache("v2-class-data-"+classpage.getGooruOid()+ "*");
-		return classAssign(pathway, collection, user, direction, planedEndDate, isRequired, minimumScore,estimatedTime,showAnswerByQuestions,showAnswerEnd,showHints);
+		getAsyncExecutor().deleteFromCache("v2-class-data-" + classpage.getGooruOid() + "*");
+		return classAssign(pathway, collection, user, direction, planedEndDate, isRequired, minimumScore, estimatedTime, showAnswerByQuestions, showAnswerEnd, showHints);
 	}
-	
-	public List<CollectionItem> classAssign(Collection classpage, Collection collection, User user,String direction, String planedEndDate, Boolean isRequired, String minimumScore,String estimatedTime,Boolean showAnswerByQuestions,Boolean showAnswerEnd,Boolean showHints) {
-		
+
+	public List<CollectionItem> classAssign(Collection classpage, Collection collection, User user, String direction, String planedEndDate, Boolean isRequired, String minimumScore, String estimatedTime, Boolean showAnswerByQuestions, Boolean showAnswerEnd, Boolean showHints) {
+
 		List<CollectionItem> collectionItems = new ArrayList<CollectionItem>();
 		int sequence = classpage.getCollectionItems() != null ? classpage.getCollectionItems().size() + 1 : 1;
 		if (collection.getResourceType().getName().equalsIgnoreCase(FOLDER)) {
@@ -632,18 +639,17 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 			filters.put(TYPE, COLLECTION);
 			List<CollectionItem> folderCollectionItems = this.getCollectionRepository().getCollectionItems(collection.getGooruOid(), filters);
 			for (CollectionItem collectionItem : folderCollectionItems) {
-				collectionItems.add(createClasspageItem(classpage, collectionItem.getResource(), user, sequence++, direction, planedEndDate, isRequired, minimumScore,estimatedTime,showAnswerByQuestions,showAnswerEnd,showHints));
+				collectionItems.add(createClasspageItem(classpage, collectionItem.getResource(), user, sequence++, direction, planedEndDate, isRequired, minimumScore, estimatedTime, showAnswerByQuestions, showAnswerEnd, showHints));
 			}
 		} else if (collection.getResourceType().getName().equalsIgnoreCase(SCOLLECTION)) {
-			collectionItems.add(createClasspageItem(classpage, collection, user, sequence, direction, planedEndDate, isRequired, minimumScore,estimatedTime,showAnswerByQuestions,showAnswerEnd,showHints));
+			collectionItems.add(createClasspageItem(classpage, collection, user, sequence, direction, planedEndDate, isRequired, minimumScore, estimatedTime, showAnswerByQuestions, showAnswerEnd, showHints));
 		}
-		getAsyncExecutor().deleteFromCache("v2-class-data-"+classpage.getGooruOid()+ "*");
-		
+		getAsyncExecutor().deleteFromCache("v2-class-data-" + classpage.getGooruOid() + "*");
+
 		return collectionItems;
 	}
 
-	private CollectionItem createClasspageItem(Collection classPage, Resource collection, User user, int sequence,String direction, String planedEndDate, Boolean isRequired,
-			String minimumScore,String estimatedTime,Boolean showAnswerByQuestions,Boolean showAnswerEnd,Boolean showHints) {
+	private CollectionItem createClasspageItem(Collection classPage, Resource collection, User user, int sequence, String direction, String planedEndDate, Boolean isRequired, String minimumScore, String estimatedTime, Boolean showAnswerByQuestions, Boolean showAnswerEnd, Boolean showHints) {
 		CollectionItem collectionItem = new CollectionItem();
 		collectionItem.setCollection(classPage);
 		collectionItem.setResource(collection);
@@ -654,22 +660,22 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		if (direction != null) {
 			collectionItem.setNarration(direction);
 		}
-		if(isRequired != null) {
+		if (isRequired != null) {
 			collectionItem.setIsRequired(isRequired);
 		}
-		if(minimumScore != null) {
+		if (minimumScore != null) {
 			collectionItem.setMinimumScore(minimumScore);
 		}
-		if(estimatedTime != null) {
+		if (estimatedTime != null) {
 			collectionItem.setEstimatedTime(estimatedTime);
 		}
-		if(showAnswerByQuestions != null) {
+		if (showAnswerByQuestions != null) {
 			collectionItem.setShowAnswerByQuestions(showAnswerByQuestions);
 		}
-		if(showAnswerEnd == null) {
+		if (showAnswerEnd == null) {
 			collectionItem.setShowAnswerEnd(showAnswerEnd);
 		}
-		if(showHints != null) {
+		if (showHints != null) {
 			collectionItem.setShowHints(showHints);
 		}
 		if (planedEndDate != null) {
@@ -717,8 +723,8 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 			if (userService.isSuperAdmin(user) || userService.isContentAdmin(user)) {
 				for (Collection scollection : collections) {
 					getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + scollection.getUser().getPartyUid() + "*");
-					if(scollection.getPublishStatus() != null && scollection.getPublishStatus().getValue().equalsIgnoreCase(PENDING)) {
-					    scollection.setPublishStatus(this.getCustomTableRepository().getCustomTableValue(_PUBLISH_STATUS, REVIEWED));
+					if (scollection.getPublishStatus() != null && scollection.getPublishStatus().getValue().equalsIgnoreCase(PENDING)) {
+						scollection.setPublishStatus(this.getCustomTableRepository().getCustomTableValue(_PUBLISH_STATUS, REVIEWED));
 						collectionIds.append(scollection.getGooruOid());
 						if (!scollection.getSharing().equalsIgnoreCase(PUBLIC)) {
 							UserSummary userSummary = this.getUserRepository().getSummaryByUid(scollection.getUser().getPartyUid());
@@ -736,21 +742,20 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 						}
 						updateResourceSharing(PUBLIC, scollection);
 						try {
-							String mailId=scollection.getUser().getIdentities().iterator().next().getExternalId();
-							this.getMailHandler().sendAdminPortalMail(PUBLISH_COLLECTION,mailId, scollection.getUser().getFirstName(),scollection.getTitle(),scollection.getGooruOid());
-						} catch(Exception e) {
-							
+							String mailId = scollection.getUser().getIdentities().iterator().next().getExternalId();
+							this.getMailHandler().sendAdminPortalMail(PUBLISH_COLLECTION, mailId, scollection.getUser().getFirstName(), scollection.getTitle(), scollection.getGooruOid());
+						} catch (Exception e) {
+
 						}
 						if (collectionIds.toString().trim().length() > 0) {
 							collectionIds.append(",");
+						} else {
+							throw new BadRequestException(generateErrorMessage("GL0089"));
 						}
-					else {
-						throw new BadRequestException(generateErrorMessage("GL0089"));
 					}
-				}
 
+				}
 			}
-		}
 			this.getCollectionRepository().saveAll(collections);
 			if (collectionIds.toString().trim().length() > 0) {
 				indexProcessor.index(collectionIds.toString(), IndexProcessor.INDEX, SCOLLECTION);
@@ -758,7 +763,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		}
 		return collections;
 
-}
+	}
 
 	@Override
 	public List<Collection> updateCollectionForReject(List<Map<String, String>> collection, User user) throws Exception {
@@ -823,13 +828,13 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				content = new HashMap<String, Object>();
 				content.put(SEARCH_RESULT, getFolderItems(gooruOid, limit, offset, sharing, collectionType, orderBy, itemLimit, fetchChildItem));
 				content.put(COUNT, this.getCollectionRepository().getCollectionItemCount(gooruOid, sharing, collectionType));
-				if(!fetchChildItem && (collectionType == null || (collectionType != null && collectionType.equalsIgnoreCase(COLLECTION) || collectionType.equalsIgnoreCase(SCOLLECTION) ))){
-					content.put(COLLECTION_COUNT, this.getCollectionRepository().getCollectionItemCount(gooruOid, sharing, collectionType != null ? collectionType : COLLECTION ));
+				if (!fetchChildItem && (collectionType == null || (collectionType != null && collectionType.equalsIgnoreCase(COLLECTION) || collectionType.equalsIgnoreCase(SCOLLECTION)))) {
+					content.put(COLLECTION_COUNT, this.getCollectionRepository().getCollectionItemCount(gooruOid, sharing, collectionType != null ? collectionType : COLLECTION));
 				}
 				data = SerializerUtil.serializeToJson(content, true);
-				if (user != null && user.getUsername().equalsIgnoreCase(SAUSD)) { 
+				if (user != null && user.getUsername().equalsIgnoreCase(SAUSD)) {
 					redisService.putValue(cacheKey, data);
-				} else { 					
+				} else {
 					redisService.putValue(cacheKey, data, 86400);
 				}
 			}
@@ -850,7 +855,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	public TaxonomyRespository getTaxonomyRespository() {
 		return taxonomyRespository;
 	}
-	
+
 	public CollectionEventLog getCollectionEventLog() {
 		return collectionEventLog;
 	}
@@ -858,7 +863,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	public CollaboratorRepository getCollaboratorRepository() {
 		return collaboratorRepository;
 	}
-	
+
 	public MailHandler getMailHandler() {
 		return mailHandler;
 	}

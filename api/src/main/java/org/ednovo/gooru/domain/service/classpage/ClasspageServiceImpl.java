@@ -781,7 +781,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 				user.put(GOORU_UID, object[13]);
 				user.put(PROFILE_IMG_URL, settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, TaxonomyUtil.GOORU_ORG_UID) + "/" + settingService.getConfigSetting(ConfigConstants.PROFILE_BUCKET, TaxonomyUtil.GOORU_ORG_UID) + String.valueOf(object[13]) + ".png");
 				resource.put(USER, user);
-				resource.put(COLLECTIONITEMS, getPathwayItems(gooruOid, object[5].toString(), 0, 10, orderBy, apiCaller));
+				resource.put(COLLECTIONITEMS, getPathawyItemWithOutValidation(object[5].toString(), 0, 10, orderBy, apiCaller));
 			}
 			resource.put(ITEM_COUNT, this.getCollectionRepository().getCollectionItemsCount(object[5].toString(), null, CLASSPAGE));
 			resource.put(GOALS, object[10]);
@@ -893,6 +893,11 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		if (this.getCollectionRepository().getCollectionByIdWithType(classId, CLASSPAGE) == null) {
 			throw new BadRequestException("class not found");
 		}
+		
+		return getPathawyItemWithOutValidation(pathwayId, offset, limit, orderBy, user);
+	}
+	
+	private List<CollectionItem> getPathawyItemWithOutValidation (String pathwayId, Integer offset, Integer limit, String orderBy, User user) {
 		List<CollectionItem> collectionItems = this.getCollectionRepository().getCollectionItems(pathwayId, offset, limit, orderBy, CLASSPAGE);
 		for (CollectionItem collectionItem : collectionItems) {
 			UserCollectionItemAssoc userCollectionItemAssoc = this.getCollectionRepository().getUserCollectionItemAssoc(collectionItem.getCollectionItemId(), user.getPartyUid());
