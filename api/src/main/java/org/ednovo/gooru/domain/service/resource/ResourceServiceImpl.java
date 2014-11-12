@@ -1885,7 +1885,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		}
 		// }
 		UserRole contentAdmin = new UserRole();
-		contentAdmin.setRoleId(Short.valueOf(UserRole.ROLE_CONTENT_ADMIN));
+		contentAdmin.setRoleId(UserRole.ROLE_CONTENT_ADMIN);
 
 		User systemUser = this.getUserRepository().findByRole(contentAdmin).get(0);
 		resource.setUser(systemUser);

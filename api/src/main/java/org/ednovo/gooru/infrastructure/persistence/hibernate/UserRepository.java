@@ -107,13 +107,13 @@ public interface UserRepository extends BaseRepository {
 
 	User findUserByImportCode(String importCode);
 
-	UserRole findUserRoleByRoleId(Short roleId);
+	UserRole findUserRoleByRoleId(Integer roleId);
 
 	EntityOperation findEntityOperation(String entityName, String operationName);
 
-	RoleEntityOperation checkRoleEntity(Short roleId, Integer entityOperationId);
+	RoleEntityOperation checkRoleEntity(Integer roleId, Integer entityOperationId);
 
-	List<RoleEntityOperation> getRoleEntityOperations(Short roleId);
+	List<RoleEntityOperation> getRoleEntityOperations(Integer roleId);
 
 	List<RoleEntityOperation> findEntityOperationByRole(String roleNames);
 
@@ -199,4 +199,13 @@ public interface UserRepository extends BaseRepository {
 	
 	Long countUserRoles(String userUid);
 	
+	EntityOperation getEntityOperationByEntityOperationId(Integer entityOperationId);
+	
+	List<EntityOperation> findAllEntityNames();
+	
+	Long countAllEntityNames();
+
+	List<EntityOperation> findOperationsByEntityName(String entityName);
+	
+	Long countOperationsByEntityName(String entityName);
 }

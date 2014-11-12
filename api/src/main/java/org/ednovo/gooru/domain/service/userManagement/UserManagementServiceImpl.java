@@ -45,12 +45,14 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.ednovo.gooru.application.util.ProfileImageUtil;
 import org.ednovo.gooru.application.util.TaxonomyUtil;
+import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Application;
 import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.ContentPermission;
 import org.ednovo.gooru.core.api.model.Credential;
 import org.ednovo.gooru.core.api.model.CustomTableValue;
+import org.ednovo.gooru.core.api.model.EntityOperation;
 import org.ednovo.gooru.core.api.model.GooruAuthenticationToken;
 import org.ednovo.gooru.core.api.model.Identity;
 import org.ednovo.gooru.core.api.model.Idp;
@@ -60,6 +62,7 @@ import org.ednovo.gooru.core.api.model.OrganizationDomainAssoc;
 import org.ednovo.gooru.core.api.model.PartyCategoryType;
 import org.ednovo.gooru.core.api.model.PartyCustomField;
 import org.ednovo.gooru.core.api.model.Profile;
+import org.ednovo.gooru.core.api.model.RoleEntityOperation;
 import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserAccountType;
@@ -111,6 +114,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import org.springframework.validation.BindException;
+import org.springframework.validation.Errors;
 
 import com.thoughtworks.xstream.core.util.Base64Encoder;
 
@@ -496,7 +501,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		if(user.getAccountTypeId() != UserAccountType.ACCOUNT_CHILD) {
 			user.setEmailId(newUser.getEmailId());
 		}
-		if (user != null && sendConfirmationMail && inviteuser == null) {
+		if (user != null && sendConfirmationMail && inviteuser.size() == 0) {
 			if (isAdminCreateUser) {
 		        	this.getMailHandler().sendMailToConfirm(user.getGooruUId(), password, accountType, userToken.getToken(), null, gooruBaseUrl, mailConfirmationUrl, null, null);
 			} else {
@@ -1399,7 +1404,146 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	public Boolean isFollowedUser(String gooruUserId, User apiCaller) {
 		return getUserRepository().getActiveUserRelationship(apiCaller.getPartyUid(), gooruUserId) != null ? true : false;
 	}
+	
+	@Override
+	public List<UserRole> findAllRoles() {
+		return getUserRepository().findAllRoles();
+	}
 
+	@Override
+	public Long allRolesCount() {
+		
+		return this.getUserRepository().countAllRoles();
+	}
+	
+	@Override
+	public List<UserRole> findUserRoles(String userUid) {
+		
+		return this.getUserRepository().findUserRoles(userUid);
+	}
+	
+	@Override
+	public Long userRolesCount(String userUid) {
+		
+		return this.getUserRepository().countUserRoles(userUid);
+	}
+	
+	@Override
+	public ActionResponseDTO<UserRole> createNewRole(UserRole role, User user) throws Exception{
+		UserRole userRole = findUserRoleByName(role.getName());
+		final Errors errors = validateCreateRole(role);		
+		Organization gooruOrg = organizationService.getOrganizationById(TaxonomyUtil.GOORU_ORG_UID);
+		Set<RoleEntityOperation> entityOperations = role.getRoleOperations();
+	    Iterator<RoleEntityOperation> iter = entityOperations.iterator();
+	    if (userRole != null && user.getOrganization().equals(gooruOrg)) {
+			throw new NotFoundException("user role already exists");
+		} 
+		else {		
+			if (!errors.hasErrors()) {
+				userRole = new UserRole();
+			    userRole.setName(role.getName());
+				userRole.setDescription(role.getDescription());
+				getUserRepository().save(userRole);
+				getUserRepository().flush();
+			}
+		}
+		while (iter.hasNext()) {
+	        RoleEntityOperation roleEntityOperation = (RoleEntityOperation) iter.next();
+	        EntityOperation entityOperation = this.getEntityOperationByEntityOperationId(roleEntityOperation.getEntityOperation().getEntityOperationId());
+	        roleEntityOperation.setUserRole(userRole);
+	        roleEntityOperation.setEntityOperation(entityOperation);
+	        getUserRepository().save(roleEntityOperation);
+	    }
+		
+		return new ActionResponseDTO<UserRole>(userRole, errors);
+	}
+	
+	@Override
+	public UserRole findUserRoleByName(final String name) {
+		return userRepository.findUserRoleByName(name, null);
+
+	}
+	
+	private Errors validateCreateRole(UserRole userRole) {
+		final Errors errors = new BindException(userRole, "role");
+		rejectIfNull(errors, userRole, NAME, GL0006, generateErrorMessage(GL0006, NAME));
+		return errors;
+	}
+	
+	@Override
+	public UserRole updateRole(UserRole role,Integer roleId) throws Exception {
+		UserRole userRole = null;
+		if (roleId != null) {
+			userRole = findUserRoleByRoleId(roleId);
+		}
+		if (userRole == null) {
+			throw new NotFoundException("user role not exists");
+		}
+
+		if (userRole != null) {
+			if(role.getName()!=null){	
+			userRole.setName(role.getName());
+			}
+			if(role.getDescription()!=null){
+			userRole.setDescription(role.getDescription());
+			}
+			userRepository.save(userRole);
+		}
+		return userRole;
+	}
+
+	@Override
+	public String removeRole(Integer roleId) throws Exception{
+
+		String roleDelete = "Failed to delete";
+		UserRole userRole = null;
+		if (roleId != null) {
+			userRole = findUserRoleByRoleId(roleId);
+		}
+		if (userRole == null) {
+			throw new NotFoundException("User role not Exists");
+		}
+
+		if (userRole != null) {
+			userRepository.remove(userRole);
+			roleDelete = "Deleted successfully";
+		}
+		return roleDelete;
+	}
+	
+	@Override
+	public UserRole findUserRoleByRoleId(Integer roleId) {
+
+		return userRepository.findUserRoleByRoleId(roleId);
+	}
+	
+	@Override
+	public EntityOperation getEntityOperationByEntityOperationId(Integer entityOperationId){
+		return userRepository.getEntityOperationByEntityOperationId(entityOperationId);
+	}
+	
+	@Override
+	public List<EntityOperation> findAllEntityNames() {
+		return getUserRepository().findAllEntityNames();
+	}
+	
+	@Override
+	public Long allEntityNamesCount() {
+		
+		return this.getUserRepository().countAllEntityNames();
+	}
+	
+	@Override
+	public List<EntityOperation> getOperationsByEntityName(String entityName) {
+		return getUserRepository().findOperationsByEntityName(entityName);
+	}	
+	
+	@Override
+	public Long getOperationCountByEntityName(String entityName) {
+		
+		return this.getUserRepository().countOperationsByEntityName(entityName);
+	}
+	
 	public IdpRepository getIdpRepository() {
 		return idpRepository;
 	}

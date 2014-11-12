@@ -29,10 +29,14 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Application;
+import org.ednovo.gooru.core.api.model.EntityOperation;
 import org.ednovo.gooru.core.api.model.Identity;
 import org.ednovo.gooru.core.api.model.Profile;
+import org.ednovo.gooru.core.api.model.RoleEntityOperation;
 import org.ednovo.gooru.core.api.model.User;
+import org.ednovo.gooru.core.api.model.UserRole;
 import org.ednovo.gooru.core.api.model.UserToken;
 import org.ednovo.gooru.domain.service.BaseService;
 import org.ednovo.gooru.domain.service.search.SearchResults;
@@ -108,5 +112,33 @@ public interface UserManagementService extends BaseService {
 	Map<String, Object> getUserSummary(String gooruUid);
 	 
 	void resetEmailAddress(List<String> data) throws Exception;
+	 
+	 List<UserRole> findAllRoles();
+	 
+	 Long allRolesCount();
+	 
+	 List<UserRole> findUserRoles(String userUId);
 
+
+	 Long userRolesCount(String userUId);
+	 
+	 ActionResponseDTO<UserRole> createNewRole(UserRole userRole, User user) throws Exception;
+
+	 UserRole findUserRoleByName(String name);
+	 
+	 UserRole updateRole(UserRole role,Integer roleId) throws Exception;
+	 
+	 String removeRole(Integer roleId) throws Exception;
+	 
+	 UserRole findUserRoleByRoleId(Integer roleId);
+	 
+	 EntityOperation getEntityOperationByEntityOperationId(Integer entityOperationId);
+
+	 List<EntityOperation> findAllEntityNames();
+
+	 Long allEntityNamesCount();
+	 
+	 List<EntityOperation> getOperationsByEntityName(String entityName);
+	 
+	 Long getOperationCountByEntityName(String entityName);
 }

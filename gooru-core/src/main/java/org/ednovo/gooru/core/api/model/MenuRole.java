@@ -6,15 +6,15 @@ import java.util.Set;
 public class MenuRole implements Serializable {
 
 	private static final long serialVersionUID = -2246217635911324007L;
-	private Short roleId;
+	private Integer roleId;
 	private String name;
 	private String description;
 	private Set<RoleEntityOperation> roleOperations;
 	
-	public Short getRoleId() {
+	public Integer getRoleId() {
 		return roleId;
 	}
-	public void setRoleId(Short roleId) {
+	public void setRoleId(Integer roleId) {
 		this.roleId = roleId;
 	}
 	public String getName() {
