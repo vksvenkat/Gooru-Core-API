@@ -275,6 +275,7 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 
 	private List<Feedback> setFeedbackData(Feedback feedback, User creator) {
 		List<Feedback> feedbackList = new ArrayList<Feedback>();
+		List<Feedback> feedbackSetList = new ArrayList<Feedback>();
 		ContextDTO contextDTO = null;
 		if (feedback.getContext() != null) {
 			contextDTO = buildContextInputParam(feedback.getContext());
@@ -302,11 +303,18 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 			rejectIfNull(feedbackType, GL0007, feedback.getCategory().getValue() + TYPE);
 			copyFeedback.setType(feedbackType);
 			copyFeedback = handleRating(copyFeedback);
-			handleFlag(copyFeedback, feedbackType);
-			feedbackList.add(copyFeedback);
+			if (!handleFlag(copyFeedback, feedbackType)) {
+				feedbackList.add(copyFeedback);
+			} else {
+				feedbackSetList.add(copyFeedback);
+			}
 			feedbackValue.append(feedbackTypes.getValue());
 		}
+		
 		this.getFeedbackRepository().saveAll(feedbackList);
+		if(feedbackSetList.size() > 0) {
+			feedbackList.addAll(feedbackSetList);
+		}
 		if (content != null) {
 			CustomTableValue statusType = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.CONTENT_STATUS_TYPE.getTable(), CustomProperties.ContentStatusType.OPEN.getContentStatusType());
 			content.setStatusType(statusType);
@@ -341,7 +349,8 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 		return setFeedbackData(feedback, user);
 	}
 
-	private void handleFlag(Feedback feedback, CustomTableValue feedbackType) {
+	private boolean  handleFlag(Feedback feedback, CustomTableValue feedbackType) {
+	boolean alreadyExist = false;
 		if (!feedback.getCategory().getValue().equalsIgnoreCase(CustomProperties.FeedbackCategory.RATING.getFeedbackCategory())) {
 			if (feedback.getTarget().getValue().equalsIgnoreCase(CustomProperties.Target.USER.getTarget())) {
 				Feedback userFeedback = this.getFeedbackRepository().getUserFeedback(feedbackType.getKeyValue(), feedback.getAssocUserUid(), feedback.getCreator().getGooruUId());
@@ -353,10 +362,11 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 			if (feedback.getTarget().getValue().equalsIgnoreCase(CustomProperties.Target.CONTENT.getTarget())) {
 				Feedback contentFeedback = this.getFeedbackRepository().getContentFeedback(feedbackType.getKeyValue(), feedback.getAssocGooruOid(), feedback.getCreator().getGooruUId());
 				if (contentFeedback != null) {
-					this.getFeedbackRepository().remove(contentFeedback);
+					alreadyExist = true;
 				}
 			}
 		}
+		return alreadyExist;
 	}
 
 	private Feedback handleRating(Feedback feedback) {
