@@ -358,7 +358,9 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				collection.setCollectionItem(this.createCollectionItem(collection.getGooruOid(), parentCollection.getGooruOid(), new CollectionItem(), collection.getUser(), CollectionType.FOLDER.getCollectionType(), false).getModel());
 				getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + parentCollection.getUser().getPartyUid() + "*");
 			}
+			if(collection.getCollectionItem() != null){
 			collection.setCollectionItemId(collection.getCollectionItem().getCollectionItemId());
+			}
 			try {
 				indexProcessor.index(collection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
 			} catch (Exception ex) {
