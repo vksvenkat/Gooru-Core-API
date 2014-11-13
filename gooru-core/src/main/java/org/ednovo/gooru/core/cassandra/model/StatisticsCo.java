@@ -40,6 +40,18 @@ public class StatisticsCo {
 	private String voteDown;
 
 	@Column
+	private Long viewsCountN;
+
+	@Column
+	private Long subscriberCountN;
+
+	@Column
+	private Long voteUpN;
+
+	@Column
+	private Long voteDownN;
+
+	@Column
 	private String invalidResource;
 
 	@Column
@@ -216,6 +228,38 @@ public class StatisticsCo {
 	
 	public void setCopiedCount(long copiedCount){
 		this.copiedCount = copiedCount;
+	}
+
+	public void setViewsCountN(Long viewsCountN) {
+		this.viewsCountN = viewsCountN;
+	}
+
+	public Long getViewsCountN() {
+		return viewsCountN;
+	}
+
+	public void setSubscriberCountN(Long subscriberCountN) {
+		this.subscriberCountN = subscriberCountN;
+	}
+
+	public Long getSubscriberCountN() {
+		return subscriberCountN;
+	}
+
+	public void setVoteUpN(Long voteUpN) {
+		this.voteUpN = voteUpN;
+	}
+
+	public Long getVoteUpN() {
+		return voteUpN;
+	}
+
+	public void setVoteDownN(Long voteDownN) {
+		this.voteDownN = voteDownN;
+	}
+
+	public Long getVoteDownN() {
+		return voteDownN;
 	}
 	
 
