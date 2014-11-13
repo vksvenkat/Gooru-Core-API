@@ -359,6 +359,11 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + parentCollection.getUser().getPartyUid() + "*");
 			}
 			
+			if(collection.getCollectionItem() != null){
+			collection.setCollectionItemId(collection.getCollectionItem().getCollectionItemId());
+			}
+
+			
 			List<String> parenFolders = this.getParentCollection(collection.getGooruOid(), user.getPartyUid(), false);
 			for (String folderGooruOid : parenFolders) {
 				updateFolderSharing(folderGooruOid);

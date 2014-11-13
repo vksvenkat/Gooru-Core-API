@@ -64,6 +64,7 @@ public class Collection extends Resource implements Versionable {
 
 	private Integer itemCount;
 	
+	private String collectionItemId;
 
 	public String getIdeas() {
 		return ideas;
@@ -289,5 +290,14 @@ public class Collection extends Resource implements Versionable {
 	public void setItemCount(Integer itemCount) {
 		this.itemCount = itemCount;
 	}
+	
+	public String getCollectionItemId() {
+		return collectionItemId;
+	}
+
+	public void setCollectionItemId(String collectionItemId) {
+		this.collectionItemId = collectionItemId;
+	}
+
 
 }
