@@ -358,9 +358,17 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				collection.setCollectionItem(this.createCollectionItem(collection.getGooruOid(), parentCollection.getGooruOid(), new CollectionItem(), collection.getUser(), CollectionType.FOLDER.getCollectionType(), false).getModel());
 				getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + parentCollection.getUser().getPartyUid() + "*");
 			}
+			
 			if(collection.getCollectionItem() != null){
 			collection.setCollectionItemId(collection.getCollectionItem().getCollectionItemId());
 			}
+
+			
+			List<String> parenFolders = this.getParentCollection(collection.getGooruOid(), user.getPartyUid(), false);
+			for (String folderGooruOid : parenFolders) {
+				updateFolderSharing(folderGooruOid);
+			}
+
 			try {
 				indexProcessor.index(collection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
 			} catch (Exception ex) {
@@ -693,6 +701,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	public List<Collection> getCollections(Map<String, String> filters, User user) {
 		return this.getCollectionRepository().getCollections(filters, user);
 	}
+	
 
 	@Override
 	public ActionResponseDTO<CollectionItem> createCollectionItem(String resourceGooruOid, String collectionGooruOid, CollectionItem collectionItem, User user, String type, boolean isCreateQuestion) throws Exception {
