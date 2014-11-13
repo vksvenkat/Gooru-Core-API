@@ -37,6 +37,7 @@ import org.ednovo.gooru.core.api.model.Profile;
 import org.ednovo.gooru.core.api.model.RoleEntityOperation;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserRole;
+import org.ednovo.gooru.core.api.model.UserRoleAssoc;
 import org.ednovo.gooru.core.api.model.UserToken;
 import org.ednovo.gooru.domain.service.BaseService;
 import org.ednovo.gooru.domain.service.search.SearchResults;
@@ -124,13 +125,9 @@ public interface UserManagementService extends BaseService {
 	 
 	 ActionResponseDTO<UserRole> createNewRole(UserRole userRole, User user) throws Exception;
 
-	 UserRole findUserRoleByName(String name);
-	 
 	 UserRole updateRole(UserRole role,Integer roleId) throws Exception;
 	 
-	 String removeRole(Integer roleId) throws Exception;
-	 
-	 UserRole findUserRoleByRoleId(Integer roleId);
+	 void removeRole(Integer roleId) throws Exception;
 	 
 	 EntityOperation getEntityOperationByEntityOperationId(Integer entityOperationId);
 
@@ -141,4 +138,8 @@ public interface UserManagementService extends BaseService {
 	 List<EntityOperation> getOperationsByEntityName(String entityName);
 	 
 	 Long getOperationCountByEntityName(String entityName);
+	 
+	 UserRoleAssoc assignRoleByUserUid(Integer roleId,String userUid) throws Exception;
+	 
+	 void removeAssignedRoleByUserUid(Integer roleId,String userUid) throws Exception;
 }
