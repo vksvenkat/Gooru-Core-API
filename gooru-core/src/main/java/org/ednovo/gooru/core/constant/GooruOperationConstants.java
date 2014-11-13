@@ -53,6 +53,8 @@ public class GooruOperationConstants {
 	public static final String ENTITY_TAXONOMY = "Taxonomy";
 
 	public static final String ENTITY_USER = "User";
+	
+	public static final String ENTITY_USER_EMAIL_RESET = "ResetUserEmail";
 
 	public static final String ENTITY_CONFIG = "Config";
 
@@ -211,6 +213,8 @@ public class GooruOperationConstants {
 	public static final String ACTION_SIGNOUT = "SignOut";
 
 	public static final String ACTION_RESET = "Reset";
+	
+	public static final String ACTION_MAIL_RESET = "MailReset";
 
 	public static final String ACTION_MOVE = "Move";
 
@@ -555,6 +559,8 @@ public class GooruOperationConstants {
 	public static final String OPERATION_USER_SIGNOUT = ENTITY_USER + ENTITY_ACTION_SEPARATOR + ACTION_SIGNOUT;
 
 	public static final String OPERATION_USER_UPDATE = ENTITY_USER + ENTITY_ACTION_SEPARATOR + ACTION_UPDATE;
+	
+	public static final String OPERATION_USER_EMAIL_RESET = ENTITY_USER_EMAIL_RESET + ENTITY_ACTION_SEPARATOR + ACTION_MAIL_RESET;
 
 	public static final String OPERATION_USER_UPDATE_PASSWORD = ENTITY_USER + ENTITY_ACTION_SEPARATOR + ACTION_UPDATE_PASSWORD;
 
