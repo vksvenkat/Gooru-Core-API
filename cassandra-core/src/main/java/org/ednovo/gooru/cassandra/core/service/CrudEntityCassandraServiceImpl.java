@@ -10,6 +10,7 @@ import java.util.List;
 
 import org.ednovo.gooru.cassandra.core.CassandraIndexSrcBuilder;
 import org.ednovo.gooru.core.cassandra.model.IsCassandraIndexable;
+import org.ednovo.gooru.core.cassandra.model.ResourceCio;
 import org.ednovo.gooru.core.exception.NotFoundException;
 
 
@@ -26,7 +27,8 @@ public abstract class CrudEntityCassandraServiceImpl<S extends IsCassandraIndexa
 			throw new RuntimeException("Id : " + id + " doesn't exist in Cassandra ");
 		}
 		CassandraIndexSrcBuilder<S, M> builder = CassandraIndexSrcBuilder.get(source.getIndexType());
-		M modelCio = builder.build(source);
+		ResourceCio resourceCio = (ResourceCio) read(id);
+		M modelCio = builder.build(source, resourceCio.getVersion().longValue());
 		if (modelCio != null) {
 			getCassandraDao().save(modelCio);
 		}
@@ -44,7 +46,8 @@ public abstract class CrudEntityCassandraServiceImpl<S extends IsCassandraIndexa
 					throw new NotFoundException("Content not exist : " + key);
 				}
 				CassandraIndexSrcBuilder<S, M> builder = CassandraIndexSrcBuilder.get(source.getIndexType());
-				M modelCio = builder.build(source);
+				ResourceCio resourceCio = (ResourceCio) read(key);
+				M modelCio = builder.build(source, resourceCio.getVersion().longValue());
 				if (modelCio != null) {
 					models.add(modelCio);
 				}

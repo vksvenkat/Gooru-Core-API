@@ -222,6 +222,9 @@ public class ResourceCio implements IsEntityCassandraIndexable {
 
 	@Column
 	private String isOer;
+	
+	@Column
+	private Boolean isOerBoolean;
 
 	@Column
 	private String scollectionItemGooruOIds;
@@ -1003,5 +1006,13 @@ public class ResourceCio implements IsEntityCassandraIndexable {
 
 	public Double getDomainBoost() {
 		return domainBoost;
+	}
+
+	public void setIsOerBoolean(Boolean isOerBoolean) {
+		this.isOerBoolean = isOerBoolean;
+	}
+
+	public Boolean getIsOerBoolean() {
+		return isOerBoolean;
 	}
 }
