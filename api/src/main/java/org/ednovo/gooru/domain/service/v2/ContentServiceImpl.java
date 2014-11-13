@@ -265,9 +265,14 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 
 	@Override
 	public List<String> getContentPermission(String gooruOid, User apiCaller) {
+		Content content = this.getContentRepository().findContentByGooruId(gooruOid, true);
+		return getContentPermission(content, apiCaller);
+	}
+	
+	@Override
+	public List<String> getContentPermission(Content content, User apiCaller) {
 		List<String> permissions = new ArrayList<String>();
 		if (apiCaller != null) {
-			Content content = this.getContentRepository().findContentByGooruId(gooruOid, true);
 			if (content != null) {
 				for (ContentPermission userPermission : content.getContentPermissions()) {
 
@@ -291,7 +296,6 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 		}
 		return permissions;
 	}
-
 	public CustomTableRepository getCustomTableRepository() {
 		return customTableRepository;
 	}

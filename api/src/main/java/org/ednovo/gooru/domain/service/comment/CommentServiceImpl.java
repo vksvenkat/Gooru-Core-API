@@ -32,6 +32,7 @@ import org.ednovo.gooru.application.util.MailAsyncExecutor;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.Comment;
+import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.CustomTableValue;
 import org.ednovo.gooru.core.api.model.PartyCustomField;
 import org.ednovo.gooru.core.api.model.User;
@@ -42,6 +43,7 @@ import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.domain.service.BaseServiceImpl;
 import org.ednovo.gooru.domain.service.search.SearchResults;
 import org.ednovo.gooru.domain.service.user.UserService;
+import org.ednovo.gooru.domain.service.v2.ContentService;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.party.PartyRepository;
@@ -75,6 +77,9 @@ public class CommentServiceImpl extends BaseServiceImpl implements CommentServic
 
 	@Autowired
 	private CollectionRepository collectionRepository;
+	
+	@Autowired 
+	private ContentService contentService;
 
 	@Override
 	public ActionResponseDTO<Comment> createComment(Comment comment, User user) {
@@ -141,14 +146,21 @@ public class CommentServiceImpl extends BaseServiceImpl implements CommentServic
 
 	@Override
 	public void deleteComment(String commentUid, User user, Boolean softdelete) {
-		Comment comment = getUserService().isContentAdmin(user) || isContentOwner(commentUid, user) ? this.getCommentRepository().getComment(commentUid) : this.getCommentRepository().findCommentByUser(commentUid, user.getGooruUId());
+		Comment comment = this.getCommentRepository().getComment(commentUid);
 		rejectIfNull(comment, COMMENT, GL0057, generateErrorMessage(GL0057, COMMENT));
-		if (softdelete) {
-			comment.setIsDeleted(true);
-			this.getCommentRepository().save(comment);
-		} else {
-			this.getCommentRepository().remove(comment);
+		Content content = this.getResourceRepository().findResourceByContent(comment.getGooruOid());
+		List<String> contentPermissions = contentService.getContentPermission(content, user);
+		for (String contentPermission : contentPermissions) {
+			if (contentPermission.equalsIgnoreCase(EDIT)) {
+				if (softdelete) {
+					comment.setIsDeleted(true);
+					this.getCommentRepository().save(comment);
+				} else {
+					this.getCommentRepository().remove(comment);
+				}
+			}
 		}
+
 	}
 	
 	@Override
