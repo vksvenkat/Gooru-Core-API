@@ -51,5 +51,7 @@ public interface ContentService {
 	void createContentPermission(Content content, User user);
 	
 	void deleteContentPermission(Content content, User user);
+	
+	List<String>  getContentPermission(Content content, User apiCaller);
 
 }
