@@ -64,6 +64,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+
 
 @Controller
 @RequestMapping(value = { "/v2/user" })
@@ -393,7 +395,14 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 		return toModelAndView(serializeToJsonWithExcludes(this.getUserManagementService().updateUserViewFlagStatus(gooruUId,Integer.parseInt(getValue(VIEW_FLAG,json))), USER_FLAG_EXCLUDE_FIELDS));
 	}
 	
-
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_EMAIL_RESET })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(method = { RequestMethod.PUT }, value = "reset/account")
+	public void resetEmailAddress(@RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		this.getUserManagementService().resetEmailAddress(JsonDeserializer.deserialize(data, new TypeReference<List<String>>() {
+		}));
+	}
+	
 	private String getFeedbackCategory(HttpServletRequest request) {
 		String category = null;
 		if (request != null && request.getRequestURL() != null) {
