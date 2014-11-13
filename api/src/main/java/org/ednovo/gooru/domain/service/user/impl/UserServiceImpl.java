@@ -1520,9 +1520,8 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 	}
 
 	@Override
-	public String removeRoleOperation(Integer roleId, String operations) throws Exception{
+	public void removeRoleOperation(Integer roleId, String operations) throws Exception{
 
-		String roleOperationDelete = "Failed to delete";
 		UserRole userRole = null;
 		RoleEntityOperation roleEntityOperation = null;
 		List<RoleEntityOperation> roleEntityOperations = new ArrayList<RoleEntityOperation>();
@@ -1551,11 +1550,9 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 			}
 			if (roleEntityOperations.size() > 0) {
 				userRepository.removeAll(roleEntityOperations);
-				roleOperationDelete = "Deleted successfully";
 			}
 
 		}
-		return roleOperationDelete;
 	}
 
 	@Override
