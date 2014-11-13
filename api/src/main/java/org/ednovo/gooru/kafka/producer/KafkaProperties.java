@@ -45,9 +45,9 @@ public final class KafkaProperties {
 	 public static final String AUTO_OFFSET_RESET_VALUE = "smallest";
 	 public static final String KAFKA_PREFIX = "kafka.";
 	 public static final String REQUEST_REQUIRED_ACKS = "request.required.acks";
-	 public static final int REQUEST_REQUIRED_ACKS_VALUE = 1;
+	 public static final String REQUEST_REQUIRED_ACKS_VALUE = "1";
 	 public static final String RETRY_BACKOFF_MS = "retry.backoff.ms";
-	 public static final int RETRY_BACKOFF_MS_VALUE = 1000;
+	 public static final String RETRY_BACKOFF_MS_VALUE = "1000";
 	  
 	  
 	 public String zkConnectValue;
