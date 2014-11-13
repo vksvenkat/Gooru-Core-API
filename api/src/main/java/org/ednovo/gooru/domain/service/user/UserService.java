@@ -121,7 +121,7 @@ public interface UserService {
 		
 	List<RoleEntityOperation> updateRoleOperation(Integer roleId, String operations) throws Exception;
 
-	void removeRoleOperation(Integer roleId, String operations) throws Exception;
+	String removeRoleOperation(Integer roleId, String operations) throws Exception;
 
 	List<RoleEntityOperation> getUserOperations(String roleNames) throws Exception;
 	

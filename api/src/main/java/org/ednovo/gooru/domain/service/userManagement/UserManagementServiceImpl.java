@@ -1430,7 +1430,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	
 	@Override
 	public ActionResponseDTO<UserRole> createNewRole(UserRole role, User user) throws Exception{
-		UserRole userRole = userRepository.findUserRoleByName(role.getName(),null);
+		UserRole userRole = findUserRoleByName(role.getName());
 		final Errors errors = validateCreateRole(role);		
 		Organization gooruOrg = organizationService.getOrganizationById(TaxonomyUtil.GOORU_ORG_UID);
 		Set<RoleEntityOperation> entityOperations = role.getRoleOperations();
@@ -1458,6 +1458,12 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		return new ActionResponseDTO<UserRole>(userRole, errors);
 	}
 	
+	@Override
+	public UserRole findUserRoleByName(final String name) {
+		return userRepository.findUserRoleByName(name, null);
+
+	}
+	
 	private Errors validateCreateRole(UserRole userRole) {
 		final Errors errors = new BindException(userRole, "role");
 		rejectIfNull(errors, userRole, NAME, GL0006, generateErrorMessage(GL0006, NAME));
@@ -1468,7 +1474,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	public UserRole updateRole(UserRole role,Integer roleId) throws Exception {
 		UserRole userRole = null;
 		if (roleId != null) {
-			userRole = userRepository.findUserRoleByRoleId(roleId);
+			userRole = findUserRoleByRoleId(roleId);
 		}
 		if (userRole == null) {
 			throw new NotFoundException("user role not exists");
@@ -1487,11 +1493,12 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	}
 
 	@Override
-	public void removeRole(Integer roleId) throws Exception{
+	public String removeRole(Integer roleId) throws Exception{
 
+		String roleDelete = "Failed to delete";
 		UserRole userRole = null;
 		if (roleId != null) {
-			userRole = userRepository.findUserRoleByRoleId(roleId);
+			userRole = findUserRoleByRoleId(roleId);
 		}
 		if (userRole == null) {
 			throw new NotFoundException("User role not Exists");
@@ -1499,7 +1506,15 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 
 		if (userRole != null) {
 			userRepository.remove(userRole);
+			roleDelete = "Deleted successfully";
 		}
+		return roleDelete;
+	}
+	
+	@Override
+	public UserRole findUserRoleByRoleId(Integer roleId) {
+
+		return userRepository.findUserRoleByRoleId(roleId);
 	}
 	
 	@Override
@@ -1527,41 +1542,6 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	public Long getOperationCountByEntityName(String entityName) {
 		
 		return this.getUserRepository().countOperationsByEntityName(entityName);
-	}
-	
-	@Override
-	public UserRoleAssoc assignRoleByUserUid(Integer roleId, String userUid)
-			throws Exception {
-		User user = userRepository.findUserByPartyUid(userUid);
-		UserRole role = userRepository.findUserRoleByRoleId(roleId);
-		if (role == null) {
-			throw new NotFoundException("Role does not exist");
-		}
-		UserRoleAssoc userRoleAssoc = userRepository
-				.findUserRoleAssocEntryByRoleIdAndUserUid(roleId, userUid);
-		if (userRoleAssoc == null) {
-			userRoleAssoc = new UserRoleAssoc();
-			userRoleAssoc.setUser(user);
-			userRoleAssoc.setRole(role);
-			getUserRepository().save(userRoleAssoc);
-		}
-		else {
-			throw new NotFoundException("Role already assigned for the User");
-		}
-		return userRoleAssoc;
-	}
-	
-	@Override
-	public void removeAssignedRoleByUserUid(Integer roleId, String userUid)
-			throws Exception {
-		UserRoleAssoc userRoleAssoc = userRepository
-				.findUserRoleAssocEntryByRoleIdAndUserUid(roleId, userUid);
-		if (userRoleAssoc != null) {
-			getUserRepository().remove(userRoleAssoc);
-		}
-		else {
-			throw new NotFoundException("Role does not assigned for the User");
-		}
 	}
 	
 	public IdpRepository getIdpRepository() {
