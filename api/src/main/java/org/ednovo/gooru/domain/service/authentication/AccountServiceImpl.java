@@ -152,18 +152,18 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 		final String apiEndPoint = getConfigSetting(ConfigConstants.GOORU_API_ENDPOINT, 0, TaxonomyUtil.GOORU_ORG_UID);
 		if (!errors.hasErrors()) {
 			if (username == null) {
-				throw new BadRequestException(generateErrorMessage("GL0061", "Username"));
+				throw new UnauthorizedException(generateErrorMessage("GL0061", "Username"));
 			}
 
 			if (password == null) {
-				throw new BadRequestException(generateErrorMessage("GL0061", "Password"));
+				throw new UnauthorizedException(generateErrorMessage("GL0061", "Password"));
 			}
 			Identity identity = new Identity();
 			identity.setExternalId(username);
 
 			identity = this.getUserRepository().findByEmailIdOrUserName(username, true, true);
 			if (identity == null) {
-				throw new BadRequestException(generateErrorMessage("GL0078"));
+				throw new UnauthorizedException(generateErrorMessage("GL0078"));
 			}
 			identity.setLoginType(CREDENTIAL);
 
@@ -174,12 +174,12 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			
 			if (!isSsoLogin) {
 				if (identity.getCredential() == null) {
-					throw new BadRequestException(generateErrorMessage("GL0080"));
+					throw new UnauthorizedException(generateErrorMessage("GL0080"));
 				}
 				final String encryptedPassword = this.getUserService().encryptPassword(password);
 				if (user == null || !(encryptedPassword.equals(identity.getCredential().getPassword()) || password.equals(identity.getCredential().getPassword()))) {
 
-					throw new BadRequestException(generateErrorMessage("GL0081"));
+					throw new UnauthorizedException(generateErrorMessage("GL0081"));
 				}
 
 			}
