@@ -10,7 +10,7 @@ package org.ednovo.gooru.cassandra.core;
  */
 public interface IsIndexSrcBuilder<I, O> {
 
-	O build(I input, Long cassandraVersion);
+	O build(I input);
 	
 	String getName();
 }

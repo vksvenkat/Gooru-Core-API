@@ -76,7 +76,8 @@ public class EntityCassandraDaoImpl<M extends IsEntityCassandraIndexable> extend
 	public M read(String key) {
 		try {
 			return key != null ? getCF().getEntityManager().get(key) : null;
-		} catch (PersistenceException ex) {
+		} catch (Exception ex) {
+			LOG.error("Cassandra read error : " + ex.getMessage());
 			return null;
 		}
 	}
