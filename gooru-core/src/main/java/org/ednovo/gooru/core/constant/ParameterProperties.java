@@ -2794,4 +2794,6 @@ public interface ParameterProperties {
 
 	String MENU = "menu";
 	
+	String MENU_UID = "menuUid";
+	
 }
