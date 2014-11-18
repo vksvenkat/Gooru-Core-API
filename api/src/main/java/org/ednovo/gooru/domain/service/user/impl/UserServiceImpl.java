@@ -440,9 +440,6 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 		identity.setCredential(credential);
 		this.getUserRepository().save(identity);
 		
-		if(inviteuser.size() > 0) {
-			this.getCollaboratorService().updateCollaboratorStatus(email);
-		}
 
 		this.getPartyService().createUserDefaultCustomAttributes(user.getPartyUid(), user);
 
@@ -450,6 +447,9 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 
 		this.getUserRepository().flush();
 
+		if(inviteuser.size() > 0) {
+			this.getCollaboratorService().updateCollaboratorStatus(email,user);
+		}
 		indexProcessor.index(user.getPartyUid(), IndexProcessor.INDEX, USER);
 
 		/*if (identity.getIdp() != null) {

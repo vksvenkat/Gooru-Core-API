@@ -916,12 +916,12 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		}
 		identity.setCredential(credential);
 		this.getUserRepository().save(identity);
-		if (inviteuser != null && inviteuser.size() > 0 ) {
-			this.getCollaboratorService().updateCollaboratorStatus(newUser.getEmailId());
-		}
 		this.getPartyService().createUserDefaultCustomAttributes(user.getPartyUid(), user);
 		this.getPartyService().createTaxonomyCustomAttributes(user.getPartyUid(), user);
 		this.getUserRepository().flush();
+		if (inviteuser != null && inviteuser.size() > 0 ) {
+			this.getCollaboratorService().updateCollaboratorStatus(newUser.getEmailId(),user);
+		}
 		userCreatedDevice(user.getPartyUid(), request);
 		PartyCustomField partyCustomField = this.getPartyService().getPartyCustomeField(profile.getUser().getPartyUid(), USER_CONFIRM_STATUS, identity.getUser());
 		if (source != null && source.equalsIgnoreCase(UserAccountType.accountCreatedType.GOOGLE_APP.getType())) {
