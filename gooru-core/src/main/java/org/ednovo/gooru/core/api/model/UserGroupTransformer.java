@@ -22,7 +22,7 @@ public class UserGroupTransformer extends ObjectTransformer {
 			sgModel.setGroupCode(sg.getGroupCode());
 			sgModel.setOrganization(sg.getOrganization());
 			sgModel.setUserUid(sg.getUserUid());
-						
+			sgModel.setUserGroupType(sg.getUserGroupType());			
 			getContext().transform(sgModel);
 
 		} else {

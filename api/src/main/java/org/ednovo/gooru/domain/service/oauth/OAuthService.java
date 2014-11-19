@@ -37,7 +37,7 @@ public interface OAuthService {
 	
 	public ActionResponseDTO<OAuthClient> createOAuthClient(OAuthClient oAuthClient, User apiCaller) throws Exception;
 	
-	public ActionResponseDTO<OAuthClient> updateOAuthClient(OAuthClient oAuthClient);
+	public ActionResponseDTO<OAuthClient> updateOAuthClient(OAuthClient oAuthClient, String id);
 
 	public List<OAuthClient> listOAuthClient(String gooruUId, int pageNo, int pageSize) throws Exception;
 
