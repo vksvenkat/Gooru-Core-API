@@ -43,7 +43,7 @@ public class LtiRestV2Controller extends BaseController implements ConstantPrope
 
 		User apiCaller = (User) request.getAttribute(Constants.USER);
 		OAuthClient LTIClient = buildLTIClientFromInputParameters(data); 
-		 ActionResponseDTO<OAuthClient> responseDTO = oAuthService.updateOAuthClient(LTIClient);
+		 ActionResponseDTO<OAuthClient> responseDTO = oAuthService.updateOAuthClient(LTIClient,apiCaller.getGooruUId());
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		} else {

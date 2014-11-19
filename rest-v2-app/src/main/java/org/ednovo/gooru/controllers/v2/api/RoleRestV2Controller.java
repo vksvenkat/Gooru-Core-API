@@ -2,6 +2,7 @@ package org.ednovo.gooru.controllers.v2.api;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -15,6 +16,7 @@ import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.GooruOperationConstants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.security.AuthorizeOperations;
+import org.ednovo.gooru.domain.service.group.UserGroupService;
 import org.ednovo.gooru.domain.service.user.UserService;
 import org.ednovo.gooru.domain.service.userManagement.UserManagementService;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
@@ -29,6 +31,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
+
 @Controller
 @RequestMapping(value = { "/v2/role" })
 public class RoleRestV2Controller extends BaseController implements
@@ -39,6 +42,9 @@ public class RoleRestV2Controller extends BaseController implements
 
 	@Autowired
 	private UserService userService;
+	
+	@Autowired
+	private UserGroupService userGroupService;
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ROLE_LIST })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -126,12 +132,9 @@ public class RoleRestV2Controller extends BaseController implements
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ROLE_DELETE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.DELETE, value = "/{roleId}")
-	public ModelAndView removeRole(HttpServletRequest request,
-			@PathVariable(ROLE_ID) Integer roleId, HttpServletResponse response)
-			throws Exception {
+	public ModelAndView removeRole(HttpServletRequest request, @PathVariable(ROLE_ID) Integer roleId, HttpServletResponse response) throws Exception {
 
-		return toModelAndView(this.getUserManagementService()
-				.removeRole(roleId), RESPONSE_FORMAT_JSON);
+		return toModelAndView(this.getUserManagementService().removeRole(roleId), RESPONSE_FORMAT_JSON);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ROLE_LIST })
@@ -163,13 +166,32 @@ public class RoleRestV2Controller extends BaseController implements
 				.getOperationCountByEntityName(entityName));
 		return toModelAndView(serializeToJson(roleOperations, true));
 	}
+	
+	/*@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ROLE_DELETE })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(method = RequestMethod.DELETE, value = "group/{groupId}")
+	public ModelAndView removeGroupRole(HttpServletRequest request, @PathVariable(ROLE_ID) Integer groupId, HttpServletResponse response) throws Exception {
 
+		return toModelAndView(this.getUserManagementService().removeGroupRole(groupId), RESPONSE_FORMAT_JSON);
+	}*/
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ROLE_LIST })
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(method = RequestMethod.GET, value = "/group")
+	public ModelAndView removeGroupRole(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		String [] includes = (String[]) ArrayUtils.addAll(ERROR_INCLUDE, USER_GROUP_INCLUDES);
+		//return toModelAndView(this.getUserGroupService().findAllGroups());
+		return toModelAndView(serialize(this.getUserGroupService().findAllGroups(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, includes));
+	}
 	public UserManagementService getUserManagementService() {
 		return userManagementService;
 	}
 
 	public UserService getUserService() {
 		return userService;
+	}
+	
+	public UserGroupService getUserGroupService() {
+		return userGroupService;
 	}
 
 	private UserRole buildRoleFromInputParameters(String data) {

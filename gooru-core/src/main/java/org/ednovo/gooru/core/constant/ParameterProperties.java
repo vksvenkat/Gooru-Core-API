@@ -2772,7 +2772,7 @@ public interface ParameterProperties {
 	
 	String ROLE_CLIENT = "ROLE_CLIENT";
 	
-	String LTI = "LTIConsumer";
+	String LTI = "LTI";
 	
 	String READ = "read";
 	
