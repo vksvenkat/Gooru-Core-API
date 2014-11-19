@@ -83,13 +83,10 @@ public class OAuthRestV2Controller extends BaseController implements ConstantPro
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_OAUTH_UPDATE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	@RequestMapping(method = RequestMethod.PUT, value = "/client")
-	public ModelAndView updateOAuthClient(HttpServletRequest request, HttpServletResponse response, @RequestBody String data) throws Exception {
+	@RequestMapping(method = RequestMethod.PUT, value = "/client/{id}")
+	public ModelAndView updateOAuthClient(@PathVariable String id,HttpServletRequest request, HttpServletResponse response, @RequestBody String data) throws Exception {
 		request.setAttribute(Constants.EVENT_PREDICATE, "oauthclient.update");
-		User apiCaller = (User) request.getAttribute(Constants.USER);
-		JSONObject json = requestData(data);
-		OAuthClient oAuthClient = buildOAuthClientFromInputParameters(getValue("oauthClient", json));
-		ActionResponseDTO<OAuthClient> responseDTO = oAuthService.updateOAuthClient(oAuthClient);
+		ActionResponseDTO<OAuthClient> responseDTO = oAuthService.updateOAuthClient(buildOAuthClientFromInputParameters(data),id);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		} else {
@@ -102,6 +99,7 @@ public class OAuthRestV2Controller extends BaseController implements ConstantPro
 
 		return toModelAndView(serialize(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, includes));
 	}
+	
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_OAUTH_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)

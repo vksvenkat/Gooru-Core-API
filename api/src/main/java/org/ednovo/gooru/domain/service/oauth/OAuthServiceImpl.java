@@ -113,8 +113,7 @@ public class OAuthServiceImpl extends ServerValidationUtils implements OAuthServ
 			CustomTableValue status = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.APPLICATION_STATUS.getTable(), CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus());
 			oAuthClient.setStatus(status);
 			oAuthClient.setScopes(READ);
-			oAuthClient.setContentType((ContentType) this.getOAuthRepository().get(ContentType.class, RESOURCE));
-			
+			oAuthClient.setContentType((ContentType) this.getOAuthRepository().get(ContentType.class, RESOURCE));			
 			oAuthClient.setLastModified(new Date(System.currentTimeMillis()));
 			oAuthClient.setCreatedOn(new Date(System.currentTimeMillis()));
 			oAuthClient.setUser(apiCaller);
@@ -130,15 +129,20 @@ public class OAuthServiceImpl extends ServerValidationUtils implements OAuthServ
 	}
 
 	@Override
-	public ActionResponseDTO<OAuthClient> updateOAuthClient(OAuthClient oAuthClient) {
+	public ActionResponseDTO<OAuthClient> updateOAuthClient(OAuthClient oAuthClient, String id) {
 		rejectIfNull(oAuthClient, GL0056, "oAuthClient");
-		OAuthClient exsitsOAuthClient = (OAuthClient) oAuthRepository.findOAuthClientByOauthKey(oAuthClient.getKey());
+		OAuthClient exsitsOAuthClient = (OAuthClient) oAuthRepository.findOAuthClientByOauthKey(id);
 		rejectIfNull(exsitsOAuthClient, GL0056, "oAuthClient");
 		if (oAuthClient.getRedirectUrl() != null) {
 			exsitsOAuthClient.setRedirectUrl(oAuthClient.getRedirectUrl());
 		}
-		if (oAuthClient.getGrantTypes() != null) {
-			exsitsOAuthClient.setGrantTypes(oAuthClient.getGrantTypes());
+		if (exsitsOAuthClient.getResourceType()!= null && exsitsOAuthClient.getResourceType().getName().equalsIgnoreCase(LTI)) {
+			if (oAuthClient.getKey() != null) {
+				exsitsOAuthClient.setKey(oAuthClient.getKey());
+			}
+			if (oAuthClient.getSecretKey() != null) {
+				exsitsOAuthClient.setSecretKey(oAuthClient.getSecretKey());
+			}
 		}
 
 		oAuthRepository.save(exsitsOAuthClient);
