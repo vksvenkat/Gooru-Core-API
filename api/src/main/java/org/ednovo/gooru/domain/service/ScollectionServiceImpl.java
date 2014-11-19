@@ -1680,6 +1680,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		colletionType.put(QUIZ, COLLECTION_TYPE);
 		colletionType.put(FOLDER, COLLECTION_TYPE);
 		colletionType.put(ASSIGNMENT, COLLECTION_TYPE);
+		colletionType.put(ASSESSMENT,COLLECTION_TYPE);
 		colletionType.put(CollectionType.STORY.getCollectionType(), COLLECTION_TYPE);
 		final Errors errors = new BindException(collection, COLLECTION);
 		if (collection != null) {
