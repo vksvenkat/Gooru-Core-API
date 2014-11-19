@@ -18,6 +18,7 @@ import javax.xml.xpath.XPathFactory;
 
 import org.apache.commons.lang.StringUtils;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.core.exception.UnauthorizedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -116,10 +117,11 @@ public class ImageUtil implements ParameterProperties {
 			resampleOp.setUnsharpenMask(AdvancedResizeOp.UnsharpenMask.Normal);
 			image = resampleOp.filter(image, null);
 			ImageIO.write(image, "png", new File(outputFilePath));
-			return true;
-		} catch (Exception e) {
-			return false;
+			return true ;
+		}  catch(Exception e) {
+			throw new UnauthorizedException("you don't have a permission to upload the image");
 		}
+		
 	}
 
 	public static String getThumbnailUrlByQuery(String query, String imageSize, String aspectRatio) {
