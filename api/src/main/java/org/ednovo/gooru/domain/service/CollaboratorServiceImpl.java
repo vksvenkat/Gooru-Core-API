@@ -34,6 +34,7 @@ import org.ednovo.gooru.application.util.MailAsyncExecutor;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.Content;
+import org.ednovo.gooru.core.api.model.CustomTableValue;
 import org.ednovo.gooru.core.api.model.Identity;
 import org.ednovo.gooru.core.api.model.InviteUser;
 import org.ednovo.gooru.core.api.model.User;
@@ -96,7 +97,7 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 	private final Logger LOGGER = LoggerFactory.getLogger(CollaboratorServiceImpl.class);
 
 	@Override
-	public List<Map<String, Object>> addCollaborator(List<String> email, String gooruOid, User apiCaller,boolean sendInvite) throws Exception {
+	public List<Map<String, Object>> addCollaborator(List<String> email, String gooruOid, User apiCaller, boolean sendInvite) throws Exception {
 		Content content = null;
 		if (gooruOid != null) {
 			content = getContentRepository().findContentByGooruId(gooruOid, true);
@@ -106,70 +107,77 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 		} else {
 			throw new BadRequestException(generateErrorMessage("GL0088"));
 		}
-		List<Map<String, Object>> collaborator = new ArrayList<Map<String, Object>>();
+		List<Map<String, Object>> collaborator = new ArrayList<Map<String,Object>>();
 		if (email != null) {
 			for (final String mailId : email) {
 				Identity identity = this.getUserRepository().findByEmailIdOrUserName(mailId, true, false);
-				ActionResponseDTO<CollectionItem> responseDto = new ActionResponseDTO<CollectionItem>();
-				if (identity != null) {
-					UserContentAssoc userContentAssocs = this.getCollaboratorRepository().findCollaboratorById(gooruOid, identity.getUser().getGooruUId());
-					if (userContentAssocs == null) {
-						UserContentAssoc userContentAssoc = new UserContentAssoc();
-						userContentAssoc.setContent(content);
-						userContentAssoc.setUser(identity.getUser());
-						userContentAssoc.setAssociatedType(COLLABORATOR);
-						userContentAssoc.setRelationship(COLABORATOR);
-						userContentAssoc.setAssociatedBy(apiCaller);
-						userContentAssoc.setLastActiveDate(new Date());
-						userContentAssoc.setAssociationDate(new Date());
-						this.userRepository.save(userContentAssoc);
-						responseDto = this.getCollectionService().createCollectionItem(content.getGooruOid(), null, new CollectionItem(), identity.getUser(), COLLABORATOR, false);
-						collaborator.add(setActiveCollaborator(userContentAssoc, ACTIVE));
-						this.getContentService().createContentPermission(content, identity.getUser());
-						try {
-							this.getCollaboratorEventLog().getEventLogs(identity.getUser(), responseDto.getModel(), gooruOid, true, false);
-						} catch (JSONException e) {
-							LOGGER.debug("error"+e.getMessage());
-						}	
-						getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + identity.getUser().getPartyUid() + "*");
-						getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + content.getUser().getPartyUid() + "*");
-					} else {
-						collaborator.add(setActiveCollaborator(userContentAssocs, ACTIVE));
-					}
-
-				} else {
-					InviteUser inviteUsers = this.getInviteRepository().findInviteUserById(mailId, gooruOid,PENDING);
-					if (inviteUsers == null) {
-						InviteUser inviteUser = new InviteUser();
-						inviteUser.setEmailId(mailId);
-						inviteUser.setGooruOid(gooruOid);
-						inviteUser.setCreatedDate(new Date());
-						inviteUser.setInvitationType(COLLABORATOR);
-						inviteUser.setStatus(this.getCustomTableRepository().getCustomTableValue(INVITE_USER_STATUS, PENDING));
-						inviteUser.setAssociatedUser(apiCaller);
-						this.getUserRepository().save(inviteUser);
-						collaborator.add(setInviteCollaborator(inviteUser, PENDING));
-					} else {
-						collaborator.add(setInviteCollaborator(inviteUsers, PENDING));
-					}
-				}
-				Map<String, Object> collaboratorData = new HashMap<String, Object>();
-				collaboratorData.put(CONTENT_OBJ, content);
-				collaboratorData.put(EMAIL_ID, mailId);
-				if (sendInvite) {
-					this.getMailAsyncExecutor().sendMailToInviteCollaborator(collaboratorData);
-				}
+				collaborator.add(addCollaborator(mailId, gooruOid, apiCaller, sendInvite, content, identity == null ? null : identity.getUser()));
 			}
 			try {
 				indexProcessor.index(content.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
 			} catch (Exception e) {
-				LOGGER.debug("error"+e.getMessage());
+				LOGGER.debug("error" + e.getMessage());
 			}
 		}
 
 		return collaborator;
 	}
 
+	private Map<String, Object> addCollaborator(String mailId, String gooruOid, User apiCaller, boolean sendInvite, Content content, User user) throws Exception {
+		Map<String, Object> collaborator = new HashMap<String, Object>();
+		ActionResponseDTO<CollectionItem> responseDto = new ActionResponseDTO<CollectionItem>();
+		if (user != null) {
+			UserContentAssoc userContentAssocs = this.getCollaboratorRepository().findCollaboratorById(gooruOid, user.getGooruUId());
+			if (userContentAssocs == null) {
+				UserContentAssoc userContentAssoc = new UserContentAssoc();
+				userContentAssoc.setContent(content);
+				userContentAssoc.setUser(user);
+				userContentAssoc.setAssociatedType(COLLABORATOR);
+				userContentAssoc.setRelationship(COLABORATOR);
+				userContentAssoc.setAssociatedBy(apiCaller);
+				userContentAssoc.setLastActiveDate(new Date());
+				userContentAssoc.setAssociationDate(new Date());
+				this.userRepository.save(userContentAssoc);
+				responseDto = this.getCollectionService().createCollectionItem(content.getGooruOid(), null, new CollectionItem(), user, COLLABORATOR, false);
+				collaborator= setActiveCollaborator(userContentAssoc, ACTIVE);
+				this.getContentService().createContentPermission(content, user);
+				try {
+					this.getCollaboratorEventLog().getEventLogs(user, responseDto.getModel(), gooruOid, true, false);
+				} catch (JSONException e) {
+					LOGGER.debug("error" + e.getMessage());
+				}
+				getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + user.getPartyUid() + "*");
+				getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + content.getUser().getPartyUid() + "*");
+			} else {
+				collaborator = setActiveCollaborator(userContentAssocs, ACTIVE);
+			}
+
+		} else {
+			InviteUser inviteUsers = this.getInviteRepository().findInviteUserById(mailId, gooruOid, PENDING);
+			if (inviteUsers == null) {
+				InviteUser inviteUser = new InviteUser();
+				inviteUser.setEmailId(mailId);
+				inviteUser.setGooruOid(gooruOid);
+				inviteUser.setCreatedDate(new Date());
+				inviteUser.setInvitationType(COLLABORATOR);
+				inviteUser.setStatus(this.getCustomTableRepository().getCustomTableValue(INVITE_USER_STATUS, PENDING));
+				inviteUser.setAssociatedUser(apiCaller);
+				this.getUserRepository().save(inviteUser);
+				collaborator = setInviteCollaborator(inviteUser, PENDING);
+			} else {
+				collaborator = setInviteCollaborator(inviteUsers, PENDING);
+			}
+		}
+		Map<String, Object> collaboratorData = new HashMap<String, Object>();
+		collaboratorData.put(CONTENT_OBJ, content);
+		collaboratorData.put(EMAIL_ID, mailId);
+		if (sendInvite) {
+			this.getMailAsyncExecutor().sendMailToInviteCollaborator(collaboratorData);
+		}
+
+		return collaborator;
+	}
+	
 	private Map<String, Object> setInviteCollaborator(InviteUser inviteUser, String status) {
 		Map<String, Object> listMap = new HashMap<String, Object>();
 		listMap.put(EMAIL_ID, inviteUser.getEmailId());
@@ -306,16 +314,19 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 	}
 
 	@Override
-	public void updateCollaboratorStatus(String mailId) throws Exception {
+	public void updateCollaboratorStatus(String mailId, User user) throws Exception {
 		List<InviteUser> inviteUsers = this.getInviteRepository().getInviteUserByMail(mailId, COLLABORATOR);
+		CustomTableValue status = this.getCustomTableRepository().getCustomTableValue(INVITE_USER_STATUS, ACTIVE);
+		List<InviteUser> inviteUserList = new ArrayList<InviteUser>();
 		for (InviteUser inviteUser : inviteUsers) {
-			inviteUser.setStatus(this.getCustomTableRepository().getCustomTableValue(INVITE_USER_STATUS, ACTIVE));
+			inviteUser.setStatus(status);
 			inviteUser.setJoinedDate(new Date());
-			this.getCollaboratorRepository().save(inviteUser);
-			Identity identity = this.getUserRepository().findByEmailIdOrUserName(mailId, true, false);
-			List<String> mail = new ArrayList<String>();
-			mail.add(mailId);
-			this.addCollaborator(mail, inviteUser.getGooruOid(), identity.getUser(),false);
+			inviteUserList.add(inviteUser);
+			Content content = getContentRepository().findContentByGooruId(inviteUser.getGooruOid(), true);
+			this.addCollaborator(mailId, inviteUser.getGooruOid(), user,false,content,user);
+		}
+		if (inviteUserList.size() > 0) {
+			this.getCollaboratorRepository().saveAll(inviteUserList);
 		}
 
 	}

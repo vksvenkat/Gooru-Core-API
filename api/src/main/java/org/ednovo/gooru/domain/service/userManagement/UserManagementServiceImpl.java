@@ -80,6 +80,7 @@ import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.BadRequestException;
+import org.ednovo.gooru.core.exception.NotAllowedException;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.core.exception.UnauthorizedException;
 import org.ednovo.gooru.domain.service.BaseServiceImpl;
@@ -916,12 +917,12 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		}
 		identity.setCredential(credential);
 		this.getUserRepository().save(identity);
-		if (inviteuser != null && inviteuser.size() > 0 ) {
-			this.getCollaboratorService().updateCollaboratorStatus(newUser.getEmailId());
-		}
 		this.getPartyService().createUserDefaultCustomAttributes(user.getPartyUid(), user);
 		this.getPartyService().createTaxonomyCustomAttributes(user.getPartyUid(), user);
 		this.getUserRepository().flush();
+		if (inviteuser != null && inviteuser.size() > 0 ) {
+			this.getCollaboratorService().updateCollaboratorStatus(newUser.getEmailId(),user);
+		}
 		userCreatedDevice(user.getPartyUid(), request);
 		PartyCustomField partyCustomField = this.getPartyService().getPartyCustomeField(profile.getUser().getPartyUid(), USER_CONFIRM_STATUS, identity.getUser());
 		if (source != null && source.equalsIgnoreCase(UserAccountType.accountCreatedType.GOOGLE_APP.getType())) {
@@ -1430,13 +1431,13 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	
 	@Override
 	public ActionResponseDTO<UserRole> createNewRole(UserRole role, User user) throws Exception{
-		UserRole userRole = findUserRoleByName(role.getName());
+		UserRole userRole = userRepository.findUserRoleByName(role.getName(),null);
 		final Errors errors = validateCreateRole(role);		
 		Organization gooruOrg = organizationService.getOrganizationById(TaxonomyUtil.GOORU_ORG_UID);
 		Set<RoleEntityOperation> entityOperations = role.getRoleOperations();
 	    Iterator<RoleEntityOperation> iter = entityOperations.iterator();
 	    if (userRole != null && user.getOrganization().equals(gooruOrg)) {
-			throw new NotFoundException("user role already exists");
+	    	throw new BadRequestException(generateErrorMessage(GL0041,"Role "));
 		} 
 		else {		
 			if (!errors.hasErrors()) {
@@ -1458,12 +1459,6 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		return new ActionResponseDTO<UserRole>(userRole, errors);
 	}
 	
-	@Override
-	public UserRole findUserRoleByName(final String name) {
-		return userRepository.findUserRoleByName(name, null);
-
-	}
-	
 	private Errors validateCreateRole(UserRole userRole) {
 		final Errors errors = new BindException(userRole, "role");
 		rejectIfNull(errors, userRole, NAME, GL0006, generateErrorMessage(GL0006, NAME));
@@ -1474,11 +1469,9 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	public UserRole updateRole(UserRole role,Integer roleId) throws Exception {
 		UserRole userRole = null;
 		if (roleId != null) {
-			userRole = findUserRoleByRoleId(roleId);
+			userRole = userRepository.findUserRoleByRoleId(roleId);
 		}
-		if (userRole == null) {
-			throw new NotFoundException("user role not exists");
-		}
+		rejectIfNull(userRole, GL0056, 404, "Role ");
 
 		if (userRole != null) {
 			if(role.getName()!=null){	
@@ -1493,28 +1486,11 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	}
 
 	@Override
-	public String removeRole(Integer roleId) throws Exception{
+	public void removeRole(Integer roleId) throws Exception{
 
-		String roleDelete = "Failed to delete";
-		UserRole userRole = null;
-		if (roleId != null) {
-			userRole = findUserRoleByRoleId(roleId);
-		}
-		if (userRole == null) {
-			throw new NotFoundException("User role not Exists");
-		}
-
-		if (userRole != null) {
-			userRepository.remove(userRole);
-			roleDelete = "Deleted successfully";
-		}
-		return roleDelete;
-	}
-	
-	@Override
-	public UserRole findUserRoleByRoleId(Integer roleId) {
-
-		return userRepository.findUserRoleByRoleId(roleId);
+		UserRole userRole = userRepository.findUserRoleByRoleId(roleId);
+		rejectIfNull(userRole, GL0056, 404, "Role ");
+		userRepository.remove(userRole);
 	}
 	
 	@Override
@@ -1542,6 +1518,31 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	public Long getOperationCountByEntityName(String entityName) {
 		
 		return this.getUserRepository().countOperationsByEntityName(entityName);
+	}
+	
+	@Override
+	public UserRoleAssoc assignRoleByUserUid(Integer roleId, String userUid)
+			throws Exception {
+		User user = userRepository.findUserByPartyUid(userUid);
+		UserRole role = userRepository.findUserRoleByRoleId(roleId);
+		rejectIfNull(role, GL0010, 404, "Role ");
+		UserRoleAssoc userRoleAssoc = userRepository.findUserRoleAssocEntryByRoleIdAndUserUid(roleId, userUid);
+		if (userRoleAssoc != null) {
+			throw new BadRequestException(generateErrorMessage(GL0041, "User role "));
+		}
+		userRoleAssoc = new UserRoleAssoc();
+		userRoleAssoc.setUser(user);
+		userRoleAssoc.setRole(role);
+		getUserRepository().save(userRoleAssoc);
+		return userRoleAssoc;
+	}
+	
+	@Override
+	public void removeAssignedRoleByUserUid(Integer roleId, String userUid)
+			throws Exception {
+		UserRoleAssoc userRoleAssoc = userRepository.findUserRoleAssocEntryByRoleIdAndUserUid(roleId, userUid);
+		rejectIfNull(userRoleAssoc, GL0102,404, "Role ");
+		getUserRepository().remove(userRoleAssoc);
 	}
 	
 	public IdpRepository getIdpRepository() {
