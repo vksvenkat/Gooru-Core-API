@@ -918,4 +918,13 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 		Query query = getSession().createQuery(hql);
 		return (Long)query.list().get(0);
 	}
+	
+	@Override
+	public UserRoleAssoc findUserRoleAssocEntryByRoleIdAndUserUid(Integer roleId, String userUid) {
+		String hql = "FROM UserRoleAssoc URA WHERE URA.role.roleId = :roleId and URA.user.partyUid = :userUid";
+		Query query = getSession().createQuery(hql);
+		query.setParameter("roleId", roleId);
+		query.setParameter("userUid", userUid);
+		return (UserRoleAssoc) (query.list().size() > 0 ? query.list().get(0) : null);
+	}
 }

@@ -6,14 +6,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Menu;
 import org.ednovo.gooru.core.api.model.MenuItem;
+import org.ednovo.gooru.core.api.model.MenuRoleAssoc;
+import org.ednovo.gooru.core.api.model.Role;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserRoleAssoc;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.domain.service.BaseServiceImpl;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.menu.MenuRepository;
@@ -118,7 +120,41 @@ public class MenuServiceImpl extends BaseServiceImpl implements MenuService, Par
 		return menuItem;
 	}
 
+	@Override
+	public MenuRoleAssoc assignRoleByMenuUid(Integer roleId, String menuUid)throws Exception {
 
+		Menu menu = menuRepository.findMenuById(menuUid);
+		if (menu == null) {
+			throw new NotFoundException("Menu does not exist");
+		}
+		Role role = menuRepository.findRoleByRoleId(roleId);
+		if (role == null) {
+			throw new NotFoundException("Role does not exist");
+		}
+		MenuRoleAssoc menuRoleAssoc = menuRepository.findMenuRoleAssocEntryByRoleIdAndMenuUid(roleId, menuUid);
+		if (menuRoleAssoc == null) {
+			menuRoleAssoc = new MenuRoleAssoc();
+			menuRoleAssoc.setMenu(menu);
+			menuRoleAssoc.setRole(role);
+			getMenuRepository().save(menuRoleAssoc);
+		}
+		else {
+			throw new NotFoundException("Role already assigned for Menu");
+		}
+		return menuRoleAssoc;
+	}
+	
+	@Override
+	public void removeAssignedRoleByMenuUid(Integer roleId, String menuUid)throws Exception {
+		MenuRoleAssoc menuRoleAssoc = menuRepository.findMenuRoleAssocEntryByRoleIdAndMenuUid(roleId, menuUid);
+		if (menuRoleAssoc != null) {
+			getMenuRepository().remove(menuRoleAssoc);
+		}
+		else {
+			throw new NotFoundException("Role does not assigned for the User");
+		}
+	}
+	
 	private Errors validateCreateMenu(Menu menu) {
 		final Errors errors = new BindException(menu, "menu");
 		rejectIfNull(errors, menu, NAME, GL0006, generateErrorMessage(GL0006, NAME));

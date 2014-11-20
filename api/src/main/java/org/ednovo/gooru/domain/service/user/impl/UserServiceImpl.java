@@ -84,6 +84,7 @@ import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.GooruOperationConstants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.core.exception.BadRequestException;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.core.exception.UserNotConfirmedException;
 import org.ednovo.gooru.domain.service.CollaboratorService;
@@ -121,6 +122,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
+
 import com.thoughtworks.xstream.core.util.Base64Encoder;
 
 @Service("userService")
@@ -1438,7 +1440,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 			userDeleteMsg = "deleted successfully";
 			indexProcessor.index(user.getPartyUid(), IndexProcessor.DELETE, USER);
 		} else {
-			throw new Exception("user not found");
+			rejectIfNull(user, GL0056, 404, "User ");
 		}
 
 		return userDeleteMsg;
@@ -1451,7 +1453,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 		UserRole userRole = findUserRoleByName(name);
 		Organization gooruOrg = organizationService.getOrganizationById(TaxonomyUtil.GOORU_ORG_UID);
 		if (userRole != null && user.getOrganization().equals(gooruOrg)) {
-			throw new Exception("user role already exists");
+			rejectIfNull(userRole, GL0101, "Role");
 		} else {
 			userRole = new UserRole();
 			userRole.setName(name);
@@ -1477,10 +1479,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 		if (roleId != null) {
 			userRole = findUserRoleByRoleId(roleId);
 		}
-		if (userRole == null) {
-			throw new NotFoundException("user role not exists");
-		}
-
+		rejectIfNull(userRole, GL0056,404, "Role ");
 		if (operations != null) {
 			String[] operationsArr = operations.split(",");
 			for (String operation : operationsArr) {
@@ -1488,19 +1487,15 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 				String entityName = entityOperationArr[0];
 				String operationName = entityOperationArr[1];
 				final EntityOperation entityOperation = userRepository.findEntityOperation(entityName, operationName);
-				if (entityOperation != null) {
-					roleEntityOperation = userRepository.checkRoleEntity(roleId, entityOperation.getEntityOperationId());
-					if (roleEntityOperation != null) {
-						throw new NotFoundException("entity operation exists for the role");
-					} else {
-						roleEntityOperation = new RoleEntityOperation();
-						roleEntityOperation.setUserRole(userRole);
-						roleEntityOperation.setEntityOperation(entityOperation);
-						roleEntityOperations.add(roleEntityOperation);
-					}
-
+				rejectIfNull(entityOperation, GL0056, "Entity Operation ");
+				roleEntityOperation = userRepository.checkRoleEntity(roleId, entityOperation.getEntityOperationId());
+				if (roleEntityOperation != null) {
+					throw new BadRequestException(generateErrorMessage(GL0041,"Entity operation "));
 				} else {
-					throw new Exception("entity operation not exists");
+					roleEntityOperation = new RoleEntityOperation();
+					roleEntityOperation.setUserRole(userRole);
+					roleEntityOperation.setEntityOperation(entityOperation);
+					roleEntityOperations.add(roleEntityOperation);
 				}
 			}
 			if (roleEntityOperations.size() > 0) {
@@ -1512,7 +1507,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 
 		return roleEntityOperations;
 	}
-
+	
 	@Override
 	public UserRole findUserRoleByRoleId(Integer roleId) {
 
@@ -1520,19 +1515,15 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 	}
 
 	@Override
-	public String removeRoleOperation(Integer roleId, String operations) throws Exception{
+	public void removeRoleOperation(Integer roleId, String operations) throws Exception{
 
-		String roleOperationDelete = "Failed to delete";
 		UserRole userRole = null;
 		RoleEntityOperation roleEntityOperation = null;
 		List<RoleEntityOperation> roleEntityOperations = new ArrayList<RoleEntityOperation>();
 		if (roleId != null) {
 			userRole = findUserRoleByRoleId(roleId);
 		}
-		if (userRole == null) {
-			throw new NotFoundException("User role not exists");
-		}
-
+		rejectIfNull(userRole, GL0056, 404, "Role ");
 		if (operations != null) {
 			String[] operationsArr = operations.split(",");
 			for (String operation : operationsArr) {
@@ -1540,22 +1531,16 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 				String entityName = entityOperationArr[0];
 				String operationName = entityOperationArr[1];
 				EntityOperation entityOperation = userRepository.findEntityOperation(entityName, operationName);
-				if (entityOperation != null) {
-					roleEntityOperation = userRepository.checkRoleEntity(roleId, entityOperation.getEntityOperationId());
+				rejectIfNull(userRole, GL0056, 404, "Entity Operation ");
+				roleEntityOperation = userRepository.checkRoleEntity(roleId, entityOperation.getEntityOperationId());
 					if (roleEntityOperation != null) {
 						roleEntityOperations.add(roleEntityOperation);
 					}
-				} else {
-					throw new NotFoundException("Entity operation not exists");
 				}
-			}
 			if (roleEntityOperations.size() > 0) {
 				userRepository.removeAll(roleEntityOperations);
-				roleOperationDelete = "Deleted successfully";
 			}
-
 		}
-		return roleOperationDelete;
 	}
 
 	@Override
