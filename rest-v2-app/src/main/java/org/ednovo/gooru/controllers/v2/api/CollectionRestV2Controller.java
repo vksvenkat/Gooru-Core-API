@@ -393,7 +393,7 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 		includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_META_INFO);
 		includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_WORKSPACE);
 		includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_CREATE_ITEM_INCLUDE_FILEDS);
-		return toModelAndView(serialize(collectionItems, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes));
+		return toModelAndView(serialize(collectionItems, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, true, includes));
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
