@@ -2772,7 +2772,7 @@ public interface ParameterProperties {
 	
 	String ROLE_CLIENT = "ROLE_CLIENT";
 	
-	String LTI = "LTIConsumer";
+	String LTI = "LTI";
 	
 	String READ = "read";
 	
@@ -2793,5 +2793,7 @@ public interface ParameterProperties {
 	String APPLICATION_ITEM = "applicationItem";
 
 	String MENU = "menu";
+	
+	String MENU_UID = "menuUid";
 	
 }
