@@ -80,6 +80,7 @@ import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.BadRequestException;
+import org.ednovo.gooru.core.exception.NotAllowedException;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.core.exception.UnauthorizedException;
 import org.ednovo.gooru.domain.service.BaseServiceImpl;
@@ -916,12 +917,12 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		}
 		identity.setCredential(credential);
 		this.getUserRepository().save(identity);
-		if (inviteuser != null && inviteuser.size() > 0 ) {
-			this.getCollaboratorService().updateCollaboratorStatus(newUser.getEmailId());
-		}
 		this.getPartyService().createUserDefaultCustomAttributes(user.getPartyUid(), user);
 		this.getPartyService().createTaxonomyCustomAttributes(user.getPartyUid(), user);
 		this.getUserRepository().flush();
+		if (inviteuser != null && inviteuser.size() > 0 ) {
+			this.getCollaboratorService().updateCollaboratorStatus(newUser.getEmailId(),user);
+		}
 		userCreatedDevice(user.getPartyUid(), request);
 		PartyCustomField partyCustomField = this.getPartyService().getPartyCustomeField(profile.getUser().getPartyUid(), USER_CONFIRM_STATUS, identity.getUser());
 		if (source != null && source.equalsIgnoreCase(UserAccountType.accountCreatedType.GOOGLE_APP.getType())) {
@@ -1436,7 +1437,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		Set<RoleEntityOperation> entityOperations = role.getRoleOperations();
 	    Iterator<RoleEntityOperation> iter = entityOperations.iterator();
 	    if (userRole != null && user.getOrganization().equals(gooruOrg)) {
-			throw new NotFoundException("user role already exists");
+	    	throw new BadRequestException(generateErrorMessage(GL0041,"Role "));
 		} 
 		else {		
 			if (!errors.hasErrors()) {
@@ -1470,9 +1471,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		if (roleId != null) {
 			userRole = userRepository.findUserRoleByRoleId(roleId);
 		}
-		if (userRole == null) {
-			throw new NotFoundException("user role not exists");
-		}
+		rejectIfNull(userRole, GL0056, 404, "Role ");
 
 		if (userRole != null) {
 			if(role.getName()!=null){	
@@ -1489,17 +1488,9 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	@Override
 	public void removeRole(Integer roleId) throws Exception{
 
-		UserRole userRole = null;
-		if (roleId != null) {
-			userRole = userRepository.findUserRoleByRoleId(roleId);
-		}
-		if (userRole == null) {
-			throw new NotFoundException("User role not Exists");
-		}
-
-		if (userRole != null) {
-			userRepository.remove(userRole);
-		}
+		UserRole userRole = userRepository.findUserRoleByRoleId(roleId);
+		rejectIfNull(userRole, GL0056, 404, "Role ");
+		userRepository.remove(userRole);
 	}
 	
 	@Override
@@ -1534,34 +1525,24 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			throws Exception {
 		User user = userRepository.findUserByPartyUid(userUid);
 		UserRole role = userRepository.findUserRoleByRoleId(roleId);
-		if (role == null) {
-			throw new NotFoundException("Role does not exist");
+		rejectIfNull(role, GL0010, 404, "Role ");
+		UserRoleAssoc userRoleAssoc = userRepository.findUserRoleAssocEntryByRoleIdAndUserUid(roleId, userUid);
+		if (userRoleAssoc != null) {
+			throw new BadRequestException(generateErrorMessage(GL0041, "User role "));
 		}
-		UserRoleAssoc userRoleAssoc = userRepository
-				.findUserRoleAssocEntryByRoleIdAndUserUid(roleId, userUid);
-		if (userRoleAssoc == null) {
-			userRoleAssoc = new UserRoleAssoc();
-			userRoleAssoc.setUser(user);
-			userRoleAssoc.setRole(role);
-			getUserRepository().save(userRoleAssoc);
-		}
-		else {
-			throw new NotFoundException("Role already assigned for the User");
-		}
+		userRoleAssoc = new UserRoleAssoc();
+		userRoleAssoc.setUser(user);
+		userRoleAssoc.setRole(role);
+		getUserRepository().save(userRoleAssoc);
 		return userRoleAssoc;
 	}
 	
 	@Override
 	public void removeAssignedRoleByUserUid(Integer roleId, String userUid)
 			throws Exception {
-		UserRoleAssoc userRoleAssoc = userRepository
-				.findUserRoleAssocEntryByRoleIdAndUserUid(roleId, userUid);
-		if (userRoleAssoc != null) {
-			getUserRepository().remove(userRoleAssoc);
-		}
-		else {
-			throw new NotFoundException("Role does not assigned for the User");
-		}
+		UserRoleAssoc userRoleAssoc = userRepository.findUserRoleAssocEntryByRoleIdAndUserUid(roleId, userUid);
+		rejectIfNull(userRoleAssoc, GL0102,404, "Role ");
+		getUserRepository().remove(userRoleAssoc);
 	}
 	
 	public IdpRepository getIdpRepository() {

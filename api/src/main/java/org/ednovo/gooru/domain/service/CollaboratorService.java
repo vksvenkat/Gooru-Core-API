@@ -46,6 +46,6 @@ public interface CollaboratorService extends BaseService {
 	
 	Map<String, List<Map<String, Object>>> getCollaboratorsByGroup(String gooruOid, String filterBy);
 
-	void updateCollaboratorStatus(String data) throws Exception;
+	void updateCollaboratorStatus(String data, User user) throws Exception;
 
 }
