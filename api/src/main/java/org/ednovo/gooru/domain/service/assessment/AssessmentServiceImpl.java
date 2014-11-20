@@ -638,6 +638,7 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 				if (existingQuestion == null) {
 					throw new NotFoundException("Resource not found");
 				}
+		
 				if (question.getQuestionText() != null) {
 					existingQuestion.setQuestionText(question.getQuestionText());
 				}
@@ -725,7 +726,8 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 		}
 
 		if (question.getQuestionText() == null) {
-			question.setQuestionText("");
+			throw new BadRequestException("Question Text is mandatory");
+			
 		}
 
 		return question;

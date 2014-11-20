@@ -160,7 +160,7 @@ public class AccountRestV2Controller extends BaseController implements ConstantP
 		SessionContextSupport.putLogParameter(EVENT_NAME, USER_AUTHENTICATE);
 		SessionContextSupport.putLogParameter(SECERT_KEY, getValue(SECERT_KEY, json));
 		SessionContextSupport.putLogParameter(API_KEY, getValue(API_KEY, json));
-		User user = this.getAccountService().userAuthentication(buildUserFromInputParameters(data), getValue(SECERT_KEY, json), getValue(API_KEY, json) == null ? apiKey : getValue(API_KEY, json), UserAccountType.accountCreatedType.GOOGLE_APP.getType(), request);
+		User user = this.getAccountService().userAuthentication(buildUserFromInputParameters(data), getValue(SECERT_KEY, json), getValue(API_KEY, json) == null ? apiKey : getValue(API_KEY, json), getValue(SOURCE, json) != null ? getValue(SOURCE, json) : UserAccountType.accountCreatedType.GOOGLE_APP.getType(), request);
 		if (user.getIdentities() != null) {
 			Identity identity = user.getIdentities().iterator().next();
 			if (identity.getActive() == 0) {

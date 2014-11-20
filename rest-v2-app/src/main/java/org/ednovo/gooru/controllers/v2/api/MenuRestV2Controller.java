@@ -1,6 +1,5 @@
 package org.ednovo.gooru.controllers.v2.api;
 
-import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -10,6 +9,8 @@ import org.ednovo.gooru.controllers.BaseController;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Menu;
 import org.ednovo.gooru.core.api.model.MenuItem;
+import org.ednovo.gooru.core.api.model.MenuRoleAssoc;
+import org.ednovo.gooru.core.api.model.Role;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.Constants;
@@ -120,6 +121,26 @@ public class MenuRestV2Controller extends BaseController implements ConstantProp
 
 	}	
 
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_MENU_ADD })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(method = RequestMethod.POST, value = "/assignRole/{menuUid}")
+	public ModelAndView assignRoleByMenuUid(HttpServletRequest request,HttpServletResponse response,@PathVariable(MENU_UID) String menuUid, @RequestBody String data)throws Exception {
+
+		return toModelAndViewWithIoFilter(getMenuService().assignRoleByMenuUid(this.buildRoleFromInputParameters(data).getRoleId(), menuUid), RESPONSE_FORMAT_JSON,EXCLUDE_ALL, true, (String[]) ArrayUtils.addAll(MENU_ROLE_ASSOC_INCLUDES,ERROR_INCLUDE));
+	}
+
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_MENU_DELETE })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(method = RequestMethod.DELETE, value = "/assignRole/{menuUid}")
+	public void removeAssignedRoleByMenuUid(HttpServletRequest request,HttpServletResponse response,@PathVariable(MENU_UID) String menuUid, @RequestBody String data)throws Exception {
+		
+		this.getMenuService().removeAssignedRoleByMenuUid(this.buildRoleFromInputParameters(data).getRoleId(), menuUid);
+	}
+	
+	private Role buildRoleFromInputParameters(String data) {
+		return JsonDeserializer.deserialize(data, Role.class);
+	}
+	
 	private Menu buildMenuFromInputParameters(String data) {
 		return JsonDeserializer.deserialize(data, Menu.class);
 	}

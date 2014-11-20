@@ -4,6 +4,10 @@ import java.util.List;
 
 import org.ednovo.gooru.core.api.model.Menu;
 import org.ednovo.gooru.core.api.model.MenuItem;
+import org.ednovo.gooru.core.api.model.MenuRoleAssoc;
+import org.ednovo.gooru.core.api.model.Role;
+import org.ednovo.gooru.core.api.model.UserRole;
+import org.ednovo.gooru.core.api.model.UserRoleAssoc;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate;
@@ -113,5 +117,21 @@ public class MenuRepositoryHibernate extends BaseRepositoryHibernate implements 
 		}
 		return query.list();
 	}
-
+	
+	@Override
+	public Role findRoleByRoleId(Integer roleId) {
+		String hql = "FROM Role r WHERE r.roleId =:roleId";
+		Query query = getSession().createQuery(hql);
+		query.setParameter("roleId", roleId);
+		return (Role) ((query.list().size() > 0) ? query.list().get(0) : null);
+	}
+	
+	@Override
+	public MenuRoleAssoc findMenuRoleAssocEntryByRoleIdAndMenuUid(Integer roleId, String menuUid) {
+		String hql = "FROM MenuRoleAssoc MRA WHERE MRA.role.roleId = :roleId and MRA.menu.menuUid = :menuUid";
+		Query query = getSession().createQuery(hql);
+		query.setParameter("roleId", roleId);
+		query.setParameter("menuUid", menuUid);
+		return (MenuRoleAssoc) (query.list().size() > 0 ? query.list().get(0) : null);
+	}
 }

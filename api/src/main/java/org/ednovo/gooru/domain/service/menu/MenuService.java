@@ -5,6 +5,7 @@ import java.util.List;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Menu;
 import org.ednovo.gooru.core.api.model.MenuItem;
+import org.ednovo.gooru.core.api.model.MenuRoleAssoc;
 import org.ednovo.gooru.core.api.model.User;
 
 public interface MenuService {
@@ -23,5 +24,8 @@ public interface MenuService {
 
 	MenuItem updateMenuItem(MenuItem newMenuItem, String menuItemUid, User user);
 
+	MenuRoleAssoc assignRoleByMenuUid(Integer roleId,String menuUid) throws Exception;
+	
+	void removeAssignedRoleByMenuUid(Integer roleId,String menuUid) throws Exception;
 
 }

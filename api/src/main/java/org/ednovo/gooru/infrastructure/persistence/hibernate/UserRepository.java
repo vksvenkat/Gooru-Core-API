@@ -208,4 +208,6 @@ public interface UserRepository extends BaseRepository {
 	List<EntityOperation> findOperationsByEntityName(String entityName);
 	
 	Long countOperationsByEntityName(String entityName);
+	
+	UserRoleAssoc findUserRoleAssocEntryByRoleIdAndUserUid(Integer roleId, String userUid);
 }

@@ -69,7 +69,7 @@ import org.springframework.web.servlet.ModelAndView;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 @Controller
-@RequestMapping(value = { "/v2/collection" })
+@RequestMapping(value = { "/v2/collection/", "/v2/assessment" })
 public class CollectionRestV2Controller extends BaseController implements ConstantProperties {
 
 	@Autowired
@@ -393,7 +393,7 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 		includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_META_INFO);
 		includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_WORKSPACE);
 		includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_CREATE_ITEM_INCLUDE_FILEDS);
-		return toModelAndView(serialize(collectionItems, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes));
+		return toModelAndView(serialize(collectionItems, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, true, includes));
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
@@ -431,6 +431,7 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 		if (collection.getCollectionType() != null && collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.FOLDER.getType())) {
 			resourceType = getCollectionService().getResourceType(ResourceType.Type.FOLDER.getType());
 		}
+	
 		collection.setResourceType(resourceType);
 		collection.setLastModified(new Date(System.currentTimeMillis()));
 		collection.setCreatedOn(new Date(System.currentTimeMillis()));
