@@ -260,10 +260,24 @@ public class Resource extends Content implements Serializable {
 		return fileData;
 	}
 
-	public String getFolder() {
-			return folder==null? getGooruOid()+'/':folder;
-		}
 
+       public String getFolder() {
+                if ((folder == null || folder.length() < 10) && getContentId() != null) {
+                        folder = buildResourceFolder(getContentId());
+                }
+                return folder;
+        }
+
+        public static final String buildResourceFolder(Long contentId) {
+
+                String prefix = "f00000000000";
+
+                String contentFolder = prefix.substring(0, 12 - String.valueOf(contentId).length()) + contentId;
+                contentFolder = contentFolder.substring(0, 4) + "/" + contentFolder.substring(4, 8) + "/" + contentFolder.substring(8, 12);
+
+                return contentFolder + "/";
+        }
+        
 	public void setFolder(String folder) {
 		this.folder = folder;
 	}
