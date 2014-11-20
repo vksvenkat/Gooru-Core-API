@@ -2796,4 +2796,10 @@ public interface ParameterProperties {
 	
 	String MENU_UID = "menuUid";
 	
+	String GL0010 = "GL0010";
+	
+	String GL0101 = "GL0101";
+	
+	String GL0102 = "GL0102";
 }
+
