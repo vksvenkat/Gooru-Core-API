@@ -35,10 +35,12 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.ednovo.gooru.application.util.AsyncExecutor;
 import org.ednovo.gooru.application.util.CollectionUtil;
 import org.ednovo.gooru.application.util.MailAsyncExecutor;
 import org.ednovo.gooru.application.util.ResourceImageUtil;
+import org.ednovo.gooru.application.util.SerializerUtil;
 import org.ednovo.gooru.application.util.TaxonomyUtil;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.AssessmentQuestion;
@@ -712,6 +714,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + user.getPartyUid() + "*");
 		getAsyncExecutor().deleteFromCache("v2-class-data-*");
+		getAsyncExecutor().deleteFromCache("v2-collection-data-"+ collection.getGooruOid() +"*");
 
 	}
 
@@ -778,6 +781,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			}
 			getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
 			getAsyncExecutor().deleteFromCache("v2-class-data-" + collection.getGooruOid() + "*");
+			getAsyncExecutor().deleteFromCache("v2-collection-data-"+ collection.getGooruOid() +"*");
 		}
 
 		return new ActionResponseDTO<CollectionItem>(collectionItem, errors);
@@ -894,6 +898,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				indexProcessor.index(collectionItem.getCollection().getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
 				getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
 				getAsyncExecutor().deleteFromCache("v2-class-data-" + collectionItem.getCollection().getGooruOid() + "*");
+				getAsyncExecutor().deleteFromCache("v2-collection-data-"+ collectionItem.getCollection().getGooruOid() +"*");
 			} catch (Exception e) {
 				LOGGER.debug(e.getMessage());
 			}
@@ -958,6 +963,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				indexProcessor.index(collectionItem.getCollection().getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
 				getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
 				getAsyncExecutor().deleteFromCache("v2-class-data-" + collectionItem.getCollection().getGooruOid() + "*");
+				getAsyncExecutor().deleteFromCache("v2-collection-data-"+ collection.getGooruOid() +"*");
 			} catch (Exception e) {
 				LOGGER.debug("error" + e.getMessage());
 			}
@@ -1010,10 +1016,90 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			this.getCollectionRepository().save(collection);
 			getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collection.getUser().getPartyUid() + "*");
 			getAsyncExecutor().deleteFromCache("v2-class-data-" + collection.getGooruOid() + "*");
+			getAsyncExecutor().deleteFromCache("v2-collection-data-"+ collection.getGooruOid() +"*");
 		}
 		return new ActionResponseDTO<CollectionItem>(collectionItem, errors);
 	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public String getCollectionWithCache(String collectionId, boolean includeMetaInfo, boolean includeCollaborator, boolean isContentFlag, final User user, String merge, String rootNodeId, boolean isGat, boolean includeCollectionItem, boolean includeRelatedContent,boolean clearCache) {
+		String cacheKey = "v2-collection-data-" + collectionId + "-" + includeMetaInfo + "-" + includeCollaborator + "-" + isContentFlag;
+		Map<String, Object> cacheCollection = null;
+		boolean isCollaborator = false;
+		String data = null;
+		if(!clearCache) {
+		data = this.redisService.getValue(cacheKey);
+		}
+		if (data == null) {
+			Collection collection = getCollection(collectionId, includeMetaInfo, includeCollaborator, isContentFlag, user, merge, rootNodeId, isGat);
+			data = SerializerUtil.serialize(collection, FORMAT_JSON, EXCLUDE_ALL,false, true, includes(includeCollectionItem, includeMetaInfo, includeRelatedContent));
+			redisService.putValue(cacheKey, data);
+		} else {
 
+			cacheCollection = JsonDeserializer.deserialize(data, new TypeReference<Map<String, Object>>() {
+			});
+			if (cacheCollection != null) {
+			try {
+				cacheCollection.put("viewCount",this.resourceCassandraService.getInt(cacheCollection.get("gooruOid").toString(), "stas.viewsCount"));
+				cacheCollection.put("views",Long.parseLong(this.resourceCassandraService.getInt(cacheCollection.get("gooruOid").toString(), "stas.viewsCount") + ""));
+			} catch (Exception e) {
+				LOGGER.error("parser error : " + e);
+			}
+			for (Map.Entry<String, Object> entry : cacheCollection.entrySet()) {
+				if (entry.getKey().equalsIgnoreCase("collectionItems")) {
+					List<CollectionItem> collectionItems = (List<CollectionItem>) entry.getValue();
+					for (int index = 0; index < collectionItems.size(); index++) {
+						Map<String, Object> collectionItem = (Map<String, Object>) collectionItems.get(index);
+						Map<String, Object> resource = (Map<String, Object>) collectionItem.get("resource");
+						resource.put("viewCount", this.resourceCassandraService.getInt(resource.get("gooruOid").toString(), "stas.viewsCount"));
+						resource.put("views", Long.parseLong(this.resourceCassandraService.getInt(resource.get("gooruOid").toString(), "stas.viewsCount") + ""));
+					}
+				}
+
+			}
+
+			if (merge != null) {
+				Map<String, Object> permissions = new HashMap<String, Object>();
+				if (merge.contains(PERMISSIONS)) {
+					permissions.put(PERMISSIONS, this.getContentService().getContentPermission(collectionId, user));
+				}
+				if (merge.contains(REACTION_AGGREGATE)) {
+					permissions.put(REACTION_AGGREGATE, this.getFeedbackService().getContentFeedbackAggregate(collectionId, REACTION));
+				}
+				if (merge.contains(COMMENT_COUNT)) {
+					permissions.put(COMMENT_COUNT, this.getCommentRepository().getCommentCount(null, collectionId, null, "notdeleted"));
+				}
+				long collaboratorCount = this.getCollaboratorRepository().getCollaboratorsCountById(collectionId);
+				permissions.put(COLLABORATOR_COUNT, collaboratorCount);
+				permissions.put(IS_COLLABORATOR, isCollaborator);
+				cacheCollection.put("meta", permissions);
+				data = SerializerUtil.serialize(cacheCollection, FORMAT_JSON, EXCLUDE_ALL, false, true,includes(includeCollectionItem, includeMetaInfo, includeRelatedContent));
+			}
+		}
+		}
+		
+		return data;
+	}
+	
+	private String[] includes(boolean includeCollectionItem, boolean includeMetaInfo, boolean includeRelatedContent) {
+		String includes[]  = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, COLLECTION_INCLUDE_FIELDS);
+			if (includeCollectionItem) {
+				includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_ITEM_INCLUDE_FILEDS);
+			}
+			if (includeMetaInfo) {
+				includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_META_INFO);
+			}
+			includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_TAXONOMY);
+			
+			if (includeRelatedContent) {
+				includes = (String[]) ArrayUtils.add(includes, "*.contentAssociation");
+			}
+			includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_ITEM_TAGS);
+		return includes;
+	}
+	
+	
 	@Override
 	public Collection getCollection(String collectionId, boolean includeMetaInfo, boolean includeCollaborator, boolean isContentFlag, final User user, String merge, String rootNodeId, boolean isGat) {
 		Collection collection = this.getCollectionRepository().getCollectionByGooruOid(collectionId, null);
@@ -1111,7 +1197,8 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		}
 		return ratings;
 	}
-
+	
+	
 	@Override
 	public List<ContentMetaDTO> getContentMetaAssociation(final String type) {
 		List<ContentMetaDTO> depthOfKnowledges = new ArrayList<ContentMetaDTO>();
@@ -1589,6 +1676,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		SessionContextSupport.putLogParameter(COLLECTION_ID, destCollectionItem.getCollection().getGooruOid());
 		SessionContextSupport.putLogParameter(RESOURCE_ID, destCollectionItem.getResource().getGooruOid());
 		this.getCollectionRepository().save(destCollectionItem);
+		getAsyncExecutor().deleteFromCache("v2-collection-data-"+ collectionId +"*");
 		try {
 			if (destCollectionItem != null) {
 				this.getCollectionEventLog().getEventLogs(destCollectionItem, false, false, destCollectionItem.getCollection() != null && destCollectionItem.getCollection().getUser() != null ? destCollectionItem.getCollection().getUser() : null,
@@ -1973,6 +2061,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				LOGGER.debug("error" + e.getMessage());
 			}
 			getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collection.getUser().getPartyUid() + "*");
+			getAsyncExecutor().deleteFromCache("v2-collection-data-"+ collection.getGooruOid() +"*");
 		}
 
 		try {
@@ -2091,7 +2180,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		destCollection.setIsRepresentative(0);
 		this.getCollectionRepository().save(destCollection);
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + destCollection.getUser().getPartyUid() + "*");
-
+		
 		try {
 			if (destCollection != null) {
 				indexProcessor.index(destCollection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
@@ -2233,6 +2322,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				this.getCollectionRepository().save(response.getModel().getCollection());
 			}
 			getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + response.getModel().getCollection().getUser().getPartyUid() + "*");
+			getAsyncExecutor().deleteFromCache("v2-collection-data-"+ collectionId +"*");
 		}
 		try {
 			this.getCollectionEventLog().getEventLogs(response.getModel(), true, false, user, response.getModel().getCollection().getCollectionType());
@@ -2341,6 +2431,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			this.getCollectionRepository().save(collectionItem);
 			collectionItem.setStandards(this.getStandards(resource.getTaxonomySet(), false, null));
 			getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
+			getAsyncExecutor().deleteFromCache("v2-collection-data-"+ collectionItem.getCollection().getGooruOid() +"*");
 		}
 		try {
 			this.getCollectionEventLog().getEventLogs(collectionItem, itemData, user);
