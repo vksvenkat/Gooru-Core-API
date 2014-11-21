@@ -32,6 +32,13 @@
 			<key column="content_id" />
 			<one-to-many class="org.ednovo.gooru.core.api.model.ContentPermission" />
 		</set>
+		
+		<set name="contentSettings" inverse="true" cascade="save-update,delete"
+			lazy="true">
+			<key column="content_id" />
+			<one-to-many class="org.ednovo.gooru.core.api.model.ContentSettings" />
+		</set>
+		
 		<property name="gooruOid" column="gooru_oid" length="32"
 			not-null="true">
 		</property>
@@ -329,6 +336,7 @@
 					<key column="collection_content_id" />
 					<one-to-many class="org.ednovo.gooru.core.api.model.CollectionItem" />
 				</set>
+											
 				<set name="collectionTaskItems" inverse="true" cascade="none"
 					lazy="true" sort="org.ednovo.gooru.core.api.model.CollectionTaskItemComparator">
 					<key column="collection_content_id" />

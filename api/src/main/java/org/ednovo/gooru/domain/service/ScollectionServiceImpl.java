@@ -59,6 +59,7 @@ import org.ednovo.gooru.core.api.model.ResourceSource;
 import org.ednovo.gooru.core.api.model.ResourceSummary;
 import org.ednovo.gooru.core.api.model.ResourceType;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
+import org.ednovo.gooru.core.api.model.ContentSettings;
 import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.ShelfType;
 import org.ednovo.gooru.core.api.model.StandardFo;
@@ -116,6 +117,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.json.JettisonMappedXmlDriver;
+
+import flexjson.JSONSerializer;
 
 public class ScollectionServiceImpl extends BaseServiceImpl implements ScollectionService, ParameterProperties, ConstantProperties {
 
@@ -290,7 +293,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 
 	@Override
-	public ActionResponseDTO<Collection> createCollection(Collection collection, boolean addToShelf, String resourceId, String parentId, User user) throws Exception {
+	public ActionResponseDTO<Collection> createCollection(Collection collection, boolean addToShelf, String resourceId, String parentId, User user, String contentSettings) throws Exception {
 		final Errors errors = validateCollection(collection);
 		if (!errors.hasErrors()) {
 			collection.setBuildType(this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.BUILD_TYPE.getTable(), collection.getBuildType() == null ? WEB : collection.getBuildType().getValue() != null ? collection.getBuildType().getValue() : WEB));
@@ -312,6 +315,12 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				Set<CollectionItem> collectionItems = new TreeSet<CollectionItem>();
 				collectionItems.add(collectionItem);
 				collection.setCollectionItems(collectionItems);
+			}
+			if (contentSettings != null) {
+				ContentSettings newContentsettings = new ContentSettings();
+				newContentsettings.setContent(collection);
+				newContentsettings.setData(contentSettings);
+				this.getCollectionRepository().save(newContentsettings);
 			}
 			if (addToShelf) {
 				CollectionItem collectionItem = new CollectionItem();
@@ -358,12 +367,11 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				collection.setCollectionItem(this.createCollectionItem(collection.getGooruOid(), parentCollection.getGooruOid(), new CollectionItem(), collection.getUser(), CollectionType.FOLDER.getCollectionType(), false).getModel());
 				getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + parentCollection.getUser().getPartyUid() + "*");
 			}
-			
-			if(collection.getCollectionItem() != null){
-			collection.setCollectionItemId(collection.getCollectionItem().getCollectionItemId());
+
+			if (collection.getCollectionItem() != null) {
+				collection.setCollectionItemId(collection.getCollectionItem().getCollectionItemId());
 			}
 
-			
 			List<String> parenFolders = this.getParentCollection(collection.getGooruOid(), user.getPartyUid(), false);
 			for (String folderGooruOid : parenFolders) {
 				updateFolderSharing(folderGooruOid);
@@ -383,6 +391,15 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				this.mailHandler.handleMailEvent(data);
 
 			}
+			if (collection.getSettings() != null) {
+				Set<ContentSettings> contentSettingsObj = new HashSet<ContentSettings>();
+				ContentSettings contentSetting = new ContentSettings();
+				contentSetting.setContent(collection);
+				contentSetting.setData(new JSONSerializer().exclude("*.class").serialize(collection.getSettings()));
+				this.getCollectionRepository().save(contentSetting);
+				contentSettingsObj.add(contentSetting);
+				collection.setContentSettings(contentSettingsObj);
+			}
 			getAsyncExecutor().createVersion(collection, SCOLLECTION_CREATE, user.getPartyUid());
 
 			getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collection.getUser().getPartyUid() + "*");
@@ -392,6 +409,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				LOGGER.debug(e.getMessage());
 			}
 		}
+
 		return new ActionResponseDTO<Collection>(collection, errors);
 	}
 
@@ -701,7 +719,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	public List<Collection> getCollections(Map<String, String> filters, User user) {
 		return this.getCollectionRepository().getCollections(filters, user);
 	}
-	
 
 	@Override
 	public ActionResponseDTO<CollectionItem> createCollectionItem(String resourceGooruOid, String collectionGooruOid, CollectionItem collectionItem, User user, String type, boolean isCreateQuestion) throws Exception {
@@ -1050,6 +1067,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 					LOGGER.error("parser error : " + e);
 				}
 			}
+
 			if (collection.getResourceType().getName().equalsIgnoreCase(SCOLLECTION)) {
 				collection.setDepthOfKnowledges(this.setContentMetaAssociation(this.getContentMetaAssociation(DEPTH_OF_KNOWLEDGE), collection, DEPTH_OF_KNOWLEDGE));
 
@@ -1841,6 +1859,24 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				itemData.put(PERFORMANCE_TASKS, newCollection.getPerformanceTasks());
 				collection.setPerformanceTasks(newCollection.getPerformanceTasks());
 			}
+
+			if (newCollection.getSettings() != null) {
+				ContentSettings contentSettings = null;
+				Map<String, String> settings = new HashMap<String, String>();
+				if (collection.getContentSettings() != null && collection.getContentSettings().size() > 0) {
+					contentSettings = collection.getContentSettings().iterator().next();
+					Map<String, String> contentSettingsMap = JsonDeserializer.deserialize(contentSettings.getData(), new TypeReference<Map<String, String>>() {
+					});
+					settings.putAll(contentSettingsMap);
+				}
+				settings.putAll(newCollection.getSettings());
+				collection.setSettings(settings);
+				ContentSettings contentSetting = contentSettings == null ? new ContentSettings() : contentSettings;
+				contentSetting.setContent(collection);
+				contentSetting.setData(new JSONSerializer().exclude("*.class").serialize(settings));
+				this.getCollectionRepository().save(contentSetting);
+			}
+
 			if (collection.getResourceType().getName().equalsIgnoreCase(SCOLLECTION)) {
 				if (newCollection.getDepthOfKnowledges() != null && newCollection.getDepthOfKnowledges().size() > 0) {
 					itemData.put(DEPTHOFKNOWLEDGES, newCollection.getDepthOfKnowledges());
