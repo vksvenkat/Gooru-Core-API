@@ -9,7 +9,6 @@ import org.ednovo.gooru.controllers.BaseController;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Menu;
 import org.ednovo.gooru.core.api.model.MenuItem;
-import org.ednovo.gooru.core.api.model.MenuRoleAssoc;
 import org.ednovo.gooru.core.api.model.Role;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
@@ -131,10 +130,26 @@ public class MenuRestV2Controller extends BaseController implements ConstantProp
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_MENU_DELETE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	@RequestMapping(method = RequestMethod.DELETE, value = "/assignRole/{menuUid}")
+	@RequestMapping(method = RequestMethod.DELETE, value = "/removeAssignedRole/{menuUid}")
 	public void removeAssignedRoleByMenuUid(HttpServletRequest request,HttpServletResponse response,@PathVariable(MENU_UID) String menuUid, @RequestBody String data)throws Exception {
 		
 		this.getMenuService().removeAssignedRoleByMenuUid(this.buildRoleFromInputParameters(data).getRoleId(), menuUid);
+	}
+
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_MENU_DELETE })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(value = { "/{id}" }, method = RequestMethod.DELETE)
+	public void deleteMenu(@PathVariable(value = ID) String menuUid, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		
+		this.getMenuService().deleteMenu(menuUid,MENU);
+	}
+	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_MENU_DELETE })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(value = { "/item/{id}" }, method = RequestMethod.DELETE)
+	public void deleteMenuItem(@PathVariable(value = ID) String menuItemUid, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		
+		this.getMenuService().deleteMenu(menuItemUid,ITEM);
 	}
 	
 	private Role buildRoleFromInputParameters(String data) {

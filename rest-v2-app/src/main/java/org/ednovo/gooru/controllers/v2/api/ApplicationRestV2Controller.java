@@ -160,7 +160,29 @@ public class ApplicationRestV2Controller extends BaseController implements Const
 		return toModelAndViewWithIoFilter(this.getApplicationService().getApplicationItemByApiKey(apiKey), RESPONSE_FORMAT_JSON, EXCLUDE_ALL,true, includes);
 	}
 	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_APPLICATION_DELETE })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(method = { RequestMethod.DELETE }, value = "/{id}")
+	public void deleteApplicationByApikey(@PathVariable(value = ID) String apikey, HttpServletRequest request, HttpServletResponse response) throws Exception {
 
+		this.getApplicationService().deleteApplicationByApikey(apikey);
+	}
+	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_APPLICATION_DELETE })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(method = { RequestMethod.DELETE }, value = "item/{id}")
+	public void deleteApplicationItemByItemId(@PathVariable(value= ID) String applicationItemId, HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+		this.getApplicationService().deleteApplicationItemByItemId(applicationItemId);
+	}
+	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_APPLICATION_DELETE })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(method = { RequestMethod.DELETE }, value = "oauth/client/{id}")
+	public void deleteOAuthClientByOAuthKey(@PathVariable(value = ID) String oauthKey, HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+		this.getApplicationService().deleteOAuthClientByOAuthKey(oauthKey);
+	}
 
 	public ApplicationService getApplicationService() {
 		return applicationService;

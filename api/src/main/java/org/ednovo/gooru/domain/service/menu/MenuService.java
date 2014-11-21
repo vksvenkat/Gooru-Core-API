@@ -27,5 +27,6 @@ public interface MenuService {
 	MenuRoleAssoc assignRoleByMenuUid(Integer roleId,String menuUid) throws Exception;
 	
 	void removeAssignedRoleByMenuUid(Integer roleId,String menuUid) throws Exception;
-
+	
+	void deleteMenu(String menuUid,String type) throws Exception;
 }

@@ -50,4 +50,10 @@ public interface ApplicationService {
 	ActionResponseDTO<ApplicationItem> updateApplicationItem(ApplicationItem applicationItem, String applicationItemId, User apicaller)throws Exception ;
 	
     List<ApplicationItem> getApplicationItemByApiKey(String apiKey) throws Exception ;
+    
+	void deleteApplicationByApikey(String apikey) throws Exception;
+	
+	void deleteApplicationItemByItemId(String applicationItemId) throws Exception;
+    
+    void deleteOAuthClientByOAuthKey(String oauthKey) throws Exception;
 }

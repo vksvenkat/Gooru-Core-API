@@ -145,7 +145,7 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 	}
 
 	@Override
-	public void deleteApplication(String apiKey) {
+	public void deleteApplication(String apiKey){
 		Application application = this.getApplicationRepository().getApplication(apiKey);
 		rejectIfNull(application, GL0056, 404, "Application ");
 		this.getApplicationRepository().remove(application);
@@ -209,6 +209,35 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 	@Override
 	public List<ApplicationItem> getApplicationItemByApiKey(String apiKey) throws Exception {
 		return this.getApplicationRepository().getApplicationItemByApiKey(apiKey);
+	}
+	
+	@Override
+	public void deleteApplicationItemByItemId(String applicationItemId) throws Exception{
+		ApplicationItem applicationItem = getApplicationRepository().getApplicationItem(applicationItemId);
+		rejectIfNull(applicationItem, GL0056, 404, "Application Item ");
+		getApplicationRepository().remove(applicationItem);
+	}
+	
+	@Override
+	public void deleteOAuthClientByOAuthKey(String oauthKey) throws Exception{
+		OAuthClient oAuthClient = oAuthRepository.findOAuthClientByOAuthKey(oauthKey);
+		rejectIfNull(oAuthClient, GL0056, 404, "OAuth Client ");
+		getApplicationRepository().remove(oAuthClient);
+	}
+	
+	@Override
+	public void deleteApplicationByApikey(String apikey) throws Exception{
+		Application application = this.getApplicationRepository().getApplication(apikey);
+		rejectIfNull(application, GL0056, 404, "Application ");
+		List<ApplicationItem> applicationItemList=this.getApplicationRepository().getApplicationItemByApiKey(apikey);
+		List<OAuthClient> oAuthList = oAuthRepository.findOAuthClientByApplicationKey(apikey);
+		if(applicationItemList.size() != 0){
+			this.getApplicationRepository().removeAll(applicationItemList);
+		}
+		if(oAuthList.size() !=0){
+			this.getOAuthRepository().removeAll(oAuthList);
+		}
+			this.getApplicationRepository().remove(application);			
 	}
 	
 	public CustomTableRepository getCustomTableRepository() {

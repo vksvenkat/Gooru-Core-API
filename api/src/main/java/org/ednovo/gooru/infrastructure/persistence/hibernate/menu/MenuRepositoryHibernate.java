@@ -1,13 +1,14 @@
 package org.ednovo.gooru.infrastructure.persistence.hibernate.menu;
 
+
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.ednovo.gooru.core.api.model.Menu;
 import org.ednovo.gooru.core.api.model.MenuItem;
 import org.ednovo.gooru.core.api.model.MenuRoleAssoc;
 import org.ednovo.gooru.core.api.model.Role;
-import org.ednovo.gooru.core.api.model.UserRole;
-import org.ednovo.gooru.core.api.model.UserRoleAssoc;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate;
@@ -17,18 +18,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public class MenuRepositoryHibernate extends BaseRepositoryHibernate implements MenuRepository, ParameterProperties, ConstantProperties {
-
-	@Override
-	public Menu getMenu(String menuUid) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public List<Menu> listMenu() {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 	@Override
 	public Menu findMenuById(String menuUid) {
@@ -80,14 +69,25 @@ public class MenuRepositoryHibernate extends BaseRepositoryHibernate implements 
 		return (Integer) query.list().get(0);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<MenuItem> getMenuItemsByMenuId(String menuUid) {
-		String hql = "FROM MenuItem mi WHERE mi.parentMenuUid =:parentMenuUid";
+		String hql = "SELECT distinct mi FROM MenuItem mi WHERE 1=1 ";
+		if (menuUid != null) {
+			hql += " AND mi.parentMenuUid =:parentMenuUid";
+		}
+		if (menuUid == null) {
+			hql += " AND mi.parentMenuUid is null";
+		}
+	    hql += " ORDER BY mi.sequence";
 		Query query = getSession().createQuery(hql);
-		query.setParameter("parentMenuUid", menuUid);
-		return (List) query.list();
+		if (menuUid != null) {
+			query.setParameter("parentMenuUid", menuUid);
+		}
+		return (List<MenuItem>) query.list();
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<MenuItem> getMenuItems(List<Integer> roleIds, Integer sequence, String parentMenuUid) {
 		String hql = "SELECT distinct menuItem FROM MenuItem menuItem join menuItem.menu.menuRoleAssocs menuRoleAssoc  WHERE 1=1 ";
@@ -115,7 +115,7 @@ public class MenuRepositoryHibernate extends BaseRepositoryHibernate implements 
 		if (sequence != null) {
 			query.setParameter("sequence", sequence);
 		}
-		return query.list();
+		return (List<MenuItem>) query.list();
 	}
 	
 	@Override
@@ -126,12 +126,42 @@ public class MenuRepositoryHibernate extends BaseRepositoryHibernate implements 
 		return (Role) ((query.list().size() > 0) ? query.list().get(0) : null);
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
-	public MenuRoleAssoc findMenuRoleAssocEntryByRoleIdAndMenuUid(Integer roleId, String menuUid) {
-		String hql = "FROM MenuRoleAssoc MRA WHERE MRA.role.roleId = :roleId and MRA.menu.menuUid = :menuUid";
+	public Set<MenuRoleAssoc> findMenuRoleAssocEntry(Integer roleId, String menuUid) {
+		String hql = "FROM MenuRoleAssoc MRA WHERE 1=1";
+
+		if (roleId != null) {
+			hql += " AND MRA.role.roleId = :roleId";
+		}
+		if (menuUid != null) {
+			hql += " AND MRA.menu.menuUid =:menuUid";
+		}
 		Query query = getSession().createQuery(hql);
-		query.setParameter("roleId", roleId);
-		query.setParameter("menuUid", menuUid);
-		return (MenuRoleAssoc) (query.list().size() > 0 ? query.list().get(0) : null);
+		if (roleId != null) {
+			query.setParameter("roleId", roleId);
+		}
+		if (menuUid != null) {
+			query.setParameter("menuUid", menuUid);
+		}
+		Set<MenuRoleAssoc> menuRoleAssocSet = new HashSet<MenuRoleAssoc>(query.list());
+		return menuRoleAssocSet;
+	}
+	
+	@Override
+	public MenuItem findMenuItemMenuUid(String menuUid){
+		
+		String hql = "SELECT distinct mi FROM MenuItem mi WHERE 1=1 ";
+		if (menuUid != null) {
+			hql += " AND mi.menu.menuUid =:menuUid";
+		}
+		hql += " ORDER BY mi.sequence";
+		Query query = getSession().createQuery(hql);
+		if (menuUid != null) {
+			query.setParameter("menuUid", menuUid);
+		}
+		return (MenuItem) (query.list().size() > 0 ? query.list().get(0) : null);
+		
 	}
 }
+
