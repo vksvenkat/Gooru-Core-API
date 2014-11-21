@@ -20,7 +20,7 @@ enum SearchCassandraConstant {
 	
 	STRATEGY_CLASS("cassandra.strategyClass", "SimpleStrategy"),
 	
-	KEYSPACE_NAME_PREFIX("cassandra.keyspacename.prefix", "event");
+	KEYSPACE_NAME_PREFIX("cassandra.keyspacename.prefix", "gooru");
 
 	String defaultValue;
 
