@@ -293,7 +293,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 
 	@Override
-	public ActionResponseDTO<Collection> createCollection(Collection collection, boolean addToShelf, String resourceId, String parentId, User user, String contentSettings) throws Exception {
+	public ActionResponseDTO<Collection> createCollection(Collection collection, boolean addToShelf, String resourceId, String parentId, User user) throws Exception {
 		final Errors errors = validateCollection(collection);
 		if (!errors.hasErrors()) {
 			collection.setBuildType(this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.BUILD_TYPE.getTable(), collection.getBuildType() == null ? WEB : collection.getBuildType().getValue() != null ? collection.getBuildType().getValue() : WEB));
@@ -316,12 +316,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				collectionItems.add(collectionItem);
 				collection.setCollectionItems(collectionItems);
 			}
-			if (contentSettings != null) {
-				ContentSettings newContentsettings = new ContentSettings();
-				newContentsettings.setContent(collection);
-				newContentsettings.setData(contentSettings);
-				this.getCollectionRepository().save(newContentsettings);
-			}
+
 			if (addToShelf) {
 				CollectionItem collectionItem = new CollectionItem();
 				collectionItem.setItemType(ShelfType.AddedType.ADDED.getAddedType());
@@ -1870,11 +1865,20 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 					settings.putAll(contentSettingsMap);
 				}
 				settings.putAll(newCollection.getSettings());
-				collection.setSettings(settings);
-				ContentSettings contentSetting = contentSettings == null ? new ContentSettings() : contentSettings;
-				contentSetting.setContent(collection);
-				contentSetting.setData(new JSONSerializer().exclude("*.class").serialize(settings));
-				this.getCollectionRepository().save(contentSetting);
+				if (contentSettings == null) {
+					ContentSettings contentSetting = new ContentSettings();
+					Set<ContentSettings> contentSettingsObj = new HashSet<ContentSettings>();
+					contentSetting.setContent(collection);
+					contentSetting.setData(new JSONSerializer().exclude("*.class").serialize(settings));
+					this.getCollectionRepository().save(contentSetting);
+					contentSettingsObj.add(contentSetting);
+					collection.setContentSettings(contentSettingsObj);
+
+				} else {
+					contentSettings.setData(new JSONSerializer().exclude("*.class").serialize(settings));
+					collection.getContentSettings().add(contentSettings);
+				}
+
 			}
 
 			if (collection.getResourceType().getName().equalsIgnoreCase(SCOLLECTION)) {
@@ -1967,6 +1971,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			}
 
 			this.getCollectionRepository().save(collection);
+
 			try {
 				indexProcessor.index(collection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
 			} catch (Exception e) {
