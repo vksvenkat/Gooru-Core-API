@@ -48,6 +48,7 @@ import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.ShelfType;
 import org.ednovo.gooru.core.api.model.StorageArea;
 import org.ednovo.gooru.core.api.model.User;
+import org.ednovo.gooru.core.api.model.UserAccountType;
 import org.ednovo.gooru.core.api.model.UserCollectionItemAssoc;
 import org.ednovo.gooru.core.api.model.UserGroup;
 import org.ednovo.gooru.core.api.model.UserGroupAssociation;
@@ -611,7 +612,13 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 
 	private Map<String, Object> setMemberResponse(UserGroupAssociation userGroupAssociation, String status) {
 		Map<String, Object> member = new HashMap<String, Object>();
-		member.put(EMAIL_ID, userGroupAssociation.getUser().getIdentities() != null ? userGroupAssociation.getUser().getIdentities().iterator().next().getExternalId() : null);
+		String externalId = null;
+		if (userGroupAssociation.getUser() != null && userGroupAssociation.getUser(). getAccountTypeId() != null && (userGroupAssociation.getUser().getAccountTypeId().equals(UserAccountType.ACCOUNT_CHILD))) {
+			externalId = userGroupAssociation.getUser().getParentUser().getIdentities().iterator().next().getExternalId();
+		} else {
+			externalId = userGroupAssociation.getUser().getIdentities().iterator().next().getExternalId();
+		}
+		member.put(EMAIL_ID, externalId);
 		member.put(_GOORU_UID, userGroupAssociation.getUser().getPartyUid());
 		member.put(USER_NAME, userGroupAssociation.getUser().getUsername());
 		member.put(PROFILE_IMG_URL, this.getUserManagementService().buildUserProfileImageUrl(userGroupAssociation.getUser()));
