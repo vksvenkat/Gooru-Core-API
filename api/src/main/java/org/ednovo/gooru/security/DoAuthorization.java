@@ -57,103 +57,102 @@ import org.springframework.stereotype.Component;
 import flexjson.JSONSerializer;
 
 @Component
-public class DoAuthorization  {
+public class DoAuthorization {
 
 	@Autowired
 	private UserService userService;
-	
+
 	@Autowired
 	private OrganizationSettingRepository organizationSettingRepository;
-	
+
 	@Autowired
 	private UserTokenRepository userTokenRepository;
-	
+
 	@Autowired
 	private RedisService redisService;
-	
+
 	@Autowired
 	private OAuthService oAuthService;
-	
+
 	@Autowired
 	private ApplicationRepository applicationRepository;
-	
+
 	private static final String SESSION_TOKEN_KEY = "authenticate_";
-	
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(DoAuthorization.class);
-	
-	public User doFilter(String sessionToken, String pinToken, String apiKeyToken, HttpServletRequest request, HttpServletResponse response, Authentication auth, String oAuthToken) { 
-		if (pinToken != null) { 
+
+	public User doFilter(String sessionToken, String pinToken, String apiKeyToken, HttpServletRequest request, HttpServletResponse response, Authentication auth, String oAuthToken) {
+		if (pinToken != null) {
 			sessionToken = pinToken;
 		}
 		User user = null;
-		//boolean isSussess = true;
+		// boolean isSussess = true;
 		AuthenticationDo authentication = null;
-		UserToken	userToken = null;
+		UserToken userToken = null;
 		String key = null;
 		String data = null;
 		String skipCache = request.getParameter("skipCache");
-		
-	    if(oAuthToken != null){
-			try { 
-				key = SESSION_TOKEN_KEY  + oAuthToken;
-				 data = getRedisService().getValue(key);
-				if (data != null && (skipCache == null || skipCache.equals("0"))) { 
+
+		if (oAuthToken != null) {
+			try {
+				key = SESSION_TOKEN_KEY + oAuthToken;
+				data = getRedisService().getValue(key);
+				if (data != null && (skipCache == null || skipCache.equals("0"))) {
 					authentication = JsonDeserializer.deserialize(data, AuthenticationDo.class);
 				}
-			}  catch(Exception e) { 
+			} catch (Exception e) {
 				LOGGER.error("Failed to  get  value from redis server");
 			}
-			if (authentication == null || authentication.getUserToken() == null)  {
-		    	try {
+			if (authentication == null || authentication.getUserToken() == null) {
+				try {
 					user = oAuthService.getUserByOAuthAccessToken(oAuthToken);
 				} catch (Exception e) {
 					LOGGER.error("OAuth Authentication failed --- " + e);
 				}
 				userToken = userToken == null ? new UserToken() : userToken;
 				userToken.setUser(user);
-			} else { 
+			} else {
 				userToken = authentication.getUserToken();
 			}
-			if(userToken == null) {
+			if (userToken == null) {
 				throw new AccessDeniedException("Invalid oauth access token : " + oAuthToken);
-			} else { 
+			} else {
 				user = userToken.getUser();
 			}
-	    } else if(sessionToken != null) {
-			try { 
-				key = SESSION_TOKEN_KEY  + sessionToken;
-				 data = getRedisService().getValue(key);
-				if (data != null && (skipCache == null || skipCache.equals("0"))) { 
+		} else if (sessionToken != null) {
+			try {
+				key = SESSION_TOKEN_KEY + sessionToken;
+				data = getRedisService().getValue(key);
+				if (data != null && (skipCache == null || skipCache.equals("0"))) {
 					authentication = JsonDeserializer.deserialize(data, AuthenticationDo.class);
 				}
-			}  catch(Exception e) { 
+			} catch (Exception e) {
 				LOGGER.error("Failed to  get  value from redis server");
 			}
-			if (authentication == null || authentication.getUserToken() == null)  {
-		      userToken = userTokenRepository.findByToken(sessionToken);
-			} else { 
+			if (authentication == null || authentication.getUserToken() == null) {
+				userToken = userTokenRepository.findByToken(sessionToken);
+			} else {
 				userToken = authentication.getUserToken();
 			}
-			if(userToken == null) {
+			if (userToken == null) {
 				throw new AccessDeniedException("Invalid session token : " + sessionToken);
-			} else { 
+			} else {
 				user = userToken.getUser();
 			}
-			
+
 			String token = redisService.getValue(sessionToken);
-			if(token == null && userToken.getScope().equalsIgnoreCase("expired")){
+			if (token == null && userToken.getScope().equalsIgnoreCase("expired")) {
 				response.setStatus(HttpStatus.SC_FORBIDDEN);
 				throw new AccessDeniedException("error:Session is Expired.");
-			}
-			else if(sessionToken != null){
-		        Organization organization = null;
-		        if(userToken.getApplication() != null){
-		        	organization = userToken.getApplication().getOrganization();
-		        }
+			} else if (sessionToken != null) {
+				Organization organization = null;
+				if (userToken.getApplication() != null) {
+					organization = userToken.getApplication().getOrganization();
+				}
 				redisService.addSessionEntry(sessionToken, organization);
 			}
-		} else if(apiKeyToken != null) {
-			if (authentication == null)  {
+		} else if (apiKeyToken != null) {
+			if (authentication == null) {
 				Application application = this.getApplicationRepository().getApplication(apiKeyToken);
 				if (application == null) {
 					throw new AccessDeniedException("Invalid ApiKey : " + apiKeyToken);
@@ -164,55 +163,63 @@ public class DoAuthorization  {
 					userToken.setUser(user);
 				}
 			}
-		} else { 
+		} else {
 			throw new AccessDeniedException("Session token or api key is mandatory.");
 		}
-		if (authentication == null)  {
+		if (authentication == null) {
 			authentication = new AuthenticationDo();
-			authentication.setUserToken(userToken);		
+			authentication.setUserToken(userToken);
 		}
 		if (authentication.getUserToken().getUser() == null) {
 			throw new AccessDeniedException("Invalid session token : " + sessionToken);
-		} 
+		}
 		// check token expires
 		if (authentication.getUserToken().getUser() != null && (auth == null || hasRoleChanged(auth, authentication.getUserToken().getUser()))) {
 			doAuthentication(request, response, authentication.getUserToken().getUser(), authentication.getUserToken().getToken(), skipCache, authentication, key);
 		}
 		JSONObject session = new JSONObject();
-			try {
-				session.put("sessionToken", sessionToken);
-				session.put("organizationUId",  authentication.getUserToken().getUser().getOrganization().getPartyUid());
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			SessionContextSupport.putLogParameter("session", session.toString());
-		
-		
-		if(oAuthToken != null){
+		try {
+			session.put("sessionToken", sessionToken);
+			session.put("organizationUId", authentication.getUserToken().getUser().getOrganization().getPartyUid());
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		SessionContextSupport.putLogParameter("session", session.toString());
+
+		if (oAuthToken != null) {
 			SessionContextSupport.putLogParameter("oauthAccessToken", oAuthToken);
 		}
 
 		// set to request so that controllers can read it.
 		request.setAttribute(Constants.USER, authentication.getUserToken().getUser());
-		
+
 		return authentication.getUserToken().getUser();
 	}
-	
-	private Authentication doAuthentication(HttpServletRequest request, HttpServletResponse response, User user, String sessionToken, String skipCache,  AuthenticationDo authentication, String key) {
+
+	private Authentication doAuthentication(HttpServletRequest request, HttpServletResponse response, User user, String sessionToken, String skipCache, AuthenticationDo authentication, String key) {
 		Authentication auth = null;
-		if (user != null) { 
-			UserCredential  userCredential = null;
+		if (user != null) {
+			UserCredential userCredential = null;
 			if (authentication.getUserCredential() == null || !(skipCache == null || skipCache.equals("0"))) {
-				userCredential = userService.getUserCredential(user, sessionToken, skipCache, request.getParameter("sharedSecretKey"));				
+				userCredential = userService.getUserCredential(user, sessionToken, skipCache, request.getParameter("sharedSecretKey"));
 				authentication.setUserCredential(userCredential);
-			} else { 
+			} else {
 				userCredential = authentication.getUserCredential();
 			}
 			try {
-				getRedisService().putValue(key, new JSONSerializer().transform(new ExcludeNullTransformer(), void.class).include(new String[] {"*.operationAuthorities","*.userRoleSet", "*.partyOperations", "*.subOrganizationUids", "*.orgPermits", "*.partyPermits", "*.customFields", "*.identities", "*.meta"}).exclude("*.class").serialize(authentication), 1800);
-			} catch (Exception e) { 
-				LOGGER.error("Failed to  put  value from redis server");	
+				if (key != null) {
+					getRedisService().putValue(
+							key,
+							new JSONSerializer().transform(new ExcludeNullTransformer(), void.class).include(new String[] { "*.operationAuthorities", "*.userRoleSet", "*.partyOperations", "*.subOrganizationUids", "*.orgPermits", "*.partyPermits", "*.customFields", "*.identities", "*.meta" })
+									.exclude("*.class").serialize(authentication), 1800);
+					getRedisService().put(
+							"user_" + sessionToken,
+							new JSONSerializer().transform(new ExcludeNullTransformer(), void.class).include(new String[] { "*.operationAuthorities", "*.userRoleSet", "*.partyOperations", "*.subOrganizationUids", "*.orgPermits", "*.partyPermits", "*.customFields", "*.identities", "*.meta" })
+									.exclude("*.class").serialize(user));
+				}
+			} catch (Exception e) {
+				LOGGER.error("Failed to  put  value from redis server");
 			}
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Authorize User: First Name-" + user.getFirstName() + "; Last Name-" + user.getLastName() + "; Email-" + user.getUserId());
@@ -230,7 +237,7 @@ public class DoAuthorization  {
 		}
 		return false;
 	}
-		
+
 	public RedisService getRedisService() {
 		return redisService;
 	}
