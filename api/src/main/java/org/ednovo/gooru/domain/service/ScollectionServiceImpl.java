@@ -1781,7 +1781,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		colletionType.put(QUIZ, COLLECTION_TYPE);
 		colletionType.put(FOLDER, COLLECTION_TYPE);
 		colletionType.put(ASSIGNMENT, COLLECTION_TYPE);
-		colletionType.put(ASSESSMENT,COLLECTION_TYPE);
+		colletionType.put(ASSESSMENT, COLLECTION_TYPE);
 		colletionType.put(CollectionType.STORY.getCollectionType(), COLLECTION_TYPE);
 		final Errors errors = new BindException(collection, COLLECTION);
 		if (collection != null) {
@@ -1953,20 +1953,11 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 					settings.putAll(contentSettingsMap);
 				}
 				settings.putAll(newCollection.getSettings());
-				if (contentSettings == null) {
-					ContentSettings contentSetting = new ContentSettings();
-					Set<ContentSettings> contentSettingsObj = new HashSet<ContentSettings>();
-					contentSetting.setContent(collection);
-					contentSetting.setData(new JSONSerializer().exclude("*.class").serialize(settings));
-					this.getCollectionRepository().save(contentSetting);
-					contentSettingsObj.add(contentSetting);
-					collection.setContentSettings(contentSettingsObj);
-
-				} else {
-					contentSettings.setData(new JSONSerializer().exclude("*.class").serialize(settings));
-					collection.getContentSettings().add(contentSettings);
-				}
-
+				newCollection.setSettings(settings);
+				ContentSettings contentSetting = contentSettings == null ?  new ContentSettings() : contentSettings;
+				contentSetting.setContent(collection);
+				contentSetting.setData(new JSONSerializer().exclude("*.class").serialize(newCollection.getSettings()));
+				this.getCollectionRepository().save(contentSetting);
 			}
 
 			if (collection.getResourceType().getName().equalsIgnoreCase(SCOLLECTION)) {

@@ -24,9 +24,8 @@
 <hibernate-mapping>
 	<class name="org.ednovo.gooru.core.api.model.ContentSettings" table="content_settings" >
 		<composite-id>
-			<key-many-to-one  column="content_id" name="content" class="org.ednovo.gooru.core.api.model.Content" lazy="proxy" />
-			<key-property  column="data" name="data"/>			
+			<key-many-to-one  column="content_id" name="content" class="org.ednovo.gooru.core.api.model.Content" lazy="proxy" />			
 		</composite-id>
-				
+		<property  column="data" name="data"/>
 	</class>
 </hibernate-mapping>
