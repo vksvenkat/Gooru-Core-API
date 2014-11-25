@@ -263,10 +263,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			}
 			try {
 				if (userToken != null) {
-					getRedisService().put(
-							"user_" + userToken.getToken(),
-							new JSONSerializer().transform(new ExcludeNullTransformer(), void.class).include(new String[] { "*.operationAuthorities", "*.userRoleSet", "*.partyOperations", "*.subOrganizationUids", "*.orgPermits", "*.partyPermits", "*.customFields", "*.identities", "*.meta" })
-									.exclude("*.class").serialize(user));
+					getRedisService().put("user_" + userToken.getToken(),new JSONSerializer().transform(new ExcludeNullTransformer(), void.class).include(new String[] { "*.operationAuthorities", "*.userRoleSet", "*.partyOperations", "*.subOrganizationUids", "*.orgPermits", "*.partyPermits", "*.customFields", "*.identities", "*.meta" }).exclude("*.class").serialize(user));
 				}
 			} catch (Exception e) {
 				LOGGER.error("Failed to  put  value from redis server");
