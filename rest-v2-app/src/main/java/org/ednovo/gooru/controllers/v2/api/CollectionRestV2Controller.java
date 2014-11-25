@@ -91,7 +91,7 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 	public ModelAndView createCollection(@RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
 		JSONObject json = requestData(data);
-		ActionResponseDTO<Collection> responseDTO = getCollectionService().createCollection(this.buildCollectionFromInputParameters(getValue(COLLECTION, json), user), Boolean.parseBoolean(json != null && getValue(ADD_TO_SHELF, json) != null ? getValue(ADD_TO_SHELF, json) : FALSE),
+		ActionResponseDTO<Collection> responseDTO = getCollectionService().createCollection(this.buildCollectionFromInputParameters(getValue(COLLECTION, json), user, request), Boolean.parseBoolean(json != null && getValue(ADD_TO_SHELF, json) != null ? getValue(ADD_TO_SHELF, json) : FALSE),
 				getValue(RESOURCE_ID, json), getValue(PARENT_ID, json), user);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -103,6 +103,8 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 		includes = (String[]) ArrayUtils.addAll(includes, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
+
+	
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_UPDATE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -231,7 +233,6 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 		return toModelAndViewWithIoFilter(getCollectionService().setCollectionItemMetaInfo(collectionItems, null), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 
 	}
-	
 	
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ITEM_DELETE })
@@ -422,7 +423,7 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 		return toModelAndViewWithIoFilter(this.getCollectionService().getCollectionStandards(codeId,query,limit,offset, user), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, COLLECTION_STANDARDS_INCLUDES);
 	}
 
-	private Collection buildCollectionFromInputParameters(String data, User user) {
+	private Collection buildCollectionFromInputParameters(String data, User user, HttpServletRequest request) {
 		Collection collection = JsonDeserializer.deserialize(data, Collection.class);
 		collection.setGooruOid(UUID.randomUUID().toString());
 		ContentType contentType = getCollectionService().getContentType(ContentType.RESOURCE);
@@ -447,6 +448,9 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 		collection.setRecordSource(NOT_ADDED);
 		collection.setIsFeatured(0);
 		collection.setLastUpdatedUserUid(user.getGooruUId());
+		if (collection.getCollectionType() == null)  {
+			collection.setCollectionType(getCollectionType(request));
+		}
 
 		return collection;
 	}
@@ -553,5 +557,14 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 	public RedisService getRedisService() {
 		return redisService;
 	}
-
+	
+	private String getCollectionType(HttpServletRequest request) {
+		String type = null;
+		if (request.getRequestURL() != null && request.getRequestURL().toString().contains(ASSESSMENT)) {
+			type = ASSESSMENT;
+		} else if (request.getRequestURL() != null && request.getRequestURL().toString().contains(COLLECTION)) {
+			type = COLLECTION;
+		}
+		return type;
+	}
 }
