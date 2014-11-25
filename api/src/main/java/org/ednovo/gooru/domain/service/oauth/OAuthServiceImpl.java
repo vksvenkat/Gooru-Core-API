@@ -77,7 +77,7 @@ public class OAuthServiceImpl extends ServerValidationUtils implements OAuthServ
 		if (clientId == null) {
 			throw new NotFoundException("Client not found for given oauth token");
 		}
-		OAuthClient oAuthClient = oAuthRepository.findOAuthClientByClientId(clientId);
+		OAuthClient oAuthClient = oAuthRepository.findOAuthClientByOAuthKey(clientId);
 		User user = oAuthClient.getUser();
 		if (user == null) {
 			throw new NotFoundException("User not found for given oauth token");
@@ -131,7 +131,7 @@ public class OAuthServiceImpl extends ServerValidationUtils implements OAuthServ
 	@Override
 	public ActionResponseDTO<OAuthClient> updateOAuthClient(OAuthClient oAuthClient, String id) {
 		rejectIfNull(oAuthClient, GL0056, "oAuthClient");
-		OAuthClient exsitsOAuthClient = (OAuthClient) oAuthRepository.findOAuthClientByOauthKey(id);
+		OAuthClient exsitsOAuthClient = (OAuthClient) oAuthRepository.findOAuthClientByOAuthKey(id);
 		rejectIfNull(exsitsOAuthClient, GL0056, "oAuthClient");
 		if (oAuthClient.getRedirectUrl() != null) {
 			exsitsOAuthClient.setRedirectUrl(oAuthClient.getRedirectUrl());
@@ -171,7 +171,7 @@ public class OAuthServiceImpl extends ServerValidationUtils implements OAuthServ
 
 	@Override
 	public ActionResponseDTO<OAuthClient> getOAuthClient(String oauthKey) throws Exception {
-		OAuthClient oAuthClient = (OAuthClient) oAuthRepository.findOAuthClientByOauthKey(oauthKey);
+		OAuthClient oAuthClient = (OAuthClient) oAuthRepository.findOAuthClientByOAuthKey(oauthKey);
 		final Errors errors = new BindException(OAuthClient.class, "oAuthClient");
 		rejectIfNull(oAuthClient, GL0056, "oAuthClient");
 		return new ActionResponseDTO<OAuthClient>(oAuthClient, errors);
