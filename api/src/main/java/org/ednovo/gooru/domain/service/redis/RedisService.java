@@ -53,6 +53,8 @@ public interface RedisService extends CassandraCacheService {
 	String getValue(String key);
 
 	void putValue(String key, String value);
+	
+	void put(String key, String value);
 
 	void putValue(String key, String value, long timeout);
 
