@@ -281,11 +281,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 				newUser.setEmailId(identity.getExternalId());
 			}
 			newUser.setUserRoleSet(newUser.getUserRoleSet());
-			// newUser.setProfileImageUrl(settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL,
-			// 0, TaxonomyUtil.GOORU_ORG_UID) + '/' +
-			// settingService.getConfigSetting(ConfigConstants.PROFILE_BUCKET,
-			// 0, TaxonomyUtil.GOORU_ORG_UID).toString() + newUser.getGooruUId()
-			// + DOT_PNG);
+			newUser.setProfileImageUrl(settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, 0, TaxonomyUtil.GOORU_ORG_UID) + '/' + settingService.getConfigSetting(ConfigConstants.PROFILE_BUCKET, 0, TaxonomyUtil.GOORU_ORG_UID).toString() + newUser.getGooruUId() + DOT_PNG);
 			userToken.setUser(newUser);
 			request.getSession().setAttribute(Constants.USER, newUser);
 			request.getSession().setAttribute(Constants.SESSION_TOKEN, userToken.getToken());
