@@ -126,9 +126,9 @@ public class CountryRestV2Controller extends BaseController implements ConstantP
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CITY_ADD })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	@RequestMapping(value = { "/{id}/state/{sid}/city " }, method = RequestMethod.POST)
-	public ModelAndView createCity(@PathVariable(value = ID) String countryId, @PathVariable(value = SID) String stateId, String cityId, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		ActionResponseDTO<City> responseDTO = getCountryService().createCity(buildCityFromInputParameters(data), countryId, cityId);
+	@RequestMapping(value = { "/{id}/state/{sid}/city" }, method = RequestMethod.POST)
+	public ModelAndView createCity(@PathVariable(value = ID) String countryId, @PathVariable(value = SID) String stateId, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		ActionResponseDTO<City> responseDTO = getCountryService().createCity(buildCityFromInputParameters(data), countryId, stateId);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		} else {

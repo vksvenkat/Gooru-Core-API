@@ -28,9 +28,9 @@ public interface CountryService {
 	
     void deleteState(String countryId, String stateId);
 
-	ActionResponseDTO<City> createCity(City city,String stateId, String countryId);
+	ActionResponseDTO<City> createCity(City city, String countryId,String stateId);
 
-    City updateCity(String stateId, String countryId, String cityId, City newcity);
+    City updateCity(String countryId, String stateId, String cityId, City newcity);
 
 	City getCity(String countryId ,String stateId ,String cityId);
 
