@@ -613,7 +613,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	private Map<String, Object> setMemberResponse(UserGroupAssociation userGroupAssociation, String status) {
 		Map<String, Object> member = new HashMap<String, Object>();
 		String externalId = null;
-		if (userGroupAssociation.getUser() != null && userGroupAssociation.getUser(). getAccountTypeId() != null && (userGroupAssociation.getUser().getAccountTypeId().equals(UserAccountType.ACCOUNT_CHILD))) {
+		if (userGroupAssociation.getUser() != null && userGroupAssociation.getUser().getAccountTypeId() != null && (userGroupAssociation.getUser().getAccountTypeId().equals(UserAccountType.ACCOUNT_CHILD))) {
 			externalId = userGroupAssociation.getUser().getParentUser().getIdentities().iterator().next().getExternalId();
 		} else {
 			externalId = userGroupAssociation.getUser().getIdentities().iterator().next().getExternalId();
