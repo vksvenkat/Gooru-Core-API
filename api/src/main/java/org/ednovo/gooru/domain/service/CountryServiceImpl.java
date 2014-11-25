@@ -131,29 +131,27 @@ public class CountryServiceImpl extends BaseServiceImpl implements CountryServic
 	}
 
 	@Override
-	public ActionResponseDTO<City> createCity(City city, String stateId, String countryId) {
+	public ActionResponseDTO<City> createCity(City city, String countryId, String stateId) {
 		final Errors errors = validateCity(city);
 		if (!errors.hasErrors()) {
 			Country country = this.getCountryRepository().getCountry(countryId);
 			Province province = this.getCountryRepository().getState(countryId, stateId);
 			rejectIfNull(country, GL0056, 404, "Country");
-			rejectIfNull(country, GL0056, 404, "Province");
-			province.setCountry(country);
+			rejectIfNull(province, GL0056, 404, "Province");
 			city.setProvince(province);
-			this.getCountryRepository().save(province);
+			city.setCountry(country);
 			this.getCountryRepository().save(city);
 		}
 		return new ActionResponseDTO<City>(city, errors);
 	}
 
 	@Override
-	public City updateCity(String stateId, String countryId, String cityId, City newCity) {
+	public City updateCity( String countryId, String stateId, String cityId, City newCity) {
 		Country country = this.getCountryRepository().getCountry(countryId);
 		Province province = this.getCountryRepository().getState(countryId, stateId);
 		rejectIfNull(country, GL0056, 404, "Country");
 		rejectIfNull(province, GL0056, 404, "Province");
 		City city = this.getCountryRepository().getCity(countryId, stateId, cityId);
-		rejectIfNull(province, GL0056, 404, "Province");
 		rejectIfNull(city, GL0056, 404, "City");
 		if (newCity.getName() != null) {
 			city.setName(newCity.getName());
