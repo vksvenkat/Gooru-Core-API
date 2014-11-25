@@ -252,14 +252,11 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<CollectionItem> getCollectionItemByAssociation(String resourceGooruOid, String gooruUid, String type, Boolean fetchWithParent) {
+	public List<CollectionItem> getCollectionItemByAssociation(String resourceGooruOid, String gooruUid, String type) {
 		String sql = "FROM CollectionItem collectionItem WHERE  collectionItem.resource.gooruOid=:resourceGooruOid  and  " + generateOrgAuthQuery("collectionItem.collection.");
 		String collectionType = "";
 		if (gooruUid != null) {
 			sql += " and collectionItem.associatedUser.partyUid=:gooruUid";
-		}
-		if (fetchWithParent != null && fetchWithParent) {
-			sql += " or collectionItem.collection.gooruOid =:resourceGooruOid ";
 		}
 		
 		if (type != null) {
