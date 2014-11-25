@@ -147,7 +147,9 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 		this.getFeedbackRepository().saveAll(feedbackList);
 		this.getFeedbackRepository().flush();
 		for (Feedback feedback : feedbacks) {
-			feedback.setRatings(this.collectionService.setRatingsObj(this.getResourceRepository().getResourceSummaryById(feedback.getAssocGooruOid())));
+			ResourceSummary resourceSummary = updateResourceSummary(feedback.getAssocGooruOid());
+			this.getFeedbackRepository().save(resourceSummary);
+			feedback.setRatings(this.collectionService.setRatingsObj(this.getResourceRepository().getResourceSummaryById(feedback.getAssocGooruOid())));		
 		}
 		Resource resource = this.getResourceRepository().findResourceByContentGooruId(newFeedback.getAssocGooruOid());
 		if (resource != null && resource.getContentId() != null) {
@@ -158,6 +160,7 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 			}
 			this.getAsyncExecutor().clearCache(resource.getGooruOid());
 		}
+		
 		return feedbacks;
 	}
 
