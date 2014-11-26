@@ -288,11 +288,18 @@ public class ResourceCio implements IsEntityCassandraIndexable {
 	
 	@Column
 	private Map<String,String> codeAndDescription;
-	
-	
+		
 	@Column 
 	private Integer version;
+	
+	@Column 
+	private String gooruOId;
 
+	@Column 
+	private Long resourceTypeN;
+
+	@Column 
+	private Integer isDeleted;
 
 	
 	public Integer getVersion() {
@@ -1015,4 +1022,29 @@ public class ResourceCio implements IsEntityCassandraIndexable {
 	public Boolean getIsOerBoolean() {
 		return isOerBoolean;
 	}
+
+	public void setGooruOId(String gooruOId) {
+		this.gooruOId = gooruOId;
+	}
+
+	public String getGooruOId() {
+		return gooruOId;
+	}
+
+	public void setResourceTypeN(Long resourceTypeN) {
+		this.resourceTypeN = resourceTypeN;
+	}
+
+	public Long getResourceTypeN() {
+		return resourceTypeN;
+	}
+
+	public void setIsDeleted(Integer isDeleted) {
+		this.isDeleted = isDeleted;
+	}
+
+	public Integer getIsDeleted() {
+		return isDeleted;
+	}
 }
+

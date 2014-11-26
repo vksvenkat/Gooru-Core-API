@@ -137,6 +137,7 @@
 
 				<!-- Content Domain -->
 				<value>org/ednovo/gooru/domain/model/content/Content.hbm.xml</value>
+				<value>org/ednovo/gooru/domain/model/content/ContentSettings.hbm.xml</value>
 				<value>org/ednovo/gooru/domain/model/content/ContentType.hbm.xml
 				</value>
 				<value>org/ednovo/gooru/domain/model/content/ContentAssociation.hbm.xml
