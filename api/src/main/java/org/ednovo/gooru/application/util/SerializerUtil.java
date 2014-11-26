@@ -216,6 +216,8 @@ public class SerializerUtil implements ParameterProperties {
 					if (list != null && list.size() > 0 && list.get(0) instanceof Resource) {
 						LOGGER.error("Serialization failed for list resources of size : " + list.size() + " resource : " + ((Resource) list.get(0)).getContentId());
 					}
+				} else { 
+					LOGGER.error("Serialization failed" + ex);
 				}
 				throw new MethodFailureException(ex.getMessage());
 			}
