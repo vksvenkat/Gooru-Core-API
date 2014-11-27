@@ -286,7 +286,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		}
 
 		try {
-			this.getCollectionEventLog().getEventLogs(collection.getCollectionItem(), true, false,collection.getUser(), collection.getCollectionItem().getCollection().getCollectionType());
+			this.getCollectionEventLog().getEventLogs(collection.getCollectionItem(), true, false, collection.getUser(), collection.getCollectionItem().getCollection().getCollectionType());
 		} catch (Exception e) {
 			LOGGER.error("Error" + e.getMessage());
 		}
