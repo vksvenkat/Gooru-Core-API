@@ -264,6 +264,23 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 	}
 
 	@Override
+	public SearchResults<Map<String, Object>> getResourceContentTagList(String gooruOid, Integer limit, Integer offset) {	
+		List<Object[]> results = this.getContentRepository().getResourceContentTagList(gooruOid, limit, offset);
+		SearchResults<Map<String, Object>> searchResult = new SearchResults<Map<String,Object>>();
+		List<Map<String, Object>> userTags = new ArrayList<Map<String,Object>>();
+		for (Object[] object : results) {
+			Map<String, Object> result = new HashMap<String, Object>();
+			result.put(COUNT, object[0]);
+			result.put(LABEL, object[1]);
+			result.put(TAG_GOORU_OID, object[2]);
+			userTags.add(result);
+		}
+		searchResult.setSearchResults(userTags);
+		searchResult.setTotalHitCount(this.getContentRepository().getResourceContentTagCount(gooruOid));
+		return searchResult;
+	}
+	
+	@Override
 	public List<String> getContentPermission(String gooruOid, User apiCaller) {
 		Content content = this.getContentRepository().findContentByGooruId(gooruOid, true);
 		return getContentPermission(content, apiCaller);
