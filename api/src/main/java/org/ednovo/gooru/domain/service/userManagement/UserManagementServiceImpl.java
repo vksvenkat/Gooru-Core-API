@@ -1524,7 +1524,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			throws Exception {
 		User user = userRepository.findUserByPartyUid(userUid);
 		UserRole role = userRepository.findUserRoleByRoleId(roleId);
-		rejectIfNull(role, GL0010, 404, "Role ");
+		rejectIfNull(role, GL0056,ROLE );
 		UserRoleAssoc userRoleAssoc = userRepository.findUserRoleAssocEntryByRoleIdAndUserUid(roleId, userUid);
 		if (userRoleAssoc != null) {
 			throw new BadRequestException(generateErrorMessage(GL0041, "User role "));
@@ -1542,7 +1542,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	public void removeAssignedRoleByUserUid(Integer roleId, String userUid)
 			throws Exception {
 		UserRoleAssoc userRoleAssoc = userRepository.findUserRoleAssocEntryByRoleIdAndUserUid(roleId, userUid);
-		rejectIfNull(userRoleAssoc, GL0102,404, "Role ");
+		rejectIfNull(userRoleAssoc, GL0102, "Role ");
 		getUserRepository().remove(userRoleAssoc);
 	}
 	
