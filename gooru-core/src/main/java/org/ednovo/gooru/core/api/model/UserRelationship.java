@@ -12,7 +12,7 @@ public class UserRelationship extends OrganizationModel implements Serializable 
 	private static final long serialVersionUID = 1878026632439748759L;
 	private Integer userRelationshipId;
 	private User user;
-	private Party followOnUser;
+	private User followOnUser;
 	private Date activatedDate;
 	private Date deactivatedDate;
 	private Boolean activeFlag = true;
@@ -33,11 +33,11 @@ public class UserRelationship extends OrganizationModel implements Serializable 
 		this.user = user;
 	}
 
-	public Party getFollowOnUser() {
+	public User getFollowOnUser() {
 		return followOnUser;
 	}
 
-	public void setFollowOnUser(Party followOnUser) {
+	public void setFollowOnUser(User followOnUser) {
 		this.followOnUser = followOnUser;
 	}
 

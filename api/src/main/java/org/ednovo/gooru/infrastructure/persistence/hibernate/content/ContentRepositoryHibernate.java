@@ -322,6 +322,16 @@ public class ContentRepositoryHibernate extends BaseRepositoryHibernate implemen
 		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
 		return query.list();
 	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Object[]> getResourceContentTagList(String gooruOid, Integer limit, Integer offset) {
+		String sql = "select  count(1) as count, t.label as label , ct.tag_gooru_oid as tagGooruOid from tags t inner join content c on  (t.content_id = c.content_id) inner join content_tag_assoc ct on (c.gooru_oid= ct.tag_gooru_oid) where content_gooru_oid  =  '" + gooruOid+ "' group by ct.tag_gooru_oid";
+		Query query = getSession().createSQLQuery(sql).addScalar("count", StandardBasicTypes.INTEGER).addScalar("label", StandardBasicTypes.STRING).addScalar("tagGooruOid", StandardBasicTypes.STRING);
+		query.setFirstResult(offset);
+		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
+		return query.list();
+	}
 
 	@Override
 	public Long getUserContentTagCount(String gooruUid) {
@@ -329,6 +339,14 @@ public class ContentRepositoryHibernate extends BaseRepositoryHibernate implemen
 		Query query = getSession().createSQLQuery(sql);
 		return ((BigInteger)query.list().get(0)).longValue();
 	}
+	
+	@Override
+	public Long getResourceContentTagCount(String gooruOid) {
+		String  sql = "select count(*) as count from  (select  count(1) as count, t.label as label  from tags t inner join content c on  (t.content_id = c.content_id) inner join content_tag_assoc ct on (c.gooru_oid= ct.tag_gooru_oid) where content_gooru_oid  =  '"+gooruOid +"' group by ct.tag_gooru_oid) sq";
+		Query query = getSession().createSQLQuery(sql);
+		return ((BigInteger)query.list().get(0)).longValue();
+	}
+	
 	@Override
 	public void deleteContentProvider(String gooruOid, String providerType, String name){
 		String sql = "delete cpa from content_provider_assoc cpa inner join content_provider cp on cpa.content_provider_uid = cp.content_provider_uid inner join custom_table_value ctv on cp.content_provider_type = ctv.custom_table_value_id where cpa.gooru_oid = '"+gooruOid+"' and ctv.value = '"+providerType+"' and cp.name = '"+name+"'";

@@ -44,6 +44,8 @@ public interface ContentService {
 	
 	SearchResults<Map<String, Object>> getUserContentTagList(String gooruUid,Integer limit,Integer offset);
 	
+	SearchResults<Map<String, Object>> getResourceContentTagList(String gooruOid,Integer limit,Integer offset);
+	
 	Content updateContent(String gooruOid, Content newContent);
 	
 	List<String> getContentPermission (String gooruOid, User apiCaller);
