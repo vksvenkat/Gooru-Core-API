@@ -40,7 +40,7 @@
 			cascade="none" />
 
 		<many-to-one column="follow_on_user_uid" name="followOnUser"
-			class="org.ednovo.gooru.core.api.model.Party" not-null="true" lazy="proxy"
+			class="org.ednovo.gooru.core.api.model.User" not-null="true" lazy="proxy"
 			cascade="none" />
 
 		<property name="activatedDate" column="activated_date"
