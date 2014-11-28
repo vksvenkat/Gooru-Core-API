@@ -1453,6 +1453,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	        roleEntityOperation.setEntityOperation(entityOperation);
 	        getUserRepository().save(roleEntityOperation);
 	    }
+		 indexProcessor.index(user.getPartyUid(), IndexProcessor.INDEX, USER);
 		
 		return new ActionResponseDTO<UserRole>(userRole, errors);
 	}
@@ -1532,6 +1533,8 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		userRoleAssoc.setUser(user);
 		userRoleAssoc.setRole(role);
 		getUserRepository().save(userRoleAssoc);
+		getUserRepository().flush();
+		indexProcessor.index(user.getPartyUid(), IndexProcessor.INDEX, USER);
 		return userRoleAssoc;
 	}
 	
