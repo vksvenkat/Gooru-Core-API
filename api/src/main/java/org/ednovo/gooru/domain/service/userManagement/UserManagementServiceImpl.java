@@ -1004,16 +1004,14 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		if (user == null) {
 			throw new BadRequestException(generateErrorMessage("GL0056","User"));
 		}
-		if (user != null && !user.getGooruUId().contains(ANONYMOUS)) {
+		if (user != null && !user.getGooruUId().toLowerCase().contains(ANONYMOUS)) {
 			user.setMeta(userMeta(user));
-		}
-		if (user != null && !user.getGooruUId().contains(ANONYMOUS)) {
 			if (user.getAccountTypeId() != null && user.getAccountTypeId().equals(UserAccountType.ACCOUNT_CHILD)) {
 				if (user.getParentUser().getIdentities() != null) {
 					user.setEmailId(user.getParentUser().getIdentities().iterator().next().getExternalId());
 				}
 			} else {
-				if (user.getIdentities() != null) {
+				if (user.getIdentities() != null & user.getIdentities().size() > 0) {
 					user.setEmailId(user.getIdentities().iterator().next().getExternalId());
 				}
 			}
