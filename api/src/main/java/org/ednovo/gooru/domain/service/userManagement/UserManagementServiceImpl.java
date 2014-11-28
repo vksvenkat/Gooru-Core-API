@@ -1033,7 +1033,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	@Override
 	public User resetPasswordRequest(String emailId, String gooruBaseUrl, User apicaller, String mailConfirmationUrl) throws Exception {
 		Identity identity = new Identity();
-		if (apicaller != null && !apicaller.getGooruUId().contains(Constants.ANONYMOUS)) {
+		if (apicaller != null && !apicaller.getGooruUId().toLowerCase().contains(Constants.ANONYMOUS)) {
 			identity = this.findUserByGooruId(apicaller.getGooruUId());
 		} else {
 			identity = this.getUserRepository().findByEmailIdOrUserName(emailId, true, false);
