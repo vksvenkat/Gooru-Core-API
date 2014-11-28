@@ -27,11 +27,8 @@ import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
 
-import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Application;
-import org.ednovo.gooru.core.api.model.Country;
 import org.ednovo.gooru.core.api.model.Identity;
-import org.ednovo.gooru.core.api.model.Menu;
 import org.ednovo.gooru.core.api.model.Profile;
 import org.ednovo.gooru.core.api.model.RoleEntityOperation;
 import org.ednovo.gooru.core.api.model.User;
@@ -39,7 +36,6 @@ import org.ednovo.gooru.core.api.model.UserAvailability.CheckUser;
 import org.ednovo.gooru.core.api.model.UserCredential;
 import org.ednovo.gooru.core.api.model.UserRole;
 import org.ednovo.gooru.core.api.model.UserRole.UserRoleType;
-import org.ednovo.gooru.core.api.model.UserRoleAssoc;
 import org.ednovo.gooru.core.api.model.UserToken;
 import org.json.JSONException;
 import org.springframework.util.MultiValueMap;
@@ -193,6 +189,6 @@ public interface UserService {
 	 
 	 public Integer getChildAccountCount(String userUId);
 
-	 List<UserRole> findAllRoles();
+	 List<UserRole> findAllRoles(Integer limit, Integer offset);
 	 
  }

@@ -80,7 +80,6 @@ import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.BadRequestException;
-import org.ednovo.gooru.core.exception.NotAllowedException;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.core.exception.UnauthorizedException;
 import org.ednovo.gooru.domain.service.BaseServiceImpl;
@@ -1407,28 +1406,21 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	}
 	
 	@Override
-	public List<UserRole> findAllRoles() {
-		return getUserRepository().findAllRoles();
+	public SearchResults<UserRole> findAllRoles(Integer offset, Integer limit) {
+		SearchResults<UserRole> result = new SearchResults<UserRole>();
+		result.setSearchResults(this.getUserRepository().findAllRoles(offset,limit));
+		result.setTotalHitCount(this.getUserRepository().countRoles(null));
+		return result;
 	}
 
 	@Override
-	public Long allRolesCount() {
-		
-		return this.getUserRepository().countAllRoles();
+	public SearchResults<UserRole> findUserRoles(String userUid) {
+		SearchResults<UserRole> result = new SearchResults<UserRole>();
+		result.setSearchResults(this.getUserRepository().findUserRoles(userUid));
+		result.setTotalHitCount(this.getUserRepository().countRoles(userUid));
+		return result;
 	}
-	
-	@Override
-	public List<UserRole> findUserRoles(String userUid) {
-		
-		return this.getUserRepository().findUserRoles(userUid);
-	}
-	
-	@Override
-	public Long userRolesCount(String userUid) {
-		
-		return this.getUserRepository().countUserRoles(userUid);
-	}
-	
+
 	@Override
 	public ActionResponseDTO<UserRole> createNewRole(UserRole role, User user) throws Exception{
 		UserRole userRole = userRepository.findUserRoleByName(role.getName(),null);
@@ -1499,27 +1491,21 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	}
 	
 	@Override
-	public List<EntityOperation> findAllEntityNames() {
-		return getUserRepository().findAllEntityNames();
+	public SearchResults<EntityOperation> findAllEntityNames() {
+		SearchResults<EntityOperation> result = new SearchResults<EntityOperation>();
+		result.setSearchResults(this.getUserRepository().findAllEntityNames());
+		result.setTotalHitCount(this.getUserRepository().countAllEntityNames());
+		return  result;
 	}
-	
+
 	@Override
-	public Long allEntityNamesCount() {
-		
-		return this.getUserRepository().countAllEntityNames();
-	}
-	
-	@Override
-	public List<EntityOperation> getOperationsByEntityName(String entityName) {
-		return getUserRepository().findOperationsByEntityName(entityName);
+	public SearchResults<EntityOperation> getOperationsByEntityName(String entityName) {
+		SearchResults<EntityOperation> result = new SearchResults<EntityOperation>();
+		result.setSearchResults(this.getUserRepository().findOperationsByEntityName(entityName));
+		result.setTotalHitCount(this.getUserRepository().countOperationsByEntityName(entityName));
+		return  result;
 	}	
-	
-	@Override
-	public Long getOperationCountByEntityName(String entityName) {
-		
-		return this.getUserRepository().countOperationsByEntityName(entityName);
-	}
-	
+
 	@Override
 	public UserRoleAssoc assignRoleByUserUid(Integer roleId, String userUid)
 			throws Exception {
@@ -1543,6 +1529,21 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		UserRoleAssoc userRoleAssoc = userRepository.findUserRoleAssocEntryByRoleIdAndUserUid(roleId, userUid);
 		rejectIfNull(userRoleAssoc, GL0102,404, "Role ");
 		getUserRepository().remove(userRoleAssoc);
+	}
+	
+	@Override
+	public UserRole getRoleByRoleId(Integer roleId){
+		UserRole userRole = userRepository.findUserRoleByRoleId(roleId);
+		rejectIfNull(userRole, GL0102,404, "Role ");
+		return userRole;
+	}
+	
+	@Override
+	public SearchResults<RoleEntityOperation> getRoleOperationsByRoleId(Integer roleId){
+		SearchResults<RoleEntityOperation> result = new SearchResults<RoleEntityOperation>();
+		result.setSearchResults(this.getUserRepository().findRoleOperationsByRoleId(roleId));
+		result.setTotalHitCount(this.getUserRepository().countRoleOperationsByRoleId(roleId));
+		return result;
 	}
 	
 	public IdpRepository getIdpRepository() {

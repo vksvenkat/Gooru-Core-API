@@ -85,7 +85,6 @@ import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.GooruOperationConstants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.BadRequestException;
-import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.core.exception.UserNotConfirmedException;
 import org.ednovo.gooru.domain.service.CollaboratorService;
 import org.ednovo.gooru.domain.service.PartyService;
@@ -936,8 +935,8 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 	}
 
 	@Override
-	public List<UserRole> findAllRoles() {
-		return getUserRepository().findAllRoles();
+	public List<UserRole> findAllRoles(Integer limit, Integer offset) {
+		return getUserRepository().findAllRoles(limit, offset);
 	}	
 	
 	@Override

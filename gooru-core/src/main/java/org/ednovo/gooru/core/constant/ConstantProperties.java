@@ -811,8 +811,14 @@ public interface ConstantProperties {
    
    public static final String SEND_RECIPIENT = "sendRecipient";
    
-   static final String ROLE_INCLUDES[] = { "*.roleId", "*.name", "*.description" };
+   static final String ROLE_INCLUDES[] = { "*.roleId", "*.name", "*.description" , "*.totalHitCount", "*.searchResults"};
+
+   static final String USER_ROLE_INCLUDES[] = { "*.roleId", "*.name", "*.description"};
    
    static final String USER_ROLE_ASSOC_INCLUDES[] = {"*.role.roleId", "*.user.active", "*.user.gooruUId", "*.user.username", "*.user.usernameDisplay", "*.user.userId", "*.user.emailId"};
+   
+   static final String ENTITY_INCLUDES[] = { "*.entityOperationId", "*.entityName", "*.operationName" , "*.totalHitCount", "*.searchResults"};
+   
+   static final String ROLE_OPERATIONS_INCLUDES[] = {"*.entityOperation.entityOperationId", "*.entityOperation.entityName", "*.entityOperation.operationName", "*.totalHitCount", "*.searchResults"};
 }
 
