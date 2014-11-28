@@ -230,7 +230,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		List<Classpage> classpage = query.list();
 		return (classpage.size() != 0) ? classpage.get(0) : null;
 	}
-
+	
 	@SuppressWarnings("unchecked")
 	@Override
 	public CollectionItem getCollectionItemById(String collectionItemId) {
@@ -1087,4 +1087,13 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		return query.list();
 	}
 
+	@Override
+	public CollectionItem getCollectionItemByResourceOid(String collectionId, String resourceId) {
+		Query query = getSession().createQuery("FROM CollectionItem collectionItem WHERE  collectionItem.collection.gooruOid=:collectionId and collectionItem.resource.gooruOid=:resourceId   " + generateOrgAuthQuery("collectionItem.collection."));
+		query.setParameter("resourceId", resourceId);
+		query.setParameter("collectionId", collectionId);
+		addOrgAuthParameters(query);
+		List<CollectionItem> collectionItems = query.list();
+		return (collectionItems.size() != 0) ? collectionItems.get(0) : null;
+	}
 }

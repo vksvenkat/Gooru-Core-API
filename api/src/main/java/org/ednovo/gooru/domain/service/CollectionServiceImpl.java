@@ -98,13 +98,14 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	private CollaboratorRepository collaboratorRepository;
 
 	@Override
-	public ActionResponseDTO<CollectionItem> createQuestionWithCollectionItem(String collectionId, String data, User user, String mediaFileName) throws Exception {
+	public ActionResponseDTO<CollectionItem> createQuestionWithCollectionItem(String collectionId, String data, User user, String mediaFileName, String sourceReference) throws Exception {
 		ActionResponseDTO<CollectionItem> response = null;
 		Collection collection = collectionRepository.getCollectionByGooruOid(collectionId, null);
 		if (collection == null) {
 			throw new NotFoundException(generateErrorMessage(GL0056, _COLLECTION));
 		}
 		AssessmentQuestion question = getAssessmentService().buildQuestionFromInputParameters(data, user, true);
+		question.setSourceReference(sourceReference);
 		question.setSharing(collection.getSharing());
 		ActionResponseDTO<AssessmentQuestion> responseDTO = assessmentService.createQuestion(question, true);
 		if (responseDTO.getModel() != null) {
@@ -144,13 +145,8 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 
 	}
 
-	@Override
-	public ActionResponseDTO<CollectionItem> updateQuestionWithCollectionItem(String collectionItemId, String data, List<Integer> deleteAssets, User user, String mediaFileName) throws Exception {
-		CollectionItem collectionItem = this.getCollectionItemById(collectionItemId);
-		 if(collectionItem == null){
-			 throw new NotFoundException(generateErrorMessage(GL0056, COLLECTION_ITEM));
-		}
-	    AssessmentQuestion newQuestion = getAssessmentService().buildQuestionFromInputParameters(data, user, true);
+	private ActionResponseDTO<CollectionItem> updateQuestionWithCollectionItem(CollectionItem collectionItem, String data, List<Integer> deleteAssets, User user, String mediaFileName) throws Exception {
+		AssessmentQuestion newQuestion = getAssessmentService().buildQuestionFromInputParameters(data, user, true);
 		Errors errors = validateUpdateCollectionItem(collectionItem);
 		final JSONObject itemData = new JSONObject();
 		itemData.put(_ITEM_DATA, data);
@@ -195,6 +191,25 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		}
 
 		return new ActionResponseDTO<CollectionItem>(collectionItem, errors);
+
+	}
+
+	@Override
+	public ActionResponseDTO<CollectionItem> updateQuestionWithCollectionItem(String collectionItemId, String data, List<Integer> deleteAssets, User user, String mediaFileName) throws Exception {
+		CollectionItem collectionItem = this.getCollectionItemById(collectionItemId);
+		if (collectionItem == null) {
+			throw new NotFoundException(generateErrorMessage(GL0056, COLLECTION_ITEM));
+		}
+		return updateQuestionWithCollectionItem(collectionItem, data, deleteAssets, user, mediaFileName);
+	}
+	
+	@Override
+	public ActionResponseDTO<CollectionItem> updateQuestionWithCollectionItem(String collectionId, String resourceId, String data, List<Integer> deleteAssets, User user, String mediaFileName) throws Exception {
+		CollectionItem collectionItem = this.getCollectionRepository().getCollectionItemByResourceOid(collectionId, resourceId);
+		if (collectionItem == null) {
+			throw new NotFoundException(generateErrorMessage(GL0056, COLLECTION_ITEM));
+		}
+		return updateQuestionWithCollectionItem(collectionItem, data, deleteAssets, user, mediaFileName);
 	}
 
 	@Override
@@ -867,5 +882,6 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	public MailHandler getMailHandler() {
 		return mailHandler;
 	}
+
 
 }
