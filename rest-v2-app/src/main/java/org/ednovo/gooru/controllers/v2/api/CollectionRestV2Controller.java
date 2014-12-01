@@ -160,34 +160,36 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 			}
 			includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_ITEM_TAGS);
 
-			collection = getCollectionService().getCollection( collectionId, includeMetaInfo, includeCollaborator, includeRelatedContent, user, merge, rootNodeId, isGat);
-		    return toModelAndViewWithIoFilter(collection, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
-		}	
-		
+			collection = getCollectionService().getCollection(collectionId, includeMetaInfo, includeCollaborator, includeRelatedContent, user, merge, rootNodeId, isGat);
+			return toModelAndViewWithIoFilter(collection, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
+		}
+
 	}
-	
+
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/cache/{id}" }, method = RequestMethod.GET)
 	public ModelAndView getCollectionWithCache(@PathVariable(value = ID) String collectionId, @RequestParam(value = INCLUDE_COLLECTION_ITEM, required = false, defaultValue = TRUE) boolean includeCollectionItem,
-			@RequestParam(value = INLCLUDE_META_INFO, required = false, defaultValue = FALSE) boolean includeMetaInfo, @RequestParam(value = INCLUDE_COLLABORATOR, required = false, defaultValue = FALSE) boolean includeCollaborator, @RequestParam(value =  IS_GAT, required = false, defaultValue = FALSE) boolean isGat,
-			@RequestParam(value = INCLUDE_RELATED_CONTENT, required = false, defaultValue = FALSE) boolean includeRelatedContent, @RequestParam(value = CLEAR_CACHE, required = false, defaultValue = FALSE) boolean clearCache,@RequestParam(value = MERGE, required = false) String merge, @RequestParam(value = REQ_CONTEXT, required = false, defaultValue="edit-play") String requestContext, @RequestParam(value = ROOT_NODE_ID, required = false) String rootNodeId, HttpServletRequest request, HttpServletResponse response) {
+			@RequestParam(value = INLCLUDE_META_INFO, required = false, defaultValue = FALSE) boolean includeMetaInfo, @RequestParam(value = INCLUDE_COLLABORATOR, required = false, defaultValue = FALSE) boolean includeCollaborator,
+			@RequestParam(value = IS_GAT, required = false, defaultValue = FALSE) boolean isGat, @RequestParam(value = INCLUDE_RELATED_CONTENT, required = false, defaultValue = FALSE) boolean includeRelatedContent,
+			@RequestParam(value = CLEAR_CACHE, required = false, defaultValue = FALSE) boolean clearCache, @RequestParam(value = MERGE, required = false) String merge, @RequestParam(value = REQ_CONTEXT, required = false, defaultValue = "edit-play") String requestContext,
+			@RequestParam(value = ROOT_NODE_ID, required = false) String rootNodeId, HttpServletRequest request, HttpServletResponse response) {
 		User user = (User) request.getAttribute(Constants.USER);
 		String collection = null;
 		String includes[] = null;
 		if (requestContext != null && requestContext.equalsIgnoreCase("library")) {
 			includes = (String[]) ArrayUtils.addAll(LIBRARY_RESOURCE_INCLUDE_FIELDS, COLLECTION_ITEM_INCLUDE_FILEDS);
 			includes = (String[]) ArrayUtils.addAll(includes, LIBRARY_COLLECTION_INCLUDE_FIELDS);
-			final String cacheKey = COLLECTION_DATA + requestContext + "-" + collectionId + "-"  + rootNodeId;
+			final String cacheKey = COLLECTION_DATA + requestContext + "-" + collectionId + "-" + rootNodeId;
 			String data = null;
 			data = getRedisService().getValue(cacheKey);
 			if (data == null) {
-			  data = serialize(this.getCollectionService().getCollection(collectionId, new HashMap<String, Object>(), rootNodeId), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, false, true, includes);
-			  getRedisService().putValue(cacheKey, data, 86400);
+				data = serialize(this.getCollectionService().getCollection(collectionId, new HashMap<String, Object>(), rootNodeId), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, false, true, includes);
+				getRedisService().putValue(cacheKey, data, 86400);
 			}
 			return toModelAndView(data);
-		} else { 
-		    includes = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, COLLECTION_INCLUDE_FIELDS);
+		} else {
+			includes = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, COLLECTION_INCLUDE_FIELDS);
 			if (includeCollectionItem) {
 				includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_ITEM_INCLUDE_FILEDS);
 			}
@@ -195,17 +197,17 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 				includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_META_INFO);
 			}
 			includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_TAXONOMY);
-			
+
 			if (includeRelatedContent) {
 				includes = (String[]) ArrayUtils.add(includes, "*.contentAssociation");
 			}
 			includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_ITEM_TAGS);
-			collection = getCollectionService().getCollectionWithCache( collectionId, includeMetaInfo, includeCollaborator, includeRelatedContent, user, merge, rootNodeId, isGat, includeCollectionItem,includeRelatedContent,clearCache);
-		    return toModelAndView(collection);
-		}	
-		
+			collection = getCollectionService().getCollectionWithCache(collectionId, includeMetaInfo, includeCollaborator, includeRelatedContent, user, merge, rootNodeId, isGat, includeCollectionItem, includeRelatedContent, clearCache);
+			return toModelAndView(collection);
+		}
+
 	}
-	
+
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_DELETE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}" }, method = RequestMethod.DELETE)

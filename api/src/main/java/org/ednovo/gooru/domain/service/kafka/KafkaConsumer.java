@@ -12,7 +12,6 @@ import kafka.consumer.ConsumerIterator;
 import kafka.consumer.KafkaStream;
 import kafka.javaapi.consumer.ConsumerConnector;
 
-import org.ednovo.gooru.application.util.ResourceImageUtil;
 import org.ednovo.gooru.core.application.util.RequestUtil;
 import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.domain.service.setting.SettingService;
@@ -28,9 +27,11 @@ public class KafkaConsumer implements Runnable {
 	private KafkaProperties kafkaProperties;
 
 	private static ConsumerConnector consumer;
+
 	
 	@Autowired
 	private SettingService settingService;
+
 
 	@Autowired
 	private HibernateTransactionManager transactionManager;
@@ -64,15 +65,16 @@ public class KafkaConsumer implements Runnable {
 	@Override
 	public void run() {
 		Map<String, Integer> map = new HashMap<String, Integer>();
-		map.put("page", 1);
+		
+		String topic = kafkaProperties.zkConsumerConnectValue;
+		map.put("topic", 1);
 		Map<String, List<KafkaStream<byte[], byte[]>>> listOfTopicsStreams = consumer.createMessageStreams(map);
-		List<KafkaStream<byte[], byte[]>> listOfStream = listOfTopicsStreams.get("test");
+		List<KafkaStream<byte[], byte[]>> listOfStream = listOfTopicsStreams.get("topic");
 		m_stream = listOfStream.get(0);
 		System.out.println("calling ConsumerTest.run()");
 		ConsumerIterator<byte[], byte[]> it = m_stream.iterator();
 		
 		String restEndPoint = settingService.getConfigSetting(ConfigConstants.GOORU_API_ENDPOINT);
-
 
 		while (it.hasNext()) {
 
@@ -97,6 +99,7 @@ public class KafkaConsumer implements Runnable {
 					} else if (data.get("eventName") != null && data.get("eventName").toString().equalsIgnoreCase("update.am:assessment-question")) {
 						String jsonData = data.get("payLoadObject").toString();
 						RequestUtil.executeRestAPI(jsonData, restEndPoint+"/v2/assessment/" + parentOid + "/question/" + contentOid , "PUT", sessionToken);
+
 					}
 				}
 			} catch (Exception e) {
