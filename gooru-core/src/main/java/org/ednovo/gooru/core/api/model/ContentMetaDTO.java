@@ -12,6 +12,8 @@ public class ContentMetaDTO implements Serializable {
 	private Boolean selected;
 	
 	private String value;
+	
+	private String keyValue;
 
 
 	public void setValue(String value) {
@@ -28,6 +30,14 @@ public class ContentMetaDTO implements Serializable {
 
 	public Boolean getSelected() {
 		return selected;
+	}
+
+	public void setKeyValue(String keyValue) {
+		this.keyValue = keyValue;
+	}
+
+	public String getKeyValue() {
+		return keyValue;
 	}
 
 }

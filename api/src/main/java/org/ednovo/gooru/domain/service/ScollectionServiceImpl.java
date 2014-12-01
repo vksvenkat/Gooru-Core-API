@@ -1201,6 +1201,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			for (CustomTableValue customTableValue : customTableValues) {
 				ContentMetaDTO depthOfknowledge = new ContentMetaDTO();
 				depthOfknowledge.setValue(customTableValue.getDisplayName());
+				depthOfknowledge.setKeyValue(customTableValue.getValue());
 				depthOfknowledge.setSelected(false);
 				depthOfKnowledges.add(depthOfknowledge);
 			}
