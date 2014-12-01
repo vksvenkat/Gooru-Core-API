@@ -868,14 +868,9 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 	}
 
 	@Override
-	public Long countRoles(String userUid) {
-		String hql = "";
-		if(userUid != null){		
-			hql = "select count(*) From UserRoleAssoc userRoleAssoc  WHERE userRoleAssoc.user.partyUid = '"+userUid+"' AND " + generateOrgAuthQuery("userRoleAssoc.role.");
-		}
-		else{		
-			hql = "select count(*) from UserRole userRole where " + generateOrgAuthQuery("userRole.");
-		}
+	public Long countRoles() {
+		
+		String hql = "select count(*) from UserRole userRole where " + generateOrgAuthQuery("userRole.");
 		Query query = getSession().createQuery(hql);
 		addOrgAuthParameters(query);
 		return (Long)query.list().get(0);
@@ -890,7 +885,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<EntityOperation> findAllEntityNames() {
+	public List<EntityOperation> findAllEntityNames(Integer offset, Integer limit) {
 		String hql = "select distinct entityOperation.entityName from EntityOperation entityOperation";
 		Query query = getSession().createQuery(hql);
 		return query.list();
@@ -910,14 +905,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 		Query query = getSession().createQuery(hql);
 		return query.list();
 	}
-	
-	@Override
-	public Long countOperationsByEntityName(String entityName) {
-		String hql = "select count(distinct entityOperation.operationName) from EntityOperation entityOperation where entityOperation.entityName='"+entityName+"'";
-		Query query = getSession().createQuery(hql);
-		return (Long)query.list().get(0);
-	}
-	
+		
 	@Override
 	public UserRoleAssoc findUserRoleAssocEntryByRoleIdAndUserUid(Integer roleId, String userUid) {
 		String hql = "FROM UserRoleAssoc URA WHERE URA.role.roleId = :roleId and URA.user.partyUid = :userUid";
@@ -934,13 +922,5 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 		Query query = getSession().createQuery(hql);
 		query.setParameter("roleId", roleId);
 		return (List<RoleEntityOperation>) (query.list().size() > 0 ? query.list() : null);
-	}
-	
-	@Override
-	public Long countRoleOperationsByRoleId(Integer roleId) {
-		String hql = "select count(*) FROM RoleEntityOperation REO WHERE REO.userRole.roleId = :roleId";
-		Query query = getSession().createQuery(hql);
-		query.setParameter("roleId", roleId);
-		return (Long)query.list().get(0);
-	}
+	}	
 }

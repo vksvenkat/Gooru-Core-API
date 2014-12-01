@@ -2809,5 +2809,7 @@ public interface ParameterProperties {
 	String _ROLE = "Role";
 	
 	String GL0103 = "GL0103";
+
+	String APPLICATION = "application";
 }
 

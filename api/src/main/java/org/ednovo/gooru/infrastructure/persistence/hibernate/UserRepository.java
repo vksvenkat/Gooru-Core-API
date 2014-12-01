@@ -195,21 +195,18 @@ public interface UserRepository extends BaseRepository {
 
 	List<UserRole> findUserRoles(String userUid);
 
-	Long countRoles(String userUid);
+	Long countRoles();
 	
 	EntityOperation getEntityOperationByEntityOperationId(Integer entityOperationId);
 	
-	List<EntityOperation> findAllEntityNames();
+	List<EntityOperation> findAllEntityNames(Integer offset, Integer limit);
 	
 	Long countAllEntityNames();
 
 	List<EntityOperation> findOperationsByEntityName(String entityName);
 	
-	Long countOperationsByEntityName(String entityName);
-	
 	UserRoleAssoc findUserRoleAssocEntryByRoleIdAndUserUid(Integer roleId, String userUid);
 	
 	List<RoleEntityOperation> findRoleOperationsByRoleId(Integer roleId);
 	
-	Long countRoleOperationsByRoleId(Integer roleId);
 }

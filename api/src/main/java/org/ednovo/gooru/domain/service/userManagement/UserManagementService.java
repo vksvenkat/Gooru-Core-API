@@ -116,7 +116,7 @@ public interface UserManagementService extends BaseService {
 	 
 	 SearchResults<UserRole> findAllRoles(Integer offset, Integer limit);
 	 
-	 SearchResults<UserRole> findUserRoles(String userUId);
+	 List<UserRole> findUserRoles(String userUId);
 	 
 	 ActionResponseDTO<UserRole> createNewRole(UserRole userRole, User user) throws Exception;
 
@@ -126,9 +126,9 @@ public interface UserManagementService extends BaseService {
 	 
 	 EntityOperation getEntityOperationByEntityOperationId(Integer entityOperationId);
 
-	 SearchResults<EntityOperation> findAllEntityNames();
+	 SearchResults<EntityOperation> findAllEntityNames(Integer offset, Integer limit);
 	 
-	 SearchResults<EntityOperation> getOperationsByEntityName(String entityName);
+	 List<EntityOperation> getOperationsByEntityName(String entityName);
 	 
 	 UserRoleAssoc assignRoleByUserUid(Integer roleId,String userUid) throws Exception;
 	 
@@ -136,5 +136,5 @@ public interface UserManagementService extends BaseService {
 	 
 	 UserRole getRoleByRoleId(Integer roleId);
 	 
-	 SearchResults<RoleEntityOperation> getRoleOperationsByRoleId(Integer roleId);
+	 List<RoleEntityOperation> getRoleOperationsByRoleId(Integer roleId);
 }

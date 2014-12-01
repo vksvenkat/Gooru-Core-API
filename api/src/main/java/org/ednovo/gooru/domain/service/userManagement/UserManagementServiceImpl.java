@@ -223,7 +223,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	@Override
 	public Profile getUserProfile(String gooruUid, Integer activeFlag) {
 		User user = this.findByGooruId(gooruUid);
-		if (user == null || user.getGooruUId().contains(ANONYMOUS)) {
+		if (user == null || user.getGooruUId().toLowerCase().contains(ANONYMOUS)) {
 			throw new BadRequestException(generateErrorMessage(GL0056, USER));
 		}
 		Profile profile = this.getUserRepository().getProfile(user, false);
@@ -1003,16 +1003,14 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		if (user == null) {
 			throw new BadRequestException(generateErrorMessage("GL0056","User"));
 		}
-		if (user != null && !user.getGooruUId().contains(ANONYMOUS)) {
+		if (user != null && !user.getGooruUId().toLowerCase().contains(ANONYMOUS)) {
 			user.setMeta(userMeta(user));
-		}
-		if (user != null && !user.getGooruUId().contains(ANONYMOUS)) {
 			if (user.getAccountTypeId() != null && user.getAccountTypeId().equals(UserAccountType.ACCOUNT_CHILD)) {
 				if (user.getParentUser().getIdentities() != null) {
 					user.setEmailId(user.getParentUser().getIdentities().iterator().next().getExternalId());
 				}
 			} else {
-				if (user.getIdentities() != null) {
+				if (user.getIdentities() != null & user.getIdentities().size() > 0) {
 					user.setEmailId(user.getIdentities().iterator().next().getExternalId());
 				}
 			}
@@ -1034,7 +1032,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	@Override
 	public User resetPasswordRequest(String emailId, String gooruBaseUrl, User apicaller, String mailConfirmationUrl) throws Exception {
 		Identity identity = new Identity();
-		if (apicaller != null && !apicaller.getGooruUId().contains(Constants.ANONYMOUS)) {
+		if (apicaller != null && !apicaller.getGooruUId().toLowerCase().contains(Constants.ANONYMOUS)) {
 			identity = this.findUserByGooruId(apicaller.getGooruUId());
 		} else {
 			identity = this.getUserRepository().findByEmailIdOrUserName(emailId, true, false);
@@ -1409,16 +1407,13 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	public SearchResults<UserRole> findAllRoles(Integer offset, Integer limit) {
 		SearchResults<UserRole> result = new SearchResults<UserRole>();
 		result.setSearchResults(this.getUserRepository().findAllRoles(offset,limit));
-		result.setTotalHitCount(this.getUserRepository().countRoles(null));
+		result.setTotalHitCount(this.getUserRepository().countRoles());
 		return result;
 	}
 
 	@Override
-	public SearchResults<UserRole> findUserRoles(String userUid) {
-		SearchResults<UserRole> result = new SearchResults<UserRole>();
-		result.setSearchResults(this.getUserRepository().findUserRoles(userUid));
-		result.setTotalHitCount(this.getUserRepository().countRoles(userUid));
-		return result;
+	public List<UserRole> findUserRoles(String userUid) {
+		return this.getUserRepository().findUserRoles(userUid);
 	}
 
 	@Override
@@ -1447,7 +1442,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	        roleEntityOperation.setEntityOperation(entityOperation);
 	        getUserRepository().save(roleEntityOperation);
 	    }
-		
+		indexProcessor.index(user.getPartyUid(), IndexProcessor.INDEX, USER);
 		return new ActionResponseDTO<UserRole>(userRole, errors);
 	}
 	
@@ -1491,19 +1486,16 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	}
 	
 	@Override
-	public SearchResults<EntityOperation> findAllEntityNames() {
+	public SearchResults<EntityOperation> findAllEntityNames(Integer offset, Integer limit) {
 		SearchResults<EntityOperation> result = new SearchResults<EntityOperation>();
-		result.setSearchResults(this.getUserRepository().findAllEntityNames());
+		result.setSearchResults(this.getUserRepository().findAllEntityNames(offset, limit));
 		result.setTotalHitCount(this.getUserRepository().countAllEntityNames());
 		return  result;
 	}
 
 	@Override
-	public SearchResults<EntityOperation> getOperationsByEntityName(String entityName) {
-		SearchResults<EntityOperation> result = new SearchResults<EntityOperation>();
-		result.setSearchResults(this.getUserRepository().findOperationsByEntityName(entityName));
-		result.setTotalHitCount(this.getUserRepository().countOperationsByEntityName(entityName));
-		return  result;
+	public List<EntityOperation> getOperationsByEntityName(String entityName) {
+		return  this.getUserRepository().findOperationsByEntityName(entityName);
 	}	
 
 	@Override
@@ -1511,7 +1503,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			throws Exception {
 		User user = userRepository.findUserByPartyUid(userUid);
 		UserRole role = userRepository.findUserRoleByRoleId(roleId);
-		rejectIfNull(role, GL0010, 404, "Role ");
+		rejectIfNull(role, GL0056,ROLE );
 		UserRoleAssoc userRoleAssoc = userRepository.findUserRoleAssocEntryByRoleIdAndUserUid(roleId, userUid);
 		if (userRoleAssoc != null) {
 			throw new BadRequestException(generateErrorMessage(GL0041, "User role "));
@@ -1520,6 +1512,8 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		userRoleAssoc.setUser(user);
 		userRoleAssoc.setRole(role);
 		getUserRepository().save(userRoleAssoc);
+		getUserRepository().flush();
+		indexProcessor.index(user.getPartyUid(), IndexProcessor.INDEX, USER);
 		return userRoleAssoc;
 	}
 	
@@ -1527,7 +1521,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	public void removeAssignedRoleByUserUid(Integer roleId, String userUid)
 			throws Exception {
 		UserRoleAssoc userRoleAssoc = userRepository.findUserRoleAssocEntryByRoleIdAndUserUid(roleId, userUid);
-		rejectIfNull(userRoleAssoc, GL0102,404, "Role ");
+		rejectIfNull(userRoleAssoc, GL0102, "Role ");
 		getUserRepository().remove(userRoleAssoc);
 	}
 	
@@ -1539,11 +1533,8 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	}
 	
 	@Override
-	public SearchResults<RoleEntityOperation> getRoleOperationsByRoleId(Integer roleId){
-		SearchResults<RoleEntityOperation> result = new SearchResults<RoleEntityOperation>();
-		result.setSearchResults(this.getUserRepository().findRoleOperationsByRoleId(roleId));
-		result.setTotalHitCount(this.getUserRepository().countRoleOperationsByRoleId(roleId));
-		return result;
+	public List<RoleEntityOperation> getRoleOperationsByRoleId(Integer roleId){
+		return this.getUserRepository().findRoleOperationsByRoleId(roleId);
 	}
 	
 	public IdpRepository getIdpRepository() {

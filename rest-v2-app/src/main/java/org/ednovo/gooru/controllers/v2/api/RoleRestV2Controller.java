@@ -108,9 +108,9 @@ public class RoleRestV2Controller extends BaseController implements
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ROLE_LIST })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/entity")
-	public ModelAndView listEntityNames(HttpServletRequest request,HttpServletResponse response) throws Exception {
+	public ModelAndView listEntityNames(@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,HttpServletRequest request,HttpServletResponse response) throws Exception {
 
-		return toModelAndViewWithIoFilter(this.getUserManagementService().findAllEntityNames(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, ENTITY_INCLUDES);
+		return toModelAndViewWithIoFilter(this.getUserManagementService().findAllEntityNames(offset,limit), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, ENTITY_INCLUDES);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ROLE_LIST })
@@ -131,7 +131,7 @@ public class RoleRestV2Controller extends BaseController implements
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ROLE_DELETE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	@RequestMapping(method = RequestMethod.DELETE, value = "/assignRole/{userUid}")
+	@RequestMapping(method = RequestMethod.DELETE, value = "/removeRole/{userUid}")
 	public void removeAssignedRoleByUserUid(HttpServletRequest request,HttpServletResponse response,@PathVariable(USER_UID) String userUid, @RequestBody String data) throws Exception {
 
 		this.getUserManagementService().removeAssignedRoleByUserUid(this.buildRoleFromInputParameters(data).getRoleId(), userUid);

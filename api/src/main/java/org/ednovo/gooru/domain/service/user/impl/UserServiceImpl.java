@@ -911,9 +911,9 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 			Set<UserRoleAssoc> roleSet = new HashSet<UserRoleAssoc>();
 			final List<UserRole> userRoles = this.getUserRepository().findRolesByNames(roles);
 			Set<UserRoleAssoc> currentRoles = user.getUserRoleSet();
-			if (userRoles != null) {
-				for (UserRole userRole : userRoles) {
-					if (!currentRoles.contains(userRole)) {
+			for (UserRole userRole : userRoles) {
+				for (UserRoleAssoc currenRole : currentRoles) {
+					if (!currenRole.getRole().equals(userRole)) {
 						UserRoleAssoc userRoleAssoc = new UserRoleAssoc();
 						userRoleAssoc.setRole(userRole);
 						userRoleAssoc.setUser(user);
