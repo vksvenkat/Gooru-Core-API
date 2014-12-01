@@ -44,9 +44,11 @@ import org.ednovo.gooru.domain.service.search.SearchResults;
  */
 public interface CollectionService extends ScollectionService {
 
-	ActionResponseDTO<CollectionItem> createQuestionWithCollectionItem(String collectionId, String data, User user, String questionImgSrc) throws Exception;
+	ActionResponseDTO<CollectionItem> createQuestionWithCollectionItem(String collectionId, String data, User user, String questionImgSrc, String sourceReference) throws Exception;
 	
 	ActionResponseDTO<CollectionItem> updateQuestionWithCollectionItem(String collectionItemId, String data, List<Integer> deleteAssets, User user, String questionImgSrc) throws Exception;
+	
+	ActionResponseDTO<CollectionItem> updateQuestionWithCollectionItem(String gooruOid, String questionGooruOid, String data, List<Integer> deleteAssets, User user, String mediaFileName) throws Exception;
 
 	ActionResponseDTO<CollectionItem> moveCollectionToFolder(String sourceId, String taregetId, User user) throws Exception;
 
@@ -76,7 +78,6 @@ public interface CollectionService extends ScollectionService {
 	
 	SearchResults<Collection> getCollections(Integer offset, Integer limit, User user, String publishStatus);
 	
-	String getFolderItemsWithCache(String gooruOid, Integer limit, Integer offset, String sharing, String collectionType, String orderBy, Integer itemLimit, boolean fetchChildItem, boolean clearCache,User user);
-	
+	String getFolderItemsWithCache(String gooruOid, Integer limit, Integer offset, String sharing, String collectionType, String orderBy, Integer itemLimit, boolean fetchChildItem, boolean clearCache,User user);	
 	
 }
