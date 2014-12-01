@@ -37,7 +37,6 @@ import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.ContentMetaDTO;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.ResourceSummary;
-import org.ednovo.gooru.core.api.model.ContentSettings;
 import org.ednovo.gooru.core.api.model.StandardFo;
 import org.ednovo.gooru.core.api.model.User;
 import org.springframework.util.MultiValueMap;
