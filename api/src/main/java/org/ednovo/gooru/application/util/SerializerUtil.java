@@ -28,7 +28,9 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.cassandra.cli.CliParser.newColumnFamily_return;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.zookeeper.proto.op_result_t;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.ContentPermission;
@@ -206,7 +208,7 @@ public class SerializerUtil implements ParameterProperties {
 			try {
 				model = protocolSwitch(model);
 				serializedData = deepSerialize ? serializer.deepSerialize(model) : serializer.serialize(model);
-				log(model, serializedData);
+ 		        log(model, serializedData);
 
 			} catch (Exception ex) {
 				if (model instanceof Resource) {
@@ -302,16 +304,16 @@ public class SerializerUtil implements ParameterProperties {
 				org.json.simple.JSONObject payLoadObject = null;
 				payLoadParser = new org.json.simple.parser.JSONParser();
 				try {
-					if (SessionContextSupport.getLog() != null && SessionContextSupport.getLog().get("payLoadObject") != null) {
-
-						payLoadObject = (org.json.simple.JSONObject) payLoadParser.parse(SessionContextSupport.getLog().get("payLoadObject").toString());
-
-					} else {
-						payLoadObject = new org.json.simple.JSONObject();
-					}
 					if (data != null) {
-						payLoadObject.putAll((org.json.simple.JSONObject) new org.json.simple.parser.JSONParser().parse(data));
-					}
+						payLoadObject = (org.json.simple.JSONObject) new org.json.simple.parser.JSONParser().parse(data);
+						}
+						if (SessionContextSupport.getLog() != null && SessionContextSupport.getLog().get("payLoadObject") != null) {
+
+						payLoadObject.putAll((org.json.simple.JSONObject) payLoadParser.parse(SessionContextSupport.getLog().get("payLoadObject").toString()));
+
+						} else {
+						payLoadObject = new org.json.simple.JSONObject();
+						}
 				} catch (Exception e) {
 					payLoadObject = new org.json.simple.JSONObject();
 				}
