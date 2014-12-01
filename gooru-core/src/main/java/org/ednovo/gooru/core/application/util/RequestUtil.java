@@ -364,4 +364,19 @@ public class RequestUtil implements ParameterProperties {
 		return null;
 
 	}
+	
+	public static String executeRestAPI(String data, String requestUrl, String requestType, String sessionToken) {
+		try {
+			if (sessionToken != null) {
+				Representation representation = executeMethod(new ClientResource(requestUrl + "?sessionToken=" + sessionToken), data, requestType);
+				return representation != null ? representation.getText() : null;
+			} else {
+				logger.error("session token cannot be null!");
+			}
+		} catch (Exception e) {
+
+		}
+		return null;
+
+	}
 }

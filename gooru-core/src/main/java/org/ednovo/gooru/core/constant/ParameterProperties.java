@@ -2801,5 +2801,7 @@ public interface ParameterProperties {
 	String GL0101 = "GL0101";
 	
 	String GL0102 = "GL0102";
+	
+	String APPLICATION = "application";
 }
 

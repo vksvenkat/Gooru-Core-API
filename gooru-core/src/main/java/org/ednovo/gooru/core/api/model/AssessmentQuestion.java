@@ -6,9 +6,8 @@ import java.util.Set;
 
 import org.ednovo.gooru.core.application.util.BaseUtil;
 
-
 public class AssessmentQuestion extends Resource {
-	
+
 	/**
 	 * 
 	 */
@@ -17,12 +16,12 @@ public class AssessmentQuestion extends Resource {
 	private static final String INDEX_TYPE = "question";
 
 	public static enum TYPE {
-		MULTIPLE_CHOICE("MC", 1), SHORT_ANSWER("SA", 2), TRUE_OR_FALSE("T/F", 3), FILL_IN_BLANKS("FIB", 4), MATCH_THE_FOLLOWING("MTF",5),OPEN_ENDED("OE",6), MULTIPLE_ANSWERS("MA",7);
+		MULTIPLE_CHOICE("MC", "1"), SHORT_ANSWER("SA", "2"), TRUE_OR_FALSE("T/F", "3"), FILL_IN_BLANKS("FIB", "4"), MATCH_THE_FOLLOWING("MTF", "5"), OPEN_ENDED("OE", "6"), MULTIPLE_ANSWERS("MA", "7");
 
 		private String name;
-		private int id;
+		private String id;
 
-		TYPE(String name, int id) {
+		TYPE(String name, String id) {
 			this.name = name;
 			this.id = id;
 		}
@@ -31,7 +30,7 @@ public class AssessmentQuestion extends Resource {
 			return name;
 		}
 
-		public int getId() {
+		public String getId() {
 			return id;
 		}
 	}
@@ -40,7 +39,7 @@ public class AssessmentQuestion extends Resource {
 
 	private String label;
 
-	private Integer type;
+	private String type;
 
 	private String typeName;
 
@@ -89,9 +88,8 @@ public class AssessmentQuestion extends Resource {
 	private Double score;
 
 	private String assessmentGooruId;
-	
+
 	private String quizNetwork;
-	
 
 	public AssessmentQuestion() {
 	}
@@ -112,27 +110,27 @@ public class AssessmentQuestion extends Resource {
 		this.label = label;
 	}
 
-	public Integer getType() {
+	public String getType() {
 		return type;
 	}
 
-	public void setType(Integer type) {
+	public void setType(String type) {
 		if (type != null) {
 			this.type = type;
-			if (type == TYPE.MULTIPLE_CHOICE.getId()) {
+			if (type.equalsIgnoreCase(TYPE.MULTIPLE_CHOICE.getId())) {
 				typeName = TYPE.MULTIPLE_CHOICE.getName();
-			} else if (type == TYPE.SHORT_ANSWER.getId()) {
+			} else if (type.equalsIgnoreCase(TYPE.SHORT_ANSWER.getId())) {
 				typeName = TYPE.SHORT_ANSWER.getName();
-			} else if (type == TYPE.TRUE_OR_FALSE.getId()) {
+			} else if (type.equalsIgnoreCase(TYPE.TRUE_OR_FALSE.getId())) {
 				typeName = TYPE.TRUE_OR_FALSE.getName();
-			}else if(type == TYPE.FILL_IN_BLANKS.getId()){
+			} else if (type.equalsIgnoreCase(TYPE.FILL_IN_BLANKS.getId())) {
 				typeName = TYPE.FILL_IN_BLANKS.getName();
-			}else if(type == TYPE.MATCH_THE_FOLLOWING.getId()){
+			} else if (type.equalsIgnoreCase(TYPE.MATCH_THE_FOLLOWING.getId())) {
 				typeName = TYPE.MATCH_THE_FOLLOWING.getName();
-			}else if(type == TYPE.OPEN_ENDED.getId()){
+			} else if (type.equalsIgnoreCase(TYPE.OPEN_ENDED.getId())) {
 				typeName = TYPE.OPEN_ENDED.getName();
-			}else if(type==TYPE.MULTIPLE_ANSWERS.getId()){
-				typeName=TYPE.MULTIPLE_ANSWERS.getName();
+			} else if (type.equalsIgnoreCase(TYPE.MULTIPLE_ANSWERS.getId())) {
+				typeName = TYPE.MULTIPLE_ANSWERS.getName();
 			}
 		} else if (typeName == null) {
 			this.type = type;
@@ -254,9 +252,11 @@ public class AssessmentQuestion extends Resource {
 				type = TYPE.MATCH_THE_FOLLOWING.getId();
 			} else if (typeName.equals(TYPE.OPEN_ENDED.getName())) {
 				type = TYPE.OPEN_ENDED.getId();
-			} else if (typeName.equals(TYPE.MULTIPLE_ANSWERS.getName())){
-				type= TYPE.MULTIPLE_ANSWERS.getId();
-			}
+			} else if (typeName.equals(TYPE.MULTIPLE_ANSWERS.getName())) {
+				type = TYPE.MULTIPLE_ANSWERS.getId();
+
+			} 
+
 		}
 	}
 
@@ -356,31 +356,30 @@ public class AssessmentQuestion extends Resource {
 	public void setQuizNetwork(String quizNetwork) {
 		this.quizNetwork = quizNetwork;
 	}
+
 	@Override
 	public Thumbnail getThumbnails() {
 		Thumbnail questionThumbnail = super.getThumbnails();
-		if(getAssets() != null) {
-			if(questionThumbnail == null){
+		if (getAssets() != null) {
+			if (questionThumbnail == null) {
 				questionThumbnail = new Thumbnail();
 			}
-			for(AssessmentQuestionAssetAssoc assests : getAssets()) {
-				if(assests != null && assests.getAsset() != null && BaseUtil.getYoutubeVideoId(assests.getAsset().getName()) != null || assests.getAsset().getName().contains("http://www.youtube.com")){
-					questionThumbnail.setUrl("img.youtube.com/vi/"+ BaseUtil.getYoutubeVideoId(assests.getAsset().getUrl()) + "/1.jpg");
+			for (AssessmentQuestionAssetAssoc assests : getAssets()) {
+				if (assests != null && assests.getAsset() != null && BaseUtil.getYoutubeVideoId(assests.getAsset().getName()) != null || assests.getAsset().getName().contains("http://www.youtube.com")) {
+					questionThumbnail.setUrl("img.youtube.com/vi/" + BaseUtil.getYoutubeVideoId(assests.getAsset().getUrl()) + "/1.jpg");
 				} else {
-					questionThumbnail.setUrl(getAssetURI() + getFolder() + (assests == null  || assests.getAsset() == null  ?  null : assests.getAsset().getName()));
+					questionThumbnail.setUrl(getAssetURI() + getFolder() + (assests == null || assests.getAsset() == null ? null : assests.getAsset().getName()));
 				}
 				break;
 			}
 		}
 		return questionThumbnail;
 	}
-	
 
 	public String getQuizNetwork() {
 		return quizNetwork;
 	}
-	
-	
+
 	@Override
 	public String getIndexType() {
 		return INDEX_TYPE;
