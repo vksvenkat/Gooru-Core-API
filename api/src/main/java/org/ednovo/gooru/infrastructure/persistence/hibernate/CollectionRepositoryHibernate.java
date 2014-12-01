@@ -230,7 +230,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		List<Classpage> classpage = query.list();
 		return (classpage.size() != 0) ? classpage.get(0) : null;
 	}
-
+	
 	@SuppressWarnings("unchecked")
 	@Override
 	public CollectionItem getCollectionItemById(String collectionItemId) {
@@ -252,14 +252,11 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<CollectionItem> getCollectionItemByAssociation(String resourceGooruOid, String gooruUid, String type, Boolean fetchWithParent) {
+	public List<CollectionItem> getCollectionItemByAssociation(String resourceGooruOid, String gooruUid, String type) {
 		String sql = "FROM CollectionItem collectionItem WHERE  collectionItem.resource.gooruOid=:resourceGooruOid  and  " + generateOrgAuthQuery("collectionItem.collection.");
 		String collectionType = "";
 		if (gooruUid != null) {
 			sql += " and collectionItem.associatedUser.partyUid=:gooruUid";
-		}
-		if (fetchWithParent != null && fetchWithParent) {
-			sql += " or collectionItem.collection.gooruOid =:resourceGooruOid ";
 		}
 		
 		if (type != null) {
@@ -621,6 +618,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 	public List<CollectionItem> getCollectionItems(String collectionId, Integer offset, Integer limit, String orderBy, String type) {
 		String hql = "select collectionItems  FROM Collection collection inner join collection.collectionItems collectionItems where collection.gooruOid=:gooruOid and " + generateOrgAuthQuery("collection.");
 		if (type != null && type.equalsIgnoreCase("classpage")) {
+			
 			hql += " and collectionItems.resource.sharing in('public','anyonewithlink') ";
 		}
 		
@@ -1087,4 +1085,12 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		return query.list();
 	}
 
+	public CollectionItem getCollectionItemByResourceOid(String collectionId, String resourceId) {
+		Query query = getSession().createQuery("FROM CollectionItem collectionItem WHERE  collectionItem.collection.gooruOid=:collectionId and collectionItem.resource.gooruOid=:resourceId  and "+ generateOrgAuthQuery("collectionItem.collection."));
+		query.setParameter("resourceId", resourceId);
+		query.setParameter("collectionId", collectionId);
+		addOrgAuthParameters(query);
+		List<CollectionItem> collectionItems = query.list();
+		return (collectionItems.size() != 0) ? collectionItems.get(0) : null;
+	}
 }

@@ -79,7 +79,11 @@ public interface ContentRepository extends BaseRepository {
 	
 	List<Object[]> getUserContentTagList(String gooruUid, Integer limit, Integer offset);
 	
+	List<Object[]> getResourceContentTagList(String gooruOid, Integer limit, Integer offset);
+	
 	Long getUserContentTagCount(String gooruUid);
+	
+	Long getResourceContentTagCount(String gooruOid);
 	
 	ContentProvider getContentProviderByName(String name, String keyValue);
 	

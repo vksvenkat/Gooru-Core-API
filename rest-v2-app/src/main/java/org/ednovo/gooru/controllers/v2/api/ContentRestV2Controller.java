@@ -117,6 +117,14 @@ public class ContentRestV2Controller extends BaseController implements ConstantP
 		
 		return toModelAndView(serialize(this.getContentService().getUserContentTagList(gooruUid,limit,offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, false, true, USER_CONTENT_TAGS_INCLUDES));
 	}
+	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAG_READ })
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(method = { RequestMethod.GET }, value = "/resource/tag/{id}")
+	public ModelAndView getResourceContentTagList(@PathVariable(value = ID) String gooruOid, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, HttpServletRequest request,
+			HttpServletResponse response) {
+		return toModelAndView(serialize(this.getContentService().getResourceContentTagList(gooruOid, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, false, true, USER_CONTENT_TAGS_INCLUDES));
+	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CONTENT_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)

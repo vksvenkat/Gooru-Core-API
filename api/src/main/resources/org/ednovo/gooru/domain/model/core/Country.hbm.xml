@@ -28,7 +28,7 @@
 
 <hibernate-mapping>
     <class name="org.ednovo.gooru.core.api.model.Country" table="country">
-	    <id name="countryId" column="country_id" />			 
+	    <id name="countryId" column="country_id"/>			 
 		<property
 	        name="name"
 	        column="name"

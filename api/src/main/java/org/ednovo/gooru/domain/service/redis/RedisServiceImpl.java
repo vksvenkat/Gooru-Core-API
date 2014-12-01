@@ -84,7 +84,7 @@ public class RedisServiceImpl implements RedisService, ParameterProperties, Cons
 
 	@Autowired
 	private String releaseVersion;
-	
+
 	@Override
 	public Long getCount(String gooruOId, String type) {
 
@@ -256,6 +256,7 @@ public class RedisServiceImpl implements RedisService, ParameterProperties, Cons
 
 		return countKey;
 	}
+
 	private String getRedisInstance() {
 		try {
 			if (redisInstanceName == null) {
@@ -389,24 +390,34 @@ public class RedisServiceImpl implements RedisService, ParameterProperties, Cons
 	}
 
 	@Override
+	public void put(String key, String value) {
+		ValueOperations<String, String> valueOperations = getValueOperation();
+		try {
+			valueOperations.set(key, value);
+		} catch (Exception e) {
+			System.out.println("Redis Error" + e);
+		}
+	}
+
+	@Override
 	public void deleteKey(String key) {
 		redisStringTemplate.delete(returnSanitizedKey(key));
 	}
-	
+
 	@Override
 	public void bulkKeyDelete(String keyWildCard) {
 		Set<String> keys = this.getkeys(keyWildCard);
-		if(keys.size() > 0) {
+		if (keys.size() > 0) {
 			Iterator<String> iterator = keys.iterator();
-			while(iterator.hasNext()) {
-				redisStringTemplate.delete(iterator.next());				
+			while (iterator.hasNext()) {
+				redisStringTemplate.delete(iterator.next());
 			}
 		}
 	}
 
 	private String returnSanitizedKey(final String key) {
-		return   BaseUtil.appendProtocol(StringUtils.replace(key, " ", "")) + "_" + getReleaseVersion();	
-	}  
+		return BaseUtil.appendProtocol(StringUtils.replace(key, " ", "")) + "_" + getReleaseVersion();
+	}
 
 	@Override
 	public Set<String> getkeys(String key) {
@@ -422,6 +433,7 @@ public class RedisServiceImpl implements RedisService, ParameterProperties, Cons
 			System.out.println("Redis Error" + e);
 		}
 	}
+
 	public String getReleaseVersion() {
 		return releaseVersion;
 	}

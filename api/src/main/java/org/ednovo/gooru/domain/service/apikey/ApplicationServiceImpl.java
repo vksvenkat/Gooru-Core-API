@@ -102,7 +102,7 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 	@Override
 	public Application updateApplication(Application newapplication, String apiKey) {
 		Application application = this.getApplicationRepository().getApplication(apiKey);
-		rejectIfNull(application, GL0056, 404, "Application ");
+		rejectIfNull(application, GL0056, APPLICATION);
 		if (newapplication.getTitle() != null) {
 			application.setTitle(newapplication.getTitle());
 		}
@@ -131,6 +131,7 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 	@Override
 	public Application getApplication(String apiKey) {
 		Application application = this.getApplicationRepository().getApplication(apiKey);
+		rejectIfNull(application, GL0056,APPLICATION );
 		application.setApplicationItems(this.getApplicationRepository().getApplicationItemByApiKey(apiKey));
 		application.setOauthClients(oAuthRepository.findOAuthClientByApplicationKey(apiKey));
 		return application;
@@ -147,7 +148,7 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 	@Override
 	public void deleteApplication(String apiKey) {
 		Application application = this.getApplicationRepository().getApplication(apiKey);
-		rejectIfNull(application, GL0056, 404, "Application ");
+		rejectIfNull(application, GL0056, APPLICATION);
 		this.getApplicationRepository().remove(application);
 	}
 

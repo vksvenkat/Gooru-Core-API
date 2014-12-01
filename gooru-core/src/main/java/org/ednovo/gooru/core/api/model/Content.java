@@ -11,80 +11,85 @@ import javax.persistence.Column;
 import javax.persistence.Id;
 
 import org.ednovo.gooru.core.cassandra.model.IsCassandraIndexable;
+import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.core.type.TypeReference;
+
+import flexjson.JSONDeserializer;
+import flexjson.JSONSerializer;
 //import javax.persistence.Column;
 //import javax.persistence.Id;
 
 @JsonFilter("content")
 public class Content extends OrganizationModel implements IndexableEntry, IsCassandraIndexable {
 
-
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -760986616350656864L;
 
-	
 	private static final String INDEX_TYPE = "content";
-	
+
 	@Id
 	private Long contentId;
-	
+
 	@Column
 	private String gooruOid;
-	
+
 	@Column
 	private String sharing;
-	
+
 	@Column
 	private Date createdOn;
-	
+
 	@Column
 	private Date lastModified;
-	
+
 	@Column
 	private String lastModifiedString;
-	
+
 	@Column
 	private User user;
-	
+
 	@Column
 	private User creator;
-	
+
 	@Column
 	private String lastUpdatedUserUid;
-	
+
 	@Column
 	private Integer version;
-	
-	
+
 	private ContentType contentType;
-	
+
 	@JsonManagedReference
 	private Set<Code> taxonomySet = new HashSet<Code>();
-	
+
 	@JsonManagedReference
 	private Set<ContentMetaAssociation> contentMetaAssoc = new HashSet<ContentMetaAssociation>();
 
 	private Set<ContentPermission> contentPermissions;
-	
+
 	@Column
 	private String revisionHistoryUid;
-	
+
 	private CustomTableValue statusType;
-	
+
 	private List<Tag> tagSet;
-	
+
 	private Boolean isDeleted;
-	
+
 	private Map<String, Object> meta;
+
+	private Map<String, String> settings;
+
+	private Set<ContentSettings> contentSettings;
 
 	public Long getContentId() {
 		return contentId;
 	}
-	
 
 	public void setContentId(Long contentId) {
 		this.contentId = contentId;
@@ -269,22 +274,41 @@ public class Content extends OrganizationModel implements IndexableEntry, IsCass
 		return meta;
 	}
 
-
 	public void setContentMetaAssoc(Set<ContentMetaAssociation> contentMetaAssoc) {
 		this.contentMetaAssoc = contentMetaAssoc;
 	}
 
-
 	public Set<ContentMetaAssociation> getContentMetaAssoc() {
 		return contentMetaAssoc;
 	}
-	
+
 	public Integer getVersion() {
 		return version;
 	}
-	
+
 	public void setVersion(Integer version) {
 		this.version = version;
+	}
+
+	public Set<ContentSettings> getContentSettings() {
+		return contentSettings;
+	}
+
+	public Map<String, String> getSettings() {
+		if (getContentSettings() != null && getContentSettings().size() > 0) {
+			ContentSettings contentSettings = getContentSettings().iterator().next();
+			return JsonDeserializer.deserialize(contentSettings.getData(), new TypeReference<Map<String, String>>() {
+			});
+		}
+		return settings;
+	}
+
+	public void setSettings(Map<String, String> settings) {
+		this.settings = settings;
+	}
+
+	public void setContentSettings(Set<ContentSettings> contentSettings) {
+		this.contentSettings = contentSettings;
 	}
 
 }
