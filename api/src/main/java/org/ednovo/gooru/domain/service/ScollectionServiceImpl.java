@@ -388,15 +388,22 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				this.mailHandler.handleMailEvent(data);
 
 			}
-			if (collection.getSettings() != null) {
-				Set<ContentSettings> contentSettingsObj = new HashSet<ContentSettings>();
-				ContentSettings contentSetting = new ContentSettings();
-				contentSetting.setContent(collection);
+
+			
+			Set<ContentSettings> contentSettingsObj = new HashSet<ContentSettings>();
+			ContentSettings contentSetting = new ContentSettings();
+			contentSetting.setContent(collection);
+			if (collection.getSettings() != null && collection.getSettings().size() > 0) {
 				contentSetting.setData(new JSONSerializer().exclude("*.class").serialize(collection.getSettings()));
-				this.getCollectionRepository().save(contentSetting);
-				contentSettingsObj.add(contentSetting);
-				collection.setContentSettings(contentSettingsObj);
+			} else {
+				Map<String, String> map = new HashMap<String, String>();
+				map.put("comment", "turn-on");
+				contentSetting.setData(new JSONSerializer().exclude("*.class").serialize(map));
 			}
+			this.getCollectionRepository().save(contentSetting);
+			contentSettingsObj.add(contentSetting);
+			collection.setContentSettings(contentSettingsObj);
+
 			getAsyncExecutor().createVersion(collection, SCOLLECTION_CREATE, user.getPartyUid());
 
 			getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collection.getUser().getPartyUid() + "*");
