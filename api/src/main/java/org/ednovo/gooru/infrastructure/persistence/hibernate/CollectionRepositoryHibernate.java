@@ -1085,6 +1085,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		return query.list();
 	}
 
+	@Override
 	public CollectionItem getCollectionItemByResourceOid(String collectionId, String resourceId) {
 		Query query = getSession().createQuery("FROM CollectionItem collectionItem WHERE  collectionItem.collection.gooruOid=:collectionId and collectionItem.resource.gooruOid=:resourceId  and "+ generateOrgAuthQuery("collectionItem.collection."));
 		query.setParameter("resourceId", resourceId);
