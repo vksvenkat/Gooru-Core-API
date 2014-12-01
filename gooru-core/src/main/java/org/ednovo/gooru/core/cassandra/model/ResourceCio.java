@@ -300,6 +300,12 @@ public class ResourceCio implements IsEntityCassandraIndexable {
 
 	@Column 
 	private Integer isDeleted;
+	
+	@Column
+	private List<String> libraryName;
+	
+	@Column
+	private String libraryNameAnalyzed;
 
 	
 	public Integer getVersion() {
@@ -1045,6 +1051,22 @@ public class ResourceCio implements IsEntityCassandraIndexable {
 
 	public Integer getIsDeleted() {
 		return isDeleted;
+	}
+	
+	public List<String> getLibraryName() {
+		return libraryName;
+	}
+	
+	public void setLibraryName(List<String> libraryName) {
+		this.libraryName = libraryName;
+	}
+
+	public String getLibraryNameAnalyzed() {
+		return libraryNameAnalyzed;
+	}
+	
+	public void setLibraryNameAnalyzed(String libraryNameAnalyzed) {
+		this.libraryNameAnalyzed = libraryNameAnalyzed;
 	}
 }
 
