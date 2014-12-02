@@ -301,18 +301,14 @@ public class SerializerUtil implements ParameterProperties {
 			request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
 			if (request != null && request.getMethod() != null && (request.getMethod().equalsIgnoreCase(RequestMethod.POST.name()) || request.getMethod().equalsIgnoreCase(RequestMethod.PUT.name()))) {
 				org.json.simple.parser.JSONParser payLoadParser = null;
-				org.json.simple.JSONObject payLoadObject = null;
+				org.json.simple.JSONObject payLoadObject = new org.json.simple.JSONObject();
 				payLoadParser = new org.json.simple.parser.JSONParser();
 				try {
-					if (data != null) {
-						payLoadObject = (org.json.simple.JSONObject) new org.json.simple.parser.JSONParser().parse(data);
-						}
-						if (SessionContextSupport.getLog() != null && SessionContextSupport.getLog().get("payLoadObject") != null) {
-
-						payLoadObject.putAll((org.json.simple.JSONObject) payLoadParser.parse(SessionContextSupport.getLog().get("payLoadObject").toString()));
-
-						} else {
-						payLoadObject = new org.json.simple.JSONObject();
+					if (SessionContextSupport.getLog() != null && SessionContextSupport.getLog().get("payLoadObject") != null) {
+						payLoadObject = (org.json.simple.JSONObject) payLoadParser.parse(SessionContextSupport.getLog().get("payLoadObject").toString());
+						} 
+						if (data != null) {
+						payLoadObject.put("data", data);
 						}
 				} catch (Exception e) {
 					payLoadObject = new org.json.simple.JSONObject();
