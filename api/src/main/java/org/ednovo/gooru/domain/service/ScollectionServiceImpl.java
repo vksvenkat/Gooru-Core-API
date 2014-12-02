@@ -388,15 +388,22 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				this.mailHandler.handleMailEvent(data);
 
 			}
-			if (collection.getSettings() != null) {
-				Set<ContentSettings> contentSettingsObj = new HashSet<ContentSettings>();
-				ContentSettings contentSetting = new ContentSettings();
-				contentSetting.setContent(collection);
+
+			
+			Set<ContentSettings> contentSettingsObj = new HashSet<ContentSettings>();
+			ContentSettings contentSetting = new ContentSettings();
+			contentSetting.setContent(collection);
+			if (collection.getSettings() != null && collection.getSettings().size() > 0) {
 				contentSetting.setData(new JSONSerializer().exclude("*.class").serialize(collection.getSettings()));
-				this.getCollectionRepository().save(contentSetting);
-				contentSettingsObj.add(contentSetting);
-				collection.setContentSettings(contentSettingsObj);
+			} else {
+				Map<String, String> map = new HashMap<String, String>();
+				map.put("comment", "turn-on");
+				contentSetting.setData(new JSONSerializer().exclude("*.class").serialize(map));
 			}
+			this.getCollectionRepository().save(contentSetting);
+			contentSettingsObj.add(contentSetting);
+			collection.setContentSettings(contentSettingsObj);
+
 			getAsyncExecutor().createVersion(collection, SCOLLECTION_CREATE, user.getPartyUid());
 
 			getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collection.getUser().getPartyUid() + "*");
@@ -1021,7 +1028,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		return new ActionResponseDTO<CollectionItem>(collectionItem, errors);
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	public String getCollectionWithCache(String collectionId, boolean includeMetaInfo, boolean includeCollaborator, boolean isContentFlag, final User user, String merge, String rootNodeId, boolean isGat, boolean includeCollectionItem, boolean includeRelatedContent,boolean clearCache) {
 		String cacheKey = "v2-collection-data-" + collectionId + "-" + includeMetaInfo + "-" + includeCollaborator + "-" + isContentFlag;
@@ -1036,45 +1042,31 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			data = SerializerUtil.serialize(collection, FORMAT_JSON, EXCLUDE_ALL,false, true, includes(includeCollectionItem, includeMetaInfo, includeRelatedContent));
 			redisService.putValue(cacheKey, data);
 		} else {
-
-			cacheCollection = JsonDeserializer.deserialize(data, new TypeReference<Map<String, Object>>() {
-			});
+			cacheCollection = JsonDeserializer.deserialize(data, new TypeReference<Map<String, Object>>() {});
 			if (cacheCollection != null) {
-			try {
-				cacheCollection.put("viewCount",this.resourceCassandraService.getInt(cacheCollection.get("gooruOid").toString(), "stas.viewsCount"));
-				cacheCollection.put("views",Long.parseLong(this.resourceCassandraService.getInt(cacheCollection.get("gooruOid").toString(), "stas.viewsCount") + ""));
-			} catch (Exception e) {
-				LOGGER.error("parser error : " + e);
-			}
-			for (Map.Entry<String, Object> entry : cacheCollection.entrySet()) {
-				if (entry.getKey().equalsIgnoreCase("collectionItems")) {
-					List<CollectionItem> collectionItems = (List<CollectionItem>) entry.getValue();
-					for (int index = 0; index < collectionItems.size(); index++) {
-						Map<String, Object> collectionItem = (Map<String, Object>) collectionItems.get(index);
-						Map<String, Object> resource = (Map<String, Object>) collectionItem.get("resource");
-						resource.put("viewCount", this.resourceCassandraService.getInt(resource.get("gooruOid").toString(), "stas.viewsCount"));
-						resource.put("views", Long.parseLong(this.resourceCassandraService.getInt(resource.get("gooruOid").toString(), "stas.viewsCount") + ""));
+				try {
+					cacheCollection.put("viewCount", this.resourceCassandraService.getInt(cacheCollection.get("gooruOid").toString(), "stas.viewsCount"));
+					cacheCollection.put("views", Long.parseLong(this.resourceCassandraService.getInt(cacheCollection.get("gooruOid").toString(), "stas.viewsCount") + ""));
+				} catch (Exception e) {
+					LOGGER.error("parser error : " + e);
+				}
+
+				if (merge != null) {
+					Map<String, Object> permissions = new HashMap<String, Object>();
+					if (merge.contains(PERMISSIONS)) {
+						permissions.put(PERMISSIONS, this.getContentService().getContentPermission(collectionId, user));
 					}
-				}
-
-			}
-
-			if (merge != null) {
-				Map<String, Object> permissions = new HashMap<String, Object>();
-				if (merge.contains(PERMISSIONS)) {
-					permissions.put(PERMISSIONS, this.getContentService().getContentPermission(collectionId, user));
-				}
-				if (merge.contains(REACTION_AGGREGATE)) {
-					permissions.put(REACTION_AGGREGATE, this.getFeedbackService().getContentFeedbackAggregate(collectionId, REACTION));
-				}
-				if (merge.contains(COMMENT_COUNT)) {
-					permissions.put(COMMENT_COUNT, this.getCommentRepository().getCommentCount(null, collectionId, null, "notdeleted"));
-				}
-				long collaboratorCount = this.getCollaboratorRepository().getCollaboratorsCountById(collectionId);
-				permissions.put(COLLABORATOR_COUNT, collaboratorCount);
-				permissions.put(IS_COLLABORATOR, isCollaborator);
-				cacheCollection.put("meta", permissions);
-				data = SerializerUtil.serialize(cacheCollection, FORMAT_JSON, EXCLUDE_ALL, false, true,includes(includeCollectionItem, includeMetaInfo, includeRelatedContent));
+					if (merge.contains(REACTION_AGGREGATE)) {
+						permissions.put(REACTION_AGGREGATE, this.getFeedbackService().getContentFeedbackAggregate(collectionId, REACTION));
+					}
+					if (merge.contains(COMMENT_COUNT)) {
+						permissions.put(COMMENT_COUNT, this.getCommentRepository().getCommentCount(null, collectionId, null, "notdeleted"));
+					}
+					long collaboratorCount = this.getCollaboratorRepository().getCollaboratorsCountById(collectionId);
+					permissions.put(COLLABORATOR_COUNT, collaboratorCount);
+					permissions.put(IS_COLLABORATOR, isCollaborator);
+					cacheCollection.put("meta", permissions);
+					data = SerializerUtil.serialize(cacheCollection, FORMAT_JSON, EXCLUDE_ALL, false, true, includes(includeCollectionItem, includeMetaInfo, includeRelatedContent));
 			}
 		}
 		}

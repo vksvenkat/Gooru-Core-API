@@ -176,7 +176,7 @@ public class CommentServiceImpl extends BaseServiceImpl implements CommentServic
 		return isContentOwner;
 	}
 	
-	public void commentMailNotification(Comment comment, User user){
+	public void commentMailNotification(Comment comment, User user) {
 		Map<String, String> commentData = new HashMap<String, String>();
 		if (comment.getComment() != null) {
 
@@ -189,9 +189,11 @@ public class CommentServiceImpl extends BaseServiceImpl implements CommentServic
 			commentData.put(COLLECTION_ID, comment.getGooruOid());
 		}
 		Collection collection = this.getCollectionRepository().getCollectionByGooruOid(comment.getGooruOid(), null);
-		PartyCustomField partyCustomField = this.getPartyRepository().getPartyCustomField(collection.getUser().getGooruUId(), COLLECTION_COMMENT_EMAIL_NOTIFICATION);
-		if(!collection.getUser().getPartyUid().equalsIgnoreCase(user.getPartyUid()) && partyCustomField != null && partyCustomField.getOptionalValue().equals(TRUE) && collection.getMailNotification()){
+		if (collection != null) {
+			PartyCustomField partyCustomField = this.getPartyRepository().getPartyCustomField(collection.getUser().getGooruUId(), COLLECTION_COMMENT_EMAIL_NOTIFICATION);
+			if (!collection.getUser().getPartyUid().equalsIgnoreCase(user.getPartyUid()) && partyCustomField != null && partyCustomField.getOptionalValue().equals(TRUE) && collection.getMailNotification()) {
 				this.getMailAsyncExecuter().sendEmailNotificationforComment(commentData);
+			}
 		}
 	}
 

@@ -1,6 +1,7 @@
 package org.ednovo.gooru.core.api.model;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -83,7 +84,7 @@ public class Content extends OrganizationModel implements IndexableEntry, IsCass
 
 	private Map<String, Object> meta;
 
-	private Map<String, String> settings;
+	private Map<String, String> settings = new HashMap<String, String>();
 
 	private Set<ContentSettings> contentSettings;
 

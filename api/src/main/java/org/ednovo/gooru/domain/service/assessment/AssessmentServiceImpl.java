@@ -515,11 +515,6 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 			}
 			s3ResourceApiHandler.updateOrganization(question);
 
-			Assessment assessment = assessmentRepository.getAssessmentQuestion(question.getGooruOid());
-			if (assessment != null) {
-				this.createRevisionHistoryEntry(assessment.getGooruOid(), ASSESSMENT_QUESTION_CREATE);
-				this.getSessionActivityService().updateSessionActivityByContent(assessment.getGooruOid(), SessionActivityType.Status.ARCHIVE.getStatus());
-			}
 			if (index) {
 				try {
 					indexProcessor.index(question.getGooruOid(), IndexProcessor.INDEX, RESOURCE);
@@ -628,7 +623,12 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 						}
 					}
 				}
-				ResourceType resourceType = (ResourceType) baseRepository.get(ResourceType.class, ResourceType.Type.ASSESSMENT_QUESTION.getType());
+				ResourceType resourceType = null;
+				if (question.getSourceReference() != null && question.getSourceReference().equalsIgnoreCase(ASSESSMENT)) {
+					resourceType = (ResourceType) baseRepository.get(ResourceType.class, ResourceType.Type.AM_ASSESSMENT_QUESTION.getType());
+				} else {
+					resourceType = (ResourceType) baseRepository.get(ResourceType.class, ResourceType.Type.ASSESSMENT_QUESTION.getType());
+				}
 				question.setResourceType(resourceType);
 				question.setTypeName(question.getTypeName());
 				question.setCategory(QUESTION);
@@ -638,7 +638,7 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 				if (existingQuestion == null) {
 					throw new NotFoundException("Resource not found");
 				}
-		
+
 				if (question.getQuestionText() != null) {
 					existingQuestion.setQuestionText(question.getQuestionText());
 				}
@@ -727,7 +727,7 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 
 		if (question.getQuestionText() == null) {
 			throw new BadRequestException("Question Text is mandatory");
-			
+
 		}
 
 		return question;
@@ -1213,7 +1213,7 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 			if (!imageExist) {
 				ServerValidationUtils.rejectIfNullOrEmpty(errors, question.getQuestionText(), QUESTION_TEXT, ErrorMessage.REQUIRED_FIELD);
 			}
-			if (!question.getTypeName().equals(AssessmentQuestion.TYPE.SHORT_ANSWER.getName()) && !question.getTypeName().equals(AssessmentQuestion.TYPE.OPEN_ENDED.getName())) {
+			if (question.getTypeName().equals(AssessmentQuestion.TYPE.SHORT_ANSWER.getName()) && question.getTypeName().equals(AssessmentQuestion.TYPE.OPEN_ENDED.getName())) {
 				ServerValidationUtils.rejectIfNullOrEmpty(errors, question.getAnswers(), ANSWERS, ErrorMessage.REQUIRED_FIELD);
 			}
 		}
@@ -1848,9 +1848,9 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 		xstream.alias(_DEPTH_OF_KNOWLEDGE, ContentMetaDTO.class);
 		xstream.alias(_EDUCATIONAL_USE, ContentMetaDTO.class);
 		AssessmentQuestion question = null;
-		try  {
+		try {
 			question = (AssessmentQuestion) xstream.fromXML(jsonData);
-		} catch (Exception e)  {
+		} catch (Exception e) {
 			throw new BadRequestException(e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
 		}
 		if (addFlag) {

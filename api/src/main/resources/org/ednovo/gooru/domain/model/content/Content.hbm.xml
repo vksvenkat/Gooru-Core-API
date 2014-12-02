@@ -380,7 +380,7 @@
 				<property name="narration" column="narration" not-null="false" />
 				<property name="collectionGooruOid" column="collection_gooru_oid"
 					not-null="false" />
-				<property name="type" column="type" not-null="false" />
+				<property name="type" column="type" not-null="true" />
 				<property name="assessmentGooruOid" column="assessment_gooru_oid"
 					not-null="false" />
 				<property name="requestPending" column="request_pending"
@@ -435,8 +435,9 @@
 			<joined-subclass name="org.ednovo.gooru.core.api.model.AssessmentQuestion"
 				table="assessment_question" lazy="true">
 				<key column="question_id" />
-				<property name="type" column="type" not-null="true" />
-				<property name="importCode" column="import_code" not-null="false" />
+				<property name="type" column="type" not-null="false" />
+				<property name="typeName" column="type_name" not-null="false" />
+			    <property name="importCode" column="import_code" not-null="false" />
 				<property name="difficultyLevel" column="difficulty_level"
 					not-null="false" />
 				<property name="concept" column="concept" not-null="false" />
