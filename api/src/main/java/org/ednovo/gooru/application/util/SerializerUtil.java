@@ -208,7 +208,7 @@ public class SerializerUtil implements ParameterProperties {
 			try {
 				model = protocolSwitch(model);
 				serializedData = deepSerialize ? serializer.deepSerialize(model) : serializer.serialize(model);
- 		        log(model, serializedData);
+				log(model, serializedData);
 
 			} catch (Exception ex) {
 				if (model instanceof Resource) {
@@ -218,7 +218,7 @@ public class SerializerUtil implements ParameterProperties {
 					if (list != null && list.size() > 0 && list.get(0) instanceof Resource) {
 						LOGGER.error("Serialization failed for list resources of size : " + list.size() + " resource : " + ((Resource) list.get(0)).getContentId());
 					}
-				} else { 
+				} else {
 					LOGGER.error("Serialization failed" + ex);
 				}
 				throw new MethodFailureException(ex.getMessage());
@@ -300,18 +300,23 @@ public class SerializerUtil implements ParameterProperties {
 		if (RequestContextHolder.getRequestAttributes() != null) {
 			request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
 			if (request != null && request.getMethod() != null && (request.getMethod().equalsIgnoreCase(RequestMethod.POST.name()) || request.getMethod().equalsIgnoreCase(RequestMethod.PUT.name()))) {
-				org.json.simple.parser.JSONParser payLoadParser = null;
 				org.json.simple.JSONObject payLoadObject = new org.json.simple.JSONObject();
-				payLoadParser = new org.json.simple.parser.JSONParser();
 				try {
 					if (SessionContextSupport.getLog() != null && SessionContextSupport.getLog().get("payLoadObject") != null) {
+						org.json.simple.parser.JSONParser payLoadParser = new org.json.simple.parser.JSONParser();
 						payLoadObject = (org.json.simple.JSONObject) payLoadParser.parse(SessionContextSupport.getLog().get("payLoadObject").toString());
-						} 
+					}
+					try {
 						if (data != null) {
-						payLoadObject.put("data", data);
+							org.json.simple.parser.JSONParser payLoadParser = new org.json.simple.parser.JSONParser();;
+							payLoadObject.put("data", (org.json.simple.JSONObject)payLoadParser.parse(data));
 						}
+					} catch (Exception e) { 
+					   LOGGER.error("Error: " + e);	
+					}
+					
 				} catch (Exception e) {
-					payLoadObject = new org.json.simple.JSONObject();
+					LOGGER.error("Error : " + e);
 				}
 
 				SessionContextSupport.putLogParameter("payLoadObject", payLoadObject.toString());
