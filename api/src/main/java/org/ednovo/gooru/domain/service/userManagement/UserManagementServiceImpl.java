@@ -1523,6 +1523,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		UserRoleAssoc userRoleAssoc = userRepository.findUserRoleAssocEntryByRoleIdAndUserUid(roleId, userUid);
 		rejectIfNull(userRoleAssoc, GL0102, "Role ");
 		getUserRepository().remove(userRoleAssoc);
+		indexProcessor.index(userRoleAssoc.getUser().getPartyUid(), IndexProcessor.INDEX, USER);
 	}
 	
 	@Override

@@ -148,5 +148,7 @@ public interface CollectionRepository extends BaseRepository {
 	Long getClasspageCount(String gooruOid, String type);
 	
 	List<Object[]> getParentDetails(String collectionItemId);
+
+	CollectionItem getCollectionItemByResourceOid(String collectionId, String resourceId);
 	
 }

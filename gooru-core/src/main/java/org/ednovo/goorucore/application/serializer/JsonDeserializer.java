@@ -17,6 +17,10 @@ import flexjson.JSONDeserializer;
  */
 public class JsonDeserializer extends JsonProcessor {
 
+	public JsonDeserializer(String message) {
+		// TODO Auto-generated constructor stub
+	}
+
 	public static <T> T deserialize(String json, Class<T> clazz) {
 		try {
 			return new JSONDeserializer<T>().use(null, clazz).deserialize(json);
@@ -29,12 +33,7 @@ public class JsonDeserializer extends JsonProcessor {
 		try {
 			return getMapper().readValue(json, type);
 		} catch (Exception e) {
-			throw new BadRequestException("Input JSON parse failed!");
+			throw new BadRequestException("Input JSON parse failed! " +  e);
 		}
 	}
-	
-	
-
-	
-
 }

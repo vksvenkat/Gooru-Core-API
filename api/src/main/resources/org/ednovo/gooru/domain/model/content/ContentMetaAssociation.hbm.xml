@@ -20,9 +20,6 @@
 			class="org.ednovo.gooru.core.api.model.CustomTableValue" column="association_type"
 			not-null="true" lazy="proxy" cascade="none" />
 			
-		<property name="value" column="value"
-			not-null="false" />
-			
 		<many-to-one name="user" class="org.ednovo.gooru.core.api.model.User"
 			column="user_uid" not-null="true" lazy="proxy" cascade="none" />
 			
