@@ -36,6 +36,8 @@ import org.ednovo.gooru.core.api.model.OAuthClient;
 import org.ednovo.gooru.core.api.model.ResourceType;
 import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.User;
+import org.ednovo.gooru.core.api.model.UserRoleAssoc;
+import org.ednovo.gooru.core.api.model.UserRole.UserRoleType;
 import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
@@ -80,15 +82,18 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 				CustomTableValue status = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.APPLICATION_STATUS.getTable(), CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus());
 				application.setStatus(status);
 			}
-			rejectIfNull(application.getOrganization(), GL0006, "Organization ");
-			rejectIfNull(application.getOrganization().getPartyUid(), GL0006, "Organization ");
-			rejectIfNull(this.getOrganizationService().getOrganizationById(application.getOrganization().getPartyUid()), GL0007, "Organization ");
+			if(application.getOrganization() != null && application.getOrganization().getPartyUid() != null) {
+				application.setOrganization(application.getOrganization());
+			}else{
+				application.setOrganization(apiCaller.getPrimaryOrganization());
+			}
+			rejectIfNull(this.getOrganizationService().getOrganizationById(apiCaller.getOrganization().getPartyUid()), GL0007, "Organization ");
 			application.setContentType((ContentType) this.getApplicationRepository().get(ContentType.class, RESOURCE));
 			application.setResourceType((ResourceType) this.getApplicationRepository().get(ResourceType.class, ResourceType.Type.APPLICATION.getType()));
 			application.setLastModified(new Date(System.currentTimeMillis()));
 			application.setCreatedOn(new Date(System.currentTimeMillis()));
 			application.setUser(apiCaller);
-			application.setOrganization(apiCaller.getPrimaryOrganization());
+			
 			application.setIsFeatured(0);
 			application.setCreator(apiCaller);
 			application.setRecordSource(NOT_ADDED);
@@ -138,13 +143,51 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 	}
 
 	@Override
-	public SearchResults<Application> getApplications(String organizationUid,String gooruUid, Integer limit, Integer offset) {
+	public SearchResults<Application> getApplications(User user, String organizationUid,String gooruUid, Integer limit, Integer offset) {
 		SearchResults<Application> result = new SearchResults<Application>();
+		if(organizationUid == null){
+			if(isSuperAdminUser(user)){
+				
+			} 
+			else if(isContentAdminUser(user)){
+				organizationUid  = user.getOrganization().getPartyUid();
+			}
+			else {
+				gooruUid = user.getPartyUid();
+			}
+		}
 		result.setSearchResults(this.getApplicationRepository().getApplications(organizationUid,gooruUid, offset, limit));
 		result.setTotalHitCount(this.getApplicationRepository().getApplicationCount(organizationUid, gooruUid));
 		return result;
 	}
 
+	
+	public Boolean isContentAdminUser(User user) {
+		Boolean isAdminUser = false;
+		if (user.getUserRoleSet() != null) {
+			for (UserRoleAssoc userRoleAssoc : user.getUserRoleSet()) {
+				if (userRoleAssoc.getRole().getName().equalsIgnoreCase(UserRoleType.CONTENT_ADMIN.getType())){
+					isAdminUser = true;
+					break;
+				}
+			}
+		}
+		return isAdminUser;
+	}
+	
+	public Boolean isSuperAdminUser(User user){
+		Boolean isAdminUser = false;
+		if (user.getUserRoleSet() != null) {
+			for (UserRoleAssoc userRoleAssoc : user.getUserRoleSet()) {
+				if (userRoleAssoc.getRole().getName().equalsIgnoreCase(UserRoleType.SUPER_ADMIN.getType())){
+					isAdminUser = true;
+					break;
+				}
+			}
+		}
+		return isAdminUser;
+	}
+	
 	@Override
 	public void deleteApplication(String apiKey) {
 		Application application = this.getApplicationRepository().getApplication(apiKey);
@@ -161,8 +204,7 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 	public ActionResponseDTO<ApplicationItem> createApplicationItem(ApplicationItem applicationItem,String apiKey, User apiCaller) {
 		final Errors errors = validateCreateApplicationItem(applicationItem);
 		if (!errors.hasErrors()) {
-			rejectIfNull(applicationItem.getApplication(), GL0006, "Application key ");
-			rejectIfNull(applicationItem.getApplication().getKey(), GL0006, "Application key ");
+			rejectIfNull(apiKey, GL0006, "Application key ");
 			Application application = this.getApplicationRepository().getApplication(apiKey);
 			rejectIfNull(application, GL0007, "Application key ");
 			applicationItem.setApplication(application);
