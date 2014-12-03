@@ -1573,7 +1573,9 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 
 	@Override
 	public Map<String, Object> getUserAvailability(String keyword, String type, boolean isCollaboratorCheck, String resourceId, User apiCaller) {
-
+		if(keyword == null || keyword.isEmpty()) {
+			throw new BadRequestException("Keyword is mandatory");
+		}
 		Map<String, Object> userInfo = new HashMap<String, Object>();
 
 		boolean availability = false;
