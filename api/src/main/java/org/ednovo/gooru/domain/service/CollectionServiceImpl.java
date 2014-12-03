@@ -212,6 +212,15 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 			throw new NotFoundException(generateErrorMessage(GL0056, COLLECTION_ITEM));
 		}
 		return updateQuestionWithCollectionItem(collectionItem, data, deleteAssets, user, mediaFileName);
+	}	
+	
+	@Override
+	public void deleteQuestionWithCollectionItem(String collectionId, String resourceId) {
+		CollectionItem collectionItem = this.getCollectionRepository().getCollectionItemByResourceOid(collectionId,resourceId);
+		if (collectionItem == null) {
+			throw new NotFoundException(generateErrorMessage(GL0056, COLLECTION_ITEM));
+		}
+	this.getCollectionRepository().remove(collectionItem);
 	}
 
 	@Override
@@ -885,6 +894,8 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	public MailHandler getMailHandler() {
 		return mailHandler;
 	}
+
+	
 
 
 }

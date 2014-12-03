@@ -1029,20 +1029,21 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 	
 	@Override
-	public String getCollectionWithCache(String collectionId, boolean includeMetaInfo, boolean includeCollaborator, boolean isContentFlag, final User user, String merge, String rootNodeId, boolean isGat, boolean includeCollectionItem, boolean includeRelatedContent,boolean clearCache) {
+	public String getCollectionWithCache(String collectionId, boolean includeMetaInfo, boolean includeCollaborator, boolean isContentFlag, final User user, String merge, String rootNodeId, boolean isGat, boolean includeCollectionItem, boolean includeRelatedContent, boolean clearCache) {
 		String cacheKey = "v2-collection-data-" + collectionId + "-" + includeMetaInfo + "-" + includeCollaborator + "-" + isContentFlag;
 		Map<String, Object> cacheCollection = null;
 		boolean isCollaborator = false;
 		String data = null;
-		if(!clearCache) {
-		data = this.redisService.getValue(cacheKey);
+		if (!clearCache) {
+			data = this.redisService.getValue(cacheKey);
 		}
 		if (data == null) {
 			Collection collection = getCollection(collectionId, includeMetaInfo, includeCollaborator, isContentFlag, user, merge, rootNodeId, isGat);
-			data = SerializerUtil.serialize(collection, FORMAT_JSON, EXCLUDE_ALL,false, true, includes(includeCollectionItem, includeMetaInfo, includeRelatedContent));
+			data = SerializerUtil.serialize(collection, FORMAT_JSON, EXCLUDE_ALL, false, true, includes(includeCollectionItem, includeMetaInfo, includeRelatedContent));
 			redisService.putValue(cacheKey, data);
 		} else {
-			cacheCollection = JsonDeserializer.deserialize(data, new TypeReference<Map<String, Object>>() {});
+			cacheCollection = JsonDeserializer.deserialize(data, new TypeReference<Map<String, Object>>() {
+			});
 			if (cacheCollection != null) {
 				try {
 					cacheCollection.put("viewCount", this.resourceCassandraService.getInt(cacheCollection.get("gooruOid").toString(), "stas.viewsCount"));
@@ -1065,10 +1066,10 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 					long collaboratorCount = this.getCollaboratorRepository().getCollaboratorsCountById(collectionId);
 					permissions.put(COLLABORATOR_COUNT, collaboratorCount);
 					permissions.put(IS_COLLABORATOR, isCollaborator);
-					cacheCollection.put("meta", permissions);
+					cacheCollection.put(META, permissions);
 					data = SerializerUtil.serialize(cacheCollection, FORMAT_JSON, EXCLUDE_ALL, false, true, includes(includeCollectionItem, includeMetaInfo, includeRelatedContent));
+				}
 			}
-		}
 		}
 		
 		return data;
