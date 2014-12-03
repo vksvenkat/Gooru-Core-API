@@ -44,6 +44,7 @@ import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.domain.service.BaseServiceImpl;
 import org.ednovo.gooru.domain.service.party.OrganizationService;
 import org.ednovo.gooru.domain.service.search.SearchResults;
+import org.ednovo.gooru.domain.service.user.UserService;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.apikey.ApplicationRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.auth.OAuthRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
@@ -66,6 +67,9 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 
 	@Autowired
 	private OAuthRepository oAuthRepository;
+	
+	@Autowired
+	private UserService userService;
 	
 	@Override
 	public ActionResponseDTO<Application> createApplication(Application application, User apiCaller) {
@@ -146,13 +150,11 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 	public SearchResults<Application> getApplications(User user, String organizationUid,String gooruUid, Integer limit, Integer offset) {
 		SearchResults<Application> result = new SearchResults<Application>();
 		if(organizationUid == null){
-			if(isSuperAdminUser(user)){
-				
-			} 
-			else if(isContentAdminUser(user)){
+			
+			if(this.getUserService().isContentAdmin(user)){
 				organizationUid  = user.getOrganization().getPartyUid();
 			}
-			else {
+			else if(!this.getUserService().isSuperAdmin(user)){
 				gooruUid = user.getPartyUid();
 			}
 		}
@@ -161,33 +163,6 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 		return result;
 	}
 
-	
-	public Boolean isContentAdminUser(User user) {
-		Boolean isAdminUser = false;
-		if (user.getUserRoleSet() != null) {
-			for (UserRoleAssoc userRoleAssoc : user.getUserRoleSet()) {
-				if (userRoleAssoc.getRole().getName().equalsIgnoreCase(UserRoleType.CONTENT_ADMIN.getType())){
-					isAdminUser = true;
-					break;
-				}
-			}
-		}
-		return isAdminUser;
-	}
-	
-	public Boolean isSuperAdminUser(User user){
-		Boolean isAdminUser = false;
-		if (user.getUserRoleSet() != null) {
-			for (UserRoleAssoc userRoleAssoc : user.getUserRoleSet()) {
-				if (userRoleAssoc.getRole().getName().equalsIgnoreCase(UserRoleType.SUPER_ADMIN.getType())){
-					isAdminUser = true;
-					break;
-				}
-			}
-		}
-		return isAdminUser;
-	}
-	
 	@Override
 	public void deleteApplication(String apiKey) {
 		Application application = this.getApplicationRepository().getApplication(apiKey);
@@ -200,6 +175,7 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 		rejectIfNull(errors, application, TITLE, GL0006, generateErrorMessage(GL0006, TITLE));
 		return errors;
 	}
+	
 	@Override
 	public ActionResponseDTO<ApplicationItem> createApplicationItem(ApplicationItem applicationItem,String apiKey, User apiCaller) {
 		final Errors errors = validateCreateApplicationItem(applicationItem);
@@ -270,6 +246,8 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 		return oAuthRepository;
 	}
 
-	
+	public UserService getUserService() {
+		return userService;
+	}
 
 }
