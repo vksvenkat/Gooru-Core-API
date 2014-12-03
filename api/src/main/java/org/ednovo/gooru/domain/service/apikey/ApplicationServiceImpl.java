@@ -88,7 +88,7 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 			}
 			if(application.getOrganization() != null && application.getOrganization().getPartyUid() != null) {
 				application.setOrganization(application.getOrganization());
-			}else{
+			} else {
 				application.setOrganization(apiCaller.getPrimaryOrganization());
 			}
 			rejectIfNull(this.getOrganizationService().getOrganizationById(apiCaller.getOrganization().getPartyUid()), GL0007, "Organization ");
