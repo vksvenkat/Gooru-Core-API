@@ -95,12 +95,12 @@ public class KafkaConsumer implements Runnable {
 				} else if (data.get("eventName") != null && data.get("eventName").toString().equalsIgnoreCase("update.am:assessment-question")) {
 					String jsonData = data.get("payLoadObject").toString();
 					RequestUtil.executeRestAPI(jsonData, restEndPoint + "v2/assessment/" + parentOid + "/question/" + contentOid, "PUT", sessionToken);
-
+				} else if (data.get("eventName") != null && data.get("eventName").toString().equalsIgnoreCase("delete.am:assessment-question")) {
+     				RequestUtil.executeRestAPI(restEndPoint + "v2/assessment/" + parentOid + "/question/" + contentOid, "DELETE", sessionToken);
 				}
 			} catch (Exception e) {
 				System.out.println(e);
 			}
-
 		}
 
 	}
