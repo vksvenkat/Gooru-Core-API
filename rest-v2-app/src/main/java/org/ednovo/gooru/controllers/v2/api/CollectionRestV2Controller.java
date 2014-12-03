@@ -430,7 +430,14 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 		includes = (String[]) ArrayUtils.addAll(includes, RESOURCE_INCLUDE_FIELDS);
 		return toModelAndView(serialize(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes));
 	}
-
+	
+	@AuthorizeOperations(operations = {GooruOperationConstants.OPERATION_SCOLLECTION_UPDATE})
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(value = {"{cid}/question/{id}"}, method = RequestMethod.DELETE)
+	public void deleteQuestionWithCollectionItem(@PathVariable(value = CID) String collectionId, @PathVariable(value = ID) String resourceId ,HttpServletRequest request, HttpServletResponse response) {
+		this.getCollectionService().deleteQuestionWithCollectionItem(collectionId, resourceId);
+	}
+	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}/workspace" }, method = RequestMethod.GET)
