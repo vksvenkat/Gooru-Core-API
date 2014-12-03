@@ -50,6 +50,8 @@ public interface CollectionService extends ScollectionService {
 	
 	ActionResponseDTO<CollectionItem> updateQuestionWithCollectionItem(String gooruOid, String questionGooruOid, String data, List<Integer> deleteAssets, User user, String mediaFileName) throws Exception;
 
+    void deleteQuestionWithCollectionItem(String collectionId,String resourceId);
+	 
 	ActionResponseDTO<CollectionItem> moveCollectionToFolder(String sourceId, String taregetId, User user) throws Exception;
 
 	ActionResponseDTO<CollectionItem> createQuestionWithCollectionItem(String collectionId, AssessmentQuestion assessmentQuestion, User user, String questionImgSrc) throws Exception;
