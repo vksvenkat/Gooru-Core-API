@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.ednovo.gooru.application.util.AsyncExecutor;
+import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.ContextDTO;
 import org.ednovo.gooru.core.api.model.CustomTableValue;
@@ -50,6 +51,7 @@ import org.ednovo.gooru.domain.service.search.SearchResults;
 import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.ednovo.gooru.domain.service.userManagement.UserManagementService;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.FeedbackRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentRepository;
@@ -91,6 +93,10 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 
 	@Autowired
 	private AsyncExecutor asyncExecutor;
+	
+	@Autowired
+	private CollectionRepository collectionRepository;
+
 
 	@Autowired
 	private CollectionService collectionService;
@@ -332,6 +338,10 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 				indexProcessor.index(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE);
 			}
 			this.getAsyncExecutor().clearCache(resource.getGooruOid());
+		}
+		List<CollectionItem> collectionItems = this.getCollectionRepository().findCollectionByResource(feedback.getAssocGooruOid(), null, null);
+		for(CollectionItem collectionItem : collectionItems) {
+			asyncExecutor.deleteFromCache("v2-collection-data-"+ collectionItem.getCollection().getGooruOid() +"*");
 		}
 		try {
 			if(!feedbackList.isEmpty()){
@@ -579,6 +589,10 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 	
 	public FeedbackEventLog getFeedbackEventLog() {
 		return feedbackEventLog;
+	}
+	
+	public CollectionRepository getCollectionRepository() {
+		return collectionRepository;
 	}
 
 }

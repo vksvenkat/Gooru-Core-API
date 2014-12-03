@@ -64,6 +64,7 @@ import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Assessment;
 import org.ednovo.gooru.core.api.model.AssessmentQuestion;
 import org.ednovo.gooru.core.api.model.Code;
+import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.ContentPermission;
 import org.ednovo.gooru.core.api.model.ContentProvider;
@@ -120,6 +121,7 @@ import org.ednovo.gooru.domain.service.taxonomy.TaxonomyService;
 import org.ednovo.gooru.domain.service.v2.ContentService;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepository;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.ConfigSettingRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.FeedbackRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
@@ -247,6 +249,10 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	@Autowired
 	private ContentService contentService;
 	
+	@Autowired
+	private CollectionRepository collectionRepository;
+	
+
 	@Override
 	public ResourceInstance saveResourceInstance(ResourceInstance resourceInstance) throws Exception {
 		Segment segment = (Segment) getSegmentRepository().get(Segment.class, resourceInstance.getSegment().getSegmentId());
@@ -2635,6 +2641,10 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			this.updateResourceInstanceMetaData(resource, user);
 			this.replaceDuplicatePrivateResourceWithPublicResource(resource);
 			this.mapSourceToResource(resource);
+			List<CollectionItem> collectionItems = this.getCollectionRepository().findCollectionByResource(resource.getGooruOid(), null, null);
+			for(CollectionItem collectionItem : collectionItems) {
+				asyncExecutor.deleteFromCache("v2-collection-data-"+ collectionItem.getCollection().getGooruOid() +"*");
+			}
 			try{
 				this.getResourceEventLog().getEventLogs(resource, true, false, user);
 			} catch(Exception e){
@@ -2792,6 +2802,10 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		if (newResource.getAttach() != null) {
 			this.getResourceImageUtil().moveAttachment(newResource, resource);
 		}
+		List<CollectionItem> collectionItems = this.getCollectionRepository().findCollectionByResource(resource.getGooruOid(), null, null);
+		for (CollectionItem collectionItem : collectionItems) {
+			asyncExecutor.deleteFromCache("v2-collection-data-" + collectionItem.getCollection().getGooruOid() + "*");
+		}
 		
 		try{
 			this.getResourceEventLog().getEventLogs(resource, itemData, user);
@@ -2834,6 +2848,10 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			contentProviderAssociation.setAssociatedBy(user);
 			this.getContentRepository().save(contentProviderAssociation);
 			this.getContentRepository().flush();
+		}
+		List<CollectionItem> collectionItems = this.getCollectionRepository().findCollectionByResource((gooruOid), null, null);
+		for(CollectionItem collectionItem : collectionItems) {
+			asyncExecutor.deleteFromCache("v2-collection-data-"+ collectionItem.getCollection().getGooruOid() +"*");
 		}
 		return providerList;
 	}
@@ -2968,6 +2986,10 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		if (resource != null) {
 			this.getResourceRepository().retriveAndSetInstances(resource);
 		}
+		List<CollectionItem> collectionItems = this.getCollectionRepository().findCollectionByResource(resource.getGooruOid(), null, null);
+		for (CollectionItem collectionItem : collectionItems) {
+			asyncExecutor.deleteFromCache("v2-collection-data-" + collectionItem.getCollection().getGooruOid() + "*");
+		}
 		if (resource != null) {
 			List<ResourceInstance> resourceInstanceList = resource.getResourceInstances();
 			if (resourceInstanceList != null && resourceInstanceList.size() > 0) {
@@ -2975,6 +2997,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			}
 		}
 		indexProcessor.index(resource.getGooruOid(), IndexProcessor.DELETE, RESOURCE);
+		
 		this.getResourceRepository().remove(Resource.class, resource.getContentId());
 	}
 
@@ -3186,6 +3209,9 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			}
 		}
 	}
-
+	
+	public CollectionRepository getCollectionRepository() {
+		return collectionRepository;
+	}
 	
 }

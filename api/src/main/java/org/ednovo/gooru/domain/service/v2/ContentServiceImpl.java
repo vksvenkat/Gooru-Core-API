@@ -29,6 +29,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.ednovo.gooru.application.util.AsyncExecutor;
+import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.ContentPermission;
 import org.ednovo.gooru.core.api.model.ContentTagAssoc;
@@ -46,6 +48,7 @@ import org.ednovo.gooru.domain.service.BaseServiceImpl;
 import org.ednovo.gooru.domain.service.search.SearchResults;
 import org.ednovo.gooru.domain.service.tag.TagService;
 import org.ednovo.gooru.domain.service.user.UserService;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.collaborator.CollaboratorRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentRepository;
@@ -81,6 +84,16 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 	
 	@Autowired
 	private ResourceRepository resourceRepository;
+	
+	@Autowired
+	private CollectionRepository collectionRepository;
+	
+	@Autowired
+	private AsyncExecutor asyncExecutor;
+
+	public CollectionRepository getCollectionRepository() {
+		return collectionRepository;
+	}
 
 	@Override
 	public List<Map<String, Object>> createTagAssoc(String gooruOid, List<String> labels, User apiCaller) {
@@ -126,6 +139,10 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 				contentTagAssocs.add(setcontentTagAssoc(contentTagAssoc, tag.getLabel()));
 			} 
 		}
+		List<CollectionItem> collectionItems = this.getCollectionRepository().findCollectionByResource(gooruOid, null, null);
+		for(CollectionItem collectionItem : collectionItems) {
+			asyncExecutor.deleteFromCache("v2-collection-data-"+ collectionItem.getCollection().getGooruOid() +"*");
+		}
 		return contentTagAssocs;
 	}
 
@@ -159,6 +176,10 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 				}
 			}
 		}
+		List<CollectionItem> collectionItems = this.getCollectionRepository().findCollectionByResource(gooruOid, null, null);
+		for(CollectionItem collectionItem : collectionItems) {
+			asyncExecutor.deleteFromCache("v2-collection-data-"+ collectionItem.getCollection().getGooruOid() +"*");
+		}
 		this.getContentRepository().flush();
 
 	}
@@ -186,6 +207,10 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 				userSummary.setTag(userSummary.getTag() <= 0 ? 0 : userSummary.getTag() - 1);
 				this.getUserRepository().save(userSummary);
 			}
+		}
+		List<CollectionItem> collectionItems = this.getCollectionRepository().findCollectionByResource(gooruOid, null, null);
+		for(CollectionItem collectionItem : collectionItems) {
+			asyncExecutor.deleteFromCache("v2-collection-data-"+ collectionItem.getCollection().getGooruOid() +"*");
 		}
 		this.getContentRepository().flush();
 	}
