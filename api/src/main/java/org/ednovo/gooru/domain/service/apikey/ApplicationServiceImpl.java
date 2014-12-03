@@ -36,12 +36,15 @@ import org.ednovo.gooru.core.api.model.OAuthClient;
 import org.ednovo.gooru.core.api.model.ResourceType;
 import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.User;
+import org.ednovo.gooru.core.api.model.UserRoleAssoc;
+import org.ednovo.gooru.core.api.model.UserRole.UserRoleType;
 import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.domain.service.BaseServiceImpl;
 import org.ednovo.gooru.domain.service.party.OrganizationService;
 import org.ednovo.gooru.domain.service.search.SearchResults;
+import org.ednovo.gooru.domain.service.user.UserService;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.apikey.ApplicationRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.auth.OAuthRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
@@ -65,6 +68,9 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 	@Autowired
 	private OAuthRepository oAuthRepository;
 	
+	@Autowired
+	private UserService userService;
+	
 	@Override
 	public ActionResponseDTO<Application> createApplication(Application application, User apiCaller) {
 		final Errors errors = validateCreateApplication(application);
@@ -80,15 +86,18 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 				CustomTableValue status = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.APPLICATION_STATUS.getTable(), CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus());
 				application.setStatus(status);
 			}
-			rejectIfNull(application.getOrganization(), GL0006, "Organization ");
-			rejectIfNull(application.getOrganization().getPartyUid(), GL0006, "Organization ");
-			rejectIfNull(this.getOrganizationService().getOrganizationById(application.getOrganization().getPartyUid()), GL0007, "Organization ");
+			if(application.getOrganization() != null && application.getOrganization().getPartyUid() != null) {
+				application.setOrganization(application.getOrganization());
+			} else {
+				application.setOrganization(apiCaller.getPrimaryOrganization());
+			}
+			rejectIfNull(this.getOrganizationService().getOrganizationById(apiCaller.getOrganization().getPartyUid()), GL0007, "Organization ");
 			application.setContentType((ContentType) this.getApplicationRepository().get(ContentType.class, RESOURCE));
 			application.setResourceType((ResourceType) this.getApplicationRepository().get(ResourceType.class, ResourceType.Type.APPLICATION.getType()));
 			application.setLastModified(new Date(System.currentTimeMillis()));
 			application.setCreatedOn(new Date(System.currentTimeMillis()));
 			application.setUser(apiCaller);
-			application.setOrganization(apiCaller.getPrimaryOrganization());
+			
 			application.setIsFeatured(0);
 			application.setCreator(apiCaller);
 			application.setRecordSource(NOT_ADDED);
@@ -138,8 +147,17 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 	}
 
 	@Override
-	public SearchResults<Application> getApplications(String organizationUid,String gooruUid, Integer limit, Integer offset) {
+	public SearchResults<Application> getApplications(User user, String organizationUid,String gooruUid, Integer limit, Integer offset) {
 		SearchResults<Application> result = new SearchResults<Application>();
+		if(organizationUid == null){
+			
+			if(this.getUserService().isContentAdmin(user)){
+				organizationUid  = user.getOrganization().getPartyUid();
+			}
+			else if(!this.getUserService().isSuperAdmin(user)){
+				gooruUid = user.getPartyUid();
+			}
+		}
 		result.setSearchResults(this.getApplicationRepository().getApplications(organizationUid,gooruUid, offset, limit));
 		result.setTotalHitCount(this.getApplicationRepository().getApplicationCount(organizationUid, gooruUid));
 		return result;
@@ -157,12 +175,12 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 		rejectIfNull(errors, application, TITLE, GL0006, generateErrorMessage(GL0006, TITLE));
 		return errors;
 	}
+	
 	@Override
 	public ActionResponseDTO<ApplicationItem> createApplicationItem(ApplicationItem applicationItem,String apiKey, User apiCaller) {
 		final Errors errors = validateCreateApplicationItem(applicationItem);
 		if (!errors.hasErrors()) {
-			rejectIfNull(applicationItem.getApplication(), GL0006, "Application key ");
-			rejectIfNull(applicationItem.getApplication().getKey(), GL0006, "Application key ");
+			rejectIfNull(apiKey, GL0006, "Application key ");
 			Application application = this.getApplicationRepository().getApplication(apiKey);
 			rejectIfNull(application, GL0007, "Application key ");
 			applicationItem.setApplication(application);
@@ -228,6 +246,8 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 		return oAuthRepository;
 	}
 
-	
+	public UserService getUserService() {
+		return userService;
+	}
 
 }
