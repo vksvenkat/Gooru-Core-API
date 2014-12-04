@@ -458,10 +458,10 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	}
 
 	private void deleteCourse(List<UserClassification> courses, User user, User apiCaller) {
-		if (courses != null) {
+		if (courses != null && courses.size() > 0 ) {
 			CustomTableValue type = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.USER_CLASSIFICATION_TYPE.getTable(), CustomProperties.UserClassificationType.COURSE.getUserClassificationType());
 			for (UserClassification course : courses) {
-				if (course.getCode() != null && course.getCode().getCodeId() != null) {
+				if (course.getCode() != null && course.getCode().getCodeId() != null && type != null) {
 					UserClassification existingCourse = this.getUserRepository().getUserClassification(user.getGooruUId(), type.getCustomTableValueId(), course.getCode().getCodeId(), apiCaller == null ? null : apiCaller.getGooruUId(), null);
 					if (existingCourse != null) {
 						this.getUserRepository().remove(existingCourse);
@@ -1155,7 +1155,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		if (user != null && newProfile != null) {
 			Profile profile = this.getUserService().getProfile(user);
 			if (profile != null) {
-				if (newProfile.getCourses() != null) {
+				if (newProfile.getCourses() != null && newProfile.getCourses().size() > 0) {
 					deleteCourse(newProfile.getCourses(), user, apiCaller);
 				}
 				if (newProfile.getGrade() != null && profile.getGrade() != null) {
