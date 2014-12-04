@@ -1865,7 +1865,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	public void deleteResource(Resource resource, String gooruContentId, User apiCaller) {
 
 		resource = resourceRepository.findResourceByContentGooruId(gooruContentId);
-		if (resource == null) {
+		if (resource == null || resource.getResourceType().getName().equalsIgnoreCase(APPLICATION) || resource.getResourceType().getName().equalsIgnoreCase(SCOLLECTION) || resource.getResourceType().getName().equalsIgnoreCase(FOLDER) || resource.getResourceType().getName().equalsIgnoreCase(CLASSPAGE)) {
 			throw new NotFoundException(generateErrorMessage("GL0056", "Resource"));
 		} else {
 			if ((resource.getUser() != null && resource.getUser().getPartyUid().equalsIgnoreCase(apiCaller.getPartyUid())) || getUserService().isContentAdmin(apiCaller)) {
