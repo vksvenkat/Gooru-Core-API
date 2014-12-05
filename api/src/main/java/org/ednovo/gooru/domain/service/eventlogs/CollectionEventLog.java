@@ -72,7 +72,11 @@ public class CollectionEventLog implements ParameterProperties, ConstantProperti
 	}
 	
 	public void getEventLogs(CollectionItem collectionItem, boolean isCreate, boolean isAdd, User user, String collectionType) throws JSONException {
-		SessionContextSupport.putLogParameter(EVENT_NAME, ITEM_CREATE);
+		if (isCreate) {
+		   SessionContextSupport.putLogParameter(EVENT_NAME, ITEM_CREATE);
+		} else {
+		   SessionContextSupport.putLogParameter(EVENT_NAME, ITEM_EDIT);
+		}
 		JSONObject context = SessionContextSupport.getLog().get(CONTEXT) != null ? new JSONObject(SessionContextSupport.getLog().get(CONTEXT).toString()) : new JSONObject();
 		context.put(PARENT_GOORU_ID, collectionItem != null && collectionItem.getCollection() != null ? collectionItem.getCollection().getGooruOid() : null);
 		context.put(CONTENT_GOORU_ID, collectionItem != null && collectionItem.getResource() != null ? collectionItem.getResource().getGooruOid() : null);
