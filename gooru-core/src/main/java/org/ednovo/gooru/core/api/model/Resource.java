@@ -201,6 +201,8 @@ public class Resource extends Content implements Serializable {
 	private String clusterUid;
 	private Integer isRepresentative;
 	
+	private Map<String, List<Map<String, Object>>> resourceTagSet;
+	
 	public Resource() {
 		recordSource = RecordSource.DEFAULT.getRecordSource();
 		thumbnails = new Resource.Thumbnail();
@@ -995,5 +997,12 @@ public class Resource extends Content implements Serializable {
 		this.s3UploadFlag = s3UploadFlag;
 	}
 
+	public void setResourceTagSet(Map<String, List<Map<String, Object>>> resourceTagSet) {
+		this.resourceTagSet = resourceTagSet;
+	}
+
+	public Map<String, List<Map<String, Object>>> getResourceTagSet() {
+		return resourceTagSet;
+	}
 
 }
