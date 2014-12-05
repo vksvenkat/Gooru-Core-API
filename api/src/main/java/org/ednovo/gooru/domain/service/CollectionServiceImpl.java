@@ -42,6 +42,7 @@ import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.CollectionType;
+import org.ednovo.gooru.core.api.model.PartyCustomField;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.ResourceType;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
@@ -96,6 +97,10 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 
 	@Autowired
 	private CollaboratorRepository collaboratorRepository;
+	
+	@Autowired
+	private PartyService partyService;
+
 
 	@Override
 	public ActionResponseDTO<CollectionItem> createQuestionWithCollectionItem(String collectionId, String data, User user, String mediaFileName, String sourceReference) throws Exception {
@@ -755,6 +760,13 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 						collectionIds.append(scollection.getGooruOid());
 						if (!scollection.getSharing().equalsIgnoreCase(PUBLIC)) {
 							UserSummary userSummary = this.getUserRepository().getSummaryByUid(scollection.getUser().getPartyUid());
+							if (userSummary.getCollections() == null || userSummary.getCollections() == 0) {
+								PartyCustomField partyCustomField = new PartyCustomField();
+								partyCustomField.setOptionalValue(TRUE);
+								partyCustomField.setOptionalKey(SHOW_PROFILE_PAGE);
+								partyCustomField.setCategory(USER_META);
+								this.getPartyService().updatePartyCustomField(scollection.getUser().getPartyUid(), partyCustomField, scollection.getUser());
+							}
 							if (userSummary.getGooruUid() == null) {
 								userSummary.setGooruUid(scollection.getUser().getPartyUid());
 							}
@@ -895,7 +907,9 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		return mailHandler;
 	}
 
-	
+	public PartyService getPartyService() {
+		return partyService;
+	}
 
 
 }

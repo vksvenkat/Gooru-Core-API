@@ -56,6 +56,7 @@ import org.ednovo.gooru.core.api.model.ContentType;
 import org.ednovo.gooru.core.api.model.CustomTableValue;
 import org.ednovo.gooru.core.api.model.Identity;
 import org.ednovo.gooru.core.api.model.License;
+import org.ednovo.gooru.core.api.model.PartyCustomField;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.ResourceSource;
 import org.ednovo.gooru.core.api.model.ResourceSummary;
@@ -208,6 +209,9 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 	@Autowired
 	private OperationAuthorizer operationAuthorizer;
+	
+	@Autowired
+	private PartyService partyService;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ScollectionServiceImpl.class);
 
@@ -2006,6 +2010,13 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				}
 				if (collection.getSharing().equalsIgnoreCase(PUBLIC) && (newCollection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing()))) {
 					final UserSummary userSummary = this.getUserRepository().getSummaryByUid(collection.getUser().getPartyUid());
+					if (userSummary.getCollections() == null || userSummary.getCollections() == 0) {
+						PartyCustomField partyCustomField = new PartyCustomField();
+						partyCustomField.setOptionalValue(TRUE);
+						partyCustomField.setOptionalKey(SHOW_PROFILE_PAGE);
+						partyCustomField.setCategory(USER_META);
+						this.getPartyService().updatePartyCustomField(collection.getUser().getPartyUid(), partyCustomField, collection.getUser());
+					}
 					if (userSummary.getGooruUid() != null) {
 						userSummary.setCollections(userSummary.getCollections() <= 0 ? 0 : (userSummary.getCollections() - 1));
 						this.getUserRepository().save(userSummary);
@@ -2686,6 +2697,10 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 	public ResourceManager getResourceManager() {
 		return resourceManager;
+	}
+	
+	public PartyService getPartyService() {
+		return partyService;
 	}
 
 }
