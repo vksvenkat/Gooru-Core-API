@@ -1551,7 +1551,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		}
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collection.getUser().getPartyUid() + "*");
 		try {
-			this.getCollectionEventLog().getEventLogs(collection, jsonItemdata, apiCallerUser, false, true);
+		  this.getCollectionEventLog().getEventLogs(collection, jsonItemdata, apiCallerUser, false, true);
 		} catch (Exception e) {
 			LOGGER.debug("error" + e.getMessage());
 		}
@@ -2084,6 +2084,8 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	public Collection copyCollection(String collectionId, Collection newCollection, boolean addToShelf, String parentId, final User user) throws Exception {
 
 		Collection sourceCollection = this.getCollection(collectionId, false, false, false, user, null, null, false);
+		 CollectionItem collectionItem = null;
+		
 		Collection destCollection = null;
 		if (sourceCollection != null) {
 			destCollection = new Collection();
@@ -2154,7 +2156,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			this.getCollectionRepository().save(destCollection);
 			getAsyncExecutor().copyResourceFolder(sourceCollection, destCollection);
 			if (addToShelf) {
-				final CollectionItem collectionItem = new CollectionItem();
+				collectionItem = new CollectionItem();
 				collectionItem.setItemType(ShelfType.AddedType.SUBSCRIBED.getAddedType());
 				Collection myCollection = createMyShelfCollection(null, user, CollectionType.SHElf.getCollectionType(), collectionItem);
 				collectionItem.setCollection(myCollection);
@@ -2182,7 +2184,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		try {
 			if (destCollection != null) {
 				indexProcessor.index(destCollection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
-				this.getCollectionEventLog().getEventLogs(destCollection, null, user, false, false);
+				this.getCollectionEventLog().getEventLogs(collectionItem, null, user, true, false);
 			}
 		} catch (Exception e) {
 			LOGGER.debug("error" + e.getMessage());
