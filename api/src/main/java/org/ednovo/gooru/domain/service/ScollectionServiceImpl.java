@@ -1620,6 +1620,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			LOGGER.error("Error" + e.getMessage());
 		}
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
+		getAsyncExecutor().deleteFromCache("v2-collection-data-" + collectionItem.getCollection().getGooruOid() + "*");
 
 		try {
 			this.getCollectionEventLog().getEventLogs(collectionItem, jsonItemdata, apiCaller);
@@ -2176,6 +2177,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		destCollection.setIsRepresentative(0);
 		this.getCollectionRepository().save(destCollection);
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + destCollection.getUser().getPartyUid() + "*");
+		getAsyncExecutor().deleteFromCache("v2-collection-data-" + destCollection.getGooruOid() + "*");
 		
 		try {
 			if (destCollection != null) {
@@ -2452,6 +2454,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		final Errors errors = validateCollectionItem(collection, resource, collectionItem);
 		this.getResourceRepository().save(collectionItem);
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
+		getAsyncExecutor().deleteFromCache("v2-collection-data-" + collectionItem.getCollection().getGooruOid() + "*");
 		return new ActionResponseDTO<CollectionItem>(collectionItem, errors);
 	}
 

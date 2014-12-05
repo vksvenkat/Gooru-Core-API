@@ -15,8 +15,11 @@ import kafka.javaapi.consumer.ConsumerConnector;
 import org.ednovo.gooru.core.application.util.RequestUtil;
 import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.domain.service.setting.SettingService;
+import org.ednovo.gooru.domain.service.user.impl.UserServiceImpl;
 import org.ednovo.gooru.kafka.producer.KafkaProperties;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate4.HibernateTransactionManager;
 
@@ -26,6 +29,8 @@ public class KafkaConsumer implements Runnable {
 	private KafkaProperties kafkaProperties;
 
 	private static ConsumerConnector consumer;
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(KafkaConsumer.class);
 
 	@Autowired
 	private SettingService settingService;
@@ -40,9 +45,8 @@ public class KafkaConsumer implements Runnable {
 		try {
 
 			consumer = kafka.consumer.Consumer.createJavaConsumerConnector(createConsumerConfig());
-			System.out.println("consumer started");
 		} catch (Exception e) {
-			System.out.println("Serialization failed" + e);
+		LOGGER.error("Serialization failed" + e);
 		}
 	}
 
@@ -69,7 +73,6 @@ public class KafkaConsumer implements Runnable {
 		Map<String, List<KafkaStream<byte[], byte[]>>> listOfTopicsStreams = consumer.createMessageStreams(map);
 		List<KafkaStream<byte[], byte[]>> listOfStream = listOfTopicsStreams.get(topic);
 		m_stream = listOfStream.get(0);
-		System.out.println("calling ConsumerTest.run()");
 		ConsumerIterator<byte[], byte[]> it = m_stream.iterator();
 
 		String restEndPoint = settingService.getConfigSetting(ConfigConstants.GOORU_API_ENDPOINT);
