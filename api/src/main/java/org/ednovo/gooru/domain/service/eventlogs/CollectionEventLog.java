@@ -15,18 +15,18 @@ import org.springframework.stereotype.Component;
 @Component
 public class CollectionEventLog implements ParameterProperties, ConstantProperties{
 
-	public void getEventLogs(Collection collection, JSONObject ItemData, User user, boolean isCreate, boolean isUpdate) throws JSONException {
+	public void getEventLogs(CollectionItem collectionItem, JSONObject ItemData, User user, boolean isCreate, boolean isUpdate) throws JSONException {
 		if(isCreate){
 			SessionContextSupport.putLogParameter(EVENT_NAME, ITEM_CREATE);
 		} else if(isUpdate){
 			SessionContextSupport.putLogParameter(EVENT_NAME,  ITEM_EDIT);
 		}
 		JSONObject context = SessionContextSupport.getLog().get(CONTEXT) != null ? new JSONObject(SessionContextSupport.getLog().get(CONTEXT).toString()) : new JSONObject();
-		if(collection != null ){
-			context.put(CONTENT_GOORU_ID, collection != null && collection.getCollectionItem() != null && collection.getCollectionItem().getResource() != null ? collection.getCollectionItem().getResource().getGooruOid() : null);
-			context.put(CONTENT_ITEM_ID, collection != null && collection.getCollectionItem() != null ? collection.getCollectionItem().getCollectionItemId() : null);
-			context.put(PARENT_GOORU_ID, collection != null ? collection.getGooruOid() : null);
-			context.put( PARENT_ITEM_ID, collection != null && collection.getCollectionItem() != null ? collection.getCollectionItem().getCollectionItemId() : null);
+		if(collectionItem.getCollection() != null ){
+			context.put(PARENT_GOORU_ID, collectionItem != null && collectionItem.getCollection() != null ? collectionItem.getCollection().getGooruOid() : null);
+			context.put(CONTENT_GOORU_ID, collectionItem != null && collectionItem.getResource() != null ? collectionItem.getResource().getGooruOid() : null);
+			context.put(CONTENT_ITEM_ID, collectionItem != null  ? collectionItem.getCollectionItemId() : null);
+			context.put( PARENT_ITEM_ID, collectionItem != null && collectionItem.getCollection() != null ? collectionItem.getCollection().getCollectionItemId() : null);
 		}
 		SessionContextSupport.putLogParameter(CONTEXT, context.toString());
 		JSONObject payLoadObject = SessionContextSupport.getLog().get(PAY_LOAD_OBJECT) != null ? new JSONObject(SessionContextSupport.getLog().get(PAY_LOAD_OBJECT).toString()) : new JSONObject();
@@ -37,14 +37,39 @@ public class CollectionEventLog implements ParameterProperties, ConstantProperti
 		} else {
 			payLoadObject.put(MODE, _COPY);
 		}
-		payLoadObject.put(ITEM_TYPE, collection != null ? collection.getCollectionType()  : null);
+		payLoadObject.put(ITEM_TYPE, collectionItem.getCollection() != null ? collectionItem.getCollection().getCollectionType()  : null);
 		payLoadObject.put(_ITEM_DATA , ItemData != null ? ItemData.toString() : null);
 		SessionContextSupport.putLogParameter(PAY_LOAD_OBJECT, payLoadObject.toString());
 		JSONObject session = SessionContextSupport.getLog().get(SESSION) != null ? new JSONObject(SessionContextSupport.getLog().get(SESSION).toString()) : new JSONObject();
 		session.put( ORGANIZATION_UID, user != null && user.getOrganization() != null ? user.getOrganization().getPartyUid() : null);
 		SessionContextSupport.putLogParameter(SESSION, session.toString());
 	}
-
+	public void getEventLogs(Collection collection, JSONObject ItemData, User user, boolean isCreate, boolean isUpdate) throws JSONException {
+		if(isCreate){
+			SessionContextSupport.putLogParameter(EVENT_NAME, ITEM_CREATE);
+		} else if(isUpdate){
+			SessionContextSupport.putLogParameter(EVENT_NAME,  ITEM_EDIT);
+		}
+		JSONObject context = SessionContextSupport.getLog().get(CONTEXT) != null ? new JSONObject(SessionContextSupport.getLog().get(CONTEXT).toString()) : new JSONObject();
+		if(collection != null ){
+			context.put(CONTENT_GOORU_ID, collection != null ? collection.getGooruOid() : null);
+		}
+		SessionContextSupport.putLogParameter(CONTEXT, context.toString());
+		JSONObject payLoadObject = SessionContextSupport.getLog().get(PAY_LOAD_OBJECT) != null ? new JSONObject(SessionContextSupport.getLog().get(PAY_LOAD_OBJECT).toString()) : new JSONObject();
+		if(isCreate){
+			payLoadObject.put(MODE,   CREATE);
+		} else if(isUpdate){
+			payLoadObject.put(MODE, EDIT);
+		} else {
+			payLoadObject.put(MODE, _COPY);
+		}
+		payLoadObject.put(ITEM_TYPE, collection != null ? collection.getCollectionItem().getCollection()  : null);
+		payLoadObject.put(_ITEM_DATA , ItemData != null ? ItemData.toString() : null);
+		SessionContextSupport.putLogParameter(PAY_LOAD_OBJECT, payLoadObject.toString());
+		JSONObject session = SessionContextSupport.getLog().get(SESSION) != null ? new JSONObject(SessionContextSupport.getLog().get(SESSION).toString()) : new JSONObject();
+		session.put( ORGANIZATION_UID, user != null && user.getOrganization() != null ? user.getOrganization().getPartyUid() : null);
+		SessionContextSupport.putLogParameter(SESSION, session.toString());
+	}
 	
 	public void getEventLogs(CollectionItem collectionItem, boolean isCreate, boolean isAdd, User user, String collectionType) throws JSONException {
 		SessionContextSupport.putLogParameter(EVENT_NAME, ITEM_CREATE);
