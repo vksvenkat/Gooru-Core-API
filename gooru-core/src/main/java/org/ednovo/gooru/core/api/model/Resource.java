@@ -200,8 +200,7 @@ public class Resource extends Content implements Serializable {
 	private List<Map<String, Object>> resourceTags;
 	private String clusterUid;
 	private Integer isRepresentative;
-	
-	private Map<String, List<Map<String, Object>>> resourceTagSet;
+	private List<String> libraryNames;
 	
 	public Resource() {
 		recordSource = RecordSource.DEFAULT.getRecordSource();
@@ -997,12 +996,12 @@ public class Resource extends Content implements Serializable {
 		this.s3UploadFlag = s3UploadFlag;
 	}
 
-	public void setResourceTagSet(Map<String, List<Map<String, Object>>> resourceTagSet) {
-		this.resourceTagSet = resourceTagSet;
+	public void setLibraryNames(List<String> libraryNames) {
+		this.libraryNames = libraryNames;
 	}
 
-	public Map<String, List<Map<String, Object>>> getResourceTagSet() {
-		return resourceTagSet;
+	public List<String> getLibraryNames() {
+		return libraryNames;
 	}
 
 }
