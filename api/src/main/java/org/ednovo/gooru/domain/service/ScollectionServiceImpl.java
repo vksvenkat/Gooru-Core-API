@@ -900,7 +900,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			this.getCollectionRepository().save(collectionItem);
 			this.getCollectionRepository().save(collectionItem.getCollection());
 			try {
-				this.getCollectionEventLog().getEventLogs(collectionItem, itemData, user);
+				this.getCollectionEventLog().getEventLogs(collectionItem, false, true,user, collectionItem.getCollection().getCollectionType());
 				if (collectionItem.getResource().getResourceType() != null && collectionItem.getResource().getResourceType().getName().equalsIgnoreCase(ResourceType.Type.SCOLLECTION.getType())) {
 					indexProcessor.index(collectionItem.getResource().getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
 				} else {
