@@ -1042,7 +1042,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			data = this.redisService.getValue(cacheKey);
 		}
 		if (data == null) {
-			Collection collection = getCollection(collectionId, includeMetaInfo, includeCollaborator, isContentFlag, user, merge, rootNodeId, isGat);
+			Collection collection = getCollection(collectionId, includeMetaInfo, includeCollaborator, isContentFlag, user, merge, rootNodeId, isGat, true);
 			data = SerializerUtil.serialize(collection, FORMAT_JSON, EXCLUDE_ALL, false, true, includes(includeCollectionItem, includeMetaInfo, includeRelatedContent));
 			redisService.putValue(cacheKey, data);
 		} else {
@@ -1098,7 +1098,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	
 	
 	@Override
-	public Collection getCollection(String collectionId, boolean includeMetaInfo, boolean includeCollaborator, boolean isContentFlag, final User user, String merge, String rootNodeId, boolean isGat) {
+	public Collection getCollection(String collectionId, boolean includeMetaInfo, boolean includeCollaborator, boolean isContentFlag, final User user, String merge, String rootNodeId, boolean isGat, boolean getViewCount) {
 		Collection collection = this.getCollectionRepository().getCollectionByGooruOid(collectionId, null);
 		boolean isCollaborator = this.getCollaboratorRepository().findCollaboratorById(collectionId, user.getGooruUId()) != null ? true : false;
 		if (collection != null && (collection.getUser().getGooruUId().equalsIgnoreCase(user.getGooruUId()) || !collection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || userService.isContentAdmin(user) || isCollaborator)) {
@@ -1126,11 +1126,13 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			}
 
 			collection.setLastModifiedUser(lastUserModifiedMap);
-			try {
-				collection.setViewCount(this.resourceCassandraService.getInt(collection.getGooruOid(), "stas.viewsCount"));
-				collection.setViews(Long.parseLong(this.resourceCassandraService.getInt(collection.getGooruOid(), "stas.viewsCount") + ""));
-			} catch (Exception e) {
-				LOGGER.error("parser error : " + e);
+			if(getViewCount) {
+				try {
+					collection.setViewCount(this.resourceCassandraService.getInt(collection.getGooruOid(), "stas.viewsCount"));
+					collection.setViews(Long.parseLong(this.resourceCassandraService.getInt(collection.getGooruOid(), "stas.viewsCount") + ""));
+				} catch (Exception e) {
+					LOGGER.error("parser error : " + e);
+				}
 			}
 			for (CollectionItem collectionItem : collection.getCollectionItems()) {
 				if (collectionItem.getResource().getResourceType().getName().equalsIgnoreCase(ASSESSMENT_QUESTION)) {
@@ -1143,11 +1145,13 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				collectionItem.getResource().setCustomFieldValues(this.getCustomFieldsService().getCustomFieldsValuesOfResource(collectionItem.getResource().getGooruOid()));
 				collectionItem.setResource(getResourceService().setContentProvider(collectionItem.getResource()));
 				collectionItem.getResource().setResourceTags(this.getContentService().getContentTagAssoc(collectionItem.getResource().getGooruOid(), user));
-				try {
-					collectionItem.getResource().setViewCount(this.resourceCassandraService.getInt(collectionItem.getResource().getGooruOid(), "stas.viewsCount"));
-					collectionItem.getResource().setViews(Long.parseLong(this.resourceCassandraService.getInt(collectionItem.getResource().getGooruOid(), "stas.viewsCount") + ""));
-				} catch (Exception e) {
-					LOGGER.error("parser error : " + e);
+				if (getViewCount) {
+					try {
+						collectionItem.getResource().setViewCount(this.resourceCassandraService.getInt(collectionItem.getResource().getGooruOid(), "stas.viewsCount"));
+						collectionItem.getResource().setViews(Long.parseLong(this.resourceCassandraService.getInt(collectionItem.getResource().getGooruOid(), "stas.viewsCount") + ""));
+					} catch (Exception e) {
+						LOGGER.error("parser error : " + e);
+					}
 				}
 			}
 
@@ -1643,7 +1647,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		Collection targetCollection = null;
 		boolean hasSameCollection = false;
 		if (collectionId != null) {
-			targetCollection = this.getCollection(collectionId, false, false, false, sourceCollectionItem.getCollection().getUser(), null, null, false);
+			targetCollection = this.getCollection(collectionId, false, false, false, sourceCollectionItem.getCollection().getUser(), null, null, false, false);
 		}
 		if (targetCollection == null) {
 			targetCollection = sourceCollectionItem.getCollection();
@@ -2093,7 +2097,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	@Override
 	public Collection copyCollection(String collectionId, Collection newCollection, boolean addToShelf, String parentId, final User user) throws Exception {
 
-		Collection sourceCollection = this.getCollection(collectionId, false, false, false, user, null, null, false);
+		Collection sourceCollection = this.getCollection(collectionId, false, false, false, user, null, null, false,false);
 		 CollectionItem collectionItem = null;
 		
 		Collection destCollection = null;
