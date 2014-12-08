@@ -2122,8 +2122,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			destCollection.setCreator(sourceCollection.getCreator());
 			destCollection.setDistinguish(sourceCollection.getDistinguish());
 			destCollection.setIsFeatured(sourceCollection.getIsFeatured());
-			SessionContextSupport.putLogParameter(SOURCE_COLLECTION_ID, sourceCollection.getGooruOid());
-			SessionContextSupport.putLogParameter(TARGET_COLLECTION_ID, destCollection.getGooruOid());
 			this.getCollectionRepository().save(destCollection);
 			if (newCollection.getTaxonomySet() != null && newCollection.getTaxonomySet().size() > 0) {
 				resourceService.saveOrUpdateResourceTaxonomy(destCollection, new HashSet<Code>(newCollection.getTaxonomySet()));
@@ -2184,7 +2182,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		try {
 			if (destCollection != null) {
 				indexProcessor.index(destCollection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
-				this.getCollectionEventLog().getEventLogs(collectionItem, null, user, true, false);
+				this.getCollectionEventLog().getEventLogs(collectionItem, true, false, user, collectionItem.getCollection().getCollectionType());
 			}
 		} catch (Exception e) {
 			LOGGER.debug("error" + e.getMessage());
