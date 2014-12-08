@@ -52,16 +52,17 @@ import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.ContentAssociation;
 import org.ednovo.gooru.core.api.model.ContentMetaAssociation;
 import org.ednovo.gooru.core.api.model.ContentMetaDTO;
+import org.ednovo.gooru.core.api.model.ContentSettings;
 import org.ednovo.gooru.core.api.model.ContentType;
 import org.ednovo.gooru.core.api.model.CustomTableValue;
 import org.ednovo.gooru.core.api.model.Identity;
 import org.ednovo.gooru.core.api.model.License;
+import org.ednovo.gooru.core.api.model.PartyCustomField;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.ResourceSource;
 import org.ednovo.gooru.core.api.model.ResourceSummary;
 import org.ednovo.gooru.core.api.model.ResourceType;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
-import org.ednovo.gooru.core.api.model.ContentSettings;
 import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.ShelfType;
 import org.ednovo.gooru.core.api.model.StandardFo;
@@ -208,6 +209,9 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 	@Autowired
 	private OperationAuthorizer operationAuthorizer;
+	
+	@Autowired
+	private PartyService partyService;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ScollectionServiceImpl.class);
 
@@ -896,7 +900,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			this.getCollectionRepository().save(collectionItem);
 			this.getCollectionRepository().save(collectionItem.getCollection());
 			try {
-				this.getCollectionEventLog().getEventLogs(collectionItem, itemData, user);
+				this.getCollectionEventLog().getEventLogs(collectionItem, false, true,user, collectionItem.getCollection().getCollectionType());
 				if (collectionItem.getResource().getResourceType() != null && collectionItem.getResource().getResourceType().getName().equalsIgnoreCase(ResourceType.Type.SCOLLECTION.getType())) {
 					indexProcessor.index(collectionItem.getResource().getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
 				} else {
@@ -2006,6 +2010,10 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				}
 				if (collection.getSharing().equalsIgnoreCase(PUBLIC) && (newCollection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing()))) {
 					final UserSummary userSummary = this.getUserRepository().getSummaryByUid(collection.getUser().getPartyUid());
+					if (userSummary.getCollections() == null || userSummary.getCollections() == 0) {
+						PartyCustomField partyCustomField = new PartyCustomField(USER_META, SHOW_PROFILE_PAGE, TRUE);
+						this.getPartyService().updatePartyCustomField(collection.getUser().getPartyUid(), partyCustomField, collection.getUser());
+					}
 					if (userSummary.getGooruUid() != null) {
 						userSummary.setCollections(userSummary.getCollections() <= 0 ? 0 : (userSummary.getCollections() - 1));
 						this.getUserRepository().save(userSummary);
@@ -2068,7 +2076,9 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		}
 		return new ActionResponseDTO<Collection>(collection, errors);
 	}
-
+	
+	
+	
 	@Override
 	public CollectionItem getCollectionItem(String collectionItemId, final String includeAdditionalInfo, User user, final String rootNodeId) {
 
@@ -2684,6 +2694,10 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 	public ResourceManager getResourceManager() {
 		return resourceManager;
+	}
+	
+	public PartyService getPartyService() {
+		return partyService;
 	}
 
 }
