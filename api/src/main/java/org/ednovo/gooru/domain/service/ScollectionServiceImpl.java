@@ -2011,11 +2011,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				if (collection.getSharing().equalsIgnoreCase(PUBLIC) && (newCollection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing()))) {
 					final UserSummary userSummary = this.getUserRepository().getSummaryByUid(collection.getUser().getPartyUid());
 					if (userSummary.getCollections() == null || userSummary.getCollections() == 0) {
-						PartyCustomField partyCustomField = new PartyCustomField();
-						partyCustomField.setOptionalValue(TRUE);
-						partyCustomField.setOptionalKey(SHOW_PROFILE_PAGE);
-						partyCustomField.setCategory(USER_META);
-						this.getPartyService().updatePartyCustomField(collection.getUser().getPartyUid(), partyCustomField, collection.getUser());
+						this.updateUservisiblity(collection.getUser());
 					}
 					if (userSummary.getGooruUid() != null) {
 						userSummary.setCollections(userSummary.getCollections() <= 0 ? 0 : (userSummary.getCollections() - 1));
@@ -2079,7 +2075,15 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		}
 		return new ActionResponseDTO<Collection>(collection, errors);
 	}
-
+	
+	public void updateUservisiblity(User user) {
+		PartyCustomField partyCustomField = new PartyCustomField();
+		partyCustomField.setOptionalValue(TRUE);
+		partyCustomField.setOptionalKey(SHOW_PROFILE_PAGE);
+		partyCustomField.setCategory(USER_META);
+		this.getPartyService().updatePartyCustomField(user.getPartyUid(), partyCustomField, user);
+	}
+	
 	@Override
 	public CollectionItem getCollectionItem(String collectionItemId, final String includeAdditionalInfo, User user, final String rootNodeId) {
 

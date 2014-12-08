@@ -761,11 +761,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 						if (!scollection.getSharing().equalsIgnoreCase(PUBLIC)) {
 							UserSummary userSummary = this.getUserRepository().getSummaryByUid(scollection.getUser().getPartyUid());
 							if (userSummary.getCollections() == null || userSummary.getCollections() == 0) {
-								PartyCustomField partyCustomField = new PartyCustomField();
-								partyCustomField.setOptionalValue(TRUE);
-								partyCustomField.setOptionalKey(SHOW_PROFILE_PAGE);
-								partyCustomField.setCategory(USER_META);
-								this.getPartyService().updatePartyCustomField(scollection.getUser().getPartyUid(), partyCustomField, scollection.getUser());
+								this.updateUservisiblity(scollection.getUser());
 							}
 							if (userSummary.getGooruUid() == null) {
 								userSummary.setGooruUid(scollection.getUser().getPartyUid());
