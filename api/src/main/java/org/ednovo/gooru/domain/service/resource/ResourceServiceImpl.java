@@ -1179,9 +1179,9 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		Resource resource = this.getResourceRepository().findResourceByContentGooruId(gooruContentId);
 		this.getResourceImageUtil().moveFileAndSendMsgToGenerateThumbnails(resource, fileName, true);
 		try {
-			this.getAsyncExecutor().updateResourceFileInS3(resource.getFolder(), resource.getOrganization().getNfsStorageArea().getInternalPath() , gooruContentId);
+			this.getAsyncExecutor().updateResourceFileInS3(resource.getFolder(), resource.getOrganization().getNfsStorageArea().getInternalPath(), gooruContentId);
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
+			LOGGER.info(e.getMessage());
 		}
 		getAsyncExecutor().deleteFromCache("v2-collection-data-"+ gooruContentId +"*");
 		return resource.getOrganization().getNfsStorageArea().getAreaPath() + resource.getFolder() + "/" + resource.getThumbnail();
