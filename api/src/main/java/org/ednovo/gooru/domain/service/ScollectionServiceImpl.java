@@ -1098,7 +1098,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	
 	
 	@Override
-	public Collection getCollection(String collectionId, boolean includeMetaInfo, boolean includeCollaborator, boolean isContentFlag, final User user, String merge, String rootNodeId, boolean isGat, boolean getViewCount) {
+	public Collection getCollection(String collectionId, boolean includeMetaInfo, boolean includeCollaborator, boolean isContentFlag, final User user, String merge, String rootNodeId, boolean isGat, boolean includeViewCount) {
 		Collection collection = this.getCollectionRepository().getCollectionByGooruOid(collectionId, null);
 		boolean isCollaborator = this.getCollaboratorRepository().findCollaboratorById(collectionId, user.getGooruUId()) != null ? true : false;
 		if (collection != null && (collection.getUser().getGooruUId().equalsIgnoreCase(user.getGooruUId()) || !collection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || userService.isContentAdmin(user) || isCollaborator)) {
@@ -1126,7 +1126,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			}
 
 			collection.setLastModifiedUser(lastUserModifiedMap);
-			if(getViewCount) {
+			if(includeViewCount) {
 				try {
 					collection.setViewCount(this.resourceCassandraService.getInt(collection.getGooruOid(), "stas.viewsCount"));
 					collection.setViews(Long.parseLong(this.resourceCassandraService.getInt(collection.getGooruOid(), "stas.viewsCount") + ""));
@@ -1145,7 +1145,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				collectionItem.getResource().setCustomFieldValues(this.getCustomFieldsService().getCustomFieldsValuesOfResource(collectionItem.getResource().getGooruOid()));
 				collectionItem.setResource(getResourceService().setContentProvider(collectionItem.getResource()));
 				collectionItem.getResource().setResourceTags(this.getContentService().getContentTagAssoc(collectionItem.getResource().getGooruOid(), user));
-				if (getViewCount) {
+				if (includeViewCount) {
 					try {
 						collectionItem.getResource().setViewCount(this.resourceCassandraService.getInt(collectionItem.getResource().getGooruOid(), "stas.viewsCount"));
 						collectionItem.getResource().setViews(Long.parseLong(this.resourceCassandraService.getInt(collectionItem.getResource().getGooruOid(), "stas.viewsCount") + ""));
