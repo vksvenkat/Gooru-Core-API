@@ -2070,6 +2070,10 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			}
 			getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collection.getUser().getPartyUid() + "*");
 			getAsyncExecutor().deleteFromCache("v2-collection-data-"+ collection.getGooruOid() +"*");
+			List<CollectionItem> collectionItems = this.getCollectionRepository().findCollectionByResource(collection.getGooruOid(), null, null);
+			for(CollectionItem collectionItem : collectionItems) {
+				asyncExecutor.deleteFromCache("v2-collection-data-"+ collectionItem.getCollection().getGooruOid() +"*");
+			}
 		}
 
 		try {

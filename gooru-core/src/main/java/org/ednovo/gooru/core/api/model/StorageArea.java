@@ -21,6 +21,7 @@ public class StorageArea implements Serializable {
 	private Date createdOn;
 	private String internalPath;
 	private String cdnDirectPath;
+	private String s3Path;
 
 	@JSON(include = false)
 	public Integer getStorageAreaId() {
@@ -86,6 +87,14 @@ public class StorageArea implements Serializable {
 
 	public String getCdnDirectPath() {
 		return cdnDirectPath;
+	}
+
+	public String getS3Path() {
+		return s3Path;
+	}
+
+	public void setS3Path(String s3Path) {
+		this.s3Path = s3Path;
 	}
 
 }

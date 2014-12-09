@@ -1177,12 +1177,15 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	public String updateResourceImage(String gooruContentId, String fileName) throws IOException {
 
 		Resource resource = this.getResourceRepository().findResourceByContentGooruId(gooruContentId);
+		if(resource == null) {
+			throw new NotFoundException(generateErrorMessage("GL0056", RESOURCE));
+		}
 		this.getResourceImageUtil().moveFileAndSendMsgToGenerateThumbnails(resource, fileName, true);
-		/*try {
-			this.getAsyncExecutor().updateResourceFileInS3(resource.getFolder(), resource.getOrganization().getNfsStorageArea().getInternalPath() , gooruContentId);
+		try {
+			this.getAsyncExecutor().updateResourceFileInS3(resource.getFolder(), resource.getOrganization().getNfsStorageArea().getInternalPath(), gooruContentId);
 		} catch (Exception e) {
-			
-		}*/
+			LOGGER.error(e.getMessage());
+		}
 		getAsyncExecutor().deleteFromCache("v2-collection-data-"+ gooruContentId +"*");
 		return resource.getOrganization().getNfsStorageArea().getAreaPath() + resource.getFolder() + "/" + resource.getThumbnail();
 	}
