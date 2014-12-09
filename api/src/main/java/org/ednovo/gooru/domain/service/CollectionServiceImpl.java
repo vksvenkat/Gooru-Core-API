@@ -192,7 +192,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 			throw new NotFoundException(generateErrorMessage("GL0056", "Qusetion"));
 		}
 		try {
-			this.collectionEventLog.getEventLogs(collectionItem, false,  true, user, collectionItem.getCollection().getCollectionType());
+			this.collectionEventLog.getEventLogs(collectionItem, false,  true, user);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
