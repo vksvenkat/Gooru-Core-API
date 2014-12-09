@@ -1183,6 +1183,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		} catch (Exception e) {
 			
 		}*/
+		getAsyncExecutor().deleteFromCache("v2-collection-data-"+ gooruContentId +"*");
 		return resource.getOrganization().getNfsStorageArea().getAreaPath() + resource.getFolder() + "/" + resource.getThumbnail();
 	}
 
