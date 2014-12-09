@@ -23,8 +23,9 @@ public class Resource extends Content implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = -9010445497258009775L;
-
+	
 	private static final String INDEX_TYPE = "resource";
+	
 
 	public static enum RecordSource {
 		QUOTED("userquoted"), CRAWLED("goorucrawled"), COLLECTION("useradded"), GAT("adminadded"), DEFAULT("notadded");
@@ -587,7 +588,7 @@ public class Resource extends Content implements Serializable {
 
 		public String getUrl() {
 			if(getS3UploadFlag() != null && getS3UploadFlag() == 1) {
-				 this.url = "http://qa-resource-image.s3.amazonaws.com/"+ getFolder() +getThumbnail();
+				 this.url = getOrganization().getS3StorageArea().getS3Path() + getFolder() +getThumbnail();
 			} else if(getResourceType() != null) {
 				if (!getResourceType().getName().equalsIgnoreCase("assessment-question")) {
 					if(getResourceType().getName().equalsIgnoreCase(ResourceType.Type.VIDEO.getType())) {
@@ -1003,5 +1004,6 @@ public class Resource extends Content implements Serializable {
 	public List<String> getLibraryNames() {
 		return libraryNames;
 	}
+	
 
 }

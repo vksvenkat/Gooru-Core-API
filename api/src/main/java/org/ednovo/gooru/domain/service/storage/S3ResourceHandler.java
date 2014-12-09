@@ -108,11 +108,11 @@ public abstract class S3ResourceHandler extends S3ServiceHandler implements Para
 	
 	public void moveFileToS3(String fileName, String sourcePath, String gooruContentId) throws Exception {
 		JSONObject data = new JSONObject();
-		data.put("gooruBucket", settingService.getConfigSetting("s3.resourceBucket", 0, TaxonomyUtil.GOORU_ORG_UID));
+		data.put("gooruBucket", settingService.getConfigSetting(ConfigConstants.RESOURCE_S3_BUCKET, 0, TaxonomyUtil.GOORU_ORG_UID));
 		data.put("sourceFilePath", sourcePath);
 		data.put("fileName",fileName );
 		data.put("callBackUrl",settingService.getConfigSetting(ConfigConstants.GOORU_API_ENDPOINT, 0, TaxonomyUtil.GOORU_ORG_UID)+"/v2/resource/"+gooruContentId+"?sessionToken="+UserGroupSupport.getSessionToken());
-		RequestUtil.executeRestAPI(data.toString(), settingService.getConfigSetting(ConfigConstants.GOORU_CONVERSION_RESTPOINT,0, TaxonomyUtil.GOORU_ORG_UID) + "/conversion/image/upload", Method.POST.getName());
+		RequestUtil.executeRestAPI(data.toString(), settingService.getConfigSetting(ConfigConstants.GOORU_CONVERSION_RESTPOINT,0, TaxonomyUtil.GOORU_ORG_UID) + "/conversion/image/upload", Method.POST.getName(), UserGroupSupport.getSessionToken());
 	}
 
 	public void uploadResourceFolder(Resource resource) {
