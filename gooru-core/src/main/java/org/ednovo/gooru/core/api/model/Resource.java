@@ -333,7 +333,9 @@ public class Resource extends Content implements Serializable {
 
 	public String getAssetURI() {
 		if (getOrganization() != null) {
-			if ((getS3UploadFlag() == null || getS3UploadFlag() == 0) && getOrganization().getNfsStorageArea() != null) {
+			if (getS3UploadFlag() != null && getS3UploadFlag() == 1 && getOrganization().getS3StorageArea() != null) {
+				assetURI = getOrganization().getS3StorageArea().getS3Path() ;
+			} else if ((getS3UploadFlag() == null || getS3UploadFlag() == 0) && getOrganization().getNfsStorageArea() != null) {
 				if (getOrganization().getNfsStorageArea().getCdnDirectPath() != null) {
 					assetURI = getOrganization().getNfsStorageArea().getCdnDirectPath().split(",")[0];
 				} else {
@@ -351,7 +353,6 @@ public class Resource extends Content implements Serializable {
 		if (UserGroupSupport.getUserOrganizationCdnDirectPath() != null) {
 			assetURI = UserGroupSupport.getUserOrganizationCdnDirectPath();
 		}
-
 		assetURI = BaseUtil.changeHttpsProtocol(assetURI);
 		return assetURI;
 	}
@@ -587,18 +588,16 @@ public class Resource extends Content implements Serializable {
 		private boolean isDefaultImage;
 
 		public String getUrl() {
-			if(getS3UploadFlag() != null && getS3UploadFlag() == 1) {
-				 this.url = getOrganization().getS3StorageArea().getS3Path() + getFolder() +getThumbnail();
-			} else if(getResourceType() != null) {
+			if (getResourceType() != null) {
 				if (!getResourceType().getName().equalsIgnoreCase("assessment-question")) {
-					if(getResourceType().getName().equalsIgnoreCase(ResourceType.Type.VIDEO.getType())) {
-						this.url = this.getYoutubeVideoId(Resource.this.getUrl()) == null ? null : "img.youtube.com/vi/"+ this.getYoutubeVideoId(Resource.this.getUrl()) + "/1.jpg";
+					if (getResourceType().getName().equalsIgnoreCase(ResourceType.Type.VIDEO.getType())) {
+						this.url = this.getYoutubeVideoId(Resource.this.getUrl()) == null ? null : "img.youtube.com/vi/" + this.getYoutubeVideoId(Resource.this.getUrl()) + "/1.jpg";
 					} else {
 						if (getThumbnail() != null && getThumbnail().contains("gooru-default")) {
 							this.url = getAssetURI() + getThumbnail();
 						} else if (getThumbnail() != null && !getThumbnail().isEmpty()) {
 							this.url = getAssetURI() + getFolder() + getThumbnail();
-						} else { 
+						} else {
 							this.url = "";
 						}
 					}
