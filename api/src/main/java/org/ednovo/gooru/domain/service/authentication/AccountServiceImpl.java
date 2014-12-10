@@ -320,7 +320,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			this.redisService.delete(SESSION_TOKEN_KEY + userToken.getToken());
 		}
 	}
-	
+
 	@Override
 	public String getConfigSetting(String key, int securityLevel, String organizationUid) {
 		return configSettingRepository.getConfigSetting(key, securityLevel, organizationUid);

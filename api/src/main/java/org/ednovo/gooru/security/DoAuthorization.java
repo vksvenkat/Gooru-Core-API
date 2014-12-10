@@ -209,7 +209,8 @@ public class DoAuthorization {
 			}
 			try {
 				if (key != null) {
-					getRedisService().put(key,
+					getRedisService().put(
+							key,
 							new JSONSerializer().transform(new ExcludeNullTransformer(), void.class).include(new String[] { "*.operationAuthorities", "*.userRoleSet", "*.partyOperations", "*.subOrganizationUids", "*.orgPermits", "*.partyPermits", "*.customFields", "*.identities", "*.meta" })
 									.exclude("*.class").serialize(authentication));
 				}

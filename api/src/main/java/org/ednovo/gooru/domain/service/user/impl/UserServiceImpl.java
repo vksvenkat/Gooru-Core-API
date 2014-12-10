@@ -126,7 +126,7 @@ import org.springframework.util.StringUtils;
 import com.thoughtworks.xstream.core.util.Base64Encoder;
 
 @Service("userService")
-public class UserServiceImpl extends ServerValidationUtils implements UserService,ParameterProperties,ConstantProperties {
+public class UserServiceImpl extends ServerValidationUtils implements UserService, ParameterProperties, ConstantProperties {
 
 	@Autowired
 	private UserRepository userRepository;
@@ -172,26 +172,26 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 
 	@Autowired
 	private ResourceRepository resourceRepository;
-	
+
 	@Autowired
 	private InviteRepository inviteRepository;
 
-	@Autowired 
+	@Autowired
 	private TaxonomyRespository taxonomyRespository;
-	
+
 	@Autowired
 	private CollaboratorService collaboratorService;
-	
+
 	@Autowired
 	private ApplicationRepository applicationRepository;
-	
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
 
 	@Override
 	public User createUser(String firstName, String lastName, String email, String password, String school, String username, Integer confirmStatus, String organizationCode, Integer addedBySystem, String userImportCode, String accountType, String dateOfBirth, String userParentId,
 			String remoteEntityId, String gender, String childDOB, String source, String emailSSO, String referenceUid, String role) throws Exception {
 		List<InviteUser> inviteuser = this.getInviteRepository().getInviteUserByMail(email, COLLABORATOR);
-		if(inviteuser.size() > 0) {
+		if (inviteuser.size() > 0) {
 			confirmStatus = 1;
 		}
 		boolean confirmedUser = false;
@@ -204,7 +204,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 		if (organizationCode != null && organizationCode.length() > 0 && organizationCode.equalsIgnoreCase(GLOBAL)) {
 			confirmStatus = 1;
 		}
-		
+
 		String domain = email.substring(email.indexOf("@") + 1, email.length());
 
 		Idp idp = null;
@@ -212,20 +212,18 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 
 		if (remoteEntityId != null) {
 			idp = this.getIdpRepository().findByName(remoteEntityId);
-			if(idp != null){
+			if (idp != null) {
 				organization = setOrganizationByDomain(idp, organization, organizationCode);
-			}
-			else {
+			} else {
 				idp = new Idp();
 				idp.setName(remoteEntityId);
 				userRepository.save(idp);
 			}
 		} else {
 			idp = this.getIdpRepository().findByName(domain);
-			if(idp != null){
+			if (idp != null) {
 				organization = setOrganizationByDomain(idp, organization, organizationCode);
-			}
-			else if(organizationCode != null){
+			} else if (organizationCode != null) {
 				organization = organizationService.getOrganizationByCode(organizationCode.toLowerCase());
 			}
 		}
@@ -441,7 +439,6 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 
 		identity.setCredential(credential);
 		this.getUserRepository().save(identity);
-		
 
 		this.getPartyService().createUserDefaultCustomAttributes(user.getPartyUid(), user);
 
@@ -449,20 +446,21 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 
 		this.getUserRepository().flush();
 
-		if(inviteuser.size() > 0) {
-			this.getCollaboratorService().updateCollaboratorStatus(email,user);
+		if (inviteuser.size() > 0) {
+			this.getCollaboratorService().updateCollaboratorStatus(email, user);
 		}
 		indexProcessor.index(user.getPartyUid(), IndexProcessor.INDEX, USER);
 
-		/*if (identity.getIdp() != null) {
-			SessionContextSupport.putLogParameter(IDP_NAME, identity.getIdp().getName());
-		} else {
-			SessionContextSupport.putLogParameter(IDP_NAME, GOORU_API);
-		}*/
-		
+		/*
+		 * if (identity.getIdp() != null) {
+		 * SessionContextSupport.putLogParameter(IDP_NAME,
+		 * identity.getIdp().getName()); } else {
+		 * SessionContextSupport.putLogParameter(IDP_NAME, GOORU_API); }
+		 */
+
 		try {
 			getEventLogs(user, source, identity);
-		}catch(Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
@@ -470,16 +468,16 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 
 	}
 
-	private Organization setOrganizationByDomain(Idp idp, Organization organization, String organizationCode){
+	private Organization setOrganizationByDomain(Idp idp, Organization organization, String organizationCode) {
 		OrganizationDomainAssoc domainOrganizationAssoc = this.getIdpRepository().findByDomain(idp);
-		if(domainOrganizationAssoc != null){
+		if (domainOrganizationAssoc != null) {
 			organization = domainOrganizationAssoc.getOrganization();
-		}
-		else if (organizationCode != null) {
+		} else if (organizationCode != null) {
 			organization = organizationService.getOrganizationByCode(organizationCode.toLowerCase());
 		}
 		return organization;
 	}
+
 	/*
 	 * Creates a user object in the database.
 	 */
@@ -531,8 +529,8 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 			}
 		}
 		List<InviteUser> inviteuser = this.getInviteRepository().getInviteUserByMail(email, COLLABORATOR);
-		
-		User user = createUser(firstName, lastName, email, password, school, username, confirmStatus, organizationCode, addedBySystem, null, accountType, dateOfBirth, userParentId, gender, childDOB, null, referenceUid, role,  domainName);
+
+		User user = createUser(firstName, lastName, email, password, school, username, confirmStatus, organizationCode, addedBySystem, null, accountType, dateOfBirth, userParentId, gender, childDOB, null, referenceUid, role, domainName);
 		Application application = this.getApplicationRepository().getApplicationByOrganization(user.getOrganization().getPartyUid());
 		UserToken userToken = this.createSessionToken(user, sessionId, application);
 
@@ -545,11 +543,11 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 
 		if (user != null && sendConfirmationMail && inviteuser.size() <= 0) {
 			if (isAdminCreateUser) {
-				this.getMailHandler().sendMailToConfirm(user.getGooruUId(), password, accountType, userToken.getToken(), null, gooruClassicUrl,null,null,null);
+				this.getMailHandler().sendMailToConfirm(user.getGooruUId(), password, accountType, userToken.getToken(), null, gooruClassicUrl, null, null, null);
 			} else {
 				if (user.getAccountTypeId() == null || !user.getAccountTypeId().equals(UserAccountType.ACCOUNT_CHILD)) {
-					this.getMailHandler().sendMailToConfirm(user.getGooruUId(), null, accountType, userToken.getToken(), dateOfBirth, gooruClassicUrl,null,null,null);
-				} 
+					this.getMailHandler().sendMailToConfirm(user.getGooruUId(), null, accountType, userToken.getToken(), dateOfBirth, gooruClassicUrl, null, null, null);
+				}
 			}
 		}
 
@@ -581,7 +579,6 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 			errorList.put(FIRST_NAME, "First name cannot be null or empty");
 		}
 
-	
 		if (!isNotEmptyString(lastName)) {
 			errorList.put(LAST_NAME, "Last name cannot be null or empty");
 		}
@@ -846,27 +843,27 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 		profile.setUser(user);
 
 		this.getUserRepository().save(profile);
-		
+
 		PartyCustomField partyCustomField = this.getPartyService().getPartyCustomeField(profile.getUser().getPartyUid(), "user_confirm_status", profile.getUser());
-		
-			if(partyCustomField != null && !partyCustomField.getOptionalValue().equalsIgnoreCase("true")) {
-					Map<String, String> dataMap = new HashMap<String, String>();
-					dataMap.put(GOORU_UID, profile.getUser().getPartyUid());
-					dataMap.put(EVENT_TYPE, CustomProperties.EventMapping.WELCOME_MAIL.getEvent());
-					if (profile.getUser().getAccountTypeId() != null && profile.getUser().getAccountTypeId().equals(UserAccountType.ACCOUNT_CHILD)) { 
-						if(profile.getUser().getParentUser().getIdentities() != null){
-							dataMap.put("recipient", profile.getUser().getParentUser().getIdentities().iterator().next().getExternalId());
-						}
-					} else {
-						if(profile.getUser().getIdentities() != null){
-							dataMap.put("recipient", profile.getUser().getIdentities().iterator().next().getExternalId());
-						}
-					}
-					partyCustomField.setOptionalValue("true");
-					this.getUserRepository().save(partyCustomField);
-					this.getMailHandler().handleMailEvent(dataMap);
+
+		if (partyCustomField != null && !partyCustomField.getOptionalValue().equalsIgnoreCase("true")) {
+			Map<String, String> dataMap = new HashMap<String, String>();
+			dataMap.put(GOORU_UID, profile.getUser().getPartyUid());
+			dataMap.put(EVENT_TYPE, CustomProperties.EventMapping.WELCOME_MAIL.getEvent());
+			if (profile.getUser().getAccountTypeId() != null && profile.getUser().getAccountTypeId().equals(UserAccountType.ACCOUNT_CHILD)) {
+				if (profile.getUser().getParentUser().getIdentities() != null) {
+					dataMap.put("recipient", profile.getUser().getParentUser().getIdentities().iterator().next().getExternalId());
+				}
+			} else {
+				if (profile.getUser().getIdentities() != null) {
+					dataMap.put("recipient", profile.getUser().getIdentities().iterator().next().getExternalId());
+				}
 			}
-		
+			partyCustomField.setOptionalValue("true");
+			this.getUserRepository().save(partyCustomField);
+			this.getMailHandler().handleMailEvent(dataMap);
+		}
+
 		if (user != null && identity.getAccountCreatedType() != null && identity.getAccountCreatedType().equalsIgnoreCase(UserAccountType.accountCreatedType.SSO.getType()) && user.getViewFlag() == 0) {
 			password = BaseUtil.base48Encode(7);
 			creds.setPassword(encryptPassword(password));
@@ -938,8 +935,8 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 	@Override
 	public List<UserRole> findAllRoles() {
 		return getUserRepository().findAllRoles();
-	}	
-	
+	}
+
 	@Override
 	public Boolean isContentAdmin(User user) {
 		Boolean isAdminUser = false;
@@ -966,7 +963,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 		}
 		return isAnonymousUser;
 	}
-	
+
 	@Override
 	public Boolean isSuperAdmin(User user) {
 		Boolean isSuperAdmin = false;
@@ -981,7 +978,6 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 
 		return isSuperAdmin;
 	}
-
 
 	private Boolean isNotEmptyString(String field) {
 		return StringUtils.hasLength(field);
@@ -1013,12 +1009,12 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 
 	@Override
 	public List<User> getFollowedByUsers(String gooruUId, Integer offset, Integer limit) {
-		return getUserRepository().getFollowedByUsers(gooruUId,offset,limit);
+		return getUserRepository().getFollowedByUsers(gooruUId, offset, limit);
 	}
 
 	@Override
 	public List<User> getFollowedOnUsers(String gooruUId, Integer offset, Integer limit) {
-		return getUserRepository().getFollowedOnUsers(gooruUId,offset,limit);
+		return getUserRepository().getFollowedOnUsers(gooruUId, offset, limit);
 	}
 
 	@Override
@@ -1264,24 +1260,26 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 	}
 
 	private void getUserParties(PartyPermission partyPermission, Map<String, String> permittedParties, List<String> userParties, List<String> userOrgs, List<String> partyPriveliges) {
-		String partyUid = partyPermission.getParty().getPartyUid();
-		if (partyPermission.getValidFrom() != null && partyPermission.getPermission() != null  && (!permittedParties.containsKey(partyUid) || !permittedParties.get(partyUid).equals(PermissionType.VIEW.getType()))) {
-			permittedParties.put(partyUid, partyPermission.getPermission());
-		}
-		if (partyPermission.getPermission() != null && !partyPriveliges.contains(partyPermission.getPermission())) {
-			partyPriveliges.add(partyPermission.getPermission());
-		}
+		if (partyPermission.getPermission() != null) {
+			String partyUid = partyPermission.getParty().getPartyUid();
+			if (partyPermission.getValidFrom() != null && partyPermission.getPermission() != null && (!permittedParties.containsKey(partyUid) || !permittedParties.get(partyUid).equals(PermissionType.VIEW.getType()))) {
+				permittedParties.put(partyUid, partyPermission.getPermission());
+			}
+			if (partyPermission.getPermission() != null && !partyPriveliges.contains(partyPermission.getPermission())) {
+				partyPriveliges.add(partyPermission.getPermission());
+			}
 
-		if (!userParties.contains(partyUid)) {
-			userParties.add(partyUid);
-		}
-		if (!userOrgs.contains(partyUid)) {
-			userOrgs.add(partyUid);
-		}
-		List<PartyPermission> partyPermissions = groupRepository.getUserPartyPermissions(partyUid);
-		if (partyPermissions.size() > 0) {
-			for (PartyPermission subPartyPermission : partyPermissions) {
-				getUserParties(subPartyPermission, permittedParties, userParties, userOrgs, partyPriveliges);
+			if (!userParties.contains(partyUid)) {
+				userParties.add(partyUid);
+			}
+			if (!userOrgs.contains(partyUid)) {
+				userOrgs.add(partyUid);
+			}
+			List<PartyPermission> partyPermissions = groupRepository.getUserPartyPermissions(partyUid);
+			if (partyPermissions.size() > 0) {
+				for (PartyPermission subPartyPermission : partyPermissions) {
+					getUserParties(subPartyPermission, permittedParties, userParties, userOrgs, partyPriveliges);
+				}
 			}
 		}
 	}
@@ -1318,7 +1316,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 		return getUserCredential(user, key, sharedSecretKey);
 	}
 
-	private UserCredential getUserCredential(User user,final  String key, String sharedSecretKey) {
+	private UserCredential getUserCredential(User user, final String key, String sharedSecretKey) {
 		String userCredentailKey = "user-credential:" + ((key != null && !key.equalsIgnoreCase(NA)) ? key : user.getGooruUId());
 		List<String> authorities = new ArrayList<String>();
 		if (user != null && user.getUserRoleSet() != null && user.getUserRoleSet().size() > 0) {
@@ -1458,13 +1456,13 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 			userRole = new UserRole();
 			userRole.setName(name);
 			userRole.setDescription(description);
-			//userRole.setOrganization(user.getOrganization());
+			// userRole.setOrganization(user.getOrganization());
 			userRole.setOrganization(gooruOrg);
 			userRepository.save(userRole);
 		}
 		return userRole;
 	}
-	
+
 	@Override
 	public UserRole findUserRoleByName(final String name) {
 		return userRepository.findUserRoleByName(name, null);
@@ -1479,7 +1477,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 		if (roleId != null) {
 			userRole = findUserRoleByRoleId(roleId);
 		}
-		rejectIfNull(userRole, GL0056,404, "Role ");
+		rejectIfNull(userRole, GL0056, 404, "Role ");
 		if (operations != null) {
 			String[] operationsArr = operations.split(",");
 			for (String operation : operationsArr) {
@@ -1490,7 +1488,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 				rejectIfNull(entityOperation, GL0056, "Entity Operation ");
 				roleEntityOperation = userRepository.checkRoleEntity(roleId, entityOperation.getEntityOperationId());
 				if (roleEntityOperation != null) {
-					throw new BadRequestException(generateErrorMessage(GL0041,"Entity operation "));
+					throw new BadRequestException(generateErrorMessage(GL0041, "Entity operation "));
 				} else {
 					roleEntityOperation = new RoleEntityOperation();
 					roleEntityOperation.setUserRole(userRole);
@@ -1507,7 +1505,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 
 		return roleEntityOperations;
 	}
-	
+
 	@Override
 	public UserRole findUserRoleByRoleId(Integer roleId) {
 
@@ -1515,7 +1513,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 	}
 
 	@Override
-	public void removeRoleOperation(Integer roleId, String operations) throws Exception{
+	public void removeRoleOperation(Integer roleId, String operations) throws Exception {
 
 		UserRole userRole = null;
 		RoleEntityOperation roleEntityOperation = null;
@@ -1533,10 +1531,10 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 				EntityOperation entityOperation = userRepository.findEntityOperation(entityName, operationName);
 				rejectIfNull(userRole, GL0056, 404, "Entity Operation ");
 				roleEntityOperation = userRepository.checkRoleEntity(roleId, entityOperation.getEntityOperationId());
-					if (roleEntityOperation != null) {
-						roleEntityOperations.add(roleEntityOperation);
-					}
+				if (roleEntityOperation != null) {
+					roleEntityOperations.add(roleEntityOperation);
 				}
+			}
 			if (roleEntityOperations.size() > 0) {
 				userRepository.removeAll(roleEntityOperations);
 			}
@@ -1815,7 +1813,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 		if (user != null) {
 			Application application = this.getApplicationRepository().getApplication(user.getOrganization().getPartyUid());
 			UserToken userToken = this.createSessionToken(user, sessionId, application);
-			this.getMailHandler().sendMailToConfirm(gooruUid, null, accountType, userToken.getToken(), dateOfBirth, gooruClassicUrl,null,null,null);
+			this.getMailHandler().sendMailToConfirm(gooruUid, null, accountType, userToken.getToken(), dateOfBirth, gooruClassicUrl, null, null, null);
 		}
 	}
 
@@ -2052,19 +2050,19 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 		}
 		return userToken;
 	}
-	
+
 	public void getEventLogs(User newUser, String source, Identity newIdentity) throws JSONException {
 		SessionContextSupport.putLogParameter(EVENT_NAME, "user.register");
-		JSONObject context = SessionContextSupport.getLog().get("context") != null ? new JSONObject(SessionContextSupport.getLog().get("context").toString()) :  new JSONObject();
-		if(source != null && source.equalsIgnoreCase(UserAccountType.accountCreatedType.GOOGLE_APP.getType())) {
-			context.put("registerType", accountCreatedType.GOOGLE_APP.getType());			
-		}else if (source != null && source.equalsIgnoreCase(UserAccountType.accountCreatedType.SSO.getType())) {
+		JSONObject context = SessionContextSupport.getLog().get("context") != null ? new JSONObject(SessionContextSupport.getLog().get("context").toString()) : new JSONObject();
+		if (source != null && source.equalsIgnoreCase(UserAccountType.accountCreatedType.GOOGLE_APP.getType())) {
+			context.put("registerType", accountCreatedType.GOOGLE_APP.getType());
+		} else if (source != null && source.equalsIgnoreCase(UserAccountType.accountCreatedType.SSO.getType())) {
 			context.put("registerType", accountCreatedType.SSO.getType());
-		}else {
+		} else {
 			context.put("registerType", "Gooru");
 		}
 		SessionContextSupport.putLogParameter("context", context.toString());
-		JSONObject payLoadObject = SessionContextSupport.getLog().get("payLoadObject") != null ? new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString()) :  new JSONObject();
+		JSONObject payLoadObject = SessionContextSupport.getLog().get("payLoadObject") != null ? new JSONObject(SessionContextSupport.getLog().get("payLoadObject").toString()) : new JSONObject();
 		if (newIdentity != null && newIdentity.getIdp() != null) {
 			payLoadObject.put(IDP_NAME, newIdentity.getIdp().getName());
 		} else {
@@ -2076,23 +2074,23 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 			payLoadObject.put(CREATED_TYPE, identity != null ? identity.getAccountCreatedType() : null);
 		}
 		SessionContextSupport.putLogParameter("payLoadObject", payLoadObject.toString());
-		final JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session").toString()) :  new JSONObject();
+		final JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session").toString()) : new JSONObject();
 		session.put("organizationUId", newUser != null ? newUser.getOrganizationUid() : null);
-		SessionContextSupport.putLogParameter("session", session.toString());	
-		JSONObject user = SessionContextSupport.getLog().get("user") != null ? new JSONObject(SessionContextSupport.getLog().get("user").toString()) :  new JSONObject();
+		SessionContextSupport.putLogParameter("session", session.toString());
+		JSONObject user = SessionContextSupport.getLog().get("user") != null ? new JSONObject(SessionContextSupport.getLog().get("user").toString()) : new JSONObject();
 		user.put("gooruUId", newUser != null ? newUser.getPartyUid() : null);
 		SessionContextSupport.putLogParameter("user", user.toString());
 	}
-	
+
 	@Override
 	public void getEventLogs(Identity identity, final UserToken userToken) throws JSONException {
 		SessionContextSupport.putLogParameter(EVENT_NAME, "user.login");
 		JSONObject context = SessionContextSupport.getLog().get("context") != null ? new JSONObject(SessionContextSupport.getLog().get("context").toString()) : new JSONObject();
-		if(identity != null && identity.getLoginType().equalsIgnoreCase("Credential")) {
+		if (identity != null && identity.getLoginType().equalsIgnoreCase("Credential")) {
 			context.put("LogInType", "Gooru");
-		}else if (identity != null && identity.getLoginType().equalsIgnoreCase("Apps")) {
-			context.put("LogInType", accountCreatedType.GOOGLE_APP.getType());	
-		}else {
+		} else if (identity != null && identity.getLoginType().equalsIgnoreCase("Apps")) {
+			context.put("LogInType", accountCreatedType.GOOGLE_APP.getType());
+		} else {
 			context.put("LogInType", accountCreatedType.SSO.getType());
 		}
 		SessionContextSupport.putLogParameter("context", context.toString());
@@ -2102,10 +2100,10 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 		session.put("sessionToken", userToken.getToken());
 		SessionContextSupport.putLogParameter("session", session.toString());
 		JSONObject user = SessionContextSupport.getLog().get("user") != null ? new JSONObject(SessionContextSupport.getLog().get("user").toString()) : new JSONObject();
-		user.put("gooruUId", identity != null && identity.getUser() != null ? identity.getUser().getPartyUid() : null );
+		user.put("gooruUId", identity != null && identity.getUser() != null ? identity.getUser().getPartyUid() : null);
 		SessionContextSupport.putLogParameter("user", user.toString());
 	}
-		
+
 	public TaxonomyRespository getTaxonomyRespository() {
 		return taxonomyRespository;
 	}
@@ -2125,8 +2123,8 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 	public CollaboratorService getCollaboratorService() {
 		return collaboratorService;
 	}
-	
-	public Integer getChildAccountCount(String userUId){
+
+	public Integer getChildAccountCount(String userUId) {
 		return userRepository.getChildAccountCount(userUId);
 	}
 
