@@ -216,7 +216,13 @@ public class OAuthServiceImpl extends ServerValidationUtils implements OAuthServ
 		return oAuthRepository.findOAuthClientByApplicationKey(apiKey);
 	}
 
-
+	@Override
+	public void deleteOAuthClientByOAuthKey(String oauthKey) throws Exception{
+		OAuthClient oAuthClient = oAuthRepository.findOAuthClientByOAuthKey(oauthKey);
+		rejectIfNull(oAuthClient, GL0056, OAUTH_CLIENT);
+		getApplicationRepository().remove(oAuthClient);
+	}
+	
 	public CustomTableRepository getCustomTableRepository() {
 		return customTableRepository;
 	}

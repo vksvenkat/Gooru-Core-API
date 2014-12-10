@@ -119,7 +119,7 @@ public interface UserRepository extends BaseRepository {
 
 	List<UserRoleAssoc> getUserRoleByName(String roles, String userId);
 
-	List<UserRole> findAllRoles(Integer offset, Integer limit);
+	List<UserRole> findAllRoles();
 	
 	User getUserByUserName(String userName, boolean isLoginRequest);
 
@@ -193,9 +193,9 @@ public interface UserRepository extends BaseRepository {
 	
 	List<UserRoleAssoc> findUserRoleSetByUserUid(String userUid);
 
-	List<UserRole> findUserRoles(String userUid);
+	List<UserRole> getRoles(Integer offset, Integer limit,String userUid);
 
-	Long countRoles();
+	Long countRoles(String userUid);
 	
 	EntityOperation getEntityOperationByEntityOperationId(Integer entityOperationId);
 	
@@ -209,4 +209,5 @@ public interface UserRepository extends BaseRepository {
 	
 	List<RoleEntityOperation> findRoleOperationsByRoleId(Integer roleId);
 	
+	boolean findEntityByEntityName(String entityName);
 }

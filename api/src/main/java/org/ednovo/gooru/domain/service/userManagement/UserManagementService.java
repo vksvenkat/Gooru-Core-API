@@ -114,9 +114,7 @@ public interface UserManagementService extends BaseService {
 	 
 	void resetEmailAddress(List<String> data) throws Exception;
 	 
-	 SearchResults<UserRole> findAllRoles(Integer offset, Integer limit);
-	 
-	 List<UserRole> findUserRoles(String userUId);
+	 SearchResults<UserRole> getRoles(Integer offset, Integer limit,String userUid);
 	 
 	 ActionResponseDTO<UserRole> createNewRole(UserRole userRole, User user) throws Exception;
 

@@ -23,6 +23,7 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.domain.service.apikey;
 
+
 import java.sql.Date;
 import java.util.List;
 import java.util.UUID;
@@ -32,7 +33,6 @@ import org.ednovo.gooru.core.api.model.Application;
 import org.ednovo.gooru.core.api.model.ApplicationItem;
 import org.ednovo.gooru.core.api.model.ContentType;
 import org.ednovo.gooru.core.api.model.CustomTableValue;
-import org.ednovo.gooru.core.api.model.OAuthClient;
 import org.ednovo.gooru.core.api.model.ResourceType;
 import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.User;
@@ -215,30 +215,15 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 	@Override
 	public void deleteApplicationItemByItemId(String applicationItemId) throws Exception{
 		ApplicationItem applicationItem = getApplicationRepository().getApplicationItem(applicationItemId);
-		rejectIfNull(applicationItem, GL0056, 404, "Application Item ");
+		rejectIfNull(applicationItem, GL0056, APPLICATION_ITEM);
 		getApplicationRepository().remove(applicationItem);
-	}
-	
-	@Override
-	public void deleteOAuthClientByOAuthKey(String oauthKey) throws Exception{
-		OAuthClient oAuthClient = oAuthRepository.findOAuthClientByOAuthKey(oauthKey);
-		rejectIfNull(oAuthClient, GL0056, 404, "OAuth Client ");
-		getApplicationRepository().remove(oAuthClient);
 	}
 	
 	@Override
 	public void deleteApplicationByApikey(String apikey) throws Exception{
 		Application application = this.getApplicationRepository().getApplication(apikey);
-		rejectIfNull(application, GL0056, 404, "Application ");
-		/*List<ApplicationItem> applicationItemList=this.getApplicationRepository().getApplicationItemByApiKey(apikey);
-		List<OAuthClient> oAuthList = oAuthRepository.findOAuthClientByApplicationKey(apikey);
-		if(applicationItemList.size() != 0){
-			this.getApplicationRepository().removeAll(applicationItemList);
-		}
-		if(oAuthList.size() !=0){
-			this.getOAuthRepository().removeAll(oAuthList);
-		}*/
-			this.getApplicationRepository().remove(application);			
+		rejectIfNull(application, GL0056, APPLICATION);
+		this.getApplicationRepository().remove(application);			
 	}
 	
 	public CustomTableRepository getCustomTableRepository() {

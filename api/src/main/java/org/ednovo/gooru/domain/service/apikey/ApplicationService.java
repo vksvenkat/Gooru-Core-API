@@ -55,5 +55,4 @@ public interface ApplicationService {
 	
 	void deleteApplicationItemByItemId(String applicationItemId) throws Exception;
     
-    void deleteOAuthClientByOAuthKey(String oauthKey) throws Exception;
 }

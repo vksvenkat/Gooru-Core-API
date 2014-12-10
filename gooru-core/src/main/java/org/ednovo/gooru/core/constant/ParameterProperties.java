@@ -2794,8 +2794,6 @@ public interface ParameterProperties {
 
 	String MENU = "menu";
 	
-	String _MENU = "Menu";
-	
 	String MENU_UID = "menuUid";
 	
 	String GL0010 = "GL0010";
@@ -2803,10 +2801,6 @@ public interface ParameterProperties {
 	String GL0101 = "GL0101";
 	
 	String GL0102 = "GL0102";
-	
-	String _MENU_ITEM = "Menu Item";
-	
-	String _ROLE = "Role";
 	
 	String GL0103 = "GL0103";
 

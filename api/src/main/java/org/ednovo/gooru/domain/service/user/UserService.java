@@ -111,8 +111,6 @@ public interface UserService {
 
 	UserRole findUserRoleByName(String name);
 
-	UserRole findUserRoleByRoleId(Integer roleId);
-
 	UserRole createRole(String name, String description, User user) throws Exception;
 		
 	List<RoleEntityOperation> updateRoleOperation(Integer roleId, String operations) throws Exception;
@@ -189,6 +187,6 @@ public interface UserService {
 	 
 	 public Integer getChildAccountCount(String userUId);
 
-	 List<UserRole> findAllRoles(Integer limit, Integer offset);
+	 List<UserRole> findAllRoles();
 	 
  }

@@ -1,7 +1,7 @@
 package org.ednovo.gooru.infrastructure.persistence.hibernate.menu;
 
 
-import java.util.HashSet;
+
 import java.util.List;
 import java.util.Set;
 
@@ -123,7 +123,7 @@ public class MenuRepositoryHibernate extends BaseRepositoryHibernate implements 
 		String hql = "FROM Role r WHERE r.roleId =:roleId";
 		Query query = getSession().createQuery(hql);
 		query.setParameter("roleId", roleId);
-		return (Role) ((query.list().size() > 0) ? query.list().get(0) : null);
+		return (Role) query.list().get(0);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -144,8 +144,7 @@ public class MenuRepositoryHibernate extends BaseRepositoryHibernate implements 
 		if (menuUid != null) {
 			query.setParameter("menuUid", menuUid);
 		}
-		Set<MenuRoleAssoc> menuRoleAssocSet = new HashSet<MenuRoleAssoc>(query.list());
-		return menuRoleAssocSet;
+		return (Set<MenuRoleAssoc>) query.list();
 	}
 	
 	@Override
@@ -160,7 +159,7 @@ public class MenuRepositoryHibernate extends BaseRepositoryHibernate implements 
 		if (menuUid != null) {
 			query.setParameter("menuUid", menuUid);
 		}
-		return (MenuItem) (query.list().size() > 0 ? query.list().get(0) : null);
+		return (MenuItem) query.list().get(0);
 		
 	}
 }

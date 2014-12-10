@@ -24,6 +24,7 @@
 
 package org.ednovo.gooru.controllers.v2.api;
 
+
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -42,7 +43,6 @@ import org.ednovo.gooru.core.security.AuthorizeOperations;
 import org.ednovo.gooru.core.api.model.OAuthClient;
 import org.ednovo.gooru.domain.service.oauth.OAuthService;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Propagation;
@@ -157,7 +157,16 @@ public class OAuthRestV2Controller extends BaseController implements ConstantPro
 		String [] includes = (String[]) ArrayUtils.addAll(ERROR_INCLUDE, OAUTH_CLIENT_INCLUDES);
 		return toModelAndView(serialize(this.getOAuthService().listOAuthClientByOrganization(organizationUId, offset, limit, null), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, includes));
 	}
-	
+
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_APPLICATION_DELETE })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(method = { RequestMethod.DELETE }, value = "oauth/client/{id}")
+	public void deleteOAuthClientByOAuthKey(@PathVariable(value = ID) String oauthKey, HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+		this.getOAuthService().deleteOAuthClientByOAuthKey(oauthKey);
+		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+	}
+
 	private OAuthClient buildOAuthClientFromInputParameters(String data) {
 		return JsonDeserializer.deserialize(data, OAuthClient.class);
 	}

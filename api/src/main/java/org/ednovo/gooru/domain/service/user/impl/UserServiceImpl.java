@@ -23,6 +23,7 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.domain.service.user.impl;
 
+
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -84,7 +85,6 @@ import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.GooruOperationConstants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
-import org.ednovo.gooru.core.exception.BadRequestException;
 import org.ednovo.gooru.core.exception.UserNotConfirmedException;
 import org.ednovo.gooru.domain.service.CollaboratorService;
 import org.ednovo.gooru.domain.service.PartyService;
@@ -935,8 +935,8 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 	}
 
 	@Override
-	public List<UserRole> findAllRoles(Integer limit, Integer offset) {
-		return getUserRepository().findAllRoles(limit, offset);
+	public List<UserRole> findAllRoles() {
+		return getUserRepository().findAllRoles();
 	}	
 	
 	@Override
@@ -1034,9 +1034,6 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 	public User updateUserRole(String gooruUid, UserRoleType role) {
 
 		User user = this.getUserRepository().findByGooruId(gooruUid);
-		if (user == null) {
-			return null;
-		}
 		Profile profile = this.getUserRepository().getProfile(user, false);
 		profile.setIsPublisherRequestPending(0);
 		UserRoleAssoc usrRoleAssoc = new UserRoleAssoc();
@@ -1472,13 +1469,10 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 
 	@Override
 	public List<RoleEntityOperation> updateRoleOperation(Integer roleId, String operations) throws Exception {
-		UserRole userRole = null;
+		UserRole userRole = userRepository.findUserRoleByRoleId(roleId);
+		rejectIfNull(userRole, GL0056, ROLE);
 		RoleEntityOperation roleEntityOperation = null;
 		List<RoleEntityOperation> roleEntityOperations = new ArrayList<RoleEntityOperation>();
-		if (roleId != null) {
-			userRole = findUserRoleByRoleId(roleId);
-		}
-		rejectIfNull(userRole, GL0056,404, "Role ");
 		if (operations != null) {
 			String[] operationsArr = operations.split(",");
 			for (String operation : operationsArr) {
@@ -1486,43 +1480,26 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 				String entityName = entityOperationArr[0];
 				String operationName = entityOperationArr[1];
 				final EntityOperation entityOperation = userRepository.findEntityOperation(entityName, operationName);
-				rejectIfNull(entityOperation, GL0056, "Entity Operation ");
 				roleEntityOperation = userRepository.checkRoleEntity(roleId, entityOperation.getEntityOperationId());
-				if (roleEntityOperation != null) {
-					throw new BadRequestException(generateErrorMessage(GL0041,"Entity operation "));
-				} else {
+				if(roleEntityOperation == null){
 					roleEntityOperation = new RoleEntityOperation();
 					roleEntityOperation.setUserRole(userRole);
 					roleEntityOperation.setEntityOperation(entityOperation);
 					roleEntityOperations.add(roleEntityOperation);
 				}
 			}
-			if (roleEntityOperations.size() > 0) {
-				userRepository.saveAll(roleEntityOperations);
-				roleEntityOperations = userRepository.getRoleEntityOperations(roleId);
-			}
-
+			userRepository.saveAll(roleEntityOperations);				
 		}
-
 		return roleEntityOperations;
-	}
-	
-	@Override
-	public UserRole findUserRoleByRoleId(Integer roleId) {
-
-		return userRepository.findUserRoleByRoleId(roleId);
 	}
 
 	@Override
 	public void removeRoleOperation(Integer roleId, String operations) throws Exception{
 
-		UserRole userRole = null;
+		UserRole userRole = userRepository.findUserRoleByRoleId(roleId);
+		rejectIfNull(userRole, GL0056, ROLE);
 		RoleEntityOperation roleEntityOperation = null;
 		List<RoleEntityOperation> roleEntityOperations = new ArrayList<RoleEntityOperation>();
-		if (roleId != null) {
-			userRole = findUserRoleByRoleId(roleId);
-		}
-		rejectIfNull(userRole, GL0056, 404, "Role ");
 		if (operations != null) {
 			String[] operationsArr = operations.split(",");
 			for (String operation : operationsArr) {
@@ -1530,15 +1507,12 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 				String entityName = entityOperationArr[0];
 				String operationName = entityOperationArr[1];
 				EntityOperation entityOperation = userRepository.findEntityOperation(entityName, operationName);
-				rejectIfNull(userRole, GL0056, 404, "Entity Operation ");
 				roleEntityOperation = userRepository.checkRoleEntity(roleId, entityOperation.getEntityOperationId());
-					if (roleEntityOperation != null) {
-						roleEntityOperations.add(roleEntityOperation);
-					}
+				if (roleEntityOperation != null) {
+					roleEntityOperations.add(roleEntityOperation);
 				}
-			if (roleEntityOperations.size() > 0) {
-				userRepository.removeAll(roleEntityOperations);
 			}
+			userRepository.removeAll(roleEntityOperations);
 		}
 	}
 

@@ -71,7 +71,7 @@ public class MenuServiceImpl extends BaseServiceImpl implements MenuService, Par
 	@Override
 	public Menu updateMenu(Menu newMenu, User user, String menuUid) {
 		Menu menu = this.getMenuRepository().findMenuById(menuUid);
-		rejectIfNull(menu, GL0056, 404, _MENU);
+		rejectIfNull(menu, GL0056, MENU);
 
 		if (newMenu.getName() != null) {
 			menu.setName(newMenu.getName());
@@ -112,49 +112,29 @@ public class MenuServiceImpl extends BaseServiceImpl implements MenuService, Par
 	public MenuItem updateMenuItem(MenuItem newMenuItem, String menuItemUid, User user) {
 
 		MenuItem menuItem = this.getMenuRepository().findMenuItemById(menuItemUid);
-		rejectIfNull(menuItem, GL0056, 404, _MENU);
+		rejectIfNull(menuItem, GL0056, MENU);
 		int mainMenuSequence = 0;
 		int subMenuSequence = 0;
-		int sequence = 0;
 		String parentMenuUid = null;
 		if (menuItem.getParentMenuUid() == null) {
 			mainMenuSequence = menuItem.getSequence();
 		}
-		if (menuItem.getParentMenuUid() != null) {
+		else {
 			parentMenuUid = menuItem.getParentMenuUid();
 			subMenuSequence = menuItem.getSequence();
 		}
 		if (newMenuItem.getParentMenuUid() != null) {
 			menuItem.setParentMenuUid(newMenuItem.getParentMenuUid());
-			sequence = getMenuRepository().getMenuItemCount(newMenuItem.getParentMenuUid()) == 0 ? 1 :  getMenuRepository().getMenuItemCount(newMenuItem.getParentMenuUid()) + 1;
+			int sequence = getMenuRepository().getMenuItemCount(newMenuItem.getParentMenuUid()) == 0 ? 1 :  getMenuRepository().getMenuItemCount(newMenuItem.getParentMenuUid()) + 1;
 			menuItem.setSequence(sequence);
 		}
 		this.getMenuRepository().save(menuItem);
 		getMenuRepository().flush();
-		List<MenuItem> menuItemList = new ArrayList<MenuItem>();
 		if(mainMenuSequence > 0){
-			menuItemList = this.getMenuRepository().getMenuItemsByMenuId(null);
-			if(menuItemList.size() > 0){
-				for (MenuItem mItem : menuItemList){
-					if(mItem.getSequence() > mainMenuSequence){
-						mItem.setSequence(mainMenuSequence);
-						getMenuRepository().save(mItem);
-						mainMenuSequence++;
-					}
-				}
-			}
+			this.orderMainMenuSequence(mainMenuSequence);
 		}
-		if(subMenuSequence > 0){
-			menuItemList = this.getMenuRepository().getMenuItemsByMenuId(parentMenuUid);
-			if(menuItemList.size() > 0){
-				for (MenuItem mItem : menuItemList){
-					if(mItem.getSequence() > subMenuSequence){
-						mItem.setSequence(subMenuSequence);
-						getMenuRepository().save(mItem);
-						subMenuSequence++;
-					}
-				}
-			}
+		else{
+			this.orderSubMenuSequence(parentMenuUid,subMenuSequence);
 		}
 		return menuItem;
 	}
@@ -163,13 +143,12 @@ public class MenuServiceImpl extends BaseServiceImpl implements MenuService, Par
 	public MenuRoleAssoc assignRoleByMenuUid(Integer roleId, String menuUid) throws Exception {
 
 		Menu menu = menuRepository.findMenuById(menuUid);
-		rejectIfNull(menu, GL0056, 404, _MENU);
+		rejectIfNull(menu, GL0056, MENU);
 		Role role = menuRepository.findRoleByRoleId(roleId);
-		rejectIfNull(role, GL0056, 404, _ROLE);
-		Set<MenuRoleAssoc> menuRoleAssocSet = new HashSet<MenuRoleAssoc>(); 
-		menuRoleAssocSet = menuRepository.findMenuRoleAssocEntry(roleId, menuUid);
+		rejectIfNull(role, GL0056, ROLE);
+		Set<MenuRoleAssoc> menuRoleAssocSet = menuRepository.findMenuRoleAssocEntry(roleId, menuUid);
 		if(menuRoleAssocSet.size() > 0){	
-			throw new BadRequestException(generateErrorMessage(GL0103,_MENU));				
+			throw new BadRequestException(generateErrorMessage(GL0103,MENU));				
 		}
 		MenuRoleAssoc mRoleAssoc = new MenuRoleAssoc();
 		mRoleAssoc.setMenu(menu);
@@ -180,8 +159,8 @@ public class MenuServiceImpl extends BaseServiceImpl implements MenuService, Par
 	
 	@Override
 	public void removeAssignedRoleByMenuUid(Integer roleId, String menuUid)throws Exception {
-		Set<MenuRoleAssoc> menuRoleAssocSet = new HashSet<MenuRoleAssoc>(); 
-		menuRoleAssocSet = menuRepository.findMenuRoleAssocEntry(roleId, menuUid);
+		Set<MenuRoleAssoc> menuRoleAssocSet = menuRepository.findMenuRoleAssocEntry(roleId, menuUid);
+		rejectIfNull(menuRoleAssocSet, GL0102, ROLE);
 		if(menuRoleAssocSet.size() > 0){	
 			for(MenuRoleAssoc menuRoleAssoc : menuRoleAssocSet){	
 				if (roleId == menuRoleAssoc.getRole().getRoleId()) {
@@ -193,53 +172,59 @@ public class MenuServiceImpl extends BaseServiceImpl implements MenuService, Par
 	
 	@Override
 	public void deleteMenu(String id,String type) throws Exception {
-		int mainMenuItemSequence = 0;
-		int subMenuItemSequence = 0;
-		String menuItemParentMenuUid = null;
+		int mainMenuSequence = 0;
+		int subMenuSequence = 0;
+		String parentMenuUid = null;
 		MenuItem menuItem = new MenuItem(); 
 		if(type.equalsIgnoreCase(MENU)){
 			menuItem = this.getMenuRepository().findMenuItemMenuUid(id);
 		}else{
 			menuItem = this.getMenuRepository().findMenuItemById(id);
 		}
-		rejectIfNull(menuItem, GL0056, 404, _MENU);
+		rejectIfNull(menuItem, GL0056, MENU);
 		Menu menu = getMenuRepository().findMenuById(menuItem.getMenu().getMenuUid());
 		if(menuItem.getParentMenuUid() == null){
-			mainMenuItemSequence = menuItem.getSequence();
+			mainMenuSequence = menuItem.getSequence();
 		}
-		if(menuItem.getParentMenuUid() != null)
+		else
 		{
-			menuItemParentMenuUid = menuItem.getParentMenuUid();
-			subMenuItemSequence = menuItem.getSequence();
+			parentMenuUid = menuItem.getParentMenuUid();
+			subMenuSequence = menuItem.getSequence();
 		}
 		getMenuRepository().remove(menu);
 		getMenuRepository().flush();
-		if (mainMenuItemSequence != 0) {
-			List<MenuItem> mainMenuItemList = new ArrayList<MenuItem>();
-			mainMenuItemList = this.getMenuRepository().getMenuItemsByMenuId(null);
-			if(mainMenuItemList.size() > 0){	
-				for (MenuItem mItem : mainMenuItemList) {
-					if (mItem.getSequence() > mainMenuItemSequence) {
-						mItem.setSequence(mainMenuItemSequence);
-						getMenuRepository().save(mItem);
-						mainMenuItemSequence++;
-					}
-				}
-			}
-		} 
-		if (subMenuItemSequence != 0) {
-			List<MenuItem> subMenuItemList = new ArrayList<MenuItem>();
-			subMenuItemList = this.getMenuRepository().getMenuItemsByMenuId(menuItemParentMenuUid);
-			if(subMenuItemList.size() > 0){	
-				for (MenuItem mItem : subMenuItemList) {
-					if (mItem.getSequence() > subMenuItemSequence) {
-						mItem.setSequence(subMenuItemSequence);
-						getMenuRepository().save(mItem);
-						subMenuItemSequence++;
-					}
-				}
-			}
+		if(mainMenuSequence > 0){
+			this.orderMainMenuSequence(mainMenuSequence);
+		}
+		else{
+			this.orderSubMenuSequence(parentMenuUid,subMenuSequence);
 		}		
+	}
+	
+	private void orderMainMenuSequence(int mainMenuSequence){
+		List<MenuItem> menuItemList = this.getMenuRepository().getMenuItemsByMenuId(null);
+		if(menuItemList.size() > 0){
+			for (MenuItem mItem : menuItemList){
+				if(mItem.getSequence() > mainMenuSequence){
+					mItem.setSequence(mainMenuSequence);
+					getMenuRepository().save(mItem);
+					mainMenuSequence++;
+				}
+			}
+		}
+	}
+	
+	private void orderSubMenuSequence(String parentMenuUid,int subMenuSequence){
+		List<MenuItem> menuItemList = this.getMenuRepository().getMenuItemsByMenuId(parentMenuUid);
+		if(menuItemList.size() > 0){
+			for (MenuItem mItem : menuItemList){
+				if(mItem.getSequence() > subMenuSequence){
+					mItem.setSequence(subMenuSequence);
+					getMenuRepository().save(mItem);
+					subMenuSequence++;
+				}
+			}
+		}
 	}
 	
 	private Errors validateCreateMenu(Menu menu) {

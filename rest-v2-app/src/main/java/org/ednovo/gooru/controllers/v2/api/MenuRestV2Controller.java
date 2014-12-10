@@ -122,7 +122,7 @@ public class MenuRestV2Controller extends BaseController implements ConstantProp
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_MENU_ADD })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	@RequestMapping(method = RequestMethod.POST, value = "/assignRole/{menuUid}")
+	@RequestMapping(method = RequestMethod.POST, value = "/{menuUid}/role")
 	public ModelAndView assignRoleByMenuUid(HttpServletRequest request,HttpServletResponse response,@PathVariable(MENU_UID) String menuUid, @RequestBody String data)throws Exception {
 
 		return toModelAndViewWithIoFilter(getMenuService().assignRoleByMenuUid(this.buildRoleFromInputParameters(data).getRoleId(), menuUid), RESPONSE_FORMAT_JSON,EXCLUDE_ALL, true, (String[]) ArrayUtils.addAll(MENU_ROLE_ASSOC_INCLUDES,ERROR_INCLUDE));
@@ -130,26 +130,29 @@ public class MenuRestV2Controller extends BaseController implements ConstantProp
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_MENU_DELETE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	@RequestMapping(method = RequestMethod.DELETE, value = "/removeAssignedRole/{menuUid}")
+	@RequestMapping(method = RequestMethod.DELETE, value = "/{menuUid}/role")
 	public void removeAssignedRoleByMenuUid(HttpServletRequest request,HttpServletResponse response,@PathVariable(MENU_UID) String menuUid, @RequestBody String data)throws Exception {
 		
 		this.getMenuService().removeAssignedRoleByMenuUid(this.buildRoleFromInputParameters(data).getRoleId(), menuUid);
+		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_MENU_DELETE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	@RequestMapping(value = { "/{id}" }, method = RequestMethod.DELETE)
+	@RequestMapping(method = RequestMethod.DELETE, value = "/{id}")
 	public void deleteMenu(@PathVariable(value = ID) String menuUid, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
 		this.getMenuService().deleteMenu(menuUid,MENU);
+		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
 	}
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_MENU_DELETE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	@RequestMapping(value = { "/item/{id}" }, method = RequestMethod.DELETE)
+	@RequestMapping(method = RequestMethod.DELETE, value = "/item/{id}")
 	public void deleteMenuItem(@PathVariable(value = ID) String menuItemUid, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
 		this.getMenuService().deleteMenu(menuItemUid,ITEM);
+		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
 	}
 	
 	private Role buildRoleFromInputParameters(String data) {
