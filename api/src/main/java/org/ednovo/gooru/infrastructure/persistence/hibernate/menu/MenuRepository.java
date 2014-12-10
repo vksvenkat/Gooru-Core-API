@@ -23,7 +23,7 @@ public interface MenuRepository extends BaseRepository{
 	    
     Integer getParentMenuCount();
     
-    Set<MenuRoleAssoc> findMenuRoleAssocEntry(Integer roleId,String menuUid);
+    MenuRoleAssoc findMenuRoleAssocEntry(Integer roleId,String menuUid);
     
     Role findRoleByRoleId(Integer roleId);
     

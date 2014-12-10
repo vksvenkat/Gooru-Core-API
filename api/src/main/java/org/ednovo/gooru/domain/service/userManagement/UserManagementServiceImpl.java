@@ -1404,16 +1404,11 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	}
 	
 	@Override
-	public SearchResults<UserRole> findAllRoles(Integer offset, Integer limit) {
+	public SearchResults<UserRole> getRoles(Integer offset, Integer limit,String userUid) {
 		SearchResults<UserRole> result = new SearchResults<UserRole>();
-		result.setSearchResults(this.getUserRepository().findAllRoles(offset,limit));
-		result.setTotalHitCount(this.getUserRepository().countRoles());
+		result.setSearchResults(this.getUserRepository().getRoles(offset,limit,userUid));
+		result.setTotalHitCount(this.getUserRepository().countRoles(userUid));
 		return result;
-	}
-
-	@Override
-	public List<UserRole> findUserRoles(String userUid) {
-		return this.getUserRepository().findUserRoles(userUid);
 	}
 
 	@Override

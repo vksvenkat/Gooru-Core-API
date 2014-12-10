@@ -24,7 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
 
-import com.netflix.astyanax.connectionpool.exceptions.BadRequestException;
+import org.ednovo.gooru.core.exception.BadRequestException;
 
 @Service
 public class MenuServiceImpl extends BaseServiceImpl implements MenuService, ParameterProperties, ConstantProperties {
@@ -109,46 +109,48 @@ public class MenuServiceImpl extends BaseServiceImpl implements MenuService, Par
 	}
 
 	@Override
-	public MenuItem updateMenuItem(MenuItem newMenuItem, String menuItemUid, User user) {
-
-		MenuItem menuItem = this.getMenuRepository().findMenuItemById(menuItemUid);
+	public MenuItem updateMenuItem(String menuUid, MenuItem menuItem, User user) {
 		rejectIfNull(menuItem, GL0056, MENU);
 		int mainMenuSequence = 0;
 		int subMenuSequence = 0;
-		String parentMenuUid = null;
+		String parentMenuUid = null;		
+		int sequence = 0;
 		if (menuItem.getParentMenuUid() == null) {
 			mainMenuSequence = menuItem.getSequence();
 		}
-		else {
+		else{
 			parentMenuUid = menuItem.getParentMenuUid();
 			subMenuSequence = menuItem.getSequence();
 		}
-		if (newMenuItem.getParentMenuUid() != null) {
-			menuItem.setParentMenuUid(newMenuItem.getParentMenuUid());
-			int sequence = getMenuRepository().getMenuItemCount(newMenuItem.getParentMenuUid()) == 0 ? 1 :  getMenuRepository().getMenuItemCount(newMenuItem.getParentMenuUid()) + 1;
-			menuItem.setSequence(sequence);
+		menuItem.setParentMenuUid(menuUid);
+		if (menuUid != null) {
+			sequence = getMenuRepository().getMenuItemCount(menuUid) == 0 ? 1 :  getMenuRepository().getMenuItemCount(menuUid) + 1;
 		}
+		else{
+			sequence = getMenuRepository().getParentMenuCount() == 0 ? 1 :  getMenuRepository().getParentMenuCount() + 1;
+		}
+		menuItem.setSequence(sequence);
 		this.getMenuRepository().save(menuItem);
 		getMenuRepository().flush();
 		if(mainMenuSequence > 0){
 			this.orderMainMenuSequence(mainMenuSequence);
 		}
 		else{
-			this.orderSubMenuSequence(parentMenuUid,subMenuSequence);
+			this.orderSubMenuSequence(parentMenuUid, subMenuSequence);
 		}
 		return menuItem;
 	}
 
 	@Override
-	public MenuRoleAssoc assignRoleByMenuUid(Integer roleId, String menuUid) throws Exception {
+	public MenuRoleAssoc assignRoleByMenuUid(Integer roleId, String menuUid) throws Exception{
 
 		Menu menu = menuRepository.findMenuById(menuUid);
 		rejectIfNull(menu, GL0056, MENU);
 		Role role = menuRepository.findRoleByRoleId(roleId);
 		rejectIfNull(role, GL0056, ROLE);
-		Set<MenuRoleAssoc> menuRoleAssocSet = menuRepository.findMenuRoleAssocEntry(roleId, menuUid);
-		if(menuRoleAssocSet.size() > 0){	
-			throw new BadRequestException(generateErrorMessage(GL0103,MENU));				
+		MenuRoleAssoc menuRoleAssoc = menuRepository.findMenuRoleAssocEntry(roleId, menuUid);
+		if(menuRoleAssoc != null){
+			throw new BadRequestException(generateErrorMessage(GL0103, MENU));
 		}
 		MenuRoleAssoc mRoleAssoc = new MenuRoleAssoc();
 		mRoleAssoc.setMenu(menu);
@@ -159,48 +161,68 @@ public class MenuServiceImpl extends BaseServiceImpl implements MenuService, Par
 	
 	@Override
 	public void removeAssignedRoleByMenuUid(Integer roleId, String menuUid)throws Exception {
-		Set<MenuRoleAssoc> menuRoleAssocSet = menuRepository.findMenuRoleAssocEntry(roleId, menuUid);
-		rejectIfNull(menuRoleAssocSet, GL0102, ROLE);
-		if(menuRoleAssocSet.size() > 0){	
-			for(MenuRoleAssoc menuRoleAssoc : menuRoleAssocSet){	
-				if (roleId == menuRoleAssoc.getRole().getRoleId()) {
-					getMenuRepository().remove(menuRoleAssoc);								
-				}
-			}
-		}
+		MenuRoleAssoc menuRoleAssoc = menuRepository.findMenuRoleAssocEntry(roleId, menuUid);
+		rejectIfNull(menuRoleAssoc, GL0102, MENU);
+		getMenuRepository().remove(menuRoleAssoc);								
 	}
 	
 	@Override
 	public void deleteMenu(String id,String type) throws Exception {
+		MenuItem menuItem = new MenuItem(); 
 		int mainMenuSequence = 0;
 		int subMenuSequence = 0;
-		String parentMenuUid = null;
-		MenuItem menuItem = new MenuItem(); 
+		String parentMenuUid = null;		
 		if(type.equalsIgnoreCase(MENU)){
-			menuItem = this.getMenuRepository().findMenuItemMenuUid(id);
+			menuItem = this.getMenuRepository().findMenuItemMenuUid(id);						
 		}else{
 			menuItem = this.getMenuRepository().findMenuItemById(id);
 		}
 		rejectIfNull(menuItem, GL0056, MENU);
-		Menu menu = getMenuRepository().findMenuById(menuItem.getMenu().getMenuUid());
-		if(menuItem.getParentMenuUid() == null){
+		if (menuItem.getParentMenuUid() == null) {
 			mainMenuSequence = menuItem.getSequence();
 		}
-		else
-		{
+		else{
 			parentMenuUid = menuItem.getParentMenuUid();
 			subMenuSequence = menuItem.getSequence();
 		}
-		getMenuRepository().remove(menu);
+		Menu mainMenu = menuItem.getMenu();		
+		if(menuItem.getParentMenuUid() == null){
+			List<MenuItem> menuItemList = this.getMenuRepository().getMenuItemsByMenuId(menuItem.getMenu().getMenuUid());
+			if(menuItemList.size() > 0){	
+				for(MenuItem subMenuItem : menuItemList){
+					Menu subMenu = subMenuItem.getMenu();
+					subMenu.setIsActive(false);
+					getMenuRepository().save(subMenu);
+				}
+			}
+		}
+		mainMenu.setIsActive(false);
+		getMenuRepository().save(mainMenu);
 		getMenuRepository().flush();
 		if(mainMenuSequence > 0){
 			this.orderMainMenuSequence(mainMenuSequence);
 		}
 		else{
-			this.orderSubMenuSequence(parentMenuUid,subMenuSequence);
+			this.orderSubMenuSequence(parentMenuUid, subMenuSequence);
 		}		
-	}
+	}	
 	
+	private Errors validateCreateMenu(Menu menu) {
+		final Errors errors = new BindException(menu, "menu");
+		rejectIfNull(errors, menu, NAME, GL0006, generateErrorMessage(GL0006, NAME));
+		return errors;
+	}
+
+	private List<Integer> getRoles(User user) {
+		Set<Integer> roleIds = new HashSet<Integer>();
+		if (user.getUserRoleSet() != null) {
+			for (UserRoleAssoc userRoleAssoc : user.getUserRoleSet()) {
+				roleIds.add(Integer.parseInt(userRoleAssoc.getRole().getRoleId().toString()));
+			}
+		}
+		return new ArrayList<Integer>(roleIds);
+	}
+
 	private void orderMainMenuSequence(int mainMenuSequence){
 		List<MenuItem> menuItemList = this.getMenuRepository().getMenuItemsByMenuId(null);
 		if(menuItemList.size() > 0){
@@ -227,22 +249,6 @@ public class MenuServiceImpl extends BaseServiceImpl implements MenuService, Par
 		}
 	}
 	
-	private Errors validateCreateMenu(Menu menu) {
-		final Errors errors = new BindException(menu, "menu");
-		rejectIfNull(errors, menu, NAME, GL0006, generateErrorMessage(GL0006, NAME));
-		return errors;
-	}
-
-	private List<Integer> getRoles(User user) {
-		Set<Integer> roleIds = new HashSet<Integer>();
-		if (user.getUserRoleSet() != null) {
-			for (UserRoleAssoc userRoleAssoc : user.getUserRoleSet()) {
-				roleIds.add(Integer.parseInt(userRoleAssoc.getRole().getRoleId().toString()));
-			}
-		}
-		return new ArrayList<Integer>(roleIds);
-	}
-
 	public MenuRepository getMenuRepository() {
 		return menuRepository;
 	}

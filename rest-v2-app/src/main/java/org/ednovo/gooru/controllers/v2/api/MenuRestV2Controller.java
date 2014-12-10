@@ -67,12 +67,16 @@ public class MenuRestV2Controller extends BaseController implements ConstantProp
 	}
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_MENU_UPDATE })
-	@RequestMapping(method = RequestMethod.PUT, value = "item/{id}")
+	@RequestMapping(method = RequestMethod.PUT, value = "/item/{id}")
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public ModelAndView updateMenuItem(@RequestBody String data, HttpServletRequest request, HttpServletResponse response, @PathVariable String id) throws Exception {
-
+	public ModelAndView updateMenuItem(@RequestBody String data, HttpServletRequest request, HttpServletResponse response, @PathVariable(value = ID) String menuItemUid) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
-		MenuItem responseDTO = getMenuService().updateMenuItem(buildMenuItemFromInputParameters(data), id, user);
+		MenuItem menuItem = getMenuService().getMenuItemById(menuItemUid);
+		Menu menu = null;
+		if(menuItem.getParentMenuUid() == null){
+		menu = this.buildMenuFromInputParameters(data);
+		}
+		MenuItem responseDTO = (menu != null ? getMenuService().updateMenuItem(menu.getMenuUid(), menuItem, user) : getMenuService().updateMenuItem(null, menuItem, user));
 		String includes[] = (String[]) ArrayUtils.addAll(MENU_ITEM_INCLUDES, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(responseDTO, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
@@ -163,10 +167,6 @@ public class MenuRestV2Controller extends BaseController implements ConstantProp
 		return JsonDeserializer.deserialize(data, Menu.class);
 	}
 	
-	private MenuItem buildMenuItemFromInputParameters(String data) {
-		return JsonDeserializer.deserialize(data, MenuItem.class);
-	}
-
 	public MenuService getMenuService() {
 		return menuService;
 	}

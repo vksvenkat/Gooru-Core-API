@@ -865,7 +865,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 			hql = "select userRoleAssoc.role From UserRoleAssoc userRoleAssoc  WHERE 1=1  AND userRoleAssoc.user.userId is not null AND userRoleAssoc.user.partyUid = '"+userUid+"' AND " + generateOrgAuthQuery("userRoleAssoc.user.");
 			
 		}else{
-			hql = "select userRole From UserRole userRole  WHERE 1=1 AND  userRoleAssoc.user.userId is not null AND " + generateOrgAuthQuery("userRole.");
+			hql = "select userRole From UserRole userRole  WHERE 1=1 AND " + generateOrgAuthQuery("userRole.");
 		}
 		Query query = getSession().createQuery(hql);
 		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : limit);
@@ -892,7 +892,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 	public EntityOperation getEntityOperationByEntityOperationId(Integer entityOperationId){
 		String hql = "select entityOperation From EntityOperation entityOperation  WHERE entityOperation.entityOperationId = "+entityOperationId;
 		Query query = getSession().createQuery(hql);
-		return (EntityOperation) (query.list().size() > 0 ? query.list().get(0) : null);
+		return (EntityOperation) query.list().get(0);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -926,7 +926,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 		Query query = getSession().createQuery(hql);
 		query.setParameter("roleId", roleId);
 		query.setParameter("userUid", userUid);
-		return (UserRoleAssoc) query.list();
+		return (UserRoleAssoc) (query.list().size() > 0 ? query.list().get(0) : null);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -937,4 +937,12 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 		query.setParameter("roleId", roleId);
 		return (List<RoleEntityOperation>) query.list();
 	}	
+	
+	@Override
+	public boolean findEntityByEntityName(String entityName){
+		String hql = "SELECT DISTINCT(eo.entityName) FROM EntityOperation eo WHERE eo.entityName = :entityName";
+		Query query = getSession().createQuery(hql);
+		query.setParameter("entityName", entityName);
+		return query.list().size() > 0 ? true : false;
+	}
 }
