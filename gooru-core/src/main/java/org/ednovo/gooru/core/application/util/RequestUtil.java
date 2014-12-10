@@ -255,7 +255,7 @@ public class RequestUtil implements ParameterProperties {
 			return formFieldMap;
 
 		} else {
-			throw new BadRequestException("Invalid Content Type " + request.getContentType());
+			return null;
 		}
 	}
 

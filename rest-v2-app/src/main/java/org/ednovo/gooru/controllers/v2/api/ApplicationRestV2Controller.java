@@ -33,6 +33,8 @@ import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Application;
 import org.ednovo.gooru.core.api.model.ApplicationItem;
 import org.ednovo.gooru.core.api.model.User;
+import org.ednovo.gooru.core.api.model.UserRoleAssoc;
+import org.ednovo.gooru.core.api.model.UserRole.UserRoleType;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.GooruOperationConstants;
@@ -100,7 +102,8 @@ public class ApplicationRestV2Controller extends BaseController implements Const
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ModelAndView getApplications(HttpServletRequest request, HttpServletResponse response, @RequestParam(value = ORGANIZATION_UID, required = false) String organizationUid,@RequestParam(value = ID, required = false) String gooruUid, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit) throws Exception {
 		String includes[] = (String[]) ArrayUtils.addAll(APPLICATION_INCLUDES, ERROR_INCLUDE);
-		return toModelAndViewWithIoFilter(this.getApplicationService().getApplications(organizationUid,gooruUid, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
+		User user = (User) request.getAttribute(Constants.USER);
+		return toModelAndViewWithIoFilter(this.getApplicationService().getApplications(user, organizationUid ,gooruUid, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_OAUTH_READ })
@@ -111,6 +114,7 @@ public class ApplicationRestV2Controller extends BaseController implements Const
 		String [] includes = (String[]) ArrayUtils.addAll(OAUTH_CLIENT_INCLUDES, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(oAuthService.getOAuthClientByApiKey(apiKey), RESPONSE_FORMAT_JSON, EXCLUDE_ALL,true, includes);
 	}
+
 	
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_APPLICATION_READ })
