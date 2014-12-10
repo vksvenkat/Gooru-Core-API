@@ -1182,7 +1182,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		}
 		this.getResourceImageUtil().moveFileAndSendMsgToGenerateThumbnails(resource, fileName, true);
 		try {
-			this.getAsyncExecutor().updateResourceFileInS3(resource.getFolder(), resource.getOrganization().getNfsStorageArea().getInternalPath(), gooruContentId);
+			this.getAsyncExecutor().updateResourceFileInS3(resource.getFolder(), resource.getOrganization().getNfsStorageArea().getInternalPath(), gooruContentId, UserGroupSupport.getSessionToken());
 		} catch (Exception e) {
 			LOGGER.error(e.getMessage());
 		}
