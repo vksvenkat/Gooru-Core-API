@@ -269,10 +269,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 					AuthenticationDo authentication = new AuthenticationDo();
 					authentication.setUserToken(userToken);
 					authentication.setUserCredential(userService.getUserCredential(user, userToken.getToken(), null, null));
-					getRedisService().put(
-							SESSION_TOKEN_KEY + userToken.getToken(),
-							new JSONSerializer().transform(new ExcludeNullTransformer(), void.class).include(new String[] { "*.operationAuthorities", "*.userRoleSet", "*.partyOperations", "*.subOrganizationUids", "*.orgPermits", "*.partyPermits", "*.customFields", "*.identities", "*.meta" })
-									.exclude("*.class").serialize(user));
+					getRedisService().put(SESSION_TOKEN_KEY + userToken.getToken(),new JSONSerializer().transform(new ExcludeNullTransformer(), void.class).include(new String[] { "*.operationAuthorities", "*.userRoleSet", "*.partyOperations", "*.subOrganizationUids", "*.orgPermits", "*.partyPermits", "*.customFields", "*.identities", "*.meta" }).exclude("*.class").serialize(user));
 				}
 			} catch (Exception e) {
 				LOGGER.error("Failed to  put  value from redis server");

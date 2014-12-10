@@ -1264,7 +1264,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 	}
 
 	private void getUserParties(PartyPermission partyPermission, Map<String, String> permittedParties, List<String> userParties, List<String> userOrgs, List<String> partyPriveliges) {
-		if (partyPermission.getPermission() != null) {
+		if (partyPermission != null && partyPermission.getParty() != null ) {
 			String partyUid = partyPermission.getParty().getPartyUid();
 			if (partyPermission.getValidFrom() != null && partyPermission.getPermission() != null && (!permittedParties.containsKey(partyUid) || !permittedParties.get(partyUid).equals(PermissionType.VIEW.getType()))) {
 				permittedParties.put(partyUid, partyPermission.getPermission());
