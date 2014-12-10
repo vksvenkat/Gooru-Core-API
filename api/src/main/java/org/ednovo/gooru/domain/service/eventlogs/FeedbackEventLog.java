@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class FeedbackEventLog implements ParameterProperties, ConstantProperties{
 	
-	public void getEventLogs(User feedbackUser, ContextDTO contextDTO, Feedback feedback, StringBuilder reactionType, Integer previous) throws JSONException {
+	public void getEventLogs(User feedbackUser, ContextDTO contextDTO, Feedback feedback, StringBuilder reactionType, Integer previous) throws Exception {
 		SessionContextSupport.putLogParameter(EVENT_NAME, ITEM_RATE);
 		JSONObject session = SessionContextSupport.getLog().get(SESSION) != null ? new JSONObject(SessionContextSupport.getLog().get(SESSION).toString()) : new JSONObject();
 		session.put(ORGANIZATION_UID, feedbackUser.getOrganizationUid());
