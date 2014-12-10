@@ -58,7 +58,6 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentRepo
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.resource.ResourceRepository;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
-import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -181,7 +180,7 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 				this.getFeedbackEventLog().getEventLogs(user, contextDTO, userFeedback, feedbackValue, previous);
 			}
 
-		} catch (JSONException e) {
+		} catch (Exception e) {
 			LOGGER.error("Error while creating feedback" + e.getMessage());
 		}
 		
@@ -367,7 +366,7 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 				this.getFeedbackEventLog().getEventLogs(creator, contextDTO, userFeedback, feedbackValue, null);
 			}
 
-		} catch (JSONException e) {
+		} catch (Exception e) {
 			LOGGER.error("Error while creating feedback" + e.getMessage());
 		}
 
