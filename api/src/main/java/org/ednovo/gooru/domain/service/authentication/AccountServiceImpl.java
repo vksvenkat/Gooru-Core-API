@@ -51,6 +51,7 @@ import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.BadRequestException;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.core.exception.UnauthorizedException;
+import org.ednovo.gooru.core.security.AuthenticationDo;
 import org.ednovo.gooru.domain.service.PartyService;
 import org.ednovo.gooru.domain.service.eventlogs.AccountEventLog;
 import org.ednovo.gooru.domain.service.redis.RedisService;
@@ -143,6 +144,8 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 	private SettingService settingService;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(AccountServiceImpl.class);
+
+	private static final String SESSION_TOKEN_KEY = "authenticate_";
 
 	@Override
 	public UserToken createSessionToken(User user, String apiKey, HttpServletRequest request) throws Exception {
@@ -263,7 +266,13 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			}
 			try {
 				if (userToken != null) {
-					getRedisService().put("user_" + userToken.getToken(),new JSONSerializer().transform(new ExcludeNullTransformer(), void.class).include(new String[] { "*.operationAuthorities", "*.userRoleSet", "*.partyOperations", "*.subOrganizationUids", "*.orgPermits", "*.partyPermits", "*.customFields", "*.identities", "*.meta" }).exclude("*.class").serialize(user));
+					AuthenticationDo authentication = new AuthenticationDo();
+					authentication.setUserToken(userToken);
+					authentication.setUserCredential(userService.getUserCredential(user, userToken.getToken(), null, null));
+					getRedisService().put(
+							SESSION_TOKEN_KEY + userToken.getToken(),
+							new JSONSerializer().transform(new ExcludeNullTransformer(), void.class).include(new String[] { "*.operationAuthorities", "*.userRoleSet", "*.partyOperations", "*.subOrganizationUids", "*.orgPermits", "*.partyPermits", "*.customFields", "*.identities", "*.meta" })
+									.exclude("*.class").serialize(user));
 				}
 			} catch (Exception e) {
 				LOGGER.error("Failed to  put  value from redis server");
@@ -308,10 +317,10 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			}
 			userToken.setScope(EXPIRED);
 			this.getUserTokenRepository().save(userToken);
-			this.redisService.deleteKey(USER + "_" + userToken.getToken());
+			this.redisService.delete(SESSION_TOKEN_KEY + userToken.getToken());
 		}
 	}
-
+	
 	@Override
 	public String getConfigSetting(String key, int securityLevel, String organizationUid) {
 		return configSettingRepository.getConfigSetting(key, securityLevel, organizationUid);
