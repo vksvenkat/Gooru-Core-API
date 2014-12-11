@@ -95,7 +95,7 @@ public interface ConstantProperties {
 	
 	static final String _LTI = "lti";
 	
-	static final String AUTH_USER = "user.login";
+	static final String _USER_LOGIN = "user.login";
 	
 	static final String SAML = "saml";
 	
