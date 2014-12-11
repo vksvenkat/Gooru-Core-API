@@ -63,7 +63,6 @@ public class CollectionEventLog implements ParameterProperties, ConstantProperti
 		} else {
 			payLoadObject.put(MODE, _COPY);
 		}
-		payLoadObject.put(ITEM_TYPE, collection != null && collection.getCollectionType() != null ? collection.getCollectionType() : null);
 		if (collection != null && collection.getCollectionType() != null && collection.getCollectionType().equalsIgnoreCase("collection")) {
 			payLoadObject.put(ITEM_TYPE, SHELF_COLLECTION);
 		} else if (collection != null && collection.getCollectionType() != null && collection.getCollectionType().equalsIgnoreCase("classpage")) {
