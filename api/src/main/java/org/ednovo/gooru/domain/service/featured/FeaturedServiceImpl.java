@@ -778,7 +778,7 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 				Map<String, Object> collection = new HashMap<String, Object>();
 				User user = this.getUserRepository().findUserByPartyUid(String.valueOf(object[3]));
 				User lastUpdatedUser = this.getUserRepository().findUserByPartyUid(String.valueOf(object[5]));
-				Collection featuredCollection = this.getCollectionService().getCollection(String.valueOf(object[0]), true, true, false, user, COMMENT_COUNT, null, false);
+				Collection featuredCollection = this.getCollectionService().getCollection(String.valueOf(object[0]), true, true, false, user, COMMENT_COUNT, null, false, true);
 				Long comment = this.getCommentRepository().getCommentCount(null,String.valueOf(object[0]), null, NOT_DELETED);
 				Long collectionItem = this.getCollectionRepository().getCollectionItemCount(String.valueOf(object[0]), "private,public,anyonewithlink", null);
 				Iterator<Code> iter = featuredCollection.getTaxonomySet().iterator();

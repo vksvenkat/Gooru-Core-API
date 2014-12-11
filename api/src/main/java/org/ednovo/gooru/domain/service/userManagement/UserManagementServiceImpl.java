@@ -80,7 +80,6 @@ import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.BadRequestException;
-import org.ednovo.gooru.core.exception.NotAllowedException;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.core.exception.UnauthorizedException;
 import org.ednovo.gooru.domain.service.BaseServiceImpl;
@@ -262,10 +261,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		}
 		Profile profile = this.getUserService().getProfile(user);
 		if (showProfilePage != null) {
-			PartyCustomField partyCustomField = new PartyCustomField();
-			partyCustomField.setOptionalValue(showProfilePage);
-			partyCustomField.setOptionalKey(SHOW_PROFILE_PAGE);
-			partyCustomField.setCategory(USER_META);
+			PartyCustomField partyCustomField = new PartyCustomField(USER_META, SHOW_PROFILE_PAGE, showProfilePage);
 			this.getPartyService().updatePartyCustomField(user.getPartyUid(), partyCustomField, user);
 		}
 		if (profile != null) {
@@ -458,10 +454,10 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	}
 
 	private void deleteCourse(List<UserClassification> courses, User user, User apiCaller) {
-		if (courses != null) {
+		if (courses != null && courses.size() > 0 ) {
 			CustomTableValue type = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.USER_CLASSIFICATION_TYPE.getTable(), CustomProperties.UserClassificationType.COURSE.getUserClassificationType());
 			for (UserClassification course : courses) {
-				if (course.getCode() != null && course.getCode().getCodeId() != null) {
+				if (course.getCode() != null && course.getCode().getCodeId() != null && type != null) {
 					UserClassification existingCourse = this.getUserRepository().getUserClassification(user.getGooruUId(), type.getCustomTableValueId(), course.getCode().getCodeId(), apiCaller == null ? null : apiCaller.getGooruUId(), null);
 					if (existingCourse != null) {
 						this.getUserRepository().remove(existingCourse);
@@ -948,10 +944,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	}
 
 	private void userCreatedDevice(String partyUid, HttpServletRequest request) {
-		PartyCustomField partyCustomField = new PartyCustomField();
-		partyCustomField.setCategory(USER_META);
-		partyCustomField.setOptionalValue(request.getHeader(USER_AGENT));
-		partyCustomField.setOptionalKey(GOORU_USER_CREATED_DEVICE);
+		PartyCustomField partyCustomField = new PartyCustomField(USER_META,GOORU_USER_CREATED_DEVICE,request.getHeader(USER_AGENT));
 		this.getPartyService().createPartyCustomField(partyUid, partyCustomField, null);
 	}
 
@@ -1155,7 +1148,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		if (user != null && newProfile != null) {
 			Profile profile = this.getUserService().getProfile(user);
 			if (profile != null) {
-				if (newProfile.getCourses() != null) {
+				if (newProfile.getCourses() != null && newProfile.getCourses().size() > 0) {
 					deleteCourse(newProfile.getCourses(), user, apiCaller);
 				}
 				if (newProfile.getGrade() != null && profile.getGrade() != null) {

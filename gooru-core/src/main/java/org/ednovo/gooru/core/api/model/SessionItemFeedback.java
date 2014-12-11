@@ -30,8 +30,8 @@ public class SessionItemFeedback implements Serializable {
 
 	private String freeText;
 
-	private String playLoadObject;
-
+	private String payLoadObject;
+	
 	public String getFreeText() {
 		return freeText;
 	}
@@ -64,14 +64,7 @@ public class SessionItemFeedback implements Serializable {
 		this.sessionId = sessionId;
 	}
 
-	public String getPlayLoadObject() {
-		return playLoadObject;
-	}
-
-	public void setPlayLoadObject(String playLoadObject) {
-		this.playLoadObject = playLoadObject;
-	}
-
+	
 	public String getContentGooruOId() {
 		return contentGooruOId;
 	}
@@ -79,7 +72,13 @@ public class SessionItemFeedback implements Serializable {
 	public void setContentGooruOId(String contentGooruOId) {
 		this.contentGooruOId = contentGooruOId;
 	}
+	public String getPayLoadObject() {
+		return payLoadObject;
+	}
 
+	public void setPayLoadObject(String payLoadObject) {
+		this.payLoadObject = payLoadObject;
+	}
 	public String getContentItemId() {
 		return contentItemId;
 	}
