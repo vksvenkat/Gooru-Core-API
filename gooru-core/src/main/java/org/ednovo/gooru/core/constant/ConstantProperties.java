@@ -90,6 +90,16 @@ public interface ConstantProperties {
 	static final String CUSTOM_VALUE_EXCLUDE[] = { "*.resourceFormat", "*.resourceFormat.customTable", "*.resourceFormat.customTableValueId", "*.resourceFormat.displayName", "*.instructional.customTable", "*.instructional.customTableValueId", "*.instructional.displayName" };
 
 	static final String EVENT_NAME = "eventName";
+	
+	static final String GMAIL = "gmail";
+	
+	static final String _LTI = "lti";
+	
+	static final String AUTH_USER = "user.login";
+	
+	static final String SAML = "saml";
+	
+	static final String WSFED = "wsfed";
 
 	static final String CREATED_TYPE = "created_type";
 
