@@ -814,5 +814,7 @@ public interface ConstantProperties {
    static final String ROLE_INCLUDES[] = { "*.roleId", "*.name", "*.description" };
    
    static final String USER_ROLE_ASSOC_INCLUDES[] = {"*.role.roleId", "*.user.active", "*.user.gooruUId", "*.user.username", "*.user.usernameDisplay", "*.user.userId", "*.user.emailId"};
+   
+   public static final String PREVIOUS_RATE = "previousRate";
 }
 

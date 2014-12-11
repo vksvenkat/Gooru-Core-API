@@ -52,5 +52,7 @@
 		<property name="createdOn" column="created_on" not-null="true" />
 		
 		<property name="internalPath" column="internal_path" not-null="false" />
+		
+		<property name="s3Path" column="s3_path" not-null="false" />
 	</class>
 </hibernate-mapping>

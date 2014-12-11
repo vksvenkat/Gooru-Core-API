@@ -58,7 +58,6 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentRepo
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.resource.ResourceRepository;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
-import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -113,6 +112,15 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 	public List<Feedback> updateFeedback(String feedbackId, Feedback newFeedback, User user) {
 		List<Feedback> feedbacks = this.getFeedbackRepository().getFeedbacks(feedbackId, null);
 		List<Feedback> feedbackList = new ArrayList<Feedback>();
+		if (feedbacks.size() == 0) {  
+			throw new NotFoundException("Feedback not found");
+		}
+		Integer previous = feedbacks.get(0).getScore();
+		ContextDTO contextDTO = null;
+		if (newFeedback.getContext() != null) {
+			contextDTO = buildContextInputParam(newFeedback.getContext());
+		}
+		StringBuilder feedbackValue = new StringBuilder();
 		if (feedbacks != null && user != null) {
 			for (Feedback feedback : feedbacks) {
 				if (this.getUserManagementService().isContentAdmin(user) || feedback.getCreator().getPartyUid().equals(user.getPartyUid())) {
@@ -122,7 +130,6 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 					if (newFeedback.getFreeText() != null) {
 						feedback.setFreeText(newFeedback.getFreeText());
 					}
-
 					if (newFeedback.getNotes() != null) {
 						feedback.setNotes(newFeedback.getNotes());
 					}
@@ -143,6 +150,7 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 					}
 					feedback.setLastModifiedOn(new Date());
 					feedbackList.add(feedback);
+					feedbackValue.append(feedback.getType().getValue());	
 				} else {
 					throw new UnauthorizedException(generateErrorMessage(GL0058, USER, UPDATE));
 				}
@@ -165,6 +173,15 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 				indexProcessor.index(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE);
 			}
 			this.getAsyncExecutor().clearCache(resource.getGooruOid());
+		}
+		try {
+			if(!feedbackList.isEmpty()){
+				Feedback userFeedback = feedbackList.get(0);
+				this.getFeedbackEventLog().getEventLogs(user, contextDTO, userFeedback, feedbackValue, previous);
+			}
+
+		} catch (Exception e) {
+			LOGGER.error("Error while creating feedback" + e.getMessage());
 		}
 		
 		return feedbacks;
@@ -346,10 +363,10 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 		try {
 			if(!feedbackList.isEmpty()){
 				Feedback userFeedback = feedbackList.get(0);
-				this.getFeedbackEventLog().getEventLogs(creator, contextDTO, userFeedback, feedbackValue);
+				this.getFeedbackEventLog().getEventLogs(creator, contextDTO, userFeedback, feedbackValue, null);
 			}
 
-		} catch (JSONException e) {
+		} catch (Exception e) {
 			LOGGER.error("Error while creating feedback" + e.getMessage());
 		}
 
