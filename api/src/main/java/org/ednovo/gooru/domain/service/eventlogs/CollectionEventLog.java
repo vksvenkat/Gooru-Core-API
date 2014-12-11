@@ -63,13 +63,19 @@ public class CollectionEventLog implements ParameterProperties, ConstantProperti
 		} else {
 			payLoadObject.put(MODE, _COPY);
 		}
-		payLoadObject.put(ITEM_TYPE, collection != null ? collection.getCollectionItem().getCollection()  : null);
+		payLoadObject.put(ITEM_TYPE, collection != null && collection.getCollectionType() != null ? collection.getCollectionType() : null);
+		if (collection.getCollectionType().equals("collection")) {
+			payLoadObject.put(ITEM_TYPE, SHELF_COLLECTION);
+		} else {
+			payLoadObject.put(ITEM_TYPE, CLASSPAGE_COLLECTION);
+		}
 		payLoadObject.put(_ITEM_DATA , ItemData != null ? ItemData.toString() : null);
 		SessionContextSupport.putLogParameter(PAY_LOAD_OBJECT, payLoadObject.toString());
 		JSONObject session = SessionContextSupport.getLog().get(SESSION) != null ? new JSONObject(SessionContextSupport.getLog().get(SESSION).toString()) : new JSONObject();
 		session.put( ORGANIZATION_UID, user != null && user.getOrganization() != null ? user.getOrganization().getPartyUid() : null);
 		SessionContextSupport.putLogParameter(SESSION, session.toString());
 	}
+	
 	
 	public void getEventLogs(CollectionItem collectionItem, boolean isCreate, boolean isAdd, User user) throws JSONException {
 		String collectionType = collectionItem.getCollection().getCollectionType();
