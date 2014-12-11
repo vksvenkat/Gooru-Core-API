@@ -31,7 +31,7 @@ public class CollectionEventLog implements ParameterProperties, ConstantProperti
 		SessionContextSupport.putLogParameter(CONTEXT, context.toString());
 		JSONObject payLoadObject = SessionContextSupport.getLog().get(PAY_LOAD_OBJECT) != null ? new JSONObject(SessionContextSupport.getLog().get(PAY_LOAD_OBJECT).toString()) : new JSONObject();
 		if(isCreate){
-			payLoadObject.put(MODE,   CREATE);
+			payLoadObject.put(MODE, CREATE);
 		} else if(isUpdate){
 			payLoadObject.put(MODE, EDIT);
 		} else {
@@ -48,7 +48,7 @@ public class CollectionEventLog implements ParameterProperties, ConstantProperti
 		if(isCreate){
 			SessionContextSupport.putLogParameter(EVENT_NAME, ITEM_CREATE);
 		} else if(isUpdate){
-			SessionContextSupport.putLogParameter(EVENT_NAME,  ITEM_EDIT);
+			SessionContextSupport.putLogParameter(EVENT_NAME, ITEM_EDIT);
 		}
 		JSONObject context = SessionContextSupport.getLog().get(CONTEXT) != null ? new JSONObject(SessionContextSupport.getLog().get(CONTEXT).toString()) : new JSONObject();
 		if(collection != null ){
@@ -57,17 +57,17 @@ public class CollectionEventLog implements ParameterProperties, ConstantProperti
 		SessionContextSupport.putLogParameter(CONTEXT, context.toString());
 		JSONObject payLoadObject = SessionContextSupport.getLog().get(PAY_LOAD_OBJECT) != null ? new JSONObject(SessionContextSupport.getLog().get(PAY_LOAD_OBJECT).toString()) : new JSONObject();
 		if(isCreate){
-			payLoadObject.put(MODE,   CREATE);
+			payLoadObject.put(MODE, CREATE);
 		} else if(isUpdate){
 			payLoadObject.put(MODE, EDIT);
 		} else {
 			payLoadObject.put(MODE, _COPY);
 		}
 		payLoadObject.put(ITEM_TYPE, collection != null && collection.getCollectionType() != null ? collection.getCollectionType() : null);
-		if (collection.getCollectionType().equals("collection")) {
+		if (collection != null && collection.getCollectionType() != null && collection.getCollectionType().equalsIgnoreCase("collection")) {
 			payLoadObject.put(ITEM_TYPE, SHELF_COLLECTION);
-		} else {
-			payLoadObject.put(ITEM_TYPE, CLASSPAGE_COLLECTION);
+		} else if (collection != null && collection.getCollectionType() != null && collection.getCollectionType().equalsIgnoreCase("classpage")) {
+			payLoadObject.put(ITEM_TYPE, CLASSPAGE);
 		}
 		payLoadObject.put(_ITEM_DATA , ItemData != null ? ItemData.toString() : null);
 		SessionContextSupport.putLogParameter(PAY_LOAD_OBJECT, payLoadObject.toString());
@@ -92,7 +92,7 @@ public class CollectionEventLog implements ParameterProperties, ConstantProperti
 		SessionContextSupport.putLogParameter(CONTEXT, context.toString());
 		JSONObject payLoadObject = SessionContextSupport.getLog().get(PAY_LOAD_OBJECT) != null ? new JSONObject(SessionContextSupport.getLog().get(PAY_LOAD_OBJECT).toString()) : new JSONObject();
 		if(isCreate){
-			payLoadObject.put(MODE,   CREATE);
+			payLoadObject.put(MODE, CREATE);
 		} else if(isAdd){
 			payLoadObject.put(MODE, ADD);
 		} else {
