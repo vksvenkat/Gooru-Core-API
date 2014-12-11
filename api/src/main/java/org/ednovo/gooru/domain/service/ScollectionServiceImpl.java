@@ -74,6 +74,7 @@ import org.ednovo.gooru.core.api.model.UserSummary;
 import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.application.util.ResourceMetaInfo;
 import org.ednovo.gooru.core.application.util.ServerValidationUtils;
+import org.ednovo.gooru.core.cassandra.model.ResourceMetadataCo;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.BadRequestException;
@@ -2267,7 +2268,22 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 						license.setName(CREATIVE_COMMONS);
 					} else {
 						resource.setUrl(newResource.getUrl());
-						resourceTypeDo.setName(ResourceImageUtil.getYoutubeVideoId(newResource.getUrl()) != null ? ResourceType.Type.VIDEO.getType() : ResourceType.Type.RESOURCE.getType());
+						if (ResourceImageUtil.getYoutubeVideoId(newResource.getUrl()) != null)  {
+							resourceTypeDo.setName(ResourceType.Type.VIDEO.getType());
+						} else if (newResource.getUrl() != null && newResource.getUrl().contains("vimeo.com")) { 			
+								String id = org.apache.commons.lang.StringUtils.substringAfterLast(newResource.getUrl(), "/");
+							    if (org.apache.commons.lang.StringUtils.isNumeric(id)) {
+							    	ResourceMetadataCo resourceMetadataCo = ResourceImageUtil.getMetaDataFromVimeoVideo(newResource.getUrl());
+							    	resourceTypeDo.setName(ResourceType.Type.VIMEO_VIDEO.getType());
+							    	newResource.setThumbnail(resourceMetadataCo != null ? resourceMetadataCo.getThumbnail() : null);
+							    } else { 
+							    	resourceTypeDo.setName(ResourceType.Type.RESOURCE.getType());
+							    }
+							    
+						} else { 
+							resourceTypeDo.setName(ResourceType.Type.RESOURCE.getType());
+						}
+						
 					}
 					resource.setLicense(license);
 					resource.setSharing(sharing);
