@@ -341,7 +341,20 @@ public class RedisServiceImpl implements RedisService, ParameterProperties, Cons
 		return null;
 
 	}
-
+	
+	@Override
+	public String get(String key) {
+		ValueOperations<String, String> valueOperations = getValueOperation();
+		if (valueOperations != null) {
+			try {
+				return valueOperations.get(key);
+			} catch (Exception e) {
+				logger.error("Get Values from redis failed!" + e.getMessage());
+			}
+		}
+		return null;
+	}
+	
 	@Override
 	public String getStandardValue(String key) {
 		ValueOperations<String, String> valueOperations = getValueOperation();
@@ -404,6 +417,11 @@ public class RedisServiceImpl implements RedisService, ParameterProperties, Cons
 		redisStringTemplate.delete(returnSanitizedKey(key));
 	}
 
+	@Override
+	public void delete(String key) {
+		redisStringTemplate.delete(key);
+	}
+	
 	@Override
 	public void bulkKeyDelete(String keyWildCard) {
 		Set<String> keys = this.getkeys(keyWildCard);

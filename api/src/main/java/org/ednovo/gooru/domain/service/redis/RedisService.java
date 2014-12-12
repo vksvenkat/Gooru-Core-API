@@ -51,6 +51,8 @@ public interface RedisService extends CassandraCacheService {
 	void addSessionEntry(String sessionToken, Organization organizationUid);
 
 	String getValue(String key);
+	
+	String get(String key);
 
 	void putValue(String key, String value);
 	
@@ -59,6 +61,9 @@ public interface RedisService extends CassandraCacheService {
 	void putValue(String key, String value, long timeout);
 
 	void deleteKey(String key);
+	
+	void delete(String key);
+
 	
 	Set<String> getkeys(String key); 
 	

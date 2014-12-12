@@ -1264,24 +1264,26 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 	}
 
 	private void getUserParties(PartyPermission partyPermission, Map<String, String> permittedParties, List<String> userParties, List<String> userOrgs, List<String> partyPriveliges) {
-		String partyUid = partyPermission.getParty().getPartyUid();
-		if (partyPermission.getValidFrom() != null && (!permittedParties.containsKey(partyUid) || !permittedParties.get(partyUid).equals(PermissionType.VIEW.getType()))) {
-			permittedParties.put(partyUid, partyPermission.getPermission());
-		}
-		if (!partyPriveliges.contains(partyPermission.getPermission())) {
-			partyPriveliges.add(partyPermission.getPermission());
-		}
+		if (partyPermission != null && partyPermission.getParty() != null ) {
+			String partyUid = partyPermission.getParty().getPartyUid();
+			if (partyPermission.getValidFrom() != null && partyPermission.getPermission() != null && (!permittedParties.containsKey(partyUid) || !permittedParties.get(partyUid).equals(PermissionType.VIEW.getType()))) {
+				permittedParties.put(partyUid, partyPermission.getPermission());
+			}
+			if (partyPermission.getPermission() != null && !partyPriveliges.contains(partyPermission.getPermission())) {
+				partyPriveliges.add(partyPermission.getPermission());
+			}
 
-		if (!userParties.contains(partyUid)) {
-			userParties.add(partyUid);
-		}
-		if (!userOrgs.contains(partyUid)) {
-			userOrgs.add(partyUid);
-		}
-		List<PartyPermission> partyPermissions = groupRepository.getUserPartyPermissions(partyUid);
-		if (partyPermissions.size() > 0) {
-			for (PartyPermission subPartyPermission : partyPermissions) {
-				getUserParties(subPartyPermission, permittedParties, userParties, userOrgs, partyPriveliges);
+			if (!userParties.contains(partyUid)) {
+				userParties.add(partyUid);
+			}
+			if (!userOrgs.contains(partyUid)) {
+				userOrgs.add(partyUid);
+			}
+			List<PartyPermission> partyPermissions = groupRepository.getUserPartyPermissions(partyUid);
+			if (partyPermissions.size() > 0) {
+				for (PartyPermission subPartyPermission : partyPermissions) {
+					getUserParties(subPartyPermission, permittedParties, userParties, userOrgs, partyPriveliges);
+				}
 			}
 		}
 	}
