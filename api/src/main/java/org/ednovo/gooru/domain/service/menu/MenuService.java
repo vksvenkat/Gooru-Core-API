@@ -22,7 +22,7 @@ public interface MenuService {
 
 	Menu updateMenu(Menu neweMenu, User user, String menuUid);
 
-	MenuItem updateMenuItem(String menuUid, MenuItem menuItem, User user);
+	MenuItem updateMenuItem(String menuUid, String menuItemUid, User user);
 
 	MenuRoleAssoc assignRoleByMenuUid(Integer roleId,String menuUid) throws Exception;
 	

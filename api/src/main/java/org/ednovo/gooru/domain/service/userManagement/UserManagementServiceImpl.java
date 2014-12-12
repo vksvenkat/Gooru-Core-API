@@ -1419,7 +1419,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		Set<RoleEntityOperation> entityOperations = role.getRoleOperations();
 	    Iterator<RoleEntityOperation> iter = entityOperations.iterator();
 	    if (userRole != null && user.getOrganization().equals(gooruOrg)) {
-	    	throw new BadRequestException(generateErrorMessage(GL0041,"Role "));
+	    	throw new BadRequestException(generateErrorMessage(GL0041,ROLE));
 		} 
 		else {		
 			if (!errors.hasErrors()) {
@@ -1449,21 +1449,16 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	
 	@Override
 	public UserRole updateRole(UserRole role,Integer roleId) throws Exception {
-		UserRole userRole = null;
-		if (roleId != null) {
-			userRole = userRepository.findUserRoleByRoleId(roleId);
-		}
-		rejectIfNull(userRole, GL0056, 404, "Role ");
-
-		if (userRole != null) {
-			if(role.getName()!=null){	
+		rejectIfNull(role, GL0056, ROLE);
+		UserRole userRole = userRepository.findUserRoleByRoleId(roleId);
+		rejectIfNull(userRole, GL0056, 404, ROLE);
+		if(role.getName()!=null){	
 			userRole.setName(role.getName());
-			}
-			if(role.getDescription()!=null){
-			userRole.setDescription(role.getDescription());
-			}
-			userRepository.save(userRole);
 		}
+		if(role.getDescription()!=null){
+			userRole.setDescription(role.getDescription());
+		}
+		userRepository.save(userRole);
 		return userRole;
 	}
 
@@ -1471,7 +1466,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	public void removeRole(Integer roleId) throws Exception{
 
 		UserRole userRole = userRepository.findUserRoleByRoleId(roleId);
-		rejectIfNull(userRole, GL0056, 404, "Role ");
+		rejectIfNull(userRole, GL0056, 404, ROLE);
 		userRepository.remove(userRole);
 	}
 	
@@ -1498,11 +1493,9 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			throws Exception {
 		User user = userRepository.findUserByPartyUid(userUid);
 		UserRole role = userRepository.findUserRoleByRoleId(roleId);
-		rejectIfNull(role, GL0056,ROLE );
+		rejectIfNull(role, GL0056, 404, ROLE );
 		UserRoleAssoc userRoleAssoc = userRepository.findUserRoleAssocEntryByRoleIdAndUserUid(roleId, userUid);
-		if (userRoleAssoc != null) {
-			throw new BadRequestException(generateErrorMessage(GL0041, "User role "));
-		}
+		rejectIfAlReadyExist(userRoleAssoc, GL0103, USER);
 		userRoleAssoc = new UserRoleAssoc();
 		userRoleAssoc.setUser(user);
 		userRoleAssoc.setRole(role);
@@ -1516,7 +1509,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	public void removeAssignedRoleByUserUid(Integer roleId, String userUid)
 			throws Exception {
 		UserRoleAssoc userRoleAssoc = userRepository.findUserRoleAssocEntryByRoleIdAndUserUid(roleId, userUid);
-		rejectIfNull(userRoleAssoc, GL0102, "Role ");
+		rejectIfNull(userRoleAssoc, GL0102,404, USER);
 		getUserRepository().remove(userRoleAssoc);
 		indexProcessor.index(userRoleAssoc.getUser().getPartyUid(), IndexProcessor.INDEX, USER);
 	}
@@ -1524,12 +1517,14 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	@Override
 	public UserRole getRoleByRoleId(Integer roleId){
 		UserRole userRole = userRepository.findUserRoleByRoleId(roleId);
-		rejectIfNull(userRole, GL0102,404, "Role ");
+		rejectIfNull(userRole, GL0056,404, ROLE);
 		return userRole;
 	}
 	
 	@Override
 	public List<RoleEntityOperation> getRoleOperationsByRoleId(Integer roleId){
+		UserRole role = this.getUserRepository().findUserRoleByRoleId(roleId);
+		rejectIfNull(role, GL0056, 404, ROLE);
 		return this.getUserRepository().findRoleOperationsByRoleId(roleId);
 	}
 	

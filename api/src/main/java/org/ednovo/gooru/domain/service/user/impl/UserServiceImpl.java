@@ -85,6 +85,7 @@ import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.GooruOperationConstants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.core.exception.BadRequestException;
 import org.ednovo.gooru.core.exception.UserNotConfirmedException;
 import org.ednovo.gooru.domain.service.CollaboratorService;
 import org.ednovo.gooru.domain.service.PartyService;
@@ -1480,15 +1481,20 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 				String entityName = entityOperationArr[0];
 				String operationName = entityOperationArr[1];
 				final EntityOperation entityOperation = userRepository.findEntityOperation(entityName, operationName);
-				roleEntityOperation = userRepository.checkRoleEntity(roleId, entityOperation.getEntityOperationId());
-				if(roleEntityOperation == null){
-					roleEntityOperation = new RoleEntityOperation();
-					roleEntityOperation.setUserRole(userRole);
-					roleEntityOperation.setEntityOperation(entityOperation);
-					roleEntityOperations.add(roleEntityOperation);
+				if(entityOperation != null){
+					roleEntityOperation = userRepository.checkRoleEntity(roleId, entityOperation.getEntityOperationId());
+					if (roleEntityOperation == null) {
+						roleEntityOperation = new RoleEntityOperation();
+						roleEntityOperation.setUserRole(userRole);
+						roleEntityOperation.setEntityOperation(entityOperation);
+						roleEntityOperations.add(roleEntityOperation);
+					}				
 				}
 			}
-			userRepository.saveAll(roleEntityOperations);				
+			if(roleEntityOperations.size() > 0 ){
+				userRepository.saveAll(roleEntityOperations);				
+			}
+			roleEntityOperations = userRepository.getRoleEntityOperations(roleId);
 		}
 		return roleEntityOperations;
 	}
@@ -1507,12 +1513,16 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 				String entityName = entityOperationArr[0];
 				String operationName = entityOperationArr[1];
 				EntityOperation entityOperation = userRepository.findEntityOperation(entityName, operationName);
-				roleEntityOperation = userRepository.checkRoleEntity(roleId, entityOperation.getEntityOperationId());
-				if (roleEntityOperation != null) {
-					roleEntityOperations.add(roleEntityOperation);
+				if(entityOperation != null){	
+					roleEntityOperation = userRepository.checkRoleEntity(roleId, entityOperation.getEntityOperationId());
+					if (roleEntityOperation != null) {
+						roleEntityOperations.add(roleEntityOperation);
+					}
 				}
 			}
-			userRepository.removeAll(roleEntityOperations);
+			if(roleEntityOperations.size() > 0 ){
+				userRepository.removeAll(roleEntityOperations);
+			}
 		}
 	}
 

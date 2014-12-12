@@ -23,7 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
-
 import org.ednovo.gooru.core.exception.BadRequestException;
 
 @Service
@@ -71,7 +70,7 @@ public class MenuServiceImpl extends BaseServiceImpl implements MenuService, Par
 	@Override
 	public Menu updateMenu(Menu newMenu, User user, String menuUid) {
 		Menu menu = this.getMenuRepository().findMenuById(menuUid);
-		rejectIfNull(menu, GL0056, MENU);
+		rejectIfNull(menu, GL0056, 404, MENU);
 
 		if (newMenu.getName() != null) {
 			menu.setName(newMenu.getName());
@@ -109,21 +108,31 @@ public class MenuServiceImpl extends BaseServiceImpl implements MenuService, Par
 	}
 
 	@Override
-	public MenuItem updateMenuItem(String menuUid, MenuItem menuItem, User user) {
+	public MenuItem updateMenuItem(String menuUid, String menuItemUid, User user) {
+		MenuItem menuItem = this.getMenuRepository().findMenuItemById(menuItemUid);
 		rejectIfNull(menuItem, GL0056, MENU);
+		if (menuUid.equals(menuItem.getMenu().getMenuUid())){
+			throw new BadRequestException(generateErrorMessage(GL0104));
+		}
 		int mainMenuSequence = 0;
 		int subMenuSequence = 0;
 		String parentMenuUid = null;		
 		int sequence = 0;
 		if (menuItem.getParentMenuUid() == null) {
 			mainMenuSequence = menuItem.getSequence();
+			menuItem.setParentMenuUid(menuUid);
+		}
+		else if (menuItem.getParentMenuUid() != null && !menuUid.equalsIgnoreCase("") && menuUid != null){
+			parentMenuUid = menuItem.getParentMenuUid();
+			subMenuSequence = menuItem.getSequence();
+			menuItem.setParentMenuUid(menuUid);
 		}
 		else{
 			parentMenuUid = menuItem.getParentMenuUid();
 			subMenuSequence = menuItem.getSequence();
-		}
-		menuItem.setParentMenuUid(menuUid);
-		if (menuUid != null) {
+			menuItem.setParentMenuUid(null);
+		}		
+		if (menuUid != null && !menuUid.equalsIgnoreCase("") ) {
 			sequence = getMenuRepository().getMenuItemCount(menuUid) == 0 ? 1 :  getMenuRepository().getMenuItemCount(menuUid) + 1;
 		}
 		else{
@@ -145,24 +154,20 @@ public class MenuServiceImpl extends BaseServiceImpl implements MenuService, Par
 	public MenuRoleAssoc assignRoleByMenuUid(Integer roleId, String menuUid) throws Exception{
 
 		Menu menu = menuRepository.findMenuById(menuUid);
-		rejectIfNull(menu, GL0056, MENU);
+		rejectIfNull(menu, GL0056, 404, MENU);
 		Role role = menuRepository.findRoleByRoleId(roleId);
-		rejectIfNull(role, GL0056, ROLE);
+		rejectIfNull(role, GL0056, 404, ROLE);
 		MenuRoleAssoc menuRoleAssoc = menuRepository.findMenuRoleAssocEntry(roleId, menuUid);
-		if(menuRoleAssoc != null){
-			throw new BadRequestException(generateErrorMessage(GL0103, MENU));
-		}
-		MenuRoleAssoc mRoleAssoc = new MenuRoleAssoc();
-		mRoleAssoc.setMenu(menu);
-		mRoleAssoc.setRole(role);
-		getMenuRepository().save(mRoleAssoc);
-		return mRoleAssoc;
+		rejectIfAlReadyExist(menuRoleAssoc, GL0103, MENU);
+		menuRoleAssoc = new MenuRoleAssoc(menu, role);
+		getMenuRepository().save(menuRoleAssoc);
+		return menuRoleAssoc;
 	}
 	
 	@Override
 	public void removeAssignedRoleByMenuUid(Integer roleId, String menuUid)throws Exception {
 		MenuRoleAssoc menuRoleAssoc = menuRepository.findMenuRoleAssocEntry(roleId, menuUid);
-		rejectIfNull(menuRoleAssoc, GL0102, MENU);
+		rejectIfNull(menuRoleAssoc, GL0102, 404, MENU);
 		getMenuRepository().remove(menuRoleAssoc);								
 	}
 	
@@ -177,7 +182,7 @@ public class MenuServiceImpl extends BaseServiceImpl implements MenuService, Par
 		}else{
 			menuItem = this.getMenuRepository().findMenuItemById(id);
 		}
-		rejectIfNull(menuItem, GL0056, MENU);
+		rejectIfNull(menuItem, GL0056, 404, MENU);
 		if (menuItem.getParentMenuUid() == null) {
 			mainMenuSequence = menuItem.getSequence();
 		}
@@ -238,7 +243,7 @@ public class MenuServiceImpl extends BaseServiceImpl implements MenuService, Par
 	
 	private void orderSubMenuSequence(String parentMenuUid,int subMenuSequence){
 		List<MenuItem> menuItemList = this.getMenuRepository().getMenuItemsByMenuId(parentMenuUid);
-		if(menuItemList.size() > 0){
+		if(menuItemList.size() > 0){			
 			for (MenuItem mItem : menuItemList){
 				if(mItem.getSequence() > subMenuSequence){
 					mItem.setSequence(subMenuSequence);

@@ -160,7 +160,7 @@ public class OAuthRestV2Controller extends BaseController implements ConstantPro
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_APPLICATION_DELETE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	@RequestMapping(method = { RequestMethod.DELETE }, value = "oauth/client/{id}")
+	@RequestMapping(method = { RequestMethod.DELETE }, value = "/{id}")
 	public void deleteOAuthClientByOAuthKey(@PathVariable(value = ID) String oauthKey, HttpServletRequest request, HttpServletResponse response) throws Exception {
 
 		this.getOAuthService().deleteOAuthClientByOAuthKey(oauthKey);

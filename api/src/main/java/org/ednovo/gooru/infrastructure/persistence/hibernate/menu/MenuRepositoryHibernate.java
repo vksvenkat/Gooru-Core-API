@@ -140,7 +140,6 @@ public class MenuRepositoryHibernate extends BaseRepositoryHibernate implements 
 		if (menuUid != null) {
 			query.setParameter("menuUid", menuUid);
 		}
-		System.out.println("HQL : "+hql);
 		return (MenuRoleAssoc) (query.list().size() > 0 ? query.list().get(0) : null);
 	}
 	

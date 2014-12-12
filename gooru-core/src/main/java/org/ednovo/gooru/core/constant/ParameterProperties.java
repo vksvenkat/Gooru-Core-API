@@ -2805,5 +2805,10 @@ public interface ParameterProperties {
 	String GL0103 = "GL0103";
 
 	String APPLICATION = "application";
+	
+	String GL0104 = "GL0104";
+	
+	String ENTITY_OPERATION = "entity operation";
+	
 }
 

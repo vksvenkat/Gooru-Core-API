@@ -43,7 +43,7 @@ public class RoleRestV2Controller extends BaseController implements ParameterPro
 	private UserGroupService userGroupService;
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ROLE_LIST })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET)
 	public ModelAndView getRoles(@RequestParam(value = USER_UID, required = false) String userUid,@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,HttpServletRequest request,	HttpServletResponse response) throws Exception {
 		
@@ -99,7 +99,7 @@ public class RoleRestV2Controller extends BaseController implements ParameterPro
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ROLE_LIST })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/entity")
 	public ModelAndView listEntityNames(@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,HttpServletRequest request,HttpServletResponse response) throws Exception {
 
@@ -107,7 +107,7 @@ public class RoleRestV2Controller extends BaseController implements ParameterPro
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ROLE_LIST })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/entity/operations")
 	public ModelAndView listOperationsByEntityName(HttpServletRequest request,HttpServletResponse response,@RequestParam(value = ENTITY_NAME) String entityName) throws Exception {
 
@@ -123,7 +123,7 @@ public class RoleRestV2Controller extends BaseController implements ParameterPro
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ROLE_LIST })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/{roleId}")
 	public ModelAndView getRoleByRoleId(@PathVariable(ROLE_ID) Integer roleId,HttpServletRequest request,	HttpServletResponse response) throws Exception {
 		
@@ -131,7 +131,7 @@ public class RoleRestV2Controller extends BaseController implements ParameterPro
 	}
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ROLE_LIST })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/{roleId}/operation")
 	public ModelAndView getRoleOperationsByRoleId(@PathVariable(ROLE_ID) Integer roleId,HttpServletRequest request,	HttpServletResponse response) throws Exception {
 		

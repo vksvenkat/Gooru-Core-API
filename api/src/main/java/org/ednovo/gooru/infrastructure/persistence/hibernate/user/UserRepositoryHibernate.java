@@ -104,7 +104,10 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 	private static final String FIND_PARTY_ID = "FROM Party party WHERE party.partyUid =:partyUid";
 	private static final String FIND_IDENTITY = "SELECT identity.user FROM Identity  identity WHERE identity.externalId = :externalId AND " + generateOrgAuthQuery("identity.user.") + " AND " + generateUserIsDeleted("identity.user.");
 	private static final String FIND_IDENTITY_LOGIN = "SELECT identity.user FROM Identity  identity WHERE identity.externalId = :externalId AND " + generateUserIsDeleted("identity.user.");
-
+	private static final String FIND_ENTITY_BY_ENTITY_NAME = "SELECT DISTINCT(eo.entityName) FROM EntityOperation eo WHERE eo.entityName = :entityName";
+	private static final String FIND_OPERATIONS_BY_ROLE = "FROM RoleEntityOperation REO WHERE REO.userRole.roleId = :roleId";
+	private static final String FIND_ALL_ENTITY_NAME = "SELECT DISTINCT entityOperation.entityName FROM EntityOperation entityOperation";
+	
 	@Autowired
 	public UserRepositoryHibernate(SessionFactory sessionFactory, JdbcTemplate jdbcTemplate) {
 		super();
@@ -898,7 +901,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<EntityOperation> findAllEntityNames(Integer offset, Integer limit) {
-		String hql = "select distinct entityOperation.entityName from EntityOperation entityOperation";
+		String hql = FIND_ALL_ENTITY_NAME;
 		Query query = getSession().createQuery(hql);
 		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : limit);
 		query.setFirstResult(offset);
@@ -932,7 +935,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<RoleEntityOperation> findRoleOperationsByRoleId(Integer roleId) {
-		String hql = "FROM RoleEntityOperation REO WHERE REO.userRole.roleId = :roleId";
+		String hql = FIND_OPERATIONS_BY_ROLE;
 		Query query = getSession().createQuery(hql);
 		query.setParameter("roleId", roleId);
 		return (List<RoleEntityOperation>) query.list();
@@ -940,7 +943,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 	
 	@Override
 	public boolean findEntityByEntityName(String entityName){
-		String hql = "SELECT DISTINCT(eo.entityName) FROM EntityOperation eo WHERE eo.entityName = :entityName";
+		String hql = FIND_ENTITY_BY_ENTITY_NAME;
 		Query query = getSession().createQuery(hql);
 		query.setParameter("entityName", entityName);
 		return query.list().size() > 0 ? true : false;

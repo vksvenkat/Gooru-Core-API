@@ -71,12 +71,8 @@ public class MenuRestV2Controller extends BaseController implements ConstantProp
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ModelAndView updateMenuItem(@RequestBody String data, HttpServletRequest request, HttpServletResponse response, @PathVariable(value = ID) String menuItemUid) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
-		MenuItem menuItem = getMenuService().getMenuItemById(menuItemUid);
-		Menu menu = null;
-		if(menuItem.getParentMenuUid() == null){
-		menu = this.buildMenuFromInputParameters(data);
-		}
-		MenuItem responseDTO = (menu != null ? getMenuService().updateMenuItem(menu.getMenuUid(), menuItem, user) : getMenuService().updateMenuItem(null, menuItem, user));
+		Menu menu = this.buildMenuFromInputParameters(data);
+		MenuItem responseDTO = ((menu.getMenuUid() != null && menu.getMenuUid() != "") ? getMenuService().updateMenuItem(menu.getMenuUid(), menuItemUid, user) : getMenuService().updateMenuItem(null, menuItemUid, user));
 		String includes[] = (String[]) ArrayUtils.addAll(MENU_ITEM_INCLUDES, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(responseDTO, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
