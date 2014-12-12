@@ -324,7 +324,9 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 			inviteUser.setJoinedDate(new Date());
 			inviteUserList.add(inviteUser);
 			Content content = getContentRepository().findContentByGooruId(inviteUser.getGooruOid(), true);
-			this.addCollaborator(mailId, inviteUser.getGooruOid(), user,false,content,user);
+			if (content != null) {
+				this.addCollaborator(mailId, inviteUser.getGooruOid(), user, false, content, user);
+			}
 		}
 		if (inviteUserList.size() > 0) {
 			this.getCollaboratorRepository().saveAll(inviteUserList);
