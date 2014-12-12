@@ -1393,6 +1393,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 		userCredential.setSharedSecretKey(sharedSecretKey);
 		userCredential.setProfileAssetURI(settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, user.getOrganization().getPartyUid()) + "/" + settingService.getConfigSetting(ConfigConstants.PROFILE_BUCKET, user.getOrganization().getPartyUid()));
 		String storedSecret = settingService.getOrganizationSetting(ConstantProperties.SUPER_ADMIN_TOKEN, TaxonomyUtil.GOORU_ORG_UID);
+		userCredential.setPermittedParties(permittedParties);
 		userCredential.setStoredSecretKey(storedSecret);
 		UserToken userToken = userTokenRepository.findByToken(key);
 		if (userToken != null && userToken.getApplication() != null) {

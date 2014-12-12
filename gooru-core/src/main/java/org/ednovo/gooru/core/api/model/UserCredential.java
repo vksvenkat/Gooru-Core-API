@@ -61,6 +61,8 @@ public class UserCredential implements Serializable {
 	private String storedSecretKey;
 	
 	private String profileAssetURI;
+	
+	private Map<String, String> permittedParties;
 
 	public String getOrganizationUid() {
 		return organizationUid;
@@ -260,5 +262,13 @@ public class UserCredential implements Serializable {
 
 	public String getProfileAssetURI() {
 		return profileAssetURI;
+	}
+
+	public Map<String, String> getPermittedParties() {
+		return permittedParties;
+	}
+
+	public void setPermittedParties(Map<String, String> permittedParties) {
+		this.permittedParties = permittedParties;
 	}
 }
