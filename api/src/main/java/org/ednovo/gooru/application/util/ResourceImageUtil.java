@@ -60,16 +60,20 @@ import org.ednovo.gooru.domain.service.storage.S3ResourceApiHandler;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.resource.ResourceRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.taxonomy.TaxonomyRespository;
+import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.restlet.data.Method;
+import org.restlet.resource.ClientResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import com.fasterxml.jackson.core.type.TypeReference;
 
 @Component
 public class ResourceImageUtil extends UserGroupSupport implements ParameterProperties {
@@ -102,7 +106,13 @@ public class ResourceImageUtil extends UserGroupSupport implements ParameterProp
 	private Map<String, String> propertyMap;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ResourceImageUtil.class);
-
+	
+	private static final String  THUMBNAIL = "thumbnail_small";
+	
+	private static final String  VIMEO_VIDEO = "vimeo.com";
+	
+	private static final String  YOUTUBE_VIDEO = "youtube.com";
+	
 	public void sendMsgToGenerateThumbnails(Resource resource) {
 
 		sendMsgToGenerateThumbnails(resource, resource.getThumbnail());
@@ -237,8 +247,8 @@ public class ResourceImageUtil extends UserGroupSupport implements ParameterProp
 				indexType = SCOLLECTION;
 			}
 			try {
-			 indexProcessor.index(resource.getGooruOid(), IndexProcessor.INDEX, indexType);
-			} catch(Exception e) { 
+				indexProcessor.index(resource.getGooruOid(), IndexProcessor.INDEX, indexType);
+			} catch (Exception e) {
 				LOGGER.debug("failed to index {}", e);
 			}
 		}
@@ -288,20 +298,25 @@ public class ResourceImageUtil extends UserGroupSupport implements ParameterProp
 
 	public Map<String, Object> getResourceMetaData(String url, String resourceTitle, boolean fetchThumbnail) {
 		Map<String, Object> metaData = new HashMap<String, Object>();
-		ResourceMetadataCo resourceFeeds = getYoutubeResourceFeeds(url, null);
+		ResourceMetadataCo resourceFeeds = null;
+		if (url != null && url.contains(VIMEO_VIDEO)) {
+			resourceFeeds = getMetaDataFromVimeoVideo(url);
+		} else if (url != null && url.contains(YOUTUBE_VIDEO)) {
+			resourceFeeds = getYoutubeResourceFeeds(url, null);
+		}
 		String description = "";
 		String title = "";
 		String videoDuration = "";
-		if (resourceFeeds.getUrlStatus() == 404) {
+		Set<String> images = new LinkedHashSet<String>();
+		if (resourceFeeds == null || resourceFeeds.getUrlStatus() == 404) {
 			Document doc = null;
 			try {
 				if (url != null && (url.contains("http://") || url.contains("https://"))) {
-				  doc = Jsoup.connect(url).timeout(6000).get();
+					doc = Jsoup.connect(url).timeout(6000).get();
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			Set<String> images = new LinkedHashSet<String>();
 			if (doc != null) {
 				title = doc.title();
 				Elements meta = doc.getElementsByTag(META);
@@ -328,13 +343,16 @@ public class ResourceImageUtil extends UserGroupSupport implements ParameterProp
 					}
 				}
 			}
-			if (fetchThumbnail) {
-				metaData.put(IMAGES, images);
-			}
 		} else {
 			title = resourceFeeds.getTitle();
 			description = resourceFeeds.getDescription();
 			videoDuration = resourceFeeds.getDuration().toString();
+		}
+		if (fetchThumbnail) {
+			if (resourceFeeds != null && resourceFeeds.getThumbnail() != null) {
+				images.add(resourceFeeds.getThumbnail());
+			}
+			metaData.put(IMAGES, images);
 		}
 		metaData.put(TITLE, title);
 		metaData.put(DESCRIPTION, description);
@@ -455,6 +473,32 @@ public class ResourceImageUtil extends UserGroupSupport implements ParameterProp
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	public static ResourceMetadataCo getMetaDataFromVimeoVideo(String url) {
+		ResourceMetadataCo resourceMetadataCo = null;
+		try {
+			String id = org.apache.commons.lang.StringUtils.substringAfterLast(url, "/");
+			if (org.apache.commons.lang.StringUtils.isNumeric(id)) {
+				ClientResource clientResource = new ClientResource("http://vimeo.com/api/v2/video/" + id + ".json");
+				List<Map<String, String>> data = JsonDeserializer.deserialize(clientResource.get().getText(), new TypeReference<List<Map<String, String>>>() {
+				});
+				if (data != null && data.size() > 0) {
+					Map<String, String> resourceFeed = data.get(0);
+					if (resourceFeed != null) {
+						resourceMetadataCo = new ResourceMetadataCo();
+						resourceMetadataCo.setTitle(resourceFeed.get(TITLE));
+						resourceMetadataCo.setDescription(resourceFeed.get(DESCRIPTION));
+						resourceMetadataCo.setThumbnail(resourceFeed.get(THUMBNAIL));
+						resourceMetadataCo.setDuration(Long.parseLong(resourceFeed.get(DURATION)));
+						resourceMetadataCo.setUrlStatus(200);
+					}
+				}
+			}
+		} catch (Exception e) {
+			LOGGER.error("Failed to fetch the data from vimeo feeds");
+		}
+		return resourceMetadataCo;
 	}
 
 	public Properties getClassPlanConstants() {
