@@ -17,9 +17,6 @@ import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.core.type.TypeReference;
-
-import flexjson.JSONDeserializer;
-import flexjson.JSONSerializer;
 //import javax.persistence.Column;
 //import javax.persistence.Id;
 

@@ -52,6 +52,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathFactory;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.ednovo.gooru.application.converter.FileProcessor;
 import org.ednovo.gooru.application.util.AsyncExecutor;
@@ -2688,8 +2689,18 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				itemData.put(TITLE,newResource.getTitle());
 				resource.setTitle(newResource.getTitle());
 			}
-			if(newResource.getS3UploadFlag() != null) {
+			if (newResource.getS3UploadFlag() != null) {
 				resource.setS3UploadFlag(newResource.getS3UploadFlag());
+				try {
+					if (newResource.getS3UploadFlag() == 1) {
+						File file = new File(resource.getOrganization().getNfsStorageArea().getInternalPath() + resource.getFolder());
+						if (file.isDirectory()) {
+							FileUtils.deleteDirectory(file);
+						}
+					}
+				} catch (Exception e) {
+					LOGGER.error(e.getMessage());
+				}
 			}
 			if (newResource.getDescription() != null) {
 				itemData.put(DESCRIPTION,newResource.getDescription());
