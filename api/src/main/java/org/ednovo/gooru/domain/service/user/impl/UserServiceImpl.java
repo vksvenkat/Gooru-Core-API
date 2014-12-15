@@ -50,6 +50,7 @@ import org.ednovo.gooru.core.api.model.AssessmentSegmentQuestionAssoc;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.Credential;
+import org.ednovo.gooru.core.api.model.CustomTableValue;
 import org.ednovo.gooru.core.api.model.EntityOperation;
 import org.ednovo.gooru.core.api.model.GooruAuthenticationToken;
 import org.ednovo.gooru.core.api.model.Identity;
@@ -103,6 +104,7 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.UserTokenRepository
 import org.ednovo.gooru.infrastructure.persistence.hibernate.apikey.ApplicationRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.assessment.AssessmentRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.classplan.LearnguideRepository;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.party.UserGroupRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.resource.ResourceRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.taxonomy.TaxonomyRespository;
@@ -184,6 +186,9 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 	
 	@Autowired
 	private ApplicationRepository applicationRepository;
+	
+	@Autowired
+	private CustomTableRepository customTableRepository;
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
 
@@ -1079,7 +1084,9 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 	@Override
 	public UserToken signIn(String username, String password, String apikeyId, String sessionId, boolean isSsoLogin) {
 
-		Application application = this.getApplicationRepository().getApplication(apikeyId);
+		CustomTableValue activeStatus = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.APPLICATION_STATUS.getTable(), CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus());
+		Application application = this.getApplicationRepository().getApplication(apikeyId,activeStatus);
+		rejectIfNull(application,GL0056,404,APPLICATION);
 		if (username == null) {
 			throw new BadCredentialsException("error:Username cannot be null or empty.");
 		}
@@ -1798,7 +1805,9 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 	public void sendUserRegistrationConfirmationMail(String gooruUid, String accountType, String sessionId, String dateOfBirth, String gooruClassicUrl) throws Exception {
 		User user = this.findByGooruId(gooruUid);
 		if (user != null) {
-			Application application = this.getApplicationRepository().getApplication(user.getOrganization().getPartyUid());
+			CustomTableValue activeStatus = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.APPLICATION_STATUS.getTable(), CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus());
+			Application application = this.getApplicationRepository().getApplication(user.getOrganization().getPartyUid(),activeStatus);
+			rejectIfNull(application,GL0056,404,APPLICATION);
 			UserToken userToken = this.createSessionToken(user, sessionId, application);
 			this.getMailHandler().sendMailToConfirm(gooruUid, null, accountType, userToken.getToken(), dateOfBirth, gooruClassicUrl,null,null,null);
 		}
@@ -1951,7 +1960,8 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 	@Override
 	public UserToken partnerSignin(Map<String, Object> paramMap, String sessionId, String url, Long expires) throws Exception {
 		UserToken userToken = null;
-		Application application = this.getApplicationRepository().getApplication(paramMap.get(API_KEY).toString());
+		CustomTableValue activeStatus = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.APPLICATION_STATUS.getTable(), CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus());
+		Application application = this.getApplicationRepository().getApplication(paramMap.get(API_KEY).toString(),activeStatus);
 		if (application == null) {
 			throw new BadCredentialsException("error:Invalid API Key.");
 		} else {
@@ -2117,6 +2127,10 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 
 	public ApplicationRepository getApplicationRepository() {
 		return applicationRepository;
+	}
+	
+	public CustomTableRepository getCustomTableRepository() {
+		return customTableRepository;
 	}
 
 }

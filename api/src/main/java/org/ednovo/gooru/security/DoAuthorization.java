@@ -28,12 +28,14 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.httpclient.HttpStatus;
 import org.ednovo.gooru.core.api.model.Application;
+import org.ednovo.gooru.core.api.model.CustomTableValue;
 import org.ednovo.gooru.core.api.model.GooruAuthenticationToken;
 import org.ednovo.gooru.core.api.model.Organization;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserCredential;
 import org.ednovo.gooru.core.api.model.UserToken;
+import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.security.AuthenticationDo;
 import org.ednovo.gooru.domain.service.oauth.OAuthService;
@@ -42,6 +44,7 @@ import org.ednovo.gooru.domain.service.user.UserService;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.OrganizationSettingRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserTokenRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.apikey.ApplicationRepository;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
 import org.ednovo.goorucore.application.serializer.ExcludeNullTransformer;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.json.JSONException;
@@ -77,6 +80,9 @@ public class DoAuthorization {
 	@Autowired
 	private ApplicationRepository applicationRepository;
 
+	@Autowired
+	private CustomTableRepository customTableRepository;
+	
 	private static final String SESSION_TOKEN_KEY = "authenticate_";
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DoAuthorization.class);
@@ -153,7 +159,8 @@ public class DoAuthorization {
 			}
 		} else if (apiKeyToken != null) {
 			if (authentication == null) {
-				Application application = this.getApplicationRepository().getApplication(apiKeyToken);
+				CustomTableValue activeStatus = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.APPLICATION_STATUS.getTable(), CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus());
+				Application application = this.getApplicationRepository().getApplication(apiKeyToken,activeStatus);
 				if (application == null) {
 					throw new AccessDeniedException("Invalid ApiKey : " + apiKeyToken);
 				} else {
@@ -244,5 +251,9 @@ public class DoAuthorization {
 
 	public ApplicationRepository getApplicationRepository() {
 		return applicationRepository;
+	}
+	
+	public CustomTableRepository getCustomTableRepository() {
+		return customTableRepository;
 	}
 }

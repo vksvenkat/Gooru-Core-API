@@ -2810,5 +2810,8 @@ public interface ParameterProperties {
 	
 	String ENTITY_OPERATION = "entity operation";
 	
+	String IN_ACTIVE = "in_active";
+	
+	String APPLICATION_ID = "applicationId";
 }
 

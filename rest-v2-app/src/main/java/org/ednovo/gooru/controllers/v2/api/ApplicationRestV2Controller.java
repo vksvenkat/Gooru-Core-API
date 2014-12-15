@@ -89,7 +89,7 @@ public class ApplicationRestV2Controller extends BaseController implements Const
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_APPLICATION_READ })
 	@RequestMapping(method = RequestMethod.GET, value = "/{id}")
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ModelAndView getApplication(HttpServletRequest request, HttpServletResponse response, @PathVariable String id) throws Exception {
 		String includes[] = (String[]) ArrayUtils.addAll(APPLICATION_INCLUDES, ERROR_INCLUDE);
 		includes = (String[]) ArrayUtils.addAll(includes, OAUTH_CLIENT_INCLUDES);
@@ -99,7 +99,7 @@ public class ApplicationRestV2Controller extends BaseController implements Const
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_APPLICATION_READ })
 	@RequestMapping(method = RequestMethod.GET, value = "")
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ModelAndView getApplications(HttpServletRequest request, HttpServletResponse response, @RequestParam(value = ORGANIZATION_UID, required = false) String organizationUid,@RequestParam(value = ID, required = false) String gooruUid, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit) throws Exception {
 		String includes[] = (String[]) ArrayUtils.addAll(APPLICATION_INCLUDES, ERROR_INCLUDE);
 		User user = (User) request.getAttribute(Constants.USER);
@@ -118,11 +118,11 @@ public class ApplicationRestV2Controller extends BaseController implements Const
 	
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_APPLICATION_READ })
-	@RequestMapping(method = RequestMethod.GET, value = "/item/{id}")
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public ModelAndView getApplicationItem(HttpServletRequest request, HttpServletResponse response, @PathVariable String id) throws Exception {
+	@RequestMapping(method = RequestMethod.GET, value = "{apiKey}/item/{id}")
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public ModelAndView getApplicationItem(@PathVariable(value = API_KEY) String apikey,HttpServletRequest request, HttpServletResponse response, @PathVariable String id) throws Exception {
 		String includes[] = (String[]) ArrayUtils.addAll(APPLICATION_ITEM_INCLUDES, ERROR_INCLUDE);
-		return toModelAndViewWithIoFilter(this.getApplicationService().getApplicationItem(id), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
+		return toModelAndViewWithIoFilter(this.getApplicationService().getApplicationItem(apikey,id), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_APPLICATION_ADD })
@@ -141,15 +141,13 @@ public class ApplicationRestV2Controller extends BaseController implements Const
 	}
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_APPLICATION_UPDATE })
-	@RequestMapping(method = RequestMethod.PUT, value = "/item/{id}")
+	@RequestMapping(method = RequestMethod.PUT, value = "{apiKey}/item/{id}")
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public ModelAndView UpdateApplicationItem(@PathVariable(value = ID) String applicationItemId,@RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public ModelAndView updateApplicationItem(@PathVariable(value = API_KEY) String apikey,@PathVariable(value = ID) String applicationItemId,@RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
-		ActionResponseDTO<ApplicationItem> responseDTO = getApplicationService().updateApplicationItem(buildApplicationItemFromInputParameters(data),applicationItemId, user);
+		ActionResponseDTO<ApplicationItem> responseDTO = getApplicationService().updateApplicationItem(apikey,buildApplicationItemFromInputParameters(data),applicationItemId, user);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-		} else {
-			response.setStatus(HttpServletResponse.SC_CREATED);
 		}
 		String includes[] = (String[]) ArrayUtils.addAll(APPLICATION_ITEM_INCLUDES, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
@@ -169,16 +167,16 @@ public class ApplicationRestV2Controller extends BaseController implements Const
 	@RequestMapping(method = { RequestMethod.DELETE }, value = "/{id}")
 	public void deleteApplicationByApikey(@PathVariable(value = ID) String apikey, HttpServletRequest request, HttpServletResponse response) throws Exception {
 
-		this.getApplicationService().deleteApplicationByApikey(apikey);
+		this.getApplicationService().deleteApplication(apikey);
 		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
 	}
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_APPLICATION_DELETE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	@RequestMapping(method = { RequestMethod.DELETE }, value = "item/{id}")
-	public void deleteApplicationItemByItemId(@PathVariable(value= ID) String applicationItemId, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	@RequestMapping(method = { RequestMethod.DELETE }, value = "{apiKey}/item/{id}")
+	public void deleteApplicationItemByItemId(@PathVariable(value= API_KEY) String apikey,@PathVariable(value= ID) String applicationItemId, HttpServletRequest request, HttpServletResponse response) throws Exception {
 
-		this.getApplicationService().deleteApplicationItemByItemId(applicationItemId);
+		this.getApplicationService().deleteApplicationItemByItemId(apikey,applicationItemId);
 		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
 	}
 	
