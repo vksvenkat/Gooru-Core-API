@@ -119,14 +119,14 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 				tag.setLabel(label);
 				tag = this.tagService.createTag(tag, apiCaller).getModel();
 			}
-			ContentTagAssoc contentTagAssocDb = this.contentRepository.getContentTagById(gooruOid, tag.getGooruOid(), apiCaller.getGooruUId());
-			if (contentTagAssocDb == null) {
-				contentTagAssocDb = new ContentTagAssoc();
-				contentTagAssocDb.setContentGooruOid(gooruOid);
-				contentTagAssocDb.setTagGooruOid(tag.getGooruOid());
-				contentTagAssocDb.setAssociatedUid(apiCaller.getGooruUId());
-				contentTagAssocDb.setAssociatedDate(new Date(System.currentTimeMillis()));
-				this.getContentRepository().save(contentTagAssocDb);
+			ContentTagAssoc contentTagAssoc = this.contentRepository.getContentTagById(gooruOid, tag.getGooruOid(), apiCaller.getGooruUId());
+			if (contentTagAssoc == null) {
+				contentTagAssoc = new ContentTagAssoc();
+				contentTagAssoc.setContentGooruOid(gooruOid);
+				contentTagAssoc.setTagGooruOid(tag.getGooruOid());
+				contentTagAssoc.setAssociatedUid(apiCaller.getGooruUId());
+				contentTagAssoc.setAssociatedDate(new Date(System.currentTimeMillis()));
+				this.getContentRepository().save(contentTagAssoc);
 				tag.setContentCount(tag.getContentCount() != null ? tag.getContentCount() + 1 : 1);
 				this.getContentRepository().save(tag);
 				UserSummary userSummary = this.getUserRepository().getSummaryByUid(apiCaller.getPartyUid());
@@ -137,7 +137,7 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 				this.getUserRepository().save(userSummary);
 				this.getUserRepository().flush();
 			} 
-			contentTagAssocs.add(setcontentTagAssoc(contentTagAssocDb, tag.getLabel()));
+			contentTagAssocs.add(setcontentTagAssoc(contentTagAssoc, tag.getLabel()));
 		}
 		List<CollectionItem> collectionItems = this.getCollectionRepository().findCollectionByResource(gooruOid, null, null);
 		for(CollectionItem collectionItem : collectionItems) {
