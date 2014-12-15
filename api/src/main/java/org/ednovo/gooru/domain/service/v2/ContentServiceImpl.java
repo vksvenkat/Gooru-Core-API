@@ -119,9 +119,9 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 				tag.setLabel(label);
 				tag = this.tagService.createTag(tag, apiCaller).getModel();
 			}
-			ContentTagAssoc contentTagAssocDb = this.contentRepository.getContentTagById(gooruOid, tag.getGooruOid(), apiCaller.getGooruUId());
-			if (contentTagAssocDb == null) {
-				ContentTagAssoc contentTagAssoc = new ContentTagAssoc();
+			ContentTagAssoc contentTagAssoc = this.contentRepository.getContentTagById(gooruOid, tag.getGooruOid(), apiCaller.getGooruUId());
+			if (contentTagAssoc == null) {
+				contentTagAssoc = new ContentTagAssoc();
 				contentTagAssoc.setContentGooruOid(gooruOid);
 				contentTagAssoc.setTagGooruOid(tag.getGooruOid());
 				contentTagAssoc.setAssociatedUid(apiCaller.getGooruUId());
@@ -136,8 +136,8 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 				userSummary.setTag((userSummary.getTag() != null ? userSummary.getTag() : 0) + 1);
 				this.getUserRepository().save(userSummary);
 				this.getUserRepository().flush();
-				contentTagAssocs.add(setcontentTagAssoc(contentTagAssoc, tag.getLabel()));
 			} 
+			contentTagAssocs.add(setcontentTagAssoc(contentTagAssoc, tag.getLabel()));
 		}
 		List<CollectionItem> collectionItems = this.getCollectionRepository().findCollectionByResource(gooruOid, null, null);
 		for(CollectionItem collectionItem : collectionItems) {
