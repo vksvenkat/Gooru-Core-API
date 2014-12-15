@@ -28,7 +28,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.httpclient.HttpStatus;
 import org.ednovo.gooru.core.api.model.Application;
-import org.ednovo.gooru.core.api.model.CustomTableValue;
 import org.ednovo.gooru.core.api.model.GooruAuthenticationToken;
 import org.ednovo.gooru.core.api.model.Organization;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
@@ -159,8 +158,7 @@ public class DoAuthorization {
 			}
 		} else if (apiKeyToken != null) {
 			if (authentication == null) {
-				CustomTableValue activeStatus = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.APPLICATION_STATUS.getTable(), CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus());
-				Application application = this.getApplicationRepository().getApplication(apiKeyToken,activeStatus);
+				Application application = this.getApplicationRepository().getApplication(apiKeyToken,CustomProperties.Table.APPLICATION_STATUS.getTable()+"_"+CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus());
 				if (application == null) {
 					throw new AccessDeniedException("Invalid ApiKey : " + apiKeyToken);
 				} else {

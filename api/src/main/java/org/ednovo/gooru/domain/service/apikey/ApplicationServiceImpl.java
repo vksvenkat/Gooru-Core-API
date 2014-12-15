@@ -36,13 +36,9 @@ import org.ednovo.gooru.core.api.model.CustomTableValue;
 import org.ednovo.gooru.core.api.model.ResourceType;
 import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.User;
-import org.ednovo.gooru.core.api.model.UserRoleAssoc;
-import org.ednovo.gooru.core.api.model.UserRole.UserRoleType;
 import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
-import org.ednovo.gooru.core.exception.BadRequestException;
-import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.domain.service.BaseServiceImpl;
 import org.ednovo.gooru.domain.service.party.OrganizationService;
 import org.ednovo.gooru.domain.service.search.SearchResults;
@@ -112,8 +108,7 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 
 	@Override
 	public Application updateApplication(Application newapplication, String apiKey) {
-		CustomTableValue activeStatus = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.APPLICATION_STATUS.getTable(), CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus());
-		Application application = this.getApplicationRepository().getApplication(apiKey,activeStatus);
+		Application application = this.getApplicationRepository().getApplication(apiKey,CustomProperties.Table.APPLICATION_STATUS.getTable()+"_"+CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus());
 		rejectIfNull(application, GL0056, APPLICATION);
 		if (newapplication.getTitle() != null) {
 			application.setTitle(newapplication.getTitle());
@@ -142,8 +137,7 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 
 	@Override
 	public Application getApplication(String apiKey) {
-		CustomTableValue activeStatus = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.APPLICATION_STATUS.getTable(), CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus());
-		Application application = this.getApplicationRepository().getApplication(apiKey,activeStatus);
+		Application application = this.getApplicationRepository().getApplication(apiKey,CustomProperties.Table.APPLICATION_STATUS.getTable()+"_"+CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus());
 		rejectIfNull(application, GL0056, 404, APPLICATION );
 		application.setApplicationItems(this.getApplicationRepository().getApplicationItemByApiKey(apiKey));
 		application.setOauthClients(oAuthRepository.findOAuthClientByApplicationKey(apiKey));
@@ -152,7 +146,6 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 
 	@Override
 	public SearchResults<Application> getApplications(User user, String organizationUid,String gooruUid, Integer limit, Integer offset) {
-		CustomTableValue activeStatus = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.APPLICATION_STATUS.getTable(), CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus());
 		SearchResults<Application> result = new SearchResults<Application>();
 		if(organizationUid == null){
 			
@@ -164,18 +157,16 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 			}
 		}
 		
-		result.setSearchResults(this.getApplicationRepository().getApplications(organizationUid,gooruUid, offset, limit, activeStatus));
-		result.setTotalHitCount(this.getApplicationRepository().getApplicationCount(organizationUid, gooruUid,activeStatus));
+		result.setSearchResults(this.getApplicationRepository().getApplications(organizationUid,gooruUid, offset, limit,CustomProperties.Table.APPLICATION_STATUS.getTable()+"_"+CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus()));
+		result.setTotalHitCount(this.getApplicationRepository().getApplicationCount(organizationUid, gooruUid,CustomProperties.Table.APPLICATION_STATUS.getTable()+"_"+CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus()));
 		return result;
 	}
 
 	@Override
 	public void deleteApplication(String apiKey){
-		CustomTableValue activeStatus = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.APPLICATION_STATUS.getTable(), CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus());
-		Application application = this.getApplicationRepository().getApplication(apiKey,activeStatus);
+		Application application = this.getApplicationRepository().getApplication(apiKey,CustomProperties.Table.APPLICATION_STATUS.getTable()+"_"+CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus());
 		rejectIfNull(application, GL0056,404, APPLICATION);
-		CustomTableValue status = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.APPLICATION_STATUS.getTable(), CustomProperties.ApplicationStatus.IN_ACTIVE.getApplicationStatus());
-		application.setStatus(status);
+		application.setStatus(this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.APPLICATION_STATUS.getTable(), CustomProperties.ApplicationStatus.IN_ACTIVE.getApplicationStatus()));
 		this.getApplicationRepository().save(application);
 	}
 
@@ -190,8 +181,7 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 		final Errors errors = validateCreateApplicationItem(applicationItem);
 		if (!errors.hasErrors()) {
 			rejectIfNull(apiKey, GL0006, "Application key ");
-			CustomTableValue activeStatus = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.APPLICATION_STATUS.getTable(), CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus());
-			Application application = this.getApplicationRepository().getApplication(apiKey,activeStatus);
+			Application application = this.getApplicationRepository().getApplication(apiKey,CustomProperties.Table.APPLICATION_STATUS.getTable()+"_"+CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus());
 			rejectIfNull(application, GL0007, "Application key ");
 			applicationItem.setApplication(application);
 			this.getApplicationRepository().save(applicationItem);
@@ -201,8 +191,7 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 	
 	@Override
 	public ActionResponseDTO<ApplicationItem>  updateApplicationItem(String apikey,ApplicationItem newApplicationItem, String applicationItemId, User apiCaller) throws Exception {
-		CustomTableValue activeStatus = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.APPLICATION_STATUS.getTable(), CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus());
-		Application application = getApplicationRepository().getApplication(apikey,activeStatus);
+		Application application = getApplicationRepository().getApplication(apikey,CustomProperties.Table.APPLICATION_STATUS.getTable()+"_"+CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus());
 		rejectIfNull(application, GL0056, 404, APPLICATION_ITEM);
 		ApplicationItem applicationItem = this.getApplicationRepository().getApplicationItem(applicationItemId);
 		final Errors errors = validateUpdateApplicationItem(applicationItem);
@@ -228,8 +217,7 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 	
 	@Override
 	public ApplicationItem getApplicationItem(String apikey,String applicationItemId) throws Exception{
-		CustomTableValue activeStatus = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.APPLICATION_STATUS.getTable(), CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus());
-		Application application = getApplicationRepository().getApplication(apikey,activeStatus);
+		Application application = getApplicationRepository().getApplication(apikey,CustomProperties.Table.APPLICATION_STATUS.getTable()+"_"+CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus());
 		rejectIfNull(application, GL0056, 404, APPLICATION_ITEM);
 		ApplicationItem applicationItem = this.getApplicationRepository().getApplicationItem(applicationItemId);
 		rejectIfNull(applicationItem, GL0056, 404, APPLICATION_ITEM);
@@ -250,8 +238,7 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 	
 	@Override
 	public void deleteApplicationItemByItemId(String apikey,String applicationItemId) throws Exception{
-		CustomTableValue activeStatus = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.APPLICATION_STATUS.getTable(), CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus());
-		Application application = getApplicationRepository().getApplication(apikey, activeStatus);
+		Application application = getApplicationRepository().getApplication(apikey,CustomProperties.Table.APPLICATION_STATUS.getTable()+"_"+CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus());
 		rejectIfNull(application, GL0056,404, APPLICATION_ITEM);
 		ApplicationItem applicationItem = getApplicationRepository().getApplicationItem(applicationItemId);
 		rejectIfNull(applicationItem, GL0056,404, APPLICATION_ITEM);

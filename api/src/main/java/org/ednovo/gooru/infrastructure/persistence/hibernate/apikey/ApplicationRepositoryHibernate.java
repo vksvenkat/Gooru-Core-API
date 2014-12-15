@@ -39,7 +39,7 @@ import org.springframework.stereotype.Repository;
 public class ApplicationRepositoryHibernate extends BaseRepositoryHibernate implements ApplicationRepository, ParameterProperties, ConstantProperties {
 
 	@Override
-	public List<Application> getApplications(String organizationUid,String gooruUid, Integer offset, Integer limit, CustomTableValue status) {
+	public List<Application> getApplications(String organizationUid,String gooruUid, Integer offset, Integer limit, String type) {
 		String hql = "FROM Application app WHERE  1=1";
 		if (organizationUid != null) {
 			hql += " AND app.organization.partyUid =:partyUid";
@@ -47,8 +47,8 @@ public class ApplicationRepositoryHibernate extends BaseRepositoryHibernate impl
 		if (gooruUid != null) {
 			hql += " AND app.user.partyUid =:gooruUid";
 		}
-		if (status != null) {
-			hql += " AND app.status =:status";
+		if (type != null) {
+			hql += " AND app.status.keyValue =:type";
 		}
 		hql += " and app.resourceType.name = '" + ResourceType.Type.APPLICATION.getType()+"'";	
 		hql += " ORDER BY app.lastModified desc";
@@ -59,8 +59,8 @@ public class ApplicationRepositoryHibernate extends BaseRepositoryHibernate impl
 		if (gooruUid != null) {
 			query.setParameter("gooruUid", gooruUid);
 		}
-		if (status != null) {
-			query.setParameter("status", status);
+		if (type != null) {
+			query.setParameter("type", type);
 		}
 		query.setFirstResult(offset);
 		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
@@ -68,15 +68,26 @@ public class ApplicationRepositoryHibernate extends BaseRepositoryHibernate impl
 	}
 
 	@Override
-	public Application getApplication(String apiKey,CustomTableValue status) {
-		String hql = "FROM Application app WHERE app.key=:apiKey AND app.status=:status";
+	public Application getApplication(String apiKey,String type) {
+		String hql = "FROM Application app WHERE 1=1 ";
+		if (apiKey != null)  {
+			hql += " AND app.key=:apiKey ";
+		}
+		if (type != null)  {
+			hql += " AND app.status.keyValue =:type";
+		}
 		Query query = getSession().createQuery(hql);
-		query.setParameter("apiKey", apiKey);
-		query.setParameter("status", status);
+		
+		if (apiKey != null)  {
+			query.setParameter("apiKey", apiKey);
+		}
+		if (type != null)  {
+			query.setParameter("type", type);
+		}
 		return (Application) (query.list().size() > 0 ? query.list().get(0) : null);
 	}
 
-	public Long getApplicationCount(String organizationUid , String gooruUid, CustomTableValue status) {
+	public Long getApplicationCount(String organizationUid , String gooruUid, String type) {
 		String hql = "SELECT count(*) FROM Application app WHERE 1=1";
 		if (organizationUid != null)  {
 			hql += " AND app.organization.partyUid =:organizationUid";
@@ -84,8 +95,8 @@ public class ApplicationRepositoryHibernate extends BaseRepositoryHibernate impl
 		if (gooruUid != null) {
 			hql += " AND app.user.partyUid =:gooruUid";
 		}
-		if (status != null) {
-			hql += " AND app.status =:status";
+		if (type != null) {
+			hql += " AND app.status.keyValue =:type";
 		}
 		hql += " and app.resourceType.name = '" + ResourceType.Type.APPLICATION.getType()+"'";	
 		Query query = getSession().createQuery(hql);
@@ -95,8 +106,8 @@ public class ApplicationRepositoryHibernate extends BaseRepositoryHibernate impl
 		if (gooruUid != null)  {
 			query.setParameter("gooruUid", gooruUid);
 		}
-		if (status != null)  {
-			query.setParameter("status", status);
+		if (type != null)  {
+			query.setParameter("type", type);
 		}
 		return (Long) query.list().get(0);
 	}

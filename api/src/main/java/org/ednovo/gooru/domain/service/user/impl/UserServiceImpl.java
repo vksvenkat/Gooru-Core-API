@@ -50,7 +50,6 @@ import org.ednovo.gooru.core.api.model.AssessmentSegmentQuestionAssoc;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.Credential;
-import org.ednovo.gooru.core.api.model.CustomTableValue;
 import org.ednovo.gooru.core.api.model.EntityOperation;
 import org.ednovo.gooru.core.api.model.GooruAuthenticationToken;
 import org.ednovo.gooru.core.api.model.Identity;
@@ -1084,8 +1083,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 	@Override
 	public UserToken signIn(String username, String password, String apikeyId, String sessionId, boolean isSsoLogin) {
 
-		CustomTableValue activeStatus = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.APPLICATION_STATUS.getTable(), CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus());
-		Application application = this.getApplicationRepository().getApplication(apikeyId,activeStatus);
+		Application application = this.getApplicationRepository().getApplication(apikeyId,CustomProperties.Table.APPLICATION_STATUS.getTable()+"_"+CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus());
 		rejectIfNull(application,GL0056,404,APPLICATION);
 		if (username == null) {
 			throw new BadCredentialsException("error:Username cannot be null or empty.");
@@ -1805,8 +1803,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 	public void sendUserRegistrationConfirmationMail(String gooruUid, String accountType, String sessionId, String dateOfBirth, String gooruClassicUrl) throws Exception {
 		User user = this.findByGooruId(gooruUid);
 		if (user != null) {
-			CustomTableValue activeStatus = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.APPLICATION_STATUS.getTable(), CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus());
-			Application application = this.getApplicationRepository().getApplication(user.getOrganization().getPartyUid(),activeStatus);
+			Application application = this.getApplicationRepository().getApplication(user.getOrganization().getPartyUid(),CustomProperties.Table.APPLICATION_STATUS.getTable()+"_"+CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus());
 			rejectIfNull(application,GL0056,404,APPLICATION);
 			UserToken userToken = this.createSessionToken(user, sessionId, application);
 			this.getMailHandler().sendMailToConfirm(gooruUid, null, accountType, userToken.getToken(), dateOfBirth, gooruClassicUrl,null,null,null);
@@ -1960,8 +1957,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 	@Override
 	public UserToken partnerSignin(Map<String, Object> paramMap, String sessionId, String url, Long expires) throws Exception {
 		UserToken userToken = null;
-		CustomTableValue activeStatus = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.APPLICATION_STATUS.getTable(), CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus());
-		Application application = this.getApplicationRepository().getApplication(paramMap.get(API_KEY).toString(),activeStatus);
+		Application application = this.getApplicationRepository().getApplication(paramMap.get(API_KEY).toString(),CustomProperties.Table.APPLICATION_STATUS.getTable()+"_"+CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus());
 		if (application == null) {
 			throw new BadCredentialsException("error:Invalid API Key.");
 		} else {

@@ -107,8 +107,7 @@ public class OAuthServiceImpl extends ServerValidationUtils implements OAuthServ
 			}
 			rejectIfNull(oAuthClient.getApplication(), GL0006, "Application key ");
 			rejectIfNull(oAuthClient.getApplication().getKey(), GL0006, "Application key ");
-			CustomTableValue activeStatus = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.APPLICATION_STATUS.getTable(), CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus());
-			Application application = this.getApplicationRepository().getApplication(oAuthClient.getApplication().getKey(),activeStatus);
+			Application application = this.getApplicationRepository().getApplication(oAuthClient.getApplication().getKey(),CustomProperties.Table.APPLICATION_STATUS.getTable()+"_"+CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus());
 			rejectIfNull(application, GL0007, "Application key ");
 			oAuthClient.setApplication(application);
 			CustomTableValue status = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.APPLICATION_STATUS.getTable(), CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus());

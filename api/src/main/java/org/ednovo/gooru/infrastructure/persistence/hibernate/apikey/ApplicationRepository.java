@@ -32,11 +32,11 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepository;
 
 public interface ApplicationRepository extends BaseRepository {
 	
-	Application getApplication(String apiKey,CustomTableValue status);
+	Application getApplication(String apiKey,String type);
 	
-	List<Application> getApplications(String organizationUid,String gooruUid, Integer offset, Integer limit,CustomTableValue status);
+	List<Application> getApplications(String organizationUid,String gooruUid, Integer offset, Integer limit,String type);
 
-	Long getApplicationCount(String organizationUid,String gooruUid,CustomTableValue status);
+	Long getApplicationCount(String organizationUid,String gooruUid,String type);
 	
 	Application getApplicationByOrganization(String organizationUid);
 	
