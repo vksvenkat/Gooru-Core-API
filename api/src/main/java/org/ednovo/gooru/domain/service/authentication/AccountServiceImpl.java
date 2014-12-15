@@ -166,7 +166,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 		sessionToken.setRestEndPoint(apiEndPoint);
 
 		try {
-			userTokenRepository.saveUserSession(sessionToken);
+			userTokenRepository.save(sessionToken);
 		} catch (Exception e) {
 			LOGGER.error("Error" + e.getMessage());
 		}
@@ -393,16 +393,15 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			try {				
 				userIdentity = this.getUserManagementService().createUser(newUser, null, null, 1, 0, null, null, null, null, null, null, null, source, null, request, null, null);
 				SessionContextSupport.putLogParameter(EVENT_NAME,USER_REG);
-                SessionContextSupport.putLogParameter(TYPE, GMAIL);
                 this.getUsereventlog().getEventLogs(userIdentity, source,userIdentity.getIdentities() != null ? userIdentity.getIdentities().iterator().next(): null);
 			} catch (Exception e) {
 				LOGGER.debug("error" + e.getMessage());
 			}
 		}else{
 			SessionContextSupport.putLogParameter(EVENT_NAME, _USER_LOGIN);
-            SessionContextSupport.putLogParameter(TYPE, GMAIL);
+           
 		}
-
+		 SessionContextSupport.putLogParameter(TYPE, GMAIL);
 		if (sessionToken == null) {
 			sessionToken = this.getUserManagementService().createSessionToken(userIdentity, request.getSession().getId(), this.getApplicationRepository().getApplication(apiKey));
 		}

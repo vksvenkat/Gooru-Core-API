@@ -23,7 +23,7 @@
 	<class name="org.ednovo.gooru.core.api.model.UserToken" table="user_token">
 
 		<id name="token" column="token" unsaved-value="null">
-			<generator class="guid" />
+			<generator class="org.ednovo.gooru.core.application.util.UUIDGenerator"></generator>
 		</id>
 		<property name="sessionId" column="session_id" length="50"
 			type="string" not-null="true">
