@@ -3,6 +3,7 @@ package org.ednovo.gooru.core.api.model;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class UserCredential implements Serializable {
 
@@ -61,6 +62,8 @@ public class UserCredential implements Serializable {
 	private String storedSecretKey;
 	
 	private String profileAssetURI;
+	
+	private Map<String, Set<String>> partyPermissions;
 
 	public String getOrganizationUid() {
 		return organizationUid;
@@ -260,5 +263,13 @@ public class UserCredential implements Serializable {
 
 	public String getProfileAssetURI() {
 		return profileAssetURI;
+	}
+
+	public Map<String, Set<String>> getPartyPermissions() {
+		return partyPermissions;
+	}
+
+	public void setPartyPermissions(Map<String, Set<String>> partyPermissions) {
+		this.partyPermissions = partyPermissions;
 	}
 }

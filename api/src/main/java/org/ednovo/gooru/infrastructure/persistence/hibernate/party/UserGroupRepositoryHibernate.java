@@ -72,7 +72,7 @@ public class UserGroupRepositoryHibernate extends BaseRepositoryHibernate implem
 		String hql = "FROM PartyPermission pp WHERE pp.permittedParty.partyUid = :userPartyUid";
 		Query query = getSession().createQuery(hql);
 		query.setParameter("userPartyUid", userPartyUid);
-		return (List<PartyPermission>) query.list();
+		return query.list();
 	}
 
 	@Override
