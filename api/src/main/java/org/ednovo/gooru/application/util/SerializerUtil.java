@@ -28,9 +28,7 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.cassandra.cli.CliParser.newColumnFamily_return;
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.zookeeper.proto.op_result_t;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.ContentPermission;
@@ -46,11 +44,9 @@ import org.ednovo.gooru.core.api.model.UserGroupTransformer;
 import org.ednovo.gooru.core.api.model.UserTransformer;
 import org.ednovo.gooru.core.application.util.BaseUtil;
 import org.ednovo.gooru.core.constant.ParameterProperties;
-import org.ednovo.gooru.core.exception.BadRequestException;
 import org.ednovo.gooru.core.exception.MethodFailureException;
 import org.ednovo.goorucore.application.serializer.ExcludeNullTransformer;
 import org.json.JSONObject;
-import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.validation.Errors;

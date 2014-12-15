@@ -111,7 +111,7 @@ public abstract class S3ResourceHandler extends S3ServiceHandler implements Para
 		data.put("gooruBucket", settingService.getConfigSetting(ConfigConstants.RESOURCE_S3_BUCKET, 0, TaxonomyUtil.GOORU_ORG_UID));
 		data.put("sourceFilePath", sourcePath);
 		data.put("fileName",fileName );
-		data.put("callBackUrl",settingService.getConfigSetting(ConfigConstants.GOORU_API_ENDPOINT, 0, TaxonomyUtil.GOORU_ORG_UID)+"/v2/resource/"+gooruContentId+"?sessionToken="+sessionToken);
+		data.put("callBackUrl",settingService.getConfigSetting(ConfigConstants.GOORU_API_ENDPOINT, 0, TaxonomyUtil.GOORU_ORG_UID)+"v2/resource/"+gooruContentId+"?sessionToken="+sessionToken);
 		RequestUtil.executeRestAPI(data.toString(), settingService.getConfigSetting(ConfigConstants.GOORU_CONVERSION_RESTPOINT,0, TaxonomyUtil.GOORU_ORG_UID) + "/conversion/image/upload", Method.POST.getName(), sessionToken);
 	}
 
