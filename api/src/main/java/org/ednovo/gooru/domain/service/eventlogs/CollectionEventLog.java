@@ -76,7 +76,7 @@ public class CollectionEventLog implements ParameterProperties, ConstantProperti
 	}
 	
 	
-	public void getEventLogs(CollectionItem collectionItem, boolean isCreate, boolean isAdd, User user) throws JSONException {
+	public void getEventLogs(CollectionItem collectionItem, boolean isCreate, boolean isAdd, User user, boolean isCopy) throws JSONException {
 		String collectionType = collectionItem.getCollection().getCollectionType();
 		if (isCreate) {
 		   SessionContextSupport.putLogParameter(EVENT_NAME, ITEM_CREATE);
@@ -90,13 +90,15 @@ public class CollectionEventLog implements ParameterProperties, ConstantProperti
 		context.put(CONTENT_ITEM_ID, collectionItem != null ? collectionItem.getCollectionItemId() : null);
 		SessionContextSupport.putLogParameter(CONTEXT, context.toString());
 		JSONObject payLoadObject = SessionContextSupport.getLog().get(PAY_LOAD_OBJECT) != null ? new JSONObject(SessionContextSupport.getLog().get(PAY_LOAD_OBJECT).toString()) : new JSONObject();
-		if(isCreate){
-			payLoadObject.put(MODE, CREATE);
-		} else if(isAdd){
-			payLoadObject.put(MODE, ADD);
-		} else {
+		
+		if (isCopy) {
 			payLoadObject.put(MODE, _COPY);
+		} else if (isAdd) {
+			payLoadObject.put(MODE, ADD);
+		}else if (isCreate) {
+			payLoadObject.put(MODE, CREATE);
 		}
+		
 		payLoadObject.put(ITEM_SEQUENCE, collectionItem != null ? collectionItem.getItemSequence() : null);
 		payLoadObject.put(ITEM_ID, collectionItem != null ? collectionItem.getCollectionItemId() : null);
 		if (collectionType != null && collectionItem != null) {
