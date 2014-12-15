@@ -35,6 +35,7 @@ import org.ednovo.gooru.core.api.model.Party;
 import org.ednovo.gooru.core.api.model.PartyCategoryType;
 import org.ednovo.gooru.core.api.model.PartyCustomField;
 import org.ednovo.gooru.core.api.model.Profile;
+import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserGroupSupport;
 import org.ednovo.gooru.core.constant.ConfigConstants;
@@ -137,6 +138,8 @@ public class PartyServiceImpl extends BaseServiceImpl implements PartyService, P
 			}
 			if (newPartyCustomField.getOptionalKey() != null && newPartyCustomField.getOptionalKey().equalsIgnoreCase(USER_TAXONOMY_ROOT_CODE)) {
 				this.redisService.deleteKey(SESSION_TOKEN_KEY + UserGroupSupport.getSessionToken());
+				SessionContextSupport.putLogParameter(EVENT_NAME, PROFILE_ACTION);
+
 			}
 		}
 		return new ActionResponseDTO<PartyCustomField>(partyCustomField, errors);
