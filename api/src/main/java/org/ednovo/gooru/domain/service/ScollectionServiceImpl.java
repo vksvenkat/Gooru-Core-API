@@ -2366,6 +2366,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	@Override
 	public ActionResponseDTO<CollectionItem> updateResourceWithCollectionItem(String collectionItemId, Resource newResource, List<String> tags, User user) throws Exception {
 		final CollectionItem collectionItem = this.getCollectionItemById(collectionItemId);
+		rejectIfNull(collectionItem, GL0056, 404, generateErrorMessage(GL0056, COLLECTION_ITEM));
 		final Errors errors = validateUpdateCollectionItem(collectionItem);
 		final JSONObject itemData = new JSONObject();
 		if (!errors.hasErrors()) {
