@@ -483,12 +483,6 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 		resource.setContentType(contentType);
 		resource.setLastModified(new Date(System.currentTimeMillis()));
 		resource.setCreatedOn(new Date(System.currentTimeMillis()));
-		if (!hasUnrestrictedContentAccess()) {
-			resource.setSharing(Sharing.PUBLIC.getSharing());
-		} else {
-			resource.setSharing(resource.getSharing() != null && (resource.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || resource.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing()) || resource.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing())) ? resource
-					.getSharing() : Sharing.PUBLIC.getSharing());
-		}
 		resource.setUser(user);
 		resource.setOrganization(user.getPrimaryOrganization());
 		resource.setCreator(user);
