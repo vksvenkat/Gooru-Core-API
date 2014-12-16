@@ -694,17 +694,15 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	}
 
 	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public UserToken createSessionToken(User user, String sessionId, Application application) {
 		UserToken sessionToken = new UserToken();
-		sessionToken.setToken(UUID.randomUUID().toString());
 		sessionToken.setScope(SESSION);
 		sessionToken.setUser(user);
 		sessionToken.setSessionId(sessionId);
 		sessionToken.setApplication(application);
 		sessionToken.setCreatedOn(new Date(System.currentTimeMillis()));
 		try {
-			this.getUserTokenRepository().saveUserSession(sessionToken);
+			this.getUserTokenRepository().save(sessionToken);
 		} catch (Exception e) {
 			LOGGER.error("Error" + e.getMessage());
 		}
@@ -833,7 +831,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			user.setAccountTypeId(UserAccountType.ACCOUNT_NON_PARENT);
 			accountType = UserAccountType.userAccount.NON_PARENT.getType();
 		}
-		identity.setRegisteredOn(new Date(System.currentTimeMillis()));
+		identity.setRegisteredOn(new Date(System.currentTimeMillis()));		
 		identity.setUser(user);
 		Credential credential = null;
 		if (source == null || !source.equalsIgnoreCase(UserAccountType.accountCreatedType.GOOGLE_APP.getType())) {
