@@ -404,7 +404,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			SessionContextSupport.putLogParameter(EVENT_NAME, _USER_LOGIN);
            
 		}
-		 SessionContextSupport.putLogParameter(TYPE, GMAIL);
+		 SessionContextSupport.putLogParameter(TYPE, source);
 		if (sessionToken == null) {
 			sessionToken = this.getUserManagementService().createSessionToken(userIdentity, request.getSession().getId(), this.getApplicationRepository().getApplication(apiKey));
 		}
