@@ -477,27 +477,7 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 	}
 
 	private Resource buildResourceFromInputParameters(String data, User user) {
-		Resource resource = JsonDeserializer.deserialize(data, Resource.class);
-		resource.setGooruOid(UUID.randomUUID().toString());
-		ContentType contentType = getResourceService().getContentType(ContentType.RESOURCE);
-		resource.setContentType(contentType);
-		resource.setLastModified(new Date(System.currentTimeMillis()));
-		resource.setCreatedOn(new Date(System.currentTimeMillis()));
-		if (!hasUnrestrictedContentAccess()) {
-			resource.setSharing(Sharing.PUBLIC.getSharing());
-		} else {
-			resource.setSharing(resource.getSharing() != null && (resource.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || resource.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing()) || resource.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing())) ? resource
-					.getSharing() : Sharing.PUBLIC.getSharing());
-		}
-		resource.setUser(user);
-		resource.setOrganization(user.getPrimaryOrganization());
-		resource.setCreator(user);
-		resource.setDistinguish(Short.valueOf("0"));
-		resource.setRecordSource(NOT_ADDED);
-		resource.setIsFeatured(0);
-		resource.setLastUpdatedUserUid(user.getGooruUId());
-
-		return resource;
+		return  JsonDeserializer.deserialize(data, Resource.class);
 	}
 
 	private Collection buildCopyCollectionFromInputParameters(String data) {
