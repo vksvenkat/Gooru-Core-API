@@ -901,8 +901,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<EntityOperation> findAllEntityNames(Integer offset, Integer limit) {
-		String hql = FIND_ALL_ENTITY_NAME;
-		Query query = getSession().createQuery(hql);
+		Query query = getSession().createQuery(FIND_ALL_ENTITY_NAME);
 		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : limit);
 		query.setFirstResult(offset);
 		return query.list();
@@ -935,16 +934,14 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<RoleEntityOperation> findRoleOperationsByRoleId(Integer roleId) {
-		String hql = FIND_OPERATIONS_BY_ROLE;
-		Query query = getSession().createQuery(hql);
+		Query query = getSession().createQuery(FIND_OPERATIONS_BY_ROLE);
 		query.setParameter("roleId", roleId);
 		return (List<RoleEntityOperation>) query.list();
 	}	
 	
 	@Override
 	public boolean findEntityByEntityName(String entityName){
-		String hql = FIND_ENTITY_BY_ENTITY_NAME;
-		Query query = getSession().createQuery(hql);
+		Query query = getSession().createQuery(FIND_ENTITY_BY_ENTITY_NAME);
 		query.setParameter("entityName", entityName);
 		return query.list().size() > 0 ? true : false;
 	}

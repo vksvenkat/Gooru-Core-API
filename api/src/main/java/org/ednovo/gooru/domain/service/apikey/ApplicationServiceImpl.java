@@ -139,8 +139,8 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 	public Application getApplication(String apiKey) {
 		Application application = this.getApplicationRepository().getApplication(apiKey,CustomProperties.Table.APPLICATION_STATUS.getTable()+"_"+CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus());
 		rejectIfNull(application, GL0056, 404, APPLICATION );
-		application.setApplicationItems(this.getApplicationRepository().getApplicationItemByApiKey(apiKey));
-		application.setOauthClients(oAuthRepository.findOAuthClientByApplicationKey(apiKey));
+		application.setApplicationItems(this.getApplicationRepository().getApplicationItemByApiKey(apiKey,CustomProperties.Table.APPLICATION_STATUS.getTable()+"_"+CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus()));
+		application.setOauthClients(oAuthRepository.findOAuthClientByApplicationKey(apiKey,CustomProperties.Table.APPLICATION_STATUS.getTable()+"_"+CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus()));
 		return application;
 	}
 
@@ -191,9 +191,7 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 	
 	@Override
 	public ActionResponseDTO<ApplicationItem>  updateApplicationItem(String apikey,ApplicationItem newApplicationItem, String applicationItemId, User apiCaller) throws Exception {
-		Application application = getApplicationRepository().getApplication(apikey,CustomProperties.Table.APPLICATION_STATUS.getTable()+"_"+CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus());
-		rejectIfNull(application, GL0056, 404, APPLICATION_ITEM);
-		ApplicationItem applicationItem = this.getApplicationRepository().getApplicationItem(applicationItemId);
+		ApplicationItem applicationItem = this.getApplicationRepository().getApplicationItem(applicationItemId,apikey,CustomProperties.Table.APPLICATION_STATUS.getTable()+"_"+CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus());
 		final Errors errors = validateUpdateApplicationItem(applicationItem);
 		rejectIfNull(applicationItem, GL0056, 404, APPLICATION_ITEM);
 		if (newApplicationItem.getUrl() != null) {
@@ -217,9 +215,7 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 	
 	@Override
 	public ApplicationItem getApplicationItem(String apikey,String applicationItemId) throws Exception{
-		Application application = getApplicationRepository().getApplication(apikey,CustomProperties.Table.APPLICATION_STATUS.getTable()+"_"+CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus());
-		rejectIfNull(application, GL0056, 404, APPLICATION_ITEM);
-		ApplicationItem applicationItem = this.getApplicationRepository().getApplicationItem(applicationItemId);
+		ApplicationItem applicationItem = this.getApplicationRepository().getApplicationItem(applicationItemId,apikey,CustomProperties.Table.APPLICATION_STATUS.getTable()+"_"+CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus());
 		rejectIfNull(applicationItem, GL0056, 404, APPLICATION_ITEM);
 		return applicationItem;
 	}
@@ -233,14 +229,14 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 
 	@Override
 	public List<ApplicationItem> getApplicationItemByApiKey(String apiKey) throws Exception {
-		return this.getApplicationRepository().getApplicationItemByApiKey(apiKey);
+		List<ApplicationItem> applicationItemList = this.getApplicationRepository().getApplicationItemByApiKey(apiKey,CustomProperties.Table.APPLICATION_STATUS.getTable()+"_"+CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus());
+		rejectIfNull(applicationItemList, GL0007, 404, API_KEY);		
+		return applicationItemList;
 	}
 	
 	@Override
 	public void deleteApplicationItemByItemId(String apikey,String applicationItemId) throws Exception{
-		Application application = getApplicationRepository().getApplication(apikey,CustomProperties.Table.APPLICATION_STATUS.getTable()+"_"+CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus());
-		rejectIfNull(application, GL0056,404, APPLICATION_ITEM);
-		ApplicationItem applicationItem = getApplicationRepository().getApplicationItem(applicationItemId);
+		ApplicationItem applicationItem = getApplicationRepository().getApplicationItem(applicationItemId,apikey,CustomProperties.Table.APPLICATION_STATUS.getTable()+"_"+CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus());
 		rejectIfNull(applicationItem, GL0056,404, APPLICATION_ITEM);
 		getApplicationRepository().remove(applicationItem);
 	}

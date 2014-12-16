@@ -92,6 +92,7 @@ public class OAuthRepositoryHibernate extends BaseRepositoryHibernate implements
 		return null;
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<OAuthClient> listOAuthClientByOrganization(String organizationUId, Integer offset, Integer limit,String grantType) {
 		String hql = " FROM OAuthClient oauthClient WHERE oauthClient.organization.partyUid=:organizationUId";
@@ -106,7 +107,7 @@ public class OAuthRepositoryHibernate extends BaseRepositoryHibernate implements
 		query.setFirstResult(offset);
 		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
 
-		return (List) query.list();
+		return (List<OAuthClient>) query.list();
 		
 			
 	}
@@ -122,12 +123,14 @@ public class OAuthRepositoryHibernate extends BaseRepositoryHibernate implements
 		return (Long) query.list().get(0);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public List<OAuthClient> findOAuthClientByApplicationKey(String apiKey) {
-		String hql = " FROM OAuthClient oauthClient WHERE oauthClient.application.key=:apiKey";
+	public List<OAuthClient> findOAuthClientByApplicationKey(String apiKey,String type) {
+		String hql = " FROM OAuthClient oauthClient WHERE oauthClient.application.key=:apiKey AND oauthClient.application.status.keyValue=:type";
 		Query query = getSession().createQuery(hql);
 		query.setParameter("apiKey", apiKey);
-		return (List) query.list();
+		query.setParameter("type", type);
+		return (List<OAuthClient>) query.list();
 	
 	}
 

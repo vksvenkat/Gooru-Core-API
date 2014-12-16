@@ -2813,5 +2813,7 @@ public interface ParameterProperties {
 	String IN_ACTIVE = "in_active";
 	
 	String APPLICATION_ID = "applicationId";
+	
+	String MENU_ITEM = "menu item";
 }
 

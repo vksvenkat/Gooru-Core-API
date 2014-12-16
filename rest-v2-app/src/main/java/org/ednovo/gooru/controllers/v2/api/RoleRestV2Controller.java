@@ -101,7 +101,7 @@ public class RoleRestV2Controller extends BaseController implements ParameterPro
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ROLE_LIST })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/entity")
-	public ModelAndView listEntityNames(@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,HttpServletRequest request,HttpServletResponse response) throws Exception {
+	public ModelAndView getEntity(@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,HttpServletRequest request,HttpServletResponse response) throws Exception {
 
 		return toModelAndViewWithIoFilter(this.getUserManagementService().findAllEntityNames(offset,limit), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, ENTITY_INCLUDES);
 	}
@@ -109,7 +109,7 @@ public class RoleRestV2Controller extends BaseController implements ParameterPro
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ROLE_LIST })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/entity/operations")
-	public ModelAndView listOperationsByEntityName(HttpServletRequest request,HttpServletResponse response,@RequestParam(value = ENTITY_NAME) String entityName) throws Exception {
+	public ModelAndView getEntityOperations(HttpServletRequest request,HttpServletResponse response,@RequestParam(value = ENTITY_NAME) String entityName) throws Exception {
 
 		return toModelAndViewWithIoFilter(this.getUserManagementService().getOperationsByEntityName(entityName), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, ENTITY_INCLUDES);
 	}

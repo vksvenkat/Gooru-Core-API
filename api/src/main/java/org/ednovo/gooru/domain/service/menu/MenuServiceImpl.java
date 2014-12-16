@@ -110,7 +110,7 @@ public class MenuServiceImpl extends BaseServiceImpl implements MenuService, Par
 	@Override
 	public MenuItem updateMenuItem(String menuUid, String menuItemUid, User user) {
 		MenuItem menuItem = this.getMenuRepository().findMenuItemById(menuItemUid);
-		rejectIfNull(menuItem, GL0056, MENU);
+		rejectIfNull(menuItem, GL0056,404, MENU_ITEM);
 		if (menuUid.equals(menuItem.getMenu().getMenuUid())){
 			throw new BadRequestException(generateErrorMessage(GL0104));
 		}
@@ -118,11 +118,11 @@ public class MenuServiceImpl extends BaseServiceImpl implements MenuService, Par
 		int subMenuSequence = 0;
 		String parentMenuUid = null;		
 		int sequence = 0;
-		if (menuItem.getParentMenuUid() == null) {
+		if (menuItem.getParentMenuUid().isEmpty()) {
 			mainMenuSequence = menuItem.getSequence();
 			menuItem.setParentMenuUid(menuUid);
 		}
-		else if (menuItem.getParentMenuUid() != null && !menuUid.equalsIgnoreCase("") && menuUid != null){
+		else if (!menuItem.getParentMenuUid().isEmpty() && !menuUid.isEmpty()){
 			parentMenuUid = menuItem.getParentMenuUid();
 			subMenuSequence = menuItem.getSequence();
 			menuItem.setParentMenuUid(menuUid);
@@ -132,7 +132,7 @@ public class MenuServiceImpl extends BaseServiceImpl implements MenuService, Par
 			subMenuSequence = menuItem.getSequence();
 			menuItem.setParentMenuUid(null);
 		}		
-		if (menuUid != null && !menuUid.equalsIgnoreCase("") ) {
+		if (!menuUid.isEmpty()) {
 			sequence = getMenuRepository().getMenuItemCount(menuUid) == 0 ? 1 :  getMenuRepository().getMenuItemCount(menuUid) + 1;
 		}
 		else{
@@ -158,7 +158,7 @@ public class MenuServiceImpl extends BaseServiceImpl implements MenuService, Par
 		Role role = menuRepository.findRoleByRoleId(roleId);
 		rejectIfNull(role, GL0056, 404, ROLE);
 		MenuRoleAssoc menuRoleAssoc = menuRepository.findMenuRoleAssocEntry(roleId, menuUid);
-		rejectIfAlReadyExist(menuRoleAssoc, GL0103, MENU);
+		rejectIfAlreadyExist(menuRoleAssoc, GL0103, MENU);
 		menuRoleAssoc = new MenuRoleAssoc(menu, role);
 		getMenuRepository().save(menuRoleAssoc);
 		return menuRoleAssoc;
@@ -178,11 +178,12 @@ public class MenuServiceImpl extends BaseServiceImpl implements MenuService, Par
 		int subMenuSequence = 0;
 		String parentMenuUid = null;		
 		if(type.equalsIgnoreCase(MENU)){
-			menuItem = this.getMenuRepository().findMenuItemMenuUid(id);						
+			menuItem = this.getMenuRepository().findMenuItemMenuUid(id);
+			rejectIfNull(menuItem, GL0056, 404, MENU);
 		}else{
 			menuItem = this.getMenuRepository().findMenuItemById(id);
+			rejectIfNull(menuItem, GL0056, 404, MENU_ITEM);
 		}
-		rejectIfNull(menuItem, GL0056, 404, MENU);
 		if (menuItem.getParentMenuUid() == null) {
 			mainMenuSequence = menuItem.getSequence();
 		}

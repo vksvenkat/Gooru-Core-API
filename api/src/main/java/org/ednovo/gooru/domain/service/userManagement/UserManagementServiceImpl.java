@@ -1489,13 +1489,12 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	}	
 
 	@Override
-	public UserRoleAssoc assignRoleByUserUid(Integer roleId, String userUid)
-			throws Exception {
+	public UserRoleAssoc assignRoleByUserUid(Integer roleId, String userUid) throws Exception {
 		User user = userRepository.findUserByPartyUid(userUid);
 		UserRole role = userRepository.findUserRoleByRoleId(roleId);
 		rejectIfNull(role, GL0056, 404, ROLE );
 		UserRoleAssoc userRoleAssoc = userRepository.findUserRoleAssocEntryByRoleIdAndUserUid(roleId, userUid);
-		rejectIfAlReadyExist(userRoleAssoc, GL0103, USER);
+		rejectIfAlreadyExist(userRoleAssoc, GL0103, USER);
 		userRoleAssoc = new UserRoleAssoc();
 		userRoleAssoc.setUser(user);
 		userRoleAssoc.setRole(role);
@@ -1506,8 +1505,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	}
 	
 	@Override
-	public void removeAssignedRoleByUserUid(Integer roleId, String userUid)
-			throws Exception {
+	public void removeAssignedRoleByUserUid(Integer roleId, String userUid)	throws Exception {
 		UserRoleAssoc userRoleAssoc = userRepository.findUserRoleAssocEntryByRoleIdAndUserUid(roleId, userUid);
 		rejectIfNull(userRoleAssoc, GL0102,404, USER);
 		getUserRepository().remove(userRoleAssoc);

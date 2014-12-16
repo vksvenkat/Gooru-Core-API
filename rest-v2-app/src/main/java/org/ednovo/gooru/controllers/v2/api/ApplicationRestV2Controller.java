@@ -118,7 +118,7 @@ public class ApplicationRestV2Controller extends BaseController implements Const
 	
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_APPLICATION_READ })
-	@RequestMapping(method = RequestMethod.GET, value = "{apiKey}/item/{id}")
+	@RequestMapping(method = RequestMethod.GET, value = "/{apiKey}/item/{id}")
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ModelAndView getApplicationItem(@PathVariable(value = API_KEY) String apikey,HttpServletRequest request, HttpServletResponse response, @PathVariable String id) throws Exception {
 		String includes[] = (String[]) ArrayUtils.addAll(APPLICATION_ITEM_INCLUDES, ERROR_INCLUDE);
@@ -141,7 +141,7 @@ public class ApplicationRestV2Controller extends BaseController implements Const
 	}
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_APPLICATION_UPDATE })
-	@RequestMapping(method = RequestMethod.PUT, value = "{apiKey}/item/{id}")
+	@RequestMapping(method = RequestMethod.PUT, value = "/{apiKey}/item/{id}")
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ModelAndView updateApplicationItem(@PathVariable(value = API_KEY) String apikey,@PathVariable(value = ID) String applicationItemId,@RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
@@ -165,7 +165,7 @@ public class ApplicationRestV2Controller extends BaseController implements Const
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_APPLICATION_DELETE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.DELETE }, value = "/{id}")
-	public void deleteApplicationByApikey(@PathVariable(value = ID) String apikey, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public void deleteApplication(@PathVariable(value = ID) String apikey, HttpServletRequest request, HttpServletResponse response) throws Exception {
 
 		this.getApplicationService().deleteApplication(apikey);
 		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
@@ -173,7 +173,7 @@ public class ApplicationRestV2Controller extends BaseController implements Const
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_APPLICATION_DELETE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	@RequestMapping(method = { RequestMethod.DELETE }, value = "{apiKey}/item/{id}")
+	@RequestMapping(method = { RequestMethod.DELETE }, value = "/{apiKey}/item/{id}")
 	public void deleteApplicationItemByItemId(@PathVariable(value= API_KEY) String apikey,@PathVariable(value= ID) String applicationItemId, HttpServletRequest request, HttpServletResponse response) throws Exception {
 
 		this.getApplicationService().deleteApplicationItemByItemId(apikey,applicationItemId);

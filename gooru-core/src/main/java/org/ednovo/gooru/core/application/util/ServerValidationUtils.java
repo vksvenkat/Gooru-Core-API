@@ -130,7 +130,7 @@ public class ServerValidationUtils {
 
 	}
 	
-	public static void rejectIfAlReadyExist(Object data, String errorCode, String errorMsg) {
+	public static void rejectIfAlreadyExist(Object data, String errorCode, String errorMsg) {
 		if (data != null) {
 			throw new BadRequestException(generateErrorMessage(errorCode, errorMsg));
 		}

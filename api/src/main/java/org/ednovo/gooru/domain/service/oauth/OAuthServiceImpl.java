@@ -39,6 +39,7 @@ import org.ednovo.gooru.core.api.model.UserRoleAssoc;
 import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.application.util.ServerValidationUtils;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.core.exception.BadRequestException;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.domain.model.oauth.AuthorizationGrantType;
 import org.ednovo.gooru.core.api.model.OAuthClient;
@@ -213,7 +214,11 @@ public class OAuthServiceImpl extends ServerValidationUtils implements OAuthServ
 
 	@Override
 	public List<OAuthClient> getOAuthClientByApiKey(String apiKey) throws Exception {
-		return oAuthRepository.findOAuthClientByApplicationKey(apiKey);
+		List<OAuthClient> oAuthClientList = oAuthRepository.findOAuthClientByApplicationKey(apiKey,CustomProperties.Table.APPLICATION_STATUS.getTable()+"_"+CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus());
+		if(oAuthClientList.size() == 0){
+			throw new BadRequestException(generateErrorMessage(GL0007, API_KEY));
+		}		
+		return oAuthClientList;
 	}
 
 	@Override

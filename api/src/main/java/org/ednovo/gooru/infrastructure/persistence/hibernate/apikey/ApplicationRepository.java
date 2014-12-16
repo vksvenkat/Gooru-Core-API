@@ -27,7 +27,6 @@ import java.util.List;
 
 import org.ednovo.gooru.core.api.model.Application;
 import org.ednovo.gooru.core.api.model.ApplicationItem;
-import org.ednovo.gooru.core.api.model.CustomTableValue;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepository;
 
 public interface ApplicationRepository extends BaseRepository {
@@ -40,7 +39,7 @@ public interface ApplicationRepository extends BaseRepository {
 	
 	Application getApplicationByOrganization(String organizationUid);
 	
-	ApplicationItem getApplicationItem(String applicationItemId);
+	ApplicationItem getApplicationItem(String applicationItemId,String apikey,String type);
 	
-    List<ApplicationItem> getApplicationItemByApiKey(String apiKey);
+    List<ApplicationItem> getApplicationItemByApiKey(String apiKey,String type);
 }
