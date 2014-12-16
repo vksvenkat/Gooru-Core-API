@@ -118,11 +118,11 @@ public class MenuServiceImpl extends BaseServiceImpl implements MenuService, Par
 		int subMenuSequence = 0;
 		String parentMenuUid = null;		
 		int sequence = 0;
-		if (menuItem.getParentMenuUid().isEmpty()) {
+		if (menuItem.getParentMenuUid() == null) {
 			mainMenuSequence = menuItem.getSequence();
 			menuItem.setParentMenuUid(menuUid);
 		}
-		else if (!menuItem.getParentMenuUid().isEmpty() && !menuUid.isEmpty()){
+		else if (menuItem.getParentMenuUid() != null && menuUid != null && !menuUid.isEmpty()){
 			parentMenuUid = menuItem.getParentMenuUid();
 			subMenuSequence = menuItem.getSequence();
 			menuItem.setParentMenuUid(menuUid);
@@ -132,7 +132,7 @@ public class MenuServiceImpl extends BaseServiceImpl implements MenuService, Par
 			subMenuSequence = menuItem.getSequence();
 			menuItem.setParentMenuUid(null);
 		}		
-		if (!menuUid.isEmpty()) {
+		if (menuUid != null && !menuUid.isEmpty()) {
 			sequence = getMenuRepository().getMenuItemCount(menuUid) == 0 ? 1 :  getMenuRepository().getMenuItemCount(menuUid) + 1;
 		}
 		else{
