@@ -1553,7 +1553,6 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 	@Override
 	public UserToken createSessionToken(User user, String sessionId, Application application) {
 		UserToken sessionToken = new UserToken();
-		sessionToken.setToken(UUID.randomUUID().toString());
 		sessionToken.setScope(SESSION);
 		sessionToken.setUser(user);
 		sessionToken.setSessionId(sessionId);
