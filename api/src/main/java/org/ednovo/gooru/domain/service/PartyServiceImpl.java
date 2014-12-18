@@ -47,11 +47,11 @@ import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.party.PartyRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.taxonomy.TaxonomyRespository;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
-
 
 @Service
 public class PartyServiceImpl extends BaseServiceImpl implements PartyService, ParameterProperties, ConstantProperties {
@@ -61,14 +61,13 @@ public class PartyServiceImpl extends BaseServiceImpl implements PartyService, P
 
 	@Autowired
 	private TaxonomyRespository taxonomyRespository;
-	
+
 	@Autowired
 	private SettingService settingService;
-	
+
 	@Autowired
 	private RedisService redisService;
-	
-	
+
 	private static ResourceBundle userDefaultCustomAttributes = ResourceBundle.getBundle("properties/userDefaultCustomAttributes");
 
 	@Override
@@ -105,7 +104,6 @@ public class PartyServiceImpl extends BaseServiceImpl implements PartyService, P
 
 		return getPartyRepository().getPartyCustomField(partyId, optionalKey);
 	}
-	
 
 	@Override
 	public Profile getUserDateOfBirth(String partyId, final User user) {
@@ -138,7 +136,14 @@ public class PartyServiceImpl extends BaseServiceImpl implements PartyService, P
 			}
 			if (newPartyCustomField.getOptionalKey() != null && newPartyCustomField.getOptionalKey().equalsIgnoreCase(USER_TAXONOMY_ROOT_CODE)) {
 				this.redisService.deleteKey(SESSION_TOKEN_KEY + UserGroupSupport.getSessionToken());
-				SessionContextSupport.putLogParameter(EVENT_NAME, PROFILE_ACTION);
+				try {
+					SessionContextSupport.putLogParameter(EVENT_NAME, PROFILE_ACTION);
+					JSONObject payLoadObject = SessionContextSupport.getLog().get(PAY_LOAD_OBJECT) != null ? new JSONObject(SessionContextSupport.getLog().get(PAY_LOAD_OBJECT).toString()) : new JSONObject();
+					payLoadObject.put(ACTION_TYPE, EDIT);
+					SessionContextSupport.putLogParameter(PAY_LOAD_OBJECT, payLoadObject.toString());
+				} catch (Exception e) {
+
+				}
 			}
 		}
 		return new ActionResponseDTO<PartyCustomField>(partyCustomField, errors);
@@ -146,7 +151,7 @@ public class PartyServiceImpl extends BaseServiceImpl implements PartyService, P
 
 	private Errors validateUpdatePartyCustomField(final PartyCustomField partyCustomField, final PartyCustomField newPartyCustomField) {
 		final Errors errors = new BindException(partyCustomField, PARTY_CUSTOM_FIELD);
-		rejectIfNull(errors, newPartyCustomField, PARTY_CUSTOM_FIELD, GL0056, generateErrorMessage(GL0056, PARTY_CUSTOM_FIELD));	
+		rejectIfNull(errors, newPartyCustomField, PARTY_CUSTOM_FIELD, GL0056, generateErrorMessage(GL0056, PARTY_CUSTOM_FIELD));
 		return errors;
 	}
 
@@ -203,8 +208,8 @@ public class PartyServiceImpl extends BaseServiceImpl implements PartyService, P
 
 	@Override
 	public void createTaxonomyCustomAttributes(final String partyId, User user) {
-		final String taxonomyList = this.getTaxonomyRespository().getFindTaxonomyList(settingService.getConfigSetting(ConfigConstants.GOORU_EXCLUDE_TAXONOMY_PREFERENCE,0, user.getOrganization().getPartyUid()));
-		if(taxonomyList != null){
+		final String taxonomyList = this.getTaxonomyRespository().getFindTaxonomyList(settingService.getConfigSetting(ConfigConstants.GOORU_EXCLUDE_TAXONOMY_PREFERENCE, 0, user.getOrganization().getPartyUid()));
+		if (taxonomyList != null) {
 			final PartyCustomField partyCustomField = new PartyCustomField();
 			partyCustomField.setCategory(PartyCategoryType.USER_TAXONOMY.getpartyCategoryType());
 			partyCustomField.setOptionalKey(USER_TAXONOMY_ROOT_CODE);
@@ -221,7 +226,7 @@ public class PartyServiceImpl extends BaseServiceImpl implements PartyService, P
 		}
 		return null;
 	}
-	
+
 	@Override
 	public List<Map<Object, Object>> getPartyDetails() {
 		return this.getPartyRepository().getPartyDetails();
@@ -234,6 +239,5 @@ public class PartyServiceImpl extends BaseServiceImpl implements PartyService, P
 	public TaxonomyRespository getTaxonomyRespository() {
 		return taxonomyRespository;
 	}
-
 
 }
