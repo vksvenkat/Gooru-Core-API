@@ -35,19 +35,20 @@ import org.ednovo.gooru.core.api.model.Party;
 import org.ednovo.gooru.core.api.model.PartyCategoryType;
 import org.ednovo.gooru.core.api.model.PartyCustomField;
 import org.ednovo.gooru.core.api.model.Profile;
-import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserGroupSupport;
 import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.NotFoundException;
+import org.ednovo.gooru.domain.service.eventlogs.UserEventlog;
 import org.ednovo.gooru.domain.service.redis.RedisService;
 import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.party.PartyRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.taxonomy.TaxonomyRespository;
-import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindException;
@@ -59,6 +60,9 @@ public class PartyServiceImpl extends BaseServiceImpl implements PartyService, P
 	@Autowired
 	private PartyRepository partyRepository;
 
+    @Autowired
+    private UserEventlog userEventlog;
+
 	@Autowired
 	private TaxonomyRespository taxonomyRespository;
 
@@ -67,6 +71,8 @@ public class PartyServiceImpl extends BaseServiceImpl implements PartyService, P
 
 	@Autowired
 	private RedisService redisService;
+	private static final Logger LOGGER = LoggerFactory.getLogger(PartyServiceImpl.class);
+
 
 	private static ResourceBundle userDefaultCustomAttributes = ResourceBundle.getBundle("properties/userDefaultCustomAttributes");
 
@@ -137,12 +143,9 @@ public class PartyServiceImpl extends BaseServiceImpl implements PartyService, P
 			if (newPartyCustomField.getOptionalKey() != null && newPartyCustomField.getOptionalKey().equalsIgnoreCase(USER_TAXONOMY_ROOT_CODE)) {
 				this.redisService.deleteKey(SESSION_TOKEN_KEY + UserGroupSupport.getSessionToken());
 				try {
-					SessionContextSupport.putLogParameter(EVENT_NAME, PROFILE_ACTION);
-					JSONObject payLoadObject = SessionContextSupport.getLog().get(PAY_LOAD_OBJECT) != null ? new JSONObject(SessionContextSupport.getLog().get(PAY_LOAD_OBJECT).toString()) : new JSONObject();
-					payLoadObject.put(ACTION_TYPE, EDIT);
-					SessionContextSupport.putLogParameter(PAY_LOAD_OBJECT, payLoadObject.toString());
+					this.getUserEventlog().getEventLogs(true, false, user, null, true, true);
 				} catch (Exception e) {
-
+					LOGGER.error("Error" + e);
 				}
 			}
 		}
@@ -238,6 +241,9 @@ public class PartyServiceImpl extends BaseServiceImpl implements PartyService, P
 
 	public TaxonomyRespository getTaxonomyRespository() {
 		return taxonomyRespository;
+	}
+	public UserEventlog getUserEventlog() {
+		return userEventlog;
 	}
 
 }
