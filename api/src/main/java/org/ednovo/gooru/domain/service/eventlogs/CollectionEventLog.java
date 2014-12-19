@@ -250,7 +250,7 @@ public class CollectionEventLog implements ParameterProperties, ConstantProperti
 	public void getEventLogs(CollectionItem collectionItem, boolean isMoveMode, User user, String collectionType, CollectionItem sourceCollectionItem) throws Exception {
 		this.getEventLogs(collectionItem, isMoveMode, user, collectionType);
 		JSONObject payLoadObject = SessionContextSupport.getLog().get(PAY_LOAD_OBJECT) != null ? new JSONObject(SessionContextSupport.getLog().get(PAY_LOAD_OBJECT).toString()) : new JSONObject();
-		payLoadObject.put(SOURCE_ITEM_ID, sourceCollectionItem.getCollection() != null && sourceCollectionItem.getCollection().getGooruOid() != null ? sourceCollectionItem.getCollection().getGooruOid() : null);
+		payLoadObject.put(SOURCE_ITEM_ID, sourceCollectionItem != null ? sourceCollectionItem.getCollectionItemId() : null);
 		SessionContextSupport.putLogParameter(PAY_LOAD_OBJECT, payLoadObject.toString());
 	}
 }
