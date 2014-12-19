@@ -26,7 +26,7 @@ public class CollectionEventLog implements ParameterProperties, ConstantProperti
 			context.put(PARENT_GOORU_ID, collectionItem != null && collectionItem.getCollection() != null ? collectionItem.getCollection().getGooruOid() : null);
 			context.put(CONTENT_GOORU_ID, collectionItem != null && collectionItem.getResource() != null ? collectionItem.getResource().getGooruOid() : null);
 			context.put(CONTENT_ITEM_ID, collectionItem != null  ? collectionItem.getCollectionItemId() : null);
-			context.put( PARENT_ITEM_ID, collectionItem != null && collectionItem.getCollection() != null ? collectionItem.getCollection().getCollectionItemId() : null);
+			context.put(PARENT_ITEM_ID, collectionItem != null && collectionItem.getCollection() != null ? collectionItem.getCollection().getCollectionItemId() : null);
 		}
 		SessionContextSupport.putLogParameter(CONTEXT, context.toString());
 		JSONObject payLoadObject = SessionContextSupport.getLog().get(PAY_LOAD_OBJECT) != null ? new JSONObject(SessionContextSupport.getLog().get(PAY_LOAD_OBJECT).toString()) : new JSONObject();
@@ -67,6 +67,8 @@ public class CollectionEventLog implements ParameterProperties, ConstantProperti
 			payLoadObject.put(ITEM_TYPE, SHELF_COLLECTION);
 		} else if (collection != null && collection.getCollectionType() != null && collection.getCollectionType().equalsIgnoreCase("classpage")) {
 			payLoadObject.put(ITEM_TYPE, CLASSPAGE);
+		} else if (collection != null && collection.getCollectionType() != null && collection.getCollectionType().equalsIgnoreCase("folder")) {
+			payLoadObject.put(ITEM_TYPE, FOLDER);
 		}
 		payLoadObject.put(_ITEM_DATA , ItemData != null ? ItemData.toString() : null);
 		SessionContextSupport.putLogParameter(PAY_LOAD_OBJECT, payLoadObject.toString());
