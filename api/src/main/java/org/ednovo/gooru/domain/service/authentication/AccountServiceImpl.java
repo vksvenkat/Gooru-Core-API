@@ -319,9 +319,9 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			} catch (JSONException e) {
 				LOGGER.debug("error" + e.getMessage());
 			}
-			this.getUserTokenRepository().remove(userToken);
 			this.redisService.delete(SESSION_TOKEN_KEY + userToken.getToken());
 		}
+		this.getUserTokenRepository().remove(userToken);
 	}
 	
 	@Override
