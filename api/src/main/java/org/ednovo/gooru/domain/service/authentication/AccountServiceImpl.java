@@ -157,7 +157,6 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 		final Application application = this.getApplicationRepository().getApplication(apiKey);
 		final UserToken sessionToken = new UserToken();
 		final String apiEndPoint = getConfigSetting(ConfigConstants.GOORU_API_ENDPOINT, 0, TaxonomyUtil.GOORU_ORG_UID);
-		sessionToken.setToken(UUID.randomUUID().toString());
 		sessionToken.setScope(SESSION);
 		sessionToken.setUser(user);
 		sessionToken.setSessionId(request.getSession().getId());
