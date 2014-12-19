@@ -108,6 +108,8 @@ public class TaskServiceImpl extends BaseServiceImpl implements TaskService, Par
 			}
 			this.getTaskRepository().save(task);
 			if (attachDTO != null) {
+				rejectIfNull(attachDTO.getId(), GL0006,ID);
+				rejectIfNull(attachDTO.getType(),GL0006,TYPE);
 				attachTaskToCollection(attachDTO, task, user);
 			}
 		}
