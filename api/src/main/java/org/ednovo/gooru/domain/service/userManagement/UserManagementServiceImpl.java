@@ -1199,37 +1199,41 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	@Override
 	public void deleteUserContent(String gooruUid, String isDeleted, User apiCaller) {
 		User user = this.getUserRepository().findByGooruId(gooruUid);
-		if (user != null && isContentAdmin(apiCaller) && isDeleted != null && isDeleted.equalsIgnoreCase(TRUE)) {
-			user.setIsDeleted(true);
-			List<Content> contents = this.getContentRepository().getContentByUserUId(gooruUid);
-			List<ContentPermission> removeContentPermission = new ArrayList<ContentPermission>();
-			List<Content> removeContentList = new ArrayList<Content>();
-			String gooruOidAsString = "";
-			for (Content content : contents) {
-				if (content != null) {
-					if (gooruOidAsString.length() > 0) {
-						gooruOidAsString += ",";
-					}
-					gooruOidAsString += content.getGooruOid();
-					if (content.getSharing().equalsIgnoreCase(PUBLIC)) {
-						content.setCreator(apiCaller);
-						this.getContentRepository().save(content);
-					} else if (content.getSharing().equalsIgnoreCase(PRIVATE)) {
-						Set<ContentPermission> contentPermissions = content.getContentPermissions();
-						for (ContentPermission contentPermission : contentPermissions) {
-							removeContentPermission.add(contentPermission);
+		if ((user != null && isDeleted != null && isDeleted.equalsIgnoreCase(TRUE))) {
+			if (isContentAdmin(apiCaller) || user == apiCaller) {
+				user.setIsDeleted(true);
+				List<Content> contents = this.getContentRepository().getContentByUserUId(gooruUid);
+				List<ContentPermission> removeContentPermission = new ArrayList<ContentPermission>();
+				List<Content> removeContentList = new ArrayList<Content>();
+				String gooruOidAsString = "";
+				for (Content content : contents) {
+					if (content != null) {
+						if (gooruOidAsString.length() > 0) {
+							gooruOidAsString += ",";
 						}
-						removeContentList.add(content);
+						gooruOidAsString += content.getGooruOid();
+						if (content.getSharing().equalsIgnoreCase(PUBLIC)) {
+							content.setCreator(apiCaller);
+							this.getContentRepository().save(content);
+						} else if (content.getSharing().equalsIgnoreCase(PRIVATE)) {
+							Set<ContentPermission> contentPermissions = content.getContentPermissions();
+							for (ContentPermission contentPermission : contentPermissions) {
+								removeContentPermission.add(contentPermission);
+							}
+							removeContentList.add(content);
+						}
 					}
 				}
-			}
-			this.getContentRepository().removeAll(removeContentPermission);
-			this.getContentRepository().removeAll(removeContentList);
-			this.getUserRepository().save(user);
-			if (gooruOidAsString.length() > 0) {
-				indexProcessor.index(gooruOidAsString, IndexProcessor.INDEX, RESOURCE);
-			}
+				this.getContentRepository().removeAll(removeContentPermission);
+				this.getContentRepository().removeAll(removeContentList);
+				this.getUserRepository().save(user);
+				if (gooruOidAsString.length() > 0) {
+					indexProcessor.index(gooruOidAsString, IndexProcessor.INDEX, RESOURCE);
+				}
+			} else {
+				throw new UnauthorizedException(generateErrorMessage("GL0085"));
 
+			}
 		}
 	}
 
