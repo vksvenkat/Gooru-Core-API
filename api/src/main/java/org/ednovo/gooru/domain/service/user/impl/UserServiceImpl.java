@@ -1039,7 +1039,9 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 	public User updateUserRole(String gooruUid, UserRoleType role) {
 
 		User user = this.getUserRepository().findByGooruId(gooruUid);
+		rejectIfNull(user,GL0056,404,USER);
 		Profile profile = this.getUserRepository().getProfile(user, false);
+		rejectIfNull(user,GL0056,404,PROFILE);
 		profile.setIsPublisherRequestPending(0);
 		UserRoleAssoc usrRoleAssoc = new UserRoleAssoc();
 		Set<UserRoleAssoc> existingUserRoleAssoc = user.getUserRoleSet();

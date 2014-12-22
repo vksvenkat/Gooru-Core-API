@@ -74,8 +74,7 @@ public class MenuRepositoryHibernate extends BaseRepositoryHibernate implements 
 		if (menuUid == null) {
 			hql += " AND mi.parentMenuUid is null";
 		}
-		hql += " AND mi.menu.isActive = 1";
-	    hql += " ORDER BY mi.sequence";
+		hql += " AND mi.menu.isActive = 1 ORDER BY mi.sequence";
 		Query query = getSession().createQuery(hql);
 		if (menuUid != null) {
 			query.setParameter("parentMenuUid", menuUid);

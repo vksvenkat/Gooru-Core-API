@@ -111,7 +111,7 @@ public class MenuServiceImpl extends BaseServiceImpl implements MenuService, Par
 	public MenuItem updateMenuItem(String menuUid, String menuItemUid, User user) {
 		MenuItem menuItem = this.getMenuRepository().findMenuItemById(menuItemUid);
 		rejectIfNull(menuItem, GL0056,404, MENU_ITEM);
-		if (menuUid.equals(menuItem.getMenu().getMenuUid())){
+		if (menuUid!= null && menuUid.equals(menuItem.getMenu().getMenuUid())){
 			throw new BadRequestException(generateErrorMessage(GL0104));
 		}
 		int mainMenuSequence = 0;
