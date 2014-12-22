@@ -33,6 +33,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
@@ -45,6 +47,7 @@ import org.ednovo.gooru.application.util.TaxonomyUtil;
 import org.ednovo.gooru.core.api.model.FileMeta;
 import org.ednovo.gooru.core.api.model.MediaDTO;
 import org.ednovo.gooru.core.api.model.UserGroupSupport;
+import org.ednovo.gooru.core.application.util.BaseUtil;
 import org.ednovo.gooru.core.application.util.ImageUtil;
 import org.ednovo.gooru.core.application.util.RequestUtil;
 import org.ednovo.gooru.core.constant.ConfigConstants;
@@ -190,12 +193,18 @@ public class MediaServiceImpl implements MediaService,ParameterProperties {
 				}
 			}   
 		}
+		
 		if(fileExtension == null || fileExtension.isEmpty()) {
 			fileExtension = PNG;
 		}
-		if (fileExtension != null &&  fileExtension.equalsIgnoreCase(PDF))  {
+		Map<String, String> fileExtentions= BaseUtil.supportedDocument();
+		if (fileExtentions.containsKey(fileExtension)){
+			mediaDTO.setResize(false);
+		}
+		if (fileExtension != null &&  (fileExtension.equalsIgnoreCase(PDF)) || fileExtension != null && fileExtentions != null) {
 			mediaDTO.setResize(false);
 		} 
+	
 		mediaDTO.setFilename(UUID.randomUUID().toString() + "." + fileExtension);
 		return handleFileUpload(mediaDTO.getFilename(),mediaDTO.getImageURL(),formField, mediaDTO.getResize(), mediaDTO.getWidth(),mediaDTO.getHeight());
 	}
@@ -262,10 +271,6 @@ public class MediaServiceImpl implements MediaService,ParameterProperties {
 	public void setConfigConstants(Properties configConstants) {
 		this.configConstants = configConstants;
 	}
-
-
-
-	
 	
 }
 	

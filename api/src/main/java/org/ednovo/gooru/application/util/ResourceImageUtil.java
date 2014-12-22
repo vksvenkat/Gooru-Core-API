@@ -45,21 +45,26 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.poi.hssf.record.formula.functions.T;
 import org.ednovo.gooru.core.api.model.Code;
+import org.ednovo.gooru.core.api.model.Job;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.ResourceInfo;
 import org.ednovo.gooru.core.api.model.ResourceType;
 import org.ednovo.gooru.core.api.model.UserGroupSupport;
+import org.ednovo.gooru.core.application.util.BaseUtil;
 import org.ednovo.gooru.core.cassandra.model.ResourceMetadataCo;
 import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.domain.service.job.JobService;
 import org.ednovo.gooru.domain.service.resource.MediaService;
 import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.ednovo.gooru.domain.service.storage.S3ResourceApiHandler;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.resource.ResourceRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.taxonomy.TaxonomyRespository;
+import org.ednovo.gooru.kafka.producer.KafkaProducer;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
@@ -74,6 +79,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonSerializer;
+
+import flexjson.JSONSerializer;
 
 @Component
 public class ResourceImageUtil extends UserGroupSupport implements ParameterProperties {
@@ -101,18 +109,26 @@ public class ResourceImageUtil extends UserGroupSupport implements ParameterProp
 	private IndexProcessor indexProcessor;
 
 	@Autowired
+	private JobService jobService;
+
+	@Autowired
 	private AsyncExecutor asyncExecutor;
 
 	private Map<String, String> propertyMap;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ResourceImageUtil.class);
-	
-	private static final String  THUMBNAIL = "thumbnail_small";
-	
-	private static final String  VIMEO_VIDEO = "vimeo.com";
-	
-	private static final String  YOUTUBE_VIDEO = "youtube.com";
-	
+
+	private static final String THUMBNAIL = "thumbnail_small";
+
+	private static final String VIMEO_VIDEO = "vimeo.com";
+
+	private static final String YOUTUBE_VIDEO = "youtube.com";
+
+	public static final String CONVERT_DOCUMENT_PDF = "convert.docToPdf";
+
+	@Autowired
+	private KafkaProducer kafkaProducer;
+
 	public void sendMsgToGenerateThumbnails(Resource resource) {
 
 		sendMsgToGenerateThumbnails(resource, resource.getThumbnail());
@@ -142,6 +158,22 @@ public class ResourceImageUtil extends UserGroupSupport implements ParameterProp
 		param.put(RESOURCE_GOORU_OID, resource.getGooruOid());
 		param.put(API_END_POINT, settingService.getConfigSetting(ConfigConstants.GOORU_API_ENDPOINT, 0, TaxonomyUtil.GOORU_ORG_UID));
 		this.getAsyncExecutor().executeRestAPI(param, settingService.getConfigSetting(ConfigConstants.GOORU_CONVERSION_RESTPOINT, 0, TaxonomyUtil.GOORU_ORG_UID) + "/conversion/image", Method.POST.getName());
+	}
+
+	public void convertDoctoPdf(Resource resource, String mediaFileName, String fileName) {
+		Job job = getJobService().createJob(resource);
+		resource.setSourceReference(job.getJobUid());
+		String sourcePath = UserGroupSupport.getUserOrganizationNfsInternalPath() + Constants.UPLOADED_MEDIA_FOLDER + "/" + mediaFileName;
+		String targetPath = resource.getOrganization().getNfsStorageArea().getInternalPath() + resource.getFolder();
+		Map<String, Object> param = new HashMap<String, Object>();
+		param.put(SOURCE_FILE_PATH, sourcePath);
+		param.put(TARGET_FOLDER_PATH, targetPath);
+		param.put(FILENAME, fileName);
+		param.put(JOB_UID, job.getJobUid());
+		param.put(STATUS, job.getStatus());
+		param.put(EVENTNAME, CONVERT_DOCUMENT_PDF);
+		param.put(SESSIONTOKEN, UserGroupSupport.getSessionToken());
+		kafkaProducer.push(new JSONSerializer().serialize(param));
 	}
 
 	public void downloadResourceImage(String repoPath, Resource resource, String webSrc) {
@@ -452,22 +484,25 @@ public class ResourceImageUtil extends UserGroupSupport implements ParameterProp
 			if (!parentFolderFile.exists()) {
 				parentFolderFile.mkdirs();
 			}
+			String fileExtension = org.apache.commons.lang.StringUtils.substringAfterLast(newResource.getAttach().getMediaFilename(), ".");
+			if (BaseUtil.supportedDocument().containsKey(fileExtension)) {
+				this.convertDoctoPdf(resource, newResource.getAttach().getMediaFilename(), newResource.getAttach().getFilename());
+			} else {
+				File file = new File(UserGroupSupport.getUserOrganizationNfsInternalPath() + Constants.UPLOADED_MEDIA_FOLDER + "/" + newResource.getAttach().getMediaFilename());
+				if (fileExtension.equalsIgnoreCase(PDF)) {
+					PDDocument doc = PDDocument.load(file);
+					ResourceInfo resourceInfo = new ResourceInfo();
+					resourceInfo.setResource(resource);
+					resourceInfo.setNumOfPages(doc.getNumberOfPages());
+					resourceInfo.setLastUpdated(resource.getLastModified());
+					this.resourceRepository.save(resourceInfo);
+					resource.setResourceInfo(resourceInfo);
+				}
 
-			File file = new File(UserGroupSupport.getUserOrganizationNfsInternalPath() + Constants.UPLOADED_MEDIA_FOLDER + "/" + newResource.getAttach().getMediaFilename());
-			String fileExtension = org.apache.commons.lang.StringUtils.substringAfterLast(newResource.getAttach().getFilename(), ".");
-			if (fileExtension.equalsIgnoreCase(PDF)) {
-				PDDocument doc = PDDocument.load(file);
-				ResourceInfo resourceInfo = new ResourceInfo();
-				resourceInfo.setResource(resource);
-				resourceInfo.setNumOfPages(doc.getNumberOfPages());
-				resourceInfo.setLastUpdated(resource.getLastModified());
-				this.resourceRepository.save(resourceInfo);
-				resource.setResourceInfo(resourceInfo);
-			}
-
-			file.renameTo(new File(UserGroupSupport.getUserOrganizationNfsInternalPath() + resource.getFolder() + "/" + newResource.getAttach().getFilename()));
-			if (newResource.getThumbnail() == null) {
-				this.downloadAndSendMsgToGenerateThumbnails(resource, null);
+				file.renameTo(new File(UserGroupSupport.getUserOrganizationNfsInternalPath() + resource.getFolder() + "/" + newResource.getAttach().getFilename()));
+				if (newResource.getThumbnail() == null) {
+					this.downloadAndSendMsgToGenerateThumbnails(resource, null);
+				}
 			}
 
 		} catch (Exception e) {
@@ -519,6 +554,10 @@ public class ResourceImageUtil extends UserGroupSupport implements ParameterProp
 
 	public AsyncExecutor getAsyncExecutor() {
 		return asyncExecutor;
+	}
+
+	public JobService getJobService() {
+		return jobService;
 	}
 
 }
