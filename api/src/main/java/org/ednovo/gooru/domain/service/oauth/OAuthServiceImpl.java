@@ -157,15 +157,6 @@ public class OAuthServiceImpl extends ServerValidationUtils implements OAuthServ
 	}
 
 	@Override
-	public void deleteOAuthClient(String clientUId, User apiCaller) throws Exception {
-		OAuthClient oAuthClient = (OAuthClient) oAuthRepository.get(OAuthClient.class, clientUId);
-		if (oAuthClient != null && oAuthClient.getUser().getPartyUid().equalsIgnoreCase(apiCaller.getPartyUid())) {
-			oAuthRepository.remove(oAuthClient);
-			oAuthRepository.flush();
-		}
-	}
-
-	@Override
 	public OAuthClient getOAuthClientByClientSecret(String clientSecret) throws Exception {
 		return oAuthRepository.findOAuthClientByclientSecret(clientSecret);
 	}
@@ -222,10 +213,12 @@ public class OAuthServiceImpl extends ServerValidationUtils implements OAuthServ
 	}
 
 	@Override
-	public void deleteOAuthClientByOAuthKey(String oauthKey) throws Exception{
+	public void deleteOAuthClientByOAuthKey(String oauthKey, User apiCaller) throws Exception{
 		OAuthClient oAuthClient = oAuthRepository.findOAuthClientByOAuthKey(oauthKey);
 		rejectIfNull(oAuthClient, GL0056,404, OAUTH_CLIENT);
-		getApplicationRepository().remove(oAuthClient);
+		if (oAuthClient.getUser().getPartyUid().equalsIgnoreCase(apiCaller.getPartyUid())) {
+			oAuthRepository.remove(oAuthClient);
+		}		
 	}
 	
 	public CustomTableRepository getCustomTableRepository() {

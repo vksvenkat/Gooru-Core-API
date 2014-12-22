@@ -893,6 +893,8 @@ public class GooruOperationConstants {
 	public static final String OPERATION_OAUTH_READ = ENTITY_OAUTH + ENTITY_ACTION_SEPARATOR + ACTION_READ;
 
 	public static final String OPERATION_OAUTH_UPDATE = ENTITY_OAUTH + ENTITY_ACTION_SEPARATOR + ACTION_UPDATE;
+	
+	public static final String OPERATION_OAUTH_DELETE = ENTITY_OAUTH + ENTITY_ACTION_SEPARATOR + ACTION_DELETE;
 
 	// Update Cassandra Fields
 

@@ -121,18 +121,6 @@ public class OAuthRestV2Controller extends BaseController implements ConstantPro
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_OAUTH_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	@RequestMapping(method = { RequestMethod.DELETE }, value = "/client/{clientUId}")
-	public void deleteOAuthClient(@PathVariable String clientUId, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		request.setAttribute(Constants.EVENT_PREDICATE, "oauthclient.delete");
-		User apiCaller = (User) request.getAttribute(Constants.USER);
-		oAuthService.deleteOAuthClient(clientUId, apiCaller);
-		// To capture activity log
-		SessionContextSupport.putLogParameter(EVENT_NAME, "OauthClient-Delete");
-		SessionContextSupport.putLogParameter("DeletedOAuthClientId", clientUId);
-	}
-
-	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_OAUTH_READ })
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.GET }, value = "/client")
 	public ModelAndView listOAuthClient(@RequestParam String gooruUId, HttpServletRequest request, HttpServletResponse response , @RequestParam(required = false , defaultValue= "0") int pageNo ,@RequestParam(required=false, defaultValue="20") int pageSize ) throws Exception {
 		request.setAttribute(Constants.EVENT_PREDICATE, "oauthclient.list");
@@ -158,12 +146,13 @@ public class OAuthRestV2Controller extends BaseController implements ConstantPro
 		return toModelAndView(serialize(this.getOAuthService().listOAuthClientByOrganization(organizationUId, offset, limit, null), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, includes));
 	}
 
-	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_APPLICATION_DELETE })
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_OAUTH_DELETE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.DELETE }, value = "/{id}")
 	public void deleteOAuthClientByOAuthKey(@PathVariable(value = ID) String oauthKey, HttpServletRequest request, HttpServletResponse response) throws Exception {
 
-		this.getOAuthService().deleteOAuthClientByOAuthKey(oauthKey);
+		User apiCaller = (User) request.getAttribute(Constants.USER);
+		this.getOAuthService().deleteOAuthClientByOAuthKey(oauthKey,apiCaller);
 		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
 	}
 
