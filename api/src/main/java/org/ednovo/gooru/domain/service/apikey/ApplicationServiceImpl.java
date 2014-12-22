@@ -108,7 +108,7 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 
 	@Override
 	public Application updateApplication(Application newapplication, String apiKey) {
-		Application application = this.getApplicationRepository().getApplication(apiKey,CustomProperties.Table.APPLICATION_STATUS.getTable()+"_"+CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus());
+		Application application = this.getApplicationRepository().getApplication(apiKey);
 		rejectIfNull(application, GL0056, APPLICATION);
 		if (newapplication.getTitle() != null) {
 			application.setTitle(newapplication.getTitle());
@@ -137,10 +137,10 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 
 	@Override
 	public Application getApplication(String apiKey) {
-		Application application = this.getApplicationRepository().getApplication(apiKey,CustomProperties.Table.APPLICATION_STATUS.getTable()+"_"+CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus());
+		Application application = this.getApplicationRepository().getApplication(apiKey);
 		rejectIfNull(application, GL0056, 404, APPLICATION );
-		application.setApplicationItems(this.getApplicationRepository().getApplicationItemByApiKey(apiKey,CustomProperties.Table.APPLICATION_STATUS.getTable()+"_"+CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus()));
-		application.setOauthClients(oAuthRepository.findOAuthClientByApplicationKey(apiKey,CustomProperties.Table.APPLICATION_STATUS.getTable()+"_"+CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus()));
+		application.setApplicationItems(this.getApplicationRepository().getApplicationItemByApiKey(apiKey));
+		application.setOauthClients(oAuthRepository.findOAuthClientByApplicationKey(apiKey));
 		return application;
 	}
 
@@ -157,14 +157,14 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 			}
 		}
 		
-		result.setSearchResults(this.getApplicationRepository().getApplications(organizationUid,gooruUid, offset, limit,CustomProperties.Table.APPLICATION_STATUS.getTable()+"_"+CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus()));
-		result.setTotalHitCount(this.getApplicationRepository().getApplicationCount(organizationUid, gooruUid,CustomProperties.Table.APPLICATION_STATUS.getTable()+"_"+CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus()));
+		result.setSearchResults(this.getApplicationRepository().getApplications(organizationUid,gooruUid, offset, limit));
+		result.setTotalHitCount(this.getApplicationRepository().getApplicationCount(organizationUid, gooruUid));
 		return result;
 	}
 
 	@Override
 	public void deleteApplication(String apiKey){
-		Application application = this.getApplicationRepository().getApplication(apiKey,CustomProperties.Table.APPLICATION_STATUS.getTable()+"_"+CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus());
+		Application application = this.getApplicationRepository().getApplication(apiKey);
 		rejectIfNull(application, GL0056,404, APPLICATION);
 		application.setStatus(this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.APPLICATION_STATUS.getTable(), CustomProperties.ApplicationStatus.IN_ACTIVE.getApplicationStatus()));
 		this.getApplicationRepository().save(application);
@@ -181,7 +181,7 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 		final Errors errors = validateCreateApplicationItem(applicationItem);
 		if (!errors.hasErrors()) {
 			rejectIfNull(apiKey, GL0006, "Application key ");
-			Application application = this.getApplicationRepository().getApplication(apiKey,CustomProperties.Table.APPLICATION_STATUS.getTable()+"_"+CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus());
+			Application application = this.getApplicationRepository().getApplication(apiKey);
 			rejectIfNull(application, GL0007, "Application key ");
 			applicationItem.setApplication(application);
 			this.getApplicationRepository().save(applicationItem);
@@ -191,7 +191,7 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 	
 	@Override
 	public ActionResponseDTO<ApplicationItem>  updateApplicationItem(String apikey,ApplicationItem newApplicationItem, String applicationItemId, User apiCaller) throws Exception {
-		ApplicationItem applicationItem = this.getApplicationRepository().getApplicationItem(applicationItemId,apikey,CustomProperties.Table.APPLICATION_STATUS.getTable()+"_"+CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus());
+		ApplicationItem applicationItem = this.getApplicationRepository().getApplicationItem(applicationItemId,apikey);
 		final Errors errors = validateUpdateApplicationItem(applicationItem);
 		rejectIfNull(applicationItem, GL0056, 404, APPLICATION_ITEM);
 		if (newApplicationItem.getUrl() != null) {
@@ -215,7 +215,7 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 	
 	@Override
 	public ApplicationItem getApplicationItem(String apikey,String applicationItemId) throws Exception{
-		ApplicationItem applicationItem = this.getApplicationRepository().getApplicationItem(applicationItemId,apikey,CustomProperties.Table.APPLICATION_STATUS.getTable()+"_"+CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus());
+		ApplicationItem applicationItem = this.getApplicationRepository().getApplicationItem(applicationItemId,apikey);
 		rejectIfNull(applicationItem, GL0056, 404, APPLICATION_ITEM);
 		return applicationItem;
 	}
@@ -229,14 +229,14 @@ public class ApplicationServiceImpl extends BaseServiceImpl implements Applicati
 
 	@Override
 	public List<ApplicationItem> getApplicationItemByApiKey(String apiKey) throws Exception {
-		List<ApplicationItem> applicationItemList = this.getApplicationRepository().getApplicationItemByApiKey(apiKey,CustomProperties.Table.APPLICATION_STATUS.getTable()+"_"+CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus());
+		List<ApplicationItem> applicationItemList = this.getApplicationRepository().getApplicationItemByApiKey(apiKey);
 		rejectIfNull(applicationItemList, GL0007, 404, API_KEY);		
 		return applicationItemList;
 	}
 	
 	@Override
 	public void deleteApplicationItemByItemId(String apikey,String applicationItemId) throws Exception{
-		ApplicationItem applicationItem = getApplicationRepository().getApplicationItem(applicationItemId,apikey,CustomProperties.Table.APPLICATION_STATUS.getTable()+"_"+CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus());
+		ApplicationItem applicationItem = getApplicationRepository().getApplicationItem(applicationItemId,apikey);
 		rejectIfNull(applicationItem, GL0056,404, APPLICATION_ITEM);
 		getApplicationRepository().remove(applicationItem);
 	}

@@ -44,5 +44,5 @@ public interface OAuthRepository extends BaseRepository {
 	
 	public Long getOauthClientCount(String organizationUId, String grantType);
 	
-	List<OAuthClient> findOAuthClientByApplicationKey(String apiKey,String type);	
+	List<OAuthClient> findOAuthClientByApplicationKey(String apiKey);	
 }

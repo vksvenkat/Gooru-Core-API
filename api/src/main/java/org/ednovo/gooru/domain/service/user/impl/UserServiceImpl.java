@@ -1083,7 +1083,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 	@Override
 	public UserToken signIn(String username, String password, String apikeyId, String sessionId, boolean isSsoLogin) {
 
-		Application application = this.getApplicationRepository().getApplication(apikeyId,CustomProperties.Table.APPLICATION_STATUS.getTable()+"_"+CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus());
+		Application application = this.getApplicationRepository().getApplication(apikeyId);
 		rejectIfNull(application,GL0056,404,APPLICATION);
 		if (username == null) {
 			throw new BadCredentialsException("error:Username cannot be null or empty.");
@@ -1803,7 +1803,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 	public void sendUserRegistrationConfirmationMail(String gooruUid, String accountType, String sessionId, String dateOfBirth, String gooruClassicUrl) throws Exception {
 		User user = this.findByGooruId(gooruUid);
 		if (user != null) {
-			Application application = this.getApplicationRepository().getApplication(user.getOrganization().getPartyUid(),CustomProperties.Table.APPLICATION_STATUS.getTable()+"_"+CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus());
+			Application application = this.getApplicationRepository().getApplication(user.getOrganization().getPartyUid());
 			rejectIfNull(application,GL0056,404,APPLICATION);
 			UserToken userToken = this.createSessionToken(user, sessionId, application);
 			this.getMailHandler().sendMailToConfirm(gooruUid, null, accountType, userToken.getToken(), dateOfBirth, gooruClassicUrl,null,null,null);
@@ -1957,7 +1957,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 	@Override
 	public UserToken partnerSignin(Map<String, Object> paramMap, String sessionId, String url, Long expires) throws Exception {
 		UserToken userToken = null;
-		Application application = this.getApplicationRepository().getApplication(paramMap.get(API_KEY).toString(),CustomProperties.Table.APPLICATION_STATUS.getTable()+"_"+CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus());
+		Application application = this.getApplicationRepository().getApplication(paramMap.get(API_KEY).toString());
 		if (application == null) {
 			throw new BadCredentialsException("error:Invalid API Key.");
 		} else {

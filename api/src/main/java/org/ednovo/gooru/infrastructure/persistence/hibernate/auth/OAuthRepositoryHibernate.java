@@ -28,6 +28,7 @@ import java.util.List;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.api.model.OAuthClient;
+import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate;
 import org.hibernate.Query;
 import org.hibernate.SQLQuery;
@@ -38,7 +39,7 @@ import org.springframework.stereotype.Repository;
 public class OAuthRepositoryHibernate extends BaseRepositoryHibernate implements OAuthRepository, ParameterProperties, ConstantProperties{
 
 	private static final String GET_USER_INFO = "select client_id from oauth_access_token where token_id = :accessToken";
-
+	private static final String APPLICATION_STATUS_ACTIVE = CustomProperties.Table.APPLICATION_STATUS.getTable()+"_"+CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus();
 
 	@Override
 	public Boolean checkTokenExists(String accessToken) {
@@ -125,11 +126,11 @@ public class OAuthRepositoryHibernate extends BaseRepositoryHibernate implements
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<OAuthClient> findOAuthClientByApplicationKey(String apiKey,String type) {
+	public List<OAuthClient> findOAuthClientByApplicationKey(String apiKey) {
 		String hql = " FROM OAuthClient oauthClient WHERE oauthClient.application.key=:apiKey AND oauthClient.application.status.keyValue=:type";
 		Query query = getSession().createQuery(hql);
 		query.setParameter("apiKey", apiKey);
-		query.setParameter("type", type);
+		query.setParameter("type", APPLICATION_STATUS_ACTIVE);
 		return (List<OAuthClient>) query.list();
 	
 	}

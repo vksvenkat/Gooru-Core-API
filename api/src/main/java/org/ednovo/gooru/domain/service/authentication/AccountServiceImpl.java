@@ -151,7 +151,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 
 	@Override
 	public UserToken createSessionToken(User user, String apiKey, HttpServletRequest request) throws Exception {
-		final Application application = this.getApplicationRepository().getApplication(apiKey,CustomProperties.Table.APPLICATION_STATUS.getTable()+"_"+CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus());
+		final Application application = this.getApplicationRepository().getApplication(apiKey);
 		rejectIfNull(application,GL0056,404,APPLICATION);
 		final UserToken sessionToken = new UserToken();
 		final String apiEndPoint = getConfigSetting(ConfigConstants.GOORU_API_ENDPOINT, 0, TaxonomyUtil.GOORU_ORG_UID);
@@ -329,7 +329,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 		Errors errors = null;
 		if (gooruUid != null) {
 			if (gooruUid.equalsIgnoreCase(ANONYMOUS)) {
-				final Application application = this.getApplicationRepository().getApplication(apiKey,CustomProperties.Table.APPLICATION_STATUS.getTable()+"_"+CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus());
+				final Application application = this.getApplicationRepository().getApplication(apiKey);
 				errors = this.validateApiKey(application, userToken);
 				if (!errors.hasErrors()) {
 					final Organization org = application.getOrganization();
@@ -398,7 +398,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 		}
 
 		if (sessionToken == null) {
-			Application application = this.getApplicationRepository().getApplication(apiKey,CustomProperties.Table.APPLICATION_STATUS.getTable()+"_"+CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus());
+			Application application = this.getApplicationRepository().getApplication(apiKey);
 			rejectIfNull(application, GL0056, 404, APPLICATION);
 			sessionToken = this.getUserManagementService().createSessionToken(userIdentity, request.getSession().getId(), application);
 		}

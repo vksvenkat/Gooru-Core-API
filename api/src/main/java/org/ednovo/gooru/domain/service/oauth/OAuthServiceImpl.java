@@ -108,7 +108,7 @@ public class OAuthServiceImpl extends ServerValidationUtils implements OAuthServ
 			}
 			rejectIfNull(oAuthClient.getApplication(), GL0006, "Application key ");
 			rejectIfNull(oAuthClient.getApplication().getKey(), GL0006, "Application key ");
-			Application application = this.getApplicationRepository().getApplication(oAuthClient.getApplication().getKey(),CustomProperties.Table.APPLICATION_STATUS.getTable()+"_"+CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus());
+			Application application = this.getApplicationRepository().getApplication(oAuthClient.getApplication().getKey());
 			rejectIfNull(application, GL0007, "Application key ");
 			oAuthClient.setApplication(application);
 			CustomTableValue status = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.APPLICATION_STATUS.getTable(), CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus());
@@ -205,7 +205,7 @@ public class OAuthServiceImpl extends ServerValidationUtils implements OAuthServ
 
 	@Override
 	public List<OAuthClient> getOAuthClientByApiKey(String apiKey) throws Exception {
-		List<OAuthClient> oAuthClientList = oAuthRepository.findOAuthClientByApplicationKey(apiKey,CustomProperties.Table.APPLICATION_STATUS.getTable()+"_"+CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus());
+		List<OAuthClient> oAuthClientList = oAuthRepository.findOAuthClientByApplicationKey(apiKey);
 		if(oAuthClientList.size() == 0){
 			throw new BadRequestException(generateErrorMessage(GL0007, API_KEY));
 		}		

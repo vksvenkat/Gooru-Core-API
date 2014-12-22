@@ -158,7 +158,7 @@ public class DoAuthorization {
 			}
 		} else if (apiKeyToken != null) {
 			if (authentication == null) {
-				Application application = this.getApplicationRepository().getApplication(apiKeyToken,CustomProperties.Table.APPLICATION_STATUS.getTable()+"_"+CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus());
+				Application application = this.getApplicationRepository().getApplication(apiKeyToken);
 				if (application == null) {
 					throw new AccessDeniedException("Invalid ApiKey : " + apiKeyToken);
 				} else {
