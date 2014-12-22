@@ -53,13 +53,12 @@ public class UserEventlog implements ParameterProperties, ConstantProperties{
 	public void getEventLogs(User newUser, String source, Identity newIdentity) throws JSONException {
 		SessionContextSupport.putLogParameter(EVENT_NAME, USER_REG);
 		JSONObject context = SessionContextSupport.getLog().get(CONTEXT) != null ? new JSONObject(SessionContextSupport.getLog().get(CONTEXT).toString()) : new JSONObject();
-		if (source != null && source.equalsIgnoreCase(UserAccountType.accountCreatedType.GOOGLE_APP.getType())) {
-			context.put(REGISTER_TYPE, accountCreatedType.GOOGLE_APP.getType());
-		} else if (source != null && source.equalsIgnoreCase(UserAccountType.accountCreatedType.SSO.getType())) {
-			context.put(REGISTER_TYPE, accountCreatedType.SSO.getType());
+		if (source != null) {
+			context.put(REGISTER_TYPE, source);
 		} else {
 			context.put(REGISTER_TYPE, GOORU);
 		}
+
 		SessionContextSupport.putLogParameter(CONTEXT, context.toString());
 		JSONObject payLoadObject = SessionContextSupport.getLog().get(PAY_LOAD_OBJECT) != null ? new JSONObject(SessionContextSupport.getLog().get(PAY_LOAD_OBJECT).toString()) : new JSONObject();
 		if (newIdentity != null && newIdentity.getIdp() != null) {

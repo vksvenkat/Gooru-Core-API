@@ -746,9 +746,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			identity.setExternalId(newUser.getEmailId());
 			identity.setAccountCreatedType(UserAccountType.accountCreatedType.NORMAL.getType());
 		}
-		if (source != null && source.equalsIgnoreCase(UserAccountType.accountCreatedType.GOOGLE_APP.getType())) {
-			identity.setAccountCreatedType(UserAccountType.accountCreatedType.GOOGLE_APP.getType());
-		} else if (source != null) {
+		 if (source != null) {
 			identity.setAccountCreatedType(source);
 		}
 		String domain = newUser.getEmailId().substring(newUser.getEmailId().indexOf("@") + 1, newUser.getEmailId().length());

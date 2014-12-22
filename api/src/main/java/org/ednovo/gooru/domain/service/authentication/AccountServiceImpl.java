@@ -24,6 +24,7 @@
 package org.ednovo.gooru.domain.service.authentication;
 
 import java.util.Date;
+import java.util.Iterator;
 import java.util.Random;
 import java.util.UUID;
 
@@ -403,11 +404,16 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			SessionContextSupport.putLogParameter(EVENT_NAME, _USER_LOGIN);
            
 		}
-		 SessionContextSupport.putLogParameter(TYPE, source);
+		SessionContextSupport.putLogParameter(TYPE, source);
+		Iterator<Identity> iter = userIdentity.getIdentities().iterator();
+		Identity newIdentity = iter.next();
+		newIdentity.setLoginType(source);
+		this.getUserRepository().save(newIdentity);
 		if (sessionToken == null) {
 			sessionToken = this.getUserManagementService().createSessionToken(userIdentity, request.getSession().getId(), this.getApplicationRepository().getApplication(apiKey));
 		}
 		request.getSession().setAttribute(Constants.SESSION_TOKEN, sessionToken.getToken());
+		
 		try {
 			newUser = (User) BeanUtils.cloneBean(userIdentity);
 		} catch (Exception e) {
