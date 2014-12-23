@@ -320,10 +320,9 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			} catch (JSONException e) {
 				LOGGER.debug("error" + e.getMessage());
 			}
-			userToken.setScope(EXPIRED);
-			this.getUserTokenRepository().save(userToken);
 			this.redisService.delete(SESSION_TOKEN_KEY + userToken.getToken());
 		}
+		this.getUserTokenRepository().remove(userToken);
 	}
 	
 	@Override
