@@ -30,11 +30,9 @@ import javax.annotation.PostConstruct;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.application.util.RequestUtil;
-import org.ednovo.gooru.domain.service.kafka.KafkaConsumer;
 import org.ednovo.gooru.domain.service.resource.ResourceManager;
 import org.ednovo.gooru.domain.service.revision_history.RevisionHistoryService;
 import org.ednovo.gooru.domain.service.storage.S3ResourceApiHandler;
-import org.ednovo.gooru.kafka.producer.KafkaProducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +44,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
-
 
 @Component
 @Async
@@ -159,8 +156,8 @@ public class AsyncExecutor {
 			}
 		});
 	}
-	
-	public void updateResourceFileInS3(final String fileName,final String sourcePath, final String gooruContentId, final String sessionToken) {
+
+	public void updateResourceFileInS3(final String fileName, final String sourcePath, final String gooruContentId, final String sessionToken) {
 		transactionTemplate.execute(new TransactionCallback<Void>() {
 			@Override
 			public Void doInTransaction(TransactionStatus status) {
@@ -174,7 +171,7 @@ public class AsyncExecutor {
 			}
 		});
 	}
-	
+
 	public void clearCache(final String gooruOid) {
 		transactionTemplate.execute(new TransactionCallback<Void>() {
 			@Override
@@ -184,7 +181,7 @@ public class AsyncExecutor {
 			}
 		});
 	}
-	
+
 	public void deleteFromCache(final String key) {
 		transactionTemplate.execute(new TransactionCallback<Void>() {
 			@Override
