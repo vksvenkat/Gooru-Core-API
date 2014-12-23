@@ -23,6 +23,17 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.domain.service.job;
 
+import org.ednovo.gooru.core.api.model.Job;
+import org.ednovo.gooru.core.api.model.Resource;
+
 public interface JobService {
+
+	Job createJob(Resource resource);
+
 	int getAverageRetryTime(long fileSize);
+	
+	Job getJob(String jobUid);
+	
+	Job updateJob(String jobUid, Job status);
+
 }

@@ -26,7 +26,9 @@ public class Job extends OrganizationModel implements Serializable {
 	}
 
 	private Integer jobId;
-
+	
+	private String jobUid;
+	
 	private JobType jobType;
 
 	private String gooruOid;
@@ -99,5 +101,13 @@ public class Job extends OrganizationModel implements Serializable {
 	public void setFileSize(Long fileSize) {
 		this.fileSize = fileSize;
 	}
+	
+	public String getJobUid() {
+		return jobUid;
+	}
 
+	public void setJobUid(String jobUid) {
+		this.jobUid = jobUid;
+	}
+	
 }
