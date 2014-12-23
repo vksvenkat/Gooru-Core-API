@@ -52,12 +52,6 @@ import org.springframework.transaction.support.TransactionTemplate;
 @Async
 @Transactional(propagation = Propagation.NEVER)
 public class AsyncExecutor {
-	
-	@Autowired
-	private KafkaConsumer kafkaConsumer; 
-	
-	@Autowired
-	private KafkaProducer kafkaProducer; 
 
 	@Autowired
 	private CollectionUtil collectionUtil;
@@ -181,16 +175,6 @@ public class AsyncExecutor {
 		});
 	}
 	
-	public void sendEventLog(final String message){
-		transactionTemplate.execute(new TransactionCallback<Void>() {
-			@Override
-			public Void doInTransaction(TransactionStatus status) {
-				getKafkaProducer().send(message);
-				return null;
-			}
-		});
-	}
-
 	public void clearCache(final String gooruOid) {
 		transactionTemplate.execute(new TransactionCallback<Void>() {
 			@Override
@@ -219,10 +203,6 @@ public class AsyncExecutor {
 		return collectionUtil;
 	}
 
-	public KafkaProducer getKafkaProducer() {
-		return kafkaProducer;
-	}
-	
 	public RevisionHistoryService getRevisionHistoryService() {
 		return revisionHistoryService;
 	}
