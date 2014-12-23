@@ -50,6 +50,7 @@ import org.ednovo.gooru.core.api.model.ShelfType;
 import org.ednovo.gooru.core.api.model.StorageArea;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserContentAssoc;
+import org.ednovo.gooru.core.api.model.UserGroupSupport;
 import org.ednovo.gooru.core.api.model.UserSummary;
 import org.ednovo.gooru.core.application.util.BaseUtil;
 import org.ednovo.gooru.core.exception.BadRequestException;
@@ -66,6 +67,8 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.storage.StorageRepo
 import org.ednovo.gooru.infrastructure.persistence.hibernate.taxonomy.TaxonomyRespository;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindException;
@@ -100,6 +103,8 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	
 	@Autowired
 	private PartyService partyService;
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(CollectionServiceImpl.class);
 
 
 	@Override
@@ -122,6 +127,11 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 						response.getModel().setQuestionInfo(this.assessmentService.updateQuestionVideoAssest(responseDTO.getModel().getGooruOid(), questionImage));
 					} else {
 						response.getModel().setQuestionInfo(this.assessmentService.updateQuestionAssest(responseDTO.getModel().getGooruOid(), StringUtils.substringAfterLast(questionImage, "/")));
+						try {
+							this.getAsyncExecutor().updateResourceFileInS3(response.getModel().getResource().getFolder(), response.getModel().getResource().getOrganization().getNfsStorageArea().getInternalPath(), response.getModel().getResource().getGooruOid(), UserGroupSupport.getSessionToken());
+						} catch (Exception e) {
+							LOGGER.error(e.getMessage());
+						}
 					}
 				}
 			}
@@ -145,7 +155,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		try {
 			this.getCollectionEventLog().getEventLogs(response.getModel(), false, user, response.getModel().getCollection().getCollectionType());
 		} catch (Exception e) {
-			e.printStackTrace();
+			LOGGER.error(e.getMessage());
 		}
 		return response;
 
@@ -189,10 +199,10 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 			}
 
 		} else {
-			throw new NotFoundException(generateErrorMessage("GL0056", "Qusetion"));
+			throw new NotFoundException(generateErrorMessage(GL0056, QUESTION));
 		}
 		try {
-			this.collectionEventLog.getEventLogs(collectionItem, false,  true, user);
+			this.collectionEventLog.getEventLogs(collectionItem, false,  false, user, false);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -269,7 +279,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + user.getPartyUid() + "*");
 
 		try {
-			this.getCollectionEventLog().getEventLogs(responseDTO.getModel(), true, user, responseDTO.getModel().getCollection().getCollectionType());
+			this.getCollectionEventLog().getEventLogs(responseDTO.getModel(), true, user, responseDTO.getModel().getCollection().getCollectionType(), sourceCollectionItem);
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}

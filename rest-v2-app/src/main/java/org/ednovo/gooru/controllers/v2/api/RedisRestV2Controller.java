@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////
-//ClearCacheRestV2Controller.java
+//RedisRestV2Controller.java
 //rest-v2-app
 // Created by Gooru on 2014
 // Copyright (c) 2014 Gooru. All rights reserved.
@@ -36,9 +36,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 @RequestMapping(value = { "/v2/redis" })
@@ -53,6 +55,13 @@ public class RedisRestV2Controller extends BaseController implements ConstantPro
 	public void addRedisEntry(@RequestParam(value = KEY, required = true) String key,@RequestParam(value = VALUE, required = true) String value, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		getRedisService().putValue(key, value);
 		SessionContextSupport.putLogParameter(EVENT_NAME, "add-redis-entry" + "-key-" + key + "-value-"+value);
+	}
+	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_READ_REDIS_ENTRY })
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(method = { RequestMethod.GET }, value = {"/{key}"})
+	public ModelAndView getRedisEntry(@PathVariable(value = KEY) String key, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		return toModelAndView(getRedisService().get(key));
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CACHE_CLEAR })

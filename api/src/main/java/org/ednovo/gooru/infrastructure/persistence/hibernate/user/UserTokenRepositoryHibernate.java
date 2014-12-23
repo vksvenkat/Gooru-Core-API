@@ -92,28 +92,6 @@ public class UserTokenRepositoryHibernate extends BaseRepositoryHibernate implem
 	 }
 	
 	
-	@Override
-	public void saveUserSession(final UserToken userToken){
-		
-		if(userToken.getApplication() == null || userToken.getApplication().getGooruOid() == null) {
-			throw new BadCredentialsException("Invalid API Key");
-		}
-		
-		PreparedStatementCreator creator = new PreparedStatementCreator() {
-
-			@Override
-			public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
-				PreparedStatement sessionFields = con.prepareStatement(INSERT_SESSION);
-				sessionFields.setString(1, userToken.getToken());
-				sessionFields.setString(2, userToken.getSessionId());
-				sessionFields.setLong(3, userToken.getApplication().getContentId());
-				sessionFields.setString(4, userToken.getScope());
-				sessionFields.setString(5, userToken.getUser().getPartyUid());
-				return sessionFields;
-			}
-		};
-		getJdbcTemplate().update(creator);
-	}
 
 	public JdbcTemplate getJdbcTemplate()
 	{

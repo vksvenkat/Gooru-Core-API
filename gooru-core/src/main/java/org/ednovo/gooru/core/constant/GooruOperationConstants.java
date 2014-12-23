@@ -903,6 +903,8 @@ public class GooruOperationConstants {
 
 	// Clear Cache
 
+	public static final String OPERATION_READ_REDIS_ENTRY= ENTITY_CACHE + ENTITY_ACTION_SEPARATOR + ACTION_READ;
+	
 	public static final String OPERATION_CACHE_CLEAR = ENTITY_CACHE + ENTITY_ACTION_SEPARATOR + ACTION_DELETE;
 
 	// Profanity

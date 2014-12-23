@@ -1551,17 +1551,15 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 	}
 
 	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public UserToken createSessionToken(User user, String sessionId, Application application) {
 		UserToken sessionToken = new UserToken();
-		sessionToken.setToken(UUID.randomUUID().toString());
 		sessionToken.setScope(SESSION);
 		sessionToken.setUser(user);
 		sessionToken.setSessionId(sessionId);
 		sessionToken.setApplication(application);
 		sessionToken.setCreatedOn(new Date(System.currentTimeMillis()));
 		try {
-			userTokenRepository.saveUserSession(sessionToken);
+			userTokenRepository.save(sessionToken);
 		} catch (Exception e) {
 			LOGGER.error("Error" + e.getMessage());
 		}

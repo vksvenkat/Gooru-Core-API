@@ -694,17 +694,15 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	}
 
 	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public UserToken createSessionToken(User user, String sessionId, Application application) {
 		UserToken sessionToken = new UserToken();
-		sessionToken.setToken(UUID.randomUUID().toString());
 		sessionToken.setScope(SESSION);
 		sessionToken.setUser(user);
 		sessionToken.setSessionId(sessionId);
 		sessionToken.setApplication(application);
 		sessionToken.setCreatedOn(new Date(System.currentTimeMillis()));
 		try {
-			this.getUserTokenRepository().saveUserSession(sessionToken);
+			this.getUserTokenRepository().save(sessionToken);
 		} catch (Exception e) {
 			LOGGER.error("Error" + e.getMessage());
 		}
@@ -833,7 +831,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			user.setAccountTypeId(UserAccountType.ACCOUNT_NON_PARENT);
 			accountType = UserAccountType.userAccount.NON_PARENT.getType();
 		}
-		identity.setRegisteredOn(new Date(System.currentTimeMillis()));
+		identity.setRegisteredOn(new Date(System.currentTimeMillis()));		
 		identity.setUser(user);
 		Credential credential = null;
 		if (source == null || !source.equalsIgnoreCase(UserAccountType.accountCreatedType.GOOGLE_APP.getType())) {
@@ -1201,37 +1199,41 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	@Override
 	public void deleteUserContent(String gooruUid, String isDeleted, User apiCaller) {
 		User user = this.getUserRepository().findByGooruId(gooruUid);
-		if (user != null && isContentAdmin(apiCaller) && isDeleted != null && isDeleted.equalsIgnoreCase(TRUE)) {
-			user.setIsDeleted(true);
-			List<Content> contents = this.getContentRepository().getContentByUserUId(gooruUid);
-			List<ContentPermission> removeContentPermission = new ArrayList<ContentPermission>();
-			List<Content> removeContentList = new ArrayList<Content>();
-			String gooruOidAsString = "";
-			for (Content content : contents) {
-				if (content != null) {
-					if (gooruOidAsString.length() > 0) {
-						gooruOidAsString += ",";
-					}
-					gooruOidAsString += content.getGooruOid();
-					if (content.getSharing().equalsIgnoreCase(PUBLIC)) {
-						content.setCreator(apiCaller);
-						this.getContentRepository().save(content);
-					} else if (content.getSharing().equalsIgnoreCase(PRIVATE)) {
-						Set<ContentPermission> contentPermissions = content.getContentPermissions();
-						for (ContentPermission contentPermission : contentPermissions) {
-							removeContentPermission.add(contentPermission);
+		if ((user != null && isDeleted != null && isDeleted.equalsIgnoreCase(TRUE))) {
+			if (isContentAdmin(apiCaller) || user == apiCaller) {
+				user.setIsDeleted(true);
+				List<Content> contents = this.getContentRepository().getContentByUserUId(gooruUid);
+				List<ContentPermission> removeContentPermission = new ArrayList<ContentPermission>();
+				List<Content> removeContentList = new ArrayList<Content>();
+				String gooruOidAsString = "";
+				for (Content content : contents) {
+					if (content != null) {
+						if (gooruOidAsString.length() > 0) {
+							gooruOidAsString += ",";
 						}
-						removeContentList.add(content);
+						gooruOidAsString += content.getGooruOid();
+						if (content.getSharing().equalsIgnoreCase(PUBLIC)) {
+							content.setCreator(apiCaller);
+							this.getContentRepository().save(content);
+						} else if (content.getSharing().equalsIgnoreCase(PRIVATE)) {
+							Set<ContentPermission> contentPermissions = content.getContentPermissions();
+							for (ContentPermission contentPermission : contentPermissions) {
+								removeContentPermission.add(contentPermission);
+							}
+							removeContentList.add(content);
+						}
 					}
 				}
-			}
-			this.getContentRepository().removeAll(removeContentPermission);
-			this.getContentRepository().removeAll(removeContentList);
-			this.getUserRepository().save(user);
-			if (gooruOidAsString.length() > 0) {
-				indexProcessor.index(gooruOidAsString, IndexProcessor.INDEX, RESOURCE);
-			}
+				this.getContentRepository().removeAll(removeContentPermission);
+				this.getContentRepository().removeAll(removeContentList);
+				this.getUserRepository().save(user);
+				if (gooruOidAsString.length() > 0) {
+					indexProcessor.index(gooruOidAsString, IndexProcessor.INDEX, RESOURCE);
+				}
+			} else {
+				throw new UnauthorizedException(generateErrorMessage("GL0085"));
 
+			}
 		}
 	}
 
