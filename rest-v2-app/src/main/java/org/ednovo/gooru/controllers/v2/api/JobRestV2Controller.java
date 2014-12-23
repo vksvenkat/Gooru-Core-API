@@ -29,10 +29,9 @@ public class JobRestV2Controller extends BaseController implements ConstantPrope
 	private JobService jobService;
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_JOB_READ })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}" }, method = RequestMethod.GET)
 	public ModelAndView getJob(@PathVariable(value = ID) String jobUid, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		System.out.println("hjfhgdhj");
 		return toModelAndViewWithIoFilter(getJobService().getJob(jobUid), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, JOB_INCLUDES);
 	}
 	
