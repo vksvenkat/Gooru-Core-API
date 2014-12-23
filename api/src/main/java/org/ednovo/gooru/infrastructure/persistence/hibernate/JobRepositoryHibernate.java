@@ -61,7 +61,6 @@ public class JobRepositoryHibernate extends BaseRepositoryHibernate implements J
 
 	@Override
 	public Job createJob(String jobUid) {
-		// @Override
 		Query query = getSession().createQuery("FROM Job c  WHERE c.jobUid=:jobUid").setParameter("jobUid", jobUid);
 		return (Job) (query.list().size() > 0 ? query.list().get(0) : null);
 
@@ -69,7 +68,6 @@ public class JobRepositoryHibernate extends BaseRepositoryHibernate implements J
 
 	@Override
 	public Job getJob(String jobUid) {
-		// TODO Auto-generated method stub
 		Query query = getSession().createQuery("FROM Job c  WHERE c.jobUid=:jobUid").setParameter("jobUid", jobUid);
 		return (Job) (query.list().size() > 0 ? query.list().get(0) : null);
 	}

@@ -75,7 +75,6 @@ public class KafkaConsumer implements Runnable {
 		while (it.hasNext()) {
 
 			String message = new String(it.next().message());
-			System.out.println(message);
 			if (message.contains("{")) {
 				try {
 					JSONObject data = new JSONObject(message);

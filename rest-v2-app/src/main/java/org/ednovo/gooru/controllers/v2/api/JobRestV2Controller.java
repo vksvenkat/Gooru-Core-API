@@ -11,6 +11,8 @@ import org.ednovo.gooru.domain.service.job.JobService;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.ednovo.gooru.core.constant.GooruOperationConstants;
+import org.ednovo.gooru.core.security.AuthorizeOperations;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,19 +28,19 @@ public class JobRestV2Controller extends BaseController implements ConstantPrope
 	@Autowired
 	private JobService jobService;
 
-	//@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_COUNTRY_READ })
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_JOB_READ })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}" }, method = RequestMethod.GET)
 	public ModelAndView getJob(@PathVariable(value = ID) String jobUid, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		System.out.println("hjfhgdhj");
-		return toModelAndViewWithIoFilter(getJobService().getJob(jobUid), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, JOB);
+		return toModelAndViewWithIoFilter(getJobService().getJob(jobUid), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, JOB_INCLUDES);
 	}
 	
-	//@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_COUNTRY_UPDATE })
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_JOB_UPDATE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}" }, method = RequestMethod.PUT)
 	public ModelAndView updateJob(@PathVariable(value = ID) String jobUid, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		return toModelAndViewWithIoFilter(getJobService().updateJob(jobUid, buildJobFromInputParameters(data)), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, JOB);
+		return toModelAndViewWithIoFilter(getJobService().updateJob(jobUid, buildJobFromInputParameters(data)), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, JOB_INCLUDES);
 	}
 	
 	private Job buildJobFromInputParameters(String data) {

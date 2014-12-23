@@ -737,8 +737,6 @@ public interface ParameterProperties {
 	String IMAGES = "images";
 
 	String PDF = "pdf";
-	
-    String PPT = "ppt";
 
 	String CODE_UID = "codeUId";
 
