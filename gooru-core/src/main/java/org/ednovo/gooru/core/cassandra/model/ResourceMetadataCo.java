@@ -60,6 +60,8 @@ public class ResourceMetadataCo implements Serializable {
 	@Column 
 	private String mediaClarity;
 	
+	private String thumbnail;
+	
 	public String getId() {
 		return id;
 	}
@@ -178,6 +180,14 @@ public class ResourceMetadataCo implements Serializable {
 
 	public void setMediaClarity(String mediaClarity) {
 		this.mediaClarity = mediaClarity;
+	}
+
+	public String getThumbnail() {
+		return thumbnail;
+	}
+
+	public void setThumbnail(String thumbnail) {
+		this.thumbnail = thumbnail;
 	}
 
 }

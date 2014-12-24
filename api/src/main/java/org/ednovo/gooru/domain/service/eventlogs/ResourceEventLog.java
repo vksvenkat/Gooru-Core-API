@@ -38,6 +38,7 @@ public class ResourceEventLog implements ParameterProperties, ConstantProperties
 	public void getEventLogs(Resource resource , JSONObject itemData, User user) throws JSONException {
 		SessionContextSupport.putLogParameter(EVENT_NAME, ITEM_EDIT);
 		JSONObject context = SessionContextSupport.getLog().get(CONTEXT) != null ? new JSONObject(SessionContextSupport.getLog().get(CONTEXT).toString()) : new JSONObject();
+		context.put(CONTENT_GOORU_ID, resource != null ? resource.getGooruOid() : null);
 		SessionContextSupport.putLogParameter(CONTEXT, context.toString());
 		JSONObject payLoadObject = SessionContextSupport.getLog().get(PAY_LOAD_OBJECT) != null ? new JSONObject(SessionContextSupport.getLog().get(PAY_LOAD_OBJECT).toString()) : new JSONObject();
 		payLoadObject.put(MODE, EDIT);

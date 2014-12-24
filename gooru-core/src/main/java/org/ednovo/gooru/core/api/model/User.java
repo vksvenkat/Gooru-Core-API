@@ -72,7 +72,7 @@ public class User extends Party implements IndexableEntry, OrganizationWrapper, 
 	
 	private String token;
     
-	private Boolean isDeleted;
+	private Boolean isDeleted = false;
 	
 	private Set<PartyCustomField> customFields;
 	

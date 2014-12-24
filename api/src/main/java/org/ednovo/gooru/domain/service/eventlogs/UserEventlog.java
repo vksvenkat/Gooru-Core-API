@@ -75,7 +75,7 @@ public class UserEventlog implements ParameterProperties, ConstantProperties{
 		}
 		SessionContextSupport.putLogParameter(PAY_LOAD_OBJECT, payLoadObject.toString());
 		JSONObject session = SessionContextSupport.getLog().get(SESSION) != null ? new JSONObject(SessionContextSupport.getLog().get(SESSION).toString()) : new JSONObject();
-		session.put(ORGANIZATION_UID, newUser != null ? newUser.getOrganizationUid() : null);
+		session.put(ORGANIZATION_UID, newUser != null && newUser.getOrganization() != null ? newUser.getOrganization().getPartyUid() : null);
 		SessionContextSupport.putLogParameter(SESSION, session.toString());
 		JSONObject user = SessionContextSupport.getLog().get(USER) != null ? new JSONObject(SessionContextSupport.getLog().get(USER).toString()) : new JSONObject();
 		user.put(GOORU_UID, newUser != null ? newUser.getPartyUid() : null);

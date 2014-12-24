@@ -79,8 +79,8 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 	private static final String FIND_AGE_CHECK = "select age_check from profile , user where  profile.user_uid = user.gooru_uid AND profile.user_uid=:userId AND " + generateOrgAuthSqlQuery("user.") + " AND " + generateUserIsDeletedSql("user.");
 	private static final String CHECK_CODE = "select count(*) as totalCount from invite_code where code = :code and dateofexpiry >= :dateOfExpiry";
 	private static final String INSERT_INVITE = "insert into Invites (FirstName,LastName,Email,School,message, LastDateInvited) values ('%s','%s','%s','%s','%s','%s');";
-	private static final String GET_USER_NAME_AVAILABILITY = "select count(1) as totalCount from user where username = :userName";
-	private static final String GET_EMAILID_AVAILABILITY = "select count(1) as totalCount from identity where external_id = :emailId";
+	private static final String GET_USER_NAME_AVAILABILITY = "select count(1) as totalCount from user where username = :userName AND "  + generateUserIsDeletedSql("user.");
+	private static final String GET_EMAILID_AVAILABILITY = "select count(1) as totalCount from identity i inner join  user u  on  u.gooru_uid=i.user_uid where external_id = :emailId AND " + generateUserIsDeletedSql("u.");
 	private static final String USER_SUMMARY = "from UserSummary u where u.gooruUid =:gooruUid";
 	private static final String FETCH_CHILD_USERS_BY_BIRTHDAY = "select  u.username as child_user_name, i2.external_id as parent_email_id  from identity i inner join user u on u.gooru_uid=i.user_uid inner join profile p  on p.user_uid=u.gooru_uid inner join identity i2 on i2.user_uid=u.parent_uid  where  datediff(CURDATE(),p.date_of_birth) = 4748 and u.account_type_id=2";
 	private static final String FETCH_CHILD_USERS_BY_BIRTHDAY_COUNT = "select count(1) as count from identity i inner join user u on u.gooru_uid=i.user_uid inner join profile p  on p.user_uid=u.gooru_uid inner join identity i2 on i2.user_uid=u.parent_uid  where  datediff(CURDATE(),p.date_of_birth) = 4748 and u.account_type_id=2";

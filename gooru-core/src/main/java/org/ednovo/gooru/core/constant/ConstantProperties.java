@@ -18,7 +18,7 @@ public interface ConstantProperties {
 	static final String QUESTION_SET_INCLUDES[] = { "questionSetQuestions" };
 	
 	static final String RESOURCE_INSTANCE_INCLUDES[] = {"*.resource","*.type","*.profileImageUrl","*.shortenedUrlStatus","*.resourceSource","*.resourceInfo","*.thumbnails","*.description", "*.createdOn", "*.folder", "*.gooruOid", "*.resourceType","*.label","*.url","*.taxonomySet","*.sharing", "*.title","*.category","*.resourceType.name","*.attribution","*.meta.*", "*.resourceFormat.value", "*.resourceFormat.displayName", "*.instructional.value", "*.instructional.displayName", "*.depthOfKnowledges.value",
-		"*.depthOfKnowledges.selected", "*.momentsOfLearning.selected", "*.momentsOfLearning.value", "*.educationalUse.value", "*.educationalUse.selected","*.grade", "*.mediaType"};
+		"*.depthOfKnowledges.selected", "*.momentsOfLearning.selected", "*.momentsOfLearning.value", "*.educationalUse.value", "*.educationalUse.selected","*.grade", "*.mediaType","*.sourceReference"};
 
 	static final String RESOURCE_INCLUDE_FIELDS[] = { "*.resource", "*.assetURI", "*.brokenStatus", "*.category", "*.createdOn", "*.usernameDisplay", "*.profileImageUrl", "*.lastName", "*.firstName", "*.username", "*.description", "*.distinguish", "*.folder", "*.gooruOid", "*.resourceType",
 			"*.resourceType.name", "*.sharing", "*.title", "*.views", "*.thumbnails", "*.url", "*.user", "*.creator", "*.license", "*.license.code", "*.license.icon", "*.license.name", "*.license.definition", "*.dimensions", "*.defaultImage", "*.resourceSource", "*.attribution", "*.sourceName",
@@ -90,6 +90,16 @@ public interface ConstantProperties {
 	static final String CUSTOM_VALUE_EXCLUDE[] = { "*.resourceFormat", "*.resourceFormat.customTable", "*.resourceFormat.customTableValueId", "*.resourceFormat.displayName", "*.instructional.customTable", "*.instructional.customTableValueId", "*.instructional.displayName" };
 
 	static final String EVENT_NAME = "eventName";
+	
+	static final String GMAIL = "gmail";
+	
+	static final String _LTI = "lti";
+	
+	static final String _USER_LOGIN = "user.login";
+	
+	static final String SAML = "saml";
+	
+	static final String WSFED = "wsfed";
 
 	static final String CREATED_TYPE = "created_type";
 
@@ -292,7 +302,7 @@ public interface ConstantProperties {
 
 	static final String USER_INCLUDES[] = { "*.lastName", "*.gooruUId", "*.profileImageUrl", "*.loginType", "*.userRoleSetString", "*.username", "*.viewFlag", "*.createdOn", "*.restEndPoint", "*.confirmStatus", "*.emailId", "*.token", "*.partyUid", "*.firstName", "*.usernameDisplay", "*.user",
 			"*.accountCreatedType", "*.dateOfBirth", "*.meta.*", "*.taxonomyPreference.*", "*.taxonomyPreference.code.*", "*.meta.taxonomyPreference.code.*", "*.metaData.*", "*.meta.taxonomyPreference.metaData.code.*", "*.meta.taxonomyPreference.metaData.*", "*.meta.taxonomyPreference.*",
-			"*.customFields.*", "*.accountTypeId", "*.organizationName", "*.userRole", "*.active" };
+			"*.customFields.*", "*.accountTypeId", "*.organizationName", "*.userRole", "*.active","*.parentUser" };
 
 	static final String RESET_PASSWORD_REQUEST_INCLUDES[] = { "*.username", "*.accountTypeId", "*.firstName", "*.gooruUId", "*.emailId" };
 
@@ -382,7 +392,7 @@ public interface ConstantProperties {
 	static final String LIBRARY_RESOURCE_INCLUDE_FIELDS[] = { "*.resource", "*.assetURI", "*.brokenStatus", "*.category", "*.createdOn", "*.usernameDisplay", "*.profileImageUrl", "*.lastName", "*.firstName", "*.username", "*.description", "*.distinguish", "*.folder", "*.gooruOid", "*.resourceType",
 			"*.resourceType.name", "*.sharing", "*.title", "*.views", "*.thumbnails", "*.url", "*.license", "*.license.code", "*.license.icon", "*.license.name", "*.license.definition", "*.dimensions", "*.defaultImage", "*.resourceSource", "*.attribution", "*.sourceName", "*.questionInfo",
 			"*.TYPE", "*.type", "*.name", "*.questionText", "*.assets", "*.assets.asset", "*.assets.asset.name", "*.assets.asset.url", "*assets.asset.description", "*assets.asset.hasUniqueName", "*.description", "*.explanation", "*.lastModified", "*.gooruUId", "*.lastUpdatedUserUid", "*.category",
-			"*.label", "*.code", "*.userRating", "*.hasFrameBreaker", "*.copiedResourceId", "*.assignmentContentId", "*.trackActivity", "*.trackActivity.startTime", "*.trackActivity.endTime", "*.goals", "*.grade", "*.mediaType", "*.text", "*.isOer", "*.ratings", "*.average", "*.count","*.publisher","*.aggregator","*.host" };
+			"*.label", "*.code", "*.userRating", "*.hasFrameBreaker", "*.copiedResourceId", "*.assignmentContentId", "*.trackActivity", "*.trackActivity.startTime", "*.trackActivity.endTime", "*.goals", "*.grade", "*.mediaType", "*.text", "*.isOer", "*.ratings", "*.average", "*.count","*.publisher","*.aggregator","*.host"};
 
 	static final String[] LIBRARY_FEATURED_COLLECTIONS_INCLUDE_FIELDS = { "*.totalHitCount", "*.searchResults", "*.libraryCollection", "*.comment", "*.collaborators", "*.network", "*.description", "*.grade", "*.gooruOid", "*.createdOn", "*.lastModified", "*.sharing", "*.title", "*.views",
 			"*.thumbnails", "*.subjectCode", "*.themeCode", "*.metaInfo", "*.standard", "*.collaborators", "*.meta", "*.meta.collaboratorCount", "*.meta.isCollaborator", "*.meta.commentCount", "*.metaInfo.standards", "*.thumbnails.defaultImage", "*.thumbnails.dimensions", "*.thumbnails.url",
@@ -820,5 +830,9 @@ public interface ConstantProperties {
    static final String ENTITY_INCLUDES[] = { "*.entityOperationId", "*.entityName", "*.operationName" , "*.totalHitCount", "*.searchResults"};
    
    static final String ROLE_OPERATIONS_INCLUDES[] = {"*.entityOperation.entityOperationId", "*.entityOperation.entityName", "*.entityOperation.operationName", "*.totalHitCount", "*.searchResults"};
+
+   public static final String PREVIOUS_RATE = "previousRate";
+   
+   public static final String JOB_INCLUDES[] = {"*.job"};
 }
 

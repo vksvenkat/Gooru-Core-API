@@ -29,7 +29,11 @@ public class StatisticsCo {
 
 	@Column
 	private String viewsCount;
+	
+	@Column
+	private Long averageTimeSpent;
 
+	
 	@Column
 	private String subscriberCount;
 
@@ -262,5 +266,13 @@ public class StatisticsCo {
 		return voteDownN;
 	}
 	
+	public Long getAverageTimeSpent() {
+		return averageTimeSpent;
+	}
+
+	public void setAverageTimeSpent(Long averageTimeSpent) {
+		this.averageTimeSpent = averageTimeSpent;
+	}
+
 
 }

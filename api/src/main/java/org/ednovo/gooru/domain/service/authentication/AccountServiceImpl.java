@@ -39,6 +39,7 @@ import org.ednovo.gooru.core.api.model.Identity;
 import org.ednovo.gooru.core.api.model.Organization;
 import org.ednovo.gooru.core.api.model.PartyCustomField;
 import org.ednovo.gooru.core.api.model.Profile;
+import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserAccountType;
 import org.ednovo.gooru.core.api.model.UserAvailability.CheckUser;
@@ -52,8 +53,10 @@ import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.BadRequestException;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.core.exception.UnauthorizedException;
+import org.ednovo.gooru.core.security.AuthenticationDo;
 import org.ednovo.gooru.domain.service.PartyService;
 import org.ednovo.gooru.domain.service.eventlogs.AccountEventLog;
+import org.ednovo.gooru.domain.service.eventlogs.UserEventlog;
 import org.ednovo.gooru.domain.service.redis.RedisService;
 import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.ednovo.gooru.domain.service.user.UserService;
@@ -143,11 +146,16 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 
 	@Autowired
 	private SettingService settingService;
+	
+	@Autowired
+	private UserEventlog usereventlog;
 
 	@Autowired
 	private CustomTableRepository customTableRepository;
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(AccountServiceImpl.class);
+
+	private static final String SESSION_TOKEN_KEY = "authenticate_";
 
 	@Override
 	public UserToken createSessionToken(User user, String apiKey, HttpServletRequest request) throws Exception {
@@ -155,7 +163,6 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 		rejectIfNull(application,GL0056,404,APPLICATION);
 		final UserToken sessionToken = new UserToken();
 		final String apiEndPoint = getConfigSetting(ConfigConstants.GOORU_API_ENDPOINT, 0, TaxonomyUtil.GOORU_ORG_UID);
-		sessionToken.setToken(UUID.randomUUID().toString());
 		sessionToken.setScope(SESSION);
 		sessionToken.setUser(user);
 		sessionToken.setSessionId(request.getSession().getId());
@@ -164,7 +171,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 		sessionToken.setRestEndPoint(apiEndPoint);
 
 		try {
-			userTokenRepository.saveUserSession(sessionToken);
+			userTokenRepository.save(sessionToken);
 		} catch (Exception e) {
 			LOGGER.error("Error" + e.getMessage());
 		}
@@ -269,7 +276,13 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			}
 			try {
 				if (userToken != null) {
-					getRedisService().put("user_" + userToken.getToken(),new JSONSerializer().transform(new ExcludeNullTransformer(), void.class).include(new String[] { "*.operationAuthorities", "*.userRoleSet", "*.partyOperations", "*.subOrganizationUids", "*.orgPermits", "*.partyPermits", "*.customFields", "*.identities", "*.meta" }).exclude("*.class").serialize(user));
+					AuthenticationDo authentication = new AuthenticationDo();
+					authentication.setUserToken(userToken);
+					authentication.setUserCredential(userService.getUserCredential(user, userToken.getToken(), null, null));
+					getRedisService().put(
+							SESSION_TOKEN_KEY + userToken.getToken(),
+							new JSONSerializer().transform(new ExcludeNullTransformer(), void.class).include(new String[] { "*.operationAuthorities", "*.userRoleSet", "*.partyOperations", "*.subOrganizationUids", "*.orgPermits", "*.partyPermits", "*.customFields", "*.identities", "*.meta", "*.partyPermissions.*" })
+									.exclude("*.class").serialize(authentication));
 				}
 			} catch (Exception e) {
 				LOGGER.error("Failed to  put  value from redis server");
@@ -312,12 +325,11 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			} catch (JSONException e) {
 				LOGGER.debug("error" + e.getMessage());
 			}
-			userToken.setScope(EXPIRED);
-			this.getUserTokenRepository().save(userToken);
-			this.redisService.deleteKey(USER + "_" + userToken.getToken());
+			this.redisService.delete(SESSION_TOKEN_KEY + userToken.getToken());
 		}
+		this.getUserTokenRepository().remove(userToken);
 	}
-
+	
 	@Override
 	public String getConfigSetting(String key, int securityLevel, String organizationUid) {
 		return configSettingRepository.getConfigSetting(key, securityLevel, organizationUid);
@@ -385,18 +397,18 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 		}
 
 		if (userIdentity == null) {
-			try {
-				boolean usernameAvailability = this.getUserRepository().checkUserAvailability(newUser.getUsername(), CheckUser.BYUSERNAME, false);
-
-				if (usernameAvailability) {
-					throw new NotFoundException(generateErrorMessage("GL0084", newUser.getUsername()));
-				}
+			try {				
 				userIdentity = this.getUserManagementService().createUser(newUser, null, null, 1, 0, null, null, null, null, null, null, null, source, null, request, null, null);
+				SessionContextSupport.putLogParameter(EVENT_NAME,USER_REG);
+                this.getUsereventlog().getEventLogs(userIdentity, source,userIdentity.getIdentities() != null ? userIdentity.getIdentities().iterator().next(): null);
 			} catch (Exception e) {
 				LOGGER.debug("error" + e.getMessage());
 			}
+		}else{
+			SessionContextSupport.putLogParameter(EVENT_NAME, _USER_LOGIN);
+           
 		}
-
+		 SessionContextSupport.putLogParameter(TYPE, source);
 		if (sessionToken == null) {
 			Application application = this.getApplicationRepository().getApplication(apiKey);
 			rejectIfNull(application, GL0056, 404, APPLICATION);
@@ -410,6 +422,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 		}
 		request.getSession().setAttribute(Constants.USER, newUser);
 		newUser.setToken(sessionToken.getToken());
+		
 
 		return newUser;
 	}
@@ -466,5 +479,9 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 
 	public CustomTableRepository getCustomTableRepository() {
 		return customTableRepository;
+	}
+	
+	public UserEventlog getUsereventlog() {
+		return usereventlog;
 	}
 }

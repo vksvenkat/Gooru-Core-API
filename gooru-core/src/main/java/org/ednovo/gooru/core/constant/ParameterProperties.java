@@ -559,6 +559,8 @@ public interface ParameterProperties {
 	String FILE = "file";
 
 	String FILENAME = "fileName";
+	
+	String JOB_UID = "jobUid";
 
 	String FILE_DATA = "fileData";
 

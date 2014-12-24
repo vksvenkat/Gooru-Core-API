@@ -127,7 +127,7 @@ public class DoAuthorization {
 		} else if (sessionToken != null) {
 			try {
 				key = SESSION_TOKEN_KEY + sessionToken;
-				data = getRedisService().getValue(key);
+				data = getRedisService().get(key);
 				if (data != null && (skipCache == null || skipCache.equals("0"))) {
 					authentication = JsonDeserializer.deserialize(data, AuthenticationDo.class);
 				}
@@ -214,14 +214,7 @@ public class DoAuthorization {
 			}
 			try {
 				if (key != null) {
-					getRedisService().putValue(
-							key,
-							new JSONSerializer().transform(new ExcludeNullTransformer(), void.class).include(new String[] { "*.operationAuthorities", "*.userRoleSet", "*.partyOperations", "*.subOrganizationUids", "*.orgPermits", "*.partyPermits", "*.customFields", "*.identities", "*.meta" })
-									.exclude("*.class").serialize(authentication), 1800);
-					getRedisService().put(
-							"user_" + sessionToken,
-							new JSONSerializer().transform(new ExcludeNullTransformer(), void.class).include(new String[] { "*.operationAuthorities", "*.userRoleSet", "*.partyOperations", "*.subOrganizationUids", "*.orgPermits", "*.partyPermits", "*.customFields", "*.identities", "*.meta" })
-									.exclude("*.class").serialize(user));
+					getRedisService().put(key,new JSONSerializer().transform(new ExcludeNullTransformer(), void.class).include(new String[] { "*.operationAuthorities", "*.userRoleSet", "*.partyOperations", "*.subOrganizationUids", "*.orgPermits", "*.partyPermits", "*.customFields", "*.identities", "*.meta", "*.partyPermissions.*" }).exclude("*.class").serialize(authentication));
 				}
 			} catch (Exception e) {
 				LOGGER.error("Failed to  put  value from redis server");

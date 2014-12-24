@@ -7,6 +7,9 @@ import java.io.InputStreamReader;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -157,8 +160,7 @@ public class BaseUtil {
 		return videoId;
 	}
 
-	
-	//used peace of code which is under the Apache License
+	// used peace of code which is under the Apache License
 	public static String removeCurlies(String uuid) {
 		if (uuid.length() > 0) {
 			if (uuid.startsWith("{"))
@@ -168,7 +170,8 @@ public class BaseUtil {
 		}
 		return uuid;
 	}
-    // used peace of code which is under the Apache License
+
+	// used peace of code which is under the Apache License
 	public static boolean isUuid(String uuid) {
 		boolean bIsUuid = false;
 		uuid = removeCurlies(uuid);
@@ -182,8 +185,20 @@ public class BaseUtil {
 		}
 		return bIsUuid;
 	}
-	
-	public  static StringBuffer readRequestBody(HttpServletRequest request) {
+
+	public static Map<String, String> supportedDocument() {
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("ppt", "ppt");
+		map.put("doc", "doc");
+		map.put("docx", "docx");
+		map.put("odt", "odt");
+		map.put("odp", "odp");
+		map.put("pptx", "pptx");
+		Map<String, String> fileExtentions = Collections.unmodifiableMap(map);
+		return fileExtentions;
+	}
+
+	public static StringBuffer readRequestBody(HttpServletRequest request) {
 		StringBuffer jb = new StringBuffer();
 		String line = null;
 		try {

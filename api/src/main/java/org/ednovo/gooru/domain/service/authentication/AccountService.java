@@ -29,7 +29,6 @@ import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserToken;
 
-
 public interface AccountService {
 
 	UserToken createSessionToken(User user, String apiKey, HttpServletRequest request) throws Exception;
@@ -43,7 +42,7 @@ public interface AccountService {
 	ActionResponseDTO<UserToken> loginAs(String sessionToken, String gooruUid, HttpServletRequest request, String apiKey) throws Exception;
 
 	User userAuthentication(User newUser, String secretKey, String apiKey, String source, HttpServletRequest request);
-	
+
 	ActionResponseDTO<UserToken> switchSession(String sessionToken) throws Exception;
 
 }

@@ -12,18 +12,21 @@ import kafka.consumer.ConsumerIterator;
 import kafka.consumer.KafkaStream;
 import kafka.javaapi.consumer.ConsumerConnector;
 
+import org.apache.commons.lang.StringUtils;
+import org.ednovo.gooru.application.util.ResourceImageUtil;
+import org.ednovo.gooru.application.util.TaxonomyUtil;
 import org.ednovo.gooru.core.application.util.RequestUtil;
 import org.ednovo.gooru.core.constant.ConfigConstants;
+import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.domain.service.setting.SettingService;
-import org.ednovo.gooru.domain.service.user.impl.UserServiceImpl;
 import org.ednovo.gooru.kafka.producer.KafkaProperties;
 import org.json.JSONObject;
+import org.restlet.data.Method;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.orm.hibernate4.HibernateTransactionManager;
 
-public class KafkaConsumer implements Runnable {
+public class KafkaJobConsumer implements Runnable, ParameterProperties {
 
 	@Autowired
 	private KafkaProperties kafkaProperties;
@@ -37,11 +40,14 @@ public class KafkaConsumer implements Runnable {
 
 	private static KafkaStream m_stream;
 
+	private static String conversionRestEndPoint;
+
 	private static String restEndPoint;
 
 	@PostConstruct
 	public void init() {
 		try {
+			conversionRestEndPoint = settingService.getConfigSetting(ConfigConstants.GOORU_CONVERSION_RESTPOINT, 0, TaxonomyUtil.GOORU_ORG_UID);
 			restEndPoint = settingService.getConfigSetting(ConfigConstants.GOORU_API_ENDPOINT);
 			consumer = kafka.consumer.Consumer.createJavaConsumerConnector(createConsumerConfig());
 		} catch (Exception e) {
@@ -50,7 +56,6 @@ public class KafkaConsumer implements Runnable {
 	}
 
 	private ConsumerConfig createConsumerConfig() {
-
 		Properties props = new Properties();
 		props.put(KafkaProperties.ZK_CONSUMER_CONNECT, kafkaProperties.zkConsumerConnectValue);
 		props.put(KafkaProperties.ZK_CONSUMER_GROUP, kafkaProperties.consumerGroupIdValue);
@@ -66,41 +71,27 @@ public class KafkaConsumer implements Runnable {
 	@Override
 	public void run() {
 		Map<String, Integer> map = new HashMap<String, Integer>();
-		map.put(kafkaProperties.topicValue, 1);
+		System.out.print(kafkaProperties.conversionJobTopic + "testing");
+		map.put(kafkaProperties.conversionJobTopic, 1);
 		Map<String, List<KafkaStream<byte[], byte[]>>> listOfTopicsStreams = consumer.createMessageStreams(map);
-		List<KafkaStream<byte[], byte[]>> listOfStream = listOfTopicsStreams.get(kafkaProperties.topicValue);
+		List<KafkaStream<byte[], byte[]>> listOfStream = listOfTopicsStreams.get(kafkaProperties.conversionJobTopic);
 		m_stream = listOfStream.get(0);
 		ConsumerIterator<byte[], byte[]> it = m_stream.iterator();
 
 		while (it.hasNext()) {
-
 			String message = new String(it.next().message());
-			if (message.contains("{")) {
+			if (!StringUtils.isBlank(message) && message.contains("{")) {
 				try {
 					JSONObject data = new JSONObject(message);
-					String context = data.get("context").toString();
-					JSONObject content = new JSONObject(context);
-					String contentOid = content.get("contentGooruId").toString();
-					String parentOid = content.get("parentContentGooruId").toString();
-					String session = data.get("session").toString();
-					JSONObject token = new JSONObject(session);
-					String sessionToken = token.get("sessionToken").toString();
-
-					if (data.get("eventName") != null && data.get("eventName").toString().equalsIgnoreCase("create.am:assessment-question")) {
-						String jsonData = data.get("payLoadObject").toString();
-						RequestUtil.executeRestAPI(jsonData, restEndPoint + "v2/assessment/" + contentOid + "/question", "POST", sessionToken);
-					} else if (data.get("eventName") != null && data.get("eventName").toString().equalsIgnoreCase("update.am:assessment-question")) {
-						String jsonData = data.get("payLoadObject").toString();
-						RequestUtil.executeRestAPI(jsonData, restEndPoint + "v2/assessment/" + parentOid + "/question/" + contentOid, "PUT", sessionToken);
-					} else if (data.get("eventName") != null && data.get("eventName").toString().equalsIgnoreCase("delete.am:assessment-question")) {
-						RequestUtil.executeRestAPI(restEndPoint + "v2/assessment/" + parentOid + "/question/" + contentOid, "DELETE", sessionToken);
+					if (data.getString("eventName") != null && data.getString("eventName").equalsIgnoreCase(ResourceImageUtil.CONVERT_DOCUMENT_PDF) && data.getString("status").equalsIgnoreCase("Inprogress")) {
+						RequestUtil.executeRestAPI(message, conversionRestEndPoint + "/conversion/document-to-pdf", Method.POST.getName(), data.getString(SESSIONTOKEN));
+					} else if (data.getString("eventName") != null && data.getString("eventName").equalsIgnoreCase(ResourceImageUtil.CONVERT_DOCUMENT_PDF)) {
+						RequestUtil.executeRestAPI(message, restEndPoint + "v2/job/" + data.getString("jobUid"), Method.PUT.getName(), data.getString(SESSIONTOKEN));
 					}
-
 				} catch (Exception e) {
-					LOGGER.error("error" + e);
+					LOGGER.error("conversion document to pdf : " + e);
 				}
 			}
-
 		}
 
 	}

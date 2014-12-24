@@ -33,5 +33,4 @@ public interface UserTokenRepository extends BaseRepository {
 
 	UserToken findByToken(String sessionToken);
 
-	void saveUserSession(UserToken userToken);
 }
