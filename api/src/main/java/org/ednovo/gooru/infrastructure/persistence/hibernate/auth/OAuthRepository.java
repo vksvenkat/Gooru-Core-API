@@ -34,7 +34,7 @@ public interface OAuthRepository extends BaseRepository {
 
 	public String findClientByAccessToken(String accessToken);
 	
-	public OAuthClient findOAuthClientByClientId(String clientId);
+	public OAuthClient findOAuthClientByOAuthKey(String oauthKey);
 	
 	public List<OAuthClient> listOAuthClient(String gooruUId, int pageNo, int pageSize);
 	
@@ -44,9 +44,5 @@ public interface OAuthRepository extends BaseRepository {
 	
 	public Long getOauthClientCount(String organizationUId, String grantType);
 	
-	public OAuthClient findOAuthClientByOauthKey(String oauthKey);
-	
-	List<OAuthClient> findOAuthClientByApplicationKey(String apiKey);
-
-	
+	List<OAuthClient> findOAuthClientByApplicationKey(String apiKey);	
 }

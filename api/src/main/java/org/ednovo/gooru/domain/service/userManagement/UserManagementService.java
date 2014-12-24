@@ -114,14 +114,7 @@ public interface UserManagementService extends BaseService {
 	 
 	void resetEmailAddress(List<String> data) throws Exception;
 	 
-	 List<UserRole> findAllRoles();
-	 
-	 Long allRolesCount();
-	 
-	 List<UserRole> findUserRoles(String userUId);
-
-
-	 Long userRolesCount(String userUId);
+	 SearchResults<UserRole> getRoles(Integer offset, Integer limit,String userUid);
 	 
 	 ActionResponseDTO<UserRole> createNewRole(UserRole userRole, User user) throws Exception;
 
@@ -131,15 +124,15 @@ public interface UserManagementService extends BaseService {
 	 
 	 EntityOperation getEntityOperationByEntityOperationId(Integer entityOperationId);
 
-	 List<EntityOperation> findAllEntityNames();
-
-	 Long allEntityNamesCount();
+	 SearchResults<EntityOperation> findAllEntityNames(Integer offset, Integer limit);
 	 
 	 List<EntityOperation> getOperationsByEntityName(String entityName);
-	 
-	 Long getOperationCountByEntityName(String entityName);
 	 
 	 UserRoleAssoc assignRoleByUserUid(Integer roleId,String userUid) throws Exception;
 	 
 	 void removeAssignedRoleByUserUid(Integer roleId,String userUid) throws Exception;
+	 
+	 UserRole getRoleByRoleId(Integer roleId);
+	 
+	 List<RoleEntityOperation> getRoleOperationsByRoleId(Integer roleId);
 }

@@ -36,6 +36,7 @@ import org.ednovo.gooru.core.api.model.Identity;
 import org.ednovo.gooru.core.api.model.Profile;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.User;
+import org.ednovo.gooru.core.api.model.UserRole;
 import org.ednovo.gooru.core.api.model.UserAvailability.CheckUser;
 import org.ednovo.gooru.core.api.model.UserTagAssoc;
 import org.ednovo.gooru.core.application.util.CustomProperties;
@@ -402,7 +403,24 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 		this.getUserManagementService().resetEmailAddress(JsonDeserializer.deserialize(data, new TypeReference<List<String>>() {
 		}));
 	}
-	
+
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ROLE_ADD })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(method = RequestMethod.POST, value = "/{userUid}/role")
+	public ModelAndView assignRoleByUserUid(HttpServletRequest request,HttpServletResponse response,@PathVariable(USER_UID) String userUid, @RequestBody String data) throws Exception {
+
+		return toModelAndViewWithIoFilter(this.getUserManagementService().assignRoleByUserUid(this.buildRoleFromInputParameters(data).getRoleId(), userUid), RESPONSE_FORMAT_JSON,EXCLUDE_ALL, true, (String[]) ArrayUtils.addAll(USER_ROLE_ASSOC_INCLUDES, ERROR_INCLUDE));
+	}
+
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ROLE_DELETE })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(method = RequestMethod.DELETE, value = "/{userUid}/role")
+	public void removeAssignedRoleByUserUid(HttpServletRequest request,HttpServletResponse response,@PathVariable(USER_UID) String userUid, @RequestBody String data) throws Exception {
+
+		this.getUserManagementService().removeAssignedRoleByUserUid(this.buildRoleFromInputParameters(data).getRoleId(), userUid);
+		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+	}
+
 	private String getFeedbackCategory(HttpServletRequest request) {
 		String category = null;
 		if (request != null && request.getRequestURL() != null) {
@@ -457,5 +475,8 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 	public UserService getUserService() {
 		return userService;
 	}
-
+	
+	private UserRole buildRoleFromInputParameters(String data) {
+		return JsonDeserializer.deserialize(data, UserRole.class);
+	}
 }

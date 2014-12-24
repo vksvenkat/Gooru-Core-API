@@ -45,6 +45,7 @@ import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserAccountType;
 import org.ednovo.gooru.core.api.model.UserAvailability.CheckUser;
 import org.ednovo.gooru.core.api.model.UserToken;
+import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.application.util.ServerValidationUtils;
 import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.core.constant.ConstantProperties;
@@ -68,6 +69,7 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.OrganizationSetting
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserTokenRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.apikey.ApplicationRepository;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
 import org.ednovo.goorucore.application.serializer.ExcludeNullTransformer;
 import org.json.JSONException;
 import org.slf4j.Logger;
@@ -149,6 +151,9 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 	@Autowired
 	private UserEventlog usereventlog;
 
+	@Autowired
+	private CustomTableRepository customTableRepository;
+	
 	private static final Logger LOGGER = LoggerFactory.getLogger(AccountServiceImpl.class);
 
 	private static final String SESSION_TOKEN_KEY = "authenticate_";
@@ -156,6 +161,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 	@Override
 	public UserToken createSessionToken(User user, String apiKey, HttpServletRequest request) throws Exception {
 		final Application application = this.getApplicationRepository().getApplication(apiKey);
+		rejectIfNull(application,GL0056,404,APPLICATION);
 		final UserToken sessionToken = new UserToken();
 		final String apiEndPoint = getConfigSetting(ConfigConstants.GOORU_API_ENDPOINT, 0, TaxonomyUtil.GOORU_ORG_UID);
 		sessionToken.setScope(SESSION);
@@ -414,7 +420,9 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			}	
 		}	
 		if (sessionToken == null) {
-			sessionToken = this.getUserManagementService().createSessionToken(userIdentity, request.getSession().getId(), this.getApplicationRepository().getApplication(apiKey));
+			Application application = this.getApplicationRepository().getApplication(apiKey);
+			rejectIfNull(application, GL0056, 404, APPLICATION);
+			sessionToken = this.getUserManagementService().createSessionToken(userIdentity, request.getSession().getId(), application);
 		}
 		request.getSession().setAttribute(Constants.SESSION_TOKEN, sessionToken.getToken());
 		try {
@@ -481,6 +489,11 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 	public ApplicationRepository getApplicationRepository() {
 		return applicationRepository;
 	}
+
+	public CustomTableRepository getCustomTableRepository() {
+		return customTableRepository;
+	}
+	
 	public UserEventlog getUsereventlog() {
 		return usereventlog;
 	}

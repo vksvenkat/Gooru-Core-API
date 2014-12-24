@@ -27,7 +27,9 @@ import java.util.List;
 
 import org.ednovo.gooru.core.api.model.Application;
 import org.ednovo.gooru.core.api.model.ApplicationItem;
+import org.ednovo.gooru.core.api.model.CustomTableValue;
 import org.ednovo.gooru.core.api.model.ResourceType;
+import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate;
@@ -37,6 +39,9 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class ApplicationRepositoryHibernate extends BaseRepositoryHibernate implements ApplicationRepository, ParameterProperties, ConstantProperties {
 
+	private static final String APPLICATION_STATUS_ACTIVE = CustomProperties.Table.APPLICATION_STATUS.getTable()+"_"+CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus();
+	
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<Application> getApplications(String organizationUid,String gooruUid, Integer offset, Integer limit) {
 		String hql = "FROM Application app WHERE  1=1";
@@ -46,9 +51,7 @@ public class ApplicationRepositoryHibernate extends BaseRepositoryHibernate impl
 		if (gooruUid != null) {
 			hql += " AND app.user.partyUid =:gooruUid";
 		}
-		
-		hql += " and app.resourceType.name = '" + ResourceType.Type.APPLICATION.getType()+"'";	
-		hql += " ORDER BY app.lastModified desc";
+		hql += " AND app.status.keyValue =:type and app.resourceType.name = '" + ResourceType.Type.APPLICATION.getType()+"' ORDER BY app.lastModified desc";
 		Query query = getSession().createQuery(hql);
 		if (organizationUid != null) {
 			query.setParameter("partyUid", organizationUid);
@@ -56,16 +59,18 @@ public class ApplicationRepositoryHibernate extends BaseRepositoryHibernate impl
 		if (gooruUid != null) {
 			query.setParameter("gooruUid", gooruUid);
 		}
+		query.setParameter("type", APPLICATION_STATUS_ACTIVE);
 		query.setFirstResult(offset);
 		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
-		return (List) query.list();
+		return (List<Application>) query.list();
 	}
 
 	@Override
 	public Application getApplication(String apiKey) {
-		String hql = "FROM Application app WHERE app.key=:apiKey";
+		String hql = "FROM Application app WHERE app.key=:apiKey AND app.status.keyValue =:type";
 		Query query = getSession().createQuery(hql);
 		query.setParameter("apiKey", apiKey);
+		query.setParameter("type", APPLICATION_STATUS_ACTIVE);
 		return (Application) (query.list().size() > 0 ? query.list().get(0) : null);
 	}
 
@@ -77,7 +82,7 @@ public class ApplicationRepositoryHibernate extends BaseRepositoryHibernate impl
 		if (gooruUid != null) {
 			hql += " AND app.user.partyUid =:gooruUid";
 		}
-		hql += " and app.resourceType.name = '" + ResourceType.Type.APPLICATION.getType()+"'";	
+		hql += " AND app.status.keyValue =:type and app.resourceType.name = '" + ResourceType.Type.APPLICATION.getType()+"'";	
 		Query query = getSession().createQuery(hql);
 		if (organizationUid != null)  {
 			query.setParameter("organizationUid", organizationUid);
@@ -85,6 +90,7 @@ public class ApplicationRepositoryHibernate extends BaseRepositoryHibernate impl
 		if (gooruUid != null)  {
 			query.setParameter("gooruUid", gooruUid);
 		}
+		query.setParameter("type", APPLICATION_STATUS_ACTIVE);
 		return (Long) query.list().get(0);
 	}
 
@@ -97,19 +103,21 @@ public class ApplicationRepositoryHibernate extends BaseRepositoryHibernate impl
 	}
 	
 	@Override
-	public ApplicationItem getApplicationItem(String applicationItemId) {
-		String hql = "FROM ApplicationItem appItem WHERE appItem.applicationItemUid=:applicationItemId";
+	public ApplicationItem getApplicationItem(String applicationItemId,String apikey) {
+		String hql = "FROM ApplicationItem appItem WHERE appItem.applicationItemUid=:applicationItemId AND appItem.application.status.keyValue=:type";
 		Query query = getSession().createQuery(hql);
 		query.setParameter("applicationItemId", applicationItemId);
+		query.setParameter("type", APPLICATION_STATUS_ACTIVE);
 		return (ApplicationItem) (query.list().size() > 0 ? query.list().get(0) : null);
 	}
 	
 	@Override
 	public List<ApplicationItem> getApplicationItemByApiKey(String apiKey) {
-		String hql = "FROM ApplicationItem appItem WHERE appItem.application.key=:apiKey";
+		String hql = "FROM ApplicationItem appItem WHERE appItem.application.key=:apiKey AND appItem.application.status.keyValue=:type";
 		Query query = getSession().createQuery(hql);
 		query.setParameter("apiKey", apiKey);
-		return (List) query.list();
+		query.setParameter("type", APPLICATION_STATUS_ACTIVE);
+		return (List<ApplicationItem>) (query.list().size() > 0 ? query.list() : null);
 	}
 
 }
