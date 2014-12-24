@@ -519,7 +519,7 @@ public interface ConstantProperties {
     
     public static String VISIT="visit";
    
-    public static String REGISTER_TYPE="register.type";
+    public static String REGISTER_TYPE="registerType";
    
      public static String FOLLOWING="following";
     

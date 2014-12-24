@@ -3,7 +3,6 @@ package org.ednovo.gooru.domain.service.eventlogs;
 import org.ednovo.gooru.core.api.model.Identity;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.UserToken;
-import org.ednovo.gooru.core.api.model.UserAccountType.accountCreatedType;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.json.JSONException;
@@ -21,17 +20,9 @@ public class AccountEventLog implements ParameterProperties, ConstantProperties 
 		}
 		final JSONObject context = SessionContextSupport.getLog().get(CONTEXT) != null ? new JSONObject(SessionContextSupport.getLog().get(CONTEXT).toString()) : new JSONObject();
 		if (login) {
-			if (identity != null && identity.getLoginType().equalsIgnoreCase(CREDENTIAL)) {
-				context.put(LOGIN_TYPE, GOORU);
-			} else if (identity != null) {
-				context.put(LOGIN_TYPE, identity.getLoginType());
-			}
+			eventLogType(LOGIN_TYPE, identity, context);
 		} else {
-			if (identity != null && identity.getLoginType().equalsIgnoreCase(CREDENTIAL)) {
-				context.put(LOG_OUT_TYPE, GOORU);
-			} else if (identity != null) {
-				context.put(LOG_OUT_TYPE, identity.getLoginType());
-			}
+			eventLogType(LOG_OUT_TYPE, identity, context);
 		}
 		SessionContextSupport.putLogParameter(CONTEXT, context.toString());
 		final JSONObject payLoadObject = SessionContextSupport.getLog().get(PAY_LOAD_OBJECT) != null ? new JSONObject(SessionContextSupport.getLog().get(PAY_LOAD_OBJECT).toString()) : new JSONObject();
@@ -46,6 +37,16 @@ public class AccountEventLog implements ParameterProperties, ConstantProperties 
 			user.put(GOORU_UID, userToken != null && userToken.getUser() != null ? userToken.getUser().getPartyUid() : null );
 		}
 		SessionContextSupport.putLogParameter(USER, user.toString());
+	}
+	
+	public void eventLogType(String event, Identity identity, JSONObject context) throws JSONException{
+		
+		if (identity != null && identity.getLoginType() !=null && identity.getLoginType().equalsIgnoreCase(CREDENTIAL)) {
+			context.put(event, GOORU);
+		} else if (identity != null && identity.getLoginType() !=null) {
+			context.put(event, identity.getLoginType());
+		}
+		
 	}
 	
 }

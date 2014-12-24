@@ -396,7 +396,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 				userIdentity = this.getUserManagementService().createUser(newUser, null, null, 1, 0, null, null, null, null, null, null, null, source, null, request, null, null);
 				SessionContextSupport.putLogParameter(EVENT_NAME,USER_REG);
 			} catch (Exception e) {
-				LOGGER.debug("error" + e.getMessage());
+				LOGGER.error("error" + e.getMessage());
 			}
 		}else{
 			SessionContextSupport.putLogParameter(EVENT_NAME, _USER_LOGIN);
@@ -405,8 +405,10 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 		SessionContextSupport.putLogParameter(TYPE, source);
 		Iterator<Identity> iter = userIdentity.getIdentities().iterator();
 		Identity newIdentity = iter.next();
+		if(newIdentity !=null){
 		newIdentity.setLoginType(source);
-		this.getUserRepository().save(newIdentity);		
+		this.getUserRepository().save(newIdentity);	
+		}
 		if (sessionToken == null) {
 			sessionToken = this.getUserManagementService().createSessionToken(userIdentity, request.getSession().getId(), this.getApplicationRepository().getApplication(apiKey));
 		}
@@ -414,12 +416,12 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 		try {
 			this.getAccountEventlog().getEventLogs(newIdentity, sessionToken,true);
 		} catch (JSONException e) {
-			LOGGER.debug("error" + e.getMessage());
+			LOGGER.error("error" + e.getMessage());
 		}
 		try {
 			newUser = (User) BeanUtils.cloneBean(userIdentity);
 		} catch (Exception e) {
-			LOGGER.debug("error" + e.getMessage());
+			LOGGER.error("error" + e.getMessage());
 		}
 		request.getSession().setAttribute(Constants.USER, newUser);
 		newUser.setToken(sessionToken.getToken());
