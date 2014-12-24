@@ -33,7 +33,7 @@ public class ClasspageEventLog implements ParameterProperties, ConstantPropertie
 			payLoadObject.put(MODE, CREATE);
 		}
 		payLoadObject.put(ITEM_TYPE, ResourceType.Type.CLASSPAGE.getType());
-		payLoadObject.put(GROUP_UID, userGroup != null ? userGroup.getPartyUid() : null);
+		payLoadObject.put(_GROUP_UID, userGroup != null ? userGroup.getPartyUid() : null);
 		payLoadObject.put(CONTENT_ID, classpage != null ? classpage.getContentId() : null);
 		payLoadObject.put(CLASS_CODE, classpage != null ? classpage.getClasspageCode() : null);
 		SessionContextSupport.putLogParameter(PAY_LOAD_OBJECT, payLoadObject.toString());
@@ -76,7 +76,7 @@ public class ClasspageEventLog implements ParameterProperties, ConstantPropertie
 	    payLoadObject.put(INVITED_USER_GOORU_UID, classpage != null && classpage.getUser() != null ? classpage.getUser().getPartyUid() : null);
 		payLoadObject.put(CONTENT_ID, classpage != null ? classpage.getContentId() : null);
 		payLoadObject.put(CLASS_CODE, classpage != null ? classpage.getClasspageCode() : null);
-		payLoadObject.put(GROUP_UID, userGroup != null ? userGroup.getPartyUid() : null);
+		payLoadObject.put(_GROUP_UID, userGroup != null ? userGroup.getPartyUid() : null);
 		SessionContextSupport.putLogParameter(PAY_LOAD_OBJECT, payLoadObject.toString());
 		JSONObject session = SessionContextSupport.getLog().get(SESSION) != null ? new JSONObject(SessionContextSupport.getLog().get(SESSION).toString()) : new JSONObject();
 		session.put(ORGANIZATION_UID, user != null && user.getOrganization() != null ? user.getOrganization().getPartyUid() : null);
@@ -90,7 +90,7 @@ public class ClasspageEventLog implements ParameterProperties, ConstantPropertie
 		SessionContextSupport.putLogParameter(CONTEXT, context.toString());
 		JSONObject payLoadObject = SessionContextSupport.getLog().get(PAY_LOAD_OBJECT) != null ? new JSONObject(SessionContextSupport.getLog().get(PAY_LOAD_OBJECT).toString()) : new JSONObject();
 		if(userGroupAssociation != null){
-			payLoadObject.put(GROUP_UID, userGroupAssociation != null && userGroupAssociation.getUserGroup() != null ? userGroupAssociation.getUserGroup().getPartyUid() : null);
+			payLoadObject.put(_GROUP_UID, userGroupAssociation != null && userGroupAssociation.getUserGroup() != null ? userGroupAssociation.getUserGroup().getPartyUid() : null);
 			payLoadObject.put(REMOVE_GOORU_UID, userGroupAssociation != null && userGroupAssociation.getUser() != null ? userGroupAssociation.getUser().getPartyUid() : null);
 		}
 		if (inviteUser != null && inviteUser.getInviteUid() != null) {
