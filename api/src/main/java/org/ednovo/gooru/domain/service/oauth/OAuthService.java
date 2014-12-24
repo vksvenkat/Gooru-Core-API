@@ -41,8 +41,6 @@ public interface OAuthService {
 
 	public List<OAuthClient> listOAuthClient(String gooruUId, int pageNo, int pageSize) throws Exception;
 
-	public void deleteOAuthClient(String clientUId, User apiCaller) throws Exception;
-
 	public ActionResponseDTO<OAuthClient> getOAuthClient(String oauthKey) throws Exception;
 	
 	public OAuthClient getOAuthClientByClientSecret(String clientSecret) throws Exception;
@@ -52,4 +50,6 @@ public interface OAuthService {
 	public Boolean isSuperAdmin(User user);
 	
 	List<OAuthClient> getOAuthClientByApiKey(String apiKey) throws Exception ;
+	
+    void deleteOAuthClientByOAuthKey(String oauthKey, User apiCaller) throws Exception;
 }

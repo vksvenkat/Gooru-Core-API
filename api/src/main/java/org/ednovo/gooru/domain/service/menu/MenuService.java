@@ -22,10 +22,11 @@ public interface MenuService {
 
 	Menu updateMenu(Menu neweMenu, User user, String menuUid);
 
-	MenuItem updateMenuItem(MenuItem newMenuItem, String menuItemUid, User user);
+	MenuItem updateMenuItem(String menuUid, String menuItemUid, User user);
 
 	MenuRoleAssoc assignRoleByMenuUid(Integer roleId,String menuUid) throws Exception;
 	
 	void removeAssignedRoleByMenuUid(Integer roleId,String menuUid) throws Exception;
-
+	
+	void deleteMenu(String menuUid,String type) throws Exception;
 }
