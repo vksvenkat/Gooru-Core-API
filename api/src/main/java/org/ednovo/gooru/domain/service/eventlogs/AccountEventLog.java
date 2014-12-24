@@ -19,11 +19,14 @@ public class AccountEventLog implements ParameterProperties, ConstantProperties 
 			SessionContextSupport.putLogParameter(EVENT_NAME, USER_LOG_OUT);
 		}
 		final JSONObject context = SessionContextSupport.getLog().get(CONTEXT) != null ? new JSONObject(SessionContextSupport.getLog().get(CONTEXT).toString()) : new JSONObject();
-		if (login) {
-			eventLogType(LOGIN_TYPE, identity, context);
-		} else {
-			eventLogType(LOG_OUT_TYPE, identity, context);
+		if (identity != null && identity.getLoginType() != null) {
+			if (login) {
+				context.put(LOGIN_TYPE, identity.getLoginType().equalsIgnoreCase(CREDENTIAL) ? GOORU : identity.getLoginType());
+			} else {
+				context.put(LOG_OUT_TYPE, identity.getLoginType().equalsIgnoreCase(CREDENTIAL) ? GOORU : identity.getLoginType());
+			}
 		}
+
 		SessionContextSupport.putLogParameter(CONTEXT, context.toString());
 		final JSONObject payLoadObject = SessionContextSupport.getLog().get(PAY_LOAD_OBJECT) != null ? new JSONObject(SessionContextSupport.getLog().get(PAY_LOAD_OBJECT).toString()) : new JSONObject();
 		SessionContextSupport.putLogParameter(PAY_LOAD_OBJECT, payLoadObject.toString());

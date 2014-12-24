@@ -5,8 +5,6 @@ import java.util.Iterator;
 import org.ednovo.gooru.core.api.model.Identity;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.User;
-import org.ednovo.gooru.core.api.model.UserAccountType;
-import org.ednovo.gooru.core.api.model.UserAccountType.accountCreatedType;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.json.JSONException;

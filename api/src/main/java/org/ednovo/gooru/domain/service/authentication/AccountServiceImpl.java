@@ -399,16 +399,20 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 				LOGGER.error("error" + e.getMessage());
 			}
 		}else{
-			SessionContextSupport.putLogParameter(EVENT_NAME, _USER_LOGIN);
-           
+			SessionContextSupport.putLogParameter(EVENT_NAME, _USER_LOGIN);          
 		}
 		SessionContextSupport.putLogParameter(TYPE, source);
-		Iterator<Identity> iter = userIdentity.getIdentities().iterator();
-		Identity newIdentity = iter.next();
-		if(newIdentity !=null){
-		newIdentity.setLoginType(source);
-		this.getUserRepository().save(newIdentity);	
-		}
+		Identity newIdentity = null;
+		if(userIdentity.getIdentities() != null){
+			Iterator<Identity> iter = userIdentity.getIdentities().iterator();			
+			if (iter != null && iter.hasNext()) {
+				newIdentity = iter.next();
+				if (newIdentity != null) {
+					newIdentity.setLoginType(source);
+					this.getUserRepository().save(newIdentity);
+				}
+			}	
+		}	
 		if (sessionToken == null) {
 			sessionToken = this.getUserManagementService().createSessionToken(userIdentity, request.getSession().getId(), this.getApplicationRepository().getApplication(apiKey));
 		}
