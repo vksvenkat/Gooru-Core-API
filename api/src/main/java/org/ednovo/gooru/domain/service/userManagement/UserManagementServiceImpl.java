@@ -1505,7 +1505,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		getUserRepository().remove(userRoleAssoc);
 		indexProcessor.index(userRoleAssoc.getUser().getPartyUid(), IndexProcessor.INDEX, USER);
 	}
-
+	
 	@Override
 	public UserRole getRoleByRoleId(Integer roleId){
 		UserRole userRole = userRepository.findUserRoleByRoleId(roleId);

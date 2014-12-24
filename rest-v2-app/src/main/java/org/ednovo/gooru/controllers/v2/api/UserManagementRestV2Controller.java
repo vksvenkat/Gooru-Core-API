@@ -404,7 +404,6 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 		}));
 	}
 
-
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ROLE_ADD })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.POST, value = "/{userUid}/role")
@@ -421,7 +420,6 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 		this.getUserManagementService().removeAssignedRoleByUserUid(this.buildRoleFromInputParameters(data).getRoleId(), userUid);
 		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
 	}
-
 
 	private String getFeedbackCategory(HttpServletRequest request) {
 		String category = null;

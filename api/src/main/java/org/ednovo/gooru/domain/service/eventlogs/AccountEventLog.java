@@ -13,7 +13,11 @@ import org.springframework.stereotype.Component;
 public class AccountEventLog implements ParameterProperties, ConstantProperties {
 
 	public void getEventLogs(Identity identity, UserToken userToken, boolean login) throws JSONException {
-		SessionContextSupport.putLogParameter(EVENT_NAME, login ? USER_LOGIN : USER_LOG_OUT);
+		if (login) {
+			SessionContextSupport.putLogParameter(EVENT_NAME, USER_LOGIN);
+		} else {
+			SessionContextSupport.putLogParameter(EVENT_NAME, USER_LOG_OUT);
+		}
 		final JSONObject context = SessionContextSupport.getLog().get(CONTEXT) != null ? new JSONObject(SessionContextSupport.getLog().get(CONTEXT).toString()) : new JSONObject();
 		if (identity != null && identity.getLoginType() != null) {
 			context.put(login ? LOGIN_TYPE : LOG_OUT_TYPE , identity.getLoginType().equalsIgnoreCase(CREDENTIAL) ? GOORU : identity.getLoginType());			
@@ -34,5 +38,14 @@ public class AccountEventLog implements ParameterProperties, ConstantProperties 
 		SessionContextSupport.putLogParameter(USER, user.toString());
 	}
 	
+	public void eventLogType(String event, Identity identity, JSONObject context) throws JSONException{
+		
+		if (identity != null && identity.getLoginType() !=null && identity.getLoginType().equalsIgnoreCase(CREDENTIAL)) {
+			context.put(event, GOORU);
+		} else if (identity != null && identity.getLoginType() !=null) {
+			context.put(event, identity.getLoginType());
+		}
+		
+	}
 	
 }
