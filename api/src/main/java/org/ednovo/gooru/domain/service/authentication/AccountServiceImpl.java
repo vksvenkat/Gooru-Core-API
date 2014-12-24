@@ -24,6 +24,7 @@
 package org.ednovo.gooru.domain.service.authentication;
 
 import java.util.Date;
+import java.util.Iterator;
 import java.util.Random;
 import java.util.UUID;
 
@@ -321,7 +322,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 		final UserToken userToken = this.getUserTokenRepository().findByToken(sessionToken);
 		if (userToken != null) {
 			try {
-				this.getAccountEventlog().getEventLogs(null, userToken, false);
+				this.getAccountEventlog().getEventLogs(userToken.getUser().getIdentities() != null ? userToken.getUser().getIdentities().iterator().next(): null, userToken, false);
 			} catch (JSONException e) {
 				LOGGER.debug("error" + e.getMessage());
 			}
@@ -400,15 +401,21 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			try {				
 				userIdentity = this.getUserManagementService().createUser(newUser, null, null, 1, 0, null, null, null, null, null, null, null, source, null, request, null, null);
 				SessionContextSupport.putLogParameter(EVENT_NAME,USER_REG);
-                this.getUsereventlog().getEventLogs(userIdentity, source,userIdentity.getIdentities() != null ? userIdentity.getIdentities().iterator().next(): null);
 			} catch (Exception e) {
-				LOGGER.debug("error" + e.getMessage());
+				LOGGER.error("error" + e.getMessage());
 			}
 		}else{
-			SessionContextSupport.putLogParameter(EVENT_NAME, _USER_LOGIN);
-           
+			SessionContextSupport.putLogParameter(EVENT_NAME, _USER_LOGIN);          
 		}
-		 SessionContextSupport.putLogParameter(TYPE, source);
+		SessionContextSupport.putLogParameter(TYPE, source);
+		Identity newIdentity = null;
+		if (userIdentity.getIdentities() != null && userIdentity.getIdentities().size()>0) {
+			newIdentity = userIdentity.getIdentities().iterator().next();
+			if (newIdentity != null) {
+				newIdentity.setLoginType(source);
+				this.getUserRepository().save(newIdentity);
+			}
+		}	
 		if (sessionToken == null) {
 			Application application = this.getApplicationRepository().getApplication(apiKey);
 			rejectIfNull(application, GL0056, 404, APPLICATION);
@@ -416,14 +423,17 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 		}
 		request.getSession().setAttribute(Constants.SESSION_TOKEN, sessionToken.getToken());
 		try {
+			this.getAccountEventlog().getEventLogs(newIdentity, sessionToken,true);
+		} catch (JSONException e) {
+			LOGGER.error("error" + e.getMessage());
+		}
+		try {
 			newUser = (User) BeanUtils.cloneBean(userIdentity);
 		} catch (Exception e) {
-			LOGGER.debug("error" + e.getMessage());
+			LOGGER.error("error" + e.getMessage());
 		}
 		request.getSession().setAttribute(Constants.USER, newUser);
 		newUser.setToken(sessionToken.getToken());
-		
-
 		return newUser;
 	}
 
