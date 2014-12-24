@@ -13,7 +13,7 @@ public final class KafkaProperties {
 
 	@Autowired
 	private ConfigSettingRepository configSettingRepository;
-	public static final String ZK_CONNECT = "metadata.broker.list";
+	public static final String ZK_CONNECT = "broker.list";
 	public static final String ZK_CONSUMER_CONNECT = "zookeeper.connect";
 	public static final String ZK_CONSUMER_GROUP = "group.id";
 	public static final String GROUP_ID = "groupid";
