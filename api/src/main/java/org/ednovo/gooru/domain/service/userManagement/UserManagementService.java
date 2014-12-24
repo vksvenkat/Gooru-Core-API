@@ -41,6 +41,8 @@ import org.ednovo.gooru.core.api.model.UserRoleAssoc;
 import org.ednovo.gooru.core.api.model.UserToken;
 import org.ednovo.gooru.domain.service.BaseService;
 import org.ednovo.gooru.domain.service.search.SearchResults;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 
 public interface UserManagementService extends BaseService {
@@ -135,4 +137,6 @@ public interface UserManagementService extends BaseService {
 	 UserRole getRoleByRoleId(Integer roleId);
 	 
 	 List<RoleEntityOperation> getRoleOperationsByRoleId(Integer roleId);
+	 
+
 }

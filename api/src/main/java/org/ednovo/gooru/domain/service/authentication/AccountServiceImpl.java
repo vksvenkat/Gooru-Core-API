@@ -409,16 +409,14 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 		}
 		SessionContextSupport.putLogParameter(TYPE, source);
 		Identity newIdentity = null;
-		if(userIdentity.getIdentities() != null){
-			Iterator<Identity> iter = userIdentity.getIdentities().iterator();			
-			if (iter != null && iter.hasNext()) {
-				newIdentity = iter.next();
-				if (newIdentity != null) {
-					newIdentity.setLoginType(source);
-					this.getUserRepository().save(newIdentity);
-				}
-			}	
-		}	
+		if (userIdentity.getIdentities() != null && userIdentity.getIdentities().size()>0) {
+			newIdentity = userIdentity.getIdentities().iterator().next();
+			if (newIdentity != null) {
+				newIdentity.setLoginType(source);
+				this.getUserRepository().save(newIdentity);
+			}
+		}
+			
 		if (sessionToken == null) {
 			Application application = this.getApplicationRepository().getApplication(apiKey);
 			rejectIfNull(application, GL0056, 404, APPLICATION);
