@@ -17,7 +17,8 @@ public class PartyPermission implements Serializable {
 	 */
 	private static final long serialVersionUID = -8005082868081913621L;
 
-
+	private String PartyPermissionUid;
+	
 	private Party party;
 
 	private Party permittedParty;
@@ -66,6 +67,14 @@ public class PartyPermission implements Serializable {
 
 	public void setValidFrom(Date validFrom) {
 		this.validFrom = validFrom;
+	}
+
+	public String getPartyPermissionUid() {
+		return PartyPermissionUid;
+	}
+
+	public void setPartyPermissionUid(String partyPermissionUid) {
+		PartyPermissionUid = partyPermissionUid;
 	}
 
 }

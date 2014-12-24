@@ -36,6 +36,7 @@ import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.CustomTableValue;
 import org.ednovo.gooru.core.api.model.PartyCustomField;
 import org.ednovo.gooru.core.api.model.User;
+import org.ednovo.gooru.core.api.model.UserRole.UserRoleType;
 import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
@@ -50,6 +51,7 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.party.PartyReposito
 import org.ednovo.gooru.infrastructure.persistence.hibernate.question.CommentRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.resource.ResourceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
@@ -150,16 +152,29 @@ public class CommentServiceImpl extends BaseServiceImpl implements CommentServic
 		rejectIfNull(comment, COMMENT, GL0057, generateErrorMessage(GL0057, COMMENT));
 		Content content = this.getResourceRepository().findResourceByContent(comment.getGooruOid());
 		List<String> contentPermissions = contentService.getContentPermission(content, user);
+		boolean hasPermission = false;
 		for (String contentPermission : contentPermissions) {
 			if (contentPermission.equalsIgnoreCase(EDIT)) {
-				if (softdelete) {
-					comment.setIsDeleted(true);
-					this.getCommentRepository().save(comment);
-				} else {
-					this.getCommentRepository().remove(comment);
-				}
+				hasPermission = true;
+				break;
 			}
 		}
+		if (!hasPermission && content != null && content.getUser().getPartyUid().equalsIgnoreCase(user.getPartyUid())) { 
+			hasPermission = true;
+		} else if (comment.getCommentorUid().getPartyUid().equalsIgnoreCase(user.getPartyUid())) { 
+			hasPermission = true;
+		}
+		
+		if (hasPermission) {
+			if (softdelete) {
+				comment.setIsDeleted(true);
+				this.getCommentRepository().save(comment);
+			} else {
+				this.getCommentRepository().remove(comment);
+			}
+		} else  {
+			throw new AccessDeniedException("Permission denied ");
+		} 
 
 	}
 	
