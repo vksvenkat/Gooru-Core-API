@@ -73,9 +73,7 @@ public class ClasspageEventLog implements ParameterProperties, ConstantPropertie
 		context.put(CONTENT_GOORU_ID, classpage != null ? classpage.getGooruOid() : null);
 		SessionContextSupport.putLogParameter(CONTEXT, context.toString());
 		JSONObject payLoadObject = SessionContextSupport.getLog().get(PAY_LOAD_OBJECT) != null ? new JSONObject(SessionContextSupport.getLog().get(PAY_LOAD_OBJECT).toString()) : new JSONObject();
-		if (inviteUser != null && inviteUser.getInviteUid() != null) {
-			payLoadObject.put(INVITED_USER_GOORU_UID, classpage != null && classpage.getUser() != null ? classpage.getUser().getPartyUid() : null);
-		}
+	    payLoadObject.put(INVITED_USER_GOORU_UID, classpage != null && classpage.getUser() != null ? classpage.getUser().getPartyUid() : null);
 		payLoadObject.put(CONTENT_ID, classpage != null ? classpage.getContentId() : null);
 		payLoadObject.put(CLASS_CODE, classpage != null ? classpage.getClasspageCode() : null);
 		payLoadObject.put(GROUP_UID, userGroup != null ? userGroup.getPartyUid() : null);
