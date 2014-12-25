@@ -78,7 +78,7 @@ public class TaskManagementRestV2Controller extends BaseController implements Pa
 		request.setAttribute(PREDICATE, TASK_CREATE_TASK);
 		User user = (User) request.getAttribute(Constants.USER);
 		JSONObject json = requestData(data);
-		ActionResponseDTO<Task> task = getTaskService().createTask(this.buildTaskFromInputParameters(getValue(TASK, json)), getValue(PLANNED_END_DATE, json) != null ? getValue(PLANNED_END_DATE, json) : null, user, this.buildAttachFromInputParameters(getValue(ATTACH_TO, json)));
+		ActionResponseDTO<Task> task = getTaskService().createTask(this.buildTaskFromInputParameters(getValue(TASK, json)), getValue(PLANNED_END_DATE, json) != null ? getValue(PLANNED_END_DATE, json) : null, user,getValue(ATTACH_TO, json) != null ? this.buildAttachFromInputParameters(getValue(ATTACH_TO, json)): null);
 		if (task.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		} else {

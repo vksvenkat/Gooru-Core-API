@@ -39,6 +39,7 @@ import org.ednovo.gooru.core.api.model.UserRoleAssoc;
 import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.application.util.ServerValidationUtils;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.core.exception.BadRequestException;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.domain.model.oauth.AuthorizationGrantType;
 import org.ednovo.gooru.core.api.model.OAuthClient;
@@ -77,7 +78,7 @@ public class OAuthServiceImpl extends ServerValidationUtils implements OAuthServ
 		if (clientId == null) {
 			throw new NotFoundException("Client not found for given oauth token");
 		}
-		OAuthClient oAuthClient = oAuthRepository.findOAuthClientByClientId(clientId);
+		OAuthClient oAuthClient = oAuthRepository.findOAuthClientByOAuthKey(clientId);
 		User user = oAuthClient.getUser();
 		if (user == null) {
 			throw new NotFoundException("User not found for given oauth token");
@@ -131,7 +132,7 @@ public class OAuthServiceImpl extends ServerValidationUtils implements OAuthServ
 	@Override
 	public ActionResponseDTO<OAuthClient> updateOAuthClient(OAuthClient oAuthClient, String id) {
 		rejectIfNull(oAuthClient, GL0056, "oAuthClient");
-		OAuthClient exsitsOAuthClient = (OAuthClient) oAuthRepository.findOAuthClientByOauthKey(id);
+		OAuthClient exsitsOAuthClient = (OAuthClient) oAuthRepository.findOAuthClientByOAuthKey(id);
 		rejectIfNull(exsitsOAuthClient, GL0056, "oAuthClient");
 		if (oAuthClient.getRedirectUrl() != null) {
 			exsitsOAuthClient.setRedirectUrl(oAuthClient.getRedirectUrl());
@@ -156,22 +157,13 @@ public class OAuthServiceImpl extends ServerValidationUtils implements OAuthServ
 	}
 
 	@Override
-	public void deleteOAuthClient(String clientUId, User apiCaller) throws Exception {
-		OAuthClient oAuthClient = (OAuthClient) oAuthRepository.get(OAuthClient.class, clientUId);
-		if (oAuthClient != null && oAuthClient.getUser().getPartyUid().equalsIgnoreCase(apiCaller.getPartyUid())) {
-			oAuthRepository.remove(oAuthClient);
-			oAuthRepository.flush();
-		}
-	}
-
-	@Override
 	public OAuthClient getOAuthClientByClientSecret(String clientSecret) throws Exception {
 		return oAuthRepository.findOAuthClientByclientSecret(clientSecret);
 	}
 
 	@Override
 	public ActionResponseDTO<OAuthClient> getOAuthClient(String oauthKey) throws Exception {
-		OAuthClient oAuthClient = (OAuthClient) oAuthRepository.findOAuthClientByOauthKey(oauthKey);
+		OAuthClient oAuthClient = (OAuthClient) oAuthRepository.findOAuthClientByOAuthKey(oauthKey);
 		final Errors errors = new BindException(OAuthClient.class, "oAuthClient");
 		rejectIfNull(oAuthClient, GL0056, "oAuthClient");
 		return new ActionResponseDTO<OAuthClient>(oAuthClient, errors);
@@ -213,10 +205,23 @@ public class OAuthServiceImpl extends ServerValidationUtils implements OAuthServ
 
 	@Override
 	public List<OAuthClient> getOAuthClientByApiKey(String apiKey) throws Exception {
-		return oAuthRepository.findOAuthClientByApplicationKey(apiKey);
+		List<OAuthClient> oAuthClientList = oAuthRepository.findOAuthClientByApplicationKey(apiKey);
+		if(oAuthClientList.size() == 0){
+			throw new BadRequestException(generateErrorMessage(GL0007, API_KEY));
+		}		
+		return oAuthClientList;
 	}
 
-
+	@Override
+	public void deleteOAuthClientByOAuthKey(String oauthKey, User apiCaller) throws Exception{
+		rejectIfNull(apiCaller,GL0056,404,USER);
+		OAuthClient oAuthClient = oAuthRepository.findOAuthClientByOAuthKey(oauthKey);
+		rejectIfNull(oAuthClient, GL0056,404, OAUTH_CLIENT);
+		if (oAuthClient.getUser().getPartyUid() != null && oAuthClient.getUser().getPartyUid().equalsIgnoreCase(apiCaller.getPartyUid())) {
+			oAuthRepository.remove(oAuthClient);
+		}		
+	}
+	
 	public CustomTableRepository getCustomTableRepository() {
 		return customTableRepository;
 	}

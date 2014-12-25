@@ -1,13 +1,13 @@
 package org.ednovo.gooru.infrastructure.persistence.hibernate.menu;
 
+
+
 import java.util.List;
 
 import org.ednovo.gooru.core.api.model.Menu;
 import org.ednovo.gooru.core.api.model.MenuItem;
 import org.ednovo.gooru.core.api.model.MenuRoleAssoc;
 import org.ednovo.gooru.core.api.model.Role;
-import org.ednovo.gooru.core.api.model.UserRole;
-import org.ednovo.gooru.core.api.model.UserRoleAssoc;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate;
@@ -17,18 +17,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public class MenuRepositoryHibernate extends BaseRepositoryHibernate implements MenuRepository, ParameterProperties, ConstantProperties {
-
-	@Override
-	public Menu getMenu(String menuUid) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public List<Menu> listMenu() {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 	@Override
 	public Menu findMenuById(String menuUid) {
@@ -47,10 +35,11 @@ public class MenuRepositoryHibernate extends BaseRepositoryHibernate implements 
 	@Override
 	public MenuItem findMenuItemById(String menuItemUid) {
 
-		String hql = " FROM MenuItem mi  ";
+		String hql = " FROM MenuItem mi  WHERE 1=1 ";
 		if (menuItemUid != null) {
-			hql += " WHERE mi.menuItemUid =:menuItemUid";
+			hql += " AND mi.menuItemUid =:menuItemUid";
 		}
+		hql += " AND mi.menu.isActive=1 ";
 		Query query = getSession().createQuery(hql);
 		if (menuItemUid != null) {
 			query.setParameter("menuItemUid", menuItemUid);
@@ -61,33 +50,39 @@ public class MenuRepositoryHibernate extends BaseRepositoryHibernate implements 
 	@Override
 	public Integer getMenuItemCount(String menuUid) {
 
-		String sql = "SELECT count(1) as count FROM menu_item mi";
-		if (menuUid != null) {
-			sql += " WHERE mi.parent_menu_uid =:parentMenuUid";
-		}
+		String sql = "SELECT count(1) as count FROM menu_item mi JOIN menu m on m.menu_uid=mi.menu_uid "
+				+ "WHERE m.is_active = 1 AND mi.parent_menu_uid = '"+menuUid+"'";
 		Query query = getSession().createSQLQuery(sql).addScalar("count", StandardBasicTypes.INTEGER);
-		if (menuUid != null) {
-			query.setParameter("parentMenuUid", menuUid);
-		}
-
-		return (Integer) query.list().get(0);
+		return (Integer) (query.list().get(0));
 	}
 	@Override
 	public Integer getParentMenuCount() {
 
-		String sql = "SELECT count(1) as count FROM menu_item mi WHERE mi.parent_menu_uid is null";
+		String sql = "SELECT count(1) as count FROM menu_item mi JOIN menu m on m.menu_uid=mi.menu_uid "
+				+ " WHERE m.is_active = 1 AND mi.parent_menu_uid is null";
 		Query query = getSession().createSQLQuery(sql).addScalar("count", StandardBasicTypes.INTEGER);
-		return (Integer) query.list().get(0);
+		return (Integer) (query.list().get(0));
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<MenuItem> getMenuItemsByMenuId(String menuUid) {
-		String hql = "FROM MenuItem mi WHERE mi.parentMenuUid =:parentMenuUid";
+		String hql = "SELECT distinct mi FROM MenuItem mi WHERE 1=1 ";
+		if (menuUid != null) {
+			hql += " AND mi.parentMenuUid =:parentMenuUid";
+		}
+		if (menuUid == null) {
+			hql += " AND mi.parentMenuUid is null";
+		}
+		hql += " AND mi.menu.isActive = 1 ORDER BY mi.sequence";
 		Query query = getSession().createQuery(hql);
-		query.setParameter("parentMenuUid", menuUid);
-		return (List) query.list();
+		if (menuUid != null) {
+			query.setParameter("parentMenuUid", menuUid);
+		}
+		return (List<MenuItem>) query.list();
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<MenuItem> getMenuItems(List<Integer> roleIds, Integer sequence, String parentMenuUid) {
 		String hql = "SELECT distinct menuItem FROM MenuItem menuItem join menuItem.menu.menuRoleAssocs menuRoleAssoc  WHERE 1=1 ";
@@ -103,7 +98,8 @@ public class MenuRepositoryHibernate extends BaseRepositoryHibernate implements 
 		if (parentMenuUid == null) {
 			hql += " AND menuItem.parentMenuUid is null";
 		}
-		    hql += " ORDER BY menuItem.sequence";
+			hql += " AND menuItem.menu.isActive = 1";
+			hql += " ORDER BY menuItem.sequence";
 		    
 		Query query = getSession().createQuery(hql);
 		if (roleIds != null) {
@@ -115,7 +111,7 @@ public class MenuRepositoryHibernate extends BaseRepositoryHibernate implements 
 		if (sequence != null) {
 			query.setParameter("sequence", sequence);
 		}
-		return query.list();
+		return (List<MenuItem>) query.list();
 	}
 	
 	@Override
@@ -123,15 +119,43 @@ public class MenuRepositoryHibernate extends BaseRepositoryHibernate implements 
 		String hql = "FROM Role r WHERE r.roleId =:roleId";
 		Query query = getSession().createQuery(hql);
 		query.setParameter("roleId", roleId);
-		return (Role) ((query.list().size() > 0) ? query.list().get(0) : null);
+		return (Role) (query.list().size() > 0 ? query.list().get(0) : null);
 	}
 	
 	@Override
-	public MenuRoleAssoc findMenuRoleAssocEntryByRoleIdAndMenuUid(Integer roleId, String menuUid) {
-		String hql = "FROM MenuRoleAssoc MRA WHERE MRA.role.roleId = :roleId and MRA.menu.menuUid = :menuUid";
+	public MenuRoleAssoc findMenuRoleAssocEntry(Integer roleId, String menuUid) {
+		String hql = "FROM MenuRoleAssoc MRA WHERE 1=1";
+
+		if (roleId != null) {
+			hql += " AND MRA.role.roleId = :roleId";
+		}
+		if (menuUid != null) {
+			hql += " AND MRA.menu.menuUid =:menuUid";
+		}
 		Query query = getSession().createQuery(hql);
-		query.setParameter("roleId", roleId);
-		query.setParameter("menuUid", menuUid);
+		if (roleId != null) {
+			query.setParameter("roleId", roleId);
+		}
+		if (menuUid != null) {
+			query.setParameter("menuUid", menuUid);
+		}
 		return (MenuRoleAssoc) (query.list().size() > 0 ? query.list().get(0) : null);
 	}
+	
+	@Override
+	public MenuItem findMenuItemMenuUid(String menuUid){
+		
+		String hql = "SELECT distinct mi FROM MenuItem mi WHERE 1=1 ";
+		if (menuUid != null) {
+			hql += " AND mi.menu.menuUid =:menuUid";
+		}
+		hql += " AND mi.menu.isActive=1 ORDER BY mi.sequence";
+		Query query = getSession().createQuery(hql);
+		if (menuUid != null) {
+			query.setParameter("menuUid", menuUid);
+		}
+		return (MenuItem) (query.list().size()> 0 ? query.list().get(0) : null);
+		
+	}
 }
+

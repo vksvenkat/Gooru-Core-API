@@ -39,7 +39,7 @@ public interface ApplicationRepository extends BaseRepository {
 	
 	Application getApplicationByOrganization(String organizationUid);
 	
-	ApplicationItem getApplicationItem(String applicationItemId);
+	ApplicationItem getApplicationItem(String applicationItemId,String apikey);
 	
     List<ApplicationItem> getApplicationItemByApiKey(String apiKey);
 }
