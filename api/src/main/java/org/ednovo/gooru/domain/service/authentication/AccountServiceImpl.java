@@ -24,6 +24,7 @@
 package org.ednovo.gooru.domain.service.authentication;
 
 import java.util.Date;
+import java.util.Iterator;
 import java.util.Random;
 import java.util.UUID;
 
@@ -44,6 +45,7 @@ import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserAccountType;
 import org.ednovo.gooru.core.api.model.UserAvailability.CheckUser;
 import org.ednovo.gooru.core.api.model.UserToken;
+import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.application.util.ServerValidationUtils;
 import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.core.constant.ConstantProperties;
@@ -67,6 +69,7 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.OrganizationSetting
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserTokenRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.apikey.ApplicationRepository;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
 import org.ednovo.goorucore.application.serializer.ExcludeNullTransformer;
 import org.json.JSONException;
 import org.slf4j.Logger;
@@ -148,6 +151,9 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 	@Autowired
 	private UserEventlog usereventlog;
 
+	@Autowired
+	private CustomTableRepository customTableRepository;
+	
 	private static final Logger LOGGER = LoggerFactory.getLogger(AccountServiceImpl.class);
 
 	private static final String SESSION_TOKEN_KEY = "authenticate_";
@@ -155,6 +161,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 	@Override
 	public UserToken createSessionToken(User user, String apiKey, HttpServletRequest request) throws Exception {
 		final Application application = this.getApplicationRepository().getApplication(apiKey);
+		rejectIfNull(application,GL0056,404,APPLICATION);
 		final UserToken sessionToken = new UserToken();
 		final String apiEndPoint = getConfigSetting(ConfigConstants.GOORU_API_ENDPOINT, 0, TaxonomyUtil.GOORU_ORG_UID);
 		sessionToken.setScope(SESSION);
@@ -315,7 +322,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 		final UserToken userToken = this.getUserTokenRepository().findByToken(sessionToken);
 		if (userToken != null) {
 			try {
-				this.getAccountEventlog().getEventLogs(null, userToken, false);
+				this.getAccountEventlog().getEventLogs(userToken.getUser().getIdentities() != null ? userToken.getUser().getIdentities().iterator().next(): null, userToken, false);
 			} catch (JSONException e) {
 				LOGGER.debug("error" + e.getMessage());
 			}
@@ -394,28 +401,39 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			try {				
 				userIdentity = this.getUserManagementService().createUser(newUser, null, null, 1, 0, null, null, null, null, null, null, null, source, null, request, null, null);
 				SessionContextSupport.putLogParameter(EVENT_NAME,USER_REG);
-                this.getUsereventlog().getEventLogs(userIdentity, source,userIdentity.getIdentities() != null ? userIdentity.getIdentities().iterator().next(): null);
 			} catch (Exception e) {
-				LOGGER.debug("error" + e.getMessage());
+				LOGGER.error("error" + e.getMessage());
 			}
 		}else{
-			SessionContextSupport.putLogParameter(EVENT_NAME, _USER_LOGIN);
-           
+			SessionContextSupport.putLogParameter(EVENT_NAME, _USER_LOGIN);          
 		}
-		 SessionContextSupport.putLogParameter(TYPE, source);
+		SessionContextSupport.putLogParameter(TYPE, source);
+		Identity newIdentity = null;
+		if (userIdentity.getIdentities() != null && userIdentity.getIdentities().size()>0) {
+			newIdentity = userIdentity.getIdentities().iterator().next();
+			if (newIdentity != null) {
+				newIdentity.setLoginType(source);
+				this.getUserRepository().save(newIdentity);
+			}
+		}	
 		if (sessionToken == null) {
-			sessionToken = this.getUserManagementService().createSessionToken(userIdentity, request.getSession().getId(), this.getApplicationRepository().getApplication(apiKey));
+			Application application = this.getApplicationRepository().getApplication(apiKey);
+			rejectIfNull(application, GL0056, 404, APPLICATION);
+			sessionToken = this.getUserManagementService().createSessionToken(userIdentity, request.getSession().getId(), application);
 		}
 		request.getSession().setAttribute(Constants.SESSION_TOKEN, sessionToken.getToken());
 		try {
+			this.getAccountEventlog().getEventLogs(newIdentity, sessionToken,true);
+		} catch (JSONException e) {
+			LOGGER.error("error" + e.getMessage());
+		}
+		try {
 			newUser = (User) BeanUtils.cloneBean(userIdentity);
 		} catch (Exception e) {
-			LOGGER.debug("error" + e.getMessage());
+			LOGGER.error("error" + e.getMessage());
 		}
 		request.getSession().setAttribute(Constants.USER, newUser);
 		newUser.setToken(sessionToken.getToken());
-		
-
 		return newUser;
 	}
 
@@ -468,6 +486,11 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 	public ApplicationRepository getApplicationRepository() {
 		return applicationRepository;
 	}
+
+	public CustomTableRepository getCustomTableRepository() {
+		return customTableRepository;
+	}
+	
 	public UserEventlog getUsereventlog() {
 		return usereventlog;
 	}

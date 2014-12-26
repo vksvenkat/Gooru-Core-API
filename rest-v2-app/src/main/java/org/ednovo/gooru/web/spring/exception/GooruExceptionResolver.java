@@ -65,6 +65,7 @@ public class GooruExceptionResolver extends SimpleMappingExceptionResolver {
 		} else if (ex instanceof UnauthorizedException) {
 			errorObject = new ErrorObject(401, ex.getMessage());
 			response.setStatus(401);
+			response.setHeader("Unauthorized", ex.getMessage());
 		} else if (ex instanceof SizeLimitExceededException) {
 			response.setStatus(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE);
 			errorObject = new ErrorObject(413, ex.getMessage());

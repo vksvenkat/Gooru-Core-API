@@ -136,7 +136,7 @@ public class GooruInterceptor extends HandlerInterceptorAdapter {
 		if (logString != null) {
 			try {
 				ACTIVITY_LOGGER.info(logString);
-//				kafkaService.sendEventLog(logString);
+				kafkaService.sendEventLog(logString);
 			} catch(Exception e) {
 				LOGGER.error("Error while pushing event log data to kafka : " + e.getMessage() );
 			}
