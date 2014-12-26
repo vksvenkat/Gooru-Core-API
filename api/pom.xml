@@ -172,7 +172,7 @@
 		<dependency>
 			<groupId>org.ednovo.data.kafka.producer</groupId>
 			<artifactId>kafka-producer</artifactId>
-			<version>1.8</version>
+			<version>1.9</version>
 		</dependency>
 
 		<dependency>
