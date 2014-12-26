@@ -23,6 +23,14 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.infrastructure.persistence.hibernate;
 
+import org.ednovo.gooru.core.api.model.Job;
+
 public interface JobRepository extends BaseRepository {
+
 	int getAverageRetryTime(long fileSize);
+
+	Job createJob(String jobUid);
+	
+	Job getJob(String jobUid);
+	
 }

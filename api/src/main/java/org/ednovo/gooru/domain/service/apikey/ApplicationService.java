@@ -43,11 +43,14 @@ public interface ApplicationService {
 
 	void deleteApplication(String apiKey);
 	
-	ApplicationItem getApplicationItem(String applicationItemId);
+	ApplicationItem getApplicationItem(String apikey,String applicationItemId) throws Exception;
 	
 	ActionResponseDTO<ApplicationItem> createApplicationItem(ApplicationItem applicationItem,String apiKey, User apicaller);
 	
-	ActionResponseDTO<ApplicationItem> updateApplicationItem(ApplicationItem applicationItem, String applicationItemId, User apicaller)throws Exception ;
+	ActionResponseDTO<ApplicationItem> updateApplicationItem(String apikey,ApplicationItem applicationItem, String applicationItemId, User apicaller)throws Exception ;
 	
     List<ApplicationItem> getApplicationItemByApiKey(String apiKey) throws Exception ;
+    
+	void deleteApplicationItemByItemId(String apikey,String applicationItemId) throws Exception;
+    
 }

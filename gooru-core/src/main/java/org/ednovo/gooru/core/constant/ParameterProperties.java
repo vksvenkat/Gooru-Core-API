@@ -559,6 +559,8 @@ public interface ParameterProperties {
 	String FILE = "file";
 
 	String FILENAME = "fileName";
+	
+	String JOB_UID = "jobUid";
 
 	String FILE_DATA = "fileData";
 
@@ -2802,6 +2804,18 @@ public interface ParameterProperties {
 	
 	String GL0102 = "GL0102";
 	
+	String GL0103 = "GL0103";
+
 	String APPLICATION = "application";
+	
+	String GL0104 = "GL0104";
+	
+	String ENTITY_OPERATION = "entity operation";
+	
+	String IN_ACTIVE = "in_active";
+	
+	String APPLICATION_ID = "applicationId";
+	
+	String MENU_ITEM = "menu item";
 }
 

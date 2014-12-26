@@ -279,7 +279,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + user.getPartyUid() + "*");
 
 		try {
-			this.getCollectionEventLog().getEventLogs(responseDTO.getModel(), true, user, responseDTO.getModel().getCollection().getCollectionType());
+			this.getCollectionEventLog().getEventLogs(responseDTO.getModel(), true, user, responseDTO.getModel().getCollection().getCollectionType(), sourceCollectionItem);
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
@@ -345,7 +345,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	public List<Map<String, Object>> getMyShelf(String gooruUid, Integer limit, Integer offset, String sharing, String collectionType, Integer itemLimit, boolean fetchChildItem, String topLevelCollectionType, String orderBy) {
 		StorageArea storageArea = this.getStorageRepository().getStorageAreaByTypeName(NFS);
 		if (!BaseUtil.isUuid(gooruUid)) {
-			User user = this.getUserService().getUserByUserName(gooruUid);
+			User user = this.getUserRepository().getUserByUserName(gooruUid, true);
 			gooruUid = user != null ? user.getPartyUid() : null;
 		}
 		List<Object[]> result = this.getCollectionRepository().getMyFolder(gooruUid, limit, offset, sharing, topLevelCollectionType != null ? topLevelCollectionType : collectionType, fetchChildItem, orderBy);

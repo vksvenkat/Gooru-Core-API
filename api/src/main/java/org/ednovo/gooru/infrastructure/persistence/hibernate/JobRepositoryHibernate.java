@@ -25,6 +25,8 @@ package org.ednovo.gooru.infrastructure.persistence.hibernate;
 
 import java.util.List;
 
+import org.ednovo.gooru.core.api.model.Country;
+import org.ednovo.gooru.core.api.model.Job;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -49,12 +51,26 @@ public class JobRepositoryHibernate extends BaseRepositoryHibernate implements J
 			sql += "BETWEEN  " + 0 + " AND " + fileSize;
 		}
 		sql += " AND job.status = 'Completed' LIMIT 100 ";
-		
+
 		Session session = getSession();
-		Query query = session.createSQLQuery(sql).addScalar("average_time",StandardBasicTypes.INTEGER);
+		Query query = session.createSQLQuery(sql).addScalar("average_time", StandardBasicTypes.INTEGER);
 		List<Integer> results = query.list();
-		
-		return (results.size() > 0)?results.get(0):0;
+
+		return (results.size() > 0) ? results.get(0) : 0;
 	}
 
+	@Override
+	public Job createJob(String jobUid) {
+		Query query = getSession().createQuery("FROM Job job  WHERE job.jobUid=:jobUid").setParameter("jobUid", jobUid);
+		return (Job) (query.list().size() > 0 ? query.list().get(0) : null);
+
+	}
+
+	@Override
+	public Job getJob(String jobUid) {
+		Query query = getSession().createQuery("FROM Job job  WHERE job.jobUid=:jobUid").setParameter("jobUid", jobUid);
+		return (Job) (query.list().size() > 0 ? query.list().get(0) : null);
+	}
+
+	
 }
