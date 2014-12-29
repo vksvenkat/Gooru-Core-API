@@ -84,7 +84,7 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 
 	@Autowired
 	private RedisService redisService;
-	
+
 	@Autowired
 	private ConversionService conversionService;
 
@@ -134,8 +134,8 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 	public ModelAndView getCollection(@PathVariable(value = ID) String collectionId, @RequestParam(value = INCLUDE_COLLECTION_ITEM, required = false, defaultValue = TRUE) boolean includeCollectionItem,
 			@RequestParam(value = INLCLUDE_META_INFO, required = false, defaultValue = FALSE) boolean includeMetaInfo, @RequestParam(value = INCLUDE_COLLABORATOR, required = false, defaultValue = FALSE) boolean includeCollaborator,
 			@RequestParam(value = IS_GAT, required = false, defaultValue = FALSE) boolean isGat, @RequestParam(value = CLEAR_CACHE, required = false, defaultValue = FALSE) boolean clearCache,
-			@RequestParam(value = INCLUDE_RELATED_CONTENT, required = false, defaultValue = FALSE) boolean includeRelatedContent, @RequestParam(value = MERGE, required = false) String merge,
-			@RequestParam(value = REQ_CONTEXT, required = false, defaultValue = "edit-play") String requestContext, @RequestParam(value = ROOT_NODE_ID, required = false) String rootNodeId, HttpServletRequest request, HttpServletResponse response) {
+			@RequestParam(value = INCLUDE_RELATED_CONTENT, required = false, defaultValue = FALSE) boolean includeRelatedContent, @RequestParam(value = MERGE, required = false) String merge, @RequestParam(value = REQ_CONTEXT, required = false, defaultValue = "edit-play") String requestContext,
+			@RequestParam(value = ROOT_NODE_ID, required = false) String rootNodeId, HttpServletRequest request, HttpServletResponse response) {
 		User user = (User) request.getAttribute(Constants.USER);
 		String collection = null;
 		String includes[] = null;
@@ -164,12 +164,10 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 				includes = (String[]) ArrayUtils.add(includes, "*.contentAssociation");
 			}
 			includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_ITEM_TAGS);
-			collection = getCollectionService().getCollectionWithCache(collectionId, includeMetaInfo, includeCollaborator, includeRelatedContent, user, merge, rootNodeId, isGat, includeCollectionItem, includeRelatedContent, clearCache);
-			return toModelAndView(collection);
-		}	
-		
-	}
+			return toModelAndViewWithIoFilter(getCollectionService().getCollection(collectionId, includeMetaInfo, includeCollaborator, includeRelatedContent, user, merge, rootNodeId, isGat, false), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
+		}
 
+	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_DELETE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -389,14 +387,14 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 		includes = (String[]) ArrayUtils.addAll(includes, RESOURCE_INCLUDE_FIELDS);
 		return toModelAndView(serialize(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes));
 	}
-	
-	@AuthorizeOperations(operations = {GooruOperationConstants.OPERATION_SCOLLECTION_UPDATE})
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	@RequestMapping(value = {"{cid}/question/{id}"}, method = RequestMethod.DELETE)
-	public void deleteQuestionWithCollectionItem(@PathVariable(value = CID) String collectionId, @PathVariable(value = ID) String resourceId ,HttpServletRequest request, HttpServletResponse response) {
+
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_UPDATE })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(value = { "{cid}/question/{id}" }, method = RequestMethod.DELETE)
+	public void deleteQuestionWithCollectionItem(@PathVariable(value = CID) String collectionId, @PathVariable(value = ID) String resourceId, HttpServletRequest request, HttpServletResponse response) {
 		this.getCollectionService().deleteQuestionWithCollectionItem(collectionId, resourceId);
 	}
-	
+
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}/workspace" }, method = RequestMethod.GET)
@@ -479,7 +477,7 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 	}
 
 	private Resource buildResourceFromInputParameters(String data, User user) {
-		return  JsonDeserializer.deserialize(data, Resource.class);
+		return JsonDeserializer.deserialize(data, Resource.class);
 	}
 
 	private Collection buildCopyCollectionFromInputParameters(String data) {
