@@ -251,6 +251,10 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		if (sourceCollectionItem != null && sourceCollectionItem.getItemType() != null) {
 			collectionItem.setItemType(sourceCollectionItem.getItemType());
 		}
+		collectionItem.setPlannedEndDate(sourceCollectionItem.getPlannedEndDate());
+		collectionItem.setEstimatedTime(sourceCollectionItem.getEstimatedTime());
+		collectionItem.setAssignmentCompleted(sourceCollectionItem.getAssignmentCompleted());
+		
 		if (!user.getPartyUid().equalsIgnoreCase(collectionItem.getCollection().getUser().getPartyUid())) {
 			UserContentAssoc userContentAssocs = this.getCollaboratorRepository().findCollaboratorById(sourceId, user.getPartyUid());
 			if (userContentAssocs != null) {
