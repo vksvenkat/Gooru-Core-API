@@ -595,7 +595,7 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 				question.setLicense(license);
 				ContentType contentType = (ContentType) baseRepository.get(ContentType.class, ContentType.RESOURCE);
 				question.setContentType(contentType);
-				if (question.getGooruOid() != null) {
+				if (question.getGooruOid() == null) {
 					question.setGooruOid(UUID.randomUUID().toString());
 				}
 				// Explicitly set to null to reset any content id sent by
