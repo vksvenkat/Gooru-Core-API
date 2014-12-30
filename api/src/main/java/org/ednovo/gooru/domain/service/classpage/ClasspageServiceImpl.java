@@ -960,6 +960,9 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			collectionItem.setShowAnswerByQuestions(sourceItem.getShowAnswerByQuestions());
 			collectionItem.setShowAnswerEnd(sourceItem.getShowAnswerEnd());
 			collectionItem.setShowHints(sourceItem.getShowHints());
+			if (sourceItem.getPlannedEndDate() != null) {
+				collectionItem.setPlannedEndDate(sourceItem.getPlannedEndDate());
+			}
 			targetItem = this.getCollectionService().createCollectionItem(sourceItem.getResource().getGooruOid(), targetPathway.getGooruOid(), collectionItem, user, ADDED, false).getModel();
 			Set<CollectionItem> collectionItems = new TreeSet<CollectionItem>(targetPathway.getCollectionItems());
 			collectionItems.add(collectionItem);
