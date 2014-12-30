@@ -185,7 +185,12 @@ public class DoAuthorization {
 		JSONObject session = new JSONObject();
 		try {
 			session.put("sessionToken", sessionToken);
-			session.put("organizationUId", authentication.getUserToken().getUser().getOrganization().getPartyUid());
+			if (authentication.getUserToken() != null) {
+				session.put("organizationUId", authentication.getUserToken().getUser().getOrganization().getPartyUid());
+				if (authentication.getUserToken().getApplication() != null) { 
+					session.put("apiKey", authentication.getUserToken().getApplication().getKey());
+				}
+			}
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
