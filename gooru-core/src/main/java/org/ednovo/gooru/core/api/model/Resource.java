@@ -352,7 +352,7 @@ public class Resource extends Content implements Serializable {
 			}
 		}
 
-		if (UserGroupSupport.getUserOrganizationCdnDirectPath() != null) {
+		if (UserGroupSupport.getUserOrganizationCdnDirectPath() != null && (getS3UploadFlag() == null || getS3UploadFlag() == 0)) {
 			assetURI = UserGroupSupport.getUserOrganizationCdnDirectPath();
 		}
 		assetURI = BaseUtil.changeHttpsProtocol(assetURI);

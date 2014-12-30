@@ -2691,16 +2691,6 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			}
 			if (newResource.getS3UploadFlag() != null) {
 				resource.setS3UploadFlag(newResource.getS3UploadFlag());
-				try {
-					if (newResource.getS3UploadFlag() == 1) {
-						File file = new File(resource.getOrganization().getNfsStorageArea().getInternalPath() + resource.getFolder());
-						if (file.isDirectory()) {
-							FileUtils.deleteDirectory(file);
-						}
-					}
-				} catch (Exception e) {
-					LOGGER.error(e.getMessage());
-				}
 			}
 			if (newResource.getDescription() != null) {
 				itemData.put(DESCRIPTION,newResource.getDescription());
