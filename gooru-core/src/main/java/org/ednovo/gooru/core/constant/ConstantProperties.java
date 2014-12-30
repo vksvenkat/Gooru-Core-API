@@ -833,7 +833,7 @@ public interface ConstantProperties {
 
    public static final String PREVIOUS_RATE = "previousRate";
    
-   public static final String JOB_INCLUDES[] = {"*.job"};
+   public static final String JOB_INCLUDES[] = {"*.job", "*.status", "*.jobUid"};
    
    public static final String _GROUP_UID = "groupUId";
 
