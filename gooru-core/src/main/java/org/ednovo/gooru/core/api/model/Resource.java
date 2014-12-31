@@ -565,11 +565,7 @@ public class Resource extends Content implements Serializable {
 	}
 
 	public Thumbnail getThumbnails() {
-		return thumbnails;
-	}
-
-	public void setThumbnails(Thumbnail thumbnails) {
-		this.thumbnails = new Thumbnail(this.getResourceType(), getUrl(), getThumbnail(), getAssetURI(), getFolder());
+		return new Thumbnail(this.getResourceType(), getUrl(), getThumbnail(), getAssetURI(), getFolder());
 	}
 
 	public void setCustomFields(Map<String, String> customFields) {
