@@ -255,12 +255,8 @@ public class ResourceInstanceFormatter implements ParameterProperties{
 			setElementText(resourceElement, ASSET_URI, resourceInstance.getResource().getAssetURI(), true);
 
 			Element thumbnails = resourceElement.addElement(THUMBNAILS);
-			setElementText(thumbnails, URL, resourceInstance.getResource().getThumbnails().getUrl(), true);
-			setElementText(thumbnails, DIMENSIONS, resourceInstance.getResource().getThumbnails().getDimensions(), true);
 			String isDefaultThumbnail = FALSE;
-			if (resourceInstance.getResource().getThumbnails().isDefaultImage()) {
-				isDefaultThumbnail = TRUE;
-			}
+			
 			setElementText(thumbnails, DEFAULT_IMAGE, isDefaultThumbnail, true);
 			setElementText(resourceElement, TAXONOMY_DATA_SET, TAXONOMY_DATA_SET != null ? TAXONOMY_DATA_SET.toString() : "", true);
 			return resourceElement;
