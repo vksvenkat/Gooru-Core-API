@@ -363,7 +363,11 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				collection.put(TYPE, object[2]);
 				Map<String, Object> thumbnails = new HashMap<String, Object>();
 				if (object[4] != null) {
-					thumbnails.put(URL, storageArea.getCdnDirectPath() + String.valueOf(object[3]) + String.valueOf(object[4]));
+					if (object[17] != null && Integer.parseInt(object[17].toString()) == 1) {
+						thumbnails.put(URL, storageArea.getS3Path() + String.valueOf(object[3]) + String.valueOf(object[4]));
+					} else { 
+						thumbnails.put(URL, storageArea.getCdnDirectPath() + String.valueOf(object[3]) + String.valueOf(object[4]));
+					}
 				} else {
 					thumbnails.put(URL, "");
 				}
@@ -435,7 +439,11 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 					}
 				} else {
 					if (object[4] != null) {
-						thumbnails.put(URL, storageArea.getCdnDirectPath() + String.valueOf(object[3]) + String.valueOf(object[4]));
+						if (object[21] != null && Integer.parseInt(object[21].toString()) == 1) {
+							thumbnails.put(URL, storageArea.getS3Path() + String.valueOf(object[3]) + String.valueOf(object[4]));
+						} else { 
+							thumbnails.put(URL, storageArea.getCdnDirectPath() + String.valueOf(object[3]) + String.valueOf(object[4]));
+						}
 					} else {
 						thumbnails.put(URL, "");
 					}
@@ -543,7 +551,11 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 					}
 				} else {
 					if (object[4] != null) {
-						thumbnails.put(URL, storageArea.getCdnDirectPath() + String.valueOf(object[3]) + String.valueOf(object[4]));
+						if (object[21] != null && Integer.parseInt(object[21].toString()) == 1) {
+							thumbnails.put(URL, storageArea.getS3Path() + String.valueOf(object[3]) + String.valueOf(object[4]));
+						} else {
+							thumbnails.put(URL, storageArea.getCdnDirectPath() + String.valueOf(object[3]) + String.valueOf(object[4]));
+						}
 					} else {
 						thumbnails.put(URL, "");
 					}
