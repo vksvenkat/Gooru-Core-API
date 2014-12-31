@@ -8,7 +8,7 @@ import java.util.Set;
 
 import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.api.model.CodeType;
-import org.ednovo.gooru.core.api.model.Thumbnail;
+import org.ednovo.gooru.core.api.model.Resource.Thumbnail;
 import org.ednovo.gooru.core.api.model.User;
 
 public class CollectionFo {

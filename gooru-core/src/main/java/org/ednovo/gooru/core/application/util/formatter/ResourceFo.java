@@ -2,7 +2,7 @@ package org.ednovo.gooru.core.application.util.formatter;
 
 import java.util.Map;
 
-import org.ednovo.gooru.core.api.model.Thumbnail;
+import org.ednovo.gooru.core.api.model.Resource.Thumbnail;
 
 public class ResourceFo {
 
