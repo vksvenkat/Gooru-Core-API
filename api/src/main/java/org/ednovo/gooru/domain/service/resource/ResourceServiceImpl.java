@@ -2807,11 +2807,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		if (newResource.getAttach() != null) {
 			this.getResourceImageUtil().moveAttachment(newResource, resource);
 		}
-		List<CollectionItem> collectionItems = this.getCollectionRepository().findCollectionByResource(resource.getGooruOid(), null, null);
-		for (CollectionItem collectionItem : collectionItems) {
-			asyncExecutor.deleteFromCache("v2-collection-data-" + collectionItem.getCollection().getGooruOid() + "*");
-		}
-		
+		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + resource.getUser().getPartyUid() + "*");		
 		try{
 			this.getResourceEventLog().getEventLogs(resource, itemData, user);
 		}catch(Exception e){
