@@ -363,7 +363,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				collection.put(TYPE, object[2]);
 				Map<String, Object> thumbnails = new HashMap<String, Object>();
 				if (object[4] != null) {
-					if (object[17] != null && Integer.parseInt(object[17].toString()) == 1) {
+					if (object[17] != null && Boolean.parseBoolean(object[17].toString())) {
 						thumbnails.put(URL, storageArea.getS3Path() + String.valueOf(object[3]) + String.valueOf(object[4]));
 					} else { 
 						thumbnails.put(URL, storageArea.getCdnDirectPath() + String.valueOf(object[3]) + String.valueOf(object[4]));
@@ -439,7 +439,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 					}
 				} else {
 					if (object[4] != null) {
-						if (object[21] != null && Integer.parseInt(object[21].toString()) == 1) {
+						if (object[21] != null && Boolean.parseBoolean(object[21].toString())) {
 							thumbnails.put(URL, storageArea.getS3Path() + String.valueOf(object[3]) + String.valueOf(object[4]));
 						} else { 
 							thumbnails.put(URL, storageArea.getCdnDirectPath() + String.valueOf(object[3]) + String.valueOf(object[4]));
@@ -551,7 +551,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 					}
 				} else {
 					if (object[4] != null) {
-						if (object[21] != null && Integer.parseInt(object[21].toString()) == 1) {
+						if (object[21] != null && Boolean.parseBoolean(object[21].toString())) {
 							thumbnails.put(URL, storageArea.getS3Path() + String.valueOf(object[3]) + String.valueOf(object[4]));
 						} else {
 							thumbnails.put(URL, storageArea.getCdnDirectPath() + String.valueOf(object[3]) + String.valueOf(object[4]));
