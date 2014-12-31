@@ -380,7 +380,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 		if (secretKey == null || !secretKey.equalsIgnoreCase(settingService.getConfigSetting(ConfigConstants.GOORU_AUTHENTICATION_SECERT_KEY, 0, TaxonomyUtil.GOORU_ORG_UID))) {
 			throw new UnauthorizedException(generateErrorMessage("GL0082", "secret") + secretKey);
 		}
-		Boolean registerUser = false;
+		boolean registerUser = false;
 		final Identity identity = new Identity();
 		identity.setExternalId(newUser.getEmailId());
 		User userIdentity = this.getUserService().findByIdentity(identity);
