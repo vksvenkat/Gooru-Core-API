@@ -26,6 +26,7 @@ package org.ednovo.gooru.infrastructure.persistence.hibernate.storage;
 import org.ednovo.gooru.core.api.model.StorageArea;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate;
 import org.hibernate.Query;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -35,6 +36,7 @@ public class StorageRepositoryHibernate extends BaseRepositoryHibernate implemen
 	private static final String STORAGE_AREA_BY_NAME = "FROM StorageArea storageArea WHERE storageArea.storageAccount.typeName =:typeName";
 	
 	@Override
+	@Cacheable("gooruCache")
 	public StorageArea getAvailableStorageArea(Integer storageAccountId) {
 		Query query = getSessionReadOnly().createQuery(STORAGE_AREA);
 		query.setParameter("storageAccountId", storageAccountId);
@@ -42,6 +44,7 @@ public class StorageRepositoryHibernate extends BaseRepositoryHibernate implemen
 	}
 
 	@Override
+	@Cacheable("gooruCache")
 	public StorageArea getStorageAreaByTypeName(String typeName) {
 		Query query = getSessionReadOnly().createQuery(STORAGE_AREA_BY_NAME);
 		query.setParameter("typeName", typeName);
