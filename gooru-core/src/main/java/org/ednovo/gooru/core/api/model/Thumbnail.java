@@ -33,6 +33,9 @@ public class Thumbnail implements Serializable {
 		this.setResourceUrl(resourceUrl);
 		this.setThumbnail(thumbnail);
 		this.setFolder(folder);
+		this.setUrl(getUrl());
+		this.setDimensions(getDimensions());
+		this.setDefaultImage(isDefaultImage());
 	}
 
 	public String getUrl() {
