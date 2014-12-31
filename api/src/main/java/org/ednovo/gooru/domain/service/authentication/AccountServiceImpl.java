@@ -421,7 +421,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			sessionToken = this.getUserManagementService().createSessionToken(userIdentity, request.getSession().getId(), application);
 		}
 		request.getSession().setAttribute(Constants.SESSION_TOKEN, sessionToken.getToken());
-		if (registerUser == false) {
+		if (!registerUser) {
 			try {
 				this.getAccountEventlog().getEventLogs(newIdentity, sessionToken, true);
 			} catch (JSONException e) {
