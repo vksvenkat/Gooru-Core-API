@@ -8,7 +8,6 @@ import java.util.Set;
 
 import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.api.model.CodeType;
-import org.ednovo.gooru.core.api.model.Resource.Thumbnail;
 import org.ednovo.gooru.core.api.model.User;
 
 public class CollectionFo {
@@ -84,22 +83,19 @@ public class CollectionFo {
 	private List<SegmentFo> segments;
 
 	private String goal;
-	
+
 	private String vocabulary;
-	
+
 	private String thumbnail;
-	
-	private Thumbnail thumbnails;
-	
+
 	private Integer segmentCount;
-	
+
 	private Integer collectionPageCount;
-	
+
 	private Integer quotedResourceCount;
-		
-	
+
 	private Map<String, String> customFieldValues;
-	
+
 	public CollectionFo() {
 
 		subscription = new SubscriptionFo();
@@ -144,7 +140,7 @@ public class CollectionFo {
 	public void setTaxonomySet(Set<Code> taxonomySet) {
 		this.taxonomySet = taxonomySet;
 	}
-	
+
 	public String getAssetURI() {
 		return assetURI;
 	}
@@ -439,14 +435,6 @@ public class CollectionFo {
 	public Integer getHasRequestPending() {
 		return hasRequestPending;
 	}
-	
-	public void setThumbnails(Thumbnail thumbnails) {
-		this.thumbnails = thumbnails;
-	}
-
-	public Thumbnail getThumbnails() {
-		return thumbnails;
-	}
 
 	public Map<String, String> getCustomFieldValues() {
 		return customFieldValues;
@@ -463,7 +451,7 @@ public class CollectionFo {
 	public void setSegmentCount(Integer segmentCount) {
 		this.segmentCount = segmentCount;
 	}
-	
+
 	public Integer getCollectionPageCount() {
 		return collectionPageCount;
 	}
@@ -479,8 +467,5 @@ public class CollectionFo {
 	public void setQuotedResourceCount(Integer quotedResourceCount) {
 		this.quotedResourceCount = quotedResourceCount;
 	}
-
-
-	
 
 }
