@@ -922,4 +922,8 @@ public class Resource extends Content implements Serializable {
 	public Integer getAverageTimeSpent() {
 		return averageTimeSpent;
 	}
+
+	public void setThumbnails(Thumbnail thumbnails) {
+		this.thumbnails = thumbnails;
+	}
 }
