@@ -380,6 +380,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 		if (secretKey == null || !secretKey.equalsIgnoreCase(settingService.getConfigSetting(ConfigConstants.GOORU_AUTHENTICATION_SECERT_KEY, 0, TaxonomyUtil.GOORU_ORG_UID))) {
 			throw new UnauthorizedException(generateErrorMessage("GL0082", "secret") + secretKey);
 		}
+		boolean registerUser = false;
 		final Identity identity = new Identity();
 		identity.setExternalId(newUser.getEmailId());
 		User userIdentity = this.getUserService().findByIdentity(identity);
@@ -398,14 +399,12 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 		}
 
 		if (userIdentity == null) {
-			try {				
+			try {
 				userIdentity = this.getUserManagementService().createUser(newUser, null, null, 1, 0, null, null, null, null, null, null, null, source, null, request, null, null);
-				SessionContextSupport.putLogParameter(EVENT_NAME,USER_REG);
+				registerUser = true;
 			} catch (Exception e) {
 				LOGGER.error("error" + e.getMessage());
 			}
-		}else{
-			SessionContextSupport.putLogParameter(EVENT_NAME, _USER_LOGIN);          
 		}
 		SessionContextSupport.putLogParameter(TYPE, source);
 		Identity newIdentity = null;
@@ -422,10 +421,12 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			sessionToken = this.getUserManagementService().createSessionToken(userIdentity, request.getSession().getId(), application);
 		}
 		request.getSession().setAttribute(Constants.SESSION_TOKEN, sessionToken.getToken());
-		try {
-			this.getAccountEventlog().getEventLogs(newIdentity, sessionToken,true);
-		} catch (JSONException e) {
-			LOGGER.error("error" + e.getMessage());
+		if (!registerUser) {
+			try {
+				this.getAccountEventlog().getEventLogs(newIdentity, sessionToken, true);
+			} catch (JSONException e) {
+				LOGGER.error("error" + e.getMessage());
+			}
 		}
 		try {
 			newUser = (User) BeanUtils.cloneBean(userIdentity);

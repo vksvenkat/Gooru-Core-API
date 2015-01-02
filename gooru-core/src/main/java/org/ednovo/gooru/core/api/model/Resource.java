@@ -8,8 +8,6 @@ import java.util.Set;
 
 import org.ednovo.gooru.core.application.util.BaseUtil;
 import org.ednovo.gooru.core.application.util.ResourceMetaInfo;
-import org.ednovo.gooru.core.security.AuthenticationDo;
-import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -23,8 +21,9 @@ public class Resource extends Content implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = -9010445497258009775L;
-
+	
 	private static final String INDEX_TYPE = "resource";
+	
 
 	public static enum RecordSource {
 		QUOTED("userquoted"), CRAWLED("goorucrawled"), COLLECTION("useradded"), GAT("adminadded"), DEFAULT("notadded");
@@ -85,7 +84,7 @@ public class Resource extends Content implements Serializable {
 	private Integer collaboratorCount;
 
 	private String averageTime;
-
+	
 	private Integer averageTimeSpent;
 
 	private Integer collectionCount;
@@ -107,7 +106,7 @@ public class Resource extends Content implements Serializable {
 	private List<ResourceInstance> resourceInstances;
 
 	private transient List<Learnguide> resourceLearnguides;
-
+	
 	private List<ContentMetaDTO> depthOfKnowledges;
 
 	@JsonManagedReference
@@ -172,30 +171,38 @@ public class Resource extends Content implements Serializable {
 	private AttachDTO attach;
 
 	private Map<Integer, List<Code>> taxonomyMapByCode;
-
+	
 	private CustomTableValue resourceFormat;
-
+	
 	private CustomTableValue instructional;
 
-	private Map<String, Object> ratings;
-
+	private Map<String,Object> ratings;
+	
+	
 	private List<ContentMetaDTO> educationalUse;
-
+	
 	private List<ContentMetaDTO> momentsOfLearning;
-
+	
 	private ResourceMetaInfo metaInfo;
+	
 
+	public static final String COLLECTION_THUMBNAIL_SIZES = "160x120,75x56,120x90,80x60,50x40,310x258,800x600";
+
+	public static final String QUIZ_THUMBNAIL_SIZES = "160x120,75x56,120x90,d80x60,50x40,800x600";
+
+	public static final String RESOURCE_THUMBNAIL_SIZES = "80x60,160x120";
+	
 	private List<String> publisher;
-
+	
 	private List<String> aggregator;
-
+	
 	private List<String> host;
-
+	
 	private List<Map<String, Object>> resourceTags;
 	private String clusterUid;
 	private Integer isRepresentative;
 	private List<String> libraryNames;
-
+	
 	public Resource() {
 		recordSource = RecordSource.DEFAULT.getRecordSource();
 	}
@@ -253,7 +260,14 @@ public class Resource extends Content implements Serializable {
 	public byte[] getFileData() {
 		return fileData;
 	}
-
+	
+	/*public String getFolder() {
+		if (folder == null && getGooruOid() != null) {
+			folder = "assets/" + getGooruOid() + '/';
+		}
+		return folder;
+	}*/
+	
 	public String getFolder() {
 		if ((folder == null || folder.length() < 10) && getContentId() != null) {
 			folder = buildResourceFolder(getContentId());
@@ -270,6 +284,7 @@ public class Resource extends Content implements Serializable {
 
 		return contentFolder + "/";
 	}
+
 
 	public void setFolder(String folder) {
 		this.folder = folder;
@@ -318,7 +333,7 @@ public class Resource extends Content implements Serializable {
 	public String getAssetURI() {
 		if (getOrganization() != null) {
 			if (getS3UploadFlag() != null && getS3UploadFlag() == 1 && getOrganization().getS3StorageArea() != null) {
-				assetURI = getOrganization().getS3StorageArea().getS3Path();
+				assetURI = getOrganization().getS3StorageArea().getS3Path() ;
 			} else if ((getS3UploadFlag() == null || getS3UploadFlag() == 0) && getOrganization().getNfsStorageArea() != null) {
 				if (getOrganization().getNfsStorageArea().getCdnDirectPath() != null) {
 					assetURI = getOrganization().getNfsStorageArea().getCdnDirectPath().split(",")[0];
@@ -576,7 +591,7 @@ public class Resource extends Content implements Serializable {
 		return customFields;
 	}
 
-	public Map<String, String> getCustomFieldValues() {
+	public  Map<String, String> getCustomFieldValues() {
 		return customFieldValues;
 	}
 
@@ -797,11 +812,11 @@ public class Resource extends Content implements Serializable {
 		return resourceFormat;
 	}
 
-	public Map<String, Object> getRatings() {
+	public Map<String,Object> getRatings() {
 		return ratings;
 	}
 
-	public void setRatings(Map<String, Object> ratings) {
+	public void setRatings(Map<String,Object> ratings) {
 		this.ratings = ratings;
 	}
 
@@ -828,7 +843,7 @@ public class Resource extends Content implements Serializable {
 	public List<ContentMetaDTO> getDepthOfKnowledges() {
 		return depthOfKnowledges;
 	}
-
+	
 	public void setMetaInfo(ResourceMetaInfo metaInfo) {
 		this.metaInfo = metaInfo;
 	}
@@ -836,20 +851,20 @@ public class Resource extends Content implements Serializable {
 	public ResourceMetaInfo getMetaInfo() {
 		return metaInfo;
 	}
-
-	public List<String> getPublisher() {
+	
+	public List<String> getPublisher(){
 		return publisher;
 	}
-
-	public void setPublisher(List<String> publisher) {
+	
+	public void setPublisher(List<String> publisher){
 		this.publisher = publisher;
 	}
 
-	public List<String> getAggregator() {
+	public List<String> getAggregator(){
 		return aggregator;
 	}
-
-	public void setAggregator(List<String> aggregator) {
+	
+	public void setAggregator(List<String> aggregator){
 		this.aggregator = aggregator;
 	}
 
@@ -868,7 +883,6 @@ public class Resource extends Content implements Serializable {
 	public List<Map<String, Object>> getResourceTags() {
 		return resourceTags;
 	}
-
 	public String getClusterUid() {
 		return clusterUid;
 	}
@@ -883,8 +897,8 @@ public class Resource extends Content implements Serializable {
 
 	public void setIsRepresentative(Integer isRepresentative) {
 		this.isRepresentative = isRepresentative;
-	}
-
+	}	
+	
 	public Integer getS3UploadFlag() {
 		return s3UploadFlag;
 	}

@@ -2,8 +2,6 @@ package org.ednovo.gooru.core.application.util.formatter;
 
 import java.util.Map;
 
-import org.ednovo.gooru.core.api.model.Thumbnail;
-
 public class ResourceFo {
 
 	private String resourceInstanceId;
@@ -21,9 +19,8 @@ public class ResourceFo {
 	private ResourceStatusFo resourcestatus;
 	private ResourceInfoFo resourceInfo;
 	private String category;
-	private Thumbnail thumbnails;
 	private String recordSource;
-	
+
 	private Map<String, String> customFieldValues;
 
 	public ResourceFo() {
@@ -144,14 +141,6 @@ public class ResourceFo {
 		this.category = category;
 	}
 
-	public void setThumbnails(Thumbnail thumbnails) {
-		this.thumbnails = thumbnails;
-	}
-
-	public Thumbnail getThumbnails() {
-		return thumbnails;
-	}
-
 	public ResourceInfoFo getResourceInfo() {
 		return resourceInfo;
 	}
@@ -159,7 +148,6 @@ public class ResourceFo {
 	public void setResourceInfo(ResourceInfoFo resourceInfoFo) {
 		this.resourceInfo = resourceInfoFo;
 	}
-
 
 	public Map<String, String> getCustomFieldValues() {
 		return customFieldValues;
@@ -176,7 +164,6 @@ public class ResourceFo {
 	public String getRecordSource() {
 		return recordSource;
 	}
-
 
 	public class ResourceStatusFo {
 
@@ -277,8 +264,6 @@ public class ResourceFo {
 		public void setResourcedomainname(String resourcedomainname) {
 			this.resourcedomainname = resourcedomainname;
 		}
-		
-		
 
 	}
 }

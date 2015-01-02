@@ -124,7 +124,6 @@ public class CollectionFormatter {
 			}
 			resourceFo.getResourcestatus().setStatusIsBroken(brokenResource);
 			resourceFo.getResourcestatus().setStatusIsFrameBreaker(hasFrameBreaker);
-			resourceFo.setThumbnails(resource.getThumbnails());
 			if (resource.getThumbnail() == null || resource.getThumbnail().equals("")) {
 				final String resourceTypeName = resource.getResourceType().getName();
 				if (resourceTypeName.equals(ResourceType.Type.PRESENTATION.getType()) || resourceTypeName.equals(ResourceType.Type.HANDOUTS.getType()) || resourceTypeName.equals(ResourceType.Type.TEXTBOOK.getType())) {
@@ -264,7 +263,6 @@ public class CollectionFormatter {
 			classplanFo.setCollaboratorsString(collection.collaboratorsInAString());
 			classplanFo.setCustomFieldValues(collection.getCustomFieldValues());
 			classplanFo.setHasRequestPending(collection.getRequestPending());
-			classplanFo.setThumbnails(collection.getThumbnails());
 		}
 		return classplanFo;
 	}
