@@ -12,6 +12,11 @@ public class Thumbnail implements Serializable {
 	private String url;
 	private String dimensions;
 	private boolean isDefaultImage;
+	private ResourceType thumbnailResourceType;
+	private String resourceUrl;
+	private String thumbnailName;
+	private String thumbnailAssetURI;
+	private String thumbnailFolder;
 	public static final String COLLECTION_THUMBNAIL_SIZES = "160x120,75x56,120x90,80x60,50x40,310x258,800x600";
 
 	public static final String QUIZ_THUMBNAIL_SIZES = "160x120,75x56,120x90,d80x60,50x40,800x600";
@@ -23,21 +28,26 @@ public class Thumbnail implements Serializable {
 	}
 
 	public Thumbnail(ResourceType resourceType, String resourceUrl, String thumbnail, String assetURI, String folder) {
-		this.setUrl(getUrl(resourceType, resourceUrl, thumbnail, assetURI, folder));
-		this.setDimensions(getDimensions(resourceType));
-		this.setDefaultImage(isDefaultImage(resourceType, thumbnail));
+		this.setThumbnailAssetURI(assetURI);
+		this.setThumbnailResourceType(resourceType);
+		this.setResourceUrl(resourceUrl);
+		this.setThumbnailName(thumbnail);
+		this.setThumbnailFolder(folder);
+		this.setUrl(getUrl());
+		this.setDefaultImage(isDefaultImage());
+		this.setDimensions(this.getDimensions());
 	}
 
-	public String getUrl(ResourceType resourceType, String resourceUrl, String thumbnail, String assetURI, String folder) {
-		if (resourceType != null) {
-			if (!resourceType.getName().equalsIgnoreCase("assessment-question")) {
-				if (StringUtils.isBlank(thumbnail) && resourceType.getName().equalsIgnoreCase(ResourceType.Type.VIDEO.getType())) {
-					this.url = this.getYoutubeVideoId(resourceUrl) == null ? null : "img.youtube.com/vi/" + this.getYoutubeVideoId(resourceUrl) + "/1.jpg";
+	public String getUrl() {
+		if (getThumbnailResourceType() != null) {
+			if (!getThumbnailResourceType().getName().equalsIgnoreCase("assessment-question")) {
+				if (StringUtils.isBlank(getThumbnailName()) && getThumbnailResourceType().getName().equalsIgnoreCase(ResourceType.Type.VIDEO.getType())) {
+					this.url = this.getYoutubeVideoId(getResourceUrl()) == null ? null : "img.youtube.com/vi/" + this.getYoutubeVideoId(getResourceUrl()) + "/1.jpg";
 				} else {
-					if (thumbnail != null && thumbnail.contains("gooru-default")) {
-						this.url = assetURI + thumbnail;
-					} else if (StringUtils.isBlank(thumbnail)) {
-						this.url = assetURI + folder + thumbnail;
+					if (getThumbnailName() != null && getThumbnailName().contains("gooru-default")) {
+						this.url = getThumbnailAssetURI() + getThumbnailName();
+					} else if (getThumbnailName() != null && !getThumbnailName().isEmpty()) {
+						this.url = getThumbnailAssetURI() + getThumbnailFolder() + getThumbnailName();
 					} else {
 						this.url = "";
 					}
@@ -51,9 +61,9 @@ public class Thumbnail implements Serializable {
 		this.url = url;
 	}
 
-	public String getDimensions(ResourceType resourceType) {
-		if (resourceType != null) {
-			String resourceTypeName = resourceType.getName();
+	public String getDimensions() {
+		if (getThumbnailResourceType() != null) {
+			String resourceTypeName = getThumbnailResourceType().getName();
 			if (resourceTypeName.equalsIgnoreCase(ResourceType.Type.CLASSPLAN.getType()) || resourceTypeName.equalsIgnoreCase(ResourceType.Type.CLASSBOOK.getType())) {
 				this.dimensions = COLLECTION_THUMBNAIL_SIZES;
 			} else if (resourceTypeName.equalsIgnoreCase(ResourceType.Type.ASSESSMENT_QUIZ.getType()) || resourceTypeName.equalsIgnoreCase(ResourceType.Type.ASSESSMENT_EXAM.getType())) {
@@ -71,13 +81,13 @@ public class Thumbnail implements Serializable {
 		this.dimensions = dimensions;
 	}
 
-	public boolean isDefaultImage(ResourceType resourceType, String thumbnail) {
-		if (resourceType != null) {
-			String resourceTypeName = resourceType.getName();
-			if (thumbnail == null && !(resourceTypeName.equalsIgnoreCase(ResourceType.Type.VIDEO.getType()))) {
+	public boolean isDefaultImage() {
+		if (getThumbnailResourceType() != null) {
+			String resourceTypeName = getThumbnailResourceType().getName();
+			if (getThumbnailName() == null && !(resourceTypeName.equalsIgnoreCase(ResourceType.Type.VIDEO.getType()))) {
 				this.isDefaultImage = true;
 			} else if (((resourceTypeName.equalsIgnoreCase(ResourceType.Type.CLASSPLAN.getType()) || resourceTypeName.equalsIgnoreCase(ResourceType.Type.CLASSBOOK.getType()) || resourceTypeName.equalsIgnoreCase(ResourceType.Type.ASSESSMENT_EXAM.getType()) || resourceTypeName
-					.equalsIgnoreCase(ResourceType.Type.ASSESSMENT_QUIZ.getType())) && thumbnail.contains("gooru-default"))) {
+					.equalsIgnoreCase(ResourceType.Type.ASSESSMENT_QUIZ.getType())) && getThumbnailName().contains("gooru-default"))) {
 				this.isDefaultImage = true;
 			} else {
 				this.isDefaultImage = false;
@@ -103,4 +113,45 @@ public class Thumbnail implements Serializable {
 		}
 		return videoId;
 	}
+
+	public String getResourceUrl() {
+		return resourceUrl;
+	}
+
+	public void setResourceUrl(String resourceUrl) {
+		this.resourceUrl = resourceUrl;
+	}
+
+	public ResourceType getThumbnailResourceType() {
+		return thumbnailResourceType;
+	}
+
+	public void setThumbnailResourceType(ResourceType thumbnailResourceType) {
+		this.thumbnailResourceType = thumbnailResourceType;
+	}
+
+	public String getThumbnailName() {
+		return thumbnailName;
+	}
+
+	public void setThumbnailName(String thumbnailName) {
+		this.thumbnailName = thumbnailName;
+	}
+
+	public String getThumbnailAssetURI() {
+		return thumbnailAssetURI;
+	}
+
+	public void setThumbnailAssetURI(String thumbnailAssetURI) {
+		this.thumbnailAssetURI = thumbnailAssetURI;
+	}
+
+	public String getThumbnailFolder() {
+		return thumbnailFolder;
+	}
+
+	public void setThumbnailFolder(String thumbnailFolder) {
+		this.thumbnailFolder = thumbnailFolder;
+	}
+
 }
