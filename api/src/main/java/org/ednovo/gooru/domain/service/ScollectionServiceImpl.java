@@ -2210,9 +2210,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				Resource resource = null;
 				if (newResource.getUrl() != null && !newResource.getUrl().isEmpty() && newResource.getAttach() == null) {
 					resource = this.getResourceRepository().findResourceByUrl(newResource.getUrl(), Sharing.PUBLIC.getSharing(), null);
-					if (resource == null) {
-						resource = this.getResourceRepository().findResourceByUrl(newResource.getUrl(), Sharing.PRIVATE.getSharing(), user.getGooruUId());
-					}
 				}
 				if (resource != null && resource.getSharing() != null && resource.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing())) {
 					throw new AccessDeniedException(generateErrorMessage("GL0012"));
