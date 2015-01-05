@@ -8,6 +8,7 @@ import java.util.Set;
 
 import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.api.model.CodeType;
+import org.ednovo.gooru.core.api.model.Thumbnail;
 import org.ednovo.gooru.core.api.model.User;
 
 public class CollectionFo {
@@ -95,6 +96,8 @@ public class CollectionFo {
 	private Integer quotedResourceCount;
 
 	private Map<String, String> customFieldValues;
+	
+	private Thumbnail thumbnails;
 
 	public CollectionFo() {
 
@@ -466,6 +469,14 @@ public class CollectionFo {
 
 	public void setQuotedResourceCount(Integer quotedResourceCount) {
 		this.quotedResourceCount = quotedResourceCount;
+	}
+
+	public Thumbnail getThumbnails() {
+		return thumbnails;
+	}
+
+	public void setThumbnails(Thumbnail thumbnails) {
+		this.thumbnails = thumbnails;
 	}
 
 }
