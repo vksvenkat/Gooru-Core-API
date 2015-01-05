@@ -385,21 +385,20 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 		identity.setExternalId(newUser.getEmailId());
 		User userIdentity = this.getUserService().findByIdentity(identity);
 		UserToken sessionToken = null;
-		if (newUser.getUsername() == null) {
-			newUser.setFirstName(StringUtils.remove(newUser.getFirstName(), " "));
-			newUser.setUsername(newUser.getFirstName());
-			if (newUser.getLastName() != null && newUser.getLastName().length() > 0) {
-				newUser.setUsername(newUser.getUsername() + newUser.getLastName().substring(0, 1));
-			}
-			final User user = this.getUserRepository().findUserWithoutOrganization(newUser.getUsername());
-			if (user != null && user.getUsername().equalsIgnoreCase(newUser.getUsername())) {
-				final Random randomNumber = new Random();
-				newUser.setUsername(newUser.getUsername() + randomNumber.nextInt(1000));
-			}
-		}
-
 		if (userIdentity == null) {
 			try {
+				if (newUser.getUsername() == null) {
+					newUser.setFirstName(StringUtils.remove(newUser.getFirstName(), " "));
+					newUser.setUsername(newUser.getFirstName());
+					if (newUser.getLastName() != null && newUser.getLastName().length() > 0) {
+						newUser.setUsername(newUser.getUsername() + newUser.getLastName().substring(0, 1));
+					}
+					final User user = this.getUserRepository().findUserWithoutOrganization(newUser.getUsername());
+					if (user != null && user.getUsername().equalsIgnoreCase(newUser.getUsername())) {
+						final Random randomNumber = new Random();
+						newUser.setUsername(newUser.getUsername() + randomNumber.nextInt(1000));
+					}
+				}
 				userIdentity = this.getUserManagementService().createUser(newUser, null, null, 1, 0, null, null, null, null, null, null, null, source, null, request, null, null);
 				registerUser = true;
 			} catch (Exception e) {
