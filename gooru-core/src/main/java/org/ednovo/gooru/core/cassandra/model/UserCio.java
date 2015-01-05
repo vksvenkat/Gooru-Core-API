@@ -44,7 +44,7 @@ public class UserCio implements IsEntityCassandraIndexable {
 	@Column
 	private String emailId;
 	
-	@Column
+	@Column(name="username")
 	private String userName;
 
 	@Column
