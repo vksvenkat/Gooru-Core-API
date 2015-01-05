@@ -104,7 +104,10 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 	private static final String FIND_PARTY_ID = "FROM Party party WHERE party.partyUid =:partyUid";
 	private static final String FIND_IDENTITY = "SELECT identity.user FROM Identity  identity WHERE identity.externalId = :externalId AND " + generateOrgAuthQuery("identity.user.") + " AND " + generateUserIsDeleted("identity.user.");
 	private static final String FIND_IDENTITY_LOGIN = "SELECT identity.user FROM Identity  identity WHERE identity.externalId = :externalId AND " + generateUserIsDeleted("identity.user.");
-
+	private static final String FIND_ENTITY_BY_ENTITY_NAME = "SELECT DISTINCT(eo.entityName) FROM EntityOperation eo WHERE eo.entityName = :entityName";
+	private static final String FIND_OPERATIONS_BY_ROLE = "FROM RoleEntityOperation REO WHERE REO.userRole.roleId = :roleId";
+	private static final String FIND_ALL_ENTITY_NAME = "SELECT DISTINCT entityOperation.entityName FROM EntityOperation entityOperation";
+	
 	@Autowired
 	public UserRepositoryHibernate(SessionFactory sessionFactory, JdbcTemplate jdbcTemplate) {
 		super();
@@ -177,7 +180,6 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 		return (Identity) (query.list().size() == 0 ? null : (query.list().get(0)));
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public User findByIdentity(Identity identity) {
 		Query query = getSession().createQuery(FIND_IDENTITY);
@@ -479,7 +481,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 		query.setParameterList("roleNames", roleNames.split(","));
 		return query.list();
 	}
-
+	
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<UserRole> findAllRoles() {
@@ -487,8 +489,8 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 		Query query = getSession().createQuery(hql);
 		addOrgAuthParameters(query);
 		return query.list();
-	}	
-	
+	}
+
 	@Override
 	public User getUserByUserName(String userName, boolean isLoginRequest) {
 		String hql = "FROM User  user WHERE user.username = :username ";
@@ -857,26 +859,33 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 		return find("From UserRoleAssoc userRoleAssoc  WHERE userRoleAssoc.user.partyUid =' " + userUid + "'  AND " + generateOrgAuthQueryWithData("userRoleAssoc.user.") + " AND " + generateUserIsDeleted("userRoleAssoc.user."));
 	}
 	
-	@Override
-	public Long countAllRoles() {
-		String hql = "select count(*) from UserRole userRole where " + generateOrgAuthQuery("userRole.");
-		Query query = getSession().createQuery(hql);
-		addOrgAuthParameters(query);
-		return (Long)query.list().get(0);
-	}
-	
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<UserRole> findUserRoles(String userUid) {
-		String hql = "select userRoleAssoc.role From UserRoleAssoc userRoleAssoc  WHERE userRoleAssoc.user.partyUid = '"+userUid+"' AND " + generateOrgAuthQuery("userRoleAssoc.role.");
+	public List<UserRole> getRoles(Integer offset, Integer limit,String userUid) {
+		
+		String hql = null;
+		if(userUid != null){		
+			hql = "select userRoleAssoc.role From UserRoleAssoc userRoleAssoc  WHERE 1=1  AND userRoleAssoc.user.userId is not null AND userRoleAssoc.user.partyUid = '"+userUid+"' AND " + generateOrgAuthQuery("userRoleAssoc.user.");
+			
+		}else{
+			hql = "select userRole From UserRole userRole  WHERE 1=1 AND " + generateOrgAuthQuery("userRole.");
+		}
 		Query query = getSession().createQuery(hql);
+		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : limit);
+		query.setFirstResult(offset);
 		addOrgAuthParameters(query);
 		return query.list();
 	}
 
 	@Override
-	public Long countUserRoles(String userUid) {
-		String hql = "select count(*) From UserRoleAssoc userRoleAssoc  WHERE userRoleAssoc.user.partyUid = '"+userUid+"' AND " + generateOrgAuthQuery("userRoleAssoc.role.");
+	public Long countRoles(String userUid) {
+		
+		String hql = null;
+		if(userUid != null){		
+			hql = "select count(userRoleAssoc.role) From UserRoleAssoc userRoleAssoc  WHERE 1=1  AND userRoleAssoc.user.partyUid = '"+userUid+"' AND " + generateOrgAuthQuery("userRoleAssoc.user.");
+		}else{
+			hql = "select count(*) From UserRole userRole  WHERE 1=1 AND " + generateOrgAuthQuery("userRole.");
+		}
 		Query query = getSession().createQuery(hql);
 		addOrgAuthParameters(query);
 		return (Long)query.list().get(0);
@@ -886,14 +895,15 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 	public EntityOperation getEntityOperationByEntityOperationId(Integer entityOperationId){
 		String hql = "select entityOperation From EntityOperation entityOperation  WHERE entityOperation.entityOperationId = "+entityOperationId;
 		Query query = getSession().createQuery(hql);
-		return (EntityOperation) (query.list().size() > 0 ? query.list().get(0) : null);
+		return (EntityOperation) query.list().get(0);
 	}
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<EntityOperation> findAllEntityNames() {
-		String hql = "select distinct entityOperation.entityName from EntityOperation entityOperation";
-		Query query = getSession().createQuery(hql);
+	public List<EntityOperation> findAllEntityNames(Integer offset, Integer limit) {
+		Query query = getSession().createQuery(FIND_ALL_ENTITY_NAME);
+		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : limit);
+		query.setFirstResult(offset);
 		return query.list();
 	}
 	
@@ -911,14 +921,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 		Query query = getSession().createQuery(hql);
 		return query.list();
 	}
-	
-	@Override
-	public Long countOperationsByEntityName(String entityName) {
-		String hql = "select count(distinct entityOperation.operationName) from EntityOperation entityOperation where entityOperation.entityName='"+entityName+"'";
-		Query query = getSession().createQuery(hql);
-		return (Long)query.list().get(0);
-	}
-	
+		
 	@Override
 	public UserRoleAssoc findUserRoleAssocEntryByRoleIdAndUserUid(Integer roleId, String userUid) {
 		String hql = "FROM UserRoleAssoc URA WHERE URA.role.roleId = :roleId and URA.user.partyUid = :userUid";
@@ -926,5 +929,20 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 		query.setParameter("roleId", roleId);
 		query.setParameter("userUid", userUid);
 		return (UserRoleAssoc) (query.list().size() > 0 ? query.list().get(0) : null);
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<RoleEntityOperation> findRoleOperationsByRoleId(Integer roleId) {
+		Query query = getSession().createQuery(FIND_OPERATIONS_BY_ROLE);
+		query.setParameter("roleId", roleId);
+		return (List<RoleEntityOperation>) query.list();
+	}	
+	
+	@Override
+	public boolean findEntityByEntityName(String entityName){
+		Query query = getSession().createQuery(FIND_ENTITY_BY_ENTITY_NAME);
+		query.setParameter("entityName", entityName);
+		return query.list().size() > 0 ? true : false;
 	}
 }

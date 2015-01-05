@@ -9,7 +9,6 @@ import org.ednovo.gooru.controllers.BaseController;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Menu;
 import org.ednovo.gooru.core.api.model.MenuItem;
-import org.ednovo.gooru.core.api.model.MenuRoleAssoc;
 import org.ednovo.gooru.core.api.model.Role;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
@@ -68,12 +67,12 @@ public class MenuRestV2Controller extends BaseController implements ConstantProp
 	}
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_MENU_UPDATE })
-	@RequestMapping(method = RequestMethod.PUT, value = "item/{id}")
+	@RequestMapping(method = RequestMethod.PUT, value = "/item/{id}")
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public ModelAndView updateMenuItem(@RequestBody String data, HttpServletRequest request, HttpServletResponse response, @PathVariable String id) throws Exception {
-
+	public ModelAndView updateMenuItem(@RequestBody String data, HttpServletRequest request, HttpServletResponse response, @PathVariable(value = ID) String menuItemUid) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
-		MenuItem responseDTO = getMenuService().updateMenuItem(buildMenuItemFromInputParameters(data), id, user);
+		Menu menu = this.buildMenuFromInputParameters(data);
+		MenuItem responseDTO = ((menu.getMenuUid() != null && !menu.getMenuUid().isEmpty()) ? getMenuService().updateMenuItem(menu.getMenuUid(), menuItemUid, user) : getMenuService().updateMenuItem(null, menuItemUid, user));
 		String includes[] = (String[]) ArrayUtils.addAll(MENU_ITEM_INCLUDES, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(responseDTO, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
@@ -123,7 +122,7 @@ public class MenuRestV2Controller extends BaseController implements ConstantProp
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_MENU_ADD })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	@RequestMapping(method = RequestMethod.POST, value = "/assignRole/{menuUid}")
+	@RequestMapping(method = RequestMethod.POST, value = "/{menuUid}/role")
 	public ModelAndView assignRoleByMenuUid(HttpServletRequest request,HttpServletResponse response,@PathVariable(MENU_UID) String menuUid, @RequestBody String data)throws Exception {
 
 		return toModelAndViewWithIoFilter(getMenuService().assignRoleByMenuUid(this.buildRoleFromInputParameters(data).getRoleId(), menuUid), RESPONSE_FORMAT_JSON,EXCLUDE_ALL, true, (String[]) ArrayUtils.addAll(MENU_ROLE_ASSOC_INCLUDES,ERROR_INCLUDE));
@@ -131,10 +130,29 @@ public class MenuRestV2Controller extends BaseController implements ConstantProp
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_MENU_DELETE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	@RequestMapping(method = RequestMethod.DELETE, value = "/assignRole/{menuUid}")
+	@RequestMapping(method = RequestMethod.DELETE, value = "/{menuUid}/role")
 	public void removeAssignedRoleByMenuUid(HttpServletRequest request,HttpServletResponse response,@PathVariable(MENU_UID) String menuUid, @RequestBody String data)throws Exception {
 		
 		this.getMenuService().removeAssignedRoleByMenuUid(this.buildRoleFromInputParameters(data).getRoleId(), menuUid);
+		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+	}
+
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_MENU_DELETE })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(method = RequestMethod.DELETE, value = "/{id}")
+	public void deleteMenu(@PathVariable(value = ID) String menuUid, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		
+		this.getMenuService().deleteMenu(menuUid,MENU);
+		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+	}
+	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_MENU_DELETE })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(method = RequestMethod.DELETE, value = "/item/{id}")
+	public void deleteMenuItem(@PathVariable(value = ID) String menuItemUid, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		
+		this.getMenuService().deleteMenu(menuItemUid,ITEM);
+		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
 	}
 	
 	private Role buildRoleFromInputParameters(String data) {
@@ -145,10 +163,6 @@ public class MenuRestV2Controller extends BaseController implements ConstantProp
 		return JsonDeserializer.deserialize(data, Menu.class);
 	}
 	
-	private MenuItem buildMenuItemFromInputParameters(String data) {
-		return JsonDeserializer.deserialize(data, MenuItem.class);
-	}
-
 	public MenuService getMenuService() {
 		return menuService;
 	}

@@ -62,12 +62,12 @@ public class ShareServiceImpl extends BaseServiceImpl implements ShareService,Pa
 		String url = null;
 		if (resource != null) {
 			if (!clearCache) {
-				url = (String) getRedisService().getValue(fullUrl + resource.getOrganization().getPartyUid());
+				url = (String) getRedisService().getValue(fullUrl + TaxonomyUtil.GOORU_ORG_UID);
 			}
 			if (url == null) {
-				Url bitly = Bitly.as(this.getSettingService().getConfigSetting(ConfigConstants.BITLY_USER_NAME, 0, resource.getOrganization().getPartyUid()), this.getSettingService().getConfigSetting(ConfigConstants.BITLY_APIKEY, 0, resource.getOrganization().getPartyUid())).call(shorten(fullUrl));
+				Url bitly = Bitly.as(this.getSettingService().getConfigSetting(ConfigConstants.BITLY_USER_NAME, 0, TaxonomyUtil.GOORU_ORG_UID), this.getSettingService().getConfigSetting(ConfigConstants.BITLY_APIKEY, 0, TaxonomyUtil.GOORU_ORG_UID)).call(shorten(fullUrl));
 				url = bitly.getShortUrl();
-				getRedisService().putValue(fullUrl + resource.getOrganization().getPartyUid(),  url, RedisService.DEFAULT_PROFILE_EXP);
+				getRedisService().putValue(fullUrl + TaxonomyUtil.GOORU_ORG_UID,  url, RedisService.DEFAULT_PROFILE_EXP);
 			}
 		} else {
 			throw new NotFoundException(generateErrorMessage(GL0056, RESOURCE));

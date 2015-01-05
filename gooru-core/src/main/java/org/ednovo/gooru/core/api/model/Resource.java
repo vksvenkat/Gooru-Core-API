@@ -5,8 +5,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.ednovo.gooru.core.application.util.BaseUtil;
 import org.ednovo.gooru.core.application.util.ResourceMetaInfo;
@@ -207,7 +205,6 @@ public class Resource extends Content implements Serializable {
 	
 	public Resource() {
 		recordSource = RecordSource.DEFAULT.getRecordSource();
-		thumbnails = new Resource.Thumbnail();
 	}
 
 	public void setIsNew(boolean isNew) {
@@ -352,7 +349,7 @@ public class Resource extends Content implements Serializable {
 			}
 		}
 
-		if (UserGroupSupport.getUserOrganizationCdnDirectPath() != null) {
+		if (UserGroupSupport.getUserOrganizationCdnDirectPath() != null && (getS3UploadFlag() == null || getS3UploadFlag() == 0)) {
 			assetURI = UserGroupSupport.getUserOrganizationCdnDirectPath();
 		}
 		assetURI = BaseUtil.changeHttpsProtocol(assetURI);
@@ -582,96 +579,8 @@ public class Resource extends Content implements Serializable {
 		return subscriptionCount;
 	}
 
-	public class Thumbnail implements Serializable {
-
-		private static final long serialVersionUID = 5215352335276824742L;
-		private String url;
-		private String dimensions;
-		private boolean isDefaultImage;
-
-		public String getUrl() {
-			if (getResourceType() != null) {
-				if (!getResourceType().getName().equalsIgnoreCase("assessment-question")) {
-					if (getResourceType().getName().equalsIgnoreCase(ResourceType.Type.VIDEO.getType())) {
-						this.url = this.getYoutubeVideoId(Resource.this.getUrl()) == null ? null : "img.youtube.com/vi/" + this.getYoutubeVideoId(Resource.this.getUrl()) + "/1.jpg";
-					} else {
-						if (getThumbnail() != null && getThumbnail().contains("gooru-default")) {
-							this.url = getAssetURI() + getThumbnail();
-						} else if (getThumbnail() != null && !getThumbnail().isEmpty()) {
-							this.url = getAssetURI() + getFolder() + getThumbnail();
-						} else {
-							this.url = "";
-						}
-					}
-				}
-			}
-			return url;
-		}
-
-		public void setUrl(String url) {
-			this.url = url;
-		}
-
-		public String getDimensions() {
-			if (getResourceType() != null) {
-				String resourceTypeName = getResourceType().getName();
-				if (resourceTypeName.equalsIgnoreCase(ResourceType.Type.CLASSPLAN.getType()) || resourceTypeName.equalsIgnoreCase(ResourceType.Type.CLASSBOOK.getType())) {
-					this.dimensions = COLLECTION_THUMBNAIL_SIZES;
-				} else if (resourceTypeName.equalsIgnoreCase(ResourceType.Type.ASSESSMENT_QUIZ.getType()) || resourceTypeName.equalsIgnoreCase(ResourceType.Type.ASSESSMENT_EXAM.getType())) {
-					this.dimensions = QUIZ_THUMBNAIL_SIZES;
-				} else {
-					this.dimensions = RESOURCE_THUMBNAIL_SIZES;
-				}
-				return dimensions;
-			} else {
-				return null;
-			}
-		}
-
-		public void setDimensions(String dimensions) {
-			this.dimensions = dimensions;
-		}
-
-		public boolean isDefaultImage() {
-			if(getResourceType() != null){
-				String resourceTypeName = getResourceType().getName();
-				if (getThumbnail() == null && !(resourceTypeName.equalsIgnoreCase(ResourceType.Type.VIDEO.getType()))) {
-					this.isDefaultImage = true;
-				} else if (((resourceTypeName.equalsIgnoreCase(ResourceType.Type.CLASSPLAN.getType()) || resourceTypeName.equalsIgnoreCase(ResourceType.Type.CLASSBOOK.getType()) || resourceTypeName.equalsIgnoreCase(ResourceType.Type.ASSESSMENT_EXAM.getType()) || resourceTypeName
-						.equalsIgnoreCase(ResourceType.Type.ASSESSMENT_QUIZ.getType())) && getThumbnail().contains("gooru-default"))) {
-					this.isDefaultImage = true;
-				} else {
-					this.isDefaultImage = false;
-				}
-			}
-
-			return isDefaultImage;
-		}
-
-		public void setDefaultImage(boolean isDefaultImage) {
-			this.isDefaultImage = isDefaultImage;
-		}
-		
-		private  String getYoutubeVideoId(String url) {
-			String pattern = "youtu(?:\\.be|be\\.com)/(?:.*v(?:/|=)|(?:.*/)?)([a-zA-Z0-9-_]{11}+)";
-			String videoId = null;
-			Pattern compiledPattern = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE);
-			Matcher matcher = compiledPattern.matcher(url);
-			if (matcher != null) {
-				while (matcher.find()) {
-					videoId = matcher.group(1);
-				}
-			}
-			return videoId;
-		}
-	}
-
 	public Thumbnail getThumbnails() {
-		return thumbnails;
-	}
-
-	public void setThumbnails(Thumbnail thumbnails) {
-		this.thumbnails = thumbnails;
+		return new Thumbnail(this.getResourceType(), getUrl(), getThumbnail(), getAssetURI(), getFolder());
 	}
 
 	public void setCustomFields(Map<String, String> customFields) {
@@ -1012,5 +921,9 @@ public class Resource extends Content implements Serializable {
 
 	public Integer getAverageTimeSpent() {
 		return averageTimeSpent;
+	}
+
+	public void setThumbnails(Thumbnail thumbnails) {
+		this.thumbnails = thumbnails;
 	}
 }

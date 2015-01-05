@@ -62,7 +62,6 @@ import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.ResourceSource;
 import org.ednovo.gooru.core.api.model.ResourceSummary;
 import org.ednovo.gooru.core.api.model.ResourceType;
-import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.ShelfType;
 import org.ednovo.gooru.core.api.model.StandardFo;
@@ -71,6 +70,7 @@ import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserCollectionItemAssoc;
 import org.ednovo.gooru.core.api.model.UserGroupSupport;
 import org.ednovo.gooru.core.api.model.UserSummary;
+import org.ednovo.gooru.core.application.util.BaseUtil;
 import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.application.util.ResourceMetaInfo;
 import org.ednovo.gooru.core.application.util.ServerValidationUtils;
@@ -210,9 +210,11 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 	@Autowired
 	private OperationAuthorizer operationAuthorizer;
-	
+
 	@Autowired
 	private PartyService partyService;
+
+	private String fileName;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ScollectionServiceImpl.class);
 
@@ -394,7 +396,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 			}
 
-			
 			Set<ContentSettings> contentSettingsObj = new HashSet<ContentSettings>();
 			ContentSettings contentSetting = new ContentSettings();
 			contentSetting.setContent(collection);
@@ -688,8 +689,8 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			}
 
 			final List<CollectionItem> collectionItems = this.getCollectionRepository().getCollectionItemByAssociation(collectionId, null, null);
-			List<CollectionItem> parentAssociations = this.getCollectionRepository().getCollectionItemByParentId(collectionId,null,null);
-			if(parentAssociations != null && parentAssociations.size() > 0) {
+			List<CollectionItem> parentAssociations = this.getCollectionRepository().getCollectionItemByParentId(collectionId, null, null);
+			if (parentAssociations != null && parentAssociations.size() > 0) {
 				collectionItems.addAll(parentAssociations);
 			}
 			try {
@@ -697,7 +698,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			} catch (Exception e) {
 				LOGGER.error(e.getMessage());
 			}
-			
 
 			for (CollectionItem item : collectionItems) {
 				this.deleteCollectionItem(item.getCollectionItemId(), user);
@@ -726,7 +726,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + user.getPartyUid() + "*");
 		getAsyncExecutor().deleteFromCache("v2-class-data-*");
-		getAsyncExecutor().deleteFromCache("v2-collection-data-"+ collection.getGooruOid() +"*");
+		getAsyncExecutor().deleteFromCache("v2-collection-data-" + collection.getGooruOid() + "*");
 
 	}
 
@@ -793,7 +793,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			}
 			getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
 			getAsyncExecutor().deleteFromCache("v2-class-data-" + collection.getGooruOid() + "*");
-			getAsyncExecutor().deleteFromCache("v2-collection-data-"+ collection.getGooruOid() +"*");
+			getAsyncExecutor().deleteFromCache("v2-collection-data-" + collection.getGooruOid() + "*");
 		}
 
 		return new ActionResponseDTO<CollectionItem>(collectionItem, errors);
@@ -910,7 +910,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				indexProcessor.index(collectionItem.getCollection().getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
 				getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
 				getAsyncExecutor().deleteFromCache("v2-class-data-" + collectionItem.getCollection().getGooruOid() + "*");
-				getAsyncExecutor().deleteFromCache("v2-collection-data-"+ collectionItem.getCollection().getGooruOid() +"*");
+				getAsyncExecutor().deleteFromCache("v2-collection-data-" + collectionItem.getCollection().getGooruOid() + "*");
 			} catch (Exception e) {
 				LOGGER.error(e.getMessage());
 			}
@@ -975,7 +975,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				indexProcessor.index(collectionItem.getCollection().getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
 				getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
 				getAsyncExecutor().deleteFromCache("v2-class-data-" + collectionItem.getCollection().getGooruOid() + "*");
-				getAsyncExecutor().deleteFromCache("v2-collection-data-"+ collection.getGooruOid() +"*");
+				getAsyncExecutor().deleteFromCache("v2-collection-data-" + collection.getGooruOid() + "*");
 			} catch (Exception e) {
 				LOGGER.error("error" + e.getMessage());
 			}
@@ -1028,11 +1028,11 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			this.getCollectionRepository().save(collection);
 			getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collection.getUser().getPartyUid() + "*");
 			getAsyncExecutor().deleteFromCache("v2-class-data-" + collection.getGooruOid() + "*");
-			getAsyncExecutor().deleteFromCache("v2-collection-data-"+ collection.getGooruOid() +"*");
+			getAsyncExecutor().deleteFromCache("v2-collection-data-" + collection.getGooruOid() + "*");
 		}
 		return new ActionResponseDTO<CollectionItem>(collectionItem, errors);
 	}
-	
+
 	@Override
 	public String getCollectionWithCache(String collectionId, boolean includeMetaInfo, boolean includeCollaborator, boolean isContentFlag, final User user, String merge, String rootNodeId, boolean isGat, boolean includeCollectionItem, boolean includeRelatedContent, boolean clearCache) {
 		String cacheKey = "v2-collection-data-" + collectionId + "-" + includeMetaInfo + "-" + includeCollaborator + "-" + isContentFlag;
@@ -1076,28 +1076,27 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				}
 			}
 		}
-		
+
 		return data;
 	}
-	
+
 	private String[] includes(boolean includeCollectionItem, boolean includeMetaInfo, boolean includeRelatedContent) {
-		String includes[]  = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, COLLECTION_INCLUDE_FIELDS);
-			if (includeCollectionItem) {
-				includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_ITEM_INCLUDE_FILEDS);
-			}
-			if (includeMetaInfo) {
-				includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_META_INFO);
-			}
-			includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_TAXONOMY);
-			
-			if (includeRelatedContent) {
-				includes = (String[]) ArrayUtils.add(includes, "*.contentAssociation");
-			}
-			includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_ITEM_TAGS);
+		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, COLLECTION_INCLUDE_FIELDS);
+		if (includeCollectionItem) {
+			includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_ITEM_INCLUDE_FILEDS);
+		}
+		if (includeMetaInfo) {
+			includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_META_INFO);
+		}
+		includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_TAXONOMY);
+
+		if (includeRelatedContent) {
+			includes = (String[]) ArrayUtils.add(includes, "*.contentAssociation");
+		}
+		includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_ITEM_TAGS);
 		return includes;
 	}
-	
-	
+
 	@Override
 	public Collection getCollection(String collectionId, boolean includeMetaInfo, boolean includeCollaborator, boolean isContentFlag, final User user, String merge, String rootNodeId, boolean isGat, boolean includeViewCount) {
 		Collection collection = this.getCollectionRepository().getCollectionByGooruOid(collectionId, null);
@@ -1127,7 +1126,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			}
 
 			collection.setLastModifiedUser(lastUserModifiedMap);
-			if(includeViewCount) {
+			if (includeViewCount) {
 				try {
 					collection.setViewCount(this.resourceCassandraService.getInt(collection.getGooruOid(), "stas.viewsCount"));
 					collection.setViews(Long.parseLong(this.resourceCassandraService.getInt(collection.getGooruOid(), "stas.viewsCount") + ""));
@@ -1199,8 +1198,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		}
 		return ratings;
 	}
-	
-	
+
 	@Override
 	public List<ContentMetaDTO> getContentMetaAssociation(final String type) {
 		List<ContentMetaDTO> depthOfKnowledges = new ArrayList<ContentMetaDTO>();
@@ -1560,7 +1558,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		}
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collection.getUser().getPartyUid() + "*");
 		try {
-		  this.getCollectionEventLog().getEventLogs(collection, jsonItemdata, apiCallerUser, false, true);
+			this.getCollectionEventLog().getEventLogs(collection, jsonItemdata, apiCallerUser, false, true);
 		} catch (Exception e) {
 			LOGGER.error("error" + e.getMessage());
 		}
@@ -1593,14 +1591,12 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		ServerValidationUtils.rejectIfMaxLimitExceed(8, data.getFirst(START), "GL0014", START, "8");
 		ServerValidationUtils.rejectIfMaxLimitExceed(8, data.getFirst(STOP), "GL0014", STOP, "8");
 
-		JSONObject jsonItemdata = new JSONObject();
-
+		JSONObject jsonItemdata =  null;
 		try {
-			jsonItemdata.put(_ITEM_DATA, data);
-		} catch (JSONException e1) {
-			e1.printStackTrace();
+			jsonItemdata = new JSONObject(new JSONSerializer().serialize(data));
+		} catch (JSONException e) {
+			LOGGER.error("Json parser error : " + e);
 		}
-
 		String narration = data.getFirst(NARRATION);
 		String narrationType = data.getFirst(NARRATION_TYPE);
 		final String start = data.getFirst(START);
@@ -1677,10 +1673,8 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		destCollectionItem.setStart(sourceCollectionItem.getStart());
 		destCollectionItem.setStop(sourceCollectionItem.getStop());
 		destCollectionItem.setAssociatedUser(targetCollection.getUser());
-		SessionContextSupport.putLogParameter(COLLECTION_ID, destCollectionItem.getCollection().getGooruOid());
-		SessionContextSupport.putLogParameter(RESOURCE_ID, destCollectionItem.getResource().getGooruOid());
 		this.getCollectionRepository().save(destCollectionItem);
-		getAsyncExecutor().deleteFromCache("v2-collection-data-"+ collectionId +"*");
+		getAsyncExecutor().deleteFromCache("v2-collection-data-" + collectionId + "*");
 		try {
 			if (destCollectionItem != null) {
 				this.getCollectionEventLog().getEventLogs(destCollectionItem, true, false, destCollectionItem.getCollection() != null && destCollectionItem.getCollection().getUser() != null ? destCollectionItem.getCollection().getUser() : null, true);
@@ -1847,7 +1841,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			gooruUid = newCollection.getUser().getGooruUId();
 		}
 		Collection collection = this.getCollectionByGooruOid(updateCollectionId, gooruUid);
-		rejectIfNull(collection, GL0056, _COLLECTION);		
+		rejectIfNull(collection, GL0056, _COLLECTION);
 		Errors errors = validateUpdateCollection(collection);
 		final JSONObject itemData = new JSONObject();
 		if (!errors.hasErrors()) {
@@ -1963,7 +1957,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				}
 				settings.putAll(newCollection.getSettings());
 				newCollection.setSettings(settings);
-				ContentSettings contentSetting = contentSettings == null ?  new ContentSettings() : contentSettings;
+				ContentSettings contentSetting = contentSettings == null ? new ContentSettings() : contentSettings;
 				contentSetting.setContent(collection);
 				contentSetting.setData(new JSONSerializer().exclude("*.class").serialize(newCollection.getSettings()));
 				this.getCollectionRepository().save(contentSetting);
@@ -2070,10 +2064,10 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				LOGGER.error("error" + e.getMessage());
 			}
 			getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collection.getUser().getPartyUid() + "*");
-			getAsyncExecutor().deleteFromCache("v2-collection-data-"+ collection.getGooruOid() +"*");
+			getAsyncExecutor().deleteFromCache("v2-collection-data-" + collection.getGooruOid() + "*");
 			List<CollectionItem> collectionItems = this.getCollectionRepository().findCollectionByResource(collection.getGooruOid(), null, null);
-			for(CollectionItem collectionItem : collectionItems) {
-				asyncExecutor.deleteFromCache("v2-collection-data-"+ collectionItem.getCollection().getGooruOid() +"*");
+			for (CollectionItem collectionItem : collectionItems) {
+				asyncExecutor.deleteFromCache("v2-collection-data-" + collectionItem.getCollection().getGooruOid() + "*");
 			}
 		}
 
@@ -2084,9 +2078,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		}
 		return new ActionResponseDTO<Collection>(collection, errors);
 	}
-	
-	
-	
+
 	@Override
 	public CollectionItem getCollectionItem(String collectionItemId, final String includeAdditionalInfo, User user, final String rootNodeId) {
 
@@ -2101,9 +2093,9 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	@Override
 	public Collection copyCollection(String collectionId, Collection newCollection, boolean addToShelf, String parentId, final User user) throws Exception {
 
-		Collection sourceCollection = this.getCollection(collectionId, false, false, false, user, null, null, false,false);
-		 CollectionItem collectionItem = null;
-		
+		Collection sourceCollection = this.getCollection(collectionId, false, false, false, user, null, null, false, false);
+		CollectionItem collectionItem = null;
+
 		Collection destCollection = null;
 		if (sourceCollection != null) {
 			destCollection = new Collection();
@@ -2196,7 +2188,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		this.getCollectionRepository().save(destCollection);
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + destCollection.getUser().getPartyUid() + "*");
 		getAsyncExecutor().deleteFromCache("v2-collection-data-" + destCollection.getGooruOid() + "*");
-		
+
 		try {
 			if (destCollection != null) {
 				indexProcessor.index(destCollection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
@@ -2223,9 +2215,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				Resource resource = null;
 				if (newResource.getUrl() != null && !newResource.getUrl().isEmpty() && newResource.getAttach() == null) {
 					resource = this.getResourceRepository().findResourceByUrl(newResource.getUrl(), Sharing.PUBLIC.getSharing(), null);
-					if (resource == null) {
-						resource = this.getResourceRepository().findResourceByUrl(newResource.getUrl(), Sharing.PRIVATE.getSharing(), user.getGooruUId());
-					}
 				}
 				if (resource != null && resource.getSharing() != null && resource.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing())) {
 					throw new AccessDeniedException(generateErrorMessage("GL0012"));
@@ -2255,10 +2244,10 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 					resource.setRecordSource(Resource.RecordSource.COLLECTION.getRecordSource());
 					ResourceType resourceTypeDo = new ResourceType();
 					resource.setResourceType(resourceTypeDo);
-
+					String fileExtension = null;
 					if (newResource.getAttach() != null && newResource.getAttach().getFilename() != null) {
-						String fileExtension = org.apache.commons.lang.StringUtils.substringAfterLast(newResource.getAttach().getFilename(), ".");
-						if (fileExtension.contains(PDF)) {
+						fileExtension = org.apache.commons.lang.StringUtils.substringAfterLast(newResource.getAttach().getFilename(), ".");
+						if (fileExtension.contains(PDF) || BaseUtil.supportedDocument().containsKey(fileExtension)) {
 							resourceTypeDo.setName(ResourceType.Type.HANDOUTS.getType());
 						} else {
 							resourceTypeDo.setName(ResourceType.Type.IMAGE.getType());
@@ -2268,22 +2257,22 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 						license.setName(CREATIVE_COMMONS);
 					} else {
 						resource.setUrl(newResource.getUrl());
-						if (ResourceImageUtil.getYoutubeVideoId(newResource.getUrl()) != null)  {
+						if (ResourceImageUtil.getYoutubeVideoId(newResource.getUrl()) != null) {
 							resourceTypeDo.setName(ResourceType.Type.VIDEO.getType());
-						} else if (newResource.getUrl() != null && newResource.getUrl().contains("vimeo.com")) { 			
-								String id = org.apache.commons.lang.StringUtils.substringAfterLast(newResource.getUrl(), "/");
-							    if (org.apache.commons.lang.StringUtils.isNumeric(id)) {
-							    	ResourceMetadataCo resourceMetadataCo = ResourceImageUtil.getMetaDataFromVimeoVideo(newResource.getUrl());
-							    	resourceTypeDo.setName(ResourceType.Type.VIMEO_VIDEO.getType());
-							    	newResource.setThumbnail(resourceMetadataCo != null ? resourceMetadataCo.getThumbnail() : null);
-							    } else { 
-							    	resourceTypeDo.setName(ResourceType.Type.RESOURCE.getType());
-							    }
-							    
-						} else { 
+						} else if (newResource.getUrl() != null && newResource.getUrl().contains("vimeo.com")) {
+							String id = org.apache.commons.lang.StringUtils.substringAfterLast(newResource.getUrl(), "/");
+							if (org.apache.commons.lang.StringUtils.isNumeric(id)) {
+								ResourceMetadataCo resourceMetadataCo = ResourceImageUtil.getMetaDataFromVimeoVideo(newResource.getUrl());
+								resourceTypeDo.setName(ResourceType.Type.VIMEO_VIDEO.getType());
+								newResource.setThumbnail(resourceMetadataCo != null ? resourceMetadataCo.getThumbnail() : null);
+							} else {
+								resourceTypeDo.setName(ResourceType.Type.RESOURCE.getType());
+							}
+
+						} else {
 							resourceTypeDo.setName(ResourceType.Type.RESOURCE.getType());
 						}
-						
+
 					}
 					resource.setLicense(license);
 					resource.setSharing(sharing);
@@ -2320,7 +2309,9 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 						resource.setResourceTags(this.getContentService().createTagAssoc(resource.getGooruOid(), tags, user));
 					}
 					try {
-						this.getResourceImageUtil().downloadAndSendMsgToGenerateThumbnails(resource, newResource.getThumbnail());
+						if (newResource.getThumbnail() != null || fileExtension != null && fileExtension.contains(PDF)) {
+							this.getResourceImageUtil().downloadAndSendMsgToGenerateThumbnails(resource, newResource.getThumbnail());
+						}
 					} catch (Exception e) {
 						LOGGER.error(e.getMessage());
 					}
@@ -2353,7 +2344,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				this.getCollectionRepository().save(response.getModel().getCollection());
 			}
 			getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + response.getModel().getCollection().getUser().getPartyUid() + "*");
-			getAsyncExecutor().deleteFromCache("v2-collection-data-"+ collectionId +"*");
+			getAsyncExecutor().deleteFromCache("v2-collection-data-" + collectionId + "*");
 		}
 		try {
 			this.getCollectionEventLog().getEventLogs(response.getModel(), true, false, user, false);
@@ -2410,8 +2401,9 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				itemData.put(SHARING, newResource.getSharing());
 			}
 
+			String fileExtension = null;
 			if (newResource.getAttach() != null && newResource.getAttach().getFilename() != null) {
-				String fileExtension = org.apache.commons.lang.StringUtils.substringAfterLast(newResource.getAttach().getFilename(), ".");
+				fileExtension = org.apache.commons.lang.StringUtils.substringAfterLast(newResource.getAttach().getFilename(), ".");
 				ResourceType resourceTypeDo = new ResourceType();
 				resource.setResourceType(resourceTypeDo);
 				if (fileExtension.contains(PDF)) {
@@ -2463,7 +2455,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			this.getCollectionRepository().save(collectionItem);
 			collectionItem.setStandards(this.getStandards(resource.getTaxonomySet(), false, null));
 			getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
-			getAsyncExecutor().deleteFromCache("v2-collection-data-"+ collectionItem.getCollection().getGooruOid() +"*");
+			getAsyncExecutor().deleteFromCache("v2-collection-data-" + collectionItem.getCollection().getGooruOid() + "*");
 		}
 		try {
 			this.getCollectionEventLog().getEventLogs(collectionItem, itemData, user);
@@ -2719,7 +2711,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	public ResourceManager getResourceManager() {
 		return resourceManager;
 	}
-	
+
 	public PartyService getPartyService() {
 		return partyService;
 	}

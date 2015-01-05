@@ -251,6 +251,10 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		if (sourceCollectionItem != null && sourceCollectionItem.getItemType() != null) {
 			collectionItem.setItemType(sourceCollectionItem.getItemType());
 		}
+		collectionItem.setPlannedEndDate(sourceCollectionItem.getPlannedEndDate());
+		collectionItem.setEstimatedTime(sourceCollectionItem.getEstimatedTime());
+		collectionItem.setAssignmentCompleted(sourceCollectionItem.getAssignmentCompleted());
+		
 		if (!user.getPartyUid().equalsIgnoreCase(collectionItem.getCollection().getUser().getPartyUid())) {
 			UserContentAssoc userContentAssocs = this.getCollaboratorRepository().findCollaboratorById(sourceId, user.getPartyUid());
 			if (userContentAssocs != null) {
@@ -279,7 +283,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + user.getPartyUid() + "*");
 
 		try {
-			this.getCollectionEventLog().getEventLogs(responseDTO.getModel(), true, user, responseDTO.getModel().getCollection().getCollectionType());
+			this.getCollectionEventLog().getEventLogs(responseDTO.getModel(), true, user, responseDTO.getModel().getCollection().getCollectionType(), sourceCollectionItem);
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
@@ -345,7 +349,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	public List<Map<String, Object>> getMyShelf(String gooruUid, Integer limit, Integer offset, String sharing, String collectionType, Integer itemLimit, boolean fetchChildItem, String topLevelCollectionType, String orderBy) {
 		StorageArea storageArea = this.getStorageRepository().getStorageAreaByTypeName(NFS);
 		if (!BaseUtil.isUuid(gooruUid)) {
-			User user = this.getUserService().getUserByUserName(gooruUid);
+			User user = this.getUserRepository().getUserByUserName(gooruUid, true);
 			gooruUid = user != null ? user.getPartyUid() : null;
 		}
 		List<Object[]> result = this.getCollectionRepository().getMyFolder(gooruUid, limit, offset, sharing, topLevelCollectionType != null ? topLevelCollectionType : collectionType, fetchChildItem, orderBy);
@@ -359,7 +363,11 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				collection.put(TYPE, object[2]);
 				Map<String, Object> thumbnails = new HashMap<String, Object>();
 				if (object[4] != null) {
-					thumbnails.put(URL, storageArea.getCdnDirectPath() + String.valueOf(object[3]) + String.valueOf(object[4]));
+					if (object[17] != null && Boolean.parseBoolean(object[17].toString())) {
+						thumbnails.put(URL, storageArea.getS3Path() + String.valueOf(object[3]) + String.valueOf(object[4]));
+					} else { 
+						thumbnails.put(URL, storageArea.getCdnDirectPath() + String.valueOf(object[3]) + String.valueOf(object[4]));
+					}
 				} else {
 					thumbnails.put(URL, "");
 				}
@@ -431,7 +439,11 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 					}
 				} else {
 					if (object[4] != null) {
-						thumbnails.put(URL, storageArea.getCdnDirectPath() + String.valueOf(object[3]) + String.valueOf(object[4]));
+						if (object[21] != null && Boolean.parseBoolean(object[21].toString())) {
+							thumbnails.put(URL, storageArea.getS3Path() + String.valueOf(object[3]) + String.valueOf(object[4]));
+						} else { 
+							thumbnails.put(URL, storageArea.getCdnDirectPath() + String.valueOf(object[3]) + String.valueOf(object[4]));
+						}
 					} else {
 						thumbnails.put(URL, "");
 					}
@@ -539,7 +551,11 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 					}
 				} else {
 					if (object[4] != null) {
-						thumbnails.put(URL, storageArea.getCdnDirectPath() + String.valueOf(object[3]) + String.valueOf(object[4]));
+						if (object[21] != null && Boolean.parseBoolean(object[21].toString())) {
+							thumbnails.put(URL, storageArea.getS3Path() + String.valueOf(object[3]) + String.valueOf(object[4]));
+						} else {
+							thumbnails.put(URL, storageArea.getCdnDirectPath() + String.valueOf(object[3]) + String.valueOf(object[4]));
+						}
 					} else {
 						thumbnails.put(URL, "");
 					}

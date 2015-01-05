@@ -34,6 +34,7 @@ import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserCredential;
 import org.ednovo.gooru.core.api.model.UserToken;
+import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.security.AuthenticationDo;
 import org.ednovo.gooru.domain.service.oauth.OAuthService;
@@ -42,6 +43,7 @@ import org.ednovo.gooru.domain.service.user.UserService;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.OrganizationSettingRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserTokenRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.apikey.ApplicationRepository;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
 import org.ednovo.goorucore.application.serializer.ExcludeNullTransformer;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.json.JSONException;
@@ -77,6 +79,9 @@ public class DoAuthorization {
 	@Autowired
 	private ApplicationRepository applicationRepository;
 
+	@Autowired
+	private CustomTableRepository customTableRepository;
+	
 	private static final String SESSION_TOKEN_KEY = "authenticate_";
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DoAuthorization.class);
@@ -180,7 +185,12 @@ public class DoAuthorization {
 		JSONObject session = new JSONObject();
 		try {
 			session.put("sessionToken", sessionToken);
-			session.put("organizationUId", authentication.getUserToken().getUser().getOrganization().getPartyUid());
+			if (authentication.getUserToken() != null) {
+				session.put("organizationUId", authentication.getUserToken().getUser().getOrganization().getPartyUid());
+				if (authentication.getUserToken().getApplication() != null) { 
+					session.put("apiKey", authentication.getUserToken().getApplication().getKey());
+				}
+			}
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -237,5 +247,9 @@ public class DoAuthorization {
 
 	public ApplicationRepository getApplicationRepository() {
 		return applicationRepository;
+	}
+	
+	public CustomTableRepository getCustomTableRepository() {
+		return customTableRepository;
 	}
 }

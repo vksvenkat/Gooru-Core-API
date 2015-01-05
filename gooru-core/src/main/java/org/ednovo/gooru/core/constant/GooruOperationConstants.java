@@ -160,6 +160,9 @@ public class GooruOperationConstants {
 	
 	public static final String ENTITY_MENU="Menu";
 	
+	public static final String ENTITY_JOB="Job";
+
+	
 	
 
 	// Actions
@@ -893,6 +896,8 @@ public class GooruOperationConstants {
 	public static final String OPERATION_OAUTH_READ = ENTITY_OAUTH + ENTITY_ACTION_SEPARATOR + ACTION_READ;
 
 	public static final String OPERATION_OAUTH_UPDATE = ENTITY_OAUTH + ENTITY_ACTION_SEPARATOR + ACTION_UPDATE;
+	
+	public static final String OPERATION_OAUTH_DELETE = ENTITY_OAUTH + ENTITY_ACTION_SEPARATOR + ACTION_DELETE;
 
 	// Update Cassandra Fields
 
@@ -933,7 +938,8 @@ public class GooruOperationConstants {
 	
 	public static final String OPERATION_APPLICATION_READ = ENTITY_APPLICATION + ENTITY_ACTION_SEPARATOR + ACTION_READ;
 	
-
+	public static final String OPERATION_APPLICATION_DELETE = ENTITY_APPLICATION + ENTITY_ACTION_SEPARATOR + ACTION_DELETE;
+	
 	// STATE
 
 	public static final String OPERATION_STATE_ADD = ENTITY_STATE + ENTITY_ACTION_SEPARATOR + ACTION_ADD;
@@ -971,5 +977,12 @@ public class GooruOperationConstants {
 	public static final String OPERATION_MENU_UPDATE = ENTITY_MENU + ENTITY_ACTION_SEPARATOR + ACTION_UPDATE;
 	
 	public static final String OPERATION_MENU_DELETE = ENTITY_MENU + ENTITY_ACTION_SEPARATOR + ACTION_DELETE;
+	
+	//JOB
+	
+	public static final String OPERATION_JOB_READ = ENTITY_JOB + ENTITY_ACTION_SEPARATOR + ACTION_READ;
+
+	public static final String OPERATION_JOB_UPDATE = ENTITY_JOB + ENTITY_ACTION_SEPARATOR + ACTION_UPDATE;
+	
 
 }

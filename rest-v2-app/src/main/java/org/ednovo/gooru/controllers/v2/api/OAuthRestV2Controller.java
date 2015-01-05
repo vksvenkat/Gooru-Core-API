@@ -24,6 +24,7 @@
 
 package org.ednovo.gooru.controllers.v2.api;
 
+
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -42,7 +43,6 @@ import org.ednovo.gooru.core.security.AuthorizeOperations;
 import org.ednovo.gooru.core.api.model.OAuthClient;
 import org.ednovo.gooru.domain.service.oauth.OAuthService;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Propagation;
@@ -121,18 +121,6 @@ public class OAuthRestV2Controller extends BaseController implements ConstantPro
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_OAUTH_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	@RequestMapping(method = { RequestMethod.DELETE }, value = "/client/{clientUId}")
-	public void deleteOAuthClient(@PathVariable String clientUId, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		request.setAttribute(Constants.EVENT_PREDICATE, "oauthclient.delete");
-		User apiCaller = (User) request.getAttribute(Constants.USER);
-		oAuthService.deleteOAuthClient(clientUId, apiCaller);
-		// To capture activity log
-		SessionContextSupport.putLogParameter(EVENT_NAME, "OauthClient-Delete");
-		SessionContextSupport.putLogParameter("DeletedOAuthClientId", clientUId);
-	}
-
-	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_OAUTH_READ })
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.GET }, value = "/client")
 	public ModelAndView listOAuthClient(@RequestParam String gooruUId, HttpServletRequest request, HttpServletResponse response , @RequestParam(required = false , defaultValue= "0") int pageNo ,@RequestParam(required=false, defaultValue="20") int pageSize ) throws Exception {
 		request.setAttribute(Constants.EVENT_PREDICATE, "oauthclient.list");
@@ -157,7 +145,17 @@ public class OAuthRestV2Controller extends BaseController implements ConstantPro
 		String [] includes = (String[]) ArrayUtils.addAll(ERROR_INCLUDE, OAUTH_CLIENT_INCLUDES);
 		return toModelAndView(serialize(this.getOAuthService().listOAuthClientByOrganization(organizationUId, offset, limit, null), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, includes));
 	}
-	
+
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_OAUTH_DELETE })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(method = { RequestMethod.DELETE }, value = "/{id}")
+	public void deleteOAuthClientByOAuthKey(@PathVariable(value = ID) String oauthKey, HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+		User apiCaller = (User) request.getAttribute(Constants.USER);
+		this.getOAuthService().deleteOAuthClientByOAuthKey(oauthKey,apiCaller);
+		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+	}
+
 	private OAuthClient buildOAuthClientFromInputParameters(String data) {
 		return JsonDeserializer.deserialize(data, OAuthClient.class);
 	}

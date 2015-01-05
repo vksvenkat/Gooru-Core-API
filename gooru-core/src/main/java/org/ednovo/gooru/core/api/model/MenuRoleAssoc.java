@@ -21,6 +21,13 @@ public class MenuRoleAssoc implements Serializable {
 		this.role = role;
 	}
 	
+	public MenuRoleAssoc(){
+		
+	}
 	
+	public MenuRoleAssoc(Menu menu, Role role){
+		this.menu = menu;
+		this.role = role;
+	}
 
 }

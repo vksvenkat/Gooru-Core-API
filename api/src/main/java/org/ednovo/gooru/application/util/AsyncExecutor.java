@@ -156,8 +156,8 @@ public class AsyncExecutor {
 			}
 		});
 	}
-	
-	public void updateResourceFileInS3(final String fileName,final String sourcePath, final String gooruContentId, final String sessionToken) {
+
+	public void updateResourceFileInS3(final String fileName, final String sourcePath, final String gooruContentId, final String sessionToken) {
 		transactionTemplate.execute(new TransactionCallback<Void>() {
 			@Override
 			public Void doInTransaction(TransactionStatus status) {
@@ -181,7 +181,7 @@ public class AsyncExecutor {
 			}
 		});
 	}
-	
+
 	public void deleteFromCache(final String key) {
 		transactionTemplate.execute(new TransactionCallback<Void>() {
 			@Override

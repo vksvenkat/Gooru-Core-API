@@ -23,6 +23,7 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.domain.service.user.impl;
 
+
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -85,7 +86,6 @@ import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.GooruOperationConstants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.BadRequestException;
-import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.core.exception.UserNotConfirmedException;
 import org.ednovo.gooru.domain.service.CollaboratorService;
 import org.ednovo.gooru.domain.service.PartyService;
@@ -103,6 +103,7 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.UserTokenRepository
 import org.ednovo.gooru.infrastructure.persistence.hibernate.apikey.ApplicationRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.assessment.AssessmentRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.classplan.LearnguideRepository;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.party.UserGroupRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.resource.ResourceRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.taxonomy.TaxonomyRespository;
@@ -184,6 +185,10 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 
 	@Autowired
 	private ApplicationRepository applicationRepository;
+
+	@Autowired
+	private CustomTableRepository customTableRepository;
+	
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
 
@@ -1031,10 +1036,9 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 	public User updateUserRole(String gooruUid, UserRoleType role) {
 
 		User user = this.getUserRepository().findByGooruId(gooruUid);
-		if (user == null) {
-			return null;
-		}
+		rejectIfNull(user,GL0056,404,USER);
 		Profile profile = this.getUserRepository().getProfile(user, false);
+		rejectIfNull(user,GL0056,404,PROFILE);
 		profile.setIsPublisherRequestPending(0);
 		UserRoleAssoc usrRoleAssoc = new UserRoleAssoc();
 		Set<UserRoleAssoc> existingUserRoleAssoc = user.getUserRoleSet();
@@ -1079,6 +1083,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 	public UserToken signIn(String username, String password, String apikeyId, String sessionId, boolean isSsoLogin) {
 
 		Application application = this.getApplicationRepository().getApplication(apikeyId);
+		rejectIfNull(application,GL0056,404,APPLICATION);
 		if (username == null) {
 			throw new BadCredentialsException("error:Username cannot be null or empty.");
 		}
@@ -1480,13 +1485,11 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 
 	@Override
 	public List<RoleEntityOperation> updateRoleOperation(Integer roleId, String operations) throws Exception {
-		UserRole userRole = null;
+		UserRole userRole = userRepository.findUserRoleByRoleId(roleId);
+		rejectIfNull(userRole, GL0056, 404, ROLE);
 		RoleEntityOperation roleEntityOperation = null;
 		List<RoleEntityOperation> roleEntityOperations = new ArrayList<RoleEntityOperation>();
-		if (roleId != null) {
-			userRole = findUserRoleByRoleId(roleId);
-		}
-		rejectIfNull(userRole, GL0056, 404, "Role ");
+
 		if (operations != null) {
 			String[] operationsArr = operations.split(",");
 			for (String operation : operationsArr) {
@@ -1494,43 +1497,30 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 				String entityName = entityOperationArr[0];
 				String operationName = entityOperationArr[1];
 				final EntityOperation entityOperation = userRepository.findEntityOperation(entityName, operationName);
-				rejectIfNull(entityOperation, GL0056, "Entity Operation ");
-				roleEntityOperation = userRepository.checkRoleEntity(roleId, entityOperation.getEntityOperationId());
-				if (roleEntityOperation != null) {
-					throw new BadRequestException(generateErrorMessage(GL0041, "Entity operation "));
-				} else {
-					roleEntityOperation = new RoleEntityOperation();
-					roleEntityOperation.setUserRole(userRole);
-					roleEntityOperation.setEntityOperation(entityOperation);
-					roleEntityOperations.add(roleEntityOperation);
+				if(entityOperation != null){
+					roleEntityOperation = userRepository.checkRoleEntity(roleId, entityOperation.getEntityOperationId());
+					if (roleEntityOperation == null) {
+						roleEntityOperation = new RoleEntityOperation();
+						roleEntityOperation.setUserRole(userRole);
+						roleEntityOperation.setEntityOperation(entityOperation);
+						roleEntityOperations.add(roleEntityOperation);
+					}
 				}
 			}
-			if (roleEntityOperations.size() > 0) {
-				userRepository.saveAll(roleEntityOperations);
-				roleEntityOperations = userRepository.getRoleEntityOperations(roleId);
+			if(roleEntityOperations.size() > 0 ){
+				userRepository.saveAll(roleEntityOperations);				
 			}
-
 		}
-
 		return roleEntityOperations;
-	}
-
-	@Override
-	public UserRole findUserRoleByRoleId(Integer roleId) {
-
-		return userRepository.findUserRoleByRoleId(roleId);
 	}
 
 	@Override
 	public void removeRoleOperation(Integer roleId, String operations) throws Exception {
 
-		UserRole userRole = null;
+		UserRole userRole = userRepository.findUserRoleByRoleId(roleId);
+		rejectIfNull(userRole, GL0056, ROLE);
 		RoleEntityOperation roleEntityOperation = null;
 		List<RoleEntityOperation> roleEntityOperations = new ArrayList<RoleEntityOperation>();
-		if (roleId != null) {
-			userRole = findUserRoleByRoleId(roleId);
-		}
-		rejectIfNull(userRole, GL0056, 404, "Role ");
 		if (operations != null) {
 			String[] operationsArr = operations.split(",");
 			for (String operation : operationsArr) {
@@ -1538,13 +1528,14 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 				String entityName = entityOperationArr[0];
 				String operationName = entityOperationArr[1];
 				EntityOperation entityOperation = userRepository.findEntityOperation(entityName, operationName);
-				rejectIfNull(userRole, GL0056, 404, "Entity Operation ");
-				roleEntityOperation = userRepository.checkRoleEntity(roleId, entityOperation.getEntityOperationId());
-				if (roleEntityOperation != null) {
-					roleEntityOperations.add(roleEntityOperation);
+				if(entityOperation != null){	
+					roleEntityOperation = userRepository.checkRoleEntity(roleId, entityOperation.getEntityOperationId());
+					if (roleEntityOperation != null) {
+						roleEntityOperations.add(roleEntityOperation);
+					}
 				}
 			}
-			if (roleEntityOperations.size() > 0) {
+			if(roleEntityOperations.size() > 0 ){
 				userRepository.removeAll(roleEntityOperations);
 			}
 		}
@@ -1553,7 +1544,6 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 	@Override
 	public UserToken createSessionToken(User user, String sessionId, Application application) {
 		UserToken sessionToken = new UserToken();
-		sessionToken.setToken(UUID.randomUUID().toString());
 		sessionToken.setScope(SESSION);
 		sessionToken.setUser(user);
 		sessionToken.setSessionId(sessionId);
@@ -1822,6 +1812,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 		User user = this.findByGooruId(gooruUid);
 		if (user != null) {
 			Application application = this.getApplicationRepository().getApplication(user.getOrganization().getPartyUid());
+			rejectIfNull(application,GL0056,404,APPLICATION);
 			UserToken userToken = this.createSessionToken(user, sessionId, application);
 			this.getMailHandler().sendMailToConfirm(gooruUid, null, accountType, userToken.getToken(), dateOfBirth, gooruClassicUrl, null, null, null);
 		}
@@ -2140,6 +2131,10 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 
 	public ApplicationRepository getApplicationRepository() {
 		return applicationRepository;
+	}
+	
+	public CustomTableRepository getCustomTableRepository() {
+		return customTableRepository;
 	}
 
 }
