@@ -449,18 +449,19 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 		collection.setGooruOid(UUID.randomUUID().toString());
 		ContentType contentType = getCollectionService().getContentType(ContentType.RESOURCE);
 		collection.setContentType(contentType);
-		ResourceType resourceType = null;
+		ResourceType resourceType = getCollectionService().getResourceType(ResourceType.Type.SCOLLECTION.getType());
 		if (collection.getCollectionType() != null && collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.FOLDER.getType())) {
 			resourceType = getCollectionService().getResourceType(ResourceType.Type.FOLDER.getType());
-		} else if (collection.getCollectionType() != null && collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.SCOLLECTION.getType())) {
-			resourceType = getCollectionService().getResourceType(ResourceType.Type.SCOLLECTION.getType());
-		}else if (collection.getCollectionType() != null && collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.ASSESSMENT.getType())) {
-			resourceType = getCollectionService().getResourceType(ResourceType.Type.SCOLLECTION.getType());
 		}
+
 		collection.setResourceType(resourceType);
 		collection.setLastModified(new Date(System.currentTimeMillis()));
 		collection.setCreatedOn(new Date(System.currentTimeMillis()));
-		collection.setSharing(collection.getSharing() != null && (collection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || collection.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing()) || collection.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing())) ? collection.getSharing() : Sharing.ANYONEWITHLINK.getSharing());
+
+		collection
+				.setSharing(collection.getSharing() != null && (collection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || collection.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing()) || collection.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing())) ? collection
+						.getSharing() : Sharing.ANYONEWITHLINK.getSharing());
+
 		collection.setUser(user);
 		collection.setOrganization(user.getPrimaryOrganization());
 		collection.setCreator(user);
