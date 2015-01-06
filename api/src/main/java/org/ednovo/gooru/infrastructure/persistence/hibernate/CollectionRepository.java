@@ -103,7 +103,7 @@ public interface CollectionRepository extends BaseRepository {
 	
 	Long getMyShelfCount(String gooruUid, String sharing, String collectionType);
 	
-	List<Object[]> getCollectionItem(String gooruOid, Integer limit, Integer offset, String sharing, String orderBy, String collectionType,boolean fetchChildItem);
+	List<Object[]> getCollectionItem(String gooruOid, Integer limit, Integer offset, String sharing, String orderBy, String collectionType,boolean fetchChildItem, String sequenceOrder);
 	
 	Long getCollectionItemCount(String gooruOid, String sharing, String collectionType );
 	
