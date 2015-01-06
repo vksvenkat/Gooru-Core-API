@@ -1593,7 +1593,12 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		ServerValidationUtils.rejectIfMaxLimitExceed(8, data.getFirst(START), "GL0014", START, "8");
 		ServerValidationUtils.rejectIfMaxLimitExceed(8, data.getFirst(STOP), "GL0014", STOP, "8");
 
-		JSONObject jsonItemdata = new JSONObject();
+		JSONObject jsonItemdata =  null;
+		try {
+			jsonItemdata = new JSONObject(new JSONSerializer().serialize(data));
+		} catch (JSONException e) {
+			LOGGER.error("Json parser error : " + e);
+		}
 		String narration = data.getFirst(NARRATION);
 		String narrationType = data.getFirst(NARRATION_TYPE);
 		final String start = data.getFirst(START);

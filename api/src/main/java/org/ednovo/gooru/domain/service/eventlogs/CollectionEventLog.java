@@ -148,6 +148,7 @@ public class CollectionEventLog implements ParameterProperties, ConstantProperti
 		}
 		SessionContextSupport.putLogParameter(CONTEXT, context.toString());
 		JSONObject payLoadObject = SessionContextSupport.getLog().get(PAY_LOAD_OBJECT) != null ? new JSONObject(SessionContextSupport.getLog().get(PAY_LOAD_OBJECT).toString()) : new JSONObject();
+		payLoadObject.put(MODE, EDIT);
 		payLoadObject.put(ITEM_TYPE, COLLECTION_RESOURCE);
 		payLoadObject.put(_ITEM_DATA, ItemData != null ? ItemData.toString() : null);
 		SessionContextSupport.putLogParameter(PAY_LOAD_OBJECT, payLoadObject.toString());
