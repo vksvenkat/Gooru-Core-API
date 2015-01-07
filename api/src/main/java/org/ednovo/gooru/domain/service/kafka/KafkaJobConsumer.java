@@ -42,6 +42,8 @@ public class KafkaJobConsumer implements Runnable, ParameterProperties {
 
 	private static String conversionRestEndPoint;
 
+	private static final String JOB = "job";
+
 	private static String restEndPoint;
 
 	@PostConstruct
@@ -58,7 +60,7 @@ public class KafkaJobConsumer implements Runnable, ParameterProperties {
 	private ConsumerConfig createConsumerConfig() {
 		Properties props = new Properties();
 		props.put(KafkaProperties.ZK_CONSUMER_CONNECT, kafkaProperties.zkConsumerConnectValue);
-		props.put(KafkaProperties.ZK_CONSUMER_GROUP, kafkaProperties.consumerGroupIdValue);
+		props.put(KafkaProperties.ZK_CONSUMER_GROUP, kafkaProperties.consumerGroupIdValue + JOB);
 		props.put(KafkaProperties.ZK_SESSION_TIME_OUT_MS, KafkaProperties.ZK_SESSION_TIME_OUT_MS_VALUE);
 		props.put(KafkaProperties.ZK_SYNCTIME_MS, KafkaProperties.ZK_SYNCTIME_MS_VALUE);
 		props.put(KafkaProperties.AUTOCOMMIT_INTERVAL_MS, KafkaProperties.AUTOCOMMIT_INTERVAL_MS_VALUE);
