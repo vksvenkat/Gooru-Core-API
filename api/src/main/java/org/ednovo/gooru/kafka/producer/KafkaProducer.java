@@ -29,7 +29,6 @@ public class KafkaProducer {
 
 	private static final String TOPIC_USER = "user_queue";
 
-	private static final String TOPIC_JOB = "job_queue";
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(IndexProcessor.class);
 
