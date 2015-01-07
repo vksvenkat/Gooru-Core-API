@@ -255,7 +255,7 @@ public class RequestUtil implements ParameterProperties {
 			return formFieldMap;
 
 		} else {
-			return null;
+			throw new BadRequestException("Invalid Content Type " + request.getContentType());
 		}
 	}
 
@@ -326,7 +326,9 @@ public class RequestUtil implements ParameterProperties {
 	public static void executeRestAPI(Map<String, Object> param, String requestUrl, String requestType) {
 		try {
 			JSONObject json = new JSONObject(param);
+			System.out.println("Json:"+json);
 			String sessionToken = UserGroupSupport.getSessionToken();
+			System.out.println("Session:"+sessionToken);
 			if (sessionToken != null) {
 				executeMethod(new ClientResource(requestUrl + "?sessionToken=" + sessionToken), json.toString(), requestType);
 			} else {
@@ -342,12 +344,11 @@ public class RequestUtil implements ParameterProperties {
 		Representation representation = null;
 		if (type.equalsIgnoreCase(Method.POST.getName())) {
 			representation = clientResource.post(data);
-		} else if (type.equalsIgnoreCase(Method.PUT.getName())) {
+					} else if (type.equalsIgnoreCase(Method.PUT.getName())) {
 			representation = clientResource.put(data);
 		}
 		return representation;
-
-	}
+}
 
 	public static String executeRestAPI(String data, String requestUrl, String requestType) {
 		try {
@@ -362,8 +363,7 @@ public class RequestUtil implements ParameterProperties {
 
 		}
 		return null;
-
-	}
+}
 	
 	public static String executeRestAPI(String data, String requestUrl, String requestType, String sessionToken) {
 		try {
