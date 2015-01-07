@@ -173,7 +173,10 @@ public class ResourceImageUtil extends UserGroupSupport implements ParameterProp
 		param.put(STATUS, job.getStatus());
 		param.put(EVENTNAME, CONVERT_DOCUMENT_PDF);
 		param.put(SESSIONTOKEN, UserGroupSupport.getSessionToken());
-		kafkaProducer.push(new JSONSerializer().serialize(param));
+		param.put(API_END_POINT, settingService.getConfigSetting(ConfigConstants.GOORU_API_ENDPOINT, 0, TaxonomyUtil.GOORU_ORG_UID));
+		param.put("gooruBucket", settingService.getConfigSetting(ConfigConstants.RESOURCE_S3_BUCKET, 0, TaxonomyUtil.GOORU_ORG_UID));
+		this.getAsyncExecutor().executeRestAPI(param, settingService.getConfigSetting(ConfigConstants.GOORU_CONVERSION_RESTPOINT, 0, TaxonomyUtil.GOORU_ORG_UID) + "/conversion/document-to-pdf", Method.POST.getName());
+		//kafkaProducer.push(new JSONSerializer().serialize(param)); // FIX ME TO-DO
 	}
 
 	public void downloadResourceImage(String repoPath, Resource resource, String webSrc) {
