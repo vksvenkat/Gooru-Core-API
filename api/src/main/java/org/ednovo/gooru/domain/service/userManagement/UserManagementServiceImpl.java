@@ -902,6 +902,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		// Fix me
 		user.setPrimaryOrganization(organization);
 		user.setUserGroup(null);
+		LOGGER.info("Saving profile object..");
 		this.getUserRepository().save(profile);
 		// Associate user role
 		if (userRole != null) {
@@ -913,11 +914,14 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			user.getUserRoleSet().add(userRoleAssoc);
 		}
 		user.setUserUid(user.getPartyUid());
+		LOGGER.info("Saving user object..");
 		this.getUserRepository().save(user);
 		if (password != null && credential != null) {
+			LOGGER.info("Saving credential object..");
 			this.getUserRepository().save(credential);
 		}
 		identity.setCredential(credential);
+		LOGGER.info("Saving user identity.");
 		this.getUserRepository().save(identity);
 		// this.getPartyService().createUserDefaultCustomAttributes(user.getPartyUid(),
 		// user);
@@ -941,11 +945,12 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			this.getUserRepository().save(new PartyCustomField(user.getPartyUid(), USER_META, USER_CONFIRM_STATUS, TRUE));
 			this.getMailHandler().handleMailEvent(dataMap);
 		}
+		LOGGER.info("Updating user index..");
 		indexProcessor.index(user.getPartyUid(), IndexProcessor.INDEX, USER);
 		try {
 			this.getUsereventlog().getEventLogs(user, source, identity);
-		} catch (JSONException e) {
-			LOGGER.error("Error" + e.getMessage());
+		} catch (Exception e) {
+			LOGGER.error("Error " + e);
 		}
 		return user;
 	}

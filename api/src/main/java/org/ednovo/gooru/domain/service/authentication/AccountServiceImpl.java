@@ -326,6 +326,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 		if (secretKey == null || !secretKey.equalsIgnoreCase(settingService.getConfigSetting(ConfigConstants.GOORU_AUTHENTICATION_SECERT_KEY, 0, TaxonomyUtil.GOORU_ORG_UID))) {
 			throw new UnauthorizedException(generateErrorMessage("GL0082", "secret") + secretKey);
 		}
+		LOGGER.info("User Authtication ");
 		final Identity identity = new Identity();
 		identity.setExternalId(newUser.getEmailId());
 		User userIdentity = this.getUserService().findByIdentity(identity);
@@ -347,7 +348,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 				}
 				userIdentity = this.getUserManagementService().createUser(newUser, null, null, 1, 0, null, null, null, null, null, null, null, source, null, request, null, null);
 			} catch (Exception e) {
-				LOGGER.debug("Error : " + e);
+				LOGGER.error("Error : " + e);
 			}
 		}
 
@@ -358,7 +359,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 		try {
 			newUser = (User) BeanUtils.cloneBean(userIdentity);
 		} catch (Exception e) {
-			LOGGER.debug("error" + e.getMessage());
+			LOGGER.error("Error : " + e);
 		}
 		request.getSession().setAttribute(Constants.USER, newUser);
 		newUser.setToken(sessionToken.getToken());
