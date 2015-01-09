@@ -51,7 +51,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
 
-
 @Service
 public class PartyServiceImpl extends BaseServiceImpl implements PartyService, ParameterProperties, ConstantProperties {
 
@@ -60,14 +59,13 @@ public class PartyServiceImpl extends BaseServiceImpl implements PartyService, P
 
 	@Autowired
 	private TaxonomyRespository taxonomyRespository;
-	
+
 	@Autowired
 	private SettingService settingService;
-	
+
 	@Autowired
 	private RedisService redisService;
-	
-	
+
 	private static ResourceBundle userDefaultCustomAttributes = ResourceBundle.getBundle("properties/userDefaultCustomAttributes");
 
 	@Override
@@ -104,7 +102,6 @@ public class PartyServiceImpl extends BaseServiceImpl implements PartyService, P
 
 		return getPartyRepository().getPartyCustomField(partyId, optionalKey);
 	}
-	
 
 	@Override
 	public Profile getUserDateOfBirth(String partyId, final User user) {
@@ -112,40 +109,33 @@ public class PartyServiceImpl extends BaseServiceImpl implements PartyService, P
 	}
 
 	@Override
-	public ActionResponseDTO<PartyCustomField> updatePartyCustomField(String partyId, final PartyCustomField newPartyCustomField, final User user) {
+	public PartyCustomField updatePartyCustomField(String partyId, final PartyCustomField newPartyCustomField, final User user) {
 		PartyCustomField partyCustomField = null;
 		if (partyId != null && partyId.equalsIgnoreCase(MY)) {
 			partyId = user.getUserUid();
 		}
 		partyCustomField = this.getPartyRepository().getPartyCustomField(partyId, newPartyCustomField.getOptionalKey());
-		rejectIfNull(partyCustomField, GL0056, 404, "PartyCustomField");
-		final Errors errors = validateUpdatePartyCustomField(partyCustomField, newPartyCustomField);
-		if (!errors.hasErrors()) {
-			if (partyCustomField != null) {
-				if (newPartyCustomField.getOptionalValue() != null) {
-					partyCustomField.setOptionalValue(newPartyCustomField.getOptionalValue());
-				}
-				if (newPartyCustomField.getCategory() != null) {
-					partyCustomField.setCategory(newPartyCustomField.getCategory());
-				}
+		if (partyCustomField == null) {
+			partyCustomField = new PartyCustomField(partyId, USER_META, newPartyCustomField.getOptionalKey(), newPartyCustomField.getOptionalValue());
+		} else {
+			if (newPartyCustomField.getOptionalValue() != null) {
+				partyCustomField.setOptionalValue(newPartyCustomField.getOptionalValue());
 			}
-			this.getPartyRepository().save(partyCustomField);
-			if (newPartyCustomField.getOptionalKey() != null && newPartyCustomField.getOptionalKey().equalsIgnoreCase(SHOW_PROFILE_PAGE)) {
-				indexProcessor.index(partyId, IndexProcessor.INDEX, USER, true);
-			} else {
-				indexProcessor.index(partyId, IndexProcessor.INDEX, USER, false);
-			}
-			if (newPartyCustomField.getOptionalKey() != null && newPartyCustomField.getOptionalKey().equalsIgnoreCase(USER_TAXONOMY_ROOT_CODE)) {
-				this.redisService.deleteKey(SESSION_TOKEN_KEY + UserGroupSupport.getSessionToken());
+			if (newPartyCustomField.getCategory() != null) {
+				partyCustomField.setCategory(newPartyCustomField.getCategory());
 			}
 		}
-		return new ActionResponseDTO<PartyCustomField>(partyCustomField, errors);
-	}
 
-	private Errors validateUpdatePartyCustomField(final PartyCustomField partyCustomField, final PartyCustomField newPartyCustomField) {
-		final Errors errors = new BindException(partyCustomField, PARTY_CUSTOM_FIELD);
-		rejectIfNull(errors, newPartyCustomField, PARTY_CUSTOM_FIELD, GL0056, generateErrorMessage(GL0056, PARTY_CUSTOM_FIELD));	
-		return errors;
+		this.getPartyRepository().save(partyCustomField);
+		if (newPartyCustomField.getOptionalKey() != null && newPartyCustomField.getOptionalKey().equalsIgnoreCase(SHOW_PROFILE_PAGE)) {
+			indexProcessor.index(partyId, IndexProcessor.INDEX, USER, true);
+		} else {
+			indexProcessor.index(partyId, IndexProcessor.INDEX, USER, false);
+		}
+		if (newPartyCustomField.getOptionalKey() != null && newPartyCustomField.getOptionalKey().equalsIgnoreCase(USER_TAXONOMY_ROOT_CODE)) {
+			this.redisService.deleteKey(SESSION_TOKEN_KEY + UserGroupSupport.getSessionToken());
+		}
+		return partyCustomField;
 	}
 
 	@Override
@@ -201,8 +191,8 @@ public class PartyServiceImpl extends BaseServiceImpl implements PartyService, P
 
 	@Override
 	public void createTaxonomyCustomAttributes(final String partyId, User user) {
-		final String taxonomyList = this.getTaxonomyRespository().getFindTaxonomyList(settingService.getConfigSetting(ConfigConstants.GOORU_EXCLUDE_TAXONOMY_PREFERENCE,0, user.getOrganization().getPartyUid()));
-		if(taxonomyList != null){
+		final String taxonomyList = this.getTaxonomyRespository().getFindTaxonomyList(settingService.getConfigSetting(ConfigConstants.GOORU_EXCLUDE_TAXONOMY_PREFERENCE, 0, user.getOrganization().getPartyUid()));
+		if (taxonomyList != null) {
 			final PartyCustomField partyCustomField = new PartyCustomField();
 			partyCustomField.setCategory(PartyCategoryType.USER_TAXONOMY.getpartyCategoryType());
 			partyCustomField.setOptionalKey(USER_TAXONOMY_ROOT_CODE);
@@ -219,7 +209,7 @@ public class PartyServiceImpl extends BaseServiceImpl implements PartyService, P
 		}
 		return null;
 	}
-	
+
 	@Override
 	public List<Map<Object, Object>> getPartyDetails() {
 		return this.getPartyRepository().getPartyDetails();
@@ -232,6 +222,5 @@ public class PartyServiceImpl extends BaseServiceImpl implements PartyService, P
 	public TaxonomyRespository getTaxonomyRespository() {
 		return taxonomyRespository;
 	}
-
 
 }

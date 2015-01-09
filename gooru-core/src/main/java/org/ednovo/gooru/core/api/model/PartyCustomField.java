@@ -15,6 +15,17 @@ public class PartyCustomField implements Serializable {
 	private String optionalKey;
 	private String optionalValue;
 	
+	public PartyCustomField () {
+		
+	}
+	
+	public PartyCustomField (String partyUid, String category, String optionalKey, String optionalValue) { 
+		this.setPartyUid(partyUid);
+		this.setOptionalKey(optionalKey);
+		this.setOptionalValue(optionalValue);
+		this.setCategory(category);
+	}
+	
 	public String getCategory() {
 		return category;
 	}

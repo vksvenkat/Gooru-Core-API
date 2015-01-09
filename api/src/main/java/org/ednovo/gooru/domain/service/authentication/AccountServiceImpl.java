@@ -119,7 +119,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 
 	@Override
 	public UserToken createSessionToken(User user, String apiKey, HttpServletRequest request) throws Exception {
-		final Application application =  this.getApplicationRepository().getApplication(apiKey);
+		final Application application = this.getApplicationRepository().getApplication(apiKey);
 		final UserToken sessionToken = new UserToken();
 		final String apiEndPoint = getConfigSetting(ConfigConstants.GOORU_API_ENDPOINT, 0, TaxonomyUtil.GOORU_ORG_UID);
 		sessionToken.setToken(UUID.randomUUID().toString());
@@ -148,7 +148,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 	@Override
 	public ActionResponseDTO<UserToken> logIn(String username, String password, String apiKeyId, boolean isSsoLogin, HttpServletRequest request) throws Exception {
 		final UserToken userToken = new UserToken();
-		final Errors errors =  new BindException(userToken, SESSIONTOKEN);
+		final Errors errors = new BindException(userToken, SESSIONTOKEN);
 		final String apiEndPoint = getConfigSetting(ConfigConstants.GOORU_API_ENDPOINT, 0, TaxonomyUtil.GOORU_ORG_UID);
 		if (!errors.hasErrors()) {
 			if (username == null) {
@@ -171,7 +171,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 				throw new UnauthorizedException(generateErrorMessage("GL0079"));
 			}
 			final User user = this.getUserRepository().findByIdentityLogin(identity);
-			
+
 			if (!isSsoLogin) {
 				if (identity.getCredential() == null) {
 					throw new BadRequestException(generateErrorMessage("GL0080"));
@@ -288,7 +288,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 		Errors errors = null;
 		if (gooruUid != null) {
 			if (gooruUid.equalsIgnoreCase(ANONYMOUS)) {
-				final Application  application = this.getApplicationRepository().getApplication(apiKey);
+				final Application application = this.getApplicationRepository().getApplication(apiKey);
 				errors = this.validateApiKey(application, userToken);
 				if (!errors.hasErrors()) {
 					final Organization org = application.getOrganization();
@@ -306,7 +306,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 						errors = this.validateLoginAsUser(userToken, user);
 						if (!errors.hasErrors()) {
 							if (!this.getUserService().isContentAdmin(user)) {
-								final Application userApiKey = this.getApplicationRepository().getApplicationByOrganization(user.getOrganization().getPartyUid()); 
+								final Application userApiKey = this.getApplicationRepository().getApplicationByOrganization(user.getOrganization().getPartyUid());
 								userToken = this.createSessionToken(user, userApiKey.getKey(), request);
 							} else {
 								throw new BadRequestException(generateErrorMessage(GL0042, _USER));
@@ -330,29 +330,24 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 		identity.setExternalId(newUser.getEmailId());
 		User userIdentity = this.getUserService().findByIdentity(identity);
 		UserToken sessionToken = null;
-		if (newUser.getUsername() == null) {
-			newUser.setFirstName(StringUtils.remove(newUser.getFirstName(), " "));
-			newUser.setUsername(newUser.getFirstName());
-			if (newUser.getLastName() != null && newUser.getLastName().length() > 0) {
-				newUser.setUsername(newUser.getUsername() + newUser.getLastName().substring(0, 1));
-			}
-			final User user = this.getUserRepository().findUserWithoutOrganization(newUser.getUsername());
-			if (user != null && user.getUsername().equalsIgnoreCase(newUser.getUsername())) {
-				final Random randomNumber = new Random();
-				newUser.setUsername(newUser.getUsername() + randomNumber.nextInt(1000));
-			}
-		}
 
 		if (userIdentity == null) {
 			try {
-				boolean usernameAvailability = this.getUserRepository().checkUserAvailability(newUser.getUsername(), CheckUser.BYUSERNAME, false);
-
-				if (usernameAvailability) {
-					throw new NotFoundException(generateErrorMessage("GL0084", newUser.getUsername()));
+				if (newUser.getUsername() == null) {
+					newUser.setFirstName(StringUtils.remove(newUser.getFirstName(), " "));
+					newUser.setUsername(newUser.getFirstName());
+					if (newUser.getLastName() != null && newUser.getLastName().length() > 0) {
+						newUser.setUsername(newUser.getUsername() + newUser.getLastName().substring(0, 1));
+					}
+					final User user = this.getUserRepository().findUserWithoutOrganization(newUser.getUsername());
+					if (user != null && user.getUsername().equalsIgnoreCase(newUser.getUsername())) {
+						final Random randomNumber = new Random();
+						newUser.setUsername(newUser.getUsername() + randomNumber.nextInt(1000));
+					}
 				}
 				userIdentity = this.getUserManagementService().createUser(newUser, null, null, 1, 0, null, null, null, null, null, null, null, source, null, request, null, null);
 			} catch (Exception e) {
-				LOGGER.debug("error" + e.getMessage());
+				LOGGER.debug("Error : " + e);
 			}
 		}
 
@@ -396,7 +391,6 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 	public UserTokenRepository getUserTokenRepository() {
 		return userTokenRepository;
 	}
-
 
 	public UserRepository getUserRepository() {
 		return userRepository;
