@@ -836,6 +836,8 @@ public interface ConstantProperties {
    public static final String JOB_INCLUDES[] = {"*.job", "*.status", "*.jobUid"};
    
    public static final String _GROUP_UID = "groupUId";
+   
+   public static final String SOURCE_GOORU_ID = "sourceGooruId";
 
 }
 

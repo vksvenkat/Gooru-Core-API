@@ -177,7 +177,6 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 		try {
 			if(!feedbackList.isEmpty()){
 				Feedback userFeedback = feedbackList.get(0);
-				this.getFeedbackEventLog().getEventLogs(user, contextDTO, userFeedback, feedbackValue, previous);
 			}
 
 		} catch (Exception e) {
@@ -363,7 +362,6 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 		try {
 			if(!feedbackList.isEmpty()){
 				Feedback userFeedback = feedbackList.get(0);
-				this.getFeedbackEventLog().getEventLogs(creator, contextDTO, userFeedback, feedbackValue, null);
 			}
 
 		} catch (Exception e) {
