@@ -428,6 +428,10 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			} catch (JSONException e) {
 				LOGGER.error("error" + e.getMessage());
 			}
+		} else {
+			SessionContextSupport.putLogParameter(SESSIONTOKEN, sessionToken.getToken());
+			SessionContextSupport.putLogParameter(API_KEY, apiKey);
+			
 		}
 		try {
 			newUser = (User) BeanUtils.cloneBean(userIdentity);
