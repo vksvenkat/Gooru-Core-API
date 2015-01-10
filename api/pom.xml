@@ -150,25 +150,25 @@
 
 	<dependencies>
 		<!-- Event Logger API dependency start -->
-	<dependency>
-                       <groupId>org.apache.kafka</groupId>
-                       <artifactId>kafka_2.9.2</artifactId>
-                       <version>0.8.1.1</version>
-                       <exclusions>
-                               <exclusion>
-                                       <artifactId>jmxri</artifactId>
-                                       <groupId>com.sun.jmx</groupId>
-                               </exclusion>
-                               <exclusion>
-                                       <artifactId>jms</artifactId>
-                                       <groupId>javax.jms</groupId>
-                               </exclusion>
-                               <exclusion>
-                                       <artifactId>jmxtools</artifactId>
-                                       <groupId>com.sun.jdmk</groupId>
-                               </exclusion>
-                       </exclusions>
-               </dependency>
+		<dependency>
+			<groupId>org.apache.kafka</groupId>
+			<artifactId>kafka_2.9.2</artifactId>
+			<version>0.8.1.1</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>jmxri</artifactId>
+					<groupId>com.sun.jmx</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>jms</artifactId>
+					<groupId>javax.jms</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>jmxtools</artifactId>
+					<groupId>com.sun.jdmk</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
 		<dependency>
 			<groupId>org.ednovo.data.kafka.producer</groupId>
 			<artifactId>kafka-producer</artifactId>
@@ -202,7 +202,7 @@
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-core</artifactId>
-			<version>4.3.5.Final</version>
+			<version>4.3.7.Final</version>
 		</dependency>
 		<dependency>
 			<groupId>log4j</groupId>
@@ -361,7 +361,7 @@
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-ehcache</artifactId>
-			<version>4.3.5.Final</version>
+			<version>4.3.7.Final</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.flexjson</groupId>

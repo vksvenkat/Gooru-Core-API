@@ -81,6 +81,8 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonSerializer;
 
+import org.ednovo.gooru.core.constant.ConstantProperties;
+
 import flexjson.JSONSerializer;
 
 @Component
@@ -125,6 +127,8 @@ public class ResourceImageUtil extends UserGroupSupport implements ParameterProp
 	private static final String YOUTUBE_VIDEO = "youtube.com";
 
 	public static final String CONVERT_DOCUMENT_PDF = "convert.docToPdf";
+	
+	public static String V2_ORGANIZE_DATA = "v2-organize-data-";
 
 	@Autowired
 	private KafkaProducer kafkaProducer;
@@ -220,6 +224,7 @@ public class ResourceImageUtil extends UserGroupSupport implements ParameterProp
 			param.put(RESOURCE_GOORU_OID, resource.getGooruOid());
 			this.getAsyncExecutor().executeRestAPI(param, settingService.getConfigSetting(ConfigConstants.GOORU_CONVERSION_RESTPOINT, 0, TaxonomyUtil.GOORU_ORG_UID) + "/conversion/image", Method.POST.getName());
 		}
+		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + resource.getUser().getPartyUid() + "*");
 	}
 
 	public void moveFileAndSendMsgToGenerateThumbnails(Resource resource, String fileName, Boolean isUpdateSlideResourceThumbnail) throws IOException {
