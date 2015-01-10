@@ -666,7 +666,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 			throw new BadCredentialsException("User Id cannot be null or empty");
 		}
 
-		if ((!apiCaller.getGooruUId().equals(gooruUId)) && (!isContentAdmin(apiCaller))) {
+		if ((!apiCaller.getGooruUId().equals(gooruUId)) || (!isContentAdmin(apiCaller))) {
 			throw new AccessDeniedException("You are not authorized to perform this action");
 		}
 
