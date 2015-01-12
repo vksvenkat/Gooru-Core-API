@@ -765,7 +765,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			collectionItem.getCollection().setItemCount(sequence);
 			this.getCollectionRepository().save(collectionItem);
 			try {
-				this.getCollectionEventLog().getEventLogs(collectionItem, true, true, user, false);
+				this.getCollectionEventLog().getEventLogs(collectionItem, true, false, user, false);
 			} catch (Exception e) {
 				LOGGER.error(e.getMessage());
 			}
@@ -2195,11 +2195,11 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 		try {
 			if (destCollection != null) {
-				this.getCollectionEventLog().getEventLogs(collectionItem, true, false, user, true);
 				indexProcessor.index(destCollection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
+				this.getCollectionEventLog().getEventLogs(collectionItem, true, false, user, true);
 			}
 		} catch (Exception e) {
-			LOGGER.error("Error : " + e);
+			LOGGER.error("error" + e.getMessage());
 		}
 		return destCollection;
 	}
