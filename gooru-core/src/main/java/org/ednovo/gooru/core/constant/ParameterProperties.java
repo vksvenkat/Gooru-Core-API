@@ -2817,5 +2817,10 @@ public interface ParameterProperties {
 	String APPLICATION_ID = "applicationId";
 	
 	String MENU_ITEM = "menu item";
+	
+	String USER_CATEGORY ="User Category";
+	
+	String _USER_CATEGORY ="user_category";
+	
 }
 

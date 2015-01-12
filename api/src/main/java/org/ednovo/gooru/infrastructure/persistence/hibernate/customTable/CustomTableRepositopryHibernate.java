@@ -37,7 +37,7 @@ public class CustomTableRepositopryHibernate extends BaseRepositoryHibernate imp
 	private final String RETIREVE_BY_NAME_VALUE = "From CustomTableValue ctv  where  ctv.value=:value  and  ctv.customTable.name=:name  and "+generateOrgAuthQuery("ctv.customTable.");
 	private final String RETIREVE_BY_NAME = "From CustomTableValue ctv  where ctv.customTable.name=:name  and "+generateOrgAuthQuery("ctv.customTable.");
 	private final String GET_FILTER_VALUE_FROM_CUSTOMTABLE = "From CustomTableValue ctv  where ctv.customTable.name=:name";
-	private final String GET_VALUE_BY_DISPLAY_NAME = "From CustomTableValue ctv  where ctv.displayName =:displayName and ctv.customTable.name=:name";
+	private final String GET_VALUE_BY_DISPLAY_NAME = "From CustomTableValue ctv  where ctv.customTable.displayName =:displayName and ctv.customTable.name=:name";
 	private final String GET_CUSTOM_TABLE_VALUES = "FROM  CustomTableValue ct where ct.customTable.name=:type";
 
 	@SuppressWarnings("unchecked")
@@ -85,5 +85,14 @@ public class CustomTableRepositopryHibernate extends BaseRepositoryHibernate imp
 		Query query = getSessionReadOnly().createQuery(GET_CUSTOM_TABLE_VALUES);
 		query.setParameter("type", type);
 		return query.list();
+	}
+	
+	@Override
+	@Cacheable("persistent")
+	public List<CustomTableValue> getValuesByDisplayName(String displayName, String name) {
+		Query query = getSessionReadOnly().createQuery(GET_VALUE_BY_DISPLAY_NAME);
+		query.setParameter("name", name);
+		query.setParameter("displayName", displayName);
+		return  query.list(); 
 	}
 }

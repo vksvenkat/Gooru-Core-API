@@ -112,8 +112,6 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
@@ -1526,6 +1524,14 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		UserRole role = this.getUserRepository().findUserRoleByRoleId(roleId);
 		rejectIfNull(role, GL0056, 404, ROLE);
 		return this.getUserRepository().findRoleOperationsByRoleId(roleId);
+	}
+
+	@Override
+	public List<CustomTableValue> getUserCategory(User apiCaller) {
+		rejectIfNull(apiCaller, GL0056, USER);
+		List<CustomTableValue> UserCategory = this.getCustomTableRepository().getValuesByDisplayName(USER_CATEGORY,_USER_CATEGORY) ;
+		return UserCategory;
+		
 	}
 
 	public IdpRepository getIdpRepository() {
