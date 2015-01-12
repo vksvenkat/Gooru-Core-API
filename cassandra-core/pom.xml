@@ -40,20 +40,11 @@
 	<dependencies>
 		<!-- Cassandra Start -->
 		<dependency>
-			<groupId>com.netflix.astyanax</groupId>
-			<artifactId>astyanax-cassandra</artifactId>
-			<version>1.56.42</version>
-		</dependency>
-		<dependency>
-			<groupId>com.netflix.astyanax</groupId>
-			<artifactId>astyanax-thrift</artifactId>
-			<version>1.56.42</version>
-		</dependency>
-		<dependency>
-			<groupId>com.netflix.astyanax</groupId>
-			<artifactId>astyanax-entity-mapper</artifactId>
-			<version>1.56.42</version>
-		</dependency>
+	         <groupId>com.netflix.astyanax</groupId>
+	         <artifactId>astyanax</artifactId>
+	         <version>2.0.2</version>
+       </dependency>
+		
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>

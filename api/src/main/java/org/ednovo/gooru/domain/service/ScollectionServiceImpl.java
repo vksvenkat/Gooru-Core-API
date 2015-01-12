@@ -765,7 +765,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			collectionItem.getCollection().setItemCount(sequence);
 			this.getCollectionRepository().save(collectionItem);
 			try {
-				this.getCollectionEventLog().getEventLogs(collectionItem, true, true, user, false);
+				this.getCollectionEventLog().getEventLogs(collectionItem, true, false, user, false);
 			} catch (Exception e) {
 				LOGGER.error(e.getMessage());
 			}

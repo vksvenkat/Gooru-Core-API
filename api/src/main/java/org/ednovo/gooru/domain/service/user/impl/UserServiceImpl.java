@@ -666,7 +666,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 			throw new BadCredentialsException("User Id cannot be null or empty");
 		}
 
-		if ((!apiCaller.getGooruUId().equals(gooruUId)) && (!isContentAdmin(apiCaller))) {
+		if ((!apiCaller.getGooruUId().equals(gooruUId)) || (!isContentAdmin(apiCaller))) {
 			throw new AccessDeniedException("You are not authorized to perform this action");
 		}
 
@@ -1411,7 +1411,9 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 		PartyCustomField partyCustomFieldTax = partyService.getPartyCustomeField(user.getPartyUid(), USER_TAXONOMY_ROOT_CODE, null);
 		if (partyCustomFieldTax != null) {
 			userCredential.setTaxonomyPreference(partyCustomFieldTax.getOptionalValue());
-		}
+		}  else  {
+			this.getTaxonomyRespository().getFindTaxonomyList(settingService.getConfigSetting(ConfigConstants.GOORU_EXCLUDE_TAXONOMY_PREFERENCE,0, user.getOrganization().getPartyUid()));
+ 		}
 		return userCredential;
 
 	}
