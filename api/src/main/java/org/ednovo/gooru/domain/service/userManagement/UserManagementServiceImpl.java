@@ -698,7 +698,6 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	}
 
 	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public UserToken createSessionToken(User user, String sessionId, Application application) {
 		UserToken sessionToken = new UserToken();
 		sessionToken.setToken(UUID.randomUUID().toString());
@@ -709,6 +708,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		sessionToken.setCreatedOn(new Date(System.currentTimeMillis()));
 		try {
 			this.getUserTokenRepository().saveUserSession(sessionToken);
+			this.getUserTokenRepository().flush();
 		} catch (Exception e) {
 			LOGGER.error("Error" + e.getMessage());
 		}
