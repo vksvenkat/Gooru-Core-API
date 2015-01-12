@@ -47,6 +47,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.ibm.icu.text.Normalizer.Mode;
+
 @Controller
 @RequestMapping(value = "/v2/taxonomy")
 public class TaxonomyRestV2Controller extends BaseController implements ConstantProperties {
@@ -95,7 +97,7 @@ public class TaxonomyRestV2Controller extends BaseController implements Constant
 			String organizationUid = user.getOrganization().getPartyUid();
 			codeId = TaxonomyUtil.getTaxonomyRootId(organizationUid);
 		}
-		if (libraryCodeList == null) {
+		if (libraryCodeList != null) {
 			libraryCodeList = serializeToJsonWithExcludes(this.getTaxonomyService().getCourseBySubject(codeId, maxLessonLimit), COURSE_EXCLUDES, true, COURSE_INCLUDES);
 			getRedisService().putValue(cacheKey, libraryCodeList, RedisService.DEFAULT_PROFILE_EXP);
 		}
