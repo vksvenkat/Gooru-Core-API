@@ -2,9 +2,7 @@ package org.ednovo.gooru.core.api.model;
 
 import java.io.Serializable;
 
-
 public class PartyCustomField implements Serializable {
-
 
 	/**
 	 * 
@@ -14,41 +12,54 @@ public class PartyCustomField implements Serializable {
 	private String category;
 	private String optionalKey;
 	private String optionalValue;
-	
+
 	public PartyCustomField() {
-		
+
 	}
 	
+	public PartyCustomField (String partyUid, String category, String optionalKey, String optionalValue) { 
+		this.setPartyUid(partyUid);
+		this.setOptionalKey(optionalKey);
+		this.setOptionalValue(optionalValue);
+		this.setCategory(category);
+	}
+
 	public PartyCustomField(String category, String optionalKey, String optionalValue) {
 		this.category = category;
 		this.optionalKey = optionalKey;
 		this.optionalValue = optionalValue;
 	}
-	
+
 	public String getCategory() {
 		return category;
 	}
+
 	public void setCategory(String category) {
 		this.category = category;
 	}
+
 	public String getOptionalKey() {
 		return optionalKey;
 	}
+
 	public String getOptionalValue() {
 		return optionalValue;
 	}
+
 	public void setOptionalKey(String optionalKey) {
 		this.optionalKey = optionalKey;
 	}
+
 	public void setOptionalValue(String optionalValue) {
 		this.optionalValue = optionalValue;
 	}
+
 	public void setPartyUid(String partyUid) {
 		this.partyUid = partyUid;
 	}
+
 	public String getPartyUid() {
 		return partyUid;
 	}
-	
 
 }
