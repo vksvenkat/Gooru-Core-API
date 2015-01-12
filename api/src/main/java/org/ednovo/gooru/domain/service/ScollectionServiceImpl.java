@@ -2195,11 +2195,11 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 		try {
 			if (destCollection != null) {
-				indexProcessor.index(destCollection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
 				this.getCollectionEventLog().getEventLogs(collectionItem, true, false, user, true);
+				indexProcessor.index(destCollection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
 			}
 		} catch (Exception e) {
-			LOGGER.error("error" + e.getMessage());
+			LOGGER.error("Error : " + e);
 		}
 		return destCollection;
 	}

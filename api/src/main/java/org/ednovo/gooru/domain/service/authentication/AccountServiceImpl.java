@@ -430,7 +430,6 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			}
 		} else {
 			SessionContextSupport.putLogParameter(SESSIONTOKEN, sessionToken.getToken());
-			SessionContextSupport.putLogParameter(API_KEY, apiKey);
 			
 		}
 		try {
