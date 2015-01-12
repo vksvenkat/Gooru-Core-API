@@ -221,6 +221,18 @@
 					<module>gooru-core</module> 
 					</modules> 
 				</profile>
+                                   <profile>
+                                        <id>mail</id>
+                                        <properties>
+                                                <env>mail</env>
+                                        </properties>
+                                        <modules>
+                                        <module>api</module>
+                                        <module>mail</module>
+                                        <module>cassandra-core</module>
+                                        <module>gooru-core</module>
+                                        </modules>
+                                </profile>
 </profiles>
 	<properties>
 		<env>local</env>
