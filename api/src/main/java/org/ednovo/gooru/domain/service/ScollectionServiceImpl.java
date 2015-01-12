@@ -62,6 +62,7 @@ import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.ResourceSource;
 import org.ednovo.gooru.core.api.model.ResourceSummary;
 import org.ednovo.gooru.core.api.model.ResourceType;
+import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.ShelfType;
 import org.ednovo.gooru.core.api.model.StandardFo;
@@ -765,7 +766,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			collectionItem.getCollection().setItemCount(sequence);
 			this.getCollectionRepository().save(collectionItem);
 			try {
-				this.getCollectionEventLog().getEventLogs(collectionItem, true, true, user, false);
+				this.getCollectionEventLog().getEventLogs(collectionItem, true, false, user, false);
 			} catch (Exception e) {
 				LOGGER.error(e.getMessage());
 			}
@@ -1677,11 +1678,12 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		destCollectionItem.setStart(sourceCollectionItem.getStart());
 		destCollectionItem.setStop(sourceCollectionItem.getStop());
 		destCollectionItem.setAssociatedUser(targetCollection.getUser());
+
 		this.getCollectionRepository().save(destCollectionItem);
 		getAsyncExecutor().deleteFromCache("v2-collection-data-" + collectionId + "*");
 		try {
 			if (destCollectionItem != null) {
-				this.getCollectionEventLog().getEventLogs(destCollectionItem, true, false, destCollectionItem.getCollection() != null && destCollectionItem.getCollection().getUser() != null ? destCollectionItem.getCollection().getUser() : null, true);
+				this.getCollectionEventLog().getEventLogs(destCollectionItem, true, false, destCollectionItem.getCollection() != null && destCollectionItem.getCollection().getUser() != null ? destCollectionItem.getCollection().getUser() : null, true, sourceCollectionItem.getResource().getGooruOid());
 			}
 		} catch (Exception e) {
 			LOGGER.error("Error" + e.getMessage());
@@ -2183,7 +2185,8 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		if (parentId != null) {
 			final Collection parentCollection = collectionRepository.getCollectionByGooruOid(parentId, user.getPartyUid());
 			if (parentCollection != null) {
-				destCollection.setCollectionItem(this.createCollectionItem(destCollection.getGooruOid(), parentCollection.getGooruOid(), new CollectionItem(), destCollection.getUser(), CollectionType.FOLDER.getCollectionType(), false).getModel());
+				collectionItem = this.createCollectionItem(destCollection.getGooruOid(), parentCollection.getGooruOid(), new CollectionItem(), destCollection.getUser(), CollectionType.FOLDER.getCollectionType(), false).getModel();
+				destCollection.setCollectionItem(collectionItem);
 			}
 		}
 		this.getCollectionRepository().save(destCollection);
@@ -2195,11 +2198,11 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 		try {
 			if (destCollection != null) {
-				this.getCollectionEventLog().getEventLogs(collectionItem, true, false, user, true);
 				indexProcessor.index(destCollection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
+				this.getCollectionEventLog().getEventLogs(collectionItem, true, false, user, true);
 			}
 		} catch (Exception e) {
-			LOGGER.error("Error : " + e);
+			LOGGER.error("error" + e.getMessage());
 		}
 		return destCollection;
 	}

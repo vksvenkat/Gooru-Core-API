@@ -726,13 +726,10 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		if (accountType == null || !accountType.equalsIgnoreCase(UserAccountType.userAccount.CHILD.getType())) {
 			inviteuser = this.getInviteRepository().getInviteUserByMail(newUser.getEmailId(), COLLABORATOR);
 		}
-		if (inviteuser != null && inviteuser.size() > 0) {
-			confirmStatus = 1;
-		}
 		if (confirmStatus == null) {
 			confirmStatus = 0;
 		}
-		if (newUser.getOrganization() != null && newUser.getOrganization().getOrganizationCode() != null && newUser.getOrganization().getOrganizationCode().length() > 0 && newUser.getOrganization().getOrganizationCode().equalsIgnoreCase(GLOBAL)) {
+		if ((inviteuser !=null && inviteuser.size() > 0) || (newUser.getOrganization() != null && newUser.getOrganization().getOrganizationCode() != null && newUser.getOrganization().getOrganizationCode().length() > 0 && newUser.getOrganization().getOrganizationCode().equalsIgnoreCase(GLOBAL))) {
 			confirmStatus = 1;
 		}
 		Identity identity = new Identity();
@@ -916,14 +913,14 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		}
 		identity.setCredential(credential);
 		this.getUserRepository().save(identity);
-		this.getPartyService().createUserDefaultCustomAttributes(user.getPartyUid(), user);
-		this.getPartyService().createTaxonomyCustomAttributes(user.getPartyUid(), user);
-		this.getUserRepository().flush();
-		if (inviteuser != null && inviteuser.size() > 0) {
-			this.getCollaboratorService().updateCollaboratorStatus(newUser.getEmailId(), user);
+		//this.getPartyService().createUserDefaultCustomAttributes(user.getPartyUid(), user);
+		//this.getPartyService().createTaxonomyCustomAttributes(user.getPartyUid(), user);
+		//this.getUserRepository().flush();
+		if (inviteuser != null && inviteuser.size() > 0 ) {
+			this.getCollaboratorService().updateCollaboratorStatus(newUser.getEmailId(),user);
 		}
 		userCreatedDevice(user.getPartyUid(), request);
-		PartyCustomField partyCustomField = this.getPartyService().getPartyCustomeField(profile.getUser().getPartyUid(), USER_CONFIRM_STATUS, identity.getUser());
+		this.getUserRepository().save(new PartyCustomField(user.getPartyUid(), USER_META, SHOW_PROFILE_PAGE, FALSE));
 		if (source != null && source.equalsIgnoreCase(UserAccountType.accountCreatedType.GOOGLE_APP.getType())) {
 			Map<String, String> dataMap = new HashMap<String, String>();
 			if (identity != null && identity.getUser() != null) {
@@ -933,9 +930,12 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			if (identity != null && identity.getExternalId() != null) {
 				dataMap.put(RECIPIENT, identity.getExternalId());
 			}
-			partyCustomField.setOptionalValue(TRUE);
-			this.getUserRepository().save(partyCustomField);
-			this.getMailHandler().handleMailEvent(dataMap);
+			this.getUserRepository().save(new PartyCustomField(user.getPartyUid(), USER_META, USER_CONFIRM_STATUS, TRUE));
+			try {
+				this.getMailHandler().handleMailEvent(dataMap);
+			} catch (Exception e) {
+				LOGGER.error("Error : " + e);
+			}
 		}
 		indexProcessor.index(user.getPartyUid(), IndexProcessor.INDEX, USER);
 		try {
@@ -1341,16 +1341,14 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		Map<String, Object> meta = new HashMap<String, Object>();
 		PartyCustomField partyCustomField = partyService.getPartyCustomeField(user.getPartyUid(), USER_TAXONOMY_ROOT_CODE, null);
 		Map<String, Object> taxonomy = new HashMap<String, Object>();
-		String taxonomyCode = null;
-		if (partyCustomField != null && partyCustomField.getOptionalValue() != null && partyCustomField.getOptionalValue().length() > 0) {
-			taxonomyCode = this.getTaxonomyRespository().getFindTaxonomyCodeList(partyCustomField.getOptionalValue());
-		}
-		if (taxonomyCode != null) {
+		String taxonomyCodeIds = (partyCustomField != null && partyCustomField.getOptionalValue() != null && partyCustomField.getOptionalValue().length() > 0) ? partyCustomField.getOptionalValue() : this.getTaxonomyRespository().getFindTaxonomyList(
+				settingService.getConfigSetting(ConfigConstants.GOORU_EXCLUDE_TAXONOMY_PREFERENCE, 0, user.getOrganization().getPartyUid()));
+
+		if (taxonomyCodeIds != null) {
+			String taxonomyCode = this.getTaxonomyRespository().getFindTaxonomyCodeList(taxonomyCodeIds);
 			List<String> taxonomyCodeList = Arrays.asList(taxonomyCode.split(","));
 			taxonomy.put(CODE, taxonomyCodeList);
-		}
-		if (partyCustomField != null && partyCustomField.getOptionalValue() != null && partyCustomField.getOptionalValue().length() > 0) {
-			List<String> taxonomyCodeIdList = Arrays.asList(partyCustomField.getOptionalValue().split(","));
+			List<String> taxonomyCodeIdList = Arrays.asList(taxonomyCodeIds.split(","));
 			taxonomy.put(CODE_ID, taxonomyCodeIdList);
 		}
 		PartyCustomField partyCustomFieldFeatured = partyService.getPartyCustomeField(user.getPartyUid(), IS_FEATURED_USER, null);

@@ -60,8 +60,8 @@ public class PartyServiceImpl extends BaseServiceImpl implements PartyService, P
 	@Autowired
 	private PartyRepository partyRepository;
 
-    @Autowired
-    private UserEventlog userEventlog;
+	@Autowired
+	private UserEventlog userEventlog;
 
 	@Autowired
 	private TaxonomyRespository taxonomyRespository;
@@ -71,8 +71,8 @@ public class PartyServiceImpl extends BaseServiceImpl implements PartyService, P
 
 	@Autowired
 	private RedisService redisService;
-	private static final Logger LOGGER = LoggerFactory.getLogger(PartyServiceImpl.class);
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(PartyServiceImpl.class);
 
 	private static ResourceBundle userDefaultCustomAttributes = ResourceBundle.getBundle("properties/userDefaultCustomAttributes");
 
@@ -117,39 +117,33 @@ public class PartyServiceImpl extends BaseServiceImpl implements PartyService, P
 	}
 
 	@Override
-	public ActionResponseDTO<PartyCustomField> updatePartyCustomField(String partyId, final PartyCustomField newPartyCustomField, final User user) {
+	public PartyCustomField updatePartyCustomField(String partyId, final PartyCustomField newPartyCustomField, final User user) {
 		PartyCustomField partyCustomField = null;
 		if (partyId != null && partyId.equalsIgnoreCase(MY)) {
 			partyId = user.getUserUid();
 		}
 		partyCustomField = this.getPartyRepository().getPartyCustomField(partyId, newPartyCustomField.getOptionalKey());
-		rejectIfNull(partyCustomField, GL0056, 404, "PartyCustomField");
-		final Errors errors = validateUpdatePartyCustomField(partyCustomField, newPartyCustomField);
-		if (!errors.hasErrors()) {
-			if (partyCustomField != null) {
-				if (newPartyCustomField.getOptionalValue() != null) {
-					partyCustomField.setOptionalValue(newPartyCustomField.getOptionalValue());
-				}
-				if (newPartyCustomField.getCategory() != null) {
-					partyCustomField.setCategory(newPartyCustomField.getCategory());
-				}
+		if (partyCustomField == null) {
+			partyCustomField = new PartyCustomField(partyId, USER_META, newPartyCustomField.getOptionalKey(), newPartyCustomField.getOptionalValue());
+		} else {
+			if (newPartyCustomField.getOptionalValue() != null) {
+				partyCustomField.setOptionalValue(newPartyCustomField.getOptionalValue());
 			}
-			this.getPartyRepository().save(partyCustomField);
-			if (newPartyCustomField.getOptionalKey() != null && newPartyCustomField.getOptionalKey().equalsIgnoreCase(SHOW_PROFILE_PAGE)) {
-				indexProcessor.index(partyId, IndexProcessor.INDEX, USER, true);
-			} else {
-				indexProcessor.index(partyId, IndexProcessor.INDEX, USER, false);
-			}
-			if (newPartyCustomField.getOptionalKey() != null && newPartyCustomField.getOptionalKey().equalsIgnoreCase(USER_TAXONOMY_ROOT_CODE)) {
-				this.redisService.deleteKey(SESSION_TOKEN_KEY + UserGroupSupport.getSessionToken());
-				try {
-					this.getUserEventlog().getEventLogs(true, false, user, null, true, true);
-				} catch (Exception e) {
-					LOGGER.error("Error" + e);
-				}
+			if (newPartyCustomField.getCategory() != null) {
+				partyCustomField.setCategory(newPartyCustomField.getCategory());
 			}
 		}
-		return new ActionResponseDTO<PartyCustomField>(partyCustomField, errors);
+
+		this.getPartyRepository().save(partyCustomField);
+		if (newPartyCustomField.getOptionalKey() != null && newPartyCustomField.getOptionalKey().equalsIgnoreCase(SHOW_PROFILE_PAGE)) {
+			indexProcessor.index(partyId, IndexProcessor.INDEX, USER, true);
+		} else {
+			indexProcessor.index(partyId, IndexProcessor.INDEX, USER, false);
+		}
+		if (newPartyCustomField.getOptionalKey() != null && newPartyCustomField.getOptionalKey().equalsIgnoreCase(USER_TAXONOMY_ROOT_CODE)) {
+			this.redisService.deleteKey(SESSION_TOKEN_KEY + UserGroupSupport.getSessionToken());
+		}
+		return partyCustomField;
 	}
 
 	private Errors validateUpdatePartyCustomField(final PartyCustomField partyCustomField, final PartyCustomField newPartyCustomField) {
@@ -242,6 +236,7 @@ public class PartyServiceImpl extends BaseServiceImpl implements PartyService, P
 	public TaxonomyRespository getTaxonomyRespository() {
 		return taxonomyRespository;
 	}
+
 	public UserEventlog getUserEventlog() {
 		return userEventlog;
 	}
