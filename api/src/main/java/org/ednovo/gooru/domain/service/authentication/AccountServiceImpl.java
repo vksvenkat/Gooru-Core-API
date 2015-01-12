@@ -74,6 +74,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
 
+import com.google.code.javascribd.type.ApiKey;
+
 import flexjson.JSONSerializer;
 
 @Service
@@ -302,7 +304,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			request.getSession().setAttribute(Constants.USER, newUser);
 			request.getSession().setAttribute(Constants.SESSION_TOKEN, userToken.getToken());
 			try {
-				this.getAccountEventlog().getEventLogs(identity, userToken, true);
+				this.getAccountEventlog().getEventLogs(identity, userToken, true, apiKeyId);
 			} catch (Exception e) {
 				LOGGER.debug("error" + e.getMessage());
 			}
@@ -318,7 +320,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 		final UserToken userToken = this.getUserTokenRepository().findByToken(sessionToken);
 		if (userToken != null) {
 			try {
-				this.getAccountEventlog().getEventLogs(userToken.getUser().getIdentities() != null ? userToken.getUser().getIdentities().iterator().next(): null, userToken, false);
+				this.getAccountEventlog().getEventLogs(userToken.getUser().getIdentities() != null ? userToken.getUser().getIdentities().iterator().next(): null, userToken, false,userToken.getApplication().getKey());
 			} catch (JSONException e) {
 				LOGGER.debug("error" + e.getMessage());
 			}
@@ -418,10 +420,13 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 		request.getSession().setAttribute(Constants.SESSION_TOKEN, sessionToken.getToken());
 		if (!registerUser) {
 			try {
-				this.getAccountEventlog().getEventLogs(newIdentity, sessionToken, true);
+				this.getAccountEventlog().getEventLogs(newIdentity, sessionToken, true, apiKey);
 			} catch (JSONException e) {
 				LOGGER.error("Error : " + e);
 			}
+		} else {
+			SessionContextSupport.putLogParameter(SESSIONTOKEN, sessionToken.getToken());
+			
 		}
 		try {
 			newUser = (User) BeanUtils.cloneBean(userIdentity);

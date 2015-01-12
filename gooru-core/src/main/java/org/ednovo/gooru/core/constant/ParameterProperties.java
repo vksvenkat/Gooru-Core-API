@@ -2266,7 +2266,7 @@ public interface ParameterProperties {
 
 	String LOGIN_TYPE = "loginType";
 	
-	String LOG_OUT_TYPE = "LogOutType";
+	String LOG_OUT_TYPE = "logOutType";
 
 	String GOORU_LOG_OUT = "gooru.logout";
 

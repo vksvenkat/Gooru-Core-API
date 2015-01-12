@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class AccountEventLog implements ParameterProperties, ConstantProperties {
 
-	public void getEventLogs(Identity identity, UserToken userToken, boolean login) throws JSONException {
+	public void getEventLogs(Identity identity, UserToken userToken, boolean login, String apiKey) throws JSONException {
 		SessionContextSupport.putLogParameter(EVENT_NAME, login ? USER_LOGIN : USER_LOG_OUT);
 		final JSONObject context = SessionContextSupport.getLog().get(CONTEXT) != null ? new JSONObject(SessionContextSupport.getLog().get(CONTEXT).toString()) : new JSONObject();
 		
@@ -25,7 +25,8 @@ public class AccountEventLog implements ParameterProperties, ConstantProperties 
 		SessionContextSupport.putLogParameter(PAY_LOAD_OBJECT, payLoadObject.toString());
 		final JSONObject session = SessionContextSupport.getLog().get(SESSION) != null ? new JSONObject(SessionContextSupport.getLog().get(SESSION).toString()) : new JSONObject();
 		session.put(SESSIONTOKEN, userToken.getToken());
-		SessionContextSupport.putLogParameter(SESSION, session.toString());
+		SessionContextSupport.putLogParameter(API_KEY, apiKey);
+        SessionContextSupport.putLogParameter(SESSION, session.toString());
 		final JSONObject user = SessionContextSupport.getLog().get(USER) != null ? new JSONObject(SessionContextSupport.getLog().get(USER).toString()) : new JSONObject();
 		if(login){
 			user.put(GOORU_UID, identity != null && identity.getUser() != null ? identity.getUser().getPartyUid() : null );
