@@ -62,6 +62,7 @@ import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.ResourceSource;
 import org.ednovo.gooru.core.api.model.ResourceSummary;
 import org.ednovo.gooru.core.api.model.ResourceType;
+import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.ShelfType;
 import org.ednovo.gooru.core.api.model.StandardFo;
@@ -1677,11 +1678,12 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		destCollectionItem.setStart(sourceCollectionItem.getStart());
 		destCollectionItem.setStop(sourceCollectionItem.getStop());
 		destCollectionItem.setAssociatedUser(targetCollection.getUser());
+
 		this.getCollectionRepository().save(destCollectionItem);
 		getAsyncExecutor().deleteFromCache("v2-collection-data-" + collectionId + "*");
 		try {
 			if (destCollectionItem != null) {
-				this.getCollectionEventLog().getEventLogs(destCollectionItem, true, false, destCollectionItem.getCollection() != null && destCollectionItem.getCollection().getUser() != null ? destCollectionItem.getCollection().getUser() : null, true);
+				this.getCollectionEventLog().getEventLogs(destCollectionItem, true, false, destCollectionItem.getCollection() != null && destCollectionItem.getCollection().getUser() != null ? destCollectionItem.getCollection().getUser() : null, true, sourceCollectionItem.getResource().getGooruOid());
 			}
 		} catch (Exception e) {
 			LOGGER.error("Error" + e.getMessage());
