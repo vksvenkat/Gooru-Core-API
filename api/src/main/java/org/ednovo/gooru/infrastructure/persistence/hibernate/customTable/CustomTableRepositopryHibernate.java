@@ -78,7 +78,6 @@ public class CustomTableRepositopryHibernate extends BaseRepositoryHibernate imp
 		query.setParameter("displayName", displayName);
 		return   (CustomTableValue) (query.list().size() > 0 ? query.list().get(0) : null); 
 	}
-
 	@Override
 	@Cacheable("persistent")
 	public List<CustomTableValue> getCustomValues(String type) {
@@ -87,12 +86,4 @@ public class CustomTableRepositopryHibernate extends BaseRepositoryHibernate imp
 		return query.list();
 	}
 	
-	@Override
-	@Cacheable("persistent")
-	public List<CustomTableValue> getValuesByDisplayName(String displayName, String name) {
-		Query query = getSessionReadOnly().createQuery(GET_VALUE_BY_DISPLAY_NAME);
-		query.setParameter("name", name);
-		query.setParameter("displayName", displayName);
-		return  query.list(); 
-	}
 }
