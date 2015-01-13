@@ -78,7 +78,7 @@ public class CollectionEventLog implements ParameterProperties, ConstantProperti
 		SessionContextSupport.putLogParameter(SESSION, session.toString());
 	}
 
-	public void getEventLogs(CollectionItem collectionItem, boolean isCreate, boolean isAdd, User user, boolean isCopy) throws JSONException {
+	public void getEventLogs(CollectionItem collectionItem, boolean isCreate, boolean isAdd, User user, boolean isCopy, boolean isEdit) throws JSONException {
 		String collectionType = collectionItem.getCollection().getCollectionType();
 		if (isCreate) {
 			SessionContextSupport.putLogParameter(EVENT_NAME, ITEM_CREATE);
@@ -100,8 +100,9 @@ public class CollectionEventLog implements ParameterProperties, ConstantProperti
 			payLoadObject.put(MODE, ADD);
 		} else if (isCreate) {
 			payLoadObject.put(MODE, CREATE);
+		} else if (isEdit) {
+			payLoadObject.put(MODE, EDIT);
 		}
-
 		payLoadObject.put(ITEM_SEQUENCE, collectionItem != null ? collectionItem.getItemSequence() : null);
 		payLoadObject.put(ITEM_ID, collectionItem != null ? collectionItem.getCollectionItemId() : null);
 		if (collectionType != null && collectionItem != null) {
@@ -139,8 +140,8 @@ public class CollectionEventLog implements ParameterProperties, ConstantProperti
 		SessionContextSupport.putLogParameter(SESSION, session.toString());
 	}
 	
-	public void getEventLogs(CollectionItem collectionItem, boolean isCreate, boolean isAdd, User user, boolean isCopy, String copySourceGooruOid) throws JSONException {
-		getEventLogs(collectionItem, isCreate,isAdd, user,isCopy);
+	public void getEventLogs(CollectionItem collectionItem, boolean isCreate, boolean isAdd, User user, boolean isCopy, boolean isEdit, String copySourceGooruOid) throws JSONException {
+		getEventLogs(collectionItem, isCreate, isAdd, user, isCopy, isEdit);
 		JSONObject context = SessionContextSupport.getLog().get(CONTEXT) != null ? new JSONObject(SessionContextSupport.getLog().get(CONTEXT).toString()) : new JSONObject();
 		context.put(SOURCE_GOORU_ID, copySourceGooruOid);
 		SessionContextSupport.putLogParameter(CONTEXT, context.toString());
