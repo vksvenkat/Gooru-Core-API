@@ -24,9 +24,7 @@
 package org.ednovo.gooru.domain.service.authentication;
 
 import java.util.Date;
-import java.util.Iterator;
 import java.util.Random;
-import java.util.UUID;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -43,16 +41,13 @@ import org.ednovo.gooru.core.api.model.Profile;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserAccountType;
-import org.ednovo.gooru.core.api.model.UserAvailability.CheckUser;
 import org.ednovo.gooru.core.api.model.UserToken;
-import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.application.util.ServerValidationUtils;
 import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.BadRequestException;
-import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.core.exception.UnauthorizedException;
 import org.ednovo.gooru.core.security.AuthenticationDo;
 import org.ednovo.gooru.domain.service.PartyService;
@@ -175,6 +170,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 
 		try {
 			userTokenRepository.save(sessionToken);
+			userTokenRepository.flush();
 		} catch (Exception e) {
 			LOGGER.error("Error" + e.getMessage());
 		}
@@ -404,7 +400,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 				userIdentity = this.getUserManagementService().createUser(newUser, null, null, 1, 0, null, null, null, null, null, null, null, source, null, request, null, null);
 				registerUser = true;
 			} catch (Exception e) {
-				LOGGER.error("error" + e.getMessage());
+				LOGGER.error("Error : " + e);
 			}
 		}
 		SessionContextSupport.putLogParameter(TYPE, source);
@@ -426,7 +422,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			try {
 				this.getAccountEventlog().getEventLogs(newIdentity, sessionToken, true, apiKey);
 			} catch (JSONException e) {
-				LOGGER.error("error" + e.getMessage());
+				LOGGER.error("Error : " + e);
 			}
 		} else {
 			SessionContextSupport.putLogParameter(SESSIONTOKEN, sessionToken.getToken());
@@ -435,7 +431,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 		try {
 			newUser = (User) BeanUtils.cloneBean(userIdentity);
 		} catch (Exception e) {
-			LOGGER.error("error" + e.getMessage());
+			LOGGER.error("Error : " + e);
 		}
 		request.getSession().setAttribute(Constants.USER, newUser);
 		newUser.setToken(sessionToken.getToken());

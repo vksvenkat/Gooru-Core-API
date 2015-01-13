@@ -834,6 +834,7 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 	}
 
 	@Override
+	@Cacheable("gooruCache")
 	public String getFindTaxonomyList(String excludeCode) {
 		String hql = "select group_concat(code_id) as codes from code where depth = 0 and organization_uid  IN (" + getUserOrganizationUidsAsString() + ") and code_id not in (" + excludeCode + ")";
 		Query query = getSession().createSQLQuery(hql).addScalar("codes", StandardBasicTypes.STRING);

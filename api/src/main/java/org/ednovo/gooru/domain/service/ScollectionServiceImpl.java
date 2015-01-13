@@ -2185,7 +2185,8 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		if (parentId != null) {
 			final Collection parentCollection = collectionRepository.getCollectionByGooruOid(parentId, user.getPartyUid());
 			if (parentCollection != null) {
-				destCollection.setCollectionItem(this.createCollectionItem(destCollection.getGooruOid(), parentCollection.getGooruOid(), new CollectionItem(), destCollection.getUser(), CollectionType.FOLDER.getCollectionType(), false).getModel());
+				collectionItem = this.createCollectionItem(destCollection.getGooruOid(), parentCollection.getGooruOid(), new CollectionItem(), destCollection.getUser(), CollectionType.FOLDER.getCollectionType(), false).getModel();
+				destCollection.setCollectionItem(collectionItem);
 			}
 		}
 		this.getCollectionRepository().save(destCollection);

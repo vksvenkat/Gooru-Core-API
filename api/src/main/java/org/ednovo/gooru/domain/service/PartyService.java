@@ -39,7 +39,7 @@ public interface PartyService extends BaseService {
 
 	PartyCustomField getPartyCustomeField(String partyId, String optionalKey, User user);
 
-	ActionResponseDTO<PartyCustomField> updatePartyCustomField(String partyId, PartyCustomField partyCustomField, User user);
+	PartyCustomField updatePartyCustomField(String partyId, PartyCustomField partyCustomField, User user);
 
 	void deleteCustomField(String partyId, PartyCustomField partyCustomField, User user) throws Exception;
 

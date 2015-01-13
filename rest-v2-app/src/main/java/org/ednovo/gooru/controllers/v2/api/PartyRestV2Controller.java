@@ -95,10 +95,10 @@ public class PartyRestV2Controller extends BaseController implements ParameterPr
 	public ModelAndView updatePartyCustomField(@RequestBody String data, @PathVariable(value = ID) String partyId, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
 		JSONObject json = requestData(data);
-		ActionResponseDTO<PartyCustomField> responseDTO = getPartyservice().updatePartyCustomField(partyId, buildPartyCustomFieldFromInputParameters(getValue(PARTY_CUSTOM_FIELD, json)), user);
+		PartyCustomField responseDTO = getPartyservice().updatePartyCustomField(partyId, buildPartyCustomFieldFromInputParameters(getValue(PARTY_CUSTOM_FIELD, json)), user);
 		String[] includeFields = getValue(FIELDS, json) != null ? getFields(getValue(FIELDS, json)) : null;
 		String includes[] = (String[]) ArrayUtils.addAll(includeFields == null ? PARTY_CUSTOM_INCLUDES : includeFields, ERROR_INCLUDE);
-		return toModelAndViewWithIoFilter(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, includes);
+		return toModelAndViewWithIoFilter(responseDTO, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, includes);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_PARTY_CUSTOM_FIELD_READ })

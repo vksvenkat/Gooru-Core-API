@@ -1411,7 +1411,9 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 		PartyCustomField partyCustomFieldTax = partyService.getPartyCustomeField(user.getPartyUid(), USER_TAXONOMY_ROOT_CODE, null);
 		if (partyCustomFieldTax != null) {
 			userCredential.setTaxonomyPreference(partyCustomFieldTax.getOptionalValue());
-		}
+		}  else  {
+			this.getTaxonomyRespository().getFindTaxonomyList(settingService.getConfigSetting(ConfigConstants.GOORU_EXCLUDE_TAXONOMY_PREFERENCE,0, user.getOrganization().getPartyUid()));
+ 		}
 		return userCredential;
 
 	}
