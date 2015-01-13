@@ -97,7 +97,7 @@ public class TaxonomyRestV2Controller extends BaseController implements Constant
 			String organizationUid = user.getOrganization().getPartyUid();
 			codeId = TaxonomyUtil.getTaxonomyRootId(organizationUid);
 		}
-		if (libraryCodeList != null) {
+		if (libraryCodeList == null) {
 			libraryCodeList = serializeToJsonWithExcludes(this.getTaxonomyService().getCourseBySubject(codeId, maxLessonLimit), COURSE_EXCLUDES, true, true, COURSE_INCLUDES);
 			getRedisService().putValue(cacheKey, libraryCodeList, RedisService.DEFAULT_PROFILE_EXP);
 		}
