@@ -45,9 +45,9 @@ public class AccountEventLog implements ParameterProperties, ConstantProperties 
 		try {
 			JSONObject session = SessionContextSupport.getLog().get(SESSION) != null ? new JSONObject(SessionContextSupport.getLog().get(SESSION).toString()) : new JSONObject();
 			session.put(SESSIONTOKEN, sessionToken);
-	        SessionContextSupport.putLogParameter(SESSION, session.toString());
+			SessionContextSupport.putLogParameter(SESSION, session.toString());
 		} catch (JSONException e) {
-			LOGGER.error("Error : " +e);
+			LOGGER.error("Error : " + e);
 		}
 	}
 	

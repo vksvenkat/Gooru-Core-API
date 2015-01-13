@@ -9,7 +9,7 @@ public class CustomProperties implements Serializable {
 	public static enum Table {
 		FEEDBACK_RATING_TYPE("feedback_rating_type"), FEEDBACK_REPORT_CONTENT_TYPE("feedback_report_content_type"), FEEDBACK_REPORT_USER_TYPE("feedback_report_user_type"), FEEDBACK_OTHER_TYPE("feedback_other_type"), TARGET("target"), FEEDBACK_CATEGORY("feedback_category"), COMMNET_STATUS(
 				"comment_status"), TAG_STATUS("tag_status"), TAG_TYPE("tag_type"), POST_TYPE("post_type"), POST_STATUS("post_status"), USER_CLASSIFICATION_TYPE("user_classification_type"), FEEDBACK_REACTION("feedback_reaction"), EVENT_STATUS("event_status"), THEME_TYPE("theme_type"), PRODUCT_TYPE(
-				"product_type"), BUILD_TYPE("build_type"), CONTENT_STATUS_TYPE("content_status_type"), ORGANIZATION_TYPE("organization_type"), APPLICATION_STATUS("application_status"), ASSIGNMENT_STATUS_TYPE("assignment_status_type"), ORGANIZATION_CATEGORY("organization_category"),USER_CATEGORY("user_category") ;
+				"product_type"), BUILD_TYPE("build_type"), CONTENT_STATUS_TYPE("content_status_type"), ORGANIZATION_TYPE("organization_type"), APPLICATION_STATUS("application_status"), ASSIGNMENT_STATUS_TYPE("assignment_status_type"), ORGANIZATION_CATEGORY("organization_category");
 		private String table;
 
 		Table(String table) {
@@ -220,19 +220,6 @@ public class CustomProperties implements Serializable {
 		}
 	}
 	
-	public static enum UserCategory {
-		PARENT("parent"), TEACHER("teacher"), STUDENT("student"), OTHER("other");
-		private String userCategory;
-
-		UserCategory(String userCategory) {
-			this.userCategory = userCategory;
-		}
-
-		public String getUserCategory() {
-			return this.userCategory;
-		}
-	}
-
 	public static enum InstitutionType {
 		SCHOOL("school"), DISTRICT("school-district"), SCHOOL_DISTRICT("school_district");
 		private String institutionType;

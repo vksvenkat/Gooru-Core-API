@@ -1526,9 +1526,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 
 	@Override
 	public List<CustomTableValue> getUserCategory(User apiCaller) {
-		rejectIfNull(apiCaller, GL0056, USER);
-		return this.getCustomTableRepository().getCustomValues(USER_CATEGORY) ;
-		
+		return this.getCustomTableRepository().getCustomValues(USER_CATEGORY);
 	}
 
 	public IdpRepository getIdpRepository() {
