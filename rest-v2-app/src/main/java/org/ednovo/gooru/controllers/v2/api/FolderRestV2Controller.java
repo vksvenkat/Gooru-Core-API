@@ -118,7 +118,7 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 	@RequestMapping(value = { "/{id}" }, method = RequestMethod.DELETE)
 	public void deleteFolder(@PathVariable(value = ID) String collectionId, HttpServletRequest request, HttpServletResponse response) {
 		User user = (User) request.getAttribute(Constants.USER);
-		getCollectionService().deleteCollection(collectionId, user,false);
+		getCollectionService().deleteCollection(collectionId, user);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_FOLDER_ITEM_ADD })

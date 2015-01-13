@@ -174,7 +174,7 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 	@RequestMapping(value = { "/{id}" }, method = RequestMethod.DELETE)
 	public void deleteCollection(@PathVariable(value = ID) String collectionId, HttpServletRequest request, HttpServletResponse response) {
 		User user = (User) request.getAttribute(Constants.USER);
-		getCollectionService().deleteCollection(collectionId, user,false);
+		getCollectionService().deleteCollection(collectionId, user);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ITEM_ADD })
