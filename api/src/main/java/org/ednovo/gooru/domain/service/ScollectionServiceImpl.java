@@ -112,6 +112,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindException;
@@ -214,7 +216,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	@Autowired
 	private PartyService partyService;
 
-	private String fileName;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ScollectionServiceImpl.class);
 
@@ -2099,6 +2100,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Collection copyCollection(String collectionId, Collection newCollection, boolean addToShelf, String parentId, final User user) throws Exception {
 
 		Collection sourceCollection = this.getCollection(collectionId, false, false, false, user, null, null, false, false);
@@ -2191,7 +2193,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				destCollection.setCollectionItem(collectionItem);
 			}
 		}
-		this.getCollectionRepository().save(destCollection);
 		destCollection.setClusterUid(sourceCollection.getGooruOid());
 		destCollection.setIsRepresentative(0);
 		this.getCollectionRepository().save(destCollection);
@@ -2200,7 +2201,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 		try {
 			if (destCollection != null) {
-				indexProcessor.index(destCollection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
 				this.getCollectionEventLog().getEventLogs(collectionItem, true, false, user, true, false);
 			}
 		} catch (Exception e) {

@@ -52,6 +52,7 @@ import org.ednovo.gooru.core.security.AuthorizeOperations;
 import org.ednovo.gooru.domain.service.CollectionService;
 import org.ednovo.gooru.domain.service.redis.RedisService;
 import org.ednovo.gooru.domain.service.resource.ResourceService;
+import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepository;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.json.JSONObject;
@@ -87,6 +88,9 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 
 	@Autowired
 	private ConversionService conversionService;
+	
+	@Autowired
+	protected IndexProcessor indexProcessor;
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ADD })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -259,7 +263,6 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_COPY })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}/copy" }, method = RequestMethod.PUT)
 	public ModelAndView copyCollection(@PathVariable(value = ID) String collectionId, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, COLLECTION_INCLUDE_FIELDS);
@@ -270,7 +273,7 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 		User user = (User) request.getAttribute(Constants.USER);
 		Collection collection = getCollectionService().copyCollection(collectionId, this.buildCopyCollectionFromInputParameters(getValue(COLLECTION, json)), json != null && getValue(ADD_TO_SHELF, json) != null ? Boolean.parseBoolean(getValue(ADD_TO_SHELF, json)) : false,
 				json != null && getValue(PARENT_ID, json) != null ? getValue(PARENT_ID, json) : null, user);
-
+		indexProcessor.index(collection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
 		return toModelAndViewWithIoFilter(collection, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
 
