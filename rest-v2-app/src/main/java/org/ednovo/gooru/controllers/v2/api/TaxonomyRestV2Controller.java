@@ -47,7 +47,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.ibm.icu.text.Normalizer.Mode;
 
 @Controller
 @RequestMapping(value = "/v2/taxonomy")
