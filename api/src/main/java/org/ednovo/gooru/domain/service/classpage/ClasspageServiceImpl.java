@@ -886,7 +886,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	public void deletePathway(String classId,String pathwayGooruOid, User user) {
 		final List<CollectionItem> collectionItems = this.getCollectionRepository().getCollectionItemByParentId(pathwayGooruOid, null, null);
 		for (CollectionItem item : collectionItems) {
-			this.deleteCollectionItem(item.getCollectionItemId(), user, true);
+			this.deleteCollectionItem(item.getCollectionItemId(), user, false);
 		}
 		this.getCollectionService().deleteCollection(pathwayGooruOid, user);
 		getAsyncExecutor().deleteFromCache("v2-class-data-"+ classId +"*");

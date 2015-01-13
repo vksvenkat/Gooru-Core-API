@@ -704,7 +704,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			}
 
 			for (CollectionItem item : collectionItems) {
-				this.deleteCollectionItem(item.getCollectionItemId(), user,true);
+				this.deleteCollectionItem(item.getCollectionItemId(), user,false);
 				if (item.getAssociatedUser() != null && !item.getAssociatedUser().getPartyUid().equals(user.getPartyUid())) {
 					getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + item.getAssociatedUser().getPartyUid() + "*");
 				}
