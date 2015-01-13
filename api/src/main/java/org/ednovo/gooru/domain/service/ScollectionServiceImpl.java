@@ -1055,8 +1055,8 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			});
 			if (cacheCollection != null) {
 				try {
-					cacheCollection.put("viewCount", this.resourceCassandraService.getInt(cacheCollection.get("gooruOid").toString(), "stas.viewsCount"));
-					cacheCollection.put("views", Long.parseLong(this.resourceCassandraService.getInt(cacheCollection.get("gooruOid").toString(), "stas.viewsCount") + ""));
+					cacheCollection.put("viewCount", this.resourceCassandraService.getInt(cacheCollection.get("gooruOid").toString(), STATISTICS_VIEW_COUNT));
+					cacheCollection.put("views", Long.parseLong(this.resourceCassandraService.getInt(cacheCollection.get("gooruOid").toString(), STATISTICS_VIEW_COUNT) + ""));
 				} catch (Exception e) {
 					LOGGER.error("parser error : " + e);
 				}
@@ -1132,8 +1132,8 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			collection.setLastModifiedUser(lastUserModifiedMap);
 			if (includeViewCount) {
 				try {
-					collection.setViewCount(this.resourceCassandraService.getInt(collection.getGooruOid(), "stas.viewsCount"));
-					collection.setViews(Long.parseLong(this.resourceCassandraService.getInt(collection.getGooruOid(), "stas.viewsCount") + ""));
+					collection.setViewCount(this.resourceCassandraService.getInt(collection.getGooruOid(), STATISTICS_VIEW_COUNT));
+					collection.setViews(Long.parseLong(this.resourceCassandraService.getInt(collection.getGooruOid(), STATISTICS_VIEW_COUNT) + ""));
 				} catch (Exception e) {
 					LOGGER.error("parser error : " + e);
 				}
@@ -1151,8 +1151,8 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				collectionItem.getResource().setResourceTags(this.getContentService().getContentTagAssoc(collectionItem.getResource().getGooruOid(), user));
 				if (includeViewCount) {
 					try {
-						collectionItem.getResource().setViewCount(this.resourceCassandraService.getInt(collectionItem.getResource().getGooruOid(), "stas.viewsCount"));
-						collectionItem.getResource().setViews(Long.parseLong(this.resourceCassandraService.getInt(collectionItem.getResource().getGooruOid(), "stas.viewsCount") + ""));
+						collectionItem.getResource().setViewCount(this.resourceCassandraService.getInt(collectionItem.getResource().getGooruOid(), STATISTICS_VIEW_COUNT));
+						collectionItem.getResource().setViews(Long.parseLong(this.resourceCassandraService.getInt(collectionItem.getResource().getGooruOid(), STATISTICS_VIEW_COUNT) + ""));
 					} catch (Exception e) {
 						LOGGER.error("parser error : " + e);
 					}
@@ -2720,5 +2720,4 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	public PartyService getPartyService() {
 		return partyService;
 	}
-
 }

@@ -302,8 +302,8 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		}
 		Map<String, Object> resourceObject = new HashMap<String, Object>();
 	    try {
-	    	resource.setViewCount(this.resourceCassandraService.getInt(resource.getGooruOid(),"stas.viewsCount"));
-			resource.setViews(Long.parseLong(this.resourceCassandraService.getInt(resource.getGooruOid(),"stas.viewsCount") + ""));
+	    	resource.setViewCount(this.resourceCassandraService.getInt(resource.getGooruOid(),STATISTICS_VIEW_COUNT));
+			resource.setViews(Long.parseLong(this.resourceCassandraService.getInt(resource.getGooruOid(),STATISTICS_VIEW_COUNT) + ""));
 		} catch (Exception e) { 
 			LOGGER.error("parser error : " + e);
 		}
@@ -3134,8 +3134,8 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		if (resource == null) {
 			throw new NotFoundException(generateErrorMessage("GL0003"));
 		}
-		resource.setViewCount(Integer.parseInt(this.resourceCassandraService.get(resource.getGooruOid(),"stas.viewsCount") != null ? this.resourceCassandraService.get(resource.getGooruOid(),"stas.viewsCount") : "0" ));
-	    resource.setViews(Long.parseLong(this.resourceCassandraService.get(resource.getGooruOid(),"stas.viewsCount") != null ? this.resourceCassandraService.get(resource.getGooruOid(),"stas.viewsCount") : "0"));
+		resource.setViewCount(Integer.parseInt(this.resourceCassandraService.get(resource.getGooruOid(),STATISTICS_VIEW_COUNT) != null ? this.resourceCassandraService.get(resource.getGooruOid(),STATISTICS_VIEW_COUNT) : "0" ));
+	    resource.setViews(Long.parseLong(this.resourceCassandraService.get(resource.getGooruOid(),STATISTICS_VIEW_COUNT) != null ? this.resourceCassandraService.get(resource.getGooruOid(),STATISTICS_VIEW_COUNT) : "0"));
 		resource.setCustomFieldValues(customFieldService.getCustomFieldsValuesOfResource(resource.getGooruOid()));
 		if (more) {
 			String category = CustomProperties.Table.FEEDBACK_CATEGORY.getTable() + "_" + RATING;
