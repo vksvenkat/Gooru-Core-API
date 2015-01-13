@@ -67,7 +67,7 @@ public interface ScollectionService extends BaseService {
 
 	ActionResponseDTO<Collection> updateCollection(Collection newCollection, String updateCollectionId, String taxonomyCode, String ownerUId, String creatorUId, boolean hasUnrestrictedContentAccess, String relatedContentId, boolean updateTaxonomyByCode, User apiCallerUser) throws Exception;
 
-	void deleteCollection(String collectionId, User user);
+	void deleteCollection(String collectionId, User user, boolean findex);
 
 	List<Collection> getCollections(Map<String, String> filters, User user);
 
@@ -79,7 +79,7 @@ public interface ScollectionService extends BaseService {
 
 	CollectionItem getCollectionItem(String collectionItemId, boolean includeAdditionalInfo, User user, String rootNodeId);
 
-	void deleteCollectionItem(String collectionItemId, User user);
+	void deleteCollectionItem(String collectionItemId, User user, boolean findex);
 
 	ActionResponseDTO<CollectionItem> reorderCollectionItem(String collectionItemId, int newSequence) throws Exception;
 
