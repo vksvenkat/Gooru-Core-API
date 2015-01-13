@@ -5,12 +5,17 @@ import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.UserToken;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.domain.service.user.impl.UserServiceImpl;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 @Component
 public class AccountEventLog implements ParameterProperties, ConstantProperties {
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(AccountEventLog.class);
 
 	public void getEventLogs(Identity identity, UserToken userToken, boolean login, String apiKey) throws JSONException {
 		SessionContextSupport.putLogParameter(EVENT_NAME, login ? USER_LOGIN : USER_LOG_OUT);
@@ -34,6 +39,16 @@ public class AccountEventLog implements ParameterProperties, ConstantProperties 
 			user.put(GOORU_UID, userToken != null && userToken.getUser() != null ? userToken.getUser().getPartyUid() : null );
 		}
 		SessionContextSupport.putLogParameter(USER, user.toString());
+	}
+	
+	public void getEventLogs(String sessionToken) {
+		try {
+			JSONObject session = SessionContextSupport.getLog().get(SESSION) != null ? new JSONObject(SessionContextSupport.getLog().get(SESSION).toString()) : new JSONObject();
+			session.put(SESSIONTOKEN, sessionToken);
+			SessionContextSupport.putLogParameter(SESSION, session.toString());
+		} catch (JSONException e) {
+			LOGGER.error("Error : " + e);
+		}
 	}
 	
 }

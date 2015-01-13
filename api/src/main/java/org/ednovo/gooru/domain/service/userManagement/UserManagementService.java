@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Application;
+import org.ednovo.gooru.core.api.model.CustomTableValue;
 import org.ednovo.gooru.core.api.model.EntityOperation;
 import org.ednovo.gooru.core.api.model.Identity;
 import org.ednovo.gooru.core.api.model.Profile;
@@ -41,7 +42,6 @@ import org.ednovo.gooru.core.api.model.UserRoleAssoc;
 import org.ednovo.gooru.core.api.model.UserToken;
 import org.ednovo.gooru.domain.service.BaseService;
 import org.ednovo.gooru.domain.service.search.SearchResults;
-
 
 public interface UserManagementService extends BaseService {
 
@@ -135,4 +135,6 @@ public interface UserManagementService extends BaseService {
 	 UserRole getRoleByRoleId(Integer roleId);
 	 
 	 List<RoleEntityOperation> getRoleOperationsByRoleId(Integer roleId);
+	 
+	 List<CustomTableValue> getUserCategory(User apiCaller);
 }

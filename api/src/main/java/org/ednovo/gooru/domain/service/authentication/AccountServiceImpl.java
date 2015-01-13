@@ -67,6 +67,7 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.apikey.ApplicationR
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
 import org.ednovo.goorucore.application.serializer.ExcludeNullTransformer;
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -403,7 +404,6 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 				LOGGER.error("Error : " + e);
 			}
 		}
-		SessionContextSupport.putLogParameter(TYPE, source);
 		Identity newIdentity = null;
 		if (userIdentity.getIdentities() != null && userIdentity.getIdentities().size()>0) {
 			newIdentity = userIdentity.getIdentities().iterator().next();
@@ -425,8 +425,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 				LOGGER.error("Error : " + e);
 			}
 		} else {
-			SessionContextSupport.putLogParameter(SESSIONTOKEN, sessionToken.getToken());
-			
+			this.getAccountEventlog().getEventLogs(sessionToken.getToken());
 		}
 		try {
 			newUser = (User) BeanUtils.cloneBean(userIdentity);
