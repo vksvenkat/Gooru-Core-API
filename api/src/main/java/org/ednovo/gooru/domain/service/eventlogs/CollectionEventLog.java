@@ -100,8 +100,7 @@ public class CollectionEventLog implements ParameterProperties, ConstantProperti
 			payLoadObject.put(MODE, ADD);
 		} else if (isCreate) {
 			payLoadObject.put(MODE, CREATE);
-		} else if (isEdit)
-		{
+		} else if (isEdit) {
 			payLoadObject.put(MODE, EDIT);
 		}
 		payLoadObject.put(ITEM_SEQUENCE, collectionItem != null ? collectionItem.getItemSequence() : null);
