@@ -264,7 +264,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		String collectionGooruOid = null;
 		if (sourceCollectionItem != null) {
 			collectionGooruOid = sourceCollectionItem.getCollection().getGooruOid();
-			deleteCollectionItem(sourceCollectionItem.getCollectionItemId(), user);
+			deleteCollectionItem(sourceCollectionItem.getCollectionItemId(), user, true);
 		}
 
 		if (targetId != null) {

@@ -240,7 +240,7 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 							e.printStackTrace();
 						}
 						for (CollectionItem association : associations) {
-							this.getCollectionService().deleteCollectionItem(association.getCollectionItemId(), identity.getUser());
+							this.getCollectionService().deleteCollectionItem(association.getCollectionItemId(), identity.getUser(), true);
 						}
 					}
 					getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + identity.getUser().getPartyUid() + "*");
