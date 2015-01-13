@@ -705,7 +705,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			}
 
 			for (CollectionItem item : collectionItems) {
-				this.deleteCollectionItem(item.getCollectionItemId(), user);
+				this.deleteCollectionItem(item.getCollectionItemId(), user,true);
 				if (item.getAssociatedUser() != null && !item.getAssociatedUser().getPartyUid().equals(user.getPartyUid())) {
 					getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + item.getAssociatedUser().getPartyUid() + "*");
 				}
@@ -953,7 +953,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 
 	@Override
-	public void deleteCollectionItem(String collectionItemId, final User user) {
+	public void deleteCollectionItem(String collectionItemId, final User user, boolean indexCollection) {
 		CollectionItem collectionItem = this.getCollectionRepository().getCollectionItemById(collectionItemId);
 		if (collectionItem != null && collectionItem.getResource() != null) {
 			try {
@@ -977,7 +977,10 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				} else {
 					indexProcessor.index(collectionItem.getResource().getGooruOid(), IndexProcessor.INDEX, RESOURCE);
 				}
-				indexProcessor.index(collectionItem.getCollection().getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
+				if (indexCollection) {
+					indexProcessor.index(collectionItem.getCollection().getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
+				}
+
 				getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
 				getAsyncExecutor().deleteFromCache("v2-class-data-" + collectionItem.getCollection().getGooruOid() + "*");
 				getAsyncExecutor().deleteFromCache("v2-collection-data-" + collection.getGooruOid() + "*");
@@ -2035,7 +2038,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				if (newCollection.getSharing().equalsIgnoreCase(PRIVATE)) {
 					List<CollectionItem> associations = this.getCollectionRepository().getCollectionItemByAssociation(collection.getGooruOid(), null, CLASSPAGE);
 					for (CollectionItem item : associations) {
-						this.deleteCollectionItem(item.getCollectionItemId(), updateUser);
+						this.deleteCollectionItem(item.getCollectionItemId(), updateUser, true);
 					}
 				}
 				collection.setSharing(newCollection.getSharing());

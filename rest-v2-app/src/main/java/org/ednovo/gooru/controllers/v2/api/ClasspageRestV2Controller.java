@@ -303,7 +303,7 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	@RequestMapping(value = "/item/{id}", method = RequestMethod.DELETE)
 	public void deleteClasspageItem(@PathVariable(value = ID) String collectionItemId, HttpServletRequest request, HttpServletResponse response) {
 		User user = (User) request.getAttribute(Constants.USER);
-		getCollectionService().deleteCollectionItem(collectionItemId, user);
+		getCollectionService().deleteCollectionItem(collectionItemId, user,true);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ADD })
