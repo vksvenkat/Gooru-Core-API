@@ -838,6 +838,8 @@ public interface ConstantProperties {
    public static final String _GROUP_UID = "groupUId";
    
    public static final String SOURCE_GOORU_ID = "sourceGooruId";
+   
+   public static final String STATISTICS_VIEW_COUNT = "statistics.viewsCount";
 
 }
 
