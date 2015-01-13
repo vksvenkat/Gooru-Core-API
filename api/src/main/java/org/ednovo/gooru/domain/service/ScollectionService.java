@@ -79,7 +79,7 @@ public interface ScollectionService extends BaseService {
 
 	CollectionItem getCollectionItem(String collectionItemId, boolean includeAdditionalInfo, User user, String rootNodeId);
 
-	void deleteCollectionItem(String collectionItemId, User user);
+	void deleteCollectionItem(String collectionItemId, User user, boolean indexCollection);
 
 	ActionResponseDTO<CollectionItem> reorderCollectionItem(String collectionItemId, int newSequence) throws Exception;
 

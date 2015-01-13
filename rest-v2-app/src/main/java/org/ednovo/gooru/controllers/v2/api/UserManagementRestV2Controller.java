@@ -446,6 +446,17 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 		return null;
 	}
 
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_READ })
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(method = RequestMethod.GET, value = "/category")
+	public ModelAndView getUserCategory( HttpServletRequest request, HttpServletResponse response) throws Exception {
+		User apiCaller = (User) request.getAttribute(Constants.USER);
+		String includesDefault[] = (String[]) ArrayUtils.addAll(CUSTOM_VALUE_INCLUDE_FIELDS, CUSTOM_VALUE_INCLUDE);
+		String[] includes = (String[]) ArrayUtils.addAll(includesDefault, ERROR_INCLUDE);
+		return toModelAndViewWithIoFilter(this.getUserManagementService().getUserCategory(apiCaller), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
+	
+	}
+	
 	public UserManagementService getUserManagementService() {
 		return userManagementService;
 	}

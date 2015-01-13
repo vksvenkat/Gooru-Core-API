@@ -219,7 +219,7 @@ public class CustomProperties implements Serializable {
 			return this.assignmentStatus;
 		}
 	}
-
+	
 	public static enum InstitutionType {
 		SCHOOL("school"), DISTRICT("school-district"), SCHOOL_DISTRICT("school_district");
 		private String institutionType;

@@ -296,7 +296,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		}
 
 		try {
-			this.getCollectionEventLog().getEventLogs(collection.getCollectionItem(), true, false, collection.getUser(), false);
+			this.getCollectionEventLog().getEventLogs(collection.getCollectionItem(), true, false, collection.getUser(), false, false);
 		} catch (Exception e) {
 			LOGGER.error("Error" + e.getMessage());
 		}
@@ -419,7 +419,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 			getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collection.getUser().getPartyUid() + "*");
 			try {
-				this.getCollectionEventLog().getEventLogs(collection.getCollectionItem(), true, false, user, false);
+				this.getCollectionEventLog().getEventLogs(collection.getCollectionItem(), true, false, user, false, false);
 			} catch (Exception e) {
 				LOGGER.error(e.getMessage());
 			}
@@ -705,7 +705,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			}
 
 			for (CollectionItem item : collectionItems) {
-				this.deleteCollectionItem(item.getCollectionItemId(), user);
+				this.deleteCollectionItem(item.getCollectionItemId(), user,false);
 				if (item.getAssociatedUser() != null && !item.getAssociatedUser().getPartyUid().equals(user.getPartyUid())) {
 					getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + item.getAssociatedUser().getPartyUid() + "*");
 				}
@@ -766,7 +766,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			collectionItem.getCollection().setItemCount(sequence);
 			this.getCollectionRepository().save(collectionItem);
 			try {
-				this.getCollectionEventLog().getEventLogs(collectionItem, true, true, user, false);
+				this.getCollectionEventLog().getEventLogs(collectionItem, true, false, user, false, false);
 			} catch (Exception e) {
 				LOGGER.error(e.getMessage());
 			}
@@ -906,7 +906,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			this.getCollectionRepository().save(collectionItem);
 			this.getCollectionRepository().save(collectionItem.getCollection());
 			try {
-				this.getCollectionEventLog().getEventLogs(collectionItem, false, false, user, false);
+				this.getCollectionEventLog().getEventLogs(collectionItem, false, false, user, false, false);
 				if (collectionItem.getResource().getResourceType() != null && collectionItem.getResource().getResourceType().getName().equalsIgnoreCase(ResourceType.Type.SCOLLECTION.getType())) {
 					indexProcessor.index(collectionItem.getResource().getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
 				} else {
@@ -953,7 +953,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 
 	@Override
-	public void deleteCollectionItem(String collectionItemId, final User user) {
+	public void deleteCollectionItem(String collectionItemId, final User user, boolean indexCollection) {
 		CollectionItem collectionItem = this.getCollectionRepository().getCollectionItemById(collectionItemId);
 		if (collectionItem != null && collectionItem.getResource() != null) {
 			try {
@@ -977,7 +977,10 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				} else {
 					indexProcessor.index(collectionItem.getResource().getGooruOid(), IndexProcessor.INDEX, RESOURCE);
 				}
-				indexProcessor.index(collectionItem.getCollection().getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
+				if (indexCollection) {
+					indexProcessor.index(collectionItem.getCollection().getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
+				}
+
 				getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
 				getAsyncExecutor().deleteFromCache("v2-class-data-" + collectionItem.getCollection().getGooruOid() + "*");
 				getAsyncExecutor().deleteFromCache("v2-collection-data-" + collection.getGooruOid() + "*");
@@ -1678,11 +1681,12 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		destCollectionItem.setStart(sourceCollectionItem.getStart());
 		destCollectionItem.setStop(sourceCollectionItem.getStop());
 		destCollectionItem.setAssociatedUser(targetCollection.getUser());
+
 		this.getCollectionRepository().save(destCollectionItem);
 		getAsyncExecutor().deleteFromCache("v2-collection-data-" + collectionId + "*");
 		try {
 			if (destCollectionItem != null) {
-				this.getCollectionEventLog().getEventLogs(destCollectionItem, true, false, destCollectionItem.getCollection() != null && destCollectionItem.getCollection().getUser() != null ? destCollectionItem.getCollection().getUser() : null, true);
+				this.getCollectionEventLog().getEventLogs(destCollectionItem, true, false, destCollectionItem.getCollection() != null && destCollectionItem.getCollection().getUser() != null ? destCollectionItem.getCollection().getUser() : null, true, false, sourceCollectionItem.getResource().getGooruOid());
 			}
 		} catch (Exception e) {
 			LOGGER.error("Error" + e.getMessage());
@@ -2034,7 +2038,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				if (newCollection.getSharing().equalsIgnoreCase(PRIVATE)) {
 					List<CollectionItem> associations = this.getCollectionRepository().getCollectionItemByAssociation(collection.getGooruOid(), null, CLASSPAGE);
 					for (CollectionItem item : associations) {
-						this.deleteCollectionItem(item.getCollectionItemId(), updateUser);
+						this.deleteCollectionItem(item.getCollectionItemId(), updateUser, true);
 					}
 				}
 				collection.setSharing(newCollection.getSharing());
@@ -2197,10 +2201,10 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 		try {
 			if (destCollection != null) {
-				this.getCollectionEventLog().getEventLogs(collectionItem, true, false, user, true);
+				this.getCollectionEventLog().getEventLogs(collectionItem, true, false, user, true, false);
 			}
 		} catch (Exception e) {
-			LOGGER.error("Error : " + e);
+			LOGGER.error("error" + e.getMessage());
 		}
 		return destCollection;
 	}
@@ -2352,7 +2356,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			getAsyncExecutor().deleteFromCache("v2-collection-data-" + collectionId + "*");
 		}
 		try {
-			this.getCollectionEventLog().getEventLogs(response.getModel(), true, false, user, false);
+			this.getCollectionEventLog().getEventLogs(response.getModel(), true, false, user, false, false);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

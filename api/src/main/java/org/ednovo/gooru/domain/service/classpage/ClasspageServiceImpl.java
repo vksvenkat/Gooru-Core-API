@@ -886,7 +886,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	public void deletePathway(String classId,String pathwayGooruOid, User user) {
 		final List<CollectionItem> collectionItems = this.getCollectionRepository().getCollectionItemByParentId(pathwayGooruOid, null, null);
 		for (CollectionItem item : collectionItems) {
-			this.deleteCollectionItem(item.getCollectionItemId(), user);
+			this.deleteCollectionItem(item.getCollectionItemId(), user, false);
 		}
 		this.getCollectionService().deleteCollection(pathwayGooruOid, user);
 		getAsyncExecutor().deleteFromCache("v2-class-data-"+ classId +"*");
@@ -966,7 +966,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			collectionItems.add(collectionItem);
 			targetPathway.setCollectionItems(collectionItems);
 			this.getCollectionRepository().save(targetPathway);
-			deleteCollectionItem(sourceItem.getCollectionItemId(), user);
+			deleteCollectionItem(sourceItem.getCollectionItemId(), user, true);
 		}
 		if (newSequence != null) {
 			targetItem = this.getCollectionService().reorderCollectionItem(targetItem != null ? targetItem.getCollectionItemId() : sourceId, newSequence).getModel();
@@ -987,7 +987,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			responseDTO = this.getCollectionService().createCollectionItem(sourceIdItem.getResource().getGooruOid(), pathwayItem.getResource().getGooruOid(), collectionItem , user, ADDED, false);
 		}
 		if (sourceIdItem != null) {
-			deleteCollectionItem(sourceIdItem.getCollectionItemId(), user);
+			deleteCollectionItem(sourceIdItem.getCollectionItemId(), user, true);
 		}
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + user.getPartyUid() + "*");
@@ -1007,7 +1007,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		if (this.getCollectionRepository().getCollectionByIdWithType(classId, CLASSPAGE) == null) {
 			throw new BadRequestException("class not found");
 		}
-		getCollectionService().deleteCollectionItem(collectionItemId, user);
+		getCollectionService().deleteCollectionItem(collectionItemId, user, true);
 		getAsyncExecutor().deleteFromCache("v2-class-data-" + classId + "*");
 	}
 	
