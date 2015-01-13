@@ -666,7 +666,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 			throw new BadCredentialsException("User Id cannot be null or empty");
 		}
 
-		if ((!apiCaller.getGooruUId().equals(gooruUId)) || (!isContentAdmin(apiCaller))) {
+		if (isDisableUser  && (!apiCaller.getGooruUId().equals(gooruUId)) || (!isContentAdmin(apiCaller))) {
 			throw new AccessDeniedException("You are not authorized to perform this action");
 		}
 
@@ -701,9 +701,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 		Profile profile = this.getUserRepository().getProfile(getUser(gooruUId), false);
 
 		User user = profile.getUser();
-		boolean sendWelcomeMail = false;
 		if ((user != null) && (user.getConfirmStatus() == 0)) {
-			sendWelcomeMail = true;
 			user.setConfirmStatus(1);
 		}
 
