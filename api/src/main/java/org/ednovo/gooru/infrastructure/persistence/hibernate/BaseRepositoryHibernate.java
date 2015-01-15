@@ -28,7 +28,11 @@ import java.util.Collection;
 import java.util.Iterator;
 
 import org.ednovo.gooru.core.api.model.Versionable;
+import org.ednovo.gooru.core.security.AuthenticationDo;
+import org.ednovo.gooru.domain.service.authentication.AccountServiceImpl;
+import org.ednovo.gooru.domain.service.redis.RedisService;
 import org.ednovo.gooru.domain.service.revision_history.RevisionHistoryService;
+import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -44,14 +48,14 @@ public class BaseRepositoryHibernate extends AbstractRepositoryHibernate impleme
 	
 	@javax.annotation.Resource(name = "sessionFactoryReadOnly")
 	private SessionFactory sessionFactoryReadOnly;
-
-
-	public SessionFactory getSessionFactoryReadOnly() {
-		return sessionFactoryReadOnly;
-	}
 	
 	@Autowired
 	private RevisionHistoryService revisionHistoryService;
+	
+	@Autowired
+	private RedisService redisService; 
+	
+	private static final String SESSION_TOKEN_KEY = "authenticate_";
 
 
 	@Override
@@ -83,6 +87,16 @@ public class BaseRepositoryHibernate extends AbstractRepositoryHibernate impleme
 		}
 		deleteAll(entities);
 	}
+	
+	@Override
+	public AuthenticationDo getAuthenticationDo(String token) {
+		String data = getRedisService().get(SESSION_TOKEN_KEY + token);
+		AuthenticationDo  authentication = new AuthenticationDo();
+		if (data != null) {
+			authentication = JsonDeserializer.deserialize(data, AuthenticationDo.class);
+		}
+		return authentication;
+	}
 
 	public SessionFactory getSessionFactory() {
 		return sessionFactory;
@@ -97,5 +111,13 @@ public class BaseRepositoryHibernate extends AbstractRepositoryHibernate impleme
 
 	public void setRevisionHistoryService(RevisionHistoryService revisionHistoryService) {
 		this.revisionHistoryService = revisionHistoryService;
+	}
+	
+	public SessionFactory getSessionFactoryReadOnly() {
+		return sessionFactoryReadOnly;
+	}
+
+	public RedisService getRedisService() {
+		return redisService;
 	}
 }
