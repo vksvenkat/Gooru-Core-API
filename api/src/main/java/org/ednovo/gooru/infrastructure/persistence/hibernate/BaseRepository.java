@@ -27,6 +27,9 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 
+import org.ednovo.gooru.core.security.AuthenticationDo;
+import org.springframework.security.core.Authentication;
+
 /**
  * Data Access Object (Dao) interface. This is an interface used to tag our Dao
  * classes and to provide common methods to all Daos.
@@ -108,4 +111,6 @@ public interface BaseRepository {
 	void flush();
 
 	void clear();
+	
+	AuthenticationDo getAuthenticationDo(String token);
 }

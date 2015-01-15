@@ -87,7 +87,7 @@ public class UserTokenRepositoryHibernate extends BaseRepositoryHibernate implem
 	         return (UserToken)tokens.get(0);
 	     }
 	     else{
-	         return null;
+	         return getAuthenticationDo(sessionToken).getUserToken();
 	     }
 	 }
 	

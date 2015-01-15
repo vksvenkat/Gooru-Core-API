@@ -159,7 +159,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 		if (users != null && users.size() > 0) {
 			return users.get(0);
 		}
-		return null;
+		return this.getAuthenticationDo(sessionToken).getUserToken().getUser();
 	}
 
 	@Override
