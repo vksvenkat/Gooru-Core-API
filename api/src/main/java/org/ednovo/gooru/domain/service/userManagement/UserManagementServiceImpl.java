@@ -83,7 +83,6 @@ import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.BadRequestException;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.core.exception.UnauthorizedException;
-import org.ednovo.gooru.core.security.AuthenticationDo;
 import org.ednovo.gooru.domain.service.BaseServiceImpl;
 import org.ednovo.gooru.domain.service.CollaboratorService;
 import org.ednovo.gooru.domain.service.PartyService;
@@ -92,7 +91,6 @@ import org.ednovo.gooru.domain.service.party.OrganizationService;
 import org.ednovo.gooru.domain.service.redis.RedisService;
 import org.ednovo.gooru.domain.service.search.SearchResults;
 import org.ednovo.gooru.domain.service.setting.SettingService;
-import org.ednovo.gooru.domain.service.user.UserService;
 import org.ednovo.gooru.domain.service.user.impl.UserServiceImpl;
 import org.ednovo.gooru.infrastructure.mail.MailHandler;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
@@ -105,7 +103,6 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.collaborator.Collab
 import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.taxonomy.TaxonomyRespository;
-import org.ednovo.goorucore.application.serializer.ExcludeNullTransformer;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -120,8 +117,6 @@ import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
 
 import com.thoughtworks.xstream.core.util.Base64Encoder;
-
-import flexjson.JSONSerializer;
 
 @Service
 public class UserManagementServiceImpl extends BaseServiceImpl implements UserManagementService, ParameterProperties, ConstantProperties {
@@ -176,9 +171,6 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 
 	@Autowired
 	private ApplicationRepository applicationRepository;
-
-	@Autowired
-	private UserService userService;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
 
@@ -496,18 +488,6 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		user = createUser(newUser, password, school, confirmStatus, addedBySystem, null, accountType, dateOfBirth, userParentId, gender, childDOB, null, request, role, mailConfirmationUrl);
 		Application application = this.getApplicationRepository().getApplicationByOrganization(user.getOrganization().getPartyUid());
 		UserToken userToken = this.createSessionToken(user, sessionId, application);
-		try {
-			AuthenticationDo authentication = new AuthenticationDo();
-			authentication.setUserToken(userToken);
-			authentication.setUserCredential(userService.getUserCredential(user, userToken.getToken(), null, null));
-			getRedisService().put(
-					SESSION_TOKEN_KEY + userToken.getToken(),
-					new JSONSerializer().transform(new ExcludeNullTransformer(), void.class)
-							.include(new String[] { "*.operationAuthorities", "*.userRoleSet", "*.partyOperations", "*.subOrganizationUids", "*.orgPermits", "*.partyPermits", "*.customFields", "*.identities", "*.meta", "*.partyPermissions.*" }).exclude("*.class").serialize(authentication));
-		} catch (Exception e) {
-			LOGGER.error("Failed to  put  value from redis server : " + e);
-		}
-
 		if (user != null && token) {
 			Identity identity = this.findUserByGooruId(user.getGooruUId());
 			if (identity != null) {
@@ -749,7 +729,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		if (confirmStatus == null) {
 			confirmStatus = 0;
 		}
-		if ((inviteuser != null && inviteuser.size() > 0) || (newUser.getOrganization() != null && newUser.getOrganization().getOrganizationCode() != null && newUser.getOrganization().getOrganizationCode().length() > 0 && newUser.getOrganization().getOrganizationCode().equalsIgnoreCase(GLOBAL))) {
+		if ((inviteuser !=null && inviteuser.size() > 0) || (newUser.getOrganization() != null && newUser.getOrganization().getOrganizationCode() != null && newUser.getOrganization().getOrganizationCode().length() > 0 && newUser.getOrganization().getOrganizationCode().equalsIgnoreCase(GLOBAL))) {
 			confirmStatus = 1;
 		}
 		Identity identity = new Identity();
@@ -933,13 +913,11 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		}
 		identity.setCredential(credential);
 		this.getUserRepository().save(identity);
-		// this.getPartyService().createUserDefaultCustomAttributes(user.getPartyUid(),
-		// user);
-		// this.getPartyService().createTaxonomyCustomAttributes(user.getPartyUid(),
-		// user);
-		// this.getUserRepository().flush();
-		if (inviteuser != null && inviteuser.size() > 0) {
-			this.getCollaboratorService().updateCollaboratorStatus(newUser.getEmailId(), user);
+		//this.getPartyService().createUserDefaultCustomAttributes(user.getPartyUid(), user);
+		//this.getPartyService().createTaxonomyCustomAttributes(user.getPartyUid(), user);
+		//this.getUserRepository().flush();
+		if (inviteuser != null && inviteuser.size() > 0 ) {
+			this.getCollaboratorService().updateCollaboratorStatus(newUser.getEmailId(),user);
 		}
 		userCreatedDevice(user.getPartyUid(), request);
 		this.getUserRepository().save(new PartyCustomField(user.getPartyUid(), USER_META, SHOW_PROFILE_PAGE, FALSE));
