@@ -714,7 +714,6 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		if (sessionToken.getApplication() != null) {
 			organization = sessionToken.getApplication().getOrganization();
 		}
-		SessionContextSupport.putLogParameter(API_KEY, application.getKey());
 		this.getRedisService().addSessionEntry(sessionToken.getToken(), organization);
 		return sessionToken;
 	}
