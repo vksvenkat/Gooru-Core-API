@@ -105,6 +105,8 @@ public class CollectionEventLog implements ParameterProperties, ConstantProperti
 		}
 		payLoadObject.put(ITEM_SEQUENCE, collectionItem != null ? collectionItem.getItemSequence() : null);
 		payLoadObject.put(ITEM_ID, collectionItem != null ? collectionItem.getCollectionItemId() : null);
+		payLoadObject.put(ASSOCIATION_DATE, collectionItem != null ? collectionItem.getAssociationDate().getTime() : null);
+
 		if (collectionType != null && collectionItem != null) {
 			if (collectionType.equalsIgnoreCase(CollectionType.SHElf.getCollectionType())) {
 				if (collectionItem != null && collectionItem.getResource() != null) {
