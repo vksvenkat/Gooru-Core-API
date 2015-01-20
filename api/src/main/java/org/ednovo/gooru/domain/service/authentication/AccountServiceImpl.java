@@ -214,7 +214,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 
 			if (!isSsoLogin) {
 				if (identity.getCredential() == null) {
-					throw new UnauthorizedException(generateErrorMessage("GL0080"));
+					throw new UnauthorizedException(generateErrorMessage("GL0078"));
 				}
 				final String encryptedPassword = this.getUserService().encryptPassword(password);
 				if (user == null || !(encryptedPassword.equals(identity.getCredential().getPassword()) || password.equals(identity.getCredential().getPassword()))) {
