@@ -971,7 +971,7 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 		if (codeId != null) {
 			sql += " and ta.source_code_id =" + codeId;
 		}
-		if (!UserGroupSupport.getTaxonomyPreference().isEmpty() && UserGroupSupport.getTaxonomyPreference() != null) {
+		if (UserGroupSupport.getTaxonomyPreference() != null && !UserGroupSupport.getTaxonomyPreference().isEmpty()) {
 			sql += " and c.root_node_id in (" + UserGroupSupport.getTaxonomyPreference() + ")";
 		}
 		Query query = getSession().createSQLQuery(sql);
