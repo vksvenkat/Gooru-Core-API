@@ -849,7 +849,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 
 		PartyCustomField partyCustomField = this.getPartyService().getPartyCustomeField(profile.getUser().getPartyUid(), "user_confirm_status", profile.getUser());
 
-		if (partyCustomField != null && !partyCustomField.getOptionalValue().equalsIgnoreCase("true")) {
+		if (partyCustomField == null) {
 			Map<String, String> dataMap = new HashMap<String, String>();
 			dataMap.put(GOORU_UID, profile.getUser().getPartyUid());
 			dataMap.put(EVENT_TYPE, CustomProperties.EventMapping.WELCOME_MAIL.getEvent());
@@ -862,8 +862,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 					dataMap.put("recipient", profile.getUser().getIdentities().iterator().next().getExternalId());
 				}
 			}
-			partyCustomField.setOptionalValue("true");
-			this.getUserRepository().save(partyCustomField);
+			this.getUserRepository().save(new PartyCustomField(profile.getUser().getPartyUid(), USER_META, USER_CONFIRM_STATUS, TRUE));
 			this.getMailHandler().handleMailEvent(dataMap);
 		}
 
