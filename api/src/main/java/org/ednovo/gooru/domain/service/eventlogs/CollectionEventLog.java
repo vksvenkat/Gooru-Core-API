@@ -105,7 +105,7 @@ public class CollectionEventLog implements ParameterProperties, ConstantProperti
 		}
 		payLoadObject.put(ITEM_SEQUENCE, collectionItem != null ? collectionItem.getItemSequence() : null);
 		payLoadObject.put(ITEM_ID, collectionItem != null ? collectionItem.getCollectionItemId() : null);
-		payLoadObject.put(ASSOCIATION_DATE, collectionItem != null ? collectionItem.getAssociationDate().getTime() : null);
+		payLoadObject.put(ASSOCIATION_DATE, collectionItem != null &&  collectionItem.getAssociationDate() != null ? collectionItem.getAssociationDate().getTime() : null);
 
 		if (collectionType != null && collectionItem != null) {
 			if (collectionType.equalsIgnoreCase(CollectionType.SHElf.getCollectionType())) {
@@ -224,6 +224,8 @@ public class CollectionEventLog implements ParameterProperties, ConstantProperti
 		}
 		payLoadObject.put(ITEM_SEQUENCE, collectionItem != null ? collectionItem.getItemSequence() : null);
 		payLoadObject.put(ITEM_ID, collectionItem != null ? collectionItem.getCollectionItemId() : null);
+		payLoadObject.put(ASSOCIATION_DATE, collectionItem != null ? collectionItem.getAssociationDate().getTime() : null);
+
 		if (collectionType != null && collectionItem != null) {
 			if (collectionType.equalsIgnoreCase(CollectionType.SHElf.getCollectionType())) {
 				if (collectionItem.getResource() != null) {

@@ -141,7 +141,6 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 			@RequestParam(value = INCLUDE_RELATED_CONTENT, required = false, defaultValue = FALSE) boolean includeRelatedContent, @RequestParam(value = MERGE, required = false) String merge, @RequestParam(value = REQ_CONTEXT, required = false, defaultValue = "edit-play") String requestContext,
 			@RequestParam(value = ROOT_NODE_ID, required = false) String rootNodeId, HttpServletRequest request, HttpServletResponse response) {
 		User user = (User) request.getAttribute(Constants.USER);
-		String collection = null;
 		String includes[] = null;
 		if (requestContext != null && requestContext.equalsIgnoreCase("library")) {
 			includes = (String[]) ArrayUtils.addAll(LIBRARY_RESOURCE_INCLUDE_FIELDS, COLLECTION_ITEM_INCLUDE_FILEDS);
