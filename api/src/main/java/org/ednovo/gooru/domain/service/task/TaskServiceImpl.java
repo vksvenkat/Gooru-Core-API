@@ -137,7 +137,7 @@ public class TaskServiceImpl extends BaseServiceImpl implements TaskService, Par
 			this.getTaskRepository().save(collectionTaskAssoc);
 			errors = new BindException(collectionTaskAssoc, COLLECTION_TASK_ASSOC);
 		} else {
-			throw new NotFoundException(generateErrorMessage(GL0056, TASK));
+			throw new NotFoundException(generateErrorMessage(GL0056, TASK), GL0056);
 		}
 		return new ActionResponseDTO<CollectionTaskAssoc>(collectionTaskAssoc, errors);
 	}
@@ -334,7 +334,7 @@ public class TaskServiceImpl extends BaseServiceImpl implements TaskService, Par
 				this.getTaskRepository().remove(taskResourceAssoc);
 			}
 		} else {
-			throw new NotFoundException(generateErrorMessage(GL0056, TASK_RESOURCE_ASSOC));
+			throw new NotFoundException(generateErrorMessage(GL0056, TASK_RESOURCE_ASSOC), GL0056);
 		}
 	}
 
@@ -365,7 +365,7 @@ public class TaskServiceImpl extends BaseServiceImpl implements TaskService, Par
 		if (taskAssoc != null) {
 			this.getTaskRepository().remove(taskAssoc);
 		} else {
-			throw new NotFoundException(generateErrorMessage(GL0056, TASK_ASSOC));
+			throw new NotFoundException(generateErrorMessage(GL0056, TASK_ASSOC), GL0056);
 		}
 
 	}
@@ -376,7 +376,7 @@ public class TaskServiceImpl extends BaseServiceImpl implements TaskService, Par
 		if (task != null) {
 			this.getTaskRepository().remove(task);
 		} else {
-			throw new RuntimeException(generateErrorMessage(GL0056, TASK_USER_ASSOC));
+			throw new NotFoundException(generateErrorMessage(GL0056, TASK_USER_ASSOC), GL0056);
 		}
 
 	}
@@ -401,7 +401,7 @@ public class TaskServiceImpl extends BaseServiceImpl implements TaskService, Par
 				}
 			}
 		} else {
-			throw new NotFoundException(generateErrorMessage(GL0056, TASK));
+			throw new NotFoundException(generateErrorMessage(GL0056, TASK), GL0056);
 		}
 		return taskUserAssocList;
 	}

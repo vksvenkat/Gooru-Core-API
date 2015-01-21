@@ -817,7 +817,7 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 			Object[] obj = results.get(0);
 			featuredId = String.valueOf(obj[1]);
 		} else {
-			throw new NotFoundException("popular collection not fund");
+			throw new NotFoundException(generateErrorMessage(GL0056, "popular collection"), GL0056);
 		}
 		List<Map<String, Object>> collectionUnitMap = null;
 		List<Object[]> collectionUnitList = this.getFeaturedRepository().getLibraryCollection(null, featuredId, limit, offset, null);

@@ -59,13 +59,15 @@ public class GooruExceptionResolver extends SimpleMappingExceptionResolver {
 		if (ex instanceof AccessDeniedException) {
 			errorObject = new ErrorObject(403, ex.getMessage());
 			response.setStatus(403);
-		} else if (ex instanceof BadCredentialsException || ex instanceof BadRequestException) {
+		} else if (ex instanceof BadCredentialsException) {
 			errorObject = new ErrorObject(400, ex.getMessage());
 			response.setStatus(400);
+		} else if (ex instanceof BadRequestException) {
+			errorObject = new ErrorObject(400, ((BadRequestException) ex).getErrorCode() != null ? "400-" + ((BadRequestException) ex).getErrorCode() : "400", ex.getMessage());
+			response.setStatus(400);
 		} else if (ex instanceof UnauthorizedException) {
-			errorObject = new ErrorObject(401, ex.getMessage());
+			errorObject = new ErrorObject(401, ((UnauthorizedException) ex).getErrorCode() != null ? "401-" + ((UnauthorizedException) ex).getErrorCode() : "401", ex.getMessage());
 			response.setStatus(401);
-			response.setHeader("Unauthorized", ex.getMessage());
 		} else if (ex instanceof SizeLimitExceededException) {
 			response.setStatus(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE);
 			errorObject = new ErrorObject(413, ex.getMessage());
@@ -80,7 +82,7 @@ public class GooruExceptionResolver extends SimpleMappingExceptionResolver {
 		} else if (ex instanceof NotImplementedException || ex instanceof NotAllowedException) {
 			response.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
 			errorObject = new ErrorObject(405, ex.getMessage());
-		} else if (ex instanceof MethodFailureException) { 
+		} else if (ex instanceof MethodFailureException) {
 			response.setStatus(420);
 			errorObject = new ErrorObject(420, ex.getMessage());
 			logger.error("Error in Resolver -- ", ex);
@@ -92,13 +94,16 @@ public class GooruExceptionResolver extends SimpleMappingExceptionResolver {
 			logger.error("input parameters --- " + getRequestInfo(request).toString());
 		}
 
-		
 		if (!isLogError) {
 			logger.debug("Error in Resolver -- ", ex);
 			logger.debug("input parameters --- " + getRequestInfo(request).toString());
 		}
 		ModelAndView jsonModel = new ModelAndView("rest/model");
-		jsonModel.addObject("model", new JSONSerializer().exclude("*.class").serialize(errorObject));
+		String errorJsonResponse = new JSONSerializer().exclude("*.class").serialize(errorObject);
+		if (ex instanceof UnauthorizedException) {
+			response.setHeader("Unauthorized", errorJsonResponse);
+		}
+		jsonModel.addObject("model", errorJsonResponse);
 		return jsonModel;
 	}
 
@@ -114,5 +119,5 @@ public class GooruExceptionResolver extends SimpleMappingExceptionResolver {
 		}
 		return inputParams;
 	}
-	
+
 }

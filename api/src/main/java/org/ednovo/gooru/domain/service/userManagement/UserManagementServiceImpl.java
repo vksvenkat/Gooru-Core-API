@@ -109,7 +109,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -530,7 +529,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	public User resendConfirmationMail(String gooruUid, User apiCaller, String sessionId, String gooruBaseUrl, String type) throws Exception {
 		User user = this.getUserRepository().findByGooruId(gooruUid);
 		if (user == null) {
-			throw new NotFoundException(generateErrorMessage(GL0056, "User"));
+			throw new NotFoundException(generateErrorMessage(GL0056, "User"), GL0056);
 		}
 
 		Application application = this.getApplicationRepository().getApplicationByOrganization(user.getOrganization().getPartyUid());
@@ -584,57 +583,57 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		if ((isNotEmptyString(childDOB)) && (isNotEmptyString(accountType)) && childDOB != null && !childDOB.equalsIgnoreCase(_NULL)) {
 			Integer age = this.calculateCurrentAge(childDOB);
 			if (age < 0) {
-				throw new BadRequestException(generateErrorMessage("GL0059"));
+				throw new BadRequestException(generateErrorMessage("GL0059"), "GL0059");
 			}
 		}
 		if ((isNotEmptyString(dateOfBirth)) && (isNotEmptyString(accountType)) && dateOfBirth != null && !dateOfBirth.equalsIgnoreCase(_NULL)) {
 			Integer age = this.calculateCurrentAge(dateOfBirth);
 			if (age < 0) {
-				throw new BadRequestException(generateErrorMessage("GL0059"));
+				throw new BadRequestException(generateErrorMessage("GL0059"), "GL0059");
 			}
 			if (age < 13 && age >= 0 && (accountType.equalsIgnoreCase(UserAccountType.userAccount.NON_PARENT.getType()))) {
-				throw new UnauthorizedException(generateErrorMessage("GL0060", "13"));
+				throw new UnauthorizedException(generateErrorMessage("GL0060", "13"), "GL0060");
 			}
 		}
 		if (!isNotEmptyString(user.getFirstName())) {
-			throw new BadRequestException(generateErrorMessage("GL0061", "First name"));
+			throw new BadRequestException(generateErrorMessage("GL0061", "First name"), "GL0061");
 		}
 
 		if (!isNotEmptyString(user.getOrganization() != null ? user.getOrganization().getOrganizationCode() : null)) {
-			throw new UnauthorizedException(generateErrorMessage("GL0061", "Organization code"));
+			throw new UnauthorizedException(generateErrorMessage("GL0061", "Organization code"), "GL0061");
 		}
 		if (!isNotEmptyString(user.getLastName())) {
-			throw new BadRequestException(generateErrorMessage("GL0061", "Last name"));
+			throw new BadRequestException(generateErrorMessage("GL0061", "Last name"), "GL0061");
 		}
 		if (!isNotEmptyString(user.getEmailId())) {
-			throw new BadRequestException(generateErrorMessage("GL0061", "Email"));
+			throw new BadRequestException(generateErrorMessage("GL0061", "Email"), "GL0061");
 		}
 		if (!isNotEmptyString(password)) {
 			if (apicaller != null && !isContentAdmin(apicaller)) {
-				throw new BadRequestException(generateErrorMessage("GL0061", "Password"));
+				throw new BadRequestException(generateErrorMessage("GL0061", "Password"), "GL0061");
 			}
 		} else if (password.length() < 5) {
-			throw new BadRequestException(generateErrorMessage("GL0064", "5"));
+			throw new BadRequestException(generateErrorMessage("GL0064", "5"), "GL0064");
 		}
 		if (!isNotEmptyString(user.getUsername())) {
-			throw new BadRequestException(generateErrorMessage("GL0061", "Username"));
+			throw new BadRequestException(generateErrorMessage("GL0061", "Username"), "GL0061");
 		} else if (user.getUsername().length() < 4) {
-			throw new BadRequestException(generateErrorMessage("GL0065", "4"));
+			throw new BadRequestException(generateErrorMessage("GL0065", "4"), "GL0065");
 		} else if (user.getUsername().length() > 21) {
-			throw new BadRequestException(generateErrorMessage("GL0100", "21"));
+			throw new BadRequestException(generateErrorMessage("GL0100", "21"), "GL0100");
 		}
 		boolean usernameAvailability = this.getUserRepository().checkUserAvailability(user.getUsername(), CheckUser.BYUSERNAME, false);
 		if (usernameAvailability) {
-			throw new NotFoundException(generateErrorMessage("GL0084", user.getUsername(), "username"));
+			throw new NotFoundException(generateErrorMessage("GL0084", user.getUsername(), "username"), "GL0084");
 		}
 		boolean emailidAvailability = this.getUserRepository().checkUserAvailability(user.getEmailId(), CheckUser.BYEMAILID, false);
 		if (accountType != null) {
 			if (emailidAvailability && (!accountType.equalsIgnoreCase(UserAccountType.userAccount.CHILD.getType()))) {
-				throw new NotFoundException(generateErrorMessage("GL0062"));
+				throw new NotFoundException(generateErrorMessage("GL0062"), "GL0062");
 			}
 		} else {
 			if (emailidAvailability) {
-				throw new NotFoundException(generateErrorMessage("GL0062"));
+				throw new NotFoundException(generateErrorMessage("GL0062"), "GL0062");
 			}
 		}
 
@@ -645,7 +644,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		if (superAdminToken == null || !superAdminToken.equals(this.getSettingService().getOrganizationSetting(SUPER_ADMIN_TOKEN, TaxonomyUtil.GOORU_ORG_UID))) {
 			Organization organization = this.getOrganizationService().getOrganizationByCode(organizationCode);
 			if (organization == null) {
-				throw new BadRequestException(generateErrorMessage("GL0066"));
+				throw new BadRequestException(generateErrorMessage("GL0066"), "GL0066");
 			}
 			Boolean hasPermission = false;
 			GooruAuthenticationToken authenticationContext = (GooruAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
@@ -670,7 +669,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			userDateOfBirth = simpleDateFormat.parse(dateOfBirth);
 		} catch (ParseException e) {
 			LOGGER.error("Error" + e.getMessage());
-			throw new BadCredentialsException("Invalid date format. Expected format is MM/DD/YYY");
+			throw new BadRequestException("Invalid date format. Expected format is MM/DD/YYY");
 		}
 		if (userDateOfBirth.getTime() < currentDate.getTime()) {
 			long milliseconds = currentDate.getTime() - userDateOfBirth.getTime();
@@ -980,12 +979,12 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		try {
 			messageDigest = MessageDigest.getInstance("SHA-1"); // step 2
 		} catch (NoSuchAlgorithmException e) {
-			throw new BadRequestException(generateErrorMessage("GL0068"), e);
+			throw new BadRequestException(generateErrorMessage("GL0068"), "GL0068");
 		}
 		try {
 			messageDigest.update(password.getBytes("UTF-8")); // step 3
 		} catch (UnsupportedEncodingException e) {
-			throw new BadRequestException(generateErrorMessage("GL0069"), e);
+			throw new BadRequestException(generateErrorMessage("GL0069"), "GL0069");
 		}
 		byte raw[] = messageDigest.digest(); // step 4
 		return new Base64Encoder().encode(raw); // step 5
@@ -994,11 +993,11 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	@Override
 	public User getUserByToken(String userToken) {
 		if (userToken == null || userToken.equalsIgnoreCase("")) {
-			throw new BadRequestException(generateErrorMessage("GL0061", "User token"));
+			throw new BadRequestException(generateErrorMessage("GL0061", "User token"), "GL0061");
 		}
 		User user = getUserRepository().findByToken(userToken);
 		if (user == null) {
-			throw new BadRequestException(generateErrorMessage("GL0056", "User"));
+			throw new BadRequestException(generateErrorMessage("GL0056", "User"), GL0056);
 		}
 		if (user != null && !user.getGooruUId().toLowerCase().contains(ANONYMOUS)) {
 			user.setMeta(userMeta(user));
@@ -1035,19 +1034,19 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			identity = this.getUserRepository().findByEmailIdOrUserName(emailId, true, false);
 		}
 		if (identity == null) {
-			throw new NotFoundException(generateErrorMessage("GL0070"));
+			throw new NotFoundException(generateErrorMessage("GL0070"), "GL0070");
 		}
 		String token = UUID.randomUUID().toString();
 		User user = this.userRepository.findByIdentity(identity);
 		if (user == null) {
-			throw new NotFoundException(generateErrorMessage("GL0071"));
+			throw new NotFoundException(generateErrorMessage("GL0071"), "GL0071");
 		}
 		if (user.getConfirmStatus() == 0) {
-			throw new BadRequestException(generateErrorMessage("GL0072"));
+			throw new BadRequestException(generateErrorMessage("GL0072"), "GL0072");
 		}
 		Credential creds = identity.getCredential();
 		if (creds == null && identity.getAccountCreatedType() != null && identity.getAccountCreatedType().equalsIgnoreCase(UserAccountType.accountCreatedType.GOOGLE_APP.getType())) {
-			throw new BadRequestException(generateErrorMessage("GL0073"));
+			throw new BadRequestException(generateErrorMessage("GL0073"), "GL0073");
 		}
 		if (creds == null) {
 			creds = new Credential();
@@ -1073,13 +1072,13 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			}
 			identity = this.getUserService().findIdentityByResetToken(token);
 			if (identity.getUser().getUsername().equalsIgnoreCase(password)) {
-				throw new BadRequestException(generateErrorMessage("GL0074"));
+				throw new BadRequestException(generateErrorMessage("GL0074"), "GL0074");
 			}
 		} else {
 			if (this.isContentAdmin(apiCaller)) {
 				identity = this.findUserByGooruId(gooruUid);
 			} else {
-				throw new BadRequestException(generateErrorMessage("GL0075"));
+				throw new BadRequestException(generateErrorMessage("GL0075"), "GL0075");
 			}
 		}
 		boolean flag = false;
@@ -1263,7 +1262,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			partyCustomField.setPartyUid(user.getPartyUid());
 			partyService.createPartyCustomField(MY, partyCustomField, user);
 		} else {
-			throw new BadRequestException(generateErrorMessage("GL0076"));
+			throw new BadRequestException(generateErrorMessage("GL0076"), "GL0076");
 		}
 	}
 
@@ -1305,7 +1304,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	public void unFollowUser(User user, String unFollowUserId) {
 		UserRelationship userRelationship = getUserRepository().getActiveUserRelationship(user.getPartyUid(), unFollowUserId);
 		if (userRelationship == null) {
-			throw new BadRequestException(generateErrorMessage("GL0077"));
+			throw new BadRequestException(generateErrorMessage("GL0077"), "GL0077");
 		} else {
 			this.getUserRepository().remove(userRelationship);
 			UserSummary userSummary = this.getUserRepository().getSummaryByUid(user.getPartyUid());

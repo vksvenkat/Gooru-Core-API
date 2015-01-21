@@ -102,10 +102,10 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 		if (gooruOid != null) {
 			content = getContentRepository().findContentByGooruId(gooruOid, true);
 			if (content == null) {
-				throw new NotFoundException(generateErrorMessage("GL0056", "content"));
+				throw new NotFoundException(generateErrorMessage("GL0056", "content"), GL0056);
 			}
 		} else {
-			throw new BadRequestException(generateErrorMessage("GL0088"));
+			throw new BadRequestException(generateErrorMessage("GL0088"), "GL0088");
 		}
 		List<Map<String, Object>> collaborator = new ArrayList<Map<String,Object>>();
 		if (email != null) {
@@ -215,10 +215,10 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 		if (gooruOid != null) {
 			content = getContentRepository().findContentByGooruId(gooruOid, true);
 			if (content == null) {
-				throw new NotFoundException(generateErrorMessage("GL0056", "content"));
+				throw new NotFoundException(generateErrorMessage("GL0056", "content"), GL0056);
 			}
 		} else {
-			throw new BadRequestException(generateErrorMessage("GL0088"));
+			throw new BadRequestException(generateErrorMessage("GL0088"), "GL0088");
 		}
 		if (email != null) {
 			for (String mailId : email) {
