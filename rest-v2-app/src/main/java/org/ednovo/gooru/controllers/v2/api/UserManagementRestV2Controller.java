@@ -414,7 +414,7 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ROLE_DELETE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	@RequestMapping(method = RequestMethod.DELETE, value = "/{userUid}/role")
+	@RequestMapping(method = {RequestMethod.DELETE, RequestMethod.PUT}, value = "/{userUid}/role")
 	public void removeAssignedRoleByUserUid(HttpServletRequest request,HttpServletResponse response,@PathVariable(USER_UID) String userUid, @RequestBody String data) throws Exception {
 
 		this.getUserManagementService().removeAssignedRoleByUserUid(this.buildRoleFromInputParameters(data).getRoleId(), userUid);
