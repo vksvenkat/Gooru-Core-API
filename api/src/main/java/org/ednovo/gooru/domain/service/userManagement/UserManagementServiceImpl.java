@@ -394,7 +394,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			profile.setUser(user);
 			this.getUserRepository().save(profile);
 			PartyCustomField partyCustomField = this.getPartyService().getPartyCustomeField(profile.getUser().getPartyUid(), USER_CONFIRM_STATUS, profile.getUser());
-			if (partyCustomField != null && !partyCustomField.getOptionalValue().equalsIgnoreCase(TRUE) && newProfile.getUser() != null && newProfile.getUser().getConfirmStatus() != null && newProfile.getUser().getConfirmStatus() == 1) {
+			if (partyCustomField == null &&  newProfile.getUser() != null && newProfile.getUser().getConfirmStatus() != null && newProfile.getUser().getConfirmStatus() == 1) {
 				Map<String, String> dataMap = new HashMap<String, String>();
 				dataMap.put(GOORU_UID, profile.getUser().getPartyUid());
 				dataMap.put(EVENT_TYPE, CustomProperties.EventMapping.WELCOME_MAIL.getEvent());
@@ -407,8 +407,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 						dataMap.put(RECIPIENT, profile.getUser().getIdentities().iterator().next().getExternalId());
 					}
 				}
-				partyCustomField.setOptionalValue(TRUE);
-				this.getUserRepository().save(partyCustomField);
+				this.getUserRepository().save(new PartyCustomField(profile.getUser().getPartyUid(), USER_META, USER_CONFIRM_STATUS, TRUE));
 				this.getMailHandler().handleMailEvent(dataMap);
 			}
 			CustomTableValue type = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.USER_CLASSIFICATION_TYPE.getTable(), CustomProperties.UserClassificationType.COURSE.getUserClassificationType());
@@ -713,7 +712,6 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		if (sessionToken.getApplication() != null) {
 			organization = sessionToken.getApplication().getOrganization();
 		}
-		SessionContextSupport.putLogParameter(API_KEY, application.getKey());
 		this.getRedisService().addSessionEntry(sessionToken.getToken(), organization);
 		return sessionToken;
 	}

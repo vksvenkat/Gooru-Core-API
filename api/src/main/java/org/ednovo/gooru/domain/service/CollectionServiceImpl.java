@@ -46,6 +46,7 @@ import org.ednovo.gooru.core.api.model.PartyCustomField;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.ResourceType;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
+import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.ShelfType;
 import org.ednovo.gooru.core.api.model.StorageArea;
 import org.ednovo.gooru.core.api.model.User;
@@ -268,6 +269,11 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		}
 
 		if (targetId != null) {
+			Collection target = collectionRepository.getCollectionByGooruOid(targetId, null);
+			if (target != null && !source.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing())) {
+				target.setSharing(source.getSharing());
+				this.getCollectionRepository().save(target);
+			}
 			responseDTO = this.createCollectionItem(sourceId, targetId, collectionItem, user, CollectionType.FOLDER.getCollectionType(), false);
 		} else {
 			responseDTO = this.createCollectionItem(sourceId, null, collectionItem, user, CollectionType.SHElf.getCollectionType(), false);
