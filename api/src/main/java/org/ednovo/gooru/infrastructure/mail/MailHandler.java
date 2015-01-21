@@ -510,14 +510,11 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 	}
 
 	public void handleMailEvent(Map<String, String> data) {
-		System.out.println("Sending mail ...");
-		System.out.println(data);
 		EventMapping eventMapping = this.getEventService().getTemplatesByEventName(data.get("eventType"));
 		if (eventMapping != null) {
 			Map<String, Object> map = eventMapData(eventMapping);
 			if (eventMapping.getEvent().getDisplayName().equalsIgnoreCase(CustomProperties.EventMapping.WELCOME_MAIL.getEvent())) {
 				map.put("recipient", data.get("recipient"));
-				System.out.println(data);
 				sendMail(data.get("gooruUid"), map);				
 			} else if (eventMapping.getEvent().getDisplayName().equalsIgnoreCase(CustomProperties.EventMapping.FIRST_COLLECTION.getEvent())) {
 				sendUserFirstCollectionCreate(data.get("gooruUid"), data.get("accountTypeId"), map);
