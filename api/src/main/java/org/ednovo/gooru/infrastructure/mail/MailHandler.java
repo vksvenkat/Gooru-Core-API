@@ -510,6 +510,7 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 	}
 
 	public void handleMailEvent(Map<String, String> data) {
+		System.out.println(data);
 		EventMapping eventMapping = this.getEventService().getTemplatesByEventName(data.get("eventType"));
 		if (eventMapping != null) {
 			Map<String, Object> map = eventMapData(eventMapping);
