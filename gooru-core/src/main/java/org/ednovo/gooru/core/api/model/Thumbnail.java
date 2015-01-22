@@ -53,6 +53,9 @@ public class Thumbnail implements Serializable {
 					}
 				}
 			}
+			else if(getThumbnailName() != null && !getThumbnailName().isEmpty()){
+				this.url = getThumbnailAssetURI() + getThumbnailFolder() + getThumbnailName();
+			}
 		}
 		return url;
 	}
