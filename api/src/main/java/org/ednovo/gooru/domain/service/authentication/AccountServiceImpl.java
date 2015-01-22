@@ -395,6 +395,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 					}
 				}
 				userIdentity = this.getUserManagementService().createUser(newUser, null, null, 1, 0, null, null, null, null, null, null, null, source, null, request, null, null);
+				this.getAccountEventlog().getApiEventLogs(apiKey);
 				registerUser = true;
 			} catch (Exception e) {
 				LOGGER.error("Error : " + e);
