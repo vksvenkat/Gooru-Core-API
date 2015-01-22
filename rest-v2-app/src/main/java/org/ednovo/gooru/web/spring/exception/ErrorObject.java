@@ -32,13 +32,42 @@ public class ErrorObject implements Serializable {
 	 */
 	private static final long serialVersionUID = 2324523124118900807L;
 
-	private int code;
-
-	private String status;
+	private String  errorCode;
 	
-	public ErrorObject(int code, String status) {
-		this.code = code;
-		this.status = status;
+	private int code;
+	
+	private String status;
+
+	private String errorMessage;
+	
+	public ErrorObject(int code, String errorCode, String message) {
+		this.setCode(code);
+		this.setErrorCode(errorCode);
+		this.setErrorMessage(message);
+		this.setStatus(message);
+	}
+	
+	public ErrorObject(int code, String message) {
+		this.setCode(code);
+		this.setErrorCode(code + "");
+		this.setErrorMessage(message);
+		this.setStatus(message);
+	}
+
+	public String getErrorCode() {
+		return errorCode;
+	}
+
+	public void setErrorCode(String errorCode) {
+		this.errorCode = errorCode;
+	}
+
+	public String getErrorMessage() {
+		return errorMessage;
+	}
+
+	public void setErrorMessage(String errorMessage) {
+		this.errorMessage = errorMessage;
 	}
 
 	public int getCode() {
@@ -56,5 +85,6 @@ public class ErrorObject implements Serializable {
 	public void setStatus(String status) {
 		this.status = status;
 	}
+
 
 }

@@ -146,7 +146,7 @@ public class TagServiceImpl extends BaseServiceImpl implements TagService, Param
 	public Tag updateTag(String gooruOid, Tag newTag, User apiCaller) {
 		Tag tag = this.getTagRepository().findTagByTagId(gooruOid);
 		if (tag == null) {
-			throw new NotFoundException("Tag Not Found!!");
+			throw new NotFoundException("Tag Not Found!!", GL0056);
 		}
 		if (newTag.getLabel() != null) {
 			if (getTagRepository().findTagByLabel(newTag.getLabel()) != null) {
@@ -184,7 +184,7 @@ public class TagServiceImpl extends BaseServiceImpl implements TagService, Param
 	public List<Tag> getTags(Integer offset, Integer limit) {
 		List<Tag> tag = this.getTagRepository().getTags(offset, limit);
 		if (tag.size() <= 0) {
-			throw new NotFoundException(generateErrorMessage(GL0056, TAG));
+			throw new NotFoundException(generateErrorMessage(GL0056, TAG), GL0056);
 		}
 		return tag;
 	}
@@ -193,7 +193,7 @@ public class TagServiceImpl extends BaseServiceImpl implements TagService, Param
 	public List<Tag> getTag(String gooruOid) {
 		List<Tag> tag = this.getTagRepository().getTag(gooruOid);
 		if (tag.size() <= 0) {
-			throw new NotFoundException(generateErrorMessage(GL0056, TAG));
+			throw new NotFoundException(generateErrorMessage(GL0056, TAG), GL0056);
 		}
 		return tag;
 	}
@@ -202,7 +202,7 @@ public class TagServiceImpl extends BaseServiceImpl implements TagService, Param
 	public void deleteTag(String gooruOid) {
 		List<Tag> tags = this.getTagRepository().getTag(gooruOid);
 		if (tags.size() <= 0) {
-			throw new NotFoundException(generateErrorMessage(GL0056, TAG));
+			throw new NotFoundException(generateErrorMessage(GL0056, TAG), GL0056);
 		}
 		this.getTagRepository().removeAll(tags);
 	}
@@ -275,7 +275,7 @@ public class TagServiceImpl extends BaseServiceImpl implements TagService, Param
 		User user = this.getUserService().findByGooruId(gooruUid);
 		Tag tag = this.tagRepository.findTagByTagId(tagGooruOid);
 		if (tag == null || user == null) {
-			throw new NotFoundException(generateErrorMessage(GL0056, _CONTENT));
+			throw new NotFoundException(generateErrorMessage(GL0056, _CONTENT), GL0056);
 		}
 		UserTagAssoc userTagAssocDb = this.tagRepository.getUserTagassocById(gooruUid, tagGooruOid);
 		if (userTagAssocDb != null) {
@@ -300,7 +300,7 @@ public class TagServiceImpl extends BaseServiceImpl implements TagService, Param
 			this.getTagRepository().save(tag);
 			indexProcessor.index(userTagAssoc.getUser().getPartyUid(), IndexProcessor.INDEX, USER);
 		} else {
-			throw new NotFoundException(generateErrorMessage(GL0056, _CONTENT));
+			throw new NotFoundException(generateErrorMessage(GL0056, _CONTENT), GL0056);
 		}
 
 	}
@@ -319,7 +319,7 @@ public class TagServiceImpl extends BaseServiceImpl implements TagService, Param
 	public TagSynonyms createTagSynonyms(TagSynonyms tagSynonyms, String tagGooruOid, User user) {
 		Tag tag = this.getTagRepository().findTagByTagId(tagGooruOid);
 		if (tag == null) {
-			throw new NotFoundException(generateErrorMessage(GL0056, TAG));
+			throw new NotFoundException(generateErrorMessage(GL0056, TAG), GL0056);
 		}
 		rejectIfNull(tagSynonyms.getTargetTagName(), GL0006, SYNONYM);
 		if (getTagRepository().findSynonymByName(tagSynonyms.getTargetTagName()) != null) {
@@ -343,10 +343,10 @@ public class TagServiceImpl extends BaseServiceImpl implements TagService, Param
 		Tag tag = this.getTagRepository().findTagByTagId(tagGooruOid);
 		TagSynonyms tagSynonyms = this.getTagRepository().findTagSynonymById(tagSynonymsId);
 		if (tag == null) {
-			throw new NotFoundException(generateErrorMessage(GL0056, TAG));
+			throw new NotFoundException(generateErrorMessage(GL0056, TAG), GL0056);
 		}
 		if (tagSynonyms == null) {
-			throw new NotFoundException(generateErrorMessage(GL0056, TAG_SYNONYMS));
+			throw new NotFoundException(generateErrorMessage(GL0056, TAG_SYNONYMS), GL0056);
 		}
 		if (newTagSynonyms.getTargetTagName() != null) {
 			if (getTagRepository().findSynonymByName(newTagSynonyms.getTargetTagName()) != null) {
@@ -376,7 +376,7 @@ public class TagServiceImpl extends BaseServiceImpl implements TagService, Param
 	public void deleteTagSynonyms(String tagGooruOid, Integer synonymsId) {
 		TagSynonyms tagSynonyms = this.getTagRepository().getSynonymByTagAndSynonymId(tagGooruOid, synonymsId);
 		if (tagSynonyms == null) {
-			throw new NotFoundException(generateErrorMessage(GL0056, SYNONYMS));
+			throw new NotFoundException(generateErrorMessage(GL0056, SYNONYMS), GL0056);
 		}
 		Tag tag = this.getTagRepository().findTagByTagId(tagGooruOid);
 		this.getTagRepository().remove(tagSynonyms);

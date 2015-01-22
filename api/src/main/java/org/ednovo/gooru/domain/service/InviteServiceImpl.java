@@ -75,7 +75,7 @@ public class InviteServiceImpl extends BaseServiceImpl implements InviteService,
 	public List<Map<String, String>> inviteUserForClass(List<String> emails, final String classCode, final User apiCaller) {
 		final Classpage classPage = this.getCollectionRepository().getClasspageByCode(classCode);
 		if (classPage == null) {
-			throw new NotFoundException(generateErrorMessage(GL0006, CLASS));
+			throw new NotFoundException(generateErrorMessage(GL0006, CLASS), GL0006);
 		}
 		List<Map<String, String>> invites = new ArrayList<Map<String, String>>();
 		for (String email : emails) {

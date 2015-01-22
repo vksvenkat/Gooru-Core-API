@@ -160,7 +160,7 @@ public class QuizServiceImpl extends ScollectionServiceImpl implements QuizServi
 	public List<Quiz> getQuizList(String quizId, User user) {
 		List<Quiz> quiz = this.getCollectionRepository().getQuizList(quizId, user.getGooruUId(), null);
 		if (quiz.size() <= 0) {
-			throw new NotFoundException(generateErrorMessage(GL0056, QUIZ));
+			throw new NotFoundException(generateErrorMessage(GL0056, QUIZ), GL0056);
 		}
 		return quiz;
 	}
@@ -169,7 +169,7 @@ public class QuizServiceImpl extends ScollectionServiceImpl implements QuizServi
 	public Quiz getQuiz(String quizId, User user) {
 		Quiz quiz = this.getCollectionRepository().getQuiz(quizId, user.getGooruUId(), null);
 		if (quiz == null) {
-			throw new NotFoundException(generateErrorMessage(GL0056, QUIZ));
+			throw new NotFoundException(generateErrorMessage(GL0056, QUIZ), GL0056);
 		}
 		return quiz;
 	}
@@ -319,7 +319,7 @@ public class QuizServiceImpl extends ScollectionServiceImpl implements QuizServi
 			this.getCollectionRepository().remove(CollectionItem.class, quizItem.getCollectionItemId());
 			reOrderCollectionItems(quiz, quizItemId);
 		} else {
-			throw new NotFoundException(generateErrorMessage(GL0056, QUIZ_ITEM));
+			throw new NotFoundException(generateErrorMessage(GL0056, QUIZ_ITEM), GL0056);
 		}
 	}
 

@@ -70,7 +70,7 @@ public class ShareServiceImpl extends BaseServiceImpl implements ShareService,Pa
 				getRedisService().putValue(fullUrl + TaxonomyUtil.GOORU_ORG_UID,  url, RedisService.DEFAULT_PROFILE_EXP);
 			}
 		} else {
-			throw new NotFoundException(generateErrorMessage(GL0056, RESOURCE));
+			throw new NotFoundException(generateErrorMessage(GL0056, RESOURCE), GL0056);
 		}
 		return url;
 	}

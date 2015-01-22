@@ -591,7 +591,7 @@ public class LearnguideServiceImpl extends OperationAuthorizer implements Learng
 			Set<Segment> segments = new TreeSet<Segment>();
 			int sequence = 0;
 			if ((targetCollectionId != null) && (targetCollection == null)) {
-				throw new NotFoundException(generateErrorMessage(GL0056, TARGET_COLLECTION));
+				throw new NotFoundException(generateErrorMessage(GL0056, TARGET_COLLECTION), GL0056);
 			}
 
 			if (targetCollection.getResourceSegments() != null) {

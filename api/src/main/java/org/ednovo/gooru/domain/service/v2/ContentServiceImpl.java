@@ -100,7 +100,7 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 		List<Map<String, Object>> contentTagAssocs = new ArrayList<Map<String, Object>>();
 		Content content = this.contentRepository.findContentByGooruId(gooruOid);
 		if (content == null) {
-			throw new NotFoundException("content not found!!!");
+			throw new NotFoundException("content not found!!!", "GL0056");
 		}
 
 		for (String label : labels) {
@@ -160,7 +160,7 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 
 		Content content = this.contentRepository.findContentByGooruId(gooruOid);
 		if (content == null) {
-			throw new NotFoundException("content not found!!!");
+			throw new NotFoundException("content not found!!!", "GL0056");
 		}
 		for (String label : labels) {
 			Tag tag = this.tagRepository.findTagByLabel(label);
@@ -247,7 +247,7 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 			}
 			this.getContentRepository().save(content);
 		} else {
-			throw new NotFoundException("Content not found!");
+			throw new NotFoundException("Content not found!", GL0056);
 		}
 		return content;
 	}
@@ -273,7 +273,7 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 	@Override
 	public SearchResults<Map<String, Object>> getUserContentTagList(String gooruUid, Integer limit, Integer offset) {
 		if(this.getUserService().findByGooruId(gooruUid) == null ) {
-			throw new NotFoundException(gooruUid + " not found ");
+			throw new NotFoundException(gooruUid + " not found ", GL0056);
 		}
 		List<Object[]> results = this.getContentRepository().getUserContentTagList(gooruUid, limit, offset);
 		SearchResults<Map<String, Object>> searchResult = new SearchResults<Map<String,Object>>();
