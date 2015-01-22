@@ -115,7 +115,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -503,12 +502,12 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 		try {
 			md = MessageDigest.getInstance("SHA-1"); // step 2
 		} catch (NoSuchAlgorithmException e) {
-			throw new BadCredentialsException("Error while authenticating user - No algorithm exists. ", e);
+			throw new BadRequestException("Error while authenticating user - No algorithm exists. ", e);
 		}
 		try {
 			md.update(password.getBytes("UTF-8")); // step 3
 		} catch (UnsupportedEncodingException e) {
-			throw new BadCredentialsException("Error while authenticating user - ", e);
+			throw new BadRequestException("Error while authenticating user - ", e);
 		}
 		byte raw[] = md.digest(); // step 4
 		String hash = (new Base64Encoder()).encode(raw); // step 5
@@ -642,12 +641,12 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 	public User getUser(String gooruUId) throws Exception {
 
 		if (gooruUId == null || gooruUId.equalsIgnoreCase("")) {
-			throw new BadCredentialsException("User id cannot be null or empty");
+			throw new BadRequestException("User id cannot be null or empty");
 		}
 
 		User user = getUserRepository().findByGooruId(gooruUId);
 		if (user == null) {
-			throw new BadCredentialsException("User not found");
+			throw new BadRequestException("User not found");
 		}
 		user.setProfileImageUrl(buildUserProfileImageUrl(user));
 
@@ -663,7 +662,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 	public Profile updateUserInfo(String gooruUId, MultiValueMap<String, String> data, User apiCaller, Boolean isDisableUser) throws Exception {
 
 		if (gooruUId == null || gooruUId.equalsIgnoreCase("")) {
-			throw new BadCredentialsException("User Id cannot be null or empty");
+			throw new BadRequestException("User Id cannot be null or empty");
 		}
 
 		if (isDisableUser  && ((!apiCaller.getGooruUId().equals(gooruUId)) || (!isContentAdmin(apiCaller)))) {
@@ -746,7 +745,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 
 			boolean usernameAvailability = this.getUserRepository().checkUserAvailability(username, CheckUser.BYUSERNAME, false);
 			if (usernameAvailability) {
-				throw new BadCredentialsException("Someone already has taken " + username + "!.Please pick another username.");
+				throw new BadRequestException("Someone already has taken " + username + "!.Please pick another username.");
 			} else {
 				user.setUsername(username);
 			}
@@ -767,7 +766,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 			boolean emailAvailability = this.getUserRepository().checkUserAvailability(email, CheckUser.BYEMAILID, false);
 
 			if (emailAvailability) {
-				throw new BadCredentialsException("Someone already has taken " + email + "!.Please pick another email.");
+				throw new BadRequestException("Someone already has taken " + email + "!.Please pick another email.");
 			}
 
 			identity.setExternalId(email);
@@ -849,7 +848,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 
 		PartyCustomField partyCustomField = this.getPartyService().getPartyCustomeField(profile.getUser().getPartyUid(), "user_confirm_status", profile.getUser());
 
-		if (partyCustomField != null && !partyCustomField.getOptionalValue().equalsIgnoreCase("true")) {
+		if (partyCustomField == null) {
 			Map<String, String> dataMap = new HashMap<String, String>();
 			dataMap.put(GOORU_UID, profile.getUser().getPartyUid());
 			dataMap.put(EVENT_TYPE, CustomProperties.EventMapping.WELCOME_MAIL.getEvent());
@@ -862,8 +861,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 					dataMap.put("recipient", profile.getUser().getIdentities().iterator().next().getExternalId());
 				}
 			}
-			partyCustomField.setOptionalValue("true");
-			this.getUserRepository().save(partyCustomField);
+			this.getUserRepository().save(new PartyCustomField(profile.getUser().getPartyUid(), USER_META, USER_CONFIRM_STATUS, TRUE));
 			this.getMailHandler().handleMailEvent(dataMap);
 		}
 
@@ -895,11 +893,11 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 				user = userRepository.findByGooruId(gooruUId);
 				indexProcessor.index(user.getPartyUid(), IndexProcessor.INDEX, USER);
 			} else {
-				throw new BadCredentialsException("You are not authorized to perform this action");
+				throw new BadRequestException("You are not authorized to perform this action");
 			}
 
 		} else {
-			throw new BadCredentialsException("Gooru user Id cannot be null or empty");
+			throw new BadRequestException("Gooru user Id cannot be null or empty");
 		}
 
 		return getUser(gooruUId);
@@ -931,7 +929,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 			indexProcessor.index(user.getPartyUid(), IndexProcessor.INDEX, USER);
 			return user;
 		} else {
-			throw new BadCredentialsException("You are not authorized to perform this action");
+			throw new BadRequestException("You are not authorized to perform this action");
 		}
 	}
 
@@ -1083,11 +1081,11 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 		Application application = this.getApplicationRepository().getApplication(apikeyId);
 		rejectIfNull(application,GL0056,404,APPLICATION);
 		if (username == null) {
-			throw new BadCredentialsException("error:Username cannot be null or empty.");
+			throw new BadRequestException("error:Username cannot be null or empty.");
 		}
 
 		if (password == null) {
-			throw new BadCredentialsException("error:Password cannot be null or empty.");
+			throw new BadRequestException("error:Password cannot be null or empty.");
 		}
 
 		Identity identity = new Identity();
@@ -1096,7 +1094,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 		identity = this.getUserRepository().findByEmailIdOrUserName(username, true, true);
 
 		if (identity == null) {
-			throw new BadCredentialsException("error:Please double-check your email address and password, and then try logging in again.");
+			throw new BadRequestException("error:Please double-check your email address and password, and then try logging in again.");
 		}
 		if (identity.getUser().getIsDeleted() == true) {
 
@@ -1114,12 +1112,12 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 
 		if (!isSsoLogin) {
 			if (identity.getCredential() == null) {
-				throw new BadCredentialsException("error:Please double check your email ID and password and try again.");
+				throw new BadRequestException("error:Please double check your email ID and password and try again.");
 			}
 			String encryptedPassword = encryptPassword(password);
 			if (user == null || !(encryptedPassword.equals(identity.getCredential().getPassword()))) {
 
-				throw new BadCredentialsException("error:Please double-check your password and try signing in again.");
+				throw new BadRequestException("error:Please double-check your password and try signing in again.");
 			}
 
 		}
@@ -1164,29 +1162,29 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 		identity = this.getUserRepository().findByEmailIdOrUserName(username, true, false);
 
 		if (identity == null) {
-			throw new BadCredentialsException("error:Please double-check your email address and password, and then try logging in again.");
+			throw new BadRequestException("error:Please double-check your email address and password, and then try logging in again.");
 		}
 
 		Date deactivateOn = identity.getDeactivatedOn();
 
 		if (deactivateOn != null && deactivateOn.before(new Date(System.currentTimeMillis()))) {
-			throw new BadCredentialsException("error: The user has been deactivated from the system.\nPlease contact Gooru Administrator.");
+			throw new BadRequestException("error: The user has been deactivated from the system.\nPlease contact Gooru Administrator.");
 		}
 
 		User user = this.getUserRepository().findByIdentity(identity);
 
 		if (!isSsoLogin) {
 			if (identity.getCredential() == null) {
-				throw new BadCredentialsException("error:Please double check your email ID and password and try again.");
+				throw new BadRequestException("error:Please double check your email ID and password and try again.");
 			}
 			String encryptedPassword = encryptPassword(password);
 			if (user == null || !(encryptedPassword.equals(identity.getCredential().getPassword()))) {
 
-				throw new BadCredentialsException("error:Please double-check your password and try signing in again.");
+				throw new BadRequestException("error:Please double-check your password and try signing in again.");
 			}
 
 			if (user.getConfirmStatus() == 0) {
-				throw new BadCredentialsException("error:We sent you a confirmation email with instructions on how to complete your Gooru registration. Please check your email, and then try again. Didn’t receive a confirmation email? Please contact us at support@goorulearning.org");
+				throw new BadRequestException("error:We sent you a confirmation email with instructions on how to complete your Gooru registration. Please check your email, and then try again. Didn’t receive a confirmation email? Please contact us at support@goorulearning.org");
 			}
 		}
 
@@ -1852,47 +1850,47 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 
 	private void usernameValidation(String username, String orgnaizationUid) {
 		if (username.length() < 5) {
-			throw new BadCredentialsException("Username should be atleast 5 characters");
+			throw new BadRequestException("Username should be atleast 5 characters");
 		}
 
 		else if (username.length() > 20) {
-			throw new BadCredentialsException("Username should be within 20 characters");
+			throw new BadRequestException("Username should be within 20 characters");
 		}
 
 		else if (username.charAt(0) >= '0' && username.charAt(0) <= '9' || checkUsernameStartAndEndWithSpecialCharacters(username, true)) {
-			throw new BadCredentialsException("Username must begin with a letter");
+			throw new BadRequestException("Username must begin with a letter");
 		}
 
 		else if (containsWhiteSpace(username)) {
-			throw new BadCredentialsException("Username should not contain spaces");
+			throw new BadRequestException("Username should not contain spaces");
 		} else if (checkLatinWordInUserName(username)) {
-			throw new BadCredentialsException("Username must contain only latin letters or digits.");
+			throw new BadRequestException("Username must contain only latin letters or digits.");
 		}
 
 		else if (checkUsernameStartAndEndWithSpecialCharacters(username, false)) {
-			throw new BadCredentialsException("Username must end with a letter or digit");
+			throw new BadRequestException("Username must end with a letter or digit");
 		}
 
 		else if (checkUsernameIsRestricted(username, orgnaizationUid)) {
-			throw new BadCredentialsException("Username should not give the impression that the account has permissions ");
+			throw new BadRequestException("Username should not give the impression that the account has permissions ");
 		}
 	}
 
 	@Override
 	public void validatePassword(final String password, String userName) {
 		if (password.length() < 5) {
-			throw new BadCredentialsException("Password should be atleast 5 characters");
+			throw new BadRequestException("Password should be atleast 5 characters");
 		}
 
 		else if (password.length() > 14) {
-			throw new BadCredentialsException("Password should be within 14 characters");
+			throw new BadRequestException("Password should be within 14 characters");
 		}
 
 		else if (checkPasswordWithAlphaNumeric(password)) {
-			throw new BadCredentialsException("Password should contain atleast one letter and one digit");
+			throw new BadRequestException("Password should contain atleast one letter and one digit");
 		}
 		if ((isNotEmptyString(userName)) && (userName.equalsIgnoreCase(password))) {
-			throw new BadCredentialsException("Password should not be same with the Username");
+			throw new BadRequestException("Password should not be same with the Username");
 		}
 
 	}
@@ -1967,7 +1965,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 		UserToken userToken = null;
 		Application application = this.getApplicationRepository().getApplication(paramMap.get(API_KEY).toString());
 		if (application == null) {
-			throw new BadCredentialsException("error:Invalid API Key.");
+			throw new BadRequestException("error:Invalid API Key.");
 		} else {
 			Long start = System.currentTimeMillis();
 			if (start <= expires) {
@@ -1987,10 +1985,10 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 					}
 
 				} else {
-					throw new BadCredentialsException("erro: invalid MD5 format");
+					throw new BadRequestException("erro: invalid MD5 format");
 				}
 			} else {
-				throw new BadCredentialsException("error: Login time is expired.");
+				throw new BadRequestException("error: Login time is expired.");
 			}
 		}
 		return userToken;
@@ -2043,11 +2041,11 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 						userToken = this.createSessionToken(user, sessionToken, application);
 					}
 				} else {
-					throw new BadCredentialsException("error:This User doesn't have a permission to login as another user.");
+					throw new BadRequestException("error:This User doesn't have a permission to login as another user.");
 				}
 			}
 		} else {
-			throw new BadCredentialsException("error:GooruId/Session Token cannot be null or empty.");
+			throw new BadRequestException("error:GooruId/Session Token cannot be null or empty.");
 		}
 		return userToken;
 	}

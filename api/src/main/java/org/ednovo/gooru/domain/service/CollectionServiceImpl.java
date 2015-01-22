@@ -46,6 +46,7 @@ import org.ednovo.gooru.core.api.model.PartyCustomField;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.ResourceType;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
+import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.ShelfType;
 import org.ednovo.gooru.core.api.model.StorageArea;
 import org.ednovo.gooru.core.api.model.User;
@@ -112,7 +113,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		ActionResponseDTO<CollectionItem> response = null;
 		Collection collection = collectionRepository.getCollectionByGooruOid(collectionId, null);
 		if (collection == null) {
-			throw new NotFoundException(generateErrorMessage(GL0056, _COLLECTION));
+			throw new NotFoundException(generateErrorMessage(GL0056, _COLLECTION), GL0056);
 		}
 		AssessmentQuestion question = getAssessmentService().buildQuestionFromInputParameters(data, user, true);
 		question.setSourceReference(sourceReference);
@@ -199,7 +200,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 			}
 
 		} else {
-			throw new NotFoundException(generateErrorMessage(GL0056, QUESTION));
+			throw new NotFoundException(generateErrorMessage(GL0056, QUESTION), GL0056);
 		}
 		try {
 			this.collectionEventLog.getEventLogs(collectionItem, false,  false, user, false, true);
@@ -215,7 +216,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	public ActionResponseDTO<CollectionItem> updateQuestionWithCollectionItem(String collectionItemId, String data, List<Integer> deleteAssets, User user, String mediaFileName) throws Exception {
 		CollectionItem collectionItem = this.getCollectionItemById(collectionItemId);
 		if (collectionItem == null) {
-			throw new NotFoundException(generateErrorMessage(GL0056, COLLECTION_ITEM));
+			throw new NotFoundException(generateErrorMessage(GL0056, COLLECTION_ITEM), GL0056);
 		}
 		return updateQuestionWithCollectionItem(collectionItem, data, deleteAssets, user, mediaFileName);
 	}
@@ -224,7 +225,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	public ActionResponseDTO<CollectionItem> updateQuestionWithCollectionItem(String collectionId, String resourceId, String data, List<Integer> deleteAssets, User user, String mediaFileName) throws Exception {
 		CollectionItem collectionItem = this.getCollectionRepository().getCollectionItemByResourceOid(collectionId, resourceId);
 		if (collectionItem == null) {
-			throw new NotFoundException(generateErrorMessage(GL0056, COLLECTION_ITEM));
+			throw new NotFoundException(generateErrorMessage(GL0056, COLLECTION_ITEM), GL0056);
 		}
 		return updateQuestionWithCollectionItem(collectionItem, data, deleteAssets, user, mediaFileName);
 	}	
@@ -233,7 +234,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	public void deleteQuestionWithCollectionItem(String collectionId, String resourceId) {
 		CollectionItem collectionItem = this.getCollectionRepository().getCollectionItemByResourceOid(collectionId,resourceId);
 		if (collectionItem == null) {
-			throw new NotFoundException(generateErrorMessage(GL0056, COLLECTION_ITEM));
+			throw new NotFoundException(generateErrorMessage(GL0056, COLLECTION_ITEM), GL0056);
 		}
 	this.getCollectionRepository().remove(collectionItem);
 	}
@@ -243,7 +244,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		ActionResponseDTO<CollectionItem> responseDTO = null;
 		Collection source = collectionRepository.getCollectionByGooruOid(sourceId, null);
 		if (source == null) {
-			throw new NotFoundException(generateErrorMessage(GL0056, _COLLECTION));
+			throw new NotFoundException(generateErrorMessage(GL0056, _COLLECTION), GL0056);
 		}
 		CollectionItem collectionItem = new CollectionItem();
 		collectionItem.setCollection(source);
@@ -268,6 +269,11 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		}
 
 		if (targetId != null) {
+			Collection target = collectionRepository.getCollectionByGooruOid(targetId, null);
+			if (target != null && !source.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing())) {
+				target.setSharing(source.getSharing());
+				this.getCollectionRepository().save(target);
+			}
 			responseDTO = this.createCollectionItem(sourceId, targetId, collectionItem, user, CollectionType.FOLDER.getCollectionType(), false);
 		} else {
 			responseDTO = this.createCollectionItem(sourceId, null, collectionItem, user, CollectionType.SHElf.getCollectionType(), false);
@@ -296,7 +302,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		ActionResponseDTO<CollectionItem> response = null;
 		Collection collection = collectionRepository.getCollectionByGooruOid(collectionId, null);
 		if (collection == null) {
-			throw new NotFoundException(generateErrorMessage(GL0056, _COLLECTION));
+			throw new NotFoundException(generateErrorMessage(GL0056, _COLLECTION), GL0056);
 		}
 		ActionResponseDTO<AssessmentQuestion> responseDTO = assessmentService.createQuestion(assessmentQuestion, true);
 		if (responseDTO.getModel() != null) {
@@ -316,7 +322,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	public List<CollectionItem> createCollectionItems(List<String> collectionsIds, String resourceId, User user) throws Exception {
 		Collection collection = this.getCollectionRepository().getCollectionByGooruOid(resourceId, null);
 		if (collection == null) {
-			throw new NotFoundException(generateErrorMessage(GL0056, COLLECTION));
+			throw new NotFoundException(generateErrorMessage(GL0056, COLLECTION), GL0056);
 		}
 		List<CollectionItem> collectionItems = new ArrayList<CollectionItem>();
 		for (String collectionId : collectionsIds) {

@@ -20,16 +20,16 @@ public class ServerValidationUtils {
 	}
 	public static void rejectIfNull(Object data, String code, String... message) {
 		if (data == null) {
-			throw new BadRequestException(generateErrorMessage(code, message));
+			throw new BadRequestException(generateErrorMessage(code, message), code);
 		}
 	}
 	
 	public static void rejectIfNull(Object data, String code, int errorCode, String... message) {
 		if (data == null) {
 			if (errorCode == 404) {
-				throw new NotFoundException(generateErrorMessage(code, message));
+				throw new NotFoundException(generateErrorMessage(code, message), code);
 			} else { 
-				throw new BadRequestException(generateErrorMessage(code, message));
+				throw new BadRequestException(generateErrorMessage(code, message), code);
 			}
 		}
 	}
@@ -125,14 +125,14 @@ public class ServerValidationUtils {
 	public static void rejectIfMaxLimitExceed(int maxlimit, String content, String code, String... message) {
 		if (content != null && content.length() > maxlimit) {
 
-			throw new BadRequestException(generateErrorMessage(code, message));
+			throw new BadRequestException(generateErrorMessage(code, message), code);
 		}
 
 	}
 	
 	public static void rejectIfAlreadyExist(Object data, String errorCode, String errorMsg) {
 		if (data != null) {
-			throw new BadRequestException(generateErrorMessage(errorCode, errorMsg));
+			throw new BadRequestException(generateErrorMessage(errorCode, errorMsg), errorCode);
 		}
 	}
 

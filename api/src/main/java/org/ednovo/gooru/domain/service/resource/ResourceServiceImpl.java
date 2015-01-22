@@ -281,7 +281,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	public Resource findResourceByContentGooruId(String gooruContentId) {
 		Resource resource = getResourceRepository().findResourceByContentGooruId(gooruContentId);
 		if (resource == null) {
-			throw new NotFoundException("resource not found ");
+			throw new NotFoundException("resource not found ", GL0056);
 		}
 		if (resource.getResourceType().getName().equalsIgnoreCase(ASSESSMENT_QUESTION)) {
 			resource.setDepthOfKnowledges(this.collectionService.setContentMetaAssociation(this.collectionService.getContentMetaAssociation(DEPTH_OF_KNOWLEDGE), resource, DEPTH_OF_KNOWLEDGE));
@@ -298,7 +298,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	public Map<String, Object> getResource(String gooruOid) {
 		Resource resource = this.findResourceByContentGooruId(gooruOid);
 		if(resource == null) {
-			throw new NotFoundException("resource not found");
+			throw new NotFoundException("resource not found", GL0056);
 		}
 		Map<String, Object> resourceObject = new HashMap<String, Object>();
 	    try {
@@ -1179,7 +1179,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 
 		Resource resource = this.getResourceRepository().findResourceByContentGooruId(gooruContentId);
 		if(resource == null) {
-			throw new NotFoundException(generateErrorMessage("GL0056", RESOURCE));
+			throw new NotFoundException(generateErrorMessage("GL0056", RESOURCE), GL0056);
 		}
 		this.getResourceImageUtil().moveFileAndSendMsgToGenerateThumbnails(resource, fileName, true);
 		try {
@@ -1871,14 +1871,14 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 
 		resource = resourceRepository.findResourceByContentGooruId(gooruContentId);
 		if (resource == null || resource.getResourceType().getName().equalsIgnoreCase(APPLICATION) || resource.getResourceType().getName().equalsIgnoreCase(SCOLLECTION) || resource.getResourceType().getName().equalsIgnoreCase(FOLDER) || resource.getResourceType().getName().equalsIgnoreCase(CLASSPAGE)) {
-			throw new NotFoundException(generateErrorMessage("GL0056", "Resource"));
+			throw new NotFoundException(generateErrorMessage("GL0056", "Resource"), GL0056);
 		} else {
 			if ((resource.getUser() != null && resource.getUser().getPartyUid().equalsIgnoreCase(apiCaller.getPartyUid())) || getUserService().isContentAdmin(apiCaller)) {
 				this.getContentService().deleteContentTagAssoc(resource.getGooruOid(), apiCaller);
 				this.getBaseRepository().remove(resource);
 				indexProcessor.index(gooruContentId, IndexProcessor.DELETE, RESOURCE);
 			} else {
-				throw new BadRequestException(generateErrorMessage("GL0099"));
+				throw new BadRequestException(generateErrorMessage("GL0099"), "GL0099");
 			}
 		}
 
@@ -2928,7 +2928,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			if (removeCodes != null && removeCodes.size() > 0) {
 				codes.removeAll(removeCodes);
 			} else {
-				throw new NotFoundException(generateErrorMessage(GL0056, _TAXONOMY));
+				throw new NotFoundException(generateErrorMessage(GL0056, _TAXONOMY), GL0056);
 			}
 		}
 		resource.setTaxonomySet(codes);
@@ -2964,7 +2964,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	public List<User> addCollaborator(String collectionId, User user, String collaboratorId, String collaboratorOperation) {
 		Content content = contentRepository.findContentByGooruId(collectionId);
 		if (content == null) {
-			throw new NotFoundException(generateErrorMessage(GL0056, _COLLECTION));
+			throw new NotFoundException(generateErrorMessage(GL0056, _COLLECTION), GL0056);
 		}
 		if (collaboratorId != null) {
 			List<String> collaboratorsList = Arrays.asList(collaboratorId.split("\\s*,\\s*"));
@@ -2978,7 +2978,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	public List<User> getCollaborators(String collectionId) {
 		Content content = contentRepository.findContentByGooruId(collectionId);
 		if (content == null) {
-			throw new NotFoundException(generateErrorMessage(GL0056, CONTENT));
+			throw new NotFoundException(generateErrorMessage(GL0056, CONTENT), GL0056);
 		}
 		return this.learnguideRepository.findCollaborators(collectionId, null);
 	}
@@ -3132,7 +3132,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
         
         
 		if (resource == null) {
-			throw new NotFoundException(generateErrorMessage("GL0003"));
+			throw new NotFoundException(generateErrorMessage("GL0003"), "GL0003");
 		}
 		resource.setViewCount(Integer.parseInt(this.resourceCassandraService.get(resource.getGooruOid(),STATISTICS_VIEW_COUNT) != null ? this.resourceCassandraService.get(resource.getGooruOid(),STATISTICS_VIEW_COUNT) : "0" ));
 	    resource.setViews(Long.parseLong(this.resourceCassandraService.get(resource.getGooruOid(),STATISTICS_VIEW_COUNT) != null ? this.resourceCassandraService.get(resource.getGooruOid(),STATISTICS_VIEW_COUNT) : "0"));

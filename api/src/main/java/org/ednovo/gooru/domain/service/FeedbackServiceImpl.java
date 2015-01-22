@@ -113,7 +113,7 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 		List<Feedback> feedbacks = this.getFeedbackRepository().getFeedbacks(feedbackId, null);
 		List<Feedback> feedbackList = new ArrayList<Feedback>();
 		if (feedbacks.size() == 0) {  
-			throw new NotFoundException("Feedback not found");
+			throw new NotFoundException("Feedback not found", GL0056);
 		}
 		Integer previous = feedbacks.get(0).getScore();
 		ContextDTO contextDTO = null;
@@ -191,13 +191,13 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 		Feedback feedback = this.getFeedbackRepository().getFeedback(feedbackId);
 		
 		if(feedback == null){
-			throw new NotFoundException(generateErrorMessage(GL0056, FEEDBACK));
+			throw new NotFoundException(generateErrorMessage(GL0056, FEEDBACK), GL0056);
 		} else {
 			
 			if (this.getUserManagementService().isContentAdmin(user) || (feedback.getCreator() != null && feedback.getCreator().getPartyUid().equals(user.getPartyUid()))) {
 				this.getFeedbackRepository().remove(feedback);
 			} else {
-				throw new UnauthorizedException(generateErrorMessage(GL0057, FEEDBACK));
+				throw new UnauthorizedException(generateErrorMessage(GL0057, FEEDBACK), GL0057);
 			}
 		}
 		this.getFeedbackRepository().flush();

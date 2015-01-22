@@ -638,7 +638,7 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 			} else {
 				AssessmentQuestion existingQuestion = getQuestion(gooruOQuestionId);
 				if (existingQuestion == null) {
-					throw new NotFoundException("Resource not found");
+					throw new NotFoundException(ServerValidationUtils.generateErrorMessage(GL0056, RESOURCE), GL0056);
 				}
 
 				if (question.getQuestionText() != null) {

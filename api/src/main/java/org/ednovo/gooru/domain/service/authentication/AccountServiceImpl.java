@@ -38,7 +38,6 @@ import org.ednovo.gooru.core.api.model.Identity;
 import org.ednovo.gooru.core.api.model.Organization;
 import org.ednovo.gooru.core.api.model.PartyCustomField;
 import org.ednovo.gooru.core.api.model.Profile;
-import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserAccountType;
 import org.ednovo.gooru.core.api.model.UserToken;
@@ -67,15 +66,12 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.apikey.ApplicationR
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
 import org.ednovo.goorucore.application.serializer.ExcludeNullTransformer;
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
-
-import com.google.code.javascribd.type.ApiKey;
 
 import flexjson.JSONSerializer;
 
@@ -190,38 +186,40 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 		final UserToken userToken = new UserToken();
 		final Errors errors = new BindException(userToken, SESSIONTOKEN);
 		final String apiEndPoint = getConfigSetting(ConfigConstants.GOORU_API_ENDPOINT, 0, TaxonomyUtil.GOORU_ORG_UID);
+		String dd = "";
+		dd.toLowerCase();
 		if (!errors.hasErrors()) {
 			if (username == null) {
-				throw new UnauthorizedException(generateErrorMessage("GL0061", "Username"));
+				throw new BadRequestException(generateErrorMessage("GL0061", "Username"), "GL0061");
 			}
-
 			if (password == null) {
-				throw new UnauthorizedException(generateErrorMessage("GL0061", "Password"));
+				throw new BadRequestException(generateErrorMessage("GL0061", "Password"), "GL0061");
 			}
 			Identity identity = new Identity();
 			identity.setExternalId(username);
 
 			identity = this.getUserRepository().findByEmailIdOrUserName(username, true, true);
 			if (identity == null) {
-				throw new UnauthorizedException(generateErrorMessage("GL0078"));
+				throw new UnauthorizedException(generateErrorMessage("GL0078"), "GL0061");
 			}
 			identity.setLoginType(CREDENTIAL);
 
 			if (identity.getActive() == 0) {
-				throw new UnauthorizedException(generateErrorMessage("GL0079"));
+				throw new UnauthorizedException(generateErrorMessage("GL0079"), "GL0079");
 			}
 			final User user = this.getUserRepository().findByIdentityLogin(identity);
 
 			if (!isSsoLogin) {
+				if (identity.getCredential() == null && !identity.getAccountCreatedType().equalsIgnoreCase(CREDENTIAL)) { 
+					throw new UnauthorizedException(generateErrorMessage("GL0105", identity.getAccountCreatedType()), "GL0105");
+				}
 				if (identity.getCredential() == null) {
-					throw new UnauthorizedException(generateErrorMessage("GL0080"));
+					throw new UnauthorizedException(generateErrorMessage("GL0078"), "GL0078");
 				}
 				final String encryptedPassword = this.getUserService().encryptPassword(password);
 				if (user == null || !(encryptedPassword.equals(identity.getCredential().getPassword()) || password.equals(identity.getCredential().getPassword()))) {
-
-					throw new UnauthorizedException(generateErrorMessage("GL0081"));
+					throw new UnauthorizedException(generateErrorMessage("GL0081"), "GL0081");
 				}
-
 			}
 
 			if (user.getConfirmStatus() == 0) {
@@ -229,11 +227,11 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 				final Integer tokenCount = this.getUserRepository().getUserTokenCount(user.getGooruUId());
 				if (userDevice == null || userDevice.getOptionalValue().indexOf(MOBILE) == -1) {
 					if (-1 != Integer.parseInt(getConfigSetting(ConfigConstants.GOORU_WEB_LOGIN_WITHOUT_CONFIRMATION_LIMIT, 0, TaxonomyUtil.GOORU_ORG_UID))) {
-						throw new BadRequestException(generateErrorMessage("GL0072"));
+						throw new BadRequestException(generateErrorMessage("GL0072"), "GL0072");
 					}
 				} else {
 					if (tokenCount >= Integer.parseInt(getConfigSetting(ConfigConstants.GOORU_IPAD_LOGIN_WITHOUT_CONFIRMATION_LIMIT, 0, TaxonomyUtil.GOORU_ORG_UID))) {
-						throw new BadRequestException(generateErrorMessage("GL0072"));
+						throw new BadRequestException(generateErrorMessage("GL0072"), "GL0072");
 					}
 				}
 			}
@@ -267,10 +265,6 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			this.getUserTokenRepository().save(userToken);
 
 			Organization organization = null;
-			/*
-			 * if (userToken.getApiKey() != null) { organization =
-			 * userToken.getApiKey().getOrganization(); }
-			 */
 			if (user != null && user.getOrganization() != null) {
 				organization = user.getOrganization();
 			}
@@ -362,11 +356,11 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 								final Application userApiKey = this.getApplicationRepository().getApplicationByOrganization(user.getOrganization().getPartyUid());
 								userToken = this.createSessionToken(user, userApiKey.getKey(), request);
 							} else {
-								throw new BadRequestException(generateErrorMessage(GL0042, _USER));
+								throw new BadRequestException(generateErrorMessage(GL0042, _USER), GL0042);
 							}
 						}
 					} else {
-						throw new BadRequestException(generateErrorMessage(GL0043, _USER));
+						throw new BadRequestException(generateErrorMessage(GL0043, _USER), GL0042);
 					}
 				}
 			}
@@ -377,7 +371,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 	@Override
 	public User userAuthentication(User newUser, String secretKey, String apiKey, String source, HttpServletRequest request) {
 		if (secretKey == null || !secretKey.equalsIgnoreCase(settingService.getConfigSetting(ConfigConstants.GOORU_AUTHENTICATION_SECERT_KEY, 0, TaxonomyUtil.GOORU_ORG_UID))) {
-			throw new UnauthorizedException(generateErrorMessage("GL0082", "secret") + secretKey);
+			throw new UnauthorizedException(generateErrorMessage("GL0082", "secret") + secretKey, "GL0082");
 		}
 		boolean registerUser = false;
 		final Identity identity = new Identity();
@@ -399,6 +393,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 					}
 				}
 				userIdentity = this.getUserManagementService().createUser(newUser, null, null, 1, 0, null, null, null, null, null, null, null, source, null, request, null, null);
+				this.getAccountEventlog().getApiEventLogs(apiKey);
 				registerUser = true;
 			} catch (Exception e) {
 				LOGGER.error("Error : " + e);

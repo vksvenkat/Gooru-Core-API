@@ -23,9 +23,6 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.infrastructure.persistence.hibernate.user;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.List;
 
 import org.ednovo.gooru.core.api.model.UserToken;
@@ -36,8 +33,6 @@ import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Expression;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.PreparedStatementCreator;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Repository;
 
 @Repository("userTokenRepository")

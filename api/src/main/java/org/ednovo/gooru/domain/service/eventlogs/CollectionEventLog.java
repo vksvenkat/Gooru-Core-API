@@ -69,7 +69,7 @@ public class CollectionEventLog implements ParameterProperties, ConstantProperti
 		} else if (collection != null && collection.getCollectionType() != null && collection.getCollectionType().equalsIgnoreCase("classpage")) {
 			payLoadObject.put(ITEM_TYPE, CLASSPAGE);
 		} else if (collection != null && collection.getCollectionType() != null && collection.getCollectionType().equalsIgnoreCase("folder")) {
-			payLoadObject.put(ITEM_TYPE, FOLDER);
+			payLoadObject.put(ITEM_TYPE, SHELF_FOLDER);
 		}
 		payLoadObject.put(_ITEM_DATA, ItemData != null ? ItemData.toString() : null);
 		SessionContextSupport.putLogParameter(PAY_LOAD_OBJECT, payLoadObject.toString());
@@ -86,11 +86,12 @@ public class CollectionEventLog implements ParameterProperties, ConstantProperti
 			SessionContextSupport.putLogParameter(EVENT_NAME, ITEM_EDIT);
 		}
 		JSONObject context = SessionContextSupport.getLog().get(CONTEXT) != null ? new JSONObject(SessionContextSupport.getLog().get(CONTEXT).toString()) : new JSONObject();
-		context.put(PARENT_ITEM_ID, collectionItem != null && collectionItem.getCollection() != null && collectionItem.getCollection().getCollectionItem() != null ? collectionItem.getCollection().getCollectionItem().getCollectionItemId() : null);
 		context.put(PARENT_GOORU_ID, collectionItem != null && collectionItem.getCollection() != null ? collectionItem.getCollection().getGooruOid() : null);
 		context.put(CONTENT_GOORU_ID, collectionItem != null && collectionItem.getResource() != null ? collectionItem.getResource().getGooruOid() : null);
 		context.put(CONTENT_ITEM_ID, collectionItem != null ? collectionItem.getCollectionItemId() : null);
+		if (isCopy) {
 		context.put(SOURCE_GOORU_ID, collectionItem != null && collectionItem.getResource() != null ? collectionItem.getResource().getCopiedResourceId(): null);
+		}
 		SessionContextSupport.putLogParameter(CONTEXT, context.toString());
 		JSONObject payLoadObject = SessionContextSupport.getLog().get(PAY_LOAD_OBJECT) != null ? new JSONObject(SessionContextSupport.getLog().get(PAY_LOAD_OBJECT).toString()) : new JSONObject();
 
@@ -140,10 +141,11 @@ public class CollectionEventLog implements ParameterProperties, ConstantProperti
 		SessionContextSupport.putLogParameter(SESSION, session.toString());
 	}
 	
-	public void getEventLogs(CollectionItem collectionItem, boolean isCreate, boolean isAdd, User user, boolean isCopy, boolean isEdit, String copySourceGooruOid) throws JSONException {
+	public void getEventLogs(CollectionItem collectionItem, boolean isCreate, boolean isAdd, User user, boolean isCopy, boolean isEdit,CollectionItem sourceCollectionItem) throws JSONException {
 		getEventLogs(collectionItem, isCreate, isAdd, user, isCopy, isEdit);
 		JSONObject context = SessionContextSupport.getLog().get(CONTEXT) != null ? new JSONObject(SessionContextSupport.getLog().get(CONTEXT).toString()) : new JSONObject();
-		context.put(SOURCE_GOORU_ID, copySourceGooruOid);
+		context.put(PARENT_ITEM_ID, collectionItem.getCollectionItemId());
+		context.put(SOURCE_GOORU_ID, sourceCollectionItem.getResource().getGooruOid());
 		SessionContextSupport.putLogParameter(CONTEXT, context.toString());
 	}
 

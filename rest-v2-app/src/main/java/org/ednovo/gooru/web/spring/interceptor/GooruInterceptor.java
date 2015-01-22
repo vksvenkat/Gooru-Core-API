@@ -35,13 +35,13 @@ import org.ednovo.gooru.application.util.ConfigProperties;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.Constants;
+import org.ednovo.gooru.core.exception.BadRequestException;
 import org.ednovo.kafka.producer.KafkaEventHandler;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
@@ -156,7 +156,7 @@ public class GooruInterceptor extends HandlerInterceptorAdapter {
 		try {
 			return data != null ? new JSONObject(data) : null;
 		} catch (JSONException e) {
-			throw new BadCredentialsException("Input JSON parse failed!");
+			throw new BadRequestException("Input JSON parse failed!");
 		}
 	}
 }

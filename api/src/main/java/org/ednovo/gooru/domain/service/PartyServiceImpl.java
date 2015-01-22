@@ -163,7 +163,7 @@ public class PartyServiceImpl extends BaseServiceImpl implements PartyService, P
 			if (partyCustomField != null) {
 				getPartyRepository().deletePartyCustomField(partyId, partyCustomField.getOptionalKey());
 			} else {
-				throw new NotFoundException(generateErrorMessage(GL0056, PARTY_CUSTOMFIELD));
+				throw new NotFoundException(generateErrorMessage(GL0056, PARTY_CUSTOMFIELD), GL0056);
 			}
 		}
 	}

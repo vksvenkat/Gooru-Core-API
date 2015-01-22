@@ -989,7 +989,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			}
 
 		} else {
-			throw new NotFoundException(generateErrorMessage(GL0056, _COLLECTION_ITEM));
+			throw new NotFoundException(generateErrorMessage(GL0056, _COLLECTION_ITEM), GL0056);
 
 		}
 	}
@@ -998,7 +998,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	public ActionResponseDTO<CollectionItem> reorderCollectionItem(final String collectionItemId, int newSequence) throws Exception {
 		CollectionItem collectionItem = getCollectionRepository().getCollectionItemById(collectionItemId);
 		if (collectionItem == null) {
-			throw new BadRequestException(generateErrorMessage(GL0056, COLLECTION_ITEM));
+			throw new BadRequestException(generateErrorMessage(GL0056, COLLECTION_ITEM), GL0056);
 		}
 		Errors errors = validateReorderCollectionItem(collectionItem);
 		if (!errors.hasErrors()) {
@@ -1191,7 +1191,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			}
 
 		} else {
-			throw new NotFoundException(generateErrorMessage(GL0056, _COLLECTION));
+			throw new NotFoundException(generateErrorMessage(GL0056, _COLLECTION), GL0056);
 		}
 		return collection;
 	}
@@ -1276,7 +1276,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				if (getUserService().checkCollaboratorsPermission(collectionId, collaborator, SCOLLECTION)) {
 					return collectionUtil.updateNewCollaborators(collection, collaboratorsList, user, COLLECTION_COLLABORATE, collaboratorOperation);
 				} else {
-					throw new NotFoundException(generateErrorMessage("GL0006"));
+					throw new NotFoundException(generateErrorMessage("GL0006"), "GL0006");
 				}
 			}
 		}
@@ -1686,7 +1686,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		getAsyncExecutor().deleteFromCache("v2-collection-data-" + collectionId + "*");
 		try {
 			if (destCollectionItem != null) {
-				this.getCollectionEventLog().getEventLogs(destCollectionItem, true, false, destCollectionItem.getCollection() != null && destCollectionItem.getCollection().getUser() != null ? destCollectionItem.getCollection().getUser() : null, true, false, sourceCollectionItem.getResource().getGooruOid());
+				this.getCollectionEventLog().getEventLogs(destCollectionItem, true, false, destCollectionItem.getCollection() != null && destCollectionItem.getCollection().getUser() != null ? destCollectionItem.getCollection().getUser() : null, true, false, sourceCollectionItem);
 			}
 		} catch (Exception e) {
 			LOGGER.error("Error" + e.getMessage());
@@ -2188,6 +2188,10 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		if (parentId != null) {
 			final Collection parentCollection = collectionRepository.getCollectionByGooruOid(parentId, user.getPartyUid());
 			if (parentCollection != null) {
+				if (!destCollection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) && parentCollection.getCollectionType().equalsIgnoreCase(CollectionType.FOLDER.getCollectionType())) { 
+					parentCollection.setSharing(destCollection.getSharing());
+					this.getCollectionRepository().save(parentCollection);
+				}
 				collectionItem = this.createCollectionItem(destCollection.getGooruOid(), parentCollection.getGooruOid(), new CollectionItem(), destCollection.getUser(), CollectionType.FOLDER.getCollectionType(), false).getModel();
 				destCollection.setCollectionItem(collectionItem);
 			}
@@ -2345,7 +2349,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				response.getModel().setStandards(this.getStandards(resource.getTaxonomySet(), false, null));
 
 			} else {
-				throw new NotFoundException(generateErrorMessage("GL0013"));
+				throw new NotFoundException(generateErrorMessage("GL0013"), "GL0013");
 			}
 			if (response.getModel().getCollection().getResourceType().getName().equalsIgnoreCase(SCOLLECTION) && response.getModel().getCollection().getClusterUid() != null && !response.getModel().getCollection().getClusterUid().equalsIgnoreCase(response.getModel().getCollection().getGooruOid())) {
 				response.getModel().getCollection().setClusterUid(response.getModel().getCollection().getGooruOid());

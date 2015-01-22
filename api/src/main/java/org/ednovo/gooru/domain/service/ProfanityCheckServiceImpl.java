@@ -31,6 +31,7 @@ import org.ednovo.gooru.core.api.model.Profanity;
 import org.ednovo.gooru.core.application.util.UrlGenerator;
 import org.ednovo.gooru.core.application.util.UrlToken;
 import org.ednovo.gooru.core.constant.ConstantProperties;
+import org.ednovo.gooru.core.exception.BadRequestException;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.domain.cassandra.service.BlackListWordCassandraService;
 import org.json.JSONArray;
@@ -39,7 +40,6 @@ import org.restlet.resource.ClientResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -108,7 +108,7 @@ public class ProfanityCheckServiceImpl implements ProfanityCheckService, Constan
 			getBlackListWordCassandraService().save(words);
 			return profanity;
 		} else {
-			throw new BadCredentialsException(profanity.getText());
+			throw new BadRequestException(profanity.getText());
 		}
 	}
 

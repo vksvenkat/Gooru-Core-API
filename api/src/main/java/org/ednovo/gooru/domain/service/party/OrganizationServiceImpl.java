@@ -45,6 +45,7 @@ import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.core.exception.BadRequestException;
 import org.ednovo.gooru.domain.service.BaseServiceImpl;
 import org.ednovo.gooru.domain.service.CountryRepository;
 import org.ednovo.gooru.domain.service.PartyService;
@@ -230,7 +231,7 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 				settingService.resetOrganizationSettings(organizationSetting.getKey());
 			}
 		} else {
-			throw new BadCredentialsException("Values should not be null !");
+			throw new BadRequestException("Values should not be null !");
 		}
 
 		return new ActionResponseDTO<OrganizationSetting>(organizationSetting, null);

@@ -127,7 +127,7 @@ public class CommentServiceImpl extends BaseServiceImpl implements CommentServic
 	public Comment getComment(String commentUid) {
 		Comment comment = this.getCommentRepository().getComment(commentUid);
 		if (comment == null) {
-			throw new NotFoundException(generateErrorMessage(GL0056, COMMENT));
+			throw new NotFoundException(generateErrorMessage(GL0056, COMMENT), GL0056);
 		}
 		return comment;
 	}
