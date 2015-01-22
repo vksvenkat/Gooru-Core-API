@@ -616,7 +616,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	public Map<String, Object> getFolderList(Integer limit, Integer offset, String gooruOid, String title, String username) {
 		String gooruUid = null;
 		if (username != null) {
-			User user = this.getUserService().getUserByUserName(gooruUid);
+			User user = this.getUserService().getUserByUserName(username);
 			gooruUid = user != null ? user.getPartyUid() : null;
 		}
 		List<Object[]> result = this.getCollectionRepository().getFolderList(limit, offset, gooruOid, title, gooruUid);
