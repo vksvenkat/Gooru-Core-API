@@ -2820,5 +2820,17 @@ public interface ParameterProperties {
 		
 	String USER_CATEGORY ="user_category";
 	
+	String GL0105 = "GL0105";
+	
+	String GL0078 = "GL0078";
+	
+	String GL0061 = "GL0061";
+	
+	String GL0079 = "GL0079";
+	
+	String GL0081 = "GL0081";
+	
+	String GL0072 = "GL0072";
+	
 }
 
