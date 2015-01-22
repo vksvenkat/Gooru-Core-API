@@ -548,6 +548,7 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 		classpage.setResourceType(getCollectionService().getResourceType(ResourceType.Type.CLASSPAGE.getType()));
 		classpage.setLastModified(new Date(System.currentTimeMillis()));
 		classpage.setCreatedOn(new Date(System.currentTimeMillis()));
+		classpage.setAssociationDate(new Date(System.currentTimeMillis()));
 		classpage.setUser(user);
 		classpage.setCollectionType(ResourceType.Type.CLASSPAGE.getType());
 		classpage.setOrganization(user.getPrimaryOrganization());
