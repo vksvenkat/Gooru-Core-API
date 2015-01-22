@@ -1681,6 +1681,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		destCollectionItem.setStart(sourceCollectionItem.getStart());
 		destCollectionItem.setStop(sourceCollectionItem.getStop());
 		destCollectionItem.setAssociatedUser(targetCollection.getUser());
+		destCollectionItem.setAssociationDate(new Date(System.currentTimeMillis()));
 
 		this.getCollectionRepository().save(destCollectionItem);
 		getAsyncExecutor().deleteFromCache("v2-collection-data-" + collectionId + "*");
@@ -2131,6 +2132,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			destCollection.setResourceType(sourceCollection.getResourceType());
 			destCollection.setLastModified(new Date(System.currentTimeMillis()));
 			destCollection.setCreatedOn(new Date(System.currentTimeMillis()));
+	
 			if (newCollection != null && newCollection.getSharing() != null) {
 				destCollection.setSharing(newCollection.getSharing());
 			} else {

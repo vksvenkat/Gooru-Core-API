@@ -19,6 +19,8 @@ import org.springframework.stereotype.Component;
 public class ClasspageEventLog implements ParameterProperties, ConstantProperties{
  
 
+	private Object collectionItem;
+
 	public void getEventLogs(Classpage classpage, User user, UserGroup userGroup, boolean isCreate, boolean isDelete) throws JSONException {
 		if(isCreate){
 			SessionContextSupport.putLogParameter(EVENT_NAME, ITEM_CREATE);
@@ -36,7 +38,7 @@ public class ClasspageEventLog implements ParameterProperties, ConstantPropertie
 		payLoadObject.put(_GROUP_UID, userGroup != null ? userGroup.getPartyUid() : null);
 		payLoadObject.put(CONTENT_ID, classpage != null ? classpage.getContentId() : null);
 		payLoadObject.put(CLASS_CODE, classpage != null ? classpage.getClasspageCode() : null);
-		SessionContextSupport.putLogParameter(PAY_LOAD_OBJECT, payLoadObject.toString());
+        SessionContextSupport.putLogParameter(PAY_LOAD_OBJECT, payLoadObject.toString());
 		JSONObject session = SessionContextSupport.getLog().get(SESSION) != null ? new JSONObject(SessionContextSupport.getLog().get(SESSION).toString()) : new JSONObject();
 		session.put(ORGANIZATION_UID, user != null && user.getOrganization() != null ? user.getOrganization().getPartyUid() : null);
 		SessionContextSupport.putLogParameter(SESSION, session.toString());
@@ -100,7 +102,6 @@ public class ClasspageEventLog implements ParameterProperties, ConstantPropertie
 		JSONObject session = SessionContextSupport.getLog().get(SESSION) != null ? new JSONObject(SessionContextSupport.getLog().get(SESSION).toString()) : new JSONObject();
 		SessionContextSupport.putLogParameter(SESSION, session.toString());
 	}
-
 }
 
 
