@@ -86,31 +86,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 
 	@Autowired
 	private RedisService redisService;
-
-	public RedisService getRedisService() {
-		return redisService;
-	}
-
-	public OrganizationSettingRepository getOrganizationSettingRepository() {
-		return organizationSettingRepository;
-	}
-
-	public IndexProcessor getIndexProcessor() {
-		return indexProcessor;
-	}
-
-	public ConfigSettingRepository getConfigSettingRepository() {
-		return configSettingRepository;
-	}
-
-	public SettingService getSettingService() {
-		return settingService;
-	}
-
-	public static Logger getLogger() {
-		return LOGGER;
-	}
-
+    
 	@Autowired
 	private ApplicationRepository applicationRepository;
 
@@ -186,39 +162,37 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 		final UserToken userToken = new UserToken();
 		final Errors errors = new BindException(userToken, SESSIONTOKEN);
 		final String apiEndPoint = getConfigSetting(ConfigConstants.GOORU_API_ENDPOINT, 0, TaxonomyUtil.GOORU_ORG_UID);
-		String dd = "";
-		dd.toLowerCase();
 		if (!errors.hasErrors()) {
 			if (username == null) {
-				throw new BadRequestException(generateErrorMessage("GL0061", "Username"), "GL0061");
+				throw new BadRequestException(generateErrorMessage(GL0061, "Username"), GL0061);
 			}
 			if (password == null) {
-				throw new BadRequestException(generateErrorMessage("GL0061", "Password"), "GL0061");
+				throw new BadRequestException(generateErrorMessage(GL0061, "Password"), GL0061);
 			}
 			Identity identity = new Identity();
 			identity.setExternalId(username);
 
 			identity = this.getUserRepository().findByEmailIdOrUserName(username, true, true);
 			if (identity == null) {
-				throw new UnauthorizedException(generateErrorMessage("GL0078"), "GL0061");
+				throw new UnauthorizedException(generateErrorMessage(GL0078), GL0078);
 			}
 			identity.setLoginType(CREDENTIAL);
 
 			if (identity.getActive() == 0) {
-				throw new UnauthorizedException(generateErrorMessage("GL0079"), "GL0079");
+				throw new UnauthorizedException(generateErrorMessage(GL0079), GL0079);
 			}
 			final User user = this.getUserRepository().findByIdentityLogin(identity);
 
 			if (!isSsoLogin) {
 				if (identity.getCredential() == null && !identity.getAccountCreatedType().equalsIgnoreCase(CREDENTIAL)) { 
-					throw new UnauthorizedException(generateErrorMessage("GL0105", identity.getAccountCreatedType()), "GL0105");
+					throw new UnauthorizedException(generateErrorMessage(GL0105, identity.getAccountCreatedType()), GL0105 + Constants.ACCOUNT_TYPES.get(identity.getAccountCreatedType()));
 				}
 				if (identity.getCredential() == null) {
-					throw new UnauthorizedException(generateErrorMessage("GL0078"), "GL0078");
+					throw new UnauthorizedException(generateErrorMessage(GL0078), GL0078);
 				}
 				final String encryptedPassword = this.getUserService().encryptPassword(password);
 				if (user == null || !(encryptedPassword.equals(identity.getCredential().getPassword()) || password.equals(identity.getCredential().getPassword()))) {
-					throw new UnauthorizedException(generateErrorMessage("GL0081"), "GL0081");
+					throw new UnauthorizedException(generateErrorMessage(GL0081), GL0081);
 				}
 			}
 
@@ -227,11 +201,11 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 				final Integer tokenCount = this.getUserRepository().getUserTokenCount(user.getGooruUId());
 				if (userDevice == null || userDevice.getOptionalValue().indexOf(MOBILE) == -1) {
 					if (-1 != Integer.parseInt(getConfigSetting(ConfigConstants.GOORU_WEB_LOGIN_WITHOUT_CONFIRMATION_LIMIT, 0, TaxonomyUtil.GOORU_ORG_UID))) {
-						throw new BadRequestException(generateErrorMessage("GL0072"), "GL0072");
+						throw new BadRequestException(generateErrorMessage(GL0072), GL0072);
 					}
 				} else {
 					if (tokenCount >= Integer.parseInt(getConfigSetting(ConfigConstants.GOORU_IPAD_LOGIN_WITHOUT_CONFIRMATION_LIMIT, 0, TaxonomyUtil.GOORU_ORG_UID))) {
-						throw new BadRequestException(generateErrorMessage("GL0072"), "GL0072");
+						throw new BadRequestException(generateErrorMessage(GL0072), GL0072);
 					}
 				}
 			}
@@ -489,4 +463,29 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 	public UserEventlog getUsereventlog() {
 		return usereventlog;
 	}
+	
+	public RedisService getRedisService() {
+		return redisService;
+	}
+
+	public OrganizationSettingRepository getOrganizationSettingRepository() {
+		return organizationSettingRepository;
+	}
+
+	public IndexProcessor getIndexProcessor() {
+		return indexProcessor;
+	}
+
+	public ConfigSettingRepository getConfigSettingRepository() {
+		return configSettingRepository;
+	}
+
+	public SettingService getSettingService() {
+		return settingService;
+	}
+
+	public static Logger getLogger() {
+		return LOGGER;
+	}
+
 }
