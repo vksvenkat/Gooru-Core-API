@@ -2720,6 +2720,9 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				CustomTableValue customTableValue = this.getCustomTableRepository().getCustomTableValue(RESOURCE_CATEGORY_FORMAT, newResource.getResourceFormat().getValue());
 				resource.setResourceFormat(customTableValue);
 			}
+			if (newResource.getGrade()!= null) {
+				resource.setGrade(newResource.getGrade());
+			}
 			if (newResource.getCategory() != null) {
 				itemData.put(CATEGORY,newResource.getCategory());
 				resource.setCategory(newResource.getCategory().toLowerCase());
