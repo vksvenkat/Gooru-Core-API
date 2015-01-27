@@ -22,6 +22,7 @@ public class UserSearchResult {
 	private String lastLogin;
 	private String isDeleted;
 	private String accountRegisterType;
+	private String accountTypeId;
 	private String aboutMe;
 	private String notes;
 	private String profileVisibility;
@@ -183,6 +184,12 @@ public class UserSearchResult {
 
 	public void setChildAccountCount(Integer childAccountCount) {
 		this.childAccountCount = childAccountCount;
+	}
+	public String getAccountTypeId() {
+		return accountTypeId;
+	}
+	public void setAccountTypeId(String accountTypeId) {
+		this.accountTypeId = accountTypeId;
 	}
 	
 }
