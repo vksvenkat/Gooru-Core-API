@@ -33,6 +33,9 @@ public class UserCio implements IsEntityCassandraIndexable {
 	private Integer userId;
 
 	@Column
+	private Integer accountTypeId;
+		
+	@Column
 	private String displayname;
 
 	@Column
@@ -136,6 +139,14 @@ public class UserCio implements IsEntityCassandraIndexable {
 
 	public void setDisplayname(String displayname) {
 		this.displayname = displayname;
+	}
+	
+	public Integer getAccountTypeId() {
+		return accountTypeId;
+	}
+
+	public void setAccountTypeId(Integer accountTypeId) {
+		this.accountTypeId = accountTypeId;
 	}
 
 	public String getUserUid() {
