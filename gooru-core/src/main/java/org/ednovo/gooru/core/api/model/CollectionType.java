@@ -7,6 +7,7 @@ public enum CollectionType {
 	FOLDER("folder"),
 	EBOOK("ebook"),
 	CLASSPAGE("classpage"),
+	PATHWAY("pathway"),
 	USER_CLASSPAGE("user_classpage"),
 	ASSIGNMENT("assignment"),
 	QUIZ("quiz"),
