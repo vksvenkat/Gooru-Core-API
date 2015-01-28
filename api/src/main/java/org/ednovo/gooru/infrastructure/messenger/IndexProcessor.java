@@ -88,7 +88,7 @@ public class IndexProcessor extends BaseComponent {
 	}
 
 	public void index(final String uuids, final String action, final String type) {
-		index(uuids, action, type, true, false);
+		index(uuids, action, type, false, false);
 	}
 
 	public void indexStas(final String uuids, final String action, final String type) {
@@ -109,7 +109,7 @@ public class IndexProcessor extends BaseComponent {
 
 	public void index(final String uuids, final String action, final String type, String sessionToken) {
 		final GooruAuthenticationToken authentication = (GooruAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
-		index(uuids, action, type, sessionToken, authentication, true, false);
+		index(uuids, action, type, sessionToken, authentication, false, false);
 	}
 	
 	public void index(final String uuids, final String action, final String type,boolean isUpdateUserContent,  String sessionToken) {
