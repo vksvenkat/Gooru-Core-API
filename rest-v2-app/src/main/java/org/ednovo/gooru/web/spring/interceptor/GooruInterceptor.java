@@ -85,7 +85,7 @@ public class GooruInterceptor extends HandlerInterceptorAdapter {
 		
 		JSONObject context = new JSONObject();
 		context.put("url", request.getRequestURI());
-		if(request.getHeader("User-Agent").indexOf("Mobile") != -1) {
+		if(request.getHeader("User-Agent") != null && request.getHeader("User-Agent").indexOf("Mobile") != -1) {
 			context.put("clientSource", "mobile");
 		} else {
 			context.put("clientSource", "web");
