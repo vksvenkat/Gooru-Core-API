@@ -22,7 +22,7 @@ public class UserSearchResult {
 	private String lastLogin;
 	private String isDeleted;
 	private String accountRegisterType;
-	private String accountTypeId;
+	private Integer accountTypeId;
 	private String aboutMe;
 	private String notes;
 	private String profileVisibility;
@@ -185,10 +185,10 @@ public class UserSearchResult {
 	public void setChildAccountCount(Integer childAccountCount) {
 		this.childAccountCount = childAccountCount;
 	}
-	public String getAccountTypeId() {
+	public Integer getAccountTypeId() {
 		return accountTypeId;
 	}
-	public void setAccountTypeId(String accountTypeId) {
+	public void setAccountTypeId(Integer accountTypeId) {
 		this.accountTypeId = accountTypeId;
 	}
 	
