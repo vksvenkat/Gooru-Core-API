@@ -235,9 +235,11 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 	@SuppressWarnings("unchecked")
 	@Override
 	public Code findCodeByTaxCode(String taxonomyCode) {
-		List<Code> code = getSession().createQuery("from Code c where c.code = '" + taxonomyCode + "' and c.activeFlag = 1 and " + generateOrgAuthQueryWithData("c.")).list();
+		List<Code> code = getSession().createQuery("from Code c where c.code = '" + taxonomyCode + "'or c.codeId = '"+ taxonomyCode + "' or c.displayCode = '"+ taxonomyCode + "' or c.commonCoreDotNotation = '"+taxonomyCode + "' and c.activeFlag = 1 and " + generateOrgAuthQueryWithData("c.")).list();
 		return code.isEmpty() ? null : code.get(0);
 	}
+	
+	
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public int findMaxDepthInTaxonomy(Code code, String organizationUid) {

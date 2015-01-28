@@ -2915,11 +2915,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		Set<Code> codes = resource.getTaxonomySet();
 		Set<Code> removeCodes = new HashSet<Code>();
 		for (Code removeCode : taxonomySet) {
-			if (removeCode.getCodeId() != null) {
-				removeCode = (Code) this.getTaxonomyRepository().findCodeByCodeId(removeCode.getCodeId());
-			} else {
-				removeCode = (Code) this.getTaxonomyRepository().findCodeByTaxCode(removeCode.getCode());
-			}
+			removeCode = (Code) (this.getTaxonomyRepository().findCodeByTaxCode(removeCode.getCodeId() != null ? removeCode.getCodeId().toString() : removeCode.getCode()));
 			if (removeCode != null) {
 				for (Code code : codes) {
 					if (code.getCodeId().equals(removeCode.getCodeId())) {
