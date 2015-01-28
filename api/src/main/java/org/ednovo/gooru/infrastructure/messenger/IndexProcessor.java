@@ -111,6 +111,11 @@ public class IndexProcessor extends BaseComponent {
 		final GooruAuthenticationToken authentication = (GooruAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
 		index(uuids, action, type, sessionToken, authentication, true, false);
 	}
+	
+	public void index(final String uuids, final String action, final String type,boolean isUpdateUserContent,  String sessionToken) {
+		final GooruAuthenticationToken authentication = (GooruAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
+		index(uuids, action, type, sessionToken, authentication, isUpdateUserContent, false);
+	}
 
 	public void index(final String uuids, final String action, final String type, final boolean isUpdateUserContent){
 		index(uuids, action, type, isUpdateUserContent, false);

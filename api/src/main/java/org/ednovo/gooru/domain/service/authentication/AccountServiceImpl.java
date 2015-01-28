@@ -305,7 +305,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			} catch (Exception e) {
 				LOGGER.debug("error" + e.getMessage());
 			}
-			indexProcessor.index(user.getPartyUid(), IndexProcessor.INDEX, USER, false);
+			indexProcessor.index(user.getPartyUid(), IndexProcessor.INDEX, USER, false, userToken.getToken());
 
 		}
 
