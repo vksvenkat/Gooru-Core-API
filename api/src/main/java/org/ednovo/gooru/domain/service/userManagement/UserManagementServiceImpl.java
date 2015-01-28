@@ -254,6 +254,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	@Override
 	public Profile updateProfileInfo(Profile newProfile, String gooruUid, User apiCaller, String activeFlag, Boolean emailConfirmStatus, String showProfilePage, String accountType, String password) {
 		User user = this.getUserRepository().findByGooruId(gooruUid);
+		Boolean reindexUserContent = false;
 		JSONObject itemData = new JSONObject();
 		if (user == null) {
 			throw new AccessDeniedException(ACCESS_DENIED_EXCEPTION);
@@ -262,6 +263,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		if (showProfilePage != null) {
 			PartyCustomField partyCustomField = new PartyCustomField(USER_META, SHOW_PROFILE_PAGE, showProfilePage);
 			this.getPartyService().updatePartyCustomField(user.getPartyUid(), partyCustomField, user);
+			reindexUserContent = true;
 		}
 		if (profile != null) {
 			Identity identity = this.getUserRepository().findUserByGooruId(gooruUid);
@@ -374,6 +376,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 						if (newProfile.getUser().getFirstName() != null) {
 							itemData.put(FIRST_NAME, newProfile.getUser().getFirstName());
 							user.setFirstName(newProfile.getUser().getFirstName());
+							reindexUserContent = true;
 						}
 						if (newProfile.getUser().getConfirmStatus() != null) {
 							itemData.put(CONFIRM_STATUS, newProfile.getUser().getConfirmStatus());
@@ -382,10 +385,12 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 						if (newProfile.getUser().getLastName() != null) {
 							itemData.put(LAST_NAME, newProfile.getUser().getLastName());
 							user.setLastName(newProfile.getUser().getLastName());
+							reindexUserContent = true;
 						}
 						if (newProfile.getUser().getUsername() != null && !this.getUserRepository().checkUserAvailability(newProfile.getUser().getUsername(), CheckUser.BYUSERNAME, false)) {
 							itemData.put(USERNAME, newProfile.getUser().getUsername());
 							user.setUsername(newProfile.getUser().getUsername());
+							reindexUserContent = true;
 						}
 					}
 				}
@@ -419,6 +424,11 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		} catch (JSONException e) {
 			LOGGER.debug("Error" + e);
 		}
+		
+		if (profile != null) {
+			indexProcessor.index(profile.getUser().getPartyUid(), IndexProcessor.INDEX, USER,reindexUserContent, false);
+		}
+
 		return profile;
 	}
 

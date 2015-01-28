@@ -137,10 +137,6 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 		}
 		Profile profile = this.getUserManagementService().updateProfileInfo(getValue(PROFILE, json) != null ? this.buildProfileFromInputParameters(getValue(PROFILE, json)) : null, gooruUid, apicaller, getValue(USER_META_ACTIVE_FLAG, json), emailConfirmStatus, getValue(_SHOW_PROFILE_PAGE, json),getValue(ACCOUNTTYPE, json),getValue(PASSWORD, json));
 
-		if (profile != null) {
-			indexProcessor.index(profile.getUser().getPartyUid(), IndexProcessor.INDEX, USER);
-		}
-
 		return toModelAndView(serialize(profile, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, USER_PROFILE_INCUDES));
 	}
 
