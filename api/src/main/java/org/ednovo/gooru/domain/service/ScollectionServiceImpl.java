@@ -641,7 +641,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		List<ContentMetaAssociation> saveAll = new ArrayList<ContentMetaAssociation>();
 		Set<ContentMetaAssociation> updateContent = new HashSet<ContentMetaAssociation>();
 		for (ContentMetaDTO newMeta : newDepthOfKnowledges) {
-
 			CustomTableValue customTableValue = this.getCustomTableRepository().getValueByDisplayName(newMeta.getValue(), type);
 			if (customTableValue != null) {
 				Boolean isAlreadyUpdated = false;
