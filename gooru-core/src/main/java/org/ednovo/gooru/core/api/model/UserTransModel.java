@@ -30,6 +30,8 @@
  ******************************************************************************/
 package org.ednovo.gooru.core.api.model;
 
+
+import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 
@@ -70,6 +72,7 @@ public class UserTransModel extends OrganizationModel implements IndexableEntry 
 	private String organizationName;
 	private Short active;
 	private String token;
+	private Date registeredOn;
 
 	@Override
 	public boolean equals(Object obj) {
@@ -356,6 +359,14 @@ public class UserTransModel extends OrganizationModel implements IndexableEntry 
 
 	public void setToken(String token) {
 		this.token = token;
+	}
+
+	public Date getRegisteredOn() {
+		return registeredOn;
+	}
+
+	public void setRegisteredOn(Date registeredOn) {
+		this.registeredOn = registeredOn;
 	}
 
 }

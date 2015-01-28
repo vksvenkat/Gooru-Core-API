@@ -302,7 +302,7 @@ public interface ConstantProperties {
 
 	static final String USER_INCLUDES[] = { "*.lastName", "*.gooruUId", "*.profileImageUrl", "*.loginType", "*.userRoleSetString", "*.username", "*.viewFlag", "*.createdOn", "*.restEndPoint", "*.confirmStatus", "*.emailId", "*.token", "*.partyUid", "*.firstName", "*.usernameDisplay", "*.user",
 			"*.accountCreatedType", "*.dateOfBirth", "*.meta.*", "*.taxonomyPreference.*", "*.taxonomyPreference.code.*", "*.meta.taxonomyPreference.code.*", "*.metaData.*", "*.meta.taxonomyPreference.metaData.code.*", "*.meta.taxonomyPreference.metaData.*", "*.meta.taxonomyPreference.*",
-			"*.customFields.*", "*.accountTypeId", "*.organizationName", "*.userRole", "*.active","*.parentUser" };
+			"*.customFields.*", "*.accountTypeId", "*.organizationName", "*.userRole", "*.active","*.parentUser", "*.registeredOn", "*.lastLogin" };
 
 	static final String RESET_PASSWORD_REQUEST_INCLUDES[] = { "*.username", "*.accountTypeId", "*.firstName", "*.gooruUId", "*.emailId" };
 
@@ -836,6 +836,10 @@ public interface ConstantProperties {
    public static final String JOB_INCLUDES[] = {"*.job", "*.status", "*.jobUid"};
    
    public static final String _GROUP_UID = "groupUId";
+   
+   public static final String CLASSPAGE_PATHWAY = "classpage.pathway";
+   
+   public static final String PATHWAY_COLLECTION = "pathway.collection";
    
    public static final String SOURCE_GOORU_ID = "sourceGooruId";
    

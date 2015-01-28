@@ -87,6 +87,7 @@ public class UserTransformer extends ObjectTransformer {
 			userModel.setUserRoleSet(user.getUserRoleSet());
 			userModel.setViewFlag(user.getViewFlag());
 			userModel.setCreatedOn(user.getCreatedOn() != null ? user.getCreatedOn().toString() : null);
+			userModel.setRegisteredOn(user.getCreatedOn());
 			userModel.setIsDeleted(user.getIsDeleted());
 			userModel.setCustomFields(user.getCustomFields());
 			userModel.setMeta(user.getMeta());
