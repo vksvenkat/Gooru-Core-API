@@ -78,6 +78,8 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.storage.StorageRepo
 import org.ednovo.gooru.security.OperationAuthorizer;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindException;
@@ -135,6 +137,8 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	@Autowired
 	private CollectionRepository collectionRepository;
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(ClasspageServiceImpl.class);
+	
 	@Override
 	public ActionResponseDTO<Classpage> createClasspage(Classpage classpage, boolean addToUserClasspage, String assignmentId) throws Exception {
 		Errors errors = validateClasspage(classpage);
@@ -467,13 +471,16 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 
 	@Override
 	public List<Map<String, Object>> classpageUserJoin(String code, List<String> mailIds, User apiCaller) throws Exception {
+		LOGGER.info("mailIds : " + mailIds);
 		List<Map<String, Object>> classpageMember = new ArrayList<Map<String, Object>>();
 		UserGroup userGroup = this.getUserGroupService().findUserGroupByGroupCode(code);
 		Classpage classpage = this.getCollectionRepository().getClasspageByCode(code);
 		InviteUser inviteUser = new InviteUser();
 		if (userGroup != null && classpage != null) {
 			for (String mailId : mailIds) {
+				LOGGER.info("mailId : " + mailId);
 				Identity identity = this.getUserRepository().findByEmailIdOrUserName(mailId, true, false);
+				LOGGER.info("identity : " + identity);
 				if (identity != null) {
 					inviteUser = this.getInviteRepository().findInviteUserById(mailId, classpage.getGooruOid(), null);
 					if (inviteUser != null) {
@@ -482,6 +489,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 						this.getInviteRepository().save(inviteUser);
 					}
 					if (this.getUserRepository().getUserGroupMemebrByGroupUid(userGroup.getPartyUid(), identity.getUser().getPartyUid()) == null) {
+						LOGGER.info("getUserGroupMemebrByGroupUid : " + userGroup);
 						UserGroupAssociation groupAssociation = new UserGroupAssociation();
 						groupAssociation.setIsGroupOwner(0);
 						groupAssociation.setUser(identity.getUser());
