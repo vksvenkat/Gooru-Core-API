@@ -59,7 +59,7 @@ public interface ClasspageService {
 
 	Long getMyClasspageCount(String gooruUid);
 	
-	List<Map<String, Object>> classpageUserJoin(String code,List<String> gooruUid,User apiCaller) throws Exception;
+	List<Map<String, Object>> classpageUserJoin(String code, User apiCaller) throws Exception;
 	
 	void classpageUserRemove(String code,List<String> gooruUid,User apiCaller) throws Exception;
 	
