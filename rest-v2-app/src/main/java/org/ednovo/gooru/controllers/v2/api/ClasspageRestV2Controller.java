@@ -311,7 +311,8 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	@RequestMapping(value = "/{code}/member/join", method = RequestMethod.POST)
 	public ModelAndView classpageUserJoin(@PathVariable(value = CODE) String code, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User apiCaller = (User) request.getAttribute(Constants.USER);
-		return toJsonModelAndView(this.getClasspageService().classpageUserJoin(code, apiCaller), true);
+		return toJsonModelAndView(this.getClasspageService().classpageUserJoin(code, JsonDeserializer.deserialize(data, new TypeReference<List<String>>() {
+		}), apiCaller), true);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_DELETE })
