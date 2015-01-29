@@ -466,15 +466,21 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 
 	@Override
-	public List<Map<String, Object>> classpageUserJoin(String code, User apiCaller) throws Exception {
+	public List<Map<String, Object>> classpageUserJoin(String code, List<String> mailIds, User apiCaller) throws Exception {
 		List<Map<String, Object>> classpageMember = new ArrayList<Map<String, Object>>();
 		UserGroup userGroup = this.getUserGroupService().findUserGroupByGroupCode(code);
 		Classpage classpage = this.getCollectionRepository().getClasspageByCode(code);
 		InviteUser inviteUser = new InviteUser();
 		if (userGroup != null && classpage != null) {
-				Identity identity = this.getUserRepository().findUserByGooruId(apiCaller.getPartyUid());
+			if (mailIds.size() == 0) { 
+				if (apiCaller.getIdentities() != null && apiCaller.getIdentities().size() > 0) {
+					mailIds.add(apiCaller.getIdentities().iterator().next().getExternalId());
+				}
+			}
+			for (String mailId : mailIds) {
+				Identity identity = this.getUserRepository().findByEmailIdOrUserName(mailId, true, false);
 				if (identity != null) {
-					inviteUser = this.getInviteRepository().findInviteUserById(identity.getExternalId(), classpage.getGooruOid(), null);
+					inviteUser = this.getInviteRepository().findInviteUserById(mailId, classpage.getGooruOid(), null);
 					if (inviteUser != null) {
 						inviteUser.setStatus(this.getCustomTableRepository().getCustomTableValue(INVITE_USER_STATUS, ACTIVE));
 						inviteUser.setJoinedDate(new Date(System.currentTimeMillis()));
@@ -489,9 +495,10 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 						classpage.setLastModified(new Date(System.currentTimeMillis()));
 						this.getCollectionRepository().save(classpage);
 						this.getUserRepository().save(groupAssociation);
+						this.getUserRepository().flush();
 						classpageMember.add(setMemberResponse(groupAssociation, ACTIVE));
 					}
-				
+				}
 				try {
 				  this.getClasspageEventlog().getEventLogs(classpage, apiCaller, userGroup, inviteUser);
 				} catch(Exception e){
