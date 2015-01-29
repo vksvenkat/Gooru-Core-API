@@ -478,7 +478,12 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 				}
 			}
 			for (String mailId : mailIds) {
-				Identity identity = this.getUserRepository().findByEmailIdOrUserName(mailId, true, false);
+				Identity identity = null;
+				if (mailId.trim().length() != 0 ) {
+					identity = this.getUserRepository().findByEmailIdOrUserName(mailId, true, false);
+				} else { 
+					identity = this.getUserRepository().findUserByGooruId(apiCaller.getPartyUid());
+				}
 				if (identity != null) {
 					inviteUser = this.getInviteRepository().findInviteUserById(mailId, classpage.getGooruOid(), null);
 					if (inviteUser != null) {
