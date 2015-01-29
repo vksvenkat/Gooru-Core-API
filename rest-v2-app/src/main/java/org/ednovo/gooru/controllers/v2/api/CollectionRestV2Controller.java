@@ -167,7 +167,7 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 				includes = (String[]) ArrayUtils.add(includes, "*.contentAssociation");
 			}
 			includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_ITEM_TAGS);
-			return toModelAndViewWithIoFilter(getCollectionService().getCollection(collectionId, includeMetaInfo, includeCollaborator, includeRelatedContent, user, merge, rootNodeId, isGat, false), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
+			return toModelAndViewWithIoFilter(getCollectionService().getCollection(collectionId, includeMetaInfo, includeCollaborator, includeRelatedContent, user, merge, rootNodeId, isGat, true), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 		}
 
 	}
