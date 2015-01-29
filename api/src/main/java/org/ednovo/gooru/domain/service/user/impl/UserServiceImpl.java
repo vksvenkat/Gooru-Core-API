@@ -660,7 +660,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 
 	@Override
 	public Profile updateUserInfo(String gooruUId, MultiValueMap<String, String> data, User apiCaller, Boolean isDisableUser) throws Exception {
-
+		Boolean reIndexUserContent = false;
 		if (gooruUId == null || gooruUId.equalsIgnoreCase("")) {
 			throw new BadRequestException("User Id cannot be null or empty");
 		}
@@ -706,9 +706,11 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 
 		if (isNotEmptyString(firstName)) {
 			user.setFirstName(firstName);
+			reIndexUserContent = true;
 		}
 		if (isNotEmptyString(lastName)) {
 			user.setLastName(lastName);
+			reIndexUserContent = true;
 		}
 
 		if (isNotEmptyString(gender)) {
@@ -748,6 +750,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 				throw new BadRequestException("Someone already has taken " + username + "!.Please pick another username.");
 			} else {
 				user.setUsername(username);
+				reIndexUserContent = true;
 			}
 		}
 
@@ -770,6 +773,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 			}
 
 			identity.setExternalId(email);
+			reIndexUserContent = true;
 			saveIdentity = true;
 
 		}
@@ -876,7 +880,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 			this.getMailHandler().handleMailEvent(dataMap);
 		}
 
-		indexProcessor.index(user.getPartyUid(), IndexProcessor.INDEX, USER);
+		indexProcessor.index(user.getPartyUid(), IndexProcessor.INDEX, USER, reIndexUserContent, false);
 
 		return profile;
 
