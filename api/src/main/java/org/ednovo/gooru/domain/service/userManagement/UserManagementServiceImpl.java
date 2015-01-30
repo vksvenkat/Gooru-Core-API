@@ -93,6 +93,7 @@ import org.ednovo.gooru.domain.service.search.SearchResults;
 import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.ednovo.gooru.domain.service.user.impl.UserServiceImpl;
 import org.ednovo.gooru.infrastructure.mail.MailHandler;
+import org.ednovo.gooru.infrastructure.messenger.IndexHandler;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.IdpRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.InviteRepository;
@@ -170,6 +171,9 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 
 	@Autowired
 	private ApplicationRepository applicationRepository;
+	
+	@Autowired
+	private IndexHandler indexHandler;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
 
@@ -425,7 +429,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		}
 		
 		if (profile != null) {
-			indexProcessor.index(profile.getUser().getPartyUid(), IndexProcessor.INDEX, USER,reindexUserContent, false);
+			indexHandler.setReIndexRequest(profile.getUser().getPartyUid(), IndexProcessor.INDEX, USER, null, reindexUserContent, false);
 		}
 
 		return profile;
