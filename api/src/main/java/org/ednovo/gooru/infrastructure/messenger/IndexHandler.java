@@ -1,8 +1,8 @@
 /////////////////////////////////////////////////////////////
 // IndexHandler.java
 // gooru-api
-// Created by Gooru on 2014
-// Copyright (c) 2014 Gooru. All rights reserved.
+// Created by Gooru on 2015
+// Copyright (c) 2015 Gooru. All rights reserved.
 // http://www.goorulearning.org/
 // Permission is hereby granted, free of charge, to any person obtaining
 // a copy of this software and associated documentation files (the
@@ -30,15 +30,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class IndexHandler {
 
-	public void setReIndexRequest(String reIndexIds, String action, String type, String sessionToken, Boolean updateUserContent, Boolean updateStatisticsData){
-		
-		if(updateUserContent == null){
-			updateUserContent = false;
-		}
-		if(updateStatisticsData == null){
-			updateStatisticsData = false;
-		}
-		
+	public void setReIndexRequest(String reIndexIds, String action, String type, String sessionToken, boolean updateUserContent, boolean updateStatisticsData){
 		SearchIndexMeta searchIndexMeta = new SearchIndexMeta();
 		searchIndexMeta.setReIndexIds(reIndexIds);
 		searchIndexMeta.setAction(action);

@@ -140,7 +140,7 @@ public class GooruInterceptor extends HandlerInterceptorAdapter {
 				
 			}
 		} catch(Exception ex){
-			LOGGER.error("Re-index API trigger failed " + ex.getMessage());
+			LOGGER.error("Re-index API trigger failed " + ex);
 		}
 	    
 		Long endTime = System.currentTimeMillis();
