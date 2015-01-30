@@ -634,11 +634,11 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 	}
 	
 	@Override
-	public void deleteUserClassificationByGrade(String partyUid, String grades) {
+	public void deleteUserClassificationByGrade(String partyUid, String deleteGrades) {
 		String sql = "Delete uc.* from user_classification uc inner join user u on uc.user_uid = u.gooru_uid where uc.user_uid = :partyUid AND uc.grade IN (:grades )";
 		Query q = getSession().createSQLQuery(sql);
 		q.setParameter("partyUid", partyUid);
-		q.setParameterList("grades", grades.split(","));
+		q.setParameterList("grades", deleteGrades.split(","));
 		q.executeUpdate();
 		
 	}

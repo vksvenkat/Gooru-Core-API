@@ -1174,31 +1174,39 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	private String addGrade(String newGrade, User user, User apiCaller, String activeFlag) {
 		List<String> newGradeList = Arrays.asList(newGrade.split(","));
 		StringBuilder newGrades = new StringBuilder();
+		StringBuilder totalGrades = new StringBuilder();            
 		CustomTableValue type = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.USER_CLASSIFICATION_TYPE.getTable(), CustomProperties.UserClassificationType.GRADE.getUserClassificationType());
 		List<UserClassification> userClassificationList = new ArrayList<UserClassification>();
 		for (String grade : newGradeList) {
-			UserClassification existingGrade = this.getUserRepository().getUserClassification(user.getGooruUId(), type.getCustomTableValueId(), null, null, grade);
-			if (existingGrade == null) {
-				UserClassification userClassification = new UserClassification();
-				userClassification.setGrade(grade);
-				userClassification.setType(type);
-				userClassification.setUser(user);
-				userClassification.setActiveFlag(activeFlag != null ? Integer.parseInt(activeFlag) : 1);
-				userClassification.setCreator(apiCaller);
-				userClassificationList.add(userClassification);
-				if(newGrades.length() > 0){
-					newGrades.append(",");
+			if (!grade.isEmpty()) {
+				UserClassification existingGrade = this.getUserRepository().getUserClassification(user.getGooruUId(), type.getCustomTableValueId(), null, null, grade);
+				if (existingGrade == null) {
+					UserClassification userClassification = new UserClassification();
+					userClassification.setGrade(grade);
+					userClassification.setType(type);
+					userClassification.setUser(user);
+					userClassification.setActiveFlag(activeFlag != null ? Integer.parseInt(activeFlag) : 1);
+					userClassification.setCreator(apiCaller);
+					userClassificationList.add(userClassification);
+					if (newGrades.length() > 0) {
+						newGrades.append(",");
+					}
+					newGrades.append(grade);
+				} else {
+					if (activeFlag != null) {
+						existingGrade.setActiveFlag(Integer.parseInt(activeFlag));
+						userClassificationList.add(existingGrade);
+					}
 				}
-				newGrades.append(grade);
-			} else {
-				if (activeFlag != null) {
-					existingGrade.setActiveFlag(Integer.parseInt(activeFlag));
-					userClassificationList.add(existingGrade);					
-				}
-			}
+			}			
 		}
 		this.getUserRepository().saveAll(userClassificationList);
-		return newGrades.toString();
+		totalGrades.append(this.getUserRepository().getUserGrade(user.getGooruUId(), type.getCustomTableValueId(), null));
+		if (newGrades != null && newGrades.length() > 0) {
+			totalGrades.append(",");
+			totalGrades.append(newGrades.toString());
+		}
+		return totalGrades.toString();
 	}
 
 	private String deleteGrade(String deleteGrade, User user, User apiCaller) {

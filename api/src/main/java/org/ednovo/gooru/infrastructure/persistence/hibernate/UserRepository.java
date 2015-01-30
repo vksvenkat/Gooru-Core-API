@@ -211,5 +211,5 @@ public interface UserRepository extends BaseRepository {
 	
 	boolean findEntityByEntityName(String entityName);
 	
-	void deleteUserClassificationByGrade(String partyId, String grades);
+	void deleteUserClassificationByGrade(String partyId, String deleteGrades);
 }
