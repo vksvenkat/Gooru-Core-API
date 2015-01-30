@@ -510,7 +510,8 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 						classpageMember.add(setMemberResponse(groupAssociation, ACTIVE));
 					}
 				}
-				try {
+				try { 
+					
 				  this.getClasspageEventlog().getEventLogs(classpage, apiCaller, userGroup, inviteUser);
 				} catch(Exception e){
 					e.printStackTrace();
@@ -537,6 +538,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 						this.getUserGroupRepository().remove(userGroupAssociation);
 					}
 					try {
+						
 						this.getClasspageEventlog().getEventLogs(classpage, userGroupAssociation, null);
 					} catch(Exception e){
 						e.printStackTrace();
@@ -547,6 +549,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 				if (inviteUser != null) {
 					this.getInviteRepository().remove(inviteUser);
 					try{
+						
 						this.getClasspageEventlog().getEventLogs(classpage, null, inviteUser);
 					} catch(Exception e){
 						e.printStackTrace();
@@ -882,7 +885,12 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			this.getCollectionService().createCollectionItem(collectionId, pathway.getGooruOid(), pathway.getCollectionItem() == null ? new CollectionItem() : pathway.getCollectionItem(), pathway.getUser(), ADDED, false);
 		}
 		getAsyncExecutor().deleteFromCache("v2-class-data-"+ classId+"*");
-		this.getClasspageEventlog().getEventLogs(classId, pathway.getGooruOid(), user, true, false);
+		try {
+			
+		     this.getClasspageEventlog().getEventLogs(classId, pathway.getGooruOid(), user, true, false);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
 
 		return pathway;
 	}
@@ -902,7 +910,12 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		} else {
 			throw new BadRequestException("pathway not found");
 		}
-		this.getClasspageEventlog().getEventLogs(classId, pathwayGooruOid, user, false, true);
+		try {
+			
+		    this.getClasspageEventlog().getEventLogs(classId, pathwayGooruOid, user, false, true);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
 		return pathwayCollection;
 	}
 	
@@ -962,11 +975,17 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	public ActionResponseDTO<CollectionItem> reorderPathwaySequence(String classId, String pathwayGooruOid,int newSequence, User user) throws Exception {
 		Classpage classpage = this.getCollectionRepository().getClasspageByGooruOid(classId, null);
 		if (classpage == null) {
-			throw new BadRequestException(generateErrorMessage(GL0056, COLLECTION));
+			 throw new BadRequestException(generateErrorMessage(GL0056, COLLECTION), GL0056);
+
 		}
 		getAsyncExecutor().deleteFromCache("v2-class-data-"+ classId +"*");
 		ActionResponseDTO<CollectionItem> collectionItem = this.getCollectionService().reorderCollectionItem(pathwayGooruOid, newSequence,user);
-	    this.getClasspageEventlog().getEventLogs(collectionItem.getModel(), collectionItem.getModel().getResource().getGooruOid(), user, collectionItem.getModel());
+	    try {
+	    	
+		   this.getClasspageEventlog().getEventLogs(collectionItem.getModel(), collectionItem.getModel().getResource().getGooruOid(), user, collectionItem.getModel());
+	    } catch (JSONException e) {
+			e.printStackTrace();
+		}
 		return collectionItem;
 
 	}
@@ -999,7 +1018,12 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			targetItem = this.getCollectionService().reorderCollectionItem(targetItem != null ? targetItem.getCollectionItemId() : sourceId, newSequence,user).getModel();
 		}
 		getAsyncExecutor().deleteFromCache("v2-class-data-"+ classId +"*");
-		this.getClasspageEventlog().getEventLogs(sourceItem.getResource().getGooruOid(), targetItem != null ? targetItem : collectionItem, pathwayGooruOid, user, sourceItem);
+		try { 
+			
+		    this.getClasspageEventlog().getEventLogs(sourceItem.getResource().getGooruOid(), targetItem != null ? targetItem : collectionItem, pathwayGooruOid, user, sourceItem);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
 		return targetItem != null ? targetItem : sourceItem;
 	}
 	
@@ -1020,6 +1044,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + user.getPartyUid() + "*");
 		try {
+			
 			this.getCollectionEventLog().getEventLogs(responseDTO.getModel(), true,false, user, responseDTO.getModel().getCollection().getCollectionType());
 		} catch (JSONException e) {
 			e.printStackTrace();
