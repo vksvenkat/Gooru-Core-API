@@ -380,7 +380,8 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/item/{id}/reorder/{sequence}" }, method = RequestMethod.PUT)
 	public ModelAndView reorderCollectionItemSequence(@PathVariable(value = ID) String collectionItemId, @PathVariable(value = SEQUENCE) int newSequence, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().reorderCollectionItem(collectionItemId, newSequence);
+		User user = (User) request.getAttribute(Constants.USER);
+		ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().reorderCollectionItem(collectionItemId, newSequence,user);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		}
@@ -407,7 +408,7 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	public ModelAndView createPathway(@RequestBody String data, @PathVariable(value= ID) String classId ,HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
 		JSONObject json = requestData(data);
-		Collection collection = this.getClasspageService().createPathway(classId,this.buildPathwayFromInputParameters(data, user),getValue(COLLECTION_ID, json), getValue(IS_REQUIRED, json) != null ? Boolean.parseBoolean(getValue(IS_REQUIRED, json)) : false);
+		Collection collection = this.getClasspageService().createPathway(classId,this.buildPathwayFromInputParameters(data, user),getValue(COLLECTION_ID, json), getValue(IS_REQUIRED, json) != null ? Boolean.parseBoolean(getValue(IS_REQUIRED, json)) : false, user);
 		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, COLLECTION_INCLUDE_FIELDS);
 		includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_ITEM_INCLUDE_FILEDS);
 		includes = (String[]) ArrayUtils.addAll(includes, ERROR_INCLUDE);
@@ -418,7 +419,8 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/{id}/pathway/{pid}", method = RequestMethod.PUT)
 	public ModelAndView updatePathway(@RequestBody String data, @PathVariable(value= ID) String classId , @PathVariable(value= "pid") String pathwayGooruOid ,HttpServletRequest request, HttpServletResponse response) throws Exception {
-		Collection pathwayCollection = this.getClasspageService().updatePathway(classId,pathwayGooruOid, this.buildUpadtePathwayCollectionFromInputParameters(data));
+		User user = (User) request.getAttribute(Constants.USER);
+		Collection pathwayCollection = this.getClasspageService().updatePathway(classId, pathwayGooruOid, this.buildUpadtePathwayCollectionFromInputParameters(data), user);
 		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, COLLECTION_INCLUDE_FIELDS);
 		includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_ITEM_INCLUDE_FILEDS);
 		includes = (String[]) ArrayUtils.addAll(includes, ERROR_INCLUDE);
@@ -501,7 +503,8 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}/pathway/{pid}/reorder/{sequence}" }, method = RequestMethod.PUT)
 	public ModelAndView reorderPathwaySequence(@PathVariable(value = ID) String classId, @PathVariable(value= "pid") String pathwayId, @PathVariable(value = SEQUENCE) int newSequence, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		ActionResponseDTO<CollectionItem> responseDTO = this.getClasspageService().reorderPathwaySequence(classId,pathwayId ,newSequence);
+		User user = (User) request.getAttribute(Constants.USER);
+		ActionResponseDTO<CollectionItem> responseDTO = this.getClasspageService().reorderPathwaySequence(classId,pathwayId ,newSequence, user);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		}
@@ -520,7 +523,7 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	public ModelAndView pathwayItemMoveWithReorder(@PathVariable(value= ID) String classId , @PathVariable(value= "itemId") String collectionItemId,@PathVariable(value= "pid") String pathwayId, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
 		JSONObject json = requestData(data);
-		CollectionItem collectionItem = getClasspageService().pathwayItemMoveWithReorder(classId,pathwayId,collectionItemId, json != null && getValue(TARGET_ID, json) != null ? getValue(TARGET_ID, json) : null, json != null && getValue("newSequence", json) != null ? Integer.parseInt(getValue("newSequence", json)) : null , user);
+		CollectionItem collectionItem = getClasspageService().pathwayItemMoveWithReorder(classId, pathwayId,collectionItemId, json != null && getValue(TARGET_ID, json) != null ? getValue(TARGET_ID, json) : null, json != null && getValue("newSequence", json) != null ? Integer.parseInt(getValue("newSequence", json)) : null , user);
 
 		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, COLLECTION_INCLUDE_FIELDS);
 		includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_ITEM_INCLUDE_FILEDS);
