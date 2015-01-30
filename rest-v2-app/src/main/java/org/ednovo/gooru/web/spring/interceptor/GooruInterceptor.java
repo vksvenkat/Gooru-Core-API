@@ -24,7 +24,6 @@
 package org.ednovo.gooru.web.spring.interceptor;
 
 import java.util.Enumeration;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
@@ -33,7 +32,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.ednovo.gooru.application.util.ConfigProperties;
-import org.ednovo.gooru.core.api.model.SearchIndexMeta;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.Constants;
@@ -130,15 +128,8 @@ public class GooruInterceptor extends HandlerInterceptorAdapter {
 	public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
 		
 		// Read re-index request from session context and sent re-index request via Java HTTP client to index server
-		
 		try{
-			List<SearchIndexMeta> searchIndexReqList = SessionContextSupport.getIndexMeta();
-			for(SearchIndexMeta searchIndexMeta : searchIndexReqList){
-				if(searchIndexMeta != null){
-					indexProcessor.index(searchIndexMeta.getReIndexIds(), searchIndexMeta.getAction(), searchIndexMeta.getType(), searchIndexMeta.getSessionToken(), searchIndexMeta.getUpdateUserContent(), searchIndexMeta.getUpdateStatisticsData());
-				}
-				
-			}
+			indexProcessor.index(SessionContextSupport.getIndexMeta());
 		} catch(Exception ex){
 			LOGGER.error("Re-index API trigger failed " + ex);
 		}

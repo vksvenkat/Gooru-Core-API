@@ -30,6 +30,7 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 
 import org.ednovo.gooru.core.api.model.GooruAuthenticationToken;
+import org.ednovo.gooru.core.api.model.SearchIndexMeta;
 import org.ednovo.gooru.core.api.model.UserGroupSupport;
 import org.ednovo.gooru.domain.service.content.ContentService;
 import org.ednovo.gooru.domain.service.redis.RedisService;
@@ -127,12 +128,15 @@ public class IndexProcessor extends BaseComponent {
 		index(uuids, action, type, sessionToken, authentication, isUpdateUserContent, isUpdateStas);
 	}
 	
-	public void index(final String uuids, final String action, final String type, String sessionToken, final Boolean updateUserContent, final Boolean updateStats){
-		if(sessionToken == null){
-			sessionToken = UserGroupSupport.getSessionToken();
-		}
-		final GooruAuthenticationToken authentication = (GooruAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
-		index(uuids, action, type, sessionToken, authentication, updateUserContent, updateStats);
+	public void index(List<SearchIndexMeta> searchIndexMetaList){
+		for(SearchIndexMeta searchIndexMeta : searchIndexMetaList){
+			String sessionToken = searchIndexMeta.getSessionToken();
+			if(sessionToken == null){
+				sessionToken = UserGroupSupport.getSessionToken();
+			}
+			final GooruAuthenticationToken authentication = (GooruAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
+			index(searchIndexMeta.getReIndexIds(), searchIndexMeta.getAction(), searchIndexMeta.getType(), sessionToken, authentication, searchIndexMeta.getUpdateUserContent(), searchIndexMeta.getUpdateStatisticsData());
+	    }
 	}
 
 	public void index(final String uuids, final String action, final String type, final String sessionToken, final GooruAuthenticationToken authentication, final boolean isUpdateUserContent, final boolean isUpdateStas) {
