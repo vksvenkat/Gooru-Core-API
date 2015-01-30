@@ -44,7 +44,9 @@ public abstract class EntityCassandraServiceImpl<M extends Serializable> impleme
 		Integer value = 0;
 		try {
 			String view = getCassandraDao().read(key, column);
-			value = Integer.parseInt(view + "");
+			if (view != null)  {
+			   value = Integer.parseInt(view + "");
+			}
 		} catch (Exception e) {
 			LOGGER.error("Error " + e);
 			value = 0;

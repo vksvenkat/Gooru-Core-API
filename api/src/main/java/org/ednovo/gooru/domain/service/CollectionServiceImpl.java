@@ -154,7 +154,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 			getAsyncExecutor().deleteFromCache("v2-collection-data-"+ collectionId +"*");
 		}
 		try {
-			this.getCollectionEventLog().getEventLogs(response.getModel(), false, user, response.getModel().getCollection().getCollectionType());
+			this.getCollectionEventLog().getEventLogs(response.getModel(), false, true, user, response.getModel().getCollection().getCollectionType());
 		} catch (Exception e) {
 			LOGGER.error(e.getMessage());
 		}
@@ -289,7 +289,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + user.getPartyUid() + "*");
 
 		try {
-			this.getCollectionEventLog().getEventLogs(responseDTO.getModel(), true, user, responseDTO.getModel().getCollection().getCollectionType(), sourceCollectionItem);
+			this.getCollectionEventLog().getEventLogs(responseDTO.getModel(), true, false, user, responseDTO.getModel().getCollection().getCollectionType(), sourceCollectionItem);
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
@@ -754,7 +754,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		this.getResourceRepository().save(classPage);
 		this.getResourceRepository().save(collectionItem);
 		try {
-			this.getCollectionEventLog().getEventLogs(collectionItem, false, user, collectionItem.getCollection().getCollectionType());
+			this.getCollectionEventLog().getEventLogs(collectionItem, false, false, user, collectionItem.getCollection().getCollectionType());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
