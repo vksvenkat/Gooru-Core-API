@@ -210,4 +210,6 @@ public interface UserRepository extends BaseRepository {
 	List<RoleEntityOperation> findRoleOperationsByRoleId(Integer roleId);
 	
 	boolean findEntityByEntityName(String entityName);
+	
+	void deleteUserClassificationByGrade(String partyId, String grades);
 }

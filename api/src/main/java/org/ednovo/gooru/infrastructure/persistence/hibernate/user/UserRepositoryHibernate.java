@@ -53,6 +53,7 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHiber
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.hibernate.Criteria;
 import org.hibernate.Query;
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.ProjectionList;
 import org.hibernate.criterion.Projections;
@@ -630,6 +631,16 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 		query.setParameterList("partyUids", gooruUids.split(","));
 		query.executeUpdate();
 		return "Deleted Successfully";
+	}
+	
+	@Override
+	public void deleteUserClassificationByGrade(String partyUid, String grades) {
+		String sql = "Delete uc.* from user_classification uc inner join user u on uc.user_uid = u.gooru_uid where uc.user_uid = :partyUid AND uc.grade IN (:grades )";
+		Query q = getSession().createSQLQuery(sql);
+		q.setParameter("partyUid", partyUid);
+		q.setParameterList("grades", grades.split(","));
+		q.executeUpdate();
+		
 	}
 
 	@Override
