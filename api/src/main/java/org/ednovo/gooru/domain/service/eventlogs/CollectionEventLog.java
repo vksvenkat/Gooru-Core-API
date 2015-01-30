@@ -215,7 +215,7 @@ public class CollectionEventLog implements ParameterProperties, ConstantProperti
 		SessionContextSupport.putLogParameter(SESSION, session.toString());
 	}
 
-	public void getEventLogs(CollectionItem collectionItem, boolean isMoveMode, User user, String collectionType) throws JSONException {
+	public void getEventLogs(CollectionItem collectionItem, boolean isMoveMode, boolean isCreate, User user, String collectionType) throws JSONException {
 		SessionContextSupport.putLogParameter(EVENT_NAME, ITEM_CREATE);
 		JSONObject context = SessionContextSupport.getLog().get(CONTEXT) != null ? new JSONObject(SessionContextSupport.getLog().get(CONTEXT).toString()) : new JSONObject();
 		context.put(PARENT_GOORU_ID, collectionItem != null && collectionItem.getCollection() != null ? collectionItem.getCollection().getGooruOid() : null);
@@ -225,6 +225,8 @@ public class CollectionEventLog implements ParameterProperties, ConstantProperti
 		JSONObject payLoadObject = SessionContextSupport.getLog().get(PAY_LOAD_OBJECT) != null ? new JSONObject(SessionContextSupport.getLog().get(PAY_LOAD_OBJECT).toString()) : new JSONObject();
 		if (isMoveMode) {
 			payLoadObject.put(MODE, MOVE);
+		} else if (isCreate){
+			payLoadObject.put(MODE, CREATE);
 		} else {
 			payLoadObject.put(MODE, ADD);
 		}
@@ -270,8 +272,8 @@ public class CollectionEventLog implements ParameterProperties, ConstantProperti
 		SessionContextSupport.putLogParameter(SESSION, session.toString());
 	}
 	
-	public void getEventLogs(CollectionItem collectionItem, boolean isMoveMode, User user, String collectionType, CollectionItem sourceCollectionItem) throws Exception {
-		this.getEventLogs(collectionItem, isMoveMode, user, collectionType);
+	public void getEventLogs(CollectionItem collectionItem, boolean isMoveMode, boolean isCreate, User user, String collectionType, CollectionItem sourceCollectionItem) throws Exception {
+		this.getEventLogs(collectionItem, isMoveMode, isCreate, user, collectionType);
 		JSONObject payLoadObject = SessionContextSupport.getLog().get(PAY_LOAD_OBJECT) != null ? new JSONObject(SessionContextSupport.getLog().get(PAY_LOAD_OBJECT).toString()) : new JSONObject();
 		payLoadObject.put(SOURCE_ITEM_ID, sourceCollectionItem != null ? sourceCollectionItem.getCollectionItemId() : null);
 		SessionContextSupport.putLogParameter(PAY_LOAD_OBJECT, payLoadObject.toString());

@@ -275,7 +275,8 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	public Classpage getClasspage(String classpageCode, User user) throws Exception {
 		Classpage classpage = this.getCollectionRepository().getClasspageByCode(classpageCode);
 		if (classpage == null) {
-			throw new NotFoundException(generateErrorMessage("GL0056", "Class"));
+			throw new NotFoundException(generateErrorMessage(GL0056, "Class"), GL0056);
+
 		}
 		return getClasspage(classpage.getGooruOid(), user, PERMISSIONS);
 	}
@@ -297,10 +298,13 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 				}
 				this.getCollectionRepository().remove(Classpage.class, classpage.getContentId());
 			} else {
-				throw new UnauthorizedException(generateErrorMessage("GL0085"));
+				 throw new UnauthorizedException(generateErrorMessage("GL0085"), "GL0085");
+
+				 
 			}
 		} else {
-			throw new NotFoundException(generateErrorMessage(GL0056, CLASSPAGE));
+			throw new NotFoundException(generateErrorMessage(GL0056, CLASSPAGE), GL0056);
+
 		}
 	}
 
@@ -313,7 +317,8 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			result.setTotalHitCount(this.getCollectionRepository().getClasspageCount(title, author, userName));
 			return result;
 		} else {
-			throw new UnauthorizedException(generateErrorMessage("GL0085"));
+			  throw new UnauthorizedException(generateErrorMessage("GL0085"), "GL0085");
+			
 		}
 	}
 
@@ -364,7 +369,8 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		if(collectionItem!= null && collectionItem.getPlannedEndDate() != null){
 			Date plannedEndDate = collectionItem.getPlannedEndDate();
 			if(currentDate.compareTo(plannedEndDate) > 0){
-				throw new BadRequestException(generateErrorMessage("GL0086"));
+				  throw new BadRequestException(generateErrorMessage("GL0086"), "GL0086");
+
 			}
 		}
 		
@@ -418,7 +424,8 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 				e.printStackTrace();
 			}
 		} else {
-			throw new NotFoundException(generateErrorMessage("GL0087", assignmentGooruOid));
+			throw new NotFoundException(generateErrorMessage("GL0087", assignmentGooruOid), "GL0087");
+			
 		}
 		
 		return new ActionResponseDTO<CollectionItem>(collectionItem, errors);
@@ -510,7 +517,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 				}
 			}
 		} else {
-			throw new NotFoundException(generateErrorMessage("GL0056","class"));
+			throw new NotFoundException(generateErrorMessage("GL0056","class"), "GL0056");
 		}
 		return classpageMember;
 	}
@@ -581,7 +588,8 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		List<Map<String, Object>> activeList = new ArrayList<Map<String, Object>>();
 		Classpage classpage = this.getCollectionRepository().getClasspageByCode(code);
 		if (classpage == null) {
-			throw new NotFoundException(generateErrorMessage("GL0056", "Class"));
+			throw new NotFoundException(generateErrorMessage("GL0056", "Class"), "GL0056");
+
 		}
 		UserGroup userGroup = this.getUserGroupService().findUserGroupByGroupCode(code);
 		List<UserGroupAssociation> userGroupAssociations = this.getUserGroupRepository().getUserGroupAssociationByGroup(userGroup.getPartyUid());
@@ -596,7 +604,8 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	private List<Map<String, Object>> getPendingMemberList(String code) {
 		Classpage classpage = this.getCollectionRepository().getClasspageByCode(code);
 		if (classpage == null) {
-			throw new NotFoundException(generateErrorMessage("GL0056","Class"));
+			throw new NotFoundException(generateErrorMessage("GL0056", "Class"), "GL0056");
+
 		}
 		List<InviteUser> inviteUsers = this.getInviteRepository().getInviteUsersById(classpage.getGooruOid());
 		List<Map<String, Object>> pendingList = new ArrayList<Map<String, Object>>();
@@ -639,7 +648,9 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	public SearchResults<Map<String, Object>> getMemberList(String code, Integer offset, Integer limit, String filterBy) {
 		Classpage classpage = this.getCollectionRepository().getClasspageByCode(code);
 		if (classpage == null) {
-			throw new NotFoundException(generateErrorMessage("GL0056", "classpage"));
+			  throw new NotFoundException(generateErrorMessage("GL0056", "classpage"), "GL0056");
+
+
 		}
 		List<Object[]> results = this.getUserGroupRepository().getUserMemberList(code, classpage.getGooruOid(), offset, limit, filterBy);
 		SearchResults<Map<String, Object>> searchResult = new SearchResults<Map<String, Object>>();
@@ -697,7 +708,8 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	@Override
 	public SearchResults<Map<String, Object>> getMyStudy(User user, String orderBy, Integer offset, Integer limit, String type, String itemType) {
 		if (user.getPartyUid().equalsIgnoreCase(ANONYMOUS)) {
-			throw new NotFoundException(generateErrorMessage("GL0056","User"));
+			throw new NotFoundException(generateErrorMessage("GL0056","User"), "GL0056");
+
 		}
 		List<Object[]> results = this.getUserGroupRepository().getMyStudy(user.getPartyUid(), user.getIdentities() != null ? user.getIdentities().iterator().next().getExternalId() : null, orderBy, offset, limit, type);
 		SearchResults<Map<String, Object>> searchResult = new SearchResults<Map<String, Object>>();
@@ -860,7 +872,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	public Collection createPathway(String classId, Collection pathway, String collectionId, Boolean isRequired, User user) throws Exception {
 		Classpage classpage = this.getCollectionRepository().getClasspageByGooruOid(classId, null);
 		if (classpage == null) {
-			throw new BadRequestException(generateErrorMessage(GL0056, COLLECTION));
+			 throw new BadRequestException(generateErrorMessage(GL0056, COLLECTION), GL0056);
 		}
 		this.getCollectionRepository().save(pathway);
 		CollectionItem collectionItem = new CollectionItem();
@@ -1008,7 +1020,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + user.getPartyUid() + "*");
 		try {
-			this.getCollectionEventLog().getEventLogs(responseDTO.getModel(), true, user, responseDTO.getModel().getCollection().getCollectionType());
+			this.getCollectionEventLog().getEventLogs(responseDTO.getModel(), true,false, user, responseDTO.getModel().getCollection().getCollectionType());
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
@@ -1018,10 +1030,11 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	@Override
 	public void deletePathwayItem(String classId, String pathwayGooruOid, String collectionItemId, User user) {
 		if (this.getCollectionRepository().getCollectionByIdWithType(pathwayGooruOid, PATHWAY) == null) {
-			throw new BadRequestException("pathway not found");
+			throw new BadRequestException(generateErrorMessage(GL0056, PATHWAY), GL0056);
+
 		}
 		if (this.getCollectionRepository().getCollectionByIdWithType(classId, CLASSPAGE) == null) {
-			throw new BadRequestException("class not found");
+			 throw new BadRequestException(generateErrorMessage(GL0056, CLASS), GL0056);
 		}
 		getCollectionService().deleteCollectionItem(collectionItemId, user, true);
 		getAsyncExecutor().deleteFromCache("v2-class-data-" + classId + "*");
@@ -1030,10 +1043,11 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	@Override
 	public ActionResponseDTO<CollectionItem> updatePathwayItem(String classId,String pathwayGooruOid,String collectionItemId,CollectionItem newcollectionItem,  User user) throws Exception {
 		if (this.getCollectionRepository().getCollectionByIdWithType(pathwayGooruOid, PATHWAY) == null) {
-			throw new BadRequestException("pathway not found");
+			throw new BadRequestException(generateErrorMessage(GL0056, PATHWAY), GL0056);
+
 		}
 		if (this.getCollectionRepository().getCollectionByIdWithType(classId, CLASSPAGE) == null) {
-			throw new BadRequestException("class not found");
+			 throw new BadRequestException(generateErrorMessage(GL0056, CLASS), GL0056);
 		}
 		getAsyncExecutor().deleteFromCache("v2-class-data-" + classId + "*");
 		return updateCollectionItem(newcollectionItem, collectionItemId, user);
