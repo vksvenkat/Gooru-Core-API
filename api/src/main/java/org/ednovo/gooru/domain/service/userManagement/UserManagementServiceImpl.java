@@ -1165,7 +1165,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 				if (newProfile.getCourses() != null && newProfile.getCourses().size() > 0) {
 					deleteCourse(newProfile.getCourses(), user, apiCaller);
 				}
-				if (newProfile.getGrade() != null && profile.getGrade() != null) {
+				if (newProfile.getGrade() != null && profile.getGrade() != null) {					
 					profile.setGrade(deleteGrade(newProfile.getGrade(), user, apiCaller));
 					this.getUserRepository().save(profile);
 				}
@@ -1177,38 +1177,45 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 
 	private String addGrade(String newGrade, User user, User apiCaller, String activeFlag) {
 		List<String> newGradeList = Arrays.asList(newGrade.split(","));
+		StringBuilder newGrades = new StringBuilder();
+		StringBuilder totalGrades = new StringBuilder();            
 		CustomTableValue type = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.USER_CLASSIFICATION_TYPE.getTable(), CustomProperties.UserClassificationType.GRADE.getUserClassificationType());
+		List<UserClassification> userClassificationList = new ArrayList<UserClassification>();
 		for (String grade : newGradeList) {
-			UserClassification existingGrade = this.getUserRepository().getUserClassification(user.getGooruUId(), type.getCustomTableValueId(), null, null, grade);
-			if (existingGrade == null) {
-				UserClassification userClassification = new UserClassification();
-				userClassification.setGrade(grade);
-				userClassification.setType(type);
-				userClassification.setUser(user);
-				userClassification.setActiveFlag(activeFlag != null ? Integer.parseInt(activeFlag) : 1);
-				userClassification.setCreator(apiCaller);
-				this.getUserRepository().save(userClassification);
-				this.getUserRepository().flush();
-			} else {
-				if (activeFlag != null) {
-					existingGrade.setActiveFlag(Integer.parseInt(activeFlag));
-					this.getUserRepository().save(existingGrade);
+			if (!grade.isEmpty()) {
+				UserClassification existingGrade = this.getUserRepository().getUserClassification(user.getGooruUId(), type.getCustomTableValueId(), null, null, grade);
+				if (existingGrade == null) {
+					UserClassification userClassification = new UserClassification();
+					userClassification.setGrade(grade);
+					userClassification.setType(type);
+					userClassification.setUser(user);
+					userClassification.setActiveFlag(activeFlag != null ? Integer.parseInt(activeFlag) : 1);
+					userClassification.setCreator(apiCaller);
+					userClassificationList.add(userClassification);
+					if (newGrades.length() > 0) {
+						newGrades.append(",");
+					}
+					newGrades.append(grade);
+				} else {
+					if (activeFlag != null) {
+						existingGrade.setActiveFlag(Integer.parseInt(activeFlag));
+						userClassificationList.add(existingGrade);
+					}
 				}
-			}
-
+			}			
 		}
-		return this.getUserRepository().getUserGrade(user.getGooruUId(), type.getCustomTableValueId(), null);
+		this.getUserRepository().saveAll(userClassificationList);
+		totalGrades.append(this.getUserRepository().getUserGrade(user.getGooruUId(), type.getCustomTableValueId(), null));
+		if (newGrades != null && newGrades.length() > 0) {
+			totalGrades.append(",");
+			totalGrades.append(newGrades.toString());
+		}
+		return totalGrades.toString();
 	}
 
 	private String deleteGrade(String deleteGrade, User user, User apiCaller) {
-		List<String> deleteGradeList = Arrays.asList(deleteGrade.split(","));
 		CustomTableValue type = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.USER_CLASSIFICATION_TYPE.getTable(), CustomProperties.UserClassificationType.GRADE.getUserClassificationType());
-		for (String grade : deleteGradeList) {
-			UserClassification existingCourse = this.getUserRepository().getUserClassification(user.getGooruUId(), type.getCustomTableValueId(), null, apiCaller != null ? apiCaller.getGooruUId() : null, grade);
-			if (existingCourse != null) {
-				this.getUserRepository().remove(existingCourse);
-			}
-		}
+		this.getUserRepository().deleteUserClassificationByGrade(apiCaller.getPartyUid(),deleteGrade);
 		return this.getUserRepository().getUserGrade(user.getGooruUId(), type.getCustomTableValueId(), null);
 	}
 

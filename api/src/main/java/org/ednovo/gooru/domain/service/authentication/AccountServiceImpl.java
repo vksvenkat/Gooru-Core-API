@@ -390,6 +390,8 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 		if (!registerUser) {
 			try {
 				this.getAccountEventlog().getEventLogs(newIdentity, sessionToken, true, apiKey);
+				indexProcessor.index(userIdentity.getPartyUid(), IndexProcessor.INDEX, USER, false, sessionToken.getToken());
+
 			} catch (JSONException e) {
 				LOGGER.error("Error : " + e);
 			}
