@@ -162,7 +162,6 @@ public class IndexProcessor extends BaseComponent {
 							}
 							try {
 								clientResource = new ClientResource(url);
-								Thread.sleep(1000);
 								representation = clientResource.post(new Form().getWebRepresentation());
 							} catch (Exception exception) {
 								getLogger().error("Error in Indexing: ", exception);
