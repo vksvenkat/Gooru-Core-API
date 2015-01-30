@@ -126,6 +126,14 @@ public class IndexProcessor extends BaseComponent {
 		final GooruAuthenticationToken authentication = (GooruAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
 		index(uuids, action, type, sessionToken, authentication, isUpdateUserContent, isUpdateStas);
 	}
+	
+	public void index(final String uuids, final String action, final String type, String sessionToken, final Boolean updateUserContent, final Boolean updateStats){
+		if(sessionToken == null){
+			sessionToken = UserGroupSupport.getSessionToken();
+		}
+		final GooruAuthenticationToken authentication = (GooruAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
+		index(uuids, action, type, sessionToken, authentication, updateUserContent, updateStats);
+	}
 
 	public void index(final String uuids, final String action, final String type, final String sessionToken, final GooruAuthenticationToken authentication, final boolean isUpdateUserContent, final boolean isUpdateStas) {
 		Map<String, Object> indexData = new HashMap<String, Object>();

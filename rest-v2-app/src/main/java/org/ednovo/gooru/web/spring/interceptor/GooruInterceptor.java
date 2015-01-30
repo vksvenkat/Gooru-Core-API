@@ -24,6 +24,7 @@
 package org.ednovo.gooru.web.spring.interceptor;
 
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
@@ -32,10 +33,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.ednovo.gooru.application.util.ConfigProperties;
+import org.ednovo.gooru.core.api.model.SearchIndexMeta;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.exception.BadRequestException;
+import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.kafka.producer.KafkaEventHandler;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -62,6 +65,9 @@ public class GooruInterceptor extends HandlerInterceptorAdapter {
 	
 	@Autowired
 	ConfigProperties configProperties;
+	
+	@Autowired
+	protected IndexProcessor indexProcessor;
 
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 
@@ -122,6 +128,21 @@ public class GooruInterceptor extends HandlerInterceptorAdapter {
 
 	@Override
 	public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
+		
+		// Read re-index request from session context and sent re-index request via Java HTTP client to index server
+		
+		try{
+			List<SearchIndexMeta> searchIndexReqList = SessionContextSupport.getIndexMeta();
+			for(SearchIndexMeta searchIndexMeta : searchIndexReqList){
+				if(searchIndexMeta != null){
+					indexProcessor.index(searchIndexMeta.getReIndexIds(), searchIndexMeta.getAction(), searchIndexMeta.getType(), searchIndexMeta.getSessionToken(), searchIndexMeta.getUpdateUserContent(), searchIndexMeta.getUpdateStatisticsData());
+				}
+				
+			}
+		} catch(Exception ex){
+			LOGGER.error("Re-index API trigger failed " + ex.getMessage());
+		}
+	    
 		Long endTime = System.currentTimeMillis();
 		SessionContextSupport.putLogParameter("endTime", endTime);
 		Long startTime = SessionContextSupport.getLog() != null ? (Long)SessionContextSupport.getLog().get("startTime") : 0;
