@@ -844,6 +844,8 @@ public interface ConstantProperties {
    public static final String SOURCE_GOORU_ID = "sourceGooruId";
    
    public static final String STATISTICS_VIEW_COUNT = "statistics.viewsCount";
+   
+   public static final String REORDER = "reorder";
 
 }
 

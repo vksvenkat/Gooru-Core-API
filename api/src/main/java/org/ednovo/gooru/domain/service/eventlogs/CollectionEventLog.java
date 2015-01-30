@@ -90,7 +90,7 @@ public class CollectionEventLog implements ParameterProperties, ConstantProperti
 		context.put(CONTENT_GOORU_ID, collectionItem != null && collectionItem.getResource() != null ? collectionItem.getResource().getGooruOid() : null);
 		context.put(CONTENT_ITEM_ID, collectionItem != null ? collectionItem.getCollectionItemId() : null);
 		if (isCopy) {
-		context.put(SOURCE_GOORU_ID, collectionItem != null && collectionItem.getResource() != null ? collectionItem.getResource().getCopiedResourceId(): null);
+		    context.put(SOURCE_GOORU_ID, collectionItem != null && collectionItem.getResource() != null ? collectionItem.getResource().getCopiedResourceId(): null);
 		}
 		SessionContextSupport.putLogParameter(CONTEXT, context.toString());
 		JSONObject payLoadObject = SessionContextSupport.getLog().get(PAY_LOAD_OBJECT) != null ? new JSONObject(SessionContextSupport.getLog().get(PAY_LOAD_OBJECT).toString()) : new JSONObject();
@@ -201,7 +201,11 @@ public class CollectionEventLog implements ParameterProperties, ConstantProperti
 			} else if (collectionType.equalsIgnoreCase(CollectionType.CLASSPAGE.getCollectionType())) {
 				payLoadObject.put(ITEM_TYPE, CLASSPAGE_COLLECTION);
 			}
+			if (collectionItem != null && collectionItem.getResource() != null && collectionItem.getResource().getResourceType() != null &&  collectionItem.getResource().getResourceType().getName().equalsIgnoreCase(ResourceType.Type.PATHWAY.getType())) {
+                payLoadObject.put(ITEM_TYPE, CLASSPAGE_PATHWAY);
+            }
 		}
+        payLoadObject.put(MODE, DELETE);   
 		payLoadObject.put(ITEM_ID, collectionItem != null ? collectionItem.getCollectionItemId() : null);
 		payLoadObject.put(PARENT_CONTENT_ID, collectionItem != null && collectionItem.getCollection() != null ? collectionItem.getCollection().getContentId() : null);
 		payLoadObject.put(CONTENTID, collectionItem != null && collectionItem.getResource() != null ? collectionItem.getResource().getContentId() : null);
@@ -251,6 +255,9 @@ public class CollectionEventLog implements ParameterProperties, ConstantProperti
 				}
 			} else if (collectionType.equalsIgnoreCase(CollectionType.CLASSPAGE.getCollectionType())) {
 				payLoadObject.put(ITEM_TYPE, CLASSPAGE_COLLECTION);
+			}
+			else if (collectionType.equalsIgnoreCase(CollectionType.PATHWAY.getCollectionType())) {
+				payLoadObject.put(ITEM_TYPE, PATHWAY_COLLECTION);
 			}
 		}
 		payLoadObject.put(PARENT_CONTENT_ID, collectionItem != null && collectionItem.getCollection() != null ? collectionItem.getCollection().getContentId() : null);

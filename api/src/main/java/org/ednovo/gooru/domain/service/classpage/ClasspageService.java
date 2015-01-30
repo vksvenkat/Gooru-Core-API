@@ -81,9 +81,9 @@ public interface ClasspageService {
 
 	Map<String,Object> getClasspageAssoc(Integer offset, Integer limit, String classpageId, String collectionId, String title, String collectionTitle, String classCode,String collectionCreator);
 	
-	Collection createPathway(String classId,Collection collection, String parentId, Boolean isRequired) throws Exception;
+	Collection createPathway(String classId, Collection collection, String parentId, Boolean isRequired, User user) throws Exception;
 	
-	Collection updatePathway(String classId, String pathwayGooruOid, Collection newPathway) throws Exception;
+	Collection updatePathway(String classId, String pathwayGooruOid, Collection newPathway, User user) throws Exception;
 	
 	void deletePathway(String classId, String pathwayGooruOid, User user);
 	
@@ -91,9 +91,9 @@ public interface ClasspageService {
 	
 	SearchResults<CollectionItem> getPathwayItemsSearchResults(String classId,String pathId, Integer offset, Integer limit, String orderBy, User user);
 	
-	ActionResponseDTO<CollectionItem> reorderPathwaySequence(String classId,String pathwayId ,int newSequence) throws Exception;
+	ActionResponseDTO<CollectionItem> reorderPathwaySequence(String classId, String pathwayId ,int newSequence, User user) throws Exception;
 	
-	CollectionItem pathwayItemMoveWithReorder(String classId,String pathwayId,String sourceItemId, String taregetPathwayId, Integer newSequence, User user) throws Exception;
+	CollectionItem pathwayItemMoveWithReorder(String classId, String pathwayId,String sourceItemId, String taregetPathwayId, Integer newSequence, User user) throws Exception;
 	
 	void deletePathwayItem(String classId,String pathwayGooruOid,String collectionItemId ,User user);
 	
