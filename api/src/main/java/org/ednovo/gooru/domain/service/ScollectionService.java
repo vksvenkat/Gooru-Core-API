@@ -81,7 +81,7 @@ public interface ScollectionService extends BaseService {
 
 	void deleteCollectionItem(String collectionItemId, User user, boolean indexCollection);
 
-	ActionResponseDTO<CollectionItem> reorderCollectionItem(String collectionItemId, int newSequence) throws Exception;
+	ActionResponseDTO<CollectionItem> reorderCollectionItem(String collectionItemId, int newSequence, User user) throws Exception;
 
 	Collection getCollection(String collectionId, boolean includeMetaInfo, boolean includeCollaborator, boolean isContentFlag, User user, String merge, String rootNodeId, boolean isGat,  boolean includeViewCount);
 	
