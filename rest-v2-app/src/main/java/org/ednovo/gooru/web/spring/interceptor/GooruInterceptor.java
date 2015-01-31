@@ -62,7 +62,7 @@ public class GooruInterceptor extends HandlerInterceptorAdapter {
 	private KafkaEventHandler kafkaService;
 	
 	@Autowired
-	ConfigProperties configProperties;
+	private ConfigProperties configProperties;
 	
 	@Autowired
 	protected IndexProcessor indexProcessor;
@@ -121,8 +121,6 @@ public class GooruInterceptor extends HandlerInterceptorAdapter {
 		SessionContextSupport.putLogParameter("version", version.toString());
 		return true;
 	}
-	
-	
 
 	@Override
 	public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
@@ -143,15 +141,15 @@ public class GooruInterceptor extends HandlerInterceptorAdapter {
 		SessionContextSupport.putLogParameter("metrics", metrics.toString());	
 		Map<String, Object> log = SessionContextSupport.getLog();
 		String logString = SERIALIZER.deepSerialize(log);
-		LOGGER.debug(logString);
 		if (logString != null) {
 			try {
 				if (SessionContextSupport.getLog() != null && SessionContextSupport.getLog().get("eventName") != null) {
-					ACTIVITY_LOGGER.info(logString);
 					kafkaService.sendEventLog(logString);
 				}
 			} catch(Exception e) {
 				LOGGER.error("Error while pushing event log data to kafka : " + e.getMessage() );
+				// Print to Activity Log only in case we had issues pushing to kafka.
+				ACTIVITY_LOGGER.info(logString);
 			}
 		}
 	}
