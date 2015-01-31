@@ -968,7 +968,6 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 				this.createRevisionHistoryEntry(assessment.getGooruOid(), ASSESSMENT_QUESTION_DELETE);
 			}
 			assessmentRepository.deleteSegmentQuestion(segmentQuestionAssoc);
-			assessmentRepository.flush();
 			updateQuestionTime(getQuestion(gooruOQuestionId));
 			updateQuestionCount(segmentId);
 			return 1;
@@ -1473,7 +1472,6 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 			segmentQuestionAssoc.setSequence(sequence + 1);
 			assessmentRepository.save(segmentQuestionAssoc);
 		}
-		assessmentRepository.flush();
 		updateQuestionCount(segmentId);
 		return HttpServletResponse.SC_OK;
 	}

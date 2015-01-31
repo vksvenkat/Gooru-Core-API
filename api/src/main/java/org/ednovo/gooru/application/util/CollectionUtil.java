@@ -191,7 +191,6 @@ public class CollectionUtil implements ParameterProperties {
 		}
 
 		this.getBaseRepository().saveAll(contentPermissions);
-		this.getBaseRepository().flush();
 
 	}
 
