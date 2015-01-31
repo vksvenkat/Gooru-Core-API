@@ -143,7 +143,6 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 
 		try {
 			userTokenRepository.save(sessionToken);
-			userTokenRepository.flush();
 		} catch (Exception e) {
 			LOGGER.error("Error" + e.getMessage());
 		}

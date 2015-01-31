@@ -88,7 +88,6 @@ public class CollectionRevisionHistoryRollBack extends RevisionHistoryRollBack<C
 			collectionRepository.save(collectionItem);
 		}
 		
-		collectionRepository.flush();
 		moveCollectionImage(collection,revisionImagePath,revisionFileNamePrefix);
 		this.resourceImageUtil.setDefaultThumbnailImageIfFileNotExist((Resource) collection);
 
