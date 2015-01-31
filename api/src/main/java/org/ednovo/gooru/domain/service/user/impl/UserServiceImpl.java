@@ -448,8 +448,6 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 
 		this.getPartyService().createTaxonomyCustomAttributes(user.getPartyUid(), user);
 
-		this.getUserRepository().flush();
-
 		if (inviteuser.size() > 0) {
 			this.getCollaboratorService().updateCollaboratorStatus(email, user);
 		}
@@ -542,7 +540,6 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 			user.setEmailId(pearsonEmailId);
 			userRepository.save(user);
 		}
-		userRepository.flush();
 		indexProcessor.index(user.getPartyUid(), IndexProcessor.INDEX, USER, userToken != null ? userToken.getToken() : null);
 
 		if (user != null && sendConfirmationMail && inviteuser.size() <= 0) {
@@ -893,7 +890,6 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 			if (isContentAdmin(apiCaller)) {
 				List<UserRoleAssoc> userRoleAssoc = this.getUserRepository().getUserRoleByName(roles, gooruUId);
 				userRepository.removeAll(userRoleAssoc);
-				userRepository.flush();
 				user = userRepository.findByGooruId(gooruUId);
 				indexProcessor.index(user.getPartyUid(), IndexProcessor.INDEX, USER);
 			} else {

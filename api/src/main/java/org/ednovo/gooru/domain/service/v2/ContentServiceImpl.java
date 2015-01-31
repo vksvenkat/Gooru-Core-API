@@ -135,7 +135,6 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 				}
 				userSummary.setTag((userSummary.getTag() != null ? userSummary.getTag() : 0) + 1);
 				this.getUserRepository().save(userSummary);
-				this.getUserRepository().flush();
 			} 
 			contentTagAssocs.add(setcontentTagAssoc(contentTagAssoc, tag.getLabel()));
 		}
@@ -172,7 +171,6 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 				}
 			}
 		}
-		this.getContentRepository().flush();
 
 	}
 	
@@ -200,7 +198,6 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 				this.getUserRepository().save(userSummary);
 			}
 		}
-		this.getContentRepository().flush();
 	}
 	
 
