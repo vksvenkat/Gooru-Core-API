@@ -90,9 +90,7 @@ public class UserGroupServiceImpl implements UserGroupService,ParameterPropertie
 			groupAssociation.setAssociationDate(new Date(System.currentTimeMillis()));
 			groupAssociation.setUser(apiCaller);
 			groupAssociation.setUserGroup(userGroup);
-			this.getUserRepository().save(groupAssociation);
-			this.getUserRepository().flush();
-				
+			this.getUserRepository().save(groupAssociation);				
 		} 
 		if(errorsList.isEmpty() && userMailIds != null && userGroup != null){
 			addGroupMembers(userGroup,userMailIds);

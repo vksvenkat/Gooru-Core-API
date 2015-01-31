@@ -801,7 +801,6 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 							}
 							userSummary.setCollections((userSummary.getCollections() != null ? userSummary.getCollections() : 0) + 1);
 							this.getUserRepository().save(userSummary);
-							this.getUserRepository().flush();
 						}
 						scollection.setSharing(PUBLIC);
 						List<String> parenFolders = this.getParentCollection(scollection.getGooruOid(), scollection.getUser().getPartyUid(), false);
@@ -853,7 +852,6 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 							if (userSummary.getGooruUid() != null) {
 								userSummary.setCollections(userSummary.getCollections() <= 0 ? 0 : (userSummary.getCollections() - 1));
 								this.getUserRepository().save(userSummary);
-								this.getUserRepository().flush();
 							}
 						}
 						collectionIds.append(scollection.getGooruOid());

@@ -501,7 +501,6 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		}else {
 			getResourceRepository().remove(ResourceInstance.class, resourceInstance.getResourceInstanceId());			
 		}
-		getResourceRepository().flush();
 
 	}
 
@@ -2579,7 +2578,6 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				resource.setResourceInfo(resourceInfo);
 				this.resourceRepository.save(resource);
 			}
-			resourceRepository.flush();
 		}
 		return resource;
 	}
@@ -2837,7 +2835,6 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				contentProvider.setActiveFlag(true);
 				contentProvider.setType(customTableValue);
 				this.getContentRepository().save(contentProvider);
-				this.getContentRepository().flush();
 			}
 			
 			ContentProviderAssociation contentProviderAssociation = new ContentProviderAssociation();
@@ -2851,7 +2848,6 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			contentProviderAssociation.setAssociatedDate(new Date(System.currentTimeMillis()));
 			contentProviderAssociation.setAssociatedBy(user);
 			this.getContentRepository().save(contentProviderAssociation);
-			this.getContentRepository().flush();
 		}
 		List<CollectionItem> collectionItems = this.getCollectionRepository().findCollectionByResource((gooruOid), null, null);
 		for(CollectionItem collectionItem : collectionItems) {
@@ -2906,7 +2902,6 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		}
 		resource.setTaxonomySet(codes);
 		this.getResourceRepository().save(resource);
-		this.getResourceRepository().flush();
 	}
 
 	@Override
@@ -2956,7 +2951,6 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			newResource.setGrade(resource.getGrade());
 		}
 		this.getResourceRepository().save(newResource);
-		this.getResourceRepository().flush();
 	}
 
 	@Override

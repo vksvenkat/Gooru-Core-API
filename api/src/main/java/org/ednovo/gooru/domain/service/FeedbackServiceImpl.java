@@ -159,7 +159,6 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 			throw new NotFoundException(generateErrorMessage(GL0056, FEEDBACK));
 		}
 		this.getFeedbackRepository().saveAll(feedbackList);
-		this.getFeedbackRepository().flush();
 		for (Feedback feedback : feedbacks) {
 			ResourceSummary resourceSummary = updateResourceSummary(feedback.getAssocGooruOid());
 			this.getFeedbackRepository().save(resourceSummary);
@@ -200,7 +199,6 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 				throw new UnauthorizedException(generateErrorMessage(GL0057, FEEDBACK), GL0057);
 			}
 		}
-		this.getFeedbackRepository().flush();
 		Resource resource = this.getResourceRepository().findResourceByContentGooruId(feedback.getAssocGooruOid());
 		if (resource != null && resource.getContentId() != null) {
 			updateResourceSummary(resource.getGooruOid());
@@ -345,7 +343,6 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 			content.setStatusType(statusType);
 			this.getCustomTableRepository().save(content);
 		}
-		this.getFeedbackRepository().flush();
 		Resource resource = this.getResourceRepository().findResourceByContentGooruId(feedback.getAssocGooruOid());
 		if (resource != null && resource.getContentId() != null) {
 			if (resource.getResourceType() != null && resource.getResourceType().getName().equalsIgnoreCase(ResourceType.Type.SCOLLECTION.getType())) {
@@ -442,12 +439,10 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 				feedback = contentFeedback;
 			}
 			this.getFeedbackRepository().save(feedback);
-			this.getFeedbackRepository().flush();
 			ResourceSummary resourceSummary = updateResourceSummary(feedback.getAssocGooruOid());
 			this.getFeedbackRepository().save(resourceSummary);
 			Map<String, Object> summary = this.getContentFeedbackStarRating(feedback.getAssocGooruOid());
 			summary.put(REVIEW_COUNT, resourceSummary.getReviewCount());
-			this.getFeedbackRepository().flush();
 			feedback.setRatings(summary);
 		}
 		return feedback;
@@ -465,7 +460,6 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 		resourceSummary.setRatingStarAvg((Long) summary.get(AVERAGE));
 		resourceSummary.setReviewCount(reviewSummary);
 		this.getFeedbackRepository().save(resourceSummary);
-		this.getFeedbackRepository().flush();
 		return resourceSummary;
 	}
 

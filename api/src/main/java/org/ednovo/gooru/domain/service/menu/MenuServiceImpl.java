@@ -140,7 +140,6 @@ public class MenuServiceImpl extends BaseServiceImpl implements MenuService, Par
 		}
 		menuItem.setSequence(sequence);
 		this.getMenuRepository().save(menuItem);
-		getMenuRepository().flush();
 		if(mainMenuSequence > 0){
 			this.orderMainMenuSequence(mainMenuSequence);
 		}
@@ -204,7 +203,6 @@ public class MenuServiceImpl extends BaseServiceImpl implements MenuService, Par
 		}
 		mainMenu.setIsActive(false);
 		getMenuRepository().save(mainMenu);
-		getMenuRepository().flush();
 		if(mainMenuSequence > 0){
 			this.orderMainMenuSequence(mainMenuSequence);
 		}

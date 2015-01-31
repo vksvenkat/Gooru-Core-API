@@ -135,7 +135,6 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 				}
 				userSummary.setTag((userSummary.getTag() != null ? userSummary.getTag() : 0) + 1);
 				this.getUserRepository().save(userSummary);
-				this.getUserRepository().flush();
 			} 
 			contentTagAssocs.add(setcontentTagAssoc(contentTagAssoc, tag.getLabel()));
 		}
@@ -180,7 +179,6 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 		for(CollectionItem collectionItem : collectionItems) {
 			asyncExecutor.deleteFromCache("v2-collection-data-"+ collectionItem.getCollection().getGooruOid() +"*");
 		}
-		this.getContentRepository().flush();
 
 	}
 	
@@ -212,7 +210,6 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 		for(CollectionItem collectionItem : collectionItems) {
 			asyncExecutor.deleteFromCache("v2-collection-data-"+ collectionItem.getCollection().getGooruOid() +"*");
 		}
-		this.getContentRepository().flush();
 	}
 	
 

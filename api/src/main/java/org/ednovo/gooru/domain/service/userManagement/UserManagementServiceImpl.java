@@ -451,7 +451,6 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 							userClassification.setUser(user);
 							userClassification.setCreator(apiCaller);
 							this.getUserRepository().save(userClassification);
-							this.getUserRepository().flush();
 						}
 					} else {
 						if (activeFlag != null) {
@@ -926,7 +925,6 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		this.getUserRepository().save(identity);
 		//this.getPartyService().createUserDefaultCustomAttributes(user.getPartyUid(), user);
 		//this.getPartyService().createTaxonomyCustomAttributes(user.getPartyUid(), user);
-		//this.getUserRepository().flush();
 		if (inviteuser != null && inviteuser.size() > 0 ) {
 			this.getCollaboratorService().updateCollaboratorStatus(newUser.getEmailId(),user);
 		}
@@ -1310,7 +1308,6 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		followOnUserSummary.setFollowers((followOnUserSummary.getFollowers() != null ? followOnUserSummary.getFollowers() : 0) + 1);
 		this.getUserRepository().save(userSummary);
 		this.getUserRepository().save(followOnUserSummary);
-		this.getUserRepository().flush();
 		try {
 			this.getUsereventlog().getEventLogs(false, false, null, null, true, false);
 		} catch (JSONException e) {
@@ -1332,7 +1329,6 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			followOnUserSummary.setFollowers(followOnUserSummary.getFollowers() - 1);
 			this.getUserRepository().save(userSummary);
 			this.getUserRepository().save(followOnUserSummary);
-			this.getUserRepository().flush();
 		}
 		try {
 			this.getUsereventlog().getEventLogs(false, false, null, null, false, true);
@@ -1408,7 +1404,6 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 					if (mailAddress[1].equalsIgnoreCase(domain)) {
 						identity.setExternalId(mailAddress[1] + System.currentTimeMillis());
 						this.getUserRepository().save(identity);
-						this.getUserRepository().flush();
 					}
 				}
 			} else {
@@ -1445,7 +1440,6 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 				userRole.setName(role.getName());
 				userRole.setDescription(role.getDescription());
 				getUserRepository().save(userRole);
-				getUserRepository().flush();
 			}
 		}
 		while (iter.hasNext()) {
@@ -1517,7 +1511,6 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		userRoleAssoc.setUser(user);
 		userRoleAssoc.setRole(role);
 		getUserRepository().save(userRoleAssoc);
-		getUserRepository().flush();
 		indexProcessor.index(user.getPartyUid(), IndexProcessor.INDEX, USER);
 		return userRoleAssoc;
 	}
