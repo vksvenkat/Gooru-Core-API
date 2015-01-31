@@ -42,6 +42,7 @@ import java.util.UUID;
 import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletResponse;
 
+import org.ednovo.gooru.core.application.util.ServerValidationUtils;
 import org.apache.commons.lang.StringUtils;
 import org.ednovo.gooru.application.util.TaxonomyUtil;
 import org.ednovo.gooru.core.api.model.FileMeta;
@@ -53,13 +54,18 @@ import org.ednovo.gooru.core.application.util.RequestUtil;
 import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.core.exception.BadRequestException;
+import org.ednovo.gooru.domain.service.ScollectionServiceImpl;
 import org.ednovo.gooru.domain.service.resource.MediaService;
 import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.restlet.data.Method;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import ch.qos.logback.classic.Logger;
 
 import com.mortennobel.imagescaling.AdvancedResizeOp;
 import com.mortennobel.imagescaling.ResampleOp;
@@ -75,6 +81,8 @@ public class MediaServiceImpl implements MediaService,ParameterProperties {
 	
 	
 	private static final int MAXFILEUPLOADSIZE = 31457280;
+	
+
 
 	/**
 	 * @param fileName
@@ -129,28 +137,34 @@ public class MediaServiceImpl implements MediaService,ParameterProperties {
 				OutputStream out = new FileOutputStream(file);
 				out.write(fileData);
 				out.close();
-				if (resize) { 
-					BufferedImage image = ImageIO.read(new File(resourceImageFile));
-					double maxHeight = height;
-					double maxWidth = width;
-					
-					int imageFileWidth = (int)(image.getWidth());
-					int imageFileHeight = (int)(image.getHeight());
-					
-					if (imageFileHeight > maxHeight || imageFileWidth > maxWidth) {
-						double ratio = (double) Math.min(maxWidth / image.getWidth(), maxHeight / image.getHeight());
-						width = (int)(image.getWidth() * ratio);
-						height = (int)(image.getHeight() * ratio);
-					} else {
-						width = imageFileWidth;
-						height = imageFileHeight;
+				System.out.println(resize+":rz");
+				
+				if (resize) {
+					BufferedImage image = null;
+					try {
+						image = ImageIO.read(new File(resourceImageFile));
+						double maxHeight = height;
+						double maxWidth = width;
+						int imageFileWidth = (int) (image.getWidth());
+						int imageFileHeight = (int) (image.getHeight());
+						if (imageFileHeight > maxHeight || imageFileWidth > maxWidth) {
+							double ratio = (double) Math.min(maxWidth / image.getWidth(), maxHeight / image.getHeight());
+							width = (int) (image.getWidth() * ratio);
+							height = (int) (image.getHeight() * ratio);
+						} else {
+							width = imageFileWidth;
+							height = imageFileHeight;
+						}
+						ResampleOp resampleOp = new ResampleOp(width, height);
+						resampleOp.setUnsharpenMask(AdvancedResizeOp.UnsharpenMask.Normal);
+						image = resampleOp.filter(image, null);
+						ImageIO.write(image, PNG, new File(resourceImageFile));
 					}
-				   ResampleOp resampleOp = new ResampleOp(width, height);
-		 		   resampleOp.setUnsharpenMask(AdvancedResizeOp.UnsharpenMask.Normal);
-		 		   image = resampleOp.filter(image, null);
-		           ImageIO.write(image, PNG,new File(resourceImageFile));
+					 catch (Exception e) {
+							throw new BadRequestException(ServerValidationUtils.generateErrorMessage(GL0106),GL0106);
+					 }
 				}
-			}
+            }
 		}
 		
 		File uploadedFile = new File(resourceImageFile);
@@ -179,7 +193,7 @@ public class MediaServiceImpl implements MediaService,ParameterProperties {
 		
 		return fileMeta;
 	}
-	
+
 	@Override
 	public FileMeta handleFileUpload(MediaDTO mediaDTO, Map<String, Object> formField) throws FileNotFoundException, IOException {
 		String fileExtension = null;
