@@ -174,15 +174,6 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 			}
 			this.getAsyncExecutor().clearCache(resource.getGooruOid());
 		}
-		try {
-			if(!feedbackList.isEmpty()){
-				Feedback userFeedback = feedbackList.get(0);
-			}
-
-		} catch (Exception e) {
-			LOGGER.error("Error while creating feedback" + e.getMessage());
-		}
-		
 		return feedbacks;
 	}
 
@@ -354,18 +345,6 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 				indexProcessor.index(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE);
 			}
 			this.getAsyncExecutor().clearCache(resource.getGooruOid());
-		}
-		List<CollectionItem> collectionItems = this.getCollectionRepository().findCollectionByResource(feedback.getAssocGooruOid(), null, null);
-		for(CollectionItem collectionItem : collectionItems) {
-			asyncExecutor.deleteFromCache("v2-collection-data-"+ collectionItem.getCollection().getGooruOid() +"*");
-		}
-		try {
-			if(!feedbackList.isEmpty()){
-				Feedback userFeedback = feedbackList.get(0);
-			}
-
-		} catch (Exception e) {
-			LOGGER.error("Error while creating feedback" + e.getMessage());
 		}
 
 		return feedbackList;
