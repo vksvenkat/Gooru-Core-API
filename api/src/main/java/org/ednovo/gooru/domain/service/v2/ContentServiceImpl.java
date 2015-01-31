@@ -138,10 +138,6 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 			} 
 			contentTagAssocs.add(setcontentTagAssoc(contentTagAssoc, tag.getLabel()));
 		}
-		List<CollectionItem> collectionItems = this.getCollectionRepository().findCollectionByResource(gooruOid, null, null);
-		for(CollectionItem collectionItem : collectionItems) {
-			asyncExecutor.deleteFromCache("v2-collection-data-"+ collectionItem.getCollection().getGooruOid() +"*");
-		}
 		return contentTagAssocs;
 	}
 
@@ -175,10 +171,6 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 				}
 			}
 		}
-		List<CollectionItem> collectionItems = this.getCollectionRepository().findCollectionByResource(gooruOid, null, null);
-		for(CollectionItem collectionItem : collectionItems) {
-			asyncExecutor.deleteFromCache("v2-collection-data-"+ collectionItem.getCollection().getGooruOid() +"*");
-		}
 
 	}
 	
@@ -205,10 +197,6 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 				userSummary.setTag(userSummary.getTag() <= 0 ? 0 : userSummary.getTag() - 1);
 				this.getUserRepository().save(userSummary);
 			}
-		}
-		List<CollectionItem> collectionItems = this.getCollectionRepository().findCollectionByResource(gooruOid, null, null);
-		for(CollectionItem collectionItem : collectionItems) {
-			asyncExecutor.deleteFromCache("v2-collection-data-"+ collectionItem.getCollection().getGooruOid() +"*");
 		}
 	}
 	

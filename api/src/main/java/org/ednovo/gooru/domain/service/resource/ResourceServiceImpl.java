@@ -1186,7 +1186,6 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		} catch (Exception e) {
 			LOGGER.error(e.getMessage());
 		}
-		getAsyncExecutor().deleteFromCache("v2-collection-data-"+ gooruContentId +"*");
 		return resource.getOrganization().getNfsStorageArea().getAreaPath() + resource.getFolder() + "/" + resource.getThumbnail();
 	}
 
@@ -2644,10 +2643,6 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			this.updateResourceInstanceMetaData(resource, user);
 			this.replaceDuplicatePrivateResourceWithPublicResource(resource);
 			this.mapSourceToResource(resource);
-			List<CollectionItem> collectionItems = this.getCollectionRepository().findCollectionByResource(resource.getGooruOid(), null, null);
-			for(CollectionItem collectionItem : collectionItems) {
-				asyncExecutor.deleteFromCache("v2-collection-data-"+ collectionItem.getCollection().getGooruOid() +"*");
-			}
 			try{
 				this.getResourceEventLog().getEventLogs(resource, true, false, user);
 			} catch(Exception e){
@@ -2849,10 +2844,6 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			contentProviderAssociation.setAssociatedBy(user);
 			this.getContentRepository().save(contentProviderAssociation);
 		}
-		List<CollectionItem> collectionItems = this.getCollectionRepository().findCollectionByResource((gooruOid), null, null);
-		for(CollectionItem collectionItem : collectionItems) {
-			asyncExecutor.deleteFromCache("v2-collection-data-"+ collectionItem.getCollection().getGooruOid() +"*");
-		}
 		return providerList;
 	}
 
@@ -2979,10 +2970,6 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	private void deleteResource(Resource resource) {
 		if (resource != null) {
 			this.getResourceRepository().retriveAndSetInstances(resource);
-		}
-		List<CollectionItem> collectionItems = this.getCollectionRepository().findCollectionByResource(resource.getGooruOid(), null, null);
-		for (CollectionItem collectionItem : collectionItems) {
-			asyncExecutor.deleteFromCache("v2-collection-data-" + collectionItem.getCollection().getGooruOid() + "*");
 		}
 		if (resource != null) {
 			List<ResourceInstance> resourceInstanceList = resource.getResourceInstances();

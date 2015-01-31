@@ -31,21 +31,28 @@
     <!--
     <Valve className="org.apache.catalina.valves.CometConnectionManagerValve" />
     -->
- <Resource   name="jdbc/gooruapi"
-                 auth="Container"
-                 type="com.jolbox.bonecp.BoneCPDataSource"
-jdbcUrl="jdbc:mysql://localhost:3306/gooru_gl?autoReconnect=true"
-                 driverClass="com.mysql.jdbc.Driver"
-                 username="gooru"
-                 password="gooru"
-                 maxConnectionsPerPartition="100"
-                 minConnectionsPerPartition="5"
-                 partitionCount="3"
-                 acquireIncrement="1"
-                 statementsCacheSize="100"
-                 idleMaxAge="15"
-                 idleConnectionTestPeriod="5"
-                 factory="org.apache.naming.factory.BeanFactory"
-     />
+<Resource name="jdbc/gooruapi" auth="Container"
+      type="javax.sql.DataSource"
+      factory="com.zaxxer.hikari.HikariJNDIFactory"
+      minimumIdle="5" 
+      maximumPoolSize="10"
+      connectionTimeout="300000"
+      dataSourceClassName="com.mysql.jdbc.jdbc2.optional.MysqlDataSource"
+      dataSource.user="###"
+      dataSource.password="####"
+      dataSource.url="####"/>
+
+
+<Resource name="jdbc/gooruapiReadOnly" auth="Container"
+      type="javax.sql.DataSource"
+      factory="com.zaxxer.hikari.HikariJNDIFactory"
+      minimumIdle="5" 
+      maximumPoolSize="10"
+      connectionTimeout="300000"
+      dataSourceClassName="com.mysql.jdbc.jdbc2.optional.MysqlDataSource"
+      dataSource.user="####"
+      dataSource.password="###"
+      dataSource.url="###3/>
+
 <Environment name="configSettings" value="/var/www/u/filter-local.properties" type="java.lang.String" override="false"/> 
 </Context>

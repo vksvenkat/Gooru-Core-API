@@ -29,7 +29,7 @@
 
 	<task:annotation-driven executor="taskexecutor" />
 	<task:executor id="taskexecutor" pool-size="7-42"
-		queue-capacity="11" />
+		queue-capacity="40" />
 	<context:component-scan base-package="org.ednovo.gooru.domain.service">
 		<context:include-filter type="annotation"
 			expression="org.springframework.stereotype.Service" />

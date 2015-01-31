@@ -151,7 +151,6 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				response.getModel().getCollection().setClusterUid(response.getModel().getCollection().getGooruOid());
 				this.getCollectionRepository().save(response.getModel().getCollection());
 			}
-			getAsyncExecutor().deleteFromCache("v2-collection-data-"+ collectionId +"*");
 		}
 		try {
 			this.getCollectionEventLog().getEventLogs(response.getModel(), false, true, user, response.getModel().getCollection().getCollectionType());
@@ -196,7 +195,6 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 					collectionItem.setStandards(this.getStandards(assessmentQuestion.getTaxonomySet(), false, null));
 				}
 				getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
-				getAsyncExecutor().deleteFromCache("v2-collection-data-"+ collectionItem.getCollection().getGooruOid() +"*");
 			}
 
 		} else {
@@ -786,7 +784,6 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 			if (userService.isSuperAdmin(user) || userService.isContentAdmin(user)) {
 				for (Collection scollection : collections) {
 					getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + scollection.getUser().getPartyUid() + "*");
-					getAsyncExecutor().deleteFromCache("v2-collection-data-"+ scollection.getGooruOid() +"*");
 					if (scollection.getPublishStatus() != null && scollection.getPublishStatus().getValue().equalsIgnoreCase(PENDING)) {
 						scollection.setPublishStatus(this.getCustomTableRepository().getCustomTableValue(_PUBLISH_STATUS, REVIEWED));
 						collectionIds.append(scollection.getGooruOid());

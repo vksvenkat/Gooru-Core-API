@@ -725,8 +725,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + user.getPartyUid() + "*");
 		getAsyncExecutor().deleteFromCache("v2-class-data-*");
-		getAsyncExecutor().deleteFromCache("v2-collection-data-" + collection.getGooruOid() + "*");
-
+		
 	}
 
 	@Override
@@ -787,7 +786,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			}
 			getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
 			getAsyncExecutor().deleteFromCache("v2-class-data-" + collection.getGooruOid() + "*");
-			getAsyncExecutor().deleteFromCache("v2-collection-data-" + collection.getGooruOid() + "*");
 		}
 
 		return new ActionResponseDTO<CollectionItem>(collectionItem, errors);
@@ -904,7 +902,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				indexProcessor.index(collectionItem.getCollection().getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
 				getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
 				getAsyncExecutor().deleteFromCache("v2-class-data-" + collectionItem.getCollection().getGooruOid() + "*");
-				getAsyncExecutor().deleteFromCache("v2-collection-data-" + collectionItem.getCollection().getGooruOid() + "*");
 			} catch (Exception e) {
 				LOGGER.error(e.getMessage());
 			}
@@ -972,7 +969,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 				getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
 				getAsyncExecutor().deleteFromCache("v2-class-data-" + collectionItem.getCollection().getGooruOid() + "*");
-				getAsyncExecutor().deleteFromCache("v2-collection-data-" + collection.getGooruOid() + "*");
 			} catch (Exception e) {
 				LOGGER.error("error" + e.getMessage());
 			}
@@ -1025,7 +1021,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			this.getCollectionRepository().save(collection);
 			getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collection.getUser().getPartyUid() + "*");
 			getAsyncExecutor().deleteFromCache("v2-class-data-" + collection.getGooruOid() + "*");
-			getAsyncExecutor().deleteFromCache("v2-collection-data-" + collection.getGooruOid() + "*");
 		}
 		return new ActionResponseDTO<CollectionItem>(collectionItem, errors);
 	}
@@ -1620,8 +1615,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			LOGGER.error("Error" + e.getMessage());
 		}
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
-		getAsyncExecutor().deleteFromCache("v2-collection-data-" + collectionItem.getCollection().getGooruOid() + "*");
-
+		
 		try {
 			this.getCollectionEventLog().getEventLogs(collectionItem, jsonItemdata, apiCaller);
 		} catch (JSONException e) {
@@ -1671,7 +1665,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		destCollectionItem.setAssociationDate(new Date(System.currentTimeMillis()));
 
 		this.getCollectionRepository().save(destCollectionItem);
-		getAsyncExecutor().deleteFromCache("v2-collection-data-" + collectionId + "*");
+	
 		try {
 			if (destCollectionItem != null) {
 				this.getCollectionEventLog().getEventLogs(destCollectionItem, true, false, destCollectionItem.getCollection() != null && destCollectionItem.getCollection().getUser() != null ? destCollectionItem.getCollection().getUser() : null, true, false, sourceCollectionItem);
@@ -2059,11 +2053,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				LOGGER.error("error" + e.getMessage());
 			}
 			getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collection.getUser().getPartyUid() + "*");
-			getAsyncExecutor().deleteFromCache("v2-collection-data-" + collection.getGooruOid() + "*");
-			List<CollectionItem> collectionItems = this.getCollectionRepository().findCollectionByResource(collection.getGooruOid(), null, null);
-			for (CollectionItem collectionItem : collectionItems) {
-				asyncExecutor.deleteFromCache("v2-collection-data-" + collectionItem.getCollection().getGooruOid() + "*");
-			}
 		}
 
 		try {
@@ -2187,8 +2176,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		destCollection.setIsRepresentative(0);
 		this.getCollectionRepository().save(destCollection);
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + destCollection.getUser().getPartyUid() + "*");
-		getAsyncExecutor().deleteFromCache("v2-collection-data-" + destCollection.getGooruOid() + "*");
-
+	
 		try {
 			if (destCollection != null) {
 				this.getCollectionEventLog().getEventLogs(collectionItem, true, false, user, true, false);
@@ -2343,7 +2331,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				this.getCollectionRepository().save(response.getModel().getCollection());
 			}
 			getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + response.getModel().getCollection().getUser().getPartyUid() + "*");
-			getAsyncExecutor().deleteFromCache("v2-collection-data-" + collectionId + "*");
 		}
 		try {
 			this.getCollectionEventLog().getEventLogs(response.getModel(), true, false, user, false, false);
@@ -2454,7 +2441,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			this.getCollectionRepository().save(collectionItem);
 			collectionItem.setStandards(this.getStandards(resource.getTaxonomySet(), false, null));
 			getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
-			getAsyncExecutor().deleteFromCache("v2-collection-data-" + collectionItem.getCollection().getGooruOid() + "*");
 		}
 		try {
 			this.getCollectionEventLog().getEventLogs(collectionItem, itemData, user);
@@ -2479,7 +2465,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		final Errors errors = validateCollectionItem(collection, resource, collectionItem);
 		this.getResourceRepository().save(collectionItem);
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
-		getAsyncExecutor().deleteFromCache("v2-collection-data-" + collectionItem.getCollection().getGooruOid() + "*");
 		return new ActionResponseDTO<CollectionItem>(collectionItem, errors);
 	}
 
