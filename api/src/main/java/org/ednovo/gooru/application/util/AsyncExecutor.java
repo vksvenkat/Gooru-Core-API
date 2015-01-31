@@ -27,11 +27,9 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
-import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.application.util.RequestUtil;
 import org.ednovo.gooru.domain.service.resource.ResourceManager;
-import org.ednovo.gooru.domain.service.revision_history.RevisionHistoryService;
 import org.ednovo.gooru.domain.service.storage.S3ResourceApiHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,9 +54,6 @@ public class AsyncExecutor {
 	private TransactionTemplate transactionTemplate;
 
 	@Autowired
-	private RevisionHistoryService revisionHistoryService;
-
-	@Autowired
 	private HibernateTransactionManager transactionManager;
 
 	@Autowired
@@ -73,21 +68,6 @@ public class AsyncExecutor {
 	@PostConstruct
 	public void init() {
 		transactionTemplate = new TransactionTemplate(transactionManager);
-	}
-
-	public void createVersion(final Collection collection, final String type, final String gooruUid) {
-
-		transactionTemplate.execute(new TransactionCallback<Void>() {
-			@Override
-			public Void doInTransaction(TransactionStatus status) {
-				try {
-					getRevisionHistoryService().createVersion(collection, type, gooruUid);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-				return null;
-			}
-		});
 	}
 
 	public void copyResourceFolder(final Resource srcResource, final Resource destResource) {
@@ -198,10 +178,6 @@ public class AsyncExecutor {
 
 	public CollectionUtil getCollectionUtil() {
 		return collectionUtil;
-	}
-
-	public RevisionHistoryService getRevisionHistoryService() {
-		return revisionHistoryService;
 	}
 
 	public S3ResourceApiHandler getS3ResourceApiHandler() {

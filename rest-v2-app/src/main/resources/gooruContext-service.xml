@@ -79,7 +79,4 @@
 		<qualifier value="sessionFactoryReadOnly" />
 		<property name="dataSource" ref="jndiDataSourceReadOnly" />
 	</bean>
-	<bean id="revisionHistorySessionFactory" parent="revisionHistoryAbstractSessionFactory">
-		<property name="dataSource" ref="jndiDataSource" />
-	</bean>
 </beans>

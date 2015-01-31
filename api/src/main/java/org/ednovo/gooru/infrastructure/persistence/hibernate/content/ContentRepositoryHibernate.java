@@ -138,14 +138,9 @@ public class ContentRepositoryHibernate extends BaseRepositoryHibernate implemen
 	@Override
 	public void delete(String gooruContentId) {
 		Content content = findByContentGooruId(gooruContentId);
-		if (content != null && content instanceof Versionable) {
-			try {
-				getRevisionHistoryService().createVersion((Versionable) content, "Delete");
-			} catch (Exception ex) {
-				ex.printStackTrace();
-			}
+		if (content != null) {			
+			getSession().delete(content);
 		}
-		getSession().delete(content);
 	}
 
 	@SuppressWarnings("unchecked")

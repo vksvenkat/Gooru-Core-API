@@ -25,12 +25,8 @@ package org.ednovo.gooru.infrastructure.persistence.hibernate;
 
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.Iterator;
 
-import org.ednovo.gooru.core.api.model.Versionable;
-import org.ednovo.gooru.domain.service.revision_history.RevisionHistoryService;
 import org.hibernate.SessionFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * This class serves as the Base class for all other Daos - namely to hold
@@ -50,37 +46,13 @@ public class BaseRepositoryHibernate extends AbstractRepositoryHibernate impleme
 		return sessionFactoryReadOnly;
 	}
 	
-	@Autowired
-	private RevisionHistoryService revisionHistoryService;
-
-
 	@Override
 	public void remove(Class clazz, Serializable id) {
-		if (clazz.isAssignableFrom(Versionable.class)) {
-			try {
-				getRevisionHistoryService().createVersion(id.toString(), "Delete");
-			} catch (Exception ex) {
-				ex.printStackTrace();
-			}
-		}
 		delete(get(clazz, id));
 	}
 
 	@Override
 	public void removeAll(Collection entities) {
-		if (entities != null) {
-			Iterator iterator = entities.iterator();
-			while (iterator.hasNext()) {
-				Object object = iterator.next();
-				if (object instanceof Versionable) {
-					try {
-						getRevisionHistoryService().createVersion((Versionable) object, "BulkDelete");
-					} catch (Exception ex) {
-						ex.printStackTrace();
-					}
-				}
-			}
-		}
 		deleteAll(entities);
 	}
 
@@ -90,12 +62,5 @@ public class BaseRepositoryHibernate extends AbstractRepositoryHibernate impleme
 
 	public void setSessionFactory(SessionFactory sessionFactory) {
 		this.sessionFactory = sessionFactory;
-	}
-		public RevisionHistoryService getRevisionHistoryService() {
-		return revisionHistoryService;
-	}
-
-	public void setRevisionHistoryService(RevisionHistoryService revisionHistoryService) {
-		this.revisionHistoryService = revisionHistoryService;
 	}
 }

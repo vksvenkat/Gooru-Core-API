@@ -87,7 +87,6 @@ import org.ednovo.gooru.domain.service.partner.CustomFieldsService;
 import org.ednovo.gooru.domain.service.redis.RedisService;
 import org.ednovo.gooru.domain.service.resource.ResourceManager;
 import org.ednovo.gooru.domain.service.resource.ResourceService;
-import org.ednovo.gooru.domain.service.revision_history.RevisionHistoryService;
 import org.ednovo.gooru.domain.service.taxonomy.TaxonomyService;
 import org.ednovo.gooru.domain.service.user.UserService;
 import org.ednovo.gooru.domain.service.v2.ContentService;
@@ -112,8 +111,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindException;
@@ -169,9 +166,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 	@Autowired
 	private ResourceImageUtil resourceImageUtil;
-
-	@Autowired
-	private RevisionHistoryService revisionHistoryService;
 
 	@Autowired
 	private ContentService contentService;
@@ -287,7 +281,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 			try {
 				indexProcessor.index(collection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
-				getAsyncExecutor().createVersion(collection, SCOLLECTION_CREATE, collection.getUser().getPartyUid());
 			} catch (Exception e) {
 				LOGGER.error(e.getMessage());
 			}
@@ -413,9 +406,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			this.getCollectionRepository().save(contentSetting);
 			contentSettingsObj.add(contentSetting);
 			collection.setContentSettings(contentSettingsObj);
-
-			getAsyncExecutor().createVersion(collection, SCOLLECTION_CREATE, user.getPartyUid());
-
 			getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collection.getUser().getPartyUid() + "*");
 			try {
 				this.getCollectionEventLog().getEventLogs(collection.getCollectionItem(), true, false, user, false, false);
@@ -677,17 +667,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		final Collection collection = this.getCollectionByGooruOid(collectionId, null);
 		rejectIfNull(collection, GL0056, _COLLECTION);
 		if (this.getOperationAuthorizer().hasUnrestrictedContentAccess(collectionId, user)) {
-			try {
-				revisionHistoryService.createVersion(collection, SCOLLECTION_DELETE);
-			} catch (Exception ex) {
-				LOGGER.error("error" + ex.getMessage());
-			}
-			try {
-				indexProcessor.index(collection.getGooruOid(), IndexProcessor.DELETE, SCOLLECTION);
-			} catch (Exception e) {
-				LOGGER.error(e.getMessage());
-			}
-
 			final List<CollectionItem> collectionItems = this.getCollectionRepository().getCollectionItemByAssociation(collectionId, null, null);
 			List<CollectionItem> parentAssociations = this.getCollectionRepository().getCollectionItemByParentId(collectionId, null, null);
 			if (parentAssociations != null && parentAssociations.size() > 0) {
