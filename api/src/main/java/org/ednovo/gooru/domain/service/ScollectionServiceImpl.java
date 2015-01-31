@@ -171,9 +171,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	private ResourceImageUtil resourceImageUtil;
 
 	@Autowired
-	private RevisionHistoryService revisionHistoryService;
-
-	@Autowired
 	private ContentService contentService;
 
 	@Autowired
@@ -287,7 +284,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 			try {
 				indexProcessor.index(collection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
-				getAsyncExecutor().createVersion(collection, SCOLLECTION_CREATE, collection.getUser().getPartyUid());
 			} catch (Exception e) {
 				LOGGER.error(e.getMessage());
 			}
@@ -413,9 +409,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			this.getCollectionRepository().save(contentSetting);
 			contentSettingsObj.add(contentSetting);
 			collection.setContentSettings(contentSettingsObj);
-
-			getAsyncExecutor().createVersion(collection, SCOLLECTION_CREATE, user.getPartyUid());
-
 			getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collection.getUser().getPartyUid() + "*");
 			try {
 				this.getCollectionEventLog().getEventLogs(collection.getCollectionItem(), true, false, user, false, false);
@@ -677,17 +670,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		final Collection collection = this.getCollectionByGooruOid(collectionId, null);
 		rejectIfNull(collection, GL0056, _COLLECTION);
 		if (this.getOperationAuthorizer().hasUnrestrictedContentAccess(collectionId, user)) {
-			try {
-				revisionHistoryService.createVersion(collection, SCOLLECTION_DELETE);
-			} catch (Exception ex) {
-				LOGGER.error("error" + ex.getMessage());
-			}
-			try {
-				indexProcessor.index(collection.getGooruOid(), IndexProcessor.DELETE, SCOLLECTION);
-			} catch (Exception e) {
-				LOGGER.error(e.getMessage());
-			}
-
 			final List<CollectionItem> collectionItems = this.getCollectionRepository().getCollectionItemByAssociation(collectionId, null, null);
 			List<CollectionItem> parentAssociations = this.getCollectionRepository().getCollectionItemByParentId(collectionId, null, null);
 			if (parentAssociations != null && parentAssociations.size() > 0) {
