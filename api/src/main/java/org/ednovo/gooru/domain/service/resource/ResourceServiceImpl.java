@@ -52,7 +52,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathFactory;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.ednovo.gooru.application.converter.FileProcessor;
 import org.ednovo.gooru.application.util.AsyncExecutor;
@@ -65,7 +64,6 @@ import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Assessment;
 import org.ednovo.gooru.core.api.model.AssessmentQuestion;
 import org.ednovo.gooru.core.api.model.Code;
-import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.ContentPermission;
 import org.ednovo.gooru.core.api.model.ContentProvider;
@@ -114,7 +112,6 @@ import org.ednovo.gooru.domain.service.CollectionService;
 import org.ednovo.gooru.domain.service.assessment.AssessmentService;
 import org.ednovo.gooru.domain.service.eventlogs.ResourceEventLog;
 import org.ednovo.gooru.domain.service.partner.CustomFieldsService;
-import org.ednovo.gooru.domain.service.revision_history.RevisionHistoryService;
 import org.ednovo.gooru.domain.service.sessionActivity.SessionActivityService;
 import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.ednovo.gooru.domain.service.storage.S3ResourceApiHandler;
@@ -210,9 +207,6 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 
 	@Autowired
 	private SessionActivityRepository sessionActivityRepository;
-
-	@Autowired
-	private RevisionHistoryService revisionHistoryService;
 
 	@Autowired
 	private TaxonomyService taxonomyService;
@@ -1524,11 +1518,6 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 					// Remove the collection from cache
 					this.getCollectionUtil().deleteCollectionFromCache(collection.getGooruOid(), COLLECTION);
 
-					try {
-						revisionHistoryService.createVersion(collection, SEGMENT_UPDATE);
-					} catch (Exception ex) {
-						LOGGER.debug("error"+ ex.getMessage());
-					}
 
 				} else {
 					throw new AccessDeniedException(generateErrorMessage("GL0097"));
