@@ -994,7 +994,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 
 	@Override
-	public ActionResponseDTO<CollectionItem> reorderCollectionItem(final String collectionItemId, int newSequence) throws Exception {
+	public ActionResponseDTO<CollectionItem> reorderCollectionItem(final String collectionItemId, int newSequence, User user) throws Exception {
 		CollectionItem collectionItem = getCollectionRepository().getCollectionItemById(collectionItemId);
 		if (collectionItem == null) {
 			throw new BadRequestException(generateErrorMessage(GL0056, COLLECTION_ITEM), GL0056);
