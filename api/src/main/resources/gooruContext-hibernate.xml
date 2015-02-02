@@ -345,7 +345,7 @@
 				<prop key="hibernate.connection.useUnicode">true</prop>
 				<prop key="hibernate.connection.release_mode">after_transaction</prop>
 				<prop key="hibernate.connection.characterEncoding">UTF-8</prop>
-				<prop key="org.hibernate.flushMode">commit</prop>
+				<prop key="org.hibernate.flushMode">auto</prop>
 			</props>
 		</property>
 
