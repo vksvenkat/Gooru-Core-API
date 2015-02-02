@@ -694,15 +694,17 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 					this.getUserRepository().save(userSummary);
 				}
 			}
-			this.getCollectionRepository().remove(collection);
 			for (CollectionItem item : collectionItems) {
 				Collection parentCollection = item.getCollection();
 				if (parentCollection.getCollectionType().equals(FOLDER)) {
 					updateFolderSharing(parentCollection.getGooruOid());
 				}
 			}
+			
+			this.getCollectionRepository().remove(collection);
+			
 		} else {
-			throw new UnauthorizedException(generateErrorMessage("GL0010))"));
+			throw new UnauthorizedException(generateErrorMessage("GL0010"));
 		}
 
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + user.getPartyUid() + "*");
