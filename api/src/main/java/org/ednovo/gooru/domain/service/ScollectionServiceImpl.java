@@ -215,6 +215,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 	@Override
 	public ActionResponseDTO<Collection> createCollection(final Collection collection, boolean addToShelf, String resourceId, String taxonomyCode, boolean updateTaxonomyByCode, String parentId) throws Exception {
+		
 		final Errors errors = validateCollection(collection);
 		if (!errors.hasErrors()) {
 			if (taxonomyCode != null) {
@@ -299,13 +300,16 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 	@Override
 	public ActionResponseDTO<Collection> createCollection(Collection collection, boolean addToShelf, String resourceId, String parentId, User user) throws Exception {
+		LOGGER.info("create collection .........");
 		final Errors errors = validateCollection(collection);
 		if (!errors.hasErrors()) {
 			Collection parentCollection =  null;
 			if (parentId != null) { 				
 				parentCollection = collectionRepository.getCollectionByGooruOid(parentId, collection.getUser().getGooruUId());
 			}
+			LOGGER.info("create collection 1 .........");
 			collection.setBuildType(this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.BUILD_TYPE.getTable(), collection.getBuildType() == null ? WEB : collection.getBuildType().getValue() != null ? collection.getBuildType().getValue() : WEB));
+			LOGGER.info("create collection  2 .........");
 			if (collection.getCollectionType() != null && collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.FOLDER.getType())) {
 				collection.setResourceFormat(this.getCustomTableRepository().getCustomTableValue(RESOURCE_CATEGORY_FORMAT, FOLDER));
 			} else if (collection.getCollectionType() != null && collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.ASSESSMENT.getType())) {
@@ -327,6 +331,8 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				collectionItems.add(collectionItem);
 				collection.setCollectionItems(collectionItems);
 			}
+			
+			LOGGER.info("create collection  3 .........");
 
 			if (addToShelf) {
 				CollectionItem collectionItem = new CollectionItem();
@@ -366,6 +372,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				userSummary.setCollections((userSummary.getCollections() != null ? userSummary.getCollections() : 0) + 1);
 				this.getUserRepository().save(userSummary);
 			}
+			LOGGER.info("create collection  4 .........");
 
 			if (parentCollection != null) {
 				collection.setCollectionItem(this.createCollectionItem(collection.getGooruOid(), parentCollection.getGooruOid(), new CollectionItem(), collection.getUser(), CollectionType.FOLDER.getCollectionType(), false).getModel());
@@ -380,7 +387,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			for (String folderGooruOid : parenFolders) {
 				updateFolderSharing(folderGooruOid);
 			}
-
+			LOGGER.info("create collection  5 .........");
 			try {
 				indexProcessor.index(collection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
 			} catch (Exception ex) {
@@ -395,6 +402,8 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				this.mailHandler.handleMailEvent(data);
 
 			}
+			
+			LOGGER.info("create collection  6 .........");
 
 			Set<ContentSettings> contentSettingsObj = new HashSet<ContentSettings>();
 			ContentSettings contentSetting = new ContentSettings();
@@ -406,9 +415,11 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				map.put("comment", "turn-on");
 				contentSetting.setData(new JSONSerializer().exclude("*.class").serialize(map));
 			}
+			LOGGER.info("create collection  7 .........");
 			this.getCollectionRepository().save(contentSetting);
 			contentSettingsObj.add(contentSetting);
 			collection.setContentSettings(contentSettingsObj);
+			LOGGER.info("create collection  8 .........");
 			getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collection.getUser().getPartyUid() + "*");
 			try {
 				this.getCollectionEventLog().getEventLogs(collection.getCollectionItem(), true, false, user, false, false);
@@ -667,26 +678,31 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 	@Override
 	public void deleteCollection(String collectionId, User user) {
+		LOGGER.info("deleted collection staretd.........");
 		final Collection collection = this.getCollectionByGooruOid(collectionId, null);
+		LOGGER.info("deleted collection 1.........");
 		rejectIfNull(collection, GL0056, _COLLECTION);
 		if (this.getOperationAuthorizer().hasUnrestrictedContentAccess(collectionId, user)) {
+			LOGGER.info("deleted collection 2.........");
 			final List<CollectionItem> collectionItems = this.getCollectionRepository().getCollectionItemByAssociation(collectionId, null, null);
 			List<CollectionItem> parentAssociations = this.getCollectionRepository().getCollectionItemByParentId(collectionId, null, null);
 			if (parentAssociations != null && parentAssociations.size() > 0) {
 				collectionItems.addAll(parentAssociations);
 			}
+			LOGGER.info("deleted collection 3.........");
 			try {
 				this.getCollectionEventLog().getEventLogs(collection.getCollectionItem(), user, collection.getCollectionType());
 			} catch (Exception e) {
 				LOGGER.error(e.getMessage());
 			}
-
+			LOGGER.info("deleted collection 4.........");
 			for (CollectionItem item : collectionItems) {
 				this.deleteCollectionItem(item.getCollectionItemId(), user,false);
 				if (item.getAssociatedUser() != null && !item.getAssociatedUser().getPartyUid().equals(user.getPartyUid())) {
 					getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + item.getAssociatedUser().getPartyUid() + "*");
 				}
 			}
+			LOGGER.info("deleted collection 5.........");
 			if (collection != null && collection.getUser() != null && collection.getSharing().equalsIgnoreCase(PUBLIC) && !collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.PATHWAY.getType())) {
 				UserSummary userSummary = this.getUserRepository().getSummaryByUid(collection.getUser().getPartyUid());
 				if (userSummary != null && userSummary.getCollections() != null) {
@@ -694,15 +710,17 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 					this.getUserRepository().save(userSummary);
 				}
 			}
+			LOGGER.info("deleted collection 6.........");
 			for (CollectionItem item : collectionItems) {
 				Collection parentCollection = item.getCollection();
 				if (parentCollection.getCollectionType().equals(FOLDER)) {
 					updateFolderSharing(parentCollection.getGooruOid());
 				}
 			}
+			LOGGER.info("deleted collection 7.........");
 			
 			this.getCollectionRepository().remove(collection);
-			
+			LOGGER.info("deleted collection 8.........");
 		} else {
 			throw new UnauthorizedException(generateErrorMessage("GL0010"));
 		}
