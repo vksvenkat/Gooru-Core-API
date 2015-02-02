@@ -260,12 +260,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				collectionItem.setItemType(COLLABORATOR);
 			}
 		}
-		String collectionGooruOid = null;
-		if (sourceCollectionItem != null) {
-			collectionGooruOid = sourceCollectionItem.getCollection().getGooruOid();
-			deleteCollectionItem(sourceCollectionItem.getCollectionItemId(), user, true);
-		}
-
+		
 		if (targetId != null) {
 			Collection target = collectionRepository.getCollectionByGooruOid(targetId, null);
 			if (target != null && !source.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing())) {
@@ -276,6 +271,13 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		} else {
 			responseDTO = this.createCollectionItem(sourceId, null, collectionItem, user, CollectionType.SHElf.getCollectionType(), false);
 		}
+		
+		String collectionGooruOid = null;
+		if (sourceCollectionItem != null) {
+			collectionGooruOid = sourceCollectionItem.getCollection().getGooruOid();
+			deleteCollectionItem(sourceCollectionItem.getCollectionItemId(), user, true);
+		}
+		
 		if (collectionGooruOid != null) {
 			updateFolderSharing(collectionGooruOid);
 			List<String> parenFolders = this.getParentCollection(collectionGooruOid, user.getPartyUid(), false);

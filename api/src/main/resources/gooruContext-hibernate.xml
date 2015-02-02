@@ -340,10 +340,12 @@
 				<prop key="hibernate.cache.provider_class">org.hibernate.cache.EhCacheProvider</prop>
 				<prop key="hibernate.cache.region.factory_class">org.hibernate.cache.ehcache.EhCacheRegionFactory
 				</prop>
-				<prop key="hibernate.flushMode">commit</prop>
+				<prop name="hibernate.order_updates" value="true"/>
+      			<prop name="hibernate.order_inserts" value="true"/>
 				<prop key="hibernate.connection.useUnicode">true</prop>
 				<prop key="hibernate.connection.release_mode">after_transaction</prop>
 				<prop key="hibernate.connection.characterEncoding">UTF-8</prop>
+				<prop key="org.hibernate.flushMode">commit</prop>
 			</props>
 		</property>
 
