@@ -58,7 +58,7 @@ public class HibernateLogger implements PostDeleteEventListener {
 	 */
 	private static final long serialVersionUID = -4565236643778853926L;
 
-	private static final Logger LOG = LoggerFactory.getLogger(HibernateLogger.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(HibernateLogger.class);
 
 	@PostConstruct
 	public void register() {
@@ -78,7 +78,7 @@ public class HibernateLogger implements PostDeleteEventListener {
 		final Serializable entityId = event.getPersister().hasIdentifierProperty() ? event.getPersister().getIdentifier(event.getEntity(), event.getSession()) : null;
 		final String entityName = event.getPersister().getEntityName();
 		final Date transTime = new Date();
-		LOG.warn("{ \"operation\" : \"DELETE\"  \"entity\" : \"" + entityId + "\" \"type\" : \"" + entityName + "\" \"time\" : \"" + new SimpleDateFormat().format(transTime) +"\" \"userId\" : \"" + UserGroupSupport.getCurrentUserUid() + "\" \"eventName\" : \"" + UserGroupSupport.getLog().get("eventName")+ "\"");
+		LOGGER.debug("{ \"operation\" : \"DELETE\"  \"entity\" : \"" + entityId + "\" \"type\" : \"" + entityName + "\" \"time\" : \"" + new SimpleDateFormat().format(transTime) +"\" \"userId\" : \"" + UserGroupSupport.getCurrentUserUid() + "\" \"eventName\" : \"" + UserGroupSupport.getLog().get("eventName")+ "\"");
 	}
 
 	@Override

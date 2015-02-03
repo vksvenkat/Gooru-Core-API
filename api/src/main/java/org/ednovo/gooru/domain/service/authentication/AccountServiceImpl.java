@@ -143,7 +143,6 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 
 		try {
 			userTokenRepository.save(sessionToken);
-			userTokenRepository.flush();
 		} catch (Exception e) {
 			LOGGER.error("Error" + e.getMessage());
 		}
@@ -184,7 +183,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			final User user = this.getUserRepository().findByIdentityLogin(identity);
 
 			if (!isSsoLogin) {
-				if (identity.getCredential() == null && !identity.getAccountCreatedType().equalsIgnoreCase(CREDENTIAL)) { 
+				if (identity.getCredential() == null && identity.getAccountCreatedType() != null && !identity.getAccountCreatedType().equalsIgnoreCase(CREDENTIAL)) { 
 					throw new UnauthorizedException(generateErrorMessage(GL0105, identity.getAccountCreatedType()), GL0105 + Constants.ACCOUNT_TYPES.get(identity.getAccountCreatedType()));
 				}
 				if (identity.getCredential() == null) {

@@ -195,7 +195,6 @@ public class QuizServiceImpl extends ScollectionServiceImpl implements QuizServi
 			List<CollectionItem> collectionItems = getCollectionItemByResourceId(quiz.getContentId());
 			if (collectionItems != null && collectionItems.size() > 0) {
 				this.getCollectionRepository().removeAll(collectionItems);
-				this.getCollectionRepository().flush();
 			}
 			this.getCollectionRepository().remove(Quiz.class, quiz.getContentId());
 		}

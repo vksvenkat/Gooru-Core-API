@@ -91,7 +91,6 @@ import org.ednovo.gooru.domain.service.content.ContentService;
 import org.ednovo.gooru.domain.service.resource.AssetManager;
 import org.ednovo.gooru.domain.service.resource.ResourceManager;
 import org.ednovo.gooru.domain.service.resource.ResourceService;
-import org.ednovo.gooru.domain.service.revision_history.RevisionHistoryService;
 import org.ednovo.gooru.domain.service.sessionActivity.SessionActivityService;
 import org.ednovo.gooru.domain.service.storage.S3ResourceApiHandler;
 import org.ednovo.gooru.domain.service.taxonomy.TaxonomyService;
@@ -172,9 +171,6 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 	private SessionActivityService sessionActivityService;
 
 	@Autowired
-	private RevisionHistoryService revisionHistoryService;
-
-	@Autowired
 	private ContentService contentService;
 
 	@Autowired
@@ -241,7 +237,6 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 
 		assessmentRepository.save(assessment);
 
-		this.createRevisionHistoryEntry(assessment.getGooruOid(), ASSESSMENT_UPDATE);
 
 		indexProcessor.index(assessment.getGooruOid(), IndexProcessor.INDEX, QUIZ);
 
@@ -462,7 +457,6 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 	public int deleteAssessment(String gooruOAssessmentId, User caller) {
 		Assessment assessment = getAssessment(gooruOAssessmentId);
 		if (assessment != null) {
-			this.createRevisionHistoryEntry(assessment.getGooruOid(), ASSESSMENT_DELETE);
 			indexProcessor.index(assessment.getGooruOid(), IndexProcessor.DELETE, QUIZ);
 			assessmentRepository.remove(Assessment.class, assessment.getContentId());
 			// redisService.deleteEntry(gooruOAssessmentId);
@@ -470,18 +464,6 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 			return 1;
 		}
 		return 0;
-	}
-
-	private void createRevisionHistoryEntry(String assessmentGooruUid, String eventType) {
-		Content content = contentService.findContentByGooruId(assessmentGooruUid, false);
-		if (content != null && content instanceof Versionable) {
-			try {
-				getRevisionHistoryService().createVersion((Versionable) content, eventType);
-			} catch (Exception ex) {
-				ex.printStackTrace();
-			}
-		}
-
 	}
 
 	@Override
@@ -535,10 +517,6 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 		List<Asset> assets = buildQuestionAssets(deleteAssets, errors);
 
 		if (!errors.hasErrors()) {
-			Assessment assessment = assessmentRepository.getAssessmentQuestion(question.getGooruOid());
-			if (assessment != null) {
-				this.createRevisionHistoryEntry(assessment.getGooruOid(), ASSESSMENT_QUESTION_UPDATE);
-			}
 			assessmentRepository.save(question);
 
 			if (depth != null && depth.size() > 0) {
@@ -805,15 +783,6 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 	@Override
 	public int deleteSegment(Integer segmentId, String gooruOAssessmentId, User caller) {
 		AssessmentSegment segment = getSegment(segmentId);
-		Assessment assessment = getAssessment(gooruOAssessmentId);
-		if (assessment != null) {
-			this.createRevisionHistoryEntry(assessment.getGooruOid(), ASSESSMENT_SEGMENT_CREATE);
-		}
-		try {
-			getRevisionHistoryService().createVersion(segment.getAssessment(), SEGMENT_DELETE);
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
 		if (segment != null) {
 			assessmentRepository.remove(AssessmentSegment.class, segmentId);
 			this.getSessionActivityService().updateSessionActivityByContent(gooruOAssessmentId, SessionActivityType.Status.ARCHIVE.getStatus());
@@ -924,23 +893,16 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 		assessment.setSegments(new HashSet<AssessmentSegment>());
 		segment.setSegmentUId(UUID.randomUUID().toString());
 		assessment.getSegments().add(segment);
-		assessmentRepository.saveAndFlush(assessment);
-		if (assessment != null) {
-			this.createRevisionHistoryEntry(assessment.getGooruOid(), ASSESSMENT_SEGMENT_CREATE);
-		}
+		assessmentRepository.save(assessment);
 		return segment;
 	}
 
 	@Override
 	public AssessmentSegment updateSegment(AssessmentSegment segment) {
-		Assessment assessment = getAssessment(segment.getAssessment().getGooruOid());
 		AssessmentSegment existingSegment = getSegment(segment.getSegmentId());
 		existingSegment.setName(segment.getName());
 		existingSegment.setSequence(segment.getSequence());
-		assessmentRepository.saveAndFlush(existingSegment);
-		if (assessment != null) {
-			this.createRevisionHistoryEntry(assessment.getGooruOid(), ASSESSMENT_SEGMENT_UPDATE);
-		}
+		assessmentRepository.save(existingSegment);	
 		return segment;
 	}
 
@@ -964,11 +926,7 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 		segmentQuestionAssoc.setQuestion(getQuestion(gooruOQuestionId));
 		segmentQuestionAssoc = (AssessmentSegmentQuestionAssoc) assessmentRepository.getModel(AssessmentSegmentQuestionAssoc.class, segmentQuestionAssoc);
 		if (segmentQuestionAssoc != null) {
-			if (assessment != null) {
-				this.createRevisionHistoryEntry(assessment.getGooruOid(), ASSESSMENT_QUESTION_DELETE);
-			}
 			assessmentRepository.deleteSegmentQuestion(segmentQuestionAssoc);
-			assessmentRepository.flush();
 			updateQuestionTime(getQuestion(gooruOQuestionId));
 			updateQuestionCount(segmentId);
 			return 1;
@@ -1473,7 +1431,6 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 			segmentQuestionAssoc.setSequence(sequence + 1);
 			assessmentRepository.save(segmentQuestionAssoc);
 		}
-		assessmentRepository.flush();
 		updateQuestionCount(segmentId);
 		return HttpServletResponse.SC_OK;
 	}
@@ -1884,10 +1841,6 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 	@Override
 	public Assessment findQuizContent(String quizGooruOid) {
 		return assessmentRepository.findQuizContent(quizGooruOid);
-	}
-
-	public RevisionHistoryService getRevisionHistoryService() {
-		return revisionHistoryService;
 	}
 
 	public AsyncExecutor getAsyncExecutor() {

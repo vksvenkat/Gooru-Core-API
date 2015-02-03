@@ -50,8 +50,8 @@ public class AuthorizationFilter implements Filter {
 				httpServletRequestWrapper = new MultiReadHttpServletRequest(request);
 		}
 
-		if (logger.isInfoEnabled()) {
-			logger.info("Request URI: " + ((HttpServletRequest) request).getRequestURI());
+		if (logger.isDebugEnabled()) {
+			logger.debug("Request URI: " + ((HttpServletRequest) request).getRequestURI());
 		}
 
 		// check the authentication object in security

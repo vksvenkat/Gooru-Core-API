@@ -76,7 +76,6 @@ import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.domain.service.redis.RedisService;
 import org.ednovo.gooru.domain.service.resource.ResourceManager;
 import org.ednovo.gooru.domain.service.resource.ResourceService;
-import org.ednovo.gooru.domain.service.revision_history.RevisionHistoryService;
 import org.ednovo.gooru.domain.service.storage.S3ResourceApiHandler;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepository;
@@ -148,8 +147,6 @@ public class LearnguideServiceImpl extends OperationAuthorizer implements Learng
 	@Autowired
 	private SessionActivityRepository sessionActivityRepository;
 
-	@Autowired
-	private RevisionHistoryService revisionHistoryService;
 
 	private static final Logger logger = LoggerFactory.getLogger(LearnguideServiceImpl.class);
 
@@ -160,13 +157,6 @@ public class LearnguideServiceImpl extends OperationAuthorizer implements Learng
 		indexProcessor.index(collection.getGooruOid(), IndexProcessor.INDEX, COLLECTION);
 		// Remove the collection from cache
 		collectionUtil.deleteCollectionFromCache(gooruContentId, COLLECTION);
-
-		try {
-			revisionHistoryService.createVersion(collection, COLLECTION_IMAGE_CHANGE);
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
-
 		return collection.getOrganization().getNfsStorageArea().getAreaPath() + collection.getFolder() + "/" + collection.getThumbnail();
 	}
 
@@ -419,11 +409,6 @@ public class LearnguideServiceImpl extends OperationAuthorizer implements Learng
 		final String cacheKey = "e.col.i-" + collection.getContentId().toString();
 		getRedisService().putValue(cacheKey, JsonSerializer.serializeToJson(collection, true), RedisService.DEFAULT_PROFILE_EXP);
 		indexProcessor.index(collection.getGooruOid(), IndexProcessor.INDEX, COLLECTION);
-		try {
-			revisionHistoryService.createVersion(collection, NEW_COLLECTION);
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
 
 		return collection;
 	}
@@ -653,12 +638,6 @@ public class LearnguideServiceImpl extends OperationAuthorizer implements Learng
 		indexProcessor.index(targetCollection.getGooruOid(), IndexProcessor.INDEX, COLLECTION );
 
 		this.s3ResourceApiHandler.uploadS3Resource(targetCollection);
-
-		try {
-			revisionHistoryService.createVersion(targetCollection, COPY_COLLECTION);
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
 
 		return targetCollection;
 	}

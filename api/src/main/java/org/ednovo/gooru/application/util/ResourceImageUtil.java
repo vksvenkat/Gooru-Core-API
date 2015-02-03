@@ -280,7 +280,6 @@ public class ResourceImageUtil extends UserGroupSupport implements ParameterProp
 		}
 
 		resourceRepository.save(resource);
-		resourceRepository.flush();
 		if (resource.getResourceType() != null) {
 			String indexType = RESOURCE;
 			if (resource.getResourceType().getName().equalsIgnoreCase(SCOLLECTION)) {

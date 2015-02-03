@@ -383,6 +383,8 @@ public interface ParameterProperties {
 	String GL0058 = "GL0058";
 
 	String GL0041 = "GL0041";
+	
+	String GL0106 = "GL0106";
 
 	String EVENTNAME = "eventName";
 
