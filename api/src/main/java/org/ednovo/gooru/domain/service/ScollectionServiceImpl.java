@@ -695,13 +695,13 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			} catch (Exception e) {
 				LOGGER.error(e.getMessage());
 			}
-			/* LOGGER.info("deleted collection 4.........");
+			 LOGGER.info("deleted collection 4.........");
 			for (CollectionItem item : collectionItems) {
-				this.deleteCollectionItem(item.getCollectionItemId(), user,false);
 				if (item.getAssociatedUser() != null && !item.getAssociatedUser().getPartyUid().equals(user.getPartyUid())) {
 					getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + item.getAssociatedUser().getPartyUid() + "*");
 				}
-			} */
+				this.deleteCollectionItem(item.getCollectionItemId());
+			} 
 			LOGGER.info("deleted collection 5.........");
 			if (collection != null && collection.getUser() != null && collection.getSharing().equalsIgnoreCase(PUBLIC) && !collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.PATHWAY.getType())) {
 				UserSummary userSummary = this.getUserRepository().getSummaryByUid(collection.getUser().getPartyUid());
@@ -710,13 +710,13 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 					this.getUserRepository().save(userSummary);
 				}
 			}
-			/*LOGGER.info("deleted collection 6.........");
+			LOGGER.info("deleted collection 6.........");
 			for (CollectionItem item : collectionItems) {
 				Collection parentCollection = item.getCollection();
 				if (parentCollection.getCollectionType().equals(FOLDER)) {
 					updateFolderSharing(parentCollection.getGooruOid());
 				}
-			} */
+			} 
 			LOGGER.info("deleted collection 7.........");
 			
 			this.getCollectionRepository().remove(collection);
@@ -978,6 +978,23 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		} else {
 			throw new NotFoundException(generateErrorMessage(GL0056, _COLLECTION_ITEM), GL0056);
 
+		}
+	}
+	
+	@Override
+	public void deleteCollectionItem(String collectionItemId) {
+		CollectionItem collectionItem = this.getCollectionRepository().getCollectionItemById(collectionItemId);
+		if (collectionItem != null) {
+			this.getCollectionRepository().remove(CollectionItem.class, collectionItem.getCollectionItemId());
+		}
+		try {
+			if (collectionItem.getResource().getResourceType() != null && collectionItem.getResource().getResourceType().getName().equalsIgnoreCase(ResourceType.Type.SCOLLECTION.getType())) {
+				indexProcessor.index(collectionItem.getResource().getGooruOid(), IndexProcessor.DELETE, SCOLLECTION);
+			} else {
+				indexProcessor.index(collectionItem.getResource().getGooruOid(), IndexProcessor.INDEX, RESOURCE);
+			}
+		} catch(Exception e) { 
+			LOGGER.error("error" + e.getMessage());
 		}
 	}
 

@@ -144,4 +144,6 @@ public interface ScollectionService extends BaseService {
 	List<ContentMetaDTO> setContentMetaAssociation(List<ContentMetaDTO> depthOfKnowledges, Resource resource, String type);
 	
 	List<ContentMetaDTO> updateContentMeta(List<ContentMetaDTO> newDepthOfKnowledges, Resource resource, User apiCaller, String type);
+	
+	void deleteCollectionItem(String collectionItemId);
 }
