@@ -271,16 +271,12 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		} else {
 			responseDTO = this.createCollectionItem(sourceId, null, collectionItem, user, CollectionType.SHElf.getCollectionType(), false);
 		}
-		String collectionGooruOid = sourceCollectionItem != null ? sourceCollectionItem.getCollection().getGooruOid() : null;
-		if (collectionGooruOid != null) {
-			updateFolderSharing(collectionGooruOid);
-			List<String> parenFolders = this.getParentCollection(collectionGooruOid, user.getPartyUid(), false);
+		if (sourceCollectionItem != null) {
+			updateFolderSharing(sourceCollectionItem.getCollection().getGooruOid());
+			List<String> parenFolders = this.getParentCollection(sourceCollectionItem.getCollection().getGooruOid(), user.getPartyUid(), false);
 			for (String folderGooruOid : parenFolders) {
 				updateFolderSharing(folderGooruOid);
 			}
-		}
-		
-		if (sourceCollectionItem != null) {
 			deleteCollectionItem(sourceCollectionItem.getCollectionItemId(), user, true);
 		}
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
