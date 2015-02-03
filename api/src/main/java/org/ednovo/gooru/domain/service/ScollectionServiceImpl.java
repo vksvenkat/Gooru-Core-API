@@ -695,13 +695,13 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			} catch (Exception e) {
 				LOGGER.error(e.getMessage());
 			}
-			LOGGER.info("deleted collection 4.........");
+			/* LOGGER.info("deleted collection 4.........");
 			for (CollectionItem item : collectionItems) {
 				this.deleteCollectionItem(item.getCollectionItemId(), user,false);
 				if (item.getAssociatedUser() != null && !item.getAssociatedUser().getPartyUid().equals(user.getPartyUid())) {
 					getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + item.getAssociatedUser().getPartyUid() + "*");
 				}
-			}
+			} */
 			LOGGER.info("deleted collection 5.........");
 			if (collection != null && collection.getUser() != null && collection.getSharing().equalsIgnoreCase(PUBLIC) && !collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.PATHWAY.getType())) {
 				UserSummary userSummary = this.getUserRepository().getSummaryByUid(collection.getUser().getPartyUid());
