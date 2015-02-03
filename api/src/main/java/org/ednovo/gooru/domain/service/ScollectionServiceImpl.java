@@ -678,31 +678,25 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 	@Override
 	public void deleteCollection(String collectionId, User user) {
-		LOGGER.info("deleted collection staretd.........");
 		final Collection collection = this.getCollectionByGooruOid(collectionId, null);
-		LOGGER.info("deleted collection 1.........");
 		rejectIfNull(collection, GL0056, _COLLECTION);
 		if (this.getOperationAuthorizer().hasUnrestrictedContentAccess(collectionId, user)) {
-			LOGGER.info("deleted collection 2.........");
 			final List<CollectionItem> collectionItems = this.getCollectionRepository().getCollectionItemByAssociation(collectionId, null, null);
 			List<CollectionItem> parentAssociations = this.getCollectionRepository().getCollectionItemByParentId(collectionId, null, null);
 			if (parentAssociations != null && parentAssociations.size() > 0) {
 				collectionItems.addAll(parentAssociations);
 			}
-			LOGGER.info("deleted collection 3.........");
 			try {
 				this.getCollectionEventLog().getEventLogs(collection.getCollectionItem(), user, collection.getCollectionType());
 			} catch (Exception e) {
 				LOGGER.error(e.getMessage());
 			}
-			 LOGGER.info("deleted collection 4.........");
 			for (CollectionItem item : collectionItems) {
 				if (item.getAssociatedUser() != null && !item.getAssociatedUser().getPartyUid().equals(user.getPartyUid())) {
 					getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + item.getAssociatedUser().getPartyUid() + "*");
 				}
 				this.deleteCollectionItem(item.getCollectionItemId());
 			} 
-			LOGGER.info("deleted collection 5.........");
 			if (collection != null && collection.getUser() != null && collection.getSharing().equalsIgnoreCase(PUBLIC) && !collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.PATHWAY.getType())) {
 				UserSummary userSummary = this.getUserRepository().getSummaryByUid(collection.getUser().getPartyUid());
 				if (userSummary != null && userSummary.getCollections() != null) {
@@ -710,17 +704,13 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 					this.getUserRepository().save(userSummary);
 				}
 			}
-			LOGGER.info("deleted collection 6.........");
 			for (CollectionItem item : collectionItems) {
 				Collection parentCollection = item.getCollection();
 				if (parentCollection.getCollectionType().equals(FOLDER)) {
 					updateFolderSharing(parentCollection.getGooruOid());
 				}
-			} 
-			LOGGER.info("deleted collection 7.........");
-			
+			}	
 			this.getCollectionRepository().remove(collection);
-			LOGGER.info("deleted collection 8.........");
 		} else {
 			throw new UnauthorizedException(generateErrorMessage("GL0010"));
 		}
