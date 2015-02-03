@@ -940,34 +940,33 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				e1.printStackTrace();
 			}
 			Collection collection = collectionItem.getCollection();
+			Resource resource = collectionItem.getResource();
 			this.getCollectionRepository().remove(CollectionItem.class, collectionItem.getCollectionItemId());
 
-			collectionItem.getCollection().setLastUpdatedUserUid(user.getPartyUid());
-			collectionItem.getCollection().setLastModified(new Date(System.currentTimeMillis()));
-			if (collectionItem.getCollection().getResourceType().getName().equalsIgnoreCase(SCOLLECTION) && collectionItem.getCollection().getClusterUid() != null && !collectionItem.getCollection().getClusterUid().equalsIgnoreCase(collectionItem.getCollection().getGooruOid())) {
-				collectionItem.getCollection().setClusterUid(collectionItem.getCollection().getGooruOid());
+			collection.setLastUpdatedUserUid(user.getPartyUid());
+			collection.setLastModified(new Date(System.currentTimeMillis()));
+			if (collection.getResourceType().getName().equalsIgnoreCase(SCOLLECTION) && collection.getClusterUid() != null && !collection.getClusterUid().equalsIgnoreCase(collection.getGooruOid())) {
+				collection.setClusterUid(collectionItem.getCollection().getGooruOid());
 			}
-			collectionItem.getCollection().setItemCount((collectionItem.getCollection().getItemCount() == null || (collectionItem.getCollection().getItemCount() != null && collectionItem.getCollection().getItemCount() == 0)) ? 0 : collectionItem.getCollection().getItemCount() - 1);
-			reOrderCollectionItems(collection, collectionItemId);
+			collection.setItemCount((collection.getItemCount() == null || (collection.getItemCount() != null && collection.getItemCount() == 0)) ? 0 : collection.getItemCount() - 1);
+			reOrderCollectionItems(collection, collectionItemId);		
+			this.getCollectionRepository().save(collection);
 			try {
-				if (collectionItem.getResource().getResourceType() != null && collectionItem.getResource().getResourceType().getName().equalsIgnoreCase(ResourceType.Type.SCOLLECTION.getType())) {
-					indexProcessor.index(collectionItem.getResource().getGooruOid(), IndexProcessor.DELETE, SCOLLECTION);
+				if (resource.getResourceType() != null && resource.getResourceType().getName().equalsIgnoreCase(ResourceType.Type.SCOLLECTION.getType())) {
+					indexProcessor.index(resource.getGooruOid(), IndexProcessor.DELETE, SCOLLECTION);
 				} else {
-					indexProcessor.index(collectionItem.getResource().getGooruOid(), IndexProcessor.INDEX, RESOURCE);
+					indexProcessor.index(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE);
 				}
 				if (indexCollection) {
-					indexProcessor.index(collectionItem.getCollection().getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
+					indexProcessor.index(collection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
 				}
-
-				getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
-				getAsyncExecutor().deleteFromCache("v2-class-data-" + collectionItem.getCollection().getGooruOid() + "*");
+				getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collection.getUser().getPartyUid() + "*");
+				getAsyncExecutor().deleteFromCache("v2-class-data-" + collection.getGooruOid() + "*");
 			} catch (Exception e) {
 				LOGGER.error("error" + e.getMessage());
 			}
-
 		} else {
 			throw new NotFoundException(generateErrorMessage(GL0056, _COLLECTION_ITEM), GL0056);
-
 		}
 	}
 	
