@@ -773,8 +773,8 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				updateFolderSharing(parentFolder);
 			}
 			if (collectionItem.getCollection().getResourceType().getName().equalsIgnoreCase(SCOLLECTION) && collectionItem.getCollection().getClusterUid() != null && !collectionItem.getCollection().getClusterUid().equalsIgnoreCase(collectionItem.getCollection().getGooruOid())) {
-				collectionItem.getCollection().setClusterUid(collectionItem.getCollection().getGooruOid());
-				this.getCollectionRepository().save(collectionItem.getCollection());
+				//collectionItem.getCollection().setClusterUid(collectionItem.getCollection().getGooruOid());
+				//this.getCollectionRepository().save(collectionItem.getCollection());
 			}
 			getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
 			getAsyncExecutor().deleteFromCache("v2-class-data-" + collection.getGooruOid() + "*");
