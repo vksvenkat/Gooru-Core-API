@@ -323,7 +323,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			}
 			this.getCollectionRepository().save(collection);
 			this.getResourceService().saveOrUpdateResourceTaxonomy(collection, collection.getTaxonomySet());
-		/*	if (resourceId != null && !resourceId.isEmpty()) {
+			if (resourceId != null && !resourceId.isEmpty()) {
 				CollectionItem collectionItem = new CollectionItem();
 				collectionItem.setItemType(ShelfType.AddedType.ADDED.getAddedType());
 				collectionItem = this.createCollectionItem(resourceId, collection.getGooruOid(), collectionItem, collection.getUser(), CollectionType.COLLECTION.getCollectionType(), false).getModel();
@@ -333,12 +333,11 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			}
 			
 			LOGGER.info("create collection  3 .........");
-*/
-			if (addToShelf) {
+			/*if (addToShelf) {
 				CollectionItem collectionItem = new CollectionItem();
 				collectionItem.setItemType(ShelfType.AddedType.ADDED.getAddedType());
 				collection.setCollectionItem(this.createCollectionItem(collection.getGooruOid(), null, collectionItem, collection.getUser(), CollectionType.SHElf.getCollectionType(), false).getModel());
-			}
+			}*/
 			if (collection.getResourceType().getName().equalsIgnoreCase(SCOLLECTION)) {
 				if (collection.getDepthOfKnowledges() != null && collection.getDepthOfKnowledges().size() > 0) {
 					collection.setDepthOfKnowledges(this.updateContentMeta(collection.getDepthOfKnowledges(), collection, collection.getUser(), DEPTH_OF_KNOWLEDGE));
