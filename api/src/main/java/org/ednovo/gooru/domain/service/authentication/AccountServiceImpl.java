@@ -377,6 +377,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			newIdentity = userIdentity.getIdentities().iterator().next();
 			if (newIdentity != null) {
 				newIdentity.setLoginType(source);
+				newIdentity.setLastLogin(new Date(System.currentTimeMillis()));
 				this.getUserRepository().save(newIdentity);
 			}
 		}	
