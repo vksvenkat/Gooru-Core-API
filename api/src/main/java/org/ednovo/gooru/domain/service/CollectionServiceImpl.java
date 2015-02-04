@@ -260,12 +260,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				collectionItem.setItemType(COLLABORATOR);
 			}
 		}
-		String collectionGooruOid = null;
-		if (sourceCollectionItem != null) {
-			collectionGooruOid = sourceCollectionItem.getCollection().getGooruOid();
-			deleteCollectionItem(sourceCollectionItem.getCollectionItemId(), user, true);
-		}
-
+		
 		if (targetId != null) {
 			Collection target = collectionRepository.getCollectionByGooruOid(targetId, null);
 			if (target != null && !source.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing())) {
@@ -276,12 +271,13 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		} else {
 			responseDTO = this.createCollectionItem(sourceId, null, collectionItem, user, CollectionType.SHElf.getCollectionType(), false);
 		}
-		if (collectionGooruOid != null) {
-			updateFolderSharing(collectionGooruOid);
-			List<String> parenFolders = this.getParentCollection(collectionGooruOid, user.getPartyUid(), false);
+		if (sourceCollectionItem != null) {
+			updateFolderSharing(sourceCollectionItem.getCollection().getGooruOid());
+			List<String> parenFolders = this.getParentCollection(sourceCollectionItem.getCollection().getGooruOid(), user.getPartyUid(), false);
 			for (String folderGooruOid : parenFolders) {
 				updateFolderSharing(folderGooruOid);
 			}
+			deleteCollectionItem(sourceCollectionItem.getCollectionItemId(), user, true);
 		}
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + user.getPartyUid() + "*");

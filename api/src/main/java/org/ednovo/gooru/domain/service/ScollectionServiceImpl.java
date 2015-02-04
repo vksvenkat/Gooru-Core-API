@@ -215,6 +215,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 	@Override
 	public ActionResponseDTO<Collection> createCollection(final Collection collection, boolean addToShelf, String resourceId, String taxonomyCode, boolean updateTaxonomyByCode, String parentId) throws Exception {
+		
 		final Errors errors = validateCollection(collection);
 		if (!errors.hasErrors()) {
 			if (taxonomyCode != null) {
@@ -301,6 +302,10 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	public ActionResponseDTO<Collection> createCollection(Collection collection, boolean addToShelf, String resourceId, String parentId, User user) throws Exception {
 		final Errors errors = validateCollection(collection);
 		if (!errors.hasErrors()) {
+			Collection parentCollection =  null;
+			if (parentId != null) { 				
+				parentCollection = collectionRepository.getCollectionByGooruOid(parentId, collection.getUser().getGooruUId());
+			}
 			collection.setBuildType(this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.BUILD_TYPE.getTable(), collection.getBuildType() == null ? WEB : collection.getBuildType().getValue() != null ? collection.getBuildType().getValue() : WEB));
 			if (collection.getCollectionType() != null && collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.FOLDER.getType())) {
 				collection.setResourceFormat(this.getCustomTableRepository().getCustomTableValue(RESOURCE_CATEGORY_FORMAT, FOLDER));
@@ -323,7 +328,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				collectionItems.add(collectionItem);
 				collection.setCollectionItems(collectionItems);
 			}
-
+			
 			if (addToShelf) {
 				CollectionItem collectionItem = new CollectionItem();
 				collectionItem.setItemType(ShelfType.AddedType.ADDED.getAddedType());
@@ -363,8 +368,11 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				this.getUserRepository().save(userSummary);
 			}
 
-			final Collection parentCollection = collectionRepository.getCollectionByGooruOid(parentId, collection.getUser().getGooruUId());
 			if (parentCollection != null) {
+				if (!collection.getCollectionType().equalsIgnoreCase(PRIVATE)) { 
+					parentCollection.setSharing(collection.getSharing());
+					this.getCollectionRepository().save(parentCollection);
+				}
 				collection.setCollectionItem(this.createCollectionItem(collection.getGooruOid(), parentCollection.getGooruOid(), new CollectionItem(), collection.getUser(), CollectionType.FOLDER.getCollectionType(), false).getModel());
 				getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + parentCollection.getUser().getPartyUid() + "*");
 			}
@@ -377,7 +385,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			for (String folderGooruOid : parenFolders) {
 				updateFolderSharing(folderGooruOid);
 			}
-
 			try {
 				indexProcessor.index(collection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
 			} catch (Exception ex) {
@@ -392,7 +399,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				this.mailHandler.handleMailEvent(data);
 
 			}
-
+			
 			Set<ContentSettings> contentSettingsObj = new HashSet<ContentSettings>();
 			ContentSettings contentSetting = new ContentSettings();
 			contentSetting.setContent(collection);
@@ -677,13 +684,12 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			} catch (Exception e) {
 				LOGGER.error(e.getMessage());
 			}
-
 			for (CollectionItem item : collectionItems) {
-				this.deleteCollectionItem(item.getCollectionItemId(), user,false);
 				if (item.getAssociatedUser() != null && !item.getAssociatedUser().getPartyUid().equals(user.getPartyUid())) {
 					getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + item.getAssociatedUser().getPartyUid() + "*");
 				}
-			}
+				this.deleteCollectionItem(item.getCollectionItemId());
+			} 
 			if (collection != null && collection.getUser() != null && collection.getSharing().equalsIgnoreCase(PUBLIC) && !collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.PATHWAY.getType())) {
 				UserSummary userSummary = this.getUserRepository().getSummaryByUid(collection.getUser().getPartyUid());
 				if (userSummary != null && userSummary.getCollections() != null) {
@@ -691,15 +697,15 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 					this.getUserRepository().save(userSummary);
 				}
 			}
-			this.getCollectionRepository().remove(collection);
 			for (CollectionItem item : collectionItems) {
 				Collection parentCollection = item.getCollection();
 				if (parentCollection.getCollectionType().equals(FOLDER)) {
 					updateFolderSharing(parentCollection.getGooruOid());
 				}
-			}
+			}	
+			this.getCollectionRepository().remove(collection);
 		} else {
-			throw new UnauthorizedException(generateErrorMessage("GL0010))"));
+			throw new UnauthorizedException(generateErrorMessage("GL0010"));
 		}
 
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + user.getPartyUid() + "*");
@@ -927,34 +933,50 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				e1.printStackTrace();
 			}
 			Collection collection = collectionItem.getCollection();
+			Resource resource = collectionItem.getResource();
 			this.getCollectionRepository().remove(CollectionItem.class, collectionItem.getCollectionItemId());
 
-			collectionItem.getCollection().setLastUpdatedUserUid(user.getPartyUid());
-			collectionItem.getCollection().setLastModified(new Date(System.currentTimeMillis()));
-			if (collectionItem.getCollection().getResourceType().getName().equalsIgnoreCase(SCOLLECTION) && collectionItem.getCollection().getClusterUid() != null && !collectionItem.getCollection().getClusterUid().equalsIgnoreCase(collectionItem.getCollection().getGooruOid())) {
-				collectionItem.getCollection().setClusterUid(collectionItem.getCollection().getGooruOid());
+			collection.setLastUpdatedUserUid(user.getPartyUid());
+			collection.setLastModified(new Date(System.currentTimeMillis()));
+			if (collection.getResourceType().getName().equalsIgnoreCase(SCOLLECTION) && collection.getClusterUid() != null && !collection.getClusterUid().equalsIgnoreCase(collection.getGooruOid())) {
+				collection.setClusterUid(collectionItem.getCollection().getGooruOid());
 			}
-			collectionItem.getCollection().setItemCount((collectionItem.getCollection().getItemCount() == null || (collectionItem.getCollection().getItemCount() != null && collectionItem.getCollection().getItemCount() == 0)) ? 0 : collectionItem.getCollection().getItemCount() - 1);
-			reOrderCollectionItems(collection, collectionItemId);
+			collection.setItemCount((collection.getItemCount() == null || (collection.getItemCount() != null && collection.getItemCount() == 0)) ? 0 : collection.getItemCount() - 1);
+			reOrderCollectionItems(collection, collectionItemId);		
+			this.getCollectionRepository().save(collection);
 			try {
-				if (collectionItem.getResource().getResourceType() != null && collectionItem.getResource().getResourceType().getName().equalsIgnoreCase(ResourceType.Type.SCOLLECTION.getType())) {
-					indexProcessor.index(collectionItem.getResource().getGooruOid(), IndexProcessor.DELETE, SCOLLECTION);
+				if (resource.getResourceType() != null && resource.getResourceType().getName().equalsIgnoreCase(ResourceType.Type.SCOLLECTION.getType())) {
+					indexProcessor.index(resource.getGooruOid(), IndexProcessor.DELETE, SCOLLECTION);
 				} else {
-					indexProcessor.index(collectionItem.getResource().getGooruOid(), IndexProcessor.INDEX, RESOURCE);
+					indexProcessor.index(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE);
 				}
 				if (indexCollection) {
-					indexProcessor.index(collectionItem.getCollection().getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
+					indexProcessor.index(collection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
 				}
-
-				getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
-				getAsyncExecutor().deleteFromCache("v2-class-data-" + collectionItem.getCollection().getGooruOid() + "*");
+				getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collection.getUser().getPartyUid() + "*");
+				getAsyncExecutor().deleteFromCache("v2-class-data-" + collection.getGooruOid() + "*");
 			} catch (Exception e) {
 				LOGGER.error("error" + e.getMessage());
 			}
-
 		} else {
 			throw new NotFoundException(generateErrorMessage(GL0056, _COLLECTION_ITEM), GL0056);
-
+		}
+	}
+	
+	@Override
+	public void deleteCollectionItem(String collectionItemId) {
+		CollectionItem collectionItem = this.getCollectionRepository().getCollectionItemById(collectionItemId);
+		if (collectionItem != null) {
+			this.getCollectionRepository().remove(CollectionItem.class, collectionItem.getCollectionItemId());
+		}
+		try {
+			if (collectionItem.getResource().getResourceType() != null && collectionItem.getResource().getResourceType().getName().equalsIgnoreCase(ResourceType.Type.SCOLLECTION.getType())) {
+				indexProcessor.index(collectionItem.getResource().getGooruOid(), IndexProcessor.DELETE, SCOLLECTION);
+			} else {
+				indexProcessor.index(collectionItem.getResource().getGooruOid(), IndexProcessor.INDEX, RESOURCE);
+			}
+		} catch(Exception e) { 
+			LOGGER.error("error" + e.getMessage());
 		}
 	}
 
