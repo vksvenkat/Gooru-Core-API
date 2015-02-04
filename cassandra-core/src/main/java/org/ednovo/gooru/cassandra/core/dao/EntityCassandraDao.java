@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.netflix.astyanax.model.ColumnList;
+import com.netflix.astyanax.model.Rows;
 
 /**
  * @author Search Team
@@ -55,6 +56,7 @@ public interface EntityCassandraDao<M> extends CassandraDao {
 	Map<String, String> readViewsCount(String rowKeys);
 	
 	void updateViewsCount(Map<String,String> viewsData);
-
+	
+	Rows<String, String> readWithKeyListColumnList(Collection<String> keys,Collection<String> columnList, int retryCount);
 	
 }

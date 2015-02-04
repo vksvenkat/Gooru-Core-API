@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.netflix.astyanax.model.ColumnList;
+import com.netflix.astyanax.model.Rows;
 
 /**
  * @author SearchTeam
@@ -100,6 +101,11 @@ public abstract class EntityCassandraServiceImpl<M extends Serializable> impleme
 	@Override
 	public void updateViewsCount(Map<String, String> viewsData) {
 		getCassandraDao().updateViewsCount(viewsData);
+	}
+	
+	@Override
+	public Rows<String, String> readWithKeyListColumnList(Collection<String> keys,Collection<String> columnList, int retryCount){
+		return getCassandraDao().readWithKeyListColumnList(keys, columnList, retryCount);
 	}
 
 }
