@@ -149,7 +149,7 @@ public class CommentServiceImpl extends BaseServiceImpl implements CommentServic
 	@Override
 	public void deleteComment(String commentUid, User user, Boolean softdelete) {
 		Comment comment = this.getCommentRepository().getComment(commentUid);
-		rejectIfNull(comment, COMMENT, GL0057, generateErrorMessage(GL0057, COMMENT));
+		rejectIfNull(comment, GL0057, 404, COMMENT);
 		Content content = this.getResourceRepository().findResourceByContent(comment.getGooruOid());
 		List<String> contentPermissions = contentService.getContentPermission(content, user);
 		boolean hasPermission = false;
