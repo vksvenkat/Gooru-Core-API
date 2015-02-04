@@ -688,6 +688,10 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				if (item.getAssociatedUser() != null && !item.getAssociatedUser().getPartyUid().equals(user.getPartyUid())) {
 					getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + item.getAssociatedUser().getPartyUid() + "*");
 				}
+				Collection parentCollection = item.getCollection();
+				if (parentCollection.getCollectionType().equals(FOLDER)) {
+					updateFolderSharing(parentCollection.getGooruOid());
+				}
 				this.deleteCollectionItem(item.getCollectionItemId());
 			} 
 			if (collection != null && collection.getUser() != null && collection.getSharing().equalsIgnoreCase(PUBLIC) && !collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.PATHWAY.getType())) {
@@ -697,17 +701,15 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 					this.getUserRepository().save(userSummary);
 				}
 			}
-			for (CollectionItem item : collectionItems) {
-				Collection parentCollection = item.getCollection();
-				if (parentCollection.getCollectionType().equals(FOLDER)) {
-					updateFolderSharing(parentCollection.getGooruOid());
-				}
-			}	
+			try {
+				indexProcessor.index(collection.getGooruOid(), IndexProcessor.DELETE, SCOLLECTION);
+			} catch(Exception e) { 
+				LOGGER.error("error" + e.getMessage());
+			}
 			this.getCollectionRepository().remove(collection);
 		} else {
-			throw new UnauthorizedException(generateErrorMessage("GL0010"));
+			throw new UnauthorizedException(generateErrorMessage(GL0010));
 		}
-
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + user.getPartyUid() + "*");
 		getAsyncExecutor().deleteFromCache("v2-class-data-*");
 		
@@ -970,11 +972,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			this.getCollectionRepository().remove(CollectionItem.class, collectionItem.getCollectionItemId());
 		}
 		try {
-			if (collectionItem.getResource().getResourceType() != null && collectionItem.getResource().getResourceType().getName().equalsIgnoreCase(ResourceType.Type.SCOLLECTION.getType())) {
-				indexProcessor.index(collectionItem.getResource().getGooruOid(), IndexProcessor.DELETE, SCOLLECTION);
-			} else {
-				indexProcessor.index(collectionItem.getResource().getGooruOid(), IndexProcessor.INDEX, RESOURCE);
-			}
+			indexProcessor.index(collectionItem.getResource().getGooruOid(), IndexProcessor.INDEX, RESOURCE);
 		} catch(Exception e) { 
 			LOGGER.error("error" + e.getMessage());
 		}
