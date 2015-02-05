@@ -7,8 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.persistence.PersistenceException;
-
 import org.ednovo.gooru.cassandra.core.factory.InsightsCassandraFactory;
 import org.ednovo.gooru.cassandra.core.factory.SearchCassandraFactory;
 import org.ednovo.gooru.core.cassandra.model.IsEntityCassandraIndexable;
@@ -35,6 +33,8 @@ import com.netflix.astyanax.util.RangeBuilder;
 public class EntityCassandraDaoImpl<M extends IsEntityCassandraIndexable> extends CassandraDaoSupport<EntityCassandraColumnFamily<M>> implements EntityCassandraDao<M> {
 
 	protected static final ConsistencyLevel DEFAULT_CONSISTENCY_LEVEL = ConsistencyLevel.CL_QUORUM;
+	
+	private static final int MAX_RETRY = 3; 
 
 	public EntityCassandraDaoImpl() {
 
@@ -56,7 +56,7 @@ public class EntityCassandraDaoImpl<M extends IsEntityCassandraIndexable> extend
 	public String read(String key,
 			String column) {
 		try {
-			Column<String> cfColumn = getFactory().getKeyspace().prepareQuery(getCF().getColumnFamily()).getKey(key).getColumn(column).execute().getResult();
+			Column<String> cfColumn = getFactory().getKeyspace().prepareQuery(getCF().getColumnFamily()).setConsistencyLevel(ConsistencyLevel.CL_QUORUM).getKey(key).getColumn(column).execute().getResult();
 			return cfColumn != null && cfColumn.hasValue() ? cfColumn.getStringValue() : null;
 		} catch (NotFoundException e) {
 			return null;
@@ -158,7 +158,7 @@ public class EntityCassandraDaoImpl<M extends IsEntityCassandraIndexable> extend
 			if (startPoint != null) {
 				rangeBuilder = rangeBuilder.setStart(startPoint);
 			}
-			RowQuery<String, String> query = getFactory().getKeyspace().prepareQuery(getRiColumnFamily()).getKey(reverseIndex + key).withColumnRange(rangeBuilder.build());
+			RowQuery<String, String> query = getFactory().getKeyspace().prepareQuery(getRiColumnFamily()).setConsistencyLevel(ConsistencyLevel.CL_QUORUM).getKey(reverseIndex + key).withColumnRange(rangeBuilder.build());
 			Collection<String> columns;
 			if (!(columns = query.execute().getResult().getColumnNames()).isEmpty()) {
 				return getCF().getEntityManager().get(columns);
@@ -296,6 +296,34 @@ public class EntityCassandraDaoImpl<M extends IsEntityCassandraIndexable> extend
 			throw new RuntimeException(e);
 		}
 	}
+	
+	@Override
+    public Rows<String, String> readWithKeyListColumnList(Collection<String> keys,Collection<String> columnList, int retryCount){
+        
+    	Rows<String, String> result = null;
+    	try {
+              result = getFactory().getKeyspace().prepareQuery(getCF().getColumnFamily())
+                    .setConsistencyLevel(DEFAULT_CONSISTENCY_LEVEL)
+                    .getKeySlice(keys)
+                    .withColumnSlice(columnList)
+                    .execute()
+                    .getResult();
+        } catch (Exception e) {
+        	if(e instanceof ConnectionException){
+            	if(retryCount < MAX_RETRY){
+            		retryCount++;
+            		readWithKeyListColumnList(keys,columnList ,retryCount);
+            	}else{
+            		LOG.error("Read failed after "+ MAX_RETRY + "retry for resources : "+keys+ " columns : " +columnList);
+            	}
+        	}
+        	else{
+        		LOG.error("Read failed for resources : " + keys + "Exception : " + e);
+        	}
+        }
+    	
+    	return result;
+    }
 
 }
 

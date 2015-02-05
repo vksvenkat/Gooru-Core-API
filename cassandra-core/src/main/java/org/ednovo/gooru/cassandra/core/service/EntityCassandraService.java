@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.netflix.astyanax.model.ColumnList;
+import com.netflix.astyanax.model.Rows;
 
 /**
  * @author SearchTeam
@@ -45,5 +46,7 @@ public interface EntityCassandraService<K, M extends Serializable> {
 	Map<String, String> readViewsCount(String rowKeys);
 	
 	public Integer getInt(String key, String column);
+	
+	public Rows<String, String> readWithKeyListColumnList(Collection<String> keys,Collection<String> columnList, int retryCount);
 
 }
