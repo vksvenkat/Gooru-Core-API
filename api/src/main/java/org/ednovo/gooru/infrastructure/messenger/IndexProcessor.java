@@ -26,6 +26,7 @@ package org.ednovo.gooru.infrastructure.messenger;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 
 import javax.annotation.PostConstruct;
 
@@ -159,7 +160,7 @@ public class IndexProcessor extends BaseComponent {
 
 						@Override
 						public void run(ClientResource clientResource, Representation representation) throws Exception {
-
+							clientResource.getLogger().setLevel(Level.WARNING);
 							String url = getSearchApiPath() + "index/es-aca/" + type + "/" + action + "?sessionToken=" + sessionToken + "&ids=" + uuids ;
 							if(isUpdateStas){
 								url = url + "&isUpdateStats=true";

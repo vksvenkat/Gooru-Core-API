@@ -24,6 +24,7 @@
 package org.ednovo.gooru.infrastructure.messenger;
 
 import java.util.Properties;
+import java.util.logging.Level;
 
 import org.ednovo.gooru.application.util.TaxonomyUtil;
 import org.ednovo.gooru.core.constant.ConfigConstants;
@@ -81,6 +82,7 @@ public class BaseComponent {
 
 		Representation representation = null;
 		try {
+			clientResource.getLogger().setLevel(Level.WARNING);
 			if (form == null) {
 				representation = clientResource.get();
 			} else {
