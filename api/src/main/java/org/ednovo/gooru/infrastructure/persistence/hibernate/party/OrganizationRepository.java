@@ -41,4 +41,6 @@ public interface OrganizationRepository extends BaseRepository {
 	Organization getOrganizationByIdpName(String idpDomainName);
 	
 	Long getOrganizationCount(String type, String parentOrganizationUid, String sateProvinceId);
+	
+	List<Organization> getSchoolsByDistrictId(String type,String parentOrganizationUid,String stateProvinceId);
 }
