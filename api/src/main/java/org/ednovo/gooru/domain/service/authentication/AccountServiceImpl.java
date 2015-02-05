@@ -57,6 +57,7 @@ import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.ednovo.gooru.domain.service.user.UserService;
 import org.ednovo.gooru.domain.service.userManagement.UserManagementService;
 import org.ednovo.gooru.domain.service.userToken.UserTokenService;
+import org.ednovo.gooru.infrastructure.messenger.IndexHandler;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.ConfigSettingRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.OrganizationSettingRepository;
@@ -123,6 +124,9 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 
 	@Autowired
 	private CustomTableRepository customTableRepository;
+	
+	@Autowired
+	private IndexHandler indexHandler;
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(AccountServiceImpl.class);
 
@@ -276,7 +280,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			} catch (Exception e) {
 				LOGGER.debug("error" + e.getMessage());
 			}
-			indexProcessor.index(user.getPartyUid(), IndexProcessor.INDEX, USER, false, userToken.getToken());
+			indexHandler.setReIndexRequest(user.getPartyUid(), IndexProcessor.INDEX, USER, userToken.getToken() , false, false);
 
 		}
 
@@ -390,7 +394,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 		if (!registerUser) {
 			try {
 				this.getAccountEventlog().getEventLogs(newIdentity, sessionToken, true, apiKey);
-				indexProcessor.index(userIdentity.getPartyUid(), IndexProcessor.INDEX, USER, false, sessionToken.getToken());
+				indexHandler.setReIndexRequest(userIdentity.getPartyUid(), IndexProcessor.INDEX, USER, sessionToken.getToken() , false, false);
 
 			} catch (JSONException e) {
 				LOGGER.error("Error : " + e);

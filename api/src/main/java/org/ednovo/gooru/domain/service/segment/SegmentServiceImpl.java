@@ -43,6 +43,7 @@ import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.domain.service.resource.ResourceService;
 import org.ednovo.gooru.domain.service.setting.SettingService;
+import org.ednovo.gooru.infrastructure.messenger.IndexHandler;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.classplan.LearnguideRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.resource.SegmentRepository;
@@ -74,6 +75,9 @@ public class SegmentServiceImpl implements SegmentService {
 
 	@Autowired
 	private SettingService settingService;
+	
+	@Autowired
+	private IndexHandler indexHandler;
 
 	private static final Logger logger = LoggerFactory.getLogger(SegmentServiceImpl.class);
 
@@ -126,7 +130,7 @@ public class SegmentServiceImpl implements SegmentService {
 		}
 		classplanRepository.save(collection);
 
-		indexProcessor.index(collection.getGooruOid(), IndexProcessor.INDEX, "collection");
+		indexHandler.setReIndexRequest(collection.getGooruOid(), IndexProcessor.INDEX, "collection", null, false, false);				
 		// Remove the collection from cache
 		collectionUtil.deleteCollectionFromCache(gooruContentId, COLLECTION);
 
@@ -177,7 +181,7 @@ public class SegmentServiceImpl implements SegmentService {
 		CollectionServiceUtil.resetSegmentsSequence(collection);
 		classplanRepository.save(collection);
 
-		indexProcessor.index(collection.getGooruOid(), IndexProcessor.INDEX, "collection");
+		indexHandler.setReIndexRequest(collection.getGooruOid(), IndexProcessor.INDEX, "collection", null, false, false);				
 
 		// Remove the collection from cache
 		collectionUtil.deleteCollectionFromCache(gooruContentId, COLLECTION);

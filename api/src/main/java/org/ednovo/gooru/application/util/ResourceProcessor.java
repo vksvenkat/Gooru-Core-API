@@ -51,6 +51,7 @@ import org.ednovo.gooru.domain.service.redis.RedisService;
 import org.ednovo.gooru.domain.service.resource.ResourceService;
 import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.ednovo.gooru.domain.service.storage.S3ResourceApiHandler;
+import org.ednovo.gooru.infrastructure.messenger.IndexHandler;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.classplan.LearnguideRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.resource.ResourceRepository;
@@ -90,6 +91,9 @@ public class ResourceProcessor implements ParameterProperties {
 
 	@Autowired
 	private SettingService settingService;
+	
+	@Autowired
+	private IndexHandler indexHandler;
 
 	private final Logger logger = LoggerFactory.getLogger(ResourceProcessor.class);
 
@@ -201,8 +205,7 @@ public class ResourceProcessor implements ParameterProperties {
 		param.put( RESOURCE_FILE_PATH, filePath);
 		param.put(RESOURCE_GOORU_OID, resource.getGooruOid());
 		RequestUtil.executeRestAPI(param, settingService.getConfigSetting(ConfigConstants.GOORU_CONVERSION_RESTPOINT, 0, TaxonomyUtil.GOORU_ORG_UID) + "/conversion/pdf-to-image", Method.POST.getName());
-		indexProcessor.index(classplan.getGooruOid(), IndexProcessor.INDEX, COLLECTION);
-
+		indexHandler.setReIndexRequest(classplan.getGooruOid(), IndexProcessor.INDEX, COLLECTION, null, false, false);
 		return resourceInstance;
 
 	}
@@ -305,8 +308,7 @@ public class ResourceProcessor implements ParameterProperties {
 						// FIXME
 						s3ResourceApiHandler.uploadResourceFile(resourceGooruOid, fileName);
 					}
-					indexProcessor.index(resource.getGooruOid(), IndexProcessor.INDEX, getSearchResourceType(resource));
-
+					indexHandler.setReIndexRequest(resource.getGooruOid(), IndexProcessor.INDEX, getSearchResourceType(resource), null, false, false);
 				} catch (Exception ex) {
 					logger.error("Error while uploading To S3 ", ex);
 					if (fileName == null) {

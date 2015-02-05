@@ -52,6 +52,7 @@ import org.ednovo.gooru.core.security.AuthorizeOperations;
 import org.ednovo.gooru.domain.service.CollectionService;
 import org.ednovo.gooru.domain.service.redis.RedisService;
 import org.ednovo.gooru.domain.service.resource.ResourceService;
+import org.ednovo.gooru.infrastructure.messenger.IndexHandler;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepository;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
@@ -91,6 +92,8 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 	
 	@Autowired
 	protected IndexProcessor indexProcessor;
+	
+	@Autowired IndexHandler indexHandler;
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ADD })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -273,7 +276,7 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 		User user = (User) request.getAttribute(Constants.USER);
 		Collection collection = getCollectionService().copyCollection(collectionId, this.buildCopyCollectionFromInputParameters(getValue(COLLECTION, json)), json != null && getValue(ADD_TO_SHELF, json) != null ? Boolean.parseBoolean(getValue(ADD_TO_SHELF, json)) : false,
 				json != null && getValue(PARENT_ID, json) != null ? getValue(PARENT_ID, json) : null, user);
-		indexProcessor.index(collection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
+		indexHandler.setReIndexRequest(collection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);				
 		return toModelAndViewWithIoFilter(collection, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
 

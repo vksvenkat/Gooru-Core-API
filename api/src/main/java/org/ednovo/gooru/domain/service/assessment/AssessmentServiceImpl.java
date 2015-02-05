@@ -63,7 +63,6 @@ import org.ednovo.gooru.core.api.model.Asset;
 import org.ednovo.gooru.core.api.model.AttemptQuestionDTO;
 import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.api.model.CodeType;
-import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.ContentMetaDTO;
 import org.ednovo.gooru.core.api.model.ContentType;
 import org.ednovo.gooru.core.api.model.License;
@@ -76,7 +75,6 @@ import org.ednovo.gooru.core.api.model.SessionActivityType;
 import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserGroupSupport;
-import org.ednovo.gooru.core.api.model.Versionable;
 import org.ednovo.gooru.core.application.util.ErrorMessage;
 import org.ednovo.gooru.core.application.util.RequestUtil;
 import org.ednovo.gooru.core.application.util.ResourceMetaInfo;
@@ -95,6 +93,7 @@ import org.ednovo.gooru.domain.service.sessionActivity.SessionActivityService;
 import org.ednovo.gooru.domain.service.storage.S3ResourceApiHandler;
 import org.ednovo.gooru.domain.service.taxonomy.TaxonomyService;
 import org.ednovo.gooru.domain.service.user.UserService;
+import org.ednovo.gooru.infrastructure.messenger.IndexHandler;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
@@ -187,6 +186,9 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 
 	@Autowired
 	private ResourceService resourceService;
+	
+	@Autowired
+	private IndexHandler indexHandler;
 
 	@Override
 	public AssessmentQuestion getQuestion(String gooruOQuestionId) {
@@ -199,7 +201,7 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 		if (question != null) {
 			if (!assessmentRepository.isQuestionUsedInAttemptItem(gooruOQuestionId) && !assessmentRepository.isQuestionUsedInSegmentQuestion(gooruOQuestionId)) {
 				assessmentRepository.remove(AssessmentQuestion.class, question.getContentId());
-				indexProcessor.index(question.getGooruOid(), IndexProcessor.DELETE, RESOURCE);
+				indexHandler.setReIndexRequest(	question.getGooruOid(), IndexProcessor.DELETE, RESOURCE, null, false, false);
 
 				return 1;
 			} else {
@@ -238,7 +240,7 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 		assessmentRepository.save(assessment);
 
 
-		indexProcessor.index(assessment.getGooruOid(), IndexProcessor.INDEX, QUIZ);
+		indexHandler.setReIndexRequest(assessment.getGooruOid(), IndexProcessor.INDEX, QUIZ, null, false, false);
 
 		return new ActionResponseDTO<Assessment>(assessment, new BindException(assessment, ASSESSMENT));
 	}
@@ -457,7 +459,7 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 	public int deleteAssessment(String gooruOAssessmentId, User caller) {
 		Assessment assessment = getAssessment(gooruOAssessmentId);
 		if (assessment != null) {
-			indexProcessor.index(assessment.getGooruOid(), IndexProcessor.DELETE, QUIZ);
+			indexHandler.setReIndexRequest(assessment.getGooruOid(), IndexProcessor.DELETE, QUIZ, null, false, false);
 			assessmentRepository.remove(Assessment.class, assessment.getContentId());
 			// redisService.deleteEntry(gooruOAssessmentId);
 			this.getSessionActivityService().updateSessionActivityByContent(assessment.getGooruOid(), SessionActivityType.Status.ARCHIVE.getStatus());
@@ -499,7 +501,7 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 
 			if (index) {
 				try {
-					indexProcessor.index(question.getGooruOid(), IndexProcessor.INDEX, RESOURCE);
+					indexHandler.setReIndexRequest(question.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);
 				} catch (Exception e) {
 					LOGGER.info(e.getMessage());
 				}
@@ -546,7 +548,7 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 			question.setMetaInfo(resourceMetaInfo);
 			updateQuestionTime(question);
 			if (index) {
-				indexProcessor.index(question.getGooruOid(), IndexProcessor.INDEX, RESOURCE);
+				indexHandler.setReIndexRequest(question.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);
 			}
 		}
 
@@ -1314,7 +1316,7 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 			s3ResourceApiHandler.uploadResourceFileWithNewSession(question, asset.getName());
 
 			if (index) {
-				indexProcessor.index(question.getGooruOid(), IndexProcessor.INDEX, RESOURCE);
+				indexHandler.setReIndexRequest(question.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);
 			}
 
 			assessmentRepository.save(asset);
@@ -1581,7 +1583,7 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 
 		assessmentRepository.saveAndFlush(assessment);
 		String thumbnailPath = assessment.getAssetURI() + assessment.getFolder() + fileName;
-		indexProcessor.index(assessment.getGooruOid(), IndexProcessor.INDEX, QUIZ);
+		indexHandler.setReIndexRequest(assessment.getGooruOid(), IndexProcessor.INDEX, QUIZ, null, false, false);
 		return thumbnailPath;
 	}
 
@@ -1609,7 +1611,7 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 
 			assessment.setThumbnail(null);
 			assessmentRepository.save(assessment);
-			indexProcessor.index(assessment.getGooruOid(), IndexProcessor.INDEX, QUIZ);
+			indexHandler.setReIndexRequest(assessment.getGooruOid(), IndexProcessor.INDEX, QUIZ, null, false, false);
 		}
 	}
 
@@ -1636,7 +1638,7 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 		Assessment assessment = this.assessmentRepository.findQuizContent(gooruContentId);
 
 		resourceImageUtil.moveFileAndSendMsgToGenerateThumbnails(assessment, fileName, false);
-		indexProcessor.index(assessment.getGooruOid(), IndexProcessor.INDEX, QUIZ);
+		indexHandler.setReIndexRequest(assessment.getGooruOid(), IndexProcessor.INDEX, QUIZ, null, false, false);		
 
 		// Remove the collection from cache
 		// collectionUtil.deleteCollectionFromCache(gooruContentId,
@@ -1699,7 +1701,7 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 				mediaImage.delete();
 			}
 		}
-		indexProcessor.index(question.getGooruOid(), IndexProcessor.INDEX, RESOURCE);
+		indexHandler.setReIndexRequest(question.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);				
 		return question;
 	}
 
@@ -1739,7 +1741,7 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 
 			}
 		}
-		indexProcessor.index(question.getGooruOid(), IndexProcessor.INDEX, RESOURCE);
+		indexHandler.setReIndexRequest(question.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);				
 		return question;
 	}
 
@@ -1767,7 +1769,7 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 			}
 			if (removeQuizList.size() > 0) {
 				this.baseRepository.removeAll(removeQuizList);
-				indexProcessor.index(removeContentIds, IndexProcessor.DELETE, QUIZ);
+				indexHandler.setReIndexRequest(removeContentIds, IndexProcessor.DELETE, QUIZ, null, false, false);						
 			}
 		}
 	}
@@ -1791,7 +1793,7 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 			}
 			if (removeQuestionList.size() > 0) {
 				this.baseRepository.removeAll(removeQuestionList);
-				indexProcessor.index(removeContentIds, IndexProcessor.INDEX, RESOURCE);
+				indexHandler.setReIndexRequest(removeContentIds, IndexProcessor.INDEX, RESOURCE, null, false, false);		
 			}
 		}
 	}
