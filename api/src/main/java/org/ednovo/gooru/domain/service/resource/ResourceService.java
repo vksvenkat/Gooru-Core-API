@@ -32,7 +32,6 @@ import java.util.Set;
 
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Code;
-import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.ConverterDTO;
 import org.ednovo.gooru.core.api.model.Job;
 import org.ednovo.gooru.core.api.model.Learnguide;
@@ -50,8 +49,6 @@ import org.ednovo.gooru.domain.service.BaseService;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.validation.Errors;
-
-import com.google.gdata.data.introspection.Collection;
 
 
 public interface ResourceService extends BaseService {
