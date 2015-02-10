@@ -123,8 +123,7 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 	public void deleteResource(@PathVariable(value = ID) String resourceId, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		request.setAttribute(PREDICATE, RESOURCE_DELETE_RESOURCE);
 		User user = (User) request.getAttribute(Constants.USER);
-		Resource resource = (Resource) request.getAttribute(Constants.SEC_CONTENT);
-		this.resourceService.deleteResource(resource, resourceId, user);
+			this.resourceService.deleteResource(resourceId, user);
 		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
 	}
 

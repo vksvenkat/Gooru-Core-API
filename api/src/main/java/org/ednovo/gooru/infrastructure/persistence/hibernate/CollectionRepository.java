@@ -151,4 +151,6 @@ public interface CollectionRepository extends BaseRepository {
 
 	CollectionItem getCollectionItemByResourceOid(String collectionId, String resourceId);
 	
+	List<Collection> getCollectionByResourceOid(String resourceId);
+	
 }
