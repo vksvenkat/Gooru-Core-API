@@ -247,8 +247,8 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	@Autowired
 	private CollectionRepository collectionRepository;
 	
-
-	@Override
+	
+    @Override
 	public ResourceInstance saveResourceInstance(ResourceInstance resourceInstance) throws Exception {
 		Segment segment = (Segment) getSegmentRepository().get(Segment.class, resourceInstance.getSegment().getSegmentId());
 		resourceInstance.setSegment(segment);
@@ -1854,12 +1854,17 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	}
 
 	@Override
-	public void deleteResource(Resource resource, String gooruContentId, User apiCaller) {
-
-		resource = resourceRepository.findResourceByContentGooruId(gooruContentId);
-		if (resource == null || resource.getResourceType().getName().equalsIgnoreCase(APPLICATION) || resource.getResourceType().getName().equalsIgnoreCase(SCOLLECTION) || resource.getResourceType().getName().equalsIgnoreCase(FOLDER) || resource.getResourceType().getName().equalsIgnoreCase(CLASSPAGE)) {
+	public void deleteResource(String gooruContentId, User apiCaller) {
+		Resource resource = resourceRepository.findResourceByContentGooruId(gooruContentId);
+		if (resource == null || resource.getResourceType().getName().equalsIgnoreCase(APPLICATION) || resource.getResourceType().getName().equalsIgnoreCase(SCOLLECTION) || resource.getResourceType().getName().equalsIgnoreCase(FOLDER)
+				|| resource.getResourceType().getName().equalsIgnoreCase(CLASSPAGE)) {
 			throw new NotFoundException(generateErrorMessage("GL0056", "Resource"), GL0056);
 		} else {
+			List<org.ednovo.gooru.core.api.model.Collection> collections = getCollectionRepository().getCollectionByResourceOid(gooruContentId);
+			for (org.ednovo.gooru.core.api.model.Collection collection : collections) {
+				collection.setLastModified(new Date(System.currentTimeMillis()));
+			}
+			this.getCollectionRepository().saveAll(collections);
 			if ((resource.getUser() != null && resource.getUser().getPartyUid().equalsIgnoreCase(apiCaller.getPartyUid())) || getUserService().isContentAdmin(apiCaller)) {
 				this.getContentService().deleteContentTagAssoc(resource.getGooruOid(), apiCaller);
 				this.getBaseRepository().remove(resource);
@@ -1868,7 +1873,6 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				throw new BadRequestException(generateErrorMessage("GL0099"), "GL0099");
 			}
 		}
-
 	}
 
 	@Override
@@ -3184,5 +3188,5 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	public CollectionRepository getCollectionRepository() {
 		return collectionRepository;
 	}
-	
+
 }
