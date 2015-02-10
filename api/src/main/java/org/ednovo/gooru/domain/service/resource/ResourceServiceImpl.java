@@ -248,9 +248,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	private CollectionRepository collectionRepository;
 	
 	
-	
-
-	@Override
+    @Override
 	public ResourceInstance saveResourceInstance(ResourceInstance resourceInstance) throws Exception {
 		Segment segment = (Segment) getSegmentRepository().get(Segment.class, resourceInstance.getSegment().getSegmentId());
 		resourceInstance.setSegment(segment);
