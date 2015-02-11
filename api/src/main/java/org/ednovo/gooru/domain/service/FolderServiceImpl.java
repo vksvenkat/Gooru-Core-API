@@ -104,6 +104,9 @@ public class FolderServiceImpl extends BaseServiceImpl implements FolderService,
 						item.put(RESOURCEFORMAT, resourceFormat);
 					}
 				}
+				if (object[2] != null && object[2].toString().equalsIgnoreCase(SCOLLECTION)) {
+					item.put(COLLECTION_ITEMS, getFolderTocItems(String.valueOf(object[1]), sharing, collectionType, orderBy, ASC));
+				}
 				item.put(IDEAS, object[12]);
 				item.put(QUESTIONS, object[13]);
 				item.put(PERFORMANCE_TASKS, object[14]);
