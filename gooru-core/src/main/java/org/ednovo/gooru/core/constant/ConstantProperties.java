@@ -846,6 +846,8 @@ public interface ConstantProperties {
    public static final String STATISTICS_VIEW_COUNT = "statistics.viewsCount";
    
    public static final String REORDER = "reorder";
+   
+   public static final String TOC_EXCLUDES[] =  {"*.searchCount", "*.class"};
 
 }
 
