@@ -130,7 +130,7 @@ public class SegmentServiceImpl implements SegmentService {
 		}
 		classplanRepository.save(collection);
 
-		indexHandler.setReIndexRequest(collection.getGooruOid(), IndexProcessor.INDEX, "collection", null, false, false);				
+		indexHandler.setReIndexRequest(collection.getGooruOid(), IndexProcessor.INDEX, COLLECTION, null, false, false);				
 		// Remove the collection from cache
 		collectionUtil.deleteCollectionFromCache(gooruContentId, COLLECTION);
 
@@ -181,7 +181,7 @@ public class SegmentServiceImpl implements SegmentService {
 		CollectionServiceUtil.resetSegmentsSequence(collection);
 		classplanRepository.save(collection);
 
-		indexHandler.setReIndexRequest(collection.getGooruOid(), IndexProcessor.INDEX, "collection", null, false, false);				
+		indexHandler.setReIndexRequest(collection.getGooruOid(), IndexProcessor.INDEX, COLLECTION, null, false, false);				
 
 		// Remove the collection from cache
 		collectionUtil.deleteCollectionFromCache(gooruContentId, COLLECTION);
