@@ -806,6 +806,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		}
 		if (fecthAll) {
 			limit = MAX_LIMIT;
+			offset = 0;
 		}
 		query.setFirstResult(offset);
 		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
