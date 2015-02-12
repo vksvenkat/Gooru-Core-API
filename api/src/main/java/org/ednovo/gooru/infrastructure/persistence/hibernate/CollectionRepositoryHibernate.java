@@ -804,10 +804,11 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		if (collectionType != null) {
 			query.setParameter(COLLECTION_TYPE, collectionType);
 		}
-		if (!fecthAll) {
-			query.setFirstResult(offset);
-			query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
+		if (fecthAll) {
+			limit = MAX_LIMIT;
 		}
+		query.setFirstResult(offset);
+		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
 		return query.list();
 	}
 

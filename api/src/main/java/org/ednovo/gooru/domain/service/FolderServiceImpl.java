@@ -53,14 +53,13 @@ public class FolderServiceImpl extends BaseServiceImpl implements FolderService,
 	@Autowired
 	private RedisService redisService;
 
-	public final static String TOC = "toc";
-
 	@Override
 	public SearchResults<Map<String, Object>> getMyCollectionsToc(String gooruUid, Integer limit, Integer offset, String sharing, String collectionType, String orderBy) {
 		if (!BaseUtil.isUuid(gooruUid)) {
 			User user = this.getUserRepository().getUserByUserName(gooruUid, true);
 			gooruUid = user != null ? user.getPartyUid() : null;
 		}
+		rejectIfNull(gooruUid, GL0056, 404,USER);
 		List<Object[]> result = this.getCollectionRepository().getMyFolder(gooruUid, limit, offset, sharing, collectionType, true, orderBy);
 		List<Map<String, Object>> folders = new ArrayList<Map<String, Object>>();
 		if (result != null && result.size() > 0) {
@@ -121,7 +120,7 @@ public class FolderServiceImpl extends BaseServiceImpl implements FolderService,
 
 	@Override
 	public String getMyCollectionsToc(String gooruUid, Integer limit, Integer offset, String sharing, String collectionType, String orderBy, boolean clearCache) {
-		final String cacheKey = V2_ORGANIZE_DATA + gooruUid + "-" + offset + "-" + limit + "-" + sharing + "-" + collectionType + "-" + "-" + orderBy + "-" + TOC;
+		final String cacheKey = V2_ORGANIZE_DATA + gooruUid + HYPHEN + offset + HYPHEN + limit + HYPHEN + sharing + HYPHEN + collectionType + HYPHEN + HYPHEN + orderBy + HYPHEN + TOC;
 		String data = null;
 		if (!clearCache) {
 			data = getRedisService().getValue(cacheKey);
@@ -138,7 +137,7 @@ public class FolderServiceImpl extends BaseServiceImpl implements FolderService,
 	public String getFolderTocItems(String gooruOid, String sharing, String collectionType, String orderBy, boolean clearCache) {
 		Collection collection = this.getCollectionRepository().getCollectionByGooruOid(gooruOid, null);
 		rejectIfNull(collection, GL0056, 404, FOLDER);
-		final String cacheKey = V2_ORGANIZE_DATA + collection.getUser().getPartyUid() + "-" + gooruOid + "-" + sharing + "-" + collectionType + "-" + orderBy + "-" + TOC;
+		final String cacheKey = V2_ORGANIZE_DATA + collection.getUser().getPartyUid() + HYPHEN + gooruOid + HYPHEN + sharing + HYPHEN + collectionType + HYPHEN + orderBy + HYPHEN + TOC;
 		String data = null;
 		if (!clearCache) {
 			data = getRedisService().getValue(cacheKey);

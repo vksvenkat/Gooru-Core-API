@@ -78,7 +78,6 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 	@Autowired
 	private FolderService folderService;
 
-	private final static String SHARINGS = "private,public,anyonewithlink";
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_FOLDER_ADD })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
