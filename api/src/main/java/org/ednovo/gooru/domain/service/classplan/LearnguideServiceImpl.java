@@ -77,6 +77,7 @@ import org.ednovo.gooru.domain.service.redis.RedisService;
 import org.ednovo.gooru.domain.service.resource.ResourceManager;
 import org.ednovo.gooru.domain.service.resource.ResourceService;
 import org.ednovo.gooru.domain.service.storage.S3ResourceApiHandler;
+import org.ednovo.gooru.infrastructure.messenger.IndexHandler;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
@@ -146,6 +147,9 @@ public class LearnguideServiceImpl extends OperationAuthorizer implements Learng
 
 	@Autowired
 	private SessionActivityRepository sessionActivityRepository;
+	
+	@Autowired
+	private IndexHandler indexHandler;
 
 
 	private static final Logger logger = LoggerFactory.getLogger(LearnguideServiceImpl.class);
@@ -154,7 +158,7 @@ public class LearnguideServiceImpl extends OperationAuthorizer implements Learng
 	public String updateCollectionImage(String gooruContentId, String fileName) throws IOException {
 		Learnguide collection = this.getLearnguideRepository().findByContent(gooruContentId);
 		resourceImageUtil.moveFileAndSendMsgToGenerateThumbnails(collection, fileName, false);
-		indexProcessor.index(collection.getGooruOid(), IndexProcessor.INDEX, COLLECTION);
+		indexHandler.setReIndexRequest(collection.getGooruOid(), IndexProcessor.INDEX, COLLECTION, null, false, false);				
 		// Remove the collection from cache
 		collectionUtil.deleteCollectionFromCache(gooruContentId, COLLECTION);
 		return collection.getOrganization().getNfsStorageArea().getAreaPath() + collection.getFolder() + "/" + collection.getThumbnail();
@@ -179,7 +183,7 @@ public class LearnguideServiceImpl extends OperationAuthorizer implements Learng
 			}
 			if (removeCollectionList.size() > 0) {
 				this.baseRepository.removeAll(removeCollectionList);
-				indexProcessor.index(removeContentUIds, IndexProcessor.INDEX, COLLECTION);
+				indexHandler.setReIndexRequest(removeContentUIds, IndexProcessor.INDEX, COLLECTION, null, false, false);						
 			}
 		}
 	}
@@ -218,7 +222,7 @@ public class LearnguideServiceImpl extends OperationAuthorizer implements Learng
 								this.saveCollectionSharing(sharing, collection);
 							}
 							collectionUtil.deleteCollectionFromCache(collection.getGooruOid(), COLLECTION);
-							indexProcessor.index(collection.getGooruOid(), IndexProcessor.INDEX, COLLECTION);
+							indexHandler.setReIndexRequest(collection.getGooruOid(), IndexProcessor.INDEX, COLLECTION, null, false, false);									
 							responseJSON.put(STATUS, STATUS_200).put(MESSAGE, "successfully updated the sharing to " + sharing);
 						}
 					} else {
@@ -408,8 +412,7 @@ public class LearnguideServiceImpl extends OperationAuthorizer implements Learng
 
 		final String cacheKey = "e.col.i-" + collection.getContentId().toString();
 		getRedisService().putValue(cacheKey, JsonSerializer.serializeToJson(collection, true), RedisService.DEFAULT_PROFILE_EXP);
-		indexProcessor.index(collection.getGooruOid(), IndexProcessor.INDEX, COLLECTION);
-
+		indexHandler.setReIndexRequest(collection.getGooruOid(), IndexProcessor.INDEX, COLLECTION, null, false, false);				
 		return collection;
 	}
 
@@ -436,7 +439,7 @@ public class LearnguideServiceImpl extends OperationAuthorizer implements Learng
 
 			// Remove the collection from cache
 			collectionUtil.deleteCollectionFromCache(gooruContentId, COLLECTION);
-			indexProcessor.index(collection.getGooruOid(), IndexProcessor.INDEX, COLLECTION);
+			indexHandler.setReIndexRequest(collection.getGooruOid(), IndexProcessor.INDEX, COLLECTION, null, false, false);					
 		}
 
 	}
@@ -507,7 +510,7 @@ public class LearnguideServiceImpl extends OperationAuthorizer implements Learng
 		if (buildThumbnail) {
 			resourceImageUtil.sendMsgToGenerateThumbnails(collection);
 		}
-		indexProcessor.index(collection.getGooruOid(), IndexProcessor.INDEX, COLLECTION);
+		indexHandler.setReIndexRequest(collection.getGooruOid(), IndexProcessor.INDEX, COLLECTION, null, false, false);				
 
 		// Remove the collection from cache
 		collectionUtil.deleteCollectionFromCache(gooruContentId, COLLECTION);
@@ -635,7 +638,7 @@ public class LearnguideServiceImpl extends OperationAuthorizer implements Learng
 		this.getResourceManager().copyResourceRepository(sourceCollection, targetCollection);
 
 		logger.info("Copy Classplan Step 3: " + System.currentTimeMillis());
-		indexProcessor.index(targetCollection.getGooruOid(), IndexProcessor.INDEX, COLLECTION );
+		indexHandler.setReIndexRequest(targetCollection.getGooruOid(), IndexProcessor.INDEX, COLLECTION, null, false, false);				
 
 		this.s3ResourceApiHandler.uploadS3Resource(targetCollection);
 
@@ -739,7 +742,7 @@ public class LearnguideServiceImpl extends OperationAuthorizer implements Learng
 			resourceImageUtil.sendMsgToGenerateThumbnails(learnguide);
 
 			this.getLearnguideRepository().save(learnguide);
-			indexProcessor.index(learnguide.getGooruOid(), IndexProcessor.INDEX, COLLECTION);
+			indexHandler.setReIndexRequest(learnguide.getGooruOid(), IndexProcessor.INDEX, COLLECTION, null, false, false);					
 
 			return 1;
 		}

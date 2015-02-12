@@ -61,6 +61,7 @@ import org.ednovo.gooru.domain.service.redis.RedisService;
 import org.ednovo.gooru.domain.service.search.SearchResults;
 import org.ednovo.gooru.domain.service.user.UserService;
 import org.ednovo.gooru.infrastructure.mail.MailHandler;
+import org.ednovo.gooru.infrastructure.messenger.IndexHandler;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.collaborator.CollaboratorRepository;
@@ -104,6 +105,9 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	
 	@Autowired
 	private PartyService partyService;
+	
+	@Autowired
+	private IndexHandler indexHandler;
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(CollectionServiceImpl.class);
 
@@ -818,7 +822,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 			}
 			this.getCollectionRepository().saveAll(collections);
 			if (collectionIds.toString().trim().length() > 0) {
-				indexProcessor.index(collectionIds.toString(), IndexProcessor.INDEX, SCOLLECTION);
+				indexHandler.setReIndexRequest(collectionIds.toString(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);						
 			}
 		}
 		return collections;
@@ -866,7 +870,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 			}
 			this.getCollectionRepository().saveAll(collections);
 			if (collectionIds.toString().trim().length() > 0) {
-				indexProcessor.index(collectionIds.toString(), IndexProcessor.INDEX, SCOLLECTION);
+				indexHandler.setReIndexRequest(collectionIds.toString(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);						
 			}
 		}
 		return collections;

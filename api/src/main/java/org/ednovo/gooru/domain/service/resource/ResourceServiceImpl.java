@@ -117,6 +117,7 @@ import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.ednovo.gooru.domain.service.storage.S3ResourceApiHandler;
 import org.ednovo.gooru.domain.service.taxonomy.TaxonomyService;
 import org.ednovo.gooru.domain.service.v2.ContentService;
+import org.ednovo.gooru.infrastructure.messenger.IndexHandler;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepository;
@@ -247,8 +248,11 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	@Autowired
 	private CollectionRepository collectionRepository;
 	
+	@Autowired
+	private IndexHandler indexHandler;
 	
-    @Override
+
+	@Override
 	public ResourceInstance saveResourceInstance(ResourceInstance resourceInstance) throws Exception {
 		Segment segment = (Segment) getSegmentRepository().get(Segment.class, resourceInstance.getSegment().getSegmentId());
 		resourceInstance.setSegment(segment);
@@ -862,7 +866,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				enrichAndAddOrUpdate(chapterResource);
 			}
 		}
-		indexProcessor.index(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE);
+		indexHandler.setReIndexRequest(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);				
 
 		return resource;
 
@@ -917,7 +921,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 
 			if (saveResource) {
 				this.getResourceRepository().saveOrUpdate(existingResource);
-				indexProcessor.index(existingResource.getGooruOid(), IndexProcessor.INDEX, RESOURCE);
+				indexHandler.setReIndexRequest(existingResource.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);						
 			}
 		}
 		return existingResource;
@@ -1205,14 +1209,14 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 
 			resource.setThumbnail(null);
 			this.getResourceRepository().save(resource);
-			indexProcessor.index(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE);
+			indexHandler.setReIndexRequest(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);					
 		}
 	}
 
 	@Override
 	public void deleteResourceBulk(String contentIds) {
 		this.getResourceRepository().deleteResourceBulk(contentIds);
-		indexProcessor.index(contentIds, IndexProcessor.DELETE, RESOURCE);
+		indexHandler.setReIndexRequest(contentIds, IndexProcessor.DELETE, RESOURCE, null, false, false);				
 	}
 	
 	@Override
@@ -1232,7 +1236,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			}
 			if (removeList.size() > 0) {
 				this.baseRepository.removeAll(removeList);
-				indexProcessor.index(removeContentIds, IndexProcessor.DELETE, RESOURCE);
+				indexHandler.setReIndexRequest(removeContentIds, IndexProcessor.DELETE, RESOURCE, null, false, false);						
 			}
 		}
 	}
@@ -1511,9 +1515,9 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 						updateCollaborators(collection, resource, user);
 					}
 					if (resource != null && resource.getContentId() != null) {
-						indexProcessor.index(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE);
+						indexHandler.setReIndexRequest(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);								
 					}
-					indexProcessor.index(collection.getGooruOid(), IndexProcessor.INDEX, COLLECTION);
+					indexHandler.setReIndexRequest(collection.getGooruOid(), IndexProcessor.INDEX, COLLECTION, null, false, false);					
 
 					// Remove the collection from cache
 					this.getCollectionUtil().deleteCollectionFromCache(collection.getGooruOid(), COLLECTION);
@@ -1704,7 +1708,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		// Give permission to the collaborators of this collection
 		// to access this resource.
 		if (resource != null && resource.getContentId() != null) {
-			indexProcessor.index(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE);
+			indexHandler.setReIndexRequest(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);					
 		}
 
 		return resource;
@@ -1722,7 +1726,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 							resourceInstance.setResource(resource);
 						}
 						this.getResourceRepository().saveAll(resourceInstances);
-						indexProcessor.index(duplicateResource.getGooruOid(), IndexProcessor.INDEX, RESOURCE);
+						indexHandler.setReIndexRequest(duplicateResource.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);								
 						this.getResourceRepository().remove(Resource.class, duplicateResource.getContentId());
 					}
 				}
@@ -1868,7 +1872,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			if ((resource.getUser() != null && resource.getUser().getPartyUid().equalsIgnoreCase(apiCaller.getPartyUid())) || getUserService().isContentAdmin(apiCaller)) {
 				this.getContentService().deleteContentTagAssoc(resource.getGooruOid(), apiCaller);
 				this.getBaseRepository().remove(resource);
-				indexProcessor.index(gooruContentId, IndexProcessor.DELETE, RESOURCE);
+				indexHandler.setReIndexRequest(gooruContentId, IndexProcessor.DELETE, RESOURCE, null, false, false);						
 			} else {
 				throw new BadRequestException(generateErrorMessage("GL0099"), "GL0099");
 			}
@@ -1900,7 +1904,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		LOGGER.warn("Deleted resource from deleteResource:" + gooruAttributionId);
 
 		/* Step 4 - Send the message to reindex the resource */
-		indexProcessor.index(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE);
+		indexHandler.setReIndexRequest(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);				
 	}
 
 	@Override
@@ -2083,7 +2087,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		this.updateResourceInstanceMetaData(resource, user);
 		this.replaceDuplicatePrivateResourceWithPublicResource(resource);
 		this.mapSourceToResource(resource);
-		indexProcessor.index(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE);
+		indexHandler.setReIndexRequest(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);				
 
 		return resource;
 	}
@@ -2118,7 +2122,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			}
 
 			getResourceRepository().save(resource);
-			indexProcessor.index(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE);
+			indexHandler.setReIndexRequest(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);					
 		}
 		return resource;
 	}
@@ -2235,10 +2239,10 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 
 		if (isBlacklisted != null && isBlacklisted == true) {
 			if (getUserService().isContentAdmin(user)) {
-				indexProcessor.index(existingResource.getGooruOid(), IndexProcessor.DELETE, RESOURCE);
+				indexHandler.setReIndexRequest(existingResource.getGooruOid(), IndexProcessor.DELETE, RESOURCE, null, false, false);						
 			}
 		} else {
-			indexProcessor.index(existingResource.getGooruOid(), IndexProcessor.INDEX, RESOURCE);
+			indexHandler.setReIndexRequest(existingResource.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);					
 		}
 
 		return existingResource;
@@ -2287,7 +2291,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 							gooruOids += resource.getGooruOid();
 							count++;
 						}
-						indexProcessor.index(gooruOids, IndexProcessor.INDEX, RESOURCE);
+						indexHandler.setReIndexRequest(gooruOids, IndexProcessor.INDEX, RESOURCE, null, false, false);								
 						this.resourceRepository.saveAll(resources);
 					} else if (resources != null && resources.size() > 5000) {
 						throw new Exception(generateErrorMessage("GL0001"));
@@ -2317,7 +2321,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 						gooruOIds += resource.getGooruOid();
 						count++;
 					}
-					indexProcessor.index(gooruOIds, IndexProcessor.INDEX, RESOURCE);
+					indexHandler.setReIndexRequest(gooruOIds, IndexProcessor.INDEX, RESOURCE, null, false, false);							
 					this.resourceRepository.saveAll(resources);
 				} else if (resources != null && resources.size() > 5000) {
 					throw new Exception(generateErrorMessage("GL0004"));
@@ -2383,7 +2387,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			resource.setThumbnail(fileName);
 			resourceRepository.save(resource);
 			resourceImageUtil.sendMsgToGenerateThumbnails(resource);
-			indexProcessor.index(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE);
+			indexHandler.setReIndexRequest(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);					
 		}
 
 		return resource;
@@ -2792,7 +2796,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 
 			this.updateResourceInstanceMetaData(resource, user);
 			this.replaceDuplicatePrivateResourceWithPublicResource(resource);
-			indexProcessor.index(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE);
+			indexHandler.setReIndexRequest(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);					
 		}
 		if (newResource.getAttach() != null) {
 			this.getResourceImageUtil().moveAttachment(newResource, resource);
@@ -2971,7 +2975,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				this.getResourceRepository().removeAll(resourceInstanceList);
 			}
 		}
-		indexProcessor.index(resource.getGooruOid(), IndexProcessor.DELETE, RESOURCE);
+		indexHandler.setReIndexRequest(resource.getGooruOid(), IndexProcessor.DELETE, RESOURCE, null, false, false);		
 		
 		this.getResourceRepository().remove(Resource.class, resource.getContentId());
 	}
@@ -3024,9 +3028,9 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				}
 				this.getResourceRepository().saveAll(resources);
 				if (collectionIds.toString().trim().length() > 0) {
-					indexProcessor.index(collectionIds.toString(), IndexProcessor.INDEX, SCOLLECTION);
+					indexHandler.setReIndexRequest(collectionIds.toString(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);							
 				} else if (resourceIds.toString().trim().length() > 0) {
-					indexProcessor.index(resourceIds.toString(), IndexProcessor.INDEX, RESOURCE);
+					indexHandler.setReIndexRequest(resourceIds.toString(), IndexProcessor.INDEX, RESOURCE, null, false, false);							
 				}
 			}
 		}
@@ -3176,10 +3180,10 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			resourceCassandraService.save(resourceCioList, resourceIds);
 			if(!skipReindex){
 				if(resourceIds.size() > 0){
-					indexProcessor.indexStas(StringUtils.join(resourceIds, ','), IndexProcessor.INDEX, RESOURCE);
+					indexHandler.setReIndexRequest(StringUtils.join(resourceIds, ','), IndexProcessor.INDEX, RESOURCE, null, false, false);							
 				}
 				if(collectionIds.size() > 0){
-					indexProcessor.indexStas(StringUtils.join(collectionIds, ','), IndexProcessor.INDEX, SCOLLECTION);
+					indexHandler.setReIndexRequest(StringUtils.join(collectionIds, ','), IndexProcessor.INDEX, SCOLLECTION, null, false, false);							
 				}
 			}
 		}

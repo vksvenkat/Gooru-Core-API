@@ -44,6 +44,7 @@ import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.domain.service.eventlogs.UserEventlog;
 import org.ednovo.gooru.domain.service.redis.RedisService;
 import org.ednovo.gooru.domain.service.setting.SettingService;
+import org.ednovo.gooru.infrastructure.messenger.IndexHandler;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.party.PartyRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.taxonomy.TaxonomyRespository;
@@ -71,6 +72,9 @@ public class PartyServiceImpl extends BaseServiceImpl implements PartyService, P
 
 	@Autowired
 	private RedisService redisService;
+	
+	@Autowired
+	private IndexHandler indexHandler;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(PartyServiceImpl.class);
 
@@ -86,7 +90,9 @@ public class PartyServiceImpl extends BaseServiceImpl implements PartyService, P
 		if (!error.hasErrors()) {
 			partyCustomField.setPartyUid(partyId);
 			getPartyRepository().save(partyCustomField);
-			indexProcessor.index(partyId, IndexProcessor.INDEX, USER, false);
+			indexHandler.setReIndexRequest(partyId, IndexProcessor.INDEX, USER, null, false, false);	
+			
+			
 		}
 		return new ActionResponseDTO<PartyCustomField>(partyCustomField, error);
 	}
@@ -136,9 +142,9 @@ public class PartyServiceImpl extends BaseServiceImpl implements PartyService, P
 
 		this.getPartyRepository().save(partyCustomField);
 		if (newPartyCustomField.getOptionalKey() != null && newPartyCustomField.getOptionalKey().equalsIgnoreCase(SHOW_PROFILE_PAGE)) {
-			indexProcessor.index(partyId, IndexProcessor.INDEX, USER, true);
+			indexHandler.setReIndexRequest(partyId, IndexProcessor.INDEX, USER, null, true, false);					
 		} else {
-			indexProcessor.index(partyId, IndexProcessor.INDEX, USER, false);
+			indexHandler.setReIndexRequest(partyId, IndexProcessor.INDEX, USER, null, false, false);					
 		}
 		if (newPartyCustomField.getOptionalKey() != null && newPartyCustomField.getOptionalKey().equalsIgnoreCase(USER_TAXONOMY_ROOT_CODE)) {
 			this.redisService.deleteKey(SESSION_TOKEN_KEY + UserGroupSupport.getSessionToken());

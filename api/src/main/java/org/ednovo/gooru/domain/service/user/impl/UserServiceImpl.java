@@ -94,6 +94,7 @@ import org.ednovo.gooru.domain.service.redis.RedisService;
 import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.ednovo.gooru.domain.service.user.UserService;
 import org.ednovo.gooru.infrastructure.mail.MailHandler;
+import org.ednovo.gooru.infrastructure.messenger.IndexHandler;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.IdpRepository;
@@ -187,6 +188,9 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 
 	@Autowired
 	private CustomTableRepository customTableRepository;
+	
+	@Autowired
+	private IndexHandler indexHandler;
 	
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
@@ -451,7 +455,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 		if (inviteuser.size() > 0) {
 			this.getCollaboratorService().updateCollaboratorStatus(email, user);
 		}
-		indexProcessor.index(user.getPartyUid(), IndexProcessor.INDEX, USER);
+		indexHandler.setReIndexRequest(user.getPartyUid(), IndexProcessor.INDEX, USER, null, false, false);				
 
 		/*
 		 * if (identity.getIdp() != null) {
@@ -540,7 +544,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 			user.setEmailId(pearsonEmailId);
 			userRepository.save(user);
 		}
-		indexProcessor.index(user.getPartyUid(), IndexProcessor.INDEX, USER, userToken != null ? userToken.getToken() : null);
+		indexHandler.setReIndexRequest(user.getPartyUid(), IndexProcessor.INDEX, USER, userToken != null ? userToken.getToken() : null, false, false);		
 
 		if (user != null && sendConfirmationMail && inviteuser.size() <= 0) {
 			if (isAdminCreateUser) {
@@ -876,9 +880,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 			dataMap.put(PASSWORD, password);
 			this.getMailHandler().handleMailEvent(dataMap);
 		}
-
-		indexProcessor.index(user.getPartyUid(), IndexProcessor.INDEX, USER, reIndexUserContent, false);
-
+		indexHandler.setReIndexRequest(user.getPartyUid(), IndexProcessor.INDEX, USER, null, reIndexUserContent, false);
 		return profile;
 
 	}
@@ -891,7 +893,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 				List<UserRoleAssoc> userRoleAssoc = this.getUserRepository().getUserRoleByName(roles, gooruUId);
 				userRepository.removeAll(userRoleAssoc);
 				user = userRepository.findByGooruId(gooruUId);
-				indexProcessor.index(user.getPartyUid(), IndexProcessor.INDEX, USER);
+				indexHandler.setReIndexRequest(user.getPartyUid(), IndexProcessor.INDEX, USER, null, false, false);						
 			} else {
 				throw new BadRequestException("You are not authorized to perform this action");
 			}
@@ -926,7 +928,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 			}
 			user.setUserRoleSet(currentRoles);
 			userRepository.save(user);
-			indexProcessor.index(user.getPartyUid(), IndexProcessor.INDEX, USER);
+			indexHandler.setReIndexRequest(user.getPartyUid(), IndexProcessor.INDEX, USER, null, false, false);					
 			return user;
 		} else {
 			throw new BadRequestException("You are not authorized to perform this action");
@@ -1056,7 +1058,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 		user.setUserRoleSet(existingUserRoleAssoc);
 		this.getUserRepository().save(user);
 		this.getUserRepository().save(profile);
-		indexProcessor.index(user.getPartyUid(), IndexProcessor.INDEX, USER);
+		indexHandler.setReIndexRequest(user.getPartyUid(), IndexProcessor.INDEX, USER, null, false, false);				
 		return user;
 	}
 
@@ -1448,7 +1450,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 		if (user != null) {
 			userRepository.remove(User.class, user.getPartyUid());
 			userDeleteMsg = "deleted successfully";
-			indexProcessor.index(user.getPartyUid(), IndexProcessor.DELETE, USER);
+			indexHandler.setReIndexRequest(user.getPartyUid(), IndexProcessor.DELETE, USER, null, false, false);					
 		} else {
 			rejectIfNull(user, GL0056, 404, "User ");
 		}
@@ -1768,7 +1770,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 			User user = userRepository.findByGooruId(gooruUserId);
 			user.setConfirmStatus(confirmStatus);
 			userRepository.save(user);
-			indexProcessor.index(user.getPartyUid(), IndexProcessor.INDEX, USER);
+			indexHandler.setReIndexRequest(user.getPartyUid(), IndexProcessor.INDEX, USER, null, false, false);					
 			return user;
 		} else {
 			throw new Exception("You are not permitted to do this action.");
@@ -1781,7 +1783,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 		if (user != null) {
 			user.setViewFlag(viewFlag);
 			userRepository.save(user);
-			indexProcessor.index(user.getPartyUid(), IndexProcessor.INDEX, USER);
+			indexHandler.setReIndexRequest(user.getPartyUid(), IndexProcessor.INDEX, USER, null, false, false);					
 		}
 		return user;
 	}
@@ -1802,7 +1804,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 		identity.setActive(Short.parseShort(ZERO));
 		identity.getUser().setConfirmStatus(0);
 		this.getUserRepository().save(identity);
-		indexProcessor.index(identity.getUser().getPartyUid(), IndexProcessor.INDEX, USER);
+		indexHandler.setReIndexRequest(identity.getUser().getPartyUid(), IndexProcessor.INDEX, USER, null, false, false);				
 	}
 
 	@Override
