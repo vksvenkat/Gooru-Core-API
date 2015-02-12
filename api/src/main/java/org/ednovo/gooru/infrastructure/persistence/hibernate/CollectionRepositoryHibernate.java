@@ -173,7 +173,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 
 	@Override
 	public Collection getCollectionByIdWithType(String gooruOid, String type) {
-		String hql = " FROM Collection collection WHERE  collection.gooruOid=:gooruOid and "+ generateOrgAuthQuery("collection.");
+		String hql = " FROM Collection collection WHERE  collection.gooruOid=:gooruOid and " + generateOrgAuthQuery("collection.");
 		if (type != null) {
 			hql += " and collection.resourceType.name=:type ";
 		}
@@ -230,7 +230,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		List<Classpage> classpage = query.list();
 		return (classpage.size() != 0) ? classpage.get(0) : null;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public CollectionItem getCollectionItemById(String collectionItemId) {
@@ -258,7 +258,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		if (gooruUid != null) {
 			sql += " and collectionItem.associatedUser.partyUid=:gooruUid";
 		}
-		
+
 		if (type != null) {
 			collectionType = type.equalsIgnoreCase(COLLECTION) ? SCOLLECTION : type;
 			sql += " and collectionItem.collection.resourceType.name=:collectionType";
@@ -274,8 +274,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		addOrgAuthParameters(query);
 		return query.list();
 	}
-	
-	
+
 	@Override
 	public List<CollectionItem> getCollectionItemByParentId(String collectionGooruOid, String gooruUid, String type) {
 		String sql = "FROM CollectionItem collectionItem WHERE  collectionItem.collection.gooruOid=:collectionGooruOid  and  " + generateOrgAuthQuery("collectionItem.collection.");
@@ -521,7 +520,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Classpage> getMyClasspage(Integer offset, Integer limit, User user, boolean skipPagination,String orderBy) {
+	public List<Classpage> getMyClasspage(Integer offset, Integer limit, User user, boolean skipPagination, String orderBy) {
 		String hql = "select collectionItems.resource  FROM Collection collection inner join collection.collectionItems collectionItems WHERE   collection.user.partyUid = '" + user.getGooruUId() + "' and collection.collectionType = '" + CollectionType.USER_CLASSPAGE.getCollectionType()
 				+ "'  order by collectionItems.resource.createdOn " + orderBy;
 		Query query = getSession().createQuery(hql);
@@ -618,18 +617,18 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 	public List<CollectionItem> getCollectionItems(String collectionId, Integer offset, Integer limit, String orderBy, String type) {
 		String hql = "select collectionItems  FROM Collection collection inner join collection.collectionItems collectionItems where collection.gooruOid=:gooruOid and " + generateOrgAuthQuery("collection.");
 		if (type != null && type.equalsIgnoreCase("classpage")) {
-			
+
 			hql += " and collectionItems.resource.sharing in('public','anyonewithlink') ";
 		}
-		
-		if (orderBy != null && ( !orderBy.equals(PLANNED_END_DATE) && !orderBy.equals(SEQUENCE))) {
+
+		if (orderBy != null && (!orderBy.equals(PLANNED_END_DATE) && !orderBy.equals(SEQUENCE))) {
 			hql += " order by collectionItems.associationDate desc ";
-		} else if(orderBy != null && orderBy.equals(PLANNED_END_DATE)) {
+		} else if (orderBy != null && orderBy.equals(PLANNED_END_DATE)) {
 			hql += "order by IFNULL(collectionItems.plannedEndDate, (SUBSTRING(now(), 1, 4) + 1000)) asc ";
 		} else {
 			hql += " order by collectionItems.itemSequence";
 		}
-		
+
 		Query query = getSession().createQuery(hql);
 		query.setParameter(GOORU_OID, collectionId);
 		addOrgAuthParameters(query);
@@ -637,7 +636,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
 		return query.list();
 	}
-	
+
 	@Override
 	public Long getCollectionItemsCount(String collectionId, String orderBy, String type) {
 		String hql = "select count(*)  FROM Collection collection inner join collection.collectionItems collectionItems where collection.gooruOid=:gooruOid and " + generateOrgAuthQuery("collection.");
@@ -685,15 +684,16 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
 		return query.list();
 	}
+
 	@Override
 	public Long getClasspageCount(String gooruOid, String itemType) {
-		String sql = "select count(1) as count from collection_item ci inner join resource r on r.content_id = ci.resource_content_id  inner join content c on c.content_id = r.content_id inner join content rc on rc.content_id = ci.collection_content_id left join collection co on co.content_id = r.content_id   " +
-				"where  c.sharing in ('public', 'anyonewithlink') and rc.gooru_oid='"+gooruOid+ "'";
-		
-		if(itemType != null) {
-			sql +=" and r.type_name ='"+itemType+"'";
+		String sql = "select count(1) as count from collection_item ci inner join resource r on r.content_id = ci.resource_content_id  inner join content c on c.content_id = r.content_id inner join content rc on rc.content_id = ci.collection_content_id left join collection co on co.content_id = r.content_id   "
+				+ "where  c.sharing in ('public', 'anyonewithlink') and rc.gooru_oid='" + gooruOid + "'";
+
+		if (itemType != null) {
+			sql += " and r.type_name ='" + itemType + "'";
 		} else {
-			sql +=" and r.type_name != 'pathway'";
+			sql += " and r.type_name != 'pathway'";
 		}
 		Query query = getSession().createSQLQuery(sql).addScalar("count", StandardBasicTypes.LONG);
 		return (Long) query.list().get(0);
@@ -704,13 +704,13 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		String sql = "select count(1) as count from collection_item ci inner join resource r on r.content_id = ci.resource_content_id  inner join content c on c.content_id = r.content_id inner join content rc on rc.content_id = ci.collection_content_id left join collection co on co.content_id = r.content_id left join user_collection_item_assoc uc on uc.collection_item_uid = ci.collection_item_id and uc.user_uid = '"
 				+ userUid + "' left join custom_table_value ct on ct.custom_table_value_id = uc.status inner join user uu on uu.gooru_uid = c.user_uid  where  c.sharing in ('public', 'anyonewithlink') ";
 		sql += " and rc.gooru_oid='" + classpageGooruOid + "'  ";
-		
-		if(type != null) {
-			sql +=" and r.type_name ='"+type+"'";
+
+		if (type != null) {
+			sql += " and r.type_name ='" + type + "'";
 		} else {
-			sql +=" and r.type_name != 'pathway'";
+			sql += " and r.type_name != 'pathway'";
 		}
-		
+
 		if (status != null) {
 			sql += " and IFNULL(ct.value, 'open') = '" + status + "' ";
 		}
@@ -758,7 +758,8 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Object[]> getMyFolder(String gooruUid, Integer limit, Integer offset, String sharing, String collectionType, boolean fetchChildItem, String orderBy) {
-		String sql = "select re.title, cr.gooru_oid, re.type_name, re.folder, re.thumbnail, cr.sharing, ci.collection_item_id, co.goals, ct.value, ct.display_name, rs.attribution, rs.domain_name , co.ideas, co.questions,co.performance_tasks, co.collection_type, ci.item_sequence, cc.gooru_oid as parentGooruOid, re.s3_upload_flag as s3UploadFlag from  resource r inner join collection c on c.content_id = r.content_id inner join content cc on cc.content_id =  c.content_id inner join collection_item ci on ci.collection_content_id = c.content_id inner join resource re on re.content_id = ci.resource_content_id inner join content cr on  cr.content_id = re.content_id inner join organization o  on  o.organization_uid = cr.organization_uid  left join collection co on co.content_id = re.content_id left join custom_table_value ct on ct.custom_table_value_id = r.resource_format_id left join resource_source rs on rs.resource_source_id = r.resource_source_id  where c.collection_type = 'shelf' and  cr.sharing in ('"+ sharing.replace(",", "','") + "') ";
+		String sql = "select re.title, cr.gooru_oid, re.type_name, re.folder, re.thumbnail, cr.sharing, ci.collection_item_id, co.goals, ct.value, ct.display_name, rs.attribution, rs.domain_name , co.ideas, co.questions,co.performance_tasks, co.collection_type, ci.item_sequence, cc.gooru_oid as parentGooruOid, re.s3_upload_flag as s3UploadFlag from  resource r inner join collection c on c.content_id = r.content_id inner join content cc on cc.content_id =  c.content_id inner join collection_item ci on ci.collection_content_id = c.content_id inner join resource re on re.content_id = ci.resource_content_id inner join content cr on  cr.content_id = re.content_id inner join organization o  on  o.organization_uid = cr.organization_uid  left join collection co on co.content_id = re.content_id left join custom_table_value ct on ct.custom_table_value_id = r.resource_format_id left join resource_source rs on rs.resource_source_id = r.resource_source_id  where c.collection_type = 'shelf' and  cr.sharing in ('"
+				+ sharing.replace(",", "','") + "') ";
 		sql += " and cc.user_uid = '" + gooruUid + "' ";
 		if (collectionType != null) {
 			collectionType = collectionType.equalsIgnoreCase(COLLECTION) ? SCOLLECTION : collectionType;
@@ -767,7 +768,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		if (fetchChildItem) {
 			sql += " and ci.item_type != 'collaborator' ";
 		}
-		if(orderBy != null && orderBy.equalsIgnoreCase(SEQUENCE)) {
+		if (orderBy != null && orderBy.equalsIgnoreCase(SEQUENCE)) {
 			sql += " order by ci.item_sequence desc ";
 		} else {
 			sql += " order by ci.association_date desc ";
@@ -783,7 +784,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Object[]> getCollectionItem(String gooruOid, Integer limit, Integer offset, String sharing, String orderBy, String collectionType, boolean fetchChildItem, String sequenceOrder) {
+	public List<Object[]> getCollectionItem(String gooruOid, Integer limit, Integer offset, String sharing, String orderBy, String collectionType, boolean fetchChildItem, String sequenceOrder, boolean fecthAll) {
 		String sql = "select r.title, c.gooru_oid, r.type_name, r.folder, r.thumbnail, ct.value, ct.display_name, c.sharing, ci.collection_item_id, co.goals, rs.attribution, rs.domain_name, co.ideas, co.questions, co.performance_tasks, r.url ,rsummary.rating_star_avg, rsummary.rating_star_count, co.collection_type, ci.item_sequence, rc.gooru_oid as parentGooruOid, r.s3_upload_flag as s3UploadFlag  from collection_item ci inner join resource r on r.content_id = ci.resource_content_id  left join custom_table_value ct on ct.custom_table_value_id = r.resource_format_id inner join content c on c.content_id = r.content_id inner join content rc on rc.content_id = ci.collection_content_id left join collection co on co.content_id = r.content_id left join resource_source rs on rs.resource_source_id = r.resource_source_id left join resource_summary rsummary on   c.gooru_oid = rsummary.resource_gooru_oid where  c.sharing in ('"
 				+ sharing.replace(",", "','") + "') and rc.gooru_oid=:gooruOid  ";
 		if (collectionType != null) {
@@ -802,6 +803,9 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		query.setParameter(GOORU_OID, gooruOid);
 		if (collectionType != null) {
 			query.setParameter(COLLECTION_TYPE, collectionType);
+		}
+		if (fecthAll) {
+			limit = MAX_LIMIT;
 		}
 		query.setFirstResult(offset);
 		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
@@ -860,18 +864,18 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		}
 		return query.list();
 	}
-	
+
 	@Override
 	public CollectionItem findCollectionItemByGooruOid(String gooruOid, String gooruUid, String type) {
-		
+
 		String hql = "FROM CollectionItem collectionItems where collectionItems.resource.gooruOid=:gooruOid and collectionItems.collection.user.partyUid=:gooruUid";
-		if(type != null) { 
+		if (type != null) {
 			hql += " and collectionItems.collection.collectionType !=:type";
 		}
 		Query query = getSession().createQuery(hql);
 		query.setParameter(GOORU_OID, gooruOid);
 		query.setParameter(_GOORU_UID, gooruUid);
-		if(type != null) { 
+		if (type != null) {
 			query.setParameter(TYPE, type);
 		}
 		query.setMaxResults(1);
@@ -977,10 +981,10 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		if (status != null) {
 			sql += " and IFNULL(ct.value, 'open') = '" + status + "' ";
 		}
-		if(type != null) {
-			sql +=" and r.type_name ='"+type+"'";
+		if (type != null) {
+			sql += " and r.type_name ='" + type + "'";
 		} else {
-			sql +=" and r.type_name != 'pathway'";
+			sql += " and r.type_name != 'pathway'";
 		}
 		if (orderBy != null && orderBy.equalsIgnoreCase(RECENT)) {
 			sql += " order by ci.association_date desc, item_sequence  desc ";
@@ -1006,7 +1010,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		if (publishStatus != null) {
 			hql += " and collection.publishStatus.value =:pending";
 		}
-		
+
 		Query query = getSession().createQuery(hql);
 		if (publishStatus != null) {
 			query.setParameter(PENDING, publishStatus);
@@ -1024,55 +1028,57 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		Query query = getSession().createSQLQuery(sql).addScalar("count", StandardBasicTypes.LONG);
 		return (Long) query.list().get(0);
 	}
-   
-	@Override
-	public List<Object[]> getClasspageAssoc(Integer offset, Integer limit, String classpageId,String collectionId,String gooruUid ,String title, String collectionTitle, String classCode) {
-		String sql = "select  cc.gooru_oid as classpageId, cr.gooru_oid as collectionId, ci.collection_item_id as collectionItemId, ci.item_sequence as assocCollectionNo,ci.narration as direction,ci.planned_end_date as dueDate, usr.username as collectionCreator,cr.created_on as createdDate,cr.last_modified as lastModified, r.title as title, res.title as collectionTitle, u.username as creator from classpage cp inner join resource r on r.content_id = cp.classpage_content_id inner join content cc on cc.content_id = r.content_id inner join collection_item ci on cp.classpage_content_id = ci.collection_content_id inner join user u on cc.creator_uid = u.gooru_uid inner join content ct on ct.content_id = ci.collection_content_id inner join resource res on res.content_id = ci.resource_content_id inner join content cr on cr.content_id = res.content_id inner join user usr on cr.creator_uid = usr.gooru_uid where "+ generateAuthSqlQueryWithData("cr.");	
 
-		if(classpageId != null){
-			sql += " and cc.gooru_oid = '" +classpageId +"'";
+	@Override
+	public List<Object[]> getClasspageAssoc(Integer offset, Integer limit, String classpageId, String collectionId, String gooruUid, String title, String collectionTitle, String classCode) {
+		String sql = "select  cc.gooru_oid as classpageId, cr.gooru_oid as collectionId, ci.collection_item_id as collectionItemId, ci.item_sequence as assocCollectionNo,ci.narration as direction,ci.planned_end_date as dueDate, usr.username as collectionCreator,cr.created_on as createdDate,cr.last_modified as lastModified, r.title as title, res.title as collectionTitle, u.username as creator from classpage cp inner join resource r on r.content_id = cp.classpage_content_id inner join content cc on cc.content_id = r.content_id inner join collection_item ci on cp.classpage_content_id = ci.collection_content_id inner join user u on cc.creator_uid = u.gooru_uid inner join content ct on ct.content_id = ci.collection_content_id inner join resource res on res.content_id = ci.resource_content_id inner join content cr on cr.content_id = res.content_id inner join user usr on cr.creator_uid = usr.gooru_uid where "
+				+ generateAuthSqlQueryWithData("cr.");
+
+		if (classpageId != null) {
+			sql += " and cc.gooru_oid = '" + classpageId + "'";
 		}
-		if(collectionId != null){
-			sql += " and cr.gooru_oid = '" +collectionId +"'";
+		if (collectionId != null) {
+			sql += " and cr.gooru_oid = '" + collectionId + "'";
 		}
-		if(classCode != null){
-			sql += " and cp.classpage_code = '" +classCode +"'";
+		if (classCode != null) {
+			sql += " and cp.classpage_code = '" + classCode + "'";
 		}
-		if(title != null){
-			sql += " and r.title = '" +title +"'";
+		if (title != null) {
+			sql += " and r.title = '" + title + "'";
 		}
-		if(collectionTitle != null){
-			sql += " and res.title = '" +collectionTitle +"'";
+		if (collectionTitle != null) {
+			sql += " and res.title = '" + collectionTitle + "'";
 		}
-		if(gooruUid != null){
-			sql += "and usr.gooru_uid = '"+gooruUid+"'";
+		if (gooruUid != null) {
+			sql += "and usr.gooru_uid = '" + gooruUid + "'";
 		}
-		Query query = getSession().createSQLQuery(sql);	
+		Query query = getSession().createSQLQuery(sql);
 		query.setFirstResult(offset);
 		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
 		return query.list();
 	}
-	
+
 	@Override
-	public BigInteger getClasspageAssocCount(String classpageId,String collectionId, String gooruUid, String title, String collectionTitle, String classCode) {
-		String sql = "select  count(*) from classpage cp inner join resource r on r.content_id = cp.classpage_content_id inner join content cc on cc.content_id = r.content_id inner join collection_item ci on cp.classpage_content_id = ci.collection_content_id inner join user u on cc.creator_uid = u.gooru_uid inner join content ct on ct.content_id = ci.collection_content_id inner join resource res on res.content_id = ci.resource_content_id inner join content cr on cr.content_id = res.content_id inner join user usr on cr.creator_uid = usr.gooru_uid where "+ generateAuthSqlQueryWithData("cr.");
-		if(classpageId != null){
-			sql += " and cc.gooru_oid = '" +classpageId +"'";
+	public BigInteger getClasspageAssocCount(String classpageId, String collectionId, String gooruUid, String title, String collectionTitle, String classCode) {
+		String sql = "select  count(*) from classpage cp inner join resource r on r.content_id = cp.classpage_content_id inner join content cc on cc.content_id = r.content_id inner join collection_item ci on cp.classpage_content_id = ci.collection_content_id inner join user u on cc.creator_uid = u.gooru_uid inner join content ct on ct.content_id = ci.collection_content_id inner join resource res on res.content_id = ci.resource_content_id inner join content cr on cr.content_id = res.content_id inner join user usr on cr.creator_uid = usr.gooru_uid where "
+				+ generateAuthSqlQueryWithData("cr.");
+		if (classpageId != null) {
+			sql += " and cc.gooru_oid = '" + classpageId + "'";
 		}
-		if(collectionId != null){
-			sql += " and cr.gooru_oid = '" +collectionId +"'";
+		if (collectionId != null) {
+			sql += " and cr.gooru_oid = '" + collectionId + "'";
 		}
-		if(classCode != null){
-			sql += " and cp.classpage_code = '" +classCode +"'";
+		if (classCode != null) {
+			sql += " and cp.classpage_code = '" + classCode + "'";
 		}
-		if(title != null){
-			sql += " and r.title = '" +title +"'";
+		if (title != null) {
+			sql += " and r.title = '" + title + "'";
 		}
-		if(collectionTitle != null){
-			sql += " and res.title = '" +collectionTitle +"'";
+		if (collectionTitle != null) {
+			sql += " and res.title = '" + collectionTitle + "'";
 		}
-		if(gooruUid != null){
-			sql += "and usr.gooru_uid = '"+gooruUid+"'";
+		if (gooruUid != null) {
+			sql += "and usr.gooru_uid = '" + gooruUid + "'";
 		}
 		Query query = getSession().createSQLQuery(sql);
 		return (BigInteger) query.list().get(0);
@@ -1080,18 +1086,26 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 
 	@Override
 	public List<Object[]> getParentDetails(String collectionItemId) {
-		String sql = "select cc.gooru_oid as classId, rc.title as classTitle, cp.gooru_oid as pathwayId, rp.title as pathwayTitle, cs.gooru_oid as assignmentId, rs.title as assignmentTitle,cii.narration,cii.planned_end_date,cii.is_required,cii.minimum_score from content cc inner join resource rc on (rc.content_id = cc.content_id) inner join collection_item ci on (ci.collection_content_id = rc.content_id) inner join content cp on (cp.content_id = ci.resource_content_id) inner join resource rp on (rp.content_id = cp.content_id) inner join collection_item cii on (cii.collection_content_id = rp.content_id) inner join content cs on (cs.content_id = cii.resource_content_id) inner join resource rs on (cs.content_id = rs.content_id) where cii.collection_item_id ='"+collectionItemId+"'";
+		String sql = "select cc.gooru_oid as classId, rc.title as classTitle, cp.gooru_oid as pathwayId, rp.title as pathwayTitle, cs.gooru_oid as assignmentId, rs.title as assignmentTitle,cii.narration,cii.planned_end_date,cii.is_required,cii.minimum_score from content cc inner join resource rc on (rc.content_id = cc.content_id) inner join collection_item ci on (ci.collection_content_id = rc.content_id) inner join content cp on (cp.content_id = ci.resource_content_id) inner join resource rp on (rp.content_id = cp.content_id) inner join collection_item cii on (cii.collection_content_id = rp.content_id) inner join content cs on (cs.content_id = cii.resource_content_id) inner join resource rs on (cs.content_id = rs.content_id) where cii.collection_item_id ='"
+				+ collectionItemId + "'";
 		Query query = getSession().createSQLQuery(sql);
 		return query.list();
 	}
 
 	@Override
 	public CollectionItem getCollectionItemByResourceOid(String collectionId, String resourceId) {
-		Query query = getSession().createQuery("FROM CollectionItem collectionItem WHERE  collectionItem.collection.gooruOid=:collectionId and collectionItem.resource.gooruOid=:resourceId  and "+ generateOrgAuthQuery("collectionItem.collection."));
+		Query query = getSession().createQuery("FROM CollectionItem collectionItem WHERE  collectionItem.collection.gooruOid=:collectionId and collectionItem.resource.gooruOid=:resourceId  and " + generateOrgAuthQuery("collectionItem.collection."));
 		query.setParameter("resourceId", resourceId);
 		query.setParameter("collectionId", collectionId);
 		addOrgAuthParameters(query);
 		List<CollectionItem> collectionItems = query.list();
 		return (collectionItems.size() != 0) ? collectionItems.get(0) : null;
+	}
+
+	@Override
+	public List<Collection> getCollectionByResourceOid(String resourceId) {
+		String sql = "Select distinct(collectionItem.collection) FROM  CollectionItem  collectionItem where collectionItem.resource.gooruOid=:resourceId";
+		Query query = getSession().createSQLQuery(sql);
+		return query.list();
 	}
 }

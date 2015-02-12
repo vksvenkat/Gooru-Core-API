@@ -125,7 +125,7 @@ public interface ResourceService extends BaseService {
 
 	ResourceSource updateSuggestAttribution(String gooruContentId, String attribution);
 
-	void deleteResource(Resource resource, String gooruContentId, User apiCaller);
+	void deleteResource(String gooruContentId, User apiCaller);
 
 	void deleteAttribution(Resource resource, String gooruAttributionId, User apiCaller);
 

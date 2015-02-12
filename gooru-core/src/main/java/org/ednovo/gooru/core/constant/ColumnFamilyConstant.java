@@ -63,4 +63,8 @@ public interface ColumnFamilyConstant {
 	
 	String CUSTOM_FIELDS_GROUP = "custom_fields_group";
 	
+	String SCHOOL_DISTRICT = "schooldistrict" ;
+	
+	String SCHOOL = "school";
+	
 }

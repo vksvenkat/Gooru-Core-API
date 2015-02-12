@@ -35,6 +35,7 @@ import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.domain.service.BaseServiceImpl;
 import org.ednovo.gooru.domain.service.FeedbackService;
+import org.ednovo.gooru.infrastructure.messenger.IndexHandler;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.FeedbackRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
@@ -60,6 +61,9 @@ public class RatingServiceImpl extends BaseServiceImpl implements RatingService,
 
 	@Autowired
 	private CustomTableRepository customTableRepository;
+	
+	@Autowired
+	private IndexHandler indexHandler;
 
 	@Override
 	public Rating findByContent(String gooruContentId) {
@@ -103,7 +107,7 @@ public class RatingServiceImpl extends BaseServiceImpl implements RatingService,
 		feedback.setType(feedbackType);
 		feedback.setScore(Integer.parseInt(score));
 		feedback = this.getFeedbackService().createFeedback(feedback, apiCaller);
-		indexProcessor.index(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE);
+		indexHandler.setReIndexRequest(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);		
 		return createRating(feedback, resource);
 	}
 

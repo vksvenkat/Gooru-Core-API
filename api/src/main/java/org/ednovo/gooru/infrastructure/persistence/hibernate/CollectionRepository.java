@@ -103,7 +103,7 @@ public interface CollectionRepository extends BaseRepository {
 	
 	Long getMyShelfCount(String gooruUid, String sharing, String collectionType);
 	
-	List<Object[]> getCollectionItem(String gooruOid, Integer limit, Integer offset, String sharing, String orderBy, String collectionType,boolean fetchChildItem, String sequenceOrder);
+	List<Object[]> getCollectionItem(String gooruOid, Integer limit, Integer offset, String sharing, String orderBy, String collectionType,boolean fetchChildItem, String sequenceOrder, boolean fetchAll);
 	
 	Long getCollectionItemCount(String gooruOid, String sharing, String collectionType );
 	
@@ -150,5 +150,7 @@ public interface CollectionRepository extends BaseRepository {
 	List<Object[]> getParentDetails(String collectionItemId);
 
 	CollectionItem getCollectionItemByResourceOid(String collectionId, String resourceId);
+	
+	List<Collection> getCollectionByResourceOid(String resourceId);
 	
 }

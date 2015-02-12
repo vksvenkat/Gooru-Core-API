@@ -1,8 +1,8 @@
 /////////////////////////////////////////////////////////////
-// OrganizationRepository.java
+// FolderService.java
 // gooru-api
-// Created by Gooru on 2014
-// Copyright (c) 2014 Gooru. All rights reserved.
+// Created by Gooru on 2015
+// Copyright (c) 2015 Gooru. All rights reserved.
 // http://www.goorulearning.org/
 // Permission is hereby granted, free of charge, to any person obtaining
 // a copy of this software and associated documentation files (the
@@ -21,26 +21,23 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 /////////////////////////////////////////////////////////////
-package org.ednovo.gooru.infrastructure.persistence.hibernate.party;
+/**
+ * 
+ */
+package org.ednovo.gooru.domain.service;
 
 import java.util.List;
+import java.util.Map;
 
-import org.ednovo.gooru.core.api.model.Organization;
-import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepository;
+import org.ednovo.gooru.domain.service.search.SearchResults;
 
-public interface OrganizationRepository extends BaseRepository {
+public interface FolderService {
 
-	Organization getOrganizationByName(String partyName);
+	SearchResults<Map<String, Object>> getMyCollectionsToc(String gooruUid, Integer limit, Integer offset, String sharing, String collectionType, String orderBy);
 
-	Organization getOrganizationByCode(String organizationCode);
-	
-	List<Organization> getOrganizations(String type, String parentOrganizationUid, String stateProvinceId, Integer offset, Integer limit);
+	List<Map<String, Object>> getFolderTocItems(String gooruOid, String sharing, String collectionType, String orderBy, String sortOrder);
 
-	Organization getOrganizationByUid(String organizationUid);
-	
-	Organization getOrganizationByIdpName(String idpDomainName);
-	
-	Long getOrganizationCount(String type, String parentOrganizationUid, String sateProvinceId);
-	
-	List<Organization> getSchoolsByDistrictId(String type,String parentOrganizationUid,String stateProvinceId);
+	String getMyCollectionsToc(String gooruUid, Integer limit, Integer offset, String sharing, String collectionType, String orderBy, boolean clearCache);
+
+	String getFolderTocItems(String gooruOid, String sharing, String collectionType, String orderBy, boolean clearCache);
 }
