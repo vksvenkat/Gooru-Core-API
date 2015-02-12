@@ -427,7 +427,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	public List<Map<String, Object>> getFolderItem(String gooruOid, String sharing, String type, String collectionType, Integer itemLimit, boolean fetchChildItem, String orderBy) {
 		StorageArea storageArea = this.getStorageRepository().getStorageAreaByTypeName(NFS);
 		List<Map<String, Object>> items = new ArrayList<Map<String, Object>>();
-		List<Object[]> result = this.getCollectionRepository().getCollectionItem(gooruOid, type.equalsIgnoreCase(SCOLLECTION) ? 4 : itemLimit, 0, sharing, orderBy, collectionType, fetchChildItem, type.equalsIgnoreCase(SCOLLECTION) ? ASC : DESC);
+		List<Object[]> result = this.getCollectionRepository().getCollectionItem(gooruOid, type.equalsIgnoreCase(SCOLLECTION) ? 4 : itemLimit, 0, sharing, orderBy, collectionType, fetchChildItem, type.equalsIgnoreCase(SCOLLECTION) ? ASC : DESC, false);
 		if (result != null && result.size() > 0) {
 
 			for (Object[] object : result) {
@@ -540,7 +540,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	public List<Map<String, Object>> getFolderItems(String gooruOid, Integer limit, Integer offset, String sharing, String collectionType, String orderBy, Integer itemLimit, boolean fetchChildItem, String sortOrder) {
 		StorageArea storageArea = this.getStorageRepository().getStorageAreaByTypeName(NFS);
 		List<Map<String, Object>> items = new ArrayList<Map<String, Object>>();
-		List<Object[]> result = this.getCollectionRepository().getCollectionItem(gooruOid, limit, offset, sharing, orderBy, collectionType, fetchChildItem, sortOrder);
+		List<Object[]> result = this.getCollectionRepository().getCollectionItem(gooruOid, limit, offset, sharing, orderBy, collectionType, fetchChildItem, sortOrder, false);
 		if (result != null && result.size() > 0) {
 			for (Object[] object : result) {
 				Map<String, Object> item = new HashMap<String, Object>();
@@ -910,6 +910,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		Resource resource = collectionRepository.findResourceCopiedFrom(gooruOid, gooruUid);
 		return resource != null ? true : false;
 	}
+	
 
 	public StorageRepository getStorageRepository() {
 		return storageRepository;
@@ -934,6 +935,4 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	public PartyService getPartyService() {
 		return partyService;
 	}
-
-
 }
