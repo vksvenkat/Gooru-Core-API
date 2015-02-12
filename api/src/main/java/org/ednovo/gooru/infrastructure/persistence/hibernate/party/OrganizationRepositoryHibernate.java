@@ -102,6 +102,31 @@ public class OrganizationRepositoryHibernate extends BaseRepositoryHibernate imp
         return (Long) query.list().get(0);
 	}
 
+	@Override
+	public List<Organization> getSchoolsByDistrictId(String type,String parentOrganizationUid, String stateProvinceId) {
+		String hql = "SELECT o FROM Organization o  where 1 = 1";
+		if (stateProvinceId != null) {
+			hql += " AND o.stateProvince.stateId=:stateProvinceId";
+		}
+		if (type != null) { 
+			hql += " AND o.type.keyValue=:type";
+		}
+		if (parentOrganizationUid != null) { 
+			hql += " AND o.parentOrganization.partyUid=:parentOrganizationUid";
+		}
+		Query query = getSession().createQuery(hql);
+		
+		if (stateProvinceId != null) {
+			query.setParameter("stateProvinceId", stateProvinceId);
+		}
+		if (type != null) {
+			query.setParameter("type", type);
+		}
+		if (parentOrganizationUid != null) { 
+			query.setParameter("parentOrganizationUid", parentOrganizationUid);
+		}
+		return (List) query.list();
+	}
 	
 
 

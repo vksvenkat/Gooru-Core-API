@@ -116,6 +116,28 @@ public class UserCio implements IsEntityCassandraIndexable {
 	@Column 
 	private Integer childAccountCount;
 	
+    @Column
+    private String districtId;
+    
+    @Column
+    private String districtName;
+    
+    @Column
+    private String districtCode;
+    
+    @Column
+    private String stateCode;
+    
+    @Column
+    private String stateName;
+    
+    @Column
+    private String countryCode;
+    
+    @Column
+    private String countryName;
+    
+	
 
 	public Short getActive() {
 		return active;
@@ -373,6 +395,61 @@ public class UserCio implements IsEntityCassandraIndexable {
 
 	public void setChildAccountCount(Integer childAccountCount) {
 		this.childAccountCount = childAccountCount;
+	}
+
+	public String getDistrictId() {
+		return districtId;
+	}
+
+	public String getDistrictName() {
+		return districtName;
+	}
+
+	public String getDistrictCode() {
+		return districtCode;
+	}
+
+	public String getStateCode() {
+		return stateCode;
+	}
+	public String getStateName() {
+		return stateName;
+	}
+
+	public String getCountryCode() {
+		return countryCode;
+	}
+
+	public String getCountryName() {
+		return countryName;
+	}
+
+	public void setDistrictId(String districtId) {
+		this.districtId = districtId;
+	}
+
+	public void setDistrictName(String districtName) {
+		this.districtName = districtName;
+	}
+
+	public void setDistrictCode(String districtCode) {
+		this.districtCode = districtCode;
+	}
+
+	public void setStateCode(String stateCode) {
+		this.stateCode = stateCode;
+	}
+
+	public void setStateName(String stateName) {
+		this.stateName = stateName;
+	}
+
+	public void setCountryCode(String countryCode) {
+		this.countryCode = countryCode;
+	}
+
+	public void setCountryName(String countryName) {
+		this.countryName = countryName;
 	}
 
 }
