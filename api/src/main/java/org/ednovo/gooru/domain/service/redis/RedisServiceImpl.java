@@ -419,7 +419,12 @@ public class RedisServiceImpl implements RedisService, ParameterProperties, Cons
 
 	@Override
 	public void delete(String key) {
-		redisStringTemplate.delete(key);
+		try {
+			redisStringTemplate.delete(key);
+		} catch (Exception e) {
+			logger.error("Get Values from redis failed!" + e.getMessage());
+
+		}
 	}
 	
 	@Override
