@@ -73,6 +73,7 @@ public class FolderServiceImpl extends BaseServiceImpl implements FolderService,
 				collection.put(PERFORMANCE_TASKS, object[14]);
 				collection.put(COLLECTION_TYPE, object[15]);
 				collection.put(COLLECTION_ITEM_ID, object[6]);
+				collection.put(DESCRIPTION, object[7] != null ? object[7] : object[19]);
 				if (object[2] != null && object[2].toString().equalsIgnoreCase(SCOLLECTION)) {
 					collection.put(COLLECTION_ITEMS, getFolderTocItems(String.valueOf(object[1]), sharing, collectionType, orderBy, ASC));
 				}
@@ -111,6 +112,7 @@ public class FolderServiceImpl extends BaseServiceImpl implements FolderService,
 				item.put(PERFORMANCE_TASKS, object[14]);
 				item.put(COLLECTION_TYPE, object[18]);
 				item.put(COLLECTION_ITEM_ID, object[8]);
+				item.put(DESCRIPTION, object[9] != null ? object[9] : object[22]);
 				items.add(item);
 			}
 		}
@@ -143,7 +145,15 @@ public class FolderServiceImpl extends BaseServiceImpl implements FolderService,
 			data = getRedisService().getValue(cacheKey);
 		}
 		if (data == null) {
-			data = SerializerUtil.serializeToJson(this.getFolderTocItems(gooruOid, sharing, collectionType, orderBy, collection.getResourceType().getName().equalsIgnoreCase(SCOLLECTION) ? ASC : DESC), TOC_EXCLUDES, true, true);
+			Map<String, Object> item = new HashMap<String, Object>();
+			item.put(TITLE, collection.getTitle());
+			item.put(IDEAS, collection.getIdeas());
+			item.put(QUESTIONS, collection.getQuestions());
+			item.put(PERFORMANCE_TASKS, collection.getPerformanceTasks());
+			item.put(DESCRIPTION, collection.getGoals() != null ? collection.getGoals()  :  collection.getDescription());
+			item.put(COLLECTION_TYPE, collection.getCollectionType());
+			item.put(COLLECTION_ITEMS, this.getFolderTocItems(gooruOid, sharing, collectionType, orderBy, collection.getResourceType().getName().equalsIgnoreCase(SCOLLECTION) ? ASC : DESC));
+			data = SerializerUtil.serializeToJson(item, TOC_EXCLUDES, true, true);
 			getRedisService().putValue(cacheKey, data, 86400);
 		}
 		return data;
