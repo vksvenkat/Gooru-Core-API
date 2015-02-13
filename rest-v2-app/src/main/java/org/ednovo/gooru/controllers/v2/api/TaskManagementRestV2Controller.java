@@ -86,12 +86,6 @@ public class TaskManagementRestV2Controller extends BaseController implements Pa
 		}
 		String[] includeFields = getValue(FIELDS, json) != null ? getFields(getValue(FIELDS, json)) : null;
 		String includes[] = (String[]) ArrayUtils.addAll(includeFields == null ? TASK_INCLUDES : includeFields, ERROR_INCLUDE);
-
-		SessionContextSupport.putLogParameter(EVENTNAME, CREATE_TASK);
-		SessionContextSupport.putLogParameter(TASK_UID, task.getModel().getGooruOid());
-		SessionContextSupport.putLogParameter(CREATOR_UID, task.getModel().getCreatedOn() != null ? task.getModel().getCreator().getPartyUid() : null);
-		SessionContextSupport.putLogParameter(TASK_CREATED_DATE, task.getModel().getCreatedOn());
-		SessionContextSupport.putLogParameter(TASK_TITLE, task.getModel().getTitle());
 		return toModelAndViewWithIoFilter(task.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, includes);
 	}
 

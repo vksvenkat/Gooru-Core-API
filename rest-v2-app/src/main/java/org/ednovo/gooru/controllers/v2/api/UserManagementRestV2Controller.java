@@ -36,8 +36,8 @@ import org.ednovo.gooru.core.api.model.Identity;
 import org.ednovo.gooru.core.api.model.Profile;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.User;
-import org.ednovo.gooru.core.api.model.UserRole;
 import org.ednovo.gooru.core.api.model.UserAvailability.CheckUser;
+import org.ednovo.gooru.core.api.model.UserRole;
 import org.ednovo.gooru.core.api.model.UserTagAssoc;
 import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.application.util.ServerValidationUtils;
@@ -51,6 +51,7 @@ import org.ednovo.gooru.domain.service.PostService;
 import org.ednovo.gooru.domain.service.tag.TagService;
 import org.ednovo.gooru.domain.service.user.UserService;
 import org.ednovo.gooru.domain.service.userManagement.UserManagementService;
+import org.ednovo.gooru.infrastructure.messenger.IndexHandler;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.json.JSONObject;
@@ -87,6 +88,9 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 	@Autowired
 	private IndexProcessor indexProcessor;
 	
+	@Autowired 
+	private IndexHandler indexHandler;
+	
 	@Autowired
 	@Resource(name = "userService")
 	private UserService userService;
@@ -118,7 +122,7 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 				this.getUserManagementService().updateOrgAdminCustomField(adminOrganizationUid, user);
 			}
        		response.setStatus(HttpServletResponse.SC_CREATED);
-			indexProcessor.index(user.getPartyUid(), IndexProcessor.INDEX, USER);
+			indexHandler.setReIndexRequest(user.getPartyUid(), IndexProcessor.INDEX, USER, null, false, false);					
 		}
 
 		return toModelAndViewWithIoFilter(user, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, USER_INCLUDES);
@@ -190,7 +194,7 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 		Identity identity = this.getUserManagementService().resetCredential(getValue(TOKEN, json), getValue(GOORU_UID, json), getValue(PASSWORD, json), apicaller, getValue(MAIL_CONFIRMATION_URL, json) != null ? getValue(MAIL_CONFIRMATION_URL, json) : null,  getValue(IS_PARTNER_PORTAL, json) != null ? Boolean.parseBoolean(getValue(IS_PARTNER_PORTAL, json)) : false);
 		String[] includes = (String[]) ArrayUtils.addAll(USER_INCLUDES, RESET_PASSWORD_INCLUDES);
 		if (identity != null) {
-			indexProcessor.index(identity.getUser().getPartyUid(), IndexProcessor.INDEX, USER);
+			indexHandler.setReIndexRequest(identity.getUser().getPartyUid(), IndexProcessor.INDEX, USER, null, false, false);		
 		}
 		return toModelAndViewWithIoFilter(identity, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
@@ -251,7 +255,7 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 		UserTagAssoc userTagAssoc = this.getTagService().createUserTagAssoc(gooruUid, tagGooruOid);
 		String[] includes = (String[]) ArrayUtils.addAll(USER_INCLUDES, USER_ASSOC_INCLUDES);
 		if (userTagAssoc != null) {
-			indexProcessor.index(userTagAssoc.getUser().getPartyUid(), IndexProcessor.INDEX, USER);
+			indexHandler.setReIndexRequest(userTagAssoc.getUser().getPartyUid(), IndexProcessor.INDEX, USER, null, false, false);					
 		}
 		return toModelAndViewWithIoFilter(userTagAssoc, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, includes);
 	}

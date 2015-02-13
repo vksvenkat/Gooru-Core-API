@@ -174,7 +174,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	
 	@Autowired
 	private IndexHandler indexHandler;
-
+	
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
 
 	@Override
@@ -946,7 +946,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 				LOGGER.error("Error : " + e);
 			}
 		}
-		indexProcessor.index(user.getPartyUid(), IndexProcessor.INDEX, USER);
+		indexHandler.setReIndexRequest(user.getPartyUid(), IndexProcessor.INDEX, USER, null, false, false);				
 		try {
 			this.getUsereventlog().getEventLogs(user, source, identity);
 		} catch (JSONException e) {
@@ -1167,7 +1167,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 					profile.setGrade(deleteGrade(newProfile.getGrade(), user, apiCaller));
 					this.getUserRepository().save(profile);
 				}
-				indexProcessor.index(profile.getUser().getPartyUid(), IndexProcessor.INDEX, USER);
+				indexHandler.setReIndexRequest(profile.getUser().getPartyUid(), IndexProcessor.INDEX, USER, null, false, false);						
 			}
 		}
 
@@ -1249,7 +1249,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 				this.getContentRepository().removeAll(removeContentList);
 				this.getUserRepository().save(user);
 				if (gooruOidAsString.length() > 0) {
-					indexProcessor.index(gooruOidAsString, IndexProcessor.INDEX, RESOURCE);
+					indexHandler.setReIndexRequest(gooruOidAsString, IndexProcessor.INDEX, RESOURCE, null, false, false);							
 				}
 			} else {
 				throw new UnauthorizedException(generateErrorMessage("GL0085"));
@@ -1449,7 +1449,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			roleEntityOperation.setEntityOperation(entityOperation);
 			getUserRepository().save(roleEntityOperation);
 		}
-		indexProcessor.index(user.getPartyUid(), IndexProcessor.INDEX, USER);
+		indexHandler.setReIndexRequest(user.getPartyUid(), IndexProcessor.INDEX, USER, null, false, false);				
 		return new ActionResponseDTO<UserRole>(userRole, errors);
 	}
 
@@ -1511,7 +1511,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		userRoleAssoc.setUser(user);
 		userRoleAssoc.setRole(role);
 		getUserRepository().save(userRoleAssoc);
-		indexProcessor.index(user.getPartyUid(), IndexProcessor.INDEX, USER);
+		indexHandler.setReIndexRequest(user.getPartyUid(), IndexProcessor.INDEX, USER, null, false, false);				
 		return userRoleAssoc;
 	}
 
@@ -1520,7 +1520,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		UserRoleAssoc userRoleAssoc = userRepository.findUserRoleAssocEntryByRoleIdAndUserUid(roleId, userUid);
 		rejectIfNull(userRoleAssoc, GL0102, 404, USER);
 		getUserRepository().remove(userRoleAssoc);
-		indexProcessor.index(userRoleAssoc.getUser().getPartyUid(), IndexProcessor.INDEX, USER);
+		indexHandler.setReIndexRequest(userRoleAssoc.getUser().getPartyUid(), IndexProcessor.INDEX, USER, null, false, false);				
 	}
 
 	@Override

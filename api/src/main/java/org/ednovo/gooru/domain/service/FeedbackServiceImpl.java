@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.ednovo.gooru.application.util.AsyncExecutor;
-import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.ContextDTO;
 import org.ednovo.gooru.core.api.model.CustomTableValue;
@@ -50,6 +49,7 @@ import org.ednovo.gooru.domain.service.eventlogs.FeedbackEventLog;
 import org.ednovo.gooru.domain.service.search.SearchResults;
 import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.ednovo.gooru.domain.service.userManagement.UserManagementService;
+import org.ednovo.gooru.infrastructure.messenger.IndexHandler;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.FeedbackRepository;
@@ -99,6 +99,9 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 
 	@Autowired
 	private CollectionService collectionService;
+	
+	@Autowired
+	private IndexHandler indexHandler;
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(FeedbackServiceImpl.class);
 
@@ -167,9 +170,9 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 		Resource resource = this.getResourceRepository().findResourceByContentGooruId(newFeedback.getAssocGooruOid());
 		if (resource != null && resource.getContentId() != null) {
 			if (resource.getResourceType() != null && resource.getResourceType().getName().equalsIgnoreCase(ResourceType.Type.SCOLLECTION.getType())) {
-				indexProcessor.index(resource.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
+				indexHandler.setReIndexRequest(resource.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);						
 			} else {
-				indexProcessor.index(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE);
+				indexHandler.setReIndexRequest(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);						
 			}
 			this.getAsyncExecutor().clearCache(resource.getGooruOid());
 		}
@@ -194,9 +197,9 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 		if (resource != null && resource.getContentId() != null) {
 			updateResourceSummary(resource.getGooruOid());
 			if (resource.getResourceType() != null && resource.getResourceType().getName().equalsIgnoreCase(ResourceType.Type.SCOLLECTION.getType())) {
-				indexProcessor.index(resource.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
+				indexHandler.setReIndexRequest(resource.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);						
 			} else {
-				indexProcessor.index(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE);
+				indexHandler.setReIndexRequest(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);						
 			}
 			this.getAsyncExecutor().clearCache(resource.getGooruOid());
 		}
@@ -337,9 +340,9 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 		Resource resource = this.getResourceRepository().findResourceByContentGooruId(feedback.getAssocGooruOid());
 		if (resource != null && resource.getContentId() != null) {
 			if (resource.getResourceType() != null && resource.getResourceType().getName().equalsIgnoreCase(ResourceType.Type.SCOLLECTION.getType())) {
-				indexProcessor.index(resource.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
+				indexHandler.setReIndexRequest(resource.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);						
 			} else {
-				indexProcessor.index(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE);
+				indexHandler.setReIndexRequest(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);						
 			}
 			this.getAsyncExecutor().clearCache(resource.getGooruOid());
 		}
