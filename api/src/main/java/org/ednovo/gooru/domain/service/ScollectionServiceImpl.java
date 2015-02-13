@@ -76,6 +76,7 @@ import org.ednovo.gooru.core.application.util.ResourceMetaInfo;
 import org.ednovo.gooru.core.application.util.ServerValidationUtils;
 import org.ednovo.gooru.core.cassandra.model.ResourceMetadataCo;
 import org.ednovo.gooru.core.constant.ConstantProperties;
+import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.BadRequestException;
 import org.ednovo.gooru.core.exception.NotFoundException;
@@ -1770,19 +1771,10 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 
 	private Errors validateCollection(Collection collection) throws Exception {
-		Map<String, String> colletionType = new HashMap<String, String>();
-		colletionType.put(LESSON, COLLECTION_TYPE);
-		colletionType.put(SHELF, COLLECTION_TYPE);
-		colletionType.put(COLLECTION, COLLECTION_TYPE);
-		colletionType.put(QUIZ, COLLECTION_TYPE);
-		colletionType.put(FOLDER, COLLECTION_TYPE);
-		colletionType.put(ASSIGNMENT, COLLECTION_TYPE);
-		colletionType.put(ASSESSMENT, COLLECTION_TYPE);
-		colletionType.put(CollectionType.STORY.getCollectionType(), COLLECTION_TYPE);
 		final Errors errors = new BindException(collection, COLLECTION);
 		if (collection != null) {
 			rejectIfNullOrEmpty(errors, collection.getTitle(), TITLE, GL0006, generateErrorMessage(GL0006, TITLE));
-			rejectIfInvalidType(errors, collection.getCollectionType(), COLLECTION_TYPE, GL0007, generateErrorMessage(GL0007, COLLECTION_TYPE), colletionType);
+			rejectIfInvalidType(errors, collection.getCollectionType(), COLLECTION_TYPE, GL0007, generateErrorMessage(GL0007, COLLECTION_TYPE), Constants.COLLECTION_TYPES);
 		}
 		return errors;
 	}

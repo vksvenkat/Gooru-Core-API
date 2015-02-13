@@ -6,7 +6,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Constants {
+import org.ednovo.gooru.core.api.model.CollectionType;
+
+public class Constants implements ParameterProperties {
 	// ~ Static fields/initializers
 	// =============================================
 
@@ -182,4 +184,20 @@ public class Constants {
 		accountCreatedType.put("wsfed", "03");
 		ACCOUNT_TYPES = Collections.unmodifiableMap(accountCreatedType);
 	}
+	public static final Map<String, String> COLLECTION_TYPES;
+	static{
+		Map<String, String> colletionType = new HashMap<String, String>();
+		colletionType.put(LESSON, COLLECTION_TYPE);
+		colletionType.put(SHELF, COLLECTION_TYPE);
+		colletionType.put(COLLECTION, COLLECTION_TYPE);
+		colletionType.put(QUIZ, COLLECTION_TYPE);
+		colletionType.put(FOLDER, COLLECTION_TYPE);
+		colletionType.put(ASSIGNMENT, COLLECTION_TYPE);
+		colletionType.put(ASSESSMENT, COLLECTION_TYPE);
+		colletionType.put(ASSESSMENT_URL, COLLECTION_TYPE);
+		colletionType.put(CollectionType.STORY.getCollectionType(), COLLECTION_TYPE);
+		COLLECTION_TYPES = Collections.unmodifiableMap(colletionType);
+	}
+	
+	
 }
