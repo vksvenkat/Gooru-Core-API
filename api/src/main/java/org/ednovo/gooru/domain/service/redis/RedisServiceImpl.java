@@ -422,7 +422,7 @@ public class RedisServiceImpl implements RedisService, ParameterProperties, Cons
 		try {
 			redisStringTemplate.delete(key);
 		} catch (Exception e) {
-			logger.error("Get Values from redis failed!" + e.getMessage());
+			logger.error("Delete key from redis failed!" + e.getMessage());
 
 		}
 	}
