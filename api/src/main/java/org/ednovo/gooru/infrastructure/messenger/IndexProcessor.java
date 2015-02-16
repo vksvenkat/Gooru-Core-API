@@ -65,7 +65,6 @@ public class IndexProcessor extends BaseComponent {
 	@Autowired
 	private RedisService redisService;
 	
-
 	private static final JSONSerializer SERIALIZER = new JSONSerializer();
 
 	

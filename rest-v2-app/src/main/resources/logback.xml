@@ -72,11 +72,9 @@
     </logger>
 	<logger name="org.springframework" level="WARN"></logger>
 	<logger name="org.hibernate.cfg.HbmBinder" level="WARN"></logger>
-
 	<logger name="org.restlet.engine.connector.HttpClientHelper" level="WARN"></logger>
 	
 	<root level="INFO">
-
 		<appender-ref ref="default-out" /> 
 	</root>
 </configuration>
