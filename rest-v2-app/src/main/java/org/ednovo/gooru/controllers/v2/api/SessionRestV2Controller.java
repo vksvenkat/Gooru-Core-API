@@ -103,9 +103,6 @@ public class SessionRestV2Controller extends BaseController implements Parameter
 		if (session.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		}
-		SessionContextSupport.putLogParameter(EVENT_NAME, "update-session");
-		SessionContextSupport.putLogParameter(USER_ID, user.getUserId());
-		SessionContextSupport.putLogParameter(GOORU_UID, user.getPartyUid());
 		String[] includeFields = getValue(FIELDS, json) != null ? getFields(getValue(FIELDS, json)) : null;
 		String includes[] = (String[]) ArrayUtils.addAll(includeFields == null ? SESSION_INCLUDES : includeFields, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(session.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, includes);
@@ -159,9 +156,6 @@ public class SessionRestV2Controller extends BaseController implements Parameter
 		if (sessionItemAttemptTry == null) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		}
-		SessionContextSupport.putLogParameter(EVENT_NAME, "update-session-item");
-		SessionContextSupport.putLogParameter(USER_ID, user.getUserId());
-		SessionContextSupport.putLogParameter(GOORU_UID, user.getPartyUid());
 		return toModelAndViewWithIoFilter(sessionItemAttemptTry, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, SESSION_ITEM_ATTEMPT_INCLUDES);
 	}
 

@@ -61,6 +61,7 @@ import org.ednovo.gooru.domain.service.job.JobService;
 import org.ednovo.gooru.domain.service.resource.MediaService;
 import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.ednovo.gooru.domain.service.storage.S3ResourceApiHandler;
+import org.ednovo.gooru.infrastructure.messenger.IndexHandler;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.resource.ResourceRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.taxonomy.TaxonomyRespository;
@@ -115,6 +116,9 @@ public class ResourceImageUtil extends UserGroupSupport implements ParameterProp
 
 	@Autowired
 	private AsyncExecutor asyncExecutor;
+	
+	@Autowired
+	private IndexHandler indexHandler;
 
 	private Map<String, String> propertyMap;
 
@@ -286,7 +290,7 @@ public class ResourceImageUtil extends UserGroupSupport implements ParameterProp
 				indexType = SCOLLECTION;
 			}
 			try {
-				indexProcessor.index(resource.getGooruOid(), IndexProcessor.INDEX, indexType);
+				indexHandler.setReIndexRequest(resource.getGooruOid(), IndexProcessor.INDEX, indexType, null, false, false);
 			} catch (Exception e) {
 				LOGGER.debug("failed to index {}", e);
 			}

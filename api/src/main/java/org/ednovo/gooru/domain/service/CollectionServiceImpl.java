@@ -61,6 +61,7 @@ import org.ednovo.gooru.domain.service.redis.RedisService;
 import org.ednovo.gooru.domain.service.search.SearchResults;
 import org.ednovo.gooru.domain.service.user.UserService;
 import org.ednovo.gooru.infrastructure.mail.MailHandler;
+import org.ednovo.gooru.infrastructure.messenger.IndexHandler;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.collaborator.CollaboratorRepository;
@@ -104,6 +105,9 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	
 	@Autowired
 	private PartyService partyService;
+	
+	@Autowired
+	private IndexHandler indexHandler;
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(CollectionServiceImpl.class);
 
@@ -423,7 +427,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	public List<Map<String, Object>> getFolderItem(String gooruOid, String sharing, String type, String collectionType, Integer itemLimit, boolean fetchChildItem, String orderBy) {
 		StorageArea storageArea = this.getStorageRepository().getStorageAreaByTypeName(NFS);
 		List<Map<String, Object>> items = new ArrayList<Map<String, Object>>();
-		List<Object[]> result = this.getCollectionRepository().getCollectionItem(gooruOid, type.equalsIgnoreCase(SCOLLECTION) ? 4 : itemLimit, 0, sharing, orderBy, collectionType, fetchChildItem, type.equalsIgnoreCase(SCOLLECTION) ? ASC : DESC);
+		List<Object[]> result = this.getCollectionRepository().getCollectionItem(gooruOid, type.equalsIgnoreCase(SCOLLECTION) ? 4 : itemLimit, 0, sharing, orderBy, collectionType, fetchChildItem, type.equalsIgnoreCase(SCOLLECTION) ? ASC : DESC, false);
 		if (result != null && result.size() > 0) {
 
 			for (Object[] object : result) {
@@ -536,7 +540,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	public List<Map<String, Object>> getFolderItems(String gooruOid, Integer limit, Integer offset, String sharing, String collectionType, String orderBy, Integer itemLimit, boolean fetchChildItem, String sortOrder) {
 		StorageArea storageArea = this.getStorageRepository().getStorageAreaByTypeName(NFS);
 		List<Map<String, Object>> items = new ArrayList<Map<String, Object>>();
-		List<Object[]> result = this.getCollectionRepository().getCollectionItem(gooruOid, limit, offset, sharing, orderBy, collectionType, fetchChildItem, sortOrder);
+		List<Object[]> result = this.getCollectionRepository().getCollectionItem(gooruOid, limit, offset, sharing, orderBy, collectionType, fetchChildItem, sortOrder, false);
 		if (result != null && result.size() > 0) {
 			for (Object[] object : result) {
 				Map<String, Object> item = new HashMap<String, Object>();
@@ -818,7 +822,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 			}
 			this.getCollectionRepository().saveAll(collections);
 			if (collectionIds.toString().trim().length() > 0) {
-				indexProcessor.index(collectionIds.toString(), IndexProcessor.INDEX, SCOLLECTION);
+				indexHandler.setReIndexRequest(collectionIds.toString(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);						
 			}
 		}
 		return collections;
@@ -866,7 +870,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 			}
 			this.getCollectionRepository().saveAll(collections);
 			if (collectionIds.toString().trim().length() > 0) {
-				indexProcessor.index(collectionIds.toString(), IndexProcessor.INDEX, SCOLLECTION);
+				indexHandler.setReIndexRequest(collectionIds.toString(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);						
 			}
 		}
 		return collections;
@@ -906,6 +910,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		Resource resource = collectionRepository.findResourceCopiedFrom(gooruOid, gooruUid);
 		return resource != null ? true : false;
 	}
+	
 
 	public StorageRepository getStorageRepository() {
 		return storageRepository;
@@ -930,6 +935,4 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	public PartyService getPartyService() {
 		return partyService;
 	}
-
-
 }

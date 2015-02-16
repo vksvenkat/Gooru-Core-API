@@ -42,6 +42,7 @@ import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.BadRequestException;
 import org.ednovo.gooru.domain.cassandra.service.TaxonomyCassandraService;
 import org.ednovo.gooru.domain.service.redis.RedisService;
+import org.ednovo.gooru.infrastructure.messenger.IndexHandler;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.party.OrganizationRepository;
@@ -78,6 +79,9 @@ public class TaxonomyServiceImpl implements TaxonomyService, ParameterProperties
 
 	@Autowired
 	private RedisService redisService;
+	
+	@Autowired
+	private IndexHandler indexHandler;
 
 	@Override
 	public Code findCodeByTaxCode(String taxonomyCode) {
@@ -257,7 +261,7 @@ public class TaxonomyServiceImpl implements TaxonomyService, ParameterProperties
 		codes.add(newCode);
 
 		taxdto.setCode(codes);
-		indexProcessor.index(newCode.getCodeId() + "", IndexProcessor.INDEX, TAXONOMY);
+		indexHandler.setReIndexRequest(newCode.getCodeId() + "", IndexProcessor.INDEX, TAXONOMY, null, false, false);				
 
 		return taxdto;
 	}
@@ -316,7 +320,7 @@ public class TaxonomyServiceImpl implements TaxonomyService, ParameterProperties
 		codes.add(node);
 
 		taxdto.setCode(codes);
-		indexProcessor.index(node.getCodeId() + "", IndexProcessor.INDEX, TAXONOMY);
+		indexHandler.setReIndexRequest(node.getCodeId() + "", IndexProcessor.INDEX, TAXONOMY, null, false, false);				
 
 		return taxdto;
 	}
@@ -331,7 +335,7 @@ public class TaxonomyServiceImpl implements TaxonomyService, ParameterProperties
 		taxonomyRepository.remove(Code.class, node.getCodeId());
 
 		this.writeToDisk(rootNode);
-		indexProcessor.index(node.getCodeId() + "", IndexProcessor.DELETE, TAXONOMY);
+		indexHandler.setReIndexRequest(node.getCodeId() + "", IndexProcessor.DELETE, TAXONOMY, null, false, false);				
 	}
 
 	@Override
@@ -369,7 +373,7 @@ public class TaxonomyServiceImpl implements TaxonomyService, ParameterProperties
 		codes.add(newCode);
 
 		taxdto.setCode(codes);
-		indexProcessor.index(newCode.getCodeId() + "", IndexProcessor.INDEX, TAXONOMY);
+		indexHandler.setReIndexRequest(newCode.getCodeId() + "", IndexProcessor.INDEX, TAXONOMY, null, false, false);				
 		return taxdto;
 	}
 
@@ -389,7 +393,7 @@ public class TaxonomyServiceImpl implements TaxonomyService, ParameterProperties
 		taxonomyRepository.save(codeType);
 
 		codeType.setCode(code);
-		indexProcessor.index(code.getCodeId() + "", IndexProcessor.INDEX, TAXONOMY);
+		indexHandler.setReIndexRequest(code.getCodeId() + "", IndexProcessor.INDEX, TAXONOMY, null, false, false);				
 
 		TaxonomyDTO taxDto = new TaxonomyDTO();
 		List<CodeType> codes = new ArrayList<CodeType>();
@@ -413,7 +417,7 @@ public class TaxonomyServiceImpl implements TaxonomyService, ParameterProperties
 		taxonomyRepository.save(codeType);
 
 		codeType.setCode(code);
-		indexProcessor.index(code.getCodeId() + "", IndexProcessor.INDEX, TAXONOMY);
+		indexHandler.setReIndexRequest(code.getCodeId() + "", IndexProcessor.INDEX, TAXONOMY, null, false, false);				
 
 		TaxonomyDTO taxDto = new TaxonomyDTO();
 		List<CodeType> codes = new ArrayList<CodeType>();
@@ -468,7 +472,7 @@ public class TaxonomyServiceImpl implements TaxonomyService, ParameterProperties
 				if (curriculum != null && curriculum.getCodeType().getCodeId() != 1) {
 					curriculums.add(curriculum);
 				}
-				indexProcessor.index(curriculum.getCodeId() + "", IndexProcessor.INDEX, TAXONOMY);
+				indexHandler.setReIndexRequest(curriculum.getCodeId() + "", IndexProcessor.INDEX, TAXONOMY, null, false, false);						
 			}
 
 			this.updateTaxonomyAssociation(code, curriculums);
@@ -492,7 +496,7 @@ public class TaxonomyServiceImpl implements TaxonomyService, ParameterProperties
 				if (curriculum != null && curriculum.getCodeType().getCodeId() != 1) {
 					curriculums.add(curriculum);
 				}
-				indexProcessor.index(curriculum.getCodeId() + "", IndexProcessor.INDEX, TAXONOMY);
+				indexHandler.setReIndexRequest(curriculum.getCodeId() + "", IndexProcessor.INDEX, TAXONOMY, null, false, false);						
 			}
 
 			this.deleteTaxonomyMapping(code, curriculums);

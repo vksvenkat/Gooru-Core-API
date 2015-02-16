@@ -81,5 +81,4 @@ public interface CollectionService extends ScollectionService {
 	SearchResults<Collection> getCollections(Integer offset, Integer limit, User user, String publishStatus);
 	
 	String getFolderItemsWithCache(String gooruOid, Integer limit, Integer offset, String sharing, String collectionType, String orderBy, Integer itemLimit, boolean fetchChildItem, boolean clearCache,User user);	
-	
 }

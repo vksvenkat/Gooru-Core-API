@@ -57,6 +57,7 @@ import org.ednovo.gooru.domain.service.BaseServiceImpl;
 import org.ednovo.gooru.domain.service.CollectionService;
 import org.ednovo.gooru.domain.service.FeedbackService;
 import org.ednovo.gooru.domain.service.user.UserService;
+import org.ednovo.gooru.infrastructure.messenger.IndexHandler;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.PostRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentRepository;
@@ -102,6 +103,9 @@ public class TagServiceImpl extends BaseServiceImpl implements TagService, Param
 	
 	@Autowired
 	private ResourceCassandraService resourceCassandraService;
+	
+	@Autowired
+	private IndexHandler indexHandler;
 
 	@Autowired
 	@Resource(name = "userService")
@@ -298,7 +302,7 @@ public class TagServiceImpl extends BaseServiceImpl implements TagService, Param
 			Tag tag = this.tagRepository.findTagByTagId(tagGooruOid);
 			tag.setUserCount(tag.getUserCount() - 1);
 			this.getTagRepository().save(tag);
-			indexProcessor.index(userTagAssoc.getUser().getPartyUid(), IndexProcessor.INDEX, USER);
+			indexHandler.setReIndexRequest(userTagAssoc.getUser().getPartyUid(), IndexProcessor.INDEX, USER, null, false, false);					
 		} else {
 			throw new NotFoundException(generateErrorMessage(GL0056, _CONTENT), GL0056);
 		}
