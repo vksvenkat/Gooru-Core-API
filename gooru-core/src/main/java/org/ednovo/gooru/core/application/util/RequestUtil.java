@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -326,9 +327,7 @@ public class RequestUtil implements ParameterProperties {
 	public static void executeRestAPI(Map<String, Object> param, String requestUrl, String requestType) {
 		try {
 			JSONObject json = new JSONObject(param);
-			System.out.println("Json:"+json);
 			String sessionToken = UserGroupSupport.getSessionToken();
-			System.out.println("Session:"+sessionToken);
 			if (sessionToken != null) {
 				executeMethod(new ClientResource(requestUrl + "?sessionToken=" + sessionToken), json.toString(), requestType);
 			} else {
@@ -342,9 +341,10 @@ public class RequestUtil implements ParameterProperties {
 
 	private static Representation executeMethod(ClientResource clientResource, String data, String type) {
 		Representation representation = null;
+		clientResource.getLogger().setLevel(Level.WARNING);
 		if (type.equalsIgnoreCase(Method.POST.getName())) {
 			representation = clientResource.post(data);
-					} else if (type.equalsIgnoreCase(Method.PUT.getName())) {
+	    } else if (type.equalsIgnoreCase(Method.PUT.getName())) {
 			representation = clientResource.put(data);
 		}
 		return representation;
