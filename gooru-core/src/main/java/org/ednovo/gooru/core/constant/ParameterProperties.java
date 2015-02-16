@@ -2834,5 +2834,7 @@ public interface ParameterProperties {
 	
 	String GL0072 = "GL0072";
 	
+	String ASSESSMENT_URL = "assessment/url";
+	
 }
 
