@@ -38,6 +38,7 @@ import java.util.UUID;
 import org.apache.commons.lang.ArrayUtils;
 import org.ednovo.gooru.application.util.AsyncExecutor;
 import org.ednovo.gooru.application.util.CollectionUtil;
+import org.ednovo.gooru.application.util.ConfigProperties;
 import org.ednovo.gooru.application.util.MailAsyncExecutor;
 import org.ednovo.gooru.application.util.ResourceImageUtil;
 import org.ednovo.gooru.application.util.SerializerUtil;
@@ -1903,6 +1904,12 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				itemData.put(NOTES, newCollection.getNotes());
 				collection.setNotes(newCollection.getNotes());
 			}
+			
+			if (newCollection.getUrl() != null) {
+				itemData.put(URL, newCollection.getUrl());
+				collection.setUrl(newCollection.getUrl());
+			}
+			
 			if (newCollection.getGoals() != null) {
 				itemData.put(GOALS, newCollection.getGoals());
 				collection.setGoals(newCollection.getGoals());
