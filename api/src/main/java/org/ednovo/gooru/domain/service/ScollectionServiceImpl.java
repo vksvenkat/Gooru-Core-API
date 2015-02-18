@@ -38,7 +38,6 @@ import java.util.UUID;
 import org.apache.commons.lang.ArrayUtils;
 import org.ednovo.gooru.application.util.AsyncExecutor;
 import org.ednovo.gooru.application.util.CollectionUtil;
-import org.ednovo.gooru.application.util.ConfigProperties;
 import org.ednovo.gooru.application.util.MailAsyncExecutor;
 import org.ednovo.gooru.application.util.ResourceImageUtil;
 import org.ednovo.gooru.application.util.SerializerUtil;
