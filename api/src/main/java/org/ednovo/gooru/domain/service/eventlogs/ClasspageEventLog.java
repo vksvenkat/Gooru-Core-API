@@ -136,19 +136,19 @@ public class ClasspageEventLog implements ParameterProperties, ConstantPropertie
 	    JSONObject payLoadObject = SessionContextSupport.getLog().get(PAY_LOAD_OBJECT) != null ? new JSONObject(SessionContextSupport.getLog().get(PAY_LOAD_OBJECT).toString()) : new JSONObject();
 	    payLoadObject.put(MODE,REORDER);
 	    payLoadObject.put(ITEM_SEQUENCE,collectionItem.getItemSequence());
-	    if (collectionType.equalsIgnoreCase(CollectionType.COLLECTION.getCollectionType())) {
+		if (collectionType.equalsIgnoreCase(CollectionType.COLLECTION.getCollectionType())) {
 			payLoadObject.put(ITEM_TYPE, COLLECTION_RESOURCE);
-		} else if (collectionItem != null && collectionItem.getResource() != null && collectionItem.getResource().getResourceType() != null &&  collectionItem.getResource().getResourceType().getName().equalsIgnoreCase(ResourceType.Type.PATHWAY.getType())) {
+		} else if (collectionItem != null && collectionItem.getResource() != null && collectionItem.getResource().getResourceType() != null && collectionItem.getResource().getResourceType().getName().equalsIgnoreCase(ResourceType.Type.PATHWAY.getType())) {
 			payLoadObject.put(ITEM_TYPE, CLASSPAGE_PATHWAY);
 		} else if (collectionType.equalsIgnoreCase(CollectionType.FOLDER.getCollectionType())) {
 			if (collectionItem != null && collectionItem.getResource() != null) {
-			String itemTypeName = collectionItem.getResource().getResourceType().getName();
-			if (itemTypeName.equalsIgnoreCase(ResourceType.Type.FOLDER.getType())) {
-				payLoadObject.put(ITEM_TYPE, FOLDER_FOLDER);
+				String itemTypeName = collectionItem.getResource().getResourceType().getName();
+				if (itemTypeName.equalsIgnoreCase(ResourceType.Type.FOLDER.getType())) {
+					payLoadObject.put(ITEM_TYPE, FOLDER_FOLDER);
 				} else if (itemTypeName.equalsIgnoreCase(ResourceType.Type.SCOLLECTION.getType())) {
-				payLoadObject.put(ITEM_TYPE, FOLDER_COLLECTION);
+					payLoadObject.put(ITEM_TYPE, FOLDER_COLLECTION);
 				}
-		}
+			}
 		}
 	    SessionContextSupport.putLogParameter(PAY_LOAD_OBJECT, payLoadObject.toString());
 	    JSONObject session = SessionContextSupport.getLog().get(SESSION) != null ? new JSONObject(SessionContextSupport.getLog().get(SESSION).toString()) : new JSONObject();
