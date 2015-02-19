@@ -2916,6 +2916,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		}
 		resource.setTaxonomySet(codes);
 		this.getResourceRepository().save(resource);
+		indexHandler.setReIndexRequest(resource.getGooruOid(), IndexProcessor.DELETE, RESOURCE, null, false, false);
 
 	}
 
