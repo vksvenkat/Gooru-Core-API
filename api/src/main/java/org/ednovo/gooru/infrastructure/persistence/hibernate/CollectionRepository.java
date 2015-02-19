@@ -99,13 +99,13 @@ public interface CollectionRepository extends BaseRepository {
 
 	Long getMyClasspageCount(String gooruUid);
 	
-	List<Object[]> getMyFolder(String gooruUid, Integer limit, Integer offset, String sharing, String collectionType, boolean fetchChildItem, String orderBy);
+	List<Object[]> getMyFolder(String gooruUid, Integer limit, Integer offset, String sharing, String collectionType, boolean fetchChildItem, String orderBy, String excludeType);
 	
-	Long getMyShelfCount(String gooruUid, String sharing, String collectionType);
+	Long getMyShelfCount(String gooruUid, String sharing, String collectionType, String excludeType);
 	
-	List<Object[]> getCollectionItem(String gooruOid, Integer limit, Integer offset, String sharing, String orderBy, String collectionType,boolean fetchChildItem, String sequenceOrder, boolean fetchAll);
+	List<Object[]> getCollectionItem(String gooruOid, Integer limit, Integer offset, String sharing, String orderBy, String collectionType,boolean fetchChildItem, String sequenceOrder, boolean fetchAll, String excludeType);
 	
-	Long getCollectionItemCount(String gooruOid, String sharing, String collectionType );
+	Long getCollectionItemCount(String gooruOid, String sharing, String collectionType, String excludeType);
 	
 	List<CollectionItem> findCollectionByResource(String gooruOid, String gooruUid, String type);
 	
@@ -120,6 +120,8 @@ public interface CollectionRepository extends BaseRepository {
 	UserCollectionItemAssoc getUserCollectionItemAssoc(String collectionItemId, String userUid);
 	
 	String getParentCollection(String collectionGooruOid, String gooruUid);
+	
+	Collection getCollection(String collectionId, int sequence);
 	
 	Long getPublicCollectionCount(String gooruOid, String sharing);
 	

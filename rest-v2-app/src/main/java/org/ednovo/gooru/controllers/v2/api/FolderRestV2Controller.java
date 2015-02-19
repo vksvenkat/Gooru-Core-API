@@ -78,7 +78,6 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 	@Autowired
 	private FolderService folderService;
 
-
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_FOLDER_ADD })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { " " }, method = RequestMethod.POST)
@@ -158,9 +157,9 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 	public ModelAndView getFolderItems(@PathVariable(value = ID) String collectionId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = ORDER_BY, required = false) String orderBy,
 			@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "20") Integer limit, @RequestParam(value = SHARING, required = false, defaultValue = "private,public,anyonewithlink") String sharing, @RequestParam(value = COLLECTION_TYPE, required = false) String collectionType,
 			@RequestParam(value = ITEM_LIMIT_FIELD, required = false, defaultValue = "4") Integer itemLimit, @RequestParam(value = FETCH_CHILDS, required = false, defaultValue = "false") boolean fetchChilds,
-			@RequestParam(value = CLEAR_CACHE, required = false, defaultValue = FALSE) boolean clearCache, HttpServletRequest request, HttpServletResponse response) throws Exception {
+			@RequestParam(value = CLEAR_CACHE, required = false, defaultValue = FALSE) boolean clearCache, @RequestParam(value = EXCLUDE_TYPE, required = false) String excludeType, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
-		return toModelAndView(this.getCollectionService().getFolderItemsWithCache(collectionId, limit, offset, sharing, collectionType, orderBy, itemLimit, fetchChilds, clearCache, user));
+		return toModelAndView(this.getCollectionService().getFolderItemsWithCache(collectionId, limit, offset, sharing, collectionType, orderBy, itemLimit, fetchChilds, clearCache, user, excludeType));
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_FOLDER_ITEM_DELETE })
@@ -205,7 +204,7 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 			@RequestParam(value = SHARING, required = false, defaultValue = "private,public,anyonewithlink") String sharing, @RequestParam(value = COLLECTION_TYPE, required = false) String collectionType,
 			@RequestParam(value = ITEM_LIMIT_FIELD, required = false, defaultValue = "4") Integer itemLimit, @RequestParam(value = FETCH_CHILDS, required = false, defaultValue = "false") boolean fetchChilds,
 			@RequestParam(value = TOP_LEVEL_COLLECTION_TYPE, required = false) String topLevelCollectionType, @RequestParam(value = ORDER_BY, required = false) String orderBy, @RequestParam(value = CLEAR_CACHE, required = false, defaultValue = FALSE) boolean clearCache,
-			HttpServletResponse resHttpServletResponse) {
+			@RequestParam(value = EXCLUDE_TYPE, required = false) String excludeType, HttpServletResponse resHttpServletResponse) {
 		if (gooruUid.equalsIgnoreCase(MY)) {
 			User user = (User) request.getAttribute(Constants.USER);
 			gooruUid = user.getPartyUid();
@@ -218,9 +217,9 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 		}
 		if (data == null) {
 			content = new HashMap<String, Object>();
-			content.put(SEARCH_RESULT, this.getCollectionService().getMyShelf(gooruUid, limit, offset, sharing, collectionType, itemLimit, fetchChilds, topLevelCollectionType, orderBy));
-			content.put(COUNT, this.getCollectionRepository().getMyShelfCount(gooruUid, sharing, collectionType));
-			data = serializeToJson(content, true);
+			content.put(SEARCH_RESULT, this.getCollectionService().getMyShelf(gooruUid, limit, offset, sharing, collectionType, itemLimit, fetchChilds, topLevelCollectionType, orderBy, excludeType));
+			content.put(COUNT, this.getCollectionRepository().getMyShelfCount(gooruUid, sharing, collectionType, excludeType));
+			data = serializeToJson(content, true, true);
 			getRedisService().putValue(cacheKey, data, 86400);
 		}
 		return toModelAndView(data);
@@ -237,21 +236,35 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 	@RequestMapping(value = { "/{id}/toc" }, method = RequestMethod.GET)
 	public ModelAndView getMyCollectionsToc(@PathVariable(value = ID) String gooruUid, HttpServletRequest request, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "5") Integer limit,
 			@RequestParam(value = SHARING, required = false, defaultValue = SHARINGS) String sharing, @RequestParam(value = COLLECTION_TYPE, required = false) String collectionType, @RequestParam(value = ORDER_BY, required = false) String orderBy,
-			@RequestParam(value = CLEAR_CACHE, required = false, defaultValue = FALSE) boolean clearCache, HttpServletResponse resHttpServletResponse) {
+			@RequestParam(value = CLEAR_CACHE, required = false, defaultValue = FALSE) boolean clearCache, @RequestParam(value = EXCLUDE_TYPE, required = false) String excludeType, HttpServletResponse resHttpServletResponse) {
 		if (gooruUid.equalsIgnoreCase(MY)) {
 			User user = (User) request.getAttribute(Constants.USER);
 			gooruUid = user.getPartyUid();
 		}
-		return toModelAndView(this.getFolderService().getMyCollectionsToc(gooruUid, limit, offset, sharing, collectionType, orderBy, clearCache));
+		return toModelAndView(this.getFolderService().getMyCollectionsToc(gooruUid, limit, offset, sharing, collectionType, orderBy, excludeType, clearCache));
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_FOLDER_READ })
 	@RequestMapping(value = { "/{id}/item/toc" }, method = RequestMethod.GET)
 	public ModelAndView getFolderTocItems(@PathVariable(value = ID) String gooruOid, HttpServletRequest request, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "5") Integer limit,
 			@RequestParam(value = SHARING, required = false, defaultValue = SHARINGS) String sharing, @RequestParam(value = COLLECTION_TYPE, required = false) String collectionType, @RequestParam(value = ORDER_BY, required = false) String orderBy,
-			@RequestParam(value = CLEAR_CACHE, required = false, defaultValue = FALSE) boolean clearCache, HttpServletResponse resHttpServletResponse) {
-		return toModelAndView(this.getFolderService().getFolderTocItems(gooruOid, sharing, collectionType, orderBy, clearCache));
+			@RequestParam(value = CLEAR_CACHE, required = false, defaultValue = FALSE) boolean clearCache, @RequestParam(value = EXCLUDE_TYPE, required = false) String excludeType, HttpServletResponse resHttpServletResponse) {
+		return toModelAndView(this.getFolderService().getFolderTocItems(gooruOid, sharing, collectionType, orderBy, excludeType, clearCache));
 
+	}
+
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_FOLDER_READ })
+	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
+	public ModelAndView getCollection(@PathVariable(value = ID) String collectionId, HttpServletRequest request, HttpServletResponse response) {
+		User user = (User) request.getAttribute(Constants.USER);
+		return toModelAndViewWithIoFilter(getCollectionService().getCollection(collectionId, false, false, false, user, null, null, false, true), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, RESOURCE_INCLUDE_FIELDS);
+	}
+
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_FOLDER_READ })
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(value = { "/{cid}/item/{id}/next" }, method = RequestMethod.GET)
+	public ModelAndView getNextCollectionItem(@PathVariable(value = CID) String collectionId, @PathVariable(value = ID) String collectionItemId, HttpServletRequest request, HttpServletResponse response) {
+		return toModelAndViewWithIoFilter(getFolderService().getNextCollectionItem(collectionId), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, RESOURCE_INCLUDE_FIELDS);
 	}
 
 	private Collection buildCollectionFromInputParameters(String data, User user) {
