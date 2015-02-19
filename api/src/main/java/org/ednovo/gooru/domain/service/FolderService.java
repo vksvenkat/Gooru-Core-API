@@ -29,15 +29,19 @@ package org.ednovo.gooru.domain.service;
 import java.util.List;
 import java.util.Map;
 
+import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.domain.service.search.SearchResults;
 
 public interface FolderService {
 
-	SearchResults<Map<String, Object>> getMyCollectionsToc(String gooruUid, Integer limit, Integer offset, String sharing, String collectionType, String orderBy);
+	SearchResults<Map<String, Object>> getMyCollectionsToc(String gooruUid, Integer limit, Integer offset, String sharing, String collectionType, String orderBy, String excludeType);
 
-	List<Map<String, Object>> getFolderTocItems(String gooruOid, String sharing, String collectionType, String orderBy, String sortOrder);
+	List<Map<String, Object>> getFolderTocItems(String gooruOid, String sharing, String collectionType, String orderBy, String sortOrder, String excludeType);
 
-	String getMyCollectionsToc(String gooruUid, Integer limit, Integer offset, String sharing, String collectionType, String orderBy, boolean clearCache);
+	String getMyCollectionsToc(String gooruUid, Integer limit, Integer offset, String sharing, String collectionType, String orderBy, String excludeType, boolean clearCache);
 
-	String getFolderTocItems(String gooruOid, String sharing, String collectionType, String orderBy, boolean clearCache);
+	String getFolderTocItems(String gooruOid, String sharing, String collectionType, String orderBy, String excludeType, boolean clearCache);
+	
+	Collection getNextCollectionItem(String collectionItemId);
+	
 }

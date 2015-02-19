@@ -101,12 +101,11 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 
 	@Autowired
 	private CollaboratorRepository collaboratorRepository;
-	
+
 	@Autowired
 	private PartyService partyService;
-	
-	private static final Logger LOGGER = LoggerFactory.getLogger(CollectionServiceImpl.class);
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(CollectionServiceImpl.class);
 
 	@Override
 	public ActionResponseDTO<CollectionItem> createQuestionWithCollectionItem(String collectionId, String data, User user, String mediaFileName, String sourceReference) throws Exception {
@@ -201,7 +200,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 			throw new NotFoundException(generateErrorMessage(GL0056, QUESTION), GL0056);
 		}
 		try {
-			this.collectionEventLog.getEventLogs(collectionItem, false,  false, user, false, true);
+			this.collectionEventLog.getEventLogs(collectionItem, false, false, user, false, true);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -218,7 +217,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		}
 		return updateQuestionWithCollectionItem(collectionItem, data, deleteAssets, user, mediaFileName);
 	}
-	
+
 	@Override
 	public ActionResponseDTO<CollectionItem> updateQuestionWithCollectionItem(String collectionId, String resourceId, String data, List<Integer> deleteAssets, User user, String mediaFileName) throws Exception {
 		CollectionItem collectionItem = this.getCollectionRepository().getCollectionItemByResourceOid(collectionId, resourceId);
@@ -226,15 +225,15 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 			throw new NotFoundException(generateErrorMessage(GL0056, COLLECTION_ITEM), GL0056);
 		}
 		return updateQuestionWithCollectionItem(collectionItem, data, deleteAssets, user, mediaFileName);
-	}	
-	
+	}
+
 	@Override
 	public void deleteQuestionWithCollectionItem(String collectionId, String resourceId) {
-		CollectionItem collectionItem = this.getCollectionRepository().getCollectionItemByResourceOid(collectionId,resourceId);
+		CollectionItem collectionItem = this.getCollectionRepository().getCollectionItemByResourceOid(collectionId, resourceId);
 		if (collectionItem == null) {
 			throw new NotFoundException(generateErrorMessage(GL0056, COLLECTION_ITEM), GL0056);
 		}
-	this.getCollectionRepository().remove(collectionItem);
+		this.getCollectionRepository().remove(collectionItem);
 	}
 
 	@Override
@@ -253,14 +252,14 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		collectionItem.setPlannedEndDate(sourceCollectionItem.getPlannedEndDate());
 		collectionItem.setEstimatedTime(sourceCollectionItem.getEstimatedTime());
 		collectionItem.setAssignmentCompleted(sourceCollectionItem.getAssignmentCompleted());
-		
+
 		if (!user.getPartyUid().equalsIgnoreCase(collectionItem.getCollection().getUser().getPartyUid())) {
 			UserContentAssoc userContentAssocs = this.getCollaboratorRepository().findCollaboratorById(sourceId, user.getPartyUid());
 			if (userContentAssocs != null) {
 				collectionItem.setItemType(COLLABORATOR);
 			}
 		}
-		
+
 		if (targetId != null) {
 			Collection target = collectionRepository.getCollectionByGooruOid(targetId, null);
 			if (target != null && !source.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing())) {
@@ -346,13 +345,13 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	}
 
 	@Override
-	public List<Map<String, Object>> getMyShelf(String gooruUid, Integer limit, Integer offset, String sharing, String collectionType, Integer itemLimit, boolean fetchChildItem, String topLevelCollectionType, String orderBy) {
+	public List<Map<String, Object>> getMyShelf(String gooruUid, Integer limit, Integer offset, String sharing, String collectionType, Integer itemLimit, boolean fetchChildItem, String topLevelCollectionType, String orderBy, String excludeType) {
 		StorageArea storageArea = this.getStorageRepository().getStorageAreaByTypeName(NFS);
 		if (!BaseUtil.isUuid(gooruUid)) {
 			User user = this.getUserRepository().getUserByUserName(gooruUid, true);
 			gooruUid = user != null ? user.getPartyUid() : null;
 		}
-		List<Object[]> result = this.getCollectionRepository().getMyFolder(gooruUid, limit, offset, sharing, topLevelCollectionType != null ? topLevelCollectionType : collectionType, fetchChildItem, orderBy);
+		List<Object[]> result = this.getCollectionRepository().getMyFolder(gooruUid, limit, offset, sharing, topLevelCollectionType != null ? topLevelCollectionType : collectionType, fetchChildItem, orderBy, excludeType);
 		List<Map<String, Object>> folderList = new ArrayList<Map<String, Object>>();
 		int count = 0;
 		if (result != null && result.size() > 0) {
@@ -365,7 +364,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				if (object[4] != null) {
 					if (object[17] != null && Boolean.parseBoolean(object[17].toString())) {
 						thumbnails.put(URL, storageArea.getS3Path() + String.valueOf(object[3]) + String.valueOf(object[4]));
-					} else { 
+					} else {
 						thumbnails.put(URL, storageArea.getCdnDirectPath() + String.valueOf(object[3]) + String.valueOf(object[4]));
 					}
 				} else {
@@ -374,17 +373,15 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				collection.put(THUMBNAILS, thumbnails);
 				if (fetchChildItem) {
 					if (count == 0) {
-						collection.put(COLLECTION_ITEMS, getFolderItem(String.valueOf(object[1]), sharing, String.valueOf(object[2]), collectionType, itemLimit, fetchChildItem, orderBy));
+						collection.put(COLLECTION_ITEMS, getFolderItem(String.valueOf(object[1]), sharing, String.valueOf(object[2]), collectionType, itemLimit, fetchChildItem, orderBy, excludeType));
 					}
 				} else {
-					collection.put(COLLECTION_ITEMS, getFolderItem(String.valueOf(object[1]), sharing, String.valueOf(object[2]), collectionType, itemLimit, fetchChildItem, orderBy));
+					collection.put(COLLECTION_ITEMS, getFolderItem(String.valueOf(object[1]), sharing, String.valueOf(object[2]), collectionType, itemLimit, fetchChildItem, orderBy, excludeType));
 				}
-				collection.put(ITEM_COUNT, this.getCollectionRepository().getCollectionItemCount(String.valueOf(object[1]), sharing, collectionType));
+				collection.put(ITEM_COUNT, this.getCollectionRepository().getCollectionItemCount(String.valueOf(object[1]), sharing, collectionType, excludeType));
 				collection.put(SHARING, object[5]);
 				collection.put(COLLECTION_ITEM_ID, object[6]);
-				if (object[7] != null) {
-					collection.put(GOALS, object[7]);
-				}
+				collection.put(GOALS, object[7]);
 
 				if (object[8] != null) {
 					Map<String, Object> resourceFormat = new HashMap<String, Object>();
@@ -399,20 +396,13 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 					resourceSource.put(DOMAIN_NAME, object[11]);
 					collection.put(RESOURCESOURCE, resourceSource);
 				}
-				if (object[12] != null) {
-					collection.put(IDEAS, object[12]);
-				}
-				if (object[13] != null) {
-					collection.put(QUESTIONS, object[13]);
-				}
-				if (object[14] != null) {
-					collection.put(PERFORMANCE_TASKS, object[14]);
-				}
-				if (object[15] != null) {
-					collection.put(COLLECTION_TYPE, object[15]);
-				}
+				collection.put(IDEAS, object[12]);
+				collection.put(QUESTIONS, object[13]);
+				collection.put(PERFORMANCE_TASKS, object[14]);
+				collection.put(COLLECTION_TYPE, object[15]);
 				collection.put(ITEM_SEQUENCE, object[16]);
 				collection.put(PARENT_GOORU_OID, object[17]);
+				collection.put(URL, object[20]);
 				count++;
 				folderList.add(collection);
 			}
@@ -420,10 +410,10 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		return folderList;
 	}
 
-	public List<Map<String, Object>> getFolderItem(String gooruOid, String sharing, String type, String collectionType, Integer itemLimit, boolean fetchChildItem, String orderBy) {
+	public List<Map<String, Object>> getFolderItem(String gooruOid, String sharing, String type, String collectionType, Integer itemLimit, boolean fetchChildItem, String orderBy, String excludeType) {
 		StorageArea storageArea = this.getStorageRepository().getStorageAreaByTypeName(NFS);
 		List<Map<String, Object>> items = new ArrayList<Map<String, Object>>();
-		List<Object[]> result = this.getCollectionRepository().getCollectionItem(gooruOid, type.equalsIgnoreCase(SCOLLECTION) ? 4 : itemLimit, 0, sharing, orderBy, collectionType, fetchChildItem, type.equalsIgnoreCase(SCOLLECTION) ? ASC : DESC, false);
+		List<Object[]> result = this.getCollectionRepository().getCollectionItem(gooruOid, type.equalsIgnoreCase(SCOLLECTION) ? 4 : itemLimit, 0, sharing, orderBy, collectionType, fetchChildItem, type.equalsIgnoreCase(SCOLLECTION) ? ASC : DESC, false, excludeType);
 		if (result != null && result.size() > 0) {
 
 			for (Object[] object : result) {
@@ -441,7 +431,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 					if (object[4] != null) {
 						if (object[21] != null && Boolean.parseBoolean(object[21].toString())) {
 							thumbnails.put(URL, storageArea.getS3Path() + String.valueOf(object[3]) + String.valueOf(object[4]));
-						} else { 
+						} else {
 							thumbnails.put(URL, storageArea.getCdnDirectPath() + String.valueOf(object[3]) + String.valueOf(object[4]));
 						}
 					} else {
@@ -480,16 +470,14 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				}
 				if (fetchChildItem && (String.valueOf(object[2]).equalsIgnoreCase(SCOLLECTION) || String.valueOf(object[2]).equalsIgnoreCase(FOLDER))) {
 					if (String.valueOf(object[2]).equalsIgnoreCase(SCOLLECTION)) {
-						item.put(COLLECTION_ITEMS, getFolderItem(String.valueOf(object[1]), sharing, String.valueOf(object[2]), collectionType, type.equalsIgnoreCase(SCOLLECTION) ? 4 : itemLimit, fetchChildItem, orderBy));
-						item.put(ITEM_COUNT, this.getCollectionRepository().getCollectionItemCount(String.valueOf(object[1]), sharing, collectionType));
+						item.put(COLLECTION_ITEMS, getFolderItem(String.valueOf(object[1]), sharing, String.valueOf(object[2]), collectionType, type.equalsIgnoreCase(SCOLLECTION) ? 4 : itemLimit, fetchChildItem, orderBy, excludeType));
+						item.put(ITEM_COUNT, this.getCollectionRepository().getCollectionItemCount(String.valueOf(object[1]), sharing, collectionType, excludeType));
 					} else if ((String.valueOf(object[2]).equalsIgnoreCase(SCOLLECTION) || String.valueOf(object[2]).equalsIgnoreCase(FOLDER))) {
-						item.put(COLLECTION_ITEMS, getFolderItem(String.valueOf(object[1]), sharing, String.valueOf(object[2]), collectionType, type.equalsIgnoreCase(SCOLLECTION) ? 4 : itemLimit, fetchChildItem, orderBy));
-						item.put(ITEM_COUNT, this.getCollectionRepository().getCollectionItemCount(String.valueOf(object[1]), sharing, collectionType));
+						item.put(COLLECTION_ITEMS, getFolderItem(String.valueOf(object[1]), sharing, String.valueOf(object[2]), collectionType, type.equalsIgnoreCase(SCOLLECTION) ? 4 : itemLimit, fetchChildItem, orderBy, excludeType));
+						item.put(ITEM_COUNT, this.getCollectionRepository().getCollectionItemCount(String.valueOf(object[1]), sharing, collectionType, excludeType));
 					}
 				}
-				if (object[9] != null) {
-					item.put(GOALS, object[9]);
-				}
+				item.put(GOALS, object[9]);
 				if (object[10] != null) {
 					Map<String, Object> resourceSource = new HashMap<String, Object>();
 					resourceSource.put(ATTRIBUTION, object[10]);
@@ -509,22 +497,14 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 					}
 				}
 
-				if (object[12] != null) {
-					item.put(IDEAS, object[12]);
-				}
-				if (object[13] != null) {
-					item.put(QUESTIONS, object[13]);
-				}
-				if (object[14] != null) {
-					item.put(PERFORMANCE_TASKS, object[14]);
-				}
-				if (object[18] != null) {
-					item.put(COLLECTION_TYPE, object[18]);
-				}
+				item.put(IDEAS, object[12]);
+				item.put(QUESTIONS, object[13]);
+				item.put(PERFORMANCE_TASKS, object[14]);
+				item.put(COLLECTION_TYPE, object[18]);
 				item.put(ITEM_SEQUENCE, object[19]);
 
 				item.put(PARENT_GOORU_OID, object[20]);
-
+				item.put(URL, object[15]);
 				items.add(item);
 			}
 
@@ -533,10 +513,10 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	}
 
 	@Override
-	public List<Map<String, Object>> getFolderItems(String gooruOid, Integer limit, Integer offset, String sharing, String collectionType, String orderBy, Integer itemLimit, boolean fetchChildItem, String sortOrder) {
+	public List<Map<String, Object>> getFolderItems(String gooruOid, Integer limit, Integer offset, String sharing, String collectionType, String orderBy, Integer itemLimit, boolean fetchChildItem, String sortOrder, String excludeType) {
 		StorageArea storageArea = this.getStorageRepository().getStorageAreaByTypeName(NFS);
 		List<Map<String, Object>> items = new ArrayList<Map<String, Object>>();
-		List<Object[]> result = this.getCollectionRepository().getCollectionItem(gooruOid, limit, offset, sharing, orderBy, collectionType, fetchChildItem, sortOrder, false);
+		List<Object[]> result = this.getCollectionRepository().getCollectionItem(gooruOid, limit, offset, sharing, orderBy, collectionType, fetchChildItem, sortOrder, false, excludeType);
 		if (result != null && result.size() > 0) {
 			for (Object[] object : result) {
 				Map<String, Object> item = new HashMap<String, Object>();
@@ -567,8 +547,8 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 					resourceFormat.put(DISPLAY_NAME, object[6]);
 					item.put(RESOURCEFORMAT, resourceFormat);
 				}
-				item.put(COLLECTION_ITEMS, getFolderItem(String.valueOf(object[1]), sharing, String.valueOf((object[2])), collectionType, itemLimit, fetchChildItem, orderBy));
-				item.put(ITEM_COUNT, this.getCollectionRepository().getCollectionItemCount(String.valueOf(object[1]), sharing, collectionType));
+				item.put(COLLECTION_ITEMS, getFolderItem(String.valueOf(object[1]), sharing, String.valueOf((object[2])), collectionType, itemLimit, fetchChildItem, orderBy, excludeType));
+				item.put(ITEM_COUNT, this.getCollectionRepository().getCollectionItemCount(String.valueOf(object[1]), sharing, collectionType, excludeType));
 				item.put(SHARING, object[7]);
 				item.put(COLLECTION_ITEM_ID, object[8]);
 				if (object[9] != null) {
@@ -592,20 +572,13 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 						item.put("host", resource.getHost());
 					}
 				}
-				if (object[12] != null) {
-					item.put(IDEAS, object[12]);
-				}
-				if (object[13] != null) {
-					item.put(QUESTIONS, object[13]);
-				}
-				if (object[14] != null) {
-					item.put(PERFORMANCE_TASKS, object[14]);
-				}
-				if (object[18] != null) {
-					item.put(COLLECTION_TYPE, object[18]);
-				}
+				item.put(IDEAS, object[12]);
+				item.put(QUESTIONS, object[13]);
+				item.put(PERFORMANCE_TASKS, object[14]);
+				item.put(COLLECTION_TYPE, object[18]);
 				item.put(ITEM_SEQUENCE, object[19]);
 				item.put(PARENT_GOORU_OID, object[20]);
+				item.put(URL, object[15]);
 				items.add(item);
 			}
 		}
@@ -874,7 +847,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	}
 
 	@Override
-	public String getFolderItemsWithCache(String gooruOid, Integer limit, Integer offset, String sharing, String collectionType, String orderBy, Integer itemLimit, boolean fetchChildItem, boolean clearCache, User user) {
+	public String getFolderItemsWithCache(String gooruOid, Integer limit, Integer offset, String sharing, String collectionType, String orderBy, Integer itemLimit, boolean fetchChildItem, boolean clearCache, User user, String excludeType) {
 		Map<String, Object> content = null;
 		Collection collection = this.getCollectionRepository().getCollectionByGooruOid(gooruOid, null);
 		String data = null;
@@ -885,12 +858,12 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 			}
 			if (data == null) {
 				content = new HashMap<String, Object>();
-				content.put(SEARCH_RESULT, getFolderItems(gooruOid, limit, offset, sharing, collectionType, orderBy, itemLimit, fetchChildItem, collection.getCollectionType().equalsIgnoreCase(COLLECTION) ? ASC : DESC));
-				content.put(COUNT, this.getCollectionRepository().getCollectionItemCount(gooruOid, sharing, collectionType));
+				content.put(SEARCH_RESULT, getFolderItems(gooruOid, limit, offset, sharing, collectionType, orderBy, itemLimit, fetchChildItem, collection.getCollectionType().equalsIgnoreCase(COLLECTION) ? ASC : DESC, excludeType));
+				content.put(COUNT, this.getCollectionRepository().getCollectionItemCount(gooruOid, sharing, collectionType, excludeType));
 				if (!fetchChildItem && (collectionType == null || (collectionType != null && collectionType.equalsIgnoreCase(COLLECTION) || collectionType.equalsIgnoreCase(SCOLLECTION)))) {
-					content.put(COLLECTION_COUNT, this.getCollectionRepository().getCollectionItemCount(gooruOid, sharing, collectionType != null ? collectionType : COLLECTION));
+					content.put(COLLECTION_COUNT, this.getCollectionRepository().getCollectionItemCount(gooruOid, sharing, collectionType != null ? collectionType : COLLECTION, excludeType));
 				}
-				data = SerializerUtil.serializeToJson(content, true);
+				data = SerializerUtil.serializeToJson(content, true, true);
 				if (user != null && user.getUsername().equalsIgnoreCase(SAUSD)) {
 					redisService.putValue(cacheKey, data);
 				} else {
@@ -906,7 +879,6 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		Resource resource = collectionRepository.findResourceCopiedFrom(gooruOid, gooruUid);
 		return resource != null ? true : false;
 	}
-	
 
 	public StorageRepository getStorageRepository() {
 		return storageRepository;
@@ -931,4 +903,5 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	public PartyService getPartyService() {
 		return partyService;
 	}
+
 }

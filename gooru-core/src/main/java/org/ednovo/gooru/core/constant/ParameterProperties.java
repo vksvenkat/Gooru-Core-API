@@ -339,6 +339,8 @@ public interface ParameterProperties {
 	String USER_UID = "userUid";
 
 	String UID = "uid";
+	
+	String EXCLUDE_TYPE = "excludeType";
 
 	String TASK_ASSOC = "taskAssoc";
 
