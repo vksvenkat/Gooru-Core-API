@@ -78,7 +78,7 @@ public class FolderServiceImpl extends BaseServiceImpl implements FolderService,
 				collection.put(DESCRIPTION, object[7] != null ? object[7] : object[19]);
 				collection.put(URL, object[20]);
 				if (object[2] != null && object[2].toString().equalsIgnoreCase(SCOLLECTION)) {
-					collection.put(COLLECTION_ITEMS, getFolderTocItems(String.valueOf(object[1]), sharing, collectionType, orderBy, excludeType, ASC));
+					collection.put(COLLECTION_ITEMS, getFolderTocItems(String.valueOf(object[1]), sharing, collectionType, orderBy, ASC, excludeType));
 				}
 				folders.add(collection);
 			}
@@ -90,7 +90,7 @@ public class FolderServiceImpl extends BaseServiceImpl implements FolderService,
 	}
 
 	@Override
-	public List<Map<String, Object>> getFolderTocItems(String gooruOid, String sharing, String collectionType, String orderBy, String excludeType, String sortOrder) {
+	public List<Map<String, Object>> getFolderTocItems(String gooruOid, String sharing, String collectionType, String orderBy, String sortOrder, String excludeType) {
 		List<Map<String, Object>> items = new ArrayList<Map<String, Object>>();
 		List<Object[]> result = this.getCollectionRepository().getCollectionItem(gooruOid, null, null, sharing, orderBy, collectionType, true, sortOrder, true, excludeType);
 		if (result != null && result.size() > 0) {
