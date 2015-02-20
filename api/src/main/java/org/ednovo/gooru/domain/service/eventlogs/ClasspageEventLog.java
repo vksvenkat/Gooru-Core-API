@@ -126,7 +126,7 @@ public class ClasspageEventLog implements ParameterProperties, ConstantPropertie
 	    SessionContextSupport.putLogParameter(SESSION, session.toString());
 	}
 	
-	public void getEventLogs(CollectionItem collectionItem, String pathwayId,User user, CollectionItem sourceItem) throws JSONException {
+	public void getEventLogs(CollectionItem collectionItem, String pathwayId,User user, CollectionItem sourceItem, String collectionType) throws JSONException {
 	    SessionContextSupport.putLogParameter(EVENT_NAME, ITEM_EDIT);
 	    JSONObject context = SessionContextSupport.getLog().get(CONTEXT) != null ? new JSONObject(SessionContextSupport.getLog().get(CONTEXT).toString()) : new JSONObject();
 		context.put(PARENT_GOORU_ID, collectionItem != null && collectionItem.getCollection() != null ? collectionItem.getCollection().getGooruOid() : null);
@@ -136,7 +136,20 @@ public class ClasspageEventLog implements ParameterProperties, ConstantPropertie
 	    JSONObject payLoadObject = SessionContextSupport.getLog().get(PAY_LOAD_OBJECT) != null ? new JSONObject(SessionContextSupport.getLog().get(PAY_LOAD_OBJECT).toString()) : new JSONObject();
 	    payLoadObject.put(MODE,REORDER);
 	    payLoadObject.put(ITEM_SEQUENCE,collectionItem.getItemSequence());
-	    payLoadObject.put(ITEM_TYPE,CLASSPAGE_PATHWAY);
+		if (collectionType.equalsIgnoreCase(CollectionType.COLLECTION.getCollectionType())) {
+			payLoadObject.put(ITEM_TYPE, COLLECTION_RESOURCE);
+		} else if (collectionItem != null && collectionItem.getResource() != null && collectionItem.getResource().getResourceType() != null && collectionItem.getResource().getResourceType().getName().equalsIgnoreCase(ResourceType.Type.PATHWAY.getType())) {
+			payLoadObject.put(ITEM_TYPE, CLASSPAGE_PATHWAY);
+		} else if (collectionType.equalsIgnoreCase(CollectionType.FOLDER.getCollectionType())) {
+			if (collectionItem != null && collectionItem.getResource() != null) {
+				String itemTypeName = collectionItem.getResource().getResourceType().getName();
+				if (itemTypeName.equalsIgnoreCase(ResourceType.Type.FOLDER.getType())) {
+					payLoadObject.put(ITEM_TYPE, FOLDER_FOLDER);
+				} else if (itemTypeName.equalsIgnoreCase(ResourceType.Type.SCOLLECTION.getType())) {
+					payLoadObject.put(ITEM_TYPE, FOLDER_COLLECTION);
+				}
+			}
+		}
 	    SessionContextSupport.putLogParameter(PAY_LOAD_OBJECT, payLoadObject.toString());
 	    JSONObject session = SessionContextSupport.getLog().get(SESSION) != null ? new JSONObject(SessionContextSupport.getLog().get(SESSION).toString()) : new JSONObject();
 	    session.put(ORGANIZATION_UID, user != null && user.getOrganization() != null ? user.getOrganization().getPartyUid() : null);

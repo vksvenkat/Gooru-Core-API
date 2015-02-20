@@ -83,6 +83,7 @@ import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.core.exception.UnauthorizedException;
 import org.ednovo.gooru.domain.cassandra.service.ResourceCassandraService;
 import org.ednovo.gooru.domain.service.assessment.AssessmentService;
+import org.ednovo.gooru.domain.service.eventlogs.ClasspageEventLog;
 import org.ednovo.gooru.domain.service.eventlogs.CollectionEventLog;
 import org.ednovo.gooru.domain.service.partner.CustomFieldsService;
 import org.ednovo.gooru.domain.service.redis.RedisService;
@@ -214,6 +215,9 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	
 	@Autowired
 	private IndexHandler indexHandler;
+	
+	@Autowired
+	private ClasspageEventLog classpageEventLog;
 
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ScollectionServiceImpl.class);
@@ -1023,6 +1027,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				}
 			}
 			this.getCollectionRepository().save(collection);
+			this.getClasspageEventLog().getEventLogs(collectionItem, collectionItem.getResource().getGooruOid(), user, collectionItem, collection.getCollectionType());
 			getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collection.getUser().getPartyUid() + "*");
 			getAsyncExecutor().deleteFromCache("v2-class-data-" + collection.getGooruOid() + "*");
 		}
@@ -2698,5 +2703,9 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 	public PartyService getPartyService() {
 		return partyService;
+	}
+	
+	public ClasspageEventLog getClasspageEventLog() {
+		return classpageEventLog;
 	}
 }
