@@ -31,6 +31,7 @@ import java.util.Map;
 import org.ednovo.gooru.application.util.SerializerUtil;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
+import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.application.util.BaseUtil;
 import org.ednovo.gooru.core.constant.ConstantProperties;
@@ -60,7 +61,7 @@ public class FolderServiceImpl extends BaseServiceImpl implements FolderService,
 			User user = this.getUserRepository().getUserByUserName(gooruUid, true);
 			gooruUid = user != null ? user.getPartyUid() : null;
 		}
-		rejectIfNull(gooruUid, GL0056, 404,USER);
+		rejectIfNull(gooruUid, GL0056, 404, USER);
 		List<Object[]> result = this.getCollectionRepository().getMyFolder(gooruUid, limit, offset, sharing, collectionType, true, orderBy, excludeType);
 		List<Map<String, Object>> folders = new ArrayList<Map<String, Object>>();
 		if (result != null && result.size() > 0) {
@@ -77,7 +78,7 @@ public class FolderServiceImpl extends BaseServiceImpl implements FolderService,
 				collection.put(DESCRIPTION, object[7] != null ? object[7] : object[19]);
 				collection.put(URL, object[20]);
 				if (object[2] != null && object[2].toString().equalsIgnoreCase(SCOLLECTION)) {
-					collection.put(COLLECTION_ITEMS, getFolderTocItems(String.valueOf(object[1]), sharing, collectionType, orderBy, ASC, excludeType));
+					collection.put(COLLECTION_ITEMS, getFolderTocItems(String.valueOf(object[1]), sharing, collectionType, orderBy, excludeType, ASC));
 				}
 				folders.add(collection);
 			}
@@ -125,7 +126,7 @@ public class FolderServiceImpl extends BaseServiceImpl implements FolderService,
 
 	@Override
 	public String getMyCollectionsToc(String gooruUid, Integer limit, Integer offset, String sharing, String collectionType, String orderBy, String excludeType, boolean clearCache) {
-		final String cacheKey = V2_ORGANIZE_DATA + gooruUid + HYPHEN + offset + HYPHEN + limit + HYPHEN + sharing + HYPHEN + collectionType + HYPHEN + HYPHEN + orderBy + HYPHEN + TOC;
+		final String cacheKey = V2_ORGANIZE_DATA + gooruUid + HYPHEN + offset + HYPHEN + limit + HYPHEN + sharing + HYPHEN + collectionType + HYPHEN + HYPHEN + orderBy + HYPHEN + excludeType + HYPHEN + TOC;
 		String data = null;
 		if (!clearCache) {
 			data = getRedisService().getValue(cacheKey);
@@ -142,7 +143,7 @@ public class FolderServiceImpl extends BaseServiceImpl implements FolderService,
 	public String getFolderTocItems(String gooruOid, String sharing, String collectionType, String orderBy, String excludeType, boolean clearCache) {
 		Collection collection = this.getCollectionRepository().getCollectionByGooruOid(gooruOid, null);
 		rejectIfNull(collection, GL0056, 404, FOLDER);
-		final String cacheKey = V2_ORGANIZE_DATA + collection.getUser().getPartyUid() + HYPHEN + gooruOid + HYPHEN + sharing + HYPHEN + collectionType + HYPHEN + orderBy + HYPHEN + TOC;
+		final String cacheKey = V2_ORGANIZE_DATA + collection.getUser().getPartyUid() + HYPHEN + gooruOid + HYPHEN + sharing + HYPHEN + collectionType + HYPHEN + orderBy + HYPHEN + excludeType + HYPHEN + TOC;
 		String data = null;
 		if (!clearCache) {
 			data = getRedisService().getValue(cacheKey);
@@ -153,7 +154,7 @@ public class FolderServiceImpl extends BaseServiceImpl implements FolderService,
 			item.put(IDEAS, collection.getIdeas());
 			item.put(QUESTIONS, collection.getQuestions());
 			item.put(PERFORMANCE_TASKS, collection.getPerformanceTasks());
-			item.put(DESCRIPTION, collection.getGoals() != null ? collection.getGoals()  :  collection.getDescription());
+			item.put(DESCRIPTION, collection.getGoals() != null ? collection.getGoals() : collection.getDescription());
 			item.put(COLLECTION_TYPE, collection.getCollectionType());
 			item.put(URL, collection.getUrl());
 			item.put(COLLECTION_ITEMS, this.getFolderTocItems(gooruOid, sharing, collectionType, orderBy, collection.getResourceType().getName().equalsIgnoreCase(SCOLLECTION) ? ASC : DESC, excludeType));
@@ -162,12 +163,12 @@ public class FolderServiceImpl extends BaseServiceImpl implements FolderService,
 		}
 		return data;
 	}
-	
+
 	@Override
-	public Collection getNextCollectionItem(String collectionItemId) {
+	public Resource getNextCollectionItem(String collectionItemId) {
 		CollectionItem collectionItem = this.getCollectionRepository().getCollectionItemById(collectionItemId);
 		rejectIfNull(collectionItem, GL0056, 404, COLLECTION_ITEM);
-		return this.getCollectionRepository().getCollection(collectionItem.getCollection().getGooruOid(), (collectionItem.getItemSequence() - 1));
+		return this.getCollectionRepository().getNextCollectionItemResource(collectionItem.getCollection().getGooruOid(), (collectionItem.getItemSequence() - 1));
 	}
 
 	public RedisService getRedisService() {

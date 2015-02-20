@@ -857,7 +857,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		Collection collection = this.getCollectionRepository().getCollectionByGooruOid(gooruOid, null);
 		String data = null;
 		if (collection != null) {
-			final String cacheKey = V2_ORGANIZE_DATA + collection.getUser().getPartyUid() + "-" + gooruOid + "-" + limit + "-" + offset + "-" + sharing + "-" + collectionType + "-" + orderBy + "-" + itemLimit + "-" + fetchChildItem;
+			final String cacheKey = V2_ORGANIZE_DATA + collection.getUser().getPartyUid() + HYPHEN + gooruOid + HYPHEN + limit + HYPHEN + offset + HYPHEN + sharing + HYPHEN + collectionType + HYPHEN + orderBy + HYPHEN + itemLimit + HYPHEN + excludeType +  HYPHEN +  fetchChildItem;
 			if (!clearCache) {
 				data = redisService.getValue(cacheKey);
 			}
@@ -869,11 +869,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 					content.put(COLLECTION_COUNT, this.getCollectionRepository().getCollectionItemCount(gooruOid, sharing, collectionType != null ? collectionType : COLLECTION, excludeType));
 				}
 				data = SerializerUtil.serializeToJson(content, TOC_EXCLUDES, true, true);
-				if (user != null && user.getUsername().equalsIgnoreCase(SAUSD)) {
 					redisService.putValue(cacheKey, data);
-				} else {
-					redisService.putValue(cacheKey, data, 86400);
-				}
 			}
 		}
 		return data;
