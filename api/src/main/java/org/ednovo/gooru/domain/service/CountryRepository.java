@@ -8,22 +8,22 @@ import org.ednovo.gooru.core.api.model.City;
 
 public interface CountryRepository extends BaseRepository {
 
-	Country getCountry(String countryId);
+	Country getCountry(String countryUid);
 
 	List<Country> getCountries(Integer limit, Integer offset);
 
 	Long getCountryCount();
 
-	Province getState(String countryId, String stateId);
+	Province getState(String countryUid, String stateId);
 
-	List<Province> getStates(String countryId, Integer limit, Integer offset);
+	List<Province> getStates(String countryUid, Integer limit, Integer offset);
 
-	Long getStateCount(String countryId);
+	Long getStateCount(String countryUid);
 
-	City getCity(String countryId, String stateId, String cityId);
+	City getCity(String countryUid, String stateId, String cityId);
 
-	List<City> getCities(String countryId, String stateId, Integer limit, Integer offset);
+	List<City> getCities(String countryUid, String stateId, Integer limit, Integer offset);
 
-	Long getCityCount(String countryId, String stateId);
+	Long getCityCount(String countryUid, String stateId);
 
 }

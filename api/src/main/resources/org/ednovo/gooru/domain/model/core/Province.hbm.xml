@@ -25,7 +25,7 @@
 		<property name="name" column="name" length="20" not-null="true">
 		</property>
 		<many-to-one name="country"
-			class="org.ednovo.gooru.core.api.model.Country" column="country_id"
+			class="org.ednovo.gooru.core.api.model.Country" column="country_uid"
 			not-null="true" lazy="false" fetch="join" cascade="none" />
 	</class>
 </hibernate-mapping>

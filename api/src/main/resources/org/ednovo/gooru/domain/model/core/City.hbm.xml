@@ -38,7 +38,7 @@
 	    <many-to-one 
 		    name="country" 
 		    class="org.ednovo.gooru.core.api.model.Country" 		    
-		    column="country_id" 
+		    column="country_uid" 
 		    not-null="true" 	
 		    lazy="proxy" cascade="none"/>
 		<many-to-one 

@@ -809,7 +809,7 @@ public interface ConstantProperties {
    
    public static String CREATIVE_COMMONS = "creative commons";
    
-   static final String COUNTRY[] = { "*.countryId", "*.name", "*.totalHitCount", "*.searchResults"};
+   static final String COUNTRY[] = { "*.countryUid","*.countryCode", "*.name", "*.totalHitCount", "*.searchResults"};
    
    static final String STATE[] = { "*.stateId", "*.name", "*.totalHitCount", "*.searchResults"};
    
