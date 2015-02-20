@@ -219,7 +219,7 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 			content = new HashMap<String, Object>();
 			content.put(SEARCH_RESULT, this.getCollectionService().getMyShelf(gooruUid, limit, offset, sharing, collectionType, itemLimit, fetchChilds, topLevelCollectionType, orderBy, excludeType));
 			content.put(COUNT, this.getCollectionRepository().getMyShelfCount(gooruUid, sharing, collectionType, excludeType));
-			data = serializeToJson(content, true, true);
+			data = serializeToJson(content, TOC_EXCLUDES, true, true);
 			getRedisService().putValue(cacheKey, data, 86400);
 		}
 		return toModelAndView(data);
