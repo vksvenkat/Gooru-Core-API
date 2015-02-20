@@ -868,7 +868,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				if (!fetchChildItem && (collectionType == null || (collectionType != null && collectionType.equalsIgnoreCase(COLLECTION) || collectionType.equalsIgnoreCase(SCOLLECTION)))) {
 					content.put(COLLECTION_COUNT, this.getCollectionRepository().getCollectionItemCount(gooruOid, sharing, collectionType != null ? collectionType : COLLECTION, excludeType));
 				}
-				data = SerializerUtil.serializeToJson(content, true, true);
+				data = SerializerUtil.serializeToJson(content, TOC_EXCLUDES, true, true);
 				if (user != null && user.getUsername().equalsIgnoreCase(SAUSD)) {
 					redisService.putValue(cacheKey, data);
 				} else {
