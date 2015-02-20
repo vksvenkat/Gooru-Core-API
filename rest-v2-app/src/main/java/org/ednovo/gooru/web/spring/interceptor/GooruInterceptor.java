@@ -31,6 +31,7 @@ import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.cassandra.cli.CliParser.newColumnFamily_return;
 import org.ednovo.gooru.application.util.ConfigProperties;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.User;
@@ -115,10 +116,14 @@ public class GooruInterceptor extends HandlerInterceptorAdapter {
 		SessionContextSupport.putLogParameter("user", user.toString());
 		
 		JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session").toString()) :  new JSONObject();
+		session.put("organizationUid", party.getOrganization().getOrganizationUid());
+		session.put("sessionToken", request.getParameter("sessionToken"));
+		session.put("apiKey", request.getParameter("apiKey"));
 		SessionContextSupport.putLogParameter("session", session.toString());
 		JSONObject version = new JSONObject();
 		version.put("logApi", "0.1");
 		SessionContextSupport.putLogParameter("version", version.toString());
+		
 		return true;
 	}
 

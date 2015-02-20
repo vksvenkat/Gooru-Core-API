@@ -182,21 +182,6 @@ public class DoAuthorization {
 		if (authentication.getUserToken().getUser() != null && (auth == null || hasRoleChanged(auth, authentication.getUserToken().getUser()))) {
 			doAuthentication(request, response, authentication.getUserToken().getUser(), authentication.getUserToken().getToken(), skipCache, authentication, key);
 		}
-		JSONObject session = new JSONObject();
-		try {
-			session.put("sessionToken", sessionToken);
-			if (authentication.getUserToken() != null) {
-				session.put("organizationUId", authentication.getUserToken().getUser().getOrganization().getPartyUid());
-				if (authentication.getUserToken().getApplication() != null) { 
-					session.put("apiKey", authentication.getUserToken().getApplication().getKey());
-				}
-			}
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		SessionContextSupport.putLogParameter("session", session.toString());
-
 		if (oAuthToken != null) {
 			SessionContextSupport.putLogParameter("oauthAccessToken", oAuthToken);
 		}
