@@ -58,11 +58,11 @@ public interface CollectionService extends ScollectionService {
 
 	Boolean resourceCopiedFrom(String gooruOid, String gooruUid);
 	
-	List<Map<String, Object>> getMyShelf(String gooruUid, Integer limit, Integer offset, String sharing, String collectionType, Integer itemLimit, boolean fetchChildItem, String topLevelCollectionType, String orderBy);
+	List<Map<String, Object>> getMyShelf(String gooruUid, Integer limit, Integer offset, String sharing, String collectionType, Integer itemLimit, boolean fetchChildItem, String topLevelCollectionType, String orderBy, String excludeType);
 	
-	List<Map<String, Object>> getFolderItem(String gooruOid, String sharing, String type,String collectionType, Integer itemLimit, boolean fetchChildItem, String orderBy);
+	List<Map<String, Object>> getFolderItem(String gooruOid, String sharing, String type,String collectionType, Integer itemLimit, boolean fetchChildItem, String orderBy, String excludeType);
 	
-	List<Map<String, Object>> getFolderItems(String gooruOid, Integer limit, Integer offset, String sharing, String collectionType, String orderBy, Integer itemLimit, boolean fetchChildItem, String sortOrder);
+	List<Map<String, Object>> getFolderItems(String gooruOid, Integer limit, Integer offset, String sharing, String collectionType, String orderBy, Integer itemLimit, boolean fetchChildItem, String sortOrder, String excludeType);
 	
 	SearchResults<Code> getCollectionStandards(Integer codeId,String query, Integer limit, Integer offset, User user);
 	
@@ -80,5 +80,5 @@ public interface CollectionService extends ScollectionService {
 	
 	SearchResults<Collection> getCollections(Integer offset, Integer limit, User user, String publishStatus);
 	
-	String getFolderItemsWithCache(String gooruOid, Integer limit, Integer offset, String sharing, String collectionType, String orderBy, Integer itemLimit, boolean fetchChildItem, boolean clearCache,User user);	
+	String getFolderItemsWithCache(String gooruOid, Integer limit, Integer offset, String sharing, String collectionType, String orderBy, Integer itemLimit, boolean fetchChildItem, boolean clearCache,User user, String excludeType);	
 }
