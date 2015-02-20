@@ -1126,11 +1126,11 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 	}
 
 	@Override
-	public Collection getCollection(String collectionId, int sequence) {
+	public Resource getNextCollectionItemResource(String collectionId, int sequence) {
 		Query query = getSession().createQuery(COLLECTION);
 		query.setParameter(COLLECTION_ID, collectionId);
 		query.setParameter(ITEM_SEQUENCE, sequence);
 		addOrgAuthParameters(query);
-		return (Collection) ((query.list().size() > 0) ? query.list().get(0) : null);
+		return (Resource) ((query.list().size() > 0) ? query.list().get(0) : null);
 	}
 }
