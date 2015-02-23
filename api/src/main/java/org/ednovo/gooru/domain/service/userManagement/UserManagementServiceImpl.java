@@ -1223,6 +1223,11 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		if ((user != null && isDeleted != null && isDeleted.equalsIgnoreCase(TRUE))) {
 			if (isContentAdmin(apiCaller) || user == apiCaller) {
 				user.setIsDeleted(true);
+				if (user.getIdentities() != null) {
+					Identity identity = user.getIdentities().iterator().next();
+					identity.setExternalId(identity.getExternalId() + System.currentTimeMillis());
+					this.getUserRepository().save(identity);
+				}
 				List<Content> contents = this.getContentRepository().getContentByUserUId(gooruUid);
 				List<ContentPermission> removeContentPermission = new ArrayList<ContentPermission>();
 				List<Content> removeContentList = new ArrayList<Content>();
