@@ -62,6 +62,13 @@ public class TaxonomyServiceImpl implements TaxonomyService, ParameterProperties
 
 	private static final String HIGH = "9,10,11,12";
 
+	private static final String TWENTY_FIRST_CENTURY_SKILLS_MODEL = "21_CS_M";
+
+	private static final String TWENTY_FIRST_CENTURY_SKILLS_KEY = "21_CS_K";
+
+	private static final String KEY = "key";
+
+	private static final String MODEL = "model";
 	@Autowired
 	private TaxonomyRespository taxonomyRepository;
 
@@ -79,7 +86,7 @@ public class TaxonomyServiceImpl implements TaxonomyService, ParameterProperties
 
 	@Autowired
 	private RedisService redisService;
-	
+
 	@Autowired
 	private IndexHandler indexHandler;
 
@@ -261,7 +268,7 @@ public class TaxonomyServiceImpl implements TaxonomyService, ParameterProperties
 		codes.add(newCode);
 
 		taxdto.setCode(codes);
-		indexHandler.setReIndexRequest(newCode.getCodeId() + "", IndexProcessor.INDEX, TAXONOMY, null, false, false);				
+		indexHandler.setReIndexRequest(newCode.getCodeId() + "", IndexProcessor.INDEX, TAXONOMY, null, false, false);
 
 		return taxdto;
 	}
@@ -320,7 +327,7 @@ public class TaxonomyServiceImpl implements TaxonomyService, ParameterProperties
 		codes.add(node);
 
 		taxdto.setCode(codes);
-		indexHandler.setReIndexRequest(node.getCodeId() + "", IndexProcessor.INDEX, TAXONOMY, null, false, false);				
+		indexHandler.setReIndexRequest(node.getCodeId() + "", IndexProcessor.INDEX, TAXONOMY, null, false, false);
 
 		return taxdto;
 	}
@@ -335,7 +342,7 @@ public class TaxonomyServiceImpl implements TaxonomyService, ParameterProperties
 		taxonomyRepository.remove(Code.class, node.getCodeId());
 
 		this.writeToDisk(rootNode);
-		indexHandler.setReIndexRequest(node.getCodeId() + "", IndexProcessor.DELETE, TAXONOMY, null, false, false);				
+		indexHandler.setReIndexRequest(node.getCodeId() + "", IndexProcessor.DELETE, TAXONOMY, null, false, false);
 	}
 
 	@Override
@@ -373,7 +380,7 @@ public class TaxonomyServiceImpl implements TaxonomyService, ParameterProperties
 		codes.add(newCode);
 
 		taxdto.setCode(codes);
-		indexHandler.setReIndexRequest(newCode.getCodeId() + "", IndexProcessor.INDEX, TAXONOMY, null, false, false);				
+		indexHandler.setReIndexRequest(newCode.getCodeId() + "", IndexProcessor.INDEX, TAXONOMY, null, false, false);
 		return taxdto;
 	}
 
@@ -393,7 +400,7 @@ public class TaxonomyServiceImpl implements TaxonomyService, ParameterProperties
 		taxonomyRepository.save(codeType);
 
 		codeType.setCode(code);
-		indexHandler.setReIndexRequest(code.getCodeId() + "", IndexProcessor.INDEX, TAXONOMY, null, false, false);				
+		indexHandler.setReIndexRequest(code.getCodeId() + "", IndexProcessor.INDEX, TAXONOMY, null, false, false);
 
 		TaxonomyDTO taxDto = new TaxonomyDTO();
 		List<CodeType> codes = new ArrayList<CodeType>();
@@ -417,7 +424,7 @@ public class TaxonomyServiceImpl implements TaxonomyService, ParameterProperties
 		taxonomyRepository.save(codeType);
 
 		codeType.setCode(code);
-		indexHandler.setReIndexRequest(code.getCodeId() + "", IndexProcessor.INDEX, TAXONOMY, null, false, false);				
+		indexHandler.setReIndexRequest(code.getCodeId() + "", IndexProcessor.INDEX, TAXONOMY, null, false, false);
 
 		TaxonomyDTO taxDto = new TaxonomyDTO();
 		List<CodeType> codes = new ArrayList<CodeType>();
@@ -472,7 +479,7 @@ public class TaxonomyServiceImpl implements TaxonomyService, ParameterProperties
 				if (curriculum != null && curriculum.getCodeType().getCodeId() != 1) {
 					curriculums.add(curriculum);
 				}
-				indexHandler.setReIndexRequest(curriculum.getCodeId() + "", IndexProcessor.INDEX, TAXONOMY, null, false, false);						
+				indexHandler.setReIndexRequest(curriculum.getCodeId() + "", IndexProcessor.INDEX, TAXONOMY, null, false, false);
 			}
 
 			this.updateTaxonomyAssociation(code, curriculums);
@@ -496,7 +503,7 @@ public class TaxonomyServiceImpl implements TaxonomyService, ParameterProperties
 				if (curriculum != null && curriculum.getCodeType().getCodeId() != 1) {
 					curriculums.add(curriculum);
 				}
-				indexHandler.setReIndexRequest(curriculum.getCodeId() + "", IndexProcessor.INDEX, TAXONOMY, null, false, false);						
+				indexHandler.setReIndexRequest(curriculum.getCodeId() + "", IndexProcessor.INDEX, TAXONOMY, null, false, false);
 			}
 
 			this.deleteTaxonomyMapping(code, curriculums);
@@ -726,6 +733,34 @@ public class TaxonomyServiceImpl implements TaxonomyService, ParameterProperties
 		return codeMap;
 	}
 
+	private Map<String, Object> getCode(Object code, Object codeId, Object label, List<Map<String, Object>> childern) {
+		final Map<String, Object> codeMap = new HashMap<String, Object>();
+		codeMap.put(CODE, code);
+		codeMap.put(LABEL, label);
+		codeMap.put(CODE_ID, codeId);
+		codeMap.put(NODE, childern);
+		return codeMap;
+	}
+
+	@Override
+	public Map<String, Object> getTaxonomySkills() {
+		List<Code> model = this.getTaxonomyRepository().findCodeStartWith(TWENTY_FIRST_CENTURY_SKILLS_MODEL, Short.parseShort(ONE));
+		List<Code> key = this.getTaxonomyRepository().findCodeStartWith(TWENTY_FIRST_CENTURY_SKILLS_KEY, Short.parseShort(TWO));
+		Map<String, Object> skills = new HashMap<String, Object>();
+		skills.put(MODEL, model);
+		List<Map<String, Object>> keys = new ArrayList<Map<String, Object>>();
+		for (Code code : key) {
+			List<Map<String, Object>> node = new ArrayList<Map<String, Object>>();
+			List<Object[]> result = this.getTaxonomyRepository().getTaxonomySkills(code.getCodeId());
+			for (Object[] object : result) {
+				node.add(getCode(object[3], object[0], object[2], null));
+			}
+			keys.add(getCode(code.getCode(), code.getCodeId(), code.getLabel(), node));
+		}
+		skills.put(KEY, keys);
+		return skills;
+	}
+
 	public TaxonomyRespository getTaxonomyRepository() {
 		return taxonomyRepository;
 	}
@@ -741,4 +776,5 @@ public class TaxonomyServiceImpl implements TaxonomyService, ParameterProperties
 	public RedisService getRedisService() {
 		return redisService;
 	}
+
 }

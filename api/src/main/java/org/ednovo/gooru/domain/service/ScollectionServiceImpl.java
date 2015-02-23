@@ -219,6 +219,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	@Autowired
 	private ClasspageEventLog classpageEventLog;
 
+	private static final String TWENTY_FIRST_CENTURY_SKILLS = "21st_century_skills";
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ScollectionServiceImpl.class);
 
@@ -1135,6 +1136,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 					LOGGER.error("parser error : " + e);
 				}
 			}
+			
 			for (CollectionItem collectionItem : collection.getCollectionItems()) {
 				if (collectionItem.getResource().getResourceType().getName().equalsIgnoreCase(ASSESSMENT_QUESTION)) {
 					collectionItem.getResource().setDepthOfKnowledges(this.setContentMetaAssociation(this.getContentMetaAssociation(DEPTH_OF_KNOWLEDGE), collectionItem.getResource(), DEPTH_OF_KNOWLEDGE));
@@ -1289,6 +1291,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			final Set<String> acknowledgement = new HashSet<String>();
 			final ResourceMetaInfo collectionMetaInfo = new ResourceMetaInfo();
 			collectionMetaInfo.setCourse(this.getCourse(collection.getTaxonomySet()));
+			collectionMetaInfo.setSkills(this.getSKills(collection.getTaxonomySet()));
 			collectionMetaInfo.setStandards(this.getStandards(collection.getTaxonomySet(), ignoreUserTaxonomyPreference, rootNodeId));
 			if (collection.getVocabulary() != null) {
 				collectionMetaInfo.setVocabulary(Arrays.asList(collection.getVocabulary().split("\\s*,\\s*")));
@@ -1367,6 +1370,19 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			}
 		}
 		return course;
+	}
+	
+	protected Set<String> getSKills(Set<Code> taxonomySet) {
+		Set<String> skills = null;
+		if (taxonomySet != null) {
+			skills = new HashSet<String>();
+			for (Code code : taxonomySet) {
+				if (code.getCodeType() != null && code.getCodeType().getLabel() != null && code.getCodeType().getLabel().equalsIgnoreCase(TWENTY_FIRST_CENTURY_SKILLS)) {
+					skills.add(code.getLabel());
+				}
+			}
+		}
+		return skills;
 	}
 
 	@Override
