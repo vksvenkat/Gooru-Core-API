@@ -2838,5 +2838,7 @@ public interface ParameterProperties {
 	
 	String ASSESSMENT_URL = "assessment/url";
 	
+	String TWO = "2";
+	
 }
 

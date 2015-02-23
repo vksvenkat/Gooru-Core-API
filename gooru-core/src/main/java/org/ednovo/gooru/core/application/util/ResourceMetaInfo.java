@@ -19,6 +19,7 @@ public class ResourceMetaInfo implements Serializable {
 	private List<StandardFo> standards;
 	private Rating rating;
 	private Set<String> acknowledgement;
+	private Set<String> skills;
 	
 	/**
 	 * 
@@ -64,5 +65,13 @@ public class ResourceMetaInfo implements Serializable {
 
 	public Set<String> getAcknowledgement() {
 		return acknowledgement;
+	}
+
+	public Set<String> getSkills() {
+		return skills;
+	}
+
+	public void setSkills(Set<String> skills) {
+		this.skills = skills;
 	}
 }
