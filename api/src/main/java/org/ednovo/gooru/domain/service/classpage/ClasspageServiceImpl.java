@@ -982,7 +982,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		ActionResponseDTO<CollectionItem> collectionItem = this.getCollectionService().reorderCollectionItem(pathwayGooruOid, newSequence,user);
 	    try {
 	    	
-		   this.getClasspageEventlog().getEventLogs(collectionItem.getModel(), collectionItem.getModel().getResource().getGooruOid(), user, collectionItem.getModel());
+		   this.getClasspageEventlog().getEventLogs(collectionItem.getModel(), collectionItem.getModel().getResource().getGooruOid(), user, collectionItem.getModel(),collectionItem.getModel().getCollection().getCollectionType());
 	    } catch (JSONException e) {
 			e.printStackTrace();
 		}
