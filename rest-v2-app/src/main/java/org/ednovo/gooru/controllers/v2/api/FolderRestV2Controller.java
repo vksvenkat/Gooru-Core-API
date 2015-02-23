@@ -210,7 +210,7 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 			gooruUid = user.getPartyUid();
 		}
 		Map<String, Object> content = null;
-		final String cacheKey = "v2-organize-data-" + gooruUid + "-" + offset + "-" + limit + "-" + sharing + "-" + collectionType + "-" + itemLimit + "-" + fetchChilds + "-" + topLevelCollectionType + "-" + orderBy;
+		final String cacheKey = V2_ORGANIZE_DATA + gooruUid + HYPHEN + offset + HYPHEN + limit + HYPHEN + sharing + HYPHEN + collectionType + HYPHEN + itemLimit + HYPHEN + fetchChilds + HYPHEN + topLevelCollectionType + HYPHEN + excludeType + HYPHEN + orderBy;
 		String data = null;
 		if (!clearCache) {
 			data = getRedisService().getValue(cacheKey);
@@ -219,8 +219,8 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 			content = new HashMap<String, Object>();
 			content.put(SEARCH_RESULT, this.getCollectionService().getMyShelf(gooruUid, limit, offset, sharing, collectionType, itemLimit, fetchChilds, topLevelCollectionType, orderBy, excludeType));
 			content.put(COUNT, this.getCollectionRepository().getMyShelfCount(gooruUid, sharing, collectionType, excludeType));
-			data = serializeToJson(content, true, true);
-			getRedisService().putValue(cacheKey, data, 86400);
+			data = serializeToJson(content, TOC_EXCLUDES, true, true);
+			getRedisService().putValue(cacheKey, data);
 		}
 		return toModelAndView(data);
 	}
@@ -264,7 +264,7 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{cid}/item/{id}/next" }, method = RequestMethod.GET)
 	public ModelAndView getNextCollectionItem(@PathVariable(value = CID) String collectionId, @PathVariable(value = ID) String collectionItemId, HttpServletRequest request, HttpServletResponse response) {
-		return toModelAndViewWithIoFilter(getFolderService().getNextCollectionItem(collectionId), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, RESOURCE_INCLUDE_FIELDS);
+		return toModelAndViewWithIoFilter(getFolderService().getNextCollectionItem(collectionItemId), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, RESOURCE_INCLUDE_FIELDS);
 	}
 
 	private Collection buildCollectionFromInputParameters(String data, User user) {
