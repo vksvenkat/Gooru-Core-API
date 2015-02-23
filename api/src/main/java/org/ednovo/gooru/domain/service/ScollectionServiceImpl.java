@@ -1101,12 +1101,15 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 	@Override
 	public Collection getCollection(String collectionId, boolean includeMetaInfo, boolean includeCollaborator, boolean isContentFlag, final User user, String merge, String rootNodeId, boolean isGat, boolean includeViewCount) {
+		LOGGER.info("start : " + System.currentTimeMillis());
 		Collection collection = this.getCollectionRepository().getCollectionByGooruOid(collectionId, null);
 		boolean isCollaborator = this.getCollaboratorRepository().findCollaboratorById(collectionId, user.getGooruUId()) != null ? true : false;
+		LOGGER.info("fetch collection : " + System.currentTimeMillis());
 		if (collection != null && (collection.getUser().getGooruUId().equalsIgnoreCase(user.getGooruUId()) || !collection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || userService.isContentAdmin(user) || isCollaborator)) {
 			if (includeMetaInfo) {
 				this.setColletionMetaData(collection, user, merge, false, rootNodeId);
 			}
+			LOGGER.info("set meta collection : " + System.currentTimeMillis());
 			if (isGat) {
 				collection.setTaxonomySetMapping(TaxonomyUtil.getTaxonomyByCode(collection.getTaxonomySet(), taxonomyService));
 			}
@@ -1126,47 +1129,43 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				lastUserModifiedMap.put(USER_NAME, lastUserModified.getUsername());
 				lastUserModifiedMap.put(GOORU_UID, lastUserModified.getGooruUId());
 			}
-
+			LOGGER.info("set last modification  collection data : " + System.currentTimeMillis());
 			collection.setLastModifiedUser(lastUserModifiedMap);
 			if (includeViewCount) {
 				try {
 					collection.setViewCount(this.resourceCassandraService.getInt(collection.getGooruOid(), STATISTICS_VIEW_COUNT));
-					collection.setViews(Long.parseLong(this.resourceCassandraService.getInt(collection.getGooruOid(), STATISTICS_VIEW_COUNT) + ""));
+					collection.setViews(collection.getViewCount() != null ? Long.parseLong(collection.getViewCount() + "") : 0);
 				} catch (Exception e) {
 					LOGGER.error("parser error : " + e);
 				}
 			}
 			
+			LOGGER.info("set collection item resource data : " + System.currentTimeMillis());
 			for (CollectionItem collectionItem : collection.getCollectionItems()) {
-				if (collectionItem.getResource().getResourceType().getName().equalsIgnoreCase(ASSESSMENT_QUESTION)) {
-					collectionItem.getResource().setDepthOfKnowledges(this.setContentMetaAssociation(this.getContentMetaAssociation(DEPTH_OF_KNOWLEDGE), collectionItem.getResource(), DEPTH_OF_KNOWLEDGE));
+				Resource resource = collectionItem.getResource();
+				if (resource.getResourceType().getName().equalsIgnoreCase(ASSESSMENT_QUESTION)) {
+					resource.setDepthOfKnowledges(this.setContentMetaAssociation(this.getContentMetaAssociation(DEPTH_OF_KNOWLEDGE), resource, DEPTH_OF_KNOWLEDGE));
 				} else {
-					collectionItem.getResource().setMomentsOfLearning(this.setContentMetaAssociation(this.getContentMetaAssociation(MOMENTS_OF_LEARNING), collectionItem.getResource(), MOMENTS_OF_LEARNING));
+					resource.setMomentsOfLearning(this.setContentMetaAssociation(this.getContentMetaAssociation(MOMENTS_OF_LEARNING), resource, MOMENTS_OF_LEARNING));
 				}
-				collectionItem.getResource().setEducationalUse(this.setContentMetaAssociation(this.getContentMetaAssociation(EDUCATIONAL_USE), collectionItem.getResource(), EDUCATIONAL_USE));
-				collectionItem.getResource().setRatings(this.setRatingsObj(this.getResourceRepository().getResourceSummaryById(collectionItem.getResource().getGooruOid())));
-				collectionItem.getResource().setCustomFieldValues(this.getCustomFieldsService().getCustomFieldsValuesOfResource(collectionItem.getResource().getGooruOid()));
+				resource.setEducationalUse(this.setContentMetaAssociation(this.getContentMetaAssociation(EDUCATIONAL_USE), resource, EDUCATIONAL_USE));
+				
+				
+				resource.setRatings(this.setRatingsObj(this.getResourceRepository().getResourceSummaryById(resource.getGooruOid())));
+				
+				resource.setCustomFieldValues(this.getCustomFieldsService().getCustomFieldsValuesOfResource(resource.getGooruOid()));
+				
 				collectionItem.setResource(getResourceService().setContentProvider(collectionItem.getResource()));
-				collectionItem.getResource().setResourceTags(this.getContentService().getContentTagAssoc(collectionItem.getResource().getGooruOid(), user));
-				if (includeViewCount) {
-					try {
-						collectionItem.getResource().setViewCount(this.resourceCassandraService.getInt(collectionItem.getResource().getGooruOid(), STATISTICS_VIEW_COUNT));
-						collectionItem.getResource().setViews(Long.parseLong(this.resourceCassandraService.getInt(collectionItem.getResource().getGooruOid(), STATISTICS_VIEW_COUNT) + ""));
-					} catch (Exception e) {
-						LOGGER.error("parser error : " + e);
-					}
-				}
+				resource.setResourceTags(this.getContentService().getContentTagAssoc(collectionItem.getResource().getGooruOid(), user));
 			}
-
+			
 			if (collection.getResourceType().getName().equalsIgnoreCase(SCOLLECTION)) {
 				collection.setDepthOfKnowledges(this.setContentMetaAssociation(this.getContentMetaAssociation(DEPTH_OF_KNOWLEDGE), collection, DEPTH_OF_KNOWLEDGE));
-
 				collection.setLearningSkills(this.setContentMetaAssociation(this.getContentMetaAssociation(LEARNING_AND_INNOVATION_SKILLS), collection, LEARNING_AND_INNOVATION_SKILLS));
-
 				collection.setAudience(this.setContentMetaAssociation(this.getContentMetaAssociation(AUDIENCE), collection, AUDIENCE));
-
 				collection.setInstructionalMethod(this.setContentMetaAssociation(this.getContentMetaAssociation(INSTRUCTIONAL_METHOD), collection, INSTRUCTIONAL_METHOD));
 			}
+			LOGGER.info("merege  : " + System.currentTimeMillis());
 			if (merge != null) {
 				Map<String, Object> permissions = new HashMap<String, Object>();
 				if (merge.contains(PERMISSIONS)) {
@@ -1184,10 +1183,12 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				collection.setMeta(permissions);
 				collection.setCustomFieldValues(this.getCustomFieldsService().getCustomFieldsValuesOfResource(collection.getGooruOid()));
 			}
+			LOGGER.info("end  : " + System.currentTimeMillis());
 
 		} else {
 			throw new NotFoundException(generateErrorMessage(GL0056, _COLLECTION), GL0056);
 		}
+		LOGGER.info("end : " + System.currentTimeMillis());
 		return collection;
 	}
 

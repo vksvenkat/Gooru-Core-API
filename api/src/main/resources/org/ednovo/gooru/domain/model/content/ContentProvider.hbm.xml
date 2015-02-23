@@ -20,7 +20,8 @@
     "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
-	<class name="org.ednovo.gooru.core.api.model.ContentProvider" table="content_provider">
+	<class name="org.ednovo.gooru.core.api.model.ContentProvider"
+		table="content_provider">
 		<id name="contentProviderUid" column="content_provider_uid"
 			unsaved-value="null">
 			<generator class="org.ednovo.gooru.core.application.util.UUIDGenerator" />

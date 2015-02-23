@@ -34,8 +34,6 @@ public class Collection extends Resource implements Versionable {
 
 	private Map<Integer, List<Map<String, Object>>> taxonomySetMapping;
 
-	private Set<CollectionTaskAssoc> collectionTaskItems;
-
 	private String network;
 
 	private CollectionItem collectionItem;
@@ -209,14 +207,6 @@ public class Collection extends Resource implements Versionable {
 	@Override
 	public String getEntityId() {
 		return getGooruOid();
-	}
-
-	public void setCollectionTaskItems(Set<CollectionTaskAssoc> collectionTaskItems) {
-		this.collectionTaskItems = collectionTaskItems;
-	}
-
-	public Set<CollectionTaskAssoc> getCollectionTaskItems() {
-		return collectionTaskItems;
 	}
 
 	@Override
