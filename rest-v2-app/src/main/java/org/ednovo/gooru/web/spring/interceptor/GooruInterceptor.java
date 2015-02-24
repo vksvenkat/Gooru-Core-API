@@ -61,7 +61,7 @@ public class GooruInterceptor extends HandlerInterceptorAdapter {
 
 	private static final String SESSIONTOKEN = "sessionToken";
 
-	private static final String _ORGANIZATION_UID = "organizationUid";
+	private static final String ORGANIZATION_UID = "organizationUId";
 
 	private static final String API_KEY = "apiKey";
 	
@@ -122,7 +122,7 @@ public class GooruInterceptor extends HandlerInterceptorAdapter {
 		SessionContextSupport.putLogParameter("user", user.toString());
 		
 		JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session").toString()) :  new JSONObject();
-		session.put(_ORGANIZATION_UID, party.getOrganization().getOrganizationUid());
+		session.put(ORGANIZATION_UID, party.getOrganization().getOrganizationUid());
 		session.put(SESSIONTOKEN, request.getParameter("sessionToken"));
 		session.put(API_KEY, request.getParameter("apiKey"));
 		SessionContextSupport.putLogParameter("session", session.toString());
