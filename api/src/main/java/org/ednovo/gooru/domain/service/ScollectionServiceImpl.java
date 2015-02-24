@@ -1167,11 +1167,12 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				collection.setCustomFieldValues(this.getCustomFieldsService().getCustomFieldsValuesOfResource(collection.getGooruOid()));
 				LOGGER.info("Collection custom field end : " + System.currentTimeMillis());
 			}
-			LOGGER.info("set meta data for collection merge  permission start: " + System.currentTimeMillis());
+			LOGGER.info("set meta data for collection merge  permission end: " + System.currentTimeMillis());
 
 		} else {
 			throw new NotFoundException(generateErrorMessage(GL0056, _COLLECTION), GL0056);
 		}
+		LOGGER.info("Get collection end : " + System.currentTimeMillis());
 		return collection;
 	}
 
