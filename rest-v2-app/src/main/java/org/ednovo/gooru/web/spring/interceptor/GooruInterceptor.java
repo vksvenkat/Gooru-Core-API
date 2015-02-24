@@ -31,7 +31,6 @@ import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.cassandra.cli.CliParser.newColumnFamily_return;
 import org.ednovo.gooru.application.util.ConfigProperties;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.User;
