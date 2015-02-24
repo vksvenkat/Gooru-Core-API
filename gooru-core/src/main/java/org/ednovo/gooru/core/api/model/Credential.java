@@ -20,6 +20,7 @@ public class Credential implements Serializable{
 	private String password;
 	private String token;
 	private Date resetPasswordRequestDate;
+	private CustomTableValue passwordEncryptType;
 	
 	public String getToken() {
 		return token;
@@ -52,5 +53,12 @@ public class Credential implements Serializable{
 	public void setId(Integer id) {
 		this.id = id;
 	}
+	public CustomTableValue getPasswordEncryptType() {
+		return passwordEncryptType;
+	}
+	public void setPasswordEncryptType(CustomTableValue passwordEncryptType) {
+		this.passwordEncryptType = passwordEncryptType;
+	}
+	
 	
 }

@@ -75,6 +75,7 @@ import org.ednovo.gooru.core.api.model.UserRole.UserRoleType;
 import org.ednovo.gooru.core.api.model.UserRoleAssoc;
 import org.ednovo.gooru.core.api.model.UserSummary;
 import org.ednovo.gooru.core.api.model.UserToken;
+import org.ednovo.gooru.core.application.util.BaseUtil;
 import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.core.constant.ConstantProperties;
@@ -273,6 +274,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			if (password != null && gooruUid.equalsIgnoreCase(apiCaller.getGooruUId()) && identity.getCredential() != null) {
 				this.getUserService().validatePassword(password, identity.getUser().getUsername());
 				String encryptedPassword = this.encryptPassword(password);
+				identity.getCredential().setPasswordEncryptType(this.getCustomTableRepository().getCustomTableValue("password_encryption_type", CustomProperties.PasswordEncryptType.HASH.getPasswordEncryptType()));
 				identity.getCredential().setPassword(encryptedPassword);
 				this.getUserRepository().save(identity);
 			}
@@ -552,6 +554,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			identity = this.getUserService().findUserByGooruId(user.getGooruUId());
 			if (user.getAccountTypeId() == UserAccountType.ACCOUNT_CHILD) {
 				String encryptedPassword = this.encryptPassword(password);
+				identity.getCredential().setPasswordEncryptType(this.getCustomTableRepository().getCustomTableValue("password_encryption_type", CustomProperties.PasswordEncryptType.HASH.getPasswordEncryptType()));
 				Credential credential = user.getIdentities().iterator().next().getCredential();
 				credential.setPassword(encryptedPassword);
 				identity.setCredential(credential);
@@ -849,12 +852,13 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			credential.setIdentity(identity);
 			String token = UUID.randomUUID().toString();
 			credential.setToken(token);
+			credential.setPasswordEncryptType(this.getCustomTableRepository().getCustomTableValue("password_encryption_type", CustomProperties.PasswordEncryptType.MD5.getPasswordEncryptType()));
 			credential.setResetPasswordRequestDate(new Date(System.currentTimeMillis()));
 			if (password != null) {
 				if (accountType.equalsIgnoreCase(UserAccountType.userAccount.CHILD.getType())) {
 					credential.setPassword(password);
 				} else {
-					credential.setPassword(encryptPassword(password));
+					credential.setPassword(BaseUtil.getStringMD5Hash(password));
 				}
 			}
 		}
@@ -1100,6 +1104,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		String resetPasswordConfirmRestendpoint = this.getSettingService().getConfigSetting(ConfigConstants.RESET_PASSWORD_CONFIRM_RESTENDPOINT, 0, TaxonomyUtil.GOORU_ORG_UID);
 		this.getUserService().validatePassword(password, identity.getUser().getUsername());
 		String encryptedPassword = this.encryptPassword(password);
+		identity.getCredential().setPasswordEncryptType(this.getCustomTableRepository().getCustomTableValue("password_encryption_type", CustomProperties.PasswordEncryptType.HASH.getPasswordEncryptType()));
 		identity.setLastLogin(new Date(System.currentTimeMillis()));
 		Credential credential = identity.getCredential();
 		credential.setPassword(encryptedPassword);
