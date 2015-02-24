@@ -1131,7 +1131,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			if (includeViewCount) {
 				try {
 					collection.setViewCount(this.resourceCassandraService.getInt(collection.getGooruOid(), STATISTICS_VIEW_COUNT));
-					collection.setViews(Long.parseLong(this.resourceCassandraService.getInt(collection.getGooruOid(), STATISTICS_VIEW_COUNT) + ""));
+					collection.setViews(collection.getViewCount() != null ? Long.parseLong(collection.getViewCount() + "") : 0);
 				} catch (Exception e) {
 					LOGGER.error("parser error : " + e);
 				}
@@ -1151,7 +1151,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				if (includeViewCount) {
 					try {
 						collectionItem.getResource().setViewCount(this.resourceCassandraService.getInt(collectionItem.getResource().getGooruOid(), STATISTICS_VIEW_COUNT));
-						collectionItem.getResource().setViews(Long.parseLong(this.resourceCassandraService.getInt(collectionItem.getResource().getGooruOid(), STATISTICS_VIEW_COUNT) + ""));
+						collectionItem.getResource().setViews(collectionItem.getResource().getViewCount()!= null ? Long.parseLong(collectionItem.getResource().getViewCount() + "") : 0);
 					} catch (Exception e) {
 						LOGGER.error("parser error : " + e);
 					}
