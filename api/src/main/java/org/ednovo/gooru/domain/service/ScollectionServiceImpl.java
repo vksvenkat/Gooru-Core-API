@@ -1138,15 +1138,16 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			}
 			
 			for (CollectionItem collectionItem : collection.getCollectionItems()) {
-				if (collectionItem.getResource().getResourceType().getName().equalsIgnoreCase(ASSESSMENT_QUESTION)) {
-					collectionItem.getResource().setDepthOfKnowledges(this.setContentMetaAssociation(this.getContentMetaAssociation(DEPTH_OF_KNOWLEDGE), collectionItem.getResource(), DEPTH_OF_KNOWLEDGE));
+				Resource resource = collectionItem.getResource();
+				if (resource.getResourceType().getName().equalsIgnoreCase(ASSESSMENT_QUESTION)) {
+					resource.setDepthOfKnowledges(this.setContentMetaAssociation(this.getContentMetaAssociation(DEPTH_OF_KNOWLEDGE), resource, DEPTH_OF_KNOWLEDGE));
 				} else {
-					collectionItem.getResource().setMomentsOfLearning(this.setContentMetaAssociation(this.getContentMetaAssociation(MOMENTS_OF_LEARNING), collectionItem.getResource(), MOMENTS_OF_LEARNING));
+					resource.setMomentsOfLearning(this.setContentMetaAssociation(this.getContentMetaAssociation(MOMENTS_OF_LEARNING), resource, MOMENTS_OF_LEARNING));
 				}
-				collectionItem.getResource().setEducationalUse(this.setContentMetaAssociation(this.getContentMetaAssociation(EDUCATIONAL_USE), collectionItem.getResource(), EDUCATIONAL_USE));
-				collectionItem.getResource().setRatings(this.setRatingsObj(this.getResourceRepository().getResourceSummaryById(collectionItem.getResource().getGooruOid())));
-				collectionItem.getResource().setCustomFieldValues(this.getCustomFieldsService().getCustomFieldsValuesOfResource(collectionItem.getResource().getGooruOid()));
-				collectionItem.setResource(getResourceService().setContentProvider(collectionItem.getResource()));
+				resource.setEducationalUse(this.setContentMetaAssociation(this.getContentMetaAssociation(EDUCATIONAL_USE), collectionItem.getResource(), EDUCATIONAL_USE));
+				resource.setRatings(this.setRatingsObj(this.getResourceRepository().getResourceSummaryById(collectionItem.getResource().getGooruOid())));
+				resource.setCustomFieldValues(this.getCustomFieldsService().getCustomFieldsValuesOfResource(collectionItem.getResource().getGooruOid()));
+				collectionItem.setResource(getResourceService().setContentProvider(resource));
 				collectionItem.getResource().setResourceTags(this.getContentService().getContentTagAssoc(collectionItem.getResource().getGooruOid(), user));
 				if (includeViewCount) {
 					try {
@@ -1290,8 +1291,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		if (collection != null) {
 			final Set<String> acknowledgement = new HashSet<String>();
 			final ResourceMetaInfo collectionMetaInfo = new ResourceMetaInfo();
-			collectionMetaInfo.setCourse(this.getCourse(collection.getTaxonomySet()));
-			collectionMetaInfo.setSkills(this.getSKills(collection.getTaxonomySet()));
+			setCollectionTaxonomyMetaInfo(collection.getTaxonomySet(), collectionMetaInfo);
 			collectionMetaInfo.setStandards(this.getStandards(collection.getTaxonomySet(), ignoreUserTaxonomyPreference, rootNodeId));
 			if (collection.getVocabulary() != null) {
 				collectionMetaInfo.setVocabulary(Arrays.asList(collection.getVocabulary().split("\\s*,\\s*")));
@@ -1324,6 +1324,22 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		return collection;
 	}
 
+	private void setCollectionTaxonomyMetaInfo(Set<Code> taxonomySet, ResourceMetaInfo collectionMetaInfo) { 
+		if (taxonomySet != null) {
+			Set<String> course = new HashSet<String>();
+			Set<String> skills = new HashSet<String>();
+			for (Code code : taxonomySet) {
+				if (code.getDepth() == 2 && code.getRootNodeId() != null && code.getRootNodeId().toString().equalsIgnoreCase(Code.GOORU_TAXONOMY_CODE_ID)) {
+					course.add(code.getLabel());
+				} else if (code.getCodeType() != null && code.getCodeType().getLabel() != null && code.getCodeType().getLabel().equalsIgnoreCase(TWENTY_FIRST_CENTURY_SKILLS)) {
+					skills.add(code.getLabel());
+				}
+				collectionMetaInfo.setSkills(skills);
+				collectionMetaInfo.setCourse(course);
+			}
+		}
+	}
+	
 	@Override
 	public List<CollectionItem> setCollectionItemMetaInfo(List<CollectionItem> collectionItems, final String rootNodeId) {
 		if (collectionItems != null) {
@@ -1372,18 +1388,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		return course;
 	}
 	
-	protected Set<String> getSKills(Set<Code> taxonomySet) {
-		Set<String> skills = null;
-		if (taxonomySet != null) {
-			skills = new HashSet<String>();
-			for (Code code : taxonomySet) {
-				if (code.getCodeType() != null && code.getCodeType().getLabel() != null && code.getCodeType().getLabel().equalsIgnoreCase(TWENTY_FIRST_CENTURY_SKILLS)) {
-					skills.add(code.getLabel());
-				}
-			}
-		}
-		return skills;
-	}
 
 	@Override
 	public List<StandardFo> getStandards(final Set<Code> taxonomySet, boolean ignoreUserTaxonomyPreference, String rootNodeId) {

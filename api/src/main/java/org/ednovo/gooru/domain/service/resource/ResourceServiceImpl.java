@@ -328,7 +328,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	
 	@Override
 	public Resource setContentProvider(Resource resource) {
-		List<ContentProviderAssociation> contentProviderAssociations = this.getContentRepository().getContentProviderByGooruOid(resource.getGooruOid(),null,null);
+		Set<ContentProviderAssociation> contentProviderAssociations = resource.getContentProviderAssoc();
 		if (contentProviderAssociations != null) {
 			List<String> aggregator = new ArrayList<String>();
 			List<String> publisher = new ArrayList<String>();
@@ -2916,7 +2916,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		}
 		resource.setTaxonomySet(codes);
 		this.getResourceRepository().save(resource);
-		indexProcessor.index(resource.getGooruOid(), IndexProcessor.DELETE, RESOURCE);
+		indexHandler.setReIndexRequest(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);
 	}
 
 	@Override
