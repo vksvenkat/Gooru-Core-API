@@ -1099,18 +1099,26 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 	@Override
 	public Collection getCollection(String collectionId, boolean includeMetaInfo, boolean includeCollaborator, boolean isContentFlag, final User user, String merge, String rootNodeId, boolean isGat, boolean includeViewCount) {
+	   LOGGER.info("Get collection start : " + System.currentTimeMillis());
 		Collection collection = this.getCollectionRepository().getCollectionByGooruOid(collectionId, null);
+	    LOGGER.info("Get collection end : " + System.currentTimeMillis());
+	    LOGGER.info("check is collaborator start : " + System.currentTimeMillis());
 		boolean isCollaborator = this.getCollaboratorRepository().findCollaboratorById(collectionId, user.getGooruUId()) != null ? true : false;
+	    LOGGER.info("check is collaborator end : " + System.currentTimeMillis());
 		if (collection != null && (collection.getUser().getGooruUId().equalsIgnoreCase(user.getGooruUId()) || !collection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || userService.isContentAdmin(user) || isCollaborator)) {
+			LOGGER.info("include meta data start : " + System.currentTimeMillis());
 			if (includeMetaInfo) {
 				this.setColletionMetaData(collection, user, merge, false, rootNodeId, includeViewCount);
 			}
+			LOGGER.info("include meta data  end : " + System.currentTimeMillis());
 			if (isGat) {
 				collection.setTaxonomySetMapping(TaxonomyUtil.getTaxonomyByCode(collection.getTaxonomySet(), taxonomyService));
 			}
+			LOGGER.info("include set profile image url start : " + System.currentTimeMillis());
 			if (collection.getUser() != null) {
 				collection.getUser().setProfileImageUrl(this.getUserService().buildUserProfileImageUrl(collection.getUser()));
 			}
+			LOGGER.info("include set profile image url end : " + System.currentTimeMillis());
 			if (isContentFlag) {
 				collection.setContentAssociation(this.contentAssociationRepository.getContentAssociationGooruOid(collectionId));
 			}
@@ -1118,21 +1126,26 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				Identity identity = collection.getUser().getIdentities().iterator().next();
 				collection.getUser().setEmailId(identity.getExternalId());
 			}
+			LOGGER.info("include set last modified data start : " + System.currentTimeMillis());
 			final User lastUserModified = this.getUserService().findByGooruId(collection.getLastUpdatedUserUid());
 			Map<String, Object> lastUserModifiedMap = new HashMap<String, Object>();
 			if (lastUserModified != null) {
 				lastUserModifiedMap.put(USER_NAME, lastUserModified.getUsername());
 				lastUserModifiedMap.put(GOORU_UID, lastUserModified.getGooruUId());
 			}
+			LOGGER.info("include set last modified data end : " + System.currentTimeMillis());
 
 			collection.setLastModifiedUser(lastUserModifiedMap);
 
+			LOGGER.info("set meta data for collection start : " + System.currentTimeMillis());
 			if (collection.getResourceType().getName().equalsIgnoreCase(SCOLLECTION)) {
 				collection.setDepthOfKnowledges(this.setContentMetaAssociation(this.getContentMetaAssociation(DEPTH_OF_KNOWLEDGE), collection, DEPTH_OF_KNOWLEDGE));
 				collection.setLearningSkills(this.setContentMetaAssociation(this.getContentMetaAssociation(LEARNING_AND_INNOVATION_SKILLS), collection, LEARNING_AND_INNOVATION_SKILLS));
 				collection.setAudience(this.setContentMetaAssociation(this.getContentMetaAssociation(AUDIENCE), collection, AUDIENCE));
 				collection.setInstructionalMethod(this.setContentMetaAssociation(this.getContentMetaAssociation(INSTRUCTIONAL_METHOD), collection, INSTRUCTIONAL_METHOD));
 			}
+			LOGGER.info("set meta data for collection end : " + System.currentTimeMillis());
+			LOGGER.info("set meta data for collection merge  permission start : " + System.currentTimeMillis());
 			if (merge != null) {
 				Map<String, Object> permissions = new HashMap<String, Object>();
 				if (merge.contains(PERMISSIONS)) {
@@ -1144,12 +1157,17 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				if (merge.contains(COMMENT_COUNT)) {
 					permissions.put(COMMENT_COUNT, this.getCommentRepository().getCommentCount(null, collection.getGooruOid(), null, "notdeleted"));
 				}
+				LOGGER.info("set collaboratorCount start : " + System.currentTimeMillis());
 				long collaboratorCount = this.getCollaboratorRepository().getCollaboratorsCountById(collectionId);
+				LOGGER.info("set collaboratorCount end : " + System.currentTimeMillis());
 				permissions.put(COLLABORATOR_COUNT, collaboratorCount);
 				permissions.put(IS_COLLABORATOR, isCollaborator);
 				collection.setMeta(permissions);
+				LOGGER.info("Collection custom field start : " + System.currentTimeMillis());
 				collection.setCustomFieldValues(this.getCustomFieldsService().getCustomFieldsValuesOfResource(collection.getGooruOid()));
+				LOGGER.info("Collection custom field end : " + System.currentTimeMillis());
 			}
+			LOGGER.info("set meta data for collection merge  permission start: " + System.currentTimeMillis());
 
 		} else {
 			throw new NotFoundException(generateErrorMessage(GL0056, _COLLECTION), GL0056);
