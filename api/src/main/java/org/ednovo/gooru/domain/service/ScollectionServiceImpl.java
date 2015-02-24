@@ -219,8 +219,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	@Autowired
 	private ClasspageEventLog classpageEventLog;
 
-	private static final String TWENTY_FIRST_CENTURY_SKILLS = "21st_century_skills";
-
 	private static final Logger LOGGER = LoggerFactory.getLogger(ScollectionServiceImpl.class);
 
 	@Override
@@ -1316,7 +1314,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			for (Code code : taxonomySet) {
 				if (code.getDepth() == 2 && code.getRootNodeId() != null && code.getRootNodeId().toString().equalsIgnoreCase(Code.GOORU_TAXONOMY_CODE_ID)) {
 					course.add(code.getLabel());
-				} else if (code.getCodeType() != null && code.getCodeType().getLabel() != null && code.getCodeType().getLabel().equalsIgnoreCase(TWENTY_FIRST_CENTURY_SKILLS)) {
+				} else if (code.getCodeType() != null && code.getCodeType().getLabel() != null && code.getCodeType().getLabel().equalsIgnoreCase(Constants.TWENTY_FIRST_CENTURY_SKILLS)) {
 					skills.add(code.getLabel());
 				}
 				collectionMetaInfo.setSkills(skills);

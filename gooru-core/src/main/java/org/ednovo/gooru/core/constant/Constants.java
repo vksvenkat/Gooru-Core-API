@@ -199,5 +199,7 @@ public class Constants implements ParameterProperties {
 		COLLECTION_TYPES = Collections.unmodifiableMap(colletionType);
 	}
 	
+	public static final String TWENTY_FIRST_CENTURY_SKILLS = "21st_century_skills";
+	
 	
 }

@@ -51,6 +51,7 @@ import org.ednovo.gooru.core.api.model.CodeUserAssoc;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserGroupSupport;
 import org.ednovo.gooru.core.constant.ConstantProperties;
+import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.domain.service.redis.RedisService;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate;
@@ -408,7 +409,7 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 			codeList.add(code);
 		}
 
-		if (code != null && code.getDepth() != 1) {
+		if (code != null && code.getDepth() != 1 && code.getCodeType() != null && code.getCodeType().getLabel() != null && code.getCodeType().getLabel().equalsIgnoreCase(Constants.TWENTY_FIRST_CENTURY_SKILLS)) {
 			codeList = findParentTaxonomyCodes(code.getParentId(), codeList);
 		}
 
