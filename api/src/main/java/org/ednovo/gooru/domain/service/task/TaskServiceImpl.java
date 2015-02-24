@@ -132,8 +132,6 @@ public class TaskServiceImpl extends BaseServiceImpl implements TaskService, Par
 			collectionTaskAssoc.setTask(task);
 			collectionTaskAssoc.setAssociationDate(new Date(System.currentTimeMillis()));
 			collectionTaskAssoc.setAssociatedBy(user);
-			int sequence = collectionTaskAssoc.getCollection().getCollectionTaskItems() != null ? collectionTaskAssoc.getCollection().getCollectionTaskItems().size() + 1 : 1;
-			collectionTaskAssoc.setSequence(sequence);
 			this.getTaskRepository().save(collectionTaskAssoc);
 			errors = new BindException(collectionTaskAssoc, COLLECTION_TASK_ASSOC);
 		} else {
