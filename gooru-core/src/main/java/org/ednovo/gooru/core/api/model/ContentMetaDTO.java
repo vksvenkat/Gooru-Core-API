@@ -15,7 +15,15 @@ public class ContentMetaDTO implements Serializable {
 	
 	private String keyValue;
 
-
+	public ContentMetaDTO() { 
+		
+	}
+	
+	public ContentMetaDTO(String value, String keyValue, Boolean isSelected) { 
+		this.setKeyValue(keyValue);
+		this.setSelected(isSelected);
+		this.setValue(keyValue);
+	}
 	public void setValue(String value) {
 		this.value = value;
 	}
