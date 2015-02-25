@@ -14,16 +14,16 @@ public interface CountryRepository extends BaseRepository {
 
 	Long getCountryCount();
 
-	Province getState(String countryUid, String stateId);
+	Province getState(String countryUid, String stateUid);
 
 	List<Province> getStates(String countryUid, Integer limit, Integer offset);
 
 	Long getStateCount(String countryUid);
 
-	City getCity(String countryUid, String stateId, String cityId);
+	City getCity(String countryUid, String stateUid, String cityUid);
 
-	List<City> getCities(String countryUid, String stateId, Integer limit, Integer offset);
+	List<City> getCities(String countryUid, String stateUid, Integer limit, Integer offset);
 
-	Long getCityCount(String countryUid, String stateId);
+	Long getCityCount(String countryUid, String stateUid);
 
 }

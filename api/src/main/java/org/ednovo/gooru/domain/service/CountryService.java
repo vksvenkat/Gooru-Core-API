@@ -20,22 +20,22 @@ public interface CountryService {
     
     ActionResponseDTO<Province> createState(Province province , String countryUid);
 
-    Province updateState(String stateId,String countryUid, Province newProvince);
+    Province updateState(String countryUid,String stateUid, Province newProvince);
 
-	Province getState(String countryUid ,String stateId);
+	Province getState(String countryUid ,String stateUid);
 
 	SearchResults<Province> getStates(String countryUid,Integer limit, Integer offset);	
 	
-    void deleteState(String countryUid, String stateId);
+    void deleteState(String countryUid, String stateUid);
 
-	ActionResponseDTO<City> createCity(City city, String countryUid, String stateId);
+	ActionResponseDTO<City> createCity(City city, String countryUid, String stateUid);
 
-    City updateCity(String countryUid, String stateId, String cityId, City newcity);
+    City updateCity(String countryUid, String stateUid, String cityUid, City newcity);
 
-	City getCity(String countryUid ,String stateId ,String cityId);
+	City getCity(String countryUid ,String stateUid ,String cityUid);
 
-	SearchResults<City> getCities(String countryUid, String stateId, Integer limit, Integer offset);	
+	SearchResults<City> getCities(String countryUid, String stateUid, Integer limit, Integer offset);	
 	
-    void deleteCity(String countryUid, String stateId ,String cityId);
+    void deleteCity(String countryUid, String stateUid ,String cityUid);
 
 }

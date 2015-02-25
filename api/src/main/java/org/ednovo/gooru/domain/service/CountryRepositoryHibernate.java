@@ -35,13 +35,13 @@ public class CountryRepositoryHibernate extends BaseRepositoryHibernate implemen
 	}
 
 	@Override
-	public Province getState(String countryUid, String stateId) {
-		String hql = "FROM Province c  WHERE c.stateId=:stateId";
+	public Province getState(String countryUid, String stateUid) {
+		String hql = "FROM Province c  WHERE c.stateUid=:stateUid";
 		if (countryUid != null) {
 			hql += " and c.country.countryUid=:countryUid";
 		}
 		Query query = getSession().createQuery(hql);
-		query.setParameter("stateId", stateId);
+		query.setParameter("stateUid", stateUid);
 		if (countryUid != null) {
 			query.setParameter("countryUid", countryUid);
 		}
@@ -69,34 +69,34 @@ public class CountryRepositoryHibernate extends BaseRepositoryHibernate implemen
 	}
 
 	@Override
-	public City getCity(String countryUid, String stateId, String cityId) {
-		String hql = "FROM City c  WHERE c.cityId=:cityId and c.country.countryUid=:countryUid and c.province.stateId=:stateId ";
+	public City getCity(String countryUid, String stateUid, String cityUid) {
+		String hql = "FROM City c  WHERE c.cityUid=:cityUid and c.country.countryUid=:countryUid and c.province.stateUid=:stateUid ";
 		Query query = getSession().createQuery(hql);
-		query.setParameter("cityId", cityId);
-		if (countryUid != null && stateId != null) {
-			query.setParameter("stateId", stateId);
+		query.setParameter("cityUid", cityUid);
+		if (countryUid != null && stateUid != null) {
+			query.setParameter("stateUid", stateUid);
 			query.setParameter("countryUid", countryUid);
 		}
 		return (City) (query.list().size() > 0 ? query.list().get(0) : null);
 	}
 
 	@Override
-	public List<City> getCities(String countryUid, String stateId, Integer limit, Integer offset) {
-		String hql = "FROM City c  where c.country.countryUid=:countryUid and c.province.stateId=:stateId";
+	public List<City> getCities(String countryUid, String stateUid, Integer limit, Integer offset) {
+		String hql = "FROM City c  where c.country.countryUid=:countryUid and c.province.stateUid=:stateUid";
 		Query query = getSession().createQuery(hql);
 		query.setParameter("countryUid", countryUid);
-		query.setParameter("stateId", stateId);
+		query.setParameter("stateUid", stateUid);
 		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : limit);
 		query.setFirstResult(offset);
 		return query.list();
 	}
 
 	@Override
-	public Long getCityCount(String countryUid, String stateId) {
-		String hql = "SELECT COUNT(*) FROM City c where c.country.countryUid=:countryUid and c.province.stateId=:stateId";
+	public Long getCityCount(String countryUid, String stateUid) {
+		String hql = "SELECT COUNT(*) FROM City c where c.country.countryUid=:countryUid and c.province.stateUid=:stateUid";
 		Query query = getSession().createQuery(hql);
 		query.setParameter("countryUid", countryUid);
-		query.setParameter("stateId", stateId);
+		query.setParameter("stateUid", stateUid);
 		return (Long) (query.list().size() > 0 ? query.list().get(0) : 0);
 	}
 }
