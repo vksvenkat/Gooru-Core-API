@@ -762,12 +762,12 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			}
 
 			try {
-				if (!collectionItem.getCollection().getResourceType().getName().equalsIgnoreCase(SHELF)) {
-					indexHandler.setReIndexRequest(collectionItem.getCollection().getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);							
-				}
 				if (collectionItem.getResource().getResourceType() != null && !collectionItem.getResource().getResourceType().getName().equalsIgnoreCase(SCOLLECTION) && !collectionItem.getResource().getResourceType().getName().equalsIgnoreCase(FOLDER)
 						&& !collectionItem.getResource().getResourceType().getName().equalsIgnoreCase(CLASSPAGE)) {
 					indexHandler.setReIndexRequest(collectionItem.getResource().getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);							
+				}
+				if (!collectionItem.getCollection().getResourceType().getName().equalsIgnoreCase(SHELF)) {
+					indexHandler.setReIndexRequest(collectionItem.getCollection().getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);							
 				}
 
 			} catch (Exception e) {
