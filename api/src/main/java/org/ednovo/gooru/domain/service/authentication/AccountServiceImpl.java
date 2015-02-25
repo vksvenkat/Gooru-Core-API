@@ -206,11 +206,11 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 				}else{
 					encryptedPassword = this.getUserService().encryptPassword(password);
 				}
-				if (user == null || !(encryptedPassword.equals(identity.getCredential().getPassword()) || password.equals(identity.getCredential().getPassword()))) {
+				if (user == null || !(encryptedPassword.equals(identity.getCredential().getPassword()))) {
 					throw new UnauthorizedException(generateErrorMessage(GL0081), GL0081);
-				}else{
+				}if(credential.getPasswordEncryptType().getValue().equalsIgnoreCase(CustomProperties.PasswordEncryptType.MD5.getPasswordEncryptType())){
 					credential.setPassword(this.getUserService().encryptPassword(password));
-					credential.setPasswordEncryptType(this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.PASSWORD_ENCRYPTION_TYPE.getTable(), CustomProperties.PasswordEncryptType.HASH.getPasswordEncryptType()));
+					credential.setPasswordEncryptType(this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.PASSWORD_ENCRYPTION_TYPE.getTable(), CustomProperties.PasswordEncryptType.SHA.getPasswordEncryptType()));
 				}
 					
 			}
