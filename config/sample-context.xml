@@ -52,7 +52,7 @@
       dataSourceClassName="com.mysql.jdbc.jdbc2.optional.MysqlDataSource"
       dataSource.user="####"
       dataSource.password="###"
-      dataSource.url="###3/>
+      dataSource.url="####"/>
 
 <Environment name="configSettings" value="/var/www/u/filter-local.properties" type="java.lang.String" override="false"/> 
 </Context>
