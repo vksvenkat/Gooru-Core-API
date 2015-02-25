@@ -201,7 +201,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 				
 				final String encryptedPassword;
 				Credential credential = identity.getCredential();
-				if(credential != null && credential.getPasswordEncryptType() != null &&  credential.getPasswordEncryptType().getValue().equalsIgnoreCase(CustomProperties.PasswordEncryptType.MD5.getPasswordEncryptType())){
+				if(credential != null && credential.getPasswordEncryptType() != null &&  credential.getPasswordEncryptType().equalsIgnoreCase(CustomProperties.PasswordEncryptType.MD5.getPasswordEncryptType())){
 					encryptedPassword = BaseUtil.getStringMD5Hash(password);
 				}else{
 					encryptedPassword = this.getUserService().encryptPassword(password);
@@ -209,9 +209,9 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 				if (user == null || !(encryptedPassword.equals(identity.getCredential().getPassword()))) {
 					throw new UnauthorizedException(generateErrorMessage(GL0081), GL0081);
 				}
-				if(credential.getPasswordEncryptType().getValue().equalsIgnoreCase(CustomProperties.PasswordEncryptType.MD5.getPasswordEncryptType())){
+				if(credential != null && credential.getPasswordEncryptType() != null && credential.getPasswordEncryptType().equalsIgnoreCase(CustomProperties.PasswordEncryptType.MD5.getPasswordEncryptType())){
 					credential.setPassword(this.getUserService().encryptPassword(password));
-					credential.setPasswordEncryptType(this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.PASSWORD_ENCRYPTION_TYPE.getTable(), CustomProperties.PasswordEncryptType.SHA.getPasswordEncryptType()));
+					credential.setPasswordEncryptType(CustomProperties.PasswordEncryptType.SHA.getPasswordEncryptType());
 				}
 					
 			}
