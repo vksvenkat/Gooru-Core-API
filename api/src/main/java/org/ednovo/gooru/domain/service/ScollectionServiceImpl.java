@@ -1094,7 +1094,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		boolean isCollaborator = this.getCollaboratorRepository().findCollaboratorById(collectionId, user.getGooruUId()) != null ? true : false;
 		if (collection != null && (collection.getUser().getGooruUId().equalsIgnoreCase(user.getGooruUId()) || !collection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || userService.isContentAdmin(user) || isCollaborator)) {
 			if (includeMetaInfo) {
-				this.setColletionMetaData(collection, user, merge, false, rootNodeId, includeViewCount);
+				this.setCollectionMetaData(collection, user, merge, false, rootNodeId, includeViewCount);
 			}
 			if (isGat) {
 				collection.setTaxonomySetMapping(TaxonomyUtil.getTaxonomyByCode(collection.getTaxonomySet(), taxonomyService));
@@ -1251,7 +1251,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		return this.learnguideRepository.findCollaborators(collectionId, null);
 	}
 
-	private Collection setColletionMetaData(Collection collection, final User user, final String merge, boolean ignoreUserTaxonomyPreference, String rootNodeId, boolean includeViewCount) {
+	private Collection setCollectionMetaData(Collection collection, final User user, final String merge, boolean ignoreUserTaxonomyPreference, String rootNodeId, boolean includeViewCount) {
 		if (collection != null) {
 			final Set<String> acknowledgement = new HashSet<String>();
 			final ResourceMetaInfo collectionMetaInfo = new ResourceMetaInfo();
@@ -1528,7 +1528,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				collection.setUser(user);
 			}
 		}
-		this.setColletionMetaData(collection, null, null, true, null, false);
+		this.setCollectionMetaData(collection, null, null, true, null, false);
 		this.getCollectionRepository().save(collection);
 		try {
 			indexProcessor.index(collection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
@@ -1756,19 +1756,19 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 
 	private Errors validateCollection(Collection collection) throws Exception {
-		Map<String, String> colletionType = new HashMap<String, String>();
-		colletionType.put(LESSON, COLLECTION_TYPE);
-		colletionType.put(SHELF, COLLECTION_TYPE);
-		colletionType.put(COLLECTION, COLLECTION_TYPE);
-		colletionType.put(QUIZ, COLLECTION_TYPE);
-		colletionType.put(FOLDER, COLLECTION_TYPE);
-		colletionType.put(ASSIGNMENT, COLLECTION_TYPE);
-		colletionType.put(ASSESSMENT, COLLECTION_TYPE);
-		colletionType.put(CollectionType.STORY.getCollectionType(), COLLECTION_TYPE);
+		Map<String, String> collectionType = new HashMap<String, String>();
+		collectionType.put(LESSON, COLLECTION_TYPE);
+		collectionType.put(SHELF, COLLECTION_TYPE);
+		collectionType.put(COLLECTION, COLLECTION_TYPE);
+		collectionType.put(QUIZ, COLLECTION_TYPE);
+		collectionType.put(FOLDER, COLLECTION_TYPE);
+		collectionType.put(ASSIGNMENT, COLLECTION_TYPE);
+		collectionType.put(ASSESSMENT, COLLECTION_TYPE);
+		collectionType.put(CollectionType.STORY.getCollectionType(), COLLECTION_TYPE);
 		final Errors errors = new BindException(collection, COLLECTION);
 		if (collection != null) {
 			rejectIfNullOrEmpty(errors, collection.getTitle(), TITLE, GL0006, generateErrorMessage(GL0006, TITLE));
-			rejectIfInvalidType(errors, collection.getCollectionType(), COLLECTION_TYPE, GL0007, generateErrorMessage(GL0007, COLLECTION_TYPE), colletionType);
+			rejectIfInvalidType(errors, collection.getCollectionType(), COLLECTION_TYPE, GL0007, generateErrorMessage(GL0007, COLLECTION_TYPE), collectionType);
 		}
 		return errors;
 	}
