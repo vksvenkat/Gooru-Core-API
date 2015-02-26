@@ -234,7 +234,7 @@ public class CustomProperties implements Serializable {
 	}
 
 	public static enum PasswordEncryptType {
-		HASH("hash"), MD5("md5");
+		SHA("sha"), MD5("md5");
 		private String passwordEncryptType;
 
 		PasswordEncryptType(String passwordEncryptType) {
