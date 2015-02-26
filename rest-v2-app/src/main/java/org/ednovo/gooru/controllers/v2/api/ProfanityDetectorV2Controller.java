@@ -73,7 +73,7 @@ public class ProfanityDetectorV2Controller extends SerializerUtil implements Par
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_PROFANITY_DELETE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	@RequestMapping(value = "", method = RequestMethod.DELETE)
+	@RequestMapping(value = "", method = {RequestMethod.DELETE,RequestMethod.PUT})
 	public void profanityDelete(@RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		Profanity profanity = JsonDeserializer.deserialize(data, Profanity.class);
 		this.profanityCheckService.profanityDelete(profanity);

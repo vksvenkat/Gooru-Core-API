@@ -79,7 +79,7 @@ public interface ClasspageService {
 	
 	List<Map<String, Object>> getClasspageItems(String gooruOid, Integer limit, Integer offset, User user, String orderBy, boolean optimize, String status, String type);
 
-	Map<String,Object> getClasspageAssoc(Integer offset, Integer limit, String classpageId, String collectionId, String title, String collectionTitle, String classCode,String collectionCreator);
+	Map<String,Object> getClasspageAssoc(Integer offset, Integer limit, String classpageId, String collectionId, String title, String collectionTitle, String classCode,String collectionCreator, String collectionItemId);
 	
 	Collection createPathway(String classId, Collection collection, String parentId, Boolean isRequired, User user) throws Exception;
 	
