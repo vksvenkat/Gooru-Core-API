@@ -25,6 +25,7 @@ package org.ednovo.gooru.domain.service.authentication;
 
 import java.util.Date;
 import java.util.Random;
+import java.util.UUID;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -34,6 +35,8 @@ import org.apache.commons.lang.StringUtils;
 import org.ednovo.gooru.application.util.TaxonomyUtil;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Application;
+import org.ednovo.gooru.core.api.model.Credential;
+import org.ednovo.gooru.core.api.model.CustomTableValue;
 import org.ednovo.gooru.core.api.model.Identity;
 import org.ednovo.gooru.core.api.model.Organization;
 import org.ednovo.gooru.core.api.model.PartyCustomField;
@@ -41,6 +44,8 @@ import org.ednovo.gooru.core.api.model.Profile;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserAccountType;
 import org.ednovo.gooru.core.api.model.UserToken;
+import org.ednovo.gooru.core.application.util.BaseUtil;
+import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.application.util.ServerValidationUtils;
 import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.core.constant.ConstantProperties;
@@ -193,10 +198,21 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 				if (identity.getCredential() == null) {
 					throw new UnauthorizedException(generateErrorMessage(GL0078), GL0078);
 				}
-				final String encryptedPassword = this.getUserService().encryptPassword(password);
+				
+				final String encryptedPassword;
+				Credential credential = identity.getCredential();
+				if(credential != null && credential.getPasswordEncryptType() != null &&  credential.getPasswordEncryptType().getValue().equalsIgnoreCase(CustomProperties.PasswordEncryptType.MD5.getPasswordEncryptType())){
+					encryptedPassword = BaseUtil.getStringMD5Hash(password);
+				}else{
+					encryptedPassword = this.getUserService().encryptPassword(password);
+				}
 				if (user == null || !(encryptedPassword.equals(identity.getCredential().getPassword()) || password.equals(identity.getCredential().getPassword()))) {
 					throw new UnauthorizedException(generateErrorMessage(GL0081), GL0081);
+				}else{
+					credential.setPassword(this.getUserService().encryptPassword(password));
+					credential.setPasswordEncryptType(this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.PASSWORD_ENCRYPTION_TYPE.getTable(), CustomProperties.PasswordEncryptType.HASH.getPasswordEncryptType()));
 				}
+					
 			}
 
 			if (user.getConfirmStatus() == 0) {
