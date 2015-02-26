@@ -274,7 +274,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			if (password != null && gooruUid.equalsIgnoreCase(apiCaller.getGooruUId()) && identity.getCredential() != null) {
 				this.getUserService().validatePassword(password, identity.getUser().getUsername());
 				String encryptedPassword = this.encryptPassword(password);
-				identity.getCredential().setPasswordEncryptType(this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.PASSWORD_ENCRYPTION_TYPE.getTable(), CustomProperties.PasswordEncryptType.HASH.getPasswordEncryptType()));
+				identity.getCredential().setPasswordEncryptType(CustomProperties.PasswordEncryptType.SHA.getPasswordEncryptType());
 				identity.getCredential().setPassword(encryptedPassword);
 				this.getUserRepository().save(identity);
 			}
@@ -556,7 +556,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 				String encryptedPassword = this.encryptPassword(password);
 				Credential credential = user.getIdentities().iterator().next().getCredential();
 				credential.setPassword(encryptedPassword);
-				credential.setPasswordEncryptType(this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.PASSWORD_ENCRYPTION_TYPE.getTable(), CustomProperties.PasswordEncryptType.HASH.getPasswordEncryptType()));
+				credential.setPasswordEncryptType(CustomProperties.PasswordEncryptType.SHA.getPasswordEncryptType());
 				identity.setCredential(credential);
 				this.getUserRepository().save(identity);
 			}
@@ -852,7 +852,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			credential.setIdentity(identity);
 			String token = UUID.randomUUID().toString();
 			credential.setToken(token);
-			credential.setPasswordEncryptType(this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.PASSWORD_ENCRYPTION_TYPE.getTable(), CustomProperties.PasswordEncryptType.HASH.getPasswordEncryptType()));
+			credential.setPasswordEncryptType(CustomProperties.PasswordEncryptType.SHA.getPasswordEncryptType());
 			credential.setResetPasswordRequestDate(new Date(System.currentTimeMillis()));
 			if (password != null) {
 				if (accountType.equalsIgnoreCase(UserAccountType.userAccount.CHILD.getType())) {
@@ -1107,7 +1107,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		identity.setLastLogin(new Date(System.currentTimeMillis()));
 		Credential credential = identity.getCredential();
 		credential.setPassword(encryptedPassword);
-		credential.setPasswordEncryptType(this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.PASSWORD_ENCRYPTION_TYPE.getTable(), CustomProperties.PasswordEncryptType.HASH.getPasswordEncryptType()));
+		credential.setPasswordEncryptType(CustomProperties.PasswordEncryptType.SHA.getPasswordEncryptType());
 		credential.setToken(newGenereatedToken);
 		identity.setCredential(credential);
 		this.getUserRepository().save(identity);
