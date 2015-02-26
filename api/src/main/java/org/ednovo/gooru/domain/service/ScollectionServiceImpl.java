@@ -1124,6 +1124,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				lastUserModifiedMap.put(USER_NAME, lastUserModified.getUsername());
 				lastUserModifiedMap.put(GOORU_UID, lastUserModified.getGooruUId());
 			}
+			setView(collection);
 			collection.setLastModifiedUser(lastUserModifiedMap);
 			if (collection.getResourceType().getName().equalsIgnoreCase(SCOLLECTION)) {
 				collection.setDepthOfKnowledges(this.setContentMetaAssociation(this.getContentMetaAssociation(DEPTH_OF_KNOWLEDGE), collection, DEPTH_OF_KNOWLEDGE));
@@ -1277,19 +1278,13 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 					} else {
 						resource.setMomentsOfLearning(this.setContentMetaAssociation(this.getContentMetaAssociation(MOMENTS_OF_LEARNING), resource, MOMENTS_OF_LEARNING));
 					}
-					if (includeViewCount) {
-						try {
-							resource.setViewCount(this.resourceCassandraService.getInt(collectionItem.getResource().getGooruOid(), STATISTICS_VIEW_COUNT));
-							resource.setViews(collectionItem.getResource().getViewCount()!= null ? Long.parseLong(collectionItem.getResource().getViewCount() + "") : 0);
-						} catch (Exception e) {
-							LOGGER.error("parser error : " + e);
-						}
-					}
+					
 					if ((merge != null && merge.contains(REACTION)) && (resource != null)) {
 						Map<String, Object> resourcePermissions = new HashMap<String, Object>();
 						resourcePermissions.put(REACTION, this.getFeedbackService().getContentFeedbacks(REACTION, null, collectionItem.getResource().getGooruOid(), collection.getUser().getPartyUid(), null, null, null));
 						resource.setMeta(resourcePermissions);
 					}
+					setView(resource);
 					collectionItem.setResource(resource);
 					this.setCollectionItemMoreData(collectionItem, rootNodeId);
 				}
@@ -1299,6 +1294,15 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		}
 		return collection;
 	}
+	
+	private void setView(Resource resource) {
+		try {
+			resource.setViewCount(this.resourceCassandraService.getInt(resource.getGooruOid(), STATISTICS_VIEW_COUNT));
+			resource.setViews(resource.getViewCount()!= null ? Long.parseLong(resource.getViewCount() + "") : 0);
+		} catch (Exception e) {
+			LOGGER.error("parser error : " + e);
+		}
+	} 
 
 	private void setCollectionTaxonomyMetaInfo(Set<Code> taxonomySet, ResourceMetaInfo collectionMetaInfo) { 
 		if (taxonomySet != null) {
