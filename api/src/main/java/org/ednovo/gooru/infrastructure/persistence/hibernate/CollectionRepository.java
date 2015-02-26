@@ -143,9 +143,9 @@ public interface CollectionRepository extends BaseRepository {
 	
 	Collection getCollectionByIdWithType(String gooruOid, String type);
 	
-	List<Object[]> getClasspageAssoc(Integer offset, Integer limit,String classpageId ,String collectionId, String gooruUid, String title, String collectionTitle, String classCode);
+	List<Object[]> getClasspageAssoc(Integer offset, Integer limit,String classpageId ,String collectionId, String gooruUid, String title, String collectionTitle, String classCode, String collectionItemId);
 	
-	BigInteger getClasspageAssocCount(String classpageId,String collectionId, String gooruUid, String title, String collectionTitle, String classCode);
+	BigInteger getClasspageAssocCount(String classpageId,String collectionId, String gooruUid, String title, String collectionTitle, String classCode, String collectionItemId);
 	
 	Long getClasspageCount(String gooruOid, String type);
 	
