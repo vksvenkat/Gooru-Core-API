@@ -72,11 +72,22 @@ public class IndexProcessor extends BaseComponent {
 	private ContentService contentService;
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(IndexProcessor.class);
+	
+	private static final String DEFAULT_INDEX_MODE = "kafka";
+	
+	private static final String INDEX_MODE = "index-mode";
 
 	public static final String SEARCH_REINDEX_MSG = "reindex";
 	public static final String SEARCH_BULK_INDEX_MSG = "bulkIndex";
 	public static final String SEARCH_CREATE_INDEX_MSG = "create";
 	public static final String SEARCH_DELETE_INDEX_MSG = "delete";
+	
+	private static final String INDEX_IDS = "indexableIds";
+	private static final String INDEX_TYPE = "type";
+	private static final String INDEX_ACTION = "action";
+	private static final String IS_UPDATE_USER_CONTENT = "isUpdateUserContent";
+	
+	
 
 	public static final String INDEX = "index";
 
@@ -135,19 +146,28 @@ public class IndexProcessor extends BaseComponent {
 				sessionToken = UserGroupSupport.getSessionToken();
 			}
 			final GooruAuthenticationToken authentication = (GooruAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
-			index(searchIndexMeta.getReIndexIds(), searchIndexMeta.getAction(), searchIndexMeta.getType(), sessionToken, authentication, searchIndexMeta.getUpdateUserContent(), searchIndexMeta.getUpdateStatisticsData());
+			String indexMode = redisService.getValue(INDEX_MODE) != null ? redisService.getValue(INDEX_MODE) : DEFAULT_INDEX_MODE;
+			if(indexMode.equalsIgnoreCase(DEFAULT_INDEX_MODE)){
+				indexByKafkaQueue(searchIndexMeta.getReIndexIds(), searchIndexMeta.getAction(), searchIndexMeta.getType(), sessionToken, authentication, searchIndexMeta.getUpdateUserContent(), searchIndexMeta.getUpdateStatisticsData());
+			}
+			else{
+				index(searchIndexMeta.getReIndexIds(), searchIndexMeta.getAction(), searchIndexMeta.getType(), sessionToken, authentication, searchIndexMeta.getUpdateUserContent(), searchIndexMeta.getUpdateStatisticsData());
+			}
+
 	    }
+	}
+	
+	private void indexByKafkaQueue(final String uuids, final String action, final String type, final String sessionToken, final GooruAuthenticationToken authentication, final boolean isUpdateUserContent, final boolean isUpdateStas){
+		Map<String, Object> indexData = new HashMap<String, Object>();
+		indexData.put(INDEX_IDS, uuids);
+		indexData.put(INDEX_TYPE, type);
+		indexData.put(INDEX_ACTION, action);
+		indexData.put(IS_UPDATE_USER_CONTENT, isUpdateUserContent);
+		String indexMsg = SERIALIZER.deepSerialize(indexData);
+		kafkaProducer.send(indexMsg, type);
 	}
 
 	public void index(final String uuids, final String action, final String type, final String sessionToken, final GooruAuthenticationToken authentication, final boolean isUpdateUserContent, final boolean isUpdateStas) {
-		Map<String, Object> indexData = new HashMap<String, Object>();
-		indexData.put("indexableIds", uuids);
-		indexData.put("type", type);
-		indexData.put("action", action);
-		indexData.put("priority", "0");
-/*		String indexMsg = SERIALIZER.deepSerialize(indexData);
-		kafkaProducer.send(indexMsg, type);
-*/		
 		final String[] ids = uuids.split(",");
 		try {
 			final Thread indexThread = new Thread(new Runnable() {
@@ -220,3 +240,7 @@ public class IndexProcessor extends BaseComponent {
 }
 
 }
+
+
+
+
