@@ -339,6 +339,8 @@ public interface ParameterProperties {
 	String USER_UID = "userUid";
 
 	String UID = "uid";
+	
+	String EXCLUDE_TYPE = "excludeType";
 
 	String TASK_ASSOC = "taskAssoc";
 
@@ -2835,6 +2837,8 @@ public interface ParameterProperties {
 	String GL0072 = "GL0072";
 	
 	String ASSESSMENT_URL = "assessment/url";
+	
+	String TWO = "2";
 	
 }
 

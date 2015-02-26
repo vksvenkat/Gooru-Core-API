@@ -75,6 +75,7 @@ import org.ednovo.gooru.core.api.model.UserRole.UserRoleType;
 import org.ednovo.gooru.core.api.model.UserRoleAssoc;
 import org.ednovo.gooru.core.api.model.UserSummary;
 import org.ednovo.gooru.core.api.model.UserToken;
+import org.ednovo.gooru.core.application.util.BaseUtil;
 import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.core.constant.ConstantProperties;
@@ -273,6 +274,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			if (password != null && gooruUid.equalsIgnoreCase(apiCaller.getGooruUId()) && identity.getCredential() != null) {
 				this.getUserService().validatePassword(password, identity.getUser().getUsername());
 				String encryptedPassword = this.encryptPassword(password);
+				identity.getCredential().setPasswordEncryptType(CustomProperties.PasswordEncryptType.SHA.getPasswordEncryptType());
 				identity.getCredential().setPassword(encryptedPassword);
 				this.getUserRepository().save(identity);
 			}
@@ -554,6 +556,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 				String encryptedPassword = this.encryptPassword(password);
 				Credential credential = user.getIdentities().iterator().next().getCredential();
 				credential.setPassword(encryptedPassword);
+				credential.setPasswordEncryptType(CustomProperties.PasswordEncryptType.SHA.getPasswordEncryptType());
 				identity.setCredential(credential);
 				this.getUserRepository().save(identity);
 			}
@@ -849,12 +852,13 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			credential.setIdentity(identity);
 			String token = UUID.randomUUID().toString();
 			credential.setToken(token);
+			credential.setPasswordEncryptType(CustomProperties.PasswordEncryptType.SHA.getPasswordEncryptType());
 			credential.setResetPasswordRequestDate(new Date(System.currentTimeMillis()));
 			if (password != null) {
 				if (accountType.equalsIgnoreCase(UserAccountType.userAccount.CHILD.getType())) {
 					credential.setPassword(password);
 				} else {
-					credential.setPassword(encryptPassword(password));
+					credential.setPassword(this.encryptPassword(password));
 				}
 			}
 		}
@@ -1103,6 +1107,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		identity.setLastLogin(new Date(System.currentTimeMillis()));
 		Credential credential = identity.getCredential();
 		credential.setPassword(encryptedPassword);
+		credential.setPasswordEncryptType(CustomProperties.PasswordEncryptType.SHA.getPasswordEncryptType());
 		credential.setToken(newGenereatedToken);
 		identity.setCredential(credential);
 		this.getUserRepository().save(identity);
@@ -1223,6 +1228,11 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		if ((user != null && isDeleted != null && isDeleted.equalsIgnoreCase(TRUE))) {
 			if (isContentAdmin(apiCaller) || user == apiCaller) {
 				user.setIsDeleted(true);
+				if (user.getIdentities() != null) {
+					Identity identity = user.getIdentities().iterator().next();
+					identity.setExternalId(identity.getExternalId() + System.currentTimeMillis());
+					this.getUserRepository().save(identity);
+				}
 				List<Content> contents = this.getContentRepository().getContentByUserUId(gooruUid);
 				List<ContentPermission> removeContentPermission = new ArrayList<ContentPermission>();
 				List<Content> removeContentList = new ArrayList<Content>();

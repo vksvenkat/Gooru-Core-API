@@ -58,6 +58,8 @@ public class TaxonomyRestV2Controller extends BaseController implements Constant
 	@Autowired
 	private RedisService redisService;
 	
+	private static final String TWENTY_FIRST_CENTURY_SKILLS = "21st_century_skills";
+	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAXONOMY_READ })
 	@RequestMapping(value =  "/{id}", method = RequestMethod.GET)
 	public ModelAndView getTaxonomyByCode(@PathVariable(value = ID) Integer codeId,  HttpServletRequest request, HttpServletResponse response) {
@@ -117,6 +119,21 @@ public class TaxonomyRestV2Controller extends BaseController implements Constant
 		}
 		return toModelAndView(curriculumCodeList);
 	}
+	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_TAXONOMY_READ })
+	@RequestMapping(value =  "/skills", method = RequestMethod.GET)
+	public ModelAndView getTaxonomySkills(@RequestParam(value = CLEAR_CACHE, required = false) boolean clearCache, HttpServletRequest request, HttpServletResponse response) {
+		String skills = null;
+		if (!clearCache) {
+			skills = getRedisService().getValue(TWENTY_FIRST_CENTURY_SKILLS);
+		}
+		if (skills == null) {
+			skills = serialize(this.getTaxonomyService().getTaxonomySkills(), RESPONSE_FORMAT_JSON,EXCLUDE_ALL, true, true,TAXONOMY_SKILLS_INCLUDES);
+			getRedisService().putValue(TWENTY_FIRST_CENTURY_SKILLS, skills);
+		}
+		return toModelAndView(skills);
+	}
+	
 	public TaxonomyService getTaxonomyService() {
 		return taxonomyService;
 	}

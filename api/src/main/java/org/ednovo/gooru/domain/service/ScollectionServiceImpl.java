@@ -219,6 +219,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	@Autowired
 	private ClasspageEventLog classpageEventLog;
 
+	private static final String TWENTY_FIRST_CENTURY_SKILLS = "21st_century_skills";
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ScollectionServiceImpl.class);
 
@@ -1130,11 +1131,12 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			if (includeViewCount) {
 				try {
 					collection.setViewCount(this.resourceCassandraService.getInt(collection.getGooruOid(), STATISTICS_VIEW_COUNT));
-					collection.setViews(Long.parseLong(this.resourceCassandraService.getInt(collection.getGooruOid(), STATISTICS_VIEW_COUNT) + ""));
+					collection.setViews(collection.getViewCount() != null ? Long.parseLong(collection.getViewCount() + "") : 0);
 				} catch (Exception e) {
 					LOGGER.error("parser error : " + e);
 				}
 			}
+			
 			for (CollectionItem collectionItem : collection.getCollectionItems()) {
 				if (collectionItem.getResource().getResourceType().getName().equalsIgnoreCase(ASSESSMENT_QUESTION)) {
 					collectionItem.getResource().setDepthOfKnowledges(this.setContentMetaAssociation(this.getContentMetaAssociation(DEPTH_OF_KNOWLEDGE), collectionItem.getResource(), DEPTH_OF_KNOWLEDGE));
@@ -1149,7 +1151,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				if (includeViewCount) {
 					try {
 						collectionItem.getResource().setViewCount(this.resourceCassandraService.getInt(collectionItem.getResource().getGooruOid(), STATISTICS_VIEW_COUNT));
-						collectionItem.getResource().setViews(Long.parseLong(this.resourceCassandraService.getInt(collectionItem.getResource().getGooruOid(), STATISTICS_VIEW_COUNT) + ""));
+						collectionItem.getResource().setViews(collectionItem.getResource().getViewCount()!= null ? Long.parseLong(collectionItem.getResource().getViewCount() + "") : 0);
 					} catch (Exception e) {
 						LOGGER.error("parser error : " + e);
 					}
@@ -1289,6 +1291,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			final Set<String> acknowledgement = new HashSet<String>();
 			final ResourceMetaInfo collectionMetaInfo = new ResourceMetaInfo();
 			collectionMetaInfo.setCourse(this.getCourse(collection.getTaxonomySet()));
+			collectionMetaInfo.setSkills(this.getSKills(collection.getTaxonomySet()));
 			collectionMetaInfo.setStandards(this.getStandards(collection.getTaxonomySet(), ignoreUserTaxonomyPreference, rootNodeId));
 			if (collection.getVocabulary() != null) {
 				collectionMetaInfo.setVocabulary(Arrays.asList(collection.getVocabulary().split("\\s*,\\s*")));
@@ -1367,6 +1370,19 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			}
 		}
 		return course;
+	}
+	
+	protected Set<String> getSKills(Set<Code> taxonomySet) {
+		Set<String> skills = null;
+		if (taxonomySet != null) {
+			skills = new HashSet<String>();
+			for (Code code : taxonomySet) {
+				if (code.getCodeType() != null && code.getCodeType().getLabel() != null && code.getCodeType().getLabel().equalsIgnoreCase(TWENTY_FIRST_CENTURY_SKILLS)) {
+					skills.add(code.getLabel());
+				}
+			}
+		}
+		return skills;
 	}
 
 	@Override
@@ -1904,6 +1920,12 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				itemData.put(NOTES, newCollection.getNotes());
 				collection.setNotes(newCollection.getNotes());
 			}
+			
+			if (newCollection.getUrl() != null) {
+				itemData.put(URL, newCollection.getUrl());
+				collection.setUrl(newCollection.getUrl());
+			}
+			
 			if (newCollection.getGoals() != null) {
 				itemData.put(GOALS, newCollection.getGoals());
 				collection.setGoals(newCollection.getGoals());
