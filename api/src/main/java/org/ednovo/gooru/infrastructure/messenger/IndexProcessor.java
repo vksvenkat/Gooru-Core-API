@@ -81,6 +81,13 @@ public class IndexProcessor extends BaseComponent {
 	public static final String SEARCH_BULK_INDEX_MSG = "bulkIndex";
 	public static final String SEARCH_CREATE_INDEX_MSG = "create";
 	public static final String SEARCH_DELETE_INDEX_MSG = "delete";
+	
+	private static final String INDEX_IDS = "indexableIds";
+	private static final String INDEX_TYPE = "type";
+	private static final String INDEX_ACTION = "action";
+	private static final String IS_UPDATE_USER_CONTENT = "isUpdateUserContent";
+	
+	
 
 	public static final String INDEX = "index";
 
@@ -152,10 +159,10 @@ public class IndexProcessor extends BaseComponent {
 	
 	private void indexByKafkaQueue(final String uuids, final String action, final String type, final String sessionToken, final GooruAuthenticationToken authentication, final boolean isUpdateUserContent, final boolean isUpdateStas){
 		Map<String, Object> indexData = new HashMap<String, Object>();
-		indexData.put("indexableIds", uuids);
-		indexData.put("type", type);
-		indexData.put("action", action);
-		indexData.put("isUpdateUserContent", isUpdateUserContent);
+		indexData.put(INDEX_IDS, uuids);
+		indexData.put(INDEX_TYPE, type);
+		indexData.put(INDEX_ACTION, action);
+		indexData.put(IS_UPDATE_USER_CONTENT, isUpdateUserContent);
 		String indexMsg = SERIALIZER.deepSerialize(indexData);
 		kafkaProducer.send(indexMsg, type);
 	}
