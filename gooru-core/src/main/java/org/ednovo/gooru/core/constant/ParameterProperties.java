@@ -2838,5 +2838,19 @@ public interface ParameterProperties {
 	
 	String ASSESSMENT_URL = "assessment/url";
 	
+	String COUNTRY_CONSTANT = "country";
+	
+	String PROVINCE_CONSTANT = "province";
+	
+	String CITY_CONSTANT = "city";
+	
+	String COUNTRY_NAME = "country name";
+	
+	String STATE_NAME = "state name";
+	
+	String CITY_NAME = "city name";
+	
+	String COUNTRY_CODE = "country code";
+	
 }
 
