@@ -1192,7 +1192,7 @@ public interface ParameterProperties {
 
 	String LAST_PLAYED_RESOURCE_INSTANCE_ID = "lastPlayedResourceInstanceId";
 
-	String CALL_BCK_URL = "callBackUrl";
+	String CALL_BACK_URL = "callBackUrl";
 
 	String PROFANITY = "profanity";
 
