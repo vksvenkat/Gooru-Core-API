@@ -129,7 +129,7 @@ public interface ScollectionService extends BaseService {
 	
 	void updateFolderSharing(String collection);
 	
-	List<String> getParentCollection(String collectionGooruOid, String gooruUid, boolean reverse);
+	List<Map<String, String>> getParentCollection(String collectionGooruOid, String gooruUid, boolean reverse);
 	
 	List<ContentMetaDTO> getContentMetaAssociation(String type);
 	

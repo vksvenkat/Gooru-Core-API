@@ -54,6 +54,9 @@ public class FolderServiceImpl extends BaseServiceImpl implements FolderService,
 
 	@Autowired
 	private RedisService redisService;
+	
+	@Autowired
+	private CollectionService collectionService;
 
 	@Override
 	public SearchResults<Map<String, Object>> getMyCollectionsToc(String gooruUid, Integer limit, Integer offset, String sharing, String collectionType, String orderBy, String excludeType) {
@@ -163,6 +166,13 @@ public class FolderServiceImpl extends BaseServiceImpl implements FolderService,
 		}
 		return data;
 	}
+	
+	@Override
+	public List<Map<String, String>> getFolderNode(String collectionId) {
+        Collection collection = this.getCollectionRepository().getCollectionByGooruOid(collectionId, null);
+        rejectIfNull(collection, GL0056, 404, COLLECTION);
+		return this.getCollectionService().getParentCollection(collectionId, collection.getUser().getGooruUId(), true);
+	}
 
 	@Override
 	public Resource getNextCollectionItem(String collectionItemId) {
@@ -181,5 +191,9 @@ public class FolderServiceImpl extends BaseServiceImpl implements FolderService,
 
 	public UserRepository getUserRepository() {
 		return userRepository;
+	}
+
+	public CollectionService getCollectionService() {
+		return collectionService;
 	}
 }
