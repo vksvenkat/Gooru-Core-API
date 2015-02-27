@@ -196,8 +196,4 @@ public class FolderServiceImpl extends BaseServiceImpl implements FolderService,
 	public CollectionService getCollectionService() {
 		return collectionService;
 	}
-
-	public void setCollectionService(CollectionService collectionService) {
-		this.collectionService = collectionService;
-	}
 }

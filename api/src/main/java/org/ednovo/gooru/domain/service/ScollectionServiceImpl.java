@@ -389,7 +389,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				collection.setCollectionItemId(collection.getCollectionItem().getCollectionItemId());
 			}
 
-			resetFolderVisibilty(collection.getGooruOid(), user.getPartyUid());
+			resetFolderVisibility(collection.getGooruOid(), user.getPartyUid());
 			try {
 				indexHandler.setReIndexRequest(collection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);						
 			} catch (Exception ex) {
@@ -591,7 +591,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				collection.setSharing(newCollection.getSharing());
 
 				this.getCollectionRepository().save(collection);
-				resetFolderVisibilty(collection.getGooruOid(), apiCallerUser.getPartyUid());
+				resetFolderVisibility(collection.getGooruOid(), apiCallerUser.getPartyUid());
 				updateResourceSharing(newCollection.getSharing(), collection);
 			}
 
@@ -765,7 +765,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			} catch (Exception e) {
 				LOGGER.error(e.getMessage());
 			}
-			resetFolderVisibilty(collection.getGooruOid(), collection.getUser().getPartyUid());
+			resetFolderVisibility(collection.getGooruOid(), collection.getUser().getPartyUid());
 			if (collectionItem.getCollection().getResourceType().getName().equalsIgnoreCase(SCOLLECTION) && collectionItem.getCollection().getClusterUid() != null && !collectionItem.getCollection().getClusterUid().equalsIgnoreCase(collectionItem.getCollection().getGooruOid())) {
 				collectionItem.getCollection().setClusterUid(collectionItem.getCollection().getGooruOid());
 				this.getCollectionRepository().save(collectionItem.getCollection());
@@ -1497,7 +1497,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			}
 			collection.setSharing(sharing);
 			this.getCollectionRepository().save(collection);
-			resetFolderVisibilty(collection.getGooruOid(), apiCallerUser.getPartyUid());
+			resetFolderVisibility(collection.getGooruOid(), apiCallerUser.getPartyUid());
 			updateResourceSharing(sharing, collection);
 		}
 
@@ -2600,7 +2600,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		indexHandler.setReIndexRequest(removeContentIds.toString(), IndexProcessor.DELETE, SCOLLECTION, null, false, false);				
 	}
 
-	public void resetFolderVisibilty(String gooruOid, String gooruUid)  { 
+	public void resetFolderVisibility(String gooruOid, String gooruUid)  { 
 		List<Map<String, String>> parenFolders = this.getParentCollection(gooruOid, gooruUid, false);
 		for (Map<String, String> folder : parenFolders) {
 			updateFolderSharing(folder.get(GOORU_OID));
