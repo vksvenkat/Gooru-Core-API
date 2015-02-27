@@ -147,7 +147,7 @@ public class IndexProcessor extends BaseComponent {
 			}
 			final GooruAuthenticationToken authentication = (GooruAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
 			String indexMode = redisService.getValue(INDEX_MODE) != null ? redisService.getValue(INDEX_MODE) : DEFAULT_INDEX_MODE;
-			if(indexMode.equalsIgnoreCase(DEFAULT_INDEX_MODE)){
+			if(indexMode.equalsIgnoreCase(DEFAULT_INDEX_MODE) && !searchIndexMeta.getUpdateUserContent()){
 				indexByKafkaQueue(searchIndexMeta.getReIndexIds(), searchIndexMeta.getAction(), searchIndexMeta.getType(), sessionToken, authentication, searchIndexMeta.getUpdateUserContent(), searchIndexMeta.getUpdateStatisticsData());
 			}
 			else{
