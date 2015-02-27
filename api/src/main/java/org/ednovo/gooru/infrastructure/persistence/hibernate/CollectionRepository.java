@@ -119,7 +119,7 @@ public interface CollectionRepository extends BaseRepository {
 	
 	UserCollectionItemAssoc getUserCollectionItemAssoc(String collectionItemId, String userUid);
 	
-	String getParentCollection(String collectionGooruOid, String gooruUid);
+	Object[] getParentCollection(String collectionGooruOid, String gooruUid);
 	
 	Resource getNextCollectionItemResource(String collectionId, int sequence);
 	
@@ -154,5 +154,5 @@ public interface CollectionRepository extends BaseRepository {
 	CollectionItem getCollectionItemByResourceOid(String collectionId, String resourceId);
 	
 	List<Collection> getCollectionByResourceOid(String resourceId);
-	
+		
 }

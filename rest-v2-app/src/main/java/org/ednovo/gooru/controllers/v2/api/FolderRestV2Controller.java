@@ -266,6 +266,13 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 	public ModelAndView getNextCollectionItem(@PathVariable(value = CID) String collectionId, @PathVariable(value = ID) String collectionItemId, HttpServletRequest request, HttpServletResponse response) {
 		return toModelAndViewWithIoFilter(getFolderService().getNextCollectionItem(collectionItemId), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, RESOURCE_INCLUDE_FIELDS);
 	}
+	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_FOLDER_READ })
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(value = { "/{id}/node" }, method = RequestMethod.GET)
+	public ModelAndView getFolderNode(@PathVariable(value = ID) String collectionId, HttpServletRequest request, HttpServletResponse response) {
+		return toModelAndViewWithIoFilter(getFolderService().getFolderNode(collectionId), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, RESOURCE_INCLUDE_FIELDS);
+	}
 
 	private Collection buildCollectionFromInputParameters(String data, User user) {
 		Collection collection = JsonDeserializer.deserialize(data, Collection.class);
