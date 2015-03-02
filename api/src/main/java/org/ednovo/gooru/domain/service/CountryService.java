@@ -23,6 +23,8 @@ public interface CountryService {
     Province updateState(String countryUid,String stateUid, Province newProvince);
 
 	Province getState(String countryUid ,String stateUid);
+	
+	Province getState(String stateUid);
 
 	SearchResults<Province> getStates(String countryUid,Integer limit, Integer offset);	
 	

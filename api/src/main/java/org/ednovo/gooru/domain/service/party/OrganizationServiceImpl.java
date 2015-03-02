@@ -107,6 +107,7 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 
 	@Autowired
 	private UserRepository userRepository;
+	
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
 
@@ -148,8 +149,10 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 			newOrganization.setS3StorageArea(storageRepository.getAvailableStorageArea(1));
 			newOrganization.setNfsStorageArea(storageRepository.getAvailableStorageArea(2));
 			newOrganization.setUserUid(user.getPartyUid());
-			if (organizationData.getStateProvince() != null && organizationData.getStateProvince().getStateId() != null) {
-				newOrganization.setStateProvince(getCountryRepository().getState(null, organizationData.getStateProvince().getStateId()));
+			System.out.println("state--"+organizationData.getStateProvince());
+			
+			if (organizationData.getStateProvince() != null && organizationData.getStateProvince().getStateCode() != null) {
+				newOrganization.setStateProvince(getCountryRepository().getState(null, organizationData.getStateProvince().getStateCode()));
 			}
 			if (organizationData.getType() != null && organizationData.getType().getValue() != null) {
 				CustomTableValue type = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.ORGANIZATION_CATEGORY.getTable(), organizationData.getType().getValue());
@@ -190,6 +193,7 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 		}
 		return new ActionResponseDTO<Organization>(newOrganization, errors);
 	}
+	
 
 	private void updateOrgSetting(Organization newOrganization) {
 		OrganizationSetting newOrganizationSetting = new OrganizationSetting();

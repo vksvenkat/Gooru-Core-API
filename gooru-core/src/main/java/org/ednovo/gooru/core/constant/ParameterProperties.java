@@ -1423,6 +1423,12 @@ public interface ParameterProperties {
 	String BIRTH_YEAR = "birthYear";
 
 	String ABOUT_ME = "aboutMe";
+	
+	String SCHOOL_UID = "school_uid";
+	
+	String SCHOOL_DISTRICT_UID = "school_district_uid";
+	
+	String STATE_PROVINCE_UID = "state_province_uid";
 
 	String HIGHEST_DEGREE = "highestDegree";
 
@@ -2851,6 +2857,12 @@ public interface ParameterProperties {
 	String CITY_NAME = "city name";
 	
 	String COUNTRY_CODE = "country code";
+	
+	String STATE_CODE = "state code";
+	
+	String CITY_CODE = "city code";
+	
+	String STATE_UID = "state_uid";
 	
 }
 

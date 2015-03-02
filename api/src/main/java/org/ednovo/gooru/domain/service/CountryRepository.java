@@ -15,6 +15,8 @@ public interface CountryRepository extends BaseRepository {
 	Long getCountryCount();
 
 	Province getState(String countryUid, String stateUid);
+	
+	Province getState(String stateUid);
 
 	List<Province> getStates(String countryUid, Integer limit, Integer offset);
 

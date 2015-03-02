@@ -47,6 +47,14 @@ public class CountryRepositoryHibernate extends BaseRepositoryHibernate implemen
 		}
 		return (Province) (query.list().size() > 0 ? query.list().get(0) : null);
 	}
+	
+	@Override
+	public Province getState(String stateUid) {
+		String hql = "FROM Province c  WHERE c.stateUid=:stateUid";
+		Query query = getSession().createQuery(hql);
+		query.setParameter("stateUid", stateUid);
+		return (Province) (query.list().size() > 0 ? query.list().get(0) : null);
+	}
 
 	@Override
 	public List<Province> getStates(String countryUid, Integer limit, Integer offset) {

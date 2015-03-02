@@ -41,6 +41,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import javax.json.JsonObject;
 import javax.servlet.http.HttpServletRequest;
 
 import org.ednovo.gooru.application.util.ProfileImageUtil;
@@ -62,6 +63,7 @@ import org.ednovo.gooru.core.api.model.OrganizationDomainAssoc;
 import org.ednovo.gooru.core.api.model.PartyCategoryType;
 import org.ednovo.gooru.core.api.model.PartyCustomField;
 import org.ednovo.gooru.core.api.model.Profile;
+import org.ednovo.gooru.core.api.model.Province;
 import org.ednovo.gooru.core.api.model.RoleEntityOperation;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.Sharing;
@@ -85,6 +87,7 @@ import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.core.exception.UnauthorizedException;
 import org.ednovo.gooru.domain.service.BaseServiceImpl;
 import org.ednovo.gooru.domain.service.CollaboratorService;
+import org.ednovo.gooru.domain.service.CountryService;
 import org.ednovo.gooru.domain.service.PartyService;
 import org.ednovo.gooru.domain.service.eventlogs.UserEventlog;
 import org.ednovo.gooru.domain.service.party.OrganizationService;
@@ -173,8 +176,11 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	private ApplicationRepository applicationRepository;
 	
 	@Autowired
+	private CountryService countryService;
+
+	@Autowired
 	private IndexHandler indexHandler;
-	
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
 
 	@Override
@@ -258,7 +264,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	public Profile updateProfileInfo(Profile newProfile, String gooruUid, User apiCaller, String activeFlag, Boolean emailConfirmStatus, String showProfilePage, String accountType, String password) {
 		User user = this.getUserRepository().findByGooruId(gooruUid);
 		Boolean reindexUserContent = false;
-		JSONObject itemData = new JSONObject();
+		JSONObject itemData = new JSONObject();		
 		if (user == null) {
 			throw new AccessDeniedException(ACCESS_DENIED_EXCEPTION);
 		}
@@ -395,6 +401,23 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 							user.setUsername(newProfile.getUser().getUsername());
 							reindexUserContent = true;
 						}
+						if (newProfile.getUser() != null && newProfile.getUser().getSchool() != null && newProfile.getUser().getSchool().getPartyUid() != null) {
+							Organization school = this.getOrganizationService().getOrganizationById(newProfile.getUser().getSchool().getPartyUid());
+							rejectIfNull(school, GL0056, 404, SCHOOL_UID);
+							user.setSchool(school);
+						}
+
+						if (newProfile.getUser() != null && newProfile.getUser().getSchoolDistrict() != null && newProfile.getUser().getSchoolDistrict().getPartyUid() != null) {
+							Organization district = this.getOrganizationService().getOrganizationById(newProfile.getUser().getSchoolDistrict().getPartyUid());
+						    rejectIfNull(district, GL0056, 404, SCHOOL_DISTRICT_UID);
+						    user.setSchoolDistrict(district);
+						}
+
+						if (newProfile.getUser() != null && newProfile.getUser().getStateProvince() != null && newProfile.getUser().getStateProvince().getStateUid() != null) {
+							Province state = this.getCountryService().getState(newProfile.getUser().getStateProvince().getStateUid());
+							rejectIfNull(state, GL0056, 404, STATE_PROVINCE_UID);
+						    user.setStateProvince(state);
+						}
 					}
 				}
 			} catch (Exception e) {
@@ -403,7 +426,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			profile.setUser(user);
 			this.getUserRepository().save(profile);
 			PartyCustomField partyCustomField = this.getPartyService().getPartyCustomeField(profile.getUser().getPartyUid(), USER_CONFIRM_STATUS, profile.getUser());
-			if (partyCustomField == null &&  newProfile.getUser() != null && newProfile.getUser().getConfirmStatus() != null && newProfile.getUser().getConfirmStatus() == 1) {
+			if (partyCustomField == null && newProfile.getUser() != null && newProfile.getUser().getConfirmStatus() != null && newProfile.getUser().getConfirmStatus() == 1) {
 				Map<String, String> dataMap = new HashMap<String, String>();
 				dataMap.put(GOORU_UID, profile.getUser().getPartyUid());
 				dataMap.put(EVENT_TYPE, CustomProperties.EventMapping.WELCOME_MAIL.getEvent());
@@ -427,7 +450,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		} catch (JSONException e) {
 			LOGGER.debug("Error" + e);
 		}
-		
+
 		if (profile != null) {
 			indexHandler.setReIndexRequest(profile.getUser().getPartyUid(), IndexProcessor.INDEX, USER, null, reindexUserContent, false);
 		}
@@ -739,7 +762,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		if (confirmStatus == null) {
 			confirmStatus = 0;
 		}
-		if ((inviteuser !=null && inviteuser.size() > 0) || (newUser.getOrganization() != null && newUser.getOrganization().getOrganizationCode() != null && newUser.getOrganization().getOrganizationCode().length() > 0 && newUser.getOrganization().getOrganizationCode().equalsIgnoreCase(GLOBAL))) {
+		if ((inviteuser != null && inviteuser.size() > 0) || (newUser.getOrganization() != null && newUser.getOrganization().getOrganizationCode() != null && newUser.getOrganization().getOrganizationCode().length() > 0 && newUser.getOrganization().getOrganizationCode().equalsIgnoreCase(GLOBAL))) {
 			confirmStatus = 1;
 		}
 		Identity identity = new Identity();
@@ -923,10 +946,12 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		}
 		identity.setCredential(credential);
 		this.getUserRepository().save(identity);
-		//this.getPartyService().createUserDefaultCustomAttributes(user.getPartyUid(), user);
-		//this.getPartyService().createTaxonomyCustomAttributes(user.getPartyUid(), user);
-		if (inviteuser != null && inviteuser.size() > 0 ) {
-			this.getCollaboratorService().updateCollaboratorStatus(newUser.getEmailId(),user);
+		// this.getPartyService().createUserDefaultCustomAttributes(user.getPartyUid(),
+		// user);
+		// this.getPartyService().createTaxonomyCustomAttributes(user.getPartyUid(),
+		// user);
+		if (inviteuser != null && inviteuser.size() > 0) {
+			this.getCollaboratorService().updateCollaboratorStatus(newUser.getEmailId(), user);
 		}
 		userCreatedDevice(user.getPartyUid(), request);
 		this.getUserRepository().save(new PartyCustomField(user.getPartyUid(), USER_META, SHOW_PROFILE_PAGE, FALSE));
@@ -946,7 +971,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 				LOGGER.error("Error : " + e);
 			}
 		}
-		indexHandler.setReIndexRequest(user.getPartyUid(), IndexProcessor.INDEX, USER, null, false, false);				
+		indexHandler.setReIndexRequest(user.getPartyUid(), IndexProcessor.INDEX, USER, null, false, false);
 		try {
 			this.getUsereventlog().getEventLogs(user, source, identity);
 		} catch (JSONException e) {
@@ -1163,11 +1188,11 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 				if (newProfile.getCourses() != null && newProfile.getCourses().size() > 0) {
 					deleteCourse(newProfile.getCourses(), user, apiCaller);
 				}
-				if (newProfile.getGrade() != null && profile.getGrade() != null) {					
+				if (newProfile.getGrade() != null && profile.getGrade() != null) {
 					profile.setGrade(deleteGrade(newProfile.getGrade(), user, apiCaller));
 					this.getUserRepository().save(profile);
 				}
-				indexHandler.setReIndexRequest(profile.getUser().getPartyUid(), IndexProcessor.INDEX, USER, null, false, false);						
+				indexHandler.setReIndexRequest(profile.getUser().getPartyUid(), IndexProcessor.INDEX, USER, null, false, false);
 			}
 		}
 
@@ -1176,7 +1201,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	private String addGrade(String newGrade, User user, User apiCaller, String activeFlag) {
 		List<String> newGradeList = Arrays.asList(newGrade.split(","));
 		StringBuilder newGrades = new StringBuilder();
-		StringBuilder totalGrades = new StringBuilder();            
+		StringBuilder totalGrades = new StringBuilder();
 		CustomTableValue type = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.USER_CLASSIFICATION_TYPE.getTable(), CustomProperties.UserClassificationType.GRADE.getUserClassificationType());
 		List<UserClassification> userClassificationList = new ArrayList<UserClassification>();
 		for (String grade : newGradeList) {
@@ -1200,7 +1225,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 						userClassificationList.add(existingGrade);
 					}
 				}
-			}			
+			}
 		}
 		this.getUserRepository().saveAll(userClassificationList);
 		totalGrades.append(this.getUserRepository().getUserGrade(user.getGooruUId(), type.getCustomTableValueId(), null));
@@ -1213,7 +1238,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 
 	private String deleteGrade(String deleteGrade, User user, User apiCaller) {
 		CustomTableValue type = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.USER_CLASSIFICATION_TYPE.getTable(), CustomProperties.UserClassificationType.GRADE.getUserClassificationType());
-		this.getUserRepository().deleteUserClassificationByGrade(apiCaller.getPartyUid(),deleteGrade);
+		this.getUserRepository().deleteUserClassificationByGrade(apiCaller.getPartyUid(), deleteGrade);
 		return this.getUserRepository().getUserGrade(user.getGooruUId(), type.getCustomTableValueId(), null);
 	}
 
@@ -1249,7 +1274,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 				this.getContentRepository().removeAll(removeContentList);
 				this.getUserRepository().save(user);
 				if (gooruOidAsString.length() > 0) {
-					indexHandler.setReIndexRequest(gooruOidAsString, IndexProcessor.INDEX, RESOURCE, null, false, false);							
+					indexHandler.setReIndexRequest(gooruOidAsString, IndexProcessor.INDEX, RESOURCE, null, false, false);
 				}
 			} else {
 				throw new UnauthorizedException(generateErrorMessage("GL0085"));
@@ -1358,13 +1383,13 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		String taxonomyCodeIds = (partyCustomField != null && partyCustomField.getOptionalValue() != null && partyCustomField.getOptionalValue().length() > 0) ? partyCustomField.getOptionalValue() : this.getTaxonomyRespository().getFindTaxonomyList(
 				settingService.getConfigSetting(ConfigConstants.GOORU_EXCLUDE_TAXONOMY_PREFERENCE, 0, user.getOrganization().getPartyUid()));
 
-		if (taxonomyCodeIds != null ) {
+		if (taxonomyCodeIds != null) {
 			String taxonomyCode = this.getTaxonomyRespository().getFindTaxonomyCodeList(taxonomyCodeIds);
-			if ( taxonomyCode != null){
-			List<String> taxonomyCodeList = Arrays.asList(taxonomyCode.split(","));
-			taxonomy.put(CODE, taxonomyCodeList);
-			List<String> taxonomyCodeIdList = Arrays.asList(taxonomyCodeIds.split(","));
-			taxonomy.put(CODE_ID, taxonomyCodeIdList);
+			if (taxonomyCode != null) {
+				List<String> taxonomyCodeList = Arrays.asList(taxonomyCode.split(","));
+				taxonomy.put(CODE, taxonomyCodeList);
+				List<String> taxonomyCodeIdList = Arrays.asList(taxonomyCodeIds.split(","));
+				taxonomy.put(CODE_ID, taxonomyCodeIdList);
 			}
 		}
 		PartyCustomField partyCustomFieldFeatured = partyService.getPartyCustomeField(user.getPartyUid(), IS_FEATURED_USER, null);
@@ -1449,7 +1474,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			roleEntityOperation.setEntityOperation(entityOperation);
 			getUserRepository().save(roleEntityOperation);
 		}
-		indexHandler.setReIndexRequest(user.getPartyUid(), IndexProcessor.INDEX, USER, null, false, false);				
+		indexHandler.setReIndexRequest(user.getPartyUid(), IndexProcessor.INDEX, USER, null, false, false);
 		return new ActionResponseDTO<UserRole>(userRole, errors);
 	}
 
@@ -1511,7 +1536,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		userRoleAssoc.setUser(user);
 		userRoleAssoc.setRole(role);
 		getUserRepository().save(userRoleAssoc);
-		indexHandler.setReIndexRequest(user.getPartyUid(), IndexProcessor.INDEX, USER, null, false, false);				
+		indexHandler.setReIndexRequest(user.getPartyUid(), IndexProcessor.INDEX, USER, null, false, false);
 		return userRoleAssoc;
 	}
 
@@ -1520,7 +1545,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		UserRoleAssoc userRoleAssoc = userRepository.findUserRoleAssocEntryByRoleIdAndUserUid(roleId, userUid);
 		rejectIfNull(userRoleAssoc, GL0102, 404, USER);
 		getUserRepository().remove(userRoleAssoc);
-		indexHandler.setReIndexRequest(userRoleAssoc.getUser().getPartyUid(), IndexProcessor.INDEX, USER, null, false, false);				
+		indexHandler.setReIndexRequest(userRoleAssoc.getUser().getPartyUid(), IndexProcessor.INDEX, USER, null, false, false);
 	}
 
 	@Override
@@ -1589,7 +1614,11 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	public OrganizationService getOrganizationService() {
 		return organizationService;
 	}
-
+	
+	public CountryService getCountryService(){
+		return countryService;
+	}
+	
 	public SettingService getSettingService() {
 		return settingService;
 	}

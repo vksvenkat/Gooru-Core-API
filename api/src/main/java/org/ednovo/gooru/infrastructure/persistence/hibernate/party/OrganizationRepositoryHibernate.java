@@ -55,10 +55,10 @@ public class OrganizationRepositoryHibernate extends BaseRepositoryHibernate imp
 	}
 
 	@Override
-	public List<Organization> getOrganizations(String type, String parentOrganizationUid, String stateProvinceId, Integer offset, Integer limit) {
+	public List<Organization> getOrganizations(String type, String parentOrganizationUid, String stateProvinceUid, Integer offset, Integer limit) {
 		String hql = "SELECT o FROM Organization o  where 1 = 1";
-		if (stateProvinceId != null) {
-			hql += " AND o.stateProvince.stateId=:stateProvinceId";
+		if (stateProvinceUid != null) {
+			hql += " AND o.stateProvince.stateId=:stateProvinceUid";
 		}
 		if (type != null) { 
 			hql += " AND o.type.keyValue=:type";
@@ -68,8 +68,8 @@ public class OrganizationRepositoryHibernate extends BaseRepositoryHibernate imp
 		}
 		Query query = getSession().createQuery(hql);
 		
-		if (stateProvinceId != null) {
-			query.setParameter("stateProvinceId", stateProvinceId);
+		if (stateProvinceUid != null) {
+			query.setParameter("stateProvinceUid", stateProvinceUid);
 		}
 		if (type != null) {
 			query.setParameter("type", type);
@@ -103,10 +103,10 @@ public class OrganizationRepositoryHibernate extends BaseRepositoryHibernate imp
 	}
 
 	@Override
-	public List<Organization> getSchoolsByDistrictId(String type,String parentOrganizationUid, String stateProvinceId) {
+	public List<Organization> getSchoolsByDistrictId(String type,String parentOrganizationUid, String stateProvinceUid) {
 		String hql = "SELECT o FROM Organization o  where 1 = 1";
-		if (stateProvinceId != null) {
-			hql += " AND o.stateProvince.stateId=:stateProvinceId";
+		if (stateProvinceUid != null) {
+			hql += " AND o.stateProvince.stateId=:stateProvinceUid";
 		}
 		if (type != null) { 
 			hql += " AND o.type.keyValue=:type";
@@ -116,8 +116,8 @@ public class OrganizationRepositoryHibernate extends BaseRepositoryHibernate imp
 		}
 		Query query = getSession().createQuery(hql);
 		
-		if (stateProvinceId != null) {
-			query.setParameter("stateProvinceId", stateProvinceId);
+		if (stateProvinceUid != null) {
+			query.setParameter("stateProvinceUid", stateProvinceUid);
 		}
 		if (type != null) {
 			query.setParameter("type", type);

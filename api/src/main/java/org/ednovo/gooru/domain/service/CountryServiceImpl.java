@@ -105,6 +105,13 @@ public class CountryServiceImpl extends BaseServiceImpl implements CountryServic
 		rejectIfNull(province, GL0056, 404,  PROVINCE_CONSTANT );
 		return province;
 	}
+	
+	@Override
+	public Province getState(String stateUid) {
+		Province province = this.getCountryRepository().getState(stateUid);
+		rejectIfNull(province, GL0056, 404,  PROVINCE_CONSTANT );
+		return province;
+	}
 
 	@Override
 	public SearchResults<Province> getStates(String countryUid, Integer limit, Integer offset) {
