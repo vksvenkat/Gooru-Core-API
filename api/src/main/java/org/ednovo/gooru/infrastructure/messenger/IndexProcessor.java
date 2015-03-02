@@ -87,6 +87,8 @@ public class IndexProcessor extends BaseComponent {
 	private static final String INDEX_ACTION = "action";
 	private static final String IS_UPDATE_USER_CONTENT = "isUpdateUserContent";
 	
+	private static final String INDEX_CONTENT_TYPES = "vimeo/video,video/youtube,textbook/scribd,scollection,resource/url,question,ppt/pptx,image/png,handouts,exam/pdf,assessment-question,animation/swf,animation/kmz";
+	
 	
 
 	public static final String INDEX = "index";
@@ -201,10 +203,10 @@ public class IndexProcessor extends BaseComponent {
 									protected void doInTransactionWithoutResult(TransactionStatus status) {
 										for (String userUid : ids) {
 											SecurityContextHolder.getContext().setAuthentication(authentication);
-											List<Object[]> userids = contentService.getIdsByUserUId(userUid, null, null, null);
+											List<Object[]> contentIds = contentService.getIdsByUserUId(userUid, INDEX_CONTENT_TYPES, null, null);
 											StringBuilder resourceGooruOIds = new StringBuilder();
 											StringBuilder scollectionGooruOIds = new StringBuilder();
-											for (Object[] value : userids) {
+											for (Object[] value : contentIds) {
 												if (value[2].equals("scollection")) {
 													if (scollectionGooruOIds.length() > 0) {
 														scollectionGooruOIds.append(",");
