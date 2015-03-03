@@ -119,7 +119,7 @@ public interface CollectionRepository extends BaseRepository {
 	
 	UserCollectionItemAssoc getUserCollectionItemAssoc(String collectionItemId, String userUid);
 	
-	String getParentCollection(String collectionGooruOid, String gooruUid);
+	Object[] getParentCollection(String collectionGooruOid, String gooruUid);
 	
 	Resource getNextCollectionItemResource(String collectionId, int sequence);
 	
@@ -143,9 +143,9 @@ public interface CollectionRepository extends BaseRepository {
 	
 	Collection getCollectionByIdWithType(String gooruOid, String type);
 	
-	List<Object[]> getClasspageAssoc(Integer offset, Integer limit,String classpageId ,String collectionId, String gooruUid, String title, String collectionTitle, String classCode);
+	List<Object[]> getClasspageAssoc(Integer offset, Integer limit,String classpageId ,String collectionId, String gooruUid, String title, String collectionTitle, String classCode, String collectionItemId);
 	
-	BigInteger getClasspageAssocCount(String classpageId,String collectionId, String gooruUid, String title, String collectionTitle, String classCode);
+	BigInteger getClasspageAssocCount(String classpageId,String collectionId, String gooruUid, String title, String collectionTitle, String classCode, String collectionItemId);
 	
 	Long getClasspageCount(String gooruOid, String type);
 	
@@ -154,5 +154,5 @@ public interface CollectionRepository extends BaseRepository {
 	CollectionItem getCollectionItemByResourceOid(String collectionId, String resourceId);
 	
 	List<Collection> getCollectionByResourceOid(String resourceId);
-	
+		
 }

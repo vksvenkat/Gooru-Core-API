@@ -83,7 +83,7 @@ public class Content extends OrganizationModel implements IndexableEntry, IsCass
 
 	private Map<String, String> settings = new HashMap<String, String>();
 
-	private Set<ContentSettings> contentSettings;
+	private Set<ContentSettings> contentSettings;	
 
 	public Long getContentId() {
 		return contentId;
@@ -308,5 +308,4 @@ public class Content extends OrganizationModel implements IndexableEntry, IsCass
 	public void setContentSettings(Set<ContentSettings> contentSettings) {
 		this.contentSettings = contentSettings;
 	}
-
 }

@@ -133,7 +133,11 @@ public class ResourceImageUtil extends UserGroupSupport implements ParameterProp
 	public static final String CONVERT_DOCUMENT_PDF = "convert.docToPdf";
 	
 	public static String V2_ORGANIZE_DATA = "v2-organize-data-";
-
+	
+	private static final String FOLDER_IN_BUCKET = "folderInBucket"; 
+	
+	private static final String GOORU_BUCKET = "gooruBucket";
+	
 	@Autowired
 	private KafkaProducer kafkaProducer;
 
@@ -182,7 +186,9 @@ public class ResourceImageUtil extends UserGroupSupport implements ParameterProp
 		param.put(EVENTNAME, CONVERT_DOCUMENT_PDF);
 		param.put(SESSIONTOKEN, UserGroupSupport.getSessionToken());
 		param.put(API_END_POINT, settingService.getConfigSetting(ConfigConstants.GOORU_API_ENDPOINT, 0, TaxonomyUtil.GOORU_ORG_UID));
-		param.put("gooruBucket", settingService.getConfigSetting(ConfigConstants.RESOURCE_S3_BUCKET, 0, TaxonomyUtil.GOORU_ORG_UID));
+		param.put(GOORU_BUCKET, settingService.getConfigSetting(ConfigConstants.RESOURCE_S3_BUCKET, 0, TaxonomyUtil.GOORU_ORG_UID));
+		param.put(CALL_BACK_URL, settingService.getConfigSetting(ConfigConstants.GOORU_API_ENDPOINT, 0, TaxonomyUtil.GOORU_ORG_UID)+"v2/resource/" + resource.getGooruOid() + "?sessionToken="+UserGroupSupport.getSessionToken());
+		param.put(FOLDER_IN_BUCKET, resource.getFolder());
 		this.getAsyncExecutor().executeRestAPI(param, settingService.getConfigSetting(ConfigConstants.GOORU_CONVERSION_RESTPOINT, 0, TaxonomyUtil.GOORU_ORG_UID) + "/conversion/document-to-pdf", Method.POST.getName());
 		//kafkaProducer.push(new JSONSerializer().serialize(param)); // FIX ME TO-DO
 	}
@@ -514,6 +520,7 @@ public class ResourceImageUtil extends UserGroupSupport implements ParameterProp
 				if (newResource.getThumbnail() == null) {
 					this.downloadAndSendMsgToGenerateThumbnails(resource, null);
 				}
+				this.getAsyncExecutor().updateResourceFileInS3(resource.getFolder(), resource.getOrganization().getNfsStorageArea().getInternalPath(), resource.getGooruOid(), UserGroupSupport.getSessionToken());
 			}
 
 		} catch (Exception e) {

@@ -2,25 +2,26 @@ package org.ednovo.gooru.core.application.util;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.ednovo.gooru.core.api.model.Rating;
 import org.ednovo.gooru.core.api.model.StandardFo;
 
 public class ResourceMetaInfo implements Serializable {
-	
+
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -2670811444584590511L;
-	
+
 	private List<String> vocabulary;
 	private Set<String> course;
 	private List<StandardFo> standards;
 	private Rating rating;
 	private Set<String> acknowledgement;
-	private Set<String> skills;
-	
+	private Set<Map<String, String>> skills;
+
 	/**
 	 * 
 	 */
@@ -67,11 +68,12 @@ public class ResourceMetaInfo implements Serializable {
 		return acknowledgement;
 	}
 
-	public Set<String> getSkills() {
+	public Set<Map<String, String>> getSkills() {
 		return skills;
 	}
 
-	public void setSkills(Set<String> skills) {
+	public void setSkills(Set<Map<String, String>> skills) {
 		this.skills = skills;
 	}
+
 }

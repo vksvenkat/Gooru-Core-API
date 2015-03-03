@@ -277,10 +277,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		}
 		if (sourceCollectionItem != null) {
 			updateFolderSharing(sourceCollectionItem.getCollection().getGooruOid());
-			List<String> parenFolders = this.getParentCollection(sourceCollectionItem.getCollection().getGooruOid(), user.getPartyUid(), false);
-			for (String folderGooruOid : parenFolders) {
-				updateFolderSharing(folderGooruOid);
-			}
+			resetFolderVisibility(sourceCollectionItem.getCollection().getGooruOid(), user.getPartyUid());
 			deleteCollectionItem(sourceCollectionItem.getCollectionItemId(), user, true);
 		}
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
@@ -774,10 +771,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 							this.getUserRepository().save(userSummary);
 						}
 						scollection.setSharing(PUBLIC);
-						List<String> parenFolders = this.getParentCollection(scollection.getGooruOid(), scollection.getUser().getPartyUid(), false);
-						for (String folderGooruOid : parenFolders) {
-							updateFolderSharing(folderGooruOid);
-						}
+						resetFolderVisibility(scollection.getGooruOid(), scollection.getUser().getPartyUid());
 						updateResourceSharing(PUBLIC, scollection);
 						try {
 							String mailId = scollection.getUser().getIdentities().iterator().next().getExternalId();
@@ -831,10 +825,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 							collectionIds.append(",");
 						}
 						scollection.setSharing(ANYONE_WITH_LINK);
-						List<String> parenFolders = this.getParentCollection(scollection.getGooruOid(), scollection.getUser().getPartyUid(), false);
-						for (String folderGooruOid : parenFolders) {
-							updateFolderSharing(folderGooruOid);
-						}
+						resetFolderVisibility(scollection.getGooruOid(), scollection.getUser().getPartyUid());
 						updateResourceSharing(ANYONE_WITH_LINK, scollection);
 					} else {
 						throw new BadRequestException(generateErrorMessage("GL0091"));

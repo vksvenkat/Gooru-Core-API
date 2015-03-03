@@ -36,6 +36,9 @@ public class TaxonomyCio implements IsEntityCassandraIndexable {
 
 	@Column
 	private Map<String, String> organization;
+	
+	@Column
+	private String typeName;
 
 	@Column
 	private String displayCode;
@@ -257,6 +260,14 @@ public class TaxonomyCio implements IsEntityCassandraIndexable {
 
 	public String getVersionUid() {
 		return versionUid;
+	}
+	
+	public String getTypeName() {
+		return typeName;
+	}
+
+	public void setTypeName(String typeName) {
+		this.typeName = typeName;
 	}
 
 	@Override
