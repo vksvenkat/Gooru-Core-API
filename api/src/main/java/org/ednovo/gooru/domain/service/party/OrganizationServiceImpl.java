@@ -149,14 +149,13 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 			newOrganization.setS3StorageArea(storageRepository.getAvailableStorageArea(1));
 			newOrganization.setNfsStorageArea(storageRepository.getAvailableStorageArea(2));
 			newOrganization.setUserUid(user.getPartyUid());
-			System.out.println("state--"+organizationData.getStateProvince());
 			
 			if (organizationData.getStateProvince() != null && organizationData.getStateProvince().getStateCode() != null) {
-				newOrganization.setStateProvince(getCountryRepository().getState(null, organizationData.getStateProvince().getStateCode()));
+				newOrganization.setStateProvince(getCountryRepository().getState(organizationData.getStateProvince().getStateCode()));
 			}
 			if (organizationData.getType() != null && organizationData.getType().getValue() != null) {
 				CustomTableValue type = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.ORGANIZATION_CATEGORY.getTable(), organizationData.getType().getValue());
-				rejectIfNull(type, GL0056, "type ");
+				rejectIfNull(type, GL0056, TYPE);
 				newOrganization.setType(type);
 			}
 

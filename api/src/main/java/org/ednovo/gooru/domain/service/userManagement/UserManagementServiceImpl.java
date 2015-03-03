@@ -946,10 +946,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		}
 		identity.setCredential(credential);
 		this.getUserRepository().save(identity);
-		// this.getPartyService().createUserDefaultCustomAttributes(user.getPartyUid(),
-		// user);
-		// this.getPartyService().createTaxonomyCustomAttributes(user.getPartyUid(),
-		// user);
+	
 		if (inviteuser != null && inviteuser.size() > 0) {
 			this.getCollaboratorService().updateCollaboratorStatus(newUser.getEmailId(), user);
 		}

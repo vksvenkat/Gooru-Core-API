@@ -2844,11 +2844,11 @@ public interface ParameterProperties {
 	
 	String ASSESSMENT_URL = "assessment/url";
 	
-	String COUNTRY_CONSTANT = "country";
+	String COUNTRY_ = "country";
 	
-	String PROVINCE_CONSTANT = "province";
+	String STATE_ = "state";
 	
-	String CITY_CONSTANT = "city";
+	String CITY_ = "city";
 	
 	String COUNTRY_NAME = "country name";
 	
@@ -2863,6 +2863,11 @@ public interface ParameterProperties {
 	String CITY_CODE = "city code";
 	
 	String STATE_UID = "state_uid";
+	
+	String COUNTRY_UID = "countryUid";
+	
+	String CITY_UID = "city_uid";
+	
 	
 }
 
