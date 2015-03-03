@@ -704,7 +704,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				}
 			}
 			try {
-				indexProcessor.index(collection.getGooruOid(), IndexProcessor.DELETE, SCOLLECTION);
+				indexHandler.setReIndexRequest(collection.getGooruOid(), IndexProcessor.DELETE, SCOLLECTION, null, false, false);				
 			} catch(Exception e) { 
 				LOGGER.error("error" + e.getMessage());
 			}
