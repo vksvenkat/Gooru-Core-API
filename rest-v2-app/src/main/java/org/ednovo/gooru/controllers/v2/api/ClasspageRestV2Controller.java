@@ -293,7 +293,7 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 			result.setSearchResults(collectionItems);
 			result.setTotalHitCount(this.getCollectionRepository().getClasspageCollectionCount(classpageId, status, user.getPartyUid(), orderBy, type));
 			data = serialize(result, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, true, includes);
-			getRedisService().putValue(cacheKey, data, 86400);
+			getRedisService().putValue(cacheKey, data, Constants.CACHE_EXPIRY_TIME_IN_SEC);
 		}
 		return toModelAndView(data);
 	}
@@ -482,7 +482,7 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 			includesDefault = (String[]) ArrayUtils.addAll(includesDefault, COLLECTION_WORKSPACE);
 			String includes[] = (String[]) ArrayUtils.addAll(includesDefault, ERROR_INCLUDE);
 			data = serialize(searchResults, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, true, includes);
-			getRedisService().putValue(cacheKey, data, 86400);
+			getRedisService().putValue(cacheKey, data, Constants.CACHE_EXPIRY_TIME_IN_SEC);
 		}
 		return toModelAndView(data);
 	}

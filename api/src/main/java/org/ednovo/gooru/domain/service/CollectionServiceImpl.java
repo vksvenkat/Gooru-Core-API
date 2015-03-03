@@ -75,6 +75,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
+import org.ednovo.gooru.core.constant.Constants;
 
 @Service
 public class CollectionServiceImpl extends ScollectionServiceImpl implements CollectionService {
@@ -860,7 +861,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 					content.put(COLLECTION_COUNT, this.getCollectionRepository().getCollectionItemCount(gooruOid, sharing, collectionType != null ? collectionType : COLLECTION, excludeType));
 				}
 				data = SerializerUtil.serializeToJson(content, TOC_EXCLUDES, true, true);
-					redisService.putValue(cacheKey, data);
+				redisService.putValue(cacheKey, data, fetchChildItem ? Constants.LIBRARY_CACHE_EXPIRY_TIME_IN_SEC : Constants.CACHE_EXPIRY_TIME_IN_SEC);
 			}
 		}
 		return data;
