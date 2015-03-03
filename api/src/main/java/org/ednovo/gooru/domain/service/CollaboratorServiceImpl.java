@@ -46,6 +46,7 @@ import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.domain.service.eventlogs.CollaboratorEventLog;
 import org.ednovo.gooru.domain.service.userManagement.UserManagementService;
 import org.ednovo.gooru.domain.service.v2.ContentService;
+import org.ednovo.gooru.infrastructure.messenger.IndexHandler;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.InviteRepository;
@@ -94,6 +95,9 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 	@Autowired
 	private AsyncExecutor asyncExecutor;
 	
+	@Autowired
+	private IndexHandler indexHandler;
+	
 	private final Logger LOGGER = LoggerFactory.getLogger(CollaboratorServiceImpl.class);
 
 	@Override
@@ -114,7 +118,7 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 				collaborator.add(addCollaborator(mailId, gooruOid, apiCaller, sendInvite, content, identity == null ? null : identity.getUser()));
 			}
 			try {
-				indexProcessor.index(content.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
+				indexHandler.setReIndexRequest(content.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);						
 			} catch (Exception e) {
 				LOGGER.debug("error" + e.getMessage());
 			}
@@ -253,7 +257,7 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 				}
 			}
 			try {
-				indexProcessor.index(content.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION);
+				indexHandler.setReIndexRequest(content.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);						
 			} catch (Exception e) {
 				LOGGER.debug(e.getMessage());
 			}

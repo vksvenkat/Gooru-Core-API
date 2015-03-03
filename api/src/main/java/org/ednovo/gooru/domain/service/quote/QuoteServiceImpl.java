@@ -38,13 +38,13 @@ import org.ednovo.gooru.core.api.model.Quote;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.ResourceType;
 import org.ednovo.gooru.core.api.model.Sharing;
-import org.ednovo.gooru.core.api.model.ShelfType;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserToken;
 import org.ednovo.gooru.core.application.util.StringUtil;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.domain.service.annotation.AnnotationService;
 import org.ednovo.gooru.domain.service.resource.ResourceService;
+import org.ednovo.gooru.infrastructure.messenger.IndexHandler;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserTokenRepository;
@@ -83,6 +83,9 @@ public class QuoteServiceImpl implements QuoteService,ParameterProperties {
 
 	@Autowired
 	private ResourceImageUtil resourceImageUtil;
+	
+	@Autowired
+	private IndexHandler indexHandler;
 
 	@Override
 	public JSONObject createQuote(String title, String description, String url, String category, String shelfId, String licenseName, String pinToken, String sessionToken, User user) throws Exception {
@@ -172,7 +175,7 @@ public class QuoteServiceImpl implements QuoteService,ParameterProperties {
 			resultJson.put(STATUS, STATUS_200);
 			resultJson.put(MESSAGE, "This resource has been added to your Shelf");
 			if (resource != null && resource.getContentId() != null) {
-				indexProcessor.index(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE);
+				indexHandler.setReIndexRequest(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);						
 			}
 		}
 
