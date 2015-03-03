@@ -183,6 +183,9 @@ public class ResourceCio implements IsEntityCassandraIndexable {
 
 	@Column
 	private String tagSetJson;
+	
+	@Column
+	private String skillSetJson;
 
 	@Column
 	private String updatedCustomFields;
@@ -867,6 +870,15 @@ public class ResourceCio implements IsEntityCassandraIndexable {
 	public void setTagSetJson(String tagSetJson) {
 		this.tagSetJson = tagSetJson;
 	}
+	
+	public String getSkillSetJson() {
+		return tagSetJson;
+	}
+
+	public void setSkillSetJson(String tagSetJson) {
+		this.tagSetJson = tagSetJson;
+	}
+	
 
 	@Override
 	public String getIndexId() {
