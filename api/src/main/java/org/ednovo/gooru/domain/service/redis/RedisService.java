@@ -72,4 +72,6 @@ public interface RedisService extends CassandraCacheService {
 	void setValuesMulti(Map<String,String> map);
 
 	String getStandardValue(String key);
+	
+	void put(String key, String value, long timeout);
 }

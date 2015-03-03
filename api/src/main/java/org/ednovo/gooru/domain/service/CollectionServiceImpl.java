@@ -54,6 +54,7 @@ import org.ednovo.gooru.core.api.model.UserContentAssoc;
 import org.ednovo.gooru.core.api.model.UserGroupSupport;
 import org.ednovo.gooru.core.api.model.UserSummary;
 import org.ednovo.gooru.core.application.util.BaseUtil;
+import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.exception.BadRequestException;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.domain.service.eventlogs.CollectionEventLog;
@@ -891,11 +892,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 					content.put(COLLECTION_COUNT, this.getCollectionRepository().getCollectionItemCount(gooruOid, sharing, collectionType != null ? collectionType : COLLECTION));
 				}
 				data = SerializerUtil.serializeToJson(content, true);
-				if (user != null && user.getUsername().equalsIgnoreCase(SAUSD)) {
-					redisService.putValue(cacheKey, data);
-				} else {
-					redisService.putValue(cacheKey, data, 86400);
-				}
+				redisService.putValue(cacheKey, data, fetchChildItem ? Constants.LIBRARY_CACHE_EXPIRY_TIME_IN_SEC : Constants.CACHE_EXPIRY_TIME_IN_SEC);
 			}
 		}
 		return data;

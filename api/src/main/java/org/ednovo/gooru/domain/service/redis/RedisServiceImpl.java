@@ -264,7 +264,7 @@ public class RedisServiceImpl implements RedisService, ParameterProperties, Cons
 				redisInstanceName = settingService.getConfigSetting(ConfigConstants.REDIS_INSTANCE_NAME, TaxonomyUtil.GOORU_ORG_UID);
 			}
 		} catch (Exception e) {
-			System.out.println("Redis Error" + e);
+			logger.error("Redis Error" + e);
 		}
 		return redisInstanceName;
 	}
@@ -306,7 +306,7 @@ public class RedisServiceImpl implements RedisService, ParameterProperties, Cons
 		try {
 			valueOperations.set(sessionToken, sessionToken);
 		} catch (Exception e) {
-			System.out.println("Reids Error" + e);
+			logger.error("Reids Error" + e);
 		}
 		Date currentDate = new Date();
 		long expiresTimes = 24;
@@ -322,7 +322,7 @@ public class RedisServiceImpl implements RedisService, ParameterProperties, Cons
 		try {
 			redisStringTemplate.expireAt(sessionToken, currentDate);
 		} catch (Exception e) {
-			System.out.println("Error" + e);
+			logger.error("Error" + e);
 		}
 	}
 
@@ -333,7 +333,7 @@ public class RedisServiceImpl implements RedisService, ParameterProperties, Cons
 			try {
 				return valueOperations.get(returnSanitizedKey(key));
 			} catch (Exception e) {
-				logger.error("Get Values from redis failed!" + e.getMessage());
+				logger.error("Get Values from redis failed!" + e);
 			}
 		} else {
 			return null;
@@ -349,7 +349,7 @@ public class RedisServiceImpl implements RedisService, ParameterProperties, Cons
 			try {
 				return valueOperations.get(key);
 			} catch (Exception e) {
-				logger.error("Get Values from redis failed!" + e.getMessage());
+				logger.error("Get Values from redis failed!" + e);
 			}
 		}
 		return null;
@@ -362,7 +362,7 @@ public class RedisServiceImpl implements RedisService, ParameterProperties, Cons
 			try {
 				return valueOperations.get(key);
 			} catch (Exception e) {
-				logger.error("Get Values from redis failed!" + e.getMessage());
+				logger.error("Get Values from redis failed!" + e);
 			}
 		} else {
 			return null;
@@ -377,7 +377,7 @@ public class RedisServiceImpl implements RedisService, ParameterProperties, Cons
 			RedisTemplate<String, String> redisStringTemplate = getRedisStringTemplate();
 			valueOps = redisStringTemplate.opsForValue();
 		} catch (Exception e) {
-			System.out.println("Redis Error" + e);
+			logger.error("Redis Error" + e);
 		}
 		return valueOps;
 	}
@@ -388,7 +388,7 @@ public class RedisServiceImpl implements RedisService, ParameterProperties, Cons
 		try {
 			valueOperations.set(returnSanitizedKey(key), value);
 		} catch (Exception e) {
-			System.out.println("Redis Error" + e);
+			logger.error("Redis Error" + e);
 		}
 	}
 
@@ -398,7 +398,7 @@ public class RedisServiceImpl implements RedisService, ParameterProperties, Cons
 		try {
 			valueOperations.set(returnSanitizedKey(key), value, timeout, TimeUnit.SECONDS);
 		} catch (Exception e) {
-			System.out.println("Redis Error" + e);
+			logger.error("Redis Error" + e);
 		}
 	}
 
@@ -408,7 +408,17 @@ public class RedisServiceImpl implements RedisService, ParameterProperties, Cons
 		try {
 			valueOperations.set(key, value);
 		} catch (Exception e) {
-			System.out.println("Redis Error" + e);
+			logger.error("Redis Error" + e);
+		}
+	}
+	
+	@Override
+	public void put(String key, String value, long timeout) {
+		ValueOperations<String, String> valueOperations = getValueOperation();
+		try {
+			valueOperations.set(key, value, timeout, TimeUnit.SECONDS);
+		} catch (Exception e) {
+			logger.error("Redis Error" + e);
 		}
 	}
 
@@ -448,7 +458,7 @@ public class RedisServiceImpl implements RedisService, ParameterProperties, Cons
 		try {
 			valueOperations.multiSet(map);
 		} catch (Exception e) {
-			System.out.println("Redis Error" + e);
+			logger.error("Redis Error" + e);
 		}
 	}
 

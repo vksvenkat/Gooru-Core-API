@@ -182,4 +182,10 @@ public class Constants {
 		accountCreatedType.put("wsfed", "03");
 		ACCOUNT_TYPES = Collections.unmodifiableMap(accountCreatedType);
 	}
+	
+	public static final int AUTHENTICATION_CACHE_EXPIRY_TIME_IN_SEC = 28800;
+		
+	public static final int CACHE_EXPIRY_TIME_IN_SEC = 10800;
+	
+	public static final int LIBRARY_CACHE_EXPIRY_TIME_IN_SEC = 86400;
 }

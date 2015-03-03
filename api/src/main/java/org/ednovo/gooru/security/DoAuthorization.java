@@ -34,7 +34,6 @@ import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserCredential;
 import org.ednovo.gooru.core.api.model.UserToken;
-import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.security.AuthenticationDo;
 import org.ednovo.gooru.domain.service.oauth.OAuthService;
@@ -219,7 +218,7 @@ public class DoAuthorization {
 			}
 			try {
 				if (key != null) {
-					getRedisService().put(key,new JSONSerializer().transform(new ExcludeNullTransformer(), void.class).include(new String[] { "*.operationAuthorities", "*.userRoleSet", "*.partyOperations", "*.subOrganizationUids", "*.orgPermits", "*.partyPermits", "*.customFields", "*.identities", "*.partyPermissions.*" }).exclude(new String[] {"*.class", "*.meta"}).serialize(authentication));
+					getRedisService().put(key,new JSONSerializer().transform(new ExcludeNullTransformer(), void.class).include(new String[] { "*.operationAuthorities", "*.userRoleSet", "*.partyOperations", "*.subOrganizationUids", "*.orgPermits", "*.partyPermits", "*.customFields", "*.identities", "*.partyPermissions.*" }).exclude(new String[] {"*.class", "*.meta"}).serialize(authentication), Constants.AUTHENTICATION_CACHE_EXPIRY_TIME_IN_SEC);
 				}
 			} catch (Exception e) {
 				LOGGER.error("Failed to  put  value from redis server");

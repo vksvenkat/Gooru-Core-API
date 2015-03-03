@@ -216,7 +216,7 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 			content.put(SEARCH_RESULT, this.getCollectionService().getMyShelf(gooruUid, limit, offset, sharing, collectionType, itemLimit, fetchChilds, topLevelCollectionType,orderBy));
 			content.put(COUNT, this.getCollectionRepository().getMyShelfCount(gooruUid, sharing, collectionType));
 			data = serializeToJson(content, true);
-			getRedisService().putValue(cacheKey, data, 86400);
+			getRedisService().putValue(cacheKey, data, fetchChilds ? Constants.LIBRARY_CACHE_EXPIRY_TIME_IN_SEC : Constants.CACHE_EXPIRY_TIME_IN_SEC);
 		}
 		return toModelAndView(data);
 	}

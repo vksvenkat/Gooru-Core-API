@@ -150,7 +150,7 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 			data = getRedisService().getValue(cacheKey);
 			if (data == null) {
 				data = serialize(this.getCollectionService().getCollection(collectionId, new HashMap<String, Object>(), rootNodeId), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, false, true, includes);
-				getRedisService().putValue(cacheKey, data, 86400);
+				getRedisService().putValue(cacheKey, data, Constants.CACHE_EXPIRY_TIME_IN_SEC);
 			}
 			return toModelAndView(data);
 		} else {
@@ -577,5 +577,4 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 		}
 		return type;
 	}
-
 }
