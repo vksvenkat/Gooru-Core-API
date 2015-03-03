@@ -967,6 +967,8 @@ public interface ParameterProperties {
 	String TAXONOMY = "taxonomy";
 
 	String _TAXONOMY = "Taxonomy";
+	
+	String SKILLS = "skills" ;
 
 	String RELATED_CONTENT = "related-content";
 
