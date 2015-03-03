@@ -41,18 +41,8 @@ public abstract class EntityCassandraServiceImpl<M extends Serializable> impleme
 	}
 
 	@Override
-	public Integer getInt(String key, String column) {
-		Integer value = 0;
-		try {
-			String view = getCassandraDao().read(key, column);
-			if (view != null)  {
-			   value = Integer.parseInt(view + "");
-			}
-		} catch (Exception e) {
-			LOGGER.error("Error " + e);
-			value = 0;
-		}
-		return value;
+	public Long getLong(String key, String column) {
+		return getCassandraDao().readAsLong(key, column);
 	}
 
 	@Override
@@ -107,5 +97,4 @@ public abstract class EntityCassandraServiceImpl<M extends Serializable> impleme
 	public Rows<String, String> readWithKeyListColumnList(Collection<String> keys,Collection<String> columnList, int retryCount){
 		return getCassandraDao().readWithKeyListColumnList(keys, columnList, retryCount);
 	}
-
 }
