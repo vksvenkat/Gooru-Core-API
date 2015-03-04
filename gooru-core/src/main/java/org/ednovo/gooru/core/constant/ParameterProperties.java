@@ -1424,11 +1424,9 @@ public interface ParameterProperties {
 
 	String ABOUT_ME = "aboutMe";
 	
-	String SCHOOL_UID = "school_uid";
+	String DISTRICT = "district";
 	
-	String SCHOOL_DISTRICT_UID = "school_district_uid";
-	
-	String STATE_PROVINCE_UID = "state_province_uid";
+	String PROVINCE = "province";
 
 	String HIGHEST_DEGREE = "highestDegree";
 
@@ -2867,7 +2865,6 @@ public interface ParameterProperties {
 	String COUNTRY_UID = "countryUid";
 	
 	String CITY_UID = "city_uid";
-	
 	
 }
 

@@ -11,8 +11,14 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHiber
 import org.hibernate.Query;
 import org.springframework.stereotype.Repository;
 
+
 @Repository
 public class CountryRepositoryHibernate extends BaseRepositoryHibernate implements CountryRepository, ConstantProperties, ParameterProperties {
+	
+
+    private static final  String STATE = "FROM Province c  WHERE c.stateUid=:stateUid";
+
+    private static final  String COUNTRY_STATE = "FROM Province c  WHERE c.stateUid=:stateUid and c.country.countryUid=:countryUid";
 
 	@Override
 	public Country getCountry(String countryUid) {
@@ -36,22 +42,14 @@ public class CountryRepositoryHibernate extends BaseRepositoryHibernate implemen
 
 	@Override
 	public Province getState(String countryUid, String stateUid) {
-		String hql = "FROM Province c  WHERE c.stateUid=:stateUid";
-		if (countryUid != null) {
-			hql += " and c.country.countryUid=:countryUid";
-		}
-		Query query = getSession().createQuery(hql);
+		Query query = getSession().createQuery(COUNTRY_STATE);
 		query.setParameter(STATE_UID, stateUid);
-		if (countryUid != null) {
-			query.setParameter(COUNTRY_UID, countryUid);
-		}
 		return (Province) (query.list().size() > 0 ? query.list().get(0) : null);
 	}
 	
 	@Override
 	public Province getState(String stateUid) {
-		String hql = "FROM Province c  WHERE c.stateUid=:stateUid";
-		Query query = getSession().createQuery(hql);
+		Query query = getSession().createQuery(STATE);
 		query.setParameter(STATE_UID, stateUid);
 		return (Province) (query.list().size() > 0 ? query.list().get(0) : null);
 	}

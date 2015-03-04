@@ -403,19 +403,19 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 						}
 						if (newProfile.getUser() != null && newProfile.getUser().getSchool() != null && newProfile.getUser().getSchool().getPartyUid() != null) {
 							Organization school = this.getOrganizationService().getOrganizationById(newProfile.getUser().getSchool().getPartyUid());
-							rejectIfNull(school, GL0056, 404, SCHOOL_UID);
+							rejectIfNull(school, GL0056, 404, SCHOOL);
 							user.setSchool(school);
 						}
 
 						if (newProfile.getUser() != null && newProfile.getUser().getSchoolDistrict() != null && newProfile.getUser().getSchoolDistrict().getPartyUid() != null) {
 							Organization district = this.getOrganizationService().getOrganizationById(newProfile.getUser().getSchoolDistrict().getPartyUid());
-						    rejectIfNull(district, GL0056, 404, SCHOOL_DISTRICT_UID);
+						    rejectIfNull(district, GL0056, 404, DISTRICT);
 						    user.setSchoolDistrict(district);
 						}
 
 						if (newProfile.getUser() != null && newProfile.getUser().getStateProvince() != null && newProfile.getUser().getStateProvince().getStateUid() != null) {
 							Province state = this.getCountryService().getState(newProfile.getUser().getStateProvince().getStateUid());
-							rejectIfNull(state, GL0056, 404, STATE_PROVINCE_UID);
+							rejectIfNull(state, GL0056, 404, PROVINCE);
 						    user.setStateProvince(state);
 						}
 					}
