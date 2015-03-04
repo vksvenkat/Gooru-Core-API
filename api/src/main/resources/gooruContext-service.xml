@@ -164,8 +164,7 @@
 	<!-- <bean id="redisService" class="org.ednovo.gooru.domain.service.redis.RedisServiceImpl" 
 		/> -->
 	<context:component-scan base-package="org.ednovo.gooru.security" />
-	<context:component-scan
-		base-package="org.ednovo.gooru.domain.service.revision_history" />
+		
 	<context:component-scan base-package="org.ednovo.gooru.domain.service.redis" />
 
 	<bean

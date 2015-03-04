@@ -303,7 +303,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			resource.setViews(this.resourceCassandraService.getLong(resource.getGooruOid(),STATISTICS_VIEW_COUNT));
 			resource.setViewCount(resource.getViewCount());
 		} catch (Exception e) { 
-			LOGGER.error("parser error : " + e);
+			LOGGER.error("parser error : {}", e);
 		}
 		if (resource.getResourceType().getName().equalsIgnoreCase(ASSESSMENT_QUESTION)) {
 			AssessmentQuestion question = assessmentService.getQuestion(gooruOid);
