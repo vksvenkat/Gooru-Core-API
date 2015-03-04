@@ -1270,6 +1270,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 						resource.setMeta(resourcePermissions);
 					}
 					setView(resource);
+					resource.setSkills(getSkills(resource.getTaxonomySet()));
 					collectionItem.setResource(resource);
 					this.setCollectionItemMoreData(collectionItem, rootNodeId);
 				}
@@ -1293,20 +1294,37 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		if (taxonomySet != null) {
 			Set<String> course = new HashSet<String>();
 			Set<Map<String, Object>> skills =  new HashSet<Map<String, Object>>();
-			Map<String, Object> skill;
+			
 			for (Code code : taxonomySet) {
 				if (code.getDepth() == 2 && code.getRootNodeId() != null && code.getRootNodeId().toString().equalsIgnoreCase(Code.GOORU_TAXONOMY_CODE_ID)) {
 					course.add(code.getLabel());
 				} else if (code.getCodeType() != null && code.getCodeType().getLabel() != null && code.getCodeType().getLabel().equalsIgnoreCase(Constants.TWENTY_FIRST_CENTURY_SKILLS)) {
-					skill = new HashMap<String, Object>();
-					skill.put(CODE_ID, code.getCodeId());
-					skill.put(LABEL, code.getLabel());
-					skills.add(skill);
+					skills.add(setSkill(code));
 				}
 			}
 			collectionMetaInfo.setSkills(skills);
 			collectionMetaInfo.setCourse(course);
 		}
+	}
+	
+	private Map<String, Object> setSkill(Code code) { 
+		Map<String, Object> skill = new HashMap<String, Object>();
+		skill.put(CODE_ID, code.getCodeId());
+		skill.put(LABEL, code.getLabel());
+		return skill;
+	}
+	
+	public Set<Map<String, Object>> getSkills(Set<Code> taxonomySet) {
+		Set<Map<String, Object>> skills =  null;
+		if (taxonomySet != null) {
+			skills = new HashSet<Map<String, Object>>();
+			for (Code code : taxonomySet) {
+				if (code.getCodeType() != null && code.getCodeType().getLabel() != null && code.getCodeType().getLabel().equalsIgnoreCase(Constants.TWENTY_FIRST_CENTURY_SKILLS)) {
+					skills.add(setSkill(code));
+				}
+			}
+		}
+		return skills;
 	}
 	
 	@Override
