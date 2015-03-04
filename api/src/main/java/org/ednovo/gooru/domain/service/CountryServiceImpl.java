@@ -58,7 +58,6 @@ public class CountryServiceImpl extends BaseServiceImpl implements CountryServic
 	private Errors validateCountry(Country country) {
 		final Errors errors = new BindException(country, COUNTRY_);
 		rejectIfNullOrEmpty(errors, country.getName(), NAME, GL0006, generateErrorMessage(GL0006, COUNTRY_NAME ));
-		rejectIfNullOrEmpty(errors, country.getCountryUid(), COUNTRY_CODE, GL0006, generateErrorMessage(GL0006,COUNTRY_UID));
 		return errors;
 	}
 
@@ -131,7 +130,7 @@ public class CountryServiceImpl extends BaseServiceImpl implements CountryServic
 
 	private Errors validateProvince(Province province) {
 		final Errors errors = new BindException(province,  STATE_ );
-		rejectIfNullOrEmpty(errors, province.getStateUid(), NAME, GL0006, generateErrorMessage(GL0006, STATE_UID));
+		rejectIfNullOrEmpty(errors, province.getName(), NAME, GL0006, generateErrorMessage(GL0006, STATE_NAME ));
 		return errors;
 	}
 
@@ -140,8 +139,8 @@ public class CountryServiceImpl extends BaseServiceImpl implements CountryServic
 		final Errors errors = validateCity(city);
 		if (!errors.hasErrors()) {
 			Country country = this.getCountryRepository().getCountry(countryUid);
-			Province province = this.getCountryRepository().getState(countryUid, stateUid);
 			rejectIfNull(country, GL0056, 404,COUNTRY_ );
+			Province province = this.getCountryRepository().getState(countryUid, stateUid);
 			rejectIfNull(province, GL0056, 404,  STATE_ );
 			city.setProvince(province);
 			city.setCountry(country);
@@ -189,7 +188,7 @@ public class CountryServiceImpl extends BaseServiceImpl implements CountryServic
 
 	private Errors validateCity(City city) {
 		final Errors errors = new BindException(city, CITY_);
-		rejectIfNullOrEmpty(errors, city.getCityUid(), NAME, GL0006, generateErrorMessage(GL0006, CITY_UID));
+		rejectIfNullOrEmpty(errors, city.getCityCode(), NAME, GL0006, generateErrorMessage(GL0006, CITY_CODE));
 		return errors;
 	}
 }

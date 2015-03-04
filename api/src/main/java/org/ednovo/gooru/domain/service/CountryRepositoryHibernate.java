@@ -44,6 +44,7 @@ public class CountryRepositoryHibernate extends BaseRepositoryHibernate implemen
 	public Province getState(String countryUid, String stateUid) {
 		Query query = getSession().createQuery(COUNTRY_STATE);
 		query.setParameter(STATE_UID, stateUid);
+		query.setParameter(COUNTRY_UID, countryUid);
 		return (Province) (query.list().size() > 0 ? query.list().get(0) : null);
 	}
 	
