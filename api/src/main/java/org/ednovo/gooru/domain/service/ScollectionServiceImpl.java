@@ -1298,14 +1298,14 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	private void setCollectionTaxonomyMetaInfo(Set<Code> taxonomySet, ResourceMetaInfo collectionMetaInfo) { 
 		if (taxonomySet != null) {
 			Set<String> course = new HashSet<String>();
-			Set<Map<String, String>> skills =  new HashSet<Map<String, String>>();
-			Map<String, String> skill;
+			Set<Map<String, Object>> skills =  new HashSet<Map<String, Object>>();
+			Map<String, Object> skill;
 			for (Code code : taxonomySet) {
 				if (code.getDepth() == 2 && code.getRootNodeId() != null && code.getRootNodeId().toString().equalsIgnoreCase(Code.GOORU_TAXONOMY_CODE_ID)) {
 					course.add(code.getLabel());
 				} else if (code.getCodeType() != null && code.getCodeType().getLabel() != null && code.getCodeType().getLabel().equalsIgnoreCase(Constants.TWENTY_FIRST_CENTURY_SKILLS)) {
-					skill = new HashMap<String, String>();
-					skill.put(CODE_ID, code.getCodeId().toString());
+					skill = new HashMap<String, Object>();
+					skill.put(CODE_ID, code.getCodeId());
 					skill.put(LABEL, code.getLabel());
 					skills.add(skill);
 				}

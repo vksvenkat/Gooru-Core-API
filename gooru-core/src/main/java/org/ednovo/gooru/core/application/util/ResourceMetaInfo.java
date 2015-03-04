@@ -20,7 +20,7 @@ public class ResourceMetaInfo implements Serializable {
 	private List<StandardFo> standards;
 	private Rating rating;
 	private Set<String> acknowledgement;
-	private Set<Map<String, String>> skills;
+	private Set<Map<String, Object>> skills;
 
 	/**
 	 * 
@@ -68,11 +68,11 @@ public class ResourceMetaInfo implements Serializable {
 		return acknowledgement;
 	}
 
-	public Set<Map<String, String>> getSkills() {
+	public Set<Map<String, Object>> getSkills() {
 		return skills;
 	}
 
-	public void setSkills(Set<Map<String, String>> skills) {
+	public void setSkills(Set<Map<String, Object>> skills) {
 		this.skills = skills;
 	}
 
