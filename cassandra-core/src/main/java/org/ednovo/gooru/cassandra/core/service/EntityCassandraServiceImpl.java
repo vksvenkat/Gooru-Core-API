@@ -40,19 +40,10 @@ public abstract class EntityCassandraServiceImpl<M extends Serializable> impleme
 		return getCassandraDao().read(key, column);
 	}
 
+	
 	@Override
-	public Integer getInt(String key, String column) {
-		Integer value = 0;
-		try {
-			String view = getCassandraDao().read(key, column);
-			if (view != null)  {
-			   value = Integer.parseInt(view + "");
-			}
-		} catch (Exception e) {
-			LOGGER.error("Error " + e);
-			value = 0;
-		}
-		return value;
+	public Long getLong(String key, String column) {
+		return getCassandraDao().readAsLong(key, column);
 	}
 
 	@Override

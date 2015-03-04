@@ -1041,13 +1041,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			cacheCollection = JsonDeserializer.deserialize(data, new TypeReference<Map<String, Object>>() {
 			});
 			if (cacheCollection != null) {
-				try {
-					cacheCollection.put("viewCount", this.resourceCassandraService.getInt(cacheCollection.get("gooruOid").toString(), STATISTICS_VIEW_COUNT));
-					cacheCollection.put("views", Long.parseLong(this.resourceCassandraService.getInt(cacheCollection.get("gooruOid").toString(), STATISTICS_VIEW_COUNT) + ""));
-				} catch (Exception e) {
-					LOGGER.error("parser error : " + e);
-				}
-
+				
 				if (merge != null) {
 					Map<String, Object> permissions = new HashMap<String, Object>();
 					if (merge.contains(PERMISSIONS)) {
@@ -1288,10 +1282,10 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	
 	private void setView(Resource resource) {
 		try {
-			resource.setViewCount(this.resourceCassandraService.getInt(resource.getGooruOid(), STATISTICS_VIEW_COUNT));
-			resource.setViews(resource.getViewCount()!= null ? Long.parseLong(resource.getViewCount() + "") : 0);
+			resource.setViews(this.resourceCassandraService.getLong(resource.getGooruOid(), STATISTICS_VIEW_COUNT));
+			resource.setViewCount(resource.getViews());
 		} catch (Exception e) {
-			LOGGER.error("parser error : " + e);
+			LOGGER.error("parser error : {}", e);
 		}
 	} 
 

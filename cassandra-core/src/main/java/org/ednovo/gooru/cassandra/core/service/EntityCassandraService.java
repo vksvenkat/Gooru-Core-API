@@ -45,7 +45,7 @@ public interface EntityCassandraService<K, M extends Serializable> {
 
 	Map<String, String> readViewsCount(String rowKeys);
 	
-	public Integer getInt(String key, String column);
+	public Long getLong(String key, String column);
 	
 	public Rows<String, String> readWithKeyListColumnList(Collection<String> keys,Collection<String> columnList, int retryCount);
 
