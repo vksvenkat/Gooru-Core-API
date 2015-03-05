@@ -182,21 +182,6 @@ public class DoAuthorization {
 		if (authentication.getUserToken().getUser() != null && (auth == null || hasRoleChanged(auth, authentication.getUserToken().getUser()))) {
 			doAuthentication(request, response, authentication.getUserToken().getUser(), authentication.getUserToken().getToken(), skipCache, authentication, key);
 		}
-		JSONObject session = new JSONObject();
-		try {
-			session.put("sessionToken", sessionToken);
-			if (authentication.getUserToken() != null) {
-				session.put("organizationUId", authentication.getUserToken().getUser().getOrganization().getPartyUid());
-				if (authentication.getUserToken().getApplication() != null) { 
-					session.put("apiKey", authentication.getUserToken().getApplication().getKey());
-				}
-			}
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		SessionContextSupport.putLogParameter("session", session.toString());
-
 		if (oAuthToken != null) {
 			SessionContextSupport.putLogParameter("oauthAccessToken", oAuthToken);
 		}
@@ -219,10 +204,10 @@ public class DoAuthorization {
 			}
 			try {
 				if (key != null) {
-					getRedisService().put(key,new JSONSerializer().transform(new ExcludeNullTransformer(), void.class).include(new String[] { "*.operationAuthorities", "*.userRoleSet", "*.partyOperations", "*.subOrganizationUids", "*.orgPermits", "*.partyPermits", "*.customFields", "*.identities", "*.partyPermissions.*" }).exclude(new String[] {"*.class", "*.meta"}).serialize(authentication));
+					getRedisService().put(key,new JSONSerializer().transform(new ExcludeNullTransformer(), void.class).include(new String[] { "*.operationAuthorities", "*.userRoleSet", "*.partyOperations", "*.subOrganizationUids", "*.orgPermits", "*.partyPermits", "*.customFields", "*.identities", "*.partyPermissions.*" }).exclude(new String[] {"*.class", "*.meta"}).serialize(authentication), Constants.AUTHENTICATION_CACHE_EXPIRY_TIME_IN_SEC);
 				}
 			} catch (Exception e) {
-				LOGGER.error("Failed to  put  value from redis server");
+				LOGGER.error("Failed to  put  value from redis server {} ", e);
 			}
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Authorize User: First Name-" + user.getFirstName() + "; Last Name-" + user.getLastName() + "; Email-" + user.getUserId());

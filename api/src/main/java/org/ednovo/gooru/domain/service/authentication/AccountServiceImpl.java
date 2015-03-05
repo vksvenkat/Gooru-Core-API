@@ -25,6 +25,7 @@ package org.ednovo.gooru.domain.service.authentication;
 
 import java.util.Date;
 import java.util.Random;
+import java.util.UUID;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -34,6 +35,8 @@ import org.apache.commons.lang.StringUtils;
 import org.ednovo.gooru.application.util.TaxonomyUtil;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Application;
+import org.ednovo.gooru.core.api.model.Credential;
+import org.ednovo.gooru.core.api.model.CustomTableValue;
 import org.ednovo.gooru.core.api.model.Identity;
 import org.ednovo.gooru.core.api.model.Organization;
 import org.ednovo.gooru.core.api.model.PartyCustomField;
@@ -41,6 +44,8 @@ import org.ednovo.gooru.core.api.model.Profile;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserAccountType;
 import org.ednovo.gooru.core.api.model.UserToken;
+import org.ednovo.gooru.core.application.util.BaseUtil;
+import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.application.util.ServerValidationUtils;
 import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.core.constant.ConstantProperties;
@@ -193,10 +198,22 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 				if (identity.getCredential() == null) {
 					throw new UnauthorizedException(generateErrorMessage(GL0078), GL0078);
 				}
-				final String encryptedPassword = this.getUserService().encryptPassword(password);
-				if (user == null || !(encryptedPassword.equals(identity.getCredential().getPassword()) || password.equals(identity.getCredential().getPassword()))) {
+				
+				final String encryptedPassword;
+				Credential credential = identity.getCredential();
+				if(credential != null && credential.getPasswordEncryptType() != null &&  credential.getPasswordEncryptType().equalsIgnoreCase(CustomProperties.PasswordEncryptType.MD5.getPasswordEncryptType())){
+					encryptedPassword = BaseUtil.getStringMD5Hash(password);
+				}else{
+					encryptedPassword = this.getUserService().encryptPassword(password);
+				}
+				if (user == null || !(encryptedPassword.equals(identity.getCredential().getPassword()))) {
 					throw new UnauthorizedException(generateErrorMessage(GL0081), GL0081);
 				}
+				if(credential != null && credential.getPasswordEncryptType() != null && credential.getPasswordEncryptType().equalsIgnoreCase(CustomProperties.PasswordEncryptType.MD5.getPasswordEncryptType())){
+					credential.setPassword(this.getUserService().encryptPassword(password));
+					credential.setPasswordEncryptType(CustomProperties.PasswordEncryptType.SHA.getPasswordEncryptType());
+				}
+					
 			}
 
 			if (user.getConfirmStatus() == 0) {
@@ -253,10 +270,10 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 					getRedisService().put(
 							SESSION_TOKEN_KEY + userToken.getToken(),
 							new JSONSerializer().transform(new ExcludeNullTransformer(), void.class).include(new String[] { "*.operationAuthorities", "*.userRoleSet", "*.partyOperations", "*.subOrganizationUids", "*.orgPermits", "*.partyPermits", "*.customFields", "*.identities", "*.partyPermissions.*" })
-									.exclude(new String[] {"*.class", "*.meta"}).serialize(authentication));
+					        .exclude(new String[] {"*.class", "*.meta"}).serialize(authentication), Constants.AUTHENTICATION_CACHE_EXPIRY_TIME_IN_SEC);
 				}
 			} catch (Exception e) {
-				LOGGER.error("Failed to  put  value from redis server");
+				LOGGER.error("Failed to  put  value from redis server {}", e);
 			}
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Authorize User: First Name-" + user.getFirstName() + "; Last Name-" + user.getLastName() + "; Email-" + user.getUserId());

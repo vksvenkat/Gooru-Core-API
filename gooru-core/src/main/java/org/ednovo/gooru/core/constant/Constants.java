@@ -184,20 +184,28 @@ public class Constants implements ParameterProperties {
 		accountCreatedType.put("wsfed", "03");
 		ACCOUNT_TYPES = Collections.unmodifiableMap(accountCreatedType);
 	}
+	
+	public static final int AUTHENTICATION_CACHE_EXPIRY_TIME_IN_SEC = 28800;
+	
+	public static final int CACHE_EXPIRY_TIME_IN_SEC = 10800;
+	
+	public static final int LIBRARY_CACHE_EXPIRY_TIME_IN_SEC = 86400;
 	public static final Map<String, String> COLLECTION_TYPES;
 	static{
-		Map<String, String> colletionType = new HashMap<String, String>();
-		colletionType.put(LESSON, COLLECTION_TYPE);
-		colletionType.put(SHELF, COLLECTION_TYPE);
-		colletionType.put(COLLECTION, COLLECTION_TYPE);
-		colletionType.put(QUIZ, COLLECTION_TYPE);
-		colletionType.put(FOLDER, COLLECTION_TYPE);
-		colletionType.put(ASSIGNMENT, COLLECTION_TYPE);
-		colletionType.put(ASSESSMENT, COLLECTION_TYPE);
-		colletionType.put(ASSESSMENT_URL, COLLECTION_TYPE);
-		colletionType.put(CollectionType.STORY.getCollectionType(), COLLECTION_TYPE);
-		COLLECTION_TYPES = Collections.unmodifiableMap(colletionType);
+		Map<String, String> collectionType = new HashMap<String, String>();
+		collectionType.put(LESSON, COLLECTION_TYPE);
+		collectionType.put(SHELF, COLLECTION_TYPE);
+		collectionType.put(COLLECTION, COLLECTION_TYPE);
+		collectionType.put(QUIZ, COLLECTION_TYPE);
+		collectionType.put(FOLDER, COLLECTION_TYPE);
+		collectionType.put(ASSIGNMENT, COLLECTION_TYPE);
+		collectionType.put(ASSESSMENT, COLLECTION_TYPE);
+		collectionType.put(ASSESSMENT_URL, COLLECTION_TYPE);
+		collectionType.put(CollectionType.STORY.getCollectionType(), COLLECTION_TYPE);
+		COLLECTION_TYPES = Collections.unmodifiableMap(collectionType);
 	}
+	
+	public static final String TWENTY_FIRST_CENTURY_SKILLS = "21st_century_skills";
 	
 	
 }

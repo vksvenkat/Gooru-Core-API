@@ -57,6 +57,12 @@ public class GooruInterceptor extends HandlerInterceptorAdapter {
 	private static final Logger ACTIVITY_LOGGER = LoggerFactory.getLogger("activityLog");
 	
 	private static final JSONSerializer SERIALIZER = new JSONSerializer();
+
+	private static final String SESSIONTOKEN = "sessionToken";
+
+	private static final String ORGANIZATION_UID = "organizationUId";
+
+	private static final String API_KEY = "apiKey";
 	
 	@Autowired
 	private KafkaEventHandler kafkaService;
@@ -115,10 +121,16 @@ public class GooruInterceptor extends HandlerInterceptorAdapter {
 		SessionContextSupport.putLogParameter("user", user.toString());
 		
 		JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session").toString()) :  new JSONObject();
+		if (party != null && party.getOrganization() != null) {
+		   session.put(ORGANIZATION_UID, party.getOrganization().getOrganizationUid());
+		}
+		session.put(SESSIONTOKEN, request.getParameter("sessionToken"));
+		session.put(API_KEY, request.getParameter("apiKey"));
 		SessionContextSupport.putLogParameter("session", session.toString());
 		JSONObject version = new JSONObject();
 		version.put("logApi", "0.1");
 		SessionContextSupport.putLogParameter("version", version.toString());
+		
 		return true;
 	}
 

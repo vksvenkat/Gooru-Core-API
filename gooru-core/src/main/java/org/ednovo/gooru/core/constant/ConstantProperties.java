@@ -68,7 +68,7 @@ public interface ConstantProperties {
 			"*.license.definition", "*.dimensions", "*.defaultImage", "*.createdOn", "*.user", "*.usernameDisplay", "*.profileImageUrl", "*.lastName", "*.firstName", "*.username", "*.description", "*.folder", "*.gooruOid", "*.sharing", "*.title", "*.views", "*.thumbnails", "*.url",
 			"*.lastModified", "*.gooruUId", "*.mailNotification", "*.vocabulary", "*.collaborators", "*.network", "*.publishStatus", "*.buildType", "*.publishStatus.value", "*.publishStatus.displayName", "*.buildType.value", "*.instructional.value", "*.instructional.displayName", "*.emailId",
 			"*.lastModifiedUser", "*.modifiedDate", "*.gooruid", "*.username", "*.ideas", "*.questions", "*.performanceTasks", "*.languageObjective", "*.audience.selected", "*.audience.value", "*.instructionalMethod.value", "*.instructionalMethod.selected", "*.depthOfKnowledges.value",
-			"*.depthOfKnowledges.selected", "*.learningSkills.selected", "*.learningSkills.value", "*.customFields", "*.optionalValue", "*.optionalKey","*.totalHitCount", "*.searchResults", "*.count", "*.totalPages","*.collectionItemId","*.settings.*","*.data"};
+			"*.depthOfKnowledges.selected", "*.learningSkills.selected", "*.learningSkills.value", "*.customFields", "*.optionalValue", "*.optionalKey","*.totalHitCount", "*.searchResults", "*.count", "*.totalPages","*.collectionItemId","*.settings.*","*.data", "*.skills"};
 
 	static final String LIBRARY_COLLECTION_INCLUDE_FIELDS[] = { "*.narrationLink", "collection.notes", "*.keyPoints", "*.language", "*.goals", "*.grade", "*.estimatedTime", "*.collectionType", "*.assetURI", "*.license", "*.license.code", "*.license.icon", "*.license.name", "*.license.definition",
 			"*.dimensions", "*.defaultImage", "*.createdOn", "*.description", "*.folder", "*.gooruOid", "*.sharing", "*.title", "*.views", "*.thumbnails", "*.url", "*.vocabulary", "*.collaborators", "*.network", "*.buildType", "*.buildType.value", "*.resourceFormat", "*.resourceFormat.value",
@@ -843,7 +843,7 @@ public interface ConstantProperties {
    
    public static final String SOURCE_GOORU_ID = "sourceGooruId";
    
-   public static final String STATISTICS_VIEW_COUNT = "statistics.viewsCount";
+   public static final String STATISTICS_VIEW_COUNT = "statistics.viewsCountN";
    
    public static final String REORDER = "reorder";
    
@@ -854,5 +854,8 @@ public interface ConstantProperties {
    public final static String TOC = "toc";
 
    public final static String HYPHEN = "-";
+   
+   public static final String TAXONOMY_SKILLS_INCLUDES[] =  {"*.model", "*.key", "*.code", "*.codeId", "*.label", "*.node"};
+   
 }
 

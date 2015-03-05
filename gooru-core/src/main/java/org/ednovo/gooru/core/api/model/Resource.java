@@ -132,7 +132,7 @@ public class Resource extends Content implements Serializable {
 
 	private Integer s3UploadFlag = 0;
 
-	private Integer viewCount;
+	private Long viewCount;
 
 	private Integer subscriptionCount;
 
@@ -563,12 +563,12 @@ public class Resource extends Content implements Serializable {
 		this.addDate = addDate;
 	}
 
-	public void setViewCount(Integer viewCount) {
-		this.viewCount = viewCount;
+	public Long getViewCount() {
+		return viewCount;
 	}
 
-	public Integer getViewCount() {
-		return viewCount;
+	public void setViewCount(Long viewCount) {
+		this.viewCount = viewCount;
 	}
 
 	public void setSubscriptionCount(Integer subscriptionCount) {

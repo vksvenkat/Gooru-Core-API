@@ -49,7 +49,7 @@ public class BaseUtil {
 		return builder.toString();
 	}
 
-	protected static String getStringMD5Hash(String text) throws Exception {
+	public static String getStringMD5Hash(String text) throws Exception {
 		return getByteMD5Hash(text.getBytes("iso-8859-1"));
 	}
 

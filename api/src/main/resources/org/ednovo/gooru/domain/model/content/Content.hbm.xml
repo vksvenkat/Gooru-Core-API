@@ -87,6 +87,7 @@
 			<one-to-many class="org.ednovo.gooru.core.api.model.ContentMetaAssociation" />
 		</set>
 
+
 		<joined-subclass name="org.ednovo.gooru.core.api.model.Task"
 			table="task">
 

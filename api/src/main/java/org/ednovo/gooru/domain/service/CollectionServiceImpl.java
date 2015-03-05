@@ -75,6 +75,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
+import org.ednovo.gooru.core.constant.Constants;
 
 @Service
 public class CollectionServiceImpl extends ScollectionServiceImpl implements CollectionService {
@@ -277,10 +278,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		}
 		if (sourceCollectionItem != null) {
 			updateFolderSharing(sourceCollectionItem.getCollection().getGooruOid());
-			List<String> parenFolders = this.getParentCollection(sourceCollectionItem.getCollection().getGooruOid(), user.getPartyUid(), false);
-			for (String folderGooruOid : parenFolders) {
-				updateFolderSharing(folderGooruOid);
-			}
+			resetFolderVisibility(sourceCollectionItem.getCollection().getGooruOid(), user.getPartyUid());
 			deleteCollectionItem(sourceCollectionItem.getCollectionItemId(), user, true);
 		}
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
@@ -774,10 +772,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 							this.getUserRepository().save(userSummary);
 						}
 						scollection.setSharing(PUBLIC);
-						List<String> parenFolders = this.getParentCollection(scollection.getGooruOid(), scollection.getUser().getPartyUid(), false);
-						for (String folderGooruOid : parenFolders) {
-							updateFolderSharing(folderGooruOid);
-						}
+						resetFolderVisibility(scollection.getGooruOid(), scollection.getUser().getPartyUid());
 						updateResourceSharing(PUBLIC, scollection);
 						try {
 							String mailId = scollection.getUser().getIdentities().iterator().next().getExternalId();
@@ -831,10 +826,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 							collectionIds.append(",");
 						}
 						scollection.setSharing(ANYONE_WITH_LINK);
-						List<String> parenFolders = this.getParentCollection(scollection.getGooruOid(), scollection.getUser().getPartyUid(), false);
-						for (String folderGooruOid : parenFolders) {
-							updateFolderSharing(folderGooruOid);
-						}
+						resetFolderVisibility(scollection.getGooruOid(), scollection.getUser().getPartyUid());
 						updateResourceSharing(ANYONE_WITH_LINK, scollection);
 					} else {
 						throw new BadRequestException(generateErrorMessage("GL0091"));
@@ -869,7 +861,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 					content.put(COLLECTION_COUNT, this.getCollectionRepository().getCollectionItemCount(gooruOid, sharing, collectionType != null ? collectionType : COLLECTION, excludeType));
 				}
 				data = SerializerUtil.serializeToJson(content, TOC_EXCLUDES, true, true);
-					redisService.putValue(cacheKey, data);
+				redisService.putValue(cacheKey, data, fetchChildItem ? Constants.LIBRARY_CACHE_EXPIRY_TIME_IN_SEC : Constants.CACHE_EXPIRY_TIME_IN_SEC);
 			}
 		}
 		return data;

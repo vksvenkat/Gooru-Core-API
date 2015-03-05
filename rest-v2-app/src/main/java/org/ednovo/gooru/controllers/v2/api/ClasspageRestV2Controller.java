@@ -293,7 +293,7 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 			result.setSearchResults(collectionItems);
 			result.setTotalHitCount(this.getCollectionRepository().getClasspageCollectionCount(classpageId, status, user.getPartyUid(), orderBy, type));
 			data = serialize(result, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, true, includes);
-			getRedisService().putValue(cacheKey, data, 86400);
+			getRedisService().putValue(cacheKey, data, Constants.CACHE_EXPIRY_TIME_IN_SEC);
 		}
 		return toModelAndView(data);
 	}
@@ -396,8 +396,8 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/item", method = RequestMethod.GET)
 	public ModelAndView getClasspageAssoc(@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,@RequestParam(value = CLASSPAGE_ID, required = false) String classpageId ,
-			@RequestParam(value = COLLECTION_ID, required = false) String collectionId,@RequestParam(value = TITLE, required = false) String title,@RequestParam(value = COLLECTION_TITLE, required = false) String collectionTitle, @RequestParam(value = CLASS_CODE, required = false) String classCode,@RequestParam(value = COLLECTION_CREATOR, required = false) String collectionCreator ){	
-		return toJsonModelAndView(this.getClasspageService().getClasspageAssoc(offset, limit, classpageId,collectionId,title,collectionTitle,classCode,collectionCreator),true);
+			@RequestParam(value = COLLECTION_ID, required = false) String collectionId,@RequestParam(value = TITLE, required = false) String title,@RequestParam(value = COLLECTION_TITLE, required = false) String collectionTitle, @RequestParam(value = CLASS_CODE, required = false) String classCode,@RequestParam(value = COLLECTION_CREATOR, required = false) String collectionCreator,@RequestParam(value = COLLECTION_ITEM_ID, required = false) String collectionItemId ){	
+		return toJsonModelAndView(this.getClasspageService().getClasspageAssoc(offset, limit, classpageId,collectionId,title,collectionTitle,classCode,collectionCreator,collectionItemId),true);
 	}
 	
 	/********************pathway ***********************/
@@ -482,7 +482,7 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 			includesDefault = (String[]) ArrayUtils.addAll(includesDefault, COLLECTION_WORKSPACE);
 			String includes[] = (String[]) ArrayUtils.addAll(includesDefault, ERROR_INCLUDE);
 			data = serialize(searchResults, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, true, includes);
-			getRedisService().putValue(cacheKey, data, 86400);
+			getRedisService().putValue(cacheKey, data, Constants.CACHE_EXPIRY_TIME_IN_SEC);
 		}
 		return toModelAndView(data);
 	}
