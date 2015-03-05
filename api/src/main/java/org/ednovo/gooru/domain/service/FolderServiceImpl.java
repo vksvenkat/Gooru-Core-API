@@ -184,6 +184,7 @@ public class FolderServiceImpl extends BaseServiceImpl implements FolderService,
 			nextCollection.put(COLLECTION_ITEM_ID, nextCollectionItem.getCollectionItemId());
 			nextCollection.put(TITLE, nextCollectionItem.getResource().getTitle());
 			nextCollection.put(GOORU_OID, nextCollectionItem.getResource().getGooruOid());
+			nextCollection.put(THUMBNAILS, nextCollectionItem.getResource().getThumbnails());
 		}
 		return nextCollection;
 	}
