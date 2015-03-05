@@ -53,7 +53,6 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 
 	private static final String PAGE_NO = "pageNum";
 	
-	private static final String COLLECTION = "SELECT collectionItem.resource FROM CollectionItem collectionItem WHERE  collectionItem.collection.gooruOid=:collectionId and collectionItem.itemSequence=:itemSequence  and " + generateOrgAuthQuery("collectionItem.collection.");
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -1132,11 +1131,16 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 	}
 
 	@Override
-	public Resource getNextCollectionItemResource(String collectionId, int sequence) {
-		Query query = getSession().createQuery(COLLECTION);
+	public CollectionItem getNextCollectionItemResource(String collectionId, int sequence, String excludeType) {
+		String hql = "FROM CollectionItem collectionItem WHERE  collectionItem.collection.gooruOid=:collectionId and collectionItem.itemSequence<:itemSequence ";
+		if (excludeType != null) { 
+			hql += " and collectionItem.collection.collectionType not in ('"+ excludeType.replace(",", "','") + "')";
+		}
+		hql += " order by collectionItem.itemSequence desc";
+		Query query = getSession().createQuery(hql);
 		query.setParameter(COLLECTION_ID, collectionId);
 		query.setParameter(ITEM_SEQUENCE, sequence);
-		addOrgAuthParameters(query);
-		return (Resource) ((query.list().size() > 0) ? query.list().get(0) : null);
+		query.setMaxResults(1);
+		return (CollectionItem) ((query.list().size() > 0) ? query.list().get(0) : null);
 	}
 }
