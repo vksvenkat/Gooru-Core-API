@@ -2860,11 +2860,11 @@ public interface ParameterProperties {
 	
 	String CITY_CODE = "city code";
 	
-	String STATE_UID = "state_uid";
+	String STATE_UID = "stateUid";
 	
 	String COUNTRY_UID = "countryUid";
 	
-	String CITY_UID = "city_uid";
+	String CITY_UID = "cityUid";
 	
 }
 
