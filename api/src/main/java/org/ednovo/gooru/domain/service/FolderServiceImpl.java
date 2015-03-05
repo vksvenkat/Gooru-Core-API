@@ -175,10 +175,17 @@ public class FolderServiceImpl extends BaseServiceImpl implements FolderService,
 	}
 
 	@Override
-	public Resource getNextCollectionItem(String collectionItemId) {
+	public Map<String, Object> getNextCollectionItem(String collectionItemId, String excludeType) {
 		CollectionItem collectionItem = this.getCollectionRepository().getCollectionItemById(collectionItemId);
 		rejectIfNull(collectionItem, GL0056, 404, COLLECTION_ITEM);
-		return this.getCollectionRepository().getNextCollectionItemResource(collectionItem.getCollection().getGooruOid(), (collectionItem.getItemSequence() - 1));
+		Map<String, Object> nextCollection =  new HashMap<String, Object>();
+		CollectionItem nextCollectionItem = this.getCollectionRepository().getNextCollectionItemResource(collectionItem.getCollection().getGooruOid(), collectionItem.getItemSequence(), excludeType);
+		if (nextCollectionItem != null) { 
+			nextCollection.put(COLLECTION_ITEM_ID, nextCollectionItem.getCollectionItemId());
+			nextCollection.put(TITLE, nextCollectionItem.getResource().getTitle());
+			nextCollection.put(GOORU_OID, nextCollectionItem.getResource().getGooruOid());
+		}
+		return nextCollection;
 	}
 
 	public RedisService getRedisService() {
