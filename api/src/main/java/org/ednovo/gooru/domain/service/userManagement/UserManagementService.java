@@ -34,7 +34,6 @@ import org.ednovo.gooru.core.api.model.Application;
 import org.ednovo.gooru.core.api.model.CustomTableValue;
 import org.ednovo.gooru.core.api.model.EntityOperation;
 import org.ednovo.gooru.core.api.model.Identity;
-import org.ednovo.gooru.core.api.model.Organization;
 import org.ednovo.gooru.core.api.model.Profile;
 import org.ednovo.gooru.core.api.model.RoleEntityOperation;
 import org.ednovo.gooru.core.api.model.User;
@@ -67,7 +66,7 @@ public interface UserManagementService extends BaseService {
 	
 	SearchResults<Map<String, Object>> getFollowedByUsers(String gooruUserId, Integer offset, Integer limit);
 
-	Profile updateProfileInfo(Profile profile, String gooruUid, User apiCaller, String activeFlag, Boolean emailConfirmStatus, String showProfilePage,String accountType,String password) throws JSONException;
+	Profile updateProfileInfo(Profile profile, String gooruUid, User apiCaller, String activeFlag, Boolean emailConfirmStatus, String showProfilePage,String accountType,String password);
 
 	void validateUserOrganization(String organizationCode, String superAdminToken) throws Exception;
 

@@ -41,7 +41,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import javax.json.JsonObject;
 import javax.servlet.http.HttpServletRequest;
 
 import org.ednovo.gooru.application.util.ProfileImageUtil;
@@ -65,7 +64,6 @@ import org.ednovo.gooru.core.api.model.PartyCustomField;
 import org.ednovo.gooru.core.api.model.Profile;
 import org.ednovo.gooru.core.api.model.Province;
 import org.ednovo.gooru.core.api.model.RoleEntityOperation;
-import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserAccountType;
@@ -77,7 +75,6 @@ import org.ednovo.gooru.core.api.model.UserRole.UserRoleType;
 import org.ednovo.gooru.core.api.model.UserRoleAssoc;
 import org.ednovo.gooru.core.api.model.UserSummary;
 import org.ednovo.gooru.core.api.model.UserToken;
-import org.ednovo.gooru.core.application.util.BaseUtil;
 import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.core.constant.ConstantProperties;
