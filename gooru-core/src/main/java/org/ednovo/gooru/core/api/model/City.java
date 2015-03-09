@@ -8,7 +8,8 @@ public class City implements Serializable{
 	 * 
 	 */
 	private static final long serialVersionUID = 1767890553132273348L;
-	private String cityId;
+	private String cityCode;
+	private String cityUid;
 	private String name;
 	private Country country;
 	private Province province;
@@ -25,12 +26,21 @@ public class City implements Serializable{
 	public void setProvince(Province province) {
 		this.province = province;
 	}
-	public String getCityId() {
-		return cityId;
+	
+	public String getCityCode() {
+		return cityCode;
 	}
-	public void setCityId(String cityId) {
-		this.cityId = cityId;
+	public void setCityCode(String cityCode) {
+		this.cityCode = cityCode;
 	}
+	
+	public String getCityUid() {
+		return cityUid;
+	}
+	public void setCityUid(String cityUid) {
+		this.cityUid = cityUid;
+	}
+	
 	public String getName() {
 		return name;
 	}

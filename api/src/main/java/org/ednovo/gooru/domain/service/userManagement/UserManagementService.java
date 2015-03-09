@@ -42,6 +42,7 @@ import org.ednovo.gooru.core.api.model.UserRoleAssoc;
 import org.ednovo.gooru.core.api.model.UserToken;
 import org.ednovo.gooru.domain.service.BaseService;
 import org.ednovo.gooru.domain.service.search.SearchResults;
+import org.json.JSONException;
 
 public interface UserManagementService extends BaseService {
 

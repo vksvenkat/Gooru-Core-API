@@ -809,13 +809,13 @@ public interface ConstantProperties {
    
    public static String CREATIVE_COMMONS = "creative commons";
    
-   static final String COUNTRY[] = { "*.countryId", "*.name", "*.totalHitCount", "*.searchResults"};
+   static final String COUNTRY[] = { "*.countryUid","*.countryCode", "*.name", "*.totalHitCount", "*.searchResults"};
    
-   static final String STATE[] = { "*.stateId", "*.name", "*.totalHitCount", "*.searchResults"};
+   static final String STATE[] = {"*.stateUid","*.stateCode", "*.name", "*.totalHitCount", "*.searchResults"};
    
-   static final String CITY[] = { "*.cityId", "*.name", "*.totalHitCount", "*.searchResults"};
+   static final String CITY[] =  {"*.cityUid","*.cityCode", "*.name", "*.totalHitCount", "*.searchResults"};
    
-   static final String INSTITUTION_INCLUDES_ADD[] = {"*.name", "*.id", "*.ParentId", "*.stateProvince", "*.stateId", "*.totalHitCount", "*.searchResults"};
+   static final String INSTITUTION_INCLUDES_ADD[] = {"*.name", "*.id", "*.ParentId", "*.stateProvince", "*.stateCode", "*.totalHitCount", "*.searchResults"};
    
    public static final String PUBLISH_COLLECTION = "publish_collection";
    
@@ -856,6 +856,8 @@ public interface ConstantProperties {
    public final static String HYPHEN = "-";
    
    public static final String TAXONOMY_SKILLS_INCLUDES[] =  {"*.model", "*.key", "*.code", "*.codeId", "*.label", "*.node"};
+   
+   public static final String UNDER_SCORE = "_";
    
 }
 

@@ -9,6 +9,7 @@ import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Country;
 import org.ednovo.gooru.core.api.model.Province;
 import org.ednovo.gooru.core.api.model.City;
+import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.GooruOperationConstants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
@@ -27,15 +28,18 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
+import scala.collection.CustomParallelizable;
+
 @Controller
 @RequestMapping(value = { "/v2/country" })
-public class CountryRestV2Controller extends BaseController implements ConstantProperties, ParameterProperties {
+public class CountryRestV2Controller extends BaseController implements ConstantProperties, ParameterProperties{
 
 	@Autowired
 	public CountryService countryService;
 
 	@Autowired
 	public OrganizationService organizationService;
+	
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_COUNTRY_ADD })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -54,15 +58,15 @@ public class CountryRestV2Controller extends BaseController implements ConstantP
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_COUNTRY_UPDATE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}" }, method = RequestMethod.PUT)
-	public ModelAndView updateCountry(@PathVariable(value = ID) String countryId, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		return toModelAndViewWithIoFilter(getCountryService().updateCountry(countryId, buildCountryFromInputParameters(data)), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, COUNTRY);
+	public ModelAndView updateCountry(@PathVariable(value = ID) String countryUid, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		return toModelAndViewWithIoFilter(getCountryService().updateCountry(countryUid, buildCountryFromInputParameters(data)), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, COUNTRY);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_COUNTRY_READ })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}" }, method = RequestMethod.GET)
-	public ModelAndView getCountry(@PathVariable(value = ID) String countryId, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		return toModelAndViewWithIoFilter(getCountryService().getCountry(countryId), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, COUNTRY);
+	public ModelAndView getCountry(@PathVariable(value = ID) String countryUid, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		return toModelAndViewWithIoFilter(getCountryService().getCountry(countryUid), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, COUNTRY);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_COUNTRY_READ })
@@ -75,16 +79,16 @@ public class CountryRestV2Controller extends BaseController implements ConstantP
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_COUNTRY_DELETE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}" }, method = RequestMethod.DELETE)
-	public void deleteCountry(@PathVariable(value = ID) String countryId, HttpServletRequest request, HttpServletResponse response) {
-		getCountryService().deleteCountry(countryId);
+	public void deleteCountry(@PathVariable(value = ID) String countryUid, HttpServletRequest request, HttpServletResponse response) {
+		getCountryService().deleteCountry(countryUid);
 		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_STATE_ADD })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}/state " }, method = RequestMethod.POST)
-	public ModelAndView createState(@PathVariable(value = ID) String countryId, String stateId, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		ActionResponseDTO<Province> responseDTO = getCountryService().createState(buildProvinceFromInputParameters(data), countryId);
+	public ModelAndView createState(@PathVariable(value = ID) String countryUid, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		ActionResponseDTO<Province> responseDTO = getCountryService().createState(buildProvinceFromInputParameters(data), countryUid);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		} else {
@@ -97,89 +101,89 @@ public class CountryRestV2Controller extends BaseController implements ConstantP
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_STATE_UPDATE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}/state/{sid}" }, method = RequestMethod.PUT)
-	public ModelAndView updateState(@PathVariable(value = ID) String countryId, @PathVariable(value = SID) String stateId, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		return toModelAndViewWithIoFilter(getCountryService().updateState(countryId, stateId, buildProvinceFromInputParameters(data)), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, STATE);
+	public ModelAndView updateState(@PathVariable(value = ID) String countryUid, @PathVariable(value = SID) String stateUid, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		return toModelAndViewWithIoFilter(getCountryService().updateState(countryUid, stateUid, buildProvinceFromInputParameters(data)), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, STATE);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_STATE_READ })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}/state/{sid}" }, method = RequestMethod.GET)
-	public ModelAndView getState(@PathVariable(value = ID) String countryId, @PathVariable(value = SID) String stateId, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		return toModelAndViewWithIoFilter(getCountryService().getState(countryId, stateId), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, STATE);
+	public ModelAndView getState(@PathVariable(value = ID) String countryUid, @PathVariable(value = SID) String stateUid, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		return toModelAndViewWithIoFilter(getCountryService().getState(countryUid, stateUid), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, STATE);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_STATE_READ })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "{id}/state" }, method = RequestMethod.GET)
-	public ModelAndView getStates(@PathVariable(value = ID) String countryId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, HttpServletRequest request,
+	public ModelAndView getStates(@PathVariable(value = ID) String countryUid, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, HttpServletRequest request,
 			HttpServletResponse response) throws Exception {
-		return toModelAndViewWithIoFilter(getCountryService().getStates(countryId, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, STATE);
+		return toModelAndViewWithIoFilter(getCountryService().getStates(countryUid, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, STATE);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_STATE_DELETE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}/state/{sid}" }, method = RequestMethod.DELETE)
-	public void deleteState(@PathVariable(value = ID) String countryId, @PathVariable(value = SID) String stateId, HttpServletRequest request, HttpServletResponse response) {
-		getCountryService().deleteState(countryId, stateId);
+	public void deleteState(@PathVariable(value = ID) String countryUid, @PathVariable(value = SID) String stateUid, HttpServletRequest request, HttpServletResponse response) {
+		getCountryService().deleteState(countryUid, stateUid);
 		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CITY_ADD })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}/state/{sid}/city" }, method = RequestMethod.POST)
-	public ModelAndView createCity(@PathVariable(value = ID) String countryId, @PathVariable(value = SID) String stateId, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		ActionResponseDTO<City> responseDTO = getCountryService().createCity(buildCityFromInputParameters(data), countryId, stateId);
+	public ModelAndView createCity(@PathVariable(value = ID) String countryUid, @PathVariable(value = SID) String stateUid, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		ActionResponseDTO<City> responseDTO = getCountryService().createCity(buildCityFromInputParameters(data), countryUid, stateUid);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		} else {
 			response.setStatus(HttpServletResponse.SC_CREATED);
 		}
-		String includes[] = (String[]) ArrayUtils.addAll(COUNTRY, ERROR_INCLUDE);
+		String includes[] = (String[]) ArrayUtils.addAll(CITY, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CITY_UPDATE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}/state/{sid}/city/{cid}" }, method = RequestMethod.PUT)
-	public ModelAndView updateCity(@PathVariable(value = ID) String countryId, @PathVariable(value = SID) String stateId, @PathVariable(value = CID) String cityId, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		return toModelAndViewWithIoFilter(getCountryService().updateCity(countryId, stateId, cityId, buildCityFromInputParameters(data)), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, CITY);
+	public ModelAndView updateCity(@PathVariable(value = ID) String countryUid, @PathVariable(value = SID) String stateUid, @PathVariable(value = CID) String cityUid, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		return toModelAndViewWithIoFilter(getCountryService().updateCity(countryUid, stateUid, cityUid, buildCityFromInputParameters(data)), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, CITY);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CITY_READ })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}/state/{sid}/city/{cid}" }, method = RequestMethod.GET)
-	public ModelAndView getCity(@PathVariable(value = ID) String countryId, @PathVariable(value = SID) String stateId, @PathVariable(value = CID) String cityId, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		return toModelAndViewWithIoFilter(getCountryService().getCity(countryId, stateId, cityId), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, CITY);
+	public ModelAndView getCity(@PathVariable(value = ID) String countryUid, @PathVariable(value = SID) String stateUid, @PathVariable(value = CID) String cityUid, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		return toModelAndViewWithIoFilter(getCountryService().getCity(countryUid, stateUid, cityUid), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, CITY);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CITY_READ })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "{id}/state/{sid}/city" }, method = RequestMethod.GET)
-	public ModelAndView getCities(@PathVariable(value = ID) String countryId, @PathVariable(value = SID) String stateId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,
+	public ModelAndView getCities(@PathVariable(value = ID) String countryUid, @PathVariable(value = SID) String stateUid, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,
 			HttpServletRequest request, HttpServletResponse response) throws Exception {
-		return toModelAndViewWithIoFilter(getCountryService().getCities(countryId, stateId, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, CITY);
+		return toModelAndViewWithIoFilter(getCountryService().getCities(countryUid, stateUid, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, CITY);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CITY_DELETE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}/state/{sid}/city/{cid}" }, method = RequestMethod.DELETE)
-	public void deleteCity(@PathVariable(value = ID) String countryId, @PathVariable(value = SID) String stateId, @PathVariable(value = CID) String cityId, HttpServletRequest request, HttpServletResponse response) {
-		getCountryService().deleteCity(countryId, stateId, cityId);
+	public void deleteCity(@PathVariable(value = ID) String countryUid, @PathVariable(value = SID) String stateUid, @PathVariable(value = CID) String cityUid, HttpServletRequest request, HttpServletResponse response) {
+		getCountryService().deleteCity(countryUid, stateUid, cityUid);
 		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
 	}
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCHOOL_DISTRICT_READ })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}/state/{sid}/school-district" }, method = RequestMethod.GET)
-	public ModelAndView getStateSchoolDistricts(@PathVariable(value = ID) String countryId, @PathVariable(value = SID) String stateId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, HttpServletRequest request, HttpServletResponse response) {
-		return toModelAndViewWithIoFilter(this.getOrganizationService().getOrganizations("school_district", null, stateId, offset, limit), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, INSTITUTION_INCLUDES_ADD);
+	public ModelAndView getStateSchoolDistricts(@PathVariable(value = ID) String countryUid, @PathVariable(value = SID) String stateUid, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, HttpServletRequest request, HttpServletResponse response) {
+		return toModelAndViewWithIoFilter(this.getOrganizationService().getOrganizations(CustomProperties.InstitutionType.SCHOOL_DISTRICT.getInstitutionType(), null, stateUid, offset, limit), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, INSTITUTION_INCLUDES_ADD);
 	}
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCHOOL_READ })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}/state/{sid}/school-district/{schoolDistrictId}/school" }, method = RequestMethod.GET)
-	public ModelAndView getStateSchoolDistrictSchools(@PathVariable(value = ID) String countryId, @PathVariable(value = SID) String stateId, @PathVariable(value = "schoolDistrictId") String schoolDistrictId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, HttpServletRequest request, HttpServletResponse response) {
-		return toModelAndViewWithIoFilter(this.getOrganizationService().getOrganizations("school", null, stateId, offset, limit), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, INSTITUTION_INCLUDES_ADD);
+	public ModelAndView getStateSchoolDistrictSchools(@PathVariable(value = ID) String countryUid, @PathVariable(value = SID) String stateUid, @PathVariable(value = "schoolDistrictId") String schoolDistrictId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, HttpServletRequest request, HttpServletResponse response) {
+		return toModelAndViewWithIoFilter(this.getOrganizationService().getOrganizations(CustomProperties.InstitutionType.SCHOOL.getInstitutionType(), null, stateUid, offset, limit), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, INSTITUTION_INCLUDES_ADD);
 	}
 
 	private Country buildCountryFromInputParameters(String data) {

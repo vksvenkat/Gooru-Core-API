@@ -1425,6 +1425,10 @@ public interface ParameterProperties {
 	String BIRTH_YEAR = "birthYear";
 
 	String ABOUT_ME = "aboutMe";
+	
+	String DISTRICT = "district";
+	
+	String PROVINCE = "province";
 
 	String HIGHEST_DEGREE = "highestDegree";
 
@@ -2841,6 +2845,31 @@ public interface ParameterProperties {
 	String ASSESSMENT_URL = "assessment/url";
 	
 	String TWO = "2";
+
+	String COUNTRY_ = "country";
 	
+	String STATE_ = "state";
+	
+	String CITY_ = "city";
+	
+	String COUNTRY_NAME = "countryName";
+	
+	String STATE_NAME = "stateName";
+
+	String CITY_NAME = "cityName";
+	
+	String COUNTRY_CODE = "countryCode";
+	
+	String STATE_CODE = "stateCode";
+	
+	String CITY_CODE = "cityCode";
+	
+	String STATE_UID = "stateUid";
+	
+	String COUNTRY_UID = "countryUid";
+	
+	String CITY_UID = "cityUid";
+	
+
 }
 

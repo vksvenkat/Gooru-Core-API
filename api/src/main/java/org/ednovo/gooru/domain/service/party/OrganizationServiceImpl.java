@@ -107,6 +107,7 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 
 	@Autowired
 	private UserRepository userRepository;
+	
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
 
@@ -148,12 +149,13 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 			newOrganization.setS3StorageArea(storageRepository.getAvailableStorageArea(1));
 			newOrganization.setNfsStorageArea(storageRepository.getAvailableStorageArea(2));
 			newOrganization.setUserUid(user.getPartyUid());
-			if (organizationData.getStateProvince() != null && organizationData.getStateProvince().getStateId() != null) {
-				newOrganization.setStateProvince(getCountryRepository().getState(null, organizationData.getStateProvince().getStateId()));
+			
+			if (organizationData.getStateProvince() != null && organizationData.getStateProvince().getStateUid() != null) {
+				newOrganization.setStateProvince(getCountryRepository().getState(organizationData.getStateProvince().getStateUid()));
 			}
 			if (organizationData.getType() != null && organizationData.getType().getValue() != null) {
 				CustomTableValue type = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.ORGANIZATION_CATEGORY.getTable(), organizationData.getType().getValue());
-				rejectIfNull(type, GL0056, "type ");
+				rejectIfNull(type, GL0056, TYPE);
 				newOrganization.setType(type);
 			}
 
@@ -190,6 +192,7 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 		}
 		return new ActionResponseDTO<Organization>(newOrganization, errors);
 	}
+	
 
 	private void updateOrgSetting(Organization newOrganization) {
 		OrganizationSetting newOrganizationSetting = new OrganizationSetting();
@@ -304,10 +307,10 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 	}
 
 	@Override
-	public SearchResults<Organization> getOrganizations(String type, String parentOrganizationUid, String sateProvinceId, Integer offset, Integer limit) {
+	public SearchResults<Organization> getOrganizations(String type, String parentOrganizationUid, String stateProvinceId, Integer offset, Integer limit) {
 		SearchResults<Organization> result = new SearchResults<Organization>();
-		result.setSearchResults(this.getOrganizationRepository().getOrganizations(CustomProperties.Table.ORGANIZATION_CATEGORY.getTable() + "_" + type, parentOrganizationUid, sateProvinceId, offset, limit));
-		result.setTotalHitCount(this.getOrganizationRepository().getOrganizationCount(CustomProperties.Table.ORGANIZATION_CATEGORY.getTable() + "_" + type, parentOrganizationUid, sateProvinceId));
+		result.setSearchResults(this.getOrganizationRepository().getOrganizations(CustomProperties.Table.ORGANIZATION_CATEGORY.getTable() + UNDER_SCORE + type, parentOrganizationUid, stateProvinceId, offset, limit));
+		result.setTotalHitCount(this.getOrganizationRepository().getOrganizationCount(CustomProperties.Table.ORGANIZATION_CATEGORY.getTable() + UNDER_SCORE + type, parentOrganizationUid, stateProvinceId));
 		return result;
 	}
 

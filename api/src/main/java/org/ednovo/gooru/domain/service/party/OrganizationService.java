@@ -34,7 +34,7 @@ import org.ednovo.gooru.domain.service.search.SearchResults;
 public interface OrganizationService {
 
 	Organization getOrganizationById(String organizationUid);
-
+	
 	Organization getOrganizationByCode(String organizationCode);
 
 	SearchResults<Organization> listAllOrganizations(Integer offset, Integer limit);
@@ -53,7 +53,7 @@ public interface OrganizationService {
 
 	Organization getOrganizationByIdpName(String idpDomainName);
 
-	SearchResults<Organization> getOrganizations(String  type, String parentOrganizationUid, String stateProvinceId, Integer offset, Integer limit);
+	SearchResults<Organization> getOrganizations(String  type, String parentOrganizationUid, String stateProvinceUid, Integer offset, Integer limit);
 	
 	SearchResults<User> getUsersByOrganization(String type, String  parentOrganizationUid, String organizationUid, Integer offset, Integer limit);
 }

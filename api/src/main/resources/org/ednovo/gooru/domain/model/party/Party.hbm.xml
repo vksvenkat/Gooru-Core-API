@@ -80,8 +80,9 @@
 			<many-to-one name="parentOrganization"
 				class="org.ednovo.gooru.core.api.model.Organization" column="parent_organization_uid"
 				not-null="false" lazy="proxy" cascade="none" />
+			
 			<many-to-one name="stateProvince"
-				class="org.ednovo.gooru.core.api.model.Province" column="state_province_id"
+				class="org.ednovo.gooru.core.api.model.Province" column="state_province_uid"
 				not-null="false" lazy="proxy" cascade="none" />
 
 			<many-to-one name="type"
@@ -160,6 +161,20 @@
 			<many-to-one name="userGroup"
 				class="org.ednovo.gooru.core.api.model.UserGroup" column="user_group_uid"
 				not-null="false" lazy="false" fetch="join" cascade="none" />
+			
+			<many-to-one name="school"
+				class="org.ednovo.gooru.core.api.model.Organization" column="school_uid"
+				not-null="false" lazy="false" cascade="none" />
+			
+			<many-to-one name="schoolDistrict"
+				class="org.ednovo.gooru.core.api.model.Organization" column="school_district_uid"
+				not-null="false" lazy="false" cascade="none" />
+			
+			<many-to-one name="stateProvince"
+				class="org.ednovo.gooru.core.api.model.Province" column="state_province_uid"
+				not-null="false" lazy="proxy" cascade="none" />
+			
+			
 			<property name="viewFlag" column="view_flag" length="40"
 				not-null="false">
 			</property>

@@ -10,32 +10,34 @@ public interface CountryService {
 	
 	ActionResponseDTO<Country> createCountry(Country country);
 
-    Country updateCountry(String countryId, Country newCountry);
+    Country updateCountry(String countryUid, Country newCountry);
 
-	Country getCountry(String countryId);
+	Country getCountry(String countryUid);
 
 	SearchResults<Country> getCountries(Integer limit, Integer offset);	
 	
-    void deleteCountry(String countryId);
+    void deleteCountry(String countryUid);
     
-    ActionResponseDTO<Province> createState(Province province , String countryId);
+    ActionResponseDTO<Province> createState(Province province , String countryUid);
 
-    Province updateState(String stateId,String countryId, Province newProvince);
+    Province updateState(String countryUid,String stateUid, Province newProvince);
 
-	Province getState(String countryId ,String stateId);
-
-	SearchResults<Province> getStates(String countryId,Integer limit, Integer offset);	
+	Province getState(String countryUid ,String stateUid);
 	
-    void deleteState(String countryId, String stateId);
+	Province getState(String stateUid);
 
-	ActionResponseDTO<City> createCity(City city, String countryId, String stateId);
-
-    City updateCity(String countryId, String stateId, String cityId, City newcity);
-
-	City getCity(String countryId ,String stateId ,String cityId);
-
-	SearchResults<City> getCities(String countryId, String stateId, Integer limit, Integer offset);	
+	SearchResults<Province> getStates(String countryUid,Integer limit, Integer offset);	
 	
-    void deleteCity(String countryId, String stateId ,String cityId);
+    void deleteState(String countryUid, String stateUid);
+
+	ActionResponseDTO<City> createCity(City city, String countryUid, String stateUid);
+
+    City updateCity(String countryUid, String stateUid, String cityUid, City newcity);
+
+	City getCity(String countryUid ,String stateUid ,String cityUid);
+
+	SearchResults<City> getCities(String countryUid, String stateUid, Integer limit, Integer offset);	
+	
+    void deleteCity(String countryUid, String stateUid ,String cityUid);
 
 }

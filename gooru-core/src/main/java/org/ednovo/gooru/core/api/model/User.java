@@ -80,6 +80,11 @@ public class User extends Party implements IndexableEntry, OrganizationWrapper, 
 	
 	private Short active;
 	
+	private Organization school;
+
+	private Organization schoolDistrict;
+	
+	private Province stateProvince;
 
 	@Override
 	public Organization getOrganization() {
@@ -148,7 +153,11 @@ public class User extends Party implements IndexableEntry, OrganizationWrapper, 
 
 	public String getFirstName() {
 		return firstName;
-	}
+	}	
+	
+
+	
+
 
 	public void setFirstName(String firstName) {
 		this.firstName = firstName;
@@ -383,4 +392,28 @@ public class User extends Party implements IndexableEntry, OrganizationWrapper, 
 		return active;
 	}
 	
+	public Organization getSchool() {
+		return school;
+	}
+
+	public void setSchool(Organization school) {
+		this.school = school;
+	}
+
+	public Organization getSchoolDistrict() {
+		return schoolDistrict;
+	}
+
+	public void setSchoolDistrict(Organization schoolDistrict) {
+		this.schoolDistrict = schoolDistrict;
+	}
+
+	public Province getStateProvince() {
+		return stateProvince;
+	}
+
+	public void setStateProvince(Province stateProvince) {
+		this.stateProvince = stateProvince;
+	}
+
 }

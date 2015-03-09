@@ -34,15 +34,15 @@ public class OrganizationCio implements IsEntityCassandraIndexable {
 	private String parentId;
 	
     @Column
-	private String stateId;
-      
-    @Column
+	private String stateCode;
+    
+	@Column
     private String stateName;
     
     @Column
-    private String countryId;
-    
-    @Column
+    private String countryCode;
+
+	@Column
     private String countryName;
     
 	
@@ -80,8 +80,8 @@ public class OrganizationCio implements IsEntityCassandraIndexable {
 		return school;
 	}
 
-	public String getStateId() {
-		return stateId;
+	public String getStateCode() {
+		return stateCode;
 	}
 
 	public String getStateName() {
@@ -92,22 +92,20 @@ public class OrganizationCio implements IsEntityCassandraIndexable {
 		this.school = school;
 	}
 
-	public void setStateId(String stateId) {
-		this.stateId = stateId;
+	public void setStateCode(String stateCode) {
+		this.stateCode = stateCode;
 	}
-
-	public String getCountryId() {
-		return countryId;
+	  
+    public String getCountryCode() {
+		return countryCode;
 	}
-
 
 	public String getCountryName() {
 		return countryName;
 	}
 
-	
-	public void setCountryId(String countryId) {
-		this.countryId = countryId;
+	public void setCountryCode(String countryCode) {
+		this.countryCode = countryCode;
 	}
 
 	public void setCountryName(String countryName) {

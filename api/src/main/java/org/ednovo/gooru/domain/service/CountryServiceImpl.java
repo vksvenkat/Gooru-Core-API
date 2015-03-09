@@ -30,9 +30,9 @@ public class CountryServiceImpl extends BaseServiceImpl implements CountryServic
 	}
 
 	@Override
-	public Country updateCountry(String countryId, Country newCountry) {
-		Country country = this.getCountryRepository().getCountry(countryId);
-		rejectIfNull(country, GL0056, 404, "Country");
+	public Country updateCountry(String countryUid, Country newCountry) {
+		Country country = this.getCountryRepository().getCountry(countryUid);
+		rejectIfNull(country, GL0056, 404, COUNTRY_);
 		if (newCountry.getName() != null) {
 			country.setName(newCountry.getName());
 		}
@@ -41,9 +41,9 @@ public class CountryServiceImpl extends BaseServiceImpl implements CountryServic
 	}
 
 	@Override
-	public Country getCountry(String countryId) {
-		Country country = this.getCountryRepository().getCountry(countryId);
-		rejectIfNull(country, GL0056, 404, "Country");
+	public Country getCountry(String countryUid) {
+		Country country = this.getCountryRepository().getCountry(countryUid);
+		rejectIfNull(country, GL0056, 404, COUNTRY_);
 		return country;
 	}
 
@@ -56,18 +56,16 @@ public class CountryServiceImpl extends BaseServiceImpl implements CountryServic
 	}
 
 	private Errors validateCountry(Country country) {
-		final Errors errors = new BindException(country, "country");
-		rejectIfNullOrEmpty(errors, country.getName(), NAME, GL0006, generateErrorMessage(GL0006, "Country name"));
-		rejectIfNullOrEmpty(errors, country.getCountryId(), "countryId", GL0006, generateErrorMessage(GL0006, "Country"));
+		final Errors errors = new BindException(country, COUNTRY_);
+		rejectIfNullOrEmpty(errors, country.getName(), NAME, GL0006, generateErrorMessage(GL0006, COUNTRY_NAME ));
 		return errors;
 	}
 
 	@Override
-	public void deleteCountry(String countryId) {
-		Country country = this.getCountryRepository().getCountry(countryId);
-		rejectIfNull(country, GL0056, 404, "Country");
+	public void deleteCountry(String countryUid) {
+		Country country = this.getCountryRepository().getCountry(countryUid);
+		rejectIfNull(country, GL0056, 404, COUNTRY_);
 		this.getCountryRepository().remove(country);
-
 	}
 
 	public CountryRepository getCountryRepository() {
@@ -75,11 +73,11 @@ public class CountryServiceImpl extends BaseServiceImpl implements CountryServic
 	}
 
 	@Override
-	public ActionResponseDTO<Province> createState(Province province, String countryId) {
+	public ActionResponseDTO<Province> createState(Province province, String countryUid) {
 		final Errors errors = validateProvince(province);
 		if (!errors.hasErrors()) {
-			Country country = this.getCountryRepository().getCountry(countryId);
-			rejectIfNull(country, GL0056, 404, "Province");
+			Country country = this.getCountryRepository().getCountry(countryUid);
+			rejectIfNull(country, GL0056, 404, STATE_);
 			province.setCountry(country);
 			this.getCountryRepository().save(province);
 		}
@@ -88,11 +86,11 @@ public class CountryServiceImpl extends BaseServiceImpl implements CountryServic
 	}
 
 	@Override
-	public Province updateState(String countryId, String stateId, Province newState) {
-		Country country = this.getCountryRepository().getCountry(countryId);
-		rejectIfNull(country, GL0056, 404, "Country");
-		Province province = this.getCountryRepository().getState(countryId, stateId);
-		rejectIfNull(province, GL0056, 404, "Province");
+	public Province updateState(String countryUid, String stateUid, Province newState) {
+		Country country = this.getCountryRepository().getCountry(countryUid);
+		rejectIfNull(country, GL0056, 404, COUNTRY_ );
+		Province province = this.getCountryRepository().getState(countryUid, stateUid);
+		rejectIfNull(province, GL0056, 404, STATE_);
 		if (newState.getName() != null) {
 			province.setName(newState.getName());
 		}
@@ -101,43 +99,49 @@ public class CountryServiceImpl extends BaseServiceImpl implements CountryServic
 	}
 
 	@Override
-	public Province getState(String countryId, String stateId) {
-		Province province = this.getCountryRepository().getState(countryId, stateId);
-		rejectIfNull(province, GL0056, 404, "Province");
+	public Province getState(String countryUid, String stateUid) {
+		Province province = this.getCountryRepository().getState(countryUid, stateUid);
+		rejectIfNull(province, GL0056, 404,  STATE_ );
+		return province;
+	}
+	
+	@Override
+	public Province getState(String stateUid) {
+		Province province = this.getCountryRepository().getState(stateUid);
+		rejectIfNull(province, GL0056, 404,  STATE_ );
 		return province;
 	}
 
 	@Override
-	public SearchResults<Province> getStates(String countryId, Integer limit, Integer offset) {
+	public SearchResults<Province> getStates(String countryUid, Integer limit, Integer offset) {
 		SearchResults<Province> result = new SearchResults<Province>();
-		result.setSearchResults(this.getCountryRepository().getStates(countryId, limit, offset));
-		result.setTotalHitCount(this.getCountryRepository().getStateCount(countryId));
+		result.setSearchResults(this.getCountryRepository().getStates(countryUid, limit, offset));
+		result.setTotalHitCount(this.getCountryRepository().getStateCount(countryUid));
 		return result;
 	}
 
 	@Override
-	public void deleteState(String countryId, String stateId) {
-		Province province = this.getCountryRepository().getState(countryId, stateId);
-		rejectIfNull(province, GL0056, 404, "Province");
+	public void deleteState(String countryUid, String stateUid) {
+		Province province = this.getCountryRepository().getState(countryUid, stateUid);
+		rejectIfNull(province, GL0056, 404,  STATE_ );
 		this.getCountryRepository().remove(province);
 
 	}
 
 	private Errors validateProvince(Province province) {
-		final Errors errors = new BindException(province, "Province");
-		rejectIfNullOrEmpty(errors, province.getName(), NAME, GL0006, generateErrorMessage(GL0006, "State name"));
-		rejectIfNullOrEmpty(errors, province.getStateId(), "stateId", GL0006, generateErrorMessage(GL0006, "Province"));
+		final Errors errors = new BindException(province,  STATE_ );
+		rejectIfNullOrEmpty(errors, province.getName(), NAME, GL0006, generateErrorMessage(GL0006, STATE_NAME ));
 		return errors;
 	}
 
 	@Override
-	public ActionResponseDTO<City> createCity(City city, String countryId, String stateId) {
+	public ActionResponseDTO<City> createCity(City city, String countryUid, String stateUid) {
 		final Errors errors = validateCity(city);
 		if (!errors.hasErrors()) {
-			Country country = this.getCountryRepository().getCountry(countryId);
-			Province province = this.getCountryRepository().getState(countryId, stateId);
-			rejectIfNull(country, GL0056, 404, "Country");
-			rejectIfNull(province, GL0056, 404, "Province");
+			Country country = this.getCountryRepository().getCountry(countryUid);
+			rejectIfNull(country, GL0056, 404,COUNTRY_ );
+			Province province = this.getCountryRepository().getState(countryUid, stateUid);
+			rejectIfNull(province, GL0056, 404,  STATE_ );
 			city.setProvince(province);
 			city.setCountry(country);
 			this.getCountryRepository().save(city);
@@ -146,13 +150,13 @@ public class CountryServiceImpl extends BaseServiceImpl implements CountryServic
 	}
 
 	@Override
-	public City updateCity( String countryId, String stateId, String cityId, City newCity) {
-		Country country = this.getCountryRepository().getCountry(countryId);
-		Province province = this.getCountryRepository().getState(countryId, stateId);
-		rejectIfNull(country, GL0056, 404, "Country");
-		rejectIfNull(province, GL0056, 404, "Province");
-		City city = this.getCountryRepository().getCity(countryId, stateId, cityId);
-		rejectIfNull(city, GL0056, 404, "City");
+	public City updateCity( String countryUid, String stateUid, String cityUid, City newCity) {
+		Country country = this.getCountryRepository().getCountry(countryUid);
+		Province province = this.getCountryRepository().getState(countryUid, stateUid);
+		rejectIfNull(country, GL0056, 404,COUNTRY_ );
+		rejectIfNull(province, GL0056, 404,  STATE_ );
+		City city = this.getCountryRepository().getCity(countryUid, stateUid, cityUid);
+		rejectIfNull(city, GL0056, 404, CITY_);
 		if (newCity.getName() != null) {
 			city.setName(newCity.getName());
 		}
@@ -161,31 +165,30 @@ public class CountryServiceImpl extends BaseServiceImpl implements CountryServic
 	}
 
 	@Override
-	public City getCity(String countryId, String stateId, String cityId) {
-		City city = this.getCountryRepository().getCity(countryId, stateId, cityId);
-		rejectIfNull(city, GL0056, 404, "City");
+	public City getCity(String countryUid, String stateUid, String cityUid) {
+		City city = this.getCountryRepository().getCity(countryUid, stateUid, cityUid);
+		rejectIfNull(city, GL0056, 404, CITY_);
 		return city;
 	}
 
 	@Override
-	public SearchResults<City> getCities(String countryId, String stateId, Integer limit, Integer offset) {
+	public SearchResults<City> getCities(String countryUid, String stateUid, Integer limit, Integer offset) {
 		SearchResults<City> result = new SearchResults<City>();
-		result.setSearchResults(this.getCountryRepository().getCities(countryId, stateId, limit, offset));
-		result.setTotalHitCount(this.getCountryRepository().getCityCount(countryId, stateId));
+		result.setSearchResults(this.getCountryRepository().getCities(countryUid, stateUid, limit, offset));
+		result.setTotalHitCount(this.getCountryRepository().getCityCount(countryUid, stateUid));
 		return result;
 	}
 
 	@Override
-	public void deleteCity(String countryId, String stateId, String cityId) {
-		City city = this.getCountryRepository().getCity(countryId, stateId, cityId);
-		rejectIfNull(city, GL0056, 404, "City");
+	public void deleteCity(String countryUid, String stateUid, String cityUid) {
+		City city = this.getCountryRepository().getCity(countryUid, stateUid, cityUid);
+		rejectIfNull(city, GL0056, 404, CITY_);
 		this.getCountryRepository().remove(city);
 	}
 
 	private Errors validateCity(City city) {
-		final Errors errors = new BindException(city, "City");
-		rejectIfNullOrEmpty(errors, city.getName(), NAME, GL0006, generateErrorMessage(GL0006, "City name"));
-		rejectIfNullOrEmpty(errors, city.getCityId(), "stateId", GL0006, generateErrorMessage(GL0006, "Province"));
+		final Errors errors = new BindException(city, CITY_);
+		rejectIfNullOrEmpty(errors, city.getCityCode(), NAME, GL0006, generateErrorMessage(GL0006, CITY_CODE));
 		return errors;
 	}
 }
