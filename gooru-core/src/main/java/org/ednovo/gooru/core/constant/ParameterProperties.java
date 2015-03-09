@@ -2844,33 +2844,32 @@ public interface ParameterProperties {
 	
 	String ASSESSMENT_URL = "assessment/url";
 	
-<<<<<<< HEAD
+	String TWO = "2";
+
 	String COUNTRY_ = "country";
 	
 	String STATE_ = "state";
 	
 	String CITY_ = "city";
 	
-	String COUNTRY_NAME = "country name";
+	String COUNTRY_NAME = "countryName";
 	
-	String STATE_NAME = "state name";
+	String STATE_NAME = "stateName";
+
+	String CITY_NAME = "cityName";
 	
-	String CITY_NAME = "city name";
+	String COUNTRY_CODE = "countryCode";
 	
-	String COUNTRY_CODE = "country code";
+	String STATE_CODE = "stateCode";
 	
-	String STATE_CODE = "state code";
-	
-	String CITY_CODE = "city code";
+	String CITY_CODE = "cityCode";
 	
 	String STATE_UID = "stateUid";
 	
 	String COUNTRY_UID = "countryUid";
 	
 	String CITY_UID = "cityUid";
-=======
-	String TWO = "2";
->>>>>>> gooru/master
 	
+
 }
 
