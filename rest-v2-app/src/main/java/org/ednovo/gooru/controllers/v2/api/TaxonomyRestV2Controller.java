@@ -88,19 +88,18 @@ public class TaxonomyRestV2Controller extends BaseController implements Constant
 	@RequestMapping(method = RequestMethod.GET, value = "/course")
 	public ModelAndView getCourse(HttpServletRequest request, HttpServletResponse response, @RequestParam(value = CODE_ID, required = false) Integer codeId, @RequestParam(value = CLEAR_CACHE, required = false) boolean clearCache, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "4") Integer maxLessonLimit) throws Exception {
 		request.setAttribute(PREDICATE, LIBRARY_CODE_CONTENT);
-		final String cacheKey = LIBRARY_CODE_JSON;
+		User user = (User) request.getAttribute(Constants.USER);
 		String libraryCodeList = null;
 		if (!clearCache) {
-			libraryCodeList = (String) getRedisService().getValue(cacheKey);
+			libraryCodeList = (String) getRedisService().getValue(LIBRARY_CODE_JSON + user.getOrganization().getPartyUid());
 		}
 		if (codeId == null || codeId == 0) {
-			User user = (User) request.getAttribute(Constants.USER);
 			String organizationUid = user.getOrganization().getPartyUid();
 			codeId = TaxonomyUtil.getTaxonomyRootId(organizationUid);
 		}
 		if (libraryCodeList == null) {
 			libraryCodeList = serializeToJsonWithExcludes(this.getTaxonomyService().getCourseBySubject(codeId, maxLessonLimit), COURSE_EXCLUDES, true, true, COURSE_INCLUDES);
-			getRedisService().putValue(cacheKey, libraryCodeList, RedisService.DEFAULT_PROFILE_EXP);
+			getRedisService().putValue(LIBRARY_CODE_JSON + user.getOrganization().getPartyUid(), libraryCodeList, RedisService.DEFAULT_PROFILE_EXP);
 		}
 		return toModelAndView(libraryCodeList);
 	}
