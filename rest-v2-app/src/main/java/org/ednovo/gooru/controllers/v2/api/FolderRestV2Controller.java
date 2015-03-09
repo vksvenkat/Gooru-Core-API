@@ -263,8 +263,8 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_FOLDER_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{cid}/item/{id}/next" }, method = RequestMethod.GET)
-	public ModelAndView getNextCollectionItem(@PathVariable(value = CID) String collectionId, @PathVariable(value = ID) String collectionItemId, HttpServletRequest request, HttpServletResponse response) {
-		return toModelAndViewWithIoFilter(getFolderService().getNextCollectionItem(collectionItemId), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, RESOURCE_INCLUDE_FIELDS);
+	public ModelAndView getNextCollectionItem(@PathVariable(value = CID) String collectionId, @RequestParam(value = EXCLUDE_TYPE, required = false) String excludeType, @PathVariable(value = ID) String collectionItemId, HttpServletRequest request, HttpServletResponse response) {
+		return toModelAndView(getFolderService().getNextCollectionItem(collectionItemId, excludeType), RESPONSE_FORMAT_JSON);
 	}
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_FOLDER_READ })

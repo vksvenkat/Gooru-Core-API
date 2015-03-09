@@ -29,8 +29,6 @@ package org.ednovo.gooru.domain.service;
 import java.util.List;
 import java.util.Map;
 
-import org.ednovo.gooru.core.api.model.Resource;
-import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.domain.service.search.SearchResults;
 
 public interface FolderService {
@@ -43,7 +41,7 @@ public interface FolderService {
 
 	String getFolderTocItems(String gooruOid, String sharing, String collectionType, String orderBy, String excludeType, boolean clearCache);
 	
-	Resource getNextCollectionItem(String collectionItemId);
+	Map<String, Object> getNextCollectionItem(String collectionItemId, String excludeType);
 
 	List<Map<String, String>> getFolderNode(String collectionId);
 	
