@@ -307,10 +307,10 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 	}
 
 	@Override
-	public SearchResults<Organization> getOrganizations(String type, String parentOrganizationUid, String sateProvinceId, Integer offset, Integer limit) {
+	public SearchResults<Organization> getOrganizations(String type, String parentOrganizationUid, String stateProvinceId, Integer offset, Integer limit) {
 		SearchResults<Organization> result = new SearchResults<Organization>();
-		result.setSearchResults(this.getOrganizationRepository().getOrganizations(CustomProperties.Table.ORGANIZATION_CATEGORY.getTable() + "_" + type, parentOrganizationUid, sateProvinceId, offset, limit));
-		result.setTotalHitCount(this.getOrganizationRepository().getOrganizationCount(CustomProperties.Table.ORGANIZATION_CATEGORY.getTable() + "_" + type, parentOrganizationUid, sateProvinceId));
+		result.setSearchResults(this.getOrganizationRepository().getOrganizations(CustomProperties.Table.ORGANIZATION_CATEGORY.getTable() + UNDER_SCORE + type, parentOrganizationUid, stateProvinceId, offset, limit));
+		result.setTotalHitCount(this.getOrganizationRepository().getOrganizationCount(CustomProperties.Table.ORGANIZATION_CATEGORY.getTable() + UNDER_SCORE + type, parentOrganizationUid, stateProvinceId));
 		return result;
 	}
 

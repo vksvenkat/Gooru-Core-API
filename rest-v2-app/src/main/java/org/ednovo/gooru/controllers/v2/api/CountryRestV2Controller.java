@@ -9,6 +9,7 @@ import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Country;
 import org.ednovo.gooru.core.api.model.Province;
 import org.ednovo.gooru.core.api.model.City;
+import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.GooruOperationConstants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
@@ -27,15 +28,18 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
+import scala.collection.CustomParallelizable;
+
 @Controller
 @RequestMapping(value = { "/v2/country" })
-public class CountryRestV2Controller extends BaseController implements ConstantProperties, ParameterProperties {
+public class CountryRestV2Controller extends BaseController implements ConstantProperties, ParameterProperties{
 
 	@Autowired
 	public CountryService countryService;
 
 	@Autowired
 	public OrganizationService organizationService;
+	
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_COUNTRY_ADD })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -172,14 +176,14 @@ public class CountryRestV2Controller extends BaseController implements ConstantP
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}/state/{sid}/school-district" }, method = RequestMethod.GET)
 	public ModelAndView getStateSchoolDistricts(@PathVariable(value = ID) String countryUid, @PathVariable(value = SID) String stateUid, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, HttpServletRequest request, HttpServletResponse response) {
-		return toModelAndViewWithIoFilter(this.getOrganizationService().getOrganizations("school_district", null, stateUid, offset, limit), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, INSTITUTION_INCLUDES_ADD);
+		return toModelAndViewWithIoFilter(this.getOrganizationService().getOrganizations(CustomProperties.InstitutionType.SCHOOL_DISTRICT.getInstitutionType(), null, stateUid, offset, limit), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, INSTITUTION_INCLUDES_ADD);
 	}
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCHOOL_READ })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}/state/{sid}/school-district/{schoolDistrictId}/school" }, method = RequestMethod.GET)
 	public ModelAndView getStateSchoolDistrictSchools(@PathVariable(value = ID) String countryUid, @PathVariable(value = SID) String stateUid, @PathVariable(value = "schoolDistrictId") String schoolDistrictId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, HttpServletRequest request, HttpServletResponse response) {
-		return toModelAndViewWithIoFilter(this.getOrganizationService().getOrganizations("school", null, stateUid, offset, limit), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, INSTITUTION_INCLUDES_ADD);
+		return toModelAndViewWithIoFilter(this.getOrganizationService().getOrganizations(CustomProperties.InstitutionType.SCHOOL.getInstitutionType(), null, stateUid, offset, limit), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, INSTITUTION_INCLUDES_ADD);
 	}
 
 	private Country buildCountryFromInputParameters(String data) {

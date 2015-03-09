@@ -857,5 +857,7 @@ public interface ConstantProperties {
    
    public static final String TAXONOMY_SKILLS_INCLUDES[] =  {"*.model", "*.key", "*.code", "*.codeId", "*.label", "*.node"};
    
+   public static final String UNDER_SCORE = "_";
+   
 }
 
