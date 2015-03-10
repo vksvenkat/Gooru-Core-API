@@ -91,9 +91,11 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 	private ConversionService conversionService;
 	
 	@Autowired
-	protected IndexProcessor indexProcessor;
+	private IndexProcessor indexProcessor;
 	
-	@Autowired IndexHandler indexHandler;
+	@Autowired 
+	private IndexHandler indexHandler;
+	
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ADD })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -142,7 +144,7 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 			@RequestParam(value = INLCLUDE_META_INFO, required = false, defaultValue = FALSE) boolean includeMetaInfo, @RequestParam(value = INCLUDE_COLLABORATOR, required = false, defaultValue = FALSE) boolean includeCollaborator,
 			@RequestParam(value = IS_GAT, required = false, defaultValue = FALSE) boolean isGat, @RequestParam(value = CLEAR_CACHE, required = false, defaultValue = FALSE) boolean clearCache,
 			@RequestParam(value = INCLUDE_RELATED_CONTENT, required = false, defaultValue = FALSE) boolean includeRelatedContent, @RequestParam(value = MERGE, required = false) String merge, @RequestParam(value = REQ_CONTEXT, required = false, defaultValue = "edit-play") String requestContext,
-			@RequestParam(value = ROOT_NODE_ID, required = false) String rootNodeId, HttpServletRequest request, HttpServletResponse response) {
+			@RequestParam(value = ROOT_NODE_ID, required = false) String rootNodeId, @RequestParam(value = INCLUDE_CONTENT_PROVIDER, required = false, defaultValue = TRUE) boolean includeContentProvider, HttpServletRequest request, HttpServletResponse response) {
 		User user = (User) request.getAttribute(Constants.USER);
 		String includes[] = null;
 		if (requestContext != null && requestContext.equalsIgnoreCase("library")) {
@@ -170,7 +172,7 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 				includes = (String[]) ArrayUtils.add(includes, "*.contentAssociation");
 			}
 			includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_ITEM_TAGS);
-			return toModelAndViewWithIoFilter(getCollectionService().getCollection(collectionId, includeMetaInfo, includeCollaborator, includeRelatedContent, user, merge, rootNodeId, isGat, true), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
+			return toModelAndViewWithIoFilter(getCollectionService().getCollection(collectionId, includeMetaInfo, includeCollaborator, includeRelatedContent, user, merge, rootNodeId, isGat, true, includeContentProvider), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 		}
 
 	}

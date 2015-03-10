@@ -1034,7 +1034,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			data = this.redisService.getValue(cacheKey);
 		}
 		if (data == null) {
-			Collection collection = getCollection(collectionId, includeMetaInfo, includeCollaborator, isContentFlag, user, merge, rootNodeId, isGat, true);
+			Collection collection = getCollection(collectionId, includeMetaInfo, includeCollaborator, isContentFlag, user, merge, rootNodeId, isGat, true, true);
 			data = SerializerUtil.serialize(collection, FORMAT_JSON, EXCLUDE_ALL, false, true, includes(includeCollectionItem, includeMetaInfo, includeRelatedContent));
 			redisService.putValue(cacheKey, data);
 		} else {
@@ -1083,12 +1083,12 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 
 	@Override
-	public Collection getCollection(String collectionId, boolean includeMetaInfo, boolean includeCollaborator, boolean isContentFlag, final User user, String merge, String rootNodeId, boolean isGat, boolean includeViewCount) {
+	public Collection getCollection(String collectionId, boolean includeMetaInfo, boolean includeCollaborator, boolean isContentFlag, final User user, String merge, String rootNodeId, boolean isGat, boolean includeViewCount, boolean includeContentProvider) {
 		Collection collection = this.getCollectionRepository().getCollectionByGooruOid(collectionId, null);
 		boolean isCollaborator = this.getCollaboratorRepository().findCollaboratorById(collectionId, user.getGooruUId()) != null ? true : false;
 		if (collection != null && (collection.getUser().getGooruUId().equalsIgnoreCase(user.getGooruUId()) || !collection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || userService.isContentAdmin(user) || isCollaborator)) {
 			if (includeMetaInfo) {
-				this.setCollectionMetaData(collection, user, merge, false, rootNodeId, includeViewCount);
+				this.setCollectionMetaData(collection, user, merge, false, rootNodeId, includeViewCount, includeContentProvider);
 			}
 			if (isGat) {
 				collection.setTaxonomySetMapping(TaxonomyUtil.getTaxonomyByCode(collection.getTaxonomySet(), taxonomyService));
@@ -1231,7 +1231,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		return this.learnguideRepository.findCollaborators(collectionId, null);
 	}
 
-	private Collection setCollectionMetaData(Collection collection, final User user, final String merge, boolean ignoreUserTaxonomyPreference, String rootNodeId, boolean includeViewCount) {
+	private Collection setCollectionMetaData(Collection collection, final User user, final String merge, boolean ignoreUserTaxonomyPreference, String rootNodeId, boolean includeViewCount, boolean includeContentProvider) {
 		if (collection != null) {
 			final Set<String> acknowledgement = new HashSet<String>();
 			final ResourceMetaInfo collectionMetaInfo = new ResourceMetaInfo();
@@ -1255,8 +1255,12 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 					}
 					resource.setEducationalUse(this.setContentMetaAssociation(this.getContentMetaAssociation(EDUCATIONAL_USE), resource, EDUCATIONAL_USE));
 					resource.setRatings(this.setRatingsObj(this.getResourceRepository().getResourceSummaryById(resource.getGooruOid())));
+					
 					resource.setCustomFieldValues(this.getCustomFieldsService().getCustomFieldsValuesOfResource(resource.getGooruOid()));
-					resource = getResourceService().setContentProvider(resource);
+					if (includeContentProvider) {
+						resource = getResourceService().setContentProvider(resource);
+					}
+					
 					resource.setResourceTags(this.getContentService().getContentTagAssoc(resource.getGooruOid(), user));
 					if (resource.getResourceType().getName().equalsIgnoreCase(ASSESSMENT_QUESTION)) {
 						resource.setDepthOfKnowledges(this.setContentMetaAssociation(this.getContentMetaAssociation(DEPTH_OF_KNOWLEDGE), resource, DEPTH_OF_KNOWLEDGE));
@@ -1552,7 +1556,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				collection.setUser(user);
 			}
 		}
-		this.setCollectionMetaData(collection, null, null, true, null, false);
+		this.setCollectionMetaData(collection, null, null, true, null, false, false);
 		this.getCollectionRepository().save(collection);
 		try {
 			indexHandler.setReIndexRequest(collection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);					
@@ -1646,7 +1650,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		Collection targetCollection = null;
 		boolean hasSameCollection = false;
 		if (collectionId != null) {
-			targetCollection = this.getCollection(collectionId, false, false, false, sourceCollectionItem.getCollection().getUser(), null, null, false, false);
+			targetCollection = this.getCollection(collectionId, false, false, false, sourceCollectionItem.getCollection().getUser(), null, null, false, false, false);
 		}
 		if (targetCollection == null) {
 			targetCollection = sourceCollectionItem.getCollection();
@@ -2084,7 +2088,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	@Override
 	public Collection copyCollection(String collectionId, Collection newCollection, boolean addToShelf, String parentId, final User user) throws Exception {
 
-		Collection sourceCollection = this.getCollection(collectionId, false, false, false, user, null, null, false, false);
+		Collection sourceCollection = this.getCollection(collectionId, false, false, false, user, null, null, false, false, false);
 		CollectionItem collectionItem = null;
 
 		Collection destCollection = null;
