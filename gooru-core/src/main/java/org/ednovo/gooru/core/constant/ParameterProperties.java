@@ -2870,6 +2870,9 @@ public interface ParameterProperties {
 	
 	String CITY_UID = "cityUid";
 	
+	String INCLUDE_CONTENT_PROVIDER = "includeContentProvider";
+	
+	String INCLUDE_CUSTOM_FIELDS = "includeCustomFields";
 
 }
 
