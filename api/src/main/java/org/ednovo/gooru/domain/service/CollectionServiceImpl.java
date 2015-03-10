@@ -152,6 +152,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				response.getModel().getResource().setEducationalUse(this.setContentMetaAssociation(this.getContentMetaAssociation(EDUCATIONAL_USE), responseDTO.getModel().getGooruOid(), EDUCATIONAL_USE));
 			}
 			response.getModel().setStandards(this.getStandards(responseDTO.getModel().getTaxonomySet(), false, null));
+			response.getModel().getResource().setSkills(getSkills(responseDTO.getModel().getTaxonomySet()));
 			if (response.getModel().getCollection().getResourceType().getName().equalsIgnoreCase(SCOLLECTION) && response.getModel().getCollection().getClusterUid() != null && !response.getModel().getCollection().getClusterUid().equalsIgnoreCase(response.getModel().getCollection().getGooruOid())) {
 				response.getModel().getCollection().setClusterUid(response.getModel().getCollection().getGooruOid());
 				this.getCollectionRepository().save(response.getModel().getCollection());

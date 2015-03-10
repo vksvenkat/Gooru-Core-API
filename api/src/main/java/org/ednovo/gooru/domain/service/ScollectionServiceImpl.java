@@ -2337,6 +2337,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				response = createCollectionItem(resource, collection, start, stop, user);
 
 				response.getModel().setStandards(this.getStandards(resource.getTaxonomySet(), false, null));
+				response.getModel().getResource().setSkills(getSkills(resource.getTaxonomySet()));
 
 			} else {
 				throw new NotFoundException(generateErrorMessage("GL0013"), "GL0013");
