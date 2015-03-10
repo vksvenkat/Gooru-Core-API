@@ -2872,6 +2872,7 @@ public interface ParameterProperties {
 	
 	String INCLUDE_CONTENT_PROVIDER = "includeContentProvider";
 	
+	String INCLUDE_CUSTOM_FIELDS = "includeCustomFields";
 
 }
 

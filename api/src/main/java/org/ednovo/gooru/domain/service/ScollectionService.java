@@ -83,9 +83,9 @@ public interface ScollectionService extends BaseService {
 
 	ActionResponseDTO<CollectionItem> reorderCollectionItem(String collectionItemId, int newSequence, User user) throws Exception;
 
-	Collection getCollection(String collectionId, boolean includeMetaInfo, boolean includeCollaborator, boolean isContentFlag, User user, String merge, String rootNodeId, boolean isGat,  boolean includeViewCount, boolean includeContentProvider);
+	Collection getCollection(String collectionId, boolean includeMetaInfo, boolean includeCollaborator, boolean isContentFlag, User user, String merge, String rootNodeId, boolean isGat,  boolean includeViewCount, boolean includeContentProvider, boolean includeCustomFields);
 	
-	String getCollectionWithCache(String collectionId, boolean includeMetaInfo, boolean includeCollaborator, boolean isContentFlag, User user, String merge, String rootNodeId, boolean isGat,boolean includeCollectionItem, boolean includeRelatedContent, boolean claerCache);
+	String getCollectionWithCache(String collectionId, boolean includeMetaInfo, boolean includeCollaborator, boolean isContentFlag, User user, String merge, String rootNodeId, boolean isGat,boolean includeCollectionItem, boolean includeRelatedContent, boolean clearCache);
 		
 	Collection copyCollection(String collectionId, String title, boolean addToShelf, User user, String taxonomyCode, String grade, String parentId) throws Exception;
 
