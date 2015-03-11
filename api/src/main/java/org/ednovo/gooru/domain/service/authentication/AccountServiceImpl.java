@@ -25,8 +25,6 @@ package org.ednovo.gooru.domain.service.authentication;
 
 import java.util.Date;
 import java.util.Random;
-import java.util.UUID;
-
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
@@ -36,7 +34,6 @@ import org.ednovo.gooru.application.util.TaxonomyUtil;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Application;
 import org.ednovo.gooru.core.api.model.Credential;
-import org.ednovo.gooru.core.api.model.CustomTableValue;
 import org.ednovo.gooru.core.api.model.Identity;
 import org.ednovo.gooru.core.api.model.Organization;
 import org.ednovo.gooru.core.api.model.PartyCustomField;
@@ -315,7 +312,6 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			}
 			this.redisService.delete(SESSION_TOKEN_KEY + userToken.getToken());
 		}
-		this.redisService.delete(SESSION_TOKEN_KEY + userToken.getToken());
 		this.getUserTokenRepository().remove(userToken);
 	}
 	
