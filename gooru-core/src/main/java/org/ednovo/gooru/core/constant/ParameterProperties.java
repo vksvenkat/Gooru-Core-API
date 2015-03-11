@@ -2834,5 +2834,9 @@ public interface ParameterProperties {
 	
 	String GL0072 = "GL0072";
 	
+	String INCLUDE_CUSTOM_FIELDS = "includeCustomFields";
+	
+	String INCLUDE_CONTENT_PROVIDER = "includeContentProvider";
+	
 }
 
