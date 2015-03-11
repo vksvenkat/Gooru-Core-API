@@ -2453,9 +2453,11 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				this.getResourceImageUtil().moveAttachment(newResource, resource);
 			}
 			this.getResourceService().saveOrUpdate(resource);
+			resource.setSkills(getSkills(resource.getTaxonomySet()));
 			collectionItem.setResource(resource);
 			this.getCollectionRepository().save(collectionItem);
 			collectionItem.setStandards(this.getStandards(resource.getTaxonomySet(), false, null));
+			
 			getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
 		}
 		try {

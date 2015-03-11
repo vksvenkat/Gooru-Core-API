@@ -198,6 +198,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 					} else {
 						collectionItem.getResource().setEducationalUse(this.setContentMetaAssociation(this.getContentMetaAssociation(EDUCATIONAL_USE), assessmentQuestion.getGooruOid(), EDUCATIONAL_USE));
 					}
+					collectionItem.getResource().setSkills(getSkills(collectionItem.getResource().getTaxonomySet()));
 					collectionItem.setStandards(this.getStandards(assessmentQuestion.getTaxonomySet(), false, null));
 				}
 				getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
