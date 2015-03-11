@@ -76,6 +76,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
 import org.ednovo.gooru.core.constant.Constants;
+import org.ednovo.goorucore.application.serializer.JsonDeserializer;
+
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.core.type.TypeReference;
 
 @Service
 public class CollectionServiceImpl extends ScollectionServiceImpl implements CollectionService {
@@ -407,6 +411,10 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				collection.put(ITEM_SEQUENCE, object[16]);
 				collection.put(PARENT_GOORU_OID, object[17]);
 				collection.put(URL, object[20]);
+				if (object[21] != null) {
+						collection.put(SETTINGS, JsonDeserializer.deserialize(String.valueOf(object[21]), new TypeReference<Map<String, String>>() {
+					}));
+				}
 				count++;
 				folderList.add(collection);
 			}
@@ -510,6 +518,10 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				item.put(PARENT_GOORU_OID, object[20]);
 				item.put(URL, object[15]);
 				items.add(item);
+				if (object[23] != null) {
+					item.put(SETTINGS, JsonDeserializer.deserialize(String.valueOf(object[23]), new TypeReference<Map<String, String>>() {
+					}));
+				}
 			}
 
 		}
@@ -583,6 +595,10 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				item.put(ITEM_SEQUENCE, object[19]);
 				item.put(PARENT_GOORU_OID, object[20]);
 				item.put(URL, object[15]);
+				if (object[23] != null) {
+					item.put(SETTINGS, JsonDeserializer.deserialize(String.valueOf(object[23]), new TypeReference<Map<String, String>>() {
+					}));
+				}
 				items.add(item);
 			}
 		}
