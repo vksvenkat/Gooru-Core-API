@@ -41,6 +41,7 @@ import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.NotFoundException;
+import org.ednovo.gooru.domain.service.eventlogs.ClasspageEventLog;
 import org.ednovo.gooru.infrastructure.mail.MailHandler;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.InviteRepository;
@@ -69,6 +70,9 @@ public class InviteServiceImpl extends BaseServiceImpl implements InviteService,
 	@Autowired
 	private MailHandler mailHandler;
 	
+	@Autowired
+	private ClasspageEventLog classpageEventLog;
+	
 	private static final Logger LOGGER = LoggerFactory.getLogger(InviteServiceImpl.class);
 
 	@Override
@@ -79,16 +83,16 @@ public class InviteServiceImpl extends BaseServiceImpl implements InviteService,
 		}
 		List<Map<String, String>> invites = new ArrayList<Map<String, String>>();
 		for (String email : emails) {
-			final InviteUser inviteUser = this.getInviteRepository().findInviteUserById(email, classPage.getGooruOid(),null);
-			if (inviteUser  == null) {
-				this.getInviteRepository().save(createInviteUserObj(email,classPage.getGooruOid(), CLASS, apiCaller));
+			InviteUser inviteUser = this.getInviteRepository().findInviteUserById(email, classPage.getGooruOid(), null);
+			if (inviteUser == null) {
+				inviteUser = createInviteUserObj(email, classPage.getGooruOid(), CLASS, apiCaller);
+				this.getInviteRepository().save(inviteUser);
 				Map<String, String> inviteMap = new HashMap<String, String>();
 				inviteMap.put(EMAIL_ID, email);
 				inviteMap.put(GOORU_OID, classPage.getGooruOid());
 				inviteMap.put(STATUS, PENDING);
 				invites.add(inviteMap);
 			}
-			
 			
 			try {
 				if(classPage.getSharing().equals(PUBLIC)){
@@ -99,11 +103,17 @@ public class InviteServiceImpl extends BaseServiceImpl implements InviteService,
 			} catch (Exception e) {
 				LOGGER.error("Error"+ e.getMessage());
 			}
+			try { 
+				
+				  this.getClasspageEventLog().getEventLogs(classPage, inviteUser, apiCaller);
+				} catch(Exception e){
+					e.printStackTrace();
+				}
 		}
 		return invites;
 
 	}
-
+	
 	@Override
 	public InviteUser createInviteUserObj(final String email, final String gooruOid, final String invitationType, final User user) {
 		final InviteUser  inviteUser = new InviteUser();
@@ -142,5 +152,9 @@ public class InviteServiceImpl extends BaseServiceImpl implements InviteService,
 
 	public MailHandler getMailHandler() {
 		return mailHandler;
+	}
+	
+	public ClasspageEventLog getClasspageEventLog(){
+		return classpageEventLog;
 	}
 }
