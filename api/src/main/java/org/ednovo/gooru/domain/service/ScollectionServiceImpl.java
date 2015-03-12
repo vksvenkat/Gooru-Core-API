@@ -708,7 +708,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				if (parentCollection.getCollectionType().equals(FOLDER)) {
 					updateFolderSharing(parentCollection.getGooruOid());
 					resetFolderVisibility(parentCollection.getGooruOid(), collection.getUser().getPartyUid());
-					
 				}
 				this.deleteCollectionItem(item.getCollectionItemId());
 			}
