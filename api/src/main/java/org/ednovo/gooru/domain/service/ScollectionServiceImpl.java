@@ -687,16 +687,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				this.getCollectionEventLog().getEventLogs(collection.getCollectionItem(), user, collection.getCollectionType());
 			} catch (Exception e) {
 				LOGGER.error(e.getMessage());
-			}
-			for (CollectionItem item : collectionItems) {
-				if (item.getAssociatedUser() != null && !item.getAssociatedUser().getPartyUid().equals(user.getPartyUid())) {
-					getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + item.getAssociatedUser().getPartyUid() + "*");
-				}
-				Collection parentCollection = item.getCollection();
-				if (parentCollection.getCollectionType().equals(FOLDER)) {
-					updateFolderSharing(parentCollection.getGooruOid());
-				}
-				this.deleteCollectionItem(item.getCollectionItemId());
 			} 
 			if (collection != null && collection.getUser() != null && collection.getSharing().equalsIgnoreCase(PUBLIC) && !collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.PATHWAY.getType())) {
 				UserSummary userSummary = this.getUserRepository().getSummaryByUid(collection.getUser().getPartyUid());
@@ -713,6 +703,18 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				LOGGER.error("error" + e.getMessage());
 			}
 			this.getCollectionRepository().remove(collection);
+
+			for (CollectionItem item : collectionItems) {
+				if (item.getAssociatedUser() != null && !item.getAssociatedUser().getPartyUid().equals(user.getPartyUid())) {
+					getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + item.getAssociatedUser().getPartyUid() + "*");
+				}
+				Collection parentCollection = item.getCollection();
+				if (parentCollection.getCollectionType().equals(FOLDER)) {
+					updateFolderSharing(parentCollection.getGooruOid());
+					resetFolderVisibility(parentCollection.getGooruOid(), collection.getUser().getPartyUid());
+				}
+				this.deleteCollectionItem(item.getCollectionItemId());
+			}
 		} else {
 			throw new UnauthorizedException(generateErrorMessage(GL0010));
 		}
@@ -2463,7 +2465,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			collectionItem.setResource(resource);
 			this.getCollectionRepository().save(collectionItem);
 			collectionItem.setStandards(this.getStandards(resource.getTaxonomySet(), false, null));
-			
 			getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
 		}
 		try {
