@@ -97,7 +97,7 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 	private static final String FIND_ALL_TAXONOMY = "SELECT t.depth, t.label, c.code, c.code_id FROM taxonomy_level_type t , code c where t.code_id=c.code_id and t.organization_uid in (%s) and c.active_flag=1";
 	private static final String UPDATE_ORDER = "update code  set display_order = %s where code_id = %s and organization_uid in(%s)";
 	private static final String FIND_CODE_BY_CODEIDS = "select * from code c where c.code_id = ? and c.active_flag = ?";
-	private static final String FIND_TAXONOMY_ASSOC = "select c.code_id, c.code_uid, c.label, group_concat(p.display_code) as display_code from code c inner join  code_assoc ca  on  c.code_uid = ca.code_uid inner join code p on p.code_uid = ca.parent_code_uid where c.parent_id=:parentId  group by ca.code_uid order by  c.sequence";
+	private static final String FIND_TAXONOMY_ASSOC = "select c.code_id, c.code_uid, c.label, group_concat(p.display_code) as display_code from code c inner join  taxonomy_association ta  on  c.code_id = ta.target_code_id inner join code p on p.code_id = ta.source_code_id where c.parent_id=:parentId  group by ta.target_code_id order by  c.sequence";
 
 	@Override
 	public void updateOrder(Code code) {

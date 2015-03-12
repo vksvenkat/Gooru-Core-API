@@ -859,5 +859,7 @@ public interface ConstantProperties {
    
    public static final String UNDER_SCORE = "_";
    
+   public static final String _NEXT_COLLECTION_EXCLUDES[] =  {"*.resourceUrl", "*.thumbnailAssetURI", "*.thumbnailFolder", "*.thumbnailName", "*.thumbnailResourceType"};
+   
 }
 
