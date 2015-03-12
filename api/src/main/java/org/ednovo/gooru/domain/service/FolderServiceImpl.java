@@ -189,13 +189,21 @@ public class FolderServiceImpl extends BaseServiceImpl implements FolderService,
 	public Map<String, Object> getNextCollectionItem(String collectionItemId, String excludeType) {
 		CollectionItem collectionItem = this.getCollectionRepository().getCollectionItemById(collectionItemId);
 		rejectIfNull(collectionItem, GL0056, 404, COLLECTION_ITEM);
-		Map<String, Object> nextCollection =  new HashMap<String, Object>();
-		CollectionItem nextCollectionItem = this.getCollectionRepository().getNextCollectionItemResource(collectionItem.getCollection().getGooruOid(), collectionItem.getItemSequence(), excludeType);
-		if (nextCollectionItem != null) { 
+		return getCollection(collectionItem.getCollection().getGooruOid(), collectionItem.getItemSequence(), excludeType);
+	}
+	
+	private Map<String, Object> getCollection(String gooruOid, Integer sequence, String excludeType) {
+		Map<String, Object> nextCollection =  null;
+		CollectionItem nextCollectionItem = this.getCollectionRepository().getNextCollectionItemResource(gooruOid, sequence, excludeType);
+		if (nextCollectionItem != null && !nextCollectionItem.getResource().getResourceType().getName().equalsIgnoreCase(FOLDER)) { 
+			nextCollection = new HashMap<String, Object>();
 			nextCollection.put(COLLECTION_ITEM_ID, nextCollectionItem.getCollectionItemId());
 			nextCollection.put(TITLE, nextCollectionItem.getResource().getTitle());
 			nextCollection.put(GOORU_OID, nextCollectionItem.getResource().getGooruOid());
 			nextCollection.put(THUMBNAILS, nextCollectionItem.getResource().getThumbnails());
+		}
+		if (nextCollection == null && nextCollectionItem != null && nextCollectionItem.getResource().getResourceType().getName().equalsIgnoreCase(FOLDER)) { 
+			getCollection(nextCollectionItem.getResource().getGooruOid(), 0, excludeType);
 		}
 		return nextCollection;
 	}
