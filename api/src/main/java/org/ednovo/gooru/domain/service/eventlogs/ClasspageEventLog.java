@@ -172,6 +172,21 @@ public class ClasspageEventLog implements ParameterProperties, ConstantPropertie
 	    session.put(ORGANIZATION_UID, user != null && user.getOrganization() != null ? user.getOrganization().getPartyUid() : null);
 	    SessionContextSupport.putLogParameter(SESSION, session.toString());
 	}
+	public void getEventLogs(Classpage classpage, InviteUser inviteUser,User user) throws JSONException {
+		SessionContextSupport.putLogParameter(EVENT_NAME, CLASSPAGE_USER_INVITE);
+		JSONObject context = SessionContextSupport.getLog().get(CONTEXT) != null ? new JSONObject(SessionContextSupport.getLog().get(CONTEXT).toString()) : new JSONObject();
+		context.put(CONTENT_GOORU_ID, classpage != null ? classpage.getGooruOid() : null);
+		context.put(INVITER_ID, classpage != null && classpage.getUser() != null ? classpage.getUser().getPartyUid() : null);
+		context.put(INVITEE_EMAIL_ID, inviteUser != null ? inviteUser.getEmailId() : null);
+		SessionContextSupport.putLogParameter(CONTEXT, context.toString());
+		JSONObject payLoadObject = SessionContextSupport.getLog().get(PAY_LOAD_OBJECT) != null ? new JSONObject(SessionContextSupport.getLog().get(PAY_LOAD_OBJECT).toString()) : new JSONObject();
+		payLoadObject.put(CONTENT_ID, classpage != null ? classpage.getContentId() : null);
+		payLoadObject.put(CLASS_CODE, classpage != null ? classpage.getClasspageCode() : null);
+		SessionContextSupport.putLogParameter(PAY_LOAD_OBJECT, payLoadObject.toString());
+		JSONObject session = SessionContextSupport.getLog().get(SESSION) != null ? new JSONObject(SessionContextSupport.getLog().get(SESSION).toString()) : new JSONObject();
+		session.put(ORGANIZATION_UID, user != null && user.getOrganization() != null ? user.getOrganization().getPartyUid() : null);
+		SessionContextSupport.putLogParameter(SESSION, session.toString());
+	}
 	}
 	
 	
