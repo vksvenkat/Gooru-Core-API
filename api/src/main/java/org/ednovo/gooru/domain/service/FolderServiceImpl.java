@@ -32,6 +32,7 @@ import org.ednovo.gooru.application.util.SerializerUtil;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.Resource;
+import org.ednovo.gooru.core.api.model.ResourceType;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.application.util.BaseUtil;
 import org.ednovo.gooru.core.constant.ConstantProperties;
@@ -190,6 +191,12 @@ public class FolderServiceImpl extends BaseServiceImpl implements FolderService,
 			nextCollection.put(TITLE, nextCollectionItem.getResource().getTitle());
 			nextCollection.put(GOORU_OID, nextCollectionItem.getResource().getGooruOid());
 			nextCollection.put(THUMBNAILS, nextCollectionItem.getResource().getThumbnails());
+			Collection collection =  this.getCollectionRepository().getCollectionByGooruOid(nextCollectionItem.getResource().getGooruOid(), null);
+			nextCollection.put(COLLECTION_TYPE, collection.getCollectionType());
+			Long itemCount = this.getCollectionRepository().getCollectionItemCount(nextCollectionItem.getResource().getGooruOid(), null, null, null);
+			Long questionCount = this.getCollectionRepository().getCollectionItemCount(nextCollectionItem.getResource().getGooruOid(), null, ResourceType.Type.ASSESSMENT_QUESTION.getType(), null);
+			nextCollection.put(RESOURCE_COUNT, itemCount - questionCount);
+			nextCollection.put(QUESTION_COUNT, questionCount);
 		}
 		if (nextCollection == null && nextCollectionItem != null && nextCollectionItem.getResource().getResourceType().getName().equalsIgnoreCase(FOLDER)) { 
 			getCollection(nextCollectionItem.getResource().getGooruOid(), 0, excludeType);
