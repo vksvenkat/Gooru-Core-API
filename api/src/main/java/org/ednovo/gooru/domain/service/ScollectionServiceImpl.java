@@ -391,7 +391,9 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 			resetFolderVisibility(collection.getGooruOid(), user.getPartyUid());
 			try {
-				indexHandler.setReIndexRequest(collection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);						
+				if(!collection.getCollectionType().equalsIgnoreCase(ASSESSMENT_URL)) {
+					indexHandler.setReIndexRequest(collection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);
+				}
 			} catch (Exception ex) {
 				LOGGER.error(ex.getMessage());
 			}
@@ -704,7 +706,9 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				}
 			}
 			try {
-				indexHandler.setReIndexRequest(collection.getGooruOid(), IndexProcessor.DELETE, SCOLLECTION, null, false, false);				
+				if(!collection.getCollectionType().equalsIgnoreCase(ASSESSMENT_URL)) {
+					indexHandler.setReIndexRequest(collection.getGooruOid(), IndexProcessor.DELETE, SCOLLECTION, null, false, false);
+				}
 			} catch(Exception e) { 
 				LOGGER.error("error" + e.getMessage());
 			}
@@ -2063,7 +2067,9 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			this.getCollectionRepository().save(collection);
 
 			try {
-				indexHandler.setReIndexRequest(collection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);						
+				if(!collection.getCollectionType().equalsIgnoreCase(ASSESSMENT_URL)){
+					indexHandler.setReIndexRequest(collection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);
+				}
 			} catch (Exception e) {
 				LOGGER.error("error" + e.getMessage());
 			}
