@@ -816,6 +816,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			}
 			resource.put(ITEM_COUNT, this.getCollectionRepository().getCollectionItemsCount(object[5].toString(), null, CLASSPAGE));
 			resource.put(GOALS, object[10]);
+			resource.put(COLLECTION_TYPE, object[24]);
 			resource.put(TITLE, object[6]);
 			resource.put(TYPE_NAME, object[14]);
 			resource.put(GOORU_OID, object[5]);
