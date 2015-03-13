@@ -26,10 +26,14 @@ import javax.mail.util.ByteArrayDataSource;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.ednovo.gooru.mail.domain.Attachment;
 import org.ednovo.gooru.mail.domain.MailDO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 @Component
 public class SMTPMailSerivceHandler implements MailHandler {
+	
+	private static final Logger logger = LoggerFactory.getLogger(SMTPMailSerivceHandler.class);
 	
 	public void sendSingleRecipient(MailDO mail) throws MessagingException, UnsupportedEncodingException {
 		String[] to = mail.getRecipient().split(",");
@@ -82,9 +86,12 @@ public class SMTPMailSerivceHandler implements MailHandler {
 						url = new URL(attachment.getUrl());
 					} catch (MalformedURLException e) {
 					}
-					try {
-						connection = (HttpURLConnection) url.openConnection();
-					} catch (IOException e1) {
+					if (url != null) {
+						try {
+							connection = (HttpURLConnection) url.openConnection();
+						} catch (Exception e) {
+							logger.error("Connection Error:{}", e);
+						}
 					}
 					ByteArrayDataSource bds = null;
 					messageBodyPart = new MimeBodyPart();
