@@ -199,7 +199,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 				final String encryptedPassword;
 				Credential credential = identity.getCredential();
 				if(credential != null && credential.getPasswordEncryptType() != null &&  credential.getPasswordEncryptType().equalsIgnoreCase(CustomProperties.PasswordEncryptType.MD5.getPasswordEncryptType())){
-					encryptedPassword = BaseUtil.getStringMD5Hash(password);
+					encryptedPassword = BaseUtil.encryptPassword(password);
 				}else{
 					encryptedPassword = this.getUserService().encryptPassword(password);
 				}

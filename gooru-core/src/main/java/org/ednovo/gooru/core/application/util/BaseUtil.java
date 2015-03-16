@@ -26,6 +26,8 @@ public class BaseUtil {
 
 	private static final String CHARACTER_SET = "23456789abcdefghijkmnpqrstuvwxyzABCDEFGHIJKLMNPQRSTUVWXYZ";
 
+	private static String PASSWORD_HASH = "IlluminateGirardPasswordHash";
+
 	private static Random rnd = new Random();
 
 	public static String getByteMD5Hash(byte[] data) throws Exception {
@@ -212,4 +214,31 @@ public class BaseUtil {
 		}
 		return jb;
 	}
+	
+    public static String encryptPassword(String text) throws Exception{
+        for (int i=0; i < 10; i++) {
+        	text = md5(text + PASSWORD_HASH); 
+        } 
+        
+        return  text;
+    }
+	
+    public static String md5(String password) throws Exception {
+        MessageDigest md = MessageDigest.getInstance("MD5");
+        md.update(password.getBytes());
+       	byte byteData[] = md.digest();
+       	StringBuffer sb = new StringBuffer();
+	    for (int i = 0; i < byteData.length; i++) {
+	        sb.append(Integer.toString((byteData[i] & 0xff) + 0x100, 16).substring(1));
+	     }
+	    StringBuffer hexString = new StringBuffer();
+	    for (int i=0;i<byteData.length;i++) {
+	   		 String hex=Integer.toHexString(0xff & byteData[i]);
+	  	     if(hex.length()==1) hexString.append('0');
+	  	     hexString.append(hex);
+	   	 }
+	    
+	   	 return hexString.toString();
+    }
+   
 }
