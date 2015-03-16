@@ -34,7 +34,6 @@ import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserCredential;
 import org.ednovo.gooru.core.api.model.UserToken;
-import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.security.AuthenticationDo;
 import org.ednovo.gooru.domain.service.oauth.OAuthService;
@@ -46,8 +45,6 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.apikey.ApplicationR
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
 import org.ednovo.goorucore.application.serializer.ExcludeNullTransformer;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -188,7 +185,7 @@ public class DoAuthorization {
 
 		// set to request so that controllers can read it.
 		request.setAttribute(Constants.USER, authentication.getUserToken().getUser());
-
+		request.setAttribute(Constants.API_KEY, authentication.getUserToken().getApplication().getKey());
 		return authentication.getUserToken().getUser();
 	}
 
