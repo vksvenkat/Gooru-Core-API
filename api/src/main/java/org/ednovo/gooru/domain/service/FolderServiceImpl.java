@@ -40,9 +40,10 @@ import org.ednovo.gooru.domain.service.redis.RedisService;
 import org.ednovo.gooru.domain.service.search.SearchResults;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
+import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+import com.fasterxml.jackson.core.type.TypeReference;
 
 @Service
 public class FolderServiceImpl extends BaseServiceImpl implements FolderService, ParameterProperties, ConstantProperties {
@@ -81,6 +82,10 @@ public class FolderServiceImpl extends BaseServiceImpl implements FolderService,
 				collection.put(COLLECTION_ITEM_ID, object[6]);
 				collection.put(DESCRIPTION, object[7] != null ? object[7] : object[19]);
 				collection.put(URL, object[20]);
+				if (object[21] != null) {
+					collection.put(SETTINGS, JsonDeserializer.deserialize(String.valueOf(object[21]), new TypeReference<Map<String, String>>() {
+					}));
+				}
 				if (object[2] != null && object[2].toString().equalsIgnoreCase(SCOLLECTION)) {
 					collection.put(COLLECTION_ITEMS, getFolderTocItems(String.valueOf(object[1]), sharing, collectionType, orderBy, ASC, excludeType));
 				}
@@ -121,6 +126,10 @@ public class FolderServiceImpl extends BaseServiceImpl implements FolderService,
 				item.put(COLLECTION_ITEM_ID, object[8]);
 				item.put(DESCRIPTION, object[9] != null ? object[9] : object[22]);
 				item.put(URL, object[15]);
+				if (object[23] != null) {
+					item.put(SETTINGS, JsonDeserializer.deserialize(String.valueOf(object[23]), new TypeReference<Map<String, String>>() {
+					}));
+				}
 				items.add(item);
 			}
 		}

@@ -58,7 +58,7 @@ public class OrganizationRepositoryHibernate extends BaseRepositoryHibernate imp
 	public List<Organization> getOrganizations(String type, String parentOrganizationUid, String stateProvinceUid, Integer offset, Integer limit) {
 		String hql = "SELECT o FROM Organization o  where 1 = 1";
 		if (stateProvinceUid != null) {
-			hql += " AND o.stateProvince.stateId=:stateProvinceUid";
+			hql += " AND o.stateProvince.stateUid=:stateProvinceUid";
 		}
 		if (type != null) { 
 			hql += " AND o.type.keyValue=:type";
@@ -80,7 +80,6 @@ public class OrganizationRepositoryHibernate extends BaseRepositoryHibernate imp
 		query.setFirstResult(offset);
         query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
         return (List) query.list();
-
 	}
 	
 	@Override
@@ -90,13 +89,16 @@ public class OrganizationRepositoryHibernate extends BaseRepositoryHibernate imp
 	}
 	
 	@Override
-	public Long getOrganizationCount(String type, String parentOrganizationUid, String sateProvinceId) {
-		String sql = "select  count(1) as count from organization o  inner join custom_table_value ct on ct.custom_table_value_id = o.type_id where 1=1";		
+	public Long getOrganizationCount(String type, String parentOrganizationUid, String stateProvinceId) {
+		String sql = " select count(1) as count from organization o left join state_province sp on o.state_province_uid = sp.state_province_uid  inner join custom_table_value ct on ct.custom_table_value_id = o.type_id where 1=1";		
 		if (type != null) { 
 			sql += " AND ct.key_value = '" + type + "'";
 		}
 		if (parentOrganizationUid != null) { 
 			sql += " AND parent_organization_uid = '" + parentOrganizationUid + "'";
+		}
+		if (stateProvinceId != null){
+			sql += " AND sp.state_province_uid = '" + stateProvinceId + "'";
 		}
 		Query query = getSession().createSQLQuery(sql).addScalar("count", StandardBasicTypes.LONG);
         return (Long) query.list().get(0);
@@ -106,7 +108,7 @@ public class OrganizationRepositoryHibernate extends BaseRepositoryHibernate imp
 	public List<Organization> getSchoolsByDistrictId(String type,String parentOrganizationUid, String stateProvinceUid) {
 		String hql = "SELECT o FROM Organization o  where 1 = 1";
 		if (stateProvinceUid != null) {
-			hql += " AND o.stateProvince.stateId=:stateProvinceUid";
+			hql += " AND o.stateProvince.stateUid=:stateProvinceUid";
 		}
 		if (type != null) { 
 			hql += " AND o.type.keyValue=:type";
