@@ -1145,4 +1145,12 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		query.setMaxResults(1);
 		return (CollectionItem) ((query.list().size() > 0) ? query.list().get(0) : null);
 	}
+
+	@Override
+	public CollectionItem getCollectionItemByResource(String resourceId) {
+		String hql = "FROM CollectionItem collectionItem WHERE  collectionItem.resource.gooruOid=:resourceId";
+		Query query = getSession().createQuery(hql);
+		query.setParameter("resourceId", resourceId);
+		return (CollectionItem) ((query.list().size() > 0) ? query.list().get(0) : null);
+	}
 }
