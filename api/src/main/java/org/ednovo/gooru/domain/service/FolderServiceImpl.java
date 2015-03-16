@@ -31,7 +31,6 @@ import java.util.Map;
 import org.ednovo.gooru.application.util.SerializerUtil;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
-import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.ResourceType;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.application.util.BaseUtil;
@@ -43,6 +42,7 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepositor
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 
 @Service
 public class FolderServiceImpl extends BaseServiceImpl implements FolderService, ParameterProperties, ConstantProperties {
@@ -183,9 +183,9 @@ public class FolderServiceImpl extends BaseServiceImpl implements FolderService,
 	}
 	
 	private Map<String, Object> getCollection(String gooruOid, Integer sequence, String excludeType) {
-		Map<String, Object> nextCollection =  null;
+		Map<String, Object> nextCollection = null;
 		CollectionItem nextCollectionItem = this.getCollectionRepository().getNextCollectionItemResource(gooruOid, sequence, excludeType);
-		if (nextCollectionItem != null && !nextCollectionItem.getResource().getResourceType().getName().equalsIgnoreCase(FOLDER)) { 
+		if (nextCollection == null && nextCollectionItem != null && !nextCollectionItem.getResource().getResourceType().getName().equalsIgnoreCase(FOLDER)) { 
 			nextCollection = new HashMap<String, Object>();
 			nextCollection.put(COLLECTION_ITEM_ID, nextCollectionItem.getCollectionItemId());
 			nextCollection.put(TITLE, nextCollectionItem.getResource().getTitle());
@@ -197,12 +197,21 @@ public class FolderServiceImpl extends BaseServiceImpl implements FolderService,
 			Long questionCount = this.getCollectionRepository().getCollectionItemCount(nextCollectionItem.getResource().getGooruOid(), null, ResourceType.Type.ASSESSMENT_QUESTION.getType(), null);
 			nextCollection.put(RESOURCE_COUNT, itemCount - questionCount);
 			nextCollection.put(QUESTION_COUNT, questionCount);
+		    return nextCollection;
+		    
+		} else if (nextCollection == null && nextCollectionItem != null && nextCollectionItem.getResource().getResourceType().getName().equalsIgnoreCase(FOLDER)) {
+			Long itemCount = this.getCollectionRepository().getCollectionItemCount(nextCollectionItem.getResource().getGooruOid(), null, null, null);
+			return getCollection(nextCollectionItem.getResource().getGooruOid(), ((Number)(itemCount + 1)).intValue(), excludeType);
+		} else if (nextCollection == null && nextCollectionItem == null) { 
+			CollectionItem parentCollectionItem = this.getCollectionRepository().getCollectionItemByResource(gooruOid);
+			if (parentCollectionItem != null) { 
+				return getCollection(parentCollectionItem.getCollection().getGooruOid(), parentCollectionItem.getItemSequence(), excludeType);
+			}
 		}
-		if (nextCollection == null && nextCollectionItem != null && nextCollectionItem.getResource().getResourceType().getName().equalsIgnoreCase(FOLDER)) { 
-			getCollection(nextCollectionItem.getResource().getGooruOid(), 0, excludeType);
-		}
-		return nextCollection;
+		return null;
 	}
+	
+	
 
 	public RedisService getRedisService() {
 		return redisService;
