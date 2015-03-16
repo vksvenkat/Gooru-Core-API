@@ -26,7 +26,7 @@ public class BaseUtil {
 
 	private static final String CHARACTER_SET = "23456789abcdefghijkmnpqrstuvwxyzABCDEFGHIJKLMNPQRSTUVWXYZ";
 
-    static String PASSWORD_HASH = "IlluminateGirardPasswordHash";
+	private static String PASSWORD_HASH = "IlluminateGirardPasswordHash";
 
 	private static Random rnd = new Random();
 
