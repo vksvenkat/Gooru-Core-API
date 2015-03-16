@@ -314,6 +314,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			resourceObject.put(RESOURCE, resource);
 		}
 		resourceObject.put(STANDARDS, this.getCollectionService().getStandards(resource.getTaxonomySet(), false, null));
+		resourceObject.put(SKILLS, this.getCollectionService().getSkills(resource.getTaxonomySet()));
 		resourceObject.put(COURSE, this.getCollectionService().getCourse(resource.getTaxonomySet()));
 		setContentProvider(resource);
 		return resourceObject;
