@@ -1328,6 +1328,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		return skill;
 	}
 	
+	@Override
 	public Set<Map<String, Object>> getSkills(Set<Code> taxonomySet) {
 		Set<Map<String, Object>> skills =  null;
 		if (taxonomySet != null) {

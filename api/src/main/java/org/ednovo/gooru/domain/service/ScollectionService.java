@@ -146,4 +146,6 @@ public interface ScollectionService extends BaseService {
 	List<ContentMetaDTO> updateContentMeta(List<ContentMetaDTO> newDepthOfKnowledges, Resource resource, User apiCaller, String type);
 	
 	void deleteCollectionItem(String collectionItemId);
+	
+	Set<Map<String, Object>> getSkills(Set<Code> taxonomySet);
 }
