@@ -1,5 +1,7 @@
 package org.ednovo.gooru.domain.service.eventlogs;
 
+import java.util.List;
+
 import org.ednovo.gooru.core.api.model.Classpage;
 import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.CollectionType;
@@ -172,12 +174,13 @@ public class ClasspageEventLog implements ParameterProperties, ConstantPropertie
 	    session.put(ORGANIZATION_UID, user != null && user.getOrganization() != null ? user.getOrganization().getPartyUid() : null);
 	    SessionContextSupport.putLogParameter(SESSION, session.toString());
 	}
-	public void getEventLogs(Classpage classpage, InviteUser inviteUser,User user) throws JSONException {
+	public void getEventLogs(Classpage classpage, InviteUser inviteUser,User user, List<String> emailIds) throws JSONException {
 		SessionContextSupport.putLogParameter(EVENT_NAME, CLASSPAGE_USER_INVITE);
 		JSONObject context = SessionContextSupport.getLog().get(CONTEXT) != null ? new JSONObject(SessionContextSupport.getLog().get(CONTEXT).toString()) : new JSONObject();
 		context.put(CONTENT_GOORU_ID, classpage != null ? classpage.getGooruOid() : null);
 		context.put(INVITER_ID, classpage != null && classpage.getUser() != null ? classpage.getUser().getPartyUid() : null);
-		context.put(INVITEE_EMAIL_ID, inviteUser != null ? inviteUser.getEmailId() : null);
+		//context.put(INVITEE_EMAIL_ID, inviteUser != null ? inviteUser.getEmailId() : null);
+		context.put(INVITEE_EMAIL_ID, emailIds);
 		SessionContextSupport.putLogParameter(CONTEXT, context.toString());
 		JSONObject payLoadObject = SessionContextSupport.getLog().get(PAY_LOAD_OBJECT) != null ? new JSONObject(SessionContextSupport.getLog().get(PAY_LOAD_OBJECT).toString()) : new JSONObject();
 		payLoadObject.put(CONTENT_ID, classpage != null ? classpage.getContentId() : null);
