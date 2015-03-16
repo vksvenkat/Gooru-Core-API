@@ -82,6 +82,7 @@ public class InviteServiceImpl extends BaseServiceImpl implements InviteService,
 			throw new NotFoundException(generateErrorMessage(GL0006, CLASS), GL0006);
 		}
 		List<Map<String, String>> invites = new ArrayList<Map<String, String>>();
+		List<String> emailIds = new ArrayList<String>();
 		for (String email : emails) {
 			InviteUser inviteUser = this.getInviteRepository().findInviteUserById(email, classPage.getGooruOid(), null);
 			if (inviteUser == null) {
@@ -92,8 +93,9 @@ public class InviteServiceImpl extends BaseServiceImpl implements InviteService,
 				inviteMap.put(GOORU_OID, classPage.getGooruOid());
 				inviteMap.put(STATUS, PENDING);
 				invites.add(inviteMap);
-			}
-			
+				emailIds.add(email);
+					
+			}	
 			try {
 				if(classPage.getSharing().equals(PUBLIC)){
 				  this.getMailHandler().sendMailToOpenClassUser(email, classPage.getGooruOid(), classPage.getUser(), classPage.getTitle(), apiCaller.getUsername(), classPage.getClasspageCode());
@@ -105,11 +107,12 @@ public class InviteServiceImpl extends BaseServiceImpl implements InviteService,
 			}
 			try { 
 				
-				  this.getClasspageEventLog().getEventLogs(classPage, inviteUser, apiCaller);
+				  this.getClasspageEventLog().getEventLogs(classPage, inviteUser, apiCaller, emailIds);
 				} catch(Exception e){
 					e.printStackTrace();
 				}
 		}
+		
 		return invites;
 
 	}
