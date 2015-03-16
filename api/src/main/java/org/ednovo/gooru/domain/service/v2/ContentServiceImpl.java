@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.ednovo.gooru.application.util.AsyncExecutor;
-import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.ContentPermission;
 import org.ednovo.gooru.core.api.model.ContentTagAssoc;
@@ -45,6 +44,7 @@ import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.domain.service.BaseServiceImpl;
+import org.ednovo.gooru.domain.service.eventlogs.ContentEventLog;
 import org.ednovo.gooru.domain.service.search.SearchResults;
 import org.ednovo.gooru.domain.service.tag.TagService;
 import org.ednovo.gooru.domain.service.user.UserService;
@@ -94,6 +94,9 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 	public CollectionRepository getCollectionRepository() {
 		return collectionRepository;
 	}
+	
+	@Autowired
+	public ContentEventLog contentEventlog;
 
 	@Override
 	public List<Map<String, Object>> createTagAssoc(String gooruOid, List<String> labels, User apiCaller) {
@@ -137,6 +140,12 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 				this.getUserRepository().save(userSummary);
 			} 
 			contentTagAssocs.add(setcontentTagAssoc(contentTagAssoc, tag.getLabel()));
+		}
+		try {
+			this.getContentEventLog().getEventlogs(gooruOid, apiCaller);
+		}
+		catch(Exception e){
+			e.printStackTrace();
 		}
 		return contentTagAssocs;
 	}
@@ -343,6 +352,10 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 
 	public ResourceRepository getResourceRepository() {
 		return resourceRepository;
+	}
+	
+	public ContentEventLog getContentEventLog() {
+		return contentEventlog;
 	}
 
 
