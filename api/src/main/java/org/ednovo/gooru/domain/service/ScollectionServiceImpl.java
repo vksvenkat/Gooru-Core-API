@@ -2048,7 +2048,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				collection.setSharing(newCollection.getSharing());
 
 				updateResourceSharing(newCollection.getSharing(), collection);
-				resetFolderVisibility(collection.getEntityId(), collection.getUser().getPartyUid());
+				resetFolderVisibility(collection.getGooruOid(), collection.getUser().getPartyUid());
 			}
 
 			collection.setLastUpdatedUserUid(updateUser.getPartyUid());
