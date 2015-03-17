@@ -2009,7 +2009,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				}
 			}
 			if (newCollection.getSharing() != null && (newCollection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing()))) {
-
 				itemData.put(SHARING, newCollection.getSharing());
 
 				if (!newCollection.getSharing().equalsIgnoreCase(PUBLIC)) {
@@ -2047,8 +2046,9 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 					}
 				}
 				collection.setSharing(newCollection.getSharing());
-				
+
 				updateResourceSharing(newCollection.getSharing(), collection);
+				resetFolderVisibility(collection.getGooruOid(), collection.getUser().getPartyUid());
 			}
 
 			collection.setLastUpdatedUserUid(updateUser.getPartyUid());
