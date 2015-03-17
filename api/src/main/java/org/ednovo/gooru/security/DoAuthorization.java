@@ -185,7 +185,6 @@ public class DoAuthorization {
 
 		// set to request so that controllers can read it.
 		request.setAttribute(Constants.USER, authentication.getUserToken().getUser());
-		request.setAttribute(Constants.API_KEY, authentication.getUserToken().getApplication().getKey());
 		return authentication.getUserToken().getUser();
 	}
 
