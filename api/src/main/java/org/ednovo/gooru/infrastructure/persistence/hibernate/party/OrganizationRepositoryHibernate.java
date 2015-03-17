@@ -111,7 +111,7 @@ public class OrganizationRepositoryHibernate extends BaseRepositoryHibernate imp
 			hql += " AND o.stateProvince.stateUid=:stateProvinceUid";
 		}
 		if (type != null) { 
-			hql += " AND o.type.keyValue=:type";
+			hql += " AND o.type.value=:type";
 		}
 		if (parentOrganizationUid != null) { 
 			hql += " AND o.parentOrganization.partyUid=:parentOrganizationUid";
@@ -127,6 +127,7 @@ public class OrganizationRepositoryHibernate extends BaseRepositoryHibernate imp
 		if (parentOrganizationUid != null) { 
 			query.setParameter("parentOrganizationUid", parentOrganizationUid);
 		}
+	
 		return (List) query.list();
 	}
 	
