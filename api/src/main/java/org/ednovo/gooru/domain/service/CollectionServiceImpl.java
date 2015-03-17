@@ -78,7 +78,6 @@ import org.springframework.validation.Errors;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 @Service
