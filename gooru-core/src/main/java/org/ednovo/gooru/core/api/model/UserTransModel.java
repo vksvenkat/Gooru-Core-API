@@ -73,6 +73,7 @@ public class UserTransModel extends OrganizationModel implements IndexableEntry 
 	private Short active;
 	private String token;
 	private Date registeredOn;
+	private Date lastLogin;
 
 	@Override
 	public boolean equals(Object obj) {
@@ -368,5 +369,14 @@ public class UserTransModel extends OrganizationModel implements IndexableEntry 
 	public void setRegisteredOn(Date registeredOn) {
 		this.registeredOn = registeredOn;
 	}
+	
+	public Date getLastLogin() {
+		return lastLogin;
+	}
+
+	public void setLastLogin(Date lastLogin) {
+		this.lastLogin = lastLogin;
+	}
+
 
 }
