@@ -2009,9 +2009,8 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				}
 			}
 			if (newCollection.getSharing() != null && (newCollection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing()))) {
-
 				itemData.put(SHARING, newCollection.getSharing());
-				
+
 				if (!newCollection.getSharing().equalsIgnoreCase(PUBLIC)) {
 					collection.setPublishStatus(null);
 				}
@@ -2047,8 +2046,9 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 					}
 				}
 				collection.setSharing(newCollection.getSharing());
-				
+
 				updateResourceSharing(newCollection.getSharing(), collection);
+				resetFolderVisibility(collection.getEntityId(), collection.getUser().getPartyUid());
 			}
 
 			collection.setLastUpdatedUserUid(updateUser.getPartyUid());
@@ -2068,7 +2068,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			}
 
 			this.getCollectionRepository().save(collection);
-			resetFolderVisibility(collection.getEntityId(), collection.getUser().getPartyUid());
 
 			try {
 				if(!collection.getCollectionType().equalsIgnoreCase(ASSESSMENT_URL)){
