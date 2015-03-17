@@ -203,7 +203,9 @@ public class DoAuthorization {
 					getRedisService().put(key,new JSONSerializer().transform(new ExcludeNullTransformer(), void.class).include(new String[] { "*.operationAuthorities", "*.userRoleSet", "*.partyOperations", "*.subOrganizationUids", "*.orgPermits", "*.partyPermits", "*.customFields", "*.identities", "*.partyPermissions.*" }).exclude(new String[] {"*.class", "*.meta"}).serialize(authentication), Constants.AUTHENTICATION_CACHE_EXPIRY_TIME_IN_SEC);
 				}
 			} catch (Exception e) {
+				if(LOGGER.isErrorEnabled()) {
 				LOGGER.error("Failed to  put  value from redis server {} ", e);
+				}
 			}
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Authorize User: First Name-" + user.getFirstName() + "; Last Name-" + user.getLastName() + "; Email-" + user.getUserId());
