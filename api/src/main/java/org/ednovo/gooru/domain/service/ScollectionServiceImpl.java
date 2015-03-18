@@ -570,11 +570,11 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				if (!newCollection.getSharing().equalsIgnoreCase(PUBLIC)) {
 					collection.setPublishStatus(null);
 				}
-				if (newCollection.getSharing() != null && !newCollection.getSharing().equalsIgnoreCase(ResourceType.Type.ASSESSMENT_URL.getType()) && newCollection.getSharing().equalsIgnoreCase(PUBLIC) && !userService.isContentAdmin(apiCallerUser)) {
+				if (!collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.ASSESSMENT_URL.getType()) && newCollection.getSharing().equalsIgnoreCase(PUBLIC) && !userService.isContentAdmin(apiCallerUser)) {
 					collection.setPublishStatus(this.getCustomTableRepository().getCustomTableValue(_PUBLISH_STATUS, PENDING));
 					newCollection.setSharing(collection.getSharing());
 				}
-				if (newCollection.getSharing().equalsIgnoreCase(PUBLIC) && userService.isContentAdmin(apiCallerUser)) {
+				if (collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.ASSESSMENT_URL.getType()) || newCollection.getSharing().equalsIgnoreCase(PUBLIC) && userService.isContentAdmin(apiCallerUser)) {
 					collection.setPublishStatus(this.getCustomTableRepository().getCustomTableValue(_PUBLISH_STATUS, REVIEWED));
 				}
                 
@@ -2014,11 +2014,11 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				if (!newCollection.getSharing().equalsIgnoreCase(PUBLIC)) {
 					collection.setPublishStatus(null);
 				}
-				if (newCollection.getSharing().equalsIgnoreCase(PUBLIC) && !userService.isContentAdmin(updateUser)) {
+				if (!collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.ASSESSMENT_URL.getType()) && newCollection.getSharing().equalsIgnoreCase(PUBLIC) && !userService.isContentAdmin(updateUser)) {
 					collection.setPublishStatus(this.getCustomTableRepository().getCustomTableValue(_PUBLISH_STATUS, PENDING));
 					newCollection.setSharing(collection.getSharing());
 				}
-				if (newCollection.getSharing().equalsIgnoreCase(PUBLIC) && userService.isContentAdmin(updateUser)) {
+				if (collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.ASSESSMENT_URL.getType()) || newCollection.getSharing().equalsIgnoreCase(PUBLIC) && userService.isContentAdmin(updateUser)) {
 					collection.setPublishStatus(this.getCustomTableRepository().getCustomTableValue(_PUBLISH_STATUS, REVIEWED));
 				}
 				if (collection.getSharing().equalsIgnoreCase(PUBLIC) && (newCollection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing()))) {
