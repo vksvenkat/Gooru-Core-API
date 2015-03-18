@@ -139,7 +139,9 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 						try {
 							this.getAsyncExecutor().updateResourceFileInS3(response.getModel().getResource().getFolder(), response.getModel().getResource().getOrganization().getNfsStorageArea().getInternalPath(), response.getModel().getResource().getGooruOid(), UserGroupSupport.getSessionToken());
 						} catch (Exception e) {
-							LOGGER.error(e.getMessage());
+							if(LOGGER.isErrorEnabled()) {
+								LOGGER.error(e.getMessage());
+							}
 						}
 					}
 				}
@@ -164,7 +166,9 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		try {
 			this.getCollectionEventLog().getEventLogs(response.getModel(), false, true, user, response.getModel().getCollection().getCollectionType());
 		} catch (Exception e) {
-			LOGGER.error(e.getMessage());
+			if(LOGGER.isErrorEnabled()) {
+				LOGGER.error(e.getMessage());
+			}
 		}
 		return response;
 
@@ -213,7 +217,9 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		try {
 			this.collectionEventLog.getEventLogs(collectionItem, false, false, user, false, true);
 		} catch (Exception e) {
-			e.printStackTrace();
+			if(LOGGER.isErrorEnabled()) {
+				LOGGER.error(e.getMessage());
+			}
 		}
 
 		return new ActionResponseDTO<CollectionItem>(collectionItem, errors);
@@ -292,7 +298,9 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		try {
 			this.getCollectionEventLog().getEventLogs(responseDTO.getModel(), true, false, user, responseDTO.getModel().getCollection().getCollectionType(), sourceCollectionItem);
 		} catch (JSONException e) {
-			e.printStackTrace();
+			if(LOGGER.isErrorEnabled()) {
+				LOGGER.error(e.getMessage());
+			}
 		}
 		return responseDTO;
 	}
@@ -743,7 +751,9 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		try {
 			this.getCollectionEventLog().getEventLogs(collectionItem, false, false, user, collectionItem.getCollection().getCollectionType());
 		} catch (Exception e) {
-			e.printStackTrace();
+			if(LOGGER.isErrorEnabled()){
+				LOGGER.error(e.getMessage());
+			}
 		}
 		return collectionItem;
 	}
