@@ -254,6 +254,9 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		if (source == null) {
 			throw new NotFoundException(generateErrorMessage(GL0056, _COLLECTION), GL0056);
 		}
+		if (source.getCollectionType().equalsIgnoreCase(FOLDER)){
+			throw new BadRequestException(generateErrorMessage(GL0007, _COLLECTION), GL0007);
+		}
 		CollectionItem collectionItem = new CollectionItem();
 		collectionItem.setCollection(source);
 		CollectionItem sourceCollectionItem = this.getCollectionRepository().findCollectionItemByGooruOid(sourceId, user.getPartyUid(), CLASSPAGE);
@@ -282,9 +285,9 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 			responseDTO = this.createCollectionItem(sourceId, null, collectionItem, user, CollectionType.SHElf.getCollectionType(), false);
 		}
 		if (sourceCollectionItem != null) {
+			deleteCollectionItem(sourceCollectionItem.getCollectionItemId(), user, true);
 			updateFolderSharing(sourceCollectionItem.getCollection().getGooruOid());
 			resetFolderVisibility(sourceCollectionItem.getCollection().getGooruOid(), user.getPartyUid());
-			deleteCollectionItem(sourceCollectionItem.getCollectionItemId(), user, true);
 		}
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + user.getPartyUid() + "*");
