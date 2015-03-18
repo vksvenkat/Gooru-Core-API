@@ -113,6 +113,8 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	@Autowired
 	private IndexHandler indexHandler;
 	
+	final int zero = 0;
+	
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(CollectionServiceImpl.class);
 
@@ -175,12 +177,12 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	}
 
 	private ActionResponseDTO<CollectionItem> updateQuestionWithCollectionItem(CollectionItem collectionItem, String data, List<Integer> deleteAssets, User user, String mediaFileName) throws Exception {
-		AssessmentQuestion newQuestion = getAssessmentService().buildQuestionFromInputParameters(data, user, true);
+		final AssessmentQuestion newQuestion = getAssessmentService().buildQuestionFromInputParameters(data, user, true);
 		Errors errors = validateUpdateCollectionItem(collectionItem);
 		final JSONObject itemData = new JSONObject();
 		itemData.put(_ITEM_DATA, data);
 		if (!errors.hasErrors()) {
-			AssessmentQuestion question = getAssessmentService().getQuestion(collectionItem.getResource().getGooruOid());
+			final AssessmentQuestion question = getAssessmentService().getQuestion(collectionItem.getResource().getGooruOid());
 			if (question != null) {
 				AssessmentQuestion assessmentQuestion = assessmentService.updateQuestion(newQuestion, deleteAssets, question.getGooruOid(), true, true).getModel();
 				if (assessmentQuestion != null) {
@@ -828,13 +830,13 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	@Override
 	public List<Collection> updateCollectionForReject(List<Map<String, String>> collection, User user) throws Exception {
 
-		List<String> gooruOids = new ArrayList<String>();
+		final List<String> gooruOids = new ArrayList<String>();
 		List<Collection> collections = new ArrayList<Collection>();
-		StringBuffer collectionIds = new StringBuffer();
-		for (Map<String, String> map : collection) {
+		final StringBuffer collectionIds = new StringBuffer();
+		for (final Map<String, String> map : collection) {
 			gooruOids.add(map.get(GOORU_OID));
 		}
-		if (gooruOids.toString().trim().length() > 0) {
+		if (gooruOids.toString().trim().length() > zero) {
 			collections = this.getCollectionRepository().getCollectionListByIds(gooruOids);
 			if (userService.isSuperAdmin(user) || userService.isContentAdmin(user)) {
 				for (Collection scollection : collections) {
