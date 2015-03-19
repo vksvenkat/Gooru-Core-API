@@ -429,7 +429,8 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 		}
 		return feedback;
 	}
-	
+
+	@Override
 	public ResourceSummary updateResourceSummary(String assocGooruOid) {
 		ResourceSummary resourceSummary = this.getResourceRepository().getResourceSummaryById(assocGooruOid);
 		Map<String, Object> summary = this.getContentFeedbackStarRating(assocGooruOid);
