@@ -872,11 +872,11 @@ public class ResourceCio implements IsEntityCassandraIndexable {
 	}
 	
 	public String getSkillSetJson() {
-		return tagSetJson;
+		return skillSetJson;
 	}
 
-	public void setSkillSetJson(String tagSetJson) {
-		this.tagSetJson = tagSetJson;
+	public void setSkillSetJson(String skillSetJson) {
+		this.skillSetJson = skillSetJson;
 	}
 	
 
