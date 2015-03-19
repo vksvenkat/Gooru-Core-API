@@ -901,7 +901,10 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 	@Override
 	public Object[] getParentCollection(String collectionGooruOid, String gooruUid) {
 		String hql = "select cc.gooru_oid, cor.title  as gooruOid  from collection_item ci inner join resource r on r.content_id = ci.resource_content_id inner join content cr on cr.content_id = r.content_id inner join content cc on cc.content_id = ci.collection_content_id inner join collection co on  co.content_id = ci.collection_content_id inner join resource cor on cor.content_id = co.content_id   where cr.gooru_oid='"
-				+ collectionGooruOid + "' and cc.user_uid ='" + gooruUid + "' and co.collection_type = 'folder'  and ci.item_type != 'collaborator' ";
+				+ collectionGooruOid + "'and co.collection_type = 'folder'  and ci.item_type != 'collaborator' ";
+		if (gooruUid != null) {
+			hql += "and  cc.user_uid ='" + gooruUid + "'";
+		}
 		Query query = getSession().createSQLQuery(hql);
 		return (Object[]) (query.list().size() > 0 ? query.list().get(0) : null);
 	}
