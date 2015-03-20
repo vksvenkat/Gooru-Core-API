@@ -93,15 +93,15 @@ public class SMTPMailSerivceHandler implements MailHandler {
 							logger.error("Connection Error:{}", e);
 						}
 					}
-					ByteArrayDataSource bds = null;
+					ByteArrayDataSource dataSource = null;
 					messageBodyPart = new MimeBodyPart();
 					try {
-						bds = new ByteArrayDataSource(url.openStream(), connection.getContentType());
+						dataSource = new ByteArrayDataSource(url.openStream(), connection.getContentType());
 					} catch (IOException e) {
 						logger.error("Connection Error:{}", e);
 					}
-					if (bds != null) {
-						messageBodyPart.setDataHandler(new DataHandler(bds));
+					if (dataSource != null) {
+						messageBodyPart.setDataHandler(new DataHandler(dataSource));
 						messageBodyPart.setFileName(attachment.getFileName());
 						multipart.addBodyPart(messageBodyPart);
 					}
