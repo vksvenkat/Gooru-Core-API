@@ -261,7 +261,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			}
 			try {
 				if (userToken != null) {
-					AuthenticationDo authentication = new AuthenticationDo();
+					final AuthenticationDo authentication = new AuthenticationDo();
 					authentication.setUserToken(userToken);
 					authentication.setUserCredential(userService.getUserCredential(user, userToken.getToken(), null, null));
 					getRedisService().put(
@@ -303,7 +303,8 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 
 	@Override
 	public void logOut(String sessionToken) {
-		final UserToken userToken = this.getUserTokenRepository().findByToken(sessionToken);
+		UserToken userToken = new UserToken(); 
+		userToken = this.getUserTokenRepository().findByToken(sessionToken);
 		if (userToken != null) {
 			try {
 				this.getAccountEventlog().getEventLogs(userToken.getUser().getIdentities() != null ? userToken.getUser().getIdentities().iterator().next() : null, userToken, false, userToken.getApplication().getKey());
@@ -400,7 +401,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			}
 		}	
 		if (sessionToken == null) {
-			Application application = this.getApplicationRepository().getApplication(apiKey);
+			final Application application = this.getApplicationRepository().getApplication(apiKey);
 			rejectIfNull(application, GL0056, 404, APPLICATION);
 			sessionToken = this.getUserManagementService().createSessionToken(userIdentity, request.getSession().getId(), application);
 		}
