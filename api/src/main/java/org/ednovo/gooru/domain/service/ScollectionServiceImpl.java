@@ -292,8 +292,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			try {
 				indexHandler.setReIndexRequest(collection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);						
 			} catch (Exception e) {
-				LOGGER.error(e.getMessage());
-				Log.write(LOGGER, "", e);
+				Log.write(LOGGER, "Error:", e);
 			}
 			getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collection.getUser().getPartyUid() + "*");
 
@@ -302,7 +301,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		try {
 			this.getCollectionEventLog().getEventLogs(collection.getCollectionItem(), true, false, collection.getUser(), false, false);
 		} catch (Exception e) {
-			/*LOGGER.error("Error" + e.getMessage());*/
+			Log.write(LOGGER, "Error:", e);
 		}
 
 		return new ActionResponseDTO<Collection>(collection, errors);
@@ -397,7 +396,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 					indexHandler.setReIndexRequest(collection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);
 				}
 			} catch (Exception ex) {
-				LOGGER.error(ex.getMessage());
+				Log.write(LOGGER, "Error:", ex);
 			}
 			if (collection.getCollectionType().equalsIgnoreCase(CollectionType.COLLECTION.getCollectionType()) && collection.getUser() != null) {
 				Map<String, String> data = new HashMap<String, String>();
@@ -758,8 +757,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			try {
 				this.getCollectionEventLog().getEventLogs(collectionItem, true, false, user, false, false);
 			} catch (Exception e) {
-				LOGGER.error(e.getMessage());
-				Log.write(LOGGER, "Error", e);
+				Log.write(LOGGER, "Error :", e);
 			}
 
 			try {
@@ -772,7 +770,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				}
 
 			} catch (Exception e) {
-				Log.write(LOGGER, "Error", e);
+				Log.write(LOGGER, "Error :", e);
 			}
 			resetFolderVisibility(collection.getGooruOid(), collection.getUser().getPartyUid());
 			if (collectionItem.getCollection().getResourceType().getName().equalsIgnoreCase(SCOLLECTION) && collectionItem.getCollection().getClusterUid() != null && !collectionItem.getCollection().getClusterUid().equalsIgnoreCase(collectionItem.getCollection().getGooruOid())) {
@@ -898,8 +896,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
 				getAsyncExecutor().deleteFromCache("v2-class-data-" + collectionItem.getCollection().getGooruOid() + "*");
 			} catch (Exception e) {
-				LOGGER.error(e.getMessage());
-				Log.write(LOGGER, "Error", e);
+				Log.write(LOGGER, "Error :", e);
 			}
 		}
 
@@ -1304,8 +1301,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			resource.setViews(this.resourceCassandraService.getLong(resource.getGooruOid(), STATISTICS_VIEW_COUNT));
 			resource.setViewCount(resource.getViews());
 		} catch (Exception e) {
-/*			LOGGER.error("parser error : {}", e);*/
-			Log.write(LOGGER, "Error", e);
+			Log.write(LOGGER, "parser error : {}", e);
 		}
 	} 
 
@@ -1510,7 +1506,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			try {
 				jsonItemdata.put(TITLE, title);
 			} catch (JSONException e) {
-				LOGGER.error("error" + e.getMessage());
+				Log.write(LOGGER, "Error", e);
 			}
 			collection.setTitle(title);
 		}
@@ -1519,7 +1515,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			try {
 				jsonItemdata.put(DESCRIPTION, description);
 			} catch (JSONException e) {
-				Log.write(LOGGER, "rror", e);
+				Log.write(LOGGER, "Error", e);
 			}
 			collection.setGoals(description);
 		}
@@ -1618,7 +1614,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		try {
 			jsonItemdata = new JSONObject(new JSONSerializer().serialize(data));
 		} catch (JSONException e) {
-/*			LOGGER.error("Json parser error : " + e);*/
 			Log.write(LOGGER, "Json parser error : ", e);
 		}
 		String narration = data.getFirst(NARRATION);
@@ -1705,7 +1700,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				this.getCollectionEventLog().getEventLogs(destCollectionItem, true, false, destCollectionItem.getCollection() != null && destCollectionItem.getCollection().getUser() != null ? destCollectionItem.getCollection().getUser() : null, true, false, sourceCollectionItem);
 			}
 		} catch (Exception e) {
-			LOGGER.error("Error" + e.getMessage());
 			Log.write(LOGGER, "Error", e);
 		}
 		return destCollectionItem;
