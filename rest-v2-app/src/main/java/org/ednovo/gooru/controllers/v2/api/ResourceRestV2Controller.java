@@ -186,22 +186,22 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_RESOURCE_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/suggest/meta/info")
-	public ModelAndView suggestResourceMetaData(@RequestParam(value = URL) final String url, @RequestParam(value = TITLE, required = false) final String title, @RequestParam(value = FETCH_THUMBNAIL, required = false, defaultValue = "false") boolean fetchThumbnail, final HttpServletRequest request,
-			HttpServletResponse response) throws Exception {
+	public ModelAndView suggestResourceMetaData(@RequestParam(value = URL) final String url, @RequestParam(value = TITLE, required = false) final String title, @RequestParam(value = FETCH_THUMBNAIL, required = false, defaultValue = "false") final boolean fetchThumbnail, final HttpServletRequest request,
+			final HttpServletResponse response) throws Exception {
 		return toModelAndView(serializeToJson(getResourceService().getSuggestedResourceMetaData(url, title, fetchThumbnail), true));
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_RESOURCE_UPDATE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.POST, value = "/{id}/media")
-	public ModelAndView updateResourceImage(HttpServletRequest request, @PathVariable(ID) String resourceId, @RequestBody String data, HttpServletResponse response) throws Exception {
+	public ModelAndView updateResourceImage(final HttpServletRequest request, @PathVariable(ID) final String resourceId, @RequestBody final String data, final HttpServletResponse response) throws Exception {
 		JSONObject json = requestData(data);
 		return toModelAndView(serializeToJson(this.getResourceService().updateResourceImage(resourceId, getValue(FILENAME, json)), true));
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_RESOURCE_READ })
 	@RequestMapping(method = RequestMethod.GET, value = { "/{id}/play" })
-	public ModelAndView getResourceSource(HttpServletRequest request, @PathVariable(value = ID) String gooruContentId, HttpServletResponse response, @RequestParam(value = INCLUDE_BROKEN_PDF, required = false, defaultValue = TRUE) Boolean includeBrokenPdf,
+	public ModelAndView getResourceSource(final HttpServletRequest request, @PathVariable(value = ID) final String gooruContentId, final HttpServletResponse response, @RequestParam(value = INCLUDE_BROKEN_PDF, required = false, defaultValue = TRUE) Boolean includeBrokenPdf,
 			@RequestParam(value = MORE, required = false, defaultValue = TRUE) boolean more) throws Exception {
 		request.setAttribute(PREDICATE, RESOURCE_SRC_GET);
 		User apiCaller = (User) request.getAttribute(Constants.USER);
@@ -212,7 +212,7 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_BULK_UPDATE_VIEW})
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.POST, value = "/update/views")
-	public void updateResourceViews(HttpServletRequest request, HttpServletResponse response, @RequestBody String data) throws Exception {
+	public void updateResourceViews(final HttpServletRequest request, final HttpServletResponse response, @RequestBody final String data) throws Exception {
 		List<UpdateViewsDTO> updateViewsDTOs = this.buildUpdatesViewFromInputParameters(data);
 		User apiCaller = (User) request.getAttribute(Constants.USER);
 		this.getResourceService().updateViewsBulk(updateViewsDTOs, apiCaller);
@@ -221,9 +221,9 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_BULK_UPDATE_VIEW})
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.POST, value = "/statistics-data/update")
-	public void updateStatisticsData(HttpServletRequest request, HttpServletResponse response, @RequestBody String data, @RequestParam(required = false, defaultValue="false") boolean skipReindex) throws Exception {
-		JSONObject json = requestData(data);
-		List<StatisticsDTO> statisticsDataList = JsonDeserializer.deserialize(getValue(STATISTICS_DATA, json), new TypeReference<List<StatisticsDTO>>(){});
+	public void updateStatisticsData(final HttpServletRequest request, final HttpServletResponse response, @RequestBody final String data, @RequestParam(required = false, defaultValue="false") final boolean skipReindex) throws Exception {
+		final JSONObject json = requestData(data);
+		final List<StatisticsDTO> statisticsDataList = JsonDeserializer.deserialize(getValue(STATISTICS_DATA, json), new TypeReference<List<StatisticsDTO>>(){});
 		this.getResourceService().updateStatisticsData(statisticsDataList, skipReindex);
 	}
 	
@@ -231,13 +231,13 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_RESOURCE_DELETE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.DELETE, value = "content/{id}")
-	public void deleteContentProvider(@PathVariable(value = ID) String gooruOid, @RequestParam(value = "providerType") String providerType, @RequestParam(value = "name") String name, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public void deleteContentProvider(@PathVariable(value = ID) final String gooruOid, @RequestParam(value = "providerType") final String providerType, @RequestParam(value = "name") final String name, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		this.getResourceService().deleteContentProvider(gooruOid, providerType, name);
 	}
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_RESOURCE_READ })
 	@RequestMapping(method= RequestMethod.GET, value="/url/exist")
-	public ModelAndView checkResourceUrlExists(@RequestParam(value=URL) String url, @RequestParam(required = false, value=CHK_SHORTENED_URL, defaultValue = FALSE) boolean checkShortenedUrl) throws Exception {
+	public ModelAndView checkResourceUrlExists(@RequestParam(value=URL) final String url, @RequestParam(required = false, value=CHK_SHORTENED_URL, defaultValue = FALSE) final boolean checkShortenedUrl) throws Exception {
 		return toModelAndViewWithIoFilter(this.getResourceService().checkResourceUrlExists(url,checkShortenedUrl), RESPONSE_FORMAT_JSON,EXCLUDE_ALL, true, RESOURCE_INSTANCE_INCLUDES);
 	}
 
@@ -253,10 +253,10 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 		return JsonDeserializer.deserialize(data, new TypeReference<List<String>>() {});
 	}
 
-	private Resource buildResourceFromInputParameters(String data, User user) {
-		Resource resource = JsonDeserializer.deserialize(data, Resource.class);
+	private Resource buildResourceFromInputParameters(final String data, final User user) {
+		final Resource resource = JsonDeserializer.deserialize(data, Resource.class);
 		resource.setGooruOid(UUID.randomUUID().toString());
-		ContentType contentType = getResourceService().getContentType(ContentType.RESOURCE);
+		final ContentType contentType = getResourceService().getContentType(ContentType.RESOURCE);
 		resource.setContentType(contentType);
 		resource.setLastModified(new Date(System.currentTimeMillis()));
 		resource.setCreatedOn(new Date(System.currentTimeMillis()));
