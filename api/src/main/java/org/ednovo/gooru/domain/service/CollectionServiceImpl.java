@@ -185,6 +185,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 			final AssessmentQuestion question = getAssessmentService().getQuestion(collectionItem.getResource().getGooruOid());
 			if (question != null) {
 				AssessmentQuestion assessmentQuestion = assessmentService.updateQuestion(newQuestion, deleteAssets, question.getGooruOid(), true, true).getModel();
+                this.getResourceService().saveOrUpdateResourceTaxonomy(assessmentQuestion, newQuestion.getTaxonomySet());
 				if (assessmentQuestion != null) {
 					if (mediaFileName != null && mediaFileName.length() > 0) {
 						String questionImage = this.assessmentService.updateQuizQuestionImage(assessmentQuestion.getGooruOid(), mediaFileName, question, ASSET_QUESTION);
