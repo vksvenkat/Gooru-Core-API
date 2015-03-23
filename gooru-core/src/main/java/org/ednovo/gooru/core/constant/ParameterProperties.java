@@ -1467,6 +1467,8 @@ public interface ParameterProperties {
 	String ZERO = "0";
 	
 	final int _ZERO = '0';
+	
+	final int _ONE = '1';
 
 	String SHOW_PROFILE_PAGE = "show_profile_page";
 
