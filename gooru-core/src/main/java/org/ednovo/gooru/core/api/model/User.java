@@ -156,9 +156,6 @@ public class User extends Party implements IndexableEntry, OrganizationWrapper, 
 	}	
 	
 
-	
-
-
 	public void setFirstName(String firstName) {
 		this.firstName = firstName;
 	}
