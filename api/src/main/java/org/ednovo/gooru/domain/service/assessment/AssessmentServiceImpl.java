@@ -1695,6 +1695,8 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 				}
 				asset.setFileData(fileContent);
 				asset.setName(fileName);
+				question.setThumbnail(fileName);
+				this.getBaseRepository().save(question);
 				Set<AssessmentQuestionAssetAssoc> assets = new HashSet<AssessmentQuestionAssetAssoc>();
 				assets.add(uploadQuestionAsset(gooruQuestionId, questionAsset, true));
 				question.setAssets(assets);
@@ -1730,7 +1732,6 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 				}
 				asset.setName(assetKey);
 				asset.setUrl(assetKey);
-
 				assessmentRepository.save(asset);
 
 				assessmentRepository.saveAndFlush(questionAsset);
