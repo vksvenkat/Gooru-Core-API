@@ -28,6 +28,7 @@ import java.util.Map;
 
 import org.ednovo.gooru.core.api.model.CustomTableValue;
 import org.ednovo.gooru.core.api.model.Feedback;
+import org.ednovo.gooru.core.api.model.ResourceSummary;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.domain.service.search.SearchResults;
 
@@ -75,6 +76,7 @@ public interface FeedbackService extends BaseService {
 	List<Map<Object, Object>> getContentFeedbackAggregate(String assocGooruUid, String feedbackCategory);
 	
 	Map<String, Object> getFlags(Integer limit, Integer offset, String category,String type,String status,String reportedFlagType, String startDate, String endDate, String searchQuery, String description, String reportQuery) throws Exception ;
-	               
+
+	ResourceSummary updateResourceSummary(String assocGooruOid);	               
 	}
 

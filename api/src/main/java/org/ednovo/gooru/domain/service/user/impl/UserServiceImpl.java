@@ -327,9 +327,9 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 					this.getUser(userParentId).setAccountTypeId(UserAccountType.ACCOUNT_PARENT);
 					user.setParentUser(this.getUser(userParentId));
 				}
-			} else {
-				user.setAccountTypeId(UserAccountType.ACCOUNT_NON_PARENT);
-			}
+			} 
+		} else {
+			user.setAccountTypeId(UserAccountType.ACCOUNT_NON_PARENT);
 		}
 
 		// check if the idp exists in the database. If not, create it.

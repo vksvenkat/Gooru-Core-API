@@ -322,7 +322,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			} else {
 				collection.setResourceFormat(this.getCustomTableRepository().getCustomTableValue(RESOURCE_CATEGORY_FORMAT, SCOLLECTION));
 			}
-			if (collection.getSharing() != null && collection.getSharing().equalsIgnoreCase(PUBLIC)) {
+			if (collection.getSharing() != null && !collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.ASSESSMENT_URL.getType()) &&  collection.getSharing().equalsIgnoreCase(PUBLIC)) {
 				collection.setPublishStatus(this.getCustomTableRepository().getCustomTableValue(_PUBLISH_STATUS, PENDING));
 				collection.setSharing(Sharing.ANYONEWITHLINK.getSharing());
 			}
@@ -391,7 +391,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 			resetFolderVisibility(collection.getGooruOid(), user.getPartyUid());
 			try {
-				if(!collection.getCollectionType().equalsIgnoreCase(ASSESSMENT_URL)) {
+				if(!collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.ASSESSMENT_URL.getType())) {
 					indexHandler.setReIndexRequest(collection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);
 				}
 			} catch (Exception ex) {
@@ -570,14 +570,14 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				if (!newCollection.getSharing().equalsIgnoreCase(PUBLIC)) {
 					collection.setPublishStatus(null);
 				}
-				if (newCollection.getSharing().equalsIgnoreCase(PUBLIC) && !userService.isContentAdmin(apiCallerUser)) {
+				if (!collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.ASSESSMENT_URL.getType()) && newCollection.getSharing().equalsIgnoreCase(PUBLIC) && !userService.isContentAdmin(apiCallerUser)) {
 					collection.setPublishStatus(this.getCustomTableRepository().getCustomTableValue(_PUBLISH_STATUS, PENDING));
 					newCollection.setSharing(collection.getSharing());
 				}
-				if (newCollection.getSharing().equalsIgnoreCase(PUBLIC) && userService.isContentAdmin(apiCallerUser)) {
+				if (collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.ASSESSMENT_URL.getType()) || newCollection.getSharing().equalsIgnoreCase(PUBLIC) && userService.isContentAdmin(apiCallerUser)) {
 					collection.setPublishStatus(this.getCustomTableRepository().getCustomTableValue(_PUBLISH_STATUS, REVIEWED));
 				}
-
+                
 				if (collection.getSharing().equalsIgnoreCase(PUBLIC) && newCollection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing())) {
 					final UserSummary userSummary = this.getUserRepository().getSummaryByUid(apiCallerUser.getPartyUid());
 					userSummary.setCollections(userSummary.getCollections() <= 0 ? 0 : (userSummary.getCollections() - 1));
@@ -696,7 +696,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				}
 			}
 			try {
-				if(!collection.getCollectionType().equalsIgnoreCase(ASSESSMENT_URL)) {
+				if(!collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.ASSESSMENT_URL.getType())) {
 					indexHandler.setReIndexRequest(collection.getGooruOid(), IndexProcessor.DELETE, SCOLLECTION, null, false, false);
 				}
 			} catch(Exception e) { 
@@ -2009,17 +2009,16 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				}
 			}
 			if (newCollection.getSharing() != null && (newCollection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing()))) {
-
 				itemData.put(SHARING, newCollection.getSharing());
 
 				if (!newCollection.getSharing().equalsIgnoreCase(PUBLIC)) {
 					collection.setPublishStatus(null);
 				}
-				if (newCollection.getSharing().equalsIgnoreCase(PUBLIC) && !userService.isContentAdmin(updateUser)) {
+				if (!collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.ASSESSMENT_URL.getType()) && newCollection.getSharing().equalsIgnoreCase(PUBLIC) && !userService.isContentAdmin(updateUser)) {
 					collection.setPublishStatus(this.getCustomTableRepository().getCustomTableValue(_PUBLISH_STATUS, PENDING));
 					newCollection.setSharing(collection.getSharing());
 				}
-				if (newCollection.getSharing().equalsIgnoreCase(PUBLIC) && userService.isContentAdmin(updateUser)) {
+				if (collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.ASSESSMENT_URL.getType()) || newCollection.getSharing().equalsIgnoreCase(PUBLIC) && userService.isContentAdmin(updateUser)) {
 					collection.setPublishStatus(this.getCustomTableRepository().getCustomTableValue(_PUBLISH_STATUS, REVIEWED));
 				}
 				if (collection.getSharing().equalsIgnoreCase(PUBLIC) && (newCollection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing()))) {
@@ -2047,8 +2046,9 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 					}
 				}
 				collection.setSharing(newCollection.getSharing());
-				
+
 				updateResourceSharing(newCollection.getSharing(), collection);
+				resetFolderVisibility(collection.getGooruOid(), collection.getUser().getPartyUid());
 			}
 
 			collection.setLastUpdatedUserUid(updateUser.getPartyUid());
@@ -2070,7 +2070,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			this.getCollectionRepository().save(collection);
 
 			try {
-				if(!collection.getCollectionType().equalsIgnoreCase(ASSESSMENT_URL)){
+				if(!collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.ASSESSMENT_URL.getType())){
 					indexHandler.setReIndexRequest(collection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);
 				}
 			} catch (Exception e) {
@@ -2134,7 +2134,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			if (newCollection != null && newCollection.getSharing() != null) {
 				destCollection.setSharing(newCollection.getSharing());
 			} else {
-				destCollection.setSharing(addToShelf ? Sharing.ANYONEWITHLINK.getSharing() : sourceCollection.getSharing());
+			      destCollection.setSharing(sourceCollection.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing())?Sharing.ANYONEWITHLINK.getSharing(): sourceCollection.getSharing());
 			}
 			destCollection.setUser(user);
 			destCollection.setOrganization(sourceCollection.getOrganization());

@@ -78,7 +78,6 @@ import org.springframework.validation.Errors;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 @Service
@@ -180,6 +179,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 			AssessmentQuestion question = getAssessmentService().getQuestion(collectionItem.getResource().getGooruOid());
 			if (question != null) {
 				AssessmentQuestion assessmentQuestion = assessmentService.updateQuestion(newQuestion, deleteAssets, question.getGooruOid(), true, true).getModel();
+                this.getResourceService().saveOrUpdateResourceTaxonomy(assessmentQuestion, newQuestion.getTaxonomySet());
 				if (assessmentQuestion != null) {
 					if (mediaFileName != null && mediaFileName.length() > 0) {
 						String questionImage = this.assessmentService.updateQuizQuestionImage(assessmentQuestion.getGooruOid(), mediaFileName, question, ASSET_QUESTION);
@@ -255,6 +255,9 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		if (source == null) {
 			throw new NotFoundException(generateErrorMessage(GL0056, _COLLECTION), GL0056);
 		}
+		if (source.getCollectionType().equalsIgnoreCase(FOLDER)){
+			throw new BadRequestException(generateErrorMessage(GL0007, _COLLECTION), GL0007);
+		}
 		CollectionItem collectionItem = new CollectionItem();
 		collectionItem.setCollection(source);
 		CollectionItem sourceCollectionItem = this.getCollectionRepository().findCollectionItemByGooruOid(sourceId, user.getPartyUid(), CLASSPAGE);
@@ -283,9 +286,9 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 			responseDTO = this.createCollectionItem(sourceId, null, collectionItem, user, CollectionType.SHElf.getCollectionType(), false);
 		}
 		if (sourceCollectionItem != null) {
+			deleteCollectionItem(sourceCollectionItem.getCollectionItemId(), user, true);
 			updateFolderSharing(sourceCollectionItem.getCollection().getGooruOid());
 			resetFolderVisibility(sourceCollectionItem.getCollection().getGooruOid(), user.getPartyUid());
-			deleteCollectionItem(sourceCollectionItem.getCollectionItemId(), user, true);
 		}
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + user.getPartyUid() + "*");
