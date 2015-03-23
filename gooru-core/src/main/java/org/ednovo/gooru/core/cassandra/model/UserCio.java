@@ -137,8 +137,11 @@ public class UserCio implements IsEntityCassandraIndexable {
     @Column
     private String countryName;
     
+    @Column
+    private Map<String,String> school;
+    
 	
-
+	
 	public Short getActive() {
 		return active;
 	}
@@ -451,5 +454,14 @@ public class UserCio implements IsEntityCassandraIndexable {
 	public void setCountryName(String countryName) {
 		this.countryName = countryName;
 	}
+	
+	public Map<String, String> getSchool() {
+		return school;
+	}
+
+	public void setSchool(Map<String, String> school) {
+		this.school = school;
+	}
+
 
 }
