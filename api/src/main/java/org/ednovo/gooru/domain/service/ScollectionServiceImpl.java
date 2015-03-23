@@ -2135,7 +2135,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			if (newCollection != null && newCollection.getSharing() != null) {
 				destCollection.setSharing(newCollection.getSharing());
 			} else {
-			      destCollection.setSharing(sourceCollection.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing())?Sharing.ANYONEWITHLINK.getSharing(): sourceCollection.getSharing());
+			      destCollection.setSharing(sourceCollection.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing()) ? Sharing.ANYONEWITHLINK.getSharing() : sourceCollection.getSharing());
 			}
 			destCollection.setUser(user);
 			destCollection.setOrganization(sourceCollection.getOrganization());
