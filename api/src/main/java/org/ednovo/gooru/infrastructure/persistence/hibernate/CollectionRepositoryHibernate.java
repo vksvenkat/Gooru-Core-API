@@ -1024,7 +1024,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 	public List<Collection> getCollectionsList(User user, Integer limit, Integer offset, String publishStatus) {
 		String hql = " FROM Collection collection   WHERE  collection.resourceType.name=:type and " + generateOrgAuthQuery("collection.");
 		if (publishStatus != null) {
-			hql += " and collection.publishStatus.value =:pending";
+			hql += " collection.publishStatus IS NOT NULL and  collection.collectionType in ('collection', 'assessment', 'quiz') and  collection.publishStatus.keyValue =:pending order by collection.lastModified desc";
 		}
 
 		Query query = getSession().createQuery(hql);
@@ -1040,7 +1040,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 
 	@Override
 	public Long getCollectionCount(String publishStatus) {
-		String sql = "SELECT count(1) as count from  collection c left join custom_table_value ct on ct.custom_table_value_id = c.publish_status_id  where ct.value = '" + publishStatus + "' and c.collection_type in ('collection', 'quiz')";
+		String sql = "SELECT count(1) as count from  collection c inner join custom_table_value ct on ct.custom_table_value_id = c.publish_status_id  where c.publish_status_id is not null and ct.key_value = '" + publishStatus + "' and c.collection_type in ('collection', 'quiz', 'assessment')";
 		Query query = getSession().createSQLQuery(sql).addScalar("count", StandardBasicTypes.LONG);
 		return (Long) query.list().get(0);
 	}
