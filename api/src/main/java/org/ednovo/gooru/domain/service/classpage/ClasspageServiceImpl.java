@@ -899,6 +899,8 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	@Override
 	public Collection updatePathway(String classId, String pathwayGooruOid, Collection newPathway, User user) throws Exception {
 		Collection pathwayCollection = this.getCollectionRepository().getCollectionByIdWithType(pathwayGooruOid, ResourceType.Type.PATHWAY.getType());
+		final JSONObject itemData = new JSONObject();
+		
 		if(pathwayCollection != null){
 			if (newPathway.getTitle() != null) {
 				pathwayCollection.setTitle(newPathway.getTitle());
@@ -1021,8 +1023,9 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		getAsyncExecutor().deleteFromCache("v2-class-data-"+ classId +"*");
 		try { 
 			
-		    this.getClasspageEventlog().getEventLogs(sourceItem.getResource().getGooruOid(), targetItem != null ? targetItem : collectionItem, pathwayGooruOid, user, sourceItem);
+		    this.getClasspageEventlog().getEventLogs(sourceItem.getResource().getGooruOid(), targetItem != null ? targetItem : collectionItem, pathwayGooruOid, user, sourceItem, targetItem);
 		} catch (JSONException e) {
+			
 			e.printStackTrace();
 		}
 		return targetItem != null ? targetItem : sourceItem;
