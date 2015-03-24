@@ -899,7 +899,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	@Override
 	public Collection updatePathway(String classId, String pathwayGooruOid, Collection newPathway, User user) throws Exception {
 		Collection pathwayCollection = this.getCollectionRepository().getCollectionByIdWithType(pathwayGooruOid, ResourceType.Type.PATHWAY.getType());
-		
+		rejectIfNull(PATHWAY, GL0056, "pathway");
 		if(pathwayCollection != null){
 			if (newPathway.getTitle() != null) {
 				pathwayCollection.setTitle(newPathway.getTitle());
@@ -909,9 +909,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			}
 			this.getCollectionRepository().save(pathwayCollection);
 			getAsyncExecutor().deleteFromCache("v2-class-data-"+ classId+"*");
-		} else {
-			throw new BadRequestException("pathway not found");
-		}
+		} 
 		try {
 			
 		    this.getClasspageEventlog().getEventLogs(classId, pathwayGooruOid, user, false, true);
