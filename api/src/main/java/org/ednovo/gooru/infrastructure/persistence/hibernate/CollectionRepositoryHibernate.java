@@ -1024,7 +1024,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 	public List<Collection> getCollectionsList(User user, Integer limit, Integer offset, String publishStatus) {
 		String hql = " FROM Collection collection   WHERE  collection.resourceType.name=:type and " + generateOrgAuthQuery("collection.");
 		if (publishStatus != null) {
-			hql += " collection.publishStatus IS NOT NULL and  collection.collectionType in ('collection', 'assessment', 'quiz') and  collection.publishStatus.keyValue =:pending order by collection.lastModified desc";
+			hql += " and collection.publishStatus IS NOT NULL and  collection.collectionType in ('collection', 'assessment', 'quiz') and  collection.publishStatus.keyValue =:pending order by collection.lastModified desc";
 		}
 
 		Query query = getSession().createQuery(hql);
