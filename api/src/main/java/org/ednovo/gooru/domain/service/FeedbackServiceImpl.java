@@ -103,7 +103,6 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 	@Autowired
 	private IndexHandler indexHandler;
 	
-	private static final Logger LOGGER = LoggerFactory.getLogger(FeedbackServiceImpl.class);
 
 	@Override
 	public Feedback createFeedback(Feedback feedback, User user) {
@@ -117,11 +116,6 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 		List<Feedback> feedbackList = new ArrayList<Feedback>();
 		if (feedbacks.size() == 0) {  
 			throw new NotFoundException("Feedback not found", GL0056);
-		}
-		Integer previous = feedbacks.get(0).getScore();
-		ContextDTO contextDTO = null;
-		if (newFeedback.getContext() != null) {
-			contextDTO = buildContextInputParam(newFeedback.getContext());
 		}
 		StringBuilder feedbackValue = new StringBuilder();
 		if (feedbacks != null && user != null) {
@@ -293,10 +287,6 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 	private List<Feedback> setFeedbackData(Feedback feedback, User creator) {
 		List<Feedback> feedbackList = new ArrayList<Feedback>();
 		List<Feedback> feedbackSetList = new ArrayList<Feedback>();
-		ContextDTO contextDTO = null;
-		if (feedback.getContext() != null) {
-			contextDTO = buildContextInputParam(feedback.getContext());
-		}
 		feedback = validateFeedbackData(feedback);
 		User user = null;
 		Content content = null;
@@ -421,6 +411,7 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 				feedback = contentFeedback;
 			}
 			this.getFeedbackRepository().save(feedback);
+			this.getFeedbackRepository().flush();
 			ResourceSummary resourceSummary = updateResourceSummary(feedback.getAssocGooruOid());
 			this.getFeedbackRepository().save(resourceSummary);
 			Map<String, Object> summary = this.getContentFeedbackStarRating(feedback.getAssocGooruOid());
@@ -443,6 +434,7 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 		resourceSummary.setRatingStarAvg((Long) summary.get(AVERAGE));
 		resourceSummary.setReviewCount(reviewSummary);
 		this.getFeedbackRepository().save(resourceSummary);
+		
 		return resourceSummary;
 	}
 
@@ -573,10 +565,6 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 
 	public AsyncExecutor getAsyncExecutor() {
 		return asyncExecutor;
-	}
-
-	private ContextDTO buildContextInputParam(String data) {
-		return JsonDeserializer.deserialize(data, ContextDTO.class);
 	}
 	
 	public FeedbackEventLog getFeedbackEventLog() {
