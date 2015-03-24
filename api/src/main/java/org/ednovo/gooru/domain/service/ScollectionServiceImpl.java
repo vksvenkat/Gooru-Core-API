@@ -2102,8 +2102,8 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	public Collection copyCollection(String collectionId, Collection newCollection, boolean addToShelf, String parentId, final User user) throws Exception {
 
 		Collection sourceCollection = this.getCollection(collectionId, false, false, false, user, null, null, false, false, false, false);
+		rejectIfNull(sourceCollection, GL0056, _COLLECTION);
 		CollectionItem collectionItem = null;
-
 		Collection destCollection = null;
 		if (sourceCollection != null) {
 			destCollection = new Collection();
