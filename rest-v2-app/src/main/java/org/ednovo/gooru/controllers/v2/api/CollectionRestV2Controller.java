@@ -516,7 +516,7 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 			@RequestParam(value = PUBLISH_STATUS, required = false) String publishStatus, HttpServletRequest request, HttpServletResponse response) {
 		User user = (User) request.getAttribute(Constants.USER);
 		String includes[] = (String[]) ArrayUtils.addAll(COLLECTION_ITEM_INCLUDE_FILEDS, COLLECTION_INCLUDE_FIELDS);
-		return toModelAndViewWithIoFilter(getCollectionService().getCollections(offset, limit, user, publishStatus), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
+		return toModelAndViewWithIoFilter(getCollectionService().getCollections(offset, limit, user, publishStatus), RESPONSE_FORMAT_JSON, COLLECTION_ITEM_INCLUDE_FILEDS, true, includes);
 
 	}
 
