@@ -164,7 +164,7 @@ public class ClasspageEventLog implements ParameterProperties, ConstantPropertie
 	    context.put(CONTENT_GOORU_ID, collectionId);
 	    context.put(PARENT_GOORU_ID, pathwayId);
 	    context.put(TARGET_ITEM_ID, targetItem != null ? targetItem.getCollectionItemId() : null);
-	    context.put(CONTENT_ITEM_ID, sourceItem != null ? sourceItem.getCollectionItemId() : null);
+	    context.put(CONTENT_ITEM_ID, targetItem != null ? targetItem.getCollectionItemId() : null);
 	    context.put(SOURCE_ITEM_ID, sourceItem != null ? sourceItem.getCollectionItemId() : null);
 	    context.put(SOURCE_GOORU_ID, collectionId);
 	    context.put(TARGET_GOORU_ID, pathwayId);
