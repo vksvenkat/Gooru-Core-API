@@ -515,9 +515,7 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 	public ModelAndView getCollectionListForPublish(@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") final Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") final Integer limit,
 			@RequestParam(value = PUBLISH_STATUS, required = false) final String publishStatus, final HttpServletRequest request, final HttpServletResponse response) {
 		final User user = (User) request.getAttribute(Constants.USER);
-		String includes[] = (String[]) ArrayUtils.addAll(COLLECTION_ITEM_INCLUDE_FILEDS, COLLECTION_INCLUDE_FIELDS);
-		return toModelAndViewWithIoFilter(getCollectionService().getCollections(offset, limit, user, publishStatus), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
-
+		return toModelAndViewWithIoFilter(getCollectionService().getCollections(offset, limit, user, publishStatus), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, COLLECTION_INCLUDE_FIELDS);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_UPDATE })
