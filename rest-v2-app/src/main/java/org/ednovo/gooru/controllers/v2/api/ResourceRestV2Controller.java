@@ -201,10 +201,10 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_RESOURCE_READ })
 	@RequestMapping(method = RequestMethod.GET, value = { "/{id}/play" })
-	public ModelAndView getResourceSource(final HttpServletRequest request, @PathVariable(value = ID) final String gooruContentId, final HttpServletResponse response, @RequestParam(value = INCLUDE_BROKEN_PDF, required = false, defaultValue = TRUE) Boolean includeBrokenPdf,
-			@RequestParam(value = MORE, required = false, defaultValue = TRUE) boolean more) throws Exception {
+	public ModelAndView getResourceSource(final HttpServletRequest request, @PathVariable(value = ID) final String gooruContentId, final HttpServletResponse response, @RequestParam(value = INCLUDE_BROKEN_PDF, required = false, defaultValue = TRUE) final Boolean includeBrokenPdf,
+			@RequestParam(value = MORE, required = false, defaultValue = TRUE) final boolean more) throws Exception {
 		request.setAttribute(PREDICATE, RESOURCE_SRC_GET);
-		User apiCaller = (User) request.getAttribute(Constants.USER);
+		final User apiCaller = (User) request.getAttribute(Constants.USER);
 		return toModelAndView(serialize(this.getResourceService().resourcePlay(gooruContentId, apiCaller, more), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, RESOURCE_INCLUDE_FIELDS));
 
 	}
@@ -213,8 +213,8 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.POST, value = "/update/views")
 	public void updateResourceViews(final HttpServletRequest request, final HttpServletResponse response, @RequestBody final String data) throws Exception {
-		List<UpdateViewsDTO> updateViewsDTOs = this.buildUpdatesViewFromInputParameters(data);
-		User apiCaller = (User) request.getAttribute(Constants.USER);
+		final List<UpdateViewsDTO> updateViewsDTOs = this.buildUpdatesViewFromInputParameters(data);
+		final User apiCaller = (User) request.getAttribute(Constants.USER);
 		this.getResourceService().updateViewsBulk(updateViewsDTOs, apiCaller);
 	}
 
