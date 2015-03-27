@@ -868,5 +868,7 @@ public interface ConstantProperties {
    public static final String _NEXT_COLLECTION_EXCLUDES[] =  {"*.resourceUrl", "*.thumbnailAssetURI", "*.thumbnailFolder", "*.thumbnailName", "*.thumbnailResourceType"};
  
    public static final String ITEM_TAG = "item.tag";
+   
+   public static final String TARGET_GOORU_ID = "targetGooruId";
 }
 

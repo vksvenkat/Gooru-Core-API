@@ -78,6 +78,8 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.storage.StorageRepo
 import org.ednovo.gooru.security.OperationAuthorizer;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindException;
@@ -134,6 +136,9 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	
 	@Autowired
 	private CollectionRepository collectionRepository;
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(ClasspageServiceImpl.class);
+
 
 	@Override
 	public ActionResponseDTO<Classpage> createClasspage(Classpage classpage, boolean addToUserClasspage, String assignmentId) throws Exception {
@@ -899,7 +904,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	@Override
 	public Collection updatePathway(String classId, String pathwayGooruOid, Collection newPathway, User user) throws Exception {
 		Collection pathwayCollection = this.getCollectionRepository().getCollectionByIdWithType(pathwayGooruOid, ResourceType.Type.PATHWAY.getType());
-		if(pathwayCollection != null){
+		rejectIfNull(pathwayCollection, GL0056, PATHWAY);
 			if (newPathway.getTitle() != null) {
 				pathwayCollection.setTitle(newPathway.getTitle());
 			}
@@ -908,9 +913,6 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			}
 			this.getCollectionRepository().save(pathwayCollection);
 			getAsyncExecutor().deleteFromCache("v2-class-data-"+ classId+"*");
-		} else {
-			throw new BadRequestException("pathway not found");
-		}
 		try {
 			
 		    this.getClasspageEventlog().getEventLogs(classId, pathwayGooruOid, user, false, true);
@@ -1021,9 +1023,9 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		getAsyncExecutor().deleteFromCache("v2-class-data-"+ classId +"*");
 		try { 
 			
-		    this.getClasspageEventlog().getEventLogs(sourceItem.getResource().getGooruOid(), targetItem != null ? targetItem : collectionItem, pathwayGooruOid, user, sourceItem);
+		    this.getClasspageEventlog().getEventLogs(sourceItem.getResource().getGooruOid(), targetItem != null ? targetItem : collectionItem, pathwayGooruOid, user, sourceItem, targetItem);
 		} catch (JSONException e) {
-			e.printStackTrace();
+		    LOGGER.error(_ERROR , e);	
 		}
 		return targetItem != null ? targetItem : sourceItem;
 	}
