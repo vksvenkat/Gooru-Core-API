@@ -904,8 +904,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	@Override
 	public Collection updatePathway(String classId, String pathwayGooruOid, Collection newPathway, User user) throws Exception {
 		Collection pathwayCollection = this.getCollectionRepository().getCollectionByIdWithType(pathwayGooruOid, ResourceType.Type.PATHWAY.getType());
-		rejectIfNull(PATHWAY, GL0056, PATHWAY);
-		if(pathwayCollection != null){
+		rejectIfNull(pathwayCollection, GL0056, PATHWAY);
 			if (newPathway.getTitle() != null) {
 				pathwayCollection.setTitle(newPathway.getTitle());
 			}
@@ -914,7 +913,6 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			}
 			this.getCollectionRepository().save(pathwayCollection);
 			getAsyncExecutor().deleteFromCache("v2-class-data-"+ classId+"*");
-		} 
 		try {
 			
 		    this.getClasspageEventlog().getEventLogs(classId, pathwayGooruOid, user, false, true);
@@ -1027,7 +1025,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			
 		    this.getClasspageEventlog().getEventLogs(sourceItem.getResource().getGooruOid(), targetItem != null ? targetItem : collectionItem, pathwayGooruOid, user, sourceItem, targetItem);
 		} catch (JSONException e) {
-		    LOGGER.error("_ERROR : " , e);	
+		    LOGGER.error(_ERROR , e);	
 		}
 		return targetItem != null ? targetItem : sourceItem;
 	}
