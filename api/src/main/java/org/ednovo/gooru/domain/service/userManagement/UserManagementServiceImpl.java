@@ -24,14 +24,7 @@
 package org.ednovo.gooru.domain.service.userManagement;
 
 import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Reader;
 import java.io.UnsupportedEncodingException;
-import java.io.Writer;
-import java.nio.channels.ReadableByteChannel;
-import java.nio.channels.WritableByteChannel;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
@@ -114,8 +107,6 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomT
 import org.ednovo.gooru.infrastructure.persistence.hibernate.taxonomy.TaxonomyRespository;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.restlet.representation.Representation;
-import org.restlet.resource.ClientResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -1646,14 +1637,5 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 
 	public ApplicationRepository getApplicationRepository() {
 		return applicationRepository;
-	}
-	
-	public static void main(String a[]) throws Exception { 
-		ClientResource c = new ClientResource("https://qa.goorulearning.org/gooruapi/rest/v2/taxonomy/skills?sessionToken=00442222-ff34-11e2-8868-12313f070480&clearCache=true");
-		System.out.print(c.get().getText());
-		
-
-//		c.setAvailable(false);
-	//	System.out.print(c.);
 	}
 }
