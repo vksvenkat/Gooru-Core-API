@@ -678,6 +678,15 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		final Collection collection = this.getCollectionByGooruOid(collectionId, null);
 		rejectIfNull(collection, GL0056, _COLLECTION);
 		if (this.getOperationAuthorizer().hasUnrestrictedContentAccess(collectionId, user)) {
+			List<CollectionItem> collectionitems = this.getCollectionRepository().getCollectionItemsByResource(collectionId);
+			for (CollectionItem collectionItem : collectionitems) {
+				List<CollectionItem> resetCollectionItems = this.getCollectionRepository().getResetSequenceCollectionItems(collectionItem.getCollection().getGooruOid(), collectionItem.getItemSequence());
+				int itemSequence = collectionItem.getItemSequence();
+				for (CollectionItem resetCollectionItem : resetCollectionItems) { 
+					resetCollectionItem.setItemSequence(itemSequence++);
+				}
+				this.getCollectionRepository().saveAll(resetCollectionItems);
+			} 
 			final List<CollectionItem> collectionItems = this.getCollectionRepository().getCollectionItemByAssociation(collectionId, null, null);
 			List<CollectionItem> parentAssociations = this.getCollectionRepository().getCollectionItemByParentId(collectionId, null, null);
 			if (parentAssociations != null && parentAssociations.size() > 0) {
@@ -716,7 +725,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				this.deleteCollectionItem(item.getCollectionItemId());
 			}
 		} else {
-			throw new UnauthorizedException(generateErrorMessage(GL0010));
+			throw new UnauthorizedException(generateErrorMessage(GL0099, _COLLECTION));
 		}
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + user.getPartyUid() + "*");
 		getAsyncExecutor().deleteFromCache("v2-class-data-*");
