@@ -55,7 +55,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 	
 	private static final String  COLLECTION_ITEM_BY_RESOURCE = "FROM CollectionItem collectionItem WHERE  collectionItem.resource.gooruOid=:resourceId";
 	
-	private static final String COLLECTION_ITEM_BY_SEQUENCE = "FROM CollectionItem collectionItem WHERE collectionItem.collection.gooruOid=:collectionId and collectionItem.itemSequence>:itemSequence";
+	private static final String COLLECTION_ITEM_BY_SEQUENCE = "FROM CollectionItem collectionItem WHERE collectionItem.collection.gooruOid=:collectionId and collectionItem.itemSequence>:itemSequence order by collectionItem.itemSequence asc";
 	
 	private static final String GET_COLLECTION_BY_RESOURCE_OID = "Select distinct(collectionItem.collection) FROM  CollectionItem  collectionItem where collectionItem.resource.gooruOid=:resourceId";
 	
