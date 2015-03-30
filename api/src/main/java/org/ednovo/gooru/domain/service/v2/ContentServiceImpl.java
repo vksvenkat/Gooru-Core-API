@@ -55,6 +55,9 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentRepo
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.resource.ResourceRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.tag.TagRepository;
+import org.json.JSONException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -97,7 +100,10 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 	
 	@Autowired
 	public ContentEventLog contentEventlog;
-
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(ContentServiceImpl.class);
+	
+	
 	@Override
 	public List<Map<String, Object>> createTagAssoc(String gooruOid, List<String> labels, User apiCaller) {
 		List<Map<String, Object>> contentTagAssocs = new ArrayList<Map<String, Object>>();
@@ -142,20 +148,21 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 			contentTagAssocs.add(setcontentTagAssoc(contentTagAssoc, tag.getLabel()));
 		}
 		try {
-			this.getContentEventLog().getEventlogs(gooruOid, apiCaller);
-		}
-		catch(Exception e){
-			e.printStackTrace();
+			this.getContentEventLog().getEventlogs(gooruOid, apiCaller, true, false, null);
+		} catch(Exception e) {
+			LOGGER.error(_ERROR , e);
 		}
 		return contentTagAssocs;
 	}
 
 	private Map<String, Object> setcontentTagAssoc(ContentTagAssoc contentTagAssoc, String label) {
 		Map<String, Object> contentTag = new HashMap<String, Object>();
+		List<String> labels = new ArrayList<String>();
 		contentTag.put(LABEL, label);
 		contentTag.put(TAG_GOORU_OID, contentTagAssoc.getTagGooruOid());
 		contentTag.put(ASSOCIATEDU_ID, contentTagAssoc.getAssociatedUid());
 		contentTag.put(CONTENT_GOORU_OID, contentTagAssoc.getContentGooruOid());
+		labels.add(label);
 		return contentTag;
 	}
 
@@ -177,9 +184,14 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 					UserSummary userSummary = this.getUserRepository().getSummaryByUid(apiCaller.getPartyUid());
 					userSummary.setTag(userSummary.getTag() <= 0 ? 0 : userSummary.getTag() - 1);
 					this.getUserRepository().save(userSummary);
+					try {
+						this.getContentEventLog().getEventlogs(gooruOid, apiCaller, false, true,  setcontentTagAssoc(contentTagAssoc, label));
+					} catch (JSONException e) {
+						LOGGER.error(_ERROR , e);
+					}
 				}
 			}
-		}
+		} 
 
 	}
 	
