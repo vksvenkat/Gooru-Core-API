@@ -74,9 +74,6 @@ public class SessionRestV2Controller extends BaseController implements Parameter
 		} else {
 			response.setStatus(HttpServletResponse.SC_CREATED);
 		}
-		SessionContextSupport.putLogParameter(EVENT_NAME, "create-session");
-		SessionContextSupport.putLogParameter(USER_ID, user.getUserId());
-		SessionContextSupport.putLogParameter(GOORU_UID, user.getPartyUid());
 		String[] includeFields = getValue(FIELDS, json) != null ? getFields(getValue(FIELDS, json)) : null;
 		String includes[] = (String[]) ArrayUtils.addAll(includeFields == null ? SESSION_INCLUDES : includeFields, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(session.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, includes);
@@ -137,9 +134,6 @@ public class SessionRestV2Controller extends BaseController implements Parameter
 		} else {
 			response.setStatus(HttpServletResponse.SC_CREATED);
 		}
-		SessionContextSupport.putLogParameter(EVENT_NAME, "create-session-item");
-		SessionContextSupport.putLogParameter(USER_ID, user.getUserId());
-		SessionContextSupport.putLogParameter(GOORU_UID, user.getPartyUid());
 		String[] includeFields = getValue(FIELDS, json) != null ? getFields(getValue(FIELDS, json)) : null;
 		String includes[] = (String[]) ArrayUtils.addAll(includeFields == null ? SESSION_ITEM_INCLUDES : includeFields, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(sessionItem.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, includes);

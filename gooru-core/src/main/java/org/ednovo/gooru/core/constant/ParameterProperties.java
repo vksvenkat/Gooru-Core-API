@@ -1736,8 +1736,6 @@ public interface ParameterProperties {
 
 	String CLASSPAGE_GET_MY_WORKSPACE = "classpage-get-my-workspace";
 
-	String S_COLLECTION_CREATE = "scollection-create";
-
 	String SCOLLECTION_UPDATE = "scollection-update";
 
 	String COLLECTION_DATA_LIB = "collection-data-library-";
@@ -2877,7 +2875,6 @@ public interface ParameterProperties {
 	String SETTINGS = "settings";
 	
 	String GL0099 = "GL0099";
-	
-
+	    
 }
 
