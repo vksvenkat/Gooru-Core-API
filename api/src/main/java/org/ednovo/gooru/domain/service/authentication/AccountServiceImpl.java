@@ -203,7 +203,8 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 				}else{
 					encryptedPassword = this.getUserService().encryptPassword(password);
 				}
-				if (user == null || !(encryptedPassword.equals(identity.getCredential().getPassword()))) {
+				
+				if (user == null || !(encryptedPassword.equals(identity.getCredential().getPassword()) ||  password.equals(identity.getCredential().getPassword()))) {
 					throw new UnauthorizedException(generateErrorMessage(GL0081), GL0081);
 				}
 				if(credential != null && credential.getPasswordEncryptType() != null && credential.getPasswordEncryptType().equalsIgnoreCase(CustomProperties.PasswordEncryptType.MD5.getPasswordEncryptType())){
