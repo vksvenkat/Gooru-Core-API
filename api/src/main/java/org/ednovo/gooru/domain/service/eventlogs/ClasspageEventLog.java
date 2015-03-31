@@ -158,15 +158,19 @@ public class ClasspageEventLog implements ParameterProperties, ConstantPropertie
 	    SessionContextSupport.putLogParameter(SESSION, session.toString());
 	}
 	
-	public void getEventLogs(String collectionId, CollectionItem collectionItem, String pathwayId,User user, CollectionItem sourceItem) throws JSONException {
+	public void getEventLogs(String collectionId, CollectionItem collectionItem, String pathwayId,User user, CollectionItem sourceItem, CollectionItem targetItem) throws JSONException {
 	    SessionContextSupport.putLogParameter(EVENT_NAME, ITEM_EDIT);
 	    JSONObject context = SessionContextSupport.getLog().get(CONTEXT) != null ? new JSONObject(SessionContextSupport.getLog().get(CONTEXT).toString()) : new JSONObject();
 	    context.put(CONTENT_GOORU_ID, collectionId);
 	    context.put(PARENT_GOORU_ID, pathwayId);
-	    context.put(CONTENT_ITEM_ID, sourceItem.getCollectionItemId());
+	    context.put(TARGET_ITEM_ID, targetItem != null ? targetItem.getCollectionItemId() : null);
+	    context.put(CONTENT_ITEM_ID, targetItem != null ? targetItem.getCollectionItemId() : null);
+	    context.put(SOURCE_ITEM_ID, sourceItem != null ? sourceItem.getCollectionItemId() : null);
+	    context.put(SOURCE_GOORU_ID, collectionId);
+	    context.put(TARGET_GOORU_ID, pathwayId);
 	    SessionContextSupport.putLogParameter(CONTEXT, context.toString());
 	    JSONObject payLoadObject = SessionContextSupport.getLog().get(PAY_LOAD_OBJECT) != null ? new JSONObject(SessionContextSupport.getLog().get(PAY_LOAD_OBJECT).toString()) : new JSONObject();
-	    payLoadObject.put(MODE,REORDER);
+	    payLoadObject.put(MODE,MOVE);
 	    payLoadObject.put(ITEM_SEQUENCE,collectionItem.getItemSequence());
 	    payLoadObject.put(ITEM_TYPE,PATHWAY_COLLECTION);    
 	    SessionContextSupport.putLogParameter(PAY_LOAD_OBJECT, payLoadObject.toString());

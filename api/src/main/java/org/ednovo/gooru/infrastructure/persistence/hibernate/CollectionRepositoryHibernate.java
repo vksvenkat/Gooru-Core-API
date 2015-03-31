@@ -53,7 +53,15 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 
 	private static final String PAGE_NO = "pageNum";
 	
+	private static final String  COLLECTION_ITEM_BY_RESOURCE = "FROM CollectionItem collectionItem WHERE  collectionItem.resource.gooruOid=:resourceId";
+	
+	private static final String COLLECTION_ITEM_BY_SEQUENCE = "FROM CollectionItem collectionItem WHERE collectionItem.collection.gooruOid=:collectionId and collectionItem.itemSequence>:itemSequence order by collectionItem.itemSequence asc";
+	
+	private static final String GET_COLLECTION_BY_RESOURCE_OID = "Select distinct(collectionItem.collection) FROM  CollectionItem  collectionItem where collectionItem.resource.gooruOid=:resourceId";
+	
+	private static final String GET_COLLECTION_ITEM_BY_RESOURCE_OID = "FROM CollectionItem collectionItem WHERE  collectionItem.collection.gooruOid=:collectionId and collectionItem.resource.gooruOid=:resourceId  and " + generateOrgAuthQuery("collectionItem.collection.");
 
+	
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Collection> getCollections(Map<String, String> filters, User user) {
@@ -1119,7 +1127,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 
 	@Override
 	public CollectionItem getCollectionItemByResourceOid(String collectionId, String resourceId) {
-		Query query = getSession().createQuery("FROM CollectionItem collectionItem WHERE  collectionItem.collection.gooruOid=:collectionId and collectionItem.resource.gooruOid=:resourceId  and " + generateOrgAuthQuery("collectionItem.collection."));
+		Query query = getSession().createQuery(GET_COLLECTION_ITEM_BY_RESOURCE_OID);
 		query.setParameter("resourceId", resourceId);
 		query.setParameter("collectionId", collectionId);
 		addOrgAuthParameters(query);
@@ -1129,8 +1137,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 
 	@Override
 	public List<Collection> getCollectionByResourceOid(String resourceId) {
-		String sql = "Select distinct(collectionItem.collection) FROM  CollectionItem  collectionItem where collectionItem.resource.gooruOid=:resourceId";
-		Query query = getSession().createQuery(sql);
+		Query query = getSession().createQuery(GET_COLLECTION_BY_RESOURCE_OID);
 		query.setParameter("resourceId", resourceId);
 		return query.list();
 	}
@@ -1151,9 +1158,24 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 
 	@Override
 	public CollectionItem getCollectionItemByResource(String resourceId) {
-		String hql = "FROM CollectionItem collectionItem WHERE  collectionItem.resource.gooruOid=:resourceId";
-		Query query = getSession().createQuery(hql);
+		Query query = getSession().createQuery(COLLECTION_ITEM_BY_RESOURCE);
 		query.setParameter("resourceId", resourceId);
 		return (CollectionItem) ((query.list().size() > 0) ? query.list().get(0) : null);
 	}
+	
+	@Override
+	public List<CollectionItem> getCollectionItemsByResource(String resourceId) {
+		Query query = getSession().createQuery(COLLECTION_ITEM_BY_RESOURCE);
+		query.setParameter("resourceId", resourceId);
+		return query.list();
+	}
+
+	@Override
+	public List<CollectionItem> getResetSequenceCollectionItems(String collectionId, int sequence) {
+		Query query = getSession().createQuery(COLLECTION_ITEM_BY_SEQUENCE);
+		query.setParameter(COLLECTION_ID, collectionId);
+		query.setParameter(ITEM_SEQUENCE, sequence);
+		return query.list();
+	}
+	
 }

@@ -2880,6 +2880,8 @@ public interface ParameterProperties {
 	
 	String SETTINGS = "settings";
 	
+	String GL0099 = "GL0099";
+	
 
 }
 

@@ -1863,7 +1863,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		final Resource resource = resourceRepository.findResourceByContentGooruId(gooruContentId);
 		if (resource == null || resource.getResourceType().getName().equalsIgnoreCase(APPLICATION) || resource.getResourceType().getName().equalsIgnoreCase(SCOLLECTION) || resource.getResourceType().getName().equalsIgnoreCase(FOLDER)
 				|| resource.getResourceType().getName().equalsIgnoreCase(CLASSPAGE)) {
-			throw new NotFoundException(generateErrorMessage("GL0056", "Resource"), GL0056);
+			throw new NotFoundException(generateErrorMessage(GL0056, RESOURCE), GL0056);
 		} else {
 			List<org.ednovo.gooru.core.api.model.Collection> collections = getCollectionRepository().getCollectionByResourceOid(gooruContentId);
 			for (org.ednovo.gooru.core.api.model.Collection collection : collections) {
@@ -1875,7 +1875,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				this.getBaseRepository().remove(resource);
 				indexHandler.setReIndexRequest(gooruContentId, IndexProcessor.DELETE, RESOURCE, null, false, false);						
 			} else {
-				throw new BadRequestException(generateErrorMessage("GL0099"), "GL0099");
+				throw new BadRequestException(generateErrorMessage(GL0099, RESOURCE));
 			}
 		}
 	}

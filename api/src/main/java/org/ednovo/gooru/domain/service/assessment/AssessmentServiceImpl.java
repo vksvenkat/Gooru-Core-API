@@ -1496,10 +1496,12 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 					assessmentRepository.save(asset);
 					copyQuestionAssetAssoc.setAsset(asset);
 					copyQuestionAssetAssoc.setAssetKey(questionAssetAssoc.getAssetKey());
+					copyQuestion.setThumbnail(questionAssetAssoc.getAsset().getName());
 					copyQuestionAssetAssoc.setQuestion(copyQuestion);
 					questionAssets.add(copyQuestionAssetAssoc);
 					assessmentRepository.save(copyQuestionAssetAssoc);
 				}
+				assessmentRepository.save(copyQuestion);
 				copyQuestion.setAssets(questionAssets);
 			}
 			this.getAsyncExecutor().copyResourceFolder(question, copyQuestion);

@@ -1044,11 +1044,6 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 				}
 			}
 		}
-		try {
-			this.getUsereventlog().getEventLogs(false, true, user, null, false, false);
-		} catch (JSONException e) {
-			LOGGER.debug("Error" + e.getMessage());
-		}
 		return user;
 	}
 
