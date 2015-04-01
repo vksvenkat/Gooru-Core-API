@@ -55,7 +55,6 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentRepo
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.resource.ResourceRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.tag.TagRepository;
-import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -157,12 +156,10 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 
 	private Map<String, Object> setcontentTagAssoc(ContentTagAssoc contentTagAssoc, String label) {
 		Map<String, Object> contentTag = new HashMap<String, Object>();
-		List<String> labels = new ArrayList<String>();
 		contentTag.put(LABEL, label);
 		contentTag.put(TAG_GOORU_OID, contentTagAssoc.getTagGooruOid());
 		contentTag.put(ASSOCIATEDU_ID, contentTagAssoc.getAssociatedUid());
 		contentTag.put(CONTENT_GOORU_OID, contentTagAssoc.getContentGooruOid());
-		labels.add(label);
 		return contentTag;
 	}
 
@@ -184,11 +181,8 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 					UserSummary userSummary = this.getUserRepository().getSummaryByUid(apiCaller.getPartyUid());
 					userSummary.setTag(userSummary.getTag() <= 0 ? 0 : userSummary.getTag() - 1);
 					this.getUserRepository().save(userSummary);
-					try {
-						this.getContentEventLog().getEventlogs(gooruOid, apiCaller, false, true,  setcontentTagAssoc(contentTagAssoc, label));
-					} catch (JSONException e) {
-						LOGGER.error(_ERROR , e);
-					}
+					this.getContentEventLog().getEventlogs(gooruOid, apiCaller, false, true,  setcontentTagAssoc(contentTagAssoc, label));
+					
 				}
 			}
 		} 

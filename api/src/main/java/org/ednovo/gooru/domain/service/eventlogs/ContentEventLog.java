@@ -6,17 +6,22 @@ import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.domain.service.v2.ContentServiceImpl;
 import org.ednovo.gooru.json.serializer.util.JsonSerializer;
-import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 
 @Component
 public class ContentEventLog implements ParameterProperties, ConstantProperties {
 	
-	public void getEventlogs(String gooruOid, User apiCaller, boolean isAdd, boolean isRemove, Map<String, Object> contentTagAssoc) throws JSONException {
+	private static final Logger LOGGER = LoggerFactory.getLogger(ContentServiceImpl.class);
+
+	public void getEventlogs(String gooruOid, User apiCaller, boolean isAdd, boolean isRemove, Map<String, Object> contentTagAssoc) {
 		
+		try {
 		JSONObject context = SessionContextSupport.getLog().get(CONTEXT) != null ? new JSONObject(SessionContextSupport.getLog().get(CONTEXT).toString()) : new JSONObject();
 		context.put(CONTENT_GOORU_ID, gooruOid);
 		SessionContextSupport.putLogParameter(CONTEXT, context.toString());
@@ -30,12 +35,11 @@ public class ContentEventLog implements ParameterProperties, ConstantProperties 
 	    } else if(isRemove) {
 	    	payLoadObject.put(MODE, DELETE);
 	    }
-	    try {
 			payLoadObject.put(DATA, JsonSerializer.serializeToJsonObject(contentTagAssoc, JSON));
+			SessionContextSupport.putLogParameter(PAY_LOAD_OBJECT, payLoadObject.toString());
 		} catch (Exception e) {
-			e.printStackTrace();
+			LOGGER.error(_ERROR , e);
 		}
-	    SessionContextSupport.putLogParameter(PAY_LOAD_OBJECT, payLoadObject.toString());
 	}
 
 }
