@@ -1361,7 +1361,9 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 					}
 					String sharing = collection.getSharing();
 					String resourceTitle = resourceParam.get(RESOURCE_TITLE) != null ? resourceParam.get(RESOURCE_TITLE).toString() : "";
-					resourceTitle = resourceTitle.length() > 1000 ? resourceTitle.substring(0, 1000) : resourceTitle;
+					if(resourceTitle != null && resourceTitle.length() > 1000){
+						throw new Exception(generateErrorMessage("GL0017"));
+					}
 					String description = resourceParam.get(DESCRIPTION) != null ? resourceParam.get(DESCRIPTION).toString() : "";
 					String start = resourceParam.get(START) != null ? resourceParam.get(START).toString().trim() : null;
 					String stop = resourceParam.get(STOP) != null ? resourceParam.get(STOP).toString().trim() : null;
@@ -1598,7 +1600,9 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			}
 		}
 		String resourceTitle = resourceParam.get(RESOURCE_TITLE) != null ? resourceParam.get(RESOURCE_TITLE).toString() : "";
-		resourceTitle = resourceTitle.length() > 1000 ? resourceTitle.substring(0, 1000) : resourceTitle;
+		if(resourceTitle != null && resourceTitle.length() > 1000){
+			throw new Exception(generateErrorMessage("GL0017"));
+		}
 		String description = resourceParam.get(DESCRIPTION) != null ? resourceParam.get(DESCRIPTION).toString() : "";
 		String thumbnailImgSrc = resourceParam.get(THUMBNAIL_IMG_SRC) != null ? resourceParam.get(THUMBNAIL_IMG_SRC).toString().trim() : null;
 		if (resource == null) {
