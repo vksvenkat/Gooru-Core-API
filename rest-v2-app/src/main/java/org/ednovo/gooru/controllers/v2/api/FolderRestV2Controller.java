@@ -250,7 +250,6 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 			@RequestParam(value = SHARING, required = false, defaultValue = SHARINGS) String sharing, @RequestParam(value = COLLECTION_TYPE, required = false) String collectionType, @RequestParam(value = ORDER_BY, required = false) String orderBy,
 			@RequestParam(value = CLEAR_CACHE, required = false, defaultValue = FALSE) boolean clearCache, @RequestParam(value = EXCLUDE_TYPE, required = false) String excludeType, HttpServletResponse resHttpServletResponse) {
 		return toModelAndView(this.getFolderService().getFolderTocItems(gooruOid, sharing, collectionType, orderBy, excludeType, clearCache));
-
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_FOLDER_READ })
@@ -259,12 +258,12 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 		User user = (User) request.getAttribute(Constants.USER);
 		return toModelAndViewWithIoFilter(getCollectionService().getCollection(collectionId, false, false, false, user, null, null, false, true, false, false), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, RESOURCE_INCLUDE_FIELDS);
 	}
-
+     
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_FOLDER_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{cid}/item/{id}/next" }, method = RequestMethod.GET)
-	public ModelAndView getNextCollectionItem(@PathVariable(value = CID) String collectionId, @RequestParam(value = EXCLUDE_TYPE, required = false) String excludeType, @PathVariable(value = ID) String collectionItemId, HttpServletRequest request, HttpServletResponse response) {
-		return toModelAndViewWithIoFilter(getFolderService().getNextCollectionItem(collectionItemId, excludeType), RESPONSE_FORMAT_JSON, _NEXT_COLLECTION_EXCLUDES);
+	public ModelAndView getNextCollectionItem(@PathVariable(value = CID) String collectionId,@RequestParam(value = EXCLUDE_TYPE, required = false) String excludeType, @RequestParam(value = SHARING, required = false ,defaultValue = SHARINGS) String sharing, @PathVariable(value = ID) String collectionItemId, HttpServletRequest request, HttpServletResponse response) {
+		return toModelAndViewWithIoFilter(getFolderService().getNextCollectionItem(collectionItemId, excludeType, sharing), RESPONSE_FORMAT_JSON, _NEXT_COLLECTION_EXCLUDES);
 	}
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_FOLDER_READ })

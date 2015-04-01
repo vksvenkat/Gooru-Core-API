@@ -185,15 +185,15 @@ public class FolderServiceImpl extends BaseServiceImpl implements FolderService,
 	}
 
 	@Override
-	public Map<String, Object> getNextCollectionItem(String collectionItemId, String excludeType) {
+	public Map<String, Object> getNextCollectionItem(String collectionItemId,String excludeType, String sharing) {
 		CollectionItem collectionItem = this.getCollectionRepository().getCollectionItemById(collectionItemId);
 		rejectIfNull(collectionItem, GL0056, 404, COLLECTION_ITEM);
-		return getCollection(collectionItem.getCollection().getGooruOid(), collectionItem.getItemSequence(), excludeType);
+		return getCollection(collectionItem.getCollection().getGooruOid(), collectionItem.getItemSequence(),excludeType, sharing);
 	}
 	
-	private Map<String, Object> getCollection(String gooruOid, Integer sequence, String excludeType) {
+	private Map<String, Object> getCollection(String gooruOid, Integer sequence, String excludeType, String sharing) {
 		Map<String, Object> nextCollection = null;
-		CollectionItem nextCollectionItem = this.getCollectionRepository().getNextCollectionItemResource(gooruOid, sequence, excludeType);
+		CollectionItem nextCollectionItem = this.getCollectionRepository().getNextCollectionItemResource(gooruOid, sequence,excludeType, sharing);
 		if (nextCollection == null && nextCollectionItem != null && !nextCollectionItem.getResource().getResourceType().getName().equalsIgnoreCase(FOLDER)) { 
 			nextCollection = new HashMap<String, Object>();
 			nextCollection.put(COLLECTION_ITEM_ID, nextCollectionItem.getCollectionItemId());
@@ -201,6 +201,7 @@ public class FolderServiceImpl extends BaseServiceImpl implements FolderService,
 			nextCollection.put(GOORU_OID, nextCollectionItem.getResource().getGooruOid());
 			nextCollection.put(THUMBNAILS, nextCollectionItem.getResource().getThumbnails());
 			Collection collection =  this.getCollectionRepository().getCollectionByGooruOid(nextCollectionItem.getResource().getGooruOid(), null);
+			System.out.println("coll"+collection.getCollectionType());
 			nextCollection.put(COLLECTION_TYPE, collection.getCollectionType());
 			Long itemCount = this.getCollectionRepository().getCollectionItemCount(nextCollectionItem.getResource().getGooruOid(), null, null, null);
 			Long questionCount = this.getCollectionRepository().getCollectionItemCount(nextCollectionItem.getResource().getGooruOid(), null, ResourceType.Type.ASSESSMENT_QUESTION.getType(), null);
@@ -210,18 +211,16 @@ public class FolderServiceImpl extends BaseServiceImpl implements FolderService,
 		    
 		} else if (nextCollection == null && nextCollectionItem != null && nextCollectionItem.getResource().getResourceType().getName().equalsIgnoreCase(FOLDER)) {
 			Long itemCount = this.getCollectionRepository().getCollectionItemCount(nextCollectionItem.getResource().getGooruOid(), null, null, null);
-			return getCollection(nextCollectionItem.getResource().getGooruOid(), ((Number)(itemCount + 1)).intValue(), excludeType);
+			return getCollection(nextCollectionItem.getResource().getGooruOid(), ((Number)(itemCount + 1)).intValue(),sharing,excludeType);
 		} else if (nextCollection == null && nextCollectionItem == null) { 
 			CollectionItem parentCollectionItem = this.getCollectionRepository().getCollectionItemByResource(gooruOid);
 			if (parentCollectionItem != null) { 
-				return getCollection(parentCollectionItem.getCollection().getGooruOid(), parentCollectionItem.getItemSequence(), excludeType);
+				return getCollection(parentCollectionItem.getCollection().getGooruOid(), parentCollectionItem.getItemSequence(), excludeType,sharing);
 			}
 		}
 		return null;
 	}
 	
-	
-
 	public RedisService getRedisService() {
 		return redisService;
 	}
