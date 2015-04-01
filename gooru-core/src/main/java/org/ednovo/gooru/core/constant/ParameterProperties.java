@@ -2882,6 +2882,7 @@ public interface ParameterProperties {
 	
 	String GL0099 = "GL0099";
 	
+	String PROFANITY_TEXT = "profanity text";
 
 }
 

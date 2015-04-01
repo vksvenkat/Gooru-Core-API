@@ -1143,12 +1143,14 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 	}
 
 	@Override
-	public CollectionItem getNextCollectionItemResource(final String collectionId, final int sequence, final String excludeType) {
+	public CollectionItem getNextCollectionItemResource(final String collectionId, final int sequence, final String excludeType, final String sharing) {
 		String hql = "FROM CollectionItem collectionItem WHERE  collectionItem.collection.gooruOid=:collectionId and collectionItem.itemSequence<:itemSequence ";
 		if (excludeType != null) { 
 			hql += " and collectionItem.collection.collectionType not in ('"+ excludeType.replace(",", "','") + "')";
 		}
-		hql += " order by collectionItem.itemSequence desc";
+		if (sharing != null){
+			hql += " and collectionItem.resource.sharing in  ('"+ sharing.replace(",", "','") + "')";
+		}
 		Query query = getSession().createQuery(hql);
 		query.setParameter(COLLECTION_ID, collectionId);
 		query.setParameter(ITEM_SEQUENCE, sequence);

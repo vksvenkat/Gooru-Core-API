@@ -185,15 +185,15 @@ public class FolderServiceImpl extends BaseServiceImpl implements FolderService,
 	}
 
 	@Override
-	public Map<String, Object> getNextCollectionItem(final String collectionItemId, final String excludeType) {
+	public Map<String, Object> getNextCollectionItem(final String collectionItemId, final String excludeType, final String sharing) {
 		final CollectionItem collectionItem = this.getCollectionRepository().getCollectionItemById(collectionItemId);
 		rejectIfNull(collectionItem, GL0056, 404, COLLECTION_ITEM);
-		return getCollection(collectionItem.getCollection().getGooruOid(), collectionItem.getItemSequence(), excludeType);
+		return getCollection(collectionItem.getCollection().getGooruOid(), collectionItem.getItemSequence(),excludeType, sharing);
 	}
 	
-	private Map<String, Object> getCollection(final String gooruOid, final Integer sequence, final String excludeType) {
+	private Map<String, Object> getCollection(final String gooruOid, final Integer sequence, final String excludeType, final String sharing) {
 		Map<String, Object> nextCollection = null;
-		final CollectionItem nextCollectionItem = this.getCollectionRepository().getNextCollectionItemResource(gooruOid, sequence, excludeType);
+		final CollectionItem nextCollectionItem = this.getCollectionRepository().getNextCollectionItemResource(gooruOid, sequence,excludeType, sharing);
 		if (nextCollection == null && nextCollectionItem != null && !nextCollectionItem.getResource().getResourceType().getName().equalsIgnoreCase(FOLDER)) { 
 			nextCollection = new HashMap<String, Object>();
 			nextCollection.put(COLLECTION_ITEM_ID, nextCollectionItem.getCollectionItemId());
@@ -210,18 +210,16 @@ public class FolderServiceImpl extends BaseServiceImpl implements FolderService,
 		    
 		} else if (nextCollection == null && nextCollectionItem != null && nextCollectionItem.getResource().getResourceType().getName().equalsIgnoreCase(FOLDER)) {
 			final Long itemCount = this.getCollectionRepository().getCollectionItemCount(nextCollectionItem.getResource().getGooruOid(), null, null, null);
-			return getCollection(nextCollectionItem.getResource().getGooruOid(), ((Number)(itemCount + 1)).intValue(), excludeType);
+			return getCollection(nextCollectionItem.getResource().getGooruOid(), ((Number)(itemCount + 1)).intValue(),excludeType,sharing);
 		} else if (nextCollection == null && nextCollectionItem == null) { 
 			final CollectionItem parentCollectionItem = this.getCollectionRepository().getCollectionItemByResource(gooruOid);
 			if (parentCollectionItem != null) { 
-				return getCollection(parentCollectionItem.getCollection().getGooruOid(), parentCollectionItem.getItemSequence(), excludeType);
+				return getCollection(parentCollectionItem.getCollection().getGooruOid(), parentCollectionItem.getItemSequence(), excludeType,sharing);
 			}
 		}
 		return null;
 	}
 	
-	
-
 	public RedisService getRedisService() {
 		return redisService;
 	}
