@@ -36,11 +36,13 @@ import org.ednovo.gooru.core.constant.ColumnFamilyConstant;
 import org.ednovo.gooru.domain.cassandra.ApiCassandraFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.core.application.util.ServerValidationUtils;
 
 import com.netflix.astyanax.model.ColumnList;
 
 @Service
-public class BlackListWordCassandraServiceImpl implements BlackListWordCassandraService {
+public class BlackListWordCassandraServiceImpl implements BlackListWordCassandraService, ParameterProperties {
 
 	@Autowired
 	private ApiCassandraFactory apiCassandraFactory;
@@ -65,6 +67,7 @@ public class BlackListWordCassandraServiceImpl implements BlackListWordCassandra
 		if (blackListedWords == null || blackListedWords.size() <= 0) {
 			reset();
 		}
+		ServerValidationUtils.rejectIfNull(query, GL0006, PROFANITY_TEXT);
 		if (query != null && !query.equals(WILD_CARD)) {
 			for (String expression : EXPRESSIONS) {
 				String[] blackWords = query.split(expression);
