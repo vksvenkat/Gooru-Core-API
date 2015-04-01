@@ -121,7 +121,7 @@ public interface CollectionRepository extends BaseRepository {
 	
 	Object[] getParentCollection(String collectionGooruOid, String gooruUid);
 	
-	CollectionItem getNextCollectionItemResource(String collectionId, int sequence, String excludeType);
+	CollectionItem getNextCollectionItemResource(String collectionId, int sequence, String excludeType,String sharing);
 	
 	Long getPublicCollectionCount(String gooruOid, String sharing);
 	
