@@ -252,7 +252,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Collection> getCollectionsByResourceId(String resourceGooruOid) {
+	public List<Collection> getCollectionsByResourceId(final String resourceGooruOid) {
 		Query query = getSession().createQuery("Select collection FROM CollectionItem collectionItem WHERE  collectionItem.resource.gooruOid=:resourceGooruOid  and " + generateOrgAuthQuery("collectionItem.collection."));
 		query.setParameter("resourceGooruOid", resourceGooruOid);
 		addOrgAuthParameters(query);
