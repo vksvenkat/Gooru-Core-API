@@ -1174,7 +1174,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 
 	@Override
 	public List<CollectionItem> getResetSequenceCollectionItems(final String collectionId, final int sequence) {
-		Query query = getSession().createQuery(COLLECTION_ITEM_BY_SEQUENCE);
+		final Query query = getSession().createQuery(COLLECTION_ITEM_BY_SEQUENCE);
 		query.setParameter(COLLECTION_ID, collectionId);
 		query.setParameter(ITEM_SEQUENCE, sequence);
 		return query.list();
