@@ -74,7 +74,7 @@ public class MediaRestV2Controller extends BaseController implements ConstantPro
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_MEDIA_HTMLTOPDF })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.POST }, value = "/htmltopdf")
-	public ModelAndView createHtmlToPdf(@RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public ModelAndView createHtmlToPdf(@RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		String res = getMediaService().convertHtmltoPdf(requestData(data));
 		if (res == null) {
 			res = "Failed to generate the pdf file!";
@@ -86,14 +86,14 @@ public class MediaRestV2Controller extends BaseController implements ConstantPro
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_MEDIA_HTMLTOPDF })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.GET }, value = "/download")
-	public void createHtmlToPdfAndDownload(@RequestParam String url, @RequestParam String filename, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public void createHtmlToPdfAndDownload(@RequestParam final String url, @RequestParam final String filename, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		getMediaService().downloadFile(response, filename, url);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_MEDIA_HTMLTOPDF })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.POST }, value = "/jsontostring")
-	public ModelAndView jsontocsv(@RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public ModelAndView jsontocsv(@RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		String res = getMediaService().convertJsonToCsv(requestData(data));
 		if (res == null) {
 			res = "Failed to generate the csv file!";
@@ -105,9 +105,9 @@ public class MediaRestV2Controller extends BaseController implements ConstantPro
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_MEDIA_ADD })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.POST)
-	public ModelAndView uploadMedia(HttpServletRequest request, HttpServletResponse response) throws Exception {
-		Map<String, Object> formField = RequestUtil.getMultipartItems(request);
-		MediaDTO mediaDTO = formField.get(DATA_OBJECT) != null ? this.buildMediaInput(formField.get(DATA_OBJECT).toString()) : new MediaDTO();
+	public ModelAndView uploadMedia(final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+		final Map<String, Object> formField = RequestUtil.getMultipartItems(request);
+		final MediaDTO mediaDTO = formField.get(DATA_OBJECT) != null ? this.buildMediaInput(formField.get(DATA_OBJECT).toString()) : new MediaDTO();
 		return toModelAndView(getMediaService().handleFileUpload(mediaDTO, formField), FORMAT_JSON);
 	}
 
@@ -115,13 +115,13 @@ public class MediaRestV2Controller extends BaseController implements ConstantPro
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_MEDIA_UPDATE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.PUT, value = "/{id}/crop")
-	public void cropImage(@PathVariable(value = GOORU_IMAGE_ID) String gooruImageId, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		JSONObject json = requestData(data);
-		File classplanDir = new File(UserGroupSupport.getUserOrganizationNfsInternalPath() + Constants.UPLOADED_MEDIA_FOLDER);
+	public void cropImage(@PathVariable(value = GOORU_IMAGE_ID) final String gooruImageId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+		final JSONObject json = requestData(data);
+		final File classplanDir = new File(UserGroupSupport.getUserOrganizationNfsInternalPath() + Constants.UPLOADED_MEDIA_FOLDER);
 
-		String fileName = gooruImageId;
+		final String fileName = gooruImageId;
 
-		File file = new File(classplanDir.getPath() + "/" + fileName);
+		final File file = new File(classplanDir.getPath() + "/" + fileName);
 
 		if (fileName != null && file.exists()) {
 
@@ -153,7 +153,7 @@ public class MediaRestV2Controller extends BaseController implements ConstantPro
 		return classPlanConstants;
 	}
 
-	private MediaDTO buildMediaInput(String data) {
+	private MediaDTO buildMediaInput(final String data) {
 		return JsonDeserializer.deserialize(data, MediaDTO.class);
 	}
 }

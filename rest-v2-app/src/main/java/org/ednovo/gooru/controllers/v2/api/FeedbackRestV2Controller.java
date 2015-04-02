@@ -63,39 +63,39 @@ public class FeedbackRestV2Controller extends BaseController implements Paramete
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_FEEDBACK_ADD })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.POST, value = "")
-	public ModelAndView createFeedback(@RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		User user = (User) request.getAttribute(Constants.USER);
-		Feedback newFeedback = this.buildFeedbackFromInputParameters(data, request);
-		boolean list = newFeedback.getTypes() == null ? false : true;
-		List<Feedback> feedbacks = getFeedbackService().createFeedbacks(newFeedback, user);
-		Feedback feedback = feedbacks.get(0);
+	public ModelAndView createFeedback(@RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+		final User user = (User) request.getAttribute(Constants.USER);
+		final Feedback newFeedback = this.buildFeedbackFromInputParameters(data, request);
+		final boolean list = newFeedback.getTypes() == null ? false : true;
+		final List<Feedback> feedbacks = getFeedbackService().createFeedbacks(newFeedback, user);
+		final Feedback feedback = feedbacks.get(0);
 		response.setStatus(HttpServletResponse.SC_CREATED);
-		String includes[] = (String[]) ArrayUtils.addAll(FEEDBACK_INCLUDE_FIELDS, ERROR_INCLUDE);
+		final String includes[] = (String[]) ArrayUtils.addAll(FEEDBACK_INCLUDE_FIELDS, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(list ? feedbacks : feedback, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_FEEDBACK_UPDATE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.PUT, value = "/{id}")
-	public ModelAndView updateFeedback(@RequestBody String data, @PathVariable(value = ID) String feedbackId, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		User user = (User) request.getAttribute(Constants.USER);
-		List<Feedback> feedbacks = getFeedbackService().updateFeedback(feedbackId, this.buildFeedbackFromInputParameters(data, request), user);
-		String includes[] = (String[]) ArrayUtils.addAll(FEEDBACK_INCLUDE_FIELDS, ERROR_INCLUDE);
+	public ModelAndView updateFeedback(@RequestBody final String data, @PathVariable(value = ID) final String feedbackId, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+		final User user = (User) request.getAttribute(Constants.USER);
+		final List<Feedback> feedbacks = getFeedbackService().updateFeedback(feedbackId, this.buildFeedbackFromInputParameters(data, request), user);
+		final String includes[] = (String[]) ArrayUtils.addAll(FEEDBACK_INCLUDE_FIELDS, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(feedbacks, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_FEEDBACK_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/{id}")
-	public ModelAndView getFeedback(@PathVariable(value = ID) String feedbackId, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		String includes[] = (String[]) ArrayUtils.addAll(FEEDBACK_INCLUDE_FIELDS, ERROR_INCLUDE);
+	public ModelAndView getFeedback(@PathVariable(value = ID) final String feedbackId, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+		final String includes[] = (String[]) ArrayUtils.addAll(FEEDBACK_INCLUDE_FIELDS, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(this.getFeedbackService().getFeedback(feedbackId), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_FEEDBACK_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/{type}/value")
-	public ModelAndView getCustomValues(HttpServletRequest request, @PathVariable(value = TYPE) String type, HttpServletResponse response) throws Exception {
+	public ModelAndView getCustomValues(final HttpServletRequest request, @PathVariable(value = TYPE) final String type, final HttpServletResponse response) throws Exception {
 
 		return toModelAndViewWithIoFilter(this.getFeedbackService().getCustomValues(getFeedbackCategory(request), type), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, CUSTOM_VALUE_INCLUDE);
 	}
@@ -103,19 +103,19 @@ public class FeedbackRestV2Controller extends BaseController implements Paramete
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_FEEDBACK_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "")
-	public ModelAndView getFeedbacks(HttpServletRequest request, @RequestParam(value = TYPE, required = true) String type, @RequestParam(value = TARGET_TYPE, required = true) String targetType, @RequestParam(value = CREATOR_UID, required = false) String creatorUid,
-			@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "20") Integer limit, HttpServletResponse response) throws Exception {
-		String includes[] = (String[]) ArrayUtils.addAll(FEEDBACK_INCLUDE_FIELDS, ERROR_INCLUDE);
+	public ModelAndView getFeedbacks(final HttpServletRequest request, @RequestParam(value = TYPE, required = true) final String type, @RequestParam(value = TARGET_TYPE, required = true) final String targetType, @RequestParam(value = CREATOR_UID, required = false) final String creatorUid,
+			@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") final Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "20") final Integer limit, final HttpServletResponse response) throws Exception {
+		final String includes[] = (String[]) ArrayUtils.addAll(FEEDBACK_INCLUDE_FIELDS, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(this.getFeedbackService().getFeedbacks(getFeedbackCategory(request), targetType, type, creatorUid, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_FEEDBACK_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = { "/resource", "/collection" })
-	public ModelAndView getContentFlags(HttpServletRequest request, @RequestParam(value = STATUS, required = false) String status, @RequestParam(value = REPORTED_FLAG_TYPE, required = false) String reportedFlagType, @RequestParam(value = "startDate", required = false) String startDate,
-			@RequestParam(value = END_DATE, required = false) String endDate, @RequestParam(value = SEARCH_QUERY, required = false) String searchQuery, @RequestParam(value = DESCRIPTION, required = false) String description,
-			@RequestParam(value = REPORT_QUERY, required = false) String reportQuery, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,
-			HttpServletResponse response) throws Exception {
+	public ModelAndView getContentFlags(HttpServletRequest request, @RequestParam(value = STATUS, required = false) final String status, @RequestParam(value = REPORTED_FLAG_TYPE, required = false) final String reportedFlagType, @RequestParam(value = "startDate", required = false) final String startDate,
+			@RequestParam(value = END_DATE, required = false) final String endDate, @RequestParam(value = SEARCH_QUERY, required = false) final String searchQuery, @RequestParam(value = DESCRIPTION, required = false) final String description,
+			@RequestParam(value = REPORT_QUERY, required = false) final String reportQuery, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") final Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") final Integer limit,
+			final HttpServletResponse response) throws Exception {
 
 		return toJsonModelAndView(this.getFeedbackService().getFlags(limit, offset, getFeedbackCategory(request), getSummaryCategory(request), status, reportedFlagType, startDate, endDate, searchQuery, description, reportQuery), true);
 	}
@@ -123,24 +123,24 @@ public class FeedbackRestV2Controller extends BaseController implements Paramete
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_FEEDBACK_DELETE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.DELETE, value = "/{id}")
-	public void deleteFeedback(@PathVariable(value = ID) String feedbackId, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		User user = (User) request.getAttribute(Constants.USER);
+	public void deleteFeedback(@PathVariable(value = ID) final String feedbackId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+		final User user = (User) request.getAttribute(Constants.USER);
 		this.getFeedbackService().deleteFeedback(feedbackId, user);
 		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
 	}
 
-	private Feedback buildFeedbackFromInputParameters(String data, HttpServletRequest request) {
-		Feedback feedback = JsonDeserializer.deserialize(data, Feedback.class);
-		CustomTableValue feedbackCategory = new CustomTableValue();
+	private Feedback buildFeedbackFromInputParameters(final String data, final HttpServletRequest request) {
+		final Feedback feedback = JsonDeserializer.deserialize(data, Feedback.class);
+		final CustomTableValue feedbackCategory = new CustomTableValue();
 		feedbackCategory.setValue(getFeedbackCategory(request));
 		feedback.setCategory(feedbackCategory);
-		CustomTableValue product = new CustomTableValue();
+		final CustomTableValue product = new CustomTableValue();
 		product.setValue(isMobileDevice(request) ? CustomProperties.Product.MOBILE.getProduct() : CustomProperties.Product.WEB.getProduct());
 		feedback.setProduct(product);
 		return feedback;
 	}
 
-	private String getFeedbackCategory(HttpServletRequest request) {
+	private String getFeedbackCategory(final HttpServletRequest request) {
 		String category = null;
 		if (request != null && request.getRequestURL() != null) {
 			if (request.getRequestURL().toString().contains(CustomProperties.FeedbackCategory.RATING.getFeedbackCategory())) {
