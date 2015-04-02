@@ -25,7 +25,6 @@ package org.ednovo.gooru.infrastructure.persistence.hibernate.consumer;
 
 import java.util.List;
 
-import org.ednovo.gooru.application.util.DatabaseUtil;
 import org.ednovo.gooru.core.api.model.ConsumerAccount;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate;
 import org.springframework.stereotype.Repository;
@@ -43,7 +42,7 @@ public class ConsumerAccountRepositoryHibernate extends BaseRepositoryHibernate
 		if (domain == null || domain == "") {
 			return null;
 		}
-		String retrieveConsumer = DatabaseUtil.format(RETRIEVE_CONSUMER_ACCOUNT, domain, generateOrgAuthQueryWithData("ca."));
+		String retrieveConsumer = format(RETRIEVE_CONSUMER_ACCOUNT, domain, generateOrgAuthQueryWithData("ca."));
 		
 		List<ConsumerAccount> consumerAccounts = find(retrieveConsumer);
 		return (consumerAccounts.size() > 0) ? consumerAccounts.get(0) : null;

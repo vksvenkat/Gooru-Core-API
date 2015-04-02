@@ -213,12 +213,7 @@
 				not-null="false"></property>
 			<property name="s3UploadFlag" column="s3_upload_flag"
 				not-null="false" />
-			<set name="resourceSegments" cascade="all"
-				sort="org.ednovo.gooru.core.api.model.SegmentComparator">
-				<key column="resource_id" not-null="true" />
-				<one-to-many class="org.ednovo.gooru.core.api.model.Segment" />
-			</set>
-
+	
 			<set name="resourceMetaData" cascade="all" lazy="true">
 				<key column="resource_id" not-null="true" />
 				<one-to-many class="org.ednovo.gooru.core.api.model.ResourceMetaData" />
@@ -366,73 +361,7 @@
 
 			</joined-subclass>
 
-			<joined-subclass name="org.ednovo.gooru.core.api.model.Learnguide"
-				table="learnguide" lazy="true">
-				<key column="content_id" />
-				<property name="lesson" column="lesson" length="50"
-					not-null="true" />
-				<property name="goals" column="goals" length="255"
-					not-null="false" />
-				<property name="notes" column="notes" not-null="false" />
-				<property name="duration" column="duration" not-null="false" />
-				<property name="curriculum" column="curriculum" not-null="false" />
-				<property name="medium" column="medium" not-null="false" />
-				<property name="narration" column="narration" not-null="false" />
-				<property name="collectionGooruOid" column="collection_gooru_oid"
-					not-null="false" />
-				<property name="type" column="type" not-null="true" />
-				<property name="assessmentGooruOid" column="assessment_gooru_oid"
-					not-null="false" />
-				<property name="requestPending" column="request_pending"
-					not-null="true" />
-				<property name="narrationLink" column="narration_link"
-					not-null="false" />
-				<property name="source" column="source" not-null="false" />
-				<!-- <set name="courseSet" inverse="true" cascade="none" lazy="true"> 
-					<key column="content_id"/> <one-to-many class="org.ednovo.gooru.domain.model.group.Course"/> 
-					</set> -->
-
-			</joined-subclass>
-
-			<joined-subclass name="org.ednovo.gooru.core.api.model.Assessment"
-				table="assessment" lazy="true">
-				<key column="assessment_id" />
-				<property name="name" column="name" not-null="true" />
-				<property name="timeToCompleteInSecs" column="time_to_complete_in_secs"
-					not-null="false" />
-				<property name="isRandom" column="is_random" not-null="true" />
-				<property name="isChoiceRandom" column="is_choice_random"
-					not-null="true" />
-				<property name="importCode" column="import_code" not-null="false" />
-				<property name="showHints" column="show_hints" not-null="true" />
-				<property name="showScore" column="show_score" not-null="true" />
-				<property name="showCorrectAnswer" column="show_correct_answer"
-					not-null="true" />
-				<property name="questionCount" column="question_count"
-					not-null="false" />
-				<property name="description" column="description" not-null="false" />
-				<property name="medium" column="medium" not-null="false" />
-				<property name="source" column="source" not-null="false" />
-				<property name="vocabulary" column="vocabulary" not-null="false" />
-
-				<property name="collectionGooruOid" column="collection_gooru_oid"
-					not-null="false" />
-
-				<property name="quizGooruOid" column="quiz_gooru_oid"
-					not-null="false" />
-
-				<property name="learningObjectives" column="learning_objectives"
-					not-null="false" />
-				<set name="segments" cascade="all">
-					<key column="assessment_id" not-null="true" />
-					<one-to-many class="org.ednovo.gooru.core.api.model.AssessmentSegment" />
-				</set>
-				<set name="attempts" cascade="all">
-					<key column="assessment_id" not-null="true" />
-					<one-to-many class="org.ednovo.gooru.core.api.model.AssessmentAttempt" />
-				</set>
-			</joined-subclass>
-			<joined-subclass name="org.ednovo.gooru.core.api.model.AssessmentQuestion"
+		<joined-subclass name="org.ednovo.gooru.core.api.model.AssessmentQuestion"
 				table="assessment_question" lazy="true">
 				<key column="question_id" />
 				<property name="type" column="type" not-null="false" />

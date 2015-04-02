@@ -98,10 +98,6 @@
 		</constructor-arg>
 	</bean>
 
-   <bean id="databaseUtil" class="org.ednovo.gooru.application.util.DatabaseUtil">
-		<property name="classplanRepository" ref="classplanRepository" />
-	</bean>
-
     <context:component-scan base-package="org.ednovo.gooru.domain.service.resource.impl" />
 
 	<bean id="classplanConstants"

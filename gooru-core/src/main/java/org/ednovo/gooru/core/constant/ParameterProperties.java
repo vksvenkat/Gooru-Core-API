@@ -2346,7 +2346,7 @@ public interface ParameterProperties {
 
 	String USER_REMOVE_USER_ROLE = "user.remove_user_role";
 
-	String _ERROR = "ERROR";
+	String _ERROR = "ERROR : {}";
 
 	String PARENT = "parent";
 

@@ -29,8 +29,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.ednovo.gooru.core.api.model.Assessment;
-import org.ednovo.gooru.core.api.model.AssessmentQuestion;
 import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.api.model.CodeOrganizationAssoc;
 import org.ednovo.gooru.core.api.model.CodeUserAssoc;
@@ -38,7 +36,6 @@ import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.FeaturedSet;
 import org.ednovo.gooru.core.api.model.FeaturedSetItems;
-import org.ednovo.gooru.core.api.model.Learnguide;
 import org.ednovo.gooru.core.api.model.Profile;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.StorageAccount;
@@ -99,64 +96,11 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 
 	private Integer lessonLimit = 3;
 
-	@Override
-	public List<FeaturedSet> getFeaturedList(int limit, boolean random, String featuredSetName, String themeCode) throws Exception {
-		List<FeaturedSet> featuredSet = this.getFeaturedRepository().getFeaturedList(null, limit, featuredSetName, themeCode, null);
-		if (featuredSet != null) {
-			this.getFeaturedResource(featuredSet);
-		}
-
-		return featuredSet;
-	}
-
-	@Override
-	public List<FeaturedSet> getFeaturedList(int limit, boolean random, String featuredSetName, String themeCode, String themetype) throws Exception {
-		List<FeaturedSet> featuredSet = this.getFeaturedRepository().getFeaturedList(null, limit, featuredSetName, themeCode, themetype);
-		if (featuredSet.size() > 0) {
-			this.getFeaturedResource(featuredSet);
-		}
-
-		return featuredSet;
-	}
 
 	@Override
 	public List<FeaturedSet> getFeaturedTheme(int limit) throws Exception {
 		
 		return this.getFeaturedRepository().getFeaturedTheme(limit);
-	}
-
-	@Override
-	public void getFeaturedResource(List<FeaturedSet> featuredSet) throws Exception {
-		for (FeaturedSet featured : featuredSet) {
-			List<Resource> resources = new ArrayList<Resource>();
-			List<Learnguide> collections = new ArrayList<Learnguide>();
-			List<AssessmentQuestion> questions = new ArrayList<AssessmentQuestion>();
-			List<Collection> scollections = new ArrayList<Collection>();
-			if (featured.getFeaturedSetItems() != null) {
-				for (FeaturedSetItems featuredSetItem : featured.getFeaturedSetItems()) {
-					if (featuredSetItem.getContent() instanceof AssessmentQuestion) {
-						questions.add((AssessmentQuestion) featuredSetItem.getContent());
-						if (featuredSetItem.getParentContent() != null && featuredSetItem.getParentContent() instanceof Assessment) {
-							((AssessmentQuestion) featuredSetItem.getContent()).setAssessmentGooruId(featuredSetItem.getParentContent().getGooruOid());
-						}
-					} else if (featuredSetItem.getContent() instanceof Learnguide) {
-						collections.add((Learnguide) featuredSetItem.getContent());
-					} else if (featuredSetItem.getContent() instanceof Collection) {
-						scollections.add((Collection) featuredSetItem.getContent());
-					} else if (featuredSetItem.getContent() instanceof Resource) {
-						resources.add((Resource) featuredSetItem.getContent());
-					}
-				}
-			}
-			featured.setResources(resources);
-			featured.setQuestions(questions);
-			featured.setCollections(collections);
-			featured.setScollections(scollections);
-			if (scollections != null) {
-				this.setCollectionMetaInfo(scollections, null);
-			}
-		}
-
 	}
 
 	@Override
@@ -453,16 +397,6 @@ public class FeaturedServiceImpl extends BaseServiceImpl implements FeaturedServ
 
 	public CommentRepository getCommentRepository() {
 		return commentRepository;
-	}
-
-	private void setCollectionMetaInfo(List<Collection> collections, String rootNodeId) {
-		for (Collection collection : collections) {
-			ResourceMetaInfo collectionMetaInfo = new ResourceMetaInfo();
-			collectionMetaInfo.setCourse(this.getCollectionService().getCourse(collection.getTaxonomySet()));
-			collectionMetaInfo.setStandards(this.getCollectionService().getStandards(collection.getTaxonomySet(), true, rootNodeId));
-			collection.setMetaInfo(collectionMetaInfo);
-		}
-
 	}
 
 	@Override

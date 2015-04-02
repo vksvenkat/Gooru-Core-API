@@ -44,9 +44,6 @@ import java.util.regex.Pattern;
 
 import org.ednovo.gooru.application.util.TaxonomyUtil;
 import org.ednovo.gooru.core.api.model.Application;
-import org.ednovo.gooru.core.api.model.Assessment;
-import org.ednovo.gooru.core.api.model.AssessmentSegment;
-import org.ednovo.gooru.core.api.model.AssessmentSegmentQuestionAssoc;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.Credential;
@@ -55,7 +52,6 @@ import org.ednovo.gooru.core.api.model.GooruAuthenticationToken;
 import org.ednovo.gooru.core.api.model.Identity;
 import org.ednovo.gooru.core.api.model.Idp;
 import org.ednovo.gooru.core.api.model.InviteUser;
-import org.ednovo.gooru.core.api.model.Learnguide;
 import org.ednovo.gooru.core.api.model.Organization;
 import org.ednovo.gooru.core.api.model.OrganizationDomainAssoc;
 import org.ednovo.gooru.core.api.model.PartyCustomField;
@@ -63,10 +59,8 @@ import org.ednovo.gooru.core.api.model.PartyPermission;
 import org.ednovo.gooru.core.api.model.PermissionType;
 import org.ednovo.gooru.core.api.model.Profile;
 import org.ednovo.gooru.core.api.model.Resource;
-import org.ednovo.gooru.core.api.model.ResourceInstance;
 import org.ednovo.gooru.core.api.model.ResourceType;
 import org.ednovo.gooru.core.api.model.RoleEntityOperation;
-import org.ednovo.gooru.core.api.model.Segment;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserAccountType;
@@ -103,7 +97,6 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserTokenRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.apikey.ApplicationRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.assessment.AssessmentRepository;
-import org.ednovo.gooru.infrastructure.persistence.hibernate.classplan.LearnguideRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.party.UserGroupRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.resource.ResourceRepository;
@@ -155,9 +148,6 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 
 	@Autowired
 	private OperationAuthorizer operationAuthorizer;
-
-	@Autowired
-	private LearnguideRepository learnguideRepository;
 
 	@Autowired
 	private RedisService redisService;
@@ -1629,21 +1619,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 		Boolean hasPermission = false;
 		if (resourceId != null) {
 			List<PartyPermission> collaboratorPermissions = groupRepository.getUserPartyPermissions(collaborator.getPartyUid());
-			if (contentType.equalsIgnoreCase(LEARN_GUIDE)) {
-				Learnguide learnguide = learnguideRepository.findByContent(resourceId);
-				for (Segment segment : learnguide.getResourceSegments()) {
-					for (ResourceInstance resourceInstance : segment.getResourceInstances()) {
-						if (!hasContentAccessPermission(collaboratorPermissions, collaborator, resourceInstance.getResource())) {
-							hasPermission = false;
-							LOGGER.debug("User organization and resource organization doesn't match !");
-						} else {
-							hasPermission = true;
-						}
-					}
-				}
-			} else if (contentType.equalsIgnoreCase(SCOLLECTION)) {
-				// Collection collection = (Collection)
-				// collectionRepository.get(Collection.class, resourceId);
+			 if (contentType.equalsIgnoreCase(SCOLLECTION)) {
 				Collection collection = collectionRepository.getCollectionByGooruOid(resourceId, null);
 				for (CollectionItem collectionItem : collection.getCollectionItems()) {
 					if (collectionItem.getCollection() != null) {
@@ -1664,19 +1640,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 						}
 					}
 				}
-			} else if (contentType.equalsIgnoreCase(ASSESSMENT)) {
-				Assessment assessment = assessmentRepository.getByGooruOId(Assessment.class, resourceId);
-				for (AssessmentSegment segment : assessment.getSegments()) {
-					for (AssessmentSegmentQuestionAssoc aQuestionAssoc : segment.getSegmentQuestions()) {
-						if (!hasContentAccessPermission(collaboratorPermissions, collaborator, aQuestionAssoc.getQuestion())) {
-							hasPermission = false;
-							LOGGER.debug("User organization and resource organization doesn't match !");
-						} else {
-							hasPermission = true;
-						}
-					}
-				}
-			}
+			} 
 		}
 		return hasPermission;
 	}

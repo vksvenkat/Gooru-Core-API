@@ -25,8 +25,6 @@ package org.ednovo.gooru.infrastructure.persistence.hibernate.user;
 
 import java.util.List;
 
-import org.ednovo.gooru.application.util.DatabaseUtil;
-import org.ednovo.gooru.core.api.model.Learnguide;
 import org.ednovo.gooru.core.api.model.UserContentAssoc;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserContentRepository;
@@ -43,14 +41,6 @@ public class UserContentRepositoryHibernate extends BaseRepositoryHibernate impl
 	@Autowired
 	public UserContentRepositoryHibernate(JdbcTemplate jdbcTemplate) {
 		this.jdbcTemplate = jdbcTemplate;
-	}
-
-	@Override
-	public List<Learnguide> listCommonCollections(String userGooruId, String compareUserGooruId) {
-		String hql = "FROM Learnguide collection WHERE exists (FROM UserContentAssoc userContentOne WHERE userContentOne.content.contentId = collection.contentId AND userContentOne.user.partyUid = '" + userGooruId
-				+ "' ) AND exists (FROM UserContentAssoc userContentTwo WHERE userContentTwo.content.contentId = collection.contentId AND userContentTwo.user.gooruUId = '" + compareUserGooruId + "' ) AND "+generateOrgAuthQueryWithData("collection.");
-
-		return find(hql);
 	}
 
 	@Override
@@ -74,12 +64,6 @@ public class UserContentRepositoryHibernate extends BaseRepositoryHibernate impl
 	private UserContentAssoc getRecord(String hql) {
 		List<UserContentAssoc> userContentAssocs = find(hql);
 		return userContentAssocs.size() > 0 ? userContentAssocs.get(0) : null;
-	}
-	
-	@Override
-	public void deleteContentRelationShips(String contentId) {
-	String deleteContent = DatabaseUtil.format(DELETE_CONTENT, contentId, getUserOrganizationUidsAsString());
-	this.jdbcTemplate.execute(deleteContent);
 	}
 
 	@Override

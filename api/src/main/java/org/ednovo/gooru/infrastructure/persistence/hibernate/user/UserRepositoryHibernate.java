@@ -31,7 +31,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import org.ednovo.gooru.application.util.DatabaseUtil;
 import org.ednovo.gooru.core.api.model.EntityOperation;
 import org.ednovo.gooru.core.api.model.Gender;
 import org.ednovo.gooru.core.api.model.Identity;
@@ -53,7 +52,6 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHiber
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.hibernate.Criteria;
 import org.hibernate.Query;
-import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.ProjectionList;
 import org.hibernate.criterion.Projections;
@@ -146,7 +144,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 	}
 
 	public void invite(String firstname, String lastname, String email, String school, String message, String datestr) {
-		String messageSql = DatabaseUtil.format(INSERT_INVITE, firstname, lastname, email, school, message, datestr);
+		String messageSql = format(INSERT_INVITE, firstname, lastname, email, school, message, datestr);
 		this.getJdbcTemplate().update(messageSql);
 	}
 
@@ -264,7 +262,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 	@Override
 	public void registerUser(String emailId, String date) {
 
-		String updateSegment = DatabaseUtil.format(INSERT_REGISTERED_USER, emailId, date);
+		String updateSegment = format(INSERT_REGISTERED_USER, emailId, date);
 
 		this.getJdbcTemplate().update(updateSegment);
 
@@ -281,7 +279,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 			ageCheckValue = 0;
 		}
 
-		String updateSegment = DatabaseUtil.format(UPDATE_AGE_CHECK, ageCheckValue, user.getPartyUid());
+		String updateSegment = format(UPDATE_AGE_CHECK, ageCheckValue, user.getPartyUid());
 
 		this.getJdbcTemplate().update(updateSegment);
 	}

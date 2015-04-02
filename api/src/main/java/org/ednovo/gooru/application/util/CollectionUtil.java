@@ -35,21 +35,15 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.ednovo.gooru.core.api.model.Assessment;
 import org.ednovo.gooru.core.api.model.AssessmentQuestion;
 import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.ContentPermission;
-import org.ednovo.gooru.core.api.model.Learnguide;
 import org.ednovo.gooru.core.api.model.Rating;
-import org.ednovo.gooru.core.api.model.Resource;
-import org.ednovo.gooru.core.api.model.ResourceType;
-import org.ednovo.gooru.core.api.model.Segment;
 import org.ednovo.gooru.core.api.model.StandardFo;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserGroupSupport;
-import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.domain.service.CollectionService;
 import org.ednovo.gooru.domain.service.rating.RatingService;
@@ -61,7 +55,6 @@ import org.ednovo.gooru.infrastructure.mail.MailHandler;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.assessment.AssessmentRepository;
-import org.ednovo.gooru.infrastructure.persistence.hibernate.classplan.LearnguideRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.taxonomy.TaxonomyRespository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.taxonomy.TaxonomyStoredProcedure;
@@ -102,9 +95,6 @@ public class CollectionUtil implements ParameterProperties {
 
 	@Autowired
 	private TaxonomyStoredProcedure procedureExecutor;
-
-	@Autowired
-	private LearnguideRepository learnguideRepository;
 
 	@Autowired
 	private TaxonomyService taxonomyService;
@@ -245,27 +235,6 @@ public class CollectionUtil implements ParameterProperties {
 		return null;
 	}
 
-	public boolean hasCollaboratorPermission(Learnguide learnguide, User user) {
-		List<User> userList = learnguideRepository.findCollaborators(learnguide.getGooruOid(), user.getPartyUid());
-		return userList.size() > 0 ? true : false;
-	}
-
-	public boolean hasRelatedContentPlayPermission(Learnguide learnguide, User user) {
-		if (learnguide == null) {
-			// To an empty collection people don't have access!
-			return false;
-		}
-
-		boolean hasCollaboratorPermission = hasCollaboratorPermission(learnguide, user);
-
-		boolean hasUnrestrictedContentAccess = getOperationAuthorizer().hasUnrestrictedContentAccess();
-
-		if (hasUnrestrictedContentAccess || learnguide.getSharing().equalsIgnoreCase(PUBLIC) || hasCollaboratorPermission || learnguide.getUser().getUserId() == user.getUserId() || hasSubOrgPermission(learnguide.getOrganization().getPartyUid())) {
-			return true;
-		}
-		return false;
-	}
-
 	public boolean hasSubOrgPermission(String contentOrganizationId) {
 		String[] subOrgUids = UserGroupSupport.getUserOrganizationUids();
 		if (subOrgUids != null && subOrgUids.length > 0) {
@@ -401,13 +370,6 @@ public class CollectionUtil implements ParameterProperties {
 			}
 		}
 		return customFieldsAndValues;
-	}
-
-	public Segment setSegmentImageAbsolutePath(Resource resource, Segment segment) {
-		if (resource != null && segment != null && segment.getSegmentImage() != null) {
-			segment.setSegmentImage(resource.getAssetURI() + resource.getFolder() + Constants.SEGMENT_FOLDER + "/" + segment.getSegmentImage());
-		}
-		return segment;
 	}
 
 	public Set<StandardFo> getContentStandards(Set<Code> taxonomySet, String contentGooruOid) {
