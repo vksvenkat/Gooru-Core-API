@@ -44,6 +44,7 @@ import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.GooruOperationConstants;
 import org.ednovo.gooru.core.security.AuthorizeOperations;
+import org.ednovo.gooru.domain.service.CollectionService;
 import org.ednovo.gooru.domain.service.resource.ResourceService;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.json.JSONObject;
@@ -67,6 +68,9 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 	@Autowired
 	private ResourceService resourceService;
 
+	@Autowired
+	private CollectionService collectionService;
+	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_RESOURCE_ADD })
 	@Transactional(readOnly = false, propagation = Propagation.NOT_SUPPORTED, noRollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.POST, value = "")
@@ -148,7 +152,7 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 		// To capture activity log
 		SessionContextSupport.putLogParameter(EVENT_NAME, "get-collaborators");
 		SessionContextSupport.putLogParameter(COLLECTION_ID, collectionId);
-		return toModelAndViewWithIoFilter(this.getResourceService().getCollaborators(collectionId), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, COLLABORATORI_INCLUDE);
+		return toModelAndViewWithIoFilter(this.getCollectionService().getCollaborators(collectionId), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, COLLABORATORI_INCLUDE);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_RESOURCE_DELETE })
@@ -206,15 +210,6 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 		User apiCaller = (User) request.getAttribute(Constants.USER);
 		return toModelAndView(serialize(this.getResourceService().resourcePlay(gooruContentId, apiCaller, more), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, RESOURCE_INCLUDE_FIELDS));
 
-	}
-	
-	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_BULK_UPDATE_VIEW})
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	@RequestMapping(method = RequestMethod.POST, value = "/update/views")
-	public void updateResourceViews(HttpServletRequest request, HttpServletResponse response, @RequestBody String data) throws Exception {
-		List<UpdateViewsDTO> updateViewsDTOs = this.buildUpdatesViewFromInputParameters(data);
-		User apiCaller = (User) request.getAttribute(Constants.USER);
-		this.getResourceService().updateViewsBulk(updateViewsDTOs, apiCaller);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_BULK_UPDATE_VIEW})
@@ -278,6 +273,10 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 
 	public ResourceService getResourceService() {
 		return resourceService;
+	}
+
+	public CollectionService getCollectionService() {
+		return collectionService;
 	}
 	
 

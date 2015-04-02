@@ -97,7 +97,6 @@ import org.ednovo.gooru.infrastructure.messenger.IndexHandler;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
-import org.ednovo.gooru.infrastructure.persistence.hibernate.classplan.LearnguideRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.collaborator.CollaboratorRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentAssociationRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentRepositoryHibernate;
@@ -142,9 +141,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 	@Autowired
 	private MailHandler mailHandler;
-
-	@Autowired
-	private LearnguideRepository learnguideRepository;
 
 	@Autowired
 	private TaxonomyRespository taxonomyRepository;
@@ -1245,7 +1241,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	public List<User> getCollaborators(String collectionId) {
 		final Collection collection = this.getCollectionByGooruOid(collectionId, null);
 		rejectIfNull(collection, GL0056, _COLLECTION);
-		return this.learnguideRepository.findCollaborators(collectionId, null);
+		return this.getCollaboratorRepository().findCollaborators(collectionId, null);
 	}
 
 	private Collection setCollectionMetaData(Collection collection, final User user, final String merge, boolean ignoreUserTaxonomyPreference, String rootNodeId, boolean includeViewCount, boolean includeContentProvider, boolean includeCustomFields) {

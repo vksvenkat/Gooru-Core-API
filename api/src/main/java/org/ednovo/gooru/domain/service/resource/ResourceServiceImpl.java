@@ -42,10 +42,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.UUID;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -53,49 +51,34 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathFactory;
 
 import org.apache.commons.lang.StringUtils;
-import org.ednovo.gooru.application.converter.FileProcessor;
 import org.ednovo.gooru.application.util.AsyncExecutor;
 import org.ednovo.gooru.application.util.CollectionUtil;
 import org.ednovo.gooru.application.util.GooruImageUtil;
 import org.ednovo.gooru.application.util.ResourceImageUtil;
 import org.ednovo.gooru.application.util.TaxonomyUtil;
-import org.ednovo.gooru.application.util.UserContentRelationshipUtil;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
-import org.ednovo.gooru.core.api.model.Assessment;
 import org.ednovo.gooru.core.api.model.AssessmentQuestion;
 import org.ednovo.gooru.core.api.model.Code;
+import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.Content;
-import org.ednovo.gooru.core.api.model.ContentPermission;
 import org.ednovo.gooru.core.api.model.ContentProvider;
 import org.ednovo.gooru.core.api.model.ContentProviderAssociation;
 import org.ednovo.gooru.core.api.model.ContentType;
-import org.ednovo.gooru.core.api.model.ConverterDTO;
 import org.ednovo.gooru.core.api.model.CustomTableValue;
 import org.ednovo.gooru.core.api.model.FileMeta;
-import org.ednovo.gooru.core.api.model.Job;
-import org.ednovo.gooru.core.api.model.JobType;
-import org.ednovo.gooru.core.api.model.Learnguide;
 import org.ednovo.gooru.core.api.model.License;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.ResourceInfo;
-import org.ednovo.gooru.core.api.model.ResourceInstance;
 import org.ednovo.gooru.core.api.model.ResourceMetaData;
 import org.ednovo.gooru.core.api.model.ResourceSource;
 import org.ednovo.gooru.core.api.model.ResourceType;
-import org.ednovo.gooru.core.api.model.ResourceUrlStatus;
-import org.ednovo.gooru.core.api.model.Segment;
-import org.ednovo.gooru.core.api.model.SessionActivityType;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.StatisticsDTO;
 import org.ednovo.gooru.core.api.model.Textbook;
-import org.ednovo.gooru.core.api.model.UpdateViewsDTO;
 import org.ednovo.gooru.core.api.model.User;
-import org.ednovo.gooru.core.api.model.UserContentAssoc.RELATIONSHIP;
 import org.ednovo.gooru.core.api.model.UserGroupSupport;
 import org.ednovo.gooru.core.api.model.UserRole;
-import org.ednovo.gooru.core.application.util.BaseUtil;
-import org.ednovo.gooru.core.application.util.CollectionServiceUtil;
 import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.application.util.ImageUtil;
 import org.ednovo.gooru.core.application.util.RequestUtil;
@@ -126,14 +109,11 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.FeedbackRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.activity.SessionActivityRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.assessment.AssessmentRepository;
-import org.ednovo.gooru.infrastructure.persistence.hibernate.classplan.LearnguideRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.resource.ResourceRepository;
-import org.ednovo.gooru.infrastructure.persistence.hibernate.resource.SegmentRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.taxonomy.TaxonomyRespository;
 import org.ednovo.gooru.security.OperationAuthorizer;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.restlet.data.Method;
 import org.slf4j.Logger;
@@ -144,7 +124,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
 
-import com.google.common.collect.Lists;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.pdf.PdfCopy;
 import com.itextpdf.text.pdf.PdfImportedPage;
@@ -153,21 +132,18 @@ import com.itextpdf.text.pdf.SimpleBookmark;
 import com.sun.pdfview.PDFFile;
 
 @Service
-public class ResourceServiceImpl extends OperationAuthorizer implements ResourceService, ParameterProperties, ConstantProperties {  
+public class ResourceServiceImpl extends OperationAuthorizer implements ResourceService, ParameterProperties, ConstantProperties {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ResourceServiceImpl.class);
 
 	@Autowired
 	private ResourceRepository resourceRepository;
-	
+
 	@Autowired
 	private ResourceEventLog resourceEventLog;
 
 	@Autowired
 	private ResourceParser resourceParser;
-
-	@Autowired
-	private SegmentRepository segmentRepository;
 
 	@Autowired
 	private ResourceImageUtil resourceImageUtil;
@@ -183,9 +159,6 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 
 	@Autowired
 	private IndexProcessor indexProcessor;
-
-	@Autowired
-	private LearnguideRepository learnguideRepository;
 
 	@Autowired
 	private CollectionUtil collectionUtil;
@@ -241,35 +214,18 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 
 	@Autowired
 	private AssessmentService assessmentService;
-	
+
 	@Autowired
 	private ContentService contentService;
-	
+
 	@Autowired
 	private CollectionRepository collectionRepository;
-	
+
 	@Autowired
 	private IndexHandler indexHandler;
+
+	private static final String SHORTENED_URL_STATUS = "shortenedUrlStatus";
 	
-
-	@Override
-	public ResourceInstance saveResourceInstance(ResourceInstance resourceInstance) throws Exception {
-		Segment segment = (Segment) getSegmentRepository().get(Segment.class, resourceInstance.getSegment().getSegmentId());
-		resourceInstance.setSegment(segment);
-		Errors errors = new BindException(Resource.class, RESOURCE);
-		saveResource(resourceInstance.getResource(), errors, false);
-		if (resourceInstance.getSegment().getResourceInstances() == null) {
-			resourceInstance.getSegment().setResourceInstances(new TreeSet<ResourceInstance>());
-		}
-		resourceInstance.getSegment().getResourceInstances().add(resourceInstance);
-		if (resourceInstance.getSequence() == null) {
-			resourceInstance.setSequence(resourceInstance.getSegment().getResourceInstances().size() + 1);
-		}
-		getSegmentRepository().save(resourceInstance.getSegment());
-		getSegmentRepository().save(resourceInstance);
-		return resourceInstance;
-	}
-
 	@Override
 	public List<Resource> listResources(Map<String, String> filters) {
 		return getResourceRepository().listResources(filters);
@@ -295,14 +251,14 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	@Override
 	public Map<String, Object> getResource(String gooruOid) {
 		Resource resource = this.findResourceByContentGooruId(gooruOid);
-		if(resource == null) {
+		if (resource == null) {
 			throw new NotFoundException("resource not found", GL0056);
 		}
 		Map<String, Object> resourceObject = new HashMap<String, Object>();
-	    try {  	
-			resource.setViews(this.resourceCassandraService.getLong(resource.getGooruOid(),STATISTICS_VIEW_COUNT));
+		try {
+			resource.setViews(this.resourceCassandraService.getLong(resource.getGooruOid(), STATISTICS_VIEW_COUNT));
 			resource.setViewCount(resource.getViewCount());
-		} catch (Exception e) { 
+		} catch (Exception e) {
 			LOGGER.error("parser error : {}", e);
 		}
 		if (resource.getResourceType().getName().equalsIgnoreCase(ASSESSMENT_QUESTION)) {
@@ -319,17 +275,17 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		setContentProvider(resource);
 		return resourceObject;
 	}
-	
+
 	@Override
 	public Resource setContentProvider(String gooruOid) {
 		Resource resource = this.getResourceRepository().findResourceByContent(gooruOid);
 		rejectIfNull(resource, GL0056, RESOURCE);
 		return setContentProvider(resource);
 	}
-	
+
 	@Override
 	public Resource setContentProvider(Resource resource) {
-		List<ContentProviderAssociation> contentProviderAssociations = this.getContentRepository().getContentProviderByGooruOid(resource.getGooruOid(),null,null);
+		List<ContentProviderAssociation> contentProviderAssociations = this.getContentRepository().getContentProviderByGooruOid(resource.getGooruOid(), null, null);
 		if (contentProviderAssociations != null) {
 			List<String> aggregator = new ArrayList<String>();
 			List<String> publisher = new ArrayList<String>();
@@ -358,207 +314,6 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	public void deleteResource(Long contentId) {
 		getResourceRepository().remove(Resource.class, contentId);
 
-	}
-
-	@Override
-	public Segment reorderResourceInstace(Resource resource, String segmentId, String resourceInstanceId, String newResourceInstancePos, String newSegmentId) throws Exception {
-		Segment sourceSegment = null;
-		Segment targetSegment = null;
-
-		for (Segment segment : resource.getResourceSegments()) {
-			if (segment.getSegmentId().equals(segmentId)) {
-				sourceSegment = segment;
-			} else if (segment.getSegmentId().equals(newSegmentId)) {
-				targetSegment = segment;
-			}
-			if (sourceSegment != null && targetSegment != null) {
-				// Both segments identified.
-				break;
-			}
-		}
-
-		if (sourceSegment != null) {
-			if (targetSegment == null) {
-				targetSegment = sourceSegment;
-			}
-			CollectionServiceUtil.resetInstancesSequence(sourceSegment);
-			if (!sourceSegment.getSegmentId().equals(targetSegment.getSegmentId())) {
-				CollectionServiceUtil.resetInstancesSequence(targetSegment);
-			}
-			ResourceInstance resourceInstanceToMove = null;
-			int previousPosition = 0;
-			int fromPosition = 0;
-			for (ResourceInstance resourceInstance : sourceSegment.getResourceInstances()) {
-				if (resourceInstanceId.equals(resourceInstance.getResourceInstanceId()) && resourceInstanceToMove == null) {
-					resourceInstanceToMove = resourceInstance;
-					break;
-				}
-			}
-			fromPosition = resourceInstanceToMove.getSequence();
-
-			if (sourceSegment.equals(targetSegment)) {
-				int insertPosition = 0;
-				if (!newResourceInstancePos.equals(FIRST)) {
-					for (ResourceInstance segmentResourceAssoc : sourceSegment.getResourceInstances()) {
-						if (newResourceInstancePos.equals(segmentResourceAssoc.getResourceInstanceId())) {
-							previousPosition = segmentResourceAssoc.getSequence();
-							insertPosition = previousPosition + 1;
-							resourceInstanceToMove.setSequence(insertPosition);
-							break;
-						}
-					}
-					if (fromPosition != 0 && previousPosition != 0) {
-						for (ResourceInstance resourceInstance : sourceSegment.getResourceInstances()) {
-							if (!resourceInstanceToMove.equals(resourceInstance)) {
-								int sequence = resourceInstance.getSequence();
-								if (sequence > fromPosition && sequence < insertPosition) {
-									resourceInstance.setSequence(resourceInstance.getSequence() - 1);
-								} else if (sequence < fromPosition && sequence > previousPosition) {
-									resourceInstance.setSequence(resourceInstance.getSequence() + 1);
-								}
-							}
-						}
-					}
-				} else {
-					insertPosition = 1;
-					resourceInstanceToMove.setSequence(insertPosition);
-					int temSequence = 1;
-					for (ResourceInstance resourceInstance : sourceSegment.getResourceInstances()) {
-						if (!resourceInstanceToMove.equals(resourceInstance)) {
-							resourceInstance.setSequence(++temSequence);
-						}
-					}
-				}
-			} else {
-
-				int lastPosition = 0;
-				int insertPosition = 0;
-
-				// identify target resource instance
-				for (ResourceInstance resourceInstance : targetSegment.getResourceInstances()) {
-					int resourceInstanceSequence = resourceInstance.getSequence();
-					if (lastPosition < resourceInstanceSequence) {
-						lastPosition = resourceInstanceSequence;
-					}
-					if (newResourceInstancePos.equals(resourceInstance.getResourceInstanceId())) {
-						previousPosition = resourceInstanceSequence;
-						insertPosition = previousPosition + 1;
-					}
-				}
-
-				if (previousPosition != 0 && previousPosition == lastPosition) {
-					insertPosition = lastPosition + 1;
-				}
-
-				if (newResourceInstancePos.equals(FIRST)) {
-					// The resource is probably dragged into first position.
-					insertPosition = 1;
-				}
-
-				// Move sequence of all items beyond the target resource
-				// instance(inclusive) upwards
-				for (ResourceInstance segmentResourceAssoc : targetSegment.getResourceInstances()) {
-					int sequence = segmentResourceAssoc.getSequence();
-					if (sequence > insertPosition) {
-						segmentResourceAssoc.setSequence(sequence + 1);
-					}
-				}
-
-				resourceInstanceToMove.setSequence(insertPosition);
-				// update sequence of all items in the source
-
-				if (!targetSegment.equals(sourceSegment)) {
-					// Insert the resource instance (update segment)
-					resourceInstanceToMove.setSegment(targetSegment);
-					sourceSegment.getResourceInstances().remove(resourceInstanceToMove);
-					targetSegment.getResourceInstances().add(resourceInstanceToMove);
-				}
-				for (ResourceInstance resourceAssoc : sourceSegment.getResourceInstances()) {
-					int sequence = resourceAssoc.getSequence();
-					if (sequence > fromPosition) {
-						resourceAssoc.setSequence(sequence - 1);
-					}
-				}
-			}
-			CollectionServiceUtil.resetInstancesSequence(sourceSegment);
-			if (!targetSegment.getSegmentId().equals(sourceSegment.getSegmentId())) {
-				CollectionServiceUtil.resetInstancesSequence(targetSegment);
-			}
-			getResourceRepository().saveOrUpdate(resource);
-			return sourceSegment;
-		}
-		return null;
-	}
-
-	@Override
-	public void deleteSegmentResourceInstance(String resourceInstanceId) {
-
-		ResourceInstance resourceInstance = (ResourceInstance) getResourceRepository().get(ResourceInstance.class, resourceInstanceId);
-
-		if (resourceInstance == null) {
-			LOGGER.error("deleteSegmentResourceInstance: no resource found for : " + resourceInstanceId);
-		}else {
-			getResourceRepository().remove(ResourceInstance.class, resourceInstance.getResourceInstanceId());			
-		}
-
-	}
-
-	@Override
-	public Segment getSegment(String segmentId) {
-		if (segmentId != null && !segmentId.equals("")) {
-			return (Segment) getSegmentRepository().get(Segment.class, segmentId);
-		} else {
-			return null;
-		}
-	}
-
-	@Override
-	public void deleteSegment(String segmentId, Learnguide collection) {
-
-		getSegmentRepository().remove(Segment.class, segmentId);
-		CollectionServiceUtil.resetSegmentsSequence(collection);
-	}
-
-	@Override
-	public Long reorderSegments(String reorder, String gooruResourceId) throws Exception {
-		Resource resource = findResourceByContentGooruId(gooruResourceId);
-		String[] newArray = reorder.split("~~");
-		int startSeq = resource.getResourceSegments().size() - newArray.length + 1;
-		for (Segment segment : resource.getResourceSegments()) {
-			segment.setSequence(null);
-		}
-		for (int sequence = 0; sequence < newArray.length; sequence++) {
-			String segmentId = newArray[sequence];
-			for (Segment segment : resource.getResourceSegments()) {
-				if (segment.getSegmentId().equals(segmentId)) {
-					segment.setSequence(sequence + startSeq);
-					break;
-				}
-			}
-		}
-		startSeq = 0;
-		for (Segment segment : resource.getResourceSegments()) {
-			if (segment.getSequence() == null) {
-				segment.setSequence(++startSeq);
-			}
-		}
-		getSegmentRepository().save(resource);
-		return resource.getContentId();
-	}
-
-	@Override
-	public List<ResourceInstance> listResourceInstances(String gooruContentId, String type) {
-		return getSegmentRepository().listResourceInstances(gooruContentId, type);
-	}
-
-	@Override
-	public List<ResourceInstance> listSegmentResourceInstances(String segmentId) {
-		return getSegmentRepository().listSegmentResourceInstances(segmentId);
-	}
-
-	@Override
-	public ResourceInstance getFirstResourceInstanceOfResource(String gooruContentId) {
-		return getSegmentRepository().getFirstResourceInstanceOfResource(gooruContentId);
 	}
 
 	@Override
@@ -733,24 +488,14 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			try {
 				Thread.sleep(5000);
 			} catch (Exception ex) {
-				LOGGER.debug("error"+ex.getMessage());
+				LOGGER.debug("error" + ex.getMessage());
 			}
 		} while (resources != null && resources.size() > 0);
 	}
 
 	@Override
-	public int findViews(String contentGooruId) {
-		return getResourceRepository().findViews(contentGooruId);
-	}
-
-	@Override
 	public Textbook findTextbookByContentGooruId(String gooruContentId) {
 		return getResourceRepository().findTextbookByContentGooruId(gooruContentId);
-	}
-
-	@Override
-	public ResourceInstance getResourceInstance(String resourceInstanceId) {
-		return (ResourceInstance) getResourceRepository().get(ResourceInstance.class, resourceInstanceId);
 	}
 
 	@Override
@@ -780,7 +525,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			String resourceFilePath = resource.getOrganization().getNfsStorageArea().getInternalPath() + resource.getFolder() + File.separator + fileName;
 			boolean downloaded = ImageUtil.downloadAndSaveFile(sourceUrl, resourceFilePath);
 			if (!downloaded) {
-				throw new IOException(generateErrorMessage("GL0093",resource.getUrl()));
+				throw new IOException(generateErrorMessage("GL0093", resource.getUrl()));
 			}
 			this.getAsyncExecutor().uploadResourceFolder(resource);
 
@@ -867,7 +612,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				enrichAndAddOrUpdate(chapterResource);
 			}
 		}
-		indexHandler.setReIndexRequest(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);				
+		indexHandler.setReIndexRequest(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);
 
 		return resource;
 
@@ -922,7 +667,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 
 			if (saveResource) {
 				this.getResourceRepository().saveOrUpdate(existingResource);
-				indexHandler.setReIndexRequest(existingResource.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);						
+				indexHandler.setReIndexRequest(existingResource.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);
 			}
 		}
 		return existingResource;
@@ -980,12 +725,6 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			}
 		}
 		return domainName;
-	}
-
-	@Override
-	public ResourceInstance findResourceInstanceByContentGooruId(String gooruOid) {
-
-		return this.getResourceRepository().findResourceInstanceByContentGooruId(gooruOid);
 	}
 
 	private static List<String> splitToChaptersAndSaveFiles(String newLocalUrl) {
@@ -1071,75 +810,6 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	}
 
 	@Override
-	public void orderCollectionResourceInstances() {
-
-		List<String> segments = this.getResourceRepository().getUnorderedInstanceSegments();
-
-		if (segments != null && segments.size() > 0) {
-			for (String segmentId : segments) {
-
-				List<ResourceInstance> instances = this.getResourceRepository().getUnorderedInstances(segmentId);
-				if (instances != null) {
-						for (ResourceInstance instance : instances) {
-
-							for (ResourceInstance compareInstance : instances) {
-								if (!instance.getResourceInstanceId().equals(compareInstance.getResourceInstanceId()) && instance.getSequence().equals(compareInstance.getSequence())) {
-										compareInstance.setSequence(compareInstance.getSequence() + 1);
-								}
-							}
-
-						}
-				}
-				this.getResourceRepository().saveAll(instances);
-			}
-		}
-	}
-
-	@Override
-	public void deleteResourceFromGAT(String gooruContentId, boolean isThirdPartyUser, User apiCaller, boolean isMycontent) {
-		Resource resource = this.getResourceRepository().findResourceByContentGooruId(gooruContentId);
-		rejectIfNull(resource, GL0056, RESOURCE);
-		Content content = this.contentRepository.findContentByGooruId(resource.getGooruOid());
-		if (resource != null && isThirdPartyUser && apiCaller != null) {
-			if (isMycontent) {
-				UserContentRelationshipUtil.deleteUserContentRelationship(content, apiCaller, RELATIONSHIP.CREATE);
-			}
-			if (resource != null && resource.getUser().getGooruUId().equalsIgnoreCase(apiCaller.getGooruUId()) && resource.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing())) {
-				User user = this.getUserRepository().findByGooruId(configSettingRepository.getConfigSetting(DEFAULT_ADMIN_USER, 0, apiCaller.getOrganization().getPartyUid()));
-				resource.setUser(user);
-				this.getResourceRepository().saveOrUpdate(resource);
-			}
-
-			List<Learnguide> collectionList = this.getLearnguideRepository().findByResource(resource.getGooruOid(), Sharing.PRIVATE.getSharing());
-			if (collectionList != null && collectionList.size() > 0) {
-				List<ResourceInstance> instanceList = new ArrayList<ResourceInstance>();
-				Set<ResourceInstance> resourceInstanceList = null;
-				Set<Segment> segments = null;
-				for (Learnguide learnguide : collectionList) {
-					segments = learnguide.getResourceSegments();
-					for (Segment segment : segments) {
-						resourceInstanceList = segment.getResourceInstances();
-						for (ResourceInstance resourceInstance : resourceInstanceList) {
-							if (resourceInstance.getResource() != null) {
-								if (resourceInstance.getResource().getGooruOid().equals(resource.getGooruOid())) {
-									instanceList.add(resourceInstance);
-								}
-							}
-						}
-					}
-				}
-				if (instanceList.size() > 0) {
-					this.getResourceRepository().removeAll(instanceList);
-				}
-			}
-
-		} else {
-			deleteResource(resource);
-		}
-
-	}
-
-	@Override
 	public Resource saveResource(Resource resource, Errors errors, boolean findByURL) {
 		if (resource.getUser() == null) {
 			errors.reject(USER, "User is required");
@@ -1176,7 +846,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	public String updateResourceImage(String gooruContentId, String fileName) throws IOException {
 
 		Resource resource = this.getResourceRepository().findResourceByContentGooruId(gooruContentId);
-		if(resource == null) {
+		if (resource == null) {
 			throw new NotFoundException(generateErrorMessage("GL0056", RESOURCE), GL0056);
 		}
 		this.getResourceImageUtil().moveFileAndSendMsgToGenerateThumbnails(resource, fileName, true);
@@ -1187,8 +857,6 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		}
 		return resource.getOrganization().getNfsStorageArea().getAreaPath() + resource.getFolder() + "/" + resource.getThumbnail();
 	}
-
-
 
 	@Override
 	public void deleteResourceImage(String gooruContentId) {
@@ -1210,16 +878,16 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 
 			resource.setThumbnail(null);
 			this.getResourceRepository().save(resource);
-			indexHandler.setReIndexRequest(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);					
+			indexHandler.setReIndexRequest(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);
 		}
 	}
 
 	@Override
 	public void deleteResourceBulk(String contentIds) {
 		this.getResourceRepository().deleteResourceBulk(contentIds);
-		indexHandler.setReIndexRequest(contentIds, IndexProcessor.DELETE, RESOURCE, null, false, false);				
+		indexHandler.setReIndexRequest(contentIds, IndexProcessor.DELETE, RESOURCE, null, false, false);
 	}
-	
+
 	@Override
 	public void deleteBulkResource(String contentIds) {
 		List<Resource> resources = resourceRepository.findAllResourcesByGooruOId(contentIds);
@@ -1237,556 +905,13 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			}
 			if (removeList.size() > 0) {
 				this.baseRepository.removeAll(removeList);
-				indexHandler.setReIndexRequest(removeContentIds, IndexProcessor.DELETE, RESOURCE, null, false, false);						
-			}
-		}
-	}
-
-	@Override
-	public void updateResourceInstanceMetaData(Resource resource, User user) {
-		List<ResourceInstance> resourceInstanceList = null;
-		if ((resource.getSharing() != null && resource.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing()))) {
-			resourceInstanceList = this.getResourceRepository().findResourceInstances(resource.getGooruOid(), null);
-		} else {
-			resourceInstanceList = this.getResourceRepository().findResourceInstances(resource.getGooruOid(), resource.getUser().getGooruUId());
-		}
-		for (ResourceInstance resourceInstances : resourceInstanceList) {
-			if (resource.getTitle() != null) {
-				resourceInstances.setTitle(resource.getTitle());
-			}
-			if (resource.getDescription() != null) {
-				resourceInstances.setDescription(resource.getDescription());
-				resource.setDescription(resource.getDescription());
-			}
-			resourceInstances.setResource(resource);
-
-		}
-		this.getBaseRepository().saveAll(resourceInstanceList);
-	}
-
-	@Override
-	public ResourceInstance buildResourceInstance(Map<String, Object> resourceParam, Map<String, Object> formField) throws Exception {
-		ResourceInstance resourceInstance = null;
-		if (resourceParam.get(GOORU_CONTENT_ID) != null) {
-			if (resourceParam.get(RESOURCE_URL) != null) {
-
-				if (shortenedUrlResourceCheck((String) resourceParam.get(RESOURCE_URL))) {
-					throw new Exception(generateErrorMessage("GL0094"));
-				}
-			}
-			ResourceSource resourceSource = null;
-			Resource resource = null;
-			String domainName = null;
-			if (resourceParam.get(GOORU_CONTENT_ID) != null) {
-				domainName = getDomainName((String) resourceParam.get(RESOURCE_URL));
-				resourceSource = this.getResourceRepository().findResourceSource(domainName);
-				if ((resourceSource != null) && (resourceSource.getIsBlacklisted() == 1)) {
-					throw new Exception(generateErrorMessage("GL0095"));
-				}
-			}
-
-			Learnguide collection = this.getLearnguideRepository().findByContent((String) resourceParam.get(GOORU_CONTENT_ID));
-			getResourceRepository().save(collection);
-			if (collection != null) {
-				User user = resourceParam.get(USER) != null ? (User) resourceParam.get(USER) : null;
-				if (collectionUtil.hasCollaboratorPermission(collection, user) || (collection.getUser() != null && collection.getUser().getGooruUId().equalsIgnoreCase(user.getGooruUId())) || hasUnrestrictedContentAccess(user)) {
-					this.getSessionActivityService().updateSessionActivityByContent(collection.getGooruOid(), SessionActivityType.Status.ARCHIVE.getStatus());
-
-					final String resourceTypeName = this.getResourceType(resourceParam.get(RESOURCE_TYPE).toString().trim()).getName();
-					String resourceUrl = resourceParam.get(RESOURCE_URL) != null ? resourceParam.get(RESOURCE_URL).toString().trim() : "";
-					String category = resourceParam.get(CATEGORY) != null ? resourceParam.get(CATEGORY).toString().trim() : null;
-					boolean uploadedResource = !(resourceTypeName.equals(ResourceType.Type.VIDEO.getType()) || resourceTypeName.equals(ResourceType.Type.RESOURCE.getType()));
-					boolean reusedResource = (resourceParam.get(REUSED) != null && (resourceParam.get(REUSED).toString().equalsIgnoreCase(SUGGEST) || resourceParam.get(REUSED).toString().equalsIgnoreCase(MY)));
-					byte[] data = null;
-					FileMeta fileMeta = null;
-					boolean isUpdateTextbook = false;
-					String fileHash = null;
-					boolean hasNewResource = false;
-					String resourceInstanceId = resourceParam.get(RESOURCE_INSTANCE_ID) != null ? resourceParam.get(RESOURCE_INSTANCE_ID).toString() : null;
-					String updateNarrative = resourceParam.get(UPDATE_NARRATIVE) != null ? resourceParam.get(UPDATE_NARRATIVE).toString() : null;
-					if (resourceParam.get(RESOURCE_INSTANCE_ID) != null && reusedResource) {
-						resource = this.findResourceByContentGooruId((String) resourceParam.get(RESOURCE_INSTANCE_ID));
-					} else {
-						if (resourceInstanceId != null) {
-							resourceInstance = this.getResourceInstance((String) resourceParam.get(RESOURCE_INSTANCE_ID));
-							if (resourceInstance != null) {
-								if (resourceTypeName.equals(ResourceType.Type.TEXTBOOK.getType())) {
-									resource = getResourceRepository().findTextbookByContentGooruId(resourceInstance.getResource().getGooruOid());
-									if (resource == null) {
-										resource = getResourceRepository().findResourceByContentGooruId(resourceInstance.getResource().getGooruOid());
-										if (resource != null) {
-											ResourceType resourceType = new ResourceType();
-											resourceType.setName(resourceTypeName);
-											resource.setResourceType(resourceType);
-
-											// Save textbook
-											resourceRepository.saveTextBook(resource.getContentId(), "", "");
-											Textbook textbook = resourceRepository.findTextbookByContentGooruIdWithNewSession(resource.getGooruOid());
-											if (textbook != null) {
-												textbook.setDocumentKey("");
-												resourceRepository.save(textbook);
-											}
-											isUpdateTextbook = true;
-										}
-									}
-								} else {
-									resource = getResourceRepository().findResourceByContentGooruId(resourceInstance.getResource().getGooruOid());
-								}
-							}
-						} else {
-							if (!resourceUrl.isEmpty() && (resourceTypeName.equalsIgnoreCase(ResourceType.Type.VIDEO.getType()) || resourceTypeName.equalsIgnoreCase(ResourceType.Type.RESOURCE.getType()))) {
-								resource = this.getResourceRepository().findResourceByUrl(resourceUrl, Sharing.PUBLIC.getSharing(), null);
-								if (resource == null) {
-									resource = this.getResourceRepository().findResourceByUrl(resourceUrl, Sharing.PRIVATE.getSharing(), user.getGooruUId());
-								}
-							}
-						}
-					}
-					Segment segment = (Segment) this.getResourceRepository().get(Segment.class, (String) resourceParam.get(SEGMENT_ID));
-					if (resource == null) {
-						if (!reusedResource && uploadedResource) {
-							fileMeta = FileProcessor.extractFileData((HttpServletRequest) resourceParam.get(REQUEST), formField, UserGroupSupport.getUserOrganizationNfsInternalPath());
-							if (fileMeta != null) {
-								data = fileMeta.getFileData();
-								resourceUrl = fileMeta.getOriginalFilename();
-							}
-						}
-						fileHash = BaseUtil.getByteMD5Hash(data);
-						if (fileHash != null) {
-							resource = getResourceRepository().findByFileHash(fileHash, resourceTypeName, resourceUrl, category);
-						}
-					}
-					if (!updateNarrative.equalsIgnoreCase(ONE) && resourceInstanceId != null && resource != null && resource.getSharing() != null && resource.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing()) && !reusedResource) {
-						throw new AccessDeniedException(generateErrorMessage("GL0096"));
-					}
-					String sharing = collection.getSharing();
-					String resourceTitle = resourceParam.get(RESOURCE_TITLE) != null ? resourceParam.get(RESOURCE_TITLE).toString() : "";
-					resourceTitle = resourceTitle.length() > 1000 ? resourceTitle.substring(0, 1000) : resourceTitle;
-					String description = resourceParam.get(DESCRIPTION) != null ? resourceParam.get(DESCRIPTION).toString() : "";
-					String start = resourceParam.get(START) != null ? resourceParam.get(START).toString().trim() : null;
-					String stop = resourceParam.get(STOP) != null ? resourceParam.get(STOP).toString().trim() : null;
-					String narrative = resourceParam.get(NARRATIVE) != null ? resourceParam.get(NARRATIVE).toString().trim() : null;
-					String thumbnailImgSrc = resourceParam.get(THUMBNAIL_IMG_SRC) != null ? resourceParam.get(THUMBNAIL_IMG_SRC).toString().trim() : null;
-					resourceSource = null;
-					if (resource == null) {
-						hasNewResource = true;
-						if (resourceTypeName.equals(ResourceType.Type.TEXTBOOK.getType())) {
-							resource = new Textbook();
-							((Textbook) resource).setDocumentId("");
-							((Textbook) resource).setDocumentKey("");
-						} else {
-							resource = new Resource();
-						}
-						resource.setGooruOid(UUID.randomUUID().toString());
-						resource.setUser(user);
-						License license = new License();
-						license.setName(OTHER);
-						resource.setLicense(license);
-						resource.setRecordSource(Resource.RecordSource.COLLECTION.getRecordSource());
-						ResourceType resourceType = new ResourceType();
-						resourceType.setName(resourceTypeName);
-						resource.setResourceType(resourceType);
-						resource.setUrl(resourceUrl);
-						domainName = getDomainName((String) resourceParam.get(RESOURCE_URL));
-						resourceSource = this.getResourceRepository().findResourceSource(domainName);
-						if (resourceSource != null && resourceSource.getFrameBreaker() != null && resourceSource.getFrameBreaker() == 1) {
-							resource.setHasFrameBreaker(true);
-						} else {
-							resource.setHasFrameBreaker(false);
-						}
-
-					}
-					if (resourceInstance == null) {
-						resourceInstance = new ResourceInstance(segment, resource);
-						resourceInstance.setResourceInstanceId(UUID.randomUUID().toString());
-					}
-					if (reusedResource) {
-						resourceTitle = StringUtils.defaultIfEmpty(resourceTitle, resource.getTitle());
-						description = StringUtils.defaultIfEmpty(description, resource.getDescription());
-					}
-					if (!updateNarrative.equalsIgnoreCase(ONE) && (resource.getSharing() == null || !resource.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing()))) {
-						if (!resourceTitle.isEmpty()) {
-							resource.setTitle(resourceTitle);
-						}
-						if (!description.isEmpty()) {
-							resource.setDescription(description);
-						}
-						if (category != null) {
-							resource.setCategory(category);
-						}
-						SessionContextSupport.putLogParameter("sharing-" + resource.getGooruOid(), resource.getSharing() + " to " + sharing);
-						resource.setSharing(sharing);
-					}
-					if (resource != null && resource.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing())) {
-						resourceTitle = resource.getTitle();
-						description = resource.getDescription();
-					}
-					if (resourceTitle != null && !resourceTitle.isEmpty()) {
-						resourceInstance.setTitle(resourceTitle);
-					}
-					if (description != null && !description.isEmpty()) {
-						resourceInstance.setDescription(description);
-					}
-					if (start != null) {
-						resourceInstance.setStart(start);
-					}
-					if (stop != null) {
-						resourceInstance.setStop(stop);
-					}
-					if (updateNarrative.equalsIgnoreCase(ONE)) {
-						resourceInstance.setNarrative(narrative);
-					}
-					Set<Code> taxonomyCode = new HashSet<Code>();
-					Iterator<Code> iter = collection.getTaxonomySet().iterator();
-					while (iter.hasNext()) {
-						Code code = iter.next();
-						taxonomyCode.add(code);
-					}
-					// Add original resource taxonomy set as well to resource.
-					// If a resource
-					// is used in two different collections, taxonomy of
-					// both collections would apply to resource
-					Set<Code> originalTaxonomySet = resource.getTaxonomySet();
-					if (originalTaxonomySet != null) {
-						taxonomyCode.addAll(originalTaxonomySet);
-					}
-					resource.setTaxonomySet(taxonomyCode);
-					CollectionServiceUtil.resetInstancesSequence(segment);
-					this.getResourceRepository().save(segment);
-					if (resourceInstance.getSequence() == null) {
-						resourceInstance.setSequence(segment.getResourceInstances().size() + 1);
-					}
-					this.saveResourceInstance(resourceInstance);
-					this.updateResourceInstanceMetaData(resource, user);
-
-					// Check if the resource has files
-					String resourceFolderPath = resource.getOrganization().getNfsStorageArea().getInternalPath() + resource.getFolder();
-					String resourceFilePath = resourceFolderPath + resource.getUrl();
-					if (!new File(resourceFilePath).exists() && data != null && data.length > 0 && fileMeta != null) {
-						resource.setFileData(data);
-						resource.setUrl(fileMeta.getOriginalFilename());
-						if (resource.getFileHash() == null && uploadedResource) {
-							resource.setFileHash(fileHash);
-						}
-						this.getResourceManager().saveResource(resource);
-						this.getResourceRepository().save(resource);
-						this.getAsyncExecutor().uploadResourceFile(resource, resource.getUrl());
-					}
-					this.saveResourceInstance(resourceInstance);
-
-					// insert resource url status for new resource
-					if (hasNewResource) {
-						ResourceUrlStatus urlStatus = new ResourceUrlStatus();
-						urlStatus.setResource(resource);
-						this.getResourceRepository().save(urlStatus);
-					}
-
-					updateYoutubeResourceFeeds(resource, false);
-
-					// update or insert thumbnail
-					if (!reusedResource && (sharing != null && !sharing.equalsIgnoreCase(Sharing.PUBLIC.getSharing())) || hasUnrestrictedContentAccess(user) && thumbnailImgSrc != null && thumbnailImgSrc.length() > 0) {
-								this.getResourceImageUtil().downloadAndSendMsgToGenerateThumbnails(resourceInstance.getResource(), thumbnailImgSrc);
-					}
-					this.getResourceImageUtil().setDefaultThumbnailImageIfFileNotExist(resource);
-					this.mapSourceToResource(resource);
-
-					if (resourceTypeName.equals(ResourceType.Type.HANDOUTS.getType()) || resourceTypeName.equals(ResourceType.Type.EXAM.getType()) || resourceTypeName.equals(ResourceType.Type.PRESENTATION.getType())) {
-						Map<String, Object> param = new HashMap<String, Object>();
-						param.put(RESOURCE_FILE_PATH, resourceFilePath);
-						param.put(RESOURCE_GOORU_OID, resource.getGooruOid());
-						RequestUtil.executeRestAPI(param, settingService.getConfigSetting(ConfigConstants.GOORU_CONVERSION_RESTPOINT, 0, TaxonomyUtil.GOORU_ORG_UID) + "/conversion/pdf-to-image", Method.POST.getName());
-
-					} else if (resourceTypeName.equals(ResourceType.Type.TEXTBOOK.getType()) && (!isUpdateTextbook && StringUtils.isEmpty(((Textbook) resource).getDocumentId()))) {
-						Map<String, String> keys = this.getResourceManager().saveScridbDocument(this.getSettingService().getConfigSetting(ConfigConstants.SCRIBD_API_KEY, 0, resource.getOrganization().getPartyUid()),
-								this.getSettingService().getConfigSetting(ConfigConstants.TEXTBOOK_DOCUMENT, 0, resource.getOrganization().getPartyUid()));
-						((Textbook) resource).setDocumentId(keys.get(DOCUMENT__ID));
-						((Textbook) resource).setDocumentKey(keys.get(DOCUMENT_KEY));
-						Map<String, Object> param = new HashMap<String, Object>();
-						param.put(SCRIBD_API_KEY, this.getSettingService().getConfigSetting(ConfigConstants.SCRIBD_API_KEY, 0, resource.getOrganization().getPartyUid()));
-						param.put(DOC_KEY, keys.get(DOCUMENT__ID));
-						param.put(THUMBNAIL, resource.getThumbnail());
-						param.put(RESOURCE_FILE_PATH, resourceFilePath);
-						param.put(RESOURCE_GOORU_OID, resource.getGooruOid());
-						RequestUtil.executeRestAPI(param, settingService.getConfigSetting(ConfigConstants.GOORU_CONVERSION_RESTPOINT, 0, TaxonomyUtil.GOORU_ORG_UID) + "/conversion/textbook/upload", Method.POST.getName());
-					}
-
-					// Give permission to the collaborators of this collection
-					// to access this resource.
-					if (resourceInstanceId == null) {
-						updateCollaborators(collection, resource, user);
-					}
-					if (resource != null && resource.getContentId() != null) {
-						indexHandler.setReIndexRequest(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);								
-					}
-					indexHandler.setReIndexRequest(collection.getGooruOid(), IndexProcessor.INDEX, COLLECTION, null, false, false);					
-
-					// Remove the collection from cache
-					this.getCollectionUtil().deleteCollectionFromCache(collection.getGooruOid(), COLLECTION);
-
-
-				} else {
-					throw new AccessDeniedException(generateErrorMessage("GL0097"));
-				}
-			} else {
-				throw new NotFoundException(generateErrorMessage("GL0098"));
-			}
-
-		}
-		return resourceInstance;
-	}
-
-	@Override
-	public Resource buildMyContent(Map<String, Object> resourceParam, Map<String, Object> formField) throws Exception {
-		Resource resource = null;
-		User user = resourceParam.get(USER) != null ? (User) resourceParam.get(USER) : null;
-		final String resourceTypeName = this.getResourceType(resourceParam.get(RESOURCE_TYPE).toString().trim()).getName();
-		String resourceUrl = resourceParam.get(RESOURCE_URL) != null ? resourceParam.get(RESOURCE_URL).toString().trim() : "";
-		String category = resourceParam.get(CATEGORY) != null ? resourceParam.get(CATEGORY).toString().trim() : null;
-		boolean uploadedResource = !(resourceTypeName.equals(ResourceType.Type.VIDEO.getType()) || resourceTypeName.equals(ResourceType.Type.RESOURCE.getType()));
-		boolean reusedResource = (resourceParam.get(REUSED_RESOURCE_ID) != null);
-		byte[] data = null;
-		FileMeta fileMeta = null;
-		String fileHash = null;
-		boolean hasNewResource = false;
-		String newLicense = resourceParam.get(LICENSE) != null ? resourceParam.get(LICENSE).toString().trim() : null;
-		String batchId = resourceParam.get(BATCH_ID) != null ? resourceParam.get(BATCH_ID).toString().trim() : null;
-		String sharing = resourceParam.get(SHARING) != null ? resourceParam.get(SHARING).toString().trim() : null;
-		String updateNarrative = resourceParam.get(UPDATE_NARRATIVE) != null ? resourceParam.get(UPDATE_NARRATIVE).toString() : null;
-		if (resourceParam.get(REUSED_RESOURCE_ID) != null && reusedResource) {
-			resource = this.findResourceByContentGooruId((String) resourceParam.get(REUSED_RESOURCE_ID));
-		}
-		if (resource != null) {
-			if (resourceTypeName.equals(ResourceType.Type.TEXTBOOK.getType())) {
-				resource = getResourceRepository().findTextbookByContentGooruId(resource.getGooruOid());
-				if (resource == null) {
-					resource = getResourceRepository().findResourceByContentGooruId((String) resourceParam.get(REUSED_RESOURCE_ID));
-					if (resource != null) {
-						ResourceType resourceType = new ResourceType();
-						resourceType.setName(resourceTypeName);
-						resource.setResourceType(resourceType);
-
-						// Save textbook
-						resourceRepository.saveTextBook(resource.getContentId(), "", "");
-						Textbook textbook = resourceRepository.findTextbookByContentGooruIdWithNewSession(resource.getGooruOid());
-						if (textbook != null) {
-							textbook.setDocumentKey("");
-							resourceRepository.save(textbook);
-						}
-					}
-				}
-			}
-
-		} else {
-			if (!resourceUrl.isEmpty() && (resourceTypeName.equalsIgnoreCase(ResourceType.Type.VIDEO.getType()) || resourceTypeName.equalsIgnoreCase(ResourceType.Type.RESOURCE.getType()))) {
-				resource = this.getResourceRepository().findResourceByUrl(resourceUrl, Sharing.PUBLIC.getSharing(), user.getGooruUId());
-				if (resource == null) {
-					resource = this.getResourceRepository().findResourceByUrl(resourceUrl, Sharing.PRIVATE.getSharing(), user.getGooruUId());
-				}
-			}
-		}
-		if (resource == null) {
-			if (uploadedResource) {
-				fileMeta = FileProcessor.extractFileData((HttpServletRequest) resourceParam.get(REQUEST), formField, UserGroupSupport.getUserOrganizationNfsInternalPath());
-				if (fileMeta != null) {
-					data = fileMeta.getFileData();
-					resourceUrl = fileMeta.getOriginalFilename();
-				}
-			}
-			fileHash = BaseUtil.getByteMD5Hash(data);
-			if (fileHash != null) {
-				resource = getResourceRepository().findByFileHash(fileHash, resourceTypeName, resourceUrl, category);
-			}
-		}
-		String resourceTitle = resourceParam.get(RESOURCE_TITLE) != null ? resourceParam.get(RESOURCE_TITLE).toString() : "";
-		resourceTitle = resourceTitle.length() > 1000 ? resourceTitle.substring(0, 1000) : resourceTitle;
-		String description = resourceParam.get(DESCRIPTION) != null ? resourceParam.get(DESCRIPTION).toString() : "";
-		String thumbnailImgSrc = resourceParam.get(THUMBNAIL_IMG_SRC) != null ? resourceParam.get(THUMBNAIL_IMG_SRC).toString().trim() : null;
-		if (resource == null) {
-			hasNewResource = true;
-			if (resourceTypeName.equals(ResourceType.Type.TEXTBOOK.getType())) {
-				resource = new Textbook();
-				((Textbook) resource).setDocumentId("");
-				((Textbook) resource).setDocumentKey("");
-			} else {
-				resource = new Resource();
-			}
-			resource.setGooruOid(UUID.randomUUID().toString());
-			resource.setUser(user);
-			resource.setRecordSource(Resource.RecordSource.COLLECTION.getRecordSource());
-			ResourceType resourceType = new ResourceType();
-			resourceType.setName(resourceTypeName);
-			resource.setResourceType(resourceType);
-			resource.setUrl(resourceUrl);
-		}
-		if (!updateNarrative.equalsIgnoreCase("1") && (resource.getSharing() == null || !resource.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing()))) {
-			if (!resourceTitle.isEmpty()) {
-				resource.setTitle(resourceTitle);
-			}
-			if (description != null && !description.isEmpty()) {
-				resource.setDescription(description);
-			}
-			SessionContextSupport.putLogParameter("sharing-" + resource.getGooruOid(), resource.getSharing() + " to " + sharing);
-			resource.setSharing(sharing);
-		}
-		if (category != null) {
-			resource.setCategory(category);
-		}
-		if (resource != null && resource.getSharing() != null && resource.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing())) {
-			resourceTitle = resource.getTitle();
-			description = resource.getDescription();
-		}
-		if (resourceTitle != null && !resourceTitle.isEmpty()) {
-			resource.setTitle(resourceTitle);
-		}
-		if (description != null && !description.isEmpty()) {
-			resource.setDescription(description);
-		}
-		if (sharing != null && (sharing.equalsIgnoreCase(Sharing.PUBLIC.getSharing()) || sharing.equalsIgnoreCase(Sharing.PRIVATE.getSharing()))) {
-			resource.setSharing(sharing);
-		}
-		if (batchId != null) {
-			resource.setBatchId(batchId);
-		}
-		License license = null;
-		if (newLicense == null) {
-			license = new License();
-			license.setName(OTHER);
-			resource.setLicense(license);			
-		} else {
-			license = new License();
-			license.setName(newLicense);
-			resource.setLicense(license);
-		}
-		Errors errors = new BindException(Resource.class, RESOURCE);
-		this.saveResource(resource, errors, hasNewResource);
-		this.updateResourceInstanceMetaData(resource, user);
-
-		// Check if the resource has files
-		String resourceFolderPath = resource.getOrganization().getNfsStorageArea().getInternalPath() + resource.getFolder();
-		String resourceFilePath = resourceFolderPath + resource.getUrl();
-		if (!new File(resourceFilePath).exists() && data != null && data.length > 0 && fileMeta != null) {
-			resource.setFileData(data);
-			resource.setUrl(fileMeta.getOriginalFilename());
-			if (resource.getFileHash() == null && uploadedResource) {
-				resource.setFileHash(fileHash);
-			}
-			this.getResourceManager().saveResource(resource);
-			this.getResourceRepository().save(resource);
-			this.getAsyncExecutor().uploadResourceFile(resource, resource.getUrl());
-		}
-
-		// update or insert thumbnail
-		if (!reusedResource) {
-			if ((sharing != null && !sharing.equalsIgnoreCase(Sharing.PUBLIC.getSharing())) || hasUnrestrictedContentAccess(user)) {
-				if (thumbnailImgSrc != null && thumbnailImgSrc.length() > 0) {
-					this.getResourceImageUtil().downloadAndSendMsgToGenerateThumbnails(resource, thumbnailImgSrc);
-				}
-			}
-		}
-		this.getResourceImageUtil().setDefaultThumbnailImageIfFileNotExist(resource);
-		this.mapSourceToResource(resource);
-
-		if (resourceTypeName.equals(ResourceType.Type.HANDOUTS.getType()) || resourceTypeName.equals(ResourceType.Type.EXAM.getType()) || resourceTypeName.equals(ResourceType.Type.PRESENTATION.getType())) {
-			Map<String, Object> param = new HashMap<String, Object>();
-			param.put(RESOURCE_FILE_PATH, resourceFilePath);
-			param.put(RESOURCE_GOORU_OID, resource.getGooruOid());
-			RequestUtil.executeRestAPI(param, settingService.getConfigSetting(ConfigConstants.GOORU_CONVERSION_RESTPOINT, 0, TaxonomyUtil.GOORU_ORG_UID) + "/conversion/pdf-to-image", Method.POST.getName());
-
-		} else if (resourceTypeName.equals(ResourceType.Type.TEXTBOOK.getType()) && StringUtils.isEmpty(((Textbook) resource).getDocumentId())) {
-			Map<String, String> keys = this.getResourceManager().saveScridbDocument(this.getSettingService().getConfigSetting(ConfigConstants.SCRIBD_API_KEY, 0, resource.getOrganization().getPartyUid()),
-					this.getSettingService().getConfigSetting(ConfigConstants.TEXTBOOK_DOCUMENT, 0, resource.getOrganization().getPartyUid()));
-			((Textbook) resource).setDocumentId(keys.get(DOCUMENT__ID));
-			((Textbook) resource).setDocumentKey(keys.get(DOCUMENT_KEY));
-			Map<String, Object> param = new HashMap<String, Object>();
-			param.put(SCRIBD_API_KEY, this.getSettingService().getConfigSetting(ConfigConstants.SCRIBD_API_KEY, 0, resource.getOrganization().getPartyUid()));
-			param.put(DOC_KEY, keys.get(DOCUMENT__ID));
-			param.put(THUMBNAIL, resource.getThumbnail());
-			param.put(RESOURCE_FILE_PATH, resourceFilePath);
-			param.put(RESOURCE_GOORU_OID, resource.getGooruOid());
-			RequestUtil.executeRestAPI(param, settingService.getConfigSetting(ConfigConstants.GOORU_CONVERSION_RESTPOINT, 0, TaxonomyUtil.GOORU_ORG_UID) + "/conversion/textbook/upload", Method.POST.getName());
-		}
-
-		// Give permission to the collaborators of this collection
-		// to access this resource.
-		if (resource != null && resource.getContentId() != null) {
-			indexHandler.setReIndexRequest(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);					
-		}
-
-		return resource;
-	}
-
-	@Override
-	public void replaceDuplicatePrivateResourceWithPublicResource(Resource resource) {
-		if (resource.getResourceType() != null && (resource.getResourceType().getName().equalsIgnoreCase(ResourceType.Type.VIDEO.getType()) || resource.getResourceType().getName().equalsIgnoreCase(ResourceType.Type.RESOURCE.getType()))) {
-			if (resource.getSharing() != null && resource.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing())) {
-				List<Resource> resourceDuplicate = this.getResourceRepository().getResourceListByUrl(resource.getUrl(), Sharing.PRIVATE.getSharing(), null);
-				if (resourceDuplicate != null) {
-					for (Resource duplicateResource : resourceDuplicate) {
-						List<ResourceInstance> resourceInstances = this.getResourceRepository().findResourceInstances(duplicateResource.getGooruOid(), null);
-						for (ResourceInstance resourceInstance : resourceInstances) {
-							resourceInstance.setResource(resource);
-						}
-						this.getResourceRepository().saveAll(resourceInstances);
-						indexHandler.setReIndexRequest(duplicateResource.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);								
-						this.getResourceRepository().remove(Resource.class, duplicateResource.getContentId());
-					}
-				}
-			}
-		}
-	}
-
-	@Override
-	public void setDefaultThumbnail(String contentType, int batchSize, int pageSize) {
-		if (contentType != null && contentType.equalsIgnoreCase(COLLECTION)) {
-			Map<String, String> filters = new HashMap<String, String>();
-			int totalPages, recordsPerPage = batchSize;
-			totalPages = pageSize / recordsPerPage;
-			for (int page = 1; page < totalPages; page++) {
-				LOGGER.info("Collection default thumbnail" + page + " of " + totalPages);
-				filters.put(PAGE_NUM, page + "");
-				filters.put(PAGE_SIZE, recordsPerPage + "");
-				List<Learnguide> collectionList = this.getLearnguideRepository().listAllCollectionsWithoutGroups(filters);
-				if (collectionList != null && collectionList.size() > 0) {
-					for (Learnguide collection : collectionList) {
-						this.getResourceImageUtil().setDefaultThumbnailImageIfFileNotExist((Resource) collection);
-					}
-				}
-			}
-		} else if (contentType != null && contentType.equalsIgnoreCase(QUIZ)) {
-			Map<String, String> filters = new HashMap<String, String>();
-			int totalPages, recordsPerPage = batchSize;
-			totalPages = pageSize / recordsPerPage;
-			for (int page = 1; page < totalPages; page++) {
-				LOGGER.info("quiz default thumbnail" + page + " of " + totalPages);
-				filters.put(PAGE_NUM, page + "");
-				filters.put(PAGE_SIZE, recordsPerPage + "");
-				List<Assessment> assessments = this.getAssessmentRepository().listAllQuizsWithoutGroups(filters);
-				for (Assessment quiz : assessments) {
-					this.getResourceImageUtil().setDefaultThumbnailImageIfFileNotExist((Resource) quiz);
-				}
-			}
-		} else if (contentType != null && contentType.equalsIgnoreCase(RESOURCE)) {
-			Map<String, String> filters = new HashMap<String, String>();
-			int totalPages, recordsPerPage = batchSize;
-			totalPages = pageSize / recordsPerPage;
-			for (int page = 1; page < totalPages; page++) {
-				LOGGER.info("resource default thumbnail" + page + " of " + totalPages);
-				filters.put(PAGE_NUM, page + "");
-				filters.put(PAGE_SIZE, recordsPerPage + "");
-				List<Resource> resourceList = this.getResourceRepository().listAllResourceWithoutGroups(filters);
-				for (Resource resource : resourceList) {
-					this.getResourceImageUtil().setDefaultThumbnailImageIfFileNotExist(resource);
-				}
+				indexHandler.setReIndexRequest(removeContentIds, IndexProcessor.DELETE, RESOURCE, null, false, false);
 			}
 		}
 	}
 
 	public ResourceRepository getResourceRepository() {
 		return resourceRepository;
-	}
-
-	public SegmentRepository getSegmentRepository() {
-		return segmentRepository;
 	}
 
 	public ResourceParser getResourceParser() {
@@ -1803,10 +928,6 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 
 	public IndexProcessor getIndexerMessenger() {
 		return indexProcessor;
-	}
-
-	public LearnguideRepository getLearnguideRepository() {
-		return learnguideRepository;
 	}
 
 	public CollectionUtil getCollectionUtil() {
@@ -1842,12 +963,6 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	}
 
 	@Override
-	public void incrementViews(String contentGooruId) {
-		resourceRepository.incrementViews(contentGooruId);
-
-	}
-
-	@Override
 	public ResourceSource updateSuggestAttribution(String gooruContentId, String attribution) {
 
 		ResourceSource resourceSource = (ResourceSource) this.getBaseRepository().get(ResourceSource.class, contentRepository.findByContentGooruId(gooruContentId).getContentId());
@@ -1868,12 +983,23 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			List<org.ednovo.gooru.core.api.model.Collection> collections = getCollectionRepository().getCollectionByResourceOid(gooruContentId);
 			for (org.ednovo.gooru.core.api.model.Collection collection : collections) {
 				collection.setLastModified(new Date(System.currentTimeMillis()));
+				List<CollectionItem> collectionitems = this.getCollectionRepository().getCollectionItemsByResource(collection.getGooruOid());
+				for (CollectionItem collectionItem : collectionitems) {
+					List<CollectionItem> resetCollectionItems = this.getCollectionRepository().getResetSequenceCollectionItems(collectionItem.getCollection().getGooruOid(), collectionItem.getItemSequence());
+					int itemSequence = collectionItem.getItemSequence();
+					for (CollectionItem resetCollectionItem : resetCollectionItems) {
+						resetCollectionItem.setItemSequence(itemSequence++);
+					}
+					this.getCollectionRepository().saveAll(resetCollectionItems);
+				}
+				getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collection.getUser().getPartyUid() + "*");
 			}
+
 			this.getCollectionRepository().saveAll(collections);
 			if ((resource.getUser() != null && resource.getUser().getPartyUid().equalsIgnoreCase(apiCaller.getPartyUid())) || getUserService().isContentAdmin(apiCaller)) {
 				this.getContentService().deleteContentTagAssoc(resource.getGooruOid(), apiCaller);
 				this.getBaseRepository().remove(resource);
-				indexHandler.setReIndexRequest(gooruContentId, IndexProcessor.DELETE, RESOURCE, null, false, false);						
+				indexHandler.setReIndexRequest(gooruContentId, IndexProcessor.DELETE, RESOURCE, null, false, false);
 			} else {
 				throw new BadRequestException(generateErrorMessage(GL0099, RESOURCE));
 			}
@@ -1882,53 +1008,20 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 
 	@Override
 	public void deleteAttribution(Resource resource, String gooruAttributionId, User apiCaller) {
-
-		// if (resource == null) {
-		// resource =
-		// resourceRepository.findResourceByAttributionGooruId(gooruAttributionId);
 		if (resource == null) {
 			LOGGER.warn("invalid resource passed to deleteResource:" + gooruAttributionId);
 			return;
 		}
-		// }
 		UserRole contentAdmin = new UserRole();
 		contentAdmin.setRoleId(UserRole.ROLE_CONTENT_ADMIN);
-
 		User systemUser = this.getUserRepository().findByRole(contentAdmin).get(0);
 		resource.setUser(systemUser);
-
 		this.getBaseRepository().removeAll(resource.getContentPermissions());
 		resource.setContentPermissions(null);
 		resource.setLastModified(new Date(System.currentTimeMillis()));
-
 		resourceRepository.saveOrUpdate(resource);
 		LOGGER.warn("Deleted resource from deleteResource:" + gooruAttributionId);
-
-		/* Step 4 - Send the message to reindex the resource */
-		indexHandler.setReIndexRequest(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);				
-	}
-
-	@Override
-	public Job saveJob(File sourceFile, ConverterDTO converterDTO, User user) {
-
-		Job job = new Job();
-		job.setGooruOid(converterDTO.getGooruContentId());
-		job.setUser(user);
-		job.setFileSize(sourceFile.length());
-		converterDTO.setSourcePath(sourceFile.getPath());
-		String type = JobType.Type.PPTCONVERSION.getType();
-		if (FileProcessor.getFileExt(sourceFile.getName()).equals(PDF)) {
-			type = JobType.Type.PDFCONVERSION.getType();
-		}
-		job.setJobType((JobType) learnguideRepository.get(JobType.class, type));
-		job.setStatus(Job.Status.INPROGRESS.getStatus());
-		learnguideRepository.save(job);
-		return job;
-	}
-
-	@Override
-	public Job getResourceTaskJob(String taskId) {
-		return (Job) learnguideRepository.get(Job.class, Integer.parseInt(taskId));
+		indexHandler.setReIndexRequest(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);
 	}
 
 	@Override
@@ -1942,76 +1035,6 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	}
 
 	@Override
-	public Resource saveCrawledResource(String url, String title, String text, String parentUrl, String thumbnail, String attribution, String typeForPdf, String category, String siteName, String tags, String description) {
-		Resource resource = new Resource();
-		resource.setUrl(url);
-		resource.setTitle(title);
-		resource.setRecordSource(Resource.RecordSource.CRAWLED.getRecordSource());
-		User user = this.getUserRepository().getUserByUserId(1);
-		resource.setUser(user);
-		resource.setParentUrl(parentUrl);
-		resource.setDescription(description);
-		resource.setCategory(category);
-		resource.setSharing(Sharing.PRIVATE.getSharing());
-		resource.setSiteName(siteName);
-
-		resource = handleNewResource(resource, typeForPdf, thumbnail);
-		ResourceInfo resourceInfo = findResourceInfo(resource.getGooruOid());
-		if (resourceInfo == null) {
-			resourceInfo = new ResourceInfo();
-		}
-		ResourceSource resourceSource = null;
-		if (resource.getResourceSource() != null && attribution != null) {
-			resource.getResourceSource().setAttribution(attribution);
-			resourceSource = resource.getResourceSource();
-		} else {
-			String domainName = url.contains("http://") ? url.replace("http://", "") : url;
-			int lastIndex = domainName.indexOf("/");
-			if (lastIndex == -1) {
-				lastIndex = domainName.length();
-			}
-			domainName = domainName.substring(0, lastIndex);
-			resourceSource = findResourceSource(domainName);
-			if (resourceSource == null) {
-				resourceSource = new ResourceSource();
-				resourceSource.setDomainName(domainName);
-				resourceSource.setAttribution(attribution);
-				resourceSource.setActiveStatus(1);
-			}
-			boolean hasFrameBreaker = false;
-			if (resourceSource != null && resourceSource.getFrameBreaker() != null && resourceSource.getFrameBreaker() == 1) {
-				hasFrameBreaker = true;
-			}
-			resource.setHasFrameBreaker(hasFrameBreaker);
-			resource.setResourceSource(resourceSource);
-			if (resourceSource != null) {
-				this.resourceRepository.save(resourceSource);
-			}
-		}
-
-		resourceInfo.setTags(tags);
-		resource.setTags(tags);
-		resourceInfo.setResource(resource);
-		resourceInfo.setLastUpdated(new Date());
-		this.resourceRepository.save(resourceInfo);
-		resource.setResourceInfo(resourceInfo);
-		this.resourceRepository.save(resource);
-		return resource;
-	}
-	
-	@Override
-	public ResourceInstance checkResourceUrlExists(String url, boolean checkShortenedUrl)
-			throws Exception {
-		Resource resource = findResourceByUrl(url, Sharing.PUBLIC.getSharing(), null);
-		ResourceInstance resourceInstance = new ResourceInstance();
-		resourceInstance.setResource(resource);
-		if (checkShortenedUrl) {
-			resourceInstance.setShortenedUrlStatus(shortenedUrlResourceCheck(url));
-		}
-		return resourceInstance;
-	}
-
-	@Override
 	public Resource findResourceByUrl(String resourceUrl, String sharing, String userUid) {
 		return resourceRepository.findResourceByUrl(resourceUrl, sharing, userUid);
 	}
@@ -2022,8 +1045,8 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	}
 
 	@Override
-	public Resource addNewResource(String url, String title, String text, String category, String sharing, String typeName, String licenseName, Integer brokenStatus, Boolean hasFrameBreaker, String description, Integer isFeatured, String tags, boolean isReturnJson, User apiCaller,
-			String mediaType, String resourceFormat, String resourceInstructional) {
+	public Resource addNewResource(String url, String title, String text, String category, String sharing, String typeName, String licenseName, Integer brokenStatus, Boolean hasFrameBreaker, String description, Integer isFeatured, String tags, boolean isReturnJson, User apiCaller, String mediaType,
+			String resourceFormat, String resourceInstructional) {
 
 		User user = null;
 		// construct resource:
@@ -2085,10 +1108,8 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		resourceRepository.save(resourceInfo);
 		s3ResourceApiHandler.updateOrganization(resource);
 
-		this.updateResourceInstanceMetaData(resource, user);
-		this.replaceDuplicatePrivateResourceWithPublicResource(resource);
 		this.mapSourceToResource(resource);
-		indexHandler.setReIndexRequest(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);				
+		indexHandler.setReIndexRequest(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);
 
 		return resource;
 	}
@@ -2123,7 +1144,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			}
 
 			getResourceRepository().save(resource);
-			indexHandler.setReIndexRequest(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);					
+			indexHandler.setReIndexRequest(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);
 		}
 		return resource;
 	}
@@ -2151,11 +1172,11 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		if (isFeatured != null) {
 			existingResource.setIsFeatured(isFeatured);
 		}
-		
-		if(getUserService().isContentAdmin(user)){
+
+		if (getUserService().isContentAdmin(user)) {
 			ResourceSource resourceSource = null;
 			String domainName = null;
-			if(url != null){
+			if (url != null) {
 				existingResource.setUrl(url);
 				domainName = getDomainName(url);
 				resourceSource = this.getResourceRepository().findResourceSource(domainName);
@@ -2167,7 +1188,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				this.mapSourceToResource(existingResource);
 			}
 		}
-		
+
 		if (category != null) {
 			existingResource.setCategory(category);
 		}
@@ -2214,7 +1235,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			}
 		}
 		if (getUserService().isContentAdmin(user) && grade != null) {
-				existingResource.setGrade(grade);
+			existingResource.setGrade(grade);
 		}
 		if (licenseName != null) {
 			final License licenseData = this.getResourceRepository().getLicenseByLicenseName(licenseName);
@@ -2235,15 +1256,12 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			resourceRepository.save(resourceInfo);
 		}
 
-		this.updateResourceInstanceMetaData(existingResource, user);
-		this.replaceDuplicatePrivateResourceWithPublicResource(existingResource);
-
 		if (isBlacklisted != null && isBlacklisted == true) {
 			if (getUserService().isContentAdmin(user)) {
-				indexHandler.setReIndexRequest(existingResource.getGooruOid(), IndexProcessor.DELETE, RESOURCE, null, false, false);						
+				indexHandler.setReIndexRequest(existingResource.getGooruOid(), IndexProcessor.DELETE, RESOURCE, null, false, false);
 			}
 		} else {
-			indexHandler.setReIndexRequest(existingResource.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);					
+			indexHandler.setReIndexRequest(existingResource.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);
 		}
 
 		return existingResource;
@@ -2273,60 +1291,60 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 
 		this.resourceRepository.save(resourceSource);
 		if (domainName != null && isBlacklisted != null && isBlacklisted) {
-				if (getUserService().isContentAdmin(user)) {
-					List<Resource> resources = resourceRepository.findAllResourceBySourceId(resourceSourceId);
-					resourceSource.setIsBlacklisted(1);
-					String sharingType = null;
-					String gooruOids = "";
-					int count = 0;
-					if (resources != null && resources.size() <= 5000) {
-						for (Resource resource : resources) {
-							sharingType = resource.getSharing();
-							if (sharingType.equalsIgnoreCase(PUBLIC)) {
-								resource.setSharing(PRIVATE);
-							}
-							resource.setBatchId(DEL_FROM_SEARCH_INDEX);
-							if (count > 0) {
-								gooruOids += ",";
-							}
-							gooruOids += resource.getGooruOid();
-							count++;
-						}
-						indexHandler.setReIndexRequest(gooruOids, IndexProcessor.INDEX, RESOURCE, null, false, false);								
-						this.resourceRepository.saveAll(resources);
-					} else if (resources != null && resources.size() > 5000) {
-						throw new Exception(generateErrorMessage("GL0001"));
-					}
-				} else {
-					throw new AccessDeniedException(generateErrorMessage("GL0002"));
-				}
-		}
-		if (domainName != null && frameBreaker != null && getUserService().isContentAdmin(user)) { 
+			if (getUserService().isContentAdmin(user)) {
 				List<Resource> resources = resourceRepository.findAllResourceBySourceId(resourceSourceId);
+				resourceSource.setIsBlacklisted(1);
+				String sharingType = null;
+				String gooruOids = "";
 				int count = 0;
-				String gooruOIds = "";
 				if (resources != null && resources.size() <= 5000) {
 					for (Resource resource : resources) {
-						boolean hasFrameBreaker = false;
-						if (frameBreaker == null || frameBreaker == 0) {
-							hasFrameBreaker = false;
-							resourceSource.setFrameBreaker(0);
-						} else if (frameBreaker == 1) {
-							hasFrameBreaker = true;
-							resourceSource.setFrameBreaker(1);
+						sharingType = resource.getSharing();
+						if (sharingType.equalsIgnoreCase(PUBLIC)) {
+							resource.setSharing(PRIVATE);
 						}
-						resource.setHasFrameBreaker(hasFrameBreaker);
+						resource.setBatchId(DEL_FROM_SEARCH_INDEX);
 						if (count > 0) {
-							gooruOIds += ",";
+							gooruOids += ",";
 						}
-						gooruOIds += resource.getGooruOid();
+						gooruOids += resource.getGooruOid();
 						count++;
 					}
-					indexHandler.setReIndexRequest(gooruOIds, IndexProcessor.INDEX, RESOURCE, null, false, false);							
+					indexHandler.setReIndexRequest(gooruOids, IndexProcessor.INDEX, RESOURCE, null, false, false);
 					this.resourceRepository.saveAll(resources);
 				} else if (resources != null && resources.size() > 5000) {
-					throw new Exception(generateErrorMessage("GL0004"));
+					throw new Exception(generateErrorMessage("GL0001"));
 				}
+			} else {
+				throw new AccessDeniedException(generateErrorMessage("GL0002"));
+			}
+		}
+		if (domainName != null && frameBreaker != null && getUserService().isContentAdmin(user)) {
+			List<Resource> resources = resourceRepository.findAllResourceBySourceId(resourceSourceId);
+			int count = 0;
+			String gooruOIds = "";
+			if (resources != null && resources.size() <= 5000) {
+				for (Resource resource : resources) {
+					boolean hasFrameBreaker = false;
+					if (frameBreaker == null || frameBreaker == 0) {
+						hasFrameBreaker = false;
+						resourceSource.setFrameBreaker(0);
+					} else if (frameBreaker == 1) {
+						hasFrameBreaker = true;
+						resourceSource.setFrameBreaker(1);
+					}
+					resource.setHasFrameBreaker(hasFrameBreaker);
+					if (count > 0) {
+						gooruOIds += ",";
+					}
+					gooruOIds += resource.getGooruOid();
+					count++;
+				}
+				indexHandler.setReIndexRequest(gooruOIds, IndexProcessor.INDEX, RESOURCE, null, false, false);
+				this.resourceRepository.saveAll(resources);
+			} else if (resources != null && resources.size() > 5000) {
+				throw new Exception(generateErrorMessage("GL0004"));
+			}
 		}
 	}
 
@@ -2388,45 +1406,10 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			resource.setThumbnail(fileName);
 			resourceRepository.save(resource);
 			resourceImageUtil.sendMsgToGenerateThumbnails(resource);
-			indexHandler.setReIndexRequest(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);					
+			indexHandler.setReIndexRequest(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);
 		}
 
 		return resource;
-	}
-
-	@Override
-	public JSONObject getResourceAnalyticData(String gooruOid, String contentType, User user) throws JSONException {
-		JSONObject analytic = new JSONObject();
-		if (contentType != null
-				&& (contentType.equalsIgnoreCase(SessionActivityType.ContentType.COLLECTION.getContentType()) || contentType.equalsIgnoreCase(SessionActivityType.ContentType.QUIZ.getContentType()) || contentType.equalsIgnoreCase(SessionActivityType.ContentType.RESOURCE.getContentType()))) {
-			if (contentType.equalsIgnoreCase(SessionActivityType.ContentType.COLLECTION.getContentType())) {
-				Map<String, String> filters = new HashMap<String, String>();
-				filters.put(GOORU_COLLECTION_ID, gooruOid);
-				List<ResourceInstance> collectionResourceInstances = this.getLearnguideRepository().listCollectionResourceInstance(filters);
-				if (collectionResourceInstances == null) {
-					analytic.put(RESOURCE_COUNT, 0);
-				} else {
-					analytic.put(RESOURCE_COUNT, collectionResourceInstances.size());
-				}
-				int studiedResourceCount = this.getSessionActivityRepository().getStudiedResourceCount(gooruOid, user.getGooruUId(), SessionActivityType.Status.OPEN.getStatus());
-				analytic.put(STUDIED_RESOURCE_COUNT, studiedResourceCount);
-				List<User> userList = learnguideRepository.findCollaborators(gooruOid, user.getPartyUid());
-				analytic.put(IS_COLLABORATOR, (userList != null && userList.size() > 0) ? true : false);
-			}
-
-			if (contentType.equalsIgnoreCase(SessionActivityType.ContentType.QUIZ.getContentType())) {
-				List<AssessmentQuestion> assessmentQuestion = this.getAssessmentRepository().getAssessmentQuestions(gooruOid);
-				if (assessmentQuestion != null) {
-					analytic.put(QUESTION_COUNT, assessmentQuestion.size());
-				} else {
-					analytic.put(QUESTION_COUNT, 0);
-				}
-				analytic.put(SCORE, this.getAssessmentRepository().getQuizUserScore(gooruOid, user.getPartyUid()));
-			}
-			analytic.put(VIEWS, this.getResourceRepository().findViews(gooruOid));
-
-		}
-		return analytic;
 	}
 
 	@Override
@@ -2470,18 +1453,13 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	}
 
 	@Override
-	public String getResourceInstanceNarration(String resourceInstanceId) {
-		return resourceRepository.getResourceInstanceNarration(resourceInstanceId);
-	}
-
-	@Override
 	public boolean shortenedUrlResourceCheck(String url) {
 		boolean isShortenedUrl = false;
 		String domainName = getDomainName(url);
 		String domainType = ResourceSource.ResourceSourceType.SHORTENDED_DOMAIN.getResourceSourceType();
 		String type = resourceRepository.shortenedUrlResourceCheck(domainName, domainType);
 		if (type != null && type.equalsIgnoreCase(ResourceSource.ResourceSourceType.SHORTENDED_DOMAIN.getResourceSourceType())) {
-			 isShortenedUrl = true;
+			isShortenedUrl = true;
 		}
 		return isShortenedUrl;
 	}
@@ -2489,46 +1467,6 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	@Override
 	public List<Resource> listResourcesUsedInCollections(Map<String, String> filters) {
 		return this.getResourceRepository().listResourcesUsedInCollections(filters);
-	}
-
-	private void updateCollaborators(Learnguide collection, Resource resource, User user) {
-		List<User> userList = learnguideRepository.findCollaborators(collection.getGooruOid(), null);
-
-		if (!collection.getUser().equals(user)) {
-			userList.remove(user);
-			userList.add(collection.getUser());
-		}
-
-		Set<ContentPermission> contentPermissions = resource.getContentPermissions();
-
-		if (contentPermissions == null) {
-			contentPermissions = new HashSet<ContentPermission>();
-		}
-
-		if (userList != null && userList.size() > 0) {
-			Date date = new Date();
-			for (User collaborator : userList) {
-				if (!collaborator.getGooruUId().equals(resource.getUser().getGooruUId())) {
-					boolean newFlag = true;
-					for (ContentPermission contentPermission : contentPermissions) {
-						if (contentPermission.getParty().getPartyUid().equals(collaborator.getPartyUid())) {
-							newFlag = false;
-							break;
-						}
-					}
-					if (newFlag) {
-						ContentPermission contentPerm = new ContentPermission();
-						contentPerm.setParty(collaborator);
-						contentPerm.setContent(resource);
-						contentPerm.setPermission(EDIT);
-						contentPerm.setValidFrom(date);
-						contentPermissions.add(contentPerm);
-					}
-				}
-			}
-		}
-		resource.setContentPermissions(contentPermissions);
-		this.getResourceRepository().saveAll(contentPermissions);
 	}
 
 	public ResourceMetadataCo updateYoutubeResourceFeeds(Resource resource) {
@@ -2612,19 +1550,19 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				CustomTableValue resourceType = this.getCustomTableRepository().getCustomTableValue(RESOURCE_INSTRUCTIONAL_USE, newResource.getInstructional().getValue());
 				newResource.setResourceFormat(resourceType);
 			}
-			
+
 			if (newResource.getCategory() != null) {
 				newResource.setCategory(newResource.getCategory().toLowerCase());
 			}
 			// add to db and index.
 			resource = handleNewResource(newResource, null, null);
-			if(newResource.getPublisher() != null && newResource.getPublisher().size() > 0) {
+			if (newResource.getPublisher() != null && newResource.getPublisher().size() > 0) {
 				newResource.setPublisher(updateContentProvider(resource.getGooruOid(), newResource.getPublisher(), user, CustomProperties.ContentProviderType.PUBLISHER.getContentProviderType()));
 			}
-			if(newResource.getAggregator() != null && newResource.getAggregator().size() > 0) {
+			if (newResource.getAggregator() != null && newResource.getAggregator().size() > 0) {
 				newResource.setAggregator(updateContentProvider(resource.getGooruOid(), newResource.getAggregator(), user, CustomProperties.ContentProviderType.AGGREGATOR.getContentProviderType()));
 			}
-			if(newResource.getHost() != null && newResource.getHost().size() > 0) {
+			if (newResource.getHost() != null && newResource.getHost().size() > 0) {
 				resource.setHost(updateContentProvider(resource.getGooruOid(), newResource.getHost(), user, CustomProperties.ContentProviderType.HOST.getContentProviderType()));
 			}
 			ResourceInfo resourceInfo = new ResourceInfo();
@@ -2638,13 +1576,11 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			resourceRepository.save(resourceInfo);
 			s3ResourceApiHandler.updateOrganization(resource);
 
-			this.updateResourceInstanceMetaData(resource, user);
-			this.replaceDuplicatePrivateResourceWithPublicResource(resource);
 			this.mapSourceToResource(resource);
-			try{
+			try {
 				this.getResourceEventLog().getEventLogs(resource, true, false, user);
-			} catch(Exception e){
-				LOGGER.debug("error"+e.getMessage());
+			} catch (Exception e) {
+				LOGGER.debug("error" + e.getMessage());
 			}
 		}
 		return new ActionResponseDTO<Resource>(resource, errors);
@@ -2657,12 +1593,12 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		Errors errors = validateUpdateResource(newResource, resource);
 		JSONObject itemData = new JSONObject();
 		if (!errors.hasErrors()) {
-			if(getUserService().isContentAdmin(user)){
+			if (getUserService().isContentAdmin(user)) {
 				ResourceSource resourceSource = null;
 				String domainName = null;
-				if(newResource.getUrl() != null){
-					if(!resource.getUrl().equalsIgnoreCase(newResource.getUrl())){
-						itemData.put("url",newResource.getUrl());
+				if (newResource.getUrl() != null) {
+					if (!resource.getUrl().equalsIgnoreCase(newResource.getUrl())) {
+						itemData.put("url", newResource.getUrl());
 						resource.setUrl(newResource.getUrl());
 						domainName = getDomainName(newResource.getUrl());
 						resourceSource = this.getResourceRepository().findResourceSource(domainName);
@@ -2678,25 +1614,25 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				}
 			}
 			if (newResource.getTitle() != null) {
-				itemData.put(TITLE,newResource.getTitle());
+				itemData.put(TITLE, newResource.getTitle());
 				resource.setTitle(newResource.getTitle());
 			}
 			if (newResource.getS3UploadFlag() != null) {
 				resource.setS3UploadFlag(newResource.getS3UploadFlag());
 			}
 			if (newResource.getDescription() != null) {
-				itemData.put(DESCRIPTION,newResource.getDescription());
+				itemData.put(DESCRIPTION, newResource.getDescription());
 				resource.setDescription(newResource.getDescription());
 			}
 			if (newResource.getHasFrameBreaker() != null) {
-				itemData.put(HAS_FRAME_BREAKER,newResource.getHasFrameBreaker());
+				itemData.put(HAS_FRAME_BREAKER, newResource.getHasFrameBreaker());
 				resource.setHasFrameBreaker(newResource.getHasFrameBreaker());
 
 			} else {
 				resource.setHasFrameBreaker(false);
 			}
 			if (newResource.getIsFeatured() != null) {
-				itemData.put(IS_FEATURED,newResource.getIsFeatured());
+				itemData.put(IS_FEATURED, newResource.getIsFeatured());
 				resource.setIsFeatured(newResource.getIsFeatured());
 			}
 			if (!resource.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing())
@@ -2708,31 +1644,31 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				}
 			}
 			if (newResource.getResourceFormat() != null) {
-				itemData.put(RESOURCEFORMAT,newResource.getResourceFormat().getValue());
+				itemData.put(RESOURCEFORMAT, newResource.getResourceFormat().getValue());
 				CustomTableValue customTableValue = this.getCustomTableRepository().getCustomTableValue(RESOURCE_CATEGORY_FORMAT, newResource.getResourceFormat().getValue());
 				resource.setResourceFormat(customTableValue);
 			}
-			if (newResource.getGrade()!= null) {
+			if (newResource.getGrade() != null) {
 				resource.setGrade(newResource.getGrade());
 			}
 			if (newResource.getCategory() != null) {
-				itemData.put(CATEGORY,newResource.getCategory());
+				itemData.put(CATEGORY, newResource.getCategory());
 				resource.setCategory(newResource.getCategory().toLowerCase());
 			}
 			if (!StringUtils.isEmpty(newResource.getMediaType())) {
 				resource.setMediaType(newResource.getMediaType());
 			}
 			if (newResource.getSharing() != null && !newResource.getSharing().isEmpty()) {
-				itemData.put(SHARING,newResource.getSharing());
+				itemData.put(SHARING, newResource.getSharing());
 				SessionContextSupport.putLogParameter("sharing-" + resource.getGooruOid(), resource.getSharing() + " to " + newResource.getSharing());
 				resource.setSharing(newResource.getSharing());
 			}
 			if (newResource.getTags() != null && !newResource.getTags().isEmpty()) {
-				itemData.put(TAGS,newResource.getTags());
+				itemData.put(TAGS, newResource.getTags());
 				resource.setTags(newResource.getTags());
 			}
 			if (newResource.getLicense() != null) {
-				itemData.put(LICENSE,newResource.getLicense().getName());
+				itemData.put(LICENSE, newResource.getLicense().getName());
 				License licenseData = this.getResourceRepository().getLicenseByLicenseName(newResource.getLicense().getName());
 				if (licenseData != null) {
 					resource.setLicense(licenseData);
@@ -2748,18 +1684,18 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			} else {
 				resource.setEducationalUse(this.getCollectionService().setContentMetaAssociation(this.getCollectionService().getContentMetaAssociation(EDUCATIONAL_USE), resource.getGooruOid(), EDUCATIONAL_USE));
 			}
-			
-			if(newResource.getPublisher() != null && newResource.getPublisher().size() > 0) {
+
+			if (newResource.getPublisher() != null && newResource.getPublisher().size() > 0) {
 				updateContentProvider(resource.getGooruOid(), newResource.getPublisher(), user, CustomProperties.ContentProviderType.PUBLISHER.getContentProviderType());
 			}
-			if(newResource.getAggregator() != null && newResource.getAggregator().size() > 0) {
+			if (newResource.getAggregator() != null && newResource.getAggregator().size() > 0) {
 				updateContentProvider(resource.getGooruOid(), newResource.getAggregator(), user, CustomProperties.ContentProviderType.AGGREGATOR.getContentProviderType());
-			} 
-			if(newResource.getHost() != null && newResource.getHost().size() > 0) {
+			}
+			if (newResource.getHost() != null && newResource.getHost().size() > 0) {
 				updateContentProvider(resource.getGooruOid(), newResource.getHost(), user, CustomProperties.ContentProviderType.HOST.getContentProviderType());
 			}
-			
-			if(resourceTags != null && resourceTags.size() > 0) {
+
+			if (resourceTags != null && resourceTags.size() > 0) {
 				resource.setResourceTags(this.getContentService().createTagAssoc(resource.getGooruOid(), resourceTags, user));
 			}
 
@@ -2795,18 +1731,16 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				resourceRepository.save(resourceInfo);
 			}
 
-			this.updateResourceInstanceMetaData(resource, user);
-			this.replaceDuplicatePrivateResourceWithPublicResource(resource);
-			indexHandler.setReIndexRequest(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);					
+			indexHandler.setReIndexRequest(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);
 		}
 		if (newResource.getAttach() != null) {
 			this.getResourceImageUtil().moveAttachment(newResource, resource);
 		}
-		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + resource.getUser().getPartyUid() + "*");		
-		try{
+		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + resource.getUser().getPartyUid() + "*");
+		try {
 			this.getResourceEventLog().getEventLogs(resource, itemData, user);
-		}catch(Exception e){
-			LOGGER.debug("error"+e.getMessage());
+		} catch (Exception e) {
+			LOGGER.debug("error" + e.getMessage());
 		}
 		return new ActionResponseDTO<Resource>(resource, errors);
 
@@ -2816,7 +1750,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	public List<String> updateContentProvider(String gooruOid, List<String> providerList, User user, String providerType) {
 
 		CustomTableValue customTableValue = this.getCustomTableRepository().getCustomTableValue(_CONTENT_PROVIDER_TYPE, providerType);
-		List<ContentProviderAssociation> contentProviderAssociationList = this.getContentRepository().getContentProviderByGooruOid(gooruOid, null,providerType);
+		List<ContentProviderAssociation> contentProviderAssociationList = this.getContentRepository().getContentProviderByGooruOid(gooruOid, null, providerType);
 
 		if (contentProviderAssociationList.size() > 0) {
 			this.getContentRepository().removeAll(contentProviderAssociationList);
@@ -2830,7 +1764,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				contentProvider.setType(customTableValue);
 				this.getContentRepository().save(contentProvider);
 			}
-			
+
 			ContentProviderAssociation contentProviderAssociation = new ContentProviderAssociation();
 			contentProviderAssociation.setContentProvider(contentProvider);
 			ResourceSource resourceSource = new ResourceSource();
@@ -2957,89 +1891,16 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		return null;
 	}
 
-	@Override
-	public List<User> getCollaborators(String collectionId) {
-		Content content = contentRepository.findContentByGooruId(collectionId);
-		if (content == null) {
-			throw new NotFoundException(generateErrorMessage(GL0056, CONTENT), GL0056);
-		}
-		return this.learnguideRepository.findCollaborators(collectionId, null);
-	}
-
-	private void deleteResource(Resource resource) {
-		if (resource != null) {
-			this.getResourceRepository().retriveAndSetInstances(resource);
-		}
-		if (resource != null) {
-			List<ResourceInstance> resourceInstanceList = resource.getResourceInstances();
-			if (resourceInstanceList != null && resourceInstanceList.size() > 0) {
-				this.getResourceRepository().removeAll(resourceInstanceList);
-			}
-		}
-		indexHandler.setReIndexRequest(resource.getGooruOid(), IndexProcessor.DELETE, RESOURCE, null, false, false);		
-		
-		this.getResourceRepository().remove(Resource.class, resource.getContentId());
-	}
-
 	private Errors validateResource(Resource resource) throws Exception {
 		final Errors errors = new BindException(resource, RESOURCE);
 		if (resource != null) {
-			// rejectIfNullOrEmpty(errors, resource.getTitle(), TITLE, "GL0006",
-			// generateErrorMessage("GL0006", TITLE));
 			rejectIfNullOrEmpty(errors, resource.getUrl(), URL, GL0006, generateErrorMessage(GL0006, URL));
 		}
 		return errors;
 	}
 
-	@Override
-	public void updateViewsBulk(List<UpdateViewsDTO> updateViewsDTOs, User apiCaller) {
-		int index = 30;
-		for (List<UpdateViewsDTO> partition : Lists.partition(updateViewsDTOs, index)) {
-			StringBuffer gooruOids = new StringBuffer();
-			StringBuffer collectionIds = new StringBuffer();
-			StringBuffer resourceIds = new StringBuffer();
-			Map<String, Long> resourceMap = new HashMap<String, Long>();
-			for (UpdateViewsDTO updateViewsDTO : partition) {
-				if (gooruOids.toString().trim().length() > 0) {
-					gooruOids.append(",");
-				}
-
-				gooruOids.append(updateViewsDTO.getGooruOid());
-				resourceMap.put(updateViewsDTO.getGooruOid(), updateViewsDTO.getViews());
-
-			}
-			if (gooruOids.toString().trim().length() > 0) {
-				List<Resource> resources = this.getResourceRepository().findAllResourcesByGooruOId(gooruOids.toString());
-				for (Resource resource : resources) {
-					if (resourceMap.containsKey(resource.getGooruOid())) {
-						resource.setViews(resourceMap.get(resource.getGooruOid()));
-					}
-					if (resourceIds.toString().trim().length() > 0) {
-						resourceIds.append(",");
-					}
-					if (collectionIds.toString().trim().length() > 0) {
-						collectionIds.append(",");
-					}
-					if (resource.getResourceType().getName().equalsIgnoreCase(ResourceType.Type.SCOLLECTION.getType())) {
-						collectionIds.append(resource.getGooruOid());
-					} else {
-						resourceIds.append(resource.getGooruOid());
-					}
-
-				}
-				this.getResourceRepository().saveAll(resources);
-				if (collectionIds.toString().trim().length() > 0) {
-					indexHandler.setReIndexRequest(collectionIds.toString(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);							
-				} else if (resourceIds.toString().trim().length() > 0) {
-					indexHandler.setReIndexRequest(resourceIds.toString(), IndexProcessor.INDEX, RESOURCE, null, false, false);							
-				}
-			}
-		}
-
-	}
-	
-	public void deleteContentProvider(String gooruOid, String providerType, String name){
-		this.getContentRepository().deleteContentProvider(gooruOid, providerType, name);	
+	public void deleteContentProvider(String gooruOid, String providerType, String name) {
+		this.getContentRepository().deleteContentProvider(gooruOid, providerType, name);
 	}
 
 	private Errors validateUpdateResource(Resource newResource, Resource resource) throws Exception {
@@ -3061,7 +1922,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 					}
 				}
 			} catch (Exception e) {
-				LOGGER.debug("error"+ e.getMessage());
+				LOGGER.debug("error" + e.getMessage());
 			}
 		}
 		return false;
@@ -3071,7 +1932,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	public TaxonomyRespository getTaxonomyRepository() {
 		return taxonomyRepository;
 	}
-	
+
 	public ResourceEventLog getResourceEventLog() {
 		return resourceEventLog;
 	}
@@ -3100,7 +1961,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	public List<Map<String, Object>> getPartyPermissions(long contentId) {
 		return resourceRepository.getPartyPermissions(contentId);
 	}
-	
+
 	public UserRepository getUserRepository() {
 		return userRepository;
 	}
@@ -3108,13 +1969,12 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	@Override
 	public Resource resourcePlay(String gooruContentId, User apiCaller, boolean more) throws Exception {
 		Resource resource = this.findResourceByContentGooruId(gooruContentId);
-        
-        
+
 		if (resource == null) {
 			throw new NotFoundException(generateErrorMessage("GL0003"), "GL0003");
 		}
-	    resource.setViews(this.resourceCassandraService.getLong(resource.getGooruOid(),STATISTICS_VIEW_COUNT));
-	    resource.setViewCount(resource.getViews());
+		resource.setViews(this.resourceCassandraService.getLong(resource.getGooruOid(), STATISTICS_VIEW_COUNT));
+		resource.setViewCount(resource.getViews());
 		resource.setCustomFieldValues(customFieldService.getCustomFieldsValuesOfResource(resource.getGooruOid()));
 		if (more) {
 			String category = CustomProperties.Table.FEEDBACK_CATEGORY.getTable() + "_" + RATING;
@@ -3126,8 +1986,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		return resource;
 
 	}
-	
-	
+
 	public AsyncExecutor getAsyncExecutor() {
 		return asyncExecutor;
 	}
@@ -3153,43 +2012,53 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		Collection<String> resourceIds = new ArrayList<String>();
 		Collection<String> collectionIds = new ArrayList<String>();
 
-		for(StatisticsDTO statisticsDTO : statisticsList){
-			resourceCio = new ResourceCio();	
+		for (StatisticsDTO statisticsDTO : statisticsList) {
+			resourceCio = new ResourceCio();
 			resourceStasCo = new ResourceStasCo();
 			resourceCio.setId(statisticsDTO.getGooruOid());
-			if(statisticsDTO.getResourceType() != null && statisticsDTO.getResourceType().equalsIgnoreCase("scollection")){
+			if (statisticsDTO.getResourceType() != null && statisticsDTO.getResourceType().equalsIgnoreCase("scollection")) {
 				collectionIds.add(resourceCio.getId());
-			}
-			else{
+			} else {
 				resourceIds.add(resourceCio.getId());
 			}
-			if(statisticsDTO.getViews() != null){
+			if (statisticsDTO.getViews() != null) {
 				resourceStasCo.setViewsCount(String.valueOf(statisticsDTO.getViews()));
 			}
-			if(statisticsDTO.getSubscription() != null){
+			if (statisticsDTO.getSubscription() != null) {
 				resourceStasCo.setSubscriberCount(String.valueOf(statisticsDTO.getSubscription()));
 			}
-			if(statisticsDTO.getRatings() != null){
+			if (statisticsDTO.getRatings() != null) {
 				resourceStasCo.setRating(String.valueOf(statisticsDTO.getRatings()));
 			}
-			if(statisticsDTO.isValid()){
+			if (statisticsDTO.isValid()) {
 				resourceCio.setStas(resourceStasCo);
 				resourceCioList.add(resourceCio);
 			}
 		}
-		if(resourceCioList.size() > 0){
+		if (resourceCioList.size() > 0) {
 			resourceCassandraService.save(resourceCioList, resourceIds);
-			if(!skipReindex){
-				if(resourceIds.size() > 0){
-					indexHandler.setReIndexRequest(StringUtils.join(resourceIds, ','), IndexProcessor.INDEX, RESOURCE, null, false, false);							
+			if (!skipReindex) {
+				if (resourceIds.size() > 0) {
+					indexHandler.setReIndexRequest(StringUtils.join(resourceIds, ','), IndexProcessor.INDEX, RESOURCE, null, false, false);
 				}
-				if(collectionIds.size() > 0){
-					indexHandler.setReIndexRequest(StringUtils.join(collectionIds, ','), IndexProcessor.INDEX, SCOLLECTION, null, false, false);							
+				if (collectionIds.size() > 0) {
+					indexHandler.setReIndexRequest(StringUtils.join(collectionIds, ','), IndexProcessor.INDEX, SCOLLECTION, null, false, false);
 				}
 			}
 		}
 	}
-	
+
+	@Override
+	public Map<String, Object> checkResourceUrlExists(String url, boolean checkShortenedUrl) throws Exception {
+		Resource resource = findResourceByUrl(url, Sharing.PUBLIC.getSharing(), null);
+		Map<String, Object>  response = new HashMap<String, Object>();
+		response.put(RESOURCE, resource);
+		if (checkShortenedUrl) {
+			response.put(SHORTENED_URL_STATUS, shortenedUrlResourceCheck(url));
+		}
+		return response;
+	}
+
 	public CollectionRepository getCollectionRepository() {
 		return collectionRepository;
 	}
