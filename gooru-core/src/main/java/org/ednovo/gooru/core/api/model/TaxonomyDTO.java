@@ -146,7 +146,9 @@ public class TaxonomyDTO implements Serializable{
 		taxonomy.addAttribute("order",Integer.toString(code.getDisplayOrder()));
 		taxonomy.addAttribute("depth",code.getDepth().toString());
 		taxonomy.addAttribute("codeId",code.getCodeId().toString());
-		taxonomy.addAttribute("displayCode", code.getdisplayCode().toString());
+		if (code.getdisplayCode() != null) {
+			taxonomy.addAttribute("displayCode", code.getdisplayCode().toString());
+		}
 		
 		if(this.codes!=null){
 		for (Code codeMapping : this.codes) {
