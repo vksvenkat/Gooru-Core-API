@@ -1271,7 +1271,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			if (resourceParam.get(RESOURCE_URL) != null) {
 
 				if (shortenedUrlResourceCheck((String) resourceParam.get(RESOURCE_URL))) {
-					throw new Exception(generateErrorMessage("GL0094"));
+					throw new BadRequestException(generateErrorMessage("GL0094"));
 				}
 			}
 			ResourceSource resourceSource = null;
@@ -1281,7 +1281,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				domainName = getDomainName((String) resourceParam.get(RESOURCE_URL));
 				resourceSource = this.getResourceRepository().findResourceSource(domainName);
 				if ((resourceSource != null) && (resourceSource.getIsBlacklisted() == 1)) {
-					throw new Exception(generateErrorMessage("GL0095"));
+					throw new BadRequestException(generateErrorMessage("GL0095"));
 				}
 			}
 
@@ -2295,7 +2295,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 						indexHandler.setReIndexRequest(gooruOids, IndexProcessor.INDEX, RESOURCE, null, false, false);								
 						this.resourceRepository.saveAll(resources);
 					} else if (resources != null && resources.size() > 5000) {
-						throw new Exception(generateErrorMessage("GL0001"));
+						throw new BadRequestException(generateErrorMessage("GL0001"));
 					}
 				} else {
 					throw new AccessDeniedException(generateErrorMessage("GL0002"));
@@ -2325,7 +2325,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 					indexHandler.setReIndexRequest(gooruOIds, IndexProcessor.INDEX, RESOURCE, null, false, false);							
 					this.resourceRepository.saveAll(resources);
 				} else if (resources != null && resources.size() > 5000) {
-					throw new Exception(generateErrorMessage("GL0004"));
+					throw new BadRequestException(generateErrorMessage("GL0004"));
 				}
 		}
 	}
