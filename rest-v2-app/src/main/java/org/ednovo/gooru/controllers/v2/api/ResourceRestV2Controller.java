@@ -74,7 +74,7 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 	public ModelAndView createResource(@RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		request.setAttribute(PREDICATE, RESOURCE_CREATE_RESOURCE);
 		final JSONObject json = requestData(data);
-		User user = (User) request.getAttribute(Constants.USER);
+		final User user = (User) request.getAttribute(Constants.USER);
 		final ActionResponseDTO<Resource> responseDTO = this.getResourceService().createResource(this.buildResourceFromInputParameters(getValue(RESOURCE, json), user), user);
 		if (responseDTO.getErrors().getErrorCount() > _ZERO) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -113,8 +113,8 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/collection/resource/list")
 	public ModelAndView listResourcesUsedInCollections(@RequestParam(value = DATA_OBJECT, required = true) String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		User user = (User) request.getAttribute(Constants.USER);
-		JSONObject json = requestData(data);
+		final User user = (User) request.getAttribute(Constants.USER);
+		final JSONObject json = requestData(data);
 		return toModelAndView(serialize(this.getResourceService().listResourcesUsedInCollections(getValue(LIMIT_FIELD, json), getValue(OFFSET_FIELD, json), user), RESPONSE_FORMAT_JSON));
 	}
 
@@ -123,7 +123,7 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 	@RequestMapping(method = RequestMethod.DELETE, value = "/{id}")
 	public void deleteResource(@PathVariable(value = ID) final String resourceId, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		request.setAttribute(PREDICATE, RESOURCE_DELETE_RESOURCE);
-		User user = (User) request.getAttribute(Constants.USER);
+		final User user = (User) request.getAttribute(Constants.USER);
 			this.resourceService.deleteResource(resourceId, user);
 		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
 	}
@@ -132,7 +132,7 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/collaborators/{id}", method = { RequestMethod.PUT })
 	public ModelAndView addCollborators(@PathVariable(value = ID) final String collectionId, final HttpServletRequest request, final HttpServletResponse response, @RequestParam(value = "collaborator", required = true) final String collaboratorId) {
-		User user = (User) request.getAttribute(Constants.USER);
+		final User user = (User) request.getAttribute(Constants.USER);
 
 		// To capture activity log
 		SessionContextSupport.putLogParameter(EVENT_NAME, "add-collaborators");
@@ -156,7 +156,7 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/collaborators/{id}", method = RequestMethod.DELETE)
 	public ModelAndView deleteCollaborators(@PathVariable(value = ID) final String collectionId, final HttpServletRequest request, final HttpServletResponse response, @RequestParam(value = "collaborator", required = true) final String collaboratorId) {
-		User user = (User) request.getAttribute(Constants.USER);
+		final User user = (User) request.getAttribute(Constants.USER);
 
 		// To capture activity log
 		SessionContextSupport.putLogParameter(EVENT_NAME, "delete-collaborators");
@@ -195,7 +195,7 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.POST, value = "/{id}/media")
 	public ModelAndView updateResourceImage(final HttpServletRequest request, @PathVariable(ID) final String resourceId, @RequestBody final String data, final HttpServletResponse response) throws Exception {
-		JSONObject json = requestData(data);
+		final JSONObject json = requestData(data);
 		return toModelAndView(serializeToJson(this.getResourceService().updateResourceImage(resourceId, getValue(FILENAME, json)), true));
 	}
 
@@ -241,15 +241,15 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 		return toModelAndViewWithIoFilter(this.getResourceService().checkResourceUrlExists(url,checkShortenedUrl), RESPONSE_FORMAT_JSON,EXCLUDE_ALL, true, RESOURCE_INSTANCE_INCLUDES);
 	}
 
-	private Resource buildResourceFromInputParameters(String data) {
+	private Resource buildResourceFromInputParameters(final String data) {
 		return JsonDeserializer.deserialize(data, Resource.class);
 	}
 	
-	private  List<UpdateViewsDTO> buildUpdatesViewFromInputParameters(String data) {
+	private  List<UpdateViewsDTO> buildUpdatesViewFromInputParameters(final String data) {
 		return JsonDeserializer.deserialize(data, new TypeReference<List<UpdateViewsDTO>>(){});
 	}
 	
-	private  List<String>  buildResourceTags(String data) {
+	private  List<String>  buildResourceTags(final String data) {
 		return JsonDeserializer.deserialize(data, new TypeReference<List<String>>() {});
 	}
 
