@@ -6,7 +6,6 @@ import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
-import org.ednovo.gooru.domain.service.v2.ContentServiceImpl;
 import org.ednovo.gooru.json.serializer.util.JsonSerializer;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -17,7 +16,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ContentEventLog implements ParameterProperties, ConstantProperties {
 	
-	private static final Logger LOGGER = LoggerFactory.getLogger(ContentServiceImpl.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ContentEventLog.class);
 
 	public void getEventlogs(String gooruOid, User apiCaller, boolean isAdd, boolean isRemove, Map<String, Object> contentTagAssoc) {
 		
