@@ -756,11 +756,11 @@ public class LearnguideServiceImpl extends OperationAuthorizer implements Learng
 
 	@Override
 	public JSONObject getContentSessionActivity(final String gooruContentId, final String gooruUid) throws JSONException {
-		JSONObject sessionActivityJson = new JSONObject();
+		final JSONObject sessionActivityJson = new JSONObject();
 		final SessionActivityItem sessionActivityItem = this.getSessionActivityRepository().getContentSessionActivityItem(gooruContentId, gooruUid, SessionActivityType.Status.OPEN.getStatus());
 		if (sessionActivityItem != null && sessionActivityItem.getSubContentUid() != null) {
 			sessionActivityJson.put(LAST_PLAYED_RESOURCE_INSTANCE_ID, sessionActivityItem.getSubContentUid());
-			List<SessionActivityItem> sessionActivityItemList = this.getSessionActivityRepository().getSubContentSessionActivityItemList(gooruContentId, gooruUid, SessionActivityType.Status.OPEN.getStatus());
+			final List<SessionActivityItem> sessionActivityItemList = this.getSessionActivityRepository().getSubContentSessionActivityItemList(gooruContentId, gooruUid, SessionActivityType.Status.OPEN.getStatus());
 			int studiedResourceCount = sessionActivityItemList != null ? sessionActivityItemList.size() : 0;
 			sessionActivityJson.put(STUDIED_RESOURCE_COUNT, studiedResourceCount);
 		}
