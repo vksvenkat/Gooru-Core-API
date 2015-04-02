@@ -56,6 +56,13 @@ public class BaseRepositoryHibernate extends AbstractRepositoryHibernate impleme
 		deleteAll(entities);
 	}
 
+	public static String format(String inputString, Object... strings) {
+		for (int i = 0; i < strings.length; i++) {
+			
+		}
+		return String.format(inputString, strings);
+	}
+	
 	public SessionFactory getSessionFactory() {
 		return sessionFactory;
 	}
@@ -63,4 +70,5 @@ public class BaseRepositoryHibernate extends AbstractRepositoryHibernate impleme
 	public void setSessionFactory(SessionFactory sessionFactory) {
 		this.sessionFactory = sessionFactory;
 	}
+	
 }

@@ -16,7 +16,6 @@ public class FeaturedSet extends OrganizationModel {
 	private Set<FeaturedSetItems> featuredSetItems;
 	private boolean activeFlag = true;
 	private List<Resource> resources;
-	private List<Learnguide> collections;
 	private List<AssessmentQuestion> questions;
 	private Integer sequence;
 	private String themeCode;
@@ -62,14 +61,6 @@ public class FeaturedSet extends OrganizationModel {
 
 	public void setResources(List<Resource> resources) {
 		this.resources = resources;
-	}
-
-	public List<Learnguide> getCollections() {
-		return collections;
-	}
-
-	public void setCollections(List<Learnguide> collections) {
-		this.collections = collections;
 	}
 
 	public List<AssessmentQuestion> getQuestions() {

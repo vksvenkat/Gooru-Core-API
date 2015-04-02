@@ -24,45 +24,26 @@
 package org.ednovo.gooru.domain.service.assessment;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
 
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.ednovo.gooru.application.util.AsyncExecutor;
 import org.ednovo.gooru.application.util.CollectionUtil;
 import org.ednovo.gooru.application.util.ResourceImageUtil;
-import org.ednovo.gooru.application.util.TaxonomyUtil;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
-import org.ednovo.gooru.core.api.model.Assessment;
 import org.ednovo.gooru.core.api.model.AssessmentAnswer;
-import org.ednovo.gooru.core.api.model.AssessmentAttempt;
-import org.ednovo.gooru.core.api.model.AssessmentAttemptItem;
-import org.ednovo.gooru.core.api.model.AssessmentAttemptSummaryDTO;
-import org.ednovo.gooru.core.api.model.AssessmentAttemptTry;
 import org.ednovo.gooru.core.api.model.AssessmentHint;
-import org.ednovo.gooru.core.api.model.AssessmentMetaDataDTO;
 import org.ednovo.gooru.core.api.model.AssessmentQuestion;
 import org.ednovo.gooru.core.api.model.AssessmentQuestionAssetAssoc;
-import org.ednovo.gooru.core.api.model.AssessmentSegment;
-import org.ednovo.gooru.core.api.model.AssessmentSegmentQuestionAssoc;
 import org.ednovo.gooru.core.api.model.Asset;
-import org.ednovo.gooru.core.api.model.AttemptQuestionDTO;
 import org.ednovo.gooru.core.api.model.Code;
-import org.ednovo.gooru.core.api.model.CodeType;
 import org.ednovo.gooru.core.api.model.ContentMetaDTO;
 import org.ednovo.gooru.core.api.model.ContentType;
 import org.ednovo.gooru.core.api.model.License;
@@ -71,12 +52,8 @@ import org.ednovo.gooru.core.api.model.QuestionSetQuestionAssoc;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.ResourceSource;
 import org.ednovo.gooru.core.api.model.ResourceType;
-import org.ednovo.gooru.core.api.model.SessionActivityType;
-import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.User;
-import org.ednovo.gooru.core.api.model.UserGroupSupport;
 import org.ednovo.gooru.core.application.util.ErrorMessage;
-import org.ednovo.gooru.core.application.util.RequestUtil;
 import org.ednovo.gooru.core.application.util.ResourceMetaInfo;
 import org.ednovo.gooru.core.application.util.ServerValidationUtils;
 import org.ednovo.gooru.core.constant.ConstantProperties;
@@ -98,7 +75,6 @@ import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.assessment.AssessmentRepository;
-import org.ednovo.gooru.infrastructure.persistence.hibernate.classplan.LearnguideRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.resource.ResourceRepository;
@@ -137,9 +113,6 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 
 	@Autowired
 	private TaxonomyService taxonomyService;
-
-	@Autowired
-	private LearnguideRepository learnguideRepository;
 
 	@Autowired
 	@javax.annotation.Resource(name = "assetManager")
@@ -186,300 +159,13 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 
 	@Autowired
 	private ResourceService resourceService;
-	
+
 	@Autowired
 	private IndexHandler indexHandler;
 
 	@Override
 	public AssessmentQuestion getQuestion(String gooruOQuestionId) {
 		return (AssessmentQuestion) assessmentRepository.getByGooruOId(AssessmentQuestion.class, gooruOQuestionId);
-	}
-
-	@Override
-	public int deleteQuestion(String gooruOQuestionId, User caller) {
-		AssessmentQuestion question = getQuestion(gooruOQuestionId);
-		if (question != null) {
-			if (!assessmentRepository.isQuestionUsedInAttemptItem(gooruOQuestionId) && !assessmentRepository.isQuestionUsedInSegmentQuestion(gooruOQuestionId)) {
-				assessmentRepository.remove(AssessmentQuestion.class, question.getContentId());
-				indexHandler.setReIndexRequest(	question.getGooruOid(), IndexProcessor.DELETE, RESOURCE, null, false, false);
-
-				return 1;
-			} else {
-				return 2;
-			}
-		}
-		return 0;
-	}
-
-	@Override
-	public List<AssessmentQuestion> listQuestions(Map<String, String> filters) {
-		return assessmentRepository.listQuestions(filters);
-	}
-
-	@Override
-	public ActionResponseDTO<Assessment> createAssessment(Assessment assessment) throws Exception {
-		assessment = initAssessment(assessment, null, true, null);
-
-		Errors errors = validateAssessment(assessment);
-		if (!errors.hasErrors()) {
-			assessmentRepository.save(assessment);
-
-			// this.createRevisionHistoryEntry(assessment.getGooruOid(),
-			// "AssessmentCreate");
-			this.getResourceImageUtil().setDefaultThumbnailImageIfFileNotExist((Resource) assessment);
-
-		}
-		return new ActionResponseDTO<Assessment>(assessment, errors);
-	}
-
-	@Override
-	public ActionResponseDTO<Assessment> updateAssessment(Assessment assessment, String gooruOAssessmentId, boolean copyToOriginal, User apiCaller, boolean shareQuestions) throws Exception {
-
-		assessment = initAssessment(assessment, gooruOAssessmentId, copyToOriginal, apiCaller);
-
-		assessmentRepository.save(assessment);
-
-
-		indexHandler.setReIndexRequest(assessment.getGooruOid(), IndexProcessor.INDEX, QUIZ, null, false, false);
-
-		return new ActionResponseDTO<Assessment>(assessment, new BindException(assessment, ASSESSMENT));
-	}
-
-	private Assessment initAssessment(Assessment assessment, String gooruOAssessmentId, boolean copyToOriginal, User apiCaller) throws Exception {
-		if (copyToOriginal) {
-			if (gooruOAssessmentId == null) {
-				License license = (License) baseRepository.get(License.class, License.OTHER);
-				assessment.setLicense(license);
-				assessment.setGooruOid(UUID.randomUUID().toString());
-				assessment.setContentId(null);
-				assessment.setCreatedOn(new java.util.Date());
-				assessment.setUrl("");
-				ContentType contentType = (ContentType) baseRepository.get(ContentType.class, ContentType.RESOURCE);
-				assessment.setContentType(contentType);
-				if (assessment.getDistinguish() == null) {
-					assessment.setDistinguish(Short.valueOf("0"));
-				}
-				if (assessment.getIsFeatured() == null) {
-					assessment.setIsFeatured(0);
-				}
-				if (assessment.getTimeToCompleteInSecs() == null) {
-					assessment.setTimeToCompleteInSecs(0);
-				}
-				if (assessment.getTitle() == null) {
-					assessment.setTitle("");
-				}
-				if (assessment.getDescription() == null) {
-					assessment.setDescription("");
-				}
-				if (assessment.getLearningObjectives() == null) {
-					assessment.setLearningObjectives("");
-				}
-				if (assessment.getShowCorrectAnswer() == null) {
-					assessment.setShowCorrectAnswer(true);
-				}
-				if (assessment.getShowHints() == null) {
-					assessment.setShowHints(true);
-				}
-				if (assessment.getShowScore() == null) {
-					assessment.setShowScore(true);
-				}
-				if (assessment.getIsChoiceRandom() == null) {
-					assessment.setIsChoiceRandom(true);
-				}
-				if (assessment.getIsRandom() == null) {
-					assessment.setIsRandom(true);
-				}
-				if (assessment.getSharing() == null) {
-					assessment.setSharing("public");
-				}
-				if (assessment.getLicense() == null) {
-					assessment.setLicense(new License());
-					assessment.getLicense().setName(License.OTHER);
-				}
-				if (assessment.getUrl() == null) {
-					assessment.setUrl("");
-				}
-				if (assessment.getSource() == null) {
-					assessment.setSource("");
-				}
-
-				if (assessment.getVocabulary() == null) {
-					assessment.setVocabulary("");
-				}
-				if (assessment.getCollectionGooruOid() == null) {
-					assessment.setCollectionGooruOid("");
-				}
-				if (assessment.getRecordSource() == null) {
-					assessment.setRecordSource(Resource.RecordSource.DEFAULT.getRecordSource());
-				}
-
-			} else {
-				Assessment existingAssessment = getAssessment(gooruOAssessmentId);
-				if (assessment.getAttempts() != null) {
-					existingAssessment.setAttempts(assessment.getAttempts());
-				}
-				if (assessment.getTaxonomySet() != null) {
-					existingAssessment.setTaxonomySet(assessment.getTaxonomySet());
-				}
-				if (assessment.getIsRandom() != null) {
-					existingAssessment.setIsRandom(assessment.getIsRandom());
-				}
-				if (assessment.getIsChoiceRandom() != null) {
-					existingAssessment.setIsChoiceRandom(assessment.getIsChoiceRandom());
-				}
-				if (assessment.getShowHints() != null) {
-					existingAssessment.setShowHints(assessment.getShowHints());
-				}
-				if (assessment.getShowScore() != null) {
-					existingAssessment.setShowScore(assessment.getShowScore());
-				}
-				if (assessment.getShowCorrectAnswer() != null) {
-					existingAssessment.setShowCorrectAnswer(assessment.getShowCorrectAnswer());
-				}
-				if (assessment.getName() != null) {
-					existingAssessment.setName(assessment.getName());
-				}
-				if (assessment.getIsFeatured() != null) {
-					existingAssessment.setIsFeatured(assessment.getIsFeatured());
-				} else {
-					existingAssessment.setIsFeatured(existingAssessment.getIsFeatured());
-				}
-				if (assessment.getDistinguish() != null) {
-					existingAssessment.setDistinguish(assessment.getDistinguish());
-				} else {
-					existingAssessment.setDistinguish(existingAssessment.getDistinguish());
-				}
-				if (assessment.getResourceType() != null) {
-					existingAssessment.setResourceType(assessment.getResourceType());
-				}
-				if (assessment.getSharing() != null) {
-					existingAssessment.setSharing(assessment.getSharing());
-				}
-				if (assessment.getSource() != null) {
-					existingAssessment.setSource(assessment.getSource());
-				}
-				if (assessment.getVocabulary() != null) {
-					existingAssessment.setVocabulary(assessment.getVocabulary());
-				}
-				if (assessment.getCollectionGooruOid() != null) {
-					existingAssessment.setCollectionGooruOid(assessment.getCollectionGooruOid());
-				}
-				if (assessment.getQuizGooruOid() != null) {
-					existingAssessment.setQuizGooruOid(assessment.getQuizGooruOid());
-				}
-
-				if (apiCaller != null) {
-					List<String> collaboratorList = null;
-					String collaboratorsStr = assessment.getCollaborators();
-					if (collaboratorsStr != null && collaboratorsStr.length() > 0) {
-						collaboratorList = Arrays.asList(collaboratorsStr.split("\\s*,\\s*"));
-						for (User collaborator : userService.findByIdentities(collaboratorList)) {
-							if (userService.checkCollaboratorsPermission(gooruOAssessmentId, collaborator, ASSESSMENT)) {
-								existingAssessment.setCollaborators(collaboratorsStr);
-							} else {
-								throw new Exception("Invalid collaborators!");
-							}
-						}
-					}
-				}
-
-				if (assessment.getDescription() != null) {
-					existingAssessment.setDescription(assessment.getDescription());
-				}
-				if (assessment.getTitle() != null) {
-					existingAssessment.setTitle(assessment.getTitle());
-				}
-				if (assessment.getTimeToCompleteInSecs() != null) {
-					existingAssessment.setTimeToCompleteInSecs(assessment.getTimeToCompleteInSecs());
-				}
-				if (assessment.getLearningObjectives() != null) {
-					existingAssessment.setLearningObjectives(assessment.getLearningObjectives());
-				}
-				if (assessment.getMedium() != null) {
-					existingAssessment.setMedium(assessment.getMedium());
-				}
-				if (assessment.getGrade() != null) {
-					existingAssessment.setGrade(assessment.getGrade());
-				}
-				if (assessment.getCreatorGooruUserId() != null || assessment.getOwnerGooruUserId() != null) {
-
-					if (assessment.getCreatorGooruUserId() != null) {
-						User user = userRepository.findByGooruId(assessment.getCreatorGooruUserId());
-						existingAssessment.setCreator(user);
-						if (assessment.getCreatorGooruUserId().equalsIgnoreCase("")) {
-							existingAssessment.setCreator(null);
-						}
-					}
-					if (assessment.getOwnerGooruUserId() != null) {
-						User user = userRepository.findByGooruId(assessment.getOwnerGooruUserId());
-						existingAssessment.setUser(user);
-						if (assessment.getOwnerGooruUserId().equalsIgnoreCase("")) {
-							existingAssessment.setUser(null);
-						}
-					}
-				}
-
-				assessment = existingAssessment;
-			}
-			Set<Code> taxonomySet = new HashSet<Code>();
-			if (assessment.getTaxonomySet() != null) {
-				for (Code code : assessment.getTaxonomySet()) {
-					if (code.getCode() != null) {
-						Code taxonomy = (Code) taxonomyRepository.findCodeByTaxCode(code.getCode());
-						if (taxonomy != null) {
-							taxonomySet.add(taxonomy);
-						}
-					}
-				}
-				assessment.setTaxonomySet(taxonomySet);
-			} else {
-				assessment.setTaxonomySet(null);
-			}
-		}
-
-		ResourceType resourceType = (ResourceType) baseRepository.get(ResourceType.class, assessment.getResourceType().getName());
-		assessment.setResourceType(resourceType);
-		assessment.setLastModified(new java.util.Date());
-		if (assessment.getName() != null) {
-			assessment.setTitle(assessment.getName());
-		}
-		return assessment;
-	}
-
-	@Override
-	public Assessment getAssessment(String gooruOAssessmentId) {
-		Assessment assessment = assessmentRepository.getByGooruOId(Assessment.class, gooruOAssessmentId);
-		if (assessment != null) {
-			getAssessmentMetaData(assessment);
-		}
-		return assessment;
-	}
-
-	@Override
-	public int deleteAssessment(String gooruOAssessmentId, User caller) {
-		Assessment assessment = getAssessment(gooruOAssessmentId);
-		if (assessment != null) {
-			indexHandler.setReIndexRequest(assessment.getGooruOid(), IndexProcessor.DELETE, QUIZ, null, false, false);
-			assessmentRepository.remove(Assessment.class, assessment.getContentId());
-			// redisService.deleteEntry(gooruOAssessmentId);
-			this.getSessionActivityService().updateSessionActivityByContent(assessment.getGooruOid(), SessionActivityType.Status.ARCHIVE.getStatus());
-			return 1;
-		}
-		return 0;
-	}
-
-	@Override
-	public List<Assessment> listAssessments(Map<String, String> filters) {
-		List<Assessment> assessments = new ArrayList<Assessment>();
-		for (Assessment assessment : assessmentRepository.listAssessments(filters)) {
-			assessments.add(getAssessmentMetaData(assessment));
-		}
-		return assessments;
-	}
-
-	@Override
-	public AssessmentAttempt getAttempt(Integer attemptId) {
-		return (AssessmentAttempt) assessmentRepository.getModel(AssessmentAttempt.class, attemptId);
 	}
 
 	@Override
@@ -772,174 +458,8 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 	}
 
 	@Override
-	public AssessmentSegment getSegment(Integer segmentId) {
-		return (AssessmentSegment) assessmentRepository.getModel(AssessmentSegment.class, segmentId);
-	}
-
-	@Override
-	public Set<AssessmentSegment> listAssessmentSegments(String gooruOAssessmentId) {
-		Assessment assessment = getAssessment(gooruOAssessmentId);
-		return assessment.getSegments();
-	}
-
-	@Override
-	public int deleteSegment(Integer segmentId, String gooruOAssessmentId, User caller) {
-		AssessmentSegment segment = getSegment(segmentId);
-		if (segment != null) {
-			assessmentRepository.remove(AssessmentSegment.class, segmentId);
-			this.getSessionActivityService().updateSessionActivityByContent(gooruOAssessmentId, SessionActivityType.Status.ARCHIVE.getStatus());
-			return 1;
-		}
-		return 0;
-	}
-
-	@Override
-	public AssessmentAttemptItem getNextAttemptQuestion(String gooruOAssessmentId, Integer attemptId, User user) {
-		AssessmentAttempt attempt = getAttempt(attemptId);
-		AssessmentQuestion question = assessmentRepository.getNextUnansweredQuestion(gooruOAssessmentId, attemptId);
-		if (attempt != null && question != null) {
-			attempt.setAttemptItems(new HashSet<AssessmentAttemptItem>());
-			AssessmentAttemptItem attemptItem = new AssessmentAttemptItem();
-			attemptItem.getQuestion().setContentId(question.getContentId());
-			attemptItem.setPresentedAtTime(new java.util.Date());
-			attemptItem.setAttemptStatus(0);// Not Attempted
-			attempt.getAttemptItems().add(attemptItem);
-			assessmentRepository.saveAndFlush(attempt);
-			attemptItem.setQuestion(question);
-			return attemptItem;
-		}
-		return null;
-	}
-
-	@Override
-	public AssessmentSegmentQuestionAssoc createSegmentQuestion(AssessmentSegmentQuestionAssoc assessmentSegmentQuestion) {
-		if (assessmentSegmentQuestion.getSequence() == null) {
-			assessmentSegmentQuestion.setSequence(0);
-		}
-		assessmentRepository.saveAndFlush(assessmentSegmentQuestion);
-		updateQuestionTime(assessmentSegmentQuestion.getQuestion());
-		updateQuestionCount(assessmentSegmentQuestion.getSegment().getSegmentId());
-		return assessmentSegmentQuestion;
-	}
-
-	@Override
-	public boolean saveAttemptAnswerTry(Integer attemptId, Integer attemptItemId, Integer answerId, String answerText) {
-		AssessmentAttemptItem assessmentAttemptItem = getAttemptItem(attemptItemId);
-		if (answerId != null && !answerId.equals("")) {
-			AssessmentAttempt attempt = (AssessmentAttempt) assessmentRepository.getModel(AssessmentAttempt.class, attemptId);
-			AssessmentAnswer answer = (AssessmentAnswer) assessmentRepository.getModel(AssessmentAnswer.class, answerId);
-			if (assessmentAttemptItem != null && attempt != null && answer != null) {
-				if (answerId != null) {
-					AssessmentAttemptTry assessmentAttemptTry = new AssessmentAttemptTry();
-					assessmentAttemptTry.setAssessmentAttemptItem(new AssessmentAttemptItem());
-					assessmentAttemptTry.getAssessmentAttemptItem().setAttemptItemId(attemptItemId);
-					assessmentAttemptTry.setAnswer(new AssessmentAnswer());
-					assessmentAttemptTry.getAnswer().setAnswerId(answerId);
-					assessmentAttemptTry.setAnsweredAtTime(new java.util.Date());
-					assessmentAttemptTry.setAnswerText(answerText);
-					Integer trySequence = getCurrentTrySequence(attemptItemId);
-					assessmentAttemptTry.setTrySequence(trySequence);
-
-					if (getAttemptAnswerStatus(answerId)) {
-						assessmentAttemptTry.setAttemptTryStatus(1);
-						assessmentAttemptItem.setAttemptStatus(1);
-						assessmentAttemptItem.setCorrectTryId(trySequence);
-					} else {
-						assessmentAttemptTry.setAttemptTryStatus(0);
-						assessmentAttemptItem.setAttemptStatus(0);
-					}
-					assessmentRepository.save(assessmentAttemptTry);
-				}
-				if (answer.getIsCorrect()) {
-					attempt.setScore(attempt.getScore() + 1);
-					assessmentRepository.save(attempt);
-				}
-				return true;
-			}
-		} else {
-			assessmentAttemptItem.setAttemptStatus(0);
-		}
-		assessmentRepository.save(assessmentAttemptItem);
-		return false;
-	}
-
-	private Integer getCurrentTrySequence(Integer attemptItemId) {
-		return assessmentRepository.getCurrentTrySequence(attemptItemId);
-	}
-
-	@Override
-	public AssessmentAttemptItem getAttemptItem(Integer attemptItemId) {
-		return (AssessmentAttemptItem) assessmentRepository.getModel(AssessmentAttemptItem.class, attemptItemId);
-	}
-
-	@Override
-	public Integer createAttempt(User user, String gooruOAssessmentId, String mode) {
-		Assessment assessment = getAssessment(gooruOAssessmentId);
-		AssessmentAttempt attempt = new AssessmentAttempt();
-		attempt.setScore(0);
-		attempt.setStudent(user);
-		attempt.setModeName(mode);
-		attempt.setStatus(AssessmentAttempt.STATUS.INPROGRESS.getId());
-		attempt.setStartTime(new java.util.Date());
-		assessment.setAttempts(new HashSet<AssessmentAttempt>());
-		assessment.getAttempts().add(attempt);
-		assessmentRepository.saveAndFlush(assessment);
-		resourceRepository.incrementViews(gooruOAssessmentId);
-		// redisService.updateCount(gooruOAssessmentId, Constants.REDIS_VIEWS);
-		return attempt.getAttemptId();
-	}
-
-	@Override
-	public AssessmentSegment createSegment(AssessmentSegment segment, String gooruOAssessmentId) {
-		Assessment assessment = getAssessment(gooruOAssessmentId);
-		assessment.setSegments(new HashSet<AssessmentSegment>());
-		segment.setSegmentUId(UUID.randomUUID().toString());
-		assessment.getSegments().add(segment);
-		assessmentRepository.save(assessment);
-		return segment;
-	}
-
-	@Override
-	public AssessmentSegment updateSegment(AssessmentSegment segment) {
-		AssessmentSegment existingSegment = getSegment(segment.getSegmentId());
-		existingSegment.setName(segment.getName());
-		existingSegment.setSequence(segment.getSequence());
-		assessmentRepository.save(existingSegment);	
-		return segment;
-	}
-
-	@Override
-	public int deleteSegmentQuestion(Integer segmentId, String gooruOAssessmentId, String gooruOQuestionId, User caller) {
-		AssessmentSegmentQuestionAssoc segmentQuestionAssoc = new AssessmentSegmentQuestionAssoc();
-		this.getSessionActivityService().updateSessionActivityByContent(gooruOAssessmentId, SessionActivityType.Status.ARCHIVE.getStatus());
-		Assessment assessment = getAssessment(gooruOAssessmentId);
-		if (segmentId == 0) {
-			Iterator<AssessmentSegment> iterator = assessment.getSegments().iterator();
-			boolean firstSegment = true;
-			while (iterator.hasNext() && firstSegment) {
-				firstSegment = false;
-				AssessmentSegment assessmentSegment = iterator.next();
-				segmentQuestionAssoc.getSegment().setSegmentId(assessmentSegment.getSegmentId().intValue());
-			}
-		} else {
-			segmentQuestionAssoc.getSegment().setSegmentId(segmentId);
-		}
-
-		segmentQuestionAssoc.setQuestion(getQuestion(gooruOQuestionId));
-		segmentQuestionAssoc = (AssessmentSegmentQuestionAssoc) assessmentRepository.getModel(AssessmentSegmentQuestionAssoc.class, segmentQuestionAssoc);
-		if (segmentQuestionAssoc != null) {
-			assessmentRepository.deleteSegmentQuestion(segmentQuestionAssoc);
-			updateQuestionTime(getQuestion(gooruOQuestionId));
-			updateQuestionCount(segmentId);
-			return 1;
-		}
-		return 0;
-	}
-
-	@Override
 	public void updateQuetionInfo(String gooruOQuestionId, Integer segmentId) {
 		updateQuestionTime(getQuestion(gooruOQuestionId));
-		updateQuestionCount(segmentId);
 	}
 
 	private void updateQuestionTime(AssessmentQuestion question) {
@@ -949,216 +469,9 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 		}
 	}
 
-	private void updateQuestionCount(Integer segmentId) {
-		Assessment assessment = assessmentRepository.getAssessmentForSegment(segmentId);
-		if (assessment != null) {
-			int currentCount = assessmentRepository.getAssessmentQuestions(assessment.getGooruOid()).size();
-			assessment.setQuestionCount(currentCount);
-			assessmentRepository.save(assessment);
-		}
-
-	}
-
-	/**
-	 * To get the Assessment Details with its Metadata(Taxonomy,Skills,etc)
-	 * 
-	 * @param model
-	 * @return
-	 */
-	public Assessment getAssessmentMetaData(Assessment model) {
-
-		AssessmentMetaDataDTO metaData = new AssessmentMetaDataDTO();
-
-		List<User> users = this.learnguideRepository.findCollaborators(model.getGooruOid(), null);
-
-		Set<Code> taxonomySet = model.getTaxonomySet();
-		Iterator<Code> iter = taxonomySet.iterator();
-		while (iter.hasNext()) {
-			Code code = iter.next();
-			this.procedureExecutor.setCode(code);
-			Map codeMap = this.procedureExecutor.execute();
-			String codeLabel = (String) codeMap.get(CODE_LABEL);
-			String[] taxonomy = codeLabel.split("\\$\\@");
-
-			int length = taxonomy.length;
-			if (length > 0) {
-				metaData.getGrades().add(taxonomy[length - 1]);
-			}
-			if (length > 1) {
-				metaData.getSubjects().add(taxonomy[length - 2]);
-			}
-			if (length > 2) {
-				metaData.getUnits().add(taxonomy[length - 3]);
-			}
-			if (length > 3) {
-				metaData.getTopics().add(taxonomy[length - 4]);
-			}
-			if (length > 4) {
-				metaData.getLessons().add(taxonomy[length - 5]);
-			}
-		}
-
-		if (taxonomySet != null) {
-			for (Code code : taxonomySet) {
-				if (code.getRootNodeId() != null && UserGroupSupport.getTaxonomyPreference() != null && UserGroupSupport.getTaxonomyPreference().contains(code.getRootNodeId().toString()) && (!metaData.getCurriculumCodes().contains(code.getCode()))) {
-					metaData.getCurriculumCodes().add(code.getCode());
-					if (code.getDescription() != null && !code.getDescription().equals("")) {
-						metaData.getCurriculumDescs().add(code.getDescription());
-					} else {
-						metaData.getCurriculumCodes().add(BLANK + code.getCode());
-					}
-				}
-			}
-		}
-		Map<Integer, List<Code>> taxonomyMapByCode = TaxonomyUtil.getTaxonomyMapByCode(model.getTaxonomySet(), taxonomyService);
-		Code rootCode = (Code) this.taxonomyRepository.get(Code.class, TaxonomyUtil.getTaxonomyRootId(model.getOrganization().getPartyUid()));
-		if (rootCode != null) {
-			List<CodeType> findTaxonomyLevels = this.taxonomyRepository.findTaxonomyLevels(rootCode);
-			metaData.setTaxonomyLevels(findTaxonomyLevels);
-		}
-		metaData.setTaxonomyMapByCode(taxonomyMapByCode);
-		metaData.setCollaboratorsString(model.collaboratorsInAString());
-		metaData.setCollaborators(users);
-
-		model.setMetaData(metaData);
-		return model;
-	}
-
 	@Override
 	public boolean getAttemptAnswerStatus(Integer answerId) {
 		return assessmentRepository.getAttemptAnswerStatus(answerId);
-	}
-
-	@Override
-	public AssessmentAttemptSummaryDTO getAssessmentAttemptSummary(Integer attemptId, String gooruOAssessmentId, Integer userId) {
-		Integer correctAnswerCountWithoutShortAnswer = 0;
-		Integer totalQuestionsExculdeShortAnswer = 0;
-		AssessmentAttemptSummaryDTO assessmentAttemptSummary = new AssessmentAttemptSummaryDTO();
-		List<AttemptQuestionDTO> questions = new ArrayList<AttemptQuestionDTO>();
-
-		List<Object[]> attemptItems = assessmentRepository.getAssessmentAttemptQuestionSummary(attemptId);
-
-		Map<String, Integer> conceptMap = new HashMap<String, Integer>();
-
-		if (attemptItems != null) {
-			for (Object[] attemptItem : attemptItems) {
-
-				AttemptQuestionDTO question = new AttemptQuestionDTO();
-				question.setQuestionText((String) attemptItem[0]);
-				/*
-				 * question.setAnswer((String) attemptItem[1]);
-				 * question.setCorrectAnswer((String) attemptItem[2]);
-				 * question.setIsCorrect((Integer) attemptItem[3]);
-				 */question.setConcept((String) attemptItem[1]);
-				question.setQuestionStatus((String) attemptItem[2]);
-				Integer questionId = (Integer) attemptItem[3];
-				List<AssessmentAnswer> answers = assessmentRepository.findAnswerByAssessmentQuestionId(questionId);
-				question.setAnswers(answers);
-				List<AssessmentQuestionAssetAssoc> assets = assessmentRepository.getQuestionAssetByQuestionId(questionId);
-				for (AssessmentQuestionAssetAssoc asset : assets) {
-					if (asset.getAssetKey().equalsIgnoreCase(ASSET_QUESTION)) {
-						question.setAsset(asset);
-					}
-				}
-				question.setExplanation((String) attemptItem[4]);
-				question.setType((Integer) attemptItem[5]);
-				question.setFolder((String) attemptItem[6]);
-				question.setAssetURI((String) attemptItem[7]);
-				question.setGooruOid((String) attemptItem[8]);
-				List<AssessmentAttemptTry> attemptsTry = assessmentRepository.findAssessmentAttemptsTryByAttemptItemId((Integer) attemptItem[9]);
-				question.setAssessmentAttemptsTry(attemptsTry);
-				Integer correctTrySequence = (Integer) attemptItem[10];
-				question.setCorrectTrySequence(correctTrySequence);
-
-				if (correctTrySequence != null && correctTrySequence == 1) {
-					question.setIsCorrect(1);
-				} else {
-					question.setIsCorrect(0);
-				}
-
-				/*
-				 * Map<String, String> filter = new HashMap<String, String>();
-				 * filter.put(AssessmentRepository.ATTEMPT_ID, attemptId + "");
-				 * filter.put(AssessmentRepository.QUESTION_GOORU_ID,
-				 * gooruOAssessmentId);
-				 * filter.put(AssessmentRepository.QUESTION_TYPE_SA, "2");
-				 * 
-				 * Integer total =
-				 * assessmentRepository.getDistinctAttemptQuestionCount(filter);
-				 * filter.put(AssessmentRepository.IS_CORRECT, "1"); Integer
-				 * correctlyAnswered =
-				 * assessmentRepository.getDistinctAttemptQuestionCount(filter);
-				 * question.setCorrectlyAnsweredPercentage(getPercentageValue(
-				 * correctlyAnswered, total) + "");
-				 */
-				if (question.getIsCorrect() == 1) {
-					correctAnswerCountWithoutShortAnswer++;
-				}
-				if (question.getType() != 2) {
-					totalQuestionsExculdeShortAnswer++;
-				}
-
-				// build concept-wise map for attempt
-
-				String concept = question.getConcept();
-				if (concept == null || concept.equalsIgnoreCase("")) {
-					concept = NO_CONCEPT;
-				}
-
-				Integer conceptCorrectCount = conceptMap.get(concept);
-				if (conceptCorrectCount == null) {
-					conceptCorrectCount = 0;
-				}
-				if (question.getIsCorrect() == 1) {
-					conceptMap.put(concept, conceptCorrectCount + 1);
-				} else {
-					Integer existingConceptCount = conceptMap.get(concept);
-					if (existingConceptCount != null) {
-						if (existingConceptCount == 0) {
-							conceptMap.put(concept, 0);
-						}
-					} else {
-						conceptMap.put(concept, 0);
-					}
-
-				}
-
-				questions.add(question);
-
-			}
-
-			Map<String, Integer> conceptsScore = new HashMap<String, Integer>();
-
-			for (String conceptKey : conceptMap.keySet()) {
-				Integer correctCount = conceptMap.get(conceptKey);
-				Integer conceptQuestionCount = 0;
-
-				for (AttemptQuestionDTO aquestion : questions) {
-					String conceptCheck = "";
-					if (!conceptKey.equalsIgnoreCase(NO_CONCEPT) && conceptKey != null) {
-						conceptCheck = conceptKey;
-					}
-
-					if (aquestion.getConcept().equalsIgnoreCase(conceptCheck)) {
-						conceptQuestionCount++;
-					}
-				}
-
-				Double conceptsPercentage = (correctCount / (conceptQuestionCount * 1.0)) * 100;
-				conceptsScore.put(conceptKey, conceptsPercentage.intValue());
-			}
-
-			assessmentAttemptSummary.setScore(correctAnswerCountWithoutShortAnswer);
-			assessmentAttemptSummary.setTotalQuestions(totalQuestionsExculdeShortAnswer);
-			Double correctAnswerPercentageDouble = (correctAnswerCountWithoutShortAnswer / (totalQuestionsExculdeShortAnswer * 1.0)) * 100;
-			assessmentAttemptSummary.setCorrectAnswersPercentage(new Integer(correctAnswerPercentageDouble.intValue()));
-			assessmentAttemptSummary.setConceptsScore(conceptsScore);
-		}
-		assessmentAttemptSummary.setQuestionData(questions);
-		Map<String, Object> summary = assessmentRepository.getAssessmentAttemptsInfo(attemptId, gooruOAssessmentId, userId);
-		summary.put(SUMMARY, getAttempt(attemptId));
-		assessmentAttemptSummary.setSocialAttemptScore(summary);
-		return assessmentAttemptSummary;
 	}
 
 	private Errors validateQuestion(AssessmentQuestion question) throws Exception {
@@ -1178,21 +491,6 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 			if (question.getTypeName().equals(AssessmentQuestion.TYPE.SHORT_ANSWER.getName()) && question.getTypeName().equals(AssessmentQuestion.TYPE.OPEN_ENDED.getName())) {
 				ServerValidationUtils.rejectIfNullOrEmpty(errors, question.getAnswers(), ANSWERS, ErrorMessage.REQUIRED_FIELD);
 			}
-		}
-		return errors;
-	}
-
-	private Errors validateAssessment(Assessment assessment) throws Exception {
-		final Errors errors = new BindException(assessment, ASSESSMENT);
-		if (assessment != null) {
-			ServerValidationUtils.rejectIfNullOrEmpty(errors, assessment.getName(), NAME, ErrorMessage.REQUIRED_FIELD);
-			ServerValidationUtils.rejectIfNullOrEmpty(errors, assessment.getSharing(), SHARING, ErrorMessage.REQUIRED_FIELD);
-			ServerValidationUtils.rejectIfNull(errors, assessment.getTimeToCompleteInSecs(), TIME_TO_COMPLETE_IN_SECS, ErrorMessage.REQUIRED_FIELD);
-			ServerValidationUtils.rejectIfNull(errors, assessment.getIsChoiceRandom(), IS_CHOICE_RANDOM, ErrorMessage.REQUIRED_FIELD);
-			ServerValidationUtils.rejectIfNull(errors, assessment.getIsRandom(), IS_RANDOM, ErrorMessage.REQUIRED_FIELD);
-			ServerValidationUtils.rejectIfNull(errors, assessment.getShowScore(), SHOW_SCORE, ErrorMessage.REQUIRED_FIELD);
-			ServerValidationUtils.rejectIfNull(errors, assessment.getShowHints(), SHOW_HINTS, ErrorMessage.REQUIRED_FIELD);
-			ServerValidationUtils.rejectIfNull(errors, assessment.getShowCorrectAnswer(), SHOW_CORRECT_ANSWER, ErrorMessage.REQUIRED_FIELD);
 		}
 		return errors;
 	}
@@ -1334,110 +632,6 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 	}
 
 	@Override
-	public AssessmentSegmentQuestionAssoc findSegmentQuestion(Integer segmentId, String gooruOQuestionId) {
-		return assessmentRepository.findSegmentQuestion(segmentId, gooruOQuestionId);
-	}
-
-	@Override
-	public Assessment copyAssessment(User user, String gooruAssessmentId, String quizTitle) throws Exception {
-		Assessment assessment = getAssessment(gooruAssessmentId);
-		Assessment copyAssessment = new Assessment();
-		if (assessment != null) {
-			copyAssessment.setDescription(assessment.getDescription());
-			copyAssessment.setContentType(assessment.getContentType());
-			copyAssessment.setIsChoiceRandom(assessment.getIsChoiceRandom());
-			copyAssessment.setIsRandom(assessment.getIsRandom());
-			copyAssessment.setLicense(assessment.getLicense());
-			if (quizTitle == null) {
-				quizTitle = "Copy - " + assessment.getName();
-			}
-			copyAssessment.setCopiedResourceId(gooruAssessmentId);
-			copyAssessment.setName(quizTitle);
-			copyAssessment.setTitle(assessment.getTitle());
-			copyAssessment.setQuestionCount(assessment.getQuestionCount());
-			copyAssessment.setResourceType(assessment.getResourceType());
-			copyAssessment.setGrade(assessment.getGrade());
-			copyAssessment.setSharing(Sharing.PRIVATE.getSharing());
-			copyAssessment.setShowCorrectAnswer(assessment.getShowCorrectAnswer());
-			copyAssessment.setShowHints(assessment.getShowHints());
-			copyAssessment.setShowScore(assessment.getShowScore());
-			copyAssessment.setTimeToCompleteInSecs(assessment.getTimeToCompleteInSecs());
-			copyAssessment.setCreator(assessment.getCreator());
-			copyAssessment.setUser(user);
-			copyAssessment.setMetaData(assessment.getMetaData());
-			copyAssessment.setThumbnail(assessment.getThumbnail());
-			Set<Code> taxonomy = new HashSet<Code>();
-			taxonomy.addAll(assessment.getTaxonomySet());
-			copyAssessment.setTaxonomySet(taxonomy);
-			createAssessment(copyAssessment);
-			this.getResourceManager().copyResourceRepository(assessment, copyAssessment);
-
-			if (assessment.getSegments() != null) {
-				Set<AssessmentSegment> copyAssessmentSegments = new HashSet<AssessmentSegment>();
-				for (AssessmentSegment segment : assessment.getSegments()) {
-					AssessmentSegment copySegment = new AssessmentSegment();
-					copySegment.setName("Copy - " + segment.getName());
-					copySegment.setSequence(segment.getSequence());
-					copySegment.setTimeToCompleteInSecs(segment.getTimeToCompleteInSecs());
-					copySegment.setSegmentUId(UUID.randomUUID().toString());
-					createSegment(copySegment, copyAssessment.getGooruOid());
-					Set<AssessmentSegmentQuestionAssoc> segmentQuestionAssocs = segment.getSegmentQuestions();
-					if (segmentQuestionAssocs != null && segmentQuestionAssocs.size() > 0) {
-						Set<AssessmentSegmentQuestionAssoc> copyAssessmentSegmentQuestionAssocs = new HashSet<AssessmentSegmentQuestionAssoc>();
-						for (AssessmentSegmentQuestionAssoc segmentQuestionAssoc : segmentQuestionAssocs) {
-							AssessmentSegmentQuestionAssoc copySegmentQuestionAssoc = new AssessmentSegmentQuestionAssoc();
-							copySegmentQuestionAssoc.setQuestion(segmentQuestionAssoc.getQuestion());
-							copySegmentQuestionAssoc.setSegment(copySegment);
-							createSegmentQuestion(copySegmentQuestionAssoc);
-							copyAssessmentSegmentQuestionAssocs.add(copySegmentQuestionAssoc);
-						}
-						copySegment.setSegmentQuestions(copyAssessmentSegmentQuestionAssocs);
-					}
-					copyAssessmentSegments.add(copySegment);
-				}
-				copyAssessment.setSegments(copyAssessmentSegments);
-			}
-			this.s3ResourceApiHandler.uploadS3Resource(copyAssessment);
-		}
-		return copyAssessment;
-	}
-
-	@Override
-	public int reorderSegments(String reOrdered) throws Exception {
-		if (reOrdered == null || reOrdered.length() < 1) {
-			return HttpServletResponse.SC_BAD_REQUEST;
-		}
-		String[] reOrderedArray = reOrdered.split(",");
-		for (int sequence = 0; sequence < reOrderedArray.length; sequence++) {
-			Integer segmentId = Integer.parseInt(reOrderedArray[sequence]);
-			AssessmentSegment segment = getSegment(segmentId);
-			segment.setSequence(sequence + 1);
-			assessmentRepository.save(segment);
-		}
-		return HttpServletResponse.SC_OK;
-	}
-
-	@Override
-	public int reorderQuestions(Integer segmentId, String reOrdered) throws Exception {
-		if (reOrdered == null || reOrdered.length() < 1) {
-			return HttpServletResponse.SC_BAD_REQUEST;
-		}
-		AssessmentSegment segment = getSegment(segmentId);
-
-		String[] reOrderedArray = reOrdered.split(",");
-		for (int sequence = 0; sequence < reOrderedArray.length; sequence++) {
-			String gooruQuestionId = reOrderedArray[sequence];
-			AssessmentSegmentQuestionAssoc segmentQuestionAssoc = new AssessmentSegmentQuestionAssoc();
-			segmentQuestionAssoc.setSegment(segment);
-			segmentQuestionAssoc.setQuestion(getQuestion(gooruQuestionId));
-			segmentQuestionAssoc.setSequence(sequence + 1);
-			assessmentRepository.save(segmentQuestionAssoc);
-		}
-		updateQuestionCount(segmentId);
-		return HttpServletResponse.SC_OK;
-	}
-
-	@Override
 	public AssessmentQuestion copyAssessmentQuestion(User user, String gooruQuestionId) throws Exception {
 		AssessmentQuestion question = getQuestion(gooruQuestionId);
 		AssessmentQuestion copyQuestion = new AssessmentQuestion();
@@ -1545,107 +739,12 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 		return false;
 	}
 
-	@Override
-	public String updateAssessmentThumbnail(String gooruAssessmentId, String fileName, Map<String, Object> formField) throws Exception {
-		Assessment assessment = getAssessment(gooruAssessmentId);
-
-		File classplanDir = new File(assessment.getOrganization().getNfsStorageArea().getInternalPath() + assessment.getFolder());
-
-		if (!classplanDir.exists()) {
-			classplanDir.mkdirs();
-		}
-
-		Map<String, byte[]> files = (Map<String, byte[]>) formField.get(RequestUtil.UPLOADED_FILE_KEY);
-
-		byte[] fileData = null;
-
-		// expecting only one file in the request right now
-		for (byte[] fileContent : files.values()) {
-			fileData = fileContent;
-		}
-		if (fileData != null && fileData.length > 0) {
-
-			String prevFileName = assessment.getThumbnail();
-
-			if (prevFileName != null && !prevFileName.equalsIgnoreCase("")) {
-				File prevFile = new File(assessment.getOrganization().getNfsStorageArea().getInternalPath() + assessment.getFolder() + "/" + prevFileName);
-				if (prevFile.exists()) {
-					prevFile.delete();
-				}
-			}
-
-			File file = new File(assessment.getOrganization().getNfsStorageArea().getInternalPath() + assessment.getFolder() + "/" + fileName);
-
-			OutputStream out = new FileOutputStream(file);
-			out.write(fileData);
-			out.close();
-
-			assessment.setThumbnail(fileName);
-		}
-
-		assessmentRepository.saveAndFlush(assessment);
-		String thumbnailPath = assessment.getAssetURI() + assessment.getFolder() + fileName;
-		indexHandler.setReIndexRequest(assessment.getGooruOid(), IndexProcessor.INDEX, QUIZ, null, false, false);
-		return thumbnailPath;
-	}
-
-	@Override
-	public List<String> suggestConcept(String keyword) {
-		return learnguideRepository.getAssessmentQuestionConcept(keyword);
-	}
-
-	@Override
-	public void deleteAssessmentThumbnail(String gooruAssessmentId) {
-
-		Assessment assessment = getAssessment(gooruAssessmentId);
-		File classplanDir = new File(assessment.getOrganization().getNfsStorageArea().getInternalPath() + assessment.getFolder());
-
-		if (classplanDir.exists()) {
-
-			String prevFileName = assessment.getThumbnail();
-
-			if (prevFileName != null && !prevFileName.equalsIgnoreCase("")) {
-				File prevFile = new File(classplanDir.getPath() + "/" + prevFileName);
-				if (prevFile.exists()) {
-					prevFile.delete();
-				}
-			}
-
-			assessment.setThumbnail(null);
-			assessmentRepository.save(assessment);
-			indexHandler.setReIndexRequest(assessment.getGooruOid(), IndexProcessor.INDEX, QUIZ, null, false, false);
-		}
-	}
-
-	@Override
-	public List<Assessment> getAssessmentList(List<String> assessmentIds) {
-		return assessmentRepository.getAssessmentsListByAssessmentGooruOids(assessmentIds);
-	}
-
-	@Override
-	public List<Assessment> getAssessmenOfQuestion(String questionGooruOid) {
-		return assessmentRepository.getAssessmentOfQuestion(questionGooruOid);
-	}
-
 	public ResourceManager getResourceManager() {
 		return resourceManager;
 	}
 
 	public void setResourceManager(ResourceManager resourceManager) {
 		this.resourceManager = resourceManager;
-	}
-
-	@Override
-	public String updateQuizImage(String gooruContentId, String fileName) throws IOException {
-		Assessment assessment = this.assessmentRepository.findQuizContent(gooruContentId);
-
-		resourceImageUtil.moveFileAndSendMsgToGenerateThumbnails(assessment, fileName, false);
-		indexHandler.setReIndexRequest(assessment.getGooruOid(), IndexProcessor.INDEX, QUIZ, null, false, false);		
-
-		// Remove the collection from cache
-		// collectionUtil.deleteCollectionFromCache(gooruContentId,
-		// "collection");
-		return assessment.getOrganization().getNfsStorageArea().getAreaPath() + assessment.getFolder() + "/" + assessment.getThumbnail();
 	}
 
 	@Override
@@ -1705,7 +804,7 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 				mediaImage.delete();
 			}
 		}
-		indexHandler.setReIndexRequest(question.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);				
+		indexHandler.setReIndexRequest(question.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);
 		return question;
 	}
 
@@ -1744,7 +843,7 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 
 			}
 		}
-		indexHandler.setReIndexRequest(question.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);				
+		indexHandler.setReIndexRequest(question.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);
 		return question;
 	}
 
@@ -1772,7 +871,7 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 			}
 			if (removeQuizList.size() > 0) {
 				this.baseRepository.removeAll(removeQuizList);
-				indexHandler.setReIndexRequest(removeContentIds, IndexProcessor.DELETE, QUIZ, null, false, false);						
+				indexHandler.setReIndexRequest(removeContentIds, IndexProcessor.DELETE, QUIZ, null, false, false);
 			}
 		}
 	}
@@ -1796,7 +895,7 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 			}
 			if (removeQuestionList.size() > 0) {
 				this.baseRepository.removeAll(removeQuestionList);
-				indexHandler.setReIndexRequest(removeContentIds, IndexProcessor.INDEX, RESOURCE, null, false, false);		
+				indexHandler.setReIndexRequest(removeContentIds, IndexProcessor.INDEX, RESOURCE, null, false, false);
 			}
 		}
 	}
@@ -1831,6 +930,17 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 	}
 
 	@Override
+	public int deleteQuestion(String gooruOQuestionId, User caller) {
+		AssessmentQuestion question = getQuestion(gooruOQuestionId);
+		if (question != null) {
+			assessmentRepository.remove(AssessmentQuestion.class, question.getContentId());
+			indexHandler.setReIndexRequest(question.getGooruOid(), IndexProcessor.DELETE, RESOURCE, null, false, false);
+          return 1;
+		}
+		return 0;
+	}
+
+	@Override
 	public String findAssessmentNameByGooruOId(String gooruOId) {
 		return assessmentRepository.findAssessmentNameByGooruOid(gooruOId);
 	}
@@ -1841,11 +951,6 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 
 	public ResourceImageUtil getResourceImageUtil() {
 		return resourceImageUtil;
-	}
-
-	@Override
-	public Assessment findQuizContent(String quizGooruOid) {
-		return assessmentRepository.findQuizContent(quizGooruOid);
 	}
 
 	public AsyncExecutor getAsyncExecutor() {
