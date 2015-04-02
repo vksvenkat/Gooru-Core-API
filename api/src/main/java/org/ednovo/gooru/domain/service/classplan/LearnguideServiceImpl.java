@@ -155,8 +155,8 @@ public class LearnguideServiceImpl extends OperationAuthorizer implements Learng
 	private static final Logger logger = LoggerFactory.getLogger(LearnguideServiceImpl.class);
 
 	@Override
-	public String updateCollectionImage(String gooruContentId, String fileName) throws IOException {
-		Learnguide collection = this.getLearnguideRepository().findByContent(gooruContentId);
+	public String updateCollectionImage(final String gooruContentId, final String fileName) throws IOException {
+		final Learnguide collection = this.getLearnguideRepository().findByContent(gooruContentId);
 		resourceImageUtil.moveFileAndSendMsgToGenerateThumbnails(collection, fileName, false);
 		indexHandler.setReIndexRequest(collection.getGooruOid(), IndexProcessor.INDEX, COLLECTION, null, false, false);				
 		// Remove the collection from cache
@@ -166,13 +166,13 @@ public class LearnguideServiceImpl extends OperationAuthorizer implements Learng
 
 	@Override
 	public void deleteCollectionBulk(String collectionGooruOIds) {
-		List<Resource> collectionResources = resourceRepository.findAllResourcesByGooruOId(collectionGooruOIds);
-		List<Resource> removeCollectionList = new ArrayList<Resource>();
-		if (collectionResources.size() > 0) {
+		final List<Resource> collectionResources = resourceRepository.findAllResourcesByGooruOId(collectionGooruOIds);
+		final List<Resource> removeCollectionList = new ArrayList<Resource>();
+		if (collectionResources.size() > _ZERO) {
 			String removeContentUIds = "";
 			int count = 0;
-			for (Resource resource : collectionResources) {
-				if (count > 0) {
+			for (final Resource resource : collectionResources) {
+				if (count > _ZERO) {
 					removeContentUIds += ",";
 				}
 				if (resource.getResourceType().getName().equals(ResourceType.Type.CLASSPLAN.getType())) {
@@ -189,22 +189,22 @@ public class LearnguideServiceImpl extends OperationAuthorizer implements Learng
 	}
 
 	@Override
-	public JSONObject updateContentSharingPermission(User user, String contentGooruOid, String sharing, String type) throws Exception {
-		Content content = this.getContentRepository().findByContentGooruId(contentGooruOid);
-		JSONObject responseJSON = new JSONObject();
+	public JSONObject updateContentSharingPermission(final User user, final String contentGooruOid, final String sharing, final String type) throws Exception {
+		final Content content = this.getContentRepository().findByContentGooruId(contentGooruOid);
+		final JSONObject responseJSON = new JSONObject();
 		if (content != null) {
 			if (sharing.trim().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || sharing.trim().equalsIgnoreCase(Sharing.PUBLIC.getSharing()) || sharing.trim().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing())) {
 				if (type.trim().equalsIgnoreCase(COLLECTION)) {
-					Learnguide collection = this.getLearnguideRepository().findByContent(contentGooruOid);
+					final Learnguide collection = this.getLearnguideRepository().findByContent(contentGooruOid);
 					if (collection != null) {
 						if (!hasUnrestrictedContentAccess(user) && !hasPublishAccess(user) && sharing.trim().equalsIgnoreCase(Sharing.PUBLIC.getSharing())) {
 							responseJSON.put(STATUS, STATUS_403).put(MESSAGE, "Do not have permission to change sharing for this " + type);
 						} else {
 							if (sharing != null && sharing.equalsIgnoreCase(Sharing.PUBLIC.getSharing())) {
 								Set<Segment> resourceSegments = collection.getResourceSegments();
-								for (Segment segment : resourceSegments) {
+								for (final Segment segment : resourceSegments) {
 									Set<ResourceInstance> resourceInstances = segment.getResourceInstances();
-									for (ResourceInstance resourceInstance : resourceInstances) {
+									for (final ResourceInstance resourceInstance : resourceInstances) {
 										SessionContextSupport.putLogParameter("sharing-" + resourceInstance.getResource().getGooruOid(), resourceInstance.getResource().getSharing() + " to " + sharing);
 										resourceInstance.getResource().setSharing(sharing);
 										this.getResourceService().updateResourceInstanceMetaData(resourceInstance.getResource(), user);
@@ -212,7 +212,7 @@ public class LearnguideServiceImpl extends OperationAuthorizer implements Learng
 								}
 								collection.setRequestPending(0);
 								this.saveCollectionSharing(sharing, collection);
-								for (Segment segment : resourceSegments) {
+								for (final Segment segment : resourceSegments) {
 									Set<ResourceInstance> resourceInstances = segment.getResourceInstances();
 									for (ResourceInstance resourceInstance : resourceInstances) {
 										this.getResourceService().replaceDuplicatePrivateResourceWithPublicResource(resourceInstance.getResource());
@@ -240,9 +240,9 @@ public class LearnguideServiceImpl extends OperationAuthorizer implements Learng
 	}
 
 	@Override
-	public JSONObject resetRequestPending(User user, String contentGooruOid, Integer pendingStatus) throws Exception {
-		JSONObject responseJSON = new JSONObject();
-		Learnguide collection = this.getLearnguideRepository().findByContent(contentGooruOid);
+	public JSONObject resetRequestPending(final User user, final String contentGooruOid, final Integer pendingStatus) throws Exception {
+		final JSONObject responseJSON = new JSONObject();
+		final Learnguide collection = this.getLearnguideRepository().findByContent(contentGooruOid);
 		if (collection != null) {
 			if ((hasUnrestrictedContentAccess(user) || pendingStatus.equals(1))) {
 				collection.setRequestPending(pendingStatus);
@@ -260,8 +260,8 @@ public class LearnguideServiceImpl extends OperationAuthorizer implements Learng
 
 
 	@Override
-	public JSONObject publishCollection(String action, User user, String contentGooruOid) throws Exception {
-		JSONObject responseJSON = new JSONObject();
+	public JSONObject publishCollection(final String action, final User user, final String contentGooruOid) throws Exception {
+		final JSONObject responseJSON = new JSONObject();
 		if (action.equalsIgnoreCase(ACCEPT)) {
 			return this.updateContentSharingPermission(user, contentGooruOid, Sharing.PUBLIC.getSharing(), COLLECTION);
 		} else if (action.equalsIgnoreCase(DENY)) {
@@ -272,82 +272,82 @@ public class LearnguideServiceImpl extends OperationAuthorizer implements Learng
 	}
 
 	@Override
-	public List<Object> findByUser(User user, Type type) {
+	public List<Object> findByUser(final User user, final Type type) {
 		return this.getLearnguideRepository().findByUser(user, type);
 	}
 
 	@Override
-	public List<Object> findAllLearnguides(Type type) {
+	public List<Object> findAllLearnguides(final Type type) {
 		return this.getLearnguideRepository().findAllLearnguides(type);
 	}
 
 	@Override
-	public List<Learnguide> findByResource(String gooruResourceContentId, String sharing) {
+	public List<Learnguide> findByResource(final String gooruResourceContentId, final String sharing) {
 		return this.getLearnguideRepository().findByResource(gooruResourceContentId, sharing);
 	}
 
 	@Override
-	public Learnguide findByContent(String gooruContentId) {
+	public Learnguide findByContent(final String gooruContentId) {
 		return this.getLearnguideRepository().findByContent(gooruContentId);
 	}
 
 	@Override
-	public List<User> findCollaborators(String gooruContentId) {
+	public List<User> findCollaborators(final String gooruContentId) {
 		return this.getLearnguideRepository().findCollaborators(gooruContentId, null);
 	}
 
 	@Override
-	public List<Learnguide> findRecentLearnguideByUser(User user, String sharing) {
+	public List<Learnguide> findRecentLearnguideByUser(final User user, final String sharing) {
 		return this.getLearnguideRepository().findRecentLearnguideByUser(user, sharing);
 	}
 
 	@Override
-	public List<Learnguide> listLearnguides(Map<String, String> filters) {
+	public List<Learnguide> listLearnguides(final Map<String, String> filters) {
 		return this.getLearnguideRepository().listLearnguides(filters);
 	}
 
 	@Override
-	public List<ResourceInstance> listCollectionResourceInstances(Map<String, String> filters) {
+	public List<ResourceInstance> listCollectionResourceInstances(final Map<String, String> filters) {
 		return this.getLearnguideRepository().listCollectionResourceInstance(filters);
 	}
 
 	@Override
-	public List<Learnguide> listPublishedCollections(String userGooruId) {
+	public List<Learnguide> listPublishedCollections(final String userGooruId) {
 		return this.getLearnguideRepository().listPublishedCollections(userGooruId);
 	}
 
 	@Override
-	public List<ResourceInstance> listCollectionResourceInstance(Map<String, String> filters) {
+	public List<ResourceInstance> listCollectionResourceInstance(final Map<String, String> filters) {
 		return this.getLearnguideRepository().listCollectionResourceInstance(filters);
 	}
 
 	@Override
-	public List<Resource> listCollectionResources(Map<String, String> filters) {
+	public List<Resource> listCollectionResources(final Map<String, String> filters) {
 		return this.getLearnguideRepository().listCollectionResources(filters);
 	}
 
 	@Override
-	public List<String> getResourceInstanceIds(String gooruContentId) {
+	public List<String> getResourceInstanceIds(final String gooruContentId) {
 		return this.getLearnguideRepository().getResourceInstanceIds(gooruContentId);
 	}
 
 	@Override
-	public String findCollectionNameByGooruOid(String gooruOId) {
+	public String findCollectionNameByGooruOid(final String gooruOId) {
 		return this.getLearnguideRepository().findCollectionNameByGooruOid(gooruOId);
 	}
 
 	@Override
-	public List<Segment> listCollectionSegments(Map<String, String> filters) {
+	public List<Segment> listCollectionSegments(final Map<String, String> filters) {
 		return this.getLearnguideRepository().listCollectionSegments(filters);
 	}
 
 	@Override
-	public Learnguide createNewCollection(String lesson, String grade, String[] taxonomyCode, User user, String type, Map<String, String> customFieldAndValueMap, String lessonObjectives) {
+	public Learnguide createNewCollection(final String lesson, final String grade, final String[] taxonomyCode, final User user, final String type, final Map<String, String> customFieldAndValueMap, final String lessonObjectives) {
 
-		Learnguide collection = new Learnguide();
+		final Learnguide collection = new Learnguide();
 
-		ContentType contentType = (ContentType) this.getBaseRepository().get(ContentType.class, ContentType.RESOURCE);
-		License license = (License) this.getBaseRepository().get(License.class, License.OTHER);
+		final ContentType contentType = (ContentType) this.getBaseRepository().get(ContentType.class, ContentType.RESOURCE);
+		final License license = (License) this.getBaseRepository().get(License.class, License.OTHER);
 
 		ResourceType resourceType = null;
 		if (type.equalsIgnoreCase(CLASS_PLAN)) {
@@ -379,7 +379,7 @@ public class LearnguideServiceImpl extends OperationAuthorizer implements Learng
 		collection.setGoals(lessonObjectives);
 
 		// Add taxonomy data
-		List<Code> codeList = new ArrayList<Code>();
+		final List<Code> codeList = new ArrayList<Code>();
 		if (taxonomyCode != null) {
 			for (String codeId : taxonomyCode) {
 				if (!codeId.equals("-")) {
@@ -417,16 +417,16 @@ public class LearnguideServiceImpl extends OperationAuthorizer implements Learng
 	}
 
 	@Override
-	public void deleteCollectionThumbnail(String gooruContentId) throws Exception {
-		Learnguide collection = this.getLearnguideRepository().findByContent(gooruContentId);
+	public void deleteCollectionThumbnail(final String gooruContentId) throws Exception {
+		final Learnguide collection = this.getLearnguideRepository().findByContent(gooruContentId);
 
-		File collectionDir = new File(collection.getOrganization().getNfsStorageArea().getInternalPath() + collection.getFolder());
+		final File collectionDir = new File(collection.getOrganization().getNfsStorageArea().getInternalPath() + collection.getFolder());
 
 		if (collectionDir.exists()) {
-			String prevFileName = collection.getThumbnail();
+			final String prevFileName = collection.getThumbnail();
 
 			if (prevFileName != null && !prevFileName.equalsIgnoreCase("")) {
-				File prevFile = new File(collectionDir.getPath() + "/" + prevFileName);
+				final File prevFile = new File(collectionDir.getPath() + "/" + prevFileName);
 				if (prevFile.exists()) {
 					prevFile.delete();
 					s3ResourceApiHandler.deleteResourceFile(collection, collection.getThumbnail());
@@ -445,19 +445,19 @@ public class LearnguideServiceImpl extends OperationAuthorizer implements Learng
 	}
 
 	@Override
-	public String updateCollectionThumbnail(String gooruContentId, String fileName, String imageURL, Map<String, Object> formField) throws Exception {
+	public String updateCollectionThumbnail(final String gooruContentId, String fileName, final String imageURL, Map<String, Object> formField) throws Exception {
 		boolean isHasSlash = StringUtils.contains(fileName, '\\');
 
 		if (isHasSlash) {
 			fileName = StringUtils.substringAfterLast(fileName, Character.toString('\\'));
 		}
 
-		Learnguide collection = this.getLearnguideRepository().findByContent(gooruContentId);
+		final Learnguide collection = this.getLearnguideRepository().findByContent(gooruContentId);
 		boolean buildThumbnail = false;
 
 		if (imageURL != null && imageURL.length() > 0) {
-			String resourceImageFile = collection.getOrganization().getNfsStorageArea().getInternalPath() + collection.getFolder() + "/" + fileName;
-			String prevFileName = collection.getThumbnail();
+			final String resourceImageFile = collection.getOrganization().getNfsStorageArea().getInternalPath() + collection.getFolder() + "/" + fileName;
+			final String prevFileName = collection.getThumbnail();
 			if (prevFileName != null && !prevFileName.equalsIgnoreCase("")) {
 				File prevFile = new File(collection.getOrganization().getNfsStorageArea().getInternalPath() + collection.getFolder() + "/" + prevFileName);
 				if (prevFile.exists()) {
@@ -486,7 +486,7 @@ public class LearnguideServiceImpl extends OperationAuthorizer implements Learng
 			}
 			if (fileData != null && fileData.length > 0) {
 
-				String prevFileName = collection.getThumbnail();
+				final String prevFileName = collection.getThumbnail();
 
 				if (prevFileName != null && !prevFileName.equalsIgnoreCase("")) {
 					File prevFile = new File(collection.getOrganization().getNfsStorageArea().getInternalPath() + collection.getFolder() + "/" + prevFileName);
@@ -495,7 +495,7 @@ public class LearnguideServiceImpl extends OperationAuthorizer implements Learng
 					}
 				}
 
-				File file = new File(collection.getOrganization().getNfsStorageArea().getInternalPath() + collection.getFolder() + "/" + fileName);
+				final File file = new File(collection.getOrganization().getNfsStorageArea().getInternalPath() + collection.getFolder() + "/" + fileName);
 
 				OutputStream out = new FileOutputStream(file);
 				out.write(fileData);
@@ -519,11 +519,11 @@ public class LearnguideServiceImpl extends OperationAuthorizer implements Learng
 	}
 
 	@Override
-	public Learnguide copyCollection(String gooruContentId, String collectionTitle, User user, boolean isClassplan, String segmentIds, String targetCollectionId) throws Exception {
+	public Learnguide copyCollection(final String gooruContentId, final String collectionTitle, final User user, final boolean isClassplan, final String segmentIds, final String targetCollectionId) throws Exception {
 		logger.info("Copy Classplan Step 0: " + System.currentTimeMillis());
 
-		Learnguide sourceCollection = (Learnguide) this.getLearnguideRepository().findByContent(gooruContentId);
-		String lesson = sourceCollection.getLesson();
+		final Learnguide sourceCollection = (Learnguide) this.getLearnguideRepository().findByContent(gooruContentId);
+		final String lesson = sourceCollection.getLesson();
 		Learnguide targetCollection = null;
 
 		if (targetCollectionId == null) {
@@ -616,7 +616,7 @@ public class LearnguideServiceImpl extends OperationAuthorizer implements Learng
 		this.getLearnguideRepository().save(targetCollection);
 
 		// track copied collection source
-		ContentAssociation contentAssociation = new ContentAssociation();
+		final ContentAssociation contentAssociation = new ContentAssociation();
 		contentAssociation.setAssociateContent(targetCollection);
 		contentAssociation.setContent(sourceCollection);
 		contentAssociation.setModifiedDate(new Date(System.currentTimeMillis()));
@@ -624,7 +624,7 @@ public class LearnguideServiceImpl extends OperationAuthorizer implements Learng
 		contentAssociation.setUser(user);
 		this.getLearnguideRepository().save(contentAssociation);
 
-		for (Segment segment : targetCollection.getResourceSegments()) {
+		for (final Segment segment : targetCollection.getResourceSegments()) {
 			if (segment.getResourceInstances() != null) {
 				CollectionServiceUtil.resetInstancesSequence(segment);
 				for (ResourceInstance resourceInstance : segment.getResourceInstances()) {
@@ -645,7 +645,7 @@ public class LearnguideServiceImpl extends OperationAuthorizer implements Learng
 		return targetCollection;
 	}
 
-	private Segment copySegments(Segment segment, Integer sequence) {
+	private Segment copySegments(final Segment segment, final Integer sequence) {
 		Segment newSegment = new Segment();
 		newSegment.setDescription(segment.getDescription());
 		newSegment.setDuration(segment.getDuration());
@@ -657,7 +657,7 @@ public class LearnguideServiceImpl extends OperationAuthorizer implements Learng
 		newSegment.setSegmentId(UUID.randomUUID().toString());
 		if (segment.getResourceInstances() != null) {
 			Set<ResourceInstance> resourceInstances = new TreeSet<ResourceInstance>();
-			for (ResourceInstance resourceInstance : segment.getResourceInstances()) {
+			for (final ResourceInstance resourceInstance : segment.getResourceInstances()) {
 				ResourceInstance newResourceInstance = new ResourceInstance();
 				newResourceInstance.setResourceInstanceId(UUID.randomUUID().toString());
 				newResourceInstance.setSegment(newSegment);
@@ -676,10 +676,10 @@ public class LearnguideServiceImpl extends OperationAuthorizer implements Learng
 	}
 
 	@Override
-	public void updateImages(String numberOfImages) throws Exception {
-		Integer numberOfImagesToDownload = Integer.parseInt(numberOfImages);
+	public void updateImages(final String numberOfImages) throws Exception {
+		final Integer numberOfImagesToDownload = Integer.parseInt(numberOfImages);
 		int processedCount = 0;
-		List<Learnguide> classplanList = this.getLearnguideRepository().findAllClassplans();
+		final List<Learnguide> classplanList = this.getLearnguideRepository().findAllClassplans();
 		for (Learnguide learnguide : classplanList) {
 
 			if (processedCount >= numberOfImagesToDownload) {
@@ -719,8 +719,8 @@ public class LearnguideServiceImpl extends OperationAuthorizer implements Learng
 		logger.info("Thumbnail downloader:Finished processing");
 	}
 
-	private int downloadCollectionThumbnail(Learnguide learnguide, String query) {
-		String imageURLInfo = ImageUtil.getThumbnailUrlByQuery(query, MEDIUM, WIDE);
+	private int downloadCollectionThumbnail(final Learnguide learnguide, final String query) {
+		final String imageURLInfo = ImageUtil.getThumbnailUrlByQuery(query, MEDIUM, WIDE);
 		if (imageURLInfo != null && !imageURLInfo.isEmpty()) {
 			String parts[] = imageURLInfo.split("\\|");
 			if (parts.length < 3) {
@@ -731,11 +731,11 @@ public class LearnguideServiceImpl extends OperationAuthorizer implements Learng
 			String imageThumbnailURL = parts[2];
 			String fileName = learnguide.getGooruOid() + extension;
 
-			String resourceImageFile = learnguide.getOrganization().getNfsStorageArea().getInternalPath() + learnguide.getFolder() + "/" + fileName;
+			final String resourceImageFile = learnguide.getOrganization().getNfsStorageArea().getInternalPath() + learnguide.getFolder() + "/" + fileName;
 			logger.info("Thumbnail downloader:Collection " + learnguide.getGooruOid() + " didn't have image. downloading from " + resourceImageFile);
 			ImageUtil.downloadAndSaveFile(imageURL, resourceImageFile);
 
-			String resourceImageThumbnailFile = learnguide.getOrganization().getNfsStorageArea().getInternalPath() + learnguide.getFolder() + "/" + "thumb_" + fileName;
+			final String resourceImageThumbnailFile = learnguide.getOrganization().getNfsStorageArea().getInternalPath() + learnguide.getFolder() + "/" + "thumb_" + fileName;
 			ImageUtil.downloadAndSaveFile(imageThumbnailURL, resourceImageThumbnailFile);
 			learnguide.setThumbnail(fileName);
 
@@ -749,18 +749,18 @@ public class LearnguideServiceImpl extends OperationAuthorizer implements Learng
 		return 0;
 	}
 
-	private void saveCollectionSharing(String sharing, Learnguide collection) {
+	private void saveCollectionSharing(final String sharing, final Learnguide collection) {
 		collection.setSharing(sharing);
 		this.getBaseRepository().save(collection);
 	}
 
 	@Override
-	public JSONObject getContentSessionActivity(String gooruContentId, String gooruUid) throws JSONException {
-		JSONObject sessionActivityJson = new JSONObject();
-		SessionActivityItem sessionActivityItem = this.getSessionActivityRepository().getContentSessionActivityItem(gooruContentId, gooruUid, SessionActivityType.Status.OPEN.getStatus());
+	public JSONObject getContentSessionActivity(final String gooruContentId, final String gooruUid) throws JSONException {
+		final JSONObject sessionActivityJson = new JSONObject();
+		final SessionActivityItem sessionActivityItem = this.getSessionActivityRepository().getContentSessionActivityItem(gooruContentId, gooruUid, SessionActivityType.Status.OPEN.getStatus());
 		if (sessionActivityItem != null && sessionActivityItem.getSubContentUid() != null) {
 			sessionActivityJson.put(LAST_PLAYED_RESOURCE_INSTANCE_ID, sessionActivityItem.getSubContentUid());
-			List<SessionActivityItem> sessionActivityItemList = this.getSessionActivityRepository().getSubContentSessionActivityItemList(gooruContentId, gooruUid, SessionActivityType.Status.OPEN.getStatus());
+			final List<SessionActivityItem> sessionActivityItemList = this.getSessionActivityRepository().getSubContentSessionActivityItemList(gooruContentId, gooruUid, SessionActivityType.Status.OPEN.getStatus());
 			int studiedResourceCount = sessionActivityItemList != null ? sessionActivityItemList.size() : 0;
 			sessionActivityJson.put(STUDIED_RESOURCE_COUNT, studiedResourceCount);
 		}
@@ -771,7 +771,7 @@ public class LearnguideServiceImpl extends OperationAuthorizer implements Learng
 		return learnguideRepository;
 	}
 
-	public void setLearnguideRepository(LearnguideRepository learnguideRepository) {
+	public void setLearnguideRepository(final LearnguideRepository learnguideRepository) {
 		this.learnguideRepository = learnguideRepository;
 	}
 
@@ -779,11 +779,11 @@ public class LearnguideServiceImpl extends OperationAuthorizer implements Learng
 		return classPlanConstants;
 	}
 
-	public void setClassPlanConstants(Properties classPlanConstants) {
+	public void setClassPlanConstants(final Properties classPlanConstants) {
 		this.classPlanConstants = classPlanConstants;
 	}
 
-	public void setContentRepository(ContentRepository contentRepository) {
+	public void setContentRepository(final ContentRepository contentRepository) {
 		this.contentRepository = contentRepository;
 	}
 
@@ -795,11 +795,11 @@ public class LearnguideServiceImpl extends OperationAuthorizer implements Learng
 		return baseRepository;
 	}
 
-	public void setBaseRepository(BaseRepository baseRepository) {
+	public void setBaseRepository(final BaseRepository baseRepository) {
 		this.baseRepository = baseRepository;
 	}
 
-	public void setUserRepository(UserRepository userRepository) {
+	public void setUserRepository(final UserRepository userRepository) {
 		this.userRepository = userRepository;
 	}
 
@@ -811,7 +811,7 @@ public class LearnguideServiceImpl extends OperationAuthorizer implements Learng
 		return taxonomyRepository;
 	}
 
-	public void setTaxonomyRepository(TaxonomyRespository taxonomyRepository) {
+	public void setTaxonomyRepository(final TaxonomyRespository taxonomyRepository) {
 		this.taxonomyRepository = taxonomyRepository;
 	}
 
@@ -819,7 +819,7 @@ public class LearnguideServiceImpl extends OperationAuthorizer implements Learng
 		return resourceManager;
 	}
 
-	public void setResourceManager(ResourceManager resourceManager) {
+	public void setResourceManager(final ResourceManager resourceManager) {
 		this.resourceManager = resourceManager;
 	}
 
@@ -846,12 +846,12 @@ public class LearnguideServiceImpl extends OperationAuthorizer implements Learng
 	}
 
 	@Override
-	public List<Learnguide> getCollectionsOfResource(String resourceId) {
+	public List<Learnguide> getCollectionsOfResource(final String resourceId) {
 		return this.getLearnguideRepository().findAllCollectionByResourceID(resourceId);
 	}
 
 	@Override
-	public List<CollectionFo> getUserCollectionInfo(String gooruUId, Map<String, String> filters) {
+	public List<CollectionFo> getUserCollectionInfo(final String gooruUId, final Map<String, String> filters) {
 		List<CollectionFo> collections = new ArrayList<CollectionFo>();
 		List<Learnguide> learnguides = getLearnguideRepository().getUserCollectionInfo(gooruUId, filters);
 
@@ -868,7 +868,7 @@ public class LearnguideServiceImpl extends OperationAuthorizer implements Learng
 	}
 
 	@Override
-	public Map<String, Integer> getCollectionPageCount(List<SegmentFo> segments) {
+	public Map<String, Integer> getCollectionPageCount(final List<SegmentFo> segments) {
 		int pageCount = 0;
 		int quoteResourceCount = 0;
 		Map<String, Integer> countMap = new HashMap<String, Integer>();
@@ -897,11 +897,11 @@ public class LearnguideServiceImpl extends OperationAuthorizer implements Learng
 	}
 
 	@Override
-	public List<String> sendRequestForGetCollaborators(String gooruUId, String searchText) {
+	public List<String> sendRequestForGetCollaborators(final String gooruUId, final String searchText) {
 		return this.getLearnguideRepository().findAllCollaboratorByResourceID(gooruUId, searchText);
 	}
 
-	public void setRedisService(RedisService redisService) {
+	public void setRedisService(final RedisService redisService) {
 		this.redisService = redisService;
 	}
 

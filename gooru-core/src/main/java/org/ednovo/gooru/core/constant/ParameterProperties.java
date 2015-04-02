@@ -1465,6 +1465,10 @@ public interface ParameterProperties {
 	String SIGNATURE = "signature";
 
 	String ZERO = "0";
+	
+	final int _ZERO = '0';
+	
+	final int _ONE = '1';
 
 	String SHOW_PROFILE_PAGE = "show_profile_page";
 
