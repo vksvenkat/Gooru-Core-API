@@ -42,6 +42,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.xalan.trace.GenerateEvent;
 import org.ednovo.gooru.application.util.AsyncExecutor;
 import org.ednovo.gooru.application.util.CollectionUtil;
 import org.ednovo.gooru.application.util.ResourceImageUtil;
@@ -648,7 +649,12 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 					existingQuestion.setResourceSource(resourceSource);
 				}
 				existingQuestion.setDifficultyLevel(question.getDifficultyLevel());
-				existingQuestion.setTitle(question.getTitle());
+				
+				if (question.getTitle() != null && question.getTitle().length() < 1000) {
+					existingQuestion.setTitle(question.getTitle());
+				} else if (question.getTitle().length() > 1000) {
+					throw new BadRequestException(ServerValidationUtils.generateErrorMessage(GL0017));
+				}
 				existingQuestion.setTimeToCompleteInSecs(question.getTimeToCompleteInSecs());
 				if (question.getTypeName() != null) {
 					existingQuestion.setTypeName(question.getTypeName());
@@ -689,6 +695,11 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 		}
 		if (question.getTitle() == null) {
 			question.setTitle("");
+		}
+		if (question.getTitle() != null && question.getTitle().length() < 1000) {
+			question.setTitle(question.getTitle());
+		} else if (question.getTitle().length() > 1000) {
+			throw new BadRequestException(ServerValidationUtils.generateErrorMessage(GL0017));
 		}
 		if (question.getExplanation() == null) {
 			question.setExplanation("");
