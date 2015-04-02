@@ -25,7 +25,6 @@ package org.ednovo.gooru.domain.service.usercontent;
 
 import java.util.List;
 
-import org.ednovo.gooru.core.api.model.Learnguide;
 import org.ednovo.gooru.core.api.model.UserContentAssoc;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserContentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,11 +35,6 @@ public class UserContentServiceImpl implements UserContentService {
 	
 	@Autowired
 	private UserContentRepository userContentRepository;
-	
-	@Override
-	public List<Learnguide> listCommonCollections(String userGooruId,String compareUserGooruId) {
-		return userContentRepository.listCommonCollections(userGooruId, compareUserGooruId);
-	}	
 	
 	
 	@Override
@@ -56,11 +50,6 @@ public class UserContentServiceImpl implements UserContentService {
 	@Override
 	public UserContentAssoc getUserContentAssoc(String userId,Long contentId,Integer relationId) {
 		return userContentRepository.getUserContentAssoc(userId, contentId, relationId);
-	}
-	
-	@Override
-	public void deleteContentRelationShips(String contentId) {
-		userContentRepository.deleteContentRelationShips(contentId);
 	}
 	
 	@Override

@@ -34,7 +34,6 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.apache.commons.lang.StringUtils;
-import org.ednovo.gooru.application.util.DatabaseUtil;
 import org.ednovo.gooru.application.util.ResourceImageUtil;
 import org.ednovo.gooru.core.api.model.ContentProvider;
 import org.ednovo.gooru.core.api.model.ContentType;
@@ -43,7 +42,6 @@ import org.ednovo.gooru.core.api.model.License;
 import org.ednovo.gooru.core.api.model.LtiContentAssoc;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.ResourceInfo;
-import org.ednovo.gooru.core.api.model.ResourceInstance;
 import org.ednovo.gooru.core.api.model.ResourceSource;
 import org.ednovo.gooru.core.api.model.ResourceSummary;
 import org.ednovo.gooru.core.api.model.ResourceType;
@@ -80,8 +78,6 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 	private static final String RESOURCE_TYPE = "resourceType";
 
 	private static final String RESOURCE_TYPE_NAME = "resourceType.name";
-
-	private static final String UPDATE_VIEWS = "update resource r, content c set r.views_total = (r.views_total+1) where  c.gooru_oid= '%s' and c.content_id = r.content_id and %s";
 
 	private static final String EXCLUDE_FOR_RESOURCES_STRING = "'gooru/classplan','gooru/classbook','assessment-quiz','assessment-exam','qb/response','gooru/studyshelf','gooru/notebook','qb/question','question','scollection'";
 
@@ -134,12 +130,6 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 		List<Long> results = query.list();
 
 		return (results != null && results.size() > 0) ? Integer.valueOf(results.get(0) + "") : 0;
-	}
-
-	@Override
-	public void incrementViews(String contentGooruId) {
-		String updateViews = DatabaseUtil.format(UPDATE_VIEWS, contentGooruId, generateAuthSqlQueryWithData("c."));
-		this.getJdbcTemplate().update(updateViews);
 	}
 
 	public JdbcTemplate getJdbcTemplate() {
@@ -446,16 +436,6 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void retriveAndSetInstances(Resource resource) {
-
-		List<ResourceInstance> resourceInstances = find("SELECT r From ResourceInstance as r  WHERE r.resource.contentId=" + resource.getContentId() + "AND " + generateAuthQueryWithDataNew("r.resource.") + "");
-		if (resourceInstances != null) {
-			resource.setResourceInstances(resourceInstances);
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
 	public Resource findByFileHash(String fileHash, String typeName, String url, String category) {
 
 		if (fileHash != null && url != null && !fileHash.equals("") && !url.equals("")) {
@@ -477,16 +457,9 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 		return (resourceSources != null && resourceSources.size() > 0) ? resourceSources.get(0) : null;
 	}
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public ResourceInstance findResourceInstanceByContentGooruId(String gooruOid) {
-		List<ResourceInstance> resourceInstances = find("SELECT r From ResourceInstance as r  WHERE r.resource.gooruOid='" + gooruOid + "' AND " + generateAuthQueryWithDataNew("r.resource.") + " ");
-		return (resourceInstances.size() > 0) ? resourceInstances.get(0) : null;
-	}
-
 	@Override
 	public void updateResourceSourceId(Long contentId, Integer resourceSourceId) {
-		String updateResourceSourceId = DatabaseUtil.format(UPDATE_RESOURCE_SOURCE_ID, resourceSourceId, contentId);
+		String updateResourceSourceId = format(UPDATE_RESOURCE_SOURCE_ID, resourceSourceId, contentId);
 		this.getJdbcTemplate().update(updateResourceSourceId);
 
 	}
@@ -578,17 +551,6 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<ResourceInstance> getUnorderedInstances(String segmentId) {
-		String hql = "SELECT instance FROM ResourceInstance instance  WHERE instance.segment.segmentId = :segmentId AND " + generateAuthQuery("instance.resource.");
-		Query query = getSession().createQuery(hql);
-		query.setParameter("segmentId", segmentId);
-		addAuthParameters(query);
-		return (List<ResourceInstance>) query.list();
-
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
 	public ResourceInfo findResourceInfo(String resourceGooruOid) {
 		String hql = "Select info FROM ResourceInfo info left outer join info.resource r  WHERE r.gooruOid =:resourceGooruOid ";
 		Query query = getSession().createQuery(hql);
@@ -647,22 +609,6 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 		String hql = "SELECT urlStatus FROM ResourceUrlStatus urlStatus   WHERE urlStatus.resource.gooruOid = '" + resourceGooruOId + "' AND  " + generateAuthQueryWithDataNew("urlStatus.resource.");
 		List<ResourceUrlStatus> resourceUrlStatus = find(hql);
 		return resourceUrlStatus.size() > 0 ? resourceUrlStatus.get(0) : null;
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public List<ResourceInstance> findResourceInstances(String gooruOid, String userUid) {
-		String hql = "SELECT r From ResourceInstance as r   WHERE r.resource.gooruOid=:gooruOid AND  " + generateAuthQuery("r.resource.");
-		if (userUid != null) {
-			hql += " AND r.resource.user.partyUid =:userUid";
-		}
-		Query query = getSession().createQuery(hql);
-		query.setParameter("gooruOid", gooruOid);
-		if (userUid != null) {
-			query.setParameter("userUid", userUid);
-		}
-		addAuthParameters(query);
-		return (List<ResourceInstance>) query.list();
 	}
 
 	@SuppressWarnings("unchecked")

@@ -25,7 +25,6 @@ package org.ednovo.gooru.domain.service.resource;
 
 import java.util.Map;
 
-import org.ednovo.gooru.core.api.model.Learnguide;
 import org.ednovo.gooru.core.api.model.Resource;
 
 public interface ResourceManager {
@@ -33,8 +32,6 @@ public interface ResourceManager {
 	void saveResource(Resource resource);
 
 	void deleteResource(Resource resource, String resourceURI);
-
-	void deleteClassplan(Learnguide classplan);
 
 	void copyResourceRepository(Resource sourceResource, Resource targetResource) throws Exception;
 

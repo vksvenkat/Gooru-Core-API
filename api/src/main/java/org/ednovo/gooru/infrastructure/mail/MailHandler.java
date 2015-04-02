@@ -54,7 +54,6 @@ import org.ednovo.gooru.domain.service.EventService;
 import org.ednovo.gooru.domain.service.ShareService;
 import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepository;
-import org.ednovo.gooru.infrastructure.persistence.hibernate.classplan.LearnguideRepositoryHibernate;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.party.PartyRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.resource.ResourceRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.user.UserRepositoryHibernate;
@@ -80,9 +79,6 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 
 	@Autowired
 	private UserRepositoryHibernate userRepositoryHibernate;
-
-	@Autowired
-	private LearnguideRepositoryHibernate learnGuideRepositoryHibernate;
 
 	public static Logger logger = LoggerFactory.getLogger(MailHandler.class);
 
@@ -819,10 +815,6 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 
 	protected UserRepositoryHibernate getUserRepositoryHibernate() {
 		return userRepositoryHibernate;
-	}
-
-	protected LearnguideRepositoryHibernate getLearnguideRepositoryHibernate() {
-		return learnGuideRepositoryHibernate;
 	}
 	
 	public ResourceRepository getResourceRepository() {
