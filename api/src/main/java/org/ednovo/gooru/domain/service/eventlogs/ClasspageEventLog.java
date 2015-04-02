@@ -105,7 +105,7 @@ public class ClasspageEventLog implements ParameterProperties, ConstantPropertie
 		SessionContextSupport.putLogParameter(SESSION, session.toString());
 	}
 	
-	public void getEventLogs(String classId, String pathwayGooruOid,User user, boolean isCreate, boolean isUpdate) throws JSONException {
+	public void getEventLogs(String classId, String pathwayGooruOid,User user, boolean isCreate, boolean isUpdate, JSONObject ItemData) throws JSONException {
 	    if (isCreate) {
 	            SessionContextSupport.putLogParameter(EVENT_NAME, ITEM_CREATE);
 	    } else if (isUpdate) {
@@ -122,6 +122,7 @@ public class ClasspageEventLog implements ParameterProperties, ConstantPropertie
 		   payLoadObject.put(MODE, EDIT);	   
 	    }
 	    payLoadObject.put(ITEM_TYPE,CLASSPAGE_PATHWAY);
+		payLoadObject.put(_ITEM_DATA, ItemData != null ? ItemData.toString() : null);
 	    SessionContextSupport.putLogParameter(PAY_LOAD_OBJECT, payLoadObject.toString());
 	    JSONObject session = SessionContextSupport.getLog().get(SESSION) != null ? new JSONObject(SessionContextSupport.getLog().get(SESSION).toString()) : new JSONObject();
 	    session.put(ORGANIZATION_UID, user != null && user.getOrganization() != null ? user.getOrganization().getPartyUid() : null);
