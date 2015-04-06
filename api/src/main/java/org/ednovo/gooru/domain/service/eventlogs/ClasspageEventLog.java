@@ -3,6 +3,7 @@ package org.ednovo.gooru.domain.service.eventlogs;
 import java.util.List;
 
 import org.ednovo.gooru.core.api.model.Classpage;
+import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.CollectionType;
 import org.ednovo.gooru.core.api.model.InviteUser;
@@ -105,7 +106,7 @@ public class ClasspageEventLog implements ParameterProperties, ConstantPropertie
 		SessionContextSupport.putLogParameter(SESSION, session.toString());
 	}
 	
-	public void getEventLogs(String classId, String pathwayGooruOid,User user, boolean isCreate, boolean isUpdate, JSONObject ItemData) throws JSONException {
+	public void getEventLogs(String classId, String pathwayGooruOid, Collection newPathway, User user, boolean isCreate, boolean isUpdate) throws JSONException {
 	    if (isCreate) {
 	            SessionContextSupport.putLogParameter(EVENT_NAME, ITEM_CREATE);
 	    } else if (isUpdate) {
@@ -121,8 +122,13 @@ public class ClasspageEventLog implements ParameterProperties, ConstantPropertie
 	    } else if (isUpdate) {
 		   payLoadObject.put(MODE, EDIT);	   
 	    }
+		JSONObject itemData = new JSONObject();
+
+		if (newPathway.getTitle() != null) {
+				itemData.put(TITLE, newPathway.getTitle());
+			}
 	    payLoadObject.put(ITEM_TYPE,CLASSPAGE_PATHWAY);
-		payLoadObject.put(_ITEM_DATA, ItemData != null ? ItemData.toString() : null);
+		payLoadObject.put(_ITEM_DATA, itemData.toString());
 	    SessionContextSupport.putLogParameter(PAY_LOAD_OBJECT, payLoadObject.toString());
 	    JSONObject session = SessionContextSupport.getLog().get(SESSION) != null ? new JSONObject(SessionContextSupport.getLog().get(SESSION).toString()) : new JSONObject();
 	    session.put(ORGANIZATION_UID, user != null && user.getOrganization() != null ? user.getOrganization().getPartyUid() : null);
