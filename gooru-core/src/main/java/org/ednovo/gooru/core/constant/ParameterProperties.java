@@ -2881,7 +2881,11 @@ public interface ParameterProperties {
 	String SETTINGS = "settings";
 	
 	String GL0099 = "GL0099";
-	
+
 	String PROFANITY_TEXT = "profanity text";
+	
+	String GL0001 = "GL0001";
+	
+	String GL0004 = "GL0004";
 }
 
