@@ -1884,7 +1884,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			if (newCollection.getTaxonomySet() != null) {
 				itemData.put(TAXONOMY_SET, newCollection.getTaxonomySet());
 				resourceService.saveOrUpdateResourceTaxonomy(collection, newCollection.getTaxonomySet());
-				collection.setTaxonomySetMapping(TaxonomyUtil.getTaxonomyByCode(collection.getTaxonomySet(), taxonomyService));
+				//collection.setTaxonomySetMapping(TaxonomyUtil.getTaxonomyByCode(collection.getTaxonomySet(), taxonomyService));
 			}
 
 			if (newCollection.getVocabulary() != null) {
