@@ -32,17 +32,11 @@ import org.ednovo.gooru.domain.service.search.SearchResults;
 
 public interface FeaturedService {
 
-	List<FeaturedSet> getFeaturedList(int limit, boolean ramdom, String featuredSetName, String themeCode) throws Exception;
-
-	void getFeaturedResource(List<FeaturedSet> featuredSet) throws Exception;
-
 	FeaturedSet saveOrUpdateFeaturedSet(Integer featuredSetId, String name, Boolean activeFlag, Integer sequence, String themeCode) throws Exception;
 
 	FeaturedSetItems saveOrUpdateFeaturedSetItems(FeaturedSet featuredSet, String gooruContentId, Integer featuredSetItemId, String parentGooruContentId, Integer sequence) throws Exception;
 
 	List<FeaturedSet> getFeaturedTheme(int limit) throws Exception;
-
-	List<FeaturedSet> getFeaturedList(int limit, boolean random, String featuredSetName, String themeCode, String themetype) throws Exception;
 
 	FeaturedSetItems updateFeaturedContent(String type, Integer featuredSetItemId, FeaturedSetItems featuredSetItems);
 	

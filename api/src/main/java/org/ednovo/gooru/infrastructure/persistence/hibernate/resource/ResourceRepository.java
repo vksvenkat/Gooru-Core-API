@@ -31,7 +31,6 @@ import org.ednovo.gooru.core.api.model.CsvCrawler;
 import org.ednovo.gooru.core.api.model.License;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.ResourceInfo;
-import org.ednovo.gooru.core.api.model.ResourceInstance;
 import org.ednovo.gooru.core.api.model.ResourceSource;
 import org.ednovo.gooru.core.api.model.ResourceSummary;
 import org.ednovo.gooru.core.api.model.ResourceUrlStatus;
@@ -40,7 +39,7 @@ import org.ednovo.gooru.core.cassandra.model.ResourceMetadataCo;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepository;
 
 public interface ResourceRepository extends BaseRepository {
-
+	
 	Resource findWebResource(String url);
 
 	Resource findResourceByContentGooruId(String gooruContentId);
@@ -50,8 +49,6 @@ public interface ResourceRepository extends BaseRepository {
 	List<Resource> findAllResourceBySourceId(Integer resourceSourceId);
 
 	int findViews(String contentGooruId);
-
-	void incrementViews(String contentGooruId);
 
 	List<Resource> findWebResourcesForBlacklisting();
 
@@ -65,13 +62,9 @@ public interface ResourceRepository extends BaseRepository {
 
 	Resource findByFileHash(String fileHash, String typeName, String url, String category);
 
-	void retriveAndSetInstances(Resource resource);
-
 	ResourceSource findResourceSource(String domainName);
 
 	void updateResourceSourceId(Long contentId, Integer resourceSourceId);
-
-	ResourceInstance findResourceInstanceByContentGooruId(String gooruOid);
 
 	Resource getResourceByUrl(String url);
 
@@ -85,8 +78,6 @@ public interface ResourceRepository extends BaseRepository {
 
 	List<String> getUnorderedInstanceSegments();
 
-	List<ResourceInstance> getUnorderedInstances(String segmentId);
-
 	ResourceInfo findResourceInfo(String resourceGooruOid);
 
 	void insertResourceUrlStatus();
@@ -98,8 +89,6 @@ public interface ResourceRepository extends BaseRepository {
 	List<Resource> findAllResourcesByGooruOId(String resourceGooruOIds);
 
 	ResourceUrlStatus findResourceUrlStatusByGooruOId(String resourceGooruOId);
-
-	List<ResourceInstance> findResourceInstances(String gooruOid, String userUid);
 
 	Resource findResourceByUrl(String resourceUrl, String sharing, String userUid);
 

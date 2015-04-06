@@ -68,34 +68,34 @@ public class SerializerUtil implements ParameterProperties {
 
 	private static XStream xStream = new XStream(new DomDriver());
 
-	public static ModelAndView toModelAndView(Object object) {
+	public static ModelAndView toModelAndView(final Object object) {
 		ModelAndView jsonmodel = new ModelAndView(REST_MODEL);
 		jsonmodel.addObject(MODEL, object);
 		return jsonmodel;
 	}
 
-	public static ModelAndView toJsonModelAndView(Object model, boolean deepSerialize) {
+	public static ModelAndView toJsonModelAndView(final Object model, final boolean deepSerialize) {
 		return toModelAndView(serializeToJson(model, deepSerialize));
 	}
 
-	public static ModelAndView toModelAndView(Object obj, String type) {
+	public static ModelAndView toModelAndView(final Object obj, final String type) {
 		return toModelAndView(serialize(obj, type));
 	}
 
-	public static ModelAndView toModelAndViewWithInFilter(Object obj, String type, String... includes) {
+	public static ModelAndView toModelAndViewWithInFilter(final Object obj, final String type, final String... includes) {
 		return toModelAndView(serialize(obj, type, null, includes));
 	}
 
-	public static ModelAndView toModelAndViewWithIoFilter(Object obj, String type, String[] excludes, String... includes) {
+	public static ModelAndView toModelAndViewWithIoFilter(final Object obj, final String type, final String[] excludes, final String... includes) {
 		return toModelAndView(serialize(obj, type, excludes, includes));
 	}
 
-	public static ModelAndView toModelAndViewWithIoFilter(Object obj, String type, String[] excludes, boolean excludeNullObject, String... includes) {
+	public static ModelAndView toModelAndViewWithIoFilter(final Object obj, final String type, final String[] excludes, final boolean excludeNullObject, final String... includes) {
 		return toModelAndView(serialize(obj, type, excludes, false, excludeNullObject, includes));
 	}
 
 	// need to improve logic
-	public static ModelAndView toModelAndViewWithErrorObject(Object obj, String type, String entityName, Errors errors, String[] excludes, String... includes) {
+	public static ModelAndView toModelAndViewWithErrorObject(final Object obj, final String type, final String entityName, final Errors errors, String[] excludes, final String... includes) {
 		return toModelAndView(serialize(obj, type, excludes, includes));
 	}
 
@@ -105,63 +105,63 @@ public class SerializerUtil implements ParameterProperties {
 	 * @param includes
 	 * @return
 	 */
-	public static String serializeToJsonWithExcludes(Object model, String[] excludes, String... includes) {
+	public static String serializeToJsonWithExcludes(final Object model, final String[] excludes, final String... includes) {
 		return serialize(model, FORMAT_JSON, excludes, includes);
 	}
 
-	public static String serialize(Object model, String type) {
+	public static String serialize(final Object model, final String type) {
 		return serialize(model, type, null);
 	}
 
-	public static String serializeToJson(Object model, String... includes) {
+	public static String serializeToJson(final Object model, final String... includes) {
 		return serialize(model, FORMAT_JSON, null, includes);
 	}
 
-	public static JSONObject serializeToJsonObjectWithExcludes(Object model, String[] excludes, String... includes) throws Exception {
+	public static JSONObject serializeToJsonObjectWithExcludes(final Object model, final String[] excludes, final String... includes) throws Exception {
 		return new JSONObject(serialize(model, FORMAT_JSON, excludes, includes));
 	}
 
-	public static JSONObject serializeToJsonObject(Object model, String... includes) throws Exception {
+	public static JSONObject serializeToJsonObject(final Object model, final String... includes) throws Exception {
 		return new JSONObject(serialize(model, FORMAT_JSON, null, includes));
 	}
 
-	public static String serializeToJsonWithExcludes(Object model, String[] excludes, boolean deepSerialize, String... includes) {
+	public static String serializeToJsonWithExcludes(final Object model, final String[] excludes, final boolean deepSerialize, final String... includes) {
 		return serialize(model, FORMAT_JSON, excludes, deepSerialize, true, includes);
 	}
 	
-	public static String serializeToJsonWithExcludes(Object model, String[] excludes, boolean deepSerialize, boolean excludeNullObject, String... includes) {
+	public static String serializeToJsonWithExcludes(final Object model, final String[] excludes, final boolean deepSerialize, final boolean excludeNullObject, final String... includes) {
 		return serialize(model, FORMAT_JSON, excludes, deepSerialize, excludeNullObject, includes);
 	}
 
-	public static String serializeToJson(Object model, boolean deepSerialize, String... includes) {
+	public static String serializeToJson(final Object model, final boolean deepSerialize, final String... includes) {
 		return serialize(model, FORMAT_JSON, null, deepSerialize, includes);
 	}
 
-	public static String serializeToJson(Object model, boolean deepSerialize, boolean excludeNullObject) {
+	public static String serializeToJson(final Object model, final boolean deepSerialize, final boolean excludeNullObject) {
 		return serialize(model, FORMAT_JSON, null, deepSerialize, false, excludeNullObject);
 	}
 	
-	public static String serializeToJson(Object model, String[] excludes, boolean deepSerialize, boolean excludeNullObject) {
+	public static String serializeToJson(final Object model, final String[] excludes, final boolean deepSerialize, final boolean excludeNullObject) {
 		return serialize(model, FORMAT_JSON, excludes, deepSerialize, false, excludeNullObject);
 	}
 
-	public static JSONObject serializeToJsonObjectWithExcludes(Object model, String[] excludes, boolean deepSerialize, String... includes) throws Exception {
+	public static JSONObject serializeToJsonObjectWithExcludes(final Object model, final String[] excludes, final boolean deepSerialize, final String... includes) throws Exception {
 		return new JSONObject(serialize(model, FORMAT_JSON, excludes, deepSerialize, includes));
 	}
 
-	public static JSONObject serializeToJsonObject(Object model, boolean deepSerialize, String... includes) throws Exception {
+	public static JSONObject serializeToJsonObject(final Object model, final boolean deepSerialize, final String... includes) throws Exception {
 		return new JSONObject(serialize(model, FORMAT_JSON, null, deepSerialize, includes));
 	}
 
-	public static String serialize(Object model, String type, String[] excludes, boolean deepSerialize, String... includes) {
+	public static String serialize(final Object model, final String type, final String[] excludes, final boolean deepSerialize, final String... includes) {
 		return serialize(model, type, excludes, deepSerialize, true, false, includes);
 	}
 
-	public static String serialize(Object model, String type, String[] excludes, boolean deepSerialize, boolean excludeNullObject, String... includes) {
+	public static String serialize(final Object model, final String type, final String[] excludes, final boolean deepSerialize, final boolean excludeNullObject, final String... includes) {
 		return serialize(model, type, excludes, deepSerialize, true, excludeNullObject, includes);
 	}
 
-	public static String serialize(Object model, String type, String[] excludes, String... includes) {
+	public static String serialize(final Object model, final String type, final String[] excludes, final String... includes) {
 		return serialize(model, type, excludes, false, includes);
 	}
 
@@ -172,7 +172,7 @@ public class SerializerUtil implements ParameterProperties {
 	 * @param includes
 	 * @return
 	 */
-	public static String serialize(Object model, String type, String[] excludes, boolean deepSerialize, boolean useBaseExcludes, boolean excludeNullObject, String... includes) {
+	public static String serialize(Object model, final String type, String[] excludes, boolean deepSerialize, final boolean useBaseExcludes, final boolean excludeNullObject, String... includes) {
 		if (model == null) {
 			return "";
 		}
@@ -234,14 +234,14 @@ public class SerializerUtil implements ParameterProperties {
 		return serializedData;
 	}
 
-	private static Object protocolSwitch(Object model) {
+	private static Object protocolSwitch(final Object model) {
 		HttpServletRequest request = null;
 		if (RequestContextHolder.getRequestAttributes() != null) {
 			request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
 		}
 		if (request != null) {
-			String requestProtocol = request.getAttribute("requestProtocol") != null ? (String) request.getAttribute("requestProtocol") : null;
-			String protocolAutoSwitch = request.getAttribute("protocolAutoSwitch") != null ? (String) request.getAttribute("protocolAutoSwitch") : "true";
+			final String requestProtocol = request.getAttribute("requestProtocol") != null ? (String) request.getAttribute("requestProtocol") : null;
+			final String protocolAutoSwitch = request.getAttribute("protocolAutoSwitch") != null ? (String) request.getAttribute("protocolAutoSwitch") : "true";
 			if (protocolAutoSwitch != null && protocolAutoSwitch.equalsIgnoreCase("true")) {
 				if (model instanceof Resource) {
 					BaseUtil.changeHttpsProtocolByHeader(((Resource) model), requestProtocol, BaseUtil.isSecure(request), request.getMethod());
@@ -272,8 +272,8 @@ public class SerializerUtil implements ParameterProperties {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static User cloneUserForSerialization(User user, boolean includeSets) {
-		User clonedUser = new User();
+	public static User cloneUserForSerialization(final User user, final boolean includeSets) {
+		final User clonedUser = new User();
 		clonedUser.setUserId(user.getUserId());
 		clonedUser.setGooruUId(user.getGooruUId());
 		clonedUser.setFirstName(user.getFirstName());
@@ -290,7 +290,7 @@ public class SerializerUtil implements ParameterProperties {
 		return clonedUser;
 	}
 
-	public static JSONSerializer appendTransformers(JSONSerializer serializer, boolean excludeNullObject) {
+	public static JSONSerializer appendTransformers(final JSONSerializer serializer, final boolean excludeNullObject) {
 		serializer.transform(new UserTransformer(false), User.class).transform(new OrganizationTransformer(), Organization.class).transform(new UserGroupTransformer(), UserGroup.class).transform(new ContentPermissionTransformer(), ContentPermission.class);
 		if (excludeNullObject) {
 			serializer.transform(new ExcludeNullTransformer(), void.class);
@@ -299,7 +299,7 @@ public class SerializerUtil implements ParameterProperties {
 
 	}
 
-	private static void log(Object model, String data) {
+	private static void log(final Object model, final String data) {
 		HttpServletRequest request = null;
 		if (RequestContextHolder.getRequestAttributes() != null) {
 			request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
@@ -327,7 +327,7 @@ public class SerializerUtil implements ParameterProperties {
 		}
 	}
 
-	public static User cloneUserForSerialization(User user) {
+	public static User cloneUserForSerialization(final User user) {
 		return cloneUserForSerialization(user, true);
 	}
 

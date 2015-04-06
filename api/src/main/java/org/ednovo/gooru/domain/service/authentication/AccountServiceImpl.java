@@ -135,7 +135,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 	private static final String SESSION_TOKEN_KEY = "authenticate_";
 
 	@Override
-	public UserToken createSessionToken(User user, String apiKey, HttpServletRequest request) throws Exception {
+	public UserToken createSessionToken(final User user, final String apiKey, final HttpServletRequest request) throws Exception {
 		final Application application = this.getApplicationRepository().getApplication(apiKey);
 		rejectIfNull(application,GL0056,404,APPLICATION);
 		final UserToken sessionToken = new UserToken();
@@ -163,7 +163,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 	}
 
 	@Override
-	public ActionResponseDTO<UserToken> logIn(String username, String password, String apiKeyId, boolean isSsoLogin, HttpServletRequest request) throws Exception {
+	public ActionResponseDTO<UserToken> logIn(final String username, final String password, final String apiKeyId, final boolean isSsoLogin, final HttpServletRequest request) throws Exception {
 		final UserToken userToken = new UserToken();
 		final Errors errors = new BindException(userToken, SESSIONTOKEN);
 		final String apiEndPoint = getConfigSetting(ConfigConstants.GOORU_API_ENDPOINT, 0, TaxonomyUtil.GOORU_ORG_UID);
@@ -197,7 +197,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 				}
 				
 				final String encryptedPassword;
-				Credential credential = identity.getCredential();
+				final Credential credential = identity.getCredential();
 				if(credential != null && credential.getPasswordEncryptType() != null &&  credential.getPasswordEncryptType().equalsIgnoreCase(CustomProperties.PasswordEncryptType.MD5.getPasswordEncryptType())){
 					encryptedPassword = BaseUtil.encryptPassword(password);
 				}else{
@@ -262,7 +262,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			}
 			try {
 				if (userToken != null) {
-					AuthenticationDo authentication = new AuthenticationDo();
+					final AuthenticationDo authentication = new AuthenticationDo();
 					authentication.setUserToken(userToken);
 					authentication.setUserCredential(userService.getUserCredential(user, userToken.getToken(), null, null));
 					getRedisService().put(
@@ -303,8 +303,9 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 	}
 
 	@Override
-	public void logOut(String sessionToken) {
-		final UserToken userToken = this.getUserTokenRepository().findByToken(sessionToken);
+	public void logOut(final String sessionToken) {
+		UserToken userToken = new UserToken(); 
+		userToken = this.getUserTokenRepository().findByToken(sessionToken);
 		if (userToken != null) {
 			try {
 				this.getAccountEventlog().getEventLogs(userToken.getUser().getIdentities() != null ? userToken.getUser().getIdentities().iterator().next() : null, userToken, false, userToken.getApplication().getKey());
@@ -317,12 +318,12 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 	}
 	
 	@Override
-	public String getConfigSetting(String key, int securityLevel, String organizationUid) {
+	public String getConfigSetting(final String key, final int securityLevel, final String organizationUid) {
 		return configSettingRepository.getConfigSetting(key, securityLevel, organizationUid);
 	}
 
 	@Override
-	public ActionResponseDTO<UserToken> loginAs(String sessionToken, String gooruUid, HttpServletRequest request, String apiKey) throws Exception {
+	public ActionResponseDTO<UserToken> loginAs(final String sessionToken, final String gooruUid, final HttpServletRequest request, final String apiKey) throws Exception {
 		UserToken userToken = new UserToken();
 		Errors errors = null;
 		if (gooruUid != null) {
@@ -361,7 +362,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 	}
 
 	@Override
-	public User userAuthentication(User newUser, String secretKey, String apiKey, String source, HttpServletRequest request) {
+	public User userAuthentication(User newUser, final String secretKey, final String apiKey, final String source, final HttpServletRequest request) {
 		if (secretKey == null || !secretKey.equalsIgnoreCase(settingService.getConfigSetting(ConfigConstants.GOORU_AUTHENTICATION_SECERT_KEY, 0, TaxonomyUtil.GOORU_ORG_UID))) {
 			throw new UnauthorizedException(generateErrorMessage("GL0082", "secret") + secretKey, "GL0082");
 		}
@@ -401,7 +402,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			}
 		}	
 		if (sessionToken == null) {
-			Application application = this.getApplicationRepository().getApplication(apiKey);
+			final Application application = this.getApplicationRepository().getApplication(apiKey);
 			rejectIfNull(application, GL0056, 404, APPLICATION);
 			sessionToken = this.getUserManagementService().createSessionToken(userIdentity, request.getSession().getId(), application);
 		}
@@ -428,18 +429,18 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 	}
 
 	@Override
-	public ActionResponseDTO<UserToken> switchSession(String sessionToken) throws Exception {
+	public ActionResponseDTO<UserToken> switchSession(final String sessionToken) throws Exception {
 		final UserToken userToken = userTokenRepository.findByToken(sessionToken);
 		return new ActionResponseDTO<UserToken>(userToken, new BindException(userToken, SESSIONTOKEN));
 	}
 
-	private Errors validateLoginAsUser(UserToken userToken, User user) {
+	private Errors validateLoginAsUser(final UserToken userToken, final User user) {
 		final Errors errors = new BindException(userToken, SESSIONTOKEN);
 		rejectIfNull(errors, user, USER, GL0056, generateErrorMessage(GL0056, USER));
 		return errors;
 	}
 
-	private Errors validateApiKey(Application application, UserToken sessToken) throws Exception {
+	private Errors validateApiKey(final Application application, final UserToken sessToken) throws Exception {
 		final Errors errors = new BindException(sessToken, SESSIONTOKEN);
 		rejectIfNull(errors, application, GOORU_OID, GL0056, generateErrorMessage(GL0056, "Application key"));
 		return errors;

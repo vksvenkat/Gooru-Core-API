@@ -45,7 +45,7 @@ public class RoleRestV2Controller extends BaseController implements ParameterPro
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ROLE_LIST })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET)
-	public ModelAndView getRoles(@RequestParam(value = USER_UID, required = false) String userUid,@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,HttpServletRequest request,	HttpServletResponse response) throws Exception {
+	public ModelAndView getRoles(@RequestParam(value = USER_UID, required = false) final String userUid,@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") final Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") final Integer limit, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		
 		return toModelAndViewWithIoFilter(getUserManagementService().getRoles(offset,limit,userUid), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, ROLE_INCLUDES);
 	}
@@ -53,9 +53,9 @@ public class RoleRestV2Controller extends BaseController implements ParameterPro
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ROLE_ADD })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.POST)
-	public ModelAndView createRole(@RequestBody String data,HttpServletRequest request, HttpServletResponse response) throws Exception {
-		User user = (User) request.getAttribute(Constants.USER);
-		ActionResponseDTO<UserRole> responseDTO = getUserManagementService().createNewRole(buildRoleFromInputParameters(data), user);
+	public ModelAndView createRole(@RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+		final User user = (User) request.getAttribute(Constants.USER);
+		final ActionResponseDTO<UserRole> responseDTO = getUserManagementService().createNewRole(buildRoleFromInputParameters(data), user);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		} else {
@@ -67,7 +67,7 @@ public class RoleRestV2Controller extends BaseController implements ParameterPro
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ROLE_UPDATE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.PUT, value = "/{roleId}/operation")
-	public ModelAndView updateRoleOperation(HttpServletRequest request,@RequestParam(value = OPERATIONS) String operations,@PathVariable(ROLE_ID) Integer roleId, HttpServletResponse response) throws Exception {
+	public ModelAndView updateRoleOperation(final HttpServletRequest request,@RequestParam(value = OPERATIONS) final String operations,@PathVariable(ROLE_ID) final Integer roleId, final HttpServletResponse response) throws Exception {
 
 		return toModelAndView(this.getUserService().updateRoleOperation(roleId, operations),RESPONSE_FORMAT_JSON);
 	}
@@ -75,7 +75,7 @@ public class RoleRestV2Controller extends BaseController implements ParameterPro
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ROLE_DELETE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.DELETE, value = "/{roleId}/operation")
-	public void removeRoleOperation(HttpServletRequest request,@RequestParam(value = OPERATIONS) String operations,@PathVariable(ROLE_ID) Integer roleId, HttpServletResponse response) throws Exception {
+	public void removeRoleOperation(final HttpServletRequest request,@RequestParam(value = OPERATIONS) final String operations,@PathVariable(ROLE_ID) final Integer roleId, final HttpServletResponse response) throws Exception {
 		
 		this.getUserService().removeRoleOperation(roleId, operations);
 		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
@@ -84,7 +84,7 @@ public class RoleRestV2Controller extends BaseController implements ParameterPro
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ROLE_UPDATE })
 	@RequestMapping(method = RequestMethod.PUT, value = "/{roleId}")
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public ModelAndView updateRole(@RequestBody String data,HttpServletRequest request, HttpServletResponse response,@PathVariable(ROLE_ID) Integer roleId) throws Exception {
+	public ModelAndView updateRole(@RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response,@PathVariable(ROLE_ID) final Integer roleId) throws Exception {
 
 		return toModelAndViewWithIoFilter(this.getUserManagementService().updateRole(buildRoleFromInputParameters(data), roleId), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, USER_ROLE_INCLUDES);
 	}
@@ -92,7 +92,7 @@ public class RoleRestV2Controller extends BaseController implements ParameterPro
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ROLE_DELETE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.DELETE, value = "/{roleId}")
-	public void removeRole(HttpServletRequest request,@PathVariable(ROLE_ID) Integer roleId, HttpServletResponse response) throws Exception {
+	public void removeRole(final HttpServletRequest request,@PathVariable(ROLE_ID) final Integer roleId, final HttpServletResponse response) throws Exception {
 
 		this.getUserManagementService().removeRole(roleId);
 		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
@@ -101,7 +101,7 @@ public class RoleRestV2Controller extends BaseController implements ParameterPro
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ROLE_LIST })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/entity")
-	public ModelAndView getEntity(@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,HttpServletRequest request,HttpServletResponse response) throws Exception {
+	public ModelAndView getEntity(@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") final Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") final Integer limit, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 
 		return toModelAndViewWithIoFilter(this.getUserManagementService().findAllEntityNames(offset,limit), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, ENTITY_INCLUDES);
 	}
@@ -109,7 +109,7 @@ public class RoleRestV2Controller extends BaseController implements ParameterPro
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ROLE_LIST })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/entity/operations")
-	public ModelAndView getEntityOperations(HttpServletRequest request,HttpServletResponse response,@RequestParam(value = ENTITY_NAME) String entityName) throws Exception {
+	public ModelAndView getEntityOperations(final HttpServletRequest request, final HttpServletResponse response,@RequestParam(value = ENTITY_NAME) final String entityName) throws Exception {
 
 		return toModelAndViewWithIoFilter(this.getUserManagementService().getOperationsByEntityName(entityName), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, ENTITY_INCLUDES);
 	}
@@ -117,7 +117,7 @@ public class RoleRestV2Controller extends BaseController implements ParameterPro
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ROLE_LIST })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/group")
-	public ModelAndView getGroupRole(HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public ModelAndView getGroupRole(final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		
 		return toModelAndView(serialize(this.getUserGroupService().findAllGroups(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, (String[]) ArrayUtils.addAll(ERROR_INCLUDE, USER_GROUP_INCLUDES)));
 	}
@@ -125,7 +125,7 @@ public class RoleRestV2Controller extends BaseController implements ParameterPro
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ROLE_LIST })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/{roleId}")
-	public ModelAndView getRoleByRoleId(@PathVariable(ROLE_ID) Integer roleId,HttpServletRequest request,	HttpServletResponse response) throws Exception {
+	public ModelAndView getRoleByRoleId(@PathVariable(ROLE_ID) final Integer roleId, final HttpServletRequest request,	final HttpServletResponse response) throws Exception {
 		
 		return toModelAndViewWithIoFilter(getUserManagementService().getRoleByRoleId(roleId), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, USER_ROLE_INCLUDES);
 	}
@@ -133,7 +133,7 @@ public class RoleRestV2Controller extends BaseController implements ParameterPro
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ROLE_LIST })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/{roleId}/operation")
-	public ModelAndView getRoleOperationsByRoleId(@PathVariable(ROLE_ID) Integer roleId,HttpServletRequest request,	HttpServletResponse response) throws Exception {
+	public ModelAndView getRoleOperationsByRoleId(@PathVariable(ROLE_ID) final Integer roleId, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		
 		return toModelAndViewWithIoFilter(getUserManagementService().getRoleOperationsByRoleId(roleId), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, ROLE_OPERATIONS_INCLUDES);
 	}
@@ -150,7 +150,7 @@ public class RoleRestV2Controller extends BaseController implements ParameterPro
 		return userGroupService;
 	}
 
-	private UserRole buildRoleFromInputParameters(String data) {
+	private UserRole buildRoleFromInputParameters(final String data) {
 		return JsonDeserializer.deserialize(data, UserRole.class);
 	}
 }
