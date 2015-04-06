@@ -42,7 +42,6 @@ import org.dom4j.Element;
 import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
 import org.ednovo.gooru.application.util.ConfigProperties;
-import org.ednovo.gooru.application.util.DatabaseUtil;
 import org.ednovo.gooru.application.util.TaxonomyUtil;
 import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.api.model.CodeOrganizationAssoc;
@@ -101,7 +100,7 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 
 	@Override
 	public void updateOrder(Code code) {
-		String updateQuery = DatabaseUtil.format(UPDATE_ORDER, code.getDisplayOrder(), code.getCodeId(), getUserOrganizationUidsAsString());
+		String updateQuery = format(UPDATE_ORDER, code.getDisplayOrder(), code.getCodeId(), getUserOrganizationUidsAsString());
 		this.getJdbcTemplate().update(updateQuery);
 	}
 
@@ -253,7 +252,7 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 			organizationUids = getUserOrganizationUidsAsString();
 		}
 
-		String depthQuery = DatabaseUtil.format(FIND_MAX_DEPTH, code.getRootNodeId(), organizationUids);
+		String depthQuery = format(FIND_MAX_DEPTH, code.getRootNodeId(), organizationUids);
 
 		Integer maxDepth;
 		maxDepth = (Integer) this.getJdbcTemplateReadOnly().queryForObject(depthQuery, new RowMapper() {
@@ -271,7 +270,7 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public CodeType findTaxonomyTypeBydepth(Code code, Short depth) {
-		String depthQuery = DatabaseUtil.format(FIND_TAXCODE_BY_DEPTH, depth, code.getRootNodeId(), getUserOrganizationUidsAsString());
+		String depthQuery = format(FIND_TAXCODE_BY_DEPTH, depth, code.getRootNodeId(), getUserOrganizationUidsAsString());
 
 		CodeType maxDepth;
 		maxDepth = (CodeType) this.getJdbcTemplateReadOnly().queryForObject(depthQuery, new RowMapper() {
@@ -352,7 +351,7 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public List<CodeType> findAllTaxonomyLevels() {
-		List<CodeType> annotations = this.getJdbcTemplateReadOnly().query(DatabaseUtil.format(FIND_ALL_TAXONOMY, getUserOrganizationUidsAsString()), new RowMapper() {
+		List<CodeType> annotations = this.getJdbcTemplateReadOnly().query(format(FIND_ALL_TAXONOMY, getUserOrganizationUidsAsString()), new RowMapper() {
 
 			public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
 				CodeType annotation = new CodeType();

@@ -55,6 +55,7 @@ import org.ednovo.gooru.core.api.model.UserGroupAssociation;
 import org.ednovo.gooru.core.application.util.BaseUtil;
 import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.constant.ConfigConstants;
+import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.BadRequestException;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.core.exception.UnauthorizedException;
@@ -86,7 +87,7 @@ import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
 
 @Service
-public class ClasspageServiceImpl extends ScollectionServiceImpl implements ClasspageService {
+public class ClasspageServiceImpl extends ScollectionServiceImpl implements ClasspageService, ParameterProperties {
 
 	@Autowired
 	private TaskService taskService;
@@ -566,7 +567,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 
 	@Override
 	public List<Map<String, Object>> getClassMemberList(String code, String filterBy) {
-		List<Map<String, Object>> classpageMember = new ArrayList<Map<String, Object>>();
+		final List<Map<String, Object>> classpageMember = new ArrayList<Map<String, Object>>();
 		if (filterBy != null && filterBy.equalsIgnoreCase(ACTIVE)) {
 			classpageMember.addAll(getActiveMemberList(code));
 		} else if (filterBy != null && filterBy.equalsIgnoreCase(PENDING)) {
@@ -580,7 +581,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 
 	@Override
 	public Map<String, List<Map<String, Object>>> getClassMemberListByGroup(String code, String filterBy) {
-		Map<String, List<Map<String, Object>>> collaboratorList = new HashMap<String, List<Map<String, Object>>>();
+		final Map<String, List<Map<String, Object>>> collaboratorList = new HashMap<String, List<Map<String, Object>>>();
 		if (filterBy != null && filterBy.equalsIgnoreCase(ACTIVE)) {
 			collaboratorList.put(ACTIVE, getActiveMemberList(code));
 		} else if (filterBy != null && filterBy.equalsIgnoreCase(PENDING)) {
@@ -592,41 +593,41 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		return collaboratorList;
 	}
 
-	private List<Map<String, Object>> getActiveMemberList(String code) {
-		List<Map<String, Object>> activeList = new ArrayList<Map<String, Object>>();
-		Classpage classpage = this.getCollectionRepository().getClasspageByCode(code);
+	private List<Map<String, Object>> getActiveMemberList(final String code) {
+		final List<Map<String, Object>> activeList = new ArrayList<Map<String, Object>>();
+		final Classpage classpage = this.getCollectionRepository().getClasspageByCode(code);
 		if (classpage == null) {
 			throw new NotFoundException(generateErrorMessage("GL0056", "Class"), "GL0056");
 
 		}
-		UserGroup userGroup = this.getUserGroupService().findUserGroupByGroupCode(code);
-		List<UserGroupAssociation> userGroupAssociations = this.getUserGroupRepository().getUserGroupAssociationByGroup(userGroup.getPartyUid());
-		for (UserGroupAssociation userGroupAssociation : userGroupAssociations) {
-			if (userGroupAssociation.getIsGroupOwner() != 1) {
+		final UserGroup userGroup = this.getUserGroupService().findUserGroupByGroupCode(code);
+		final List<UserGroupAssociation> userGroupAssociations = this.getUserGroupRepository().getUserGroupAssociationByGroup(userGroup.getPartyUid());
+		for (final UserGroupAssociation userGroupAssociation : userGroupAssociations) {
+			if (userGroupAssociation.getIsGroupOwner() != _ONE) {
 				activeList.add(this.setMemberResponse(userGroupAssociation, ACTIVE));
 			}
 		}
 		return activeList;
 	}
 
-	private List<Map<String, Object>> getPendingMemberList(String code) {
-		Classpage classpage = this.getCollectionRepository().getClasspageByCode(code);
+	private List<Map<String, Object>> getPendingMemberList(final String code) {
+		final Classpage classpage = this.getCollectionRepository().getClasspageByCode(code);
 		if (classpage == null) {
 			throw new NotFoundException(generateErrorMessage("GL0056", "Class"), "GL0056");
 
 		}
-		List<InviteUser> inviteUsers = this.getInviteRepository().getInviteUsersById(classpage.getGooruOid());
-		List<Map<String, Object>> pendingList = new ArrayList<Map<String, Object>>();
+		final List<InviteUser> inviteUsers = this.getInviteRepository().getInviteUsersById(classpage.getGooruOid());
+		final List<Map<String, Object>> pendingList = new ArrayList<Map<String, Object>>();
 		if (inviteUsers != null) {
-			for (InviteUser inviteUser : inviteUsers) {
+			for (final InviteUser inviteUser : inviteUsers) {
 				pendingList.add(this.setInviteMember(inviteUser, PENDING));
 			}
 		}
 		return pendingList;
 	}
 
-	private Map<String, Object> setInviteMember(InviteUser inviteUser, String status) {
-		Map<String, Object> listMap = new HashMap<String, Object>();
+	private Map<String, Object> setInviteMember(final InviteUser inviteUser, final String status) {
+		final Map<String, Object> listMap = new HashMap<String, Object>();
 		listMap.put(EMAIL_ID, inviteUser.getEmailId());
 		listMap.put(GOORU_OID, inviteUser.getGooruOid());
 		listMap.put(ASSOC_DATE, inviteUser.getCreatedDate());
@@ -636,8 +637,8 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		return listMap;
 	}
 
-	private Map<String, Object> setMemberResponse(UserGroupAssociation userGroupAssociation, String status) {
-		Map<String, Object> member = new HashMap<String, Object>();
+	private Map<String, Object> setMemberResponse(final UserGroupAssociation userGroupAssociation, final String status) {
+		final Map<String, Object> member = new HashMap<String, Object>();
 		String externalId = null;
 		if (userGroupAssociation.getUser() != null && userGroupAssociation.getUser().getAccountTypeId() != null && (userGroupAssociation.getUser().getAccountTypeId().equals(UserAccountType.ACCOUNT_CHILD))) {
 			externalId = userGroupAssociation.getUser().getParentUser().getIdentities().iterator().next().getExternalId();
@@ -654,17 +655,17 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 
 	@Override
 	public SearchResults<Map<String, Object>> getMemberList(String code, Integer offset, Integer limit, String filterBy) {
-		Classpage classpage = this.getCollectionRepository().getClasspageByCode(code);
+		final Classpage classpage = this.getCollectionRepository().getClasspageByCode(code);
 		if (classpage == null) {
 			  throw new NotFoundException(generateErrorMessage("GL0056", "classpage"), "GL0056");
 
 
 		}
-		List<Object[]> results = this.getUserGroupRepository().getUserMemberList(code, classpage.getGooruOid(), offset, limit, filterBy);
-		SearchResults<Map<String, Object>> searchResult = new SearchResults<Map<String, Object>>();
-		List<Map<String, Object>> listMap = new ArrayList<Map<String, Object>>();
+		final List<Object[]> results = this.getUserGroupRepository().getUserMemberList(code, classpage.getGooruOid(), offset, limit, filterBy);
+		final SearchResults<Map<String, Object>> searchResult = new SearchResults<Map<String, Object>>();
+		final List<Map<String, Object>> listMap = new ArrayList<Map<String, Object>>();
 		for (Object[] object : results) {
-			Map<String, Object> result = new HashMap<String, Object>();
+			final Map<String, Object> result = new HashMap<String, Object>();
 			result.put(EMAIL_ID, object[0]);
 			result.put(USER_NAME, object[1]);
 			result.put(_GOORU_UID, object[2]);
@@ -682,7 +683,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		return searchResult;
 	}
 
-	private Errors validateClasspage(Classpage classpage) throws Exception {
+	private Errors validateClasspage(final Classpage classpage) throws Exception {
 		final Errors errors = new BindException(classpage, CLASSPAGE);
 		if (classpage != null) {
 			rejectIfNullOrEmpty(errors, classpage.getTitle(), TITLE, GL0006, generateErrorMessage(GL0006, TITLE));
@@ -690,14 +691,14 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		return errors;
 	}
 
-	private Errors validateUpdateClasspage(Collection collection, Collection newCollection) throws Exception {
+	private Errors validateUpdateClasspage(Collection collection, final Collection newCollection) throws Exception {
 		final Errors errors = new BindException(collection, COLLECTION);
 		rejectIfNull(errors, collection, COLLECTION_ALL, GL0006, generateErrorMessage(GL0006, COLLECTION));
 		return errors;
 	}
 
-	private Errors validateClasspageItem(Resource resource, CollectionItem collectionItem) throws Exception {
-		Map<String, String> itemType = new HashMap<String, String>();
+	private Errors validateClasspageItem(final Resource resource, final CollectionItem collectionItem) throws Exception {
+		final Map<String, String> itemType = new HashMap<String, String>();
 		itemType.put(ADDED, COLLECTION_ITEM_TYPE);
 		itemType.put(SUBSCRIBED, COLLECTION_ITEM_TYPE);
 		final Errors errors = new BindException(collectionItem, COLLECTION_ITEM);
@@ -719,8 +720,8 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			throw new NotFoundException(generateErrorMessage("GL0056","User"), "GL0056");
 
 		}
-		List<Object[]> results = this.getUserGroupRepository().getMyStudy(user.getPartyUid(), user.getIdentities() != null ? user.getIdentities().iterator().next().getExternalId() : null, orderBy, offset, limit, type);
-		SearchResults<Map<String, Object>> searchResult = new SearchResults<Map<String, Object>>();
+		final List<Object[]> results = this.getUserGroupRepository().getMyStudy(user.getPartyUid(), user.getIdentities() != null ? user.getIdentities().iterator().next().getExternalId() : null, orderBy, offset, limit, type);
+		final SearchResults<Map<String, Object>> searchResult = new SearchResults<Map<String, Object>>();
 		searchResult.setSearchResults(this.setMyStudy(results,itemType));
 		searchResult.setTotalHitCount(this.getUserGroupRepository().getMyStudyCount(user.getPartyUid(), user.getIdentities() != null ? user.getIdentities().iterator().next().getExternalId() : null, type));
 		return searchResult;
@@ -728,7 +729,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 
 	@Override
 	public List<Map<String, Object>> setMyStudy(List<Object[]> results, String itemType) {
-		List<Map<String, Object>> listMap = new ArrayList<Map<String, Object>>();
+		final List<Map<String, Object>> listMap = new ArrayList<Map<String, Object>>();
 		for (Object[] object : results) {
 			Map<String, Object> result = new HashMap<String, Object>();
 			result.put(GOORU_OID, object[0]);
@@ -744,8 +745,8 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			user.put(PROFILE_IMG_URL, settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, TaxonomyUtil.GOORU_ORG_UID) + "/" + settingService.getConfigSetting(ConfigConstants.PROFILE_BUCKET, TaxonomyUtil.GOORU_ORG_UID) + String.valueOf(object[5]) + ".png");
 			result.put(USER, user);
 
-			StorageArea storageArea = this.getStorageRepository().getStorageAreaByTypeName(NFS);
-			Map<String, Object> thumbnails = new HashMap<String, Object>();
+			final StorageArea storageArea = this.getStorageRepository().getStorageAreaByTypeName(NFS);
+			final Map<String, Object> thumbnails = new HashMap<String, Object>();
 			if (object[10] != null) {
 				thumbnails.put(URL, storageArea.getCdnDirectPath() + String.valueOf(object[9]) + String.valueOf(object[10]));
 			} else {
@@ -753,7 +754,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			}
 			result.put(THUMBNAILS, thumbnails);
 			result.put(ITEM_COUNT, this.getCollectionRepository().getClasspageCount(object[0].toString(), itemType));
-			long member = this.getUserGroupRepository().getUserGroupAssociationCount(String.valueOf(object[2]));
+			final long member = this.getUserGroupRepository().getUserGroupAssociationCount(String.valueOf(object[2]));
 			result.put(MEMBER_COUNT, member);
 			listMap.add(result);
 		}
@@ -762,7 +763,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 
 	@Override
 	public CollectionItem updateAssignment(String collectionItemId, String status, String minimumScore,String assignmentCompleted , String timeStudying ,User user) {
-		CollectionItem collectionItem = this.getCollectionItemById(collectionItemId);
+		final CollectionItem collectionItem = this.getCollectionItemById(collectionItemId);
 		rejectIfNull(collectionItem, GL0056, generateErrorMessage(GL0056, COLLECTION_ITEM));
 		
 		UserCollectionItemAssoc  userCollectionItemAssoc = this.getCollectionRepository().getUserCollectionItemAssoc(collectionItem.getCollectionItemId(), user.getPartyUid());
@@ -782,7 +783,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			userCollectionItemAssoc.setTimeStudying(timeStudying);
 		}
 		if (status != null) {
-			CustomTableValue statusType = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.ASSIGNMENT_STATUS_TYPE.getTable(), status);
+			final CustomTableValue statusType = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.ASSIGNMENT_STATUS_TYPE.getTable(), status);
 			userCollectionItemAssoc.setStatus(statusType);
 		}
 		this.getCollectionRepository().save(userCollectionItemAssoc);
@@ -795,24 +796,24 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 
 	@Override
 	public List<Map<String, Object>> getClasspageItems(String gooruOid, Integer limit, Integer offset, User apiCaller, String orderBy, boolean optimize, String status, String type) {
-		List<Object[]> results = this.getCollectionRepository().getClasspageItems(gooruOid, limit, offset, apiCaller.getPartyUid(), orderBy, status,type);
-		List<Map<String, Object>> collectionItems = new ArrayList<Map<String, Object>>();
+		final List<Object[]> results = this.getCollectionRepository().getClasspageItems(gooruOid, limit, offset, apiCaller.getPartyUid(), orderBy, status,type);
+		final List<Map<String, Object>> collectionItems = new ArrayList<Map<String, Object>>();
 		for (Object[] object : results) {
-			Map<String, Object> result = new HashMap<String, Object>();
-			Map<String, Object> resource = new HashMap<String, Object>();
+			final Map<String, Object> result = new HashMap<String, Object>();
+			final Map<String, Object> resource = new HashMap<String, Object>();
 			if (!optimize)  {
 				result.put(ASSOCIATION_DATE, object[0]);
 				resource.put(FOLDER, object[7]);
 				resource.put(SHARING, object[9]);
-				Map<String, Object> thumbnails = new HashMap<String, Object>();
+				final Map<String, Object> thumbnails = new HashMap<String, Object>();
 				if (object[8] != null) {
-					StorageArea storageArea = this.getStorageRepository().getStorageAreaByTypeName(NFS);
+					final StorageArea storageArea = this.getStorageRepository().getStorageAreaByTypeName(NFS);
 					thumbnails.put(URL, storageArea.getCdnDirectPath() + String.valueOf(object[7]) + String.valueOf(object[8]));
 				} else {
 					thumbnails.put(URL, "");
 				}
 				resource.put(THUMBNAILS, thumbnails);
-				Map<String, Object> user = new HashMap<String, Object>();
+				final Map<String, Object> user = new HashMap<String, Object>();
 				user.put(USERNAME, object[12]);
 				user.put(GOORU_UID, object[13]);
 				user.put(PROFILE_IMG_URL, settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, TaxonomyUtil.GOORU_ORG_UID) + "/" + settingService.getConfigSetting(ConfigConstants.PROFILE_BUCKET, TaxonomyUtil.GOORU_ORG_UID) + String.valueOf(object[13]) + ".png");
@@ -848,14 +849,14 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	public Map<String, Object> getClasspageAssoc(Integer offset, Integer limit, String classpageId, String collectionId, String title, String collectionTitle, String classCode, String collectionCreator, String collectionItemId) {
 		String gooruUid = null;
 		if (collectionCreator != null) {
-			User user = this.getUserService().getUserByUserName(collectionCreator);
+			final User user = this.getUserService().getUserByUserName(collectionCreator);
 			if (user != null) {
 				gooruUid = user.getPartyUid();
 			}
 		}
-		List<Object[]> classpageAssocs = this.getCollectionRepository().getClasspageAssoc(offset, limit, classpageId, collectionId, gooruUid, title, collectionTitle, classCode, collectionItemId);
-		Map<String, Object> resultCount = new HashMap<String, Object>();	
-		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
+		final List<Object[]> classpageAssocs = this.getCollectionRepository().getClasspageAssoc(offset, limit, classpageId, collectionId, gooruUid, title, collectionTitle, classCode, collectionItemId);
+		final Map<String, Object> resultCount = new HashMap<String, Object>();	
+		final List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
 		for (Object[] object : classpageAssocs) {
 			Map<String, Object> results = new HashMap<String, Object>();
 			results.put(CLASSPAGE_ID, object[0]);
@@ -879,12 +880,12 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	
 	@Override
 	public Collection createPathway(String classId, Collection pathway, String collectionId, Boolean isRequired, User user) throws Exception {
-		Classpage classpage = this.getCollectionRepository().getClasspageByGooruOid(classId, null);
+		final Classpage classpage = this.getCollectionRepository().getClasspageByGooruOid(classId, null);
 		if (classpage == null) {
 			 throw new BadRequestException(generateErrorMessage(GL0056, COLLECTION), GL0056);
 		}
 		this.getCollectionRepository().save(pathway);
-		CollectionItem collectionItem = new CollectionItem();
+		final CollectionItem collectionItem = new CollectionItem();
 		collectionItem.setIsRequired(isRequired);
 		this.getCollectionService().createCollectionItem(pathway.getGooruOid(), classpage.getGooruOid(), collectionItem, pathway.getUser(), ADDED, false);
 		if (collectionId != null && this.getCollectionRepository().getCollectionByGooruOid(collectionId,null) != null) {
@@ -902,11 +903,12 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 	
 	@Override
-	public Collection updatePathway(String classId, String pathwayGooruOid, Collection newPathway, User user) throws Exception {
-		Collection pathwayCollection = this.getCollectionRepository().getCollectionByIdWithType(pathwayGooruOid, ResourceType.Type.PATHWAY.getType());
+	public Collection updatePathway(final String classId, final String pathwayGooruOid, final Collection newPathway, final User user) throws Exception {
+		final Collection pathwayCollection = this.getCollectionRepository().getCollectionByIdWithType(pathwayGooruOid, ResourceType.Type.PATHWAY.getType());
 		rejectIfNull(pathwayCollection, GL0056, PATHWAY);
 		JSONObject itemData = new JSONObject();
-			if (newPathway.getTitle() != null) {
+
+		if (newPathway.getTitle() != null) {
 				pathwayCollection.setTitle(newPathway.getTitle());
 				itemData.put(TITLE, newPathway.getTitle());
 			}
@@ -927,7 +929,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	@Override
 	public void deletePathway(String classId,String pathwayGooruOid, User user) {
 		final List<CollectionItem> collectionItems = this.getCollectionRepository().getCollectionItemByParentId(pathwayGooruOid, null, null);
-		for (CollectionItem item : collectionItems) {
+		for (final CollectionItem item : collectionItems) {
 			this.deleteCollectionItem(item.getCollectionItemId(), user, false);
 		}
 		this.getCollectionService().deleteCollection(pathwayGooruOid, user);
@@ -946,10 +948,10 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		return getPathawyItemWithOutValidation(pathwayId, offset, limit, orderBy, user);
 	}
 	
-	private List<CollectionItem> getPathawyItemWithOutValidation (String pathwayId, Integer offset, Integer limit, String orderBy, User user) {
-		List<CollectionItem> collectionItems = this.getCollectionRepository().getCollectionItems(pathwayId, offset, limit, orderBy, CLASSPAGE);
-		for (CollectionItem collectionItem : collectionItems) {
-			UserCollectionItemAssoc userCollectionItemAssoc = this.getCollectionRepository().getUserCollectionItemAssoc(collectionItem.getCollectionItemId(), user.getPartyUid());
+	private List<CollectionItem> getPathawyItemWithOutValidation (final String pathwayId, final Integer offset, final Integer limit, final String orderBy, final User user) {
+		final List<CollectionItem> collectionItems = this.getCollectionRepository().getCollectionItems(pathwayId, offset, limit, orderBy, CLASSPAGE);
+		for (final CollectionItem collectionItem : collectionItems) {
+			final UserCollectionItemAssoc userCollectionItemAssoc = this.getCollectionRepository().getUserCollectionItemAssoc(collectionItem.getCollectionItemId(), user.getPartyUid());
 			if (userCollectionItemAssoc != null) {
 				if (userCollectionItemAssoc.getStatus() != null) {
 					collectionItem.setStatus(userCollectionItemAssoc.getStatus().getValue());
@@ -965,10 +967,10 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 	
 	@Override
-	public SearchResults<CollectionItem> getPathwayItemsSearchResults( String classId, String pathwayId, Integer offset, Integer limit, String orderBy,User user) {
-		Collection pathway = this.getCollectionRepository().getCollectionByIdWithType(pathwayId, PATHWAY);
-		List<CollectionItem> collectionItems = getPathwayItems(classId,pathwayId,offset,limit,orderBy,user);
-		SearchResults<CollectionItem> searchResults = new SearchResults<CollectionItem>();
+	public SearchResults<CollectionItem> getPathwayItemsSearchResults( final String classId, final String pathwayId, final Integer offset, final Integer limit, final String orderBy, final User user) {
+		final Collection pathway = this.getCollectionRepository().getCollectionByIdWithType(pathwayId, PATHWAY);
+		final List<CollectionItem> collectionItems = getPathwayItems(classId,pathwayId,offset,limit,orderBy,user);
+		final SearchResults<CollectionItem> searchResults = new SearchResults<CollectionItem>();
 		searchResults.setSearchResults(getCollectionService().setCollectionItemMetaInfo(collectionItems, null));
 		searchResults.setTotalHitCount(this.getCollectionRepository().getCollectionItemsCount(pathwayId, orderBy, CLASSPAGE));
 		searchResults.setTitle(pathway.getTitle());
@@ -978,13 +980,13 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	
 	@Override
 	public ActionResponseDTO<CollectionItem> reorderPathwaySequence(String classId, String pathwayGooruOid,int newSequence, User user) throws Exception {
-		Classpage classpage = this.getCollectionRepository().getClasspageByGooruOid(classId, null);
+		final Classpage classpage = this.getCollectionRepository().getClasspageByGooruOid(classId, null);
 		if (classpage == null) {
 			 throw new BadRequestException(generateErrorMessage(GL0056, COLLECTION), GL0056);
 
 		}
 		getAsyncExecutor().deleteFromCache("v2-class-data-"+ classId +"*");
-		ActionResponseDTO<CollectionItem> collectionItem = this.getCollectionService().reorderCollectionItem(pathwayGooruOid, newSequence,user);
+		final ActionResponseDTO<CollectionItem> collectionItem = this.getCollectionService().reorderCollectionItem(pathwayGooruOid, newSequence,user);
 	    try {
 	    	
 		   this.getClasspageEventlog().getEventLogs(collectionItem.getModel(), collectionItem.getModel().getResource().getGooruOid(), user, collectionItem.getModel(),collectionItem.getModel().getCollection().getCollectionType());
@@ -998,10 +1000,10 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	@Override
 	public CollectionItem pathwayItemMoveWithReorder(String classId, String pathwayGooruOid,String sourceId, String taregetId, Integer newSequence, User user) throws Exception {
 		CollectionItem targetItem = null;
-		CollectionItem sourceItem = this.getCollectionRepository().getCollectionItemById(sourceId);
+		final CollectionItem sourceItem = this.getCollectionRepository().getCollectionItemById(sourceId);
 		rejectIfNull(sourceItem, GL0056, "item");
-		Collection targetPathway = this.getCollectionRepository().getCollectionByIdWithType(taregetId, PATHWAY);
-		CollectionItem collectionItem = new CollectionItem();
+		final Collection targetPathway = this.getCollectionRepository().getCollectionByIdWithType(taregetId, PATHWAY);
+		final CollectionItem collectionItem = new CollectionItem();
 		if (targetPathway != null) {
 			collectionItem.setItemType(sourceItem.getItemType());
 			collectionItem.setNarration(sourceItem.getNarration());
@@ -1013,7 +1015,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			collectionItem.setShowHints(sourceItem.getShowHints());
 			collectionItem.setPlannedEndDate(sourceItem.getPlannedEndDate());
 			targetItem = this.getCollectionService().createCollectionItem(sourceItem.getResource().getGooruOid(), targetPathway.getGooruOid(), collectionItem, user, ADDED, false).getModel();
-			Set<CollectionItem> collectionItems = new TreeSet<CollectionItem>(targetPathway.getCollectionItems());
+			final Set<CollectionItem> collectionItems = new TreeSet<CollectionItem>(targetPathway.getCollectionItems());
 			collectionItems.add(collectionItem);
 			targetPathway.setCollectionItems(collectionItems);
 			this.getCollectionRepository().save(targetPathway);
@@ -1032,8 +1034,8 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		return targetItem != null ? targetItem : sourceItem;
 	}
 	
-	public ActionResponseDTO<CollectionItem> moveCollectionToPathway(CollectionItem  sourceIdItem, CollectionItem pathwayItem, ActionResponseDTO<CollectionItem> responseDTO, User user) throws Exception { 
-		CollectionItem collectionItem = new CollectionItem();
+	public ActionResponseDTO<CollectionItem> moveCollectionToPathway(CollectionItem  sourceIdItem, CollectionItem pathwayItem, ActionResponseDTO<CollectionItem> responseDTO, final User user) throws Exception { 
+		final CollectionItem collectionItem = new CollectionItem();
 		if(sourceIdItem != null && sourceIdItem.getCollection() != null ){
 			collectionItem.setCollection(sourceIdItem.getCollection());
 		} 
@@ -1058,7 +1060,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 
 	@Override
-	public void deletePathwayItem(String classId, String pathwayGooruOid, String collectionItemId, User user) {
+	public void deletePathwayItem(final String classId, final String pathwayGooruOid, final String collectionItemId, final User user) {
 		if (this.getCollectionRepository().getCollectionByIdWithType(pathwayGooruOid, PATHWAY) == null) {
 			throw new BadRequestException(generateErrorMessage(GL0056, PATHWAY), GL0056);
 
@@ -1071,7 +1073,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 	
 	@Override
-	public ActionResponseDTO<CollectionItem> updatePathwayItem(String classId,String pathwayGooruOid,String collectionItemId,CollectionItem newcollectionItem,  User user) throws Exception {
+	public ActionResponseDTO<CollectionItem> updatePathwayItem(final String classId, final String pathwayGooruOid, final String collectionItemId, final CollectionItem newcollectionItem,  final User user) throws Exception {
 		if (this.getCollectionRepository().getCollectionByIdWithType(pathwayGooruOid, PATHWAY) == null) {
 			throw new BadRequestException(generateErrorMessage(GL0056, PATHWAY), GL0056);
 
@@ -1084,9 +1086,9 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 	
 	@Override
-	public Map<String, Object> getParentDetails(String collectionItemId) {
-		List<Object[]> result = this.getCollectionRepository().getParentDetails(collectionItemId);
-		Map<String, Object> items = new HashMap<String, Object>();
+	public Map<String, Object> getParentDetails(final String collectionItemId) {
+		final List<Object[]> result = this.getCollectionRepository().getParentDetails(collectionItemId);
+		final Map<String, Object> items = new HashMap<String, Object>();
 		if (result != null && result.size() > 0) {
 			for (Object[] object : result) {
 				items.put("classGooruOid", object[0]);

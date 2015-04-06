@@ -28,23 +28,11 @@ import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 
-import org.apache.commons.io.FileUtils;
 import org.ednovo.gooru.core.api.model.Code;
-import org.ednovo.gooru.core.api.model.ConverterDTO;
-import org.ednovo.gooru.core.api.model.Job;
-import org.ednovo.gooru.core.api.model.Learnguide;
 import org.ednovo.gooru.core.api.model.Resource;
-import org.ednovo.gooru.core.api.model.ResourceDTO;
 import org.ednovo.gooru.core.api.model.ResourceInfo;
-import org.ednovo.gooru.core.api.model.ResourceInstance;
 import org.ednovo.gooru.core.api.model.ResourceType;
-import org.ednovo.gooru.core.application.util.BaseUtil;
-import org.ednovo.gooru.core.application.util.RequestUtil;
-import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.domain.service.TransactionBox;
 import org.ednovo.gooru.domain.service.redis.RedisService;
@@ -53,10 +41,8 @@ import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.ednovo.gooru.domain.service.storage.S3ResourceApiHandler;
 import org.ednovo.gooru.infrastructure.messenger.IndexHandler;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
-import org.ednovo.gooru.infrastructure.persistence.hibernate.classplan.LearnguideRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.resource.ResourceRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.taxonomy.TaxonomyRespository;
-import org.restlet.data.Method;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,9 +59,6 @@ public class ResourceProcessor implements ParameterProperties {
 
 	@Autowired
 	private RedisService redisService;
-
-	@Autowired
-	private LearnguideRepository classplanRepository;
 
 	@Autowired
 	private TaxonomyRespository taxonomyRespository;
@@ -96,120 +79,7 @@ public class ResourceProcessor implements ParameterProperties {
 	private IndexHandler indexHandler;
 
 	private final Logger logger = LoggerFactory.getLogger(ResourceProcessor.class);
-
-	public void saveResources(final ConverterDTO converterDTO) throws Exception {
-
-		new TransactionBox() {
-
-			@Override
-			public void execute() {
-
-				try {
-
-					Job job = (Job) resourceRepository.get(Job.class, converterDTO.getJobId());
-
-					Learnguide classplan = (Learnguide) classplanRepository.findByContent(converterDTO.getGooruContentId());
-
-					if (converterDTO.isSuccess()) {
-						if (converterDTO.getResourcePaths() != null) {
-
-							for (String resourcePath : converterDTO.getResourcePaths()) {
-
-								ResourceDTO resourceDTO = converterDTO.getResource();
-								ResourceInstance resourceInstance = new ResourceInstance(converterDTO.getSegmentId(), new Resource());
-								resourceInstance.setResourceInstanceId(UUID.randomUUID().toString());
-								Resource resource = resourceInstance.getResource();
-								if (resourceDTO != null) {
-									resource.setTitle(resourceDTO.getLabel());
-								}
-								resource.setUser(classplan.getUser());
-								resource.setResourceType(new ResourceType());
-								resource.getResourceType().setName(ResourceType.Type.IMAGE.getType());
-								resource.setSharing(PRIVATE);
-								if (resourceInstance.getNarrative() == null) {
-									resourceInstance.setNarrative("");
-								}
-								saveResourceInstance(resourceInstance, resourcePath, classplan);
-							}
-
-						} else {
-							ResourceDTO resourceDto = converterDTO.getResource();
-							ResourceInstance resourceInstance = new ResourceInstance(converterDTO.getSegmentId(), new Resource());
-							resourceInstance.setResourceInstanceId(UUID.randomUUID().toString());
-							Resource resource = resourceInstance.getResource();
-							resource.setUser(classplan.getUser());
-							resource.setTitle(resourceDto.getLabel());
-							resource.setUrl(resourceDto.getNativeURL());
-							ResourceType resourceType = new ResourceType();
-							resourceType.setName(ResourceType.Type.PRESENTATION.getType());
-							resource.setResourceType(resourceType);
-							resourceInstance.setStart(resourceDto.getStart());
-							resourceInstance.setStop(resourceDto.getStop());
-							saveResourceInstance(resourceInstance, converterDTO.getResourcePath(), classplan);
-
-						}
-						long endTime = new Date().getTime();
-						long starttime = converterDTO.getStartTime();
-						job.setTimeToComplete((int) (endTime - starttime) / 1000);
-						job.setStatus(Job.Status.COMPLETED.getStatus());
-					} else {
-						job.setStatus(Job.Status.FAILED.getStatus());
-					}
-					resourceRepository.save(job);
-
-				} catch (Exception exception) {
-
-					logger.error("Splitting of resource failed");
-				}
-
-			}
-
-		};
-	}
-
-	private ResourceInstance saveResourceInstance(ResourceInstance resourceInstance, String resourcePath, Learnguide classplan) throws Exception {
-		Resource resource = resourceInstance.getResource();
-		if (resource.getResourceType().getName().equals(ResourceType.Type.QUIZ.getType())) {
-			resourceInstance.setResource(resourceService.findResourceByContentGooruId(resource.getGooruOid()));
-		} else if (resource.getResourceType().getName().equals(ResourceType.Type.TEXTBOOK.getType())) {
-			resourceInstance.setResource(resourceService.findTextbookByContentGooruId(resource.getGooruOid()));
-		}
-
-		resource.setUrl(GooruImageUtil.getFileName(resourcePath));
-
-		resourceService.saveResourceInstance(resourceInstance);
-
-		resource.setCategory(SLIDE);
-
-		String destPath = resource.getOrganization().getNfsStorageArea().getInternalPath() + resource.getFolder();
-
-		String fileHash = BaseUtil.getFileMD5Hash(resourcePath);
-
-		resource.setFileHash(fileHash);
-
-		File destDir = new File(destPath);
-
-		if (!destDir.exists()) {
-			destDir.mkdirs();
-		}
-
-		FileUtils.moveFileToDirectory(new File(resourcePath), destDir, false);
-
-		resourceRepository.save(resource);
-
-		s3ResourceApiHandler.updateOrganization(resource);
-
-		String filePath = destPath + resource.getUrl();
-
-		Map<String, Object> param = new HashMap<String, Object>();
-		param.put( RESOURCE_FILE_PATH, filePath);
-		param.put(RESOURCE_GOORU_OID, resource.getGooruOid());
-		RequestUtil.executeRestAPI(param, settingService.getConfigSetting(ConfigConstants.GOORU_CONVERSION_RESTPOINT, 0, TaxonomyUtil.GOORU_ORG_UID) + "/conversion/pdf-to-image", Method.POST.getName());
-		indexHandler.setReIndexRequest(classplan.getGooruOid(), IndexProcessor.INDEX, COLLECTION, null, false, false);
-		return resourceInstance;
-
-	}
-
+	
 	public void updateWebResources(final Long contentId, final Integer status) {
 
 		new TransactionBox() {
@@ -231,14 +101,6 @@ public class ResourceProcessor implements ParameterProperties {
 				try {
 					logger.info("Updating Resource: " + resourceGooruOid);
 					Resource resource = resourceRepository.findResourceByContentGooruId(resourceGooruOid);
-					// String repoPath =
-					// resource.getOrganization().getNfsStorageArea().getInternalPath()
-					// + resource.getFolder();
-					/*
-					 * getGooruImageUtil().scaleImage(repoPath +
-					 * resource.getThumbnail(), repoPath, null,
-					 * ResourceImageUtil.RESOURCE_THUMBNAIL_SIZES);
-					 */
 					s3ResourceApiHandler.uploadResourceFolder(resource);
 				} catch (Exception ex) {
 					logger.error("Error while generating thumbnail ", ex);

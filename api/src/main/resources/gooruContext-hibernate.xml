@@ -124,10 +124,6 @@
 				<!-- Resource Domain -->
 				<value>org/ednovo/gooru/domain/model/resource/ResourceType.hbm.xml
 				</value>
-				<value>org/ednovo/gooru/domain/model/resource/Segment.hbm.xml
-				</value>
-				<value>org/ednovo/gooru/domain/model/resource/ResourceInstance.hbm.xml
-				</value>
 				<value>org/ednovo/gooru/domain/model/resource/ResourceSource.hbm.xml
 				</value>
 				<value>org/ednovo/gooru/domain/model/resource/ResourceInfo.hbm.xml
@@ -138,8 +134,6 @@
 				</value>
 				<value>org/ednovo/gooru/domain/model/content/ResourceSummary.hbm.xml
 				</value>
-
-
 				<value>org/ednovo/gooru/domain/model/annotation/AnnotationType.hbm.xml
 				</value>
 
@@ -162,16 +156,6 @@
 				<value>org/ednovo/gooru/domain/model/assessment/AssessmentAnswer.hbm.xml
 				</value>
 				<value>org/ednovo/gooru/domain/model/assessment/AssessmentHint.hbm.xml
-				</value>
-				<value>org/ednovo/gooru/domain/model/assessment/AssessmentAttempt.hbm.xml
-				</value>
-				<value>org/ednovo/gooru/domain/model/assessment/AssessmentAttemptItem.hbm.xml
-				</value>
-				<value>org/ednovo/gooru/domain/model/assessment/AssessmentAttemptTry.hbm.xml
-				</value>
-				<value>org/ednovo/gooru/domain/model/assessment/AssessmentSegment.hbm.xml
-				</value>
-				<value>org/ednovo/gooru/domain/model/assessment/AssessmentSegmentQuestionAssoc.hbm.xml
 				</value>
 				<value>org/ednovo/gooru/domain/model/assessment/QuestionSetQuestionAssoc.hbm.xml
 				</value>
@@ -363,10 +347,7 @@
 	</bean>
 
 	<!-- ========================= BUSINESS OBJECT DEFINITIONS ========================= -->
-	
-	<bean id="databaseUtil" class="org.ednovo.gooru.application.util.DatabaseUtil">
-		<property name="classplanRepository" ref="classplanRepository" />
-	</bean>
+
 
 	<!-- Activates various annotations to be detected in bean classes: Spring's 
 		@Required and @Autowired, as well as JSR 250's @Resource. -->

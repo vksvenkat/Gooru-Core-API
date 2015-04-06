@@ -101,7 +101,7 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 	private final Logger LOGGER = LoggerFactory.getLogger(CollaboratorServiceImpl.class);
 
 	@Override
-	public List<Map<String, Object>> addCollaborator(List<String> email, String gooruOid, User apiCaller, boolean sendInvite) throws Exception {
+	public List<Map<String, Object>> addCollaborator(final List<String> email, final String gooruOid, final User apiCaller, final boolean sendInvite) throws Exception {
 		Content content = null;
 		if (gooruOid != null) {
 			content = getContentRepository().findContentByGooruId(gooruOid, true);
@@ -111,10 +111,10 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 		} else {
 			throw new BadRequestException(generateErrorMessage("GL0088"), "GL0088");
 		}
-		List<Map<String, Object>> collaborator = new ArrayList<Map<String,Object>>();
+		final List<Map<String, Object>> collaborator = new ArrayList<Map<String,Object>>();
 		if (email != null) {
 			for (final String mailId : email) {
-				Identity identity = this.getUserRepository().findByEmailIdOrUserName(mailId, true, false);
+				final Identity identity = this.getUserRepository().findByEmailIdOrUserName(mailId, true, false);
 				collaborator.add(addCollaborator(mailId, gooruOid, apiCaller, sendInvite, content, identity == null ? null : identity.getUser()));
 			}
 			try {
@@ -127,13 +127,13 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 		return collaborator;
 	}
 
-	private Map<String, Object> addCollaborator(String mailId, String gooruOid, User apiCaller, boolean sendInvite, Content content, User user) throws Exception {
+	private Map<String, Object> addCollaborator(final String mailId, final String gooruOid, final User apiCaller, final boolean sendInvite, final Content content, final User user) throws Exception {
 		Map<String, Object> collaborator = new HashMap<String, Object>();
 		ActionResponseDTO<CollectionItem> responseDto = new ActionResponseDTO<CollectionItem>();
 		if (user != null) {
-			UserContentAssoc userContentAssocs = this.getCollaboratorRepository().findCollaboratorById(gooruOid, user.getGooruUId());
+			final UserContentAssoc userContentAssocs = this.getCollaboratorRepository().findCollaboratorById(gooruOid, user.getGooruUId());
 			if (userContentAssocs == null) {
-				UserContentAssoc userContentAssoc = new UserContentAssoc();
+				final UserContentAssoc userContentAssoc = new UserContentAssoc();
 				userContentAssoc.setContent(content);
 				userContentAssoc.setUser(user);
 				userContentAssoc.setAssociatedType(COLLABORATOR);
@@ -157,9 +157,9 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 			}
 
 		} else {
-			InviteUser inviteUsers = this.getInviteRepository().findInviteUserById(mailId, gooruOid, PENDING);
+			final InviteUser inviteUsers = this.getInviteRepository().findInviteUserById(mailId, gooruOid, PENDING);
 			if (inviteUsers == null) {
-				InviteUser inviteUser = new InviteUser();
+				final InviteUser inviteUser = new InviteUser();
 				inviteUser.setEmailId(mailId);
 				inviteUser.setGooruOid(gooruOid);
 				inviteUser.setCreatedDate(new Date());
@@ -172,7 +172,7 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 				collaborator = setInviteCollaborator(inviteUsers, PENDING);
 			}
 		}
-		Map<String, Object> collaboratorData = new HashMap<String, Object>();
+		final Map<String, Object> collaboratorData = new HashMap<String, Object>();
 		collaboratorData.put(CONTENT_OBJ, content);
 		collaboratorData.put(EMAIL_ID, mailId);
 		if (sendInvite) {
@@ -182,8 +182,8 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 		return collaborator;
 	}
 	
-	private Map<String, Object> setInviteCollaborator(InviteUser inviteUser, String status) {
-		Map<String, Object> listMap = new HashMap<String, Object>();
+	private Map<String, Object> setInviteCollaborator(final InviteUser inviteUser, final String status) {
+		final Map<String, Object> listMap = new HashMap<String, Object>();
 		listMap.put(EMAIL_ID, inviteUser.getEmailId());
 		listMap.put(GOORU_OID, inviteUser.getGooruOid());
 		listMap.put(ASSOC_DATE, inviteUser.getCreatedDate());
@@ -193,8 +193,8 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 		return listMap;
 	}
 
-	private Map<String, Object> setActiveCollaborator(final UserContentAssoc userContentAssoc, String status) {
-		Map<String, Object> activeMap = new HashMap<String, Object>();
+	private Map<String, Object> setActiveCollaborator(final UserContentAssoc userContentAssoc, final String status) {
+		final Map<String, Object> activeMap = new HashMap<String, Object>();
 		activeMap.put(EMAIL_ID, userContentAssoc.getUser().getIdentities() != null ? userContentAssoc.getUser().getIdentities().iterator().next().getExternalId() : null);
 		activeMap.put(_GOORU_UID, userContentAssoc.getUser().getGooruUId());
 		activeMap.put(USER_NAME, userContentAssoc.getUser().getUsername());
@@ -208,13 +208,13 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 	}
 
 	@Override
-	public List<String> collaboratorSuggest(String text, String gooruUid) {
+	public List<String> collaboratorSuggest(final String text, final String gooruUid) {
 
 		return this.getCollaboratorRepository().collaboratorSuggest(text, gooruUid);
 	}
 
 	@Override
-	public void deleteCollaborator(String gooruOid, List<String> email) {
+	public void deleteCollaborator(final String gooruOid, final List<String> email) {
 		Content content = null;
 		if (gooruOid != null) {
 			content = getContentRepository().findContentByGooruId(gooruOid, true);
@@ -225,11 +225,11 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 			throw new BadRequestException(generateErrorMessage("GL0088"), "GL0088");
 		}
 		if (email != null) {
-			for (String mailId : email) {
-				Identity identity = this.getUserRepository().findByEmailIdOrUserName(mailId, true, false);
+			for (final String mailId : email) {
+				final Identity identity = this.getUserRepository().findByEmailIdOrUserName(mailId, true, false);
 				if (identity != null) {
-					UserContentAssoc userContentAssoc = this.getCollaboratorRepository().findCollaboratorById(gooruOid, identity.getUser().getGooruUId());
-					List<CollectionItem> collectionItems = this.getCollectionRepository().findCollectionByResource(gooruOid, identity.getUser().getGooruUId(), COLLABORATOR);
+					final UserContentAssoc userContentAssoc = this.getCollaboratorRepository().findCollaboratorById(gooruOid, identity.getUser().getGooruUId());
+					final List<CollectionItem> collectionItems = this.getCollectionRepository().findCollectionByResource(gooruOid, identity.getUser().getGooruUId(), COLLABORATOR);
 					if (userContentAssoc != null) {
 						this.getCollaboratorRepository().remove(userContentAssoc);
 						if (collectionItems != null) {
@@ -250,7 +250,7 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 					getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + identity.getUser().getPartyUid() + "*");
 					getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + content.getUser().getPartyUid() + "*");
 				} else {
-					InviteUser inviteUser = this.getInviteRepository().findInviteUserById(mailId, gooruOid,PENDING);
+					final InviteUser inviteUser = this.getInviteRepository().findInviteUserById(mailId, gooruOid,PENDING);
 					if (inviteUser != null) {
 						this.getCollaboratorRepository().remove(inviteUser);
 					}
@@ -266,8 +266,8 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 	}
 
 	@Override
-	public List<Map<String, Object>> getCollaborators(String gooruOid, String filterBy) {
-		List<Map<String, Object>> collaborator = new ArrayList<Map<String, Object>>();
+	public List<Map<String, Object>> getCollaborators(final String gooruOid, final String filterBy) {
+		final List<Map<String, Object>> collaborator = new ArrayList<Map<String, Object>>();
 
 		if (filterBy != null && filterBy.equalsIgnoreCase(ACTIVE)) {
 			collaborator.addAll(getActiveCollaborator(gooruOid));
@@ -281,8 +281,8 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 	}
 
 	@Override
-	public Map<String, List<Map<String, Object>>> getCollaboratorsByGroup(String gooruOid, String filterBy) {
-		Map<String, List<Map<String, Object>>> collaboratorList = new HashMap<String, List<Map<String, Object>>>();
+	public Map<String, List<Map<String, Object>>> getCollaboratorsByGroup(final String gooruOid, final String filterBy) {
+		final Map<String, List<Map<String, Object>>> collaboratorList = new HashMap<String, List<Map<String, Object>>>();
 		if (filterBy != null && filterBy.equalsIgnoreCase(ACTIVE)) {
 			collaboratorList.put(ACTIVE, getActiveCollaborator(gooruOid));
 		} else if (filterBy != null && filterBy.equalsIgnoreCase(PENDING)) {
@@ -295,11 +295,11 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 	}
 
 	@Override
-	public List<Map<String, Object>> getActiveCollaborator(String gooruOid) {
-		List<Map<String, Object>> activeList = new ArrayList<Map<String, Object>>();
+	public List<Map<String, Object>> getActiveCollaborator(final String gooruOid) {
+		final List<Map<String, Object>> activeList = new ArrayList<Map<String, Object>>();
 		final List<UserContentAssoc> userContentAssocs = this.getCollaboratorRepository().getCollaboratorsById(gooruOid);
 		if (userContentAssocs != null) {
-			for (UserContentAssoc userContentAssoc : userContentAssocs) {
+			for (final UserContentAssoc userContentAssoc : userContentAssocs) {
 				activeList.add(this.setActiveCollaborator(userContentAssoc, ACTIVE));
 			}
 		}
@@ -307,11 +307,11 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 	}
 
 	@Override
-	public List<Map<String, Object>> getPendingCollaborator(String gooruOid) {
-		List<InviteUser> inviteUsers = this.getInviteRepository().getInviteUsersById(gooruOid);
-		List<Map<String, Object>> pendingList = new ArrayList<Map<String, Object>>();
+	public List<Map<String, Object>> getPendingCollaborator(final String gooruOid) {
+		final List<InviteUser> inviteUsers = this.getInviteRepository().getInviteUsersById(gooruOid);
+		final List<Map<String, Object>> pendingList = new ArrayList<Map<String, Object>>();
 		if (inviteUsers != null) {
-			for (InviteUser inviteUser : inviteUsers) {
+			for (final InviteUser inviteUser : inviteUsers) {
 				pendingList.add(this.setInviteCollaborator(inviteUser, PENDING));
 			}
 		}
@@ -319,15 +319,15 @@ public class CollaboratorServiceImpl extends BaseServiceImpl implements Collabor
 	}
 
 	@Override
-	public void updateCollaboratorStatus(String mailId, User user) throws Exception {
-		List<InviteUser> inviteUsers = this.getInviteRepository().getInviteUserByMail(mailId, COLLABORATOR);
-		CustomTableValue status = this.getCustomTableRepository().getCustomTableValue(INVITE_USER_STATUS, ACTIVE);
-		List<InviteUser> inviteUserList = new ArrayList<InviteUser>();
-		for (InviteUser inviteUser : inviteUsers) {
+	public void updateCollaboratorStatus(final String mailId, final User user) throws Exception {
+		final List<InviteUser> inviteUsers = this.getInviteRepository().getInviteUserByMail(mailId, COLLABORATOR);
+		final CustomTableValue status = this.getCustomTableRepository().getCustomTableValue(INVITE_USER_STATUS, ACTIVE);
+		final List<InviteUser> inviteUserList = new ArrayList<InviteUser>();
+		for (final InviteUser inviteUser : inviteUsers) {
 			inviteUser.setStatus(status);
 			inviteUser.setJoinedDate(new Date());
 			inviteUserList.add(inviteUser);
-			Content content = getContentRepository().findContentByGooruId(inviteUser.getGooruOid(), true);
+			final Content content = getContentRepository().findContentByGooruId(inviteUser.getGooruOid(), true);
 			if (content != null) {
 				this.addCollaborator(mailId, inviteUser.getGooruOid(), user, false, content, user);
 			}
