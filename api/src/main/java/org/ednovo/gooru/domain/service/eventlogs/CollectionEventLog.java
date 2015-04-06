@@ -78,7 +78,7 @@ public class CollectionEventLog implements ParameterProperties, ConstantProperti
 		SessionContextSupport.putLogParameter(SESSION, session.toString());
 	}
 
-	public void getEventLogs(CollectionItem collectionItem, boolean isCreate, boolean isAdd, User user, boolean isCopy, boolean isEdit) throws JSONException {
+	public void getEventLogs(CollectionItem collectionItem, boolean isCreate, boolean isAdd, User user, boolean isCopy, boolean isEdit, JSONObject itemData) throws JSONException {
 		String collectionType = collectionItem.getCollection().getCollectionType();
 		if (isCreate) {
 			SessionContextSupport.putLogParameter(EVENT_NAME, ITEM_CREATE);
@@ -104,6 +104,7 @@ public class CollectionEventLog implements ParameterProperties, ConstantProperti
 		} else if (isEdit) {
 			payLoadObject.put(MODE, EDIT);
 		}
+		payLoadObject.put(_ITEM_DATA, itemData != null ? itemData.toString() : null);
 		payLoadObject.put(ITEM_SEQUENCE, collectionItem != null ? collectionItem.getItemSequence() : null);
 		payLoadObject.put(ITEM_ID, collectionItem != null ? collectionItem.getCollectionItemId() : null);
 		payLoadObject.put(ASSOCIATION_DATE, collectionItem != null &&  collectionItem.getAssociationDate() != null ? collectionItem.getAssociationDate().getTime() : null);
@@ -143,8 +144,8 @@ public class CollectionEventLog implements ParameterProperties, ConstantProperti
 		SessionContextSupport.putLogParameter(SESSION, session.toString());
 	}
 	
-	public void getEventLogs(CollectionItem collectionItem, boolean isCreate, boolean isAdd, User user, boolean isCopy, boolean isEdit,CollectionItem sourceCollectionItem) throws JSONException {
-		getEventLogs(collectionItem, isCreate, isAdd, user, isCopy, isEdit);
+	public void getEventLogs(CollectionItem collectionItem, boolean isCreate, boolean isAdd, User user, boolean isCopy, boolean isEdit,CollectionItem sourceCollectionItem, JSONObject itemData) throws JSONException {
+		getEventLogs(collectionItem, isCreate, isAdd, user, isCopy, isEdit, itemData);
 		JSONObject context = SessionContextSupport.getLog().get(CONTEXT) != null ? new JSONObject(SessionContextSupport.getLog().get(CONTEXT).toString()) : new JSONObject();
 		context.put(SOURCE_GOORU_ID, sourceCollectionItem.getResource().getGooruOid());
 		SessionContextSupport.putLogParameter(CONTEXT, context.toString());
