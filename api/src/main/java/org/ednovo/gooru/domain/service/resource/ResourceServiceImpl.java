@@ -1300,7 +1300,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	indexHandler.setReIndexRequest(gooruOids, IndexProcessor.INDEX, RESOURCE, null, false, false);
 	this.resourceRepository.saveAll(resources);
 	} else if (resources != null && resources.size() > 5000) {
-	throw new Exception(generateErrorMessage("GL0001"));
+	throw new Exception(generateErrorMessage(GL0001));
 	}
 	} else {
 	throw new AccessDeniedException(generateErrorMessage("GL0002"));
@@ -1331,7 +1331,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	indexHandler.setReIndexRequest(gooruOIds, IndexProcessor.INDEX, RESOURCE, null, false, false);
 	this.resourceRepository.saveAll(resources);
 	} else if (resources != null && resources.size() > 5000) {
-	throw new Exception(generateErrorMessage("GL0004"));
+	throw new Exception(generateErrorMessage(GL0004));
 	}
 	}
 	}
