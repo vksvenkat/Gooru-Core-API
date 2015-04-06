@@ -217,7 +217,7 @@ public class RawCassandraDaoImpl extends CassandraDaoSupport<CassandraColumnFami
 		} catch (NotFoundException e) {
 			return 0;
 		} catch (Exception e) {
-			throw new RuntimeException(e);
+			return 0;
 		}
 	}
 	
