@@ -31,10 +31,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.xalan.trace.GenerateEvent;
 import org.ednovo.gooru.application.util.AsyncExecutor;
 import org.ednovo.gooru.application.util.CollectionUtil;
 import org.ednovo.gooru.application.util.ResourceImageUtil;
@@ -335,11 +333,9 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 					existingQuestion.setResourceSource(resourceSource);
 				}
 				existingQuestion.setDifficultyLevel(question.getDifficultyLevel());
-				
-				if (question.getTitle() != null && question.getTitle().length() < 1000) {
+		
+				if (question.getTitle() != null) {
 					existingQuestion.setTitle(question.getTitle());
-				} else if (question.getTitle().length() > 1000) {
-					throw new BadRequestException(ServerValidationUtils.generateErrorMessage(GL0017));
 				}
 				existingQuestion.setTimeToCompleteInSecs(question.getTimeToCompleteInSecs());
 				if (question.getTypeName() != null) {
@@ -382,10 +378,9 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 		if (question.getTitle() == null) {
 			question.setTitle("");
 		}
-		if (question.getTitle() != null && question.getTitle().length() < 1000) {
-			question.setTitle(question.getTitle());
-		} else if (question.getTitle().length() > 1000) {
-			throw new BadRequestException(ServerValidationUtils.generateErrorMessage(GL0017));
+		ServerValidationUtils.rejectIfNull(question.getTitle(), GL0006, QUESTION_TITLE);
+		if (question.getTitle().length() > 1000) {
+			ServerValidationUtils.rejectIfMaxLimitExceed(1000, question.getTitle(), GL0017, QUESTION_TITLE);
 		}
 		if (question.getExplanation() == null) {
 			question.setExplanation("");
