@@ -136,7 +136,7 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 	@Override
 	public ActionResponseDTO<Organization> saveOrganization(Organization organizationData, User user, HttpServletRequest request) {
 		Errors errors = validateNullFields(organizationData);
-		rejectIfMaxLimitExceed(400, organizationData.getPartyName(), "GL0014", PARTY_NAME,"400");
+		rejectIfMaxLimitExceed(400, organizationData.getPartyName(), "GL0014", PARTY_NAME, "400");
 		Organization newOrganization = new Organization();
 		if (!errors.hasErrors()) {
 			newOrganization.setPartyName(organizationData.getPartyName());
