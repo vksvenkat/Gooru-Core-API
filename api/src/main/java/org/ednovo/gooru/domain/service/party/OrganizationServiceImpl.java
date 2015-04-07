@@ -43,7 +43,6 @@ import org.ednovo.gooru.core.api.model.UserRoleAssoc;
 import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.core.constant.ConstantProperties;
-import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.BadRequestException;
 import org.ednovo.gooru.domain.service.BaseServiceImpl;
@@ -64,7 +63,6 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.storage.StorageRepo
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
@@ -138,7 +136,7 @@ public class OrganizationServiceImpl extends BaseServiceImpl implements Organiza
 	@Override
 	public ActionResponseDTO<Organization> saveOrganization(Organization organizationData, User user, HttpServletRequest request) {
 		Errors errors = validateNullFields(organizationData);
-		User apiCaller = (User) request.getAttribute(Constants.USER);
+		rejectIfMaxLimitExceed(400, organizationData.getPartyName(), "GL0014", PARTY_NAME,"400");
 		Organization newOrganization = new Organization();
 		if (!errors.hasErrors()) {
 			newOrganization.setPartyName(organizationData.getPartyName());
