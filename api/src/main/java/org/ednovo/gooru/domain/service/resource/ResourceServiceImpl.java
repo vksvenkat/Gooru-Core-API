@@ -1,4 +1,4 @@
-/////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////
 // ResourceServiceImpl.java
 // gooru-api
 // Created by Gooru on 2014
@@ -423,7 +423,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			domFactory.setNamespaceAware(true);
 			final DocumentBuilder builder = domFactory.newDocumentBuilder();
 			org.w3c.dom.Document doc = builder.parse(in);// new
-															// File("c:\\users\\a\\Desktop\\test.xml"));
+			// File("c:\\users\\a\\Desktop\\test.xml"));
 
 			// create xpath for extract thumbnail url:
 			String xpathStr = "/e:SearchResponse/m:Image/m:Results/m:ImageResult/m:Thumbnail/m:Url/text()";
@@ -1300,7 +1300,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 					indexHandler.setReIndexRequest(gooruOids, IndexProcessor.INDEX, RESOURCE, null, false, false);
 					this.resourceRepository.saveAll(resources);
 				} else if (resources != null && resources.size() > 5000) {
-					throw new Exception(generateErrorMessage("GL0001"));
+					throw new BadRequestException(generateErrorMessage(GL0001));
 				}
 			} else {
 				throw new AccessDeniedException(generateErrorMessage("GL0002"));
@@ -1331,7 +1331,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				indexHandler.setReIndexRequest(gooruOIds, IndexProcessor.INDEX, RESOURCE, null, false, false);
 				this.resourceRepository.saveAll(resources);
 			} else if (resources != null && resources.size() > 5000) {
-				throw new Exception(generateErrorMessage("GL0004"));
+				throw new BadRequestException(generateErrorMessage(GL0004));
 			}
 		}
 	}
