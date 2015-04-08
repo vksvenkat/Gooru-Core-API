@@ -51,11 +51,11 @@ import flexjson.JSONSerializer;
 public class GooruInterceptor extends HandlerInterceptorAdapter {
 
 	private Properties gooruConstants;
-	
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(GooruInterceptor.class);
-	
+
 	private static final Logger ACTIVITY_LOGGER = LoggerFactory.getLogger("activityLog");
-	
+
 	private static final JSONSerializer SERIALIZER = new JSONSerializer();
 
 	private static final String SESSIONTOKEN = "sessionToken";
@@ -63,66 +63,66 @@ public class GooruInterceptor extends HandlerInterceptorAdapter {
 	private static final String ORGANIZATION_UID = "organizationUId";
 
 	private static final String API_KEY = "apiKey";
-	
+
+	private static final String EVENT_NAME = "eventName";
+
 	@Autowired
 	private KafkaEventHandler kafkaService;
-	
+
 	@Autowired
 	private ConfigProperties configProperties;
-	
+
 	@Autowired
 	protected IndexProcessor indexProcessor;
 
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 
 		Enumeration e = gooruConstants.propertyNames();
-		
+
 		while (e.hasMoreElements()) {
 			String key = (String) e.nextElement();
 			request.setAttribute(key, gooruConstants.getProperty(key));
 		}
-		
+
 		Long startTime = System.currentTimeMillis();
 		request.setAttribute("startTime", startTime);
 		SessionContextSupport.putLogParameter("startTime", startTime);
-		String eventUUID = UUID.randomUUID().toString();	
+		String eventUUID = UUID.randomUUID().toString();
 		response.setHeader("X-REQUEST-UUID", eventUUID);
 		SessionContextSupport.putLogParameter("eventId", eventUUID);
-		
+
 		JSONObject payLoadObject = new JSONObject();
 		payLoadObject.put("requestMethod", request.getMethod());
 		SessionContextSupport.putLogParameter("payLoadObject", payLoadObject.toString());
-		
+
 		JSONObject context = new JSONObject();
 		context.put("url", request.getRequestURI());
-		if(request.getHeader("User-Agent") != null && request.getHeader("User-Agent").indexOf("Mobile") != -1) {
+		if (request.getHeader("User-Agent") != null && request.getHeader("User-Agent").indexOf("Mobile") != -1) {
 			context.put("clientSource", "mobile");
 		} else {
 			context.put("clientSource", "web");
 		}
 		SessionContextSupport.putLogParameter("context", context.toString());
-		
+
 		request.getHeader("VIA");
 		String ipAddress = request.getHeader("X-FORWARDED-FOR");
-		if (ipAddress == null) 
-		{
+		if (ipAddress == null) {
 			ipAddress = request.getRemoteAddr();
 		}
-		
+
 		JSONObject user = new JSONObject();
 		User party = (User) request.getAttribute(Constants.USER);
-		if(party != null)
-		{
-			user.put("gooruUId",  party.getPartyUid());
+		if (party != null) {
+			user.put("gooruUId", party.getPartyUid());
 		}
-		
-		user.put("userAgent",  request.getHeader("User-Agent"));
-		user.put("userIp",  ipAddress);
+
+		user.put("userAgent", request.getHeader("User-Agent"));
+		user.put("userIp", ipAddress);
 		SessionContextSupport.putLogParameter("user", user.toString());
-		
-		JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session").toString()) :  new JSONObject();
+
+		JSONObject session = SessionContextSupport.getLog().get("session") != null ? new JSONObject(SessionContextSupport.getLog().get("session").toString()) : new JSONObject();
 		if (party != null && party.getOrganization() != null) {
-		   session.put(ORGANIZATION_UID, party.getOrganization().getOrganizationUid());
+			session.put(ORGANIZATION_UID, party.getOrganization().getOrganizationUid());
 		}
 		session.put(SESSIONTOKEN, request.getParameter(SESSIONTOKEN));
 		session.put(API_KEY, request.getAttribute(API_KEY));
@@ -130,37 +130,45 @@ public class GooruInterceptor extends HandlerInterceptorAdapter {
 		JSONObject version = new JSONObject();
 		version.put("logApi", "0.1");
 		SessionContextSupport.putLogParameter("version", version.toString());
-		
+		if (request.getAttribute(Constants.OAUTH_ACCESS_TOKEN) != null) {
+			SessionContextSupport.putLogParameter(Constants.OAUTH_ACCESS_TOKEN, request.getAttribute(Constants.OAUTH_ACCESS_TOKEN));
+		}
 		return true;
 	}
 
 	@Override
 	public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
-		
-		// Read re-index request from session context and sent re-index request via Java HTTP client to index server
-		try{
+
+		// Read re-index request from session context and sent re-index request
+		// via Java HTTP client to index server
+		try {
 			indexProcessor.index(SessionContextSupport.getIndexMeta());
-		} catch(Exception ex){
+		} catch (Exception ex) {
 			LOGGER.error("Re-index API trigger failed " + ex);
 		}
-	    
+
 		Long endTime = System.currentTimeMillis();
 		SessionContextSupport.putLogParameter("endTime", endTime);
-		Long startTime = SessionContextSupport.getLog() != null ? (Long)SessionContextSupport.getLog().get("startTime") : 0;
-		Long totalTimeSpentInMs = endTime - startTime ;
+		Long startTime = SessionContextSupport.getLog() != null ? (Long) SessionContextSupport.getLog().get("startTime") : 0;
+		Long totalTimeSpentInMs = endTime - startTime;
 		JSONObject metrics = new JSONObject();
 		metrics.put("totalTimeSpentInMs", totalTimeSpentInMs);
-		SessionContextSupport.putLogParameter("metrics", metrics.toString());	
+		SessionContextSupport.putLogParameter("metrics", metrics.toString());
+		JSONObject session = SessionContextSupport.getLog().get(Constants.SESSION) != null ? new JSONObject(SessionContextSupport.getLog().get(Constants.SESSION).toString()) : new JSONObject();
+		session.put(SESSIONTOKEN, request.getSession().getAttribute(Constants.SESSION_TOKEN));
+		if (request.getSession().getAttribute(Constants.APPLICATION_KEY) != null) {
+			session.put(API_KEY, request.getSession().getAttribute(Constants.APPLICATION_KEY));
+		}
+		SessionContextSupport.putLogParameter(Constants.SESSION, session.toString());
 		Map<String, Object> log = SessionContextSupport.getLog();
 		String logString = SERIALIZER.deepSerialize(log);
-		if (logString != null) {
+		if (logString != null && SessionContextSupport.getLog() != null && SessionContextSupport.getLog().get(EVENT_NAME) != null) {
 			try {
-				if (SessionContextSupport.getLog() != null && SessionContextSupport.getLog().get("eventName") != null) {
-					kafkaService.sendEventLog(logString);
-				}
-			} catch(Exception e) {
-				LOGGER.error("Error while pushing event log data to kafka : " + e.getMessage() );
-				// Print to Activity Log only in case we had issues pushing to kafka.
+				kafkaService.sendEventLog(logString);
+			} catch (Exception e) {
+				LOGGER.error("Error while pushing event log data to kafka : " + e.getMessage());
+				// Print to Activity Log only in case we had issues pushing to
+				// kafka.
 				ACTIVITY_LOGGER.info(logString);
 			}
 		}
@@ -173,8 +181,8 @@ public class GooruInterceptor extends HandlerInterceptorAdapter {
 	public void setGooruConstants(Properties gooruConstants) {
 		this.gooruConstants = gooruConstants;
 	}
-	
-	public static JSONObject requestData(String data)  {
+
+	public static JSONObject requestData(String data) {
 		try {
 			return data != null ? new JSONObject(data) : null;
 		} catch (JSONException e) {
