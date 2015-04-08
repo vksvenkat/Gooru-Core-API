@@ -874,18 +874,13 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			this.getCollectionService().createCollectionItem(collectionId, pathway.getGooruOid(), pathway.getCollectionItem() == null ? new CollectionItem() : pathway.getCollectionItem(), pathway.getUser(), ADDED, false);
 		}
 		getAsyncExecutor().deleteFromCache("v2-class-data-"+ classId+"*");
-		try {
-			
-		     this.getClasspageEventlog().getEventLogs(classId, pathway.getGooruOid(), null, user, true, false);
-		} catch (JSONException e) {
-			e.printStackTrace();
-		}
 
+		this.getClasspageEventlog().getEventLogs(classId, pathway.getGooruOid(), user, true, false, null);
 		return pathway;
 	}
 	
 	@Override
-	public Collection updatePathway(final String classId, final String pathwayGooruOid, final Collection newPathway, final User user) throws Exception {
+	public Collection updatePathway(final String classId, final String pathwayGooruOid, final Collection newPathway, final User user, final String data) throws Exception {
 		final Collection pathwayCollection = this.getCollectionRepository().getCollectionByIdWithType(pathwayGooruOid, ResourceType.Type.PATHWAY.getType());
 		rejectIfNull(pathwayCollection, GL0056, PATHWAY);
 
@@ -898,8 +893,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			this.getCollectionRepository().save(pathwayCollection);
 			getAsyncExecutor().deleteFromCache("v2-class-data-"+ classId+"*");
 
-		this.getClasspageEventlog().getEventLogs(classId, pathwayGooruOid, newPathway, user, false, true);
-
+		this.getClasspageEventlog().getEventLogs(classId, pathwayGooruOid, user, false, true, data);
 		return pathwayCollection;
 	}
 	

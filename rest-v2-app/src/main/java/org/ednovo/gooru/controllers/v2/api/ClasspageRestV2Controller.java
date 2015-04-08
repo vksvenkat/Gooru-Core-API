@@ -420,7 +420,7 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	@RequestMapping(value = "/{id}/pathway/{pid}", method = RequestMethod.PUT)
 	public ModelAndView updatePathway(@RequestBody final String data, @PathVariable(value= ID) final String classId , @PathVariable(value= "pid") final String pathwayGooruOid , final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		final User user = (User) request.getAttribute(Constants.USER);
-		final Collection pathwayCollection = this.getClasspageService().updatePathway(classId, pathwayGooruOid, this.buildUpadtePathwayCollectionFromInputParameters(data), user);
+		final Collection pathwayCollection = this.getClasspageService().updatePathway(classId, pathwayGooruOid, this.buildUpadtePathwayCollectionFromInputParameters(data), user, data);
 		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, COLLECTION_INCLUDE_FIELDS);
 		includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_ITEM_INCLUDE_FILEDS);
 		includes = (String[]) ArrayUtils.addAll(includes, ERROR_INCLUDE);

@@ -292,13 +292,8 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 		}
 
-		try {
-			this.getCollectionEventLog().getEventLogs(collection.getCollectionItem(), true, false, collection.getUser(), false, false, null);
-		} catch (Exception e) {
-			LOGGER.error(_ERROR, e);
-		}
-
-		return new ActionResponseDTO<Collection>(collection, errors);
+		this.getCollectionEventLog().getEventLogs(collection.getCollectionItem(), true, false, collection.getUser(), false, false, null);
+        return new ActionResponseDTO<Collection>(collection, errors);
 	}
 
 	@Override
@@ -416,11 +411,8 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			contentSettingsObj.add(contentSetting);
 			collection.setContentSettings(contentSettingsObj);
 			getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collection.getUser().getPartyUid() + "*");
-			try {
-				this.getCollectionEventLog().getEventLogs(collection.getCollectionItem(), true, false, user, false, false, null);
-			} catch (Exception e) {
-				LOGGER.error(_ERROR, e);
-			}
+			this.getCollectionEventLog().getEventLogs(collection.getCollectionItem(), true, false, user, false, false, null);
+
 		}
 
 		return new ActionResponseDTO<Collection>(collection, errors);
@@ -757,11 +749,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			collectionItem.setItemSequence(sequence);
 			collectionItem.getCollection().setItemCount(sequence);
 			this.getCollectionRepository().save(collectionItem);
-			try {
 				this.getCollectionEventLog().getEventLogs(collectionItem, true, false, user, false, false, null);
-			} catch (Exception e) {
-				LOGGER.error(_ERROR, e);
-			}
 
 			try {
 				if (collectionItem.getResource().getResourceType() != null && !collectionItem.getResource().getResourceType().getName().equalsIgnoreCase(SCOLLECTION) && !collectionItem.getResource().getResourceType().getName().equalsIgnoreCase(FOLDER)
@@ -1577,8 +1565,12 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			LOGGER.error(_ERROR, e);
 		}
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
-	
-		this.getCollectionEventLog().getEventLogs(collectionItem, SerializerUtil.serializeToJson(data, true, true), apiCaller);
+	     try {
+	    	 
+	    	 this.getCollectionEventLog().getEventLogs(collectionItem, SerializerUtil.serializeToJson(data, true, true), apiCaller);
+	     } catch (Exception e) {
+	    	 LOGGER.error(_ERROR, e);
+	     }
 		return collectionItem;
 	}
 
@@ -1623,13 +1615,9 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		destCollectionItem.setAssociationDate(new Date(System.currentTimeMillis()));
 
 		this.getCollectionRepository().save(destCollectionItem);
-	
-		try {
-			if (destCollectionItem != null) {
-				this.getCollectionEventLog().getEventLogs(destCollectionItem, true, false, destCollectionItem.getCollection() != null && destCollectionItem.getCollection().getUser() != null ? destCollectionItem.getCollection().getUser() : null, true, false, sourceCollectionItem, null);
-			}
-		} catch (Exception e) {
-			LOGGER.error(_ERROR, e);
+
+		if (destCollectionItem != null) {
+			this.getCollectionEventLog().getEventLogs(destCollectionItem, true, false, destCollectionItem.getCollection() != null && destCollectionItem.getCollection().getUser() != null ? destCollectionItem.getCollection().getUser() : null, true, false, sourceCollectionItem, null);
 		}
 		return destCollectionItem;
 	}
@@ -2251,11 +2239,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			}
 			getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + response.getModel().getCollection().getUser().getPartyUid() + "*");
 		}
-		try {
-			this.getCollectionEventLog().getEventLogs(response.getModel(), true, false, user, false, false, null);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		this.getCollectionEventLog().getEventLogs(response.getModel(), true, false, user, false, false, null);
 		return response;
 	}
 

@@ -83,7 +83,7 @@ public interface ClasspageService {
 	
 	Collection createPathway(String classId, Collection collection, String parentId, Boolean isRequired, User user) throws Exception;
 	
-	Collection updatePathway(String classId, String pathwayGooruOid, Collection newPathway, User user) throws Exception;
+	Collection updatePathway(String classId, String pathwayGooruOid, Collection newPathway, User user, String data) throws Exception;
 	
 	void deletePathway(String classId, String pathwayGooruOid, User user);
 	
