@@ -51,7 +51,7 @@ public interface ScollectionService extends BaseService {
 
 	ActionResponseDTO<Collection> createCollection(Collection newCollection, boolean addToShelf, String resourceId, String parentId, User user) throws Exception;
 
-	ActionResponseDTO<Collection> updateCollection(Collection newCollection, String updateCollectionId, String ownerUId, String creatorUId, boolean hasUnrestrictedContentAccess, String relatedContentId, User user) throws Exception;
+	ActionResponseDTO<Collection> updateCollection(Collection newCollection, String updateCollectionId, String ownerUId, String creatorUId, boolean hasUnrestrictedContentAccess, String relatedContentId, User user, String data) throws Exception;
 
 	CollectionItem getCollectionItem(String collectionItemId, String includeAdditionalInfo, User user, String rootNodeId);
 
@@ -59,7 +59,7 @@ public interface ScollectionService extends BaseService {
 
 	ActionResponseDTO<CollectionItem> createResourceWithCollectionItem(String collectionId, Resource newResource, String start, String stop, List<String> tags, User user) throws Exception;
 	
-	ActionResponseDTO<CollectionItem> updateResourceWithCollectionItem(String collectionItemId, Resource newResource,List<String> tags ,User user) throws Exception;
+	ActionResponseDTO<CollectionItem> updateResourceWithCollectionItem(String collectionItemId, Resource newResource,List<String> tags ,User user, String data) throws Exception;
 
 	List<Collection> getMyCollection(String limit, String offset, String orderBy, String fetchType, String resourceType, User user);
 
@@ -73,7 +73,7 @@ public interface ScollectionService extends BaseService {
 
 	ActionResponseDTO<CollectionItem> createCollectionItem(String resourceGooruOid, String collectionGooruOid, CollectionItem collectionItem, User user, String type, boolean isCreateQuestion) throws Exception;
 
-	ActionResponseDTO<CollectionItem> updateCollectionItem(CollectionItem newcollectionItem, String collectionItemId, User user) throws Exception;
+	ActionResponseDTO<CollectionItem> updateCollectionItem(CollectionItem newcollectionItem, String collectionItemId, User user, String data) throws Exception;
 
 	List<CollectionItem> getCollectionItems(String collectionId, Map<String, String> filters);
 

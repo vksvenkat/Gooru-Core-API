@@ -127,7 +127,7 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	public ModelAndView updateClasspage(@PathVariable(value = ID) final String classpageId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		final JSONObject json = requestData(data);
 
-		final ActionResponseDTO<Classpage> responseDTO = getClasspageService().updateClasspage(this.buildClasspageForUpdateParameters(getValue(CLASSPAGE, json) != null ? getValue(CLASSPAGE, json) : data), classpageId, hasUnrestrictedContentAccess());
+		final ActionResponseDTO<Classpage> responseDTO = getClasspageService().updateClasspage(this.buildClasspageForUpdateParameters(getValue(CLASSPAGE, json) != null ? getValue(CLASSPAGE, json) : data), classpageId, hasUnrestrictedContentAccess(), data);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		}
@@ -232,7 +232,7 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 		final User user = (User) request.getAttribute(Constants.USER);
 		final JSONObject json = requestData(data);
 		final CollectionItem newCollectionItem = this.buildCollectionItemFromInputParameters(getValue(COLLECTION_ITEM, json));
-		final ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().updateCollectionItem(newCollectionItem, collectionItemId, user);
+		final ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().updateCollectionItem(newCollectionItem, collectionItemId, user, data);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		} else if (newCollectionItem.getStatus() != null || newCollectionItem.getMinimumScoreByUser() != null || newCollectionItem.getAssignmentCompleted() != null || newCollectionItem.getTimeStudying() != null) {
@@ -442,7 +442,7 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 		final User user = (User) request.getAttribute(Constants.USER);
 		final JSONObject json = requestData(data);
 		final CollectionItem newCollectionItem = this.buildCollectionItemFromInputParameters(getValue(COLLECTION_ITEM, json));
-		final ActionResponseDTO<CollectionItem> responseDTO = getClasspageService().updatePathwayItem(classId,pathwayGooruOid,collectionItemId,newCollectionItem,  user);
+		final ActionResponseDTO<CollectionItem> responseDTO = getClasspageService().updatePathwayItem(classId,pathwayGooruOid,collectionItemId,newCollectionItem,  user, data);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		} else if (newCollectionItem.getStatus() != null || newCollectionItem.getMinimumScoreByUser() != null && newCollectionItem.getAssignmentCompleted() != null || newCollectionItem.getTimeStudying() != null) {
