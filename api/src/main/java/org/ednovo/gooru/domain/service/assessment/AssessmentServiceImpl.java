@@ -379,9 +379,8 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 			question.setTitle("");
 		}
 		ServerValidationUtils.rejectIfNull(question.getTitle(), GL0006, QUESTION_TITLE);
-		if (question.getTitle().length() > 1000) {
-			ServerValidationUtils.rejectIfMaxLimitExceed(1000, question.getTitle(), GL0017, QUESTION_TITLE);
-		}
+		ServerValidationUtils.rejectIfMaxLimitExceed(1000, question.getTitle(), GL0014, QUESTION_TITLE,"1000");
+		
 		if (question.getExplanation() == null) {
 			question.setExplanation("");
 		}
