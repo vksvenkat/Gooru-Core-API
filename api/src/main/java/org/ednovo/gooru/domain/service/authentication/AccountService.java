@@ -33,13 +33,13 @@ public interface AccountService {
 
 	UserToken createSessionToken(User user, String apiKey, HttpServletRequest request) throws Exception;
 
-	ActionResponseDTO<UserToken> logIn(String username, String password, String apiKey, boolean isSsoLogin, HttpServletRequest request) throws Exception;
+	ActionResponseDTO<UserToken> logIn(String username, String password,  boolean isSsoLogin, HttpServletRequest request) throws Exception;
 
 	void logOut(String sessionToken);
 
 	String getConfigSetting(String key, int securityLevel, String organizationUid);
 
-	ActionResponseDTO<UserToken> loginAs(String sessionToken, String gooruUid, HttpServletRequest request, String apiKey) throws Exception;
+	ActionResponseDTO<UserToken> loginAs(String gooruUid, HttpServletRequest request) throws Exception;
 
 	User userAuthentication(User newUser, String secretKey, String apiKey, String source, HttpServletRequest request);
 

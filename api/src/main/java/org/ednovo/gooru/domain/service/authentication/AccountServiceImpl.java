@@ -89,7 +89,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 
 	@Autowired
 	private RedisService redisService;
-    
+
 	@Autowired
 	private ApplicationRepository applicationRepository;
 
@@ -120,24 +120,26 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 
 	@Autowired
 	private SettingService settingService;
-	
+
 	@Autowired
 	private UserEventlog usereventlog;
 
 	@Autowired
 	private CustomTableRepository customTableRepository;
-	
+
 	@Autowired
 	private IndexHandler indexHandler;
-	
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(AccountServiceImpl.class);
 
 	private static final String SESSION_TOKEN_KEY = "authenticate_";
 
+	private  final String SESSION_TOKEN = "sessionToken";
+	
 	@Override
 	public UserToken createSessionToken(final User user, final String apiKey, final HttpServletRequest request) throws Exception {
 		final Application application = this.getApplicationRepository().getApplication(apiKey);
-		rejectIfNull(application,GL0056,404,APPLICATION);
+		rejectIfNull(application, GL0056, 404, APPLICATION);
 		final UserToken sessionToken = new UserToken();
 		final String apiEndPoint = getConfigSetting(ConfigConstants.GOORU_API_ENDPOINT, 0, TaxonomyUtil.GOORU_ORG_UID);
 		sessionToken.setScope(SESSION);
@@ -163,7 +165,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 	}
 
 	@Override
-	public ActionResponseDTO<UserToken> logIn(final String username, final String password, final String apiKeyId, final boolean isSsoLogin, final HttpServletRequest request) throws Exception {
+	public ActionResponseDTO<UserToken> logIn(final String username, final String password, final boolean isSsoLogin, final HttpServletRequest request) throws Exception {
 		final UserToken userToken = new UserToken();
 		final Errors errors = new BindException(userToken, SESSIONTOKEN);
 		final String apiEndPoint = getConfigSetting(ConfigConstants.GOORU_API_ENDPOINT, 0, TaxonomyUtil.GOORU_ORG_UID);
@@ -189,29 +191,29 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			final User user = this.getUserRepository().findByIdentityLogin(identity);
 
 			if (!isSsoLogin) {
-				if (identity.getCredential() == null && identity.getAccountCreatedType() != null && !identity.getAccountCreatedType().equalsIgnoreCase(CREDENTIAL)) { 
+				if (identity.getCredential() == null && identity.getAccountCreatedType() != null && !identity.getAccountCreatedType().equalsIgnoreCase(CREDENTIAL)) {
 					throw new UnauthorizedException(generateErrorMessage(GL0105, identity.getAccountCreatedType()), GL0105 + Constants.ACCOUNT_TYPES.get(identity.getAccountCreatedType()));
 				}
 				if (identity.getCredential() == null) {
 					throw new UnauthorizedException(generateErrorMessage(GL0078), GL0078);
 				}
-				
+
 				final String encryptedPassword;
 				final Credential credential = identity.getCredential();
-				if(credential != null && credential.getPasswordEncryptType() != null &&  credential.getPasswordEncryptType().equalsIgnoreCase(CustomProperties.PasswordEncryptType.MD5.getPasswordEncryptType())){
+				if (credential != null && credential.getPasswordEncryptType() != null && credential.getPasswordEncryptType().equalsIgnoreCase(CustomProperties.PasswordEncryptType.MD5.getPasswordEncryptType())) {
 					encryptedPassword = BaseUtil.encryptPassword(password);
-				}else{
+				} else {
 					encryptedPassword = this.getUserService().encryptPassword(password);
 				}
-				
-				if (user == null || !(encryptedPassword.equals(identity.getCredential().getPassword()) ||  password.equals(identity.getCredential().getPassword()))) {
+
+				if (user == null || !(encryptedPassword.equals(identity.getCredential().getPassword()) || password.equals(identity.getCredential().getPassword()))) {
 					throw new UnauthorizedException(generateErrorMessage(GL0081), GL0081);
 				}
-				if(credential != null && credential.getPasswordEncryptType() != null && credential.getPasswordEncryptType().equalsIgnoreCase(CustomProperties.PasswordEncryptType.MD5.getPasswordEncryptType())){
+				if (credential != null && credential.getPasswordEncryptType() != null && credential.getPasswordEncryptType().equalsIgnoreCase(CustomProperties.PasswordEncryptType.MD5.getPasswordEncryptType())) {
 					credential.setPassword(this.getUserService().encryptPassword(password));
 					credential.setPasswordEncryptType(CustomProperties.PasswordEncryptType.SHA.getPasswordEncryptType());
 				}
-					
+
 			}
 
 			if (user.getConfirmStatus() == 0) {
@@ -267,8 +269,9 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 					authentication.setUserCredential(userService.getUserCredential(user, userToken.getToken(), null, null));
 					getRedisService().put(
 							SESSION_TOKEN_KEY + userToken.getToken(),
-							new JSONSerializer().transform(new ExcludeNullTransformer(), void.class).include(new String[] { "*.operationAuthorities","*.userRoleSet","*.partyOperations", "*.subOrganizationUids", "*.orgPermits", "*.partyPermits", "*.customFields", "*.identities", "*.partyPermissions.*" })
-					        .exclude(new String[] {"*.class","*.school","*.schoolDistrict","*.status","*.meta"}).serialize(authentication), Constants.AUTHENTICATION_CACHE_EXPIRY_TIME_IN_SEC);
+							new JSONSerializer().transform(new ExcludeNullTransformer(), void.class)
+									.include(new String[] { "*.operationAuthorities", "*.userRoleSet", "*.partyOperations", "*.subOrganizationUids", "*.orgPermits", "*.partyPermits", "*.customFields", "*.identities", "*.partyPermissions.*" })
+									.exclude(new String[] { "*.class", "*.school", "*.schoolDistrict", "*.status", "*.meta" }).serialize(authentication), Constants.AUTHENTICATION_CACHE_EXPIRY_TIME_IN_SEC);
 				}
 			} catch (Exception e) {
 				LOGGER.error("Failed to  put  value from redis server {}", e);
@@ -290,12 +293,15 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			userToken.setUser(newUser);
 			request.getSession().setAttribute(Constants.USER, newUser);
 			request.getSession().setAttribute(Constants.SESSION_TOKEN, userToken.getToken());
+			if (userToken.getApplication() != null) { 
+				request.getSession().setAttribute(Constants.APPLICATION_KEY, userToken.getApplication().getKey());
+			}
 			try {
-				this.getAccountEventlog().getEventLogs(identity, userToken, true, apiKeyId);
+				this.getAccountEventlog().getEventLogs(identity, userToken, true);
 			} catch (Exception e) {
 				LOGGER.debug("error" + e.getMessage());
 			}
-			indexHandler.setReIndexRequest(user.getPartyUid(), IndexProcessor.INDEX, USER, userToken.getToken() , false, false);
+			indexHandler.setReIndexRequest(user.getPartyUid(), IndexProcessor.INDEX, USER, userToken.getToken(), false, false);
 
 		}
 
@@ -304,11 +310,11 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 
 	@Override
 	public void logOut(final String sessionToken) {
-		UserToken userToken = new UserToken(); 
+		UserToken userToken = new UserToken();
 		userToken = this.getUserTokenRepository().findByToken(sessionToken);
 		if (userToken != null) {
 			try {
-				this.getAccountEventlog().getEventLogs(userToken.getUser().getIdentities() != null ? userToken.getUser().getIdentities().iterator().next() : null, userToken, false, userToken.getApplication().getKey());
+				this.getAccountEventlog().getEventLogs(userToken.getUser().getIdentities() != null ? userToken.getUser().getIdentities().iterator().next() : null, userToken, false);
 			} catch (JSONException e) {
 				LOGGER.debug("error" + e.getMessage());
 			}
@@ -316,18 +322,19 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 		}
 		this.getUserTokenRepository().remove(userToken);
 	}
-	
+
 	@Override
 	public String getConfigSetting(final String key, final int securityLevel, final String organizationUid) {
 		return configSettingRepository.getConfigSetting(key, securityLevel, organizationUid);
 	}
 
 	@Override
-	public ActionResponseDTO<UserToken> loginAs(final String sessionToken, final String gooruUid, final HttpServletRequest request, final String apiKey) throws Exception {
+	public ActionResponseDTO<UserToken> loginAs(final String gooruUid, final HttpServletRequest request) throws Exception {
 		UserToken userToken = new UserToken();
 		Errors errors = null;
 		if (gooruUid != null) {
 			if (gooruUid.equalsIgnoreCase(ANONYMOUS)) {
+				final String apiKey = request.getParameter(API_KEY) == null ? request.getHeader(API_KEY) : request.getParameter(API_KEY);
 				final Application application = this.getApplicationRepository().getApplication(apiKey);
 				errors = this.validateApiKey(application, userToken);
 				if (!errors.hasErrors()) {
@@ -336,8 +343,8 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 					final String anonymousUid = organizationSettingRepository.getOrganizationSetting(Constants.ANONYMOUS, partyUid);
 					final User user = this.getUserService().findByGooruId(anonymousUid);
 					userToken = this.createSessionToken(user, apiKey, request);
-				}
 			} else {
+				final String sessionToken = request.getParameter(SESSION_TOKEN) == null ? request.getHeader(SESSION_TOKEN) : request.getParameter(SESSION_TOKEN);
 				final User loggedInUser = this.getUserRepository().findByToken(sessionToken);
 				errors = this.validateLoginAsUser(userToken, loggedInUser);
 				if (!errors.hasErrors()) {
@@ -358,6 +365,12 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 				}
 			}
 		}
+			request.getSession().setAttribute(Constants.SESSION_TOKEN, userToken.getToken());
+			if (userToken.getApplication() != null) { 
+				request.getSession().setAttribute(Constants.APPLICATION_KEY, userToken.getApplication().getKey());
+			}
+		}
+		
 		return new ActionResponseDTO<UserToken>(userToken, errors);
 	}
 
@@ -386,21 +399,20 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 					}
 				}
 				userIdentity = this.getUserManagementService().createUser(newUser, null, null, 1, 0, null, null, null, null, null, null, null, source, null, request, null, null);
-				this.getAccountEventlog().getApiEventLogs(apiKey);
 				registerUser = true;
 			} catch (Exception e) {
 				LOGGER.error("Error : " + e);
 			}
 		}
 		Identity newIdentity = null;
-		if (userIdentity.getIdentities() != null && userIdentity.getIdentities().size()>0) {
+		if (userIdentity.getIdentities() != null && userIdentity.getIdentities().size() > 0) {
 			newIdentity = userIdentity.getIdentities().iterator().next();
 			if (newIdentity != null) {
 				newIdentity.setLoginType(source);
 				newIdentity.setLastLogin(new Date(System.currentTimeMillis()));
 				this.getUserRepository().save(newIdentity);
 			}
-		}	
+		}
 		if (sessionToken == null) {
 			final Application application = this.getApplicationRepository().getApplication(apiKey);
 			rejectIfNull(application, GL0056, 404, APPLICATION);
@@ -409,15 +421,13 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 		request.getSession().setAttribute(Constants.SESSION_TOKEN, sessionToken.getToken());
 		if (!registerUser) {
 			try {
-				this.getAccountEventlog().getEventLogs(newIdentity, sessionToken, true, apiKey);
-				indexHandler.setReIndexRequest(userIdentity.getPartyUid(), IndexProcessor.INDEX, USER, sessionToken.getToken() , false, false);
+				this.getAccountEventlog().getEventLogs(newIdentity, sessionToken, true);
+				indexHandler.setReIndexRequest(userIdentity.getPartyUid(), IndexProcessor.INDEX, USER, sessionToken.getToken(), false, false);
 
 			} catch (JSONException e) {
 				LOGGER.error("Error : " + e);
 			}
-		} else {
-			this.getAccountEventlog().getEventLogs(sessionToken.getToken());
-		}
+		} 
 		try {
 			newUser = (User) BeanUtils.cloneBean(userIdentity);
 		} catch (Exception e) {
@@ -425,6 +435,10 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 		}
 		request.getSession().setAttribute(Constants.USER, newUser);
 		newUser.setToken(sessionToken.getToken());
+		request.getSession().setAttribute(Constants.SESSION_TOKEN, sessionToken.getToken());
+		if (sessionToken.getApplication() != null) { 
+			request.getSession().setAttribute(Constants.APPLICATION_KEY, sessionToken.getApplication().getKey());
+		}
 		return newUser;
 	}
 
@@ -481,11 +495,11 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 	public CustomTableRepository getCustomTableRepository() {
 		return customTableRepository;
 	}
-	
+
 	public UserEventlog getUsereventlog() {
 		return usereventlog;
 	}
-	
+
 	public RedisService getRedisService() {
 		return redisService;
 	}
