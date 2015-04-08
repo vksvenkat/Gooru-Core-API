@@ -1775,7 +1775,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 	public void sendUserRegistrationConfirmationMail(String gooruUid, String accountType, String sessionId, String dateOfBirth, String gooruClassicUrl) throws Exception {
 		User user = this.findByGooruId(gooruUid);
 		if (user != null) {
-			Application application = this.getApplicationRepository().getApplication(user.getOrganization().getPartyUid());
+			Application application = this.getApplicationRepository().getApplicationByOrganization(user.getOrganization().getPartyUid());
 			rejectIfNull(application,GL0056,404,APPLICATION);
 			UserToken userToken = this.createSessionToken(user, sessionId, application);
 			this.getMailHandler().sendMailToConfirm(gooruUid, null, accountType, userToken.getToken(), dateOfBirth, gooruClassicUrl, null, null, null);
