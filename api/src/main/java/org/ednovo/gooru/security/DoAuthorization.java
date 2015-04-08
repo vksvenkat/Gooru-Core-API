@@ -218,10 +218,12 @@ public class DoAuthorization {
 	}
 
 	private boolean hasRoleChanged(Authentication auth, User user) {
+		boolean  isValid = false;
 		if (!user.getPartyUid().equals((String) auth.getPrincipal())) {
-			return true;
+			System.out.println(isValid);
 		}
-		return false;
+		return true;
+
 	}
 
 	public RedisService getRedisService() {
