@@ -1258,6 +1258,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	public void updateResourceSourceAttribution(final Integer resourceSourceId, final String domainName, final String attribution, final Integer frameBreaker, final User user, final Boolean isBlacklisted) throws Exception {
 
 		final ResourceSource resourceSource = resourceRepository.findResourceByresourceSourceId(resourceSourceId);
+		rejectIfNull(resourceSource, GL0056, 404, RESOURCE);
 		if (domainName != null) {
 			resourceSource.setDomainName(domainName);
 		}
