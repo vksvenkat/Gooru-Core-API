@@ -136,14 +136,14 @@ public class AccountRestV2Controller extends BaseController implements ConstantP
 	@RequestMapping(method = { RequestMethod.POST }, value = "/loginas/{id}")
 	public ModelAndView loginAs(@PathVariable(value = ID) final String gooruUid, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		request.setAttribute(Constants.EVENT_PREDICATE, USER_LOGIN_AS);
-		final ActionResponseDTO<UserToken> userToken = this.getAccountService().loginAs(gooruUid, request);
-		if (userToken.getErrors().getErrorCount() > 0) {
+		final UserToken userToken = this.getAccountService().loginAs(gooruUid, request);
+		if (userToken == null) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		} else {
 			response.setStatus(HttpServletResponse.SC_OK);
 			}
 		String[] includes = (String[]) ArrayUtils.addAll(USER_INCLUDES, ERROR_INCLUDE);
-		return toModelAndView(serialize(userToken.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, includes));
+		return toModelAndView(serialize(userToken, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, includes));
 
 	}
 
