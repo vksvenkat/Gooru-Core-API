@@ -54,7 +54,7 @@ public class CollectionEventLog implements ParameterProperties, ConstantProperti
 		session.put(ORGANIZATION_UID, user != null && user.getOrganization() != null ? user.getOrganization().getPartyUid() : null);
 		SessionContextSupport.putLogParameter(SESSION, session.toString());
 		
-	} catch (JSONException e) {
+	} catch (Exception e) {
 		LOGGER.error(_ERROR, e);
 	}
 	}
