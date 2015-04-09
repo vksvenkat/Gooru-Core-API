@@ -31,7 +31,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.ednovo.gooru.application.util.AsyncExecutor;
@@ -334,7 +333,10 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 					existingQuestion.setResourceSource(resourceSource);
 				}
 				existingQuestion.setDifficultyLevel(question.getDifficultyLevel());
-				existingQuestion.setTitle(question.getTitle());
+		
+				if (question.getTitle() != null) {
+					existingQuestion.setTitle(question.getTitle());
+				}
 				existingQuestion.setTimeToCompleteInSecs(question.getTimeToCompleteInSecs());
 				if (question.getTypeName() != null) {
 					existingQuestion.setTypeName(question.getTypeName());
@@ -376,6 +378,9 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 		if (question.getTitle() == null) {
 			question.setTitle("");
 		}
+		ServerValidationUtils.rejectIfNull(question.getTitle(), GL0006, QUESTION_TITLE);
+		ServerValidationUtils.rejectIfMaxLimitExceed(1000, question.getTitle(), GL0014, QUESTION_TITLE,"1000");
+		
 		if (question.getExplanation() == null) {
 			question.setExplanation("");
 		}
