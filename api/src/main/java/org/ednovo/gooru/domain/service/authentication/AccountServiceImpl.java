@@ -134,8 +134,8 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 
 	private static final String SESSION_TOKEN_KEY = "authenticate_";
 
-	private  final String SESSION_TOKEN = "sessionToken";
-	
+	private final String SESSION_TOKEN = "sessionToken";
+
 	@Override
 	public UserToken createSessionToken(final User user, final String apiKey, final HttpServletRequest request) throws Exception {
 		final Application application = this.getApplicationRepository().getApplication(apiKey);
@@ -293,7 +293,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			userToken.setUser(newUser);
 			request.getSession().setAttribute(Constants.USER, newUser);
 			request.getSession().setAttribute(Constants.SESSION_TOKEN, userToken.getToken());
-			if (userToken.getApplication() != null) { 
+			if (userToken.getApplication() != null) {
 				request.getSession().setAttribute(Constants.APPLICATION_KEY, userToken.getApplication().getKey());
 			}
 			try {
@@ -329,49 +329,43 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 	}
 
 	@Override
-	public ActionResponseDTO<UserToken> loginAs(final String gooruUid, final HttpServletRequest request) throws Exception {
-		UserToken userToken = new UserToken();
-		Errors errors = null;
+	public UserToken loginAs(final String gooruUid, final HttpServletRequest request) throws Exception {
+		UserToken userToken =  null;
 		if (gooruUid != null) {
 			if (gooruUid.equalsIgnoreCase(ANONYMOUS)) {
-				final String apiKey = request.getParameter(API_KEY) == null ? request.getHeader(API_KEY) : request.getParameter(API_KEY);
+				final String apiKey = request.getHeader(Constants.GOORU_API_KEY) != null ? request.getHeader(Constants.GOORU_API_KEY) : request.getParameter(API_KEY);
 				final Application application = this.getApplicationRepository().getApplication(apiKey);
-				errors = this.validateApiKey(application, userToken);
-				if (!errors.hasErrors()) {
-					final Organization org = application.getOrganization();
-					final String partyUid = org.getPartyUid();
-					final String anonymousUid = organizationSettingRepository.getOrganizationSetting(Constants.ANONYMOUS, partyUid);
-					final User user = this.getUserService().findByGooruId(anonymousUid);
-					userToken = this.createSessionToken(user, apiKey, request);
+				rejectIfNull(application, GL0007, API_KEY);
+				final Organization org = application.getOrganization();
+				final String partyUid = org.getPartyUid();
+				final String anonymousUid = organizationSettingRepository.getOrganizationSetting(Constants.ANONYMOUS, partyUid);
+				final User user = this.getUserService().findByGooruId(anonymousUid);
+				userToken = this.createSessionToken(user, apiKey, request);
 			} else {
-				final String sessionToken = request.getParameter(SESSION_TOKEN) == null ? request.getHeader(SESSION_TOKEN) : request.getParameter(SESSION_TOKEN);
+				final String sessionToken = request.getHeader(Constants.GOORU_SESSION_TOKEN) != null ? request.getHeader(Constants.GOORU_SESSION_TOKEN) : request.getParameter(SESSION_TOKEN);
 				final User loggedInUser = this.getUserRepository().findByToken(sessionToken);
-				errors = this.validateLoginAsUser(userToken, loggedInUser);
-				if (!errors.hasErrors()) {
-					if (this.getUserService().isContentAdmin(loggedInUser)) {
-						final User user = this.getUserRepository().findByGooruId(gooruUid);
-						errors = this.validateLoginAsUser(userToken, user);
-						if (!errors.hasErrors()) {
-							if (!this.getUserService().isContentAdmin(user)) {
-								final Application userApiKey = this.getApplicationRepository().getApplicationByOrganization(user.getOrganization().getPartyUid());
-								userToken = this.createSessionToken(user, userApiKey.getKey(), request);
-							} else {
-								throw new BadRequestException(generateErrorMessage(GL0042, _USER), GL0042);
-							}
-						}
+				rejectIfNull(loggedInUser, GL0056, SESSIONTOKEN);
+				if (this.getUserService().isContentAdmin(loggedInUser)) {
+					final User user = this.getUserRepository().findByGooruId(gooruUid);
+					rejectIfNull(user, GL0056,  USER);
+					if (!this.getUserService().isContentAdmin(user)) {
+						final Application userApiKey = this.getApplicationRepository().getApplicationByOrganization(user.getOrganization().getPartyUid());
+						userToken = this.createSessionToken(user, userApiKey.getKey(), request);
 					} else {
-						throw new BadRequestException(generateErrorMessage(GL0043, _USER), GL0042);
+						throw new BadRequestException(generateErrorMessage(GL0042, _USER), GL0042);
 					}
+				} else {
+					throw new BadRequestException(generateErrorMessage(GL0043, _USER), GL0042);
 				}
+
 			}
 		}
-			request.getSession().setAttribute(Constants.SESSION_TOKEN, userToken.getToken());
-			if (userToken.getApplication() != null) { 
-				request.getSession().setAttribute(Constants.APPLICATION_KEY, userToken.getApplication().getKey());
-			}
+		request.getSession().setAttribute(Constants.SESSION_TOKEN, userToken.getToken());
+		if (userToken != null && userToken.getApplication() != null) {
+			request.getSession().setAttribute(Constants.APPLICATION_KEY, userToken.getApplication().getKey());
 		}
-		
-		return new ActionResponseDTO<UserToken>(userToken, errors);
+
+		return userToken;
 	}
 
 	@Override
@@ -427,7 +421,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			} catch (JSONException e) {
 				LOGGER.error("Error : " + e);
 			}
-		} 
+		}
 		try {
 			newUser = (User) BeanUtils.cloneBean(userIdentity);
 		} catch (Exception e) {
@@ -436,7 +430,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 		request.getSession().setAttribute(Constants.USER, newUser);
 		newUser.setToken(sessionToken.getToken());
 		request.getSession().setAttribute(Constants.SESSION_TOKEN, sessionToken.getToken());
-		if (sessionToken.getApplication() != null) { 
+		if (sessionToken.getApplication() != null) {
 			request.getSession().setAttribute(Constants.APPLICATION_KEY, sessionToken.getApplication().getKey());
 		}
 		return newUser;
@@ -446,18 +440,6 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 	public ActionResponseDTO<UserToken> switchSession(final String sessionToken) throws Exception {
 		final UserToken userToken = userTokenRepository.findByToken(sessionToken);
 		return new ActionResponseDTO<UserToken>(userToken, new BindException(userToken, SESSIONTOKEN));
-	}
-
-	private Errors validateLoginAsUser(final UserToken userToken, final User user) {
-		final Errors errors = new BindException(userToken, SESSIONTOKEN);
-		rejectIfNull(errors, user, USER, GL0056, generateErrorMessage(GL0056, USER));
-		return errors;
-	}
-
-	private Errors validateApiKey(final Application application, final UserToken sessToken) throws Exception {
-		final Errors errors = new BindException(sessToken, SESSIONTOKEN);
-		rejectIfNull(errors, application, GOORU_OID, GL0056, generateErrorMessage(GL0056, "Application key"));
-		return errors;
 	}
 
 	public AccountEventLog getAccountEventlog() {
