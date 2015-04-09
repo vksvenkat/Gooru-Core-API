@@ -77,11 +77,11 @@ public class AccountRestV2Controller extends BaseController implements ConstantP
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_SIGNIN })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.POST }, value = "/login")
-	public ModelAndView login(@RequestParam(value = API_KEY, required = true) final String apiKey, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+	public ModelAndView login(@RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		request.setAttribute(Constants.EVENT_PREDICATE, USER_LOGIN);
 		final JSONObject json = requestData(data);
 		ActionResponseDTO<UserToken> responseDTO = null;
-		responseDTO = this.getAccountService().logIn(getValue(USER_NAME, json), getValue(PASSWORD, json), apiKey, false, request);
+		responseDTO = this.getAccountService().logIn(getValue(USER_NAME, json), getValue(PASSWORD, json),  false, request);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		} else {
@@ -134,9 +134,9 @@ public class AccountRestV2Controller extends BaseController implements ConstantP
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_SIGNIN })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.POST }, value = "/loginas/{id}")
-	public ModelAndView loginAs(@PathVariable(value = ID) final String gooruUid, @RequestParam(value = SESSIONTOKEN, required = false) final String sessionToken, @RequestParam(value = API_KEY, required = false) final String apiKey, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+	public ModelAndView loginAs(@PathVariable(value = ID) final String gooruUid, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		request.setAttribute(Constants.EVENT_PREDICATE, USER_LOGIN_AS);
-		final ActionResponseDTO<UserToken> userToken = this.getAccountService().loginAs(sessionToken, gooruUid, request, apiKey);
+		final ActionResponseDTO<UserToken> userToken = this.getAccountService().loginAs(gooruUid, request);
 		if (userToken.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		} else {
