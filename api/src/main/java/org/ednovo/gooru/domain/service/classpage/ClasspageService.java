@@ -43,7 +43,7 @@ public interface ClasspageService {
 
 	ActionResponseDTO<CollectionItem> createClasspageItem(String assignmentGooruOid, String collectionGooruOid, CollectionItem collectionItem, User user, String type) throws Exception;
 
-	ActionResponseDTO<Classpage> updateClasspage(Classpage newClasspage, String classpageId, Boolean hasUnrestrictedContentAccess) throws Exception;
+	ActionResponseDTO<Classpage> updateClasspage(Classpage newClasspage, String classpageId, Boolean hasUnrestrictedContentAccess, String data) throws Exception;
 
 	Classpage getClasspage(String classpageId, User user, String merge);
 
@@ -83,7 +83,7 @@ public interface ClasspageService {
 	
 	Collection createPathway(String classId, Collection collection, String parentId, Boolean isRequired, User user) throws Exception;
 	
-	Collection updatePathway(String classId, String pathwayGooruOid, Collection newPathway, User user) throws Exception;
+	Collection updatePathway(String classId, String pathwayGooruOid, Collection newPathway, User user, String data) throws Exception;
 	
 	void deletePathway(String classId, String pathwayGooruOid, User user);
 	
@@ -97,7 +97,7 @@ public interface ClasspageService {
 	
 	void deletePathwayItem(String classId,String pathwayGooruOid,String collectionItemId ,User user);
 	
-	ActionResponseDTO<CollectionItem> updatePathwayItem(String classId,String pathwayGooruOid,String collectionItemId,CollectionItem newcollectionItem,  User user) throws Exception;
+	ActionResponseDTO<CollectionItem> updatePathwayItem(String classId,String pathwayGooruOid,String collectionItemId,CollectionItem newcollectionItem,  User user, String data) throws Exception;
 	
 	Map<String, Object> getParentDetails(String collectionItemId);
 	

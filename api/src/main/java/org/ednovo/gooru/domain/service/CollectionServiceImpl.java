@@ -55,6 +55,7 @@ import org.ednovo.gooru.core.api.model.UserGroupSupport;
 import org.ednovo.gooru.core.api.model.UserSummary;
 import org.ednovo.gooru.core.application.util.BaseUtil;
 import org.ednovo.gooru.core.application.util.CustomProperties;
+import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.exception.BadRequestException;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.domain.service.eventlogs.CollectionEventLog;
@@ -68,16 +69,14 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepositor
 import org.ednovo.gooru.infrastructure.persistence.hibernate.collaborator.CollaboratorRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.storage.StorageRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.taxonomy.TaxonomyRespository;
+import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
-import org.ednovo.gooru.core.constant.Constants;
-import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
@@ -180,8 +179,6 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	private ActionResponseDTO<CollectionItem> updateQuestionWithCollectionItem(final CollectionItem collectionItem, final String data, final List<Integer> deleteAssets, final User user, final String mediaFileName) throws Exception {
 		final AssessmentQuestion newQuestion = getAssessmentService().buildQuestionFromInputParameters(data, user, true);
 		final Errors errors = validateUpdateCollectionItem(collectionItem);
-		final JSONObject itemData = new JSONObject();
-		itemData.put(_ITEM_DATA, data);
 		if (!errors.hasErrors()) {
 			final AssessmentQuestion question = getAssessmentService().getQuestion(collectionItem.getResource().getGooruOid());
 			if (question != null) {
@@ -218,14 +215,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		} else {
 			throw new NotFoundException(generateErrorMessage(GL0056, QUESTION), GL0056);
 		}
-		try {
-			this.collectionEventLog.getEventLogs(collectionItem, false, false, user, false, true);
-		} catch (Exception e) {
-			if(LOGGER.isErrorEnabled()) {
-				LOGGER.error(e.getMessage());
-			}
-		}
-
+		this.getCollectionEventLog().getEventLogs(collectionItem, false, false, user, false, true, data);
 		return new ActionResponseDTO<CollectionItem>(collectionItem, errors);
 
 	}
