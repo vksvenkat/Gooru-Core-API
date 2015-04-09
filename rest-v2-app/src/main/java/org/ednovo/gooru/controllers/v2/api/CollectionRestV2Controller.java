@@ -123,7 +123,7 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 		final User user = (User) request.getAttribute(Constants.USER);
 		final JSONObject json = requestData(data);
 		final ActionResponseDTO<Collection> responseDTO = getCollectionService().updateCollection(this.buildCopyCollectionFromInputParameters(getValue(COLLECTION, json)), collectionId, getValue(OWNER_UID, json), getValue(CREATOR_UID, json), hasUnrestrictedContentAccess(),
-				getValue(RELATED_CONTENT_ID, json), user);
+				getValue(RELATED_CONTENT_ID, json), user, data);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		}
@@ -209,7 +209,7 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 	public ModelAndView updateCollectionItem(@PathVariable(value = ID) final String collectionItemId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		final User user = (User) request.getAttribute(Constants.USER);
 		final JSONObject json = requestData(data);
-		final ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().updateCollectionItem(this.buildCollectionItemFromInputParameters(getValue(COLLECTION_ITEM, json)), collectionItemId, user);
+		final ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().updateCollectionItem(this.buildCollectionItemFromInputParameters(getValue(COLLECTION_ITEM, json)), collectionItemId, user, data);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		}
@@ -338,7 +338,7 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 		final JSONObject json = requestData(data);
 		final User user = (User) request.getAttribute(Constants.USER);
 		final ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().updateResourceWithCollectionItem(collectionItemId, this.buildResourceFromInputParameters(getValue(RESOURCE, json), user), getValue(RESOURCE_TAGS, json) == null ? null : buildResourceTags(getValue(RESOURCE_TAGS, json)),
-				user);
+				user, data);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		}

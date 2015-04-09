@@ -78,7 +78,6 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.party.UserGroupRepo
 import org.ednovo.gooru.infrastructure.persistence.hibernate.storage.StorageRepository;
 import org.ednovo.gooru.security.OperationAuthorizer;
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -191,64 +190,51 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		return new ActionResponseDTO<Classpage>(newClasspage, errors);
 	}
 
-	public ActionResponseDTO<Classpage> updateClasspage(Classpage newClasspage, String updateClasspageId, Boolean hasUnrestrictedContentAccess) throws Exception {
+	public ActionResponseDTO<Classpage> updateClasspage(Classpage newClasspage, String updateClasspageId, Boolean hasUnrestrictedContentAccess, final String data) throws Exception {
 		Classpage classpage = this.getClasspage(updateClasspageId, null, null);
 		rejectIfNull(classpage, GL0056, "classpage");
 		Errors errors = validateUpdateClasspage(classpage, newClasspage);
-		JSONObject itemData = new JSONObject();
 		if (!errors.hasErrors()) {
 			if (newClasspage.getVocabulary() != null) {
-				itemData.put(VOCABULARY, newClasspage.getVocabulary());
 				classpage.setVocabulary(newClasspage.getVocabulary());
 			}
 
 			if (newClasspage.getTitle() != null) {
-				itemData.put(TITLE, newClasspage.getTitle());
 				classpage.setTitle(newClasspage.getTitle());
 				UserGroup userGroup = this.getUserGroupService().findUserGroupByGroupCode(classpage.getClasspageCode());
 				userGroup.setGroupName(newClasspage.getTitle());
 				this.getUserRepository().save(userGroup);
 			}
 			if (newClasspage.getDescription() != null) {
-				itemData.put(DESCRIPTION, newClasspage.getDescription());
 				classpage.setDescription(newClasspage.getDescription());
 			}
 			if (newClasspage.getNarrationLink() != null) {
-				itemData.put(NARRATION_LINK, newClasspage.getNarrationLink());
 				classpage.setNarrationLink(newClasspage.getNarrationLink());
 			}
 			if (newClasspage.getEstimatedTime() != null) {
-				itemData.put(ESTIMATED_TIME, newClasspage.getEstimatedTime());
 				classpage.setEstimatedTime(newClasspage.getEstimatedTime());
 			}
 			if (newClasspage.getNotes() != null) {
-				itemData.put(NOTES, newClasspage.getNotes());
 				classpage.setNotes(newClasspage.getNotes());
 			}
 			if (newClasspage.getGoals() != null) {
-				itemData.put(GOALS, newClasspage.getGoals());
 				classpage.setGoals(newClasspage.getGoals());
 			}
 			if (newClasspage.getKeyPoints() != null) {
-				itemData.put(KEYPOINTS, newClasspage.getKeyPoints());
 				classpage.setGoals(newClasspage.getKeyPoints());
 			}
 			if (newClasspage.getLanguage() != null) {
-				itemData.put(LANGUAGE, newClasspage.getLanguage());
 				classpage.setLanguage(newClasspage.getLanguage());
 			}
 			if (newClasspage.getGrade() != null) {
-				itemData.put(GRADE, newClasspage.getGrade());
 				classpage.setGrade(newClasspage.getGrade());
 			}
 			if (newClasspage.getSharing() != null) {
-				itemData.put(SHARING, newClasspage.getSharing());
 				if (newClasspage.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || newClasspage.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing()) || newClasspage.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing())) {
 					classpage.setSharing(newClasspage.getSharing());
 				}
 			}
 			if (newClasspage.getLastUpdatedUserUid() != null) {
-				itemData.put(LAST_UPDATED_USER_UID, newClasspage.getLastUpdatedUserUid());
 				classpage.setLastUpdatedUserUid(newClasspage.getLastUpdatedUserUid());
 			}
 
@@ -265,14 +251,13 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			}
 
 			this.getCollectionRepository().save(classpage);
-			
-			try{
-				
-				this.getScollectionEventlog().getEventLogs(classpage, itemData, classpage.getUser(), false, true);
-				getAsyncExecutor().deleteFromCache("v2-class-data-"+classpage.getGooruOid()+ "*");
-			}catch(Exception e){
-				e.printStackTrace();
+			try {
+				this.getScollectionEventlog().getEventLogs(classpage, classpage.getUser(), false, true, data);
+				getAsyncExecutor().deleteFromCache("v2-class-data-" + classpage.getGooruOid() + "*");
+			} catch (Exception e) {
+				LOGGER.error(_ERROR, e);
 			}
+
 		}
 		return new ActionResponseDTO<Classpage>(classpage, errors);
 	}
@@ -892,22 +877,17 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			this.getCollectionService().createCollectionItem(collectionId, pathway.getGooruOid(), pathway.getCollectionItem() == null ? new CollectionItem() : pathway.getCollectionItem(), pathway.getUser(), ADDED, false);
 		}
 		getAsyncExecutor().deleteFromCache("v2-class-data-"+ classId+"*");
-		try {
-			
-		     this.getClasspageEventlog().getEventLogs(classId, pathway.getGooruOid(), user, true, false);
-		} catch (JSONException e) {
-			e.printStackTrace();
-		}
 
+		this.getClasspageEventlog().getEventLogs(classId, pathway.getGooruOid(), user, true, false, null);
 		return pathway;
 	}
 	
 	@Override
-	public Collection updatePathway(final String classId, final String pathwayGooruOid, final Collection newPathway, final User user) throws Exception {
+	public Collection updatePathway(final String classId, final String pathwayGooruOid, final Collection newPathway, final User user, final String data) throws Exception {
 		final Collection pathwayCollection = this.getCollectionRepository().getCollectionByIdWithType(pathwayGooruOid, ResourceType.Type.PATHWAY.getType());
 		rejectIfNull(pathwayCollection, GL0056, PATHWAY);
 
-			if (newPathway.getTitle() != null) {
+		if (newPathway.getTitle() != null) {
 				pathwayCollection.setTitle(newPathway.getTitle());
 			}
 			if (newPathway.getDescription() != null) {
@@ -915,12 +895,8 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			}
 			this.getCollectionRepository().save(pathwayCollection);
 			getAsyncExecutor().deleteFromCache("v2-class-data-"+ classId+"*");
-		try {
-			
-		    this.getClasspageEventlog().getEventLogs(classId, pathwayGooruOid, user, false, true);
-		} catch (JSONException e) {
-			e.printStackTrace();
-		}
+
+		this.getClasspageEventlog().getEventLogs(classId, pathwayGooruOid, user, false, true, data);
 		return pathwayCollection;
 	}
 	
@@ -1071,7 +1047,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 	
 	@Override
-	public ActionResponseDTO<CollectionItem> updatePathwayItem(final String classId, final String pathwayGooruOid, final String collectionItemId, final CollectionItem newcollectionItem,  final User user) throws Exception {
+	public ActionResponseDTO<CollectionItem> updatePathwayItem(final String classId, final String pathwayGooruOid, final String collectionItemId, final CollectionItem newcollectionItem,  final User user, final String data) throws Exception {
 		if (this.getCollectionRepository().getCollectionByIdWithType(pathwayGooruOid, PATHWAY) == null) {
 			throw new BadRequestException(generateErrorMessage(GL0056, PATHWAY), GL0056);
 
@@ -1080,7 +1056,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			 throw new BadRequestException(generateErrorMessage(GL0056, CLASS), GL0056);
 		}
 		getAsyncExecutor().deleteFromCache("v2-class-data-" + classId + "*");
-		return updateCollectionItem(newcollectionItem, collectionItemId, user);
+		return updateCollectionItem(newcollectionItem, collectionItemId, user, data);
 	}
 	
 	@Override

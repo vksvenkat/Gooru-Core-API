@@ -101,7 +101,7 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 	public ModelAndView updateFolder(@PathVariable(value = ID) final String collectionId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		final User user = (User) request.getAttribute(Constants.USER);
 		final JSONObject json = requestData(data);
-		final ActionResponseDTO<Collection> responseDTO = getCollectionService().updateCollection(this.buildUpadteCollectionFromInputParameters(data, user), collectionId, getValue(OWNER_UID, json), getValue(CREATOR_UID, json), hasUnrestrictedContentAccess(), getValue(RELATED_CONTENT_ID, json), user);
+		final ActionResponseDTO<Collection> responseDTO = getCollectionService().updateCollection(this.buildUpadteCollectionFromInputParameters(data, user), collectionId, getValue(OWNER_UID, json), getValue(CREATOR_UID, json), hasUnrestrictedContentAccess(), getValue(RELATED_CONTENT_ID, json), user, data);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		}
@@ -144,7 +144,7 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 	@RequestMapping(value = { "/item/{id}" }, method = RequestMethod.PUT)
 	public ModelAndView updateFolderItem(@PathVariable(value = ID) final String collectionItemId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		final User user = (User) request.getAttribute(Constants.USER);
-		final ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().updateCollectionItem(this.buildCollectionItemFromInputParameters(data, user), collectionItemId, user);
+		final ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().updateCollectionItem(this.buildCollectionItemFromInputParameters(data, user), collectionItemId, user, data);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		}
