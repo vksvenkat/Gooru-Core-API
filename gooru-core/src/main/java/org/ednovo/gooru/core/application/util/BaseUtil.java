@@ -258,8 +258,7 @@ public class BaseUtil {
 			if (domainName.contains("/")) {
 				domainName = domainName.split("/")[0];
 			}
-		}
-		System.out.println(org.apache.commons.lang.StringUtils.substringAfterLast(domainName, "."));		
+		}		
 		return (org.apache.commons.lang.StringUtils.substringAfterLast(domainName, ".").length()>3)? null:domainName;
 	}
    
