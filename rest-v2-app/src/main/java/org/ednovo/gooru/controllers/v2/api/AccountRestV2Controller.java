@@ -141,12 +141,7 @@ public class AccountRestV2Controller extends BaseController implements ConstantP
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		} else {
 			response.setStatus(HttpServletResponse.SC_OK);
-			SessionContextSupport.putLogParameter(EVENT_NAME, _USER_LOGIN_AS);
-			SessionContextSupport.putLogParameter(CURRENT_SESSION_TOKEN, userToken.getModel().getToken());
-			SessionContextSupport.putLogParameter(GOORU_UID, userToken.getModel().getUser().getPartyUid());
-			request.getSession().setAttribute(Constants.USER, userToken.getModel().getUser());
-			request.getSession().setAttribute(Constants.SESSION_TOKEN, userToken.getModel().getToken());
-		}
+			}
 		String[] includes = (String[]) ArrayUtils.addAll(USER_INCLUDES, ERROR_INCLUDE);
 		return toModelAndView(serialize(userToken.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, includes));
 
