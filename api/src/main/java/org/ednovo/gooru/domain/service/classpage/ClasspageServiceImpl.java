@@ -251,9 +251,12 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			}
 
 			this.getCollectionRepository().save(classpage);
-
-			this.getScollectionEventlog().getEventLogs(classpage, classpage.getUser(), false, true, data);
-			getAsyncExecutor().deleteFromCache("v2-class-data-" + classpage.getGooruOid() + "*");
+			try {
+				this.getScollectionEventlog().getEventLogs(classpage, classpage.getUser(), false, true, data);
+				getAsyncExecutor().deleteFromCache("v2-class-data-" + classpage.getGooruOid() + "*");
+			} catch (Exception e) {
+				LOGGER.error(_ERROR, e);
+			}
 
 		}
 		return new ActionResponseDTO<Classpage>(classpage, errors);

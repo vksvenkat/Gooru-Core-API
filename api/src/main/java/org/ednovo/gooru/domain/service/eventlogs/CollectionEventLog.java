@@ -19,7 +19,7 @@ public class CollectionEventLog implements ParameterProperties, ConstantProperti
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(CollectionEventLog.class);
 
-	public void getEventLogs(Collection collection, User user, boolean isCreate, boolean isUpdate, String data) throws JSONException {
+	public void getEventLogs(Collection collection, User user, boolean isCreate, boolean isUpdate, String data) throws Exception {
 		try {
 		if (isCreate) {
 			SessionContextSupport.putLogParameter(EVENT_NAME, ITEM_CREATE);
@@ -155,7 +155,9 @@ public class CollectionEventLog implements ParameterProperties, ConstantProperti
 		JSONObject payLoadObject = SessionContextSupport.getLog().get(PAY_LOAD_OBJECT) != null ? new JSONObject(SessionContextSupport.getLog().get(PAY_LOAD_OBJECT).toString()) : new JSONObject();
 		payLoadObject.put(MODE, EDIT);
 		payLoadObject.put(ITEM_TYPE, COLLECTION_RESOURCE);
-		payLoadObject.put(_ITEM_DATA, data != null ? data.toString() : null);
+		if (data != null) {
+			payLoadObject.put(_ITEM_DATA, data);			
+		}
 		SessionContextSupport.putLogParameter(PAY_LOAD_OBJECT, payLoadObject.toString());
 		JSONObject session = SessionContextSupport.getLog().get(SESSION) != null ? new JSONObject(SessionContextSupport.getLog().get(SESSION).toString()) : new JSONObject();
 		session.put(ORGANIZATION_UID, user.getOrganization().getPartyUid());
