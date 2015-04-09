@@ -247,8 +247,6 @@ public class BaseUtil {
 		if (resourceUrl != null && !resourceUrl.isEmpty()) {
 			if (resourceUrl.contains("http://")) {
 				domainName = resourceUrl.split("http://")[1];
-			} else if (resourceUrl.contains("http://")) {
-				domainName = resourceUrl.split("www.")[1];
 			} else if (resourceUrl.contains("https://")) {
 				domainName = resourceUrl.split("https://")[1];
 			}
