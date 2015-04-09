@@ -79,6 +79,7 @@ import org.ednovo.gooru.core.api.model.Textbook;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserGroupSupport;
 import org.ednovo.gooru.core.api.model.UserRole;
+import org.ednovo.gooru.core.application.util.BaseUtil;
 import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.application.util.ImageUtil;
 import org.ednovo.gooru.core.application.util.RequestUtil;
@@ -459,7 +460,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			LOGGER.debug("no of resource :" + resources.size() + " of page : " + pageNum + " of size : " + pageSize);
 			int count = 0;
 			for (final Resource resource : resources) {
-				final String domainName = getDomainName(resource.getUrl());
+				final String domainName = BaseUtil.getDomainName(resource.getUrl());
 				if (!domainName.isEmpty()) {
 					final ResourceSource resourceSource = this.getResourceRepository().findResourceSource(domainName);
 					if (resourceSource != null) {
@@ -688,26 +689,6 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			chapterResources.add(chapterResource);
 		}
 		return chapterResources;
-	}
-
-	private String getDomainName(final String resourceUrl) {
-		String domainName = "";
-		if (resourceUrl != null && !resourceUrl.isEmpty()) {
-			if (resourceUrl.contains("http://")) {
-				domainName = resourceUrl.split("http://")[1];
-			} else if (resourceUrl.contains("http://")) {
-				domainName = resourceUrl.split("www.")[1];
-			} else if (resourceUrl.contains("https://")) {
-				domainName = resourceUrl.split("https://")[1];
-			}
-			if (domainName.contains("www.")) {
-				domainName = domainName.split("www.")[1];
-			}
-			if (domainName.contains("/")) {
-				domainName = domainName.split("/")[0];
-			}
-		}
-		return domainName;
 	}
 
 	private static List<String> splitToChaptersAndSaveFiles(final String newLocalUrl) {
@@ -1076,8 +1057,10 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		} else {
 			resource.setBrokenStatus(brokenStatus);
 		}
-		domainName = getDomainName(url);
-		resourceSource = this.getResourceRepository().findResourceSource(domainName);
+		domainName = BaseUtil.getDomainName(url);
+		if(domainName != null){
+			resourceSource = this.getResourceRepository().findResourceSource(domainName);
+		}
 		if (resourceSource != null && resourceSource.getFrameBreaker() != null && resourceSource.getFrameBreaker() == 1) {
 			resource.setHasFrameBreaker(true);
 		} else {
@@ -1165,8 +1148,10 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			String domainName = null;
 			if (url != null) {
 				existingResource.setUrl(url);
-				domainName = getDomainName(url);
-				resourceSource = this.getResourceRepository().findResourceSource(domainName);
+				domainName = BaseUtil.getDomainName(url);
+				if(domainName != null){
+					resourceSource = this.getResourceRepository().findResourceSource(domainName);
+				}
 				if (resourceSource != null && resourceSource.getFrameBreaker() != null && resourceSource.getFrameBreaker() == 1) {
 					existingResource.setHasFrameBreaker(true);
 				} else {
@@ -1405,8 +1390,8 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	public void mapSourceToResource(final Resource resource) {
 		if (resource != null && resource.getResourceSource() == null) {
 			if (ResourceType.Type.RESOURCE.getType().equalsIgnoreCase(resource.getResourceType().getName()) || ResourceType.Type.VIDEO.getType().equalsIgnoreCase(resource.getResourceType().getName())) {
-				final String domainName = getDomainName(resource.getUrl());
-				if (!domainName.isEmpty()) {
+				final String domainName = BaseUtil.getDomainName(resource.getUrl());
+				if (domainName != null) {
 					final ResourceSource resourceSource = this.getResourceRepository().findResourceSource(domainName);
 					if (resourceSource != null) {
 						resource.setResourceSource(resourceSource);
@@ -1444,11 +1429,13 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	@Override
 	public boolean shortenedUrlResourceCheck(String url) {
 		boolean isShortenedUrl = false;
-		String domainName = getDomainName(url);
+		String domainName = BaseUtil.getDomainName(url);
 		final String domainType = ResourceSource.ResourceSourceType.SHORTENDED_DOMAIN.getResourceSourceType();
-		final String type = resourceRepository.shortenedUrlResourceCheck(domainName, domainType);
-		if (type != null && type.equalsIgnoreCase(ResourceSource.ResourceSourceType.SHORTENDED_DOMAIN.getResourceSourceType())) {
-			isShortenedUrl = true;
+		if(domainName != null){
+			final String type = resourceRepository.shortenedUrlResourceCheck(domainName, domainType);
+			if (type != null && type.equalsIgnoreCase(ResourceSource.ResourceSourceType.SHORTENDED_DOMAIN.getResourceSourceType())) {
+				isShortenedUrl = true;
+			}
 		}
 		return isShortenedUrl;
 	}
@@ -1523,8 +1510,10 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			if (newResource.getBrokenStatus() == null) {
 				newResource.setBrokenStatus(0);
 			}
-			domainName = getDomainName(newResource.getUrl());
+			domainName =BaseUtil.getDomainName(newResource.getUrl());
+			if(domainName != null){
 			resourceSource = this.getResourceRepository().findResourceSource(domainName);
+			}
 			if (resourceSource != null && resourceSource.getFrameBreaker() != null && resourceSource.getFrameBreaker() == 1) {
 				newResource.setHasFrameBreaker(true);
 			} else {
@@ -1589,8 +1578,10 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 					if (!resource.getUrl().equalsIgnoreCase(newResource.getUrl())) {
 						itemData.put("url", newResource.getUrl());
 						resource.setUrl(newResource.getUrl());
-						domainName = getDomainName(newResource.getUrl());
-						resourceSource = this.getResourceRepository().findResourceSource(domainName);
+						domainName = BaseUtil.getDomainName(newResource.getUrl());
+						if(domainName != null){
+							resourceSource = this.getResourceRepository().findResourceSource(domainName);
+						}
 						if (resourceSource != null && resourceSource.getFrameBreaker() != null && resourceSource.getFrameBreaker() == 1) {
 							resource.setHasFrameBreaker(true);
 						} else {
@@ -2050,5 +2041,5 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	public CollectionRepository getCollectionRepository() {
 		return collectionRepository;
 	}
-
+	
 }
