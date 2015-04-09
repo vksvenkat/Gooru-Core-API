@@ -31,10 +31,10 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>2.3.2</version>
+				<version>3.3</version>
 				<configuration>
-					<source>1.6</source>
-					<target>1.6</target>
+					<source>1.7</source>
+					<target>1.7</target>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -141,6 +141,13 @@
 				<artifactId>gooru-core</artifactId>
 				<version>0.0.1-SNAPSHOT</version>
 			</dependency>
+                        <dependency>
+                    	  	 <groupId>javax.servlet</groupId>
+                    		 <artifactId>servlet-api</artifactId>
+                    		 <version>${servlet.version}</version>
+                     		<scope>provided</scope>
+                	</dependency>
+
 		</dependencies>
 	</dependencyManagement>
 	<dependencies>
@@ -230,7 +237,7 @@
 			<groupId>org.springframework.security.oauth</groupId>
 			<artifactId>spring-security-oauth2</artifactId>
 			<version>${spring.security.oauth.version}</version>
-		</dependency>
+                </dependency>
 	</dependencies>
 	<profiles>
 		<profile>
