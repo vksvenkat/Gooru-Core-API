@@ -65,12 +65,12 @@ public class ShareRestV2Controller extends BaseController implements ConstantPro
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SHARE_MAIL })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.POST, value = "/mail")
-	public void shareMail(@RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public void shareMail(@RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		JSONObject json = null;
 		if (data != null && !data.isEmpty()) {
 			json = requestData(data);
 		}
-		User user = (User) request.getAttribute(Constants.USER);
+		final User user = (User) request.getAttribute(Constants.USER);
 		List<Map<String, String>> attachment = null;
 		if (getValue(ATTACHMENT, json) != null) {
 			attachment = JsonDeserializer.deserialize(getValue(ATTACHMENT, json), new TypeReference<List<Map<String, String>>>() {
@@ -84,17 +84,17 @@ public class ShareRestV2Controller extends BaseController implements ConstantPro
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_URL_SHORTEN })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/url/shorten/{contentOid}", method = { RequestMethod.POST })
-	public ModelAndView createContentShortenUrl(@PathVariable(CONTENT_OID) String contentGooruOid, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		JSONObject json = requestData(data);
+	public ModelAndView createContentShortenUrl(@PathVariable(CONTENT_OID) final String contentGooruOid, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+		final JSONObject json = requestData(data);
 		return toModelAndView(this.getShareService().getShortenUrl(contentGooruOid, getValue(FULL_URL, json), Boolean.parseBoolean(getValue(CLEAR_CACHE, json))));
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_URL_SHORTEN })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/url/shorten", method = { RequestMethod.POST })
-	public ModelAndView createShortenUrl(@RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		JSONObject json = requestData(data);
-		User user = (User) request.getAttribute(Constants.USER);
+	public ModelAndView createShortenUrl(@RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+		final JSONObject json = requestData(data);
+		final User user = (User) request.getAttribute(Constants.USER);
 		return toModelAndView(this.getShareService().getShortenUrl(getValue(FULL_URL, json), Boolean.parseBoolean(getValue(CLEAR_CACHE, json)), user));
 	}
 

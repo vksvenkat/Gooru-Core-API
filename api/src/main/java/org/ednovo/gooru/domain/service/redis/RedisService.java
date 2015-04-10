@@ -44,8 +44,6 @@ public interface RedisService extends CassandraCacheService {
 
 	void deleteEntry(String gooruOId);
 
-	void updateAllCount(String resourceType);
-
 	void updateRedisCount(Long count, String type, String gooruOId);
 
 	void addSessionEntry(String sessionToken, Organization organizationUid);

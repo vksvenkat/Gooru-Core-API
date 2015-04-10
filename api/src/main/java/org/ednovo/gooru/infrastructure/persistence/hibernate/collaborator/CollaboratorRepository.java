@@ -25,6 +25,7 @@ package org.ednovo.gooru.infrastructure.persistence.hibernate.collaborator;
 
 import java.util.List;
 
+import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserContentAssoc;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepository;
 
@@ -37,4 +38,6 @@ public interface CollaboratorRepository extends BaseRepository {
 	List<UserContentAssoc> getCollaboratorsById(String gooruOid);
 	
 	Long getCollaboratorsCountById(String gooruOid);
+	
+	List<User> findCollaborators(String gooruContentId, String userUid);
 }

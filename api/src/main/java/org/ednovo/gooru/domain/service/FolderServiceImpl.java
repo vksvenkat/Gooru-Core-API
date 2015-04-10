@@ -61,17 +61,17 @@ public class FolderServiceImpl extends BaseServiceImpl implements FolderService,
 	private CollectionService collectionService;
 
 	@Override
-	public SearchResults<Map<String, Object>> getMyCollectionsToc(String gooruUid, Integer limit, Integer offset, String sharing, String collectionType, String orderBy, String excludeType) {
+	public SearchResults<Map<String, Object>> getMyCollectionsToc(String gooruUid, final Integer limit, final Integer offset, final String sharing, final String collectionType, final String orderBy, final String excludeType) {
 		if (!BaseUtil.isUuid(gooruUid)) {
-			User user = this.getUserRepository().getUserByUserName(gooruUid, true);
+			final User user = this.getUserRepository().getUserByUserName(gooruUid, true);
 			gooruUid = user != null ? user.getPartyUid() : null;
 		}
 		rejectIfNull(gooruUid, GL0056, 404, USER);
-		List<Object[]> result = this.getCollectionRepository().getMyFolder(gooruUid, limit, offset, sharing, collectionType, true, orderBy, excludeType);
-		List<Map<String, Object>> folders = new ArrayList<Map<String, Object>>();
+		final List<Object[]> result = this.getCollectionRepository().getMyFolder(gooruUid, limit, offset, sharing, collectionType, true, orderBy, excludeType);
+		final List<Map<String, Object>> folders = new ArrayList<Map<String, Object>>();
 		if (result != null && result.size() > 0) {
 			for (Object[] object : result) {
-				Map<String, Object> collection = new HashMap<String, Object>();
+				final Map<String, Object> collection = new HashMap<String, Object>();
 				collection.put(TITLE, object[0]);
 				collection.put(GOORU_OID, object[1]);
 				collection.put(TYPE, object[2]);
@@ -92,19 +92,19 @@ public class FolderServiceImpl extends BaseServiceImpl implements FolderService,
 				folders.add(collection);
 			}
 		}
-		SearchResults<Map<String, Object>> searchResult = new SearchResults<Map<String, Object>>();
+		final SearchResults<Map<String, Object>> searchResult = new SearchResults<Map<String, Object>>();
 		searchResult.setSearchResults(folders);
 		searchResult.setTotalHitCount(this.getCollectionRepository().getMyShelfCount(gooruUid, sharing, collectionType, excludeType));
 		return searchResult;
 	}
 
 	@Override
-	public List<Map<String, Object>> getFolderTocItems(String gooruOid, String sharing, String collectionType, String orderBy, String sortOrder, String excludeType) {
-		List<Map<String, Object>> items = new ArrayList<Map<String, Object>>();
-		List<Object[]> result = this.getCollectionRepository().getCollectionItem(gooruOid, null, null, sharing, orderBy, collectionType, true, sortOrder, true, excludeType);
+	public List<Map<String, Object>> getFolderTocItems(final String gooruOid, final String sharing, final String collectionType, final String orderBy, final String sortOrder, final String excludeType) {
+		final List<Map<String, Object>> items = new ArrayList<Map<String, Object>>();
+		final List<Object[]> result = this.getCollectionRepository().getCollectionItem(gooruOid, null, null, sharing, orderBy, collectionType, true, sortOrder, true, excludeType);
 		if (result != null && result.size() > 0) {
 			for (Object[] object : result) {
-				Map<String, Object> item = new HashMap<String, Object>();
+				final Map<String, Object> item = new HashMap<String, Object>();
 				item.put(TITLE, object[0]);
 				item.put(GOORU_OID, object[1]);
 				item.put(TYPE, object[2]);
@@ -138,7 +138,7 @@ public class FolderServiceImpl extends BaseServiceImpl implements FolderService,
 	}
 
 	@Override
-	public String getMyCollectionsToc(String gooruUid, Integer limit, Integer offset, String sharing, String collectionType, String orderBy, String excludeType, boolean clearCache) {
+	public String getMyCollectionsToc(final String gooruUid, final Integer limit, final Integer offset, final String sharing, final String collectionType, final String orderBy, final String excludeType, final boolean clearCache) {
 		final String cacheKey = V2_ORGANIZE_DATA + gooruUid + HYPHEN + offset + HYPHEN + limit + HYPHEN + sharing + HYPHEN + collectionType + HYPHEN + HYPHEN + orderBy + HYPHEN + excludeType + HYPHEN + TOC;
 		String data = null;
 		if (!clearCache) {
@@ -153,8 +153,8 @@ public class FolderServiceImpl extends BaseServiceImpl implements FolderService,
 	}
 
 	@Override
-	public String getFolderTocItems(String gooruOid, String sharing, String collectionType, String orderBy, String excludeType, boolean clearCache) {
-		Collection collection = this.getCollectionRepository().getCollectionByGooruOid(gooruOid, null);
+	public String getFolderTocItems(final String gooruOid, final String sharing, final String collectionType, final String orderBy, final String excludeType, final boolean clearCache) {
+		final Collection collection = this.getCollectionRepository().getCollectionByGooruOid(gooruOid, null);
 		rejectIfNull(collection, GL0056, 404, FOLDER);
 		final String cacheKey = V2_ORGANIZE_DATA + collection.getUser().getPartyUid() + HYPHEN + gooruOid + HYPHEN + sharing + HYPHEN + collectionType + HYPHEN + orderBy + HYPHEN + excludeType + HYPHEN + TOC;
 		String data = null;
@@ -162,7 +162,7 @@ public class FolderServiceImpl extends BaseServiceImpl implements FolderService,
 			data = getRedisService().getValue(cacheKey);
 		}
 		if (data == null) {
-			Map<String, Object> item = new HashMap<String, Object>();
+			final Map<String, Object> item = new HashMap<String, Object>();
 			item.put(TITLE, collection.getTitle());
 			item.put(IDEAS, collection.getIdeas());
 			item.put(QUESTIONS, collection.getQuestions());
@@ -178,50 +178,48 @@ public class FolderServiceImpl extends BaseServiceImpl implements FolderService,
 	}
 	
 	@Override
-	public List<Map<String, String>> getFolderNode(String collectionId) {
-        Collection collection = this.getCollectionRepository().getCollectionByGooruOid(collectionId, null);
+	public List<Map<String, String>> getFolderNode(final String collectionId) {
+		final Collection collection = this.getCollectionRepository().getCollectionByGooruOid(collectionId, null);
         rejectIfNull(collection, GL0056, 404, COLLECTION);
 		return this.getCollectionService().getParentCollection(collectionId,null, true);
 	}
 
 	@Override
-	public Map<String, Object> getNextCollectionItem(String collectionItemId, String excludeType) {
-		CollectionItem collectionItem = this.getCollectionRepository().getCollectionItemById(collectionItemId);
+	public Map<String, Object> getNextCollectionItem(final String collectionItemId, final String excludeType, final String sharing) {
+		final CollectionItem collectionItem = this.getCollectionRepository().getCollectionItemById(collectionItemId);
 		rejectIfNull(collectionItem, GL0056, 404, COLLECTION_ITEM);
-		return getCollection(collectionItem.getCollection().getGooruOid(), collectionItem.getItemSequence(), excludeType);
+		return getCollection(collectionItem.getCollection().getGooruOid(), collectionItem.getItemSequence(),excludeType, sharing);
 	}
 	
-	private Map<String, Object> getCollection(String gooruOid, Integer sequence, String excludeType) {
+	private Map<String, Object> getCollection(final String gooruOid, final Integer sequence, final String excludeType, final String sharing) {
 		Map<String, Object> nextCollection = null;
-		CollectionItem nextCollectionItem = this.getCollectionRepository().getNextCollectionItemResource(gooruOid, sequence, excludeType);
+		final CollectionItem nextCollectionItem = this.getCollectionRepository().getNextCollectionItemResource(gooruOid, sequence,excludeType, sharing);
 		if (nextCollection == null && nextCollectionItem != null && !nextCollectionItem.getResource().getResourceType().getName().equalsIgnoreCase(FOLDER)) { 
 			nextCollection = new HashMap<String, Object>();
 			nextCollection.put(COLLECTION_ITEM_ID, nextCollectionItem.getCollectionItemId());
 			nextCollection.put(TITLE, nextCollectionItem.getResource().getTitle());
 			nextCollection.put(GOORU_OID, nextCollectionItem.getResource().getGooruOid());
 			nextCollection.put(THUMBNAILS, nextCollectionItem.getResource().getThumbnails());
-			Collection collection =  this.getCollectionRepository().getCollectionByGooruOid(nextCollectionItem.getResource().getGooruOid(), null);
+			final Collection collection =  this.getCollectionRepository().getCollectionByGooruOid(nextCollectionItem.getResource().getGooruOid(), null);
 			nextCollection.put(COLLECTION_TYPE, collection.getCollectionType());
-			Long itemCount = this.getCollectionRepository().getCollectionItemCount(nextCollectionItem.getResource().getGooruOid(), null, null, null);
-			Long questionCount = this.getCollectionRepository().getCollectionItemCount(nextCollectionItem.getResource().getGooruOid(), null, ResourceType.Type.ASSESSMENT_QUESTION.getType(), null);
+			final Long itemCount = this.getCollectionRepository().getCollectionItemCount(nextCollectionItem.getResource().getGooruOid(), null, null, null);
+			final Long questionCount = this.getCollectionRepository().getCollectionItemCount(nextCollectionItem.getResource().getGooruOid(), null, ResourceType.Type.ASSESSMENT_QUESTION.getType(), null);
 			nextCollection.put(RESOURCE_COUNT, itemCount - questionCount);
 			nextCollection.put(QUESTION_COUNT, questionCount);
 		    return nextCollection;
 		    
 		} else if (nextCollection == null && nextCollectionItem != null && nextCollectionItem.getResource().getResourceType().getName().equalsIgnoreCase(FOLDER)) {
-			Long itemCount = this.getCollectionRepository().getCollectionItemCount(nextCollectionItem.getResource().getGooruOid(), null, null, null);
-			return getCollection(nextCollectionItem.getResource().getGooruOid(), ((Number)(itemCount + 1)).intValue(), excludeType);
+			final Long itemCount = this.getCollectionRepository().getCollectionItemCount(nextCollectionItem.getResource().getGooruOid(), null, null, null);
+			return getCollection(nextCollectionItem.getResource().getGooruOid(), ((Number)(itemCount + 1)).intValue(),excludeType,sharing);
 		} else if (nextCollection == null && nextCollectionItem == null) { 
-			CollectionItem parentCollectionItem = this.getCollectionRepository().getCollectionItemByResource(gooruOid);
+			final CollectionItem parentCollectionItem = this.getCollectionRepository().getCollectionItemByResource(gooruOid);
 			if (parentCollectionItem != null) { 
-				return getCollection(parentCollectionItem.getCollection().getGooruOid(), parentCollectionItem.getItemSequence(), excludeType);
+				return getCollection(parentCollectionItem.getCollection().getGooruOid(), parentCollectionItem.getItemSequence(), excludeType,sharing);
 			}
 		}
 		return null;
 	}
 	
-	
-
 	public RedisService getRedisService() {
 		return redisService;
 	}

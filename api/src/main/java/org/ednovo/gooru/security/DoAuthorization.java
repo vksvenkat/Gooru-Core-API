@@ -80,6 +80,7 @@ public class DoAuthorization {
 	private CustomTableRepository customTableRepository;
 	
 	private static final String SESSION_TOKEN_KEY = "authenticate_";
+	
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DoAuthorization.class);
 
@@ -121,6 +122,7 @@ public class DoAuthorization {
 			} else {
 				user = userToken.getUser();
 			}
+			request.setAttribute(Constants.OAUTH_ACCESS_TOKEN, oAuthToken);
 		} else if (sessionToken != null) {
 			try {
 				key = SESSION_TOKEN_KEY + sessionToken;
@@ -179,12 +181,12 @@ public class DoAuthorization {
 		if (authentication.getUserToken().getUser() != null && (auth == null || hasRoleChanged(auth, authentication.getUserToken().getUser()))) {
 			doAuthentication(request, response, authentication.getUserToken().getUser(), authentication.getUserToken().getToken(), skipCache, authentication, key);
 		}
-		if (oAuthToken != null) {
-			SessionContextSupport.putLogParameter("oauthAccessToken", oAuthToken);
-		}
 
 		// set to request so that controllers can read it.
 		request.setAttribute(Constants.USER, authentication.getUserToken().getUser());
+		if (authentication.getUserToken().getApplication() != null) {
+			request.setAttribute(Constants.APPLICATION_KEY, authentication.getUserToken().getApplication().getKey());
+		}
 		return authentication.getUserToken().getUser();
 	}
 
@@ -200,10 +202,12 @@ public class DoAuthorization {
 			}
 			try {
 				if (key != null) {
-					getRedisService().put(key,new JSONSerializer().transform(new ExcludeNullTransformer(), void.class).include(new String[] { "*.operationAuthorities", "*.userRoleSet", "*.partyOperations", "*.subOrganizationUids", "*.orgPermits", "*.partyPermits", "*.customFields", "*.identities", "*.partyPermissions.*" }).exclude(new String[] {"*.class", "*.meta"}).serialize(authentication), Constants.AUTHENTICATION_CACHE_EXPIRY_TIME_IN_SEC);
+					getRedisService().put(key,new JSONSerializer().transform(new ExcludeNullTransformer(), void.class).include(new String[] { "*.operationAuthorities","*.userRoleSet","*.partyOperations", "*.subOrganizationUids", "*.orgPermits", "*.partyPermits", "*.customFields", "*.identities", "*.partyPermissions.*" }).exclude(new String[] {"*.class","*.school","*.schoolDistrict","*.status","*.meta"}).serialize(authentication), Constants.AUTHENTICATION_CACHE_EXPIRY_TIME_IN_SEC);
 				}
 			} catch (Exception e) {
+				if(LOGGER.isErrorEnabled()) {
 				LOGGER.error("Failed to  put  value from redis server {} ", e);
+				}
 			}
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Authorize User: First Name-" + user.getFirstName() + "; Last Name-" + user.getLastName() + "; Email-" + user.getUserId());

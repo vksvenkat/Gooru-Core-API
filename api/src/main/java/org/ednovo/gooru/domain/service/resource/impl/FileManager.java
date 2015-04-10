@@ -31,7 +31,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
-import org.ednovo.gooru.core.api.model.Learnguide;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.ResourceType;
 import org.ednovo.gooru.core.api.model.UserGroupSupport;
@@ -107,27 +106,6 @@ public class FileManager implements ResourceManager,ParameterProperties {
 			}
 			file.delete();
 		}
-	}
-
-	@Override
-	public void deleteClassplan(Learnguide classplan) {
-
-		String classPlanFolder = getAbsoluteURI(classplan.getFolder());
-		String resourceFolder = classPlanFolder + File.separator;
-
-		this.deleteFilesfromDisk(resourceFolder);
-
-		File file = new File(resourceFolder);
-		if (file.exists()) {
-			if (file.isDirectory()) {
-				File[] f = file.listFiles();
-				if (f.length > 0) {
-					this.deleteFilesfromDisk(file.getPath());
-				}
-			}
-			file.delete();
-		}
-
 	}
 
 	private void deleteFilesfromDisk(String folderPath) {

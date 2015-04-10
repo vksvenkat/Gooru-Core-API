@@ -184,14 +184,14 @@ public class Constants implements ParameterProperties {
 		accountCreatedType.put("wsfed", "03");
 		ACCOUNT_TYPES = Collections.unmodifiableMap(accountCreatedType);
 	}
-	
+
 	public static final int AUTHENTICATION_CACHE_EXPIRY_TIME_IN_SEC = 28800;
-	
+
 	public static final int CACHE_EXPIRY_TIME_IN_SEC = 10800;
-	
+
 	public static final int LIBRARY_CACHE_EXPIRY_TIME_IN_SEC = 86400;
 	public static final Map<String, String> COLLECTION_TYPES;
-	static{
+	static {
 		Map<String, String> collectionType = new HashMap<String, String>();
 		collectionType.put(LESSON, COLLECTION_TYPE);
 		collectionType.put(SHELF, COLLECTION_TYPE);
@@ -204,8 +204,16 @@ public class Constants implements ParameterProperties {
 		collectionType.put(CollectionType.STORY.getCollectionType(), COLLECTION_TYPE);
 		COLLECTION_TYPES = Collections.unmodifiableMap(collectionType);
 	}
-	
+
 	public static final String TWENTY_FIRST_CENTURY_SKILLS = "21st_century_skills";
+
+	public  static final String OAUTH_ACCESS_TOKEN = "oauthAccessToken";
+
+	public  static  final String APPLICATION_KEY = "applicationKey";
 	
+	public static final String SESSION = "session";
 	
+	public static final String GOORU_API_KEY = "Gooru-ApiKey";
+	
+	public static final String GOORU_SESSION_TOKEN = "Gooru-Session-Token";
 }

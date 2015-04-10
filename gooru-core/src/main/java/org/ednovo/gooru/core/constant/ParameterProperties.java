@@ -155,6 +155,8 @@ public interface ParameterProperties {
 	String TITLE = "title";
 
 	String _TITLE = "Title";
+	
+	String QUESTION_TITLE = "questionTitle";
 
 	String RENDITION = "rendition";
 
@@ -1465,6 +1467,10 @@ public interface ParameterProperties {
 	String SIGNATURE = "signature";
 
 	String ZERO = "0";
+	
+	final int _ZERO = '0';
+	
+	final int _ONE = '1';
 
 	String SHOW_PROFILE_PAGE = "show_profile_page";
 
@@ -1735,8 +1741,6 @@ public interface ParameterProperties {
 	String CLASSPAGE_REORDER_ITEM_SEQ = "classpage-reorder-item-sequence";
 
 	String CLASSPAGE_GET_MY_WORKSPACE = "classpage-get-my-workspace";
-
-	String S_COLLECTION_CREATE = "scollection-create";
 
 	String SCOLLECTION_UPDATE = "scollection-update";
 
@@ -2344,7 +2348,7 @@ public interface ParameterProperties {
 
 	String USER_REMOVE_USER_ROLE = "user.remove_user_role";
 
-	String _ERROR = "ERROR";
+	String _ERROR = "ERROR : {}";
 
 	String PARENT = "parent";
 
@@ -2876,6 +2880,14 @@ public interface ParameterProperties {
 	
 	String SETTINGS = "settings";
 	
+	String GL0099 = "GL0099";
 
+	String PROFANITY_TEXT = "profanity text";
+	
+	String GL0001 = "GL0001";
+	
+	String GL0004 = "GL0004";
+	
+	String GL0014 = "GL0014";
 }
 

@@ -25,7 +25,6 @@ package org.ednovo.gooru.domain.service.redis;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -34,10 +33,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.ednovo.gooru.application.util.CollectionUtil;
 import org.ednovo.gooru.application.util.TaxonomyUtil;
-import org.ednovo.gooru.core.api.model.Assessment;
-import org.ednovo.gooru.core.api.model.Learnguide;
 import org.ednovo.gooru.core.api.model.Organization;
-import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.application.util.BaseUtil;
 import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.core.constant.ConstantProperties;
@@ -45,7 +41,6 @@ import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.assessment.AssessmentRepository;
-import org.ednovo.gooru.infrastructure.persistence.hibernate.classplan.LearnguideRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,9 +63,6 @@ public class RedisServiceImpl implements RedisService, ParameterProperties, Cons
 
 	@Autowired
 	private SettingService settingService;
-
-	@Autowired
-	private LearnguideRepository learnguideRepository;
 
 	@Autowired
 	private AssessmentRepository assessmentRepository;
@@ -159,45 +151,6 @@ public class RedisServiceImpl implements RedisService, ParameterProperties, Cons
 
 			if (keys != null && keys.size() > 0) {
 				redisLongTemplate.delete(keys);
-			}
-		}
-	}
-
-	@Override
-	public void updateAllCount(String resourceType) {
-		if (resourceType != null && !resourceType.equalsIgnoreCase("")) {
-			Integer page = 1;
-			Integer recordsPerPage = 5000;
-			Map<String, String> filters = new HashMap<String, String>();
-			filters.put(PAGE_NUM, page + "");
-			filters.put(PAGE_SIZE, recordsPerPage + "");
-
-			if (resourceType.equalsIgnoreCase(COLLECTION)) {
-				List<Learnguide> collectionList = learnguideRepository.listLearnguides(filters);
-				if (collectionList != null && collectionList.size() > 0) {
-
-					logger.info("Collection Redis Updating " + collectionList.size() + " collections : page " + page + " of " + recordsPerPage);
-
-					for (Resource resource : collectionList) {
-						updateRedisCount(resource.getViews(), Constants.REDIS_VIEWS, resource.getGooruOid());
-					}
-				}
-
-			}
-
-			if (resourceType.equalsIgnoreCase(QUIZ)) {
-				List<Assessment> assessments = assessmentRepository.listAssessments(filters);
-
-				logger.info("Redis Updating" + assessments.size() + " Quizzes : page " + page + " of " + recordsPerPage);
-
-				if (assessments != null && assessments.size() > 0) {
-
-					for (Resource resource : assessments) {
-						updateRedisCount(resource.getViews(), Constants.REDIS_VIEWS, resource.getGooruOid());
-					}
-
-				}
-
 			}
 		}
 	}

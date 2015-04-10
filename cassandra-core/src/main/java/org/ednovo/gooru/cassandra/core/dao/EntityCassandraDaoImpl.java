@@ -1,3 +1,4 @@
+
 package org.ednovo.gooru.cassandra.core.dao;
 
 import java.util.Collection;
@@ -58,10 +59,8 @@ public class EntityCassandraDaoImpl<M extends IsEntityCassandraIndexable> extend
 		try {
 			Column<String> cfColumn = getFactory().getKeyspace().prepareQuery(getCF().getColumnFamily()).setConsistencyLevel(ConsistencyLevel.CL_QUORUM).getKey(key).getColumn(column).execute().getResult();
 			return cfColumn != null && cfColumn.hasValue() ? cfColumn.getStringValue() : null;
-		} catch (NotFoundException e) {
-			return null;
 		} catch (Exception e) {
-			throw new RuntimeException(e);
+			return null;
 		}
 	}
 
@@ -178,7 +177,7 @@ public class EntityCassandraDaoImpl<M extends IsEntityCassandraIndexable> extend
 				return 0;
 			}
 		} catch (ConnectionException e) {
-			throw new RuntimeException(e);
+			return 0;
 		}
 	}
 
@@ -278,10 +277,8 @@ public class EntityCassandraDaoImpl<M extends IsEntityCassandraIndexable> extend
 		try {
 			Column<String> cfColumn = getFactory().getKeyspace().prepareQuery(getCF().getColumnFamily()).getKey(rowKey).getColumn(column).execute().getResult();
 			return cfColumn != null && cfColumn.hasValue() ? cfColumn.getLongValue() : null;
-		} catch (NotFoundException e) {
-			return 0L;
 		} catch (Exception e) {
-			throw new RuntimeException(e);
+			return 0L;
 		}
 	}
 
@@ -290,10 +287,8 @@ public class EntityCassandraDaoImpl<M extends IsEntityCassandraIndexable> extend
 		try {
 			Column<String> cfColumn = getFactory().getKeyspace().prepareQuery(getCF().getColumnFamily()).getKey(rowKey).getColumn(column).execute().getResult();
 			return cfColumn != null && cfColumn.hasValue() ? cfColumn.getIntegerValue() : null;
-		} catch (NotFoundException e) {
-			return 0;
 		} catch (Exception e) {
-			throw new RuntimeException(e);
+			return 0;
 		}
 	}
 	
