@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
 import org.ednovo.gooru.core.api.model.GooruAuthenticationToken;
+import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.security.DoAuthorization;
 import org.ednovo.gooru.security.MultiReadHttpServletRequest;
 import org.restlet.data.MediaType;
@@ -37,7 +38,7 @@ public class AuthorizationFilter implements Filter {
 	private final String PIN_TOKEN = "pinToken";
 
 	private final String API_KEY = "apiKey";
-
+	
 	private final String OAUTH_AUTHORIZATION = "OAuth-Authorization";
 
 	@Override
@@ -66,14 +67,14 @@ public class AuthorizationFilter implements Filter {
 		try {
 			// check the authentication object in security
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-			String sessionToken = request.getParameter(SESSION_TOKEN);
+			String sessionToken = request.getHeader(Constants.GOORU_SESSION_TOKEN); 
 			if (sessionToken == null || sessionToken.trim().length() == 0) {
-				sessionToken = request.getHeader(SESSION_TOKEN);
+				sessionToken = request.getParameter(SESSION_TOKEN);
 			}
 			String pinToken = request.getParameter(PIN_TOKEN);
-			String apiKeyToken = request.getParameter(API_KEY);
+			String apiKeyToken = request.getHeader(Constants.GOORU_API_KEY);
 			if (apiKeyToken == null || apiKeyToken.trim().length() == 0) {
-				apiKeyToken = request.getHeader(API_KEY);
+				apiKeyToken = request.getParameter(API_KEY);
 			}
 			String oAuthToken = request.getHeader(OAUTH_AUTHORIZATION);
 

@@ -34,7 +34,7 @@ public class ContentEventLog implements ParameterProperties, ConstantProperties 
 	    } else if(isRemove) {
 	    	payLoadObject.put(MODE, DELETE);
 	    }
-			payLoadObject.put(DATA, JsonSerializer.serializeToJsonObject(contentTagAssoc, JSON));
+			payLoadObject.put(DATA, JsonSerializer.serializeToJson(contentTagAssoc));
 			SessionContextSupport.putLogParameter(PAY_LOAD_OBJECT, payLoadObject.toString());
 		} catch (Exception e) {
 			LOGGER.error(_ERROR , e);
