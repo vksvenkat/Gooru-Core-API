@@ -48,11 +48,11 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>2.3.2</version>
+				<version>3.3</version>
 				<configuration>
 					<debug>true</debug>
-					<source>1.6</source>
-					<target>1.6</target>
+					<source>1.7</source>
+					<target>1.7</target>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -333,6 +333,12 @@
 			<groupId>com.google.gdata</groupId>
 			<artifactId>core</artifactId>
 			<version>1.47.1</version>
+                        <exclusions>
+                                <exclusion>
+                                        <artifactId>servlet-api</artifactId>
+                                        <groupId>org.mortbay.jetty</groupId>
+                                </exclusion>
+                        </exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.json</groupId>
@@ -549,15 +555,6 @@
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
-			<groupId>spy</groupId>
-			<artifactId>spymemcached</artifactId>
-			<version>2.8.4</version>
-			<type>jar</type>
-			<scope>compile</scope>
-		</dependency>
-		<!-- <dependency> <groupId>org.jpedal</groupId> <artifactId>jpedal</artifactId> 
-			<version>4.62b14</version> </dependency> -->
-		<dependency>
 			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcprov-jdk16</artifactId>
 			<version>1.46</version>
@@ -578,30 +575,14 @@
 			<version>1.0.0</version>
 		</dependency>
 		<dependency>
-			<groupId>com.wordnik</groupId>
-			<artifactId>swagger-annotations_2.9.1</artifactId>
-			<version>1.0.2</version>
-		</dependency>
-		<dependency>
 			<groupId>nekohtml</groupId>
 			<artifactId>nekohtml</artifactId>
 			<version>0.7.6</version>
 		</dependency>
 		<dependency>
-			<groupId>com.wordnik</groupId>
-			<artifactId>swagger-core_2.9.1</artifactId>
-			<version>1.0.1</version>
-		</dependency>
-		<dependency>
 			<groupId>com.googlecode.flyway</groupId>
 			<artifactId>flyway-core</artifactId>
 			<version>2.2.1</version>
-		</dependency>
-		<dependency>
-			<groupId>com.wordnik</groupId>
-			<artifactId>swagger-jaxrs_2.9.1</artifactId>
-			<version>1.0.1</version>
-			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.rosaloves</groupId>
@@ -661,6 +642,12 @@
 			<groupId>com.sun.jersey.jersey-test-framework</groupId>
 			<artifactId>jersey-test-framework-core</artifactId>
 			<version>1.17</version>
+                        <exclusions>
+                                <exclusion>
+                                        <groupId>javax.servlet</groupId>
+                                        <artifactId>javax.servlet-api</artifactId>
+                                </exclusion>
+                        </exclusions>
 		</dependency>
 
 		<dependency>

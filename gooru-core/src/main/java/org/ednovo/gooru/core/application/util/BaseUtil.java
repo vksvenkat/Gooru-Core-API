@@ -1,3 +1,4 @@
+
 package org.ednovo.gooru.core.application.util;
 
 import java.io.BufferedReader;
@@ -240,5 +241,23 @@ public class BaseUtil {
 	    
 	   	 return hexString.toString();
     }
+    
+    public static String getDomainName(final String resourceUrl) {
+		String domainName = "";
+		if (resourceUrl != null && !resourceUrl.isEmpty()) {
+			if (resourceUrl.contains("http://")) {
+				domainName = resourceUrl.split("http://")[1];
+			} else if (resourceUrl.contains("https://")) {
+				domainName = resourceUrl.split("https://")[1];
+			}
+			if (domainName.contains("www.")) {
+				domainName = domainName.split("www.")[1];
+			}
+			if (domainName.contains("/")) {
+				domainName = domainName.split("/")[0];
+			}
+		}		
+		return (org.apache.commons.lang.StringUtils.substringAfterLast(domainName, ".").length()>3)? null:domainName;
+	}
    
 }
