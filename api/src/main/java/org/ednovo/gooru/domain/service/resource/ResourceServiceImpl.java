@@ -2040,10 +2040,16 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	public Map<String, Object> checkResourceUrlExists(String url, boolean checkShortenedUrl) throws Exception {
 		Resource resource = findResourceByUrl(url, Sharing.PUBLIC.getSharing(), null);
 		Map<String, Object> response = new HashMap<String, Object>();
-		if (checkShortenedUrl) {
-			resource.setShortenedUrlStatus(shortenedUrlResourceCheck(url));
+		if (resource != null) {
+			if (checkShortenedUrl) {
+				resource.setShortenedUrlStatus(shortenedUrlResourceCheck(url));
+			}
+			response.put(RESOURCE, resource);
+		} else if (checkShortenedUrl) { 
+				response.put(SHORTENED_URL_STATUS, shortenedUrlResourceCheck(url));
+			
 		}
-		response.put(RESOURCE, resource);
+		
 		return response;
 	}
 
