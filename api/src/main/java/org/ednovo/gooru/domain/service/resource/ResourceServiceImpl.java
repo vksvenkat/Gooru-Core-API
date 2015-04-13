@@ -2041,13 +2041,10 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		Resource resource = findResourceByUrl(url, Sharing.PUBLIC.getSharing(), null);
 		Map<String, Object> response = new HashMap<String, Object>();
 		if (resource != null) {
-			if (checkShortenedUrl) {
-				resource.setShortenedUrlStatus(shortenedUrlResourceCheck(url));
-			}
 			response.put(RESOURCE, resource);
-		} else if (checkShortenedUrl) { 
-				response.put(SHORTENED_URL_STATUS, shortenedUrlResourceCheck(url));
-			
+		}
+		if (checkShortenedUrl) { 
+			response.put(SHORTENED_URL_STATUS, shortenedUrlResourceCheck(url));
 		}
 		
 		return response;
