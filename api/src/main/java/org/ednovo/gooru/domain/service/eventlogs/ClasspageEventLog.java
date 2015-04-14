@@ -15,6 +15,8 @@ import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -22,6 +24,8 @@ public class ClasspageEventLog implements ParameterProperties, ConstantPropertie
  
 
 	private Object collectionItem;
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(ClasspageEventLog.class);
 
 	public void getEventLogs(Classpage classpage, User user, UserGroup userGroup, boolean isCreate, boolean isDelete) throws JSONException {
 		if(isCreate){
@@ -105,8 +109,9 @@ public class ClasspageEventLog implements ParameterProperties, ConstantPropertie
 		SessionContextSupport.putLogParameter(SESSION, session.toString());
 	}
 	
-	public void getEventLogs(String classId, String pathwayGooruOid,User user, boolean isCreate, boolean isUpdate) throws JSONException {
-	    if (isCreate) {
+	public void getEventLogs(String classId, String pathwayGooruOid, User user, boolean isCreate, boolean isUpdate, String data) throws Exception{
+	   try {
+		if (isCreate) {
 	            SessionContextSupport.putLogParameter(EVENT_NAME, ITEM_CREATE);
 	    } else if (isUpdate) {
 	    	    SessionContextSupport.putLogParameter(EVENT_NAME, ITEM_EDIT);
@@ -121,11 +126,17 @@ public class ClasspageEventLog implements ParameterProperties, ConstantPropertie
 	    } else if (isUpdate) {
 		   payLoadObject.put(MODE, EDIT);	   
 	    }
+	    if (data != null) {
+			payLoadObject.put(_ITEM_DATA, data);
+	    }
 	    payLoadObject.put(ITEM_TYPE,CLASSPAGE_PATHWAY);
 	    SessionContextSupport.putLogParameter(PAY_LOAD_OBJECT, payLoadObject.toString());
 	    JSONObject session = SessionContextSupport.getLog().get(SESSION) != null ? new JSONObject(SessionContextSupport.getLog().get(SESSION).toString()) : new JSONObject();
 	    session.put(ORGANIZATION_UID, user != null && user.getOrganization() != null ? user.getOrganization().getPartyUid() : null);
 	    SessionContextSupport.putLogParameter(SESSION, session.toString());
+	} catch (Exception e) {
+		LOGGER.error(_ERROR, e);
+	}
 	}
 	
 	public void getEventLogs(CollectionItem collectionItem, String pathwayId,User user, CollectionItem sourceItem, String collectionType) throws JSONException {

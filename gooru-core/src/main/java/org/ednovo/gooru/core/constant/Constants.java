@@ -212,5 +212,8 @@ public class Constants implements ParameterProperties {
 	public  static  final String APPLICATION_KEY = "applicationKey";
 	
 	public static final String SESSION = "session";
-
+	
+	public static final String GOORU_API_KEY = "Gooru-ApiKey";
+	
+	public static final String GOORU_SESSION_TOKEN = "Gooru-Session-Token";
 }
