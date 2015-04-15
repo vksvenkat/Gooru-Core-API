@@ -77,14 +77,14 @@ public abstract class HibernateDaoSupport extends UserGroupSupport {
 	}
 
 	public void deleteAll(Collection<?> entities) {
-		Iterator iterator = entities.iterator();
+		Iterator<?> iterator = entities.iterator();
 		while (iterator.hasNext()) {
 			getSession().delete(iterator.next());
 		}
 	}
 
 	public void saveOrUpdateAll(Collection<?> entities) {
-		Iterator iterator = entities.iterator();
+		Iterator<?> iterator = entities.iterator();
 		while (iterator.hasNext()) {
 			saveOrUpdate(iterator.next());
 		}
