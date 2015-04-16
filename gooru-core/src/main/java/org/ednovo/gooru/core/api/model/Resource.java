@@ -196,7 +196,6 @@ public class Resource extends Content implements Serializable {
 	private String clusterUid;
 	private Integer isRepresentative;
 	private List<String> libraryNames;
-	private boolean shortenedUrlStatus;
 	
 	public Resource() {
 		recordSource = RecordSource.DEFAULT.getRecordSource();
@@ -896,13 +895,5 @@ public class Resource extends Content implements Serializable {
 
 	public void setThumbnails(Thumbnail thumbnails) {
 		this.thumbnails = thumbnails;
-	}
-
-	public boolean isShortenedUrlStatus() {
-		return shortenedUrlStatus;
-	}
-
-	public void setShortenedUrlStatus(boolean shortenedUrlStatus) {
-		this.shortenedUrlStatus = shortenedUrlStatus;
 	}
 }
