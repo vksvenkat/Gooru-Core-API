@@ -84,9 +84,12 @@ public class ConfigSettingRepositoryHibernate extends BaseRepositoryHibernate im
 	}
 
 	@SuppressWarnings("unchecked")
-	public String getUnCachedConfigSetting(String key, int securityLevel, String organizationUid) {
-		String sql = "SELECT * FROM config_setting WHERE name = '" + key + "' AND security_level <= " + securityLevel + " AND profile_id = '"+getConfigSettingProfileName()+"' AND " + generateOrgAuthSqlQuery();
+	public String getUnCachedConfigSetting(String name, int securityLevel, String organizationUid) {
+		String sql = "SELECT value FROM config_setting WHERE name = :name AND security_level <= :securityLevel AND profile_id = :profileId AND " + generateOrgAuthSqlQuery();
 		Query query = getSession().createSQLQuery(sql).addScalar("value", StandardBasicTypes.STRING);
+		query.setParameter("name", name);
+		query.setParameter("securityLevel", securityLevel);
+		query.setParameter("profileId", getConfigSettingProfileName());
 		query.setParameter(ORGANIZATION_UIDS, organizationUid);
 		List<String> results = query.list();
 		String value = null;

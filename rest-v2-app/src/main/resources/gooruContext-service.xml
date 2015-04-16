@@ -46,7 +46,6 @@
 			<value>${gooru.services.endpoint}</value>
 		</constructor-arg>
 	</bean>
-	<bean id="kafkaService" class="org.ednovo.kafka.producer.KafkaEventHandler" />
 	<jee:jndi-lookup id="jndiDataSource" jndi-name="java:comp/env/jdbc/gooruapi" />
 	<jee:jndi-lookup id="jndiDataSourceReadOnly" jndi-name="java:comp/env/jdbc/gooruapiReadOnly" />
 
