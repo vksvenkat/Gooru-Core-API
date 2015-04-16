@@ -37,6 +37,7 @@ import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserCredential;
 import org.ednovo.gooru.core.api.model.UserGroupSupport;
 import org.ednovo.gooru.core.constant.Constants;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
@@ -77,14 +78,14 @@ public abstract class HibernateDaoSupport extends UserGroupSupport {
 	}
 
 	public void deleteAll(Collection<?> entities) {
-		Iterator iterator = entities.iterator();
+		Iterator<?> iterator = entities.iterator();
 		while (iterator.hasNext()) {
 			getSession().delete(iterator.next());
 		}
 	}
 
 	public void saveOrUpdateAll(Collection<?> entities) {
-		Iterator iterator = entities.iterator();
+		Iterator<?> iterator = entities.iterator();
 		while (iterator.hasNext()) {
 			saveOrUpdate(iterator.next());
 		}
@@ -111,7 +112,7 @@ public abstract class HibernateDaoSupport extends UserGroupSupport {
 	}
 
 	public <T> T get(String hql) {
-		List<T> datas = getSession().createQuery(hql).list();
+		List<T> datas = get(getSession().createQuery(hql));
 		return datas.size() > 0 ? datas.get(0) : null;
 	}
 
@@ -159,6 +160,11 @@ public abstract class HibernateDaoSupport extends UserGroupSupport {
 		}
 
 		return null;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public <T> List<T> get(Query query) { 
+	    return query.list();
 	}
 
 	public abstract SessionFactory getSessionFactory();

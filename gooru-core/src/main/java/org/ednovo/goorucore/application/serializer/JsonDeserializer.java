@@ -17,10 +17,6 @@ import flexjson.JSONDeserializer;
  */
 public class JsonDeserializer extends JsonProcessor {
 
-	public JsonDeserializer(String message) {
-		// TODO Auto-generated constructor stub
-	}
-
 	public static <T> T deserialize(String json, Class<T> clazz) {
 		try {
 			return new JSONDeserializer<T>().use(null, clazz).deserialize(json);

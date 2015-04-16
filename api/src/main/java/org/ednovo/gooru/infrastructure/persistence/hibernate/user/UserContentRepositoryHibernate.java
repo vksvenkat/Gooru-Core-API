@@ -28,20 +28,12 @@ import java.util.List;
 import org.ednovo.gooru.core.api.model.UserContentAssoc;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserContentRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 @Repository("userContentRepository")
 public class UserContentRepositoryHibernate extends BaseRepositoryHibernate implements UserContentRepository {
 
-	private static final String DELETE_CONTENT = "delete uca from user_content_assoc  uca  inner join content c on (c.content_id=uca.content_id) where c.content_id = '%s' and c.organization_uid in (%s)";
-	private JdbcTemplate jdbcTemplate;
-
-	@Autowired
-	public UserContentRepositoryHibernate(JdbcTemplate jdbcTemplate) {
-		this.jdbcTemplate = jdbcTemplate;
-	}
+	
 
 	@Override
 	public List<UserContentAssoc> listContentUserRelations(String contentGooruId) {
