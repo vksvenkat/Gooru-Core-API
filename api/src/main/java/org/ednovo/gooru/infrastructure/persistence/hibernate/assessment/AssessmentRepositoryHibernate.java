@@ -287,7 +287,7 @@ public class AssessmentRepositoryHibernate extends BaseRepositoryHibernate imple
 		String sql = "SELECT c.gooru_oid FROM assessment_segment a INNER JOIN assessment_segment_question_assoc ass ON ( ass.segment_id = a.segment_id ) INNER JOIN content c ON (c.content_id = a.assessment_id ) INNER JOIN content ct ON ( ass.question_id = ct.content_id ) WHERE ct.gooru_oid = '"
 				+ questionGooruOid + "'";
 		Query query = session.createSQLQuery(sql);
-		return query.list();
+		return get(query);
 	}
 
 	@Override

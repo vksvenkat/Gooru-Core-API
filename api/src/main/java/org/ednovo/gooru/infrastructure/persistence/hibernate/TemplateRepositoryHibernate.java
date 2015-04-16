@@ -46,6 +46,6 @@ public class TemplateRepositoryHibernate extends BaseRepositoryHibernate impleme
 		String hql = " FROM  Template template WHERE " + generateOrgAuthQuery("template.");
 		Query query = getSessionReadOnly().createQuery(hql);
 		addOrgAuthParameters(query);
-		return query.list();
+		return get(query);
 	}
 }

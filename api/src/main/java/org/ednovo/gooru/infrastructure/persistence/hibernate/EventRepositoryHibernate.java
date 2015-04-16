@@ -59,7 +59,7 @@ public class EventRepositoryHibernate extends BaseRepositoryHibernate implements
 		Query query = getSessionReadOnly().createQuery(GET_EVENTS);
 		query.setFirstResult(offset);
 		query.setMaxResults(limit);
-		return query.list();
+		return get(query);
 	}
 
 	@Override
@@ -76,7 +76,7 @@ public class EventRepositoryHibernate extends BaseRepositoryHibernate implements
 		Query query = getSessionReadOnly().createQuery(GET_TEMPLATE_BY_EVENT);
 		query.setParameter("eventUid", eventUid);
 		addOrgAuthParameters(query);
-		return query.list();
+		return get(query);
 	}
 
 	@Override
