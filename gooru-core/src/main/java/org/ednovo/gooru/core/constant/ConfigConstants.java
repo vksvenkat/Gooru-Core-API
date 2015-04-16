@@ -190,6 +190,8 @@ public interface ConfigConstants {
     
     String OAUTH_CALLBACK_URI = "google.oauth.callback";
     
+    String INSIGHTS_KAFKA_PROPERTIES = "insights.kafka.properties";
+    
     String SERVICE_DEFAULT_VERSION = "service.default.version";
     
     String USER_MAIL_DISABLE_NOTIFICATION = "gooru.user.disabled.mail.notification";

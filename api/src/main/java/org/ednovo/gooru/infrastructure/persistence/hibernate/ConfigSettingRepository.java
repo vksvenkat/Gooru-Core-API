@@ -39,4 +39,7 @@ public interface ConfigSettingRepository extends CassandraSettingService {
 	void updateConfigSetting(String orgainzationUid, String key, String value);
 	
 	String getConfigSetting(String organizationName);
+	
+	String getUnCachedConfigSetting(String key, int securityLevel, String organizationUid);
+		
 }

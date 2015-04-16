@@ -83,6 +83,19 @@ public class ConfigSettingRepositoryHibernate extends BaseRepositoryHibernate im
 		return value;
 	}
 
+	@SuppressWarnings("unchecked")
+	public String getUnCachedConfigSetting(String key, int securityLevel, String organizationUid) {
+		String sql = "SELECT * FROM config_setting WHERE name = '" + key + "' AND security_level <= " + securityLevel + " AND profile_id = '"+getConfigSettingProfileName()+"' AND " + generateOrgAuthSqlQuery();
+		Query query = getSession().createSQLQuery(sql).addScalar("value", StandardBasicTypes.STRING);
+		query.setParameter(ORGANIZATION_UIDS, organizationUid);
+		List<String> results = query.list();
+		String value = null;
+		if (results != null && results.size() > 0) {
+			value = results.get(0);
+		}
+		return value;
+	}
+	
 	public String getConfigSettingProfileName() {
 		return configSettingProfileName != null && !configSettingProfileName.startsWith(DEFAULT_CHECK)? configSettingProfileName : DEFAULT_PROFILE_NAME;
 	}
@@ -103,8 +116,8 @@ public class ConfigSettingRepositoryHibernate extends BaseRepositoryHibernate im
 
 	@Override
 	public void updateConfigSetting(String orgainzationUid, String key, String value) {
-		String sql = "UPDATE config_setting SET value='"+value+"' WHERE key='"+key+"' AND organization_uid='"+orgainzationUid +"'";
-		getSession().createSQLQuery(sql);
+		String sql = "UPDATE config_setting SET value='"+value+"' WHERE name='"+key+"' AND organization_uid='"+orgainzationUid +"' AND profile_id = '"+getConfigSettingProfileName()+"'";
+		getSession().createSQLQuery(sql).executeUpdate();
 	}
 
 	@SuppressWarnings("unchecked")

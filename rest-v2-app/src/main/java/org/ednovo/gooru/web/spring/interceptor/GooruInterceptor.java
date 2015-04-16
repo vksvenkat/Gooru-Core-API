@@ -32,12 +32,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.ednovo.gooru.application.util.ConfigProperties;
+import org.ednovo.gooru.application.util.KafkaHandlerUtil;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.exception.BadRequestException;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
-import org.ednovo.kafka.producer.KafkaEventHandler;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -65,9 +65,9 @@ public class GooruInterceptor extends HandlerInterceptorAdapter {
 	private static final String API_KEY = "apiKey";
 
 	private static final String EVENT_NAME = "eventName";
-
+	
 	@Autowired
-	private KafkaEventHandler kafkaService;
+	private KafkaHandlerUtil kafkaService;
 
 	@Autowired
 	private ConfigProperties configProperties;
@@ -76,9 +76,8 @@ public class GooruInterceptor extends HandlerInterceptorAdapter {
 	protected IndexProcessor indexProcessor;
 
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-
+		
 		Enumeration e = gooruConstants.propertyNames();
-
 		while (e.hasMoreElements()) {
 			String key = (String) e.nextElement();
 			request.setAttribute(key, gooruConstants.getProperty(key));

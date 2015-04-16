@@ -26,6 +26,7 @@ package org.ednovo.gooru.controllers.v2.api;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.ednovo.gooru.application.util.KafkaHandlerUtil;
 import org.ednovo.gooru.controllers.BaseController;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.constant.ConstantProperties;
@@ -47,17 +48,30 @@ public class ClearCacheRestV2Controller extends BaseController implements Consta
 
 	@Autowired
 	private RedisService redisService;
+	
+	@Autowired
+	private KafkaHandlerUtil kafkaService;
     
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CACHE_CLEAR })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/{entity}", method = { RequestMethod.DELETE })
 	public void clearCache(@PathVariable(value = ENTITY) String entity, @RequestParam(value = KEY, required = false, defaultValue = "*library-*") String key, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		this.getRedisService().bulkKeyDelete(key);
-		SessionContextSupport.putLogParameter(EVENT_NAME, "clear-cache-" + entity + "-key-" + key);
+	}
+	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CACHE_CLEAR })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(value = "/kafka", method = { RequestMethod.DELETE })
+	public void clearKafkaCache(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		getKafkaService().clearInsightsKafkaConfig();
 	}
 	
 	public RedisService getRedisService() {
 		return redisService;
+	}
+
+	public KafkaHandlerUtil getKafkaService() {
+		return kafkaService;
 	}
 
 }
