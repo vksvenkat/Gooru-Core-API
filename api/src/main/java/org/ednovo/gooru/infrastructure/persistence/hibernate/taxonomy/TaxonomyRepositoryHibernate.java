@@ -722,11 +722,9 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 	}
 
 	@Override
-	@Cacheable("gooruCache")
 	public Code findCodeByCodeId(Integer codeId) {
-		Integer activeFlag = 1;
 		@SuppressWarnings("unchecked")
-		List<Code> cc = getSession().createQuery("from Code c where c.codeId = ? and c.activeFlag = ?  and " + generateOrgAuthQueryWithData("c.")).setInteger(0, codeId).setInteger(1, activeFlag).list();
+		List<Code> cc = getSession().createQuery("from Code c where c.codeId = ? and c.activeFlag = ?  and " + generateOrgAuthQueryWithData("c.")).setInteger(0, codeId).setInteger(1, 1).list();
 		return cc.size() == 0 ? null : cc.get(0);
 	}
 
