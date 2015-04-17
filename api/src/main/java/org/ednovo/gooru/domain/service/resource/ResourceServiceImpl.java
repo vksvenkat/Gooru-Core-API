@@ -2040,9 +2040,19 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		
 		return response;
 	}
+	
+
+	@Override
+	public List<User> getUserListByResourceId(String resourceId) {
+		if (resourceId== null) {
+			throw new BadRequestException(generateErrorMessage("GL0061", "resourceId"), "GL0061");
+		}
+		return this.getResourceRepository().findByResource(resourceId);
+	}
 
 	public CollectionRepository getCollectionRepository() {
 		return collectionRepository;
 	}
+
 	
 }
