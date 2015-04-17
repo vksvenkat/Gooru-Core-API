@@ -174,7 +174,7 @@
 		<dependency>
 			<groupId>org.ednovo.data.kafka.producer</groupId>
 			<artifactId>kafka-producer</artifactId>
-			<version>1.9</version>
+			<version>2.0</version>
 		</dependency>
 		<!-- Event Logger API dependency end -->
 		<!-- <dependency> <groupId>${project.parent.groupId}</groupId> <artifactId>gooru-search-core</artifactId> 
