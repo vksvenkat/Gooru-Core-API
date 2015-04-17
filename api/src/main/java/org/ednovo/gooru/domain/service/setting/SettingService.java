@@ -143,7 +143,7 @@ public class SettingService {
 		resetConfigSettings();
 	}
 	
-	public String getUnCachedConfigSetting(String key, int securityLevel, String organizationUid) {
-		return configSettingRepository.getUnCachedConfigSetting(key, securityLevel, organizationUid);
+	public String getConfigSetting(int securityLevel, String key, String organizationUid) {
+		return configSettingRepository.getConfigSetting(securityLevel, key, organizationUid);
 	}
 }

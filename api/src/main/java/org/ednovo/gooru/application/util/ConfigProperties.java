@@ -195,7 +195,7 @@ public final class ConfigProperties implements Serializable, ConfigConstants {
 	
 	private void initInsightsKafkaProperties(){
 		
-		String insightsKafkaPropertiesData = settingService.getUnCachedConfigSetting(ConfigConstants.INSIGHTS_KAFKA_PROPERTIES, 0, TaxonomyUtil.GOORU_ORG_UID);
+		String insightsKafkaPropertiesData = settingService.getConfigSetting(0, ConfigConstants.INSIGHTS_KAFKA_PROPERTIES, TaxonomyUtil.GOORU_ORG_UID);
 		try {
 			insightsKafkaProperties = JsonDeserializer.deserialize(insightsKafkaPropertiesData, new TypeReference<Map<String, Map<String,String>>>() {
 			});

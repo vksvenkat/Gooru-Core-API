@@ -28,6 +28,7 @@ import java.util.Map;
 import org.ednovo.gooru.cassandra.core.service.CassandraSettingService;
 
 public interface ConfigSettingRepository extends CassandraSettingService {
+	
 	Map<String, String> getConfigSettings(String organizationUid);
 
 	String getConfigSetting(String key, String organizationUid);
@@ -40,6 +41,6 @@ public interface ConfigSettingRepository extends CassandraSettingService {
 	
 	String getConfigSetting(String organizationName);
 	
-	String getUnCachedConfigSetting(String key, int securityLevel, String organizationUid);
+	String getConfigSetting(int securityLevel, String name,  String organizationUid);
 		
 }

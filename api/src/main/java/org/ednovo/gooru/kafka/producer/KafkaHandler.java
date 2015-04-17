@@ -1,8 +1,8 @@
 /////////////////////////////////////////////////////////////
 // KafkaHandler.java
 // gooru-api
-// Created by Gooru on 2014
-// Copyright (c) 2014 Gooru. All rights reserved.
+// Created by Gooru on 2015
+// Copyright (c) 2015 Gooru. All rights reserved.
 // http://www.goorulearning.org/
 // Permission is hereby granted, free of charge, to any person obtaining
 // a copy of this software and associated documentation files (the
@@ -61,7 +61,7 @@ public class KafkaHandler {
 	private static Map<String,String> topicConfigs;
 
 	@PostConstruct 
-	private void initKafkaConfigs(){
+	private void init(){
 	
 		try{
 			topicConfigs = new HashMap<String,String>();
@@ -76,10 +76,10 @@ public class KafkaHandler {
 		}
 	}
 	
-	public void clearInsightsKafkaConfig(){
+	public void clearCache(){
 		
 		getConfigProperties().clearInsightsKafkaProperties();
-		initKafkaConfigs();
+		init();
 	}
 	
 	public void sendEventLog(String data){
@@ -87,14 +87,14 @@ public class KafkaHandler {
 	}
 	
 	public void sendEventLog(String eventName, String data){
-		getKafkaService().sendEventLog(getKafkaTopic(eventName, DEFAULT_TOPIC),data);
+		getKafkaService().sendEventLog(getTopic(eventName, DEFAULT_TOPIC),data);
 	}
 	
-	private String getKafkaTopic(String eventName,String defaultTopic){
+	private String getTopic(String eventName,String topic){
 				if(topicConfigs.containsKey(eventName)){
-					defaultTopic = topicConfigs.get(eventName);
+					topic = topicConfigs.get(eventName);
 			}
-		return defaultTopic;
+		return topic;
 	}
 
 	public KafkaEventHandler getKafkaService() {

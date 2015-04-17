@@ -1,8 +1,8 @@
 /////////////////////////////////////////////////////////////
 //ClearCacheRestV2Controller.java
 //rest-v2-app
-// Created by Gooru on 2014
-// Copyright (c) 2014 Gooru. All rights reserved.
+// Created by Gooru on 2015
+// Copyright (c) 2015 Gooru. All rights reserved.
 // http://www.goorulearning.org/
 // Permission is hereby granted, free of charge, to any person      obtaining
 // a copy of this software and associated documentation files (the
@@ -62,7 +62,7 @@ public class ClearCacheRestV2Controller extends BaseController implements Consta
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/kafka", method = { RequestMethod.DELETE })
 	public void clearKafkaCache(HttpServletRequest request, HttpServletResponse response) throws Exception {
-		getKafkaService().clearInsightsKafkaConfig();
+		getKafkaService().clearCache();
 	}
 	
 	public RedisService getRedisService() {
