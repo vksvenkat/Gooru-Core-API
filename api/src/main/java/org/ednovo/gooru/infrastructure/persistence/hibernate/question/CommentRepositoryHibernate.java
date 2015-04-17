@@ -78,7 +78,7 @@ public class CommentRepositoryHibernate extends BaseRepositoryHibernate implemen
 		Query query = session.createQuery(hql);
 		addOrgAuthParameters(query);
 		query.setFirstResult(offset).setMaxResults(limit);
-		return get(query);
+		return list(query);
 	}
 	
 	@Override

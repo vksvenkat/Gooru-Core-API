@@ -53,7 +53,7 @@ public class JobRepositoryHibernate extends BaseRepositoryHibernate implements J
 
 		Session session = getSession();
 		Query query = session.createSQLQuery(sql).addScalar("average_time", StandardBasicTypes.INTEGER);
-		List<Integer> results = get(query);
+		List<Integer> results = list(query);
 
 		return (results.size() > 0) ? results.get(0) : 0;
 	}

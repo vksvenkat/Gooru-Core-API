@@ -109,7 +109,7 @@ public class SearchRepositoryHibernate extends BaseRepositoryHibernate implement
 		SQLQuery query = getSession().createSQLQuery(sql);
 		List<SearchQuery> results = new ArrayList<SearchQuery>();
 		try {
-			List<Object[]> rawResults = query.list();
+			List<Object[]> rawResults = list(query);
 			for(Object[] row : rawResults) {
 			    SearchQuery searchQuery = new SearchQuery();
 			    //searchQuery.setResourceType((String)row[0]);

@@ -78,7 +78,7 @@ public class MenuRepositoryHibernate extends BaseRepositoryHibernate implements 
 		if (menuUid != null) {
 			query.setParameter("parentMenuUid", menuUid);
 		}
-		return get(query);
+		return list(query);
 	}
 
 	@Override
@@ -109,7 +109,7 @@ public class MenuRepositoryHibernate extends BaseRepositoryHibernate implements 
 		if (sequence != null) {
 			query.setParameter("sequence", sequence);
 		}
-		return get(query);
+		return list(query);
 	}
 	
 	@Override

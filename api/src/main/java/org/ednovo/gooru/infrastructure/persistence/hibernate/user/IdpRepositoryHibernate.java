@@ -46,7 +46,7 @@ public class IdpRepositoryHibernate extends BaseRepositoryHibernate implements I
 	public OrganizationDomainAssoc findByDomain(Idp domain) {
 		String hql = " FROM OrganizationDomainAssoc domainOrgAssoc where domainOrgAssoc.domain.idpId ="+domain.getIdpId();
 		Query query = getSession().createQuery(hql);
-		List<OrganizationDomainAssoc> domainOrgAssocList = get(query);
+		List<OrganizationDomainAssoc> domainOrgAssocList = list(query);
 		return domainOrgAssocList.size() == 0 ? null : domainOrgAssocList.get(0);
 	}
 	

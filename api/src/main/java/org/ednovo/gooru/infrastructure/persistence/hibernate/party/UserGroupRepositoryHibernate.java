@@ -72,7 +72,7 @@ public class UserGroupRepositoryHibernate extends BaseRepositoryHibernate implem
 		String hql = "FROM PartyPermission pp WHERE pp.permittedParty.partyUid = :userPartyUid";
 		Query query = getSession().createQuery(hql);
 		query.setParameter("userPartyUid", userPartyUid);
-		return get(query);
+		return list(query);
 	}
 
 	@Override
@@ -80,7 +80,7 @@ public class UserGroupRepositoryHibernate extends BaseRepositoryHibernate implem
 		String hql = "FROM PartyPermission pp WHERE pp.party.partyUid IN (:organizationIds)";
 		Query query = getSession().createQuery(hql);
 		query.setParameterList("organizationIds", organizationIds);
-		return (List<PartyPermission>) query.list();
+		return list(query);
 	}
 	
 	@Override
@@ -104,7 +104,7 @@ public class UserGroupRepositoryHibernate extends BaseRepositoryHibernate implem
 				+ generateOrgAuthQuery("userGroupAssociation.user."));
 		query.setParameter("groupUid", groupUid);
 		addOrgAuthParameters(query);
-		return get(query);
+		return list(query);
 	}
 
 	@Override
@@ -112,7 +112,7 @@ public class UserGroupRepositoryHibernate extends BaseRepositoryHibernate implem
 		String hql= "select distinct(external_id)  as mailId from classpage c inner join user_group u on u.user_group_code = c.classpage_code inner join content cc on cc.content_id = classpage_content_id  inner join  user_group_association ug on ug.user_group_uid = u.user_group_uid inner join identity i on i.user_uid = ug.gooru_uid  where cc.user_uid=:gooruUid  and external_id like '" + queryText.replace("'", "\\")+ "%'";
 	    Query query = getSession().createSQLQuery(hql).addScalar("mailId",StandardBasicTypes.STRING);
 		query.setParameter("gooruUid", gooruUid);
-		return get(query);
+		return list(query);
 	}
 	
 	@Override
@@ -131,7 +131,7 @@ public class UserGroupRepositoryHibernate extends BaseRepositoryHibernate implem
 		Query query = getSession().createSQLQuery(sql);
 			query.setFirstResult(offset);
 			query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
-		return get(query);
+		return list(query);
 	}
 	
 	@Override
@@ -162,7 +162,7 @@ public class UserGroupRepositoryHibernate extends BaseRepositoryHibernate implem
 		Query query = getSession().createSQLQuery(sql);
 			query.setFirstResult(offset);
 			query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
-		return get(query);
+		return list(query);
 	}
 	
 	@Override

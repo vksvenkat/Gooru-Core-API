@@ -974,7 +974,7 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 	public Integer getSubscriptionCountForGooruOid(String contentGooruOid) {
 		Query query = getSession().createSQLQuery(COUNT_SUBSCRIPTION_FOR_GOORUOID).addScalar("totalCount", StandardBasicTypes.INTEGER).setParameter("gooruOid", contentGooruOid);
 		addOrgAuthParameters(query);
-		List<Integer> subscriptionCounts = get(query);
+		List<Integer> subscriptionCounts = list(query);
 
 		if ((subscriptionCounts != null) && (subscriptionCounts.size() > 0)) {
 			return subscriptionCounts.get(0);

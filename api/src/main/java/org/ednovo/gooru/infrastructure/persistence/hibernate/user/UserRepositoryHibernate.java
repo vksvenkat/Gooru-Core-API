@@ -118,7 +118,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 	public List<User> findByRole(UserRole role) {
 		String hql = "from User user where user.userRole.roleId = " + role.getRoleId() + " AND " + generateOrgAuthQueryWithData("user.") + " AND " + generateUserIsDeleted("user.");
 		Query query =  getSession().createQuery(hql);
-		return get(query);
+		return list(query);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -374,7 +374,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 	public List<UserRoleAssoc> findUserRoleSet(User user) {
 		String hql = "From UserRoleAssoc userRoleAssoc  WHERE userRoleAssoc.user.partyUid = " + user.getGooruUId() + "  AND " + generateOrgAuthQueryWithData("userRoleAssoc.user.") + " AND " + generateUserIsDeleted("userRoleAssoc.user.");
 		Query query = getSession().createQuery(hql);
-		return get(query);
+		return list(query);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -809,7 +809,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 	public Integer getChildAccountCount(String userUId) {
 		String sql = "select count(1) from user where parent_uid='" + userUId + "' ";
 		Query query = getSession().createSQLQuery(sql);
-		List<BigInteger> results = get(query);
+		List<BigInteger> results = list(query);
 		if (results != null && results.get(0) != null) {
 			return (results.get(0).intValue());
 		}
@@ -842,7 +842,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 		}
 		query.setFirstResult(offset);
 		query.setMaxResults(limit == null ? LIMIT : (limit > MAX_LIMIT ? MAX_LIMIT : limit));
-		return get(query);
+		return list(query);
 	}
 
 	@Override
@@ -869,7 +869,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 	public List<UserRoleAssoc> findUserRoleSetByUserUid(String userUid) {
 		String hql = "From UserRoleAssoc userRoleAssoc  WHERE userRoleAssoc.user.partyUid =' " + userUid + "'  AND " + generateOrgAuthQueryWithData("userRoleAssoc.user.") + " AND " + generateUserIsDeleted("userRoleAssoc.user.");
 		Query query = getSession().createQuery(hql);
-		return get(query);
+		return list(query);
 	}
 	
 	@SuppressWarnings("unchecked")

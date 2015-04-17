@@ -86,7 +86,7 @@ public class CustomTableRepositopryHibernate extends BaseRepositoryHibernate imp
 	public List<CustomTableValue> getCustomValues(String type) {
 		Query query = getSessionReadOnly().createQuery(GET_CUSTOM_TABLE_VALUES);
 		query.setParameter("type", type);
-		return get(query);
+		return list(query);
 	}
 
 }

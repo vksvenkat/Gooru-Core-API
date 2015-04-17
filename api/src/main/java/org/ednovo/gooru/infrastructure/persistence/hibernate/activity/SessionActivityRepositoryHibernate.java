@@ -76,7 +76,7 @@ public class SessionActivityRepositoryHibernate extends BaseRepositoryHibernate 
 		query.setParameter("contentUid", contentUid);
 		query.setParameter("status", status);
 		addOrgAuthParameters(query);
-		return get(query);
+		return list(query);
 	}
 
 	@Override
@@ -110,7 +110,7 @@ public class SessionActivityRepositoryHibernate extends BaseRepositoryHibernate 
 		query.setParameter("contentUid", contentUid);
 		query.setParameter("status", status);
 		addOrgAuthParameters(query);
-		return get(query);
+		return list(query);
 	}
 
 	@Override

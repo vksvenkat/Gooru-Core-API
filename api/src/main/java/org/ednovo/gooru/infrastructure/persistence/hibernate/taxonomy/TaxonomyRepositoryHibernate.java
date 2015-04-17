@@ -936,7 +936,7 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 		String hql = "SELECT cc.code from  ContentClassification cc where cc.content.contentId=:contentId";
 		Query query = getSession().createQuery(hql);
 		query.setParameter("contentId", contentId);
-		return get(query);
+		return list(query);
 	}
 
 	@SuppressWarnings("unchecked")

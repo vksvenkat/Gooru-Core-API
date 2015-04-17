@@ -50,7 +50,7 @@ public class ResponseFieldSetRepositoryHibernate extends BaseRepositoryHibernate
 		query.setParameter("fieldSetId", fieldSetId);
 		query.setParameter("gooruUId", gooruUId);
 		addOrgAuthParameters(query);
-		List<ResponseFieldSet> responseFields = get(query);
+		List<ResponseFieldSet> responseFields = list(query);
 		return responseFields.size() > 0 ? responseFields.get(0) : null;
 		
 	}
@@ -75,7 +75,7 @@ public class ResponseFieldSetRepositoryHibernate extends BaseRepositoryHibernate
 		
 		String hql = "FROM ResponseFieldSet responseFieldSet WHERE  " + generateOrgAuthQueryWithData("responseFieldSet.");
 		Query query = getSession().createQuery(hql);
-		List<ResponseFieldSet> responseFields = get(query);
+		List<ResponseFieldSet> responseFields = list(query);
 				return responseFields.size() == 0 ? null : responseFields;
 	}
 

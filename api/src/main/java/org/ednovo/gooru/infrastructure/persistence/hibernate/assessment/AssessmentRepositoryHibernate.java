@@ -182,7 +182,7 @@ public class AssessmentRepositoryHibernate extends BaseRepositoryHibernate imple
 		String sql = "SELECT COUNT(1) FROM assessment_question question INNER JOIN assessment_segment segment " + "INNER JOIN assessment_segment_question_assoc segmentQuestion ON ( segmentQuestion.segment_id = segment.segment_id AND segmentQuestion.question_id = question.question_id ) "
 				+ "INNER JOIN assessment assessment ON assessment.assessment_id = segment.assessment_id " + "INNER JOIN content content ON content.content_id=question.question_id " + "WHERE assessment.assessment_id = '" + assessmentId + "' AND " + generateAuthSqlQueryWithData("content.");
 		Session session = getSession();
-		List<BigInteger> results = session.createSQLQuery(sql).list();
+		List<BigInteger> results = list(session.createSQLQuery(sql));
 		return (results != null) ? (results.get(0)).intValue() : 0;
 	}
 
@@ -215,7 +215,7 @@ public class AssessmentRepositoryHibernate extends BaseRepositoryHibernate imple
 		Query query = getSession().createSQLQuery(sql).addScalar("questionText", StandardBasicTypes.STRING).addScalar("concept", StandardBasicTypes.STRING).addScalar("status", StandardBasicTypes.STRING).addScalar("questionId", StandardBasicTypes.INTEGER)
 				.addScalar("explanation", StandardBasicTypes.STRING).addScalar("questionType", StandardBasicTypes.INTEGER).addScalar("folder", StandardBasicTypes.STRING).addScalar("assetURI", StandardBasicTypes.STRING).addScalar("gooruOid", StandardBasicTypes.STRING)
 				.addScalar("attemptItemId", StandardBasicTypes.INTEGER).addScalar("correctTrySequence", StandardBasicTypes.INTEGER);
-		List<Object[]> result = query.list();
+		List<Object[]> result = arrayList(query);
 		return result;
 	}
 
@@ -256,7 +256,7 @@ public class AssessmentRepositoryHibernate extends BaseRepositoryHibernate imple
 
 		String sql = "SELECT a.name FROM assessment a INNER JOIN  content c ON (c.content_id = a.assessment_id)  WHERE c.gooru_oid = '" + gooruOid + "' AND " + generateAuthSqlQueryWithData("c.");
 		Session session = getSession();
-		List<String> result = session.createSQLQuery(sql).list();
+		List<String> result = list(session.createSQLQuery(sql));
 
 		return (result.size() > 0) ? result.get(0) : null;
 	}
@@ -287,7 +287,7 @@ public class AssessmentRepositoryHibernate extends BaseRepositoryHibernate imple
 		String sql = "SELECT c.gooru_oid FROM assessment_segment a INNER JOIN assessment_segment_question_assoc ass ON ( ass.segment_id = a.segment_id ) INNER JOIN content c ON (c.content_id = a.assessment_id ) INNER JOIN content ct ON ( ass.question_id = ct.content_id ) WHERE ct.gooru_oid = '"
 				+ questionGooruOid + "'";
 		Query query = session.createSQLQuery(sql);
-		return get(query);
+		return list(query);
 	}
 
 	@Override

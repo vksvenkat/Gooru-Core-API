@@ -112,7 +112,7 @@ public abstract class HibernateDaoSupport extends UserGroupSupport {
 	}
 
 	public <T> T get(String hql) {
-		List<T> datas = get(getSession().createQuery(hql));
+		List<T> datas = list(getSession().createQuery(hql));
 		return datas.size() > 0 ? datas.get(0) : null;
 	}
 
@@ -163,7 +163,12 @@ public abstract class HibernateDaoSupport extends UserGroupSupport {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public <T> List<T> get(Query query) { 
+	public <T> List<T> list(Query query) { 
+	    return query.list();
+	}
+	
+	@SuppressWarnings("unchecked")
+	public <T> List<T[]> arrayList(Query query) { 
 	    return query.list();
 	}
 
