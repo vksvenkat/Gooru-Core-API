@@ -320,7 +320,6 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 	public ModelAndView createResourceWithCollectionItem(final HttpServletRequest request, @PathVariable(ID) final String collectionId, @RequestBody final String data, final HttpServletResponse response) throws Exception {
 		final JSONObject json = requestData(data);
 		final User user = (User) request.getAttribute(Constants.USER);
-		System.out.println(collectionId);
 		final ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().createResourceWithCollectionItem(collectionId, this.buildResourceFromInputParameters(getValue(RESOURCE, json), user), getValue(START, json), getValue(STOP, json),
 				getValue(RESOURCE_TAGS, json) == null ? null : buildResourceTags(getValue(RESOURCE_TAGS, json)), user);
 		if (responseDTO.getErrors().getErrorCount() > 0) {

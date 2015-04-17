@@ -2095,12 +2095,12 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		ActionResponseDTO<CollectionItem> response = null;
 		ResourceSource resourceSource = null;
 		String domainName = null;
-		if (collectionId != null) {System.out.println("coll");
+		if (collectionId != null) {
 			if (newResource.getUrl() != null && getResourceService().shortenedUrlResourceCheck(newResource.getUrl())) {
 				throw new Exception(generateErrorMessage("GL0011"));
 			}
 			final Collection collection = this.getCollectionRepository().getCollectionByGooruOid(collectionId, null);
-			if (collection != null) {System.out.println("in");
+			if (collection != null) {
 				Resource resource = null;
 				if (newResource.getUrl() != null && !newResource.getUrl().isEmpty() && newResource.getAttach() == null) {
 					resource = this.getResourceRepository().findResourceByUrl(newResource.getUrl(), Sharing.PUBLIC.getSharing(), null);
@@ -2111,7 +2111,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 				final String sharing = collection.getSharing();
 				final String title = newResource.getTitle().length() > 1000 ? newResource.getTitle().substring(0, 1000) : newResource.getTitle();
-				if (resource == null) {System.out.println("res");
+				if (resource == null) {
 					resource = new Resource();
 					resource.setGooruOid(UUID.randomUUID().toString());
 					resource.setUser(user);
@@ -2166,7 +2166,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 					resource.setLicense(license);
 					resource.setSharing(sharing);
 					domainName = BaseUtil.getDomainName(newResource.getUrl());
-					System.out.print("goiing");
 					resourceSource = this.getResourceRepository().findResourceSource(domainName);
 					if (resourceSource != null && resourceSource.getFrameBreaker() != null && resourceSource.getFrameBreaker() == 1) {
 						resource.setHasFrameBreaker(true);
