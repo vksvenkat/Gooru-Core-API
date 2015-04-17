@@ -26,13 +26,12 @@ package org.ednovo.gooru.controllers.v2.api;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.ednovo.gooru.application.util.KafkaHandlerUtil;
 import org.ednovo.gooru.controllers.BaseController;
-import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.GooruOperationConstants;
 import org.ednovo.gooru.core.security.AuthorizeOperations;
 import org.ednovo.gooru.domain.service.redis.RedisService;
+import org.ednovo.gooru.kafka.producer.KafkaHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Propagation;
@@ -50,7 +49,7 @@ public class ClearCacheRestV2Controller extends BaseController implements Consta
 	private RedisService redisService;
 	
 	@Autowired
-	private KafkaHandlerUtil kafkaService;
+	private KafkaHandler kafkaService;
     
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CACHE_CLEAR })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -70,7 +69,7 @@ public class ClearCacheRestV2Controller extends BaseController implements Consta
 		return redisService;
 	}
 
-	public KafkaHandlerUtil getKafkaService() {
+	public KafkaHandler getKafkaService() {
 		return kafkaService;
 	}
 
