@@ -197,7 +197,7 @@ public class ContentIndexDaoImpl extends IndexDaoImpl implements ContentIndexDao
 			sql += " o.s3_storage_area_id = sa.storage_area_id";
 		}
 		sql += " WHERE o.organization_uid='" + organizationUid + "'";
-		List<Object[]> list = createSQLQuery(sql).list();
+		List<Object[]> list = HibernateDaoSupport.arrayList(createSQLQuery(sql));
 		return list.size() > 0 ? (Object[]) list.get(0) : null;
 	}
 

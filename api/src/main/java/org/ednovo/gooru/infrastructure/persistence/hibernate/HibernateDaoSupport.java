@@ -91,23 +91,23 @@ public abstract class HibernateDaoSupport extends UserGroupSupport {
 		}
 	}
 
-	public List find(String query, Integer param1) {
+	public List<?> find(String query, Integer param1) {
 		return getSession().createQuery(query).setParameter(0, param1).list();
 	}
 
-	public List find(String query, String param1) {
+	public List<?> find(String query, String param1) {
 		return getSession().createQuery(query).setParameter(0, param1).list();
 	}
 
-	public List find(String query, Long param1) {
+	public List<?> find(String query, Long param1) {
 		return getSession().createQuery(query).setParameter(0, param1).list();
 	}
 
-	public List find(String hql) {
+	public List<?> find(String hql) {
 		return getSession().createQuery(hql).list();
 	}
 
-	public List findFirstNRows(String hql, int rows) {
+	public List<?> findFirstNRows(String hql, int rows) {
 		return getSession().createQuery(hql).setFetchSize(rows).list();
 	}
 
@@ -163,7 +163,7 @@ public abstract class HibernateDaoSupport extends UserGroupSupport {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public static <T> List<T> list(Query query) { 
+	public <T> List<T> list(Query query) { 
 	    return query.list();
 	}
 	

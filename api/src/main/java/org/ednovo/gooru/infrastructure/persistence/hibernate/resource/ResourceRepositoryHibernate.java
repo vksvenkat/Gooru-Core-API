@@ -95,7 +95,7 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 	@Override
 	public ResourceSource findResourceByresourceSourceId(Integer resourceSourceId) {
 		try {
-			List<ResourceSource> resources = find("SELECT r FROM ResourceSource r where r.resourceSourceId =? ", resourceSourceId);
+			List<ResourceSource> resources = (List<ResourceSource>) find("SELECT r FROM ResourceSource r where r.resourceSourceId =? ", resourceSourceId);
 			return resources.size() == 0 ? null : resources.get(0);
 		} catch (Exception ex) {
 			return null;
@@ -117,7 +117,7 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 	@SuppressWarnings("unchecked")
 	@Override
 	public Resource findResourceByContentGooruId(String gooruOid) {
-		List<Resource> resources = find("SELECT r FROM Resource r  where r.gooruOid ='" + gooruOid + "' AND " + generateAuthQueryWithDataNew("r."));
+		List<Resource> resources = (List<Resource>) find("SELECT r FROM Resource r  where r.gooruOid ='" + gooruOid + "' AND " + generateAuthQueryWithDataNew("r."));
 		return resources.size() == 0 ? null : resources.get(0);
 	}
 
@@ -421,7 +421,7 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 	@Override
 	public Textbook findTextbookByContentGooruId(String gooruContentId) {
 		String hql = "SELECT textbook FROM Textbook textbook   WHERE textbook.gooruOid = '" + gooruContentId + "' AND " + generateAuthQueryWithDataNew("textbook.") + " ";
-		List<Textbook> result = find(hql);
+		List<Textbook> result = (List<Textbook>) find(hql);
 		return (result.size() > 0) ? result.get(0) : null;
 	}
 
@@ -453,7 +453,7 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 	@SuppressWarnings("unchecked")
 	@Override
 	public ResourceSource findResourceSource(String domainName) {
-		List<ResourceSource> resourceSources = findFirstNRows("FROM ResourceSource rSource WHERE  rSource.domainName = '" + domainName + "'  and rSource.activeStatus = 1", 1);
+		List<ResourceSource> resourceSources = (List<ResourceSource>) findFirstNRows("FROM ResourceSource rSource WHERE  rSource.domainName = '" + domainName + "'  and rSource.activeStatus = 1", 1);
 		return (resourceSources != null && resourceSources.size() > 0) ? resourceSources.get(0) : null;
 	}
 
@@ -467,7 +467,7 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 	@SuppressWarnings("unchecked")
 	@Override
 	public Resource getResourceByUrl(String url) {
-		List<Resource> resources = find("SELECT r From Resource as r   WHERE r.url='" + url + "' AND  " + generateAuthQueryWithDataNew("r.") + " ");
+		List<Resource> resources = (List<Resource>) find("SELECT r From Resource as r   WHERE r.url='" + url + "' AND  " + generateAuthQueryWithDataNew("r.") + " ");
 		return (resources.size() > 0) ? resources.get(0) : null;
 	}
 
@@ -481,7 +481,7 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 	@SuppressWarnings("unchecked")
 	public ResourceSource getAttribution(String attribution) {
 		String hql = "FROM ResourceSource rss WHERE rss.attribution = '" + attribution + "'";
-		List<ResourceSource> resourceSource = find(hql);
+		List<ResourceSource> resourceSource = (List<ResourceSource>) find(hql);
 		return (resourceSource.size() > 0) ? resourceSource.get(0) : null;
 	}
 
@@ -489,7 +489,7 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 	@Override
 	public Map<String, Object> findAllResourcesSource(Map<String, String> filters) {
 
-		List<ResourceSource> resourceSourceList = find("from ResourceSource");
+		List<ResourceSource> resourceSourceList = (List<ResourceSource>) find("from ResourceSource");
 
 		Criteria criteria = getSession().createCriteria(ResourceSource.class);
 
@@ -531,7 +531,7 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 			for (Long contentId : contentIds) {
 				strId.append(" '").append(contentId).append("' , ");
 			}
-			return find("SELECT r FROM Resource r  WHERE r.gooruOid IN ( " + strId.substring(0, strId.length() - 2) + " ) AND " + generateAuthQueryWithDataNew("r.") + "");
+			return (List<Resource>) find("SELECT r FROM Resource r  WHERE r.gooruOid IN ( " + strId.substring(0, strId.length() - 2) + " ) AND " + generateAuthQueryWithDataNew("r.") + "");
 		}
 		return null;
 	}
@@ -607,7 +607,7 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 	@Override
 	public ResourceUrlStatus findResourceUrlStatusByGooruOId(String resourceGooruOId) {
 		String hql = "SELECT urlStatus FROM ResourceUrlStatus urlStatus   WHERE urlStatus.resource.gooruOid = '" + resourceGooruOId + "' AND  " + generateAuthQueryWithDataNew("urlStatus.resource.");
-		List<ResourceUrlStatus> resourceUrlStatus = find(hql);
+		List<ResourceUrlStatus> resourceUrlStatus = (List<ResourceUrlStatus>) find(hql);
 		return resourceUrlStatus.size() > 0 ? resourceUrlStatus.get(0) : null;
 	}
 
@@ -941,14 +941,14 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 	@SuppressWarnings("unchecked")
 	@Override
 	public Resource findResourceByContent(String gooruOid) {
-		List<Resource> resources = find("SELECT r FROM Resource r  where r.gooruOid ='" + gooruOid + "'");
+		List<Resource> resources = (List<Resource>) find("SELECT r FROM Resource r  where r.gooruOid ='" + gooruOid + "'");
 		return resources.size() == 0 ? null : resources.get(0);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public Resource findLtiResourceByContentGooruId(String gooruContentId) {
-		List<LtiContentAssoc> ltiContentAssoc = find("SELECT lti FROM LtiContentAssoc lti  where lti.contextId ='" + gooruContentId + "'");
+		List<LtiContentAssoc> ltiContentAssoc = (List<LtiContentAssoc>) find("SELECT lti FROM LtiContentAssoc lti  where lti.contextId ='" + gooruContentId + "'");
 		return ltiContentAssoc.size() == 0 ? null : ltiContentAssoc.get(0).getResource();
 	}
 

@@ -1,4 +1,5 @@
 /////////////////////////////////////////////////////////////
+
 // ContentRepositoryHibernate.java
 // gooru-api
 // Created by Gooru on 2014
@@ -146,7 +147,7 @@ public class ContentRepositoryHibernate extends BaseRepositoryHibernate implemen
 	@Override
 	public ContentAssociation getCollectionAssocContent(String contentGooruOid) {
 		String hql = "SELECT contentAssociation FROM ContentAssociation contentAssociation JOIN Content content  LEFT JOIN content.contentPermissions cps WHERE content.gooruOid = '" + contentGooruOid + "' AND  " + generateAuthQueryWithDataNew("content.");
-		List<ContentAssociation> result = find(hql);
+		List<ContentAssociation> result = (List<ContentAssociation>) find(hql);
 		return (result.size() > 0) ? null : result.get(0);
 	}
 
@@ -154,7 +155,7 @@ public class ContentRepositoryHibernate extends BaseRepositoryHibernate implemen
 	@Override
 	public StatusType getStatusType(String name) {
 		String hql = "FROM StatusType statusType  WHERE statusType.name = '" + name + "'";
-		List<StatusType> result = find(hql);
+		List<StatusType> result = (List<StatusType>) find(hql);
 		return (result.size() > 0) ? null : result.get(0);
 	}
 

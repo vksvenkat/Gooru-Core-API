@@ -34,11 +34,10 @@ import org.springframework.stereotype.Repository;
 public class UserContentRepositoryHibernate extends BaseRepositoryHibernate implements UserContentRepository {
 
 	
-
 	@Override
 	public List<UserContentAssoc> listContentUserRelations(String contentGooruId) {
 		String hql = "FROM UserContentAssoc contentAssoc WHERE contentAssoc.content.gooruOid = '" + contentGooruId + "' AND "+generateOrgAuthQueryWithData("contentAssoc.content.");
-		return find(hql);
+		return (List<UserContentAssoc>) find(hql);
 	}
 
 	@Override
@@ -54,7 +53,7 @@ public class UserContentRepositoryHibernate extends BaseRepositoryHibernate impl
 	}
 
 	private UserContentAssoc getRecord(String hql) {
-		List<UserContentAssoc> userContentAssocs = find(hql);
+		List<UserContentAssoc> userContentAssocs = (List<UserContentAssoc>) find(hql);
 		return userContentAssocs.size() > 0 ? userContentAssocs.get(0) : null;
 	}
 

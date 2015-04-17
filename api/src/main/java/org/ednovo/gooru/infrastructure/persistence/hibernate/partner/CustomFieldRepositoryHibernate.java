@@ -85,7 +85,7 @@ public class CustomFieldRepositoryHibernate extends BaseRepositoryHibernate impl
 			currentParameter++;
 		}
 		query.setParameter(currentParameter, 1, StandardBasicTypes.INTEGER);
-		return query.list();
+		return arrayList(query);
 	}
 
 	@Override
@@ -246,7 +246,7 @@ public class CustomFieldRepositoryHibernate extends BaseRepositoryHibernate impl
 			query.setParameter(0, resourceId, StandardBasicTypes.STRING);
 		}
 
-		List<Object[]> customFieldDataList = query.list();
+		List<Object[]> customFieldDataList = arrayList(query);
 		List<String> customFieldValues = new ArrayList<String>();
 		if (customFieldDataList.size() > 0) {
 			for (Object[] dataRow : customFieldDataList) {
@@ -281,7 +281,7 @@ public class CustomFieldRepositoryHibernate extends BaseRepositoryHibernate impl
 		query.addScalar("add_to_search", StandardBasicTypes.INTEGER);
 		query.addScalar("add_to_search_index", StandardBasicTypes.INTEGER);
 		query.addScalar("add_to_filters", StandardBasicTypes.INTEGER);
-		return query.list();
+		return arrayList(query);
 	}
 
 	private void executeSaveOrUpdate(final String sql, final Map<String, String> customFieldValueMap, final String resourceId, final boolean isUpdate) {
@@ -316,7 +316,7 @@ public class CustomFieldRepositoryHibernate extends BaseRepositoryHibernate impl
 	@Override
 	public CustomField findCustomFieldIfExists(String customFieldId) {
 		String hql = "FROM CustomField customField WHERE customField.customFieldId = '" + customFieldId + "'";
-		List<CustomField> result = find(hql);
+		List<CustomField> result = (List<CustomField>) find(hql);
 		return (result.size() > 0) ? result.get(0) : null;
 	}
 
