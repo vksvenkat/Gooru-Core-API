@@ -94,11 +94,7 @@ public class ConfigSettingRepositoryHibernate extends BaseRepositoryHibernate im
 		query.setParameter(PROFILE_ID, getConfigSettingProfileName());
 		query.setParameter(ORGANIZATION_UIDS, organizationUid);
 		List<String> results = query.list();
-		String value = null;
-		if (results != null && results.size() > 0) {
-			value = results.get(0);
-		}
-		return value;
+		return results.size() > 0 ? results.get(0) : null;
 	}
 	
 	public String getConfigSettingProfileName() {
