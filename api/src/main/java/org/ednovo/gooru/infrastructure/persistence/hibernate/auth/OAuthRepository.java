@@ -30,8 +30,6 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepository;
 
 public interface OAuthRepository extends BaseRepository {
 
-	public Boolean checkTokenExists(String accessToken);
-
 	public String findClientByAccessToken(String accessToken);
 	
 	public OAuthClient findOAuthClientByOAuthKey(String oauthKey);
