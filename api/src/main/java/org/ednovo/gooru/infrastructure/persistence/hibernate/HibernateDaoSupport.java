@@ -103,7 +103,7 @@ public abstract class HibernateDaoSupport extends UserGroupSupport {
 		return getSession().createQuery(query).setParameter(0, param1).list();
 	}
 
-	public List<?> find(String hql) {
+	public List find(String hql) {
 		return getSession().createQuery(hql).list();
 	}
 

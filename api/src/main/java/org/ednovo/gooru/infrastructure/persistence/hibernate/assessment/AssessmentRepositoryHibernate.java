@@ -173,7 +173,7 @@ public class AssessmentRepositoryHibernate extends BaseRepositoryHibernate imple
 	}
 
 	private <T> T getRecord(String hql) {
-		List<T> list = find(hql);
+		List<T> list = (List<T>) find(hql);
 		return (list != null && list.size() > 0) ? list.get(0) : null;
 	}
 
@@ -228,7 +228,7 @@ public class AssessmentRepositoryHibernate extends BaseRepositoryHibernate imple
 	@Override
 	public AssessmentQuestionAssetAssoc findQuestionAsset(String questionGooruOid, Integer assetId) {
 		String hql = "SELECT questionAsset FROM AssessmentQuestionAssetAssoc questionAsset  WHERE questionAsset.question.gooruOid = '" + questionGooruOid + "' AND questionAsset.asset.assetId = " + assetId + " AND " + generateAuthQueryWithDataNew("questionAsset.question.");
-		List<AssessmentQuestionAssetAssoc> questionAssets = find(hql);
+		List<AssessmentQuestionAssetAssoc> questionAssets = (List<AssessmentQuestionAssetAssoc>) find(hql);
 		return questionAssets.size() > 0 ? questionAssets.get(0) : null;
 	}
 
