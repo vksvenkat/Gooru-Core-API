@@ -163,7 +163,7 @@ public abstract class HibernateDaoSupport extends UserGroupSupport {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public <T> List<T> list(Query query) { 
+	public static <T> List<T> list(Query query) { 
 	    return query.list();
 	}
 	

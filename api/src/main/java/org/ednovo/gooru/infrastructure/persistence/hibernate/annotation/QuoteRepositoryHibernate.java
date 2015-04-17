@@ -63,7 +63,7 @@ public class QuoteRepositoryHibernate extends BaseRepositoryHibernate implements
 		Query query = getSession().createSQLQuery(RETRIEVE_QUOTE).addScalar("gooruOid", StandardBasicTypes.STRING).addScalar("anchor", StandardBasicTypes.STRING).addScalar("freeText", StandardBasicTypes.STRING).addScalar("topic", StandardBasicTypes.STRING)
 				.addScalar("title", StandardBasicTypes.STRING).addScalar("grade", StandardBasicTypes.STRING).addScalar("licenseName", StandardBasicTypes.STRING).addScalar("typeName", StandardBasicTypes.STRING).setParameter("contentUserId", userId);
 		addOrgAuthParameters(query);
-		List<Object[]> results = query.list();
+		List<Object[]> results = arrayList(query);
 		List<Quote> annotations = new ArrayList<Quote>();
 		for (Object[] object : results) {
 			Quote quote = new Quote();

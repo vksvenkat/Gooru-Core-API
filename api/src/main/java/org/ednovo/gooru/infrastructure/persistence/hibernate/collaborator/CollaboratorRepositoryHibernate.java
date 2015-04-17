@@ -87,7 +87,7 @@ public class CollaboratorRepositoryHibernate extends BaseRepositoryHibernate imp
 		Query query = session.createSQLQuery(findCollaborators).addScalar("user_id", StandardBasicTypes.INTEGER).addScalar("gooru_uid", StandardBasicTypes.STRING).addScalar("firstname", StandardBasicTypes.STRING).addScalar("lastname", StandardBasicTypes.STRING)
 				.addScalar("external_id", StandardBasicTypes.STRING).addScalar("username", StandardBasicTypes.STRING).addScalar("organization_uid", StandardBasicTypes.STRING).addScalar("primary_organization_uid", StandardBasicTypes.STRING);
 
-		List<Object[]> results = query.list();
+		List<Object[]> results = arrayList(query);
 
 		for (Object[] object : results) {
 			Set<Identity> idSet = new HashSet<Identity>();

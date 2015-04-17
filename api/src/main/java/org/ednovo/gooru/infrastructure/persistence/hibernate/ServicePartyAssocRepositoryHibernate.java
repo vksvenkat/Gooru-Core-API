@@ -1,8 +1,5 @@
 package org.ednovo.gooru.infrastructure.persistence.hibernate;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.type.StandardBasicTypes;
@@ -21,15 +18,5 @@ public class ServicePartyAssocRepositoryHibernate extends BaseRepositoryHibernat
 		Query query = session.createSQLQuery(sql).addScalar("version", StandardBasicTypes.STRING);		
 		return query.list().size() == 0 ? null : (String)query.list().get(0);
 	}
-
-	private Map<String, Object> iteratePartyVersion(List<Object[]> list) {
-		Map<String, Object> result = new HashMap<String, Object>();
-		for(Object[] object : list) {
-			result.put("version", object[0]);
-			result.put("order", object[1]);
-		}
-		return result;
-	}
-
 
 }

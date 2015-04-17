@@ -1065,7 +1065,7 @@ public class TaxonomyRepositoryHibernate extends BaseRepositoryHibernate impleme
 	public List<Object[]> getTaxonomySkills(Integer parentId) {
 		Query query = getSession().createSQLQuery(FIND_TAXONOMY_ASSOC);
 		query.setParameter("parentId", parentId);
-		return query.list();
+		return arrayList(query);
 	}
 
 	public JdbcTemplate getJdbcTemplateReadOnly() {
