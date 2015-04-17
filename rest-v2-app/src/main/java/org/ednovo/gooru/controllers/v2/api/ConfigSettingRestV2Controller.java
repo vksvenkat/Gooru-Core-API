@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////
-//ClearCacheRestV2Controller.java
+//ConfigSettingRestV2Controller.java
 //rest-v2-app
 // Created by Gooru on 2015
 // Copyright (c) 2015 Gooru. All rights reserved.
@@ -18,7 +18,7 @@
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR  PURPOSE     AND
 // NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR  COPYRIGHT HOLDERS BE
 // LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-// OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION 
+// OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.controllers.v2.api;
@@ -27,50 +27,32 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.ednovo.gooru.controllers.BaseController;
-import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.GooruOperationConstants;
 import org.ednovo.gooru.core.security.AuthorizeOperations;
-import org.ednovo.gooru.domain.service.redis.RedisService;
-import org.ednovo.gooru.kafka.producer.KafkaHandler;
+import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
-@RequestMapping(value = { "/v2/clearcache" })
-public class ClearCacheRestV2Controller extends BaseController implements ConstantProperties {
+@RequestMapping(value = { "/v2/config-setting" })
+public class ConfigSettingRestV2Controller extends BaseController {
 
 	@Autowired
-	private RedisService redisService;
+	private SettingService settingService;
 	
-	@Autowired
-	private KafkaHandler kafkaService;
-    
-	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CACHE_CLEAR })
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CONFIG_SETTINGS_UPDATE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	@RequestMapping(value = "/{entity}", method = { RequestMethod.DELETE })
-	public void clearCache(@PathVariable(value = ENTITY) String entity, @RequestParam(value = KEY, required = false, defaultValue = "*library-*") String key, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		this.getRedisService().bulkKeyDelete(key);
+	@RequestMapping(method = RequestMethod.PUT)
+	public void updateSettings(HttpServletRequest request,@RequestParam(value=_ORGANIZATION_UID,required = true) String organizationUid,@RequestParam(value= NAME, required = true) String key,@RequestParam(value= VALUE,required = true) String value, HttpServletResponse response) throws Exception {
+		getSettingService().updateConfigSettingValue(organizationUid, key, value);
 	}
 	
-	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CACHE_CLEAR })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	@RequestMapping(value = "/kafka", method = { RequestMethod.DELETE })
-	public void clearKafkaCache(HttpServletRequest request, HttpServletResponse response) throws Exception {
-		getKafkaService().clearCache();
+	public SettingService getSettingService() {
+		return settingService;
 	}
-	
-	public RedisService getRedisService() {
-		return redisService;
-	}
-
-	public KafkaHandler getKafkaService() {
-		return kafkaService;
-	}
-
 }

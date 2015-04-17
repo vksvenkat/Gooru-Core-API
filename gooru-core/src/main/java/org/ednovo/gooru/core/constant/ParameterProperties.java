@@ -2889,5 +2889,9 @@ public interface ParameterProperties {
 	String GL0004 = "GL0004";
 	
 	String GL0014 = "GL0014";
+	
+	String PROFILE_ID = "profileId";
+	
+	String SECURITY_LEVEL = "securityLevel";
 }
 
