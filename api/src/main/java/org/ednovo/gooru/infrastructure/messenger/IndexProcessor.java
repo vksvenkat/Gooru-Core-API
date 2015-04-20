@@ -182,7 +182,13 @@ public class IndexProcessor extends BaseComponent {
 
 				@Override
 				public void run() {
-
+					String url = getSearchApiPath() + "index/es-aca/" + type + "/" + action + "?sessionToken=" + sessionToken + "&ids=" + uuids ;
+					if(isUpdateStas){
+						url = url + "&isUpdateStats=true";
+					}
+					System.out.println("Reindexing API url========>"+url);
+					
+					
 					
 					new ClientResourceExecuter() {
 						
