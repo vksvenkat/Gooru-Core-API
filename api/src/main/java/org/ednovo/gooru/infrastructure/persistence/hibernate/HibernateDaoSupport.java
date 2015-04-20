@@ -37,6 +37,7 @@ import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserCredential;
 import org.ednovo.gooru.core.api.model.UserGroupSupport;
 import org.ednovo.gooru.core.constant.Constants;
+import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -167,6 +168,11 @@ public abstract class HibernateDaoSupport extends UserGroupSupport {
 	@SuppressWarnings("unchecked")
 	public static <T> List<T> list(Query query) { 
 	    return query.list();
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static <T> List<T> criteria(Criteria criteria) { 
+	    return criteria.list();
 	}
 	
 	@SuppressWarnings("unchecked")

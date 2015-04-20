@@ -28,9 +28,10 @@ import java.util.List;
 import org.ednovo.gooru.core.api.model.UserToken;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserTokenRepository;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.criterion.Expression;
+import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -47,9 +48,6 @@ public class UserTokenRepositoryHibernate extends BaseRepositoryHibernate implem
 		setJdbcTemplate(jdbcTemplate);
 	}
 	
-	private final String INSERT_SESSION = "INSERT INTO user_token (token, session_id, application_content_id, scope, user_uid, created_on) VALUES(?,?,?,?,?,now())";
-
-	
 	@Override
 	public UserToken findBySession(String sessionId) {
 		Session session = null;
@@ -58,7 +56,8 @@ public class UserTokenRepositoryHibernate extends BaseRepositoryHibernate implem
 		} catch (Exception ex) {
 			session = getSession();
 		}
-		List<UserToken> userList = session.createQuery("from UserToken where sessionId = ? and scope = ?").setString(0, sessionId).setString(1, "session").list();
+		Query query = session.createQuery("from UserToken where sessionId = ? and scope = ?").setString(0, sessionId).setString(1, "session");
+		List<UserToken> userList = list(query);
 		return userList.size() == 0 ? null : userList.get(0);
 		
 	}
@@ -66,10 +65,7 @@ public class UserTokenRepositoryHibernate extends BaseRepositoryHibernate implem
 	@Override
 	public UserToken findByScope(String gooruUserId,String scope) {
 		
-		List<UserToken> userTokenList = getSession().createQuery("from UserToken u where u.scope = ? and  u.user.partyUid = ?")
-								   .setString(0, scope)
-								   .setString(1,gooruUserId)
-								   .list();
+		List<UserToken> userTokenList = list(getSession().createQuery("from UserToken u where u.scope = ? and  u.user.partyUid = ?").setString(0, scope).setString(1,gooruUserId));
 		
 		return userTokenList.size() == 0 ? null : userTokenList.get(0);
 	}
@@ -77,7 +73,7 @@ public class UserTokenRepositoryHibernate extends BaseRepositoryHibernate implem
 	@Override
 	public UserToken findByToken(String sessionToken)
 	 {
-	     List tokens = getSession().createCriteria(UserToken.class).add(Expression.eq("token", sessionToken)).list();
+	     List<?> tokens = getSession().createCriteria(UserToken.class).add(Restrictions.eq("token", sessionToken)).list();
 	     if(tokens.size() != 0){
 	         return (UserToken)tokens.get(0);
 	     }

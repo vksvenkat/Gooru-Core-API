@@ -84,7 +84,7 @@ public class AssessmentRepositoryHibernate extends BaseRepositoryHibernate imple
 			criteria.setMaxResults(pageSize);
 			addAuthCriterias(criteria);
 		}
-		return criteria.list();
+		return criteria(criteria);
 	}
 
 	@Override
@@ -96,7 +96,8 @@ public class AssessmentRepositoryHibernate extends BaseRepositoryHibernate imple
 	@Override
 	public boolean getAttemptAnswerStatus(Integer answerId) {
 		String hql = "SELECT answer FROM AssessmentAnswer answer  WHERE answer.answerId = " + answerId + "AND answer.isCorrect = 1 AND  " + generateAuthQueryWithDataNew("answer.question.");
-		List result = find(hql);
+		Query query = getSession().createQuery(hql);
+		List<?> result = list(query);
 		if (result != null && result.size() != 0) {
 			return true;
 		} else {
