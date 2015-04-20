@@ -162,7 +162,7 @@ public interface ResourceService extends BaseService {
 	
 	Map<String, Object> checkResourceUrlExists(String url, boolean checkShortenedUrl) throws Exception;
 
-	List<User> getUserListByResourceId(String resourceId);
+	List<User> getUsersByResourceId(String resourceId);
 
 	
 }

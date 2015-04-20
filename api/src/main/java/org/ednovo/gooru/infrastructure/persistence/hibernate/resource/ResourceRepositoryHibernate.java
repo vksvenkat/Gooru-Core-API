@@ -986,11 +986,10 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 	}
 	  
 	@Override
-	public List<User> getUserListByResourceId(String resourceId) {
-		String hql = USER_LIST_BY_RESOURCE_ID;
-		Query query = getSession().createQuery(hql);
-		query.setParameter("resourceId", resourceId);
-		return (List<User>) query.list();
+	public List<User> getUsersByResourceId(String resourceId) {
+		Query query = getSession().createQuery(USER_LIST_BY_RESOURCE_ID);
+		query.setParameter(RESOURCE, resourceId);
+		return query.list();
 	}
 	 
 }
