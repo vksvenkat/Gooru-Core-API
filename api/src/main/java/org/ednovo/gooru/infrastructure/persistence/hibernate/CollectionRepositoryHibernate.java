@@ -641,7 +641,8 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 
 	@Override
 	public Resource findResourceCopiedFrom(String gooruOid, String gooruUid) {
-		List<Resource> resources = (List<Resource>) find("SELECT r FROM Resource r  where r.copiedResourceId ='" + gooruOid + "' AND r.user.partyUid ='" + gooruUid + "' AND " + generateAuthQueryWithDataNew("r."));
+		Query query = getSession().createQuery("SELECT r FROM Resource r  where r.copiedResourceId ='" + gooruOid + "' AND r.user.partyUid ='" + gooruUid + "' AND " + generateAuthQueryWithDataNew("r."));
+		List<Resource> resources = list(query);
 		return resources.size() == 0 ? null : resources.get(0);
 	}
 

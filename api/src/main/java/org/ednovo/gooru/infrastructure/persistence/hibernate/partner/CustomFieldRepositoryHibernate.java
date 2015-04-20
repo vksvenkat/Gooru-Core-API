@@ -35,6 +35,7 @@ import org.ednovo.gooru.core.api.model.CustomField;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate;
+import org.hibernate.Query;
 import org.hibernate.SQLQuery;
 import org.hibernate.type.StandardBasicTypes;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -316,7 +317,8 @@ public class CustomFieldRepositoryHibernate extends BaseRepositoryHibernate impl
 	@Override
 	public CustomField findCustomFieldIfExists(String customFieldId) {
 		String hql = "FROM CustomField customField WHERE customField.customFieldId = '" + customFieldId + "'";
-		List<CustomField> result = (List<CustomField>) find(hql);
+		Query query = getSession().createQuery(hql);
+		List<CustomField> result = list(query);
 		return (result.size() > 0) ? result.get(0) : null;
 	}
 

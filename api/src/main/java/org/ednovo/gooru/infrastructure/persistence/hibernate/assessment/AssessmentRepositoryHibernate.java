@@ -122,14 +122,15 @@ public class AssessmentRepositoryHibernate extends BaseRepositoryHibernate imple
 	@Override
 	public <T extends Serializable> T getByGooruOId(Class<T> modelClass, String gooruOId) {
 		String hql = "SELECT distinct model FROM " + modelClass.getSimpleName() + " model  WHERE model.gooruOid = '" + gooruOId + "' AND  " + generateAuthQueryWithDataNew("model.");
-		return (T) getRecord(hql);
+		return  getRecord(hql);
 	}
 
 	@Override
 	public List<AssessmentQuestion> getAssessmentQuestions(String gooruOAssessmentId) {
 		String hql = "SELECT aquestion FROM AssessmentQuestion aquestion, Assessment assessment  join assessment.segments as assessmentSegment inner join assessmentSegment.segmentQuestions as segmentQuestion WHERE assessment.gooruOid  = '" + gooruOAssessmentId
 				+ "' AND aquestion = segmentQuestion.question AND  " + generateAuthQueryWithDataNew("assessment.") + " order by assessmentSegment.sequence , segmentQuestion.sequence";
-		return (List<AssessmentQuestion>) find(hql);
+		Query query = getSession().createQuery(hql);
+		return list(query);
 	}
 
 	@Override
@@ -173,7 +174,8 @@ public class AssessmentRepositoryHibernate extends BaseRepositoryHibernate imple
 	}
 
 	private <T> T getRecord(String hql) {
-		List<T> list = find(hql);
+		Query query = getSession().createQuery(hql);
+		List<T> list = list(query);
 		return (list != null && list.size() > 0) ? list.get(0) : null;
 	}
 
@@ -228,26 +230,30 @@ public class AssessmentRepositoryHibernate extends BaseRepositoryHibernate imple
 	@Override
 	public AssessmentQuestionAssetAssoc findQuestionAsset(String questionGooruOid, Integer assetId) {
 		String hql = "SELECT questionAsset FROM AssessmentQuestionAssetAssoc questionAsset  WHERE questionAsset.question.gooruOid = '" + questionGooruOid + "' AND questionAsset.asset.assetId = " + assetId + " AND " + generateAuthQueryWithDataNew("questionAsset.question.");
-		List<AssessmentQuestionAssetAssoc> questionAssets = find(hql);
+		Query query = getSession().createQuery(hql);
+		List<AssessmentQuestionAssetAssoc> questionAssets = list(query);
 		return questionAssets.size() > 0 ? questionAssets.get(0) : null;
 	}
 
 	@Override
 	public List<AssessmentQuestion> getAssessmentQuestionsByAssessmentGooruOids(String gooruOAssessmentIds) {
 		String hql = "SELECT question FROM AssessmentQuestion question  WHERE question.gooruOid IN(" + gooruOAssessmentIds + ")  AND " + generateAuthQueryWithDataNew("question.");
-		return (List<AssessmentQuestion>) find(hql);
+		Query query = getSession().createQuery(hql);
+		return list(query);
 	}
 
 	@Override
 	public List<AssessmentAnswer> findAnswerByAssessmentQuestionId(Integer questionId) {
 		String hql = "SELECT question.answers FROM AssessmentQuestion question WHERE question.contentId =" + questionId + " AND " + generateAuthQueryWithDataNew("question.");
-		return (List<AssessmentAnswer>) find(hql);
+		Query query = getSession().createQuery(hql);
+		return list(query);
 	}
 
 	@Override
 	public List<AssessmentQuestionAssetAssoc> getQuestionAssetByQuestionId(Integer questionId) {
 		String hql = "SELECT questionAsset FROM AssessmentQuestionAssetAssoc questionAsset  WHERE questionAsset.question.contentId = '" + questionId + "'  AND " + generateAuthQueryWithDataNew("questionAsset.question.");
-		return (List<AssessmentQuestionAssetAssoc>) find(hql);
+		Query query = getSession().createQuery(hql);
+		return list(query);
 	}
 
 

@@ -29,6 +29,7 @@ import org.ednovo.gooru.core.api.model.UserContentAssoc;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserContentRepository;
 import org.springframework.stereotype.Repository;
+import org.hibernate.Query;
 
 @Repository("userContentRepository")
 public class UserContentRepositoryHibernate extends BaseRepositoryHibernate implements UserContentRepository {
@@ -37,7 +38,8 @@ public class UserContentRepositoryHibernate extends BaseRepositoryHibernate impl
 	@Override
 	public List<UserContentAssoc> listContentUserRelations(String contentGooruId) {
 		String hql = "FROM UserContentAssoc contentAssoc WHERE contentAssoc.content.gooruOid = '" + contentGooruId + "' AND "+generateOrgAuthQueryWithData("contentAssoc.content.");
-		return (List<UserContentAssoc>) find(hql);
+		Query query = getSession().createQuery(hql);
+		return list(query);
 	}
 
 	@Override
@@ -53,7 +55,8 @@ public class UserContentRepositoryHibernate extends BaseRepositoryHibernate impl
 	}
 
 	private UserContentAssoc getRecord(String hql) {
-		List<UserContentAssoc> userContentAssocs = (List<UserContentAssoc>) find(hql);
+		Query query = getSession().createQuery(hql);
+		List<UserContentAssoc> userContentAssocs = list(query);
 		return userContentAssocs.size() > 0 ? userContentAssocs.get(0) : null;
 	}
 

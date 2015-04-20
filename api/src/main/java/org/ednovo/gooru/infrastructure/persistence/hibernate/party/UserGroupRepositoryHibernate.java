@@ -47,7 +47,8 @@ public class UserGroupRepositoryHibernate extends BaseRepositoryHibernate implem
 	@Cacheable("gooruCache")
 	public UserGroup getDefaultGroupByOrganization(String organizationUid) {
 		String hql = "FROM UserGroup userGroup WHERE userGroup.organization.partyUid = '" + organizationUid + "' AND userGroup.activeFlag='1'";
-		List<UserGroup> groups = find(hql);
+		Query query = getSession().createQuery(hql);
+		List<UserGroup> groups = list(query);
 		return groups.size() > 0 ? groups.get(0) : null;
 	}
 
@@ -55,7 +56,8 @@ public class UserGroupRepositoryHibernate extends BaseRepositoryHibernate implem
 	@Cacheable("gooruCache")
 	public UserGroup getDefaultGroupByOrganizationCode(String organizationCode) {
 		String hql = "FROM UserGroup userGroup WHERE userGroup.organization.organizationCode = '" + organizationCode + "' AND userGroup.activeFlag='1'";
-		List<UserGroup> groups = find(hql);
+		Query query = getSession().createQuery(hql);
+		List<UserGroup> groups = list(query);
 		return groups.size() > 0 ? groups.get(0) : null;
 	}
 
@@ -63,7 +65,8 @@ public class UserGroupRepositoryHibernate extends BaseRepositoryHibernate implem
 	@Cacheable("gooruCache")
 	public UserGroup getGroup(String groupName, String organizationUid) {
 		String hql = "FROM UserGroup userGroup WHERE userGroup.name = '" + groupName + "' AND userGroup.activeFlag='1' AND userGroup.organization.partyUid = '" + organizationUid + "' ";
-		List<UserGroup> groups = find(hql);
+		Query query = getSession().createQuery(hql);
+		List<UserGroup> groups = list(query);
 		return groups.size() > 0 ? groups.get(0) : null;
 	}
 

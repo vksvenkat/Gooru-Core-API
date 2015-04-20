@@ -97,8 +97,8 @@ public class QuoteRepositoryHibernate extends BaseRepositoryHibernate implements
 
 	@Override
 	public Quote findByContent(String gooruContentId) {
-
-		List<Quote> quoteList = find("from Quote q  where q.gooruOid ='" + gooruContentId + "' " + generateOrgAuthQueryWithData("q."));
+		Query query = getSession().createQuery("from Quote q  where q.gooruOid ='" + gooruContentId + "' " + generateOrgAuthQueryWithData("q."));
+		List<Quote> quoteList = list(query);
 
 		return quoteList.size() == 0 ? null : quoteList.get(0);
 
