@@ -97,12 +97,7 @@ public class AssessmentRepositoryHibernate extends BaseRepositoryHibernate imple
 	public boolean getAttemptAnswerStatus(Integer answerId) {
 		String hql = "SELECT answer FROM AssessmentAnswer answer  WHERE answer.answerId = " + answerId + "AND answer.isCorrect = 1 AND  " + generateAuthQueryWithDataNew("answer.question.");
 		Query query = getSession().createQuery(hql);
-		List<?> result = list(query);
-		if (result != null && result.size() != 0) {
-			return true;
-		} else {
-			return false;
-		}
+		return list(query).size() > 0 ? true : false;		
 	}
 	
 	@Override

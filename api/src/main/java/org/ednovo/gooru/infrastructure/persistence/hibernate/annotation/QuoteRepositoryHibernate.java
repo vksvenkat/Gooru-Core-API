@@ -175,12 +175,12 @@ public class QuoteRepositoryHibernate extends BaseRepositoryHibernate implements
 			Code code = iter.next();
 			if (code.getDepth() == 4) {
 				topicCodes.add(code.getCodeId());
-				List<Code> childCodes = addOrgAuthCriterias(getSession().createCriteria(Code.class), "code.").add(Restrictions.eq("parentId", code.getCodeId())).list();
+				List<Code> childCodes = criteria(addOrgAuthCriterias(getSession().createCriteria(Code.class), "code.").add(Restrictions.eq("parentId", code.getCodeId())));
 				for (Code cod : childCodes) {
 					topicCodes.add(cod.getCodeId());
 				}
 			} else if (code.getDepth() == 5) {
-				List<Code> siblings = addOrgAuthCriterias(getSession().createCriteria(Code.class), "code.").add(Restrictions.eq("parentId", code.getParentId())).list();
+				List<Code> siblings = criteria(addOrgAuthCriterias(getSession().createCriteria(Code.class), "code.").add(Restrictions.eq("parentId", code.getParentId())));
 				for (Code cod : siblings) {
 					topicCodes.add(cod.getCodeId());
 				}
@@ -191,7 +191,7 @@ public class QuoteRepositoryHibernate extends BaseRepositoryHibernate implements
 		List<Content> contentList = null;
 		if (topicCodes.size() > 0) {
 
-			contentList = addOrgAuthCriterias(getSession().createCriteria(Content.class), "content.").createCriteria("taxonomySet").add(Restrictions.in("codeId", topicCodes)).list();
+			contentList = criteria(addOrgAuthCriterias(getSession().createCriteria(Content.class), "content.").createCriteria("taxonomySet").add(Restrictions.in("codeId", topicCodes)));
 		} else {
 			contentList = new ArrayList<Content>();
 			contentList.add(context);
