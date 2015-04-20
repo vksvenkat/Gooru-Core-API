@@ -27,18 +27,19 @@ import java.util.List;
 
 import org.ednovo.gooru.core.api.model.Idp;
 import org.ednovo.gooru.core.api.model.OrganizationDomainAssoc;
+import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.IdpRepository;
 import org.hibernate.Query;
-import org.hibernate.criterion.Expression;
+import org.hibernate.criterion.Restrictions;
 import org.springframework.stereotype.Repository;
 @Repository
-public class IdpRepositoryHibernate extends BaseRepositoryHibernate implements IdpRepository {
+public class IdpRepositoryHibernate extends BaseRepositoryHibernate implements IdpRepository, ParameterProperties {
 
 	@Override
 	public Idp findByName(String name) {
 		 
-		 List<Idp> idpList = getSession().createCriteria(Idp.class).add(Expression.eq("name", name)).list();		
+		 List<Idp> idpList = criteria(getSession().createCriteria(Idp.class).add(Restrictions.eq(NAME, name)));		
 		 return idpList.size()==0 ? null : idpList.get(0);
 	}
 
@@ -46,7 +47,7 @@ public class IdpRepositoryHibernate extends BaseRepositoryHibernate implements I
 	public OrganizationDomainAssoc findByDomain(Idp domain) {
 		String hql = " FROM OrganizationDomainAssoc domainOrgAssoc where domainOrgAssoc.domain.idpId ="+domain.getIdpId();
 		Query query = getSession().createQuery(hql);
-		List<OrganizationDomainAssoc> domainOrgAssocList = query.list();
+		List<OrganizationDomainAssoc> domainOrgAssocList = list(query);
 		return domainOrgAssocList.size() == 0 ? null : domainOrgAssocList.get(0);
 	}
 	

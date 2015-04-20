@@ -56,7 +56,7 @@ public class OAuthRepositoryHibernate extends BaseRepositoryHibernate implements
 		String hql = " FROM OAuthClient oauthClient WHERE oauthClient.key=:oauthKey";
 		Query query = getSession().createQuery(hql);
 		query.setParameter("oauthKey", oauthKey);
-		List<OAuthClient> results = get(query);
+		List<OAuthClient> results = list(query);
 		if(results.size() > 0){
 			return results.get(0);
 		}
@@ -71,7 +71,7 @@ public class OAuthRepositoryHibernate extends BaseRepositoryHibernate implements
 		query.setParameter("gooruUId", gooruUId);
 		query.setFirstResult(pageNo);
 		query.setMaxResults(pageSize);
-		List<OAuthClient> results = get(query);
+		List<OAuthClient> results = list(query);
 		return results;
 	}
 
@@ -80,7 +80,7 @@ public class OAuthRepositoryHibernate extends BaseRepositoryHibernate implements
 		String hql = " FROM OAuthClient oauthClient WHERE oauthClient.secretKey=:clientSecret";
 		Query query = getSession().createQuery(hql);
 		query.setParameter("clientSecret", clientSecret);
-		List<OAuthClient> results = get(query);
+		List<OAuthClient> results = list(query);
 		if(results.size() > 0){
 			return results.get(0);
 		}
@@ -101,7 +101,7 @@ public class OAuthRepositoryHibernate extends BaseRepositoryHibernate implements
 		query.setFirstResult(offset);
 		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
 
-		return get(query);
+		return list(query);
 	}
 
 	@Override
@@ -120,7 +120,7 @@ public class OAuthRepositoryHibernate extends BaseRepositoryHibernate implements
 		Query query = getSession().createQuery(hql);
 		query.setParameter("apiKey", apiKey);
 		query.setParameter("type", APPLICATION_STATUS_ACTIVE);
-		return get(query);
+		return list(query);
 	}
 
 }

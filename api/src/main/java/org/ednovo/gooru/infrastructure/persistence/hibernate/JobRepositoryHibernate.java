@@ -25,7 +25,6 @@ package org.ednovo.gooru.infrastructure.persistence.hibernate;
 
 import java.util.List;
 
-import org.ednovo.gooru.core.api.model.Country;
 import org.ednovo.gooru.core.api.model.Job;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -54,7 +53,7 @@ public class JobRepositoryHibernate extends BaseRepositoryHibernate implements J
 
 		Session session = getSession();
 		Query query = session.createSQLQuery(sql).addScalar("average_time", StandardBasicTypes.INTEGER);
-		List<Integer> results = query.list();
+		List<Integer> results = list(query);
 
 		return (results.size() > 0) ? results.get(0) : 0;
 	}

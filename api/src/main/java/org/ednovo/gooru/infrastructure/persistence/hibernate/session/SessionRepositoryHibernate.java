@@ -54,7 +54,7 @@ public class SessionRepositoryHibernate extends BaseRepositoryHibernate implemen
 		Query query = session.createQuery(RETRIEVE_SESSION_BY_ID);
 		query.setParameter("sessionId", sessionId);
 		addOrgAuthParameters(query);
-		List<org.ednovo.gooru.core.api.model.Session> sessions = query.list();
+		List<org.ednovo.gooru.core.api.model.Session> sessions = list(query);
 		return (sessions.size() > 0) ? sessions.get(0) : null;
 	}
 
@@ -64,7 +64,7 @@ public class SessionRepositoryHibernate extends BaseRepositoryHibernate implemen
 		Query query = session.createQuery(RETRIEVE_SESSION_ITEM_BY_ID);
 		query.setParameter("sessionItemId", sessionItemId);
 		addOrgAuthParameters(query);
-		List<SessionItem> sessionItems = query.list();
+		List<SessionItem> sessionItems = list(query);
 		return (sessionItems.size() > 0) ? sessionItems.get(0) : null;
 	}
 
@@ -74,7 +74,7 @@ public class SessionRepositoryHibernate extends BaseRepositoryHibernate implemen
 		Query query = session.createQuery(RETRIEVE_SESSION_ITEM_ATTEMPT_TRY);
 		query.setParameter("sessionItemId", sessionItemId);
 		addOrgAuthParameters(query);
-		return query.list();
+		return list(query);
 	}
 
 	@Override
@@ -83,7 +83,7 @@ public class SessionRepositoryHibernate extends BaseRepositoryHibernate implemen
 		Query query = session.createQuery(RETRIEVE_ITEM_BY_ID_USING_DATE);
 		query.setParameter("sessionId", sessionId);
 		addOrgAuthParameters(query);
-		List<SessionItem> sessionItems = query.list();
+		List<SessionItem> sessionItems = list(query);
 		return (sessionItems.size() > 0) ? sessionItems.get(0) : null;
 	}
 	

@@ -47,7 +47,8 @@ public class UserGroupRepositoryHibernate extends BaseRepositoryHibernate implem
 	@Cacheable("gooruCache")
 	public UserGroup getDefaultGroupByOrganization(String organizationUid) {
 		String hql = "FROM UserGroup userGroup WHERE userGroup.organization.partyUid = '" + organizationUid + "' AND userGroup.activeFlag='1'";
-		List<UserGroup> groups = find(hql);
+		Query query = getSession().createQuery(hql);
+		List<UserGroup> groups = list(query);
 		return groups.size() > 0 ? groups.get(0) : null;
 	}
 
@@ -55,7 +56,8 @@ public class UserGroupRepositoryHibernate extends BaseRepositoryHibernate implem
 	@Cacheable("gooruCache")
 	public UserGroup getDefaultGroupByOrganizationCode(String organizationCode) {
 		String hql = "FROM UserGroup userGroup WHERE userGroup.organization.organizationCode = '" + organizationCode + "' AND userGroup.activeFlag='1'";
-		List<UserGroup> groups = find(hql);
+		Query query = getSession().createQuery(hql);
+		List<UserGroup> groups = list(query);
 		return groups.size() > 0 ? groups.get(0) : null;
 	}
 
@@ -63,7 +65,8 @@ public class UserGroupRepositoryHibernate extends BaseRepositoryHibernate implem
 	@Cacheable("gooruCache")
 	public UserGroup getGroup(String groupName, String organizationUid) {
 		String hql = "FROM UserGroup userGroup WHERE userGroup.name = '" + groupName + "' AND userGroup.activeFlag='1' AND userGroup.organization.partyUid = '" + organizationUid + "' ";
-		List<UserGroup> groups = find(hql);
+		Query query = getSession().createQuery(hql);
+		List<UserGroup> groups = list(query);
 		return groups.size() > 0 ? groups.get(0) : null;
 	}
 
@@ -72,7 +75,7 @@ public class UserGroupRepositoryHibernate extends BaseRepositoryHibernate implem
 		String hql = "FROM PartyPermission pp WHERE pp.permittedParty.partyUid = :userPartyUid";
 		Query query = getSession().createQuery(hql);
 		query.setParameter("userPartyUid", userPartyUid);
-		return query.list();
+		return list(query);
 	}
 
 	@Override
@@ -80,7 +83,7 @@ public class UserGroupRepositoryHibernate extends BaseRepositoryHibernate implem
 		String hql = "FROM PartyPermission pp WHERE pp.party.partyUid IN (:organizationIds)";
 		Query query = getSession().createQuery(hql);
 		query.setParameterList("organizationIds", organizationIds);
-		return (List<PartyPermission>) query.list();
+		return list(query);
 	}
 	
 	@Override
@@ -104,7 +107,7 @@ public class UserGroupRepositoryHibernate extends BaseRepositoryHibernate implem
 				+ generateOrgAuthQuery("userGroupAssociation.user."));
 		query.setParameter("groupUid", groupUid);
 		addOrgAuthParameters(query);
-		return query.list();
+		return list(query);
 	}
 
 	@Override
@@ -112,7 +115,7 @@ public class UserGroupRepositoryHibernate extends BaseRepositoryHibernate implem
 		String hql= "select distinct(external_id)  as mailId from classpage c inner join user_group u on u.user_group_code = c.classpage_code inner join content cc on cc.content_id = classpage_content_id  inner join  user_group_association ug on ug.user_group_uid = u.user_group_uid inner join identity i on i.user_uid = ug.gooru_uid  where cc.user_uid=:gooruUid  and external_id like '" + queryText.replace("'", "\\")+ "%'";
 	    Query query = getSession().createSQLQuery(hql).addScalar("mailId",StandardBasicTypes.STRING);
 		query.setParameter("gooruUid", gooruUid);
-		return query.list();
+		return list(query);
 	}
 	
 	@Override
@@ -131,7 +134,7 @@ public class UserGroupRepositoryHibernate extends BaseRepositoryHibernate implem
 		Query query = getSession().createSQLQuery(sql);
 			query.setFirstResult(offset);
 			query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
-		return query.list();
+		return list(query);
 	}
 	
 	@Override
@@ -162,7 +165,7 @@ public class UserGroupRepositoryHibernate extends BaseRepositoryHibernate implem
 		Query query = getSession().createSQLQuery(sql);
 			query.setFirstResult(offset);
 			query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
-		return query.list();
+		return list(query);
 	}
 	
 	@Override
