@@ -101,8 +101,9 @@ public class OrganizationSettingRepositoryHibernate extends BaseRepositoryHibern
 			query.setParameter(ORG_UID_PARAM, organizationUid);
 		}
 		query.setParameter(NAME, configKey);
-		if(list(query) != null && list(query).size() > 0){
-			return (OrganizationSetting) list(query).get(0);
+		List<OrganizationSetting> result = list(query);
+		if(result != null && result.size() > 0){
+			return result.get(0);
 		}
 		return null;
 	}
