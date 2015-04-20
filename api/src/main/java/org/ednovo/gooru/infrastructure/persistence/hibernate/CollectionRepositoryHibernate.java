@@ -1018,7 +1018,8 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		addOrgAuthParameters(query);
 		query.setFirstResult(offset);
 		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
-		return query.list().size() > 0 ? query.list() : null;
+		List<Collection> collections = list(query);
+		return collections.size() > 0 ? collections : null;
 	}
 
 	@Override

@@ -367,8 +367,11 @@ public class CustomFieldRepositoryHibernate extends BaseRepositoryHibernate impl
 
 		Map<String, Object> searchFieldsMap = getSearchFieldsByOrganization(accountUId);
 
+		@SuppressWarnings("unchecked")
 		List<String> searchAlias = (List<String>) searchFieldsMap.get("searchAlias");
+		@SuppressWarnings("unchecked")
 		List<Integer> addToSearchIndex = (List<Integer>) searchFieldsMap.get("addToSearchIndex");
+		@SuppressWarnings("unchecked")
 		List<Integer> addToFilters = (List<Integer>) searchFieldsMap.get("addToFilters");
 		String fields = (String) searchFieldsMap.get("fields");
 
@@ -465,7 +468,8 @@ public class CustomFieldRepositoryHibernate extends BaseRepositoryHibernate impl
 			sql += " WHERE " + thirdPartyResource + " IN ( " + licenseResources + ")";
 		}
 		SQLQuery query = getSession().createSQLQuery(sql);
-		return query.list().size() > 0 ? query.list() : null;
+		List<String> results = list(query);
+		return results.size() > 0 ? results : null;
 	}
 
 	@Override
@@ -477,7 +481,8 @@ public class CustomFieldRepositoryHibernate extends BaseRepositoryHibernate impl
 		}
 
 		SQLQuery query = getSession().createSQLQuery(sql);
-		return query.list().size() > 0 ? query.list() : null;
+		List<String> results = list(query);
+		return results.size() > 0 ? results : null;
 	}
 
 	private String getCustomFieldsByName(String name) {

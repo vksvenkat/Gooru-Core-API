@@ -100,6 +100,7 @@ public class AssessmentRepositoryHibernate extends BaseRepositoryHibernate imple
 		return list(query).size() > 0 ? true : false;		
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<QuestionSet> listQuestionSets(Map<String, String> filters) {
 		return getAll(QuestionSet.class);
@@ -147,11 +148,12 @@ public class AssessmentRepositoryHibernate extends BaseRepositoryHibernate imple
 	public Integer getAssessmentNotAttemptedQuestions(Integer attemptId, String gooruOAssessmentId) {
 		String hql = "SELECT question FROM AssessmentQuestion question ,Assessment assessment , AssessmentAttempt attempt  WHERE question IN assessment.segments.segmentQuestions.question AND  question NOT IN attempt.attemptItems.question AND assessment.gooruOid = '" + gooruOAssessmentId
 				+ "' AND attempt.mode = 1 AND attempt.attemptId = " + attemptId + " AND " + generateAuthQueryWithDataNew("assessment.");
-		List result = find(hql);
+		Query query = getSession().createQuery(hql);
+		List<AssessmentQuestion> result = list(query);
 		return (result != null) ? result.size() : 0;
 	}
 
-		@Override
+	@Override
 	public void deleteQuestionAssets(int assetId) {
 		String sql = "DELETE aqa FROM assessment_question_asset_assoc ";
 		jdbcTemplate.execute(sql);
