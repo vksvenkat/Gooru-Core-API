@@ -105,6 +105,7 @@ public class IndexProcessor extends BaseComponent {
 
 	public void indexStas(final String uuids, final String action, final String type) {
 		String indexMode = redisService.getValue("index-mode");
+		System.out.println("indexMode key==========>:"+indexMode);
 		if(indexMode != null && indexMode.equalsIgnoreCase("kafka")){
 			Map<String, Object> indexData = new HashMap<String, Object>();
 			indexData.put("indexableIds", uuids);
@@ -170,23 +171,36 @@ public class IndexProcessor extends BaseComponent {
 	public void index(final String uuids, final String action, final String type, final String sessionToken, final GooruAuthenticationToken authentication, final boolean isUpdateUserContent, final boolean isUpdateStas) {
 		final String[] ids = uuids.split(",");
 		try {
+			String url = getSearchApiPath() + "index/es-aca/" + type + "/" + action + "?sessionToken=" + sessionToken + "&ids=" + uuids ;
+			if(isUpdateStas){
+				url = url + "&isUpdateStats=true";
+			}
+			System.out.println("Reindexing API url========>"+url);
+			
+			
 			final Thread indexThread = new Thread(new Runnable() {
 
 				@Override
 				public void run() {
 
+					
 					new ClientResourceExecuter() {
-
+						
+						
+                            
+						
 						@Override
 						public void run(ClientResource clientResource, Representation representation) throws Exception {
 							clientResource.getLogger().setLevel(Level.WARNING);
 							String url = getSearchApiPath() + "index/es-aca/" + type + "/" + action + "?sessionToken=" + sessionToken + "&ids=" + uuids ;
-							if(isUpdateStas){
-								url = url + "&isUpdateStats=true";
-							}
+							
+
+							
 							try {
 								clientResource = new ClientResource(url);
+								System.out.println("urrrRll======>:"+url);
 								representation = clientResource.post(new Form().getWebRepresentation());
+								System.out.println("representation======>:");
 							} catch (Exception exception) {
 								getLogger().error("Error in Indexing: ", exception);
 								throw exception;
