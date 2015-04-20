@@ -237,7 +237,7 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 	
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_READ })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.GET }, value = "/{id}/user")
 	public ModelAndView getUserListByResourceId(@PathVariable(value = ID) final String resourceId, final HttpServletRequest request, final HttpServletResponse response) {
 		return toModelAndView(serialize(this.getResourceService().getUsersByResourceId(resourceId), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, true, USER_INCLUDES));
