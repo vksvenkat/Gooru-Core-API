@@ -69,10 +69,7 @@ public class OrganizationSettingRepositoryHibernate extends BaseRepositoryHibern
 		query.setParameter(ORG_UID_PARAM, organizationUid);
 		query.setParameter(NAME, key);
 		List<String> results = list(query);
-		if (results != null && results.size() > 0) {
-			return results.get(0);
-		}
-		return null;
+		return (results.size()>0)? results.get(0):null;
 	}
 
 	@Override
@@ -102,11 +99,8 @@ public class OrganizationSettingRepositoryHibernate extends BaseRepositoryHibern
 			query.setParameter(ORG_UID_PARAM, organizationUid);
 		}
 		query.setParameter(NAME, configKey);
-		List<OrganizationSetting> result = list(query);
-		if(result != null && result.size() > 0){
-			return result.get(0);
-		}
-		return null;
+		List<OrganizationSetting> results = list(query);
+		return (results.size()>0)? results.get(0):null;
 	}
 	
 }
