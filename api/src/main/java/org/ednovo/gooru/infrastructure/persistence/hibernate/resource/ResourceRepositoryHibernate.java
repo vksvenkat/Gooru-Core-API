@@ -984,8 +984,8 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 	}
 	  
 	@Override
-	public List<User> findByResource(String resourceId) {
-		String hql = "SELECT distinct(ci.resource.user) FROM  CollectionItem ci  where ci.resource.gooruOid=:resourceId";
+	public List<User> getUserListByResourceId(String resourceId) {
+		String hql = "SELECT ci.collection.user FROM  CollectionItem ci  where ci.resource.gooruOid=:resourceId";
 		Query query = getSession().createQuery(hql);
 		query.setParameter("resourceId", resourceId);
 		return (List<User>) query.list();
