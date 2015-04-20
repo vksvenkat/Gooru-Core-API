@@ -23,11 +23,11 @@ public class KafkaProducer {
 	private Producer<String, String> producer;
 	protected Properties props = new Properties();
 
-	private static final String TOPIC_RESOURCE = "resourceQueue";
+	private static final String TOPIC_RESOURCE = "resourceQueue133";
 
-	private static final String TOPIC_SCOLLECTION = "scollectionQueue";
+	private static final String TOPIC_SCOLLECTION = "scollectionQueue133";
 
-	private static final String TOPIC_USER = "userQueue";
+	private static final String TOPIC_USER = "userQueue133";
 
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(IndexProcessor.class);
@@ -72,7 +72,6 @@ public class KafkaProducer {
 			LOGGER.info("Errror while sending date from kafka producer :" + e);
 		}
 	}
-
 	public void push(String message) {
 		KeyedMessage<String, String> data = new KeyedMessage<String, String>(kafkaProperties.conversionJobTopic, message);
 		try {
