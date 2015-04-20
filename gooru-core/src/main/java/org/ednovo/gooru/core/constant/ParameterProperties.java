@@ -2893,5 +2893,7 @@ public interface ParameterProperties {
 	String PROFILE_ID = "profileId";
 	
 	String SECURITY_LEVEL = "securityLevel";
+	
+	String INCLUDE_CIMIN = "includeCIMin";
 }
 
