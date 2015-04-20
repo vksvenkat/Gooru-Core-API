@@ -73,7 +73,8 @@ public class UserTokenRepositoryHibernate extends BaseRepositoryHibernate implem
 	@Override
 	public UserToken findByToken(String sessionToken)
 	 {
-	     List<?> tokens = getSession().createCriteria(UserToken.class).add(Restrictions.eq("token", sessionToken)).list();
+	     @SuppressWarnings("rawtypes")
+		 List tokens = getSession().createCriteria(UserToken.class).add(Restrictions.eq("token", sessionToken)).list();
 	     if(tokens.size() != 0){
 	         return (UserToken)tokens.get(0);
 	     }
