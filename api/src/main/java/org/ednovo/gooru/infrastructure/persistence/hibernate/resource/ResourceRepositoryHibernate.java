@@ -89,6 +89,8 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 	
 	private static final String COUNT_SUBSCRIPTION_FOR_GOORUOID = "select count(1) as totalCount from content c inner join annotation a on a.resource_id = c.content_id where a.type_name='subscription' and c.gooru_oid= :gooruOid and " + generateOrgAuthSqlQuery("c.");
 	
+	private static final String USER_LIST_BY_RESOURCE_ID = "SELECT ci.collection.user FROM  CollectionItem ci  where ci.resource.gooruOid=:resourceId";
+	
 	private static final Logger LOGGER = LoggerFactory.getLogger(ResourceServiceImpl.class);
 
 	@SuppressWarnings("unchecked")
@@ -985,7 +987,7 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 	  
 	@Override
 	public List<User> getUserListByResourceId(String resourceId) {
-		String hql = "SELECT ci.collection.user FROM  CollectionItem ci  where ci.resource.gooruOid=:resourceId";
+		String hql = USER_LIST_BY_RESOURCE_ID;
 		Query query = getSession().createQuery(hql);
 		query.setParameter("resourceId", resourceId);
 		return (List<User>) query.list();
