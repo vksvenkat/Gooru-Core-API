@@ -43,7 +43,7 @@ public class NetworkRepositoryHibernate extends BaseRepositoryHibernate implemen
 		Query query = getSession().createQuery(hql);
 		query.setFirstResult((pageNum - 1) * pageSize);
 		query.setMaxResults(pageSize);
-		return query.list();
+		return list(query);
 	}
 
 }

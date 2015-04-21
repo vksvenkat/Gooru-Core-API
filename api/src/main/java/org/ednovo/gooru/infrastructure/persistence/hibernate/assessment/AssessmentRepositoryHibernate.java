@@ -84,7 +84,7 @@ public class AssessmentRepositoryHibernate extends BaseRepositoryHibernate imple
 			criteria.setMaxResults(pageSize);
 			addAuthCriterias(criteria);
 		}
-		return criteria.list();
+		return criteria(criteria);
 	}
 
 	@Override
@@ -96,14 +96,11 @@ public class AssessmentRepositoryHibernate extends BaseRepositoryHibernate imple
 	@Override
 	public boolean getAttemptAnswerStatus(Integer answerId) {
 		String hql = "SELECT answer FROM AssessmentAnswer answer  WHERE answer.answerId = " + answerId + "AND answer.isCorrect = 1 AND  " + generateAuthQueryWithDataNew("answer.question.");
-		List result = find(hql);
-		if (result != null && result.size() != 0) {
-			return true;
-		} else {
-			return false;
-		}
+		Query query = getSession().createQuery(hql);
+		return list(query).size() > 0 ? true : false;		
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<QuestionSet> listQuestionSets(Map<String, String> filters) {
 		return getAll(QuestionSet.class);
@@ -122,14 +119,15 @@ public class AssessmentRepositoryHibernate extends BaseRepositoryHibernate imple
 	@Override
 	public <T extends Serializable> T getByGooruOId(Class<T> modelClass, String gooruOId) {
 		String hql = "SELECT distinct model FROM " + modelClass.getSimpleName() + " model  WHERE model.gooruOid = '" + gooruOId + "' AND  " + generateAuthQueryWithDataNew("model.");
-		return (T) getRecord(hql);
+		return  getRecord(hql);
 	}
 
 	@Override
 	public List<AssessmentQuestion> getAssessmentQuestions(String gooruOAssessmentId) {
 		String hql = "SELECT aquestion FROM AssessmentQuestion aquestion, Assessment assessment  join assessment.segments as assessmentSegment inner join assessmentSegment.segmentQuestions as segmentQuestion WHERE assessment.gooruOid  = '" + gooruOAssessmentId
 				+ "' AND aquestion = segmentQuestion.question AND  " + generateAuthQueryWithDataNew("assessment.") + " order by assessmentSegment.sequence , segmentQuestion.sequence";
-		return (List<AssessmentQuestion>) find(hql);
+		Query query = getSession().createQuery(hql);
+		return list(query);
 	}
 
 	@Override
@@ -150,11 +148,12 @@ public class AssessmentRepositoryHibernate extends BaseRepositoryHibernate imple
 	public Integer getAssessmentNotAttemptedQuestions(Integer attemptId, String gooruOAssessmentId) {
 		String hql = "SELECT question FROM AssessmentQuestion question ,Assessment assessment , AssessmentAttempt attempt  WHERE question IN assessment.segments.segmentQuestions.question AND  question NOT IN attempt.attemptItems.question AND assessment.gooruOid = '" + gooruOAssessmentId
 				+ "' AND attempt.mode = 1 AND attempt.attemptId = " + attemptId + " AND " + generateAuthQueryWithDataNew("assessment.");
-		List result = find(hql);
+		Query query = getSession().createQuery(hql);
+		List<AssessmentQuestion> result = list(query);
 		return (result != null) ? result.size() : 0;
 	}
 
-		@Override
+	@Override
 	public void deleteQuestionAssets(int assetId) {
 		String sql = "DELETE aqa FROM assessment_question_asset_assoc ";
 		jdbcTemplate.execute(sql);
@@ -173,7 +172,8 @@ public class AssessmentRepositoryHibernate extends BaseRepositoryHibernate imple
 	}
 
 	private <T> T getRecord(String hql) {
-		List<T> list = find(hql);
+		Query query = getSession().createQuery(hql);
+		List<T> list = list(query);
 		return (list != null && list.size() > 0) ? list.get(0) : null;
 	}
 
@@ -182,7 +182,7 @@ public class AssessmentRepositoryHibernate extends BaseRepositoryHibernate imple
 		String sql = "SELECT COUNT(1) FROM assessment_question question INNER JOIN assessment_segment segment " + "INNER JOIN assessment_segment_question_assoc segmentQuestion ON ( segmentQuestion.segment_id = segment.segment_id AND segmentQuestion.question_id = question.question_id ) "
 				+ "INNER JOIN assessment assessment ON assessment.assessment_id = segment.assessment_id " + "INNER JOIN content content ON content.content_id=question.question_id " + "WHERE assessment.assessment_id = '" + assessmentId + "' AND " + generateAuthSqlQueryWithData("content.");
 		Session session = getSession();
-		List<BigInteger> results = session.createSQLQuery(sql).list();
+		List<BigInteger> results = list(session.createSQLQuery(sql));
 		return (results != null) ? (results.get(0)).intValue() : 0;
 	}
 
@@ -215,7 +215,7 @@ public class AssessmentRepositoryHibernate extends BaseRepositoryHibernate imple
 		Query query = getSession().createSQLQuery(sql).addScalar("questionText", StandardBasicTypes.STRING).addScalar("concept", StandardBasicTypes.STRING).addScalar("status", StandardBasicTypes.STRING).addScalar("questionId", StandardBasicTypes.INTEGER)
 				.addScalar("explanation", StandardBasicTypes.STRING).addScalar("questionType", StandardBasicTypes.INTEGER).addScalar("folder", StandardBasicTypes.STRING).addScalar("assetURI", StandardBasicTypes.STRING).addScalar("gooruOid", StandardBasicTypes.STRING)
 				.addScalar("attemptItemId", StandardBasicTypes.INTEGER).addScalar("correctTrySequence", StandardBasicTypes.INTEGER);
-		List<Object[]> result = query.list();
+		List<Object[]> result = arrayList(query);
 		return result;
 	}
 
@@ -228,26 +228,30 @@ public class AssessmentRepositoryHibernate extends BaseRepositoryHibernate imple
 	@Override
 	public AssessmentQuestionAssetAssoc findQuestionAsset(String questionGooruOid, Integer assetId) {
 		String hql = "SELECT questionAsset FROM AssessmentQuestionAssetAssoc questionAsset  WHERE questionAsset.question.gooruOid = '" + questionGooruOid + "' AND questionAsset.asset.assetId = " + assetId + " AND " + generateAuthQueryWithDataNew("questionAsset.question.");
-		List<AssessmentQuestionAssetAssoc> questionAssets = find(hql);
+		Query query = getSession().createQuery(hql);
+		List<AssessmentQuestionAssetAssoc> questionAssets = list(query);
 		return questionAssets.size() > 0 ? questionAssets.get(0) : null;
 	}
 
 	@Override
 	public List<AssessmentQuestion> getAssessmentQuestionsByAssessmentGooruOids(String gooruOAssessmentIds) {
 		String hql = "SELECT question FROM AssessmentQuestion question  WHERE question.gooruOid IN(" + gooruOAssessmentIds + ")  AND " + generateAuthQueryWithDataNew("question.");
-		return (List<AssessmentQuestion>) find(hql);
+		Query query = getSession().createQuery(hql);
+		return list(query);
 	}
 
 	@Override
 	public List<AssessmentAnswer> findAnswerByAssessmentQuestionId(Integer questionId) {
 		String hql = "SELECT question.answers FROM AssessmentQuestion question WHERE question.contentId =" + questionId + " AND " + generateAuthQueryWithDataNew("question.");
-		return (List<AssessmentAnswer>) find(hql);
+		Query query = getSession().createQuery(hql);
+		return list(query);
 	}
 
 	@Override
 	public List<AssessmentQuestionAssetAssoc> getQuestionAssetByQuestionId(Integer questionId) {
 		String hql = "SELECT questionAsset FROM AssessmentQuestionAssetAssoc questionAsset  WHERE questionAsset.question.contentId = '" + questionId + "'  AND " + generateAuthQueryWithDataNew("questionAsset.question.");
-		return (List<AssessmentQuestionAssetAssoc>) find(hql);
+		Query query = getSession().createQuery(hql);
+		return list(query);
 	}
 
 
@@ -256,7 +260,7 @@ public class AssessmentRepositoryHibernate extends BaseRepositoryHibernate imple
 
 		String sql = "SELECT a.name FROM assessment a INNER JOIN  content c ON (c.content_id = a.assessment_id)  WHERE c.gooru_oid = '" + gooruOid + "' AND " + generateAuthSqlQueryWithData("c.");
 		Session session = getSession();
-		List<String> result = session.createSQLQuery(sql).list();
+		List<String> result = list(session.createSQLQuery(sql));
 
 		return (result.size() > 0) ? result.get(0) : null;
 	}
@@ -287,7 +291,7 @@ public class AssessmentRepositoryHibernate extends BaseRepositoryHibernate imple
 		String sql = "SELECT c.gooru_oid FROM assessment_segment a INNER JOIN assessment_segment_question_assoc ass ON ( ass.segment_id = a.segment_id ) INNER JOIN content c ON (c.content_id = a.assessment_id ) INNER JOIN content ct ON ( ass.question_id = ct.content_id ) WHERE ct.gooru_oid = '"
 				+ questionGooruOid + "'";
 		Query query = session.createSQLQuery(sql);
-		return query.list();
+		return list(query);
 	}
 
 	@Override

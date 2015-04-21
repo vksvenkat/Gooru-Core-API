@@ -41,7 +41,7 @@ public class SessionActivityRepositoryHibernate extends BaseRepositoryHibernate 
 		Query query = getSession().createQuery(hql);
 		query.setParameter("sessionActivityUid", sessionActivityUid);
 		addOrgAuthParameters(query);
-		List<SessionActivity> sessionActivityList = (List<SessionActivity>) query.list();
+		List<SessionActivity> sessionActivityList = list(query);
 		return sessionActivityList.size() > 0 ? sessionActivityList.get(0) : null;
 	}
 
@@ -51,7 +51,7 @@ public class SessionActivityRepositoryHibernate extends BaseRepositoryHibernate 
 		Query query = getSession().createQuery(hql);
 		query.setParameter("userUid", userUid);
 		addOrgAuthParameters(query);
-		List<SessionActivity> sessionActivityList = (List<SessionActivity>) query.list();
+		List<SessionActivity> sessionActivityList = list(query);
 		return sessionActivityList.size() > 0 ? sessionActivityList : null;
 	}
 
@@ -76,7 +76,7 @@ public class SessionActivityRepositoryHibernate extends BaseRepositoryHibernate 
 		query.setParameter("contentUid", contentUid);
 		query.setParameter("status", status);
 		addOrgAuthParameters(query);
-		return query.list();
+		return list(query);
 	}
 
 	@Override
@@ -97,7 +97,7 @@ public class SessionActivityRepositoryHibernate extends BaseRepositoryHibernate 
 		query.setParameter("contentUid", contentUid);
 		query.setParameter("status", status);
 		addOrgAuthParameters(query);
-		List<SessionActivity> sessionActivityList = (List<SessionActivity>) query.list();
+		List<SessionActivity> sessionActivityList = list(query);
 		return sessionActivityList.size() > 0 ? sessionActivityList : null;
 	}
 
@@ -110,7 +110,7 @@ public class SessionActivityRepositoryHibernate extends BaseRepositoryHibernate 
 		query.setParameter("contentUid", contentUid);
 		query.setParameter("status", status);
 		addOrgAuthParameters(query);
-		return query.list();
+		return list(query);
 	}
 
 	@Override

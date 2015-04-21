@@ -52,7 +52,8 @@ class SetColumnMapper extends AbstractColumnMapper {
     
     @Override
     public boolean setField(Object entity, Iterator<String> name, com.netflix.astyanax.model.Column<String> column) throws Exception {
-        Set<Object> set = (Set<Object>) field.get(entity);
+        @SuppressWarnings("unchecked")
+		Set<Object> set = (Set<Object>) field.get(entity);
         if (set == null) {
             set = Sets.newHashSet();
             field.set(entity,  set);

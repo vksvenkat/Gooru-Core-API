@@ -27,6 +27,7 @@ import java.util.List;
 
 import org.ednovo.gooru.core.api.model.ConsumerAccount;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate;
+import org.hibernate.Query;
 import org.springframework.stereotype.Repository;
 
 
@@ -43,8 +44,8 @@ public class ConsumerAccountRepositoryHibernate extends BaseRepositoryHibernate
 			return null;
 		}
 		String retrieveConsumer = format(RETRIEVE_CONSUMER_ACCOUNT, domain, generateOrgAuthQueryWithData("ca."));
-		
-		List<ConsumerAccount> consumerAccounts = find(retrieveConsumer);
+		Query query = getSession().createQuery(retrieveConsumer);
+		List<ConsumerAccount> consumerAccounts = list(query);
 		return (consumerAccounts.size() > 0) ? consumerAccounts.get(0) : null;
 	}
 
