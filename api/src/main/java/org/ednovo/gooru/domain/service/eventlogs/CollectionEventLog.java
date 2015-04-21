@@ -61,7 +61,7 @@ public class CollectionEventLog implements ParameterProperties, ConstantProperti
 
 	public void getEventLogs(CollectionItem collectionItem, boolean isCreate, boolean isAdd, User user, boolean isCopy, boolean isEdit, String data) {
 		try {
-			if (collectionItem != null && collectionItem.getCollection()!=null) {
+			if (collectionItem != null && collectionItem.getCollection() != null) {
 			String collectionType = collectionItem.getCollection().getCollectionType();
 			if (isCreate) {
 				SessionContextSupport.putLogParameter(EVENT_NAME, ITEM_CREATE);
