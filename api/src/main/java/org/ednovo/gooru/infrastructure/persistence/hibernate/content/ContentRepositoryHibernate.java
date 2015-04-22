@@ -1,4 +1,5 @@
 /////////////////////////////////////////////////////////////
+
 // ContentRepositoryHibernate.java
 // gooru-api
 // Created by Gooru on 2014
@@ -39,7 +40,6 @@ import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.ResourceType;
 import org.ednovo.gooru.core.api.model.StatusType;
 import org.ednovo.gooru.core.api.model.User;
-import org.ednovo.gooru.core.api.model.Versionable;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate;
@@ -147,7 +147,7 @@ public class ContentRepositoryHibernate extends BaseRepositoryHibernate implemen
 	@Override
 	public ContentAssociation getCollectionAssocContent(String contentGooruOid) {
 		String hql = "SELECT contentAssociation FROM ContentAssociation contentAssociation JOIN Content content  LEFT JOIN content.contentPermissions cps WHERE content.gooruOid = '" + contentGooruOid + "' AND  " + generateAuthQueryWithDataNew("content.");
-		List<ContentAssociation> result = find(hql);
+		List<ContentAssociation> result = (List<ContentAssociation>) find(hql);
 		return (result.size() > 0) ? null : result.get(0);
 	}
 
@@ -155,7 +155,7 @@ public class ContentRepositoryHibernate extends BaseRepositoryHibernate implemen
 	@Override
 	public StatusType getStatusType(String name) {
 		String hql = "FROM StatusType statusType  WHERE statusType.name = '" + name + "'";
-		List<StatusType> result = find(hql);
+		List<StatusType> result = (List<StatusType>) find(hql);
 		return (result.size() > 0) ? null : result.get(0);
 	}
 

@@ -48,7 +48,7 @@ public class CountryRepositoryHibernate extends BaseRepositoryHibernate implemen
 		Query query = getSession().createQuery(COUNTRYS);
 		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : limit);
 		query.setFirstResult(offset);
-		return query.list();
+		return list(query);
 	}
 
 	@Override
@@ -80,7 +80,7 @@ public class CountryRepositoryHibernate extends BaseRepositoryHibernate implemen
 		}
 		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : limit);
 		query.setFirstResult(offset);
-		return query.list();
+		return list(query);
 	}
 
 	@Override
@@ -108,7 +108,7 @@ public class CountryRepositoryHibernate extends BaseRepositoryHibernate implemen
 		query.setParameter(STATE_UID, stateUid);
 		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : limit);
 		query.setFirstResult(offset);
-		return query.list();
+		return list(query);
 	}
 
 	@Override

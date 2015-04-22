@@ -243,7 +243,8 @@ public class CassandraDaoSupport<F extends CassandraColumnFamily> {
 	public static String getRiKey(String prefix, String key) {
 		return prefix + SEPARATOR + key;
 	}
-
+	
+	@SuppressWarnings("unchecked")
 	public void build(Map<String, Object> entity, ColumnListMutation<String> mutation, String prefix, Map<String, String> riFields) {
 		Iterator<Entry<String, Object>> iterator = entity.entrySet().iterator();
 		while (iterator.hasNext()) {
@@ -257,7 +258,8 @@ public class CassandraDaoSupport<F extends CassandraColumnFamily> {
 			if (value == null) {
 				mutation.putEmptyColumn(key);
 			} else if (value instanceof Map) {
-				build((Map<String, Object>) value, mutation, key, riFields);
+				Map<String, Object> value2 = (Map<String, Object>) value;
+				build(value2, mutation, key, riFields);
 			} else if (value instanceof List) {
 				build((List<Object>) value, mutation, key);
 			} else if (value instanceof String) {

@@ -478,7 +478,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			if (taxonomyCode != null) {
 				addCollectionTaxonomy(collection, taxonomyCode, updateTaxonomyByCode);
 				this.getCollectionRepository().save(collection);
-				collection.setTaxonomySetMapping(TaxonomyUtil.getTaxonomyByCode(collection.getTaxonomySet(), taxonomyService));
 			}
 
 			if (newCollection.getVocabulary() != null) {
@@ -1789,7 +1788,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 			if (newCollection.getTaxonomySet() != null) {
 				resourceService.saveOrUpdateResourceTaxonomy(collection, newCollection.getTaxonomySet());
-				collection.setTaxonomySetMapping(TaxonomyUtil.getTaxonomyByCode(collection.getTaxonomySet(), taxonomyService));
 			}
 
 			if (newCollection.getVocabulary() != null) {

@@ -114,11 +114,11 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 		setJdbcTemplate(jdbcTemplate);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public List<User> findByRole(UserRole role) {
-		List<User> userList = find("from User user where user.userRole.roleId = " + role.getRoleId() + " AND " + generateOrgAuthQueryWithData("user.") + " AND " + generateUserIsDeleted("user."));
-		return userList.size() == 0 ? null : userList;
+		String hql = "from User user where user.userRole.roleId = " + role.getRoleId() + " AND " + generateOrgAuthQueryWithData("user.") + " AND " + generateUserIsDeleted("user.");
+		Query query =  getSession().createQuery(hql);
+		return list(query);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -251,6 +251,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 
 	@Override
 	public boolean findRegisteredUser(String emailId) {
+		@SuppressWarnings("deprecation")
 		int count = this.getJdbcTemplate().queryForInt(FIND_REGISTERED_USER, new Object[] { emailId });
 		Boolean isRegisteredUser = false;
 		if (count > 0) {
@@ -369,10 +370,11 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 		return user;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public List<UserRoleAssoc> findUserRoleSet(User user) {
-		return find("From UserRoleAssoc userRoleAssoc  WHERE userRoleAssoc.user.partyUid = " + user.getGooruUId() + "  AND " + generateOrgAuthQueryWithData("userRoleAssoc.user.") + " AND " + generateUserIsDeleted("userRoleAssoc.user."));
+		String hql = "From UserRoleAssoc userRoleAssoc  WHERE userRoleAssoc.user.partyUid = " + user.getGooruUId() + "  AND " + generateOrgAuthQueryWithData("userRoleAssoc.user.") + " AND " + generateUserIsDeleted("userRoleAssoc.user.");
+		Query query = getSession().createQuery(hql);
+		return list(query);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -806,7 +808,8 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 
 	public Integer getChildAccountCount(String userUId) {
 		String sql = "select count(1) from user where parent_uid='" + userUId + "' ";
-		List<BigInteger> results = getSession().createSQLQuery(sql).list();
+		Query query = getSession().createSQLQuery(sql);
+		List<BigInteger> results = list(query);
 		if (results != null && results.get(0) != null) {
 			return (results.get(0).intValue());
 		}
@@ -839,7 +842,7 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 		}
 		query.setFirstResult(offset);
 		query.setMaxResults(limit == null ? LIMIT : (limit > MAX_LIMIT ? MAX_LIMIT : limit));
-		return query.list();
+		return list(query);
 	}
 
 	@Override
@@ -862,10 +865,11 @@ public class UserRepositoryHibernate extends BaseRepositoryHibernate implements 
 		return (Long) (query.list().size() > 0 ? query.list().get(0) : 0);
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	public List<UserRoleAssoc> findUserRoleSetByUserUid(String userUid) {
-		return find("From UserRoleAssoc userRoleAssoc  WHERE userRoleAssoc.user.partyUid =' " + userUid + "'  AND " + generateOrgAuthQueryWithData("userRoleAssoc.user.") + " AND " + generateUserIsDeleted("userRoleAssoc.user."));
+		String hql = "From UserRoleAssoc userRoleAssoc  WHERE userRoleAssoc.user.partyUid =' " + userUid + "'  AND " + generateOrgAuthQueryWithData("userRoleAssoc.user.") + " AND " + generateUserIsDeleted("userRoleAssoc.user.");
+		Query query = getSession().createQuery(hql);
+		return list(query);
 	}
 	
 	@SuppressWarnings("unchecked")

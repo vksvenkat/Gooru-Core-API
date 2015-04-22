@@ -29,14 +29,16 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.hibernate.Query;
+import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.type.StandardBasicTypes;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class ConfigSettingRepositoryHibernate extends BaseRepositoryHibernate implements ConfigSettingRepository {
+public class ConfigSettingRepositoryHibernate extends BaseRepositoryHibernate implements ConfigSettingRepository, ParameterProperties {
 
 	@Resource(name = "configSettingProfileName")
 	private String configSettingProfileName;
@@ -83,6 +85,18 @@ public class ConfigSettingRepositoryHibernate extends BaseRepositoryHibernate im
 		return value;
 	}
 
+	@SuppressWarnings("unchecked")
+	public String getConfigSetting(int securityLevel, String name, String organizationUid) {
+		String sql = "SELECT value FROM config_setting WHERE name = :name AND security_level <= :securityLevel AND profile_id = :profileId AND " + generateOrgAuthSqlQuery();
+		Query query = getSession().createSQLQuery(sql).addScalar(VALUE, StandardBasicTypes.STRING);
+		query.setParameter(NAME, name);
+		query.setParameter(SECURITY_LEVEL, securityLevel);
+		query.setParameter(PROFILE_ID, getConfigSettingProfileName());
+		query.setParameter(ORGANIZATION_UIDS, organizationUid);
+		List<String> results = query.list();
+		return results.size() > 0 ? results.get(0) : null;
+	}
+	
 	public String getConfigSettingProfileName() {
 		return configSettingProfileName != null && !configSettingProfileName.startsWith(DEFAULT_CHECK)? configSettingProfileName : DEFAULT_PROFILE_NAME;
 	}
@@ -102,9 +116,14 @@ public class ConfigSettingRepositoryHibernate extends BaseRepositoryHibernate im
 	}
 
 	@Override
-	public void updateConfigSetting(String orgainzationUid, String key, String value) {
-		String sql = "UPDATE config_setting SET value='"+value+"' WHERE key='"+key+"' AND organization_uid='"+orgainzationUid +"'";
-		getSession().createSQLQuery(sql);
+	public void updateConfigSetting(String orgainzationUid, String name, String value) {
+		String sql = "UPDATE config_setting SET value= :value WHERE name= :name AND organization_uid= :organizationUid AND profile_id = :profileId";
+		SQLQuery query = getSession().createSQLQuery(sql);
+		query.setParameter(VALUE, value);
+		query.setParameter(NAME, name);
+		query.setParameter(_ORGANIZATION_UID, orgainzationUid);
+		query.setParameter(PROFILE_ID, getConfigSettingProfileName());
+		query.executeUpdate();
 	}
 
 	@SuppressWarnings("unchecked")

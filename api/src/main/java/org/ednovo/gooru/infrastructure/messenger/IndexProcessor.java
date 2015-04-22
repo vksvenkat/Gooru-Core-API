@@ -174,16 +174,17 @@ public class IndexProcessor extends BaseComponent {
 
 				@Override
 				public void run() {
-
-					new ClientResourceExecuter() {
-
+					String url = getSearchApiPath() + "index/es-aca/" + type + "/" + action + "?sessionToken=" + sessionToken + "&ids=" + uuids ;
+					if(isUpdateStas){
+						url = url + "&isUpdateStats=true";
+					}
+					
+					new ClientResourceExecuter() {    
+						
 						@Override
 						public void run(ClientResource clientResource, Representation representation) throws Exception {
 							clientResource.getLogger().setLevel(Level.WARNING);
-							String url = getSearchApiPath() + "index/es-aca/" + type + "/" + action + "?sessionToken=" + sessionToken + "&ids=" + uuids ;
-							if(isUpdateStas){
-								url = url + "&isUpdateStats=true";
-							}
+							String url = getSearchApiPath() + "index/es-aca/" + type + "/" + action + "?sessionToken=" + sessionToken + "&ids=" + uuids ;							
 							try {
 								clientResource = new ClientResource(url);
 								representation = clientResource.post(new Form().getWebRepresentation());
