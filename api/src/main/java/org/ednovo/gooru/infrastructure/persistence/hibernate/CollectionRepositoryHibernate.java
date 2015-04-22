@@ -1124,6 +1124,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		if (sharing != null){
 			hql += " and collectionItem.resource.sharing in  ('"+ sharing.replace(",", "','") + "')";
 		}
+		hql += " order by collectionItem.itemSequence desc";
 		final Query query = getSession().createQuery(hql);
 		query.setParameter(COLLECTION_ID, collectionId);
 		query.setParameter(ITEM_SEQUENCE, sequence);
