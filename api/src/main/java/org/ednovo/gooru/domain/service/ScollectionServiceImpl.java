@@ -863,8 +863,11 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			}
 			this.getCollectionRepository().save(collectionItem);
 			this.getCollectionRepository().save(collectionItem.getCollection());
-			this.getCollectionEventLog().getEventLogs(collectionItem, false, false, user, false, false, SerializerUtil.serializeToJson(newcollectionItem, EXCLUDE, true, true));
-	
+			try {
+				this.getCollectionEventLog().getEventLogs(collectionItem, false, false, user, false, false, SerializerUtil.serializeToJson(newcollectionItem, EXCLUDE, true, true));
+			} catch (Exception e) {
+				LOGGER.error(_ERROR, e);
+			}
 			if (collectionItem.getResource().getResourceType() != null && collectionItem.getResource().getResourceType().getName().equalsIgnoreCase(ResourceType.Type.SCOLLECTION.getType())) {
 					indexHandler.setReIndexRequest(collectionItem.getResource().getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);							
 				} else {
