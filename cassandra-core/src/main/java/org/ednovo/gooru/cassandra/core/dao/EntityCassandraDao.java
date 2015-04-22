@@ -60,5 +60,5 @@ public interface EntityCassandraDao<M> extends CassandraDao {
 	
 	Rows<String, String> readWithKeyListColumnList(Collection<String> keys,Collection<String> columnList, int retryCount);
 	
-	OperationResult<ColumnList<String>> readAsFields (String  key,String type);	
+	OperationResult<ColumnList<String>> readAsFields (String  key);	
 }
