@@ -78,7 +78,7 @@ public class OAuthRestV2Controller extends BaseController implements ConstantPro
 			SessionContextSupport.putLogParameter("OAuthClientId", responseDTO.getModel().getKey());
 		}
 		String [] includes = (String[]) ArrayUtils.addAll(ERROR_INCLUDE, OAUTH_CLIENT_INCLUDES);
-		return toModelAndView(serialize(responseDTO.getModel(), RESPONSE_FORMAT_JSON, EXCLUDE, includes));
+		return toModelAndView(serialize(responseDTO.getModel(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, includes));
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_OAUTH_UPDATE })
