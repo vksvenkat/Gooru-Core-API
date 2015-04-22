@@ -500,7 +500,6 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 			e.printStackTrace();
 		}
 		JSONObject json = new JSONObject(paramMap);
-		//System.out.println(settingService.getConfigSetting(ConfigConstants.GOORU_MAIL_RESTPOINT, 0, TaxonomyUtil.GOORU_ORG_UID));
 		ClientResource clientResource = new ClientResource((settingService.getConfigSetting(ConfigConstants.GOORU_MAIL_RESTPOINT, 0, TaxonomyUtil.GOORU_ORG_UID) + "send-mail"));
 		clientResource.post(json.toString());
 	}

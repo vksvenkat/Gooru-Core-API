@@ -945,7 +945,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		final Collection pathway = this.getCollectionRepository().getCollectionByIdWithType(pathwayId, PATHWAY);
 		final List<CollectionItem> collectionItems = getPathwayItems(classId,pathwayId,offset,limit,orderBy,user);
 		final SearchResults<CollectionItem> searchResults = new SearchResults<CollectionItem>();
-		searchResults.setSearchResults(getCollectionService().setCollectionItemMetaInfo(collectionItems, null));
+		searchResults.setSearchResults(getCollectionService().setCollectionItemMetaInfo(collectionItems, null, false));
 		searchResults.setTotalHitCount(this.getCollectionRepository().getCollectionItemsCount(pathwayId, orderBy, CLASSPAGE));
 		searchResults.setTitle(pathway.getTitle());
 		return searchResults; 
