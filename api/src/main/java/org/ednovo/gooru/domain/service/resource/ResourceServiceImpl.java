@@ -942,22 +942,18 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				|| resource.getResourceType().getName().equalsIgnoreCase(CLASSPAGE)) {
 			throw new NotFoundException(generateErrorMessage(GL0056, RESOURCE), GL0056);
 		} else {
-			List<org.ednovo.gooru.core.api.model.Collection> collections = getCollectionRepository().getCollectionByResourceOid(gooruContentId);
-			for (org.ednovo.gooru.core.api.model.Collection collection : collections) {
-				collection.setLastModified(new Date(System.currentTimeMillis()));
-				List<CollectionItem> collectionitems = this.getCollectionRepository().getCollectionItemsByResource(collection.getGooruOid());
+				List<CollectionItem> collectionitems = this.getCollectionRepository().getCollectionItemsByResource(gooruContentId);
 				for (CollectionItem collectionItem : collectionitems) {
+					collectionItem.getCollection().setLastModified(new Date(System.currentTimeMillis()));
 					List<CollectionItem> resetCollectionItems = this.getCollectionRepository().getResetSequenceCollectionItems(collectionItem.getCollection().getGooruOid(), collectionItem.getItemSequence());
 					int itemSequence = collectionItem.getItemSequence();
 					for (CollectionItem resetCollectionItem : resetCollectionItems) {
 						resetCollectionItem.setItemSequence(itemSequence++);
 					}
 					this.getCollectionRepository().saveAll(resetCollectionItems);
+					getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
 				}
-				getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collection.getUser().getPartyUid() + "*");
-			}
-
-			this.getCollectionRepository().saveAll(collections);
+			this.getCollectionRepository().saveAll(collectionitems);
 			if ((resource.getUser() != null && resource.getUser().getPartyUid().equalsIgnoreCase(apiCaller.getPartyUid())) || getUserService().isContentAdmin(apiCaller)) {
 				this.getContentService().deleteContentTagAssoc(resource.getGooruOid(), apiCaller);
 				this.getBaseRepository().remove(resource);
