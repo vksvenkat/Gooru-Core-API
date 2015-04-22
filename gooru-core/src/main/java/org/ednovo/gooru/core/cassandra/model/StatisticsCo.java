@@ -31,7 +31,7 @@ public class StatisticsCo {
 	private String viewsCount;
 	
 	@Column
-	private Integer remixCount;
+	private Integer scollectionRemixCount;
 
 	@Column
 	private Integer resourceAddedCount;
@@ -283,12 +283,12 @@ public class StatisticsCo {
 		this.averageTimeSpent = averageTimeSpent;
 	}
 
-	public Integer getRemixCount() {
-		return remixCount;
+	public Integer getScollectionRemixCount() {
+		return scollectionRemixCount;
 	}
 
-	public void setRemixCount(Integer remixCount) {
-		this.remixCount = remixCount;
+	public void setScollectionRemixCount(Integer scollectionRemixCount) {
+		this.scollectionRemixCount = scollectionRemixCount;
 	}
 
 	public Integer getResourceAddedCount() {
