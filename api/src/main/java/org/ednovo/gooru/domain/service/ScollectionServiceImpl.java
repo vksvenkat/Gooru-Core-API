@@ -1923,7 +1923,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 						userSummary.setCollections(userSummary.getCollections() <= 0 ? 0 : (userSummary.getCollections() - 1));
 						this.getUserRepository().save(userSummary);
 					}
-				} else if (hasUnrestrictedContentAccess && !collection.getSharing().equalsIgnoreCase(PUBLIC) && newCollection.getSharing().equalsIgnoreCase(PUBLIC)) {
+				} else if ((collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.ASSESSMENT_URL.getType()) || hasUnrestrictedContentAccess) && !collection.getSharing().equalsIgnoreCase(PUBLIC) && newCollection.getSharing().equalsIgnoreCase(PUBLIC)) {
 					UserSummary userSummary = this.getUserRepository().getSummaryByUid(collection.getUser().getPartyUid());
 					if (userSummary.getGooruUid() == null) {
 						userSummary.setGooruUid(collection.getUser().getPartyUid());
