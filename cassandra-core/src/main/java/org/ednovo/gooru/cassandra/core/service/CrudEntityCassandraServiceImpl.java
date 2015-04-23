@@ -47,7 +47,7 @@ public abstract class CrudEntityCassandraServiceImpl<S extends IsCassandraIndexa
 					throw new NotFoundException("Content not exist : " + key);
 				}
 				
-				if(source.getIndexType().equalsIgnoreCase("resource")||source.getIndexType().equalsIgnoreCase("question")&&isFieldIndexingIsEnabled) {
+				if(isFieldIndexingIsEnabled) {
 				CassandraIndexSrcBuilder<S, M> builder = CassandraIndexSrcBuilder.get("resource_fields");
 				M modelCio = builder.build(source);
 				if (modelCio != null) {
