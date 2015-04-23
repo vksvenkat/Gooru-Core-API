@@ -240,6 +240,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		} else {
 			externalId = this.findUserByGooruId(user.getGooruUId()).getExternalId();
 		}
+		profile.getUser().setLastModifiedOn(new Date(System.currentTimeMillis()));
 		profile.getUser().setProfileImageUrl(profileImageUrl);
 		profile.setExternalId(externalId);
 		profile.getUser().setEmailId(externalId);
@@ -422,6 +423,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			} catch (Exception e) {
 				LOGGER.debug("Error" + e);
 			}
+			user.setLastModifiedOn(new Date(System.currentTimeMillis()));
 			profile.setUser(user);
 			this.getUserRepository().save(profile);
 			final PartyCustomField partyCustomField = this.getPartyService().getPartyCustomeField(profile.getUser().getPartyUid(), USER_CONFIRM_STATUS, profile.getUser());
