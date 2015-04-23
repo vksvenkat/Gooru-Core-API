@@ -240,7 +240,6 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		} else {
 			externalId = this.findUserByGooruId(user.getGooruUId()).getExternalId();
 		}
-		profile.getUser().setLastModifiedOn(new Date(System.currentTimeMillis()));
 		profile.getUser().setProfileImageUrl(profileImageUrl);
 		profile.setExternalId(externalId);
 		profile.getUser().setEmailId(externalId);
@@ -1187,6 +1186,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 				}
 				if (newProfile.getGrade() != null && profile.getGrade() != null) {
 					profile.setGrade(deleteGrade(newProfile.getGrade(), user, apiCaller));
+					profile.getUser().setLastModifiedOn(new Date(System.currentTimeMillis()));
 					this.getUserRepository().save(profile);
 				}
 				indexHandler.setReIndexRequest(profile.getUser().getPartyUid(), IndexProcessor.INDEX, USER, null, false, false);
