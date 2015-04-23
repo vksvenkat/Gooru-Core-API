@@ -1605,9 +1605,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			destCollectionItem.getResource().setCopiedResourceId(sourceCollectionItem.getCollectionItemId());
 		}
 		destCollectionItem.setItemType(sourceCollectionItem.getItemType());
-		if (hasSameCollection) {
-			resetCollectionItemSequence(sourceCollectionItem.getCollectionItemId(), targetCollection);
-		}
 
 		final int sequence = targetCollection.getCollectionItems().size() > 0 ? hasSameCollection ? (sourceCollectionItem.getItemSequence() + 1) : (targetCollection.getCollectionItems().size() + 1) : 1;
 
@@ -1621,6 +1618,9 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		destCollectionItem.setAssociationDate(new Date(System.currentTimeMillis()));
 
 		this.getCollectionRepository().save(destCollectionItem);
+		if (hasSameCollection) {
+			resetCollectionItemSequence(sourceCollectionItem.getCollectionItemId(), targetCollection);
+		}
 		this.getCollectionEventLog().getEventLogs(destCollectionItem, true, false, destCollectionItem.getCollection() != null && destCollectionItem.getCollection().getUser() != null ? destCollectionItem.getCollection().getUser() : null, true, false, sourceCollectionItem, null);
 		
 		return destCollectionItem;
@@ -1630,20 +1630,13 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		int itemSequence = 1;
 		int count = 1;
 		for (final CollectionItem item : collection.getCollectionItems()) {
-			item.setItemSequence(count++);
-		}
-
-		for (final CollectionItem item : collection.getCollectionItems()) {
 			if (item.getCollectionItemId().equals(collectionItemId)) {
 				itemSequence = item.getItemSequence() + 1;
-				continue;
-			}
-			if (itemSequence != _ONE) {
-				itemSequence++;
-				item.setItemSequence(itemSequence);
+				count++;
+			}else if(count>1){
+				item.setItemSequence(++itemSequence);
 			}
 		}
-
 		this.getCollectionRepository().save(collection);
 	}
 
