@@ -2039,8 +2039,8 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	
 
 	@Override
-	public List<User> getUsersByResourceId(String resourceId) {
-		return this.getResourceRepository().getUsersByResourceId(resourceId);
+	public List<User> getUsersByResourceId(String resourceId, Integer limit, Integer offset) {
+		return this.getResourceRepository().getUsersByResourceId(resourceId, limit, offset);
 	}
 
 	public CollectionRepository getCollectionRepository() {
