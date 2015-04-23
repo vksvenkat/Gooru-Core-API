@@ -257,10 +257,11 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		}
 		final Map<String, Object> resourceObject = new HashMap<String, Object>();
 		try {
-			resource.setViews(this.resourceCassandraService.getLong(resource.getGooruOid(), STATISTICS_VIEW_COUNT));
-			resource.setViewCount(resource.getViewCount());
+			String  view = this.resourceCassandraService.get(resource.getGooruOid(), STATISTICS_VIEW_COUNT);
+			resource.setViews(view == null ? 0L : Long.parseLong(view));
+			resource.setViewCount(resource.getViews());
 		} catch (Exception e) {
-			LOGGER.error("parser error : {}", e);
+			LOGGER.error(_ERROR, e);
 		}
 		if (resource.getResourceType().getName().equalsIgnoreCase(ASSESSMENT_QUESTION)) {
 			final AssessmentQuestion question = assessmentService.getQuestion(gooruOid);
