@@ -117,7 +117,7 @@ public interface ScollectionService extends BaseService {
 
 	List<CollectionItem> getMyCollectionItems(String partyUid, Map<String, String> filters, User user);
 
-	List<CollectionItem> setCollectionItemMetaInfo(List<CollectionItem> collectionItems, String rootNodeId);
+	List<CollectionItem> setCollectionItemMetaInfo(List<CollectionItem> collectionItems, String rootNodeId, boolean includeView);
 
 	Set<String> getCourse(Set<Code> taxonomySet);
 
