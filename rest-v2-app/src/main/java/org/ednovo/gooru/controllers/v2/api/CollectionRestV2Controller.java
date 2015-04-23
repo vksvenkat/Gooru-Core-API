@@ -239,7 +239,7 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 		includesDefault = (String[]) ArrayUtils.addAll(includesDefault, COLLECTION_ITEM_TAGS);
 		includesDefault = (String[]) ArrayUtils.addAll(includesDefault, COLLECTION_WORKSPACE);
 		String includes[] = (String[]) ArrayUtils.addAll(includesDefault, ERROR_INCLUDE);
-		return toModelAndViewWithIoFilter(getCollectionService().setCollectionItemMetaInfo(collectionItems, null), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
+		return toModelAndViewWithIoFilter(getCollectionService().setCollectionItemMetaInfo(collectionItems, null, true), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 
 	}
 
@@ -417,7 +417,7 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 			filters.put(SHARING, sharing);
 		}
 		filters.put(ORDER_BY, orderBy);
-		final List<CollectionItem> collectionItems = getCollectionService().setCollectionItemMetaInfo(getCollectionService().getMyCollectionItems(partyUid, filters, user), null);
+		final List<CollectionItem> collectionItems = getCollectionService().setCollectionItemMetaInfo(getCollectionService().getMyCollectionItems(partyUid, filters, user), null, false);
 		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, COLLECTION_INCLUDE_FIELDS);
 		includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_META_INFO);
 		includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_WORKSPACE);
