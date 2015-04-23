@@ -264,6 +264,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		Boolean reindexUserContent = false;
 		final JSONObject itemData = new JSONObject();		
 		if (user == null) {
+			throw new AccessDeniedException(ACCESS_DENIED_EXCEPTION);
 		}
 		final Profile profile = this.getUserService().getProfile(user);
 		if (showProfilePage != null) {
