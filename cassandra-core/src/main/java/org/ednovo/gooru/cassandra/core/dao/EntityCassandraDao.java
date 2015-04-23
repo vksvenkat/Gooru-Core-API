@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import com.netflix.astyanax.connectionpool.OperationResult;
 import com.netflix.astyanax.model.ColumnList;
 import com.netflix.astyanax.model.Rows;
 
@@ -59,4 +60,5 @@ public interface EntityCassandraDao<M> extends CassandraDao {
 	
 	Rows<String, String> readWithKeyListColumnList(Collection<String> keys,Collection<String> columnList, int retryCount);
 	
+	OperationResult<ColumnList<String>> readAsFields (String  key,String type);	
 }

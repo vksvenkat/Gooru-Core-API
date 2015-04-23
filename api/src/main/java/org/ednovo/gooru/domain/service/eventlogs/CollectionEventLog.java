@@ -61,6 +61,7 @@ public class CollectionEventLog implements ParameterProperties, ConstantProperti
 
 	public void getEventLogs(CollectionItem collectionItem, boolean isCreate, boolean isAdd, User user, boolean isCopy, boolean isEdit, String data) {
 		try {
+			if (collectionItem != null && collectionItem.getCollection() != null) {
 			String collectionType = collectionItem.getCollection().getCollectionType();
 			if (isCreate) {
 				SessionContextSupport.putLogParameter(EVENT_NAME, ITEM_CREATE);
@@ -126,9 +127,11 @@ public class CollectionEventLog implements ParameterProperties, ConstantProperti
 			JSONObject session = SessionContextSupport.getLog().get(SESSION) != null ? new JSONObject(SessionContextSupport.getLog().get(SESSION).toString()) : new JSONObject();
 			session.put(ORGANIZATION_UID, user != null && user.getOrganization() != null ? user.getOrganization().getPartyUid() : null);
 			SessionContextSupport.putLogParameter(SESSION, session.toString());
+			}
 		} catch (Exception e) {
 			LOGGER.error(_ERROR, e);
 		}
+
 	}
 
 	public void getEventLogs(CollectionItem collectionItem, boolean isCreate, boolean isAdd, User user, boolean isCopy, boolean isEdit, CollectionItem sourceCollectionItem, String data) {

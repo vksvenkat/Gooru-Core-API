@@ -127,6 +127,10 @@ public class Resource extends Content implements Serializable {
 	private Integer s3UploadFlag = 0;
 
 	private Long viewCount;
+	
+	private Integer resourceAddedCount;
+	
+	private Integer resourceUsedUserCount;
 
 	private Integer subscriptionCount;
 
@@ -896,4 +900,21 @@ public class Resource extends Content implements Serializable {
 	public void setThumbnails(Thumbnail thumbnails) {
 		this.thumbnails = thumbnails;
 	}
+
+	public Integer getResourceAddedCount() {
+		return resourceAddedCount;
+	}
+
+	public void setResourceAddedCount(Integer resourceAddedCount) {
+		this.resourceAddedCount = resourceAddedCount;
+	}
+
+	public Integer getResourceUsedUserCount() {
+		return resourceUsedUserCount;
+	}
+
+	public void setResourceUsedUserCount(Integer resourceUsedUserCount) {
+		this.resourceUsedUserCount = resourceUsedUserCount;
+	}
+	
 }
