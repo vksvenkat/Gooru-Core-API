@@ -1001,7 +1001,7 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 	public List<User> getUsersByResourceId(String resourceId) {
 		Query query = getSession().createQuery(USER_LIST_BY_RESOURCE_ID);
 		query.setParameter(RESOURCE_ID, resourceId);
-		return query.list();
+		return list(query);
 	}
 	 
 }
