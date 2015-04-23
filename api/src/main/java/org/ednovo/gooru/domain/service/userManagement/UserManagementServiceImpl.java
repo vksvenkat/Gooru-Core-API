@@ -76,6 +76,7 @@ import org.ednovo.gooru.core.api.model.UserRoleAssoc;
 import org.ednovo.gooru.core.api.model.UserSummary;
 import org.ednovo.gooru.core.api.model.UserToken;
 import org.ednovo.gooru.core.application.util.CustomProperties;
+import org.ednovo.gooru.core.application.util.ServerValidationUtils;
 import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.Constants;
@@ -264,7 +265,6 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		Boolean reindexUserContent = false;
 		final JSONObject itemData = new JSONObject();		
 		if (user == null) {
-			throw new AccessDeniedException(ACCESS_DENIED_EXCEPTION);
 		}
 		final Profile profile = this.getUserService().getProfile(user);
 		if (showProfilePage != null) {
@@ -273,6 +273,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			reindexUserContent = true;
 		}
 		if (profile != null) {
+			rejectIfMaxLimitExceed(500, newProfile.getAboutMe(),GL0014,ABOUT_ME, "400");				
 			final Identity identity = this.getUserRepository().findUserByGooruId(gooruUid);
 			if (password != null && gooruUid.equalsIgnoreCase(apiCaller.getGooruUId()) && identity.getCredential() != null) {
 				this.getUserService().validatePassword(password, identity.getUser().getUsername());
