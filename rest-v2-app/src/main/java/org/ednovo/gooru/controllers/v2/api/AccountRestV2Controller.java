@@ -78,7 +78,6 @@ public class AccountRestV2Controller extends BaseController implements ConstantP
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.POST }, value = "/login")
 	public ModelAndView login(@RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
-		request.setAttribute(Constants.EVENT_PREDICATE, USER_LOGIN);
 		final JSONObject json = requestData(data);
 		ActionResponseDTO<UserToken> responseDTO = null;
 		responseDTO = this.getAccountService().logIn(getValue(USER_NAME, json), getValue(PASSWORD, json),  false, request);
@@ -104,7 +103,6 @@ public class AccountRestV2Controller extends BaseController implements ConstantP
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.PUT }, value = "/switch-session")
 	public ModelAndView swithSession(@RequestParam(value = SESSIONTOKEN, required = true) final String sessionToken, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
-		request.setAttribute(Constants.EVENT_PREDICATE, USER_SWITCH_SESSION);
 		ActionResponseDTO<UserToken> responseDTO = null;
 		responseDTO = this.getAccountService().switchSession(sessionToken);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
@@ -123,7 +121,6 @@ public class AccountRestV2Controller extends BaseController implements ConstantP
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.POST, value = "/logout")
 	public void logout(final HttpServletRequest request, final HttpServletResponse response, @RequestParam(value = SESSIONTOKEN, required = false) final String sessionToken) throws Exception {
-		request.setAttribute(Constants.EVENT_PREDICATE, GOORU_LOG_OUT);
 		getAccountService().logOut(sessionToken);
 		request.getSession().invalidate();
 		RequestUtil.deleteCookie(request, response, GOORU_SESSION_TOKEN);
@@ -135,7 +132,6 @@ public class AccountRestV2Controller extends BaseController implements ConstantP
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.POST }, value = "/loginas/{id}")
 	public ModelAndView loginAs(@PathVariable(value = ID) final String gooruUid, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
-		request.setAttribute(Constants.EVENT_PREDICATE, USER_LOGIN_AS);
 		final UserToken userToken = this.getAccountService().loginAs(gooruUid, request);
 		if (userToken == null) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
