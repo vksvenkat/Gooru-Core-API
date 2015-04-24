@@ -241,13 +241,13 @@ public class ResourceFieldsCio implements IsEntityCassandraIndexable {
 	private String protocolSupported;
 
 	@Column
-	private String ratingsAverage;
+	private Long ratingsAverage;
 	
 	@Column
-	private String ratingsCount;
+	private Double ratingsCount;
 	
 	@Column
-	private String ratingReviewCount;	
+	private Long ratingReviewCount;	
 
 	@Column
 	private  String audience;
@@ -982,27 +982,27 @@ public class ResourceFieldsCio implements IsEntityCassandraIndexable {
 		this.protocolSupported = protocolSupported;
 	}
 
-	public String getRatingsAverage() {
+	public Long getRatingsAverage() {
 		return ratingsAverage;
 	}
 
-	public String getRatingsCount() {
+	public Double getRatingsCount() {
 		return ratingsCount;
 	}
 	
-	public String getRatingReviewCount() {
+	public Long getRatingReviewCount() {
 		return ratingReviewCount;
 	}
 
-	public void setRatingsAverage(String ratingsAverage) {
+	public void setRatingsAverage(Long ratingsAverage) {
 		this.ratingsAverage = ratingsAverage;
 	}
 	
-	public void setRatingsCount(String ratingsCount) {
+	public void setRatingsCount(Double ratingsCount) {
 		this.ratingsCount = ratingsCount;
 	}
 
-	public void setRatingReviewCount(String ratingReviewCount) {
+	public void setRatingReviewCount(Long ratingReviewCount) {
 		this.ratingReviewCount = ratingReviewCount;
 	}
 
