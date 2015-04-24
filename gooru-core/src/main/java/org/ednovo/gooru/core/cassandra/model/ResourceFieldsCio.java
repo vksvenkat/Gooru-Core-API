@@ -29,6 +29,9 @@ public class ResourceFieldsCio implements IsEntityCassandraIndexable {
 
 	@Id
 	private String id;
+	
+	@Column
+	private String gooruOid;
 
 	@Column
 	private String indexType;
@@ -350,6 +353,14 @@ public class ResourceFieldsCio implements IsEntityCassandraIndexable {
 
 	public String getMomentsofLearning() {
 		return momentsofLearning;
+	}
+	
+	public String getGooruOid() {
+		return gooruOid;
+	}
+
+	public void setGooruOid(String gooruOid) {
+		this.gooruOid = gooruOid;
 	}
 
 	public void setMomentsofLearning(String momentsofLearning) {
