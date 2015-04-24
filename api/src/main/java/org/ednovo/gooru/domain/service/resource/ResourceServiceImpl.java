@@ -257,10 +257,11 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		}
 		final Map<String, Object> resourceObject = new HashMap<String, Object>();
 		try {
-			resource.setViews(this.resourceCassandraService.getLong(resource.getGooruOid(), STATISTICS_VIEW_COUNT));
-			resource.setViewCount(resource.getViewCount());
+			String  view = this.resourceCassandraService.get(resource.getGooruOid(), STATISTICS_VIEW_COUNT);
+			resource.setViews(view == null ? 0L : Long.parseLong(view));
+			resource.setViewCount(resource.getViews());
 		} catch (Exception e) {
-			LOGGER.error("parser error : {}", e);
+			LOGGER.error(_ERROR, e);
 		}
 		if (resource.getResourceType().getName().equalsIgnoreCase(ASSESSMENT_QUESTION)) {
 			final AssessmentQuestion question = assessmentService.getQuestion(gooruOid);
@@ -942,22 +943,18 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				|| resource.getResourceType().getName().equalsIgnoreCase(CLASSPAGE)) {
 			throw new NotFoundException(generateErrorMessage(GL0056, RESOURCE), GL0056);
 		} else {
-			List<org.ednovo.gooru.core.api.model.Collection> collections = getCollectionRepository().getCollectionByResourceOid(gooruContentId);
-			for (org.ednovo.gooru.core.api.model.Collection collection : collections) {
-				collection.setLastModified(new Date(System.currentTimeMillis()));
-				List<CollectionItem> collectionitems = this.getCollectionRepository().getCollectionItemsByResource(collection.getGooruOid());
+				List<CollectionItem> collectionitems = this.getCollectionRepository().getCollectionItemsByResource(gooruContentId);
 				for (CollectionItem collectionItem : collectionitems) {
+					collectionItem.getCollection().setLastModified(new Date(System.currentTimeMillis()));
 					List<CollectionItem> resetCollectionItems = this.getCollectionRepository().getResetSequenceCollectionItems(collectionItem.getCollection().getGooruOid(), collectionItem.getItemSequence());
 					int itemSequence = collectionItem.getItemSequence();
 					for (CollectionItem resetCollectionItem : resetCollectionItems) {
 						resetCollectionItem.setItemSequence(itemSequence++);
 					}
 					this.getCollectionRepository().saveAll(resetCollectionItems);
+					getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
 				}
-				getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collection.getUser().getPartyUid() + "*");
-			}
-
-			this.getCollectionRepository().saveAll(collections);
+			this.getCollectionRepository().saveAll(collectionitems);
 			if ((resource.getUser() != null && resource.getUser().getPartyUid().equalsIgnoreCase(apiCaller.getPartyUid())) || getUserService().isContentAdmin(apiCaller)) {
 				this.getContentService().deleteContentTagAssoc(resource.getGooruOid(), apiCaller);
 				this.getBaseRepository().remove(resource);
@@ -2031,15 +2028,25 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	public Map<String, Object> checkResourceUrlExists(String url, boolean checkShortenedUrl) throws Exception {
 		Resource resource = findResourceByUrl(url, Sharing.PUBLIC.getSharing(), null);
 		Map<String, Object> response = new HashMap<String, Object>();
-		response.put(RESOURCE, resource);
-		if (checkShortenedUrl) {
+		if (resource != null) {
+			response.put(RESOURCE, resource);
+		}
+		if (checkShortenedUrl) { 
 			response.put(SHORTENED_URL_STATUS, shortenedUrlResourceCheck(url));
 		}
+		
 		return response;
+	}
+	
+
+	@Override
+	public List<User> getUsersByResourceId(String resourceId, Integer limit, Integer offset) {
+		return this.getResourceRepository().getUsersByResourceId(resourceId, limit, offset);
 	}
 
 	public CollectionRepository getCollectionRepository() {
 		return collectionRepository;
 	}
+
 	
 }

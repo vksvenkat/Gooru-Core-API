@@ -28,7 +28,7 @@ import java.util.List;
 import org.ednovo.gooru.core.api.model.Annotation;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate;
 import org.hibernate.Criteria;
-import org.hibernate.criterion.Expression;
+import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -44,11 +44,11 @@ public class AnnotationRepositoryHibernate extends BaseRepositoryHibernate imple
 
 		Criteria criteria = this.getSession().createCriteria(Annotation.class)
 		.createAlias("resource.user", "user")
-		.add(Expression.eq("user.partyUid", userId))
+		.add(Restrictions.eq("user.partyUid", userId))
 		.createAlias("resource", "resource")
-		.add(Expression.eq("resource.gooruOid", gooruContentId));
+		.add(Restrictions.eq("resource.gooruOid", gooruContentId));
 		Criteria criteria2 = addOrgAuthCriterias(criteria, "resource.");
-		List<Annotation> annotations = criteria2.list();
+		List<Annotation> annotations = criteria(criteria2);
 		return (annotations == null || annotations.size() == 0) ? null : annotations.get(0);
 	}
 	

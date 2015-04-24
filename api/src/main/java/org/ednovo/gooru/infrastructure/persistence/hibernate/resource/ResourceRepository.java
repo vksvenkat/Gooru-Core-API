@@ -35,6 +35,7 @@ import org.ednovo.gooru.core.api.model.ResourceSource;
 import org.ednovo.gooru.core.api.model.ResourceSummary;
 import org.ednovo.gooru.core.api.model.ResourceUrlStatus;
 import org.ednovo.gooru.core.api.model.Textbook;
+import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.cassandra.model.ResourceMetadataCo;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepository;
 
@@ -149,5 +150,8 @@ public interface ResourceRepository extends BaseRepository {
 	ResourceSummary getResourceSummaryById(String gooruOid);
 	
 	Integer getSubscriptionCountForGooruOid(String contentGooruOid);
+	
+	List<User> getUsersByResourceId(String resourceId, Integer limit, Integer offset);
+
 
 }

@@ -40,7 +40,7 @@
 		</filter>
 	</appender>
 	<appender name="default-out" class="ch.qos.logback.core.rolling.RollingFileAppender"> <!-- Rolling file appender for rolling files -->
-		<param name="File" value="${catalina.home}/gooru_logs/rest-default.log" />
+		<param name="File" value="${catalina.base}/gooru_logs/rest-default.log" />
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
 			<!-- daily rollover -->
 			<fileNamePattern>web-default.%d{yyyy-MM-dd}.log</fileNamePattern>
@@ -54,10 +54,10 @@
 		</encoder>
 	</appender>
 	<appender name="activity-out" class="ch.qos.logback.core.rolling.RollingFileAppender"> <!-- Rolling file appender for rolling files -->
-		<param name="File" value="${catalina.home}/gooru_logs/activity.log" />
+		<param name="File" value="${catalina.base}/gooru_logs/activity.log" />
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
 			<!-- daily rollover -->
-			<fileNamePattern>${catalina.home}/gooru_logs/activity.%d{yyyy-MM-dd}.log</fileNamePattern>
+			<fileNamePattern>${catalina.base}/gooru_logs/activity.%d{yyyy-MM-dd}.log</fileNamePattern>
 
 			<!-- keep 30 days' worth of history -->
 			<maxHistory>30</maxHistory>

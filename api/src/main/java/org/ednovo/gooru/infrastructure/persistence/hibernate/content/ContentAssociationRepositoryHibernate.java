@@ -40,7 +40,7 @@ public class ContentAssociationRepositoryHibernate extends BaseRepositoryHiberna
 		String hql = " FROM ContentAssociation contentAssoc WHERE  contentAssoc.content.gooruOid=:gooruOid";
 		Query query = session.createQuery(hql);
 		query.setParameter("gooruOid", gooruOid);
-		List<ContentAssociation> contentAssociation = query.list();
+		List<ContentAssociation> contentAssociation = list(query);
 		return (contentAssociation.size() > 0) ? contentAssociation.get(0) : null;
 	}
 

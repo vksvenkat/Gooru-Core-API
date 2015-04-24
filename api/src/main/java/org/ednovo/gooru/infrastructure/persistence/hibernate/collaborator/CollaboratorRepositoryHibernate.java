@@ -55,7 +55,7 @@ public class CollaboratorRepositoryHibernate extends BaseRepositoryHibernate imp
 		String hql = "select external_id as mailId from  identity i inner join user_content_assoc uc on uc.user_uid = i.user_uid where uc.associated_by_uid=:gooruUid and i.external_id like '" + text.replace("'", "\\") + "%'";
 		Query query = getSession().createSQLQuery(hql).addScalar("mailId", StandardBasicTypes.STRING);
 		query.setParameter("gooruUid", gooruUid);
-		return query.list();
+		return list(query);
 	}
 
 	@Override
@@ -87,7 +87,7 @@ public class CollaboratorRepositoryHibernate extends BaseRepositoryHibernate imp
 		Query query = session.createSQLQuery(findCollaborators).addScalar("user_id", StandardBasicTypes.INTEGER).addScalar("gooru_uid", StandardBasicTypes.STRING).addScalar("firstname", StandardBasicTypes.STRING).addScalar("lastname", StandardBasicTypes.STRING)
 				.addScalar("external_id", StandardBasicTypes.STRING).addScalar("username", StandardBasicTypes.STRING).addScalar("organization_uid", StandardBasicTypes.STRING).addScalar("primary_organization_uid", StandardBasicTypes.STRING);
 
-		List<Object[]> results = query.list();
+		List<Object[]> results = arrayList(query);
 
 		for (Object[] object : results) {
 			Set<Identity> idSet = new HashSet<Identity>();

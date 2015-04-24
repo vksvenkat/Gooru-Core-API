@@ -39,7 +39,7 @@ public interface ConstantProperties {
 
 	static final String COLLECTION_ITEM_INCLUDE[] = { "collectionItems", "*.collectionItemId", "*.itemSequence", "*.itemType", "*.narration", "*.narrationType", "*.lastModified", "*.start", "*.stop", "*.standards", "*.license", "*.standards.code", "*.standards.description", "*.collectionItem",
 			"*.collectionItem.collection", "*.totalPages" };
-
+	  
 	static final String EXCLUDE_ALL[] = { "*", "*.class" };
 
 	static final String ASSIGNMENT_TAXONOMY[] = { "*.taxonomySet", "*.taxonomySetMapping.*" };
@@ -141,8 +141,6 @@ public interface ConstantProperties {
 			"resource.resourceType.description", "*.resourceLearnguides", "*.imageUrl", "*.createdOn", "*.viewCount", "*.views", "*.createdOn" };
 
 	static final String GROUP_INCLUDES[] = { "*.partyUid", "*.groupName", "*.userGroupType" };
-
-	static final String[] EXCLUDE_USER = { "*.class" };
 
 	static final String EXCLUDES_COMMENT[] = { "*.taxonomySet", "*.user", "*.userPermSet", "*.sharing", "*.responseId", "*.response", "*.resource", "*.lastModifiedString", "*.lastModified", "*.image", "*.freetext", "*.entryId", "*.displayTime", "*.creator", "*.contentType", "*.contentId",
 			"*.annotationType", "*.anchor", "commentor.accountTypeId", "*.accountTypeId", "*.confirmStatus", "*.contentSet", "*.emailId", "*.entryId", "*.parentUser", "*.profileImageUrl", "*.registerToken", "*.userId", "*.userRoleSetString" };
@@ -367,8 +365,8 @@ public interface ConstantProperties {
 
 	static final String FEEDBACK_GOORU_UID = "feedback_gooruUid";
 
-	static final String EXCLUDE[] = { "*.class", "*" };
-
+	static final String EXCLUDE[] = { "*.class"};
+	
 	static final String INCLUDE_ITEMS[] = { "lesson", "createdOn", "lastModified", "goals", "sharing", "resourceCount", "chapterCount", "customFieldValues.*", "gooruOid", "securityGroups.*", "thumbnails.*", "creator.gooruUId", "creator.firstName", "creator.lastName", "creator.username",
 			"creator.emailId", "creator.confirmStatus", "creator.registerToken", "creator.userRoleSetString", "creator.parentUser", "creator.profileImageUrl", "creator.usernameDisplay", "creator.entryId", "creator.userId", "creator.accountTypeId" };
 
@@ -842,8 +840,8 @@ public interface ConstantProperties {
    public static final String PATHWAY_COLLECTION = "pathway.collection";
    
    public static final String SOURCE_GOORU_ID = "sourceGooruId";
-   
-   public static final String STATISTICS_VIEW_COUNT = "statistics.viewsCountN";
+      
+   public static final String STATISTICS_VIEW_COUNT = "statistics.viewsCount";
 
    public static final String CLASSPAGE_USER_INVITE = "classpage.user.invite";
    

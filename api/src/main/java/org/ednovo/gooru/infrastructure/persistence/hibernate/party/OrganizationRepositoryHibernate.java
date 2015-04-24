@@ -79,7 +79,7 @@ public class OrganizationRepositoryHibernate extends BaseRepositoryHibernate imp
 		}
 		query.setFirstResult(offset);
         query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
-        return (List) query.list();
+        return list(query);
 	}
 	
 	@Override
@@ -128,7 +128,7 @@ public class OrganizationRepositoryHibernate extends BaseRepositoryHibernate imp
 			query.setParameter("parentOrganizationUid", parentOrganizationUid);
 		}
 	
-		return (List) query.list();
+		return list(query);
 	}
 	
 

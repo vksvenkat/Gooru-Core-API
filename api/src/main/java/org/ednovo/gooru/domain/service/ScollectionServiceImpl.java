@@ -478,7 +478,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			if (taxonomyCode != null) {
 				addCollectionTaxonomy(collection, taxonomyCode, updateTaxonomyByCode);
 				this.getCollectionRepository().save(collection);
-				collection.setTaxonomySetMapping(TaxonomyUtil.getTaxonomyByCode(collection.getTaxonomySet(), taxonomyService));
 			}
 
 			if (newCollection.getVocabulary() != null) {
@@ -864,8 +863,12 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			}
 			this.getCollectionRepository().save(collectionItem);
 			this.getCollectionRepository().save(collectionItem.getCollection());
-				this.getCollectionEventLog().getEventLogs(collectionItem, false, false, user, false, false, data);
-				if (collectionItem.getResource().getResourceType() != null && collectionItem.getResource().getResourceType().getName().equalsIgnoreCase(ResourceType.Type.SCOLLECTION.getType())) {
+			try {
+				this.getCollectionEventLog().getEventLogs(collectionItem, false, false, user, false, false, SerializerUtil.serializeToJson(newcollectionItem, EXCLUDE, true, true));
+			} catch (Exception e) {
+				LOGGER.error(_ERROR, e);
+			}
+			if (collectionItem.getResource().getResourceType() != null && collectionItem.getResource().getResourceType().getName().equalsIgnoreCase(ResourceType.Type.SCOLLECTION.getType())) {
 					indexHandler.setReIndexRequest(collectionItem.getResource().getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);							
 				} else {
 					indexHandler.setReIndexRequest(collectionItem.getResource().getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);							
@@ -1273,7 +1276,8 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	
 	private void setView(Resource resource) {
 		try {
-			resource.setViews(this.resourceCassandraService.getLong(resource.getGooruOid(), STATISTICS_VIEW_COUNT));
+			String  view = this.resourceCassandraService.get(resource.getGooruOid(), STATISTICS_VIEW_COUNT);
+			resource.setViews(view == null ? 0L : Long.parseLong(view));
 			resource.setViewCount(resource.getViews());
 		} catch (Exception e) {
 			LOGGER.error(_ERROR, e);
@@ -1319,7 +1323,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 	
 	@Override
-	public List<CollectionItem> setCollectionItemMetaInfo(final List<CollectionItem> collectionItems, final String rootNodeId) {
+	public List<CollectionItem> setCollectionItemMetaInfo(final List<CollectionItem> collectionItems, final String rootNodeId, final boolean includeView) {
 		if (collectionItems != null) {
 			for (final CollectionItem collectionItem : collectionItems) {
 				if (collectionItem.getResource() != null && collectionItem.getResource().getResourceType().getName().equalsIgnoreCase(ResourceType.Type.SCOLLECTION.getType())) {
@@ -1327,6 +1331,9 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 					collectionItem.setStandards(this.getStandards(collectionItem.getResource().getTaxonomySet(), false, rootNodeId));
 					List<CollectionItem> collectionItemCount = this.getCollectionItems(collectionItem.getResource().getGooruOid(), new HashMap<String, String>());
 					collectionItem.setResourceCount(collectionItemCount.size());
+				}
+				if (includeView) {
+					setView(collectionItem.getResource());
 				}
 			}
 		}
@@ -1599,9 +1606,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			destCollectionItem.getResource().setCopiedResourceId(sourceCollectionItem.getCollectionItemId());
 		}
 		destCollectionItem.setItemType(sourceCollectionItem.getItemType());
-		if (hasSameCollection) {
-			resetCollectionItemSequence(sourceCollectionItem.getCollectionItemId(), targetCollection);
-		}
 
 		final int sequence = targetCollection.getCollectionItems().size() > 0 ? hasSameCollection ? (sourceCollectionItem.getItemSequence() + 1) : (targetCollection.getCollectionItems().size() + 1) : 1;
 
@@ -1615,6 +1619,9 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		destCollectionItem.setAssociationDate(new Date(System.currentTimeMillis()));
 
 		this.getCollectionRepository().save(destCollectionItem);
+		if (hasSameCollection) {
+			resetCollectionItemSequence(sourceCollectionItem.getCollectionItemId(), targetCollection);
+		}
 		this.getCollectionEventLog().getEventLogs(destCollectionItem, true, false, destCollectionItem.getCollection() != null && destCollectionItem.getCollection().getUser() != null ? destCollectionItem.getCollection().getUser() : null, true, false, sourceCollectionItem, null);
 		
 		return destCollectionItem;
@@ -1624,20 +1631,13 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		int itemSequence = 1;
 		int count = 1;
 		for (final CollectionItem item : collection.getCollectionItems()) {
-			item.setItemSequence(count++);
-		}
-
-		for (final CollectionItem item : collection.getCollectionItems()) {
 			if (item.getCollectionItemId().equals(collectionItemId)) {
 				itemSequence = item.getItemSequence() + 1;
-				continue;
-			}
-			if (itemSequence != _ONE) {
-				itemSequence++;
-				item.setItemSequence(itemSequence);
+				count++;
+			}else if(count>1){
+				item.setItemSequence(++itemSequence);
 			}
 		}
-
 		this.getCollectionRepository().save(collection);
 	}
 
@@ -1789,7 +1789,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 			if (newCollection.getTaxonomySet() != null) {
 				resourceService.saveOrUpdateResourceTaxonomy(collection, newCollection.getTaxonomySet());
-				collection.setTaxonomySetMapping(TaxonomyUtil.getTaxonomyByCode(collection.getTaxonomySet(), taxonomyService));
 			}
 
 			if (newCollection.getVocabulary() != null) {
@@ -1921,7 +1920,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 						userSummary.setCollections(userSummary.getCollections() <= 0 ? 0 : (userSummary.getCollections() - 1));
 						this.getUserRepository().save(userSummary);
 					}
-				} else if (hasUnrestrictedContentAccess && !collection.getSharing().equalsIgnoreCase(PUBLIC) && newCollection.getSharing().equalsIgnoreCase(PUBLIC)) {
+				} else if ((collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.ASSESSMENT_URL.getType()) || hasUnrestrictedContentAccess) && !collection.getSharing().equalsIgnoreCase(PUBLIC) && newCollection.getSharing().equalsIgnoreCase(PUBLIC)) {
 					UserSummary userSummary = this.getUserRepository().getSummaryByUid(collection.getUser().getPartyUid());
 					if (userSummary.getGooruUid() == null) {
 						userSummary.setGooruUid(collection.getUser().getPartyUid());
