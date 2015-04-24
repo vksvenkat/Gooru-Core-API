@@ -102,7 +102,7 @@ public abstract class EntityCassandraServiceImpl<M extends Serializable> impleme
      
 	@Override
 	public OperationResult<ColumnList<String>>  readAsFields(String gooruOid) {
-		 return getCassandraDao().readAsFields(gooruOid, null);
+		 return getCassandraDao().readAsFields(gooruOid);
 	}
 	
 }
