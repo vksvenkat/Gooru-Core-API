@@ -840,8 +840,8 @@ public interface ConstantProperties {
    public static final String PATHWAY_COLLECTION = "pathway.collection";
    
    public static final String SOURCE_GOORU_ID = "sourceGooruId";
-   
-   public static final String STATISTICS_VIEW_COUNT = "statistics.viewsCountN";
+      
+   public static final String STATISTICS_VIEW_COUNT = "statistics.viewsCount";
 
    public static final String CLASSPAGE_USER_INVITE = "classpage.user.invite";
    

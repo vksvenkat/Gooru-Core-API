@@ -1276,7 +1276,8 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	
 	private void setView(Resource resource) {
 		try {
-			resource.setViews(this.resourceCassandraService.getLong(resource.getGooruOid(), STATISTICS_VIEW_COUNT));
+			String  view = this.resourceCassandraService.get(resource.getGooruOid(), STATISTICS_VIEW_COUNT);
+			resource.setViews(view == null ? 0L : Long.parseLong(view));
 			resource.setViewCount(resource.getViews());
 		} catch (Exception e) {
 			LOGGER.error(_ERROR, e);
