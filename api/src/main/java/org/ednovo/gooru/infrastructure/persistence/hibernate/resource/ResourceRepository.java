@@ -151,7 +151,7 @@ public interface ResourceRepository extends BaseRepository {
 	
 	Integer getSubscriptionCountForGooruOid(String contentGooruOid);
 	
-	List<User> getUsersByResourceId(String resourceId);
+	List<User> getUsersByResourceId(String resourceId, Integer limit, Integer offset);
 
 
 }

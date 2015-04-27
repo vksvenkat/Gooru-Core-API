@@ -273,6 +273,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			reindexUserContent = true;
 		}
 		if (profile != null) {
+			rejectIfMaxLimitExceed(500, newProfile.getAboutMe(),GL0014,ABOUT_ME, "400");
 			final Identity identity = this.getUserRepository().findUserByGooruId(gooruUid);
 			if (password != null && gooruUid.equalsIgnoreCase(apiCaller.getGooruUId()) && identity.getCredential() != null) {
 				this.getUserService().validatePassword(password, identity.getUser().getUsername());
@@ -422,6 +423,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			} catch (Exception e) {
 				LOGGER.debug("Error" + e);
 			}
+			user.setLastModifiedOn(new Date(System.currentTimeMillis()));
 			profile.setUser(user);
 			this.getUserRepository().save(profile);
 			final PartyCustomField partyCustomField = this.getPartyService().getPartyCustomeField(profile.getUser().getPartyUid(), USER_CONFIRM_STATUS, profile.getUser());
@@ -1184,6 +1186,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 				}
 				if (newProfile.getGrade() != null && profile.getGrade() != null) {
 					profile.setGrade(deleteGrade(newProfile.getGrade(), user, apiCaller));
+					profile.getUser().setLastModifiedOn(new Date(System.currentTimeMillis()));
 					this.getUserRepository().save(profile);
 				}
 				indexHandler.setReIndexRequest(profile.getUser().getPartyUid(), IndexProcessor.INDEX, USER, null, false, false);
