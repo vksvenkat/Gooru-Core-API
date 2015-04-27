@@ -50,7 +50,6 @@ import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.Textbook;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.cassandra.model.ResourceMetadataCo;
-import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.domain.service.resource.ResourceServiceImpl;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate;
@@ -69,7 +68,7 @@ import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class ResourceRepositoryHibernate extends BaseRepositoryHibernate implements ResourceRepository, ConstantProperties, ParameterProperties {
+public class ResourceRepositoryHibernate extends BaseRepositoryHibernate implements ResourceRepository,ParameterProperties {
 
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
@@ -999,11 +998,9 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 	}
 	  
 	@Override
-	public List<User> getUsersByResourceId(String resourceId, Integer limit, Integer offset) {
+	public List<User> getUsersByResourceId(String resourceId) {
 		Query query = getSession().createQuery(USER_LIST_BY_RESOURCE_ID);
 		query.setParameter(RESOURCE_ID, resourceId);
-		query.setFirstResult(offset != null ? offset : OFFSET);
-		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
 		return list(query);
 	}
 	 
