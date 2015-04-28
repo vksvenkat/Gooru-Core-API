@@ -16,6 +16,7 @@ import com.netflix.astyanax.ColumnListMutation;
 import com.netflix.astyanax.MutationBatch;
 import com.netflix.astyanax.connectionpool.OperationResult;
 import com.netflix.astyanax.connectionpool.exceptions.ConnectionException;
+import com.netflix.astyanax.connectionpool.exceptions.NotFoundException;
 import com.netflix.astyanax.model.Column;
 import com.netflix.astyanax.model.ColumnFamily;
 import com.netflix.astyanax.model.ColumnList;
@@ -40,7 +41,8 @@ public class EntityCassandraDaoImpl<M extends IsEntityCassandraIndexable> extend
 
 	}
 
-	public EntityCassandraDaoImpl(SearchCassandraFactory factory,String columnFamilyName) {
+	public EntityCassandraDaoImpl(SearchCassandraFactory factory,
+			String columnFamilyName) {
 		setFactory(factory);
 		setColumnFamilyName(columnFamilyName);
 	}
@@ -72,28 +74,17 @@ public class EntityCassandraDaoImpl<M extends IsEntityCassandraIndexable> extend
 	@Override
 	public M read(String key) {
 		try {
-			return key != null ?getCF().getEntityManager().get(key) : null;
+			return key != null ? getCF().getEntityManager().get(key) : null;
 		} catch (Exception ex) {
 			LOG.error("Cassandra read error : " + ex.getMessage());
 			return null;
 		}
 	}
-	
 
-/*	@Override
-	public OperationResult<ColumnList<String>> readAsFields (String key) {
-		try {	
-	        OperationResult<ColumnList<String>>  cfColumn = (OperationResult<ColumnList<String>>) (key != null ? getFactory().getKeyspace().prepareQuery(getCF().getColumnFamily()).setConsistencyLevel(ConsistencyLevel.CL_QUORUM).getKey(key).execute():null);
-		   return cfColumn;
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-		
-	}
-*/	
-	
 	@Override
-	public void save(Collection<M> models,Collection<String> modelKeys,	boolean skipRiCheck) {
+	public void save(Collection<M> models,
+			Collection<String> modelKeys,
+			boolean skipRiCheck) {
 		Rows<String, String> preValues = null;
 		if (!skipRiCheck) {
 			preValues = preSaveAction(modelKeys);
@@ -328,14 +319,6 @@ public class EntityCassandraDaoImpl<M extends IsEntityCassandraIndexable> extend
     	
     	return result;
     }
-
-	@Override
-	public OperationResult<ColumnList<String>> readAsFields(String key,
-			String type) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 
 }
 

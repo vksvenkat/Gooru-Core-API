@@ -19,9 +19,6 @@ import org.ednovo.gooru.core.exception.NotFoundException;
  */
 public abstract class CrudEntityCassandraServiceImpl<S extends IsCassandraIndexable, M extends Serializable> extends EntityCassandraServiceImpl<M> {
 
-	
-	boolean isFieldIndexingIsEnabled=false;
-	
 	@Override
 	public M save(String id) {
 		S source = fetchSource(id);
@@ -46,32 +43,19 @@ public abstract class CrudEntityCassandraServiceImpl<S extends IsCassandraIndexa
 				if(source == null) {
 					throw new NotFoundException("Content not exist : " + key);
 				}
-				
-				if(isFieldIndexingIsEnabled) {
-				CassandraIndexSrcBuilder<S, M> builder = CassandraIndexSrcBuilder.get("resource_fields");
-				M modelCio = builder.build(source);
-				if (modelCio != null) {
-					models.add(modelCio);
-				}
-				}
-				else {
 				CassandraIndexSrcBuilder<S, M> builder = CassandraIndexSrcBuilder.get(source.getIndexType());
 				M modelCio = builder.build(source);
 				if (modelCio != null) {
 					models.add(modelCio);
 				}
-				}	
 				modelKeys.add(key);
 			}
 			save(models, modelKeys);
-			//saveasrow(models,modelKeys);
 			return models;
 		}
 
 		return null;
 	}
 
-	
-	
 	protected abstract S fetchSource(String key);
 }

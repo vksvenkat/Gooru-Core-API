@@ -69,7 +69,7 @@ import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class ResourceRepositoryHibernate extends BaseRepositoryHibernate implements ResourceRepository, ConstantProperties, ParameterProperties {
+public class ResourceRepositoryHibernate extends BaseRepositoryHibernate implements ResourceRepository,ConstantProperties, ParameterProperties {
 
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
