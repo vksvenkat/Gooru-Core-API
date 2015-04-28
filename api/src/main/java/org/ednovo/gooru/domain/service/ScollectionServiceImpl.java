@@ -1283,7 +1283,8 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		}
 	} 
 
-	private void setCollectionTaxonomyMetaInfo(final Set<Code> taxonomySet, final ResourceMetaInfo collectionMetaInfo) { 
+	@Override
+	public  void setCollectionTaxonomyMetaInfo(final Set<Code> taxonomySet, final ResourceMetaInfo collectionMetaInfo) { 
 		if (taxonomySet != null) {
 			final Set<String> course = new HashSet<String>();
 			final Set<Map<String, Object>> skills =  new HashSet<Map<String, Object>>();

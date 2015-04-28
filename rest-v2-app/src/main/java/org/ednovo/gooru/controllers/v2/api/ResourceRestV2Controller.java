@@ -212,16 +212,6 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 
 	}
 
-	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_BULK_UPDATE_VIEW })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	@RequestMapping(method = RequestMethod.POST, value = "/statistics-data/update")
-	public void updateStatisticsData(final HttpServletRequest request, final HttpServletResponse response, @RequestBody final String data, @RequestParam(required = false, defaultValue = "false") final boolean skipReindex) throws Exception {
-		final JSONObject json = requestData(data);
-		final List<StatisticsDTO> statisticsDataList = JsonDeserializer.deserialize(getValue(STATISTICS_DATA, json), new TypeReference<List<StatisticsDTO>>() {
-		});
-		this.getResourceService().updateStatisticsData(statisticsDataList, skipReindex);
-	}
-
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_RESOURCE_DELETE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.DELETE, value = "content/{id}")
@@ -237,10 +227,12 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	@RequestMapping(method = { RequestMethod.GET }, value = "/{id}/user")
+	@RequestMapping(method = { RequestMethod.GET }, value = "/{id}/collection")
 	public ModelAndView getUserListByResourceId(@PathVariable(value = ID) final String resourceId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") final Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "20") final Integer limit,
 			final HttpServletRequest request, final HttpServletResponse response) {
-		return toModelAndView(serialize(this.getResourceService().getUsersByResourceId(resourceId, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, true, USER_INCLUDES));
+		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, COLLECTION_INCLUDE_FIELDS);
+		includes = (String[]) ArrayUtils.addAll(includes, USER_INCLUDES);
+		return toModelAndView(serialize(this.getResourceService().getCollectionsByResourceId(resourceId, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, true, includes));
 	}
 
 	private Resource buildResourceFromInputParameters(final String data) {

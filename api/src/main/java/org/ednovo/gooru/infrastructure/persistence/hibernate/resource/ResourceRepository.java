@@ -26,6 +26,7 @@ package org.ednovo.gooru.infrastructure.persistence.hibernate.resource;
 import java.util.List;
 import java.util.Map;
 
+import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.ContentProvider;
 import org.ednovo.gooru.core.api.model.CsvCrawler;
 import org.ednovo.gooru.core.api.model.License;
@@ -35,7 +36,6 @@ import org.ednovo.gooru.core.api.model.ResourceSource;
 import org.ednovo.gooru.core.api.model.ResourceSummary;
 import org.ednovo.gooru.core.api.model.ResourceUrlStatus;
 import org.ednovo.gooru.core.api.model.Textbook;
-import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.cassandra.model.ResourceMetadataCo;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepository;
 
@@ -151,7 +151,7 @@ public interface ResourceRepository extends BaseRepository {
 	
 	Integer getSubscriptionCountForGooruOid(String contentGooruOid);
 	
-	List<User> getUsersByResourceId(String resourceId, Integer limit, Integer offset);
+	List<Collection> getCollectionsByResourceId(String resourceId, Integer limit, Integer offset);
 
 
 }

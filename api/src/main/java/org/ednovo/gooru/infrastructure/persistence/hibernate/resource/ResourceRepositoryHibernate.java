@@ -35,6 +35,7 @@ import java.util.UUID;
 
 import org.apache.commons.lang.StringUtils;
 import org.ednovo.gooru.application.util.ResourceImageUtil;
+import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.ContentProvider;
 import org.ednovo.gooru.core.api.model.ContentType;
 import org.ednovo.gooru.core.api.model.CsvCrawler;
@@ -90,7 +91,7 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 	
 	private static final String COUNT_SUBSCRIPTION_FOR_GOORUOID = "select count(1) as totalCount from content c inner join annotation a on a.resource_id = c.content_id where a.type_name='subscription' and c.gooru_oid= :gooruOid and " + generateOrgAuthSqlQuery("c.");
 	
-	private static final String USER_LIST_BY_RESOURCE_ID = "SELECT distinct(ci.collection.user) FROM  CollectionItem ci  where ci.resource.gooruOid=:resourceId";
+	private static final String COLLECTION_LIST_BY_RESOURCE_ID = "SELECT ci.collection FROM  CollectionItem ci  where ci.resource.gooruOid=:resourceId";
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(ResourceServiceImpl.class);
 
@@ -999,8 +1000,8 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 	}
 	  
 	@Override
-	public List<User> getUsersByResourceId(String resourceId, Integer limit, Integer offset) {
-		Query query = getSession().createQuery(USER_LIST_BY_RESOURCE_ID);
+	public List<Collection> getCollectionsByResourceId(String resourceId, Integer limit, Integer offset) {
+		Query query = getSession().createQuery(COLLECTION_LIST_BY_RESOURCE_ID);
 		query.setParameter(RESOURCE_ID, resourceId);
 		query.setFirstResult(offset != null ? offset : OFFSET);
 		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
