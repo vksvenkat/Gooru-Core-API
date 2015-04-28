@@ -31,10 +31,10 @@ import java.util.Set;
 
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Code;
+import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.ResourceInfo;
 import org.ednovo.gooru.core.api.model.ResourceSource;
-import org.ednovo.gooru.core.api.model.StatisticsDTO;
 import org.ednovo.gooru.core.api.model.Textbook;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.cassandra.model.ResourceMetadataCo;
@@ -151,9 +151,7 @@ public interface ResourceService extends BaseService {
 	Map<String, Object> getResource(String gooruOid);
 	
 	Resource setContentProvider(Resource resource);
-	
-	void updateStatisticsData(List<StatisticsDTO> statisticsList, boolean skipReindex);
-	
+		
 	List<String> updateContentProvider(String gooruOid, List<String> providerList, User user, String providerType);
 
 	void deleteContentProvider(String gooruOid, String providerType, String name);
@@ -162,7 +160,7 @@ public interface ResourceService extends BaseService {
 	
 	Map<String, Object> checkResourceUrlExists(String url, boolean checkShortenedUrl) throws Exception;
 
-	List<User> getUsersByResourceId(String resourceId, Integer limit, Integer offset);
+	List<Collection> getCollectionsByResourceId(String resourceId, Integer limit, Integer offset);
 
 	
 }

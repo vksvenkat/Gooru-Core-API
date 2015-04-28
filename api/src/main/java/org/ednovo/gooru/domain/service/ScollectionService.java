@@ -39,6 +39,7 @@ import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.ResourceSummary;
 import org.ednovo.gooru.core.api.model.StandardFo;
 import org.ednovo.gooru.core.api.model.User;
+import org.ednovo.gooru.core.application.util.ResourceMetaInfo;
 import org.springframework.util.MultiValueMap;
 
 /**
@@ -148,4 +149,6 @@ public interface ScollectionService extends BaseService {
 	void deleteCollectionItem(String collectionItemId);
 	
 	Set<Map<String, Object>> getSkills(Set<Code> taxonomySet);
+	
+	void setCollectionTaxonomyMetaInfo(final Set<Code> taxonomySet, final ResourceMetaInfo collectionMetaInfo);
 }
