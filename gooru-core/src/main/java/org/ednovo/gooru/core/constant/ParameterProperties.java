@@ -49,6 +49,8 @@ public interface ParameterProperties {
 	public static final String PARAM_FORMAT = "format";
 
 	public static final String MODEL = "model";
+	
+	public static final String EXCLUDE_COLLABORATOR_COLLECTION = "excludeCollaboratorCollection";	
 
 	public static final String REST_MODEL = "rest/model";
 
