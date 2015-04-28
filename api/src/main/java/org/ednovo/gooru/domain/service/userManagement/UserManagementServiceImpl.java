@@ -273,7 +273,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			reindexUserContent = true;
 		}
 		if (profile != null) {
-			rejectIfMaxLimitExceed(500, newProfile.getAboutMe(),GL0014,ABOUT_ME, "400");				
+			rejectIfMaxLimitExceed(500, newProfile.getAboutMe(),GL0014,ABOUT_ME, "400");
 			final Identity identity = this.getUserRepository().findUserByGooruId(gooruUid);
 			if (password != null && gooruUid.equalsIgnoreCase(apiCaller.getGooruUId()) && identity.getCredential() != null) {
 				this.getUserService().validatePassword(password, identity.getUser().getUsername());

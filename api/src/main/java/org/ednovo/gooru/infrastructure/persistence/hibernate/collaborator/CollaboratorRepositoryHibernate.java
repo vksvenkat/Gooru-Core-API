@@ -63,7 +63,8 @@ public class CollaboratorRepositoryHibernate extends BaseRepositoryHibernate imp
 		String hql = "from UserContentAssoc uc where uc.content.gooruOid=:gooruOid ";
 		Query query = getSession().createQuery(hql);
 		query.setParameter("gooruOid", gooruOid);
-		return query.list().size() > 0 ? query.list() : null;
+		List<UserContentAssoc> userContentAssoc = list(query);
+		return userContentAssoc.size() > 0 ? userContentAssoc : null;
 	}
 
 	public Long getCollaboratorsCountById(String gooruOid) {

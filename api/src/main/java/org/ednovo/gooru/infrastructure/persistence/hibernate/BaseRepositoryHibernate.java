@@ -47,12 +47,12 @@ public class BaseRepositoryHibernate extends AbstractRepositoryHibernate impleme
 	}
 	
 	@Override
-	public void remove(Class clazz, Serializable id) {
+	public void remove(Class<?> clazz, Serializable id) {
 		delete(get(clazz, id));
 	}
 
 	@Override
-	public void removeAll(Collection entities) {
+	public void removeAll(Collection<?> entities) {
 		deleteAll(entities);
 	}
 

@@ -257,11 +257,10 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		}
 		final Map<String, Object> resourceObject = new HashMap<String, Object>();
 		try {
-			String  view = this.resourceCassandraService.get(resource.getGooruOid(), STATISTICS_VIEW_COUNT);
-			resource.setViews(view == null ? 0L : Long.parseLong(view));
-			resource.setViewCount(resource.getViews());
+			resource.setViews(this.resourceCassandraService.getLong(resource.getGooruOid(), STATISTICS_VIEW_COUNT));
+			resource.setViewCount(resource.getViewCount());
 		} catch (Exception e) {
-			LOGGER.error(_ERROR, e);
+			LOGGER.error("parser error : {}", e);
 		}
 		if (resource.getResourceType().getName().equalsIgnoreCase(ASSESSMENT_QUESTION)) {
 			final AssessmentQuestion question = assessmentService.getQuestion(gooruOid);
@@ -2038,11 +2037,10 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		return response;
 	}
 	
-
 	@Override
 	public List<User> getUsersByResourceId(String resourceId, Integer limit, Integer offset) {
-		return this.getResourceRepository().getUsersByResourceId(resourceId, limit, offset);
-	}
+			return this.getResourceRepository().getUsersByResourceId(resourceId, limit, offset);
+    }
 
 	public CollectionRepository getCollectionRepository() {
 		return collectionRepository;

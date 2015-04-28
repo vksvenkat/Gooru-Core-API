@@ -12,7 +12,6 @@ import org.ednovo.gooru.cassandra.core.dao.EntityCassandraDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.netflix.astyanax.connectionpool.OperationResult;
 import com.netflix.astyanax.model.ColumnList;
 import com.netflix.astyanax.model.Rows;
 
@@ -61,8 +60,8 @@ public abstract class EntityCassandraServiceImpl<M extends Serializable> impleme
 	public void save(Collection<M> models, Collection<String> modelKeys) {
 		getCassandraDao().save(models, modelKeys, false);
 
-	}	
-	
+	}
+
 	@Override
 	public List<M> getAll() {
 		return getCassandraDao().getAll();
@@ -99,10 +98,5 @@ public abstract class EntityCassandraServiceImpl<M extends Serializable> impleme
 	public Rows<String, String> readWithKeyListColumnList(Collection<String> keys,Collection<String> columnList, int retryCount){
 		return getCassandraDao().readWithKeyListColumnList(keys, columnList, retryCount);
 	}
-     
-	@Override
-	public OperationResult<ColumnList<String>>  readAsFields(String gooruOid) {
-		 return getCassandraDao().readAsFields(gooruOid, null);
-	}
-	
+
 }

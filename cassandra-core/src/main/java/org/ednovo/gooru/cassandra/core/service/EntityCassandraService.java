@@ -8,7 +8,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import com.netflix.astyanax.connectionpool.OperationResult;
 import com.netflix.astyanax.model.ColumnList;
 import com.netflix.astyanax.model.Rows;
 
@@ -49,6 +48,5 @@ public interface EntityCassandraService<K, M extends Serializable> {
 	public Long getLong(String key, String column);
 	
 	public Rows<String, String> readWithKeyListColumnList(Collection<String> keys,Collection<String> columnList, int retryCount);
-	
-    public OperationResult<ColumnList<String>>  readAsFields(String gooruOid);
+
 }

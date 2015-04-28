@@ -63,16 +63,12 @@ public abstract class AbstractRepositoryHibernate extends AuthorizationDaoSuppor
 	public void remove(Object o) {
 		delete(o);
 	}
-	
-	
 
-	@SuppressWarnings("rawtypes")
-	public void removeAll(Collection entities) {
+	public void removeAll(Collection<?> entities) {
 		deleteAll(entities);
 	}
 
-	@SuppressWarnings("rawtypes")
-	public void saveAll(Collection entities) {
+	public void saveAll(Collection<?> entities) {
 		saveOrUpdateAll(entities);
 	}
 
