@@ -34,7 +34,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -59,6 +58,7 @@ import org.ednovo.gooru.application.util.TaxonomyUtil;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.AssessmentQuestion;
 import org.ednovo.gooru.core.api.model.Code;
+import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.ContentProvider;
@@ -83,6 +83,7 @@ import org.ednovo.gooru.core.application.util.BaseUtil;
 import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.application.util.ImageUtil;
 import org.ednovo.gooru.core.application.util.RequestUtil;
+import org.ednovo.gooru.core.application.util.ResourceMetaInfo;
 import org.ednovo.gooru.core.cassandra.model.ResourceCio;
 import org.ednovo.gooru.core.cassandra.model.ResourceMetadataCo;
 import org.ednovo.gooru.core.cassandra.model.ResourceStasCo;
@@ -1980,50 +1981,6 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	}
 
 	@Override
-	public void updateStatisticsData(List<StatisticsDTO> statisticsList, boolean skipReindex) {
-		ResourceCio resourceCio = null;
-		ResourceStasCo resourceStasCo = null;
-		Collection<ResourceCio> resourceCioList = new ArrayList<ResourceCio>();
-		Collection<String> resourceIds = new ArrayList<String>();
-		Collection<String> collectionIds = new ArrayList<String>();
-
-		for (StatisticsDTO statisticsDTO : statisticsList) {
-			resourceCio = new ResourceCio();
-			resourceStasCo = new ResourceStasCo();
-			resourceCio.setId(statisticsDTO.getGooruOid());
-			if (statisticsDTO.getResourceType() != null && statisticsDTO.getResourceType().equalsIgnoreCase("scollection")) {
-				collectionIds.add(resourceCio.getId());
-			} else {
-				resourceIds.add(resourceCio.getId());
-			}
-			if (statisticsDTO.getViews() != null) {
-				resourceStasCo.setViewsCount(String.valueOf(statisticsDTO.getViews()));
-			}
-			if (statisticsDTO.getSubscription() != null) {
-				resourceStasCo.setSubscriberCount(String.valueOf(statisticsDTO.getSubscription()));
-			}
-			if (statisticsDTO.getRatings() != null) {
-				resourceStasCo.setRating(String.valueOf(statisticsDTO.getRatings()));
-			}
-			if (statisticsDTO.isValid()) {
-				resourceCio.setStas(resourceStasCo);
-				resourceCioList.add(resourceCio);
-			}
-		}
-		if (resourceCioList.size() > 0) {
-			resourceCassandraService.save(resourceCioList, resourceIds);
-			if (!skipReindex) {
-				if (resourceIds.size() > 0) {
-					indexHandler.setReIndexRequest(StringUtils.join(resourceIds, ','), IndexProcessor.INDEX, RESOURCE, null, false, false);
-				}
-				if (collectionIds.size() > 0) {
-					indexHandler.setReIndexRequest(StringUtils.join(collectionIds, ','), IndexProcessor.INDEX, SCOLLECTION, null, false, false);
-				}
-			}
-		}
-	}
-
-	@Override
 	public Map<String, Object> checkResourceUrlExists(String url, boolean checkShortenedUrl) throws Exception {
 		Resource resource = findResourceByUrl(url, Sharing.PUBLIC.getSharing(), null);
 		Map<String, Object> response = new HashMap<String, Object>();
@@ -2038,8 +1995,13 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	}
 	
 	@Override
-	public List<User> getUsersByResourceId(String resourceId, Integer limit, Integer offset) {
-			return this.getResourceRepository().getUsersByResourceId(resourceId, limit, offset);
+	public List<Collection> getCollectionsByResourceId(String resourceId, Integer limit, Integer offset) {
+		List<Collection> collections =  this.getResourceRepository().getCollectionsByResourceId(resourceId, limit, offset);
+		for (Collection collection : collections) { 
+			final ResourceMetaInfo collectionMetaInfo = new ResourceMetaInfo();
+			this.getCollectionService().setCollectionTaxonomyMetaInfo(collection.getTaxonomySet(), collectionMetaInfo);
+		}
+		return collections;
     }
 
 	public CollectionRepository getCollectionRepository() {
