@@ -185,10 +185,10 @@ public class FolderServiceImpl extends BaseServiceImpl implements FolderService,
 	}
 
 	@Override
-	public Map<String, Object> getNextCollectionItem(final String collectionItemId, final String excludeType, final String sharing) {
+	public Map<String, Object> getNextCollectionItem(final String collectionItemId, final String excludeType, final String sharing, boolean excludeCollaboratorCollection) {
 		final CollectionItem collectionItem = this.getCollectionRepository().getCollectionItemById(collectionItemId);
 		rejectIfNull(collectionItem, GL0056, 404, COLLECTION_ITEM);
-		return getCollection(collectionItem.getCollection().getGooruOid(), collectionItem.getItemSequence(),excludeType, sharing, true);
+		return getCollection(collectionItem.getCollection().getGooruOid(), collectionItem.getItemSequence(),excludeType, sharing, excludeCollaboratorCollection);
 	}
 	
 	private Map<String, Object> getCollection(final String gooruOid, final Integer sequence, final String excludeType, final String sharing, boolean excludeCollaboratorCollection) {

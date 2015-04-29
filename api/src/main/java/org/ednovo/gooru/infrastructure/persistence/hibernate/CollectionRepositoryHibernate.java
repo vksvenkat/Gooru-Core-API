@@ -1125,7 +1125,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 			hql += " and collectionItem.resource.sharing in  ('"+ sharing.replace(",", "','") + "')";
 		}
 		if(excludeCollaboratorCollection) {
-			hql += "and collectionItem.itemType != 'collaborator'";
+			hql += " and collectionItem.itemType != 'collaborator'";
 		}
 		hql += " order by collectionItem.itemSequence desc";
 		final Query query = getSession().createQuery(hql);
