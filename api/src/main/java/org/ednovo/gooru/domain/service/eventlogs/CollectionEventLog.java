@@ -118,6 +118,9 @@ public class CollectionEventLog implements ParameterProperties, ConstantProperti
 				} else if (collectionType.equalsIgnoreCase(CollectionType.CLASSPAGE.getCollectionType())) {
 					payLoadObject.put(ITEM_TYPE, CLASSPAGE_COLLECTION);
 				}
+				else if (collectionType.equalsIgnoreCase(CollectionType.PATHWAY.getCollectionType())) {
+					payLoadObject.put(ITEM_TYPE, PATHWAY_COLLECTION);
+				}
 			}
 			payLoadObject.put(PARENT_CONTENT_ID, collectionItem != null && collectionItem.getCollection() != null ? collectionItem.getCollection().getContentId() : null);
 			payLoadObject.put(CONTENTID, collectionItem != null && collectionItem.getResource() != null ? collectionItem.getResource().getContentId() : null);
