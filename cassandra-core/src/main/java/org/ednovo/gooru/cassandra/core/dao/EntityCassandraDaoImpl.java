@@ -82,6 +82,17 @@ public class EntityCassandraDaoImpl<M extends IsEntityCassandraIndexable> extend
 	}
 
 	@Override
+	public OperationResult<ColumnList<String>> readAsFields (String key) {
+		try {	
+	        OperationResult<ColumnList<String>>  cfColumn = (OperationResult<ColumnList<String>>) (key != null ? getFactory().getKeyspace().prepareQuery(getCF().getColumnFamily()).setConsistencyLevel(ConsistencyLevel.CL_QUORUM).getKey(key).execute():null);
+		   return cfColumn;
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+		
+	}
+	
+	@Override
 	public void save(Collection<M> models,
 			Collection<String> modelKeys,
 			boolean skipRiCheck) {
@@ -319,6 +330,5 @@ public class EntityCassandraDaoImpl<M extends IsEntityCassandraIndexable> extend
     	
     	return result;
     }
-
 }
 
