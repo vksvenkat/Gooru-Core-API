@@ -230,9 +230,7 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 	@RequestMapping(method = { RequestMethod.GET }, value = "/{id}/collection")
 	public ModelAndView getUserListByResourceId(@PathVariable(value = ID) final String resourceId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") final Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "20") final Integer limit,
 			final HttpServletRequest request, final HttpServletResponse response) {
-		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, COLLECTION_INCLUDE_FIELDS);
-		includes = (String[]) ArrayUtils.addAll(includes, USER_INCLUDES);
-		return toModelAndView(serialize(this.getResourceService().getCollectionsByResourceId(resourceId, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, true, includes));
+		return toModelAndView(serialize(this.getResourceService().getCollectionsByResourceId(resourceId, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, true, RESOURCE_COLLECTION_USED_INCLUDE_FIELDS));
 	}
 
 	private Resource buildResourceFromInputParameters(final String data) {
