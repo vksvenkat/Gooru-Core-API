@@ -1071,9 +1071,6 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		if (user == null) {
 			throw new NotFoundException(generateErrorMessage("GL0071"), "GL0071");
 		}
-		if (user.getConfirmStatus() == 0) {
-			throw new BadRequestException(generateErrorMessage("GL0072"), "GL0072");
-		}
 		Credential creds = identity.getCredential();
 		if (creds == null && identity.getAccountCreatedType() != null && identity.getAccountCreatedType().equalsIgnoreCase(UserAccountType.accountCreatedType.GOOGLE_APP.getType())) {
 			throw new BadRequestException(generateErrorMessage("GL0073"), "GL0073");

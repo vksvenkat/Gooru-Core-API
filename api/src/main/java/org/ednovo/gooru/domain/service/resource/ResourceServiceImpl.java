@@ -2000,6 +2000,8 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		for (Collection collection : collections) { 
 			final ResourceMetaInfo collectionMetaInfo = new ResourceMetaInfo();
 			this.getCollectionService().setCollectionTaxonomyMetaInfo(collection.getTaxonomySet(), collectionMetaInfo);
+			collectionMetaInfo.setStandards(this.getCollectionService().getStandards(collection.getTaxonomySet(), false, null));
+			collection.setMetaInfo(collectionMetaInfo);
 		}
 		return collections;
     }
