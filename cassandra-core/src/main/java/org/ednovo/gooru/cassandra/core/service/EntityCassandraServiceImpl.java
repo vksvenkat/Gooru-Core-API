@@ -23,7 +23,8 @@ import com.netflix.astyanax.model.Rows;
 public abstract class EntityCassandraServiceImpl<M extends Serializable> implements EntityCassandraService<String, M> {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(EntityCassandraServiceImpl.class);
-
+	
+   
 	@Override
 	public void delete(String id) {
 		getCassandraDao().delete(id);
