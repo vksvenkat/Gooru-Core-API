@@ -262,7 +262,7 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_FOLDER_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/item/{id}/next" }, method = RequestMethod.GET)
-	public ModelAndView getNextCollectionItem(@RequestParam(value = EXCLUDE_TYPE, required = false) final String excludeType, @RequestParam(value = SHARING, required = false ,defaultValue = SHARINGS) final String sharing, @PathVariable(value = ID) final String collectionItemId, final HttpServletRequest request, final HttpServletResponse response, @RequestParam(value = EXCLUDE_COLLABORATOR_COLLECTION, required = false, defaultValue = "true") boolean excludeCollaboratorCollection) {
+	public ModelAndView getNextCollectionItem(@RequestParam(value = EXCLUDE_TYPE, required = false) final String excludeType, @RequestParam(value = SHARING, required = false ,defaultValue = SHARINGS) final String sharing, @PathVariable(value = ID) final String collectionItemId, final HttpServletRequest request, final HttpServletResponse response, @RequestParam(value = EXCLUDE_COLLABORATOR_COLLECTION, required = false, defaultValue = TRUE) boolean excludeCollaboratorCollection) {
 		return toModelAndViewWithIoFilter(getFolderService().getNextCollectionItem(collectionItemId, excludeType, sharing, excludeCollaboratorCollection), RESPONSE_FORMAT_JSON, _NEXT_COLLECTION_EXCLUDES);
 	}
 	
