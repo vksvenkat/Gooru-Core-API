@@ -11,6 +11,8 @@ public interface ColumnFamilyConstant {
 	
 	String RESOURCE = "resource";
 	
+	String RESOURCE_FIELDS ="resource_fields";
+	
 	String RESOURCE_RI = "resource_ri";
 	
 	String USER = "user";
