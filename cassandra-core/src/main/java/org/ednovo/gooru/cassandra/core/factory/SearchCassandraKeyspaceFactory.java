@@ -22,7 +22,7 @@ import com.netflix.astyanax.thrift.ThriftFamilyFactory;
  * @author SearchTeam
  *
  */
-final class SearchCassandraKeyspaceFactory {
+public final class SearchCassandraKeyspaceFactory {
 
 	private static final Logger LOG = LoggerFactory.getLogger(SearchCassandraFactory.class);
 
