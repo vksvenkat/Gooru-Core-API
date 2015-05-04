@@ -29,6 +29,8 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.ednovo.gooru.application.util.context.AppContext;
+import org.ednovo.gooru.core.api.model.AssessmentQuestion;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.ContentPermission;
@@ -45,6 +47,7 @@ import org.ednovo.gooru.core.api.model.UserTransformer;
 import org.ednovo.gooru.core.application.util.BaseUtil;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.MethodFailureException;
+import org.ednovo.gooru.mongodb.assessments.questions.Transformers.AssessmentQuestionTransformer;
 import org.ednovo.goorucore.application.serializer.ExcludeNullTransformer;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -178,6 +181,7 @@ public class SerializerUtil implements ParameterProperties {
 		}
 		String serializedData = null;
 		JSONSerializer serializer = new JSONSerializer();
+		boolean handlingAssessmentQuestion = willSerializeAssessmentQuestion(model);
 
 		if (type == null || type.equals(JSON)) {
 
@@ -204,6 +208,9 @@ public class SerializerUtil implements ParameterProperties {
 			if (model != null) {
 				serializer = appendTransformers(serializer, excludeNullObject);
 			}
+			if (handlingAssessmentQuestion) {
+				serializer = handleAssessmentQuestionTransformers(serializer);
+			}
 
 			if (excludes != null) {
 				serializer.exclude(excludes);
@@ -215,6 +222,7 @@ public class SerializerUtil implements ParameterProperties {
 				log(model, serializedData);
 
 			} catch (Exception ex) {
+				LOGGER.error("serialize: happened to throw exception", ex);
 				if (model instanceof Resource) {
 					LOGGER.error("Serialization failed for resource : " + ((Resource) model).getContentId());
 				} else if (model instanceof List) {
@@ -232,6 +240,49 @@ public class SerializerUtil implements ParameterProperties {
 			serializedData = new XStream().toXML(model);
 		}
 		return serializedData;
+	}
+
+	private static JSONSerializer handleAssessmentQuestionTransformers(
+			JSONSerializer serializer) {
+		serializer = serializer.transform(
+				(AssessmentQuestionTransformer) AppContext.getCtx().getBean(
+						AssessmentQuestionTransformer.class),
+				AssessmentQuestion.class);
+		return serializer;
+	}
+
+	/**
+	 * Need to check if we are going to serialize any instance of
+	 * AssessmentQuestion. Since question may be stored either in mysql or in
+	 * mongo, we need a custom transformer here to make sure that it is properly
+	 * serialized.
+	 * 
+	 * @param model
+	 *            Model which will be serialized
+	 * @return boolean signifying if we are serializing instance of
+	 *         AssessmentQuestion
+	 */
+	private static boolean willSerializeAssessmentQuestion(Object model) {
+		if (model != null) {
+
+			if (model instanceof CollectionItem
+					&& ((CollectionItem) model).getResource() instanceof AssessmentQuestion) {
+				return true;
+			} else if (model instanceof Collection) {
+				Set<CollectionItem> items = ((Collection) model)
+						.getCollectionItems();
+				if (items != null) {
+
+					for (CollectionItem ci : ((Collection) model)
+							.getCollectionItems()) {
+						if (ci.getResource() instanceof AssessmentQuestion) {
+							return true;
+						}
+					}
+				}
+			}
+		}
+		return false;
 	}
 
 	private static Object protocolSwitch(final Object model) {
