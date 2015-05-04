@@ -67,6 +67,7 @@ import org.ednovo.gooru.core.api.model.ContentType;
 import org.ednovo.gooru.core.api.model.CustomTableValue;
 import org.ednovo.gooru.core.api.model.FileMeta;
 import org.ednovo.gooru.core.api.model.License;
+import org.ednovo.gooru.core.api.model.Profile;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.ResourceInfo;
 import org.ednovo.gooru.core.api.model.ResourceMetaData;
@@ -225,6 +226,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 
 	@Autowired
 	private IndexHandler indexHandler;
+
 
 	private static final String SHORTENED_URL_STATUS = "shortenedUrlStatus";
 
@@ -2002,6 +2004,12 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			this.getCollectionService().setCollectionTaxonomyMetaInfo(collection.getTaxonomySet(), collectionMetaInfo);
 			collectionMetaInfo.setStandards(this.getCollectionService().getStandards(collection.getTaxonomySet(), false, null));
 			collection.setMetaInfo(collectionMetaInfo);
+			final User user = this.getUserRepository().findByGooruId(collection.getUser().getGooruUId());
+			final Profile profile = this.getUserService().getProfile(user);
+			Map<String, Object> meta = new HashMap<String, Object>();
+			meta.put(GRADE,profile.getGrade());
+			meta.put(COURSE,profile.getCourses());
+			collection.getUser().setMeta(meta);
 		}
 		return collections;
     }
