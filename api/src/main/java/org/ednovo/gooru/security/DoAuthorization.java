@@ -84,7 +84,7 @@ public class DoAuthorization {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DoAuthorization.class);
 
-	public User doFilter(String sessionToken, String pinToken, String apiKeyToken, HttpServletRequest request, HttpServletResponse response, Authentication auth, String oAuthToken) {
+	public User doFilter(String sessionToken, String pinToken, final String apiKeyToken, final HttpServletRequest request, final HttpServletResponse response, final Authentication auth, final String oAuthToken) {
 		if (pinToken != null) {
 			sessionToken = pinToken;
 		}
@@ -94,7 +94,7 @@ public class DoAuthorization {
 		UserToken userToken = null;
 		String key = null;
 		String data = null;
-		String skipCache = request.getParameter("skipCache");
+		final String skipCache = request.getParameter("skipCache");
 
 		if (oAuthToken != null) {
 			try {
@@ -157,7 +157,7 @@ public class DoAuthorization {
 			}
 		} else if (apiKeyToken != null) {
 			if (authentication == null) {
-				Application application = this.getApplicationRepository().getApplication(apiKeyToken);
+				final Application application = this.getApplicationRepository().getApplication(apiKeyToken);
 				if (application == null) {
 					throw new AccessDeniedException("Invalid ApiKey : " + apiKeyToken);
 				} else {
@@ -220,10 +220,11 @@ public class DoAuthorization {
 	}
 
 	private boolean hasRoleChanged(Authentication auth, User user) {
+		boolean  hasRoleChanged = false; 
 		if (!user.getPartyUid().equals((String) auth.getPrincipal())) {
-			return true;
+			hasRoleChanged = true;
 		}
-		return false;
+		return hasRoleChanged;
 	}
 
 	public RedisService getRedisService() {
