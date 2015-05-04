@@ -2004,8 +2004,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			this.getCollectionService().setCollectionTaxonomyMetaInfo(collection.getTaxonomySet(), collectionMetaInfo);
 			collectionMetaInfo.setStandards(this.getCollectionService().getStandards(collection.getTaxonomySet(), false, null));
 			collection.setMetaInfo(collectionMetaInfo);
-			final User user = this.getUserRepository().findByGooruId(collection.getUser().getGooruUId());
-			final Profile profile = this.getUserService().getProfile(user);
+			final Profile profile = this.getUserService().getProfile(collection.getUser());
 			Map<String, Object> meta = new HashMap<String, Object>();
 			meta.put(GRADE,profile.getGrade());
 			meta.put(COURSE,profile.getCourses());
