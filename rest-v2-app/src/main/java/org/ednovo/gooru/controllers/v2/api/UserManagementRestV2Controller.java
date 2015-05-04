@@ -457,6 +457,17 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 	
 	}
 	
+
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_CONFIRM_MAIL })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(method = RequestMethod.POST, value = "/bulkuser")
+	public ModelAndView createBulkUser(@RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+		final JSONObject json = requestData(data);
+		String path = getValue(PATH, json);
+		this.getUserManagementService().createBulkUser(path);
+		return null;
+	}
+	
 	public UserManagementService getUserManagementService() {
 		return userManagementService;
 	}

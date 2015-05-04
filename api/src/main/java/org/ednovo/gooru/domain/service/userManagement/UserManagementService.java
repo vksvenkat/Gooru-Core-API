@@ -138,4 +138,6 @@ public interface UserManagementService extends BaseService {
 	 List<RoleEntityOperation> getRoleOperationsByRoleId(Integer roleId);
 	 
 	 List<CustomTableValue> getUserCategory(User apiCaller);
+	 
+	 String createBulkUser(String path);
 }
