@@ -154,8 +154,10 @@ public class GooruInterceptor extends HandlerInterceptorAdapter {
 		metrics.put("totalTimeSpentInMs", totalTimeSpentInMs);
 		SessionContextSupport.putLogParameter("metrics", metrics.toString());
 		JSONObject session = SessionContextSupport.getLog().get(Constants.SESSION) != null ? new JSONObject(SessionContextSupport.getLog().get(Constants.SESSION).toString()) : new JSONObject();
-		session.put(SESSIONTOKEN, request.getSession().getAttribute(Constants.SESSION_TOKEN));
-		if (request.getSession().getAttribute(Constants.APPLICATION_KEY) != null) {
+		if (!session.has(SESSIONTOKEN)) { 			
+			session.put(SESSIONTOKEN, request.getSession().getAttribute(Constants.SESSION_TOKEN));
+		}
+		if (!session.has(API_KEY) && request.getSession().getAttribute(Constants.APPLICATION_KEY) != null) {
 			session.put(API_KEY, request.getSession().getAttribute(Constants.APPLICATION_KEY));
 		}
 		SessionContextSupport.putLogParameter(Constants.SESSION, session.toString());

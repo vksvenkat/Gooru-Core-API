@@ -74,7 +74,6 @@ import org.ednovo.gooru.core.api.model.ResourceSource;
 import org.ednovo.gooru.core.api.model.ResourceType;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.Sharing;
-import org.ednovo.gooru.core.api.model.StatisticsDTO;
 import org.ednovo.gooru.core.api.model.Textbook;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserGroupSupport;
@@ -86,7 +85,6 @@ import org.ednovo.gooru.core.application.util.RequestUtil;
 import org.ednovo.gooru.core.application.util.ResourceMetaInfo;
 import org.ednovo.gooru.core.cassandra.model.ResourceCio;
 import org.ednovo.gooru.core.cassandra.model.ResourceMetadataCo;
-import org.ednovo.gooru.core.cassandra.model.ResourceStasCo;
 import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
@@ -225,6 +223,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 
 	@Autowired
 	private IndexHandler indexHandler;
+
 
 	private static final String SHORTENED_URL_STATUS = "shortenedUrlStatus";
 
@@ -1997,11 +1996,17 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	@Override
 	public List<Collection> getCollectionsByResourceId(String resourceId, Integer limit, Integer offset) {
 		List<Collection> collections =  this.getResourceRepository().getCollectionsByResourceId(resourceId, limit, offset);
+		final CustomTableValue type = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.USER_CLASSIFICATION_TYPE.getTable(), CustomProperties.UserClassificationType.COURSE.getUserClassificationType());
+		final CustomTableValue gradeType = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.USER_CLASSIFICATION_TYPE.getTable(), CustomProperties.UserClassificationType.GRADE.getUserClassificationType());
 		for (Collection collection : collections) { 
 			final ResourceMetaInfo collectionMetaInfo = new ResourceMetaInfo();
 			this.getCollectionService().setCollectionTaxonomyMetaInfo(collection.getTaxonomySet(), collectionMetaInfo);
 			collectionMetaInfo.setStandards(this.getCollectionService().getStandards(collection.getTaxonomySet(), false, null));
 			collection.setMetaInfo(collectionMetaInfo);
+			Map<String, Object> meta = new HashMap<String, Object>();
+			meta.put(GRADE, this.getUserRepository().getUserGrade(collection.getUser().getPartyUid(), gradeType.getCustomTableValueId(), 1));
+			meta.put(COURSE,this.getUserRepository().getUserClassifications(collection.getUser().getPartyUid(), type.getCustomTableValueId(), 1));
+			collection.getUser().setMeta(meta);
 		}
 		return collections;
     }
