@@ -23,10 +23,7 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.domain.service.userManagement;
 
-import java.io.BufferedReader;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -121,7 +118,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.thoughtworks.xstream.core.util.Base64Encoder;
 
 @Service
@@ -1565,114 +1561,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		rejectIfNull(role, GL0056, 404, ROLE);
 		return this.getUserRepository().findRoleOperationsByRoleId(roleId);
 	}
-
-	@Override
-	public String createBulkUser(String path) {
-		
-		this.readFile(path);
-		return null;
-	}
-	
-	 public void readFile(String csvFile) {
-		 
-			//String csvFile = "CSV.csv";
-			BufferedReader br = null;
-			String line = "";
-			String cvsSplitBy = "#";
-			int first = 0 ;
-			ArrayList<String> header = new ArrayList<String>();
-			try {
-		 
-				br = new BufferedReader(new FileReader(csvFile));
-				while ((line = br.readLine()) != null) {
-					String json= "{";
-				        // use comma as separator
-
-					String[] userDetails = line.split(cvsSplitBy);
-					for(int i=0; i<userDetails.length; i++){
-						if(first == 0){
-							header.add('"'+userDetails[i]+"\":\"");
-						}
-						else{
-							json += header.get(i).toString() +  userDetails[i] + "\",";
-						}
-					}
-					
-					json =json.substring(0, json.length() - 1)+'}';
-					if(first == 1)
-						this.executingEachRow(json);
-					first = 1;
-				}
-		 
-			} catch (Exception e) {
-				e.printStackTrace();
-			} finally {
-				if (br != null) {
-					try {
-						br.close();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				}
-			}
-		 
-		  }
-	 
-	 void executingEachRow(String json) {
-			String p = json;
-			Map<String, String> data = JsonDeserializer.deserialize(p, new TypeReference<Map<String, String>>() {
-			});
-			Map<String, Object> result = new HashMap<String, Object>();
-			for (Map.Entry<String, String> value : data.entrySet()) {
-				if (value.getKey().contains("_")) {
-					String[] keys = value.getKey().split("_");
-				    merge(result, parse(keys, value.getValue()));				
-				} else {
-					result.put(value.getKey(), value.getValue());
-				}
-			}
-			
-			//System.out.println(new flexjson.JSONSerializer().serialize(result));
-		}
-
-		private static Map<String, Object> parse(String keys[], String value) {
-			StringBuilder json = new StringBuilder();
-			int index = 0;
-			json.append("{");
-			int keyLength = keys.length;
-			for (String key : keys) {
-				json.append("\"");
-				json.append(key);
-				json.append("\"");
-				if (index < (keyLength - 1)) {
-					json.append(":{");
-				}
-
-				index++;
-			}
-			json.append(":\"");
-			json.append(value);
-			json.append("\"");
-			for (index = 0; index < keyLength; index++) {
-				json.append("}");
-			}
-			return JsonDeserializer.deserialize(json.toString(), new TypeReference<Map<String, Object>>() {
-			});
-		}
-
-		private static Map merge(Map original, Map newMap) {
-			for (Object key : newMap.keySet()) {
-				if (newMap.get(key) instanceof Map && original.get(key) instanceof Map) {
-					Map originalChild = (Map) original.get(key);
-					Map newChild = (Map) newMap.get(key);
-					original.put(key, merge(originalChild, newChild));
-				} else {
-					original.put(key, newMap.get(key));
-				}
-			}
-			return original;
-		}
-		 	
+	 	
 	@Override
 	public List<CustomTableValue> getUserCategory(final User apiCaller) {
 		return this.getCustomTableRepository().getCustomValues(USER_CATEGORY);
