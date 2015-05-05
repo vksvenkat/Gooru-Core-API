@@ -70,6 +70,7 @@ public class ApiCassandraFactory extends SearchCassandraFactory {
 		register(new CassandraColumnFamily(ColumnFamilyConstant.CUSTOM_FIELDS_DEFINITION));
 		register(new CassandraColumnFamily(ColumnFamilyConstant.CUSTOM_FIELDS_GROUP));
 		register(new CassandraColumnFamily(ColumnFamilyConstant.INDEX_QUEUE));
+		register(new CassandraColumnFamily(ColumnFamilyConstant.LIVE_DASHBOARD));
 		register(new EntityCassandraColumnFamily<DomainCio>(DomainCio.class, new ReverseIndexColumnSetting().putField("name", "id")));
 		register(new EntityCassandraColumnFamily<ResourceCio>(ResourceCio.class, new ReverseIndexColumnSetting().putField("type","resourceType").putField("batch", "batchId").putField("categoy", "category").putField("resourceFormat", "resourceFormat").putField("instructional", "instructional")));
 		register(new EntityCassandraColumnFamily<ResourceFieldsCio>(ResourceFieldsCio.class, new ReverseIndexColumnSetting().putField("type","resourceType").putField("batch", "batchId").putField("categoy", "category").putField("resourceFormat", "resourceFormat").putField("instructional", "instructional")));
