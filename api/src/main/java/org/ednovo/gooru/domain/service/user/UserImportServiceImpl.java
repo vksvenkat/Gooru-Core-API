@@ -43,11 +43,8 @@ public class UserImportServiceImpl extends FileImporter implements UserImportSer
 					}
 				}
 				json = json.substring(0, json.length() - 1) + '}';
-				System.out.println(json+"       111111111");
 				if (first == 1) {
 					JSONObject jsonObj = requestData(generateJSONInput(json, UNDER_SCORE));
-					System.out.print(jsonObj.toString());
-					System.out.print(jsonObj.get(PASSWORD));
 					final User user = this.buildUserFromInputParameters((getValue(USER, jsonObj)));
 					this.getUserManagementService().createUserWithValidation(user, jsonObj.get(PASSWORD).toString(), null, null, false, false, apiCaller, null, jsonObj.get(DATEOFBIRTH).toString(), null, jsonObj.get(GENDER).toString(), null, null, json, false, request, null, null);
 				}
