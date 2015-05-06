@@ -152,8 +152,8 @@ public class PartyServiceImpl extends BaseServiceImpl implements PartyService, P
 		}
 		try {
 			this.getUserEventlog().getEventLogs(true, false, user, null, true, true);
-		} catch (JSONException e) {
-			LOGGER.debug("Error" + e);
+		} catch (Exception e) {
+			LOGGER.error(_ERROR , e);
 		}
 		return partyCustomField;
 	}
