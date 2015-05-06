@@ -34,15 +34,6 @@ public class StatisticsCo {
 
 	private Integer scollectionRemixCount; 
 
-
-	public Integer getScollectionRemixCount() {
-		return scollectionRemixCount;
-	}
-
-	public void setScollectionRemixCount(Integer scollectionRemixCount) {
-		this.scollectionRemixCount = scollectionRemixCount;
-	}
-
 	@Column
 	private Integer resourceAddedCount;
 
@@ -308,5 +299,15 @@ public class StatisticsCo {
 	public void setResourceUsedUserCount(Integer resourceUsedUserCount) {
 		this.resourceUsedUserCount = resourceUsedUserCount;
 	}
+
+	public Integer getScollectionRemixCount() {
+		return scollectionRemixCount;
+	}
+
+	public void setScollectionRemixCount(Integer scollectionRemixCount) {
+		this.scollectionRemixCount = scollectionRemixCount;
+	}
+
+
 
 }
