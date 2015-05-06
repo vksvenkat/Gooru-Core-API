@@ -2,6 +2,8 @@ package org.ednovo.gooru.domain.service.eventlogs;
 
 import java.util.Iterator;
 
+import javax.json.JsonException;
+
 import org.ednovo.gooru.core.api.model.Identity;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.User;
@@ -19,7 +21,7 @@ public class UserEventlog implements ParameterProperties, ConstantProperties{
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserEventlog.class);
 	
-	public void getEventLogs(boolean updateProfile, boolean visitProfile, User profileVisitor, JSONObject itemData, boolean isFollow, boolean isUnfollow) {
+	public void getEventLogs(boolean updateProfile, boolean visitProfile, User profileVisitor, JSONObject itemData, boolean isFollow, boolean isUnfollow) throws JSONException{
 		
 		try {
 		SessionContextSupport.putLogParameter(EVENT_NAME, PROFILE_ACTION);
