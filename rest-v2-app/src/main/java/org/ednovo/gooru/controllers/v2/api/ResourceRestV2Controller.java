@@ -45,6 +45,7 @@ import org.ednovo.gooru.core.constant.GooruOperationConstants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.security.AuthorizeOperations;
 import org.ednovo.gooru.domain.service.CollectionService;
+import org.ednovo.gooru.domain.service.resource.ResourceImportServiceImpl;
 import org.ednovo.gooru.domain.service.resource.ResourceService;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.json.JSONObject;
@@ -71,6 +72,9 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 	@Autowired
 	private CollectionService collectionService;
 
+	@Autowired
+	private ResourceImportServiceImpl resourceImportServiceImpl;
+	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_RESOURCE_ADD })
 	@Transactional(readOnly = false, propagation = Propagation.NOT_SUPPORTED, noRollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.POST, value = "")
@@ -78,14 +82,9 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 		request.setAttribute(PREDICATE, RESOURCE_CREATE_RESOURCE);
 		final JSONObject json = requestData(data);
 		final User user = (User) request.getAttribute(Constants.USER);
-		final ActionResponseDTO<Resource> responseDTO = this.getResourceService().createResource(this.buildResourceFromInputParameters(getValue(RESOURCE, json), user), user);
-		if (responseDTO.getErrors().getErrorCount() > _ZERO) {
-			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-		} else {
-			response.setStatus(HttpServletResponse.SC_CREATED);
-		}
+		final Resource resource = this.getResourceService().createResource(this.buildResourceFromInputParameters(getValue(RESOURCE, json), user), null, user, false);
 		final String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, ERROR_INCLUDE);
-		return toModelAndViewWithIoFilter(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, includes);
+		return toModelAndViewWithIoFilter(resource, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, includes);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_RESOURCE_UPDATE })
@@ -233,6 +232,13 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 		return toModelAndView(serialize(this.getResourceService().getCollectionsByResourceId(resourceId,limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, true, RESOURCE_COLLECTION_USED_INCLUDE_FIELDS));
 	}
 
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_RESOURCE_ADD })
+	@Transactional(readOnly = false, propagation = Propagation.NOT_SUPPORTED, noRollbackFor = Exception.class)
+	@RequestMapping(method = RequestMethod.POST, value = "{type}/import")
+	public void createResource(@PathVariable(value = TYPE) final String type, @RequestParam(value = FILENAME) final String filename, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+		this.getResourceImportServiceImpl().createResource(filename, request);
+	}
+	
 	private Resource buildResourceFromInputParameters(final String data) {
 		return JsonDeserializer.deserialize(data, Resource.class);
 	}
@@ -272,6 +278,10 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 
 	public CollectionService getCollectionService() {
 		return collectionService;
+	}
+
+	public ResourceImportServiceImpl getResourceImportServiceImpl() {
+		return resourceImportServiceImpl;
 	}
 
 }

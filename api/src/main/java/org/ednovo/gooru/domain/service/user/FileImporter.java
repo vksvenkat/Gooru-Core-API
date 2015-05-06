@@ -1,6 +1,8 @@
 package org.ednovo.gooru.domain.service.user;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.ednovo.gooru.core.constant.ConstantProperties;
@@ -40,11 +42,12 @@ public abstract class FileImporter implements  ParameterProperties, ConstantProp
 		return JsonDeserializer.deserialize(json.toString(), new TypeReference<Map<String, Object>>() {
 		});
 	}
-
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	protected Map merge(Map original, Map newMap) {
 		for (Object key : newMap.keySet()) {
 			if (newMap.get(key) instanceof Map && original.get(key) instanceof Map) {
-				Map originalChild = (Map) original.get(key);
+                Map originalChild = (Map) original.get(key);
 				Map newChild = (Map) newMap.get(key);
 				original.put(key, merge(originalChild, newChild));
 			} else {
@@ -70,7 +73,33 @@ public abstract class FileImporter implements  ParameterProperties, ConstantProp
 		return new JSONSerializer().serialize(result);
 	}
 	
-	public static String getValue(final String key, JSONObject json) throws Exception {
+	protected static List<String>  getJsonKeys(String[] keys)  {
+		List<String> josnKeys = new ArrayList<String>();
+		for(int index=0; index < keys.length; index++){
+			josnKeys.add(keys[index]);
+	    }
+		return josnKeys;
+	}
+	
+	
+	protected static StringBuffer formInputJson(String[] values, StringBuffer json, List<String> jsonKeys)  {	
+		json.append("{");
+		for(int index = 0; index < values.length; index++){
+			json.append("\"");
+			json.append(jsonKeys.get(index));
+			json.append("\":\"");
+			json.append(values[index]);
+			json.append("\"");
+			if (index < (values.length - 1)) { 
+				json.append(",");	
+			}
+		}
+		json.append("}");
+		return json;
+	}
+	
+	
+	protected static String getValue(final String key, JSONObject json) throws Exception {
 		try {
 			if (json.isNull(key)) {
 				return null;
@@ -82,11 +111,12 @@ public abstract class FileImporter implements  ParameterProperties, ConstantProp
 		}
 	}
 
-	public static JSONObject requestData(String data)  {
+	protected static JSONObject requestData(String data)  {
 		try {
 			return data != null ? new JSONObject(data) : null;
 		} catch (JSONException e) {
 			throw new BadRequestException("Input JSON parse failed!");
 		}
 	}
+	
 }

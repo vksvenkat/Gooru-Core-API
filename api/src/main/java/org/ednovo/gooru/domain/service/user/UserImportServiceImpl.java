@@ -1,7 +1,7 @@
 package org.ednovo.gooru.domain.service.user;
 
 import java.io.FileReader;
-import java.util.ArrayList;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -24,42 +24,30 @@ public class UserImportServiceImpl extends FileImporter implements UserImportSer
 
 	@Override
 	public void createUser(String filename, User apiCaller, HttpServletRequest request) {
-		final String mediaFileName = UserGroupSupport.getUserOrganizationNfsInternalPath() + Constants.UPLOADED_MEDIA_FOLDER +'/'+ filename;
-		ArrayList<String> header = new ArrayList<String>();
-		int first = 0;
-		String json = "";
+		final String mediaFileName = UserGroupSupport.getUserOrganizationNfsInternalPath() + Constants.UPLOADED_MEDIA_FOLDER + '/' + filename;
+		List<String> keys = null;
+		StringBuffer json = new StringBuffer();
 		CSVReader csvReader;
 		try {
 			csvReader = new CSVReader(new FileReader(mediaFileName));
 			String[] row = null;
-			while((row = csvReader.readNext()) != null) {
-			    for(int i=0; i<row.length; i++){
-			    	if(first==0){
-			    		header.add(row[i]);
-			    	}
-			    	else{
-			    		json += "\"" + header.get(i) + "\":\"" + row[i] + "\",";
-			    	}
-			    }
-				if (first == 1) {
-				    json = json.substring(0, json.length() - 1) + '}';
-				    System.out.print(json);
-					JSONObject jsonObj = requestData(generateJSONInput(json, UNDER_SCORE));
+			while ((row = csvReader.readNext()) != null) {
+				if (keys == null) {
+					keys = getJsonKeys(row);
+				} else {
+					String data = formInputJson(row, json, keys).toString();
+					JSONObject jsonObj = requestData(generateJSONInput(data, UNDER_SCORE));
 					final User user = this.buildUserFromInputParameters((getValue(USER, jsonObj)));
-					this.getUserManagementService().createUserWithValidation(user, jsonObj.get(PASSWORD).toString(), null, null, false, false, apiCaller, null, jsonObj.get(DATEOFBIRTH).toString(), null, jsonObj.get(GENDER).toString(), null, null, json, false, request, null, null);
+					this.getUserManagementService().createUserWithValidation(user, jsonObj.get(PASSWORD).toString(), null, null, false, false, apiCaller, null, jsonObj.get(DATEOFBIRTH).toString(), null, jsonObj.get(GENDER).toString(), null, null, data, false, request, null, null);
+					json.setLength(0);
 				}
-				first = 1;
-				json = "{";
 			}
-
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
 	}
 
 	private User buildUserFromInputParameters(String data) {
-
 		return JsonDeserializer.deserialize(data, User.class);
 	}
 

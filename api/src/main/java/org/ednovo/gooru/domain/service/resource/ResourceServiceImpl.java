@@ -224,7 +224,6 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	@Autowired
 	private IndexHandler indexHandler;
 
-
 	private static final String SHORTENED_URL_STATUS = "shortenedUrlStatus";
 
 	@Override
@@ -293,13 +292,13 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			final List<String> host = new ArrayList<String>();
 			for (final ContentProviderAssociation contentProviderAssociation : contentProviderAssociations) {
 				if (contentProviderAssociation.getContentProvider() != null && contentProviderAssociation.getContentProvider().getType() != null
-						&& contentProviderAssociation.getContentProvider().getType().getValue().equalsIgnoreCase(CustomProperties.ContentProviderType.PUBLISHER.getContentProviderType())) {
+				        && contentProviderAssociation.getContentProvider().getType().getValue().equalsIgnoreCase(CustomProperties.ContentProviderType.PUBLISHER.getContentProviderType())) {
 					publisher.add(contentProviderAssociation.getContentProvider().getName());
 				} else if (contentProviderAssociation.getContentProvider() != null && contentProviderAssociation.getContentProvider().getType() != null
-						&& contentProviderAssociation.getContentProvider().getType().getValue().equalsIgnoreCase(CustomProperties.ContentProviderType.AGGREGATOR.getContentProviderType())) {
+				        && contentProviderAssociation.getContentProvider().getType().getValue().equalsIgnoreCase(CustomProperties.ContentProviderType.AGGREGATOR.getContentProviderType())) {
 					aggregator.add(contentProviderAssociation.getContentProvider().getName());
 				} else if (contentProviderAssociation.getContentProvider() != null && contentProviderAssociation.getContentProvider().getType() != null
-						&& contentProviderAssociation.getContentProvider().getType().getValue().equalsIgnoreCase(CustomProperties.ContentProviderType.HOST.getContentProviderType())) {
+				        && contentProviderAssociation.getContentProvider().getType().getValue().equalsIgnoreCase(CustomProperties.ContentProviderType.HOST.getContentProviderType())) {
 					host.add(contentProviderAssociation.getContentProvider().getName());
 				}
 			}
@@ -939,20 +938,20 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	public void deleteResource(final String gooruContentId, final User apiCaller) {
 		final Resource resource = resourceRepository.findResourceByContentGooruId(gooruContentId);
 		if (resource == null || resource.getResourceType().getName().equalsIgnoreCase(APPLICATION) || resource.getResourceType().getName().equalsIgnoreCase(SCOLLECTION) || resource.getResourceType().getName().equalsIgnoreCase(FOLDER)
-				|| resource.getResourceType().getName().equalsIgnoreCase(CLASSPAGE)) {
+		        || resource.getResourceType().getName().equalsIgnoreCase(CLASSPAGE)) {
 			throw new NotFoundException(generateErrorMessage(GL0056, RESOURCE), GL0056);
 		} else {
-				List<CollectionItem> collectionitems = this.getCollectionRepository().getCollectionItemsByResource(gooruContentId);
-				for (CollectionItem collectionItem : collectionitems) {
-					collectionItem.getCollection().setLastModified(new Date(System.currentTimeMillis()));
-					List<CollectionItem> resetCollectionItems = this.getCollectionRepository().getResetSequenceCollectionItems(collectionItem.getCollection().getGooruOid(), collectionItem.getItemSequence());
-					int itemSequence = collectionItem.getItemSequence();
-					for (CollectionItem resetCollectionItem : resetCollectionItems) {
-						resetCollectionItem.setItemSequence(itemSequence++);
-					}
-					this.getCollectionRepository().saveAll(resetCollectionItems);
-					getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
+			List<CollectionItem> collectionitems = this.getCollectionRepository().getCollectionItemsByResource(gooruContentId);
+			for (CollectionItem collectionItem : collectionitems) {
+				collectionItem.getCollection().setLastModified(new Date(System.currentTimeMillis()));
+				List<CollectionItem> resetCollectionItems = this.getCollectionRepository().getResetSequenceCollectionItems(collectionItem.getCollection().getGooruOid(), collectionItem.getItemSequence());
+				int itemSequence = collectionItem.getItemSequence();
+				for (CollectionItem resetCollectionItem : resetCollectionItems) {
+					resetCollectionItem.setItemSequence(itemSequence++);
 				}
+				this.getCollectionRepository().saveAll(resetCollectionItems);
+				getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
+			}
 			this.getCollectionRepository().saveAll(collectionitems);
 			if ((resource.getUser() != null && resource.getUser().getPartyUid().equalsIgnoreCase(apiCaller.getPartyUid())) || getUserService().isContentAdmin(apiCaller)) {
 				this.getContentService().deleteContentTagAssoc(resource.getGooruOid(), apiCaller);
@@ -1011,7 +1010,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 
 	@Override
 	public Resource addNewResource(final String url, final String title, final String text, final String category, final String sharing, final String typeName, final String licenseName, final Integer brokenStatus, final Boolean hasFrameBreaker, final String description, final Integer isFeatured,
-			final String tags, final boolean isReturnJson, final User apiCaller, final String mediaType, final String resourceFormat, final String resourceInstructional) {
+	        final String tags, final boolean isReturnJson, final User apiCaller, final String mediaType, final String resourceFormat, final String resourceInstructional) {
 		User user = null;
 		// construct resource:
 		Resource resource = new Resource();
@@ -1054,7 +1053,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			resource.setBrokenStatus(brokenStatus);
 		}
 		domainName = BaseUtil.getDomainName(url);
-		if(domainName != null){
+		if (domainName != null) {
 			resourceSource = this.getResourceRepository().findResourceSource(domainName);
 		}
 		if (resourceSource != null && resourceSource.getFrameBreaker() != null && resourceSource.getFrameBreaker() == 1) {
@@ -1116,13 +1115,8 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	}
 
 	@Override
-	public void saveOrUpdate(final Resource resource) {
-		resourceRepository.saveOrUpdate(resource);
-	}
-
-	@Override
 	public Resource updateResourceByGooruContentId(final String gooruContentId, final String resourceTitle, final String distinguish, final Integer isFeatured, final String description, final Boolean hasFrameBreaker, final String tags, final String sharing, final Integer resourceSourceId,
-			final User user, final String mediaType, final String attribution, final String category, final String mediaFileName, final Boolean isBlacklisted, final String grade, final String resourceFormat, final String licenseName, final String url) {
+	        final User user, final String mediaType, final String attribution, final String category, final String mediaFileName, final Boolean isBlacklisted, final String grade, final String resourceFormat, final String licenseName, final String url) {
 
 		final Resource existingResource = resourceRepository.findResourceByContentGooruId(gooruContentId);
 
@@ -1145,7 +1139,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			if (url != null) {
 				existingResource.setUrl(url);
 				domainName = BaseUtil.getDomainName(url);
-				if(domainName != null){
+				if (domainName != null) {
 					resourceSource = this.getResourceRepository().findResourceSource(domainName);
 				}
 				if (resourceSource != null && resourceSource.getFrameBreaker() != null && resourceSource.getFrameBreaker() == 1) {
@@ -1427,7 +1421,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		boolean isShortenedUrl = false;
 		String domainName = BaseUtil.getDomainName(url);
 		final String domainType = ResourceSource.ResourceSourceType.SHORTENDED_DOMAIN.getResourceSourceType();
-		if(domainName != null){
+		if (domainName != null) {
 			final String type = resourceRepository.shortenedUrlResourceCheck(domainName, domainType);
 			if (type != null && type.equalsIgnoreCase(ResourceSource.ResourceSourceType.SHORTENDED_DOMAIN.getResourceSourceType())) {
 				isShortenedUrl = true;
@@ -1495,69 +1489,133 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	}
 
 	@Override
-	public ActionResponseDTO<Resource> createResource(final Resource newResource, final User user) throws Exception {
+	public Resource createResource(final Resource newResource, final List<String> tags, final User user, boolean updateIfExist) throws Exception {
 		Resource resource = null;
-		final Errors errors = validateResource(newResource);
-		if (!errors.hasErrors()) {
+		if (newResource.getUrl() != null && !newResource.getUrl().isEmpty() && newResource.getAttach() == null) {
+			resource = this.getResourceRepository().findResourceByUrl(newResource.getUrl(), updateIfExist ? null : Sharing.PUBLIC.getSharing(), null);
+		}
+		if (updateIfExist && !hasUnrestrictedContentAccess() && resource != null && resource.getSharing() != null && resource.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing())) {
+			throw new AccessDeniedException(generateErrorMessage("GL0012"));
+		}
 
-			ResourceSource resourceSource = null;
-			String domainName = null;
-			newResource.setRecordSource(Resource.RecordSource.GAT.getRecordSource());
-			if (newResource.getBrokenStatus() == null) {
-				newResource.setBrokenStatus(0);
-			}
-			domainName =BaseUtil.getDomainName(newResource.getUrl());
-			if(domainName != null){
-			resourceSource = this.getResourceRepository().findResourceSource(domainName);
-			}
-			if (resourceSource != null && resourceSource.getFrameBreaker() != null && resourceSource.getFrameBreaker() == 1) {
-				newResource.setHasFrameBreaker(true);
-			} else {
-				newResource.setHasFrameBreaker(false);
-			}
-
-			if (newResource.getResourceFormat() != null) {
-				final CustomTableValue resourceCategory = this.getCustomTableRepository().getCustomTableValue(RESOURCE_CATEGORY_FORMAT, newResource.getResourceFormat().getValue());
-				newResource.setResourceFormat(resourceCategory);
+		final String title = newResource.getTitle().length() > 1000 ? newResource.getTitle().substring(0, 1000) : newResource.getTitle();
+		if (resource == null) {
+			resource = new Resource();
+			resource.setGooruOid(UUID.randomUUID().toString());
+			resource.setUser(user);
+			resource.setTitle(title);
+			if (newResource.getCategory() != null) {
+				resource.setCategory(newResource.getCategory().toLowerCase());
 			}
 			if (newResource.getInstructional() != null) {
-				final CustomTableValue resourceType = this.getCustomTableRepository().getCustomTableValue(RESOURCE_INSTRUCTIONAL_USE, newResource.getInstructional().getValue());
-				newResource.setResourceFormat(resourceType);
+				final CustomTableValue resourceCategory = this.getCustomTableRepository().getCustomTableValue(RESOURCE_INSTRUCTIONAL_USE, newResource.getInstructional().getValue());
+				resource.setInstructional(resourceCategory);
+			}
+			if (newResource.getResourceFormat() != null) {
+				CustomTableValue resourcetype = this.getCustomTableRepository().getCustomTableValue(RESOURCE_CATEGORY_FORMAT, newResource.getResourceFormat().getValue());
+				resource.setResourceFormat(resourcetype);
+			}
+			resource.setDescription(newResource.getDescription());
+			License license = new License();
+			license.setName(OTHER);
+			resource.setRecordSource(Resource.RecordSource.COLLECTION.getRecordSource());
+			final ResourceType resourceTypeDo = new ResourceType();
+			resource.setResourceType(resourceTypeDo);
+			String fileExtension = null;
+			if (newResource.getAttach() != null && newResource.getAttach().getFilename() != null) {
+				fileExtension = org.apache.commons.lang.StringUtils.substringAfterLast(newResource.getAttach().getFilename(), ".");
+				if (fileExtension.contains(PDF) || BaseUtil.supportedDocument().containsKey(fileExtension)) {
+					resourceTypeDo.setName(ResourceType.Type.HANDOUTS.getType());
+				} else {
+					resourceTypeDo.setName(ResourceType.Type.IMAGE.getType());
+				}
+				resource.setUrl(newResource.getAttach().getFilename());
+				resource.setIsOer(1);
+				license.setName(CREATIVE_COMMONS);
+			} else {
+				resource.setUrl(newResource.getUrl());
+				if (ResourceImageUtil.getYoutubeVideoId(newResource.getUrl()) != null) {
+					resourceTypeDo.setName(ResourceType.Type.VIDEO.getType());
+				} else if (newResource.getUrl() != null && newResource.getUrl().contains("vimeo.com")) {
+					final String id = org.apache.commons.lang.StringUtils.substringAfterLast(newResource.getUrl(), "/");
+					if (org.apache.commons.lang.StringUtils.isNumeric(id)) {
+						final ResourceMetadataCo resourceMetadataCo = ResourceImageUtil.getMetaDataFromVimeoVideo(newResource.getUrl());
+						resourceTypeDo.setName(ResourceType.Type.VIMEO_VIDEO.getType());
+						newResource.setThumbnail(resourceMetadataCo != null ? resourceMetadataCo.getThumbnail() : null);
+					} else {
+						resourceTypeDo.setName(ResourceType.Type.RESOURCE.getType());
+					}
+
+				} else {
+					resourceTypeDo.setName(ResourceType.Type.RESOURCE.getType());
+				}
+
+			}
+			resource.setLicense(license);
+			if (newResource.getSharing() != null) {
+				resource.setSharing(Sharing.PRIVATE.getSharing());
+			} else {
+				resource.setSharing(newResource.getSharing());
+			}
+			String domainName = BaseUtil.getDomainName(newResource.getUrl());
+			ResourceSource resourceSource = null;
+			if (domainName != null) {
+				resourceSource = this.getResourceRepository().findResourceSource(domainName);
+			}
+			if (resourceSource != null && resourceSource.getFrameBreaker() != null && resourceSource.getFrameBreaker() == 1) {
+				resource.setHasFrameBreaker(true);
+			} else if ((newResource.getUrl() != null && newResource.getUrl().contains(YOUTUBE_URL) && ResourceImageUtil.getYoutubeVideoId(newResource.getUrl()) == null)) {
+				resource.setHasFrameBreaker(true);
+			} else {
+				resource.setHasFrameBreaker(false);
 			}
 
-			if (newResource.getCategory() != null) {
-				newResource.setCategory(newResource.getCategory().toLowerCase());
+			resourceRepository.saveOrUpdate(resource);
+			saveOrUpdateResourceTaxonomy(resource, newResource.getTaxonomySet());
+			updateYoutubeResourceFeeds(resource, false);
+			resourceRepository.saveOrUpdate(resource);
+			mapSourceToResource(resource);
+
+			if (newResource.getMomentsOfLearning() != null && newResource.getMomentsOfLearning().size() > 0) {
+				resource.setMomentsOfLearning(this.getCollectionService().updateContentMeta(newResource.getMomentsOfLearning(), resource, user, MOMENTS_OF_LEARNING));
+			} else {
+				resource.setMomentsOfLearning(this.getCollectionService().setContentMetaAssociation(this.getCollectionService().getContentMetaAssociation(MOMENTS_OF_LEARNING), resource, MOMENTS_OF_LEARNING));
 			}
-			// add to db and index.
-			resource = handleNewResource(newResource, null, null);
-			if (newResource.getPublisher() != null && newResource.getPublisher().size() > 0) {
-				newResource.setPublisher(updateContentProvider(resource.getGooruOid(), newResource.getPublisher(), user, CustomProperties.ContentProviderType.PUBLISHER.getContentProviderType()));
-			}
-			if (newResource.getAggregator() != null && newResource.getAggregator().size() > 0) {
-				newResource.setAggregator(updateContentProvider(resource.getGooruOid(), newResource.getAggregator(), user, CustomProperties.ContentProviderType.AGGREGATOR.getContentProviderType()));
+			if (newResource.getEducationalUse() != null && newResource.getEducationalUse().size() > 0) {
+				resource.setEducationalUse(this.getCollectionService().updateContentMeta(newResource.getEducationalUse(), resource, user, EDUCATIONAL_USE));
+			} else {
+				resource.setEducationalUse(this.getCollectionService().setContentMetaAssociation(this.getCollectionService().getContentMetaAssociation(EDUCATIONAL_USE), resource, EDUCATIONAL_USE));
 			}
 			if (newResource.getHost() != null && newResource.getHost().size() > 0) {
-				resource.setHost(updateContentProvider(resource.getGooruOid(), newResource.getHost(), user, CustomProperties.ContentProviderType.HOST.getContentProviderType()));
+				resource.setHost(updateContentProvider(resource.getGooruOid(), newResource.getHost(), user, "host"));
 			}
-			ResourceInfo resourceInfo = new ResourceInfo();
-			final String tags = newResource.getTags();
-			resourceInfo.setTags(tags);
-			resourceInfo.setLastUpdated(new Date());
-			resource.setTags(tags);
-			resourceInfo.setResource(resource);
-			resource.setResourceInfo(resourceInfo);
-
-			resourceRepository.save(resourceInfo);
-			s3ResourceApiHandler.updateOrganization(resource);
-
-			this.mapSourceToResource(resource);
+			if (tags != null && tags.size() > 0) {
+				resource.setResourceTags(this.getContentService().createTagAssoc(resource.getGooruOid(), tags, user));
+			}
 			try {
-				this.getResourceEventLog().getEventLogs(resource, true, false, user);
+				if (newResource.getThumbnail() != null || fileExtension != null && fileExtension.contains(PDF)) {
+					this.getResourceImageUtil().downloadAndSendMsgToGenerateThumbnails(resource, newResource.getThumbnail());
+				}
 			} catch (Exception e) {
-				LOGGER.debug("error" + e.getMessage());
+				LOGGER.error(_ERROR, e);
 			}
+
+			if (resource != null && resource.getContentId() != null) {
+				try {
+					indexHandler.setReIndexRequest(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);
+				} catch (Exception e) {
+					LOGGER.error(_ERROR, e);
+				}
+			}
+
+			if (newResource.getAttach() != null) {
+				this.getResourceImageUtil().moveAttachment(newResource, resource);
+			}
+		} else if (updateIfExist) {
+			updateResource(resource.getGooruOid(), newResource, tags, user);
 		}
-		return new ActionResponseDTO<Resource>(resource, errors);
+
+		return resource;
 	}
 
 	@Override
@@ -1575,7 +1633,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 						itemData.put("url", newResource.getUrl());
 						resource.setUrl(newResource.getUrl());
 						domainName = BaseUtil.getDomainName(newResource.getUrl());
-						if(domainName != null){
+						if (domainName != null) {
 							resourceSource = this.getResourceRepository().findResourceSource(domainName);
 						}
 						if (resourceSource != null && resourceSource.getFrameBreaker() != null && resourceSource.getFrameBreaker() == 1) {
@@ -1612,9 +1670,9 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				resource.setIsFeatured(newResource.getIsFeatured());
 			}
 			if (!resource.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing())
-					&& resource.getUser().getGooruUId().equalsIgnoreCase(user.getGooruUId())
-					&& (resource.getResourceType().getName().equalsIgnoreCase(ResourceType.Type.HANDOUTS.getType()) || resource.getResourceType().getName().equalsIgnoreCase(ResourceType.Type.IMAGE.getType()) || resource.getResourceType().getName()
-							.equalsIgnoreCase(ResourceType.Type.PRESENTATION.getType()))) {
+			        && resource.getUser().getGooruUId().equalsIgnoreCase(user.getGooruUId())
+			        && (resource.getResourceType().getName().equalsIgnoreCase(ResourceType.Type.HANDOUTS.getType()) || resource.getResourceType().getName().equalsIgnoreCase(ResourceType.Type.IMAGE.getType()) || resource.getResourceType().getName()
+			                .equalsIgnoreCase(ResourceType.Type.PRESENTATION.getType()))) {
 				if (newResource.getAttach() != null && newResource.getAttach().getFilename() != null) {
 					resource.setUrl(newResource.getAttach().getFilename());
 				}
@@ -1986,34 +2044,33 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		if (resource != null) {
 			response.put(RESOURCE, resource);
 		}
-		if (checkShortenedUrl) { 
+		if (checkShortenedUrl) {
 			response.put(SHORTENED_URL_STATUS, shortenedUrlResourceCheck(url));
 		}
-		
+
 		return response;
 	}
-	
+
 	@Override
 	public List<Collection> getCollectionsByResourceId(String resourceId, Integer limit, Integer offset) {
-		List<Collection> collections =  this.getResourceRepository().getCollectionsByResourceId(resourceId, limit, offset);
+		List<Collection> collections = this.getResourceRepository().getCollectionsByResourceId(resourceId, limit, offset);
 		final CustomTableValue type = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.USER_CLASSIFICATION_TYPE.getTable(), CustomProperties.UserClassificationType.COURSE.getUserClassificationType());
 		final CustomTableValue gradeType = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.USER_CLASSIFICATION_TYPE.getTable(), CustomProperties.UserClassificationType.GRADE.getUserClassificationType());
-		for (Collection collection : collections) { 
+		for (Collection collection : collections) {
 			final ResourceMetaInfo collectionMetaInfo = new ResourceMetaInfo();
 			this.getCollectionService().setCollectionTaxonomyMetaInfo(collection.getTaxonomySet(), collectionMetaInfo);
 			collectionMetaInfo.setStandards(this.getCollectionService().getStandards(collection.getTaxonomySet(), false, null));
 			collection.setMetaInfo(collectionMetaInfo);
 			Map<String, Object> meta = new HashMap<String, Object>();
 			meta.put(GRADE, this.getUserRepository().getUserGrade(collection.getUser().getPartyUid(), gradeType.getCustomTableValueId(), 1));
-			meta.put(COURSE,this.getUserRepository().getUserClassifications(collection.getUser().getPartyUid(), type.getCustomTableValueId(), 1));
+			meta.put(COURSE, this.getUserRepository().getUserClassifications(collection.getUser().getPartyUid(), type.getCustomTableValueId(), 1));
 			collection.getUser().setMeta(meta);
 		}
 		return collections;
-    }
+	}
 
 	public CollectionRepository getCollectionRepository() {
 		return collectionRepository;
 	}
 
-	
 }
