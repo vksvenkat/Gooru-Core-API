@@ -21,7 +21,7 @@ public class UserEventlog implements ParameterProperties, ConstantProperties{
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserEventlog.class);
 	
-	public void getEventLogs(boolean updateProfile, boolean visitProfile, User profileVisitor, JSONObject itemData, boolean isFollow, boolean isUnfollow) throws JSONException{
+	public void getEventLogs(boolean updateProfile, boolean visitProfile, User profileVisitor, JSONObject itemData, boolean isFollow, boolean isUnfollow) {
 		
 		try {
 		SessionContextSupport.putLogParameter(EVENT_NAME, PROFILE_ACTION);

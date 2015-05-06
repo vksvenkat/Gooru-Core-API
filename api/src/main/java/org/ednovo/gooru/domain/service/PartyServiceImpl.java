@@ -150,11 +150,7 @@ public class PartyServiceImpl extends BaseServiceImpl implements PartyService, P
 		if (newPartyCustomField.getOptionalKey() != null && newPartyCustomField.getOptionalKey().equalsIgnoreCase(USER_TAXONOMY_ROOT_CODE)) {
 			this.redisService.deleteKey(SESSION_TOKEN_KEY + UserGroupSupport.getSessionToken());
 		}
-		try {
-			this.getUserEventlog().getEventLogs(true, false, user, null, true, true);
-		} catch (Exception e) {
-			LOGGER.error(_ERROR , e);
-		}
+		this.getUserEventlog().getEventLogs(true, false, user, null, true, true);
 		return partyCustomField;
 	}
 
