@@ -81,6 +81,7 @@ public class ApiCassandraFactory extends SearchCassandraFactory {
 		register(new EntityCassandraColumnFamily<OrganizationCio>(OrganizationCio.class,new ReverseIndexColumnSetting().putField("entity", "entityName")));
     	register(new RawCassandraDaoImpl(this, ColumnFamilyConstant.DATA_STORE));
 		register(new RawCassandraDaoImpl(this, ColumnFamilyConstant.SEARCH_SETTING));
+		register(new RawCassandraDaoImpl(this, ColumnFamilyConstant.LIVE_DASHBOARD));
 		register(new EntityCassandraDaoImpl<ResourceCio>(this, ColumnFamilyConstant.RESOURCE));
 		register(new EntityCassandraDaoImpl<TaxonomyCio>(this, ColumnFamilyConstant.TAXONOMY));
 		register(new EntityCassandraDaoImpl<ResourceFieldsCio>(this, ColumnFamilyConstant.RESOURCE));
