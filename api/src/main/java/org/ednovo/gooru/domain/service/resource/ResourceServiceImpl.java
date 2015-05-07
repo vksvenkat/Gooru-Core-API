@@ -1951,14 +1951,6 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		return null;
 	}
 
-	private Errors validateResource(Resource resource) throws Exception {
-		final Errors errors = new BindException(resource, RESOURCE);
-		if (resource != null) {
-			rejectIfNullOrEmpty(errors, resource.getUrl(), URL, GL0006, generateErrorMessage(GL0006, URL));
-		}
-		return errors;
-	}
-
 	public void deleteContentProvider(String gooruOid, String providerType, String name) {
 		this.getContentRepository().deleteContentProvider(gooruOid, providerType, name);
 	}
