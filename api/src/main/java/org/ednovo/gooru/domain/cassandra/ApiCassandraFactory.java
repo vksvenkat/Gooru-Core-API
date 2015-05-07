@@ -70,6 +70,7 @@ public class ApiCassandraFactory extends SearchCassandraFactory {
 		register(new CassandraColumnFamily(ColumnFamilyConstant.CUSTOM_FIELDS_DEFINITION));
 		register(new CassandraColumnFamily(ColumnFamilyConstant.CUSTOM_FIELDS_GROUP));
 		register(new CassandraColumnFamily(ColumnFamilyConstant.INDEX_QUEUE));
+		register(new CassandraColumnFamily(ColumnFamilyConstant.LIVE_DASHBOARD));
 		register(new EntityCassandraColumnFamily<DomainCio>(DomainCio.class, new ReverseIndexColumnSetting().putField("name", "id")));
 		register(new EntityCassandraColumnFamily<ResourceCio>(ResourceCio.class, new ReverseIndexColumnSetting().putField("type","resourceType").putField("batch", "batchId").putField("categoy", "category").putField("resourceFormat", "resourceFormat").putField("instructional", "instructional")));
 		register(new EntityCassandraColumnFamily<ResourceFieldsCio>(ResourceFieldsCio.class, new ReverseIndexColumnSetting().putField("type","resourceType").putField("batch", "batchId").putField("categoy", "category").putField("resourceFormat", "resourceFormat").putField("instructional", "instructional")));
@@ -80,6 +81,7 @@ public class ApiCassandraFactory extends SearchCassandraFactory {
 		register(new EntityCassandraColumnFamily<OrganizationCio>(OrganizationCio.class,new ReverseIndexColumnSetting().putField("entity", "entityName")));
     	register(new RawCassandraDaoImpl(this, ColumnFamilyConstant.DATA_STORE));
 		register(new RawCassandraDaoImpl(this, ColumnFamilyConstant.SEARCH_SETTING));
+		register(new RawCassandraDaoImpl(this, ColumnFamilyConstant.LIVE_DASHBOARD));
 		register(new EntityCassandraDaoImpl<ResourceCio>(this, ColumnFamilyConstant.RESOURCE));
 		register(new EntityCassandraDaoImpl<TaxonomyCio>(this, ColumnFamilyConstant.TAXONOMY));
 		register(new EntityCassandraDaoImpl<ResourceFieldsCio>(this, ColumnFamilyConstant.RESOURCE));

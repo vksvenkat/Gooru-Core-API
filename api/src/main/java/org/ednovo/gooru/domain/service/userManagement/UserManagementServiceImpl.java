@@ -251,11 +251,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		if (gradeType != null && gradeType.getCustomTableValueId() != null) {
 			profile.setGrade(this.getUserRepository().getUserGrade(gooruUid, gradeType.getCustomTableValueId(), activeFlag));
 		}
-		try {
-			this.getUsereventlog().getEventLogs(false, true, user, null, true, true);
-		} catch (JSONException e) {
-			LOGGER.debug("Error" + e);
-		}
+		this.getUsereventlog().getEventLogs(false, true, user, null, true, true);
 		return profile;
 	}
 
@@ -447,12 +443,8 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			final CustomTableValue type = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.USER_CLASSIFICATION_TYPE.getTable(), CustomProperties.UserClassificationType.COURSE.getUserClassificationType());
 			profile.setCourses(this.getUserRepository().getUserClassifications(gooruUid, type.getCustomTableValueId(), null));
 		}
-		try {
-			this.getUsereventlog().getEventLogs(true, false, user, itemData, false, false);
-		} catch (JSONException e) {
-			LOGGER.debug("Error" + e);
-		}
-
+		this.getUsereventlog().getEventLogs(true, false, user, itemData, false, false);
+		
 		if (profile != null) {
 			indexHandler.setReIndexRequest(profile.getUser().getPartyUid(), IndexProcessor.INDEX, USER, null, reindexUserContent, false);
 		}
@@ -1333,11 +1325,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		followOnUserSummary.setFollowers((followOnUserSummary.getFollowers() != null ? followOnUserSummary.getFollowers() : 0) + 1);
 		this.getUserRepository().save(userSummary);
 		this.getUserRepository().save(followOnUserSummary);
-		try {
-			this.getUsereventlog().getEventLogs(false, false, null, null, true, false);
-		} catch (JSONException e) {
-			LOGGER.debug("Error" + e.getMessage());
-		}
+		this.getUsereventlog().getEventLogs(false, false, null, null, true, false);
 		return this.setUserObj(followOnUser);
 	}
 
@@ -1355,11 +1343,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 			this.getUserRepository().save(userSummary);
 			this.getUserRepository().save(followOnUserSummary);
 		}
-		try {
-			this.getUsereventlog().getEventLogs(false, false, null, null, false, true);
-		} catch (JSONException e) {
-			LOGGER.debug("Error" + e.getMessage());
-		}
+		this.getUsereventlog().getEventLogs(false, false, null, null, false, true);
 	}
 
 	private Map<String, Object> setUserObj(final User user) {

@@ -69,4 +69,5 @@ public interface ColumnFamilyConstant {
 	
 	String SCHOOL = "school";
 	
+	String LIVE_DASHBOARD = "live_dashboard";
 }
