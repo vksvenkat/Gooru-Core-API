@@ -105,7 +105,6 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.collaborator.Collab
 import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.taxonomy.TaxonomyRespository;
-import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -1545,7 +1544,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		rejectIfNull(role, GL0056, 404, ROLE);
 		return this.getUserRepository().findRoleOperationsByRoleId(roleId);
 	}
-	 	
+
 	@Override
 	public List<CustomTableValue> getUserCategory(final User apiCaller) {
 		return this.getCustomTableRepository().getCustomValues(USER_CATEGORY);
@@ -1618,5 +1617,4 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	public ApplicationRepository getApplicationRepository() {
 		return applicationRepository;
 	}
-
 }
