@@ -50,7 +50,6 @@ public class ResourceImportServiceImpl extends FileImporter implements ResourceI
 					JSONObject jsonObj = requestData(generateJSONInput(data, UNDER_SCORE));
 					final User user = (User) request.getAttribute(Constants.USER);
 					String gooruOid = getValue(GOORU_OID, requestData(getValue(RESOURCE, jsonObj)));
-					System.out.print(gooruOid);
 					if(gooruOid != null && !gooruOid.isEmpty()){
 						this.getResourceService().updateResource(gooruOid, this.buildResourceFromInputParameters(getValue(RESOURCE, jsonObj)), getValue(RESOURCE_TAGS, jsonObj) == null ? null : buildResourceTags(getValue(RESOURCE_TAGS, jsonObj)), user);
 					}
@@ -62,7 +61,6 @@ public class ResourceImportServiceImpl extends FileImporter implements ResourceI
 			}
 		} catch (Exception e) {
 			LOGGER.debug("error" + e.getMessage());
-			System.out.print(e);
 		}finally{
 			try{
 				csvReader.close();
