@@ -8,9 +8,12 @@ import javax.servlet.http.HttpServletRequest;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserGroupSupport;
 import org.ednovo.gooru.core.constant.Constants;
+import org.ednovo.gooru.domain.service.resource.ResourceServiceImpl;
 import org.ednovo.gooru.domain.service.userManagement.UserManagementService;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +22,8 @@ import au.com.bytecode.opencsv.CSVReader;
 @Service
 public class UserImportServiceImpl extends FileImporter implements UserImportService {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(ResourceServiceImpl.class);
+	
 	@Autowired
 	private UserManagementService userManagementService;
 
@@ -27,7 +32,7 @@ public class UserImportServiceImpl extends FileImporter implements UserImportSer
 		final String mediaFileName = UserGroupSupport.getUserOrganizationNfsInternalPath() + Constants.UPLOADED_MEDIA_FOLDER + '/' + filename;
 		List<String> keys = null;
 		StringBuffer json = new StringBuffer();
-		CSVReader csvReader;
+		CSVReader csvReader=null;
 		try {
 			csvReader = new CSVReader(new FileReader(mediaFileName));
 			String[] row = null;
@@ -43,7 +48,13 @@ public class UserImportServiceImpl extends FileImporter implements UserImportSer
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			LOGGER.debug("error" + e.getMessage());
+		}finally{
+			try{
+				csvReader.close();
+			}catch(Exception e){
+				LOGGER.debug("error" + e.getMessage());
+			}
 		}
 	}
 

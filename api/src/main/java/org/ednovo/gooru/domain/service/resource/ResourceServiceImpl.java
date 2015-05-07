@@ -114,6 +114,7 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomT
 import org.ednovo.gooru.infrastructure.persistence.hibernate.resource.ResourceRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.taxonomy.TaxonomyRespository;
 import org.ednovo.gooru.security.OperationAuthorizer;
+import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.json.JSONObject;
 import org.restlet.data.Method;
 import org.slf4j.Logger;
@@ -224,6 +225,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	@Autowired
 	private IndexHandler indexHandler;
 
+	
 	private static final String SHORTENED_URL_STATUS = "shortenedUrlStatus";
 
 	@Override
@@ -1628,7 +1630,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			if (getUserService().isContentAdmin(user)) {
 				ResourceSource resourceSource = null;
 				String domainName = null;
-				if (newResource.getUrl() != null) {
+				if (newResource.getUrl() != null && !newResource.getUrl().isEmpty()) {
 					if (!resource.getUrl().equalsIgnoreCase(newResource.getUrl())) {
 						itemData.put("url", newResource.getUrl());
 						resource.setUrl(newResource.getUrl());
@@ -1887,6 +1889,31 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		indexHandler.setReIndexRequest(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);
 	}
 
+
+	public Resource buildResourceFromInputParameters(final String data, final User user) {
+		final Resource resource = JsonDeserializer.deserialize(data, Resource.class);
+		resource.setGooruOid(UUID.randomUUID().toString());
+		final ContentType contentType = getContentType(ContentType.RESOURCE);
+		resource.setContentType(contentType);
+		resource.setLastModified(new Date(System.currentTimeMillis()));
+		resource.setCreatedOn(new Date(System.currentTimeMillis()));
+		if (!hasUnrestrictedContentAccess()) {
+			resource.setSharing(Sharing.PUBLIC.getSharing());
+		} else {
+			resource.setSharing(resource.getSharing() != null && (resource.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || resource.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing()) || resource.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing())) ? resource
+					.getSharing() : Sharing.PUBLIC.getSharing());
+		}
+		resource.setUser(user);
+		resource.setOrganization(user.getPrimaryOrganization());
+		resource.setCreator(user);
+		resource.setDistinguish(Short.valueOf("0"));
+		resource.setRecordSource(NOT_ADDED);
+		resource.setIsFeatured(0);
+		resource.setLastUpdatedUserUid(user.getGooruUId());
+
+		return resource;
+	}
+	
 	@Override
 	public void saveOrUpdateGrade(final Resource resource, final Resource newResource) {
 		if (newResource.getGrade() != null) {

@@ -161,5 +161,6 @@ public interface ResourceService extends BaseService {
 
 	List<Collection> getCollectionsByResourceId(String resourceId, Integer limit, Integer offset);
 
+	Resource buildResourceFromInputParameters(final String data, final User user);
 	
 }
