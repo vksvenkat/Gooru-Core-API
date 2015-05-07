@@ -142,6 +142,7 @@ public class CollectionEventLog implements ParameterProperties, ConstantProperti
 			getEventLogs(collectionItem, isCreate, isAdd, user, isCopy, isEdit, data);
 			JSONObject context = SessionContextSupport.getLog().get(CONTEXT) != null ? new JSONObject(SessionContextSupport.getLog().get(CONTEXT).toString()) : new JSONObject();
 			context.put(SOURCE_GOORU_ID, sourceCollectionItem.getResource().getGooruOid());
+			context.put(SOURCE_PARENT_GOORU_ID, sourceCollectionItem.getCollection().getGooruOid());
 			SessionContextSupport.putLogParameter(CONTEXT, context.toString());
 		} catch (Exception e) {
 			LOGGER.error(_ERROR, e);
