@@ -34,7 +34,7 @@ public class ResourceImportServiceImpl extends FileImporter implements ResourceI
 	private ResourceService resourceService;
 
 	@Override
-	public void createResource(String filename, HttpServletRequest request) {
+	public void createOrUpdateResource(String filename, HttpServletRequest request) {
 		final String mediaFileName = UserGroupSupport.getUserOrganizationNfsInternalPath() + Constants.UPLOADED_MEDIA_FOLDER + '/' + filename;
 		List<String> keys = null;
 		StringBuffer json = new StringBuffer();

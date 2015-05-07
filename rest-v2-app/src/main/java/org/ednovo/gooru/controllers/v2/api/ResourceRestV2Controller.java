@@ -40,7 +40,7 @@ import org.ednovo.gooru.core.constant.GooruOperationConstants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.security.AuthorizeOperations;
 import org.ednovo.gooru.domain.service.CollectionService;
-import org.ednovo.gooru.domain.service.resource.ResourceImportServiceImpl;
+import org.ednovo.gooru.domain.service.resource.ResourceImportService;
 import org.ednovo.gooru.domain.service.resource.ResourceService;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.json.JSONObject;
@@ -68,7 +68,7 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 	private CollectionService collectionService;
 
 	@Autowired
-	private ResourceImportServiceImpl resourceImportServiceImpl;
+	private ResourceImportService resourceImportService;
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_RESOURCE_ADD })
 	@Transactional(readOnly = false, propagation = Propagation.NOT_SUPPORTED, noRollbackFor = Exception.class)
@@ -231,7 +231,7 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 	@Transactional(readOnly = false, propagation = Propagation.NOT_SUPPORTED, noRollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.POST, value = "{type}/import")
 	public void createResource(@PathVariable(value = TYPE) final String type, @RequestParam(value = FILENAME) final String filename, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
-		this.getResourceImportServiceImpl().createResource(filename, request);
+		this.getResourceImportService().createOrUpdateResource(filename, request);
 	}
 	
 	private Resource buildResourceFromInputParameters(final String data) {
@@ -251,8 +251,8 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 		return collectionService;
 	}
 
-	public ResourceImportServiceImpl getResourceImportServiceImpl() {
-		return resourceImportServiceImpl;
+	public ResourceImportService getResourceImportService() {
+		return resourceImportService;
 	}
 
 }

@@ -4,5 +4,5 @@ import javax.servlet.http.HttpServletRequest;
 
 public interface ResourceImportService {
 
-		public void createResource(String filename, HttpServletRequest request);
+		public void createOrUpdateResource(String filename, HttpServletRequest request);
 }

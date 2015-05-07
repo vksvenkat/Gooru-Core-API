@@ -931,10 +931,8 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			reOrderCollectionItems(collection, collectionItemId);
 			this.getCollectionRepository().save(collection);
 			try {
-				if (resource.getResourceType() != null && resource.getResourceType().getName().equalsIgnoreCase(ResourceType.Type.SCOLLECTION.getType())) {
-					indexHandler.setReIndexRequest(resource.getGooruOid(), IndexProcessor.DELETE, SCOLLECTION, null, false, false);
-				} else {
-					indexHandler.setReIndexRequest(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);
+				if (resource.getResourceType() != null && !resource.getResourceType().getName().equalsIgnoreCase(ResourceType.Type.SCOLLECTION.getType())) {
+					indexHandler.setReIndexRequest(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);							
 				}
 				if (indexCollection) {
 					indexHandler.setReIndexRequest(collection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);
