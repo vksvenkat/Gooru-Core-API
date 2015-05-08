@@ -21,12 +21,6 @@ import com.sun.jersey.impl.ApiMessages;
  */
 public abstract class CrudEntityCassandraServiceImpl<S extends IsCassandraIndexable, M extends Serializable> extends EntityCassandraServiceImpl<M> {
 
-	 private static final String RESOURCE = "resource";
-		
-	 private static final String QUESTION = "question";
-
-	 private static final String RESOURCE_FIELDS = "resource_fields";
-
 	
 	@Override
 	public M save(String id) {
