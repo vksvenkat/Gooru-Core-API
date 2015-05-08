@@ -2,7 +2,7 @@
 // DashboardCassandraService.java
 // gooru-api
 // Created by Gooru on 2015
-// Copyright (c) 2014 Gooru. All rights reserved.
+// Copyright (c) 2015 Gooru. All rights reserved.
 // http://www.goorulearning.org/
 // Permission is hereby granted, free of charge, to any person obtaining
 // a copy of this software and associated documentation files (the
