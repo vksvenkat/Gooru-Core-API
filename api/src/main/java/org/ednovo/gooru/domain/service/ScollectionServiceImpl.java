@@ -218,9 +218,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	private DashboardCassandraService dashboardCassandraService; 
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ScollectionServiceImpl.class);
-	
-    private static final String LIVE_DASHBOARD = "live_dashboard";
-
 
 	@Override
 	public ActionResponseDTO<Collection> createCollection(final Collection collection, final boolean addToShelf, final String resourceId, final String taxonomyCode, final boolean updateTaxonomyByCode, final String parentId) throws Exception {
