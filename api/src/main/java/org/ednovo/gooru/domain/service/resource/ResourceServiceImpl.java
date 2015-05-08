@@ -90,6 +90,7 @@ import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.BadRequestException;
 import org.ednovo.gooru.core.exception.NotFoundException;
+import org.ednovo.gooru.domain.cassandra.service.DashboardCassandraService;
 import org.ednovo.gooru.domain.cassandra.service.ResourceCassandraService;
 import org.ednovo.gooru.domain.service.CollectionService;
 import org.ednovo.gooru.domain.service.assessment.AssessmentService;
@@ -224,6 +225,9 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 
 	@Autowired
 	private IndexHandler indexHandler;
+	
+	@Autowired
+	private DashboardCassandraService dashboardCassandraService;
 
 	
 	private static final String SHORTENED_URL_STATUS = "shortenedUrlStatus";
@@ -258,7 +262,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		}
 		final Map<String, Object> resourceObject = new HashMap<String, Object>();
 		try {
-			resource.setViews(this.resourceCassandraService.getLong(resource.getGooruOid(), STATISTICS_VIEW_COUNT));
+			resource.setViews(this.dashboardCassandraService.readAsLong(ALL_+resource.getGooruOid(), COUNT_VIEWS));
 			resource.setViewCount(resource.getViewCount());
 		} catch (Exception e) {
 			LOGGER.error("parser error : {}", e);

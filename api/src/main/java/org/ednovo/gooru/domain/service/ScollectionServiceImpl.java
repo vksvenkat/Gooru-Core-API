@@ -81,6 +81,7 @@ import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.BadRequestException;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.core.exception.UnauthorizedException;
+import org.ednovo.gooru.domain.cassandra.service.DashboardCassandraService;
 import org.ednovo.gooru.domain.cassandra.service.ResourceCassandraService;
 import org.ednovo.gooru.domain.service.assessment.AssessmentService;
 import org.ednovo.gooru.domain.service.eventlogs.ClasspageEventLog;
@@ -213,8 +214,13 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 	@Autowired
 	private ClasspageEventLog classpageEventLog;
+	
+	private DashboardCassandraService dashboardCassandraService; 
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ScollectionServiceImpl.class);
+	
+    private static final String LIVE_DASHBOARD = "live_dashboard";
+
 
 	@Override
 	public ActionResponseDTO<Collection> createCollection(final Collection collection, final boolean addToShelf, final String resourceId, final String taxonomyCode, final boolean updateTaxonomyByCode, final String parentId) throws Exception {
@@ -366,11 +372,12 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				this.getUserRepository().save(userSummary);
 			}
 
-			if (parentCollection != null) {
+			 if (parentCollection != null) {
 				if (!collection.getCollectionType().equalsIgnoreCase(PRIVATE)) {
 					parentCollection.setSharing(collection.getSharing());
 					this.getCollectionRepository().save(parentCollection);
 				}
+				
 				collection.setCollectionItem(this.createCollectionItem(collection.getGooruOid(), parentCollection.getGooruOid(), new CollectionItem(), collection.getUser(), CollectionType.FOLDER.getCollectionType(), false).getModel());
 				getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + parentCollection.getUser().getPartyUid() + "*");
 			}
@@ -1276,7 +1283,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 	private void setView(Resource resource) {
 		try {
-			resource.setViews(this.resourceCassandraService.getLong(resource.getGooruOid(), STATISTICS_VIEW_COUNT));
+			resource.setViews(this.dashboardCassandraService.readAsLong(ALL_+resource.getGooruOid(),COUNT_VIEWS));
 			resource.setViewCount(resource.getViews());
 		} catch (Exception e) {
 			LOGGER.error(_ERROR, e);
