@@ -876,6 +876,8 @@ public interface ConstantProperties {
 	public static final String ITEM_TAG = "item.tag";
 
 	public static final String TARGET_GOORU_ID = "targetGooruId";
+	
+	public static final String SOURCE_PARENT_GOORU_ID = "sourceParentGooruId";
 
 	public static final String DATA = "data";
 

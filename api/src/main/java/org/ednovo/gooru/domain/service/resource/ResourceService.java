@@ -97,7 +97,6 @@ public interface ResourceService extends BaseService {
 
 	Resource updateResource(String resourceGooruOid, String title, String description, String mediaFilename, String mediaType) throws IOException;
 
-	void saveOrUpdate(Resource resource);
 
 	Resource updateResourceByGooruContentId(String gooruContentId, String resourceTitle, String distinguish, Integer isFeatured, String description, Boolean hasFrameBreaker, String tags, String sharing, Integer resourceSourceId, User user, String mediaType, String attribution, String category,
 			String mediaFileName, Boolean isBlacklisted, String grade, String resource_format, String licenseName, String url);
@@ -136,7 +135,7 @@ public interface ResourceService extends BaseService {
 
 	List<Resource> listResourcesUsedInCollections(String limit, String offset, User user);
 
-	ActionResponseDTO<Resource> createResource(Resource newResource, User user) throws Exception;
+	Resource createResource(final Resource newResource, final List<String> tags, final User user, final boolean updateIfExist) throws Exception;
 
 	void saveOrUpdateGrade(Resource resource, Resource newResource);
 
@@ -162,5 +161,6 @@ public interface ResourceService extends BaseService {
 
 	List<Collection> getCollectionsByResourceId(String resourceId, Integer limit, Integer offset);
 
+	Resource buildResourceFromInputParameters(final String data, final User user);
 	
 }
