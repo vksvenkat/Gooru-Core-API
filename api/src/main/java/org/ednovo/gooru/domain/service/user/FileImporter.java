@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.ednovo.gooru.core.application.util.ServerValidationUtils;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.BadRequestException;
@@ -16,7 +17,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 import flexjson.JSONSerializer;
 
-public abstract class FileImporter implements  ParameterProperties, ConstantProperties {
+public abstract class FileImporter extends ServerValidationUtils implements  ParameterProperties, ConstantProperties {
 
 	protected static Map<String, Object> parse(String keys[], String value) {
 		StringBuilder json = new StringBuilder();

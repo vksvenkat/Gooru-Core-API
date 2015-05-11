@@ -1,5 +1,7 @@
 package org.ednovo.gooru.domain.service.resource;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.List;
 
@@ -9,6 +11,7 @@ import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserGroupSupport;
 import org.ednovo.gooru.core.constant.Constants;
+import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.domain.service.user.FileImporter;
 import org.ednovo.gooru.security.OperationAuthorizer;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
@@ -25,7 +28,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 @Service
 public class ResourceImportServiceImpl extends FileImporter implements ResourceImportService{
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(ResourceServiceImpl.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ResourceImportServiceImpl.class);
 	
 	@Autowired
 	private OperationAuthorizer operationAuthorizer;
@@ -39,8 +42,10 @@ public class ResourceImportServiceImpl extends FileImporter implements ResourceI
 		List<String> keys = null;
 		StringBuffer json = new StringBuffer();
 		CSVReader csvReader=null;
+		File file = null;
 		try {
-			csvReader = new CSVReader(new FileReader(mediaFileName));
+			file = new File(mediaFileName);
+			csvReader = new CSVReader(new FileReader(file));
 			String[] row = null;
 			while ((row = csvReader.readNext()) != null) {
 				if (keys == null) {
@@ -59,16 +64,20 @@ public class ResourceImportServiceImpl extends FileImporter implements ResourceI
 					json.setLength(0);
 				}
 			}
+		} catch (FileNotFoundException e) {
+			throw new NotFoundException(generateErrorMessage(GL0056, FILE), GL0056);
 		} catch (Exception e) {
 			LOGGER.debug("error" + e.getMessage());
-		}finally{
-			try{
-				csvReader.close();
-			}catch(Exception e){
+		} finally {
+			try {
+				if (file.exists()) {
+					csvReader.close();
+					file.delete();
+				}
+			} catch (Exception e) {
 				LOGGER.debug("error" + e.getMessage());
 			}
 		}
-
 	}
 
 	private List<String> buildResourceTags(final String data) {

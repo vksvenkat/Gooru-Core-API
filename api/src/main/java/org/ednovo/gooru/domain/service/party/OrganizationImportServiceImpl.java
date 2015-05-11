@@ -1,4 +1,4 @@
-package org.ednovo.gooru.domain.service.user;
+package org.ednovo.gooru.domain.service.party;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -7,11 +7,12 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.ednovo.gooru.core.api.model.Organization;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserGroupSupport;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.exception.NotFoundException;
-import org.ednovo.gooru.domain.service.userManagement.UserManagementService;
+import org.ednovo.gooru.domain.service.user.FileImporter;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -21,20 +22,20 @@ import org.springframework.stereotype.Service;
 
 import au.com.bytecode.opencsv.CSVReader;
 
-@Service
-public class UserImportServiceImpl extends FileImporter implements UserImportService {
+@Service("organizationService")
+public class OrganizationImportServiceImpl extends FileImporter implements OrganizationImportService {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(UserImportServiceImpl.class);
-	
+	private static final Logger LOGGER = LoggerFactory.getLogger(OrganizationImportServiceImpl.class);
+
 	@Autowired
-	private UserManagementService userManagementService;
+	private OrganizationService organizationService;
 
 	@Override
-	public void createUser(String filename, User apiCaller, HttpServletRequest request) {
+	public void createOrganization(String filename, HttpServletRequest request) throws Exception {
 		final String mediaFileName = UserGroupSupport.getUserOrganizationNfsInternalPath() + Constants.UPLOADED_MEDIA_FOLDER + '/' + filename;
 		List<String> keys = null;
 		StringBuffer json = new StringBuffer();
-		CSVReader csvReader=null;
+		CSVReader csvReader = null;
 		File file = null;
 		try {
 			file = new File(mediaFileName);
@@ -46,8 +47,9 @@ public class UserImportServiceImpl extends FileImporter implements UserImportSer
 				} else {
 					String data = formInputJson(row, json, keys).toString();
 					JSONObject jsonObj = requestData(generateJSONInput(data, UNDER_SCORE));
-					final User user = this.buildUserFromInputParameters((getValue(USER, jsonObj)));
-					this.getUserManagementService().createUserWithValidation(user, jsonObj.get(PASSWORD).toString(), null, null, false, false, apiCaller, null, jsonObj.get(DATEOFBIRTH).toString(), null, jsonObj.get(GENDER).toString(), null, null, data, false, request, null, null);
+					System.out.print(jsonObj.toString());
+					User user = (User) request.getAttribute(Constants.USER);
+					this.getOrganizationService().saveOrganization(buildOrganizationFromInputParameters(getValue(ORGANIZATION, jsonObj)), user, request);
 					json.setLength(0);
 				}
 			}
@@ -67,11 +69,12 @@ public class UserImportServiceImpl extends FileImporter implements UserImportSer
 		}
 	}
 
-	private User buildUserFromInputParameters(String data) {
-		return JsonDeserializer.deserialize(data, User.class);
+	public OrganizationService getOrganizationService() {
+		return organizationService;
 	}
 
-	public UserManagementService getUserManagementService() {
-		return userManagementService;
+	private Organization buildOrganizationFromInputParameters(String data) {
+		return JsonDeserializer.deserialize(data, Organization.class);
 	}
+
 }
