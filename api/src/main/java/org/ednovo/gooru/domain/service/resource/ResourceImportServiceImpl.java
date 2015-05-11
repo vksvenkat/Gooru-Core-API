@@ -28,8 +28,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserGroupSupport;
@@ -45,7 +43,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import au.com.bytecode.opencsv.CSVReader;
-
 import com.fasterxml.jackson.core.type.TypeReference;
 
 @Service
@@ -60,7 +57,7 @@ public class ResourceImportServiceImpl extends FileImporter implements ResourceI
 	private ResourceService resourceService;
 
 	@Override
-	public void createOrUpdateResource(String filename, HttpServletRequest request) {
+	public void createOrUpdateResource(String filename, User user) {
 		final String mediaFileName = UserGroupSupport.getUserOrganizationNfsInternalPath() + Constants.UPLOADED_MEDIA_FOLDER + '/' + filename;
 		List<String> keys = null;
 		StringBuffer json = new StringBuffer();
@@ -76,7 +73,6 @@ public class ResourceImportServiceImpl extends FileImporter implements ResourceI
 				} else {
 					String data = formInputJson(row, json, keys).toString();
 					JSONObject jsonObj = requestData(generateJSONInput(data, UNDER_SCORE));
-					final User user = (User) request.getAttribute(Constants.USER);
 					String gooruOid = getValue(GOORU_OID, requestData(getValue(RESOURCE, jsonObj)));
 					if(gooruOid != null && !gooruOid.isEmpty()){
 						this.getResourceService().updateResource(gooruOid, this.buildResourceFromInputParameters(getValue(RESOURCE, jsonObj)), getValue(RESOURCE_TAGS, jsonObj) == null ? null : buildResourceTags(getValue(RESOURCE_TAGS, jsonObj)), user);

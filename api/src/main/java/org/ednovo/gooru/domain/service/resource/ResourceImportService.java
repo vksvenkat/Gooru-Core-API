@@ -23,9 +23,9 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.domain.service.resource;
 
-import javax.servlet.http.HttpServletRequest;
+import org.ednovo.gooru.core.api.model.User;
 
 public interface ResourceImportService {
 
-		public void createOrUpdateResource(String filename, HttpServletRequest request);
+		public void createOrUpdateResource(String filename, User user);
 }

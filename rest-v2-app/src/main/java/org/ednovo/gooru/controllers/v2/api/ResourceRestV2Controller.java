@@ -24,10 +24,8 @@
 package org.ednovo.gooru.controllers.v2.api;
 
 import java.util.List;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.lang.ArrayUtils;
 import org.ednovo.gooru.controllers.BaseController;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
@@ -231,7 +229,8 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 	@Transactional(readOnly = false, propagation = Propagation.NOT_SUPPORTED, noRollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.POST, value = "{type}/import")
 	public void createResource(@PathVariable(value = TYPE) final String type, @RequestParam(value = FILENAME) final String filename, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
-		this.getResourceImportService().createOrUpdateResource(filename, request);
+		final User user = (User) request.getAttribute(Constants.USER);
+		this.getResourceImportService().createOrUpdateResource(filename, user);
 	}
 	
 	private Resource buildResourceFromInputParameters(final String data) {

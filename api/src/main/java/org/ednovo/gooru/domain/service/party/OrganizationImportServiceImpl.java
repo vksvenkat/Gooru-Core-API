@@ -63,6 +63,7 @@ public class OrganizationImportServiceImpl extends FileImporter implements Organ
 		try {
 			file = new File(mediaFileName);
 			csvReader = new CSVReader(new FileReader(file));
+			User user = (User) request.getAttribute(Constants.USER);
 			String[] row = null;
 			while ((row = csvReader.readNext()) != null) {
 				if (keys == null) {
@@ -70,7 +71,6 @@ public class OrganizationImportServiceImpl extends FileImporter implements Organ
 				} else {
 					String data = formInputJson(row, json, keys).toString();
 					JSONObject jsonObj = requestData(generateJSONInput(data, UNDER_SCORE));
-					User user = (User) request.getAttribute(Constants.USER);
 					this.getOrganizationService().saveOrganization(buildOrganizationFromInputParameters(getValue(ORGANIZATION, jsonObj)), user, request);
 					json.setLength(0);
 				}
