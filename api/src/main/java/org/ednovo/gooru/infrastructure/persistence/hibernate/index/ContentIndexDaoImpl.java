@@ -232,7 +232,10 @@ public class ContentIndexDaoImpl extends IndexDaoImpl implements ContentIndexDao
 
 	@Override
 	public Resource findResourceByContentGooruId(String gooruOid) {
-		List<Resource> resources = HibernateDaoSupport.list(getSessionFactory().getCurrentSession().createQuery("SELECT r FROM Resource r  where r.gooruOid ='" + gooruOid + "' and r.resourceType.name not in ('classpage', 'folder', 'gooru/classbook', 'gooru/classplan', 'shelf', 'assignment', 'quiz', 'assessment-quiz', 'gooru/notebook', 'gooru/studyshelf', 'assessment-exam')"));
+	//	List<Resource> resources = HibernateDaoSupport.list(getSessionFactory().getCurrentSession().createQuery("SELECT r FROM Resource r  where r.gooruOid ='" + gooruOid + "' and r.resourceType.name not in ('classpage', 'folder', 'gooru/classbook', 'gooru/classplan', 'shelf', 'assignment', 'quiz', 'assessment-quiz', 'gooru/notebook', 'gooru/studyshelf', 'assessment-exam')"));
+		
+		List<Resource> resources = HibernateDaoSupport.list(getSessionFactory().getCurrentSession().createQuery("SELECT r FROM Resource r  where r.gooruOid ='" + gooruOid + "'"));
+		System.out.println("Resources *********** " + resources.size());
 		return resources.size() == 0 ? null : resources.get(0);
 	}
 
