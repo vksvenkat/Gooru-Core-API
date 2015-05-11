@@ -45,7 +45,7 @@ import org.springframework.stereotype.Service;
 
 import au.com.bytecode.opencsv.CSVReader;
 
-@Service("organizationService")
+@Service
 public class OrganizationImportServiceImpl extends FileImporter implements OrganizationImportService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(OrganizationImportServiceImpl.class);
