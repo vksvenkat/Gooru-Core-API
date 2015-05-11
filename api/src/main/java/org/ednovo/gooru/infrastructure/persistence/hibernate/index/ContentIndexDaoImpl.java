@@ -232,19 +232,7 @@ public class ContentIndexDaoImpl extends IndexDaoImpl implements ContentIndexDao
 
 	@Override
 	public Resource findResourceByContentGooruId(String gooruOid) {
-	//	List<Resource> resources = HibernateDaoSupport.list(getSessionFactory().getCurrentSession().createQuery("SELECT r FROM Resource r  where r.gooruOid ='" + gooruOid + "' and r.resourceType.name not in ('classpage', 'folder', 'gooru/classbook', 'gooru/classplan', 'shelf', 'assignment', 'quiz', 'assessment-quiz', 'gooru/notebook', 'gooru/studyshelf', 'assessment-exam')"));
-		
-		System.out.println("gooru oid *********** " + gooruOid);
-
-		List<Resource> resources = HibernateDaoSupport.list(getSessionFactory().getCurrentSession().createQuery("SELECT r FROM Resource r  where r.gooruOid ='" + gooruOid + "'"));
-		
-		List <String> res  = HibernateDaoSupport.list(createSQLQuery("select gooru_oid from content where gooru_oid=:gooruOid").setString("gooruOid", gooruOid));
-		
-		System.out.println("Resources *********** " + resources.size());
-
-		
-		System.out.println("Resources ids SQL  *********** " + res.size() + " Id " + res.get(0));
-
+		List<Resource> resources = HibernateDaoSupport.list(getSessionFactory().getCurrentSession().createQuery("SELECT r FROM Resource r  where r.gooruOid ='" + gooruOid + "' and r.resourceType.name not in ('classpage', 'folder', 'gooru/classbook', 'gooru/classplan', 'shelf', 'assignment', 'quiz', 'assessment-quiz', 'gooru/notebook', 'gooru/studyshelf', 'assessment-exam')"));
 		return resources.size() == 0 ? null : resources.get(0);
 	}
 
