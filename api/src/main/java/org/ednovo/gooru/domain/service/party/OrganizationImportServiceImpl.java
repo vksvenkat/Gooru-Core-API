@@ -47,7 +47,6 @@ public class OrganizationImportServiceImpl extends FileImporter implements Organ
 				} else {
 					String data = formInputJson(row, json, keys).toString();
 					JSONObject jsonObj = requestData(generateJSONInput(data, UNDER_SCORE));
-					System.out.print(jsonObj.toString());
 					User user = (User) request.getAttribute(Constants.USER);
 					this.getOrganizationService().saveOrganization(buildOrganizationFromInputParameters(getValue(ORGANIZATION, jsonObj)), user, request);
 					json.setLength(0);
