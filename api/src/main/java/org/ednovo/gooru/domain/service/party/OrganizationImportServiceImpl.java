@@ -56,7 +56,7 @@ public class OrganizationImportServiceImpl extends FileImporter implements Organ
 		} catch (FileNotFoundException e) {
 			throw new NotFoundException(generateErrorMessage(GL0056, FILE), GL0056);
 		} catch (Exception e) {
-			LOGGER.debug("error" + e.getMessage());
+			LOGGER.error(_ERROR, e);
 		} finally {
 			try {
 				if (file.exists()) {
@@ -64,7 +64,7 @@ public class OrganizationImportServiceImpl extends FileImporter implements Organ
 					file.delete();
 				}
 			} catch (Exception e) {
-				LOGGER.debug("error" + e.getMessage());
+				LOGGER.error(_ERROR, e);
 			}
 		}
 	}

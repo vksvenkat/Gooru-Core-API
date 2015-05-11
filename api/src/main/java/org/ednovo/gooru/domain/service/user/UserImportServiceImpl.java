@@ -54,7 +54,7 @@ public class UserImportServiceImpl extends FileImporter implements UserImportSer
 		} catch (FileNotFoundException e) {
 			throw new NotFoundException(generateErrorMessage(GL0056, FILE), GL0056);
 		} catch (Exception e) {
-			LOGGER.debug("error" + e.getMessage());
+			LOGGER.error(_ERROR, e);
 		} finally {
 			try {
 				if (file.exists()) {
@@ -62,7 +62,7 @@ public class UserImportServiceImpl extends FileImporter implements UserImportSer
 					file.delete();
 				}
 			} catch (Exception e) {
-				LOGGER.debug("error" + e.getMessage());
+				LOGGER.error(_ERROR, e);
 			}
 		}
 	}

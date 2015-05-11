@@ -67,7 +67,7 @@ public class ResourceImportServiceImpl extends FileImporter implements ResourceI
 		} catch (FileNotFoundException e) {
 			throw new NotFoundException(generateErrorMessage(GL0056, FILE), GL0056);
 		} catch (Exception e) {
-			LOGGER.debug("error" + e.getMessage());
+			LOGGER.error(_ERROR, e);
 		} finally {
 			try {
 				if (file.exists()) {
@@ -75,7 +75,7 @@ public class ResourceImportServiceImpl extends FileImporter implements ResourceI
 					file.delete();
 				}
 			} catch (Exception e) {
-				LOGGER.debug("error" + e.getMessage());
+				LOGGER.error(_ERROR, e);
 			}
 		}
 	}
