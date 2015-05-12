@@ -49,6 +49,7 @@ import org.ednovo.gooru.core.security.AuthorizeOperations;
 import org.ednovo.gooru.domain.service.FeedbackService;
 import org.ednovo.gooru.domain.service.PostService;
 import org.ednovo.gooru.domain.service.tag.TagService;
+import org.ednovo.gooru.domain.service.user.UserImportService;
 import org.ednovo.gooru.domain.service.user.UserService;
 import org.ednovo.gooru.domain.service.userManagement.UserManagementService;
 import org.ednovo.gooru.infrastructure.messenger.IndexHandler;
@@ -90,6 +91,9 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 	
 	@Autowired 
 	private IndexHandler indexHandler;
+	
+	@Autowired 
+	private UserImportService userImportService;
 	
 	@Autowired
 	@Resource(name = "userService")
@@ -457,6 +461,14 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 	
 	}
 	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_ADD })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(method = RequestMethod.POST, value = "/{type}/import")
+	public void createBulkUser(@PathVariable(value = TYPE) final String type, @RequestParam(value = FILENAME) final String filename, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+		final User apiCaller = (User) request.getAttribute(Constants.USER);
+		this.getUserImportService().createUser(filename, apiCaller, request);
+	}
+	
 	public UserManagementService getUserManagementService() {
 		return userManagementService;
 	}
@@ -489,5 +501,9 @@ public class UserManagementRestV2Controller extends BaseController implements Pa
 	
 	private UserRole buildRoleFromInputParameters(String data) {
 		return JsonDeserializer.deserialize(data, UserRole.class);
+	}
+	
+	public UserImportService getUserImportService() {
+		return userImportService;
 	}
 }

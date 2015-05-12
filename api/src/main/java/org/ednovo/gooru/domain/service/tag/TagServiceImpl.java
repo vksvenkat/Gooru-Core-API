@@ -52,6 +52,7 @@ import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.BadRequestException;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.domain.cassandra.service.BlackListWordCassandraService;
+import org.ednovo.gooru.domain.cassandra.service.DashboardCassandraService;
 import org.ednovo.gooru.domain.cassandra.service.ResourceCassandraService;
 import org.ednovo.gooru.domain.service.BaseServiceImpl;
 import org.ednovo.gooru.domain.service.CollectionService;
@@ -103,6 +104,9 @@ public class TagServiceImpl extends BaseServiceImpl implements TagService, Param
 	
 	@Autowired
 	private ResourceCassandraService resourceCassandraService;
+	
+	@Autowired
+	private DashboardCassandraService dashboardCassandraService;
 	
 	@Autowired
 	private IndexHandler indexHandler;
@@ -265,7 +269,7 @@ public class TagServiceImpl extends BaseServiceImpl implements TagService, Param
  				result.put(AGGREGATOR, aggregator);
  			}
  			
-			result.put(VIEWS, this.resourceCassandraService.getLong(object[1].toString(),STATISTICS_VIEW_COUNT));
+			result.put(VIEWS, this.dashboardCassandraService.readAsLong(object[1].toString(),COUNT_VIEWS));
 			result.put(RATINGS, this.collectionService.setRatingsObj(this.getResourceRepository().getResourceSummaryById(String.valueOf(object[1]))));
 			resource.add(result);
 		}

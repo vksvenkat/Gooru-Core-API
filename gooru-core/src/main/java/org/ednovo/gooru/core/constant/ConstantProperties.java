@@ -850,6 +850,10 @@ public interface ConstantProperties {
 	public static final String SOURCE_GOORU_ID = "sourceGooruId";
 
 	public static final String STATISTICS_VIEW_COUNT = "statistics.viewsCountN";
+	
+	public static final String COUNT_VIEWS = "count~views";
+	
+	public static final String ALL_ = "all~";
 
 	public static final String CLASSPAGE_USER_INVITE = "classpage.user.invite";
 
@@ -876,6 +880,8 @@ public interface ConstantProperties {
 	public static final String ITEM_TAG = "item.tag";
 
 	public static final String TARGET_GOORU_ID = "targetGooruId";
+	
+	public static final String SOURCE_PARENT_GOORU_ID = "sourceParentGooruId";
 
 	public static final String DATA = "data";
 

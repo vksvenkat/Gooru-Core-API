@@ -73,7 +73,6 @@ public class ApiCassandraFactory extends SearchCassandraFactory {
 		register(new CassandraColumnFamily(ColumnFamilyConstant.LIVE_DASHBOARD));
 		register(new EntityCassandraColumnFamily<DomainCio>(DomainCio.class, new ReverseIndexColumnSetting().putField("name", "id")));
 		register(new EntityCassandraColumnFamily<ResourceCio>(ResourceCio.class, new ReverseIndexColumnSetting().putField("type","resourceType").putField("batch", "batchId").putField("categoy", "category").putField("resourceFormat", "resourceFormat").putField("instructional", "instructional")));
-		register(new EntityCassandraColumnFamily<ResourceFieldsCio>(ResourceFieldsCio.class, new ReverseIndexColumnSetting().putField("type","resourceType").putField("batch", "batchId").putField("categoy", "category").putField("resourceFormat", "resourceFormat").putField("instructional", "instructional")));
 		register(new EntityCassandraColumnFamily<RevisionHistory>(RevisionHistory.class, new ReverseIndexColumnSetting().putField("entity", "entityName")));
 		register(new EntityCassandraColumnFamily<TaxonomyCio>(TaxonomyCio.class, new ReverseIndexColumnSetting().putField("organization", "organization.partyUid")));
 		register(new EntityCassandraColumnFamily<UserCio>(UserCio.class, new ReverseIndexColumnSetting().putField("organization", "organization.partyUid")));
@@ -81,9 +80,9 @@ public class ApiCassandraFactory extends SearchCassandraFactory {
 		register(new EntityCassandraColumnFamily<OrganizationCio>(OrganizationCio.class,new ReverseIndexColumnSetting().putField("entity", "entityName")));
     	register(new RawCassandraDaoImpl(this, ColumnFamilyConstant.DATA_STORE));
 		register(new RawCassandraDaoImpl(this, ColumnFamilyConstant.SEARCH_SETTING));
+		register(new RawCassandraDaoImpl(this, ColumnFamilyConstant.LIVE_DASHBOARD));
 		register(new EntityCassandraDaoImpl<ResourceCio>(this, ColumnFamilyConstant.RESOURCE));
 		register(new EntityCassandraDaoImpl<TaxonomyCio>(this, ColumnFamilyConstant.TAXONOMY));
-		register(new EntityCassandraDaoImpl<ResourceFieldsCio>(this, ColumnFamilyConstant.RESOURCE));
 		register(new EntityCassandraDaoImpl<UserCio>(this, ColumnFamilyConstant.USER));
 		register(new EntityCassandraDaoImpl<OrganizationCio>(this, ColumnFamilyConstant.SCHOOL_DISTRICT));
 		register(new EntityCassandraDaoImpl<RevisionHistory>(this, ColumnFamilyConstant.REVISION_HISTORY));

@@ -2,6 +2,8 @@ package org.ednovo.gooru.domain.service.eventlogs;
 
 import java.util.Iterator;
 
+import javax.json.JsonException;
+
 import org.ednovo.gooru.core.api.model.Identity;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.User;
@@ -9,13 +11,19 @@ import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 
 @Component
 public class UserEventlog implements ParameterProperties, ConstantProperties{
 	
-	public void getEventLogs(boolean updateProfile, boolean visitProfile, User profileVisitor, JSONObject itemData, boolean isFollow, boolean isUnfollow) throws JSONException {
+	private static final Logger LOGGER = LoggerFactory.getLogger(UserEventlog.class);
+	
+	public void getEventLogs(boolean updateProfile, boolean visitProfile, User profileVisitor, JSONObject itemData, boolean isFollow, boolean isUnfollow) {
+		
+		try {
 		SessionContextSupport.putLogParameter(EVENT_NAME, PROFILE_ACTION);
 		JSONObject session = SessionContextSupport.getLog().get(SESSION) != null ? new JSONObject(SessionContextSupport.getLog().get(SESSION).toString()) : new JSONObject();
 		SessionContextSupport.putLogParameter(SESSION, session.toString());
@@ -45,8 +53,12 @@ public class UserEventlog implements ParameterProperties, ConstantProperties{
 			payLoadObject.put("itemData", itemData.toString());
 
 		}
-		SessionContextSupport.putLogParameter(PAY_LOAD_OBJECT, payLoadObject.toString());
+			SessionContextSupport.putLogParameter(PAY_LOAD_OBJECT, payLoadObject.toString());
+		} catch (Exception e) {
+			LOGGER.error(_ERROR , e);
+		}
 	}
+	
 
 	public void getEventLogs(User newUser, String source, Identity newIdentity) throws JSONException {
 		SessionContextSupport.putLogParameter(EVENT_NAME, USER_REG);

@@ -12,6 +12,8 @@ import org.ednovo.gooru.cassandra.core.CassandraIndexSrcBuilder;
 import org.ednovo.gooru.core.cassandra.model.IsCassandraIndexable;
 import org.ednovo.gooru.core.exception.NotFoundException;
 
+import com.sun.jersey.impl.ApiMessages;
+
 
 /**
  * @author SearchTeam
@@ -19,11 +21,6 @@ import org.ednovo.gooru.core.exception.NotFoundException;
  */
 public abstract class CrudEntityCassandraServiceImpl<S extends IsCassandraIndexable, M extends Serializable> extends EntityCassandraServiceImpl<M> {
 
-	 private static final String RESOURCE = "resource";
-		
-	 private static final String QUESTION = "question";
-
-	 private static final String RESOURCE_FIELDS = "resource_fields";
 	
 	@Override
 	public M save(String id) {
@@ -45,19 +42,10 @@ public abstract class CrudEntityCassandraServiceImpl<S extends IsCassandraIndexa
 			List<M> models = new ArrayList<M>();
 			Collection<String> modelKeys = new ArrayList<String>();
 			for (String key : ids) {
-				S source = fetchSource(key);
+				S source = fetchSource(key.trim());
 				if(source == null) {
 					throw new NotFoundException("Content not exist : " + key);
-				}
-				
-	         if(source.getIndexType().equalsIgnoreCase(RESOURCE)||source.getIndexType().equalsIgnoreCase(QUESTION)) {
-	             CassandraIndexSrcBuilder<S, M> builder = CassandraIndexSrcBuilder.get(RESOURCE_FIELDS);
-				M modelCio = builder.build(source);
-				if (modelCio != null) {
-					models.add(modelCio);
-				}
-				}
-				else {
+				}		
 				CassandraIndexSrcBuilder<S, M> builder = CassandraIndexSrcBuilder.get(source.getIndexType());
 				M modelCio = builder.build(source);
 				if (modelCio != null) {
@@ -67,7 +55,6 @@ public abstract class CrudEntityCassandraServiceImpl<S extends IsCassandraIndexa
 			}
 			save(models, modelKeys);
 			return models;
-		}
 		}
 		return null;
 	}

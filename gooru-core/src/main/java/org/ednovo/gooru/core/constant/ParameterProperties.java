@@ -2897,5 +2897,7 @@ public interface ParameterProperties {
 	String SECURITY_LEVEL = "securityLevel";
 	
 	String INCLUDE_CIMIN = "includeCIMin";
+	
+	String PATH ="path";
 }
 
