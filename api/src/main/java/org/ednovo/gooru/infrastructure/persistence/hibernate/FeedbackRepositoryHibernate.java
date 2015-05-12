@@ -127,7 +127,6 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 		if (category != null) {
 			query.setParameter("category", category);
 		}
-		addOrgAuthParameters(query);
 		query.setFirstResult(offset);
 		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
 		return list(query);
