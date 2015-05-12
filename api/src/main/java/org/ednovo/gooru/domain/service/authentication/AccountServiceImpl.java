@@ -53,7 +53,7 @@ import org.ednovo.gooru.core.exception.UnauthorizedException;
 import org.ednovo.gooru.core.security.AuthenticationDo;
 import org.ednovo.gooru.domain.service.PartyService;
 import org.ednovo.gooru.domain.service.eventlogs.AccountEventLog;
-import org.ednovo.gooru.domain.service.eventlogs.UserEventlog;
+import org.ednovo.gooru.domain.service.eventlogs.UserEventLog;
 import org.ednovo.gooru.domain.service.redis.RedisService;
 import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.ednovo.gooru.domain.service.user.UserService;
@@ -122,7 +122,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 	private SettingService settingService;
 
 	@Autowired
-	private UserEventlog usereventlog;
+	private UserEventLog usereventlog;
 
 	@Autowired
 	private CustomTableRepository customTableRepository;
@@ -477,7 +477,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 		return customTableRepository;
 	}
 
-	public UserEventlog getUsereventlog() {
+	public UserEventLog getUsereventlog() {
 		return usereventlog;
 	}
 

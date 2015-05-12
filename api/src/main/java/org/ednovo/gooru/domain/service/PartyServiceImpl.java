@@ -41,7 +41,7 @@ import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.NotFoundException;
-import org.ednovo.gooru.domain.service.eventlogs.UserEventlog;
+import org.ednovo.gooru.domain.service.eventlogs.UserEventLog;
 import org.ednovo.gooru.domain.service.redis.RedisService;
 import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.ednovo.gooru.infrastructure.messenger.IndexHandler;
@@ -63,7 +63,7 @@ public class PartyServiceImpl extends BaseServiceImpl implements PartyService, P
 	private PartyRepository partyRepository;
 
 	@Autowired
-	private UserEventlog userEventlog;
+	private UserEventLog userEventlog;
 
 	@Autowired
 	private TaxonomyRespository taxonomyRespository;
@@ -245,7 +245,7 @@ public class PartyServiceImpl extends BaseServiceImpl implements PartyService, P
 		return taxonomyRespository;
 	}
 
-	public UserEventlog getUserEventlog() {
+	public UserEventLog getUserEventlog() {
 		return userEventlog;
 	}
 
