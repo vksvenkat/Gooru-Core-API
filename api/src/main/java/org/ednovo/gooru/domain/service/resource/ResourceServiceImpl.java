@@ -1994,8 +1994,8 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	}
 
 	@Override
-	public List<Collection> getCollectionsByResourceId(String resourceId, Integer limit, Integer offset) {
-		List<Collection> collections = this.getResourceRepository().getCollectionsByResourceId(resourceId, limit, offset);
+	public List<Collection> getCollectionsByResourceId(String resourceId, String sharing, Integer limit, Integer offset) {
+		List<Collection> collections = this.getResourceRepository().getCollectionsByResourceId(resourceId, sharing, limit, offset);
 		final CustomTableValue type = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.USER_CLASSIFICATION_TYPE.getTable(), CustomProperties.UserClassificationType.COURSE.getUserClassificationType());
 		final CustomTableValue gradeType = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.USER_CLASSIFICATION_TYPE.getTable(), CustomProperties.UserClassificationType.GRADE.getUserClassificationType());
 		for (Collection collection : collections) {

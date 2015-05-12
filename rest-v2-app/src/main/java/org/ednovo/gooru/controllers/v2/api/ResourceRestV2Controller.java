@@ -24,8 +24,10 @@
 package org.ednovo.gooru.controllers.v2.api;
 
 import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.lang.ArrayUtils;
 import org.ednovo.gooru.controllers.BaseController;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
@@ -220,9 +222,9 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_USER_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.GET }, value = "/{id}/collection")
-	public ModelAndView getUserListByResourceId(@PathVariable(value = ID) final String resourceId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") final Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "20") final Integer limit,
+	public ModelAndView getUserListByResourceId(@PathVariable(value = ID) final String resourceId, @RequestParam(value = SHARING, required = false ,defaultValue = SHARINGS) final String sharing, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") final Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "20") final Integer limit,
 			final HttpServletRequest request, final HttpServletResponse response) {
-		return toModelAndView(serialize(this.getResourceService().getCollectionsByResourceId(resourceId,limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, true, RESOURCE_COLLECTION_USED_INCLUDE_FIELDS));
+		return toModelAndView(serialize(this.getResourceService().getCollectionsByResourceId(resourceId, sharing, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, true, RESOURCE_COLLECTION_USED_INCLUDE_FIELDS));
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_RESOURCE_ADD })

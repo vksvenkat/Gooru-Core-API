@@ -159,7 +159,7 @@ public interface ResourceService extends BaseService {
 	
 	Map<String, Object> checkResourceUrlExists(String url, boolean checkShortenedUrl) throws Exception;
 
-	List<Collection> getCollectionsByResourceId(String resourceId, Integer limit, Integer offset);
+	List<Collection> getCollectionsByResourceId(String resourceId, String sharing, Integer limit, Integer offset);
 
 	Resource buildResourceFromInputParameters(final String data, final User user);
 	
