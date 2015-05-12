@@ -42,7 +42,7 @@ public abstract class CrudEntityCassandraServiceImpl<S extends IsCassandraIndexa
 			List<M> models = new ArrayList<M>();
 			Collection<String> modelKeys = new ArrayList<String>();
 			for (String key : ids) {
-				S source = fetchSource(key);
+				S source = fetchSource(key.trim());
 				if(source == null) {
 					throw new NotFoundException("Content not exist : " + key);
 				}		
