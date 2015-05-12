@@ -90,9 +90,7 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 	private static final String PAGE_START = "startAt";
 	
 	private static final String COUNT_SUBSCRIPTION_FOR_GOORUOID = "select count(1) as totalCount from content c inner join annotation a on a.resource_id = c.content_id where a.type_name='subscription' and c.gooru_oid= :gooruOid and " + generateOrgAuthSqlQuery("c.");
-	
-	private static final String COLLECTION_LIST_BY_RESOURCE_ID = "SELECT ci.collection FROM  CollectionItem ci  where ci.resource.gooruOid=:resourceId";
-	
+		
 	private static final Logger LOGGER = LoggerFactory.getLogger(ResourceServiceImpl.class);
 
 	@Override
@@ -1000,8 +998,13 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 	}
 	  
 	@Override
-	public List<Collection> getCollectionsByResourceId(String resourceId, Integer limit, Integer offset) {
-		Query query = getSession().createQuery(COLLECTION_LIST_BY_RESOURCE_ID);
+	public List<Collection> getCollectionsByResourceId(String resourceId, String sharing, Integer limit, Integer offset) {
+		String hql = "SELECT ci.collection FROM  CollectionItem ci  where ci.resource.gooruOid=:resourceId";
+		if (sharing != null) {		
+			hql += " and ci.collection.sharing in ('" + sharing.replace(",", "','") + "') ";
+		}
+		hql += " group by  ci.collection.user";
+		Query query = getSession().createQuery(hql);
 		query.setParameter(RESOURCE_ID, resourceId);
 		query.setFirstResult(offset != null ? offset : OFFSET);
 		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
