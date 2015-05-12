@@ -45,7 +45,6 @@ import org.ednovo.gooru.core.api.model.InviteUser;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.ResourceType;
 import org.ednovo.gooru.core.api.model.Sharing;
-import org.ednovo.gooru.core.api.model.ShelfType;
 import org.ednovo.gooru.core.api.model.StorageArea;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserAccountType;
@@ -147,7 +146,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			this.getCollectionRepository().save(classpage);
 			if (assignmentId != null && !assignmentId.isEmpty()) {
 				CollectionItem collectionItem = new CollectionItem();
-				collectionItem.setItemType(ShelfType.AddedType.ADDED.getAddedType());
+				collectionItem.setItemType(ADDED);
 				collectionItem = this.createClasspageItem(assignmentId, classpage.getGooruOid(), collectionItem, classpage.getUser(), CollectionType.CLASSPAGE.getCollectionType()).getModel();
 				Set<CollectionItem> collectionItems = new TreeSet<CollectionItem>();
 				collectionItems.add(collectionItem);
@@ -155,7 +154,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			}
 			if (addToUserClasspage) {
 				CollectionItem collectionItem = new CollectionItem();
-				collectionItem.setItemType(ShelfType.AddedType.ADDED.getAddedType());
+				collectionItem.setItemType(ADDED);
 				this.createClasspageItem(classpage.getGooruOid(), null, collectionItem, classpage.getUser(), CollectionType.USER_CLASSPAGE.getCollectionType());
 			}
 			this.getCollectionRepository().save(classpage);
@@ -176,7 +175,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			}
 			if (addToMy) {
 				CollectionItem collectionItem = new CollectionItem();
-				collectionItem.setItemType(ShelfType.AddedType.ADDED.getAddedType());
+				collectionItem.setItemType(ADDED);
 				this.createClasspageItem(newClasspage.getGooruOid(), null, collectionItem, newClasspage.getUser(), CollectionType.USER_CLASSPAGE.getCollectionType());
 			}
 			try {
@@ -393,10 +392,10 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 					classpage.setIsFeatured(0);
 					this.getCollectionRepository().save(classpage);
 				}
-				collectionItem.setItemType(ShelfType.AddedType.SUBSCRIBED.getAddedType());
+				collectionItem.setItemType(SUBSCRIBED);
 			} else {
 				classpage = this.getClasspage(classpageGooruOid, null, null);
-				collectionItem.setItemType(ShelfType.AddedType.ADDED.getAddedType());
+				collectionItem.setItemType(ADDED);
 			}
 
 			if (!errors.hasErrors()) {
@@ -430,7 +429,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			this.getResourceService().saveOrUpdateResourceTaxonomy(newclasspage, newclasspage.getTaxonomySet());
 			if (assignmentId != null && !assignmentId.isEmpty()) {
 				CollectionItem collectionItem = new CollectionItem();
-				collectionItem.setItemType(ShelfType.AddedType.ADDED.getAddedType());
+				collectionItem.setItemType(ADDED);
 				collectionItem = this.createClasspageItem(assignmentId, newclasspage.getGooruOid(), collectionItem, newclasspage.getUser(), CollectionType.CLASSPAGE.getCollectionType()).getModel();
 				Set<CollectionItem> collectionItems = new TreeSet<CollectionItem>();
 				collectionItems.add(collectionItem);
@@ -438,7 +437,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			}
 			if (addToUserClasspage) {
 				CollectionItem collectionItem = new CollectionItem();
-				collectionItem.setItemType(ShelfType.AddedType.ADDED.getAddedType());
+				collectionItem.setItemType(ADDED);
 				this.createClasspageItem(newclasspage.getGooruOid(), null, collectionItem, newclasspage.getUser(), CollectionType.USER_CLASSPAGE.getCollectionType());
 			}
 			this.getCollectionRepository().save(newclasspage);
