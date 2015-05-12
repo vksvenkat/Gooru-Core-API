@@ -95,7 +95,6 @@ import org.ednovo.gooru.domain.service.CollectionService;
 import org.ednovo.gooru.domain.service.assessment.AssessmentService;
 import org.ednovo.gooru.domain.service.eventlogs.ResourceEventLog;
 import org.ednovo.gooru.domain.service.partner.CustomFieldsService;
-import org.ednovo.gooru.domain.service.sessionActivity.SessionActivityService;
 import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.ednovo.gooru.domain.service.storage.S3ResourceApiHandler;
 import org.ednovo.gooru.domain.service.taxonomy.TaxonomyService;
@@ -107,7 +106,6 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepositor
 import org.ednovo.gooru.infrastructure.persistence.hibernate.ConfigSettingRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.FeedbackRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
-import org.ednovo.gooru.infrastructure.persistence.hibernate.activity.SessionActivityRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.assessment.AssessmentRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
@@ -174,13 +172,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	private ResourceManager resourceManager;
 
 	@Autowired
-	private SessionActivityService sessionActivityService;
-
-	@Autowired
 	private AssessmentRepository assessmentRepository;
-
-	@Autowired
-	private SessionActivityRepository sessionActivityRepository;
 
 	@Autowired
 	private TaxonomyService taxonomyService;
@@ -223,7 +215,6 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 
 	@Autowired
 	private IndexHandler indexHandler;
-
 
 	private static final String SHORTENED_URL_STATUS = "shortenedUrlStatus";
 
@@ -382,66 +373,6 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			resource.setTitle(StringUtils.substring(title, 0, 250));
 		}
 		// set the first text that is not blank.
-	}
-
-	public String getThumbnailUrlByQuery(String query) {
-		try {
-
-			// get rid of spaces
-			query = query.replaceAll("[\\s,\\.]+", "%20");
-
-			// send request to bing.
-			final String address = "http://api.bing.net/xml.aspx?Appid=E33DF01A3363CBE8CC3C5F4E15F1284647476C8A&sources=image&query=" + query;
-			URL url = new URL(address);
-			final URLConnection connection = url.openConnection();
-			InputStream in = connection.getInputStream();
-
-			// xml name space stuff:
-			NamespaceContext ctx = new NamespaceContext() {
-				public String getNamespaceURI(final String prefix) {
-					String uri;
-					if (prefix.equals("e")) {
-						uri = "http://schemas.microsoft.com/LiveSearch/2008/04/XML/element";
-					} else if (prefix.equals("m")) {
-						uri = "http://schemas.microsoft.com/LiveSearch/2008/04/XML/multimedia";
-					} else {
-						uri = null;
-					}
-					return uri;
-				}
-
-				public Iterator getPrefixes(String val) {
-					return null;
-				}
-
-				public String getPrefix(String uri) {
-					return null;
-				}
-			};
-
-			// create xml doc from input:
-			final DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
-			domFactory.setNamespaceAware(true);
-			final DocumentBuilder builder = domFactory.newDocumentBuilder();
-			org.w3c.dom.Document doc = builder.parse(in);// new
-			// File("c:\\users\\a\\Desktop\\test.xml"));
-
-			// create xpath for extract thumbnail url:
-			String xpathStr = "/e:SearchResponse/m:Image/m:Results/m:ImageResult/m:Thumbnail/m:Url/text()";
-			final XPathFactory xpathFact = XPathFactory.newInstance();
-			final XPath xpath = xpathFact.newXPath();
-			xpath.setNamespaceContext(ctx);
-
-			// extract thumbnail url from xml doc reponse:
-			final String thmbnailUrl = xpath.evaluate(xpathStr, doc);
-
-			return thmbnailUrl;
-
-		} catch (Exception ex) {
-
-			return null;
-		}
-
 	}
 
 	@Override
@@ -913,14 +844,6 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		this.resourceManager = resourceManager;
 	}
 
-	public SessionActivityService getSessionActivityService() {
-		return sessionActivityService;
-	}
-
-	public void setSessionActivityService(final SessionActivityService sessionActivityService) {
-		this.sessionActivityService = sessionActivityService;
-	}
-
 	public AssessmentRepository getAssessmentRepository() {
 		return assessmentRepository;
 	}
@@ -942,17 +865,17 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				|| resource.getResourceType().getName().equalsIgnoreCase(CLASSPAGE)) {
 			throw new NotFoundException(generateErrorMessage(GL0056, RESOURCE), GL0056);
 		} else {
-				List<CollectionItem> collectionitems = this.getCollectionRepository().getCollectionItemsByResource(gooruContentId);
-				for (CollectionItem collectionItem : collectionitems) {
-					collectionItem.getCollection().setLastModified(new Date(System.currentTimeMillis()));
-					List<CollectionItem> resetCollectionItems = this.getCollectionRepository().getResetSequenceCollectionItems(collectionItem.getCollection().getGooruOid(), collectionItem.getItemSequence());
-					int itemSequence = collectionItem.getItemSequence();
-					for (CollectionItem resetCollectionItem : resetCollectionItems) {
-						resetCollectionItem.setItemSequence(itemSequence++);
-					}
-					this.getCollectionRepository().saveAll(resetCollectionItems);
-					getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
+			List<CollectionItem> collectionitems = this.getCollectionRepository().getCollectionItemsByResource(gooruContentId);
+			for (CollectionItem collectionItem : collectionitems) {
+				collectionItem.getCollection().setLastModified(new Date(System.currentTimeMillis()));
+				List<CollectionItem> resetCollectionItems = this.getCollectionRepository().getResetSequenceCollectionItems(collectionItem.getCollection().getGooruOid(), collectionItem.getItemSequence());
+				int itemSequence = collectionItem.getItemSequence();
+				for (CollectionItem resetCollectionItem : resetCollectionItems) {
+					resetCollectionItem.setItemSequence(itemSequence++);
 				}
+				this.getCollectionRepository().saveAll(resetCollectionItems);
+				getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
+			}
 			this.getCollectionRepository().saveAll(collectionitems);
 			if ((resource.getUser() != null && resource.getUser().getPartyUid().equalsIgnoreCase(apiCaller.getPartyUid())) || getUserService().isContentAdmin(apiCaller)) {
 				this.getContentService().deleteContentTagAssoc(resource.getGooruOid(), apiCaller);
@@ -1054,7 +977,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			resource.setBrokenStatus(brokenStatus);
 		}
 		domainName = BaseUtil.getDomainName(url);
-		if(domainName != null){
+		if (domainName != null) {
 			resourceSource = this.getResourceRepository().findResourceSource(domainName);
 		}
 		if (resourceSource != null && resourceSource.getFrameBreaker() != null && resourceSource.getFrameBreaker() == 1) {
@@ -1145,7 +1068,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			if (url != null) {
 				existingResource.setUrl(url);
 				domainName = BaseUtil.getDomainName(url);
-				if(domainName != null){
+				if (domainName != null) {
 					resourceSource = this.getResourceRepository().findResourceSource(domainName);
 				}
 				if (resourceSource != null && resourceSource.getFrameBreaker() != null && resourceSource.getFrameBreaker() == 1) {
@@ -1413,10 +1336,6 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		this.contentService = contentService;
 	}
 
-	public SessionActivityRepository getSessionActivityRepository() {
-		return sessionActivityRepository;
-	}
-
 	@Override
 	public ResourceInfo getResourcePageCount(final String resourceId) {
 		return resourceRepository.getResourcePageCount(resourceId);
@@ -1427,7 +1346,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		boolean isShortenedUrl = false;
 		String domainName = BaseUtil.getDomainName(url);
 		final String domainType = ResourceSource.ResourceSourceType.SHORTENDED_DOMAIN.getResourceSourceType();
-		if(domainName != null){
+		if (domainName != null) {
 			final String type = resourceRepository.shortenedUrlResourceCheck(domainName, domainType);
 			if (type != null && type.equalsIgnoreCase(ResourceSource.ResourceSourceType.SHORTENDED_DOMAIN.getResourceSourceType())) {
 				isShortenedUrl = true;
@@ -1506,9 +1425,9 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			if (newResource.getBrokenStatus() == null) {
 				newResource.setBrokenStatus(0);
 			}
-			domainName =BaseUtil.getDomainName(newResource.getUrl());
-			if(domainName != null){
-			resourceSource = this.getResourceRepository().findResourceSource(domainName);
+			domainName = BaseUtil.getDomainName(newResource.getUrl());
+			if (domainName != null) {
+				resourceSource = this.getResourceRepository().findResourceSource(domainName);
 			}
 			if (resourceSource != null && resourceSource.getFrameBreaker() != null && resourceSource.getFrameBreaker() == 1) {
 				newResource.setHasFrameBreaker(true);
@@ -1575,7 +1494,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 						itemData.put("url", newResource.getUrl());
 						resource.setUrl(newResource.getUrl());
 						domainName = BaseUtil.getDomainName(newResource.getUrl());
-						if(domainName != null){
+						if (domainName != null) {
 							resourceSource = this.getResourceRepository().findResourceSource(domainName);
 						}
 						if (resourceSource != null && resourceSource.getFrameBreaker() != null && resourceSource.getFrameBreaker() == 1) {
@@ -1986,34 +1905,33 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		if (resource != null) {
 			response.put(RESOURCE, resource);
 		}
-		if (checkShortenedUrl) { 
+		if (checkShortenedUrl) {
 			response.put(SHORTENED_URL_STATUS, shortenedUrlResourceCheck(url));
 		}
-		
+
 		return response;
 	}
-	
+
 	@Override
 	public List<Collection> getCollectionsByResourceId(String resourceId, Integer limit, Integer offset) {
-		List<Collection> collections =  this.getResourceRepository().getCollectionsByResourceId(resourceId, limit, offset);
+		List<Collection> collections = this.getResourceRepository().getCollectionsByResourceId(resourceId, limit, offset);
 		final CustomTableValue type = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.USER_CLASSIFICATION_TYPE.getTable(), CustomProperties.UserClassificationType.COURSE.getUserClassificationType());
 		final CustomTableValue gradeType = this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.USER_CLASSIFICATION_TYPE.getTable(), CustomProperties.UserClassificationType.GRADE.getUserClassificationType());
-		for (Collection collection : collections) { 
+		for (Collection collection : collections) {
 			final ResourceMetaInfo collectionMetaInfo = new ResourceMetaInfo();
 			this.getCollectionService().setCollectionTaxonomyMetaInfo(collection.getTaxonomySet(), collectionMetaInfo);
 			collectionMetaInfo.setStandards(this.getCollectionService().getStandards(collection.getTaxonomySet(), false, null));
 			collection.setMetaInfo(collectionMetaInfo);
 			Map<String, Object> meta = new HashMap<String, Object>();
 			meta.put(GRADE, this.getUserRepository().getUserGrade(collection.getUser().getPartyUid(), gradeType.getCustomTableValueId(), 1));
-			meta.put(COURSE,this.getUserRepository().getUserClassifications(collection.getUser().getPartyUid(), type.getCustomTableValueId(), 1));
+			meta.put(COURSE, this.getUserRepository().getUserClassifications(collection.getUser().getPartyUid(), type.getCustomTableValueId(), 1));
 			collection.getUser().setMeta(meta);
 		}
 		return collections;
-    }
+	}
 
 	public CollectionRepository getCollectionRepository() {
 		return collectionRepository;
 	}
 
-	
 }

@@ -65,7 +65,6 @@ import org.ednovo.gooru.domain.service.content.ContentService;
 import org.ednovo.gooru.domain.service.resource.AssetManager;
 import org.ednovo.gooru.domain.service.resource.ResourceManager;
 import org.ednovo.gooru.domain.service.resource.ResourceService;
-import org.ednovo.gooru.domain.service.sessionActivity.SessionActivityService;
 import org.ednovo.gooru.domain.service.storage.S3ResourceApiHandler;
 import org.ednovo.gooru.domain.service.taxonomy.TaxonomyService;
 import org.ednovo.gooru.domain.service.user.UserService;
@@ -137,9 +136,6 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 	@Autowired
 	@javax.annotation.Resource(name = "resourceManager")
 	private ResourceManager resourceManager;
-
-	@Autowired
-	private SessionActivityService sessionActivityService;
 
 	@Autowired
 	private ContentService contentService;
@@ -950,9 +946,6 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 		return assessmentRepository.findAssessmentNameByGooruOid(gooruOId);
 	}
 
-	public SessionActivityService getSessionActivityService() {
-		return sessionActivityService;
-	}
 
 	public ResourceImageUtil getResourceImageUtil() {
 		return resourceImageUtil;
