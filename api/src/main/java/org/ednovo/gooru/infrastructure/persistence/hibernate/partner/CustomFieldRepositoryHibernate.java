@@ -54,7 +54,7 @@ public class CustomFieldRepositoryHibernate extends BaseRepositoryHibernate impl
 
 	/*
 	 * Form custom field map if it is already in customFieldAndColumnNameMap
-	 * returns it. ie - Map<'account_uid', Map<'customer_name', 'jhon'> >
+	 * returns it. ie - Map<'organizationUid', Map<'customer_name', 'jhon'> >
 	 */
 
 	private List<Object[]> getAllCustomFields(String accountUId, String searchAlias) {
@@ -123,7 +123,7 @@ public class CustomFieldRepositoryHibernate extends BaseRepositoryHibernate impl
 	private Map<String, String> buildCustomFieldsDataMap(String accountUId, String resourceId) {
 		// get all customFields for the given organization
 		List<Object[]> customFieldsList = getAllCustomFields(accountUId, null);
-		Map<String, String> innerCustomFieldValueMap  = new HashMap<String, String>();
+		Map<String, String> innerCustomFieldValueMap = new HashMap<String, String>();
 		if (customFieldsList.size() > 0) {
 			String fields = "";
 			int count = 0;
@@ -154,15 +154,15 @@ public class CustomFieldRepositoryHibernate extends BaseRepositoryHibernate impl
 				List<String> customFieldValues = getCustomFieldsData(fields, resourceId, false);
 				if (customFieldValues.size() > 0) {
 					for (int groupIndex = 0; customFieldGroup.size() > groupIndex; groupIndex++) {
-						
+
 						for (int fieldDataIndex = 0; count > fieldDataIndex; fieldDataIndex++) {
-						//	if (customFieldNames.get(fieldDataIndex).startsWith(customFieldGroup.get(groupIndex))) {
-								if (customFieldValues.get(fieldDataIndex) != null) {
-									innerCustomFieldValueMap.put(customFieldNames.get(fieldDataIndex), customFieldValues.get(fieldDataIndex));
-								}
-						//	}
+							// if(customFieldNames.get(fieldDataIndex).startsWith(customFieldGroup.get(groupIndex))){
+							if (customFieldValues.get(fieldDataIndex) != null) {
+								innerCustomFieldValueMap.put(customFieldNames.get(fieldDataIndex), customFieldValues.get(fieldDataIndex));
+							}
+							// }
 						}
-						
+
 					}
 				}
 
@@ -267,13 +267,13 @@ public class CustomFieldRepositoryHibernate extends BaseRepositoryHibernate impl
 	}
 
 	@Override
-	public List<Object[]> getSearchAliasByOrganization(String accountUId) {
-		String sql = "SELECT search_alias_name, data_column_name,add_to_search,add_to_search_index,add_to_filters FROM custom_fields WHERE show_in_response=? AND account_uid =? AND add_to_search=? ";
+	public List<Object[]> getSearchAliasByOrganization(String OrganizationUid) {
+		String sql = "SELECT search_alias_name, data_column_name,add_to_search,add_to_search_index,add_to_filters FROM custom_fields WHERE show_in_response=? AND Organization_uid =? AND add_to_search=? ";
 		SQLQuery query = getSession().createSQLQuery(sql);
 		query.setParameter(0, 1, StandardBasicTypes.INTEGER);
 
-		if (accountUId != null) {
-			query.setParameter(1, accountUId, StandardBasicTypes.STRING);
+		if (OrganizationUid != null) {
+			query.setParameter(1, OrganizationUid, StandardBasicTypes.STRING);
 		}
 		query.setParameter(2, 1, StandardBasicTypes.INTEGER);
 
@@ -330,9 +330,9 @@ public class CustomFieldRepositoryHibernate extends BaseRepositoryHibernate impl
 	}
 
 	@Cacheable("gooruCache")
-	private Map<String, Object> getSearchFieldsByOrganization(String accountUId) {
+	private Map<String, Object> getSearchFieldsByOrganization(String organizationUid) {
 		Map<String, Object> resultMap = new HashMap<String, Object>();
-		List<Object[]> searchAliasList = getSearchAliasByOrganization(accountUId);
+		List<Object[]> searchAliasList = getSearchAliasByOrganization(organizationUid);
 
 		List<String> searchAlias = new ArrayList<String>();
 		List<Integer> addToSearchIndex = new ArrayList<Integer>();
@@ -359,13 +359,13 @@ public class CustomFieldRepositoryHibernate extends BaseRepositoryHibernate impl
 	}
 
 	@Override
-	public Map<String, Object> getResourceSearchAliasValuesMap(String accountUId, String resourceGooruOId) {
+	public Map<String, Object> getResourceSearchAliasValuesMap(String organizationUid, String resourceGooruOId) {
 
-		if (accountUId == null) {
-			accountUId = getOrganizationPartyUid(resourceGooruOId);
+		if (organizationUid == null) {
+			organizationUid = getOrganizationPartyUid(resourceGooruOId);
 		}
 
-		Map<String, Object> searchFieldsMap = getSearchFieldsByOrganization(accountUId);
+		Map<String, Object> searchFieldsMap = getSearchFieldsByOrganization(organizationUid);
 
 		@SuppressWarnings("unchecked")
 		List<String> searchAlias = (List<String>) searchFieldsMap.get("searchAlias");
