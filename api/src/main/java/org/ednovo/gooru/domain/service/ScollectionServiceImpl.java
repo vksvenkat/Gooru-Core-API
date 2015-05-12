@@ -365,7 +365,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			}
 
 			if (parentCollection != null) {
-				if (!collection.getSharing().equalsIgnoreCase(PRIVATE) & !parentCollection.getSharing().equalsIgnoreCase(PUBLIC)) {
+				if (!collection.getSharing().equalsIgnoreCase(PRIVATE) && !parentCollection.getSharing().equalsIgnoreCase(PUBLIC)) {
 					parentCollection.setSharing(collection.getSharing());
 					this.getCollectionRepository().save(parentCollection);
 				}
