@@ -310,6 +310,15 @@ public class ResourceCio implements IsEntityCassandraIndexable {
 	@Column
 	private String libraryNameAnalyzed;
 
+	@Column
+	private Long ratingsAverage;
+	
+	@Column
+	private Double ratingsCount;
+	
+	@Column
+	private Long ratingReviewCount;	
+
 	
 	public Integer getVersion() {
 		return version;
@@ -1079,6 +1088,31 @@ public class ResourceCio implements IsEntityCassandraIndexable {
 	
 	public void setLibraryNameAnalyzed(String libraryNameAnalyzed) {
 		this.libraryNameAnalyzed = libraryNameAnalyzed;
+	}
+	
+
+	public Long getRatingsAverage() {
+		return ratingsAverage;
+	}
+
+	public Double getRatingsCount() {
+		return ratingsCount;
+	}
+
+	public Long getRatingReviewCount() {
+		return ratingReviewCount;
+	}
+
+	public void setRatingsAverage(Long ratingsAverage) {
+		this.ratingsAverage = ratingsAverage;
+	}
+
+	public void setRatingsCount(Double ratingsCount) {
+		this.ratingsCount = ratingsCount;
+	}
+	
+	public void setRatingReviewCount(Long ratingReviewCount) {
+		this.ratingReviewCount = ratingReviewCount;
 	}
 }
 
