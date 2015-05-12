@@ -47,7 +47,6 @@ import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.ResourceType;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.Sharing;
-import org.ednovo.gooru.core.api.model.ShelfType;
 import org.ednovo.gooru.core.api.model.StorageArea;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserContentAssoc;
@@ -337,7 +336,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				CollectionItem collectionItem = new CollectionItem();
 				collectionItem.setCollection(classPage);
 				collectionItem.setResource(collection);
-				collectionItem.setItemType(ShelfType.AddedType.ADDED.getAddedType());
+				collectionItem.setItemType(ADDED);
 				collectionItem.setAssociatedUser(user);
 				collectionItem.setAssociationDate(new Date(System.currentTimeMillis()));
 				int sequence = collectionItem.getCollection().getCollectionItems() != null ? collectionItem.getCollection().getCollectionItems().size() + 1 : 1;
@@ -708,7 +707,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		final CollectionItem collectionItem = new CollectionItem();
 		collectionItem.setCollection(classPage);
 		collectionItem.setResource(collection);
-		collectionItem.setItemType(ShelfType.AddedType.ADDED.getAddedType());
+		collectionItem.setItemType(ADDED);
 		collectionItem.setAssociatedUser(user);
 		collectionItem.setAssociationDate(new Date(System.currentTimeMillis()));
 		collectionItem.setItemSequence(sequence);

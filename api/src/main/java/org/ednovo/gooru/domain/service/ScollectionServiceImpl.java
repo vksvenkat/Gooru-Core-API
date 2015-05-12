@@ -61,7 +61,6 @@ import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.ResourceSummary;
 import org.ednovo.gooru.core.api.model.ResourceType;
 import org.ednovo.gooru.core.api.model.Sharing;
-import org.ednovo.gooru.core.api.model.ShelfType;
 import org.ednovo.gooru.core.api.model.StandardFo;
 import org.ednovo.gooru.core.api.model.Textbook;
 import org.ednovo.gooru.core.api.model.User;
@@ -209,8 +208,9 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 	@Autowired
 	private ClasspageEventLog classpageEventLog;
-	
-	private DashboardCassandraService dashboardCassandraService; 
+
+	@Autowired
+	private DashboardCassandraService dashboardCassandraService;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ScollectionServiceImpl.class);
 
@@ -235,7 +235,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			this.getCollectionRepository().save(collection);
 			if (resourceId != null && !resourceId.isEmpty()) {
 				CollectionItem collectionItem = new CollectionItem();
-				collectionItem.setItemType(ShelfType.AddedType.ADDED.getAddedType());
+				collectionItem.setItemType(ADDED);
 				collectionItem = this.createCollectionItem(resourceId, collection.getGooruOid(), collectionItem, collection.getUser(), CollectionType.COLLECTION.getCollectionType(), false).getModel();
 				final Set<CollectionItem> collectionItems = new TreeSet<CollectionItem>();
 				collectionItems.add(collectionItem);
@@ -244,7 +244,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 			if (addToShelf) {
 				final CollectionItem collectionItem = new CollectionItem();
-				collectionItem.setItemType(ShelfType.AddedType.ADDED.getAddedType());
+				collectionItem.setItemType(ADDED);
 				collection.setCollectionItem(this.createCollectionItem(collection.getGooruOid(), null, collectionItem, collection.getUser(), CollectionType.SHElf.getCollectionType(), false).getModel());
 			}
 			if (collection.getResourceType().getName().equalsIgnoreCase(SCOLLECTION)) {
@@ -318,7 +318,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			this.getResourceService().saveOrUpdateResourceTaxonomy(collection, collection.getTaxonomySet());
 			if (resourceId != null && !resourceId.isEmpty()) {
 				CollectionItem collectionItem = new CollectionItem();
-				collectionItem.setItemType(ShelfType.AddedType.ADDED.getAddedType());
+				collectionItem.setItemType(ADDED);
 				collectionItem = this.createCollectionItem(resourceId, collection.getGooruOid(), collectionItem, collection.getUser(), CollectionType.COLLECTION.getCollectionType(), false).getModel();
 				final Set<CollectionItem> collectionItems = new TreeSet<CollectionItem>();
 				collectionItems.add(collectionItem);
@@ -327,7 +327,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 			if (addToShelf) {
 				final CollectionItem collectionItem = new CollectionItem();
-				collectionItem.setItemType(ShelfType.AddedType.ADDED.getAddedType());
+				collectionItem.setItemType(ADDED);
 				collection.setCollectionItem(this.createCollectionItem(collection.getGooruOid(), null, collectionItem, collection.getUser(), CollectionType.SHElf.getCollectionType(), false).getModel());
 			}
 			if (collection.getResourceType().getName().equalsIgnoreCase(SCOLLECTION)) {
@@ -364,12 +364,12 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				this.getUserRepository().save(userSummary);
 			}
 
-			 if (parentCollection != null) {
+			if (parentCollection != null) {
 				if (!collection.getSharing().equalsIgnoreCase(PRIVATE) & !parentCollection.getSharing().equalsIgnoreCase(PUBLIC)) {
 					parentCollection.setSharing(collection.getSharing());
 					this.getCollectionRepository().save(parentCollection);
 				}
-				
+
 				collection.setCollectionItem(this.createCollectionItem(collection.getGooruOid(), parentCollection.getGooruOid(), new CollectionItem(), collection.getUser(), CollectionType.FOLDER.getCollectionType(), false).getModel());
 				getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + parentCollection.getUser().getPartyUid() + "*");
 			}
@@ -448,7 +448,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 
 	public ActionResponseDTO<Collection> updateCollection(final Collection newCollection, final String updateCollectionId, final String taxonomyCode, final String ownerUId, String creatorUId, final boolean hasUnrestrictedContentAccess, final String relatedContentId,
-	        final boolean updateTaxonomyByCode, final User apiCallerUser) throws Exception {
+			final boolean updateTaxonomyByCode, final User apiCallerUser) throws Exception {
 		String gooruUid = null;
 		if (newCollection.getUser() != null && !userService.isContentAdmin(newCollection.getUser())) {
 			gooruUid = newCollection.getUser().getGooruUId();
@@ -750,7 +750,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 			try {
 				if (collectionItem.getResource().getResourceType() != null && !collectionItem.getResource().getResourceType().getName().equalsIgnoreCase(SCOLLECTION) && !collectionItem.getResource().getResourceType().getName().equalsIgnoreCase(FOLDER)
-				        && !collectionItem.getResource().getResourceType().getName().equalsIgnoreCase(CLASSPAGE)) {
+						&& !collectionItem.getResource().getResourceType().getName().equalsIgnoreCase(CLASSPAGE)) {
 					indexHandler.setReIndexRequest(collectionItem.getResource().getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);
 				}
 				if (!collectionItem.getCollection().getResourceType().getName().equalsIgnoreCase(SHELF)) {
@@ -776,14 +776,14 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 		Collection collection = null;
 		if (type != null && type.equalsIgnoreCase(CollectionType.SHElf.getCollectionType())) {
-			collectionItem.setItemType(ShelfType.AddedType.SUBSCRIBED.getAddedType());
+			collectionItem.setItemType(SUBSCRIBED);
 		} else if (type != null && type.equalsIgnoreCase(COLLABORATOR)) {
 			collectionItem.setItemType(COLLABORATOR);
 		} else if (type != null && type.equalsIgnoreCase(CLASS)) {
 			collectionItem.setItemType(CLASS);
 		} else {
 			if (collectionItem != null && collectionItem.getItemType() == null) {
-				collectionItem.setItemType(ShelfType.AddedType.ADDED.getAddedType());
+				collectionItem.setItemType(ADDED);
 			}
 		}
 		if (collectionGooruOid != null) {
@@ -929,8 +929,9 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			reOrderCollectionItems(collection, collectionItemId);
 			this.getCollectionRepository().save(collection);
 			try {
+
 				if (resource.getResourceType() != null && !resource.getResourceType().getName().equalsIgnoreCase(ResourceType.Type.SCOLLECTION.getType())) {
-					indexHandler.setReIndexRequest(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);							
+					indexHandler.setReIndexRequest(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);
 				}
 				if (indexCollection) {
 					indexHandler.setReIndexRequest(collection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);
@@ -1007,7 +1008,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 	@Override
 	public String getCollectionWithCache(final String collectionId, final boolean includeMetaInfo, final boolean includeCollaborator, final boolean isContentFlag, final User user, final String merge, final String rootNodeId, final boolean isGat, final boolean includeCollectionItem,
-	        final boolean includeRelatedContent, final boolean clearCache) {
+			final boolean includeRelatedContent, final boolean clearCache) {
 		final String cacheKey = "v2-collection-data-" + collectionId + "-" + includeMetaInfo + "-" + includeCollaborator + "-" + isContentFlag;
 		Map<String, Object> cacheCollection = null;
 		final boolean isCollaborator = false;
@@ -1066,7 +1067,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 	@Override
 	public Collection getCollection(final String collectionId, final boolean includeMetaInfo, final boolean includeCollaborator, final boolean isContentFlag, final User user, final String merge, final String rootNodeId, final boolean isGat, final boolean includeViewCount,
-	        final boolean includeContentProvider, final boolean includeCustomFields) {
+			final boolean includeContentProvider, final boolean includeCustomFields) {
 		final Collection collection = this.getCollectionRepository().getCollectionByGooruOid(collectionId, null);
 		final boolean isCollaborator = this.getCollaboratorRepository().findCollaboratorById(collectionId, user.getGooruUId()) != null ? true : false;
 		if (collection != null && (collection.getUser().getGooruUId().equalsIgnoreCase(user.getGooruUId()) || !collection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || userService.isContentAdmin(user) || isCollaborator)) {
@@ -1274,7 +1275,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 	private void setView(Resource resource) {
 		try {
-			resource.setViews(this.dashboardCassandraService.readAsLong(ALL_+resource.getGooruOid(),COUNT_VIEWS));
+			resource.setViews(this.dashboardCassandraService.readAsLong(ALL_ + resource.getGooruOid(), COUNT_VIEWS));
 			resource.setViewCount(resource.getViews());
 		} catch (Exception e) {
 			LOGGER.error(_ERROR, e);
@@ -1640,7 +1641,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 	@Override
 	public ActionResponseDTO<CollectionItem> createResourceWithCollectionItem(final String collectionId, final String title, final String description, final String url, final String start, final String stop, final String thumbnailImgSrc, final String resourceType, final String category,
-	        final User user) throws Exception {
+			final User user) throws Exception {
 		final Resource newResource = new Resource();
 		newResource.setTitle(title);
 		newResource.setDescription(description);
@@ -1760,7 +1761,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 
 	@Override
 	public ActionResponseDTO<Collection> updateCollection(final Collection newCollection, final String updateCollectionId, final String ownerUId, final String creatorUId, final boolean hasUnrestrictedContentAccess, final String relatedContentId, final User updateUser, final String data)
-	        throws Exception {
+			throws Exception {
 		String gooruUid = null;
 		if (newCollection.getUser() != null && !userService.isContentAdmin(updateUser)) {
 			gooruUid = newCollection.getUser().getGooruUId();
@@ -2056,7 +2057,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			getAsyncExecutor().copyResourceFolder(sourceCollection, destCollection);
 			if (addToShelf) {
 				collectionItem = new CollectionItem();
-				collectionItem.setItemType(ShelfType.AddedType.SUBSCRIBED.getAddedType());
+				collectionItem.setItemType(SUBSCRIBED);
 				final Collection myCollection = createMyShelfCollection(null, user, CollectionType.SHElf.getCollectionType(), collectionItem);
 				collectionItem.setCollection(myCollection);
 				collectionItem.setResource(destCollection);
@@ -2219,7 +2220,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		final CollectionItem collectionItem = new CollectionItem();
 		collectionItem.setCollection(collection);
 		collectionItem.setResource(resource);
-		collectionItem.setItemType(ShelfType.AddedType.ADDED.getAddedType());
+		collectionItem.setItemType(ADDED);
 		collectionItem.setAssociatedUser(user);
 		collectionItem.setAssociationDate(new Date(System.currentTimeMillis()));
 		final int sequence = collectionItem.getCollection().getCollectionItems() != null ? collectionItem.getCollection().getCollectionItems().size() + 1 : 1;

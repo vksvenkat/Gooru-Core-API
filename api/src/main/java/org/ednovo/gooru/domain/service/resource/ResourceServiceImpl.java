@@ -96,7 +96,6 @@ import org.ednovo.gooru.domain.service.CollectionService;
 import org.ednovo.gooru.domain.service.assessment.AssessmentService;
 import org.ednovo.gooru.domain.service.eventlogs.ResourceEventLog;
 import org.ednovo.gooru.domain.service.partner.CustomFieldsService;
-import org.ednovo.gooru.domain.service.sessionActivity.SessionActivityService;
 import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.ednovo.gooru.domain.service.storage.S3ResourceApiHandler;
 import org.ednovo.gooru.domain.service.taxonomy.TaxonomyService;
@@ -108,7 +107,6 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepositor
 import org.ednovo.gooru.infrastructure.persistence.hibernate.ConfigSettingRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.FeedbackRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
-import org.ednovo.gooru.infrastructure.persistence.hibernate.activity.SessionActivityRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.assessment.AssessmentRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
@@ -176,13 +174,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	private ResourceManager resourceManager;
 
 	@Autowired
-	private SessionActivityService sessionActivityService;
-
-	@Autowired
 	private AssessmentRepository assessmentRepository;
-
-	@Autowired
-	private SessionActivityRepository sessionActivityRepository;
 
 	@Autowired
 	private TaxonomyService taxonomyService;
@@ -229,7 +221,6 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	@Autowired
 	private DashboardCassandraService dashboardCassandraService;
 
-	
 	private static final String SHORTENED_URL_STATUS = "shortenedUrlStatus";
 
 	@Override
@@ -387,66 +378,6 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			resource.setTitle(StringUtils.substring(title, 0, 250));
 		}
 		// set the first text that is not blank.
-	}
-
-	public String getThumbnailUrlByQuery(String query) {
-		try {
-
-			// get rid of spaces
-			query = query.replaceAll("[\\s,\\.]+", "%20");
-
-			// send request to bing.
-			final String address = "http://api.bing.net/xml.aspx?Appid=E33DF01A3363CBE8CC3C5F4E15F1284647476C8A&sources=image&query=" + query;
-			URL url = new URL(address);
-			final URLConnection connection = url.openConnection();
-			InputStream in = connection.getInputStream();
-
-			// xml name space stuff:
-			NamespaceContext ctx = new NamespaceContext() {
-				public String getNamespaceURI(final String prefix) {
-					String uri;
-					if (prefix.equals("e")) {
-						uri = "http://schemas.microsoft.com/LiveSearch/2008/04/XML/element";
-					} else if (prefix.equals("m")) {
-						uri = "http://schemas.microsoft.com/LiveSearch/2008/04/XML/multimedia";
-					} else {
-						uri = null;
-					}
-					return uri;
-				}
-
-				public Iterator getPrefixes(String val) {
-					return null;
-				}
-
-				public String getPrefix(String uri) {
-					return null;
-				}
-			};
-
-			// create xml doc from input:
-			final DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
-			domFactory.setNamespaceAware(true);
-			final DocumentBuilder builder = domFactory.newDocumentBuilder();
-			org.w3c.dom.Document doc = builder.parse(in);// new
-			// File("c:\\users\\a\\Desktop\\test.xml"));
-
-			// create xpath for extract thumbnail url:
-			String xpathStr = "/e:SearchResponse/m:Image/m:Results/m:ImageResult/m:Thumbnail/m:Url/text()";
-			final XPathFactory xpathFact = XPathFactory.newInstance();
-			final XPath xpath = xpathFact.newXPath();
-			xpath.setNamespaceContext(ctx);
-
-			// extract thumbnail url from xml doc reponse:
-			final String thmbnailUrl = xpath.evaluate(xpathStr, doc);
-
-			return thmbnailUrl;
-
-		} catch (Exception ex) {
-
-			return null;
-		}
-
 	}
 
 	@Override
@@ -916,14 +847,6 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 
 	public void setResourceManager(final ResourceManager resourceManager) {
 		this.resourceManager = resourceManager;
-	}
-
-	public SessionActivityService getSessionActivityService() {
-		return sessionActivityService;
-	}
-
-	public void setSessionActivityService(final SessionActivityService sessionActivityService) {
-		this.sessionActivityService = sessionActivityService;
 	}
 
 	public AssessmentRepository getAssessmentRepository() {
@@ -1411,10 +1334,6 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 
 	public void setContentService(final ContentService contentService) {
 		this.contentService = contentService;
-	}
-
-	public SessionActivityRepository getSessionActivityRepository() {
-		return sessionActivityRepository;
 	}
 
 	@Override

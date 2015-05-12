@@ -40,7 +40,6 @@ import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.ContentAssociation;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.Sharing;
-import org.ednovo.gooru.core.api.model.ShelfType;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.domain.service.classpage.ClasspageService;
@@ -68,7 +67,7 @@ public class AssignmentServiceImpl extends ScollectionServiceImpl implements Par
 					this.getCollectionRepository().save(assignment);
 					if (collectionId != null && !collectionId.isEmpty()) {
 						CollectionItem collectionItem = new CollectionItem();
-						collectionItem.setItemType(ShelfType.AddedType.ADDED.getAddedType());
+						collectionItem.setItemType(ADDED);
 						collectionItem = this.addCollectionInAssignment(collectionId, assignment.getGooruOid(), collectionItem, assignment.getUser(), CollectionType.COLLECTION.getCollectionType()).getModel();
 						Set<CollectionItem> collectionItems = new TreeSet<CollectionItem>();
 						collectionItems.add(collectionItem);
@@ -86,7 +85,7 @@ public class AssignmentServiceImpl extends ScollectionServiceImpl implements Par
 	@Override
 	public ActionResponseDTO<CollectionItem> addCollectionInAssignment(String resourceGooruOid, String assignmentGooruOid, CollectionItem collectionItem, User user, String type) throws Exception {
 		Assignment assignment = this.getAssignmentByGooruOid(assignmentGooruOid, null);
-		collectionItem.setItemType(ShelfType.AddedType.ADDED.getAddedType());
+		collectionItem.setItemType(ADDED);
 		Collection collection = this.getCollectionRepository().getCollectionByGooruOid(resourceGooruOid, assignment.getUser().getGooruUId());
 			Errors errors = validateCollectionItem(assignment, collection, collectionItem);
 			if(collection != null && collection.getCollectionType().equalsIgnoreCase(CollectionType.COLLECTION.getCollectionType())){
