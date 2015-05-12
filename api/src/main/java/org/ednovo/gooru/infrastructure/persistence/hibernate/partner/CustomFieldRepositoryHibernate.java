@@ -267,13 +267,13 @@ public class CustomFieldRepositoryHibernate extends BaseRepositoryHibernate impl
 	}
 
 	@Override
-	public List<Object[]> getSearchAliasByOrganization(String OrganizationUid) {
-		String sql = "SELECT search_alias_name, data_column_name,add_to_search,add_to_search_index,add_to_filters FROM custom_fields WHERE show_in_response=? AND Organization_uid =? AND add_to_search=? ";
+	public List<Object[]> getSearchAliasByOrganization(String organizationUid) {
+		String sql = "SELECT search_alias_name, data_column_name,add_to_search,add_to_search_index,add_to_filters FROM custom_fields WHERE show_in_response=? AND organization_uid =? AND add_to_search=? ";
 		SQLQuery query = getSession().createSQLQuery(sql);
 		query.setParameter(0, 1, StandardBasicTypes.INTEGER);
 
-		if (OrganizationUid != null) {
-			query.setParameter(1, OrganizationUid, StandardBasicTypes.STRING);
+		if (organizationUid != null) {
+			query.setParameter(1, organizationUid, StandardBasicTypes.STRING);
 		}
 		query.setParameter(2, 1, StandardBasicTypes.INTEGER);
 

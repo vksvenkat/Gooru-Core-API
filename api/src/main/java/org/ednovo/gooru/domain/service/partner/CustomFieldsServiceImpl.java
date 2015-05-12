@@ -72,8 +72,8 @@ public class CustomFieldsServiceImpl implements CustomFieldsService {
 	}
 
 	@Override
-	public Map<String,Object> getResourceSearchAliasValuesMap(String accountUId, String resourceGooruOId) {
-		return customFieldRepository.getResourceSearchAliasValuesMap(accountUId, resourceGooruOId);
+	public Map<String,Object> getResourceSearchAliasValuesMap(String organizationUid, String resourceGooruOId) {
+		return customFieldRepository.getResourceSearchAliasValuesMap(organizationUid, resourceGooruOId);
 	}
 	
 	@Override

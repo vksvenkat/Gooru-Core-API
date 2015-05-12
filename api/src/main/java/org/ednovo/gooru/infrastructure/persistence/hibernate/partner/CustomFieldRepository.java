@@ -35,7 +35,7 @@ public interface CustomFieldRepository extends BaseRepository {
 
 	Map<String, String> getCustomFieldsAndValuesOfResource(String resourceGooruOId);
 
-	List<Object[]> getSearchAliasByOrganization(String OrganizationUid);
+	List<Object[]> getSearchAliasByOrganization(String organizationUid);
 
 	CustomField findCustomFieldIfExists(String customFieldId);
 
@@ -43,7 +43,7 @@ public interface CustomFieldRepository extends BaseRepository {
 
 	void updateCustomFieldsDefinationMap(String partyUid);
 
-	Map<String, Object> getResourceSearchAliasValuesMap(String OrganizationUid, String resourceGooruOId);
+	Map<String, Object> getResourceSearchAliasValuesMap(String organizationUid, String resourceGooruOId);
 
 	void addOrUpdateCustomFieldValues(String resourceGooruOid, Map<String, String> customFieldValueMap, boolean isUpdate);
 
