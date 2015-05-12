@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////
-// ResourceImportService.java
+// OrganizationImportService.java
 // gooru-api
 // Created by Gooru on 2015
 // Copyright (c) 2015 Gooru. All rights reserved.
@@ -21,11 +21,11 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 /////////////////////////////////////////////////////////////
-package org.ednovo.gooru.domain.service.resource;
+package org.ednovo.gooru.domain.service.party;
 
-import org.ednovo.gooru.core.api.model.User;
+import javax.servlet.http.HttpServletRequest;
 
-public interface ResourceImportService {
+public interface OrganizationImportService {
 
-		public void createOrUpdateResource(String filename, User user);
+	public void createOrganization(String filename, HttpServletRequest request) throws Exception;
 }

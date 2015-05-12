@@ -26,6 +26,7 @@ package org.ednovo.gooru.controllers.v2.api;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.lang.ArrayUtils;
 import org.ednovo.gooru.controllers.BaseController;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
@@ -36,6 +37,7 @@ import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.GooruOperationConstants;
 import org.ednovo.gooru.core.security.AuthorizeOperations;
+import org.ednovo.gooru.domain.service.party.OrganizationImportService;
 import org.ednovo.gooru.domain.service.party.OrganizationService;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.json.JSONObject;
@@ -56,6 +58,9 @@ public class OrganizationRestV2Controller extends BaseController implements Cons
 	
 	@Autowired
 	private OrganizationService organizationService;
+	
+	@Autowired
+	private OrganizationImportService organizationImportService; 
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ORGANIZATION_ADD })
 	@RequestMapping(method = RequestMethod.POST)
@@ -131,6 +136,13 @@ public class OrganizationRestV2Controller extends BaseController implements Cons
 		return toModelAndViewWithIoFilter(getOrganizationService().getOrganizationSetting(organizationUid, key), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, ORGANIZATION_SETTING_INCLUDE);
 	}
 	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_ORGANIZATION_ADD })
+	@RequestMapping(method = RequestMethod.POST, value="/{type}/import")
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public void createBulkOrganization(@PathVariable(value = TYPE) final String type, @RequestParam(value = FILENAME) final String filename, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		this.getOrganizationImportService().createOrganization(filename, request);
+	}
+	
 	public OrganizationService getOrganizationService() {
 		return organizationService;
 	}
@@ -141,5 +153,9 @@ public class OrganizationRestV2Controller extends BaseController implements Cons
 	
 	private OrganizationSetting buildOrganizationSettingFromInputParameters(String data) {
 		return JsonDeserializer.deserialize(data, OrganizationSetting.class);
+	}
+	
+	public OrganizationImportService getOrganizationImportService() {
+		return organizationImportService;
 	}
 }
