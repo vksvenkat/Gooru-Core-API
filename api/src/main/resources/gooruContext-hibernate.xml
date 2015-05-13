@@ -193,13 +193,6 @@
 				<value>org/ednovo/gooru/domain/model/storage/StorageArea.hbm.xml
 				</value>
 
-				<!-- Search -->
-				<value>org/ednovo/gooru/domain/model/search/SearchQuery.hbm.xml
-				</value>
-				<value>org/ednovo/gooru/domain/model/search/SearchResult.hbm.xml
-				</value>
-				<value>org/ednovo/gooru/domain/model/search/SearchResultActivity.hbm.xml
-				</value>
 
 				<!-- Custom Field -->
 				<value>org/ednovo/gooru/domain/model/customField/CustomField.hbm.xml
