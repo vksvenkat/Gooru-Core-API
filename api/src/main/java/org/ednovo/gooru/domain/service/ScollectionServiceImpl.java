@@ -2105,6 +2105,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			}
 			final Collection collection = this.getCollectionRepository().getCollectionByGooruOid(collectionId, null);
 			if (collection != null) {
+				newResource.setSharing(collection.getSharing());
 				Resource resource = this.getResourceService().createResource(newResource, tags, user, false);
 				collection.setLastUpdatedUserUid(user.getPartyUid());
 				this.getResourceRepository().save(collection);
