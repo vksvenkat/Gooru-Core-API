@@ -56,10 +56,8 @@ import org.ednovo.gooru.core.api.model.ContentSettings;
 import org.ednovo.gooru.core.api.model.ContentType;
 import org.ednovo.gooru.core.api.model.CustomTableValue;
 import org.ednovo.gooru.core.api.model.Identity;
-import org.ednovo.gooru.core.api.model.License;
 import org.ednovo.gooru.core.api.model.PartyCustomField;
 import org.ednovo.gooru.core.api.model.Resource;
-import org.ednovo.gooru.core.api.model.ResourceSource;
 import org.ednovo.gooru.core.api.model.ResourceSummary;
 import org.ednovo.gooru.core.api.model.ResourceType;
 import org.ednovo.gooru.core.api.model.Sharing;
@@ -69,11 +67,9 @@ import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserCollectionItemAssoc;
 import org.ednovo.gooru.core.api.model.UserGroupSupport;
 import org.ednovo.gooru.core.api.model.UserSummary;
-import org.ednovo.gooru.core.application.util.BaseUtil;
 import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.application.util.ResourceMetaInfo;
 import org.ednovo.gooru.core.application.util.ServerValidationUtils;
-import org.ednovo.gooru.core.cassandra.model.ResourceMetadataCo;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
@@ -111,7 +107,6 @@ import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindException;
@@ -370,7 +365,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			}
 
 			if (parentCollection != null) {
-				if (!collection.getCollectionType().equalsIgnoreCase(PRIVATE)) {
+				if (!collection.getSharing().equalsIgnoreCase(PRIVATE) && !parentCollection.getSharing().equalsIgnoreCase(PUBLIC)) {
 					parentCollection.setSharing(collection.getSharing());
 					this.getCollectionRepository().save(parentCollection);
 				}
@@ -382,7 +377,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			if (collection.getCollectionItem() != null) {
 				collection.setCollectionItemId(collection.getCollectionItem().getCollectionItemId());
 			}
-
 			resetFolderVisibility(collection.getGooruOid(), user.getPartyUid());
 			try {
 				if (!collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.ASSESSMENT_URL.getType())) {
