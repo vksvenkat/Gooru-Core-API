@@ -255,5 +255,4 @@ public class ResourceRestV2Controller extends BaseController implements Constant
 	public ResourceImportService getResourceImportService() {
 		return resourceImportService;
 	}
-
 }
