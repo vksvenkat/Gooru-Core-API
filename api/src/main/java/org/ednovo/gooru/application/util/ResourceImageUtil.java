@@ -67,12 +67,18 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.resource.ResourceRe
 import org.ednovo.gooru.infrastructure.persistence.hibernate.taxonomy.TaxonomyRespository;
 import org.ednovo.gooru.kafka.producer.KafkaProducer;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
+import org.joda.time.Period;
+import org.joda.time.Seconds;
+import org.joda.time.format.ISOPeriodFormat;
+import org.joda.time.format.PeriodFormatter;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.restlet.data.Method;
+import org.restlet.representation.Representation;
 import org.restlet.resource.ClientResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,11 +86,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonSerializer;
-
-import org.ednovo.gooru.core.constant.ConstantProperties;
-
-import flexjson.JSONSerializer;
 
 @Component
 public class ResourceImageUtil extends UserGroupSupport implements ParameterProperties {
@@ -405,7 +406,7 @@ public class ResourceImageUtil extends UserGroupSupport implements ParameterProp
 		}
 		metaData.put(TITLE, title);
 		metaData.put(DESCRIPTION, description);
-		metaData.put(VIDEO_DURATION, videoDuration);
+		metaData.put(DURATION, videoDuration);
 		return metaData;
 	}
 
@@ -428,8 +429,8 @@ public class ResourceImageUtil extends UserGroupSupport implements ParameterProp
 		param.put(TARGET_FOLDER_PATH, destinationFilePath);
 		param.put(DIMENSIONS, dimensions);
 		param.put(CODE_UID, codeId);
-		param.put(API_END_POINT, settingService.getConfigSetting(ConfigConstants.GOORU_API_ENDPOINT, 0, TaxonomyUtil.GOORU_ORG_UID));
 		Code code = this.taxonomyRespository.findCodeByCodeUId(codeId);
+		param.put(API_END_POINT, settingService.getConfigSetting(ConfigConstants.GOORU_API_ENDPOINT, 0, TaxonomyUtil.GOORU_ORG_UID));
 		s3ResourceApiHandler.resetS3UploadFlag(code);
 		this.getAsyncExecutor().executeRestAPI(param, settingService.getConfigSetting(ConfigConstants.GOORU_CONVERSION_RESTPOINT, 0, TaxonomyUtil.GOORU_ORG_UID) + "/conversion/image", Method.POST.getName());
 	}
@@ -443,54 +444,44 @@ public class ResourceImageUtil extends UserGroupSupport implements ParameterProp
 		long start = System.currentTimeMillis();
 		String videoId = getYoutubeVideoId(url);
 		if (videoId != null) {
-			String requestURL = "http://gdata.youtube.com/feeds/api/videos/" + videoId + "?alt=json&v=2";
+			String requestURL = "https://www.googleapis.com/youtube/v3/videos?id=" + videoId + "&key="+ ConfigProperties.getGoogleApiKey() + "&part=snippet,contentDetails,statistics,status";
 			try {
-				DefaultHttpClient client = new DefaultHttpClient();
-				HttpGet httpGet = new HttpGet(requestURL);
-				HttpResponse httpResponse = client.execute(httpGet);
-				status = httpResponse.getStatusLine().getStatusCode();
-				LOGGER.info("youtube api response code: " + status);
-				if (status == 200) {
-					HttpEntity entity = httpResponse.getEntity();
-					InputStream inputStream = entity.getContent();
-					BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, "iso-8859-1"), 8);
-					StringBuilder sb = new StringBuilder();
-					String line = null;
-					while ((line = reader.readLine()) != null) {
-						sb.append(line + "n");
+			DefaultHttpClient client = new DefaultHttpClient();
+			HttpGet httpGet = new HttpGet(requestURL);
+			HttpResponse httpResponse = client.execute(httpGet);
+			status = httpResponse.getStatusLine().getStatusCode();
+			LOGGER.info("youtube api response code: " + status);
+			if (status == 200) {
+				ClientResource clientResource = new ClientResource(requestURL);
+				clientResource.getStatus();
+				Representation  representation = new ClientResource(requestURL).get();
+				 Map<String, Object> data = JsonDeserializer.deserialize(representation.getText(), new TypeReference<Map<String, Object>>() {
+				});
+				 List<Map<String, Object>> items = (List<Map<String, Object>>) data.get(ITEMS);
+				 Map<String, Object>  item = items.get(0);
+				 Map<String, Object> snippet = (Map<String, Object>) item.get(SNIPPET);
+				 resourceFeeds.setTitle((String) snippet.get(TITLE));
+					resourceFeeds.setDescription((String) snippet.get(DESCRIPTION));
+					if (item.get(STATISTICS) != null) {
+						 Map<String, Object> statistics = (Map<String, Object>) item.get(STATISTICS);
+						resourceFeeds.setFavoriteCount(Long.parseLong((String) statistics.get(FAVORITE_COUNT)));
+						resourceFeeds.setViewCount(Long.parseLong((String) statistics.get(VIEW_COUNT)));
 					}
-					inputStream.close();
-					JSONObject youtubeApiFeeds = new JSONObject(sb.toString());
-					JSONObject entryJsonObject = (JSONObject) youtubeApiFeeds.get(ENTRY);
-					JSONObject mediaGroupJsonObject = (JSONObject) entryJsonObject.get(MEDIA_GROUP);
-					JSONObject titleJsonObject = (JSONObject) mediaGroupJsonObject.get(MEDIA_TITLE);
-					JSONObject descriptionJsonObject = (JSONObject) mediaGroupJsonObject.get(MEDIA_DESCRIPTION);
-					resourceFeeds.setTitle((String) titleJsonObject.get("$t"));
-					resourceFeeds.setDescription((String) descriptionJsonObject.get("$t"));
-					if (entryJsonObject.has(YT_STATISTICS)) {
-						JSONObject statisticsJsonObject = (JSONObject) entryJsonObject.get(YT_STATISTICS);
-						resourceFeeds.setFavoriteCount(Long.parseLong((String) statisticsJsonObject.get(FAVORITE_COUNT)));
-						resourceFeeds.setViewCount(Long.parseLong((String) statisticsJsonObject.get(VIEW_COUNT)));
+					
+					if (item.get(CONTENT_DETAILS) != null) {
+						 Map<String, Object> contentDetails = (Map<String, Object>) item.get(CONTENT_DETAILS);
+						 PeriodFormatter formatter = ISOPeriodFormat.standard();
+						 Period period = formatter.parsePeriod((String) contentDetails.get(DURATION));
+						 Seconds seconds = period.toStandardSeconds();
+						 resourceFeeds.setDuration(Long.parseLong(""+seconds.getSeconds()));
 					}
-					if (entryJsonObject.has(GD_RATING)) {
-						JSONObject gdRatingJsonObject = (JSONObject) entryJsonObject.get(GD_RATING);
-						resourceFeeds.setRatingAverage((Double) gdRatingJsonObject.get(AVERAGE));
-					}
-					if (entryJsonObject.has(YT_RATING)) {
-						JSONObject ytRatingJsonObject = (JSONObject) entryJsonObject.get(YT_RATING);
-						resourceFeeds.setDislikeCount(Long.parseLong((String) ytRatingJsonObject.get(NUM_DISLIKES)));
-						resourceFeeds.setLikeCount(Long.parseLong((String) ytRatingJsonObject.get(NUM_LIKES)));
-					}
-					if (mediaGroupJsonObject.has(YT_DURATION)) {
-						resourceFeeds.setDuration(Long.parseLong((String) ((JSONObject) mediaGroupJsonObject.getJSONObject(YT_DURATION)).get(SECONDS)));
-					}
-				}
 				resourceFeeds.setUrlStatus(status);
-				return resourceFeeds;
-			} catch (Exception ex) {
+				return resourceFeeds; 
+				}
+			}catch (Exception ex) {
 				LOGGER.error("getYoutubeResourceFeeds: " + ex);
+				LOGGER.error("Total time for get youtube api data :" + (System.currentTimeMillis() - start));
 			}
-			LOGGER.error("Total time for get youtube api data :" + (System.currentTimeMillis() - start));
 		}
 		return resourceFeeds;
 	}
@@ -553,7 +544,7 @@ public class ResourceImageUtil extends UserGroupSupport implements ParameterProp
 		}
 		return resourceMetadataCo;
 	}
-
+	
 	public Properties getClassPlanConstants() {
 		return classPlanConstants;
 	}
@@ -577,5 +568,5 @@ public class ResourceImageUtil extends UserGroupSupport implements ParameterProp
 	public JobService getJobService() {
 		return jobService;
 	}
-
+	
 }
