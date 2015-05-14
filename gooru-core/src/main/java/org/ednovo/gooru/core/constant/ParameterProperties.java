@@ -2892,6 +2892,10 @@ public interface ParameterProperties {
 	
 	String SNIPPET = "snippet";
 	
-	String CONTENT_DETAILS ="contentDetails";
+	String CONTENT_DETAILS = "contentDetails";
+	
+	String PAGE_INFO = "pageInfo";
+	
+	String TOTAL_RESULTS = "totalResults";
 }
 

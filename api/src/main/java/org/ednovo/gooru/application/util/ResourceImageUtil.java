@@ -447,15 +447,16 @@ public class ResourceImageUtil extends UserGroupSupport implements ParameterProp
 			String requestURL = "https://www.googleapis.com/youtube/v3/videos?id=" + videoId + "&key=" + ConfigProperties.getGoogleApiKey() + "&part=snippet,contentDetails,statistics,status";
 			try {
 				ClientResource clientResource = new ClientResource(requestURL);
-				status = clientResource.getStatus().getCode();
-				if (status == 200) {
-					LOGGER.info("youtube api response code: " + status);
 					Representation representation = new ClientResource(requestURL).get();
 					Map<String, Object> data = JsonDeserializer.deserialize(representation.getText(), new TypeReference<Map<String, Object>>() {
 					});
-					Map<String, Object> pageInfo = (Map<String, Object>) data.get("pageInfo");
-					Integer totalResults = (Integer) pageInfo.get("totalResults");
+					Map<String, Object> pageInfo = (Map<String, Object>) data.get(PAGE_INFO);
+					Integer totalResults = (Integer) pageInfo.get(TOTAL_RESULTS);
 					if (totalResults > 0) {
+						status = 200;
+					}
+					if (status == 200) {
+						LOGGER.info("youtube api response code: " + status);
 						List<Map<String, Object>> items = (List<Map<String, Object>>) data.get(ITEMS);
 						Map<String, Object> item = items.get(0);
 						Map<String, Object> snippet = (Map<String, Object>) item.get(SNIPPET);
@@ -474,7 +475,6 @@ public class ResourceImageUtil extends UserGroupSupport implements ParameterProp
 							Seconds seconds = period.toStandardSeconds();
 							resourceFeeds.setDuration(Long.parseLong("" + seconds.getSeconds()));
 						}
-					}
 					resourceFeeds.setUrlStatus(status);
 					return resourceFeeds;
 				}
