@@ -444,41 +444,37 @@ public class ResourceImageUtil extends UserGroupSupport implements ParameterProp
 		long start = System.currentTimeMillis();
 		String videoId = getYoutubeVideoId(url);
 		if (videoId != null) {
-			String requestURL = "https://www.googleapis.com/youtube/v3/videos?id=" + videoId + "&key="+ ConfigProperties.getGoogleApiKey() + "&part=snippet,contentDetails,statistics,status";
+			String requestURL = "https://www.googleapis.com/youtube/v3/videos?id=" + videoId + "&key=" + ConfigProperties.getGoogleApiKey() + "&part=snippet,contentDetails,statistics,status";
 			try {
-			DefaultHttpClient client = new DefaultHttpClient();
-			HttpGet httpGet = new HttpGet(requestURL);
-			HttpResponse httpResponse = client.execute(httpGet);
-			status = httpResponse.getStatusLine().getStatusCode();
-			LOGGER.info("youtube api response code: " + status);
-			if (status == 200) {
 				ClientResource clientResource = new ClientResource(requestURL);
-				clientResource.getStatus();
-				Representation  representation = new ClientResource(requestURL).get();
-				 Map<String, Object> data = JsonDeserializer.deserialize(representation.getText(), new TypeReference<Map<String, Object>>() {
-				});
-				 List<Map<String, Object>> items = (List<Map<String, Object>>) data.get(ITEMS);
-				 Map<String, Object>  item = items.get(0);
-				 Map<String, Object> snippet = (Map<String, Object>) item.get(SNIPPET);
-				 resourceFeeds.setTitle((String) snippet.get(TITLE));
+				status = clientResource.getStatus().getCode();
+				if (status == 200) {
+					LOGGER.info("youtube api response code: " + status);
+					Representation representation = new ClientResource(requestURL).get();
+					Map<String, Object> data = JsonDeserializer.deserialize(representation.getText(), new TypeReference<Map<String, Object>>() {
+					});
+					List<Map<String, Object>> items = (List<Map<String, Object>>) data.get(ITEMS);
+					Map<String, Object> item = items.get(0);
+					Map<String, Object> snippet = (Map<String, Object>) item.get(SNIPPET);
+					resourceFeeds.setTitle((String) snippet.get(TITLE));
 					resourceFeeds.setDescription((String) snippet.get(DESCRIPTION));
 					if (item.get(STATISTICS) != null) {
-						 Map<String, Object> statistics = (Map<String, Object>) item.get(STATISTICS);
+						Map<String, Object> statistics = (Map<String, Object>) item.get(STATISTICS);
 						resourceFeeds.setFavoriteCount(Long.parseLong((String) statistics.get(FAVORITE_COUNT)));
 						resourceFeeds.setViewCount(Long.parseLong((String) statistics.get(VIEW_COUNT)));
 					}
-					
+
 					if (item.get(CONTENT_DETAILS) != null) {
-						 Map<String, Object> contentDetails = (Map<String, Object>) item.get(CONTENT_DETAILS);
-						 PeriodFormatter formatter = ISOPeriodFormat.standard();
-						 Period period = formatter.parsePeriod((String) contentDetails.get(DURATION));
-						 Seconds seconds = period.toStandardSeconds();
-						 resourceFeeds.setDuration(Long.parseLong(""+seconds.getSeconds()));
+						Map<String, Object> contentDetails = (Map<String, Object>) item.get(CONTENT_DETAILS);
+						PeriodFormatter formatter = ISOPeriodFormat.standard();
+						Period period = formatter.parsePeriod((String) contentDetails.get(DURATION));
+						Seconds seconds = period.toStandardSeconds();
+						resourceFeeds.setDuration(Long.parseLong("" + seconds.getSeconds()));
 					}
-				resourceFeeds.setUrlStatus(status);
-				return resourceFeeds; 
+					resourceFeeds.setUrlStatus(status);
+					return resourceFeeds;
 				}
-			}catch (Exception ex) {
+			} catch (Exception ex) {
 				LOGGER.error("getYoutubeResourceFeeds: " + ex);
 				LOGGER.error("Total time for get youtube api data :" + (System.currentTimeMillis() - start));
 			}
@@ -568,5 +564,4 @@ public class ResourceImageUtil extends UserGroupSupport implements ParameterProp
 	public JobService getJobService() {
 		return jobService;
 	}
-	
 }
