@@ -750,27 +750,15 @@ public interface ParameterProperties {
 
 	String ENTRY = "entry";
 
-	String MEDIA_GROUP = "media$group";
-
-	String MEDIA_TITLE = "media$title";
-
-	String MEDIA_DESCRIPTION = "media$description";
-
-	String YT_STATISTICS = "yt$statistics";
+	String STATISTICS = "statistics";
 
 	String FAVORITE_COUNT = "favoriteCount";
 
 	String VIEW_COUNT = "viewCount";
 
-	String GD_RATING = "gd$rating";
-
-	String YT_RATING = "yt$rating";
-
 	String NUM_DISLIKES = "numDislikes";
 
 	String NUM_LIKES = "numLikes";
-
-	String YT_DURATION = "yt$duration";
 
 	String SECONDS = "seconds";
 
@@ -2899,5 +2887,15 @@ public interface ParameterProperties {
 	String INCLUDE_CIMIN = "includeCIMin";
 	
 	String PATH ="path";
+	
+	String ITEMS = "items";
+	
+	String SNIPPET = "snippet";
+	
+	String CONTENT_DETAILS = "contentDetails";
+	
+	String PAGE_INFO = "pageInfo";
+	
+	String TOTAL_RESULTS = "totalResults";
 }
 

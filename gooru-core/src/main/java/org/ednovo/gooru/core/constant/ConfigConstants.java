@@ -197,5 +197,7 @@ public interface ConfigConstants {
     String USER_MAIL_DISABLE_NOTIFICATION = "gooru.user.disabled.mail.notification";
     
     String GOORU_SETTING = "gooru.setting";
+    
+    String GOOGLE_API_KEY = "google.api.key";
 
 }
