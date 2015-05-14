@@ -5,8 +5,10 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -258,6 +260,22 @@ public class BaseUtil {
 			}
 		}		
 		return (org.apache.commons.lang.StringUtils.substringAfterLast(domainName, ".").length()>3)? null:domainName;
+	}
+    
+	public static String extractToken(String value) {
+		MessageDigest digest;
+		try {
+			digest = MessageDigest.getInstance("MD5");
+		} catch (NoSuchAlgorithmException e) {
+			throw new IllegalStateException("MD5 algorithm not available.  Fatal (should be in the JDK).");
+		}
+
+		try {
+			byte[] bytes = digest.digest(value.getBytes("UTF-8"));
+			return String.format("%032x", new BigInteger(1, bytes));
+		} catch (UnsupportedEncodingException e) {
+			throw new IllegalStateException("UTF-8 encoding not available.  Fatal (should be in the JDK).");
+		}
 	}
    
 }

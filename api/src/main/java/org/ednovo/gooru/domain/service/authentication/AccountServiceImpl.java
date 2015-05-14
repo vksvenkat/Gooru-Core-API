@@ -310,17 +310,16 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 
 	@Override
 	public void logOut(final String sessionToken) {
-		UserToken userToken = new UserToken();
-		userToken = this.getUserTokenRepository().findByToken(sessionToken);
+		UserToken userToken = this.getUserTokenRepository().findByToken(sessionToken);
 		if (userToken != null) {
 			try {
 				this.getAccountEventlog().getEventLogs(userToken.getUser().getIdentities() != null ? userToken.getUser().getIdentities().iterator().next() : null, userToken, false);
-			} catch (JSONException e) {
-				LOGGER.debug("error" + e.getMessage());
+				this.getUserTokenRepository().remove(userToken);
+				this.redisService.delete(SESSION_TOKEN_KEY + userToken.getToken());
+			} catch (Exception e) {
+				LOGGER.error(_ERROR, e);
 			}
-			this.redisService.delete(SESSION_TOKEN_KEY + userToken.getToken());
 		}
-		this.getUserTokenRepository().remove(userToken);
 	}
 
 	@Override
