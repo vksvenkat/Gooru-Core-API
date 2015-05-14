@@ -453,23 +453,27 @@ public class ResourceImageUtil extends UserGroupSupport implements ParameterProp
 					Representation representation = new ClientResource(requestURL).get();
 					Map<String, Object> data = JsonDeserializer.deserialize(representation.getText(), new TypeReference<Map<String, Object>>() {
 					});
-					List<Map<String, Object>> items = (List<Map<String, Object>>) data.get(ITEMS);
-					Map<String, Object> item = items.get(0);
-					Map<String, Object> snippet = (Map<String, Object>) item.get(SNIPPET);
-					resourceFeeds.setTitle((String) snippet.get(TITLE));
-					resourceFeeds.setDescription((String) snippet.get(DESCRIPTION));
-					if (item.get(STATISTICS) != null) {
-						Map<String, Object> statistics = (Map<String, Object>) item.get(STATISTICS);
-						resourceFeeds.setFavoriteCount(Long.parseLong((String) statistics.get(FAVORITE_COUNT)));
-						resourceFeeds.setViewCount(Long.parseLong((String) statistics.get(VIEW_COUNT)));
-					}
+					Map<String, Object> pageInfo = (Map<String, Object>) data.get("pageInfo");
+					Integer totalResults = (Integer) pageInfo.get("totalResults");
+					if (totalResults > 0) {
+						List<Map<String, Object>> items = (List<Map<String, Object>>) data.get(ITEMS);
+						Map<String, Object> item = items.get(0);
+						Map<String, Object> snippet = (Map<String, Object>) item.get(SNIPPET);
+						resourceFeeds.setTitle((String) snippet.get(TITLE));
+						resourceFeeds.setDescription((String) snippet.get(DESCRIPTION));
+						if (item.get(STATISTICS) != null) {
+							Map<String, Object> statistics = (Map<String, Object>) item.get(STATISTICS);
+							resourceFeeds.setFavoriteCount(Long.parseLong((String) statistics.get(FAVORITE_COUNT)));
+							resourceFeeds.setViewCount(Long.parseLong((String) statistics.get(VIEW_COUNT)));
+						}
 
-					if (item.get(CONTENT_DETAILS) != null) {
-						Map<String, Object> contentDetails = (Map<String, Object>) item.get(CONTENT_DETAILS);
-						PeriodFormatter formatter = ISOPeriodFormat.standard();
-						Period period = formatter.parsePeriod((String) contentDetails.get(DURATION));
-						Seconds seconds = period.toStandardSeconds();
-						resourceFeeds.setDuration(Long.parseLong("" + seconds.getSeconds()));
+						if (item.get(CONTENT_DETAILS) != null) {
+							Map<String, Object> contentDetails = (Map<String, Object>) item.get(CONTENT_DETAILS);
+							PeriodFormatter formatter = ISOPeriodFormat.standard();
+							Period period = formatter.parsePeriod((String) contentDetails.get(DURATION));
+							Seconds seconds = period.toStandardSeconds();
+							resourceFeeds.setDuration(Long.parseLong("" + seconds.getSeconds()));
+						}
 					}
 					resourceFeeds.setUrlStatus(status);
 					return resourceFeeds;
