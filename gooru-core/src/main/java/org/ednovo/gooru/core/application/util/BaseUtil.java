@@ -1,12 +1,13 @@
-
 package org.ednovo.gooru.core.application.util;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -215,34 +216,35 @@ public class BaseUtil {
 		}
 		return jb;
 	}
-	
-    public static String encryptPassword(String text) throws Exception{
-        for (int i=0; i < 10; i++) {
-        	text = md5(text + PASSWORD_HASH); 
-        } 
-        
-        return  text;
-    }
-	
-    public static String md5(String password) throws Exception {
-        MessageDigest md = MessageDigest.getInstance("MD5");
-        md.update(password.getBytes());
-       	byte byteData[] = md.digest();
-       	StringBuffer sb = new StringBuffer();
-	    for (int i = 0; i < byteData.length; i++) {
-	        sb.append(Integer.toString((byteData[i] & 0xff) + 0x100, 16).substring(1));
-	     }
-	    StringBuffer hexString = new StringBuffer();
-	    for (int i=0;i<byteData.length;i++) {
-	   		 String hex=Integer.toHexString(0xff & byteData[i]);
-	  	     if(hex.length()==1) hexString.append('0');
-	  	     hexString.append(hex);
-	   	 }
-	    
-	   	 return hexString.toString();
-    }
-    
-    public static String getDomainName(final String resourceUrl) {
+
+	public static String encryptPassword(String text) throws Exception {
+		for (int i = 0; i < 10; i++) {
+			text = md5(text + PASSWORD_HASH);
+		}
+
+		return text;
+	}
+
+	public static String md5(String password) throws Exception {
+		MessageDigest md = MessageDigest.getInstance("MD5");
+		md.update(password.getBytes());
+		byte byteData[] = md.digest();
+		StringBuffer sb = new StringBuffer();
+		for (int i = 0; i < byteData.length; i++) {
+			sb.append(Integer.toString((byteData[i] & 0xff) + 0x100, 16).substring(1));
+		}
+		StringBuffer hexString = new StringBuffer();
+		for (int i = 0; i < byteData.length; i++) {
+			String hex = Integer.toHexString(0xff & byteData[i]);
+			if (hex.length() == 1)
+				hexString.append('0');
+			hexString.append(hex);
+		}
+
+		return hexString.toString();
+	}
+
+	public static String getDomainName(final String resourceUrl) {
 		String domainName = "";
 		if (resourceUrl != null && !resourceUrl.isEmpty()) {
 			if (resourceUrl.contains("http://")) {
@@ -256,8 +258,24 @@ public class BaseUtil {
 			if (domainName.contains("/")) {
 				domainName = domainName.split("/")[0];
 			}
-		}		
-		return (org.apache.commons.lang.StringUtils.substringAfterLast(domainName, ".").length()>3)? null:domainName;
+		}
+		return (org.apache.commons.lang.StringUtils.substringAfterLast(domainName, ".").length() > 3) ? null : domainName;
 	}
-   
+
+	public static String extractToken(String value) {
+		MessageDigest digest;
+		try {
+			digest = MessageDigest.getInstance("MD5");
+		} catch (NoSuchAlgorithmException e) {
+			throw new IllegalStateException("MD5 algorithm not available.  Fatal (should be in the JDK).");
+		}
+
+		try {
+			byte[] bytes = digest.digest(value.getBytes("UTF-8"));
+			return String.format("%032x", new BigInteger(1, bytes));
+		} catch (UnsupportedEncodingException e) {
+			throw new IllegalStateException("UTF-8 encoding not available.  Fatal (should be in the JDK).");
+		}
+	}
+
 }
