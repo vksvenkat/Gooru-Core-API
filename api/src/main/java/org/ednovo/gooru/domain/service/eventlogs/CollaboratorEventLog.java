@@ -46,7 +46,7 @@ public class CollaboratorEventLog implements ParameterProperties, ConstantProper
 		context.put(CONTENT_GOORU_ID, gooruOid);
 		SessionContextSupport.putLogParameter(CONTEXT, context.toString());
 		JSONObject session = SessionContextSupport.getLog().get(SESSION) != null ? new JSONObject(SessionContextSupport.getLog().get(SESSION).toString()) :  new JSONObject();
-		session.put(ORGANIZATION_UID, collaborator != null &&collaborator.getOrganization() != null ? collaborator.getOrganization().getPartyUid() : null);
+		session.put(ORGANIZATION_UID, collaborator != null && collaborator.getOrganization() != null ? collaborator.getOrganization().getPartyUid() : null);
 		JSONObject newUser = SessionContextSupport.getLog().get(USER) != null ? new JSONObject(SessionContextSupport.getLog().get(USER).toString()) :  new JSONObject();		
 		newUser.put(GOORU_UID, collaborator != null ? collaborator.getPartyUid() : null);
 		SessionContextSupport.putLogParameter(SESSION, session.toString());	
