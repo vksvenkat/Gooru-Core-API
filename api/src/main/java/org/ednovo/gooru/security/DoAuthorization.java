@@ -34,6 +34,7 @@ import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserCredential;
 import org.ednovo.gooru.core.api.model.UserToken;
+import org.ednovo.gooru.core.application.util.BaseUtil;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.security.AuthenticationDo;
 import org.ednovo.gooru.domain.service.oauth.OAuthService;
@@ -108,7 +109,7 @@ public class DoAuthorization {
 			}
 			if (authentication == null || authentication.getUserToken() == null) {
 				try {
-					user = oAuthService.getUserByOAuthAccessToken(oAuthToken);
+					user = oAuthService.getUserByOAuthAccessToken(BaseUtil.extractToken(oAuthToken));
 				} catch (Exception e) {
 					LOGGER.error("OAuth Authentication failed --- " + e);
 				}
