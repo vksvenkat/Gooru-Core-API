@@ -23,11 +23,8 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.application.util;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -40,12 +37,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.poi.hssf.record.formula.functions.T;
 import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.api.model.Job;
 import org.ednovo.gooru.core.api.model.Resource;
@@ -67,12 +59,16 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.resource.ResourceRe
 import org.ednovo.gooru.infrastructure.persistence.hibernate.taxonomy.TaxonomyRespository;
 import org.ednovo.gooru.kafka.producer.KafkaProducer;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
-import org.json.JSONObject;
+import org.joda.time.Period;
+import org.joda.time.Seconds;
+import org.joda.time.format.ISOPeriodFormat;
+import org.joda.time.format.PeriodFormatter;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.restlet.data.Method;
+import org.restlet.representation.Representation;
 import org.restlet.resource.ClientResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,11 +76,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonSerializer;
-
-import org.ednovo.gooru.core.constant.ConstantProperties;
-
-import flexjson.JSONSerializer;
 
 @Component
 public class ResourceImageUtil extends UserGroupSupport implements ParameterProperties {
@@ -405,7 +396,7 @@ public class ResourceImageUtil extends UserGroupSupport implements ParameterProp
 		}
 		metaData.put(TITLE, title);
 		metaData.put(DESCRIPTION, description);
-		metaData.put(VIDEO_DURATION, videoDuration);
+		metaData.put(DURATION, videoDuration);
 		return metaData;
 	}
 
@@ -443,54 +434,44 @@ public class ResourceImageUtil extends UserGroupSupport implements ParameterProp
 		long start = System.currentTimeMillis();
 		String videoId = getYoutubeVideoId(url);
 		if (videoId != null) {
-			String requestURL = "http://gdata.youtube.com/feeds/api/videos/" + videoId + "?alt=json&v=2";
+			String requestURL = "https://www.googleapis.com/youtube/v3/videos?id=" + videoId + "&key=" + ConfigProperties.getGoogleApiKey() + "&part=snippet,contentDetails,statistics,status";
 			try {
-				DefaultHttpClient client = new DefaultHttpClient();
-				HttpGet httpGet = new HttpGet(requestURL);
-				HttpResponse httpResponse = client.execute(httpGet);
-				status = httpResponse.getStatusLine().getStatusCode();
-				LOGGER.info("youtube api response code: " + status);
-				if (status == 200) {
-					HttpEntity entity = httpResponse.getEntity();
-					InputStream inputStream = entity.getContent();
-					BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, "iso-8859-1"), 8);
-					StringBuilder sb = new StringBuilder();
-					String line = null;
-					while ((line = reader.readLine()) != null) {
-						sb.append(line + "n");
+				ClientResource clientResource = new ClientResource(requestURL);
+					Representation representation = new ClientResource(requestURL).get();
+					Map<String, Object> data = JsonDeserializer.deserialize(representation.getText(), new TypeReference<Map<String, Object>>() {
+					});
+					Map<String, Object> pageInfo = (Map<String, Object>) data.get(PAGE_INFO);
+					Integer totalResults = (Integer) pageInfo.get(TOTAL_RESULTS);
+					if (totalResults > 0) {
+						status = 200;
 					}
-					inputStream.close();
-					JSONObject youtubeApiFeeds = new JSONObject(sb.toString());
-					JSONObject entryJsonObject = (JSONObject) youtubeApiFeeds.get(ENTRY);
-					JSONObject mediaGroupJsonObject = (JSONObject) entryJsonObject.get(MEDIA_GROUP);
-					JSONObject titleJsonObject = (JSONObject) mediaGroupJsonObject.get(MEDIA_TITLE);
-					JSONObject descriptionJsonObject = (JSONObject) mediaGroupJsonObject.get(MEDIA_DESCRIPTION);
-					resourceFeeds.setTitle((String) titleJsonObject.get("$t"));
-					resourceFeeds.setDescription((String) descriptionJsonObject.get("$t"));
-					if (entryJsonObject.has(YT_STATISTICS)) {
-						JSONObject statisticsJsonObject = (JSONObject) entryJsonObject.get(YT_STATISTICS);
-						resourceFeeds.setFavoriteCount(Long.parseLong((String) statisticsJsonObject.get(FAVORITE_COUNT)));
-						resourceFeeds.setViewCount(Long.parseLong((String) statisticsJsonObject.get(VIEW_COUNT)));
-					}
-					if (entryJsonObject.has(GD_RATING)) {
-						JSONObject gdRatingJsonObject = (JSONObject) entryJsonObject.get(GD_RATING);
-						resourceFeeds.setRatingAverage((Double) gdRatingJsonObject.get(AVERAGE));
-					}
-					if (entryJsonObject.has(YT_RATING)) {
-						JSONObject ytRatingJsonObject = (JSONObject) entryJsonObject.get(YT_RATING);
-						resourceFeeds.setDislikeCount(Long.parseLong((String) ytRatingJsonObject.get(NUM_DISLIKES)));
-						resourceFeeds.setLikeCount(Long.parseLong((String) ytRatingJsonObject.get(NUM_LIKES)));
-					}
-					if (mediaGroupJsonObject.has(YT_DURATION)) {
-						resourceFeeds.setDuration(Long.parseLong((String) ((JSONObject) mediaGroupJsonObject.getJSONObject(YT_DURATION)).get(SECONDS)));
-					}
+					if (status == 200) {
+						LOGGER.info("youtube api response code: " + status);
+						List<Map<String, Object>> items = (List<Map<String, Object>>) data.get(ITEMS);
+						Map<String, Object> item = items.get(0);
+						Map<String, Object> snippet = (Map<String, Object>) item.get(SNIPPET);
+						resourceFeeds.setTitle((String) snippet.get(TITLE));
+						resourceFeeds.setDescription((String) snippet.get(DESCRIPTION));
+						if (item.get(STATISTICS) != null) {
+							Map<String, Object> statistics = (Map<String, Object>) item.get(STATISTICS);
+							resourceFeeds.setFavoriteCount(Long.parseLong((String) statistics.get(FAVORITE_COUNT)));
+							resourceFeeds.setViewCount(Long.parseLong((String) statistics.get(VIEW_COUNT)));
+						}
+
+						if (item.get(CONTENT_DETAILS) != null) {
+							Map<String, Object> contentDetails = (Map<String, Object>) item.get(CONTENT_DETAILS);
+							PeriodFormatter formatter = ISOPeriodFormat.standard();
+							Period period = formatter.parsePeriod((String) contentDetails.get(DURATION));
+							Seconds seconds = period.toStandardSeconds();
+							resourceFeeds.setDuration((long) seconds.getSeconds());
+						}
+					resourceFeeds.setUrlStatus(status);
+					return resourceFeeds;
 				}
-				resourceFeeds.setUrlStatus(status);
-				return resourceFeeds;
 			} catch (Exception ex) {
 				LOGGER.error("getYoutubeResourceFeeds: " + ex);
+				LOGGER.error("Total time for get youtube api data :" + (System.currentTimeMillis() - start));
 			}
-			LOGGER.error("Total time for get youtube api data :" + (System.currentTimeMillis() - start));
 		}
 		return resourceFeeds;
 	}
