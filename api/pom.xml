@@ -337,12 +337,12 @@
 			<groupId>com.google.gdata</groupId>
 			<artifactId>core</artifactId>
 			<version>1.47.1</version>
-                        <exclusions>
-                                <exclusion>
-                                        <artifactId>servlet-api</artifactId>
-                                        <groupId>org.mortbay.jetty</groupId>
-                                </exclusion>
-                        </exclusions>
+			<exclusions>
+				<exclusion>
+					<artifactId>servlet-api</artifactId>
+					<groupId>org.mortbay.jetty</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.json</groupId>
@@ -646,12 +646,12 @@
 			<groupId>com.sun.jersey.jersey-test-framework</groupId>
 			<artifactId>jersey-test-framework-core</artifactId>
 			<version>1.17</version>
-                        <exclusions>
-                                <exclusion>
-                                        <groupId>javax.servlet</groupId>
-                                        <artifactId>javax.servlet-api</artifactId>
-                                </exclusion>
-                        </exclusions>
+			<exclusions>
+				<exclusion>
+					<groupId>javax.servlet</groupId>
+					<artifactId>javax.servlet-api</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
@@ -775,6 +775,12 @@
 			<artifactId>guava</artifactId>
 			<version>14.0.1</version>
 		</dependency>
+		<dependency>
+			<groupId>joda-time</groupId>
+			<artifactId>joda-time</artifactId>
+			<version>2.7</version>
+		</dependency>
+
 	</dependencies>
 </project>
 
