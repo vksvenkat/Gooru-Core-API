@@ -473,7 +473,7 @@ public class ResourceImageUtil extends UserGroupSupport implements ParameterProp
 							PeriodFormatter formatter = ISOPeriodFormat.standard();
 							Period period = formatter.parsePeriod((String) contentDetails.get(DURATION));
 							Seconds seconds = period.toStandardSeconds();
-							resourceFeeds.setDuration(Long.parseLong("" + seconds.getSeconds()));
+							resourceFeeds.setDuration((long) seconds.getSeconds());
 						}
 					resourceFeeds.setUrlStatus(status);
 					return resourceFeeds;
