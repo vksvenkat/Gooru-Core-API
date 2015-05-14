@@ -87,7 +87,7 @@ import org.ednovo.gooru.domain.service.BaseServiceImpl;
 import org.ednovo.gooru.domain.service.CollaboratorService;
 import org.ednovo.gooru.domain.service.CountryService;
 import org.ednovo.gooru.domain.service.PartyService;
-import org.ednovo.gooru.domain.service.eventlogs.UserEventlog;
+import org.ednovo.gooru.domain.service.eventlogs.UserEventLog;
 import org.ednovo.gooru.domain.service.party.OrganizationService;
 import org.ednovo.gooru.domain.service.redis.RedisService;
 import org.ednovo.gooru.domain.service.search.SearchResults;
@@ -126,7 +126,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 	private UserRepository userRepository;
 
 	@Autowired
-	private UserEventlog usereventlog;
+	private UserEventLog usereventlog;
 
 	@Autowired
 	private SettingService settingService;
@@ -1610,7 +1610,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		return userTokenRepository;
 	}
 
-	public UserEventlog getUsereventlog() {
+	public UserEventLog getUsereventlog() {
 		return usereventlog;
 	}
 

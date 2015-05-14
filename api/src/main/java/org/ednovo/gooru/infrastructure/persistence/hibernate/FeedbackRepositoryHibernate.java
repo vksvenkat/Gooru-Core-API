@@ -101,7 +101,7 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 
 	@Override
 	public List<Feedback> getContentFeedbacks(String type, String assocGooruOid, String creatorUid, String category, Integer limit, Integer offset, String orderBy) {
-		String hql = " FROM  Feedback feedback WHERE " + generateOrgAuthQuery("feedback.") + " and feedback.assocGooruOid=:assocGooruOid ";
+		String hql = " FROM  Feedback feedback WHERE  feedback.assocGooruOid=:assocGooruOid ";
 		if (category != null) {
 			hql += " and feedback.category.keyValue=:category";
 		}
@@ -127,7 +127,6 @@ public class FeedbackRepositoryHibernate extends BaseRepositoryHibernate impleme
 		if (category != null) {
 			query.setParameter("category", category);
 		}
-		addOrgAuthParameters(query);
 		query.setFirstResult(offset);
 		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
 		return list(query);
