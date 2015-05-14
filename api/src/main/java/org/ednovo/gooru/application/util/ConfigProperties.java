@@ -217,10 +217,6 @@ public final class ConfigProperties implements Serializable, ConfigConstants {
 		return googleApiKey;
 	}
 
-	public static void setInsightsKafkaProperties(Map<String, Map<String, String>> insightsKafkaProperties) {
-		ConfigProperties.insightsKafkaProperties = insightsKafkaProperties;
-	}
-
 	public Map<String, String> getGoogleAnalyticsAccountId() {
 		return googleAnalyticsAccountId;
 	}
