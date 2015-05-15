@@ -254,12 +254,6 @@
 				<value>org/ednovo/gooru/domain/model/trackActivity/TrackActivity.hbm.xml
 				</value>
 
-				<!-- Session Activity -->
-				<value>org/ednovo/gooru/domain/model/sessionActivity/SessionAcitivity.hbm.xml
-				</value>
-				<value>org/ednovo/gooru/domain/model/sessionActivity/SessionActivityItem.hbm.xml
-				</value>
-
 				<!-- Response FieldSet -->
 				<value>org/ednovo/gooru/domain/model/responseFieldSet/ResponseFieldSet.hbm.xml
 				</value>

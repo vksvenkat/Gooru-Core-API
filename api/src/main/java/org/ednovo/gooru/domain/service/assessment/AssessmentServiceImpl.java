@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.ednovo.gooru.application.util.AsyncExecutor;
@@ -65,7 +66,6 @@ import org.ednovo.gooru.domain.service.content.ContentService;
 import org.ednovo.gooru.domain.service.resource.AssetManager;
 import org.ednovo.gooru.domain.service.resource.ResourceManager;
 import org.ednovo.gooru.domain.service.resource.ResourceService;
-import org.ednovo.gooru.domain.service.sessionActivity.SessionActivityService;
 import org.ednovo.gooru.domain.service.storage.S3ResourceApiHandler;
 import org.ednovo.gooru.domain.service.taxonomy.TaxonomyService;
 import org.ednovo.gooru.domain.service.user.UserService;
@@ -137,9 +137,6 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 	@Autowired
 	@javax.annotation.Resource(name = "resourceManager")
 	private ResourceManager resourceManager;
-
-	@Autowired
-	private SessionActivityService sessionActivityService;
 
 	@Autowired
 	private ContentService contentService;
@@ -333,7 +330,7 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 					existingQuestion.setResourceSource(resourceSource);
 				}
 				existingQuestion.setDifficultyLevel(question.getDifficultyLevel());
-		
+
 				if (question.getTitle() != null) {
 					existingQuestion.setTitle(question.getTitle());
 				}
@@ -379,8 +376,8 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 			question.setTitle("");
 		}
 		ServerValidationUtils.rejectIfNull(question.getTitle(), GL0006, QUESTION_TITLE);
-		ServerValidationUtils.rejectIfMaxLimitExceed(1000, question.getTitle(), GL0014, QUESTION_TITLE,"1000");
-		
+		ServerValidationUtils.rejectIfMaxLimitExceed(1000, question.getTitle(), GL0014, QUESTION_TITLE, "1000");
+
 		if (question.getExplanation() == null) {
 			question.setExplanation("");
 		}
@@ -940,7 +937,7 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 		if (question != null) {
 			assessmentRepository.remove(AssessmentQuestion.class, question.getContentId());
 			indexHandler.setReIndexRequest(question.getGooruOid(), IndexProcessor.DELETE, RESOURCE, null, false, false);
-          return 1;
+			return 1;
 		}
 		return 0;
 	}
@@ -948,10 +945,6 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 	@Override
 	public String findAssessmentNameByGooruOId(String gooruOId) {
 		return assessmentRepository.findAssessmentNameByGooruOid(gooruOId);
-	}
-
-	public SessionActivityService getSessionActivityService() {
-		return sessionActivityService;
 	}
 
 	public ResourceImageUtil getResourceImageUtil() {

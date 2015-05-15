@@ -96,7 +96,6 @@ import org.ednovo.gooru.domain.service.CollectionService;
 import org.ednovo.gooru.domain.service.assessment.AssessmentService;
 import org.ednovo.gooru.domain.service.eventlogs.ResourceEventLog;
 import org.ednovo.gooru.domain.service.partner.CustomFieldsService;
-import org.ednovo.gooru.domain.service.sessionActivity.SessionActivityService;
 import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.ednovo.gooru.domain.service.storage.S3ResourceApiHandler;
 import org.ednovo.gooru.domain.service.taxonomy.TaxonomyService;
@@ -108,7 +107,6 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepositor
 import org.ednovo.gooru.infrastructure.persistence.hibernate.ConfigSettingRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.FeedbackRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
-import org.ednovo.gooru.infrastructure.persistence.hibernate.activity.SessionActivityRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.assessment.AssessmentRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
@@ -175,13 +173,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	private ResourceManager resourceManager;
 
 	@Autowired
-	private SessionActivityService sessionActivityService;
-
-	@Autowired
 	private AssessmentRepository assessmentRepository;
-
-	@Autowired
-	private SessionActivityRepository sessionActivityRepository;
 
 	@Autowired
 	private TaxonomyService taxonomyService;
@@ -913,14 +905,6 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		this.resourceManager = resourceManager;
 	}
 
-	public SessionActivityService getSessionActivityService() {
-		return sessionActivityService;
-	}
-
-	public void setSessionActivityService(final SessionActivityService sessionActivityService) {
-		this.sessionActivityService = sessionActivityService;
-	}
-
 	public AssessmentRepository getAssessmentRepository() {
 		return assessmentRepository;
 	}
@@ -1411,10 +1395,6 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 
 	public void setContentService(final ContentService contentService) {
 		this.contentService = contentService;
-	}
-
-	public SessionActivityRepository getSessionActivityRepository() {
-		return sessionActivityRepository;
 	}
 
 	@Override
