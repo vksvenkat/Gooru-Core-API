@@ -39,8 +39,6 @@ public class CollaboratorEventLog implements ParameterProperties, ConstantProper
 	public void getEventLogs(User collaborator, CollectionItem collectionItem, String gooruOid, boolean isAdd, boolean isRemove) throws JSONException {
 		SessionContextSupport.putLogParameter(EVENT_NAME, ITEM_COLLABORATE);
 		JSONObject context = SessionContextSupport.getLog().get(CONTEXT) != null ? new JSONObject(SessionContextSupport.getLog().get(CONTEXT).toString()) :  new JSONObject();
-		context.put(SOURCE_GOORU_UID,gooruOid);
-		context.put(TARGET_GOORU_UID,collectionItem != null && collectionItem.getResource() != null ? collectionItem.getResource().getGooruOid() : null);
 		context.put(TARGET_ITEM_ID, collectionItem != null ? collectionItem.getCollectionItemId() : null);
 		context.put(PARENT_GOORU_ID, collectionItem != null  && collectionItem.getCollection() != null ? collectionItem.getCollection().getGooruOid() : null);
 		context.put(CONTENT_GOORU_ID, gooruOid);
@@ -59,7 +57,7 @@ public class CollaboratorEventLog implements ParameterProperties, ConstantProper
 			payLoadObject.put(MODE, DELETE);
 		}
 		payLoadObject.put(COLLABORATED_ID, collaborator != null ? collaborator.getPartyUid() : null);
-		payLoadObject.put(ITEM_TYPE, collectionItem != null && collectionItem.getResource() != null ? collectionItem.getResource().getResourceType().getName() : null);
+		payLoadObject.put(ITEM_TYPE, SHELF_COLLECTION);
 		SessionContextSupport.putLogParameter(PAY_LOAD_OBJECT, payLoadObject.toString());
 	}
 }
