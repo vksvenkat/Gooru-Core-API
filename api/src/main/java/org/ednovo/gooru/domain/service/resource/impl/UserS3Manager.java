@@ -33,7 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class S3Manager extends AbstractS3Manager {
+public class UserS3Manager extends AbstractS3Manager {
 
 	@Autowired
 	@javax.annotation.Resource(name = "contentS3Service")

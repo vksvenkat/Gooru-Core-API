@@ -60,7 +60,7 @@ http://www.springframework.org/schema/jms http://www.springframework.org/schema/
 		<constructor-arg value="${s3.accessKey}" />
 	</bean>
 	
-	<bean id="s3Manager" class="org.ednovo.gooru.domain.service.resource.impl.S3Manager" />
+	<bean id="userS3Manager" class="org.ednovo.gooru.domain.service.resource.impl.UserS3Manager" />
 	
 	<!-- For Assesment s3 import  -->
 	
