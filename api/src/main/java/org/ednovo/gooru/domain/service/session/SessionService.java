@@ -24,26 +24,26 @@
 package org.ednovo.gooru.domain.service.session;
 
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
-import org.ednovo.gooru.core.api.model.Session;
-import org.ednovo.gooru.core.api.model.SessionItem;
-import org.ednovo.gooru.core.api.model.SessionItemAttemptTry;
+import org.ednovo.gooru.core.api.model.SessionActivity;
+import org.ednovo.gooru.core.api.model.SessionActivityItem;
+import org.ednovo.gooru.core.api.model.SessionActivityItemAttemptTry;
 import org.ednovo.gooru.core.api.model.SessionItemFeedback;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.domain.service.BaseService;
 
 public interface SessionService extends BaseService {
 
-	ActionResponseDTO<Session> createSession(Session session, User user);
+	ActionResponseDTO<SessionActivity> createSession(SessionActivity sessionActivity, User user);
 	
 	 SessionItemFeedback createSessionItemFeedback(String sessionId, SessionItemFeedback sessionItemFeedback, User user);
 
-	ActionResponseDTO<Session> updateSession(String sessionId, Session session);
+	ActionResponseDTO<SessionActivity> updateSession(String sessionId, SessionActivity sessionActivity);
 
-	ActionResponseDTO<SessionItem> createSessionItem(SessionItem sessionItem, String sessionId);
+	ActionResponseDTO<SessionActivityItem> createSessionItem(SessionActivityItem sessionActivityItem, String sessionId);
 
-	ActionResponseDTO<SessionItem> updateSessionItem(String sessionItemId, SessionItem newSessionItem);
+	ActionResponseDTO<SessionActivityItem> updateSessionItem(String sessionItemId, SessionActivityItem newSessionItem);
 
-	SessionItemAttemptTry createSessionItemAttemptTry(SessionItemAttemptTry sessionItemAttemptTry, String sessionId);
+	SessionActivityItemAttemptTry createSessionItemAttemptTry(SessionActivityItemAttemptTry sessionActivityItemAttemptTry, String sessionId);
 
-	Session getSession(String sessionId);
+	SessionActivity getSession(String sessionId);
 }

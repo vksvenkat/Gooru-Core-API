@@ -27,8 +27,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.ednovo.gooru.core.api.model.SessionItem;
-import org.ednovo.gooru.core.api.model.SessionItemAttemptTry;
+import org.ednovo.gooru.core.api.model.SessionActivityItem;
+import org.ednovo.gooru.core.api.model.SessionActivityItemAttemptTry;
 import org.ednovo.gooru.core.api.model.SessionItemFeedback;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate;
 import org.hibernate.Query;
@@ -49,27 +49,27 @@ public class SessionRepositoryHibernate extends BaseRepositoryHibernate implemen
 	private final String RETRIEVE_SESSION_ITEM_ATTEMPT_TRY = "select at From SessionItemAttemptTry at  join at.sessionItem si join si.session s   where si.sessionItemId=:sessionItemId and " + generateOrgAuthQuery("s.");
 	
 	@Override
-	public org.ednovo.gooru.core.api.model.Session findSessionById(String sessionId) {
+	public org.ednovo.gooru.core.api.model.SessionActivity findSessionById(String sessionId) {
 		Session session = getSession();
 		Query query = session.createQuery(RETRIEVE_SESSION_BY_ID);
 		query.setParameter("sessionId", sessionId);
 		addOrgAuthParameters(query);
-		List<org.ednovo.gooru.core.api.model.Session> sessions = list(query);
-		return (sessions.size() > 0) ? sessions.get(0) : null;
+		List<org.ednovo.gooru.core.api.model.SessionActivity> sessionActivities = list(query);
+		return (sessionActivities.size() > 0) ? sessionActivities.get(0) : null;
 	}
 
 	@Override
-	public SessionItem findSessionItemById(String sessionItemId) {
+	public SessionActivityItem findSessionItemById(String sessionItemId) {
 		Session session = getSession();
 		Query query = session.createQuery(RETRIEVE_SESSION_ITEM_BY_ID);
 		query.setParameter("sessionItemId", sessionItemId);
 		addOrgAuthParameters(query);
-		List<SessionItem> sessionItems = list(query);
-		return (sessionItems.size() > 0) ? sessionItems.get(0) : null;
+		List<SessionActivityItem> sessionActivityItems = list(query);
+		return (sessionActivityItems.size() > 0) ? sessionActivityItems.get(0) : null;
 	}
 
 	@Override
-	public List<SessionItemAttemptTry> getSessionItemAttemptTry(String sessionItemId) {
+	public List<SessionActivityItemAttemptTry> getSessionItemAttemptTry(String sessionItemId) {
 		Session session = getSession();
 		Query query = session.createQuery(RETRIEVE_SESSION_ITEM_ATTEMPT_TRY);
 		query.setParameter("sessionItemId", sessionItemId);
@@ -78,13 +78,13 @@ public class SessionRepositoryHibernate extends BaseRepositoryHibernate implemen
 	}
 
 	@Override
-	public SessionItem getLastSessionItem(String sessionId) {
+	public SessionActivityItem getLastSessionItem(String sessionId) {
 		Session session = getSession();
 		Query query = session.createQuery(RETRIEVE_ITEM_BY_ID_USING_DATE);
 		query.setParameter("sessionId", sessionId);
 		addOrgAuthParameters(query);
-		List<SessionItem> sessionItems = list(query);
-		return (sessionItems.size() > 0) ? sessionItems.get(0) : null;
+		List<SessionActivityItem> sessionActivityItems = list(query);
+		return (sessionActivityItems.size() > 0) ? sessionActivityItems.get(0) : null;
 	}
 	
 	@Override
