@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- SessionItemAttemptTry.hbm.xml gooru-api Created by Gooru on 2014 Copyright 
+	(c) 2014 Gooru. All rights reserved. http://www.goorulearning.org/ Permission 
+	is hereby granted, free of charge, to any person obtaining a copy of this 
+	software and associated documentation files (the "Software"), to deal in 
+	the Software without restriction, including without limitation the rights 
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell 
+	copies of the Software, and to permit persons to whom the Software is furnished 
+	to do so, subject to the following conditions: The above copyright notice 
+	and this permission notice shall be included in all copies or substantial 
+	portions of the Software. THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY 
+	OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES 
+	OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+	IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
+	DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
+	ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
+	DEALINGS IN THE SOFTWARE. -->
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN" 
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class name="org.ednovo.gooru.core.api.model.SessionActivityItemAttemptTry"
+		table="session_activity_item_attempt_try">
+		<composite-id>
+		    	<key-many-to-one name="sessionActivity"  column="session_activity_id" class="org.ednovo.gooru.core.api.model.SessionActivity" />
+      			<key-property name="trySequence" column="try_sequence"></key-property>
+      			<key-many-to-one name="resource" column="resource_id" class="org.ednovo.gooru.core.api.model.Resource"  />
+    	</composite-id>
+		<many-to-one column="answer_id" name="AssessmentAnswer"
+			class="org.ednovo.gooru.core.api.model.AssessmentAnswer" lazy="proxy"
+			not-null="false" />
+	
+		<property name="trySequence" column="try_sequence" not-null="true" />
+
+		<property name="answerText" column="answer_text" not-null="false" />
+
+		<property name="attemptItemTryStatus" column="attempt_item_try_status"
+			not-null="false"></property>
+
+		<property name="answeredAtTime" column="answered_at_time"
+			not-null="false"></property>
+			
+		<property name="answerOptionSequence" column="answer_option_sequence" not-null="false"></property>
+
+	</class>
+</hibernate-mapping>
