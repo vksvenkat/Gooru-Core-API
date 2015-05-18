@@ -68,10 +68,6 @@
 			class="org.ednovo.gooru.core.api.model.User" column="user_uid"
 			not-null="true" lazy="proxy" cascade="none" />
 
-		<set name="sessionActivityItems" inverse="true" cascade="none" lazy="true">    	
-		    <key column="session_activity_id" />
-	    	<one-to-many class="org.ednovo.gooru.core.api.model.SessionActivityItem" />
-		</set>
 
 	</class>
 </hibernate-mapping>

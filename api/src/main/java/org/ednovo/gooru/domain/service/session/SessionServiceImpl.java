@@ -173,7 +173,7 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 				this.getSessionRepository().save(previousItem);
 			}
 			sessionActivityItem.setResource(resource);
-			sessionActivityItem.setSessionActivity(sessionActivity);
+			//sessionActivityItem.setSessionActivity(sessionActivity);
 			/*if (sessionActivityItem.getCollectionItem() != null && sessionActivityItem.getCollectionItem().getCollectionItemId() != null) {
 				final CollectionItem collectionItem = this.getCollectionRepository().getCollectionItemById(sessionActivityItem.getCollectionItem().getCollectionItemId());
 				if (collectionItem != null) {
@@ -228,9 +228,9 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 					if (answers.getMatchingAnswer().getAnswerId().equals(Integer.parseInt(answerTexts[i == 0 ? i + 1 : i - 1]))) {
 						sessionActivityItemAttemptTry.setAttemptItemTryStatus(AttemptTryStatus.CORRECT.getTryStatus());
 						sessionActivityItem.setAnswerOptionSequence(trySequence);
-						final SessionActivity sessionActivity = sessionActivityItem.getSessionActivity();
-						sessionActivity.setScore(sessionActivityItem.getSessionActivity().getScore() + 1);
-						this.getSessionRepository().save(sessionActivity);
+						//final SessionActivity sessionActivity = sessionActivityItem.getSessionActivity();
+						//sessionActivity.setScore(sessionActivityItem.getSessionActivity().getScore() + 1);
+						//this.getSessionRepository().save(sessionActivity);
 					} else {
 						sessionActivityItemAttemptTry.setAttemptItemTryStatus(AttemptTryStatus.WRONG.getTryStatus());
 					}

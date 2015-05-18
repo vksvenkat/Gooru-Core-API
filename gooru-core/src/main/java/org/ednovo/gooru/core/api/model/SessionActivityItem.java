@@ -11,7 +11,7 @@ public class SessionActivityItem implements Serializable {
 	 */
 	private static final long serialVersionUID = -203672596781106569L;
 
-	private SessionActivity sessionActivity;
+	private Long sessionActivityId;
 
 	private Long classId;
 	
@@ -204,12 +204,12 @@ public class SessionActivityItem implements Serializable {
 		this.answerOptionSequence = answerOptionSequence;
 	}
 
-	public SessionActivity getSessionActivity() {
-		return sessionActivity;
+	public Long getSessionActivityId() {
+		return sessionActivityId;
 	}
 
-	public void setSessionActivity(SessionActivity sessionActivity) {
-		this.sessionActivity = sessionActivity;
+	public void setSessionActivityId(Long sessionActivityId) {
+		this.sessionActivityId = sessionActivityId;
 	}
 
 }

@@ -31,9 +31,9 @@
 		table="session_activity_item">
 		
 	   <composite-id>
-				<key-many-to-one name="sessionActivity" column="session_activity_id" class="org.ednovo.gooru.core.api.model.SessionActivity"  />
-      			<key-property name="classId" column="class_id"></key-property>
-		    <!--   	<key-many-to-one name="resource" column="resource_id" class="org.ednovo.gooru.core.api.model.Resource" /> -->
+				<key-property name="sessionActivityId" column="session_activity_id" />
+      			<key-property name="classId" column="class_id"/>
+		      	<key-many-to-one name="resource" column="resource_id" class="org.ednovo.gooru.core.api.model.Resource" />
     	</composite-id>
 			
 		<property name="viewsInSession" column="views_in_session" not-null="true"></property>
@@ -68,10 +68,5 @@
         
         <property name="feedbackText" column="feedback_text" not-null="false"></property>
         
-        <set name="sessionItemAttemptTry" inverse="true" cascade="none" lazy="true">
-            <key column="session_activity_id" />
-	        <many-to-many class="org.ednovo.gooru.core.api.model.SessionActivityItemAttemptTry" /> 
-        </set>
-		
 	</class>
 </hibernate-mapping>

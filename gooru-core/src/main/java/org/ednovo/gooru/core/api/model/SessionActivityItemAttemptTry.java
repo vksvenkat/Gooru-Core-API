@@ -10,7 +10,7 @@ public class SessionActivityItemAttemptTry implements Serializable {
 	 */
 	private static final long serialVersionUID = -9125991535274843683L;
 	
-	private SessionActivity sessionActivity;
+	private Long sessionActivityId;
 	
 	private Resource resource;
 	
@@ -82,11 +82,11 @@ public class SessionActivityItemAttemptTry implements Serializable {
 		this.resource = resource;
 	}
 
-	public SessionActivity getSessionActivity() {
-		return sessionActivity;
+	public Long getSessionActivityId() {
+		return sessionActivityId;
 	}
 
-	public void setSessionActivity(SessionActivity sessionActivity) {
-		this.sessionActivity = sessionActivity;
+	public void setSessionActivityId(Long sessionActivityId) {
+		this.sessionActivityId = sessionActivityId;
 	}
 }
