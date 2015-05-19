@@ -159,7 +159,4 @@ public interface ResourceRepository extends BaseRepository {
 
 	Boolean findUserIsStudent(Long classContentId, String gooruUId);
 
-	Integer getSessionCount(Long collectionId, Long parentId, String gooruUId);
-
-
 }

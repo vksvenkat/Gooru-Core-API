@@ -155,6 +155,7 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 
 		return (results != null && results.size() > 0) ? results.get(0) : false;
 	}
+	
 	@Override
 	public Long getContentId(String contentGooruOid) {
 		Session session = getSessionFactory().getCurrentSession();
@@ -164,28 +165,6 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 
 		return (results != null && results.size() > 0) ? results.get(0) : 0L;
 	}
-
-	@Override
-	public Integer getSessionCount(Long collectionId, Long parentId, String gooruUId) {
-		Session session = getSessionFactory().getCurrentSession();
-		String sql = " select count(1) as sessionCount from session_activity where collection_id =" + collectionId + " AND user_uid = '" + gooruUId + "'";
-		if (parentId != null) {
-			sql += " AND parent_id=" + parentId;
-		}
-		Query query = session.createSQLQuery(sql).addScalar("sessionCount", StandardBasicTypes.INTEGER);
-		List<Integer> results = list(query);
-
-		return (results != null && results.size() > 0) ? results.get(0) : 0;
-	}
-	public JdbcTemplate getJdbcTemplate() {
-		return jdbcTemplate;
-	}
-
-	public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
-		this.jdbcTemplate = jdbcTemplate;
-	}
-
-
 	@Override
 	public List<Resource> findWebResourcesForBlacklisting() {
 		Session session = getSessionFactory().getCurrentSession();
@@ -1053,6 +1032,10 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 		query.setFirstResult(offset != null ? offset : OFFSET);
 		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
 		return list(query);
+	}
+	
+	public JdbcTemplate getJdbcTemplate() {
+		return jdbcTemplate;
 	}
 	 
 }

@@ -2,9 +2,6 @@ package org.ednovo.gooru.core.api.model;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.Set;
-
-import javax.persistence.GeneratedValue;
 
 public class SessionActivity implements Serializable {
 
@@ -12,30 +9,32 @@ public class SessionActivity implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 2181056325925130088L;
-	
+
 	private Long sessionActivityId;
 
 	private Long classId;
 
 	private Long parentId;
-	
-	private String parentGooruOid;
-	
+
+	private String parentGooruId;
+
 	private Integer sequence;
-	
+
 	private Integer viewsInSession;
-	
+
 	private Integer timeSpentInMillis;
-	
+
 	private Integer reaction;
-	
+
 	private Integer rating;
-	
+
 	private Boolean isStudent;
-	
+
 	private String type;
-	
-	private Resource resource;
+
+	private Long CollectionId;
+
+	private String contentGooruId;
 
 	private Double score;
 
@@ -48,16 +47,6 @@ public class SessionActivity implements Serializable {
 	private String status;
 
 	private User user;
-	
-	private Set<SessionActivityItem> sessionActivityItems;
-
-	public String getParentGooruOid() {
-		return parentGooruOid;
-	}
-
-	public void setParentGooruOid(String parentGooruOid) {
-		this.parentGooruOid = parentGooruOid;
-	}
 
 	public void setStatus(String status) {
 		this.status = status;
@@ -106,23 +95,6 @@ public class SessionActivity implements Serializable {
 	public Double getScore() {
 		return score;
 	}
-
-	public void setSessionItems(Set<SessionActivityItem> sessionActivityItems) {
-		this.sessionActivityItems = sessionActivityItems;
-	}
-
-	public Set<SessionActivityItem> getSessionItems() {
-		return sessionActivityItems;
-	}
-
-	public void setResource(Resource resource) {
-		this.resource = resource;
-	}
-
-	public Resource getResource() {
-		return resource;
-	}
-
 
 	public Long getClassId() {
 		return classId;
@@ -202,5 +174,29 @@ public class SessionActivity implements Serializable {
 
 	public void setSessionActivityId(Long sessionActivityId) {
 		this.sessionActivityId = sessionActivityId;
+	}
+
+	public Long getCollectionId() {
+		return CollectionId;
+	}
+
+	public void setCollectionId(Long collectionId) {
+		CollectionId = collectionId;
+	}
+
+	public String getParentGooruId() {
+		return parentGooruId;
+	}
+
+	public void setParentGooruId(String parentGooruId) {
+		this.parentGooruId = parentGooruId;
+	}
+
+	public String getContentGooruId() {
+		return contentGooruId;
+	}
+
+	public void setContentGooruId(String contentGooruId) {
+		this.contentGooruId = contentGooruId;
 	}
 }
