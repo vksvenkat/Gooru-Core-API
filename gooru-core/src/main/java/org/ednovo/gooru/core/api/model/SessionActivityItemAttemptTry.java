@@ -3,17 +3,16 @@ package org.ednovo.gooru.core.api.model;
 import java.io.Serializable;
 import java.util.Date;
 
-public class SessionItemAttemptTry implements Serializable {
+public class SessionActivityItemAttemptTry implements Serializable {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -9125991535274843683L;
-
 	
-	private String sessionItemAttemptTryId;
+	private Long sessionActivityId;
 	
-	private SessionItem sessionItem;
+	private Resource resource;
 	
 	private AssessmentAnswer assessmentAnswer;
 	
@@ -26,14 +25,6 @@ public class SessionItemAttemptTry implements Serializable {
 	private Date answeredAtTime;
 	
 	private Integer answerOptionSequence;
-
-	public SessionItem getSessionItem() {
-		return sessionItem;
-	}
-
-	public void setSessionItem(SessionItem sessionItem) {
-		this.sessionItem = sessionItem;
-	}
 
 	public AssessmentAnswer getAssessmentAnswer() {
 		return assessmentAnswer;
@@ -74,14 +65,6 @@ public class SessionItemAttemptTry implements Serializable {
 	public Integer getTrySequence() {
 		return trySequence;
 	}
-
-	public void setSessionItemAttemptTryId(String sessionItemAttemptTryId) {
-		this.sessionItemAttemptTryId = sessionItemAttemptTryId;
-	}
-
-	public String getSessionItemAttemptTryId() {
-		return sessionItemAttemptTryId;
-	}
 	
 	public Integer getAnswerOptionSequence() {
 		return answerOptionSequence;
@@ -91,4 +74,19 @@ public class SessionItemAttemptTry implements Serializable {
 		this.answerOptionSequence = answerOptionSequence;
 	}
 
+	public Resource getResource() {
+		return resource;
+	}
+
+	public void setResource(Resource resource) {
+		this.resource = resource;
+	}
+
+	public Long getSessionActivityId() {
+		return sessionActivityId;
+	}
+
+	public void setSessionActivityId(Long sessionActivityId) {
+		this.sessionActivityId = sessionActivityId;
+	}
 }

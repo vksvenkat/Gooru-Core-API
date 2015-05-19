@@ -26,21 +26,21 @@ package org.ednovo.gooru.infrastructure.persistence.hibernate.session;
 import java.util.List;
 import java.util.Map;
 
-import org.ednovo.gooru.core.api.model.Session;
-import org.ednovo.gooru.core.api.model.SessionItem;
-import org.ednovo.gooru.core.api.model.SessionItemAttemptTry;
+import org.ednovo.gooru.core.api.model.SessionActivity;
+import org.ednovo.gooru.core.api.model.SessionActivityItem;
+import org.ednovo.gooru.core.api.model.SessionActivityItemAttemptTry;
 import org.ednovo.gooru.core.api.model.SessionItemFeedback;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepository;
 
 public interface SessionRepository extends BaseRepository {
 
-	Session findSessionById(String sessionId);
+	SessionActivity findSessionById(String sessionId);
 
-	SessionItem getLastSessionItem(String sessionId);
+	SessionActivityItem getLastSessionItem(String sessionId);
 
-	SessionItem findSessionItemById(String sessionItemId);
+	SessionActivityItem findSessionItemById(String sessionItemId);
 
-	List<SessionItemAttemptTry> getSessionItemAttemptTry(String sessionItemId);
+	List<SessionActivityItemAttemptTry> getSessionItemAttemptTry(String sessionItemId);
 
 	Map<String, Object> getQuizSummary(String sessionId, Integer trySequence, String questionType, Long quizContentId);
 

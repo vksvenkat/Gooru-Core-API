@@ -27,34 +27,46 @@
     "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
-	<class name="org.ednovo.gooru.core.api.model.SessionItem"
-		table="session_item">
-		<id name="sessionItemId" column="session_item_id" />	
+	<class name="org.ednovo.gooru.core.api.model.SessionActivityItem"
+		table="session_activity_item">
 		
-		<many-to-one name="session" column="session_id"
-			class="org.ednovo.gooru.core.api.model.Session" lazy="proxy"
-			not-null="true" cascade="none" />
+	   <composite-id>
+				<key-property name="sessionActivityId" column="session_activity_id" />
+      			<key-property name="classId" column="class_id"/>
+		      	<key-many-to-one name="resource" column="resource_id" class="org.ednovo.gooru.core.api.model.Resource" />
+    	</composite-id>
 			
-		<many-to-one name="resource" column="resource_id"
-			class="org.ednovo.gooru.core.api.model.Resource" fetch="join"
-			not-null="true" cascade="none" />
-			
-		<many-to-one name="collectionItem" column="collection_item_id"
-			class="org.ednovo.gooru.core.api.model.CollectionItem" lazy="proxy"
-			not-null="false" cascade="none" />
-			
-		<property name="attemptItemStatus" column="attempt_item_status" not-null="false" />
+		<property name="viewsInSession" column="views_in_session" not-null="true"></property>
 		
-		<property name="correctTrySequence" column="correct_try_sequence" not-null="false" />
+		<property name="timeSpentInMillis" column="time_spent_in_millis" not-null="true"></property>
+
+		<property name="reaction" column="reaction" not-null="true"></property>
+		
+		<property name="rating" column="rating" not-null="true"></property>
+				
+		<property name="score" column="score" not-null="true"></property>
+		
+		<property name="attemptCount" column="attemp_count" not-null="true"></property>
+			
+		<property name="questionType" column="question_type" not-null="false" />
+		
+		<property name="answerId" column="answer_id" not-null="false" />
+		
+		<property name="answerStatus" column="answer_status" not-null="false" />
+		
+		<property name="answerOptionSequence" column="answer_option_sequence" not-null="false" />
+		
+		<property name="answerText" column="answer_text" not-null="false" />
 		
 		<property name="startTime" column="start_time" not-null="false"></property>
         
         <property name="endTime" column="end_time" not-null="false"></property>
         
-        <set name="sessionItemAttemptTry" inverse="true" cascade="none" lazy="true">
-            <key column="session_item_id" />
-            <one-to-many class="org.ednovo.gooru.core.api.model.SessionItemAttemptTry" />
-        </set>
+        <property name="feedbackProvidedUserUid" column="feedback_provided_user_uid" not-null="false" />
 		
+		<property name="feedbackProvidedTime" column="feedback_provided_time" not-null="false"></property>
+        
+        <property name="feedbackText" column="feedback_text" not-null="false"></property>
+        
 	</class>
 </hibernate-mapping>

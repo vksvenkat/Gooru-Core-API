@@ -35,10 +35,10 @@ import org.ednovo.gooru.core.api.model.AttemptTryStatus;
 import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.ModeType;
 import org.ednovo.gooru.core.api.model.Resource;
-import org.ednovo.gooru.core.api.model.Session;
+import org.ednovo.gooru.core.api.model.SessionActivity;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
-import org.ednovo.gooru.core.api.model.SessionItem;
-import org.ednovo.gooru.core.api.model.SessionItemAttemptTry;
+import org.ednovo.gooru.core.api.model.SessionActivityItem;
+import org.ednovo.gooru.core.api.model.SessionActivityItemAttemptTry;
 import org.ednovo.gooru.core.api.model.SessionItemFeedback;
 import org.ednovo.gooru.core.api.model.SessionStatus;
 import org.ednovo.gooru.core.api.model.User;
@@ -87,21 +87,38 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 	private static final Logger LOGGER = LoggerFactory.getLogger(SessionServiceImpl.class);
 
 	@Override
-	public ActionResponseDTO<Session> createSession(final Session session, final User user) {
-		final Resource resource = this.getResourceRepository().findResourceByContentGooruId(session.getResource().getGooruOid());
-		final Errors errors = this.validateCreateSession(session, resource);
+	public ActionResponseDTO<SessionActivity> createSession(final SessionActivity sessionActivity, final User user) {
+		final Resource resource = this.getResourceRepository().findResourceByContentGooruId(sessionActivity.getResource().getGooruOid());
+		final Errors errors = this.validateCreateSession(sessionActivity, resource);
 		if (!errors.hasErrors()) {
-			session.setScore(0.0);
-			if (session.getSessionId() == null) {
-				session.setSessionId(UUID.randomUUID().toString());
+			int sessionSequence = 1;
+			long parentId = 0L;
+			boolean isStudent = false;
+			long classId = 1L;
+					
+			if (sessionActivity.getParentGooruOid() != null) {
+				 parentId = getResourceRepository().getContentId(sessionActivity.getParentGooruOid());
+				 isStudent = getResourceRepository().findUserIsStudent(parentId, user.getGooruUId());
+				 classId = getResourceRepository().getNumericClassCode(parentId);
 			}
-			session.setStatus(SessionStatus.OPEN.getSessionStatus());
-			session.setResource(resource);
-			session.setStartTime(new Date(System.currentTimeMillis()));
-			session.setUser(user);
-			this.getSessionRepository().save(session);
+			sessionSequence = (sessionSequence + getResourceRepository().getSessionCount(resource.getContentId(), parentId, user.getGooruUId()));
+			sessionActivity.setSequence(sessionSequence);
+			sessionActivity.setParentId(parentId);
+			sessionActivity.setClassId(classId);
+			sessionActivity.setIsStudent(isStudent);
+			sessionActivity.setScore(0.0);
+			sessionActivity.setType(sessionActivity.getType());
+			sessionActivity.setStatus(SessionStatus.OPEN.getSessionStatus());
+			sessionActivity.setResource(resource);
+			sessionActivity.setViewsInSession(1);
+			sessionActivity.setTimeSpentInMillis(0);
+			sessionActivity.setReaction(0);
+			sessionActivity.setRating(0);
+			sessionActivity.setStartTime(new Date(System.currentTimeMillis()));
+			sessionActivity.setUser(user);
+			this.getSessionRepository().save(sessionActivity);
 		}
-		return new ActionResponseDTO<Session>(session, errors);
+		return new ActionResponseDTO<SessionActivity>(sessionActivity, errors);
 	}
 
 	@Override
@@ -130,162 +147,161 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 	}
 	
 	@Override
-	public ActionResponseDTO<Session> updateSession(final String sessionId, final Session newSession) {
-		final Session session = this.getSessionRepository().findSessionById(sessionId);
-		rejectIfNull(session, GL0056, SESSION);
-		final Errors errors = this.validateUpdateSession(session, newSession);
+	public ActionResponseDTO<SessionActivity> updateSession(final String sessionId, final SessionActivity newSession) {
+		final SessionActivity sessionActivity = this.getSessionRepository().findSessionById(sessionId);
+		rejectIfNull(sessionActivity, GL0056, SESSION);
+		final Errors errors = this.validateUpdateSession(sessionActivity, newSession);
 		if (!errors.hasErrors()) {
 			if (newSession.getStatus() != null && newSession.getStatus().equalsIgnoreCase(SessionStatus.ARCHIVE.getSessionStatus())) {
-				session.setStatus(newSession.getStatus());
-				session.setEndTime(new Date(System.currentTimeMillis()));
+				sessionActivity.setStatus(newSession.getStatus());
+				sessionActivity.setEndTime(new Date(System.currentTimeMillis()));
 			}
 
 			if (newSession.getScore() != null) {
-				session.setScore(newSession.getScore());
+				sessionActivity.setScore(newSession.getScore());
 			}
-			this.getSessionRepository().save(session);
+			this.getSessionRepository().save(sessionActivity);
 		}
-		return new ActionResponseDTO<Session>(session, errors);
+		return new ActionResponseDTO<SessionActivity>(sessionActivity, errors);
 	}
 
 	@Override
-	public Session getSession(final String sessionId) {
-		Session session = this.getSessionRepository().findSessionById(sessionId);
-		rejectIfNull(session, GL0056, SESSION);
-		return session;
+	public SessionActivity getSession(final String sessionId) {
+		SessionActivity sessionActivity = this.getSessionRepository().findSessionById(sessionId);
+		rejectIfNull(sessionActivity, GL0056, SESSION);
+		return sessionActivity;
 	}
 
 	@Override
-	public ActionResponseDTO<SessionItem> createSessionItem(final SessionItem sessionItem, final String sessionId) {
+	public ActionResponseDTO<SessionActivityItem> createSessionItem(final SessionActivityItem sessionActivityItem, final String sessionId) {
 		Errors errors = null;
-		final Session session = this.getSessionRepository().findSessionById(sessionId);
-		rejectIfNull(session, GL0056, SESSION);
-		final Resource resource = this.getResourceRepository().findResourceByContentGooruId(sessionItem.getResource().getGooruOid());
+		final SessionActivity sessionActivity = this.getSessionRepository().findSessionById(sessionId);
+		rejectIfNull(sessionActivity, GL0056, SESSION);
+		final Resource resource = this.getResourceRepository().findResourceByContentGooruId(sessionActivityItem.getResource().getGooruOid());
 		rejectIfNull(resource, GL0056, RESOURCE);
-		if (sessionItem.getSessionItemId() == null) {
-			sessionItem.setSessionItemId(UUID.randomUUID().toString());
-		}
-		errors = this.validateSessionItem(session, sessionItem, resource);
+		/*if (sessionActivityItem.getSessionItemId() == null) {
+			sessionActivityItem.setSessionItemId(UUID.randomUUID().toString());
+		}*/
+		errors = this.validateSessionItem(sessionActivity, sessionActivityItem, resource);
 		if (!errors.hasErrors()) {
-			final SessionItem previousItem = this.getSessionRepository().getLastSessionItem(sessionId);
+			final SessionActivityItem previousItem = this.getSessionRepository().getLastSessionItem(sessionId);
 			if (previousItem != null) {
 				previousItem.setEndTime(new Date(System.currentTimeMillis()));
 				this.getSessionRepository().save(previousItem);
 			}
-			sessionItem.setResource(resource);
-			sessionItem.setsession(session);
-			if (sessionItem.getCollectionItem() != null && sessionItem.getCollectionItem().getCollectionItemId() != null) {
-				final CollectionItem collectionItem = this.getCollectionRepository().getCollectionItemById(sessionItem.getCollectionItem().getCollectionItemId());
+			sessionActivityItem.setResource(resource);
+			//sessionActivityItem.setSessionActivity(sessionActivity);
+			/*if (sessionActivityItem.getCollectionItem() != null && sessionActivityItem.getCollectionItem().getCollectionItemId() != null) {
+				final CollectionItem collectionItem = this.getCollectionRepository().getCollectionItemById(sessionActivityItem.getCollectionItem().getCollectionItemId());
 				if (collectionItem != null) {
-					sessionItem.setCollectionItem(collectionItem);
+					sessionActivityItem.setCollectionItem(collectionItem);
 				}
-			}
-			sessionItem.setStartTime(new Date(System.currentTimeMillis()));
+			}*/
+			sessionActivityItem.setStartTime(new Date(System.currentTimeMillis()));
 
-			this.getSessionRepository().save(sessionItem);
+			this.getSessionRepository().save(sessionActivityItem);
 		}
-		return new ActionResponseDTO<SessionItem>(sessionItem, errors);
+		return new ActionResponseDTO<SessionActivityItem>(sessionActivityItem, errors);
 	}
 
 	@Override
-	public ActionResponseDTO<SessionItem> updateSessionItem(final String sessionItemId, final SessionItem newSessionItem) {
-		final SessionItem sessionItem = this.getSessionRepository().findSessionItemById(sessionItemId);
-		rejectIfNull(sessionItem, GL0056, SESSION_ITEM);
-		final Errors errors = this.validateUpdateSessionItem(sessionItem);
+	public ActionResponseDTO<SessionActivityItem> updateSessionItem(final String sessionItemId, final SessionActivityItem newSessionItem) {
+		final SessionActivityItem sessionActivityItem = this.getSessionRepository().findSessionItemById(sessionItemId);
+		rejectIfNull(sessionActivityItem, GL0056, SESSION_ITEM);
+		final Errors errors = this.validateUpdateSessionItem(sessionActivityItem);
 		if (!errors.hasErrors()) {
-			if (newSessionItem.getAttemptItemStatus() != null) {
-				sessionItem.setAttemptItemStatus(newSessionItem.getAttemptItemStatus());
+			if (newSessionItem.getAnswerStatus() != null) {
+				sessionActivityItem.setAnswerStatus(newSessionItem.getAnswerStatus());
 			}
-			if (newSessionItem.getCorrectTrySequence() != null) {
-				sessionItem.setCorrectTrySequence(newSessionItem.getCorrectTrySequence());
+			if (newSessionItem.getAnswerOptionSequence() != null) {
+				sessionActivityItem.setAnswerOptionSequence(newSessionItem.getAnswerOptionSequence());
 			}
 			if (newSessionItem.getEndTime() != null) {
-				sessionItem.setEndTime(newSessionItem.getEndTime());
+				sessionActivityItem.setEndTime(newSessionItem.getEndTime());
 			}
-			this.getSessionRepository().save(sessionItem);
+			this.getSessionRepository().save(sessionActivityItem);
 		}
-		return new ActionResponseDTO<SessionItem>(sessionItem, errors);
+		return new ActionResponseDTO<SessionActivityItem>(sessionActivityItem, errors);
 	}
 
 	@Override
-	public SessionItemAttemptTry createSessionItemAttemptTry(final SessionItemAttemptTry sessionItemAttemptTry, final String sessionItemId) {
+	public SessionActivityItemAttemptTry createSessionItemAttemptTry(final SessionActivityItemAttemptTry sessionActivityItemAttemptTry, final String sessionItemId) {
 		
-			final SessionItem sessionItem = this.getSessionRepository().findSessionItemById(sessionItemId);
-			rejectIfNull(sessionItem, GL0056, SESSION_ITEM);
+			final SessionActivityItem sessionActivityItem = this.getSessionRepository().findSessionItemById(sessionItemId);
+			rejectIfNull(sessionActivityItem, GL0056, SESSION_ITEM);
 			AssessmentQuestion question = null;
-			if (sessionItem.getResource().getResourceType() != null && sessionItem.getResource().getResourceType().getName().equalsIgnoreCase(ASSESSMENT_QUESTION)) {
-				question = this.assessmentService.getQuestion(sessionItem.getResource().getGooruOid());
+			if (sessionActivityItem.getResource().getResourceType() != null && sessionActivityItem.getResource().getResourceType().getName().equalsIgnoreCase(ASSESSMENT_QUESTION)) {
+				question = this.assessmentService.getQuestion(sessionActivityItem.getResource().getGooruOid());
 			}
 			final Integer trySequence = this.getSessionRepository().getSessionItemAttemptTry(sessionItemId).size() + 1;
 			if (question != null && (question.getTypeName().equalsIgnoreCase(AssessmentQuestion.TYPE.FILL_IN_BLANKS.getName()) || question.getTypeName().equalsIgnoreCase(AssessmentQuestion.TYPE.OPEN_ENDED.getName()) || question.getTypeName().equals(AssessmentQuestion.TYPE.SHORT_ANSWER.getName())
 					|| question.getTypeName().equalsIgnoreCase(AssessmentQuestion.TYPE.MULTIPLE_ANSWERS.getName()))) {
-				rejectIfNull(sessionItemAttemptTry.getAnswerText(), GL0006, ANSWER_TEXT);
+				rejectIfNull(sessionActivityItemAttemptTry.getAnswerText(), GL0006, ANSWER_TEXT);
 			} else if (question != null && question.getTypeName().equals(AssessmentQuestion.TYPE.MATCH_THE_FOLLOWING.getName())) {
-				rejectIfNull(sessionItemAttemptTry.getAnswerText(), GL0006, ANSWER_TEXT);
-				final String[] answerTexts = sessionItemAttemptTry.getAnswerText().split(",");
+				rejectIfNull(sessionActivityItemAttemptTry.getAnswerText(), GL0006, ANSWER_TEXT);
+				final String[] answerTexts = sessionActivityItemAttemptTry.getAnswerText().split(",");
 				for (int i = 0; i < answerTexts.length; i++) {
 					final AssessmentAnswer answers = this.getAssessmentRepository().getAssessmentAnswerById(Integer.parseInt(answerTexts[i]));
 					if (answers.getMatchingAnswer().getAnswerId().equals(Integer.parseInt(answerTexts[i == 0 ? i + 1 : i - 1]))) {
-						sessionItemAttemptTry.setAttemptItemTryStatus(AttemptTryStatus.CORRECT.getTryStatus());
-						sessionItem.setCorrectTrySequence(trySequence);
-						final Session session = sessionItem.getsession();
-						session.setScore(sessionItem.getsession().getScore() + 1);
-						this.getSessionRepository().save(session);
+						sessionActivityItemAttemptTry.setAttemptItemTryStatus(AttemptTryStatus.CORRECT.getTryStatus());
+						sessionActivityItem.setAnswerOptionSequence(trySequence);
+						//final SessionActivity sessionActivity = sessionActivityItem.getSessionActivity();
+						//sessionActivity.setScore(sessionActivityItem.getSessionActivity().getScore() + 1);
+						//this.getSessionRepository().save(sessionActivity);
 					} else {
-						sessionItemAttemptTry.setAttemptItemTryStatus(AttemptTryStatus.WRONG.getTryStatus());
+						sessionActivityItemAttemptTry.setAttemptItemTryStatus(AttemptTryStatus.WRONG.getTryStatus());
 					}
 				}
 
 			} else {
-				final AssessmentAnswer assessmentAnswer = this.getAssessmentRepository().getAssessmentAnswerById(sessionItemAttemptTry.getAssessmentAnswer() != null ? sessionItemAttemptTry.getAssessmentAnswer().getAnswerId() : null);
+				final AssessmentAnswer assessmentAnswer = this.getAssessmentRepository().getAssessmentAnswerById(sessionActivityItemAttemptTry.getAssessmentAnswer() != null ? sessionActivityItemAttemptTry.getAssessmentAnswer().getAnswerId() : null);
 				rejectIfNull(assessmentAnswer, GL0006, ASSESSMENT_ANSWER);
-				sessionItemAttemptTry.setAssessmentAnswer(assessmentAnswer);
+				sessionActivityItemAttemptTry.setAssessmentAnswer(assessmentAnswer);
 				if (assessmentAnswer.getIsCorrect()) {
-					sessionItemAttemptTry.setAttemptItemTryStatus(AttemptTryStatus.CORRECT.getTryStatus());
-					sessionItem.setCorrectTrySequence(trySequence);
+					sessionActivityItemAttemptTry.setAttemptItemTryStatus(AttemptTryStatus.CORRECT.getTryStatus());
+					sessionActivityItem.setAnswerOptionSequence(trySequence);
 				} else {
-					sessionItemAttemptTry.setAttemptItemTryStatus(AttemptTryStatus.WRONG.getTryStatus());
+					sessionActivityItemAttemptTry.setAttemptItemTryStatus(AttemptTryStatus.WRONG.getTryStatus());
 				}
 			}
 
-			if (sessionItemAttemptTry.getAttemptItemTryStatus() == null) {
-				sessionItemAttemptTry.setAttemptItemTryStatus(AttemptTryStatus.SKIP.getTryStatus());
+			if (sessionActivityItemAttemptTry.getAttemptItemTryStatus() == null) {
+				sessionActivityItemAttemptTry.setAttemptItemTryStatus(AttemptTryStatus.SKIP.getTryStatus());
 			} else {
-				sessionItemAttemptTry.setAttemptItemTryStatus(sessionItemAttemptTry.getAttemptItemTryStatus());
+				sessionActivityItemAttemptTry.setAttemptItemTryStatus(sessionActivityItemAttemptTry.getAttemptItemTryStatus());
 			}
-			sessionItemAttemptTry.setSessionItem(sessionItem);
-			sessionItemAttemptTry.setAnsweredAtTime(new Date(System.currentTimeMillis()));
-			sessionItemAttemptTry.setTrySequence(trySequence);
-			this.getSessionRepository().save(sessionItemAttemptTry);
-			this.getSessionRepository().save(sessionItem);
-		return sessionItemAttemptTry;
+			sessionActivityItemAttemptTry.setAnsweredAtTime(new Date(System.currentTimeMillis()));
+			sessionActivityItemAttemptTry.setTrySequence(trySequence);
+			this.getSessionRepository().save(sessionActivityItemAttemptTry);
+			this.getSessionRepository().save(sessionActivityItem);
+		return sessionActivityItemAttemptTry;
 	}
 
-	private Errors validateUpdateSessionItem(SessionItem sessionItem) {
-		final Errors errors = new BindException(sessionItem, SESSION_ITEM);
-		rejectIfNull(errors, sessionItem, SESSION_ITEM, GL0056, generateErrorMessage(GL0056, SESSION_ITEM));
+	private Errors validateUpdateSessionItem(SessionActivityItem sessionActivityItem) {
+		final Errors errors = new BindException(sessionActivityItem, SESSION_ITEM);
+		rejectIfNull(errors, sessionActivityItem, SESSION_ITEM, GL0056, generateErrorMessage(GL0056, SESSION_ITEM));
 		return errors;
 	}
 
-	private Errors validateCreateSession(final Session session, final Resource resource) {
+	private Errors validateCreateSession(final SessionActivity sessionActivity, final Resource resource) {
 		final Map<String, String> sessionMode = getSessionMode();
-		final Errors errors = new BindException(session, SESSION);
+		final Errors errors = new BindException(sessionActivity, SESSION);
 		rejectIfNull(errors, resource, RESOURCE, GL0056, generateErrorMessage(GL0056, RESOURCE));
-		rejectIfInvalidType(errors, session.getMode(), MODE, GL0007, generateErrorMessage(GL0007, MODE), sessionMode);
+		rejectIfInvalidType(errors, sessionActivity.getMode(), MODE, GL0007, generateErrorMessage(GL0007, MODE), sessionMode);
 		return errors;
 	}
 
-	private Errors validateUpdateSession(final Session session, final Session newSession) {
+	private Errors validateUpdateSession(final SessionActivity sessionActivity, final SessionActivity newSession) {
 		final Map<String, String> sessionStatus = getSessionStatus();
-		final Errors errors = new BindException(session, SESSION);
+		final Errors errors = new BindException(sessionActivity, SESSION);
 		rejectIfNull(errors, newSession, SESSION, GL0056, generateErrorMessage(GL0056, SESSION));
 		rejectIfInvalidType(errors, newSession.getStatus(), STATUS, GL0007, generateErrorMessage(GL0007, STATUS), sessionStatus);
 		return errors;
 	}
 
-	private Errors validateSessionItem(final Session session, final SessionItem sessionItem, final Resource resource) {
-		final Errors errors = new BindException(sessionItem, SESSION_ITEM);
-		rejectIfNull(errors, session, SESSION, GL0056, generateErrorMessage(GL0056, SESSION));
+	private Errors validateSessionItem(final SessionActivity sessionActivity, final SessionActivityItem sessionActivityItem, final Resource resource) {
+		final Errors errors = new BindException(sessionActivityItem, SESSION_ITEM);
+		rejectIfNull(errors, sessionActivity, SESSION, GL0056, generateErrorMessage(GL0056, SESSION));
 		rejectIfNull(errors, resource, RESOURCE, GL0056, generateErrorMessage(GL0056, RESOURCE));
 		return errors;
 	}

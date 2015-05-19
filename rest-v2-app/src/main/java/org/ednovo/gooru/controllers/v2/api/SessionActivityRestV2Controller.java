@@ -29,10 +29,10 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.ArrayUtils;
 import org.ednovo.gooru.controllers.BaseController;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
-import org.ednovo.gooru.core.api.model.Session;
+import org.ednovo.gooru.core.api.model.SessionActivity;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
-import org.ednovo.gooru.core.api.model.SessionItem;
-import org.ednovo.gooru.core.api.model.SessionItemAttemptTry;
+import org.ednovo.gooru.core.api.model.SessionActivityItem;
+import org.ednovo.gooru.core.api.model.SessionActivityItemAttemptTry;
 import org.ednovo.gooru.core.api.model.SessionItemFeedback;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
@@ -56,7 +56,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 @RequestMapping(value = { "/v2/session" })
-public class SessionRestV2Controller extends BaseController implements ParameterProperties, ConstantProperties {
+public class SessionActivityRestV2Controller extends BaseController implements ParameterProperties, ConstantProperties {
 
 	@Autowired
 	private SessionService sessionService;
@@ -68,15 +68,15 @@ public class SessionRestV2Controller extends BaseController implements Parameter
 		request.setAttribute(PREDICATE, TAG_ADD_RESOURCE);
 		User user = (User) request.getAttribute(Constants.USER);
 		final JSONObject json = requestData(data);
-		final ActionResponseDTO<Session> session = getSessionService().createSession(this.buildSessionFromInputParameters(getValue(SESSION, json)), user);
-		if (session.getErrors().getErrorCount() > 0) {
+		final ActionResponseDTO<SessionActivity> sessionActivity = getSessionService().createSession(this.buildSessionFromInputParameters(getValue(SESSION, json)), user);
+		if (sessionActivity.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		} else {
 			response.setStatus(HttpServletResponse.SC_CREATED);
 		}
 		String[] includeFields = getValue(FIELDS, json) != null ? getFields(getValue(FIELDS, json)) : null;
 		String includes[] = (String[]) ArrayUtils.addAll(includeFields == null ? SESSION_INCLUDES : includeFields, ERROR_INCLUDE);
-		return toModelAndViewWithIoFilter(session.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, includes);
+		return toModelAndViewWithIoFilter(sessionActivity.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, includes);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_V2_SESSION_ADD })
@@ -96,20 +96,20 @@ public class SessionRestV2Controller extends BaseController implements Parameter
 		request.setAttribute(PREDICATE, TAG_ADD_RESOURCE);
 		User user = (User) request.getAttribute(Constants.USER);
 		final JSONObject json = requestData(data);
-		ActionResponseDTO<Session> session = getSessionService().updateSession(sessionId, this.buildSessionFromInputParameters(getValue(SESSION, json)));
-		if (session.getErrors().getErrorCount() > 0) {
+		ActionResponseDTO<SessionActivity> sessionActivity = getSessionService().updateSession(sessionId, this.buildSessionFromInputParameters(getValue(SESSION, json)));
+		if (sessionActivity.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		}
 		String[] includeFields = getValue(FIELDS, json) != null ? getFields(getValue(FIELDS, json)) : null;
 		String includes[] = (String[]) ArrayUtils.addAll(includeFields == null ? SESSION_INCLUDES : includeFields, ERROR_INCLUDE);
-		return toModelAndViewWithIoFilter(session.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, includes);
+		return toModelAndViewWithIoFilter(sessionActivity.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, includes);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_V2_SESSION_READ })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/{id}")
 	public ModelAndView getSession(@PathVariable(ID) final String sessionId, @RequestParam(value = DATA_OBJECT, required = false) String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
-		final Session session = this.getSessionService().getSession(sessionId);
+		final SessionActivity sessionActivity = this.getSessionService().getSession(sessionId);
 		String[] includeFields = null;
 		if (data != null && !data.isEmpty()) {
 			JSONObject json = requestData(data);
@@ -118,7 +118,7 @@ public class SessionRestV2Controller extends BaseController implements Parameter
 		String includes[] = (String[]) ArrayUtils.addAll(SESSION_INCLUDES, SESSION_ITEM_INCLUDES);
 		includes = (String[]) ArrayUtils.addAll(includes, SESSION_ITEM_ATTEMPT_INCLUDES);
 		includes = (String[]) ArrayUtils.addAll(includeFields == null ? includes : includeFields, ERROR_INCLUDE);
-		return toModelAndViewWithIoFilter(session, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, includes);
+		return toModelAndViewWithIoFilter(sessionActivity, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, includes);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_V2_SESSION_ADD })
@@ -128,15 +128,15 @@ public class SessionRestV2Controller extends BaseController implements Parameter
 		request.setAttribute(PREDICATE, TAG_ADD_RESOURCE);
 		User user = (User) request.getAttribute(Constants.USER);
 		JSONObject json = requestData(data);
-		final ActionResponseDTO<SessionItem> sessionItem = getSessionService().createSessionItem(this.buildSessionItemFromInputParameters(getValue(SESSION_ITEM, json)), sessionId);
-		if (sessionItem.getErrors().getErrorCount() > 0) {
+		final ActionResponseDTO<SessionActivityItem> sessionActivityItem = getSessionService().createSessionItem(this.buildSessionItemFromInputParameters(getValue(SESSION_ITEM, json)), sessionId);
+		if (sessionActivityItem.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		} else {
 			response.setStatus(HttpServletResponse.SC_CREATED);
 		}
 		String[] includeFields = getValue(FIELDS, json) != null ? getFields(getValue(FIELDS, json)) : null;
 		String includes[] = (String[]) ArrayUtils.addAll(includeFields == null ? SESSION_ITEM_INCLUDES : includeFields, ERROR_INCLUDE);
-		return toModelAndViewWithIoFilter(sessionItem.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, includes);
+		return toModelAndViewWithIoFilter(sessionActivityItem.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, includes);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_V2_SESSION_ADD })
@@ -146,21 +146,21 @@ public class SessionRestV2Controller extends BaseController implements Parameter
 		request.setAttribute(PREDICATE, TAG_ADD_RESOURCE);
 		User user = (User) request.getAttribute(Constants.USER);
 		JSONObject json = requestData(data);
-		SessionItemAttemptTry sessionItemAttemptTry = getSessionService().createSessionItemAttemptTry(this.buildSessionItemAttemptFromInputParameters(getValue(SESSION_ITEM_ATTEMPT_TRY, json)), sessionItemId);
-		if (sessionItemAttemptTry == null) {
+		SessionActivityItemAttemptTry sessionActivityItemAttemptTry = getSessionService().createSessionItemAttemptTry(this.buildSessionItemAttemptFromInputParameters(getValue(SESSION_ITEM_ATTEMPT_TRY, json)), sessionItemId);
+		if (sessionActivityItemAttemptTry == null) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		}
-		return toModelAndViewWithIoFilter(sessionItemAttemptTry, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, SESSION_ITEM_ATTEMPT_INCLUDES);
+		return toModelAndViewWithIoFilter(sessionActivityItemAttemptTry, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, SESSION_ITEM_ATTEMPT_INCLUDES);
 	}
 
-	private Session buildSessionFromInputParameters(String data) {
+	private SessionActivity buildSessionFromInputParameters(String data) {
 
-		return JsonDeserializer.deserialize(data, Session.class);
+		return JsonDeserializer.deserialize(data, SessionActivity.class);
 	}
 
-	private SessionItem buildSessionItemFromInputParameters(String data) {
+	private SessionActivityItem buildSessionItemFromInputParameters(String data) {
 
-		return JsonDeserializer.deserialize(data, SessionItem.class);
+		return JsonDeserializer.deserialize(data, SessionActivityItem.class);
 	}
 
 	private SessionItemFeedback buildSessionItemFeedbackFromInputParameters(String data) {
@@ -168,9 +168,9 @@ public class SessionRestV2Controller extends BaseController implements Parameter
 		return JsonDeserializer.deserialize(data, SessionItemFeedback.class);
 	}
 
-	private SessionItemAttemptTry buildSessionItemAttemptFromInputParameters(String data) {
+	private SessionActivityItemAttemptTry buildSessionItemAttemptFromInputParameters(String data) {
 
-		return JsonDeserializer.deserialize(data, SessionItemAttemptTry.class);
+		return JsonDeserializer.deserialize(data, SessionActivityItemAttemptTry.class);
 	}
 
 	public void setSessionService(SessionService sessionService) {
