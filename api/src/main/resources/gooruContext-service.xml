@@ -70,6 +70,8 @@
 
 	<context:component-scan base-package="org.ednovo.gooru.kafka.producer" />
 
+	<context:component-scan base-package="org.ednovo.kafka.producer" />
+
 	<context:component-scan base-package="org.ednovo.gooru.domain.service.apitracker" />
 
 	<context:component-scan base-package="org.ednovo.gooru.infrastructure.mail" />
