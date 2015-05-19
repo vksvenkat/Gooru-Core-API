@@ -2,10 +2,9 @@ package org.ednovo.gooru.core.api.model;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.Set;
 
 public class SessionActivityItem implements Serializable {
-	
+
 	/**
 	 * 
 	 */
@@ -14,51 +13,46 @@ public class SessionActivityItem implements Serializable {
 	private Long sessionActivityId;
 
 	private Long classId;
-	
+
 	private Integer viewsInSession;
-	
-	private Integer timeSpentInMillis;
-	
+
+	private Long timeSpentInMillis;
+
 	private Integer reaction;
-	
+
 	private Integer attemptCount;
-	
+
 	private Integer rating;
-	
+
 	private Double score;
-	
+
 	private String questionType;
-	
+
 	private Integer answerId;
+
+	private Long resourceId;
+
+	private String contentGooruId;
 	
-	private Resource resource;
-		
 	private String answerStatus;
-	
+
 	private String answerText;
-	
+
 	private String feedbackProvidedUserUid;
-	
+
 	private Date feedbackProvidedTime;
-	
+
 	private String feedbackText;
-	
+
 	private Integer answerOptionSequence;
-	
+
 	private Date startTime;
 
 	private Date endTime;
 	
-	private Set<SessionActivityItemAttemptTry> sessionActivityItemAttemptTry;
-
-
-	public void setResource(Resource resource) {
-		this.resource = resource;
-	}
-
-	public Resource getResource() {
-		return resource;
-	}
+	private String status;
+	
+	private String payLoadObject; 
 
 	public void setEndTime(Date endTime) {
 		this.endTime = endTime;
@@ -76,14 +70,6 @@ public class SessionActivityItem implements Serializable {
 		return startTime;
 	}
 
-	public void setSessionItemAttemptTry(Set<SessionActivityItemAttemptTry> sessionActivityItemAttemptTry) {
-		this.sessionActivityItemAttemptTry = sessionActivityItemAttemptTry;
-	}
-
-	public Set<SessionActivityItemAttemptTry> getSessionItemAttemptTry() {
-		return sessionActivityItemAttemptTry;
-	}
-
 	public Long getClassId() {
 		return classId;
 	}
@@ -98,14 +84,6 @@ public class SessionActivityItem implements Serializable {
 
 	public void setViewsInSession(Integer viewsInSession) {
 		this.viewsInSession = viewsInSession;
-	}
-
-	public Integer getTimeSpentInMillis() {
-		return timeSpentInMillis;
-	}
-
-	public void setTimeSpentInMillis(Integer timeSpentInMillis) {
-		this.timeSpentInMillis = timeSpentInMillis;
 	}
 
 	public Integer getReaction() {
@@ -210,6 +188,46 @@ public class SessionActivityItem implements Serializable {
 
 	public void setSessionActivityId(Long sessionActivityId) {
 		this.sessionActivityId = sessionActivityId;
+	}
+
+	public String getContentGooruId() {
+		return contentGooruId;
+	}
+
+	public void setContentGooruId(String contentGooruId) {
+		this.contentGooruId = contentGooruId;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+	public Long getTimeSpentInMillis() {
+		return timeSpentInMillis;
+	}
+
+	public void setTimeSpentInMillis(Long timeSpentInMillis) {
+		this.timeSpentInMillis = timeSpentInMillis;
+	}
+
+	public Long getResourceId() {
+		return resourceId;
+	}
+
+	public void setResourceId(Long resourceId) {
+		this.resourceId = resourceId;
+	}
+
+	public String getPayLoadObject() {
+		return payLoadObject;
+	}
+
+	public void setPayLoadObject(String payLoadObject) {
+		this.payLoadObject = payLoadObject;
 	}
 
 }

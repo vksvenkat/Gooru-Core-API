@@ -22,23 +22,23 @@
 	<class name="org.ednovo.gooru.core.api.model.SessionActivityItemAttemptTry"
 		table="session_activity_item_attempt_try">
 		<composite-id>
-		    	<key-property name="sessionActivityId"  column="session_activity_id" />
-      			<key-many-to-one name="resource" column="resource_id" class="org.ednovo.gooru.core.api.model.Resource"  />
-      			<key-property name="trySequence" column="try_sequence"/>
-    	</composite-id>
-		<many-to-one column="answer_id" name="AssessmentAnswer"
-			class="org.ednovo.gooru.core.api.model.AssessmentAnswer" lazy="proxy"
-			not-null="false" />
-	
+			<key-property name="sessionActivityId" column="session_activity_id" />
+			<key-property name="resourceId" column="resource_id" />
+			<key-property name="trySequence" column="try_sequence" />
+		</composite-id>
+		<property column="answer_id" name="answerId" not-null="false" />
+
 		<property name="answerText" column="answer_text" not-null="false" />
 
-		<property name="attemptItemTryStatus" column="attempt_item_try_status"
+		<property name="answerStatus" column="answer_status"
 			not-null="false"></property>
 
-		<property name="answeredAtTime" column="answered_at_time"
+		<property name="startTime" column="start_time" not-null="false"></property>
+
+		<property name="endTime" column="end_time" not-null="false"></property>
+
+		<property name="answerOptionSequence" column="answer_option_sequence"
 			not-null="false"></property>
-			
-		<property name="answerOptionSequence" column="answer_option_sequence" not-null="false"></property>
 
 	</class>
 </hibernate-mapping>

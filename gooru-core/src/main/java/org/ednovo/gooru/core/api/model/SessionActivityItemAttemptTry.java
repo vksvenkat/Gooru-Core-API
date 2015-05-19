@@ -9,30 +9,26 @@ public class SessionActivityItemAttemptTry implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = -9125991535274843683L;
-	
+
 	private Long sessionActivityId;
-	
-	private Resource resource;
-	
-	private AssessmentAnswer assessmentAnswer;
-	
+
+	private Long resourceId;
+
+	private String contentGooruId;
+
+	private Integer answerId;
+
 	private String answerText;
-	
+
 	private Integer trySequence;
+
+	private String answerStatus;
+
+	private Date startTime;
 	
-	private String attemptItemTryStatus;
-	
-	private Date answeredAtTime;
-	
+	private Date endTime;
+
 	private Integer answerOptionSequence;
-
-	public AssessmentAnswer getAssessmentAnswer() {
-		return assessmentAnswer;
-	}
-
-	public void setAssessmentAnswer(AssessmentAnswer assessmentAnswer) {
-		this.assessmentAnswer = assessmentAnswer;
-	}
 
 	public String getAnswerText() {
 		return answerText;
@@ -42,22 +38,6 @@ public class SessionActivityItemAttemptTry implements Serializable {
 		this.answerText = answerText;
 	}
 
-	public String getAttemptItemTryStatus() {
-		return attemptItemTryStatus;
-	}
-
-	public void setAttemptItemTryStatus(String attemptItemTryStatus) {
-		this.attemptItemTryStatus = attemptItemTryStatus;
-	}
-
-	public void setAnsweredAtTime(Date answeredAtTime) {
-		this.answeredAtTime = answeredAtTime;
-	}
-
-	public Date getAnsweredAtTime() {
-		return answeredAtTime;
-	}
-
 	public void setTrySequence(Integer trySequence) {
 		this.trySequence = trySequence;
 	}
@@ -65,21 +45,13 @@ public class SessionActivityItemAttemptTry implements Serializable {
 	public Integer getTrySequence() {
 		return trySequence;
 	}
-	
+
 	public Integer getAnswerOptionSequence() {
 		return answerOptionSequence;
 	}
 
 	public void setAnswerOptionSequence(Integer answerOptionSequence) {
 		this.answerOptionSequence = answerOptionSequence;
-	}
-
-	public Resource getResource() {
-		return resource;
-	}
-
-	public void setResource(Resource resource) {
-		this.resource = resource;
 	}
 
 	public Long getSessionActivityId() {
@@ -89,4 +61,53 @@ public class SessionActivityItemAttemptTry implements Serializable {
 	public void setSessionActivityId(Long sessionActivityId) {
 		this.sessionActivityId = sessionActivityId;
 	}
+
+	public Long getResourceId() {
+		return resourceId;
+	}
+
+	public void setResourceId(Long resourceId) {
+		this.resourceId = resourceId;
+	}
+
+	public String getContentGooruId() {
+		return contentGooruId;
+	}
+
+	public void setContentGooruId(String contentGooruId) {
+		this.contentGooruId = contentGooruId;
+	}
+
+	public Integer getAnswerId() {
+		return answerId;
+	}
+
+	public void setAnswerId(Integer answerId) {
+		this.answerId = answerId;
+	}
+
+	public String getAnswerStatus() {
+		return answerStatus;
+	}
+
+	public void setAnswerStatus(String answerStatus) {
+		this.answerStatus = answerStatus;
+	}
+
+	public Date getStartTime() {
+		return startTime;
+	}
+
+	public void setStartTime(Date startTime) {
+		this.startTime = startTime;
+	}
+
+	public Date getEndTime() {
+		return endTime;
+	}
+
+	public void setEndTime(Date endTime) {
+		this.endTime = endTime;
+	}
+
 }
