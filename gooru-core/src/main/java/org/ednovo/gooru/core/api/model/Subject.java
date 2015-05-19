@@ -1,6 +1,10 @@
 package org.ednovo.gooru.core.api.model;
 
 import java.io.Serializable;
+import java.util.Date;
+
+import javax.persistence.Column;
+import javax.persistence.Id;
 
 public class Subject implements Serializable{
 	
@@ -12,14 +16,56 @@ public class Subject implements Serializable{
 	 * 
 	 */
 
-	private Short subjectId;
+	@Id
+	private Integer subjectId;
+
+	@Column
 	private String name;
 	
+	@Column
+	private String description;
+
+	@Column
+	private short activeFlag;
 	
-	public Short getSubjectId() {
+	@Column
+	private String imagePath;
+
+	@Column
+	private Integer displaySequence;
+	
+	@Column
+	private String creatorId;
+	
+	@Column
+	private Date createdOn;
+	
+	@Column
+	private Date lastModified;
+	
+	@Column
+	private String organizationUid;
+	
+	public String getOrganizationUid() {
+		return organizationUid;
+	}
+
+	public void setOrganizationUid(String organizationUid) {
+		this.organizationUid = organizationUid;
+	}
+
+	public Date getLastModified() {
+		return lastModified;
+	}
+	
+	public void setLastModified(Date lastModified) {
+		this.lastModified = lastModified;
+	}
+		
+	public Integer getSubjectId() {
 		return subjectId;
 	}
-	public void setSubjectId(Short subjectId) {
+	public void setSubjectId(Integer subjectId) {
 		this.subjectId = subjectId;
 	}
 	public String getName() {
@@ -27,5 +73,53 @@ public class Subject implements Serializable{
 	}
 	public void setName(String name) {
 		this.name = name;
+	}
+	
+	public String getDescription() {
+		return description;
+	}
+	
+	public void setDescription(String description) {
+		this.description = description;
+	}
+	
+	public String getImagePath() {
+		return imagePath;
+	}
+	
+	public void setImagePath(String imagePath) {
+		this.imagePath = imagePath;
+	}
+	
+	public Integer getDisplaySequence() {
+		return displaySequence;
+	}
+	
+	public void setDisplaySequence(Integer displaySequence) {
+		this.displaySequence = displaySequence;
+	}
+	
+	public Date getCreatedOn() {
+		return createdOn;
+	}
+	
+	public void setCreatedOn(Date createdOn) {
+		this.createdOn = createdOn;
+	}
+	
+    public short getActiveFlag() {
+	    return activeFlag;
+    }
+    
+    public void setActiveFlag(short activeFlag) {
+	    this.activeFlag = activeFlag;
+    }
+
+	public String getCreatorId() {
+		return creatorId;
+	}
+
+	public void setCreatorId(String creatorId) {
+		this.creatorId = creatorId;
 	}
 }

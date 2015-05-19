@@ -162,6 +162,7 @@ public class GooruOperationConstants {
 	
 	public static final String ENTITY_JOB="Job";
 
+	public static final String ENTITY_SUBJECT = "Subject";
 	
 	
 
@@ -984,5 +985,14 @@ public class GooruOperationConstants {
 
 	public static final String OPERATION_JOB_UPDATE = ENTITY_JOB + ENTITY_ACTION_SEPARATOR + ACTION_UPDATE;
 	
+	//SUBJECT
+	
+	public static final String OPERATION_SUBJECT_ADD = ENTITY_SUBJECT + ENTITY_ACTION_SEPARATOR + ACTION_ADD;
+	
+	public static final String OPERATION_SUBJECT_READ = ENTITY_SUBJECT + ENTITY_ACTION_SEPARATOR + ACTION_READ;
+	
+	public static final String OPERATION_SUBJECT_UPDATE = ENTITY_SUBJECT + ENTITY_ACTION_SEPARATOR + ACTION_UPDATE;
+	
+	public static final String OPERATION_SUBJECT_DELETE = ENTITY_SUBJECT + ENTITY_ACTION_SEPARATOR + ACTION_DELETE;
 
 }
