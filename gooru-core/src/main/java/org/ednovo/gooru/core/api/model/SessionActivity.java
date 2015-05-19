@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.Set;
 
+import javax.persistence.GeneratedValue;
+
 public class SessionActivity implements Serializable {
 
 	/**
@@ -17,9 +19,11 @@ public class SessionActivity implements Serializable {
 
 	private Long parentId;
 	
-	private Short sequence;
+	private String parentGooruOid;
 	
-	private Short viewsInSession;
+	private Integer sequence;
+	
+	private Integer viewsInSession;
 	
 	private Integer timeSpentInMillis;
 	
@@ -46,6 +50,14 @@ public class SessionActivity implements Serializable {
 	private User user;
 	
 	private Set<SessionActivityItem> sessionActivityItems;
+
+	public String getParentGooruOid() {
+		return parentGooruOid;
+	}
+
+	public void setParentGooruOid(String parentGooruOid) {
+		this.parentGooruOid = parentGooruOid;
+	}
 
 	public void setStatus(String status) {
 		this.status = status;
@@ -128,19 +140,19 @@ public class SessionActivity implements Serializable {
 		this.parentId = parentId;
 	}
 
-	public Short getSequence() {
+	public Integer getSequence() {
 		return sequence;
 	}
 
-	public void setSequence(Short sequence) {
+	public void setSequence(Integer sequence) {
 		this.sequence = sequence;
 	}
 
-	public Short getViewsInSession() {
+	public Integer getViewsInSession() {
 		return viewsInSession;
 	}
 
-	public void setViewsInSession(Short viewsInSession) {
+	public void setViewsInSession(Integer viewsInSession) {
 		this.viewsInSession = viewsInSession;
 	}
 

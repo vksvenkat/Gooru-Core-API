@@ -56,17 +56,20 @@ import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.domain.service.resource.ResourceServiceImpl;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate;
 import org.hibernate.Criteria;
+import org.hibernate.Hibernate;
 import org.hibernate.Query;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.metamodel.binding.HibernateTypeDescriptor;
 import org.hibernate.type.StandardBasicTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
+import org.springframework.orm.hibernate3.HibernateAccessor;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -133,6 +136,47 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 		return (results != null && results.size() > 0) ? Integer.valueOf(results.get(0) + "") : 0;
 	}
 
+	@Override
+	public Long getNumericClassCode(Long contentId) {
+		Session session = getSessionFactory().getCurrentSession();
+		String sql = " SELECT conv(classpage_code,36,10) AS classCode FROM classpage WHERE classpage_content_id =" + contentId;
+		Query query = session.createSQLQuery(sql).addScalar("classCode", StandardBasicTypes.LONG);
+		List<Long> results = list(query);
+
+		return (results != null && results.size() > 0) ? results.get(0) : 0L;
+	}
+
+	@Override
+	public Boolean findUserIsStudent(Long classContentId,String gooruUId) {
+		Session session = getSessionFactory().getCurrentSession();
+		String sql = " SELECT uga.is_group_owner isStudent FROM classpage class INNER JOIN user_group ug ON class.classpage_code = ug.user_group_code INNER JOIN user_group_association uga ON ug.user_group_uid = uga.user_group_uid WHERE class.classpage_content_id = "+classContentId+" AND uga.gooru_uid = '"+gooruUId+"'";
+		Query query = session.createSQLQuery(sql).addScalar("isStudent", StandardBasicTypes.BOOLEAN);
+		List<Boolean> results = list(query);
+
+		return (results != null && results.size() > 0) ? results.get(0) : false;
+	}
+	@Override
+	public Long getContentId(String contentGooruOid) {
+		Session session = getSessionFactory().getCurrentSession();
+		String sql = " SELECT content_id AS contentId from content WHERE gooru_oid ='" +contentGooruOid+"'";
+		Query query = session.createSQLQuery(sql).addScalar("contentId", StandardBasicTypes.LONG);
+		List<Long> results = list(query);
+
+		return (results != null && results.size() > 0) ? results.get(0) : 0L;
+	}
+
+	@Override
+	public Integer getSessionCount(Long collectionId, Long parentId, String gooruUId) {
+		Session session = getSessionFactory().getCurrentSession();
+		String sql = " select count(1) as sessionCount from session_activity where collection_id =" + collectionId + " AND user_uid = '" + gooruUId + "'";
+		if (parentId != null) {
+			sql += " AND parent_id=" + parentId;
+		}
+		Query query = session.createSQLQuery(sql).addScalar("sessionCount", StandardBasicTypes.INTEGER);
+		List<Integer> results = list(query);
+
+		return (results != null && results.size() > 0) ? results.get(0) : 0;
+	}
 	public JdbcTemplate getJdbcTemplate() {
 		return jdbcTemplate;
 	}

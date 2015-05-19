@@ -91,12 +91,29 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 		final Resource resource = this.getResourceRepository().findResourceByContentGooruId(sessionActivity.getResource().getGooruOid());
 		final Errors errors = this.validateCreateSession(sessionActivity, resource);
 		if (!errors.hasErrors()) {
+			int sessionSequence = 1;
+			long parentId = 0L;
+			boolean isStudent = false;
+			long classId = 1L;
+					
+			if (sessionActivity.getParentGooruOid() != null) {
+				 parentId = getResourceRepository().getContentId(sessionActivity.getParentGooruOid());
+				 isStudent = getResourceRepository().findUserIsStudent(parentId, user.getGooruUId());
+				 classId = getResourceRepository().getNumericClassCode(parentId);
+			}
+			sessionSequence = (sessionSequence + getResourceRepository().getSessionCount(resource.getContentId(), parentId, user.getGooruUId()));
+			sessionActivity.setSequence(sessionSequence);
+			sessionActivity.setParentId(parentId);
+			sessionActivity.setClassId(classId);
+			sessionActivity.setIsStudent(isStudent);
 			sessionActivity.setScore(0.0);
-			/*if (sessionActivity.getSessionActivityId() == null) {
-				sessionActivity.setSessionId(UUID.randomUUID().toString());
-			}*/
+			sessionActivity.setType(sessionActivity.getType());
 			sessionActivity.setStatus(SessionStatus.OPEN.getSessionStatus());
 			sessionActivity.setResource(resource);
+			sessionActivity.setViewsInSession(1);
+			sessionActivity.setTimeSpentInMillis(0);
+			sessionActivity.setReaction(0);
+			sessionActivity.setRating(0);
 			sessionActivity.setStartTime(new Date(System.currentTimeMillis()));
 			sessionActivity.setUser(user);
 			this.getSessionRepository().save(sessionActivity);

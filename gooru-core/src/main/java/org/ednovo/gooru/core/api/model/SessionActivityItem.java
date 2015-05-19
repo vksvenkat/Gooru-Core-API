@@ -15,7 +15,7 @@ public class SessionActivityItem implements Serializable {
 
 	private Long classId;
 	
-	private Short viewsInSession;
+	private Integer viewsInSession;
 	
 	private Integer timeSpentInMillis;
 	
@@ -92,11 +92,11 @@ public class SessionActivityItem implements Serializable {
 		this.classId = classId;
 	}
 
-	public Short getViewsInSession() {
+	public Integer getViewsInSession() {
 		return viewsInSession;
 	}
 
-	public void setViewsInSession(Short viewsInSession) {
+	public void setViewsInSession(Integer viewsInSession) {
 		this.viewsInSession = viewsInSession;
 	}
 

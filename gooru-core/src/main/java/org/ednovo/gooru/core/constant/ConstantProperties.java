@@ -223,7 +223,7 @@ public interface ConstantProperties {
 
 	static final String TAG_ASSOC_INCLUDES[] = { "*.tag", "*.tagUid", "*.label", "*.type", "*.activeFlag", "*.createdOn" };
 
-	static final String SESSION_INCLUDES[] = { "*.sessionId", "*.status", "*.startTime", "*.stopTime", "*.sessionItems", "*.score" };
+	static final String SESSION_INCLUDES[] = { "*.sessionActivityId","*.classId","*.rating","*.reaction","*.isStudent","*.type","*.parentId","*.sequence","*.viewsInSession","*.timeSpentInMillis", "*.status", "*.startTime", "*.stopTime", "*.sessionItems", "*.score" };
 
 	static final String TASK_INCLUDES[] = { "*.collectionTasks", "*.creator.gooruUId", "*.creator.firstName", "*.creator.username", "*.creator.lastname", "*.taskUid", "*.title", "*.description", "*.plannedStartDate", "*.plannedEndDate", "*.status", "*.estimatedEffort", "*.typeName", "*.gooruOid",
 			"*.lastModified", "*.createdOn", "*.lastUpdatedUserUid", "*.searchResults", "*.totalHitCount", "task" };
