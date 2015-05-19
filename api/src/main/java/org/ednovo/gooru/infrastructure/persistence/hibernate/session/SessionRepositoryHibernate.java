@@ -23,6 +23,7 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.infrastructure.persistence.hibernate.session;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -117,6 +118,30 @@ public class SessionRepositoryHibernate extends BaseRepositoryHibernate implemen
 		summary.put("correctAnswerCount", object[1] != null ? object[1] : 0);
 		summary.put("wrongAnswerCount", object[2] != null ? object[2] : 0);
 		return summary; 
+	}
+
+	@Override
+	public List<Object[]> getClassReport(String classGooruId) {
+
+		Session session = getSession();
+
+		String sql = "select User,Title,Standards,views,TotalTimespent,AverageReaction from temp_class_report";
+
+		/*
+		 * String sql = "select u.username AS UserName," + "collection.title AS Title," + "agg_data.code AS Standrads ," + "agg_data.views AS Views," + "agg_data.time_spent AS TotalTimespent," +
+		 * "ROUND(agg_data.avg_reaction) AS AverageReaction FROM content c " + "INNER JOIN classpage cl ON cl.classpage_content_id = c.content_id " +
+		 * "INNER JOIN user_group ug ON cl.classpage_code = ug.user_group_code " + "INNER JOIN user_group_association uga ON ug.user_group_uid = uga.user_group_uid " +
+		 * "INNER JOIN user u ON u.gooru_uid = uga.gooru_uid " + "INNER JOIN collection_item ci ON ci.collection_content_id = c.content_id " +
+		 * "INNER JOIN resource collection ON collection.content_id = ci.resource_content_id " + "LEFT JOIN (select sa.user_uid,code.code,sa.session_activity_id,SUM(sa.views_in_session) as views, " +
+		 * "SUM(sa.time_spent_in_millis) AS time_spent, " + "(SUM(sa.reaction)/count(1)) as avg_reaction , " + "sa.collection_id AS resource_id " + "FROM t_session_activity sa " +
+		 * "INNER JOIN content class on class.content_id = sa.parent_id " + "INNER JOIN content_classification ccl on ccl.content_id = sa.collection_id " +
+		 * "INNER JOIN code code on code.code_id = ccl.code_id " + "WHERE class.gooru_oid ='" + classGooruId + "' and is_student = 1 group by sa.collection_id,sa.user_uid ,code.code) as agg_data " +
+		 * "ON agg_data.user_uid = u.gooru_uid " + "AND agg_data.resource_id = collection.content_id " + "where c.gooru_oid = '" + classGooruId + "' and collection.type_name = 'scollection'";
+		 */
+		List<Object[]> query = session.createSQLQuery(sql).list();
+
+		return query;
+
 	}
 	
         public String getQuestionStatus(String sessionId, Integer trySequence, String questionType, Long quizContentId, String questionId){

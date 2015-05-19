@@ -23,14 +23,18 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.controllers.v2.api;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.ednovo.gooru.controllers.BaseController;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.SessionActivity;
-import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.SessionActivityItem;
 import org.ednovo.gooru.core.api.model.SessionActivityItemAttemptTry;
 import org.ednovo.gooru.core.api.model.SessionItemFeedback;
@@ -41,6 +45,7 @@ import org.ednovo.gooru.core.constant.GooruOperationConstants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.security.AuthorizeOperations;
 import org.ednovo.gooru.domain.service.session.SessionService;
+import org.ednovo.gooru.json.serializer.util.JsonSerializer;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -85,7 +90,7 @@ public class SessionActivityRestV2Controller extends BaseController implements P
 	public ModelAndView createSessionItemFeedback(@PathVariable(ID) String sessionId, @RequestBody String data, final HttpServletRequest request, HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
 		SessionItemFeedback sessionItemFeedback = getSessionService().createSessionItemFeedback(sessionId, this.buildSessionItemFeedbackFromInputParameters(data), user);
-		
+
 		return toModelAndViewWithIoFilter(sessionItemFeedback, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, SESSION_ITEM_FEEDBACK_INCLUDES);
 	}
 
@@ -108,7 +113,8 @@ public class SessionActivityRestV2Controller extends BaseController implements P
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_V2_SESSION_READ })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/{id}")
-	public ModelAndView getSession(@PathVariable(ID) final String sessionId, @RequestParam(value = DATA_OBJECT, required = false) String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+	public ModelAndView getSession(@PathVariable(ID) final String sessionId, @RequestParam(value = DATA_OBJECT, required = false) String data, final HttpServletRequest request,
+			final HttpServletResponse response) throws Exception {
 		final SessionActivity sessionActivity = this.getSessionService().getSession(sessionId);
 		String[] includeFields = null;
 		if (data != null && !data.isEmpty()) {
@@ -142,15 +148,31 @@ public class SessionActivityRestV2Controller extends BaseController implements P
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_V2_SESSION_ADD })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.POST, value = "/{sid}/item/{id}/attempt")
-	public ModelAndView createSessionItemAttemptTry(@RequestBody String data, @PathVariable(ID) String sessionItemId, @PathVariable(SESSION_ID) String sessionId, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public ModelAndView createSessionItemAttemptTry(@RequestBody String data, @PathVariable(ID) String sessionItemId, @PathVariable(SESSION_ID) String sessionId, HttpServletRequest request,
+			HttpServletResponse response) throws Exception {
 		request.setAttribute(PREDICATE, TAG_ADD_RESOURCE);
 		User user = (User) request.getAttribute(Constants.USER);
 		JSONObject json = requestData(data);
-		SessionActivityItemAttemptTry sessionActivityItemAttemptTry = getSessionService().createSessionItemAttemptTry(this.buildSessionItemAttemptFromInputParameters(getValue(SESSION_ITEM_ATTEMPT_TRY, json)), sessionItemId);
+		SessionActivityItemAttemptTry sessionActivityItemAttemptTry = getSessionService().createSessionItemAttemptTry(
+				this.buildSessionItemAttemptFromInputParameters(getValue(SESSION_ITEM_ATTEMPT_TRY, json)), sessionItemId);
 		if (sessionActivityItemAttemptTry == null) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		}
 		return toModelAndViewWithIoFilter(sessionActivityItemAttemptTry, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, SESSION_ITEM_ATTEMPT_INCLUDES);
+	}
+
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(method = RequestMethod.GET, value = "/export/class/{classGooruId}")
+	public void generateClassReport(@PathVariable("classGooruId") final String classGooruId, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+		final File csvFile = this.getSessionService().exportClass(classGooruId);
+
+		InputStream sheet = new FileInputStream(csvFile);
+		response.setHeader("Content-Disposition", "inline; filename=" + csvFile.getName());
+		response.setContentType("application/csv");
+		IOUtils.copy(sheet, response.getOutputStream());
+		response.getOutputStream().flush();
+		response.getOutputStream().close();
+		csvFile.delete();
 	}
 
 	private SessionActivity buildSessionFromInputParameters(String data) {
