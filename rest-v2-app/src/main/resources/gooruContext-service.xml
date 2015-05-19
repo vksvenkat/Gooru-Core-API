@@ -37,8 +37,6 @@
 		</property>
 	</bean>
 
-	<context:component-scan base-package="org.ednovo.kafka.producer" />
-
 	<bean id="cacheManager" class="net.sf.ehcache.CacheManager" />
 
 	<bean id="restAPIEndPoint" class="java.lang.String">
