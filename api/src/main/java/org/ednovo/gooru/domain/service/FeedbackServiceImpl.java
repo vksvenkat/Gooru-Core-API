@@ -165,16 +165,16 @@ public class FeedbackServiceImpl extends BaseServiceImpl implements FeedbackServ
 		for (Feedback feedback : feedbacks) {
 			ResourceSummary resourceSummary = updateResourceSummary(feedback.getAssocGooruOid());
 			this.getFeedbackRepository().save(resourceSummary);
-			feedback.setRatings(this.collectionService.setRatingsObj(this.getResourceRepository().getResourceSummaryById(feedback.getAssocGooruOid())));
-			Resource resource = this.getResourceRepository().findResourceByContentGooruId(feedback.getAssocGooruOid());
-			if (resource != null && resource.getContentId() != null) {
-				if (resource.getResourceType() != null && resource.getResourceType().getName().equalsIgnoreCase(ResourceType.Type.SCOLLECTION.getType())) {
-					indexHandler.setReIndexRequest(resource.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);						
-				} else {
-					indexHandler.setReIndexRequest(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);						
-				}
-				this.getAsyncExecutor().clearCache(resource.getGooruOid());
+			feedback.setRatings(this.collectionService.setRatingsObj(this.getResourceRepository().getResourceSummaryById(feedback.getAssocGooruOid())));		
+		}
+		Resource resource = this.getResourceRepository().findResourceByContentGooruId(newFeedback.getAssocGooruOid());
+		if (resource != null && resource.getContentId() != null) {
+			if (resource.getResourceType() != null && resource.getResourceType().getName().equalsIgnoreCase(ResourceType.Type.SCOLLECTION.getType())) {
+				indexHandler.setReIndexRequest(resource.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);						
+			} else {
+				indexHandler.setReIndexRequest(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);						
 			}
+			this.getAsyncExecutor().clearCache(resource.getGooruOid());
 		}
 		return feedbacks;
 	}
