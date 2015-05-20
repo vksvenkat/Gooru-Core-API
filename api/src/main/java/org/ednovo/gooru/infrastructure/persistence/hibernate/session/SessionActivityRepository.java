@@ -23,6 +23,8 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.infrastructure.persistence.hibernate.session;
 
+import java.util.List;
+
 import org.ednovo.gooru.core.api.model.SessionActivity;
 import org.ednovo.gooru.core.api.model.SessionActivityItem;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepository;
@@ -36,4 +38,8 @@ public interface SessionActivityRepository extends BaseRepository {
 	Integer getSessionActivityCount(Long collectionId, Long parentId, String gooruUId);
 	
 	Integer getSessionActivityItemAttemptCount(Long sessionActivityId, Long resourceId);
+
+	List<Object[]> getClassReport(String classGooruId,String query);
+
+	String getExportConfig(String key);
 }

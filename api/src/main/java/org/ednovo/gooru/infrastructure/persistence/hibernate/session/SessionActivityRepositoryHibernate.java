@@ -31,6 +31,7 @@ import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate;
 import org.hibernate.Query;
+import org.hibernate.Session;
 import org.hibernate.type.StandardBasicTypes;
 import org.springframework.stereotype.Repository;
 
@@ -43,6 +44,7 @@ public class SessionActivityRepositoryHibernate extends BaseRepositoryHibernate 
 
 	private final String SESSION_ACTIVITY_ITEM_ATTEMPT_COUNT = "select count(1) as count from session_activity_item_attempt_try where session_activity_id=:sessionActivityId and resource_id=:resourceId ";
 	
+	private final String GET_CLASS_EXPORT_QUERY_FROM_CONFIG = "SELECT value from config_setting WHERE name=:name";
 	@Override
 	public SessionActivity getSessionActivityById(Long sessionActivityId) {
 		Query query = getSession().createQuery(RETRIEVE_SESSION_ACTIVITY_BY_ID);
@@ -79,4 +81,24 @@ public class SessionActivityRepositoryHibernate extends BaseRepositoryHibernate 
 		List<Integer> results = list(query);
 		return (results != null && results.size() > 0) ? results.get(0) : 0;
 	}
+	
+	@Override
+	public String getExportConfig(String key) {
+		Query query = getSession().createSQLQuery(GET_CLASS_EXPORT_QUERY_FROM_CONFIG)
+		.addScalar(VALUE, StandardBasicTypes.STRING);
+		query.setParameter(NAME, key);
+		List<String> results = list(query);
+		return (results != null && results.size() > 0) ? results.get(0) : null;
+	}
+	
+	@Override
+	public List<Object[]> getClassReport(String classGooruId,String sql) {
+		Session session = getSession();
+		Query query = session.createSQLQuery(sql);
+		query.setParameter(CLASS_GOORU_ID, classGooruId);
+		List<Object[]> result = query.list();
+		return result;
+
+	}
+
 }

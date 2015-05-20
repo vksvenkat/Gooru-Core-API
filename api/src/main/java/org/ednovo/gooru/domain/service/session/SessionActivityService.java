@@ -23,6 +23,8 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.domain.service.session;
 
+import java.io.File;
+
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.SessionActivity;
 import org.ednovo.gooru.core.api.model.SessionActivityItem;
@@ -41,4 +43,6 @@ public interface SessionActivityService extends BaseService {
 	SessionActivityItemAttemptTry createSessionActivityItemAttemptTry(SessionActivityItemAttemptTry sessionActivityItemAttemptTry, Long sessionActivityId);
 
 	SessionActivity getSessionActivity(Long sessionActivityId);
+
+	File exportClass(String classGooruId);
 }
