@@ -23,20 +23,20 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.domain.service.session;
 
-import java.io.File;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.AssessmentAnswer;
 import org.ednovo.gooru.core.api.model.AssessmentQuestion;
 import org.ednovo.gooru.core.api.model.AttemptTryStatus;
+import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.ModeType;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.SessionActivity;
+import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.SessionActivityItem;
 import org.ednovo.gooru.core.api.model.SessionActivityItemAttemptTry;
 import org.ednovo.gooru.core.api.model.SessionItemFeedback;
@@ -47,7 +47,6 @@ import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.domain.service.BaseServiceImpl;
 import org.ednovo.gooru.domain.service.assessment.AssessmentService;
 import org.ednovo.gooru.domain.service.eventlogs.SessionEventLog;
-import org.ednovo.gooru.domain.service.resource.CSVBuilderService;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.assessment.AssessmentRepository;
@@ -66,10 +65,10 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 
 	@Autowired
 	private SessionRepository sessionRepository;
-
+	
 	@Autowired
 	private SessionEventLog sessionEventLog;
-
+	
 	@Autowired
 	private ResourceRepository resourceRepository;
 
@@ -84,10 +83,7 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 
 	@Autowired
 	private UserRepository userRepository;
-
-	@Autowired
-	private CSVBuilderService csvBuilderService;
-
+	
 	private static final Logger LOGGER = LoggerFactory.getLogger(SessionServiceImpl.class);
 
 	@Override
@@ -99,11 +95,11 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 			long parentId = 0L;
 			boolean isStudent = false;
 			long classId = 1L;
-
+					
 			if (sessionActivity.getParentGooruOid() != null) {
-				parentId = getResourceRepository().getContentId(sessionActivity.getParentGooruOid());
-				isStudent = getResourceRepository().findUserIsStudent(parentId, user.getGooruUId());
-				classId = getResourceRepository().getNumericClassCode(parentId);
+				 parentId = getResourceRepository().getContentId(sessionActivity.getParentGooruOid());
+				 isStudent = getResourceRepository().findUserIsStudent(parentId, user.getGooruUId());
+				 classId = getResourceRepository().getNumericClassCode(parentId);
 			}
 			sessionSequence = (sessionSequence + getResourceRepository().getSessionCount(resource.getContentId(), parentId, user.getGooruUId()));
 			sessionActivity.setSequence(sessionSequence);
@@ -145,11 +141,11 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 		try {
 			this.getSessionEventLog().getEventLogs(sessionItemFeedback, user);
 		} catch (JSONException e) {
-			LOGGER.debug("error" + e.getMessage());
+			LOGGER.debug("error"+e.getMessage());
 		}
 		return sessionItemFeedback;
 	}
-
+	
 	@Override
 	public ActionResponseDTO<SessionActivity> updateSession(final String sessionId, final SessionActivity newSession) {
 		final SessionActivity sessionActivity = this.getSessionRepository().findSessionById(sessionId);
@@ -183,9 +179,9 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 		rejectIfNull(sessionActivity, GL0056, SESSION);
 		final Resource resource = this.getResourceRepository().findResourceByContentGooruId(sessionActivityItem.getResource().getGooruOid());
 		rejectIfNull(resource, GL0056, RESOURCE);
-		/*
-		 * if (sessionActivityItem.getSessionItemId() == null) { sessionActivityItem.setSessionItemId(UUID.randomUUID().toString()); }
-		 */
+		/*if (sessionActivityItem.getSessionItemId() == null) {
+			sessionActivityItem.setSessionItemId(UUID.randomUUID().toString());
+		}*/
 		errors = this.validateSessionItem(sessionActivity, sessionActivityItem, resource);
 		if (!errors.hasErrors()) {
 			final SessionActivityItem previousItem = this.getSessionRepository().getLastSessionItem(sessionId);
@@ -194,12 +190,13 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 				this.getSessionRepository().save(previousItem);
 			}
 			sessionActivityItem.setResource(resource);
-			// sessionActivityItem.setSessionActivity(sessionActivity);
-			/*
-			 * if (sessionActivityItem.getCollectionItem() != null && sessionActivityItem.getCollectionItem().getCollectionItemId() != null) { final CollectionItem collectionItem =
-			 * this.getCollectionRepository().getCollectionItemById(sessionActivityItem.getCollectionItem().getCollectionItemId()); if (collectionItem != null) {
-			 * sessionActivityItem.setCollectionItem(collectionItem); } }
-			 */
+			//sessionActivityItem.setSessionActivity(sessionActivity);
+			/*if (sessionActivityItem.getCollectionItem() != null && sessionActivityItem.getCollectionItem().getCollectionItemId() != null) {
+				final CollectionItem collectionItem = this.getCollectionRepository().getCollectionItemById(sessionActivityItem.getCollectionItem().getCollectionItemId());
+				if (collectionItem != null) {
+					sessionActivityItem.setCollectionItem(collectionItem);
+				}
+			}*/
 			sessionActivityItem.setStartTime(new Date(System.currentTimeMillis()));
 
 			this.getSessionRepository().save(sessionActivityItem);
@@ -229,56 +226,54 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 
 	@Override
 	public SessionActivityItemAttemptTry createSessionItemAttemptTry(final SessionActivityItemAttemptTry sessionActivityItemAttemptTry, final String sessionItemId) {
+		
+			final SessionActivityItem sessionActivityItem = this.getSessionRepository().findSessionItemById(sessionItemId);
+			rejectIfNull(sessionActivityItem, GL0056, SESSION_ITEM);
+			AssessmentQuestion question = null;
+			if (sessionActivityItem.getResource().getResourceType() != null && sessionActivityItem.getResource().getResourceType().getName().equalsIgnoreCase(ASSESSMENT_QUESTION)) {
+				question = this.assessmentService.getQuestion(sessionActivityItem.getResource().getGooruOid());
+			}
+			final Integer trySequence = this.getSessionRepository().getSessionItemAttemptTry(sessionItemId).size() + 1;
+			if (question != null && (question.getTypeName().equalsIgnoreCase(AssessmentQuestion.TYPE.FILL_IN_BLANKS.getName()) || question.getTypeName().equalsIgnoreCase(AssessmentQuestion.TYPE.OPEN_ENDED.getName()) || question.getTypeName().equals(AssessmentQuestion.TYPE.SHORT_ANSWER.getName())
+					|| question.getTypeName().equalsIgnoreCase(AssessmentQuestion.TYPE.MULTIPLE_ANSWERS.getName()))) {
+				rejectIfNull(sessionActivityItemAttemptTry.getAnswerText(), GL0006, ANSWER_TEXT);
+			} else if (question != null && question.getTypeName().equals(AssessmentQuestion.TYPE.MATCH_THE_FOLLOWING.getName())) {
+				rejectIfNull(sessionActivityItemAttemptTry.getAnswerText(), GL0006, ANSWER_TEXT);
+				final String[] answerTexts = sessionActivityItemAttemptTry.getAnswerText().split(",");
+				for (int i = 0; i < answerTexts.length; i++) {
+					final AssessmentAnswer answers = this.getAssessmentRepository().getAssessmentAnswerById(Integer.parseInt(answerTexts[i]));
+					if (answers.getMatchingAnswer().getAnswerId().equals(Integer.parseInt(answerTexts[i == 0 ? i + 1 : i - 1]))) {
+						sessionActivityItemAttemptTry.setAttemptItemTryStatus(AttemptTryStatus.CORRECT.getTryStatus());
+						sessionActivityItem.setAnswerOptionSequence(trySequence);
+						//final SessionActivity sessionActivity = sessionActivityItem.getSessionActivity();
+						//sessionActivity.setScore(sessionActivityItem.getSessionActivity().getScore() + 1);
+						//this.getSessionRepository().save(sessionActivity);
+					} else {
+						sessionActivityItemAttemptTry.setAttemptItemTryStatus(AttemptTryStatus.WRONG.getTryStatus());
+					}
+				}
 
-		final SessionActivityItem sessionActivityItem = this.getSessionRepository().findSessionItemById(sessionItemId);
-		rejectIfNull(sessionActivityItem, GL0056, SESSION_ITEM);
-		AssessmentQuestion question = null;
-		if (sessionActivityItem.getResource().getResourceType() != null && sessionActivityItem.getResource().getResourceType().getName().equalsIgnoreCase(ASSESSMENT_QUESTION)) {
-			question = this.assessmentService.getQuestion(sessionActivityItem.getResource().getGooruOid());
-		}
-		final Integer trySequence = this.getSessionRepository().getSessionItemAttemptTry(sessionItemId).size() + 1;
-		if (question != null
-				&& (question.getTypeName().equalsIgnoreCase(AssessmentQuestion.TYPE.FILL_IN_BLANKS.getName()) || question.getTypeName().equalsIgnoreCase(AssessmentQuestion.TYPE.OPEN_ENDED.getName())
-						|| question.getTypeName().equals(AssessmentQuestion.TYPE.SHORT_ANSWER.getName()) || question.getTypeName().equalsIgnoreCase(AssessmentQuestion.TYPE.MULTIPLE_ANSWERS.getName()))) {
-			rejectIfNull(sessionActivityItemAttemptTry.getAnswerText(), GL0006, ANSWER_TEXT);
-		} else if (question != null && question.getTypeName().equals(AssessmentQuestion.TYPE.MATCH_THE_FOLLOWING.getName())) {
-			rejectIfNull(sessionActivityItemAttemptTry.getAnswerText(), GL0006, ANSWER_TEXT);
-			final String[] answerTexts = sessionActivityItemAttemptTry.getAnswerText().split(",");
-			for (int i = 0; i < answerTexts.length; i++) {
-				final AssessmentAnswer answers = this.getAssessmentRepository().getAssessmentAnswerById(Integer.parseInt(answerTexts[i]));
-				if (answers.getMatchingAnswer().getAnswerId().equals(Integer.parseInt(answerTexts[i == 0 ? i + 1 : i - 1]))) {
+			} else {
+				final AssessmentAnswer assessmentAnswer = this.getAssessmentRepository().getAssessmentAnswerById(sessionActivityItemAttemptTry.getAssessmentAnswer() != null ? sessionActivityItemAttemptTry.getAssessmentAnswer().getAnswerId() : null);
+				rejectIfNull(assessmentAnswer, GL0006, ASSESSMENT_ANSWER);
+				sessionActivityItemAttemptTry.setAssessmentAnswer(assessmentAnswer);
+				if (assessmentAnswer.getIsCorrect()) {
 					sessionActivityItemAttemptTry.setAttemptItemTryStatus(AttemptTryStatus.CORRECT.getTryStatus());
 					sessionActivityItem.setAnswerOptionSequence(trySequence);
-					// final SessionActivity sessionActivity = sessionActivityItem.getSessionActivity();
-					// sessionActivity.setScore(sessionActivityItem.getSessionActivity().getScore() + 1);
-					// this.getSessionRepository().save(sessionActivity);
 				} else {
 					sessionActivityItemAttemptTry.setAttemptItemTryStatus(AttemptTryStatus.WRONG.getTryStatus());
 				}
 			}
 
-		} else {
-			final AssessmentAnswer assessmentAnswer = this.getAssessmentRepository().getAssessmentAnswerById(
-					sessionActivityItemAttemptTry.getAssessmentAnswer() != null ? sessionActivityItemAttemptTry.getAssessmentAnswer().getAnswerId() : null);
-			rejectIfNull(assessmentAnswer, GL0006, ASSESSMENT_ANSWER);
-			sessionActivityItemAttemptTry.setAssessmentAnswer(assessmentAnswer);
-			if (assessmentAnswer.getIsCorrect()) {
-				sessionActivityItemAttemptTry.setAttemptItemTryStatus(AttemptTryStatus.CORRECT.getTryStatus());
-				sessionActivityItem.setAnswerOptionSequence(trySequence);
+			if (sessionActivityItemAttemptTry.getAttemptItemTryStatus() == null) {
+				sessionActivityItemAttemptTry.setAttemptItemTryStatus(AttemptTryStatus.SKIP.getTryStatus());
 			} else {
-				sessionActivityItemAttemptTry.setAttemptItemTryStatus(AttemptTryStatus.WRONG.getTryStatus());
+				sessionActivityItemAttemptTry.setAttemptItemTryStatus(sessionActivityItemAttemptTry.getAttemptItemTryStatus());
 			}
-		}
-
-		if (sessionActivityItemAttemptTry.getAttemptItemTryStatus() == null) {
-			sessionActivityItemAttemptTry.setAttemptItemTryStatus(AttemptTryStatus.SKIP.getTryStatus());
-		} else {
-			sessionActivityItemAttemptTry.setAttemptItemTryStatus(sessionActivityItemAttemptTry.getAttemptItemTryStatus());
-		}
-		sessionActivityItemAttemptTry.setAnsweredAtTime(new Date(System.currentTimeMillis()));
-		sessionActivityItemAttemptTry.setTrySequence(trySequence);
-		this.getSessionRepository().save(sessionActivityItemAttemptTry);
-		this.getSessionRepository().save(sessionActivityItem);
+			sessionActivityItemAttemptTry.setAnsweredAtTime(new Date(System.currentTimeMillis()));
+			sessionActivityItemAttemptTry.setTrySequence(trySequence);
+			this.getSessionRepository().save(sessionActivityItemAttemptTry);
+			this.getSessionRepository().save(sessionActivityItem);
 		return sessionActivityItemAttemptTry;
 	}
 
@@ -326,28 +321,6 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 		return sessionMode;
 	}
 
-	@Override
-	public File exportClass(String classGooruId) {
-		List<Object[]> resultSet = getSessionRepository().getClassReport(classGooruId);
-		List<Map<String, Object>> resultSetMap = new ArrayList<Map<String, Object>>();
-		for (Object[] resultRow : resultSet) {
-			Map<String, Object> rowMap = new HashMap<String, Object>();
-			rowMap.put("UserName", resultRow[0]);
-			rowMap.put("Title", resultRow[1]);
-			rowMap.put("Standards", resultRow[2]);
-			rowMap.put("views", resultRow[3]);
-			rowMap.put("TotalTimeSpent", resultRow[4]);
-			rowMap.put("AverageReaction", resultRow[5]);
-			resultSetMap.add(rowMap);
-		}
-		try {
-			return csvBuilderService.generateCSVReport(resultSetMap, "reports.csv");
-		} catch (Exception e) {
-			LOGGER.error("Exception:", e);
-		}
-		return null;
-	}
-
 	public SessionEventLog getSessionEventLog() {
 		return sessionEventLog;
 	}
@@ -371,5 +344,5 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 	public UserRepository getUserRepository() {
 		return userRepository;
 	}
-
+	
 }

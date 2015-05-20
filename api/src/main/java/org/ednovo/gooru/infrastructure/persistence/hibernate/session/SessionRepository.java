@@ -48,7 +48,5 @@ public interface SessionRepository extends BaseRepository {
     
     SessionItemFeedback getSessionItemFeedback(String gooruOid, String gooruUid);
 
-	List<Object[]> getClassReport(String classGooruId);
-
 
 }
