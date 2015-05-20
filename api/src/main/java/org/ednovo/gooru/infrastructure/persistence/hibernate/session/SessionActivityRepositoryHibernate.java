@@ -43,13 +43,13 @@ public class SessionActivityRepositoryHibernate extends BaseRepositoryHibernate 
 
 	private final String SESSION_ACTIVITY_ITEM_ATTEMPT_COUNT = "select count(1) as count from session_activity_item_attempt_try where session_activity_id=:sessionActivityId and resource_id=:resourceId ";
 
-	private final String SESSION_ACTIVITY_RATING_COUNT = "select round(sum(rating)/count(1)) as count from session_activity_item where session_activity_id =:sessionActivityId and rating <> 0";
+	private final String SESSION_ACTIVITY_RATING_COUNT = "select IFNULL(round(sum(rating)/count(1)), 0) as count from session_activity_item where session_activity_id =:sessionActivityId and rating <> 0";
 
-	private final String SESSION_ACTIVITY_REACTION_COUNT = "select round(sum(reaction)/count(1)) as count from session_activity_item where session_activity_id =:sessionActivityId and reaction <> 0";
+	private final String SESSION_ACTIVITY_REACTION_COUNT = "select IFNULL(round(sum(reaction)/count(1)), 0) as count from session_activity_item where session_activity_id =:sessionActivityId and reaction <> 0";
 
 	private final String COLLECTION_QUESTION_COUNT = "select count(1) as count from collection_item ci inner join assessment_question  q on q.question_id = ci.resource_content_id where ci.collection_content_id=:collectionId";
 
-	private final String SESSION_ACTIVITY_TOTAL_SCORE = "select sum(score) as count from session_activity_item where session_activity_id =:sessionActivityId";
+	private final String SESSION_ACTIVITY_TOTAL_SCORE = "select IFNULL(sum(score), 0) as count from session_activity_item where session_activity_id =:sessionActivityId";
 	
 	@Override
 	public SessionActivity getSessionActivityById(Long sessionActivityId) {
