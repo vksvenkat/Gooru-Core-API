@@ -87,7 +87,12 @@ public class IndexProcessor extends BaseComponent {
 	private static final String INDEX_ACTION = "action";
 	private static final String IS_UPDATE_USER_CONTENT = "isUpdateUserContent";
 	
-	
+	private static final String TOPIC_RESOURCE = "resourceQueue14";
+
+	private static final String TOPIC_SCOLLECTION = "scollectionQueue14";
+
+	private static final String TOPIC_USER = "userQueue14";
+
 
 	public static final String INDEX = "index";
 
@@ -112,7 +117,7 @@ public class IndexProcessor extends BaseComponent {
 			indexData.put("action", action);
 			indexData.put("priority", "0");
 			String indexMsg = SERIALIZER.deepSerialize(indexData);
-			kafkaProducer.send(indexMsg, type);
+			kafkaProducer.send(indexMsg, type, getTopicName(type));
 		}
 		else{
 			index(uuids, action, type, false, false);
@@ -164,7 +169,19 @@ public class IndexProcessor extends BaseComponent {
 		indexData.put(INDEX_ACTION, action);
 		indexData.put(IS_UPDATE_USER_CONTENT, isUpdateUserContent);
 		String indexMsg = SERIALIZER.deepSerialize(indexData);
-		kafkaProducer.send(indexMsg, type);
+		kafkaProducer.send(indexMsg, type, getTopicName(type));
+	}
+	
+	private String getTopicName(String type){
+		String topicName = null;
+		if (type.equalsIgnoreCase("resource")) {
+			topicName = TOPIC_RESOURCE;
+		} else if (type.equalsIgnoreCase("scollection")) {
+			topicName = TOPIC_SCOLLECTION;
+		} else if (type.equalsIgnoreCase("user")) {
+			topicName = TOPIC_USER;
+		}
+	    return topicName;
 	}
 
 	public void index(final String uuids, final String action, final String type, final String sessionToken, final GooruAuthenticationToken authentication, final boolean isUpdateUserContent, final boolean isUpdateStas) {
