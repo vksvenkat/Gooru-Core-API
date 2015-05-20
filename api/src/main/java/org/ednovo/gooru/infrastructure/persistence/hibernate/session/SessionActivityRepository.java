@@ -42,4 +42,12 @@ public interface SessionActivityRepository extends BaseRepository {
 	List<Object[]> getClassReport(String classGooruId,String query);
 
 	String getExportConfig(String key);
+	
+	Integer getSessionActivityReactionCount(Long sessionActivityId);
+	
+	Integer getSessionActivityRatingCount(Long sessionActivityId);
+	
+	Integer getQuestionCount(Long collectionId);
+	
+	Integer getTotalScore(Long sessionActivityId);
 }

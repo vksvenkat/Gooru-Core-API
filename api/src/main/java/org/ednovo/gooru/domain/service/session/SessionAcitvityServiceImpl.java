@@ -32,6 +32,7 @@ import java.util.Map;
 
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.AssessmentQuestion;
+import org.ednovo.gooru.core.api.model.AttemptTryStatus;
 import org.ednovo.gooru.core.api.model.ModeType;
 import org.ednovo.gooru.core.api.model.SessionActivity;
 import org.ednovo.gooru.core.api.model.SessionActivityItem;
@@ -81,19 +82,19 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 				sessionActivity.setClassId(getResourceRepository().getNumericClassCode(sessionActivity.getParentId()));
 			} else {
 				sessionActivity.setIsStudent(false);
+				sessionActivity.setClassId(1L);
 			}
 			sessionActivity.setSequence(getSessionActivityRepository().getSessionActivityCount(collectionId, sessionActivity.getParentId(), user.getGooruUId()) + 1);
 			sessionActivity.setScore(0.0);
 			sessionActivity.setReaction(0);
 			sessionActivity.setRating(0);
-			sessionActivity.setTimeSpentInMillis(0);
+			sessionActivity.setTimeSpentInMillis(0L);
 			sessionActivity.setType(sessionActivity.getType());
 			sessionActivity.setStatus(SessionStatus.OPEN.getSessionStatus());
 			sessionActivity.setCollectionId(collectionId);
 			sessionActivity.setViewsInSession(1);
 			sessionActivity.setStartTime(new Date(System.currentTimeMillis()));
 			sessionActivity.setUser(user);
-
 			this.getSessionActivityRepository().save(sessionActivity);
 		}
 		return new ActionResponseDTO<SessionActivity>(sessionActivity, errors);
@@ -108,6 +109,16 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 			if (newSession.getStatus() != null && newSession.getStatus().equalsIgnoreCase(SessionStatus.ARCHIVE.getSessionStatus())) {
 				sessionActivity.setStatus(newSession.getStatus());
 				sessionActivity.setEndTime(new Date(System.currentTimeMillis()));
+				Long timeSpentInMillis = sessionActivity.getEndTime().getTime() - sessionActivity.getStartTime().getTime();
+				sessionActivity.setTimeSpentInMillis(timeSpentInMillis);
+				sessionActivity.setRating(this.getSessionActivityRepository().getSessionActivityRatingCount(sessionActivityId));
+				sessionActivity.setReaction(this.getSessionActivityRepository().getSessionActivityReactionCount(sessionActivityId));
+				Integer questionCount = this.getSessionActivityRepository().getQuestionCount(sessionActivity.getCollectionId());
+				if (questionCount > 0) { 
+					Integer totalScore = this.getSessionActivityRepository().getTotalScore(sessionActivityId);
+					Double scoreInPrecentage = (double) ((totalScore / questionCount) * 100);
+					sessionActivity.setScore(scoreInPrecentage);
+				}
 			}
 			if (newSession.getScore() != null) {
 				sessionActivity.setScore(newSession.getScore());
@@ -192,6 +203,9 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 			sessionActivityItem.setAnswerStatus(sessionActivityItemAttemptTry.getAnswerStatus());
 			sessionActivityItem.setAttemptCount(sessionActivityItemAttemptTry.getTrySequence());
 			sessionActivityItem.setAnswerText(sessionActivityItemAttemptTry.getAnswerText());
+			if (sessionActivityItem.getAnswerStatus() != null && !sessionActivityItem.getAnswerStatus().contains(AttemptTryStatus.WRONG.getTryStatus()) && !sessionActivityItem.getAnswerStatus().contains(AttemptTryStatus.SKIPPED.getTryStatus())) { 
+				sessionActivityItem.setScore(1.0);
+			}
 			this.getSessionActivityRepository().save(sessionActivityItem);
 		}
 		return sessionActivityItemAttemptTry;
