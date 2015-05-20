@@ -2897,5 +2897,9 @@ public interface ParameterProperties {
 	String PAGE_INFO = "pageInfo";
 	
 	String TOTAL_RESULTS = "totalResults";
+	
+	String SUBJECT_NAME = "subjectName";
+	
+	String SUBDOMAIN = "subdomain";
 }
 

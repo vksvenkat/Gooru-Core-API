@@ -25,14 +25,20 @@ package org.ednovo.gooru.domain.service.subject;
 
 import java.util.List;
 
+import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Subject;
 import org.ednovo.gooru.core.api.model.User;
+import org.ednovo.gooru.domain.service.search.SearchResults;
 
 public interface SubjectService {
 
-	public void createSubject(Subject subject, User user);
+	ActionResponseDTO<Subject> createSubject(Subject subject, User user);
 	
-	public Subject getSubject(String subjectId);
+	Subject getSubject(String subjectId);
 	
-	public List<Subject> getSubjects();
+	SearchResults<Subject> getSubjects(Integer limit, Integer offset);
+
+	void deleteSubject(String subjectId);
+
+	Subject updateSubject(Subject subject, User user, String subjectId);
 }

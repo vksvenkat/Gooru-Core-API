@@ -6,7 +6,7 @@ import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Id;
 
-public class Subject implements Serializable{
+public class Subject extends OrganizationModel implements Serializable{
 	
 	/**
 	 * 
@@ -35,25 +35,22 @@ public class Subject implements Serializable{
 	private Integer displaySequence;
 	
 	@Column
-	private String creatorId;
-	
-	@Column
 	private Date createdOn;
 	
 	@Column
 	private Date lastModified;
 	
 	@Column
-	private String organizationUid;
+	private User creator;
 	
-	public String getOrganizationUid() {
-		return organizationUid;
+	public User getCreator() {
+		return creator;
 	}
 
-	public void setOrganizationUid(String organizationUid) {
-		this.organizationUid = organizationUid;
+	public void setCreator(User creator) {
+		this.creator = creator;
 	}
-
+	
 	public Date getLastModified() {
 		return lastModified;
 	}
@@ -114,12 +111,5 @@ public class Subject implements Serializable{
     public void setActiveFlag(short activeFlag) {
 	    this.activeFlag = activeFlag;
     }
-
-	public String getCreatorId() {
-		return creatorId;
-	}
-
-	public void setCreatorId(String creatorId) {
-		this.creatorId = creatorId;
-	}
+    
 }

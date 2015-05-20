@@ -84,6 +84,7 @@
 				<value>org/ednovo/gooru/domain/model/core/Gender.hbm.xml</value>
 				<value>org/ednovo/gooru/domain/model/core/Province.hbm.xml</value>
 				<value>org/ednovo/gooru/domain/model/core/Subject.hbm.xml</value>
+				<value>org/ednovo/gooru/domain/model/core/SubDomain.hbm.xml</value>
 				
 				<!-- <value>org/ednovo/gooru/domain/model/taxonomy/GetTaxonomyProcedure.hbm.xml</value> -->
 				<!-- User Domain -->

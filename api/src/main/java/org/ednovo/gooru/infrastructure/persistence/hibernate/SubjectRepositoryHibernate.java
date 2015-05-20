@@ -26,11 +26,15 @@ package org.ednovo.gooru.infrastructure.persistence.hibernate;
 import java.util.List;
 
 import org.ednovo.gooru.core.api.model.Subject;
+import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.hibernate.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class SubjectRepositoryHibernate extends BaseRepositoryHibernate implements SubjectRepository{
+public class SubjectRepositoryHibernate extends BaseRepositoryHibernate implements SubjectRepository, ParameterProperties {
 
+	private static final String SUBJECT_COUNT = "SELECT COUNT(*) FROM Subject";
+	private static final String SUBJECTS = "FROM Subject";	
 	@Override
     public Subject getSubject(String subjectId) {
 		String hql = "FROM Subject subject WHERE subject.subjectId = '" + subjectId + "'";
@@ -38,8 +42,17 @@ public class SubjectRepositoryHibernate extends BaseRepositoryHibernate implemen
     }
 
 	@Override
-    public List<Subject> getSubjects() {
-		String hql = "FROM Subject";
-	    return get(hql);
+    public List<Subject> getSubjects(Integer limit, Integer offset) {
+		Query query = getSession().createQuery(SUBJECTS);
+        query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : limit);
+        query.setFirstResult(offset);
+	    return list(query);
     }
+	
+	@Override
+	public Long getSubjectCount() {
+		Query query = getSession().createQuery(SUBJECT_COUNT);
+		return (Long) (query.list().size() > 0 ? query.list().get(0) : 0);
+	}
+	
 }

@@ -23,12 +23,11 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.controllers.v2.api;
 
-import java.util.List;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.ednovo.gooru.controllers.BaseController;
+import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Subject;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
@@ -44,6 +43,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 
@@ -60,17 +60,15 @@ public class SubjectRestV2Controller extends BaseController implements ConstantP
 	public ModelAndView createSubject(HttpServletRequest request, HttpServletResponse response, @RequestBody String data)throws Exception{
 		JSONObject json = requestData(data);
 		User user = (User) request.getAttribute(Constants.USER);
-		this.getSubjectService().createSubject(buildSubjectFromInputParameters(getValue(SUBJECT, json)),user);
-		
-		return null;
+		ActionResponseDTO<Subject> subject = this.getSubjectService().createSubject(buildSubjectFromInputParameters(getValue(SUBJECT, json)),user);
+		return toModelAndViewWithIoFilter(subject, FORMAT_JSON, EXCLUDE_ALL, true, SUBJECT_INCLUDES);
 	}
 	
 	//@AuthorizeOperations(operations = {GooruOperationConstants.OPERATION_SUBJECT_READ})
 	@RequestMapping(method = RequestMethod.GET, value = " ")
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public ModelAndView getSubjects(HttpServletResponse response, HttpServletRequest request)throws Exception{
-		List<Subject> subjectObj = this.getSubjectService().getSubjects();
-		return toModelAndViewWithIoFilter(subjectObj, FORMAT_JSON, EXCLUDE_ALL, true, SUBJECT_INCLUDES);
+	public ModelAndView getSubjects(@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, HttpServletResponse response, HttpServletRequest request)throws Exception{
+		return toModelAndViewWithIoFilter(this.getSubjectService().getSubjects(limit, offset), FORMAT_JSON, EXCLUDE_ALL, true, SUBJECT_INCLUDES);
 	}
 	
 	//@AuthorizeOperations(operations = {GooruOperationConstants.OPERATION_SUBJECT_READ})
@@ -83,18 +81,20 @@ public class SubjectRestV2Controller extends BaseController implements ConstantP
 	
 	//@AuthorizeOperations(operations = {GooruOperationConstants.OPERATION_SUBJECT_UPDATE})
 	@RequestMapping(method = RequestMethod.PUT, value ="/{id}")
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public ModelAndView putSubject(HttpServletResponse response, HttpServletRequest request,@RequestBody String data, @PathVariable(ID) String collectionId)throws Exception{
-		
-		return null;
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public ModelAndView updateSubject(HttpServletResponse response, HttpServletRequest request,@RequestBody String data, @PathVariable(ID) String subjectId)throws Exception{
+		JSONObject json = requestData(data);
+		User user = (User) request.getAttribute(Constants.USER);
+		//this.getSubjectService().updateSubject(buildSubjectFromInputParameters(getValue(SUBJECT, json)), user, subjectId);
+		return toModelAndViewWithIoFilter(this.getSubjectService().updateSubject(buildSubjectFromInputParameters(getValue(SUBJECT, json)), user, subjectId), FORMAT_JSON, EXCLUDE_ALL, true, SUBJECT_INCLUDES);
 	}
 		
 	//@AuthorizeOperations(operations = {GooruOperationConstants.OPERATION_SUBJECT_DELETE})
 	@RequestMapping(method = RequestMethod.DELETE, value = "/{id}")
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public ModelAndView deleteSubject(HttpServletResponse response, HttpServletRequest request, @PathVariable(ID) String collectionId)throws Exception{
-		
-		return null;
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public void deleteSubject(HttpServletResponse response, HttpServletRequest request, @PathVariable(ID) String subjectId)throws Exception{
+		this.getSubjectService().deleteSubject(subjectId);
+		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
 	}
 	
 	public SubjectService getSubjectService() {

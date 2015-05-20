@@ -24,58 +24,88 @@
 package org.ednovo.gooru.domain.service.subject;
 
 import java.util.Date;
-import java.util.List;
 
+import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Subject;
 import org.ednovo.gooru.core.api.model.User;
+import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.domain.service.BaseServiceImpl;
+import org.ednovo.gooru.domain.service.search.SearchResults;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.SubjectRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BindException;
+import org.springframework.validation.Errors;
 
 @Service
-public class SubjectServiceImpl extends BaseServiceImpl implements SubjectService{
+public class SubjectServiceImpl extends BaseServiceImpl implements SubjectService, ParameterProperties{
 
 	@Autowired
 	private SubjectRepository subjectRepository;
 
 	@Override
-    public void createSubject(Subject subject, User user) {
-		if(subject !=null){
-		    Subject newSubject = new Subject();		    
-		    if(subject.getDescription()!=null)
-		    	newSubject.setDescription(subject.getDescription());
-		    if(user.getOrganization().getOrganizationUid() != null)
-		    	newSubject.setOrganizationUid(user.getOrganizationUid());
-		    else
-		    	newSubject.setOrganizationUid("4261739e-ccae-11e1-adfb-5404a609bd14");
-		    if(subject.getImagePath()!=null)
-		    	newSubject.setImagePath(subject.getImagePath());
-		    if(user.getPartyUid() != null)
-		    	newSubject.setCreatorId(user.getUserUid());
-		    
-		    newSubject.setActiveFlag(subject.getActiveFlag());
-		    newSubject.setName(subject.getName());
-		    newSubject.setDisplaySequence(subject.getDisplaySequence());
-	    	newSubject.setCreatedOn(new Date(System.currentTimeMillis()));
-	    	newSubject.setLastModified(new Date(System.currentTimeMillis()));
-	    	
-		    subjectRepository.save(newSubject);
+    public ActionResponseDTO<Subject> createSubject(Subject subject, User user) {
+		final Errors errors = validateSubject(subject);
+		if (!errors.hasErrors()) {
+	    	subject.setCreatedOn(new Date(System.currentTimeMillis()));
+	    	subject.setLastModified(new Date(System.currentTimeMillis()));
+	    	subject.setCreator(user);
+	    	subject.setOrganization(user.getOrganization());
+			this.getSubjectRepository().save(subject);
 		}
+		return new ActionResponseDTO<Subject>(subject, errors);
     }
 	
 	@Override
 	public Subject getSubject(String subjectId) {
+		Subject subject = (Subject) subjectRepository.getSubject(subjectId);
+		if(subject == null){
+			throw new NotFoundException(generateErrorMessage(GL0056, SUBJECT), GL0056);
+		}
 		return (Subject) subjectRepository.getSubject(subjectId);
 	}
 	
 	@Override
-	public List<Subject> getSubjects() {
-		return (List<Subject>) subjectRepository.getSubjects();
+	public void deleteSubject(String subjectId){
+		Subject subject = subjectRepository.getSubject(subjectId);
+		rejectIfNull(subject, GL0056, 404, generateErrorMessage(GL0056, SUBJECT));
+		this.subjectRepository.remove(subject);
 	}
 	
+	@Override
+	public SearchResults<Subject> getSubjects(Integer limit, Integer offset) {
+		SearchResults<Subject> result = new SearchResults<Subject>();
+		
+		Long count = this.getSubjectRepository().getSubjectCount();
+		System.out.println(count);
+		result.setSearchResults(this.getSubjectRepository().getSubjects(limit, offset));
+		result.setTotalHitCount(count);
+		return result;
+	}
 	
+	@Override
+    public Subject updateSubject(Subject subject, User user, String subjectId) {
+	    Subject oldSubject = subjectRepository.getSubject(subjectId);
+	    rejectIfNull(oldSubject, GL0056, 404, SUBJECT);
+	    	if(subject.getDescription()!=null)
+		    	oldSubject.setDescription(subject.getDescription());
+		    if(subject.getImagePath()!=null)
+		    	oldSubject.setImagePath(subject.getImagePath());
+		    if(subject.getName() != null)
+		    	oldSubject.setName(subject.getName());
+		    if(subject.getActiveFlag() < 0)
+		    	oldSubject.setActiveFlag(subject.getActiveFlag());
+	    	oldSubject.setLastModified(new Date(System.currentTimeMillis()));
+	    	subjectRepository.save(oldSubject);	
+	    	return oldSubject;
+    }
 	
+	private Errors validateSubject(Subject subject) {
+		final Errors errors = new BindException(subject, SUBJECT);
+		rejectIfNullOrEmpty(errors, subject.getName(), NAME, GL0006, generateErrorMessage(GL0006, SUBJECT_NAME ));
+		return errors;
+	}
 	
 	public SubjectRepository getSubjectRepository() {
 		return subjectRepository;
