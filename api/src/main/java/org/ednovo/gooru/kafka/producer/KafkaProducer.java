@@ -23,11 +23,11 @@ public class KafkaProducer {
 	private Producer<String, String> producer;
 	protected Properties props = new Properties();
 
-	private static final String TOPIC_RESOURCE = "resourceQueue14";
+	private static final String TOPIC_RESOURCE = "resourceQueue";
 
-	private static final String TOPIC_SCOLLECTION = "scollectionQueue14";
+	private static final String TOPIC_SCOLLECTION = "scollectionQueue";
 
-	private static final String TOPIC_USER = "userQueue14";
+	private static final String TOPIC_USER = "userQueue";
 
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(IndexProcessor.class);
