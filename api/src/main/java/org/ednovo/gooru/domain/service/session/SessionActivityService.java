@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////
-// SessionRepository.java
+// SessionService.java
 // gooru-api
 // Created by Gooru on 2014
 // Copyright (c) 2014 Gooru. All rights reserved.
@@ -21,32 +21,24 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 /////////////////////////////////////////////////////////////
-package org.ednovo.gooru.infrastructure.persistence.hibernate.session;
+package org.ednovo.gooru.domain.service.session;
 
-import java.util.List;
-import java.util.Map;
-
+import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.SessionActivity;
 import org.ednovo.gooru.core.api.model.SessionActivityItem;
 import org.ednovo.gooru.core.api.model.SessionActivityItemAttemptTry;
-import org.ednovo.gooru.core.api.model.SessionItemFeedback;
-import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepository;
+import org.ednovo.gooru.core.api.model.User;
+import org.ednovo.gooru.domain.service.BaseService;
 
-public interface SessionRepository extends BaseRepository {
+public interface SessionActivityService extends BaseService {
 
-	SessionActivity findSessionById(String sessionId);
+	ActionResponseDTO<SessionActivity> createSessionActivity(SessionActivity sessionActivity, User user);
 
-	SessionActivityItem getLastSessionItem(String sessionId);
+	ActionResponseDTO<SessionActivity> updateSessionActivity(Long sessionActivityId, SessionActivity sessionActivity);
 
-	SessionActivityItem findSessionItemById(String sessionItemId);
+	SessionActivityItem createOrUpdateSessionActivityItem(SessionActivityItem sessionActivityItem, Long sessionActivityId);
 
-	List<SessionActivityItemAttemptTry> getSessionItemAttemptTry(String sessionItemId);
+	SessionActivityItemAttemptTry createSessionActivityItemAttemptTry(SessionActivityItemAttemptTry sessionActivityItemAttemptTry, Long sessionActivityId);
 
-	Map<String, Object> getQuizSummary(String sessionId, Integer trySequence, String questionType, Long quizContentId);
-
-    String getQuestionStatus(String sessionId, Integer trySequence, String questionType, Long quizContentId, String questionId);
-    
-    SessionItemFeedback getSessionItemFeedback(String gooruOid, String gooruUid);
-
-
+	SessionActivity getSessionActivity(Long sessionActivityId);
 }
