@@ -27,7 +27,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -332,7 +331,7 @@ public class SessionServiceImpl extends BaseServiceImpl implements SessionServic
 		List<Object[]> resultSet = getSessionRepository().getClassReport(classGooruId);
 		List<Map<String, Object>> resultSetMap = new ArrayList<Map<String, Object>>();
 		for (Object[] resultRow : resultSet) {
-			Map<String, Object> rowMap = new LinkedHashMap<String, Object>();
+			Map<String, Object> rowMap = new HashMap<String, Object>();
 			rowMap.put("UserName", resultRow[0]);
 			rowMap.put("Title", resultRow[1]);
 			rowMap.put("Standards", resultRow[2]);
