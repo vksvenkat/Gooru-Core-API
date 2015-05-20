@@ -31,8 +31,16 @@ public class StatisticsCo {
 	private String viewsCount;
 	
 	@Column
-	private Long averageTimeSpent;
+	private Integer scollectionRemixCount; 
 
+	@Column
+	private Long resourceAddedCount;
+
+	@Column
+	private Long resourceUsedUserCount;
+	
+	@Column
+	private Long averageTimeSpent;
 	
 	@Column
 	private String subscriberCount;
@@ -273,6 +281,31 @@ public class StatisticsCo {
 	public void setAverageTimeSpent(Long averageTimeSpent) {
 		this.averageTimeSpent = averageTimeSpent;
 	}
+
+	public Long getResourceAddedCount() {
+		return resourceAddedCount;
+	}
+
+	public void setResourceAddedCount(Long resourceAddedCount) {
+		this.resourceAddedCount = resourceAddedCount;
+	}
+
+	public Long getResourceUsedUserCount() {
+		return resourceUsedUserCount;
+	}
+
+	public void setResourceUsedUserCount(Long resourceUsedUserCount) {
+		this.resourceUsedUserCount = resourceUsedUserCount;
+	}
+
+	public Integer getScollectionRemixCount() {
+		return scollectionRemixCount;
+	}
+
+	public void setScollectionRemixCount(Integer scollectionRemixCount) {
+		this.scollectionRemixCount = scollectionRemixCount;
+	}
+
 
 
 }

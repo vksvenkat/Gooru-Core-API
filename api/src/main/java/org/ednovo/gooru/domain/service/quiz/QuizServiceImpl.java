@@ -44,7 +44,6 @@ import org.ednovo.gooru.core.api.model.Options;
 import org.ednovo.gooru.core.api.model.Quiz;
 import org.ednovo.gooru.core.api.model.ResourceType;
 import org.ednovo.gooru.core.api.model.Sharing;
-import org.ednovo.gooru.core.api.model.ShelfType;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
@@ -81,7 +80,7 @@ public class QuizServiceImpl extends ScollectionServiceImpl implements QuizServi
 		}
 		if (addToMyQuiz) {
 			CollectionItem collectionItem = new CollectionItem();
-			collectionItem.setItemType(ShelfType.AddedType.ADDED.getAddedType());
+			collectionItem.setItemType(ADDED);
 			this.createQuizItem(quiz.getGooruOid(), null, collectionItem, quiz.getUser(), CollectionType.USER_QUIZ.getCollectionType());
 		}
 		return new ActionResponseDTO<Quiz>(quiz, errors);
@@ -227,10 +226,10 @@ public class QuizServiceImpl extends ScollectionServiceImpl implements QuizServi
 				quiz.setIsFeatured(0);
 				this.getCollectionRepository().save(quiz);
 			}
-			collectionItem.setItemType(ShelfType.AddedType.SUBSCRIBED.getAddedType());
+			collectionItem.setItemType(SUBSCRIBED);
 		} else {
 			quiz = this.getCollectionRepository().getQuiz(quizGooruOId, null, null);
-			collectionItem.setItemType(ShelfType.AddedType.ADDED.getAddedType());
+			collectionItem.setItemType(ADDED);
 		}
 
 		org.ednovo.gooru.core.api.model.Resource resource = this.getResourceRepository().findResourceByContentGooruId(resourceGooruOid);
@@ -282,26 +281,26 @@ public class QuizServiceImpl extends ScollectionServiceImpl implements QuizServi
 				for (CollectionItem ci : collection.getCollectionItems()) {
 
 					if (ci.getItemSequence() >= newSequence && ci.getItemSequence() <= existCollectionItemSequence) {
-							if (ci.getCollectionItemId().equalsIgnoreCase(collectionItem.getCollectionItemId())) {
-								ci.setItemSequence(newSequence);
-							} else {
-								ci.setItemSequence(ci.getItemSequence() + 1);
-							}
+						if (ci.getCollectionItemId().equalsIgnoreCase(collectionItem.getCollectionItemId())) {
+							ci.setItemSequence(newSequence);
+						} else {
+							ci.setItemSequence(ci.getItemSequence() + 1);
+						}
 					}
 				}
 
 			} else if (existCollectionItemSequence < newSequence) {
 				for (CollectionItem ci : collection.getCollectionItems()) {
 					if (ci.getItemSequence() <= newSequence && existCollectionItemSequence <= ci.getItemSequence()) {
-							if (ci.getCollectionItemId().equalsIgnoreCase(collectionItem.getCollectionItemId())) {
-								if (collection.getCollectionItems().size() < newSequence) {
-									ci.setItemSequence(collection.getCollectionItems().size());
-								} else {
-									ci.setItemSequence(newSequence);
-								}
+						if (ci.getCollectionItemId().equalsIgnoreCase(collectionItem.getCollectionItemId())) {
+							if (collection.getCollectionItems().size() < newSequence) {
+								ci.setItemSequence(collection.getCollectionItems().size());
 							} else {
-								ci.setItemSequence(ci.getItemSequence() - 1);
+								ci.setItemSequence(newSequence);
 							}
+						} else {
+							ci.setItemSequence(ci.getItemSequence() - 1);
+						}
 					}
 				}
 			}
@@ -384,7 +383,7 @@ public class QuizServiceImpl extends ScollectionServiceImpl implements QuizServi
 			this.getResourceManager().copyResourceRepository(sourceQuiz, targetQuiz);
 			if (addToMyQuiz) {
 				CollectionItem collectionItem = new CollectionItem();
-				collectionItem.setItemType(ShelfType.AddedType.ADDED.getAddedType());
+				collectionItem.setItemType(ADDED);
 				this.createQuizItem(targetQuiz.getGooruOid(), null, collectionItem, user, CollectionType.USER_QUIZ.getCollectionType());
 			}
 		}
@@ -404,8 +403,8 @@ public class QuizServiceImpl extends ScollectionServiceImpl implements QuizServi
 		itemType.put(ADDED, COLLECTION_ITEM_TYPE);
 		itemType.put(SUBSCRIBED, COLLECTION_ITEM_TYPE);
 		final Errors errors = new BindException(collectionItem, COLLECTION_ITEM);
-		rejectIfNull(errors, collectionItem, COLLECTION_ITEM, GL0056, generateErrorMessage( GL0056, COLLECTION_ITEM));
-		rejectIfInvalidType(errors, collectionItem.getItemType(), ITEM_TYPE,GL0007, generateErrorMessage(GL0007, ITEM_TYPE), itemType);
+		rejectIfNull(errors, collectionItem, COLLECTION_ITEM, GL0056, generateErrorMessage(GL0056, COLLECTION_ITEM));
+		rejectIfInvalidType(errors, collectionItem.getItemType(), ITEM_TYPE, GL0007, generateErrorMessage(GL0007, ITEM_TYPE), itemType);
 		return errors;
 	}
 

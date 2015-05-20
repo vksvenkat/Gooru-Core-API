@@ -27,7 +27,6 @@ import java.util.List;
 
 import org.ednovo.gooru.core.api.model.Application;
 import org.ednovo.gooru.core.api.model.ApplicationItem;
-import org.ednovo.gooru.core.api.model.CustomTableValue;
 import org.ednovo.gooru.core.api.model.ResourceType;
 import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.constant.ConstantProperties;
@@ -117,7 +116,8 @@ public class ApplicationRepositoryHibernate extends BaseRepositoryHibernate impl
 		Query query = getSession().createQuery(hql);
 		query.setParameter("apiKey", apiKey);
 		query.setParameter("type", APPLICATION_STATUS_ACTIVE);
-		return (List<ApplicationItem>) (query.list().size() > 0 ? query.list() : null);
+		List<ApplicationItem> applicationItems = list(query);
+		return applicationItems.size() > 0 ? applicationItems : null;
 	}
 
 }

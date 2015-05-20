@@ -64,7 +64,6 @@ public class MenuRepositoryHibernate extends BaseRepositoryHibernate implements 
 		return (Integer) (query.list().get(0));
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public List<MenuItem> getMenuItemsByMenuId(String menuUid) {
 		String hql = "SELECT distinct mi FROM MenuItem mi WHERE 1=1 ";
@@ -79,10 +78,9 @@ public class MenuRepositoryHibernate extends BaseRepositoryHibernate implements 
 		if (menuUid != null) {
 			query.setParameter("parentMenuUid", menuUid);
 		}
-		return (List<MenuItem>) query.list();
+		return list(query);
 	}
-	
-	@SuppressWarnings("unchecked")
+
 	@Override
 	public List<MenuItem> getMenuItems(List<Integer> roleIds, Integer sequence, String parentMenuUid) {
 		String hql = "SELECT distinct menuItem FROM MenuItem menuItem join menuItem.menu.menuRoleAssocs menuRoleAssoc  WHERE 1=1 ";
@@ -111,7 +109,7 @@ public class MenuRepositoryHibernate extends BaseRepositoryHibernate implements 
 		if (sequence != null) {
 			query.setParameter("sequence", sequence);
 		}
-		return (List<MenuItem>) query.list();
+		return list(query);
 	}
 	
 	@Override

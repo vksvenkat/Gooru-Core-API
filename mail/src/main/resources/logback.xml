@@ -17,7 +17,7 @@
 		</filter>
 	</appender>
 	<appender name="default-out" class="ch.qos.logback.core.rolling.RollingFileAppender"> <!-- Rolling file appender for rolling files -->
-		<param name="File" value="${catalina.home}/gooru_logs/conversion-default.log" />
+		<param name="File" value="${catalina.base}/gooru_logs/conversion-default.log" />
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
 			<!-- daily rollover -->
 			<fileNamePattern>web-default.%d{yyyy-MM-dd}.log</fileNamePattern>

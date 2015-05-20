@@ -41,13 +41,14 @@ import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.NotFoundException;
-import org.ednovo.gooru.domain.service.eventlogs.UserEventlog;
+import org.ednovo.gooru.domain.service.eventlogs.UserEventLog;
 import org.ednovo.gooru.domain.service.redis.RedisService;
 import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.ednovo.gooru.infrastructure.messenger.IndexHandler;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.party.PartyRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.taxonomy.TaxonomyRespository;
+import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,7 +63,7 @@ public class PartyServiceImpl extends BaseServiceImpl implements PartyService, P
 	private PartyRepository partyRepository;
 
 	@Autowired
-	private UserEventlog userEventlog;
+	private UserEventLog userEventlog;
 
 	@Autowired
 	private TaxonomyRespository taxonomyRespository;
@@ -149,6 +150,7 @@ public class PartyServiceImpl extends BaseServiceImpl implements PartyService, P
 		if (newPartyCustomField.getOptionalKey() != null && newPartyCustomField.getOptionalKey().equalsIgnoreCase(USER_TAXONOMY_ROOT_CODE)) {
 			this.redisService.deleteKey(SESSION_TOKEN_KEY + UserGroupSupport.getSessionToken());
 		}
+		this.getUserEventlog().getEventLogs(true, false, user, null, true, true);
 		return partyCustomField;
 	}
 
@@ -243,7 +245,7 @@ public class PartyServiceImpl extends BaseServiceImpl implements PartyService, P
 		return taxonomyRespository;
 	}
 
-	public UserEventlog getUserEventlog() {
+	public UserEventLog getUserEventlog() {
 		return userEventlog;
 	}
 

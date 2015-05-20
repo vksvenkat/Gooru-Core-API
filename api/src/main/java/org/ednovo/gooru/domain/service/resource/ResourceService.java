@@ -23,7 +23,6 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.domain.service.resource;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
@@ -32,28 +31,19 @@ import java.util.Set;
 
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Code;
-import org.ednovo.gooru.core.api.model.ConverterDTO;
-import org.ednovo.gooru.core.api.model.Job;
-import org.ednovo.gooru.core.api.model.Learnguide;
+import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.ResourceInfo;
-import org.ednovo.gooru.core.api.model.ResourceInstance;
 import org.ednovo.gooru.core.api.model.ResourceSource;
-import org.ednovo.gooru.core.api.model.Segment;
-import org.ednovo.gooru.core.api.model.StatisticsDTO;
 import org.ednovo.gooru.core.api.model.Textbook;
-import org.ednovo.gooru.core.api.model.UpdateViewsDTO;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.cassandra.model.ResourceMetadataCo;
 import org.ednovo.gooru.domain.service.BaseService;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.springframework.validation.Errors;
 
 
 public interface ResourceService extends BaseService {
 
-	ResourceInstance saveResourceInstance(ResourceInstance resourceInstance) throws Exception;
 
 	Resource saveResource(Resource resource, Errors errors, boolean findByURL);
 
@@ -65,27 +55,7 @@ public interface ResourceService extends BaseService {
 
 	void deleteResource(Long contentId);
 
-	Segment reorderResourceInstace(Resource resource, String segmentId, String resourceInstanceId, String newResourceInstancePos, String newSegmentId) throws Exception;
-
-	ResourceInstance getResourceInstance(String resourceInstanceId);
-
-	void deleteSegmentResourceInstance(String resourceInstanceId);
-
-	void deleteSegment(String segmentId, Learnguide collection);
-
-	Segment getSegment(String segmentId);
-
-	Long reorderSegments(String reorder, String gooruResourceId) throws Exception;
-
-	List<ResourceInstance> listResourceInstances(String gooruContentId, String type);
-
-	List<ResourceInstance> listSegmentResourceInstances(String segmentId);
-
-	ResourceInstance getFirstResourceInstanceOfResource(String gooruContentId);
-
 	Resource findWebResource(String url);
-
-	int findViews(String contentGooruId);
 
 	void enrichAndAddOrUpdate(Resource resource);
 
@@ -97,12 +67,6 @@ public interface ResourceService extends BaseService {
 
 	void updateResourceSource(String resourceTypeString);
 
-	ResourceInstance findResourceInstanceByContentGooruId(String gooruOid);
-
-	void orderCollectionResourceInstances();
-
-	void deleteResourceFromGAT(String gooruContentId, boolean isThirdPartyUser, User apiCaller, boolean isMycontent);
-
 	String updateResourceImage(String gooruContentId, String fileName) throws IOException;
 
 	void deleteResourceImage(String gooruContentId);
@@ -111,33 +75,15 @@ public interface ResourceService extends BaseService {
 	
 	void deleteBulkResource(String contentIds);
 
-	void updateResourceInstanceMetaData(Resource resource, User user);
-
-	ResourceInstance buildResourceInstance(Map<String, Object> resourceParam, Map<String, Object> formField) throws Exception;
-
-	Resource buildMyContent(Map<String, Object> resourceParam, Map<String, Object> formField) throws Exception;
-
-	void replaceDuplicatePrivateResourceWithPublicResource(Resource resource);
-
-	void setDefaultThumbnail(String contentType, int batchSize, int pageSize);
-
-	void incrementViews(String contentGooruId);
-
 	ResourceSource updateSuggestAttribution(String gooruContentId, String attribution);
 
 	void deleteResource(String gooruContentId, User apiCaller);
 
 	void deleteAttribution(Resource resource, String gooruAttributionId, User apiCaller);
 
-	Job saveJob(File sourceFile, ConverterDTO converterDTO, User user);
-
-	Job getResourceTaskJob(String taskId);
-
 	ResourceSource findResourceSource(String domainName);
 
 	ResourceInfo findResourceInfo(String resourceGooruOid);
-
-	Resource saveCrawledResource(String url, String title, String text, String parentUrl, String thumbnail, String attribution, String typeForPdf, String category, String siteName, String tags, String description);
 
 	Resource findResourceByUrl(String resourceUrl, String sharing, String userUid);
 
@@ -151,7 +97,6 @@ public interface ResourceService extends BaseService {
 
 	Resource updateResource(String resourceGooruOid, String title, String description, String mediaFilename, String mediaType) throws IOException;
 
-	void saveOrUpdate(Resource resource);
 
 	Resource updateResourceByGooruContentId(String gooruContentId, String resourceTitle, String distinguish, Integer isFeatured, String description, Boolean hasFrameBreaker, String tags, String sharing, Integer resourceSourceId, User user, String mediaType, String attribution, String category,
 			String mediaFileName, Boolean isBlacklisted, String grade, String resource_format, String licenseName, String url);
@@ -166,11 +111,7 @@ public interface ResourceService extends BaseService {
 
 	Resource getResourceByResourceInstanceId(String resourceInstanceId);
 
-	JSONObject getResourceAnalyticData(String gooruOid, String contentType, User user) throws JSONException;
-
 	ResourceInfo getResourcePageCount(String resourceId);
-
-	String getResourceInstanceNarration(String resourceInstanceId);
 
 	boolean shortenedUrlResourceCheck(String domain);
 
@@ -194,7 +135,7 @@ public interface ResourceService extends BaseService {
 
 	List<Resource> listResourcesUsedInCollections(String limit, String offset, User user);
 
-	ActionResponseDTO<Resource> createResource(Resource newResource, User user) throws Exception;
+	Resource createResource(final Resource newResource, final List<String> tags, final User user, final boolean updateIfExist) throws Exception;
 
 	void saveOrUpdateGrade(Resource resource, Resource newResource);
 
@@ -202,28 +143,24 @@ public interface ResourceService extends BaseService {
 
 	List<User> addCollaborator(String colletionId, User user, String collaboratorId, String collaboratorOperation);
 
-	List<User> getCollaborators(String collectionId);
-
 	Resource resourcePlay(String gooruContentId, User apiCaller, boolean more) throws Exception;
-	
-	void updateViewsBulk(List<UpdateViewsDTO> updateViewsDTOs, User apiCaller);
-	
+		
 	Resource findLtiResourceByContentGooruId(String gooruContentId);
 	
 	Map<String, Object> getResource(String gooruOid);
 	
 	Resource setContentProvider(Resource resource);
-	
-	void updateStatisticsData(List<StatisticsDTO> statisticsList, boolean skipReindex);
-	
+		
 	List<String> updateContentProvider(String gooruOid, List<String> providerList, User user, String providerType);
 
 	void deleteContentProvider(String gooruOid, String providerType, String name);
-	
-	ResourceInstance checkResourceUrlExists(String url, boolean checkShortenedUrl) throws Exception;
-	
+		
 	Resource setContentProvider(String gooruOid);
 	
+	Map<String, Object> checkResourceUrlExists(String url, boolean checkShortenedUrl) throws Exception;
 
+	List<Collection> getCollectionsByResourceId(String resourceId, String sharing, Integer limit, Integer offset);
 
+	Resource buildResourceFromInputParameters(final String data, final User user);
+	
 }

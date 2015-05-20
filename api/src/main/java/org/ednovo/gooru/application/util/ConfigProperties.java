@@ -69,6 +69,9 @@ public final class ConfigProperties implements Serializable, ConfigConstants {
 
 	private static Map<String, String> googleDrive;
 	
+	private static Map<String, Map<String,String>> insightsKafkaProperties;
+	
+	private static String googleApiKey;
 
 	@Autowired
 	private SettingService settingService;
@@ -104,7 +107,9 @@ public final class ConfigProperties implements Serializable, ConfigConstants {
 		String clientSecret = settingService.getConfigSetting(ConfigConstants.CLIENT_SECRET, 0, TaxonomyUtil.GOORU_ORG_UID);
 		        
 		String googleCallbackUri = settingService.getConfigSetting(ConfigConstants.OAUTH_CALLBACK_URI, 0, TaxonomyUtil.GOORU_ORG_UID);
-				
+		
+		googleApiKey = settingService.getConfigSetting(ConfigConstants.GOOGLE_API_KEY,1,TaxonomyUtil.GOORU_ORG_UID);
+		
 		try { 
 			googleDrive = new HashMap<String, String>();
 			googleDrive.put("settingUrl", settingUrl);
@@ -188,6 +193,28 @@ public final class ConfigProperties implements Serializable, ConfigConstants {
 			googleAnalyticsAccountId = new HashMap<String, String>();
 		}
 
+		initInsightsKafkaProperties();
+	}
+	
+	private void initInsightsKafkaProperties(){
+		
+		String insightsKafkaPropertiesData = settingService.getConfigSetting(0, ConfigConstants.INSIGHTS_KAFKA_PROPERTIES, TaxonomyUtil.GOORU_ORG_UID);
+		try {
+			insightsKafkaProperties = JsonDeserializer.deserialize(insightsKafkaPropertiesData, new TypeReference<Map<String, Map<String,String>>>() {
+			});
+		} catch (Exception e) {
+			LOGGER.error("Failed to initialize insightsKafkaProperties:" + e.getMessage());
+			insightsKafkaProperties = new HashMap<String, Map<String,String>>();
+		}
+	}
+
+	public void clearInsightsKafkaProperties(){
+		insightsKafkaProperties = new HashMap<String, Map<String,String>>();
+		initInsightsKafkaProperties();
+	}
+
+	public static String getGoogleApiKey() {
+		return googleApiKey;
 	}
 
 	public Map<String, String> getGoogleAnalyticsAccountId() {
@@ -234,5 +261,8 @@ public final class ConfigProperties implements Serializable, ConfigConstants {
 		return googleDrive;
 	}
 	
-
+	public  Map<String, Map<String,String>> getInsightsKafkaProperties() {
+		return insightsKafkaProperties;
+	}
+	
 }

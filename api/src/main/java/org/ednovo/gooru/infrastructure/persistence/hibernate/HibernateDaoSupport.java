@@ -37,6 +37,8 @@ import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserCredential;
 import org.ednovo.gooru.core.api.model.UserGroupSupport;
 import org.ednovo.gooru.core.constant.Constants;
+import org.hibernate.Criteria;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
@@ -77,41 +79,43 @@ public abstract class HibernateDaoSupport extends UserGroupSupport {
 	}
 
 	public void deleteAll(Collection<?> entities) {
-		Iterator iterator = entities.iterator();
+		Iterator<?> iterator = entities.iterator();
 		while (iterator.hasNext()) {
 			getSession().delete(iterator.next());
 		}
 	}
 
 	public void saveOrUpdateAll(Collection<?> entities) {
-		Iterator iterator = entities.iterator();
+		Iterator<?> iterator = entities.iterator();
 		while (iterator.hasNext()) {
 			saveOrUpdate(iterator.next());
 		}
 	}
 
-	public List find(String query, Integer param1) {
+	public List<?> find(String query, Integer param1) {
 		return getSession().createQuery(query).setParameter(0, param1).list();
 	}
 
-	public List find(String query, String param1) {
+	public List<?> find(String query, String param1) {
 		return getSession().createQuery(query).setParameter(0, param1).list();
 	}
 
-	public List find(String query, Long param1) {
+	public List<?> find(String query, Long param1) {
 		return getSession().createQuery(query).setParameter(0, param1).list();
 	}
 
+	@SuppressWarnings("rawtypes")
 	public List find(String hql) {
 		return getSession().createQuery(hql).list();
 	}
 
-	public List findFirstNRows(String hql, int rows) {
+	public List<?> findFirstNRows(String hql, int rows) {
 		return getSession().createQuery(hql).setFetchSize(rows).list();
 	}
 
 	public <T> T get(String hql) {
-		List<T> datas = getSession().createQuery(hql).list();
+		Query query = getSession().createQuery(hql);
+		List<T> datas = list(query);
 		return datas.size() > 0 ? datas.get(0) : null;
 	}
 
@@ -159,6 +163,21 @@ public abstract class HibernateDaoSupport extends UserGroupSupport {
 		}
 
 		return null;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static <T> List<T> list(Query query) { 
+	    return query.list();
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static <T> List<T> criteria(Criteria criteria) { 
+	    return criteria.list();
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static <T> List<T[]> arrayList(Query query) { 
+	    return query.list();
 	}
 
 	public abstract SessionFactory getSessionFactory();

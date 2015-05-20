@@ -27,7 +27,6 @@ import java.util.Collection;
 import java.util.List;
 
 import org.ednovo.gooru.core.api.model.OrganizationModel;
-import org.ednovo.gooru.core.api.model.Province;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
@@ -64,16 +63,12 @@ public abstract class AbstractRepositoryHibernate extends AuthorizationDaoSuppor
 	public void remove(Object o) {
 		delete(o);
 	}
-	
-	
 
-	@SuppressWarnings("rawtypes")
-	public void removeAll(Collection entities) {
+	public void removeAll(Collection<?> entities) {
 		deleteAll(entities);
 	}
 
-	@SuppressWarnings("rawtypes")
-	public void saveAll(Collection entities) {
+	public void saveAll(Collection<?> entities) {
 		saveOrUpdateAll(entities);
 	}
 

@@ -47,15 +47,22 @@ public class BaseRepositoryHibernate extends AbstractRepositoryHibernate impleme
 	}
 	
 	@Override
-	public void remove(Class clazz, Serializable id) {
+	public void remove(Class<?> clazz, Serializable id) {
 		delete(get(clazz, id));
 	}
 
 	@Override
-	public void removeAll(Collection entities) {
+	public void removeAll(Collection<?> entities) {
 		deleteAll(entities);
 	}
 
+	public static String format(String inputString, Object... strings) {
+		for (int i = 0; i < strings.length; i++) {
+			
+		}
+		return String.format(inputString, strings);
+	}
+	
 	public SessionFactory getSessionFactory() {
 		return sessionFactory;
 	}
@@ -63,4 +70,5 @@ public class BaseRepositoryHibernate extends AbstractRepositoryHibernate impleme
 	public void setSessionFactory(SessionFactory sessionFactory) {
 		this.sessionFactory = sessionFactory;
 	}
+	
 }

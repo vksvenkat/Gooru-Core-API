@@ -32,6 +32,7 @@ import java.util.Set;
 
 import org.ednovo.gooru.core.api.model.ContentProvider;
 import org.ednovo.gooru.core.api.model.Resource;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.HibernateDaoSupport;
 import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.SQLQuery;
@@ -40,7 +41,6 @@ import org.springframework.stereotype.Repository;
 import org.hibernate.Session;
 
 @Repository
-@SuppressWarnings("unchecked")
 public class ContentIndexDaoImpl extends IndexDaoImpl implements ContentIndexDao {
 
 	private final String GET_COLLECTION_INFO_FOR_RESOURCE = "SELECT c.content_id, c.gooru_oid, l.lesson, l.goals, l.vocabulary, l.narration, l.notes, r.distinguish FROM learnguide l INNER JOIN resource r ON r.content_id = l.content_id  INNER JOIN content c on c.content_id = l.content_id WHERE c.content_id = :contentId";
@@ -103,54 +103,54 @@ public class ContentIndexDaoImpl extends IndexDaoImpl implements ContentIndexDao
 	
 	@Override
 	public List<Object[]> getCollectionSegments(Long contentId) {
-		return createSQLQuery(GET_COLLECTION_SEGMENTS_SQL).setParameter(CONTENT_ID, contentId).list();
+		return HibernateDaoSupport.list(createSQLQuery(GET_COLLECTION_SEGMENTS_SQL).setParameter(CONTENT_ID, contentId));
 	}
 
 	@Override
 	public List<Object[]> getResourceInstances(Set<String> segmentIds) {
-		return createSQLQuery(GET_INSTANCE_BY_SEGMENT_SQL).setParameterList(SEGMENT_IDS, segmentIds).list();
+		return HibernateDaoSupport.list(createSQLQuery(GET_INSTANCE_BY_SEGMENT_SQL).setParameterList(SEGMENT_IDS, segmentIds));
 	}
 
 	@Override
 	public List<String> getQuizSegments(Long contentId) {
-		return createSQLQuery(GET_SEGMENTS_BY_QUIZ_ID).setParameter(CONTENT_ID, contentId).list();
+		return HibernateDaoSupport.list(createSQLQuery(GET_SEGMENTS_BY_QUIZ_ID).setParameter(CONTENT_ID, contentId));
 	}
 
 	@Override
 	public String getCollectionTitle(String gooruOid) {
-		List<String> list = createSQLQuery(GET_COLLECTION_TITLE).setParameter(GOORU_OID, gooruOid).list();
+		List<String> list = HibernateDaoSupport.list(createSQLQuery(GET_COLLECTION_TITLE).setParameter(GOORU_OID, gooruOid));
 		return list.size() > 0 ? (String) list.get(0) : null;
 	}
 
 	@Override
 	public List<String> getQuestionQuiz(String gooruOid) {
-		return (List<String>) createSQLQuery(GET_QUIZ_BY_QUESTION).setParameter(GOORU_OID, gooruOid).list();
+		return HibernateDaoSupport.list(createSQLQuery(GET_QUIZ_BY_QUESTION).setParameter(GOORU_OID, gooruOid));
 	}
 
 	@Override
 	public String getQuizTitle(String gooruOid) {
-		List<String> result = createSQLQuery(GET_QUIZ_TITLE).setParameter(GOORU_OID, gooruOid).list();
+		List<String> result = HibernateDaoSupport.list(createSQLQuery(GET_QUIZ_TITLE).setParameter(GOORU_OID, gooruOid));
 		return result.size() > 0 ? result.get(0) : null;
 	}
 
 	@Override
 	public List<Object[]> getCollectionItems(Long contentId) {
-		return createSQLQuery(GET_COLLECTION_ITEMS).setParameter(CONTENT_ID, contentId).list();
+		return HibernateDaoSupport.list(createSQLQuery(GET_COLLECTION_ITEMS).setParameter(CONTENT_ID, contentId));
 	}
 
 	@Override
 	public List<Object[]> getResourceCollections(Long contentId) {
-		return createSQLQuery(GET_COLLECTION_INFO_FOR_RESOURCE).setLong(CONTENT_ID, contentId).list();
+		return HibernateDaoSupport.list(createSQLQuery(GET_COLLECTION_INFO_FOR_RESOURCE).setLong(CONTENT_ID, contentId));
 	}
 
 	@Override
 	public List<Object[]> getResourceSCollections(Long contentId) {
-		return createSQLQuery(GET_SCOLLECTION_INFO_FOR_RESOURCE).setLong(CONTENT_ID, contentId).list();
+		return HibernateDaoSupport.list(createSQLQuery(GET_SCOLLECTION_INFO_FOR_RESOURCE).setLong(CONTENT_ID, contentId));
 	}
 
 	@Override
 	public List<Integer> getCollectionTaxonomyIds(Long contentId) {
-		return createSQLQuery(GET_COLLECTION_TAXONOMY_CODE_ID).setLong(CONTENT_ID, contentId).list();
+		return HibernateDaoSupport.list(createSQLQuery(GET_COLLECTION_TAXONOMY_CODE_ID).setLong(CONTENT_ID, contentId));
 	}
 
 	private Query createSQLQuery(String query) {
@@ -159,24 +159,24 @@ public class ContentIndexDaoImpl extends IndexDaoImpl implements ContentIndexDao
 
 	@Override
 	public List<Object[]> getResourceInstances(Long contentId) {
-		return createSQLQuery(GET_RESOURCE_INSTANCES).setLong(CONTENT_ID, contentId).list();
+		return HibernateDaoSupport.list(createSQLQuery(GET_RESOURCE_INSTANCES).setLong(CONTENT_ID, contentId));
 	}
 
 	@Override
 	public Object[] getResourceInfo(Long contentId) {
-		List<Object[]> list = createSQLQuery(GET_RESOURCE_INFO).setLong(CONTENT_ID, contentId).list();
+		List<Object[]> list = HibernateDaoSupport.list(createSQLQuery(GET_RESOURCE_INFO).setLong(CONTENT_ID, contentId));
 		return list.size() > 0 ? (Object[]) list.get(0) : null;
 	}
 
 	@Override
 	public Object[] getCollectionInfo(long contentId) {
-		List<Object[]> list = createSQLQuery(GET_COLLECTION_INFO).setLong(CONTENT_ID, contentId).list();
+		List<Object[]> list = HibernateDaoSupport.list(createSQLQuery(GET_COLLECTION_INFO).setLong(CONTENT_ID, contentId));
 		return list.size() > 0 ? (Object[]) list.get(0) : null;
 	}
 
 	@Override
 	public Object[] getSCollectionInfo(long contentId) {
-		List<Object[]> list = createSQLQuery(GET_SCOLLECTION_INFO).setLong(CONTENT_ID, contentId).list();
+		List<Object[]> list = HibernateDaoSupport.list(createSQLQuery(GET_SCOLLECTION_INFO).setLong(CONTENT_ID, contentId));
 		return list.size() > 0 ? (Object[]) list.get(0) : null;
 	}
 
@@ -197,7 +197,7 @@ public class ContentIndexDaoImpl extends IndexDaoImpl implements ContentIndexDao
 			sql += " o.s3_storage_area_id = sa.storage_area_id";
 		}
 		sql += " WHERE o.organization_uid='" + organizationUid + "'";
-		List<Object[]> list = createSQLQuery(sql).list();
+		List<Object[]> list = HibernateDaoSupport.arrayList(createSQLQuery(sql));
 		return list.size() > 0 ? (Object[]) list.get(0) : null;
 	}
 
@@ -211,13 +211,13 @@ public class ContentIndexDaoImpl extends IndexDaoImpl implements ContentIndexDao
 
 	@Override
 	public List<Object[]> getAssets(long contentId) {
-		List<Object[]> list = createSQLQuery(GET_ASSETS).setLong(CONTENT_ID, contentId).list();
+		List<Object[]> list = HibernateDaoSupport.list(createSQLQuery(GET_ASSETS).setLong(CONTENT_ID, contentId));
 		return list;
 	}
 
 	@Override
 	public Object[] getRatingByContentId(long contentId) {
-		List<Object[]> list = createSQLQuery(GET_RATING_BY_CONTENT_ID).setLong(CONTENT_ID, contentId).list();
+		List<Object[]> list = HibernateDaoSupport.list(createSQLQuery(GET_RATING_BY_CONTENT_ID).setLong(CONTENT_ID, contentId));
 		return list.size() > 0 ? (Object[]) list.get(0) : null;
 	}
 
@@ -226,32 +226,32 @@ public class ContentIndexDaoImpl extends IndexDaoImpl implements ContentIndexDao
 		SQLQuery query = getSessionFactory().getCurrentSession().createSQLQuery(GET_SUBSCRIPTION_BY_CONTENT_ID);
 		query.addScalar("subscriberCount", StandardBasicTypes.LONG);
 		query.setLong(CONTENT_ID, contentId);
-		List<Long> list = query.list();
+		List<Long> list = HibernateDaoSupport.list(query);
 		return (list.size() > 0 ? list.get(0) : 0);
 	}
 
 	@Override
 	public Resource findResourceByContentGooruId(String gooruOid) {
-		List<Resource> resources = getSessionFactory().getCurrentSession().createQuery("SELECT r FROM Resource r  where r.gooruOid ='" + gooruOid + "' and r.resourceType.name not in ('classpage', 'folder', 'gooru/classbook', 'gooru/classplan', 'shelf', 'assignment', 'quiz', 'assessment-quiz', 'gooru/notebook', 'gooru/studyshelf', 'assessment-exam')").list();
+		List<Resource> resources = HibernateDaoSupport.list(getSessionFactory().getCurrentSession().createQuery("SELECT r FROM Resource r  where r.gooruOid ='" + gooruOid + "' and r.resourceType.name not in ('classpage', 'folder', 'gooru/classbook', 'gooru/classplan', 'shelf', 'assignment', 'quiz', 'assessment-quiz', 'gooru/notebook', 'gooru/studyshelf', 'assessment-exam')"));
 		return resources.size() == 0 ? null : resources.get(0);
 	}
 
 	@Override
 	public List<String> getCollectionItemIdsByResourceId(Long contentId) {
-		return createSQLQuery(GET_SCOLLECTION_ITEM_IDS_BY_RESOURCE_ID).setLong(CONTENT_ID, contentId).list();
+		return HibernateDaoSupport.list(createSQLQuery(GET_SCOLLECTION_ITEM_IDS_BY_RESOURCE_ID).setLong(CONTENT_ID, contentId));
 	}
 	
 	@Override
 	public List<Object[]> getContentProviderAssoc(long contentId) {
 		String sql = "SELECT cp.type, cp.name, cp.content_provider_uid from content_provider cp INNER JOIN content_provider_assoc cpa on cp.content_provider_uid=cpa.content_provider_uid WHERE content_id = :contentId";
-		List<Object[]> list = createSQLQuery(sql).setLong(CONTENT_ID, contentId).list();
+		List<Object[]> list = HibernateDaoSupport.list(createSQLQuery(sql).setLong(CONTENT_ID, contentId));
 		return list;
 	}
 
 	@Override
 	public ContentProvider  getContentProviderlist(String contentProviderId) {
 		String sql="SELECT cp FROM ContentProvider cp WHERE cp.contentProviderUid='"+contentProviderId+"'";
-		    List<ContentProvider> contentProvider =getSessionFactory().getCurrentSession().createQuery(sql).list();
+		    List<ContentProvider> contentProvider =HibernateDaoSupport.list(getSessionFactory().getCurrentSession().createQuery(sql));
 		return contentProvider.size()== 0 ? null:contentProvider.get(0);
 	}
 	

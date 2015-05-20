@@ -42,12 +42,6 @@ public class OAuthRepositoryHibernate extends BaseRepositoryHibernate implements
 	private static final String APPLICATION_STATUS_ACTIVE = CustomProperties.Table.APPLICATION_STATUS.getTable()+"_"+CustomProperties.ApplicationStatus.ACTIVE.getApplicationStatus();
 
 	@Override
-	public Boolean checkTokenExists(String accessToken) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public String findClientByAccessToken(String accessToken) {
 		SQLQuery query = getSession().createSQLQuery(GET_USER_INFO);
 		query.setParameter("accessToken", accessToken);
@@ -62,7 +56,7 @@ public class OAuthRepositoryHibernate extends BaseRepositoryHibernate implements
 		String hql = " FROM OAuthClient oauthClient WHERE oauthClient.key=:oauthKey";
 		Query query = getSession().createQuery(hql);
 		query.setParameter("oauthKey", oauthKey);
-		List<OAuthClient> results = (List<OAuthClient>) query.list();
+		List<OAuthClient> results = list(query);
 		if(results.size() > 0){
 			return results.get(0);
 		}
@@ -77,23 +71,22 @@ public class OAuthRepositoryHibernate extends BaseRepositoryHibernate implements
 		query.setParameter("gooruUId", gooruUId);
 		query.setFirstResult(pageNo);
 		query.setMaxResults(pageSize);
-		List<OAuthClient> results = (List<OAuthClient>) query.list();
+		List<OAuthClient> results = list(query);
 		return results;
 	}
-	
+
 	@Override
 	public OAuthClient findOAuthClientByclientSecret(String clientSecret) {
 		String hql = " FROM OAuthClient oauthClient WHERE oauthClient.secretKey=:clientSecret";
 		Query query = getSession().createQuery(hql);
 		query.setParameter("clientSecret", clientSecret);
-		List<OAuthClient> results = (List<OAuthClient>) query.list();
+		List<OAuthClient> results = list(query);
 		if(results.size() > 0){
 			return results.get(0);
 		}
 		return null;
 	}
-	
-	@SuppressWarnings("unchecked")
+
 	@Override
 	public List<OAuthClient> listOAuthClientByOrganization(String organizationUId, Integer offset, Integer limit,String grantType) {
 		String hql = " FROM OAuthClient oauthClient WHERE oauthClient.organization.partyUid=:organizationUId";
@@ -108,31 +101,26 @@ public class OAuthRepositoryHibernate extends BaseRepositoryHibernate implements
 		query.setFirstResult(offset);
 		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
 
-		return (List<OAuthClient>) query.list();
-		
-			
+		return list(query);
 	}
-	
+
 	@Override
 	public Long getOauthClientCount(String organizationUId, String grantType) {
 		String sql = "SELECT count(1) as count from  oauth_client c WHERE organization_uid = '"+organizationUId+"'";
 		if (grantType != null){
 			sql +="AND  c.grant_types = '" + grantType +"'";
-			
 		}
 		Query query = getSession().createSQLQuery(sql).addScalar("count", StandardBasicTypes.LONG);
 		return (Long) query.list().get(0);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public List<OAuthClient> findOAuthClientByApplicationKey(String apiKey) {
 		String hql = " FROM OAuthClient oauthClient WHERE oauthClient.application.key=:apiKey AND oauthClient.application.status.keyValue=:type";
 		Query query = getSession().createQuery(hql);
 		query.setParameter("apiKey", apiKey);
 		query.setParameter("type", APPLICATION_STATUS_ACTIVE);
-		return (List<OAuthClient>) query.list();
-	
+		return list(query);
 	}
 
 }

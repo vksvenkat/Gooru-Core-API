@@ -98,10 +98,10 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ADD })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "", method = RequestMethod.POST)
-	public ModelAndView createClasspage(@RequestBody String data, @RequestParam(value = ADD_TO_SHELF, defaultValue = TRUE, required = false) boolean addToMy, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		User user = (User) request.getAttribute(Constants.USER);
+	public ModelAndView createClasspage(@RequestBody final String data, @RequestParam(value = ADD_TO_SHELF, defaultValue = TRUE, required = false) final boolean addToMy, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+		final User user = (User) request.getAttribute(Constants.USER);
 		ActionResponseDTO<Classpage> responseDTO = null;
-		JSONObject json = requestData(data);
+		final JSONObject json = requestData(data);
 		if (getValue(CLASSPAGE, json) != null) {
 			responseDTO = getClasspageService().createClasspage(this.buildClasspageFromInputParameters(getValue(CLASSPAGE, json), user), getValue(COLLECTION_ITEM, json) != null ? this.buildCollectionItemFromInputParameters(getValue(COLLECTION_ITEM, json)) : null, getValue(COLLECTION_ID, json),
 					user, addToMy);
@@ -124,10 +124,10 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_UPDATE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/{id}", method = { RequestMethod.PUT })
-	public ModelAndView updateClasspage(@PathVariable(value = ID) String classpageId, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		JSONObject json = requestData(data);
+	public ModelAndView updateClasspage(@PathVariable(value = ID) final String classpageId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+		final JSONObject json = requestData(data);
 
-		ActionResponseDTO<Classpage> responseDTO = getClasspageService().updateClasspage(this.buildClasspageForUpdateParameters(getValue(CLASSPAGE, json) != null ? getValue(CLASSPAGE, json) : data), classpageId, hasUnrestrictedContentAccess());
+		final ActionResponseDTO<Classpage> responseDTO = getClasspageService().updateClasspage(this.buildClasspageForUpdateParameters(getValue(CLASSPAGE, json) != null ? getValue(CLASSPAGE, json) : data), classpageId, hasUnrestrictedContentAccess(), data);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		}
@@ -138,14 +138,14 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
-	public ModelAndView getClasspage(@PathVariable(value = ID) String classpageId, @RequestParam(value = DATA_OBJECT, required = false) String data, @RequestParam(value = INCLUDE_COLLECTION_ITEM, required = false, defaultValue = FALSE) boolean includeCollectionItem,
-			@RequestParam(value = MERGE, required = false) String merge, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public ModelAndView getClasspage(@PathVariable(value = ID) final String classpageId, @RequestParam(value = DATA_OBJECT, required = false) final String data, @RequestParam(value = INCLUDE_COLLECTION_ITEM, required = false, defaultValue = FALSE) final boolean includeCollectionItem,
+			@RequestParam(value = MERGE, required = false) final String merge, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, CLASSPAGE_INCLUDE_FIELDS);
 		includes = (String[]) ArrayUtils.addAll(includes, CLASSPAGE_ITEM_TAGS);
 		if (includeCollectionItem) {
 			includes = (String[]) ArrayUtils.addAll(includes, CLASSPAGE_ITEM_INCLUDE_FIELDS);
 		}
-		User user = (User) request.getAttribute(Constants.USER);
+		final User user = (User) request.getAttribute(Constants.USER);
 		return toModelAndViewWithIoFilter(getClasspageService().getClasspage(classpageId, user, merge), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
 
@@ -153,9 +153,9 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "", method = RequestMethod.GET)
 	public ModelAndView getClasspages(@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,
-		    @RequestParam(value = TITLE, required = false) String title, @RequestParam(value = AUTHOR, required = false) String author,
-			@RequestParam(value = USERNAME, required = false) String userName, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		User user = (User) request.getAttribute(Constants.USER);
+		    @RequestParam(value = TITLE, required = false) final String title, @RequestParam(value = AUTHOR, required = false) final String author,
+			@RequestParam(value = USERNAME, required = false) final String userName, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+		final User user = (User) request.getAttribute(Constants.USER);
 		String[] includes = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, CLASSPAGE_INCLUDE_FIELDS);
 		includes = (String[]) ArrayUtils.addAll(includes, CLASSPAGE_META_INFO);
 		includes = (String[]) ArrayUtils.addAll(includes, CLASSPAGE_ITEM_INCLUDE_FIELDS);
@@ -165,9 +165,9 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/code/{code}", method = RequestMethod.GET)
-	public ModelAndView getClasspageByCode(@PathVariable(value = CLASSPAGE_CODE) String classpageCode, @RequestParam(value = DATA_OBJECT, required = false) String data, @RequestParam(value = INCLUDE_COLLECTION_ITEM, required = false, defaultValue = FALSE) boolean includeCollectionItem,
-			HttpServletRequest request, HttpServletResponse response) throws Exception {
-		User user = (User) request.getAttribute(Constants.USER);
+	public ModelAndView getClasspageByCode(@PathVariable(value = CLASSPAGE_CODE) final String classpageCode, @RequestParam(value = DATA_OBJECT, required = false) final String data, @RequestParam(value = INCLUDE_COLLECTION_ITEM, required = false, defaultValue = FALSE) final boolean includeCollectionItem,
+			final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+		final User user = (User) request.getAttribute(Constants.USER);
 		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, CLASSPAGE_INCLUDE_FIELDS);
 		includes = (String[]) ArrayUtils.addAll(includes, CLASSPAGE_ITEM_TAGS);
 		if (includeCollectionItem) {
@@ -179,18 +179,18 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_DELETE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-	public void deleteClasspage(@PathVariable(value = ID) String classpageId, HttpServletRequest request, HttpServletResponse response) {
-		User user = (User) request.getAttribute(Constants.USER);
+	public void deleteClasspage(@PathVariable(value = ID) final String classpageId, final HttpServletRequest request, final HttpServletResponse response) {
+		final User user = (User) request.getAttribute(Constants.USER);
 		getClasspageService().deleteClasspage(classpageId,user);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ITEM_ADD })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/{id}/item", method = RequestMethod.POST)
-	public ModelAndView createClasspageItem(@PathVariable(value = ID) String classpageId, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		User user = (User) request.getAttribute(Constants.USER);
-		JSONObject json = requestData(data);
-		ActionResponseDTO<CollectionItem> responseDTO = getClasspageService().createClasspageItem(getValue(COLLECTION_ID, json), classpageId, this.buildCollectionItemFromInputParameters(getValue(COLLECTION_ITEM, json)), user, CollectionType.CLASSPAGE.getCollectionType());
+	public ModelAndView createClasspageItem(@PathVariable(value = ID) final String classpageId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+		final User user = (User) request.getAttribute(Constants.USER);
+		final JSONObject json = requestData(data);
+		final ActionResponseDTO<CollectionItem> responseDTO = getClasspageService().createClasspageItem(getValue(COLLECTION_ID, json), classpageId, this.buildCollectionItemFromInputParameters(getValue(COLLECTION_ITEM, json)), user, CollectionType.CLASSPAGE.getCollectionType());
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		} else {
@@ -204,9 +204,9 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ITEM_ADD })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/collection/{id}/item", method = RequestMethod.POST)
-	public ModelAndView createClasspageItems(@PathVariable(value = ID) String collectionId, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		User user = (User) request.getAttribute(Constants.USER);
-		List<CollectionItem> collectionItems = getCollectionService().createCollectionItems(JsonDeserializer.deserialize(data, new TypeReference<List<String>>() {
+	public ModelAndView createClasspageItems(@PathVariable(value = ID) final String collectionId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+		final User user = (User) request.getAttribute(Constants.USER);
+		final List<CollectionItem> collectionItems = getCollectionService().createCollectionItems(JsonDeserializer.deserialize(data, new TypeReference<List<String>>() {
 		}), collectionId, user);
 		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, CLASSPAGE_COLLECTION_ITEM_INCLUDE_FIELDS);
 		includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_CREATE_ITEM_INCLUDE_FILEDS);
@@ -216,10 +216,10 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ITEM_ADD })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/{id}/assign/{cid}", method = RequestMethod.POST)
-	public ModelAndView assignCollection(@PathVariable(value = ID) String classPageId,@RequestParam(value="isRequired", required=false ) Boolean isRequired ,@RequestParam(value="direction", required=false ) String direction,@RequestParam(value="planedEndDate", required=false ) String planedEndDate,@PathVariable(value = CID) String collectionId, HttpServletRequest request, HttpServletResponse response
-			,@RequestParam(value="minimumScore", required=false ) String minimumScore,@RequestParam(value="estimatedTime", required=false ) String estimatedTime,@RequestParam(value="showAnswerByQuestions", required=false ) Boolean showAnswerByQuestions,@RequestParam(value="showHints", required=false ) Boolean showHints,@RequestParam(value="showAnswerEnd", required=false ) Boolean showAnswerEnd) throws Exception {
-		User user = (User) request.getAttribute(Constants.USER);
-		List<CollectionItem> collectionItems = getCollectionService().assignCollection(classPageId, collectionId, user, direction,planedEndDate, isRequired,minimumScore,estimatedTime,showAnswerByQuestions,showAnswerEnd,showHints );
+	public ModelAndView assignCollection(@PathVariable(value = ID) final String classPageId,@RequestParam(value="isRequired", required=false ) final Boolean isRequired ,@RequestParam(value="direction", required=false ) final String direction,@RequestParam(value="planedEndDate", required=false ) final String planedEndDate,@PathVariable(value = CID) final String collectionId, final HttpServletRequest request, final HttpServletResponse response
+			,@RequestParam(value="minimumScore", required=false ) final String minimumScore,@RequestParam(value="estimatedTime", required=false ) final String estimatedTime,@RequestParam(value="showAnswerByQuestions", required=false ) final Boolean showAnswerByQuestions,@RequestParam(value="showHints", required=false ) final Boolean showHints,@RequestParam(value="showAnswerEnd", required=false ) final Boolean showAnswerEnd) throws Exception {
+		final User user = (User) request.getAttribute(Constants.USER);
+		final List<CollectionItem> collectionItems = getCollectionService().assignCollection(classPageId, collectionId, user, direction,planedEndDate, isRequired,minimumScore,estimatedTime,showAnswerByQuestions,showAnswerEnd,showHints );
 		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, CLASSPAGE_COLLECTION_ITEM_INCLUDE_FIELDS);
 		includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_CREATE_ITEM_INCLUDE_FILEDS);
 		return toModelAndViewWithIoFilter(collectionItems, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
@@ -228,11 +228,11 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ITEM_UPDATE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/item/{id}" }, method = RequestMethod.PUT)
-	public ModelAndView updateClasspageItem(@PathVariable(value = ID) String collectionItemId, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		User user = (User) request.getAttribute(Constants.USER);
-		JSONObject json = requestData(data);
-		CollectionItem newCollectionItem = this.buildCollectionItemFromInputParameters(getValue(COLLECTION_ITEM, json));
-		ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().updateCollectionItem(newCollectionItem, collectionItemId, user);
+	public ModelAndView updateClasspageItem(@PathVariable(value = ID) final String collectionItemId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+		final User user = (User) request.getAttribute(Constants.USER);
+		final JSONObject json = requestData(data);
+		final CollectionItem newCollectionItem = this.buildCollectionItemFromInputParameters(getValue(COLLECTION_ITEM, json));
+		final ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().updateCollectionItem(newCollectionItem, collectionItemId, user, data);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		} else if (newCollectionItem.getStatus() != null || newCollectionItem.getMinimumScoreByUser() != null || newCollectionItem.getAssignmentCompleted() != null || newCollectionItem.getTimeStudying() != null) {
@@ -246,8 +246,8 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ITEM_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "item/{id}", method = RequestMethod.GET)
-	public ModelAndView getClasspageItem(@PathVariable(value = ID) String collectionItemId, HttpServletRequest request, HttpServletResponse response) {
-		User user = (User) request.getAttribute(Constants.USER);
+	public ModelAndView getClasspageItem(@PathVariable(value = ID) final String collectionItemId, final HttpServletRequest request, final HttpServletResponse response) {
+		final User user = (User) request.getAttribute(Constants.USER);
 		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, CLASSPAGE_CREATE_ITEM_INCLUDE_FILEDS);
 		includes = (String[]) ArrayUtils.addAll(includes, CLASSPAGE_INCLUDE_FIELDS);
 		return toModelAndViewWithIoFilter(getCollectionService().getCollectionItem(collectionItemId, false, user, null), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
@@ -256,40 +256,40 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ITEM_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/collection/{id}", method = RequestMethod.GET)
-	public ModelAndView getCollectionClasspageAssoc(@PathVariable(value = ID) String collectionId, @RequestParam(value = GOORU_UID, required = false) String gooruUid, HttpServletRequest request, HttpServletResponse response) {
+	public ModelAndView getCollectionClasspageAssoc(@PathVariable(value = ID) final String collectionId, @RequestParam(value = GOORU_UID, required = false) final String gooruUid, final HttpServletRequest request, final HttpServletResponse response) {
 		return toJsonModelAndView(this.getTaskRepository().getCollectionClasspageAssoc(collectionId, gooruUid), true);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ITEM_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/collection/{id}/count", method = RequestMethod.GET)
-	public ModelAndView getCollectionClasspageAssocCount(@PathVariable(value = ID) String collectionId, @RequestParam(value = GOORU_UID, required = false) String gooruUid, HttpServletRequest request, HttpServletResponse response) {
+	public ModelAndView getCollectionClasspageAssocCount(@PathVariable(value = ID) final String collectionId, @RequestParam(value = GOORU_UID, required = false) final String gooruUid, final HttpServletRequest request, final HttpServletResponse response) {
 		return toJsonModelAndView(this.getTaskRepository().getCollectionClasspageAssocCount(collectionId), true);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ITEM_DELETE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/collection/{id}", method = RequestMethod.DELETE)
-	public void deleteCollectionAssocInAssignment(@PathVariable(value = ID) String collectionId, HttpServletRequest request, HttpServletResponse response) {
+	public void deleteCollectionAssocInAssignment(@PathVariable(value = ID) final String collectionId, final HttpServletRequest request, final HttpServletResponse response) {
 		this.getTaskService().deleteCollectionAssocInAssignment(collectionId);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ITEM_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/{cid}/item", method = RequestMethod.GET)
-	public ModelAndView getClasspageItems(@PathVariable(value = COLLECTIONID) String classpageId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue= "10") Integer limit,
-		@RequestParam(value = ORDER_BY, defaultValue = PLANNED_END_DATE, required = false) String orderBy,@RequestParam(value=CLEAR_CACHE, required=false, defaultValue="false" ) Boolean clearCache, @RequestParam(value = OPTIMIZE, required = false, defaultValue = FALSE) Boolean optimize, @RequestParam(value = STATUS, required = false) String status, @RequestParam(value = TYPE, required = false) String type,HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public ModelAndView getClasspageItems(@PathVariable(value = COLLECTIONID) final String classpageId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") final Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue= "10") Integer limit,
+		@RequestParam(value = ORDER_BY, defaultValue = PLANNED_END_DATE, required = false) final String orderBy,@RequestParam(value=CLEAR_CACHE, required=false, defaultValue="false" ) final Boolean clearCache, @RequestParam(value = OPTIMIZE, required = false, defaultValue = FALSE) final Boolean optimize, @RequestParam(value = STATUS, required = false) final String status, @RequestParam(value = TYPE, required = false) final String type, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, CLASSPAGE_COLLECTION_ITEM_INCLUDE_FIELDS);
 		includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_ITEM_INCLUDE_FILEDS);
-		User user = (User) request.getAttribute(Constants.USER);
+		final User user = (User) request.getAttribute(Constants.USER);
 		final String cacheKey = "v2-class-data-" + classpageId + "-" + offset + "-" + limit  + "-" + optimize + "-" + orderBy +"-"+ status+"-"+type ;
 		String data = null;
 		if (!clearCache) {
 			data = getRedisService().getValue(cacheKey);
 		}
 		if (data == null) {
-			List<Map<String, Object>> collectionItems = this.getClasspageService().getClasspageItems(classpageId, limit != null ? limit : (optimize ? limit : 5), offset, user, orderBy, optimize, status, type);
-			SearchResults<Map<String, Object>> result = new SearchResults<Map<String, Object>>();
+			final List<Map<String, Object>> collectionItems = this.getClasspageService().getClasspageItems(classpageId, limit != null ? limit : (optimize ? limit : 5), offset, user, orderBy, optimize, status, type);
+			final SearchResults<Map<String, Object>> result = new SearchResults<Map<String, Object>>();
 			result.setSearchResults(collectionItems);
 			result.setTotalHitCount(this.getCollectionRepository().getClasspageCollectionCount(classpageId, status, user.getPartyUid(), orderBy, type));
 			data = serialize(result, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, true, includes);
@@ -301,16 +301,16 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ITEM_DELETE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/item/{id}", method = RequestMethod.DELETE)
-	public void deleteClasspageItem(@PathVariable(value = ID) String collectionItemId, HttpServletRequest request, HttpServletResponse response) {
-		User user = (User) request.getAttribute(Constants.USER);
+	public void deleteClasspageItem(@PathVariable(value = ID) final String collectionItemId, final HttpServletRequest request, final HttpServletResponse response) {
+		final User user = (User) request.getAttribute(Constants.USER);
 		getCollectionService().deleteCollectionItem(collectionItemId, user,true);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ADD })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/{code}/member/join", method = RequestMethod.POST)
-	public ModelAndView classpageUserJoin(@PathVariable(value = CODE) String code, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		User apiCaller = (User) request.getAttribute(Constants.USER);
+	public ModelAndView classpageUserJoin(@PathVariable(value = CODE) final String code, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+		final User apiCaller = (User) request.getAttribute(Constants.USER);
 		return toJsonModelAndView(this.getClasspageService().classpageUserJoin(code, JsonDeserializer.deserialize(data, new TypeReference<List<String>>() {
 		}), apiCaller), true);
 	}
@@ -318,8 +318,8 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_DELETE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/{code}/member/remove", method = RequestMethod.DELETE)
-	public void classpageUserRemove(@PathVariable(value = CODE) String code, @RequestParam String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		User apiCaller = (User) request.getAttribute(Constants.USER);
+	public void classpageUserRemove(@PathVariable(value = CODE) final String code, @RequestParam final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+		final User apiCaller = (User) request.getAttribute(Constants.USER);
 
 		this.getClasspageService().classpageUserRemove(code, JsonDeserializer.deserialize(data, new TypeReference<List<String>>() {
 		}), apiCaller);
@@ -328,9 +328,9 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}/member" }, method = RequestMethod.GET)
-	public ModelAndView getClassMemberList(@PathVariable(ID) String code, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,
-		    @RequestParam(value = GROUP_BY_STATUS, defaultValue = "false", required = false) Boolean groupByStatus, @RequestParam(value = FILTER_BY, required = false) String filterBy,
-			HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public ModelAndView getClassMemberList(@PathVariable(ID) final String code, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,
+		    @RequestParam(value = GROUP_BY_STATUS, defaultValue = "false", required = false) final Boolean groupByStatus, @RequestParam(value = FILTER_BY, required = false) final String filterBy,
+		    final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 
 		return toModelAndView(serialize(this.getClasspageService().getMemberList(code, offset, limit, filterBy), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, false, true, CLASS_MEMBER_FIELDS));
 	}
@@ -338,10 +338,10 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/my/{type}" }, method = RequestMethod.GET)
-	public ModelAndView getMyTeachAndStudy(@PathVariable(value = TYPE) String type, HttpServletRequest request, HttpServletResponse response,  @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset,
+	public ModelAndView getMyTeachAndStudy(@PathVariable(value = TYPE) final String type, final HttpServletRequest request, final HttpServletResponse response,  @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset,
 			@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, 
-			@RequestParam(value = ITEM_TYPE, required = false) String itemType,@RequestParam(value = ORDER_BY, defaultValue = "desc", required = false) String orderBy) throws Exception {
-		User apiCaller = (User) request.getAttribute(Constants.USER);
+			@RequestParam(value = ITEM_TYPE, required = false) final String itemType,@RequestParam(value = ORDER_BY, defaultValue = "desc", required = false) final String orderBy) throws Exception {
+		final User apiCaller = (User) request.getAttribute(Constants.USER);
 
 		return toModelAndView(serialize(this.getClasspageService().getMyStudy(apiCaller, orderBy, offset, limit, type,itemType), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, false, true, STUDY_RESOURCE_FIELDS));
 	}
@@ -350,16 +350,16 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/my", method = RequestMethod.GET)
-	public ModelAndView getMyClasspage(HttpServletRequest request, @RequestParam(value = DATA_OBJECT, required = false) String data, @RequestParam(value = SKIP_PAGINATION, required = false, defaultValue = "false") boolean skipPagination,
-			@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, @RequestParam(value = ORDER_BY, required = false, defaultValue = DESC) String orderBy,
-			HttpServletResponse resHttpServletResponse) throws Exception {
-		User user = (User) request.getAttribute(Constants.USER);
-		List<Classpage> classpage = this.getClasspageService().getMyClasspage(offset, limit, user, skipPagination,orderBy);
+	public ModelAndView getMyClasspage(final HttpServletRequest request, @RequestParam(value = DATA_OBJECT, required = false) final String data, @RequestParam(value = SKIP_PAGINATION, required = false, defaultValue = "false") final boolean skipPagination,
+			@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, @RequestParam(value = ORDER_BY, required = false, defaultValue = DESC) final String orderBy,
+			final HttpServletResponse resHttpServletResponse) throws Exception {
+		final User user = (User) request.getAttribute(Constants.USER);
+		final List<Classpage> classpage = this.getClasspageService().getMyClasspage(offset, limit, user, skipPagination,orderBy);
 		String[] includes = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, CLASSPAGE_INCLUDE_FIELDS);
 		includes = (String[]) ArrayUtils.addAll(includes, CLASSPAGE_META_INFO);
 		includes = (String[]) ArrayUtils.addAll(includes, CLASSPAGE_ITEM_INCLUDE_FIELDS);
 		if (!skipPagination) {
-			SearchResults<Classpage> result = new SearchResults<Classpage>();
+			final SearchResults<Classpage> result = new SearchResults<Classpage>();
 			result.setSearchResults(classpage);
 			result.setTotalHitCount(this.getClasspageService().getMyClasspageCount(user.getGooruUId()));
 			return toModelAndViewWithIoFilter(result, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
@@ -371,17 +371,17 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/member/suggest" }, method = RequestMethod.GET)
-	public ModelAndView classMemberSuggest(@RequestParam(value = QUERY) String queryText, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		User user = (User) request.getAttribute(Constants.USER);
+	public ModelAndView classMemberSuggest(@RequestParam(value = QUERY) final String queryText, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+		final User user = (User) request.getAttribute(Constants.USER);
 		return toModelAndView(this.getClasspageService().classMemberSuggest(queryText, user.getPartyUid()), RESPONSE_FORMAT_JSON);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ITEM_UPDATE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/item/{id}/reorder/{sequence}" }, method = RequestMethod.PUT)
-	public ModelAndView reorderCollectionItemSequence(@PathVariable(value = ID) String collectionItemId, @PathVariable(value = SEQUENCE) int newSequence, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		User user = (User) request.getAttribute(Constants.USER);
-		ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().reorderCollectionItem(collectionItemId, newSequence,user);
+	public ModelAndView reorderCollectionItemSequence(@PathVariable(value = ID) final String collectionItemId, @PathVariable(value = SEQUENCE) final int newSequence, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+		final User user = (User) request.getAttribute(Constants.USER);
+		final ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().reorderCollectionItem(collectionItemId, newSequence,user);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		}
@@ -395,8 +395,8 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/item", method = RequestMethod.GET)
-	public ModelAndView getClasspageAssoc(@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,@RequestParam(value = CLASSPAGE_ID, required = false) String classpageId ,
-			@RequestParam(value = COLLECTION_ID, required = false) String collectionId,@RequestParam(value = TITLE, required = false) String title,@RequestParam(value = COLLECTION_TITLE, required = false) String collectionTitle, @RequestParam(value = CLASS_CODE, required = false) String classCode,@RequestParam(value = COLLECTION_CREATOR, required = false) String collectionCreator,@RequestParam(value = COLLECTION_ITEM_ID, required = false) String collectionItemId ){	
+	public ModelAndView getClasspageAssoc(@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,@RequestParam(value = CLASSPAGE_ID, required = false) final String classpageId ,
+			@RequestParam(value = COLLECTION_ID, required = false) final String collectionId,@RequestParam(value = TITLE, required = false) final String title,@RequestParam(value = COLLECTION_TITLE, required = false) final String collectionTitle, @RequestParam(value = CLASS_CODE, required = false) final String classCode,@RequestParam(value = COLLECTION_CREATOR, required = false) final String collectionCreator,@RequestParam(value = COLLECTION_ITEM_ID, required = false) final String collectionItemId ){	
 		return toJsonModelAndView(this.getClasspageService().getClasspageAssoc(offset, limit, classpageId,collectionId,title,collectionTitle,classCode,collectionCreator,collectionItemId),true);
 	}
 	
@@ -405,10 +405,10 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ADD })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/{id}/pathway", method = RequestMethod.POST)
-	public ModelAndView createPathway(@RequestBody String data, @PathVariable(value= ID) String classId ,HttpServletRequest request, HttpServletResponse response) throws Exception {
-		User user = (User) request.getAttribute(Constants.USER);
-		JSONObject json = requestData(data);
-		Collection collection = this.getClasspageService().createPathway(classId,this.buildPathwayFromInputParameters(data, user),getValue(COLLECTION_ID, json), getValue(IS_REQUIRED, json) != null ? Boolean.parseBoolean(getValue(IS_REQUIRED, json)) : false, user);
+	public ModelAndView createPathway(@RequestBody final String data, @PathVariable(value= ID) final String classId , final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+		final User user = (User) request.getAttribute(Constants.USER);
+		final JSONObject json = requestData(data);
+		final Collection collection = this.getClasspageService().createPathway(classId,this.buildPathwayFromInputParameters(data, user),getValue(COLLECTION_ID, json), getValue(IS_REQUIRED, json) != null ? Boolean.parseBoolean(getValue(IS_REQUIRED, json)) : false, user);
 		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, COLLECTION_INCLUDE_FIELDS);
 		includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_ITEM_INCLUDE_FILEDS);
 		includes = (String[]) ArrayUtils.addAll(includes, ERROR_INCLUDE);
@@ -418,9 +418,9 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_UPDATE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/{id}/pathway/{pid}", method = RequestMethod.PUT)
-	public ModelAndView updatePathway(@RequestBody String data, @PathVariable(value= ID) String classId , @PathVariable(value= "pid") String pathwayGooruOid ,HttpServletRequest request, HttpServletResponse response) throws Exception {
-		User user = (User) request.getAttribute(Constants.USER);
-		Collection pathwayCollection = this.getClasspageService().updatePathway(classId, pathwayGooruOid, this.buildUpadtePathwayCollectionFromInputParameters(data), user);
+	public ModelAndView updatePathway(@RequestBody final String data, @PathVariable(value= ID) final String classId , @PathVariable(value= "pid") final String pathwayGooruOid , final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+		final User user = (User) request.getAttribute(Constants.USER);
+		final Collection pathwayCollection = this.getClasspageService().updatePathway(classId, pathwayGooruOid, this.buildUpadtePathwayCollectionFromInputParameters(data), user, data);
 		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, COLLECTION_INCLUDE_FIELDS);
 		includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_ITEM_INCLUDE_FILEDS);
 		includes = (String[]) ArrayUtils.addAll(includes, ERROR_INCLUDE);
@@ -430,19 +430,19 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_DELETE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}/pathway/{pid}" }, method = RequestMethod.DELETE)
-	public void deletePathway(@PathVariable(value= ID) String classId , @PathVariable(value= "pid") String pathwayGooruOid, HttpServletRequest request, HttpServletResponse response) {
-		User user = (User) request.getAttribute(Constants.USER);
+	public void deletePathway(@PathVariable(value= ID) final String classId , @PathVariable(value= "pid") final String pathwayGooruOid, final HttpServletRequest request, final HttpServletResponse response) {
+		final User user = (User) request.getAttribute(Constants.USER);
 		this.getClasspageService().deletePathway(classId,pathwayGooruOid, user);
 	}
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ITEM_UPDATE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}/pathway/{pid}/item/{itemId}" }, method = RequestMethod.PUT)
-	public ModelAndView updatePathwayItem(@PathVariable(value= ID) String classId , @PathVariable(value= "itemId") String collectionItemId,@PathVariable(value= "pid") String pathwayGooruOid, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		User user = (User) request.getAttribute(Constants.USER);
-		JSONObject json = requestData(data);
-		CollectionItem newCollectionItem = this.buildCollectionItemFromInputParameters(getValue(COLLECTION_ITEM, json));
-		ActionResponseDTO<CollectionItem> responseDTO = getClasspageService().updatePathwayItem(classId,pathwayGooruOid,collectionItemId,newCollectionItem,  user);
+	public ModelAndView updatePathwayItem(@PathVariable(value= ID) final String classId , @PathVariable(value= "itemId") final String collectionItemId,@PathVariable(value= "pid") final String pathwayGooruOid, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+		final User user = (User) request.getAttribute(Constants.USER);
+		final JSONObject json = requestData(data);
+		final CollectionItem newCollectionItem = this.buildCollectionItemFromInputParameters(getValue(COLLECTION_ITEM, json));
+		final ActionResponseDTO<CollectionItem> responseDTO = getClasspageService().updatePathwayItem(classId,pathwayGooruOid,collectionItemId,newCollectionItem,  user, data);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		} else if (newCollectionItem.getStatus() != null || newCollectionItem.getMinimumScoreByUser() != null && newCollectionItem.getAssignmentCompleted() != null || newCollectionItem.getTimeStudying() != null) {
@@ -456,8 +456,8 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ITEM_DELETE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}/pathway/{pid}/item/{itemId}" }, method = RequestMethod.DELETE)
-	public void deletePathwayItem(@PathVariable(value= ID) String classId , @PathVariable(value= "itemId") String collectionItemId,@PathVariable(value= "pid") String pathwayGooruOid, HttpServletRequest request, HttpServletResponse response) {
-		User user = (User) request.getAttribute(Constants.USER);
+	public void deletePathwayItem(@PathVariable(value= ID) final String classId , @PathVariable(value= "itemId") final String collectionItemId,@PathVariable(value= "pid") final String pathwayGooruOid, final HttpServletRequest request, final HttpServletResponse response) {
+		final User user = (User) request.getAttribute(Constants.USER);
 		this.getClasspageService().deletePathwayItem(classId,pathwayGooruOid,collectionItemId ,user);
 	}
 	
@@ -465,17 +465,17 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ITEM_READ })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/{id}/pathway/{pid}", method = RequestMethod.GET)
-	public ModelAndView getPathwayItems(@PathVariable(value = ID) String classId, @PathVariable(value = "pid") String pathId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset,
-			@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, @RequestParam(value = CLEAR_CACHE, required = false, defaultValue = "false") Boolean clearCache, @RequestParam(value = ORDER_BY, defaultValue = SEQUENCE, required = false) String orderBy,
-			HttpServletRequest request, HttpServletResponse response) throws Exception {
-		User user = (User) request.getAttribute(Constants.USER);
+	public ModelAndView getPathwayItems(@PathVariable(value = ID) final String classId, @PathVariable(value = "pid") final String pathId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset,
+			@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, @RequestParam(value = CLEAR_CACHE, required = false, defaultValue = "false") final Boolean clearCache, @RequestParam(value = ORDER_BY, defaultValue = SEQUENCE, required = false) final String orderBy,
+			final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+		final User user = (User) request.getAttribute(Constants.USER);
 		final String cacheKey = "v2-class-data-" + classId+ "-"+ pathId + "-" + offset + "-" + limit + "-" + orderBy;
 		String data = null;
 		if (!clearCache) {
 			data = getRedisService().getValue(cacheKey);
 		}
 		if (data == null) {
-			SearchResults<CollectionItem> searchResults = this.getClasspageService().getPathwayItemsSearchResults(classId, pathId, offset, limit, orderBy, user);
+			final SearchResults<CollectionItem> searchResults = this.getClasspageService().getPathwayItemsSearchResults(classId, pathId, offset, limit, orderBy, user);
 			String includesDefault[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, COLLECTION_ITEM_INCLUDE_FILEDS);
 			includesDefault = (String[]) ArrayUtils.addAll(includesDefault, COLLECTION_ITEM_TAGS);
 			includesDefault = (String[]) ArrayUtils.addAll(includesDefault, CLASSPAGE_COLLECTION_ITEM_INCLUDE_FIELDS);
@@ -490,10 +490,10 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ITEM_ADD })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/{id}/pathway/{pid}/assign/{cid}", method = RequestMethod.POST)
-	public ModelAndView assignCollectionToPathway(@PathVariable(value = ID) String classPageId, @PathVariable(value= "pid") String pathwayId, @RequestParam(value="direction", required=false ) String direction,@RequestParam(value="planedEndDate", required=false ) String planedEndDate,@PathVariable(value = CID) String collectionId,@RequestParam(value="isRequired", required=false ) Boolean isRequired ,HttpServletRequest request, HttpServletResponse response, 
-			@RequestParam(value="minimumScore", required=false ) String minimumScore,@RequestParam(value="estimatedTime", required=false ) String estimatedTime,@RequestParam(value="showAnswerByQuestions", required=false ) Boolean showAnswerByQuestions,@RequestParam(value="showHints", required=false ) Boolean showHints,@RequestParam(value="showAnswerEnd", required=false ) Boolean showAnswerEnd) throws Exception {
-		User user = (User) request.getAttribute(Constants.USER);
-		List<CollectionItem> collectionItems = getCollectionService().assignCollectionToPathway(classPageId, pathwayId ,collectionId, user, direction,planedEndDate,isRequired,minimumScore,estimatedTime,showAnswerByQuestions,showAnswerEnd,showHints);
+	public ModelAndView assignCollectionToPathway(@PathVariable(value = ID) final String classPageId, @PathVariable(value= "pid") final String pathwayId, @RequestParam(value="direction", required=false ) final String direction,@RequestParam(value="planedEndDate", required=false ) final String planedEndDate,@PathVariable(value = CID) final String collectionId,@RequestParam(value="isRequired", required=false ) final Boolean isRequired , final HttpServletRequest request, final HttpServletResponse response, 
+			@RequestParam(value="minimumScore", required=false ) final String minimumScore,@RequestParam(value="estimatedTime", required=false ) final String estimatedTime,@RequestParam(value="showAnswerByQuestions", required=false ) final Boolean showAnswerByQuestions,@RequestParam(value="showHints", required=false ) final Boolean showHints,@RequestParam(value="showAnswerEnd", required=false ) final Boolean showAnswerEnd) throws Exception {
+		final User user = (User) request.getAttribute(Constants.USER);
+		final List<CollectionItem> collectionItems = getCollectionService().assignCollectionToPathway(classPageId, pathwayId ,collectionId, user, direction,planedEndDate,isRequired,minimumScore,estimatedTime,showAnswerByQuestions,showAnswerEnd,showHints);
 		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, CLASSPAGE_COLLECTION_ITEM_INCLUDE_FIELDS);
 		includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_CREATE_ITEM_INCLUDE_FILEDS);
 		return toModelAndViewWithIoFilter(collectionItems, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
@@ -502,9 +502,9 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ITEM_UPDATE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}/pathway/{pid}/reorder/{sequence}" }, method = RequestMethod.PUT)
-	public ModelAndView reorderPathwaySequence(@PathVariable(value = ID) String classId, @PathVariable(value= "pid") String pathwayId, @PathVariable(value = SEQUENCE) int newSequence, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		User user = (User) request.getAttribute(Constants.USER);
-		ActionResponseDTO<CollectionItem> responseDTO = this.getClasspageService().reorderPathwaySequence(classId,pathwayId ,newSequence, user);
+	public ModelAndView reorderPathwaySequence(@PathVariable(value = ID) final String classId, @PathVariable(value= "pid") final String pathwayId, @PathVariable(value = SEQUENCE) final int newSequence, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+		final User user = (User) request.getAttribute(Constants.USER);
+		final ActionResponseDTO<CollectionItem> responseDTO = this.getClasspageService().reorderPathwaySequence(classId,pathwayId ,newSequence, user);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		}
@@ -520,10 +520,10 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ITEM_UPDATE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}/pathway/{pid}/item/{itemId}/move" }, method = RequestMethod.PUT)
-	public ModelAndView pathwayItemMoveWithReorder(@PathVariable(value= ID) String classId , @PathVariable(value= "itemId") String collectionItemId,@PathVariable(value= "pid") String pathwayId, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		User user = (User) request.getAttribute(Constants.USER);
-		JSONObject json = requestData(data);
-		CollectionItem collectionItem = getClasspageService().pathwayItemMoveWithReorder(classId, pathwayId,collectionItemId, json != null && getValue(TARGET_ID, json) != null ? getValue(TARGET_ID, json) : null, json != null && getValue("newSequence", json) != null ? Integer.parseInt(getValue("newSequence", json)) : null , user);
+	public ModelAndView pathwayItemMoveWithReorder(@PathVariable(value= ID) final String classId , @PathVariable(value= "itemId") final String collectionItemId,@PathVariable(value= "pid") final String pathwayId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+		final User user = (User) request.getAttribute(Constants.USER);
+		final JSONObject json = requestData(data);
+		final CollectionItem collectionItem = getClasspageService().pathwayItemMoveWithReorder(classId, pathwayId,collectionItemId, json != null && getValue(TARGET_ID, json) != null ? getValue(TARGET_ID, json) : null, json != null && getValue("newSequence", json) != null ? Integer.parseInt(getValue("newSequence", json)) : null , user);
 
 		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, COLLECTION_INCLUDE_FIELDS);
 		includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_ITEM_INCLUDE_FILEDS);
@@ -534,7 +534,7 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ITEM_READ })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/assignment/{id}" }, method = RequestMethod.GET)
-	public ModelAndView getParentDetails( @PathVariable(value= ID) String collectionItemId,  HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public ModelAndView getParentDetails( @PathVariable(value= ID) final String collectionItemId,  final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 
 		return toModelAndView(serializeToJson(this.getClasspageService().getParentDetails(collectionItemId), false, true));
 	}
@@ -542,8 +542,8 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	
 	
 
-	private Classpage buildClasspageFromInputParameters(String data, User user) {
-		Classpage classpage = JsonDeserializer.deserialize(data, Classpage.class);
+	private Classpage buildClasspageFromInputParameters(final String data, final User user) {
+		final Classpage classpage = JsonDeserializer.deserialize(data, Classpage.class);
 		classpage.setGooruOid(UUID.randomUUID().toString());
 		classpage.setClasspageCode(BaseUtil.base48Encode(7));
 		classpage.setContentType(getCollectionService().getContentType(ContentType.RESOURCE));
@@ -566,8 +566,8 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 		return classpage;
 	}
 	
-	private Collection buildPathwayFromInputParameters(String data, User user) {
-		Collection collection = JsonDeserializer.deserialize(data, Collection.class);
+	private Collection buildPathwayFromInputParameters(final String data, final User user) {
+		final Collection collection = JsonDeserializer.deserialize(data, Collection.class);
 		collection.setGooruOid(UUID.randomUUID().toString());
 		collection.setContentType(getCollectionService().getContentType(ContentType.RESOURCE));
 		collection.setResourceType(getCollectionService().getResourceType(ResourceType.Type.PATHWAY.getType()));
@@ -590,15 +590,15 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 		return collection;
 	}
 	
-	private Collection buildUpadtePathwayCollectionFromInputParameters(String data) {
+	private Collection buildUpadtePathwayCollectionFromInputParameters(final String data) {
 		return JsonDeserializer.deserialize(data, Collection.class);
 	}
 
-	private Classpage buildClasspageForUpdateParameters(String data) {
+	private Classpage buildClasspageForUpdateParameters(final String data) {
 		return JsonDeserializer.deserialize(data, Classpage.class);
 	}
 
-	private CollectionItem buildCollectionItemFromInputParameters(String data) {
+	private CollectionItem buildCollectionItemFromInputParameters(final String data) {
 
 		return JsonDeserializer.deserialize(data, CollectionItem.class);
 	}

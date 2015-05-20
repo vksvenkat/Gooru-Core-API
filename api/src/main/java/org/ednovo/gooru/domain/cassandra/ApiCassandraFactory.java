@@ -39,6 +39,7 @@ import org.ednovo.gooru.core.cassandra.model.ContentProviderCio;
 import org.ednovo.gooru.core.cassandra.model.DomainCio;
 import org.ednovo.gooru.core.cassandra.model.OrganizationCio;
 import org.ednovo.gooru.core.cassandra.model.ResourceCio;
+import org.ednovo.gooru.core.cassandra.model.ResourceFieldsCio;
 import org.ednovo.gooru.core.cassandra.model.ReverseIndexColumnSetting;
 import org.ednovo.gooru.core.cassandra.model.TaxonomyCio;
 import org.ednovo.gooru.core.cassandra.model.UserCio;
@@ -69,6 +70,7 @@ public class ApiCassandraFactory extends SearchCassandraFactory {
 		register(new CassandraColumnFamily(ColumnFamilyConstant.CUSTOM_FIELDS_DEFINITION));
 		register(new CassandraColumnFamily(ColumnFamilyConstant.CUSTOM_FIELDS_GROUP));
 		register(new CassandraColumnFamily(ColumnFamilyConstant.INDEX_QUEUE));
+		register(new CassandraColumnFamily(ColumnFamilyConstant.LIVE_DASHBOARD));
 		register(new EntityCassandraColumnFamily<DomainCio>(DomainCio.class, new ReverseIndexColumnSetting().putField("name", "id")));
 		register(new EntityCassandraColumnFamily<ResourceCio>(ResourceCio.class, new ReverseIndexColumnSetting().putField("type","resourceType").putField("batch", "batchId").putField("categoy", "category").putField("resourceFormat", "resourceFormat").putField("instructional", "instructional")));
 		register(new EntityCassandraColumnFamily<RevisionHistory>(RevisionHistory.class, new ReverseIndexColumnSetting().putField("entity", "entityName")));
@@ -78,6 +80,7 @@ public class ApiCassandraFactory extends SearchCassandraFactory {
 		register(new EntityCassandraColumnFamily<OrganizationCio>(OrganizationCio.class,new ReverseIndexColumnSetting().putField("entity", "entityName")));
     	register(new RawCassandraDaoImpl(this, ColumnFamilyConstant.DATA_STORE));
 		register(new RawCassandraDaoImpl(this, ColumnFamilyConstant.SEARCH_SETTING));
+		register(new RawCassandraDaoImpl(this, ColumnFamilyConstant.LIVE_DASHBOARD));
 		register(new EntityCassandraDaoImpl<ResourceCio>(this, ColumnFamilyConstant.RESOURCE));
 		register(new EntityCassandraDaoImpl<TaxonomyCio>(this, ColumnFamilyConstant.TAXONOMY));
 		register(new EntityCassandraDaoImpl<UserCio>(this, ColumnFamilyConstant.USER));

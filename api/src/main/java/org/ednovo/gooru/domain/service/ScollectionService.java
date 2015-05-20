@@ -39,6 +39,7 @@ import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.ResourceSummary;
 import org.ednovo.gooru.core.api.model.StandardFo;
 import org.ednovo.gooru.core.api.model.User;
+import org.ednovo.gooru.core.application.util.ResourceMetaInfo;
 import org.springframework.util.MultiValueMap;
 
 /**
@@ -51,7 +52,7 @@ public interface ScollectionService extends BaseService {
 
 	ActionResponseDTO<Collection> createCollection(Collection newCollection, boolean addToShelf, String resourceId, String parentId, User user) throws Exception;
 
-	ActionResponseDTO<Collection> updateCollection(Collection newCollection, String updateCollectionId, String ownerUId, String creatorUId, boolean hasUnrestrictedContentAccess, String relatedContentId, User user) throws Exception;
+	ActionResponseDTO<Collection> updateCollection(Collection newCollection, String updateCollectionId, String ownerUId, String creatorUId, boolean hasUnrestrictedContentAccess, String relatedContentId, User user, String data) throws Exception;
 
 	CollectionItem getCollectionItem(String collectionItemId, String includeAdditionalInfo, User user, String rootNodeId);
 
@@ -59,7 +60,7 @@ public interface ScollectionService extends BaseService {
 
 	ActionResponseDTO<CollectionItem> createResourceWithCollectionItem(String collectionId, Resource newResource, String start, String stop, List<String> tags, User user) throws Exception;
 	
-	ActionResponseDTO<CollectionItem> updateResourceWithCollectionItem(String collectionItemId, Resource newResource,List<String> tags ,User user) throws Exception;
+	ActionResponseDTO<CollectionItem> updateResourceWithCollectionItem(String collectionItemId, Resource newResource,List<String> tags ,User user, String data) throws Exception;
 
 	List<Collection> getMyCollection(String limit, String offset, String orderBy, String fetchType, String resourceType, User user);
 
@@ -73,7 +74,7 @@ public interface ScollectionService extends BaseService {
 
 	ActionResponseDTO<CollectionItem> createCollectionItem(String resourceGooruOid, String collectionGooruOid, CollectionItem collectionItem, User user, String type, boolean isCreateQuestion) throws Exception;
 
-	ActionResponseDTO<CollectionItem> updateCollectionItem(CollectionItem newcollectionItem, String collectionItemId, User user) throws Exception;
+	ActionResponseDTO<CollectionItem> updateCollectionItem(CollectionItem newcollectionItem, String collectionItemId, User user, String data) throws Exception;
 
 	List<CollectionItem> getCollectionItems(String collectionId, Map<String, String> filters);
 
@@ -117,7 +118,7 @@ public interface ScollectionService extends BaseService {
 
 	List<CollectionItem> getMyCollectionItems(String partyUid, Map<String, String> filters, User user);
 
-	List<CollectionItem> setCollectionItemMetaInfo(List<CollectionItem> collectionItems, String rootNodeId);
+	List<CollectionItem> setCollectionItemMetaInfo(List<CollectionItem> collectionItems, String rootNodeId, boolean includeView);
 
 	Set<String> getCourse(Set<Code> taxonomySet);
 
@@ -148,4 +149,6 @@ public interface ScollectionService extends BaseService {
 	void deleteCollectionItem(String collectionItemId);
 	
 	Set<Map<String, Object>> getSkills(Set<Code> taxonomySet);
+	
+	void setCollectionTaxonomyMetaInfo(final Set<Code> taxonomySet, final ResourceMetaInfo collectionMetaInfo);
 }

@@ -38,7 +38,6 @@ import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate;
 import org.hibernate.Criteria;
 import org.hibernate.Query;
-import org.hibernate.criterion.Expression;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.type.StandardBasicTypes;
@@ -63,7 +62,7 @@ public class QuoteRepositoryHibernate extends BaseRepositoryHibernate implements
 		Query query = getSession().createSQLQuery(RETRIEVE_QUOTE).addScalar("gooruOid", StandardBasicTypes.STRING).addScalar("anchor", StandardBasicTypes.STRING).addScalar("freeText", StandardBasicTypes.STRING).addScalar("topic", StandardBasicTypes.STRING)
 				.addScalar("title", StandardBasicTypes.STRING).addScalar("grade", StandardBasicTypes.STRING).addScalar("licenseName", StandardBasicTypes.STRING).addScalar("typeName", StandardBasicTypes.STRING).setParameter("contentUserId", userId);
 		addOrgAuthParameters(query);
-		List<Object[]> results = query.list();
+		List<Object[]> results = arrayList(query);
 		List<Quote> annotations = new ArrayList<Quote>();
 		for (Object[] object : results) {
 			Quote quote = new Quote();
@@ -97,8 +96,8 @@ public class QuoteRepositoryHibernate extends BaseRepositoryHibernate implements
 
 	@Override
 	public Quote findByContent(String gooruContentId) {
-
-		List<Quote> quoteList = find("from Quote q  where q.gooruOid ='" + gooruContentId + "' " + generateOrgAuthQueryWithData("q."));
+		Query query = getSession().createQuery("from Quote q  where q.gooruOid ='" + gooruContentId + "' " + generateOrgAuthQueryWithData("q."));
+		List<Quote> quoteList = list(query);
 
 		return quoteList.size() == 0 ? null : quoteList.get(0);
 
@@ -113,22 +112,22 @@ public class QuoteRepositoryHibernate extends BaseRepositoryHibernate implements
 		if (mode.equals("shared")) {
 
 			if (context != null) {
-				criteria = criteria.add(Expression.in("context", findContentWithSameTaxonomies(context)));
+				criteria = criteria.add(Restrictions.in("context", findContentWithSameTaxonomies(context)));
 			}
 			List<User> notebookOwners = new ArrayList<User>();
 
 			if (notebookOwners.size() > 0) {
-				criteria = criteria.add(Expression.or(Expression.eq(USER, user), Expression.in(USER, notebookOwners)));
+				criteria = criteria.add(Restrictions.or(Restrictions.eq(USER, user), Restrictions.in(USER, notebookOwners)));
 			} else {
-				criteria = criteria.add(Expression.eq(USER, user));
+				criteria = criteria.add(Restrictions.eq(USER, user));
 			}
-			quoteList = criteria.add(Expression.eq("annotationType.name", AnnotationType.Type.NOTE.getType())).setMaxResults(count).addOrder(Order.desc("createdOn")).list();
+			quoteList = criteria(criteria.add(Restrictions.eq("annotationType.name", AnnotationType.Type.NOTE.getType())).setMaxResults(count).addOrder(Order.desc("createdOn")));
 		} else if (mode.equals("my") || (mode.equals("quote"))) {
 			if (context != null) {
-				criteria = criteria.add(Expression.in("context", findContentWithSameTaxonomies(context)));
+				criteria = criteria.add(Restrictions.in("context", findContentWithSameTaxonomies(context)));
 			}
 			String annotationTypes[] = { AnnotationType.Type.NOTE.getType(), AnnotationType.Type.QUOTE.getType() };
-			quoteList = criteria.add(Expression.eq(USER, user)).add(Expression.in("annotationType.name", annotationTypes)).setMaxResults(count).addOrder(Order.desc("createdOn")).list();
+			quoteList = criteria(criteria.add(Restrictions.eq(USER, user)).add(Restrictions.in("annotationType.name", annotationTypes)).setMaxResults(count).addOrder(Order.desc("createdOn")));
 		} 
 
 		return quoteList;
@@ -142,12 +141,12 @@ public class QuoteRepositoryHibernate extends BaseRepositoryHibernate implements
 		int count = stop - start;
 
 		if (!(tag.equalsIgnoreCase("all") || tag.equalsIgnoreCase(NONE))) {
-			criteria = criteria.add(Expression.eq("tagType.name", tag));
+			criteria = criteria.add(Restrictions.eq("tagType.name", tag));
 		}
 		if (tag.equalsIgnoreCase(NONE)) {
-			criteria = criteria.add(Expression.isNull("tagType"));
+			criteria = criteria.add(Restrictions.isNull("tagType"));
 		}
-		quoteList = criteria.add(Expression.eq(USER, user)).setFirstResult(start).setMaxResults(count).addOrder(Order.desc("createdOn")).list();
+		quoteList = criteria(criteria.add(Restrictions.eq(USER, user)).setFirstResult(start).setMaxResults(count).addOrder(Order.desc("createdOn")));
 
 		return quoteList;
 	}
@@ -158,13 +157,13 @@ public class QuoteRepositoryHibernate extends BaseRepositoryHibernate implements
 		List<Quote> quoteList = new ArrayList<Quote>();
 
 		if (!(tag.equalsIgnoreCase("all") || tag.equalsIgnoreCase(NONE))) {
-			criteria = criteria.add(Expression.eq("tagType.name", tag));
+			criteria = criteria.add(Restrictions.eq("tagType.name", tag));
 		}
 
 		if (tag.equalsIgnoreCase(NONE)) {
-			criteria = criteria.add(Expression.isNull("tagType"));
+			criteria = criteria.add(Restrictions.isNull("tagType"));
 		}
-		quoteList = criteria.add(Expression.eq(USER, user)).list();
+		quoteList = criteria(criteria.add(Restrictions.eq(USER, user)));
 		return quoteList.size();
 	}
 
@@ -176,12 +175,12 @@ public class QuoteRepositoryHibernate extends BaseRepositoryHibernate implements
 			Code code = iter.next();
 			if (code.getDepth() == 4) {
 				topicCodes.add(code.getCodeId());
-				List<Code> childCodes = addOrgAuthCriterias(getSession().createCriteria(Code.class), "code.").add(Expression.eq("parentId", code.getCodeId())).list();
+				List<Code> childCodes = criteria(addOrgAuthCriterias(getSession().createCriteria(Code.class), "code.").add(Restrictions.eq("parentId", code.getCodeId())));
 				for (Code cod : childCodes) {
 					topicCodes.add(cod.getCodeId());
 				}
 			} else if (code.getDepth() == 5) {
-				List<Code> siblings = addOrgAuthCriterias(getSession().createCriteria(Code.class), "code.").add(Expression.eq("parentId", code.getParentId())).list();
+				List<Code> siblings = criteria(addOrgAuthCriterias(getSession().createCriteria(Code.class), "code.").add(Restrictions.eq("parentId", code.getParentId())));
 				for (Code cod : siblings) {
 					topicCodes.add(cod.getCodeId());
 				}
@@ -192,7 +191,7 @@ public class QuoteRepositoryHibernate extends BaseRepositoryHibernate implements
 		List<Content> contentList = null;
 		if (topicCodes.size() > 0) {
 
-			contentList = addOrgAuthCriterias(getSession().createCriteria(Content.class), "content.").createCriteria("taxonomySet").add(Restrictions.in("codeId", topicCodes)).list();
+			contentList = criteria(addOrgAuthCriterias(getSession().createCriteria(Content.class), "content.").createCriteria("taxonomySet").add(Restrictions.in("codeId", topicCodes)));
 		} else {
 			contentList = new ArrayList<Content>();
 			contentList.add(context);

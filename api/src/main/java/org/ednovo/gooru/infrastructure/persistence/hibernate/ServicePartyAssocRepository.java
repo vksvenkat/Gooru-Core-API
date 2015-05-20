@@ -7,5 +7,5 @@ public interface ServicePartyAssocRepository extends BaseRepository {
 	public String getPartyVersion(String partyUid, String partyType);
 	
 	public Map<String, Object> getPartyVersion(String userUid, String organizationUid, String groupUid);
-
+	
 }

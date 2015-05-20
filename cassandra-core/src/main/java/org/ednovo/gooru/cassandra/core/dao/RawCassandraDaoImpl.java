@@ -204,10 +204,10 @@ public class RawCassandraDaoImpl extends CassandraDaoSupport<CassandraColumnFami
 		try {
 			Column<String> cfColumn = getFactory().getKeyspace().prepareQuery(getCF().getColumnFamily()).getKey(rowKey).getColumn(column).execute().getResult();
 			return cfColumn != null && cfColumn.hasValue() ? cfColumn.getLongValue() : null;
-		} catch (NotFoundException e) {
+		}  catch (NotFoundException e) {
 			return 0L;
 		} catch (Exception e) {
-			throw new RuntimeException(e);
+			return 0L;
 		}
 	}
 
@@ -219,7 +219,7 @@ public class RawCassandraDaoImpl extends CassandraDaoSupport<CassandraColumnFami
 		} catch (NotFoundException e) {
 			return 0;
 		} catch (Exception e) {
-			throw new RuntimeException(e);
+			return 0;
 		}
 	}
 	

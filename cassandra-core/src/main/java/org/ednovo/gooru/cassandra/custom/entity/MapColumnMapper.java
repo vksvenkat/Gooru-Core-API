@@ -52,7 +52,8 @@ class MapColumnMapper extends AbstractColumnMapper {
     
     @Override
     public boolean setField(Object entity, Iterator<String> name, com.netflix.astyanax.model.Column<String> column) throws Exception {
-        Map<Object, Object> map = (Map<Object, Object>) field.get(entity);
+        @SuppressWarnings("unchecked")
+		Map<Object, Object> map = (Map<Object, Object>) field.get(entity);
         if (map == null) {
             map = Maps.newLinkedHashMap();
             field.set(entity,  map);

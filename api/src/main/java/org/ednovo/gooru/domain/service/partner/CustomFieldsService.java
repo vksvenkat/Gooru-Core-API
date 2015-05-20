@@ -42,7 +42,7 @@ public interface CustomFieldsService {
 
 	void deleteCustomField(String customFieldId);
 
-	Map<String, Object> getResourceSearchAliasValuesMap(String accountUId, String resourceGooruOId);
+	Map<String, Object> getResourceSearchAliasValuesMap(String organizationUid, String resourceGooruOId);
 
 	List<String> getResourceLicenseType(String isThirdPartyResource);
 

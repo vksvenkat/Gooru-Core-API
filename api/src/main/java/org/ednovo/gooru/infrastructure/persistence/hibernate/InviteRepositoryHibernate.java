@@ -59,7 +59,7 @@ public class InviteRepositoryHibernate extends BaseRepositoryHibernate implement
 		Query query = getSession().createQuery(hql);
 		query.setParameter("pending", "pending");
 		query.setParameter("gooruOid", gooruOid);
-		return query.list();
+		return list(query);
 	}
 
 	@Override
@@ -69,7 +69,7 @@ public class InviteRepositoryHibernate extends BaseRepositoryHibernate implement
 		query.setParameter("mailId", mailId);
 		query.setParameter("pending", "pending");
 		query.setParameter("inviteType", "collaborator");
-		return query.list();
+		return list(query);
 	}
 
 	@Override

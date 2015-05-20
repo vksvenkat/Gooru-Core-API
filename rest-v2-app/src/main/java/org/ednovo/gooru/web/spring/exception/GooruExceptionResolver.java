@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.fileupload.FileUploadBase.SizeLimitExceededException;
 import org.apache.commons.lang.NotImplementedException;
 import org.ednovo.gooru.core.application.util.BaseUtil;
+import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.exception.BadRequestException;
 import org.ednovo.gooru.core.exception.MethodFailureException;
 import org.ednovo.gooru.core.exception.NotAllowedException;
@@ -59,6 +60,7 @@ public class GooruExceptionResolver extends SimpleMappingExceptionResolver {
 		if (ex instanceof AccessDeniedException) {
 			errorObject = new ErrorObject(403, ex.getMessage());
 			response.setStatus(403);
+			logger.error("input parameters --- " + getRequestInfo(request).toString());
 		} else if (ex instanceof BadCredentialsException) {
 			errorObject = new ErrorObject(400, ex.getMessage());
 			response.setStatus(400);
@@ -113,6 +115,8 @@ public class GooruExceptionResolver extends SimpleMappingExceptionResolver {
 		if (map != null) {
 			try {
 				inputParams.put("parameters", new JSONObject(map));
+				inputParams.put(Constants.SESSION_TOKEN, request.getHeader(Constants.GOORU_SESSION_TOKEN));
+				inputParams.put(Constants.API_KEY, request.getHeader(Constants.GOORU_API_KEY));
 				inputParams.put("body", BaseUtil.readRequestBody(request));
 			} catch (JSONException e) {
 			}

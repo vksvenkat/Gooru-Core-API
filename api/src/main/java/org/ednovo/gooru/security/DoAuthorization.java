@@ -34,6 +34,7 @@ import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserCredential;
 import org.ednovo.gooru.core.api.model.UserToken;
+import org.ednovo.gooru.core.application.util.BaseUtil;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.security.AuthenticationDo;
 import org.ednovo.gooru.domain.service.oauth.OAuthService;
@@ -80,10 +81,11 @@ public class DoAuthorization {
 	private CustomTableRepository customTableRepository;
 	
 	private static final String SESSION_TOKEN_KEY = "authenticate_";
+	
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DoAuthorization.class);
 
-	public User doFilter(String sessionToken, String pinToken, String apiKeyToken, HttpServletRequest request, HttpServletResponse response, Authentication auth, String oAuthToken) {
+	public User doFilter(String sessionToken, String pinToken, final String apiKeyToken, final HttpServletRequest request, final HttpServletResponse response, final Authentication auth, final String oAuthToken) {
 		if (pinToken != null) {
 			sessionToken = pinToken;
 		}
@@ -93,7 +95,7 @@ public class DoAuthorization {
 		UserToken userToken = null;
 		String key = null;
 		String data = null;
-		String skipCache = request.getParameter("skipCache");
+		final String skipCache = request.getParameter("skipCache");
 
 		if (oAuthToken != null) {
 			try {
@@ -107,7 +109,7 @@ public class DoAuthorization {
 			}
 			if (authentication == null || authentication.getUserToken() == null) {
 				try {
-					user = oAuthService.getUserByOAuthAccessToken(oAuthToken);
+					user = oAuthService.getUserByOAuthAccessToken(BaseUtil.extractToken(oAuthToken));
 				} catch (Exception e) {
 					LOGGER.error("OAuth Authentication failed --- " + e);
 				}
@@ -121,6 +123,7 @@ public class DoAuthorization {
 			} else {
 				user = userToken.getUser();
 			}
+			request.setAttribute(Constants.OAUTH_ACCESS_TOKEN, oAuthToken);
 		} else if (sessionToken != null) {
 			try {
 				key = SESSION_TOKEN_KEY + sessionToken;
@@ -155,7 +158,7 @@ public class DoAuthorization {
 			}
 		} else if (apiKeyToken != null) {
 			if (authentication == null) {
-				Application application = this.getApplicationRepository().getApplication(apiKeyToken);
+				final Application application = this.getApplicationRepository().getApplication(apiKeyToken);
 				if (application == null) {
 					throw new AccessDeniedException("Invalid ApiKey : " + apiKeyToken);
 				} else {
@@ -179,12 +182,13 @@ public class DoAuthorization {
 		if (authentication.getUserToken().getUser() != null && (auth == null || hasRoleChanged(auth, authentication.getUserToken().getUser()))) {
 			doAuthentication(request, response, authentication.getUserToken().getUser(), authentication.getUserToken().getToken(), skipCache, authentication, key);
 		}
-		if (oAuthToken != null) {
-			SessionContextSupport.putLogParameter("oauthAccessToken", oAuthToken);
-		}
 
 		// set to request so that controllers can read it.
 		request.setAttribute(Constants.USER, authentication.getUserToken().getUser());
+		if (authentication.getUserToken().getApplication() != null) {
+			request.getSession().setAttribute(Constants.APPLICATION_KEY, authentication.getUserToken().getApplication().getKey());
+		}
+		request.getSession().setAttribute(Constants.SESSION_TOKEN, authentication.getUserToken().getToken());
 		return authentication.getUserToken().getUser();
 	}
 
@@ -200,10 +204,12 @@ public class DoAuthorization {
 			}
 			try {
 				if (key != null) {
-					getRedisService().put(key,new JSONSerializer().transform(new ExcludeNullTransformer(), void.class).include(new String[] { "*.operationAuthorities", "*.userRoleSet", "*.partyOperations", "*.subOrganizationUids", "*.orgPermits", "*.partyPermits", "*.customFields", "*.identities", "*.partyPermissions.*" }).exclude(new String[] {"*.class", "*.meta"}).serialize(authentication), Constants.AUTHENTICATION_CACHE_EXPIRY_TIME_IN_SEC);
+					getRedisService().put(key,new JSONSerializer().transform(new ExcludeNullTransformer(), void.class).include(new String[] { "*.operationAuthorities","*.userRoleSet","*.partyOperations", "*.subOrganizationUids", "*.orgPermits", "*.partyPermits", "*.customFields", "*.identities", "*.partyPermissions.*" }).exclude(new String[] {"*.class","*.school","*.schoolDistrict","*.status","*.meta"}).serialize(authentication), Constants.AUTHENTICATION_CACHE_EXPIRY_TIME_IN_SEC);
 				}
 			} catch (Exception e) {
+				if(LOGGER.isErrorEnabled()) {
 				LOGGER.error("Failed to  put  value from redis server {} ", e);
+				}
 			}
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Authorize User: First Name-" + user.getFirstName() + "; Last Name-" + user.getLastName() + "; Email-" + user.getUserId());
@@ -216,10 +222,11 @@ public class DoAuthorization {
 	}
 
 	private boolean hasRoleChanged(Authentication auth, User user) {
+		boolean  hasRoleChanged = false; 
 		if (!user.getPartyUid().equals((String) auth.getPrincipal())) {
-			return true;
+			hasRoleChanged = true;
 		}
-		return false;
+		return hasRoleChanged;
 	}
 
 	public RedisService getRedisService() {

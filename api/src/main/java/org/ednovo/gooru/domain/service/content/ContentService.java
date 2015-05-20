@@ -27,12 +27,11 @@ import java.util.List;
 
 import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.ContentAssociation;
-import org.ednovo.gooru.core.api.model.Quote;
-import org.ednovo.gooru.core.api.model.QuoteDTO;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.User;
 
 public interface ContentService {
+	
 	Content findByContent(Long contentId);
 
 	Content findByContentGooruId(String gooruContentId);
@@ -48,19 +47,7 @@ public interface ContentService {
 	User findContentOwner(String gooruContentId);
 
 	ContentAssociation getCollectionAssocContent(String contentGooruOid);
-
-	List<QuoteDTO> createNote(String gooruUserId, String description, String url, String noteType, String grade, String title, String licenseName, String topic, String tagTypeName, String classplan, String contextAnchor, String contextAnchorText, User user);
-
-	String createQuote(String gooruUserId, String description, String url, String pinToken, String sessionToken, String noteType, String grade, String title, String licenseName, String topic, String classplan, String tagTypeName, User user);
-
-	List<QuoteDTO> updateNote(String gooruUserId, String gooruContentId, String description, String url, String noteType, String grade, String title, String licenseName, String topic, String tagTypeName, String anchor, User user);
-
-	Quote saveAnnotation(Quote annotation);
-
-	List<QuoteDTO> copyNote(String noteId, User apiCaller);
-
-	void deleteNote(String noteId);
-
-	List getIdsByUserUId(String userUId, String typeName, Integer pageNo, Integer pageSize);
-
+	
+	List<Object[]> getIdsByUserUId(String userUId, String typeName, Integer pageNo, Integer pageSize);
+	
 }

@@ -42,7 +42,7 @@ public class OrganizationSettingRepositoryHibernate extends BaseRepositoryHibern
 		Map<String, String> settings = new HashMap<String, String>();
 		Query query = getSessionReadOnly().createSQLQuery(GET_ORGAIZATION_SETTINGS).addScalar(NAME, StandardBasicTypes.STRING).addScalar(VALUE, StandardBasicTypes.STRING);
 		query.setParameter(ORG_UID_PARAM, organizationUid);
-		List<Object[]> results = query.list();
+		List<Object[]> results = arrayList(query);
 		for (Object[] object : results) {
 			settings.put((String) object[0], (String) object[1]);
 		}
@@ -55,7 +55,7 @@ public class OrganizationSettingRepositoryHibernate extends BaseRepositoryHibern
 		Map<String, String> settings = new HashMap<String, String>();
 		Query query = getSessionReadOnly().createSQLQuery(GET_ORGANIZATION_EXPIRE_TIME).addScalar("organization_uid", StandardBasicTypes.STRING).addScalar(VALUE, StandardBasicTypes.STRING);
 		query.setParameter(NAME, name);
-		List<Object[]> results = query.list();
+		List<Object[]> results = arrayList(query);
 		for (Object[] object : results) {
 			settings.put((String) object[0], (String) object[1]);
 		}
@@ -68,11 +68,8 @@ public class OrganizationSettingRepositoryHibernate extends BaseRepositoryHibern
 		Query query = getSessionReadOnly().createSQLQuery(GET_ORGANIZATION_SETTING).addScalar(VALUE, StandardBasicTypes.STRING);
 		query.setParameter(ORG_UID_PARAM, organizationUid);
 		query.setParameter(NAME, key);
-		List<String> results = query.list();
-		if (results != null && results.size() > 0) {
-			return results.get(0);
-		}
-		return null;
+		List<String> results = list(query);
+		return (results.size()>0)? results.get(0):null;
 	}
 
 	@Override
@@ -82,8 +79,9 @@ public class OrganizationSettingRepositoryHibernate extends BaseRepositoryHibern
 		Query query = getSessionReadOnly().createQuery(hql);
 		query.setParameter(ORG_UID_PARAM, organizationUid);
 		query.setParameter(NAME, configKey);
-		if(query.list() != null && query.list().size() > 0){
-			return (OrganizationSetting) query.list().get(0);
+		List<OrganizationSetting> result = list(query);
+		if(result != null && result.size() > 0){
+			return result.get(0);
 		}
 		return null;
 	}
@@ -101,10 +99,8 @@ public class OrganizationSettingRepositoryHibernate extends BaseRepositoryHibern
 			query.setParameter(ORG_UID_PARAM, organizationUid);
 		}
 		query.setParameter(NAME, configKey);
-		if(query.list() != null && query.list().size() > 0){
-			return (OrganizationSetting) query.list().get(0);
-		}
-		return null;
+		List<OrganizationSetting> results = list(query);
+		return (results.size()>0)? results.get(0):null;
 	}
 	
 }

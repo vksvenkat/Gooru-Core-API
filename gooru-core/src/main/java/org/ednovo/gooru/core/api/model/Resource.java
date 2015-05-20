@@ -97,15 +97,9 @@ public class Resource extends Content implements Serializable {
 
 	private Integer isFeatured = 0;
 
-	private Set<Segment> resourceSegments;
-
 	private byte[] fileData;
 
 	private boolean isNew = false;
-
-	private List<ResourceInstance> resourceInstances;
-
-	private transient List<Learnguide> resourceLearnguides;
 	
 	private List<ContentMetaDTO> depthOfKnowledges;
 
@@ -133,6 +127,10 @@ public class Resource extends Content implements Serializable {
 	private Integer s3UploadFlag = 0;
 
 	private Long viewCount;
+	
+	private Integer resourceAddedCount;
+	
+	private Integer resourceUsedUserCount;
 
 	private Integer subscriptionCount;
 
@@ -302,14 +300,6 @@ public class Resource extends Content implements Serializable {
 		}
 	}
 
-	public Set<Segment> getResourceSegments() {
-		return resourceSegments;
-	}
-
-	public void setResourceSegments(Set<Segment> resourceSegments) {
-		this.resourceSegments = resourceSegments;
-	}
-
 	public void setNew(boolean isNew) {
 		this.isNew = isNew;
 	}
@@ -441,14 +431,6 @@ public class Resource extends Content implements Serializable {
 
 	public void setParentUrl(String parentUrl) {
 		this.parentUrl = parentUrl;
-	}
-
-	public List<Learnguide> getResourceLearnguides() {
-		return resourceLearnguides;
-	}
-
-	public void setResourceLearnguides(List<Learnguide> resourceLearnguides) {
-		this.resourceLearnguides = resourceLearnguides;
 	}
 
 	public List<Code> getCodes() {
@@ -597,14 +579,6 @@ public class Resource extends Content implements Serializable {
 
 	public void setCustomFieldValues(Map<String, String> customFieldValues) {
 		this.customFieldValues = customFieldValues;
-	}
-
-	public List<ResourceInstance> getResourceInstances() {
-		return resourceInstances;
-	}
-
-	public void setResourceInstances(List<ResourceInstance> resourceInstances) {
-		this.resourceInstances = resourceInstances;
 	}
 
 	public String getMediaType() {
@@ -926,4 +900,21 @@ public class Resource extends Content implements Serializable {
 	public void setThumbnails(Thumbnail thumbnails) {
 		this.thumbnails = thumbnails;
 	}
+
+	public Integer getResourceAddedCount() {
+		return resourceAddedCount;
+	}
+
+	public void setResourceAddedCount(Integer resourceAddedCount) {
+		this.resourceAddedCount = resourceAddedCount;
+	}
+
+	public Integer getResourceUsedUserCount() {
+		return resourceUsedUserCount;
+	}
+
+	public void setResourceUsedUserCount(Integer resourceUsedUserCount) {
+		this.resourceUsedUserCount = resourceUsedUserCount;
+	}
+	
 }

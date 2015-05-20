@@ -100,10 +100,10 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ADD })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { " " }, method = RequestMethod.POST)
-	public ModelAndView createCollection(@RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		User user = (User) request.getAttribute(Constants.USER);
-		JSONObject json = requestData(data);
-		ActionResponseDTO<Collection> responseDTO = getCollectionService().createCollection(this.buildCollectionFromInputParameters(getValue(COLLECTION, json), user, request), Boolean.parseBoolean(json != null && getValue(ADD_TO_SHELF, json) != null ? getValue(ADD_TO_SHELF, json) : FALSE),
+	public ModelAndView createCollection(@RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+		final User user = (User) request.getAttribute(Constants.USER);
+		final JSONObject json = requestData(data);
+		final ActionResponseDTO<Collection> responseDTO = getCollectionService().createCollection(this.buildCollectionFromInputParameters(getValue(COLLECTION, json), user, request), Boolean.parseBoolean(json != null && getValue(ADD_TO_SHELF, json) != null ? getValue(ADD_TO_SHELF, json) : FALSE),
 				getValue(RESOURCE_ID, json), getValue(PARENT_ID, json), user);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -119,11 +119,11 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_UPDATE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}" }, method = { RequestMethod.PUT })
-	public ModelAndView updateCollection(@PathVariable(value = ID) String collectionId, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		User user = (User) request.getAttribute(Constants.USER);
-		JSONObject json = requestData(data);
-		ActionResponseDTO<Collection> responseDTO = getCollectionService().updateCollection(this.buildCopyCollectionFromInputParameters(getValue(COLLECTION, json)), collectionId, getValue(OWNER_UID, json), getValue(CREATOR_UID, json), hasUnrestrictedContentAccess(),
-				getValue(RELATED_CONTENT_ID, json), user);
+	public ModelAndView updateCollection(@PathVariable(value = ID) final String collectionId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+		final User user = (User) request.getAttribute(Constants.USER);
+		final JSONObject json = requestData(data);
+		final ActionResponseDTO<Collection> responseDTO = getCollectionService().updateCollection(this.buildCopyCollectionFromInputParameters(getValue(COLLECTION, json)), collectionId, getValue(OWNER_UID, json), getValue(CREATOR_UID, json), hasUnrestrictedContentAccess(),
+				getValue(RELATED_CONTENT_ID, json), user, data);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		}
@@ -140,12 +140,12 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}" }, method = RequestMethod.GET)
-	public ModelAndView getCollection(@PathVariable(value = ID) String collectionId, @RequestParam(value = INCLUDE_COLLECTION_ITEM, required = false, defaultValue = TRUE) boolean includeCollectionItem,
+	public ModelAndView getCollection(@PathVariable(value = ID) final String collectionId, @RequestParam(value = INCLUDE_COLLECTION_ITEM, required = false, defaultValue = TRUE) final boolean includeCollectionItem,
 			@RequestParam(value = INLCLUDE_META_INFO, required = false, defaultValue = FALSE) boolean includeMetaInfo, @RequestParam(value = INCLUDE_COLLABORATOR, required = false, defaultValue = FALSE) boolean includeCollaborator,
 			@RequestParam(value = IS_GAT, required = false, defaultValue = FALSE) boolean isGat, @RequestParam(value = CLEAR_CACHE, required = false, defaultValue = FALSE) boolean clearCache,
 			@RequestParam(value = INCLUDE_RELATED_CONTENT, required = false, defaultValue = FALSE) boolean includeRelatedContent, @RequestParam(value = MERGE, required = false) String merge, @RequestParam(value = REQ_CONTEXT, required = false, defaultValue = "edit-play") String requestContext,
 			@RequestParam(value = ROOT_NODE_ID, required = false) String rootNodeId, @RequestParam(value = INCLUDE_CONTENT_PROVIDER, required = false, defaultValue = TRUE) boolean includeContentProvider, @RequestParam(value = INCLUDE_CUSTOM_FIELDS, required = false, defaultValue = TRUE) boolean includeCustomFields, HttpServletRequest request, HttpServletResponse response) {
-		User user = (User) request.getAttribute(Constants.USER);
+		final User user = (User) request.getAttribute(Constants.USER);
 		String includes[] = null;
 		if (requestContext != null && requestContext.equalsIgnoreCase("library")) {
 			includes = (String[]) ArrayUtils.addAll(LIBRARY_RESOURCE_INCLUDE_FIELDS, COLLECTION_ITEM_INCLUDE_FILEDS);
@@ -180,18 +180,18 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_DELETE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}" }, method = RequestMethod.DELETE)
-	public void deleteCollection(@PathVariable(value = ID) String collectionId, HttpServletRequest request, HttpServletResponse response) {
-		User user = (User) request.getAttribute(Constants.USER);
+	public void deleteCollection(@PathVariable(value = ID) final String collectionId, final HttpServletRequest request, final HttpServletResponse response) {
+		final User user = (User) request.getAttribute(Constants.USER);
 		getCollectionService().deleteCollection(collectionId, user);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ITEM_ADD })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}/item" }, method = RequestMethod.POST)
-	public ModelAndView createCollectionItem(@PathVariable(value = ID) String collectionId, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		User user = (User) request.getAttribute(Constants.USER);
-		JSONObject json = requestData(data);
-		ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().createCollectionItem(getValue(RESOURCE_ID, json), collectionId, this.buildCollectionItemFromInputParameters(getValue(COLLECTION_ITEM, json)), user, CollectionType.COLLECTION.getCollectionType(), false);
+	public ModelAndView createCollectionItem(@PathVariable(value = ID) final String collectionId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+		final User user = (User) request.getAttribute(Constants.USER);
+		final JSONObject json = requestData(data);
+		final ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().createCollectionItem(getValue(RESOURCE_ID, json), collectionId, this.buildCollectionItemFromInputParameters(getValue(COLLECTION_ITEM, json)), user, CollectionType.COLLECTION.getCollectionType(), false);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		} else {
@@ -206,10 +206,10 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ITEM_UPDATE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/item/{id}" }, method = RequestMethod.PUT)
-	public ModelAndView updateCollectionItem(@PathVariable(value = ID) String collectionItemId, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		User user = (User) request.getAttribute(Constants.USER);
-		JSONObject json = requestData(data);
-		ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().updateCollectionItem(this.buildCollectionItemFromInputParameters(getValue(COLLECTION_ITEM, json)), collectionItemId, user);
+	public ModelAndView updateCollectionItem(@PathVariable(value = ID) final String collectionItemId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+		final User user = (User) request.getAttribute(Constants.USER);
+		final JSONObject json = requestData(data);
+		final ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().updateCollectionItem(this.buildCollectionItemFromInputParameters(getValue(COLLECTION_ITEM, json)), collectionItemId, user, data);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		}
@@ -222,8 +222,8 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ITEM_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/item/{id}" }, method = RequestMethod.GET)
-	public ModelAndView getCollectionItem(@PathVariable(value = ID) String collectionItemId, @RequestParam(value = INCLUDE_ADDITIONAL_INFO, required = false, defaultValue = FALSE) boolean includeAdditionalInfo, HttpServletRequest request, HttpServletResponse response) {
-		User user = (User) request.getAttribute(Constants.USER);
+	public ModelAndView getCollectionItem(@PathVariable(value = ID) final String collectionItemId, @RequestParam(value = INCLUDE_ADDITIONAL_INFO, required = false, defaultValue = FALSE) final boolean includeAdditionalInfo, final HttpServletRequest request, final HttpServletResponse response) {
+		final User user = (User) request.getAttribute(Constants.USER);
 		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, COLLECTION_ITEM_INCLUDE_FILEDS);
 		includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_META_INFO);
 		return toModelAndViewWithIoFilter(getCollectionService().getCollectionItem(collectionItemId, includeAdditionalInfo, user, null), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
@@ -232,30 +232,30 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ITEM_LIST })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}/item" }, method = RequestMethod.GET)
-	public ModelAndView getCollectionItems(@PathVariable(value = ID) String collectionId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,
-			@RequestParam(value = ORDER_BY, defaultValue = DESC, required = false) String orderBy, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		List<CollectionItem> collectionItems = this.getCollectionService().getCollectionItems(collectionId, offset, limit, orderBy, "collection");
+	public ModelAndView getCollectionItems(@PathVariable(value = ID) final String collectionId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") final Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") final Integer limit,
+			@RequestParam(value = ORDER_BY, defaultValue = DESC, required = false) final String orderBy, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+		final List<CollectionItem> collectionItems = this.getCollectionService().getCollectionItems(collectionId, offset, limit, orderBy, "collection");
 		String includesDefault[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, COLLECTION_ITEM_INCLUDE_FILEDS);
 		includesDefault = (String[]) ArrayUtils.addAll(includesDefault, COLLECTION_ITEM_TAGS);
 		includesDefault = (String[]) ArrayUtils.addAll(includesDefault, COLLECTION_WORKSPACE);
 		String includes[] = (String[]) ArrayUtils.addAll(includesDefault, ERROR_INCLUDE);
-		return toModelAndViewWithIoFilter(getCollectionService().setCollectionItemMetaInfo(collectionItems, null), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
+		return toModelAndViewWithIoFilter(getCollectionService().setCollectionItemMetaInfo(collectionItems, null, true), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ITEM_DELETE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/item/{id}" }, method = RequestMethod.DELETE)
-	public void deleteCollectionItem(@PathVariable(value = ID) String collectionItemId, HttpServletRequest request, HttpServletResponse response) {
-		User user = (User) request.getAttribute(Constants.USER);
+	public void deleteCollectionItem(@PathVariable(value = ID) final String collectionItemId, final HttpServletRequest request, final HttpServletResponse response) {
+		final User user = (User) request.getAttribute(Constants.USER);
 		getCollectionService().deleteCollectionItem(collectionItemId, user, true);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ITEM_UPDATE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/item/{id}/reorder/{sequence}" }, method = RequestMethod.PUT)
-	public ModelAndView reorderCollectionItemSequence(@PathVariable(value = ID) String collectionItemId, @PathVariable(value = SEQUENCE) int newSequence, User user ,HttpServletRequest request, HttpServletResponse response) throws Exception {
-		ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().reorderCollectionItem(collectionItemId, newSequence, user);
+	public ModelAndView reorderCollectionItemSequence(@PathVariable(value = ID) final String collectionItemId, @PathVariable(value = SEQUENCE) int newSequence, final User user , final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+		final ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().reorderCollectionItem(collectionItemId, newSequence, user);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		}
@@ -268,14 +268,14 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_COPY })
 	@RequestMapping(value = { "/{id}/copy" }, method = RequestMethod.PUT)
-	public ModelAndView copyCollection(@PathVariable(value = ID) String collectionId, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public ModelAndView copyCollection(@PathVariable(value = ID) final String collectionId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, COLLECTION_INCLUDE_FIELDS);
-		JSONObject json = requestData(data);
+		final JSONObject json = requestData(data);
 		if (getValue(SKIP_COLLECTION_ITEM, json) != null ? !Boolean.parseBoolean(getValue(SKIP_COLLECTION_ITEM, json)) : true) {
 			includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_ITEM_INCLUDE_FILEDS);
 		}
-		User user = (User) request.getAttribute(Constants.USER);
-		Collection collection = getCollectionService().copyCollection(collectionId, this.buildCopyCollectionFromInputParameters(getValue(COLLECTION, json)), json != null && getValue(ADD_TO_SHELF, json) != null ? Boolean.parseBoolean(getValue(ADD_TO_SHELF, json)) : false,
+		final User user = (User) request.getAttribute(Constants.USER);
+		final Collection collection = getCollectionService().copyCollection(collectionId, this.buildCopyCollectionFromInputParameters(getValue(COLLECTION, json)), json != null && getValue(ADD_TO_SHELF, json) != null ? Boolean.parseBoolean(getValue(ADD_TO_SHELF, json)) : false,
 				json != null && getValue(PARENT_ID, json) != null ? getValue(PARENT_ID, json) : null, user);
 		indexHandler.setReIndexRequest(collection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);				
 		return toModelAndViewWithIoFilter(collection, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
@@ -284,24 +284,24 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ITEM_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/resource/moreinfo/{id}" }, method = RequestMethod.GET)
-	public ModelAndView getResourceMoreInfo(@PathVariable(value = ID) String resourceId, HttpServletRequest request, HttpServletResponse response) {
+	public ModelAndView getResourceMoreInfo(@PathVariable(value = ID) final String resourceId, final HttpServletRequest request, final HttpServletResponse response) {
 		return toModelAndViewWithIoFilter(this.getCollectionService().getResourceMoreInfo(resourceId), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, COLLECTION_INCLUDE_FIELDS);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ITEM_COPY })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/item/{id}/copy/{cid}" }, method = RequestMethod.PUT)
-	public ModelAndView copyCollectionItem(@PathVariable(value = ID) String collectionItemId, @PathVariable(value = CID) String collectionId, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		CollectionItem collectionItem = getCollectionService().copyCollectionItem(collectionItemId, collectionId);
+	public ModelAndView copyCollectionItem(@PathVariable(value = ID) final String collectionItemId, @PathVariable(value = CID) final String collectionId, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+		final CollectionItem collectionItem = getCollectionService().copyCollectionItem(collectionItemId, collectionId);
 		return toModelAndViewWithIoFilter(collectionItem, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, COLLECTION_ITEM_INCLUDE_FILEDS));
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_MOVE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/move" }, method = RequestMethod.PUT)
-	public ModelAndView moveCollectionToFolder(HttpServletRequest request, @RequestBody String data, HttpServletResponse response) throws Exception {
-		User user = (User) request.getAttribute(Constants.USER);
-		JSONObject json = requestData(data);
+	public ModelAndView moveCollectionToFolder(final HttpServletRequest request, @RequestBody final String data, final HttpServletResponse response) throws Exception {
+		final User user = (User) request.getAttribute(Constants.USER);
+		final JSONObject json = requestData(data);
 
 		ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().moveCollectionToFolder(getValue(SOURCE_ID, json), json != null && getValue(TARGET_ID, json) != null ? getValue(TARGET_ID, json) : null, user);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
@@ -317,10 +317,10 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_RESOURCE_ADD })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}/resource" }, method = RequestMethod.POST)
-	public ModelAndView createResourceWithCollectionItem(HttpServletRequest request, @PathVariable(ID) String collectionId, @RequestBody String data, HttpServletResponse response) throws Exception {
-		JSONObject json = requestData(data);
-		User user = (User) request.getAttribute(Constants.USER);
-		ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().createResourceWithCollectionItem(collectionId, this.buildResourceFromInputParameters(getValue(RESOURCE, json), user), getValue(START, json), getValue(STOP, json),
+	public ModelAndView createResourceWithCollectionItem(final HttpServletRequest request, @PathVariable(ID) final String collectionId, @RequestBody final String data, final HttpServletResponse response) throws Exception {
+		final JSONObject json = requestData(data);
+		final User user = (User) request.getAttribute(Constants.USER);
+		final ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().createResourceWithCollectionItem(collectionId, this.buildResourceFromInputParameters(getValue(RESOURCE, json), user), getValue(START, json), getValue(STOP, json),
 				getValue(RESOURCE_TAGS, json) == null ? null : buildResourceTags(getValue(RESOURCE_TAGS, json)), user);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -334,11 +334,11 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_RESOURCE_UPDATE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/resource/{id}" }, method = RequestMethod.PUT)
-	public ModelAndView updateResourceWithCollectionItem(HttpServletRequest request, @PathVariable(ID) String collectionItemId, @RequestBody String data, HttpServletResponse response) throws Exception {
-		JSONObject json = requestData(data);
-		User user = (User) request.getAttribute(Constants.USER);
-		ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().updateResourceWithCollectionItem(collectionItemId, this.buildResourceFromInputParameters(getValue(RESOURCE, json), user), getValue(RESOURCE_TAGS, json) == null ? null : buildResourceTags(getValue(RESOURCE_TAGS, json)),
-				user);
+	public ModelAndView updateResourceWithCollectionItem(final HttpServletRequest request, @PathVariable(ID) final String collectionItemId, @RequestBody final String data, final HttpServletResponse response) throws Exception {
+		final JSONObject json = requestData(data);
+		final User user = (User) request.getAttribute(Constants.USER);
+		final ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().updateResourceWithCollectionItem(collectionItemId, this.buildResourceFromInputParameters(getValue(RESOURCE, json), user), getValue(RESOURCE_TAGS, json) == null ? null : buildResourceTags(getValue(RESOURCE_TAGS, json)),
+				user, data);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		}
@@ -351,10 +351,10 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ADD })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}/question" }, method = RequestMethod.POST)
-	public ModelAndView createQuestionWithCollectionItem(@PathVariable(value = ID) String collectionId, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		User user = (User) request.getAttribute(Constants.USER);
-		JSONObject json = requestData(data);
-		ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().createQuestionWithCollectionItem(collectionId, data, user, getValue(MEDIA_FILE_NAME, json), getCollectionType(request));
+	public ModelAndView createQuestionWithCollectionItem(@PathVariable(value = ID) final String collectionId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+		final User user = (User) request.getAttribute(Constants.USER);
+		final JSONObject json = requestData(data);
+		final ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().createQuestionWithCollectionItem(collectionId, data, user, getValue(MEDIA_FILE_NAME, json), getCollectionType(request));
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		}
@@ -368,10 +368,10 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_UPDATE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/question/{id}" }, method = RequestMethod.PUT)
-	public ModelAndView updateQuestionWithCollectionItem(HttpServletRequest request, @PathVariable(ID) String collectionItemId, @RequestBody String data, HttpServletResponse response) throws Exception {
-		JSONObject json = requestData(data);
-		User user = (User) request.getAttribute(Constants.USER);
-		ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().updateQuestionWithCollectionItem(collectionItemId, data, parseJSONArray(getValue(DELETE_ASSETS, json)), user, getValue(MEDIA_FILE_NAME, json));
+	public ModelAndView updateQuestionWithCollectionItem(final HttpServletRequest request, @PathVariable(ID) final String collectionItemId, @RequestBody final String data, final HttpServletResponse response) throws Exception {
+		final JSONObject json = requestData(data);
+		final User user = (User) request.getAttribute(Constants.USER);
+		final ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().updateQuestionWithCollectionItem(collectionItemId, data, parseJSONArray(getValue(DELETE_ASSETS, json)), user, getValue(MEDIA_FILE_NAME, json));
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		}
@@ -383,10 +383,10 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_UPDATE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "{cid}/question/{id}" }, method = RequestMethod.PUT)
-	public ModelAndView updateQuestionWithCollectionResourceItem(HttpServletRequest request, @PathVariable(value = CID) String collectionId, @PathVariable(ID) String resourceId, @RequestBody String data, HttpServletResponse response) throws Exception {
-		JSONObject json = requestData(data);
-		User user = (User) request.getAttribute(Constants.USER);
-		ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().updateQuestionWithCollectionItem(collectionId, resourceId, data, parseJSONArray(getValue(DELETE_ASSETS, json)), user, getValue(MEDIA_FILE_NAME, json));
+	public ModelAndView updateQuestionWithCollectionResourceItem(final HttpServletRequest request, @PathVariable(value = CID) final String collectionId, @PathVariable(ID) final String resourceId, @RequestBody final String data, final HttpServletResponse response) throws Exception {
+		final JSONObject json = requestData(data);
+		final User user = (User) request.getAttribute(Constants.USER);
+		final ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().updateQuestionWithCollectionItem(collectionId, resourceId, data, parseJSONArray(getValue(DELETE_ASSETS, json)), user, getValue(MEDIA_FILE_NAME, json));
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		}
@@ -398,17 +398,17 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_UPDATE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "{cid}/question/{id}" }, method = RequestMethod.DELETE)
-	public void deleteQuestionWithCollectionItem(@PathVariable(value = CID) String collectionId, @PathVariable(value = ID) String resourceId, HttpServletRequest request, HttpServletResponse response) {
+	public void deleteQuestionWithCollectionItem(@PathVariable(value = CID) final String collectionId, @PathVariable(value = ID) final String resourceId, final HttpServletRequest request, final HttpServletResponse response) {
 		this.getCollectionService().deleteQuestionWithCollectionItem(collectionId, resourceId);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}/workspace" }, method = RequestMethod.GET)
-	public ModelAndView getMyWorkspace(@PathVariable(value = ID) String partyUid, HttpServletRequest request, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,
-			@RequestParam(value = FILTER_NAME, required = false, defaultValue = ALL) String filterName, @RequestParam(value = ORDER_BY, required = false, defaultValue = "desc") String orderBy, @RequestParam(value = SHARING, required = false) String sharing, HttpServletResponse resHttpServletResponse) {
-		User user = (User) request.getAttribute(Constants.USER);
-		Map<String, String> filters = new HashMap<String, String>();
+	public ModelAndView getMyWorkspace(@PathVariable(value = ID) final String partyUid, final HttpServletRequest request, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") final Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") final Integer limit,
+			@RequestParam(value = FILTER_NAME, required = false, defaultValue = ALL) final String filterName, @RequestParam(value = ORDER_BY, required = false, defaultValue = "desc") final String orderBy, @RequestParam(value = SHARING, required = false) final String sharing, final HttpServletResponse resHttpServletResponse) {
+		final User user = (User) request.getAttribute(Constants.USER);
+		final Map<String, String> filters = new HashMap<String, String>();
 		filters.put(OFFSET_FIELD, offset + "");
 		filters.put(LIMIT_FIELD, limit + "");
 		filters.put(Constants.FETCH_TYPE, CollectionType.SHElf.getCollectionType());
@@ -417,7 +417,7 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 			filters.put(SHARING, sharing);
 		}
 		filters.put(ORDER_BY, orderBy);
-		List<CollectionItem> collectionItems = getCollectionService().setCollectionItemMetaInfo(getCollectionService().getMyCollectionItems(partyUid, filters, user), null);
+		final List<CollectionItem> collectionItems = getCollectionService().setCollectionItemMetaInfo(getCollectionService().getMyCollectionItems(partyUid, filters, user), null, false);
 		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, COLLECTION_INCLUDE_FIELDS);
 		includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_META_INFO);
 		includes = (String[]) ArrayUtils.addAll(includes, COLLECTION_WORKSPACE);
@@ -428,33 +428,33 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}/isAdded" }, method = RequestMethod.GET)
-	public ModelAndView isAlreadyCopied(HttpServletRequest request, @PathVariable(value = ID) String gooruOid, HttpServletResponse resHttpServletResponse) throws Exception {
-		User user = (User) request.getAttribute(Constants.USER);
-		ModelAndView jsonmodel = new ModelAndView(REST_MODEL);
+	public ModelAndView isAlreadyCopied(final HttpServletRequest request, @PathVariable(value = ID) final String gooruOid, final HttpServletResponse resHttpServletResponse) throws Exception {
+		final User user = (User) request.getAttribute(Constants.USER);
+		final ModelAndView jsonmodel = new ModelAndView(REST_MODEL);
 		return jsonmodel.addObject(MODEL, this.getCollectionService().resourceCopiedFrom(gooruOid, user.getGooruUId()));
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}/parents" }, method = RequestMethod.GET)
-	public ModelAndView getCollectionParent(HttpServletRequest request, @PathVariable(value = ID) String gooruOid, HttpServletResponse resHttpServletResponse) throws Exception {
-		User user = (User) request.getAttribute(Constants.USER);
+	public ModelAndView getCollectionParent(final HttpServletRequest request, @PathVariable(value = ID) final String gooruOid, final HttpServletResponse resHttpServletResponse) throws Exception {
+		final User user = (User) request.getAttribute(Constants.USER);
 		return toJsonModelAndView(this.getCollectionService().getParentCollection(gooruOid, user.getPartyUid(), true), true);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/standards" }, method = RequestMethod.GET)
-	public ModelAndView getCollectionStandards(HttpServletRequest request, @RequestParam(value = ID, required = false) Integer codeId, @RequestParam(value = QUERY, required = false) String query, HttpServletResponse resHttpServletResponse,
-			@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit) throws Exception {
-		User user = (User) request.getAttribute(Constants.USER);
+	public ModelAndView getCollectionStandards(final HttpServletRequest request, @RequestParam(value = ID, required = false) final Integer codeId, @RequestParam(value = QUERY, required = false) final String query, final HttpServletResponse resHttpServletResponse,
+			@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") final Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") final Integer limit) throws Exception {
+		final User user = (User) request.getAttribute(Constants.USER);
 		return toModelAndViewWithIoFilter(this.getCollectionService().getCollectionStandards(codeId, query, limit, offset, user), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, COLLECTION_STANDARDS_INCLUDES);
 	}
 
-	private Collection buildCollectionFromInputParameters(String data, User user, HttpServletRequest request) {
-		Collection collection = JsonDeserializer.deserialize(data, Collection.class);
+	private Collection buildCollectionFromInputParameters(final String data, final User user, final HttpServletRequest request) {
+		final Collection collection = JsonDeserializer.deserialize(data, Collection.class);
 		collection.setGooruOid(UUID.randomUUID().toString());
-		ContentType contentType = getCollectionService().getContentType(ContentType.RESOURCE);
+		final ContentType contentType = getCollectionService().getContentType(ContentType.RESOURCE);
 		collection.setContentType(contentType);
 		ResourceType resourceType = getCollectionService().getResourceType(ResourceType.Type.SCOLLECTION.getType());
 		if (collection.getCollectionType() != null && collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.FOLDER.getType())) {
@@ -483,25 +483,25 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 		return collection;
 	}
 
-	private Resource buildResourceFromInputParameters(String data, User user) {
+	private Resource buildResourceFromInputParameters(final String data, final User user) {
 		return JsonDeserializer.deserialize(data, Resource.class);
 	}
 
-	private Collection buildCopyCollectionFromInputParameters(String data) {
+	private Collection buildCopyCollectionFromInputParameters(final String data) {
 
 		return JsonDeserializer.deserialize(data, Collection.class);
 	}
 
-	private CollectionItem buildCollectionItemFromInputParameters(String data) {
+	private CollectionItem buildCollectionItemFromInputParameters(final String data) {
 
 		return JsonDeserializer.deserialize(data, CollectionItem.class);
 	}
 
-	private List<Integer> parseJSONArray(String arrayData) throws Exception {
+	private List<Integer> parseJSONArray(final String arrayData) throws Exception {
 
-		List<Integer> list = new ArrayList<Integer>();
+		final List<Integer> list = new ArrayList<Integer>();
 		if (arrayData != null && arrayData.length() > 2) {
-			JSONArray jsonArray = new JSONArray(arrayData);
+			final JSONArray jsonArray = new JSONArray(arrayData);
 			for (int i = 0; i < jsonArray.length(); i++) {
 				list.add((Integer) jsonArray.get(i));
 			}
@@ -512,46 +512,44 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/list/status" }, method = RequestMethod.GET)
-	public ModelAndView getCollectionListForPublish(@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit,
-			@RequestParam(value = PUBLISH_STATUS, required = false) String publishStatus, HttpServletRequest request, HttpServletResponse response) {
-		User user = (User) request.getAttribute(Constants.USER);
-		String includes[] = (String[]) ArrayUtils.addAll(COLLECTION_ITEM_INCLUDE_FILEDS, COLLECTION_INCLUDE_FIELDS);
-		return toModelAndViewWithIoFilter(getCollectionService().getCollections(offset, limit, user, publishStatus), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
-
+	public ModelAndView getCollectionListForPublish(@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") final Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") final Integer limit,
+			@RequestParam(value = PUBLISH_STATUS, required = false) final String publishStatus, final HttpServletRequest request, final HttpServletResponse response) {
+		final User user = (User) request.getAttribute(Constants.USER);
+		return toModelAndViewWithIoFilter(getCollectionService().getCollections(offset, limit, user, publishStatus), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, COLLECTION_INCLUDE_FIELDS);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_UPDATE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/publish/collections" }, method = { RequestMethod.PUT })
-	public ModelAndView updateCollectionForPublish(@RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		User user = (User) request.getAttribute(Constants.USER);
-		List<Map<String, String>> collection = buildUpdatesPublishStatusFromInputParameters(data);
+	public ModelAndView updateCollectionForPublish(@RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+		final User user = (User) request.getAttribute(Constants.USER);
+		final List<Map<String, String>> collection = buildUpdatesPublishStatusFromInputParameters(data);
 		return toModelAndViewWithIoFilter(getCollectionService().updateCollectionForPublish(collection, user), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, COLLECTION_INCLUDE_FIELDS);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_UPDATE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/reject/collections" }, method = { RequestMethod.PUT })
-	public ModelAndView updateCollectionForRejection(@RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		User user = (User) request.getAttribute(Constants.USER);
-		List<Map<String, String>> collection = buildUpdatesPublishStatusFromInputParameters(data);
+	public ModelAndView updateCollectionForRejection(@RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+		final User user = (User) request.getAttribute(Constants.USER);
+		final List<Map<String, String>> collection = buildUpdatesPublishStatusFromInputParameters(data);
 		return toModelAndViewWithIoFilter(getCollectionService().updateCollectionForReject(collection, user), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, COLLECTION_INCLUDE_FIELDS);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_DELETE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.DELETE, value = "/bulk")
-	public void deleteBulkCollections(@RequestParam String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public void deleteBulkCollections(@RequestParam final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		this.getCollectionService().deleteBulkCollections(JsonDeserializer.deserialize(data, new TypeReference<List<String>>() {
 		}));
 	}
 
-	private List<Map<String, String>> buildUpdatesPublishStatusFromInputParameters(String data) {
+	private List<Map<String, String>> buildUpdatesPublishStatusFromInputParameters(final String data) {
 		return JsonDeserializer.deserialize(data, new TypeReference<List<Map<String, String>>>() {
 		});
 	}
 
-	private List<String> buildResourceTags(String data) {
+	private List<String> buildResourceTags(final String data) {
 		return JsonDeserializer.deserialize(data, new TypeReference<List<String>>() {
 		});
 	}
@@ -572,7 +570,7 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 		return redisService;
 	}
 
-	private String getCollectionType(HttpServletRequest request) {
+	private String getCollectionType(final HttpServletRequest request) {
 		String type = null;
 		if (request.getRequestURL() != null && request.getRequestURL().toString().contains(ASSESSMENT)) {
 			type = ASSESSMENT;

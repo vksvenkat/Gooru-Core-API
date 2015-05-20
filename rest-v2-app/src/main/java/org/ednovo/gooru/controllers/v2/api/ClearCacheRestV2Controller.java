@@ -1,8 +1,8 @@
 /////////////////////////////////////////////////////////////
 //ClearCacheRestV2Controller.java
 //rest-v2-app
-// Created by Gooru on 2014
-// Copyright (c) 2014 Gooru. All rights reserved.
+// Created by Gooru on 2015
+// Copyright (c) 2015 Gooru. All rights reserved.
 // http://www.goorulearning.org/
 // Permission is hereby granted, free of charge, to any person      obtaining
 // a copy of this software and associated documentation files (the
@@ -27,11 +27,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.ednovo.gooru.controllers.BaseController;
-import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.GooruOperationConstants;
 import org.ednovo.gooru.core.security.AuthorizeOperations;
 import org.ednovo.gooru.domain.service.redis.RedisService;
+import org.ednovo.gooru.kafka.producer.KafkaHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Propagation;
@@ -47,17 +47,30 @@ public class ClearCacheRestV2Controller extends BaseController implements Consta
 
 	@Autowired
 	private RedisService redisService;
+	
+	@Autowired
+	private KafkaHandler kafkaService;
     
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CACHE_CLEAR })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/{entity}", method = { RequestMethod.DELETE })
 	public void clearCache(@PathVariable(value = ENTITY) String entity, @RequestParam(value = KEY, required = false, defaultValue = "*library-*") String key, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		this.getRedisService().bulkKeyDelete(key);
-		SessionContextSupport.putLogParameter(EVENT_NAME, "clear-cache-" + entity + "-key-" + key);
+	}
+	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CACHE_CLEAR })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(value = "/kafka", method = { RequestMethod.DELETE })
+	public void clearKafkaCache(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		getKafkaService().clearCache();
 	}
 	
 	public RedisService getRedisService() {
 		return redisService;
+	}
+
+	public KafkaHandler getKafkaService() {
+		return kafkaService;
 	}
 
 }

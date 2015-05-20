@@ -49,6 +49,8 @@ public interface ParameterProperties {
 	public static final String PARAM_FORMAT = "format";
 
 	public static final String MODEL = "model";
+	
+	public static final String EXCLUDE_COLLABORATOR_COLLECTION = "excludeCollaboratorCollection";	
 
 	public static final String REST_MODEL = "rest/model";
 
@@ -155,6 +157,8 @@ public interface ParameterProperties {
 	String TITLE = "title";
 
 	String _TITLE = "Title";
+	
+	String QUESTION_TITLE = "questionTitle";
 
 	String RENDITION = "rendition";
 
@@ -295,8 +299,6 @@ public interface ParameterProperties {
 	String MOBILE = "Mobile";
 
 	String SEQUENCE = "sequence";
-
-	String SESSION_ITEM = "sessionItem";
 
 	String COLLECTION_TYPE = "collectionType";
 
@@ -746,27 +748,15 @@ public interface ParameterProperties {
 
 	String ENTRY = "entry";
 
-	String MEDIA_GROUP = "media$group";
-
-	String MEDIA_TITLE = "media$title";
-
-	String MEDIA_DESCRIPTION = "media$description";
-
-	String YT_STATISTICS = "yt$statistics";
+	String STATISTICS = "statistics";
 
 	String FAVORITE_COUNT = "favoriteCount";
 
 	String VIEW_COUNT = "viewCount";
 
-	String GD_RATING = "gd$rating";
-
-	String YT_RATING = "yt$rating";
-
 	String NUM_DISLIKES = "numDislikes";
 
 	String NUM_LIKES = "numLikes";
-
-	String YT_DURATION = "yt$duration";
 
 	String SECONDS = "seconds";
 
@@ -1465,6 +1455,10 @@ public interface ParameterProperties {
 	String SIGNATURE = "signature";
 
 	String ZERO = "0";
+	
+	final int _ZERO = '0';
+	
+	final int _ONE = '1';
 
 	String SHOW_PROFILE_PAGE = "show_profile_page";
 
@@ -1736,8 +1730,6 @@ public interface ParameterProperties {
 
 	String CLASSPAGE_GET_MY_WORKSPACE = "classpage-get-my-workspace";
 
-	String S_COLLECTION_CREATE = "scollection-create";
-
 	String SCOLLECTION_UPDATE = "scollection-update";
 
 	String COLLECTION_DATA_LIB = "collection-data-library-";
@@ -1962,7 +1954,7 @@ public interface ParameterProperties {
 
 	String SEG_REORDER = "segment.reorder";
 
-	String SESSION_ACTIVITY = "session.activity";
+	String SESSION_ACTIVITY = "session activity";
 
 	String SESSION_ACTIVITY_UID = "sessionActivityUid";
 
@@ -1974,7 +1966,7 @@ public interface ParameterProperties {
 
 	String QUESTION_ATTEMPT_ID = "questionAttemptId";
 
-	String SESSION_ACTIVITY_ITEM = "session.activity.item";
+	String SESSION_ACTIVITY_ITEM = "session activity item";
 
 	String GET_SESSION_ACTIVITY_ITEM = "get.session.activity.item";
 
@@ -2344,7 +2336,7 @@ public interface ParameterProperties {
 
 	String USER_REMOVE_USER_ROLE = "user.remove_user_role";
 
-	String _ERROR = "ERROR";
+	String _ERROR = "ERROR : {}";
 
 	String PARENT = "parent";
 
@@ -2876,6 +2868,32 @@ public interface ParameterProperties {
 	
 	String SETTINGS = "settings";
 	
+	String GL0099 = "GL0099";
 
+	String PROFANITY_TEXT = "profanity text";
+	
+	String GL0001 = "GL0001";
+	
+	String GL0004 = "GL0004";
+	
+	String GL0014 = "GL0014";
+	
+	String PROFILE_ID = "profileId";
+	
+	String SECURITY_LEVEL = "securityLevel";
+	
+	String INCLUDE_CIMIN = "includeCIMin";
+	
+	String PATH ="path";
+	
+	String ITEMS = "items";
+	
+	String SNIPPET = "snippet";
+	
+	String CONTENT_DETAILS = "contentDetails";
+	
+	String PAGE_INFO = "pageInfo";
+	
+	String TOTAL_RESULTS = "totalResults";
 }
 

@@ -37,19 +37,12 @@
 		</property>
 	</bean>
 
-	<context:component-scan base-package="org.ednovo.kafka.producer" />
-
 	<bean id="cacheManager" class="net.sf.ehcache.CacheManager" />
 
 	<bean id="restAPIEndPoint" class="java.lang.String">
 		<constructor-arg>
 			<value>${gooru.services.endpoint}</value>
 		</constructor-arg>
-	</bean>
-	<bean id="kafkaService" class="org.ednovo.kafka.producer.KafkaEventHandler">
-		<constructor-arg index="0" value="${insights.kafa.ip}" />
-		<constructor-arg index="1" value="${insights.kafa.port}" />
-		<constructor-arg index="2" value="${insights.kafa.topic}" />
 	</bean>
 	<jee:jndi-lookup id="jndiDataSource" jndi-name="java:comp/env/jdbc/gooruapi" />
 	<jee:jndi-lookup id="jndiDataSourceReadOnly" jndi-name="java:comp/env/jdbc/gooruapiReadOnly" />

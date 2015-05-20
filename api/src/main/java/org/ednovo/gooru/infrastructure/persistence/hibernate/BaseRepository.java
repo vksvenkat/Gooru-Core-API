@@ -47,8 +47,10 @@ public interface BaseRepository {
 	 *            the type of objects (a.k.a. while table) to get data from
 	 * @return List of populated objects
 	 */
+	@SuppressWarnings("rawtypes")
 	List getAll(Class<?> clazz);
 
+	@SuppressWarnings("rawtypes")
 	List getPagedResults(Class<?> clazz, int page, int recordPerPage);
 
 	/**
@@ -83,7 +85,7 @@ public interface BaseRepository {
 	 * @param id
 	 *            the identifier (primary key) of the class
 	 */
-	void remove(Class clazz, Serializable id);
+	void remove(Class<?> clazz, Serializable id);
 
 	/**
 	 * Generic method to delete an object based on class and id
@@ -101,9 +103,9 @@ public interface BaseRepository {
 	 * @param collection
 	 *            of Object
 	 */
-	void removeAll(Collection entities);
+	void removeAll(Collection<?> entities);
 
-	void saveAll(Collection entities);
+	void saveAll(Collection<?> entities);
 
 	void flush();
 
