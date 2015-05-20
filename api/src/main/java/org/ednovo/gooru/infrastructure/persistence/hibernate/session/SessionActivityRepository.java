@@ -36,4 +36,12 @@ public interface SessionActivityRepository extends BaseRepository {
 	Integer getSessionActivityCount(Long collectionId, Long parentId, String gooruUId);
 	
 	Integer getSessionActivityItemAttemptCount(Long sessionActivityId, Long resourceId);
+	
+	Integer getSessionActivityReactionCount(Long sessionActivityId);
+	
+	Integer getSessionActivityRatingCount(Long sessionActivityId);
+	
+	Integer getQuestionCount(Long collectionId);
+	
+	Integer getTotalScore(Long sessionActivityId);
 }
