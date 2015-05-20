@@ -22,7 +22,7 @@ public class SessionActivity implements Serializable {
 
 	private Integer viewsInSession;
 
-	private Integer timeSpentInMillis;
+	private Long timeSpentInMillis;
 
 	private Integer reaction;
 
@@ -128,11 +128,11 @@ public class SessionActivity implements Serializable {
 		this.viewsInSession = viewsInSession;
 	}
 
-	public Integer getTimeSpentInMillis() {
+	public Long getTimeSpentInMillis() {
 		return timeSpentInMillis;
 	}
 
-	public void setTimeSpentInMillis(Integer timeSpentInMillis) {
+	public void setTimeSpentInMillis(Long timeSpentInMillis) {
 		this.timeSpentInMillis = timeSpentInMillis;
 	}
 

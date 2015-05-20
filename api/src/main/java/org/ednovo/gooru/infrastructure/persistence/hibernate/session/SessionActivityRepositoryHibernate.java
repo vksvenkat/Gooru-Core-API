@@ -42,6 +42,14 @@ public class SessionActivityRepositoryHibernate extends BaseRepositoryHibernate 
 	private final String RETRIEVE_SESSION_ACTIVITY_ITEM_BY_ID = "From SessionActivityItem  si  where si.sessionActivityId=:sessionActivityId and si.resourceId=:resourceId";
 
 	private final String SESSION_ACTIVITY_ITEM_ATTEMPT_COUNT = "select count(1) as count from session_activity_item_attempt_try where session_activity_id=:sessionActivityId and resource_id=:resourceId ";
+
+	private final String SESSION_ACTIVITY_RATING_COUNT = "select round(sum(rating)/count(1)) as count from session_activity_item where session_activity_id =:sessionActivityId and rating <> 0";
+
+	private final String SESSION_ACTIVITY_REACTION_COUNT = "select round(sum(reaction)/count(1)) as count from session_activity_item where session_activity_id =:sessionActivityId and reaction <> 0";
+
+	private final String COLLECTION_QUESTION_COUNT = "select count(1) as count from collection_item ci inner join assessment_question  q on q.question_id = ci.resource_content_id where ci.collection_content_id=:collectionId";
+
+	private final String SESSION_ACTIVITY_TOTAL_SCORE = "select sum(score) as count from session_activity_item where session_activity_id =:sessionActivityId";
 	
 	@Override
 	public SessionActivity getSessionActivityById(Long sessionActivityId) {
@@ -67,8 +75,7 @@ public class SessionActivityRepositoryHibernate extends BaseRepositoryHibernate 
 			sql += " AND parent_id=" + parentId;
 		}
 		Query query = getSession().createSQLQuery(sql).addScalar(COUNT, StandardBasicTypes.INTEGER);
-		List<Integer> results = list(query);
-		return (results != null && results.size() > 0) ? results.get(0) : 0;
+		return (Integer) list(query).get(0);
 	}
 
 	@Override
@@ -76,7 +83,34 @@ public class SessionActivityRepositoryHibernate extends BaseRepositoryHibernate 
 		Query query = getSession().createSQLQuery(SESSION_ACTIVITY_ITEM_ATTEMPT_COUNT).addScalar(COUNT, StandardBasicTypes.INTEGER);
 		query.setParameter(SESSION_ACTIVITY_ID, sessionActivityId);
 		query.setParameter(RESOURCE_ID, resourceId);
-		List<Integer> results = list(query);
-		return (results != null && results.size() > 0) ? results.get(0) : 0;
+		return (Integer) list(query).get(0);
+	}
+
+	@Override
+	public Integer getSessionActivityReactionCount(Long sessionActivityId) {
+		Query query = getSession().createSQLQuery(SESSION_ACTIVITY_REACTION_COUNT).addScalar(COUNT, StandardBasicTypes.INTEGER);
+		query.setParameter(SESSION_ACTIVITY_ID, sessionActivityId);
+		return (Integer) list(query).get(0);
+	}
+
+	@Override
+	public Integer getSessionActivityRatingCount(Long sessionActivityId) {
+		Query query = getSession().createSQLQuery(SESSION_ACTIVITY_RATING_COUNT).addScalar(COUNT, StandardBasicTypes.INTEGER);
+		query.setParameter(SESSION_ACTIVITY_ID, sessionActivityId);
+		return (Integer) list(query).get(0);
+	}
+
+	@Override
+	public Integer getQuestionCount(Long collectionId) {
+		Query query = getSession().createSQLQuery(COLLECTION_QUESTION_COUNT).addScalar(COUNT, StandardBasicTypes.INTEGER);
+		query.setParameter(COLLECTION_ID, collectionId);
+		return (Integer) list(query).get(0);
+	}
+
+	@Override
+	public Integer getTotalScore(Long sessionActivityId) {
+		Query query = getSession().createSQLQuery(SESSION_ACTIVITY_TOTAL_SCORE).addScalar(COUNT, StandardBasicTypes.INTEGER);
+		query.setParameter(SESSION_ACTIVITY_ID, sessionActivityId);
+		return (Integer) list(query).get(0);
 	}
 }
