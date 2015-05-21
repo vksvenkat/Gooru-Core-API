@@ -164,6 +164,8 @@ public class GooruOperationConstants {
 
 	public static final String ENTITY_SUBJECT = "Subject";
 	
+	public static final String ENTITY_SUBDOMAIN = "SubDomain";
+	
 	
 
 	// Actions
@@ -995,4 +997,14 @@ public class GooruOperationConstants {
 	
 	public static final String OPERATION_SUBJECT_DELETE = ENTITY_SUBJECT + ENTITY_ACTION_SEPARATOR + ACTION_DELETE;
 
+	//SUBDOMAIN
+	
+	public static final String OPERATION_SUBDOMAIN_ADD = ENTITY_SUBDOMAIN + ENTITY_ACTION_SEPARATOR + ACTION_ADD;
+	
+	public static final String OPERATION_SUBDOMAIN_READ = ENTITY_SUBDOMAIN + ENTITY_ACTION_SEPARATOR + ACTION_READ;
+	
+	public static final String OPERATION_SUBDOMAIN_UPDATE = ENTITY_SUBDOMAIN + ENTITY_ACTION_SEPARATOR + ACTION_UPDATE;
+	
+	public static final String OPERATION_SUBDOMAIN_DELETE = ENTITY_SUBDOMAIN + ENTITY_ACTION_SEPARATOR + ACTION_DELETE;
+	
 }

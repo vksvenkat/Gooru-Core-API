@@ -9,6 +9,8 @@ import org.ednovo.gooru.core.api.model.SubDomain;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.Constants;
+import org.ednovo.gooru.core.constant.GooruOperationConstants;
+import org.ednovo.gooru.core.security.AuthorizeOperations;
 import org.ednovo.gooru.domain.service.subdomain.SubDomainService;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.json.JSONObject;
@@ -30,7 +32,7 @@ public class SubDomainRestV2Controller  extends BaseController implements Consta
 	@Autowired
 	private SubDomainService subDomainService;
 	
-	//@AuthorizeOperations(operations = {GooruOperationConstants.OPERATION_SUBJECT_ADD})
+		@AuthorizeOperations(operations = {GooruOperationConstants.OPERATION_SUBDOMAIN_ADD})
 		@RequestMapping(method = RequestMethod.POST)
 		@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 		public ModelAndView createSubDomain(HttpServletRequest request, HttpServletResponse response, @RequestBody String data)throws Exception{
@@ -40,14 +42,14 @@ public class SubDomainRestV2Controller  extends BaseController implements Consta
 			return toModelAndViewWithIoFilter(subDomain.getModelData(), FORMAT_JSON, EXCLUDE_ALL, true, SUBDOMAIN_INCLUDES);
 		}
 		
-		//@AuthorizeOperations(operations = {GooruOperationConstants.OPERATION_SUBJECT_READ})
+		@AuthorizeOperations(operations = {GooruOperationConstants.OPERATION_SUBDOMAIN_READ})
 		@RequestMapping(method = RequestMethod.GET, value = " ")
 		@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 		public ModelAndView getSubDomains(@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, HttpServletResponse response, HttpServletRequest request)throws Exception{
 			return toModelAndViewWithIoFilter(this.getSubDomainService().getSubDomain(limit, offset), FORMAT_JSON, EXCLUDE_ALL, true, SUBDOMAIN_INCLUDES);
 		}
 		
-		//@AuthorizeOperations(operations = {GooruOperationConstants.OPERATION_SUBJECT_READ})
+		@AuthorizeOperations(operations = {GooruOperationConstants.OPERATION_SUBDOMAIN_READ})
 		@RequestMapping(method = RequestMethod.GET, value = "/{id}")
 		@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 		public ModelAndView getSubDomain(HttpServletResponse response, HttpServletRequest request, @PathVariable(ID) String SubDomainId)throws Exception{
@@ -55,17 +57,16 @@ public class SubDomainRestV2Controller  extends BaseController implements Consta
 			return toModelAndViewWithIoFilter(subDomainObj, FORMAT_JSON, EXCLUDE_ALL, true, SUBDOMAIN_INCLUDES);
 		}
 		
-		//@AuthorizeOperations(operations = {GooruOperationConstants.OPERATION_SUBJECT_UPDATE})
+		@AuthorizeOperations(operations = {GooruOperationConstants.OPERATION_SUBDOMAIN_UPDATE})
 		@RequestMapping(method = RequestMethod.PUT, value ="/{id}")
 		@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 		public ModelAndView updateSubDomain(HttpServletResponse response, HttpServletRequest request,@RequestBody String data, @PathVariable(ID) String subDomainId)throws Exception{
 			JSONObject json = requestData(data);
 			User user = (User) request.getAttribute(Constants.USER);
-			//this.getSubjectService().updateSubject(buildSubjectFromInputParameters(getValue(SUBJECT, json)), user, subjectId);
 			return toModelAndViewWithIoFilter(this.getSubDomainService().updateSubDomain(buildSubDomainFromInputParameters(getValue(SUBDOMAIN, json)), user, subDomainId), FORMAT_JSON, EXCLUDE_ALL, true, SUBDOMAIN_INCLUDES);
 		}
 			
-		//@AuthorizeOperations(operations = {GooruOperationConstants.OPERATION_SUBJECT_DELETE})
+		@AuthorizeOperations(operations = {GooruOperationConstants.OPERATION_SUBDOMAIN_DELETE})
 		@RequestMapping(method = RequestMethod.DELETE, value = "/{id}")
 		@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 		public void deleteSubDomain(HttpServletResponse response, HttpServletRequest request, @PathVariable(ID) String subDomaintId)throws Exception{

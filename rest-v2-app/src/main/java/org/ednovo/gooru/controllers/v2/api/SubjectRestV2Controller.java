@@ -32,6 +32,8 @@ import org.ednovo.gooru.core.api.model.Subject;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.Constants;
+import org.ednovo.gooru.core.constant.GooruOperationConstants;
+import org.ednovo.gooru.core.security.AuthorizeOperations;
 import org.ednovo.gooru.domain.service.subject.SubjectService;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.json.JSONObject;
@@ -54,7 +56,7 @@ public class SubjectRestV2Controller extends BaseController implements ConstantP
 	@Autowired
 	private SubjectService subjectService;
 
-	//@AuthorizeOperations(operations = {GooruOperationConstants.OPERATION_SUBJECT_ADD})
+	@AuthorizeOperations(operations = {GooruOperationConstants.OPERATION_SUBJECT_ADD})
 	@RequestMapping(method = RequestMethod.POST)
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ModelAndView createSubject(HttpServletRequest request, HttpServletResponse response, @RequestBody String data)throws Exception{
@@ -64,14 +66,13 @@ public class SubjectRestV2Controller extends BaseController implements ConstantP
 		return toModelAndViewWithIoFilter(subject.getModelData(), FORMAT_JSON, EXCLUDE_ALL, true, SUBJECT_INCLUDES);
 	}
 	
-	//@AuthorizeOperations(operations = {GooruOperationConstants.OPERATION_SUBJECT_READ})
+	@AuthorizeOperations(operations = {GooruOperationConstants.OPERATION_SUBJECT_READ})
 	@RequestMapping(method = RequestMethod.GET, value = " ")
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ModelAndView getSubjects(@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, HttpServletResponse response, HttpServletRequest request)throws Exception{
 		return toModelAndViewWithIoFilter(this.getSubjectService().getSubjects(limit, offset), FORMAT_JSON, EXCLUDE_ALL, true, SUBJECT_INCLUDES);
 	}
-	
-	//@AuthorizeOperations(operations = {GooruOperationConstants.OPERATION_SUBJECT_READ})
+	@AuthorizeOperations(operations = {GooruOperationConstants.OPERATION_SUBJECT_READ})
 	@RequestMapping(method = RequestMethod.GET, value = "/{id}")
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ModelAndView getSubject(HttpServletResponse response, HttpServletRequest request, @PathVariable(ID) String SubjectId)throws Exception{
@@ -85,11 +86,10 @@ public class SubjectRestV2Controller extends BaseController implements ConstantP
 	public ModelAndView updateSubject(HttpServletResponse response, HttpServletRequest request,@RequestBody String data, @PathVariable(ID) String subjectId)throws Exception{
 		JSONObject json = requestData(data);
 		User user = (User) request.getAttribute(Constants.USER);
-		//this.getSubjectService().updateSubject(buildSubjectFromInputParameters(getValue(SUBJECT, json)), user, subjectId);
 		return toModelAndViewWithIoFilter(this.getSubjectService().updateSubject(buildSubjectFromInputParameters(getValue(SUBJECT, json)), user, subjectId), FORMAT_JSON, EXCLUDE_ALL, true, SUBJECT_INCLUDES);
 	}
 		
-	//@AuthorizeOperations(operations = {GooruOperationConstants.OPERATION_SUBJECT_DELETE})
+	@AuthorizeOperations(operations = {GooruOperationConstants.OPERATION_SUBJECT_DELETE})
 	@RequestMapping(method = RequestMethod.DELETE, value = "/{id}")
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteSubject(HttpServletResponse response, HttpServletRequest request, @PathVariable(ID) String subjectId)throws Exception{
