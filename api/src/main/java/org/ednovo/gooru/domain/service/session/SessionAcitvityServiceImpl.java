@@ -107,7 +107,7 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 				sessionActivity.setRating(this.getSessionActivityRepository().getSessionActivityRatingCount(sessionActivityId));
 				sessionActivity.setReaction(this.getSessionActivityRepository().getSessionActivityReactionCount(sessionActivityId));
 				Integer questionCount = this.getSessionActivityRepository().getQuestionCount(sessionActivity.getCollectionId());
-				if (questionCount > 0) { 
+				if (questionCount > 0) {
 					Integer totalScore = this.getSessionActivityRepository().getTotalScore(sessionActivityId);
 					Double scoreInPrecentage = (double) ((totalScore / questionCount) * 100);
 					sessionActivity.setScore(scoreInPrecentage);
@@ -179,28 +179,27 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 
 	@Override
 	public SessionActivityItemAttemptTry createSessionActivityItemAttemptTry(final SessionActivityItemAttemptTry sessionActivityItemAttemptTry, final Long sessionActivityId) {
-		final Long resourceId = this.getResourceRepository().getContentId(sessionActivityItemAttemptTry.getContentGooruId());
-		rejectIfNull(resourceId, GL0056, RESOURCE);
-		final SessionActivityItem sessionActivityItem = this.getSessionActivityRepository().getSessionActivityItem(sessionActivityId, resourceId);
-		rejectIfNull(sessionActivityItem, GL0056, SESSION_ACTIVITY_ITEM);
 		AssessmentQuestion question = this.assessmentService.getQuestion(sessionActivityItemAttemptTry.getContentGooruId());
-		if (question != null) {
-			sessionActivityItemAttemptTry.setSessionActivityId(sessionActivityId);
-			sessionActivityItemAttemptTry.setResourceId(resourceId);
-			sessionActivityItemAttemptTry.setTrySequence((this.getSessionActivityRepository().getSessionActivityItemAttemptCount(sessionActivityId, resourceId) + 1));
-			sessionActivityItemAttemptTry.setStartTime(sessionActivityItem.getStartTime());
-			sessionActivityItemAttemptTry.setEndTime(new Date(System.currentTimeMillis()));
-			this.getSessionActivityRepository().save(sessionActivityItemAttemptTry);
-			sessionActivityItem.setAnswerId(sessionActivityItemAttemptTry.getAnswerId());
-			sessionActivityItem.setAnswerOptionSequence(sessionActivityItemAttemptTry.getAnswerOptionSequence());
-			sessionActivityItem.setAnswerStatus(sessionActivityItemAttemptTry.getAnswerStatus());
-			sessionActivityItem.setAttemptCount(sessionActivityItemAttemptTry.getTrySequence());
-			sessionActivityItem.setAnswerText(sessionActivityItemAttemptTry.getAnswerText());
-			if (sessionActivityItem.getAnswerStatus() != null && !sessionActivityItem.getAnswerStatus().contains(AttemptTryStatus.WRONG.getTryStatus()) && !sessionActivityItem.getAnswerStatus().contains(AttemptTryStatus.SKIPPED.getTryStatus())) { 
-				sessionActivityItem.setScore(1.0);
-			}
-			this.getSessionActivityRepository().save(sessionActivityItem);
+		rejectIfNull(question, GL0056, QUESTION);
+		final SessionActivityItem sessionActivityItem = this.getSessionActivityRepository().getSessionActivityItem(sessionActivityId, question.getContentId());
+		rejectIfNull(sessionActivityItem, GL0056, SESSION_ACTIVITY_ITEM);
+		sessionActivityItemAttemptTry.setSessionActivityId(sessionActivityId);
+		sessionActivityItemAttemptTry.setResourceId(question.getContentId());
+		sessionActivityItemAttemptTry.setTrySequence((this.getSessionActivityRepository().getSessionActivityItemAttemptCount(sessionActivityId, question.getContentId()) + 1));
+		sessionActivityItemAttemptTry.setStartTime(sessionActivityItem.getStartTime());
+		sessionActivityItemAttemptTry.setEndTime(new Date(System.currentTimeMillis()));
+		this.getSessionActivityRepository().save(sessionActivityItemAttemptTry);
+		sessionActivityItem.setAnswerId(sessionActivityItemAttemptTry.getAnswerId());
+		sessionActivityItem.setAnswerOptionSequence(sessionActivityItemAttemptTry.getAnswerOptionSequence());
+		sessionActivityItem.setAnswerStatus(sessionActivityItemAttemptTry.getAnswerStatus());
+		sessionActivityItem.setAttemptCount(sessionActivityItemAttemptTry.getTrySequence());
+		sessionActivityItem.setAnswerText(sessionActivityItemAttemptTry.getAnswerText());
+		if (sessionActivityItem.getAnswerStatus() != null && !sessionActivityItem.getAnswerStatus().contains(AttemptTryStatus.WRONG.getTryStatus()) && !sessionActivityItem.getAnswerStatus().contains(AttemptTryStatus.SKIPPED.getTryStatus())) {
+			sessionActivityItem.setScore(1.0);
+		} else { 
+			sessionActivityItem.setScore(0.0);
 		}
+		this.getSessionActivityRepository().save(sessionActivityItem);
 		return sessionActivityItemAttemptTry;
 	}
 
