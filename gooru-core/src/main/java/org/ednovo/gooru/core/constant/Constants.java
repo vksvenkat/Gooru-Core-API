@@ -225,16 +225,12 @@ public class Constants implements ParameterProperties {
 
 	private static final String TOPIC_USER = "userQueue14";
 	
-	private static final String TYPE_RESOURCE = "resource";
-	
-	private static final String TYPE_SCOLLECTION = "scollection";
-	
 	private static final String TYPE_USER = "user";
 	
 	static {
 		Map<String, String> reindexType = new HashMap<String, String>();
-		reindexType.put(TYPE_RESOURCE, TOPIC_RESOURCE);
-		reindexType.put(TYPE_SCOLLECTION, TOPIC_SCOLLECTION);
+		reindexType.put(RESOURCE, TOPIC_RESOURCE);
+		reindexType.put(SCOLLECTION, TOPIC_SCOLLECTION);
 		reindexType.put(TYPE_USER, TOPIC_USER);
 		REINDEX_TYPES = Collections.unmodifiableMap(reindexType);
 	}
