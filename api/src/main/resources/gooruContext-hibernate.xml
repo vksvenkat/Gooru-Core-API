@@ -181,9 +181,6 @@
 				<value>org/ednovo/gooru/domain/model/featuredset/FeaturedSetItems.hbm.xml
 				</value>
 				
-
-				<!-- Session Item Feedback-->
-				<value>org/ednovo/gooru/domain/model/session/SessionItemFeedback.hbm.xml</value>
 				
 				<!-- Content Provider   -->
 				<value>org/ednovo/gooru/domain/model/content/ContentProvider.hbm.xml</value>
@@ -222,10 +219,10 @@
 				</value>
 
 				<!-- Session -->
-				<value>org/ednovo/gooru/domain/model/session/Session.hbm.xml</value>
-				<value>org/ednovo/gooru/domain/model/session/SessionItem.hbm.xml
+				<value>org/ednovo/gooru/domain/model/session/SessionActivity.hbm.xml</value>
+				<value>org/ednovo/gooru/domain/model/session/SessionActivityItem.hbm.xml
 				</value>
-				<value>org/ednovo/gooru/domain/model/session/SessionItemAttemptTry.hbm.xml
+				<value>org/ednovo/gooru/domain/model/session/SessionActivityItemAttemptTry.hbm.xml
 				</value>
 
 				<!-- Task -->

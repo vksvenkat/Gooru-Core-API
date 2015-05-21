@@ -1,7 +1,7 @@
 package org.ednovo.gooru.core.api.model;
 
 public enum AttemptTryStatus {
-	CORRECT("correct"), WRONG("wrong"), SKIP("skip");
+	CORRECT("correct"), WRONG("wrong"), SKIP("skip"), SKIPPED("skipped");
 
 	private String tryStatus;
 

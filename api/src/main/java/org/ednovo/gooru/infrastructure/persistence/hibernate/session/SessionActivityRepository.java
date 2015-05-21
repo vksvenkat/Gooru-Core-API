@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////
-// SessionService.java
+// SessionRepository.java
 // gooru-api
 // Created by Gooru on 2014
 // Copyright (c) 2014 Gooru. All rights reserved.
@@ -21,29 +21,30 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 /////////////////////////////////////////////////////////////
-package org.ednovo.gooru.domain.service.session;
+package org.ednovo.gooru.infrastructure.persistence.hibernate.session;
 
-import org.ednovo.gooru.core.api.model.ActionResponseDTO;
-import org.ednovo.gooru.core.api.model.Session;
-import org.ednovo.gooru.core.api.model.SessionItem;
-import org.ednovo.gooru.core.api.model.SessionItemAttemptTry;
-import org.ednovo.gooru.core.api.model.SessionItemFeedback;
-import org.ednovo.gooru.core.api.model.User;
-import org.ednovo.gooru.domain.service.BaseService;
+import org.ednovo.gooru.core.api.model.AssessmentQuestion;
+import org.ednovo.gooru.core.api.model.SessionActivity;
+import org.ednovo.gooru.core.api.model.SessionActivityItem;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepository;
 
-public interface SessionService extends BaseService {
+public interface SessionActivityRepository extends BaseRepository {
 
-	ActionResponseDTO<Session> createSession(Session session, User user);
+	SessionActivity getSessionActivityById(Long sessionActivityId);
+
+	SessionActivityItem getSessionActivityItem(Long sessionActivityId, Long resourceId);
 	
-	 SessionItemFeedback createSessionItemFeedback(String sessionId, SessionItemFeedback sessionItemFeedback, User user);
-
-	ActionResponseDTO<Session> updateSession(String sessionId, Session session);
-
-	ActionResponseDTO<SessionItem> createSessionItem(SessionItem sessionItem, String sessionId);
-
-	ActionResponseDTO<SessionItem> updateSessionItem(String sessionItemId, SessionItem newSessionItem);
-
-	SessionItemAttemptTry createSessionItemAttemptTry(SessionItemAttemptTry sessionItemAttemptTry, String sessionId);
-
-	Session getSession(String sessionId);
+	Integer getSessionActivityCount(Long collectionId, Long parentId, String gooruUId);
+	
+	Integer getSessionActivityItemAttemptCount(Long sessionActivityId, Long resourceId);
+	
+	Integer getSessionActivityReactionCount(Long sessionActivityId);
+	
+	Integer getSessionActivityRatingCount(Long sessionActivityId);
+	
+	Integer getQuestionCount(Long collectionId);
+	
+	Integer getTotalScore(Long sessionActivityId);
+	
+	AssessmentQuestion getQuestion(String gooruOid);
 }

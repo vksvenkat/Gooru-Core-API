@@ -223,7 +223,7 @@ public interface ConstantProperties {
 
 	static final String TAG_ASSOC_INCLUDES[] = { "*.tag", "*.tagUid", "*.label", "*.type", "*.activeFlag", "*.createdOn" };
 
-	static final String SESSION_INCLUDES[] = { "*.sessionId", "*.status", "*.startTime", "*.stopTime", "*.sessionItems", "*.score" };
+	static final String SESSION_INCLUDES[] = { "*.sessionActivityId","*.classId","*.rating","*.reaction","*.isStudent","*.type","*.parentId","*.sequence","*.viewsInSession","*.timeSpentInMillis", "*.status", "*.startTime", "*.stopTime", "*.sessionItems", "*.score" };
 
 	static final String TASK_INCLUDES[] = { "*.collectionTasks", "*.creator.gooruUId", "*.creator.firstName", "*.creator.username", "*.creator.lastname", "*.taskUid", "*.title", "*.description", "*.plannedStartDate", "*.plannedEndDate", "*.status", "*.estimatedEffort", "*.typeName", "*.gooruOid",
 			"*.lastModified", "*.createdOn", "*.lastUpdatedUserUid", "*.searchResults", "*.totalHitCount", "task" };
@@ -244,9 +244,9 @@ public interface ConstantProperties {
 	static final String TASK_ASSOC_INCLUDES[] = { "*.task", "*.taskUid", "*.title", "*.description", "*.plannedStartDate", "*.plannedEndDate", "*.status", "*.estimatedEffort", "*.createdDate", "*.createdByUid", "*.lastModifiedDate", "*.modifiedBy", "*.typeName", "*.taskAssocUid", "*.taskParent",
 			"*.taskDescendant", "*.sequence", "*.associationType" };
 
-	static final String SESSION_ITEM_INCLUDES[] = { "*.score", "*.session", "*.resource", "*.sessionId", "*.status", "*.startTime", "*.stopTime", "*.title", "*.sessionItemId", "*.sessionItemAttemptTry" };
+	static final String SESSION_ITEM_INCLUDES[] = { "*.status", "*.startTime", "*.sessionActivityId","*.classId", "*.score" };
 
-	static final String SESSION_ITEM_ATTEMPT_INCLUDES[] = { "*.score", "*.sessionItem", "*.sessionItemId", "*.attemptItemTryStatus", "*.answeredAtTime" };
+	static final String SESSION_ITEM_ATTEMPT_INCLUDES[] = { "*.status", "*.startTime", "*.sessionActivityId","*.classId", "*.score" };
 
 	static final String COURSE_INCLUDES[] = { "*.parentsList" };
 
