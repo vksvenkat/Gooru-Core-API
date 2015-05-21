@@ -216,4 +216,27 @@ public class Constants implements ParameterProperties {
 	public static final String GOORU_API_KEY = "Gooru-ApiKey";
 	
 	public static final String GOORU_SESSION_TOKEN = "Gooru-Session-Token";
+	
+	public static final Map<String, String> REINDEX_TYPES;
+	
+	private static final String TOPIC_RESOURCE = "resourceQueue14";
+
+	private static final String TOPIC_SCOLLECTION = "scollectionQueue14";
+
+	private static final String TOPIC_USER = "userQueue14";
+	
+	private static final String TYPE_RESOURCE = "resource";
+	
+	private static final String TYPE_SCOLLECTION = "scollection";
+	
+	private static final String TYPE_USER = "user";
+	
+	static {
+		Map<String, String> reindexType = new HashMap<String, String>();
+		reindexType.put(TYPE_RESOURCE, TOPIC_RESOURCE);
+		reindexType.put(TYPE_SCOLLECTION, TOPIC_SCOLLECTION);
+		reindexType.put(TYPE_USER, TOPIC_USER);
+		REINDEX_TYPES = Collections.unmodifiableMap(reindexType);
+	}
+
 }

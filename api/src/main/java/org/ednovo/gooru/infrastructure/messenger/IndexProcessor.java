@@ -33,6 +33,7 @@ import javax.annotation.PostConstruct;
 import org.ednovo.gooru.core.api.model.GooruAuthenticationToken;
 import org.ednovo.gooru.core.api.model.SearchIndexMeta;
 import org.ednovo.gooru.core.api.model.UserGroupSupport;
+import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.domain.service.content.ContentService;
 import org.ednovo.gooru.domain.service.redis.RedisService;
 import org.ednovo.gooru.kafka.producer.KafkaProducer;
@@ -87,13 +88,6 @@ public class IndexProcessor extends BaseComponent {
 	private static final String INDEX_ACTION = "action";
 	private static final String IS_UPDATE_USER_CONTENT = "isUpdateUserContent";
 	
-	private static final String TOPIC_RESOURCE = "resourceQueue14";
-
-	private static final String TOPIC_SCOLLECTION = "scollectionQueue14";
-
-	private static final String TOPIC_USER = "userQueue14";
-
-
 	public static final String INDEX = "index";
 
 	public static final String DELETE = "delete";
@@ -117,7 +111,7 @@ public class IndexProcessor extends BaseComponent {
 			indexData.put("action", action);
 			indexData.put("priority", "0");
 			String indexMsg = SERIALIZER.deepSerialize(indexData);
-			kafkaProducer.send(indexMsg, type, getTopicName(type));
+			kafkaProducer.send(indexMsg, type, Constants.REINDEX_TYPES.get(type));
 		}
 		else{
 			index(uuids, action, type, false, false);
@@ -169,19 +163,7 @@ public class IndexProcessor extends BaseComponent {
 		indexData.put(INDEX_ACTION, action);
 		indexData.put(IS_UPDATE_USER_CONTENT, isUpdateUserContent);
 		String indexMsg = SERIALIZER.deepSerialize(indexData);
-		kafkaProducer.send(indexMsg, type, getTopicName(type));
-	}
-	
-	private String getTopicName(String type){
-		String topicName = null;
-		if (type.equalsIgnoreCase("resource")) {
-			topicName = TOPIC_RESOURCE;
-		} else if (type.equalsIgnoreCase("scollection")) {
-			topicName = TOPIC_SCOLLECTION;
-		} else if (type.equalsIgnoreCase("user")) {
-			topicName = TOPIC_USER;
-		}
-	    return topicName;
+		kafkaProducer.send(indexMsg, type, Constants.REINDEX_TYPES.get(type));
 	}
 
 	public void index(final String uuids, final String action, final String type, final String sessionToken, final GooruAuthenticationToken authentication, final boolean isUpdateUserContent, final boolean isUpdateStas) {
