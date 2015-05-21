@@ -25,16 +25,21 @@ package org.ednovo.gooru.domain.service;
 
 import static com.rosaloves.bitlyj.Bitly.shorten;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.ednovo.gooru.application.util.TaxonomyUtil;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConfigConstants;
+import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.domain.service.redis.RedisService;
 import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.resource.ResourceRepository;
+import org.ednovo.gooru.json.serializer.util.JsonSerializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -42,7 +47,7 @@ import com.rosaloves.bitlyj.Bitly;
 import com.rosaloves.bitlyj.Url;
 
 @Service
-public class ShareServiceImpl extends BaseServiceImpl implements ShareService,ParameterProperties {
+public class ShareServiceImpl extends BaseServiceImpl implements ShareService, ParameterProperties, ConstantProperties {
 
 	@Autowired
 	private ResourceRepository resourceRepository;
@@ -57,36 +62,22 @@ public class ShareServiceImpl extends BaseServiceImpl implements ShareService,Pa
 	private RedisService redisService;
 
 	@Override
-	public String getShortenUrl(String id, String fullUrl, Boolean clearCache) {
-		Resource resource = this.getResourceRepository().findResourceByContentGooruId(id);
-		String url = null;
-		if (resource != null) {
-			if (!clearCache) {
-				url = (String) getRedisService().getValue(fullUrl + TaxonomyUtil.GOORU_ORG_UID);
-			}
-			if (url == null) {
-				Url bitly = Bitly.as(this.getSettingService().getConfigSetting(ConfigConstants.BITLY_USER_NAME, 0, TaxonomyUtil.GOORU_ORG_UID), this.getSettingService().getConfigSetting(ConfigConstants.BITLY_APIKEY, 0, TaxonomyUtil.GOORU_ORG_UID)).call(shorten(fullUrl));
-				url = bitly.getShortUrl();
-				getRedisService().putValue(fullUrl + TaxonomyUtil.GOORU_ORG_UID,  url, RedisService.DEFAULT_PROFILE_EXP);
-			}
-		} else {
-			throw new NotFoundException(generateErrorMessage(GL0056, RESOURCE), GL0056);
-		}
-		return url;
-	}
-
-	@Override
-	public String getShortenUrl(final String fullUrl, Boolean clearCache, User user) {
-		String url = null;
+	public String getShortenUrl(final String fullUrl, boolean clearCache) {
+		String cacheKey = fullUrl + HYPHEN + TaxonomyUtil.GOORU_ORG_UID;
+		String resonseData = null;
 		if (!clearCache) {
-			url = (String) getRedisService().getValue(fullUrl);
+			resonseData = getRedisService().getValue(cacheKey);
 		}
-		if (url == null) {
+		if (resonseData == null) {
+			Map<String, String> shortenUrl = new HashMap<String, String>();
 			Url bitly = Bitly.as(this.getSettingService().getConfigSetting(ConfigConstants.BITLY_USER_NAME, 0, TaxonomyUtil.GOORU_ORG_UID), this.getSettingService().getConfigSetting(ConfigConstants.BITLY_APIKEY, 0, TaxonomyUtil.GOORU_ORG_UID)).call(shorten(fullUrl));
-			url = bitly.getShortUrl();
-			getRedisService().putValue(fullUrl, url, RedisService.DEFAULT_PROFILE_EXP);
+			shortenUrl.put(SHORTEN_URL, bitly.getShortUrl());
+			shortenUrl.put(RAW_URL, bitly.getLongUrl());
+			resonseData = JsonSerializer.serializeToJson(shortenUrl, true);
+			getRedisService().putValue(cacheKey, resonseData, RedisService.DEFAULT_PROFILE_EXP);
 		}
-		return url;
+
+		return resonseData;
 	}
 
 	public ResourceRepository getResourceRepository() {

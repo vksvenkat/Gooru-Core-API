@@ -743,7 +743,7 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 	public void sendMailToOpenClassUser(String email, String gooruOid, User user, String title, String inviteUser, String classCode){
 		final String serverpath = this.getServerConstants().getProperty(SERVERPATH);
 		String url = serverpath + "#students-view&id=" + gooruOid+"&pageSize=10&pageNum=0&pos=1" ;
-		String shortenUrl = this.shareService.getShortenUrl(url, true, null);
+		String shortenUrl = this.shareService.getShortenUrl(url, true);
 		EventMapping eventMapping = this.getEventService().getTemplatesByEventName(CustomProperties.EventMapping.SEND_MAIL_TO_OPEN_CLASS_USER.getEvent());
 		Map<String, Object> map = eventMapData(eventMapping);
 		map.put("serverpath",serverpath);
