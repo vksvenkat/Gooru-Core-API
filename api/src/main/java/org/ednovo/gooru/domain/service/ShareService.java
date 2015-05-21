@@ -23,10 +23,8 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.domain.service;
 
-import org.ednovo.gooru.core.api.model.User;
 
 public interface ShareService extends BaseService {
-	String getShortenUrl(String id, String fullUrl, Boolean clearCache);
-
-	String getShortenUrl(String fullUrl, Boolean clearCache, User user);
+	
+	String getShortenUrl(String fullUrl, boolean clearCache);
 }
