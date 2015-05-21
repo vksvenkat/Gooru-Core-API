@@ -24,7 +24,7 @@
 package org.ednovo.gooru.infrastructure.persistence.hibernate.session;
 
 import java.util.List;
-
+import org.ednovo.gooru.core.api.model.AssessmentQuestion;
 import org.ednovo.gooru.core.api.model.SessionActivity;
 import org.ednovo.gooru.core.api.model.SessionActivityItem;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepository;
@@ -50,4 +50,6 @@ public interface SessionActivityRepository extends BaseRepository {
 	Integer getQuestionCount(Long collectionId);
 	
 	Integer getTotalScore(Long sessionActivityId);
+	
+	AssessmentQuestion getQuestion(String gooruOid);
 }

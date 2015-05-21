@@ -25,6 +25,7 @@ package org.ednovo.gooru.infrastructure.persistence.hibernate.session;
 
 import java.util.List;
 
+import org.ednovo.gooru.core.api.model.AssessmentQuestion;
 import org.ednovo.gooru.core.api.model.SessionActivity;
 import org.ednovo.gooru.core.api.model.SessionActivityItem;
 import org.ednovo.gooru.core.constant.ConstantProperties;
@@ -53,6 +54,9 @@ public class SessionActivityRepositoryHibernate extends BaseRepositoryHibernate 
 	private final String SESSION_ACTIVITY_TOTAL_SCORE = "select IFNULL(sum(score), 0) as count from session_activity_item where session_activity_id =:sessionActivityId";
 	
 	private final String GET_CLASS_EXPORT_QUERY_FROM_CONFIG = "SELECT value from config_setting WHERE name=:name";
+
+	private final String FIND_QUESTION = "From AssessmentQuestion q   where q.gooruOid=:gooruOid";
+
 	@Override
 	public SessionActivity getSessionActivityById(Long sessionActivityId) {
 		Query query = getSession().createQuery(RETRIEVE_SESSION_ACTIVITY_BY_ID);
@@ -135,4 +139,11 @@ public class SessionActivityRepositoryHibernate extends BaseRepositoryHibernate 
 
 	}
 
+	@Override
+	public AssessmentQuestion getQuestion(String gooruOid) {
+		Query query = getSession().createQuery(FIND_QUESTION);
+		query.setParameter(GOORU_OID, gooruOid);
+		List<AssessmentQuestion> assessmentQuestions = list(query);
+		return (assessmentQuestions.size() > 0) ? assessmentQuestions.get(0) : null;
+	}
 }
