@@ -36,7 +36,6 @@ import org.ednovo.gooru.core.constant.GooruOperationConstants;
 import org.ednovo.gooru.core.security.AuthorizeOperations;
 import org.ednovo.gooru.domain.service.subject.SubjectService;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Propagation;
@@ -60,9 +59,8 @@ public class SubjectRestV2Controller extends BaseController implements ConstantP
 	@RequestMapping(method = RequestMethod.POST)
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ModelAndView createSubject(HttpServletRequest request, HttpServletResponse response, @RequestBody String data)throws Exception{
-		JSONObject json = requestData(data);
 		User user = (User) request.getAttribute(Constants.USER);
-		ActionResponseDTO<Subject> subject = this.getSubjectService().createSubject(buildSubjectFromInputParameters(getValue(SUBJECT, json)),user);
+		ActionResponseDTO<Subject> subject = this.getSubjectService().createSubject(buildSubjectFromInputParameters(data),user);
 		return toModelAndViewWithIoFilter(subject.getModelData(), FORMAT_JSON, EXCLUDE_ALL, true, SUBJECT_INCLUDES);
 	}
 	
@@ -84,9 +82,8 @@ public class SubjectRestV2Controller extends BaseController implements ConstantP
 	@RequestMapping(method = RequestMethod.PUT, value ="/{id}")
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ModelAndView updateSubject(HttpServletResponse response, HttpServletRequest request,@RequestBody String data, @PathVariable(ID) String subjectId)throws Exception{
-		JSONObject json = requestData(data);
 		User user = (User) request.getAttribute(Constants.USER);
-		return toModelAndViewWithIoFilter(this.getSubjectService().updateSubject(buildSubjectFromInputParameters(getValue(SUBJECT, json)), user, subjectId), FORMAT_JSON, EXCLUDE_ALL, true, SUBJECT_INCLUDES);
+		return toModelAndViewWithIoFilter(this.getSubjectService().updateSubject(buildSubjectFromInputParameters(data), user, subjectId), FORMAT_JSON, EXCLUDE_ALL, true, SUBJECT_INCLUDES);
 	}
 		
 	@AuthorizeOperations(operations = {GooruOperationConstants.OPERATION_SUBJECT_DELETE})

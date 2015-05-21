@@ -164,7 +164,7 @@ public class GooruOperationConstants {
 
 	public static final String ENTITY_SUBJECT = "Subject";
 	
-	public static final String ENTITY_SUBDOMAIN = "SubDomain";
+	public static final String ENTITY_SUBDOMAIN = "Subdomain";
 	
 	
 

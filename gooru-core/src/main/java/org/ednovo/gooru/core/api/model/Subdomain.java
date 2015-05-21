@@ -6,7 +6,7 @@ import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Id;
 
-public class SubDomain implements Serializable{
+public class Subdomain implements Serializable{
 
 	/**
 	 * 
@@ -14,7 +14,7 @@ public class SubDomain implements Serializable{
     private static final long serialVersionUID = 7789419722908609593L;
 
     @Id
-    private Integer subDomainId;
+    private Integer subdomainId;
     
     @Column
     private Integer CourseId;
@@ -25,12 +25,12 @@ public class SubDomain implements Serializable{
     @Column 
     private Date createdOn;
 
-	public Integer getSubDomainId() {
-		return subDomainId;
+	public Integer getSubdomainId() {
+		return subdomainId;
 	}
 
-	public void setSubDomainId(Integer subDomainId) {
-		this.subDomainId = subDomainId;
+	public void setSubdomainId(Integer subdomainId) {
+		this.subdomainId = subdomainId;
 	}
 
 	public Integer getCourseId() {
