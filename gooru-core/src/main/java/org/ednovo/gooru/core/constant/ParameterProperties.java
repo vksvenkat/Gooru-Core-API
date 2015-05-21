@@ -2899,5 +2899,11 @@ public interface ParameterProperties {
 	String SUBJECT_NAME = "subjectName";
 	
 	String SUBDOMAIN = "subdomain";
+	
+	String COURSE_ID = "courseId";
+	
+	String DOMAIN_ID = "domainId";
+	
+	String DISPLAY_SEQUENCE = "displaySequence";
 }
 

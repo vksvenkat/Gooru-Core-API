@@ -39,40 +39,38 @@ import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
 
 @Service
-public class SubjectServiceImpl extends BaseServiceImpl implements SubjectService, ParameterProperties{
+public class SubjectServiceImpl extends BaseServiceImpl implements SubjectService, ParameterProperties {
 
 	@Autowired
 	private SubjectRepository subjectRepository;
 
 	@Override
-    public ActionResponseDTO<Subject> createSubject(Subject subject, User user) {
+	public ActionResponseDTO<Subject> createSubject(Subject subject, User user) {
 		final Errors errors = validateSubject(subject);
-		if (!errors.hasErrors()) {
-	    	subject.setCreatedOn(new Date(System.currentTimeMillis()));
-	    	subject.setLastModified(new Date(System.currentTimeMillis()));
-	    	subject.setCreator(user);
-	    	subject.setOrganization(user.getOrganization());
-			this.getSubjectRepository().save(subject);
-		}
+		subject.setCreatedOn(new Date(System.currentTimeMillis()));
+		subject.setLastModified(new Date(System.currentTimeMillis()));
+		subject.setCreator(user);
+		subject.setOrganization(user.getOrganization());
+		this.getSubjectRepository().save(subject);
 		return new ActionResponseDTO<Subject>(subject, errors);
-    }
-	
+	}
+
 	@Override
 	public Subject getSubject(String subjectId) {
 		Subject subject = (Subject) subjectRepository.getSubject(subjectId);
-		if(subject == null){
+		if (subject == null) {
 			throw new NotFoundException(generateErrorMessage(GL0056, SUBJECT), GL0056);
 		}
 		return (Subject) subjectRepository.getSubject(subjectId);
 	}
-	
+
 	@Override
-	public void deleteSubject(String subjectId){
+	public void deleteSubject(String subjectId) {
 		Subject subject = subjectRepository.getSubject(subjectId);
 		rejectIfNull(subject, GL0056, 404, generateErrorMessage(GL0056, SUBJECT));
 		this.subjectRepository.remove(subject);
 	}
-	
+
 	@Override
 	public SearchResults<Subject> getSubjects(Integer limit, Integer offset) {
 		SearchResults<Subject> result = new SearchResults<Subject>();
@@ -80,32 +78,36 @@ public class SubjectServiceImpl extends BaseServiceImpl implements SubjectServic
 		result.setTotalHitCount(this.getSubjectRepository().getSubjectCount());
 		return result;
 	}
-	
+
 	@Override
-    public Subject updateSubject(Subject subject, User user, String subjectId) {
-	    Subject oldSubject = subjectRepository.getSubject(subjectId);
-	    rejectIfNull(oldSubject, GL0056, 404, SUBJECT);
-	    	if(subject.getDescription()!=null)
-		    	oldSubject.setDescription(subject.getDescription());
-		    if(subject.getImagePath()!=null)
-		    	oldSubject.setImagePath(subject.getImagePath());
-		    if(subject.getName() != null)
-		    	oldSubject.setName(subject.getName());
-		    if(subject.getActiveFlag() < 0)
-		    	oldSubject.setActiveFlag(subject.getActiveFlag());
-	    	oldSubject.setLastModified(new Date(System.currentTimeMillis()));
-	    	subjectRepository.save(oldSubject);	
-	    	return oldSubject;
-    }
-	
+	public Subject updateSubject(Subject subject, User user, String subjectId) {
+		Subject oldSubject = subjectRepository.getSubject(subjectId);
+		rejectIfNull(oldSubject, GL0056, 404, SUBJECT);
+		if (subject.getDescription() != null)
+			oldSubject.setDescription(subject.getDescription());
+		if (subject.getImagePath() != null)
+			oldSubject.setImagePath(subject.getImagePath());
+		if (subject.getName() != null)
+			oldSubject.setName(subject.getName());
+		if(subject.getDisplaySequence() != null)
+			oldSubject.setDisplaySequence(subject.getDisplaySequence());
+		if (subject.getActiveFlag() >= 0)
+			oldSubject.setActiveFlag(subject.getActiveFlag());
+		oldSubject.setLastModified(new Date(System.currentTimeMillis()));
+		subjectRepository.save(oldSubject);
+		return oldSubject;
+	}
+
 	private Errors validateSubject(Subject subject) {
 		final Errors errors = new BindException(subject, SUBJECT);
-		rejectIfNullOrEmpty(errors, subject.getName(), NAME, GL0006, generateErrorMessage(GL0006, SUBJECT_NAME ));
+		rejectIfNull(subject.getName(), GL0006, NAME);
+		rejectIfNull(subject.getActiveFlag(), GL0006, ACTIVE_FLAG);
+		rejectIfNull(subject.getDisplaySequence(), GL0006, DISPLAY_SEQUENCE);
 		return errors;
 	}
-	
+
 	public SubjectRepository getSubjectRepository() {
 		return subjectRepository;
 	}
-	
+
 }

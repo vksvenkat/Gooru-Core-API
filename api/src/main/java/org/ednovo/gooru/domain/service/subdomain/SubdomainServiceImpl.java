@@ -19,25 +19,23 @@ import org.springframework.validation.Errors;
 public class SubdomainServiceImpl extends BaseServiceImpl implements SubdomainService,ParameterProperties{
 
 	@Autowired
-	private SubdomainRepository subDomainRepository;
+	private SubdomainRepository subdomainRepository;
 
 	@Override
-    public ActionResponseDTO<Subdomain> createSubdomain(Subdomain subDomain, User user) {
-		final Errors errors = validateSubdomain(subDomain);
-		if (!errors.hasErrors()) {
-			subDomain.setCreatedOn(new Date(System.currentTimeMillis()));
-			this.getSubdomainRepository().save(subDomain);
-		}
-		return new ActionResponseDTO<Subdomain>(subDomain, errors);
+    public ActionResponseDTO<Subdomain> createSubdomain(Subdomain subdomain, User user) {
+		final Errors errors = validateNullFields(subdomain);
+			subdomain.setCreatedOn(new Date(System.currentTimeMillis()));
+			this.getSubdomainRepository().save(subdomain);
+		return new ActionResponseDTO<Subdomain>(subdomain, errors);
     }
 
 	@Override
-    public Subdomain getSubdomain(String subDomainId) {
-		Subdomain subDomain = (Subdomain) subDomainRepository.getSubdomain(subDomainId);
-		if(subDomain == null){
+    public Subdomain getSubdomain(String subdomainId) {
+		Subdomain subdomain = (Subdomain) subdomainRepository.getSubdomain(subdomainId);
+		if(subdomain == null){
 			throw new NotFoundException(generateErrorMessage(GL0056, SUBDOMAIN), GL0056);
 		}
-		return subDomain;
+		return subdomain;
     }
 
 	@Override
@@ -49,32 +47,34 @@ public class SubdomainServiceImpl extends BaseServiceImpl implements SubdomainSe
     }
 
 	@Override
-    public void deleteSubdomain(String subDomainId) {
-		Subdomain subDomain = subDomainRepository.getSubdomain(subDomainId);
-		rejectIfNull(subDomain, GL0056, 404, generateErrorMessage(GL0056, SUBDOMAIN));
-		this.subDomainRepository.remove(subDomain);	    
+    public void deleteSubdomain(String subdomainId) {
+		Subdomain subdomain = subdomainRepository.getSubdomain(subdomainId);
+		rejectIfNull(subdomain, GL0056, 404, generateErrorMessage(GL0056, SUBDOMAIN));
+		this.subdomainRepository.remove(subdomain);	    
     }
 
 	@Override
-    public Subdomain updateSubdomain(Subdomain subdomain, User user, String subDomainId) {
-		Subdomain oldSubdomain = subDomainRepository.getSubdomain(subDomainId);
+    public Subdomain updateSubdomain(Subdomain subdomain, User user, String subdomainId) {
+		Subdomain oldSubdomain = subdomainRepository.getSubdomain(subdomainId);
 	    rejectIfNull(oldSubdomain, GL0056, 404, SUBDOMAIN);
 	    	if(subdomain.getCourseId()!=null)
 	    		oldSubdomain.setCourseId(subdomain.getCourseId());
 		    if(subdomain.getDomainId() !=null)
 		    	oldSubdomain.setDomainId(subdomain.getDomainId());
-		    subDomainRepository.save(oldSubdomain);	
+		    subdomainRepository.save(oldSubdomain);	
 	    	return oldSubdomain;
     }
 
 	
-	private Errors validateSubdomain(Subdomain subDomain) {
-		final Errors errors = new BindException(subDomain, SUBDOMAIN);
+	private Errors validateNullFields(Subdomain subdomain) {
+		final Errors errors = new BindException(subdomain, SUBDOMAIN);
+		rejectIfNull(subdomain.getCourseId(),GL0006, COURSE_ID);
+		rejectIfNull(subdomain.getDomainId(),GL0006, DOMAIN_ID);
 		return errors;
 	}
 	
 	public SubdomainRepository getSubdomainRepository() {
-		return subDomainRepository;
+		return subdomainRepository;
 	}
 
 	
