@@ -61,7 +61,7 @@ public class SubjectRestV2Controller extends BaseController implements ConstantP
 		JSONObject json = requestData(data);
 		User user = (User) request.getAttribute(Constants.USER);
 		ActionResponseDTO<Subject> subject = this.getSubjectService().createSubject(buildSubjectFromInputParameters(getValue(SUBJECT, json)),user);
-		return toModelAndViewWithIoFilter(subject, FORMAT_JSON, EXCLUDE_ALL, true, SUBJECT_INCLUDES);
+		return toModelAndViewWithIoFilter(subject.getModelData(), FORMAT_JSON, EXCLUDE_ALL, true, SUBJECT_INCLUDES);
 	}
 	
 	//@AuthorizeOperations(operations = {GooruOperationConstants.OPERATION_SUBJECT_READ})

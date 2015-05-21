@@ -37,7 +37,7 @@ public class SubDomainRestV2Controller  extends BaseController implements Consta
 			JSONObject json = requestData(data);
 			User user = (User) request.getAttribute(Constants.USER);
 			ActionResponseDTO<SubDomain> subDomain = this.getSubDomainService().createSubDomain(buildSubDomainFromInputParameters(getValue(SUBDOMAIN, json)),user);
-			return toModelAndViewWithIoFilter(subDomain, FORMAT_JSON, EXCLUDE_ALL, true, SUBDOMAIN_INCLUDES);
+			return toModelAndViewWithIoFilter(subDomain.getModelData(), FORMAT_JSON, EXCLUDE_ALL, true, SUBDOMAIN_INCLUDES);
 		}
 		
 		//@AuthorizeOperations(operations = {GooruOperationConstants.OPERATION_SUBJECT_READ})

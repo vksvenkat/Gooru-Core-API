@@ -889,7 +889,7 @@ public interface ConstantProperties {
 			"*.folder", "*.gooruOid", "*.sharing", "*.title", "*.views", "*.thumbnails", "*.url", "*.gooruUId", "*.buildType", "*.emailId", "*.value", "*.code", "*.label", "*.modifiedDate", "*.gooruid", "*.username", "*.customFields", "*.optionalValue", "*.optionalKey",
 			"*.collectionItemId", "*.skills", "*.course", "*.standards", "*.metaInfo", "*.meta" };
 	
-	static String SUBJECT_INCLUDES[] = {"*.name","*.description","*.activeFlag","*.imagePath","*.displaySequence","*.createdOn","*.lastModified"};
+	static String SUBJECT_INCLUDES[] = {"*.name","*.description","*.activeFlag","*.imagePath","*.displaySequence","*.createdOn","*.lastModified","*.totalHitCount", "*.searchResults"};
 	
-	static String SUBDOMAIN_INCLUDES[] = {"*.courseId","*.domainId"};
+	static String SUBDOMAIN_INCLUDES[] = {"*.courseId","*.domainId","*.totalHitCount", "*.searchResults"};
 }
