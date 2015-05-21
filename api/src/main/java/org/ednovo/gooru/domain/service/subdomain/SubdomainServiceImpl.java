@@ -43,10 +43,8 @@ public class SubdomainServiceImpl extends BaseServiceImpl implements SubdomainSe
 	@Override
     public SearchResults<Subdomain> getSubdomain(Integer limit, Integer offset) {
 		SearchResults<Subdomain> result = new SearchResults<Subdomain>();
-		Long count = this.getSubdomainRepository().getSubdomainCount();
-		System.out.println(count);
 		result.setSearchResults(this.getSubdomainRepository().getSubdomains(limit, offset));
-		result.setTotalHitCount(count);
+		result.setTotalHitCount(this.getSubdomainRepository().getSubdomainCount());
 		return result;
     }
 

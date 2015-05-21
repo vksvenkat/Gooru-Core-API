@@ -76,11 +76,8 @@ public class SubjectServiceImpl extends BaseServiceImpl implements SubjectServic
 	@Override
 	public SearchResults<Subject> getSubjects(Integer limit, Integer offset) {
 		SearchResults<Subject> result = new SearchResults<Subject>();
-		
-		Long count = this.getSubjectRepository().getSubjectCount();
-		System.out.println(count);
 		result.setSearchResults(this.getSubjectRepository().getSubjects(limit, offset));
-		result.setTotalHitCount(count);
+		result.setTotalHitCount(this.getSubjectRepository().getSubjectCount());
 		return result;
 	}
 	
