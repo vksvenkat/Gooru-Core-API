@@ -68,10 +68,9 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 	private AssessmentService assessmentService;
 
 	private final String CLASS_ID = "classId";
-	
+
 	private final String PATHWAY_ID = "pathwayId";
-	
-	
+
 	@Override
 	public ActionResponseDTO<SessionActivity> createSessionActivity(final SessionActivity sessionActivity, final User user) {
 		final Long collectionId = this.getResourceRepository().getContentId(sessionActivity.getContentGooruId());
@@ -171,6 +170,8 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 				sessionActivityItem.setFeedbackText(newSessionActivityItem.getFeedbackText());
 				sessionActivityItem.setFeedbackProvidedTime(new Date(System.currentTimeMillis()));
 				sessionActivityItem.setFeedbackProvidedUserUid(newSessionActivityItem.getFeedbackProvidedUserUid());
+				sessionActivityItem.setContentGooruId(newSessionActivityItem.getContentGooruId());
+				sessionActivityItem.setParentGooruId(newSessionActivityItem.getParentGooruId());
 				SessionActivity sessionActivity = this.getSessionActivityRepository().getSessionActivityById(sessionActivityId);
 				this.getSessionEventLog().getEventLogs(sessionActivity, sessionActivityItem, newSessionActivityItem.getFeedbackProvidedUserUid());
 			}
@@ -206,13 +207,13 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 		sessionActivityItem.setAnswerText(sessionActivityItemAttemptTry.getAnswerText());
 		if (sessionActivityItem.getAnswerStatus() != null && !sessionActivityItem.getAnswerStatus().contains(AttemptTryStatus.WRONG.getTryStatus()) && !sessionActivityItem.getAnswerStatus().contains(AttemptTryStatus.SKIPPED.getTryStatus())) {
 			sessionActivityItem.setScore(1.0);
-		} else { 
+		} else {
 			sessionActivityItem.setScore(0.0);
 		}
 		this.getSessionActivityRepository().save(sessionActivityItem);
 		return sessionActivityItemAttemptTry;
 	}
-	
+
 	@Override
 	public SessionActivityItem updateLastResourceSessionActivityItem(SessionActivityItem sessionActivityItem) {
 		rejectIfNull(sessionActivityItem.getPayLoadObject(), GL0056, COLLECTION);
@@ -223,7 +224,7 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 		String userId = data.get(USER_ID);
 		rejectIfNull(userId, GL0056, USER);
 		String parentGooruId = data.get(PATHWAY_ID);
-		if (StringUtils.isBlank(parentGooruId)) { 
+		if (StringUtils.isBlank(parentGooruId)) {
 			parentGooruId = data.get(CLASS_ID);
 		}
 		final Long collectionId = this.getResourceRepository().getContentId(collectionGooruId);

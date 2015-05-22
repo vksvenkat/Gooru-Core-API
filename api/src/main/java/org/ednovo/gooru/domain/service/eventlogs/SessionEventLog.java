@@ -43,8 +43,8 @@ public class SessionEventLog implements ParameterProperties, ConstantProperties 
 		try {
 			SessionContextSupport.putLogParameter(EVENT_NAME, RESOURCE_USER_FEEDBACK);
 			JSONObject context = SessionContextSupport.getLog().get(CONTEXT) != null ? new JSONObject(SessionContextSupport.getLog().get(CONTEXT).toString()) : new JSONObject();
-			context.put(CONTENT_GOORU_ID, sessionActivity.getContentGooruId());
-			context.put(PARENT_GOORU_ID, sessionActivity.getParentGooruId());
+			context.put(CONTENT_GOORU_ID, sessionActivityItem.getContentGooruId());
+			context.put(PARENT_GOORU_ID, sessionActivityItem.getParentGooruId());
 			SessionContextSupport.putLogParameter(CONTEXT, context.toString());
 			JSONObject payLoadObject = SessionContextSupport.getLog().get(PAY_LOAD_OBJECT) != null ? new JSONObject(SessionContextSupport.getLog().get(PAY_LOAD_OBJECT).toString()) : new JSONObject();
 			payLoadObject = sessionActivityItem.getPayLoadObject() != null ? new JSONObject(sessionActivityItem.getPayLoadObject()) : new JSONObject();

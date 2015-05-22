@@ -34,6 +34,8 @@ public class SessionActivityItem implements Serializable {
 
 	private String contentGooruId;
 	
+	private String parentGooruId;
+	
 	private String answerStatus;
 
 	private String answerText;
@@ -228,6 +230,14 @@ public class SessionActivityItem implements Serializable {
 
 	public void setPayLoadObject(String payLoadObject) {
 		this.payLoadObject = payLoadObject;
+	}
+
+	public String getParentGooruId() {
+		return parentGooruId;
+	}
+
+	public void setParentGooruId(String parentGooruId) {
+		this.parentGooruId = parentGooruId;
 	}
 
 }
