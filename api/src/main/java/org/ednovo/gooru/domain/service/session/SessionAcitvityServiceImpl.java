@@ -172,6 +172,7 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 				sessionActivityItem.setFeedbackProvidedUserUid(newSessionActivityItem.getFeedbackProvidedUserUid());
 				sessionActivityItem.setContentGooruId(newSessionActivityItem.getContentGooruId());
 				sessionActivityItem.setParentGooruId(newSessionActivityItem.getParentGooruId());
+				sessionActivityItem.setPayLoadObject(newSessionActivityItem.getPayLoadObject());
 				SessionActivity sessionActivity = this.getSessionActivityRepository().getSessionActivityById(sessionActivityId);
 				this.getSessionEventLog().getEventLogs(sessionActivity, sessionActivityItem, newSessionActivityItem.getFeedbackProvidedUserUid());
 			}
