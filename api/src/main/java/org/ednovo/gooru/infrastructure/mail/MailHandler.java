@@ -169,8 +169,8 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 		map.put("htmlContent", generateMessage((String) map.get("htmlContent"), map));
 		map.put("content", generateMessage((String) map.get("textContent"), map));
 		map.put("recipient", userEmailId);
-		map.put("from", getConfigSetting(ConfigConstants.MAIL_FROM, organizationUid));
-		map.put("bcc", getConfigSetting(ConfigConstants.MAIL_BCC_SUPPORT, organizationUid));
+		map.put("from", getConfigSetting(ConfigConstants.MAIL_FROM, TaxonomyUtil.GOORU_ORG_UID));
+		map.put("bcc", getConfigSetting(ConfigConstants.MAIL_BCC_SUPPORT, TaxonomyUtil.GOORU_ORG_UID));
 		map.put("fromName", FROM);
 		sendMailViaRestApi(map);
 	}
@@ -207,8 +207,8 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 		map.put("htmlContent", generateMessage((String) map.get("htmlContent"), map));
 		map.put("content", generateMessage((String) map.get("textContent"), map));
 		map.put("recipient", userEmailId);
-		map.put("from", getConfigSetting(ConfigConstants.MAIL_FROM, organizationUid));
-		map.put("bcc", getConfigSetting(ConfigConstants.MAIL_BCC_SUPPORT, organizationUid));
+		map.put("from", getConfigSetting(ConfigConstants.MAIL_FROM, TaxonomyUtil.GOORU_ORG_UID));
+		map.put("bcc", getConfigSetting(ConfigConstants.MAIL_BCC_SUPPORT, TaxonomyUtil.GOORU_ORG_UID));
 		map.put("fromName", FROM);
 		map.put("subject", PASSWORD_CONFIRM_SUBJECT);
 		sendMailViaRestApi(map);
@@ -311,8 +311,8 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 		model.put("htmlContent", generateMessage((String) model.get("templateContent"), model));
 		model.put("content", generateMessage((String) model.get("textContent"), model));
 		model.put("recipient", userEmailId);
-		model.put("from", getConfigSetting(ConfigConstants.MAIL_FROM, organizationUid));
-		model.put("bcc", getConfigSetting(ConfigConstants.MAIL_BCC_SUPPORT, organizationUid));
+		model.put("from", getConfigSetting(ConfigConstants.MAIL_FROM, TaxonomyUtil.GOORU_ORG_UID));
+		model.put("bcc", getConfigSetting(ConfigConstants.MAIL_BCC_SUPPORT, TaxonomyUtil.GOORU_ORG_UID));
 		model.put("fromName", FROM);
 
 		logger.warn("Sending Registration confirmation for email " + userEmailId);
@@ -325,8 +325,8 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 		map.put("htmlContent", htmlContent);
 		map.put("content", S3_CSV_RESOURCE_IMPORT);
 		map.put("recipient", getConfigSetting(ConfigConstants.CONTENT_ADMIN, organizationUid));
-		map.put("from", getConfigSetting(ConfigConstants.MAIL_FROM, organizationUid));
-		map.put("bcc", getConfigSetting(ConfigConstants.MAIL_BCC_SUPPORT, organizationUid));
+		map.put("from", getConfigSetting(ConfigConstants.MAIL_FROM, TaxonomyUtil.GOORU_ORG_UID));
+		map.put("bcc", getConfigSetting(ConfigConstants.MAIL_BCC_SUPPORT, TaxonomyUtil.GOORU_ORG_UID));
 		map.put("fromName", FROM);
 		map.put("subject", S3_CSV_RESOURCE_IMPORT);
 		sendMailViaRestApi(map);
