@@ -32,7 +32,7 @@ public class SessionActivity implements Serializable {
 
 	private String type;
 
-	private Long CollectionId;
+	private Long collectionId;
 
 	private String contentGooruId;
 
@@ -176,14 +176,7 @@ public class SessionActivity implements Serializable {
 		this.sessionActivityId = sessionActivityId;
 	}
 
-	public Long getCollectionId() {
-		return CollectionId;
-	}
-
-	public void setCollectionId(Long collectionId) {
-		CollectionId = collectionId;
-	}
-
+	
 	public String getParentGooruId() {
 		return parentGooruId;
 	}
@@ -198,5 +191,13 @@ public class SessionActivity implements Serializable {
 
 	public void setContentGooruId(String contentGooruId) {
 		this.contentGooruId = contentGooruId;
+	}
+
+	public Long getCollectionId() {
+		return collectionId;
+	}
+
+	public void setCollectionId(Long collectionId) {
+		this.collectionId = collectionId;
 	}
 }

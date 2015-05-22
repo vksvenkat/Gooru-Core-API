@@ -41,4 +41,6 @@ public interface SessionActivityService extends BaseService {
 	SessionActivityItemAttemptTry createSessionActivityItemAttemptTry(SessionActivityItemAttemptTry sessionActivityItemAttemptTry, Long sessionActivityId);
 
 	SessionActivity getSessionActivity(Long sessionActivityId);
+	
+	SessionActivityItem updateLastResourceSessionActivityItem(SessionActivityItem sessionActivityItem);
 }
