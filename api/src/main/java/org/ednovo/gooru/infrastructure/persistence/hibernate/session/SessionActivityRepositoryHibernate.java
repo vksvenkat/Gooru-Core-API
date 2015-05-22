@@ -53,6 +53,8 @@ public class SessionActivityRepositoryHibernate extends BaseRepositoryHibernate 
 	private final String SESSION_ACTIVITY_TOTAL_SCORE = "select IFNULL(sum(score), 0) as count from session_activity_item where session_activity_id =:sessionActivityId";
 
 	private final String FIND_QUESTION = "From AssessmentQuestion q   where q.gooruOid=:gooruOid";
+	
+	private final String RETRIEVE_LAST_SESSION_ACTIVITY_BY_IDS = "From SessionActivity s   where s.parentId=:parentId and s.collectionId=:collectionId and s.user.partyUid=:userId order by s.sequence desc";
 
 	@Override
 	public SessionActivity getSessionActivityById(Long sessionActivityId) {
@@ -123,5 +125,16 @@ public class SessionActivityRepositoryHibernate extends BaseRepositoryHibernate 
 		query.setParameter(GOORU_OID, gooruOid);
 		List<AssessmentQuestion> assessmentQuestions = list(query);
 		return (assessmentQuestions.size() > 0) ? assessmentQuestions.get(0) : null;
+	}
+
+	@Override
+	public SessionActivity getLastSessionActivity(Long parentId, Long contentId, String userUid) {
+		Query query = getSession().createQuery(RETRIEVE_LAST_SESSION_ACTIVITY_BY_IDS);
+		query.setParameter(PARENT_ID, parentId);
+		query.setParameter(COLLECTION_ID, contentId);
+		query.setParameter(USER_ID, userUid);
+		query.setMaxResults(1);
+		List<SessionActivity> sessionActivities = list(query);
+		return (sessionActivities.size() > 0) ? sessionActivities.get(0) : null;
 	}
 }
