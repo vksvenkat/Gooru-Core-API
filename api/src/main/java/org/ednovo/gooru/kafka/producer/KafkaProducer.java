@@ -50,6 +50,7 @@ public class KafkaProducer {
 	}
 
 	public void send(String message, String indexType, String topicName) {
+		LOGGER.info("Index messgage : " + message + "  topic name : " +topicName);
 		KeyedMessage<String, String> data = new KeyedMessage<String, String>(topicName, message);
 		try {
 			producer.send(data);

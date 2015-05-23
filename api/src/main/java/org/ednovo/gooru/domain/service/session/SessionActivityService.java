@@ -45,4 +45,6 @@ public interface SessionActivityService extends BaseService {
 	SessionActivity getSessionActivity(Long sessionActivityId);
 
 	File exportClass(String classGooruId);
+	
+	SessionActivityItem updateLastResourceSessionActivityItem(SessionActivityItem sessionActivityItem);
 }

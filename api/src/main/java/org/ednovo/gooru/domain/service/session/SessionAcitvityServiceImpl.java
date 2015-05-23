@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.AssessmentQuestion;
 import org.ednovo.gooru.core.api.model.AttemptTryStatus;
@@ -47,10 +48,13 @@ import org.ednovo.gooru.domain.service.eventlogs.SessionEventLog;
 import org.ednovo.gooru.domain.service.resource.CSVBuilderService;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.resource.ResourceRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.session.SessionActivityRepository;
+import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
+
+import com.fasterxml.jackson.core.type.TypeReference;
 
 @Service
 public class SessionAcitvityServiceImpl extends BaseServiceImpl implements SessionActivityService, ParameterProperties, ConstantProperties {
@@ -70,6 +74,10 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 	@Autowired
 	private CSVBuilderService csvBuilderService;
 	
+	private final String CLASS_ID = "classId";
+
+	private final String PATHWAY_ID = "pathwayId";
+
 	@Override
 	public ActionResponseDTO<SessionActivity> createSessionActivity(final SessionActivity sessionActivity, final User user) {
 		final Long collectionId = this.getResourceRepository().getContentId(sessionActivity.getContentGooruId());
@@ -153,6 +161,7 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 			sessionActivityItem.setScore(0.0);
 			sessionActivityItem.setTimeSpentInMillis(0L);
 			SessionActivity sessionActivity = this.getSessionActivityRepository().getSessionActivityById(sessionActivityId);
+			rejectIfNull(sessionActivity, GL0056, SESSION_ACTIVITY);
 			sessionActivityItem.setClassId(sessionActivity.getClassId());
 			this.getSessionActivityRepository().save(sessionActivityItem);
 		} else {
@@ -168,6 +177,9 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 				sessionActivityItem.setFeedbackText(newSessionActivityItem.getFeedbackText());
 				sessionActivityItem.setFeedbackProvidedTime(new Date(System.currentTimeMillis()));
 				sessionActivityItem.setFeedbackProvidedUserUid(newSessionActivityItem.getFeedbackProvidedUserUid());
+				sessionActivityItem.setContentGooruId(newSessionActivityItem.getContentGooruId());
+				sessionActivityItem.setParentGooruId(newSessionActivityItem.getParentGooruId());
+				sessionActivityItem.setPayLoadObject(newSessionActivityItem.getPayLoadObject());
 				SessionActivity sessionActivity = this.getSessionActivityRepository().getSessionActivityById(sessionActivityId);
 				this.getSessionEventLog().getEventLogs(sessionActivity, sessionActivityItem, newSessionActivityItem.getFeedbackProvidedUserUid());
 			}
@@ -203,7 +215,7 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 		sessionActivityItem.setAnswerText(sessionActivityItemAttemptTry.getAnswerText());
 		if (sessionActivityItem.getAnswerStatus() != null && !sessionActivityItem.getAnswerStatus().contains(AttemptTryStatus.WRONG.getTryStatus()) && !sessionActivityItem.getAnswerStatus().contains(AttemptTryStatus.SKIPPED.getTryStatus())) {
 			sessionActivityItem.setScore(1.0);
-		} else { 
+		} else {
 			sessionActivityItem.setScore(0.0);
 		}
 		this.getSessionActivityRepository().save(sessionActivityItem);
@@ -226,6 +238,26 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 			e.printStackTrace();
 		}
 		return null;
+	}
+	@Override
+	public SessionActivityItem updateLastResourceSessionActivityItem(SessionActivityItem sessionActivityItem) {
+		rejectIfNull(sessionActivityItem.getPayLoadObject(), GL0056, COLLECTION);
+		Map<String, String> data = JsonDeserializer.deserialize(sessionActivityItem.getPayLoadObject(), new TypeReference<Map<String, String>>() {
+		});
+		String collectionGooruId = data.get(COLLECTION_ID);
+		rejectIfNull(collectionGooruId, GL0056, COLLECTION);
+		String userId = data.get(USER_ID);
+		rejectIfNull(userId, GL0056, USER);
+		String parentGooruId = data.get(PATHWAY_ID);
+		if (StringUtils.isBlank(parentGooruId)) {
+			parentGooruId = data.get(CLASS_ID);
+		}
+		final Long collectionId = this.getResourceRepository().getContentId(collectionGooruId);
+		rejectIfNull(collectionId, GL0056, COLLECTION);
+		final Long parentId = this.getResourceRepository().getContentId(parentGooruId);
+		SessionActivity sessionActivity = this.getSessionActivityRepository().getLastSessionActivity(parentId, collectionId, userId);
+		rejectIfNull(sessionActivity, GL0056, SESSION_ACTIVITY);
+		return createOrUpdateSessionActivityItem(sessionActivityItem, sessionActivity.getSessionActivityId());
 	}
 
 	private Errors validateCreateSessionActivity(final SessionActivity sessionActivity, final Long collectionId) {

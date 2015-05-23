@@ -101,7 +101,12 @@ public class SessionActivityRestV2Controller extends BaseController implements P
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = { RequestMethod.POST, RequestMethod.PUT }, value = "/{id}/item")
 	public ModelAndView createOrUpdateSessionItem(@RequestBody String data, @PathVariable(ID) Long sessionActivityId, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		final SessionActivityItem sessionActivityItem = getSessionActivityService().createOrUpdateSessionActivityItem(this.buildSessionActivityItemFromInputParameters(data), sessionActivityId);
+		SessionActivityItem sessionActivityItem = null;
+		if (sessionActivityId == 0) {
+			sessionActivityItem = getSessionActivityService().updateLastResourceSessionActivityItem(this.buildSessionActivityItemFromInputParameters(data));
+		} else {
+			sessionActivityItem = getSessionActivityService().createOrUpdateSessionActivityItem(this.buildSessionActivityItemFromInputParameters(data), sessionActivityId);
+		}
 		response.setStatus(HttpServletResponse.SC_CREATED);
 		String includes[] = (String[]) ArrayUtils.addAll(SESSION_ITEM_INCLUDES, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(sessionActivityItem, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);

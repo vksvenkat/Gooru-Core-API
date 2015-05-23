@@ -52,4 +52,7 @@ public interface SessionActivityRepository extends BaseRepository {
 	Integer getTotalScore(Long sessionActivityId);
 	
 	AssessmentQuestion getQuestion(String gooruOid);
+	
+	SessionActivity getLastSessionActivity(Long parentId, Long collectionId, String userUid);
+	
 }
