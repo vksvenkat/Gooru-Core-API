@@ -23,8 +23,11 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.domain.service.session;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
@@ -42,6 +45,7 @@ import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.domain.service.BaseServiceImpl;
 import org.ednovo.gooru.domain.service.assessment.AssessmentService;
 import org.ednovo.gooru.domain.service.eventlogs.SessionEventLog;
+import org.ednovo.gooru.domain.service.resource.CSVBuilderService;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.resource.ResourceRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.session.SessionActivityRepository;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
@@ -67,6 +71,9 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 	@Autowired
 	private AssessmentService assessmentService;
 
+	@Autowired
+	private CSVBuilderService csvBuilderService;
+	
 	private final String CLASS_ID = "classId";
 
 	private final String PATHWAY_ID = "pathwayId";
@@ -215,6 +222,23 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 		return sessionActivityItemAttemptTry;
 	}
 
+
+	@Override
+	public File exportClass(String classGooruId) {
+		String query = getSessionActivityRepository().getExportConfig(EXPORT_CLASS_QUERY);
+		List<Object[]> resultSet = getSessionActivityRepository().getClassReport(classGooruId,query);
+		String headers = getSessionActivityRepository().getExportConfig(EXPORT_CLASS_HEADER);
+		List<String> headerList = new ArrayList<String>();
+		for(String header : headers.split(",")){
+			headerList.add(header);
+		}
+		try {
+			return csvBuilderService.generateCSVReport(resultSet,headerList, EXPORT_CLASS_FILENAME);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 	@Override
 	public SessionActivityItem updateLastResourceSessionActivityItem(SessionActivityItem sessionActivityItem) {
 		rejectIfNull(sessionActivityItem.getPayLoadObject(), GL0056, COLLECTION);

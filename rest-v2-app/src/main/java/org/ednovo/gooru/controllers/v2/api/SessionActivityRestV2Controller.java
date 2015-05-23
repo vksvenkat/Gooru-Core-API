@@ -23,10 +23,15 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.controllers.v2.api;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.poi.util.IOUtils;
 import org.ednovo.gooru.controllers.BaseController;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.SessionActivity;
@@ -117,6 +122,21 @@ public class SessionActivityRestV2Controller extends BaseController implements P
 		}
 		return toModelAndViewWithIoFilter(sessionActivityItemAttemptTry, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, SESSION_ITEM_ATTEMPT_INCLUDES);
 	}
+
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(method = RequestMethod.GET, value = "/export/class/{classGooruId}")
+	public void generateClassReport(@PathVariable("classGooruId") final String classGooruId, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+		final File csvFile = this.getSessionActivityService().exportClass(classGooruId);
+
+		InputStream sheet = new FileInputStream(csvFile);
+		response.setHeader("Content-Disposition", "inline; filename=" + csvFile.getName());
+		response.setContentType("application/csv");
+		IOUtils.copy(sheet, response.getOutputStream());
+		response.getOutputStream().flush();
+		response.getOutputStream().close();
+		csvFile.delete();
+	}
+
 
 	private SessionActivity buildSessionActivityFromInputParameters(String data) {
 

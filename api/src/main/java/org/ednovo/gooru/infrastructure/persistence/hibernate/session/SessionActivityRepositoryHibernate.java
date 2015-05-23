@@ -32,6 +32,7 @@ import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate;
 import org.hibernate.Query;
+import org.hibernate.Session;
 import org.hibernate.type.StandardBasicTypes;
 import org.springframework.stereotype.Repository;
 
@@ -51,6 +52,8 @@ public class SessionActivityRepositoryHibernate extends BaseRepositoryHibernate 
 	private final String COLLECTION_QUESTION_COUNT = "select count(1) as count from collection_item ci inner join assessment_question  q on q.question_id = ci.resource_content_id where ci.collection_content_id=:collectionId";
 
 	private final String SESSION_ACTIVITY_TOTAL_SCORE = "select IFNULL(sum(score), 0) as count from session_activity_item where session_activity_id =:sessionActivityId";
+	
+	private final String GET_CLASS_EXPORT_QUERY_FROM_CONFIG = "SELECT value from config_setting WHERE name=:name";
 
 	private final String FIND_QUESTION = "From AssessmentQuestion q   where q.gooruOid=:gooruOid";
 	
@@ -117,6 +120,25 @@ public class SessionActivityRepositoryHibernate extends BaseRepositoryHibernate 
 		Query query = getSession().createSQLQuery(SESSION_ACTIVITY_TOTAL_SCORE).addScalar(COUNT, StandardBasicTypes.INTEGER);
 		query.setParameter(SESSION_ACTIVITY_ID, sessionActivityId);
 		return (Integer) list(query).get(0);
+	}
+	
+	@Override
+	public String getExportConfig(String key) {
+		Query query = getSession().createSQLQuery(GET_CLASS_EXPORT_QUERY_FROM_CONFIG)
+		.addScalar(VALUE, StandardBasicTypes.STRING);
+		query.setParameter(NAME, key);
+		List<String> results = list(query);
+		return (results != null && results.size() > 0) ? results.get(0) : null;
+	}
+	
+	@Override
+	public List<Object[]> getClassReport(String classGooruId,String sql) {
+		Session session = getSession();
+		Query query = session.createSQLQuery(sql);
+		query.setParameter(CLASS_GOORU_ID, classGooruId);
+		List<Object[]> result = query.list();
+		return result;
+
 	}
 
 	@Override
