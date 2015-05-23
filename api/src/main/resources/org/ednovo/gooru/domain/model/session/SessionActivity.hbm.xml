@@ -23,7 +23,7 @@
 		table="session_activity">
 		<id name="sessionActivityId" column="session_activity_id"
 			unsaved-value="null">
-			<generator class="increment" />
+			<generator  class="identity" />
 		</id>
 
 		<property name="classId" column="class_id" not-null="false" />
