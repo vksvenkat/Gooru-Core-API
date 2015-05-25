@@ -26,6 +26,7 @@ package org.ednovo.gooru.controllers.v2.api;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.ednovo.gooru.controllers.BaseController;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Subject;
@@ -60,8 +61,12 @@ public class SubjectRestV2Controller extends BaseController implements ConstantP
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ModelAndView createSubject(HttpServletRequest request, HttpServletResponse response, @RequestBody String data)throws Exception{
 		User user = (User) request.getAttribute(Constants.USER);
-		ActionResponseDTO<Subject> subject = this.getSubjectService().createSubject(buildSubjectFromInputParameters(data),user);
-		return toModelAndViewWithIoFilter(subject.getModelData(), FORMAT_JSON, EXCLUDE_ALL, true, SUBJECT_INCLUDES);
+		final ActionResponseDTO<Subject> responseDTO = this.getSubjectService().createSubject(buildSubjectFromInputParameters(data),user);
+		if (responseDTO.getErrors().getErrorCount() > 0) {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+		}
+		String includes[] = (String[]) ArrayUtils.addAll(SUBJECT_INCLUDES, ERROR_INCLUDE);
+		return toModelAndViewWithIoFilter(responseDTO.getModelData(), FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
 	
 	@AuthorizeOperations(operations = {GooruOperationConstants.OPERATION_SUBJECT_READ})

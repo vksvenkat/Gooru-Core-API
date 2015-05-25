@@ -29,7 +29,6 @@ import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Subject;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ParameterProperties;
-import org.ednovo.gooru.core.exception.NotFoundException;
 import org.ednovo.gooru.domain.service.BaseServiceImpl;
 import org.ednovo.gooru.domain.service.search.SearchResults;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.SubjectRepository;
@@ -47,26 +46,24 @@ public class SubjectServiceImpl extends BaseServiceImpl implements SubjectServic
 	@Override
 	public ActionResponseDTO<Subject> createSubject(Subject subject, User user) {
 		final Errors errors = validateSubject(subject);
-		if(subject.getActiveFlag() > 1 || subject.getActiveFlag() <0){
-			throw new BadRequestException(generateErrorMessage(GL0056, ACTIVE_FLAG), GL0056);//throw new NotFoundException(generateErrorMessage(GL0056, ACTIVE_FLAG), GL0056);
+		if(!errors.hasErrors()){
+			if(subject.getActiveFlag() > 1 || subject.getActiveFlag() <0){
+				throw new BadRequestException(generateErrorMessage(GL0056, ACTIVE_FLAG), GL0056);
+			}
+			subject.setCreatedOn(new Date(System.currentTimeMillis()));
+			subject.setLastModified(new Date(System.currentTimeMillis()));
+			subject.setCreator(user);
+			subject.setOrganization(user.getOrganization());
+			this.getSubjectRepository().save(subject);
 		}
-		subject.setCreatedOn(new Date(System.currentTimeMillis()));
-		subject.setLastModified(new Date(System.currentTimeMillis()));
-		subject.setCreator(user);
-		subject.setOrganization(user.getOrganization());
-		this.getSubjectRepository().save(subject);
 		return new ActionResponseDTO<Subject>(subject, errors);
 	}
 
 	@Override
 	public Subject getSubject(String subjectId) {
 		Subject subject = (Subject) subjectRepository.getSubject(subjectId);
-		if (subject == null) {
-			throw new NotFoundException(generateErrorMessage(GL0056, SUBJECT), GL0056);
-		}
-		if(subject.getActiveFlag() !=1){
-			throw new BadRequestException(subject.getSubjectId() +" is Deactivated Subject");
-		}
+		rejectIfNull(subject, GL0056, 404, generateErrorMessage(GL0056, SUBJECT));
+		reject((subject.getActiveFlag()==1), "this is Depricated");
 		return (Subject) subjectRepository.getSubject(subjectId);
 	}
 
@@ -106,9 +103,9 @@ public class SubjectServiceImpl extends BaseServiceImpl implements SubjectServic
 
 	private Errors validateSubject(Subject subject) {
 		final Errors errors = new BindException(subject, SUBJECT);
-		rejectIfNull(subject.getName(), GL0006, NAME);
-		rejectIfNull(subject.getActiveFlag(), GL0006, ACTIVE_FLAG);
-		rejectIfNull(subject.getDisplaySequence(), GL0006, DISPLAY_SEQUENCE);
+		rejectIfNullOrEmpty(errors, subject.getName(),NAME, generateErrorMessage(GL0006, NAME));
+		rejectIfNull(errors, subject.getActiveFlag(),ACTIVE_FLAG, generateErrorMessage(GL0006, ACTIVE_FLAG));
+		rejectIfNull(errors, subject.getDisplaySequence(),DISPLAY_SEQUENCE, generateErrorMessage(GL0006, DISPLAY_SEQUENCE));
 		return errors;
 	}
 
