@@ -33,12 +33,12 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class SubjectRepositoryHibernate extends BaseRepositoryHibernate implements SubjectRepository, ParameterProperties {
 
-	private static final String SUBJECT_COUNT = "SELECT COUNT(*) FROM Subject";
+	private static final String SUBJECT_COUNT = "SELECT COUNT(*) FROM Subject subject where subject.activeFlag=1";
 	private static final String SUBJECTS = "FROM Subject subject where subject.activeFlag=1";
 
 	@Override
 	public Subject getSubject(String subjectId) {
-		String hql = "FROM Subject subject WHERE subject.subjectId = '" + subjectId + "'";
+		String hql = "FROM Subject subject WHERE subject.subjectId = '" + subjectId + "'and subject.activeFlag=1";
 		return get(hql);
 	}
 

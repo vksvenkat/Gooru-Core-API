@@ -50,6 +50,7 @@ public class SubjectServiceImpl extends BaseServiceImpl implements SubjectServic
 			reject(!(subject.getActiveFlag() > 1 || subject.getActiveFlag() < 0), generateErrorMessage(GL0007, ACTIVE_FLAG));
 			subject.setCreatedOn(new Date(System.currentTimeMillis()));
 			subject.setLastModified(new Date(System.currentTimeMillis()));
+			subject.setActiveFlag((short) 1);
 			subject.setCreator(user);
 			subject.setOrganization(user.getOrganization());
 			this.getSubjectRepository().save(subject);
@@ -62,14 +63,16 @@ public class SubjectServiceImpl extends BaseServiceImpl implements SubjectServic
 		Subject subject = (Subject) subjectRepository.getSubject(subjectId);
 		rejectIfNull(subject, GL0056, 404, generateErrorMessage(GL0056, SUBJECT));
 		reject((subject.getActiveFlag() == 1), generateErrorMessage(DEPRICATED));
-		return  subjectRepository.getSubject(subjectId);
+		return subjectRepository.getSubject(subjectId);
 	}
 
 	@Override
 	public void deleteSubject(String subjectId) {
 		Subject subject = subjectRepository.getSubject(subjectId);
 		rejectIfNull(subject, GL0056, 404, generateErrorMessage(GL0056, SUBJECT));
-		this.subjectRepository.remove(subject);
+		subject.setActiveFlag((short) 0);
+		subject.setLastModified(new Date(System.currentTimeMillis()));
+		subjectRepository.save(subject);
 	}
 
 	@Override
@@ -102,7 +105,6 @@ public class SubjectServiceImpl extends BaseServiceImpl implements SubjectServic
 	private Errors validateSubject(Subject subject) {
 		final Errors errors = new BindException(subject, SUBJECT);
 		rejectIfNullOrEmpty(errors, subject.getName(), NAME, generateErrorMessage(GL0006, NAME));
-		rejectIfNull(errors, subject.getActiveFlag(), ACTIVE_FLAG, generateErrorMessage(GL0006, ACTIVE_FLAG));
 		rejectIfNull(errors, subject.getDisplaySequence(), DISPLAY_SEQUENCE, generateErrorMessage(GL0006, DISPLAY_SEQUENCE));
 		return errors;
 	}
