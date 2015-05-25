@@ -24,7 +24,7 @@
 package org.ednovo.gooru.domain.service.subject;
 
 import java.util.Date;
-
+import org.ednovo.gooru.core.exception.BadRequestException;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Subject;
 import org.ednovo.gooru.core.api.model.User;
@@ -47,6 +47,9 @@ public class SubjectServiceImpl extends BaseServiceImpl implements SubjectServic
 	@Override
 	public ActionResponseDTO<Subject> createSubject(Subject subject, User user) {
 		final Errors errors = validateSubject(subject);
+		if(subject.getActiveFlag() > 1 || subject.getActiveFlag() <0){
+			throw new BadRequestException(generateErrorMessage(GL0056, ACTIVE_FLAG), GL0056);//throw new NotFoundException(generateErrorMessage(GL0056, ACTIVE_FLAG), GL0056);
+		}
 		subject.setCreatedOn(new Date(System.currentTimeMillis()));
 		subject.setLastModified(new Date(System.currentTimeMillis()));
 		subject.setCreator(user);
@@ -60,6 +63,9 @@ public class SubjectServiceImpl extends BaseServiceImpl implements SubjectServic
 		Subject subject = (Subject) subjectRepository.getSubject(subjectId);
 		if (subject == null) {
 			throw new NotFoundException(generateErrorMessage(GL0056, SUBJECT), GL0056);
+		}
+		if(subject.getActiveFlag() !=1){
+			throw new BadRequestException(subject.getSubjectId() +" is Deactivated Subject");
 		}
 		return (Subject) subjectRepository.getSubject(subjectId);
 	}

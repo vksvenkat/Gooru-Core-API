@@ -26,9 +26,10 @@ package org.ednovo.gooru.domain.service.subject;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Subject;
 import org.ednovo.gooru.core.api.model.User;
+import org.ednovo.gooru.domain.service.BaseService;
 import org.ednovo.gooru.domain.service.search.SearchResults;
 
-public interface SubjectService {
+public interface SubjectService extends BaseService{
 
 	ActionResponseDTO<Subject> createSubject(Subject subject, User user);
 	
