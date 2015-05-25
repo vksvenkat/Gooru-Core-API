@@ -226,18 +226,9 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 	@Override
 	public File exportClass(String classGooruId) {
 		String query = getSessionActivityRepository().getExportConfig(EXPORT_CLASS_QUERY);
-		List<Object[]> resultSet = getSessionActivityRepository().getClassReport(classGooruId,query);
+		List<Object[]> resultSet = getSessionActivityRepository().getClassReport(classGooruId, query);
 		String headers = getSessionActivityRepository().getExportConfig(EXPORT_CLASS_HEADER);
-		List<String> headerList = new ArrayList<String>();
-		for(String header : headers.split(",")){
-			headerList.add(header);
-		}
-		try {
-			return csvBuilderService.generateCSVReport(resultSet,headerList, EXPORT_CLASS_FILENAME);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
+		return csvBuilderService.generateCSVReport(resultSet, headers.split(COMMA), EXPORT_CLASS_FILENAME);
 	}
 	@Override
 	public SessionActivityItem updateLastResourceSessionActivityItem(SessionActivityItem sessionActivityItem) {
