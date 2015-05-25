@@ -29,24 +29,24 @@ import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Id;
 
-public class Subdomain implements Serializable{
+public class Subdomain implements Serializable {
 
 	/**
 	 * 
 	 */
-    private static final long serialVersionUID = 7789419722908609593L;
+	private static final long serialVersionUID = 7789419722908609593L;
 
-    @Id
-    private Integer subdomainId;
-    
-    @Column
-    private Integer CourseId;
-    
-    @Column
-    private Integer domainId;
-    
-    @Column 
-    private Date createdOn;
+	@Id
+	private Integer subdomainId;
+
+	@Column
+	private Integer CourseId;
+
+	@Column
+	private Integer domainId;
+
+	@Column
+	private Date createdOn;
 
 	public Integer getSubdomainId() {
 		return subdomainId;
@@ -79,6 +79,5 @@ public class Subdomain implements Serializable{
 	public void setCreatedOn(Date createdOn) {
 		this.createdOn = createdOn;
 	}
-    
-    
+
 }

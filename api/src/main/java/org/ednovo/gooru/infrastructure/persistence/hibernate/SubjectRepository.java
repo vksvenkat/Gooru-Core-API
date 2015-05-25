@@ -27,12 +27,12 @@ import java.util.List;
 
 import org.ednovo.gooru.core.api.model.Subject;
 
-public interface SubjectRepository extends BaseRepository{
+public interface SubjectRepository extends BaseRepository {
 
 	Subject getSubject(String subjectId);
-	
+
 	List<Subject> getSubjects(Integer limit, Integer offset);
 
 	Long getSubjectCount();
-		
+
 }

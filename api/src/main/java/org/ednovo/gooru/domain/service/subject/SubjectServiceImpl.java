@@ -46,8 +46,8 @@ public class SubjectServiceImpl extends BaseServiceImpl implements SubjectServic
 	@Override
 	public ActionResponseDTO<Subject> createSubject(Subject subject, User user) {
 		final Errors errors = validateSubject(subject);
-		if(!errors.hasErrors()){
-			if(subject.getActiveFlag() > 1 || subject.getActiveFlag() <0){
+		if (!errors.hasErrors()) {
+			if (subject.getActiveFlag() > 1 || subject.getActiveFlag() < 0) {
 				throw new BadRequestException(generateErrorMessage(GL0056, ACTIVE_FLAG), GL0056);
 			}
 			subject.setCreatedOn(new Date(System.currentTimeMillis()));
@@ -63,7 +63,7 @@ public class SubjectServiceImpl extends BaseServiceImpl implements SubjectServic
 	public Subject getSubject(String subjectId) {
 		Subject subject = (Subject) subjectRepository.getSubject(subjectId);
 		rejectIfNull(subject, GL0056, 404, generateErrorMessage(GL0056, SUBJECT));
-		reject((subject.getActiveFlag()==1), "this is Depricated");
+		reject((subject.getActiveFlag() == 1), "this is Depricated");
 		return (Subject) subjectRepository.getSubject(subjectId);
 	}
 
@@ -92,7 +92,7 @@ public class SubjectServiceImpl extends BaseServiceImpl implements SubjectServic
 			oldSubject.setImagePath(subject.getImagePath());
 		if (subject.getName() != null)
 			oldSubject.setName(subject.getName());
-		if(subject.getDisplaySequence() != null)
+		if (subject.getDisplaySequence() != null)
 			oldSubject.setDisplaySequence(subject.getDisplaySequence());
 		if (subject.getActiveFlag() >= 0)
 			oldSubject.setActiveFlag(subject.getActiveFlag());
@@ -103,9 +103,9 @@ public class SubjectServiceImpl extends BaseServiceImpl implements SubjectServic
 
 	private Errors validateSubject(Subject subject) {
 		final Errors errors = new BindException(subject, SUBJECT);
-		rejectIfNullOrEmpty(errors, subject.getName(),NAME, generateErrorMessage(GL0006, NAME));
-		rejectIfNull(errors, subject.getActiveFlag(),ACTIVE_FLAG, generateErrorMessage(GL0006, ACTIVE_FLAG));
-		rejectIfNull(errors, subject.getDisplaySequence(),DISPLAY_SEQUENCE, generateErrorMessage(GL0006, DISPLAY_SEQUENCE));
+		rejectIfNullOrEmpty(errors, subject.getName(), NAME, generateErrorMessage(GL0006, NAME));
+		rejectIfNull(errors, subject.getActiveFlag(), ACTIVE_FLAG, generateErrorMessage(GL0006, ACTIVE_FLAG));
+		rejectIfNull(errors, subject.getDisplaySequence(), DISPLAY_SEQUENCE, generateErrorMessage(GL0006, DISPLAY_SEQUENCE));
 		return errors;
 	}
 

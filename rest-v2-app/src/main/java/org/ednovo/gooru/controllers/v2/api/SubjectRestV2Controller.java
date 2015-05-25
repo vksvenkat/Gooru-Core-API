@@ -48,63 +48,64 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
-
 @Controller
-@RequestMapping(value = {"/v2/subject"})
-public class SubjectRestV2Controller extends BaseController implements ConstantProperties{
+@RequestMapping(value = { "/v2/subject" })
+public class SubjectRestV2Controller extends BaseController implements ConstantProperties {
 
 	@Autowired
 	private SubjectService subjectService;
 
-	@AuthorizeOperations(operations = {GooruOperationConstants.OPERATION_SUBJECT_ADD})
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SUBJECT_ADD })
 	@RequestMapping(method = RequestMethod.POST)
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public ModelAndView createSubject(HttpServletRequest request, HttpServletResponse response, @RequestBody String data)throws Exception{
+	public ModelAndView createSubject(HttpServletRequest request, HttpServletResponse response, @RequestBody String data) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
-		final ActionResponseDTO<Subject> responseDTO = this.getSubjectService().createSubject(buildSubjectFromInputParameters(data),user);
+		final ActionResponseDTO<Subject> responseDTO = this.getSubjectService().createSubject(buildSubjectFromInputParameters(data), user);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		}
 		String includes[] = (String[]) ArrayUtils.addAll(SUBJECT_INCLUDES, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(responseDTO.getModelData(), FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
-	
-	@AuthorizeOperations(operations = {GooruOperationConstants.OPERATION_SUBJECT_READ})
+
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SUBJECT_READ })
 	@RequestMapping(method = RequestMethod.GET, value = " ")
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public ModelAndView getSubjects(@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, HttpServletResponse response, HttpServletRequest request)throws Exception{
+	public ModelAndView getSubjects(@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, HttpServletResponse response, HttpServletRequest request) throws Exception {
 		return toModelAndViewWithIoFilter(this.getSubjectService().getSubjects(limit, offset), FORMAT_JSON, EXCLUDE_ALL, true, SUBJECT_INCLUDES);
 	}
-	@AuthorizeOperations(operations = {GooruOperationConstants.OPERATION_SUBJECT_READ})
+
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SUBJECT_READ })
 	@RequestMapping(method = RequestMethod.GET, value = "/{id}")
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public ModelAndView getSubject(HttpServletResponse response, HttpServletRequest request, @PathVariable(ID) String SubjectId)throws Exception{
+	public ModelAndView getSubject(HttpServletResponse response, HttpServletRequest request, @PathVariable(ID) String SubjectId) throws Exception {
 		Subject subjectObj = this.getSubjectService().getSubject(SubjectId);
 		return toModelAndViewWithIoFilter(subjectObj, FORMAT_JSON, EXCLUDE_ALL, true, SUBJECT_INCLUDES);
 	}
-	
-	//@AuthorizeOperations(operations = {GooruOperationConstants.OPERATION_SUBJECT_UPDATE})
-	@RequestMapping(method = RequestMethod.PUT, value ="/{id}")
+
+	// @AuthorizeOperations(operations =
+	// {GooruOperationConstants.OPERATION_SUBJECT_UPDATE})
+	@RequestMapping(method = RequestMethod.PUT, value = "/{id}")
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public ModelAndView updateSubject(HttpServletResponse response, HttpServletRequest request,@RequestBody String data, @PathVariable(ID) String subjectId)throws Exception{
+	public ModelAndView updateSubject(HttpServletResponse response, HttpServletRequest request, @RequestBody String data, @PathVariable(ID) String subjectId) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
 		return toModelAndViewWithIoFilter(this.getSubjectService().updateSubject(buildSubjectFromInputParameters(data), user, subjectId), FORMAT_JSON, EXCLUDE_ALL, true, SUBJECT_INCLUDES);
 	}
-		
-	@AuthorizeOperations(operations = {GooruOperationConstants.OPERATION_SUBJECT_DELETE})
+
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SUBJECT_DELETE })
 	@RequestMapping(method = RequestMethod.DELETE, value = "/{id}")
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public void deleteSubject(HttpServletResponse response, HttpServletRequest request, @PathVariable(ID) String subjectId)throws Exception{
+	public void deleteSubject(HttpServletResponse response, HttpServletRequest request, @PathVariable(ID) String subjectId) throws Exception {
 		this.getSubjectService().deleteSubject(subjectId);
 		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
 	}
-	
+
 	public SubjectService getSubjectService() {
 		return subjectService;
 	}
-	
+
 	private Subject buildSubjectFromInputParameters(String data) {
 		return JsonDeserializer.deserialize(data, Subject.class);
 	}
-	
+
 }

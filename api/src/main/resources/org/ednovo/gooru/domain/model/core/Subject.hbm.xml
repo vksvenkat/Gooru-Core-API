@@ -26,30 +26,32 @@
 		</id>
 		<property name="name" column="name" length="100" not-null="true">
 		</property>
-		
+
 		<property name="description" column="description" not-null="false">
 		</property>
-		
+
 		<property name="activeFlag" column="active_flag" not-null="true">
 		</property>
-			
+
 		<many-to-one name="organization"
 			class="org.ednovo.gooru.core.api.model.Organization" column="organization_uid"
 			not-null="false" lazy="proxy" cascade="none" />
-		
+
 		<property name="imagePath" column="image_path" not-null="false">
 		</property>
-		
-		<property name="displaySequence" column="display_sequence" not-null="true">
+
+		<property name="displaySequence" column="display_sequence"
+			not-null="true">
 		</property>
-		
+
 		<many-to-one name="creator" class="org.ednovo.gooru.core.api.model.User"
 			column="creator_uid" not-null="false" lazy="proxy" cascade="none" />
-		
+
 		<property name="createdOn" column="created_on" not-null="true">
 		</property>
-		
-		<property name="lastModified" column="last_modified" not-null="true">
+
+		<property name="lastModified" column="last_modified"
+			not-null="true">
 		</property>
 	</class>
 </hibernate-mapping>

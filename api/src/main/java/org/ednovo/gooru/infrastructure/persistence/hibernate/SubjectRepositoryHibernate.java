@@ -34,25 +34,26 @@ import org.springframework.stereotype.Repository;
 public class SubjectRepositoryHibernate extends BaseRepositoryHibernate implements SubjectRepository, ParameterProperties {
 
 	private static final String SUBJECT_COUNT = "SELECT COUNT(*) FROM Subject";
-	private static final String SUBJECTS = "FROM Subject subject where subject.activeFlag=1";	
-	@Override
-    public Subject getSubject(String subjectId) {
-		String hql = "FROM Subject subject WHERE subject.subjectId = '" + subjectId + "'";
-		return get(hql);
-    }
+	private static final String SUBJECTS = "FROM Subject subject where subject.activeFlag=1";
 
 	@Override
-    public List<Subject> getSubjects(Integer limit, Integer offset) {
+	public Subject getSubject(String subjectId) {
+		String hql = "FROM Subject subject WHERE subject.subjectId = '" + subjectId + "'";
+		return get(hql);
+	}
+
+	@Override
+	public List<Subject> getSubjects(Integer limit, Integer offset) {
 		Query query = getSession().createQuery(SUBJECTS);
-        query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : limit);
-        query.setFirstResult(offset);
-	    return list(query);
-    }
-	
+		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : limit);
+		query.setFirstResult(offset);
+		return list(query);
+	}
+
 	@Override
 	public Long getSubjectCount() {
 		Query query = getSession().createQuery(SUBJECT_COUNT);
 		return (Long) (query.list().size() > 0 ? query.list().get(0) : 0);
 	}
-	
+
 }
