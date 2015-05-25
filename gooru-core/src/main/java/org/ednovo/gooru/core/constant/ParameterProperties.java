@@ -300,8 +300,6 @@ public interface ParameterProperties {
 
 	String SEQUENCE = "sequence";
 
-	String SESSION_ITEM = "sessionItem";
-
 	String COLLECTION_TYPE = "collectionType";
 
 	String COLLECTION_ITEM_TYPE = "collectionItemType";
@@ -1974,7 +1972,7 @@ public interface ParameterProperties {
 
 	String SEG_REORDER = "segment.reorder";
 
-	String SESSION_ACTIVITY = "session.activity";
+	String SESSION_ACTIVITY = "session activity";
 
 	String SESSION_ACTIVITY_UID = "sessionActivityUid";
 
@@ -1986,7 +1984,7 @@ public interface ParameterProperties {
 
 	String QUESTION_ATTEMPT_ID = "questionAttemptId";
 
-	String SESSION_ACTIVITY_ITEM = "session.activity.item";
+	String SESSION_ACTIVITY_ITEM = "session activity item";
 
 	String GET_SESSION_ACTIVITY_ITEM = "get.session.activity.item";
 
@@ -2915,5 +2913,14 @@ public interface ParameterProperties {
 	String PAGE_INFO = "pageInfo";
 	
 	String TOTAL_RESULTS = "totalResults";
+	
+	String EXPORT_CLASS_QUERY = "class.export.query";
+	
+	String EXPORT_CLASS_HEADER = "class.export.header";
+	
+	String EXPORT_CLASS_FILENAME = "reports.csv";
+	
+	String CLASS_GOORU_ID = "classGooruId";
+	
 }
 

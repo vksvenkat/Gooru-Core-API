@@ -153,5 +153,10 @@ public interface ResourceRepository extends BaseRepository {
 	
 	List<Collection> getCollectionsByResourceId(String resourceId, String sharing, Integer limit, Integer offset);
 
+	Long getNumericClassCode(Long contentId);
+
+	Long getContentId(String contentGooruOid);
+
+	Boolean findUserIsStudent(Long classContentId, String gooruUId);
 
 }

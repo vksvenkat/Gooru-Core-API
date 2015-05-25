@@ -80,7 +80,7 @@ public class AccountRestV2Controller extends BaseController implements ConstantP
 	public ModelAndView login(@RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		final JSONObject json = requestData(data);
 		ActionResponseDTO<UserToken> responseDTO = null;
-		responseDTO = this.getAccountService().logIn(getValue(USER_NAME, json), getValue(PASSWORD, json),  false, request);
+		responseDTO = this.getAccountService().logIn(getValue(USER_NAME, json), getValue(PASSWORD, json), false, request);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		} else {
@@ -88,12 +88,11 @@ public class AccountRestV2Controller extends BaseController implements ConstantP
 			SessionContextSupport.putLogParameter(EVENT_NAME, USER_LOGIN);
 		}
 		String[] includes = (String[]) ArrayUtils.addAll(USER_INCLUDES, ERROR_INCLUDE);
-		
-		if(getValue(RETURN_URL, json) !=null){
+
+		if (getValue(RETURN_URL, json) != null) {
 			response.sendRedirect(getValue(RETURN_URL, json));
 			return null;
-		}
-		else{
+		} else {
 			return toModelAndView(serialize(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, includes));
 		}
 
@@ -137,7 +136,7 @@ public class AccountRestV2Controller extends BaseController implements ConstantP
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		} else {
 			response.setStatus(HttpServletResponse.SC_OK);
-			}
+		}
 		String[] includes = (String[]) ArrayUtils.addAll(USER_INCLUDES, ERROR_INCLUDE);
 		return toModelAndView(serialize(userToken, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, includes));
 
@@ -149,7 +148,8 @@ public class AccountRestV2Controller extends BaseController implements ConstantP
 	public ModelAndView authenticateUser(@RequestBody final String data, @RequestParam(value = API_KEY, required = false) final String apiKey, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		final JSONObject json = requestData(data);
 		SessionContextSupport.putLogParameter(EVENT_NAME, USER_AUTHENTICATE);
-		final User user = this.getAccountService().userAuthentication(buildUserFromInputParameters(data), getValue(SECERT_KEY, json), getValue(API_KEY, json) == null ? apiKey : getValue(API_KEY, json), getValue(SOURCE, json) != null ? getValue(SOURCE, json) : UserAccountType.accountCreatedType.GOOGLE_APP.getType(), request);
+		final User user = this.getAccountService().userAuthentication(buildUserFromInputParameters(data), getValue(SECERT_KEY, json), getValue(API_KEY, json) == null ? apiKey : getValue(API_KEY, json),
+				getValue(SOURCE, json) != null ? getValue(SOURCE, json) : UserAccountType.accountCreatedType.GOOGLE_APP.getType(), request);
 		if (user.getIdentities() != null) {
 			final Identity identity = user.getIdentities().iterator().next();
 			if (identity.getActive() == 0) {

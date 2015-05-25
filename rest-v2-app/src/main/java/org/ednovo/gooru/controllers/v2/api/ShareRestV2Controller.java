@@ -29,6 +29,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.ednovo.gooru.application.util.TaxonomyUtil;
 import org.ednovo.gooru.controllers.BaseController;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
@@ -37,6 +38,7 @@ import org.ednovo.gooru.core.constant.GooruOperationConstants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.security.AuthorizeOperations;
 import org.ednovo.gooru.domain.service.ShareService;
+import org.ednovo.gooru.domain.service.redis.RedisService;
 import org.ednovo.gooru.infrastructure.mail.MailHandler;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.json.JSONObject;
@@ -48,7 +50,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+
+import scala.reflect.generic.Trees.This;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
@@ -61,6 +66,9 @@ public class ShareRestV2Controller extends BaseController implements ConstantPro
 
 	@Autowired
 	private ShareService shareService;
+
+	@Autowired
+	private RedisService redisService;
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SHARE_MAIL })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -84,22 +92,26 @@ public class ShareRestV2Controller extends BaseController implements ConstantPro
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_URL_SHORTEN })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/url/shorten/{contentOid}", method = { RequestMethod.POST })
-	public ModelAndView createContentShortenUrl(@PathVariable(CONTENT_OID) final String contentGooruOid, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+	public ModelAndView createContentShortenUrl(@PathVariable(CONTENT_OID) final String contentGooruOid, @RequestBody final String data, @RequestParam(value = CLEAR_CACHE, required = false, defaultValue = FALSE) final boolean clearCache, final HttpServletRequest request,
+			final HttpServletResponse response) throws Exception {
 		final JSONObject json = requestData(data);
-		return toModelAndView(this.getShareService().getShortenUrl(contentGooruOid, getValue(FULL_URL, json), Boolean.parseBoolean(getValue(CLEAR_CACHE, json))));
+		return toModelAndView(this.getShareService().getShortenUrl(getValue(FULL_URL, json), clearCache));
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_URL_SHORTEN })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/url/shorten", method = { RequestMethod.POST })
-	public ModelAndView createShortenUrl(@RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+	public ModelAndView createShortenUrl(@RequestBody final String data, @RequestParam(value = CLEAR_CACHE, required = false, defaultValue = FALSE) final boolean clearCache, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		final JSONObject json = requestData(data);
-		final User user = (User) request.getAttribute(Constants.USER);
-		return toModelAndView(this.getShareService().getShortenUrl(getValue(FULL_URL, json), Boolean.parseBoolean(getValue(CLEAR_CACHE, json)), user));
+		return toModelAndView(this.getShareService().getShortenUrl(getValue(FULL_URL, json), clearCache));
 	}
 
 	public ShareService getShareService() {
 		return shareService;
+	}
+
+	public RedisService getRedisService() {
+		return redisService;
 	}
 
 }

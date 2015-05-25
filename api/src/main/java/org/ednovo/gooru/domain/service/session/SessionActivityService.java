@@ -23,27 +23,28 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.domain.service.session;
 
+import java.io.File;
+
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
-import org.ednovo.gooru.core.api.model.Session;
-import org.ednovo.gooru.core.api.model.SessionItem;
-import org.ednovo.gooru.core.api.model.SessionItemAttemptTry;
-import org.ednovo.gooru.core.api.model.SessionItemFeedback;
+import org.ednovo.gooru.core.api.model.SessionActivity;
+import org.ednovo.gooru.core.api.model.SessionActivityItem;
+import org.ednovo.gooru.core.api.model.SessionActivityItemAttemptTry;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.domain.service.BaseService;
 
-public interface SessionService extends BaseService {
+public interface SessionActivityService extends BaseService {
 
-	ActionResponseDTO<Session> createSession(Session session, User user);
+	ActionResponseDTO<SessionActivity> createSessionActivity(SessionActivity sessionActivity, User user);
+
+	ActionResponseDTO<SessionActivity> updateSessionActivity(Long sessionActivityId, SessionActivity sessionActivity);
+
+	SessionActivityItem createOrUpdateSessionActivityItem(SessionActivityItem sessionActivityItem, Long sessionActivityId);
+
+	SessionActivityItemAttemptTry createSessionActivityItemAttemptTry(SessionActivityItemAttemptTry sessionActivityItemAttemptTry, Long sessionActivityId);
+
+	SessionActivity getSessionActivity(Long sessionActivityId);
+
+	File exportClass(String classGooruId);
 	
-	 SessionItemFeedback createSessionItemFeedback(String sessionId, SessionItemFeedback sessionItemFeedback, User user);
-
-	ActionResponseDTO<Session> updateSession(String sessionId, Session session);
-
-	ActionResponseDTO<SessionItem> createSessionItem(SessionItem sessionItem, String sessionId);
-
-	ActionResponseDTO<SessionItem> updateSessionItem(String sessionItemId, SessionItem newSessionItem);
-
-	SessionItemAttemptTry createSessionItemAttemptTry(SessionItemAttemptTry sessionItemAttemptTry, String sessionId);
-
-	Session getSession(String sessionId);
+	SessionActivityItem updateLastResourceSessionActivityItem(SessionActivityItem sessionActivityItem);
 }

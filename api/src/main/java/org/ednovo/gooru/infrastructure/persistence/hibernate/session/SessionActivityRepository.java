@@ -24,29 +24,35 @@
 package org.ednovo.gooru.infrastructure.persistence.hibernate.session;
 
 import java.util.List;
-import java.util.Map;
-
-import org.ednovo.gooru.core.api.model.Session;
-import org.ednovo.gooru.core.api.model.SessionItem;
-import org.ednovo.gooru.core.api.model.SessionItemAttemptTry;
-import org.ednovo.gooru.core.api.model.SessionItemFeedback;
+import org.ednovo.gooru.core.api.model.AssessmentQuestion;
+import org.ednovo.gooru.core.api.model.SessionActivity;
+import org.ednovo.gooru.core.api.model.SessionActivityItem;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepository;
 
-public interface SessionRepository extends BaseRepository {
+public interface SessionActivityRepository extends BaseRepository {
 
-	Session findSessionById(String sessionId);
+	SessionActivity getSessionActivityById(Long sessionActivityId);
 
-	SessionItem getLastSessionItem(String sessionId);
+	SessionActivityItem getSessionActivityItem(Long sessionActivityId, Long resourceId);
+	
+	Integer getSessionActivityCount(Long collectionId, Long parentId, String gooruUId);
+	
+	Integer getSessionActivityItemAttemptCount(Long sessionActivityId, Long resourceId);
 
-	SessionItem findSessionItemById(String sessionItemId);
+	List<Object[]> getClassReport(String classGooruId,String query);
 
-	List<SessionItemAttemptTry> getSessionItemAttemptTry(String sessionItemId);
-
-	Map<String, Object> getQuizSummary(String sessionId, Integer trySequence, String questionType, Long quizContentId);
-
-    String getQuestionStatus(String sessionId, Integer trySequence, String questionType, Long quizContentId, String questionId);
-    
-    SessionItemFeedback getSessionItemFeedback(String gooruOid, String gooruUid);
-
-
+	String getExportConfig(String key);
+	
+	Integer getSessionActivityReactionCount(Long sessionActivityId);
+	
+	Integer getSessionActivityRatingCount(Long sessionActivityId);
+	
+	Integer getQuestionCount(Long collectionId);
+	
+	Integer getTotalScore(Long sessionActivityId);
+	
+	AssessmentQuestion getQuestion(String gooruOid);
+	
+	SessionActivity getLastSessionActivity(Long parentId, Long collectionId, String userUid);
+	
 }
