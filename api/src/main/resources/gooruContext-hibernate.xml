@@ -296,6 +296,11 @@
 				<value>org/ednovo/gooru/domain/model/menu/MenuItem.hbm.xml</value>
 				<value>org/ednovo/gooru/domain/model/menu/MenuRoleAssoc.hbm.xml</value>
 				
+				<!-- Course -->
+				<value>org/ednovo/gooru/domain/model/core/Course.hbm.xml</value>
+				<value>org/ednovo/gooru/domain/model/core/Domain.hbm.xml</value>
+				
+				
 			</list>
 		</property>
 		<property name="hibernateProperties">
