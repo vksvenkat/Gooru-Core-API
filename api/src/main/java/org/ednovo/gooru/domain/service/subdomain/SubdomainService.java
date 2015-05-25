@@ -13,7 +13,7 @@ public interface SubdomainService {
 	
 	SearchResults<Subdomain> getSubdomain(Integer limit, Integer offset);
 
-	void deleteSubdomain(String subDomainId);
+	void deleteSubdomain(String subdomainId);
 
 	Subdomain updateSubdomain(Subdomain subdomain, User user, String subdomainId);
 	

@@ -3,6 +3,7 @@ package org.ednovo.gooru.controllers.v2.api;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.ednovo.gooru.controllers.BaseController;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Subdomain;
@@ -36,8 +37,12 @@ public class SubdomainRestV2Controller  extends BaseController implements Consta
 		@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 		public ModelAndView createSubdomain(HttpServletRequest request, HttpServletResponse response, @RequestBody String data)throws Exception{
 			User user = (User) request.getAttribute(Constants.USER);
-			ActionResponseDTO<Subdomain> subDomain = this.getSubdomainService().createSubdomain(buildSubdomainFromInputParameters(data),user);
-			return toModelAndViewWithIoFilter(subDomain.getModelData(), FORMAT_JSON, EXCLUDE_ALL, true, SUBDOMAIN_INCLUDES);
+			final ActionResponseDTO<Subdomain> responseDTO = this.getSubdomainService().createSubdomain(buildSubdomainFromInputParameters(data),user);
+			if (responseDTO.getErrors().getErrorCount() > 0) {
+				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			}
+			String includes[] = (String[]) ArrayUtils.addAll(SUBDOMAIN_INCLUDES,ERROR_INCLUDE);
+			return toModelAndViewWithIoFilter(responseDTO.getModelData(), FORMAT_JSON, EXCLUDE_ALL, true, includes);
 		}
 		
 		@AuthorizeOperations(operations = {GooruOperationConstants.OPERATION_SUBDOMAIN_READ})
