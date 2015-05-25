@@ -69,7 +69,7 @@ public class SubdomainRestV2Controller extends BaseController implements Constan
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SUBDOMAIN_READ })
-	@RequestMapping(method = RequestMethod.GET, value = " ")
+	@RequestMapping(method = RequestMethod.GET)
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ModelAndView getSubdomains(@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, HttpServletResponse response, HttpServletRequest request) throws Exception {
 		return toModelAndViewWithIoFilter(this.getSubdomainService().getSubdomain(limit, offset), FORMAT_JSON, EXCLUDE_ALL, true, SUBDOMAIN_INCLUDES);
