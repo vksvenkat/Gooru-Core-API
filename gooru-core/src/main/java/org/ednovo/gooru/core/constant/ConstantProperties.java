@@ -892,4 +892,8 @@ public interface ConstantProperties {
 	static String SUBJECT_INCLUDES[] = {"*.name","*.description","*.activeFlag","*.imagePath","*.displaySequence","*.createdOn","*.lastModified","*.totalHitCount", "*.searchResults"};
 	
 	static String SUBDOMAIN_INCLUDES[] = {"*.courseId","*.domainId","*.totalHitCount", "*.searchResults"};
+
+	public static final String PIPE = "|";
+	
+	public static final String COMMA = ",";
 }
