@@ -124,7 +124,7 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 				Integer questionCount = this.getSessionActivityRepository().getQuestionCount(sessionActivity.getCollectionId());
 				if (questionCount > 0) {
 					Integer totalScore = this.getSessionActivityRepository().getTotalScore(sessionActivityId);
-					Double scoreInPrecentage = (double) ((totalScore / questionCount) * 100);
+					Double scoreInPrecentage =  (double) (100 * totalScore / questionCount);
 					sessionActivity.setScore(scoreInPrecentage);
 				}
 			}
@@ -213,7 +213,7 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 		sessionActivityItem.setAnswerStatus(sessionActivityItemAttemptTry.getAnswerStatus());
 		sessionActivityItem.setAttemptCount(sessionActivityItemAttemptTry.getTrySequence());
 		sessionActivityItem.setAnswerText(sessionActivityItemAttemptTry.getAnswerText());
-		if (sessionActivityItem.getAnswerStatus() != null && !sessionActivityItem.getAnswerStatus().contains(AttemptTryStatus.WRONG.getTryStatus()) && !sessionActivityItem.getAnswerStatus().contains(AttemptTryStatus.SKIPPED.getTryStatus())) {
+		if (StringUtils.isNotBlank(sessionActivityItem.getAnswerStatus()) && sessionActivityItem.getQuestionType() != null && !sessionActivityItem.getQuestionType().equalsIgnoreCase(AssessmentQuestion.TYPE.OPEN_ENDED.getName())  && !sessionActivityItem.getAnswerStatus().contains(AttemptTryStatus.WRONG.getTryStatus()) && !sessionActivityItem.getAnswerStatus().contains(AttemptTryStatus.SKIPPED.getTryStatus())) {
 			sessionActivityItem.setScore(1.0);
 		} else {
 			sessionActivityItem.setScore(0.0);
@@ -302,5 +302,4 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 	public ResourceRepository getResourceRepository() {
 		return resourceRepository;
 	}
-
 }
