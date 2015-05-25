@@ -6,9 +6,12 @@ import java.io.PrintStream;
 import java.text.ParseException;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.ednovo.gooru.core.api.model.UserGroupSupport;
 import org.ednovo.gooru.core.constant.Constants;
 import org.springframework.stereotype.Service;
+
+import com.google.gdata.util.common.base.StringUtil;
 
 @Service
 public class CSVBuilderServiceImpl implements CSVBuilderService {
@@ -16,7 +19,7 @@ public class CSVBuilderServiceImpl implements CSVBuilderService {
 	public File generateCSVReport(List<Object[]> resultSet, List<String> headers, String fileName) throws ParseException, IOException {
 
 		// Set output File
-		File csvfile = new File(setFilePath(fileName));
+		File csvfile = new File(getFilePath(fileName));
 		@SuppressWarnings("resource")
 		PrintStream stream = new PrintStream(csvfile);
 
@@ -37,26 +40,13 @@ public class CSVBuilderServiceImpl implements CSVBuilderService {
 		return csvfile;
 	}
 
-	public String setFilePath(String file) {
-
-		String fileName = UserGroupSupport.getUserOrganizationNfsRealPath() + Constants.UPLOADED_MEDIA_FOLDER + "/";
-		if (file != null && (!file.isEmpty())) {
-			fileName += file;
-
-		} else {
-			fileName += "reports";
-		}
-		return fileName;
-	}
-
 	public String getFilePath(String file) {
 
-		String fileName = UserGroupSupport.getUserOrganizationNfsRealPath() + Constants.UPLOADED_MEDIA_FOLDER + "/";
-		if (file != null && (!file.isEmpty())) {
+		String fileName = UserGroupSupport.getUserOrganizationNfsInternalPath() + Constants.UPLOADED_MEDIA_FOLDER + "/";
+		if (StringUtils.isNotBlank(file)) {
 			fileName += file;
-
 		} else {
-			fileName += "report";
+			fileName += "reports";
 		}
 		return fileName;
 	}
