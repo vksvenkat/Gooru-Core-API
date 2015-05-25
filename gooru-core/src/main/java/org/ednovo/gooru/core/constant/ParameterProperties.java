@@ -2905,5 +2905,14 @@ public interface ParameterProperties {
 	String DOMAIN_ID = "domainId";
 	
 	String DISPLAY_SEQUENCE = "displaySequence";
+
+	String EXPORT_CLASS_QUERY = "class.export.query";
+	
+	String EXPORT_CLASS_HEADER = "class.export.header";
+	
+	String EXPORT_CLASS_FILENAME = "reports.csv";
+	
+	String CLASS_GOORU_ID = "classGooruId";
+	
 }
 
