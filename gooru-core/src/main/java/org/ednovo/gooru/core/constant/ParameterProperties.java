@@ -2914,5 +2914,7 @@ public interface ParameterProperties {
 	
 	String CLASS_GOORU_ID = "classGooruId";
 	
+	String DEPRICATED = "Depricated";
+	
 }
 

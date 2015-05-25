@@ -24,7 +24,7 @@
 package org.ednovo.gooru.domain.service.subject;
 
 import java.util.Date;
-import org.ednovo.gooru.core.exception.BadRequestException;
+
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Subject;
 import org.ednovo.gooru.core.api.model.User;
@@ -47,9 +47,7 @@ public class SubjectServiceImpl extends BaseServiceImpl implements SubjectServic
 	public ActionResponseDTO<Subject> createSubject(Subject subject, User user) {
 		final Errors errors = validateSubject(subject);
 		if (!errors.hasErrors()) {
-			if (subject.getActiveFlag() > 1 || subject.getActiveFlag() < 0) {
-				throw new BadRequestException(generateErrorMessage(GL0056, ACTIVE_FLAG), GL0056);
-			}
+			reject((subject.getActiveFlag() > 1 || subject.getActiveFlag() < 0), generateErrorMessage(GL0007, ACTIVE_FLAG));
 			subject.setCreatedOn(new Date(System.currentTimeMillis()));
 			subject.setLastModified(new Date(System.currentTimeMillis()));
 			subject.setCreator(user);
@@ -63,8 +61,8 @@ public class SubjectServiceImpl extends BaseServiceImpl implements SubjectServic
 	public Subject getSubject(String subjectId) {
 		Subject subject = (Subject) subjectRepository.getSubject(subjectId);
 		rejectIfNull(subject, GL0056, 404, generateErrorMessage(GL0056, SUBJECT));
-		reject((subject.getActiveFlag() == 1), "this is Depricated");
-		return (Subject) subjectRepository.getSubject(subjectId);
+		reject((subject.getActiveFlag() == 1), generateErrorMessage(DEPRICATED));
+		return  subjectRepository.getSubject(subjectId);
 	}
 
 	@Override
