@@ -144,10 +144,6 @@ public class Resource extends Content implements Serializable {
 
 	private String numOfPages;
 
-	private Integer votesUp = 0;
-
-	private Integer votesDown = 0;
-
 	private String vocabulary;
 
 	private String grade;
@@ -627,22 +623,6 @@ public class Resource extends Content implements Serializable {
 
 	public String getNumOfPages() {
 		return numOfPages;
-	}
-
-	public void setVotesUp(Integer votesUp) {
-		this.votesUp = votesUp;
-	}
-
-	public Integer getVotesUp() {
-		return votesUp;
-	}
-
-	public void setVotesDown(Integer votesDown) {
-		this.votesDown = votesDown;
-	}
-
-	public Integer getVotesDown() {
-		return votesDown;
 	}
 
 	public void setVocabulary(String vocabulary) {
