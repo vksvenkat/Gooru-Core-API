@@ -705,6 +705,8 @@ public interface ParameterProperties {
 	String DISPLAY_SEQUENCE = "displaySequence";
 	
 	String DOMAIN_ = "domain";
+	
+	String DOMAIN_ID = "domainId";
 
 	String CURRICULUM_DESC = "curriculumDesc";
 

@@ -35,15 +35,21 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class DomainRepositoryHibernate extends BaseRepositoryHibernate implements DomainRepository, ParameterProperties, ConstantProperties {
 
+	private static final String GET_DOMAIN = "FROM Domain d  WHERE d.domainId=:domainId"; 
+	
+	private static final String GET_DOMAINS = "FROM Domain"; 
+	
+	private static final String GET_COUNT = "SELECT COUNT(*) FROM Course";
+
 	@Override
 	public Domain getDomain(Integer domainId) {
-		Query query = getSession().createQuery("FROM Domain d  WHERE d.domainId=:domainId").setParameter("domainId", domainId);
+		Query query = getSession().createQuery(GET_DOMAIN).setParameter(DOMAIN_ID, domainId);
 		return (Domain) (query.list().size() > 0 ? query.list().get(0) : null);
 	}
 
 	@Override
 	public List<Domain> getDomains(Integer limit, Integer offset) {
-		Query query = getSession().createQuery("FROM Domain");
+		Query query = getSession().createQuery(GET_DOMAINS);
 		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : limit);
 		query.setFirstResult(offset);
 		return list(query);
@@ -52,7 +58,7 @@ public class DomainRepositoryHibernate extends BaseRepositoryHibernate implement
 	@Override
 	public Long getDomainCount() {
 
-		Query query = getSession().createQuery("SELECT COUNT(*) FROM Course");
+		Query query = getSession().createQuery(GET_COUNT);
 		return (Long) (query.list().size() > 0 ? query.list().get(0) : 0);
 	}
 

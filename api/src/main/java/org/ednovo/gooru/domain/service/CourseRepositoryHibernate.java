@@ -35,21 +35,31 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class CourseRepositoryHibernate extends BaseRepositoryHibernate implements CourseRepository, ParameterProperties, ConstantProperties {
 
+	private static final String GET_COURSE = "FROM Course c  WHERE c.courseId=:courseId"; 
+
+	private static final String GET_COURSE_CODE = "FROM Course c  WHERE c.courseCode=:courseCode"; 
+
+	private static final String GET_COURSES = "FROM Course"; 
+	
+	private static final String GET_COUNT = "SELECT COUNT(*) FROM Course"; 
+
+
+	
 	@Override
 	public Course getCourse(Integer courseId) {
-		Query query = getSession().createQuery("FROM Course c  WHERE c.courseId=:courseId").setParameter("courseId", courseId);
+		Query query = getSession().createQuery(GET_COURSE).setParameter(COURSE_ID, courseId);
 		return (Course) (query.list().size() > 0 ? query.list().get(0) : null);
 	}
 
 	@Override
 	public Course getCourseCode(String courseCode) {
-		Query query = getSession().createQuery("FROM Course c  WHERE c.courseCode=:courseCode").setParameter("courseCode", courseCode);
+		Query query = getSession().createQuery(GET_COURSE_CODE).setParameter(COURSE_CODE, courseCode);
 		return (Course) (query.list().size() > 0 ? query.list().get(0) : null);
 	}
 
 	@Override
 	public List<Course> getCourses(Integer limit, Integer offset) {
-		Query query = getSession().createQuery("FROM Course");
+		Query query = getSession().createQuery(GET_COURSES);
 		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : limit);
 		query.setFirstResult(offset);
 		return list(query);
@@ -57,8 +67,7 @@ public class CourseRepositoryHibernate extends BaseRepositoryHibernate implement
 
 	@Override
 	public Long getCourseCount() {
-		Query query = getSession().createQuery("SELECT COUNT(*) FROM Course");
+		Query query = getSession().createQuery(GET_COUNT);
 		return (Long) (query.list().size() > 0 ? query.list().get(0) : 0);
 	}
-
 }
