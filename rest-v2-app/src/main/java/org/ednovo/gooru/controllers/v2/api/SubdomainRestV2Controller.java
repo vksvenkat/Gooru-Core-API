@@ -86,9 +86,9 @@ public class SubdomainRestV2Controller extends BaseController implements Constan
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SUBDOMAIN_UPDATE })
 	@RequestMapping(method = RequestMethod.PUT, value = "/{id}")
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public ModelAndView updateSubdomain(HttpServletResponse response, HttpServletRequest request, @RequestBody String data, @PathVariable(ID) Integer subDomainId) throws Exception {
+	public ModelAndView updateSubdomain(HttpServletResponse response, HttpServletRequest request, @RequestBody String data, @PathVariable(ID) Integer subdomainId) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
-		return toModelAndViewWithIoFilter(this.getSubdomainService().updateSubdomain(buildSubdomainFromInputParameters(data), user, subDomainId), FORMAT_JSON, EXCLUDE_ALL, true, SUBDOMAIN_INCLUDES);
+		return toModelAndViewWithIoFilter(this.getSubdomainService().updateSubdomain(buildSubdomainFromInputParameters(data), user, subdomainId), FORMAT_JSON, EXCLUDE_ALL, true, SUBDOMAIN_INCLUDES);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SUBDOMAIN_DELETE })

@@ -47,7 +47,6 @@ public class SubjectServiceImpl extends BaseServiceImpl implements SubjectServic
 	public ActionResponseDTO<Subject> createSubject(Subject subject, User user) {
 		final Errors errors = validateSubject(subject);
 		if (!errors.hasErrors()) {
-			reject(!(subject.getActiveFlag() > 1 || subject.getActiveFlag() < 0),GL0007,ACTIVE_FLAG);
 			subject.setCreatedOn(new Date(System.currentTimeMillis()));
 			subject.setLastModified(new Date(System.currentTimeMillis()));
 			subject.setActiveFlag((short) 1);
@@ -87,16 +86,18 @@ public class SubjectServiceImpl extends BaseServiceImpl implements SubjectServic
 	public Subject updateSubject(Subject subject, User user, Integer subjectId) {
 		Subject oldSubject = subjectRepository.getSubject(subjectId);
 		rejectIfNull(oldSubject, GL0056, 404, SUBJECT);
-		if (subject.getDescription() != null)
+		if (subject.getDescription() != null){
 			oldSubject.setDescription(subject.getDescription());
-		if (subject.getImagePath() != null)
+		}
+		if (subject.getImagePath() != null){
 			oldSubject.setImagePath(subject.getImagePath());
-		if (subject.getName() != null)
+		}
+		if (subject.getName() != null){
 			oldSubject.setName(subject.getName());
-		if (subject.getDisplaySequence() != null)
+		}
+		if (subject.getDisplaySequence() != null){
 			oldSubject.setDisplaySequence(subject.getDisplaySequence());
-		if (subject.getActiveFlag() >= 0)
-			oldSubject.setActiveFlag(subject.getActiveFlag());
+		}
 		oldSubject.setLastModified(new Date(System.currentTimeMillis()));
 		subjectRepository.save(oldSubject);
 		return oldSubject;
