@@ -2895,7 +2895,9 @@ public interface ParameterProperties {
 	String PAGE_INFO = "pageInfo";
 	
 	String TOTAL_RESULTS = "totalResults";
-	
+		
+	String DISPLAY_SEQUENCE = "displaySequence";
+
 	String EXPORT_CLASS_QUERY = "class.export.query";
 	
 	String EXPORT_CLASS_HEADER = "class.export.header";
@@ -2903,6 +2905,8 @@ public interface ParameterProperties {
 	String EXPORT_CLASS_FILENAME = "reports.csv";
 	
 	String CLASS_GOORU_ID = "classGooruId";
+	
+	String GL0107 = "GL0107";
 	
 }
 
