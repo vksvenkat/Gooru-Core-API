@@ -26,48 +26,34 @@ package org.ednovo.gooru.core.api.model;
 import java.io.Serializable;
 import java.util.Date;
 
-import javax.persistence.Column;
-import javax.persistence.Id;
 
 public class Course extends OrganizationModel implements Serializable {
 	
 	
 	private static final long serialVersionUID = -1775302177846507373L;
 	
-	@Id
 	private Integer courseId;
 
-	@Column
 	private String name;
 
-	@Column
 	private String description;
 	
-	@Id
 	private Integer subjectId;
 
-	@Column
 	private String courseCode;
 	
-	@Column
 	private String grades;
 	
-	@Column
 	private Short activeFlag;
 
-	@Column
 	private String imagePath;
 	
-	@Column
 	private User creatorUid;
 	
-	@Column
 	private Integer displaySequence;
 
-	@Column
 	private Date createdOn;
 	
-	@Column
 	private Date lastModified;
  
 

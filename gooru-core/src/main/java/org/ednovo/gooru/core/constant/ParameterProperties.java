@@ -696,13 +696,13 @@ public interface ParameterProperties {
 
 	String COURSE = "course";
 	
-	String SUBJECT_ID = "subject_id";
+	String SUBJECT_ID = "subjectId";
 	
-	String COURSE_ID = "course_id";
+	String COURSE_ID = "courseId";
 	
-	String COURSE_CODE = "course_code";
+	String COURSE_CODE = "courseCode";
 	
-	String DISPLAY_SEQUENCE = "display_sequence";
+	String DISPLAY_SEQUENCE = "displaySequence";
 	
 	String DOMAIN_ = "domain";
 

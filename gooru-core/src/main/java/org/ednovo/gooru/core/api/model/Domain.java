@@ -26,34 +26,25 @@ package org.ednovo.gooru.core.api.model;
 import java.io.Serializable;
 import java.util.Date;
 
-import javax.persistence.Column;
 
 public class Domain extends OrganizationModel implements Serializable {
 
 	private static final long serialVersionUID = -1775302177846507373L;
 
-	@Column
 	private Integer domainId;
 
-	@Column
 	private String name;
 
-	@Column
 	private String description;
 
-	@Column
 	private Short activeFlag;
 
-	@Column
 	private String imagePath;
 
-	@Column
 	private Integer displaySequence;
 
-	@Column
 	private Date createdOn;
 
-	@Column
 	private Date lastModified;
 
 	public String getName() {

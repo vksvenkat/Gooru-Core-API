@@ -114,9 +114,9 @@ public class CourseServiceImpl extends BaseServiceImpl implements CourseService,
 
 	private Errors validateCourse(Course course) {
 		final Errors error = new BindException(course, COURSE);
-		rejectIfNull(error,course.getSubjectId(), GL0006, SUBJECT_ID);
-		rejectIfNull(error,course.getCourseCode(), GL0006, COURSE_CODE);
-		rejectIfNull(error,course.getDisplaySequence(), GL0006, DISPLAY_SEQUENCE);
+		rejectIfNull(error,course.getSubjectId(), GL0006, generateErrorMessage(GL0006, SUBJECT_ID));
+		rejectIfNull(error,course.getCourseCode(), GL0006,  generateErrorMessage(GL0006, COURSE_CODE));
+		rejectIfNull(error,course.getDisplaySequence(), GL0006,  generateErrorMessage(GL0006, DISPLAY_SEQUENCE));
 		return error;
 	}
 
