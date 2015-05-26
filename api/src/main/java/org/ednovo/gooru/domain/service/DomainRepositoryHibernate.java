@@ -59,7 +59,7 @@ public class DomainRepositoryHibernate extends BaseRepositoryHibernate implement
 	public Long getDomainCount() {
 
 		Query query = getSession().createQuery(GET_COUNT);
-		return (Long) (query.list().size() > 0 ? query.list().get(0) : 0);
+		return (Long) query.list().get(0);
 	}
 
 }

@@ -40,82 +40,82 @@ import org.springframework.validation.Errors;
 @Service
 public class DomainServiceImpl extends BaseServiceImpl implements DomainService, ParameterProperties, ConstantProperties {
 
-		@Autowired
-		private DomainRepository domainRepository;
+	@Autowired
+	private DomainRepository domainRepository;
 
-		@Override
-		public ActionResponseDTO<Domain> createDomain(Domain domain,User user) {
-			
-			final Errors error = validateDomain(domain);
-			if (!error.hasErrors()) {
+	@Override
+	public ActionResponseDTO<Domain> createDomain(Domain domain, User user) {
+
+		final Errors error = validateDomain(domain);
+		if (!error.hasErrors()) {
 			domain.setOrganization(user.getOrganization());
 			domain.setCreatedOn(new Date(System.currentTimeMillis()));
 			domain.setLastModified(new Date(System.currentTimeMillis()));
-			domain.setActiveFlag((short)1);
-			domainRepository.save(domain);
-			}
-			return new ActionResponseDTO<Domain>(domain,error);
-		}
-		
-		@Override
-		public Domain updateDomain(Integer domainId,Domain domain) {
-			Domain newDomain = this.getDomainRepository().getDomain(domainId);
-			if (domain.getName() != null) {
-				newDomain.setName(domain.getName());
-			}
-			if (domain.getDescription() != null) {
-				newDomain.setDescription(domain.getDescription());
-			}
-			if (domain.getImagePath() != null) {
-				newDomain.setImagePath(domain.getImagePath());
-			}
-			if (domain.getDisplaySequence() != null) {
-				newDomain.setDisplaySequence(domain.getDisplaySequence());
-			}
-			if (domain.getActiveFlag() != null) {
-				newDomain.setActiveFlag(domain.getActiveFlag());
-			}
-			newDomain.setLastModified(new Date(System.currentTimeMillis()));
-			this.getDomainRepository().save(newDomain);
-			return domain;
-		}
-
-		@Override
-		public Domain getDomain(Integer domainId) {
-			Domain domain = this.getDomainRepository().getDomain(domainId);
-			 if(domain.getActiveFlag() == 0){
-					throw new BadRequestException(generateErrorMessage(GL0107, DEACTIVATE_DOMAIN), GL0107);
-			 }
-			rejectIfNull(domain, GL0056, 404, DOMAIN_);
-			return domain;
-		}
-		@Override
-		public SearchResults<Domain> getDomains(Integer limit, Integer offset) {
-			SearchResults<Domain> result = new SearchResults<Domain>();
-			result.setSearchResults(this.getDomainRepository().getDomains(limit, offset));
-			result.setTotalHitCount(this.getDomainRepository().getDomainCount());
-			return result;
-		}
-		
-		@Override
-		public void deleteDomain(Integer domainId) {
-			Domain domain = this.getDomainRepository().getDomain(domainId);
-			rejectIfNull(domain, GL0056, 404, DOMAIN_);
-			domain.setActiveFlag((short)0);
-			domain.setLastModified(new Date(System.currentTimeMillis()));
+			domain.setActiveFlag((short) 1);
 			domainRepository.save(domain);
 		}
+		return new ActionResponseDTO<Domain>(domain, error);
+	}
 		
-		private Errors validateDomain(Domain domain) {
-			final Errors error = new BindException(domain, DOMAIN_);
-			rejectIfNull(domain.getName(),GL0006, NAME);
-			rejectIfNull(domain.getDisplaySequence(),GL0006,DISPLAY_SEQUENCE);
-			return error;
+	@Override
+	public Domain updateDomain(Integer domainId, Domain newDomain) {
+		Domain domain = this.getDomainRepository().getDomain(domainId);
+		if (newDomain.getName() != null) {
+			domain.setName(domain.getName());
 		}
-	
-		public DomainRepository getDomainRepository () {
-			return domainRepository;
+		if (newDomain.getDescription() != null) {
+			domain.setDescription(domain.getDescription());
 		}
+		if (newDomain.getImagePath() != null) {
+			domain.setImagePath(domain.getImagePath());
+		}
+		if (newDomain.getDisplaySequence() != null) {
+			domain.setDisplaySequence(domain.getDisplaySequence());
+		}
+		if (newDomain.getActiveFlag() != null) {
+			domain.setActiveFlag(domain.getActiveFlag());
+		}
+		domain.setLastModified(new Date(System.currentTimeMillis()));
+		this.getDomainRepository().save(domain);
+		return domain;
+	}
 
+	@Override
+	public Domain getDomain(Integer domainId) {
+		Domain domain = this.getDomainRepository().getDomain(domainId);
+		if (domain.getActiveFlag() == 0) {
+			throw new BadRequestException(generateErrorMessage(GL0107, DEACTIVATE_DOMAIN), GL0107);
+		}
+		rejectIfNull(domain, GL0056, 404, DOMAIN_);
+		return domain;
+	}
 
-   }
+	@Override
+	public SearchResults<Domain> getDomains(Integer limit, Integer offset) {
+		SearchResults<Domain> result = new SearchResults<Domain>();
+		result.setSearchResults(this.getDomainRepository().getDomains(limit, offset));
+		result.setTotalHitCount(this.getDomainRepository().getDomainCount());
+		return result;
+	}
+
+	@Override
+	public void deleteDomain(Integer domainId) {
+		Domain domain = this.getDomainRepository().getDomain(domainId);
+		rejectIfNull(domain, GL0056, 404, DOMAIN_);
+		domain.setActiveFlag((short) 0);
+		domain.setLastModified(new Date(System.currentTimeMillis()));
+		domainRepository.save(domain);
+	}
+
+	private Errors validateDomain(Domain domain) {
+		final Errors error = new BindException(domain, DOMAIN_);
+		rejectIfNull(domain.getName(), GL0006, NAME);
+		rejectIfNull(domain.getDisplaySequence(), GL0006, DISPLAY_SEQUENCE);
+		return error;
+	}
+
+	public DomainRepository getDomainRepository() {
+		return domainRepository;
+	}
+
+}

@@ -32,7 +32,7 @@ public interface DomainService {
 	
 	ActionResponseDTO<Domain> createDomain(Domain domain,User user);
 	
-	Domain updateDomain(Integer domainId, Domain domain);
+	Domain updateDomain(Integer domainId, Domain newDomain);
 
 	Domain getDomain(Integer domainId);
 

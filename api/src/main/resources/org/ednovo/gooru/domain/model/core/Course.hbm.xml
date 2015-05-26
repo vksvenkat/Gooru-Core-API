@@ -31,13 +31,13 @@
 	    <id name="courseId" column="course_id" unsaved-value="null">
   			<generator class="identity" />
 	    </id>
-	    <property name="name" column="name" length="20" not-null="false">   
+	    <property name="name" column="name" not-null="false">   
 	    </property> 			 
-		<property name="description" column="description" length="20" not-null="false">	        
+		<property name="description" column="description" not-null="false">	        
 	    </property> 
-	    <property name="courseCode" column="course_code" length="20" not-null="true">	        
+	    <property name="courseCode" column="course_code" not-null="true">	        
 	    </property> 
-	    <property name="grades" column="grades" length="20" not-null="false">	        
+	    <property name="grades" column="grades" not-null="false">	        
 	    </property> 
 	    <property name="subjectId" column="subject_id" not-null="true" >	        
 	    </property>      

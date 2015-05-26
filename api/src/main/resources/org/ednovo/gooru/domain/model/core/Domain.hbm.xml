@@ -31,9 +31,9 @@
 	    <id name="domainId" column="domain_id">	
 	        <generator class="identity" />
 	   </id>
-	    <property name="name" column="name" length="20" not-null="true">	        
+	    <property name="name" column="name"  not-null="true">	        
 	    </property>		 
-		<property name="description" column="description" length="20" not-null="false">	        
+		<property name="description" column="description"  not-null="false">	        
 	    </property> 
 	    <property name="activeFlag" column="active_flag" not-null="true">
 		</property>

@@ -60,29 +60,29 @@ public class CourseServiceImpl extends BaseServiceImpl implements CourseService,
 	}
 
 	@Override
-	public Course updateCourse(Integer courseId, Course course, User user) {
-		Course newCourse = this.getCourseRepository().getCourse(courseId);
-		rejectIfNull(course, GL0006, 404, SUBJECT_ID);
-		if (course.getName() != null) {
-			newCourse.setName(course.getName());
+	public Course updateCourse(Integer courseId, Course newCourse, User user) {
+		Course course = this.getCourseRepository().getCourse(courseId);
+		rejectIfNull(course, GL0006, 404, COURSE);
+		if (newCourse.getName() != null) {
+			course.setName(course.getName());
 		}
-		if (course.getDescription() != null) {
-			newCourse.setDescription(course.getDescription());
+		if (newCourse.getDescription() != null) {
+			course.setDescription(course.getDescription());
 		}
-		if (course.getGrades() != null) {
-			newCourse.setGrades(course.getGrades());
+		if (newCourse.getGrades() != null) {
+			course.setGrades(course.getGrades());
 		}
-		if (course.getImagePath() != null) {
-			newCourse.setImagePath(course.getImagePath());
+		if (newCourse.getImagePath() != null) {
+			course.setImagePath(course.getImagePath());
 		}
-		if (course.getDisplaySequence() != null) {
-			newCourse.setDisplaySequence(course.getDisplaySequence());
+		if (newCourse.getDisplaySequence() != null) {
+			course.setDisplaySequence(course.getDisplaySequence());
 		}
-		if(course.getActiveFlag() != null){
-			newCourse.setActiveFlag(course.getActiveFlag());
+		if(newCourse.getActiveFlag() != null){
+			course.setActiveFlag(course.getActiveFlag());
 		}
-		newCourse.setLastModified(new Date(System.currentTimeMillis()));
-		this.getCourseRepository().save(newCourse);
+		course.setLastModified(new Date(System.currentTimeMillis()));
+		this.getCourseRepository().save(course);
 		return course;
 	}
 
@@ -109,6 +109,7 @@ public class CourseServiceImpl extends BaseServiceImpl implements CourseService,
 		Course course = this.getCourseRepository().getCourse(courseId);
 		rejectIfNull(course, GL0056, 404, COURSE);
 		course.setActiveFlag((short) 0);
+		course.setLastModified(new Date(System.currentTimeMillis()));
 		courseRepository.save(course);
 	}
 
