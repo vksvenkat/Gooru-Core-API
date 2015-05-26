@@ -40,7 +40,7 @@ public class SubdomainRepositoryHibernate extends BaseRepositoryHibernate implem
 	public Subdomain getSubdomain(Integer subdomainId) {
 		String hql = "FROM Subdomain subdomain WHERE subdomain.subdomainId=:subdomainId";
 		Query query = getSession().createQuery(hql).setParameter("subdomainId", subdomainId);
-		return (Subdomain) query.list().get(0);
+		return (Subdomain) (query.list().size() > 0 ? query.list().get(0) : null);
 	}
 
 	@Override
@@ -54,7 +54,7 @@ public class SubdomainRepositoryHibernate extends BaseRepositoryHibernate implem
 	@Override
 	public Long getSubdomainCount() {
 		Query query = getSession().createQuery(SUBDOMAIN_COUNT);
-		return (Long) (query.list().size() > 0 ? query.list().get(0) : 0);
+		return (Long) query.list().get(0);
 	}
 
 }

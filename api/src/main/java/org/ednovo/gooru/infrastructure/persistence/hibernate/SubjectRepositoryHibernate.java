@@ -40,7 +40,7 @@ public class SubjectRepositoryHibernate extends BaseRepositoryHibernate implemen
 	public Subject getSubject(Integer subjectId) {
 		String hql = "FROM Subject subject WHERE subject.subjectId=:subjectId";
 		Query query = getSession().createQuery(hql).setParameter("subjectId", subjectId);
-		return (Subject) query.list().get(0);
+		return (Subject) (query.list().size() > 0 ? query.list().get(0) : null);
 	}
 
 	@Override

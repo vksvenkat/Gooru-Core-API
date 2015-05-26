@@ -46,7 +46,7 @@ public class SubdomainServiceImpl extends BaseServiceImpl implements SubdomainSe
 
 	@Override
 	public ActionResponseDTO<Subdomain> createSubdomain(Subdomain subdomain, User user) {
-		final Errors errors = validateNullFields(subdomain);
+		final Errors errors = validateSubdomain(subdomain);
 		if (!errors.hasErrors()) {
 			subdomain.setCreatedOn(new Date(System.currentTimeMillis()));
 			this.getSubdomainRepository().save(subdomain);
@@ -56,7 +56,7 @@ public class SubdomainServiceImpl extends BaseServiceImpl implements SubdomainSe
 
 	@Override
 	public Subdomain getSubdomain(Integer subdomainId) {
-		Subdomain subdomain = subdomainRepository.getSubdomain(subdomainId);
+		Subdomain subdomain = this.getSubdomainRepository().getSubdomain(subdomainId);
 		rejectIfNull(subdomain, GL0056, 404, SUBDOMAIN);
 		return subdomain;
 	}
@@ -72,12 +72,12 @@ public class SubdomainServiceImpl extends BaseServiceImpl implements SubdomainSe
 
 	@Override
 	public void deleteSubdomain(Integer subdomainId) {
-		Subdomain subdomain = subdomainRepository.getSubdomain(subdomainId);
+		Subdomain subdomain = this.getSubdomainRepository().getSubdomain(subdomainId);
 		rejectIfNull(subdomain, GL0056, 404,SUBDOMAIN);
-		subdomainRepository.remove(subdomain);
+		this.getSubdomainRepository().remove(subdomain);
 	}
 
-	private Errors validateNullFields(Subdomain subdomain) {
+	private Errors validateSubdomain(Subdomain subdomain) {
 		final Errors errors = new BindException(subdomain, SUBDOMAIN);
 		rejectIfNull(errors, subdomain.getCourseId(), COURSE_ID, generateErrorMessage(GL0006, COURSE_ID));
 		rejectIfNull(errors, subdomain.getDomainId(), DOMAIN_ID, generateErrorMessage(GL0006, DOMAIN_ID));
