@@ -64,22 +64,22 @@ public class CourseServiceImpl extends BaseServiceImpl implements CourseService,
 		Course course = this.getCourseRepository().getCourse(courseId);
 		rejectIfNull(course, GL0006, 404, COURSE);
 		if (newCourse.getName() != null) {
-			course.setName(course.getName());
+			course.setName(newCourse.getName());
 		}
 		if (newCourse.getDescription() != null) {
-			course.setDescription(course.getDescription());
+			course.setDescription(newCourse.getDescription());
 		}
 		if (newCourse.getGrades() != null) {
-			course.setGrades(course.getGrades());
+			course.setGrades(newCourse.getGrades());
 		}
 		if (newCourse.getImagePath() != null) {
-			course.setImagePath(course.getImagePath());
+			course.setImagePath(newCourse.getImagePath());
 		}
 		if (newCourse.getDisplaySequence() != null) {
-			course.setDisplaySequence(course.getDisplaySequence());
+			course.setDisplaySequence(newCourse.getDisplaySequence());
 		}
 		if(newCourse.getActiveFlag() != null){
-			course.setActiveFlag(course.getActiveFlag());
+			course.setActiveFlag(newCourse.getActiveFlag());
 		}
 		course.setLastModified(new Date(System.currentTimeMillis()));
 		this.getCourseRepository().save(course);
