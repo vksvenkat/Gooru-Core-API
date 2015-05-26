@@ -38,8 +38,9 @@ public class SubjectRepositoryHibernate extends BaseRepositoryHibernate implemen
 
 	@Override
 	public Subject getSubject(Integer subjectId) {
-		String hql = "FROM Subject subject WHERE subject.subjectId = '" + subjectId + "'";
-		return get(hql);
+		String hql = "FROM Subject subject WHERE subject.subjectId=:subjectId";
+		Query query = getSession().createQuery(hql).setParameter("subjectId", subjectId);
+		return (Subject) query.list().get(0);
 	}
 
 	@Override
@@ -53,7 +54,7 @@ public class SubjectRepositoryHibernate extends BaseRepositoryHibernate implemen
 	@Override
 	public Long getSubjectCount() {
 		Query query = getSession().createQuery(SUBJECT_COUNT);
-		return (Long) (query.list().size() > 0 ? query.list().get(0) : 0);
+		return (Long) query.list().get(0);
 	}
 
 }

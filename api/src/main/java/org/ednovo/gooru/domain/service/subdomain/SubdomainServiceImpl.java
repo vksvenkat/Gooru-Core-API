@@ -28,6 +28,7 @@ import java.util.Date;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Subdomain;
 import org.ednovo.gooru.core.api.model.User;
+import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.domain.service.BaseServiceImpl;
 import org.ednovo.gooru.domain.service.search.SearchResults;
@@ -38,7 +39,7 @@ import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
 
 @Service
-public class SubdomainServiceImpl extends BaseServiceImpl implements SubdomainService, ParameterProperties {
+public class SubdomainServiceImpl extends BaseServiceImpl implements SubdomainService, ParameterProperties, ConstantProperties {
 
 	@Autowired
 	private SubdomainRepository subdomainRepository;
@@ -56,7 +57,7 @@ public class SubdomainServiceImpl extends BaseServiceImpl implements SubdomainSe
 	@Override
 	public Subdomain getSubdomain(Integer subdomainId) {
 		Subdomain subdomain = subdomainRepository.getSubdomain(subdomainId);
-		rejectIfNull(subdomain, GL0056, 404, generateErrorMessage(GL0056, SUBDOMAIN));
+		rejectIfNull(subdomain, GL0056, 404, SUBDOMAIN);
 		return subdomain;
 	}
 
@@ -72,22 +73,8 @@ public class SubdomainServiceImpl extends BaseServiceImpl implements SubdomainSe
 	@Override
 	public void deleteSubdomain(Integer subdomainId) {
 		Subdomain subdomain = subdomainRepository.getSubdomain(subdomainId);
-		rejectIfNull(subdomain, GL0056, 404, generateErrorMessage(GL0056, SUBDOMAIN));
-		this.subdomainRepository.remove(subdomain);
-	}
-
-	@Override
-	public Subdomain updateSubdomain(Subdomain subdomain, User user, Integer subdomainId) {
-		Subdomain oldSubdomain = subdomainRepository.getSubdomain(subdomainId);
-		rejectIfNull(oldSubdomain, GL0056, 404, SUBDOMAIN);
-		if (subdomain.getCourseId() != null) {
-			oldSubdomain.setCourseId(subdomain.getCourseId());
-		}
-		if (subdomain.getDomainId() != null) {
-			oldSubdomain.setDomainId(subdomain.getDomainId());
-		}
-		subdomainRepository.save(oldSubdomain);
-		return oldSubdomain;
+		rejectIfNull(subdomain, GL0056, 404,SUBDOMAIN);
+		subdomainRepository.remove(subdomain);
 	}
 
 	private Errors validateNullFields(Subdomain subdomain) {

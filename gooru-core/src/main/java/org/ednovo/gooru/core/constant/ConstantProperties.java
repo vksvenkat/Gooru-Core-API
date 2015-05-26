@@ -896,4 +896,10 @@ public interface ConstantProperties {
 	public static final String PIPE = "|";
 	
 	public static final String COMMA = ",";
+	
+	static String SUBDOMAIN = "subdomain";
+	
+	static String COURSE_ID = "courseId";
+	
+	static String DOMAIN_ID = "domainId";
 }

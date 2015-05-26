@@ -37,7 +37,5 @@ public interface SubdomainService {
 	SearchResults<Subdomain> getSubdomain(Integer limit, Integer offset);
 
 	void deleteSubdomain(Integer subdomainId);
-
-	Subdomain updateSubdomain(Subdomain subdomain, User user, Integer subdomainId);
 	
 }

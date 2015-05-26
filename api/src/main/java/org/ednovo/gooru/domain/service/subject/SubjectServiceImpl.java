@@ -60,15 +60,15 @@ public class SubjectServiceImpl extends BaseServiceImpl implements SubjectServic
 	@Override
 	public Subject getSubject(Integer subjectId) {
 		Subject subject = subjectRepository.getSubject(subjectId);
-		rejectIfNull(subject, GL0056, 404, generateErrorMessage(GL0056, SUBJECT));
-		reject((subject.getActiveFlag() == 1), DEPRICATED);
+		rejectIfNull(subject, GL0056, 404, SUBJECT);
+		reject((subject.getActiveFlag() == 1), GL0107, SUBJECT);
 		return subject;
 	}
 
 	@Override
 	public void deleteSubject(Integer subjectId) {
 		Subject subject = subjectRepository.getSubject(subjectId);
-		rejectIfNull(subject, GL0056, 404, generateErrorMessage(GL0056, SUBJECT));
+		rejectIfNull(subject, GL0056, 404, SUBJECT);
 		subject.setActiveFlag((short) 0);
 		subject.setLastModified(new Date(System.currentTimeMillis()));
 		subjectRepository.save(subject);
@@ -83,24 +83,25 @@ public class SubjectServiceImpl extends BaseServiceImpl implements SubjectServic
 	}
 
 	@Override
-	public Subject updateSubject(Subject subject, User user, Integer subjectId) {
-		Subject oldSubject = subjectRepository.getSubject(subjectId);
-		rejectIfNull(oldSubject, GL0056, 404, SUBJECT);
-		if (subject.getDescription() != null){
-			oldSubject.setDescription(subject.getDescription());
+	public Subject updateSubject(Subject newSubject, User user, Integer subjectId) {
+		Subject subject = subjectRepository.getSubject(subjectId);
+		rejectIfNull(subject, GL0056, 404, SUBJECT);
+		reject(!(newSubject.getActiveFlag() == 1), GL0007, ACTIVE_FLAG);
+		if (newSubject.getDescription() != null) {
+			subject.setDescription(newSubject.getDescription());
 		}
-		if (subject.getImagePath() != null){
-			oldSubject.setImagePath(subject.getImagePath());
+		if (newSubject.getImagePath() != null) {
+			subject.setImagePath(newSubject.getImagePath());
 		}
-		if (subject.getName() != null){
-			oldSubject.setName(subject.getName());
+		if (newSubject.getName() != null) {
+			subject.setName(newSubject.getName());
 		}
-		if (subject.getDisplaySequence() != null){
-			oldSubject.setDisplaySequence(subject.getDisplaySequence());
+		if (newSubject.getDisplaySequence() != null) {
+			subject.setDisplaySequence(newSubject.getDisplaySequence());
 		}
-		oldSubject.setLastModified(new Date(System.currentTimeMillis()));
-		subjectRepository.save(oldSubject);
-		return oldSubject;
+		subject.setLastModified(new Date(System.currentTimeMillis()));
+		subjectRepository.save(subject);
+		return subject;
 	}
 
 	private Errors validateSubject(Subject subject) {

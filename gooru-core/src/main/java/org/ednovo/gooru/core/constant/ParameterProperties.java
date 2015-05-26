@@ -2895,15 +2895,7 @@ public interface ParameterProperties {
 	String PAGE_INFO = "pageInfo";
 	
 	String TOTAL_RESULTS = "totalResults";
-	
-	String SUBJECT_NAME = "subjectName";
-	
-	String SUBDOMAIN = "subdomain";
-	
-	String COURSE_ID = "courseId";
-	
-	String DOMAIN_ID = "domainId";
-	
+		
 	String DISPLAY_SEQUENCE = "displaySequence";
 
 	String EXPORT_CLASS_QUERY = "class.export.query";
@@ -2914,7 +2906,7 @@ public interface ParameterProperties {
 	
 	String CLASS_GOORU_ID = "classGooruId";
 	
-	String DEPRICATED = "Depricated";
+	String GL0107 = "GL0107";
 	
 }
 
