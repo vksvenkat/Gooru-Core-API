@@ -694,17 +694,12 @@ public interface ParameterProperties {
 
 	String COURSE = "course";
 	
-	String SUBJECT_ID = "subjectId";
-	
-	
 	String COURSE_CODE = "courseCode";
 	
 	String DISPLAY_SEQUENCE = "displaySequence";
 	
 	String DOMAIN_ = "domain";
 	
-	String DOMAIN_ID = "domainId";
-
 	String CURRICULUM_DESC = "curriculumDesc";
 
 	String CURRICULUM_NAME = "curriculumName";
