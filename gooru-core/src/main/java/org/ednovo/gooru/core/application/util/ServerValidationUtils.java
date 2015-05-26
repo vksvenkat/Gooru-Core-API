@@ -136,9 +136,9 @@ public class ServerValidationUtils {
 		}
 	}
 
-	public static void reject(Boolean data, String errorMsg){
+	public static void reject(Boolean data,String code, String... message){
 		if(!data){
-			throw new BadRequestException(errorMsg);
+			throw new BadRequestException(generateErrorMessage(code, message), code);
 		}
 	}
 }

@@ -38,7 +38,7 @@ public class SubjectRepositoryHibernate extends BaseRepositoryHibernate implemen
 
 	@Override
 	public Subject getSubject(String subjectId) {
-		String hql = "FROM Subject subject WHERE subject.subjectId = '" + subjectId + "'and subject.activeFlag=1";
+		String hql = "FROM Subject subject WHERE subject.subjectId = '" + subjectId + "'";
 		return get(hql);
 	}
 

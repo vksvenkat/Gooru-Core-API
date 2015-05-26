@@ -47,7 +47,7 @@ public class SubjectServiceImpl extends BaseServiceImpl implements SubjectServic
 	public ActionResponseDTO<Subject> createSubject(Subject subject, User user) {
 		final Errors errors = validateSubject(subject);
 		if (!errors.hasErrors()) {
-			reject(!(subject.getActiveFlag() > 1 || subject.getActiveFlag() < 0), generateErrorMessage(GL0007, ACTIVE_FLAG));
+			reject(!(subject.getActiveFlag() > 1 || subject.getActiveFlag() < 0),GL0007,ACTIVE_FLAG);
 			subject.setCreatedOn(new Date(System.currentTimeMillis()));
 			subject.setLastModified(new Date(System.currentTimeMillis()));
 			subject.setActiveFlag((short) 1);
@@ -60,10 +60,10 @@ public class SubjectServiceImpl extends BaseServiceImpl implements SubjectServic
 
 	@Override
 	public Subject getSubject(String subjectId) {
-		Subject subject = (Subject) subjectRepository.getSubject(subjectId);
+		Subject subject = subjectRepository.getSubject(subjectId);
 		rejectIfNull(subject, GL0056, 404, generateErrorMessage(GL0056, SUBJECT));
-		reject((subject.getActiveFlag() == 1), generateErrorMessage(DEPRICATED));
-		return subjectRepository.getSubject(subjectId);
+		reject((subject.getActiveFlag() == 1), DEPRICATED);
+		return subject;
 	}
 
 	@Override
