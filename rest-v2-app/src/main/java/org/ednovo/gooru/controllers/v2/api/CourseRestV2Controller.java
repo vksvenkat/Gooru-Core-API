@@ -58,7 +58,7 @@ public class CourseRestV2Controller extends BaseController implements ConstantPr
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_COURSE_ADD })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	@RequestMapping(value = {" "},method = RequestMethod.POST)
+	@RequestMapping(method = RequestMethod.POST)
 	public ModelAndView createCourse(@RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		final User user = (User) request.getAttribute(Constants.USER);
 		ActionResponseDTO<Course> responseDTO = getCourseService().createCourse(buildCourseFromInputParameters(data), user);
