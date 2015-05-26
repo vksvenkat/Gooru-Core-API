@@ -378,8 +378,6 @@ public interface ParameterProperties {
 	
 	String GL0007 = "GL0007";
 	
-	String GL0107 = "GL0107";
-	
 	String GL0108 = "GL0108";
 
 	String GL0042 = "GL0042";
@@ -698,7 +696,6 @@ public interface ParameterProperties {
 	
 	String SUBJECT_ID = "subjectId";
 	
-	String COURSE_ID = "courseId";
 	
 	String COURSE_CODE = "courseCode";
 	
@@ -2915,7 +2912,7 @@ public interface ParameterProperties {
 	String PAGE_INFO = "pageInfo";
 	
 	String TOTAL_RESULTS = "totalResults";
-	
+
 	String EXPORT_CLASS_QUERY = "class.export.query";
 	
 	String EXPORT_CLASS_HEADER = "class.export.header";
@@ -2923,6 +2920,8 @@ public interface ParameterProperties {
 	String EXPORT_CLASS_FILENAME = "reports.csv";
 	
 	String CLASS_GOORU_ID = "classGooruId";
+	
+	String GL0107 = "GL0107";
 	
 }
 

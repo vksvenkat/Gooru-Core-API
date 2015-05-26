@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////
-// CourseRepositoryHibernate.java
+// SubjectRepositoryHibernate.java
 // gooru-api
 // Created by Gooru on 2015
 // Copyright (c) 2015 Gooru. All rights reserved.
@@ -21,52 +21,40 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 /////////////////////////////////////////////////////////////
-package org.ednovo.gooru.domain.service;
+package org.ednovo.gooru.infrastructure.persistence.hibernate;
 
 import java.util.List;
 
-import org.ednovo.gooru.core.api.model.Course;
+import org.ednovo.gooru.core.api.model.Subject;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
-import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate;
 import org.hibernate.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class CourseRepositoryHibernate extends BaseRepositoryHibernate implements CourseRepository, ParameterProperties, ConstantProperties {
+public class SubjectRepositoryHibernate extends BaseRepositoryHibernate implements SubjectRepository, ParameterProperties,ConstantProperties {
 
-	private static final String GET_COURSE = "FROM Course c  WHERE c.courseId=:courseId"; 
-
-	private static final String GET_COURSE_CODE = "FROM Course c  WHERE c.courseCode=:courseCode"; 
-
-	private static final String GET_COURSES = "FROM Course"; 
-	
-	private static final String GET_COUNT = "SELECT COUNT(*) FROM Course"; 
-
-
+	private static final String SUBJECT_COUNT = "SELECT COUNT(*) FROM Subject subject where subject.activeFlag=1";
+	private static final String SUBJECTS = "FROM Subject subject where subject.activeFlag=1";
+	private static final String SUBJECT = "FROM Subject subject WHERE subject.subjectId=:subjectId";
 	@Override
-	public Course getCourse(Integer courseId) {
-		Query query = getSession().createQuery(GET_COURSE).setParameter(COURSE_ID, courseId);
-		return (Course) (query.list().size() > 0 ? query.list().get(0) : null);
+	public Subject getSubject(Integer subjectId) {
+		Query query = getSession().createQuery(SUBJECT).setParameter(SUBJECT_ID, subjectId);
+		return (Subject) (query.list().size() > 0 ? query.list().get(0) : null);
 	}
 
 	@Override
-	public Course getCourseCode(String courseCode) {
-		Query query = getSession().createQuery(GET_COURSE_CODE).setParameter(COURSE_CODE, courseCode);
-		return (Course) (query.list().size() > 0 ? query.list().get(0) : null);
-	}
-
-	@Override
-	public List<Course> getCourses(Integer limit, Integer offset) {
-		Query query = getSession().createQuery(GET_COURSES);
+	public List<Subject> getSubjects(Integer limit, Integer offset) {
+		Query query = getSession().createQuery(SUBJECTS);
 		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : limit);
 		query.setFirstResult(offset);
 		return list(query);
 	}
 
 	@Override
-	public Long getCourseCount() {
-		Query query = getSession().createQuery(GET_COUNT);
+	public Long getSubjectCount() {
+		Query query = getSession().createQuery(SUBJECT_COUNT);
 		return (Long) query.list().get(0);
 	}
+
 }
