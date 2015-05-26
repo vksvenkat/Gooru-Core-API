@@ -1,3 +1,26 @@
+/////////////////////////////////////////////////////////////
+//DomainRestV2Controller.java
+//rest-v2-app
+// Created by Gooru on 2015
+// Copyright (c) 2015 Gooru. All rights reserved.
+// http://www.goorulearningorg/
+// Permission is hereby granted, free of charge, to any person      obtaining
+// a copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to
+// permit persons to whom the Software is furnished to do so,  subject to
+// the following conditions:
+// The above copyright notice and this permission notice shall be
+// included in all copies or substantial portions of the Software.
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY  KIND,
+// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE    WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR  PURPOSE     AND
+// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR  COPYRIGHT HOLDERS BE
+// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+// OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+/////////////////////////////////////////////////////////////
 package org.ednovo.gooru.controllers.v2.api;
 
 import javax.servlet.http.HttpServletRequest;
@@ -26,9 +49,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
-
 @Controller
-@RequestMapping(value= {"/v2/domain"})
+@RequestMapping(value = { "/v2/domain" })
 public class DomainRestV2Controller extends BaseController implements ConstantProperties, ParameterProperties {
 
 	@Autowired
@@ -36,25 +58,25 @@ public class DomainRestV2Controller extends BaseController implements ConstantPr
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_DOMAIN_ADD })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	@RequestMapping(value = {" "} ,method = RequestMethod.POST)
+	@RequestMapping(value = { " " }, method = RequestMethod.POST)
 	public ModelAndView createDomain(@RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		final User user = (User) request.getAttribute(Constants.USER);
-		ActionResponseDTO<Domain> responseDTO = getDomainService().createDomain(buildDomainFromInputParameters(data),user);
+		ActionResponseDTO<Domain> responseDTO = getDomainService().createDomain(buildDomainFromInputParameters(data), user);
 		String includes[] = (String[]) ArrayUtils.addAll(DOMAIN, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
-	
+
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_DOMAIN_UPDATE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}" }, method = RequestMethod.PUT)
-	public ModelAndView updateDomain(@PathVariable(value = ID) Short domainId, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		return toModelAndViewWithIoFilter(getDomainService().updateDomain(domainId,buildDomainFromInputParameters(data)), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, DOMAIN);
+	public ModelAndView updateDomain(@PathVariable(value = ID) Integer domainId, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		return toModelAndViewWithIoFilter(getDomainService().updateDomain(domainId, buildDomainFromInputParameters(data)), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, DOMAIN);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_DOMAIN_READ })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}" }, method = RequestMethod.GET)
-	public ModelAndView getDomain(@PathVariable(value = ID) Short DomainId, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public ModelAndView getDomain(@PathVariable(value = ID) Integer DomainId, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		return toModelAndViewWithIoFilter(getDomainService().getDomain(DomainId), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, DOMAIN);
 	}
 
@@ -68,16 +90,15 @@ public class DomainRestV2Controller extends BaseController implements ConstantPr
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_DOMAIN_DELETE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}" }, method = RequestMethod.DELETE)
-	public void deleteDomain(@PathVariable(value = ID) Short DomainId, HttpServletRequest request, HttpServletResponse response) {
+	public void deleteDomain(@PathVariable(value = ID) Integer DomainId, HttpServletRequest request, HttpServletResponse response) {
 		getDomainService().deleteDomain(DomainId);
 		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
 	}
 
-	
 	public DomainService getDomainService() {
-	return domainService;
+		return domainService;
 	}
-	
+
 	private Domain buildDomainFromInputParameters(String data) {
 		return JsonDeserializer.deserialize(data, Domain.class);
 	}

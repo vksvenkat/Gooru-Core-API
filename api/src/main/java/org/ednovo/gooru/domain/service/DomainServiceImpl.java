@@ -1,9 +1,31 @@
+/////////////////////////////////////////////////////////////
+// DomainServiceImpl.java
+// gooru-api
+// Created by Gooru on 2015
+// Copyright (c) 2015 Gooru. All rights reserved.
+// http://www.goorulearning.org/
+// Permission is hereby granted, free of charge, to any person obtaining
+// a copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to
+// permit persons to whom the Software is furnished to do so, subject to
+// the following conditions:
+// The above copyright notice and this permission notice shall be
+// included in all copies or substantial portions of the Software.
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+// OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+/////////////////////////////////////////////////////////////
 package org.ednovo.gooru.domain.service;
 
 import java.util.Date;
 
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
-import org.ednovo.gooru.core.api.model.Course;
 import org.ednovo.gooru.core.api.model.Domain;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
@@ -26,17 +48,17 @@ public class DomainServiceImpl extends BaseServiceImpl implements DomainService,
 			
 			final Errors error = validateDomain(domain);
 			if (!error.hasErrors()) {
-
 			domain.setOrganization(domain.getOrganization());
 			domain.setCreatedOn(new Date(System.currentTimeMillis()));
 			domain.setLastModified(new Date(System.currentTimeMillis()));
+			domain.setActiveFlag((short)1);
 			domainRepository.save(domain);
 			}
 			return new ActionResponseDTO<Domain>(domain,error);
 		}
 		
 		@Override
-		public Domain updateDomain(Short domainId,Domain domain) {
+		public Domain updateDomain(Integer domainId,Domain domain) {
 			Domain newDomain = this.getDomainRepository().getDomain(domainId);
 			if (domain.getName() != null) {
 				newDomain.setName(domain.getName());
@@ -50,16 +72,16 @@ public class DomainServiceImpl extends BaseServiceImpl implements DomainService,
 			if (domain.getDisplaySequence() != null) {
 				newDomain.setDisplaySequence(domain.getDisplaySequence());
 			}
-			if (domain.getActiveFlag()!= null) {
+			if (domain.getActiveFlag() != null) {
 				newDomain.setActiveFlag(domain.getActiveFlag());
 			}
-	        newDomain.setLastModified(new Date(System.currentTimeMillis()));
+			newDomain.setLastModified(new Date(System.currentTimeMillis()));
 			this.getDomainRepository().save(newDomain);
 			return domain;
 		}
 
 		@Override
-		public Domain getDomain(Short domainId) {
+		public Domain getDomain(Integer domainId) {
 			Domain domain = this.getDomainRepository().getDomain(domainId);
 			 if(domain.getActiveFlag() == 0){
 					throw new BadRequestException(generateErrorMessage(GL0107, DEACTIVATE_DOMAIN), GL0107);
@@ -76,15 +98,17 @@ public class DomainServiceImpl extends BaseServiceImpl implements DomainService,
 		}
 		
 		@Override
-		public void deleteDomain(Short domainId) {
-			Domain Domain = this.getDomainRepository().getDomain(domainId);
-			rejectIfNull(Domain, GL0056, 404, DOMAIN_);
-			this.getDomainRepository().remove(Domain);
+		public void deleteDomain(Integer domainId) {
+			Domain domain = this.getDomainRepository().getDomain(domainId);
+			rejectIfNull(domain, GL0056, 404, DOMAIN_);
+			domain.setActiveFlag((short)0);
+			domain.setLastModified(new Date(System.currentTimeMillis()));
+			domainRepository.save(domain);
 		}
+		
 		private Errors validateDomain(Domain domain) {
 			final Errors error = new BindException(domain, DOMAIN_);
 			rejectIfNull(domain.getName(),GL0006, NAME);
-			rejectIfNull(domain.getActiveFlag(),GL0006,ACTIVE_FLAG);
 			rejectIfNull(domain.getDisplaySequence(),GL0006,DISPLAY_SEQUENCE);
 			return error;
 		}
