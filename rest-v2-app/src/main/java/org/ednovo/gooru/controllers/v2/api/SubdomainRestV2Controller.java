@@ -79,8 +79,7 @@ public class SubdomainRestV2Controller extends BaseController implements Constan
 	@RequestMapping(method = RequestMethod.GET, value = "/{id}")
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ModelAndView getSubdomain(HttpServletResponse response, HttpServletRequest request, @PathVariable(ID) Integer SubdomainId) throws Exception {
-		Subdomain subDomainObj = this.getSubdomainService().getSubdomain(SubdomainId);
-		return toModelAndViewWithIoFilter(subDomainObj, FORMAT_JSON, EXCLUDE_ALL, true, SUBDOMAIN_INCLUDES);
+		return toModelAndViewWithIoFilter(this.getSubdomainService().getSubdomain(SubdomainId), FORMAT_JSON, EXCLUDE_ALL, true, SUBDOMAIN_INCLUDES);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SUBDOMAIN_DELETE })

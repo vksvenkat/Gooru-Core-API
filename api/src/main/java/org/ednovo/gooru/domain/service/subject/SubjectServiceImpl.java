@@ -83,7 +83,7 @@ public class SubjectServiceImpl extends BaseServiceImpl implements SubjectServic
 	}
 
 	@Override
-	public Subject updateSubject(Subject newSubject, User user, Integer subjectId) {
+	public Subject updateSubject(Subject newSubject, Integer subjectId) {
 		Subject subject = subjectRepository.getSubject(subjectId);
 		rejectIfNull(subject, GL0056, 404, SUBJECT);
 		reject((newSubject.getActiveFlag() == 1), GL0007, ACTIVE_FLAG);

@@ -79,16 +79,14 @@ public class SubjectRestV2Controller extends BaseController implements ConstantP
 	@RequestMapping(method = RequestMethod.GET, value = "/{id}")
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ModelAndView getSubject(HttpServletResponse response, HttpServletRequest request, @PathVariable(ID) Integer SubjectId) throws Exception {
-		Subject subject = this.getSubjectService().getSubject(SubjectId);
-		return toModelAndViewWithIoFilter(subject, FORMAT_JSON, EXCLUDE_ALL, true, SUBJECT_INCLUDES);
+		return toModelAndViewWithIoFilter(this.getSubjectService().getSubject(SubjectId), FORMAT_JSON, EXCLUDE_ALL, true, SUBJECT_INCLUDES);
 	}
 
 	@AuthorizeOperations(operations ={GooruOperationConstants.OPERATION_SUBJECT_UPDATE})
 	@RequestMapping(method = RequestMethod.PUT, value = "/{id}")
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ModelAndView updateSubject(HttpServletResponse response, HttpServletRequest request, @RequestBody String data, @PathVariable(ID) Integer subjectId) throws Exception {
-		User user = (User) request.getAttribute(Constants.USER);
-		return toModelAndViewWithIoFilter(this.getSubjectService().updateSubject(buildSubjectFromInputParameters(data), user, subjectId), FORMAT_JSON, EXCLUDE_ALL, true, SUBJECT_INCLUDES);
+		return toModelAndViewWithIoFilter(this.getSubjectService().updateSubject(buildSubjectFromInputParameters(data), subjectId), FORMAT_JSON, EXCLUDE_ALL, true, SUBJECT_INCLUDES);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SUBJECT_DELETE })
