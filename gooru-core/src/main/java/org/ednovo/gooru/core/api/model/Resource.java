@@ -144,9 +144,9 @@ public class Resource extends Content implements Serializable {
 
 	private String numOfPages;
 
-	private Integer votesUp;
+	private Integer votesUp = 0;
 
-	private Integer votesDown;
+	private Integer votesDown = 0;
 
 	private String vocabulary;
 
