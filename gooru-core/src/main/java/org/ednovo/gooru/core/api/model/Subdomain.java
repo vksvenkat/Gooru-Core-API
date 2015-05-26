@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////
 // Subdomain.java
-// rest-v2-app
+// gooru-api
 // Created by Gooru on 2015
 // Copyright (c) 2015 Gooru. All rights reserved.
 // http://www.goorulearning.org/

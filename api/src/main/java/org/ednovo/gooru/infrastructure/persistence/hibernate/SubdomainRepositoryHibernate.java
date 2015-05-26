@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////
 // SubdomainRepositoryHibernate.java
-// rest-v2-app
+// gooru-api
 // Created by Gooru on 2015
 // Copyright (c) 2015 Gooru. All rights reserved.
 // http://www.goorulearning.org/
@@ -26,20 +26,21 @@ package org.ednovo.gooru.infrastructure.persistence.hibernate;
 import java.util.List;
 
 import org.ednovo.gooru.core.api.model.Subdomain;
+import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.hibernate.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class SubdomainRepositoryHibernate extends BaseRepositoryHibernate implements SubdomainRepository, ParameterProperties {
+public class SubdomainRepositoryHibernate extends BaseRepositoryHibernate implements SubdomainRepository, ParameterProperties,ConstantProperties {
 
 	private static final String SUBDOMAIN_COUNT = "SELECT COUNT(*) FROM Subdomain";
 	private static final String SUBDOMAINS = "FROM Subdomain";
+	private static final String SUBDOMAIN = "FROM Subdomain subdomain WHERE subdomain.subdomainId=:subdomainId";
 
 	@Override
 	public Subdomain getSubdomain(Integer subdomainId) {
-		String hql = "FROM Subdomain subdomain WHERE subdomain.subdomainId=:subdomainId";
-		Query query = getSession().createQuery(hql).setParameter("subdomainId", subdomainId);
+		Query query = getSession().createQuery(SUBDOMAIN).setParameter(SUBDOMAIN_ID, subdomainId);
 		return (Subdomain) (query.list().size() > 0 ? query.list().get(0) : null);
 	}
 

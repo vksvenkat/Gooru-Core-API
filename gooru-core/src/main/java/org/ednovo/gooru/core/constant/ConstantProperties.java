@@ -902,4 +902,8 @@ public interface ConstantProperties {
 	static String COURSE_ID = "courseId";
 	
 	static String DOMAIN_ID = "domainId";
+	
+	static String SUBJECT_ID = "subjectId";
+	
+	static String SUBDOMAIN_ID = "subdomainId";
 }
