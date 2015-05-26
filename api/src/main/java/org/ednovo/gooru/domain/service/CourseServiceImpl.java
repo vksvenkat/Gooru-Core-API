@@ -48,7 +48,7 @@ public class CourseServiceImpl extends BaseServiceImpl implements CourseService,
 		final Errors errors = validateCourse(course);
 		if (!errors.hasErrors()) {
 			course.setCreatorUid(user);
-			course.setOrganization(course.getOrganization());
+			course.setOrganization(user.getOrganization());
 			course.setCreatedOn(new Date(System.currentTimeMillis()));
 			course.setLastModified(new Date(System.currentTimeMillis()));
 			course.setActiveFlag((short) 1);
