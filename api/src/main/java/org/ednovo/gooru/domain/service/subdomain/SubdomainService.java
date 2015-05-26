@@ -9,12 +9,12 @@ public interface SubdomainService {
 
 	ActionResponseDTO<Subdomain> createSubdomain(Subdomain subDomain, User user);
 	
-	Subdomain getSubdomain(String subjectId);
+	Subdomain getSubdomain(Integer subdomainId);
 	
 	SearchResults<Subdomain> getSubdomain(Integer limit, Integer offset);
 
-	void deleteSubdomain(String subdomainId);
+	void deleteSubdomain(Integer subdomainId);
 
-	Subdomain updateSubdomain(Subdomain subdomain, User user, String subdomainId);
+	Subdomain updateSubdomain(Subdomain subdomain, User user, Integer subdomainId);
 	
 }

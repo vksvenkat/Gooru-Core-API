@@ -37,7 +37,7 @@ public class SubdomainRepositoryHibernate extends BaseRepositoryHibernate implem
 	private static final String SUBDOMAINS = "FROM Subdomain";
 
 	@Override
-	public Subdomain getSubdomain(String subdomainId) {
+	public Subdomain getSubdomain(Integer subdomainId) {
 		String hql = "FROM Subdomain subdomain WHERE subdomain.subdomainId = '" + subdomainId + "'";
 		return get(hql);
 	}

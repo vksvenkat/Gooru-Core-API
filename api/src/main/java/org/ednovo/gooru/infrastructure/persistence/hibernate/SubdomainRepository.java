@@ -33,6 +33,6 @@ public interface SubdomainRepository extends BaseRepository {
 
 	Long getSubdomainCount();
 
-	Subdomain getSubdomain(String subdomainId);
+	Subdomain getSubdomain(Integer subdomainId);
 
 }

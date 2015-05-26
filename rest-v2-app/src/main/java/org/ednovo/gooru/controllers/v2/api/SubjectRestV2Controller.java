@@ -78,16 +78,15 @@ public class SubjectRestV2Controller extends BaseController implements ConstantP
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SUBJECT_READ })
 	@RequestMapping(method = RequestMethod.GET, value = "/{id}")
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public ModelAndView getSubject(HttpServletResponse response, HttpServletRequest request, @PathVariable(ID) String SubjectId) throws Exception {
+	public ModelAndView getSubject(HttpServletResponse response, HttpServletRequest request, @PathVariable(ID) Integer SubjectId) throws Exception {
 		Subject subjectObj = this.getSubjectService().getSubject(SubjectId);
 		return toModelAndViewWithIoFilter(subjectObj, FORMAT_JSON, EXCLUDE_ALL, true, SUBJECT_INCLUDES);
 	}
 
-	// @AuthorizeOperations(operations =
-	// {GooruOperationConstants.OPERATION_SUBJECT_UPDATE})
+	@AuthorizeOperations(operations ={GooruOperationConstants.OPERATION_SUBJECT_UPDATE})
 	@RequestMapping(method = RequestMethod.PUT, value = "/{id}")
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public ModelAndView updateSubject(HttpServletResponse response, HttpServletRequest request, @RequestBody String data, @PathVariable(ID) String subjectId) throws Exception {
+	public ModelAndView updateSubject(HttpServletResponse response, HttpServletRequest request, @RequestBody String data, @PathVariable(ID) Integer subjectId) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
 		return toModelAndViewWithIoFilter(this.getSubjectService().updateSubject(buildSubjectFromInputParameters(data), user, subjectId), FORMAT_JSON, EXCLUDE_ALL, true, SUBJECT_INCLUDES);
 	}
@@ -95,7 +94,7 @@ public class SubjectRestV2Controller extends BaseController implements ConstantP
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SUBJECT_DELETE })
 	@RequestMapping(method = RequestMethod.DELETE, value = "/{id}")
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public void deleteSubject(HttpServletResponse response, HttpServletRequest request, @PathVariable(ID) String subjectId) throws Exception {
+	public void deleteSubject(HttpServletResponse response, HttpServletRequest request, @PathVariable(ID) Integer subjectId) throws Exception {
 		this.getSubjectService().deleteSubject(subjectId);
 		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
 	}

@@ -78,7 +78,7 @@ public class SubdomainRestV2Controller extends BaseController implements Constan
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SUBDOMAIN_READ })
 	@RequestMapping(method = RequestMethod.GET, value = "/{id}")
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public ModelAndView getSubdomain(HttpServletResponse response, HttpServletRequest request, @PathVariable(ID) String SubdomainId) throws Exception {
+	public ModelAndView getSubdomain(HttpServletResponse response, HttpServletRequest request, @PathVariable(ID) Integer SubdomainId) throws Exception {
 		Subdomain subDomainObj = this.getSubdomainService().getSubdomain(SubdomainId);
 		return toModelAndViewWithIoFilter(subDomainObj, FORMAT_JSON, EXCLUDE_ALL, true, SUBDOMAIN_INCLUDES);
 	}
@@ -86,7 +86,7 @@ public class SubdomainRestV2Controller extends BaseController implements Constan
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SUBDOMAIN_UPDATE })
 	@RequestMapping(method = RequestMethod.PUT, value = "/{id}")
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public ModelAndView updateSubdomain(HttpServletResponse response, HttpServletRequest request, @RequestBody String data, @PathVariable(ID) String subDomainId) throws Exception {
+	public ModelAndView updateSubdomain(HttpServletResponse response, HttpServletRequest request, @RequestBody String data, @PathVariable(ID) Integer subDomainId) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
 		return toModelAndViewWithIoFilter(this.getSubdomainService().updateSubdomain(buildSubdomainFromInputParameters(data), user, subDomainId), FORMAT_JSON, EXCLUDE_ALL, true, SUBDOMAIN_INCLUDES);
 	}
@@ -94,7 +94,7 @@ public class SubdomainRestV2Controller extends BaseController implements Constan
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SUBDOMAIN_DELETE })
 	@RequestMapping(method = RequestMethod.DELETE, value = "/{id}")
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public void deleteSubdomain(HttpServletResponse response, HttpServletRequest request, @PathVariable(ID) String subDomaintId) throws Exception {
+	public void deleteSubdomain(HttpServletResponse response, HttpServletRequest request, @PathVariable(ID) Integer subDomaintId) throws Exception {
 		this.getSubdomainService().deleteSubdomain(subDomaintId);
 		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
 	}

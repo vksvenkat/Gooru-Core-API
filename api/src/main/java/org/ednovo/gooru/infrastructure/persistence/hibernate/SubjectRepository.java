@@ -29,7 +29,7 @@ import org.ednovo.gooru.core.api.model.Subject;
 
 public interface SubjectRepository extends BaseRepository {
 
-	Subject getSubject(String subjectId);
+	Subject getSubject(Integer subjectId);
 
 	List<Subject> getSubjects(Integer limit, Integer offset);
 

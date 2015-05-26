@@ -54,7 +54,7 @@ public class SubdomainServiceImpl extends BaseServiceImpl implements SubdomainSe
 	}
 
 	@Override
-	public Subdomain getSubdomain(String subdomainId) {
+	public Subdomain getSubdomain(Integer subdomainId) {
 		Subdomain subdomain = subdomainRepository.getSubdomain(subdomainId);
 		rejectIfNull(subdomain, GL0056, 404, generateErrorMessage(GL0056, SUBDOMAIN));
 		return subdomain;
@@ -70,14 +70,14 @@ public class SubdomainServiceImpl extends BaseServiceImpl implements SubdomainSe
 	}
 
 	@Override
-	public void deleteSubdomain(String subdomainId) {
+	public void deleteSubdomain(Integer subdomainId) {
 		Subdomain subdomain = subdomainRepository.getSubdomain(subdomainId);
 		rejectIfNull(subdomain, GL0056, 404, generateErrorMessage(GL0056, SUBDOMAIN));
 		this.subdomainRepository.remove(subdomain);
 	}
 
 	@Override
-	public Subdomain updateSubdomain(Subdomain subdomain, User user, String subdomainId) {
+	public Subdomain updateSubdomain(Subdomain subdomain, User user, Integer subdomainId) {
 		Subdomain oldSubdomain = subdomainRepository.getSubdomain(subdomainId);
 		rejectIfNull(oldSubdomain, GL0056, 404, SUBDOMAIN);
 		if (subdomain.getCourseId() != null) {

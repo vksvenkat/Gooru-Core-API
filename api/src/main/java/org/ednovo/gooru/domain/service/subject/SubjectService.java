@@ -33,11 +33,11 @@ public interface SubjectService extends BaseService{
 
 	ActionResponseDTO<Subject> createSubject(Subject subject, User user);
 	
-	Subject getSubject(String subjectId);
+	Subject getSubject(Integer subjectId);
 	
 	SearchResults<Subject> getSubjects(Integer limit, Integer offset);
 
-	void deleteSubject(String subjectId);
+	void deleteSubject(Integer subjectId);
 
-	Subject updateSubject(Subject subject, User user, String subjectId);
+	Subject updateSubject(Subject subject, User user, Integer subjectId);
 }
