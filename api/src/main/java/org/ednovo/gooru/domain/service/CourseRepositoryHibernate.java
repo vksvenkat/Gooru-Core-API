@@ -26,6 +26,7 @@ package org.ednovo.gooru.domain.service;
 import java.util.List;
 
 import org.ednovo.gooru.core.api.model.Course;
+import org.ednovo.gooru.core.api.model.Subject;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate;
@@ -41,6 +42,8 @@ public class CourseRepositoryHibernate extends BaseRepositoryHibernate implement
 
 	private static final String GET_COURSES = "FROM Course"; 
 	
+	private static final String GET_SUBJECT_ID = "FROM Subject s  WHERE s.subjectId=:subjectId"; 
+	
 	private static final String GET_COUNT = "SELECT COUNT(*) FROM Course"; 
 
 
@@ -54,6 +57,12 @@ public class CourseRepositoryHibernate extends BaseRepositoryHibernate implement
 	public Course getCourseCode(String courseCode) {
 		Query query = getSession().createQuery(GET_COURSE_CODE).setParameter(COURSE_CODE, courseCode);
 		return (Course) (query.list().size() > 0 ? query.list().get(0) : null);
+	}
+	
+	@Override
+	public Subject getSubjectId(Integer subjectId) {
+		Query query = getSession().createQuery(GET_SUBJECT_ID).setParameter(SUBJECT_ID, subjectId);
+		return (Subject) (query.list().size() > 0 ? query.list().get(0) : null);
 	}
 
 	@Override

@@ -26,11 +26,15 @@ package org.ednovo.gooru.domain.service.subdomain;
 import java.util.Date;
 
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
+import org.ednovo.gooru.core.api.model.Course;
+import org.ednovo.gooru.core.api.model.Domain;
 import org.ednovo.gooru.core.api.model.Subdomain;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.domain.service.BaseServiceImpl;
+import org.ednovo.gooru.domain.service.CourseRepository;
+import org.ednovo.gooru.domain.service.DomainRepository;
 import org.ednovo.gooru.domain.service.search.SearchResults;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.SubdomainRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,10 +48,20 @@ public class SubdomainServiceImpl extends BaseServiceImpl implements SubdomainSe
 	@Autowired
 	private SubdomainRepository subdomainRepository;
 
+	@Autowired
+	private CourseRepository courseRepository;
+	
+	@Autowired
+	private DomainRepository domainRepository;
+
 	@Override
 	public ActionResponseDTO<Subdomain> createSubdomain(Subdomain subdomain, User user) {
 		final Errors errors = validateSubdomain(subdomain);
 		if (!errors.hasErrors()) {
+            Course course = this.getCourseRepository().getCourse(subdomain.getCourseId());
+            rejectIfNull(course, GL0006, 404, COURSE);
+            Domain domain = this.getDomainRepository().getDomain(subdomain.getDomainId());
+            rejectIfNull(domain, GL0006, 404, DOMAIN_);
 			subdomain.setCreatedOn(new Date(System.currentTimeMillis()));
 			this.getSubdomainRepository().save(subdomain);
 		}
@@ -86,6 +100,14 @@ public class SubdomainServiceImpl extends BaseServiceImpl implements SubdomainSe
 
 	public SubdomainRepository getSubdomainRepository() {
 		return subdomainRepository;
+	}
+	
+	public CourseRepository getCourseRepository() {
+		return courseRepository;
+	}
+	
+	public DomainRepository getDomainRepository() {
+		return domainRepository;
 	}
 
 }

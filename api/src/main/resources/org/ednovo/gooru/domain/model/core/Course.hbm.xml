@@ -39,8 +39,8 @@
 	    </property> 
 	    <property name="grades" column="grades" not-null="false">	        
 	    </property> 
-	    <property name="subjectId" column="subject_id" not-null="true" >	        
-	    </property>      
+	     <property name="subjectId" column="subject_id" not-null="true">	        
+	    </property> 
 	    <property name="activeFlag" column="active_flag" not-null="true">
 		</property>
 		<many-to-one 
@@ -65,4 +65,3 @@
 		</property>	      		 
    </class>    
 </hibernate-mapping>
-

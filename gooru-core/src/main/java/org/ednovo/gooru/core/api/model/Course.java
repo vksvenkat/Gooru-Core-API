@@ -43,7 +43,7 @@ public class Course extends OrganizationModel implements Serializable {
 	private String courseCode;
 	
 	private String grades;
-	
+
 	private Short activeFlag;
 
 	private String imagePath;

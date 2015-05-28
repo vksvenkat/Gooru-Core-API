@@ -70,8 +70,7 @@ public class CourseRestV2Controller extends BaseController implements ConstantPr
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}" }, method = RequestMethod.PUT)
 	public ModelAndView updateCourse(@PathVariable(value = ID) Integer courseId, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		final User user = (User) request.getAttribute(Constants.USER);
-		return toModelAndViewWithIoFilter(getCourseService().updateCourse(courseId, buildCourseFromInputParameters(data), user), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, COURSE_);
+		return toModelAndViewWithIoFilter(getCourseService().updateCourse(courseId, buildCourseFromInputParameters(data)), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, COURSE_);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_COURSE_READ })

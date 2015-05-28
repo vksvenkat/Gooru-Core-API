@@ -24,13 +24,15 @@
 package org.ednovo.gooru.domain.service;
 
 import java.util.Date;
+
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Course;
+import org.ednovo.gooru.core.api.model.Subject;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
-import org.ednovo.gooru.core.exception.BadRequestException;
 import org.ednovo.gooru.domain.service.search.SearchResults;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.SubjectRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindException;
@@ -41,10 +43,13 @@ public class CourseServiceImpl extends BaseServiceImpl implements CourseService,
 
 	@Autowired
 	private CourseRepository courseRepository;
+	
+	@Autowired
+	private SubjectRepository subjectRepository;
 
 	@Override
 	public ActionResponseDTO<Course> createCourse(Course course, User user) {
-
+ 
 		final Errors errors = validateCourse(course);
 		if (!errors.hasErrors()) {
 			course.setCreatorUid(user);
@@ -52,6 +57,8 @@ public class CourseServiceImpl extends BaseServiceImpl implements CourseService,
 			course.setCreatedOn(new Date(System.currentTimeMillis()));
 			course.setLastModified(new Date(System.currentTimeMillis()));
 			course.setActiveFlag((short) 1);
+            Subject subject = this.getSubjectRepository().getSubject(course.getSubjectId());
+    		rejectIfNull(subject, GL0006, 404, SUBJECT);
 			Course courseCode = this.getCourseRepository().getCourseCode(course.getCourseCode());
 			rejectIfAlreadyExist(courseCode, GL0101, COURSE);
 			courseRepository.save(course);
@@ -60,9 +67,13 @@ public class CourseServiceImpl extends BaseServiceImpl implements CourseService,
 	}
 
 	@Override
-	public Course updateCourse(Integer courseId, Course newCourse, User user) {
+	public Course updateCourse(Integer courseId, Course newCourse) {
 		Course course = this.getCourseRepository().getCourse(courseId);
 		rejectIfNull(course, GL0006, 404, COURSE);
+		if (newCourse.getActiveFlag() != null) {
+				reject((newCourse.getActiveFlag() == 0 || newCourse.getActiveFlag() == 1), GL0007, ACTIVE_FLAG);
+				course.setActiveFlag(newCourse.getActiveFlag());
+		}
 		if (newCourse.getName() != null) {
 			course.setName(newCourse.getName());
 		}
@@ -78,9 +89,6 @@ public class CourseServiceImpl extends BaseServiceImpl implements CourseService,
 		if (newCourse.getDisplaySequence() != null) {
 			course.setDisplaySequence(newCourse.getDisplaySequence());
 		}
-		if(newCourse.getActiveFlag() != null){
-			course.setActiveFlag(newCourse.getActiveFlag());
-		}
 		course.setLastModified(new Date(System.currentTimeMillis()));
 		this.getCourseRepository().save(course);
 		return course;
@@ -89,9 +97,7 @@ public class CourseServiceImpl extends BaseServiceImpl implements CourseService,
 	@Override
 	public Course getCourse(Integer courseId) {
 		Course course = this.getCourseRepository().getCourse(courseId);
-		if (course.getActiveFlag() == 0) {
-			throw new BadRequestException("course id:" + course.getCourseId() + " is deactivated");
-		}
+		reject((course.getActiveFlag() == 1), GL0107, COURSE);
 		rejectIfNull(course, GL0056, 404, COURSE);
 		return course;
 	}
@@ -115,7 +121,7 @@ public class CourseServiceImpl extends BaseServiceImpl implements CourseService,
 
 	private Errors validateCourse(Course course) {
 		final Errors error = new BindException(course, COURSE);
-		rejectIfNull(error,course.getSubjectId(), GL0006, generateErrorMessage(GL0006, SUBJECT_ID));
+    	rejectIfNull(error,course.getSubjectId(), GL0006,  generateErrorMessage(GL0006, SUBJECT_ID));
 		rejectIfNull(error,course.getCourseCode(), GL0006,  generateErrorMessage(GL0006, COURSE_CODE));
 		rejectIfNull(error,course.getDisplaySequence(), GL0006,  generateErrorMessage(GL0006, DISPLAY_SEQUENCE));
 		return error;
@@ -123,5 +129,9 @@ public class CourseServiceImpl extends BaseServiceImpl implements CourseService,
 
 	public CourseRepository getCourseRepository() {
 		return courseRepository;
+	}
+	
+	public SubjectRepository getSubjectRepository() {
+		return subjectRepository;
 	}
 }

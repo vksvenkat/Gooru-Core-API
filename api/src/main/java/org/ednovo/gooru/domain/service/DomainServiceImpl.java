@@ -30,7 +30,6 @@ import org.ednovo.gooru.core.api.model.Domain;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
-import org.ednovo.gooru.core.exception.BadRequestException;
 import org.ednovo.gooru.domain.service.search.SearchResults;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -60,6 +59,11 @@ public class DomainServiceImpl extends BaseServiceImpl implements DomainService,
 	@Override
 	public Domain updateDomain(Integer domainId, Domain newDomain) {
 		Domain domain = this.getDomainRepository().getDomain(domainId);
+		rejectIfNull(domain, GL0006, 404, DOMAIN_);
+		if (newDomain.getActiveFlag() != null) {
+			reject((newDomain.getActiveFlag() == 0 || newDomain.getActiveFlag() == 1), GL0007, ACTIVE_FLAG);
+			domain.setActiveFlag(newDomain.getActiveFlag());
+	    }
 		if (newDomain.getName() != null) {
 			domain.setName(domain.getName());
 		}
@@ -72,9 +76,6 @@ public class DomainServiceImpl extends BaseServiceImpl implements DomainService,
 		if (newDomain.getDisplaySequence() != null) {
 			domain.setDisplaySequence(domain.getDisplaySequence());
 		}
-		if (newDomain.getActiveFlag() != null) {
-			domain.setActiveFlag(domain.getActiveFlag());
-		}
 		domain.setLastModified(new Date(System.currentTimeMillis()));
 		this.getDomainRepository().save(domain);
 		return domain;
@@ -83,9 +84,7 @@ public class DomainServiceImpl extends BaseServiceImpl implements DomainService,
 	@Override
 	public Domain getDomain(Integer domainId) {
 		Domain domain = this.getDomainRepository().getDomain(domainId);
-		if (domain.getActiveFlag() == 0) {
-			throw new BadRequestException(generateErrorMessage(GL0107, DEACTIVATE_DOMAIN), GL0107);
-		}
+		reject((domain.getActiveFlag() == 1), GL0107, DOMAIN);
 		rejectIfNull(domain, GL0056, 404, DOMAIN_);
 		return domain;
 	}

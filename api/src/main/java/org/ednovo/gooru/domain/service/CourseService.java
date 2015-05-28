@@ -32,7 +32,7 @@ public interface CourseService {
 
 	ActionResponseDTO<Course> createCourse(Course course, User user);
 
-	Course updateCourse(Integer courseId, Course newCourse, User user);
+	Course updateCourse(Integer courseId, Course newCourse);
 
 	Course getCourse(Integer courseId);
 
