@@ -73,7 +73,7 @@ import org.springframework.orm.hibernate3.HibernateAccessor;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class ResourceRepositoryHibernate extends BaseRepositoryHibernate implements ResourceRepository,ConstantProperties, ParameterProperties {
+public class ResourceRepositoryHibernate extends BaseRepositoryHibernate implements ResourceRepository, ConstantProperties, ParameterProperties {
 
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
@@ -91,9 +91,9 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 	private static final String UNORDERED_SEGMENTS = "select segment_id from resource_instance group by segment_id having count(distinct sequence) <> count(1)";
 
 	private static final String PAGE_START = "startAt";
-	
+
 	private static final String COUNT_SUBSCRIPTION_FOR_GOORUOID = "select count(1) as totalCount from content c inner join annotation a on a.resource_id = c.content_id where a.type_name='subscription' and c.gooru_oid= :gooruOid and " + generateOrgAuthSqlQuery("c.");
-		
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(ResourceServiceImpl.class);
 
 	@Override
@@ -125,7 +125,6 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 		return resources.size() == 0 ? null : resources.get(0);
 	}
 
-
 	@Override
 	public int findViews(String contentGooruId) {
 		Session session = getSessionFactory().getCurrentSession();
@@ -147,24 +146,26 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 	}
 
 	@Override
-	public Boolean findUserIsStudent(Long classContentId,String gooruUId) {
+	public Boolean findUserIsStudent(Long classContentId, String gooruUId) {
 		Session session = getSessionFactory().getCurrentSession();
-		String sql = " SELECT uga.is_group_owner isStudent FROM classpage class INNER JOIN user_group ug ON class.classpage_code = ug.user_group_code INNER JOIN user_group_association uga ON ug.user_group_uid = uga.user_group_uid WHERE class.classpage_content_id = "+classContentId+" AND uga.gooru_uid = '"+gooruUId+"'";
+		String sql = " SELECT uga.is_group_owner isStudent FROM classpage class INNER JOIN user_group ug ON class.classpage_code = ug.user_group_code INNER JOIN user_group_association uga ON ug.user_group_uid = uga.user_group_uid WHERE class.classpage_content_id = " + classContentId
+		        + " AND uga.gooru_uid = '" + gooruUId + "'";
 		Query query = session.createSQLQuery(sql).addScalar("isStudent", StandardBasicTypes.BOOLEAN);
 		List<Boolean> results = list(query);
 
 		return (results != null && results.size() > 0) ? results.get(0) : false;
 	}
-	
+
 	@Override
 	public Long getContentId(String contentGooruOid) {
 		Session session = getSessionFactory().getCurrentSession();
-		String sql = " SELECT content_id AS contentId from content WHERE gooru_oid ='" +contentGooruOid+"'";
+		String sql = " SELECT content_id AS contentId from content WHERE gooru_oid ='" + contentGooruOid + "'";
 		Query query = session.createSQLQuery(sql).addScalar("contentId", StandardBasicTypes.LONG);
 		List<Long> results = list(query);
 
 		return (results != null && results.size() > 0) ? results.get(0) : 0L;
 	}
+
 	@Override
 	public List<Resource> findWebResourcesForBlacklisting() {
 		Session session = getSessionFactory().getCurrentSession();
@@ -195,7 +196,6 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 			saveOrUpdate(resource);
 		}
 	}
-
 
 	@Override
 	public List<Resource> listResources(Map<String, String> filters) {
@@ -350,7 +350,7 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 				Integer taxonomyParentId = Integer.valueOf(taxonomyParentIdString);
 				hql += " AND taxonomySet.parentId = '" + taxonomyParentId + "'";
 			} catch (NumberFormatException ex) {
-				LOGGER.debug("Invalid Number Format"+ex);
+				LOGGER.debug("Invalid Number Format" + ex);
 			}
 		}
 
@@ -441,7 +441,6 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 		// flush();
 	}
 
-
 	@Override
 	public Textbook findTextbookByContentGooruId(String gooruContentId) {
 		String hql = "SELECT textbook FROM Textbook textbook   WHERE textbook.gooruOid = '" + gooruContentId + "' AND " + generateAuthQueryWithDataNew("textbook.") + " ";
@@ -449,7 +448,6 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 		List<Textbook> result = list(query);
 		return (result.size() > 0) ? result.get(0) : null;
 	}
-
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -459,7 +457,6 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 		List<Resource> result = addAuthCriterias(criteria).list();
 		return (result.size() > 0) ? result.get(0) : null;
 	}
-
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -477,7 +474,6 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 		return null;
 	}
 
-
 	@Override
 	public ResourceSource findResourceSource(String domainName) {
 		String hql = "FROM ResourceSource rSource WHERE  rSource.domainName = '" + domainName + "'  and rSource.activeStatus = 1";
@@ -493,7 +489,6 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 
 	}
 
-
 	@Override
 	public Resource getResourceByUrl(String url) {
 		Query query = getSession().createQuery("SELECT r From Resource as r   WHERE r.url='" + url + "' AND  " + generateAuthQueryWithDataNew("r.") + " ");
@@ -501,20 +496,17 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 		return (resources.size() > 0) ? resources.get(0) : null;
 	}
 
-
 	@Override
 	public List<ResourceSource> getSuggestAttribution(String keyword) {
 		String hql = "FROM ResourceSource rss WHERE rss.attribution LIKE '%" + keyword + "%'";
 		return list(getSession().createQuery(hql));
 	}
 
-
 	public ResourceSource getAttribution(String attribution) {
 		String hql = "FROM ResourceSource rss WHERE rss.attribution = '" + attribution + "'";
 		List<ResourceSource> resourceSource = list(getSession().createQuery(hql));
 		return (resourceSource.size() > 0) ? resourceSource.get(0) : null;
 	}
-
 
 	@Override
 	public Map<String, Object> findAllResourcesSource(Map<String, String> filters) {
@@ -540,7 +532,7 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 			if (filters.containsKey("attribution")) {
 				criteria.add(Restrictions.like("attribution", "%" + filters.get("attribution").trim() + "%"));
 			}
-			
+
 			if (filters.containsKey("domainName")) {
 				criteria.add(Restrictions.like("domainName", "%" + filters.get("domainName").trim() + "%"));
 			}
@@ -552,7 +544,6 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 		rsMap.put("filteredResourcSource", criteria.list());
 		return rsMap;
 	}
-
 
 	@Override
 	public List<Resource> findByContentIds(List<Long> contentIds) {
@@ -573,13 +564,11 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 		getJdbcTemplate().execute(query);
 	}
 
-
 	@Override
 	public List<String> getUnorderedInstanceSegments() {
-		
+
 		return list(getSession().createSQLQuery(UNORDERED_SEGMENTS));
 	}
-
 
 	@Override
 	public ResourceInfo findResourceInfo(String resourceGooruOid) {
@@ -590,7 +579,6 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 		return infos.size() > 0 ? infos.get(0) : null;
 	}
 
-	
 	@Override
 	public void deleteResourceBulk(String contentIds) {
 		try {
@@ -603,7 +591,6 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 			getLogger().error("couldn't delete resource", e);
 		}
 	}
-
 
 	@Override
 	public String getContentIdsByGooruOIds(String resourceGooruOIds) {
@@ -624,7 +611,6 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 		return contentIds;
 	}
 
-
 	@Override
 	public List<Resource> findAllResourcesByGooruOId(String resourceGooruOIds) {
 		String hql = "SELECT resource FROM Resource resource   WHERE resource.gooruOid IN(:gooruOIds) AND  " + generateAuthQuery("resource.");
@@ -634,14 +620,12 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 		return list(query);
 	}
 
-
 	@Override
 	public ResourceUrlStatus findResourceUrlStatusByGooruOId(String resourceGooruOId) {
 		String hql = "SELECT urlStatus FROM ResourceUrlStatus urlStatus   WHERE urlStatus.resource.gooruOid = '" + resourceGooruOId + "' AND  " + generateAuthQueryWithDataNew("urlStatus.resource.");
 		List<ResourceUrlStatus> resourceUrlStatus = list(getSession().createQuery(hql));
 		return resourceUrlStatus.size() > 0 ? resourceUrlStatus.get(0) : null;
 	}
-
 
 	@Override
 	public Resource findResourceByUrl(String resourceUrl, String sharing, String userUid) {
@@ -660,7 +644,7 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 		if (userUid != null) {
 			hql += " AND resource.user.partyUid =:userUid";
 		}
-		if(sharing != null){
+		if (sharing != null) {
 			hql += " AND resource.sharing = :sharing";
 		}
 
@@ -668,8 +652,9 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 		Query query = getSession().createQuery(hql);
 		query.setParameter("resourceUrl", resourceUrl);
 		query.setParameter("type", type);
-		if(sharing != null)
-		query.setParameter("sharing", sharing);
+		if (sharing != null) {
+			query.setParameter("sharing", sharing);
+		}
 		if (userUid != null) {
 			query.setParameter("userUid", userUid);
 		}
@@ -677,7 +662,6 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 		List<Resource> resourceList = list(query);
 		return resourceList != null && resourceList.size() > 0 ? resourceList.get(0) : null;
 	}
-
 
 	@Override
 	public List<Resource> getResourceListByUrl(String resourceUrl, String sharing, String userUid) {
@@ -698,7 +682,6 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 		return resourceList != null && resourceList.size() > 0 ? resourceList : null;
 	}
 
-
 	@Override
 	public List<Resource> listAllResourceWithoutGroups(Map<String, String> filters) {
 		Integer pageNum = Integer.parseInt(filters.get(PAGE_NO));
@@ -707,7 +690,6 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 		List<Resource> resourceList = list(getSession().createQuery(hql).setFirstResult(pageSize * (pageNum - 1)).setMaxResults(pageSize <= MAX_LIMIT ? pageSize : MAX_LIMIT));
 		return (resourceList.size() > 0) ? resourceList : null;
 	}
-
 
 	@Override
 	public Resource getResourceByResourceInstanceId(String resourceInstanceId) {
@@ -720,7 +702,6 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 		return (resource != null && resource.size() > 0) ? resource.get(0) : null;
 	}
 
-
 	@Override
 	public List<String> findAllPublicResourceGooruOIds(Map<String, String> filters) {
 		String hql = "SELECT r.gooruOid FROM Resource r  WHERE r.sharing='public' AND  " + generateAuthQueryWithDataNew("r.");
@@ -732,10 +713,9 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 		if (filters.containsKey(PAGE_SIZE)) {
 			pageSize = Integer.parseInt(filters.get(PAGE_SIZE));
 		}
-		List<String> gooruOIds  = list(getSession().createQuery(hql).setFirstResult(pageSize * (pageNum - 1)).setMaxResults(pageSize));
+		List<String> gooruOIds = list(getSession().createQuery(hql).setFirstResult(pageSize * (pageNum - 1)).setMaxResults(pageSize));
 		return (gooruOIds.size() > 0) ? gooruOIds : null;
 	}
-
 
 	@Override
 	public ResourceInfo getResourcePageCount(String resourceId) {
@@ -747,7 +727,6 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 		return (resourceInfo != null && resourceInfo.size() > 0) ? resourceInfo.get(0) : null;
 	}
 
-
 	@Override
 	public String getResourceInstanceNarration(String resourceInstanceId) {
 		String hql = "SELECT r.narrative FROM ResourceInstance r WHERE r.resourceInstanceId=:resourceInstanceId";
@@ -756,7 +735,6 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 		List<String> resourceInstance = list(query);
 		return (resourceInstance != null && resourceInstance.size() > 0) ? resourceInstance.get(0) : null;
 	}
-
 
 	@Override
 	public CsvCrawler getCsvCrawler(String url, String type) {
@@ -770,7 +748,6 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 		save(csvCrawler);
 	}
 
-
 	@Override
 	public boolean findIdIsValid(Class<?> modelClass, String id) {
 		String hql = "SELECT 1 FROM " + modelClass.getSimpleName() + " model WHERE model.contentId = " + id + ")";
@@ -779,7 +756,6 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 		List<Long> results = list(query);
 		return (results != null && results.size() > 0) ? true : false;
 	}
-
 
 	@Override
 	public String shortenedUrlResourceCheck(String domainName, String domainType) {
@@ -791,7 +767,6 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 		return (urlType != null && urlType.size() > 0) ? urlType.get(0) : null;
 	}
 
-
 	@Override
 	public List<Resource> listResourcesUsedInCollections(Map<String, String> filters) {
 		Integer pageNum = Integer.parseInt(filters.get(PAGE_NO));
@@ -802,7 +777,6 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 		query.setMaxResults(pageSize != null ? (pageSize > MAX_LIMIT ? MAX_LIMIT : pageSize) : pageSize);
 		return list(query);
 	}
-
 
 	@Override
 	public ResourceMetadataCo findResourceFeeds(String resourceGooruOid) {
@@ -826,8 +800,8 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 	public List getResourceFlatten(List<Long> contentIds) {
 
 		String contentIdsJoined = StringUtils.join(contentIds, ",");
-				String sql = "SELECT vrm.*, vrcd.*, vrsd.scollection_gooru_oids, vrcf.* from v_resource_meta vrm left join v_resource_coll_data vrcd on vrcd.content_id = vrm.id left join v_resource_scoll_data vrsd on vrsd.resource_id = vrm.id left outer join v_resource_cust_fields vrcf on vrcf.custom_fields_content_id = vrm.id where vrm.id in ("
-				+ contentIdsJoined + ")";
+		String sql = "SELECT vrm.*, vrcd.*, vrsd.scollection_gooru_oids, vrcf.* from v_resource_meta vrm left join v_resource_coll_data vrcd on vrcd.content_id = vrm.id left join v_resource_scoll_data vrsd on vrsd.resource_id = vrm.id left outer join v_resource_cust_fields vrcf on vrcf.custom_fields_content_id = vrm.id where vrm.id in ("
+		        + contentIdsJoined + ")";
 		SQLQuery query = getSession().createSQLQuery(sql);
 		query.setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP);
 		return query.list();
@@ -889,16 +863,14 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 		return query.list();
 	}
 
-
 	@Override
 	public List<Resource> listResourcesUsedInCollections(Integer limit, Integer offset) {
 		String hql = "SELECT r.resource FROM ResourceInstance r";
-		Query query= getSession().createQuery(hql);
+		Query query = getSession().createQuery(hql);
 		query.setFirstResult(offset);
 		query.setMaxResults(offset != null ? (offset > MAX_LIMIT ? MAX_LIMIT : offset) : offset);
 		return list(query);
 	}
-
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -912,7 +884,6 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 		return (Map<String, Object>) ((results.size() > 0) ? results.get(0) : null);
 	}
 
-
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Map<String, Object>> getPartyPermissions(long contentId) {
@@ -922,7 +893,6 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 		query.setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP);
 		return query.list();
 	}
-
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -936,7 +906,6 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 		return (Map<String, Object>) ((results.size() > 0) ? results.get(0) : null);
 	}
 
-
 	@Override
 	public List<Long> findValidContentIds(Class<?> modelClass, String ids) {
 		String hql = "SELECT model.contentId  FROM " + modelClass.getSimpleName() + " model WHERE model.contentId in (" + ids + ")";
@@ -944,7 +913,6 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 		return list(query);
 
 	}
-
 
 	@Override
 	public Textbook findTextbookByContentGooruIdWithNewSession(String gooruOid) {
@@ -969,14 +937,13 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 		};
 		getJdbcTemplate().update(creator);
 	}
-	
+
 	@Override
 	public License getLicenseByLicenseName(String licenseName) {
 		String hql = "From License lic where lic.name =:licenseName";
 		Query query = getSession().createQuery(hql).setParameter("licenseName", licenseName);
-		return  (License)(query.list().size() > 0 ? query.list().get(0) : null);
+		return (License) (query.list().size() > 0 ? query.list().get(0) : null);
 	}
-	
 
 	@Override
 	public Resource findResourceByContent(String gooruOid) {
@@ -985,7 +952,6 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 		return resources.size() == 0 ? null : resources.get(0);
 	}
 
-
 	@Override
 	public Resource findLtiResourceByContentGooruId(String gooruContentId) {
 		Query query = getSession().createQuery("SELECT lti FROM LtiContentAssoc lti  where lti.contextId ='" + gooruContentId + "'");
@@ -993,24 +959,24 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 		return ltiContentAssoc.size() == 0 ? null : ltiContentAssoc.get(0).getResource();
 	}
 
-	 @SuppressWarnings("unchecked")
+	@SuppressWarnings("unchecked")
 	@Override
-	 public List<ContentProvider> getResourceContentProvierList() {
-			String hql = "From ContentProvider where activeFlag=1";
-			Query query = getSession().createQuery(hql);
-            query.setFirstResult(0);
-            query.setMaxResults(200);
-            List<ContentProvider> contentProviderList = (List<ContentProvider>) query.list();
-            return (contentProviderList != null && contentProviderList.size() > 0 ) ? contentProviderList : null;
-	 }
+	public List<ContentProvider> getResourceContentProvierList() {
+		String hql = "From ContentProvider where activeFlag=1";
+		Query query = getSession().createQuery(hql);
+		query.setFirstResult(0);
+		query.setMaxResults(200);
+		List<ContentProvider> contentProviderList = (List<ContentProvider>) query.list();
+		return (contentProviderList != null && contentProviderList.size() > 0) ? contentProviderList : null;
+	}
 
 	@Override
 	public ResourceSummary getResourceSummaryById(String gooruOid) {
-		String hql = "From ResourceSummary rs where rs.resourceGooruOid= '"+gooruOid+"'";
+		String hql = "From ResourceSummary rs where rs.resourceGooruOid= '" + gooruOid + "'";
 		Query query = getSession().createQuery(hql);
-		return query.list().size() > 0 ? (ResourceSummary) query.list().get(0)  : null;
+		return query.list().size() > 0 ? (ResourceSummary) query.list().get(0) : null;
 	}
-	
+
 	@Override
 	public Integer getSubscriptionCountForGooruOid(String contentGooruOid) {
 		Query query = getSession().createSQLQuery(COUNT_SUBSCRIPTION_FOR_GOORUOID).addScalar("totalCount", StandardBasicTypes.INTEGER).setParameter("gooruOid", contentGooruOid);
@@ -1023,11 +989,11 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 			return new Integer(0);
 		}
 	}
-	  
+
 	@Override
 	public List<Collection> getCollectionsByResourceId(String resourceId, String sharing, Integer limit, Integer offset) {
 		String hql = "SELECT ci.collection FROM  CollectionItem ci  where ci.resource.gooruOid=:resourceId";
-		if (sharing != null) {		
+		if (sharing != null) {
 			hql += " and ci.collection.sharing in ('" + sharing.replace(",", "','") + "') ";
 		}
 		hql += " group by  ci.collection.user";
@@ -1037,9 +1003,9 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
 		return list(query);
 	}
-	
+
 	public JdbcTemplate getJdbcTemplate() {
 		return jdbcTemplate;
 	}
-	 
+
 }
