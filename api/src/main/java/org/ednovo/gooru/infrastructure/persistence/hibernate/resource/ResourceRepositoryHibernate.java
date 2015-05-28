@@ -650,10 +650,10 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 		query.setParameter("resourceUrl", resourceUrl);
 		query.setParameter("type", type);
 		if (sharing != null) {
-			query.setParameter("sharing", sharing);
+			query.setParameter(SHARING, sharing);
 		}
 		if (userUid != null) {
-			query.setParameter("userUid", userUid);
+			query.setParameter(USER_UID, userUid);
 		}
 		addAuthParameters(query);
 		List<Resource> resourceList = list(query);
