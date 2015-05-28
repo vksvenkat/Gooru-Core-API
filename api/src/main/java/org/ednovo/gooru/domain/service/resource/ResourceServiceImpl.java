@@ -1537,7 +1537,9 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				this.getResourceImageUtil().moveAttachment(newResource, resource);
 			}
 		} else if (updateIfExist) {
-			updateResource(resource.getGooruOid(), newResource, tags, user);
+			if(!resource.getSharing().equalsIgnoreCase(PUBLIC)){
+				updateResource(resource.getGooruOid(), newResource, tags, user);
+			}
 		}
 
 		return resource;
@@ -1554,7 +1556,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				ResourceSource resourceSource = null;
 				String domainName = null;
 				if (newResource.getUrl() != null && !newResource.getUrl().isEmpty()) {
-					if (!resource.getUrl().equalsIgnoreCase(newResource.getUrl())) {
+					if (!(resource.getSharing().equalsIgnoreCase(PUBLIC)) && resource.getUrl().equalsIgnoreCase(newResource.getUrl())) {
 						itemData.put("url", newResource.getUrl());
 						resource.setUrl(newResource.getUrl());
 						domainName = BaseUtil.getDomainName(newResource.getUrl());
@@ -1674,7 +1676,6 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				resource.setResourceSource(resourceSource);
 			}
 			resourceRepository.save(resource);
-
 			if (newResource.getThumbnail() != null) {
 				this.getResourceImageUtil().downloadAndSendMsgToGenerateThumbnails(resource, newResource.getThumbnail());
 			}

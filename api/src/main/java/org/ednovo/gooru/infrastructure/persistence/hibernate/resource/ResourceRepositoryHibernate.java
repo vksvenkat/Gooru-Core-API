@@ -647,7 +647,7 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 	public Resource findResourceByUrl(String resourceUrl, String sharing, String userUid) {
 		String videoId = ResourceImageUtil.getYoutubeVideoId(resourceUrl);
 		String type = null;
-		String hql = "SELECT resource FROM Resource resource   WHERE  resource.sharing = :sharing AND " + generateAuthQuery("resource.");
+		String hql = "SELECT resource FROM Resource resource   WHERE  " + generateAuthQuery("resource.");
 		if (videoId != null) {
 			resourceUrl = "%" + videoId + "%";
 			type = ResourceType.Type.VIDEO.getType();
@@ -660,11 +660,15 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 		if (userUid != null) {
 			hql += " AND resource.user.partyUid =:userUid";
 		}
+		if(sharing != null){
+			hql += " AND resource.sharing = :sharing";
+		}
 
 		hql += " AND resource.resourceType.name =:type";
 		Query query = getSession().createQuery(hql);
 		query.setParameter("resourceUrl", resourceUrl);
 		query.setParameter("type", type);
+		if(sharing != null)
 		query.setParameter("sharing", sharing);
 		if (userUid != null) {
 			query.setParameter("userUid", userUid);
