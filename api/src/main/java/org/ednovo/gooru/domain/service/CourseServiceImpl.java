@@ -116,7 +116,7 @@ public class CourseServiceImpl extends BaseServiceImpl implements CourseService,
 		rejectIfNull(course, GL0056, 404, COURSE);
 		course.setActiveFlag((short) 0);
 		course.setLastModified(new Date(System.currentTimeMillis()));
-		courseRepository.save(course);
+		this.getCourseRepository().save(course);
 	}
 
 	private Errors validateCourse(Course course) {

@@ -51,7 +51,7 @@ public class DomainServiceImpl extends BaseServiceImpl implements DomainService,
 			domain.setCreatedOn(new Date(System.currentTimeMillis()));
 			domain.setLastModified(new Date(System.currentTimeMillis()));
 			domain.setActiveFlag((short) 1);
-			domainRepository.save(domain);
+			this.getDomainRepository().save(domain);
 		}
 		return new ActionResponseDTO<Domain>(domain, error);
 	}
@@ -103,7 +103,7 @@ public class DomainServiceImpl extends BaseServiceImpl implements DomainService,
 		rejectIfNull(domain, GL0056, 404, DOMAIN_);
 		domain.setActiveFlag((short) 0);
 		domain.setLastModified(new Date(System.currentTimeMillis()));
-		domainRepository.save(domain);
+		this.getDomainRepository().save(domain);
 	}
 
 	private Errors validateDomain(Domain domain) {
