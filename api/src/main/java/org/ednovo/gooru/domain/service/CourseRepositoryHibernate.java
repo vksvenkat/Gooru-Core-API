@@ -42,8 +42,6 @@ public class CourseRepositoryHibernate extends BaseRepositoryHibernate implement
 
 	private static final String GET_COURSES = "FROM Course"; 
 	
-	private static final String GET_SUBJECT_ID = "FROM Subject s  WHERE s.subjectId=:subjectId"; 
-	
 	private static final String GET_COUNT = "SELECT COUNT(*) FROM Course"; 
 
 
@@ -59,12 +57,6 @@ public class CourseRepositoryHibernate extends BaseRepositoryHibernate implement
 		return (Course) (query.list().size() > 0 ? query.list().get(0) : null);
 	}
 	
-	@Override
-	public Subject getSubjectId(Integer subjectId) {
-		Query query = getSession().createQuery(GET_SUBJECT_ID).setParameter(SUBJECT_ID, subjectId);
-		return (Subject) (query.list().size() > 0 ? query.list().get(0) : null);
-	}
-
 	@Override
 	public List<Course> getCourses(Integer limit, Integer offset) {
 		Query query = getSession().createQuery(GET_COURSES);

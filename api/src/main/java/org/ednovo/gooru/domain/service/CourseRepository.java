@@ -35,8 +35,6 @@ public interface CourseRepository extends BaseRepository {
 
 	Course getCourseCode(String courseCode);
 	
-	Subject getSubjectId(Integer subjectId);
-
 	List<Course> getCourses(Integer limit, Integer offset);
 
 	Long getCourseCount();

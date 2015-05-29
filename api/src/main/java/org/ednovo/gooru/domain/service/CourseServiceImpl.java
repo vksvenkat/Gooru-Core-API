@@ -61,7 +61,7 @@ public class CourseServiceImpl extends BaseServiceImpl implements CourseService,
 			course.setCreatedOn(new Date(System.currentTimeMillis()));
 			course.setLastModified(new Date(System.currentTimeMillis()));
 			course.setActiveFlag((short) 1);
-			this.getContentRepository().save(course);
+			this.getCourseRepository().save(course);
 		}
 		return new ActionResponseDTO<Course>(course, errors);
 	}

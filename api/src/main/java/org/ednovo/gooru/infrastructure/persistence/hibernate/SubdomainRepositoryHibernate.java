@@ -25,8 +25,6 @@ package org.ednovo.gooru.infrastructure.persistence.hibernate;
 
 import java.util.List;
 
-import org.ednovo.gooru.core.api.model.Course;
-import org.ednovo.gooru.core.api.model.Domain;
 import org.ednovo.gooru.core.api.model.Subdomain;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
@@ -39,26 +37,11 @@ public class SubdomainRepositoryHibernate extends BaseRepositoryHibernate implem
 	private static final String SUBDOMAIN_COUNT = "SELECT COUNT(*) FROM Subdomain";
 	private static final String SUBDOMAINS = "FROM Subdomain";
 	private static final String SUBDOMAIN = "FROM Subdomain subdomain WHERE subdomain.subdomainId=:subdomainId";
-	private static final String GET_COURSE = "FROM Course c  WHERE c.courseId=:courseId"; 
-	private static final String GET_DOMAIN = "FROM Domain d  WHERE d.domainId=:domainId"; 
-
 
 	@Override
 	public Subdomain getSubdomain(Integer subdomainId) {
 		Query query = getSession().createQuery(SUBDOMAIN).setParameter(SUBDOMAIN_ID, subdomainId);
 		return (Subdomain) (query.list().size() > 0 ? query.list().get(0) : null);
-	}
-	
-	@Override
-	public Course getCourse(Integer courseId) {
-		Query query = getSession().createQuery(GET_COURSE).setParameter(COURSE_ID, courseId);
-		return (Course) (query.list().size() > 0 ? query.list().get(0) : null);
-	}
-	
-	@Override
-	public Domain getDomain(Integer domainId) {
-		Query query = getSession().createQuery(GET_DOMAIN).setParameter(DOMAIN_ID, domainId);
-		return (Domain) (query.list().size() > 0 ? query.list().get(0) : null);
 	}
 
 	@Override
