@@ -76,7 +76,7 @@ public class ResourceImportServiceImpl extends FileImporter implements ResourceI
 					String data = formInputJson(row, json, keys).toString();
 					JSONObject jsonObj = requestData(generateJSONInput(data, UNDER_SCORE));
 					String gooruOid = getValue(GOORU_OID, requestData(getValue(RESOURCE, jsonObj)));
-					if (gooruOid != null && !(StringUtils.isBlank(gooruOid))) {
+					if (!(StringUtils.isBlank(gooruOid))) {
 						this.getResourceService().updateResource(gooruOid, this.buildResourceFromInputParameters(getValue(RESOURCE, jsonObj)), getValue(RESOURCE_TAGS, jsonObj) == null ? null : buildResourceTags(getValue(RESOURCE_TAGS, jsonObj)), user);
 					} else {
 						this.getResourceService().createResource(this.getResourceService().buildResourceFromInputParameters(getValue(RESOURCE, jsonObj), user), (getValue(RESOURCE_TAGS, jsonObj) != null) ? buildResourceTags(getValue(RESOURCE_TAGS, jsonObj)) : null, user, true);
