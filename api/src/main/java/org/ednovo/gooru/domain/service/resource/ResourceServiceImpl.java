@@ -27,27 +27,18 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-
-import javax.xml.namespace.NamespaceContext;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathFactory;
 
 import org.apache.commons.lang.StringUtils;
 import org.ednovo.gooru.application.util.AsyncExecutor;
@@ -1537,7 +1528,9 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				this.getResourceImageUtil().moveAttachment(newResource, resource);
 			}
 		} else if (updateIfExist) {
-			updateResource(resource.getGooruOid(), newResource, tags, user);
+			if(!resource.getSharing().equalsIgnoreCase(PUBLIC)){
+				updateResource(resource.getGooruOid(), newResource, tags, user);
+			}
 		}
 
 		return resource;
@@ -1554,7 +1547,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				ResourceSource resourceSource = null;
 				String domainName = null;
 				if (newResource.getUrl() != null && !newResource.getUrl().isEmpty()) {
-					if (!resource.getUrl().equalsIgnoreCase(newResource.getUrl())) {
+					if (!(resource.getSharing().equalsIgnoreCase(PUBLIC)) && resource.getUrl().equalsIgnoreCase(newResource.getUrl())) {
 						itemData.put("url", newResource.getUrl());
 						resource.setUrl(newResource.getUrl());
 						domainName = BaseUtil.getDomainName(newResource.getUrl());
@@ -1674,7 +1667,6 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				resource.setResourceSource(resourceSource);
 			}
 			resourceRepository.save(resource);
-
 			if (newResource.getThumbnail() != null) {
 				this.getResourceImageUtil().downloadAndSendMsgToGenerateThumbnails(resource, newResource.getThumbnail());
 			}

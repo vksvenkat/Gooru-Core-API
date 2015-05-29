@@ -165,7 +165,7 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 
 	@Override
 	public void deleteTagAssoc(String gooruOid, List<String> labels, User apiCaller) {
-
+		List<Map<String, Object>> contentTagAssocs = new ArrayList<Map<String, Object>>();
 		Content content = this.contentRepository.findContentByGooruId(gooruOid);
 		if (content == null) {
 			throw new NotFoundException("content not found!!!", "GL0056");
@@ -181,11 +181,11 @@ public class ContentServiceImpl extends BaseServiceImpl implements ContentServic
 					UserSummary userSummary = this.getUserRepository().getSummaryByUid(apiCaller.getPartyUid());
 					userSummary.setTag(userSummary.getTag() <= 0 ? 0 : userSummary.getTag() - 1);
 					this.getUserRepository().save(userSummary);
-					this.getContentEventLog().getEventlogs(gooruOid, apiCaller, false, true,  setcontentTagAssoc(contentTagAssoc, label));
-					
+					contentTagAssocs.add(setcontentTagAssoc(contentTagAssoc, label));
 				}
 			}
 		} 
+		this.getContentEventLog().getEventlogs(gooruOid, apiCaller, false, true, contentTagAssocs);
 
 	}
 	
