@@ -57,11 +57,11 @@ public class SubdomainServiceImpl extends BaseServiceImpl implements SubdomainSe
 	@Override
 	public ActionResponseDTO<Subdomain> createSubdomain(Subdomain subdomain, User user) {
 		final Errors errors = validateSubdomain(subdomain);
+		 Course course = this.getCourseRepository().getCourse(subdomain.getCourseId());
+         rejectIfNull(course, GL0006, 404, COURSE);
+         Domain domain = this.getDomainRepository().getDomain(subdomain.getDomainId());
+         rejectIfNull(domain, GL0006, 404, DOMAIN_);
 		if (!errors.hasErrors()) {
-            Course course = this.getCourseRepository().getCourse(subdomain.getCourseId());
-            rejectIfNull(course, GL0006, 404, COURSE);
-            Domain domain = this.getDomainRepository().getDomain(subdomain.getDomainId());
-            rejectIfNull(domain, GL0006, 404, DOMAIN_);
 			subdomain.setCreatedOn(new Date(System.currentTimeMillis()));
 			this.getSubdomainRepository().save(subdomain);
 		}

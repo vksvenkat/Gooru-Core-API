@@ -51,17 +51,17 @@ public class CourseServiceImpl extends BaseServiceImpl implements CourseService,
 	public ActionResponseDTO<Course> createCourse(Course course, User user) {
  
 		final Errors errors = validateCourse(course);
+		Subject subject = this.getSubjectRepository().getSubject(course.getSubjectId());
+		rejectIfNull(subject, GL0006, 404, SUBJECT);
+		Course courseCode = this.getCourseRepository().getCourseCode(course.getCourseCode());
+		rejectIfAlreadyExist(courseCode, GL0101, COURSE);
 		if (!errors.hasErrors()) {
 			course.setCreatorUid(user);
 			course.setOrganization(user.getOrganization());
 			course.setCreatedOn(new Date(System.currentTimeMillis()));
 			course.setLastModified(new Date(System.currentTimeMillis()));
 			course.setActiveFlag((short) 1);
-            Subject subject = this.getSubjectRepository().getSubject(course.getSubjectId());
-    		rejectIfNull(subject, GL0006, 404, SUBJECT);
-			Course courseCode = this.getCourseRepository().getCourseCode(course.getCourseCode());
-			rejectIfAlreadyExist(courseCode, GL0101, COURSE);
-			courseRepository.save(course);
+			this.getContentRepository().save(course);
 		}
 		return new ActionResponseDTO<Course>(course, errors);
 	}
