@@ -24,6 +24,7 @@
 
 package org.ednovo.gooru.domain.service.eventlogs;
 
+import java.util.List;
 import java.util.Map;
 
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
@@ -42,9 +43,11 @@ public class ContentEventLog implements ParameterProperties, ConstantProperties 
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(ContentEventLog.class);
 
-	public void getEventlogs(String gooruOid, User apiCaller, boolean isAdd, boolean isRemove, Map<String, Object> contentTagAssoc) {
+	public void getEventlogs(String gooruOid, User apiCaller, boolean isAdd, boolean isRemove, List<Map<String, Object>> contentTagAssocs) {
+		
 		
 		try {
+			
 		JSONObject context = SessionContextSupport.getLog().get(CONTEXT) != null ? new JSONObject(SessionContextSupport.getLog().get(CONTEXT).toString()) : new JSONObject();
 		context.put(CONTENT_GOORU_ID, gooruOid);
 		SessionContextSupport.putLogParameter(CONTEXT, context.toString());
@@ -58,7 +61,7 @@ public class ContentEventLog implements ParameterProperties, ConstantProperties 
 	    } else if(isRemove) {
 	    	payLoadObject.put(MODE, DELETE);
 	    }
-			payLoadObject.put(DATA, JsonSerializer.serializeToJson(contentTagAssoc));
+	    	payLoadObject.put(DATA, JsonSerializer.serializeToJson(contentTagAssocs));
 			SessionContextSupport.putLogParameter(PAY_LOAD_OBJECT, payLoadObject.toString());
 		} catch (Exception e) {
 			LOGGER.error(_ERROR , e);
@@ -66,5 +69,3 @@ public class ContentEventLog implements ParameterProperties, ConstantProperties 
 	}
 
 }
-	
-
