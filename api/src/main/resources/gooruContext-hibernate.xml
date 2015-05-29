@@ -1,27 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-   gooruContext-hibernate.xml
-   gooru-api
-   Created by Gooru on 2014
-   Copyright (c) 2014 Gooru. All rights reserved.
-   http://www.goorulearning.org/
-   Permission is hereby granted, free of charge, to any person obtaining
-   a copy of this software and associated documentation files (the
-   "Software"), to deal in the Software without restriction, including
-   without limitation the rights to use, copy, modify, merge, publish,
-   distribute, sublicense, and/or sell copies of the Software, and to
-   permit persons to whom the Software is furnished to do so, subject to
-   the following conditions:
-   The above copyright notice and this permission notice shall be
-   included in all copies or substantial portions of the Software.
-   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-   EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-   NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-   LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-   OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
--->
+<!-- gooruContext-hibernate.xml gooru-api Created by Gooru on 2014 Copyright 
+	(c) 2014 Gooru. All rights reserved. http://www.goorulearning.org/ Permission 
+	is hereby granted, free of charge, to any person obtaining a copy of this 
+	software and associated documentation files (the "Software"), to deal in 
+	the Software without restriction, including without limitation the rights 
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell 
+	copies of the Software, and to permit persons to whom the Software is furnished 
+	to do so, subject to the following conditions: The above copyright notice 
+	and this permission notice shall be included in all copies or substantial 
+	portions of the Software. THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY 
+	OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES 
+	OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+	IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
+	DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
+	ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
+	DEALINGS IN THE SOFTWARE. -->
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
 	xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
@@ -68,7 +61,8 @@
 
 				<!-- Party Domain -->
 				<value>org/ednovo/gooru/domain/model/party/Party.hbm.xml</value>
-				<value>org/ednovo/gooru/domain/model/party/UserSummary.hbm.xml</value>
+				<value>org/ednovo/gooru/domain/model/party/UserSummary.hbm.xml
+				</value>
 				<value>org/ednovo/gooru/domain/model/party/PartyPermission.hbm.xml
 				</value>
 				<value>org/ednovo/gooru/domain/model/party/ContentPermission.hbm.xml
@@ -85,7 +79,7 @@
 				<value>org/ednovo/gooru/domain/model/core/Province.hbm.xml</value>
 				<value>org/ednovo/gooru/domain/model/core/Subject.hbm.xml</value>
 				<value>org/ednovo/gooru/domain/model/core/Subdomain.hbm.xml</value>
-				
+
 				<!-- <value>org/ednovo/gooru/domain/model/taxonomy/GetTaxonomyProcedure.hbm.xml</value> -->
 				<!-- User Domain -->
 				<value>org/ednovo/gooru/domain/model/user/UserToken.hbm.xml</value>
@@ -93,8 +87,7 @@
 				<value>org/ednovo/gooru/domain/model/user/Idp.hbm.xml</value>
 				<value>org/ednovo/gooru/domain/model/user/Identity.hbm.xml</value>
 				<value>org/ednovo/gooru/domain/model/user/Profile.hbm.xml</value>
-				<value>org/ednovo/gooru/domain/model/user/UserRoleAssoc.hbm.xml
-				</value>
+				<value>org/ednovo/gooru/domain/model/user/UserRoleAssoc.hbm.xml</value>
 				<value>org/ednovo/gooru/domain/model/user/Credential.hbm.xml</value>
 				<value>org/ednovo/gooru/domain/model/user/UserRelationship.hbm.xml
 				</value>
@@ -113,7 +106,8 @@
 
 				<!-- Content Domain -->
 				<value>org/ednovo/gooru/domain/model/content/Content.hbm.xml</value>
-				<value>org/ednovo/gooru/domain/model/content/ContentSettings.hbm.xml</value>
+				<value>org/ednovo/gooru/domain/model/content/ContentSettings.hbm.xml
+				</value>
 				<value>org/ednovo/gooru/domain/model/content/ContentType.hbm.xml
 				</value>
 				<value>org/ednovo/gooru/domain/model/content/ContentAssociation.hbm.xml
@@ -144,8 +138,10 @@
 				<value>org/ednovo/gooru/domain/model/taxonomy/CodeType.hbm.xml
 				</value>
 				<value>org/ednovo/gooru/domain/model/taxonomy/Code.hbm.xml</value>
-				<value>org/ednovo/gooru/domain/model/taxonomy/CodeOrganizationAssoc.hbm.xml</value>
-				<value>org/ednovo/gooru/domain/model/taxonomy/CodeUserAssoc.hbm.xml</value>
+				<value>org/ednovo/gooru/domain/model/taxonomy/CodeOrganizationAssoc.hbm.xml
+				</value>
+				<value>org/ednovo/gooru/domain/model/taxonomy/CodeUserAssoc.hbm.xml
+				</value>
 
 				<value>org/ednovo/gooru/domain/model/annotation/TagType.hbm.xml
 				</value>
@@ -180,12 +176,14 @@
 				</value>
 				<value>org/ednovo/gooru/domain/model/featuredset/FeaturedSetItems.hbm.xml
 				</value>
-				
-				
-				<!-- Content Provider   -->
-				<value>org/ednovo/gooru/domain/model/content/ContentProvider.hbm.xml</value>
-				<value>org/ednovo/gooru/domain/model/content/ContentProviderAssociation.hbm.xml</value>
-				
+
+
+				<!-- Content Provider -->
+				<value>org/ednovo/gooru/domain/model/content/ContentProvider.hbm.xml
+				</value>
+				<value>org/ednovo/gooru/domain/model/content/ContentProviderAssociation.hbm.xml
+				</value>
+
 				<!-- Storage -->
 				<value>org/ednovo/gooru/domain/model/storage/StorageAccount.hbm.xml
 				</value>
@@ -219,7 +217,8 @@
 				</value>
 
 				<!-- Session -->
-				<value>org/ednovo/gooru/domain/model/session/SessionActivity.hbm.xml</value>
+				<value>org/ednovo/gooru/domain/model/session/SessionActivity.hbm.xml
+				</value>
 				<value>org/ednovo/gooru/domain/model/session/SessionActivityItem.hbm.xml
 				</value>
 				<value>org/ednovo/gooru/domain/model/session/SessionActivityItemAttemptTry.hbm.xml
@@ -252,7 +251,7 @@
 				</value>
 				<value>org/ednovo/gooru/domain/model/collection/UserCollectionItemAssoc.hbm.xml
 				</value>
-				
+
 
 				<!--CustomSetting -->
 				<value>org/ednovo/gooru/domain/model/customsetting/CustomSetting.hbm.xml
@@ -272,29 +271,39 @@
 				<value>org/ednovo/gooru/domain/model/event/Event.hbm.xml</value>
 				<value>org/ednovo/gooru/domain/model/event/EventMapping.hbm.xml
 				</value>
-				
-				<!--  Organization Setting -->
-				<value>org/ednovo/gooru/domain/model/organizationSetting/OrganizationSetting.hbm.xml</value>
-				
-				<!-- Oauth 
-				<value>org/ednovo/gooru/domain/model/oauth/OAuthClient.hbm.xml</value>-->
-				
-				<value>org/ednovo/gooru/domain/model/user/OrganizationDomainAssoc.hbm.xml</value>
-				
-				<!--  LtiContentAssoc-->
-				<value>org/ednovo/gooru/domain/model/user/LtiContentAssoc.hbm.xml</value>
-				
+
+				<!-- Organization Setting -->
+				<value>org/ednovo/gooru/domain/model/organizationSetting/OrganizationSetting.hbm.xml
+				</value>
+
+				<!-- Oauth <value>org/ednovo/gooru/domain/model/oauth/OAuthClient.hbm.xml</value> -->
+
+				<value>org/ednovo/gooru/domain/model/user/OrganizationDomainAssoc.hbm.xml
+				</value>
+
+				<!-- LtiContentAssoc -->
+				<value>org/ednovo/gooru/domain/model/user/LtiContentAssoc.hbm.xml
+				</value>
+
 				<!-- Service -->
 				<value>org/ednovo/gooru/domain/model/service/Service.hbm.xml</value>
-				<value>org/ednovo/gooru/domain/model/service/ServicePartyAssoc.hbm.xml</value>
+				<value>org/ednovo/gooru/domain/model/service/ServicePartyAssoc.hbm.xml
+				</value>
 				<!-- Application -->
-				<value>org/ednovo/gooru/domain/model/application/ApplicationItem.hbm.xml</value>
-				
+				<value>org/ednovo/gooru/domain/model/application/ApplicationItem.hbm.xml
+				</value>
+
 				<!-- Menu -->
 				<value>org/ednovo/gooru/domain/model/menu/Menu.hbm.xml</value>
 				<value>org/ednovo/gooru/domain/model/menu/MenuItem.hbm.xml</value>
-				<value>org/ednovo/gooru/domain/model/menu/MenuRoleAssoc.hbm.xml</value>
-				
+				<value>org/ednovo/gooru/domain/model/menu/MenuRoleAssoc.hbm.xml
+				</value>
+
+				<!-- Course -->
+				<value>org/ednovo/gooru/domain/model/core/Course.hbm.xml</value>
+				<value>org/ednovo/gooru/domain/model/core/Domain.hbm.xml</value>
+
+
 			</list>
 		</property>
 		<property name="hibernateProperties">
@@ -305,7 +314,8 @@
 				<prop key="hibernate.jdbc.batch_size">50</prop>
 				<prop key="hibernate.cache.use_second_level_cache">true</prop>
 				<prop key="hibernate.cache.provider_class">org.hibernate.cache.EhCacheProvider</prop>
-				<prop key="hibernate.cache.region.factory_class">org.hibernate.cache.ehcache.EhCacheRegionFactory</prop>
+				<prop key="hibernate.cache.region.factory_class">org.hibernate.cache.ehcache.EhCacheRegionFactory
+				</prop>
 				<prop key="hibernate.connection.useUnicode">true</prop>
 				<prop key="hibernate.connection.release_mode">after_transaction</prop>
 				<prop key="hibernate.connection.characterEncoding">UTF-8</prop>
@@ -320,12 +330,14 @@
 		class="org.ednovo.gooru.infrastructure.persistence.hibernate.HibernateLogger" />
 
 	<bean id="splitResourceController" class="org.ednovo.gooru.application.util.ResourceProcessor" />
-	
-	<bean id="transactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+
+	<bean id="transactionManager"
+		class="org.springframework.orm.hibernate4.HibernateTransactionManager">
 		<property name="sessionFactory" ref="sessionFactory" />
 	</bean>
-	
-	<bean id="transactionManagerReadOnly" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+
+	<bean id="transactionManagerReadOnly"
+		class="org.springframework.orm.hibernate4.HibernateTransactionManager">
 		<property name="sessionFactory" ref="sessionFactoryReadOnly" />
 	</bean>
 

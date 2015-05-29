@@ -47,7 +47,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public abstract class AbstractS3Manager implements ParameterProperties  {
+public abstract class AbstractS3Manager implements ParameterProperties {
 
 	private final Logger logger = LoggerFactory.getLogger(AbstractS3Manager.class);
 
@@ -70,55 +70,6 @@ public abstract class AbstractS3Manager implements ParameterProperties  {
 
 	}
 
-	public BufferedReader download(String s3FilePath) throws Exception {
-
-		S3Object objectComplete = getS3Service().getObject(getS3Bucket(), s3FilePath);
-
-		return new BufferedReader(new InputStreamReader(objectComplete.getDataInputStream()));
-
-	}
-
-	public InputStream downloadAsStream(String s3FilePath) throws Exception {
-
-		S3Object objectComplete = getS3Service().getObject(getS3Bucket(), s3FilePath);
-
-		return objectComplete.getDataInputStream();
-
-	}
-
-	public Map<String, Date> listFolderFiles(String folderName) {
-		try {
-			// getS3Service().listObjects("gooru-content",
-			// "CrawledContentForUpload/", "/");
-			S3Object[] s3objects = getS3Service().listObjects(getS3Bucket(), folderName, "/");
-
-			Map<String, Date> dropBoxfilesMap = new HashMap<String, Date>();
-			// Thread.sleep(60000);
-
-			for (S3Object s3Object : s3objects) {
-				dropBoxfilesMap.put(s3Object.getName(), s3Object.getLastModifiedDate());
-			}
-
-			return dropBoxfilesMap;
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-
-	public void moveFileToDiffrentS3Folder(String srcObj, StorageObject destObj) {
-		try {
-			// getS3Service().moveObject("gooru-content",
-			// "CrawledContentForUpload/20120702-Outreach.csv", "gooru-content",
-			// new
-			// StorageObject("CrawledContentForProcessing/20120702-Outreach.csv"),
-			// false);
-			getS3Service().moveObject(getS3Bucket(), srcObj, getS3Bucket(), destObj, false);
-		} catch (ServiceException e) {
-			e.printStackTrace();
-		}
-	}
-
 	public void deleteFile(Type type, String fileName) throws Exception {
 		String folderInBucket = type.getKey();
 		if (getS3Service().isObjectInBucket(getS3Bucket(), folderInBucket + fileName)) {
@@ -128,99 +79,18 @@ public abstract class AbstractS3Manager implements ParameterProperties  {
 
 	public void uploadFile(Type type, byte[] fileData, String fileName) throws Exception {
 
-		String folderInBucket = settingService.getConfigSetting(ConfigConstants.PROFILE_BUCKET, 0, TaxonomyUtil.GOORU_ORG_UID);
+		S3Object fileObject = new S3Object(fileName, fileData);
+		fileObject = getS3Service().putObject(getS3Bucket(), fileObject);
+		setPublicACL(fileName);
 
-		if (folderInBucket != null) {
-
-			S3Object fileObject = new S3Object(folderInBucket + fileName, fileData);
-			fileObject = getS3Service().putObject(getS3Bucket(), fileObject);
-			setPublicACL(folderInBucket + fileName);
-
-		} else {
-			logger.error("S3 settings are not configured ! ");
-		}
-
-	}
-
-	public void uploadFolder(String folderInBucket, String folderPath) throws Exception {
-
-		if (!(getS3Service().isObjectInBucket(getS3Bucket(), folderInBucket))) {
-			S3Object fileObject = new S3Object(folderInBucket);
-			fileObject = getS3Service().putObject(getS3Bucket(), fileObject);
-			setPublicACL(folderInBucket);
-		}
-
-		File folder = new File(folderPath);
-		traverse(folder, folderInBucket);
 	}
 
 	public void setPublicACL(String objectKey) throws Exception {
-		// Retrieve the bucket's ACL and modify it to grant public access, ie
-		// READ access to the ALL_USERS group.
 		S3Object fileObject = getS3Service().getObject(getS3Bucket(), objectKey);
 		AccessControlList objectAcl = getS3Service().getObjectAcl(getS3Bucket(), fileObject.getKey());
 		objectAcl.grantPermission(GroupGrantee.ALL_USERS, Permission.PERMISSION_READ);
 		fileObject.setAcl(objectAcl);
 		getS3Service().putObject(getS3Bucket(), fileObject);
-	}
-
-	private void traverse(final File f, String folderInBucket) throws Exception {
-		if (f.isDirectory()) {
-			onDirectory(f);
-			final File[] childs = f.listFiles();
-			for (File child : childs) {
-				traverse(child, folderInBucket);
-			}
-			return;
-		}
-		onFile(f, folderInBucket);
-	}
-
-	private static void onDirectory(final File d) {
-
-	}
-
-	private void onFile(final File f, String folderInBucket) throws Exception {
-
-		S3Object fileObject = new S3Object(f);
-		fileObject.setKey(folderInBucket + f.getName());
-		fileObject.setContentType(getContentType(f));
-		fileObject = getS3Service().putObject(getS3Bucket(), fileObject);
-		setPublicACL(folderInBucket + f.getName());
-	}
-
-	public static String getFileName(final String fileName) {
-
-		return fileName.substring(fileName.lastIndexOf("/") + 1, fileName.lastIndexOf("."));
-	}
-
-	public static String getFileFomrat(final String fileName) {
-
-		return fileName.substring(fileName.lastIndexOf(".") + 1, fileName.length());
-	}
-
-	public static String getContentType(final File f) {
-
-		String contentType = "";
-		String ext = "";
-		int dot = f.getAbsolutePath().lastIndexOf(".");
-		if (dot != -1) {
-			ext = f.getAbsolutePath().substring(dot + 1);
-		}
-
-		if (ext.equalsIgnoreCase(PNG)) {
-			contentType = IMAGE_PNG;
-		} else if (ext.equalsIgnoreCase(JPG)) {
-			contentType = IMAGE_JPEG;
-		} else if (ext.equalsIgnoreCase(JPEG)) {
-			contentType = IMAGE_JPEG;
-		} else if (ext.equalsIgnoreCase(GIF)) {
-			contentType = IMAGE_GIF;
-		} else if (ext.equalsIgnoreCase(PDF)) {
-			contentType = APPLICATION_PDF;
-		}
-
-		return contentType;
 	}
 
 	public abstract RestS3Service getS3Service();

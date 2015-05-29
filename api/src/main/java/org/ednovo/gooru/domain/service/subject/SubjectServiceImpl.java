@@ -86,7 +86,10 @@ public class SubjectServiceImpl extends BaseServiceImpl implements SubjectServic
 	public Subject updateSubject(Subject newSubject, Integer subjectId) {
 		Subject subject = subjectRepository.getSubject(subjectId);
 		rejectIfNull(subject, GL0056, 404, SUBJECT);
-		reject((newSubject.getActiveFlag() == 1), GL0007, ACTIVE_FLAG);
+		if (newSubject.getActiveFlag() != null) {
+			reject((newSubject.getActiveFlag() == 0 || newSubject.getActiveFlag() == 1), GL0007, ACTIVE_FLAG);
+			subject.setActiveFlag(newSubject.getActiveFlag());
+	    }
 		if (newSubject.getDescription() != null) {
 			subject.setDescription(newSubject.getDescription());
 		}
@@ -99,7 +102,6 @@ public class SubjectServiceImpl extends BaseServiceImpl implements SubjectServic
 		if (newSubject.getDisplaySequence() != null) {
 			subject.setDisplaySequence(newSubject.getDisplaySequence());
 		}
-		subject.setActiveFlag(newSubject.getActiveFlag());
 		subject.setLastModified(new Date(System.currentTimeMillis()));
 		this.getSubjectRepository().save(subject);
 		return subject;
