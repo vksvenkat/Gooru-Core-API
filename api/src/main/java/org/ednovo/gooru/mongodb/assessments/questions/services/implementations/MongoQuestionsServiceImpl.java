@@ -161,6 +161,9 @@ public class MongoQuestionsServiceImpl implements MongoQuestionsService {
 		return doc != null ? doc.toJson() : null;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.ednovo.gooru.mongodb.assessments.questions.services.MongoQuestionsService#getQuestionByIdWithJsonAdjustments(java.lang.String)
+	 */
 	@Override
 	public String getQuestionByIdWithJsonAdjustments(String id) {
 		Document doc = getDocumentById(id);
