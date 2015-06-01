@@ -162,14 +162,14 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 			SessionActivity sessionActivity = this.getSessionActivityRepository().getSessionActivityById(sessionActivityId);
 			rejectIfNull(sessionActivity, GL0056, SESSION_ACTIVITY);
 			sessionActivityItem.setClassId(sessionActivity.getClassId());
-			this.getSessionActivityRepository().save(sessionActivityItem);
 		} else {
 			if (newSessionActivityItem.getStatus() != null && newSessionActivityItem.getStatus().equalsIgnoreCase(SessionStatus.OPEN.getSessionStatus())) {
+				sessionActivityItem.setStartTime(new Date(System.currentTimeMillis()));
 				sessionActivityItem.setViewsInSession(sessionActivityItem.getViewsInSession() + 1);
 			} else if (newSessionActivityItem.getStatus() != null && newSessionActivityItem.getStatus().equalsIgnoreCase(SessionStatus.ARCHIVE.getSessionStatus())) {
 				sessionActivityItem.setEndTime(new Date(System.currentTimeMillis()));
 				Long timeSpentInMillis = sessionActivityItem.getEndTime().getTime() - sessionActivityItem.getStartTime().getTime();
-				sessionActivityItem.setTimeSpentInMillis(timeSpentInMillis);
+				sessionActivityItem.setTimeSpentInMillis(sessionActivityItem.getTimeSpentInMillis() + timeSpentInMillis);
 			}
 
 			if (newSessionActivityItem.getFeedbackText() != null) {
@@ -189,8 +189,8 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 			if (newSessionActivityItem.getReaction() != null) {
 				sessionActivityItem.setReaction(newSessionActivityItem.getReaction());
 			}
-			this.getSessionActivityRepository().save(sessionActivityItem);
 		}
+		this.getSessionActivityRepository().save(sessionActivityItem);
 
 		return sessionActivityItem;
 	}
