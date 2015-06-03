@@ -39,31 +39,23 @@ public class Subject extends OrganizationModel implements Serializable {
 	 * 
 	 */
 
-	@Id
+	
 	private Integer subjectId;
 
-	@Column
-	private String name;
+    private String name;
 
-	@Column
 	private String description;
+	
+	private Short activeFlag;
 
-	@Column
-	private short activeFlag;
-
-	@Column
 	private String imagePath;
 
-	@Column
 	private Integer displaySequence;
-
-	@Column
+	
 	private Date createdOn;
 
-	@Column
 	private Date lastModified;
 
-	@Column
 	private User creator;
 
 	public User getCreator() {
@@ -130,11 +122,11 @@ public class Subject extends OrganizationModel implements Serializable {
 		this.createdOn = createdOn;
 	}
 
-	public short getActiveFlag() {
+	public Short getActiveFlag() {
 		return activeFlag;
 	}
 
-	public void setActiveFlag(short activeFlag) {
+	public void setActiveFlag(Short activeFlag) {
 		this.activeFlag = activeFlag;
 	}
 

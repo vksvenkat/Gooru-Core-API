@@ -33,7 +33,7 @@ import javax.imageio.ImageIO;
 import org.ednovo.gooru.application.converter.ImageScaler;
 import org.ednovo.gooru.core.api.model.Profile;
 import org.ednovo.gooru.core.constant.ParameterProperties;
-import org.ednovo.gooru.domain.service.resource.impl.S3Manager;
+import org.ednovo.gooru.domain.service.resource.impl.UserS3Manager;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +47,7 @@ public class ProfileImageUtil implements ParameterProperties {
 	private UserRepository userRepository;
 
 	@Autowired
-	private S3Manager s3Manager;
+	private UserS3Manager userS3Manager;
 
 	 protected static final Logger LOGGER = LoggerFactory.getLogger(ProfileImageUtil.class);
 
@@ -66,12 +66,12 @@ public class ProfileImageUtil implements ParameterProperties {
 			public void run() {
 
 				try {
-					s3Manager.uploadFile(S3Manager.Type.PROFILE, profile.getThumbnailBlob(), profile.getUser().getGooruUId() + "-158x158." + profile.getPictureFormat());
-					s3Manager.uploadFile(S3Manager.Type.PROFILE, scaleImage(profile.getPictureBlob(), 40, 40), profile.getUser().getGooruUId() + "-40x40." + profile.getPictureFormat());
-					s3Manager.uploadFile(S3Manager.Type.PROFILE, scaleImage(profile.getPictureBlob(), 25, 25), profile.getUser().getGooruUId() + "-25x25." + profile.getPictureFormat());
-					s3Manager.uploadFile(S3Manager.Type.PROFILE, scaleImage(profile.getPictureBlob(), 30, 30), profile.getUser().getGooruUId() + "-30x30." + profile.getPictureFormat());
-					s3Manager.uploadFile(S3Manager.Type.PROFILE, scaleImage(profile.getPictureBlob(), 48, 48), profile.getUser().getGooruUId() + "-48x48." + profile.getPictureFormat());
-					s3Manager.uploadFile(S3Manager.Type.PROFILE, scaleImage(profile.getPictureBlob(), 130, 130), profile.getUser().getGooruUId() + "-130x130." + profile.getPictureFormat());
+					userS3Manager.uploadFile(UserS3Manager.Type.PROFILE, profile.getThumbnailBlob(), profile.getUser().getGooruUId() + "-158x158." + profile.getPictureFormat());
+					userS3Manager.uploadFile(UserS3Manager.Type.PROFILE, scaleImage(profile.getPictureBlob(), 40, 40), profile.getUser().getGooruUId() + "-40x40." + profile.getPictureFormat());
+					userS3Manager.uploadFile(UserS3Manager.Type.PROFILE, scaleImage(profile.getPictureBlob(), 25, 25), profile.getUser().getGooruUId() + "-25x25." + profile.getPictureFormat());
+					userS3Manager.uploadFile(UserS3Manager.Type.PROFILE, scaleImage(profile.getPictureBlob(), 30, 30), profile.getUser().getGooruUId() + "-30x30." + profile.getPictureFormat());
+					userS3Manager.uploadFile(UserS3Manager.Type.PROFILE, scaleImage(profile.getPictureBlob(), 48, 48), profile.getUser().getGooruUId() + "-48x48." + profile.getPictureFormat());
+					userS3Manager.uploadFile(UserS3Manager.Type.PROFILE, scaleImage(profile.getPictureBlob(), 130, 130), profile.getUser().getGooruUId() + "-130x130." + profile.getPictureFormat());
 				} catch (Exception exception) {
 					LOGGER.error("S3 Profile Image Upload Failed : " + exception.getMessage());
 				}
@@ -79,20 +79,20 @@ public class ProfileImageUtil implements ParameterProperties {
 
 		});
 		uploadThread.setDaemon(true);
-		s3Manager.uploadFile(S3Manager.Type.PROFILE, profile.getPictureBlob(), profile.getUser().getGooruUId() + "." + profile.getPictureFormat());
+		userS3Manager.uploadFile(UserS3Manager.Type.PROFILE, profile.getPictureBlob(), profile.getUser().getGooruUId() + "." + profile.getPictureFormat());
 		uploadThread.start();
 	}
 
 	public void deleteS3Upload(Profile profile) throws Exception {
 		profile.setPictureBlob(null);
 		profile.setThumbnailBlob(null);
-		s3Manager.deleteFile(S3Manager.Type.PROFILE, profile.getUser().getGooruUId() + ".png");
-		s3Manager.deleteFile(S3Manager.Type.PROFILE, profile.getUser().getGooruUId() + "-158x158.png");
-		s3Manager.deleteFile(S3Manager.Type.PROFILE, profile.getUser().getGooruUId() + "-40x40.png");
-		s3Manager.deleteFile(S3Manager.Type.PROFILE, profile.getUser().getGooruUId() + "-25x25.png");
-		s3Manager.deleteFile(S3Manager.Type.PROFILE, profile.getUser().getGooruUId() + "-30x30.png");
-		s3Manager.deleteFile(S3Manager.Type.PROFILE, profile.getUser().getGooruUId() + "-48x48.png");
-		s3Manager.deleteFile(S3Manager.Type.PROFILE, profile.getUser().getGooruUId() + "-130x130.png");
+		userS3Manager.deleteFile(UserS3Manager.Type.PROFILE, profile.getUser().getGooruUId() + ".png");
+		userS3Manager.deleteFile(UserS3Manager.Type.PROFILE, profile.getUser().getGooruUId() + "-158x158.png");
+		userS3Manager.deleteFile(UserS3Manager.Type.PROFILE, profile.getUser().getGooruUId() + "-40x40.png");
+		userS3Manager.deleteFile(UserS3Manager.Type.PROFILE, profile.getUser().getGooruUId() + "-25x25.png");
+		userS3Manager.deleteFile(UserS3Manager.Type.PROFILE, profile.getUser().getGooruUId() + "-30x30.png");
+		userS3Manager.deleteFile(UserS3Manager.Type.PROFILE, profile.getUser().getGooruUId() + "-48x48.png");
+		userS3Manager.deleteFile(UserS3Manager.Type.PROFILE, profile.getUser().getGooruUId() + "-130x130.png");
 		profile.setPictureFormat(null);
 		this.getUserRepository().save(profile);
 

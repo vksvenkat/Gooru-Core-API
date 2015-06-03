@@ -42,14 +42,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import org.apache.commons.lang.StringUtils;
 import au.com.bytecode.opencsv.CSVReader;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 
 @Service
-public class ResourceImportServiceImpl extends FileImporter implements ResourceImportService{
+public class ResourceImportServiceImpl extends FileImporter implements ResourceImportService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ResourceImportServiceImpl.class);
-	
+
 	@Autowired
 	private OperationAuthorizer operationAuthorizer;
 
@@ -61,7 +63,7 @@ public class ResourceImportServiceImpl extends FileImporter implements ResourceI
 		final String mediaFileName = UserGroupSupport.getUserOrganizationNfsInternalPath() + Constants.UPLOADED_MEDIA_FOLDER + '/' + filename;
 		List<String> keys = null;
 		StringBuffer json = new StringBuffer();
-		CSVReader csvReader=null;
+		CSVReader csvReader = null;
 		File file = null;
 		try {
 			file = new File(mediaFileName);
@@ -74,11 +76,10 @@ public class ResourceImportServiceImpl extends FileImporter implements ResourceI
 					String data = formInputJson(row, json, keys).toString();
 					JSONObject jsonObj = requestData(generateJSONInput(data, UNDER_SCORE));
 					String gooruOid = getValue(GOORU_OID, requestData(getValue(RESOURCE, jsonObj)));
-					if(gooruOid != null && !gooruOid.isEmpty()){
+					if (!(StringUtils.isBlank(gooruOid))) {
 						this.getResourceService().updateResource(gooruOid, this.buildResourceFromInputParameters(getValue(RESOURCE, jsonObj)), getValue(RESOURCE_TAGS, jsonObj) == null ? null : buildResourceTags(getValue(RESOURCE_TAGS, jsonObj)), user);
-					}
-					else{
-						this.getResourceService().createResource(this.getResourceService().buildResourceFromInputParameters(getValue(RESOURCE, jsonObj), user), (getValue(RESOURCE_TAGS, jsonObj)!=null)? buildResourceTags(getValue(RESOURCE_TAGS, jsonObj)):null, user, true);
+					} else {
+						this.getResourceService().createResource(this.getResourceService().buildResourceFromInputParameters(getValue(RESOURCE, jsonObj), user), (getValue(RESOURCE_TAGS, jsonObj) != null) ? buildResourceTags(getValue(RESOURCE_TAGS, jsonObj)) : null, user, true);
 					}
 					json.setLength(0);
 				}
@@ -103,7 +104,7 @@ public class ResourceImportServiceImpl extends FileImporter implements ResourceI
 		return JsonDeserializer.deserialize(data, new TypeReference<List<String>>() {
 		});
 	}
-	
+
 	private Resource buildResourceFromInputParameters(final String data) {
 		return JsonDeserializer.deserialize(data, Resource.class);
 	}

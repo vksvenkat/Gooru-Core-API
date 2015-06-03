@@ -166,6 +166,9 @@ public class GooruOperationConstants {
 	
 	public static final String ENTITY_SUBDOMAIN = "Subdomain";
 	
+	public static final String ENTITY_COURSE="Course";
+
+	public static final String ENTITY_DOMAIN="Domain";
 	
 
 	// Actions
@@ -987,6 +990,26 @@ public class GooruOperationConstants {
 
 	public static final String OPERATION_JOB_UPDATE = ENTITY_JOB + ENTITY_ACTION_SEPARATOR + ACTION_UPDATE;
 	
+	//COURSE
+	
+	public static final String OPERATION_COURSE_ADD = ENTITY_COURSE + ENTITY_ACTION_SEPARATOR + ACTION_ADD;
+
+	public static final String OPERATION_COURSE_READ = ENTITY_COURSE + ENTITY_ACTION_SEPARATOR + ACTION_READ;
+
+	public static final String OPERATION_COURSE_UPDATE = ENTITY_COURSE + ENTITY_ACTION_SEPARATOR + ACTION_UPDATE;
+	
+	public static final String OPERATION_COURSE_DELETE = ENTITY_COURSE + ENTITY_ACTION_SEPARATOR + ACTION_DELETE;
+	
+    //DOMAIN
+	
+	public static final String OPERATION_DOMAIN_ADD = ENTITY_DOMAIN + ENTITY_ACTION_SEPARATOR + ACTION_ADD;
+
+	public static final String OPERATION_DOMAIN_READ = ENTITY_DOMAIN + ENTITY_ACTION_SEPARATOR + ACTION_READ;
+
+	public static final String OPERATION_DOMAIN_UPDATE = ENTITY_DOMAIN + ENTITY_ACTION_SEPARATOR + ACTION_UPDATE;
+	
+	public static final String OPERATION_DOMAIN_DELETE = ENTITY_DOMAIN + ENTITY_ACTION_SEPARATOR + ACTION_DELETE;
+
 	//SUBJECT
 	
 	public static final String OPERATION_SUBJECT_ADD = ENTITY_SUBJECT + ENTITY_ACTION_SEPARATOR + ACTION_ADD;

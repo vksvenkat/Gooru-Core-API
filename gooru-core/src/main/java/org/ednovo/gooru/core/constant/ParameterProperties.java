@@ -375,8 +375,10 @@ public interface ParameterProperties {
 	String GL0056 = "GL0056";
 
 	String GL0006 = "GL0006";
-
+	
 	String GL0007 = "GL0007";
+	
+	String GL0108 = "GL0108";
 
 	String GL0042 = "GL0042";
 
@@ -453,6 +455,10 @@ public interface ParameterProperties {
 	String COLLECTION = "collection";
 
 	String _COLLECTION = "Collection";
+	
+	String DEACTIVATE_COURSE = "course";
+	
+	String DEACTIVATE_DOMAIN = "domain";
 
 	String TAXONOMY_SET = "taxonomySet";
 
@@ -687,7 +693,13 @@ public interface ParameterProperties {
 	String CURRICULUM_CODE = "curriculumCode";
 
 	String COURSE = "course";
-
+	
+	String COURSE_CODE = "courseCode";
+	
+	String DISPLAY_SEQUENCE = "displaySequence";
+	
+	String DOMAIN_ = "domain";
+	
 	String CURRICULUM_DESC = "curriculumDesc";
 
 	String CURRICULUM_NAME = "curriculumName";
@@ -2895,8 +2907,6 @@ public interface ParameterProperties {
 	String PAGE_INFO = "pageInfo";
 	
 	String TOTAL_RESULTS = "totalResults";
-		
-	String DISPLAY_SEQUENCE = "displaySequence";
 
 	String EXPORT_CLASS_QUERY = "class.export.query";
 	

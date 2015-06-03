@@ -136,7 +136,7 @@ public class SessionActivityRepositoryHibernate extends BaseRepositoryHibernate 
 		Session session = getSession();
 		Query query = session.createSQLQuery(sql);
 		query.setParameter(CLASS_GOORU_ID, classGooruId);
-		List<Object[]> result = query.list();
+		List<Object[]> result = list(query);
 		return result;
 
 	}

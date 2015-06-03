@@ -1,8 +1,8 @@
 /////////////////////////////////////////////////////////////
-// S3Manager.java
+// CourseService.java
 // gooru-api
-// Created by Gooru on 2014
-// Copyright (c) 2014 Gooru. All rights reserved.
+// Created by Gooru on 2015
+// Copyright (c) 2015 Gooru. All rights reserved.
 // http://www.goorulearning.org/
 // Permission is hereby granted, free of charge, to any person obtaining
 // a copy of this software and associated documentation files (the
@@ -21,47 +21,23 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 /////////////////////////////////////////////////////////////
-package org.ednovo.gooru.domain.service.resource.impl;
+package org.ednovo.gooru.domain.service;
 
-import java.util.Properties;
+import org.ednovo.gooru.core.api.model.ActionResponseDTO;
+import org.ednovo.gooru.core.api.model.Course;
+import org.ednovo.gooru.core.api.model.User;
+import org.ednovo.gooru.domain.service.search.SearchResults;
 
-import org.ednovo.gooru.application.util.TaxonomyUtil;
-import org.ednovo.gooru.core.constant.ConfigConstants;
-import org.ednovo.gooru.domain.service.setting.SettingService;
-import org.jets3t.service.impl.rest.httpclient.RestS3Service;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+public interface CourseService {
 
-@Component
-public class S3Manager extends AbstractS3Manager {
+	ActionResponseDTO<Course> createCourse(Course course, User user);
 
-	@Autowired
-	@javax.annotation.Resource(name = "contentS3Service")
-	private RestS3Service s3Service;
+	Course updateCourse(Integer courseId, Course newCourse);
 
-	@Autowired
-	@javax.annotation.Resource(name = "s3Constants")
-	private Properties s3Constants;
+	Course getCourse(Integer courseId);
 
-	@Override
-	public RestS3Service getS3Service() {
-		return s3Service;
-	}
+	SearchResults<Course> getCourses(Integer limit, Integer offset);
 
-	public void setS3Service(RestS3Service s3Service) {
-		this.s3Service = s3Service;
-	}
+	void deleteCourse(Integer courseId);
 
-	@Override
-	public Properties getS3Constants() {
-		return s3Constants;
-	}
-	
-	@Autowired
-    private SettingService settingService;
-	
-	@Override
-	public String getS3Bucket() {
-		return settingService.getConfigSetting(ConfigConstants.S3_GOORU_BUCKET, 0, TaxonomyUtil.GOORU_ORG_UID);
-	}
 }
