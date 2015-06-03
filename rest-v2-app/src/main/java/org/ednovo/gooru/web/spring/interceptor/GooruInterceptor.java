@@ -165,7 +165,7 @@ public class GooruInterceptor extends HandlerInterceptorAdapter {
 		String logString = SERIALIZER.deepSerialize(log);
 		if (logString != null && SessionContextSupport.getLog() != null && SessionContextSupport.getLog().get(EVENT_NAME) != null) {
 			try {
-				kafkaService.sendEventLog(logString);
+				kafkaService.sendEventLog(SessionContextSupport.getLog().get(EVENT_NAME).toString(),logString);
 			} catch (Exception e) {
 				LOGGER.error("Error while pushing event log data to kafka : " + e.getMessage());
 				// Print to Activity Log only in case we had issues pushing to
