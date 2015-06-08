@@ -101,10 +101,7 @@ public class AssessmentQuestionTransformer extends ObjectTransformer {
 //		instance.put("taxonomySet", question.getTaxonomySet());
 		instance.put("depthOfKnowledges", question.getDepthOfKnowledges());
 		instance.put("educationalUse", question.getEducationalUse());
-<<<<<<< HEAD
-=======
 		instance.put("skills", question.getSkills());
->>>>>>> d4921ec5010017259027b07b30796724196ad1af
 		return instance;
 	}
 

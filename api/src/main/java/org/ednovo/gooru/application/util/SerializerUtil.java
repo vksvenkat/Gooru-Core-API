@@ -273,8 +273,7 @@ public class SerializerUtil implements ParameterProperties {
 						.getCollectionItems();
 				if (items != null) {
 
-					for (CollectionItem ci : ((Collection) model)
-							.getCollectionItems()) {
+					for (CollectionItem ci : items) {
 						if (ci.getResource() instanceof AssessmentQuestion) {
 							return true;
 						}
