@@ -28,15 +28,6 @@
             http://www.springframework.org/schema/jee
             http://www.springframework.org/schema/jee/spring-jee-4.1.xsd">
 
-	<bean id="classplanConstants"
-		class="org.springframework.beans.factory.config.PropertiesFactoryBean">
-		<property name="properties">
-			<props>
-				<prop key="gooru.api.path">${gooru.api.path}</prop>
-			</props>
-		</property>
-	</bean>
-
 	<bean id="cacheManager" class="net.sf.ehcache.CacheManager" />
 
 	<bean id="restAPIEndPoint" class="java.lang.String">

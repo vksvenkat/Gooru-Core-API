@@ -49,7 +49,6 @@
 
 	<aop:aspectj-autoproxy>
 		<aop:include name="methodAuthorizationAspect" />
-		<aop:include name="studyshelfSecurityAspect" />
 	</aop:aspectj-autoproxy>
 
 	<!-- Configures the @Transactional programming model -->

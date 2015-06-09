@@ -23,11 +23,8 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.application.util;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -40,12 +37,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.poi.hssf.record.formula.functions.T;
 import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.api.model.Job;
 import org.ednovo.gooru.core.api.model.Resource;
@@ -71,8 +63,6 @@ import org.joda.time.Period;
 import org.joda.time.Seconds;
 import org.joda.time.format.ISOPeriodFormat;
 import org.joda.time.format.PeriodFormatter;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -89,10 +79,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 @Component
 public class ResourceImageUtil extends UserGroupSupport implements ParameterProperties {
-
-	@Autowired
-	@javax.annotation.Resource(name = "classplanConstants")
-	private Properties classPlanConstants;
 
 	@Autowired
 	private MediaService mediaService;
@@ -543,10 +529,6 @@ public class ResourceImageUtil extends UserGroupSupport implements ParameterProp
 			LOGGER.error("Failed to fetch the data from vimeo feeds");
 		}
 		return resourceMetadataCo;
-	}
-	
-	public Properties getClassPlanConstants() {
-		return classPlanConstants;
 	}
 
 	public SettingService getSettingService() {

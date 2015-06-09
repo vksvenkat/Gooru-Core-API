@@ -25,7 +25,6 @@ package org.ednovo.gooru.controllers.v2.api;
 
 import java.io.File;
 import java.util.Map;
-import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -61,10 +60,7 @@ import org.springframework.web.servlet.ModelAndView;
 public class MediaRestV2Controller extends BaseController implements ConstantProperties, ParameterProperties {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(MediaRestV2Controller.class);
-	@Autowired
-	@javax.annotation.Resource(name = "classplanConstants")
-	private Properties classPlanConstants;
-
+	
 	@Autowired
 	private MediaService mediaService;
 
@@ -147,10 +143,6 @@ public class MediaRestV2Controller extends BaseController implements ConstantPro
 
 	public GooruImageUtil getGooruImageUtil() {
 		return gooruImageUtil;
-	}
-
-	public Properties getClassPlanConstants() {
-		return classPlanConstants;
 	}
 
 	private MediaDTO buildMediaInput(final String data) {
