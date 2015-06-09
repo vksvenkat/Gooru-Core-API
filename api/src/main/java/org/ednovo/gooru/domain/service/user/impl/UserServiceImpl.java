@@ -1754,7 +1754,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 
 	@Override
 	public String buildUserProfileImageUrl(User user) {
-		return settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, user.getOrganization().getPartyUid()) + "/" + settingService.getConfigSetting(ConfigConstants.PROFILE_BUCKET, user.getOrganization().getPartyUid()) + user.getPartyUid() + ".png";
+		return settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, user.getOrganization().getPartyUid()) + "/" + user.getPartyUid() + ".png";
 	}
 
 	@Override
