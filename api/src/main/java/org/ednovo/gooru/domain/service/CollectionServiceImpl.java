@@ -275,7 +275,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 
 		if (targetId != null) {
 			final Collection target = collectionRepository.getCollectionByGooruOid(targetId, null);
-			if (target != null && !source.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing())) {
+			if (target != null && !source.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) && !collectionItem.getItemType().equalsIgnoreCase(COLLABORATOR)) {
 				target.setSharing(source.getSharing());
 				this.getCollectionRepository().save(target);
 			}
