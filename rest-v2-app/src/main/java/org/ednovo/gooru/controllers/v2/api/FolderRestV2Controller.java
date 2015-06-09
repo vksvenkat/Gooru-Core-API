@@ -249,7 +249,7 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 	public ModelAndView getFolderTocItems(@PathVariable(value = ID) final String gooruOid, final HttpServletRequest request, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") final Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "5") final Integer limit,
 			@RequestParam(value = SHARING, required = false, defaultValue = SHARINGS) final String sharing, @RequestParam(value = COLLECTION_TYPE, required = false) final String collectionType, @RequestParam(value = ORDER_BY, required = false) final String orderBy,
 			@RequestParam(value = CLEAR_CACHE, required = false, defaultValue = FALSE) final boolean clearCache, @RequestParam(value = EXCLUDE_TYPE, required = false) final String excludeType, HttpServletResponse resHttpServletResponse) {
-		return toModelAndView(this.getFolderService().getFolderTocItems(gooruOid, sharing, collectionType, orderBy, excludeType, clearCache));
+		return toModelAndView(this.getFolderService().getFolderTocItems(gooruOid, limit, offset, sharing, collectionType, orderBy, excludeType, clearCache));
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_FOLDER_READ })

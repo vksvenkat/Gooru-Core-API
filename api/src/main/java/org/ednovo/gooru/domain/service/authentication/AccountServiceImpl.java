@@ -289,7 +289,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 				newUser.setEmailId(identity.getExternalId());
 			}
 			newUser.setUserRoleSet(newUser.getUserRoleSet());
-			newUser.setProfileImageUrl(settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, 0, TaxonomyUtil.GOORU_ORG_UID) + '/' + settingService.getConfigSetting(ConfigConstants.PROFILE_BUCKET, 0, TaxonomyUtil.GOORU_ORG_UID).toString() + newUser.getGooruUId() + DOT_PNG);
+			newUser.setProfileImageUrl(settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, 0, TaxonomyUtil.GOORU_ORG_UID) + '/' + newUser.getGooruUId() + DOT_PNG);
 			userToken.setUser(newUser);
 			request.getSession().setAttribute(Constants.USER, newUser);
 			request.getSession().setAttribute(Constants.SESSION_TOKEN, userToken.getToken());
@@ -329,7 +329,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 
 	@Override
 	public UserToken loginAs(final String gooruUid, final HttpServletRequest request) throws Exception {
-		UserToken userToken =  null;
+		UserToken userToken = null;
 		if (gooruUid != null) {
 			if (gooruUid.equalsIgnoreCase(ANONYMOUS)) {
 				final String apiKey = request.getHeader(Constants.GOORU_API_KEY) != null ? request.getHeader(Constants.GOORU_API_KEY) : request.getParameter(API_KEY);
@@ -346,7 +346,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 				rejectIfNull(loggedInUser, GL0056, SESSIONTOKEN);
 				if (this.getUserService().isContentAdmin(loggedInUser)) {
 					final User user = this.getUserRepository().findByGooruId(gooruUid);
-					rejectIfNull(user, GL0056,  USER);
+					rejectIfNull(user, GL0056, USER);
 					if (!this.getUserService().isContentAdmin(user)) {
 						final Application userApiKey = this.getApplicationRepository().getApplicationByOrganization(user.getOrganization().getPartyUid());
 						userToken = this.createSessionToken(user, userApiKey.getKey(), request);

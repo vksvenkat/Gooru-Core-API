@@ -46,12 +46,6 @@ public class StatisticsCo {
 	private String subscriberCount;
 
 	@Column
-	private String voteUp;
-
-	@Column
-	private String voteDown;
-
-	@Column
 	private Long viewsCountN;
 
 	@Column
@@ -152,22 +146,6 @@ public class StatisticsCo {
 
 	public void setSubscriberCount(String subscriberCount) {
 		this.subscriberCount = subscriberCount;
-	}
-
-	public String getVoteUp() {
-		return voteUp;
-	}
-
-	public void setVoteUp(String voteUp) {
-		this.voteUp = voteUp;
-	}
-
-	public String getVoteDown() {
-		return voteDown;
-	}
-
-	public void setVoteDown(String voteDown) {
-		this.voteDown = voteDown;
 	}
 
 	public String getInvalidResource() {
