@@ -149,7 +149,7 @@ public class PartyRepositoryHibernate extends BaseRepositoryHibernate implements
 			party.put(GOORU_UID,  object[0]);
 			party.put(USER_NAME, object[1]);
 			party.put(DISPLAY_NAME, object[2]);
-			party.put(IMAGE_URL, settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, String.valueOf(object[3])) + "/" + settingService.getConfigSetting(ConfigConstants.PROFILE_BUCKET,String.valueOf(object[3])) +String.valueOf(object[0]) + "-1000x300.png");
+			party.put(IMAGE_URL, settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, String.valueOf(object[3])) + "/" +String.valueOf(object[0]) + "-1000x300.png");
 			partyDetails.add(party);
 		}
 		return partyDetails; 
