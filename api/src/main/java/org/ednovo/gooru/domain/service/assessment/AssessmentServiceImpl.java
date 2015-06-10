@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.ednovo.gooru.application.util.AsyncExecutor;
@@ -78,6 +79,7 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomT
 import org.ednovo.gooru.infrastructure.persistence.hibernate.resource.ResourceRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.taxonomy.TaxonomyRespository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.taxonomy.TaxonomyStoredProcedure;
+import org.ednovo.gooru.mongodb.assessments.questions.services.MongoQuestionsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -157,6 +159,9 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 
 	@Autowired
 	private IndexHandler indexHandler;
+	
+	@Autowired
+	private MongoQuestionsService mongoQuestionsService;
 
 	@Override
 	public AssessmentQuestion getQuestion(String gooruOQuestionId) {
@@ -697,6 +702,9 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 					assessmentRepository.save(copyQuestionAssetAssoc);
 				}
 				assessmentRepository.save(copyQuestion);
+				if (copyQuestion.isQuestionNewGen()) {
+					mongoQuestionsService.copyQuestion(gooruQuestionId, copyQuestion.getGooruOid());
+				}
 				copyQuestion.setAssets(questionAssets);
 			}
 			this.getAsyncExecutor().copyResourceFolder(question, copyQuestion);
@@ -911,6 +919,12 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 		xstream.alias(TAXONOMY_CODE, Code.class);
 		xstream.alias(_DEPTH_OF_KNOWLEDGE, ContentMetaDTO.class);
 		xstream.alias(_EDUCATIONAL_USE, ContentMetaDTO.class);
+		/*
+		 * The change to make sure that if we add some other attributes tomorrow,
+		 * or as we have added today, we don't have to make them parse in JAVA as
+		 * they can directly be transferred to JSON store
+		 */
+		xstream.ignoreUnknownElements();
 		AssessmentQuestion question = null;
 		try {
 			question = (AssessmentQuestion) xstream.fromXML(jsonData);
@@ -920,11 +934,16 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 		if (addFlag) {
 			question.setUser(user);
 		}
-		if (question.getAnswers() != null) {
-			question.setAnswers(new TreeSet<AssessmentAnswer>(question.getAnswers()));
-		}
-		if (question.getHints() != null) {
-			question.setHints(new TreeSet<AssessmentHint>(question.getHints()));
+		if (question.isQuestionNewGen()) {
+			question.setAnswers(null);
+			question.setHints(null);
+		} else {
+			if (question.getAnswers() != null) {
+				question.setAnswers(new TreeSet<AssessmentAnswer>(question.getAnswers()));
+			}
+			if (question.getHints() != null) {
+				question.setHints(new TreeSet<AssessmentHint>(question.getHints()));
+			}
 		}
 
 		return question;
