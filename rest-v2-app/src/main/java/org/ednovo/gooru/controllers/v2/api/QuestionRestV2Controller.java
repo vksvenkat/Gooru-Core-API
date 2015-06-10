@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.NotImplementedException;
 import org.ednovo.gooru.application.util.CollectionUtil;
 import org.ednovo.gooru.controllers.BaseController;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
@@ -45,6 +46,8 @@ import org.ednovo.gooru.core.security.AuthorizeOperations;
 import org.ednovo.gooru.domain.service.assessment.AssessmentService;
 import org.ednovo.gooru.domain.service.partner.CustomFieldsService;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Propagation;
@@ -78,6 +81,11 @@ public class QuestionRestV2Controller extends BaseController implements Constant
 		User apiCaller = (User) request.getAttribute(Constants.USER);
 
 		AssessmentQuestion question = getAssessmentService().buildQuestionFromInputParameters(data, apiCaller, true);
+		if (question.isQuestionNewGen()) {
+			LOGGER.error("createQuestion: New question types are not supported from this path");
+			throw new NotImplementedException(
+					"createQuestion: New question types are not supported from this path");
+		}
 		ActionResponseDTO<AssessmentQuestion> responseDTO = getAssessmentService().createQuestion(question, indexFlag);
 		setActionResponseStatus(response, responseDTO);
 		Map<String, String> customFieldAndValueMap = collectionUtil.getCustomFieldNameAndValueAsMap(request);
@@ -102,6 +110,11 @@ public class QuestionRestV2Controller extends BaseController implements Constant
 
 		JSONObject json = requestData(data);
 		AssessmentQuestion question = this.getAssessmentService().buildQuestionFromInputParameters(getValue(QUESTION, json), apiCaller, false);
+		if (question.isQuestionNewGen()) {
+			LOGGER.error("updateQuestion: New question types are not supported from this path");
+			throw new NotImplementedException(
+					"updateQuestion: New question types are not supported from this path");
+		}
 
 		ActionResponseDTO<AssessmentQuestion> responseDTO = getAssessmentService().updateQuestion(question, this.buildAssetsInputForm(getValue(DELETE_ASSETS, json)), questionId, true, true);
 
@@ -176,4 +189,8 @@ public class QuestionRestV2Controller extends BaseController implements Constant
 	public AssessmentService getAssessmentService() {
 		return assessmentService;
 	}
+	
+	private static final Logger LOGGER = LoggerFactory
+			.getLogger(QuestionRestV2Controller.class);
+	
 }

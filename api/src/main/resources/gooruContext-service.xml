@@ -165,4 +165,20 @@
 		</property>
 		<property name="ignoreUnresolvablePlaceholders" value="true" />
 	</bean>
+	
+	<context:component-scan base-package="org.ednovo.gooru.mongodb" />
+	<bean id="mongoClientLocator" class="org.ednovo.gooru.mongodb.implementations.MongoClientUriBasedLocator">
+		<constructor-arg type="java.lang.String" value="${mongo.uri}" />
+	</bean>
+	<bean id="mongoQuestionsService" class="org.ednovo.gooru.mongodb.assessments.questions.services.implementations.MongoQuestionsServiceImpl">
+		<constructor-arg type="java.lang.String" value="${mongo.questions.db.name}" />
+		<constructor-arg type="java.lang.String" value="${mongo.questions.collection.name}" />
+	</bean>
+	<bean id="applicationContextProvider" class="org.ednovo.gooru.application.util.context.ApplicationContextProvider" />
+	<bean id="assessmentQuestionTransformer" class="org.ednovo.gooru.mongodb.assessments.questions.Transformers.AssessmentQuestionTransformer">
+		<property name="mongoQuestionsService" ref="mongoQuestionsService" />
+	</bean>
+
+			
+	
 </beans>
