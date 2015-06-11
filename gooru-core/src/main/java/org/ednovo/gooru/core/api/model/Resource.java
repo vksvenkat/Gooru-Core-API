@@ -154,8 +154,6 @@ public class Resource extends Content implements Serializable {
 
 	private String copiedResourceId;
 
-	private TrackActivity trackActivity;
-
 	private Integer isOer;
 
 	private String goals;
@@ -700,14 +698,6 @@ public class Resource extends Content implements Serializable {
 	@Override
 	public String getIndexType() {
 		return INDEX_TYPE;
-	}
-
-	public void setTrackActivity(TrackActivity trackActivity) {
-		this.trackActivity = trackActivity;
-	}
-
-	public TrackActivity getTrackActivity() {
-		return trackActivity;
 	}
 
 	public String getGoals() {

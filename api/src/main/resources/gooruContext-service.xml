@@ -102,17 +102,6 @@
 
     <context:component-scan base-package="org.ednovo.gooru.domain.service.resource.impl" />
 
-	<bean id="classplanConstants"
-		class="org.springframework.beans.factory.config.PropertiesFactoryBean">
-		<property name="properties">
-			<props>
-				<prop key="resource.temp">${resource.temp}</prop>
-				<prop key="gooru.static.endpoint">${gooru.static.endpoint}</prop>
-				<prop key="gooruSEOWebdriverEndPoint">${gooru.seo.webdriver.endpoint}</prop>
-			</props>
-		</property>
-	 </bean>
-
 	<bean id="s3Constants"
 		class="org.springframework.beans.factory.config.PropertiesFactoryBean">
 		<property name="properties">
