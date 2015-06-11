@@ -130,8 +130,6 @@
 				</value>
 				<value>org/ednovo/gooru/domain/model/content/ResourceSummary.hbm.xml
 				</value>
-				<value>org/ednovo/gooru/domain/model/annotation/AnnotationType.hbm.xml
-				</value>
 
 
 				<!-- Taxonomy Domain -->
@@ -159,17 +157,6 @@
 				</value>
 				<value>org/ednovo/gooru/domain/model/Job.hbm.xml</value>
 				<value>org/ednovo/gooru/domain/model/JobType.hbm.xml</value>
-
-
-				<!-- Consumer Domain -->
-				<value>org/ednovo/gooru/domain/model/consumer/ConsumerAccount.hbm.xml
-				</value>
-
-				<!-- Crawler Domain -->
-				<value>org/ednovo/gooru/domain/model/crawler/CsvCrawler.hbm.xml
-				</value>
-				<value>org/ednovo/gooru/domain/model/crawler/CsvCrawlerJob.hbm.xml
-				</value>
 
 				<!-- featured set -->
 				<value>org/ednovo/gooru/domain/model/featuredset/FeaturedSet.hbm.xml
@@ -223,24 +210,6 @@
 				</value>
 				<value>org/ednovo/gooru/domain/model/session/SessionActivityItemAttemptTry.hbm.xml
 				</value>
-
-				<!-- Task -->
-				<value>org/ednovo/gooru/domain/model/task/TaskResourceAssoc.hbm.xml
-				</value>
-				<value>org/ednovo/gooru/domain/model/task/CollectionTaskAssoc.hbm.xml
-				</value>
-				<value>org/ednovo/gooru/domain/model/task/TaskAssoc.hbm.xml</value>
-				<value>org/ednovo/gooru/domain/model/task/TaskUserAssoc.hbm.xml
-				</value>
-				<value>org/ednovo/gooru/domain/model/task/TaskHistory.hbm.xml
-				</value>
-				<value>org/ednovo/gooru/domain/model/task/TaskHistoryItem.hbm.xml
-				</value>
-
-				<!-- Track Activity -->
-				<value>org/ednovo/gooru/domain/model/trackActivity/TrackActivity.hbm.xml
-				</value>
-
 
 				<!-- Response FieldSet -->
 				<value>org/ednovo/gooru/domain/model/responseFieldSet/ResponseFieldSet.hbm.xml
@@ -302,7 +271,10 @@
 				<!-- Course -->
 				<value>org/ednovo/gooru/domain/model/core/Course.hbm.xml</value>
 				<value>org/ednovo/gooru/domain/model/core/Domain.hbm.xml</value>
-
+				
+				<!-- Class -->
+<!-- 				<value>org/ednovo/gooru/domain/model/class/Class.hbm.xml</value>
+ -->
 
 			</list>
 		</property>

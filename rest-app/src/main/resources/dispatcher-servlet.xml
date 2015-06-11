@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- dispatcher-servlet.xml rest-v2-app Created by Gooru on 2014 Copyright 
+	(c) 2014 Gooru. All rights reserved. http://www.goorulearning.org/ Permission 
+	is hereby granted, free of charge, to any person obtaining a copy of this 
+	software and associated documentation files (the "Software"), to deal in 
+	the Software without restriction, including without limitation the rights 
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell 
+	copies of the Software, and to permit persons to whom the Software is furnished 
+	to do so, subject to the following conditions: The above copyright notice 
+	and this permission notice shall be included in all copies or substantial 
+	portions of the Software. THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY 
+	OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES 
+	OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+	IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
+	DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
+	ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
+	DEALINGS IN THE SOFTWARE. -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:sec="http://www.springframework.org/schema/security"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:oxm="http://www.springframework.org/schema/oxm" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.1.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.1.xsd
+		http://www.springframework.org/schema/oxm http://www.springframework.org/schema/oxm/spring-oxm-4.1.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.1.xsd
+		http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.2.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.1.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.1.xsd">
+
+	<sec:global-method-security
+		pre-post-annotations="enabled" />
+
+	<!-- - The controllers are autodetected POJOs labeled with the @Controller 
+		annotation. -->
+	<context:component-scan base-package="org.ednovo.gooru.controllers" />
+
+
+	<!-- - Enables the AspectJ support -->
+	<bean id="methodAuthorizationAspect" class="org.ednovo.gooru.security.MethodAuthorizationAspect" />
+
+	<aop:aspectj-autoproxy>
+		<aop:include name="methodAuthorizationAspect" />
+	</aop:aspectj-autoproxy>
+
+	<!-- Configures the @Transactional programming model -->
+	<tx:annotation-driven transaction-manager="transactionManager"
+		proxy-target-class="true" />
+	<tx:annotation-driven transaction-manager="transactionManagerReadyOnly"
+		proxy-target-class="true" />
+	<tx:annotation-driven transaction-manager="revisionHistoryTransactionManager"
+		proxy-target-class="true" />
+
+	<!-- Application Message Bundle -->
+	<bean id="messageSource"
+		class="org.springframework.context.support.ResourceBundleMessageSource">
+		<property name="basename" value="ApplicationResources" />
+	</bean>
+
+
+
+	<!-- Configures the @Controller programming model -->
+	<mvc:annotation-driven />
+
+	<!-- Forwards requests to the "/" resource to the "welcome" view -->
+	<mvc:view-controller path="/" view-name="welcome" />
+
+	<!-- Configures Handler Interceptors -->
+	<mvc:interceptors>
+		<!-- Changes the locale when a 'locale' request parameter is sent; e.g. 
+			/?locale=de -->
+		<bean class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor" />
+		<bean id="gooruInterceptor"
+			class="org.ednovo.gooru.web.spring.interceptor.GooruInterceptor">
+			<property name="gooruConstants" ref="gooruConstants" />
+		</bean>
+	</mvc:interceptors>
+
+	<!-- Saves a locale change using a cookie -->
+	<bean id="localeResolver"
+		class="org.springframework.web.servlet.i18n.CookieLocaleResolver" />
+
+
+	<!-- View Resolvers in order 1. XmlViewResolver - Resolves specifically 
+		"xmlView" & "jsonView" 2. ContentNegotiatingViewResolver - XML or JSON response 
+		if the Clients sets appropriate Request-Accept header. 3. InternalResourceViewResolver 
+		- Attempts to resolve the view as a JSP -->
+
+	<bean class="org.ednovo.gooru.web.spring.exception.GooruExceptionResolver">
+		<property name="exceptionMappings">
+			<props>
+				<prop
+					key="org.apache.commons.fileupload.FileUploadBase$SizeLimitExceededException">sizeExceeded</prop>
+				<prop key="java.lang.Exception">error</prop>
+				<prop key="org.springframework.security.access.AccessDeniedException">accessdenied</prop>
+				<prop key="org.ednovo.gooru.domain.exception.ClassplanException">notfound</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean
+		class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">
+		<property name="order" value="1" />
+		<property name="contentNegotiationManager">
+			<bean class="org.springframework.web.accept.ContentNegotiationManager">
+				<constructor-arg>
+					<bean
+						class="org.springframework.web.accept.PathExtensionContentNegotiationStrategy">
+						<constructor-arg>
+							<map>
+								<entry key="xml" value="application/xml" />
+							</map>
+						</constructor-arg>
+					</bean>
+				</constructor-arg>
+			</bean>
+		</property>
+
+		<property name="defaultViews">
+			<list>
+				<bean
+					class="org.springframework.web.servlet.view.json.MappingJackson2JsonView" />
+				<bean class="org.springframework.web.servlet.view.xml.MarshallingView">
+					<constructor-arg>
+						<bean class="org.springframework.oxm.xstream.XStreamMarshaller">
+							<property name="autodetectAnnotations" value="true" />
+						</bean>
+					</constructor-arg>
+				</bean>
+			</list>
+		</property>
+	</bean>
+
+
+
+	<bean
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="order" value="1" />
+		<property name="prefix" value="/WEB-INF/jsp/" />
+		<property name="suffix" value=".jsp" />
+	</bean>
+
+	<bean id="gooruConstants"
+		class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+		<property name="properties">
+			<props>
+				<prop key="sakai.portal">${sakai.portal}</prop>
+				<prop key="sakai.logout">${sakai.logout}</prop>
+				<prop key="gooru.home">${gooru.home}</prop>
+				<prop key="gooru.instance">${gooru.instance}</prop>
+				<prop key="guestSpeaker.URI">${guestSpeaker.URI}</prop>
+				<prop key="gooru.services.endpoint">${gooru.services.endpoint}</prop>
+				<prop key="gooru.googleapps.login">${gooru.googleapps.login}</prop>
+			</props>
+		</property>
+	</bean>
+</beans>
