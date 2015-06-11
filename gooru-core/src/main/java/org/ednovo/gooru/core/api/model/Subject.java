@@ -26,10 +26,7 @@ package org.ednovo.gooru.core.api.model;
 import java.io.Serializable;
 import java.util.Date;
 
-import javax.persistence.Column;
-import javax.persistence.Id;
-
-public class Subject extends OrganizationModel implements Serializable {
+public class Subject implements Serializable {
 
 	/**
 	 * 
@@ -39,7 +36,8 @@ public class Subject extends OrganizationModel implements Serializable {
 	 * 
 	 */
 
-	
+	private String uri = "\taxonomycourse";
+
 	private Integer subjectId;
 
     private String name;
@@ -128,6 +126,14 @@ public class Subject extends OrganizationModel implements Serializable {
 
 	public void setActiveFlag(Short activeFlag) {
 		this.activeFlag = activeFlag;
+	}
+	
+	public String getUri() {
+		return uri;
+	}
+
+	public void setUri(String uri) {
+		this.uri = uri;
 	}
 
 }

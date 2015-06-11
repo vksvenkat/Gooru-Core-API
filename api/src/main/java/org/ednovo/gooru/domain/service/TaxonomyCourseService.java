@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////
-// CourseService.java
+// TaxonomyCourseService.java
 // gooru-api
 // Created by Gooru on 2015
 // Copyright (c) 2015 Gooru. All rights reserved.
@@ -24,20 +24,20 @@
 package org.ednovo.gooru.domain.service;
 
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
-import org.ednovo.gooru.core.api.model.Course;
+import org.ednovo.gooru.core.api.model.TaxonomyCourse;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.domain.service.search.SearchResults;
 
-public interface CourseService {
+public interface TaxonomyCourseService {
 
-	ActionResponseDTO<Course> createCourse(Course course, User user);
+	ActionResponseDTO<TaxonomyCourse> createTaxonomyCourse(TaxonomyCourse course, User user);
 
-	Course updateCourse(Integer courseId, Course newCourse);
+	TaxonomyCourse updateTaxonomyCourse(Integer courseId, TaxonomyCourse newCourse);
 
-	Course getCourse(Integer courseId);
+	TaxonomyCourse getTaxonomyCourse(Integer courseId);
 
-	SearchResults<Course> getCourses(Integer limit, Integer offset);
+	SearchResults<TaxonomyCourse> getTaxonomyCourses(Integer limit, Integer offset);
 
-	void deleteCourse(Integer courseId);
+	void deleteTaxonomyCourse(Integer courseId);
 
 }

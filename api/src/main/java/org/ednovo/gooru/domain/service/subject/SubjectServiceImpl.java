@@ -51,7 +51,6 @@ public class SubjectServiceImpl extends BaseServiceImpl implements SubjectServic
 			subject.setLastModified(new Date(System.currentTimeMillis()));
 			subject.setActiveFlag((short) 1);
 			subject.setCreator(user);
-			subject.setOrganization(user.getOrganization());
 			this.getSubjectRepository().save(subject);
 		}
 		return new ActionResponseDTO<Subject>(subject, errors);
@@ -84,7 +83,7 @@ public class SubjectServiceImpl extends BaseServiceImpl implements SubjectServic
 
 	@Override
 	public Subject updateSubject(Subject newSubject, Integer subjectId) {
-		Subject subject = subjectRepository.getSubject(subjectId);
+		Subject subject = this.getSubjectRepository().getSubject(subjectId);
 		rejectIfNull(subject, GL0056, 404, SUBJECT);
 		if (newSubject.getActiveFlag() != null) {
 			reject((newSubject.getActiveFlag() == 0 || newSubject.getActiveFlag() == 1), GL0007, ACTIVE_FLAG);
