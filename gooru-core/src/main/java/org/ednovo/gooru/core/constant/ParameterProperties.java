@@ -239,6 +239,8 @@ public interface ParameterProperties {
 	String ATTACH_TO = "attachTo";
 
 	String RESOURCE = "resource";
+	
+	String CONTENT_PROVIDER = "content_provider";
 
 	String QUIZ = "quiz";
 
