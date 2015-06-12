@@ -32,13 +32,13 @@
 			<key column="content_id" />
 			<one-to-many class="org.ednovo.gooru.core.api.model.ContentPermission" />
 		</set>
-		
+
 		<set name="contentSettings" inverse="true" cascade="save-update,delete"
 			lazy="true">
 			<key column="content_id" />
 			<one-to-many class="org.ednovo.gooru.core.api.model.ContentSettings" />
 		</set>
-		
+
 		<property name="gooruOid" column="gooru_oid" length="32"
 			not-null="true">
 		</property>
@@ -86,37 +86,6 @@
 			<key column="content_id" not-null="true" />
 			<one-to-many class="org.ednovo.gooru.core.api.model.ContentMetaAssociation" />
 		</set>
-
-
-		<joined-subclass name="org.ednovo.gooru.core.api.model.Task"
-			table="task">
-
-			<key column="task_content_id" />
-
-			<property name="title" column="title" not-null="true"></property>
-
-			<property name="description" column="description" not-null="false"></property>
-
-			<property name="plannedStartDate" column="planned_start_date"
-				not-null="false"></property>
-
-			<property name="plannedEndDate" column="planned_end_date"
-				not-null="false"></property>
-
-			<property name="status" column="status" not-null="false"></property>
-
-			<property name="typeName" column="type_name" not-null="false"></property>
-
-			<property name="estimatedEffort" column="estimated_effort"
-				not-null="false"></property>
-
-			<set name="taskResourceAssocs" inverse="true" cascade="none"
-				lazy="true" sort="org.ednovo.gooru.core.api.model.TaskResourceAssocComparator">
-				<key column="task_content_id" />
-				<one-to-many class="org.ednovo.gooru.core.api.model.TaskResourceAssoc" />
-			</set>
-
-		</joined-subclass>
 
 		<joined-subclass name="org.ednovo.gooru.core.api.model.Tag"
 			table="tags">
@@ -213,7 +182,7 @@
 				not-null="false"></property>
 			<property name="s3UploadFlag" column="s3_upload_flag"
 				not-null="false" />
-	
+
 			<set name="resourceMetaData" cascade="all" lazy="true">
 				<key column="resource_id" not-null="true" />
 				<one-to-many class="org.ednovo.gooru.core.api.model.ResourceMetaData" />
@@ -273,10 +242,10 @@
 					<many-to-one name="application"
 						class="org.ednovo.gooru.core.api.model.Application" column="application_content_id"
 						not-null="false" lazy="proxy" cascade="none" />
-					
+
 
 					<property name="grantTypes" column="grant_types" not-null="true" />
-					
+
 					<property name="scopes" column="scopes" not-null="true" />
 
 					<property name="authorities" column="authorities"
@@ -317,7 +286,6 @@
 				<property name="languageObjective" column="language_objective"
 					not-null="false" />
 
-
 				<many-to-one name="buildType"
 					class="org.ednovo.gooru.core.api.model.CustomTableValue" column="build_type_id"
 					not-null="false" lazy="proxy" cascade="none" />
@@ -331,42 +299,14 @@
 					<key column="collection_content_id" />
 					<one-to-many class="org.ednovo.gooru.core.api.model.CollectionItem" />
 				</set>
-											
-				<set name="collectionTaskItems" inverse="true" cascade="none"
-					lazy="true" sort="org.ednovo.gooru.core.api.model.CollectionTaskItemComparator">
-					<key column="collection_content_id" />
-					<one-to-many class="org.ednovo.gooru.core.api.model.CollectionTaskAssoc" />
-				</set>
-
-				<joined-subclass name="org.ednovo.gooru.core.api.model.Classpage"
-					table="classpage" lazy="true">
-					<key column="classpage_content_id" />
-					<property name="classpageCode" column="classpage_code"
-						not-null="true" />
-				</joined-subclass>
-
-				<joined-subclass name="org.ednovo.gooru.core.api.model.Assignment"
-					table="assignment" lazy="true">
-					<key column="assignment_content_id"></key>
-					<many-to-one name="trackActivity"
-						class="org.ednovo.gooru.core.api.model.TrackActivity" column="activity_uid"
-						not-null="true" lazy="proxy" cascade="none" />
-				</joined-subclass>
-
-				<joined-subclass name="org.ednovo.gooru.core.api.model.Quiz"
-					table="quiz" lazy="true">
-					<key column="quiz_content_id"></key>
-					<property name="options" column="options" not-null="false" />
-				</joined-subclass>
-
 			</joined-subclass>
 
-		<joined-subclass name="org.ednovo.gooru.core.api.model.AssessmentQuestion"
+			<joined-subclass name="org.ednovo.gooru.core.api.model.AssessmentQuestion"
 				table="assessment_question" lazy="true">
 				<key column="question_id" />
 				<property name="type" column="type" not-null="false" />
 				<property name="typeName" column="type_name" not-null="false" />
-			    <property name="importCode" column="import_code" not-null="false" />
+				<property name="importCode" column="import_code" not-null="false" />
 				<property name="difficultyLevel" column="difficulty_level"
 					not-null="false" />
 				<property name="concept" column="concept" not-null="false" />
@@ -408,47 +348,6 @@
 						class="org.ednovo.gooru.core.api.model.QuestionSetQuestionAssoc" />
 				</set>
 			</joined-subclass>
-		</joined-subclass>
-
-		<joined-subclass name="org.ednovo.gooru.core.api.model.Annotation"
-			table="annotation" lazy="true">
-			<key column="content_id" />
-			<many-to-one name="annotationType"
-				class="org.ednovo.gooru.core.api.model.AnnotationType" column="type_name"
-				not-null="true" lazy="proxy" cascade="none" />
-			<many-to-one name="resource"
-				class="org.ednovo.gooru.core.api.model.Resource" column="resource_id"
-				lazy="proxy" cascade="none" />
-			<property name="anchor" column="anchor" length="50"
-				not-null="false" />
-			<property name="freetext" column="freetext" length="255"
-				not-null="false" />
-			<joined-subclass name="org.ednovo.gooru.core.api.model.Quote"
-				table="quote" lazy="true">
-
-				<key column="content_id" />
-				<property name="grade" column="grade" length="20" not-null="false" />
-				<property name="title" column="title" length="100"
-					not-null="false" />
-				<property name="topic" column="topic" length="50" not-null="false" />
-				<property name="contextAnchor" column="context_anchor"
-					length="50" not-null="false" />
-				<property name="contextAnchorText" column="context_anchor_text"
-					length="50" not-null="false" />
-
-				<many-to-one name="context"
-					class="org.ednovo.gooru.core.api.model.Content" column="context"
-					lazy="proxy" cascade="none" />
-
-				<many-to-one name="license"
-					class="org.ednovo.gooru.core.api.model.License" column="license_name"
-					not-null="false" lazy="proxy" cascade="none" />
-
-				<many-to-one name="tagType"
-					class="org.ednovo.gooru.core.api.model.TagType" column="type_name"
-					not-null="false" lazy="proxy" cascade="none" />
-			</joined-subclass>
-
 		</joined-subclass>
 	</class>
 </hibernate-mapping>

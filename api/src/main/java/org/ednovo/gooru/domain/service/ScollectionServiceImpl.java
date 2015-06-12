@@ -950,12 +950,12 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	public void deleteCollectionItem(String collectionItemId) {
 		final CollectionItem collectionItem = this.getCollectionRepository().getCollectionItemById(collectionItemId);
 		if (collectionItem != null) {
+			try {
+				indexHandler.setReIndexRequest(collectionItem.getResource().getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);
+			} catch (Exception e) {
+				LOGGER.error(_ERROR, e);
+			}
 			this.getCollectionRepository().remove(CollectionItem.class, collectionItem.getCollectionItemId());
-		}
-		try {
-			indexHandler.setReIndexRequest(collectionItem.getResource().getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);
-		} catch (Exception e) {
-			LOGGER.error(_ERROR, e);
 		}
 	}
 

@@ -27,13 +27,11 @@ import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
 
-import org.ednovo.gooru.core.api.model.Assignment;
 import org.ednovo.gooru.core.api.model.Classpage;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.CollectionType;
 import org.ednovo.gooru.core.api.model.ContentMetaAssociation;
-import org.ednovo.gooru.core.api.model.Quiz;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.ResourceType;
 import org.ednovo.gooru.core.api.model.User;
@@ -315,50 +313,6 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 	}
 
 	@Override
-	public Assignment getAssignmentByGooruOid(final String gooruOid, final String gooruUid) {
-		String hql = " FROM Assignment assignment WHERE  assignment.gooruOid=:gooruOid  and ";
-		if (gooruUid != null) {
-			hql += " assignment.user.partyUid='" + gooruUid + "' and ";
-		}
-		final Query query = getSession().createQuery(hql + generateOrgAuthQuery("assignment."));
-		query.setParameter(GOORU_OID, gooruOid);
-		addOrgAuthParameters(query);
-		return ((query.list().size() > 0) ? (Assignment) query.list().get(0) : null);
-	}
-
-	@Override
-	public Assignment getAssignmentUserShelfByGooruUid(final String gooruUid, final String type) {
-		String hql = " FROM Assignment assignment WHERE  assignment.user.partyUid=:gooruUid  and assignment.collectionType=:type and ";
-		final Query query = getSession().createQuery(hql + generateOrgAuthQuery("assignment."));
-		query.setParameter(_GOORU_UID, gooruUid);
-		query.setParameter(TYPE, type);
-		addOrgAuthParameters(query);
-		return ((query.list().size() > 0) ? (Assignment) query.list().get(0) : null);
-	}
-
-	@Override
-	public List<Assignment> getAssignments(final Map<String, String> filters, final User user) {
-		Integer pageNum = 1;
-		if (filters != null && filters.containsKey(PAGE_NO)) {
-			pageNum = Integer.parseInt(filters.get(PAGE_NO));
-		}
-		Integer pageSize = 10;
-		if (filters != null && filters.containsKey(PAGE_SIZE)) {
-			pageSize = Integer.parseInt(filters.get(PAGE_SIZE));
-		}
-
-		String hql = "FROM Assignment assignment WHERE " + generateOrgAuthQuery("assignment.");
-		if (filters != null && filters.get(Constants.FETCH_TYPE) != null && filters.get(Constants.FETCH_TYPE).equalsIgnoreCase("my") && user != null) {
-			hql += " and assignment.collectionType = '" + CollectionType.ASSIGNMENT.getCollectionType() + "' and assignment.user.partyUid = '" + user.getGooruUId() + "'";
-		}
-		final Query query = getSession().createQuery(hql);
-		addOrgAuthParameters(query);
-		query.setFirstResult(((pageNum - 1) * pageSize));
-		query.setMaxResults(pageSize != null ? (pageSize > MAX_LIMIT ? MAX_LIMIT : pageSize) : pageSize);
-		return list(query);
-	}
-
-	@Override
 	public List<Collection> getMyCollection(final Map<String, String> filters, final User user) {
 		if (filters == null || user == null) {
 			return null;
@@ -431,77 +385,6 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		}
 		String hql = "select collectionItems.resource  FROM Collection collection inner join collection.collectionItems collectionItems WHERE  " + collectionType + " " + resourceType + " collection.user.partyUid = '" + user.getGooruUId() + "'  order by collectionItems.resource.createdOn desc";
 		return list(getSession().createQuery(hql).setFirstResult(startAt).setMaxResults(pageSize));
-	}
-
-	@Override
-	public Quiz getQuiz(final String gooruOid, final String gooruUid, final String type) {
-		String hql = " FROM Quiz quiz WHERE   " + generateOrgAuthQuery("quiz.");
-		if (gooruOid != null) {
-			hql += " and  quiz.gooruOid=:gooruOid ";
-		}
-		if (gooruUid != null) {
-			hql += " and quiz.user.partyUid=:gooruUid ";
-		}
-		if (type != null) {
-			hql += " and quiz.collectionType=:type ";
-		}
-		Query query = getSession().createQuery(hql);
-		if (gooruOid != null) {
-			query.setParameter(GOORU_OID, gooruOid);
-		}
-		if (gooruUid != null) {
-			query.setParameter(_GOORU_UID, gooruUid);
-		}
-		if (type != null) {
-			query.setParameter(TYPE, type);
-		}
-		addOrgAuthParameters(query);
-		return (query.list().size() > 0) ? (Quiz) query.list().get(0) : null;
-	}
-
-	@Override
-	public List<Quiz> getQuizList(String gooruOid, final String gooruUid, final String type) {
-		String hql = " FROM Quiz quiz WHERE   " + generateOrgAuthQuery("quiz.");
-		if (gooruOid != null) {
-			if (gooruOid.contains(",")) {
-				gooruOid = gooruOid.replace(",", "','");
-			}
-			hql += " and  quiz.gooruOid in ('" + gooruOid + "')  ";
-		}
-		if (gooruUid != null) {
-			hql += " and quiz.user.partyUid=:gooruUid ";
-		}
-		if (type != null) {
-			hql += " and quiz.collectionType=:type ";
-		}
-		final Query query = getSession().createQuery(hql);
-		if (gooruUid != null) {
-			query.setParameter(_GOORU_UID, gooruUid);
-		}
-		if (type != null) {
-			query.setParameter(TYPE, type);
-		}
-		addOrgAuthParameters(query);
-		return list(query);
-	}
-
-	@Override
-	public List<Quiz> getQuizzes(final Integer limit, final Integer offset) {
-		final String hql = "FROM Quiz quiz WHERE " + generateOrgAuthQuery("quiz.");
-		final Query query = getSession().createQuery(hql);
-		addOrgAuthParameters(query);
-		query.setFirstResult(offset != null ? offset : OFFSET);
-		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
-		return list(query);
-	}
-
-	@Override
-	public List<Quiz> getMyQuizzes(final Integer limit, final Integer offset, final String gooruUid, final String orderBy) {
-		final String hql = "select collectionItems.resource  FROM Quiz quiz inner join quiz.collectionItems collectionItems WHERE   quiz.user.partyUid = '" + gooruUid + "' and quiz.collectionType = '" + CollectionType.USER_QUIZ + "' order by collectionItems.itemSequence " + orderBy;
-		final Query query = getSession().createQuery(hql);
-		query.setFirstResult(offset);
-		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
-		return list(query);
 	}
 
 	@Override

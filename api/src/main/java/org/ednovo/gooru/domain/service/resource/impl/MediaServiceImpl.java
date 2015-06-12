@@ -66,9 +66,6 @@ import com.mortennobel.imagescaling.ResampleOp;
 
 @Service
 public class MediaServiceImpl implements MediaService,ParameterProperties {
-	@Autowired
-	@javax.annotation.Resource(name = "classplanConstants")
-	private Properties configConstants;
 	
 	@Autowired
 	private SettingService settingService;
@@ -269,14 +266,6 @@ public class MediaServiceImpl implements MediaService,ParameterProperties {
 			} catch (IOException ioe) {
 			}
 		}
-	}
-	
-	public Properties getConfigConstants() {
-		return configConstants;
-	}
-
-	public void setConfigConstants(Properties configConstants) {
-		this.configConstants = configConstants;
 	}
 	
 }
