@@ -24,6 +24,8 @@
 package org.ednovo.gooru.domain.service.session;
 
 import java.io.File;
+import java.util.List;
+import java.util.Map;
 
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.SessionActivity;
@@ -44,6 +46,8 @@ public interface SessionActivityService extends BaseService {
 
 	SessionActivity getSessionActivity(Long sessionActivityId);
 
+	Map<String, Object> getCurrentSessionActivity(String gooruOid, String user);
+	
 	File exportClass(String classGooruId);
 	
 	SessionActivityItem updateLastResourceSessionActivityItem(SessionActivityItem sessionActivityItem);

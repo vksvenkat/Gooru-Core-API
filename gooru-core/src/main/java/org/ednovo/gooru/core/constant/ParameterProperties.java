@@ -140,6 +140,8 @@ public interface ParameterProperties {
 
 	String COLLECTION_ID = "collectionId";
 
+	String COLLECTION_GOORU_ID = "collectionGooruId";
+	
 	String SOURCE_COLLECTION_ID = "sourceCollectionId";
 
 	String TARGET_COLLECTION_ID = "targetCollectionId";

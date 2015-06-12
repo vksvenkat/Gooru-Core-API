@@ -24,6 +24,7 @@
 package org.ednovo.gooru.infrastructure.persistence.hibernate.session;
 
 import java.util.List;
+import java.util.Map;
 
 import org.ednovo.gooru.core.api.model.AssessmentQuestion;
 import org.ednovo.gooru.core.api.model.SessionActivity;
@@ -31,13 +32,16 @@ import org.ednovo.gooru.core.api.model.SessionActivityItem;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate;
+import org.hibernate.Criteria;
 import org.hibernate.Query;
+import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.type.StandardBasicTypes;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public class SessionActivityRepositoryHibernate extends BaseRepositoryHibernate implements SessionActivityRepository, ParameterProperties, ConstantProperties {
+
 
 	private final String RETRIEVE_SESSION_ACTIVITY_BY_ID = "From SessionActivity s   where s.sessionActivityId=:sessionActivityId";
 
@@ -47,7 +51,7 @@ public class SessionActivityRepositoryHibernate extends BaseRepositoryHibernate 
 
 	private final String SESSION_ACTIVITY_RATING_COUNT = "select IFNULL(round(sum(rating)/count(1)), 0) as count from session_activity_item where session_activity_id =:sessionActivityId and rating <> 0";
 
-	private final String SESSION_ACTIVITY_REACTION_COUNT = "select IFNULL(round(sum(reaction)/count(1)), 0) as count from session_activity_item where session_activity_id =:sessionActivityId and reaction <> 0";
+	private final String SESSION_ACTIVITY_REACTION_COUNT = "select IFNULL(round(sum(resession_activity_idaction)/count(1)), 0) as count from session_activity_item where session_activity_id =:sessionActivityId and reaction <> 0";
 
 	private final String COLLECTION_QUESTION_COUNT = "select count(1) as count from collection_item ci inner join assessment_question  q on q.question_id = ci.resource_content_id where ci.collection_content_id=:collectionId";
 
@@ -58,6 +62,7 @@ public class SessionActivityRepositoryHibernate extends BaseRepositoryHibernate 
 	private final String FIND_QUESTION = "From AssessmentQuestion q   where q.gooruOid=:gooruOid";
 	
 	private final String RETRIEVE_LAST_SESSION_ACTIVITY_BY_IDS = "From SessionActivity s   where s.parentId=:parentId and s.collectionId=:collectionId and s.user.partyUid=:userId order by s.sequence desc";
+		
 
 	@Override
 	public SessionActivity getSessionActivityById(Long sessionActivityId) {
@@ -159,4 +164,16 @@ public class SessionActivityRepositoryHibernate extends BaseRepositoryHibernate 
 		List<SessionActivity> sessionActivities = list(query);
 		return (sessionActivities.size() > 0) ? sessionActivities.get(0) : null;
 	}
+	
+	@Override
+	public Map<String,Object> getSessionActivityByCurrentId(String gooruOid, String userUid)  {
+		String sql = "SELECT CAST(sa.user_uid AS CHAR) as userUid,sa.status,sa.session_activity_id as sessionActivityId,so.gooru_oid as collectionGooruOid,sai.gooru_oid as resourceGooruOid from session_activity sa inner join session_activity_item si on sa.session_activity_id=si.session_activity_id inner join content so on so.content_id=sa.collection_id left join content sai on sai.content_id=si.resource_id where sa.status='open' and sa.user_uid=:userUid and so.gooru_oid =:collectionGooruId order by sa.start_time LIMIT 1";
+		SQLQuery query = getSession().createSQLQuery(sql);
+		query.setParameter(COLLECTION_GOORU_ID, gooruOid);
+		query.setParameter(USER_UID, userUid);
+		query.setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP);
+		return (Map<String, Object>) query.list().get(0);
+	}
+
+
 }
