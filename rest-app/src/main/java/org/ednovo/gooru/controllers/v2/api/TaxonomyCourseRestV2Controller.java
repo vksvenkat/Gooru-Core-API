@@ -62,7 +62,7 @@ public class TaxonomyCourseRestV2Controller extends BaseController implements Co
 	public ModelAndView createCourse(@RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		final User user = (User) request.getAttribute(Constants.USER);
 		ActionResponseDTO<TaxonomyCourse> responseDTO = getTaxonomyCourseService().createTaxonomyCourse(buildCourseFromInputParameters(data), user);
-		String includes[] = (String[]) ArrayUtils.addAll(COURSE_, ERROR_INCLUDE);
+		String includes[] = (String[]) ArrayUtils.addAll(CREATE_INCLUDES, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
 

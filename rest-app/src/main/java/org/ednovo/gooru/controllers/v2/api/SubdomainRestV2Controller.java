@@ -49,7 +49,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
-@RequestMapping(value = { "/v2/sub-domain" })
+@RequestMapping(value = { "/sub-domain" })
 public class SubdomainRestV2Controller extends BaseController implements ConstantProperties {
 
 	@Autowired
@@ -64,7 +64,7 @@ public class SubdomainRestV2Controller extends BaseController implements Constan
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		}
-		String includes[] = (String[]) ArrayUtils.addAll(SUBDOMAIN_INCLUDES, ERROR_INCLUDE);
+		String includes[] = (String[]) ArrayUtils.addAll(CREATE_INCLUDES, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(responseDTO.getModelData(), FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
 

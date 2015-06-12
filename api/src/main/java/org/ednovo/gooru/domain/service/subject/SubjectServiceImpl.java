@@ -24,6 +24,7 @@
 package org.ednovo.gooru.domain.service.subject;
 
 import java.util.Date;
+import java.util.List;
 
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Subject;
@@ -82,7 +83,7 @@ public class SubjectServiceImpl extends BaseServiceImpl implements SubjectServic
 	}
 
 	@Override
-	public Subject updateSubject(Subject newSubject, Integer subjectId) {
+	public Subject updateSubject(Subject newSubject, Integer subjectId, User user) {
 		Subject subject = this.getSubjectRepository().getSubject(subjectId);
 		rejectIfNull(subject, GL0056, 404, SUBJECT);
 		if (newSubject.getActiveFlag() != null) {
@@ -99,6 +100,14 @@ public class SubjectServiceImpl extends BaseServiceImpl implements SubjectServic
 			subject.setName(newSubject.getName());
 		}
 		if (newSubject.getDisplaySequence() != null) {
+			int displaySequence = newSubject.getDisplaySequence();
+			List<Subject> resetSubjectSequence = this.getSubjectRepository().getParentSubject(user.getPartyUid(), displaySequence);
+			if(resetSubjectSequence != null){
+				for(Subject subjectSequence : resetSubjectSequence){
+					subjectSequence.setDisplaySequence(++displaySequence);
+				}
+				this.getSubjectRepository().saveAll(resetSubjectSequence);
+			}
 			subject.setDisplaySequence(newSubject.getDisplaySequence());
 		}
 		subject.setLastModified(new Date(System.currentTimeMillis()));
@@ -109,7 +118,6 @@ public class SubjectServiceImpl extends BaseServiceImpl implements SubjectServic
 	private Errors validateSubject(Subject subject) {
 		final Errors errors = new BindException(subject, SUBJECT);
 		rejectIfNull(errors, subject.getName(), NAME, generateErrorMessage(GL0006, NAME));
-		rejectIfNull(errors, subject.getDisplaySequence(), DISPLAY_SEQUENCE, generateErrorMessage(GL0006, DISPLAY_SEQUENCE));
 		return errors;
 	}
 

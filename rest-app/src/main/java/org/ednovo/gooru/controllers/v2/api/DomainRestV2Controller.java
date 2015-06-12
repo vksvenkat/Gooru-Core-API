@@ -50,7 +50,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
-@RequestMapping(value = { "/v2/domain" })
+@RequestMapping(value = { "/domain" })
 public class DomainRestV2Controller extends BaseController implements ConstantProperties, ParameterProperties {
 
 	@Autowired
@@ -62,7 +62,7 @@ public class DomainRestV2Controller extends BaseController implements ConstantPr
 	public ModelAndView createDomain(@RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		final User user = (User) request.getAttribute(Constants.USER);
 		ActionResponseDTO<Domain> responseDTO = getDomainService().createDomain(buildDomainFromInputParameters(data), user);
-		String includes[] = (String[]) ArrayUtils.addAll(DOMAIN, ERROR_INCLUDE);
+		String includes[] = (String[]) ArrayUtils.addAll(CREATE_INCLUDES, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
 

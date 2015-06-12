@@ -110,5 +110,9 @@ public class Domain implements Serializable {
 	public void setDisplaySequence(Integer displaySequence) {
 		this.displaySequence = displaySequence;
 	}
+	
+	public String getUri() {
+		return RequestMappingUri.DOMAIN.getRequestMappingUri() + getDomainId();
+	}
 
 }

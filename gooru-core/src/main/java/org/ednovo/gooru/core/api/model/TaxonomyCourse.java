@@ -152,5 +152,9 @@ public class TaxonomyCourse implements Serializable {
 	public void setCourseId(Integer courseId) {
 		this.courseId = courseId;
 	}
+	
+	public String getUri() {
+		return RequestMappingUri.TAXONOMYCOURSE.getRequestMappingUri() + getCourseId();
+	}
 
 }

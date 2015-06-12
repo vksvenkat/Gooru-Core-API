@@ -36,8 +36,6 @@ public class Subject implements Serializable {
 	 * 
 	 */
 
-	private String uri = "\taxonomycourse";
-
 	private Integer subjectId;
 
     private String name;
@@ -129,11 +127,7 @@ public class Subject implements Serializable {
 	}
 	
 	public String getUri() {
-		return uri;
-	}
-
-	public void setUri(String uri) {
-		this.uri = uri;
+		return RequestMappingUri.SUBJECT.getRequestMappingUri() + getSubjectId();
 	}
 
 }
