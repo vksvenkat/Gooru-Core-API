@@ -167,7 +167,7 @@ public class SessionActivityRepositoryHibernate extends BaseRepositoryHibernate 
 	
 	@Override
 	public Map<String,Object> getSessionActivityByCurrentId(String gooruOid, String userUid)  {
-		String sql = "SELECT CAST(sa.user_uid AS CHAR) as userUid,sa.status,sa.session_activity_id as sessionActivityId,so.gooru_oid as collectionGooruOid,sai.gooru_oid as resourceGooruOid from session_activity sa inner join session_activity_item si on sa.session_activity_id=si.session_activity_id inner join content so on so.content_id=sa.collection_id left join content sai on sai.content_id=si.resource_id where sa.status='open' and sa.user_uid=:userUid and so.gooru_oid =:collectionGooruId order by sa.start_time LIMIT 1";
+		String sql = "SELECT sa.user_uid as userUid,sa.status,sa.session_activity_id as sessionActivityId,so.gooru_oid as collectionGooruOid,sai.gooru_oid as resourceGooruOid from session_activity sa inner join session_activity_item si on sa.session_activity_id=si.session_activity_id inner join content so on so.content_id=sa.collection_id left join content sai on sai.content_id=si.resource_id where sa.status='open' and sa.user_uid=:userUid and so.gooru_oid =:collectionGooruId order by si.start_time DESC LIMIT 1";
 		SQLQuery query = getSession().createSQLQuery(sql);
 		query.setParameter(COLLECTION_GOORU_ID, gooruOid);
 		query.setParameter(USER_UID, userUid);
