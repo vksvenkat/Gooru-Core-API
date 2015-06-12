@@ -27,7 +27,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 
-public class Domain extends OrganizationModel implements Serializable {
+public class Domain implements Serializable {
 
 	private static final long serialVersionUID = -1775302177846507373L;
 
@@ -109,6 +109,10 @@ public class Domain extends OrganizationModel implements Serializable {
 
 	public void setDisplaySequence(Integer displaySequence) {
 		this.displaySequence = displaySequence;
+	}
+	
+	public String getUri() {
+		return RequestMappingUri.DOMAIN.getRequestMappingUri() + getDomainId();
 	}
 
 }
