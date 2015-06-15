@@ -654,7 +654,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			result.put(FIRST_NAME, object[5]);
 			result.put(LAST_NAME, object[6]);
 			if (object[2] != null) {
-				result.put(PROFILE_IMG_URL, settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, TaxonomyUtil.GOORU_ORG_UID) + "/" + String.valueOf(object[2]) + ".png");
+				result.put(PROFILE_IMG_URL, BaseUtil.changeHttpsProtocolByHeader(settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, TaxonomyUtil.GOORU_ORG_UID)) + "/" + String.valueOf(object[2]) + ".png");
 			}
 			listMap.add(result);
 		}
@@ -722,7 +722,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			user.put(FIRSTNAME, object[6]);
 			user.put(LASTNAME, object[7]);
 			user.put(USERNAME, object[8]);
-			user.put(PROFILE_IMG_URL, settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, TaxonomyUtil.GOORU_ORG_UID) + "/" + String.valueOf(object[5]) + ".png");
+			user.put(PROFILE_IMG_URL, BaseUtil.changeHttpsProtocolByHeader(settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, TaxonomyUtil.GOORU_ORG_UID)) + "/" + String.valueOf(object[5]) + ".png");
 			result.put(USER, user);
 
 			final StorageArea storageArea = this.getStorageRepository().getStorageAreaByTypeName(NFS);
@@ -796,7 +796,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 				final Map<String, Object> user = new HashMap<String, Object>();
 				user.put(USERNAME, object[12]);
 				user.put(GOORU_UID, object[13]);
-				user.put(PROFILE_IMG_URL, settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, TaxonomyUtil.GOORU_ORG_UID) + "/" + String.valueOf(object[13]) + ".png");
+				user.put(PROFILE_IMG_URL, BaseUtil.changeHttpsProtocolByHeader(settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, TaxonomyUtil.GOORU_ORG_UID)) + "/" + String.valueOf(object[13]) + ".png");
 				resource.put(USER, user);
 				resource.put(COLLECTIONITEMS, getPathawyItemWithOutValidation(object[5].toString(), 0, 10, orderBy, apiCaller));
 			}
