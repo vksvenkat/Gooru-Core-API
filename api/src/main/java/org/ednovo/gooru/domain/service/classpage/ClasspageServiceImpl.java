@@ -66,7 +66,6 @@ import org.ednovo.gooru.domain.service.eventlogs.CollectionEventLog;
 import org.ednovo.gooru.domain.service.group.UserGroupService;
 import org.ednovo.gooru.domain.service.search.SearchResults;
 import org.ednovo.gooru.domain.service.setting.SettingService;
-import org.ednovo.gooru.domain.service.task.TaskService;
 import org.ednovo.gooru.domain.service.user.UserService;
 import org.ednovo.gooru.domain.service.userManagement.UserManagementService;
 import org.ednovo.gooru.domain.service.v2.ContentService;
@@ -86,9 +85,6 @@ import org.springframework.validation.Errors;
 
 @Service
 public class ClasspageServiceImpl extends ScollectionServiceImpl implements ClasspageService, ParameterProperties {
-
-	@Autowired
-	private TaskService taskService;
 
 	@Autowired
 	@javax.annotation.Resource(name = "userService")
@@ -1083,9 +1079,6 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		return scollectionEventlog;
 	}
 
-	public TaskService getTaskService() {
-		return taskService;
-	}
 
 	public UserRepository getUserRepository() {
 		return userRepository;

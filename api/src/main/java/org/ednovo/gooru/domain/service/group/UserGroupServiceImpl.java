@@ -59,7 +59,7 @@ public class UserGroupServiceImpl implements UserGroupService,ParameterPropertie
 	
 	
 	@Override
-	public UserGroup createGroup(String name, String groupCode, String userGroupType, User apiCaller, String userMailIds) throws Exception {
+	public UserGroup createGroup(String name, String groupCode, String userGroupType, User apiCaller, String userMailIds)  {
 
 		Map<String, String> errorsList = validateCreateGroup(name, groupCode, userGroupType);
 
@@ -67,7 +67,6 @@ public class UserGroupServiceImpl implements UserGroupService,ParameterPropertie
 		
 		UserGroupAssociation groupAssociation = new  UserGroupAssociation();
 			
-		JSONObject jsonObj = new JSONObject();
 
 		if (errorsList.isEmpty()) {
 						
@@ -95,10 +94,7 @@ public class UserGroupServiceImpl implements UserGroupService,ParameterPropertie
 		if(errorsList.isEmpty() && userMailIds != null && userGroup != null){
 			addGroupMembers(userGroup,userMailIds);
 		}
-		if(errorsList.size() > 0){
-			jsonObj.put(ERROR_LIST, SerializerUtil.serializeToJsonObject(errorsList));
-			jsonObj.put(STATUS, STATUS_500);
-		}
+		
 		return userGroup;
 	}
 
@@ -114,7 +110,7 @@ public class UserGroupServiceImpl implements UserGroupService,ParameterPropertie
 	}
 
 	@Override
-	public Map<String, String> validateCreateGroup(String name, String groupCode, String userGroupType) throws Exception {
+	public Map<String, String> validateCreateGroup(String name, String groupCode, String userGroupType)  {
 		Map<String, String> errorList = new HashMap<String, String>();
 
 		if (!isNotEmptyString(name)) {

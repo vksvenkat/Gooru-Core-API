@@ -55,9 +55,7 @@ import org.ednovo.gooru.domain.service.CollectionService;
 import org.ednovo.gooru.domain.service.classpage.ClasspageService;
 import org.ednovo.gooru.domain.service.redis.RedisService;
 import org.ednovo.gooru.domain.service.search.SearchResults;
-import org.ednovo.gooru.domain.service.task.TaskService;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepository;
-import org.ednovo.gooru.infrastructure.persistence.hibernate.task.TaskRepository;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,13 +82,8 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	private CollectionService collectionService;
 
 	@Autowired
-	private TaskService taskService;
-
-	@Autowired
 	private CollectionRepository collectionRepository;
 
-	@Autowired
-	private TaskRepository taskRepository;
 	
 	@Autowired
 	private RedisService redisService;
@@ -255,27 +248,6 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ITEM_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	@RequestMapping(value = "/collection/{id}", method = RequestMethod.GET)
-	public ModelAndView getCollectionClasspageAssoc(@PathVariable(value = ID) final String collectionId, @RequestParam(value = GOORU_UID, required = false) final String gooruUid, final HttpServletRequest request, final HttpServletResponse response) {
-		return toJsonModelAndView(this.getTaskRepository().getCollectionClasspageAssoc(collectionId, gooruUid), true);
-	}
-
-	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ITEM_READ })
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	@RequestMapping(value = "/collection/{id}/count", method = RequestMethod.GET)
-	public ModelAndView getCollectionClasspageAssocCount(@PathVariable(value = ID) final String collectionId, @RequestParam(value = GOORU_UID, required = false) final String gooruUid, final HttpServletRequest request, final HttpServletResponse response) {
-		return toJsonModelAndView(this.getTaskRepository().getCollectionClasspageAssocCount(collectionId), true);
-	}
-
-	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ITEM_DELETE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	@RequestMapping(value = "/collection/{id}", method = RequestMethod.DELETE)
-	public void deleteCollectionAssocInAssignment(@PathVariable(value = ID) final String collectionId, final HttpServletRequest request, final HttpServletResponse response) {
-		this.getTaskService().deleteCollectionAssocInAssignment(collectionId);
-	}
-
-	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ITEM_READ })
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/{cid}/item", method = RequestMethod.GET)
 	public ModelAndView getClasspageItems(@PathVariable(value = COLLECTIONID) final String classpageId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") final Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue= "10") Integer limit,
 		@RequestParam(value = ORDER_BY, defaultValue = PLANNED_END_DATE, required = false) final String orderBy,@RequestParam(value=CLEAR_CACHE, required=false, defaultValue="false" ) final Boolean clearCache, @RequestParam(value = OPTIMIZE, required = false, defaultValue = FALSE) final Boolean optimize, @RequestParam(value = STATUS, required = false) final String status, @RequestParam(value = TYPE, required = false) final String type, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
@@ -342,7 +314,6 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 			@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, 
 			@RequestParam(value = ITEM_TYPE, required = false) final String itemType,@RequestParam(value = ORDER_BY, defaultValue = "desc", required = false) final String orderBy) throws Exception {
 		final User apiCaller = (User) request.getAttribute(Constants.USER);
-
 		return toModelAndView(serialize(this.getClasspageService().getMyStudy(apiCaller, orderBy, offset, limit, type,itemType), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, false, true, STUDY_RESOURCE_FIELDS));
 	}
 	
@@ -611,16 +582,8 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 		return collectionService;
 	}
 
-	public TaskService getTaskService() {
-		return taskService;
-	}
-
 	public CollectionRepository getCollectionRepository() {
 		return collectionRepository;
-	}
-
-	public TaskRepository getTaskRepository() {
-		return taskRepository;
 	}
 
 	public RedisService getRedisService() {
