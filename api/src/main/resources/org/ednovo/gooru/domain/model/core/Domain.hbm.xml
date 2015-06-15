@@ -37,12 +37,6 @@
 	    </property> 
 	    <property name="activeFlag" column="active_flag" not-null="true">
 		</property>
-		<many-to-one 
-		    name="organization" 
-		    class="org.ednovo.gooru.core.api.model.Organization" 		    
-		    column="organization_uid" 
-		    not-null="true" 	
-		    lazy="false" fetch="join" cascade="none"/>
 		<property name="imagePath" column="image_path" not-null="false">
 		</property>
 		<property name="displaySequence" column="display_sequence" not-null="true">

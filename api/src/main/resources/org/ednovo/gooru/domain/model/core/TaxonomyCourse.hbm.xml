@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-   Course.hbm.xml
+   TaxonomyCourse.hbm.xml
    gooru-api
    Created by Gooru on 2015
    Copyright (c) 2015 Gooru. All rights reserved.
@@ -27,7 +27,7 @@
     "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
-    <class name="org.ednovo.gooru.core.api.model.Course" table="course">
+    <class name="org.ednovo.gooru.core.api.model.TaxonomyCourse" table="course">
 	    <id name="courseId" column="course_id" unsaved-value="null">
   			<generator class="identity" />
 	    </id>
@@ -43,12 +43,6 @@
 	    </property> 
 	    <property name="activeFlag" column="active_flag" not-null="true">
 		</property>
-		<many-to-one 
-		    name="organization" 
-		    class="org.ednovo.gooru.core.api.model.Organization" 		    
-		    column="organization_uid" 
-		    not-null="true" 	
-		    lazy="false" fetch="join" cascade="none"/>
 		<property name="imagePath" column="image_path" not-null="false">
 		</property>
 		<property name="displaySequence" column="display_sequence" not-null="true">
