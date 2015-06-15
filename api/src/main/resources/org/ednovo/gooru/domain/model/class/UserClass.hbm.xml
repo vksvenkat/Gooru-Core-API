@@ -19,12 +19,12 @@
     "-//Hibernate/Hibernate Mapping DTD 3.0//EN" 
     "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping>
-	<class name="org.ednovo.gooru.core.api.model.Class" table="class">
+	<class name="org.ednovo.gooru.core.api.model.UserClass" table="class">
 		<id name="classId" column="class_id" unsaved-value="null">
 			<generator class="identity" />
 		</id>
 
-		<property name=title column="title" not-null="true" />
+		<property name="title" column="title" not-null="true" />
 
 		<property name="description" column="description" not-null="true" />
 
