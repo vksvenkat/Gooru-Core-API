@@ -35,11 +35,11 @@ public interface FolderService {
 
 	SearchResults<Map<String, Object>> getMyCollectionsToc(String gooruUid, Integer limit, Integer offset, String sharing, String collectionType, String orderBy, String excludeType);
 
-	List<Map<String, Object>> getFolderTocItems(String gooruOid, String sharing, String collectionType, String orderBy, String sortOrder, String excludeType);
+	List<Map<String, Object>> getFolderTocItems(String gooruOid, Integer limit, Integer offset, String sharing, String collectionType, String orderBy, String sortOrder, String excludeType);
 
 	String getMyCollectionsToc(String gooruUid, Integer limit, Integer offset, String sharing, String collectionType, String orderBy, String excludeType, boolean clearCache);
 
-	String getFolderTocItems(String gooruOid, String sharing, String collectionType, String orderBy, String excludeType, boolean clearCache);
+	String getFolderTocItems(String gooruOid, Integer limit, Integer offset, String sharing, String collectionType, String orderBy, String excludeType, boolean clearCache);
 	
 	Map<String, Object> getNextCollectionItem(String collectionItemId,String excludeType, String sharing, boolean excludeCollaboratorCollection);
 

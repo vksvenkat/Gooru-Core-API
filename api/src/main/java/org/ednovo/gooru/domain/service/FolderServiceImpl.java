@@ -43,6 +43,7 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 
 @Service
@@ -87,7 +88,7 @@ public class FolderServiceImpl extends BaseServiceImpl implements FolderService,
 					}));
 				}
 				if (object[2] != null && object[2].toString().equalsIgnoreCase(SCOLLECTION)) {
-					collection.put(COLLECTION_ITEMS, getFolderTocItems(String.valueOf(object[1]), sharing, collectionType, orderBy, ASC, excludeType));
+					collection.put(COLLECTION_ITEMS, getFolderTocItems(String.valueOf(object[1]), limit, offset, sharing, collectionType, orderBy, ASC, excludeType));
 				}
 				folders.add(collection);
 			}
@@ -99,9 +100,9 @@ public class FolderServiceImpl extends BaseServiceImpl implements FolderService,
 	}
 
 	@Override
-	public List<Map<String, Object>> getFolderTocItems(final String gooruOid, final String sharing, final String collectionType, final String orderBy, final String sortOrder, final String excludeType) {
+	public List<Map<String, Object>> getFolderTocItems(final String gooruOid, Integer limit, Integer offset, final String sharing, final String collectionType, final String orderBy, final String sortOrder, final String excludeType) {
 		final List<Map<String, Object>> items = new ArrayList<Map<String, Object>>();
-		final List<Object[]> result = this.getCollectionRepository().getCollectionItem(gooruOid, null, null, sharing, orderBy, collectionType, true, sortOrder, true, excludeType);
+		final List<Object[]> result = this.getCollectionRepository().getCollectionItem(gooruOid, limit, offset, sharing, orderBy, collectionType, true, sortOrder, true, excludeType);
 		if (result != null && result.size() > 0) {
 			for (Object[] object : result) {
 				final Map<String, Object> item = new HashMap<String, Object>();
@@ -117,7 +118,7 @@ public class FolderServiceImpl extends BaseServiceImpl implements FolderService,
 					}
 				}
 				if (object[2] != null && object[2].toString().equalsIgnoreCase(SCOLLECTION)) {
-					item.put(COLLECTION_ITEMS, getFolderTocItems(String.valueOf(object[1]), sharing, collectionType, orderBy, ASC, excludeType));
+					item.put(COLLECTION_ITEMS, getFolderTocItems(String.valueOf(object[1]), limit, offset, sharing, collectionType, orderBy, ASC, excludeType));
 				}
 				item.put(IDEAS, object[12]);
 				item.put(QUESTIONS, object[13]);
@@ -153,7 +154,7 @@ public class FolderServiceImpl extends BaseServiceImpl implements FolderService,
 	}
 
 	@Override
-	public String getFolderTocItems(final String gooruOid, final String sharing, final String collectionType, final String orderBy, final String excludeType, final boolean clearCache) {
+	public String getFolderTocItems(final String gooruOid, Integer limit, Integer offset, final String sharing, final String collectionType, final String orderBy, final String excludeType, final boolean clearCache) {
 		final Collection collection = this.getCollectionRepository().getCollectionByGooruOid(gooruOid, null);
 		rejectIfNull(collection, GL0056, 404, FOLDER);
 		final String cacheKey = V2_ORGANIZE_DATA + collection.getUser().getPartyUid() + HYPHEN + gooruOid + HYPHEN + sharing + HYPHEN + collectionType + HYPHEN + orderBy + HYPHEN + excludeType + HYPHEN + TOC;
@@ -170,7 +171,7 @@ public class FolderServiceImpl extends BaseServiceImpl implements FolderService,
 			item.put(DESCRIPTION, collection.getGoals() != null ? collection.getGoals() : collection.getDescription());
 			item.put(COLLECTION_TYPE, collection.getCollectionType());
 			item.put(URL, collection.getUrl());
-			item.put(COLLECTION_ITEMS, this.getFolderTocItems(gooruOid, sharing, collectionType, orderBy, collection.getResourceType().getName().equalsIgnoreCase(SCOLLECTION) ? ASC : DESC, excludeType));
+			item.put(COLLECTION_ITEMS, this.getFolderTocItems(gooruOid, limit, offset, sharing, collectionType, orderBy, collection.getResourceType().getName().equalsIgnoreCase(SCOLLECTION) ? ASC : DESC, excludeType));
 			data = SerializerUtil.serializeToJson(item, TOC_EXCLUDES, true, true);
 			getRedisService().putValue(cacheKey, data, 86400);
 		}

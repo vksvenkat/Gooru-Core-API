@@ -27,7 +27,8 @@ public interface ConstantProperties {
 			"*.hints.*", "*.description", "*.explanation", "*.taxonomySet", "*.codeId", "*.depth", "*.lastModified", "*.gooruUId", "*.lastUpdatedUserUid", "*.category", "*.label", "*.code", "*.userRating", "*.hasFrameBreaker", "*.copiedResourceId", "*.assignmentContentId", "*.trackActivity",
 			"*.trackActivity.startTime", "*.trackActivity.endTime", "*.goals", "*.grade", "*.mediaType", "*.text", "*.isOer", "*.meta.*", "*.resourceFormat.value", "*.resourceFormat.displayName", "*.instructional.value", "*.instructional.displayName", "*.depthOfKnowledges.value",
 			"*.depthOfKnowledges.selected", "*.momentsOfLearning.selected", "*.momentsOfLearning.value", "*.educationalUse.value", "*.educationalUse.selected", "*.ratings", "*.average", "*.count", "*.reviewCount", "*.standards", "*.license", "*.standards.code", "*.standards.description",
-			"*.course", "*.customFieldValues.*", "*.publisher", "*.aggregator", "*.totalPages", "*.host", "*.resourceTags.*", "*.typeName", "*.s3UploadFlag", "*.sourceReference", "*.skills" };
+			"*.course", "*.customFieldValues.*", "*.publisher", "*.aggregator", "*.totalPages", "*.host", "*.resourceTags.*", "*.typeName", "*.s3UploadFlag", "*.sourceReference", "*.skills",
+			"*.attributes.*", "*.feedback.*", "*.misc.*"};
 
 	static final String ASSIGNMENT_INCLUDE_FIELDS[] = { "*.narrationLink", "collection.notes", "*.keyPoints", "*.language", "*.goals", "*.grade", "*.estimatedTime", "*.collectionType", "*.creator", "*.assetURI", "*.license", "*.license.code", "*.license.icon", "*.license.name",
 			"*.license.definition", "*.dimensions", "*.defaultImage", "*.createdOn", "*.user", "*.usernameDisplay", "*.profileImageUrl", "*.lastName", "*.firstName", "*.username", "*.description", "*.folder", "*.gooruOid", "*.sharing", "*.title", "*.views", "*.thumbnails", "*.url",
@@ -888,6 +889,8 @@ public interface ConstantProperties {
 	public static final String SOURCE_PARENT_GOORU_ID = "sourceParentGooruId";
 
 	public static final String DATA = "data";
+	
+	public static final String CREATE_INCLUDES[] = {"*.name","*.uri"};
 
 	static final String RESOURCE_COLLECTION_USED_INCLUDE_FIELDS[] = { "*.language", "*.goals", "*.grade", "*.estimatedTime", "*.collectionType", "*.assetURI", "*.createdOn", "*.user", "*.usernameDisplay", "*.profileImageUrl", "*.lastName", "*.firstName", "*.username", "*.description",
 			"*.folder", "*.gooruOid", "*.sharing", "*.title", "*.views", "*.thumbnails", "*.url", "*.gooruUId", "*.buildType", "*.emailId", "*.value", "*.code", "*.label", "*.modifiedDate", "*.gooruid", "*.username", "*.customFields", "*.optionalValue", "*.optionalKey",

@@ -37,10 +37,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class BaseComponent {
-
-	@Autowired
-	@javax.annotation.Resource(name = "classplanConstants")
-	private Properties classPlanConstants;
 	
 	@Autowired
 	private SettingService settingService;
@@ -102,14 +98,6 @@ public class BaseComponent {
 
 	protected String getSearchApiPath() {
 		return settingService.getConfigSetting(ConfigConstants.GOORU_SEARCH_ENDPOINT,0, TaxonomyUtil.GOORU_ORG_UID) + "/";
-	}
-
-	protected String getSEOWebdriverApiPath(){
-		return getClassplanConstants().getProperty("gooruSEOWebdriverEndPoint");
-	}
-
-	protected Properties getClassplanConstants() {
-		return classPlanConstants;
 	}
 
 	public Logger getLogger() {

@@ -144,10 +144,6 @@ public class Resource extends Content implements Serializable {
 
 	private String numOfPages;
 
-	private Integer votesUp;
-
-	private Integer votesDown;
-
 	private String vocabulary;
 
 	private String grade;
@@ -157,8 +153,6 @@ public class Resource extends Content implements Serializable {
 	private String resultUId;
 
 	private String copiedResourceId;
-
-	private TrackActivity trackActivity;
 
 	private Integer isOer;
 
@@ -629,22 +623,6 @@ public class Resource extends Content implements Serializable {
 		return numOfPages;
 	}
 
-	public void setVotesUp(Integer votesUp) {
-		this.votesUp = votesUp;
-	}
-
-	public Integer getVotesUp() {
-		return votesUp;
-	}
-
-	public void setVotesDown(Integer votesDown) {
-		this.votesDown = votesDown;
-	}
-
-	public Integer getVotesDown() {
-		return votesDown;
-	}
-
 	public void setVocabulary(String vocabulary) {
 		this.vocabulary = vocabulary;
 	}
@@ -720,14 +698,6 @@ public class Resource extends Content implements Serializable {
 	@Override
 	public String getIndexType() {
 		return INDEX_TYPE;
-	}
-
-	public void setTrackActivity(TrackActivity trackActivity) {
-		this.trackActivity = trackActivity;
-	}
-
-	public TrackActivity getTrackActivity() {
-		return trackActivity;
 	}
 
 	public String getGoals() {

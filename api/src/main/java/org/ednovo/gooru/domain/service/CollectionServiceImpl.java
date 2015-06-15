@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 import org.ednovo.gooru.application.util.ResourceImageUtil;
 import org.ednovo.gooru.application.util.SerializerUtil;
@@ -68,6 +69,7 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepositor
 import org.ednovo.gooru.infrastructure.persistence.hibernate.collaborator.CollaboratorRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.storage.StorageRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.taxonomy.TaxonomyRespository;
+import org.ednovo.gooru.mongodb.assessments.questions.services.MongoQuestionsService;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.json.JSONException;
 import org.slf4j.Logger;
@@ -112,62 +114,147 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 	@Autowired
 	private IndexHandler indexHandler;
 	
+	@Autowired
+	private MongoQuestionsService mongoQuestionsService;
+	
 	final int zero = 0;
 	
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(CollectionServiceImpl.class);
 
 	@Override
-	public ActionResponseDTO<CollectionItem> createQuestionWithCollectionItem(final String collectionId, final String data, final User user, final String mediaFileName, final String sourceReference) throws Exception {
+	public ActionResponseDTO<CollectionItem> createQuestionWithCollectionItem(
+			final String collectionId, final String data, final User user,
+			final String mediaFileName, final String sourceReference)
+			throws Exception {
 		ActionResponseDTO<CollectionItem> response = null;
-		final Collection collection = collectionRepository.getCollectionByGooruOid(collectionId, null);
+		final Collection collection = collectionRepository
+				.getCollectionByGooruOid(collectionId, null);
 		if (collection == null) {
-			throw new NotFoundException(generateErrorMessage(GL0056, _COLLECTION), GL0056);
+			throw new NotFoundException(generateErrorMessage(GL0056,
+					_COLLECTION), GL0056);
 		}
-		final AssessmentQuestion question = getAssessmentService().buildQuestionFromInputParameters(data, user, true);
+		final AssessmentQuestion question = getAssessmentService()
+				.buildQuestionFromInputParameters(data, user, true);
 		question.setSourceReference(sourceReference);
 		question.setSharing(collection.getSharing());
-		final ActionResponseDTO<AssessmentQuestion> responseDTO = assessmentService.createQuestion(question, true);
+		final ActionResponseDTO<AssessmentQuestion> responseDTO = assessmentService
+				.createQuestion(question, true);
 		if (responseDTO.getModel() != null) {
-			response = this.createCollectionItem(responseDTO.getModel(), collection, null, null, user);
+			response = this.createCollectionItem(responseDTO.getModel(),
+					collection, null, null, user);
 			if (mediaFileName != null && mediaFileName.length() > 0) {
-				String questionImage = this.assessmentService.updateQuizQuestionImage(responseDTO.getModel().getGooruOid(), mediaFileName, question, ASSET_QUESTION);
+				String questionImage = this.assessmentService
+						.updateQuizQuestionImage(responseDTO.getModel()
+								.getGooruOid(), mediaFileName, question,
+								ASSET_QUESTION);
 				if (questionImage != null && questionImage.length() > 0) {
-					if (ResourceImageUtil.getYoutubeVideoId(questionImage) != null || questionImage.contains(YOUTUBE_URL)) {
-						response.getModel().setQuestionInfo(this.assessmentService.updateQuestionVideoAssest(responseDTO.getModel().getGooruOid(), questionImage));
+					if (ResourceImageUtil.getYoutubeVideoId(questionImage) != null
+							|| questionImage.contains(YOUTUBE_URL)) {
+						response.getModel().setQuestionInfo(
+								this.assessmentService
+										.updateQuestionVideoAssest(responseDTO
+												.getModel().getGooruOid(),
+												questionImage));
 					} else {
-						response.getModel().setQuestionInfo(this.assessmentService.updateQuestionAssest(responseDTO.getModel().getGooruOid(), StringUtils.substringAfterLast(questionImage, "/")));
+						response.getModel().setQuestionInfo(
+								this.assessmentService.updateQuestionAssest(
+										responseDTO.getModel().getGooruOid(),
+										StringUtils.substringAfterLast(
+												questionImage, "/")));
 						try {
-							this.getAsyncExecutor().updateResourceFileInS3(response.getModel().getResource().getFolder(), response.getModel().getResource().getOrganization().getNfsStorageArea().getInternalPath(), response.getModel().getResource().getGooruOid(), UserGroupSupport.getSessionToken());
+							this.getAsyncExecutor().updateResourceFileInS3(
+									response.getModel().getResource()
+											.getFolder(),
+									response.getModel().getResource()
+											.getOrganization()
+											.getNfsStorageArea()
+											.getInternalPath(),
+									response.getModel().getResource()
+											.getGooruOid(),
+									UserGroupSupport.getSessionToken());
 						} catch (Exception e) {
-							if(LOGGER.isErrorEnabled()) {
+							if (LOGGER.isErrorEnabled()) {
 								LOGGER.error(e.getMessage());
 							}
 						}
 					}
 				}
 			}
-			if (question.getDepthOfKnowledges() != null && question.getDepthOfKnowledges().size() > 0) {
-				response.getModel().getResource().setDepthOfKnowledges(this.updateContentMeta(question.getDepthOfKnowledges(), responseDTO.getModel().getGooruOid(), user, DEPTH_OF_KNOWLEDGE));
+
+			if (question.getDepthOfKnowledges() != null
+					&& question.getDepthOfKnowledges().size() > 0) {
+				response.getModel()
+						.getResource()
+						.setDepthOfKnowledges(
+								this.updateContentMeta(
+										question.getDepthOfKnowledges(),
+										responseDTO.getModel().getGooruOid(),
+										user, DEPTH_OF_KNOWLEDGE));
 			} else {
-				response.getModel().getResource().setDepthOfKnowledges(this.setContentMetaAssociation(this.getContentMetaAssociation(DEPTH_OF_KNOWLEDGE), responseDTO.getModel().getGooruOid(), DEPTH_OF_KNOWLEDGE));
+				response.getModel()
+						.getResource()
+						.setDepthOfKnowledges(
+								this.setContentMetaAssociation(
+										this.getContentMetaAssociation(DEPTH_OF_KNOWLEDGE),
+										responseDTO.getModel().getGooruOid(),
+										DEPTH_OF_KNOWLEDGE));
 			}
-			if (question.getEducationalUse() != null && question.getEducationalUse().size() > 0) {
-				response.getModel().getResource().setEducationalUse(this.updateContentMeta(question.getEducationalUse(), responseDTO.getModel().getGooruOid(), user, EDUCATIONAL_USE));
+			if (question.getEducationalUse() != null
+					&& question.getEducationalUse().size() > 0) {
+				response.getModel()
+						.getResource()
+						.setEducationalUse(
+								this.updateContentMeta(
+										question.getEducationalUse(),
+										responseDTO.getModel().getGooruOid(),
+										user, EDUCATIONAL_USE));
 			} else {
-				response.getModel().getResource().setEducationalUse(this.setContentMetaAssociation(this.getContentMetaAssociation(EDUCATIONAL_USE), responseDTO.getModel().getGooruOid(), EDUCATIONAL_USE));
+				response.getModel()
+						.getResource()
+						.setEducationalUse(
+								this.setContentMetaAssociation(
+										this.getContentMetaAssociation(EDUCATIONAL_USE),
+										responseDTO.getModel().getGooruOid(),
+										EDUCATIONAL_USE));
 			}
-			response.getModel().setStandards(this.getStandards(responseDTO.getModel().getTaxonomySet(), false, null));
-			response.getModel().getResource().setSkills(getSkills(responseDTO.getModel().getTaxonomySet()));
-			if (response.getModel().getCollection().getResourceType().getName().equalsIgnoreCase(SCOLLECTION) && response.getModel().getCollection().getClusterUid() != null && !response.getModel().getCollection().getClusterUid().equalsIgnoreCase(response.getModel().getCollection().getGooruOid())) {
-				response.getModel().getCollection().setClusterUid(response.getModel().getCollection().getGooruOid());
-				this.getCollectionRepository().save(response.getModel().getCollection());
+			response.getModel().setStandards(
+					this.getStandards(responseDTO.getModel().getTaxonomySet(),
+							false, null));
+			response.getModel()
+					.getResource()
+					.setSkills(
+							getSkills(responseDTO.getModel().getTaxonomySet()));
+			if (question.isQuestionNewGen()) {
+				mongoQuestionsService.createQuestion(question.getGooruOid(),
+						data);
+
+			}
+			if (response.getModel().getCollection().getResourceType().getName()
+					.equalsIgnoreCase(SCOLLECTION)
+					&& response.getModel().getCollection().getClusterUid() != null
+					&& !response
+							.getModel()
+							.getCollection()
+							.getClusterUid()
+							.equalsIgnoreCase(
+									response.getModel().getCollection()
+											.getGooruOid())) {
+				response.getModel()
+						.getCollection()
+						.setClusterUid(
+								response.getModel().getCollection()
+										.getGooruOid());
+				this.getCollectionRepository().save(
+						response.getModel().getCollection());
 			}
 		}
 		try {
-			this.getCollectionEventLog().getEventLogs(response.getModel(), false, true, user, response.getModel().getCollection().getCollectionType());
+			this.getCollectionEventLog().getEventLogs(response.getModel(),
+					false, true, user,
+					response.getModel().getCollection().getCollectionType());
 		} catch (Exception e) {
-			if(LOGGER.isErrorEnabled()) {
+			if (LOGGER.isErrorEnabled()) {
 				LOGGER.error(e.getMessage());
 			}
 		}
@@ -175,46 +262,103 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 
 	}
 
-	private ActionResponseDTO<CollectionItem> updateQuestionWithCollectionItem(final CollectionItem collectionItem, final String data, final List<Integer> deleteAssets, final User user, final String mediaFileName) throws Exception {
-		final AssessmentQuestion newQuestion = getAssessmentService().buildQuestionFromInputParameters(data, user, true);
+	private ActionResponseDTO<CollectionItem> updateQuestionWithCollectionItem(
+			final CollectionItem collectionItem, final String data,
+			final List<Integer> deleteAssets, final User user,
+			final String mediaFileName) throws Exception {
+		final AssessmentQuestion newQuestion = getAssessmentService()
+				.buildQuestionFromInputParameters(data, user, true);
 		final Errors errors = validateUpdateCollectionItem(collectionItem);
 		if (!errors.hasErrors()) {
-			final AssessmentQuestion question = getAssessmentService().getQuestion(collectionItem.getResource().getGooruOid());
+			final AssessmentQuestion question = getAssessmentService()
+					.getQuestion(collectionItem.getResource().getGooruOid());
 			if (question != null) {
-				AssessmentQuestion assessmentQuestion = assessmentService.updateQuestion(newQuestion, deleteAssets, question.getGooruOid(), true, true).getModel();
-                this.getResourceService().saveOrUpdateResourceTaxonomy(assessmentQuestion, newQuestion.getTaxonomySet());
+				AssessmentQuestion assessmentQuestion = assessmentService
+						.updateQuestion(newQuestion, deleteAssets,
+								question.getGooruOid(), true, true).getModel();
+				this.getResourceService().saveOrUpdateResourceTaxonomy(
+						assessmentQuestion, newQuestion.getTaxonomySet());
 				if (assessmentQuestion != null) {
 					if (mediaFileName != null && mediaFileName.length() > 0) {
-						String questionImage = this.assessmentService.updateQuizQuestionImage(assessmentQuestion.getGooruOid(), mediaFileName, question, ASSET_QUESTION);
+						String questionImage = this.assessmentService
+								.updateQuizQuestionImage(
+										assessmentQuestion.getGooruOid(),
+										mediaFileName, question, ASSET_QUESTION);
 						if (questionImage != null && questionImage.length() > 0) {
-							if (ResourceImageUtil.getYoutubeVideoId(questionImage) != null || questionImage.contains(YOUTUBE_URL)) {
-								assessmentQuestion = this.assessmentService.updateQuestionVideoAssest(assessmentQuestion.getGooruOid(), questionImage);
+							if (ResourceImageUtil
+									.getYoutubeVideoId(questionImage) != null
+									|| questionImage.contains(YOUTUBE_URL)) {
+								assessmentQuestion = this.assessmentService
+										.updateQuestionVideoAssest(
+												assessmentQuestion
+														.getGooruOid(),
+												questionImage);
 							} else {
-								assessmentQuestion = this.assessmentService.updateQuestionAssest(assessmentQuestion.getGooruOid(), StringUtils.substringAfterLast(questionImage, "/"));
+								assessmentQuestion = this.assessmentService
+										.updateQuestionAssest(
+												assessmentQuestion
+														.getGooruOid(),
+												StringUtils.substringAfterLast(
+														questionImage, "/"));
 							}
 						}
 					}
 					collectionItem.setQuestionInfo(assessmentQuestion);
-					if (newQuestion.getDepthOfKnowledges() != null && newQuestion.getDepthOfKnowledges().size() > 0) {
-						collectionItem.getResource().setDepthOfKnowledges(this.updateContentMeta(newQuestion.getDepthOfKnowledges(), assessmentQuestion.getGooruOid(), user, DEPTH_OF_KNOWLEDGE));
+					if (newQuestion.getDepthOfKnowledges() != null
+							&& newQuestion.getDepthOfKnowledges().size() > 0) {
+						collectionItem.getResource().setDepthOfKnowledges(
+								this.updateContentMeta(
+										newQuestion.getDepthOfKnowledges(),
+										assessmentQuestion.getGooruOid(), user,
+										DEPTH_OF_KNOWLEDGE));
 					} else {
-						collectionItem.getResource().setDepthOfKnowledges(this.setContentMetaAssociation(this.getContentMetaAssociation(DEPTH_OF_KNOWLEDGE), assessmentQuestion.getGooruOid(), DEPTH_OF_KNOWLEDGE));
+						collectionItem
+								.getResource()
+								.setDepthOfKnowledges(
+										this.setContentMetaAssociation(
+												this.getContentMetaAssociation(DEPTH_OF_KNOWLEDGE),
+												assessmentQuestion
+														.getGooruOid(),
+												DEPTH_OF_KNOWLEDGE));
 					}
-					if (question.getEducationalUse() != null && question.getEducationalUse().size() > 0) {
-						collectionItem.getResource().setEducationalUse(this.updateContentMeta(question.getEducationalUse(), assessmentQuestion.getGooruOid(), user, EDUCATIONAL_USE));
+					if (question.getEducationalUse() != null
+							&& question.getEducationalUse().size() > 0) {
+						collectionItem.getResource().setEducationalUse(
+								this.updateContentMeta(
+										question.getEducationalUse(),
+										assessmentQuestion.getGooruOid(), user,
+										EDUCATIONAL_USE));
 					} else {
-						collectionItem.getResource().setEducationalUse(this.setContentMetaAssociation(this.getContentMetaAssociation(EDUCATIONAL_USE), assessmentQuestion.getGooruOid(), EDUCATIONAL_USE));
+						collectionItem
+								.getResource()
+								.setEducationalUse(
+										this.setContentMetaAssociation(
+												this.getContentMetaAssociation(EDUCATIONAL_USE),
+												assessmentQuestion
+														.getGooruOid(),
+												EDUCATIONAL_USE));
 					}
-					collectionItem.getResource().setSkills(getSkills(collectionItem.getResource().getTaxonomySet()));
-					collectionItem.setStandards(this.getStandards(assessmentQuestion.getTaxonomySet(), false, null));
+					collectionItem.getResource().setSkills(
+							getSkills(collectionItem.getResource()
+									.getTaxonomySet()));
+					collectionItem.setStandards(this.getStandards(
+							assessmentQuestion.getTaxonomySet(), false, null));
 				}
-				getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
+				// Update the question in mongo now that transaction is almost done
+				mongoQuestionsService.updateQuestion(collectionItem.getResource().getGooruOid(), data);
+				
+				getAsyncExecutor().deleteFromCache(
+						V2_ORGANIZE_DATA
+								+ collectionItem.getCollection().getUser()
+										.getPartyUid() + "*");
 			}
 
 		} else {
-			throw new NotFoundException(generateErrorMessage(GL0056, QUESTION), GL0056);
+			throw new NotFoundException(generateErrorMessage(GL0056, QUESTION),
+					GL0056);
 		}
-		this.getCollectionEventLog().getEventLogs(collectionItem, false, false, user, false, true, data);
+		this.getCollectionEventLog().getEventLogs(collectionItem, false, false,
+				user, false, true, data);
 		return new ActionResponseDTO<CollectionItem>(collectionItem, errors);
 
 	}
@@ -243,6 +387,11 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		if (collectionItem == null) {
 			throw new NotFoundException(generateErrorMessage(GL0056, COLLECTION_ITEM), GL0056);
 		}
+		/*
+		 * This method is just deleting the collection item entry but is not 
+		 * actually deleting the resource itself. Hence the question is still
+		 * present and as such, we are NOT deleting it from Mongo db as well
+		 */
 		this.getCollectionRepository().remove(collectionItem);
 	}
 
@@ -275,7 +424,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 
 		if (targetId != null) {
 			final Collection target = collectionRepository.getCollectionByGooruOid(targetId, null);
-			if (target != null && !source.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing())) {
+			if (target != null && !source.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) && !collectionItem.getItemType().equalsIgnoreCase(COLLABORATOR)) {
 				target.setSharing(source.getSharing());
 				this.getCollectionRepository().save(target);
 			}
@@ -308,6 +457,16 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		final Collection collection = collectionRepository.getCollectionByGooruOid(collectionId, null);
 		if (collection == null) {
 			throw new NotFoundException(generateErrorMessage(GL0056, _COLLECTION), GL0056);
+		}
+		/* 
+		 * NOTE: Not able to find where this API is called from using call hierarchy. 
+		 * So, instead of enabling it to handle new question types, trying to throw
+		 * here. A bit drastic step, but need to understand if this is really dead
+		 * code
+		 */
+		if (assessmentQuestion.isQuestionNewGen()) {
+			LOGGER.error("createQuestionWithCollectionItem: This implementation does not handle new questions");
+			throw new NotImplementedException("New question types are not handled");
 		}
 		final ActionResponseDTO<AssessmentQuestion> responseDTO = assessmentService.createQuestion(assessmentQuestion, true);
 		if (responseDTO.getModel() != null) {

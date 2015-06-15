@@ -26,15 +26,15 @@ package org.ednovo.gooru.domain.service.subdomain;
 import java.util.Date;
 
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
-import org.ednovo.gooru.core.api.model.Course;
 import org.ednovo.gooru.core.api.model.Domain;
 import org.ednovo.gooru.core.api.model.Subdomain;
+import org.ednovo.gooru.core.api.model.TaxonomyCourse;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.domain.service.BaseServiceImpl;
-import org.ednovo.gooru.domain.service.CourseRepository;
 import org.ednovo.gooru.domain.service.DomainRepository;
+import org.ednovo.gooru.domain.service.TaxonomyCourseRepository;
 import org.ednovo.gooru.domain.service.search.SearchResults;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.SubdomainRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,7 +49,7 @@ public class SubdomainServiceImpl extends BaseServiceImpl implements SubdomainSe
 	private SubdomainRepository subdomainRepository;
 
 	@Autowired
-	private CourseRepository courseRepository;
+	private TaxonomyCourseRepository TaxonomycourseRepository;
 	
 	@Autowired
 	private DomainRepository domainRepository;
@@ -57,8 +57,8 @@ public class SubdomainServiceImpl extends BaseServiceImpl implements SubdomainSe
 	@Override
 	public ActionResponseDTO<Subdomain> createSubdomain(Subdomain subdomain, User user) {
 		final Errors errors = validateSubdomain(subdomain);
-		 Course course = this.getCourseRepository().getCourse(subdomain.getCourseId());
-         rejectIfNull(course, GL0006, 404, COURSE);
+		TaxonomyCourse Taxonomycourse = this.getTaxonomyCourseRepository().getCourse(subdomain.getCourseId());
+         rejectIfNull(Taxonomycourse, GL0006, 404, COURSE);
          Domain domain = this.getDomainRepository().getDomain(subdomain.getDomainId());
          rejectIfNull(domain, GL0006, 404, DOMAIN_);
 		if (!errors.hasErrors()) {
@@ -102,8 +102,8 @@ public class SubdomainServiceImpl extends BaseServiceImpl implements SubdomainSe
 		return subdomainRepository;
 	}
 	
-	public CourseRepository getCourseRepository() {
-		return courseRepository;
+	public TaxonomyCourseRepository getTaxonomyCourseRepository() {
+		return TaxonomycourseRepository;
 	}
 	
 	public DomainRepository getDomainRepository() {

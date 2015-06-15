@@ -47,7 +47,6 @@ public class DomainServiceImpl extends BaseServiceImpl implements DomainService,
 
 		final Errors error = validateDomain(domain);
 		if (!error.hasErrors()) {
-			domain.setOrganization(user.getOrganization());
 			domain.setCreatedOn(new Date(System.currentTimeMillis()));
 			domain.setLastModified(new Date(System.currentTimeMillis()));
 			domain.setActiveFlag((short) 1);
