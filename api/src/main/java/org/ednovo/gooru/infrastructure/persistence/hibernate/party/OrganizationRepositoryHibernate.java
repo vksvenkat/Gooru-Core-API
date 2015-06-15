@@ -51,8 +51,6 @@ public class OrganizationRepositoryHibernate extends BaseRepositoryHibernate imp
 	@Override
 	public Organization getOrganizationByUid(String organizationUid) {
 		String hql = "FROM Organization organization WHERE organization.partyUid = '" + organizationUid + "'";
-		System.out.println("Generate sqlquery");
-		System.out.println("query value is "+get(hql));
 		return get(hql);
 	}
 
