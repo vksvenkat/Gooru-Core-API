@@ -18,6 +18,8 @@ public class UserGroup extends Party implements OrganizationWrapper {
 
 	private Organization organization;
 	
+	private Integer memberCount;
+	
 	
 	@Override
 	public Organization getOrganization() {
@@ -59,6 +61,14 @@ public class UserGroup extends Party implements OrganizationWrapper {
 
 	public void setGroupCode(String groupCode) {
 		this.groupCode = groupCode;
+	}
+
+	public Integer getMemberCount() {
+		return memberCount;
+	}
+
+	public void setMemberCount(Integer memberCount) {
+		this.memberCount = memberCount;
 	}
 			
 }

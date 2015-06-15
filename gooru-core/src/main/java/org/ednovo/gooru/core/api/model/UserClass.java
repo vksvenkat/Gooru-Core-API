@@ -23,7 +23,10 @@ public class UserClass implements Serializable {
 
 	private Long courseContentId;
 
-	private Integer minimumScore;
+	private int minimumScore;
+	
+	private short visibility;
+	
 
 	public Long getClassId() {
 		return classId;
@@ -73,20 +76,28 @@ public class UserClass implements Serializable {
 		this.courseContentId = courseContentId;
 	}
 
-	public Integer getMinimumScore() {
-		return minimumScore;
-	}
-
-	public void setMinimumScore(Integer minimumScore) {
-		this.minimumScore = minimumScore;
-	}
-
 	public UserGroup getUserGroup() {
 		return userGroup;
 	}
 
 	public void setUserGroup(UserGroup userGroup) {
 		this.userGroup = userGroup;
+	}
+
+	public short getVisibility() {
+		return visibility;
+	}
+
+	public void setVisibility(short visibility) {
+		this.visibility = visibility;
+	}
+
+	public int getMinimumScore() {
+		return minimumScore;
+	}
+
+	public void setMinimumScore(int minimumScore) {
+		this.minimumScore = minimumScore;
 	}
 
 }

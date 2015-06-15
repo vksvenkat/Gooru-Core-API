@@ -46,10 +46,10 @@
 			<property name="groupCode" column="user_group_code"
 				not-null="true" />
 			<property name="groupName" column="name" not-null="true" />
-
 			<many-to-one name="organization"
 				class="org.ednovo.gooru.core.api.model.Organization" column="organization_uid"
 				not-null="false" lazy="proxy" cascade="none" />
+			<property name="memberCount" column="member_count" not-null="false" />
 		</joined-subclass>
 
 		<joined-subclass name="org.ednovo.gooru.core.api.model.Network"

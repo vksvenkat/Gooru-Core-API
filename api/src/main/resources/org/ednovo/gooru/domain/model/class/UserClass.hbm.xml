@@ -26,21 +26,20 @@
 
 		<property name="title" column="title" not-null="true" />
 
-		<property name="description" column="description" not-null="true" />
+		<property name="description" column="description" not-null="false" />
 
-		<property name="image_path" column="image_path" not-null="false"></property>
+		<property name="imagePath" column="image_path" not-null="false"></property>
 
 		<many-to-one name="userGroup"
 			class="org.ednovo.gooru.core.api.model.UserGroup" column="user_group_uid"
 			not-null="false" lazy="proxy" cascade="none" />
 
-		<property name="course_content_id" column="course_content_id"
+		<property name="courseContentId" column="course_content_id"
 			not-null="false"></property>
 
-		<property name="minimum_score" column="minimum_score"
-			not-null="ture"></property>
+		<property name="minimumScore" column="minimum_score" not-null="false"/>
 
-		<property name="visibility" column="visibility" not-null="ture"></property>
+		<property name="visibility" column="visibility" not-null="false"/>
 
 	</class>
 </hibernate-mapping>

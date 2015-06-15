@@ -273,8 +273,7 @@
 				<value>org/ednovo/gooru/domain/model/core/Domain.hbm.xml</value>
 				
 				<!-- Class -->
-<!-- 				<value>org/ednovo/gooru/domain/model/class/Class.hbm.xml</value>
- -->
+				<value>org/ednovo/gooru/domain/model/class/UserClass.hbm.xml</value>
 
 			</list>
 		</property>
