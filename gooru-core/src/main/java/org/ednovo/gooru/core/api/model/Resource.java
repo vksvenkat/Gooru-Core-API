@@ -85,7 +85,7 @@ public class Resource extends Content implements Serializable {
 
 	private String averageTime;
 	
-	private Integer averageTimeSpent;
+	private Long averageTimeSpent;
 
 	private Integer collectionCount;
 
@@ -859,11 +859,11 @@ public class Resource extends Content implements Serializable {
 		return libraryNames;
 	}
 
-	public void setAverageTimeSpent(Integer averageTimeSpent) {
+	public void setAverageTimeSpent(Long averageTimeSpent) {
 		this.averageTimeSpent = averageTimeSpent;
 	}
 
-	public Integer getAverageTimeSpent() {
+	public Long getAverageTimeSpent() {
 		return averageTimeSpent;
 	}
 
