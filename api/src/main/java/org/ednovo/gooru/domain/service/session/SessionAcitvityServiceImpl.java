@@ -283,8 +283,8 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 	
 	
 	@Override
-	public Map<String, Object> getCurrentSessionActivity(final String gooruOid, String user) {
-		return this.getSessionActivityRepository().getSessionActivityByCurrentId(gooruOid,user);
+	public Map<String, Object> getInCompleteSessionActivity(final String gooruOid, String user) {
+		return this.getSessionActivityRepository().getSessionActivityByCollectionId(gooruOid,user);
 	}
 	public SessionEventLog getSessionEventLog() {
 		return sessionEventLog;

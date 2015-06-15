@@ -139,8 +139,6 @@ public interface ParameterProperties {
 	String RESOURCE_ID = "resourceId";
 
 	String COLLECTION_ID = "collectionId";
-
-	String COLLECTION_GOORU_ID = "collectionGooruId";
 	
 	String SOURCE_COLLECTION_ID = "sourceCollectionId";
 

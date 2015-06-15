@@ -140,10 +140,10 @@ public class SessionActivityRestV2Controller extends BaseController implements P
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_V2_SESSION_READ })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	@RequestMapping(method = RequestMethod.GET, value = "/{id}/inComplete-Session")
+	@RequestMapping(method = RequestMethod.GET, value = "/{id}/incomplete-session")
 	public ModelAndView getInCompleteSession(@PathVariable(ID) final String gooruOid, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		User user = (User) request.getAttribute(Constants.USER);
-		return toModelAndView(this.getSessionActivityService().getCurrentSessionActivity(gooruOid,user.getPartyUid()), RESPONSE_FORMAT_JSON);
+		return toModelAndView(this.getSessionActivityService().getInCompleteSessionActivity(gooruOid,user.getPartyUid()), RESPONSE_FORMAT_JSON);
 	}
 
 

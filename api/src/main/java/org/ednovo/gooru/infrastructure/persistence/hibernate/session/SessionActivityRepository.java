@@ -58,6 +58,6 @@ public interface SessionActivityRepository extends BaseRepository {
 	
 	SessionActivity getLastSessionActivity(Long parentId, Long collectionId, String userUid);
 	
-    Map<String, Object> getSessionActivityByCurrentId(String gooruOid, String user);
+    Map<String, Object> getSessionActivityByCollectionId(String gooruOid, String user);
 	
 }

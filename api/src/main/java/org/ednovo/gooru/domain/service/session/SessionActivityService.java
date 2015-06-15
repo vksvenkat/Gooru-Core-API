@@ -46,7 +46,7 @@ public interface SessionActivityService extends BaseService {
 
 	SessionActivity getSessionActivity(Long sessionActivityId);
 
-	Map<String, Object> getCurrentSessionActivity(String gooruOid, String user);
+	Map<String, Object> getInCompleteSessionActivity(String gooruOid, String user);
 	
 	File exportClass(String classGooruId);
 	
