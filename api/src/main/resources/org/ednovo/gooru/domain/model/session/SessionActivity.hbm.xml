@@ -28,8 +28,12 @@
 
 		<property name="classId" column="class_id" not-null="false" />
 
-		<property name="parentId" column="parent_id" not-null="false" />
+		<property name="classContentId" column="class_content_id" not-null="false" />
 
+		<property name="lessonContentId" column="lesson_content_id" not-null="false" />
+		
+		<property name="unitContentId" column="unit_content_id" not-null="false" />
+		
 		<property name="collectionId" column="collection_id" not-null="false" />
 
 		<property name="sequence" column="sequence" not-null="true"></property>
@@ -46,6 +50,8 @@
 
 		<property name="score" column="score" not-null="true"></property>
 
+		<property name="scoreInPercentage" column="score_in_percentage" not-null="true"></property>
+		
 		<property name="mode" column="mode" not-null="true"></property>
 
 		<property name="startTime" column="start_time" not-null="false"></property>

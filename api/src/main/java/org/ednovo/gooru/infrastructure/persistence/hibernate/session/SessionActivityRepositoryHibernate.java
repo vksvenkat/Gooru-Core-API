@@ -77,10 +77,16 @@ public class SessionActivityRepositoryHibernate extends BaseRepositoryHibernate 
 	}
 
 	@Override
-	public Integer getSessionActivityCount(Long collectionId, Long parentId, String gooruUId) {
+	public Integer getSessionActivityCount(Long collectionId, Long classContentId,Long unitContentId,Long lessonContentId, String gooruUId) {
 		String sql = " select count(1) as count from session_activity where collection_id =" + collectionId + " AND user_uid = '" + gooruUId + "'";
-		if (parentId != null) {
-			sql += " AND parent_id=" + parentId;
+		if (classContentId != null) {
+			sql += " AND class_content_id=" + classContentId;
+		}
+		if (unitContentId != null) {
+			sql += " AND unit_content_id=" + unitContentId;
+		}
+		if (lessonContentId != null) {
+			sql += " AND lesson_content_id=" + lessonContentId;
 		}
 		Query query = getSession().createSQLQuery(sql).addScalar(COUNT, StandardBasicTypes.INTEGER);
 		return (Integer) list(query).get(0);

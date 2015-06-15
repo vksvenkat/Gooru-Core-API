@@ -83,16 +83,19 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 		final Errors errors = this.validateCreateSessionActivity(sessionActivity, collectionId);
 		if (!errors.hasErrors()) {
 
-			if (sessionActivity.getParentGooruId() != null) {
-				sessionActivity.setParentId(getResourceRepository().getContentId(sessionActivity.getParentGooruId()));
-				sessionActivity.setIsStudent(getResourceRepository().findUserIsStudent(sessionActivity.getParentId(), user.getGooruUId()));
-				sessionActivity.setClassId(getResourceRepository().getNumericClassCode(sessionActivity.getParentId()));
+			if (sessionActivity.getClassGooruId() != null) {
+				sessionActivity.setClassContentId(getResourceRepository().getContentId(sessionActivity.getClassGooruId()));
+				sessionActivity.setLessonContentId(getResourceRepository().getContentId(sessionActivity.getLessonGooruId()));
+				sessionActivity.setUnitContentId(getResourceRepository().getContentId(sessionActivity.getUnitGooruId()));
+				sessionActivity.setIsStudent(getResourceRepository().findUserIsStudent(sessionActivity.getClassContentId(), user.getGooruUId()));
+				sessionActivity.setClassId(getResourceRepository().getNumericClassCode(sessionActivity.getClassContentId()));
 			} else {
 				sessionActivity.setIsStudent(false);
 				sessionActivity.setClassId(1L);
 			}
-			sessionActivity.setSequence(getSessionActivityRepository().getSessionActivityCount(collectionId, sessionActivity.getParentId(), user.getGooruUId()) + 1);
+			sessionActivity.setSequence(getSessionActivityRepository().getSessionActivityCount(collectionId, sessionActivity.getClassContentId(),sessionActivity.getUnitContentId(),sessionActivity.getLessonContentId(), user.getGooruUId()) + 1);
 			sessionActivity.setScore(0.0);
+			sessionActivity.setScoreInPercentage(0.0);
 			sessionActivity.setReaction(0);
 			sessionActivity.setRating(0);
 			sessionActivity.setTimeSpentInMillis(0L);
@@ -124,11 +127,13 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 				if (questionCount > 0) {
 					Integer totalScore = this.getSessionActivityRepository().getTotalScore(sessionActivityId);
 					Double scoreInPrecentage =  (double) (100 * totalScore / questionCount);
-					sessionActivity.setScore(scoreInPrecentage);
+					sessionActivity.setScore(Double.valueOf(totalScore));
+					sessionActivity.setScoreInPercentage(scoreInPrecentage);
 				}
 			}
 			if (newSession.getScore() != null) {
 				sessionActivity.setScore(newSession.getScore());
+				sessionActivity.setScoreInPercentage(newSession.getScoreInPercentage());
 			}
 			this.getSessionActivityRepository().save(sessionActivity);
 		}
