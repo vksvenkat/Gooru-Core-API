@@ -1868,6 +1868,12 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 
 	public void deleteContentProvider(String gooruOid, String providerType, String name) {
 		this.getContentRepository().deleteContentProvider(gooruOid, providerType, name);
+		Collection collection = this.getCollectionRepository().getCollectionByGooruOid(gooruOid, null);
+        if (collection != null) {
+                indexHandler.setReIndexRequest(gooruOid, IndexProcessor.INDEX, SCOLLECTION, null, false, false);
+        } else {
+                indexHandler.setReIndexRequest(gooruOid, IndexProcessor.INDEX, RESOURCE, null, false, false);
+        }
 	}
 
 	private Errors validateUpdateResource(Resource newResource, Resource resource) throws Exception {
