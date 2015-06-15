@@ -217,7 +217,6 @@
 					<module>api</module>
 					<module>cassandra-core</module>
                                         <module>rest-app</module>
-					<module>mail</module>
 					<module>gooru-core</module> 
 					</modules> 
 				</profile>

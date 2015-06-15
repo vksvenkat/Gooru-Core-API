@@ -30,6 +30,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.ednovo.gooru.controllers.BaseController;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Domain;
+import org.ednovo.gooru.core.api.model.RequestMappingUri;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.Constants;
@@ -50,7 +51,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
-@RequestMapping(value = { "/domain" })
+@RequestMapping(value = { RequestMappingUri.DOMAIN })
 public class DomainRestV2Controller extends BaseController implements ConstantProperties, ParameterProperties {
 
 	@Autowired
@@ -62,6 +63,12 @@ public class DomainRestV2Controller extends BaseController implements ConstantPr
 	public ModelAndView createDomain(@RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		final User user = (User) request.getAttribute(Constants.USER);
 		ActionResponseDTO<Domain> responseDTO = getDomainService().createDomain(buildDomainFromInputParameters(data), user);
+		if (responseDTO.getErrors().getErrorCount() > 0) {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+		} else {
+			response.setStatus(HttpServletResponse.SC_CREATED);
+			responseDTO.getModel().setUri(RequestMappingUri.DOMAIN + RequestMappingUri.SEPARATOR + responseDTO.getModel().getDomainId());
+		}
 		String includes[] = (String[]) ArrayUtils.addAll(CREATE_INCLUDES, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
@@ -69,8 +76,8 @@ public class DomainRestV2Controller extends BaseController implements ConstantPr
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_DOMAIN_UPDATE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}" }, method = RequestMethod.PUT)
-	public ModelAndView updateDomain(@PathVariable(value = ID) Integer domainId, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		return toModelAndViewWithIoFilter(getDomainService().updateDomain(domainId, buildDomainFromInputParameters(data)), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, DOMAIN);
+	public void updateDomain(@PathVariable(value = ID) Integer domainId, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		getDomainService().updateDomain(domainId, buildDomainFromInputParameters(data));
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_DOMAIN_READ })

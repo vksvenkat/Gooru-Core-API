@@ -41,8 +41,6 @@ import org.ednovo.gooru.core.api.model.OrganizationTransformer;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.User;
-import org.ednovo.gooru.core.api.model.UserGroup;
-import org.ednovo.gooru.core.api.model.UserGroupTransformer;
 import org.ednovo.gooru.core.api.model.UserTransformer;
 import org.ednovo.gooru.core.application.util.BaseUtil;
 import org.ednovo.gooru.core.constant.ParameterProperties;
@@ -341,7 +339,7 @@ public class SerializerUtil implements ParameterProperties {
 	}
 
 	public static JSONSerializer appendTransformers(final JSONSerializer serializer, final boolean excludeNullObject) {
-		serializer.transform(new UserTransformer(false), User.class).transform(new OrganizationTransformer(), Organization.class).transform(new UserGroupTransformer(), UserGroup.class).transform(new ContentPermissionTransformer(), ContentPermission.class);
+		serializer.transform(new UserTransformer(false), User.class).transform(new OrganizationTransformer(), Organization.class).transform(new ContentPermissionTransformer(), ContentPermission.class);
 		if (excludeNullObject) {
 			serializer.transform(new ExcludeNullTransformer(), void.class);
 		}

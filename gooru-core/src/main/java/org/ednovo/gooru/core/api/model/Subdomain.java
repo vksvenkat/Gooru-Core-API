@@ -26,9 +26,6 @@ package org.ednovo.gooru.core.api.model;
 import java.io.Serializable;
 import java.util.Date;
 
-import javax.persistence.Column;
-import javax.persistence.Id;
-
 public class Subdomain implements Serializable {
 
 	/**
@@ -36,17 +33,15 @@ public class Subdomain implements Serializable {
 	 */
 	private static final long serialVersionUID = 7789419722908609593L;
 
-	@Id
 	private Integer subdomainId;
 
-	@Column
 	private Integer CourseId;
 
-	@Column
 	private Integer domainId;
 
-	@Column
 	private Date createdOn;
+	
+	private String uri;
 
 	public Integer getSubdomainId() {
 		return subdomainId;
@@ -81,7 +76,11 @@ public class Subdomain implements Serializable {
 	}
 
 	public String getUri() {
-		return RequestMappingUri.SUBDOMAIN.getRequestMappingUri() + getSubdomainId();
+		return uri;
+	}
+
+	public void setUri(String uri) {
+		this.uri = uri;
 	}
 
 }

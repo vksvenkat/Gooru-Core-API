@@ -272,9 +272,6 @@
 				<value>org/ednovo/gooru/domain/model/core/TaxonomyCourse.hbm.xml</value>
 				<value>org/ednovo/gooru/domain/model/core/Domain.hbm.xml</value>
 				
-				<!-- Class -->
-				<value>org/ednovo/gooru/domain/model/class/UserClass.hbm.xml</value>
-
 			</list>
 		</property>
 		<property name="hibernateProperties">

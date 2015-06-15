@@ -29,6 +29,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.ArrayUtils;
 import org.ednovo.gooru.controllers.BaseController;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
+import org.ednovo.gooru.core.api.model.RequestMappingUri;
 import org.ednovo.gooru.core.api.model.TaxonomyCourse;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
@@ -50,7 +51,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
-@RequestMapping(value = { "/taxonomycourse" })
+@RequestMapping(value = { RequestMappingUri.TAXONOMY_COURSE })
 public class TaxonomyCourseRestV2Controller extends BaseController implements ConstantProperties, ParameterProperties {
 
 	@Autowired
@@ -62,6 +63,12 @@ public class TaxonomyCourseRestV2Controller extends BaseController implements Co
 	public ModelAndView createCourse(@RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		final User user = (User) request.getAttribute(Constants.USER);
 		ActionResponseDTO<TaxonomyCourse> responseDTO = getTaxonomyCourseService().createTaxonomyCourse(buildCourseFromInputParameters(data), user);
+		if (responseDTO.getErrors().getErrorCount() > 0) {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+		} else {
+			response.setStatus(HttpServletResponse.SC_CREATED);
+			responseDTO.getModel().setUri(RequestMappingUri.TAXONOMY_COURSE + RequestMappingUri.SEPARATOR + responseDTO.getModel().getCourseId());
+		}
 		String includes[] = (String[]) ArrayUtils.addAll(CREATE_INCLUDES, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(responseDTO.getModelData(), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
@@ -69,8 +76,8 @@ public class TaxonomyCourseRestV2Controller extends BaseController implements Co
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_COURSE_UPDATE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}" }, method = RequestMethod.PUT)
-	public ModelAndView updateCourse(@PathVariable(value = ID) Integer courseId, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		return toModelAndViewWithIoFilter(getTaxonomyCourseService().updateTaxonomyCourse(courseId, buildCourseFromInputParameters(data)), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, COURSE_);
+	public void updateCourse(@PathVariable(value = ID) Integer courseId, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		getTaxonomyCourseService().updateTaxonomyCourse(courseId, buildCourseFromInputParameters(data));
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_COURSE_READ })

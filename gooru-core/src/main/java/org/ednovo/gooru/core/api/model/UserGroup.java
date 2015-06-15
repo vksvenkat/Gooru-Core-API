@@ -8,7 +8,7 @@ public class UserGroup extends Party implements OrganizationWrapper {
 	 */
 	private static final long serialVersionUID = -1149866471278182564L;
 
-	private String groupName;
+	private String name;
 	
 	private String groupCode;
 
@@ -18,7 +18,7 @@ public class UserGroup extends Party implements OrganizationWrapper {
 
 	private Organization organization;
 	
-	private Integer memberCount;
+	private int memberCount;
 	
 	
 	@Override
@@ -47,14 +47,6 @@ public class UserGroup extends Party implements OrganizationWrapper {
 		this.userGroupType = userGroupType;
 	}
 
-	public String getGroupName() {
-		return groupName;
-	}
-
-	public void setGroupName(String groupName) {
-		this.groupName = groupName;
-	}
-
 	public String getGroupCode() {
 		return groupCode;
 	}
@@ -63,11 +55,19 @@ public class UserGroup extends Party implements OrganizationWrapper {
 		this.groupCode = groupCode;
 	}
 
-	public Integer getMemberCount() {
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public int getMemberCount() {
 		return memberCount;
 	}
 
-	public void setMemberCount(Integer memberCount) {
+	public void setMemberCount(int memberCount) {
 		this.memberCount = memberCount;
 	}
 			

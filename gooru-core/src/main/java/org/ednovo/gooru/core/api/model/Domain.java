@@ -46,6 +46,8 @@ public class Domain implements Serializable {
 	private Date createdOn;
 
 	private Date lastModified;
+	
+	private String uri;
 
 	public String getName() {
 		return name;
@@ -110,9 +112,14 @@ public class Domain implements Serializable {
 	public void setDisplaySequence(Integer displaySequence) {
 		this.displaySequence = displaySequence;
 	}
-	
+
 	public String getUri() {
-		return RequestMappingUri.DOMAIN.getRequestMappingUri() + getDomainId();
+		return uri;
 	}
+
+	public void setUri(String uri) {
+		this.uri = uri;
+	}
+
 
 }
