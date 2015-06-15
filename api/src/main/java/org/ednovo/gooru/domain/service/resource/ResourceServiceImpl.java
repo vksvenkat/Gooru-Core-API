@@ -208,7 +208,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 
 	@Autowired
 	private IndexHandler indexHandler;
-	
+
 	@Autowired
 	private DashboardCassandraService dashboardCassandraService;
 
@@ -244,7 +244,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		}
 		final Map<String, Object> resourceObject = new HashMap<String, Object>();
 		try {
-			resource.setViews(this.dashboardCassandraService.readAsLong(ALL_+resource.getGooruOid(), COUNT_VIEWS));
+			resource.setViews(this.dashboardCassandraService.readAsLong(ALL_ + resource.getGooruOid(), COUNT_VIEWS));
 			resource.setViewCount(resource.getViewCount());
 		} catch (Exception e) {
 			LOGGER.error("parser error : {}", e);
@@ -280,13 +280,13 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			final List<String> host = new ArrayList<String>();
 			for (final ContentProviderAssociation contentProviderAssociation : contentProviderAssociations) {
 				if (contentProviderAssociation.getContentProvider() != null && contentProviderAssociation.getContentProvider().getType() != null
-				        && contentProviderAssociation.getContentProvider().getType().getValue().equalsIgnoreCase(CustomProperties.ContentProviderType.PUBLISHER.getContentProviderType())) {
+						&& contentProviderAssociation.getContentProvider().getType().getValue().equalsIgnoreCase(CustomProperties.ContentProviderType.PUBLISHER.getContentProviderType())) {
 					publisher.add(contentProviderAssociation.getContentProvider().getName());
 				} else if (contentProviderAssociation.getContentProvider() != null && contentProviderAssociation.getContentProvider().getType() != null
-				        && contentProviderAssociation.getContentProvider().getType().getValue().equalsIgnoreCase(CustomProperties.ContentProviderType.AGGREGATOR.getContentProviderType())) {
+						&& contentProviderAssociation.getContentProvider().getType().getValue().equalsIgnoreCase(CustomProperties.ContentProviderType.AGGREGATOR.getContentProviderType())) {
 					aggregator.add(contentProviderAssociation.getContentProvider().getName());
 				} else if (contentProviderAssociation.getContentProvider() != null && contentProviderAssociation.getContentProvider().getType() != null
-				        && contentProviderAssociation.getContentProvider().getType().getValue().equalsIgnoreCase(CustomProperties.ContentProviderType.HOST.getContentProviderType())) {
+						&& contentProviderAssociation.getContentProvider().getType().getValue().equalsIgnoreCase(CustomProperties.ContentProviderType.HOST.getContentProviderType())) {
 					host.add(contentProviderAssociation.getContentProvider().getName());
 				}
 			}
@@ -858,7 +858,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	public void deleteResource(final String gooruContentId, final User apiCaller) {
 		final Resource resource = resourceRepository.findResourceByContentGooruId(gooruContentId);
 		if (resource == null || resource.getResourceType().getName().equalsIgnoreCase(APPLICATION) || resource.getResourceType().getName().equalsIgnoreCase(SCOLLECTION) || resource.getResourceType().getName().equalsIgnoreCase(FOLDER)
-		        || resource.getResourceType().getName().equalsIgnoreCase(CLASSPAGE)) {
+				|| resource.getResourceType().getName().equalsIgnoreCase(CLASSPAGE)) {
 			throw new NotFoundException(generateErrorMessage(GL0056, RESOURCE), GL0056);
 		} else {
 			List<CollectionItem> collectionitems = this.getCollectionRepository().getCollectionItemsByResource(gooruContentId);
@@ -930,7 +930,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 
 	@Override
 	public Resource addNewResource(final String url, final String title, final String text, final String category, final String sharing, final String typeName, final String licenseName, final Integer brokenStatus, final Boolean hasFrameBreaker, final String description, final Integer isFeatured,
-	        final String tags, final boolean isReturnJson, final User apiCaller, final String mediaType, final String resourceFormat, final String resourceInstructional) {
+			final String tags, final boolean isReturnJson, final User apiCaller, final String mediaType, final String resourceFormat, final String resourceInstructional) {
 		User user = null;
 		// construct resource:
 		Resource resource = new Resource();
@@ -1036,7 +1036,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 
 	@Override
 	public Resource updateResourceByGooruContentId(final String gooruContentId, final String resourceTitle, final String distinguish, final Integer isFeatured, final String description, final Boolean hasFrameBreaker, final String tags, final String sharing, final Integer resourceSourceId,
-	        final User user, final String mediaType, final String attribution, final String category, final String mediaFileName, final Boolean isBlacklisted, final String grade, final String resourceFormat, final String licenseName, final String url) {
+			final User user, final String mediaType, final String attribution, final String category, final String mediaFileName, final Boolean isBlacklisted, final String grade, final String resourceFormat, final String licenseName, final String url) {
 
 		final Resource existingResource = resourceRepository.findResourceByContentGooruId(gooruContentId);
 
@@ -1528,7 +1528,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				this.getResourceImageUtil().moveAttachment(newResource, resource);
 			}
 		} else if (updateIfExist) {
-			if(!resource.getSharing().equalsIgnoreCase(PUBLIC)){
+			if (!resource.getSharing().equalsIgnoreCase(PUBLIC)) {
 				updateResource(resource.getGooruOid(), newResource, tags, user);
 			}
 		}
@@ -1588,9 +1588,9 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				resource.setIsFeatured(newResource.getIsFeatured());
 			}
 			if (!resource.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing())
-			        && resource.getUser().getGooruUId().equalsIgnoreCase(user.getGooruUId())
-			        && (resource.getResourceType().getName().equalsIgnoreCase(ResourceType.Type.HANDOUTS.getType()) || resource.getResourceType().getName().equalsIgnoreCase(ResourceType.Type.IMAGE.getType()) || resource.getResourceType().getName()
-			                .equalsIgnoreCase(ResourceType.Type.PRESENTATION.getType()))) {
+					&& resource.getUser().getGooruUId().equalsIgnoreCase(user.getGooruUId())
+					&& (resource.getResourceType().getName().equalsIgnoreCase(ResourceType.Type.HANDOUTS.getType()) || resource.getResourceType().getName().equalsIgnoreCase(ResourceType.Type.IMAGE.getType()) || resource.getResourceType().getName()
+							.equalsIgnoreCase(ResourceType.Type.PRESENTATION.getType()))) {
 				if (newResource.getAttach() != null && newResource.getAttach().getFilename() != null) {
 					resource.setUrl(newResource.getAttach().getFilename());
 				}
@@ -1804,7 +1804,6 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 		indexHandler.setReIndexRequest(resource.getGooruOid(), IndexProcessor.INDEX, RESOURCE, null, false, false);
 	}
 
-
 	public Resource buildResourceFromInputParameters(final String data, final User user) {
 		final Resource resource = JsonDeserializer.deserialize(data, Resource.class);
 		resource.setGooruOid(UUID.randomUUID().toString());
@@ -1828,7 +1827,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 
 		return resource;
 	}
-	
+
 	@Override
 	public void saveOrUpdateGrade(final Resource resource, final Resource newResource) {
 		if (newResource.getGrade() != null) {
@@ -1868,6 +1867,12 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 
 	public void deleteContentProvider(String gooruOid, String providerType, String name) {
 		this.getContentRepository().deleteContentProvider(gooruOid, providerType, name);
+		Collection collection = this.getCollectionRepository().getCollectionByGooruOid(gooruOid, null);
+		if (collection != null) {
+			indexHandler.setReIndexRequest(gooruOid, IndexProcessor.INDEX, SCOLLECTION, null, false, false);
+		} else {
+			indexHandler.setReIndexRequest(gooruOid, IndexProcessor.INDEX, RESOURCE, null, false, false);
+		}
 	}
 
 	private Errors validateUpdateResource(Resource newResource, Resource resource) throws Exception {
