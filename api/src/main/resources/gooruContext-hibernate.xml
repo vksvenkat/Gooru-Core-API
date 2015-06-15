@@ -269,7 +269,7 @@
 				</value>
 
 				<!-- Course -->
-				<value>org/ednovo/gooru/domain/model/core/Course.hbm.xml</value>
+				<value>org/ednovo/gooru/domain/model/core/TaxonomyCourse.hbm.xml</value>
 				<value>org/ednovo/gooru/domain/model/core/Domain.hbm.xml</value>
 				
 				<!-- Class -->

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////
-// CourseRepository.java
+// TaxonomyCourseRepository.java
 // gooru-api
 // Created by Gooru on 2015
 // Copyright (c) 2015 Gooru. All rights reserved.
@@ -25,17 +25,16 @@ package org.ednovo.gooru.domain.service;
 
 import java.util.List;
 
-import org.ednovo.gooru.core.api.model.Course;
-import org.ednovo.gooru.core.api.model.Subject;
+import org.ednovo.gooru.core.api.model.TaxonomyCourse;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepository;
 
-public interface CourseRepository extends BaseRepository {
+public interface TaxonomyCourseRepository extends BaseRepository {
 
-	Course getCourse(Integer courseId);
+	TaxonomyCourse getCourse(Integer courseId);
 
-	Course getCourseCode(String courseCode);
+	TaxonomyCourse getCourseCode(String courseCode);
 	
-	List<Course> getCourses(Integer limit, Integer offset);
+	List<TaxonomyCourse> getCourses(Integer limit, Integer offset);
 
 	Long getCourseCount();
 

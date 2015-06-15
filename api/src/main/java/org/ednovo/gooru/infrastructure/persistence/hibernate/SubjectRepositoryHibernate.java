@@ -32,21 +32,26 @@ import org.hibernate.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class SubjectRepositoryHibernate extends BaseRepositoryHibernate implements SubjectRepository, ParameterProperties,ConstantProperties {
+public class SubjectRepositoryHibernate extends BaseRepositoryHibernate
+		implements SubjectRepository, ParameterProperties, ConstantProperties {
 
 	private static final String SUBJECT_COUNT = "SELECT COUNT(*) FROM Subject subject where subject.activeFlag=1";
 	private static final String SUBJECTS = "FROM Subject subject where subject.activeFlag=1";
 	private static final String SUBJECT = "FROM Subject subject WHERE subject.subjectId=:subjectId";
+	private static final String SUBJECT_DISPLAYSEQUENCE = "FROM Subject subject WHERE subject.creator.partyUid=:userUid and subject.displaySequence>=:displaySequence";
+
 	@Override
 	public Subject getSubject(Integer subjectId) {
-		Query query = getSession().createQuery(SUBJECT).setParameter(SUBJECT_ID, subjectId);
+		Query query = getSession().createQuery(SUBJECT).setParameter(
+				SUBJECT_ID, subjectId);
 		return (Subject) (query.list().size() > 0 ? query.list().get(0) : null);
 	}
 
 	@Override
 	public List<Subject> getSubjects(Integer limit, Integer offset) {
 		Query query = getSession().createQuery(SUBJECTS);
-		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : limit);
+		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT
+				: limit) : limit);
 		query.setFirstResult(offset);
 		return list(query);
 	}
@@ -57,4 +62,11 @@ public class SubjectRepositoryHibernate extends BaseRepositoryHibernate implemen
 		return (Long) query.list().get(0);
 	}
 
+	@Override
+	public List<Subject> getParentSubject(String userUid, Integer displaySequence) {
+		Query query = getSession().createQuery(SUBJECT_DISPLAYSEQUENCE);
+		query.setParameter(USER_UID, userUid);
+		query.setParameter(DISPLAY_SEQUENCE, displaySequence);
+		return list(query);
+	}
 }

@@ -34,5 +34,7 @@ public interface SubjectRepository extends BaseRepository {
 	List<Subject> getSubjects(Integer limit, Integer offset);
 
 	Long getSubjectCount();
+	
+	List<Subject> getParentSubject(String userUid, Integer integer);
 
 }
