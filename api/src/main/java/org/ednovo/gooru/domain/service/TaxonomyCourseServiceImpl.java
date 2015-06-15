@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////
-// CourseServiceImpl.java
+// TaxonomyCourseServiceImpl.java
 // gooru-api
 // Created by Gooru on 2015
 // Copyright (c) 2015 Gooru. All rights reserved.
@@ -26,7 +26,7 @@ package org.ednovo.gooru.domain.service;
 import java.util.Date;
 
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
-import org.ednovo.gooru.core.api.model.Course;
+import org.ednovo.gooru.core.api.model.TaxonomyCourse;
 import org.ednovo.gooru.core.api.model.Subject;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
@@ -39,37 +39,36 @@ import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
 
 @Service
-public class CourseServiceImpl extends BaseServiceImpl implements CourseService, ParameterProperties, ConstantProperties {
+public class TaxonomyCourseServiceImpl extends BaseServiceImpl implements TaxonomyCourseService, ParameterProperties, ConstantProperties {
 
 	@Autowired
-	private CourseRepository courseRepository;
+	private TaxonomyCourseRepository TaxonomycourseRepository;
 	
 	@Autowired
 	private SubjectRepository subjectRepository;
 
 	@Override
-	public ActionResponseDTO<Course> createCourse(Course course, User user) {
+	public ActionResponseDTO<TaxonomyCourse> createTaxonomyCourse(TaxonomyCourse course, User user) {
  
 		final Errors errors = validateCourse(course);
-		Subject subject = this.getSubjectRepository().getSubject(course.getSubjectId());
-		rejectIfNull(subject, GL0006, 404, SUBJECT);
-		Course courseCode = this.getCourseRepository().getCourseCode(course.getCourseCode());
-		rejectIfAlreadyExist(courseCode, GL0101, COURSE);
 		if (!errors.hasErrors()) {
+			Subject subject = this.getSubjectRepository().getSubject(course.getSubjectId());
+			rejectIfNull(subject, GL0056, 404, SUBJECT);
+			TaxonomyCourse courseCode = this.getTaxonomyCourseRepository().getCourseCode(course.getCourseCode());
+			rejectIfAlreadyExist(courseCode, GL0101, COURSE);
 			course.setCreatorUid(user);
-			course.setOrganization(user.getOrganization());
 			course.setCreatedOn(new Date(System.currentTimeMillis()));
 			course.setLastModified(new Date(System.currentTimeMillis()));
 			course.setActiveFlag((short) 1);
-			this.getCourseRepository().save(course);
+			this.getTaxonomyCourseRepository().save(course);
 		}
-		return new ActionResponseDTO<Course>(course, errors);
+		return new ActionResponseDTO<TaxonomyCourse>(course, errors);
 	}
 
 	@Override
-	public Course updateCourse(Integer courseId, Course newCourse) {
-		Course course = this.getCourseRepository().getCourse(courseId);
-		rejectIfNull(course, GL0006, 404, COURSE);
+	public TaxonomyCourse updateTaxonomyCourse(Integer courseId, TaxonomyCourse newCourse) {
+		TaxonomyCourse course = this.getTaxonomyCourseRepository().getCourse(courseId);
+		rejectIfNull(course, GL0056, 404, COURSE);
 		if (newCourse.getActiveFlag() != null) {
 				reject((newCourse.getActiveFlag() == 0 || newCourse.getActiveFlag() == 1), GL0007, ACTIVE_FLAG);
 				course.setActiveFlag(newCourse.getActiveFlag());
@@ -90,45 +89,45 @@ public class CourseServiceImpl extends BaseServiceImpl implements CourseService,
 			course.setDisplaySequence(newCourse.getDisplaySequence());
 		}
 		course.setLastModified(new Date(System.currentTimeMillis()));
-		this.getCourseRepository().save(course);
+		this.getTaxonomyCourseRepository().save(course);
 		return course;
 	}
 
 	@Override
-	public Course getCourse(Integer courseId) {
-		Course course = this.getCourseRepository().getCourse(courseId);
-		reject((course.getActiveFlag() == 1), GL0107, COURSE);
+	public TaxonomyCourse getTaxonomyCourse(Integer courseId) {
+		TaxonomyCourse course = this.getTaxonomyCourseRepository().getCourse(courseId);
 		rejectIfNull(course, GL0056, 404, COURSE);
+		reject((course.getActiveFlag() == 1), GL0107, COURSE);
 		return course;
 	}
 
 	@Override
-	public SearchResults<Course> getCourses(Integer limit, Integer offset) {
-		SearchResults<Course> result = new SearchResults<Course>();
-		result.setSearchResults(this.getCourseRepository().getCourses(limit, offset));
-		result.setTotalHitCount(this.getCourseRepository().getCourseCount());
+	public SearchResults<TaxonomyCourse> getTaxonomyCourses(Integer limit, Integer offset) {
+		SearchResults<TaxonomyCourse> result = new SearchResults<TaxonomyCourse>();
+		result.setSearchResults(this.getTaxonomyCourseRepository().getCourses(limit, offset));
+		result.setTotalHitCount(this.getTaxonomyCourseRepository().getCourseCount());
 		return result;
 	}
 
 	@Override
-	public void deleteCourse(Integer courseId) {
-		Course course = this.getCourseRepository().getCourse(courseId);
+	public void deleteTaxonomyCourse(Integer courseId) {
+		TaxonomyCourse course = this.getTaxonomyCourseRepository().getCourse(courseId);
 		rejectIfNull(course, GL0056, 404, COURSE);
 		course.setActiveFlag((short) 0);
 		course.setLastModified(new Date(System.currentTimeMillis()));
-		this.getCourseRepository().save(course);
+		this.getTaxonomyCourseRepository().save(course);
 	}
 
-	private Errors validateCourse(Course course) {
+	private Errors validateCourse(TaxonomyCourse course) {
 		final Errors error = new BindException(course, COURSE);
-    	rejectIfNull(error,course.getSubjectId(), GL0006,  generateErrorMessage(GL0006, SUBJECT_ID));
-		rejectIfNull(error,course.getCourseCode(), GL0006,  generateErrorMessage(GL0006, COURSE_CODE));
-		rejectIfNull(error,course.getDisplaySequence(), GL0006,  generateErrorMessage(GL0006, DISPLAY_SEQUENCE));
+    	rejectIfNull(error,course.getSubjectId(), SUBJECT_ID,  generateErrorMessage(GL0006, SUBJECT_ID));
+		rejectIfNull(error,course.getCourseCode(), COURSE_CODE,  generateErrorMessage(GL0006, COURSE_CODE));
+		rejectIfNull(error,course.getDisplaySequence(), DISPLAY_SEQUENCE,  generateErrorMessage(GL0006, DISPLAY_SEQUENCE));
 		return error;
 	}
 
-	public CourseRepository getCourseRepository() {
-		return courseRepository;
+	public TaxonomyCourseRepository getTaxonomyCourseRepository() {
+		return TaxonomycourseRepository;
 	}
 	
 	public SubjectRepository getSubjectRepository() {

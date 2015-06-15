@@ -27,7 +27,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 
-public class Course extends OrganizationModel implements Serializable {
+public class TaxonomyCourse implements Serializable {
 	
 	
 	private static final long serialVersionUID = -1775302177846507373L;
@@ -151,6 +151,10 @@ public class Course extends OrganizationModel implements Serializable {
 
 	public void setCourseId(Integer courseId) {
 		this.courseId = courseId;
+	}
+	
+	public String getUri() {
+		return RequestMappingUri.TAXONOMYCOURSE.getRequestMappingUri() + getCourseId();
 	}
 
 }

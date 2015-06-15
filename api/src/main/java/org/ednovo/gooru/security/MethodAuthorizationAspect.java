@@ -77,7 +77,7 @@ public class MethodAuthorizationAspect extends OperationAuthorizer {
 		}
 	}
 
-	@Pointcut("execution(* org.ednovo.gooru.controllers.*.*RestController.*(..)) || " + "execution(* org.ednovo.gooru.controllers.*.*.*RestV2Controller.*(..))) ")
+	@Pointcut("execution(* org.ednovo.gooru.controllers.*.*RestController.*(..)) || " + "execution(* org.ednovo.gooru.controllers.*.*.*Rest*Controller.*(..))) ")
 	public void accessCheckPointcut() {
 	}
 	

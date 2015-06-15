@@ -80,4 +80,8 @@ public class Subdomain implements Serializable {
 		this.createdOn = createdOn;
 	}
 
+	public String getUri() {
+		return RequestMappingUri.SUBDOMAIN.getRequestMappingUri() + getSubdomainId();
+	}
+
 }

@@ -2,27 +2,27 @@ package org.ednovo.gooru.core.api.model;
 
 import java.io.Serializable;
 
-public class Class implements Serializable {
+public class UserClass implements Serializable {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 6653728358644358796L;
-	
+
 	private Long classId;
-	
+
 	private String title;
-	
+
 	private String description;
-	
+
 	private String imagePath;
-	
+
 	private String grades;
-	
-	private String  userGroupUid;
-	
+
+	private UserGroup userGroup;
+
 	private Long courseContentId;
-	
+
 	private Integer minimumScore;
 
 	public Long getClassId() {
@@ -65,14 +65,6 @@ public class Class implements Serializable {
 		this.grades = grades;
 	}
 
-	public String getUserGroupUid() {
-		return userGroupUid;
-	}
-
-	public void setUserGroupUid(String userGroupUid) {
-		this.userGroupUid = userGroupUid;
-	}
-
 	public Long getCourseContentId() {
 		return courseContentId;
 	}
@@ -88,7 +80,13 @@ public class Class implements Serializable {
 	public void setMinimumScore(Integer minimumScore) {
 		this.minimumScore = minimumScore;
 	}
-	
-	
+
+	public UserGroup getUserGroup() {
+		return userGroup;
+	}
+
+	public void setUserGroup(UserGroup userGroup) {
+		this.userGroup = userGroup;
+	}
 
 }

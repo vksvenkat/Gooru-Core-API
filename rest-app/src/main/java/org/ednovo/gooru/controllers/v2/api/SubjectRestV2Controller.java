@@ -49,7 +49,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
-@RequestMapping(value = { "/v2/subject" })
+@RequestMapping(value = { "/subject" })
 public class SubjectRestV2Controller extends BaseController implements ConstantProperties {
 
 	@Autowired
@@ -64,7 +64,7 @@ public class SubjectRestV2Controller extends BaseController implements ConstantP
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		}
-		String includes[] = (String[]) ArrayUtils.addAll(SUBJECT_INCLUDES, ERROR_INCLUDE);
+		String includes[] = (String[]) ArrayUtils.addAll(CREATE_INCLUDES, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(responseDTO.getModelData(), FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
 
@@ -86,7 +86,8 @@ public class SubjectRestV2Controller extends BaseController implements ConstantP
 	@RequestMapping(method = RequestMethod.PUT, value = "/{id}")
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ModelAndView updateSubject(HttpServletResponse response, HttpServletRequest request, @RequestBody String data, @PathVariable(ID) Integer subjectId) throws Exception {
-		return toModelAndViewWithIoFilter(this.getSubjectService().updateSubject(buildSubjectFromInputParameters(data), subjectId), FORMAT_JSON, EXCLUDE_ALL, true, SUBJECT_INCLUDES);
+		final User user = (User) request.getAttribute(Constants.USER);
+		return toModelAndViewWithIoFilter(this.getSubjectService().updateSubject(buildSubjectFromInputParameters(data), subjectId, user), FORMAT_JSON, EXCLUDE_ALL, true, SUBJECT_INCLUDES);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SUBJECT_DELETE })
