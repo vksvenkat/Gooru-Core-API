@@ -197,7 +197,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			if (newClasspage.getTitle() != null) {
 				classpage.setTitle(newClasspage.getTitle());
 				UserGroup userGroup = this.getUserGroupService().findUserGroupByGroupCode(classpage.getClasspageCode());
-				userGroup.setGroupName(newClasspage.getTitle());
+				userGroup.setName(newClasspage.getTitle());
 				this.getUserRepository().save(userGroup);
 			}
 			if (newClasspage.getDescription() != null) {
