@@ -52,6 +52,8 @@ public class SubjectServiceImpl extends BaseServiceImpl implements SubjectServic
 			subject.setLastModified(new Date(System.currentTimeMillis()));
 			subject.setActiveFlag((short) 1);
 			subject.setCreator(user);
+			Integer displaySequence = Integer.parseInt(this.getSubjectRepository().getSubjectCount(false).toString());
+			subject.setDisplaySequence(displaySequence + 1);
 			this.getSubjectRepository().save(subject);
 		}
 		return new ActionResponseDTO<Subject>(subject, errors);
@@ -78,12 +80,12 @@ public class SubjectServiceImpl extends BaseServiceImpl implements SubjectServic
 	public SearchResults<Subject> getSubjects(Integer limit, Integer offset) {
 		SearchResults<Subject> result = new SearchResults<Subject>();
 		result.setSearchResults(this.getSubjectRepository().getSubjects(limit, offset));
-		result.setTotalHitCount(this.getSubjectRepository().getSubjectCount());
+		result.setTotalHitCount(this.getSubjectRepository().getSubjectCount(true));
 		return result;
 	}
 
 	@Override
-	public Subject updateSubject(Subject newSubject, Integer subjectId, User user) {
+	public Subject updateSubject(Subject newSubject, Integer subjectId) {
 		Subject subject = this.getSubjectRepository().getSubject(subjectId);
 		rejectIfNull(subject, GL0056, 404, SUBJECT);
 		if (newSubject.getActiveFlag() != null) {
@@ -100,11 +102,20 @@ public class SubjectServiceImpl extends BaseServiceImpl implements SubjectServic
 			subject.setName(newSubject.getName());
 		}
 		if (newSubject.getDisplaySequence() != null) {
-			int displaySequence = newSubject.getDisplaySequence();
-			List<Subject> resetSubjectSequence = this.getSubjectRepository().getParentSubject(user.getPartyUid(), displaySequence);
+			List<Subject> resetSubjectSequence = null;
+			int displaySequence;
+			if(newSubject.getDisplaySequence() > subject.getDisplaySequence()){
+				resetSubjectSequence = this.getSubjectRepository().getSubjectItems(newSubject.getDisplaySequence(), subject.getDisplaySequence());
+				displaySequence = subject.getDisplaySequence();
+			}
+			else{
+				resetSubjectSequence = this.getSubjectRepository().getSubjectItems(subject.getDisplaySequence(), newSubject.getDisplaySequence());
+				displaySequence = newSubject.getDisplaySequence() +1;
+			}
 			if(resetSubjectSequence != null){
 				for(Subject subjectSequence : resetSubjectSequence){
-					subjectSequence.setDisplaySequence(++displaySequence);
+					if(subjectSequence.getSubjectId() != subject.getSubjectId())
+						subjectSequence.setDisplaySequence(displaySequence++);
 				}
 				this.getSubjectRepository().saveAll(resetSubjectSequence);
 			}

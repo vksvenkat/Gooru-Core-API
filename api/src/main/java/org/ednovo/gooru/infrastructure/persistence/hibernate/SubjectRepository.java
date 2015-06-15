@@ -33,8 +33,8 @@ public interface SubjectRepository extends BaseRepository {
 
 	List<Subject> getSubjects(Integer limit, Integer offset);
 
-	Long getSubjectCount();
+	Long getSubjectCount(boolean activeFlag);
 	
-	List<Subject> getParentSubject(String userUid, Integer integer);
-
+	List<Subject> getSubjectItems(Integer newSequence, Integer oldSequence);
+	
 }
