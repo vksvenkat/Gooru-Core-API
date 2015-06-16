@@ -62,7 +62,7 @@ public class SubjectRepositoryHibernate extends BaseRepositoryHibernate
 
 	@Override
 	public Subject getSubjectName(String subjectName) {
-		Query query = getSession().createQuery(SUBJECT_NAME).setParameter("subjectName", subjectName);
+		Query query = getSession().createQuery(SUBJECT_NAME).setParameter(SUBJECT_NAME, subjectName);
 		return (Subject) (query.list().size() > 0 ? query.list().get(0) : null);
 	}
 
