@@ -39,7 +39,8 @@ import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
 
 @Service
-public class SubjectServiceImpl extends BaseServiceImpl implements SubjectService, ParameterProperties {
+public class SubjectServiceImpl extends BaseServiceImpl implements
+		SubjectService, ParameterProperties {
 
 	@Autowired
 	private SubjectRepository subjectRepository;
@@ -48,14 +49,16 @@ public class SubjectServiceImpl extends BaseServiceImpl implements SubjectServic
 	public ActionResponseDTO<Subject> createSubject(Subject subject, User user) {
 		final Errors errors = validateSubject(subject);
 		if (!errors.hasErrors()) {
-			Subject subjectName = this.getSubjectRepository().getSubjectName(subject.getName().toString());
+			Subject subjectName = this.getSubjectRepository().getSubjectName(
+					subject.getName().toString());
 			rejectIfAlreadyExist(subjectName, GL0101, NAME);
 			subject.setClassificationTypeId(subject.getClassificationTypeId());
 			subject.setCreatedOn(new Date(System.currentTimeMillis()));
 			subject.setLastModified(new Date(System.currentTimeMillis()));
 			subject.setActiveFlag((short) 1);
 			subject.setCreator(user);
-			subject.setDisplaySequence(this.getSubjectRepository().getSubjectCount() + 1);
+			subject.setDisplaySequence(this.getSubjectRepository()
+					.getSubjectCount() + 1);
 			this.getSubjectRepository().save(subject);
 		}
 		return new ActionResponseDTO<Subject>(subject, errors);
@@ -79,20 +82,24 @@ public class SubjectServiceImpl extends BaseServiceImpl implements SubjectServic
 	}
 
 	@Override
-	public SearchResults<Subject> getSubjects(Integer classificationTypeId, Integer limit, Integer offset) {
+	public SearchResults<Subject> getSubjects(Integer classificationTypeId,
+			Integer limit, Integer offset) {
 		SearchResults<Subject> result = new SearchResults<Subject>();
-		result.setSearchResults(this.getSubjectRepository().getSubjects(classificationTypeId, limit, offset));
+		result.setSearchResults(this.getSubjectRepository().getSubjects(
+				classificationTypeId, limit, offset));
 		return result;
 	}
 
 	@Override
-	public Subject updateSubject(Subject newSubject, Integer subjectId) {
+	public void updateSubject(Subject newSubject, Integer subjectId) {
 		Subject subject = this.getSubjectRepository().getSubject(subjectId);
 		rejectIfNull(subject, GL0056, 404, SUBJECT);
 		if (newSubject.getActiveFlag() != null) {
-			reject((newSubject.getActiveFlag() == 0 || newSubject.getActiveFlag() == 1), GL0007, ACTIVE_FLAG);
+			reject((newSubject.getActiveFlag() == 0 || newSubject
+					.getActiveFlag() == 1),
+					GL0007, ACTIVE_FLAG);
 			subject.setActiveFlag(newSubject.getActiveFlag());
-	    }
+		}
 		if (newSubject.getDescription() != null) {
 			subject.setDescription(newSubject.getDescription());
 		}
@@ -104,14 +111,18 @@ public class SubjectServiceImpl extends BaseServiceImpl implements SubjectServic
 		}
 		subject.setLastModified(new Date(System.currentTimeMillis()));
 		this.getSubjectRepository().save(subject);
-		return subject;
 	}
 
 	private Errors validateSubject(Subject subject) {
 		final Errors errors = new BindException(subject, SUBJECT);
-		rejectIfNull(errors, subject.getName(), NAME, generateErrorMessage(GL0006, NAME));
-		rejectIfNull(errors, subject.getName(), CLASSIFICATION_TYPE_ID, generateErrorMessage(GL0006, CLASSIFICATION_TYPE_ID));
-		rejectIfInvalidType(errors, subject.getClassificationTypeId().toString(), CLASSIFICATION_TYPE_ID, GL0007, generateErrorMessage(GL0007, "ClassificationTypeId"), Constants.CLASSIFICATION_TYPE);
+		rejectIfNull(errors, subject.getName(), NAME,
+				generateErrorMessage(GL0006, NAME));
+		rejectIfNull(errors, subject.getName(), CLASSIFICATION_TYPE_ID,
+				generateErrorMessage(GL0006, CLASSIFICATION_TYPE_ID));
+		rejectIfInvalidType(errors, subject.getClassificationTypeId()
+				.toString(), CLASSIFICATION_TYPE_ID, GL0007,
+				generateErrorMessage(GL0007, "ClassificationTypeId"),
+				Constants.CLASSIFICATION_TYPE);
 		return errors;
 	}
 

@@ -1,17 +1,17 @@
 package org.ednovo.gooru.core.api.model;
 
-public enum RequestMappingUri {	
+public class RequestMappingUri {
 
-	TAXONOMYCOURSE("/taxonomycourse/"),SUBJECT("/subject/"), SUBDOMAIN("/subdomain/"), DOMAIN("/domain/");
+	public static final String TAXONOMY_COURSE = "/taxonomycourse";
 	
-	private String requestMappingUri;
+	public static final String SUBJECT = "/subject";
 	
-	private RequestMappingUri(String requestMappingUri){
-		this.requestMappingUri = requestMappingUri;
-	}
+	public static final String SUBDOMAIN = "/subdomain";
 	
-	public String getRequestMappingUri(){
-		return this.requestMappingUri;
-	}
+	public static final String DOMAIN = "/domain";
+	
+	public static final String V3_CLASS = "/v3/class";
+	
+	public static final String SEPARATOR = "/";
 
 }

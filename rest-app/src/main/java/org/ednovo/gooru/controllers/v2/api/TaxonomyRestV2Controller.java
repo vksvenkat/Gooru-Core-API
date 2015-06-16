@@ -49,7 +49,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 
 @Controller
-@RequestMapping(value = "/v2/taxonomy")
+@RequestMapping(value = {"/v2/taxonomy" })
 public class TaxonomyRestV2Controller extends BaseController implements ConstantProperties {
 	
 	@Autowired

@@ -45,11 +45,22 @@
 				not-null="true" />
 			<property name="groupCode" column="user_group_code"
 				not-null="true" />
-			<property name="groupName" column="name" not-null="true" />
-
+			<property name="name" column="name" not-null="true" />
 			<many-to-one name="organization"
 				class="org.ednovo.gooru.core.api.model.Organization" column="organization_uid"
 				not-null="false" lazy="proxy" cascade="none" />
+			<property name="memberCount" column="member_count" not-null="true" />
+			<joined-subclass name="org.ednovo.gooru.core.api.model.UserClass"
+				table="class" lazy="true">
+				<key column="class_uid" />
+				<property name="description" column="description" not-null="false" />
+				<property name="imagePath" column="image_path" not-null="false" />
+				<property name="courseContentId" column="course_content_id"
+					not-null="false" />
+				<property name="minimumScore" column="minimum_score"
+					not-null="true" />
+				<property name="visibility" column="visibility" not-null="true" />
+			</joined-subclass>
 		</joined-subclass>
 
 		<joined-subclass name="org.ednovo.gooru.core.api.model.Network"
@@ -80,7 +91,7 @@
 			<many-to-one name="parentOrganization"
 				class="org.ednovo.gooru.core.api.model.Organization" column="parent_organization_uid"
 				not-null="false" lazy="proxy" cascade="none" />
-			
+
 			<many-to-one name="stateProvince"
 				class="org.ednovo.gooru.core.api.model.Province" column="state_province_uid"
 				not-null="false" lazy="proxy" cascade="none" />
@@ -161,20 +172,20 @@
 			<many-to-one name="userGroup"
 				class="org.ednovo.gooru.core.api.model.UserGroup" column="user_group_uid"
 				not-null="false" lazy="false" fetch="join" cascade="none" />
-			
+
 			<many-to-one name="school"
 				class="org.ednovo.gooru.core.api.model.Organization" column="school_uid"
 				not-null="false" lazy="false" cascade="none" />
-			
+
 			<many-to-one name="schoolDistrict"
 				class="org.ednovo.gooru.core.api.model.Organization" column="school_district_uid"
 				not-null="false" lazy="false" cascade="none" />
-			
+
 			<many-to-one name="stateProvince"
 				class="org.ednovo.gooru.core.api.model.Province" column="state_province_uid"
 				not-null="false" lazy="proxy" cascade="none" />
-			
-			
+
+
 			<property name="viewFlag" column="view_flag" length="40"
 				not-null="false">
 			</property>

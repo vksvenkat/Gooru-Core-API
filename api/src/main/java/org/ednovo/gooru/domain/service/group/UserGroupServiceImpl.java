@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.ednovo.gooru.application.util.SerializerUtil;
 import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.ContentPermission;
 import org.ednovo.gooru.core.api.model.Party;
@@ -42,7 +41,6 @@ import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentRepository;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -59,7 +57,7 @@ public class UserGroupServiceImpl implements UserGroupService,ParameterPropertie
 	
 	
 	@Override
-	public UserGroup createGroup(String name, String groupCode, String userGroupType, User apiCaller, String userMailIds) throws Exception {
+	public UserGroup createGroup(String name, String groupCode, String userGroupType, User apiCaller, String userMailIds)  {
 
 		Map<String, String> errorsList = validateCreateGroup(name, groupCode, userGroupType);
 
@@ -67,11 +65,10 @@ public class UserGroupServiceImpl implements UserGroupService,ParameterPropertie
 		
 		UserGroupAssociation groupAssociation = new  UserGroupAssociation();
 			
-		JSONObject jsonObj = new JSONObject();
 
 		if (errorsList.isEmpty()) {
 						
-			userGroup.setGroupName(name);
+			userGroup.setName(name);
 			if(groupCode == null)
 			{
 				groupCode = UUID.randomUUID().toString();
@@ -95,10 +92,7 @@ public class UserGroupServiceImpl implements UserGroupService,ParameterPropertie
 		if(errorsList.isEmpty() && userMailIds != null && userGroup != null){
 			addGroupMembers(userGroup,userMailIds);
 		}
-		if(errorsList.size() > 0){
-			jsonObj.put(ERROR_LIST, SerializerUtil.serializeToJsonObject(errorsList));
-			jsonObj.put(STATUS, STATUS_500);
-		}
+		
 		return userGroup;
 	}
 
@@ -114,7 +108,7 @@ public class UserGroupServiceImpl implements UserGroupService,ParameterPropertie
 	}
 
 	@Override
-	public Map<String, String> validateCreateGroup(String name, String groupCode, String userGroupType) throws Exception {
+	public Map<String, String> validateCreateGroup(String name, String groupCode, String userGroupType)  {
 		Map<String, String> errorList = new HashMap<String, String>();
 
 		if (!isNotEmptyString(name)) {
@@ -151,7 +145,7 @@ public class UserGroupServiceImpl implements UserGroupService,ParameterPropertie
 		UserGroup userGroup = this.getUserRepository().findUserGroupById(groupUid);
 	
 		if (name != null) {
-			userGroup.setGroupName(name);
+			userGroup.setName(name);
 		}
 		
 		if (activeFlag != null) {

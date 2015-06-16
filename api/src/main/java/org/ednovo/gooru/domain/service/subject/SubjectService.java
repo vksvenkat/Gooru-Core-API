@@ -39,5 +39,5 @@ public interface SubjectService extends BaseService{
 
 	void deleteSubject(Integer subjectId);
 
-	Subject updateSubject(Subject subject, Integer subjectId);
+	void updateSubject(Subject subject, Integer subjectId);
 }

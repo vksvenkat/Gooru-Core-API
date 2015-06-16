@@ -85,8 +85,8 @@ public class SubjectRestV2Controller extends BaseController implements ConstantP
 	@AuthorizeOperations(operations ={GooruOperationConstants.OPERATION_SUBJECT_UPDATE})
 	@RequestMapping(method = RequestMethod.PUT, value = "/{id}")
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public ModelAndView updateSubject(HttpServletResponse response, HttpServletRequest request, @RequestBody String data, @PathVariable(ID) Integer subjectId) throws Exception {
-		return toModelAndViewWithIoFilter(this.getSubjectService().updateSubject(buildSubjectFromInputParameters(data), subjectId), FORMAT_JSON, EXCLUDE_ALL, true, SUBJECT_INCLUDES);
+	public void updateSubject(HttpServletResponse response, HttpServletRequest request, @RequestBody String data, @PathVariable(ID) Integer subjectId) throws Exception {
+		this.getSubjectService().updateSubject(buildSubjectFromInputParameters(data), subjectId);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SUBJECT_DELETE })

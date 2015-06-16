@@ -66,7 +66,6 @@ import org.ednovo.gooru.domain.service.eventlogs.CollectionEventLog;
 import org.ednovo.gooru.domain.service.group.UserGroupService;
 import org.ednovo.gooru.domain.service.search.SearchResults;
 import org.ednovo.gooru.domain.service.setting.SettingService;
-import org.ednovo.gooru.domain.service.task.TaskService;
 import org.ednovo.gooru.domain.service.user.UserService;
 import org.ednovo.gooru.domain.service.userManagement.UserManagementService;
 import org.ednovo.gooru.domain.service.v2.ContentService;
@@ -86,9 +85,6 @@ import org.springframework.validation.Errors;
 
 @Service
 public class ClasspageServiceImpl extends ScollectionServiceImpl implements ClasspageService, ParameterProperties {
-
-	@Autowired
-	private TaskService taskService;
 
 	@Autowired
 	@javax.annotation.Resource(name = "userService")
@@ -201,7 +197,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			if (newClasspage.getTitle() != null) {
 				classpage.setTitle(newClasspage.getTitle());
 				UserGroup userGroup = this.getUserGroupService().findUserGroupByGroupCode(classpage.getClasspageCode());
-				userGroup.setGroupName(newClasspage.getTitle());
+				userGroup.setName(newClasspage.getTitle());
 				this.getUserRepository().save(userGroup);
 			}
 			if (newClasspage.getDescription() != null) {
@@ -658,7 +654,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			result.put(FIRST_NAME, object[5]);
 			result.put(LAST_NAME, object[6]);
 			if (object[2] != null) {
-				result.put(PROFILE_IMG_URL, settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, TaxonomyUtil.GOORU_ORG_UID) + "/" + String.valueOf(object[2]) + ".png");
+				result.put(PROFILE_IMG_URL, BaseUtil.changeHttpsProtocolByHeader(settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, TaxonomyUtil.GOORU_ORG_UID)) + "/" + String.valueOf(object[2]) + ".png");
 			}
 			listMap.add(result);
 		}
@@ -726,7 +722,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			user.put(FIRSTNAME, object[6]);
 			user.put(LASTNAME, object[7]);
 			user.put(USERNAME, object[8]);
-			user.put(PROFILE_IMG_URL, settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, TaxonomyUtil.GOORU_ORG_UID) + "/" + String.valueOf(object[5]) + ".png");
+			user.put(PROFILE_IMG_URL, BaseUtil.changeHttpsProtocolByHeader(settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, TaxonomyUtil.GOORU_ORG_UID)) + "/" + String.valueOf(object[5]) + ".png");
 			result.put(USER, user);
 
 			final StorageArea storageArea = this.getStorageRepository().getStorageAreaByTypeName(NFS);
@@ -800,7 +796,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 				final Map<String, Object> user = new HashMap<String, Object>();
 				user.put(USERNAME, object[12]);
 				user.put(GOORU_UID, object[13]);
-				user.put(PROFILE_IMG_URL, settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, TaxonomyUtil.GOORU_ORG_UID) + "/" + String.valueOf(object[13]) + ".png");
+				user.put(PROFILE_IMG_URL, BaseUtil.changeHttpsProtocolByHeader(settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, TaxonomyUtil.GOORU_ORG_UID)) + "/" + String.valueOf(object[13]) + ".png");
 				resource.put(USER, user);
 				resource.put(COLLECTIONITEMS, getPathawyItemWithOutValidation(object[5].toString(), 0, 10, orderBy, apiCaller));
 			}
@@ -1083,9 +1079,6 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		return scollectionEventlog;
 	}
 
-	public TaskService getTaskService() {
-		return taskService;
-	}
 
 	public UserRepository getUserRepository() {
 		return userRepository;

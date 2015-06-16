@@ -55,6 +55,8 @@ public class Subject implements Serializable {
 	private Integer classificationTypeId;
 
 	private User creator;
+	
+	private String uri;
 
 	public User getCreator() {
 		return creator;
@@ -135,9 +137,12 @@ public class Subject implements Serializable {
 	public void setActiveFlag(Short activeFlag) {
 		this.activeFlag = activeFlag;
 	}
-	
+
 	public String getUri() {
-		return RequestMappingUri.SUBJECT.getRequestMappingUri() + getSubjectId();
+		return uri;
 	}
 
+	public void setUri(String uri) {
+		this.uri = uri;
+	}
 }

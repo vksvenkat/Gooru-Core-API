@@ -34,7 +34,7 @@ import org.ednovo.gooru.core.api.model.UserGroupAssociation;
 
 public interface UserGroupService {
 
-	UserGroup createGroup(String name, String groupCode, String userGroupType, User user, String userMailIds) throws Exception;
+	UserGroup createGroup(String name, String groupCode, String userGroupType, User user, String userMailIds);
 
 	String removeUserGroup(String groupUid, User user) throws Exception;
 

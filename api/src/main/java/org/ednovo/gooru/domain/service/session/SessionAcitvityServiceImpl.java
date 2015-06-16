@@ -280,7 +280,12 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 		sessionMode.put(ModeType.PRACTICE.getModeType(), SESSION);
 		return sessionMode;
 	}
-
+	
+	
+	@Override
+	public Map<String, Object> getInCompleteSessionActivity(final String gooruOid, final String user) {
+		return this.getSessionActivityRepository().getSessionActivityByCollectionId(gooruOid,user);
+	}
 	public SessionEventLog getSessionEventLog() {
 		return sessionEventLog;
 	}

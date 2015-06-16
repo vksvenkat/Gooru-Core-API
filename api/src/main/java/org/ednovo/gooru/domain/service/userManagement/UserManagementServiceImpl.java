@@ -75,6 +75,7 @@ import org.ednovo.gooru.core.api.model.UserRole.UserRoleType;
 import org.ednovo.gooru.core.api.model.UserRoleAssoc;
 import org.ednovo.gooru.core.api.model.UserSummary;
 import org.ednovo.gooru.core.api.model.UserToken;
+import org.ednovo.gooru.core.application.util.BaseUtil;
 import org.ednovo.gooru.core.application.util.CustomProperties;
 import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.core.constant.ConstantProperties;
@@ -234,7 +235,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 		}
 		final Profile profile = this.getUserRepository().getProfile(user, false);
 		String externalId = null;
-		final String profileImageUrl = this.getSettingService().getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, 0, TaxonomyUtil.GOORU_ORG_UID) + '/' + user.getGooruUId() + DOT_PNG;
+		final String profileImageUrl = BaseUtil.changeHttpsProtocolByHeader(this.getSettingService().getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, 0, TaxonomyUtil.GOORU_ORG_UID)) + '/' + user.getGooruUId() + DOT_PNG;
 		if (user.getAccountTypeId() != null && (user.getAccountTypeId().equals(UserAccountType.ACCOUNT_CHILD))) {
 			externalId = this.findUserByGooruId(user.getParentUser().getGooruUId()).getExternalId();
 		} else {
@@ -997,7 +998,7 @@ public class UserManagementServiceImpl extends BaseServiceImpl implements UserMa
 
 	@Override
 	public String buildUserProfileImageUrl(final User user) {
-		return this.getSettingService().getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, user.getOrganization().getPartyUid()) + "/" + user.getGooruUId() + DOT_PNG;
+		return BaseUtil.changeHttpsProtocolByHeader(this.getSettingService().getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, user.getOrganization().getPartyUid())) + "/" + user.getGooruUId() + DOT_PNG;
 	}
 
 	@Override
