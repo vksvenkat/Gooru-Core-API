@@ -79,14 +79,19 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 
 	@Override
 	public ActionResponseDTO<SessionActivity> createSessionActivity(final SessionActivity sessionActivity, final User user) {
-		final Long collectionId = this.getResourceRepository().getContentId(sessionActivity.getContentGooruId());
+
+		Map<String,Object> contentIdsInMap = new HashMap<String,Object>();
+		List<Object[]> contentIds = getResourceRepository().getContentIds(sessionActivity.getClassGooruId(),sessionActivity.getContentGooruId(),sessionActivity.getLessonGooruId(),sessionActivity.getUnitGooruId());
+		for(Object[] contentId : contentIds){
+			contentIdsInMap.put((String)contentId[0],contentId[1]);
+		}
+		final Long collectionId = ((Number)contentIdsInMap.get(sessionActivity.getContentGooruId())).longValue();
 		final Errors errors = this.validateCreateSessionActivity(sessionActivity, collectionId);
 		if (!errors.hasErrors()) {
-
 			if (sessionActivity.getClassGooruId() != null) {
-				sessionActivity.setClassContentId(getResourceRepository().getContentId(sessionActivity.getClassGooruId()));
-				sessionActivity.setLessonContentId(getResourceRepository().getContentId(sessionActivity.getLessonGooruId()));
-				sessionActivity.setUnitContentId(getResourceRepository().getContentId(sessionActivity.getUnitGooruId()));
+				sessionActivity.setClassContentId(((Number)contentIdsInMap.get(sessionActivity.getClassGooruId())).longValue());
+				sessionActivity.setLessonContentId(((Number)contentIdsInMap.get(sessionActivity.getLessonGooruId())).longValue());
+				sessionActivity.setUnitContentId(((Number)contentIdsInMap.get(sessionActivity.getUnitGooruId())).longValue());
 				sessionActivity.setIsStudent(getResourceRepository().findUserIsStudent(sessionActivity.getClassContentId(), user.getGooruUId()));
 				sessionActivity.setClassId(getResourceRepository().getNumericClassCode(sessionActivity.getClassContentId()));
 			} else {

@@ -904,6 +904,10 @@ public interface ConstantProperties {
 	
 	public static final String COMMA = ",";
 	
+	public static final String EMPTY = "";
+	
+	public static final String QUOTED_COMMA = "\',\'";
+	
 	static String SUBDOMAIN = "subdomain";
 	
 	static String COURSE_ID = "courseId";

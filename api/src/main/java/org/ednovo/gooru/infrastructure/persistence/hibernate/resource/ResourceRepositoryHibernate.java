@@ -65,6 +65,7 @@ import org.hibernate.type.StandardBasicTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.stereotype.Repository;
@@ -133,6 +134,7 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 	}
 
 	@Override
+	@Cacheable("persistent")
 	public Long getNumericClassCode(Long contentId) {
 		Session session = getSessionFactory().getCurrentSession();
 		String sql = " SELECT conv(classpage_code,36,10) AS classCode FROM classpage WHERE classpage_content_id =" + contentId;
@@ -162,7 +164,16 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 
 		return (results != null && results.size() > 0) ? results.get(0) : 0L;
 	}
-
+	
+	@Override
+	public List<Object[]> getContentIds(String... gooruOids) {		
+		Session session = getSessionFactory().getCurrentSession();
+		String sql = " SELECT gooru_oid AS gooruOid , content_id AS contentId from content WHERE gooru_oid IN ('" + StringUtils.join(gooruOids, QUOTED_COMMA) + "')";
+		Query query = session.createSQLQuery(sql);
+		List<Object[]> contentIds= list(query);		 
+		return contentIds; 
+	}
+	
 	@Override
 	public List<Resource> findWebResourcesForBlacklisting() {
 		Session session = getSessionFactory().getCurrentSession();
@@ -1004,5 +1015,4 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 	public JdbcTemplate getJdbcTemplate() {
 		return jdbcTemplate;
 	}
-
 }
