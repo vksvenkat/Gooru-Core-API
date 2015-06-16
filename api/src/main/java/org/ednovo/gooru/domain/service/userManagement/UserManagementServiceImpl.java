@@ -116,7 +116,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
-import org.ednovo.gooru.core.application.util.BaseUtil
+import org.ednovo.gooru.core.application.util.BaseUtil;
 import com.thoughtworks.xstream.core.util.Base64Encoder;
 
 @Service
