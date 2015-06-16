@@ -896,21 +896,23 @@ public interface ConstantProperties {
 			"*.folder", "*.gooruOid", "*.sharing", "*.title", "*.views", "*.thumbnails", "*.url", "*.gooruUId", "*.buildType", "*.emailId", "*.value", "*.code", "*.label", "*.modifiedDate", "*.gooruid", "*.username", "*.customFields", "*.optionalValue", "*.optionalKey",
 			"*.collectionItemId", "*.skills", "*.course", "*.standards", "*.metaInfo", "*.meta" };
 	
-	static String SUBJECT_INCLUDES[] = {"*.name","*.description","*.activeFlag","*.imagePath","*.displaySequence","*.createdOn","*.lastModified","*.totalHitCount", "*.searchResults"};
+	final static String SUBJECT_INCLUDES[] = {"*.name","*.description","*.activeFlag","*.imagePath","*.displaySequence","*.createdOn","*.lastModified","*.totalHitCount", "*.searchResults"};
 	
-	static String SUBDOMAIN_INCLUDES[] = {"*.subdomainId","*.courseId","*.domainId","*.totalHitCount", "*.searchResults"};
+	final static String SUBDOMAIN_INCLUDES[] = {"*.subdomainId","*.courseId","*.domainId","*.totalHitCount", "*.searchResults"};
 
 	public static final String PIPE = "|";
 	
 	public static final String COMMA = ",";
 	
-	static String SUBDOMAIN = "subdomain";
+	final static  String SUBDOMAIN = "subdomain";
 	
-	static String COURSE_ID = "courseId";
+	final static String COURSE_ID = "courseId";
 	
-	static String DOMAIN_ID = "domainId";
+	final static String DOMAIN_ID = "domainId";
 	
-	static String SUBJECT_ID = "subjectId";
+	final static String SUBJECT_ID = "subjectId";
 	
-	static String SUBDOMAIN_ID = "subdomainId";
+	final static String SUBDOMAIN_ID = "subdomainId";
+	
+	final static String CLASS_INCLUDES[] = {"classUid","classCode","name","description", "visibility", "*.minimumScore", "*.memberCount"};
 }
