@@ -42,6 +42,7 @@ import org.hibernate.Session;
 import org.hibernate.type.StandardBasicTypes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.ednovo.gooru.core.application.util.BaseUtil;
 
 @Repository
 public class PartyRepositoryHibernate extends BaseRepositoryHibernate implements PartyRepository, ParameterProperties, ConstantProperties {
