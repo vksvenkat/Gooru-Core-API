@@ -61,8 +61,8 @@ public class ClassRestV3Controller extends BaseController implements ConstantPro
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
-	public ModelAndView getClass(@PathVariable(value = ID) final String classId, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
-		return null;
+	public ModelAndView getClass(@PathVariable(value = ID) final String classUId, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+		return toModelAndViewWithIoFilter(this.getClassService().getClassById(classUId), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, CLASS_INCLUDES);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ })

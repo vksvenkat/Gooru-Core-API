@@ -41,16 +41,13 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 	}
 
 	@Override
-	public ActionResponseDTO<UserClass> updateClass(UserClass userClass) {
-		// TODO Auto-generated method stub
+	public ActionResponseDTO<UserClass> updateClass(UserClass newUserClass) {
+		if (newUserClass.getName() != null) { 
+			
+		}
 		return null;
 	}
 
-	@Override
-	public UserClass getClass(String classType) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 	private Errors validateClass(final UserClass userClass) {
 		final Errors errors = new BindException(userClass, CLASS);
@@ -61,5 +58,10 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 	
 	public ClassRepository getClassRepository() {
 		return classRepository;
+	}
+
+	@Override
+	public UserClass getClassById(String classUid) {
+		return this.getClassRepository().getClassById(classUid);
 	}
 }
