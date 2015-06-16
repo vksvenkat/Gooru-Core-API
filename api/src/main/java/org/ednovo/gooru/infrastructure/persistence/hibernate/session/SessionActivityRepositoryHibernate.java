@@ -62,7 +62,8 @@ public class SessionActivityRepositoryHibernate extends BaseRepositoryHibernate 
 	private final String FIND_QUESTION = "From AssessmentQuestion q   where q.gooruOid=:gooruOid";
 	
 	private final String RETRIEVE_LAST_SESSION_ACTIVITY_BY_IDS = "From SessionActivity s   where s.parentId=:parentId and s.collectionId=:collectionId and s.user.partyUid=:userId order by s.sequence desc";
-		
+	
+	private final String RETRIVE_INCOMPLETE_SESSION_ACTIVITY_ID = "SELECT sa.user_uid as userUid,sa.session_activity_id as sessionActivityId,so.gooru_oid as collectionGooruOid,sai.gooru_oid as resourceGooruOid from session_activity sa inner join session_activity_item si on sa.session_activity_id=si.session_activity_id inner join content so on so.content_id=sa.collection_id left join content sai on sai.content_id=si.resource_id where sa.status='open' and sa.user_uid=:userUid and so.gooru_oid =:collectionId order by si.start_time DESC";
 
 	@Override
 	public SessionActivity getSessionActivityById(Long sessionActivityId) {
@@ -167,8 +168,7 @@ public class SessionActivityRepositoryHibernate extends BaseRepositoryHibernate 
 	
 	@Override
 	public Map<String,Object> getSessionActivityByCollectionId(String gooruOid, String userUid)  {
-		String sql = "SELECT sa.user_uid as userUid,sa.status,sa.session_activity_id as sessionActivityId,so.gooru_oid as collectionGooruOid,sai.gooru_oid as resourceGooruOid from session_activity sa inner join session_activity_item si on sa.session_activity_id=si.session_activity_id inner join content so on so.content_id=sa.collection_id left join content sai on sai.content_id=si.resource_id where sa.status='open' and sa.user_uid=:userUid and so.gooru_oid =:collectionId order by si.start_time DESC";
-		SQLQuery query = getSession().createSQLQuery(sql);
+		Query query = getSession().createSQLQuery(RETRIVE_INCOMPLETE_SESSION_ACTIVITY_ID);
 		query.setParameter(COLLECTION_ID, gooruOid);
 		query.setParameter(USER_UID, userUid);
 		query.setMaxResults(1);
