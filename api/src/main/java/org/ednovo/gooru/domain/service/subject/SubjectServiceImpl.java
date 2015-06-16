@@ -24,11 +24,11 @@
 package org.ednovo.gooru.domain.service.subject;
 
 import java.util.Date;
-import java.util.List;
 
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Subject;
 import org.ednovo.gooru.core.api.model.User;
+import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.domain.service.BaseServiceImpl;
 import org.ednovo.gooru.domain.service.search.SearchResults;
@@ -48,12 +48,14 @@ public class SubjectServiceImpl extends BaseServiceImpl implements SubjectServic
 	public ActionResponseDTO<Subject> createSubject(Subject subject, User user) {
 		final Errors errors = validateSubject(subject);
 		if (!errors.hasErrors()) {
+			Subject subjectName = this.getSubjectRepository().getSubjectName(subject.getName().toString());
+			rejectIfAlreadyExist(subjectName, GL0101, NAME);
+			subject.setClassificationTypeId(subject.getClassificationTypeId());
 			subject.setCreatedOn(new Date(System.currentTimeMillis()));
 			subject.setLastModified(new Date(System.currentTimeMillis()));
 			subject.setActiveFlag((short) 1);
 			subject.setCreator(user);
-			Integer displaySequence = Integer.parseInt(this.getSubjectRepository().getSubjectCount(false).toString());
-			subject.setDisplaySequence(displaySequence + 1);
+			subject.setDisplaySequence(this.getSubjectRepository().getSubjectCount() + 1);
 			this.getSubjectRepository().save(subject);
 		}
 		return new ActionResponseDTO<Subject>(subject, errors);
@@ -77,10 +79,9 @@ public class SubjectServiceImpl extends BaseServiceImpl implements SubjectServic
 	}
 
 	@Override
-	public SearchResults<Subject> getSubjects(Integer limit, Integer offset) {
+	public SearchResults<Subject> getSubjects(Integer classificationTypeId, Integer limit, Integer offset) {
 		SearchResults<Subject> result = new SearchResults<Subject>();
-		result.setSearchResults(this.getSubjectRepository().getSubjects(limit, offset));
-		result.setTotalHitCount(this.getSubjectRepository().getSubjectCount(true));
+		result.setSearchResults(this.getSubjectRepository().getSubjects(classificationTypeId, limit, offset));
 		return result;
 	}
 
@@ -101,26 +102,6 @@ public class SubjectServiceImpl extends BaseServiceImpl implements SubjectServic
 		if (newSubject.getName() != null) {
 			subject.setName(newSubject.getName());
 		}
-		if (newSubject.getDisplaySequence() != null) {
-			List<Subject> resetSubjectSequence = null;
-			int displaySequence;
-			if(newSubject.getDisplaySequence() > subject.getDisplaySequence()){
-				resetSubjectSequence = this.getSubjectRepository().getSubjectItems(newSubject.getDisplaySequence(), subject.getDisplaySequence());
-				displaySequence = subject.getDisplaySequence();
-			}
-			else{
-				resetSubjectSequence = this.getSubjectRepository().getSubjectItems(subject.getDisplaySequence(), newSubject.getDisplaySequence());
-				displaySequence = newSubject.getDisplaySequence() +1;
-			}
-			if(resetSubjectSequence != null){
-				for(Subject subjectSequence : resetSubjectSequence){
-					if(subjectSequence.getSubjectId() != subject.getSubjectId())
-						subjectSequence.setDisplaySequence(displaySequence++);
-				}
-				this.getSubjectRepository().saveAll(resetSubjectSequence);
-			}
-			subject.setDisplaySequence(newSubject.getDisplaySequence());
-		}
 		subject.setLastModified(new Date(System.currentTimeMillis()));
 		this.getSubjectRepository().save(subject);
 		return subject;
@@ -129,6 +110,8 @@ public class SubjectServiceImpl extends BaseServiceImpl implements SubjectServic
 	private Errors validateSubject(Subject subject) {
 		final Errors errors = new BindException(subject, SUBJECT);
 		rejectIfNull(errors, subject.getName(), NAME, generateErrorMessage(GL0006, NAME));
+		rejectIfNull(errors, subject.getName(), CLASSIFICATION_TYPE_ID, generateErrorMessage(GL0006, CLASSIFICATION_TYPE_ID));
+		rejectIfInvalidType(errors, subject.getClassificationTypeId().toString(), CLASSIFICATION_TYPE_ID, GL0007, generateErrorMessage(GL0007, "ClassificationTypeId"), Constants.CLASSIFICATION_TYPE);
 		return errors;
 	}
 

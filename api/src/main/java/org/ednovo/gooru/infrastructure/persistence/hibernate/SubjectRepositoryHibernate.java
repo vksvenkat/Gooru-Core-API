@@ -36,9 +36,9 @@ public class SubjectRepositoryHibernate extends BaseRepositoryHibernate
 		implements SubjectRepository, ParameterProperties, ConstantProperties {
 
 	private static final String SUBJECT_COUNT = "SELECT COUNT(*) FROM Subject subject";
-	private static final String SUBJECTS = "FROM Subject subject where subject.activeFlag=1";
+	private static final String SUBJECTS = "FROM Subject subject where subject.classificationTypeId=:classificationTypeId and subject.activeFlag=1";
 	private static final String SUBJECT = "FROM Subject subject WHERE subject.subjectId=:subjectId";
-	private static final String SUBJECT_DISPLAYSEQUENCE = "FROM Subject subject WHERE subject.displaySequence BETWEEN :oldSequence and :newSequence order by subject.displaySequence";
+	private static final String SUBJECT_NAME = "FROM Subject subject WHERE subject.name=:subjectName";
 
 	@Override
 	public Subject getSubject(Integer subjectId) {
@@ -47,29 +47,23 @@ public class SubjectRepositoryHibernate extends BaseRepositoryHibernate
 	}
 
 	@Override
-	public List<Subject> getSubjects(Integer limit, Integer offset) {
-		Query query = getSession().createQuery(SUBJECTS);
+	public List<Subject> getSubjects(Integer classificationTypeId,Integer limit, Integer offset) {
+		Query query = getSession().createQuery(SUBJECTS).setParameter(CLASSIFICATION_TYPE_ID, classificationTypeId);
 		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT: limit) : limit);
 		query.setFirstResult(offset);
 		return list(query);
 	}
 
 	@Override
-	public Long getSubjectCount(boolean activeFlag) {
-		String hql = SUBJECT_COUNT;
-		if(activeFlag){
-			 hql += " where subject.activeFlag=1";
-		}
-		Query query = getSession().createQuery(hql);
-		return (Long) query.list().get(0);
+	public Integer getSubjectCount() {
+		Query query = getSession().createQuery(SUBJECT_COUNT);
+		return ((Number)query.list().get(0)).intValue();
 	}
 
 	@Override
-	public List<Subject> getSubjectItems(Integer newSequence, Integer oldSequence) {
-		Query query = getSession().createQuery(SUBJECT_DISPLAYSEQUENCE);
-		query.setParameter("newSequence", newSequence);
-		query.setParameter("oldSequence", oldSequence);
-		return list(query);
+	public Subject getSubjectName(String subjectName) {
+		Query query = getSession().createQuery(SUBJECT_NAME).setParameter("subjectName", subjectName);
+		return (Subject) (query.list().size() > 0 ? query.list().get(0) : null);
 	}
 
 }

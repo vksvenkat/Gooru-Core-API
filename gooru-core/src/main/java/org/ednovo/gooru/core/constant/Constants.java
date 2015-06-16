@@ -227,12 +227,22 @@ public class Constants implements ParameterProperties {
 	
 	private static final String TYPE_USER = "user";
 	
+	public static final Map<String, String> CLASSIFICATION_TYPE;
+	
 	static {
 		Map<String, String> reindexType = new HashMap<String, String>();
 		reindexType.put(RESOURCE, TOPIC_RESOURCE);
 		reindexType.put(SCOLLECTION, TOPIC_SCOLLECTION);
 		reindexType.put(TYPE_USER, TOPIC_USER);
 		REINDEX_TYPES = Collections.unmodifiableMap(reindexType);
+	}
+	
+	static{
+		Map<String, String> classificationTypeId = new HashMap<String, String>();
+		classificationTypeId.put("1", "K-12");
+		classificationTypeId.put("2", "Higher Education");
+		classificationTypeId.put("3", "Professional Learning");
+		CLASSIFICATION_TYPE = Collections.unmodifiableMap(classificationTypeId);
 	}
 
 }

@@ -31,10 +31,10 @@ public interface SubjectRepository extends BaseRepository {
 
 	Subject getSubject(Integer subjectId);
 
-	List<Subject> getSubjects(Integer limit, Integer offset);
+	List<Subject> getSubjects(Integer classificationTypeId, Integer limit, Integer offset);
 
-	Long getSubjectCount(boolean activeFlag);
+	Integer getSubjectCount();
 	
-	List<Subject> getSubjectItems(Integer newSequence, Integer oldSequence);
+	Subject getSubjectName(String subjectName);
 	
 }

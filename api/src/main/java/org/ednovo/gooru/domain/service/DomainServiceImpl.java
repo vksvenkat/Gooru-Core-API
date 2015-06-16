@@ -44,12 +44,12 @@ public class DomainServiceImpl extends BaseServiceImpl implements DomainService,
 
 	@Override
 	public ActionResponseDTO<Domain> createDomain(Domain domain, User user) {
-
 		final Errors error = validateDomain(domain);
 		if (!error.hasErrors()) {
 			domain.setCreatedOn(new Date(System.currentTimeMillis()));
 			domain.setLastModified(new Date(System.currentTimeMillis()));
 			domain.setActiveFlag((short) 1);
+			domain.setDisplaySequence(this.getDomainRepository().getDomainCount() + 1);
 			this.getDomainRepository().save(domain);
 		}
 		return new ActionResponseDTO<Domain>(domain, error);
@@ -92,7 +92,6 @@ public class DomainServiceImpl extends BaseServiceImpl implements DomainService,
 	public SearchResults<Domain> getDomains(Integer limit, Integer offset) {
 		SearchResults<Domain> result = new SearchResults<Domain>();
 		result.setSearchResults(this.getDomainRepository().getDomains(limit, offset));
-		result.setTotalHitCount(this.getDomainRepository().getDomainCount());
 		return result;
 	}
 
@@ -108,7 +107,6 @@ public class DomainServiceImpl extends BaseServiceImpl implements DomainService,
 	private Errors validateDomain(Domain domain) {
 		final Errors error = new BindException(domain, DOMAIN_);
 		rejectIfNull(domain.getName(), GL0006, NAME);
-		rejectIfNull(domain.getDisplaySequence(), GL0006, DISPLAY_SEQUENCE);
 		return error;
 	}
 

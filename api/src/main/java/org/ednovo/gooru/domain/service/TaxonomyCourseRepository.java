@@ -36,6 +36,6 @@ public interface TaxonomyCourseRepository extends BaseRepository {
 	
 	List<TaxonomyCourse> getCourses(Integer limit, Integer offset);
 
-	Long getCourseCount();
+	Integer getCourseCount();
 
 }

@@ -41,7 +41,7 @@ public class TaxonomyCourseRepositoryHibernate extends BaseRepositoryHibernate i
 
 	private static final String GET_COURSES = "FROM TaxonomyCourse"; 
 	
-	private static final String GET_COUNT = "SELECT COUNT(*) FROM TaxonomyCourse"; 
+	private static final String GET_COUNT = "SELECT COUNT(*) FROM TaxonomyCourse course"; 
 
 
 	@Override
@@ -65,8 +65,8 @@ public class TaxonomyCourseRepositoryHibernate extends BaseRepositoryHibernate i
 	}
 
 	@Override
-	public Long getCourseCount() {
+	public Integer getCourseCount() {
 		Query query = getSession().createQuery(GET_COUNT);
-		return (Long) query.list().get(0);
+		return ((Number)query.list().get(0)).intValue();
 	}
 }

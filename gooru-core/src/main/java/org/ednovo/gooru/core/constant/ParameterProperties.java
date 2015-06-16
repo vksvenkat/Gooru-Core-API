@@ -2858,6 +2858,8 @@ public interface ParameterProperties {
 	
 	String COUNTRY_NAME = "countryName";
 	
+	String CLASSIFICATION_TYPE_ID = "classificationTypeId";
+	
 	String STATE_NAME = "stateName";
 
 	String CITY_NAME = "cityName";

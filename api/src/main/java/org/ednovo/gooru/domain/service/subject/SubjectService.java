@@ -35,7 +35,7 @@ public interface SubjectService extends BaseService{
 	
 	Subject getSubject(Integer subjectId);
 	
-	SearchResults<Subject> getSubjects(Integer limit, Integer offset);
+	SearchResults<Subject> getSubjects(Integer classificationTypeId, Integer limit, Integer offset);
 
 	void deleteSubject(Integer subjectId);
 

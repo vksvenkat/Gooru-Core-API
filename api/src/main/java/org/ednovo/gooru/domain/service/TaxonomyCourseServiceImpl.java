@@ -24,7 +24,6 @@
 package org.ednovo.gooru.domain.service;
 
 import java.util.Date;
-
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.TaxonomyCourse;
 import org.ednovo.gooru.core.api.model.Subject;
@@ -49,7 +48,6 @@ public class TaxonomyCourseServiceImpl extends BaseServiceImpl implements Taxono
 
 	@Override
 	public ActionResponseDTO<TaxonomyCourse> createTaxonomyCourse(TaxonomyCourse course, User user) {
- 
 		final Errors errors = validateCourse(course);
 		if (!errors.hasErrors()) {
 			Subject subject = this.getSubjectRepository().getSubject(course.getSubjectId());
@@ -60,6 +58,7 @@ public class TaxonomyCourseServiceImpl extends BaseServiceImpl implements Taxono
 			course.setCreatedOn(new Date(System.currentTimeMillis()));
 			course.setLastModified(new Date(System.currentTimeMillis()));
 			course.setActiveFlag((short) 1);
+			course.setDisplaySequence(this.getTaxonomyCourseRepository().getCourseCount() + 1);
 			this.getTaxonomyCourseRepository().save(course);
 		}
 		return new ActionResponseDTO<TaxonomyCourse>(course, errors);
@@ -85,9 +84,6 @@ public class TaxonomyCourseServiceImpl extends BaseServiceImpl implements Taxono
 		if (newCourse.getImagePath() != null) {
 			course.setImagePath(newCourse.getImagePath());
 		}
-		if (newCourse.getDisplaySequence() != null) {
-			course.setDisplaySequence(newCourse.getDisplaySequence());
-		}
 		course.setLastModified(new Date(System.currentTimeMillis()));
 		this.getTaxonomyCourseRepository().save(course);
 		return course;
@@ -105,7 +101,6 @@ public class TaxonomyCourseServiceImpl extends BaseServiceImpl implements Taxono
 	public SearchResults<TaxonomyCourse> getTaxonomyCourses(Integer limit, Integer offset) {
 		SearchResults<TaxonomyCourse> result = new SearchResults<TaxonomyCourse>();
 		result.setSearchResults(this.getTaxonomyCourseRepository().getCourses(limit, offset));
-		result.setTotalHitCount(this.getTaxonomyCourseRepository().getCourseCount());
 		return result;
 	}
 
@@ -122,7 +117,6 @@ public class TaxonomyCourseServiceImpl extends BaseServiceImpl implements Taxono
 		final Errors error = new BindException(course, COURSE);
     	rejectIfNull(error,course.getSubjectId(), SUBJECT_ID,  generateErrorMessage(GL0006, SUBJECT_ID));
 		rejectIfNull(error,course.getCourseCode(), COURSE_CODE,  generateErrorMessage(GL0006, COURSE_CODE));
-		rejectIfNull(error,course.getDisplaySequence(), DISPLAY_SEQUENCE,  generateErrorMessage(GL0006, DISPLAY_SEQUENCE));
 		return error;
 	}
 

@@ -71,8 +71,8 @@ public class SubjectRestV2Controller extends BaseController implements ConstantP
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SUBJECT_READ })
 	@RequestMapping(method = RequestMethod.GET)
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public ModelAndView getSubjects(@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, HttpServletResponse response, HttpServletRequest request) throws Exception {
-		return toModelAndViewWithIoFilter(this.getSubjectService().getSubjects(limit, offset), FORMAT_JSON, EXCLUDE_ALL, true, SUBJECT_INCLUDES);
+	public ModelAndView getSubjects(@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, HttpServletResponse response, HttpServletRequest request, @RequestParam(value = CLASSIFICATION_TYPE_ID, required = true, defaultValue = "0") Integer classificationTypeId) throws Exception {
+		return toModelAndViewWithIoFilter(this.getSubjectService().getSubjects(classificationTypeId,limit, offset), FORMAT_JSON, EXCLUDE_ALL, true, SUBJECT_INCLUDES);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SUBJECT_READ })

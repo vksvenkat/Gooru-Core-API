@@ -34,7 +34,7 @@ public interface DomainRepository extends BaseRepository{
 	
 	List<Domain> getDomains(Integer limit, Integer offset);
 
-	Long getDomainCount();
+	Integer getDomainCount();
 
 
 }
