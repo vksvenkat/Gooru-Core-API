@@ -27,6 +27,7 @@ import java.util.Date;
 
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Domain;
+import org.ednovo.gooru.core.api.model.RequestMappingUri;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
@@ -51,6 +52,7 @@ public class DomainServiceImpl extends BaseServiceImpl implements DomainService,
 			domain.setLastModified(new Date(System.currentTimeMillis()));
 			domain.setActiveFlag((short) 1);
 			this.getDomainRepository().save(domain);
+			domain.setUri(RequestMappingUri.DOMAIN + domain.getDomainId());
 		}
 		return new ActionResponseDTO<Domain>(domain, error);
 	}

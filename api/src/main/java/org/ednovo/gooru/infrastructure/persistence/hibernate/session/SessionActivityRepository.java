@@ -24,7 +24,7 @@
 package org.ednovo.gooru.infrastructure.persistence.hibernate.session;
 
 import java.util.List;
-
+import java.util.Map;
 import org.ednovo.gooru.core.api.model.AssessmentQuestion;
 import org.ednovo.gooru.core.api.model.SessionActivity;
 import org.ednovo.gooru.core.api.model.SessionActivityItem;
@@ -55,5 +55,7 @@ public interface SessionActivityRepository extends BaseRepository {
 	SessionActivity getLastSessionActivity(Long parentId, Long collectionId, String userUid);
 
 	Integer getSessionActivityCount(Long collectionId, Long classContentId, Long unitContentId, Long lessonContentId, String gooruUId);
+	
+    Map<String, Object> getSessionActivityByCollectionId(String gooruOid, String user);
 	
 }
