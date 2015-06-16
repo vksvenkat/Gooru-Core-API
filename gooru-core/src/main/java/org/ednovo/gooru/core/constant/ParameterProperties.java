@@ -139,7 +139,7 @@ public interface ParameterProperties {
 	String RESOURCE_ID = "resourceId";
 
 	String COLLECTION_ID = "collectionId";
-
+	
 	String SOURCE_COLLECTION_ID = "sourceCollectionId";
 
 	String TARGET_COLLECTION_ID = "targetCollectionId";
