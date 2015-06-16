@@ -6,7 +6,9 @@ import org.ednovo.gooru.core.api.model.UserClass;
 
 public interface ClassService {
 	ActionResponseDTO<UserClass> createClass(UserClass userClass, User user);
+
 	ActionResponseDTO<UserClass> updateClass(UserClass userClass);
-	UserClass getClass(String classType);
-	
+
+	UserClass getClassById(String classUid);
+
 }
