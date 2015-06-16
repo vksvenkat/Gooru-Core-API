@@ -56,6 +56,7 @@ public class TaxonomyCourse implements Serializable {
 	
 	private Date lastModified;
  
+	private String uri;
 
 	public String getCourseCode() {
 		return courseCode;
@@ -152,9 +153,12 @@ public class TaxonomyCourse implements Serializable {
 	public void setCourseId(Integer courseId) {
 		this.courseId = courseId;
 	}
-	
+
 	public String getUri() {
-		return RequestMappingUri.TAXONOMYCOURSE.getRequestMappingUri() + getCourseId();
+		return uri;
 	}
 
+	public void setUri(String uri) {
+		this.uri = uri;
+	}
 }

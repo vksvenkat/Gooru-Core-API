@@ -45,11 +45,20 @@
 				not-null="true" />
 			<property name="groupCode" column="user_group_code"
 				not-null="true" />
-			<property name="groupName" column="name" not-null="true" />
-
+			<property name="name" column="name" not-null="true" />
 			<many-to-one name="organization"
 				class="org.ednovo.gooru.core.api.model.Organization" column="organization_uid"
 				not-null="false" lazy="proxy" cascade="none" />
+			<property name="memberCount" column="member_count" not-null="false" />
+			<joined-subclass name="org.ednovo.gooru.core.api.model.UserClass"
+			table="class" lazy="true">
+				<key column="class_uid" />
+                <property name="description" column="description" not-null="false" />
+				<property name="imagePath" column="image_path" not-null="false" />
+				<property name="courseContentId" column="course_content_id" not-null="false"/>
+                <property name="minimumScore" column="minimum_score" not-null="false" />
+                <property name="visibility" column="visibility" not-null="false" />
+			</joined-subclass>	
 		</joined-subclass>
 
 		<joined-subclass name="org.ednovo.gooru.core.api.model.Network"

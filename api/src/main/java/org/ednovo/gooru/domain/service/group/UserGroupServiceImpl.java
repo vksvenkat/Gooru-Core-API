@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.ednovo.gooru.application.util.SerializerUtil;
 import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.ContentPermission;
 import org.ednovo.gooru.core.api.model.Party;
@@ -42,7 +41,6 @@ import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.UserRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentRepository;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -70,7 +68,7 @@ public class UserGroupServiceImpl implements UserGroupService,ParameterPropertie
 
 		if (errorsList.isEmpty()) {
 						
-			userGroup.setGroupName(name);
+			userGroup.setName(name);
 			if(groupCode == null)
 			{
 				groupCode = UUID.randomUUID().toString();
@@ -147,7 +145,7 @@ public class UserGroupServiceImpl implements UserGroupService,ParameterPropertie
 		UserGroup userGroup = this.getUserRepository().findUserGroupById(groupUid);
 	
 		if (name != null) {
-			userGroup.setGroupName(name);
+			userGroup.setName(name);
 		}
 		
 		if (activeFlag != null) {
