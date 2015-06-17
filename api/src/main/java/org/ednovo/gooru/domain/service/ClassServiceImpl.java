@@ -51,10 +51,10 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 		if (newUserClass.getDescription() != null ) {
 			userClass.setDescription(newUserClass.getDescription());
 		}
-		if (newUserClass.getVisibility() != 0 ) {
+		if (newUserClass.getVisibility() != null ) {
 			userClass.setVisibility(newUserClass.getVisibility());
 		}
-		if (newUserClass.getMinimumScore() != 0) {
+		if (newUserClass.getMinimumScore() != null) {
 			userClass.setMinimumScore(newUserClass.getMinimumScore());
 		}
 		userClass.setLastModifiedOn(new Date(System.currentTimeMillis()));
