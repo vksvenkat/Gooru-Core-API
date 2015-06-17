@@ -23,6 +23,7 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.domain.service;
 
+import org.ednovo.gooru.application.util.ConfigProperties;
 import org.ednovo.gooru.core.api.model.AnnotationType;
 import org.ednovo.gooru.core.api.model.ContentType;
 import org.ednovo.gooru.core.api.model.ResourceType;
@@ -49,6 +50,7 @@ public class BaseServiceImpl extends ServerValidationUtils implements BaseServic
 	@Autowired
 	private ContentRepository contentRepository;
 
+	
 	@Override
 	public ContentType getContentType(String type) {
 		return (ContentType) this.getBaseRepository().get(ContentType.class, type);

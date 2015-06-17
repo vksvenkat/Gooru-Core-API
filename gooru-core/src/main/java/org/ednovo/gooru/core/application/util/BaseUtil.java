@@ -45,7 +45,7 @@ public class BaseUtil {
 		return null;
 	}
 
-	public static String base48Encode(int length) {
+	public static String generateBase48Encode(int length) {
 		StringBuilder builder = new StringBuilder();
 		for (int i = 0; i < length; i++) {
 			builder.append(CHARACTER_SET.charAt(rnd.nextInt(CHARACTER_SET.length())));
