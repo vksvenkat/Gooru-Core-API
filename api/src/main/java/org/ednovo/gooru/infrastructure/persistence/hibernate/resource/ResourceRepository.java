@@ -159,4 +159,6 @@ public interface ResourceRepository extends BaseRepository {
 
 	Boolean findUserIsStudent(Long classContentId, String gooruUId);
 
+	List<Object[]> getContentIds(String... gooruOids);
+
 }

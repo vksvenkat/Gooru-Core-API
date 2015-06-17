@@ -268,6 +268,12 @@ public interface ParameterProperties {
 
 	String USER_ID = "userId";
 
+	String CLASS_CONTENT_ID = "classContentId";
+	
+	String UNIT_CONTENT_ID = "unitContentId";
+	
+	String LESSON_CONTENT_ID = "lessonContentId";
+	
 	String GOORU_UID = "gooruUId";
 
 	String COUNT = "count";

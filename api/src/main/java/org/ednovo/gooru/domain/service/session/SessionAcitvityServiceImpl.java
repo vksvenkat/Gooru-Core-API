@@ -79,20 +79,30 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 
 	@Override
 	public ActionResponseDTO<SessionActivity> createSessionActivity(final SessionActivity sessionActivity, final User user) {
-		final Long collectionId = this.getResourceRepository().getContentId(sessionActivity.getContentGooruId());
-		final Errors errors = this.validateCreateSessionActivity(sessionActivity, collectionId);
-		if (!errors.hasErrors()) {
 
-			if (sessionActivity.getParentGooruId() != null) {
-				sessionActivity.setParentId(getResourceRepository().getContentId(sessionActivity.getParentGooruId()));
-				sessionActivity.setIsStudent(getResourceRepository().findUserIsStudent(sessionActivity.getParentId(), user.getGooruUId()));
-				sessionActivity.setClassId(getResourceRepository().getNumericClassCode(sessionActivity.getParentId()));
+		final Errors errors = this.validateCreateSessionActivity(sessionActivity, sessionActivity.getContentGooruId());
+
+		Map<Object,Object> contentIds = new HashMap<Object,Object>();
+		List<Object[]> listOfcontentId = getResourceRepository().getContentIds(sessionActivity.getClassGooruId(),sessionActivity.getContentGooruId(),sessionActivity.getLessonGooruId(),sessionActivity.getUnitGooruId());
+		for(Object[] contentId : listOfcontentId){
+			contentIds.put(contentId[0],contentId[1]);
+		}
+		final Long collectionId = ((Number)contentIds.get(sessionActivity.getContentGooruId())).longValue();
+		
+		if (!errors.hasErrors()) {
+			if (sessionActivity.getClassGooruId() != null) {
+				sessionActivity.setClassContentId(((Number)contentIds.get(sessionActivity.getClassGooruId())).longValue());
+				sessionActivity.setLessonContentId(((Number)contentIds.get(sessionActivity.getLessonGooruId())).longValue());
+				sessionActivity.setUnitContentId(((Number)contentIds.get(sessionActivity.getUnitGooruId())).longValue());
+				sessionActivity.setIsStudent(getResourceRepository().findUserIsStudent(sessionActivity.getClassContentId(), user.getGooruUId()));
+				sessionActivity.setClassId(getResourceRepository().getNumericClassCode(sessionActivity.getClassContentId()));
 			} else {
 				sessionActivity.setIsStudent(false);
 				sessionActivity.setClassId(1L);
 			}
-			sessionActivity.setSequence(getSessionActivityRepository().getSessionActivityCount(collectionId, sessionActivity.getParentId(), user.getGooruUId()) + 1);
+			sessionActivity.setSequence(getSessionActivityRepository().getSessionActivityCount(collectionId, sessionActivity.getClassContentId(),sessionActivity.getUnitContentId(),sessionActivity.getLessonContentId(), user.getGooruUId()) + 1);
 			sessionActivity.setScore(0.0);
+			sessionActivity.setScoreInPercentage(0.0);
 			sessionActivity.setReaction(0);
 			sessionActivity.setRating(0);
 			sessionActivity.setTimeSpentInMillis(0L);
@@ -124,11 +134,13 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 				if (questionCount > 0) {
 					Integer totalScore = this.getSessionActivityRepository().getTotalScore(sessionActivityId);
 					Double scoreInPrecentage =  (double) (100 * totalScore / questionCount);
-					sessionActivity.setScore(scoreInPrecentage);
+					sessionActivity.setScore(Double.valueOf(totalScore));
+					sessionActivity.setScoreInPercentage(scoreInPrecentage);
 				}
 			}
 			if (newSession.getScore() != null) {
 				sessionActivity.setScore(newSession.getScore());
+				sessionActivity.setScoreInPercentage(newSession.getScoreInPercentage());
 			}
 			this.getSessionActivityRepository().save(sessionActivity);
 		}
@@ -162,14 +174,14 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 			SessionActivity sessionActivity = this.getSessionActivityRepository().getSessionActivityById(sessionActivityId);
 			rejectIfNull(sessionActivity, GL0056, SESSION_ACTIVITY);
 			sessionActivityItem.setClassId(sessionActivity.getClassId());
-			this.getSessionActivityRepository().save(sessionActivityItem);
 		} else {
 			if (newSessionActivityItem.getStatus() != null && newSessionActivityItem.getStatus().equalsIgnoreCase(SessionStatus.OPEN.getSessionStatus())) {
+				sessionActivityItem.setStartTime(new Date(System.currentTimeMillis()));
 				sessionActivityItem.setViewsInSession(sessionActivityItem.getViewsInSession() + 1);
 			} else if (newSessionActivityItem.getStatus() != null && newSessionActivityItem.getStatus().equalsIgnoreCase(SessionStatus.ARCHIVE.getSessionStatus())) {
 				sessionActivityItem.setEndTime(new Date(System.currentTimeMillis()));
 				Long timeSpentInMillis = sessionActivityItem.getEndTime().getTime() - sessionActivityItem.getStartTime().getTime();
-				sessionActivityItem.setTimeSpentInMillis(timeSpentInMillis);
+				sessionActivityItem.setTimeSpentInMillis(sessionActivityItem.getTimeSpentInMillis() + timeSpentInMillis);
 			}
 
 			if (newSessionActivityItem.getFeedbackText() != null) {
@@ -189,8 +201,8 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 			if (newSessionActivityItem.getReaction() != null) {
 				sessionActivityItem.setReaction(newSessionActivityItem.getReaction());
 			}
-			this.getSessionActivityRepository().save(sessionActivityItem);
 		}
+		this.getSessionActivityRepository().save(sessionActivityItem);
 
 		return sessionActivityItem;
 	}
@@ -250,10 +262,10 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 		return createOrUpdateSessionActivityItem(sessionActivityItem, sessionActivity.getSessionActivityId());
 	}
 
-	private Errors validateCreateSessionActivity(final SessionActivity sessionActivity, final Long collectionId) {
+	private Errors validateCreateSessionActivity(final SessionActivity sessionActivity, final String collectionGooruId) {
 		final Map<String, String> sessionMode = getSessionMode();
 		final Errors errors = new BindException(sessionActivity, SESSION_ACTIVITY);
-		rejectIfNull(errors, collectionId, COLLECTION, GL0056, generateErrorMessage(GL0056, COLLECTION));
+		rejectIfNull(errors, collectionGooruId, COLLECTION, GL0056, generateErrorMessage(GL0056, COLLECTION));
 		rejectIfInvalidType(errors, sessionActivity.getMode(), MODE, GL0007, generateErrorMessage(GL0007, MODE), sessionMode);
 		return errors;
 	}

@@ -112,6 +112,8 @@ public interface ConstantProperties {
 
 	static final String GOORU_OID = "gooruOid";
 
+	static final String GOORU_OIDS = "gooruOids";
+	
 	static final String CONTENT_ID = "contentId";
 
 	static final String ASSESSMENT_INCLUDES[] = { "segments", "segments.segmentQuestions", "segments.segmentQuestions.question.hints", "segments.segmentQuestions.question.answers", "taxonomySet", "segments.segmentQuestions.question.assets", "metaData", "metaData.grades", "metaData.lessons",
@@ -903,6 +905,8 @@ public interface ConstantProperties {
 	public static final String PIPE = "|";
 	
 	public static final String COMMA = ",";
+	
+	public static final String EMPTY = "";	
 	
 	final static  String SUBDOMAIN = "subdomain";
 	
