@@ -371,7 +371,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 					classpage = new Classpage();
 					classpage.setTitle(MY_CLASSPAGE);
 					classpage.setCollectionType(CollectionType.USER_CLASSPAGE.getCollectionType());
-					classpage.setClasspageCode(BaseUtil.base48Encode(7));
+					classpage.setClasspageCode(BaseUtil.generateBase48Encode(7));
 					classpage.setGooruOid(UUID.randomUUID().toString());
 					ContentType contentType = (ContentType) this.getCollectionRepository().get(ContentType.class, ContentType.RESOURCE);
 					classpage.setContentType(contentType);
