@@ -23,7 +23,7 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 	private ClassRepository classRepository;
 
 	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+
 	public ActionResponseDTO<UserClass> createClass(UserClass userClass, User user) {
 		Errors errors = validateClass(userClass);
 		if (!errors.hasErrors()) {
@@ -41,11 +41,27 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 	}
 
 	@Override
-	public ActionResponseDTO<UserClass> updateClass(UserClass newUserClass) {
-		if (newUserClass.getName() != null) { 
-			
+	public void updateClass(String classUId, UserClass newUserClass, User user) {
+	    UserClass newClass = this.getClassRepository().getClassById(classUId);
+		Errors errors = validateClass(newUserClass);
+		if (!errors.hasErrors()) {
+	    
+		if (newUserClass.getName() != null ) { 
+			newClass.setName(newUserClass.getName());
 		}
-		return null;
+		if (newUserClass.getDescription() != null ) {
+			newClass.setDescription(newUserClass.getDescription());
+		}
+		if (newUserClass.getVisibility() != 0 ) {
+			newClass.setVisibility(newUserClass.getVisibility());
+		}
+		if (newUserClass.getMinimumScore() != 0) {
+			newClass.setMinimumScore(newUserClass.getMinimumScore());
+		}
+		    newClass.setLastModifiedOn(new Date(System.currentTimeMillis()));
+		    newClass.setLastModifiedUserUid(user.getPartyUid());
+			this.getClassRepository().save(newClass);
+		}
 	}
 
 
