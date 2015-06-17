@@ -41,7 +41,7 @@ public class SubjectRepositoryHibernate extends BaseRepositoryHibernate
 	private static final String SUBJECTS = "FROM Subject subject where subject.classificationTypeId=:classificationTypeId and subject.activeFlag=1";
 	private static final String SUBJECT = "FROM Subject subject WHERE subject.subjectId=:subjectId";
 	private static final String SUBJECT_DISPLAYSEQUENCE = "FROM Subject subject WHERE subject.creator.partyUid=:userUid and subject.displaySequence>=:displaySequence";
-    private static final String COURSES = "select c.course_id AS courseId,c.name as courseName from subject s inner join course c on s.subject_id=c.subject_id where s.subject_id=:subjectId";
+    private static final String COURSES = "select c.course_id courseId,c.name from subject s inner join course c on s.subject_id=c.subject_id where s.subject_id=:subjectId";
 	
    
 	@Override
