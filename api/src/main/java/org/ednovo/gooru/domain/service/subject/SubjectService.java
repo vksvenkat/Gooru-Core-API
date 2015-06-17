@@ -24,6 +24,7 @@
 package org.ednovo.gooru.domain.service.subject;
 
 import java.util.List;
+import java.util.Map;
 
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Subject;
@@ -35,6 +36,8 @@ public interface SubjectService extends BaseService{
 	ActionResponseDTO<Subject> createSubject(Subject subject, User user);
 	
 	Subject getSubject(Integer subjectId);
+	
+	List<Map<String, Object>> getCourses(int offset, int limit, int subjectId);
 	
 	List<Subject> getSubjects(Integer classificationTypeId, Integer limit, Integer offset);
 

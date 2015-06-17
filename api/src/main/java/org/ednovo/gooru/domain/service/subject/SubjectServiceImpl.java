@@ -37,6 +37,8 @@ import org.ednovo.gooru.domain.service.BaseServiceImpl;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.SubjectRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
 
@@ -68,6 +70,12 @@ public class SubjectServiceImpl extends BaseServiceImpl implements
 		rejectIfNull(subject, GL0056, 404, SUBJECT);
 		reject((subject.getActiveFlag() == 1), GL0107, SUBJECT);
 		return subject;
+	}
+	
+	@Override
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public List<Map<String, Object>> getCourses(int offset, int limit, int subjectId) {
+        return this.getSubjectRepository().getCourses(offset, limit, subjectId);
 	}
 
 	@Override
