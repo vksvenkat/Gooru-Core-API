@@ -47,6 +47,7 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void updateClass(String classUId, UserClass newUserClass, User user) {
 	    UserClass userClass = this.getClassRepository().getClassById(classUId);
 	    rejectIfNull(userClass, GL0056, CLASS);
