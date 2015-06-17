@@ -52,6 +52,7 @@ public class TaxonomyCourseServiceImpl extends BaseServiceImpl implements Taxono
 		if (!errors.hasErrors()) {
 			Subject subject = this.getSubjectRepository().getSubject(course.getSubjectId());
 			rejectIfNull(subject, GL0056, 404, SUBJECT);
+			reject((subject.getActiveFlag() == 1), GL0107, SUBJECT);
 			TaxonomyCourse courseCode = this.getTaxonomyCourseRepository().getCourseCode(course.getCourseCode());
 			rejectIfAlreadyExist(courseCode, GL0101, COURSE);
 			course.setCreatorUid(user);
