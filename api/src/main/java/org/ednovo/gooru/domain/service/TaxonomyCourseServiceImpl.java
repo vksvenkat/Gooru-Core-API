@@ -24,14 +24,14 @@
 package org.ednovo.gooru.domain.service;
 
 import java.util.Date;
+import java.util.List;
 
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
-import org.ednovo.gooru.core.api.model.TaxonomyCourse;
 import org.ednovo.gooru.core.api.model.Subject;
+import org.ednovo.gooru.core.api.model.TaxonomyCourse;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
-import org.ednovo.gooru.domain.service.search.SearchResults;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.SubjectRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -49,24 +49,25 @@ public class TaxonomyCourseServiceImpl extends BaseServiceImpl implements Taxono
 
 	@Override
 	public ActionResponseDTO<TaxonomyCourse> createTaxonomyCourse(TaxonomyCourse course, User user) {
- 
 		final Errors errors = validateCourse(course);
 		if (!errors.hasErrors()) {
 			Subject subject = this.getSubjectRepository().getSubject(course.getSubjectId());
 			rejectIfNull(subject, GL0056, 404, SUBJECT);
+			reject((subject.getActiveFlag() == 1), GL0107, SUBJECT);
 			TaxonomyCourse courseCode = this.getTaxonomyCourseRepository().getCourseCode(course.getCourseCode());
 			rejectIfAlreadyExist(courseCode, GL0101, COURSE);
 			course.setCreatorUid(user);
 			course.setCreatedOn(new Date(System.currentTimeMillis()));
 			course.setLastModified(new Date(System.currentTimeMillis()));
 			course.setActiveFlag((short) 1);
+			course.setDisplaySequence(this.getTaxonomyCourseRepository().getMaxSequence() + 1);
 			this.getTaxonomyCourseRepository().save(course);
 		}
 		return new ActionResponseDTO<TaxonomyCourse>(course, errors);
 	}
 
 	@Override
-	public TaxonomyCourse updateTaxonomyCourse(Integer courseId, TaxonomyCourse newCourse) {
+	public void updateTaxonomyCourse(Integer courseId, TaxonomyCourse newCourse) {
 		TaxonomyCourse course = this.getTaxonomyCourseRepository().getCourse(courseId);
 		rejectIfNull(course, GL0056, 404, COURSE);
 		if (newCourse.getActiveFlag() != null) {
@@ -85,12 +86,8 @@ public class TaxonomyCourseServiceImpl extends BaseServiceImpl implements Taxono
 		if (newCourse.getImagePath() != null) {
 			course.setImagePath(newCourse.getImagePath());
 		}
-		if (newCourse.getDisplaySequence() != null) {
-			course.setDisplaySequence(newCourse.getDisplaySequence());
-		}
 		course.setLastModified(new Date(System.currentTimeMillis()));
 		this.getTaxonomyCourseRepository().save(course);
-		return course;
 	}
 
 	@Override
@@ -102,10 +99,8 @@ public class TaxonomyCourseServiceImpl extends BaseServiceImpl implements Taxono
 	}
 
 	@Override
-	public SearchResults<TaxonomyCourse> getTaxonomyCourses(Integer limit, Integer offset) {
-		SearchResults<TaxonomyCourse> result = new SearchResults<TaxonomyCourse>();
-		result.setSearchResults(this.getTaxonomyCourseRepository().getCourses(limit, offset));
-		result.setTotalHitCount(this.getTaxonomyCourseRepository().getCourseCount());
+	public List<TaxonomyCourse> getTaxonomyCourses(Integer limit, Integer offset) {
+		List<TaxonomyCourse> result = this.getTaxonomyCourseRepository().getCourses(limit, offset);
 		return result;
 	}
 
@@ -122,7 +117,6 @@ public class TaxonomyCourseServiceImpl extends BaseServiceImpl implements Taxono
 		final Errors error = new BindException(course, COURSE);
     	rejectIfNull(error,course.getSubjectId(), SUBJECT_ID,  generateErrorMessage(GL0006, SUBJECT_ID));
 		rejectIfNull(error,course.getCourseCode(), COURSE_CODE,  generateErrorMessage(GL0006, COURSE_CODE));
-		rejectIfNull(error,course.getDisplaySequence(), DISPLAY_SEQUENCE,  generateErrorMessage(GL0006, DISPLAY_SEQUENCE));
 		return error;
 	}
 

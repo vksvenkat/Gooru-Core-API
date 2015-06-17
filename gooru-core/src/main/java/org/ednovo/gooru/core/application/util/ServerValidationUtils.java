@@ -64,7 +64,7 @@ public class ServerValidationUtils {
 		}
 	}
 
-	public static void rejectIfInvalidType(Errors errors, String data, String field, String errorCode, String errorMsg, Map<String, String> typeParam) {
+	public static void rejectIfInvalidType(Errors errors, Object data, String field, String errorCode, String errorMsg, Map<Object, String> typeParam) {
 		if (!typeParam.containsKey(data)) {
 			errors.rejectValue(field, errorCode, errorMsg);
 		}
