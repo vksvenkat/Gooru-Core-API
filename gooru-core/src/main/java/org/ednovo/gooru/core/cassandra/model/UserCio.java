@@ -140,7 +140,9 @@ public class UserCio implements IsEntityCassandraIndexable {
     @Column
     private Map<String,String> school;
     
-	
+    @Column
+    private Long userPublishedCollectionCount;
+    
 	
 	public Short getActive() {
 		return active;
@@ -461,6 +463,14 @@ public class UserCio implements IsEntityCassandraIndexable {
 
 	public void setSchool(Map<String, String> school) {
 		this.school = school;
+	}
+
+	public Long getUserPublishedCollectionCount() {
+		return userPublishedCollectionCount;
+	}
+
+	public void setUserPublishedCollectionCount(Long userPublishedCollectionCount) {
+		this.userPublishedCollectionCount = userPublishedCollectionCount;
 	}
 
 

@@ -51,6 +51,8 @@ public class Subject implements Serializable {
 	private Date createdOn;
 
 	private Date lastModified;
+	
+	private Integer classificationTypeId;
 
 	private User creator;
 	
@@ -62,6 +64,14 @@ public class Subject implements Serializable {
 
 	public void setCreator(User creator) {
 		this.creator = creator;
+	}
+	
+	public Integer getClassificationTypeId() {
+		return classificationTypeId;
+	}
+	
+	public void setClassificationTypeId(Integer classificationTypeId) {
+		this.classificationTypeId = classificationTypeId;
 	}
 
 	public Date getLastModified() {

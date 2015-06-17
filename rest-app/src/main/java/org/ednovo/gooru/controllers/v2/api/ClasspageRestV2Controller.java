@@ -516,7 +516,7 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	private Classpage buildClasspageFromInputParameters(final String data, final User user) {
 		final Classpage classpage = JsonDeserializer.deserialize(data, Classpage.class);
 		classpage.setGooruOid(UUID.randomUUID().toString());
-		classpage.setClasspageCode(BaseUtil.base48Encode(7));
+		classpage.setClasspageCode(BaseUtil.generateBase48Encode(7));
 		classpage.setContentType(getCollectionService().getContentType(ContentType.RESOURCE));
 		classpage.setResourceType(getCollectionService().getResourceType(ResourceType.Type.CLASSPAGE.getType()));
 		classpage.setLastModified(new Date(System.currentTimeMillis()));

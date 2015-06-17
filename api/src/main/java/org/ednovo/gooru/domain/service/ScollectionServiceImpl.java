@@ -1725,7 +1725,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 	}
 
 	private Errors validateCollectionItem(final Collection collection, final Resource resource, final CollectionItem collectionItem) throws Exception {
-		final Map<String, String> itemType = new HashMap<String, String>();
+		final Map<Object, String> itemType = new HashMap<Object, String>();
 		itemType.put(ADDED, COLLECTION_ITEM_TYPE);
 		itemType.put(SUBSCRIBED, COLLECTION_ITEM_TYPE);
 		itemType.put(COLLABORATOR, COLLECTION_ITEM_TYPE);

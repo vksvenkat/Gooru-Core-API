@@ -371,7 +371,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 					classpage = new Classpage();
 					classpage.setTitle(MY_CLASSPAGE);
 					classpage.setCollectionType(CollectionType.USER_CLASSPAGE.getCollectionType());
-					classpage.setClasspageCode(BaseUtil.base48Encode(7));
+					classpage.setClasspageCode(BaseUtil.generateBase48Encode(7));
 					classpage.setGooruOid(UUID.randomUUID().toString());
 					ContentType contentType = (ContentType) this.getCollectionRepository().get(ContentType.class, ContentType.RESOURCE);
 					classpage.setContentType(contentType);
@@ -678,7 +678,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 
 	private Errors validateClasspageItem(final Resource resource, final CollectionItem collectionItem) throws Exception {
-		final Map<String, String> itemType = new HashMap<String, String>();
+		final Map<Object, String> itemType = new HashMap<Object, String>();
 		itemType.put(ADDED, COLLECTION_ITEM_TYPE);
 		itemType.put(SUBSCRIBED, COLLECTION_ITEM_TYPE);
 		final Errors errors = new BindException(collectionItem, COLLECTION_ITEM);
