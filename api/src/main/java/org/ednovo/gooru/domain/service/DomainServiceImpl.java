@@ -24,6 +24,7 @@
 package org.ednovo.gooru.domain.service;
 
 import java.util.Date;
+import java.util.List;
 
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Domain;
@@ -31,7 +32,6 @@ import org.ednovo.gooru.core.api.model.RequestMappingUri;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
-import org.ednovo.gooru.domain.service.search.SearchResults;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindException;
@@ -50,7 +50,7 @@ public class DomainServiceImpl extends BaseServiceImpl implements DomainService,
 			domain.setCreatedOn(new Date(System.currentTimeMillis()));
 			domain.setLastModified(new Date(System.currentTimeMillis()));
 			domain.setActiveFlag((short) 1);
-			domain.setDisplaySequence(this.getDomainRepository().getDomainCount() + 1);
+			domain.setDisplaySequence(this.getDomainRepository().getMaxSequence() + 1);
 			this.getDomainRepository().save(domain);
 			domain.setUri(RequestMappingUri.DOMAIN + domain.getDomainId());
 		}
@@ -58,7 +58,7 @@ public class DomainServiceImpl extends BaseServiceImpl implements DomainService,
 	}
 		
 	@Override
-	public Domain updateDomain(Integer domainId, Domain newDomain) {
+	public void updateDomain(Integer domainId, Domain newDomain) {
 		Domain domain = this.getDomainRepository().getDomain(domainId);
 		rejectIfNull(domain, GL0006, 404, DOMAIN_);
 		if (newDomain.getActiveFlag() != null) {
@@ -79,7 +79,6 @@ public class DomainServiceImpl extends BaseServiceImpl implements DomainService,
 		}
 		domain.setLastModified(new Date(System.currentTimeMillis()));
 		this.getDomainRepository().save(domain);
-		return domain;
 	}
 
 	@Override
@@ -91,9 +90,8 @@ public class DomainServiceImpl extends BaseServiceImpl implements DomainService,
 	}
 
 	@Override
-	public SearchResults<Domain> getDomains(Integer limit, Integer offset) {
-		SearchResults<Domain> result = new SearchResults<Domain>();
-		result.setSearchResults(this.getDomainRepository().getDomains(limit, offset));
+	public List<Domain> getDomains(Integer limit, Integer offset) {
+		List<Domain> result = this.getDomainRepository().getDomains(limit, offset);
 		return result;
 	}
 

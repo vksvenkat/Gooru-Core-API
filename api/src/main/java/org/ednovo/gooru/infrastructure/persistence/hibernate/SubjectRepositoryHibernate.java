@@ -35,10 +35,9 @@ import org.springframework.stereotype.Repository;
 public class SubjectRepositoryHibernate extends BaseRepositoryHibernate
 		implements SubjectRepository, ParameterProperties, ConstantProperties {
 
-	private static final String SUBJECT_COUNT = "SELECT COUNT(*) FROM Subject subject";
+	private static final String SUBJECT_MAX = "SELECT MAX(subject.displaySequence) FROM Subject subject";
 	private static final String SUBJECTS = "FROM Subject subject where subject.classificationTypeId=:classificationTypeId and subject.activeFlag=1";
 	private static final String SUBJECT = "FROM Subject subject WHERE subject.subjectId=:subjectId";
-	private static final String SUBJECT_NAME = "FROM Subject subject WHERE subject.name=:subjectName";
 
 	@Override
 	public Subject getSubject(Integer subjectId) {
@@ -55,15 +54,9 @@ public class SubjectRepositoryHibernate extends BaseRepositoryHibernate
 	}
 
 	@Override
-	public Integer getSubjectCount() {
-		Query query = getSession().createQuery(SUBJECT_COUNT);
+	public Integer getMaxSequence() {
+		Query query = getSession().createQuery(SUBJECT_MAX);
 		return ((Number)query.list().get(0)).intValue();
-	}
-
-	@Override
-	public Subject getSubjectName(String subjectName) {
-		Query query = getSession().createQuery(SUBJECT_NAME).setParameter(SUBJECT_NAME, subjectName);
-		return (Subject) (query.list().size() > 0 ? query.list().get(0) : null);
 	}
 
 }

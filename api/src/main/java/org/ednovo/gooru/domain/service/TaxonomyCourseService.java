@@ -32,7 +32,7 @@ public interface TaxonomyCourseService {
 
 	ActionResponseDTO<TaxonomyCourse> createTaxonomyCourse(TaxonomyCourse course, User user);
 
-	TaxonomyCourse updateTaxonomyCourse(Integer courseId, TaxonomyCourse newCourse);
+	void updateTaxonomyCourse(Integer courseId, TaxonomyCourse newCourse);
 
 	TaxonomyCourse getTaxonomyCourse(Integer courseId);
 

@@ -58,14 +58,14 @@ public class TaxonomyCourseServiceImpl extends BaseServiceImpl implements Taxono
 			course.setCreatedOn(new Date(System.currentTimeMillis()));
 			course.setLastModified(new Date(System.currentTimeMillis()));
 			course.setActiveFlag((short) 1);
-			course.setDisplaySequence(this.getTaxonomyCourseRepository().getCourseCount() + 1);
+			course.setDisplaySequence(this.getTaxonomyCourseRepository().getMaxSequence() + 1);
 			this.getTaxonomyCourseRepository().save(course);
 		}
 		return new ActionResponseDTO<TaxonomyCourse>(course, errors);
 	}
 
 	@Override
-	public TaxonomyCourse updateTaxonomyCourse(Integer courseId, TaxonomyCourse newCourse) {
+	public void updateTaxonomyCourse(Integer courseId, TaxonomyCourse newCourse) {
 		TaxonomyCourse course = this.getTaxonomyCourseRepository().getCourse(courseId);
 		rejectIfNull(course, GL0056, 404, COURSE);
 		if (newCourse.getActiveFlag() != null) {
@@ -86,7 +86,6 @@ public class TaxonomyCourseServiceImpl extends BaseServiceImpl implements Taxono
 		}
 		course.setLastModified(new Date(System.currentTimeMillis()));
 		this.getTaxonomyCourseRepository().save(course);
-		return course;
 	}
 
 	@Override

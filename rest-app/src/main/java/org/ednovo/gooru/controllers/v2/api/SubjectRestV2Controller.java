@@ -29,6 +29,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.ArrayUtils;
 import org.ednovo.gooru.controllers.BaseController;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
+import org.ednovo.gooru.core.api.model.RequestMappingUri;
 import org.ednovo.gooru.core.api.model.Subject;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
@@ -49,7 +50,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
-@RequestMapping(value = { "/subject" })
+@RequestMapping(value = { RequestMappingUri.SUBJECT })
 public class SubjectRestV2Controller extends BaseController implements ConstantProperties {
 
 	@Autowired
@@ -63,6 +64,9 @@ public class SubjectRestV2Controller extends BaseController implements ConstantP
 		final ActionResponseDTO<Subject> responseDTO = this.getSubjectService().createSubject(buildSubjectFromInputParameters(data), user);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+		}else {		
+			response.setStatus(HttpServletResponse.SC_CREATED);		
+			responseDTO.getModel().setUri(RequestMappingUri.SUBJECT + RequestMappingUri.SEPARATOR + responseDTO.getModel().getSubjectId());		
 		}
 		String includes[] = (String[]) ArrayUtils.addAll(CREATE_INCLUDES, ERROR_INCLUDE);
 		return toModelAndViewWithIoFilter(responseDTO.getModelData(), FORMAT_JSON, EXCLUDE_ALL, true, includes);
