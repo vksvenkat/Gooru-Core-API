@@ -25,6 +25,7 @@ package org.ednovo.gooru.domain.service.subject;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Subject;
@@ -63,6 +64,11 @@ public class SubjectServiceImpl extends BaseServiceImpl implements SubjectServic
 		rejectIfNull(subject, GL0056, 404, SUBJECT);
 		reject((subject.getActiveFlag() == 1), GL0107, SUBJECT);
 		return subject;
+	}
+	
+	@Override
+	public List<Map<String, Object>> getCourses(Integer offset, Integer limit, Integer subjectId) {
+        return this.getSubjectRepository().getCourses(offset, limit, subjectId);
 	}
 
 	@Override

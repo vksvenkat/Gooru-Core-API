@@ -24,11 +24,14 @@
 package org.ednovo.gooru.infrastructure.persistence.hibernate;
 
 import java.util.List;
+import java.util.Map;
 
 import org.ednovo.gooru.core.api.model.Subject;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.hibernate.Criteria;
 import org.hibernate.Query;
+import org.hibernate.type.StandardBasicTypes;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -39,8 +42,9 @@ public class SubjectRepositoryHibernate extends BaseRepositoryHibernate
 	private static final String SUBJECTS = "FROM Subject subject where subject.activeFlag=1";
 	private static final String SUBJECT = "FROM Subject subject WHERE subject.subjectId=:subjectId";
 	private static final String SUBJECT_DISPLAYSEQUENCE = "FROM Subject subject WHERE subject.creator.partyUid=:userUid and subject.displaySequence>=:displaySequence";
-
-	@Override
+    private static final String COURSES = "select c.course_id AS courseId,c.name as courseName from subject s inner join course c on s.subject_id=c.subject_id where s.subject_id=:subjectId";
+	
+    @Override
 	public Subject getSubject(Integer subjectId) {
 		Query query = getSession().createQuery(SUBJECT).setParameter(
 				SUBJECT_ID, subjectId);
@@ -48,11 +52,23 @@ public class SubjectRepositoryHibernate extends BaseRepositoryHibernate
 	}
 
 	@Override
+	public  List<Map<String,Object>> getCourses(Integer offset, Integer limit, Integer subjectId) {
+		Query query = getSession().createSQLQuery(COURSES)
+				.setParameter(SUBJECT_ID, subjectId);
+	     query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT
+				: limit) : limit);
+				 query.setFirstResult(offset);
+				 query.setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP);
+		return  list(query);
+	}
+	
+	
+	@Override
 	public List<Subject> getSubjects(Integer limit, Integer offset) {
 		Query query = getSession().createQuery(SUBJECTS);
 		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT
 				: limit) : limit);
-		query.setFirstResult(offset);
+		        query.setFirstResult(offset);
 		return list(query);
 	}
 
