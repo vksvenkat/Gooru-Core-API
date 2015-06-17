@@ -14,10 +14,6 @@ public class SessionActivity implements Serializable {
 
 	private Long classId;
 
-	private Long parentId;
-
-	private String parentGooruId;
-
 	private Integer sequence;
 
 	private Integer viewsInSession;
@@ -48,6 +44,20 @@ public class SessionActivity implements Serializable {
 
 	private User user;
 
+	private Long classContentId;
+	
+	private Long unitContentId;
+	
+	private Long lessonContentId;
+	
+	private String classGooruId;
+	
+	private String unitGooruId;
+	
+	private String lessonGooruId;
+	
+	private Double scoreInPercentage;
+	
 	public void setStatus(String status) {
 		this.status = status;
 	}
@@ -102,14 +112,6 @@ public class SessionActivity implements Serializable {
 
 	public void setClassId(Long classId) {
 		this.classId = classId;
-	}
-
-	public Long getParentId() {
-		return parentId;
-	}
-
-	public void setParentId(Long parentId) {
-		this.parentId = parentId;
 	}
 
 	public Integer getSequence() {
@@ -176,15 +178,6 @@ public class SessionActivity implements Serializable {
 		this.sessionActivityId = sessionActivityId;
 	}
 
-	
-	public String getParentGooruId() {
-		return parentGooruId;
-	}
-
-	public void setParentGooruId(String parentGooruId) {
-		this.parentGooruId = parentGooruId;
-	}
-
 	public String getContentGooruId() {
 		return contentGooruId;
 	}
@@ -200,4 +193,61 @@ public class SessionActivity implements Serializable {
 	public void setCollectionId(Long collectionId) {
 		this.collectionId = collectionId;
 	}
+
+	public Long getClassContentId() {
+		return classContentId;
+	}
+
+	public void setClassContentId(Long classContentId) {
+		this.classContentId = classContentId;
+	}
+
+	public Long getUnitContentId() {
+		return unitContentId;
+	}
+
+	public void setUnitContentId(Long unitContentId) {
+		this.unitContentId = unitContentId;
+	}
+
+	public Long getLessonContentId() {
+		return lessonContentId;
+	}
+
+	public void setLessonContentId(Long lessonContentId) {
+		this.lessonContentId = lessonContentId;
+	}
+
+	public String getClassGooruId() {
+		return classGooruId;
+	}
+
+	public void setClassGooruId(String classGooruId) {
+		this.classGooruId = classGooruId;
+	}
+
+	public String getUnitGooruId() {
+		return unitGooruId;
+	}
+
+	public void setUnitGooruId(String unitGooruId) {
+		this.unitGooruId = unitGooruId;
+	}
+
+	public String getLessonGooruId() {
+		return lessonGooruId;
+	}
+
+	public void setLessonGooruId(String lessonGooruId) {
+		this.lessonGooruId = lessonGooruId;
+	}
+
+	public Double getScoreInPercentage() {
+		return scoreInPercentage;
+	}
+
+	public void setScoreInPercentage(Double scoreInPercentage) {
+		this.scoreInPercentage = scoreInPercentage;
+	}
+
 }

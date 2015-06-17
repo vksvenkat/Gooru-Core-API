@@ -53,7 +53,7 @@ public class SessionActivityRepositoryHibernate extends BaseRepositoryHibernate 
 
 	private final String SESSION_ACTIVITY_REACTION_COUNT = "select IFNULL(round(sum(reaction)/count(1)), 0) as count from session_activity_item where session_activity_id =:sessionActivityId and reaction <> 0";
 
-	private final String COLLECTION_QUESTION_COUNT = "select count(1) as count from collection_item ci inner join assessment_question  q on q.question_id = ci.resource_content_id where ci.collection_content_id=:collectionId";
+	private final String COLLECTION_QUESTION_COUNT = "select count(1) as count from collection_item ci inner join assessment_question  q on q.question_id = ci.resource_content_id where q.type_name <> 'OE' and ci.collection_content_id=:collectionId";
 
 	private final String SESSION_ACTIVITY_TOTAL_SCORE = "select IFNULL(sum(score), 0) as count from session_activity_item where session_activity_id =:sessionActivityId";
 	
@@ -65,6 +65,8 @@ public class SessionActivityRepositoryHibernate extends BaseRepositoryHibernate 
 	
 	private final String RETRIVE_INCOMPLETE_SESSION_ACTIVITY_ID = "SELECT sa.user_uid as userUid,sa.session_activity_id as sessionActivityId,so.gooru_oid as collectionGooruOid,sai.gooru_oid as resourceGooruOid from session_activity sa inner join session_activity_item si on sa.session_activity_id=si.session_activity_id inner join content so on so.content_id=sa.collection_id left join content sai on sai.content_id=si.resource_id where sa.status='open' and sa.user_uid=:userUid and so.gooru_oid =:collectionId order by si.start_time DESC";
 
+	private final String RETRIVE_SESSION_COUNT = "select count(1) as count from session_activity where collection_id =:collectionId AND user_uid =:userId";
+	
 	@Override
 	public SessionActivity getSessionActivityById(Long sessionActivityId) {
 		Query query = getSession().createQuery(RETRIEVE_SESSION_ACTIVITY_BY_ID);
@@ -83,12 +85,32 @@ public class SessionActivityRepositoryHibernate extends BaseRepositoryHibernate 
 	}
 
 	@Override
-	public Integer getSessionActivityCount(Long collectionId, Long parentId, String gooruUId) {
-		String sql = " select count(1) as count from session_activity where collection_id =" + collectionId + " AND user_uid = '" + gooruUId + "'";
-		if (parentId != null) {
-			sql += " AND parent_id=" + parentId;
+	public Integer getSessionActivityCount(Long collectionId, Long classContentId, Long unitContentId, Long lessonContentId, String gooruUId) {
+
+		StringBuilder sqlQuery = new StringBuilder(RETRIVE_SESSION_COUNT);
+		if (classContentId != null) {
+			sqlQuery.append(" AND class_content_id=:classContentId");
 		}
-		Query query = getSession().createSQLQuery(sql).addScalar(COUNT, StandardBasicTypes.INTEGER);
+		if (unitContentId != null) {
+			sqlQuery.append(" AND unit_content_id=:unitContentId");
+		}
+		if (lessonContentId != null) {
+			sqlQuery.append(" AND lesson_content_id=:lessonContentId");
+		}
+		Query query = getSession().createSQLQuery(sqlQuery.toString()).addScalar(COUNT, StandardBasicTypes.INTEGER);
+
+		query.setParameter(COLLECTION_ID, collectionId);
+		query.setParameter(USER_ID, gooruUId);
+
+		if (classContentId != null) {
+			query.setParameter(CLASS_CONTENT_ID, classContentId);
+		}
+		if (unitContentId != null) {
+			query.setParameter(UNIT_CONTENT_ID, unitContentId);
+		}
+		if (lessonContentId != null) {
+			query.setParameter(LESSON_CONTENT_ID, lessonContentId);
+		}
 		return (Integer) list(query).get(0);
 	}
 
