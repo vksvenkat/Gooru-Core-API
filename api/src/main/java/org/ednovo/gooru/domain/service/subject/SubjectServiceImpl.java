@@ -67,7 +67,7 @@ public class SubjectServiceImpl extends BaseServiceImpl implements SubjectServic
 	}
 	
 	@Override
-	public List<Map<String, Object>> getCourses(Integer offset, Integer limit, Integer subjectId) {
+	public List<Map<String, Object>> getCourses(int offset, int limit, int subjectId) {
         return this.getSubjectRepository().getCourses(offset, limit, subjectId);
 	}
 

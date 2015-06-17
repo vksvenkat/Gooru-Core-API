@@ -52,10 +52,10 @@ public class SubjectRepositoryHibernate extends BaseRepositoryHibernate
 	}
 
 	@Override
-	public  List<Map<String,Object>> getCourses(Integer offset, Integer limit, Integer subjectId) {
+	public  List<Map<String,Object>> getCourses(int offset, int limit, int subjectId) {
 		Query query = getSession().createSQLQuery(COURSES)
 				.setParameter(SUBJECT_ID, subjectId);
-	     query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT
+	     query.setMaxResults(limit != 0 ? (limit > MAX_LIMIT ? MAX_LIMIT
 				: limit) : limit);
 				 query.setFirstResult(offset);
 				 query.setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP);

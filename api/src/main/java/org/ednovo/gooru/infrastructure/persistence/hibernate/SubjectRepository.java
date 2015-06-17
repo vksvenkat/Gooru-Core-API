@@ -32,7 +32,7 @@ public interface SubjectRepository extends BaseRepository {
 
 	Subject getSubject(Integer subjectId);
 	
-	List<Map<String, Object>> getCourses(Integer offset, Integer limit, Integer subjectId);
+	List<Map<String, Object>> getCourses(int offset, int limit, int subjectId);
 
 	List<Subject> getSubjects(Integer limit, Integer offset);
 

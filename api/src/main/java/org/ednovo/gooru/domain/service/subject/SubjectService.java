@@ -38,7 +38,7 @@ public interface SubjectService extends BaseService{
 	
 	Subject getSubject(Integer subjectId);
 	
-	List<Map<String, Object>> getCourses(Integer offset, Integer limit, Integer SubjectId);
+	List<Map<String, Object>> getCourses(int offset, int limit, int subjectId);
 	
 	SearchResults<Subject> getSubjects(Integer limit, Integer offset);
 
