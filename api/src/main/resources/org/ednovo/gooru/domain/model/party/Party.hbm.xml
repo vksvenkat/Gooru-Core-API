@@ -58,8 +58,8 @@
 				<property name="courseContentId" column="course_content_id"
 					not-null="false" />
 				<property name="minimumScore" column="minimum_score"
-					not-null="true" />
-				<property name="visibility" column="visibility" not-null="true" />
+					not-null="false" />
+				<property name="visibility" column="visibility" not-null="false" />
 			</joined-subclass>
 		</joined-subclass>
 

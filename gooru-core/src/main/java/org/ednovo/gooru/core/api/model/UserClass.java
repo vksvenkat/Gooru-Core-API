@@ -17,9 +17,9 @@ public class UserClass extends UserGroup implements Serializable {
 
 	private Long courseContentId;
 
-	private int minimumScore;
+	private Short minimumScore;
 
-	private short visibility;
+	private Short visibility;
 
 	private String uri;
 	
@@ -55,19 +55,19 @@ public class UserClass extends UserGroup implements Serializable {
 		this.courseContentId = courseContentId;
 	}
 
-	public short getVisibility() {
+	public Short getVisibility() {
 		return visibility;
 	}
 
-	public void setVisibility(short visibility) {
+	public void setVisibility(Short visibility) {
 		this.visibility = visibility;
 	}
 
-	public int getMinimumScore() {
+	public Short getMinimumScore() {
 		return minimumScore;
 	}
 
-	public void setMinimumScore(int minimumScore) {
+	public void setMinimumScore(Short minimumScore) {
 		this.minimumScore = minimumScore;
 	}
 
