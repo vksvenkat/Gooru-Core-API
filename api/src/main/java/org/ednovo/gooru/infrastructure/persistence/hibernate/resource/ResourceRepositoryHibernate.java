@@ -92,6 +92,10 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 
 	private static final String COUNT_SUBSCRIPTION_FOR_GOORUOID = "select count(1) as totalCount from content c inner join annotation a on a.resource_id = c.content_id where a.type_name='subscription' and c.gooru_oid= :gooruOid and " + generateOrgAuthSqlQuery("c.");
 
+	private static final String GET_CONTENT_IDS = "SELECT gooru_oid AS gooruOid , content_id AS contentId from content WHERE gooru_oid IN (:gooruOids)";
+	
+	private static final String GET_CONTENT_ID = "SELECT content_id AS contentId from content WHERE gooru_oid =:gooruOid";
+	
 	private static final Logger LOGGER = LoggerFactory.getLogger(ResourceServiceImpl.class);
 
 	@Override
@@ -158,8 +162,8 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 	@Override
 	public Long getContentId(String contentGooruOid) {
 		Session session = getSessionFactory().getCurrentSession();
-		String sql = " SELECT content_id AS contentId from content WHERE gooru_oid ='" + contentGooruOid + "'";
-		Query query = session.createSQLQuery(sql).addScalar("contentId", StandardBasicTypes.LONG);
+		Query query = session.createSQLQuery(GET_CONTENT_ID).addScalar(CONTENT_ID, StandardBasicTypes.LONG);
+		query.setParameter(GOORU_OID, contentGooruOid);
 		List<Long> results = list(query);
 
 		return (results != null && results.size() > 0) ? results.get(0) : 0L;
@@ -168,8 +172,7 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 	@Override
 	public List<Object[]> getContentIds(String... gooruOids) {		
 		Session session = getSessionFactory().getCurrentSession();
-		String sql = " SELECT gooru_oid AS gooruOid , content_id AS contentId from content WHERE gooru_oid IN ('" + StringUtils.join(gooruOids, QUOTED_COMMA) + "')";
-		Query query = session.createSQLQuery(sql);
+		Query query = session.createSQLQuery(GET_CONTENT_IDS).setParameterList(GOORU_OIDS, gooruOids);
 		List<Object[]> contentIds= list(query);		 
 		return contentIds; 
 	}

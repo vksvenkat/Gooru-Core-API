@@ -82,10 +82,10 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 
 		final Errors errors = this.validateCreateSessionActivity(sessionActivity, sessionActivity.getContentGooruId());
 
-		Map<String,Object> contentIds = new HashMap<String,Object>();
+		Map<Object,Object> contentIds = new HashMap<Object,Object>();
 		List<Object[]> listOfcontentId = getResourceRepository().getContentIds(sessionActivity.getClassGooruId(),sessionActivity.getContentGooruId(),sessionActivity.getLessonGooruId(),sessionActivity.getUnitGooruId());
 		for(Object[] contentId : listOfcontentId){
-			contentIds.put((String)contentId[0],contentId[1]);
+			contentIds.put(contentId[0],contentId[1]);
 		}
 		final Long collectionId = ((Number)contentIds.get(sessionActivity.getContentGooruId())).longValue();
 		
