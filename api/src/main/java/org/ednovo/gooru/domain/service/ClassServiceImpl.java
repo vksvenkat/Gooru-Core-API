@@ -42,26 +42,25 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 
 	@Override
 	public void updateClass(String classUId, UserClass newUserClass, User user) {
-	    UserClass newClass = this.getClassRepository().getClassById(classUId);
-		Errors errors = validateClass(newUserClass);
-		if (!errors.hasErrors()) {
+	    UserClass userClass = this.getClassRepository().getClassById(classUId);
+	    rejectIfNull(userClass, GL0056, "class");
 	    
 		if (newUserClass.getName() != null ) { 
-			newClass.setName(newUserClass.getName());
+			userClass.setName(newUserClass.getName());
 		}
 		if (newUserClass.getDescription() != null ) {
-			newClass.setDescription(newUserClass.getDescription());
+			userClass.setDescription(newUserClass.getDescription());
 		}
 		if (newUserClass.getVisibility() != 0 ) {
-			newClass.setVisibility(newUserClass.getVisibility());
+			userClass.setVisibility(newUserClass.getVisibility());
 		}
 		if (newUserClass.getMinimumScore() != 0) {
-			newClass.setMinimumScore(newUserClass.getMinimumScore());
+			userClass.setMinimumScore(newUserClass.getMinimumScore());
 		}
-		    newClass.setLastModifiedOn(new Date(System.currentTimeMillis()));
-		    newClass.setLastModifiedUserUid(user.getPartyUid());
-			this.getClassRepository().save(newClass);
-		}
+		userClass.setLastModifiedOn(new Date(System.currentTimeMillis()));
+		userClass.setLastModifiedUserUid(user.getPartyUid());
+			this.getClassRepository().save(userClass);
+
 	}
 
 
