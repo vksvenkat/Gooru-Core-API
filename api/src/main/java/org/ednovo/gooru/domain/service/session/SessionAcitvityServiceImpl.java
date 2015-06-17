@@ -80,18 +80,20 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 	@Override
 	public ActionResponseDTO<SessionActivity> createSessionActivity(final SessionActivity sessionActivity, final User user) {
 
-		Map<String,Object> contentIdsInMap = new HashMap<String,Object>();
-		List<Object[]> contentIds = getResourceRepository().getContentIds(sessionActivity.getClassGooruId(),sessionActivity.getContentGooruId(),sessionActivity.getLessonGooruId(),sessionActivity.getUnitGooruId());
-		for(Object[] contentId : contentIds){
-			contentIdsInMap.put((String)contentId[0],contentId[1]);
+		final Errors errors = this.validateCreateSessionActivity(sessionActivity, sessionActivity.getContentGooruId());
+
+		Map<String,Object> contentIds = new HashMap<String,Object>();
+		List<Object[]> listOfcontentId = getResourceRepository().getContentIds(sessionActivity.getClassGooruId(),sessionActivity.getContentGooruId(),sessionActivity.getLessonGooruId(),sessionActivity.getUnitGooruId());
+		for(Object[] contentId : listOfcontentId){
+			contentIds.put((String)contentId[0],contentId[1]);
 		}
-		final Long collectionId = ((Number)contentIdsInMap.get(sessionActivity.getContentGooruId())).longValue();
-		final Errors errors = this.validateCreateSessionActivity(sessionActivity, collectionId);
+		final Long collectionId = ((Number)contentIds.get(sessionActivity.getContentGooruId())).longValue();
+		
 		if (!errors.hasErrors()) {
 			if (sessionActivity.getClassGooruId() != null) {
-				sessionActivity.setClassContentId(((Number)contentIdsInMap.get(sessionActivity.getClassGooruId())).longValue());
-				sessionActivity.setLessonContentId(((Number)contentIdsInMap.get(sessionActivity.getLessonGooruId())).longValue());
-				sessionActivity.setUnitContentId(((Number)contentIdsInMap.get(sessionActivity.getUnitGooruId())).longValue());
+				sessionActivity.setClassContentId(((Number)contentIds.get(sessionActivity.getClassGooruId())).longValue());
+				sessionActivity.setLessonContentId(((Number)contentIds.get(sessionActivity.getLessonGooruId())).longValue());
+				sessionActivity.setUnitContentId(((Number)contentIds.get(sessionActivity.getUnitGooruId())).longValue());
 				sessionActivity.setIsStudent(getResourceRepository().findUserIsStudent(sessionActivity.getClassContentId(), user.getGooruUId()));
 				sessionActivity.setClassId(getResourceRepository().getNumericClassCode(sessionActivity.getClassContentId()));
 			} else {
@@ -260,10 +262,10 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 		return createOrUpdateSessionActivityItem(sessionActivityItem, sessionActivity.getSessionActivityId());
 	}
 
-	private Errors validateCreateSessionActivity(final SessionActivity sessionActivity, final Long collectionId) {
+	private Errors validateCreateSessionActivity(final SessionActivity sessionActivity, final String collectionGooruId) {
 		final Map<String, String> sessionMode = getSessionMode();
 		final Errors errors = new BindException(sessionActivity, SESSION_ACTIVITY);
-		rejectIfNull(errors, collectionId, COLLECTION, GL0056, generateErrorMessage(GL0056, COLLECTION));
+		rejectIfNull(errors, collectionGooruId, COLLECTION, GL0056, generateErrorMessage(GL0056, COLLECTION));
 		rejectIfInvalidType(errors, sessionActivity.getMode(), MODE, GL0007, generateErrorMessage(GL0007, MODE), sessionMode);
 		return errors;
 	}
