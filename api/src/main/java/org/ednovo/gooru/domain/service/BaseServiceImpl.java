@@ -49,6 +49,7 @@ public class BaseServiceImpl extends ServerValidationUtils implements BaseServic
 	@Autowired
 	private ContentRepository contentRepository;
 
+	
 	@Override
 	public ContentType getContentType(String type) {
 		return (ContentType) this.getBaseRepository().get(ContentType.class, type);
