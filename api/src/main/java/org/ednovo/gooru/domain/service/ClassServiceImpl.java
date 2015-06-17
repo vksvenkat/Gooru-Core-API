@@ -105,6 +105,7 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Map<String, Object> getClass(String classUid) {
 		Map<String, Object> result = this.getClassRepository().getClass(classUid);
+		rejectIfNull(result, GL0056, CLASS);
 		setClass(result);
 		return result;
 	}
