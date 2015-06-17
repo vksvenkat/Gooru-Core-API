@@ -23,6 +23,8 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.domain.service;
 
+import java.util.List;
+
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.TaxonomyCourse;
 import org.ednovo.gooru.core.api.model.User;
@@ -36,7 +38,7 @@ public interface TaxonomyCourseService {
 
 	TaxonomyCourse getTaxonomyCourse(Integer courseId);
 
-	SearchResults<TaxonomyCourse> getTaxonomyCourses(Integer limit, Integer offset);
+	List<TaxonomyCourse> getTaxonomyCourses(Integer limit, Integer offset);
 
 	void deleteTaxonomyCourse(Integer courseId);
 

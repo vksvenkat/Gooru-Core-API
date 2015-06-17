@@ -24,13 +24,14 @@
 package org.ednovo.gooru.domain.service;
 
 import java.util.Date;
+import java.util.List;
+
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
-import org.ednovo.gooru.core.api.model.TaxonomyCourse;
 import org.ednovo.gooru.core.api.model.Subject;
+import org.ednovo.gooru.core.api.model.TaxonomyCourse;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
-import org.ednovo.gooru.domain.service.search.SearchResults;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.SubjectRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -98,9 +99,8 @@ public class TaxonomyCourseServiceImpl extends BaseServiceImpl implements Taxono
 	}
 
 	@Override
-	public SearchResults<TaxonomyCourse> getTaxonomyCourses(Integer limit, Integer offset) {
-		SearchResults<TaxonomyCourse> result = new SearchResults<TaxonomyCourse>();
-		result.setSearchResults(this.getTaxonomyCourseRepository().getCourses(limit, offset));
+	public List<TaxonomyCourse> getTaxonomyCourses(Integer limit, Integer offset) {
+		List<TaxonomyCourse> result = this.getTaxonomyCourseRepository().getCourses(limit, offset);
 		return result;
 	}
 
