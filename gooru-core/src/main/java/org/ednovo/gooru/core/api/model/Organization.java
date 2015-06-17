@@ -15,7 +15,7 @@ public class Organization extends Party  implements IsCassandraIndexable {
  	private static final long serialVersionUID = -2903580370776228049L;
 
   
-	private static final String  INDEX_TYPE = "schooldistrict";
+ 	private  String  indexType = "organization";
 
 	@Column
 	private String organizationCode;
@@ -99,9 +99,12 @@ public class Organization extends Party  implements IsCassandraIndexable {
 		return getPartyUid();
 	}
 
-	@Override
-	public String getIndexType() {	
-		return INDEX_TYPE;
+	public String getIndexType() {
+		return indexType;
 	}
-	
+
+	public void setIndexType(String indexType) {
+		this.indexType = indexType;
+		
+	}	
  }
