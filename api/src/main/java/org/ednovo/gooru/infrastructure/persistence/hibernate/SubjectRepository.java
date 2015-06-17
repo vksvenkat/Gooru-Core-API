@@ -34,10 +34,8 @@ public interface SubjectRepository extends BaseRepository {
 	
 	List<Map<String, Object>> getCourses(int offset, int limit, int subjectId);
 
-	List<Subject> getSubjects(Integer limit, Integer offset);
+	List<Subject> getSubjects(Integer classificationTypeId, Integer limit, Integer offset);
 
-	Long getSubjectCount();
+	Integer getMaxSequence();
 	
-	List<Subject> getParentSubject(String userUid, Integer integer);
-
 }

@@ -678,7 +678,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 	}
 
 	private Errors validateClasspageItem(final Resource resource, final CollectionItem collectionItem) throws Exception {
-		final Map<String, String> itemType = new HashMap<String, String>();
+		final Map<Object, String> itemType = new HashMap<Object, String>();
 		itemType.put(ADDED, COLLECTION_ITEM_TYPE);
 		itemType.put(SUBSCRIBED, COLLECTION_ITEM_TYPE);
 		final Errors errors = new BindException(collectionItem, COLLECTION_ITEM);

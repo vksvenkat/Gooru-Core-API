@@ -30,7 +30,6 @@ import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Subject;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.domain.service.BaseService;
-import org.ednovo.gooru.domain.service.search.SearchResults;
 
 public interface SubjectService extends BaseService{
 
@@ -40,9 +39,9 @@ public interface SubjectService extends BaseService{
 	
 	List<Map<String, Object>> getCourses(int offset, int limit, int subjectId);
 	
-	SearchResults<Subject> getSubjects(Integer limit, Integer offset);
+	List<Subject> getSubjects(Integer classificationTypeId, Integer limit, Integer offset);
 
 	void deleteSubject(Integer subjectId);
 
-	Subject updateSubject(Subject subject, Integer subjectId, User user);
+	void updateSubject(Subject subject, Integer subjectId);
 }
