@@ -23,7 +23,6 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.domain.service;
 
-import org.ednovo.gooru.application.util.ConfigProperties;
 import org.ednovo.gooru.core.api.model.AnnotationType;
 import org.ednovo.gooru.core.api.model.ContentType;
 import org.ednovo.gooru.core.api.model.ResourceType;
