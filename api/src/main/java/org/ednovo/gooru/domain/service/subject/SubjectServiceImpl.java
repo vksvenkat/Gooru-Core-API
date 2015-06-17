@@ -25,12 +25,14 @@ package org.ednovo.gooru.domain.service.subject;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Subject;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.core.exception.BadRequestException;
 import org.ednovo.gooru.domain.service.BaseServiceImpl;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.SubjectRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,6 +89,10 @@ public class SubjectServiceImpl extends BaseServiceImpl implements
 	public void updateSubject(Subject newSubject, Integer subjectId) {
 		Subject subject = this.getSubjectRepository().getSubject(subjectId);
 		rejectIfNull(subject, GL0056, 404, SUBJECT);
+		if(newSubject.getClassificationTypeId() != null){
+			this.rejectIfInvalidType(newSubject.getClassificationTypeId(), CLASSIFICATION_TYPE_ID, GL0007, Constants.CLASSIFICATION_TYPE);
+			subject.setClassificationTypeId(newSubject.getClassificationTypeId());
+		}
 		if (newSubject.getActiveFlag() != null) {
 			reject((newSubject.getActiveFlag() == 0 || newSubject
 					.getActiveFlag() == 1),
@@ -111,11 +117,17 @@ public class SubjectServiceImpl extends BaseServiceImpl implements
 		rejectIfNull(errors, subject.getName(), NAME,generateErrorMessage(GL0006, NAME));
 		rejectIfNull(errors, subject.getClassificationTypeId(), CLASSIFICATION_TYPE_ID,	generateErrorMessage(GL0006, CLASSIFICATION_TYPE_ID));
 		if(subject.getClassificationTypeId() != null){
-			rejectIfInvalidType(errors, subject.getClassificationTypeId().toString(), CLASSIFICATION_TYPE_ID, GL0007,generateErrorMessage(GL0007, CLASSIFICATION_TYPE_ID),Constants.CLASSIFICATION_TYPE);
+			rejectIfInvalidType(errors, subject.getClassificationTypeId(), CLASSIFICATION_TYPE_ID, GL0007,generateErrorMessage(GL0007, CLASSIFICATION_TYPE_ID),Constants.CLASSIFICATION_TYPE);
 		}
 		return errors;
 	}
 
+	private void rejectIfInvalidType(Object data, String message, String code, Map<Object, String> typeParam) {
+		if (!typeParam.containsKey(data)) {
+			throw new BadRequestException(generateErrorMessage(code, message), code);
+		}
+	}
+	
 	public SubjectRepository getSubjectRepository() {
 		return subjectRepository;
 	}
