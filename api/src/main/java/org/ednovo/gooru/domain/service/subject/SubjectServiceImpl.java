@@ -50,6 +50,7 @@ public class SubjectServiceImpl extends BaseServiceImpl implements
 	private SubjectRepository subjectRepository;
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ActionResponseDTO<Subject> createSubject(Subject subject, User user) {
 		final Errors errors = validateSubject(subject);
 		if (!errors.hasErrors()) {
@@ -65,6 +66,7 @@ public class SubjectServiceImpl extends BaseServiceImpl implements
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Subject getSubject(Integer subjectId) {
 		Subject subject = this.getSubjectRepository().getSubject(subjectId);
 		rejectIfNull(subject, GL0056, 404, SUBJECT);
@@ -79,6 +81,7 @@ public class SubjectServiceImpl extends BaseServiceImpl implements
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteSubject(Integer subjectId) {
 		Subject subject = this.getSubjectRepository().getSubject(subjectId);
 		rejectIfNull(subject, GL0056, 404, SUBJECT);
@@ -88,12 +91,14 @@ public class SubjectServiceImpl extends BaseServiceImpl implements
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Subject> getSubjects(Integer classificationTypeId,Integer limit, Integer offset) {
 		List<Subject> result = this.getSubjectRepository().getSubjects(classificationTypeId, limit, offset);
 		return result;
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void updateSubject(Subject newSubject, Integer subjectId) {
 		Subject subject = this.getSubjectRepository().getSubject(subjectId);
 		rejectIfNull(subject, GL0056, 404, SUBJECT);
