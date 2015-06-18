@@ -72,7 +72,7 @@ public class TaxonomyCourseServiceImpl extends BaseServiceImpl implements Taxono
 	}
 
 	@Override
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void updateTaxonomyCourse(Integer courseId, TaxonomyCourse newCourse) {
 		TaxonomyCourse course = this.getTaxonomyCourseRepository().getCourse(courseId);
 		rejectIfNull(course, GL0056, 404, COURSE);
