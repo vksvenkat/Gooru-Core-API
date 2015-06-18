@@ -6,7 +6,7 @@ public class RequestMappingUri {
 	
 	public static final String SUBJECT = "/subject";
 	
-	public static final String SUBDOMAIN = "/subdomain";
+	public static final String SUBDOMAIN = "/sub-domain";
 	
 	public static final String DOMAIN = "/domain";
 	
