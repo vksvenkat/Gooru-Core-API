@@ -81,26 +81,34 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 	public ActionResponseDTO<SessionActivity> createSessionActivity(final SessionActivity sessionActivity, final User user) {
 
 		final Errors errors = this.validateCreateSessionActivity(sessionActivity, sessionActivity.getContentGooruId());
-
-		Map<Object,Object> contentIds = new HashMap<Object,Object>();
-		List<Object[]> listOfcontentId = getResourceRepository().getContentIds(sessionActivity.getClassGooruId(),sessionActivity.getContentGooruId(),sessionActivity.getLessonGooruId(),sessionActivity.getUnitGooruId());
-		for(Object[] contentId : listOfcontentId){
-			contentIds.put(contentId[0],contentId[1]);
-		}
-		final Long collectionId = ((Number)contentIds.get(sessionActivity.getContentGooruId())).longValue();
 		
 		if (!errors.hasErrors()) {
+			StringBuilder listOfGooruOids = new StringBuilder();
+			listOfGooruOids.append(sessionActivity.getContentGooruId());
+			if (sessionActivity.getClassGooruId() != null && sessionActivity.getUnitGooruId() != null && sessionActivity.getLessonGooruId() != null) {
+				listOfGooruOids.append(COMMA).append(sessionActivity.getClassGooruId());
+				listOfGooruOids.append(COMMA).append(sessionActivity.getUnitGooruId());
+				listOfGooruOids.append(COMMA).append(sessionActivity.getLessonGooruId());
+			}
+			Map<Object, Object> contentIds = new HashMap<Object, Object>();
+			List<Object[]> listOfcontentId = getResourceRepository().getContentIds(listOfGooruOids.toString());
+			for (Object[] contentId : listOfcontentId) {
+				contentIds.put(contentId[0], contentId[1]);
+			}
+			final Long collectionId = ((Number) contentIds.get(sessionActivity.getContentGooruId())).longValue();
+
 			if (sessionActivity.getClassGooruId() != null) {
-				sessionActivity.setClassContentId(((Number)contentIds.get(sessionActivity.getClassGooruId())).longValue());
-				sessionActivity.setLessonContentId(((Number)contentIds.get(sessionActivity.getLessonGooruId())).longValue());
-				sessionActivity.setUnitContentId(((Number)contentIds.get(sessionActivity.getUnitGooruId())).longValue());
+				sessionActivity.setClassContentId(((Number) contentIds.get(sessionActivity.getClassGooruId())).longValue());
+				sessionActivity.setLessonContentId(((Number) contentIds.get(sessionActivity.getLessonGooruId())).longValue());
+				sessionActivity.setUnitContentId(((Number) contentIds.get(sessionActivity.getUnitGooruId())).longValue());
 				sessionActivity.setIsStudent(getResourceRepository().findUserIsStudent(sessionActivity.getClassContentId(), user.getGooruUId()));
 				sessionActivity.setClassId(getResourceRepository().getNumericClassCode(sessionActivity.getClassContentId()));
 			} else {
 				sessionActivity.setIsStudent(false);
 				sessionActivity.setClassId(1L);
 			}
-			sessionActivity.setSequence(getSessionActivityRepository().getSessionActivityCount(collectionId, sessionActivity.getClassContentId(),sessionActivity.getUnitContentId(),sessionActivity.getLessonContentId(), user.getGooruUId()) + 1);
+			sessionActivity.setSequence(getSessionActivityRepository().getSessionActivityCount(collectionId, sessionActivity.getClassContentId(), sessionActivity.getUnitContentId(),
+					sessionActivity.getLessonContentId(), user.getGooruUId()) + 1);
 			sessionActivity.setScore(0.0);
 			sessionActivity.setScoreInPercentage(0.0);
 			sessionActivity.setReaction(0);
@@ -126,10 +134,16 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 			if (newSession.getStatus() != null && newSession.getStatus().equalsIgnoreCase(SessionStatus.ARCHIVE.getSessionStatus())) {
 				sessionActivity.setStatus(newSession.getStatus());
 				sessionActivity.setEndTime(new Date(System.currentTimeMillis()));
-				Long timeSpentInMillis = sessionActivity.getEndTime().getTime() - sessionActivity.getStartTime().getTime();
-				sessionActivity.setTimeSpentInMillis(timeSpentInMillis);
 				sessionActivity.setRating(this.getSessionActivityRepository().getSessionActivityRatingCount(sessionActivityId));
 				sessionActivity.setReaction(this.getSessionActivityRepository().getSessionActivityReactionCount(sessionActivityId));
+			}
+			/**
+			 * Score calculation for assessment/collection.It can be update through API from FE.
+			 */
+			if (newSession.getScore() != null) {
+				sessionActivity.setScore(newSession.getScore());
+				sessionActivity.setScoreInPercentage(newSession.getScoreInPercentage());
+			}else{
 				Integer questionCount = this.getSessionActivityRepository().getQuestionCount(sessionActivity.getCollectionId());
 				if (questionCount > 0) {
 					Integer totalScore = this.getSessionActivityRepository().getTotalScore(sessionActivityId);
@@ -138,10 +152,20 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 					sessionActivity.setScoreInPercentage(scoreInPrecentage);
 				}
 			}
-			if (newSession.getScore() != null) {
-				sessionActivity.setScore(newSession.getScore());
-				sessionActivity.setScoreInPercentage(newSession.getScoreInPercentage());
+			/**
+			 * Time spent calculation for assessment/collection.It can be update through API from FE.
+			 */
+			if(newSession.getTimeSpentInMillis() != null){
+				sessionActivity.setTimeSpentInMillis(newSession.getTimeSpentInMillis());
+			}else{
+				Long timeSpentInMillis = sessionActivity.getEndTime().getTime() - sessionActivity.getStartTime().getTime();
+				sessionActivity.setTimeSpentInMillis(timeSpentInMillis);
 			}
+			
+			if(newSession.getViewsInSession() != null){
+				sessionActivity.setViewsInSession(newSession.getViewsInSession());
+			}
+			
 			this.getSessionActivityRepository().save(sessionActivity);
 		}
 		return new ActionResponseDTO<SessionActivity>(sessionActivity, errors);
@@ -180,8 +204,15 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 				sessionActivityItem.setViewsInSession(sessionActivityItem.getViewsInSession() + 1);
 			} else if (newSessionActivityItem.getStatus() != null && newSessionActivityItem.getStatus().equalsIgnoreCase(SessionStatus.ARCHIVE.getSessionStatus())) {
 				sessionActivityItem.setEndTime(new Date(System.currentTimeMillis()));
-				Long timeSpentInMillis = sessionActivityItem.getEndTime().getTime() - sessionActivityItem.getStartTime().getTime();
-				sessionActivityItem.setTimeSpentInMillis(sessionActivityItem.getTimeSpentInMillis() + timeSpentInMillis);
+				if(newSessionActivityItem.getTimeSpentInMillis() != null){
+					sessionActivityItem.setTimeSpentInMillis(newSessionActivityItem.getTimeSpentInMillis());
+				}else{
+					Long timeSpentInMillis = sessionActivityItem.getEndTime().getTime() - sessionActivityItem.getStartTime().getTime();
+					sessionActivityItem.setTimeSpentInMillis(sessionActivityItem.getTimeSpentInMillis() + timeSpentInMillis);
+				}
+				if(newSessionActivityItem.getViewsInSession() != null){
+					sessionActivityItem.setViewsInSession(newSessionActivityItem.getViewsInSession());
+				}
 			}
 
 			if (newSessionActivityItem.getFeedbackText() != null) {
@@ -201,6 +232,7 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 			if (newSessionActivityItem.getReaction() != null) {
 				sessionActivityItem.setReaction(newSessionActivityItem.getReaction());
 			}
+			
 		}
 		this.getSessionActivityRepository().save(sessionActivityItem);
 

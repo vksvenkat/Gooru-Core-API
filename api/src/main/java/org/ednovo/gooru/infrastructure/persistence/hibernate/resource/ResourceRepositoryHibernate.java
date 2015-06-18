@@ -170,9 +170,9 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 	}
 	
 	@Override
-	public List<Object[]> getContentIds(String... gooruOids) {		
+	public List<Object[]> getContentIds(String gooruOids) {		
 		Session session = getSessionFactory().getCurrentSession();
-		Query query = session.createSQLQuery(GET_CONTENT_IDS).setParameterList(GOORU_OIDS, gooruOids);
+		Query query = session.createSQLQuery(GET_CONTENT_IDS).setParameterList(GOORU_OIDS, gooruOids.split(COMMA));
 		List<Object[]> contentIds= list(query);		 
 		return contentIds; 
 	}
