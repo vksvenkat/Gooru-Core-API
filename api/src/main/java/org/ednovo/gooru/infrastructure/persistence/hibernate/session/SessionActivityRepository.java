@@ -54,11 +54,11 @@ public interface SessionActivityRepository extends BaseRepository {
 	AssessmentQuestion getQuestion(String gooruOid);
 	
 	SessionActivity getLastSessionActivity(Long parentId, Long collectionId, String userUid);
-
-	Integer getSessionActivityCount(Long collectionId, Long classContentId, Long unitContentId, Long lessonContentId, String gooruUId);
 	
     Map<String, Object> getSessionActivityByCollectionId(String gooruOid, String user);
 
 	Integer getClassSessionActivityCount(Long collectionId, Long classContentId, Long unitContentId, Long lessonContentId, String gooruUId);
+
+	Integer getCollectionSessionActivityCount(Long collectionId, String gooruUId);
 	
 }

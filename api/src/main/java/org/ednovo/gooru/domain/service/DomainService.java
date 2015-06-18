@@ -23,20 +23,21 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.domain.service;
 
+import java.util.List;
+
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Domain;
 import org.ednovo.gooru.core.api.model.User;
-import org.ednovo.gooru.domain.service.search.SearchResults;
 
 public interface DomainService {
 	
 	ActionResponseDTO<Domain> createDomain(Domain domain,User user);
 	
-	Domain updateDomain(Integer domainId, Domain newDomain);
+	void updateDomain(Integer domainId, Domain newDomain);
 
 	Domain getDomain(Integer domainId);
 
-	SearchResults<Domain> getDomains(Integer limit, Integer offset);	
+	List<Domain> getDomains(Integer limit, Integer offset);	
 	
     void deleteDomain(Integer domainId);
 

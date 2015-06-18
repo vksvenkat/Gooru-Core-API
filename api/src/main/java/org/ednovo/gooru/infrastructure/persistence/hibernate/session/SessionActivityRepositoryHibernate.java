@@ -65,6 +65,8 @@ public class SessionActivityRepositoryHibernate extends BaseRepositoryHibernate 
 	
 	private final String RETRIVE_INCOMPLETE_SESSION_ACTIVITY_ID = "SELECT sa.user_uid as userUid,sa.session_activity_id as sessionActivityId,so.gooru_oid as collectionGooruOid,sai.gooru_oid as resourceGooruOid from session_activity sa inner join session_activity_item si on sa.session_activity_id=si.session_activity_id inner join content so on so.content_id=sa.collection_id left join content sai on sai.content_id=si.resource_id where sa.status='open' and sa.user_uid=:userUid and so.gooru_oid =:collectionId order by si.start_time DESC";
 
+	private final String RETRIVE_CLASS_SESSION_COUNT = "select count(1) as count from session_activity where collection_id =:collectionId AND user_uid =:userId AND class_content_id=:classContentId AND unit_content_id=:unitContentId AND lesson_content_id=:lessonContentId";
+	
 	private final String RETRIVE_SESSION_COUNT = "select count(1) as count from session_activity where collection_id =:collectionId AND user_uid =:userId";
 	
 	@Override
@@ -86,22 +88,23 @@ public class SessionActivityRepositoryHibernate extends BaseRepositoryHibernate 
 
 	@Override
 	public Integer getClassSessionActivityCount(Long collectionId, Long classContentId, Long unitContentId, Long lessonContentId, String gooruUId) {
-
-		StringBuilder sqlQuery = new StringBuilder(RETRIVE_SESSION_COUNT);
-			sqlQuery.append(" AND class_content_id=:classContentId");
-			sqlQuery.append(" AND unit_content_id=:unitContentId");
-			sqlQuery.append(" AND lesson_content_id=:lessonContentId");
-		Query query = getSession().createSQLQuery(sqlQuery.toString()).addScalar(COUNT, StandardBasicTypes.INTEGER);
-
+		Query query = getSession().createSQLQuery(RETRIVE_CLASS_SESSION_COUNT).addScalar(COUNT, StandardBasicTypes.INTEGER);
 		query.setParameter(COLLECTION_ID, collectionId);
 		query.setParameter(USER_ID, gooruUId);
-
-			query.setParameter(CLASS_CONTENT_ID, classContentId);
-			query.setParameter(UNIT_CONTENT_ID, unitContentId);
-			query.setParameter(LESSON_CONTENT_ID, lessonContentId);
+		query.setParameter(CLASS_CONTENT_ID, classContentId);
+		query.setParameter(UNIT_CONTENT_ID, unitContentId);
+		query.setParameter(LESSON_CONTENT_ID, lessonContentId);
 		return (Integer) list(query).get(0);
 	}
-
+	
+	@Override
+	public Integer getCollectionSessionActivityCount(Long collectionId, String gooruUId) {
+		Query query = getSession().createSQLQuery(RETRIVE_SESSION_COUNT).addScalar(COUNT, StandardBasicTypes.INTEGER);
+		query.setParameter(COLLECTION_ID, collectionId);
+		query.setParameter(USER_ID, gooruUId);
+		return (Integer) list(query).get(0);
+	}
+	
 	@Override
 	public Integer getSessionActivityItemAttemptCount(Long sessionActivityId, Long resourceId) {
 		Query query = getSession().createSQLQuery(SESSION_ACTIVITY_ITEM_ATTEMPT_COUNT).addScalar(COUNT, StandardBasicTypes.INTEGER);

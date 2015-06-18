@@ -45,13 +45,6 @@
 		<aop:include name="methodAuthorizationAspect" />
 	</aop:aspectj-autoproxy>
 
-	<!-- Configures the @Transactional programming model -->
-	<tx:annotation-driven transaction-manager="transactionManager"
-		proxy-target-class="true" />
-	<tx:annotation-driven transaction-manager="transactionManagerReadyOnly"
-		proxy-target-class="true" />
-	<tx:annotation-driven transaction-manager="revisionHistoryTransactionManager"
-		proxy-target-class="true" />
 
 	<!-- Application Message Bundle -->
 	<bean id="messageSource"

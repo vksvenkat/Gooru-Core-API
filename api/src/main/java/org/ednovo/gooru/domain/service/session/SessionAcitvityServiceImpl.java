@@ -103,12 +103,13 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 				sessionActivity.setUnitContentId(((Number) contentIds.get(sessionActivity.getUnitGooruId())).longValue());
 				sessionActivity.setIsStudent(getResourceRepository().findUserIsStudent(sessionActivity.getClassContentId(), user.getGooruUId()));
 				sessionActivity.setClassId(getResourceRepository().getNumericClassCode(sessionActivity.getClassContentId()));
+				sessionActivity.setSequence(getSessionActivityRepository().getClassSessionActivityCount(collectionId, sessionActivity.getClassContentId(), sessionActivity.getUnitContentId(),
+						sessionActivity.getLessonContentId(), user.getGooruUId()) + 1);
 			} else {
 				sessionActivity.setIsStudent(false);
 				sessionActivity.setClassId(1L);
+				sessionActivity.setSequence(getSessionActivityRepository().getCollectionSessionActivityCount(collectionId,user.getGooruUId()) + 1);
 			}
-			sessionActivity.setSequence(getSessionActivityRepository().getSessionActivityCount(collectionId, sessionActivity.getClassContentId(), sessionActivity.getUnitContentId(),
-					sessionActivity.getLessonContentId(), user.getGooruUId()) + 1);
 			sessionActivity.setScore(0.0);
 			sessionActivity.setScoreInPercentage(0.0);
 			sessionActivity.setReaction(0);
@@ -295,7 +296,7 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 	}
 
 	private Errors validateCreateSessionActivity(final SessionActivity sessionActivity, final String collectionGooruId) {
-		final Map<String, String> sessionMode = getSessionMode();
+		final Map<Object, String> sessionMode = getSessionMode();
 		final Errors errors = new BindException(sessionActivity, SESSION_ACTIVITY);
 		rejectIfNull(errors, collectionGooruId, COLLECTION, GL0056, generateErrorMessage(GL0056, COLLECTION));
 		rejectIfInvalidType(errors, sessionActivity.getMode(), MODE, GL0007, generateErrorMessage(GL0007, MODE), sessionMode);
@@ -303,22 +304,22 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 	}
 
 	private Errors validateUpdateSessionActivity(final SessionActivity sessionActivity, final SessionActivity newSession) {
-		final Map<String, String> sessionStatus = getSessionStatus();
+		final Map<Object, String> sessionStatus = getSessionStatus();
 		final Errors errors = new BindException(sessionActivity, SESSION);
 		rejectIfNull(errors, newSession, SESSION, GL0056, generateErrorMessage(GL0056, SESSION_ACTIVITY));
 		rejectIfInvalidType(errors, newSession.getStatus(), STATUS, GL0007, generateErrorMessage(GL0007, STATUS), sessionStatus);
 		return errors;
 	}
 
-	private Map<String, String> getSessionStatus() {
-		final Map<String, String> sessionStatus = new HashMap<String, String>();
+	private Map<Object, String> getSessionStatus() {
+		final Map<Object, String> sessionStatus = new HashMap<Object, String>();
 		sessionStatus.put(SessionStatus.OPEN.getSessionStatus(), SESSION);
 		sessionStatus.put(SessionStatus.ARCHIVE.getSessionStatus(), SESSION);
 		return sessionStatus;
 	}
 
-	private Map<String, String> getSessionMode() {
-		final Map<String, String> sessionMode = new HashMap<String, String>();
+	private Map<Object, String> getSessionMode() {
+		final Map<Object, String> sessionMode = new HashMap<Object, String>();
 		sessionMode.put(ModeType.TEST.getModeType(), SESSION);
 		sessionMode.put(ModeType.PLAY.getModeType(), SESSION);
 		sessionMode.put(ModeType.PRACTICE.getModeType(), SESSION);

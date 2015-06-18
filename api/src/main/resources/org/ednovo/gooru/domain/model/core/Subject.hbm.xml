@@ -49,5 +49,8 @@
 		<property name="lastModified" column="last_modified"
 			not-null="true">
 		</property>
+		<property name="classificationTypeId" column="classification_type_id"
+			not-null="true">
+		</property>
 	</class>
 </hibernate-mapping>

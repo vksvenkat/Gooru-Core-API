@@ -39,7 +39,7 @@ public class DomainRepositoryHibernate extends BaseRepositoryHibernate implement
 	
 	private static final String GET_DOMAINS = "FROM Domain"; 
 	
-	private static final String GET_COUNT = "SELECT COUNT(*) FROM Course";
+	private static final String GET_MAX = "SELECT MAX(domain.displaySequence) FROM Domain domain";
 
 	@Override
 	public Domain getDomain(Integer domainId) {
@@ -56,10 +56,9 @@ public class DomainRepositoryHibernate extends BaseRepositoryHibernate implement
 	}
 
 	@Override
-	public Long getDomainCount() {
-
-		Query query = getSession().createQuery(GET_COUNT);
-		return (Long) query.list().get(0);
+	public Integer getMaxSequence() {
+		Query query = getSession().createQuery(GET_MAX);
+		return ((Number)query.list().get(0)).intValue();
 	}
 
 }

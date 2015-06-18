@@ -190,9 +190,9 @@ public class Constants implements ParameterProperties {
 	public static final int CACHE_EXPIRY_TIME_IN_SEC = 10800;
 
 	public static final int LIBRARY_CACHE_EXPIRY_TIME_IN_SEC = 86400;
-	public static final Map<String, String> COLLECTION_TYPES;
+	public static final Map<Object, String> COLLECTION_TYPES;
 	static {
-		Map<String, String> collectionType = new HashMap<String, String>();
+		Map<Object, String> collectionType = new HashMap<Object, String>();
 		collectionType.put(LESSON, COLLECTION_TYPE);
 		collectionType.put(SHELF, COLLECTION_TYPE);
 		collectionType.put(COLLECTION, COLLECTION_TYPE);
@@ -227,12 +227,22 @@ public class Constants implements ParameterProperties {
 	
 	private static final String TYPE_USER = "user";
 	
+	public static final Map<Object, String> CLASSIFICATION_TYPE;
+	
 	static {
 		Map<String, String> reindexType = new HashMap<String, String>();
 		reindexType.put(RESOURCE, TOPIC_RESOURCE);
 		reindexType.put(SCOLLECTION, TOPIC_SCOLLECTION);
 		reindexType.put(TYPE_USER, TOPIC_USER);
 		REINDEX_TYPES = Collections.unmodifiableMap(reindexType);
+	}
+	
+	static{
+		Map<Object, String> classificationTypeId = new HashMap<Object, String>();
+		classificationTypeId.put(1, "K-12");
+		classificationTypeId.put(2, "Higher Education");
+		classificationTypeId.put(3, "Professional Learning");
+		CLASSIFICATION_TYPE = Collections.unmodifiableMap(classificationTypeId);
 	}
 
 }

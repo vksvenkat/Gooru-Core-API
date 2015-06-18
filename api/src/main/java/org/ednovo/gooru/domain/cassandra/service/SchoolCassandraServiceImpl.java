@@ -18,7 +18,13 @@ public class SchoolCassandraServiceImpl extends ApiCrudEntityCassandraServiceImp
 	
 	@Override
 	protected Organization fetchSource(String key) {
-		return this.getOrganizationRepository().getOrganizationByUid(key);
+		Organization organization = getOrganizationRepository().getOrganizationByUid(key);
+		if(organization != null){
+			if(organization.getType() != null){
+			organization.setIndexType(ColumnFamilyConstant.SCHOOL_DISTRICT);
+			}
+		}
+		return organization;
 	}
      
 	@Override
@@ -34,6 +40,5 @@ public class SchoolCassandraServiceImpl extends ApiCrudEntityCassandraServiceImp
 	public void setOrganizationRepository(OrganizationRepository organizationRepository) {
 		this.organizationRepository = organizationRepository;
 	}
-
-
+	
 }
