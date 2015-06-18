@@ -34,6 +34,8 @@ import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
 
@@ -44,6 +46,7 @@ public class DomainServiceImpl extends BaseServiceImpl implements DomainService,
 	private DomainRepository domainRepository;
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ActionResponseDTO<Domain> createDomain(Domain domain, User user) {
 		final Errors error = validateDomain(domain);
 		if (!error.hasErrors()) {
@@ -58,6 +61,7 @@ public class DomainServiceImpl extends BaseServiceImpl implements DomainService,
 	}
 		
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void updateDomain(Integer domainId, Domain newDomain) {
 		Domain domain = this.getDomainRepository().getDomain(domainId);
 		rejectIfNull(domain, GL0006, 404, DOMAIN_);
@@ -82,6 +86,7 @@ public class DomainServiceImpl extends BaseServiceImpl implements DomainService,
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Domain getDomain(Integer domainId) {
 		Domain domain = this.getDomainRepository().getDomain(domainId);
 		reject((domain.getActiveFlag() == 1), GL0107, DOMAIN);
@@ -90,12 +95,14 @@ public class DomainServiceImpl extends BaseServiceImpl implements DomainService,
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Domain> getDomains(Integer limit, Integer offset) {
 		List<Domain> result = this.getDomainRepository().getDomains(limit, offset);
 		return result;
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteDomain(Integer domainId) {
 		Domain domain = this.getDomainRepository().getDomain(domainId);
 		rejectIfNull(domain, GL0056, 404, DOMAIN_);

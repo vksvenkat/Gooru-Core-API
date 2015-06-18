@@ -36,7 +36,7 @@ public class SubjectRepositoryHibernate extends BaseRepositoryHibernate
 		implements SubjectRepository, ParameterProperties, ConstantProperties {
 
 	private static final String SUBJECT_MAX = "SELECT MAX(subject.displaySequence) FROM Subject subject";
-	private static final String SUBJECTS = "FROM Subject subject where subject.classificationTypeId=:classificationTypeId and subject.activeFlag=1";
+	private static final String SUBJECTS = "FROM Subject subject where subject.activeFlag=1";
 	private static final String SUBJECT = "FROM Subject subject WHERE subject.subjectId=:subjectId";
 
 	@Override
@@ -47,9 +47,16 @@ public class SubjectRepositoryHibernate extends BaseRepositoryHibernate
 
 	@Override
 	public List<Subject> getSubjects(Integer classificationTypeId,Integer limit, Integer offset) {
-		Query query = getSession().createQuery(SUBJECTS).setParameter(CLASSIFICATION_TYPE_ID, classificationTypeId);
+		String hql = SUBJECTS;
+		if(classificationTypeId != null){
+			hql += "and subject.classificationTypeId=:classificationTypeId";
+		}
+		Query query = getSession().createQuery(hql);
 		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT: limit) : limit);
 		query.setFirstResult(offset);
+		if(classificationTypeId != null){
+			query.setParameter(CLASSIFICATION_TYPE_ID, classificationTypeId);
+		}
 		return list(query);
 	}
 
