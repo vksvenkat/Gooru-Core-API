@@ -1,8 +1,8 @@
 /////////////////////////////////////////////////////////////
-//CustomValueRestV2Controller.java
-//rest-v2-app
-// Created by Gooru on 2014
-// Copyright (c) 2014 Gooru. All rights reserved.
+// SubjectRestV2Controller.java
+// restapp
+// Created by Gooru on 2015
+// Copyright (c) 2015 Gooru. All rights reserved.
 // http://www.goorulearning.org/
 // Permission is hereby granted, free of charge, to any person      obtaining
 // a copy of this software and associated documentation files (the
@@ -21,12 +21,13 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 /////////////////////////////////////////////////////////////
-package org.ednovo.gooru.controllers.v2.api;
+package org.ednovo.gooru.controllers.api;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.ednovo.gooru.controllers.BaseController;
+import org.ednovo.gooru.core.api.model.RequestMappingUri;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.GooruOperationConstants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
@@ -34,37 +35,31 @@ import org.ednovo.gooru.core.security.AuthorizeOperations;
 import org.ednovo.gooru.domain.service.CustomValueService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
-@RequestMapping(value = { "/v2/custom-value" })
-public class CustomValueRestV2Controller  extends BaseController implements ParameterProperties, ConstantProperties {
-
+@RequestMapping( value = { RequestMappingUri.META } )
+public class MetaRestController extends BaseController implements ParameterProperties, ConstantProperties {
+	
 	@Autowired
-	private CustomValueService customValueService;
+	public CustomValueService customValueService;
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CUSTOM_READ })
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	@RequestMapping(method = RequestMethod.GET, value = "/{type}")
-	public ModelAndView getCustom(HttpServletRequest request , @PathVariable(value = TYPE) String type,  HttpServletResponse response) throws Exception {
-		return toModelAndView(this.getCustomValueService().getCustomValues(type), RESPONSE_FORMAT_JSON);
-	}
+	@RequestMapping(method = RequestMethod.GET, value = "{type}")
+	public ModelAndView getMetaValue(@PathVariable(value = TYPE) String type, HttpServletRequest request , HttpServletResponse response) {
+		return toModelAndView(this.getCustomValueService().getMetaValue(type), RESPONSE_FORMAT_JSON);
 
-	
-	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CASSANDRA_FIELDS_UPDATE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	@RequestMapping(method = RequestMethod.POST, value = "/update/cassandra")
-	public void setSearchSettings(HttpServletRequest request,  HttpServletResponse response) throws Exception {
-		this.getCustomValueService().updateSearchSettings();
-	}
+}
 	
 	private CustomValueService getCustomValueService() {
 		return customValueService;
 	}
-
 }
+	
+	
+	
+	
+	

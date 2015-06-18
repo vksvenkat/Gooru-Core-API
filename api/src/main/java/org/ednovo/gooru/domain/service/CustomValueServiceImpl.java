@@ -38,6 +38,8 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.ConfigSettingReposi
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class CustomValueServiceImpl extends BaseServiceImpl implements CustomValueService, ConstantProperties, ParameterProperties {
@@ -105,5 +107,12 @@ public class CustomValueServiceImpl extends BaseServiceImpl implements CustomVal
 
 	public static String getSettingVersion() {
 	    return new BigInteger(130, random).toString(32);
+	}
+
+	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public List<Map<String, Object>> getMetaValue(final String type) {
+         return this.getCustomTableRepository().getMetaValue(type);
+		
 	}
 }

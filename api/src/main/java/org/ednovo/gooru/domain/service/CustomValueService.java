@@ -24,6 +24,7 @@
 package org.ednovo.gooru.domain.service;
 
 import java.util.List;
+import java.util.Map;
 
 import org.ednovo.gooru.core.api.model.CustomTableValue;
 
@@ -33,5 +34,7 @@ public interface CustomValueService extends BaseService {
 	List<CustomTableValue> getCustomValues(String type);
 
 	public void updateSearchSettings();
+	
+     List<Map<String, Object>> getMetaValue(String type);
 
 }
