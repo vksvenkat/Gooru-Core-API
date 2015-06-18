@@ -48,7 +48,7 @@ public class MetaRestController extends BaseController implements ParameterPrope
 	public CustomValueService customValueService;
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CUSTOM_READ })
-	@RequestMapping(method = RequestMethod.GET, value = "{type}")
+	@RequestMapping(method = RequestMethod.GET, value = "/{type}")
 	public ModelAndView getMetaValue(@PathVariable(value = TYPE) String type, HttpServletRequest request , HttpServletResponse response) {
 		return toModelAndView(this.getCustomValueService().getMetaValue(type), RESPONSE_FORMAT_JSON);
 
