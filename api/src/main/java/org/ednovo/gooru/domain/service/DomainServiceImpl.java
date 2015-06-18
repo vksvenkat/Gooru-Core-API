@@ -86,7 +86,7 @@ public class DomainServiceImpl extends BaseServiceImpl implements DomainService,
 	}
 
 	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Domain getDomain(Integer domainId) {
 		Domain domain = this.getDomainRepository().getDomain(domainId);
 		reject((domain.getActiveFlag() == 1), GL0107, DOMAIN);
@@ -95,7 +95,7 @@ public class DomainServiceImpl extends BaseServiceImpl implements DomainService,
 	}
 
 	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Domain> getDomains(Integer limit, Integer offset) {
 		List<Domain> result = this.getDomainRepository().getDomains(limit, offset);
 		return result;

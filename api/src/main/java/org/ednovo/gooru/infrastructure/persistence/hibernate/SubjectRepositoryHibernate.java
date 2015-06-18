@@ -40,7 +40,6 @@ public class SubjectRepositoryHibernate extends BaseRepositoryHibernate
 	private static final String SUBJECT_MAX = "SELECT MAX(subject.displaySequence) FROM Subject subject";
 	private static final String SUBJECTS = "FROM Subject subject where subject.activeFlag=1";
 	private static final String SUBJECT = "FROM Subject subject WHERE subject.subjectId=:subjectId";
-	private static final String SUBJECT_DISPLAYSEQUENCE = "FROM Subject subject WHERE subject.creator.partyUid=:userUid and subject.displaySequence>=:displaySequence";
     private static final String COURSES = "select c.course_id courseId,c.name from subject s inner join course c on s.subject_id=c.subject_id where s.subject_id=:subjectId";
 	
    
@@ -63,11 +62,11 @@ public class SubjectRepositoryHibernate extends BaseRepositoryHibernate
 	
 	
 	public List<Subject> getSubjects(Integer classificationTypeId,Integer limit, Integer offset) {
-		String hql = SUBJECTS;
+		StringBuilder hql = new StringBuilder(SUBJECTS);
 		if(classificationTypeId != null){
-			hql += "and subject.classificationTypeId=:classificationTypeId";
+			hql.append("and subject.classificationTypeId=:classificationTypeId");
 		}
-		Query query = getSession().createQuery(hql);
+		Query query = getSession().createQuery(hql.toString());
 		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT: limit) : limit);
 		query.setFirstResult(offset);
 		if(classificationTypeId != null){

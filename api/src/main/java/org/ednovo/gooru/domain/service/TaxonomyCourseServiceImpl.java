@@ -97,7 +97,7 @@ public class TaxonomyCourseServiceImpl extends BaseServiceImpl implements Taxono
 	}
 
 	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public TaxonomyCourse getTaxonomyCourse(Integer courseId) {
 		TaxonomyCourse course = this.getTaxonomyCourseRepository().getCourse(courseId);
 		rejectIfNull(course, GL0056, 404, COURSE);
@@ -106,7 +106,7 @@ public class TaxonomyCourseServiceImpl extends BaseServiceImpl implements Taxono
 	}
 
 	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<TaxonomyCourse> getTaxonomyCourses(Integer limit, Integer offset) {
 		List<TaxonomyCourse> result = this.getTaxonomyCourseRepository().getCourses(limit, offset);
 		return result;
@@ -123,7 +123,7 @@ public class TaxonomyCourseServiceImpl extends BaseServiceImpl implements Taxono
 	}
 
 	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Map<String, Object>> getDomains(Integer courseId) {
 		List<Map<String, Object>> result = this.getTaxonomyCourseRepository().getDomains(courseId);
 		rejectIfNull(result, GL0056, 404, DOMAIN);

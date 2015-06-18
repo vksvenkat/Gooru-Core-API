@@ -78,8 +78,7 @@ public class TaxonomyCourseRepositoryHibernate extends BaseRepositoryHibernate i
 	public List<Map<String, Object>> getDomains(Integer courseId) {
 		Query query = getSession().createSQLQuery(GET_DOMAINS).setParameter(COURSE_ID, courseId);
 		query.setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP);
-		List<Map<String, Object>> results = list(query);
-		return results.size() > 0 ? results : null;
+		return list(query);
 	}
 
 }
