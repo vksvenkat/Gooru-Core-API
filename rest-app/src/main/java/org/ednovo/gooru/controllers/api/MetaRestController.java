@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////
-// SubjectRestV2Controller.java
+// MetaRestController.java
 // restapp
 // Created by Gooru on 2015
 // Copyright (c) 2015 Gooru. All rights reserved.

@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.ednovo.gooru.core.api.model.CustomTableValue;
+import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate;
 import org.hibernate.Criteria;
 import org.hibernate.Query;
@@ -34,7 +35,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class CustomTableRepositopryHibernate extends BaseRepositoryHibernate implements CustomTableRepository {
+public class CustomTableRepositopryHibernate extends BaseRepositoryHibernate implements CustomTableRepository, ParameterProperties {
 
 	private final String RETIREVE_BY_NAME_VALUE = "From CustomTableValue ctv  where  ctv.value=:value  and  ctv.customTable.name=:name  and " + generateOrgAuthQuery("ctv.customTable.");
 	private final String RETIREVE_BY_NAME = "From CustomTableValue ctv  where ctv.customTable.name=:name  and " + generateOrgAuthQuery("ctv.customTable.");
@@ -95,7 +96,7 @@ public class CustomTableRepositopryHibernate extends BaseRepositoryHibernate imp
 	@Override
 	public List<Map<String, Object>> getMetaValue(String type) {
 		Query query = getSession().createSQLQuery(GET_VALUE_BY_NAME);
-		query.setParameter("type", type);
+		query.setParameter(TYPE, type);
 		query.setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP);
 		return list(query);
 	}
