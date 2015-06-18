@@ -42,7 +42,7 @@ public class CustomTableRepositopryHibernate extends BaseRepositoryHibernate imp
 	private final String GET_FILTER_VALUE_FROM_CUSTOMTABLE = "From CustomTableValue ctv  where ctv.customTable.name=:name";
 	private final String GET_VALUE_BY_DISPLAY_NAME = "From CustomTableValue ctv  where ctv.displayName =:displayName and ctv.customTable.name=:name";
 	private final String GET_CUSTOM_TABLE_VALUES = "FROM  CustomTableValue ct where ct.customTable.name=:type";
-	private final String GET_VALUE_BY_NAME = "select ctv.custom_table_value_id id,ctv.display_name name from custom_table c inner join custom_table_value ctv on c.custom_table_id = ctv.custom_table_id  where c.name=:type";
+	private final String GET_CUSTOM_VALUES = "select ctv.custom_table_value_id id,ctv.display_name name from custom_table c inner join custom_table_value ctv on c.custom_table_id = ctv.custom_table_id  where c.name=:type";
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -95,7 +95,7 @@ public class CustomTableRepositopryHibernate extends BaseRepositoryHibernate imp
 
 	@Override
 	public List<Map<String, Object>> getMetaValue(String type) {
-		Query query = getSession().createSQLQuery(GET_VALUE_BY_NAME);
+		Query query = getSession().createSQLQuery(GET_CUSTOM_VALUES);
 		query.setParameter(TYPE, type);
 		query.setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP);
 		return list(query);
