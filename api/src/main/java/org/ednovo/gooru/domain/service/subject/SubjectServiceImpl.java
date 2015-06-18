@@ -73,6 +73,12 @@ public class SubjectServiceImpl extends BaseServiceImpl implements
 		reject((subject.getActiveFlag() == 1), GL0107, SUBJECT);
 		return subject;
 	}
+	
+	@Override
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public List<Map<String, Object>> getCourses(int offset, int limit, int subjectId) {
+        return this.getSubjectRepository().getCourses(offset, limit, subjectId);
+	}
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)

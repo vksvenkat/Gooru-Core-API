@@ -35,6 +35,7 @@ public class ClassRestV3Controller extends BaseController implements ConstantPro
 	private ClassService classService;
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ADD })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.POST)
 	public ModelAndView createClass(@RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response)  {
 		final User user = (User) request.getAttribute(Constants.USER);
@@ -50,10 +51,10 @@ public class ClassRestV3Controller extends BaseController implements ConstantPro
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_UPDATE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/{id}", method = { RequestMethod.PUT })
-	public ModelAndView updateClass(@PathVariable(value = ID) final String classId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response)  {
-		return null;
+	public void updateClass(@PathVariable(value = ID) final String classUId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+		final User user = (User) request.getAttribute(Constants.USER);
+		this.getClassService().updateClass(classUId, this.buildClass(data), user);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ })

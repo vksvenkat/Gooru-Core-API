@@ -29,7 +29,7 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 	private ClassRepository classRepository;
 
 	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+
 	public ActionResponseDTO<UserClass> createClass(UserClass userClass, User user) {
 		Errors errors = validateClass(userClass);
 		if (!errors.hasErrors()) {
@@ -47,12 +47,27 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 	}
 
 	@Override
-	public ActionResponseDTO<UserClass> updateClass(UserClass newUserClass) {
-
-		if (newUserClass.getName() != null) {
-
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public void updateClass(String classUId, UserClass newUserClass, User user) {
+	    UserClass userClass = this.getClassRepository().getClassById(classUId);
+	    rejectIfNull(userClass, GL0056, CLASS);
+	    
+		if (newUserClass.getName() != null ) { 
+			userClass.setName(newUserClass.getName());
 		}
-		return null;
+		if (newUserClass.getDescription() != null ) {
+			userClass.setDescription(newUserClass.getDescription());
+		}
+		if (newUserClass.getVisibility() != null ) {
+			userClass.setVisibility(newUserClass.getVisibility());
+		}
+		if (newUserClass.getMinimumScore() != null) {
+			userClass.setMinimumScore(newUserClass.getMinimumScore());
+		}
+		userClass.setLastModifiedOn(new Date(System.currentTimeMillis()));
+		userClass.setLastModifiedUserUid(user.getPartyUid());
+			this.getClassRepository().save(userClass);
+
 	}
 
 	@Override
@@ -90,6 +105,7 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Map<String, Object> getClass(String classUid) {
 		Map<String, Object> result = this.getClassRepository().getClass(classUid);
+		rejectIfNull(result, GL0056, CLASS);
 		setClass(result);
 		return result;
 	}

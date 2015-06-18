@@ -52,7 +52,8 @@ public class ClassRepositoryHibernate extends BaseRepositoryHibernate implements
 	public Map<String, Object> getClass(String classUid) {
 		StringBuilder sql = new StringBuilder(GET_CLASSES);
 		sql.append("where party_uid = :partyUid order by p.created_on desc");
-		Query query = getSession().createSQLQuery(GET_CLASSES);
+		Query query = getSession().createSQLQuery(sql.toString());
+		query.setParameter(PARTY_UID, classUid);
 		query.setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP);
 		List<Map<String, Object>> results = list(query);
 		return results.size() > 0 ? results.get(0) : null;
