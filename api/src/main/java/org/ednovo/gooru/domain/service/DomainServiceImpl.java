@@ -26,9 +26,11 @@ package org.ednovo.gooru.domain.service;
 import java.util.Date;
 import java.util.List;
 
+import org.ednovo.gooru.application.util.GooruImageUtil;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Domain;
 import org.ednovo.gooru.core.api.model.RequestMappingUri;
+import org.ednovo.gooru.core.api.model.Subject;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
@@ -91,14 +93,22 @@ public class DomainServiceImpl extends BaseServiceImpl implements DomainService,
 		Domain domain = this.getDomainRepository().getDomain(domainId);
 		reject((domain.getActiveFlag() == 1), GL0107, DOMAIN);
 		rejectIfNull(domain, GL0056, 404, DOMAIN_);
+		if(domain.getImagePath() != null){
+			domain.setThumbnail(GooruImageUtil.getThumbnail(domain.getImagePath()));
+		}
 		return domain;
 	}
 
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Domain> getDomains(Integer limit, Integer offset) {
-		List<Domain> result = this.getDomainRepository().getDomains(limit, offset);
-		return result;
+		List<Domain> domains = this.getDomainRepository().getDomains(limit, offset);
+		for(Domain domain: domains){
+			if(domain.getImagePath() != null){
+				domain.setThumbnail(GooruImageUtil.getThumbnail(domain.getImagePath()));
+			}
+		}
+		return domains;
 	}
 
 	@Override

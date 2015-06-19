@@ -26,7 +26,7 @@ package org.ednovo.gooru.domain.service.subject;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-
+import org.ednovo.gooru.application.util.GooruImageUtil;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Subject;
 import org.ednovo.gooru.core.api.model.User;
@@ -71,6 +71,9 @@ public class SubjectServiceImpl extends BaseServiceImpl implements
 		Subject subject = this.getSubjectRepository().getSubject(subjectId);
 		rejectIfNull(subject, GL0056, 404, SUBJECT);
 		reject((subject.getActiveFlag() == 1), GL0107, SUBJECT);
+		if(subject.getImagePath() != null){
+			subject.setThumbnail(GooruImageUtil.getThumbnail(subject.getImagePath()));
+		}
 		return subject;
 	}
 	
@@ -93,8 +96,13 @@ public class SubjectServiceImpl extends BaseServiceImpl implements
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Subject> getSubjects(Integer classificationTypeId,Integer limit, Integer offset) {
-		List<Subject> result = this.getSubjectRepository().getSubjects(classificationTypeId, limit, offset);
-		return result;
+		List<Subject> subjects = this.getSubjectRepository().getSubjects(classificationTypeId, limit, offset);
+		for(Subject subject: subjects){
+			if(subject.getImagePath() != null){
+				subject.setThumbnail(GooruImageUtil.getThumbnail(subject.getImagePath()));
+			}
+		}
+		return subjects;
 	}
 
 	@Override

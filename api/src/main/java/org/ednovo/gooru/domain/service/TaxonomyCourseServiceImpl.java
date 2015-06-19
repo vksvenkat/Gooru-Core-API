@@ -27,6 +27,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.ednovo.gooru.application.util.GooruImageUtil;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Domain;
 import org.ednovo.gooru.core.api.model.Subject;
@@ -102,14 +103,22 @@ public class TaxonomyCourseServiceImpl extends BaseServiceImpl implements Taxono
 		TaxonomyCourse course = this.getTaxonomyCourseRepository().getCourse(courseId);
 		rejectIfNull(course, GL0056, 404, COURSE);
 		reject((course.getActiveFlag() == 1), GL0107, COURSE);
+		if(course.getImagePath() != null){
+			course.setThumbnail(GooruImageUtil.getThumbnail(course.getImagePath()));
+		}
 		return course;
 	}
 
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<TaxonomyCourse> getTaxonomyCourses(Integer limit, Integer offset) {
-		List<TaxonomyCourse> result = this.getTaxonomyCourseRepository().getCourses(limit, offset);
-		return result;
+		List<TaxonomyCourse> courses = this.getTaxonomyCourseRepository().getCourses(limit, offset);
+		for(TaxonomyCourse course: courses){
+			if(course.getImagePath() != null){
+				course.setThumbnail(GooruImageUtil.getThumbnail(course.getImagePath()));
+			}
+		}
+		return courses;
 	}
 
 	@Override

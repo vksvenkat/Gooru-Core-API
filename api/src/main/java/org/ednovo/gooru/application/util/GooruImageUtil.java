@@ -48,6 +48,7 @@ import net.coobird.thumbnailator.Thumbnails;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.ednovo.gooru.core.constant.ConfigConstants;
+import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.restlet.data.Method;
 import org.slf4j.Logger;
@@ -60,7 +61,7 @@ import com.mortennobel.imagescaling.ResampleOp;
 import com.sun.pdfview.PDFFile;
 
 @Component
-public class GooruImageUtil {
+public class GooruImageUtil implements ParameterProperties {
 
 	private static GooruImageUtil instance;
 	
@@ -256,6 +257,24 @@ public class GooruImageUtil {
 		return pdfFile;
 		
 	}
+	
+	public static String getThumbnail(String fileName){
+		StringBuilder imagePath = new StringBuilder();
+		imagePath.append(ConfigProperties.getBaseRepoUrl());
+		imagePath.append(File.separator);
+		imagePath.append(fileName);
+		return imagePath.toString();
+	}
+
+	public static Map<String, Object> setThumbnails(Object thumbnail) {
+		StringBuilder url = new StringBuilder(ConfigProperties.getBaseRepoUrl());
+		url.append(File.separator);
+		url.append(thumbnail);
+		Map<String, Object> thumbnails = new HashMap<String, Object>();
+		thumbnails.put(URL, url);
+		return thumbnails;
+	}
+	
 	public static GooruImageUtil getInstance() {
 		return instance;
 	}

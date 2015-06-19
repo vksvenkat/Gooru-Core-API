@@ -57,6 +57,16 @@ public class Subject implements Serializable {
 	private User creator;
 	
 	private String uri;
+	
+	private String thumbnail;
+
+	public String getThumbnail() {
+		return thumbnail;
+	}
+
+	public void setThumbnail(String thumbnail) {
+		this.thumbnail = thumbnail;
+	}
 
 	public User getCreator() {
 		return creator;

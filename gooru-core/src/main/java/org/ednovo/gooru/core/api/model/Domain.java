@@ -48,6 +48,8 @@ public class Domain implements Serializable {
 	private Date lastModified;
 	
 	private String uri;
+	
+	private String thumbnail;
 
 	public String getName() {
 		return name;
@@ -119,6 +121,14 @@ public class Domain implements Serializable {
 
 	public void setUri(String uri) {
 		this.uri = uri;
+	}
+
+	public String getThumbnail() {
+		return thumbnail;
+	}
+
+	public void setThumbnail(String thumbnail) {
+		this.thumbnail = thumbnail;
 	}
 
 
