@@ -822,7 +822,7 @@ public interface ConstantProperties {
 
 	static final String COURSE_[] = {"*.courseId","*.name","*.description","*.subjectId","*.courseCode","*.grades","*.activeFlag","*.organizationUid","*.totalHitCount", "*.searchResults","*.thumbnail"};
 	
-	static final String DOMAIN[] = {"*.domainId","*.name","*.description","*.activeFlag","*.organizationUid","*.totalHitCount", "*.searchResults","*.thumbnail"};
+	static final String DOMAIN[] = {"*.domainId","*.name","*.description","*.activeFlag","*.organizationUid","*.totalHitCount", "*.searchResults","*.thumbnail", "thumbnail.url"};
 	
 	static final String STATE[] = { "*.stateUid", "*.stateCode", "*.name", "*.totalHitCount", "*.searchResults" };
 
@@ -919,4 +919,5 @@ public interface ConstantProperties {
 	final static String SUBDOMAIN_ID = "subdomainId";
 	
 	final static String CLASS_INCLUDES[] = {"classUid","classCode","name","description", "visibility", "*.minimumScore", "*.memberCount", "user.username", "user.gooruUId", "user.gender", "*.thumbnails", "*.user", "thumbnails.url", "courseGooruOid"};
+	
 }

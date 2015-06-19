@@ -24,12 +24,12 @@
 package org.ednovo.gooru.domain.service;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.ednovo.gooru.application.util.GooruImageUtil;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
-import org.ednovo.gooru.core.api.model.Domain;
 import org.ednovo.gooru.core.api.model.Subject;
 import org.ednovo.gooru.core.api.model.TaxonomyCourse;
 import org.ednovo.gooru.core.api.model.User;
@@ -134,9 +134,16 @@ public class TaxonomyCourseServiceImpl extends BaseServiceImpl implements Taxono
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Map<String, Object>> getDomains(Integer courseId) {
-		List<Map<String, Object>> result = this.getTaxonomyCourseRepository().getDomains(courseId);
-		rejectIfNull(result, GL0056, 404, DOMAIN);
-		return result;
+		List<Map<String, Object>> domains = this.getTaxonomyCourseRepository().getDomains(courseId);
+		rejectIfNull(domains, GL0056, 404, DOMAIN);
+		for(Map<String, Object> domain: domains){
+			Map<String, Object> map = new HashMap<String, Object>();
+			if(domain.get(IMAGE_PATH) != null){
+				map.put(URL,GooruImageUtil.getThumbnail(domain.get(IMAGE_PATH)).toString());
+				domain.put(THUMBNAIL,map);
+			}
+		}
+		return domains;
 	}
 
 	private Errors validateCourse(TaxonomyCourse course) {

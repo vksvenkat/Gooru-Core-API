@@ -40,15 +40,11 @@ import java.nio.channels.FileChannel.MapMode;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-
 import javax.imageio.ImageIO;
-
 import net.coobird.thumbnailator.Thumbnails;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.ednovo.gooru.core.constant.ConfigConstants;
-import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.restlet.data.Method;
 import org.slf4j.Logger;
@@ -61,7 +57,7 @@ import com.mortennobel.imagescaling.ResampleOp;
 import com.sun.pdfview.PDFFile;
 
 @Component
-public class GooruImageUtil implements ParameterProperties {
+public class GooruImageUtil{
 
 	private static GooruImageUtil instance;
 	
@@ -70,6 +66,8 @@ public class GooruImageUtil implements ParameterProperties {
 	
 	@Autowired
 	private AsyncExecutor asyncExecutor;
+	
+	private static String URL;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(GooruImageUtil.class);
 
@@ -258,7 +256,7 @@ public class GooruImageUtil implements ParameterProperties {
 		
 	}
 	
-	public static String getThumbnail(String fileName){
+	public static String getThumbnail(Object fileName){
 		StringBuilder imagePath = new StringBuilder();
 		imagePath.append(ConfigProperties.getBaseRepoUrl());
 		imagePath.append(File.separator);
