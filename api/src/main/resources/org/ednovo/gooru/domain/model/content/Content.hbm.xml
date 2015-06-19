@@ -138,6 +138,53 @@
 				not-null="false" />
 		</joined-subclass>
 
+		<joined-subclass name="org.ednovo.gooru.core.api.model.Collection"
+			table="collection" lazy="true">
+			<key column="content_id" />
+			<property name="title" column="title" not-null="true" />
+			<property name="description" column="description" not-null="false" />
+			<property name="url" column="url" not-null="false" />
+			<property name="goals" column="goals" not-null="false" />
+			<property name="collectionType" column="collection_type"
+				not-null="true" />
+			<property name="itemCount" column="item_count" not-null="false" />
+			<property name="imagePath" column="image_path" not-null="false" />
+			<property name="narrationLink" column="narration_link"
+				not-null="false" />
+			<property name="notes" column="notes" not-null="false" />
+			<property name="keyPoints" column="key_points" not-null="false" />
+			<property name="language" column="language" not-null="false" />
+			<property name="estimatedTime" column="estimated_time"
+				not-null="false" />
+			<property name="network" column="network" not-null="false" />
+			<property name="mailNotification" column="mail_notification"
+				length="1" not-null="false" />
+			<property name="ideas" column="ideas" not-null="false" />
+			<property name="questions" column="questions" not-null="false" />
+			<property name="performanceTasks" column="performance_tasks"
+				not-null="false" />
+			<property name="languageObjective" column="language_objective"
+				not-null="false" />
+			<many-to-one name="buildType"
+				class="org.ednovo.gooru.core.api.model.CustomTableValue" column="build_type_id"
+				not-null="false" lazy="proxy" cascade="none" />
+			<many-to-one name="publishStatus"
+				class="org.ednovo.gooru.core.api.model.CustomTableValue" column="publish_status_id"
+				not-null="false" lazy="proxy" cascade="none" />
+			<property name="clusterUid" column="cluster_uid" not-null="false" />
+			<property name="isRepresentative" column="is_representative"
+				not-null="false" />
+			<property name="copiedCollectionId" column="copied_collection_id"
+				not-null="false" />
+			<property name="lastAccessedTime" column="last_accessed_time"
+				not-null="false" />
+			<set name="collectionItems" inverse="true" cascade="none" lazy="true"
+				sort="org.ednovo.gooru.core.api.model.CollectionItemComparator">
+				<key column="collection_content_id" />
+				<one-to-many class="org.ednovo.gooru.core.api.model.CollectionItem" />
+			</set>
+		</joined-subclass>
+
 		<joined-subclass name="org.ednovo.gooru.core.api.model.Resource"
 			table="resource" lazy="true">
 			<key column="content_id" />
@@ -176,8 +223,6 @@
 			<property name="isRepresentative" column="is_representative"
 				not-null="false" />
 
-			<property name="numberOfSubcribers" column="number_of_subcribers"
-				not-null="false" />
 			<property name="sourceReference" column="source_reference"
 				not-null="false"></property>
 			<property name="s3UploadFlag" column="s3_upload_flag"
@@ -260,45 +305,6 @@
 					<property name="redirectUrl" column="redirect_url"
 						not-null="false" />
 				</joined-subclass>
-			</joined-subclass>
-
-			<joined-subclass name="org.ednovo.gooru.core.api.model.Collection"
-				table="collection" lazy="true">
-				<key column="content_id" />
-				<property name="collectionType" column="collection_type"
-					not-null="true" />
-				<property name="itemCount" column="item_count" not-null="false" />
-				<property name="narrationLink" column="narration_link"
-					not-null="false" />
-				<property name="notes" column="notes" not-null="false" />
-				<property name="keyPoints" column="key_points" not-null="false" />
-				<property name="language" column="language" not-null="false" />
-				<property name="goals" column="goals" not-null="false" />
-				<property name="estimatedTime" column="estimated_time"
-					not-null="false" />
-				<property name="network" column="network" not-null="false" />
-				<property name="mailNotification" column="mail_notification"
-					length="1" not-null="false" />
-				<property name="ideas" column="ideas" not-null="false" />
-				<property name="questions" column="questions" not-null="false" />
-				<property name="performanceTasks" column="performance_tasks"
-					not-null="false" />
-				<property name="languageObjective" column="language_objective"
-					not-null="false" />
-
-				<many-to-one name="buildType"
-					class="org.ednovo.gooru.core.api.model.CustomTableValue" column="build_type_id"
-					not-null="false" lazy="proxy" cascade="none" />
-
-				<many-to-one name="publishStatus"
-					class="org.ednovo.gooru.core.api.model.CustomTableValue" column="publish_status_id"
-					not-null="false" lazy="proxy" cascade="none" />
-
-				<set name="collectionItems" inverse="true" cascade="none" lazy="true"
-					sort="org.ednovo.gooru.core.api.model.CollectionItemComparator">
-					<key column="collection_content_id" />
-					<one-to-many class="org.ednovo.gooru.core.api.model.CollectionItem" />
-				</set>
 			</joined-subclass>
 
 			<joined-subclass name="org.ednovo.gooru.core.api.model.AssessmentQuestion"
