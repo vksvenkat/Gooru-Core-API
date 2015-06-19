@@ -49,7 +49,7 @@ public class Domain implements Serializable {
 	
 	private String uri;
 	
-	private String thumbnail;
+	private String thumbnails;
 
 	public String getName() {
 		return name;
@@ -123,12 +123,12 @@ public class Domain implements Serializable {
 		this.uri = uri;
 	}
 
-	public String getThumbnail() {
-		return thumbnail;
+	public String getThumbnails() {
+		return thumbnails;
 	}
 
-	public void setThumbnail(String thumbnail) {
-		this.thumbnail = thumbnail;
+	public void setThumbnails(String thumbnails) {
+		this.thumbnails = thumbnails;
 	}
 
 

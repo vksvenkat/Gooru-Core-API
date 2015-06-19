@@ -104,7 +104,7 @@ public class TaxonomyCourseServiceImpl extends BaseServiceImpl implements Taxono
 		rejectIfNull(course, GL0056, 404, COURSE);
 		reject((course.getActiveFlag() == 1), GL0107, COURSE);
 		if(course.getImagePath() != null){
-			course.setThumbnail(GooruImageUtil.getThumbnail(course.getImagePath()));
+			course.setThumbnails(GooruImageUtil.getThumbnails(course.getImagePath()));
 		}
 		return course;
 	}
@@ -115,7 +115,7 @@ public class TaxonomyCourseServiceImpl extends BaseServiceImpl implements Taxono
 		List<TaxonomyCourse> courses = this.getTaxonomyCourseRepository().getCourses(limit, offset);
 		for(TaxonomyCourse course: courses){
 			if(course.getImagePath() != null){
-				course.setThumbnail(GooruImageUtil.getThumbnail(course.getImagePath()));
+				course.setThumbnails(GooruImageUtil.getThumbnails(course.getImagePath()));
 			}
 		}
 		return courses;
@@ -139,8 +139,8 @@ public class TaxonomyCourseServiceImpl extends BaseServiceImpl implements Taxono
 		for(Map<String, Object> domain: domains){
 			Map<String, Object> map = new HashMap<String, Object>();
 			if(domain.get(IMAGE_PATH) != null){
-				map.put(URL,GooruImageUtil.getThumbnail(domain.get(IMAGE_PATH)).toString());
-				domain.put(THUMBNAIL,map);
+				map.put(URL,GooruImageUtil.getThumbnails(domain.get(IMAGE_PATH)).toString());
+				domain.put(THUMBNAILS,map);
 			}
 		}
 		return domains;

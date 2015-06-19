@@ -58,7 +58,7 @@ public class TaxonomyCourse implements Serializable {
  
 	private String uri;
 	
-	private String Thumbnail;
+	private String thumbnails;
 
 	public String getCourseCode() {
 		return courseCode;
@@ -164,11 +164,11 @@ public class TaxonomyCourse implements Serializable {
 		this.uri = uri;
 	}
 
-	public String getThumbnail() {
-		return Thumbnail;
+	public String getThumbnails() {
+		return thumbnails;
 	}
 
-	public void setThumbnail(String thumbnail) {
-		Thumbnail = thumbnail;
+	public void setThumbnails(String thumbnails) {
+		this.thumbnails = thumbnails;
 	}
 }

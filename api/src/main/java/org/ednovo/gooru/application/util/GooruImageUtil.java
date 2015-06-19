@@ -256,7 +256,7 @@ public class GooruImageUtil{
 		
 	}
 	
-	public static String getThumbnail(Object fileName){
+	public static String getThumbnails(Object fileName){
 		StringBuilder imagePath = new StringBuilder();
 		imagePath.append(ConfigProperties.getBaseRepoUrl());
 		imagePath.append(File.separator);

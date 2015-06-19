@@ -76,7 +76,7 @@ public class SubjectServiceImpl extends BaseServiceImpl implements
 		rejectIfNull(subject, GL0056, 404, SUBJECT);
 		reject((subject.getActiveFlag() == 1), GL0107, SUBJECT);
 		if(subject.getImagePath() != null){
-			subject.setThumbnail(GooruImageUtil.getThumbnail(subject.getImagePath()));
+			subject.setThumbnails(GooruImageUtil.getThumbnails(subject.getImagePath()));
 		}
 		return subject;
 	}
@@ -89,8 +89,8 @@ public class SubjectServiceImpl extends BaseServiceImpl implements
 		for(Map<String, Object> course: courses){
 			Map<String, Object> map = new HashMap<String, Object>();
 			if(course.get(IMAGE_PATH) != null){
-				map.put(URL,GooruImageUtil.getThumbnail(course.get(IMAGE_PATH)).toString());
-				course.put(THUMBNAIL,map);
+				map.put(URL,GooruImageUtil.getThumbnails(course.get(IMAGE_PATH)).toString());
+				course.put(THUMBNAILS,map);
 			}
 		}
 		return courses;
@@ -112,7 +112,7 @@ public class SubjectServiceImpl extends BaseServiceImpl implements
 		List<Subject> subjects = this.getSubjectRepository().getSubjects(classificationTypeId, limit, offset);
 		for(Subject subject: subjects){
 			if(subject.getImagePath() != null){
-				subject.setThumbnail(GooruImageUtil.getThumbnail(subject.getImagePath()));
+				subject.setThumbnails(GooruImageUtil.getThumbnails(subject.getImagePath()));
 			}
 		}
 		return subjects;
