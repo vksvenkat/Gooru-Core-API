@@ -160,9 +160,9 @@ public class FileManager implements ResourceManager,ParameterProperties {
 	}
 
 	@Override
-	public void copyResourceRepository(Resource sourceCollection, Resource targetCollection) throws Exception {
-		File srcPath = new File(getAbsoluteURI(sourceCollection));
-		File dstPath = new File(getAbsoluteURI(targetCollection));
+	public void copyResourceRepository(String  sourceFilepath, String targetFilePath) throws Exception {
+		File srcPath = new File(sourceFilepath);
+		File dstPath = new File(targetFilePath);
 
 		if (srcPath.exists()) {
 			try {
@@ -171,10 +171,6 @@ public class FileManager implements ResourceManager,ParameterProperties {
 				throw new RuntimeException("Error while copying resource.", e);
 			}
 		}
-	}
-
-	private String getAbsoluteURI(Resource resource) {
-		return resource.getOrganization().getNfsStorageArea().getInternalPath() + resource.getFolder() + "/";
 	}
 	
 	private String getAbsoluteURI(String folder) {

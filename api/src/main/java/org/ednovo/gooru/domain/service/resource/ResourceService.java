@@ -32,6 +32,7 @@ import java.util.Set;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.api.model.Collection;
+import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.ResourceInfo;
 import org.ednovo.gooru.core.api.model.ResourceSource;
@@ -127,7 +128,7 @@ public interface ResourceService extends BaseService {
 
 	Map<String, Object> getSuggestedResourceMetaData(String url, String title, boolean fetchThumbnail);
 
-	void saveOrUpdateResourceTaxonomy(Resource resource, Set<Code> taxonomySet);
+	void saveOrUpdateResourceTaxonomy(Content content, Set<Code> taxonomySet);
 
 	void deleteResourceTaxonomy(Resource resource, Set<Code> taxonomySet);
 

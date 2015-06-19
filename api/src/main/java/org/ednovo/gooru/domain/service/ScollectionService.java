@@ -34,6 +34,7 @@ import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
+import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.ContentMetaDTO;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.ResourceSummary;
@@ -48,8 +49,6 @@ import org.springframework.util.MultiValueMap;
  */
 public interface ScollectionService extends BaseService {
 
-	ActionResponseDTO<Collection> createCollection(Collection collection, boolean addToShelf, String resourceId, String taxonomyCode, boolean updateTaxonomyByCode, String parentId) throws Exception;
-
 	ActionResponseDTO<Collection> createCollection(Collection newCollection, boolean addToShelf, String resourceId, String parentId, User user) throws Exception;
 
 	ActionResponseDTO<Collection> updateCollection(Collection newCollection, String updateCollectionId, String ownerUId, String creatorUId, boolean hasUnrestrictedContentAccess, String relatedContentId, User user, String data) throws Exception;
@@ -61,8 +60,6 @@ public interface ScollectionService extends BaseService {
 	ActionResponseDTO<CollectionItem> createResourceWithCollectionItem(String collectionId, Resource newResource, String start, String stop, List<String> tags, User user) throws Exception;
 	
 	ActionResponseDTO<CollectionItem> updateResourceWithCollectionItem(String collectionItemId, Resource newResource,List<String> tags ,User user, String data) throws Exception;
-
-	List<Collection> getMyCollection(String limit, String offset, String orderBy, String fetchType, String resourceType, User user);
 
 	List<CollectionItem> getCollectionItems(String collectionId, Integer offset, Integer limit, String orderBy, String type);
 
@@ -102,8 +99,6 @@ public interface ScollectionService extends BaseService {
 
 	List<Collection> getMyCollection(Map<String, String> filters, User user);
 
-	List<Collection> getMyCollection(String offset, String limit, String type, String filter, User user);
-
 	Collection updateCollectionMetadata(String collectionId, String creatorUId, String ownerUId, boolean hasUnrestrictedContentAccess, MultiValueMap<String, String> data, User user);
 
 	CollectionItem updateCollectionItemMetadata(String collectionItemId, MultiValueMap<String, String> data, User apiCaller);
@@ -142,9 +137,9 @@ public interface ScollectionService extends BaseService {
 	
 	Map<String, Object> setRatingsObj(ResourceSummary resourceSummary);
 	
-	List<ContentMetaDTO> setContentMetaAssociation(List<ContentMetaDTO> depthOfKnowledges, Resource resource, String type);
+	List<ContentMetaDTO> setContentMetaAssociation(List<ContentMetaDTO> depthOfKnowledges, Content content, String type);
 	
-	List<ContentMetaDTO> updateContentMeta(List<ContentMetaDTO> newDepthOfKnowledges, Resource resource, User apiCaller, String type);
+	List<ContentMetaDTO> updateContentMeta(List<ContentMetaDTO> newDepthOfKnowledges, Content content, User apiCaller, String type);
 	
 	void deleteCollectionItem(String collectionItemId);
 	

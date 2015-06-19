@@ -70,13 +70,13 @@ public class AsyncExecutor {
 		transactionTemplate = new TransactionTemplate(transactionManager);
 	}
 
-	public void copyResourceFolder(final Resource srcResource, final Resource destResource) {
+	public void copyResourceFolder(final String sourceFilePath, final String targetFilepath) {
 		transactionTemplate.execute(new TransactionCallback<Void>() {
 			@Override
 			public Void doInTransaction(TransactionStatus status) {
 				try {
 					logger.debug("coping resource folder");
-					getResourceManager().copyResourceRepository(srcResource, destResource);
+					getResourceManager().copyResourceRepository(sourceFilePath, targetFilepath);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}

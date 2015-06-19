@@ -159,7 +159,7 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 
 	@Autowired
 	private IndexHandler indexHandler;
-	
+
 	@Autowired
 	private MongoQuestionsService mongoQuestionsService;
 
@@ -334,7 +334,7 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 					existingQuestion.setResourceSource(resourceSource);
 				}
 				existingQuestion.setDifficultyLevel(question.getDifficultyLevel());
-		
+
 				if (question.getTitle() != null) {
 					existingQuestion.setTitle(question.getTitle());
 				}
@@ -380,8 +380,8 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 			question.setTitle("");
 		}
 		ServerValidationUtils.rejectIfNull(question.getTitle(), GL0006, QUESTION_TITLE);
-		ServerValidationUtils.rejectIfMaxLimitExceed(1000, question.getTitle(), GL0014, QUESTION_TITLE,"1000");
-		
+		ServerValidationUtils.rejectIfMaxLimitExceed(1000, question.getTitle(), GL0014, QUESTION_TITLE, "1000");
+
 		if (question.getExplanation() == null) {
 			question.setExplanation("");
 		}
@@ -707,7 +707,11 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 				}
 				copyQuestion.setAssets(questionAssets);
 			}
-			this.getAsyncExecutor().copyResourceFolder(question, copyQuestion);
+			StringBuilder sourceFilepath = new StringBuilder(question.getOrganization().getNfsStorageArea().getInternalPath());
+			sourceFilepath.append(question.getFolder()).append(File.separator);
+			StringBuilder targetFilepath = new StringBuilder(copyQuestion.getOrganization().getNfsStorageArea().getInternalPath());
+			targetFilepath.append(copyQuestion.getFolder()).append(File.separator);
+			this.getAsyncExecutor().copyResourceFolder(sourceFilepath.toString(), targetFilepath.toString());
 
 		}
 		return copyQuestion;
@@ -920,9 +924,9 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 		xstream.alias(_DEPTH_OF_KNOWLEDGE, ContentMetaDTO.class);
 		xstream.alias(_EDUCATIONAL_USE, ContentMetaDTO.class);
 		/*
-		 * The change to make sure that if we add some other attributes tomorrow,
-		 * or as we have added today, we don't have to make them parse in JAVA as
-		 * they can directly be transferred to JSON store
+		 * The change to make sure that if we add some other attributes
+		 * tomorrow, or as we have added today, we don't have to make them parse
+		 * in JAVA as they can directly be transferred to JSON store
 		 */
 		xstream.ignoreUnknownElements();
 		AssessmentQuestion question = null;
@@ -955,7 +959,7 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 		if (question != null) {
 			assessmentRepository.remove(AssessmentQuestion.class, question.getContentId());
 			indexHandler.setReIndexRequest(question.getGooruOid(), IndexProcessor.DELETE, RESOURCE, null, false, false);
-          return 1;
+			return 1;
 		}
 		return 0;
 	}
@@ -964,7 +968,6 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 	public String findAssessmentNameByGooruOId(String gooruOId) {
 		return assessmentRepository.findAssessmentNameByGooruOid(gooruOId);
 	}
-
 
 	public ResourceImageUtil getResourceImageUtil() {
 		return resourceImageUtil;
