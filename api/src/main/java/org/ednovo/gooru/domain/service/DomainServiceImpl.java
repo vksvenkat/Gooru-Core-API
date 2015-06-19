@@ -23,12 +23,15 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.domain.service;
 
+import java.io.File;
 import java.util.Date;
 import java.util.List;
 
+import org.ednovo.gooru.application.util.GooruImageUtil;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Domain;
 import org.ednovo.gooru.core.api.model.RequestMappingUri;
+import org.ednovo.gooru.core.api.model.Subject;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
@@ -42,6 +45,9 @@ public class DomainServiceImpl extends BaseServiceImpl implements DomainService,
 
 	@Autowired
 	private DomainRepository domainRepository;
+	
+	@Autowired
+	private GooruImageUtil gooruImageUtil;
 
 	@Override
 	public ActionResponseDTO<Domain> createDomain(Domain domain, User user) {
@@ -78,6 +84,11 @@ public class DomainServiceImpl extends BaseServiceImpl implements DomainService,
 			domain.setDisplaySequence(domain.getDisplaySequence());
 		}
 		domain.setLastModified(new Date(System.currentTimeMillis()));
+		String mediaFilename = newDomain.getMediaFilename();
+		this.getGooruImageUtil().imageUpload(mediaFilename, domainId, Domain.REPO_PATH);
+		StringBuilder basePath = new StringBuilder(Subject.REPO_PATH);
+		basePath.append(File.separator).append(domainId).append(File.separator).append(mediaFilename);
+	    domain.setImagePath(basePath.toString());
 		this.getDomainRepository().save(domain);
 	}
 
@@ -114,4 +125,7 @@ public class DomainServiceImpl extends BaseServiceImpl implements DomainService,
 		return domainRepository;
 	}
 
+	public GooruImageUtil getGooruImageUtil() {
+		return gooruImageUtil;
+	}
 }

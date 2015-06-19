@@ -48,6 +48,8 @@ import net.coobird.thumbnailator.Thumbnails;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.ednovo.gooru.core.constant.ConfigConstants;
+import org.ednovo.gooru.core.constant.Constants;
+import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.restlet.data.Method;
 import org.slf4j.Logger;
@@ -60,7 +62,7 @@ import com.mortennobel.imagescaling.ResampleOp;
 import com.sun.pdfview.PDFFile;
 
 @Component
-public class GooruImageUtil {
+public class GooruImageUtil implements ParameterProperties{
 
 	private static GooruImageUtil instance;
 	
@@ -69,11 +71,35 @@ public class GooruImageUtil {
 	
 	@Autowired
 	private AsyncExecutor asyncExecutor;
-
+	
 	private static final Logger LOGGER = LoggerFactory.getLogger(GooruImageUtil.class);
 
 	public GooruImageUtil() {
 		instance = this;
+	}
+	
+	public  void imageUpload(String mediaFilename, Integer folderId, String baseFolderName) {		
+		if (mediaFilename != null) {
+			StringBuilder sourceRepoPath = new StringBuilder(ConfigProperties.getNfsInternalPath());
+			sourceRepoPath.append(Constants.UPLOADED_MEDIA_FOLDER).append(File.separator).append(mediaFilename);
+			File srcFile = new File(sourceRepoPath.toString());
+			StringBuilder targetRepoPath = new StringBuilder(ConfigProperties.getNfsInternalPath());
+			targetRepoPath.append(baseFolderName).append(File.separator).append(folderId).append(File.separator);
+			File destFile = new File(targetRepoPath.toString());
+			if (!destFile.exists()) {
+				destFile.mkdirs();
+			}
+			srcFile.renameTo(new File(targetRepoPath.append(mediaFilename).toString()));
+			sourceRepoPath.setLength(0);
+			sourceRepoPath.append(ConfigProperties.getNfsInternalPath()).append(baseFolderName).append(File.separator).append(folderId).append(File.separator);
+			Map<String, Object> param = new HashMap<String, Object>();
+			param.put(SOURCE_FILE_PATH, targetRepoPath.toString());
+			param.put(TARGET_FOLDER_PATH, sourceRepoPath.toString());
+			param.put(THUMBNAIL, mediaFilename);
+			param.put(DIMENSIONS, "160x120,75x56");
+			param.put(API_END_POINT, settingService.getConfigSetting(ConfigConstants.GOORU_API_ENDPOINT, 0, TaxonomyUtil.GOORU_ORG_UID));
+			this.getAsyncExecutor().executeRestAPI(param, settingService.getConfigSetting(ConfigConstants.GOORU_CONVERSION_RESTPOINT, 0, TaxonomyUtil.GOORU_ORG_UID) + "/conversion/image", Method.POST.getName());
+		}
 	}
 
 	public static void cropImage(String path, int x, int y, int width, int height) throws Exception {
@@ -82,8 +108,7 @@ public class GooruImageUtil {
 		ImageIO.write(srcImg, "png", new File(path));
 	}
 
-
-	public void scaleImageUsingImageMagick(String srcFilePath, int width, int height, String destFilePath) throws Exception {
+   public void scaleImageUsingImageMagick(String srcFilePath, int width, int height, String destFilePath) throws Exception {
 		String resizeCommand = new String( "/usr/bin/convert@" + srcFilePath + "@-resize@"+ width + "x" + height + "@" +destFilePath);
 		Map<String, Object> param = new HashMap<String, Object>();
 		param.put("command", resizeCommand);

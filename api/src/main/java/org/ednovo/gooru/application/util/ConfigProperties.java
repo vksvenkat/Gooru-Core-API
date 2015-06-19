@@ -81,9 +81,11 @@ public final class ConfigProperties implements Serializable, ConfigConstants, Co
 	
 	@Autowired
 	private StorageRepository storageRepository;
-	
-	private static String baseRepoUrl; 
 
+	private static String baseRepoUrl; 
+	
+	private static String nfsInternalPath; 
+	
 	private static final Logger LOGGER = LoggerFactory.getLogger(ConfigProperties.class);
 	
 	@PostConstruct
@@ -204,6 +206,7 @@ public final class ConfigProperties implements Serializable, ConfigConstants, Co
 		initInsightsKafkaProperties();
 		final StorageArea storageArea = getStorageRepository().getStorageAreaByTypeName(NFS);
 		baseRepoUrl = storageArea.getCdnDirectPath();
+		nfsInternalPath = storageArea.getInternalPath();
 	}
 	
 	private void initInsightsKafkaProperties(){
@@ -282,4 +285,9 @@ public final class ConfigProperties implements Serializable, ConfigConstants, Co
 	public static String getBaseRepoUrl() {
 		return baseRepoUrl;
 	}	
+	
+	public static String getNfsInternalPath() {
+		return nfsInternalPath;
+	}
+
 }

@@ -23,9 +23,11 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.domain.service;
 
+import java.io.File;
 import java.util.Date;
 import java.util.List;
 
+import org.ednovo.gooru.application.util.GooruImageUtil;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Subject;
 import org.ednovo.gooru.core.api.model.TaxonomyCourse;
@@ -46,6 +48,9 @@ public class TaxonomyCourseServiceImpl extends BaseServiceImpl implements Taxono
 	
 	@Autowired
 	private SubjectRepository subjectRepository;
+
+	@Autowired
+	private GooruImageUtil gooruImageUtil;
 
 	@Override
 	public ActionResponseDTO<TaxonomyCourse> createTaxonomyCourse(TaxonomyCourse course, User user) {
@@ -87,6 +92,11 @@ public class TaxonomyCourseServiceImpl extends BaseServiceImpl implements Taxono
 			course.setImagePath(newCourse.getImagePath());
 		}
 		course.setLastModified(new Date(System.currentTimeMillis()));
+		String mediaFilename = newCourse.getMediaFilename();
+		this.getGooruImageUtil().imageUpload(mediaFilename, courseId, TaxonomyCourse.REPO_PATH);
+		StringBuilder basePath = new StringBuilder(Subject.REPO_PATH);
+		basePath.append(File.separator).append(courseId).append(File.separator).append(mediaFilename);
+	    course.setImagePath(basePath.toString());
 		this.getTaxonomyCourseRepository().save(course);
 	}
 
@@ -127,4 +137,8 @@ public class TaxonomyCourseServiceImpl extends BaseServiceImpl implements Taxono
 	public SubjectRepository getSubjectRepository() {
 		return subjectRepository;
 	}
+	
+	public GooruImageUtil getGooruImageUtil() {
+		return gooruImageUtil;
+    }
 }

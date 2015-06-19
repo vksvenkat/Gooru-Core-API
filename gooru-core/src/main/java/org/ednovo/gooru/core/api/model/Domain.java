@@ -30,6 +30,9 @@ import java.util.Date;
 public class Domain implements Serializable {
 
 	private static final long serialVersionUID = -1775302177846507373L;
+	
+	public static final String REPO_PATH = "fd";
+
 
 	private Integer domainId;
 
@@ -48,6 +51,16 @@ public class Domain implements Serializable {
 	private Date lastModified;
 	
 	private String uri;
+	
+	private String mediaFilename;
+
+	public String getMediaFilename() {
+		return mediaFilename;
+	}
+
+	public void setMediaFilename(String mediaFilename) {
+		this.mediaFilename = mediaFilename;
+	}
 
 	public String getName() {
 		return name;
