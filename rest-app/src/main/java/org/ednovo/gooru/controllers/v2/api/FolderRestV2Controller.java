@@ -218,7 +218,7 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 		if (data == null) {
 			content = new HashMap<String, Object>();
 			content.put(SEARCH_RESULT, this.getCollectionService().getMyShelf(gooruUid, limit, offset, sharing, collectionType, itemLimit, fetchChilds, topLevelCollectionType, orderBy, excludeType));
-			content.put(COUNT, this.getCollectionRepository().getMyShelfCount(gooruUid, sharing, collectionType, excludeType));
+			content.put(COUNT, this.getCollectionRepository().getFolderCount(null, gooruUid, sharing, collectionType, excludeType));
 			data = serializeToJson(content, TOC_EXCLUDES, true, true);
 			getRedisService().putValue(cacheKey, data, fetchChilds ? Constants.LIBRARY_CACHE_EXPIRY_TIME_IN_SEC : Constants.CACHE_EXPIRY_TIME_IN_SEC);
 		}
@@ -279,16 +279,12 @@ public class FolderRestV2Controller extends BaseController implements ConstantPr
 		final ContentType contentType = getCollectionService().getContentType(ContentType.RESOURCE);
 		collection.setContentType(contentType);
 		collection.setCollectionType(ResourceType.Type.FOLDER.getType());
-		collection.setResourceType(getCollectionService().getResourceType(ResourceType.Type.FOLDER.getType()));
 		collection.setLastModified(new Date(System.currentTimeMillis()));
 		collection.setCreatedOn(new Date(System.currentTimeMillis()));
 		collection.setSharing(Sharing.PRIVATE.getSharing());
 		collection.setUser(user);
 		collection.setOrganization(user.getPrimaryOrganization());
 		collection.setCreator(user);
-		collection.setDistinguish(Short.valueOf("0"));
-		collection.setRecordSource(NOT_ADDED);
-		collection.setIsFeatured(0);
 		collection.setLastUpdatedUserUid(user.getGooruUId());
 
 		return collection;

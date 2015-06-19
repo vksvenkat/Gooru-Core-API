@@ -57,7 +57,7 @@ public class FolderServiceImpl extends BaseServiceImpl implements FolderService,
 
 	@Autowired
 	private RedisService redisService;
-	
+
 	@Autowired
 	private CollectionService collectionService;
 
@@ -68,73 +68,61 @@ public class FolderServiceImpl extends BaseServiceImpl implements FolderService,
 			gooruUid = user != null ? user.getPartyUid() : null;
 		}
 		rejectIfNull(gooruUid, GL0056, 404, USER);
-		final List<Object[]> result = this.getCollectionRepository().getMyFolder(gooruUid, limit, offset, sharing, collectionType, true, orderBy, excludeType);
-		final List<Map<String, Object>> folders = new ArrayList<Map<String, Object>>();
-		if (result != null && result.size() > 0) {
-			for (Object[] object : result) {
-				final Map<String, Object> collection = new HashMap<String, Object>();
-				collection.put(TITLE, object[0]);
-				collection.put(GOORU_OID, object[1]);
-				collection.put(TYPE, object[2]);
-				collection.put(IDEAS, object[12]);
-				collection.put(QUESTIONS, object[13]);
-				collection.put(PERFORMANCE_TASKS, object[14]);
-				collection.put(COLLECTION_TYPE, object[15]);
-				collection.put(COLLECTION_ITEM_ID, object[6]);
-				collection.put(DESCRIPTION, object[7] != null ? object[7] : object[19]);
-				collection.put(URL, object[20]);
-				if (object[21] != null) {
-					collection.put(SETTINGS, JsonDeserializer.deserialize(String.valueOf(object[21]), new TypeReference<Map<String, String>>() {
+		final List<Map<String, Object>> folders = this.getCollectionRepository().getFolder(null, gooruUid, limit, offset, sharing, collectionType, true, orderBy, excludeType);
+		if (folders != null && folders.size() > 0) {
+			List<Map<String, Object>> folderList  =  new ArrayList<Map<String, Object>>();
+			for (Map<String, Object> collection : folders) {
+				final String typeName = String.valueOf(collection.get(TYPE));
+				final String collectionGooruOid = String.valueOf(collection.get(GOORU_OID));
+				final String data = String.valueOf(collection.get(DATA));
+				if (data != null) {
+					collection.put(SETTINGS, JsonDeserializer.deserialize(String.valueOf(data), new TypeReference<Map<String, String>>() {
 					}));
 				}
-				if (object[2] != null && object[2].toString().equalsIgnoreCase(SCOLLECTION)) {
-					collection.put(COLLECTION_ITEMS, getFolderTocItems(String.valueOf(object[1]), limit, offset, sharing, collectionType, orderBy, ASC, excludeType));
+				if (typeName.equalsIgnoreCase(COLLECTION) || typeName.equalsIgnoreCase(ASSESSMENT) || typeName.equalsIgnoreCase(ASSESSMENT_URL)) {
+					collection.put(COLLECTION_ITEMS, getFolderTocItems(collectionGooruOid, limit, offset, sharing, collectionType, orderBy, ASC, excludeType));
 				}
-				folders.add(collection);
+				folderList.add(collection);
 			}
 		}
 		final SearchResults<Map<String, Object>> searchResult = new SearchResults<Map<String, Object>>();
 		searchResult.setSearchResults(folders);
-		searchResult.setTotalHitCount(this.getCollectionRepository().getMyShelfCount(gooruUid, sharing, collectionType, excludeType));
+		searchResult.setTotalHitCount(this.getCollectionRepository().getFolderCount(null, gooruUid, sharing, collectionType, excludeType));
 		return searchResult;
 	}
 
 	@Override
 	public List<Map<String, Object>> getFolderTocItems(final String gooruOid, Integer limit, Integer offset, final String sharing, final String collectionType, final String orderBy, final String sortOrder, final String excludeType) {
-		final List<Map<String, Object>> items = new ArrayList<Map<String, Object>>();
-		final List<Object[]> result = this.getCollectionRepository().getCollectionItem(gooruOid, limit, offset, sharing, orderBy, collectionType, true, sortOrder, true, excludeType);
-		if (result != null && result.size() > 0) {
-			for (Object[] object : result) {
-				final Map<String, Object> item = new HashMap<String, Object>();
-				item.put(TITLE, object[0]);
-				item.put(GOORU_OID, object[1]);
-				item.put(TYPE, object[2]);
-				if (object[2] != null && (!object[2].toString().equalsIgnoreCase(SCOLLECTION) && !object[2].toString().equalsIgnoreCase(FOLDER))) {
-					if (object[5] != null) {
-						Map<String, Object> resourceFormat = new HashMap<String, Object>();
-						resourceFormat.put(VALUE, object[5]);
-						resourceFormat.put(DISPLAY_NAME, object[6]);
-						item.put(RESOURCEFORMAT, resourceFormat);
+		List<Map<String, Object>> collectionItems = this.getCollectionRepository().getFolder(gooruOid, null, limit, offset, sharing, collectionType, true, orderBy, excludeType);
+		if (collectionItems == null || collectionItems.size() == 0) {
+			collectionItems = this.getCollectionRepository().getCollectionItem(gooruOid, 4, 0, sharing, orderBy, collectionType, true, ASC, false, excludeType);
+		}
+		List<Map<String, Object>> collections = new ArrayList<Map<String, Object>>();
+		if (collectionItems != null && collectionItems.size() > 0) {
+			for (Map<String, Object> collection : collectionItems) {
+				final String typeName = String.valueOf(collection.get(TYPE));
+				final String collectionGooruOid = String.valueOf(collection.get(GOORU_OID));
+				if (!(typeName.equalsIgnoreCase(COLLECTION) || typeName.equalsIgnoreCase(ASSESSMENT) || typeName.equalsIgnoreCase(ASSESSMENT_URL) || typeName.equalsIgnoreCase(FOLDER))) {
+					Object resourceFormatValue = collection.get(VALUE);
+					if (resourceFormatValue != null) {
+						final Map<String, Object> resourceFormat = new HashMap<String, Object>();
+						resourceFormat.put(VALUE, resourceFormatValue);
+						resourceFormat.put(DISPLAY_NAME, collection.get(DISPLAY_NAME));
+						collection.put(RESOURCEFORMAT, resourceFormat);
 					}
 				}
-				if (object[2] != null && object[2].toString().equalsIgnoreCase(SCOLLECTION)) {
-					item.put(COLLECTION_ITEMS, getFolderTocItems(String.valueOf(object[1]), limit, offset, sharing, collectionType, orderBy, ASC, excludeType));
+				if (typeName.equalsIgnoreCase(COLLECTION) || typeName.equalsIgnoreCase(ASSESSMENT) || typeName.equalsIgnoreCase(ASSESSMENT_URL)) {
+					collection.put(COLLECTION_ITEMS, getFolderTocItems(collectionGooruOid, limit, offset, sharing, collectionType, orderBy, ASC, excludeType));
 				}
-				item.put(IDEAS, object[12]);
-				item.put(QUESTIONS, object[13]);
-				item.put(PERFORMANCE_TASKS, object[14]);
-				item.put(COLLECTION_TYPE, object[18]);
-				item.put(COLLECTION_ITEM_ID, object[8]);
-				item.put(DESCRIPTION, object[9] != null ? object[9] : object[22]);
-				item.put(URL, object[15]);
-				if (object[23] != null) {
-					item.put(SETTINGS, JsonDeserializer.deserialize(String.valueOf(object[23]), new TypeReference<Map<String, String>>() {
+				final String data = String.valueOf(collection.get(DATA));
+				if (data != null) {
+					collection.put(SETTINGS, JsonDeserializer.deserialize(String.valueOf(data), new TypeReference<Map<String, String>>() {
 					}));
 				}
-				items.add(item);
+				collections.add(collection);
 			}
 		}
-		return items;
+		return collections;
 
 	}
 
@@ -171,56 +159,57 @@ public class FolderServiceImpl extends BaseServiceImpl implements FolderService,
 			item.put(DESCRIPTION, collection.getGoals() != null ? collection.getGoals() : collection.getDescription());
 			item.put(COLLECTION_TYPE, collection.getCollectionType());
 			item.put(URL, collection.getUrl());
-			item.put(COLLECTION_ITEMS, this.getFolderTocItems(gooruOid, limit, offset, sharing, collectionType, orderBy, collection.getResourceType().getName().equalsIgnoreCase(SCOLLECTION) ? ASC : DESC, excludeType));
+			item.put(COLLECTION_ITEMS, this.getFolderTocItems(gooruOid, limit, offset, sharing, collectionType, orderBy, collection.getContentType().getName().equalsIgnoreCase(SCOLLECTION) ? ASC : DESC, excludeType));
 			data = SerializerUtil.serializeToJson(item, TOC_EXCLUDES, true, true);
 			getRedisService().putValue(cacheKey, data, 86400);
 		}
 		return data;
 	}
-	
+
 	@Override
 	public List<Map<String, String>> getFolderNode(final String collectionId) {
 		final Collection collection = this.getCollectionRepository().getCollectionByGooruOid(collectionId, null);
-        rejectIfNull(collection, GL0056, 404, COLLECTION);
-		return this.getCollectionService().getParentCollection(collectionId,null, true);
+		rejectIfNull(collection, GL0056, 404, COLLECTION);
+		return this.getCollectionService().getParentCollection(collectionId, null, true);
 	}
 
 	@Override
 	public Map<String, Object> getNextCollectionItem(final String collectionItemId, final String excludeType, final String sharing, boolean excludeCollaboratorCollection) {
 		final CollectionItem collectionItem = this.getCollectionRepository().getCollectionItemById(collectionItemId);
 		rejectIfNull(collectionItem, GL0056, 404, COLLECTION_ITEM);
-		return getCollection(collectionItem.getCollection().getGooruOid(), collectionItem.getItemSequence(),excludeType, sharing, excludeCollaboratorCollection);
+		return getCollection(collectionItem.getCollection().getGooruOid(), collectionItem.getItemSequence(), excludeType, sharing, excludeCollaboratorCollection);
 	}
-	
+
 	private Map<String, Object> getCollection(final String gooruOid, final Integer sequence, final String excludeType, final String sharing, boolean excludeCollaboratorCollection) {
 		Map<String, Object> nextCollection = null;
-		final CollectionItem nextCollectionItem = this.getCollectionRepository().getNextCollectionItemResource(gooruOid, sequence,excludeType, sharing, excludeCollaboratorCollection);
-		if (nextCollection == null && nextCollectionItem != null && !nextCollectionItem.getResource().getResourceType().getName().equalsIgnoreCase(FOLDER)) { 
+		final CollectionItem nextCollectionItem = this.getCollectionRepository().getNextCollectionItemResource(gooruOid, sequence, excludeType, sharing, excludeCollaboratorCollection);
+		if (nextCollection == null && nextCollectionItem != null && !nextCollectionItem.getResource().getContentType().getName().equalsIgnoreCase(FOLDER)) {
+			final Collection collection = this.getCollectionRepository().getCollectionByGooruOid(nextCollectionItem.getResource().getGooruOid(), null);
 			nextCollection = new HashMap<String, Object>();
 			nextCollection.put(COLLECTION_ITEM_ID, nextCollectionItem.getCollectionItemId());
-			nextCollection.put(TITLE, nextCollectionItem.getResource().getTitle());
+			nextCollection.put(TITLE, collection.getTitle());
 			nextCollection.put(GOORU_OID, nextCollectionItem.getResource().getGooruOid());
-			nextCollection.put(THUMBNAILS, nextCollectionItem.getResource().getThumbnails());
-			final Collection collection =  this.getCollectionRepository().getCollectionByGooruOid(nextCollectionItem.getResource().getGooruOid(), null);
+			nextCollection.put(THUMBNAILS, collection.getThumbnails());
 			nextCollection.put(COLLECTION_TYPE, collection.getCollectionType());
 			final Long itemCount = this.getCollectionRepository().getCollectionItemCount(nextCollectionItem.getResource().getGooruOid(), null, null, null);
 			final Long questionCount = this.getCollectionRepository().getCollectionItemCount(nextCollectionItem.getResource().getGooruOid(), null, ResourceType.Type.ASSESSMENT_QUESTION.getType(), null);
 			nextCollection.put(RESOURCE_COUNT, itemCount - questionCount);
 			nextCollection.put(QUESTION_COUNT, questionCount);
-		    return nextCollection;
-		    
-		} else if (nextCollection == null && nextCollectionItem != null && nextCollectionItem.getResource().getResourceType().getName().equalsIgnoreCase(FOLDER)) {
+			return nextCollection;
+
+		} else if (nextCollection == null && nextCollectionItem != null && nextCollectionItem.getResource().getContentType().getName().equalsIgnoreCase(FOLDER)) {
 			final Long itemCount = this.getCollectionRepository().getCollectionItemCount(nextCollectionItem.getResource().getGooruOid(), null, null, null);
-			return getCollection(nextCollectionItem.getResource().getGooruOid(), ((Number)(itemCount + 1)).intValue(),excludeType,sharing, excludeCollaboratorCollection);
-		} else if (nextCollection == null && nextCollectionItem == null) { 
+			return getCollection(nextCollectionItem.getResource().getGooruOid(), ((Number) (itemCount + 1)).intValue(), excludeType, sharing, excludeCollaboratorCollection);
+		} else if (nextCollection == null && nextCollectionItem == null) {
 			final CollectionItem parentCollectionItem = this.getCollectionRepository().getCollectionItemByResource(gooruOid);
-			if (parentCollectionItem != null) { 
-				return getCollection(parentCollectionItem.getCollection().getGooruOid(), parentCollectionItem.getItemSequence(), excludeType,sharing, excludeCollaboratorCollection);
+			if (parentCollectionItem != null) {
+				return getCollection(parentCollectionItem.getCollection().getGooruOid(), parentCollectionItem.getItemSequence(), excludeType, sharing, excludeCollaboratorCollection);
 			}
 		}
+
 		return null;
 	}
-	
+
 	public RedisService getRedisService() {
 		return redisService;
 	}

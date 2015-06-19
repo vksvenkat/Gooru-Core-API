@@ -69,13 +69,6 @@ public class ContentRepositoryHibernate extends BaseRepositoryHibernate implemen
 		return cc.size() == 0 ? null : cc.get(0);
 	}
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public Content findByContentGooruId(String gooruContentId) {
-		List<Content> cc = getSession().createQuery("SELECT c FROM Learnguide c   WHERE c.gooruOid = ? AND  " + generateAuthQueryWithDataNew("c.")).setString(0, gooruContentId).list();
-		return cc.size() == 0 ? null : cc.get(0);
-	}
-
 	@Override
 	public Content findContentByGooruId(String gooruContentId) {
 		return findContentByGooruId(gooruContentId, false);
@@ -137,7 +130,7 @@ public class ContentRepositoryHibernate extends BaseRepositoryHibernate implemen
 
 	@Override
 	public void delete(String gooruContentId) {
-		Content content = findByContentGooruId(gooruContentId);
+		Content content = findContentByGooruId(gooruContentId);
 		if (content != null) {			
 			getSession().delete(content);
 		}

@@ -919,4 +919,6 @@ public interface ConstantProperties {
 	final static String SUBDOMAIN_ID = "subdomainId";
 	
 	final static String CLASS_INCLUDES[] = {"classUid","classCode","name","description", "visibility", "*.minimumScore", "*.memberCount", "user.username", "user.gooruUId", "user.gender", "*.thumbnails", "*.user", "thumbnails.url", "courseGooruOid"};
+	
+	final static String IMAGE_PATH = "imagePath";
 }

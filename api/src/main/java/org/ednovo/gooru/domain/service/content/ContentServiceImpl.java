@@ -71,7 +71,7 @@ public class ContentServiceImpl implements ContentService,ParameterProperties {
 
 	@Override
 	public Content findByContentGooruId(String gooruContentId) {
-		return contentRepository.findByContentGooruId(gooruContentId);
+		return contentRepository.findContentByGooruId(gooruContentId);
 	}
 
 	@Override

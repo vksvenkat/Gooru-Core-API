@@ -41,8 +41,6 @@ public interface ContentRepository extends BaseRepository {
 
 	Content findByContent(Long contentId);
 
-	Content findByContentGooruId(String gooruContentId);
-
 	void delete(String gooruContentId);
 
 	Resource findByResourceType(String typeId, String url);

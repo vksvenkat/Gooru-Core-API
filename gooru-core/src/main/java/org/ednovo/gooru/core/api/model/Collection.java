@@ -1,10 +1,13 @@
 package org.ednovo.gooru.core.api.model;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class Collection extends Resource implements Versionable {
+import org.ednovo.gooru.core.application.util.ResourceMetaInfo;
+
+public class Collection extends Content implements Versionable {
 	/**
 	 * 
 	 */
@@ -39,7 +42,7 @@ public class Collection extends Resource implements Versionable {
 	private CollectionItem collectionItem;
 
 	private CustomTableValue buildType;
-	
+
 	private CustomTableValue publishStatus;
 
 	private Boolean mailNotification;
@@ -61,8 +64,32 @@ public class Collection extends Resource implements Versionable {
 	private List<ContentMetaDTO> instructionalMethod;
 
 	private Integer itemCount;
-	
+
 	private String collectionItemId;
+
+	private String clusterUid;
+
+	private Integer isRepresentative;
+
+	private String title;
+
+	private String description;
+
+	private String grade;
+
+	private String copiedCollectionId;
+
+	private List<ContentMetaDTO> depthOfKnowledges;
+
+	private String url;
+
+	private ResourceMetaInfo metaInfo;
+
+	private String imagePath;
+
+	private String lastAccessedTime;
+	
+	private static final String URL = "url";
 
 	public String getIdeas() {
 		return ideas;
@@ -280,7 +307,7 @@ public class Collection extends Resource implements Versionable {
 	public void setItemCount(Integer itemCount) {
 		this.itemCount = itemCount;
 	}
-	
+
 	public String getCollectionItemId() {
 		return collectionItemId;
 	}
@@ -289,5 +316,103 @@ public class Collection extends Resource implements Versionable {
 		this.collectionItemId = collectionItemId;
 	}
 
+	public String getClusterUid() {
+		return clusterUid;
+	}
+
+	public void setClusterUid(String clusterUid) {
+		this.clusterUid = clusterUid;
+	}
+
+	public Integer getIsRepresentative() {
+		return isRepresentative;
+	}
+
+	public void setIsRepresentative(Integer isRepresentative) {
+		this.isRepresentative = isRepresentative;
+	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+	public String getGrade() {
+		return grade;
+	}
+
+	public void setGrade(String grade) {
+		this.grade = grade;
+	}
+
+	public String getCopiedCollectionId() {
+		return copiedCollectionId;
+	}
+
+	public void setCopiedCollectionId(String copiedCollectionId) {
+		this.copiedCollectionId = copiedCollectionId;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public List<ContentMetaDTO> getDepthOfKnowledges() {
+		return depthOfKnowledges;
+	}
+
+	public void setDepthOfKnowledges(List<ContentMetaDTO> depthOfKnowledges) {
+		this.depthOfKnowledges = depthOfKnowledges;
+	}
+
+	public String getUrl() {
+		return url;
+	}
+
+	public void setUrl(String url) {
+		this.url = url;
+	}
+
+	public ResourceMetaInfo getMetaInfo() {
+		return metaInfo;
+	}
+
+	public void setMetaInfo(ResourceMetaInfo metaInfo) {
+		this.metaInfo = metaInfo;
+	}
+
+	public String getImagePath() {
+		return imagePath;
+	}
+
+	public void setImagePath(String imagePath) {
+		this.imagePath = imagePath;
+	}
+
+	public String getLastAccessedTime() {
+		return lastAccessedTime;
+	}
+
+	public void setLastAccessedTime(String lastAccessedTime) {
+		this.lastAccessedTime = lastAccessedTime;
+	}
+
+	public Map<String, String> getThumbnails() {
+		Map<String, String> thumbnails = null;
+		if (getImagePath() != null) {
+		    thumbnails = new HashMap<String, String>();
+			StringBuilder url = new StringBuilder(getOrganization().getNfsStorageArea().getCdnDirectPath());
+			url.append(getImagePath());
+			thumbnails.put(URL, url.toString());
+		}
+		return thumbnails;
+	}
 
 }
