@@ -78,7 +78,7 @@ public class GooruImageUtil implements ParameterProperties{
 		instance = this;
 	}
 	
-	public  void imageUpload(String mediaFilename, Integer folderId, String baseFolderName) {		
+	public  void imageUpload(String mediaFilename, Integer folderId, String baseFolderName, String ImageDimension) {		
 		if (mediaFilename != null) {
 			StringBuilder sourceRepoPath = new StringBuilder(ConfigProperties.getNfsInternalPath());
 			sourceRepoPath.append(Constants.UPLOADED_MEDIA_FOLDER).append(File.separator).append(mediaFilename);
@@ -96,7 +96,7 @@ public class GooruImageUtil implements ParameterProperties{
 			param.put(SOURCE_FILE_PATH, targetRepoPath.toString());
 			param.put(TARGET_FOLDER_PATH, sourceRepoPath.toString());
 			param.put(THUMBNAIL, mediaFilename);
-			param.put(DIMENSIONS, "160x120,75x56");
+			param.put(DIMENSIONS, ImageDimension);
 			param.put(API_END_POINT, settingService.getConfigSetting(ConfigConstants.GOORU_API_ENDPOINT, 0, TaxonomyUtil.GOORU_ORG_UID));
 			this.getAsyncExecutor().executeRestAPI(param, settingService.getConfigSetting(ConfigConstants.GOORU_CONVERSION_RESTPOINT, 0, TaxonomyUtil.GOORU_ORG_UID) + "/conversion/image", Method.POST.getName());
 		}

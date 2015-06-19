@@ -93,7 +93,7 @@ public class TaxonomyCourseServiceImpl extends BaseServiceImpl implements Taxono
 		}
 		course.setLastModified(new Date(System.currentTimeMillis()));
 		String mediaFilename = newCourse.getMediaFilename();
-		this.getGooruImageUtil().imageUpload(mediaFilename, courseId, TaxonomyCourse.REPO_PATH);
+		this.getGooruImageUtil().imageUpload(mediaFilename, courseId, TaxonomyCourse.REPO_PATH, TaxonomyCourse.IMAGE_DIMENSION);
 		StringBuilder basePath = new StringBuilder(Subject.REPO_PATH);
 		basePath.append(File.separator).append(courseId).append(File.separator).append(mediaFilename);
 	    course.setImagePath(basePath.toString());

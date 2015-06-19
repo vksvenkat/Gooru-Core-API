@@ -123,7 +123,7 @@ public class SubjectServiceImpl extends BaseServiceImpl implements
 		}
 		subject.setLastModified(new Date(System.currentTimeMillis()));
 		String mediaFilename = newSubject.getMediaFilename();
-		this.getGooruImageUtil().imageUpload(mediaFilename, subjectId, Subject.REPO_PATH);
+		this.getGooruImageUtil().imageUpload(mediaFilename, subjectId, Subject.REPO_PATH, Subject.IMAGE_DIMENSION);
 		StringBuilder basePath = new StringBuilder(Subject.REPO_PATH);
 		basePath.append(File.separator).append(subjectId).append(File.separator).append(mediaFilename);
 	    subject.setImagePath(basePath.toString());

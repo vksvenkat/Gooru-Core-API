@@ -85,7 +85,7 @@ public class DomainServiceImpl extends BaseServiceImpl implements DomainService,
 		}
 		domain.setLastModified(new Date(System.currentTimeMillis()));
 		String mediaFilename = newDomain.getMediaFilename();
-		this.getGooruImageUtil().imageUpload(mediaFilename, domainId, Domain.REPO_PATH);
+		this.getGooruImageUtil().imageUpload(mediaFilename, domainId, Domain.REPO_PATH ,Domain.IMAGE_DIMENSION);
 		StringBuilder basePath = new StringBuilder(Subject.REPO_PATH);
 		basePath.append(File.separator).append(domainId).append(File.separator).append(mediaFilename);
 	    domain.setImagePath(basePath.toString());
