@@ -820,9 +820,9 @@ public interface ConstantProperties {
 
 	static final String COUNTRY[] = { "*.countryUid", "*.countryCode", "*.name", "*.totalHitCount", "*.searchResults" };
 
-	static final String COURSE_[] = {"*.courseId","*.name","*.description","*.subjectId","*.courseCode","*.grades","*.activeFlag","*.organizationUid","*.totalHitCount", "*.searchResults","*.thumbnail"};
+	static final String COURSE_[] = {"*.courseId","*.name","*.thumbnails","thumbnails.url"};
 	
-	static final String DOMAIN[] = {"*.domainId","*.name","*.description","*.activeFlag","*.organizationUid","*.totalHitCount", "*.searchResults","*.thumbnail", "thumbnail.url"};
+	static final String DOMAIN[] = {"*.thumbnails", "thumbnails.url","*.domainId","*.name"};
 	
 	static final String STATE[] = { "*.stateUid", "*.stateCode", "*.name", "*.totalHitCount", "*.searchResults" };
 
@@ -898,9 +898,9 @@ public interface ConstantProperties {
 			"*.folder", "*.gooruOid", "*.sharing", "*.title", "*.views", "*.thumbnails", "*.url", "*.gooruUId", "*.buildType", "*.emailId", "*.value", "*.code", "*.label", "*.modifiedDate", "*.gooruid", "*.username", "*.customFields", "*.optionalValue", "*.optionalKey",
 			"*.collectionItemId", "*.skills", "*.course", "*.standards", "*.metaInfo", "*.meta" };
 	
-	final static String SUBJECT_INCLUDES[] = {"*.name","*.description","*.activeFlag","*.displaySequence","*.createdOn","*.lastModified","*.totalHitCount", "*.searchResults","*.thumbnail"};
+	final static String SUBJECT_INCLUDES[] = {"*.name","*.subjectId","*.thumbnails","thumbnails.url"};
 	
-	final static String SUBDOMAIN_INCLUDES[] = {"*.subdomainId","*.courseId","*.domainId","*.totalHitCount", "*.searchResults"};
+	final static String SUBDOMAIN_INCLUDES[] = {"*.subdomainId","*.courseId","*.domainId"};
 
 	public static final String PIPE = "|";
 	

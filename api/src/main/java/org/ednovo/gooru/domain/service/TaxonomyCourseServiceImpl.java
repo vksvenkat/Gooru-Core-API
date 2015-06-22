@@ -25,7 +25,6 @@ package org.ednovo.gooru.domain.service;
 
 import java.io.File;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -146,10 +145,9 @@ public class TaxonomyCourseServiceImpl extends BaseServiceImpl implements Taxono
 		List<Map<String, Object>> domains = this.getTaxonomyCourseRepository().getDomains(courseId);
 		rejectIfNull(domains, GL0056, 404, DOMAIN);
 		for(Map<String, Object> domain: domains){
-			Map<String, Object> map = new HashMap<String, Object>();
-			if(domain.get(IMAGE_PATH) != null){
-				map.put(URL,GooruImageUtil.getThumbnails(domain.get(IMAGE_PATH)).toString());
-				domain.put(THUMBNAILS,map);
+			Object thumbnail = domain.get(IMAGE_PATH);
+			if(thumbnail != null){
+				domain.put(THUMBNAILS,GooruImageUtil.getThumbnails(thumbnail));
 			}
 		}
 		return domains;

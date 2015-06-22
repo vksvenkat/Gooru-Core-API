@@ -25,7 +25,6 @@ package org.ednovo.gooru.domain.service.subject;
 
 import java.io.File;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -90,10 +89,8 @@ public class SubjectServiceImpl extends BaseServiceImpl implements
 		List<Map<String, Object>> courses = this.getSubjectRepository().getCourses(offset, limit, subjectId);
 		rejectIfNull(courses, GL0056, 404, COURSE);
 		for(Map<String, Object> course: courses){
-			Map<String, Object> map = new HashMap<String, Object>();
 			if(course.get(IMAGE_PATH) != null){
-				map.put(URL,GooruImageUtil.getThumbnails(course.get(IMAGE_PATH)).toString());
-				course.put(THUMBNAILS,map);
+				course.put(THUMBNAILS,GooruImageUtil.getThumbnails(course.get(IMAGE_PATH)));
 			}
 		}
 		return courses;

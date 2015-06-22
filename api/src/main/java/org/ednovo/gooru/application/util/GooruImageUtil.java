@@ -69,7 +69,7 @@ public class GooruImageUtil implements ParameterProperties{
 	@Autowired
 	private AsyncExecutor asyncExecutor;
 	
-	private static String URL;
+	private static String URL ="url";
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(GooruImageUtil.class);
 
@@ -280,21 +280,14 @@ public class GooruImageUtil implements ParameterProperties{
 		return pdfFile;
 		
 	}
-	
-	public static String getThumbnails(Object fileName){
-		StringBuilder imagePath = new StringBuilder();
-		imagePath.append(ConfigProperties.getBaseRepoUrl());
-		imagePath.append(File.separator);
-		imagePath.append(fileName);
-		return imagePath.toString();
-	}
 
-	public static Map<String, Object> setThumbnails(Object thumbnail) {
+
+	public static Map<String, Object> getThumbnails(Object thumbnail) {
 		StringBuilder url = new StringBuilder(ConfigProperties.getBaseRepoUrl());
 		url.append(File.separator);
 		url.append(thumbnail);
 		Map<String, Object> thumbnails = new HashMap<String, Object>();
-		thumbnails.put(URL, url);
+		thumbnails.put(URL, url.toString());
 		return thumbnails;
 	}
 	
