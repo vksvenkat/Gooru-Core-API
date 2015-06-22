@@ -98,7 +98,7 @@ public class TaxonomyCourseRestV2Controller extends BaseController implements Co
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_DOMAIN_READ })
 	@RequestMapping(value = { "/{id}/domain" }, method = RequestMethod.GET)
 	public ModelAndView getDomains(@PathVariable(value = ID) Integer courseId, HttpServletRequest request, HttpServletResponse response) {
-		return toModelAndViewWithIoFilter(getTaxonomyCourseService().getDomains(courseId), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, DOMAIN);
+		return toModelAndViewWithIoFilter(getTaxonomyCourseService().getDomains(courseId),RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, DOMAIN);
 		}
 	
 	public TaxonomyCourseService getTaxonomyCourseService() {

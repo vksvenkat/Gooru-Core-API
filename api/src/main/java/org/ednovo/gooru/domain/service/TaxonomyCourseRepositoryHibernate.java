@@ -46,7 +46,7 @@ public class TaxonomyCourseRepositoryHibernate extends BaseRepositoryHibernate i
 	
 	private static final String GET_MAX = "SELECT MAX(course.displaySequence) FROM TaxonomyCourse course"; 
 	
-	private static final String GET_DOMAINS = "select d.domain_id as domainId,d.name from domain d join subdomain s on s.domain_id=d.domain_id join course c on s.course_id=c.course_id where c.course_id=:courseId";
+	private static final String GET_DOMAINS = "select d.domain_id as domainId,d.name, d.image_path as imagePath from domain d join subdomain s on s.domain_id=d.domain_id join course c on s.course_id=c.course_id where c.course_id=:courseId";
 
 	@Override
 	public TaxonomyCourse getCourse(Integer courseId) {

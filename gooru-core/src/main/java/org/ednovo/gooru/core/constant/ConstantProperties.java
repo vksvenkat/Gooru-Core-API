@@ -820,9 +820,9 @@ public interface ConstantProperties {
 
 	static final String COUNTRY[] = { "*.countryUid", "*.countryCode", "*.name", "*.totalHitCount", "*.searchResults" };
 
-	static final String COURSE_[] = {"*.courseId","*.name","*.description","*.subjectId","*.courseCode","*.grades","*.activeFlag","*.organizationUid","*.imagePath","*.totalHitCount", "*.searchResults"};
+	static final String COURSE_[] = {"*.courseId","*.name","*.thumbnails","thumbnails.url"};
 	
-	static final String DOMAIN[] = {"*.domainId","*.name","*.description","*.activeFlag","*.organizationUid","*.imagePath","*.totalHitCount", "*.searchResults"};
+	static final String DOMAIN[] = {"*.thumbnails", "thumbnails.url","*.domainId","*.name"};
 	
 	static final String STATE[] = { "*.stateUid", "*.stateCode", "*.name", "*.totalHitCount", "*.searchResults" };
 
@@ -898,9 +898,9 @@ public interface ConstantProperties {
 			"*.folder", "*.gooruOid", "*.sharing", "*.title", "*.views", "*.thumbnails", "*.url", "*.gooruUId", "*.buildType", "*.emailId", "*.value", "*.code", "*.label", "*.modifiedDate", "*.gooruid", "*.username", "*.customFields", "*.optionalValue", "*.optionalKey",
 			"*.collectionItemId", "*.skills", "*.course", "*.standards", "*.metaInfo", "*.meta" };
 	
-	final static String SUBJECT_INCLUDES[] = {"*.name","*.description","*.activeFlag","*.imagePath","*.displaySequence","*.createdOn","*.lastModified","*.totalHitCount", "*.searchResults"};
+	final static String SUBJECT_INCLUDES[] = {"*.name","*.subjectId","*.thumbnails","thumbnails.url"};
 	
-	final static String SUBDOMAIN_INCLUDES[] = {"*.subdomainId","*.courseId","*.domainId","*.totalHitCount", "*.searchResults"};
+	final static String SUBDOMAIN_INCLUDES[] = {"*.subdomainId","*.courseId","*.domainId"};
 
 	public static final String PIPE = "|";
 	
@@ -919,6 +919,4 @@ public interface ConstantProperties {
 	final static String SUBDOMAIN_ID = "subdomainId";
 	
 	final static String CLASS_INCLUDES[] = {"classUid","classCode","name","description", "visibility", "*.minimumScore", "*.memberCount", "user.username", "user.gooruUId", "user.gender", "*.thumbnails", "*.user", "thumbnails.url", "courseGooruOid"};
-	
-	final static String IMAGE_PATH = "imagePath";
 }
