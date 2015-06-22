@@ -27,7 +27,9 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang.StringUtils;
 import org.ednovo.gooru.application.util.SerializerUtil;
+import org.ednovo.gooru.core.api.model.RequestMappingUri;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserGroupSupport;
 import org.ednovo.gooru.core.constant.Constants;
@@ -45,12 +47,10 @@ public class BaseController extends SerializerUtil implements ParameterPropertie
 
 	@Autowired
 	private OperationAuthorizer operationAuthorizer;
-	
-	protected static final String GOORU_SESSION_TOKEN = "gooru-session-token";
-		
-	protected static final String COOKIE_KEY_SERVICE_VERSION = "gooru-version";
-	
 
+	protected static final String GOORU_SESSION_TOKEN = "gooru-session-token";
+
+	protected static final String COOKIE_KEY_SERVICE_VERSION = "gooru-version";
 
 	public static final String ERROR_INCLUDE[] = { "*.fieldError", "*.errorCount", "*.code", "*.defaultMessage", "*.field", "*.objectName", "*.rejectedValue" };
 
@@ -88,7 +88,7 @@ public class BaseController extends SerializerUtil implements ParameterPropertie
 		}
 	}
 
-	public static JSONObject requestData(String data)  {
+	public static JSONObject requestData(String data) {
 		try {
 			return data != null ? new JSONObject(data) : null;
 		} catch (JSONException e) {
@@ -120,4 +120,12 @@ public class BaseController extends SerializerUtil implements ParameterPropertie
 		}
 		return true;
 	}
+
+	public String generateUri(String uri, String id) {
+		StringBuilder sb = new StringBuilder(StringUtils.substring(uri, 14));
+		sb.append(RequestMappingUri.SEPARATOR).append(id);
+		
+		return sb.toString();
+	}
+
 }

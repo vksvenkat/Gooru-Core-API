@@ -229,6 +229,8 @@ public class Constants implements ParameterProperties {
 	
 	public static final Map<Object, String> CLASSIFICATION_TYPE;
 	
+	public static final Map<String, String> COLLECTION_DEFAULT_SETTINGS;
+	
 	static {
 		Map<String, String> reindexType = new HashMap<String, String>();
 		reindexType.put(RESOURCE, TOPIC_RESOURCE);
@@ -245,4 +247,9 @@ public class Constants implements ParameterProperties {
 		CLASSIFICATION_TYPE = Collections.unmodifiableMap(classificationTypeId);
 	}
 
+	static{
+		Map<String, String> collectionDefaultSettings = new HashMap<String, String>();
+		collectionDefaultSettings.put("comment", "turn-on");
+		COLLECTION_DEFAULT_SETTINGS = Collections.unmodifiableMap(collectionDefaultSettings);
+	}
 }
