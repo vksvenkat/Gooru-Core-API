@@ -429,8 +429,8 @@ public interface ConstantProperties {
 	static final String ORG_ADMIN_KEY = "organizationAdmin";
 
 	static final String USER_FLAG_EXCLUDE_FIELDS[] = { "*.class", "segment", "*.creator" };
-
-	static final String CUSTOM_VALUE_INCLUDE_FIELDS[] = { "displayName" };
+	
+    static final String CUSTOM_VALUE_INCLUDE_FIELDS[] = { "*.keyValue", "*.value", "*.customTableValueId" };
 
 	public static final String OAUTH_CLIENT_INCLUDES[] = { "*.key", "*.secretKey", "*.clientName", "*.description", "*.clientSecret", "*.scopes", "*.grantTypes", "*.authorities", "*.redirectUrl", "*.title", "*.accessTokenValiditySeconds", "*.refreshTokenValiditySeconds", "*.totalHitCount",
 			"*.searchResults", "*.count", "*.totalPages", "*.resourceType.name" };

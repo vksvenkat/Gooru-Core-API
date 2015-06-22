@@ -1,4 +1,4 @@
-package org.ednovo.gooru.controllers.api;
+package org.ednovo.gooru.controllers.v1.api;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

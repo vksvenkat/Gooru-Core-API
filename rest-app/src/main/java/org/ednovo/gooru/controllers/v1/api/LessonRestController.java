@@ -1,4 +1,4 @@
-package org.ednovo.gooru.controllers.api;
+package org.ednovo.gooru.controllers.v1.api;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -14,7 +14,7 @@ import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.GooruOperationConstants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.security.AuthorizeOperations;
-import org.ednovo.gooru.domain.service.collection.CourseService;
+import org.ednovo.gooru.domain.service.collection.LessonService;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -25,19 +25,18 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
-@RequestMapping(value = { RequestMappingUri.COURSE })
+@RequestMapping(value = { RequestMappingUri.LESSON })
 @Controller
-public class CourseRestController extends BaseController implements ConstantProperties, ParameterProperties {
+public class LessonRestController extends BaseController implements ConstantProperties, ParameterProperties {
 
 	@Autowired
-	private CourseService courseService;
-	
+	private LessonService lessonService;
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ADD })
 	@RequestMapping(method = RequestMethod.POST)
-	public ModelAndView createCourse(@RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) {
+	public ModelAndView createLesson(@PathVariable(value = COURSE_ID) final String courseUId, @PathVariable(value = UNIT_ID) final String unitUId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) {
 		final User user = (User) request.getAttribute(Constants.USER);
-		final ActionResponseDTO<Collection> responseDTO = this.getCourseService().createCourse(buildCourse(data), user);
+		final ActionResponseDTO<Collection> responseDTO = this.getLessonService().createLesson(unitUId, buildLesson(data), user);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		} else {
@@ -50,34 +49,33 @@ public class CourseRestController extends BaseController implements ConstantProp
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_UPDATE })
 	@RequestMapping(value = RequestMappingUri.ID, method = RequestMethod.PUT)
-	public void updateCourse(@PathVariable(value = ID) final String courseUId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) {
+	public void updateLesson(@PathVariable(value = COURSE_ID) final String courseUId, @PathVariable(value = UNIT_ID) final String unitUId, @PathVariable(value = ID) final String lessonUId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) {
 		final User user = (User) request.getAttribute(Constants.USER);
-		this.getCourseService().updateCourse(courseUId, buildCourse(data), user);
+		this.getLessonService().updateLesson(lessonUId, buildLesson(data), user);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
 	@RequestMapping(value = RequestMappingUri.ID, method = RequestMethod.GET)
-	public ModelAndView getCourse(@PathVariable(value = ID) final String courseUId, final HttpServletRequest request, final HttpServletResponse response) {
-		return toModelAndViewWithIoFilter(this.getCourseService().getCourse(courseUId), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, "*");
+	public ModelAndView getLesson(@PathVariable(value = COURSE_ID) final String courseUId, @PathVariable(value = UNIT_ID) final String unitUId, @PathVariable(value = ID) final String lessonUId, final HttpServletRequest request, final HttpServletResponse response) {
+		return toModelAndViewWithIoFilter(this.getLessonService().getLesson(lessonUId), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, "*");
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
 	@RequestMapping(method = RequestMethod.GET)
-	public ModelAndView getCourses(@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") int offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") int limit, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
-		return toModelAndViewWithIoFilter(this.getCourseService().getCourses(limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, "*");
+	public ModelAndView getLessons(@PathVariable(value = COURSE_ID) final String courseUId, @PathVariable(value = UNIT_ID) final String unitUId, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") int offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") int limit, final HttpServletRequest request, final HttpServletResponse response) {
+		return toModelAndViewWithIoFilter(this.getLessonService().getLessons(unitUId, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, "*");
 	}
 
-	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_DELETE })
 	@RequestMapping(value = RequestMappingUri.ID, method = RequestMethod.DELETE)
-	public void deleteCourse(@PathVariable(value = ID) final String courseUId, final HttpServletRequest request, final HttpServletResponse response) {
+	public void deleteLesson(@PathVariable(value = COURSE_ID) final String courseUId, @PathVariable(value = UNIT_ID) final String unitUId, @PathVariable(value = ID) final String lessonUId, final HttpServletRequest request, final HttpServletResponse response) {
 	}
 
-	private Collection buildCourse(final String data) {
+	public LessonService getLessonService() {
+		return lessonService;
+	}
+
+	private Collection buildLesson(final String data) {
 		return JsonDeserializer.deserialize(data, Collection.class);
 	}
-
-	public CourseService getCourseService() {
-		return courseService;
-	}
-
 }

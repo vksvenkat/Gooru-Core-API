@@ -23,10 +23,12 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.domain.service.subject;
 
+import java.io.File;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.ednovo.gooru.application.util.GooruImageUtil;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Subject;
 import org.ednovo.gooru.core.api.model.User;
@@ -48,8 +50,12 @@ public class SubjectServiceImpl extends BaseServiceImpl implements
 
 	@Autowired
 	private SubjectRepository subjectRepository;
+	
+	@Autowired
+	private GooruImageUtil gooruImageUtil;
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ActionResponseDTO<Subject> createSubject(Subject subject, User user) {
 		final Errors errors = validateSubject(subject);
 		if (!errors.hasErrors()) {
@@ -65,6 +71,7 @@ public class SubjectServiceImpl extends BaseServiceImpl implements
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Subject getSubject(Integer subjectId) {
 		Subject subject = this.getSubjectRepository().getSubject(subjectId);
 		rejectIfNull(subject, GL0056, 404, SUBJECT);
@@ -79,6 +86,7 @@ public class SubjectServiceImpl extends BaseServiceImpl implements
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteSubject(Integer subjectId) {
 		Subject subject = this.getSubjectRepository().getSubject(subjectId);
 		rejectIfNull(subject, GL0056, 404, SUBJECT);
@@ -88,12 +96,14 @@ public class SubjectServiceImpl extends BaseServiceImpl implements
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Subject> getSubjects(Integer classificationTypeId,Integer limit, Integer offset) {
 		List<Subject> result = this.getSubjectRepository().getSubjects(classificationTypeId, limit, offset);
 		return result;
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void updateSubject(Subject newSubject, Integer subjectId) {
 		Subject subject = this.getSubjectRepository().getSubject(subjectId);
 		rejectIfNull(subject, GL0056, 404, SUBJECT);
@@ -117,6 +127,11 @@ public class SubjectServiceImpl extends BaseServiceImpl implements
 			subject.setName(newSubject.getName());
 		}
 		subject.setLastModified(new Date(System.currentTimeMillis()));
+		String mediaFilename = newSubject.getMediaFilename();
+		this.getGooruImageUtil().imageUpload(mediaFilename, subjectId, Subject.REPO_PATH, Subject.IMAGE_DIMENSION);
+		StringBuilder basePath = new StringBuilder(Subject.REPO_PATH);
+		basePath.append(File.separator).append(subjectId).append(File.separator).append(mediaFilename);
+	    subject.setImagePath(basePath.toString());
 		this.getSubjectRepository().save(subject);
 	}
 
@@ -139,4 +154,8 @@ public class SubjectServiceImpl extends BaseServiceImpl implements
 	public SubjectRepository getSubjectRepository() {
 		return subjectRepository;
 	}
+	
+	public GooruImageUtil getGooruImageUtil() {
+		return gooruImageUtil;
+    }
 }

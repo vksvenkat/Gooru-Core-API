@@ -23,17 +23,22 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.domain.service;
 
+import java.io.File;
 import java.util.Date;
 import java.util.List;
 
+import org.ednovo.gooru.application.util.GooruImageUtil;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Domain;
 import org.ednovo.gooru.core.api.model.RequestMappingUri;
+import org.ednovo.gooru.core.api.model.Subject;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
 
@@ -42,8 +47,12 @@ public class DomainServiceImpl extends BaseServiceImpl implements DomainService,
 
 	@Autowired
 	private DomainRepository domainRepository;
+	
+	@Autowired
+	private GooruImageUtil gooruImageUtil;
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ActionResponseDTO<Domain> createDomain(Domain domain, User user) {
 		final Errors error = validateDomain(domain);
 		if (!error.hasErrors()) {
@@ -58,6 +67,7 @@ public class DomainServiceImpl extends BaseServiceImpl implements DomainService,
 	}
 		
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void updateDomain(Integer domainId, Domain newDomain) {
 		Domain domain = this.getDomainRepository().getDomain(domainId);
 		rejectIfNull(domain, GL0006, 404, DOMAIN_);
@@ -78,10 +88,16 @@ public class DomainServiceImpl extends BaseServiceImpl implements DomainService,
 			domain.setDisplaySequence(domain.getDisplaySequence());
 		}
 		domain.setLastModified(new Date(System.currentTimeMillis()));
+		String mediaFilename = newDomain.getMediaFilename();
+		this.getGooruImageUtil().imageUpload(mediaFilename, domainId, Domain.REPO_PATH ,Domain.IMAGE_DIMENSION);
+		StringBuilder basePath = new StringBuilder(Subject.REPO_PATH);
+		basePath.append(File.separator).append(domainId).append(File.separator).append(mediaFilename);
+	    domain.setImagePath(basePath.toString());
 		this.getDomainRepository().save(domain);
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Domain getDomain(Integer domainId) {
 		Domain domain = this.getDomainRepository().getDomain(domainId);
 		reject((domain.getActiveFlag() == 1), GL0107, DOMAIN);
@@ -90,12 +106,14 @@ public class DomainServiceImpl extends BaseServiceImpl implements DomainService,
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Domain> getDomains(Integer limit, Integer offset) {
 		List<Domain> result = this.getDomainRepository().getDomains(limit, offset);
 		return result;
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteDomain(Integer domainId) {
 		Domain domain = this.getDomainRepository().getDomain(domainId);
 		rejectIfNull(domain, GL0056, 404, DOMAIN_);
@@ -114,4 +132,7 @@ public class DomainServiceImpl extends BaseServiceImpl implements DomainService,
 		return domainRepository;
 	}
 
+	public GooruImageUtil getGooruImageUtil() {
+		return gooruImageUtil;
+	}
 }
