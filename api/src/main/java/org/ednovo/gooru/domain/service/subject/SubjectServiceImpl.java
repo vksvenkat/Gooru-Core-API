@@ -23,7 +23,7 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.domain.service.subject;
 
-import java.util.ArrayList;
+import java.io.File;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -52,6 +52,9 @@ public class SubjectServiceImpl extends BaseServiceImpl implements
 
 	@Autowired
 	private SubjectRepository subjectRepository;
+	
+	@Autowired
+	private GooruImageUtil gooruImageUtil;
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -143,6 +146,11 @@ public class SubjectServiceImpl extends BaseServiceImpl implements
 			subject.setName(newSubject.getName());
 		}
 		subject.setLastModified(new Date(System.currentTimeMillis()));
+		String mediaFilename = newSubject.getMediaFilename();
+		this.getGooruImageUtil().imageUpload(mediaFilename, subjectId, Subject.REPO_PATH, Subject.IMAGE_DIMENSION);
+		StringBuilder basePath = new StringBuilder(Subject.REPO_PATH);
+		basePath.append(File.separator).append(subjectId).append(File.separator).append(mediaFilename);
+	    subject.setImagePath(basePath.toString());
 		this.getSubjectRepository().save(subject);
 	}
 
@@ -165,4 +173,8 @@ public class SubjectServiceImpl extends BaseServiceImpl implements
 	public SubjectRepository getSubjectRepository() {
 		return subjectRepository;
 	}
+	
+	public GooruImageUtil getGooruImageUtil() {
+		return gooruImageUtil;
+    }
 }
