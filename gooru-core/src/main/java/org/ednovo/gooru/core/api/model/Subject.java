@@ -32,6 +32,12 @@ public class Subject implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = -6184925958268911061L;
+	
+	public static final String REPO_PATH = "fs";
+	
+	public static final String IMAGE_DIMENSION = "160x120,80x60";
+
+
 	/**
 	 * 
 	 */
@@ -57,6 +63,16 @@ public class Subject implements Serializable {
 	private User creator;
 	
 	private String uri;
+	
+	private String mediaFilename;
+	
+	public String getMediaFilename() {
+		return mediaFilename;
+	}
+
+	public void setMediaFilename(String mediaFilename) {
+		this.mediaFilename = mediaFilename;
+	}
 
 	public User getCreator() {
 		return creator;

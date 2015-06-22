@@ -92,8 +92,8 @@ public class ClasspageEventLog implements ParameterProperties, ConstantPropertie
 		}
 		payLoadObject.put(PARENT_CONTENT_ID, collectionItem != null  && collectionItem.getCollection() != null ? collectionItem.getCollection().getContentId() : null);
 		payLoadObject.put(CONTENT_ID, collectionItem != null && collectionItem.getResource() != null ? collectionItem.getResource().getContentId() : null);
-		payLoadObject.put(TITLE, collectionItem != null && collectionItem.getResource() != null ? collectionItem.getResource().getTitle() : null);
-		payLoadObject.put(DESCRIPTION, collectionItem != null && collectionItem.getResource() != null ? collectionItem.getResource().getDescription() : null);
+		//payLoadObject.put(TITLE, collectionItem != null && collectionItem.getResource() != null ? collectionItem.getResource().getTitle() : null);
+		//payLoadObject.put(DESCRIPTION, collectionItem != null && collectionItem.getResource() != null ? collectionItem.getResource().getDescription() : null);
 		SessionContextSupport.putLogParameter(PAY_LOAD_OBJECT, payLoadObject.toString());
 		JSONObject session = SessionContextSupport.getLog().get(SESSION) != null ? new JSONObject(SessionContextSupport.getLog().get(SESSION).toString()) : new JSONObject();
 		session.put(ORGANIZATION_UID, user != null && user.getOrganization() != null ? user.getOrganization().getPartyUid() : null);
@@ -176,11 +176,9 @@ public class ClasspageEventLog implements ParameterProperties, ConstantPropertie
 	    payLoadObject.put(ITEM_SEQUENCE,collectionItem.getItemSequence());
 		if (collectionType.equalsIgnoreCase(CollectionType.COLLECTION.getCollectionType())) {
 			payLoadObject.put(ITEM_TYPE, COLLECTION_RESOURCE);
-		} else if (collectionItem != null && collectionItem.getResource() != null && collectionItem.getResource().getResourceType() != null && collectionItem.getResource().getResourceType().getName().equalsIgnoreCase(ResourceType.Type.PATHWAY.getType())) {
-			payLoadObject.put(ITEM_TYPE, CLASSPAGE_PATHWAY);
-		} else if (collectionType.equalsIgnoreCase(CollectionType.FOLDER.getCollectionType())) {
+		}  else if (collectionType.equalsIgnoreCase(CollectionType.FOLDER.getCollectionType())) {
 			if (collectionItem != null && collectionItem.getResource() != null) {
-				String itemTypeName = collectionItem.getResource().getResourceType().getName();
+				String itemTypeName = collectionItem.getResource().getContentType().getName();
 				if (itemTypeName.equalsIgnoreCase(ResourceType.Type.FOLDER.getType())) {
 					payLoadObject.put(ITEM_TYPE, FOLDER_FOLDER);
 				} else if (itemTypeName.equalsIgnoreCase(ResourceType.Type.SCOLLECTION.getType())) {

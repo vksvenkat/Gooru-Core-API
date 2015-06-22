@@ -430,8 +430,8 @@ public interface ConstantProperties {
 	static final String ORG_ADMIN_KEY = "organizationAdmin";
 
 	static final String USER_FLAG_EXCLUDE_FIELDS[] = { "*.class", "segment", "*.creator" };
-
-	static final String CUSTOM_VALUE_INCLUDE_FIELDS[] = { "displayName" };
+	
+    static final String CUSTOM_VALUE_INCLUDE_FIELDS[] = { "*.keyValue", "*.value", "*.customTableValueId" };
 
 	public static final String OAUTH_CLIENT_INCLUDES[] = { "*.key", "*.secretKey", "*.clientName", "*.description", "*.clientSecret", "*.scopes", "*.grantTypes", "*.authorities", "*.redirectUrl", "*.title", "*.accessTokenValiditySeconds", "*.refreshTokenValiditySeconds", "*.totalHitCount",
 			"*.searchResults", "*.count", "*.totalPages", "*.resourceType.name" };
@@ -919,4 +919,6 @@ public interface ConstantProperties {
 	final static String SUBDOMAIN_ID = "subdomainId";
 	
 	final static String CLASS_INCLUDES[] = {"classUid","classCode","name","description", "visibility", "*.minimumScore", "*.memberCount", "user.username", "user.gooruUId", "user.gender", "*.thumbnails", "*.user", "thumbnails.url", "courseGooruOid"};
+	
+	final static String IMAGE_PATH = "imagePath";
 }

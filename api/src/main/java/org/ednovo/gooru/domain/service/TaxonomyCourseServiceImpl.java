@@ -23,10 +23,14 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.domain.service;
 
+import java.io.File;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
+import org.ednovo.gooru.application.util.GooruImageUtil;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
+import org.ednovo.gooru.core.api.model.Domain;
 import org.ednovo.gooru.core.api.model.Subject;
 import org.ednovo.gooru.core.api.model.TaxonomyCourse;
 import org.ednovo.gooru.core.api.model.User;
@@ -35,6 +39,8 @@ import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.SubjectRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
 
@@ -47,7 +53,11 @@ public class TaxonomyCourseServiceImpl extends BaseServiceImpl implements Taxono
 	@Autowired
 	private SubjectRepository subjectRepository;
 
+	@Autowired
+	private GooruImageUtil gooruImageUtil;
+
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ActionResponseDTO<TaxonomyCourse> createTaxonomyCourse(TaxonomyCourse course, User user) {
 		final Errors errors = validateCourse(course);
 		if (!errors.hasErrors()) {
@@ -67,6 +77,7 @@ public class TaxonomyCourseServiceImpl extends BaseServiceImpl implements Taxono
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void updateTaxonomyCourse(Integer courseId, TaxonomyCourse newCourse) {
 		TaxonomyCourse course = this.getTaxonomyCourseRepository().getCourse(courseId);
 		rejectIfNull(course, GL0056, 404, COURSE);
@@ -87,10 +98,16 @@ public class TaxonomyCourseServiceImpl extends BaseServiceImpl implements Taxono
 			course.setImagePath(newCourse.getImagePath());
 		}
 		course.setLastModified(new Date(System.currentTimeMillis()));
+		String mediaFilename = newCourse.getMediaFilename();
+		this.getGooruImageUtil().imageUpload(mediaFilename, courseId, TaxonomyCourse.REPO_PATH, TaxonomyCourse.IMAGE_DIMENSION);
+		StringBuilder basePath = new StringBuilder(Subject.REPO_PATH);
+		basePath.append(File.separator).append(courseId).append(File.separator).append(mediaFilename);
+	    course.setImagePath(basePath.toString());
 		this.getTaxonomyCourseRepository().save(course);
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public TaxonomyCourse getTaxonomyCourse(Integer courseId) {
 		TaxonomyCourse course = this.getTaxonomyCourseRepository().getCourse(courseId);
 		rejectIfNull(course, GL0056, 404, COURSE);
@@ -99,18 +116,28 @@ public class TaxonomyCourseServiceImpl extends BaseServiceImpl implements Taxono
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<TaxonomyCourse> getTaxonomyCourses(Integer limit, Integer offset) {
 		List<TaxonomyCourse> result = this.getTaxonomyCourseRepository().getCourses(limit, offset);
 		return result;
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteTaxonomyCourse(Integer courseId) {
 		TaxonomyCourse course = this.getTaxonomyCourseRepository().getCourse(courseId);
 		rejectIfNull(course, GL0056, 404, COURSE);
 		course.setActiveFlag((short) 0);
 		course.setLastModified(new Date(System.currentTimeMillis()));
 		this.getTaxonomyCourseRepository().save(course);
+	}
+
+	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public List<Map<String, Object>> getDomains(Integer courseId) {
+		List<Map<String, Object>> result = this.getTaxonomyCourseRepository().getDomains(courseId);
+		rejectIfNull(result, GL0056, 404, DOMAIN);
+		return result;
 	}
 
 	private Errors validateCourse(TaxonomyCourse course) {
@@ -127,4 +154,8 @@ public class TaxonomyCourseServiceImpl extends BaseServiceImpl implements Taxono
 	public SubjectRepository getSubjectRepository() {
 		return subjectRepository;
 	}
+	
+	public GooruImageUtil getGooruImageUtil() {
+		return gooruImageUtil;
+    }
 }

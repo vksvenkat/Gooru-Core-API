@@ -11,9 +11,9 @@ public class CollectionItem implements Serializable, Comparable<CollectionItem> 
 	 */
 	private static final long serialVersionUID = -7365762989410060090L;
 
-
 	private String collectionItemId;
 	private Collection collection;
+	private Content content;
 	private Resource resource;
 	private String itemType;
 	private Integer itemSequence;
@@ -28,22 +28,20 @@ public class CollectionItem implements Serializable, Comparable<CollectionItem> 
 	private AssessmentQuestion questionInfo;
 	private String documentid;
 	private String documentkey;
-	private List<StandardFo> standards; 
-	private Set<String> course; 
+	private List<StandardFo> standards;
+	private Set<String> course;
 	private Integer resourceCount;
 	private String status;
-	private Integer totalPages;
 	private Boolean isRequired;
-	private String minimumScore ; 
-	private String estimatedTime; 
-	private Boolean showAnswerByQuestions ; 
-	private Boolean showHints ;
+	private String minimumScore;
+	private String estimatedTime;
+	private Boolean showAnswerByQuestions;
+	private Boolean showHints;
 	private Boolean showAnswerEnd;
-	private String  minimumScoreByUser;
+	private String minimumScoreByUser;
 	private String assignmentCompleted;
 	private String timeStudying;
-	
-	
+
 	/**
 	 * 
 	 */
@@ -80,14 +78,6 @@ public class CollectionItem implements Serializable, Comparable<CollectionItem> 
 
 	public void setCollection(Collection collection) {
 		this.collection = collection;
-	}
-
-	public Resource getResource() {
-		return resource;
-	}
-
-	public void setResource(Resource resource) {
-		this.resource = resource;
 	}
 
 	public String getItemType() {
@@ -137,7 +127,7 @@ public class CollectionItem implements Serializable, Comparable<CollectionItem> 
 	public void setStop(String stop) {
 		this.stop = stop;
 	}
-	
+
 	public Date getPlannedEndDate() {
 		return plannedEndDate;
 	}
@@ -221,14 +211,6 @@ public class CollectionItem implements Serializable, Comparable<CollectionItem> 
 		this.status = status;
 	}
 
-	public Integer getTotalPages() {
-		return (this.getResource() != null && this.getResource().getResourceInfo() != null) ? this.getResource().getResourceInfo().getNumOfPages() : null;
-	}
-
-	public void setTotalPages(Integer totalPages) {
-		this.totalPages = totalPages;
-	}
-
 	public void setIsRequired(Boolean isRequired) {
 		this.isRequired = isRequired;
 	}
@@ -299,6 +281,22 @@ public class CollectionItem implements Serializable, Comparable<CollectionItem> 
 
 	public String getTimeStudying() {
 		return timeStudying;
-	}	
+	}
+
+	public Content getContent() {
+		return content;
+	}
+
+	public void setContent(Content content) {
+		this.content = content;
+	}
+
+	public Resource getResource() {
+		return resource;
+	}
+
+	public void setResource(Resource resource) {
+		this.resource = resource;
+	}
 
 }

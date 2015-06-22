@@ -33,7 +33,7 @@ public interface ResourceManager {
 
 	void deleteResource(Resource resource, String resourceURI);
 
-	void copyResourceRepository(Resource sourceResource, Resource targetResource) throws Exception;
+	void copyResourceRepository(String  sourceFilepath, String targetFilePath) throws Exception;
 
 	Map<String, String> saveScridbDocument(String apiKey, String filePath) throws Exception;
 }

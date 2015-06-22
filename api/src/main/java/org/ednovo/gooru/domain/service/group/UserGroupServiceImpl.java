@@ -245,7 +245,7 @@ public class UserGroupServiceImpl implements UserGroupService,ParameterPropertie
 	@Override
 	public List<ContentPermission> contentShare(String contentId, User user, String partyUids, Boolean shareOtherOrganization, String organizationId) throws Exception {
 		List<ContentPermission> contentPermissionList = new ArrayList<ContentPermission> ();
-		Content content = this.getContentRepository().findByContentGooruId(contentId);
+		Content content = this.getContentRepository().findContentByGooruId(contentId);
 		Date date = new Date();
 		List<String> partyUidList = Arrays.asList(partyUids.split(","));		
 		for (String partyUid : partyUidList) {

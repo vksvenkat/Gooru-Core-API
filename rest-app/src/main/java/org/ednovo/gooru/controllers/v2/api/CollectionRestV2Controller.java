@@ -42,7 +42,6 @@ import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.CollectionType;
 import org.ednovo.gooru.core.api.model.ContentType;
 import org.ednovo.gooru.core.api.model.Resource;
-import org.ednovo.gooru.core.api.model.ResourceType;
 import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
@@ -89,16 +88,14 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 
 	@Autowired
 	private ConversionService conversionService;
-	
+
 	@Autowired
 	private IndexProcessor indexProcessor;
-	
-	@Autowired 
+
+	@Autowired
 	private IndexHandler indexHandler;
-	
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ADD })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { " " }, method = RequestMethod.POST)
 	public ModelAndView createCollection(@RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		final User user = (User) request.getAttribute(Constants.USER);
@@ -144,7 +141,8 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 			@RequestParam(value = INLCLUDE_META_INFO, required = false, defaultValue = FALSE) boolean includeMetaInfo, @RequestParam(value = INCLUDE_COLLABORATOR, required = false, defaultValue = FALSE) boolean includeCollaborator,
 			@RequestParam(value = IS_GAT, required = false, defaultValue = FALSE) boolean isGat, @RequestParam(value = CLEAR_CACHE, required = false, defaultValue = FALSE) boolean clearCache,
 			@RequestParam(value = INCLUDE_RELATED_CONTENT, required = false, defaultValue = FALSE) boolean includeRelatedContent, @RequestParam(value = MERGE, required = false) String merge, @RequestParam(value = REQ_CONTEXT, required = false, defaultValue = "edit-play") String requestContext,
-			@RequestParam(value = ROOT_NODE_ID, required = false) String rootNodeId, @RequestParam(value = INCLUDE_CONTENT_PROVIDER, required = false, defaultValue = TRUE) boolean includeContentProvider, @RequestParam(value = INCLUDE_CUSTOM_FIELDS, required = false, defaultValue = TRUE) boolean includeCustomFields, HttpServletRequest request, HttpServletResponse response) {
+			@RequestParam(value = ROOT_NODE_ID, required = false) String rootNodeId, @RequestParam(value = INCLUDE_CONTENT_PROVIDER, required = false, defaultValue = TRUE) boolean includeContentProvider,
+			@RequestParam(value = INCLUDE_CUSTOM_FIELDS, required = false, defaultValue = TRUE) boolean includeCustomFields, HttpServletRequest request, HttpServletResponse response) {
 		final User user = (User) request.getAttribute(Constants.USER);
 		String includes[] = null;
 		if (requestContext != null && requestContext.equalsIgnoreCase("library")) {
@@ -254,7 +252,7 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_ITEM_UPDATE })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/item/{id}/reorder/{sequence}" }, method = RequestMethod.PUT)
-	public ModelAndView reorderCollectionItemSequence(@PathVariable(value = ID) final String collectionItemId, @PathVariable(value = SEQUENCE) int newSequence, final User user , final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+	public ModelAndView reorderCollectionItemSequence(@PathVariable(value = ID) final String collectionItemId, @PathVariable(value = SEQUENCE) int newSequence, final User user, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 		final ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().reorderCollectionItem(collectionItemId, newSequence, user);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -277,7 +275,7 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 		final User user = (User) request.getAttribute(Constants.USER);
 		final Collection collection = getCollectionService().copyCollection(collectionId, this.buildCopyCollectionFromInputParameters(getValue(COLLECTION, json)), json != null && getValue(ADD_TO_SHELF, json) != null ? Boolean.parseBoolean(getValue(ADD_TO_SHELF, json)) : false,
 				json != null && getValue(PARENT_ID, json) != null ? getValue(PARENT_ID, json) : null, user);
-		indexHandler.setReIndexRequest(collection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);				
+		indexHandler.setReIndexRequest(collection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);
 		return toModelAndViewWithIoFilter(collection, RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, includes);
 	}
 
@@ -337,8 +335,8 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 	public ModelAndView updateResourceWithCollectionItem(final HttpServletRequest request, @PathVariable(ID) final String collectionItemId, @RequestBody final String data, final HttpServletResponse response) throws Exception {
 		final JSONObject json = requestData(data);
 		final User user = (User) request.getAttribute(Constants.USER);
-		final ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().updateResourceWithCollectionItem(collectionItemId, this.buildResourceFromInputParameters(getValue(RESOURCE, json), user), getValue(RESOURCE_TAGS, json) == null ? null : buildResourceTags(getValue(RESOURCE_TAGS, json)),
-				user, data);
+		final ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().updateResourceWithCollectionItem(collectionItemId, this.buildResourceFromInputParameters(getValue(RESOURCE, json), user),
+				getValue(RESOURCE_TAGS, json) == null ? null : buildResourceTags(getValue(RESOURCE_TAGS, json)), user, data);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		}
@@ -405,8 +403,9 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_SCOLLECTION_READ })
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}/workspace" }, method = RequestMethod.GET)
-	public ModelAndView getMyWorkspace(@PathVariable(value = ID) final String partyUid, final HttpServletRequest request, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") final Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") final Integer limit,
-			@RequestParam(value = FILTER_NAME, required = false, defaultValue = ALL) final String filterName, @RequestParam(value = ORDER_BY, required = false, defaultValue = "desc") final String orderBy, @RequestParam(value = SHARING, required = false) final String sharing, final HttpServletResponse resHttpServletResponse) {
+	public ModelAndView getMyWorkspace(@PathVariable(value = ID) final String partyUid, final HttpServletRequest request, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") final Integer offset,
+			@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") final Integer limit, @RequestParam(value = FILTER_NAME, required = false, defaultValue = ALL) final String filterName, @RequestParam(value = ORDER_BY, required = false, defaultValue = "desc") final String orderBy,
+			@RequestParam(value = SHARING, required = false) final String sharing, final HttpServletResponse resHttpServletResponse) {
 		final User user = (User) request.getAttribute(Constants.USER);
 		final Map<String, String> filters = new HashMap<String, String>();
 		filters.put(OFFSET_FIELD, offset + "");
@@ -454,14 +453,6 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 	private Collection buildCollectionFromInputParameters(final String data, final User user, final HttpServletRequest request) {
 		final Collection collection = JsonDeserializer.deserialize(data, Collection.class);
 		collection.setGooruOid(UUID.randomUUID().toString());
-		final ContentType contentType = getCollectionService().getContentType(ContentType.RESOURCE);
-		collection.setContentType(contentType);
-		ResourceType resourceType = getCollectionService().getResourceType(ResourceType.Type.SCOLLECTION.getType());
-		if (collection.getCollectionType() != null && collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.FOLDER.getType())) {
-			resourceType = getCollectionService().getResourceType(ResourceType.Type.FOLDER.getType());
-		}
-
-		collection.setResourceType(resourceType);
 		collection.setLastModified(new Date(System.currentTimeMillis()));
 		collection.setCreatedOn(new Date(System.currentTimeMillis()));
 
@@ -472,12 +463,11 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 		collection.setUser(user);
 		collection.setOrganization(user.getPrimaryOrganization());
 		collection.setCreator(user);
-		collection.setDistinguish(Short.valueOf("0"));
-		collection.setRecordSource(NOT_ADDED);
-		collection.setIsFeatured(0);
 		collection.setLastUpdatedUserUid(user.getGooruUId());
 		if (collection.getCollectionType() == null) {
 			collection.setCollectionType(getCollectionType(request));
+			final ContentType contentType = getCollectionService().getContentType(COLLECTION);
+			collection.setContentType(contentType);
 		}
 
 		return collection;
