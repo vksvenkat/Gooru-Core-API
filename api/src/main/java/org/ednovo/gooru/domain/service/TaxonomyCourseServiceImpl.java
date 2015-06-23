@@ -30,7 +30,6 @@ import java.util.Map;
 
 import org.ednovo.gooru.application.util.GooruImageUtil;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
-import org.ednovo.gooru.core.api.model.Domain;
 import org.ednovo.gooru.core.api.model.Subject;
 import org.ednovo.gooru.core.api.model.TaxonomyCourse;
 import org.ednovo.gooru.core.api.model.User;
@@ -112,14 +111,22 @@ public class TaxonomyCourseServiceImpl extends BaseServiceImpl implements Taxono
 		TaxonomyCourse course = this.getTaxonomyCourseRepository().getCourse(courseId);
 		rejectIfNull(course, GL0056, 404, COURSE);
 		reject((course.getActiveFlag() == 1), GL0107, COURSE);
+		if(course.getImagePath() != null){
+			course.setThumbnails(GooruImageUtil.getThumbnails(course.getImagePath()));
+		}
 		return course;
 	}
 
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<TaxonomyCourse> getTaxonomyCourses(Integer limit, Integer offset) {
-		List<TaxonomyCourse> result = this.getTaxonomyCourseRepository().getCourses(limit, offset);
-		return result;
+		List<TaxonomyCourse> courses = this.getTaxonomyCourseRepository().getCourses(limit, offset);
+		for(TaxonomyCourse course: courses){
+			if(course.getImagePath() != null){
+				course.setThumbnails(GooruImageUtil.getThumbnails(course.getImagePath()));
+			}
+		}
+		return courses;
 	}
 
 	@Override
@@ -135,9 +142,15 @@ public class TaxonomyCourseServiceImpl extends BaseServiceImpl implements Taxono
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Map<String, Object>> getDomains(Integer courseId) {
-		List<Map<String, Object>> result = this.getTaxonomyCourseRepository().getDomains(courseId);
-		rejectIfNull(result, GL0056, 404, DOMAIN);
-		return result;
+		List<Map<String, Object>> domains = this.getTaxonomyCourseRepository().getDomains(courseId);
+		rejectIfNull(domains, GL0056, 404, DOMAIN);
+		for(Map<String, Object> domain: domains){
+			Object thumbnail = domain.get(IMAGE_PATH);
+			if(thumbnail != null){
+				domain.put(THUMBNAILS,GooruImageUtil.getThumbnails(thumbnail));
+			}
+		}
+		return domains;
 	}
 
 	private Errors validateCourse(TaxonomyCourse course) {

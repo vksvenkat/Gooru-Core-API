@@ -40,7 +40,7 @@ public class SubjectRepositoryHibernate extends BaseRepositoryHibernate
 	private static final String SUBJECT_MAX = "SELECT MAX(subject.displaySequence) FROM Subject subject";
 	private static final String SUBJECTS = "FROM Subject subject where subject.activeFlag=1";
 	private static final String SUBJECT = "FROM Subject subject WHERE subject.subjectId=:subjectId";
-    private static final String COURSES = "select c.course_id courseId,c.name from subject s inner join course c on s.subject_id=c.subject_id where s.subject_id=:subjectId";
+    private static final String COURSES = "select c.course_id courseId,c.name,c.image_path imagePath from subject s inner join course c on s.subject_id=c.subject_id where s.subject_id=:subjectId";
 	
    
 	@Override
