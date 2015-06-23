@@ -21,7 +21,6 @@ public class CollectionItem implements Serializable, Comparable<CollectionItem> 
 	private String narrationType;
 	private String start;
 	private String stop;
-	private Date plannedEndDate;
 	private Date associationDate;
 	private User associatedUser;
 	private Rating rating;
@@ -32,15 +31,10 @@ public class CollectionItem implements Serializable, Comparable<CollectionItem> 
 	private Set<String> course;
 	private Integer resourceCount;
 	private String status;
-	private Boolean isRequired;
-	private String minimumScore;
 	private String estimatedTime;
 	private Boolean showAnswerByQuestions;
 	private Boolean showHints;
 	private Boolean showAnswerEnd;
-	private String minimumScoreByUser;
-	private String assignmentCompleted;
-	private String timeStudying;
 
 	/**
 	 * 
@@ -128,14 +122,6 @@ public class CollectionItem implements Serializable, Comparable<CollectionItem> 
 		this.stop = stop;
 	}
 
-	public Date getPlannedEndDate() {
-		return plannedEndDate;
-	}
-
-	public void setPlannedEndDate(Date plannedEndDate) {
-		this.plannedEndDate = plannedEndDate;
-	}
-
 	public void setRating(Rating rating) {
 		this.rating = rating;
 	}
@@ -211,14 +197,6 @@ public class CollectionItem implements Serializable, Comparable<CollectionItem> 
 		this.status = status;
 	}
 
-	public void setIsRequired(Boolean isRequired) {
-		this.isRequired = isRequired;
-	}
-
-	public Boolean getIsRequired() {
-		return isRequired;
-	}
-
 	public void setShowAnswerByQuestions(Boolean showAnswerByQuestions) {
 		this.showAnswerByQuestions = showAnswerByQuestions;
 	}
@@ -243,44 +221,12 @@ public class CollectionItem implements Serializable, Comparable<CollectionItem> 
 		return showAnswerEnd;
 	}
 
-	public void setMinimumScore(String minimumScore) {
-		this.minimumScore = minimumScore;
-	}
-
-	public String getMinimumScore() {
-		return minimumScore;
-	}
-
 	public void setEstimatedTime(String estimatedTime) {
 		this.estimatedTime = estimatedTime;
 	}
 
 	public String getEstimatedTime() {
 		return estimatedTime;
-	}
-
-	public void setMinimumScoreByUser(String minimumScoreByUser) {
-		this.minimumScoreByUser = minimumScoreByUser;
-	}
-
-	public String getMinimumScoreByUser() {
-		return minimumScoreByUser;
-	}
-
-	public void setAssignmentCompleted(String assignmentCompleted) {
-		this.assignmentCompleted = assignmentCompleted;
-	}
-
-	public String getAssignmentCompleted() {
-		return assignmentCompleted;
-	}
-
-	public void setTimeStudying(String timeStudying) {
-		this.timeStudying = timeStudying;
-	}
-
-	public String getTimeStudying() {
-		return timeStudying;
 	}
 
 	public Content getContent() {

@@ -40,12 +40,7 @@
 			not-null="false" />
 		<property name="start" column="start" not-null="false" />
 		<property name="stop" column="stop" not-null="false" />
-		<property name="plannedEndDate" column="planned_end_date"
-			not-null="false" />
 		<property name="associationDate" column="association_date"
-			not-null="false" />
-		<property name="isRequired" column="is_required" not-null="false" />
-		<property name="minimumScore" column="minimum_score"
 			not-null="false" />
 		<property name="estimatedTime" column="estimated_time"
 			not-null="false" />

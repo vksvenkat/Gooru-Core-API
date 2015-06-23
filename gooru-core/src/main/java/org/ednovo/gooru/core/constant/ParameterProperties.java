@@ -2924,9 +2924,6 @@ public interface ParameterProperties {
 	
 	String CLASS_GOORU_ID = "classGooruId";
 	
-	String GL0107 = "GL0107";
-	
-	String IMAGE_PATH = "imagePath";
-	
+	String GL0107 = "GL0107";	
 }
 

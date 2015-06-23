@@ -63,6 +63,11 @@ public class BaseRepositoryHibernate extends AbstractRepositoryHibernate impleme
 		return String.format(inputString, strings);
 	}
 	
+	protected StringBuilder queryAppender(StringBuilder query) {
+		query.append(query.length() == 0 ? " where " : " and "); 
+		return query; 
+	}
+	
 	public SessionFactory getSessionFactory() {
 		return sessionFactory;
 	}

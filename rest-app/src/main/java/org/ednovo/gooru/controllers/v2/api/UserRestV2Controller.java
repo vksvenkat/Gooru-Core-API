@@ -72,7 +72,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 @Controller
 @RequestMapping(value = { "/v2/user" })
-public class UserManagementRestV2Controller extends BaseController implements ParameterProperties, ConstantProperties {
+public class UserRestV2Controller extends BaseController implements ParameterProperties, ConstantProperties {
 
 	@Autowired
 	private UserManagementService userManagementService;

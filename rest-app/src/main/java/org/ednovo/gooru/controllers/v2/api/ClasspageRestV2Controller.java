@@ -227,8 +227,6 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 		final ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().updateCollectionItem(newCollectionItem, collectionItemId, user, data);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-		} else if (newCollectionItem.getStatus() != null || newCollectionItem.getMinimumScoreByUser() != null || newCollectionItem.getAssignmentCompleted() != null || newCollectionItem.getTimeStudying() != null) {
-			getClasspageService().updateAssignment(collectionItemId, newCollectionItem.getStatus(), newCollectionItem.getMinimumScoreByUser(),newCollectionItem.getAssignmentCompleted(), newCollectionItem.getTimeStudying() ,user);
 		}
 		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, COLLECTION_ITEM_INCLUDE_FILEDS);
 		includes = (String[]) ArrayUtils.addAll(includes, CLASSPAGE_COLLECTION_ITEM_INCLUDE_FIELDS);
@@ -415,8 +413,6 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 		final ActionResponseDTO<CollectionItem> responseDTO = getClasspageService().updatePathwayItem(classId,pathwayGooruOid,collectionItemId,newCollectionItem,  user, data);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-		} else if (newCollectionItem.getStatus() != null || newCollectionItem.getMinimumScoreByUser() != null && newCollectionItem.getAssignmentCompleted() != null || newCollectionItem.getTimeStudying() != null) {
-			getClasspageService().updateAssignment(collectionItemId, newCollectionItem.getStatus(), newCollectionItem.getMinimumScoreByUser(), newCollectionItem.getAssignmentCompleted(), newCollectionItem.getTimeStudying() ,user);
 		}
 		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, COLLECTION_ITEM_INCLUDE_FILEDS);
 		includes = (String[]) ArrayUtils.addAll(includes, CLASSPAGE_COLLECTION_ITEM_INCLUDE_FIELDS);

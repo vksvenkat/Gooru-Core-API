@@ -43,7 +43,6 @@ import org.ednovo.gooru.core.api.model.ContentType;
 import org.ednovo.gooru.core.api.model.CustomTableValue;
 import org.ednovo.gooru.core.api.model.Identity;
 import org.ednovo.gooru.core.api.model.InviteUser;
-import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.ResourceType;
 import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.StorageArea;
@@ -346,15 +345,6 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		Collection collection = this.getCollectionRepository().getCollectionByGooruOid(assignmentGooruOid, null);
 		Errors errors = validateClasspageItem(collection, collectionItem);
 
-		Date currentDate = new Date();
-
-		if (collectionItem != null && collectionItem.getPlannedEndDate() != null) {
-			Date plannedEndDate = collectionItem.getPlannedEndDate();
-			if (currentDate.compareTo(plannedEndDate) > 0) {
-				throw new BadRequestException(generateErrorMessage("GL0086"), "GL0086");
-
-			}
-		}
 
 		if (collection != null) {
 			if (type != null && type.equalsIgnoreCase(CollectionType.USER_CLASSPAGE.getCollectionType())) {
@@ -646,7 +636,7 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			if (object[2] != null) {
 				result.put(PROFILE_IMG_URL, BaseUtil.changeHttpsProtocolByHeader(settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, TaxonomyUtil.GOORU_ORG_UID)) + "/" + String.valueOf(object[2]) + ".png");
 			}
-			
+
 			listMap.add(result);
 		}
 		searchResult.setSearchResults(listMap);
@@ -759,9 +749,6 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		}
 		this.getCollectionRepository().save(userCollectionItemAssoc);
 		userCollectionItemAssoc.getCollectionItem().setStatus(userCollectionItemAssoc.getStatus() != null ? userCollectionItemAssoc.getStatus().getValue() : null);
-		userCollectionItemAssoc.getCollectionItem().setMinimumScoreByUser(userCollectionItemAssoc.getMinimumScore());
-		userCollectionItemAssoc.getCollectionItem().setAssignmentCompleted(userCollectionItemAssoc.getAssignmentCompleted());
-		userCollectionItemAssoc.getCollectionItem().setTimeStudying(userCollectionItemAssoc.getTimeStudying());
 		return userCollectionItemAssoc.getCollectionItem();
 	}
 
@@ -857,7 +844,6 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		}
 		this.getCollectionRepository().save(pathway);
 		final CollectionItem collectionItem = new CollectionItem();
-		collectionItem.setIsRequired(isRequired);
 		this.getCollectionService().createCollectionItem(pathway.getGooruOid(), classpage.getGooruOid(), collectionItem, pathway.getUser(), ADDED, false);
 		if (collectionId != null && this.getCollectionRepository().getCollectionByGooruOid(collectionId, null) != null) {
 			this.getCollectionService().createCollectionItem(collectionId, pathway.getGooruOid(), pathway.getCollectionItem() == null ? new CollectionItem() : pathway.getCollectionItem(), pathway.getUser(), ADDED, false);
@@ -916,11 +902,6 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 				if (userCollectionItemAssoc.getStatus() != null) {
 					collectionItem.setStatus(userCollectionItemAssoc.getStatus().getValue());
 				}
-				if (userCollectionItemAssoc.getMinimumScore() != null) {
-					collectionItem.setMinimumScoreByUser(userCollectionItemAssoc.getMinimumScore());
-				}
-				collectionItem.setAssignmentCompleted(userCollectionItemAssoc.getAssignmentCompleted());
-				collectionItem.setTimeStudying(userCollectionItemAssoc.getTimeStudying());
 			}
 		}
 		return collectionItems;
@@ -966,13 +947,10 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 		if (targetPathway != null) {
 			collectionItem.setItemType(sourceItem.getItemType());
 			collectionItem.setNarration(sourceItem.getNarration());
-			collectionItem.setIsRequired(sourceItem.getIsRequired());
-			collectionItem.setMinimumScore(sourceItem.getMinimumScore());
 			collectionItem.setEstimatedTime(sourceItem.getEstimatedTime());
 			collectionItem.setShowAnswerByQuestions(sourceItem.getShowAnswerByQuestions());
 			collectionItem.setShowAnswerEnd(sourceItem.getShowAnswerEnd());
 			collectionItem.setShowHints(sourceItem.getShowHints());
-			collectionItem.setPlannedEndDate(sourceItem.getPlannedEndDate());
 			targetItem = this.getCollectionService().createCollectionItem(sourceItem.getResource().getGooruOid(), targetPathway.getGooruOid(), collectionItem, user, ADDED, false).getModel();
 			final Set<CollectionItem> collectionItems = new TreeSet<CollectionItem>(targetPathway.getCollectionItems());
 			collectionItems.add(collectionItem);

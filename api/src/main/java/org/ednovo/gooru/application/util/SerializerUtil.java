@@ -189,7 +189,6 @@ public class SerializerUtil implements ParameterProperties {
 			} else {
 				serializer.include("*.contentPermissions");
 			}
-			includes = (String[]) ArrayUtils.add(includes, "*.version");
 			serializer.include(includes);
 
 			if (useBaseExcludes) {
