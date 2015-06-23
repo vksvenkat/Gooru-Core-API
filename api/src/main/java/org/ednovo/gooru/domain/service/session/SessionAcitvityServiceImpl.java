@@ -83,32 +83,40 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 		final Errors errors = this.validateCreateSessionActivity(sessionActivity, sessionActivity.getContentGooruId());
 		
 		if (!errors.hasErrors()) {
-			StringBuilder listOfGooruOids = new StringBuilder();
-			listOfGooruOids.append(sessionActivity.getContentGooruId());
 			if (sessionActivity.getClassGooruId() != null && sessionActivity.getUnitGooruId() != null && sessionActivity.getLessonGooruId() != null) {
+				this.getSessionActivityRepository().updateOldSessions();
+
+				StringBuilder listOfGooruOids = new StringBuilder();
 				listOfGooruOids.append(COMMA).append(sessionActivity.getClassGooruId());
 				listOfGooruOids.append(COMMA).append(sessionActivity.getUnitGooruId());
 				listOfGooruOids.append(COMMA).append(sessionActivity.getLessonGooruId());
-			}
-			Map<Object, Object> contentIds = new HashMap<Object, Object>();
-			List<Object[]> listOfcontentId = getResourceRepository().getContentIds(listOfGooruOids.toString());
-			for (Object[] contentId : listOfcontentId) {
-				contentIds.put(contentId[0], contentId[1]);
-			}
-			final Long collectionId = ((Number) contentIds.get(sessionActivity.getContentGooruId())).longValue();
 
-			if (sessionActivity.getClassGooruId() != null) {
+				Map<Object, Object> contentIds = new HashMap<Object, Object>();
+				List<Object[]> listOfcontentId = getResourceRepository().getContentIds(listOfGooruOids.toString());
+				for (Object[] contentId : listOfcontentId) {
+					contentIds.put(contentId[0], contentId[1]);
+				}
+				final Long collectionId = ((Number) contentIds.get(sessionActivity.getContentGooruId())).longValue();
+
 				sessionActivity.setClassContentId(((Number) contentIds.get(sessionActivity.getClassGooruId())).longValue());
 				sessionActivity.setLessonContentId(((Number) contentIds.get(sessionActivity.getLessonGooruId())).longValue());
 				sessionActivity.setUnitContentId(((Number) contentIds.get(sessionActivity.getUnitGooruId())).longValue());
-				sessionActivity.setIsStudent(getResourceRepository().findUserIsStudent(sessionActivity.getClassContentId(), user.getGooruUId()));
-				sessionActivity.setClassId(getResourceRepository().getNumericClassCode(sessionActivity.getClassContentId()));
 				sessionActivity.setSequence(getSessionActivityRepository().getClassSessionActivityCount(collectionId, sessionActivity.getClassContentId(), sessionActivity.getUnitContentId(),
 						sessionActivity.getLessonContentId(), user.getGooruUId()) + 1);
+				sessionActivity.setCollectionId(collectionId);
+				sessionActivity.setIsLastSession(true);
+
+				List<Object> classInfo =  getResourceRepository().findNumericCodeAndIstudent(sessionActivity.getClassContentId(), user.getGooruUId());
+				
+				sessionActivity.setIsStudent(((Boolean)classInfo.get(0)).booleanValue());
+				sessionActivity.setClassId(((Long)classInfo.get(1)).longValue());				
+			
 			} else {
+				final Long collectionId = getResourceRepository().getContentId(sessionActivity.getContentGooruId());
 				sessionActivity.setIsStudent(false);
 				sessionActivity.setClassId(1L);
 				sessionActivity.setSequence(getSessionActivityRepository().getCollectionSessionActivityCount(collectionId,user.getGooruUId()) + 1);
+				sessionActivity.setCollectionId(collectionId);
 			}
 			sessionActivity.setScore(0.0);
 			sessionActivity.setScoreInPercentage(0.0);
@@ -117,7 +125,6 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 			sessionActivity.setTimeSpentInMillis(0L);
 			sessionActivity.setType(sessionActivity.getType());
 			sessionActivity.setStatus(SessionStatus.OPEN.getSessionStatus());
-			sessionActivity.setCollectionId(collectionId);
 			sessionActivity.setViewsInSession(1);
 			sessionActivity.setStartTime(new Date(System.currentTimeMillis()));
 			sessionActivity.setUser(user);
@@ -152,6 +159,22 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 					sessionActivity.setScore(Double.valueOf(totalScore));
 					sessionActivity.setScoreInPercentage(scoreInPrecentage);
 				}
+			}
+			if(sessionActivity.getLessonContentId() != null){
+				Double unitTotalScoreInPercentage =  this.getSessionActivityRepository().getUnitTotalScore(sessionActivity.getUnitContentId());
+				Integer unitCount =  this.getSessionActivityRepository().getItemCount(sessionActivity.getClassContentId());
+				Double unitScoreInPercentage = (unitTotalScoreInPercentage/unitCount);
+				/**
+				 * save unitScoreInPercentage in user_collection_assoc
+				 */
+				
+				Double lessonTotalScoreInPercentage =  this.getSessionActivityRepository().getUnitTotalScore(sessionActivity.getLessonContentId());
+				Integer lessonCount =  this.getSessionActivityRepository().getItemCount(sessionActivity.getUnitContentId());
+				Double lessonScoreInPercentage = (lessonTotalScoreInPercentage/lessonCount);
+				
+				/**
+				 * save lessonScoreInPercentage in user_collection_assoc
+				 */
 			}
 			/**
 			 * Time spent calculation for assessment/collection.It can be update through API from FE.
@@ -255,7 +278,7 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 		sessionActivityItem.setAnswerId(sessionActivityItemAttemptTry.getAnswerId());
 		sessionActivityItem.setAnswerOptionSequence(sessionActivityItemAttemptTry.getAnswerOptionSequence());
 		sessionActivityItem.setAnswerStatus(sessionActivityItemAttemptTry.getAnswerStatus());
-		sessionActivityItem.setAttemptCount(sessionActivityItemAttemptTry.getTrySequence());
+		sessionActivityItem.setAttemptCount((sessionActivityItem.getAttemptCount() == null ? 0 : sessionActivityItem.getAttemptCount() + 1));
 		sessionActivityItem.setAnswerText(sessionActivityItemAttemptTry.getAnswerText());
 		if (StringUtils.isNotBlank(sessionActivityItem.getAnswerStatus()) && sessionActivityItem.getQuestionType() != null && !sessionActivityItem.getQuestionType().equalsIgnoreCase(AssessmentQuestion.TYPE.OPEN_ENDED.getName())  && !sessionActivityItem.getAnswerStatus().contains(AttemptTryStatus.WRONG.getTryStatus()) && !sessionActivityItem.getAnswerStatus().contains(AttemptTryStatus.SKIPPED.getTryStatus())) {
 			sessionActivityItem.setScore(1.0);

@@ -95,6 +95,8 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 	private static final String GET_CONTENT_IDS = "SELECT gooru_oid AS gooruOid , content_id AS contentId from content WHERE gooru_oid IN (:gooruOids)";
 	
 	private static final String GET_CONTENT_ID = "SELECT content_id AS contentId from content WHERE gooru_oid =:gooruOid";
+
+	private static final String FIND_STUDENT_AND_NUMERIC_CODE = "SELECT IFNULL(uga.is_group_owner,false) isStudent,conv(class.classpage_code,36,10) AS classCode FROM classpage class LEFT JOIN user_group ug ON class.classpage_code = ug.user_group_code LEFT JOIN user_group_association uga ON ug.user_group_uid = uga.user_group_uid WHERE class.classpage_content_id = 184195";
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(ResourceServiceImpl.class);
 
@@ -159,6 +161,13 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 		return (results != null && results.size() > 0) ? results.get(0) : false;
 	}
 
+	@Override
+	public List<Object> findNumericCodeAndIstudent(Long classContentId, String gooruUId) {
+		Session session = getSessionFactory().getCurrentSession();
+		Query query = session.createSQLQuery(FIND_STUDENT_AND_NUMERIC_CODE).addScalar(IS_STUDENT, StandardBasicTypes.BOOLEAN).addScalar(CLASS_CODE, StandardBasicTypes.LONG);
+		return list(query);
+	}
+	
 	@Override
 	public Long getContentId(String contentGooruOid) {
 		Session session = getSessionFactory().getCurrentSession();

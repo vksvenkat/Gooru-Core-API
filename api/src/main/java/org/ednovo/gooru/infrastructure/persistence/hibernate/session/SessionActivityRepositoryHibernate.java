@@ -67,7 +67,16 @@ public class SessionActivityRepositoryHibernate extends BaseRepositoryHibernate 
 
 	private final String RETRIVE_CLASS_SESSION_COUNT = "select count(1) as count from session_activity where collection_id =:collectionId AND user_uid =:userId AND class_content_id=:classContentId AND unit_content_id=:unitContentId AND lesson_content_id=:lessonContentId";
 	
-	private final String RETRIVE_SESSION_COUNT = "select count(1) as count from session_activity where collection_id =:collectionId AND user_uid =:userId";
+	private final String RETRIVE_SESSION_COUNT = "select count(1) as count from session_activity where collection_id =:collectionId AND user_uid =:userId AND class_content_id is null AND unit_content_id is null AND lesson_content_id is null" ;
+	
+	private final String UPDATE_LAST_SESSION = "UPDATE session_activity SET is_last_session = 0 WHERE collection_id =:collectionId AND user_uid =:userId AND class_content_id=:classContentId AND unit_content_id=:unitContentId AND lesson_content_id=:lessonContentId AND is_last_session = 1";
+	
+	private final String GET_ITEM_COUNT = "SELECT item_count AS itemCount FROM collection WHERE content_id=:contentId";
+	
+	private final String GET_LESSON_SCORE = "SELECT SUM(score_in_percentage) AS scoreInPerCentage score FROM session_activity WHERE lesson_content_id =:lessonContentId AND is_last_session = 1";
+	
+	private final String GET_UNIT_SCORE = "SELECT SUM(score_in_percentage) AS scoreInPerCentage score FROM session_activity WHERE unit_content_id =:unitContentId AND is_last_session = 1";
+	
 	
 	@Override
 	public SessionActivity getSessionActivityById(Long sessionActivityId) {
@@ -135,6 +144,27 @@ public class SessionActivityRepositoryHibernate extends BaseRepositoryHibernate 
 	}
 
 	@Override
+	public Integer getItemCount(Long itemId) {
+		Query query = getSession().createSQLQuery(GET_ITEM_COUNT).addScalar(ITEM_COUNT, StandardBasicTypes.INTEGER);
+		query.setParameter(CONTENT_ID, itemId);
+		return (Integer) list(query).get(0);
+	}
+	
+	@Override
+	public Double getLessonTotalScore(Long itemId) {
+		Query query = getSession().createSQLQuery(GET_LESSON_SCORE).addScalar(SCORE_IN_PERCENTAGE,StandardBasicTypes.DOUBLE);
+		query.setParameter(LESSON_CONTENT_ID, itemId);
+		return (Double) list(query).get(0);
+	}
+	
+	@Override
+	public Double getUnitTotalScore(Long itemId) {
+		Query query = getSession().createSQLQuery(GET_UNIT_SCORE).addScalar(SCORE_IN_PERCENTAGE,StandardBasicTypes.DOUBLE);
+		query.setParameter(UNIT_CONTENT_ID, itemId);
+		return (Double) list(query).get(0);
+	}
+	
+	@Override
 	public Integer getTotalScore(Long sessionActivityId) {
 		Query query = getSession().createSQLQuery(SESSION_ACTIVITY_TOTAL_SCORE).addScalar(COUNT, StandardBasicTypes.INTEGER);
 		query.setParameter(SESSION_ACTIVITY_ID, sessionActivityId);
@@ -189,5 +219,12 @@ public class SessionActivityRepositoryHibernate extends BaseRepositoryHibernate 
 		return (Map<String, Object>) query.list().get(0);
 	}
 
-
+	@Override
+	public void updateOldSessions(){
+		Query query = getSession().createSQLQuery(UPDATE_LAST_SESSION);
+		//query.setParameter(1, 0);
+		//query.setParameter(2, 1);
+		query.executeUpdate();
+	} 
+	
 }

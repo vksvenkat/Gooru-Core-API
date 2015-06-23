@@ -48,6 +48,8 @@
 
 		<property name="isStudent" column="is_student" not-null="false"></property>
 
+		<property name="isLastSession" column="is_last_session" not-null="false"></property>
+		
 		<property name="score" column="score" not-null="true"></property>
 
 		<property name="scoreInPercentage" column="score_in_percentage" not-null="true"></property>

@@ -60,5 +60,13 @@ public interface SessionActivityRepository extends BaseRepository {
 	Integer getClassSessionActivityCount(Long collectionId, Long classContentId, Long unitContentId, Long lessonContentId, String gooruUId);
 
 	Integer getCollectionSessionActivityCount(Long collectionId, String gooruUId);
+
+	void updateOldSessions();
+
+	Integer getItemCount(Long itemId);
+
+	Double getUnitTotalScore(Long itemId);
+
+	Double getLessonTotalScore(Long itemId);
 	
 }

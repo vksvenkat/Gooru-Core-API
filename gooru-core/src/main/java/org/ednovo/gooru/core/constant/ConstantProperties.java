@@ -116,6 +116,8 @@ public interface ConstantProperties {
 	
 	static final String CONTENT_ID = "contentId";
 
+	static final String IS_STUDENT = "isStudent";
+		
 	static final String ASSESSMENT_INCLUDES[] = { "segments", "segments.segmentQuestions", "segments.segmentQuestions.question.hints", "segments.segmentQuestions.question.answers", "taxonomySet", "segments.segmentQuestions.question.assets", "metaData", "metaData.grades", "metaData.lessons",
 			"metaData.units", "metaData.subjects", "metaData.collaborators", "metaData.topics", "metaData.curriculumCodes", "metaData.curriculumDecs", "metaData.taxonomyMapByCode.*", "metaData.taxonomyLevels.*", "tagSet" };
 

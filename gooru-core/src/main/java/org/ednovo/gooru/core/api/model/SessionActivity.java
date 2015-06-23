@@ -58,6 +58,8 @@ public class SessionActivity implements Serializable {
 	
 	private Double scoreInPercentage;
 	
+	private Boolean isLastSession;
+	
 	public void setStatus(String status) {
 		this.status = status;
 	}
@@ -248,6 +250,14 @@ public class SessionActivity implements Serializable {
 
 	public void setScoreInPercentage(Double scoreInPercentage) {
 		this.scoreInPercentage = scoreInPercentage;
+	}
+
+	public Boolean getIsLastSession() {
+		return isLastSession;
+	}
+
+	public void setIsLastSession(Boolean isLastSession) {
+		this.isLastSession = isLastSession;
 	}
 
 }

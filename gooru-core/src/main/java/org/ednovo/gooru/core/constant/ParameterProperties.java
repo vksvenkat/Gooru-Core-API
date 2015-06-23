@@ -2926,5 +2926,7 @@ public interface ParameterProperties {
 	
 	String GL0107 = "GL0107";
 	
+	String SCORE_IN_PERCENTAGE = "scoreInPerCentage";
+	
 }
 
