@@ -46,12 +46,11 @@ import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
 
 @Service
-public class SubjectServiceImpl extends BaseServiceImpl implements
-		SubjectService, ParameterProperties, ConstantProperties {
+public class SubjectServiceImpl extends BaseServiceImpl implements SubjectService, ParameterProperties, ConstantProperties {
 
 	@Autowired
 	private SubjectRepository subjectRepository;
-	
+
 	@Autowired
 	private GooruImageUtil gooruImageUtil;
 
@@ -77,20 +76,20 @@ public class SubjectServiceImpl extends BaseServiceImpl implements
 		Subject subject = this.getSubjectRepository().getSubject(subjectId);
 		rejectIfNull(subject, GL0056, 404, SUBJECT);
 		reject((subject.getActiveFlag() == 1), GL0107, SUBJECT);
-		if(subject.getImagePath() != null){
+		if (subject.getImagePath() != null) {
 			subject.setThumbnails(GooruImageUtil.getThumbnails(subject.getImagePath()));
 		}
 		return subject;
 	}
-	
+
 	@Override
-    @Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Map<String, Object>> getCourses(int offset, int limit, int subjectId) {
 		List<Map<String, Object>> courses = this.getSubjectRepository().getCourses(offset, limit, subjectId);
-		if(courses != null){
-			for(Map<String, Object> course: courses){
-				if(course.get(IMAGE_PATH) != null){
-					course.put(THUMBNAILS,GooruImageUtil.getThumbnails(course.get(IMAGE_PATH)));
+		if (courses != null) {
+			for (Map<String, Object> course : courses) {
+				if (course.get(IMAGE_PATH) != null) {
+					course.put(THUMBNAILS, GooruImageUtil.getThumbnails(course.get(IMAGE_PATH)));
 				}
 			}
 		}
@@ -109,11 +108,11 @@ public class SubjectServiceImpl extends BaseServiceImpl implements
 
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public List<Subject> getSubjects(Integer classificationTypeId,Integer limit, Integer offset) {
+	public List<Subject> getSubjects(Integer classificationTypeId, Integer limit, Integer offset) {
 		List<Subject> subjects = this.getSubjectRepository().getSubjects(classificationTypeId, limit, offset);
-		if(subjects != null){
-			for(Subject subject: subjects){
-				if(subject.getImagePath() != null){
+		if (subjects != null) {
+			for (Subject subject : subjects) {
+				if (subject.getImagePath() != null) {
 					subject.setThumbnails(GooruImageUtil.getThumbnails(subject.getImagePath()));
 				}
 			}
@@ -126,40 +125,38 @@ public class SubjectServiceImpl extends BaseServiceImpl implements
 	public void updateSubject(Subject newSubject, Integer subjectId) {
 		Subject subject = this.getSubjectRepository().getSubject(subjectId);
 		rejectIfNull(subject, GL0056, 404, SUBJECT);
-		if(newSubject.getClassificationTypeId() != null){
+		if (newSubject.getClassificationTypeId() != null) {
 			this.rejectIfInvalidType(newSubject.getClassificationTypeId(), CLASSIFICATION_TYPE_ID, GL0007, Constants.CLASSIFICATION_TYPE);
 			subject.setClassificationTypeId(newSubject.getClassificationTypeId());
 		}
 		if (newSubject.getActiveFlag() != null) {
-			reject((newSubject.getActiveFlag() == 0 || newSubject
-					.getActiveFlag() == 1),
-					GL0007, ACTIVE_FLAG);
+			reject((newSubject.getActiveFlag() == 0 || newSubject.getActiveFlag() == 1), GL0007, ACTIVE_FLAG);
 			subject.setActiveFlag(newSubject.getActiveFlag());
 		}
 		if (newSubject.getDescription() != null) {
 			subject.setDescription(newSubject.getDescription());
 		}
-		if (newSubject.getImagePath() != null) {
-			subject.setImagePath(newSubject.getImagePath());
-		}
+
 		if (newSubject.getName() != null) {
 			subject.setName(newSubject.getName());
 		}
+		if (newSubject.getMediaFilename() != null) {
+			StringBuilder basePath = new StringBuilder(Subject.REPO_PATH);
+			basePath.append(File.separator).append(subjectId);
+			this.getGooruImageUtil().imageUpload(newSubject.getMediaFilename(), basePath.toString(), Subject.IMAGE_DIMENSION);
+			basePath.append(File.separator).append(newSubject.getMediaFilename());
+			subject.setImagePath(basePath.toString());
+		}
 		subject.setLastModified(new Date(System.currentTimeMillis()));
-		String mediaFilename = newSubject.getMediaFilename();
-		this.getGooruImageUtil().imageUpload(mediaFilename, subjectId, Subject.REPO_PATH, Subject.IMAGE_DIMENSION);
-		StringBuilder basePath = new StringBuilder(Subject.REPO_PATH);
-		basePath.append(File.separator).append(subjectId).append(File.separator).append(mediaFilename);
-	    subject.setImagePath(basePath.toString());
 		this.getSubjectRepository().save(subject);
 	}
 
 	private Errors validateSubject(Subject subject) {
 		final Errors errors = new BindException(subject, SUBJECT);
-		rejectIfNull(errors, subject.getName(), NAME,generateErrorMessage(GL0006, NAME));
-		rejectIfNull(errors, subject.getClassificationTypeId(), CLASSIFICATION_TYPE_ID,	generateErrorMessage(GL0006, CLASSIFICATION_TYPE_ID));
-		if(subject.getClassificationTypeId() != null){
-			rejectIfInvalidType(errors, subject.getClassificationTypeId(), CLASSIFICATION_TYPE_ID, GL0007,generateErrorMessage(GL0007, CLASSIFICATION_TYPE_ID),Constants.CLASSIFICATION_TYPE);
+		rejectIfNull(errors, subject.getName(), NAME, generateErrorMessage(GL0006, NAME));
+		rejectIfNull(errors, subject.getClassificationTypeId(), CLASSIFICATION_TYPE_ID, generateErrorMessage(GL0006, CLASSIFICATION_TYPE_ID));
+		if (subject.getClassificationTypeId() != null) {
+			rejectIfInvalidType(errors, subject.getClassificationTypeId(), CLASSIFICATION_TYPE_ID, GL0007, generateErrorMessage(GL0007, CLASSIFICATION_TYPE_ID), Constants.CLASSIFICATION_TYPE);
 		}
 		return errors;
 	}
@@ -169,12 +166,12 @@ public class SubjectServiceImpl extends BaseServiceImpl implements
 			throw new BadRequestException(generateErrorMessage(code, message), code);
 		}
 	}
-	
+
 	public SubjectRepository getSubjectRepository() {
 		return subjectRepository;
 	}
-	
+
 	public GooruImageUtil getGooruImageUtil() {
 		return gooruImageUtil;
-    }
+	}
 }

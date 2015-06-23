@@ -413,9 +413,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			if (newCollection.getNotes() != null) {
 				collection.setNotes(newCollection.getNotes());
 			}
-			if (newCollection.getGoals() != null) {
-				collection.setGoals(newCollection.getGoals());
-			}
 
 			if (newCollection.getLanguage() != null) {
 				collection.setLanguage(newCollection.getLanguage());
@@ -1348,9 +1345,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			collection.setTitle(title);
 		}
 
-		if (description != null) {
-			collection.setGoals(description);
-		}
 		collection.setLastUpdatedUserUid(apiCallerUser.getPartyUid());
 
 		if (isNotEmptyString(sharing)) {
@@ -1703,9 +1697,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				collection.setUrl(newCollection.getUrl());
 			}
 
-			if (newCollection.getGoals() != null) {
-				collection.setGoals(newCollection.getGoals());
-			}
 			if (newCollection.getKeyPoints() != null) {
 				collection.setKeyPoints(newCollection.getKeyPoints());
 			}
@@ -1866,7 +1857,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			} else {
 				destCollection.setTitle(sourceCollection.getTitle());
 			}
-			destCollection.setGoals(sourceCollection.getGoals());
 			destCollection.setCopiedCollectionId(sourceCollection.getGooruOid());
 			destCollection.setCollectionType(sourceCollection.getCollectionType());
 			destCollection.setDescription(sourceCollection.getDescription());

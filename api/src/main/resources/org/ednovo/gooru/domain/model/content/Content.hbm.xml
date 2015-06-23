@@ -144,7 +144,6 @@
 			<property name="title" column="title" not-null="true" />
 			<property name="description" column="description" not-null="false" />
 			<property name="url" column="url" not-null="false" />
-			<property name="goals" column="goals" not-null="false" />
 			<property name="collectionType" column="collection_type"
 				not-null="true" />
 			<property name="itemCount" column="item_count" not-null="false" />

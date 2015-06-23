@@ -71,10 +71,7 @@ public abstract  class AbstractCollectionServiceImpl extends BaseServiceImpl imp
 		if (newCollection.getUrl() != null) {
 			collection.setUrl(newCollection.getUrl());
 		}
-
-		if (newCollection.getGoals() != null) {
-			collection.setGoals(newCollection.getGoals());
-		}
+		
 		if (newCollection.getKeyPoints() != null) {
 			collection.setKeyPoints(newCollection.getKeyPoints());
 		}
