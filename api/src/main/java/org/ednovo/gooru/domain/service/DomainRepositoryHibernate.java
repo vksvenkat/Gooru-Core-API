@@ -39,7 +39,7 @@ public class DomainRepositoryHibernate extends BaseRepositoryHibernate implement
 	
 	private static final String GET_DOMAINS = "FROM Domain"; 
 	
-	private static final String GET_MAX = "SELECT MAX(domain.displaySequence) FROM Domain domain";
+	private static final String GET_MAX = "SELECT COALESCE(MAX(displaySequence),0) FROM Domain";
 
 	@Override
 	public Domain getDomain(Integer domainId) {
@@ -58,7 +58,7 @@ public class DomainRepositoryHibernate extends BaseRepositoryHibernate implement
 	@Override
 	public Integer getMaxSequence() {
 		Query query = getSession().createQuery(GET_MAX);
-		return ((Number)query.list().get(0)).intValue();
+		return (Integer) query.list().get(0);
 	}
 
 }

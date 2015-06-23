@@ -37,7 +37,7 @@ import org.springframework.stereotype.Repository;
 public class SubjectRepositoryHibernate extends BaseRepositoryHibernate
 		implements SubjectRepository, ParameterProperties, ConstantProperties {
 
-	private static final String SUBJECT_MAX = "SELECT MAX(subject.displaySequence) FROM Subject subject";
+	private static final String SUBJECT_MAX = "SELECT COALESCE(MAX(displaySequence),0) FROM Subject";
 	private static final String SUBJECTS = "FROM Subject subject where subject.activeFlag=1";
 	private static final String SUBJECT = "FROM Subject subject WHERE subject.subjectId=:subjectId";
     private static final String COURSES = "select c.course_id courseId,c.name,c.image_path imagePath from subject s inner join course c on s.subject_id=c.subject_id where s.subject_id=:subjectId";
@@ -78,7 +78,7 @@ public class SubjectRepositoryHibernate extends BaseRepositoryHibernate
 	@Override
 	public Integer getMaxSequence() {
 		Query query = getSession().createQuery(SUBJECT_MAX);
-		return ((Number)query.list().get(0)).intValue();
+		return (Integer) query.list().get(0);
 	}
 
 }
