@@ -250,16 +250,6 @@ public class Resource extends Content implements Serializable {
 		return folder;
 	}
 
-	public static final String buildResourceFolder(Long contentId) {
-
-		String prefix = "f00000000000";
-
-		String contentFolder = prefix.substring(0, 12 - String.valueOf(contentId).length()) + contentId;
-		contentFolder = contentFolder.substring(0, 4) + "/" + contentFolder.substring(4, 8) + "/" + contentFolder.substring(8, 12);
-
-		return contentFolder + "/";
-	}
-
 	public void setFolder(String folder) {
 		this.folder = folder;
 	}
@@ -812,6 +802,10 @@ public class Resource extends Content implements Serializable {
 
 	public void setResourceUsedUserCount(Integer resourceUsedUserCount) {
 		this.resourceUsedUserCount = resourceUsedUserCount;
+	}
+	
+	public static void main(String a[]) { 
+		System.out.print(buildResourceFolder(12345L));
 	}
 
 }

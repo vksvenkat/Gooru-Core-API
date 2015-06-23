@@ -208,12 +208,6 @@ public class ClasspageServiceImpl extends ScollectionServiceImpl implements Clas
 			if (newClasspage.getNotes() != null) {
 				classpage.setNotes(newClasspage.getNotes());
 			}
-			if (newClasspage.getGoals() != null) {
-				classpage.setGoals(newClasspage.getGoals());
-			}
-			if (newClasspage.getKeyPoints() != null) {
-				classpage.setGoals(newClasspage.getKeyPoints());
-			}
 			if (newClasspage.getLanguage() != null) {
 				classpage.setLanguage(newClasspage.getLanguage());
 			}

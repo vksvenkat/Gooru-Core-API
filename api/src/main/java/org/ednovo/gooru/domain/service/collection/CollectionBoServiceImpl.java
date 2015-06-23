@@ -1,13 +1,16 @@
 package org.ednovo.gooru.domain.service.collection;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.ednovo.gooru.application.util.GooruImageUtil;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionType;
 import org.ednovo.gooru.core.api.model.ContentSettings;
+import org.ednovo.gooru.core.api.model.Domain;
 import org.ednovo.gooru.core.api.model.ResourceType;
 import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.User;
@@ -45,6 +48,11 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 
 	@Autowired
 	private OperationAuthorizer operationAuthorizer;
+
+	@Autowired
+	private GooruImageUtil gooruImageUtil;
+
+	private final String COLLECTION_IMAGE_DIMENSION = "160x120,75x56,120x90,80x60,800x600";
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -118,6 +126,13 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 				collection.setNetwork(newCollection.getNetwork());
 			}
 		}
+		if (newCollection.getMediaFilename() != null) {
+			String folderPath = Collection.buildResourceFolder(collection.getContentId());
+			this.getGooruImageUtil().imageUpload(newCollection.getMediaFilename(), folderPath, COLLECTION_IMAGE_DIMENSION);
+			StringBuilder basePath = new StringBuilder(folderPath);
+			basePath.append(File.separator).append(newCollection.getMediaFilename());
+			collection.setImagePath(basePath.toString());
+		}
 		updateCollection(collection, newCollection, user);
 	}
 
@@ -185,5 +200,9 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 
 	public OperationAuthorizer getOperationAuthorizer() {
 		return operationAuthorizer;
+	}
+
+	public GooruImageUtil getGooruImageUtil() {
+		return gooruImageUtil;
 	}
 }

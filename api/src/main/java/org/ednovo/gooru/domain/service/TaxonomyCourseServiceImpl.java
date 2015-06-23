@@ -48,7 +48,7 @@ public class TaxonomyCourseServiceImpl extends BaseServiceImpl implements Taxono
 
 	@Autowired
 	private TaxonomyCourseRepository TaxonomycourseRepository;
-	
+
 	@Autowired
 	private SubjectRepository subjectRepository;
 
@@ -81,8 +81,8 @@ public class TaxonomyCourseServiceImpl extends BaseServiceImpl implements Taxono
 		TaxonomyCourse course = this.getTaxonomyCourseRepository().getCourse(courseId);
 		rejectIfNull(course, GL0056, 404, COURSE);
 		if (newCourse.getActiveFlag() != null) {
-				reject((newCourse.getActiveFlag() == 0 || newCourse.getActiveFlag() == 1), GL0007, ACTIVE_FLAG);
-				course.setActiveFlag(newCourse.getActiveFlag());
+			reject((newCourse.getActiveFlag() == 0 || newCourse.getActiveFlag() == 1), GL0007, ACTIVE_FLAG);
+			course.setActiveFlag(newCourse.getActiveFlag());
 		}
 		if (newCourse.getName() != null) {
 			course.setName(newCourse.getName());
@@ -93,15 +93,14 @@ public class TaxonomyCourseServiceImpl extends BaseServiceImpl implements Taxono
 		if (newCourse.getGrades() != null) {
 			course.setGrades(newCourse.getGrades());
 		}
-		if (newCourse.getImagePath() != null) {
-			course.setImagePath(newCourse.getImagePath());
+		if (newCourse.getMediaFilename() != null) {
+			StringBuilder basePath = new StringBuilder(TaxonomyCourse.REPO_PATH);
+			basePath.append(File.separator).append(courseId);
+			this.getGooruImageUtil().imageUpload(newCourse.getMediaFilename(), basePath.toString(), TaxonomyCourse.IMAGE_DIMENSION);
+			basePath.append(File.separator).append(newCourse.getMediaFilename());
+			course.setImagePath(basePath.toString());
 		}
 		course.setLastModified(new Date(System.currentTimeMillis()));
-		String mediaFilename = newCourse.getMediaFilename();
-		this.getGooruImageUtil().imageUpload(mediaFilename, courseId, TaxonomyCourse.REPO_PATH, TaxonomyCourse.IMAGE_DIMENSION);
-		StringBuilder basePath = new StringBuilder(Subject.REPO_PATH);
-		basePath.append(File.separator).append(courseId).append(File.separator).append(mediaFilename);
-	    course.setImagePath(basePath.toString());
 		this.getTaxonomyCourseRepository().save(course);
 	}
 
@@ -111,7 +110,7 @@ public class TaxonomyCourseServiceImpl extends BaseServiceImpl implements Taxono
 		TaxonomyCourse course = this.getTaxonomyCourseRepository().getCourse(courseId);
 		rejectIfNull(course, GL0056, 404, COURSE);
 		reject((course.getActiveFlag() == 1), GL0107, COURSE);
-		if(course.getImagePath() != null){
+		if (course.getImagePath() != null) {
 			course.setThumbnails(GooruImageUtil.getThumbnails(course.getImagePath()));
 		}
 		return course;
@@ -121,9 +120,9 @@ public class TaxonomyCourseServiceImpl extends BaseServiceImpl implements Taxono
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<TaxonomyCourse> getTaxonomyCourses(Integer limit, Integer offset) {
 		List<TaxonomyCourse> courses = this.getTaxonomyCourseRepository().getCourses(limit, offset);
-		if(courses != null){
-			for(TaxonomyCourse course: courses){
-				if(course.getImagePath() != null){
+		if (courses != null) {
+			for (TaxonomyCourse course : courses) {
+				if (course.getImagePath() != null) {
 					course.setThumbnails(GooruImageUtil.getThumbnails(course.getImagePath()));
 				}
 			}
@@ -145,11 +144,11 @@ public class TaxonomyCourseServiceImpl extends BaseServiceImpl implements Taxono
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Map<String, Object>> getDomains(Integer courseId) {
 		List<Map<String, Object>> domains = this.getTaxonomyCourseRepository().getDomains(courseId);
-		if(domains != null){
-			for(Map<String, Object> domain: domains){
+		if (domains != null) {
+			for (Map<String, Object> domain : domains) {
 				Object thumbnail = domain.get(IMAGE_PATH);
-				if(thumbnail != null){
-					domain.put(THUMBNAILS,GooruImageUtil.getThumbnails(thumbnail));
+				if (thumbnail != null) {
+					domain.put(THUMBNAILS, GooruImageUtil.getThumbnails(thumbnail));
 				}
 			}
 		}
@@ -158,20 +157,20 @@ public class TaxonomyCourseServiceImpl extends BaseServiceImpl implements Taxono
 
 	private Errors validateCourse(TaxonomyCourse course) {
 		final Errors error = new BindException(course, COURSE);
-    	rejectIfNull(error,course.getSubjectId(), SUBJECT_ID,  generateErrorMessage(GL0006, SUBJECT_ID));
-		rejectIfNull(error,course.getCourseCode(), COURSE_CODE,  generateErrorMessage(GL0006, COURSE_CODE));
+		rejectIfNull(error, course.getSubjectId(), SUBJECT_ID, generateErrorMessage(GL0006, SUBJECT_ID));
+		rejectIfNull(error, course.getCourseCode(), COURSE_CODE, generateErrorMessage(GL0006, COURSE_CODE));
 		return error;
 	}
 
 	public TaxonomyCourseRepository getTaxonomyCourseRepository() {
 		return TaxonomycourseRepository;
 	}
-	
+
 	public SubjectRepository getSubjectRepository() {
 		return subjectRepository;
 	}
-	
+
 	public GooruImageUtil getGooruImageUtil() {
 		return gooruImageUtil;
-    }
+	}
 }
