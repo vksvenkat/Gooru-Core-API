@@ -24,7 +24,9 @@
 package org.ednovo.gooru.domain.service;
 
 import java.util.List;
+import java.util.Map;
 
+import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.api.model.Domain;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepository;
 
@@ -35,6 +37,8 @@ public interface DomainRepository extends BaseRepository{
 	List<Domain> getDomains(Integer limit, Integer offset);
 
 	Integer getMaxSequence();
+	
+	List<Map<String, String>> getCode(Integer courseId, Integer domainId,int limit, int offset);
 
 
 }

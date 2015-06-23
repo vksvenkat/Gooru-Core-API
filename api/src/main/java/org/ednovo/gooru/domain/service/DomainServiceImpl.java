@@ -26,6 +26,7 @@ package org.ednovo.gooru.domain.service;
 import java.io.File;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.ednovo.gooru.application.util.GooruImageUtil;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
@@ -132,6 +133,12 @@ public class DomainServiceImpl extends BaseServiceImpl implements DomainService,
 		this.getDomainRepository().save(domain);
 	}
 
+	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public List<Map<String,String>> getCodebyCourse(Integer courseId, Integer domainId, int limit, int offset) {
+		return this.getDomainRepository().getCode(courseId, domainId, limit, offset);
+	}
+	
 	private Errors validateDomain(Domain domain) {
 		final Errors error = new BindException(domain, DOMAIN_);
 		rejectIfNull(domain.getName(), GL0006, NAME);
@@ -145,4 +152,5 @@ public class DomainServiceImpl extends BaseServiceImpl implements DomainService,
 	public GooruImageUtil getGooruImageUtil() {
 		return gooruImageUtil;
 	}
+
 }
