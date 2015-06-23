@@ -1003,7 +1003,7 @@ public class ResourceRepositoryHibernate extends BaseRepositoryHibernate impleme
 
 	@Override
 	public List<Collection> getCollectionsByResourceId(String resourceId, String sharing, Integer limit, Integer offset) {
-		String hql = "SELECT ci.collection FROM  CollectionItem ci  where ci.resource.gooruOid=:resourceId";
+		String hql = "SELECT ci.collection FROM  CollectionItem ci  where ci.content.gooruOid=:resourceId";
 		if (sharing != null) {
 			hql += " and ci.collection.sharing in ('" + sharing.replace(",", "','") + "') ";
 		}

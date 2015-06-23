@@ -22,7 +22,7 @@ public class RequestMappingUri {
 
 	public static final String UNIT = "/v1/course/{courseId}/unit";
 
-	public static final String LESSON = "/v1/course/{courseId}/unit/{id}/lesson";
+	public static final String LESSON = "/v1/course/{courseId}/unit/{unitId}/lesson";
 
 	public static final String ID = "/{id}";
 
