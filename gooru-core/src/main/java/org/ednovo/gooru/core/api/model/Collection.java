@@ -41,9 +41,9 @@ public class Collection extends Content implements Versionable {
 
 	private CollectionItem collectionItem;
 
-	private CustomTableValue buildType;
+	private Short buildType;
 
-	private CustomTableValue publishStatus;
+	private Short publishStatus;
 
 	private Boolean mailNotification;
 
@@ -88,8 +88,11 @@ public class Collection extends Content implements Versionable {
 	private String imagePath;
 
 	private String lastAccessedTime;
-	
+
 	private static final String URL = "url";
+
+	private String uri;
+
 
 	public String getIdeas() {
 		return ideas;
@@ -249,14 +252,6 @@ public class Collection extends Content implements Versionable {
 		return collectionItem;
 	}
 
-	public void setBuildType(CustomTableValue buildType) {
-		this.buildType = buildType;
-	}
-
-	public CustomTableValue getBuildType() {
-		return buildType;
-	}
-
 	public Boolean getMailNotification() {
 		return mailNotification;
 	}
@@ -290,14 +285,6 @@ public class Collection extends Content implements Versionable {
 
 	public List<ContentMetaDTO> getInstructionalMethod() {
 		return instructionalMethod;
-	}
-
-	public CustomTableValue getPublishStatus() {
-		return publishStatus;
-	}
-
-	public void setPublishStatus(CustomTableValue publishStatus) {
-		this.publishStatus = publishStatus;
 	}
 
 	public Integer getItemCount() {
@@ -407,12 +394,40 @@ public class Collection extends Content implements Versionable {
 	public Map<String, String> getThumbnails() {
 		Map<String, String> thumbnails = null;
 		if (getImagePath() != null) {
-		    thumbnails = new HashMap<String, String>();
+			thumbnails = new HashMap<String, String>();
 			StringBuilder url = new StringBuilder(getOrganization().getNfsStorageArea().getCdnDirectPath());
 			url.append(getImagePath());
 			thumbnails.put(URL, url.toString());
 		}
 		return thumbnails;
+	}
+
+	public String getUri() {
+		return uri;
+	}
+
+	public void setUri(String uri) {
+		this.uri = uri;
+	}
+
+	public Short getBuildType() {
+		return buildType;
+	}
+
+	public void setBuildType(Short buildType) {
+		this.buildType = buildType;
+	}
+
+	public Short getPublishStatus() {
+		return publishStatus;
+	}
+
+	public void setPublishStatus(Short publishStatus) {
+		this.publishStatus = publishStatus;
+	}
+
+	public String getType() {
+		return getCollectionType();
 	}
 
 }
