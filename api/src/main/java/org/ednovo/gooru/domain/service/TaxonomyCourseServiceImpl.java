@@ -143,8 +143,8 @@ public class TaxonomyCourseServiceImpl extends BaseServiceImpl implements Taxono
 
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public List<Map<String, Object>> getDomains(Integer courseId) {
-		List<Map<String, Object>> domains = this.getTaxonomyCourseRepository().getDomains(courseId);
+	public List<Map<String, Object>> getDomains(Integer courseId, int limit, int offset) {
+		List<Map<String, Object>> domains = this.getTaxonomyCourseRepository().getDomains(courseId, limit, offset);
 		if(domains != null){
 			for(Map<String, Object> domain: domains){
 				Object thumbnail = domain.get(IMAGE_PATH);
