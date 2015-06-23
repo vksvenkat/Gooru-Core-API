@@ -121,9 +121,11 @@ public class TaxonomyCourseServiceImpl extends BaseServiceImpl implements Taxono
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<TaxonomyCourse> getTaxonomyCourses(Integer limit, Integer offset) {
 		List<TaxonomyCourse> courses = this.getTaxonomyCourseRepository().getCourses(limit, offset);
-		for(TaxonomyCourse course: courses){
-			if(course.getImagePath() != null){
-				course.setThumbnails(GooruImageUtil.getThumbnails(course.getImagePath()));
+		if(courses != null){
+			for(TaxonomyCourse course: courses){
+				if(course.getImagePath() != null){
+					course.setThumbnails(GooruImageUtil.getThumbnails(course.getImagePath()));
+				}
 			}
 		}
 		return courses;
@@ -143,11 +145,12 @@ public class TaxonomyCourseServiceImpl extends BaseServiceImpl implements Taxono
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Map<String, Object>> getDomains(Integer courseId) {
 		List<Map<String, Object>> domains = this.getTaxonomyCourseRepository().getDomains(courseId);
-		rejectIfNull(domains, GL0056, 404, DOMAIN);
-		for(Map<String, Object> domain: domains){
-			Object thumbnail = domain.get(IMAGE_PATH);
-			if(thumbnail != null){
-				domain.put(THUMBNAILS,GooruImageUtil.getThumbnails(thumbnail));
+		if(domains != null){
+			for(Map<String, Object> domain: domains){
+				Object thumbnail = domain.get(IMAGE_PATH);
+				if(thumbnail != null){
+					domain.put(THUMBNAILS,GooruImageUtil.getThumbnails(thumbnail));
+				}
 			}
 		}
 		return domains;

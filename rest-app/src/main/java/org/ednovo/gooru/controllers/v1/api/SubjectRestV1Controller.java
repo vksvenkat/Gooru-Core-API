@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////
-// SubjectRestV2Controller.java
-// rest-v2-app
+// SubjectRestV1Controller.java
+// rest-v1-app
 // Created by Gooru on 2015
 // Copyright (c) 2015 Gooru. All rights reserved.
 // http://www.goorulearning.org/
@@ -49,7 +49,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 @RequestMapping(value = { RequestMappingUri.SUBJECT })
-public class SubjectRestV2Controller extends BaseController implements ConstantProperties {
+public class SubjectRestV1Controller extends BaseController implements ConstantProperties {
 
 	@Autowired
 	private SubjectService subjectService;
