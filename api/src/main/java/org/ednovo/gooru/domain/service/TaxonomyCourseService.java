@@ -43,6 +43,6 @@ public interface TaxonomyCourseService {
 
 	void deleteTaxonomyCourse(Integer courseId);
 	
-	List<Map<String, Object>> getDomains(Integer courseId);
+	List<Map<String, Object>> getDomains(Integer courseId, int limit, int offset);
 
 }
