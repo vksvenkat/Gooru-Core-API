@@ -39,6 +39,7 @@ import org.ednovo.gooru.core.api.model.SessionActivityItem;
 import org.ednovo.gooru.core.api.model.SessionActivityItemAttemptTry;
 import org.ednovo.gooru.core.api.model.SessionStatus;
 import org.ednovo.gooru.core.api.model.User;
+import org.ednovo.gooru.core.api.model.UserActivityCollectionAssoc;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.domain.service.BaseServiceImpl;
@@ -84,6 +85,7 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 		
 		if (!errors.hasErrors()) {
 			if (sessionActivity.getClassGooruId() != null && sessionActivity.getUnitGooruId() != null && sessionActivity.getLessonGooruId() != null) {
+				
 				this.getSessionActivityRepository().updateOldSessions();
 
 				StringBuilder listOfGooruOids = new StringBuilder();
@@ -109,7 +111,7 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 				List<Object> classInfo =  getResourceRepository().findNumericCodeAndIstudent(sessionActivity.getClassContentId(), user.getGooruUId());
 				
 				sessionActivity.setIsStudent(((Boolean)classInfo.get(0)).booleanValue());
-				sessionActivity.setClassId(((Long)classInfo.get(1)).longValue());				
+				sessionActivity.setClassId(((Number)classInfo.get(1)).longValue());				
 			
 			} else {
 				final Long collectionId = getResourceRepository().getContentId(sessionActivity.getContentGooruId());
@@ -164,17 +166,23 @@ public class SessionAcitvityServiceImpl extends BaseServiceImpl implements Sessi
 				Double unitTotalScoreInPercentage =  this.getSessionActivityRepository().getUnitTotalScore(sessionActivity.getUnitContentId());
 				Integer unitCount =  this.getSessionActivityRepository().getItemCount(sessionActivity.getClassContentId());
 				Double unitScoreInPercentage = (unitTotalScoreInPercentage/unitCount);
-				/**
-				 * save unitScoreInPercentage in user_collection_assoc
-				 */
+				
+				UserActivityCollectionAssoc userActivityUnitAssoc = this.getSessionActivityRepository().getUserActivityCollectionAssoc(sessionActivity.getUser().getGooruUId(), sessionActivity.getClassContentId(), sessionActivity.getUnitContentId());
+				userActivityUnitAssoc.setScoreInPercentage(unitScoreInPercentage);
+				this.getSessionActivityRepository().save(userActivityUnitAssoc);
 				
 				Double lessonTotalScoreInPercentage =  this.getSessionActivityRepository().getUnitTotalScore(sessionActivity.getLessonContentId());
 				Integer lessonCount =  this.getSessionActivityRepository().getItemCount(sessionActivity.getUnitContentId());
 				Double lessonScoreInPercentage = (lessonTotalScoreInPercentage/lessonCount);
 				
-				/**
-				 * save lessonScoreInPercentage in user_collection_assoc
-				 */
+				UserActivityCollectionAssoc userActivityLessonAssoc = this.getSessionActivityRepository().getUserActivityCollectionAssoc(sessionActivity.getUser().getGooruUId(), sessionActivity.getClassContentId(), sessionActivity.getLessonContentId());
+				userActivityLessonAssoc.setScoreInPercentage(lessonScoreInPercentage);
+				this.getSessionActivityRepository().save(userActivityLessonAssoc);
+				
+				UserActivityCollectionAssoc userActivityCollectionAssoc = this.getSessionActivityRepository().getUserActivityCollectionAssoc(sessionActivity.getUser().getGooruUId(), sessionActivity.getClassContentId(), sessionActivity.getCollectionId());
+				userActivityCollectionAssoc.setScoreInPercentage(sessionActivity.getScoreInPercentage());
+				userActivityCollectionAssoc.setScore(sessionActivity.getScore());
+				this.getSessionActivityRepository().save(userActivityCollectionAssoc);
 			}
 			/**
 			 * Time spent calculation for assessment/collection.It can be update through API from FE.

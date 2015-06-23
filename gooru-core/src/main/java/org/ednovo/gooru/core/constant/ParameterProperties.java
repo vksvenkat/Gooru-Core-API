@@ -2923,13 +2923,12 @@ public interface ParameterProperties {
 	String EXPORT_CLASS_FILENAME = "reports.csv";
 	
 	String CLASS_GOORU_ID = "classGooruId";
-	
+
 	String GL0107 = "GL0107";
 	
 	String SCORE_IN_PERCENTAGE = "scoreInPerCentage";
 
 	String IMAGE_PATH = "imagePath";
 
-	
 }
 

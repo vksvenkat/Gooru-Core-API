@@ -225,9 +225,9 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			if (parentId != null) {
 				parentCollection = collectionRepository.getCollectionByGooruOid(parentId, collection.getUser().getGooruUId());
 			}
-			collection.setBuildType(this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.BUILD_TYPE.getTable(), collection.getBuildType() == null ? WEB : collection.getBuildType().getValue() != null ? collection.getBuildType().getValue() : WEB));
+			//collection.setBuildType(this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.BUILD_TYPE.getTable(), collection.getBuildType() == null ? WEB : collection.getBuildType().getValue() != null ? collection.getBuildType().getValue() : WEB));
 			if (collection.getSharing() != null && !collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.ASSESSMENT_URL.getType()) && collection.getSharing().equalsIgnoreCase(PUBLIC)) {
-				collection.setPublishStatus(this.getCustomTableRepository().getCustomTableValue(_PUBLISH_STATUS, PENDING));
+			//	collection.setPublishStatus(this.getCustomTableRepository().getCustomTableValue(_PUBLISH_STATUS, PENDING));
 				collection.setSharing(Sharing.ANYONEWITHLINK.getSharing());
 			}
 			this.getCollectionRepository().save(collection);
@@ -394,9 +394,9 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				this.getCollectionRepository().save(collection);
 			}
 
-			if ((newCollection.getBuildType() != null && newCollection.getBuildType().getValue() != null) && (newCollection.getBuildType().getValue() == WEB || newCollection.getBuildType().getValue() == IPAD)) {
+			/*if ((newCollection.getBuildType() != null && newCollection.getBuildType().getValue() != null) && (newCollection.getBuildType().getValue() == WEB || newCollection.getBuildType().getValue() == IPAD)) {
 				collection.setBuildType(this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.BUILD_TYPE.getTable(), newCollection.getBuildType().getValue()));
-			}
+			}*/
 
 			if (newCollection.getTitle() != null) {
 				collection.setTitle(newCollection.getTitle());
@@ -465,13 +465,13 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				if (!newCollection.getSharing().equalsIgnoreCase(PUBLIC)) {
 					collection.setPublishStatus(null);
 				}
-				if (!collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.ASSESSMENT_URL.getType()) && newCollection.getSharing().equalsIgnoreCase(PUBLIC) && !userService.isContentAdmin(apiCallerUser)) {
+				/*if (!collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.ASSESSMENT_URL.getType()) && newCollection.getSharing().equalsIgnoreCase(PUBLIC) && !userService.isContentAdmin(apiCallerUser)) {
 					collection.setPublishStatus(this.getCustomTableRepository().getCustomTableValue(_PUBLISH_STATUS, PENDING));
 					newCollection.setSharing(collection.getSharing());
 				}
 				if (collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.ASSESSMENT_URL.getType()) || newCollection.getSharing().equalsIgnoreCase(PUBLIC) && userService.isContentAdmin(apiCallerUser)) {
 					collection.setPublishStatus(this.getCustomTableRepository().getCustomTableValue(_PUBLISH_STATUS, REVIEWED));
-				}
+				}*/
 
 				if (collection.getSharing().equalsIgnoreCase(PUBLIC) && newCollection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing())) {
 					final UserSummary userSummary = this.getUserRepository().getSummaryByUid(apiCallerUser.getPartyUid());
@@ -731,9 +731,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			if (newcollectionItem.getNarration() != null) {
 				collectionItem.setNarration(newcollectionItem.getNarration());
 			}
-			if (newcollectionItem.getIsRequired() != null) {
-				collectionItem.setIsRequired(newcollectionItem.getIsRequired());
-			}
+
 			if (newcollectionItem.getShowAnswerByQuestions() != null) {
 				collectionItem.setShowAnswerByQuestions(newcollectionItem.getShowAnswerByQuestions());
 			}
@@ -743,15 +741,11 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			if (newcollectionItem.getShowHints() != null) {
 				collectionItem.setShowHints(newcollectionItem.getShowHints());
 			}
-			if (newcollectionItem.getMinimumScore() != null) {
-				collectionItem.setMinimumScore(newcollectionItem.getMinimumScore());
-			}
+		
 			if (newcollectionItem.getEstimatedTime() != null) {
 				collectionItem.setEstimatedTime(newcollectionItem.getEstimatedTime());
 			}
-			if (newcollectionItem.getPlannedEndDate() != null) {
-				collectionItem.setPlannedEndDate(newcollectionItem.getPlannedEndDate());
-			}
+			
 			if (newcollectionItem.getNarrationType() != null) {
 				collectionItem.setNarrationType(newcollectionItem.getNarrationType());
 			}
@@ -799,11 +793,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				if (userCollectionItemAssoc.getStatus() != null) {
 					collectionItem.setStatus(userCollectionItemAssoc.getStatus().getValue());
 				}
-				if (userCollectionItemAssoc.getMinimumScore() != null) {
-					collectionItem.setMinimumScoreByUser(userCollectionItemAssoc.getMinimumScore());
-				}
-				collectionItem.setAssignmentCompleted(userCollectionItemAssoc.getAssignmentCompleted());
-				collectionItem.setTimeStudying(userCollectionItemAssoc.getTimeStudying());
 			}
 		}
 		if (includeAdditionalInfo) {
@@ -1333,10 +1322,8 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		final String grade = data.getFirst(GRADE);
 		final String sharing = data.getFirst(SHARING);
 		final String narrationLink = data.getFirst(NARRATION_LINK);
-		final String vocabulary = data.getFirst(VOCABULARY);
 		final String updateTaxonomyByCode = data.getFirst(UPDATE_TAXONOMY_BY_CODE);
 		final String action = data.getFirst(ACTION);
-		final String mediaType = data.getFirst(MEDIA_TYPE);
 		final String buildType = data.getFirst(BUILD_TYPE);
 
 		if (isNotEmptyString(updateTaxonomyByCode) && updateTaxonomyByCode.equalsIgnoreCase(TRUE)) {
@@ -1351,12 +1338,12 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			}
 			this.getCollectionRepository().save(collection);
 		}
-		if (isNotEmptyString(buildType)) {
+/*		if (isNotEmptyString(buildType)) {
 			if (buildType.equalsIgnoreCase(WEB) || buildType.equalsIgnoreCase(IPAD)) {
 				collection.setBuildType(this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.BUILD_TYPE.getTable(), buildType));
 			}
 		}
-
+*/
 		if (isNotEmptyString(title)) {
 			collection.setTitle(title);
 		}
@@ -1681,7 +1668,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				resourceService.saveOrUpdateResourceTaxonomy(collection, newCollection.getTaxonomySet());
 			}
 
-			if (newCollection.getBuildType() != null && newCollection.getBuildType().getValue() != null) {
+			/*if (newCollection.getBuildType() != null && newCollection.getBuildType().getValue() != null) {
 				if (newCollection.getBuildType().getValue().equalsIgnoreCase(WEB) || newCollection.getBuildType().getValue().equalsIgnoreCase(IPAD)) {
 					collection.setBuildType(this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.BUILD_TYPE.getTable(), newCollection.getBuildType().getValue()));
 				}
@@ -1690,7 +1677,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				if (newCollection.getPublishStatus().getValue().equalsIgnoreCase(REVIEWED)) {
 					collection.setPublishStatus(this.getCustomTableRepository().getCustomTableValue(_PUBLISH_STATUS, newCollection.getPublishStatus().getValue()));
 				}
-			}
+			}*/
 
 			if (newCollection.getTitle() != null) {
 				collection.setTitle(newCollection.getTitle());
@@ -1788,11 +1775,11 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 					collection.setPublishStatus(null);
 				}
 				if (!collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.ASSESSMENT_URL.getType()) && newCollection.getSharing().equalsIgnoreCase(PUBLIC) && !userService.isContentAdmin(updateUser)) {
-					collection.setPublishStatus(this.getCustomTableRepository().getCustomTableValue(_PUBLISH_STATUS, PENDING));
+					//collection.setPublishStatus(this.getCustomTableRepository().getCustomTableValue(_PUBLISH_STATUS, PENDING));
 					newCollection.setSharing(collection.getSharing());
 				}
 				if (collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.ASSESSMENT_URL.getType()) || newCollection.getSharing().equalsIgnoreCase(PUBLIC) && userService.isContentAdmin(updateUser)) {
-					collection.setPublishStatus(this.getCustomTableRepository().getCustomTableValue(_PUBLISH_STATUS, REVIEWED));
+					//collection.setPublishStatus(this.getCustomTableRepository().getCustomTableValue(_PUBLISH_STATUS, REVIEWED));
 				}
 				if (collection.getSharing().equalsIgnoreCase(PUBLIC) && (newCollection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing()))) {
 					final UserSummary userSummary = this.getUserRepository().getSummaryByUid(collection.getUser().getPartyUid());

@@ -27,8 +27,7 @@ public interface ConstantProperties {
 			"*.hints.*", "*.description", "*.explanation", "*.taxonomySet", "*.codeId", "*.depth", "*.lastModified", "*.gooruUId", "*.lastUpdatedUserUid", "*.category", "*.label", "*.code", "*.userRating", "*.hasFrameBreaker", "*.copiedResourceId", "*.assignmentContentId", "*.trackActivity",
 			"*.trackActivity.startTime", "*.trackActivity.endTime", "*.goals", "*.grade", "*.mediaType", "*.text", "*.isOer", "*.meta.*", "*.resourceFormat.value", "*.resourceFormat.displayName", "*.instructional.value", "*.instructional.displayName", "*.depthOfKnowledges.value",
 			"*.depthOfKnowledges.selected", "*.momentsOfLearning.selected", "*.momentsOfLearning.value", "*.educationalUse.value", "*.educationalUse.selected", "*.ratings", "*.average", "*.count", "*.reviewCount", "*.standards", "*.license", "*.standards.code", "*.standards.description",
-			"*.course", "*.customFieldValues.*", "*.publisher", "*.aggregator", "*.totalPages", "*.host", "*.resourceTags.*", "*.typeName", "*.s3UploadFlag", "*.sourceReference", "*.skills",
-			"*.attributes.*", "*.feedback.*", "*.misc.*"};
+			"*.course", "*.customFieldValues.*", "*.publisher", "*.aggregator", "*.totalPages", "*.host", "*.resourceTags.*", "*.typeName", "*.s3UploadFlag", "*.sourceReference", "*.skills", "*.attributes.*", "*.feedback.*", "*.misc.*" };
 
 	static final String ASSIGNMENT_INCLUDE_FIELDS[] = { "*.narrationLink", "collection.notes", "*.keyPoints", "*.language", "*.goals", "*.grade", "*.estimatedTime", "*.collectionType", "*.creator", "*.assetURI", "*.license", "*.license.code", "*.license.icon", "*.license.name",
 			"*.license.definition", "*.dimensions", "*.defaultImage", "*.createdOn", "*.user", "*.usernameDisplay", "*.profileImageUrl", "*.lastName", "*.firstName", "*.username", "*.description", "*.folder", "*.gooruOid", "*.sharing", "*.title", "*.views", "*.thumbnails", "*.url",
@@ -113,7 +112,7 @@ public interface ConstantProperties {
 	static final String GOORU_OID = "gooruOid";
 
 	static final String GOORU_OIDS = "gooruOids";
-	
+
 	static final String CONTENT_ID = "contentId";
 
 	static final String IS_STUDENT = "isStudent";
@@ -228,7 +227,7 @@ public interface ConstantProperties {
 
 	static final String TAG_ASSOC_INCLUDES[] = { "*.tag", "*.tagUid", "*.label", "*.type", "*.activeFlag", "*.createdOn" };
 
-	static final String SESSION_INCLUDES[] = { "*.sessionActivityId","*.classId","*.rating","*.reaction","*.isStudent","*.type","*.parentId","*.sequence","*.viewsInSession","*.timeSpentInMillis", "*.status", "*.startTime", "*.stopTime", "*.sessionItems", "*.score" };
+	static final String SESSION_INCLUDES[] = { "*.sessionActivityId", "*.classId", "*.rating", "*.reaction", "*.isStudent", "*.type", "*.parentId", "*.sequence", "*.viewsInSession", "*.timeSpentInMillis", "*.status", "*.startTime", "*.stopTime", "*.sessionItems", "*.score" };
 
 	static final String TASK_INCLUDES[] = { "*.collectionTasks", "*.creator.gooruUId", "*.creator.firstName", "*.creator.username", "*.creator.lastname", "*.taskUid", "*.title", "*.description", "*.plannedStartDate", "*.plannedEndDate", "*.status", "*.estimatedEffort", "*.typeName", "*.gooruOid",
 			"*.lastModified", "*.createdOn", "*.lastUpdatedUserUid", "*.searchResults", "*.totalHitCount", "task" };
@@ -249,9 +248,9 @@ public interface ConstantProperties {
 	static final String TASK_ASSOC_INCLUDES[] = { "*.task", "*.taskUid", "*.title", "*.description", "*.plannedStartDate", "*.plannedEndDate", "*.status", "*.estimatedEffort", "*.createdDate", "*.createdByUid", "*.lastModifiedDate", "*.modifiedBy", "*.typeName", "*.taskAssocUid", "*.taskParent",
 			"*.taskDescendant", "*.sequence", "*.associationType" };
 
-	static final String SESSION_ITEM_INCLUDES[] = { "*.status", "*.startTime", "*.sessionActivityId","*.classId", "*.score" };
+	static final String SESSION_ITEM_INCLUDES[] = { "*.status", "*.startTime", "*.sessionActivityId", "*.classId", "*.score" };
 
-	static final String SESSION_ITEM_ATTEMPT_INCLUDES[] = { "*.status", "*.startTime", "*.sessionActivityId","*.classId", "*.score" };
+	static final String SESSION_ITEM_ATTEMPT_INCLUDES[] = { "*.status", "*.startTime", "*.sessionActivityId", "*.classId", "*.score" };
 
 	static final String COURSE_INCLUDES[] = { "*.parentsList" };
 
@@ -859,9 +858,9 @@ public interface ConstantProperties {
 	public static final String SOURCE_GOORU_ID = "sourceGooruId";
 
 	public static final String STATISTICS_VIEW_COUNT = "statistics.viewsCountN";
-	
+
 	public static final String COUNT_VIEWS = "count~views";
-	
+
 	public static final String ALL_ = "all~";
 
 	public static final String CLASSPAGE_USER_INVITE = "classpage.user.invite";
@@ -889,13 +888,13 @@ public interface ConstantProperties {
 	public static final String ITEM_TAG = "item.tag";
 
 	public static final String TARGET_GOORU_ID = "targetGooruId";
-	
+
 	public static final String SOURCE_PARENT_GOORU_ID = "sourceParentGooruId";
 
 	public static final String DATA = "data";
-	
-	public static final String CREATE_INCLUDES[] = {"*.name","*.uri", "*.title"};
 
+	public static final String CREATE_INCLUDES[] = { "name", "uri", "title", "type"};
+	
 	static final String RESOURCE_COLLECTION_USED_INCLUDE_FIELDS[] = { "*.language", "*.goals", "*.grade", "*.estimatedTime", "*.collectionType", "*.assetURI", "*.createdOn", "*.user", "*.usernameDisplay", "*.profileImageUrl", "*.lastName", "*.firstName", "*.username", "*.description",
 			"*.folder", "*.gooruOid", "*.sharing", "*.title", "*.views", "*.thumbnails", "*.url", "*.gooruUId", "*.buildType", "*.emailId", "*.value", "*.code", "*.label", "*.modifiedDate", "*.gooruid", "*.username", "*.customFields", "*.optionalValue", "*.optionalKey",
 			"*.collectionItemId", "*.skills", "*.course", "*.standards", "*.metaInfo", "*.meta" };
@@ -905,20 +904,28 @@ public interface ConstantProperties {
 	final static String SUBDOMAIN_INCLUDES[] = {"*.subdomainId","*.courseId","*.domainId"};
 
 	public static final String PIPE = "|";
-	
+
 	public static final String COMMA = ",";
-	
-	public static final String EMPTY = "";	
-	
-	final static  String SUBDOMAIN = "subdomain";
-	
+
+	public static final String EMPTY = "";
+
+	final static String SUBDOMAIN = "subdomain";
+
 	final static String COURSE_ID = "courseId";
-	
+
 	final static String DOMAIN_ID = "domainId";
-	
+
 	final static String SUBJECT_ID = "subjectId";
-	
+
 	final static String SUBDOMAIN_ID = "subdomainId";
+
+	final static String CLASS_INCLUDES[] = { "classUid", "classCode", "name", "description", "visibility", "*.minimumScore", "*.memberCount", "user.username", "user.gooruUId", "user.gender", "*.thumbnails", "*.user", "thumbnails.url", "courseGooruOid" };
+
+	final static String IMAGE_PATH = "imagePath";
+
+	final static String UNIT_ID = "unitId";
+
+	final static String LESSON_ID = "lessonId";	
 	
-	final static String CLASS_INCLUDES[] = {"classUid","classCode","name","description", "visibility", "*.minimumScore", "*.memberCount", "user.username", "user.gooruUId", "user.gender", "*.thumbnails", "*.user", "thumbnails.url", "courseGooruOid"};
+	final static String PARENT_COLLECTION_TYPE = "parentCollectionType";
 }

@@ -275,9 +275,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		if (sourceCollectionItem != null && sourceCollectionItem.getItemType() != null) {
 			collectionItem.setItemType(sourceCollectionItem.getItemType());
 		}
-		collectionItem.setPlannedEndDate(sourceCollectionItem.getPlannedEndDate());
 		collectionItem.setEstimatedTime(sourceCollectionItem.getEstimatedTime());
-		collectionItem.setAssignmentCompleted(sourceCollectionItem.getAssignmentCompleted());
 
 		if (!user.getPartyUid().equalsIgnoreCase(collectionItem.getCollection().getUser().getPartyUid())) {
 			final UserContentAssoc userContentAssocs = this.getCollaboratorRepository().findCollaboratorById(sourceId, user.getPartyUid());
@@ -663,12 +661,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		if (direction != null) {
 			collectionItem.setNarration(direction);
 		}
-		if (isRequired != null) {
-			collectionItem.setIsRequired(isRequired);
-		}
-		if (minimumScore != null) {
-			collectionItem.setMinimumScore(minimumScore);
-		}
+	
 		if (estimatedTime != null) {
 			collectionItem.setEstimatedTime(estimatedTime);
 		}
@@ -681,15 +674,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		if (showHints != null) {
 			collectionItem.setShowHints(showHints);
 		}
-		if (planedEndDate != null) {
-			try {
-				final SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT, Locale.US);
-				final Date date = dateFormat.parse(planedEndDate);
-				collectionItem.setPlannedEndDate(date);
-			} catch (ParseException e1) {
-				e1.printStackTrace();
-			}
-		}
+	
 		classPage.setItemCount(sequence);
 		this.getResourceRepository().save(classPage);
 		this.getResourceRepository().save(collectionItem);
@@ -728,8 +713,9 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 			if (userService.isSuperAdmin(user) || userService.isContentAdmin(user)) {
 				for (final Collection scollection : collections) {
 					getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + scollection.getUser().getPartyUid() + "*");
-					if (scollection.getPublishStatus() != null && scollection.getPublishStatus().getValue().equalsIgnoreCase(PENDING)) {
-						scollection.setPublishStatus(this.getCustomTableRepository().getCustomTableValue(_PUBLISH_STATUS, REVIEWED));
+					// TO DO
+					if (scollection.getPublishStatus() != null ) {
+						//scollection.setPublishStatus(this.getCustomTableRepository().getCustomTableValue(_PUBLISH_STATUS, REVIEWED));
 						collectionIds.append(scollection.getGooruOid());
 						if (!scollection.getSharing().equalsIgnoreCase(PUBLIC)) {
 							final UserSummary userSummary = this.getUserRepository().getSummaryByUid(scollection.getUser().getPartyUid());
@@ -783,7 +769,8 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 			collections = this.getCollectionRepository().getCollectionListByIds(gooruOids);
 			if (userService.isSuperAdmin(user) || userService.isContentAdmin(user)) {
 				for (final Collection scollection : collections) {
-					if (scollection.getPublishStatus() != null && scollection.getPublishStatus().getValue().equalsIgnoreCase(PENDING)) {
+					// TO DO
+					if (scollection.getPublishStatus() != null) {
 						scollection.setPublishStatus(null);
 						if (scollection.getSharing().equalsIgnoreCase(PUBLIC)) {
 							UserSummary userSummary = this.getUserRepository().getSummaryByUid(scollection.getUser().getPartyUid());

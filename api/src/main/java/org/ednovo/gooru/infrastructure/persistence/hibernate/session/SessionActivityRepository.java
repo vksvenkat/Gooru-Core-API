@@ -29,6 +29,7 @@ import java.util.Map;
 import org.ednovo.gooru.core.api.model.AssessmentQuestion;
 import org.ednovo.gooru.core.api.model.SessionActivity;
 import org.ednovo.gooru.core.api.model.SessionActivityItem;
+import org.ednovo.gooru.core.api.model.UserActivityCollectionAssoc;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepository;
 
 public interface SessionActivityRepository extends BaseRepository {
@@ -68,5 +69,7 @@ public interface SessionActivityRepository extends BaseRepository {
 	Double getUnitTotalScore(Long itemId);
 
 	Double getLessonTotalScore(Long itemId);
+
+	UserActivityCollectionAssoc getUserActivityCollectionAssoc(String userUid, Long classContentId, Long collectionId);
 	
 }

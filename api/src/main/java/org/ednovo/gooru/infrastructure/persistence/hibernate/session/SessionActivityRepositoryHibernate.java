@@ -29,12 +29,12 @@ import java.util.Map;
 import org.ednovo.gooru.core.api.model.AssessmentQuestion;
 import org.ednovo.gooru.core.api.model.SessionActivity;
 import org.ednovo.gooru.core.api.model.SessionActivityItem;
+import org.ednovo.gooru.core.api.model.UserActivityCollectionAssoc;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate;
 import org.hibernate.Criteria;
 import org.hibernate.Query;
-import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.type.StandardBasicTypes;
 import org.springframework.stereotype.Repository;
@@ -77,6 +77,7 @@ public class SessionActivityRepositoryHibernate extends BaseRepositoryHibernate 
 	
 	private final String GET_UNIT_SCORE = "SELECT SUM(score_in_percentage) AS scoreInPerCentage score FROM session_activity WHERE unit_content_id =:unitContentId AND is_last_session = 1";
 	
+	private final String RETRIEVE_USER_ACTIVITY_COLLECTION_ASSOC = "From UserActivityCollectionAssoc  uaca  where uaca.userUid=:userUid AND uaca.collectionId=:collectionId AND uaca.classContentId=:classContentId";
 	
 	@Override
 	public SessionActivity getSessionActivityById(Long sessionActivityId) {
@@ -95,6 +96,16 @@ public class SessionActivityRepositoryHibernate extends BaseRepositoryHibernate 
 		return (sessionActivityItems.size() > 0) ? sessionActivityItems.get(0) : null;
 	}
 
+	@Override
+	public UserActivityCollectionAssoc getUserActivityCollectionAssoc(String userUid,Long classContentId, Long collectionId) {
+		Query query = getSession().createQuery(RETRIEVE_USER_ACTIVITY_COLLECTION_ASSOC);
+		query.setParameter(USER_UID, userUid);
+		query.setParameter(CLASS_CONTENT_ID, classContentId);
+		query.setParameter(COLLECTION_ID, collectionId);
+		List<UserActivityCollectionAssoc> userActivityCollectionAssoc = list(query);
+		return (userActivityCollectionAssoc.size() > 0) ? userActivityCollectionAssoc.get(0) : null;
+	}
+	
 	@Override
 	public Integer getClassSessionActivityCount(Long collectionId, Long classContentId, Long unitContentId, Long lessonContentId, String gooruUId) {
 		Query query = getSession().createSQLQuery(RETRIVE_CLASS_SESSION_COUNT).addScalar(COUNT, StandardBasicTypes.INTEGER);
