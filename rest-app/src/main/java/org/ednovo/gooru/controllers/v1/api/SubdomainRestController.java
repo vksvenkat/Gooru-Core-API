@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////
-// SubdomainRestV2Controller.java
-// rest-v2-app
+// SubdomainRestController.java
+// rest-app
 // Created by Gooru on 2015
 // Copyright (c) 2015 Gooru. All rights reserved.
 // http://www.goorulearning.org/
@@ -40,8 +40,6 @@ import org.ednovo.gooru.domain.service.subdomain.SubdomainService;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -51,7 +49,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 @RequestMapping(value = { RequestMappingUri.SUBDOMAIN })
-public class SubdomainRestV2Controller extends BaseController implements ConstantProperties {
+public class SubdomainRestController extends BaseController implements ConstantProperties {
 
 	@Autowired
 	private SubdomainService subdomainService;
