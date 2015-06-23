@@ -582,7 +582,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 	@Override
 	public Long getMyClasspageCount(final String gooruUid) {
 		final String hql = "select count(collectionItems.resource)  FROM Collection collection inner join collection.collectionItems collectionItems WHERE   collection.user.partyUid = '" + gooruUid + "' and collection.collectionType = '" + CollectionType.USER_CLASSPAGE.getCollectionType()
-				+ "'  order by collectionItems.resource.createdOn desc";
+				+ "'  order by collectionItems.content.createdOn desc";
 		final Query query = getSession().createQuery(hql);
 		return (Long) query.list().get(0);
 	}
@@ -666,7 +666,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		}
 		if (collectionType != null) {
 			collectionType = collectionType.equalsIgnoreCase(COLLECTION) ? SCOLLECTION : collectionType;
-			sql += " and re.type_name =:collectionType ";
+			sql += " and re.collection_type =:collectionType ";
 		}
 		if (excludeType != null) { 
 			sql += " and co.collection_type not in ('"+ excludeType.replace(",", "','") + "')";

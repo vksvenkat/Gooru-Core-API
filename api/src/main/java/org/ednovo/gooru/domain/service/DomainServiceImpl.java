@@ -47,7 +47,7 @@ public class DomainServiceImpl extends BaseServiceImpl implements DomainService,
 
 	@Autowired
 	private DomainRepository domainRepository;
-	
+
 	@Autowired
 	private GooruImageUtil gooruImageUtil;
 
@@ -65,7 +65,7 @@ public class DomainServiceImpl extends BaseServiceImpl implements DomainService,
 		}
 		return new ActionResponseDTO<Domain>(domain, error);
 	}
-		
+
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void updateDomain(Integer domainId, Domain newDomain) {
@@ -74,25 +74,24 @@ public class DomainServiceImpl extends BaseServiceImpl implements DomainService,
 		if (newDomain.getActiveFlag() != null) {
 			reject((newDomain.getActiveFlag() == 0 || newDomain.getActiveFlag() == 1), GL0007, ACTIVE_FLAG);
 			domain.setActiveFlag(newDomain.getActiveFlag());
-	    }
+		}
 		if (newDomain.getName() != null) {
 			domain.setName(domain.getName());
 		}
 		if (newDomain.getDescription() != null) {
 			domain.setDescription(domain.getDescription());
 		}
-		if (newDomain.getImagePath() != null) {
-			domain.setImagePath(domain.getImagePath());
-		}
 		if (newDomain.getDisplaySequence() != null) {
 			domain.setDisplaySequence(domain.getDisplaySequence());
 		}
+		if (newDomain.getMediaFilename() != null) {
+			StringBuilder basePath = new StringBuilder(Domain.REPO_PATH);
+			basePath.append(File.separator).append(domainId);
+			this.getGooruImageUtil().imageUpload(newDomain.getMediaFilename(), basePath.toString(), Domain.IMAGE_DIMENSION);
+			basePath.append(File.separator).append(newDomain.getMediaFilename());
+			domain.setImagePath(basePath.toString());
+		}
 		domain.setLastModified(new Date(System.currentTimeMillis()));
-		String mediaFilename = newDomain.getMediaFilename();
-		this.getGooruImageUtil().imageUpload(mediaFilename, domainId, Domain.REPO_PATH ,Domain.IMAGE_DIMENSION);
-		StringBuilder basePath = new StringBuilder(Subject.REPO_PATH);
-		basePath.append(File.separator).append(domainId).append(File.separator).append(mediaFilename);
-	    domain.setImagePath(basePath.toString());
 		this.getDomainRepository().save(domain);
 	}
 
@@ -102,7 +101,7 @@ public class DomainServiceImpl extends BaseServiceImpl implements DomainService,
 		Domain domain = this.getDomainRepository().getDomain(domainId);
 		rejectIfNull(domain, GL0056, 404, DOMAIN_);
 		reject((domain.getActiveFlag() == 1), GL0107, DOMAIN);
-		if(domain.getImagePath() != null){
+		if (domain.getImagePath() != null) {
 			domain.setThumbnails(GooruImageUtil.getThumbnails(domain.getImagePath()));
 		}
 		return domain;
@@ -112,9 +111,9 @@ public class DomainServiceImpl extends BaseServiceImpl implements DomainService,
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Domain> getDomains(Integer limit, Integer offset) {
 		List<Domain> domains = this.getDomainRepository().getDomains(limit, offset);
-		if(domains != null){
-			for(Domain domain: domains){
-				if(domain.getImagePath() != null){
+		if (domains != null) {
+			for (Domain domain : domains) {
+				if (domain.getImagePath() != null) {
 					domain.setThumbnails(GooruImageUtil.getThumbnails(domain.getImagePath()));
 				}
 			}

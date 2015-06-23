@@ -92,6 +92,8 @@ public class Collection extends Content implements Versionable {
 	private static final String URL = "url";
 
 	private String uri;
+	
+	private String mediaFilename;
 
 
 	public String getIdeas() {
@@ -178,13 +180,11 @@ public class Collection extends Content implements Versionable {
 		this.language = language;
 	}
 
+	@Deprecated
 	public String getGoals() {
-		return goals;
+		return getDescription();
 	}
 
-	public void setGoals(String goals) {
-		this.goals = goals;
-	}
 
 	public String getEstimatedTime() {
 		return estimatedTime;
@@ -428,6 +428,14 @@ public class Collection extends Content implements Versionable {
 
 	public String getType() {
 		return getCollectionType();
+	}
+
+	public String getMediaFilename() {
+		return mediaFilename;
+	}
+
+	public void setMediaFilename(String mediaFilename) {
+		this.mediaFilename = mediaFilename;
 	}
 
 }
