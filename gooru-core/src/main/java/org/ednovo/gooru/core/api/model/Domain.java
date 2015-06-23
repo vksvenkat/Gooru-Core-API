@@ -25,6 +25,7 @@ package org.ednovo.gooru.core.api.model;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Map;
 
 
 public class Domain implements Serializable {
@@ -54,6 +55,16 @@ public class Domain implements Serializable {
 	
 	private String uri;
 	
+	private Map<String, Object> thumbnails;
+
+	public Map<String, Object> getThumbnails() {
+		return thumbnails;
+	}
+
+	public void setThumbnails(Map<String, Object> thumbnails) {
+		this.thumbnails = thumbnails;
+	}
+
 	private String mediaFilename;
 
 	public String getMediaFilename() {
@@ -135,6 +146,5 @@ public class Domain implements Serializable {
 	public void setUri(String uri) {
 		this.uri = uri;
 	}
-
 
 }

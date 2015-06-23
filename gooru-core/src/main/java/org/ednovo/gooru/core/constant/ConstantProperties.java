@@ -819,10 +819,10 @@ public interface ConstantProperties {
 
 	static final String COUNTRY[] = { "*.countryUid", "*.countryCode", "*.name", "*.totalHitCount", "*.searchResults" };
 
-	static final String COURSE_[] = { "*.courseId", "*.name", "*.description", "*.subjectId", "*.courseCode", "*.grades", "*.activeFlag", "*.organizationUid", "*.imagePath", "*.totalHitCount", "*.searchResults" };
-
-	static final String DOMAIN[] = { "*.domainId", "*.name", "*.description", "*.activeFlag", "*.organizationUid", "*.imagePath", "*.totalHitCount", "*.searchResults" };
-
+	static final String COURSE_[] = {"*.courseId","*.name","*.thumbnails","thumbnails.url"};
+	
+	static final String DOMAIN[] = {"*.thumbnails", "thumbnails.url","*.domainId","*.name"};
+	
 	static final String STATE[] = { "*.stateUid", "*.stateCode", "*.name", "*.totalHitCount", "*.searchResults" };
 
 	static final String CITY[] = { "*.cityUid", "*.cityCode", "*.name", "*.totalHitCount", "*.searchResults" };
@@ -892,14 +892,14 @@ public interface ConstantProperties {
 	public static final String DATA = "data";
 
 	public static final String CREATE_INCLUDES[] = { "name", "uri", "title", "type"};
-
-	static final String RESOURCE_COLLECTION_USED_INCLUDE_FIELDS[] = { "*.language", "*.goals", "*.grade", "*.estimatedTime", "*.collectionType", "*.assetURI", "*.createdOn", "*.user", "*.usernameDisplay", "*.profileImageUrl", "*.lastName", "*.firstName", "*.username", "*.description", "*.folder",
-			"*.gooruOid", "*.sharing", "*.title", "*.views", "*.thumbnails", "*.url", "*.gooruUId", "*.buildType", "*.emailId", "*.value", "*.code", "*.label", "*.modifiedDate", "*.gooruid", "*.username", "*.customFields", "*.optionalValue", "*.optionalKey", "*.collectionItemId", "*.skills",
-			"*.course", "*.standards", "*.metaInfo", "*.meta" };
-
-	final static String SUBJECT_INCLUDES[] = { "*.name", "*.description", "*.activeFlag", "*.imagePath", "*.displaySequence", "*.createdOn", "*.lastModified", "*.totalHitCount", "*.searchResults" };
-
-	final static String SUBDOMAIN_INCLUDES[] = { "*.subdomainId", "*.courseId", "*.domainId", "*.totalHitCount", "*.searchResults" };
+	
+	static final String RESOURCE_COLLECTION_USED_INCLUDE_FIELDS[] = { "*.language", "*.goals", "*.grade", "*.estimatedTime", "*.collectionType", "*.assetURI", "*.createdOn", "*.user", "*.usernameDisplay", "*.profileImageUrl", "*.lastName", "*.firstName", "*.username", "*.description",
+			"*.folder", "*.gooruOid", "*.sharing", "*.title", "*.views", "*.thumbnails", "*.url", "*.gooruUId", "*.buildType", "*.emailId", "*.value", "*.code", "*.label", "*.modifiedDate", "*.gooruid", "*.username", "*.customFields", "*.optionalValue", "*.optionalKey",
+			"*.collectionItemId", "*.skills", "*.course", "*.standards", "*.metaInfo", "*.meta" };
+	
+	final static String SUBJECT_INCLUDES[] = {"*.name","*.subjectId","*.thumbnails","thumbnails.url"};
+	
+	final static String SUBDOMAIN_INCLUDES[] = {"*.subdomainId","*.courseId","*.domainId"};
 
 	public static final String PIPE = "|";
 

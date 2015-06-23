@@ -32,6 +32,7 @@ import org.ednovo.gooru.application.util.GooruImageUtil;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Subject;
 import org.ednovo.gooru.core.api.model.User;
+import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.core.exception.BadRequestException;
@@ -46,7 +47,7 @@ import org.springframework.validation.Errors;
 
 @Service
 public class SubjectServiceImpl extends BaseServiceImpl implements
-		SubjectService, ParameterProperties {
+		SubjectService, ParameterProperties, ConstantProperties {
 
 	@Autowired
 	private SubjectRepository subjectRepository;
@@ -76,13 +77,23 @@ public class SubjectServiceImpl extends BaseServiceImpl implements
 		Subject subject = this.getSubjectRepository().getSubject(subjectId);
 		rejectIfNull(subject, GL0056, 404, SUBJECT);
 		reject((subject.getActiveFlag() == 1), GL0107, SUBJECT);
+		if(subject.getImagePath() != null){
+			subject.setThumbnails(GooruImageUtil.getThumbnails(subject.getImagePath()));
+		}
 		return subject;
 	}
 	
 	@Override
     @Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Map<String, Object>> getCourses(int offset, int limit, int subjectId) {
-        return this.getSubjectRepository().getCourses(offset, limit, subjectId);
+		List<Map<String, Object>> courses = this.getSubjectRepository().getCourses(offset, limit, subjectId);
+		rejectIfNull(courses, GL0056, 404, COURSE);
+		for(Map<String, Object> course: courses){
+			if(course.get(IMAGE_PATH) != null){
+				course.put(THUMBNAILS,GooruImageUtil.getThumbnails(course.get(IMAGE_PATH)));
+			}
+		}
+		return courses;
 	}
 
 	@Override
@@ -98,8 +109,13 @@ public class SubjectServiceImpl extends BaseServiceImpl implements
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Subject> getSubjects(Integer classificationTypeId,Integer limit, Integer offset) {
-		List<Subject> result = this.getSubjectRepository().getSubjects(classificationTypeId, limit, offset);
-		return result;
+		List<Subject> subjects = this.getSubjectRepository().getSubjects(classificationTypeId, limit, offset);
+		for(Subject subject: subjects){
+			if(subject.getImagePath() != null){
+				subject.setThumbnails(GooruImageUtil.getThumbnails(subject.getImagePath()));
+			}
+		}
+		return subjects;
 	}
 
 	@Override

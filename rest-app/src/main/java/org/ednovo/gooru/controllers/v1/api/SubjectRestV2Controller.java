@@ -96,8 +96,8 @@ public class SubjectRestV2Controller extends BaseController implements ConstantP
 
 
 @AuthorizeOperations(operations={GooruOperationConstants.OPERATION_SUBJECT_READ})
-        @RequestMapping(method = RequestMethod.GET, value = "/{id}/courses")
-        public ModelAndView getCourses(HttpServletResponse response, HttpServletRequest request,@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") int offset, @RequestParam(value = LIMIT_FIELD, required = true) int limit,@PathVariable(ID) int subjectId) {
+        @RequestMapping(method = RequestMethod.GET, value = "/{id}/taxonomycourse")
+        public ModelAndView getCourses(HttpServletResponse response, HttpServletRequest request,@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") int offset, @RequestParam(value = LIMIT_FIELD, required = false) int limit,@PathVariable(ID) int subjectId) {
             return toModelAndView(this.getSubjectService().getCourses(offset, limit, subjectId), RESPONSE_FORMAT_JSON);
 
 
