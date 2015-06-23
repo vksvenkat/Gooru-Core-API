@@ -87,10 +87,11 @@ public class SubjectServiceImpl extends BaseServiceImpl implements
     @Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Map<String, Object>> getCourses(int offset, int limit, int subjectId) {
 		List<Map<String, Object>> courses = this.getSubjectRepository().getCourses(offset, limit, subjectId);
-		rejectIfNull(courses, GL0056, 404, COURSE);
-		for(Map<String, Object> course: courses){
-			if(course.get(IMAGE_PATH) != null){
-				course.put(THUMBNAILS,GooruImageUtil.getThumbnails(course.get(IMAGE_PATH)));
+		if(courses != null){
+			for(Map<String, Object> course: courses){
+				if(course.get(IMAGE_PATH) != null){
+					course.put(THUMBNAILS,GooruImageUtil.getThumbnails(course.get(IMAGE_PATH)));
+				}
 			}
 		}
 		return courses;
@@ -110,9 +111,11 @@ public class SubjectServiceImpl extends BaseServiceImpl implements
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Subject> getSubjects(Integer classificationTypeId,Integer limit, Integer offset) {
 		List<Subject> subjects = this.getSubjectRepository().getSubjects(classificationTypeId, limit, offset);
-		for(Subject subject: subjects){
-			if(subject.getImagePath() != null){
-				subject.setThumbnails(GooruImageUtil.getThumbnails(subject.getImagePath()));
+		if(subjects != null){
+			for(Subject subject: subjects){
+				if(subject.getImagePath() != null){
+					subject.setThumbnails(GooruImageUtil.getThumbnails(subject.getImagePath()));
+				}
 			}
 		}
 		return subjects;
