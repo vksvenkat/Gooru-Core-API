@@ -97,7 +97,7 @@ public class TaxonomyCourseRestController extends BaseController implements Cons
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_DOMAIN_READ })
 	@RequestMapping(value = { "/{id}/domain" }, method = RequestMethod.GET)
-	public ModelAndView getDomains(@PathVariable(value = ID) Integer courseId, HttpServletRequest request, HttpServletResponse response,@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit) {
+	public ModelAndView getDomains(@PathVariable(value = ID) Integer courseId, HttpServletRequest request, HttpServletResponse response,@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "0") int offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") int limit) {
 		return toModelAndViewWithIoFilter(getTaxonomyCourseService().getDomains(courseId, limit, offset),RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, DOMAIN);
 		}
 	
