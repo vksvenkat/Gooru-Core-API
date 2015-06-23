@@ -44,7 +44,7 @@ public class DomainRepositoryHibernate extends BaseRepositoryHibernate implement
 	
 	private static final String GET_MAX = "SELECT COALESCE(MAX(displaySequence),0) FROM Domain";
 	
-	private static final String GET_CODE = "SELECT c.code_id codeId,c.label FROM code c join subdomain_attribute_mapping sa ON sa.code_id=c.code_id join subdomain s ON s.subdomain_id=sa.subdomain_id WHERE s.domain_id=:domainId and s.course_id=:courseId";
+	private static final String GET_CODE = "SELECT c.code_id codeId,c.label,c.code,c.description FROM code c inner join subdomain_attribute_mapping sa ON sa.code_id=c.code_id inner join subdomain s ON s.subdomain_id=sa.subdomain_id WHERE s.domain_id=:domainId and s.course_id=:courseId";
 
 	@Override
 	public Domain getDomain(Integer domainId) {
@@ -67,7 +67,7 @@ public class DomainRepositoryHibernate extends BaseRepositoryHibernate implement
 	}
 
 	@Override
-	public List<Map<String,String>> getCode(Integer courseId, Integer domainId,int limit, int offset) {
+	public List<Map<String,String>> getDomainAttributes(Integer courseId, Integer domainId,int limit, int offset) {
 		Query query = getSession().createSQLQuery(GET_CODE);
 		query.setParameter(COURSE_ID, courseId);
 		query.setParameter(DOMAIN_ID, domainId);

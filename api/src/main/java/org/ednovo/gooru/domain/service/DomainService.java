@@ -43,6 +43,6 @@ public interface DomainService {
 	
     void deleteDomain(Integer domainId);
     
-    List<Map<String, String>> getCodebyCourse(Integer courseId, Integer domainId,int limit, int offset);
+    List<Map<String, String>> getDomainAttributes(Integer courseId, Integer domainId,int limit, int offset);
 
 }

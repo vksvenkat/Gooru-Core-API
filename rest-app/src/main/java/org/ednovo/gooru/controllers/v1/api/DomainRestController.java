@@ -96,9 +96,9 @@ public class DomainRestController extends BaseController implements ConstantProp
 	}
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_DOMAIN_DELETE })
-	@RequestMapping(value = { "course/{cid}/domain/{id}" }, method = RequestMethod.GET)
-	public ModelAndView getdo(HttpServletRequest request, HttpServletResponse response,@PathVariable(value = CID) Integer courseId, @PathVariable(value = ID) Integer domainId,@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit) {
-		return toModelAndViewWithIoFilter(getDomainService().getCodebyCourse(courseId, domainId, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL,true, SUBDOMAIN_ATTRIBUTE);
+	@RequestMapping(value = { "taxonomycourse/{cid}/domain/{id}" }, method = RequestMethod.GET)
+	public ModelAndView getDomainAttributes(HttpServletRequest request, HttpServletResponse response,@PathVariable(value = CID) Integer courseId, @PathVariable(value = ID) Integer domainId,@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit) {
+		return toModelAndViewWithIoFilter(getDomainService().getDomainAttributes(courseId, domainId, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL,true, SUBDOMAIN_ATTRIBUTE);
 	}
 
 	public DomainService getDomainService() {

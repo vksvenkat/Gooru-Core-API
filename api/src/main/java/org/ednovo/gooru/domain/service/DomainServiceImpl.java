@@ -135,8 +135,8 @@ public class DomainServiceImpl extends BaseServiceImpl implements DomainService,
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public List<Map<String,String>> getCodebyCourse(Integer courseId, Integer domainId, int limit, int offset) {
-		return this.getDomainRepository().getCode(courseId, domainId, limit, offset);
+	public List<Map<String,String>> getDomainAttributes(Integer courseId, Integer domainId, int limit, int offset) {
+		return this.getDomainRepository().getDomainAttributes(courseId, domainId, limit, offset);
 	}
 	
 	private Errors validateDomain(Domain domain) {

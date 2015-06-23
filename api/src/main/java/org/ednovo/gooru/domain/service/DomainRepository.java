@@ -38,7 +38,7 @@ public interface DomainRepository extends BaseRepository{
 
 	Integer getMaxSequence();
 	
-	List<Map<String, String>> getCode(Integer courseId, Integer domainId,int limit, int offset);
+	List<Map<String, String>> getDomainAttributes(Integer courseId, Integer domainId,int limit, int offset);
 
 
 }
