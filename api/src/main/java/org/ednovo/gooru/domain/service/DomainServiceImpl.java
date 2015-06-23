@@ -112,9 +112,11 @@ public class DomainServiceImpl extends BaseServiceImpl implements DomainService,
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Domain> getDomains(Integer limit, Integer offset) {
 		List<Domain> domains = this.getDomainRepository().getDomains(limit, offset);
-		for(Domain domain: domains){
-			if(domain.getImagePath() != null){
-				domain.setThumbnails(GooruImageUtil.getThumbnails(domain.getImagePath()));
+		if(domains != null){
+			for(Domain domain: domains){
+				if(domain.getImagePath() != null){
+					domain.setThumbnails(GooruImageUtil.getThumbnails(domain.getImagePath()));
+				}
 			}
 		}
 		return domains;
