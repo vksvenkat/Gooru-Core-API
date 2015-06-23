@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////
-//TaxonomyCourseRestV1Controller.java
-//rest-v1-app
+//TaxonomyCourseRestController.java
+//rest-app
 // Created by Gooru on 2014
 // Copyright (c) 2015 Gooru. All rights reserved.
 // http://www.goorulearning.org/
@@ -50,7 +50,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 @RequestMapping(value = { RequestMappingUri.TAXONOMY_COURSE })
-public class TaxonomyCourseRestV1Controller extends BaseController implements ConstantProperties, ParameterProperties {
+public class TaxonomyCourseRestController extends BaseController implements ConstantProperties, ParameterProperties {
 
 	@Autowired
 	public TaxonomyCourseService TaxonomycourseService;

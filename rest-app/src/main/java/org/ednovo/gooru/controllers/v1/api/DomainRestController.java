@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////
-//DomainRestV1Controller.java
-//rest-v1-app
+//DomainRestController.java
+//rest-app
 // Created by Gooru on 2015
 // Copyright (c) 2015 Gooru. All rights reserved.
 // http://www.goorulearningorg/
@@ -50,7 +50,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 @RequestMapping(value = { RequestMappingUri.DOMAIN })
-public class DomainRestV1Controller extends BaseController implements ConstantProperties, ParameterProperties {
+public class DomainRestController extends BaseController implements ConstantProperties, ParameterProperties {
 
 	@Autowired
 	public DomainService domainService;

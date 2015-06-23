@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////
-// SubdomainRestV1Controller.java
-// rest-v1-app
+// SubdomainRestController.java
+// rest-app
 // Created by Gooru on 2015
 // Copyright (c) 2015 Gooru. All rights reserved.
 // http://www.goorulearning.org/
@@ -49,7 +49,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 @RequestMapping(value = { RequestMappingUri.SUBDOMAIN })
-public class SubdomainRestV1Controller extends BaseController implements ConstantProperties {
+public class SubdomainRestController extends BaseController implements ConstantProperties {
 
 	@Autowired
 	private SubdomainService subdomainService;
