@@ -2925,5 +2925,7 @@ public interface ParameterProperties {
 	String CLASS_GOORU_ID = "classGooruId";
 	
 	String GL0107 = "GL0107";	
+	
+	String GL0109 = "GL0109";
 }
 
