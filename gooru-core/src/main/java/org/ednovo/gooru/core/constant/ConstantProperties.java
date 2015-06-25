@@ -926,4 +926,6 @@ public interface ConstantProperties {
 	final static String LESSON_ID = "lessonId";	
 	
 	final static String PARENT_COLLECTION_TYPE = "parentCollectionType";
+	
+	final static String META_DATA = "metaData";
 }

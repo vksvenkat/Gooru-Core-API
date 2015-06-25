@@ -10,7 +10,6 @@ import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionType;
 import org.ednovo.gooru.core.api.model.ContentSettings;
-import org.ednovo.gooru.core.api.model.Domain;
 import org.ednovo.gooru.core.api.model.ResourceType;
 import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.User;
@@ -164,11 +163,13 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Map<String, Object> getCollection(String collectionId, String collectionType) {
 		return super.getCollection(collectionId, collectionType);
-	}
+	}	
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Map<String, Object>> getCollections(String lessonId, String collectionType, int limit, int offset) {
 		Map<String, Object> filters = new HashMap<String, Object>();
 		String[] collectionTypes = collectionType.split(",");

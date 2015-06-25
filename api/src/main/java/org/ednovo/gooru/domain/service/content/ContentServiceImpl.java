@@ -80,11 +80,6 @@ public class ContentServiceImpl implements ContentService,ParameterProperties {
 	}
 
 	@Override
-	public Resource findByResourceType(String typeId, String url) {
-		return contentRepository.findByResourceType(typeId, url);
-	}
-
-	@Override
 	public Content findContentByGooruId(String gooruContentId) {
 		return contentRepository.findContentByGooruId(gooruContentId);
 	}
