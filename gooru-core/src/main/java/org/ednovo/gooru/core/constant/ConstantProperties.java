@@ -930,4 +930,8 @@ public interface ConstantProperties {
 	final static String META_DATA = "metaData";
 
 	final static String SUBDOMAIN_ATTRIBUTE[] = { "*.codeId", "*.label", "*.code", "*.description" };
+	
+	final static String DOT = ".";
+	
+	final static String REGX_DOT = "\\.";
 }

@@ -266,6 +266,7 @@
 				<property name="searchLimit" column="search_limit" type="int"
 					not-null="false" />
 				<property name="secretKey" column="secret_key" not-null="true" />
+				<property name="refererDomains" column="referer_domains" not-null="false" />
 				<many-to-one name="status"
 					class="org.ednovo.gooru.core.api.model.CustomTableValue" column="status_id"
 					not-null="true" lazy="proxy" cascade="none" />
