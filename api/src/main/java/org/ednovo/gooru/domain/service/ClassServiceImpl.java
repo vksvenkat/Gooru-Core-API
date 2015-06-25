@@ -8,13 +8,21 @@ import java.util.List;
 import java.util.Map;
 
 import org.ednovo.gooru.application.util.ConfigProperties;
+import org.ednovo.gooru.application.util.TaxonomyUtil;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
+import org.ednovo.gooru.core.api.model.Classpage;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserClass;
 import org.ednovo.gooru.core.application.util.BaseUtil;
+import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.core.exception.NotFoundException;
+import org.ednovo.gooru.domain.service.search.SearchResults;
+import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.ClassRepository;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionRepository;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.party.UserGroupRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -27,9 +35,14 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 
 	@Autowired
 	private ClassRepository classRepository;
+		
+	@Autowired
+	private UserGroupRepository userGroupRepository;
+
+	@Autowired
+	private SettingService settingService;
 
 	@Override
-
 	public ActionResponseDTO<UserClass> createClass(UserClass userClass, User user) {
 		Errors errors = validateClass(userClass);
 		if (!errors.hasErrors()) {
@@ -100,6 +113,25 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 		}
 		return results;
 	}
+	
+	@Override
+	public List<Map<String, Object>> getMember(String classUid, int limit,int offset) {
+		final  List<Map<String, Object>>  results = this.getClassRepository().getMember(classUid,limit,offset);
+		final List<Map<String, Object>> listMap = new ArrayList<Map<String, Object>>();
+		for ( Map<String, Object> object : results) {
+			final Map<String, Object> result = new HashMap<String, Object>();
+			result.put(EMAIL_ID, object.get(EMAIL_ID));
+			result.put(ASSOCIATION_DATE, object.get(ASSOCIATION_DATE));
+			result.put(USER_NAME,  object.get(USER_NAME));
+			result.put(STATUS,  object.get(STATUS));
+			result.put(GOORU_UID, object.get(GOORU_UID));
+			if ( object.get(GOORU_UID) != null) {
+				result.put(PROFILE_IMG_URL, BaseUtil.changeHttpsProtocolByHeader(settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, TaxonomyUtil.GOORU_ORG_UID)) + "/" + String.valueOf( object.get("gooruUid")) + ".png");
+			}
+			listMap.add(result);
+		}
+		return listMap;
+	}
 
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -149,5 +181,9 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 	@Override
 	public UserClass getClassById(String classUid) {
 		return this.getClassRepository().getClassById(classUid);
+	}
+	
+	public UserGroupRepository getUserGroupRepository() {
+		return userGroupRepository;
 	}
 }
