@@ -72,13 +72,10 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 				parentCollection = getCollectionDao().getCollection(lessonId);
 				rejectIfNull(parentCollection, GL0056, LESSON);
 			}
-			// FIX me TO DO
-			collection.setBuildType((short) 1);
 			if (collection.getSharing() != null && !collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.ASSESSMENT_URL.getType()) && collection.getSharing().equalsIgnoreCase(PUBLIC)) {
-				// FIX me TO DO
-				collection.setPublishStatus((short) 2);
 				collection.setSharing(Sharing.ANYONEWITHLINK.getSharing());
 			}
+			// FIX me TO DO
 			createCollectionSettings(collection);
 			if (!collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.ASSESSMENT_URL.getType())) {
 				indexHandler.setReIndexRequest(collection.getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);
@@ -138,7 +135,7 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 
 	private void createCollectionSettings(Collection collection) {
 		final ContentSettings contentSetting = new ContentSettings();
-		if (collection.getSettings() == null) {
+		if (collection.getSettings() == null || collection.getSettings().size()==0) {
 			collection.setSettings(Constants.COLLECTION_DEFAULT_SETTINGS);
 		}
 		contentSetting.setContent(collection);
@@ -182,6 +179,10 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 		if (collection != null) {
 			rejectIfNullOrEmpty(errors, collection.getTitle(), TITLE, GL0006, generateErrorMessage(GL0006, TITLE));
 			rejectIfInvalidType(errors, collection.getCollectionType(), COLLECTION_TYPE, GL0007, generateErrorMessage(GL0007, COLLECTION_TYPE), Constants.COLLECTION_TYPES);
+			rejectIfInvalidType(errors, collection.getBuildType(), BUILD_TYPE, GL0007, generateErrorMessage(GL0007, BUILD_TYPE), Constants.BUILD_TYPE);
+			if(collection.getPublishStatus() != null){
+				rejectIfInvalidType(errors, collection.getPublishStatus(), PUBLISH_STATUS, GL0007, generateErrorMessage(GL0007, PUBLISH_STATUS), Constants.PUBLISH_STATUS);
+				}
 		}
 		return errors;
 	}
@@ -205,4 +206,5 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 	public GooruImageUtil getGooruImageUtil() {
 		return gooruImageUtil;
 	}
+
 }
