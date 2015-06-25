@@ -80,7 +80,6 @@
 				<value>org/ednovo/gooru/domain/model/core/Subject.hbm.xml</value>
 				<value>org/ednovo/gooru/domain/model/core/Subdomain.hbm.xml</value>
 
-				<!-- <value>org/ednovo/gooru/domain/model/taxonomy/GetTaxonomyProcedure.hbm.xml</value> -->
 				<!-- User Domain -->
 				<value>org/ednovo/gooru/domain/model/user/UserToken.hbm.xml</value>
 				<value>org/ednovo/gooru/domain/model/user/UserRole.hbm.xml</value>
@@ -121,7 +120,9 @@
 				</value>
 				<value>org/ednovo/gooru/domain/model/content/ContentTaxonomyCourseAssoc.hbm.xml
 				</value>
-				
+				<!-- <value>org/ednovo/gooru/domain/model/content/ContentDomainAssoc.hbm.xml
+				</value>
+				 -->
 
 				<!-- Resource Domain -->
 				<value>org/ednovo/gooru/domain/model/resource/ResourceType.hbm.xml

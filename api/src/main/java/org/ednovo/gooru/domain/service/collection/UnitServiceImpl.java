@@ -7,15 +7,20 @@ import java.util.Map;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionType;
+import org.ednovo.gooru.core.api.model.ContentMeta;
+import org.ednovo.gooru.core.api.model.MetaConstants;
 import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
+
+import com.fasterxml.jackson.core.type.TypeReference;
 
 @Service
 public class UnitServiceImpl extends AbstractCollectionServiceImpl implements UnitService, ConstantProperties, ParameterProperties {
@@ -32,6 +37,11 @@ public class UnitServiceImpl extends AbstractCollectionServiceImpl implements Un
 			collection.setSharing(Sharing.PRIVATE.getSharing());
 			collection.setCollectionType(CollectionType.UNIT.getCollectionType());
 			createCollection(collection, parentCollection, user);
+			// TO DO
+			/*Map<String, Object> data = generateCourseMetaData(collection, collection, user);
+			data.put(SUMMARY, MetaConstants.UNIT_SUMMARY);
+			createContentMeta(collection, data);
+			updateCourseMetaData(parentCollection, CollectionType.UNIT.getCollectionType());*/
 		}
 		return new ActionResponseDTO<Collection>(collection, errors);
 	}
@@ -57,6 +67,25 @@ public class UnitServiceImpl extends AbstractCollectionServiceImpl implements Un
 		filters.put(PARENT_GOORU_OID, courseId);
 		filters.put(COLLECTION_TYPE, UNIT_TYPE);
 		return this.getCollections(filters, limit, offset);
+	}
+
+	private void updateCourseMetaData(Collection collection, String collectionType) {
+		ContentMeta contentMeta = this.getContentRepository().getContentMeta(collection.getContentId());
+		if (contentMeta != null) {
+			Map<String, Object> metaData = JsonDeserializer.deserialize(contentMeta.getMetaData(), new TypeReference<Map<String, Object>>() {
+			});
+			@SuppressWarnings("unchecked")
+			Map<String, Object> summary = (Map<String, Object>) metaData.get(SUMMARY);
+			summary.put(MetaConstants.UNIT_COUNT, this.getCollectionDao().getCollectionItemCount(collection.getContentId(), CollectionType.UNIT.getCollectionType()));
+			metaData.put(SUMMARY, summary);
+			updateContentMeta(contentMeta, metaData);
+		}
+	}
+	
+	private Map<String, Object> generateUnitMetaData(Collection collection, Collection newCollection, User user) {
+		Map<String, Object> data = new HashMap<String, Object>();
+		
+		return data;
 	}
 
 	private Errors validateUnit(final Collection collection) {
