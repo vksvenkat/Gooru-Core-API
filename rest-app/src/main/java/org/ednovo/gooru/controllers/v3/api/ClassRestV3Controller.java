@@ -97,8 +97,7 @@ public class ClassRestV3Controller extends BaseController implements ConstantPro
 	@RequestMapping(value = { "/{id}/member" }, method = RequestMethod.GET)
 	public ModelAndView getClassMemberList(@PathVariable(ID) final String classUid, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") int offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") int limit,
 		     final HttpServletRequest request, final HttpServletResponse response) throws Exception {
-		return toModelAndViewWithIoFilter(this.getClassService().getMember(classUid, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, CLASS_FIELDS);
-	}
+		return toModelAndViewWithIoFilter(this.getClassService().getMember(classUid, limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, CLASS_FIELDS);	}
 
 	private UserClass buildClass(final String data) {
 		return JsonDeserializer.deserialize(data, UserClass.class);

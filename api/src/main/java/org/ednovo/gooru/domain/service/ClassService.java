@@ -6,7 +6,6 @@ import java.util.Map;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserClass;
-import org.ednovo.gooru.domain.service.search.SearchResults;
 
 public interface ClassService {
 	ActionResponseDTO<UserClass> createClass(UserClass userClass, User user);
