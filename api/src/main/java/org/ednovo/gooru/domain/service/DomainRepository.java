@@ -39,5 +39,5 @@ public interface DomainRepository extends BaseRepository{
 	
 	List<Map<String, String>> getDomainAttributes(Integer courseId, Integer domainId,int limit, int offset);
 
-
+	List<Domain> getDomains(List<Integer> domainIds);
 }

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- ContentTaxonomyCourseAssociation.hbm.xml gooru-api Created by Gooru 
-	on 2015 Copyright (c) 2015 Gooru. All rights reserved. http://www.goorulearning.org/ 
+<!-- ContentTaxonomyCourseAssoc.hbm.xml gooru-api Created by Gooru on 2015 
+	Copyright (c) 2015 Gooru. All rights reserved. http://www.goorulearning.org/ 
 	Permission is hereby granted, free of charge, to any person obtaining a copy 
 	of this software and associated documentation files (the "Software"), to 
 	deal in the Software without restriction, including without limitation the 
@@ -20,13 +20,14 @@
     "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
-	<class name="org.ednovo.gooru.core.api.model.ContentTaxonomyCourseAssoc"
-		table="content_course_assoc">
+	<class name="org.ednovo.gooru.core.api.model.ContentDomainAssoc"
+		table="content_domain_assoc">
 		<composite-id>
 			<key-many-to-one column="content_id" name="content"
 				class="org.ednovo.gooru.core.api.model.Content" lazy="proxy" />
+			<key-many-to-one column="domain_id" name="domain"
+				class="org.ednovo.gooru.core.api.model.Domain" lazy="proxy" />
 		</composite-id>
-		<property column="course_id" name="taxonomyCourse" />
 	</class>
 </hibernate-mapping>
 

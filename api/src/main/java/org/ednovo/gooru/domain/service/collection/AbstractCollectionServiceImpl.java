@@ -176,8 +176,7 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 	}
 
 	@Override
-	public void updateContentMeta(Long contentId, Map<String, Object> data) {
-		ContentMeta contentMeta = this.getContentRepository().getContentMeta(contentId);
+	public void updateContentMeta(ContentMeta contentMeta, Map<String, Object> data) {
 		if (contentMeta != null) {
 			Map<String, Object> metaData = JsonDeserializer.deserialize(contentMeta.getMetaData(), new TypeReference<Map<String, Object>>() {
 			});
