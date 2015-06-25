@@ -231,6 +231,9 @@ public class Constants implements ParameterProperties {
 	
 	public static final Map<String, String> COLLECTION_DEFAULT_SETTINGS;
 	
+	public static final Map<Object, String> BUILD_TYPE;
+	
+	public static final Map<Object, String> PUBLISH_STATUS;
 	static {
 		Map<String, String> reindexType = new HashMap<String, String>();
 		reindexType.put(RESOURCE, TOPIC_RESOURCE);
@@ -251,5 +254,19 @@ public class Constants implements ParameterProperties {
 		Map<String, String> collectionDefaultSettings = new HashMap<String, String>();
 		collectionDefaultSettings.put("comment", "turn-on");
 		COLLECTION_DEFAULT_SETTINGS = Collections.unmodifiableMap(collectionDefaultSettings);
+	}
+	
+	static{
+		Map<Object, String> buildType = new HashMap<Object, String>();
+		buildType.put((short)1, "ipad");
+		buildType.put((short)2, "web");
+		BUILD_TYPE = Collections.unmodifiableMap(buildType);
+	}
+	
+	static{
+		Map<Object, String> publishStatus = new HashMap<Object, String>();
+		publishStatus.put((short)1, "pending");
+		publishStatus.put((short)2, "reviewed");
+		PUBLISH_STATUS = Collections.unmodifiableMap(publishStatus);
 	}
 }
