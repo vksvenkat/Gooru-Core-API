@@ -753,9 +753,9 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 		map.put(RECIPIENT, email);
 		map.put("classCode", classCode);
 		if(shortenUrl != null){
-			map = JsonDeserializer.deserialize(shortenUrl, new TypeReference<Map<String, Object>>(){
+			Map<String, Object> map1 = JsonDeserializer.deserialize(shortenUrl, new TypeReference<Map<String, Object>>(){
 			});
-			map.put(SHORTEN_URL, map.get("shortenUrl"));
+			map.put(SHORTEN_URL, map1.get("shortenUrl"));
 		}
 		map.put(HTMLCONTENT, generateMessage((String) map.get("templateContent"), map));
 		map.put(SUBJECT,  inviteUser + "  has shared their class \""+title+"\" "+" with you");
