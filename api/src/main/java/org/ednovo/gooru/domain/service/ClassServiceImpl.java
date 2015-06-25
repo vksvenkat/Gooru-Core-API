@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.ednovo.gooru.application.util.TaxonomyUtil;
 import org.ednovo.gooru.application.util.GooruImageUtil;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
@@ -37,6 +38,7 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 	private SettingService settingService;
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ActionResponseDTO<UserClass> createClass(UserClass userClass, User user) {
 		Errors errors = validateClass(userClass);
 		if (!errors.hasErrors()) {
@@ -109,8 +111,9 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 	}
 	
 	@Override
-	public List<Map<String, Object>> getMember(String classUid, int limit,int offset) {
-		final  List<Map<String, Object>>  members = this.getClassRepository().getMember(classUid,limit,offset);
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public List<Map<String, Object>> getMember(String classUid, int limit, int offset) {
+		final  List<Map<String, Object>>  members = this.getClassRepository().getMember(classUid, limit, offset);
 		final List<Map<String, Object>> userList = new ArrayList<Map<String, Object>>();
 		for ( Map<String, Object> user : members) {
 			if ( user.get(GOORU_UID) != null) {

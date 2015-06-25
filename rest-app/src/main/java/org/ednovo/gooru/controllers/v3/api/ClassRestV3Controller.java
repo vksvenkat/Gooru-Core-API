@@ -35,7 +35,6 @@ public class ClassRestV3Controller extends BaseController implements ConstantPro
 	private ClassService classService;
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_ADD })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.POST)
 	public ModelAndView createClass(@RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response)  {
 		final User user = (User) request.getAttribute(Constants.USER);
@@ -77,7 +76,6 @@ public class ClassRestV3Controller extends BaseController implements ConstantPro
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ })
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/study", method = RequestMethod.GET)
 	public ModelAndView getStudyClasses(@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, final HttpServletRequest request, final HttpServletResponse response)
 			throws Exception {
@@ -86,14 +84,12 @@ public class ClassRestV3Controller extends BaseController implements ConstantPro
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_DELETE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
 	public void deleteClass(@PathVariable(value = ID) final String classId, final HttpServletRequest request, final HttpServletResponse response) {
 		final User user = (User) request.getAttribute(Constants.USER);
 	}
 	
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_READ })
-	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}/member" }, method = RequestMethod.GET)
 	public ModelAndView getClassMemberList(@PathVariable(ID) final String classUid, @RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") int offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") int limit,
 		     final HttpServletRequest request, final HttpServletResponse response) throws Exception {

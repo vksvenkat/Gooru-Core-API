@@ -276,7 +276,7 @@ public interface ParameterProperties {
 	
 	String GOORU_UID = "gooruUId";
 	
-	String CLASS_UID = "class_uid";
+	String CLASS_UID = "classUid";
 
 	String COUNT = "count";
 	
