@@ -61,7 +61,6 @@ public interface CollectionRepository extends BaseRepository {
 
 	List<Collection> getMyCollection(Map<String, String> filters, User user);
 
-	List<Collection> getMyCollection(String offset, String limit, String type, String filter, User user);
 
 	List<Classpage> getMyClasspage(Integer offset, Integer limit, User user, boolean skipPagination, String orderBy);
 
@@ -69,7 +68,6 @@ public interface CollectionRepository extends BaseRepository {
 
 	List<CollectionItem> getCollectionItemByResourceId(Long resourceId);
 
-	List<Collection> getMyCollection(Integer limit, Integer offset, String orderBy, String fetchType, String resourceType, User user);
 
 	List<CollectionItem> getMyCollectionItems(Map<String, String> filters, User user);
 
@@ -83,11 +81,11 @@ public interface CollectionRepository extends BaseRepository {
 
 	Long getMyClasspageCount(String gooruUid);
 
-	List<Object[]> getMyFolder(String gooruUid, Integer limit, Integer offset, String sharing, String collectionType, boolean fetchChildItem, String orderBy, String excludeType);
+	List<Map<String, Object>> getFolder(String gooruOid, String gooruUid, Integer limit, Integer offset, String sharing, String collectionType, boolean fetchChildItem, String orderBy, String excludeType);
 
-	Long getMyShelfCount(String gooruUid, String sharing, String collectionType, String excludeType);
+	Long getFolderCount(String gooruOid, String gooruUid, String sharing, String collectionType, String excludeType);
 
-	List<Object[]> getCollectionItem(String gooruOid, Integer limit, Integer offset, String sharing, String orderBy, String collectionType, boolean fetchChildItem, String sequenceOrder, boolean fetchAll, String excludeType);
+	List<Map<String, Object>> getCollectionItem(String gooruOid, Integer limit, Integer offset, String sharing, String orderBy, String collectionType, boolean fetchChildItem, String sequenceOrder, boolean fetchAll, String excludeType);
 
 	Long getCollectionItemCount(String gooruOid, String sharing, String collectionType, String excludeType);
 

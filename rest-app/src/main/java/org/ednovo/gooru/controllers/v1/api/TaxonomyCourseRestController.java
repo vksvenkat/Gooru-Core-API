@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////
-//TaxonomyCourseRestV2Controller.java
-//rest-v2-app
+//TaxonomyCourseRestController.java
+//rest-app
 // Created by Gooru on 2014
 // Copyright (c) 2015 Gooru. All rights reserved.
 // http://www.goorulearning.org/
@@ -21,7 +21,7 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 /////////////////////////////////////////////////////////////
-package org.ednovo.gooru.controllers.v2.api;
+package org.ednovo.gooru.controllers.v1.api;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -41,8 +41,6 @@ import org.ednovo.gooru.domain.service.TaxonomyCourseService;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -52,13 +50,12 @@ import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 @RequestMapping(value = { RequestMappingUri.TAXONOMY_COURSE })
-public class TaxonomyCourseRestV2Controller extends BaseController implements ConstantProperties, ParameterProperties {
+public class TaxonomyCourseRestController extends BaseController implements ConstantProperties, ParameterProperties {
 
 	@Autowired
 	public TaxonomyCourseService TaxonomycourseService;
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_COURSE_ADD })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.POST)
 	public ModelAndView createCourse(@RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		final User user = (User) request.getAttribute(Constants.USER);
@@ -74,34 +71,36 @@ public class TaxonomyCourseRestV2Controller extends BaseController implements Co
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_COURSE_UPDATE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}" }, method = RequestMethod.PUT)
 	public void updateCourse(@PathVariable(value = ID) Integer courseId, @RequestBody String data, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		getTaxonomyCourseService().updateTaxonomyCourse(courseId, buildCourseFromInputParameters(data));
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_COURSE_READ })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}" }, method = RequestMethod.GET)
 	public ModelAndView getTaxonomyCourse(@PathVariable(value = ID) Integer courseId, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		return toModelAndViewWithIoFilter(getTaxonomyCourseService().getTaxonomyCourse(courseId), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, COURSE_);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_COURSE_READ })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET)
 	public ModelAndView getTaxonomyCourses(@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		return toModelAndViewWithIoFilter(getTaxonomyCourseService().getTaxonomyCourses(limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, COURSE_);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_COURSE_DELETE })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(value = { "/{id}" }, method = RequestMethod.DELETE)
 	public void deleteCourse(@PathVariable(value = ID) Integer courseId, HttpServletRequest request, HttpServletResponse response) {
 		getTaxonomyCourseService().deleteTaxonomyCourse(courseId);
 		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
 	}
 
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_DOMAIN_READ })
+	@RequestMapping(value = { "/{id}/domain" }, method = RequestMethod.GET)
+	public ModelAndView getDomains(@PathVariable(value = ID) Integer courseId, HttpServletRequest request, HttpServletResponse response,@RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "0") int offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") int limit) {
+		return toModelAndViewWithIoFilter(getTaxonomyCourseService().getDomains(courseId, limit, offset),RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, DOMAIN);
+		}
+	
 	public TaxonomyCourseService getTaxonomyCourseService() {
 		return TaxonomycourseService;
 	}

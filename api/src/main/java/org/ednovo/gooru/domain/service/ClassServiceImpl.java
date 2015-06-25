@@ -1,14 +1,12 @@
 package org.ednovo.gooru.domain.service;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.ednovo.gooru.application.util.ConfigProperties;
 import org.ednovo.gooru.application.util.TaxonomyUtil;
+import org.ednovo.gooru.application.util.GooruImageUtil;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserClass;
@@ -122,7 +120,7 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 			result.put(STATUS,  object.get(STATUS));
 			result.put(GOORU_UID, object.get(GOORU_UID));
 			if ( object.get(GOORU_UID) != null) {
-				result.put(PROFILE_IMG_URL, BaseUtil.changeHttpsProtocolByHeader(settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, TaxonomyUtil.GOORU_ORG_UID)) + "/" + String.valueOf( object.get("gooruUid")) + ".png");
+				result.put(PROFILE_IMG_URL, BaseUtil.changeHttpsProtocolByHeader(settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, TaxonomyUtil.GOORU_ORG_UID)) + "/" + String.valueOf( object.get("gooruUId")) + ".png");
 			}
 			listMap.add(result);
 		}
@@ -142,7 +140,7 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 		result.put(USER, setUser(result.get(GOORU_UID), result.get(USER_NAME), result.get(GENDER)));
 		Object thumbnail = result.get(THUMBNAIL);
 		if (thumbnail != null) {
-			result.put(THUMBNAILS, setThumbnails(thumbnail));
+			result.put(THUMBNAILS, GooruImageUtil.getThumbnails(thumbnail));
 		}
 		return result;
 	}
@@ -153,15 +151,6 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 		user.put(USER_NAME, username);
 		user.put(GENDER, gender);
 		return user;
-	}
-
-	private Map<String, Object> setThumbnails(Object thumbnail) {
-		StringBuilder url = new StringBuilder(ConfigProperties.getBaseRepoUrl());
-		url.append(File.separator);
-		url.append(thumbnail);
-		Map<String, Object> thumbnails = new HashMap<String, Object>();
-		thumbnails.put(URL, url);
-		return thumbnails;
 	}
 
 	private Errors validateClass(final UserClass userClass) {

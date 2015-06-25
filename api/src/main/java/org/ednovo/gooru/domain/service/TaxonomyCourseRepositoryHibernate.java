@@ -24,11 +24,12 @@
 package org.ednovo.gooru.domain.service;
 
 import java.util.List;
-
+import java.util.Map;
 import org.ednovo.gooru.core.api.model.TaxonomyCourse;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate;
+import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.springframework.stereotype.Repository;
 
@@ -41,8 +42,9 @@ public class TaxonomyCourseRepositoryHibernate extends BaseRepositoryHibernate i
 
 	private static final String GET_COURSES = "FROM TaxonomyCourse"; 
 	
-	private static final String GET_MAX = "SELECT MAX(course.displaySequence) FROM TaxonomyCourse course"; 
-
+	private static final String GET_MAX = "SELECT COALESCE(MAX(displaySequence),0) FROM TaxonomyCourse"; 
+	
+	private static final String GET_DOMAINS = "select d.domain_id as domainId,d.name, d.image_path as imagePath from domain d join subdomain s on s.domain_id=d.domain_id join course c on s.course_id=c.course_id where c.course_id=:courseId";
 
 	@Override
 	public TaxonomyCourse getCourse(Integer courseId) {
@@ -67,6 +69,16 @@ public class TaxonomyCourseRepositoryHibernate extends BaseRepositoryHibernate i
 	@Override
 	public Integer getMaxSequence() {
 		Query query = getSession().createQuery(GET_MAX);
-		return ((Number)query.list().get(0)).intValue();
+		return (Integer) query.list().get(0);
 	}
+	
+	@Override
+	public List<Map<String, Object>> getDomains(Integer courseId,int limit, int offset) {
+		Query query = getSession().createSQLQuery(GET_DOMAINS).setParameter(COURSE_ID, courseId);
+		query.setMaxResults(limit > MAX_LIMIT ? MAX_LIMIT : limit);
+		query.setFirstResult(offset);
+		query.setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP);
+		return list(query);
+	}
+
 }

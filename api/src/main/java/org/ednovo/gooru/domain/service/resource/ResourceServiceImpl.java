@@ -846,7 +846,7 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 
 	@Override
 	public ResourceSource updateSuggestAttribution(final String gooruContentId, final String attribution) {
-		ResourceSource resourceSource = (ResourceSource) this.getBaseRepository().get(ResourceSource.class, contentRepository.findByContentGooruId(gooruContentId).getContentId());
+		ResourceSource resourceSource = (ResourceSource) this.getBaseRepository().get(ResourceSource.class, contentRepository.findContentByGooruId(gooruContentId).getContentId());
 		if (resourceSource != null) {
 			resourceSource.setAttribution(attribution);
 			this.getBaseRepository().save(resourceSource);
@@ -1746,8 +1746,8 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 	}
 
 	@Override
-	public void saveOrUpdateResourceTaxonomy(final Resource resource, final Set<Code> taxonomySet) {
-		Set<Code> codes = resource.getTaxonomySet();
+	public void saveOrUpdateResourceTaxonomy(final Content content, final Set<Code> taxonomySet) {
+		Set<Code> codes = content.getTaxonomySet();
 		if (taxonomySet != null) {
 			for (Code newCode : taxonomySet) {
 				if (newCode.getCodeId() != null) {
@@ -1774,8 +1774,8 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 				}
 			}
 		}
-		resource.setTaxonomySet(codes);
-		this.getResourceRepository().save(resource);
+		content.setTaxonomySet(codes);
+		this.getResourceRepository().save(content);
 	}
 
 	@Override

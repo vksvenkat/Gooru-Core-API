@@ -21,9 +21,8 @@ public class Resource extends Content implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = -9010445497258009775L;
-	
+
 	private static final String INDEX_TYPE = "resource";
-	
 
 	public static enum RecordSource {
 		QUOTED("userquoted"), CRAWLED("goorucrawled"), COLLECTION("useradded"), GAT("adminadded"), DEFAULT("notadded");
@@ -48,8 +47,6 @@ public class Resource extends Content implements Serializable {
 	public License license;
 
 	private String folder;
-
-	private Integer numberOfSubcribers;
 
 	private String thumbnail;
 
@@ -84,7 +81,7 @@ public class Resource extends Content implements Serializable {
 	private Integer collaboratorCount;
 
 	private String averageTime;
-	
+
 	private Long averageTimeSpent;
 
 	private Integer collectionCount;
@@ -100,7 +97,7 @@ public class Resource extends Content implements Serializable {
 	private byte[] fileData;
 
 	private boolean isNew = false;
-	
+
 	private List<ContentMetaDTO> depthOfKnowledges;
 
 	@JsonManagedReference
@@ -112,27 +109,17 @@ public class Resource extends Content implements Serializable {
 
 	private Map<String, String> customFieldValues;
 
-	private Thumbnail thumbnails;
-
 	private Boolean hasFrameBreaker;
 
 	private Integer brokenStatus;
 
-	private Long views = 0L;
-
 	private String lessonsString;
-
-	private String vocaularyString;
 
 	private Integer s3UploadFlag = 0;
 
-	private Long viewCount;
-	
 	private Integer resourceAddedCount;
-	
-	private Integer resourceUsedUserCount;
 
-	private Integer subscriptionCount;
+	private Integer resourceUsedUserCount;
 
 	private Map<String, String> customFields;
 
@@ -163,38 +150,36 @@ public class Resource extends Content implements Serializable {
 	private AttachDTO attach;
 
 	private Map<Integer, List<Code>> taxonomyMapByCode;
-	
+
 	private CustomTableValue resourceFormat;
-	
+
 	private CustomTableValue instructional;
 
-	private Map<String,Object> ratings;
-	
-	
+	private Map<String, Object> ratings;
+
 	private List<ContentMetaDTO> educationalUse;
-	
+
 	private List<ContentMetaDTO> momentsOfLearning;
-	
+
 	private ResourceMetaInfo metaInfo;
-	
 
 	public static final String COLLECTION_THUMBNAIL_SIZES = "160x120,75x56,120x90,80x60,50x40,310x258,800x600";
 
 	public static final String QUIZ_THUMBNAIL_SIZES = "160x120,75x56,120x90,d80x60,50x40,800x600";
 
 	public static final String RESOURCE_THUMBNAIL_SIZES = "80x60,160x120";
-	
+
 	private List<String> publisher;
-	
+
 	private List<String> aggregator;
-	
+
 	private List<String> host;
-	
+
 	private List<Map<String, Object>> resourceTags;
 	private String clusterUid;
 	private Integer isRepresentative;
 	private List<String> libraryNames;
-	
+
 	public Resource() {
 		recordSource = RecordSource.DEFAULT.getRecordSource();
 	}
@@ -252,14 +237,12 @@ public class Resource extends Content implements Serializable {
 	public byte[] getFileData() {
 		return fileData;
 	}
-	
-	/*public String getFolder() {
-		if (folder == null && getGooruOid() != null) {
-			folder = "assets/" + getGooruOid() + '/';
-		}
-		return folder;
-	}*/
-	
+
+	/*
+	 * public String getFolder() { if (folder == null && getGooruOid() != null)
+	 * { folder = "assets/" + getGooruOid() + '/'; } return folder; }
+	 */
+
 	public String getFolder() {
 		if ((folder == null || folder.length() < 10) && getContentId() != null) {
 			folder = buildResourceFolder(getContentId());
@@ -267,31 +250,8 @@ public class Resource extends Content implements Serializable {
 		return folder;
 	}
 
-	public static final String buildResourceFolder(Long contentId) {
-
-		String prefix = "f00000000000";
-
-		String contentFolder = prefix.substring(0, 12 - String.valueOf(contentId).length()) + contentId;
-		contentFolder = contentFolder.substring(0, 4) + "/" + contentFolder.substring(4, 8) + "/" + contentFolder.substring(8, 12);
-
-		return contentFolder + "/";
-	}
-
-
 	public void setFolder(String folder) {
 		this.folder = folder;
-	}
-
-	public Long getViews() {
-		return views;
-	}
-
-	public void setViews(Long views) {
-		if (views == null) {
-			views = 0L;
-		} else {
-			this.views = views;
-		}
 	}
 
 	public void setNew(boolean isNew) {
@@ -317,7 +277,7 @@ public class Resource extends Content implements Serializable {
 	public String getAssetURI() {
 		if (getOrganization() != null) {
 			if (getS3UploadFlag() != null && getS3UploadFlag() == 1 && getOrganization().getS3StorageArea() != null) {
-				assetURI = getOrganization().getS3StorageArea().getS3Path() ;
+				assetURI = getOrganization().getS3StorageArea().getS3Path();
 			} else if ((getS3UploadFlag() == null || getS3UploadFlag() == 0) && getOrganization().getNfsStorageArea() != null) {
 				if (getOrganization().getNfsStorageArea().getCdnDirectPath() != null) {
 					assetURI = getOrganization().getNfsStorageArea().getCdnDirectPath().split(",")[0];
@@ -338,18 +298,6 @@ public class Resource extends Content implements Serializable {
 		}
 		assetURI = BaseUtil.changeHttpsProtocol(assetURI);
 		return assetURI;
-	}
-
-	public String retrieveXml() {
-		return "<resource id='" + this.getGooruOid() + "'></resource>";
-	}
-
-	public Integer getNumberOfSubcribers() {
-		return numberOfSubcribers;
-	}
-
-	public void setNumberOfSubcribers(Integer numberOfSubcribers) {
-		this.numberOfSubcribers = numberOfSubcribers;
 	}
 
 	public Integer getIsFeatured() {
@@ -437,18 +385,6 @@ public class Resource extends Content implements Serializable {
 
 	public String getLessonsString() {
 		return lessonsString;
-	}
-
-	public String getVocaularyString() {
-		return vocaularyString;
-	}
-
-	public void setLessonsString(String lessonsString) {
-		this.lessonsString = lessonsString;
-	}
-
-	public void setVocaularyString(String vocaularyString) {
-		this.vocaularyString = vocaularyString;
 	}
 
 	public void setSourceReference(String sourceReference) {
@@ -539,22 +475,6 @@ public class Resource extends Content implements Serializable {
 		this.addDate = addDate;
 	}
 
-	public Long getViewCount() {
-		return viewCount;
-	}
-
-	public void setViewCount(Long viewCount) {
-		this.viewCount = viewCount;
-	}
-
-	public void setSubscriptionCount(Integer subscriptionCount) {
-		this.subscriptionCount = subscriptionCount;
-	}
-
-	public Integer getSubscriptionCount() {
-		return subscriptionCount;
-	}
-
 	public Thumbnail getThumbnails() {
 		return new Thumbnail(this.getResourceType(), getUrl(), getThumbnail(), getAssetURI(), getFolder());
 	}
@@ -567,7 +487,7 @@ public class Resource extends Content implements Serializable {
 		return customFields;
 	}
 
-	public  Map<String, String> getCustomFieldValues() {
+	public Map<String, String> getCustomFieldValues() {
 		return customFieldValues;
 	}
 
@@ -756,11 +676,11 @@ public class Resource extends Content implements Serializable {
 		return resourceFormat;
 	}
 
-	public Map<String,Object> getRatings() {
+	public Map<String, Object> getRatings() {
 		return ratings;
 	}
 
-	public void setRatings(Map<String,Object> ratings) {
+	public void setRatings(Map<String, Object> ratings) {
 		this.ratings = ratings;
 	}
 
@@ -787,7 +707,7 @@ public class Resource extends Content implements Serializable {
 	public List<ContentMetaDTO> getDepthOfKnowledges() {
 		return depthOfKnowledges;
 	}
-	
+
 	public void setMetaInfo(ResourceMetaInfo metaInfo) {
 		this.metaInfo = metaInfo;
 	}
@@ -795,20 +715,20 @@ public class Resource extends Content implements Serializable {
 	public ResourceMetaInfo getMetaInfo() {
 		return metaInfo;
 	}
-	
-	public List<String> getPublisher(){
+
+	public List<String> getPublisher() {
 		return publisher;
 	}
-	
-	public void setPublisher(List<String> publisher){
+
+	public void setPublisher(List<String> publisher) {
 		this.publisher = publisher;
 	}
 
-	public List<String> getAggregator(){
+	public List<String> getAggregator() {
 		return aggregator;
 	}
-	
-	public void setAggregator(List<String> aggregator){
+
+	public void setAggregator(List<String> aggregator) {
 		this.aggregator = aggregator;
 	}
 
@@ -827,6 +747,7 @@ public class Resource extends Content implements Serializable {
 	public List<Map<String, Object>> getResourceTags() {
 		return resourceTags;
 	}
+
 	public String getClusterUid() {
 		return clusterUid;
 	}
@@ -841,8 +762,8 @@ public class Resource extends Content implements Serializable {
 
 	public void setIsRepresentative(Integer isRepresentative) {
 		this.isRepresentative = isRepresentative;
-	}	
-	
+	}
+
 	public Integer getS3UploadFlag() {
 		return s3UploadFlag;
 	}
@@ -867,10 +788,6 @@ public class Resource extends Content implements Serializable {
 		return averageTimeSpent;
 	}
 
-	public void setThumbnails(Thumbnail thumbnails) {
-		this.thumbnails = thumbnails;
-	}
-
 	public Integer getResourceAddedCount() {
 		return resourceAddedCount;
 	}
@@ -887,4 +804,8 @@ public class Resource extends Content implements Serializable {
 		this.resourceUsedUserCount = resourceUsedUserCount;
 	}
 	
+	public static void main(String a[]) { 
+		System.out.print(buildResourceFolder(12345L));
+	}
+
 }

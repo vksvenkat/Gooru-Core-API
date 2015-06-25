@@ -23,6 +23,8 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.domain.service.subdomain;
 
+import java.util.List;
+
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Subdomain;
 import org.ednovo.gooru.core.api.model.User;
@@ -34,7 +36,7 @@ public interface SubdomainService {
 	
 	Subdomain getSubdomain(Integer subdomainId);
 	
-	SearchResults<Subdomain> getSubdomain(Integer limit, Integer offset);
+	List<Subdomain> getSubdomains(Integer limit, Integer offset);
 
 	void deleteSubdomain(Integer subdomainId);
 	

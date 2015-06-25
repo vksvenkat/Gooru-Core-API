@@ -87,7 +87,8 @@
 				<value>org/ednovo/gooru/domain/model/user/Idp.hbm.xml</value>
 				<value>org/ednovo/gooru/domain/model/user/Identity.hbm.xml</value>
 				<value>org/ednovo/gooru/domain/model/user/Profile.hbm.xml</value>
-				<value>org/ednovo/gooru/domain/model/user/UserRoleAssoc.hbm.xml</value>
+				<value>org/ednovo/gooru/domain/model/user/UserRoleAssoc.hbm.xml
+				</value>
 				<value>org/ednovo/gooru/domain/model/user/Credential.hbm.xml</value>
 				<value>org/ednovo/gooru/domain/model/user/UserRelationship.hbm.xml
 				</value>
@@ -115,6 +116,8 @@
 				<value>org/ednovo/gooru/domain/model/content/ContentMetaAssociation.hbm.xml
 				</value>
 				<value>org/ednovo/gooru/domain/model/content/ContentClassification.hbm.xml
+				</value>
+				<value>org/ednovo/gooru/domain/model/content/ContentMeta.hbm.xml
 				</value>
 
 				<!-- Resource Domain -->
@@ -269,9 +272,10 @@
 				</value>
 
 				<!-- Course -->
-				<value>org/ednovo/gooru/domain/model/core/TaxonomyCourse.hbm.xml</value>
+				<value>org/ednovo/gooru/domain/model/core/TaxonomyCourse.hbm.xml
+				</value>
 				<value>org/ednovo/gooru/domain/model/core/Domain.hbm.xml</value>
-				
+
 			</list>
 		</property>
 		<property name="hibernateProperties">
@@ -308,14 +312,14 @@
 		class="org.springframework.orm.hibernate4.HibernateTransactionManager">
 		<property name="sessionFactory" ref="sessionFactoryReadOnly" />
 	</bean>
-	
-	 <!-- Configures the @Transactional programming model -->
-        <tx:annotation-driven transaction-manager="transactionManager"
-                proxy-target-class="true" />
-        <tx:annotation-driven transaction-manager="transactionManagerReadyOnly"
-                proxy-target-class="true" />
-        <tx:annotation-driven transaction-manager="revisionHistoryTransactionManager"
-                proxy-target-class="true" />
+
+	<!-- Configures the @Transactional programming model -->
+	<tx:annotation-driven transaction-manager="transactionManager"
+		proxy-target-class="true" />
+	<tx:annotation-driven transaction-manager="transactionManagerReadyOnly"
+		proxy-target-class="true" />
+	<tx:annotation-driven transaction-manager="revisionHistoryTransactionManager"
+		proxy-target-class="true" />
 
 	<!-- ========================= BUSINESS OBJECT DEFINITIONS ========================= -->
 

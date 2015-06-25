@@ -24,11 +24,13 @@
 package org.ednovo.gooru.domain.service;
 
 import java.util.List;
+import java.util.Map;
 
 import org.ednovo.gooru.core.api.model.Domain;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepositoryHibernate;
+import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.springframework.stereotype.Repository;
 
@@ -39,7 +41,9 @@ public class DomainRepositoryHibernate extends BaseRepositoryHibernate implement
 	
 	private static final String GET_DOMAINS = "FROM Domain"; 
 	
-	private static final String GET_MAX = "SELECT MAX(domain.displaySequence) FROM Domain domain";
+	private static final String GET_MAX = "SELECT COALESCE(MAX(displaySequence),0) FROM Domain";
+	
+	private static final String GET_DOMAIN_ATTRIBUTES = "SELECT c.code_id codeId,c.label,c.code,c.description FROM code c inner join subdomain_attribute_mapping sa ON sa.code_id=c.code_id inner join subdomain s ON s.subdomain_id=sa.subdomain_id WHERE s.domain_id=:domainId and s.course_id=:courseId";
 
 	@Override
 	public Domain getDomain(Integer domainId) {
@@ -58,7 +62,18 @@ public class DomainRepositoryHibernate extends BaseRepositoryHibernate implement
 	@Override
 	public Integer getMaxSequence() {
 		Query query = getSession().createQuery(GET_MAX);
-		return ((Number)query.list().get(0)).intValue();
+		return (Integer) query.list().get(0);
+	}
+
+	@Override
+	public List<Map<String,String>> getDomainAttributes(Integer courseId, Integer domainId,int limit, int offset) {
+		Query query = getSession().createSQLQuery(GET_DOMAIN_ATTRIBUTES);
+		query.setParameter(COURSE_ID, courseId);
+		query.setParameter(DOMAIN_ID, domainId);
+		query.setMaxResults(limit > MAX_LIMIT ? MAX_LIMIT : limit);
+		query.setFirstResult(offset);
+		query.setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP);
+		return list(query);
 	}
 
 }

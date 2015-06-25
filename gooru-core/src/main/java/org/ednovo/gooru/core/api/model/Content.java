@@ -83,9 +83,13 @@ public class Content extends OrganizationModel implements IndexableEntry, IsCass
 
 	private Map<String, String> settings = new HashMap<String, String>();
 
-	private Set<ContentSettings> contentSettings;	
-	
+	private Set<ContentSettings> contentSettings;
+
 	private Set<Map<String, Object>> skills;
+
+	private Long views = 0L;
+
+	private Long viewCount;
 
 	public Long getContentId() {
 		return contentId;
@@ -317,5 +321,35 @@ public class Content extends OrganizationModel implements IndexableEntry, IsCass
 
 	public void setSkills(Set<Map<String, Object>> skills) {
 		this.skills = skills;
+	}
+
+	public Long getViews() {
+		return views;
+	}
+
+	public void setViews(Long views) {
+		if (views == null) {
+			views = 0L;
+		} else {
+			this.views = views;
+		}
+	}
+
+	public Long getViewCount() {
+		return viewCount;
+	}
+
+	public void setViewCount(Long viewCount) {
+		this.viewCount = viewCount;
+	}
+
+	public static final String buildResourceFolder(Long contentId) {
+
+		String prefix = "f00000000000";
+
+		String contentFolder = prefix.substring(0, 12 - String.valueOf(contentId).length()) + contentId;
+		contentFolder = contentFolder.substring(0, 4) + "/" + contentFolder.substring(4, 8) + "/" + contentFolder.substring(8, 12);
+
+		return contentFolder + "/";
 	}
 }

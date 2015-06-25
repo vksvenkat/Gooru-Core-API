@@ -62,36 +62,38 @@ import com.mortennobel.imagescaling.ResampleOp;
 import com.sun.pdfview.PDFFile;
 
 @Component
-public class GooruImageUtil implements ParameterProperties{
+public class GooruImageUtil implements ParameterProperties {
 
 	private static GooruImageUtil instance;
-	
+
 	@Autowired
 	private SettingService settingService;
-	
+
 	@Autowired
 	private AsyncExecutor asyncExecutor;
-	
+
+	private static String URL = "url";
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(GooruImageUtil.class);
 
 	public GooruImageUtil() {
 		instance = this;
 	}
-	
-	public  void imageUpload(String mediaFilename, Integer folderId, String baseFolderName, String imageDimension) {		
+
+	public void imageUpload(String mediaFilename, Object folderPath, String imageDimension) {
 		if (mediaFilename != null) {
 			StringBuilder sourceRepoPath = new StringBuilder(ConfigProperties.getNfsInternalPath());
 			sourceRepoPath.append(Constants.UPLOADED_MEDIA_FOLDER).append(File.separator).append(mediaFilename);
 			File srcFile = new File(sourceRepoPath.toString());
 			StringBuilder targetRepoPath = new StringBuilder(ConfigProperties.getNfsInternalPath());
-			targetRepoPath.append(baseFolderName).append(File.separator).append(folderId).append(File.separator);
+			targetRepoPath.append(folderPath).append(File.separator);
 			File destFile = new File(targetRepoPath.toString());
 			if (!destFile.exists()) {
 				destFile.mkdirs();
 			}
 			srcFile.renameTo(new File(targetRepoPath.append(mediaFilename).toString()));
 			sourceRepoPath.setLength(0);
-			sourceRepoPath.append(ConfigProperties.getNfsInternalPath()).append(baseFolderName).append(File.separator).append(folderId).append(File.separator);
+			sourceRepoPath.append(ConfigProperties.getNfsInternalPath()).append(folderPath).append(File.separator);
 			Map<String, Object> param = new HashMap<String, Object>();
 			param.put(SOURCE_FILE_PATH, targetRepoPath.toString());
 			param.put(TARGET_FOLDER_PATH, sourceRepoPath.toString());
@@ -108,21 +110,21 @@ public class GooruImageUtil implements ParameterProperties{
 		ImageIO.write(srcImg, "png", new File(path));
 	}
 
-   public void scaleImageUsingImageMagick(String srcFilePath, int width, int height, String destFilePath) throws Exception {
-		String resizeCommand = new String( "/usr/bin/convert@" + srcFilePath + "@-resize@"+ width + "x" + height + "@" +destFilePath);
+	public void scaleImageUsingImageMagick(String srcFilePath, int width, int height, String destFilePath) throws Exception {
+		String resizeCommand = new String("/usr/bin/convert@" + srcFilePath + "@-resize@" + width + "x" + height + "@" + destFilePath);
 		Map<String, Object> param = new HashMap<String, Object>();
 		param.put("command", resizeCommand);
-		this.getAsyncExecutor().executeRestAPI(param, settingService.getConfigSetting(ConfigConstants.GOORU_CONVERSION_RESTPOINT,0, TaxonomyUtil.GOORU_ORG_UID) + "/conversion/image/resize", Method.POST.getName());
+		this.getAsyncExecutor().executeRestAPI(param, settingService.getConfigSetting(ConfigConstants.GOORU_CONVERSION_RESTPOINT, 0, TaxonomyUtil.GOORU_ORG_UID) + "/conversion/image/resize", Method.POST.getName());
 
 	}
 
 	public void cropImageUsingImageMagick(String srcFilePath, int width, int height, int x, int y, String destFilePath) throws Exception {
-		String resizeCommand = new String( "/usr/bin/convert"+"@"+ srcFilePath+"@-crop"+"@"+ width + "x" + height + "+" + x + "+" + y+"@"+ destFilePath);
+		String resizeCommand = new String("/usr/bin/convert" + "@" + srcFilePath + "@-crop" + "@" + width + "x" + height + "+" + x + "+" + y + "@" + destFilePath);
 		Map<String, Object> param = new HashMap<String, Object>();
 		param.put("command", resizeCommand);
-		this.getAsyncExecutor().executeRestAPI(param, settingService.getConfigSetting(ConfigConstants.GOORU_CONVERSION_RESTPOINT,0, TaxonomyUtil.GOORU_ORG_UID) + "/conversion/image/resize", Method.POST.getName());
+		this.getAsyncExecutor().executeRestAPI(param, settingService.getConfigSetting(ConfigConstants.GOORU_CONVERSION_RESTPOINT, 0, TaxonomyUtil.GOORU_ORG_UID) + "/conversion/image/resize", Method.POST.getName());
 	}
-	
+
 	public static void scaleImageUsingResampleOp(String srcFilePath, int width, int height, String destFilePath) throws Exception {
 		InputStream in = new ByteArrayInputStream(FileUtils.readFileToByteArray(new File(srcFilePath)));
 		BufferedImage originalImage = ImageIO.read(in);
@@ -141,37 +143,36 @@ public class GooruImageUtil implements ParameterProperties{
 	public static String downloadWebResourceToFile(String srcUrl, String outputFolderPath, String fileNamePrefix) {
 		return downloadWebResourceToFile(srcUrl, outputFolderPath, fileNamePrefix, null);
 	}
-	
-	
+
 	public static String downloadWebResourceToFile(String srcUrl, String outputFolderPath, String fileNamePrefix, String fileExtension) {
 
 		try {
-			
+
 			File outputFolder = new File(outputFolderPath);
 			URL url = new URL(srcUrl);
 			URLConnection urlCon = url.openConnection();
 			InputStream inputStream = urlCon.getInputStream();
-				if (!outputFolder.exists()) {
-					outputFolder.mkdirs();
-				}
-				
-				if (fileExtension == null) {
-					fileExtension = getWebFileExtenstion(urlCon.getContentType());
-				}
-			
-				String destFilePath = outputFolderPath + fileNamePrefix + "_" + UUID.randomUUID().toString() +"." + fileExtension;
-				File outputFile = new File(destFilePath);
-				if (outputFile.exists()) {
-					outputFile.delete();
-				}
-				OutputStream out = new FileOutputStream(outputFile);
-				byte buf[] = new byte[1024];
-				int len;
-				while ((len = inputStream.read(buf)) > 0)
+			if (!outputFolder.exists()) {
+				outputFolder.mkdirs();
+			}
+
+			if (fileExtension == null) {
+				fileExtension = getWebFileExtenstion(urlCon.getContentType());
+			}
+
+			String destFilePath = outputFolderPath + fileNamePrefix + "_" + UUID.randomUUID().toString() + "." + fileExtension;
+			File outputFile = new File(destFilePath);
+			if (outputFile.exists()) {
+				outputFile.delete();
+			}
+			OutputStream out = new FileOutputStream(outputFile);
+			byte buf[] = new byte[1024];
+			int len;
+			while ((len = inputStream.read(buf)) > 0)
 				out.write(buf, 0, len);
-				out.close();
-				inputStream.close();
-				return destFilePath;
+			out.close();
+			inputStream.close();
+			return destFilePath;
 		} catch (Exception e) {
 			LOGGER.error("DownloadImage failed:exception:", e);
 			return null;
@@ -195,7 +196,7 @@ public class GooruImageUtil implements ParameterProperties{
 		}
 
 	}
-	
+
 	public static String getFileExtenstion(String filePath) {
 		if (filePath != null) {
 			if (filePath.contains("?")) {
@@ -264,23 +265,33 @@ public class GooruImageUtil implements ParameterProperties{
 		}
 		return destFile.getAbsolutePath();
 	}
-	
-	public static PDFFile getPDFFile(String pdfPath){
+
+	public static PDFFile getPDFFile(String pdfPath) {
 		ByteBuffer buf;
 		PDFFile pdfFile = null;
 		try {
 			File file = new File(pdfPath);
 			@SuppressWarnings("resource")
-			RandomAccessFile accessFile= new RandomAccessFile(file, "r");
-			FileChannel channel= accessFile.getChannel();
+			RandomAccessFile accessFile = new RandomAccessFile(file, "r");
+			FileChannel channel = accessFile.getChannel();
 			buf = channel.map(MapMode.READ_ONLY, 0, channel.size());
 			pdfFile = new PDFFile(buf);
 		} catch (Exception e) {
-			LOGGER.error("getPDFFile: "+e);
+			LOGGER.error("getPDFFile: " + e);
 		}
 		return pdfFile;
-		
+
 	}
+
+	public static Map<String, Object> getThumbnails(Object thumbnail) {
+		StringBuilder url = new StringBuilder(ConfigProperties.getBaseRepoUrl());
+		url.append(File.separator);
+		url.append(thumbnail);
+		Map<String, Object> thumbnails = new HashMap<String, Object>();
+		thumbnails.put(URL, url.toString());
+		return thumbnails;
+	}
+
 	public static GooruImageUtil getInstance() {
 		return instance;
 	}

@@ -24,6 +24,7 @@
 package org.ednovo.gooru.domain.service.subdomain;
 
 import java.util.Date;
+import java.util.List;
 
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Domain;
@@ -39,6 +40,8 @@ import org.ednovo.gooru.domain.service.search.SearchResults;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.SubdomainRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
 
@@ -55,6 +58,7 @@ public class SubdomainServiceImpl extends BaseServiceImpl implements SubdomainSe
 	private DomainRepository domainRepository;
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ActionResponseDTO<Subdomain> createSubdomain(Subdomain subdomain, User user) {
 		final Errors errors = validateSubdomain(subdomain);
 		TaxonomyCourse Taxonomycourse = this.getTaxonomyCourseRepository().getCourse(subdomain.getCourseId());
@@ -69,6 +73,7 @@ public class SubdomainServiceImpl extends BaseServiceImpl implements SubdomainSe
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Subdomain getSubdomain(Integer subdomainId) {
 		Subdomain subdomain = this.getSubdomainRepository().getSubdomain(subdomainId);
 		rejectIfNull(subdomain, GL0056, 404, SUBDOMAIN);
@@ -76,15 +81,15 @@ public class SubdomainServiceImpl extends BaseServiceImpl implements SubdomainSe
 	}
 
 	@Override
-	public SearchResults<Subdomain> getSubdomain(Integer limit, Integer offset) {
-		SearchResults<Subdomain> result = new SearchResults<Subdomain>();
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public List<Subdomain> getSubdomains(Integer limit, Integer offset) {
+		List<Subdomain> result = this.getSubdomainRepository().getSubdomains(limit, offset);
 		rejectIfNull(result, GL0056, 404, SUBDOMAIN);
-		result.setSearchResults(this.getSubdomainRepository().getSubdomains(limit, offset));
-		result.setTotalHitCount(this.getSubdomainRepository().getSubdomainCount());
 		return result;
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteSubdomain(Integer subdomainId) {
 		Subdomain subdomain = this.getSubdomainRepository().getSubdomain(subdomainId);
 		rejectIfNull(subdomain, GL0056, 404,SUBDOMAIN);

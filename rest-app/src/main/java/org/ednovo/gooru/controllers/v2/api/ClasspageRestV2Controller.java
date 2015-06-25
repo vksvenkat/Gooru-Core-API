@@ -84,7 +84,6 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 	@Autowired
 	private CollectionRepository collectionRepository;
 
-	
 	@Autowired
 	private RedisService redisService;
 
@@ -228,8 +227,6 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 		final ActionResponseDTO<CollectionItem> responseDTO = getCollectionService().updateCollectionItem(newCollectionItem, collectionItemId, user, data);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-		} else if (newCollectionItem.getStatus() != null || newCollectionItem.getMinimumScoreByUser() != null || newCollectionItem.getAssignmentCompleted() != null || newCollectionItem.getTimeStudying() != null) {
-			getClasspageService().updateAssignment(collectionItemId, newCollectionItem.getStatus(), newCollectionItem.getMinimumScoreByUser(),newCollectionItem.getAssignmentCompleted(), newCollectionItem.getTimeStudying() ,user);
 		}
 		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, COLLECTION_ITEM_INCLUDE_FILEDS);
 		includes = (String[]) ArrayUtils.addAll(includes, CLASSPAGE_COLLECTION_ITEM_INCLUDE_FIELDS);
@@ -416,8 +413,6 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 		final ActionResponseDTO<CollectionItem> responseDTO = getClasspageService().updatePathwayItem(classId,pathwayGooruOid,collectionItemId,newCollectionItem,  user, data);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-		} else if (newCollectionItem.getStatus() != null || newCollectionItem.getMinimumScoreByUser() != null && newCollectionItem.getAssignmentCompleted() != null || newCollectionItem.getTimeStudying() != null) {
-			getClasspageService().updateAssignment(collectionItemId, newCollectionItem.getStatus(), newCollectionItem.getMinimumScoreByUser(), newCollectionItem.getAssignmentCompleted(), newCollectionItem.getTimeStudying() ,user);
 		}
 		String includes[] = (String[]) ArrayUtils.addAll(RESOURCE_INCLUDE_FIELDS, COLLECTION_ITEM_INCLUDE_FILEDS);
 		includes = (String[]) ArrayUtils.addAll(includes, CLASSPAGE_COLLECTION_ITEM_INCLUDE_FIELDS);
@@ -518,16 +513,12 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 		classpage.setGooruOid(UUID.randomUUID().toString());
 		classpage.setClasspageCode(BaseUtil.generateBase48Encode(7));
 		classpage.setContentType(getCollectionService().getContentType(ContentType.RESOURCE));
-		classpage.setResourceType(getCollectionService().getResourceType(ResourceType.Type.CLASSPAGE.getType()));
 		classpage.setLastModified(new Date(System.currentTimeMillis()));
 		classpage.setCreatedOn(new Date(System.currentTimeMillis()));
 		classpage.setUser(user);
 		classpage.setCollectionType(ResourceType.Type.CLASSPAGE.getType());
 		classpage.setOrganization(user.getPrimaryOrganization());
 		classpage.setCreator(user);
-		classpage.setDistinguish(Short.valueOf("0"));
-		classpage.setRecordSource(NOT_ADDED);
-		classpage.setIsFeatured(0);
 		classpage.setLastUpdatedUserUid(user.getGooruUId());
 		if (classpage.getSharing() != null && (classpage.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || classpage.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing()))) {
 			classpage.setSharing(classpage.getSharing());
@@ -541,16 +532,12 @@ public class ClasspageRestV2Controller extends BaseController implements Constan
 		final Collection collection = JsonDeserializer.deserialize(data, Collection.class);
 		collection.setGooruOid(UUID.randomUUID().toString());
 		collection.setContentType(getCollectionService().getContentType(ContentType.RESOURCE));
-		collection.setResourceType(getCollectionService().getResourceType(ResourceType.Type.PATHWAY.getType()));
 		collection.setLastModified(new Date(System.currentTimeMillis()));
 		collection.setCreatedOn(new Date(System.currentTimeMillis()));
 		collection.setUser(user);
 		collection.setCollectionType(ResourceType.Type.PATHWAY.getType());
 		collection.setOrganization(user.getPrimaryOrganization());
 		collection.setCreator(user);
-		collection.setDistinguish(Short.valueOf("0"));
-		collection.setRecordSource(NOT_ADDED);
-		collection.setIsFeatured(0);
 		collection.setLastUpdatedUserUid(user.getGooruUId());
 		if (collection.getSharing() != null && (collection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || collection.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing()))) {
 			collection.setSharing(collection.getSharing());
