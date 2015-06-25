@@ -347,19 +347,19 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 		}
 
 		if (host != null){			
-			String hostNameArr [] = host.split(REGX_DOT);
-			StringBuffer mainDomainName = new StringBuffer();
-			if(hostNameArr.length == 2){
-				mainDomainName.append(hostNameArr[0]).append(DOT).append(hostNameArr[1]);
+			String hostElements [] = host.split(REGX_DOT);
+			StringBuffer domainName = new StringBuffer();
+			if(hostElements.length == 2){
+				domainName.append(hostElements[0]).append(DOT).append(hostElements[1]);
 			} else {
-				mainDomainName.append(hostNameArr[1]).append(DOT).append(hostNameArr[2]);
+				domainName.append(hostElements[1]).append(DOT).append(hostElements[2]);
 			}
 			registeredRefererDomains = application.getRefererDomains();
 			
 			if(registeredRefererDomains != null ){				
 				String whiteListedDomains [] = registeredRefererDomains.split(COMMA);
 				for (String refererDomain : whiteListedDomains) {
-					if(refererDomain.equalsIgnoreCase(mainDomainName.toString())){
+					if(refererDomain.equalsIgnoreCase(domainName.toString())){
 						isValidReferrer = true;
 						break;						
 					}
