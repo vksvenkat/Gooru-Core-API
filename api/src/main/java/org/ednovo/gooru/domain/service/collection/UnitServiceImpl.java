@@ -21,7 +21,7 @@ import org.springframework.validation.Errors;
 public class UnitServiceImpl extends AbstractCollectionServiceImpl implements UnitService, ConstantProperties, ParameterProperties {
 
 	private static final String[] UNIT_TYPE = { "unit" };
-	
+
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ActionResponseDTO<Collection> createUnit(String courseId, Collection collection, User user) {
@@ -39,24 +39,26 @@ public class UnitServiceImpl extends AbstractCollectionServiceImpl implements Un
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void updateUnit(String unitId, Collection newCollection, User user) {
-			Collection collection = this.getCollectionDao().getCollection(unitId);
-			rejectIfNull(collection, GL0056, UNIT);
-			this.updateCollection(collection, newCollection, user);		
+		Collection collection = this.getCollectionDao().getCollection(unitId);
+		rejectIfNull(collection, GL0056, UNIT);
+		this.updateCollection(collection, newCollection, user);
 	}
-	
+
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Map<String, Object> getUnit(String unitId) {
 		return this.getCollection(unitId, CollectionType.UNIT.getCollectionType());
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Map<String, Object>> getUnits(String courseId, int limit, int offset) {
 		Map<String, Object> filters = new HashMap<String, Object>();
 		filters.put(PARENT_GOORU_OID, courseId);
 		filters.put(COLLECTION_TYPE, UNIT_TYPE);
 		return this.getCollections(filters, limit, offset);
 	}
-	
+
 	private Errors validateUnit(final Collection collection) {
 		final Errors errors = new BindException(collection, COLLECTION);
 		if (collection != null) {

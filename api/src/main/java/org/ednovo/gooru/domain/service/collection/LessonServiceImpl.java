@@ -42,11 +42,13 @@ public class LessonServiceImpl extends AbstractCollectionServiceImpl implements 
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Map<String, Object> getLesson(String lessonId) {
 		return this.getCollection(lessonId, CollectionType.UNIT.getCollectionType());
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<Map<String, Object>> getLessons(String unitId, int limit, int offset) {
 		Map<String, Object> filters = new HashMap<String, Object>();
 		filters.put(COLLECTION_TYPE, LESSON_TYPE);

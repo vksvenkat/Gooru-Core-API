@@ -105,7 +105,7 @@
 				</value>
 
 
-				<!-- Content Domain -->
+				<!-- Content -->
 				<value>org/ednovo/gooru/domain/model/content/Content.hbm.xml</value>
 				<value>org/ednovo/gooru/domain/model/content/ContentSettings.hbm.xml
 				</value>
@@ -119,6 +119,9 @@
 				</value>
 				<value>org/ednovo/gooru/domain/model/content/ContentMeta.hbm.xml
 				</value>
+				<value>org/ednovo/gooru/domain/model/content/ContentTaxonomyCourseAssoc.hbm.xml
+				</value>
+				
 
 				<!-- Resource Domain -->
 				<value>org/ednovo/gooru/domain/model/resource/ResourceType.hbm.xml

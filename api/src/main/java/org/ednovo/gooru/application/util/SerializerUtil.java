@@ -129,7 +129,7 @@ public class SerializerUtil implements ParameterProperties {
 	public static String serializeToJsonWithExcludes(final Object model, final String[] excludes, final boolean deepSerialize, final String... includes) {
 		return serialize(model, FORMAT_JSON, excludes, deepSerialize, true, includes);
 	}
-	
+
 	public static String serializeToJsonWithExcludes(final Object model, final String[] excludes, final boolean deepSerialize, final boolean excludeNullObject, final String... includes) {
 		return serialize(model, FORMAT_JSON, excludes, deepSerialize, excludeNullObject, includes);
 	}
@@ -141,7 +141,7 @@ public class SerializerUtil implements ParameterProperties {
 	public static String serializeToJson(final Object model, final boolean deepSerialize, final boolean excludeNullObject) {
 		return serialize(model, FORMAT_JSON, null, deepSerialize, false, excludeNullObject);
 	}
-	
+
 	public static String serializeToJson(final Object model, final String[] excludes, final boolean deepSerialize, final boolean excludeNullObject) {
 		return serialize(model, FORMAT_JSON, excludes, deepSerialize, false, excludeNullObject);
 	}
@@ -239,12 +239,8 @@ public class SerializerUtil implements ParameterProperties {
 		return serializedData;
 	}
 
-	private static JSONSerializer handleAssessmentQuestionTransformers(
-			JSONSerializer serializer) {
-		serializer = serializer.transform(
-				(AssessmentQuestionTransformer) AppContext.getCtx().getBean(
-						AssessmentQuestionTransformer.class),
-				AssessmentQuestion.class);
+	private static JSONSerializer handleAssessmentQuestionTransformers(JSONSerializer serializer) {
+		serializer = serializer.transform((AssessmentQuestionTransformer) AppContext.getCtx().getBean(AssessmentQuestionTransformer.class), AssessmentQuestion.class);
 		return serializer;
 	}
 
@@ -262,12 +258,10 @@ public class SerializerUtil implements ParameterProperties {
 	private static boolean willSerializeAssessmentQuestion(Object model) {
 		if (model != null) {
 
-			if (model instanceof CollectionItem
-					&& ((CollectionItem) model).getResource() instanceof AssessmentQuestion) {
+			if (model instanceof CollectionItem && ((CollectionItem) model).getResource() instanceof AssessmentQuestion) {
 				return true;
 			} else if (model instanceof Collection) {
-				Set<CollectionItem> items = ((Collection) model)
-						.getCollectionItems();
+				Set<CollectionItem> items = ((Collection) model).getCollectionItems();
 				if (items != null) {
 
 					for (CollectionItem ci : items) {
@@ -361,10 +355,10 @@ public class SerializerUtil implements ParameterProperties {
 						if (data != null) {
 							payLoadObject.put("data", data);
 						}
-					} catch (Exception e) { 
-					   LOGGER.error("Error: " + e);	
+					} catch (Exception e) {
+						LOGGER.error("Error: " + e);
 					}
-					
+
 				} catch (Exception e) {
 					LOGGER.error("Error : " + e);
 				}
@@ -372,6 +366,10 @@ public class SerializerUtil implements ParameterProperties {
 				SessionContextSupport.putLogParameter("payLoadObject", payLoadObject.toString());
 			}
 		}
+	}
+
+	public static String serialize(Object object) {
+		return new JSONSerializer().exclude("*.class").transform(new ExcludeNullTransformer(), void.class).deepSerialize(object);
 	}
 
 	public static User cloneUserForSerialization(final User user) {
