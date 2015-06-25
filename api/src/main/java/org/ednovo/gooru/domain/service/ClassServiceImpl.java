@@ -110,21 +110,15 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 	
 	@Override
 	public List<Map<String, Object>> getMember(String classUid, int limit,int offset) {
-		final  List<Map<String, Object>>  results = this.getClassRepository().getMember(classUid,limit,offset);
-		final List<Map<String, Object>> listMap = new ArrayList<Map<String, Object>>();
-		for ( Map<String, Object> object : results) {
-			final Map<String, Object> result = new HashMap<String, Object>();
-			result.put(EMAIL_ID, object.get(EMAIL_ID));
-			result.put(ASSOCIATION_DATE, object.get(ASSOCIATION_DATE));
-			result.put(USER_NAME,  object.get(USER_NAME));
-			result.put(STATUS,  object.get(STATUS));
-			result.put(GOORU_UID, object.get(GOORU_UID));
-			if ( object.get(GOORU_UID) != null) {
-				result.put(PROFILE_IMG_URL, BaseUtil.changeHttpsProtocolByHeader(settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, TaxonomyUtil.GOORU_ORG_UID)) + "/" + String.valueOf( object.get("gooruUId")) + ".png");
+		final  List<Map<String, Object>>  members = this.getClassRepository().getMember(classUid,limit,offset);
+		final List<Map<String, Object>> userList = new ArrayList<Map<String, Object>>();
+		for ( Map<String, Object> user : members) {
+			if ( user.get(GOORU_UID) != null) {
+				user.put(PROFILE_IMG_URL, BaseUtil.changeHttpsProtocolByHeader(settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, TaxonomyUtil.GOORU_ORG_UID)) + "/" + String.valueOf( user.get("gooruUId")) + ".png");
 			}
-			listMap.add(result);
+			userList.add(user);
 		}
-		return listMap;
+		return userList;
 	}
 
 	@Override

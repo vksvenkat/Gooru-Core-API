@@ -73,9 +73,9 @@ public class ClassRepositoryHibernate extends BaseRepositoryHibernate implements
 	
 	
 	@Override
-	public  List<Map<String, Object>>  getMember(String class_uid, int limit , int offset) {
+	public  List<Map<String, Object>>  getMember(String classUid, int limit , int offset) {
 		Query query = getSession().createSQLQuery(GET_MEMBERS);
-		query.setParameter(CLASS_UID, class_uid);
+		query.setParameter(CLASS_UID, classUid);
 		query.setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP);
 		query.setFirstResult(offset);
 		query.setMaxResults(limit != 0 ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
