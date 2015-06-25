@@ -99,7 +99,7 @@ public class PartyServiceImpl extends BaseServiceImpl implements PartyService, P
 	}
 
 	private Errors validatePartyCustomField(PartyCustomField partyCustomField, final Party party) {
-		final Map<String, String> partyCategory = getCategory();
+		final Map<Object, String> partyCategory = getCategory();
 		final Errors errors = new BindException(partyCustomField, PARTY_CUSTOM_FIELD);
 		rejectIfNull(errors, party, PARTY, GL0056, generateErrorMessage(GL0056, PARTY));
 		rejectIfInvalidType(errors, partyCustomField.getCategory(), CATEGORY, GL0007, generateErrorMessage(GL0007, CATEGORY), partyCategory);
@@ -176,8 +176,8 @@ public class PartyServiceImpl extends BaseServiceImpl implements PartyService, P
 		}
 	}
 
-	private Map<String, String> getCategory() {
-		final Map<String, String> partyCategory = new HashMap<String, String>();
+	private Map<Object, String> getCategory() {
+		final Map<Object, String> partyCategory = new HashMap<Object, String>();
 		partyCategory.put(PartyCategoryType.USER_INFO.getpartyCategoryType(), CATEGORY);
 		partyCategory.put(PartyCategoryType.USER_META.getpartyCategoryType(), CATEGORY);
 		partyCategory.put(PartyCategoryType.ORGANIZATION_INFO.getpartyCategoryType(), CATEGORY);

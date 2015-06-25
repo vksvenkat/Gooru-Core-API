@@ -11,9 +11,9 @@ public class CollectionItem implements Serializable, Comparable<CollectionItem> 
 	 */
 	private static final long serialVersionUID = -7365762989410060090L;
 
-
 	private String collectionItemId;
 	private Collection collection;
+	private Content content;
 	private Resource resource;
 	private String itemType;
 	private Integer itemSequence;
@@ -21,29 +21,21 @@ public class CollectionItem implements Serializable, Comparable<CollectionItem> 
 	private String narrationType;
 	private String start;
 	private String stop;
-	private Date plannedEndDate;
 	private Date associationDate;
 	private User associatedUser;
 	private Rating rating;
 	private AssessmentQuestion questionInfo;
 	private String documentid;
 	private String documentkey;
-	private List<StandardFo> standards; 
-	private Set<String> course; 
+	private List<StandardFo> standards;
+	private Set<String> course;
 	private Integer resourceCount;
 	private String status;
-	private Integer totalPages;
-	private Boolean isRequired;
-	private String minimumScore ; 
-	private String estimatedTime; 
-	private Boolean showAnswerByQuestions ; 
-	private Boolean showHints ;
+	private String estimatedTime;
+	private Boolean showAnswerByQuestions;
+	private Boolean showHints;
 	private Boolean showAnswerEnd;
-	private String  minimumScoreByUser;
-	private String assignmentCompleted;
-	private String timeStudying;
-	
-	
+
 	/**
 	 * 
 	 */
@@ -80,14 +72,6 @@ public class CollectionItem implements Serializable, Comparable<CollectionItem> 
 
 	public void setCollection(Collection collection) {
 		this.collection = collection;
-	}
-
-	public Resource getResource() {
-		return resource;
-	}
-
-	public void setResource(Resource resource) {
-		this.resource = resource;
 	}
 
 	public String getItemType() {
@@ -136,14 +120,6 @@ public class CollectionItem implements Serializable, Comparable<CollectionItem> 
 
 	public void setStop(String stop) {
 		this.stop = stop;
-	}
-	
-	public Date getPlannedEndDate() {
-		return plannedEndDate;
-	}
-
-	public void setPlannedEndDate(Date plannedEndDate) {
-		this.plannedEndDate = plannedEndDate;
 	}
 
 	public void setRating(Rating rating) {
@@ -221,22 +197,6 @@ public class CollectionItem implements Serializable, Comparable<CollectionItem> 
 		this.status = status;
 	}
 
-	public Integer getTotalPages() {
-		return (this.getResource() != null && this.getResource().getResourceInfo() != null) ? this.getResource().getResourceInfo().getNumOfPages() : null;
-	}
-
-	public void setTotalPages(Integer totalPages) {
-		this.totalPages = totalPages;
-	}
-
-	public void setIsRequired(Boolean isRequired) {
-		this.isRequired = isRequired;
-	}
-
-	public Boolean getIsRequired() {
-		return isRequired;
-	}
-
 	public void setShowAnswerByQuestions(Boolean showAnswerByQuestions) {
 		this.showAnswerByQuestions = showAnswerByQuestions;
 	}
@@ -261,14 +221,6 @@ public class CollectionItem implements Serializable, Comparable<CollectionItem> 
 		return showAnswerEnd;
 	}
 
-	public void setMinimumScore(String minimumScore) {
-		this.minimumScore = minimumScore;
-	}
-
-	public String getMinimumScore() {
-		return minimumScore;
-	}
-
 	public void setEstimatedTime(String estimatedTime) {
 		this.estimatedTime = estimatedTime;
 	}
@@ -277,28 +229,20 @@ public class CollectionItem implements Serializable, Comparable<CollectionItem> 
 		return estimatedTime;
 	}
 
-	public void setMinimumScoreByUser(String minimumScoreByUser) {
-		this.minimumScoreByUser = minimumScoreByUser;
+	public Content getContent() {
+		return content;
 	}
 
-	public String getMinimumScoreByUser() {
-		return minimumScoreByUser;
+	public void setContent(Content content) {
+		this.content = content;
 	}
 
-	public void setAssignmentCompleted(String assignmentCompleted) {
-		this.assignmentCompleted = assignmentCompleted;
+	public Resource getResource() {
+		return resource;
 	}
 
-	public String getAssignmentCompleted() {
-		return assignmentCompleted;
+	public void setResource(Resource resource) {
+		this.resource = resource;
 	}
-
-	public void setTimeStudying(String timeStudying) {
-		this.timeStudying = timeStudying;
-	}
-
-	public String getTimeStudying() {
-		return timeStudying;
-	}	
 
 }

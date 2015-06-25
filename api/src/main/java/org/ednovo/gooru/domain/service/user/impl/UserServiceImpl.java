@@ -345,7 +345,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 			if (password != null) {
 				credential.setPassword(encryptPassword(password));
 			} else if (confirmedUser) {
-				password = BaseUtil.base48Encode(7);
+				password = BaseUtil.generateBase48Encode(7);
 				credential.setPassword(encryptPassword(password));
 			}
 		}
@@ -861,7 +861,7 @@ public class UserServiceImpl extends ServerValidationUtils implements UserServic
 		}
 
 		if (user != null && identity.getAccountCreatedType() != null && identity.getAccountCreatedType().equalsIgnoreCase(UserAccountType.accountCreatedType.SSO.getType()) && user.getViewFlag() == 0) {
-			password = BaseUtil.base48Encode(7);
+			password = BaseUtil.generateBase48Encode(7);
 			creds.setPassword(encryptPassword(password));
 			this.getUserRepository().save(creds);
 			Map<String, String> dataMap = new HashMap<String, String>();

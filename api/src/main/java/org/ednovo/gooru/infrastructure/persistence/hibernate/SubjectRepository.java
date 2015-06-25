@@ -24,17 +24,18 @@
 package org.ednovo.gooru.infrastructure.persistence.hibernate;
 
 import java.util.List;
+import java.util.Map;
 
 import org.ednovo.gooru.core.api.model.Subject;
 
 public interface SubjectRepository extends BaseRepository {
 
 	Subject getSubject(Integer subjectId);
-
-	List<Subject> getSubjects(Integer limit, Integer offset);
-
-	Long getSubjectCount();
 	
-	List<Subject> getParentSubject(String userUid, Integer integer);
+	List<Map<String, Object>> getCourses(int offset, int limit, int subjectId);
 
+	List<Subject> getSubjects(Integer classificationTypeId, Integer limit, Integer offset);
+
+	Integer getMaxSequence();
+	
 }

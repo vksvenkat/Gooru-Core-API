@@ -34,7 +34,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class SubdomainRepositoryHibernate extends BaseRepositoryHibernate implements SubdomainRepository, ParameterProperties,ConstantProperties {
 
-	private static final String SUBDOMAIN_COUNT = "SELECT COUNT(*) FROM Subdomain";
 	private static final String SUBDOMAINS = "FROM Subdomain";
 	private static final String SUBDOMAIN = "FROM Subdomain subdomain WHERE subdomain.subdomainId=:subdomainId";
 
@@ -50,12 +49,6 @@ public class SubdomainRepositoryHibernate extends BaseRepositoryHibernate implem
 		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : limit);
 		query.setFirstResult(offset);
 		return list(query);
-	}
-
-	@Override
-	public Long getSubdomainCount() {
-		Query query = getSession().createQuery(SUBDOMAIN_COUNT);
-		return (Long) query.list().get(0);
 	}
 
 }

@@ -23,21 +23,26 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.domain.service;
 
+import java.util.List;
+import java.util.Map;
+
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
+import org.ednovo.gooru.core.api.model.Domain;
 import org.ednovo.gooru.core.api.model.TaxonomyCourse;
 import org.ednovo.gooru.core.api.model.User;
-import org.ednovo.gooru.domain.service.search.SearchResults;
 
 public interface TaxonomyCourseService {
 
 	ActionResponseDTO<TaxonomyCourse> createTaxonomyCourse(TaxonomyCourse course, User user);
 
-	TaxonomyCourse updateTaxonomyCourse(Integer courseId, TaxonomyCourse newCourse);
+	void updateTaxonomyCourse(Integer courseId, TaxonomyCourse newCourse);
 
 	TaxonomyCourse getTaxonomyCourse(Integer courseId);
 
-	SearchResults<TaxonomyCourse> getTaxonomyCourses(Integer limit, Integer offset);
+	List<TaxonomyCourse> getTaxonomyCourses(Integer limit, Integer offset);
 
 	void deleteTaxonomyCourse(Integer courseId);
+	
+	List<Map<String, Object>> getDomains(Integer courseId, int limit, int offset);
 
 }

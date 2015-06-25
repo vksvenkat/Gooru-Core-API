@@ -24,10 +24,12 @@
 package org.ednovo.gooru.infrastructure.persistence.hibernate;
 
 import java.util.List;
+import java.util.Map;
 
 import org.ednovo.gooru.core.api.model.Subject;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.springframework.stereotype.Repository;
 
@@ -35,38 +37,48 @@ import org.springframework.stereotype.Repository;
 public class SubjectRepositoryHibernate extends BaseRepositoryHibernate
 		implements SubjectRepository, ParameterProperties, ConstantProperties {
 
-	private static final String SUBJECT_COUNT = "SELECT COUNT(*) FROM Subject subject where subject.activeFlag=1";
+	private static final String SUBJECT_MAX = "SELECT COALESCE(MAX(displaySequence),0) FROM Subject";
 	private static final String SUBJECTS = "FROM Subject subject where subject.activeFlag=1";
 	private static final String SUBJECT = "FROM Subject subject WHERE subject.subjectId=:subjectId";
-	private static final String SUBJECT_DISPLAYSEQUENCE = "FROM Subject subject WHERE subject.creator.partyUid=:userUid and subject.displaySequence>=:displaySequence";
-
+    private static final String COURSES = "select c.course_id courseId,c.name,c.image_path imagePath from subject s inner join course c on s.subject_id=c.subject_id where s.subject_id=:subjectId";
+	
+   
 	@Override
 	public Subject getSubject(Integer subjectId) {
-		Query query = getSession().createQuery(SUBJECT).setParameter(
-				SUBJECT_ID, subjectId);
+		Query query = getSession().createQuery(SUBJECT).setParameter(SUBJECT_ID, subjectId);
 		return (Subject) (query.list().size() > 0 ? query.list().get(0) : null);
 	}
 
 	@Override
-	public List<Subject> getSubjects(Integer limit, Integer offset) {
-		Query query = getSession().createQuery(SUBJECTS);
-		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT
+	public  List<Map<String,Object>> getCourses(int offset, int limit, int subjectId) {
+		Query query = getSession().createSQLQuery(COURSES)
+				.setParameter(SUBJECT_ID, subjectId);
+	     query.setMaxResults(limit != 0 ? (limit > MAX_LIMIT ? MAX_LIMIT
 				: limit) : limit);
+				 query.setFirstResult(offset);
+				 query.setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP);
+		return  list(query);
+	}
+	
+	
+	public List<Subject> getSubjects(Integer classificationTypeId,Integer limit, Integer offset) {
+		StringBuilder hql = new StringBuilder(SUBJECTS);
+		if(classificationTypeId != null){
+			hql.append("and subject.classificationTypeId=:classificationTypeId");
+		}
+		Query query = getSession().createQuery(hql.toString());
+		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT: limit) : limit);
 		query.setFirstResult(offset);
+		if(classificationTypeId != null){
+			query.setParameter(CLASSIFICATION_TYPE_ID, classificationTypeId);
+		}
 		return list(query);
 	}
 
 	@Override
-	public Long getSubjectCount() {
-		Query query = getSession().createQuery(SUBJECT_COUNT);
-		return (Long) query.list().get(0);
+	public Integer getMaxSequence() {
+		Query query = getSession().createQuery(SUBJECT_MAX);
+		return (Integer) query.list().get(0);
 	}
 
-	@Override
-	public List<Subject> getParentSubject(String userUid, Integer displaySequence) {
-		Query query = getSession().createQuery(SUBJECT_DISPLAYSEQUENCE);
-		query.setParameter(USER_UID, userUid);
-		query.setParameter(DISPLAY_SEQUENCE, displaySequence);
-		return list(query);
-	}
 }

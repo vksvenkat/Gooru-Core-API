@@ -52,7 +52,8 @@ public class CustomValueRestV2Controller  extends BaseController implements Para
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/{type}")
 	public ModelAndView getCustom(HttpServletRequest request , @PathVariable(value = TYPE) String type,  HttpServletResponse response) throws Exception {
-		return toModelAndViewWithIoFilter(this.getCustomValueService().getCustomValues(type), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, CUSTOM_VALUE_INCLUDE_FIELDS);
+		 return toModelAndViewWithIoFilter(this.getCustomValueService().getCustomValues(type), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, CUSTOM_VALUE_INCLUDE_FIELDS);
+
 	}
 
 	

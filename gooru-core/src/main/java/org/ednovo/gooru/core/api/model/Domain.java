@@ -25,11 +25,17 @@ package org.ednovo.gooru.core.api.model;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Map;
 
 
 public class Domain implements Serializable {
 
 	private static final long serialVersionUID = -1775302177846507373L;
+	
+	public static final String REPO_PATH = "fd";
+	
+	public static final String IMAGE_DIMENSION = "160x120,80x60";
+
 
 	private Integer domainId;
 
@@ -48,6 +54,26 @@ public class Domain implements Serializable {
 	private Date lastModified;
 	
 	private String uri;
+	
+	private Map<String, Object> thumbnails;
+
+	public Map<String, Object> getThumbnails() {
+		return thumbnails;
+	}
+
+	public void setThumbnails(Map<String, Object> thumbnails) {
+		this.thumbnails = thumbnails;
+	}
+
+	private String mediaFilename;
+
+	public String getMediaFilename() {
+		return mediaFilename;
+	}
+
+	public void setMediaFilename(String mediaFilename) {
+		this.mediaFilename = mediaFilename;
+	}
 
 	public String getName() {
 		return name;
@@ -120,6 +146,5 @@ public class Domain implements Serializable {
 	public void setUri(String uri) {
 		this.uri = uri;
 	}
-
 
 }

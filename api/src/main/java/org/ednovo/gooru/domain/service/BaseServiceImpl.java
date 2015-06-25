@@ -35,7 +35,7 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentRepo
 import org.springframework.beans.factory.annotation.Autowired;
 
 
-public class BaseServiceImpl extends ServerValidationUtils implements BaseService {
+public abstract class BaseServiceImpl extends ServerValidationUtils implements BaseService {
 
 	@Autowired
 	protected IndexProcessor indexProcessor;
@@ -49,6 +49,7 @@ public class BaseServiceImpl extends ServerValidationUtils implements BaseServic
 	@Autowired
 	private ContentRepository contentRepository;
 
+	
 	@Override
 	public ContentType getContentType(String type) {
 		return (ContentType) this.getBaseRepository().get(ContentType.class, type);

@@ -25,38 +25,61 @@ package org.ednovo.gooru.core.api.model;
 
 import java.io.Serializable;
 import java.util.Date;
-
+import java.util.Map;
 
 public class TaxonomyCourse implements Serializable {
-	
-	
+
 	private static final long serialVersionUID = -1775302177846507373L;
 	
+	public static final String REPO_PATH = "fc";
+	
+	public static final String IMAGE_DIMENSION = "160x120,80x60";
+
 	private Integer courseId;
 
 	private String name;
 
 	private String description;
-	
+
 	private Integer subjectId;
 
 	private String courseCode;
-	
+
 	private String grades;
 
 	private Short activeFlag;
 
 	private String imagePath;
-	
+
 	private User creatorUid;
-	
+
 	private Integer displaySequence;
 
 	private Date createdOn;
-	
+
 	private Date lastModified;
- 
+
 	private String uri;
+	
+	private Map<String, Object> thumbnails;
+
+	public Map<String, Object> getThumbnails() {
+		return thumbnails;
+	}
+
+	public void setThumbnails(Map<String, Object> thumbnails) {
+		this.thumbnails = thumbnails;
+	}
+
+	private String mediaFilename;
+
+	public String getMediaFilename() {
+		return mediaFilename;
+	}
+
+	public void setMediaFilename(String mediaFilename) {
+		this.mediaFilename = mediaFilename;
+	}
 
 	public String getCourseCode() {
 		return courseCode;
@@ -73,7 +96,7 @@ public class TaxonomyCourse implements Serializable {
 	public void setGrades(String grades) {
 		this.grades = grades;
 	}
-	
+
 	public String getImagePath() {
 		return imagePath;
 	}
@@ -81,7 +104,7 @@ public class TaxonomyCourse implements Serializable {
 	public void setImagePath(String imagePath) {
 		this.imagePath = imagePath;
 	}
-	
+
 	public User getCreatorUid() {
 		return creatorUid;
 	}
@@ -89,7 +112,7 @@ public class TaxonomyCourse implements Serializable {
 	public void setCreatorUid(User creatorUid) {
 		this.creatorUid = creatorUid;
 	}
-	
+
 	public Date getLastModified() {
 		return lastModified;
 	}
@@ -97,7 +120,7 @@ public class TaxonomyCourse implements Serializable {
 	public void setLastModified(Date lastModified) {
 		this.lastModified = lastModified;
 	}
-	
+
 	public Integer getDisplaySequence() {
 		return displaySequence;
 	}
@@ -121,7 +144,7 @@ public class TaxonomyCourse implements Serializable {
 	public void setName(String name) {
 		this.name = name;
 	}
-	
+
 	public String getDescription() {
 		return description;
 	}
@@ -145,7 +168,7 @@ public class TaxonomyCourse implements Serializable {
 	public void setActiveFlag(Short activeFlag) {
 		this.activeFlag = activeFlag;
 	}
-    
+
 	public Integer getCourseId() {
 		return courseId;
 	}

@@ -23,18 +23,23 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.domain.service;
 
+import java.io.File;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
+import org.ednovo.gooru.application.util.GooruImageUtil;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
-import org.ednovo.gooru.core.api.model.TaxonomyCourse;
 import org.ednovo.gooru.core.api.model.Subject;
+import org.ednovo.gooru.core.api.model.TaxonomyCourse;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
-import org.ednovo.gooru.domain.service.search.SearchResults;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.SubjectRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
 
@@ -43,35 +48,41 @@ public class TaxonomyCourseServiceImpl extends BaseServiceImpl implements Taxono
 
 	@Autowired
 	private TaxonomyCourseRepository TaxonomycourseRepository;
-	
+
 	@Autowired
 	private SubjectRepository subjectRepository;
 
+	@Autowired
+	private GooruImageUtil gooruImageUtil;
+
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ActionResponseDTO<TaxonomyCourse> createTaxonomyCourse(TaxonomyCourse course, User user) {
- 
 		final Errors errors = validateCourse(course);
 		if (!errors.hasErrors()) {
 			Subject subject = this.getSubjectRepository().getSubject(course.getSubjectId());
 			rejectIfNull(subject, GL0056, 404, SUBJECT);
+			reject((subject.getActiveFlag() == 1), GL0107, SUBJECT);
 			TaxonomyCourse courseCode = this.getTaxonomyCourseRepository().getCourseCode(course.getCourseCode());
 			rejectIfAlreadyExist(courseCode, GL0101, COURSE);
 			course.setCreatorUid(user);
 			course.setCreatedOn(new Date(System.currentTimeMillis()));
 			course.setLastModified(new Date(System.currentTimeMillis()));
 			course.setActiveFlag((short) 1);
+			course.setDisplaySequence(this.getTaxonomyCourseRepository().getMaxSequence() + 1);
 			this.getTaxonomyCourseRepository().save(course);
 		}
 		return new ActionResponseDTO<TaxonomyCourse>(course, errors);
 	}
 
 	@Override
-	public TaxonomyCourse updateTaxonomyCourse(Integer courseId, TaxonomyCourse newCourse) {
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public void updateTaxonomyCourse(Integer courseId, TaxonomyCourse newCourse) {
 		TaxonomyCourse course = this.getTaxonomyCourseRepository().getCourse(courseId);
 		rejectIfNull(course, GL0056, 404, COURSE);
 		if (newCourse.getActiveFlag() != null) {
-				reject((newCourse.getActiveFlag() == 0 || newCourse.getActiveFlag() == 1), GL0007, ACTIVE_FLAG);
-				course.setActiveFlag(newCourse.getActiveFlag());
+			reject((newCourse.getActiveFlag() == 0 || newCourse.getActiveFlag() == 1), GL0007, ACTIVE_FLAG);
+			course.setActiveFlag(newCourse.getActiveFlag());
 		}
 		if (newCourse.getName() != null) {
 			course.setName(newCourse.getName());
@@ -82,34 +93,45 @@ public class TaxonomyCourseServiceImpl extends BaseServiceImpl implements Taxono
 		if (newCourse.getGrades() != null) {
 			course.setGrades(newCourse.getGrades());
 		}
-		if (newCourse.getImagePath() != null) {
-			course.setImagePath(newCourse.getImagePath());
-		}
-		if (newCourse.getDisplaySequence() != null) {
-			course.setDisplaySequence(newCourse.getDisplaySequence());
+		if (newCourse.getMediaFilename() != null) {
+			StringBuilder basePath = new StringBuilder(TaxonomyCourse.REPO_PATH);
+			basePath.append(File.separator).append(courseId);
+			this.getGooruImageUtil().imageUpload(newCourse.getMediaFilename(), basePath.toString(), TaxonomyCourse.IMAGE_DIMENSION);
+			basePath.append(File.separator).append(newCourse.getMediaFilename());
+			course.setImagePath(basePath.toString());
 		}
 		course.setLastModified(new Date(System.currentTimeMillis()));
 		this.getTaxonomyCourseRepository().save(course);
-		return course;
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public TaxonomyCourse getTaxonomyCourse(Integer courseId) {
 		TaxonomyCourse course = this.getTaxonomyCourseRepository().getCourse(courseId);
 		rejectIfNull(course, GL0056, 404, COURSE);
 		reject((course.getActiveFlag() == 1), GL0107, COURSE);
+		if (course.getImagePath() != null) {
+			course.setThumbnails(GooruImageUtil.getThumbnails(course.getImagePath()));
+		}
 		return course;
 	}
 
 	@Override
-	public SearchResults<TaxonomyCourse> getTaxonomyCourses(Integer limit, Integer offset) {
-		SearchResults<TaxonomyCourse> result = new SearchResults<TaxonomyCourse>();
-		result.setSearchResults(this.getTaxonomyCourseRepository().getCourses(limit, offset));
-		result.setTotalHitCount(this.getTaxonomyCourseRepository().getCourseCount());
-		return result;
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public List<TaxonomyCourse> getTaxonomyCourses(Integer limit, Integer offset) {
+		List<TaxonomyCourse> courses = this.getTaxonomyCourseRepository().getCourses(limit, offset);
+		if (courses != null) {
+			for (TaxonomyCourse course : courses) {
+				if (course.getImagePath() != null) {
+					course.setThumbnails(GooruImageUtil.getThumbnails(course.getImagePath()));
+				}
+			}
+		}
+		return courses;
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteTaxonomyCourse(Integer courseId) {
 		TaxonomyCourse course = this.getTaxonomyCourseRepository().getCourse(courseId);
 		rejectIfNull(course, GL0056, 404, COURSE);
@@ -118,19 +140,37 @@ public class TaxonomyCourseServiceImpl extends BaseServiceImpl implements Taxono
 		this.getTaxonomyCourseRepository().save(course);
 	}
 
+	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public List<Map<String, Object>> getDomains(Integer courseId, int limit, int offset) {
+		List<Map<String, Object>> domains = this.getTaxonomyCourseRepository().getDomains(courseId, limit, offset);
+		if(domains != null){
+			for(Map<String, Object> domain: domains){
+				Object thumbnail = domain.get(IMAGE_PATH);
+				if (thumbnail != null) {
+					domain.put(THUMBNAILS, GooruImageUtil.getThumbnails(thumbnail));
+				}
+			}
+		}
+		return domains;
+	}
+
 	private Errors validateCourse(TaxonomyCourse course) {
 		final Errors error = new BindException(course, COURSE);
-    	rejectIfNull(error,course.getSubjectId(), SUBJECT_ID,  generateErrorMessage(GL0006, SUBJECT_ID));
-		rejectIfNull(error,course.getCourseCode(), COURSE_CODE,  generateErrorMessage(GL0006, COURSE_CODE));
-		rejectIfNull(error,course.getDisplaySequence(), DISPLAY_SEQUENCE,  generateErrorMessage(GL0006, DISPLAY_SEQUENCE));
+		rejectIfNull(error, course.getSubjectId(), SUBJECT_ID, generateErrorMessage(GL0006, SUBJECT_ID));
+		rejectIfNull(error, course.getCourseCode(), COURSE_CODE, generateErrorMessage(GL0006, COURSE_CODE));
 		return error;
 	}
 
 	public TaxonomyCourseRepository getTaxonomyCourseRepository() {
 		return TaxonomycourseRepository;
 	}
-	
+
 	public SubjectRepository getSubjectRepository() {
 		return subjectRepository;
+	}
+
+	public GooruImageUtil getGooruImageUtil() {
+		return gooruImageUtil;
 	}
 }

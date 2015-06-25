@@ -29,8 +29,11 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
+import org.ednovo.gooru.core.api.model.StorageArea;
 import org.ednovo.gooru.core.constant.ConfigConstants;
+import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.domain.service.setting.SettingService;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.storage.StorageRepository;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +43,7 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 @Component
-public final class ConfigProperties implements Serializable, ConfigConstants {
+public final class ConfigProperties implements Serializable, ConfigConstants, ConstantProperties {
 
 	/**
 	 * 
@@ -75,9 +78,16 @@ public final class ConfigProperties implements Serializable, ConfigConstants {
 
 	@Autowired
 	private SettingService settingService;
+	
+	@Autowired
+	private StorageRepository storageRepository;
 
+	private static String baseRepoUrl; 
+	
+	private static String nfsInternalPath; 
+	
 	private static final Logger LOGGER = LoggerFactory.getLogger(ConfigProperties.class);
-
+	
 	@PostConstruct
 	public void init() {
 		String authSSOData = settingService.getConfigSetting(AUTHSSO_CONFIG, TaxonomyUtil.GOORU_ORG_UID);
@@ -194,6 +204,9 @@ public final class ConfigProperties implements Serializable, ConfigConstants {
 		}
 
 		initInsightsKafkaProperties();
+		final StorageArea storageArea = getStorageRepository().getStorageAreaByTypeName(NFS);
+		baseRepoUrl = storageArea.getCdnDirectPath();
+		nfsInternalPath = storageArea.getInternalPath();
 	}
 	
 	private void initInsightsKafkaProperties(){
@@ -264,5 +277,17 @@ public final class ConfigProperties implements Serializable, ConfigConstants {
 	public  Map<String, Map<String,String>> getInsightsKafkaProperties() {
 		return insightsKafkaProperties;
 	}
+
+	public StorageRepository getStorageRepository() {
+		return storageRepository;
+	}
+
+	public static String getBaseRepoUrl() {
+		return baseRepoUrl;
+	}	
 	
+	public static String getNfsInternalPath() {
+		return nfsInternalPath;
+	}
+
 }
