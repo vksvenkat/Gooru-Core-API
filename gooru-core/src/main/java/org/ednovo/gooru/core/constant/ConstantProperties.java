@@ -928,4 +928,8 @@ public interface ConstantProperties {
 	final static String PARENT_COLLECTION_TYPE = "parentCollectionType";
 	
 	final static String SUBDOMAIN_ATTRIBUTE[] = {"*.codeId","*.label","*.code","*.description"};
+	
+	final static String DOT = ".";
+	
+	final static String REGX_DOT = "\\.";
 }
