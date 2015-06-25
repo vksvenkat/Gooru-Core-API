@@ -23,13 +23,10 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.domain.service;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import org.apache.commons.lang.NotImplementedException;
@@ -153,16 +150,6 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				}
 			}
 
-			if (question.getDepthOfKnowledges() != null && question.getDepthOfKnowledges().size() > 0) {
-				responseDTO.getModel().setDepthOfKnowledges(this.updateContentMeta(question.getDepthOfKnowledges(), responseDTO.getModel().getGooruOid(), user, DEPTH_OF_KNOWLEDGE));
-			} else {
-				responseDTO.getModel().setDepthOfKnowledges(this.setContentMetaAssociation(this.getContentMetaAssociation(DEPTH_OF_KNOWLEDGE), responseDTO.getModel().getGooruOid(), DEPTH_OF_KNOWLEDGE));
-			}
-			if (question.getEducationalUse() != null && question.getEducationalUse().size() > 0) {
-				responseDTO.getModel().setEducationalUse(this.updateContentMeta(question.getEducationalUse(), responseDTO.getModel().getGooruOid(), user, EDUCATIONAL_USE));
-			} else {
-				responseDTO.getModel().setEducationalUse(this.setContentMetaAssociation(this.getContentMetaAssociation(EDUCATIONAL_USE), responseDTO.getModel().getGooruOid(), EDUCATIONAL_USE));
-			}
 			response.getModel().setStandards(this.getStandards(responseDTO.getModel().getTaxonomySet(), false, null));
 			response.getModel().getResource().setSkills(getSkills(responseDTO.getModel().getTaxonomySet()));
 			if (question.isQuestionNewGen()) {
@@ -201,14 +188,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 						}
 					}
 					collectionItem.setQuestionInfo(assessmentQuestion);
-					if (newQuestion.getDepthOfKnowledges() != null && newQuestion.getDepthOfKnowledges().size() > 0) {
-						this.updateContentMeta(newQuestion.getDepthOfKnowledges(), assessmentQuestion.getGooruOid(), user, DEPTH_OF_KNOWLEDGE);
-					}
-					if (question.getEducationalUse() != null && question.getEducationalUse().size() > 0) {
-						this.updateContentMeta(question.getEducationalUse(), assessmentQuestion.getGooruOid(), user, EDUCATIONAL_USE);
-					} else {
-						this.setContentMetaAssociation(this.getContentMetaAssociation(EDUCATIONAL_USE), assessmentQuestion.getGooruOid(), EDUCATIONAL_USE);
-					}
+				
 					collectionItem.getContent().setSkills(getSkills(collectionItem.getContent().getTaxonomySet()));
 					collectionItem.setStandards(this.getStandards(assessmentQuestion.getTaxonomySet(), false, null));
 				}
@@ -466,13 +446,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				summary.put(COUNT, count != null ? count : 0);
 				collectionItem.put(RATINGS, summary);
 				if (!fetchChildItem) {
-					if (String.valueOf(typeName).equalsIgnoreCase(ASSESSMENT_QUESTION)) {
-						collectionItem.put(DEPTHOFKNOWLEDGES, this.setContentMetaAssociation(this.getContentMetaAssociation(DEPTH_OF_KNOWLEDGE), resourceGooruOid, DEPTH_OF_KNOWLEDGE));
-						collectionItem.put(_EDUCATIONAL_USE, this.setContentMetaAssociation(this.getContentMetaAssociation(EDUCATIONAL_USE), resourceGooruOid, EDUCATIONAL_USE));
-					} else {
-						collectionItem.put(_EDUCATIONAL_USE, this.setContentMetaAssociation(this.getContentMetaAssociation(EDUCATIONAL_USE), resourceGooruOid, EDUCATIONAL_USE));
-						collectionItem.put(MOMENTSOFLEARNING, this.setContentMetaAssociation(this.getContentMetaAssociation(MOMENTS_OF_LEARNING), resourceGooruOid, MOMENTS_OF_LEARNING));
-					}
+				// need to set meta data
 				}
 				Object attribution = collectionItem.get(ATTRIBUTION);
 				if (attribution != null) {
@@ -512,12 +486,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 			thumbnails.put(URL, url.toString());
 			folderItem.put(THUMBNAILS, thumbnails);
 		}
-		if (typeName.equalsIgnoreCase(COLLECTION) || typeName.equalsIgnoreCase(ASSESSMENT) || typeName.equalsIgnoreCase(ASSESSMENT_URL)) {
-			folderItem.put(DEPTHOFKNOWLEDGES, this.setContentMetaAssociation(this.getContentMetaAssociation(DEPTH_OF_KNOWLEDGE), collectionGooruOid, DEPTH_OF_KNOWLEDGE));
-			folderItem.put(LEARNING_SKILLS, this.setContentMetaAssociation(this.getContentMetaAssociation(LEARNING_AND_INNOVATION_SKILLS), collectionGooruOid, LEARNING_AND_INNOVATION_SKILLS));
-			folderItem.put(AUDIENCE, this.setContentMetaAssociation(this.getContentMetaAssociation(AUDIENCE), collectionGooruOid, AUDIENCE));
-			folderItem.put(INSTRUCTIONALMETHOD, this.setContentMetaAssociation(this.getContentMetaAssociation(INSTRUCTIONAL_METHOD), collectionGooruOid, INSTRUCTIONAL_METHOD));
-		}
+		
 
 		if (fetchChildItem) {
 			if (typeName.equalsIgnoreCase(COLLECTION) || typeName.equalsIgnoreCase(ASSESSMENT) || typeName.equalsIgnoreCase(ASSESSMENT_URL)) {

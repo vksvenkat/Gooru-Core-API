@@ -1,26 +1,38 @@
 package org.ednovo.gooru.domain.service.collection;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.ednovo.gooru.application.util.SerializerUtil;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.Content;
+import org.ednovo.gooru.core.api.model.ContentMeta;
+import org.ednovo.gooru.core.api.model.ContentMetaAssociation;
+import org.ednovo.gooru.core.api.model.CustomTableValue;
 import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.domain.service.BaseServiceImpl;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionDao;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
+import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public abstract  class AbstractCollectionServiceImpl extends BaseServiceImpl implements AbstractCollectionService, ParameterProperties, ConstantProperties {
+import com.fasterxml.jackson.core.type.TypeReference;
+
+public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl implements AbstractCollectionService, ParameterProperties, ConstantProperties {
 
 	@Autowired
 	private CollectionDao collectionDao;
+
+	@Autowired
+	private CustomTableRepository customTableRepository;
 
 	public Collection createCollection(Collection collection, User user) {
 		collection.setGooruOid(UUID.randomUUID().toString());
@@ -71,7 +83,7 @@ public abstract  class AbstractCollectionServiceImpl extends BaseServiceImpl imp
 		if (newCollection.getUrl() != null) {
 			collection.setUrl(newCollection.getUrl());
 		}
-		
+
 		if (newCollection.getKeyPoints() != null) {
 			collection.setKeyPoints(newCollection.getKeyPoints());
 		}
@@ -111,12 +123,24 @@ public abstract  class AbstractCollectionServiceImpl extends BaseServiceImpl imp
 	}
 
 	@Override
-	public Map<String, Object> getCollection(String collectionId,  String collectionType) {
+	public Map<String, Object> getCollection(String collectionId, String collectionType) {
 		Map<String, Object> filters = new HashMap<String, Object>();
 		filters.put(GOORU_OID, collectionId);
 		List<Map<String, Object>> collection = getCollectionDao().getCollections(filters, 1, 0);
 		rejectIfNull(collection, GL0056, collectionType);
-		return collection.get(0);
+		return mergeMetaData(collection.get(0));
+	}
+
+	protected Map<String, Object> mergeMetaData(Map<String, Object> content) {
+		Object data = content.get(META_DATA);
+		Map<String, Object> metaData = null;
+		if (data != null) {
+			metaData = JsonDeserializer.deserialize(String.valueOf(data), new TypeReference<Map<String, Object>>() {
+			});
+			content.putAll(metaData);
+		}
+		content.remove(META_DATA);
+		return content;
 	}
 
 	@Override
@@ -143,7 +167,59 @@ public abstract  class AbstractCollectionServiceImpl extends BaseServiceImpl imp
 		return collectionItem;
 	}
 
+	@Override
+	public void createContentMeta(Content content, Map<String, Object> data) {
+		ContentMeta contentMeta = new ContentMeta();
+		contentMeta.setContent(content);
+		contentMeta.setMetaData(SerializerUtil.serialize(data));
+		this.getCollectionDao().save(contentMeta);
+	}
+
+	@Override
+	public void updateContentMeta(Long contentId, Map<String, Object> data) {
+		ContentMeta contentMeta = this.getContentRepository().getContentMeta(contentId);
+		if (contentMeta != null) {
+			Map<String, Object> metaData = JsonDeserializer.deserialize(contentMeta.getMetaData(), new TypeReference<Map<String, Object>>() {
+			});
+			metaData.putAll(data);
+			contentMeta.setMetaData(SerializerUtil.serialize(metaData));
+			this.getCollectionDao().save(contentMeta);
+		}
+	}
+
+	@Override
+	public List<Map<String, Object>> updateContentMetaAssoc(Content content, User user, String key, List<Integer> metaIds) {
+		this.getContentRepository().deleteContentMetaAssoc(content.getContentId(), key);
+		List<Map<String, Object>> metaValues = null;
+		if (metaIds != null && metaIds.size() > 0) {
+			metaValues = new ArrayList<Map<String, Object>>();
+			List<CustomTableValue> values = this.getCustomTableRepository().getCustomValues(metaIds);
+			List<ContentMetaAssociation> metaDatas = new ArrayList<ContentMetaAssociation>();
+			if (values != null) {
+				for (CustomTableValue value : values) {
+					ContentMetaAssociation contentMetaAssoc = new ContentMetaAssociation();
+					contentMetaAssoc.setContent(content);
+					contentMetaAssoc.setCreatedOn(new Date(System.currentTimeMillis()));
+					contentMetaAssoc.setTypeId(value);
+					contentMetaAssoc.setUser(user);
+					metaDatas.add(contentMetaAssoc);
+					Map<String, Object> metaValue = new HashMap<String, Object>();
+					metaValue.put(ID, value.getCustomTableValueId());
+					metaValue.put(NAME, value.getDisplayName());
+					metaValues.add(metaValue);
+				}
+				this.getContentRepository().saveAll(metaDatas);
+			}
+		}
+		return metaValues;
+	}
+
 	public CollectionDao getCollectionDao() {
 		return collectionDao;
 	}
+
+	public CustomTableRepository getCustomTableRepository() {
+		return customTableRepository;
+	}
+
 }

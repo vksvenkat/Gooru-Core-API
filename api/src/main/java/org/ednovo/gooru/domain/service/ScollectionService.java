@@ -34,7 +34,6 @@ import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
-import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.ContentMetaDTO;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.ResourceSummary;
@@ -58,8 +57,8 @@ public interface ScollectionService extends BaseService {
 	Collection copyCollection(String collectionId, Collection newCollection, boolean addToShelf, String parentId, User user) throws Exception;
 
 	ActionResponseDTO<CollectionItem> createResourceWithCollectionItem(String collectionId, Resource newResource, String start, String stop, List<String> tags, User user) throws Exception;
-	
-	ActionResponseDTO<CollectionItem> updateResourceWithCollectionItem(String collectionItemId, Resource newResource,List<String> tags ,User user, String data) throws Exception;
+
+	ActionResponseDTO<CollectionItem> updateResourceWithCollectionItem(String collectionItemId, Resource newResource, List<String> tags, User user, String data) throws Exception;
 
 	List<CollectionItem> getCollectionItems(String collectionId, Integer offset, Integer limit, String orderBy, String type);
 
@@ -81,10 +80,10 @@ public interface ScollectionService extends BaseService {
 
 	ActionResponseDTO<CollectionItem> reorderCollectionItem(String collectionItemId, int newSequence, User user) throws Exception;
 
-	Collection getCollection(String collectionId, boolean includeMetaInfo, boolean includeCollaborator, boolean isContentFlag, User user, String merge, String rootNodeId, boolean isGat,  boolean includeViewCount, boolean includeContentProvider, boolean includeCustomFields);
-	
-	String getCollectionWithCache(String collectionId, boolean includeMetaInfo, boolean includeCollaborator, boolean isContentFlag, User user, String merge, String rootNodeId, boolean isGat,boolean includeCollectionItem, boolean includeRelatedContent, boolean clearCache);
-		
+	Collection getCollection(String collectionId, boolean includeMetaInfo, boolean includeCollaborator, boolean isContentFlag, User user, String merge, String rootNodeId, boolean isGat, boolean includeViewCount, boolean includeContentProvider, boolean includeCustomFields);
+
+	String getCollectionWithCache(String collectionId, boolean includeMetaInfo, boolean includeCollaborator, boolean isContentFlag, User user, String merge, String rootNodeId, boolean isGat, boolean includeCollectionItem, boolean includeRelatedContent, boolean clearCache);
+
 	Collection copyCollection(String collectionId, String title, boolean addToShelf, User user, String taxonomyCode, String grade, String parentId) throws Exception;
 
 	Collection getCollectionByGooruOid(String gooruOid, String gooruUid);
@@ -118,32 +117,22 @@ public interface ScollectionService extends BaseService {
 	Set<String> getCourse(Set<Code> taxonomySet);
 
 	List<StandardFo> getStandards(Set<Code> taxonomySet, boolean ignoreUserTaxonomyPreference, String rootNodeId);
-	
+
 	void updateResourceSharing(String sharing, Collection collection);
-	
-	Map<String, Object>  getCollection(String gooruOid, Map<String, Object> collection, String rootNodeId);
-	
+
+	Map<String, Object> getCollection(String gooruOid, Map<String, Object> collection, String rootNodeId);
+
 	void updateFolderSharing(String collection);
-	
+
 	List<Map<String, String>> getParentCollection(String collectionGooruOid, String gooruUid, boolean reverse);
-	
-	List<ContentMetaDTO> getContentMetaAssociation(String type);
-	
-	List<ContentMetaDTO> setContentMetaAssociation(List<ContentMetaDTO> depthOfKnowledges, String collectionId, String type);
-	
-	List<ContentMetaDTO> updateContentMeta(List<ContentMetaDTO> newDepthOfKnowledges, String collectionId, User apiCaller, String type);
-	
+
 	void deleteBulkCollections(List<String> gooruOids);
-	
+
 	Map<String, Object> setRatingsObj(ResourceSummary resourceSummary);
-	
-	List<ContentMetaDTO> setContentMetaAssociation(List<ContentMetaDTO> depthOfKnowledges, Content content, String type);
-	
-	List<ContentMetaDTO> updateContentMeta(List<ContentMetaDTO> newDepthOfKnowledges, Content content, User apiCaller, String type);
-	
+
 	void deleteCollectionItem(String collectionItemId);
-	
+
 	Set<Map<String, Object>> getSkills(Set<Code> taxonomySet);
-	
+
 	void setCollectionTaxonomyMetaInfo(final Set<Code> taxonomySet, final ResourceMetaInfo collectionMetaInfo);
 }

@@ -43,6 +43,7 @@ public class CustomTableRepositopryHibernate extends BaseRepositoryHibernate imp
 	private final String GET_VALUE_BY_DISPLAY_NAME = "From CustomTableValue ctv  where ctv.displayName =:displayName and ctv.customTable.name=:name";
 	private final String GET_CUSTOM_TABLE_VALUES = "FROM  CustomTableValue ct where ct.customTable.name=:type";
 	private final String GET_CUSTOM_VALUES = "select ctv.custom_table_value_id id,ctv.display_name name from custom_table c inner join custom_table_value ctv on c.custom_table_id = ctv.custom_table_id  where c.name=:type";
+	private final String GET_CUSTOM_VALUES_BY_ID = "FROM  CustomTableValue ct where ct.customTableValueId=(:typeId)";
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -98,6 +99,13 @@ public class CustomTableRepositopryHibernate extends BaseRepositoryHibernate imp
 		Query query = getSession().createSQLQuery(GET_CUSTOM_VALUES);
 		query.setParameter(TYPE, type);
 		query.setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP);
+		return list(query);
+	}
+
+	@Override
+	public List<CustomTableValue> getCustomValues(List<Integer> ids) {
+		Query query = getSessionReadOnly().createQuery(GET_CUSTOM_VALUES_BY_ID);
+		query.setParameterList(TYPE_ID, ids);
 		return list(query);
 	}
 
