@@ -182,9 +182,9 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			}
 			
 			String apiKey = request.getParameter(API_KEY);
-			rejectIfNull(apiKey, GL0056, API_KEY);
+			rejectIfNull(apiKey, GL0061, API_KEY);
 			final Application application  = this.getApplicationRepository().getApplication(apiKey);
-			
+			rejectIfNull(application, GL0056, API_KEY);
 			// APIKEY domain white listing verification based on request referrer and host headers.
 			verifyApikeyDomains(request, application);
 			
@@ -337,31 +337,28 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 		
 		boolean isValidReferrer = false;
 		
-		String hostName = null;
+		String host = null;
 		String registeredRefererDomains = null;
 		
 		if (request.getHeader(HOST) != null){
-			hostName = request.getHeader(HOST);
+			host = request.getHeader(HOST);
 		}else if (request.getHeader(REFERER) != null){
-			hostName = request.getHeader(REFERER);
+			host = request.getHeader(REFERER);
 		}
-		LOGGER.info("Host Name" +hostName);
 
-		if (hostName != null && application != null){			
-			String hostNameArr [] = hostName.split(REGX_DOT);
-			StringBuffer mainDomainName = null;
+		if (host != null){			
+			String hostNameArr [] = host.split(REGX_DOT);
+			StringBuffer mainDomainName = new StringBuffer();
 			if(hostNameArr.length == 2){
-				mainDomainName = new StringBuffer(hostNameArr[0]);
-				mainDomainName.append(DOT).append(hostNameArr[1]);
+				mainDomainName.append(hostNameArr[0]).append(DOT).append(hostNameArr[1]);
 			} else {
-				mainDomainName = new StringBuffer(hostNameArr[1]);
-				mainDomainName.append(DOT).append(hostNameArr[2]);
+				mainDomainName.append(hostNameArr[1]).append(DOT).append(hostNameArr[2]);
 			}
 			registeredRefererDomains = application.getRefererDomains();
 			
 			if(registeredRefererDomains != null ){				
-				String registeredRefererDomainArr [] = registeredRefererDomains.split(COMMA);
-				for (String refererDomain : registeredRefererDomainArr) {
+				String whiteListedDomains [] = registeredRefererDomains.split(COMMA);
+				for (String refererDomain : whiteListedDomains) {
 					if(refererDomain.equalsIgnoreCase(mainDomainName.toString())){
 						isValidReferrer = true;
 						break;						
@@ -370,8 +367,8 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			}
 		}
 		
-		if (registeredRefererDomains != null && isValidReferrer == false){
-			throw new AccessDeniedException(generateErrorMessage("GL0109"));
+		if (registeredRefererDomains != null && !isValidReferrer){
+			throw new AccessDeniedException(generateErrorMessage(GL0109));
 		}
 	}
 
