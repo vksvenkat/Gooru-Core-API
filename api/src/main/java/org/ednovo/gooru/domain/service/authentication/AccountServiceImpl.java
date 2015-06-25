@@ -171,7 +171,6 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 		final UserToken userToken = new UserToken();
 		final Errors errors = new BindException(userToken, SESSIONTOKEN);
 		final String apiEndPoint = getConfigSetting(ConfigConstants.GOORU_API_ENDPOINT, 0, TaxonomyUtil.GOORU_ORG_UID);
-		boolean isValidReferrer = false;
 		
 		if (!errors.hasErrors()) {
 			if (username == null) {
@@ -181,43 +180,8 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 				throw new BadRequestException(generateErrorMessage(GL0061, "Password"), GL0061);
 			}
 			
-			// APIKEY domain white listing verification based on request referrer and host headers.  
-			String apiKey = request.getParameterValues(API_KEY)[0];
-			if (apiKey == null) {
-			throw new BadRequestException(generateErrorMessage(GL0061, "Api key"), GL0061);
-			}
-			Application applicationObj = this.getApplicationRepository().getApplication(apiKey);
-			String hostName = "";
-			String registeredRefererDomains = "";
-			if (request.getHeader("Host") != null){
-				hostName = request.getHeader("Host");
-			}else if (request.getHeader("referer") != null){
-				hostName = request.getHeader("referer");
-			}
-			LOGGER.info("Host Name" +hostName);
-
-			if (hostName != null && applicationObj != null && hostName != ""){
-				
-				if(hostName.contains(":8080")){
-				hostName = hostName.replace(":8080", "");
-				}				
-				String hostNameArr [] = hostName.split("\\.");
-				String mainDomainName = hostNameArr[1]+"."+hostNameArr[2];
-				registeredRefererDomains = applicationObj.getRefererDomains();
-				if(registeredRefererDomains != null && registeredRefererDomains != ""){
-					
-					String registeredRefererDomainArr [] = registeredRefererDomains.split(",");
-					for (int i=0; i< registeredRefererDomainArr.length; i++){
-						if(registeredRefererDomainArr[i].contains(mainDomainName)){
-							isValidReferrer = true;
-							break;						
-						}
-					}
-				}
-			}
-			if (registeredRefererDomains != null && registeredRefererDomains != "" && isValidReferrer == false){
-				throw new AccessDeniedException(generateErrorMessage("GL0109"));
-			}
+			// APIKEY domain white listing verification based on request referrer and host headers.
+			verifyApikeyDomains(request);
 			
 			Identity identity = new Identity();
 			identity.setExternalId(username);
@@ -362,6 +326,44 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 				LOGGER.error(_ERROR, e);
 			}
 			this.redisService.delete(SESSION_TOKEN_KEY + userToken.getToken());
+		}
+	}
+	
+	public void verifyApikeyDomains(HttpServletRequest request) {
+		
+		boolean isValidReferrer = false;
+		
+		String apiKey = request.getParameterValues(API_KEY)[0];
+		rejectIfNull(apiKey, GL0056, API_KEY);
+		Application applicationObj = this.getApplicationRepository().getApplication(apiKey);
+		String hostName = "";
+		String registeredRefererDomains = "";
+		if (request.getHeader(HOST) != null){
+			hostName = request.getHeader(HOST);
+		}else if (request.getHeader(REFERER) != null){
+			hostName = request.getHeader(REFERER);
+		}
+		LOGGER.info("Host Name" +hostName);
+
+		if (hostName != null && applicationObj != null && hostName != ""){			
+			String hostNameArr [] = StringUtils.splitByWholeSeparator(hostName, ".");
+			StringBuffer mainDomainName = new StringBuffer(hostNameArr[1]);
+			mainDomainName.append(".");
+			mainDomainName.append(hostNameArr[2]);
+			registeredRefererDomains = applicationObj.getRefererDomains();
+			
+			if(registeredRefererDomains != null && registeredRefererDomains != ""){				
+				String registeredRefererDomainArr [] = StringUtils.splitByWholeSeparator(registeredRefererDomains,",");
+				for (String refererDomain : registeredRefererDomainArr) {
+					if(refererDomain.equals(mainDomainName.toString())){
+						isValidReferrer = true;
+						break;						
+					}
+				}
+			}
+		}
+		if (registeredRefererDomains != null && registeredRefererDomains != "" && isValidReferrer == false){
+			throw new AccessDeniedException(generateErrorMessage("GL0109"));
 		}
 	}
 
