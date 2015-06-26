@@ -275,6 +275,8 @@ public interface ParameterProperties {
 	String LESSON_CONTENT_ID = "lessonContentId";
 	
 	String GOORU_UID = "gooruUId";
+	
+	String CLASS_UID = "classUid";
 
 	String COUNT = "count";
 	
@@ -2923,7 +2925,7 @@ public interface ParameterProperties {
 	String EXPORT_CLASS_FILENAME = "reports.csv";
 	
 	String CLASS_GOORU_ID = "classGooruId";
-	
+
 	String GL0107 = "GL0107";	
 	
 	String GL0109 = "GL0109";
