@@ -31,7 +31,6 @@ import org.ednovo.gooru.core.api.model.Classpage;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.CollectionType;
-import org.ednovo.gooru.core.api.model.ContentMetaAssociation;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.ResourceType;
 import org.ednovo.gooru.core.api.model.User;
@@ -600,7 +599,6 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 			sql += " and co.collection_type not in ('"+ excludeType.replace(",", "','") + "')";
 		}
 		if (collectionType != null) {
-			collectionType = collectionType.equalsIgnoreCase(COLLECTION) ? SCOLLECTION : collectionType;
 			sql += " and re.collection_type =:collectionType ";
 		}
 		if (fetchChildItem) {
@@ -626,7 +624,6 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		String sql = "select r.title, c.gooru_oid as gooruOid, r.type_name as type, r.folder, r.thumbnail, ct.value, ct.display_name as displayName, c.sharing, ci.collection_item_id as collectionItemId, co.goals, rs.attribution, rs.domain_name as domainName, co.ideas, co.questions, co.performance_tasks as performanceTasks, r.url ,rsummary.rating_star_avg as average, rsummary.rating_star_count as count, co.collection_type as collectionType, ci.item_sequence as itemSequence, rc.gooru_oid as parentGooruOid, r.description  from collection_item ci inner join resource r on r.content_id = ci.resource_content_id  left join custom_table_value ct on ct.custom_table_value_id = r.resource_format_id inner join content c on c.content_id = r.content_id inner join content rc on rc.content_id = ci.collection_content_id left join collection co on co.content_id = r.content_id left join resource_source rs on rs.resource_source_id = r.resource_source_id left join resource_summary rsummary on   c.gooru_oid = rsummary.resource_gooru_oid where  c.sharing in ('"
 				+ sharing.replace(",", "','") + "') and rc.gooru_oid=:gooruOid";
 		if (collectionType != null) {
-			collectionType = collectionType.equalsIgnoreCase(COLLECTION) ? SCOLLECTION : collectionType;
 			sql += " and r.type_name =:collectionType ";
 		}
 		if (excludeType != null) { 
@@ -665,7 +662,6 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 			sql += " and cc.gooru_oid = '" + gooruOid + "' ";
 		}
 		if (collectionType != null) {
-			collectionType = collectionType.equalsIgnoreCase(COLLECTION) ? SCOLLECTION : collectionType;
 			sql += " and re.collection_type =:collectionType ";
 		}
 		if (excludeType != null) { 
@@ -685,7 +681,6 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 			sql += " and c.sharing in ('" + sharing.replace(",", "','") + "') ";
 		}
 		if (collectionType != null) {
-			collectionType = collectionType.equalsIgnoreCase(COLLECTION) ? SCOLLECTION : collectionType;
 			sql += " and r.type_name =:collectionType ";
 		}
 		if (excludeType != null) { 
@@ -698,6 +693,7 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		}
 		return (Long) query.list().get(0);
 	}
+
 
 	@Override
 	public List<CollectionItem> findCollectionByResource(final String gooruOid, final String gooruUid, final String type) {
@@ -795,25 +791,6 @@ public class CollectionRepositoryHibernate extends BaseRepositoryHibernate imple
 		}
 		final Query query = getSession().createSQLQuery(sql).addScalar("count", StandardBasicTypes.LONG);
 		return (Long) query.list().get(0);
-	}
-
-	@Override
-	public List<ContentMetaAssociation> getContentMetaById(final String gooruOid, final String type) {
-		final String hql = "From ContentMetaAssociation ci where ci.content.gooruOid =:gooruOid and ci.associationType.value=:type";
-		final Query query = getSession().createQuery(hql);
-		query.setParameter(GOORU_OID, gooruOid);
-		query.setParameter(TYPE, type);
-		return list(query);
-	}
-
-	@Override
-	public ContentMetaAssociation getContentMetaByValue(final String value, final String gooruOid) {
-		final String hql = "From ContentMetaAssociation ci where ci.content.gooruOid =:gooruOid and ci.value =:value";
-		final Query query = getSession().createQuery(hql);
-		query.setParameter(GOORU_OID, gooruOid);
-		query.setParameter(VALUE, value);
-		query.setMaxResults(1);
-		return (ContentMetaAssociation) (query.list().size() > 0 ? query.list().get(0) : null);
 	}
 
 	@Override

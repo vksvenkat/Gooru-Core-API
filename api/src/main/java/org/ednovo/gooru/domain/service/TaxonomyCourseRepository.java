@@ -35,6 +35,8 @@ public interface TaxonomyCourseRepository extends BaseRepository {
 
 	TaxonomyCourse getCourseCode(String courseCode);
 	
+	List<TaxonomyCourse> getTaxonomyCourses(List<Integer> courseIds);
+	
 	List<TaxonomyCourse> getCourses(Integer limit, Integer offset);
 
 	Integer getMaxSequence();

@@ -2,29 +2,22 @@
 <!DOCTYPE hibernate-mapping PUBLIC
     "-//Hibernate/Hibernate Mapping DTD 3.0//EN" 
     "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-    
+
 <hibernate-mapping>
 
 	<class name="org.ednovo.gooru.core.api.model.ContentMetaAssociation"
-		table="content_meta_association">
-		
-		<id name="contentMetaAssociationId" column="content_meta_association_uid" unsaved-value="null">
-			<generator class="org.ednovo.gooru.core.application.util.UUIDGenerator" />
-		</id>
-		
-		<many-to-one name="content"
-			class="org.ednovo.gooru.core.api.model.Content" column="content_id"
-			not-null="false" lazy="proxy" cascade="none" />
-			
-		<many-to-one name="associationType"
-			class="org.ednovo.gooru.core.api.model.CustomTableValue" column="association_type"
-			not-null="true" lazy="proxy" cascade="none" />
-			
-		<many-to-one name="user" class="org.ednovo.gooru.core.api.model.User"
-			column="user_uid" not-null="true" lazy="proxy" cascade="none" />
-			
-		<property name="associatedDate" column="associated_date"
-			not-null="true" />
-			
+		table="content_meta_assoc">
+		<composite-id>
+			<key-many-to-one name="content"
+				class="org.ednovo.gooru.core.api.model.Content" column="content_id"
+				lazy="proxy" />
+			<key-many-to-one name="user" column="user_uid"
+				class="org.ednovo.gooru.core.api.model.User" lazy="proxy" />
+			<key-many-to-one class="org.ednovo.gooru.core.api.model.CustomTableValue"
+				name="typeId" column="type_id" />
+		</composite-id>
+
+		<property name="createdOn" column="created_on" not-null="true" />
+
 	</class>
 </hibernate-mapping>

@@ -6,6 +6,7 @@ import java.util.Map;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.Content;
+import org.ednovo.gooru.core.api.model.ContentMeta;
 import org.ednovo.gooru.core.api.model.User;
 
 public interface AbstractCollectionService {
@@ -23,4 +24,10 @@ public interface AbstractCollectionService {
 	void deleteCollection(String collectionId);
 
 	CollectionItem createCollectionItem(CollectionItem collectionItem, Collection parentContent, Content content, User user);
+	
+	void createContentMeta(Content content, Map<String, Object> data);
+	
+	void updateContentMeta(ContentMeta  contentMeta, Map<String, Object> data);
+	
+	List<Map<String, Object>> updateContentMetaAssoc(Content content, User user, String key, List<Integer> metaIds);
 }

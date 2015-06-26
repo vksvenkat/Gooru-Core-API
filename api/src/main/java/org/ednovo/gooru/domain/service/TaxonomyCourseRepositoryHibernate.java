@@ -25,6 +25,7 @@ package org.ednovo.gooru.domain.service;
 
 import java.util.List;
 import java.util.Map;
+
 import org.ednovo.gooru.core.api.model.TaxonomyCourse;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
@@ -36,15 +37,17 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class TaxonomyCourseRepositoryHibernate extends BaseRepositoryHibernate implements TaxonomyCourseRepository, ParameterProperties, ConstantProperties {
 
-	private static final String GET_COURSE = "FROM TaxonomyCourse c  WHERE c.courseId=:courseId"; 
+	private static final String GET_COURSE = "FROM TaxonomyCourse c  WHERE c.courseId=:courseId";
 
-	private static final String GET_COURSE_CODE = "FROM TaxonomyCourse c  WHERE c.courseCode=:courseCode"; 
+	private static final String GET_COURSE_CODE = "FROM TaxonomyCourse c  WHERE c.courseCode=:courseCode";
 
-	private static final String GET_COURSES = "FROM TaxonomyCourse"; 
-	
-	private static final String GET_MAX = "SELECT COALESCE(MAX(displaySequence),0) FROM TaxonomyCourse"; 
-	
+	private static final String GET_COURSES = "FROM TaxonomyCourse";
+
+	private static final String GET_MAX = "SELECT COALESCE(MAX(displaySequence),0) FROM TaxonomyCourse";
+
 	private static final String GET_DOMAINS = "select d.domain_id as domainId,d.name, d.image_path as imagePath from domain d join subdomain s on s.domain_id=d.domain_id join course c on s.course_id=c.course_id where c.course_id=:courseId";
+
+	private static final String GET_TAXONOMY_COURSES = "FROM TaxonomyCourse c  WHERE c.courseId  in (:courseId)";
 
 	@Override
 	public TaxonomyCourse getCourse(Integer courseId) {
@@ -57,7 +60,7 @@ public class TaxonomyCourseRepositoryHibernate extends BaseRepositoryHibernate i
 		Query query = getSession().createQuery(GET_COURSE_CODE).setParameter(COURSE_CODE, courseCode);
 		return (TaxonomyCourse) (query.list().size() > 0 ? query.list().get(0) : null);
 	}
-	
+
 	@Override
 	public List<TaxonomyCourse> getCourses(Integer limit, Integer offset) {
 		Query query = getSession().createQuery(GET_COURSES);
@@ -71,9 +74,9 @@ public class TaxonomyCourseRepositoryHibernate extends BaseRepositoryHibernate i
 		Query query = getSession().createQuery(GET_MAX);
 		return (Integer) query.list().get(0);
 	}
-	
+
 	@Override
-	public List<Map<String, Object>> getDomains(Integer courseId,int limit, int offset) {
+	public List<Map<String, Object>> getDomains(Integer courseId, int limit, int offset) {
 		Query query = getSession().createSQLQuery(GET_DOMAINS).setParameter(COURSE_ID, courseId);
 		query.setMaxResults(limit > MAX_LIMIT ? MAX_LIMIT : limit);
 		query.setFirstResult(offset);
@@ -81,4 +84,10 @@ public class TaxonomyCourseRepositoryHibernate extends BaseRepositoryHibernate i
 		return list(query);
 	}
 
+	@Override
+	public List<TaxonomyCourse> getTaxonomyCourses(List<Integer> courseIds) {
+		Query query = getSession().createQuery(GET_TAXONOMY_COURSES);
+		query.setParameterList(COURSE_ID, courseIds);
+		return list(query);
+	}
 }

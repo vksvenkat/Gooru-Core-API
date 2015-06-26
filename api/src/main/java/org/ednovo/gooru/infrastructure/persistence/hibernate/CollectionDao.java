@@ -17,4 +17,6 @@ public interface CollectionDao extends BaseRepository {
 	List<Map<String, Object>> getCollectionItem(String collectionId, String[] sharing, int limit, int offset);
 	
 	int getCollectionItemMaxSequence(Long contentId);
+	
+	int getCollectionItemCount(Long contentId, String collectionType);
 }

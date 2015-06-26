@@ -42,5 +42,7 @@ public interface CustomTableRepository extends BaseRepository {
 	List<CustomTableValue> getCustomValues(String type);
 	
 	List<Map<String, Object>> getMetaValue(String type);
+	
+	List<CustomTableValue> getCustomValues(List<Integer> ids);
 
 }

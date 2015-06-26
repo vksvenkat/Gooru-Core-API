@@ -25,19 +25,16 @@
 package org.ednovo.gooru.infrastructure.persistence.hibernate.content;
 
 import java.math.BigInteger;
-import java.util.Iterator;
 import java.util.List;
 
 import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.ContentAssociation;
+import org.ednovo.gooru.core.api.model.ContentMeta;
 import org.ednovo.gooru.core.api.model.ContentPermission;
 import org.ednovo.gooru.core.api.model.ContentProvider;
 import org.ednovo.gooru.core.api.model.ContentProviderAssociation;
 import org.ednovo.gooru.core.api.model.ContentTagAssoc;
-import org.ednovo.gooru.core.api.model.License;
-import org.ednovo.gooru.core.api.model.Resource;
-import org.ednovo.gooru.core.api.model.ResourceType;
 import org.ednovo.gooru.core.api.model.StatusType;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
@@ -52,15 +49,18 @@ import org.hibernate.criterion.ProjectionList;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.type.StandardBasicTypes;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class ContentRepositoryHibernate extends BaseRepositoryHibernate implements ContentRepository,ConstantProperties,ParameterProperties {
+public class ContentRepositoryHibernate extends BaseRepositoryHibernate implements ContentRepository, ConstantProperties, ParameterProperties {
 
-	@Autowired
-	private JdbcTemplate jdbcTemplate;
+	private final static String DELETE_CONTENT_DOMAIN_ASSOC = "DELETE FROM ContentDomainAssoc where content.contentId =:contentId";
+
+	private final static String DELETE_CONTENT_META_ASSOC = "DELETE cm.* from content_meta_assoc cm  inner join custom_table_value ctv on cm.type_id = ctv.custom_table_value_id  inner join custom_table ct on ctv.custom_table_id = ct.custom_table_id where  cm.content_id =:contentId and  name =:key";
+	
+	private final static String GET_CONTENT_META_DATA = "FROM ContentMeta where content.contentId=:contentId";
+	
+	private final static String DELETE_CONTENT_TAXONOMY_COURSE_ASSOC = "DELETE FROM ContentTaxonomyCourseAssoc where content.contentId =:contentId";
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -89,33 +89,6 @@ public class ContentRepositoryHibernate extends BaseRepositoryHibernate implemen
 		}
 	}
 
-	@SuppressWarnings("rawtypes")
-	@Override
-	public Resource findByResourceType(String typename, String url) {
-
-		Criteria crit = getSession().createCriteria(Resource.class);
-		ProjectionList proList = Projections.projectionList();
-		proList.add(Projections.property("resourceType"));
-		proList.add(Projections.property("contentId"));
-		proList.add(Projections.property("url"));
-		proList.add(Projections.property("license"));
-		crit.setProjection(proList);
-		crit.add(Restrictions.eq("resourceType.name", typename));
-		crit.add(Restrictions.eq("url", url));
-		List resourceList = addAuthCriterias(crit).list();
-		Resource resource = null;
-		Iterator it = resourceList.iterator();
-		while (it.hasNext()) {
-			resource = new Resource();
-			Object[] row = (Object[]) it.next();
-			resource.setContentId((Long) row[1]);
-			resource.setResourceType((ResourceType) row[0]);
-			resource.setUrl((String) row[2]);
-			resource.setLicense((License) row[3]);
-		}
-		return resource;
-	}
-
 	@SuppressWarnings("unchecked")
 	@Override
 	public User findContentOwner(String gooruContentId) {
@@ -131,7 +104,7 @@ public class ContentRepositoryHibernate extends BaseRepositoryHibernate implemen
 	@Override
 	public void delete(String gooruContentId) {
 		Content content = findContentByGooruId(gooruContentId);
-		if (content != null) {			
+		if (content != null) {
 			getSession().delete(content);
 		}
 	}
@@ -150,14 +123,6 @@ public class ContentRepositoryHibernate extends BaseRepositoryHibernate implemen
 		String hql = "FROM StatusType statusType  WHERE statusType.name = '" + name + "'";
 		List<StatusType> result = (List<StatusType>) find(hql);
 		return (result.size() > 0) ? null : result.get(0);
-	}
-
-	public JdbcTemplate getJdbcTemplate() {
-		return jdbcTemplate;
-	}
-
-	public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
-		this.jdbcTemplate = jdbcTemplate;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -241,15 +206,14 @@ public class ContentRepositoryHibernate extends BaseRepositoryHibernate implemen
 
 	@SuppressWarnings("rawtypes")
 	@Override
-	public List getIdsByUserUId(String userUId, String typeName,
-			Integer pageNo, Integer pageSize) {
+	public List getIdsByUserUId(String userUId, String typeName, Integer pageNo, Integer pageSize) {
 		Session session = getSession();
-		String sql = "SELECT c.content_id,c.gooru_oid, r.type_name FROM content c INNER JOIN resource r ON (r.content_id=c.content_id) WHERE c.user_uid = '"+ userUId +"' OR c.creator_uid = '"+ userUId +"'";
-		if(typeName != null){
-			sql += " and r.type_name in ('"+ typeName + "')";
+		String sql = "SELECT c.content_id,c.gooru_oid, r.type_name FROM content c INNER JOIN resource r ON (r.content_id=c.content_id) WHERE c.user_uid = '" + userUId + "' OR c.creator_uid = '" + userUId + "'";
+		if (typeName != null) {
+			sql += " and r.type_name in ('" + typeName + "')";
 		}
-		if(pageNo != null && pageSize != null){
-			sql += " limit " + pageNo +" , " + pageSize ;
+		if (pageNo != null && pageSize != null) {
+			sql += " limit " + pageNo + " , " + pageSize;
 		}
 		SQLQuery query = session.createSQLQuery(sql);
 		return query.list();
@@ -259,7 +223,7 @@ public class ContentRepositoryHibernate extends BaseRepositoryHibernate implemen
 	@Override
 	public List<ContentProvider> getContentProvider(Integer offset, Integer limit) {
 		Session session = getSession();
-		String hql = " FROM ContentProvider contentProvider WHERE "  + generateOrgAuthQueryWithData("contentProvider.") + " and " + "contentProvider.activeFlag = 1";
+		String hql = " FROM ContentProvider contentProvider WHERE " + generateOrgAuthQueryWithData("contentProvider.") + " and " + "contentProvider.activeFlag = 1";
 		Query query = session.createQuery(hql);
 		query.setFirstResult(offset);
 		query.setMaxResults(limit);
@@ -268,11 +232,11 @@ public class ContentRepositoryHibernate extends BaseRepositoryHibernate implemen
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<ContentProviderAssociation> getContentProviderByGooruOid(String gooruOid, String name, String providerType ) {
+	public List<ContentProviderAssociation> getContentProviderByGooruOid(String gooruOid, String name, String providerType) {
 		String hql = " FROM ContentProviderAssociation cpa WHERE " + generateOrgAuthQueryWithData("cpa.contentProvider.") + " and " + "cpa.gooruOid=:gooruOid" + " and " + "cpa.contentProvider.activeFlag = 1";
-		
-		if(name != null) {
-			hql += " and cpa.contentProvider.name ='"+ name +"'";
+
+		if (name != null) {
+			hql += " and cpa.contentProvider.name ='" + name + "'";
 		}
 		if (providerType != null) {
 			hql += " and cpa.contentProvider.type.value =:providerType";
@@ -284,7 +248,7 @@ public class ContentRepositoryHibernate extends BaseRepositoryHibernate implemen
 		}
 		return query.list();
 	}
-	
+
 	@Override
 	public ContentProvider getContentProviderByName(String name, String keyValue) {
 		String hql = " FROM ContentProvider cp WHERE " + generateOrgAuthQueryWithData("cp.") + " and cp.activeFlag = 1 and cp.name =:name";
@@ -310,11 +274,12 @@ public class ContentRepositoryHibernate extends BaseRepositoryHibernate implemen
 		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
 		return query.list();
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Object[]> getResourceContentTagList(String gooruOid, Integer limit, Integer offset) {
-		String sql = "select  count(1) as count, t.label as label , ct.tag_gooru_oid as tagGooruOid from tags t inner join content c on  (t.content_id = c.content_id) inner join content_tag_assoc ct on (c.gooru_oid= ct.tag_gooru_oid) where content_gooru_oid  =  '" + gooruOid+ "' group by ct.tag_gooru_oid";
+		String sql = "select  count(1) as count, t.label as label , ct.tag_gooru_oid as tagGooruOid from tags t inner join content c on  (t.content_id = c.content_id) inner join content_tag_assoc ct on (c.gooru_oid= ct.tag_gooru_oid) where content_gooru_oid  =  '" + gooruOid
+				+ "' group by ct.tag_gooru_oid";
 		Query query = getSession().createSQLQuery(sql).addScalar("count", StandardBasicTypes.INTEGER).addScalar("label", StandardBasicTypes.STRING).addScalar("tagGooruOid", StandardBasicTypes.STRING);
 		query.setFirstResult(offset);
 		query.setMaxResults(limit != null ? (limit > MAX_LIMIT ? MAX_LIMIT : limit) : LIMIT);
@@ -323,22 +288,48 @@ public class ContentRepositoryHibernate extends BaseRepositoryHibernate implemen
 
 	@Override
 	public Long getUserContentTagCount(String gooruUid) {
-		String  sql = "select count(*) as count from  (select  count(1) as count, t.label as label  from tags t inner join content c on  (t.content_id = c.content_id) inner join content_tag_assoc ct on (c.gooru_oid= ct.tag_gooru_oid) where associated_uid  =  '"+gooruUid +"' group by ct.tag_gooru_oid) sq";
+		String sql = "select count(*) as count from  (select  count(1) as count, t.label as label  from tags t inner join content c on  (t.content_id = c.content_id) inner join content_tag_assoc ct on (c.gooru_oid= ct.tag_gooru_oid) where associated_uid  =  '" + gooruUid
+				+ "' group by ct.tag_gooru_oid) sq";
 		Query query = getSession().createSQLQuery(sql);
-		return ((BigInteger)query.list().get(0)).longValue();
+		return ((BigInteger) query.list().get(0)).longValue();
 	}
-	
+
 	@Override
 	public Long getResourceContentTagCount(String gooruOid) {
-		String  sql = "select count(*) as count from  (select  count(1) as count, t.label as label  from tags t inner join content c on  (t.content_id = c.content_id) inner join content_tag_assoc ct on (c.gooru_oid= ct.tag_gooru_oid) where content_gooru_oid  =  '"+gooruOid +"' group by ct.tag_gooru_oid) sq";
+		String sql = "select count(*) as count from  (select  count(1) as count, t.label as label  from tags t inner join content c on  (t.content_id = c.content_id) inner join content_tag_assoc ct on (c.gooru_oid= ct.tag_gooru_oid) where content_gooru_oid  =  '" + gooruOid
+				+ "' group by ct.tag_gooru_oid) sq";
 		Query query = getSession().createSQLQuery(sql);
-		return ((BigInteger)query.list().get(0)).longValue();
+		return ((BigInteger) query.list().get(0)).longValue();
 	}
-	
+
 	@Override
-	public void deleteContentProvider(String gooruOid, String providerType, String name){
-		String sql = "delete cpa from content_provider_assoc cpa inner join content_provider cp on cpa.content_provider_uid = cp.content_provider_uid inner join custom_table_value ctv on cp.content_provider_type = ctv.custom_table_value_id where cpa.gooru_oid = '"+gooruOid+"' and ctv.value = '"+providerType+"' and cp.name = '"+name+"'";
+	public void deleteContentProvider(String gooruOid, String providerType, String name) {
+		String sql = "delete cpa from content_provider_assoc cpa inner join content_provider cp on cpa.content_provider_uid = cp.content_provider_uid inner join custom_table_value ctv on cp.content_provider_type = ctv.custom_table_value_id where cpa.gooru_oid = '" + gooruOid + "' and ctv.value = '"
+				+ providerType + "' and cp.name = '" + name + "'";
 		Query query = getSession().createSQLQuery(sql);
-		query.executeUpdate(); 
+		query.executeUpdate();
+	}
+
+	@Override
+	public ContentMeta getContentMeta(Long contentId) {
+		Query query =  getSession().createQuery(GET_CONTENT_META_DATA);
+		query.setParameter(CONTENT_ID, contentId);
+		List<ContentMeta> results = list(query);
+		return (ContentMeta) (results.size() > 0 ? results.get(0) : null);
+	}
+
+	@Override
+	public void deleteContentTaxonomyCourseAssoc(Long contentId) {
+		Query query = getSession().createQuery(DELETE_CONTENT_TAXONOMY_COURSE_ASSOC);
+		query.setParameter(CONTENT_ID, contentId);
+		query.executeUpdate();
+	}
+
+	@Override
+	public void deleteContentMetaAssoc(Long contentId, String key) {
+		Query query = getSession().createSQLQuery(DELETE_CONTENT_META_ASSOC);
+		query.setParameter(CONTENT_ID, contentId);
+		query.setParameter(KEY, key);
+		query.executeUpdate();
 	}
 }
