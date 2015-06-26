@@ -182,9 +182,18 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			}
 			
 			String apiKey = request.getParameter(API_KEY);
-			rejectIfNull(apiKey, GL0061, API_KEY);
-			final Application application  = this.getApplicationRepository().getApplication(apiKey);
+			String sessionToken = null;
+			Application application = null;
+			
+			if(apiKey != null){
+				application  = this.getApplicationRepository().getApplication(apiKey);
+			}else {
+				sessionToken = (sessionToken == null ? request.getHeader(SESSION_TOKEN) : request.getParameter(SESSION_TOKEN));
+				UserToken user = this.userTokenRepository.findByToken(sessionToken);
+				application = this.getApplicationRepository().getApplicationByOrganization(user.getUser().getOrganizationUid());
+			}
 			rejectIfNull(application, GL0056, API_KEY);
+			
 			// APIKEY domain white listing verification based on request referrer and host headers.
 			verifyApikeyDomains(request, application);
 			
@@ -364,7 +373,10 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 						break;						
 					}
 				}
+			}else { // If there are no valid domains set for valid APIKEY it should work
+				isValidReferrer = true;
 			}
+			
 		}
 		
 		if (registeredRefererDomains != null && !isValidReferrer){
