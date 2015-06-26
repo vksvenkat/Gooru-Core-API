@@ -113,9 +113,7 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 		final  List<Map<String, Object>>  members = this.getClassRepository().getMember(classUid, limit, offset);
 		final List<Map<String, Object>> userList = new ArrayList<Map<String, Object>>();
 		for ( Map<String, Object> user : members) {
-			if ( user.get(GOORU_UID) != null) {
-				user.put(PROFILE_IMG_URL, BaseUtil.changeHttpsProtocolByHeader(settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, TaxonomyUtil.GOORU_ORG_UID)) + "/" + String.valueOf( user.get("gooruUId")) + ".png");
-			}
+				user.put(PROFILE_IMG_URL, BaseUtil.changeHttpsProtocolByHeader(settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, TaxonomyUtil.GOORU_ORG_UID)) + "/" + String.valueOf( user.get(GOORU_UID)) + ".png");
 			userList.add(user);
 		}
 		return userList;
