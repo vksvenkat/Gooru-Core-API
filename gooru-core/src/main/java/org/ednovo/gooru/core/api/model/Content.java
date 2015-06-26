@@ -65,9 +65,6 @@ public class Content extends OrganizationModel implements IndexableEntry, IsCass
 	@JsonManagedReference
 	private Set<Code> taxonomySet = new HashSet<Code>();
 
-	@JsonManagedReference
-	private Set<ContentMetaAssociation> contentMetaAssoc = new HashSet<ContentMetaAssociation>();
-
 	private Set<ContentPermission> contentPermissions;
 
 	@Column
@@ -276,14 +273,6 @@ public class Content extends OrganizationModel implements IndexableEntry, IsCass
 
 	public Map<String, Object> getMeta() {
 		return meta;
-	}
-
-	public void setContentMetaAssoc(Set<ContentMetaAssociation> contentMetaAssoc) {
-		this.contentMetaAssoc = contentMetaAssoc;
-	}
-
-	public Set<ContentMetaAssociation> getContentMetaAssoc() {
-		return contentMetaAssoc;
 	}
 
 	public Integer getVersion() {

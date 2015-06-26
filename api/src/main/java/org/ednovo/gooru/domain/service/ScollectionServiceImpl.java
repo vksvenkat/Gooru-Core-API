@@ -42,7 +42,6 @@ import org.ednovo.gooru.application.util.CollectionUtil;
 import org.ednovo.gooru.application.util.MailAsyncExecutor;
 import org.ednovo.gooru.application.util.ResourceImageUtil;
 import org.ednovo.gooru.application.util.SerializerUtil;
-import org.ednovo.gooru.application.util.TaxonomyUtil;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.AssessmentQuestion;
 import org.ednovo.gooru.core.api.model.Code;
@@ -51,8 +50,6 @@ import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.CollectionType;
 import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.ContentAssociation;
-import org.ednovo.gooru.core.api.model.ContentMetaAssociation;
-import org.ednovo.gooru.core.api.model.ContentMetaDTO;
 import org.ednovo.gooru.core.api.model.ContentSettings;
 import org.ednovo.gooru.core.api.model.ContentType;
 import org.ednovo.gooru.core.api.model.CustomTableValue;
@@ -100,7 +97,6 @@ import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomT
 import org.ednovo.gooru.infrastructure.persistence.hibernate.question.CommentRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.resource.ResourceRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.taxonomy.TaxonomyRespository;
-import org.ednovo.gooru.json.serializer.util.JsonSerializer;
 import org.ednovo.gooru.security.OperationAuthorizer;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.json.JSONException;
@@ -245,31 +241,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				collectionItem.setItemType(ADDED);
 				collection.setCollectionItem(this.createCollectionItem(collection.getGooruOid(), null, collectionItem, collection.getUser(), CollectionType.SHElf.getCollectionType(), false).getModel());
 			}
-			if (collection.getCollectionType().equalsIgnoreCase(COLLECTION) || collection.getCollectionType().equalsIgnoreCase(ASSESSMENT)) {
-				if (collection.getDepthOfKnowledges() != null && collection.getDepthOfKnowledges().size() > 0) {
-					collection.setDepthOfKnowledges(this.updateContentMeta(collection.getDepthOfKnowledges(), collection, collection.getUser(), DEPTH_OF_KNOWLEDGE));
-				} else {
-					collection.setDepthOfKnowledges(this.setContentMetaAssociation(this.getContentMetaAssociation(DEPTH_OF_KNOWLEDGE), collection, DEPTH_OF_KNOWLEDGE));
-				}
-
-				if (collection.getLearningSkills() != null && collection.getLearningSkills().size() > 0) {
-					collection.setLearningSkills(this.updateContentMeta(collection.getLearningSkills(), collection, collection.getUser(), LEARNING_AND_INNOVATION_SKILLS));
-				} else {
-					collection.setLearningSkills(this.setContentMetaAssociation(this.getContentMetaAssociation(LEARNING_AND_INNOVATION_SKILLS), collection, LEARNING_AND_INNOVATION_SKILLS));
-				}
-
-				if (collection.getAudience() != null && collection.getAudience().size() > 0) {
-					collection.setAudience(this.updateContentMeta(collection.getAudience(), collection, collection.getUser(), AUDIENCE));
-				} else {
-					collection.setAudience(this.setContentMetaAssociation(this.getContentMetaAssociation(AUDIENCE), collection, AUDIENCE));
-				}
-
-				if (collection.getInstructionalMethod() != null && collection.getInstructionalMethod().size() > 0) {
-					collection.setInstructionalMethod(this.updateContentMeta(collection.getInstructionalMethod(), collection, collection.getUser(), INSTRUCTIONAL_METHOD));
-				} else {
-					collection.setInstructionalMethod(this.setContentMetaAssociation(this.getContentMetaAssociation(INSTRUCTIONAL_METHOD), collection, INSTRUCTIONAL_METHOD));
-				}
-			}
 			if (collection.getSharing().equalsIgnoreCase(PUBLIC)) {
 				final UserSummary userSummary = this.getUserRepository().getSummaryByUid(user.getPartyUid());
 				if (userSummary.getGooruUid() == null) {
@@ -393,9 +364,16 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				this.getCollectionRepository().save(collection);
 			}
 
-			/*if ((newCollection.getBuildType() != null && newCollection.getBuildType().getValue() != null) && (newCollection.getBuildType().getValue() == WEB || newCollection.getBuildType().getValue() == IPAD)) {
-				collection.setBuildType(this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.BUILD_TYPE.getTable(), newCollection.getBuildType().getValue()));
-			}*/
+			/*
+			 * if ((newCollection.getBuildType() != null &&
+			 * newCollection.getBuildType().getValue() != null) &&
+			 * (newCollection.getBuildType().getValue() == WEB ||
+			 * newCollection.getBuildType().getValue() == IPAD)) {
+			 * collection.setBuildType
+			 * (this.getCustomTableRepository().getCustomTableValue
+			 * (CustomProperties.Table.BUILD_TYPE.getTable(),
+			 * newCollection.getBuildType().getValue())); }
+			 */
 
 			if (newCollection.getTitle() != null) {
 				collection.setTitle(newCollection.getTitle());
@@ -431,43 +409,30 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			if (newCollection.getPerformanceTasks() != null) {
 				collection.setPerformanceTasks(newCollection.getPerformanceTasks());
 			}
-			if (collection.getCollectionType().equalsIgnoreCase(COLLECTION) || collection.getCollectionType().equalsIgnoreCase(ASSESSMENT) || collection.getCollectionType().equalsIgnoreCase(ASSESSMENT_URL)) {
-				if (newCollection.getDepthOfKnowledges() != null && newCollection.getDepthOfKnowledges().size() > 0) {
-					collection.setDepthOfKnowledges(this.updateContentMeta(newCollection.getDepthOfKnowledges(), collection, apiCallerUser, DEPTH_OF_KNOWLEDGE));
-				} else {
-					collection.setDepthOfKnowledges(this.setContentMetaAssociation(this.getContentMetaAssociation(DEPTH_OF_KNOWLEDGE), collection, DEPTH_OF_KNOWLEDGE));
-				}
-
-				if (newCollection.getLearningSkills() != null && newCollection.getLearningSkills().size() > 0) {
-					collection.setLearningSkills(this.updateContentMeta(newCollection.getLearningSkills(), collection, apiCallerUser, LEARNING_AND_INNOVATION_SKILLS));
-				} else {
-					collection.setLearningSkills(this.setContentMetaAssociation(this.getContentMetaAssociation(LEARNING_AND_INNOVATION_SKILLS), collection, LEARNING_AND_INNOVATION_SKILLS));
-				}
-
-				if (newCollection.getAudience() != null && newCollection.getAudience().size() > 0) {
-					collection.setAudience(this.updateContentMeta(newCollection.getAudience(), collection, apiCallerUser, AUDIENCE));
-				} else {
-					collection.setAudience(this.setContentMetaAssociation(this.getContentMetaAssociation(AUDIENCE), collection, AUDIENCE));
-				}
-
-				if (newCollection.getInstructionalMethod() != null && newCollection.getInstructionalMethod().size() > 0) {
-					collection.setInstructionalMethod(this.updateContentMeta(newCollection.getInstructionalMethod(), collection, apiCallerUser, INSTRUCTIONAL_METHOD));
-				} else {
-					collection.setInstructionalMethod(this.setContentMetaAssociation(this.getContentMetaAssociation(INSTRUCTIONAL_METHOD), collection, INSTRUCTIONAL_METHOD));
-				}
-			}
 			if (newCollection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing())) {
 
 				if (!newCollection.getSharing().equalsIgnoreCase(PUBLIC)) {
 					collection.setPublishStatus(null);
 				}
-				/*if (!collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.ASSESSMENT_URL.getType()) && newCollection.getSharing().equalsIgnoreCase(PUBLIC) && !userService.isContentAdmin(apiCallerUser)) {
-					collection.setPublishStatus(this.getCustomTableRepository().getCustomTableValue(_PUBLISH_STATUS, PENDING));
-					newCollection.setSharing(collection.getSharing());
-				}
-				if (collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.ASSESSMENT_URL.getType()) || newCollection.getSharing().equalsIgnoreCase(PUBLIC) && userService.isContentAdmin(apiCallerUser)) {
-					collection.setPublishStatus(this.getCustomTableRepository().getCustomTableValue(_PUBLISH_STATUS, REVIEWED));
-				}*/
+				/*
+				 * if
+				 * (!collection.getCollectionType().equalsIgnoreCase(ResourceType
+				 * .Type.ASSESSMENT_URL.getType()) &&
+				 * newCollection.getSharing().equalsIgnoreCase(PUBLIC) &&
+				 * !userService.isContentAdmin(apiCallerUser)) {
+				 * collection.setPublishStatus
+				 * (this.getCustomTableRepository().getCustomTableValue
+				 * (_PUBLISH_STATUS, PENDING));
+				 * newCollection.setSharing(collection.getSharing()); } if
+				 * (collection
+				 * .getCollectionType().equalsIgnoreCase(ResourceType.
+				 * Type.ASSESSMENT_URL.getType()) ||
+				 * newCollection.getSharing().equalsIgnoreCase(PUBLIC) &&
+				 * userService.isContentAdmin(apiCallerUser)) {
+				 * collection.setPublishStatus
+				 * (this.getCustomTableRepository().getCustomTableValue
+				 * (_PUBLISH_STATUS, REVIEWED)); }
+				 */
 
 				if (collection.getSharing().equalsIgnoreCase(PUBLIC) && newCollection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing())) {
 					final UserSummary userSummary = this.getUserRepository().getSummaryByUid(apiCallerUser.getPartyUid());
@@ -515,53 +480,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		}
 		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collection.getUser().getPartyUid() + "*");
 		return new ActionResponseDTO<Collection>(collection, errors);
-	}
-
-	@Override
-	public List<ContentMetaDTO> updateContentMeta(List<ContentMetaDTO> newDepthOfKnowledges, final String collectionId, final User apiCaller, final String type) {
-		final Resource resource = this.getResourceRepository().findResourceByContentGooruId(collectionId);
-		return updateContentMeta(newDepthOfKnowledges, resource, apiCaller, type);
-	}
-
-	@Override
-	public List<ContentMetaDTO> updateContentMeta(final List<ContentMetaDTO> newDepthOfKnowledges, final Content content, final User apiCaller, final String type) {
-		final List<ContentMetaAssociation> removeAll = new ArrayList<ContentMetaAssociation>();
-		final List<ContentMetaAssociation> saveAll = new ArrayList<ContentMetaAssociation>();
-		final Set<ContentMetaAssociation> updateContent = new HashSet<ContentMetaAssociation>();
-		for (final ContentMetaDTO newMeta : newDepthOfKnowledges) {
-			final CustomTableValue customTableValue = this.getCustomTableRepository().getValueByDisplayName(newMeta.getValue(), type);
-			if (customTableValue != null) {
-				Boolean isAlreadyUpdated = false;
-				if (content.getContentMetaAssoc() != null) {
-					for (final ContentMetaAssociation contentMetaAssociation : content.getContentMetaAssoc()) {
-						if (contentMetaAssociation.getAssociationType().getDisplayName().equalsIgnoreCase(newMeta.getValue()) && !newMeta.getSelected()) {
-							removeAll.add(contentMetaAssociation);
-							break;
-						} else if (contentMetaAssociation.getAssociationType().getDisplayName().equalsIgnoreCase(newMeta.getValue())) {
-							isAlreadyUpdated = true;
-							updateContent.add(contentMetaAssociation);
-							break;
-						}
-					}
-				}
-				if (newMeta.getSelected() && !isAlreadyUpdated) {
-					ContentMetaAssociation contentMetaAssociationNew = new ContentMetaAssociation();
-					contentMetaAssociationNew.setAssociationType(customTableValue);
-					contentMetaAssociationNew.setUser(apiCaller);
-					contentMetaAssociationNew.setContent(content);
-					contentMetaAssociationNew.setAssociatedDate(new Date(System.currentTimeMillis()));
-					saveAll.add(contentMetaAssociationNew);
-					updateContent.add(contentMetaAssociationNew);
-				}
-			}
-		}
-		if (saveAll.size() > 0) {
-			this.getCollectionRepository().saveAll(saveAll);
-		}
-		if (removeAll.size() > 0) {
-			this.getCollectionRepository().removeAll(removeAll);
-		}
-		return this.setContentMetaAssociation(this.getContentMetaAssociation(type), updateContent, type);
 	}
 
 	@Override
@@ -643,11 +561,14 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				collectionItem.getCollection().setLastUpdatedUserUid(user.getPartyUid());
 			}
 
-			/*if (!isCreateQuestion) {
-				final AssessmentQuestion assessmentQuestion = assessmentService.copyAssessmentQuestion(user, content.getGooruOid());
-				collectionItem.setContent(assessmentQuestion);
-			} else { */
-				collectionItem.setContent(content);
+			/*
+			 * if (!isCreateQuestion) { final AssessmentQuestion
+			 * assessmentQuestion =
+			 * assessmentService.copyAssessmentQuestion(user,
+			 * content.getGooruOid());
+			 * collectionItem.setContent(assessmentQuestion); } else {
+			 */
+			collectionItem.setContent(content);
 			/* } */
 
 			int sequence = collectionItem.getCollection().getCollectionItems() != null ? collectionItem.getCollection().getCollectionItems().size() + 1 : 1;
@@ -737,11 +658,11 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			if (newcollectionItem.getShowHints() != null) {
 				collectionItem.setShowHints(newcollectionItem.getShowHints());
 			}
-		
+
 			if (newcollectionItem.getEstimatedTime() != null) {
 				collectionItem.setEstimatedTime(newcollectionItem.getEstimatedTime());
 			}
-			
+
 			if (newcollectionItem.getNarrationType() != null) {
 				collectionItem.setNarrationType(newcollectionItem.getNarrationType());
 			}
@@ -965,9 +886,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			if (includeMetaInfo) {
 				this.setCollectionMetaData(collection, user, merge, false, rootNodeId, includeViewCount, includeContentProvider, includeCustomFields);
 			}
-			if (isGat) {
-				collection.setTaxonomySetMapping(TaxonomyUtil.getTaxonomyByCode(collection.getTaxonomySet(), taxonomyService));
-			}
+
 			if (collection.getUser() != null) {
 				collection.getUser().setProfileImageUrl(this.getUserService().buildUserProfileImageUrl(collection.getUser()));
 			}
@@ -986,12 +905,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			}
 			setView(collection);
 			collection.setLastModifiedUser(lastUserModifiedMap);
-			if (collection.getCollectionType().equalsIgnoreCase(COLLECTION) || collection.getCollectionType().equalsIgnoreCase(ASSESSMENT) || collection.getCollectionType().equalsIgnoreCase(ASSESSMENT_URL)) {
-				collection.setDepthOfKnowledges(this.setContentMetaAssociation(this.getContentMetaAssociation(DEPTH_OF_KNOWLEDGE), collection, DEPTH_OF_KNOWLEDGE));
-				collection.setLearningSkills(this.setContentMetaAssociation(this.getContentMetaAssociation(LEARNING_AND_INNOVATION_SKILLS), collection, LEARNING_AND_INNOVATION_SKILLS));
-				collection.setAudience(this.setContentMetaAssociation(this.getContentMetaAssociation(AUDIENCE), collection, AUDIENCE));
-				collection.setInstructionalMethod(this.setContentMetaAssociation(this.getContentMetaAssociation(INSTRUCTIONAL_METHOD), collection, INSTRUCTIONAL_METHOD));
-			}
+
 			if (merge != null) {
 				final Map<String, Object> permissions = new HashMap<String, Object>();
 				if (merge.contains(PERMISSIONS)) {
@@ -1026,48 +940,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		return ratings;
 	}
 
-	@Override
-	public List<ContentMetaDTO> getContentMetaAssociation(final String type) {
-		List<ContentMetaDTO> depthOfKnowledges = new ArrayList<ContentMetaDTO>();
-		final String cacheKey = "content_meta_association_type_" + type;
-		final String data = redisService.getValue(cacheKey);
-		if (data == null) {
-			final List<CustomTableValue> customTableValues = this.getCustomTableRepository().getFilterValueFromCustomTable(type);
-			for (CustomTableValue customTableValue : customTableValues) {
-				depthOfKnowledges.add(new ContentMetaDTO(customTableValue.getValue(), customTableValue.getDisplayName(), false));
-			}
-			redisService.putValue(cacheKey, JsonSerializer.serialize(depthOfKnowledges, FORMAT_JSON));
-		} else {
-			depthOfKnowledges = JsonDeserializer.deserialize(data, new TypeReference<List<ContentMetaDTO>>() {
-			});
-		}
-		return depthOfKnowledges;
-	}
-
-	@Override
-	public List<ContentMetaDTO> setContentMetaAssociation(List<ContentMetaDTO> depthOfKnowledges, String collectionId, final String type) {
-		final Resource resource = this.getResourceRepository().findResourceByContent(collectionId);
-		rejectIfNull(resource, "GL0056", RESOURCE + " ID: " + collectionId);
-		return setContentMetaAssociation(depthOfKnowledges, resource.getContentMetaAssoc(), type);
-	}
-
-	@Override
-	public List<ContentMetaDTO> setContentMetaAssociation(List<ContentMetaDTO> depthOfKnowledges, Content content, String type) {
-		return setContentMetaAssociation(depthOfKnowledges, content.getContentMetaAssoc(), type);
-	}
-
-	public List<ContentMetaDTO> setContentMetaAssociation(List<ContentMetaDTO> depthOfKnowledges, Set<ContentMetaAssociation> contentMetaAssociations, final String type) {
-		if (contentMetaAssociations != null && contentMetaAssociations.size() > 0) {
-			for (ContentMetaAssociation contentMetaAssociation : contentMetaAssociations) {
-				for (ContentMetaDTO depthOfKnowledge : depthOfKnowledges) {
-					if (depthOfKnowledge.getValue().equalsIgnoreCase(contentMetaAssociation.getAssociationType().getDisplayName())) {
-						depthOfKnowledge.setSelected(true);
-					}
-				}
-			}
-		}
-		return depthOfKnowledges;
-	}
 
 	@Override
 	public Collection copyCollection(final String collectionId, final String title, boolean addToShelf, User user, String taxonomyCode, final String grade, String parentId) throws Exception {
@@ -1127,7 +999,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 							}
 						}
 					}
-					resource.setEducationalUse(this.setContentMetaAssociation(this.getContentMetaAssociation(EDUCATIONAL_USE), resource, EDUCATIONAL_USE));
 
 					resource.setRatings(this.setRatingsObj(this.getResourceRepository().getResourceSummaryById(resource.getGooruOid())));
 
@@ -1139,11 +1010,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 					}
 
 					resource.setResourceTags(this.getContentService().getContentTagAssoc(resource.getGooruOid(), user));
-					if (resource.getResourceType().getName().equalsIgnoreCase(ASSESSMENT_QUESTION)) {
-						resource.setDepthOfKnowledges(this.setContentMetaAssociation(this.getContentMetaAssociation(DEPTH_OF_KNOWLEDGE), resource, DEPTH_OF_KNOWLEDGE));
-					} else {
-						resource.setMomentsOfLearning(this.setContentMetaAssociation(this.getContentMetaAssociation(MOMENTS_OF_LEARNING), resource, MOMENTS_OF_LEARNING));
-					}
 
 					if ((merge != null && merge.contains(REACTION)) && (resource != null)) {
 						Map<String, Object> resourcePermissions = new HashMap<String, Object>();
@@ -1334,12 +1200,13 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			}
 			this.getCollectionRepository().save(collection);
 		}
-/*		if (isNotEmptyString(buildType)) {
-			if (buildType.equalsIgnoreCase(WEB) || buildType.equalsIgnoreCase(IPAD)) {
-				collection.setBuildType(this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.BUILD_TYPE.getTable(), buildType));
-			}
-		}
-*/
+		/*
+		 * if (isNotEmptyString(buildType)) { if
+		 * (buildType.equalsIgnoreCase(WEB) || buildType.equalsIgnoreCase(IPAD))
+		 * { collection.setBuildType(this.getCustomTableRepository().
+		 * getCustomTableValue(CustomProperties.Table.BUILD_TYPE.getTable(),
+		 * buildType)); } }
+		 */
 		if (isNotEmptyString(title)) {
 			collection.setTitle(title);
 		}
@@ -1662,16 +1529,24 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				resourceService.saveOrUpdateResourceTaxonomy(collection, newCollection.getTaxonomySet());
 			}
 
-			/*if (newCollection.getBuildType() != null && newCollection.getBuildType().getValue() != null) {
-				if (newCollection.getBuildType().getValue().equalsIgnoreCase(WEB) || newCollection.getBuildType().getValue().equalsIgnoreCase(IPAD)) {
-					collection.setBuildType(this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.BUILD_TYPE.getTable(), newCollection.getBuildType().getValue()));
-				}
-			}
-			if (newCollection.getPublishStatus() != null && newCollection.getPublishStatus().getValue() != null) {
-				if (newCollection.getPublishStatus().getValue().equalsIgnoreCase(REVIEWED)) {
-					collection.setPublishStatus(this.getCustomTableRepository().getCustomTableValue(_PUBLISH_STATUS, newCollection.getPublishStatus().getValue()));
-				}
-			}*/
+			/*
+			 * if (newCollection.getBuildType() != null &&
+			 * newCollection.getBuildType().getValue() != null) { if
+			 * (newCollection.getBuildType().getValue().equalsIgnoreCase(WEB) ||
+			 * newCollection.getBuildType().getValue().equalsIgnoreCase(IPAD)) {
+			 * collection
+			 * .setBuildType(this.getCustomTableRepository().getCustomTableValue
+			 * (CustomProperties.Table.BUILD_TYPE.getTable(),
+			 * newCollection.getBuildType().getValue())); } } if
+			 * (newCollection.getPublishStatus() != null &&
+			 * newCollection.getPublishStatus().getValue() != null) { if
+			 * (newCollection
+			 * .getPublishStatus().getValue().equalsIgnoreCase(REVIEWED)) {
+			 * collection
+			 * .setPublishStatus(this.getCustomTableRepository().getCustomTableValue
+			 * (_PUBLISH_STATUS, newCollection.getPublishStatus().getValue()));
+			 * } }
+			 */
 
 			if (newCollection.getTitle() != null) {
 				collection.setTitle(newCollection.getTitle());
@@ -1736,41 +1611,19 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				this.getCollectionRepository().save(contentSetting);
 			}
 
-			if (collection.getCollectionType().equalsIgnoreCase(COLLECTION) || collection.getCollectionType().equalsIgnoreCase(ASSESSMENT) || collection.getCollectionType().equalsIgnoreCase(ASSESSMENT_URL)) {
-				if (newCollection.getDepthOfKnowledges() != null && newCollection.getDepthOfKnowledges().size() > 0) {
-					collection.setDepthOfKnowledges(this.updateContentMeta(newCollection.getDepthOfKnowledges(), collection, updateUser, DEPTH_OF_KNOWLEDGE));
-				} else {
-					collection.setDepthOfKnowledges(this.setContentMetaAssociation(this.getContentMetaAssociation(DEPTH_OF_KNOWLEDGE), collection, DEPTH_OF_KNOWLEDGE));
-				}
-				if (newCollection.getLearningSkills() != null && newCollection.getLearningSkills().size() > 0) {
-					collection.setLearningSkills(this.updateContentMeta(newCollection.getLearningSkills(), collection, updateUser, LEARNING_AND_INNOVATION_SKILLS));
-				} else {
-					collection.setLearningSkills(this.setContentMetaAssociation(this.getContentMetaAssociation(LEARNING_AND_INNOVATION_SKILLS), collection, LEARNING_AND_INNOVATION_SKILLS));
-				}
-
-				if (newCollection.getAudience() != null && newCollection.getAudience().size() > 0) {
-					collection.setAudience(this.updateContentMeta(newCollection.getAudience(), collection, updateUser, AUDIENCE));
-				} else {
-					collection.setAudience(this.setContentMetaAssociation(this.getContentMetaAssociation(AUDIENCE), collection, AUDIENCE));
-				}
-
-				if (newCollection.getInstructionalMethod() != null && newCollection.getInstructionalMethod().size() > 0) {
-					collection.setInstructionalMethod(this.updateContentMeta(newCollection.getInstructionalMethod(), collection, updateUser, INSTRUCTIONAL_METHOD));
-				} else {
-					collection.setInstructionalMethod(this.setContentMetaAssociation(this.getContentMetaAssociation(INSTRUCTIONAL_METHOD), collection, INSTRUCTIONAL_METHOD));
-				}
-			}
 			if (newCollection.getSharing() != null && (newCollection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing()))) {
 
 				if (!newCollection.getSharing().equalsIgnoreCase(PUBLIC)) {
 					collection.setPublishStatus(null);
 				}
 				if (!collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.ASSESSMENT_URL.getType()) && newCollection.getSharing().equalsIgnoreCase(PUBLIC) && !userService.isContentAdmin(updateUser)) {
-					//collection.setPublishStatus(this.getCustomTableRepository().getCustomTableValue(_PUBLISH_STATUS, PENDING));
+					// collection.setPublishStatus(this.getCustomTableRepository().getCustomTableValue(_PUBLISH_STATUS,
+					// PENDING));
 					newCollection.setSharing(collection.getSharing());
 				}
 				if (collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.ASSESSMENT_URL.getType()) || newCollection.getSharing().equalsIgnoreCase(PUBLIC) && userService.isContentAdmin(updateUser)) {
-					//collection.setPublishStatus(this.getCustomTableRepository().getCustomTableValue(_PUBLISH_STATUS, REVIEWED));
+					// collection.setPublishStatus(this.getCustomTableRepository().getCustomTableValue(_PUBLISH_STATUS,
+					// REVIEWED));
 				}
 				if (collection.getSharing().equalsIgnoreCase(PUBLIC) && (newCollection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing()))) {
 					final UserSummary userSummary = this.getUserRepository().getSummaryByUid(collection.getUser().getPartyUid());
@@ -2040,17 +1893,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			this.getResourceRepository().saveOrUpdate(resource);
 
 			resourceService.saveOrUpdateResourceTaxonomy(resource, newResource.getTaxonomySet());
-
-			if (newResource.getMomentsOfLearning() != null && newResource.getMomentsOfLearning().size() > 0) {
-				resource.setMomentsOfLearning(this.updateContentMeta(newResource.getMomentsOfLearning(), resource.getGooruOid(), user, MOMENTS_OF_LEARNING));
-			} else {
-				resource.setMomentsOfLearning(this.setContentMetaAssociation(this.getContentMetaAssociation(MOMENTS_OF_LEARNING), resource, MOMENTS_OF_LEARNING));
-			}
-			if (newResource.getEducationalUse() != null && newResource.getEducationalUse().size() > 0) {
-				resource.setEducationalUse(this.updateContentMeta(newResource.getEducationalUse(), resource.getGooruOid(), user, EDUCATIONAL_USE));
-			} else {
-				resource.setEducationalUse(this.setContentMetaAssociation(this.getContentMetaAssociation(EDUCATIONAL_USE), resource, EDUCATIONAL_USE));
-			}
 
 			if (tags != null && tags.size() > 0) {
 				resource.setResourceTags(this.getContentService().createTagAssoc(resource.getGooruOid(), tags, user));

@@ -28,6 +28,8 @@ public class Application extends Resource {
     private List<OAuthClient> oauthClients;
     
     private List<ApplicationItem> applicationItems;
+    
+    private String refererDomains;
 
 	public Integer getSearchLimit() {
 		return searchLimit;
@@ -115,6 +117,14 @@ public class Application extends Resource {
 
 	public void setApplicationItems(List<ApplicationItem> applicationItems) {
 		this.applicationItems = applicationItems;
+	}
+
+	public String getRefererDomains() {
+		return refererDomains;
+	}
+
+	public void setRefererDomains(String refererDomains) {
+		this.refererDomains = refererDomains;
 	}
 
 

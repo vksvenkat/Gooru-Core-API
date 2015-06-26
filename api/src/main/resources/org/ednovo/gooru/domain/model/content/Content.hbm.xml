@@ -81,11 +81,6 @@
 				column="code_id" unique="true" />
 		</set>
 
-		<set name="contentMetaAssoc" inverse="true" table="content_meta_association"
-			cascade="none" lazy="true">
-			<key column="content_id" not-null="true" />
-			<one-to-many class="org.ednovo.gooru.core.api.model.ContentMetaAssociation" />
-		</set>
 
 		<joined-subclass name="org.ednovo.gooru.core.api.model.Tag"
 			table="tags">
@@ -164,8 +159,9 @@
 				not-null="false" />
 			<property name="languageObjective" column="language_objective"
 				not-null="false" />
-			<property name="buildType"  column="build_type_id" not-null="false"  />
-			<property name="publishStatus" column="publish_status_id" not-null="false"  />
+			<property name="buildType" column="build_type_id" not-null="false" />
+			<property name="publishStatus" column="publish_status_id"
+				not-null="false" />
 			<property name="clusterUid" column="cluster_uid" not-null="false" />
 			<property name="isRepresentative" column="is_representative"
 				not-null="false" />
@@ -270,6 +266,7 @@
 				<property name="searchLimit" column="search_limit" type="int"
 					not-null="false" />
 				<property name="secretKey" column="secret_key" not-null="true" />
+				<property name="refererDomains" column="referer_domains" not-null="false" />
 				<many-to-one name="status"
 					class="org.ednovo.gooru.core.api.model.CustomTableValue" column="status_id"
 					not-null="true" lazy="proxy" cascade="none" />

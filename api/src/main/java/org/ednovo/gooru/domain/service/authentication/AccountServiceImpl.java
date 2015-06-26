@@ -23,8 +23,10 @@
 /////////////////////////////////////////////////////////////
 package org.ednovo.gooru.domain.service.authentication;
 
+import java.io.File;
 import java.util.Date;
 import java.util.Random;
+
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
@@ -72,6 +74,7 @@ import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
@@ -169,6 +172,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 		final UserToken userToken = new UserToken();
 		final Errors errors = new BindException(userToken, SESSIONTOKEN);
 		final String apiEndPoint = getConfigSetting(ConfigConstants.GOORU_API_ENDPOINT, 0, TaxonomyUtil.GOORU_ORG_UID);
+		
 		if (!errors.hasErrors()) {
 			if (username == null) {
 				throw new BadRequestException(generateErrorMessage(GL0061, "Username"), GL0061);
@@ -176,6 +180,14 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			if (password == null) {
 				throw new BadRequestException(generateErrorMessage(GL0061, "Password"), GL0061);
 			}
+			
+			String apiKey = request.getParameter(API_KEY);
+			rejectIfNull(apiKey, GL0061, API_KEY);
+			final Application application  = this.getApplicationRepository().getApplication(apiKey);
+			rejectIfNull(application, GL0056, API_KEY);
+			// APIKEY domain white listing verification based on request referrer and host headers.
+			verifyApikeyDomains(request, application);
+			
 			Identity identity = new Identity();
 			identity.setExternalId(username);
 
@@ -188,8 +200,9 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			if (identity.getActive() == 0) {
 				throw new UnauthorizedException(generateErrorMessage(GL0079), GL0079);
 			}
+			
 			final User user = this.getUserRepository().findByIdentityLogin(identity);
-
+					
 			if (!isSsoLogin) {
 				if (identity.getCredential() == null && identity.getAccountCreatedType() != null && !identity.getAccountCreatedType().equalsIgnoreCase(CREDENTIAL)) {
 					throw new UnauthorizedException(generateErrorMessage(GL0105, identity.getAccountCreatedType()), GL0105 + Constants.ACCOUNT_TYPES.get(identity.getAccountCreatedType()));
@@ -229,8 +242,6 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 					}
 				}
 			}
-
-			final Application application = this.getApplicationRepository().getApplicationByOrganization(user.getOrganization().getPartyUid());
 
 			userToken.setUser(user);
 			userToken.setSessionId(request.getSession().getId());
@@ -319,6 +330,45 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 				LOGGER.error(_ERROR, e);
 			}
 			this.redisService.delete(SESSION_TOKEN_KEY + userToken.getToken());
+		}
+	}
+	
+	public void verifyApikeyDomains(HttpServletRequest request, Application application) {
+		
+		boolean isValidReferrer = false;
+		
+		String host = null;
+		String registeredRefererDomains = null;
+		
+		if (request.getHeader(HOST) != null){
+			host = request.getHeader(HOST);
+		}else if (request.getHeader(REFERER) != null){
+			host = request.getHeader(REFERER);
+		}
+
+		if (host != null){			
+			String hostElements [] = host.split(REGX_DOT);
+			StringBuffer domainName = new StringBuffer();
+			if(hostElements.length == 2){
+				domainName.append(hostElements[0]).append(DOT).append(hostElements[1]);
+			} else {
+				domainName.append(hostElements[1]).append(DOT).append(hostElements[2]);
+			}
+			registeredRefererDomains = application.getRefererDomains();
+			
+			if(registeredRefererDomains != null ){				
+				String whiteListedDomains [] = registeredRefererDomains.split(COMMA);
+				for (String refererDomain : whiteListedDomains) {
+					if(refererDomain.equalsIgnoreCase(domainName.toString())){
+						isValidReferrer = true;
+						break;						
+					}
+				}
+			}
+		}
+		
+		if (registeredRefererDomains != null && !isValidReferrer){
+			throw new AccessDeniedException(generateErrorMessage(GL0109));
 		}
 	}
 
