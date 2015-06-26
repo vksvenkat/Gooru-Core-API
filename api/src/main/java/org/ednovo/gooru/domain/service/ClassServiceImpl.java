@@ -143,9 +143,8 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteUserFromClass(final String classUid, final String userUid) {
-      this.getClassRepository().deleteUserFromClass(classUid, userUid);		     
+		this.getClassRepository().deleteUserFromClass(classUid, userUid);
 	}
-	
 
 }
 		
