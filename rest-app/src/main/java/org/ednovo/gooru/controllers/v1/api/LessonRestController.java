@@ -36,7 +36,7 @@ public class LessonRestController extends BaseController implements ConstantProp
 	@RequestMapping(method = RequestMethod.POST)
 	public ModelAndView createLesson(@PathVariable(value = COURSE_ID) final String courseUId, @PathVariable(value = UNIT_ID) final String unitUId, @RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) {
 		final User user = (User) request.getAttribute(Constants.USER);
-		final ActionResponseDTO<Collection> responseDTO = this.getLessonService().createLesson(unitUId, buildLesson(data), user);
+		final ActionResponseDTO<Collection> responseDTO = this.getLessonService().createLesson(courseUId, unitUId, buildLesson(data), user);
 		if (responseDTO.getErrors().getErrorCount() > 0) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		} else {
