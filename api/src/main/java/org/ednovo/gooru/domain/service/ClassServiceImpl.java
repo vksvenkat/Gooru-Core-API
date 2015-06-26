@@ -32,9 +32,6 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 	private ClassRepository classRepository;
 		
 	@Autowired
-	private UserGroupRepository userGroupRepository;
-
-	@Autowired
 	private SettingService settingService;
 
 	@Override
@@ -165,7 +162,4 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 		return this.getClassRepository().getClassById(classUid);
 	}
 	
-	public UserGroupRepository getUserGroupRepository() {
-		return userGroupRepository;
-	}
 }
