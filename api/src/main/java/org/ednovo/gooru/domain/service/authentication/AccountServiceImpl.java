@@ -188,9 +188,11 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 			if(apiKey != null){
 				application  = this.getApplicationRepository().getApplication(apiKey);
 			}else {
-				sessionToken = (sessionToken == null ? request.getHeader(SESSION_TOKEN) : request.getParameter(SESSION_TOKEN));
-				UserToken user = this.userTokenRepository.findByToken(sessionToken);
-				application = this.getApplicationRepository().getApplicationByOrganization(user.getUser().getOrganizationUid());
+				sessionToken = (request.getHeader(Constants.GOORU_SESSION_TOKEN) != null ? request.getHeader(Constants.GOORU_SESSION_TOKEN) : request.getParameter(SESSION_TOKEN));
+				rejectIfNull(sessionToken, GL0007, SESSIONTOKEN);
+				User user = this.userService.findByToken(sessionToken);
+				rejectIfNull(user, GL0007, SESSIONTOKEN);
+				application = this.getApplicationRepository().getApplicationByOrganization(user.getOrganization().getPartyUid());
 			}
 			rejectIfNull(application, GL0056, API_KEY);
 			
@@ -251,7 +253,7 @@ public class AccountServiceImpl extends ServerValidationUtils implements Account
 					}
 				}
 			}
-
+			
 			userToken.setUser(user);
 			userToken.setSessionId(request.getSession().getId());
 			userToken.setScope(SESSION);
