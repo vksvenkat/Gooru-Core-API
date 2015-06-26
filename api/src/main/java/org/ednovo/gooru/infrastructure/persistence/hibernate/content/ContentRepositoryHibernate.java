@@ -54,11 +54,13 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class ContentRepositoryHibernate extends BaseRepositoryHibernate implements ContentRepository, ConstantProperties, ParameterProperties {
 
-	private final static String DELETE_CONTENT_TAXONOMY_COURSE_ASSOC = "DELETE FROM ContentTaxonomyCourseAssoc where content.contentId =:contentId";
+	private final static String DELETE_CONTENT_DOMAIN_ASSOC = "DELETE FROM ContentDomainAssoc where content.contentId =:contentId";
 
 	private final static String DELETE_CONTENT_META_ASSOC = "DELETE cm.* from content_meta_assoc cm  inner join custom_table_value ctv on cm.type_id = ctv.custom_table_value_id  inner join custom_table ct on ctv.custom_table_id = ct.custom_table_id where  cm.content_id =:contentId and  name =:key";
-	
+
 	private final static String GET_CONTENT_META_DATA = "FROM ContentMeta where content.contentId=:contentId";
+
+	private final static String DELETE_CONTENT_TAXONOMY_COURSE_ASSOC = "DELETE FROM ContentTaxonomyCourseAssoc where content.contentId =:contentId";
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -310,7 +312,7 @@ public class ContentRepositoryHibernate extends BaseRepositoryHibernate implemen
 
 	@Override
 	public ContentMeta getContentMeta(Long contentId) {
-		Query query =  getSession().createQuery(GET_CONTENT_META_DATA);
+		Query query = getSession().createQuery(GET_CONTENT_META_DATA);
 		query.setParameter(CONTENT_ID, contentId);
 		List<ContentMeta> results = list(query);
 		return (ContentMeta) (results.size() > 0 ? results.get(0) : null);
@@ -328,6 +330,13 @@ public class ContentRepositoryHibernate extends BaseRepositoryHibernate implemen
 		Query query = getSession().createSQLQuery(DELETE_CONTENT_META_ASSOC);
 		query.setParameter(CONTENT_ID, contentId);
 		query.setParameter(KEY, key);
+		query.executeUpdate();
+	}
+
+	@Override
+	public void deleteContentDomainAssoc(Long contentId) {
+		Query query = getSession().createQuery(DELETE_CONTENT_DOMAIN_ASSOC);
+		query.setParameter(CONTENT_ID, contentId);
 		query.executeUpdate();
 	}
 }

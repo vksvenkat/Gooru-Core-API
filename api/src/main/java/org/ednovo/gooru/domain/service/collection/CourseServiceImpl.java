@@ -9,6 +9,7 @@ import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionType;
 import org.ednovo.gooru.core.api.model.Content;
+import org.ednovo.gooru.core.api.model.ContentMeta;
 import org.ednovo.gooru.core.api.model.ContentTaxonomyCourseAssoc;
 import org.ednovo.gooru.core.api.model.MetaConstants;
 import org.ednovo.gooru.core.api.model.Sharing;
@@ -47,7 +48,7 @@ public class CourseServiceImpl extends AbstractCollectionServiceImpl implements 
 			collection.setSharing(Sharing.PRIVATE.getSharing());
 			collection.setCollectionType(CollectionType.COURSE.getCollectionType());
 			createCollection(collection, parentCollection, user);
-			Map<String, Object> data = generateContentMetaData(collection, collection, user);
+			Map<String, Object> data = generateCourseMetaData(collection, collection, user);
 			data.put(SUMMARY, MetaConstants.COURSE_SUMMARY);
 			createContentMeta(collection, data);
 		}
@@ -59,9 +60,10 @@ public class CourseServiceImpl extends AbstractCollectionServiceImpl implements 
 	public void updateCourse(String courseId, Collection newCollection, User user) {
 		Collection collection = this.getCollectionDao().getCollection(courseId);
 		rejectIfNull(collection, GL0056, COURSE);
-		Map<String, Object> data = generateContentMetaData(collection, newCollection, user);
+		Map<String, Object> data = generateCourseMetaData(collection, newCollection, user);
 		if (data != null && data.size() > 0) {
-			updateContentMeta(collection.getContentId(), data);
+			ContentMeta contentMeta = this.getContentRepository().getContentMeta(collection.getContentId());
+			updateContentMeta(contentMeta, data);
 		}
 		this.updateCollection(collection, newCollection, user);
 	}
@@ -77,6 +79,20 @@ public class CourseServiceImpl extends AbstractCollectionServiceImpl implements 
 	public List<Map<String, Object>> getCourses(int limit, int offset) {
 		Map<String, Object> filters = new HashMap<String, Object>();
 		filters.put(COLLECTION_TYPE, COURSE_TYPE);
+		return getCourses(filters, limit, offset);
+	}
+
+	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public List<Map<String, Object>> getCourses(String gooruUid, int limit, int offset) {
+		Map<String, Object> filters = new HashMap<String, Object>();
+		filters.put(COLLECTION_TYPE, COURSE_TYPE);
+		filters.put(PARENT_COLLECTION_TYPE, SHELF);
+		filters.put(GOORU_UID, gooruUid);
+		return getCourses(filters, limit, offset);
+	}
+
+	private List<Map<String, Object>> getCourses(Map<String, Object> filters, int limit, int offset) {
 		List<Map<String, Object>> results = this.getCollections(filters, limit, offset);
 		List<Map<String, Object>> courses = new ArrayList<Map<String, Object>>();
 		for (Map<String, Object> course : results) {
@@ -107,7 +123,7 @@ public class CourseServiceImpl extends AbstractCollectionServiceImpl implements 
 		return courses;
 	}
 
-	private Map<String, Object> generateContentMetaData(Collection collection, Collection newCollection, User user) {
+	private Map<String, Object> generateCourseMetaData(Collection collection, Collection newCollection, User user) {
 		Map<String, Object> data = new HashMap<String, Object>();
 		if (newCollection.getTaxonomyCourseIds() != null) {
 			List<Map<String, Object>> taxonomyCourse = updateTaxonomyCourse(collection, newCollection.getTaxonomyCourseIds());
