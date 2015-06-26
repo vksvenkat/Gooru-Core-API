@@ -68,7 +68,7 @@ public class Subject implements Serializable {
 	private Map<String, Object> thumbnails;
 
 	private String mediaFilename;
-	
+
 	public Map<String, Object> getThumbnails() {
 		return thumbnails;
 	}
@@ -76,7 +76,7 @@ public class Subject implements Serializable {
 	public void setThumbnails(Map<String, Object> thumbnails) {
 		this.thumbnails = thumbnails;
 	}
-
+	
 	public String getMediaFilename() {
 		return mediaFilename;
 	}

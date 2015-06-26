@@ -466,9 +466,9 @@ public class CollectionRestV2Controller extends BaseController implements Consta
 		collection.setLastUpdatedUserUid(user.getGooruUId());
 		if (collection.getCollectionType() == null) {
 			collection.setCollectionType(getCollectionType(request));
-			final ContentType contentType = getCollectionService().getContentType(COLLECTION);
-			collection.setContentType(contentType);
 		}
+		final ContentType contentType = getCollectionService().getContentType(collection.getCollectionType());
+		collection.setContentType(contentType);
 
 		return collection;
 	}
