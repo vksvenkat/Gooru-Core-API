@@ -12,7 +12,9 @@ import org.ednovo.gooru.core.api.model.ContentMeta;
 import org.ednovo.gooru.core.api.model.MetaConstants;
 import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.User;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentClassificationRepository;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +27,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 public class LessonServiceImpl extends AbstractCollectionServiceImpl implements LessonService {
 
 	private static final String[] LESSON_TYPE = { "lesson" };
+
+	@Autowired
+	private ContentClassificationRepository contentClassificationRepository;
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -106,10 +111,9 @@ public class LessonServiceImpl extends AbstractCollectionServiceImpl implements 
 
 	private Map<String, Object> generateLessonMetaData(Collection collection, Collection newCollection, User user) {
 		Map<String, Object> data = new HashMap<String, Object>();
-		if (newCollection.getDomainIds() != null) {
-			// List<Map<String, Object>> domain = updateUnitDomain(collection,
-			// newCollection.getDomainIds());
-			// data.put(DOMAIN, domain);
+		if (newCollection.getStandardIds() != null) {
+			List<Map<String, Object>> standards = updateContentCode(collection, newCollection.getStandardIds(), MetaConstants.CONTENT_CLASSIFICATION_STANDARD_TYPE_ID);
+			data.put(STANDARDS, standards);
 		}
 		return data;
 	}
@@ -120,6 +124,10 @@ public class LessonServiceImpl extends AbstractCollectionServiceImpl implements 
 			rejectIfNullOrEmpty(errors, collection.getTitle(), TITLE, GL0006, generateErrorMessage(GL0006, TITLE));
 		}
 		return errors;
+	}
+
+	public ContentClassificationRepository getContentClassificationRepository() {
+		return contentClassificationRepository;
 	}
 
 }
