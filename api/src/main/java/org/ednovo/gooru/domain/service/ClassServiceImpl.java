@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.ednovo.gooru.application.util.GooruImageUtil;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.User;
@@ -25,9 +26,8 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 
 	@Autowired
 	private ClassRepository classRepository;
-
+	
 	@Override
-
 	public ActionResponseDTO<UserClass> createClass(UserClass userClass, User user) {
 		Errors errors = validateClass(userClass);
 		if (!errors.hasErrors()) {
@@ -139,4 +139,14 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 	public UserClass getClassById(String classUid) {
 		return this.getClassRepository().getClassById(classUid);
 	}
+
+	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public void removeFromClass(final String classUid, final String userUid) {
+      this.getClassRepository().getRemoveFromClass(classUid, userUid);		     
+	}
+	
+
 }
+		
+	

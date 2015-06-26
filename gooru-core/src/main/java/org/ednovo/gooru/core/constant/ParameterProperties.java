@@ -2931,5 +2931,7 @@ public interface ParameterProperties {
 	String HOST = "host";
 	
 	String REFERER = "referer";
+	
+	public static final String CLASS_UID = "classUid";
 }
 

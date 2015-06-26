@@ -9,6 +9,8 @@ public interface ClassRepository extends BaseRepository {
 
 	UserClass getClassById(String classUid);
 
+	void getRemoveFromClass(String classUid, String userUid);
+
 	List<Map<String, Object>> getClasses(int limit, int offset);
 
 	List<Map<String, Object>> getClasses(String gooruUid, int limit, int offset);
