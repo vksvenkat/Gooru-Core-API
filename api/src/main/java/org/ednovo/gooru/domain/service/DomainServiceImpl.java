@@ -101,7 +101,7 @@ public class DomainServiceImpl extends BaseServiceImpl implements DomainService,
 	public Domain getDomain(Integer domainId) {
 		Domain domain = this.getDomainRepository().getDomain(domainId);
 		rejectIfNull(domain, GL0056, 404, DOMAIN_);
-		reject((domain.getActiveFlag() == 1), GL0107, DOMAIN);
+		reject((domain.getActiveFlag() == 1), GL0107, DOMAIN_INCLUDES);
 		if (domain.getImagePath() != null) {
 			domain.setThumbnails(GooruImageUtil.getThumbnails(domain.getImagePath()));
 		}

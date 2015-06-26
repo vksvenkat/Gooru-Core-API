@@ -821,7 +821,7 @@ public interface ConstantProperties {
 
 	static final String COURSE_[] = { "*.courseId", "*.name", "*.thumbnails", "thumbnails.url" };
 
-	static final String DOMAIN[] = { "*.thumbnails", "thumbnails.url", "*.domainId", "*.name" };
+	static final String DOMAIN_INCLUDES[] = { "*.thumbnails", "thumbnails.url", "*.domainId", "*.name" };
 
 	static final String STATE[] = { "*.stateUid", "*.stateCode", "*.name", "*.totalHitCount", "*.searchResults" };
 
@@ -930,8 +930,10 @@ public interface ConstantProperties {
 	final static String META_DATA = "metaData";
 
 	final static String SUBDOMAIN_ATTRIBUTE[] = { "*.codeId", "*.label", "*.code", "*.description" };
+
+	final static String DOMAIN = "domain";
 	
 	final static String DOT = ".";
-	
+
 	final static String REGX_DOT = "\\.";
 }

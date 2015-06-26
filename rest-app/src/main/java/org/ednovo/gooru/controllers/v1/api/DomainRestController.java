@@ -79,13 +79,13 @@ public class DomainRestController extends BaseController implements ConstantProp
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_DOMAIN_READ })
 	@RequestMapping(value = { "/{id}" }, method = RequestMethod.GET)
 	public ModelAndView getDomain(@PathVariable(value = ID) Integer domainId, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		return toModelAndViewWithIoFilter(getDomainService().getDomain(domainId), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, DOMAIN);
+		return toModelAndViewWithIoFilter(getDomainService().getDomain(domainId), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, DOMAIN_INCLUDES);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_DOMAIN_READ })
 	@RequestMapping(method = RequestMethod.GET)
 	public ModelAndView getDomains(@RequestParam(value = OFFSET_FIELD, required = false, defaultValue = "0") Integer offset, @RequestParam(value = LIMIT_FIELD, required = false, defaultValue = "10") Integer limit, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		return toModelAndViewWithIoFilter(getDomainService().getDomains(limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, DOMAIN);
+		return toModelAndViewWithIoFilter(getDomainService().getDomains(limit, offset), RESPONSE_FORMAT_JSON, EXCLUDE_ALL, true, DOMAIN_INCLUDES);
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_DOMAIN_DELETE })

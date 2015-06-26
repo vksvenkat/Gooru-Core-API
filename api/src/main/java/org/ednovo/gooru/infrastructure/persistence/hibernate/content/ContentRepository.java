@@ -33,7 +33,6 @@ import org.ednovo.gooru.core.api.model.ContentPermission;
 import org.ednovo.gooru.core.api.model.ContentProvider;
 import org.ednovo.gooru.core.api.model.ContentProviderAssociation;
 import org.ednovo.gooru.core.api.model.ContentTagAssoc;
-import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.StatusType;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.BaseRepository;
@@ -91,5 +90,7 @@ public interface ContentRepository extends BaseRepository {
 	void deleteContentTaxonomyCourseAssoc(Long contentId);
 	
 	void deleteContentMetaAssoc(Long contentId, String key);
+	
+	void deleteContentDomainAssoc(Long contentId);
 
 }
