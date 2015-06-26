@@ -198,8 +198,6 @@ public class AssessmentServiceImpl implements ConstantProperties, AssessmentServ
 
 	@Override
 	public ActionResponseDTO<AssessmentQuestion> updateQuestion(AssessmentQuestion question, List<Integer> deleteAssets, String gooruOQuestionId, boolean copyToOriginal, boolean index) throws Exception {
-		List<ContentMetaDTO> depth = question.getDepthOfKnowledges();
-		List<ContentMetaDTO> educational = question.getEducationalUse();
 		question = initQuestion(question, gooruOQuestionId, copyToOriginal);
 		Errors errors = validateQuestion(question);
 		List<Asset> assets = buildQuestionAssets(deleteAssets, errors);
