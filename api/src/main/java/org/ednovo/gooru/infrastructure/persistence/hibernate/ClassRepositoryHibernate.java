@@ -72,7 +72,7 @@ public class ClassRepositoryHibernate extends BaseRepositoryHibernate implements
 	}
 
 	@Override
-	public void getRemoveFromClass(String classUid,String userUid) {
+	public void deleteUserFromClass(String classUid,String userUid) {
          Query query = getSession().createSQLQuery(REMOVE_CLASS);
          query.setParameter(GOORU_UID, userUid);
          query.setParameter(CLASS_UID, classUid);

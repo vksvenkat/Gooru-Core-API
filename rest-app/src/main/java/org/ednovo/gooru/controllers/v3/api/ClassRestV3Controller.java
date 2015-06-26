@@ -93,9 +93,9 @@ public class ClassRestV3Controller extends BaseController implements ConstantPro
 	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_CLASSPAGE_DELETE })
-	@RequestMapping(value = "/{id}/member/{userUid}", method = RequestMethod.DELETE)
+	@RequestMapping(value = RequestMappingUri.DELETE_USER_FROM_CLASS, method = RequestMethod.DELETE)
 	public void removeFromClass(@PathVariable(value = ID) final String classUid, @PathVariable(value = USER_UID) final String userUid, final HttpServletRequest request, final HttpServletResponse response) {
-		this.getClassService().removeFromClass(classUid, userUid);
+		this.getClassService().deleteUserFromClass(classUid, userUid);
 	}
 	
 	private UserClass buildClass(final String data) {

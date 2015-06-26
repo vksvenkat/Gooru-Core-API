@@ -21,6 +21,6 @@ public interface ClassService {
 	
 	List<Map<String, Object>> getStudyClasses(String gooruUid, int limit, int offset);
 	
-	void removeFromClass(String classUid, String userUid);
+	void deleteUserFromClass(String classUid, String userUid);
 	 
 }
