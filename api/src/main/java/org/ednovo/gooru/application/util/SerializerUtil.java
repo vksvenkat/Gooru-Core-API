@@ -264,18 +264,22 @@ public class SerializerUtil implements ParameterProperties {
 	 */
 	private static boolean willSerializeAssessmentQuestion(Object model) {
 		if (model != null) {
-
-			if (model instanceof CollectionItem
-					&& ((CollectionItem) model).getResource() instanceof AssessmentQuestion) {
-				return true;
+			if (model instanceof CollectionItem) {
+				Resource resource = ((CollectionItem) model).getResource();
+				if (resource instanceof AssessmentQuestion) {
+					if (((AssessmentQuestion) resource).isQuestionNewGen()) {
+						return true;
+					}
+				}
+				return false;
 			} else if (model instanceof Collection) {
-				Set<CollectionItem> items = ((Collection) model)
-						.getCollectionItems();
+				Set<CollectionItem> items = ((Collection) model).getCollectionItems();
 				if (items != null) {
-
 					for (CollectionItem ci : items) {
 						if (ci.getResource() instanceof AssessmentQuestion) {
-							return true;
+							if (((AssessmentQuestion) ci.getResource()).isQuestionNewGen()) {
+                                return true;
+                            }
 						}
 					}
 				}

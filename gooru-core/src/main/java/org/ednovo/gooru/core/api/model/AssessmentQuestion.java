@@ -22,7 +22,8 @@ public class AssessmentQuestion extends Resource {
 		TRUE_OR_FALSE("T/F", "3"), FILL_IN_BLANKS("FIB", "4"), 
 		MATCH_THE_FOLLOWING("MTF", "5"), OPEN_ENDED("OE", "6"), 
 		MULTIPLE_ANSWERS("MA", "7"), HOT_TEXT_HL("HT_HL", "8"),
-		HOT_TEXT_RO("HT_RO", "9"), HOT_SPOT("HS", "10");
+		HOT_TEXT_RO("HT_RO", "9"), HOT_SPOT_TEXT("HS_TXT", "10"),
+		HOT_SPOT_IMAGES("HS_IMG", "11");
 
 		private String name;
 		private String id;
@@ -95,7 +96,10 @@ public class AssessmentQuestion extends Resource {
 
 	private String assessmentGooruId;
 
-	private String quizNetwork;
+    private String quizNetwork;
+
+    @Transient
+	private String[] mediaFiles;
 
 	public AssessmentQuestion() {
 	}
@@ -149,8 +153,10 @@ public class AssessmentQuestion extends Resource {
 				typeName = TYPE.HOT_TEXT_HL.getName();
 			} else if (type.equalsIgnoreCase(TYPE.HOT_TEXT_RO.getId())) {
 				typeName = TYPE.HOT_TEXT_RO.getName();
-			} else if (type.equalsIgnoreCase(TYPE.HOT_SPOT.getId())) {
-				typeName = TYPE.HOT_SPOT.getName();
+			} else if (type.equalsIgnoreCase(TYPE.HOT_SPOT_TEXT.getId())) {
+				typeName = TYPE.HOT_SPOT_TEXT.getName();
+			} else if (type.equalsIgnoreCase(TYPE.HOT_SPOT_IMAGES.getId())) {
+				typeName = TYPE.HOT_SPOT_IMAGES.getName();
 			}
 		} else if (typeName == null) {
 			this.type = type;
@@ -283,8 +289,10 @@ public class AssessmentQuestion extends Resource {
 				type = TYPE.OPEN_ENDED.getId();
 			} else if (typeName.equals(TYPE.MULTIPLE_ANSWERS.getName())) {
 				type = TYPE.MULTIPLE_ANSWERS.getId();
-			} else if (typeName.equals(TYPE.HOT_SPOT.getName())) {
-				type = TYPE.HOT_SPOT.getId();
+			} else if (typeName.equals(TYPE.HOT_SPOT_IMAGES.getName())) {
+				type = TYPE.HOT_SPOT_IMAGES.getId();
+			} else if (typeName.equals(TYPE.HOT_SPOT_TEXT.getName())) {
+				type = TYPE.HOT_SPOT_TEXT.getId();
 			} else if (typeName.equals(TYPE.HOT_TEXT_HL.getName())) {
 				type = TYPE.HOT_TEXT_HL.getId();
 			} else if (typeName.equals(TYPE.HOT_TEXT_RO.getName())) {
@@ -446,5 +454,14 @@ public class AssessmentQuestion extends Resource {
 		}
 		return true;
 	}
+
+    public String[] getMediaFiles() {
+        return mediaFiles;
+    }
+
+    public void setMediaFiles(String[] mediaFiles) {
+        this.mediaFiles = mediaFiles;
+    }
+
 
 }
