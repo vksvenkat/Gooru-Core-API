@@ -159,8 +159,8 @@
 				not-null="false" />
 			<property name="languageObjective" column="language_objective"
 				not-null="false" />
-			<property name="buildType" column="build_type_id" not-null="false" />
-			<property name="publishStatus" column="publish_status_id"
+			<property name="buildTypeId" column="build_type_id" not-null="false" />
+			<property name="publishStatusId" column="publish_status_id"
 				not-null="false" />
 			<property name="clusterUid" column="cluster_uid" not-null="false" />
 			<property name="isRepresentative" column="is_representative"

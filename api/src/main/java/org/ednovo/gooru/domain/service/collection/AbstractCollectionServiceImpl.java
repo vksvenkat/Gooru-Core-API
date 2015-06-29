@@ -19,6 +19,7 @@ import org.ednovo.gooru.core.api.model.CustomTableValue;
 import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
+import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.domain.service.BaseServiceImpl;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionDao;
@@ -36,7 +37,7 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 
 	@Autowired
 	private CustomTableRepository customTableRepository;
-	
+
 	@Autowired
 	private ContentClassificationRepository contentClassificationRepository;
 
@@ -52,6 +53,8 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 		collection.setCreator(user);
 		collection.setLastUpdatedUserUid(user.getGooruUId());
 		collection.setContentType(this.getContentType(collection.getCollectionType()));
+		collection.setIsRepresentative(1);
+		collection.setClusterUid(collection.getGooruOid());
 		getCollectionDao().save(collection);
 		return collection;
 	}
@@ -139,12 +142,26 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 
 	protected Map<String, Object> mergeMetaData(Map<String, Object> content) {
 		Object data = content.get(META_DATA);
-		Map<String, Object> metaData = null;
 		if (data != null) {
-			metaData = JsonDeserializer.deserialize(String.valueOf(data), new TypeReference<Map<String, Object>>() {
+			Map<String, Object> metaData = JsonDeserializer.deserialize(String.valueOf(data), new TypeReference<Map<String, Object>>() {
 			});
 			content.putAll(metaData);
 		}
+		Object settings = content.get(DATA);
+		if (settings != null) {
+			Map<String, Object> setting = JsonDeserializer.deserialize(String.valueOf(settings), new TypeReference<Map<String, Object>>() {
+			});
+			content.put(SETTINGS, setting);
+		}
+		Object buildType = content.get(BUILD_TYPE);
+		if (buildType != null) {
+			content.put(BUILD_TYPE, Constants.BUILD_TYPE.get(((Number) buildType).shortValue()));
+		}
+		Object publishStatus = (Short) content.get(PUBLISH_STATUS);
+		if (publishStatus != null) {
+			content.put(PUBLISH_STATUS, Constants.PUBLISH_STATUS.get(((Number) publishStatus).shortValue()));
+		}
+		content.remove(DATA);
 		content.remove(META_DATA);
 		return content;
 	}
@@ -218,7 +235,7 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 		}
 		return metaValues;
 	}
-	
+
 	public List<Map<String, Object>> updateContentCode(Content content, List<Integer> codeIds, Short typeId) {
 		this.getContentClassificationRepository().deleteContentClassification(content.getContentId(), typeId);
 		List<Map<String, Object>> codes = null;
@@ -245,7 +262,7 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 	public CollectionDao getCollectionDao() {
 		return collectionDao;
 	}
-	
+
 	public ContentClassificationRepository getContentClassificationRepository() {
 		return contentClassificationRepository;
 	}
