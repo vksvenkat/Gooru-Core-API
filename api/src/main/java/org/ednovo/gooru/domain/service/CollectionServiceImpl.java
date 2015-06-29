@@ -143,6 +143,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		if (responseDTO.getModel() != null) {
 			response = this.createCollectionItem(responseDTO.getModel(),
 					collection, null, null, user);
+            boolean updateAssetInS3 = false;
 			if (mediaFileName != null && mediaFileName.length() > 0) {
 				String questionImage = this.assessmentService
 						.updateQuizQuestionImage(responseDTO.getModel()
@@ -157,30 +158,50 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 												.getModel().getGooruOid(),
 												questionImage));
 					} else {
-						response.getModel().setQuestionInfo(
-								this.assessmentService.updateQuestionAssest(
-										responseDTO.getModel().getGooruOid(),
-										StringUtils.substringAfterLast(
-												questionImage, "/")));
-						try {
-							this.getAsyncExecutor().updateResourceFileInS3(
-									response.getModel().getResource()
-											.getFolder(),
-									response.getModel().getResource()
-											.getOrganization()
-											.getNfsStorageArea()
-											.getInternalPath(),
-									response.getModel().getResource()
-											.getGooruOid(),
-									UserGroupSupport.getSessionToken());
-						} catch (Exception e) {
-							if (LOGGER.isErrorEnabled()) {
-								LOGGER.error(e.getMessage());
-							}
-						}
-					}
+                        response.getModel().setQuestionInfo(
+                                this.assessmentService.updateQuestionAssest(
+                                        responseDTO.getModel().getGooruOid(),
+                                        StringUtils.substringAfterLast(
+                                                questionImage, "/")));
+                        updateAssetInS3 = true;
+                    }
 				}
-			}
+            }
+            /* The new generation questions have answers as images as well. We need to
+             * store these assets. Note that since they are going into Mongo, we are not
+             * maintaining the association in MySql. We shall just stash them and then
+             * make sure that they go till S3
+             */
+            if (question.isQuestionNewGen()) {
+                List<String> answerAssets = question.getMediaFiles();
+                if (answerAssets != null && answerAssets.size() > 0) {
+                    updateAssetInS3 = true;
+                    for (String answerAsset : answerAssets) {
+                        this.assessmentService.updateQuizQuestionImage(responseDTO.getModel().getGooruOid(),
+                                answerAsset, question, ASSET_ANSWERS);
+                    }
+                }
+            }
+
+            if (updateAssetInS3) {
+                try {
+                    this.getAsyncExecutor().updateResourceFileInS3(
+                            response.getModel().getResource()
+                                    .getFolder(),
+                            response.getModel().getResource()
+                                    .getOrganization()
+                                    .getNfsStorageArea()
+                                    .getInternalPath(),
+                            response.getModel().getResource()
+                                    .getGooruOid(),
+                            UserGroupSupport.getSessionToken());
+                } catch (Exception e) {
+                    if (LOGGER.isErrorEnabled()) {
+                        LOGGER.error(e.getMessage());
+                    }
+                }
+
+            }
 
 			if (question.getDepthOfKnowledges() != null
 					&& question.getDepthOfKnowledges().size() > 0) {
@@ -302,7 +323,20 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 														questionImage, "/"));
 							}
 						}
-					}
+                        if (assessmentQuestion.isQuestionNewGen()) {
+                            List<String> mediaFilesToAdd = newQuestion.getMediaFiles();
+                            if (mediaFilesToAdd != null && mediaFilesToAdd.size() > 0) {
+                                for (String mediaFileToAdd : mediaFilesToAdd) {
+                                    assessmentService.updateQuizQuestionImage(
+                                            assessmentQuestion.getGooruOid(),
+                                            mediaFileToAdd,
+                                            assessmentQuestion,
+                                            ASSET_ANSWERS
+                                    );
+                                }
+                            }
+                        }
+                    }
 					collectionItem.setQuestionInfo(assessmentQuestion);
 					if (newQuestion.getDepthOfKnowledges() != null
 							&& newQuestion.getDepthOfKnowledges().size() > 0) {

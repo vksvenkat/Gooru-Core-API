@@ -950,6 +950,8 @@ public interface ParameterProperties {
 
 	String ASSET_QUESTION = "asset-question";
 
+	String ASSET_ANSWERS = "asset-answers";
+
 	String ASSET_EXPLANATION = "asset-explanation";
 
 	String RESOURCE_CONTENTID = "resourceContentId";
@@ -2917,6 +2919,8 @@ public interface ParameterProperties {
 	String CLASS_GOORU_ID = "classGooruId";
 	
 	String GL0107 = "GL0107";
+
+	String MEDIA_FILES = "media_files";
 	
 }
 
