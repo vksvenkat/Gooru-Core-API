@@ -221,13 +221,8 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			if (parentId != null) {
 				parentCollection = collectionRepository.getCollectionByGooruOid(parentId, collection.getUser().getGooruUId());
 			}
-			// collection.setBuildType(this.getCustomTableRepository().getCustomTableValue(CustomProperties.Table.BUILD_TYPE.getTable(),
-			// collection.getBuildType() == null ? WEB :
-			// collection.getBuildType().getValue() != null ?
-			// collection.getBuildType().getValue() : WEB));
 			if (collection.getSharing() != null && !collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.ASSESSMENT_URL.getType()) && collection.getSharing().equalsIgnoreCase(PUBLIC)) {
-				// collection.setPublishStatus(this.getCustomTableRepository().getCustomTableValue(_PUBLISH_STATUS,
-				// PENDING));
+				collection.setPublishStatus(Constants.PUBLISH_PENDING_STATUS);
 				collection.setSharing(Sharing.ANYONEWITHLINK.getSharing());
 			}
 			this.getCollectionRepository().save(collection);
@@ -281,7 +276,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				data.put(EVENT_TYPE, CustomProperties.EventMapping.FIRST_COLLECTION.getEvent());
 				data.put(_GOORU_UID, collection.getUser().getGooruUId());
 				data.put(ACCOUNT_TYPE_ID, collection.getUser().getAccountTypeId() != null ? collection.getUser().getAccountTypeId().toString() : null);
-				// this.getMailAsyncExecutor().handleMailEvent(data);
+				//this.getMailAsyncExecutor().handleMailEvent(data);
 				this.mailHandler.handleMailEvent(data);
 
 			}
@@ -1456,6 +1451,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		if (collection != null) {
 			rejectIfNullOrEmpty(errors, collection.getTitle(), TITLE, GL0006, generateErrorMessage(GL0006, TITLE));
 			rejectIfInvalidType(errors, collection.getCollectionType(), COLLECTION_TYPE, GL0007, generateErrorMessage(GL0007, COLLECTION_TYPE), Constants.COLLECTION_TYPES);
+			rejectIfInvalidType(errors, collection.getBuildType(), BUILD_TYPE, GL0007, generateErrorMessage(GL0007, BUILD_TYPE), Constants.BUILD_TYPE);
 		}
 		return errors;
 	}

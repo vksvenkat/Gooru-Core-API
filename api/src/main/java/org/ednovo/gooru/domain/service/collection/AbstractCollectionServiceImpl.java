@@ -8,9 +8,11 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.ednovo.gooru.application.util.SerializerUtil;
+import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.Content;
+import org.ednovo.gooru.core.api.model.ContentClassification;
 import org.ednovo.gooru.core.api.model.ContentMeta;
 import org.ednovo.gooru.core.api.model.ContentMetaAssociation;
 import org.ednovo.gooru.core.api.model.CustomTableValue;
@@ -20,6 +22,7 @@ import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.domain.service.BaseServiceImpl;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionDao;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.content.ContentClassificationRepository;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.customTable.CustomTableRepository;
 import org.ednovo.goorucore.application.serializer.JsonDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +36,9 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 
 	@Autowired
 	private CustomTableRepository customTableRepository;
+	
+	@Autowired
+	private ContentClassificationRepository contentClassificationRepository;
 
 	public Collection createCollection(Collection collection, User user) {
 		collection.setGooruOid(UUID.randomUUID().toString());
@@ -212,9 +218,36 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 		}
 		return metaValues;
 	}
+	
+	public List<Map<String, Object>> updateContentCode(Content content, List<Integer> codeIds, Short typeId) {
+		this.getContentClassificationRepository().deleteContentClassification(content.getContentId(), typeId);
+		List<Map<String, Object>> codes = null;
+		if (codeIds != null && codeIds.size() > 0) {
+			codes = new ArrayList<Map<String, Object>>();
+			List<Code> assocCodes = this.getContentClassificationRepository().getCodes(codeIds);
+			List<ContentClassification> contentClassifications = new ArrayList<ContentClassification>();
+			for (Code code : assocCodes) {
+				ContentClassification contentClassification = new ContentClassification();
+				contentClassification.setContent(content);
+				contentClassification.setCode(code);
+				contentClassification.setTypeId(typeId);
+				contentClassifications.add(contentClassification);
+				Map<String, Object> assocCode = new HashMap<String, Object>();
+				assocCode.put(ID, code.getCodeId());
+				assocCode.put(CODE, code.getCode());
+				codes.add(assocCode);
+			}
+			this.getContentRepository().saveAll(contentClassifications);
+		}
+		return codes;
+	}
 
 	public CollectionDao getCollectionDao() {
 		return collectionDao;
+	}
+	
+	public ContentClassificationRepository getContentClassificationRepository() {
+		return contentClassificationRepository;
 	}
 
 	public CustomTableRepository getCustomTableRepository() {

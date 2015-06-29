@@ -5,14 +5,19 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.ednovo.gooru.application.util.TaxonomyUtil;
 import org.ednovo.gooru.application.util.GooruImageUtil;
 import org.ednovo.gooru.core.api.model.ActionResponseDTO;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.api.model.UserClass;
 import org.ednovo.gooru.core.application.util.BaseUtil;
+import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
+import org.ednovo.gooru.domain.service.setting.SettingService;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.ClassRepository;
+import org.ednovo.gooru.infrastructure.persistence.hibernate.party.UserGroupRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -26,7 +31,11 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 	@Autowired
 	private ClassRepository classRepository;
 	
+	@Autowired
+	private SettingService settingService;
+
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ActionResponseDTO<UserClass> createClass(UserClass userClass, User user) {
 		Errors errors = validateClass(userClass);
 		if (!errors.hasErrors()) {
@@ -97,6 +106,18 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 		}
 		return results;
 	}
+	
+	@Override
+	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public List<Map<String, Object>> getMember(String classUid, int limit, int offset) {
+		final  List<Map<String, Object>>  members = this.getClassRepository().getMember(classUid, limit, offset);
+		final List<Map<String, Object>> userList = new ArrayList<Map<String, Object>>();
+		for ( Map<String, Object> user : members) {
+				user.put(PROFILE_IMG_URL, BaseUtil.changeHttpsProtocolByHeader(settingService.getConfigSetting(ConfigConstants.PROFILE_IMAGE_URL, TaxonomyUtil.GOORU_ORG_UID)) + "/" + String.valueOf( user.get(GOORU_UID)) + ".png");
+			userList.add(user);
+		}
+		return userList;
+	}
 
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -145,6 +166,7 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 		this.getClassRepository().deleteUserFromClass(classUid, userUid);
 	}
 
+	
 }
 		
 	

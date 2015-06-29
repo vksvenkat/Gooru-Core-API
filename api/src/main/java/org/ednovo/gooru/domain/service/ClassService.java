@@ -23,4 +23,6 @@ public interface ClassService {
 	
 	void deleteUserFromClass(String classUid, String userUid);
 	 
+	List<Map<String, Object>> getMember(String classUid, int limit, int offset);
+
 }

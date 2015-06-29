@@ -92,6 +92,10 @@ public class Collection extends Content implements Versionable {
 	private String mediaFilename;
 
 	private List<Integer> taxonomyCourseIds;
+	
+	private List<Integer> domainIds;
+	
+	private List<Integer> standardIds;
 
 	public String getIdeas() {
 		return ideas;
@@ -432,6 +436,22 @@ public class Collection extends Content implements Versionable {
 
 	public void setTaxonomyCourseIds(List<Integer> taxonomyCourseIds) {
 		this.taxonomyCourseIds = taxonomyCourseIds;
+	}
+
+	public List<Integer> getDomainIds() {
+		return domainIds;
+	}
+
+	public void setDomainIds(List<Integer> domainIds) {
+		this.domainIds = domainIds;
+	}
+
+	public List<Integer> getStandardIds() {
+		return standardIds;
+	}
+
+	public void setStandardIds(List<Integer> standardIds) {
+		this.standardIds = standardIds;
 	}
 
 }
