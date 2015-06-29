@@ -237,6 +237,10 @@ public class Constants implements ParameterProperties {
 	
 	public static final Short PUBLISH_PENDING_STATUS = 244;
 	
+	public static final Short BUILD_WEB_TYPE_ID = 78;
+	
+	public static final Short BUILD_IPAD_TYPE_ID = 77;
+	
 	static {
 		Map<String, String> reindexType = new HashMap<String, String>();
 		reindexType.put(RESOURCE, TOPIC_RESOURCE);

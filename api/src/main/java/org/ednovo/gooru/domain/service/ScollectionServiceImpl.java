@@ -1017,7 +1017,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 						resource.setMeta(resourcePermissions);
 					}
 					setView(resource);
-					resource.setSkills(getSkills(resource.getTaxonomySet()));
 					collectionItem.setResource(resource);
 					this.setCollectionItemMoreData(collectionItem, rootNodeId);
 				}
@@ -1820,7 +1819,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				this.getResourceRepository().save(collection);
 				response = createCollectionItem(resource, collection, start, stop, user);
 				response.getModel().setStandards(this.getStandards(resource.getTaxonomySet(), false, null));
-				response.getModel().getResource().setSkills(getSkills(resource.getTaxonomySet()));
 			} else {
 				throw new NotFoundException(generateErrorMessage("GL0013"), "GL0013");
 			}
@@ -1911,7 +1909,6 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				this.getResourceImageUtil().moveAttachment(newResource, resource);
 			}
 			this.getResourceRepository().saveOrUpdate(resource);
-			resource.setSkills(getSkills(resource.getTaxonomySet()));
 			collectionItem.setResource(resource);
 			this.getCollectionRepository().save(collectionItem);
 			collectionItem.setStandards(this.getStandards(resource.getTaxonomySet(), false, null));

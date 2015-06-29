@@ -96,6 +96,10 @@ public class Collection extends Content implements Versionable {
 	private List<Integer> domainIds;
 	
 	private List<Integer> standardIds;
+	
+	private List<Integer> skillIds;
+	
+	private List<Integer> depthOfKnowledgeIds;
 
 	public String getIdeas() {
 		return ideas;
@@ -452,6 +456,22 @@ public class Collection extends Content implements Versionable {
 
 	public void setStandardIds(List<Integer> standardIds) {
 		this.standardIds = standardIds;
+	}
+
+	public List<Integer> getSkillIds() {
+		return skillIds;
+	}
+
+	public void setSkillIds(List<Integer> skillIds) {
+		this.skillIds = skillIds;
+	}
+
+	public List<Integer> getDepthOfKnowledgeIds() {
+		return depthOfKnowledgeIds;
+	}
+
+	public void setDepthOfKnowledgeIds(List<Integer> depthOfKnowledgeIds) {
+		this.depthOfKnowledgeIds = depthOfKnowledgeIds;
 	}
 
 }

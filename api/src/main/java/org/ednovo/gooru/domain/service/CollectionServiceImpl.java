@@ -151,7 +151,6 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 			}
 
 			response.getModel().setStandards(this.getStandards(responseDTO.getModel().getTaxonomySet(), false, null));
-			response.getModel().getResource().setSkills(getSkills(responseDTO.getModel().getTaxonomySet()));
 			if (question.isQuestionNewGen()) {
 				mongoQuestionsService.createQuestion(question.getGooruOid(), data);
 
@@ -189,7 +188,6 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 					}
 					collectionItem.setQuestionInfo(assessmentQuestion);
 				
-					collectionItem.getContent().setSkills(getSkills(collectionItem.getContent().getTaxonomySet()));
 					collectionItem.setStandards(this.getStandards(assessmentQuestion.getTaxonomySet(), false, null));
 				}
 				// Update the question in mongo now that transaction is almost

@@ -52,6 +52,8 @@ public abstract class AbstractCollectionServiceImpl extends BaseServiceImpl impl
 		collection.setCreator(user);
 		collection.setLastUpdatedUserUid(user.getGooruUId());
 		collection.setContentType(this.getContentType(collection.getCollectionType()));
+		collection.setIsRepresentative(1);
+		collection.setClusterUid(collection.getGooruOid());
 		getCollectionDao().save(collection);
 		return collection;
 	}
