@@ -98,8 +98,25 @@ public class AssessmentQuestion extends Resource {
 
     private String quizNetwork;
 
+    /*
+     * These are the media files which are for answers only. They do not cater
+     * to assets for questions and they are not stored in my sql. Hence they
+     * are transient
+     * This transient value signifies the media files which are added in
+     * current operation
+     */
     @Transient
-	private String[] mediaFiles;
+	private List<String> mediaFiles;
+
+    /*
+     * These are the media files which are for answers only. They do not cater
+     * to assets for questions and they are not stored in my sql. Hence they
+     * are transient
+     * This transient value signifies the media files which are to be deleted
+     * in current operation
+     */
+    @Transient
+    private List<String> deletedMediaFiles;
 
 	public AssessmentQuestion() {
 	}
@@ -455,12 +472,20 @@ public class AssessmentQuestion extends Resource {
 		return true;
 	}
 
-    public String[] getMediaFiles() {
+    public List<String> getMediaFiles() {
         return mediaFiles;
     }
 
-    public void setMediaFiles(String[] mediaFiles) {
+    public void setMediaFiles(List<String> mediaFiles) {
         this.mediaFiles = mediaFiles;
+    }
+
+    public List<String> getDeletedMediaFiles() {
+        return deletedMediaFiles;
+    }
+
+    public void setDeletedMediaFiles(List<String> deletedMediaFiles) {
+        this.deletedMediaFiles = deletedMediaFiles;
     }
 
 
