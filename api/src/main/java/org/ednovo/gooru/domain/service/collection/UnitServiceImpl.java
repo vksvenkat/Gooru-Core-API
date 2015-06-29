@@ -59,6 +59,9 @@ public class UnitServiceImpl extends AbstractCollectionServiceImpl implements Un
 	public void updateUnit(String unitId, Collection newCollection, User user) {
 		Collection collection = this.getCollectionDao().getCollection(unitId);
 		rejectIfNull(collection, GL0056, UNIT);
+		if(newCollection.getPosition() != null){
+			this.resetSequence( collection.getGooruOid() , newCollection.getPosition());
+		}
 		this.updateCollection(collection, newCollection, user);
 		Map<String, Object> data = generateUnitMetaData(collection, newCollection, user);
 		if (data != null && data.size() > 0) {

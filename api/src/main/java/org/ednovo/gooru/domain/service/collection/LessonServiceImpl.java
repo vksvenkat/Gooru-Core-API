@@ -57,6 +57,9 @@ public class LessonServiceImpl extends AbstractCollectionServiceImpl implements 
 		Collection collection = this.getCollectionDao().getCollection(lessonId);
 		rejectIfNull(collection, GL0056, LESSON);
 		this.updateCollection(collection, newCollection, user);
+		if(newCollection.getPosition() != null){
+			this.resetSequence( collection.getGooruOid() , newCollection.getPosition());
+		}
 		Map<String, Object> data = generateLessonMetaData(collection, newCollection, user);
 		if (data != null && data.size() > 0) {
 			ContentMeta contentMeta = this.getContentRepository().getContentMeta(collection.getContentId());

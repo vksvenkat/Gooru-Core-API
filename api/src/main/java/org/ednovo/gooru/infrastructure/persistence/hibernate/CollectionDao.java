@@ -4,12 +4,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.ednovo.gooru.core.api.model.Collection;
+import org.ednovo.gooru.core.api.model.CollectionItem;
 
 public interface CollectionDao extends BaseRepository {
 	Collection getCollection(String collectionId);
 	
 	Collection getCollectionByType(String collectionId, String collectionType);
-	
+
 	Collection getCollection(String userUid, String collectionType);
 
 	Collection getCollectionByUser(String collectionId, String userUid);
@@ -21,4 +22,8 @@ public interface CollectionDao extends BaseRepository {
 	int getCollectionItemMaxSequence(Long contentId);
 	
 	int getCollectionItemCount(Long contentId, String collectionType);
+	
+	List<CollectionItem> getCollectionItems(int parameter1, int parameter2, String gooruOid);
+	
+	CollectionItem getCollectionItem(String gooruOid);
 }
