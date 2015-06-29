@@ -56,9 +56,9 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ActionResponseDTO<Collection> createCollection(User user, Collection collection) {
-		if (collection.getBuildType() != null) { 
-			collection.setBuildType(Constants.BUILD_WEB_TYPE_ID);
-        }
+		if (collection.getBuildTypeId() != null) {
+			collection.setBuildTypeId(Constants.BUILD_WEB_TYPE_ID);
+		}
 		final Errors errors = validateCollection(collection);
 		if (!errors.hasErrors()) {
 			Collection parentCollection = getCollectionDao().getCollection(user.getPartyUid(), CollectionType.SHElf.getCollectionType());
@@ -106,7 +106,7 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 
 		if (newCollection.getSharing() != null && (newCollection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing()))) {
 			if (!newCollection.getSharing().equalsIgnoreCase(PUBLIC)) {
-				collection.setPublishStatus(null);
+				collection.setPublishStatusId(null);
 			}
 			collection.setSharing(newCollection.getSharing());
 		}
@@ -147,7 +147,7 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 			collection.setSharing(Sharing.ANYONEWITHLINK.getSharing());
 		}
 		if (collection.getSharing() != null && !collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.ASSESSMENT_URL.getType()) && collection.getSharing().equalsIgnoreCase(PUBLIC)) {
-			collection.setPublishStatus(Constants.PUBLISH_PENDING_STATUS);
+			collection.setPublishStatusId(Constants.PUBLISH_PENDING_STATUS_ID);
 			collection.setSharing(Sharing.ANYONEWITHLINK.getSharing());
 		}
 		createCollectionSettings(collection);
@@ -265,8 +265,8 @@ public class CollectionBoServiceImpl extends AbstractCollectionServiceImpl imple
 		if (collection != null) {
 			rejectIfNullOrEmpty(errors, collection.getTitle(), TITLE, GL0006, generateErrorMessage(GL0006, TITLE));
 			rejectIfInvalidType(errors, collection.getCollectionType(), COLLECTION_TYPE, GL0007, generateErrorMessage(GL0007, COLLECTION_TYPE), Constants.COLLECTION_TYPES);
-			if (collection.getPublishStatus() != null) {
-				rejectIfInvalidType(errors, collection.getPublishStatus(), PUBLISH_STATUS, GL0007, generateErrorMessage(GL0007, PUBLISH_STATUS), Constants.PUBLISH_STATUS);
+			if (collection.getPublishStatusId() != null) {
+				rejectIfInvalidType(errors, collection.getPublishStatusId(), PUBLISH_STATUS, GL0007, generateErrorMessage(GL0007, PUBLISH_STATUS), Constants.PUBLISH_STATUS);
 			}
 		}
 		return errors;

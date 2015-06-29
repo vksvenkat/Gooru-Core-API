@@ -187,7 +187,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 						}
 					}
 					collectionItem.setQuestionInfo(assessmentQuestion);
-				
+
 					collectionItem.setStandards(this.getStandards(assessmentQuestion.getTaxonomySet(), false, null));
 				}
 				// Update the question in mongo now that transaction is almost
@@ -363,7 +363,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		}
 		List<Map<String, Object>> folderList = this.getCollectionRepository().getFolder(null, gooruUid, limit, offset, sharing, topLevelCollectionType != null ? topLevelCollectionType : collectionType, fetchChildItem, orderBy, excludeType);
 		int count = 0;
-		List<Map<String, Object>> folderItems =  new ArrayList<Map<String, Object>>();
+		List<Map<String, Object>> folderItems = new ArrayList<Map<String, Object>>();
 		if (folderList != null && folderList.size() > 0) {
 			for (Map<String, Object> collection : folderList) {
 				final String typeName = String.valueOf(collection.get(TYPE));
@@ -407,7 +407,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 
 	public List<Map<String, Object>> getCollectionItem(final String gooruOid, final String sharing, final String type, final String collectionType, Integer itemLimit, final boolean fetchChildItem, final String orderBy, final String excludeType) {
 		List<Map<String, Object>> collectionItems = this.getCollectionRepository().getCollectionItem(gooruOid, 4, 0, sharing, orderBy, collectionType, fetchChildItem, ASC, false, excludeType);
-		List<Map<String, Object>> folderItems =  new ArrayList<Map<String, Object>>();
+		List<Map<String, Object>> folderItems = new ArrayList<Map<String, Object>>();
 		if (collectionItems != null && collectionItems.size() > 0) {
 			for (Map<String, Object> collectionItem : collectionItems) {
 				final String typeName = String.valueOf(collectionItem.get(TYPE));
@@ -444,7 +444,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				summary.put(COUNT, count != null ? count : 0);
 				collectionItem.put(RATINGS, summary);
 				if (!fetchChildItem) {
-				// need to set meta data
+					// need to set meta data
 				}
 				Object attribution = collectionItem.get(ATTRIBUTION);
 				if (attribution != null) {
@@ -484,7 +484,6 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 			thumbnails.put(URL, url.toString());
 			folderItem.put(THUMBNAILS, thumbnails);
 		}
-		
 
 		if (fetchChildItem) {
 			if (typeName.equalsIgnoreCase(COLLECTION) || typeName.equalsIgnoreCase(ASSESSMENT) || typeName.equalsIgnoreCase(ASSESSMENT_URL)) {
@@ -513,7 +512,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		if (folderItems == null || folderItems.size() == 0) {
 			folderItems = this.getCollectionRepository().getCollectionItem(gooruOid, 4, 0, sharing, orderBy, collectionType, fetchChildItem, ASC, false, excludeType);
 		}
-		List<Map<String, Object>> folderList =  new ArrayList<Map<String, Object>>();
+		List<Map<String, Object>> folderList = new ArrayList<Map<String, Object>>();
 		if (folderItems != null) {
 			for (Map<String, Object> folderItem : folderItems) {
 				setFolderItem(folderItem, sharing, collectionType, itemLimit, fetchChildItem, orderBy, excludeType);
@@ -628,7 +627,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		if (direction != null) {
 			collectionItem.setNarration(direction);
 		}
-	
+
 		if (estimatedTime != null) {
 			collectionItem.setEstimatedTime(estimatedTime);
 		}
@@ -641,7 +640,7 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 		if (showHints != null) {
 			collectionItem.setShowHints(showHints);
 		}
-	
+
 		classPage.setItemCount(sequence);
 		this.getResourceRepository().save(classPage);
 		this.getResourceRepository().save(collectionItem);
@@ -681,8 +680,9 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 				for (final Collection scollection : collections) {
 					getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + scollection.getUser().getPartyUid() + "*");
 					// TO DO
-					if (scollection.getPublishStatus() != null ) {
-						//scollection.setPublishStatus(this.getCustomTableRepository().getCustomTableValue(_PUBLISH_STATUS, REVIEWED));
+					if (scollection.getPublishStatusId() != null) {
+						// scollection.setPublishStatus(this.getCustomTableRepository().getCustomTableValue(_PUBLISH_STATUS,
+						// REVIEWED));
 						collectionIds.append(scollection.getGooruOid());
 						if (!scollection.getSharing().equalsIgnoreCase(PUBLIC)) {
 							final UserSummary userSummary = this.getUserRepository().getSummaryByUid(scollection.getUser().getPartyUid());
@@ -737,8 +737,8 @@ public class CollectionServiceImpl extends ScollectionServiceImpl implements Col
 			if (userService.isSuperAdmin(user) || userService.isContentAdmin(user)) {
 				for (final Collection scollection : collections) {
 					// TO DO
-					if (scollection.getPublishStatus() != null) {
-						scollection.setPublishStatus(null);
+					if (scollection.getPublishStatusId() != null) {
+						scollection.setPublishStatusId(null);
 						if (scollection.getSharing().equalsIgnoreCase(PUBLIC)) {
 							UserSummary userSummary = this.getUserRepository().getSummaryByUid(scollection.getUser().getPartyUid());
 							if (userSummary.getGooruUid() != null) {

@@ -39,9 +39,9 @@ public class Collection extends Content implements Versionable {
 
 	private CollectionItem collectionItem;
 
-	private Short buildType;
+	private Short buildTypeId;
 
-	private Short publishStatus;
+	private Short publishStatusId;
 
 	private Boolean mailNotification;
 
@@ -397,23 +397,7 @@ public class Collection extends Content implements Versionable {
 	public void setUri(String uri) {
 		this.uri = uri;
 	}
-
-	public Short getBuildType() {
-		return buildType;
-	}
-
-	public void setBuildType(Short buildType) {
-		this.buildType = buildType;
-	}
-
-	public Short getPublishStatus() {
-		return publishStatus;
-	}
-
-	public void setPublishStatus(Short publishStatus) {
-		this.publishStatus = publishStatus;
-	}
-
+	
 	public String getType() {
 		return getCollectionType();
 	}
@@ -472,6 +456,22 @@ public class Collection extends Content implements Versionable {
 
 	public void setDepthOfKnowledgeIds(List<Integer> depthOfKnowledgeIds) {
 		this.depthOfKnowledgeIds = depthOfKnowledgeIds;
+	}
+
+	public Short getBuildTypeId() {
+		return buildTypeId;
+	}
+
+	public void setBuildTypeId(Short buildTypeId) {
+		this.buildTypeId = buildTypeId;
+	}
+
+	public Short getPublishStatusId() {
+		return publishStatusId;
+	}
+
+	public void setPublishStatusId(Short publishStatusId) {
+		this.publishStatusId = publishStatusId;
 	}
 
 }

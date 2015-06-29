@@ -222,7 +222,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 				parentCollection = collectionRepository.getCollectionByGooruOid(parentId, collection.getUser().getGooruUId());
 			}
 			if (collection.getSharing() != null && !collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.ASSESSMENT_URL.getType()) && collection.getSharing().equalsIgnoreCase(PUBLIC)) {
-				collection.setPublishStatus(Constants.PUBLISH_PENDING_STATUS);
+				collection.setPublishStatusId(Constants.PUBLISH_PENDING_STATUS_ID);
 				collection.setSharing(Sharing.ANYONEWITHLINK.getSharing());
 			}
 			this.getCollectionRepository().save(collection);
@@ -412,7 +412,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			if (newCollection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing())) {
 
 				if (!newCollection.getSharing().equalsIgnoreCase(PUBLIC)) {
-					collection.setPublishStatus(null);
+					collection.setPublishStatusId(null);
 				}
 				/*
 				 * if
@@ -1026,6 +1026,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		}
 		return collection;
 	}
+	
 
 	private void setView(Content content) {
 		try {
@@ -1450,7 +1451,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 		if (collection != null) {
 			rejectIfNullOrEmpty(errors, collection.getTitle(), TITLE, GL0006, generateErrorMessage(GL0006, TITLE));
 			rejectIfInvalidType(errors, collection.getCollectionType(), COLLECTION_TYPE, GL0007, generateErrorMessage(GL0007, COLLECTION_TYPE), Constants.COLLECTION_TYPES);
-			rejectIfInvalidType(errors, collection.getBuildType(), BUILD_TYPE, GL0007, generateErrorMessage(GL0007, BUILD_TYPE), Constants.BUILD_TYPE);
+			rejectIfInvalidType(errors, collection.getBuildTypeId(), BUILD_TYPE, GL0007, generateErrorMessage(GL0007, BUILD_TYPE), Constants.BUILD_TYPE);
 		}
 		return errors;
 	}
@@ -1613,7 +1614,7 @@ public class ScollectionServiceImpl extends BaseServiceImpl implements Scollecti
 			if (newCollection.getSharing() != null && (newCollection.getSharing().equalsIgnoreCase(Sharing.PRIVATE.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.PUBLIC.getSharing()) || newCollection.getSharing().equalsIgnoreCase(Sharing.ANYONEWITHLINK.getSharing()))) {
 
 				if (!newCollection.getSharing().equalsIgnoreCase(PUBLIC)) {
-					collection.setPublishStatus(null);
+					collection.setPublishStatusId(null);
 				}
 				if (!collection.getCollectionType().equalsIgnoreCase(ResourceType.Type.ASSESSMENT_URL.getType()) && newCollection.getSharing().equalsIgnoreCase(PUBLIC) && !userService.isContentAdmin(updateUser)) {
 					// collection.setPublishStatus(this.getCustomTableRepository().getCustomTableValue(_PUBLISH_STATUS,
