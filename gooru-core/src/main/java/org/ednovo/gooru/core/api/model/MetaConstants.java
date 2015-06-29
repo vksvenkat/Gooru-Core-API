@@ -12,6 +12,7 @@ public class MetaConstants {
 	public static final String COLLECTION_COUNT = "collectionCount";
 	public static final String QUESTION_COUNT = "questionCount";
 	public static final String RESOURCE_COUNT = "resourceCount";
+	public static final Short CONTENT_CLASSIFICATION_STANDARD_TYPE_ID = 1;
 
 	static {
 		Map<String, Object> courseSummary = new HashMap<String, Object>();
@@ -45,5 +46,14 @@ public class MetaConstants {
 		collectionSummary.put(QUESTION_COUNT, 0);
 		collectionSummary.put(RESOURCE_COUNT, 0);
 		COLLECTION_SUMMARY = Collections.unmodifiableMap(collectionSummary);
+	}
+
+	public static final Map<Short, Object> CONTENT_CLASSIFICATION_TYPE;
+	static {
+		Map<Short, Object> contentClassificationType = new HashMap<Short, Object>();
+		contentClassificationType.put((short) 1, "standard");
+		contentClassificationType.put((short) 2, "21st century skills");
+		contentClassificationType.put((short) 3, "Learning targets");
+		CONTENT_CLASSIFICATION_TYPE = Collections.unmodifiableMap(contentClassificationType);
 	}
 }
