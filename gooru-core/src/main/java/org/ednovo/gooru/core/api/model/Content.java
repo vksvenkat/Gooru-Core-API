@@ -82,8 +82,6 @@ public class Content extends OrganizationModel implements IndexableEntry, IsCass
 
 	private Set<ContentSettings> contentSettings;
 
-	private Set<Map<String, Object>> skills;
-
 	private Long views = 0L;
 
 	private Long viewCount;
@@ -302,14 +300,6 @@ public class Content extends OrganizationModel implements IndexableEntry, IsCass
 
 	public void setContentSettings(Set<ContentSettings> contentSettings) {
 		this.contentSettings = contentSettings;
-	}
-
-	public Set<Map<String, Object>> getSkills() {
-		return skills;
-	}
-
-	public void setSkills(Set<Map<String, Object>> skills) {
-		this.skills = skills;
 	}
 
 	public Long getViews() {

@@ -7,7 +7,9 @@ import org.ednovo.gooru.core.api.model.Collection;
 
 public interface CollectionDao extends BaseRepository {
 	Collection getCollection(String collectionId);
-
+	
+	Collection getCollectionByType(String collectionId, String collectionType);
+	
 	Collection getCollection(String userUid, String collectionType);
 
 	Collection getCollectionByUser(String collectionId, String userUid);
