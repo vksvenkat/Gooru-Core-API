@@ -23,7 +23,7 @@ public interface CollectionDao extends BaseRepository {
 	
 	int getCollectionItemCount(Long contentId, String collectionType);
 	
-	List<CollectionItem> getCollectionItems(int parameter1, int parameter2, String gooruOid);
+	List<CollectionItem> getCollectionItems(String gooruOid, int parameterOne, int parameterTwo);
 	
-	CollectionItem getCollectionItem(String gooruOid);
+	CollectionItem getCollectionItem(String parentGooruOid, String gooruOid);
 }

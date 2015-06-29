@@ -15,6 +15,10 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class CollectionDaoHibernate extends BaseRepositoryHibernate implements CollectionDao, ConstantProperties, ParameterProperties {
 
+	private static final String PARAMETER_ONE ="parameterOne";
+	
+	private static final String PARAMETER_TWO = "parameterTwo";
+	
 	private static final String GET_COLLECTION = "FROM Collection where gooruOid=:collectionId";
 	
 	private static final String COLLECTION_BY_TYPE = "FROM Collection where gooruOid=:collectionId and collectionType=:collectionType";
@@ -31,9 +35,9 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 
 	private static final String GET_COLLECTION_ITEM_COUNT = "select count(1) as count from collection_item ci inner join collection  c  on c.content_id = ci.collection_content_id inner join collection co on ci.resource_content_id  = co.content_id   where c.content_id =:collectionId and co.collection_type =:collectionType";
 	
-	private static final String GET_COLLECTION_SEQUENCE ="FROM CollectionItem ci where ci.collection.gooruOid=:gooruOid and ci.itemSequence between :parameter1 and :parameter2 order by ci.itemSequence";
+	private static final String GET_COLLECTION_SEQUENCE ="FROM CollectionItem ci where ci.collection.gooruOid=:gooruOid and ci.itemSequence between :parameterOne and :parameterTwo order by ci.itemSequence";
 	
-	private static final String GET_COLLECTIONITEM_BY_GOORUOID = "FROM CollectionItem where content.gooruOid=:gooruOid";
+	private static final String GET_COLLECTIONITEM_BY_GOORUOID = "FROM CollectionItem where content.gooruOid=:gooruOid and collection.gooruOid=:parentGooruOid";
 
 	@Override
 	public Collection getCollection(String collectionId) {
@@ -152,17 +156,19 @@ public class CollectionDaoHibernate extends BaseRepositoryHibernate implements C
 	}
 
 	@Override
-	public List<CollectionItem> getCollectionItems(int parameter1, int parameter2, String gooruOid) {
+	public List<CollectionItem> getCollectionItems(String gooruOid, int parameterOne, int parameterTwo) {
 		Query query = getSession().createQuery(GET_COLLECTION_SEQUENCE);
-		query.setParameter("parameter1", parameter1);
-		query.setParameter("parameter2", parameter2);
+		query.setParameter(PARAMETER_ONE, parameterOne);
+		query.setParameter(PARAMETER_TWO, parameterTwo);
 		query.setParameter(GOORU_OID, gooruOid);
 		return list(query);
 	}
 
 	@Override
-	public CollectionItem getCollectionItem(String gooruOid) {
-		Query query = getSession().createQuery(GET_COLLECTIONITEM_BY_GOORUOID).setParameter(GOORU_OID,gooruOid);
+	public CollectionItem getCollectionItem(String parentGooruOid, String gooruOid) {
+		Query query = getSession().createQuery(GET_COLLECTIONITEM_BY_GOORUOID);
+		query.setParameter(GOORU_OID, gooruOid);
+		query.setParameter("parentGooruOid", parentGooruOid);
 		return (CollectionItem) query.list().get(0);
 	}
 
